@@ -1,332 +1,161 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH 1/3] lib: fix callers of strtobool to use char array
-Date: Thu, 4 Feb 2016 10:56:02 -0800
-Message-ID: <CAGXu5j+3vQ+3ZCggaMKn3KgLjA9jGmueCc5DmLoGEm2ZacaZvA@mail.gmail.com>
-References: <1453990627-19164-1-git-send-email-keescook@chromium.org>
-	<1453990627-19164-2-git-send-email-keescook@chromium.org>
-	<CAHp75VdDfOx-foW3ju_51R0qcHzrB9Oj2G3kpiW80qBx+AwQ1g@mail.gmail.com>
+From: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH v5 04/10] vring: Introduce vring_use_dma_api()
+Date: Mon, 01 Feb 2016 16:11:31 +0000
+Message-ID: <1454343091.4788.0.camel@infradead.org>
+References: <cover.1454034075.git.luto@kernel.org>
+	 <cab70812b0a46a5a5b36e6de4110c5c66a6f6916.1454034075.git.luto@kernel.org>
+	 <1454325723.133285.285.camel@infradead.org>
+	 <20160201133556-mutt-send-email-mst@redhat.com>
+	 <CALCETrWsNgfQX-M6qmpjYLZYd1c_6t8a=8GbBYufCQ+oHgjRdw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg="sha-1"; protocol="application/x-pkcs7-signature";
+	boundary="=-GLlXc2CFQ6OlAfw9L6e0"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VdDfOx-foW3ju_51R0qcHzrB9Oj2G3kpiW80qBx+AwQ1g@mail.gmail.com>
+In-Reply-To: <CALCETrWsNgfQX-M6qmpjYLZYd1c_6t8a=8GbBYufCQ+oHgjRdw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-cifs/>
-List-Post: <mailto:linux-cifs@vger.kernel.org>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Amitkumar Karwar <akarwar@marvell.com>, Nishant Sarmukadam <nishants@marvell.com>, Kalle Valo <kvalo@codeaurora.org>, Steve French <sfrench@samba.org>, linux-cifs@vger.kernel.org, Joe Perches <joe@perches.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Daniel Borkmann <daniel@iogearbox.net>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "open list:TI WILINK WIRELES..." <linux-wireless@vger.kernel.org>, netdev <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Andy Lutomirski <luto@amacapital.net>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Feb 1, 2016 at 5:17 AM, Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
-> On Thu, Jan 28, 2016 at 4:17 PM, Kees Cook <keescook@chromium.org> wrote:
->> Some callers of strtobool were passing a pointer to unterminated strings.
->> This fixes the issue and consolidates some logic in cifs.
->
-> My comments below.
->
-> First of all I don't think currently there is an issue in cifs, since
-> strbool checks only first character of the input string, or are you
-> talking about something else?
 
-Right, no, this is a fix before extending strtobool to parse the
-second character in the string (for handling "on" and "off").
+--=-GLlXc2CFQ6OlAfw9L6e0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
->> diff --git a/drivers/net/wireless/marvell/mwifiex/debugfs.c b/drivers/net/wireless/marvell/mwifiex/debugfs.c
->> index 0b9c580af988..76af60899c69 100644
->> --- a/drivers/net/wireless/marvell/mwifiex/debugfs.c
->> +++ b/drivers/net/wireless/marvell/mwifiex/debugfs.c
->> @@ -880,13 +880,13 @@ mwifiex_reset_write(struct file *file,
->>  {
->>         struct mwifiex_private *priv = file->private_data;
->>         struct mwifiex_adapter *adapter = priv->adapter;
->> -       char cmd;
->> +       char cmd[2] = { '\0' };
->>         bool result;
->>
->> -       if (copy_from_user(&cmd, ubuf, sizeof(cmd)))
->> +       if (copy_from_user(cmd, ubuf, sizeof(char)))
->>                 return -EFAULT;
->>
->> -       if (strtobool(&cmd, &result))
->> +       if (strtobool(cmd, &result))
->>                 return -EINVAL;
->
-> Can we do strtobool_from_user() instead like kstrto*from_user() and
-> similar helpers are done?
+On Mon, 2016-02-01 at 07:39 -0800, Andy Lutomirski wrote:
+>=20
+> >> Could we have an arch_vring_eschew_dma_api(dev) function which the
+> >> affected architectures could provide (as a prelude to fixing it so tha=
+t
+> >> the DMA API does the right thing for *itself*)?
+> >
+> > I'm fine with this.
+>=20
+> I modified vring_use_dma_api to take a vring_virtqueue* parameter to
+> make this easier.
+>=20
+> I'm a bit torn here.=C2=A0 I want to get the mechanism and the Xen part i=
+n,
+> and there's unlikely to be much debate on those as a matter of
+> principle.=C2=A0 I'd also like to flip as many arches over as possible, b=
+ut
+> that could be trickier.=C2=A0 Let me mull over this.
 
-Yeah, that might clean this up a bit more. I will add it.
+Let's queue the arch_vring_eschew_dma_api() thing up after this first
+batch, and not hold it up any further.
 
->>         if (!result)
->> diff --git a/fs/cifs/cifs_debug.c b/fs/cifs/cifs_debug.c
->> index 50b268483302..2f7ffcc9e364 100644
->> --- a/fs/cifs/cifs_debug.c
->> +++ b/fs/cifs/cifs_debug.c
->> @@ -251,11 +251,29 @@ static const struct file_operations cifs_debug_data_proc_fops = {
->>         .release        = single_release,
->>  };
->>
->> +static int get_user_bool(const char __user *buffer, bool *store)
->> +{
->> +       char c[2] = { '\0' };
->> +       bool bv;
->> +       int rc;
->> +
->> +       rc = get_user(c[0], buffer);
->> +       if (rc)
->> +               return rc;
->> +
->> +       rc = strtobool(c, &bv);
->> +       if (rc)
->> +               return rc;
->> +
->> +       *store = bv;
->> +
->> +       return 0;
->> +}
->> +
->>  #ifdef CONFIG_CIFS_STATS
->>  static ssize_t cifs_stats_proc_write(struct file *file,
->>                 const char __user *buffer, size_t count, loff_t *ppos)
->>  {
->> -       char c;
->>         bool bv;
->>         int rc;
->>         struct list_head *tmp1, *tmp2, *tmp3;
->> @@ -263,34 +281,32 @@ static ssize_t cifs_stats_proc_write(struct file *file,
->>         struct cifs_ses *ses;
->>         struct cifs_tcon *tcon;
->>
->> -       rc = get_user(c, buffer);
->> +       rc = get_user_bool(buffer, &bv);
->>         if (rc)
->>                 return rc;
->>
->> -       if (strtobool(&c, &bv) == 0) {
->>  #ifdef CONFIG_CIFS_STATS2
->
-> I would suggest to do a separate patch which just changes a pattern
-> and thus indentation without changing anything in functionality.
+--=20
+David Woodhouse                            Open Source Technology Centre
+David.Woodhouse@intel.com                              Intel Corporation
 
-Okay, noted.
 
->> -               atomic_set(&totBufAllocCount, 0);
->> -               atomic_set(&totSmBufAllocCount, 0);
->> +       atomic_set(&totBufAllocCount, 0);
->> +       atomic_set(&totSmBufAllocCount, 0);
->>  #endif /* CONFIG_CIFS_STATS2 */
->> -               spin_lock(&cifs_tcp_ses_lock);
->> -               list_for_each(tmp1, &cifs_tcp_ses_list) {
->> -                       server = list_entry(tmp1, struct TCP_Server_Info,
->> -                                           tcp_ses_list);
->> -                       list_for_each(tmp2, &server->smb_ses_list) {
->> -                               ses = list_entry(tmp2, struct cifs_ses,
->> -                                                smb_ses_list);
->> -                               list_for_each(tmp3, &ses->tcon_list) {
->> -                                       tcon = list_entry(tmp3,
->> -                                                         struct cifs_tcon,
->> -                                                         tcon_list);
->> -                                       atomic_set(&tcon->num_smbs_sent, 0);
->> -                                       if (server->ops->clear_stats)
->> -                                               server->ops->clear_stats(tcon);
->> -                               }
->> +       spin_lock(&cifs_tcp_ses_lock);
->> +       list_for_each(tmp1, &cifs_tcp_ses_list) {
->> +               server = list_entry(tmp1, struct TCP_Server_Info,
->> +                                   tcp_ses_list);
->> +               list_for_each(tmp2, &server->smb_ses_list) {
->> +                       ses = list_entry(tmp2, struct cifs_ses,
->> +                                        smb_ses_list);
->> +                       list_for_each(tmp3, &ses->tcon_list) {
->> +                               tcon = list_entry(tmp3,
->> +                                                 struct cifs_tcon,
->> +                                                 tcon_list);
->> +                               atomic_set(&tcon->num_smbs_sent, 0);
->> +                               if (server->ops->clear_stats)
->> +                                       server->ops->clear_stats(tcon);
->>                         }
->>                 }
->> -               spin_unlock(&cifs_tcp_ses_lock);
->>         }
->> +       spin_unlock(&cifs_tcp_ses_lock);
->>
->>         return count;
->>  }
->> @@ -433,17 +449,17 @@ static int cifsFYI_proc_open(struct inode *inode, struct file *file)
->>  static ssize_t cifsFYI_proc_write(struct file *file, const char __user *buffer,
->>                 size_t count, loff_t *ppos)
->>  {
->> -       char c;
->> +       char c[2] = { '\0' };
->>         bool bv;
->>         int rc;
->>
->> -       rc = get_user(c, buffer);
->> +       rc = get_user(c[0], buffer);
->>         if (rc)
->>                 return rc;
->> -       if (strtobool(&c, &bv) == 0)
->> +       if (strtobool(c, &bv) == 0)
->>                 cifsFYI = bv;
->> -       else if ((c > '1') && (c <= '9'))
->> -               cifsFYI = (int) (c - '0'); /* see cifs_debug.h for meanings */
->> +       else if ((c[0] > '1') && (c[0] <= '9'))
->> +               cifsFYI = (int) (c[0] - '0'); /* see cifs_debug.h for meanings */
->>
->>         return count;
->>  }
->> @@ -471,20 +487,12 @@ static int cifs_linux_ext_proc_open(struct inode *inode, struct file *file)
->>  static ssize_t cifs_linux_ext_proc_write(struct file *file,
->>                 const char __user *buffer, size_t count, loff_t *ppos)
->>  {
->> -       char c;
->> -       bool bv;
->>         int rc;
->>
->> -       rc = get_user(c, buffer);
->> +       rc = get_user_bool(buffer, &linuxExtEnabled);
->>         if (rc)
->>                 return rc;
->>
->> -       rc = strtobool(&c, &bv);
->> -       if (rc)
->> -               return rc;
->> -
->> -       linuxExtEnabled = bv;
->> -
->>         return count;
->>  }
->>
->> @@ -511,20 +519,12 @@ static int cifs_lookup_cache_proc_open(struct inode *inode, struct file *file)
->>  static ssize_t cifs_lookup_cache_proc_write(struct file *file,
->>                 const char __user *buffer, size_t count, loff_t *ppos)
->>  {
->> -       char c;
->> -       bool bv;
->>         int rc;
->>
->> -       rc = get_user(c, buffer);
->> +       rc = get_user_bool(buffer, &lookupCacheEnabled);
->>         if (rc)
->>                 return rc;
->>
->> -       rc = strtobool(&c, &bv);
->> -       if (rc)
->> -               return rc;
->> -
->> -       lookupCacheEnabled = bv;
->> -
->>         return count;
->>  }
->>
->> @@ -551,20 +551,12 @@ static int traceSMB_proc_open(struct inode *inode, struct file *file)
->>  static ssize_t traceSMB_proc_write(struct file *file, const char __user *buffer,
->>                 size_t count, loff_t *ppos)
->>  {
->> -       char c;
->> -       bool bv;
->>         int rc;
->>
->> -       rc = get_user(c, buffer);
->> +       rc = get_user_bool(buffer, &traceSMB);
->>         if (rc)
->>                 return rc;
->>
->> -       rc = strtobool(&c, &bv);
->> -       if (rc)
->> -               return rc;
->> -
->> -       traceSMB = bv;
->> -
->>         return count;
->>  }
->>
->> @@ -622,7 +614,7 @@ static ssize_t cifs_security_flags_proc_write(struct file *file,
->>         int rc;
->>         unsigned int flags;
->>         char flags_string[12];
->> -       char c;
->> +       char c[2] = { '\0' };
->>         bool bv;
->>
->>         if ((count < 1) || (count > 11))
->> @@ -635,11 +627,11 @@ static ssize_t cifs_security_flags_proc_write(struct file *file,
->>
->>         if (count < 3) {
->>                 /* single char or single char followed by null */
->> -               c = flags_string[0];
->> -               if (strtobool(&c, &bv) == 0) {
->> +               c[0] = flags_string[0];
->> +               if (strtobool(c, &bv) == 0) {
->>                         global_secflags = bv ? CIFSSEC_MAX : CIFSSEC_DEF;
->>                         return count;
->> -               } else if (!isdigit(c)) {
->> +               } else if (!isdigit(c[0])) {
->>                         cifs_dbg(VFS, "Invalid SecurityFlags: %s\n",
->>                                         flags_string);
->>                         return -EINVAL;
->> diff --git a/fs/cifs/cifs_debug.h b/fs/cifs/cifs_debug.h
->> index 66cf0f9fff89..c611ca2339d7 100644
->> --- a/fs/cifs/cifs_debug.h
->> +++ b/fs/cifs/cifs_debug.h
->> @@ -25,7 +25,7 @@
->>  void cifs_dump_mem(char *label, void *data, int length);
->>  void cifs_dump_detail(void *);
->>  void cifs_dump_mids(struct TCP_Server_Info *);
->> -extern int traceSMB;           /* flag which enables the function below */
->> +extern bool traceSMB;          /* flag which enables the function below */
->>  void dump_smb(void *, int);
->>  #define CIFS_INFO      0x01
->>  #define CIFS_RC                0x02
->> diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
->> index c48ca13673e3..931b446f2a44 100644
->> --- a/fs/cifs/cifsfs.c
->> +++ b/fs/cifs/cifsfs.c
->> @@ -54,10 +54,10 @@
->>  #endif
->>
->>  int cifsFYI = 0;
->> -int traceSMB = 0;
->> +bool traceSMB;
->>  bool enable_oplocks = true;
->> -unsigned int linuxExtEnabled = 1;
->> -unsigned int lookupCacheEnabled = 1;
->> +bool linuxExtEnabled = true;
->> +bool lookupCacheEnabled = true;
->>  unsigned int global_secflags = CIFSSEC_DEF;
->>  /* unsigned int ntlmv2_support = 0; */
->>  unsigned int sign_CIFS_PDUs = 1;
->> diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
->> index a25b2513f146..d21da9f05bae 100644
->> --- a/fs/cifs/cifsglob.h
->> +++ b/fs/cifs/cifsglob.h
->> @@ -1596,11 +1596,11 @@ GLOBAL_EXTERN atomic_t midCount;
->>
->>  /* Misc globals */
->>  GLOBAL_EXTERN bool enable_oplocks; /* enable or disable oplocks */
->> -GLOBAL_EXTERN unsigned int lookupCacheEnabled;
->> +GLOBAL_EXTERN bool lookupCacheEnabled;
->>  GLOBAL_EXTERN unsigned int global_secflags;    /* if on, session setup sent
->>                                 with more secure ntlmssp2 challenge/resp */
->>  GLOBAL_EXTERN unsigned int sign_CIFS_PDUs;  /* enable smb packet signing */
->> -GLOBAL_EXTERN unsigned int linuxExtEnabled;/*enable Linux/Unix CIFS extensions*/
->> +GLOBAL_EXTERN bool linuxExtEnabled;/*enable Linux/Unix CIFS extensions*/
->>  GLOBAL_EXTERN unsigned int CIFSMaxBufSize;  /* max size not including hdr */
->>  GLOBAL_EXTERN unsigned int cifs_min_rcv;    /* min size of big ntwrk buf pool */
->>  GLOBAL_EXTERN unsigned int cifs_min_small;  /* min size of small buf pool */
->> --
->> 2.6.3
->>
->
->
->
-> --
-> With Best Regards,
-> Andy Shevchenko
+--=-GLlXc2CFQ6OlAfw9L6e0
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
 
-Thanks for the review!
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIISjjCCBicw
+ggUPoAMCAQICAw3vNzANBgkqhkiG9w0BAQUFADCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
+YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
+ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
+MB4XDTE1MDUwNTA5NDM0MVoXDTE2MDUwNTA5NTMzNlowQjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFk
+ZWFkLm9yZzEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAMkbm9kPbx1j/X4RVyf/pPKSYwelcco69TvnQQbKM8m8xkWjXJI1
+jpJ1jMaGUZGFToINMSZi7lZawUozudWbXSKy1SikENSTJHffsdRAIlsp+hR8vWvjsKUry6sEdqPG
+doa5RY7+N4WRusWZDYW/RRWE6i9EL9qV86CVPYqw22UBOUw4/j/HVGCV6TSB8yE5iEwhk/hUuzRr
+FZm1MJMR7mCS7BCR8Lr5jFY61lWpBiXNXIxLZCvDc26KR5L5tYX43iUVO3fzES1GRVoYnxxk2tmz
+fcsZG5vK+Trc9L8OZJfkYrEHH3+Iw41MQ0w/djVtYr1+HYldx0QmYXAtnhIj+UMCAwEAAaOCAtkw
+ggLVMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcD
+BDAdBgNVHQ4EFgQUszC96C3w5/2+d+atSr0IpT26YI4wHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+
+ljVO8tS4UYIwHgYDVR0RBBcwFYETZHdtdzJAaW5mcmFkZWFkLm9yZzCCAUwGA1UdIASCAUMwggE/
+MIIBOwYLKwYBBAGBtTcBAgMwggEqMC4GCCsGAQUFBwIBFiJodHRwOi8vd3d3LnN0YXJ0c3NsLmNv
+bS9wb2xpY3kucGRmMIH3BggrBgEFBQcCAjCB6jAnFiBTdGFydENvbSBDZXJ0aWZpY2F0aW9uIEF1
+dGhvcml0eTADAgEBGoG+VGhpcyBjZXJ0aWZpY2F0ZSB3YXMgaXNzdWVkIGFjY29yZGluZyB0byB0
+aGUgQ2xhc3MgMSBWYWxpZGF0aW9uIHJlcXVpcmVtZW50cyBvZiB0aGUgU3RhcnRDb20gQ0EgcG9s
+aWN5LCByZWxpYW5jZSBvbmx5IGZvciB0aGUgaW50ZW5kZWQgcHVycG9zZSBpbiBjb21wbGlhbmNl
+IG9mIHRoZSByZWx5aW5nIHBhcnR5IG9ibGlnYXRpb25zLjA2BgNVHR8ELzAtMCugKaAnhiVodHRw
+Oi8vY3JsLnN0YXJ0c3NsLmNvbS9jcnR1MS1jcmwuY3JsMIGOBggrBgEFBQcBAQSBgTB/MDkGCCsG
+AQUFBzABhi1odHRwOi8vb2NzcC5zdGFydHNzbC5jb20vc3ViL2NsYXNzMS9jbGllbnQvY2EwQgYI
+KwYBBQUHMAKGNmh0dHA6Ly9haWEuc3RhcnRzc2wuY29tL2NlcnRzL3N1Yi5jbGFzczEuY2xpZW50
+LmNhLmNydDAjBgNVHRIEHDAahhhodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS8wDQYJKoZIhvcNAQEF
+BQADggEBAHMQmxHHodpS85X8HRyxhvfkys7r+taCNOaNU9cxQu/cZ/6k5nS2qGNMzZ6jb7ueY/V7
+7p+4DW/9ZWODDTf4Fz00mh5SSVc20Bz7t+hhxwHd62PZgENh5i76Qq2tw48U8AsYo5damHby1epf
+neZafLpUkLLO7AGBJIiRVTevdvyXQ0qnixOmKMWyvrhSNGuVIKVdeqLP+102Dwf+dpFyw+j1hz28
+jEEKpHa+NR1b2kXuSPi/rMGhexwlJOh4tK8KQ6Ryr0rIN//NSbOgbyYZrzc/ZUWX9V5OA84ChFb2
+vkFl0OcYrttp/rhDBLITwffPxSZeoBh9H7zYzkbCXKL3BUIwggYnMIIFD6ADAgECAgMN7zcwDQYJ
+KoZIhvcNAQEFBQAwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYD
+VQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENv
+bSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTAeFw0xNTA1MDUwOTQzNDFa
+Fw0xNjA1MDUwOTUzMzZaMEIxHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcxIjAgBgkqhkiG
+9w0BCQEWE2R3bXcyQGluZnJhZGVhZC5vcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+AQDJG5vZD28dY/1+EVcn/6TykmMHpXHKOvU750EGyjPJvMZFo1ySNY6SdYzGhlGRhU6CDTEmYu5W
+WsFKM7nVm10istUopBDUkyR337HUQCJbKfoUfL1r47ClK8urBHajxnaGuUWO/jeFkbrFmQ2Fv0UV
+hOovRC/alfOglT2KsNtlATlMOP4/x1Rglek0gfMhOYhMIZP4VLs0axWZtTCTEe5gkuwQkfC6+YxW
+OtZVqQYlzVyMS2Qrw3NuikeS+bWF+N4lFTt38xEtRkVaGJ8cZNrZs33LGRubyvk63PS/DmSX5GKx
+Bx9/iMONTENMP3Y1bWK9fh2JXcdEJmFwLZ4SI/lDAgMBAAGjggLZMIIC1TAJBgNVHRMEAjAAMAsG
+A1UdDwQEAwIEsDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwHQYDVR0OBBYEFLMwvegt
+8Of9vnfmrUq9CKU9umCOMB8GA1UdIwQYMBaAFFNy7ZKc4NrLAVx8fpY1TvLUuFGCMB4GA1UdEQQX
+MBWBE2R3bXcyQGluZnJhZGVhZC5vcmcwggFMBgNVHSAEggFDMIIBPzCCATsGCysGAQQBgbU3AQID
+MIIBKjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5zdGFydHNzbC5jb20vcG9saWN5LnBkZjCB9wYI
+KwYBBQUHAgIwgeowJxYgU3RhcnRDb20gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwAwIBARqBvlRo
+aXMgY2VydGlmaWNhdGUgd2FzIGlzc3VlZCBhY2NvcmRpbmcgdG8gdGhlIENsYXNzIDEgVmFsaWRh
+dGlvbiByZXF1aXJlbWVudHMgb2YgdGhlIFN0YXJ0Q29tIENBIHBvbGljeSwgcmVsaWFuY2Ugb25s
+eSBmb3IgdGhlIGludGVuZGVkIHB1cnBvc2UgaW4gY29tcGxpYW5jZSBvZiB0aGUgcmVseWluZyBw
+YXJ0eSBvYmxpZ2F0aW9ucy4wNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5zdGFydHNzbC5j
+b20vY3J0dTEtY3JsLmNybDCBjgYIKwYBBQUHAQEEgYEwfzA5BggrBgEFBQcwAYYtaHR0cDovL29j
+c3Auc3RhcnRzc2wuY29tL3N1Yi9jbGFzczEvY2xpZW50L2NhMEIGCCsGAQUFBzAChjZodHRwOi8v
+YWlhLnN0YXJ0c3NsLmNvbS9jZXJ0cy9zdWIuY2xhc3MxLmNsaWVudC5jYS5jcnQwIwYDVR0SBBww
+GoYYaHR0cDovL3d3dy5zdGFydHNzbC5jb20vMA0GCSqGSIb3DQEBBQUAA4IBAQBzEJsRx6HaUvOV
+/B0csYb35MrO6/rWgjTmjVPXMULv3Gf+pOZ0tqhjTM2eo2+7nmP1e+6fuA1v/WVjgw03+Bc9NJoe
+UklXNtAc+7foYccB3etj2YBDYeYu+kKtrcOPFPALGKOXWph28tXqX53mWny6VJCyzuwBgSSIkVU3
+r3b8l0NKp4sTpijFsr64UjRrlSClXXqiz/tdNg8H/naRcsPo9Yc9vIxBCqR2vjUdW9pF7kj4v6zB
+oXscJSToeLSvCkOkcq9KyDf/zUmzoG8mGa83P2VFl/VeTgPOAoRW9r5BZdDnGK7baf64QwSyE8H3
+z8UmXqAYfR+82M5Gwlyi9wVCMIIGNDCCBBygAwIBAgIBHjANBgkqhkiG9w0BAQUFADB9MQswCQYD
+VQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwg
+Q2VydGlmaWNhdGUgU2lnbmluZzEpMCcGA1UEAxMgU3RhcnRDb20gQ2VydGlmaWNhdGlvbiBBdXRo
+b3JpdHkwHhcNMDcxMDI0MjEwMTU1WhcNMTcxMDI0MjEwMTU1WjCBjDELMAkGA1UEBhMCSUwxFjAU
+BgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRl
+IFNpZ25pbmcxODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUg
+Q2xpZW50IENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxwmDzM4t2BqxKaQuE6uW
+vooyg4ymiEGWVUet1G8SD+rqvyNH4QrvnEIaFHxOhESip7vMz39ScLpNLbL1QpOlPW/tFIzNHS3q
+d2XRNYG5Sv9RcGE+T4qbLtsjjJbi6sL7Ls/f/X9ftTyhxvxWkf8KW37iKrueKsxw2HqolH7GM6FX
+5UfNAwAu4ZifkpmZzU1slBhyWwaQPEPPZRsWoTb7q8hmgv6Nv3Hg9rmA1/VPBIOQ6SKRkHXG0Hhm
+q1dOFoAFI411+a/9nWm5rcVjGcIWZ2v/43Yksq60jExipA4l5uv9/+Hm33mbgmCszdj/Dthf13tg
+Av2O83hLJ0exTqfrlwIDAQABo4IBrTCCAakwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC
+AQYwHQYDVR0OBBYEFFNy7ZKc4NrLAVx8fpY1TvLUuFGCMB8GA1UdIwQYMBaAFE4L7xqkQFulF2mH
+MMo0aEPQQa7yMGYGCCsGAQUFBwEBBFowWDAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Auc3RhcnRz
+c2wuY29tL2NhMC0GCCsGAQUFBzAChiFodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9zZnNjYS5jcnQw
+WwYDVR0fBFQwUjAnoCWgI4YhaHR0cDovL3d3dy5zdGFydHNzbC5jb20vc2ZzY2EuY3JsMCegJaAj
+hiFodHRwOi8vY3JsLnN0YXJ0c3NsLmNvbS9zZnNjYS5jcmwwgYAGA1UdIAR5MHcwdQYLKwYBBAGB
+tTcBAgEwZjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5zdGFydHNzbC5jb20vcG9saWN5LnBkZjA0
+BggrBgEFBQcCARYoaHR0cDovL3d3dy5zdGFydHNzbC5jb20vaW50ZXJtZWRpYXRlLnBkZjANBgkq
+hkiG9w0BAQUFAAOCAgEACoMIfXirLAZcuGOMXq4cuSN3TaFx2H2GvD5VSy/6rV55BYHbWNaPeQn3
+oBSU8KgQZn/Kck1JxbLpAxVCNtsxeW1R87ifhsYZ0qjdrA9anrW2MAWCtosmAOT4OxK9QPoSjCMx
+M3HbkZCDJgnlE8jMopH21BbyAYr7b5EfGRQJNtgWcvqSXwKHnTutR08+Kkn0KAkXCzeQNLeA5LlY
+UzFyM7kPAp8pIRMQ+seHunmyG642S2+y/qHEdMuGIwpfz3eDF1PdctL04qYK/zu+Qg1Bw0RwgigV
+Zs/0c5HP2/e9DBHh7eSwtzYlk4AUr6yxLlcwSjOfOmKEQ/Q8tzh0IFiNu9IPuTGAPBn4CPxD0+Ru
+8T2wg8/s43R/PT3kd1OEqOJUl7q+h+r6fpvU0Fzxd2tC8Ga6fDEPme+1Nbi+03pVjuZQKbGwKJ66
+gEn06WqaxVZC+J8hh/jR0k9mST1iAZPNYulcNJ8tKmVtjYsv0L1TSm2+NwON58tO+pIVzu3DWwSE
+XSf+qkDavQam+QtEOZxLBXI++aMUEapSn+k3Lxm48ZCYfAWLb/Xj7F5JQMbZvCexglAbYR0kIHqW
+5DnsYSdMD/IplJMojx0NBrxJ3fN9dvX2Y6BIXRsF1du4qESm4/3CKuyUV7p9DW3mPlHTGLvYxnyK
+Qy7VFBkoLINszBrOUeIxggNvMIIDawIBATCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
+YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
+ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
+AgMN7zcwCQYFKw4DAhoFAKCCAa8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0B
+CQUxDxcNMTYwMjAxMTYxMTMxWjAjBgkqhkiG9w0BCQQxFgQU7AkFc2yWot2RWCao2V7PM0RqI+Yw
+gaUGCSsGAQQBgjcQBDGBlzCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0
+ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMT
+L1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMN7zcwgacG
+CyqGSIb3DQEJEAILMYGXoIGUMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRk
+LjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UEAxMv
+U3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0ECAw3vNzANBgkq
+hkiG9w0BAQEFAASCAQAr8sHCQokmfrv9Nfcy3fmRR5/v0VsOx8DLoXVPW18EqIz+yCQEwxFEbfAO
+KSZPSRIeNsd7MIEXzczFOGmA2fRnXkT+vztA5J174i57J54/DMJmUIAJO6vIfvLDUh4Tq2jYlpsC
+swN8Yu1sLXH4PLYTm2rtIfsClaf3FP/s92wMj0aLPBPL0Jz4js8YBDhfqaZXHBe/hEzx07fU/TGc
+r4gkldLeHDSRHdTEk7U3t5AZywYEHwErGp+W12olMM5MTaO9okaSjdE5MYl+CkRVG/HgfWLUusWf
+818J74icQPS2GjnbIIivrjcqSXhMC/nGmYGQbIDadECbP2bvAx5mCCSpAAAAAAAA
 
--Kees
 
--- 
-Kees Cook
-Chrome OS & Brillo Security
+--=-GLlXc2CFQ6OlAfw9L6e0--
