@@ -1,155 +1,105 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v6 6/9] virtio: Add improved queue allocation API
-Date: Tue, 2 Feb 2016 10:26:02 -0800
-Message-ID: <CALCETrXE9MXBCuvEG1hWFtMDWMJSyAL61bL-Kbq_p6MyAyGPDg@mail.gmail.com>
-References: <cover.1454349471.git.luto@kernel.org> <5819fe5f70a5c110ab4ea58233004aafd9259d29.1454349471.git.luto@kernel.org>
- <20160202132151-mutt-send-email-mst@redhat.com>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: [PATCH v6 0/9] virtio DMA API, yet again
+Date: Mon,  1 Feb 2016 10:00:50 -0800
+Message-ID: <cover.1454349471.git.luto@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20160202132151-mutt-send-email-mst@redhat.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, David Woodhouse <dwmw2@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Feb 2, 2016 at 3:25 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Feb 01, 2016 at 10:00:56AM -0800, Andy Lutomirski wrote:
->> This leaves vring_new_virtqueue alone for compatbility, but it
->> adds two new improved APIs:
->>
->> vring_create_virtqueue: Creates a virtqueue backed by automatically
->> allocated coherent memory.  (Some day it this could be extended to
->> support non-coherent memory, too, if there ends up being a platform
->> on which it's worthwhile.)
->>
->> __vring_new_virtqueue: Creates a virtqueue with a manually-specified
->> layout.  This should allow mic_virtio to work much more cleanly.
->>
->> Signed-off-by: Andy Lutomirski <luto@kernel.org>
->> ---
->>  drivers/virtio/virtio_ring.c | 178 +++++++++++++++++++++++++++++++++++--------
->>  include/linux/virtio.h       |  23 +++++-
->>  include/linux/virtio_ring.h  |  35 +++++++++
->>  3 files changed, 204 insertions(+), 32 deletions(-)
->>
->> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
->> index 2f621e96b9ff..cf2840c7e500 100644
->> --- a/drivers/virtio/virtio_ring.c
->> +++ b/drivers/virtio/virtio_ring.c
->> @@ -95,6 +95,11 @@ struct vring_virtqueue {
->>       /* How to notify other side. FIXME: commonalize hcalls! */
->>       bool (*notify)(struct virtqueue *vq);
->>
->> +     /* DMA, allocation, and size information */
->> +     bool we_own_ring;
->> +     size_t queue_size_in_bytes;
->> +     dma_addr_t queue_dma_addr;
->> +
->>  #ifdef DEBUG
->>       /* They're supposed to lock for us. */
->>       unsigned int in_use;
->> @@ -878,36 +883,31 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
->>  }
->>  EXPORT_SYMBOL_GPL(vring_interrupt);
->>
->> -struct virtqueue *vring_new_virtqueue(unsigned int index,
->> -                                   unsigned int num,
->> -                                   unsigned int vring_align,
->> -                                   struct virtio_device *vdev,
->> -                                   bool weak_barriers,
->> -                                   void *pages,
->> -                                   bool (*notify)(struct virtqueue *),
->> -                                   void (*callback)(struct virtqueue *),
->> -                                   const char *name)
->> +struct virtqueue *__vring_new_virtqueue(unsigned int index,
->> +                                     struct vring vring,
->> +                                     struct virtio_device *vdev,
->> +                                     bool weak_barriers,
->> +                                     bool (*notify)(struct virtqueue *),
->> +                                     void (*callback)(struct virtqueue *),
->> +                                     const char *name)
->>  {
->> -     struct vring_virtqueue *vq;
->>       unsigned int i;
->> +     struct vring_virtqueue *vq;
->>
->> -     /* We assume num is a power of 2. */
->> -     if (num & (num - 1)) {
->> -             dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
->> -             return NULL;
->> -     }
->> -
->> -     vq = kmalloc(sizeof(*vq) + num * sizeof(struct vring_desc_state),
->> +     vq = kmalloc(sizeof(*vq) + vring.num * sizeof(struct vring_desc_state),
->>                    GFP_KERNEL);
->>       if (!vq)
->>               return NULL;
->>
->> -     vring_init(&vq->vring, num, pages, vring_align);
->> +     vq->vring = vring;
->>       vq->vq.callback = callback;
->>       vq->vq.vdev = vdev;
->>       vq->vq.name = name;
->> -     vq->vq.num_free = num;
->> +     vq->vq.num_free = vring.num;
->>       vq->vq.index = index;
->> +     vq->we_own_ring = false;
->> +     vq->queue_dma_addr = 0;
->> +     vq->queue_size_in_bytes = 0;
->>       vq->notify = notify;
->>       vq->weak_barriers = weak_barriers;
->>       vq->broken = false;
->> @@ -932,18 +932,105 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
->>
->>       /* Put everything in free lists. */
->>       vq->free_head = 0;
->> -     for (i = 0; i < num-1; i++)
->> +     for (i = 0; i < vring.num-1; i++)
->>               vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1);
->> -     memset(vq->desc_state, 0, num * sizeof(struct vring_desc_state));
->> +     memset(vq->desc_state, 0, vring.num * sizeof(struct vring_desc_state));
->>
->>       return &vq->vq;
->>  }
->> +EXPORT_SYMBOL_GPL(__vring_new_virtqueue);
->> +
->> +struct virtqueue *vring_create_virtqueue(
->> +     unsigned int index,
->> +     unsigned int num,
->> +     unsigned int vring_align,
->> +     struct virtio_device *vdev,
->> +     bool weak_barriers,
->> +     bool may_reduce_num,
->> +     bool (*notify)(struct virtqueue *),
->> +     void (*callback)(struct virtqueue *),
->> +     const char *name)
->> +{
->> +     struct virtqueue *vq;
->> +     void *queue;
->> +     dma_addr_t dma_addr;
->> +     size_t queue_size_in_bytes;
->> +     struct vring vring;
->> +
->> +     /* We assume num is a power of 2. */
->> +     if (num & (num - 1)) {
->> +             dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
->> +             return NULL;
->> +     }
->> +
->> +     /* TODO: allocate each queue chunk individually */
->> +     for (; num && vring_size(num, vring_align) > PAGE_SIZE; num /= 2) {
->> +             queue = dma_zalloc_coherent(
->> +                     vdev->dev.parent, vring_size(num, vring_align),
->> +                     &dma_addr, GFP_KERNEL|__GFP_NOWARN);
->
-> I think that we should teach this one to use regular kmalloc
-> if vring_use_dma_api is cleared.
-> Not a must but it seems cleaner at this stage.
+This switches virtio to use the DMA API on Xen and if requested by
+module option.
 
-Done.  It arguably makes the code simpler, too, since I can just set
-dma_addr to virt_to_phys(queue).
+This fixes virtio on Xen, and it should break anything because it's
+off by default on everything except Xen PV on x86.
 
---Andy
+To the Xen people: is this okay?  If it doesn't work on other Xen
+variants (PVH? HVM?), can you submit follow-up patches to fix it?
+
+To everyone else: we've waffled on this for way too long.  I think
+we should to get DMA API implementation in with a conservative
+policy like this rather than waiting until we achieve perfection.
+I'm tired of carrying these patches around.
+
+Michael, if these survive review, can you stage these in your tree?
+Can you also take a look at tools/virtio?  I probably broke it, but I
+couldn't get it to build without these patches either, so I'm stuck.
+
+Changes from v5:
+ - Typo fixes (David Woodhouse)
+ - Use xen_domain() to detect Xen (David Vrabel)
+ - Pass struct vring_virtqueue * into vring_use_dma_api for future proofing
+ - Removed module parameter (Michael)
+
+Changes from v4:
+ - Bake vring_use_dma_api in from the beginning.
+ - Automatically enable only on Xen.
+ - Add module parameter.
+ - Add s390 and alpha DMA API implementations.
+ - Rebase to 4.5-rc1.
+
+Changes from v3:
+ - More big-endian fixes.
+ - Added better virtio-ring APIs that handle allocation and use them in
+   virtio-mmio and virtio-pci.
+ - Switch to Michael's virtio-net patch.
+
+Changes from v2:
+ - Fix vring_mapping_error incorrect argument
+
+Changes from v1:
+ - Fix an endian conversion error causing a BUG to hit.
+ - Fix a DMA ordering issue (swiotlb=force works now).
+ - Minor cleanups.
+
+Andy Lutomirski (6):
+  vring: Introduce vring_use_dma_api()
+  virtio_ring: Support DMA APIs
+  virtio: Add improved queue allocation API
+  virtio_mmio: Use the DMA API if enabled
+  virtio_pci: Use the DMA API if enabled
+  vring: Use the DMA API on Xen
+
+Christian Borntraeger (3):
+  dma: Provide simple noop dma ops
+  alpha/dma: use common noop dma ops
+  s390/dma: Allow per device dma ops
+
+ arch/alpha/kernel/pci-noop.c        |  46 +---
+ arch/s390/Kconfig                   |   6 +-
+ arch/s390/include/asm/device.h      |   6 +-
+ arch/s390/include/asm/dma-mapping.h |   6 +-
+ arch/s390/pci/pci.c                 |   1 +
+ arch/s390/pci/pci_dma.c             |   4 +-
+ drivers/virtio/Kconfig              |   2 +-
+ drivers/virtio/virtio_mmio.c        |  67 ++----
+ drivers/virtio/virtio_pci_common.h  |   6 -
+ drivers/virtio/virtio_pci_legacy.c  |  42 ++--
+ drivers/virtio/virtio_pci_modern.c  |  61 ++----
+ drivers/virtio/virtio_ring.c        | 408 ++++++++++++++++++++++++++++++------
+ include/linux/dma-mapping.h         |   2 +
+ include/linux/virtio.h              |  23 +-
+ include/linux/virtio_ring.h         |  35 ++++
+ lib/Makefile                        |   1 +
+ lib/dma-noop.c                      |  75 +++++++
+ tools/virtio/linux/dma-mapping.h    |  17 ++
+ 18 files changed, 564 insertions(+), 244 deletions(-)
+ create mode 100644 lib/dma-noop.c
+ create mode 100644 tools/virtio/linux/dma-mapping.h
+
+-- 
+2.5.0
