@@ -1,84 +1,95 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [PATCH v5 04/10] vring: Introduce vring_use_dma_api()
-Date: Mon, 1 Feb 2016 15:23:24 +0200
-Message-ID: <20160201133556-mutt-send-email-mst@redhat.com>
-References: <cover.1454034075.git.luto@kernel.org>
-	<cab70812b0a46a5a5b36e6de4110c5c66a6f6916.1454034075.git.luto@kernel.org>
-	<1454325723.133285.285.camel@infradead.org>
+Date: Mon, 1 Feb 2016 07:39:31 -0800
+Message-ID: <CALCETrWsNgfQX-M6qmpjYLZYd1c_6t8a=8GbBYufCQ+oHgjRdw@mail.gmail.com>
+References: <cover.1454034075.git.luto@kernel.org> <cab70812b0a46a5a5b36e6de4110c5c66a6f6916.1454034075.git.luto@kernel.org>
+ <1454325723.133285.285.camel@infradead.org> <20160201133556-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1454325723.133285.285.camel@infradead.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20160201133556-mutt-send-email-mst@redhat.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gTW9uLCBGZWIgMDEsIDIwMTYgYXQgMTE6MjI6MDNBTSArMDAwMCwgRGF2aWQgV29vZGhvdXNl
-IHdyb3RlOgo+IE9uIFRodSwgMjAxNi0wMS0yOCBhdCAxODozMSAtMDgwMCwgQW5keSBMdXRvbWly
-c2tpIHdyb3RlOgo+ID4gVGhpcyBpcyBhIGtsdWRnZSwgYnV0IG5vIG9uZSBoYXMgY29tZSB1cCB3
-aXRoIGEgYSBiZXR0ZXIgaWRlYSB5ZXQuCj4gPiBXZSdsbCBpbnRyb2R1Y2UgRE1BIEFQSSBzdXBw
-b3J0IGd1YXJkZWQgYnkgdnJpbmdfdXNlX2RtYV9hcGkoKS4KPiA+IEV2ZW50dWFsbHkgd2UgbWF5
-IGJlIGFibGUgdG8gcmV0dXJuIHRydWUgb24gbW9yZSBhbmQgbW9yZSBzeXN0ZW1zLAo+ID4gYW5k
-IGhvcGVmdWxseSB3ZSBjYW4gZ2V0IHJpZCBvZiB2cmluZ191c2VfZG1hX2FwaSgpIGVudGlyZWx5
-IHNvbWUKPiA+IGRheS4KPiA+IAo+ID4gU2lnbmVkLW9mZi1ieTogQW5keSBMdXRvbWlyc2tpIDxs
-dXRvQGtlcm5lbC5vcmc+Cj4gPiAtLS0KPiA+IMKgZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jpbmcu
-YyB8IDI0ICsrKysrKysrKysrKysrKysrKysrKysrKwo+ID4gwqAxIGZpbGUgY2hhbmdlZCwgMjQg
-aW5zZXJ0aW9ucygrKQo+ID4gCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+IGluZGV4IGUxMmUzODVm
-N2FjMy4uNGI4ZGFiNDk2MGJiIDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3JpbmcuYwo+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gQEAgLTI1
-LDYgKzI1LDMwIEBACj4gPiDCoCNpbmNsdWRlIAo+ID4gwqAjaW5jbHVkZSAKPiA+IMKgCj4gPiAr
-LyoKPiA+ICsgKiBUaGUgaW50ZXJhY3Rpb24gYmV0d2VlbiB2aXJ0aW8gYW5kIGEgcG9zc2libGUg
-SU9NTVUgaXMgYSBtZXNzLgo+ID4gKyAqCj4gPiArICogT24gbW9zdCBzeXN0ZW1zIHdpdGggdmly
-dGlvLCBwaHlzaWNhbCBhZGRyZXNzZXMgbWF0Y2ggYnVzIGFkZHJlc3NlcywKPiA+ICsgKiBhbmQg
-aXQgZG9lc24ndCBwYXJ0aWN1bGFybHkgbWF0dGVyIHdoZXRoZXIgd2UgdXNlIHRoZSBETUkgQVBJ
-Lgo+ID4gKyAqCj4gPiArICogT24gc29tZSBzeXRlbXMsIGluY2x1ZGluZyBYZW4gYW5kIGFueSBz
-eXN0ZW0gd2l0aCBhIHBoeXNpY2FsIGRldmljZQo+ID4gKyAqIHRoYXQgc3BlYWtzIHZpcnRpbyBi
-ZWhpbmQgYSBwaHlzaWNhbCBJT01NVSwgd2UgbXVzdCB1c2UgdGhlIERNQSBBUEkKPiA+ICsgKiBm
-b3IgdmlydGlvIERNQSB0byB3b3JrIGF0IGFsbC4KPiA+ICsgKgo+ID4gKyAqIE9uIG90aGVyIHN5
-c3RlbXMsIGluY2x1ZGluZyBTUEFSQyBhbmQgUFBDNjQsIHZpcnRpby1wY2kgZGV2aWNlcyBhcmUK
-PiA+ICsgKiBlbnVtZXJhdGVkIGFzIHRob3VnaCB0aGV5IGFyZSBiZWhpbmQgYW4gSU9NTVUsIGJ1
-dCB0aGUgdmlydGlvIGhvc3QKPiA+ICsgKiBpZ25vcmVzIHRoZSBJT01NVSwgc28gd2UgbXVzdCBl
-aXRoZXIgcHJldGVuZCB0aGF0IHRoZSBJT01NVSBpc24ndAo+ID4gKyAqIHRoZXJlIG9yIHNvbWVo
-b3cgbWFwIGV2ZXJ5dGhpbmcgYXMgdGhlIGlkZW50aXR5Lgo+ID4gKyAqCj4gPiArICogRm9yIHRo
-ZSB0aW1lIGJlaW5nLCB3ZSBwcmVzZXZlIGhpc3RvcmljIGJlaGF2aW9yIGFuZCBieXBhc3MgdGhl
-IERNQQo+ID4gKyAqIEFQSS4KPiA+ICsgKi8KPiAKPiBJIHNwb3QgYXQgbGVhc3QgdGhyZWUgdHlw
-b3MgaW4gdGhlcmUsIEZXSVcuICgnRE1JIEFQSScsICdzeXRlbXMnLAo+ICdwcmVzZXZlJykuCgpH
-b29kIGNhdGNoLCBob3BlZnVsbHkgd2lsbCBiZSBmaXhlZCBpbiB2Mi4KCj4gPiArc3RhdGljIGJv
-b2wgdnJpbmdfdXNlX2RtYV9hcGkodm9pZCkKPiA+ICt7Cj4gPiArCXJldHVybiBmYWxzZTsKPiA+
-ICt9Cj4gPiArCj4gCj4gSSdkIHF1aXRlIGxpa2UgdG8gc2VlIHRoaXMgYmUgYW4gZXhwbGljaXQg
-b3B0LW91dCBmb3IgdGhlIGtub3duLWJyb2tlbgo+IHBsYXRmb3Jtcy4gV2UndmUgbGlzdGVkIHRo
-ZSBTUEFSQyBhbmQgUFBDNjQgaXNzdWVzLiBGb3IgeDg2IEkgbmVlZCB0bwo+IHJlZnJlc2ggbXkg
-bWVtb3J5IGFzIGEgcHJlbHVkZSB0byB0cnlpbmcgdG8gZml4IGl0Li4uIHdhcyB0aGUgaXNzdWUK
-PiAqanVzdCogdGhhdCBRZW11IHRlbmRzIHRvIHNoaXAgd2l0aCBhIGJyb2tlbiBCSU9TIHRoYXQg
-bWlzZGVzY3JpYmVzIHRoZQo+IHZpcnRpbyBkZXZpY2VzIChhbmQgYW55IGFzc2lnbmVkIFBDSSBk
-ZXZpY2VzKSBhcyBiZWluZyBiZWhpbmQgYW4gSU9NTVUKPiB3aGVuIHRoZXkncmUgbm90LCBpbiB0
-aGUgcmFyZSBjYXNlIHRoYXQgUWVtdSBhY3R1YWxseSBleHBvc2VzIGl0cwo+IHBhcnRpYWxseS1p
-bXBsZW1lbnRlZCB2aXJ0dWFsIElPTU1VIHRvIHRoZSBndWVzdD8KPiAKPiBDb3VsZCB3ZSBoYXZl
-IGFuIGFyY2hfdnJpbmdfZXNjaGV3X2RtYV9hcGkoZGV2KSBmdW5jdGlvbiB3aGljaCB0aGUKPiBh
-ZmZlY3RlZCBhcmNoaXRlY3R1cmVzIGNvdWxkIHByb3ZpZGUgKGFzIGEgcHJlbHVkZSB0byBmaXhp
-bmcgaXQgc28gdGhhdAo+IHRoZSBETUEgQVBJIGRvZXMgdGhlIHJpZ2h0IHRoaW5nIGZvciAqaXRz
-ZWxmKik/CgpJJ20gZmluZSB3aXRoIHRoaXMuCgo+IEl0IHdvdWxkIGJlIGZ1bmN0aW9uYWxseSBl
-cXVpdmFsZW50LCBidXQgaXQgd291bGQgaGVscCB0byBwdXNoIHRoZQo+IHdvcmthcm91bmRzIHRv
-IHRoZSByaWdodCBwbGFjZSDigJQgcmF0aGVyIHRoYW4gZW50cmVuY2hpbmcgdGhlbSBmb3IgZXZl
-cgo+IGluIHRyaWNreSAiT01HIHdlIG5lZWQgdG8gYXVkaXQgd2hhdCBhbGwgdGhlIGFyY2hpdGVj
-dHVyZXMgZG8uLi4gbGV0J3MKPiBub3QgdG91Y2ggaXQhIiBjb2RlLgo+IAo+IC0tIAo+IERhdmlk
-IFdvb2Rob3VzZSAgICAgICAgICAgICAgICAgICAgICAgICAgICBPcGVuIFNvdXJjZSBUZWNobm9s
-b2d5IENlbnRyZQo+IERhdmlkLldvb2Rob3VzZUBpbnRlbC5jb20gICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICBJbnRlbCBDb3Jwb3JhdGlvbgo+IAoKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Feb 1, 2016 at 5:23 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Mon, Feb 01, 2016 at 11:22:03AM +0000, David Woodhouse wrote:
+>> On Thu, 2016-01-28 at 18:31 -0800, Andy Lutomirski wrote:
+>> > This is a kludge, but no one has come up with a a better idea yet.
+>> > We'll introduce DMA API support guarded by vring_use_dma_api().
+>> > Eventually we may be able to return true on more and more systems,
+>> > and hopefully we can get rid of vring_use_dma_api() entirely some
+>> > day.
+>> >
+>> > Signed-off-by: Andy Lutomirski <luto@kernel.org>
+>> > ---
+>> >  drivers/virtio/virtio_ring.c | 24 ++++++++++++++++++++++++
+>> >  1 file changed, 24 insertions(+)
+>> >
+>> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>> > index e12e385f7ac3..4b8dab4960bb 100644
+>> > --- a/drivers/virtio/virtio_ring.c
+>> > +++ b/drivers/virtio/virtio_ring.c
+>> > @@ -25,6 +25,30 @@
+>> >  #include
+>> >  #include
+>> >
+>> > +/*
+>> > + * The interaction between virtio and a possible IOMMU is a mess.
+>> > + *
+>> > + * On most systems with virtio, physical addresses match bus addresses,
+>> > + * and it doesn't particularly matter whether we use the DMI API.
+>> > + *
+>> > + * On some sytems, including Xen and any system with a physical device
+>> > + * that speaks virtio behind a physical IOMMU, we must use the DMA API
+>> > + * for virtio DMA to work at all.
+>> > + *
+>> > + * On other systems, including SPARC and PPC64, virtio-pci devices are
+>> > + * enumerated as though they are behind an IOMMU, but the virtio host
+>> > + * ignores the IOMMU, so we must either pretend that the IOMMU isn't
+>> > + * there or somehow map everything as the identity.
+>> > + *
+>> > + * For the time being, we preseve historic behavior and bypass the DMA
+>> > + * API.
+>> > + */
+>>
+>> I spot at least three typos in there, FWIW. ('DMI API', 'sytems',
+>> 'preseve').
+>
+> Good catch, hopefully will be fixed in v2.
+
+Queued for v2.
+
+>
+>> > +static bool vring_use_dma_api(void)
+>> > +{
+>> > +   return false;
+>> > +}
+>> > +
+>>
+>> I'd quite like to see this be an explicit opt-out for the known-broken
+>> platforms. We've listed the SPARC and PPC64 issues. For x86 I need to
+>> refresh my memory as a prelude to trying to fix it... was the issue
+>> *just* that Qemu tends to ship with a broken BIOS that misdescribes the
+>> virtio devices (and any assigned PCI devices) as being behind an IOMMU
+>> when they're not, in the rare case that Qemu actually exposes its
+>> partially-implemented virtual IOMMU to the guest?
+>>
+>> Could we have an arch_vring_eschew_dma_api(dev) function which the
+>> affected architectures could provide (as a prelude to fixing it so that
+>> the DMA API does the right thing for *itself*)?
+>
+> I'm fine with this.
+
+I modified vring_use_dma_api to take a vring_virtqueue* parameter to
+make this easier.
+
+I'm a bit torn here.  I want to get the mechanism and the Xen part in,
+and there's unlikely to be much debate on those as a matter of
+principle.  I'd also like to flip as many arches over as possible, but
+that could be trickier.  Let me mull over this.
+
+--Andy
