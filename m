@@ -1,61 +1,31 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 1 Feb 2016 10:00:11 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390:ftrace: add save_stack_trace_regs()
-Message-ID: <20160201090011.GA4166@osiris>
-References: <86d380d172bba0416aef64448b0e1b6a50fad326.1454044645.git.panand@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Wei Liu <wei.liu2@citrix.com>
+Subject: Re: [Xen-devel] [PATCH v6 9/9] vring: Use the DMA API on Xen
+Date: Mon, 1 Feb 2016 21:26:07 +0000
+Message-ID: <20160201212607.GB9915@citrix.com>
+References: <cover.1454349471.git.luto@kernel.org>
+	<41aeb1bd026494e277ea5827d99df4a4f41b8b8f.1454349471.git.luto@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <86d380d172bba0416aef64448b0e1b6a50fad326.1454044645.git.panand@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Pratyush Anand <panand@redhat.com>
-Cc: schwidefsky@de.ibm.com, rostedt@goodmis.org, linux-s390@vger.kernel.org, Chunyu Hu <chuhu@redhat.com>, open list <linux-kernel@vger.kernel.org>
+In-Reply-To: <41aeb1bd026494e277ea5827d99df4a4f41b8b8f.1454349471.git.luto@kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Andy Lutomirski <luto@kernel.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, wei.liu2@citrix.com, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, David Vrabel <david.vrabel@citrix.com>, Paolo Bonzini <pbonzini@redhat.com>, xen-devel@lists.xenproject.org, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Jan 29, 2016 at 10:50:28AM +0530, Pratyush Anand wrote:
-> Implement save_stack_trace_regs, so that stacktrace of a kprobe events can
-> be obtained.
-> 
-> Without this we see following warning:
-> "save_stack_trace_regs() not implemented yet."
-> when we execute:
-> echo stacktrace > /sys/kernel/debug/tracing/trace_options
-> echo "p kfree" >> /sys/kernel/debug/tracing/kprobe_events
-> echo 1 > /sys/kernel/debug/tracing/events/kprobes/enable
-> 
-> Reported-by: Chunyu Hu <chuhu@redhat.com>
-> Signed-off-by: Pratyush Anand <panand@redhat.com>
-> ---
->  arch/s390/kernel/stacktrace.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
-> index 1785cd82253c..586da400f931 100644
-> --- a/arch/s390/kernel/stacktrace.c
-> +++ b/arch/s390/kernel/stacktrace.c
-> @@ -94,3 +94,16 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
->  		trace->entries[trace->nr_entries++] = ULONG_MAX;
->  }
->  EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
-> +
-> +void save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
-> +{
-> +	unsigned long sp, low, high;
-> +
-> +	sp = kernel_stack_pointer(regs);
-> +	low = (unsigned long) task_stack_page(current);
-> +	high = (unsigned long) task_pt_regs(current);
-> +	save_context_stack(trace, sp, low, high, 0);
-> +	if (trace->nr_entries < trace->max_entries)
-> +		trace->entries[trace->nr_entries++] = ULONG_MAX;
-> +}
-> +EXPORT_SYMBOL_GPL(save_stack_trace_regs);
+On Mon, Feb 01, 2016 at 10:00:59AM -0800, Andy Lutomirski wrote:
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
 
-While playing around with this, I discovered a couple of bugs in our
-stacktrace code. However this patch is also not correct, since it will save
-a stacktrace only if being called in process context, but not for interrupt
-context.
-I will fix this within this patch.
+Reviewed-by: Wei Liu <wei.liu2@citrix.com>
