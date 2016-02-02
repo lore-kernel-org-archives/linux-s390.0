@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [RFC 08/12] sparc, rwsem: provide __down_write_killable
-Date: Tue,  2 Feb 2016 21:19:25 +0100
-Message-ID: <1454444369-2146-9-git-send-email-mhocko@kernel.org>
+Subject: [RFC 06/12] s390, rwsem: provide __down_write_killable
+Date: Tue,  2 Feb 2016 21:19:23 +0100
+Message-ID: <1454444369-2146-7-git-send-email-mhocko@kernel.org>
 In-Reply-To: <1454444369-2146-1-git-send-email-mhocko@kernel.org>
 References: <1454444369-2146-1-git-send-email-mhocko@kernel.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160202201925.AfujgtWoNLN4mDEyGWVy9nC9SHCfackVe8BNFI0Qneg@z>
+Message-ID: <20160202201923.b9AxD5tuedtXxSAQN1zjt_CXkKatlGCtntyHt0F2B6k@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
@@ -15,37 +15,54 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michal Hocko <mhocko@suse.com>
 
-which is uses the same fast path as __down_write except it falls back to
-rwsem_down_write_failed_killable slow path and return -EINTR if killed.
+Introduce ___down_write for the fast path and reuse it for __down_write
+resp. __down_write_killable each using the respective generic slow path
+(rwsem_down_write_failed resp. rwsem_down_write_failed_killable).
 
 Signed-off-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/sparc/include/asm/rwsem.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/s390/include/asm/rwsem.h | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sparc/include/asm/rwsem.h b/arch/sparc/include/asm/rwsem.h
-index e5a0d575bc7f..c1e9e32e8b63 100644
---- a/arch/sparc/include/asm/rwsem.h
-+++ b/arch/sparc/include/asm/rwsem.h
-@@ -55,6 +55,19 @@ static inline void __down_write(struct rw_semaphore *sem)
+diff --git a/arch/s390/include/asm/rwsem.h b/arch/s390/include/asm/rwsem.h
+index 8e52e72f3efc..8e7b2b7e10f3 100644
+--- a/arch/s390/include/asm/rwsem.h
++++ b/arch/s390/include/asm/rwsem.h
+@@ -90,7 +90,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write(struct rw_semaphore *sem)
++static inline long ___down_write(struct rw_semaphore *sem)
+ {
+ 	signed long old, new, tmp;
+ 
+@@ -104,10 +104,25 @@ static inline void __down_write(struct rw_semaphore *sem)
+ 		: "=&d" (old), "=&d" (new), "=Q" (sem->count)
+ 		: "Q" (sem->count), "m" (tmp)
+ 		: "cc", "memory");
+-	if (old != 0)
++
++	return old;
++}
++
++static inline void __down_write(struct rw_semaphore *sem)
++{
++	if (___down_write(sem))
  		rwsem_down_write_failed(sem);
  }
  
 +static inline int __down_write_killable(struct rw_semaphore *sem)
 +{
-+	long tmp;
-+
-+	tmp = atomic64_add_return(RWSEM_ACTIVE_WRITE_BIAS,
-+				  (atomic64_t *)(&sem->count));
-+	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
++	if (___down_write(sem))
 +		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
 +			return -EINTR;
 +
 +	return 0;
 +}
 +
- static inline int __down_write_trylock(struct rw_semaphore *sem)
- {
- 	long tmp;
+ /*
+  * trylock for writing -- returns 1 if successful, 0 if contention
+  */
 -- 
 2.7.0
