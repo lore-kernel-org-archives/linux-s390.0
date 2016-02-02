@@ -1,7 +1,7 @@
 From: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
-Subject: [PATCH v10 6/8] arm64, mm, numa: Adding numa balancing support for arm64.
-Date: Tue, 2 Feb 2016 15:39:21 +0530
-Message-ID: <1454407763-1017-7-git-send-email-gkulkarni@caviumnetworks.com>
+Subject: [PATCH v10 3/8] dt, numa: adding numa dt binding implementation.
+Date: Tue, 2 Feb 2016 15:39:18 +0530
+Message-ID: <1454407763-1017-4-git-send-email-gkulkarni@caviumnetworks.com>
 References: <1454407763-1017-1-git-send-email-gkulkarni@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,56 +14,277 @@ To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kern
 Cc: gpkulkarni@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-enabled numa balancing for arm64 platforms.
-added pte, pmd protnone helpers for use by automatic NUMA balancing.
+dt node parsing for numa topology is done using device property
+numa-node-id and device node distance-map.
 
 Reviewed-by: Robert Richter <rrichter@cavium.com>
 Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 ---
- arch/arm64/Kconfig               |  1 +
- arch/arm64/include/asm/pgtable.h | 18 ++++++++++++++++++
- 2 files changed, 19 insertions(+)
+ drivers/of/Kconfig   |  11 +++
+ drivers/of/Makefile  |   1 +
+ drivers/of/of_numa.c | 207 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/of.h   |   4 +
+ 4 files changed, 223 insertions(+)
+ create mode 100644 drivers/of/of_numa.c
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index fcf3950..8a7c02a 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -11,6 +11,7 @@ config ARM64
- 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_USE_CMPXCHG_LOCKREF
- 	select ARCH_SUPPORTS_ATOMIC_RMW
-+	select ARCH_SUPPORTS_NUMA_BALANCING if NUMA
- 	select ARCH_WANT_OPTIONAL_GPIOLIB
- 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION
- 	select ARCH_WANT_FRAME_POINTERS
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 2d545d7a..24ce546 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -347,6 +347,24 @@ static inline pgprot_t mk_sect_prot(pgprot_t prot)
- 	return __pgprot(pgprot_val(prot) & ~PTE_TABLE_BIT);
- }
+diff --git a/drivers/of/Kconfig b/drivers/of/Kconfig
+index e2a4841..8f9cc3a 100644
+--- a/drivers/of/Kconfig
++++ b/drivers/of/Kconfig
+@@ -112,4 +112,15 @@ config OF_OVERLAY
+ 	  While this option is selected automatically when needed, you can
+ 	  enable it manually to improve device tree unit test coverage.
  
-+#ifdef CONFIG_NUMA_BALANCING
++config OF_NUMA
++	bool "Device Tree NUMA support"
++	depends on NUMA
++	depends on OF
++	depends on ARM64
++	default y
++	help
++	  Enable Device Tree NUMA support.
++	  This enables the numa mapping of cpu, memory, io and
++	  inter node distances using dt bindings.
++
+ endif # OF
+diff --git a/drivers/of/Makefile b/drivers/of/Makefile
+index 156c072..bee3fa9 100644
+--- a/drivers/of/Makefile
++++ b/drivers/of/Makefile
+@@ -14,5 +14,6 @@ obj-$(CONFIG_OF_MTD)	+= of_mtd.o
+ obj-$(CONFIG_OF_RESERVED_MEM) += of_reserved_mem.o
+ obj-$(CONFIG_OF_RESOLVE)  += resolver.o
+ obj-$(CONFIG_OF_OVERLAY) += overlay.o
++obj-$(CONFIG_OF_NUMA) += of_numa.o
+ 
+ obj-$(CONFIG_OF_UNITTEST) += unittest-data/
+diff --git a/drivers/of/of_numa.c b/drivers/of/of_numa.c
+new file mode 100644
+index 0000000..1142cdb
+--- /dev/null
++++ b/drivers/of/of_numa.c
+@@ -0,0 +1,207 @@
++/*
++ * OF NUMA Parsing support.
++ *
++ * Copyright (C) 2015 Cavium Inc.
++ * Author: Ganapatrao Kulkarni <gkulkarni@cavium.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <linux/of.h>
++#include <linux/of_fdt.h>
++
++/* define default numa node to 0 */
++#define DEFAULT_NODE 0
++
++/* Returns nid in the range [0..MAX_NUMNODES-1],
++ * or NUMA_NO_NODE if no valid numa-node-id entry found
++ * or DEFAULT_NODE if no numa-node-id entry exists
++ */
++static int of_numa_prop_to_nid(const __be32 *of_numa_prop, int length)
++{
++	int nid;
++
++	if (!of_numa_prop)
++		return DEFAULT_NODE;
++
++	if (length != sizeof(*of_numa_prop)) {
++		pr_warn("NUMA: Invalid of_numa_prop length %d found.\n",
++				length);
++		return NUMA_NO_NODE;
++	}
++
++	nid = of_read_number(of_numa_prop, 1);
++	if (nid >= MAX_NUMNODES) {
++		pr_warn("NUMA: Invalid numa node %d found.\n", nid);
++		return NUMA_NO_NODE;
++	}
++
++	return nid;
++}
++
++static int __init early_init_of_node_to_nid(unsigned long node)
++{
++	int length;
++	const __be32 *of_numa_prop;
++
++	of_numa_prop = of_get_flat_dt_prop(node, "numa-node-id", &length);
++
++	return of_numa_prop_to_nid(of_numa_prop, length);
++}
 +
 +/*
-+ * These work without NUMA balancing but the kernel does not care. See the
-+ * comment in include/asm-generic/pgtable.h
-+ */
-+static inline int pte_protnone(pte_t pte)
++ * Even though we connect cpus to numa domains later in SMP
++ * init, we need to know the node ids now for all cpus.
++*/
++static int __init early_init_parse_cpu_node(unsigned long node)
 +{
-+	return ((pte_val(pte) & (PTE_VALID | PTE_PROT_NONE)) == PTE_PROT_NONE);
++	int nid;
++	const char *type = of_get_flat_dt_prop(node, "device_type", NULL);
++
++	if (type == NULL)
++		return 0;
++
++	if (strcmp(type, "cpu") != 0)
++		return 0;
++
++	nid = early_init_of_node_to_nid(node);
++	if (nid == NUMA_NO_NODE)
++		return -EINVAL;
++
++	node_set(nid, numa_nodes_parsed);
++	return 0;
 +}
 +
-+static inline int pmd_protnone(pmd_t pmd)
++static int __init early_init_parse_memory_node(unsigned long node)
 +{
-+	return pte_protnone(pmd_pte(pmd));
++	const __be32 *reg, *endp;
++	int length;
++	int nid;
++	const char *type = of_get_flat_dt_prop(node, "device_type", NULL);
++
++	if (type == NULL)
++		return 0;
++
++	if (strcmp(type, "memory") != 0)
++		return 0;
++
++	nid = early_init_of_node_to_nid(node);
++	if (nid == NUMA_NO_NODE)
++		return -EINVAL;
++
++	reg = of_get_flat_dt_prop(node, "reg", &length);
++	endp = reg + (length / sizeof(__be32));
++
++	while ((endp - reg) >= (dt_root_addr_cells + dt_root_size_cells)) {
++		u64 base, size;
++
++		base = dt_mem_next_cell(dt_root_addr_cells, &reg);
++		size = dt_mem_next_cell(dt_root_size_cells, &reg);
++		pr_debug("NUMA:  base = %llx , node = %u\n",
++				base, nid);
++
++		if (numa_add_memblk(nid, base, size) < 0)
++			return -EINVAL;
++	}
++
++	return 0;
 +}
 +
-+#endif /* CONFIG_NUMA_BALANCING */
++static int __init early_init_parse_distance_map_v1(unsigned long node,
++		const char *uname)
++{
++	const __be32 *prop_dist_matrix;
++	int length = 0, i, matrix_count;
++	int nr_size_cells = OF_ROOT_NODE_SIZE_CELLS_DEFAULT;
 +
- /*
-  * THP definitions.
-  */
++	pr_info("NUMA: parsing numa-distance-map-v1\n");
++
++	prop_dist_matrix =
++		of_get_flat_dt_prop(node, "distance-matrix", &length);
++
++	if (!length) {
++		pr_err("NUMA: failed to parse distance-matrix\n");
++		return -ENODEV;
++	}
++
++	matrix_count = ((length / sizeof(__be32)) / (3 * nr_size_cells));
++
++	if ((matrix_count * sizeof(__be32) * 3 * nr_size_cells) !=  length) {
++		pr_warn("NUMA: invalid distance-matrix length %d\n", length);
++		return -EINVAL;
++	}
++
++	for (i = 0; i < matrix_count; i++) {
++		u32 nodea, nodeb, distance;
++
++		nodea = dt_mem_next_cell(nr_size_cells, &prop_dist_matrix);
++		nodeb = dt_mem_next_cell(nr_size_cells, &prop_dist_matrix);
++		distance = dt_mem_next_cell(nr_size_cells, &prop_dist_matrix);
++		numa_set_distance(nodea, nodeb, distance);
++		pr_debug("NUMA:  distance[node%d -> node%d] = %d\n",
++				nodea, nodeb, distance);
++
++		/* Set default distance of node B->A same as A->B */
++		if (nodeb > nodea)
++			numa_set_distance(nodeb, nodea, distance);
++	}
++
++	return 0;
++}
++
++static int __init early_init_parse_distance_map(unsigned long node,
++		const char *uname)
++{
++	if (strcmp(uname, "distance-map") != 0)
++		return 0;
++
++	if (of_flat_dt_is_compatible(node, "numa-distance-map-v1"))
++		return early_init_parse_distance_map_v1(node, uname);
++
++	pr_err("NUMA: invalid distance-map device node\n");
++	return -EINVAL;
++}
++
++static int __init early_init_of_scan_numa_map(unsigned long node, const char *uname,
++				     int depth, void *data)
++{
++	int ret;
++
++	ret = early_init_parse_cpu_node(node);
++	if (ret)
++		return ret;
++
++	ret = early_init_parse_memory_node(node);
++	if (ret)
++		return ret;
++
++	return early_init_parse_distance_map(node, uname);
++}
++
++int of_node_to_nid(struct device_node *device)
++{
++	const __be32 *of_numa_prop;
++	int length;
++
++	of_numa_prop = of_get_property(device, "numa-node-id", &length);
++	if (of_numa_prop)
++		return of_numa_prop_to_nid(of_numa_prop, length);
++
++	return NUMA_NO_NODE;
++}
++
++/* DT node mapping is done already early_init_of_scan_memory */
++int __init of_numa_init(void)
++{
++	return of_scan_flat_dt(early_init_of_scan_numa_map, NULL);
++}
+diff --git a/include/linux/of.h b/include/linux/of.h
+index dd10626..23e5bad 100644
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -685,6 +685,10 @@ static inline int of_node_to_nid(struct device_node *device)
+ }
+ #endif
+ 
++#ifdef CONFIG_OF_NUMA
++extern int __init of_numa_init(void);
++#endif
++
+ static inline struct device_node *of_find_matching_node(
+ 	struct device_node *from,
+ 	const struct of_device_id *matches)
 -- 
 1.8.1.4
