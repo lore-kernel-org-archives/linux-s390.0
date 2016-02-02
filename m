@@ -1,136 +1,50 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
-Subject: [PATCH v10 0/8] arm64, numa: Add numa support for arm64 platforms
-Date: Tue, 2 Feb 2016 15:39:15 +0530
-Message-ID: <1454407763-1017-1-git-send-email-gkulkarni@caviumnetworks.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160202100915.IanVfyqD1k1Hj9-o85XaLi6PDH4n3B5TWnp63cjOJ34@z>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: [RFC 09/12] xtensa, rwsem: provide __down_write_killable
+Date: Tue,  2 Feb 2016 21:19:26 +0100
+Message-ID: <1454444369-2146-10-git-send-email-mhocko@kernel.org>
+References: <1454444369-2146-1-git-send-email-mhocko@kernel.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1454444369-2146-1-git-send-email-mhocko@kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, Will.Deacon@arm.com, catalin.marinas@arm.com, robh+dt@kernel.org, mark.rutland@arm.com, grant.likely@linaro.org, leif.lindholm@linaro.org, rfranz@cavium.com, ard.biesheuvel@linaro.org, msalter@redhat.com, steve.capper@linaro.org, hanjun.guo@linaro.org, al.stone@linaro.org, arnd@arndb.de, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rjw@rjwysocki.net, lenb@kernel.org, marc.zyngier@arm.com, lorenzo.pieralisi@arm.com, bhelgaas@google.com, tony.luck@intel.com, fenghua.yu@intel.com, james.hogan@imgtec.com, benh@kernel.crashing.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, jonathan@jonmasters.org, rrichter@cavium.com, Prasun.Kapoor@caviumnetworks.com
-Cc: gpkulkarni@gmail.com
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Michal Hocko <mhocko@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-v10:
-	- Incorporated review comments from Rob Herring.
-	- Moved numa binding and implementation to devicetree core.
-	- Added cleanup patch to remove redundant NODE_DATA macro from asm header files
-	- Include numa balancing support for arm64 patch in this series.
-	- Fix tile build issue reported by the kbuild robot(patch 7)
+From: Michal Hocko <mhocko@suse.com>
 
-v9:	- Added cleanup patch to reuse and avoid redefinition of cpumask_of_pcibus
-	  as suggested from Will Deacon and Bjorn Helgaas.
-	- Including patch to Make pci-host-generic driver numa aware.
-	- Incorporated comment from Shannon Zhao.
+which is uses the same fast path as __down_write except it falls back to
+rwsem_down_write_failed_killable slow path and return -EINTR if killed.
 
-v8:
-	- Incorporated review comments of Mark Rutland and Will Deacon.
-	- Added pci helper function and macro for numa.
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+---
+ arch/xtensa/include/asm/rwsem.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-v7:
-	- managing numa memory mapping using memblock.
-	- Incorporated review comments of Mark Rutland.
-
-v6:
-	- defined and implemented the numa dt binding using
-	node property proximity and device node distance-map.
-	- renamed dt_numa to of_numa
-
-v5:
-        - created base verion of numa.c which creates dummy numa without using dt
-          on single socket platforms. Then added patches for dt support.
-        - Incorporated review comments from Hanjun Guo.
-
-v4:
-done changes as per Arnd review comments.
-
-v3:
-Added changes to support numa on arm64 based platforms.
-Tested these patches on cavium's multinode(2 node topology) platform.
-In this patchset, defined and implemented dt bindings for numa mapping
-for core and memory using device node property arm,associativity.
-
-v2:
-Defined and implemented numa map for memory, cores to node and
-proximity distance matrix of nodes.
-
-v1:
-Initial patchset to support numa on arm64 platforms.
-
-Note:
-        1. This patchset is tested for numa with dt on
-           thunderx single socket and dual socket boards.
-        2. Numa DT booting needs the dt memory nodes, which are deleted in current efi-stub,
-        hence to try numa with dt, you need to rebase with ard's patchset.
-        http://git.linaro.org/people/ard.biesheuvel/linux-arm.git/shortlog/refs/heads/arm64-uefi-early-fdt-handling
-	3. PATCH[7,8] are not tested for other architectures.
-
-Ganapatrao Kulkarni (8):
-  arm64, numa: adding numa support for arm64 platforms.
-  Documentation, dt, numa: dt bindings for numa.
-  dt, numa: adding numa dt binding implementation.
-  arm64, numa : Enable numa dt for arm64 platforms.
-  arm64, dt, thunderx: Add initial dts for Cavium Thunderx in 2 node
-    topology.
-  arm64, mm, numa: Adding numa balancing support for arm64.
-  topology, cleanup: Avoid redefinition of cpumask_of_pcibus in asm
-    header files.
-  numa, mm, cleanup: remove redundant NODE_DATA macro from asm header
-    files.
-
- Documentation/devicetree/bindings/numa.txt      | 272 ++++++++
- arch/arm64/Kconfig                              |  26 +
- arch/arm64/boot/dts/cavium/Makefile             |   2 +-
- arch/arm64/boot/dts/cavium/thunder-88xx-2n.dts  |  83 +++
- arch/arm64/boot/dts/cavium/thunder-88xx-2n.dtsi | 806 ++++++++++++++++++++++++
- arch/arm64/include/asm/mmzone.h                 |  10 +
- arch/arm64/include/asm/numa.h                   |  45 ++
- arch/arm64/include/asm/pgtable.h                |  18 +
- arch/arm64/include/asm/topology.h               |   7 +
- arch/arm64/kernel/pci.c                         |  10 +
- arch/arm64/kernel/setup.c                       |   4 +
- arch/arm64/kernel/smp.c                         |   4 +
- arch/arm64/mm/Makefile                          |   1 +
- arch/arm64/mm/init.c                            |  34 +-
- arch/arm64/mm/mmu.c                             |   1 +
- arch/arm64/mm/numa.c                            | 404 ++++++++++++
- arch/ia64/include/asm/topology.h                |   4 -
- arch/m32r/include/asm/mmzone.h                  |   4 +-
- arch/metag/include/asm/mmzone.h                 |   4 +-
- arch/metag/include/asm/topology.h               |   3 -
- arch/powerpc/include/asm/mmzone.h               |   8 +-
- arch/powerpc/include/asm/topology.h             |   4 -
- arch/s390/include/asm/mmzone.h                  |   6 +-
- arch/s390/include/asm/pci.h                     |   2 +-
- arch/s390/include/asm/topology.h                |   1 +
- arch/sh/include/asm/mmzone.h                    |   4 +-
- arch/sh/include/asm/topology.h                  |   3 -
- arch/sparc/include/asm/mmzone.h                 |   6 +-
- arch/tile/include/asm/pci.h                     |   2 -
- arch/tile/include/asm/topology.h                |   3 +
- arch/x86/include/asm/mmzone.h                   |   3 +-
- arch/x86/include/asm/mmzone_32.h                |   5 -
- arch/x86/include/asm/mmzone_64.h                |  17 -
- arch/x86/include/asm/pci.h                      |   2 +-
- arch/x86/include/asm/topology.h                 |   1 +
- drivers/of/Kconfig                              |  11 +
- drivers/of/Makefile                             |   1 +
- drivers/of/of_numa.c                            | 207 ++++++
- include/asm-generic/mmzone.h                    |  24 +
- include/asm-generic/topology.h                  |   4 +-
- include/linux/of.h                              |   4 +
- 41 files changed, 1986 insertions(+), 74 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/numa.txt
- create mode 100644 arch/arm64/boot/dts/cavium/thunder-88xx-2n.dts
- create mode 100644 arch/arm64/boot/dts/cavium/thunder-88xx-2n.dtsi
- create mode 100644 arch/arm64/include/asm/mmzone.h
- create mode 100644 arch/arm64/include/asm/numa.h
- create mode 100644 arch/arm64/mm/numa.c
- delete mode 100644 arch/x86/include/asm/mmzone_64.h
- create mode 100644 drivers/of/of_numa.c
- create mode 100644 include/asm-generic/mmzone.h
-
+diff --git a/arch/xtensa/include/asm/rwsem.h b/arch/xtensa/include/asm/rwsem.h
+index 593483f6e1ff..6283823b8040 100644
+--- a/arch/xtensa/include/asm/rwsem.h
++++ b/arch/xtensa/include/asm/rwsem.h
+@@ -59,6 +59,19 @@ static inline void __down_write(struct rw_semaphore *sem)
+ 		rwsem_down_write_failed(sem);
+ }
+ 
++static inline int __down_write_killable(struct rw_semaphore *sem)
++{
++	int tmp;
++
++	tmp = atomic_add_return(RWSEM_ACTIVE_WRITE_BIAS,
++				(atomic_t *)(&sem->count));
++	if (tmp != RWSEM_ACTIVE_WRITE_BIAS)
++		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
++			return -EINTR;
++
++	return 0;
++}
++
+ static inline int __down_write_trylock(struct rw_semaphore *sem)
+ {
+ 	int tmp;
 -- 
-1.8.1.4
+2.7.0
