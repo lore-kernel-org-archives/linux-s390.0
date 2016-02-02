@@ -1,940 +1,244 @@
 From: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
-Subject: [PATCH v10 5/8] arm64, dt, thunderx: Add initial dts for Cavium Thunderx in 2 node topology.
-Date: Tue, 2 Feb 2016 15:39:20 +0530
-Message-ID: <1454407763-1017-6-git-send-email-gkulkarni@caviumnetworks.com>
+Subject: [PATCH v10 8/8] numa, mm, cleanup: remove redundant NODE_DATA macro from asm header files.
+Date: Tue, 2 Feb 2016 15:39:23 +0530
+Message-ID: <1454407763-1017-9-git-send-email-gkulkarni@caviumnetworks.com>
 References: <1454407763-1017-1-git-send-email-gkulkarni@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1454407763-1017-1-git-send-email-gkulkarni@caviumnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-sh-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, Will.Deacon@arm.com, catalin.marinas@arm.com, robh+dt@kernel.org, mark.rutland@arm.com, grant.likely@linaro.org, leif.lindholm@linaro.org, rfranz@cavium.com, ard.biesheuvel@linaro.org, msalter@redhat.com, steve.capper@linaro.org, hanjun.guo@linaro.org, al.stone@linaro.org, arnd@arndb.de, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rjw@rjwysocki.net, lenb@kernel.org, marc.zyngier@arm.com, lorenzo.pieralisi@arm.com, bhelgaas@google.com, tony.luck@intel.com, fenghua.yu@intel.com, james.hog
 Cc: gpkulkarni@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Adding dt file for Cavium's Thunderx dual socket platform.
+NODE_DATA is defined across multiple asm header files.
+Moving generic definition to asm-generic/mmzone.h to
+remove redundant definitions.
 
+Reviewed-by: Robert Richter <rrichter@cavium.com>
 Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 ---
- arch/arm64/boot/dts/cavium/Makefile             |   2 +-
- arch/arm64/boot/dts/cavium/thunder-88xx-2n.dts  |  83 +++
- arch/arm64/boot/dts/cavium/thunder-88xx-2n.dtsi | 806 ++++++++++++++++++++++++
- 3 files changed, 890 insertions(+), 1 deletion(-)
- create mode 100644 arch/arm64/boot/dts/cavium/thunder-88xx-2n.dts
- create mode 100644 arch/arm64/boot/dts/cavium/thunder-88xx-2n.dtsi
+ arch/arm64/include/asm/mmzone.h   |  4 +---
+ arch/m32r/include/asm/mmzone.h    |  4 +---
+ arch/metag/include/asm/mmzone.h   |  4 +---
+ arch/powerpc/include/asm/mmzone.h |  8 ++------
+ arch/s390/include/asm/mmzone.h    |  6 +-----
+ arch/sh/include/asm/mmzone.h      |  4 +---
+ arch/sparc/include/asm/mmzone.h   |  6 ++----
+ arch/x86/include/asm/mmzone.h     |  3 +--
+ arch/x86/include/asm/mmzone_32.h  |  5 -----
+ arch/x86/include/asm/mmzone_64.h  | 17 -----------------
+ include/asm-generic/mmzone.h      | 24 ++++++++++++++++++++++++
+ 11 files changed, 34 insertions(+), 51 deletions(-)
+ delete mode 100644 arch/x86/include/asm/mmzone_64.h
+ create mode 100644 include/asm-generic/mmzone.h
 
-diff --git a/arch/arm64/boot/dts/cavium/Makefile b/arch/arm64/boot/dts/cavium/Makefile
-index e34f89d..7fe7067 100644
---- a/arch/arm64/boot/dts/cavium/Makefile
-+++ b/arch/arm64/boot/dts/cavium/Makefile
-@@ -1,4 +1,4 @@
--dtb-$(CONFIG_ARCH_THUNDER) += thunder-88xx.dtb
-+dtb-$(CONFIG_ARCH_THUNDER) += thunder-88xx.dtb thunder-88xx-2n.dtb
+diff --git a/arch/arm64/include/asm/mmzone.h b/arch/arm64/include/asm/mmzone.h
+index a0de9e6..611a1cf 100644
+--- a/arch/arm64/include/asm/mmzone.h
++++ b/arch/arm64/include/asm/mmzone.h
+@@ -4,9 +4,7 @@
+ #ifdef CONFIG_NUMA
  
- always		:= $(dtb-y)
- subdir-y	:= $(dts-dirs)
-diff --git a/arch/arm64/boot/dts/cavium/thunder-88xx-2n.dts b/arch/arm64/boot/dts/cavium/thunder-88xx-2n.dts
+ #include <asm/numa.h>
+-
+-extern struct pglist_data *node_data[];
+-#define NODE_DATA(nid)		(node_data[(nid)])
++#include  <asm-generic/mmzone.h>
+ 
+ #endif /* CONFIG_NUMA */
+ #endif /* __ASM_MMZONE_H */
+diff --git a/arch/m32r/include/asm/mmzone.h b/arch/m32r/include/asm/mmzone.h
+index 115ced3..e3d66a0 100644
+--- a/arch/m32r/include/asm/mmzone.h
++++ b/arch/m32r/include/asm/mmzone.h
+@@ -7,12 +7,10 @@
+ #define _ASM_MMZONE_H_
+ 
+ #include <asm/smp.h>
++#include  <asm-generic/mmzone.h>
+ 
+ #ifdef CONFIG_DISCONTIGMEM
+ 
+-extern struct pglist_data *node_data[];
+-#define NODE_DATA(nid)		(node_data[nid])
+-
+ #define node_localnr(pfn, nid)	((pfn) - NODE_DATA(nid)->node_start_pfn)
+ 
+ #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
+diff --git a/arch/metag/include/asm/mmzone.h b/arch/metag/include/asm/mmzone.h
+index 9c88a9c..b1e95b3 100644
+--- a/arch/metag/include/asm/mmzone.h
++++ b/arch/metag/include/asm/mmzone.h
+@@ -3,9 +3,7 @@
+ 
+ #ifdef CONFIG_NEED_MULTIPLE_NODES
+ #include <linux/numa.h>
+-
+-extern struct pglist_data *node_data[];
+-#define NODE_DATA(nid)		(node_data[nid])
++#include  <asm-generic/mmzone.h>
+ 
+ static inline int pfn_to_nid(unsigned long pfn)
+ {
+diff --git a/arch/powerpc/include/asm/mmzone.h b/arch/powerpc/include/asm/mmzone.h
+index 7b58917..da0c5ba 100644
+--- a/arch/powerpc/include/asm/mmzone.h
++++ b/arch/powerpc/include/asm/mmzone.h
+@@ -19,12 +19,6 @@
+ 
+ #ifdef CONFIG_NEED_MULTIPLE_NODES
+ 
+-extern struct pglist_data *node_data[];
+-/*
+- * Return a pointer to the node data for node n.
+- */
+-#define NODE_DATA(nid)		(node_data[nid])
+-
+ /*
+  * Following are specific to this numa platform.
+  */
+@@ -42,5 +36,7 @@ u64 memory_hotplug_max(void);
+ #define memory_hotplug_max() memblock_end_of_DRAM()
+ #endif /* CONFIG_NEED_MULTIPLE_NODES */
+ 
++#include  <asm-generic/mmzone.h>
++
+ #endif /* __KERNEL__ */
+ #endif /* _ASM_MMZONE_H_ */
+diff --git a/arch/s390/include/asm/mmzone.h b/arch/s390/include/asm/mmzone.h
+index a9e834e..91f1fcc 100644
+--- a/arch/s390/include/asm/mmzone.h
++++ b/arch/s390/include/asm/mmzone.h
+@@ -7,10 +7,6 @@
+ #ifndef _ASM_S390_MMZONE_H
+ #define _ASM_S390_MMZONE_H
+ 
+-#ifdef CONFIG_NUMA
++#include  <asm-generic/mmzone.h>
+ 
+-extern struct pglist_data *node_data[];
+-#define NODE_DATA(nid) (node_data[nid])
+-
+-#endif /* CONFIG_NUMA */
+ #endif /* _ASM_S390_MMZONE_H */
+diff --git a/arch/sh/include/asm/mmzone.h b/arch/sh/include/asm/mmzone.h
+index 15a8496..c070d00 100644
+--- a/arch/sh/include/asm/mmzone.h
++++ b/arch/sh/include/asm/mmzone.h
+@@ -5,9 +5,7 @@
+ 
+ #ifdef CONFIG_NEED_MULTIPLE_NODES
+ #include <linux/numa.h>
+-
+-extern struct pglist_data *node_data[];
+-#define NODE_DATA(nid)		(node_data[nid])
++#include  <asm-generic/mmzone.h>
+ 
+ static inline int pfn_to_nid(unsigned long pfn)
+ {
+diff --git a/arch/sparc/include/asm/mmzone.h b/arch/sparc/include/asm/mmzone.h
+index 99d9b9f..ef1365b 100644
+--- a/arch/sparc/include/asm/mmzone.h
++++ b/arch/sparc/include/asm/mmzone.h
+@@ -5,13 +5,11 @@
+ 
+ #include <linux/cpumask.h>
+ 
+-extern struct pglist_data *node_data[];
+-
+-#define NODE_DATA(nid)		(node_data[nid])
+-
+ extern int numa_cpu_lookup_table[];
+ extern cpumask_t numa_cpumask_lookup_table[];
+ 
+ #endif /* CONFIG_NEED_MULTIPLE_NODES */
+ 
++#include  <asm-generic/mmzone.h>
++
+ #endif /* _SPARC64_MMZONE_H */
+diff --git a/arch/x86/include/asm/mmzone.h b/arch/x86/include/asm/mmzone.h
+index d497bc4..5a52815 100644
+--- a/arch/x86/include/asm/mmzone.h
++++ b/arch/x86/include/asm/mmzone.h
+@@ -1,5 +1,4 @@
+ #ifdef CONFIG_X86_32
+ # include <asm/mmzone_32.h>
+-#else
+-# include <asm/mmzone_64.h>
+ #endif
++#include  <asm-generic/mmzone.h>
+diff --git a/arch/x86/include/asm/mmzone_32.h b/arch/x86/include/asm/mmzone_32.h
+index 1ec990b..09f7cfb 100644
+--- a/arch/x86/include/asm/mmzone_32.h
++++ b/arch/x86/include/asm/mmzone_32.h
+@@ -8,11 +8,6 @@
+ 
+ #include <asm/smp.h>
+ 
+-#ifdef CONFIG_NUMA
+-extern struct pglist_data *node_data[];
+-#define NODE_DATA(nid)	(node_data[nid])
+-#endif /* CONFIG_NUMA */
+-
+ #ifdef CONFIG_DISCONTIGMEM
+ 
+ /*
+diff --git a/arch/x86/include/asm/mmzone_64.h b/arch/x86/include/asm/mmzone_64.h
+deleted file mode 100644
+index 129d9aa..0000000
+--- a/arch/x86/include/asm/mmzone_64.h
++++ /dev/null
+@@ -1,17 +0,0 @@
+-/* K8 NUMA support */
+-/* Copyright 2002,2003 by Andi Kleen, SuSE Labs */
+-/* 2.5 Version loosely based on the NUMAQ Code by Pat Gaughen. */
+-#ifndef _ASM_X86_MMZONE_64_H
+-#define _ASM_X86_MMZONE_64_H
+-
+-#ifdef CONFIG_NUMA
+-
+-#include <linux/mmdebug.h>
+-#include <asm/smp.h>
+-
+-extern struct pglist_data *node_data[];
+-
+-#define NODE_DATA(nid)		(node_data[nid])
+-
+-#endif
+-#endif /* _ASM_X86_MMZONE_64_H */
+diff --git a/include/asm-generic/mmzone.h b/include/asm-generic/mmzone.h
 new file mode 100644
-index 0000000..5601e87
+index 0000000..ec0fc4c
 --- /dev/null
-+++ b/arch/arm64/boot/dts/cavium/thunder-88xx-2n.dts
-@@ -0,0 +1,83 @@
++++ b/include/asm-generic/mmzone.h
+@@ -0,0 +1,24 @@
 +/*
-+ * Cavium Thunder DTS file - Thunder board description
++ * linux/include/asm-generic/mmzone.h
 + *
-+ * Copyright (C) 2014, Cavium Inc.
++ * Author: Ganapatrao Kulkarni <gkulkarni@cavium.com>
++ * Copyright (C) 2016 Cavium Inc.
 + *
-+ * This file is dual-licensed: you can use it either under the terms
-+ * of the GPL or the X11 license, at your option. Note that this dual
-+ * licensing only applies to this file, and not this project as a
-+ * whole.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + *
-+ *  a) This library is free software; you can redistribute it and/or
-+ *     modify it under the terms of the GNU General Public License as
-+ *     published by the Free Software Foundation; either version 2 of the
-+ *     License, or (at your option) any later version.
-+ *
-+ *     This library is distributed in the hope that it will be useful,
-+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *     GNU General Public License for more details.
-+ *
-+ *     You should have received a copy of the GNU General Public
-+ *     License along with this library; if not, write to the Free
-+ *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
-+ *     MA 02110-1301 USA
-+ *
-+ * Or, alternatively,
-+ *
-+ *  b) Permission is hereby granted, free of charge, to any person
-+ *     obtaining a copy of this software and associated documentation
-+ *     files (the "Software"), to deal in the Software without
-+ *     restriction, including without limitation the rights to use,
-+ *     copy, modify, merge, publish, distribute, sublicense, and/or
-+ *     sell copies of the Software, and to permit persons to whom the
-+ *     Software is furnished to do so, subject to the following
-+ *     conditions:
-+ *
-+ *     The above copyright notice and this permission notice shall be
-+ *     included in all copies or substantial portions of the Software.
-+ *
-+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+ *     OTHER DEALINGS IN THE SOFTWARE.
 + */
 +
-+/dts-v1/;
++#ifndef _ASM_GENERIC_MMZONE_H
++#define _ASM_GENERIC_MMZONE_H
 +
-+/include/ "thunder-88xx-2n.dtsi"
++#if defined(CONFIG_NUMA) || defined(CONFIG_NEED_MULTIPLE_NODES)
 +
-+/ {
-+	model = "Cavium ThunderX CN88XX board";
-+	compatible = "cavium,thunder-88xx";
++#ifndef NODE_DATA
++extern struct pglist_data *node_data[];
++#define NODE_DATA(nid)          (node_data[(nid)])
++#endif
 +
-+	aliases {
-+		serial0 = &uaa0;
-+		serial1 = &uaa1;
-+	};
-+
-+	memory@00000000 {
-+		device_type = "memory";
-+		reg = <0x0 0x01400000 0x3 0xFEC00000>;
-+		/* socket 0 */
-+		numa-node-id = <0>;
-+	};
-+
-+	memory@10000000000 {
-+		device_type = "memory";
-+		reg = <0x100 0x00400000 0x3 0xFFC00000>;
-+		 /* socket 1 */
-+		numa-node-id = <1>;
-+	};
-+
-+	distance-map {
-+		compatible = "numa-distance-map-v1";
-+		distance-matrix = <0 0  10>,
-+				  <0 1  20>,
-+				  <1 1  10>;
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/cavium/thunder-88xx-2n.dtsi b/arch/arm64/boot/dts/cavium/thunder-88xx-2n.dtsi
-new file mode 100644
-index 0000000..b58e5c7
---- /dev/null
-+++ b/arch/arm64/boot/dts/cavium/thunder-88xx-2n.dtsi
-@@ -0,0 +1,806 @@
-+/*
-+ * Cavium Thunder DTS file - Thunder SoC description
-+ *
-+ * Copyright (C) 2014, Cavium Inc.
-+ *
-+ * This file is dual-licensed: you can use it either under the terms
-+ * of the GPL or the X11 license, at your option. Note that this dual
-+ * licensing only applies to this file, and not this project as a
-+ * whole.
-+ *
-+ *  a) This library is free software; you can redistribute it and/or
-+ *     modify it under the terms of the GNU General Public License as
-+ *     published by the Free Software Foundation; either version 2 of the
-+ *     License, or (at your option) any later version.
-+ *
-+ *     This library is distributed in the hope that it will be useful,
-+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *     GNU General Public License for more details.
-+ *
-+ *     You should have received a copy of the GNU General Public
-+ *     License along with this library; if not, write to the Free
-+ *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
-+ *     MA 02110-1301 USA
-+ *
-+ * Or, alternatively,
-+ *
-+ *  b) Permission is hereby granted, free of charge, to any person
-+ *     obtaining a copy of this software and associated documentation
-+ *     files (the "Software"), to deal in the Software without
-+ *     restriction, including without limitation the rights to use,
-+ *     copy, modify, merge, publish, distribute, sublicense, and/or
-+ *     sell copies of the Software, and to permit persons to whom the
-+ *     Software is furnished to do so, subject to the following
-+ *     conditions:
-+ *
-+ *     The above copyright notice and this permission notice shall be
-+ *     included in all copies or substantial portions of the Software.
-+ *
-+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+ *     OTHER DEALINGS IN THE SOFTWARE.
-+ */
-+
-+/ {
-+	compatible = "cavium,thunder-88xx";
-+	interrupt-parent = <&gic0>;
-+	#address-cells = <2>;
-+	#size-cells = <2>;
-+
-+	psci {
-+		compatible = "arm,psci-0.2";
-+		method = "smc";
-+	};
-+
-+	cpus {
-+		#address-cells = <2>;
-+		#size-cells = <0>;
-+
-+		cpu@000 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x000>;
-+			enable-method = "psci";
-+			/* socket 0 */
-+			numa-node-id = <0>;
-+		};
-+		cpu@001 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x001>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@002 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x002>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@003 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x003>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@004 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x004>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@005 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x005>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@006 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x006>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@007 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x007>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@008 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x008>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@009 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x009>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@00a {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x00a>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@00b {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x00b>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@00c {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x00c>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@00d {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x00d>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@00e {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x00e>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@00f {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x00f>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@100 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x100>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@101 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x101>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@102 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x102>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@103 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x103>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@104 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x104>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@105 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x105>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@106 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x106>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@107 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x107>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@108 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x108>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@109 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x109>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@10a {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10a>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@10b {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10b>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@10c {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10c>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@10d {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10d>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@10e {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10e>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@10f {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10f>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@200 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x200>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@201 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x201>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@202 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x202>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@203 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x203>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@204 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x204>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@205 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x205>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@206 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x206>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@207 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x207>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@208 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x208>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@209 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x209>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@20a {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x20a>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@20b {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x20b>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@20c {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x20c>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@20d {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x20d>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@20e {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x20e>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@20f {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x20f>;
-+			enable-method = "psci";
-+			numa-node-id = <0>;
-+		};
-+		cpu@10000 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10000>;
-+			enable-method = "psci";
-+			/* socket 1 */
-+			numa-node-id = <1>;
-+		};
-+		cpu@10001 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10001>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10002 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10002>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10003 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10003>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10004 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10004>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10005 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10005>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10006 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10006>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10007 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10007>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10008 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10008>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10009 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10009>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1000a {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1000a>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1000b {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1000b>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1000c {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1000c>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1000d {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1000d>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1000e {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1000e>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1000f {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1000f>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10100 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10100>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10101 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10101>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10102 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10102>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10103 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10103>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10104 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10104>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10105 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10105>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10106 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10106>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10107 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10107>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10108 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10108>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10109 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10109>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1010a {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1010a>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1010b {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1010b>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1010c {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1010c>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1010d {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1010d>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1010e {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1010e>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1010f {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1010f>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10200 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10200>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10201 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10201>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10202 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10202>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10203 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10203>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10204 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10204>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10205 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10205>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10206 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10206>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10207 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10207>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10208 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10208>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@10209 {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x10209>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1020a {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1020a>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1020b {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1020b>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1020c {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1020c>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1020d {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1020d>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1020e {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1020e>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+		cpu@1020f {
-+			device_type = "cpu";
-+			compatible = "cavium,thunder", "arm,armv8";
-+			reg = <0x0 0x1020f>;
-+			enable-method = "psci";
-+			numa-node-id = <1>;
-+		};
-+	};
-+
-+	timer {
-+		compatible = "arm,armv8-timer";
-+		interrupts = <1 13 0xff01>,
-+		             <1 14 0xff01>,
-+		             <1 11 0xff01>,
-+		             <1 10 0xff01>;
-+	};
-+
-+	soc {
-+		compatible = "simple-bus";
-+		#address-cells = <2>;
-+		#size-cells = <2>;
-+		ranges;
-+
-+		refclk50mhz: refclk50mhz {
-+			compatible = "fixed-clock";
-+			#clock-cells = <0>;
-+			clock-frequency = <50000000>;
-+			clock-output-names = "refclk50mhz";
-+		};
-+
-+		gic0: interrupt-controller@8010,00000000 {
-+			compatible = "arm,gic-v3";
-+			#interrupt-cells = <3>;
-+			#address-cells = <2>;
-+			#size-cells = <2>;
-+			#redistributor-regions = <2>;
-+			ranges;
-+			interrupt-controller;
-+			reg = <0x8010 0x00000000 0x0 0x010000>, /* GICD */
-+			      <0x8010 0x80000000 0x0 0x600000>, /* GICR Node 0 */
-+			      <0x9010 0x80000000 0x0 0x600000>; /* GICR Node 1 */
-+			interrupts = <1 9 0xf04>;
-+
-+			its: gic-its@8010,00020000 {
-+				compatible = "arm,gic-v3-its";
-+				msi-controller;
-+				reg = <0x8010 0x20000 0x0 0x200000>;
-+				numa-node-id = <0>;
-+			};
-+
-+			its1: gic-its@9010,00020000 {
-+				compatible = "arm,gic-v3-its";
-+				msi-controller;
-+				reg = <0x9010 0x20000 0x0 0x200000>;
-+				numa-node-id = <1>;
-+			};
-+		};
-+
-+		uaa0: serial@87e0,24000000 {
-+			compatible = "arm,pl011", "arm,primecell";
-+			reg = <0x87e0 0x24000000 0x0 0x1000>;
-+			interrupts = <1 21 4>;
-+			clocks = <&refclk50mhz>;
-+			clock-names = "apb_pclk";
-+		};
-+
-+		uaa1: serial@87e0,25000000 {
-+			compatible = "arm,pl011", "arm,primecell";
-+			reg = <0x87e0 0x25000000 0x0 0x1000>;
-+			interrupts = <1 22 4>;
-+			clocks = <&refclk50mhz>;
-+			clock-names = "apb_pclk";
-+		};
-+	};
-+};
++#endif
++#endif /* _ASM_GENERIC_MMZONE_H */
 -- 
 1.8.1.4
