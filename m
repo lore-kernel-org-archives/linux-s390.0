@@ -1,261 +1,144 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v7 8/9] virtio_pci: Use the DMA API if enabled
-Date: Tue,  2 Feb 2016 21:46:39 -0800
-Message-ID: <833bd62e14c46f02dadd1b5738b5eb4d0425118f.1454477782.git.luto@kernel.org>
+Subject: [PATCH v7 3/9] s390/dma: Allow per device dma ops
+Date: Tue,  2 Feb 2016 21:46:34 -0800
+Message-ID: <df2d6b89dde05190a3d3cc6a841f5eb8943503a4.1454477782.git.luto@kernel.org>
 References: <cover.1454477782.git.luto@kernel.org>
-Return-path: <kvm-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <cover.1454477782.git.luto@kernel.org>
 In-Reply-To: <cover.1454477782.git.luto@kernel.org>
 References: <cover.1454477782.git.luto@kernel.org>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, David Woodhouse <dwmw2@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, xen-devel@lists.xenproject.org, Andy Lutomirski <luto@kernel.org>
+Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This switches to vring_create_virtqueue, simplifying the driver and
-adding DMA API support.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This fixes virtio-pci on platforms and busses that have IOMMUs.  This
-will break the experimental QEMU Q35 IOMMU support until QEMU is
-fixed.  In exchange, it fixes physical virtio hardware as well as
-virtio-pci running under Xen.
+As virtio-ccw will have dma ops, we can no longer default to the
+zPCI ones. Make use of dev_archdata to keep the dma_ops per device.
+The pci devices now use that to override the default, and the
+default is changed to use the noop ops for everything that does not
+specify a device specific one.
+To compile without PCI support we will enable HAS_DMA all the time,
+via the default config in lib/Kconfig.
 
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Joerg Roedel <jroedel@suse.de>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 Signed-off-by: Andy Lutomirski <luto@kernel.org>
 ---
- drivers/virtio/virtio_pci_common.h |  6 ----
- drivers/virtio/virtio_pci_legacy.c | 42 +++++++++++---------------
- drivers/virtio/virtio_pci_modern.c | 61 ++++++++++----------------------------
- 3 files changed, 33 insertions(+), 76 deletions(-)
+ arch/s390/Kconfig                   | 5 +----
+ arch/s390/include/asm/device.h      | 6 +++++-
+ arch/s390/include/asm/dma-mapping.h | 6 ++++--
+ arch/s390/pci/pci.c                 | 1 +
+ arch/s390/pci/pci_dma.c             | 4 ++--
+ 5 files changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index 2cc252270b2d..28263200ed42 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -35,12 +35,6 @@ struct virtio_pci_vq_info {
- 	/* the actual virtqueue */
- 	struct virtqueue *vq;
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 3be9c832dec1..b29c66e77e32 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -124,6 +124,7 @@ config S390
+ 	select HAVE_CMPXCHG_DOUBLE
+ 	select HAVE_CMPXCHG_LOCAL
+ 	select HAVE_DEBUG_KMEMLEAK
++	select HAVE_DMA_API_DEBUG
+ 	select HAVE_DYNAMIC_FTRACE
+ 	select HAVE_DYNAMIC_FTRACE_WITH_REGS
+ 	select HAVE_FTRACE_MCOUNT_RECORD
+@@ -619,10 +620,6 @@ config HAS_IOMEM
+ config IOMMU_HELPER
+ 	def_bool PCI
  
--	/* the number of entries in the queue */
--	int num;
+-config HAS_DMA
+-	def_bool PCI
+-	select HAVE_DMA_API_DEBUG
 -
--	/* the virtual address of the ring queue */
--	void *queue;
--
- 	/* the list node for the virtqueues list */
- 	struct list_head node;
+ config NEED_SG_DMA_LENGTH
+ 	def_bool PCI
  
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 48bc9797e530..8c4e61783441 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -119,7 +119,6 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 				  u16 msix_vec)
+diff --git a/arch/s390/include/asm/device.h b/arch/s390/include/asm/device.h
+index d8f9872b0e2d..4a9f35e0973f 100644
+--- a/arch/s390/include/asm/device.h
++++ b/arch/s390/include/asm/device.h
+@@ -3,5 +3,9 @@
+  *
+  * This file is released under the GPLv2
+  */
+-#include <asm-generic/device.h>
++struct dev_archdata {
++	struct dma_map_ops *dma_ops;
++};
+ 
++struct pdev_archdata {
++};
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+index e64bfcb9702f..3249b7464889 100644
+--- a/arch/s390/include/asm/dma-mapping.h
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -11,11 +11,13 @@
+ 
+ #define DMA_ERROR_CODE		(~(dma_addr_t) 0x0)
+ 
+-extern struct dma_map_ops s390_dma_ops;
++extern struct dma_map_ops s390_pci_dma_ops;
+ 
+ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
  {
- 	struct virtqueue *vq;
--	unsigned long size;
- 	u16 num;
- 	int err;
- 
-@@ -131,27 +130,19 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	if (!num || ioread32(vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN))
- 		return ERR_PTR(-ENOENT);
- 
--	info->num = num;
- 	info->msix_vector = msix_vec;
- 
--	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
--	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
--	if (info->queue == NULL)
-+	/* create the vring */
-+	vq = vring_create_virtqueue(index, num,
-+				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
-+				    true, false, vp_notify, callback, name);
-+	if (!vq)
- 		return ERR_PTR(-ENOMEM);
- 
- 	/* activate the queue */
--	iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
-+	iowrite32(virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
- 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
--	/* create the vring */
--	vq = vring_new_virtqueue(index, info->num,
--				 VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
--				 true, info->queue, vp_notify, callback, name);
--	if (!vq) {
--		err = -ENOMEM;
--		goto out_activate_queue;
--	}
--
- 	vq->priv = (void __force *)vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY;
- 
- 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
-@@ -159,17 +150,15 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 		msix_vec = ioread16(vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
- 		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
- 			err = -EBUSY;
--			goto out_assign;
-+			goto out_deactivate;
- 		}
- 	}
- 
- 	return vq;
- 
--out_assign:
--	vring_del_virtqueue(vq);
--out_activate_queue:
-+out_deactivate:
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
--	free_pages_exact(info->queue, size);
-+	vring_del_virtqueue(vq);
- 	return ERR_PTR(err);
+-	return &s390_dma_ops;
++	if (dev && dev->archdata.dma_ops)
++		return dev->archdata.dma_ops;
++	return &dma_noop_ops;
  }
  
-@@ -177,7 +166,6 @@ static void del_vq(struct virtio_pci_vq_info *info)
+ static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 11d4f277e9f6..f5931135b9ae 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -649,6 +649,7 @@ int pcibios_add_device(struct pci_dev *pdev)
+ 
+ 	zdev->pdev = pdev;
+ 	pdev->dev.groups = zpci_attr_groups;
++	pdev->dev.archdata.dma_ops = &s390_pci_dma_ops;
+ 	zpci_map_resources(pdev);
+ 
+ 	for (i = 0; i < PCI_BAR_COUNT; i++) {
+diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
+index 4638b93c7632..a79173ec54b9 100644
+--- a/arch/s390/pci/pci_dma.c
++++ b/arch/s390/pci/pci_dma.c
+@@ -544,7 +544,7 @@ static int __init dma_debug_do_init(void)
+ }
+ fs_initcall(dma_debug_do_init);
+ 
+-struct dma_map_ops s390_dma_ops = {
++struct dma_map_ops s390_pci_dma_ops = {
+ 	.alloc		= s390_dma_alloc,
+ 	.free		= s390_dma_free,
+ 	.map_sg		= s390_dma_map_sg,
+@@ -555,7 +555,7 @@ struct dma_map_ops s390_dma_ops = {
+ 	.is_phys	= 0,
+ 	/* dma_supported is unconditionally true without a callback */
+ };
+-EXPORT_SYMBOL_GPL(s390_dma_ops);
++EXPORT_SYMBOL_GPL(s390_pci_dma_ops);
+ 
+ static int __init s390_iommu_setup(char *str)
  {
- 	struct virtqueue *vq = info->vq;
- 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
--	unsigned long size;
- 
- 	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
- 
-@@ -188,13 +176,10 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 		ioread8(vp_dev->ioaddr + VIRTIO_PCI_ISR);
- 	}
- 
--	vring_del_virtqueue(vq);
--
- 	/* Select and deactivate the queue */
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
--	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
--	free_pages_exact(info->queue, size);
-+	vring_del_virtqueue(vq);
- }
- 
- static const struct virtio_config_ops virtio_pci_config_ops = {
-@@ -227,6 +212,13 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
- 		return -ENODEV;
- 	}
- 
-+	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-+	if (rc)
-+		rc = dma_set_mask_and_coherent(&pci_dev->dev,
-+						DMA_BIT_MASK(32));
-+	if (rc)
-+		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
-+
- 	rc = pci_request_region(pci_dev, 0, "virtio-pci-legacy");
- 	if (rc)
- 		return rc;
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index c0c11fad4611..0b4a4f440b85 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -287,31 +287,6 @@ static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
- 	return vp_ioread16(&vp_dev->common->msix_config);
- }
- 
--static size_t vring_pci_size(u16 num)
--{
--	/* We only need a cacheline separation. */
--	return PAGE_ALIGN(vring_size(num, SMP_CACHE_BYTES));
--}
--
--static void *alloc_virtqueue_pages(int *num)
--{
--	void *pages;
--
--	/* TODO: allocate each queue chunk individually */
--	for (; *num && vring_pci_size(*num) > PAGE_SIZE; *num /= 2) {
--		pages = alloc_pages_exact(vring_pci_size(*num),
--					  GFP_KERNEL|__GFP_ZERO|__GFP_NOWARN);
--		if (pages)
--			return pages;
--	}
--
--	if (!*num)
--		return NULL;
--
--	/* Try to get a single page. You are my only hope! */
--	return alloc_pages_exact(vring_pci_size(*num), GFP_KERNEL|__GFP_ZERO);
--}
--
- static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 				  struct virtio_pci_vq_info *info,
- 				  unsigned index,
-@@ -343,29 +318,22 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	/* get offset of notification word for this vq */
- 	off = vp_ioread16(&cfg->queue_notify_off);
- 
--	info->num = num;
- 	info->msix_vector = msix_vec;
- 
--	info->queue = alloc_virtqueue_pages(&info->num);
--	if (info->queue == NULL)
--		return ERR_PTR(-ENOMEM);
--
- 	/* create the vring */
--	vq = vring_new_virtqueue(index, info->num,
--				 SMP_CACHE_BYTES, &vp_dev->vdev,
--				 true, info->queue, vp_notify, callback, name);
--	if (!vq) {
--		err = -ENOMEM;
--		goto err_new_queue;
--	}
-+	vq = vring_create_virtqueue(index, num,
-+				    SMP_CACHE_BYTES, &vp_dev->vdev,
-+				    true, true, vp_notify, callback, name);
-+	if (!vq)
-+		return ERR_PTR(-ENOMEM);
- 
- 	/* activate the queue */
--	vp_iowrite16(num, &cfg->queue_size);
--	vp_iowrite64_twopart(virt_to_phys(info->queue),
-+	vp_iowrite16(virtqueue_get_vring_size(vq), &cfg->queue_size);
-+	vp_iowrite64_twopart(virtqueue_get_desc_addr(vq),
- 			     &cfg->queue_desc_lo, &cfg->queue_desc_hi);
--	vp_iowrite64_twopart(virt_to_phys(virtqueue_get_avail(vq)),
-+	vp_iowrite64_twopart(virtqueue_get_avail_addr(vq),
- 			     &cfg->queue_avail_lo, &cfg->queue_avail_hi);
--	vp_iowrite64_twopart(virt_to_phys(virtqueue_get_used(vq)),
-+	vp_iowrite64_twopart(virtqueue_get_used_addr(vq),
- 			     &cfg->queue_used_lo, &cfg->queue_used_hi);
- 
- 	if (vp_dev->notify_base) {
-@@ -410,8 +378,6 @@ err_assign_vector:
- 		pci_iounmap(vp_dev->pci_dev, (void __iomem __force *)vq->priv);
- err_map_notify:
- 	vring_del_virtqueue(vq);
--err_new_queue:
--	free_pages_exact(info->queue, vring_pci_size(info->num));
- 	return ERR_PTR(err);
- }
- 
-@@ -456,8 +422,6 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 		pci_iounmap(vp_dev->pci_dev, (void __force __iomem *)vq->priv);
- 
- 	vring_del_virtqueue(vq);
--
--	free_pages_exact(info->queue, vring_pci_size(info->num));
- }
- 
- static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
-@@ -641,6 +605,13 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
- 		return -EINVAL;
- 	}
- 
-+	err = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-+	if (err)
-+		err = dma_set_mask_and_coherent(&pci_dev->dev,
-+						DMA_BIT_MASK(32));
-+	if (err)
-+		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
-+
- 	/* Device capability is only mandatory for devices that have
- 	 * device-specific configuration.
- 	 */
 -- 
 2.5.0
