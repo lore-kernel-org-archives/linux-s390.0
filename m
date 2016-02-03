@@ -1,119 +1,151 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v7 0/9] virtio DMA API, yet again
-Date: Tue,  2 Feb 2016 21:46:31 -0800
-Message-ID: <cover.1454477782.git.luto@kernel.org>
-Return-path: <sparclinux-owner@vger.kernel.org>
-Sender: sparclinux-owner@vger.kernel.org
+Subject: [PATCH v7 1/9] dma: Provide simple noop dma ops
+Date: Tue,  2 Feb 2016 21:46:32 -0800
+Message-ID: <95091525af1b5a742709bb4357bb9ffdc7968dec.1454477782.git.luto@kernel.org>
+References: <cover.1454477782.git.luto@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1454477782.git.luto@kernel.org>
+In-Reply-To: <cover.1454477782.git.luto@kernel.org>
+References: <cover.1454477782.git.luto@kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, David Woodhouse <dwmw2@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, xen-devel@lists.xenproject.org, Andy Lutomirski <luto@kernel.org>
+Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This switches virtio to use the DMA API on Xen and if requested by
-module option.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This fixes virtio on Xen, and it should break anything because it's
-off by default on everything except Xen PV on x86.
+We are going to require dma_ops for several common drivers, even for
+systems that do have an identity mapping. Lets provide some minimal
+no-op dma_ops that can be used for that purpose.
 
-To the Xen people: is this okay?  If it doesn't work on other Xen
-variants (PVH? HVM?), can you submit follow-up patches to fix it?
-
-To everyone else: we've waffled on this for way too long.  I think
-we should to get DMA API implementation in with a conservative
-policy like this rather than waiting until we achieve perfection.
-I'm tired of carrying these patches around.
-
-I changed queue allocation around a bit in this version.  Per Michael's
-request, we no longer use dma_zalloc_coherent in the !dma_api case.
-Instead we use alloc_pages_exact, just like the current code does.
-This simplifies the ring address accessors, because they can always
-load from the dma addr rather than depending on vring_use_dma_api
-themselves.
-
-There's an odd warning in here if the ring's physical address
-doesn't fit in a dma_addr_t.  This could only possible happen on
-really weird configurations in which phys_addr_t is wider than
-dma_addr_t.  AFAICT this is only possible on i386 PAE systems and on
-MIPS, and even there it only happens if highmem is off.  But that
-means we're safe, since we should never end up with high allocations
-on non-highmem systems unless we explicitly ask for them, which we
-don't.
-
-If this is too scary, I can add yet more cruft to avoid it, but
-it seems harmless enough to me, and it means that the driver will
-be totally clean once all the vring_use_dma_api calls go away.
-
-Michael, if these survive review, can you stage these in your tree?
-Can you also take a look at tools/virtio?  I probably broke it, but I
-couldn't get it to build without these patches either, so I'm stuck.
-
-Changes from v6:
- - Remove HAVE_DMA_ATTRS and add Acked-by (Cornelia)
- - Add some missing signed-off-by lines from me (whoops)
- - Rework queue allocation (Michael)
-
-Changes from v5:
- - Typo fixes (David Woodhouse)
- - Use xen_domain() to detect Xen (David Vrabel)
- - Pass struct vring_virtqueue * into vring_use_dma_api for future proofing
- - Removed module parameter (Michael)
-
-Changes from v4:
- - Bake vring_use_dma_api in from the beginning.
- - Automatically enable only on Xen.
- - Add module parameter.
- - Add s390 and alpha DMA API implementations.
- - Rebase to 4.5-rc1.
-
-Changes from v3:
- - More big-endian fixes.
- - Added better virtio-ring APIs that handle allocation and use them in
-   virtio-mmio and virtio-pci.
- - Switch to Michael's virtio-net patch.
-
-Changes from v2:
- - Fix vring_mapping_error incorrect argument
-
-Changes from v1:
- - Fix an endian conversion error causing a BUG to hit.
- - Fix a DMA ordering issue (swiotlb=force works now).
- - Minor cleanups.
-
-Andy Lutomirski (6):
-  vring: Introduce vring_use_dma_api()
-  virtio_ring: Support DMA APIs
-  virtio: Add improved queue allocation API
-  virtio_mmio: Use the DMA API if enabled
-  virtio_pci: Use the DMA API if enabled
-  vring: Use the DMA API on Xen
-
-Christian Borntraeger (3):
-  dma: Provide simple noop dma ops
-  alpha/dma: use common noop dma ops
-  s390/dma: Allow per device dma ops
-
- arch/alpha/kernel/pci-noop.c        |  46 +---
- arch/s390/Kconfig                   |   5 +-
- arch/s390/include/asm/device.h      |   6 +-
- arch/s390/include/asm/dma-mapping.h |   6 +-
- arch/s390/pci/pci.c                 |   1 +
- arch/s390/pci/pci_dma.c             |   4 +-
- drivers/virtio/Kconfig              |   2 +-
- drivers/virtio/virtio_mmio.c        |  67 ++----
- drivers/virtio/virtio_pci_common.h  |   6 -
- drivers/virtio/virtio_pci_legacy.c  |  42 ++--
- drivers/virtio/virtio_pci_modern.c  |  61 ++---
- drivers/virtio/virtio_ring.c        | 439 +++++++++++++++++++++++++++++++-----
- include/linux/dma-mapping.h         |   2 +
- include/linux/virtio.h              |  23 +-
- include/linux/virtio_ring.h         |  35 +++
- lib/Makefile                        |   1 +
- lib/dma-noop.c                      |  75 ++++++
- tools/virtio/linux/dma-mapping.h    |  17 ++
- 18 files changed, 594 insertions(+), 244 deletions(-)
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
+ include/linux/dma-mapping.h |  2 ++
+ lib/Makefile                |  1 +
+ lib/dma-noop.c              | 75 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 78 insertions(+)
  create mode 100644 lib/dma-noop.c
- create mode 100644 tools/virtio/linux/dma-mapping.h
 
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index 75857cda38e9..c0b27ff2c784 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -70,6 +70,8 @@ struct dma_map_ops {
+ 	int is_phys;
+ };
+ 
++extern struct dma_map_ops dma_noop_ops;
++
+ #define DMA_BIT_MASK(n)	(((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
+ 
+ #define DMA_MASK_NONE	0x0ULL
+diff --git a/lib/Makefile b/lib/Makefile
+index a7c26a41a738..a572b86a1b1d 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -18,6 +18,7 @@ lib-y := ctype.o string.o vsprintf.o cmdline.o \
+ obj-$(CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS) += usercopy.o
+ lib-$(CONFIG_MMU) += ioremap.o
+ lib-$(CONFIG_SMP) += cpumask.o
++lib-$(CONFIG_HAS_DMA) += dma-noop.o
+ 
+ lib-y	+= kobject.o klist.o
+ obj-y	+= lockref.o
+diff --git a/lib/dma-noop.c b/lib/dma-noop.c
+new file mode 100644
+index 000000000000..72145646857e
+--- /dev/null
++++ b/lib/dma-noop.c
+@@ -0,0 +1,75 @@
++/*
++ *	lib/dma-noop.c
++ *
++ * Simple DMA noop-ops that map 1:1 with memory
++ */
++#include <linux/export.h>
++#include <linux/mm.h>
++#include <linux/dma-mapping.h>
++#include <linux/scatterlist.h>
++
++static void *dma_noop_alloc(struct device *dev, size_t size,
++			    dma_addr_t *dma_handle, gfp_t gfp,
++			    struct dma_attrs *attrs)
++{
++	void *ret;
++
++	ret = (void *)__get_free_pages(gfp, get_order(size));
++	if (ret)
++		*dma_handle = virt_to_phys(ret);
++	return ret;
++}
++
++static void dma_noop_free(struct device *dev, size_t size,
++			  void *cpu_addr, dma_addr_t dma_addr,
++			  struct dma_attrs *attrs)
++{
++	free_pages((unsigned long)cpu_addr, get_order(size));
++}
++
++static dma_addr_t dma_noop_map_page(struct device *dev, struct page *page,
++				      unsigned long offset, size_t size,
++				      enum dma_data_direction dir,
++				      struct dma_attrs *attrs)
++{
++	return page_to_phys(page) + offset;
++}
++
++static int dma_noop_map_sg(struct device *dev, struct scatterlist *sgl, int nents,
++			     enum dma_data_direction dir, struct dma_attrs *attrs)
++{
++	int i;
++	struct scatterlist *sg;
++
++	for_each_sg(sgl, sg, nents, i) {
++		void *va;
++
++		BUG_ON(!sg_page(sg));
++		va = sg_virt(sg);
++		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va);
++		sg_dma_len(sg) = sg->length;
++	}
++
++	return nents;
++}
++
++static int dma_noop_mapping_error(struct device *dev, dma_addr_t dma_addr)
++{
++	return 0;
++}
++
++static int dma_noop_supported(struct device *dev, u64 mask)
++{
++	return 1;
++}
++
++struct dma_map_ops dma_noop_ops = {
++	.alloc			= dma_noop_alloc,
++	.free			= dma_noop_free,
++	.map_page		= dma_noop_map_page,
++	.map_sg			= dma_noop_map_sg,
++	.mapping_error		= dma_noop_mapping_error,
++	.dma_supported		= dma_noop_supported,
++};
++
++EXPORT_SYMBOL(dma_noop_ops);
 -- 
 2.5.0
