@@ -1,94 +1,176 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v7 2/9] alpha/dma: use common noop dma ops
-Date: Tue,  2 Feb 2016 21:46:33 -0800
-Message-ID: <72a5975b085a6b076473b0fc84b71a8642fdf632.1454477782.git.luto@kernel.org>
+Subject: [PATCH v7 7/9] virtio_mmio: Use the DMA API if enabled
+Date: Tue,  2 Feb 2016 21:46:38 -0800
+Message-ID: <a5dcce6d76c55c528dfc0d51482daa255e9317d5.1454477782.git.luto@kernel.org>
 References: <cover.1454477782.git.luto@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 In-Reply-To: <cover.1454477782.git.luto@kernel.org>
 In-Reply-To: <cover.1454477782.git.luto@kernel.org>
 References: <cover.1454477782.git.luto@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: sparclinux-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, David Woodhouse <dwmw2@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, xen-devel@lists.xenproject.org, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+This switches to vring_create_virtqueue, simplifying the driver and
+adding DMA API support.
 
-Some of the alpha pci noop dma ops are identical to the common ones.
-Use them.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Andy Lutomirski <luto@kernel.org>
 ---
- arch/alpha/kernel/pci-noop.c | 46 ++++----------------------------------------
- 1 file changed, 4 insertions(+), 42 deletions(-)
+ drivers/virtio/virtio_mmio.c | 67 ++++++++++----------------------------------
+ 1 file changed, 15 insertions(+), 52 deletions(-)
 
-diff --git a/arch/alpha/kernel/pci-noop.c b/arch/alpha/kernel/pci-noop.c
-index 2b1f4a1e9272..8e735b5e56bd 100644
---- a/arch/alpha/kernel/pci-noop.c
-+++ b/arch/alpha/kernel/pci-noop.c
-@@ -123,44 +123,6 @@ static void *alpha_noop_alloc_coherent(struct device *dev, size_t size,
- 	return ret;
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 745c6ee1bb3e..48bfea91dbca 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -99,12 +99,6 @@ struct virtio_mmio_vq_info {
+ 	/* the actual virtqueue */
+ 	struct virtqueue *vq;
+ 
+-	/* the number of entries in the queue */
+-	unsigned int num;
+-
+-	/* the virtual address of the ring queue */
+-	void *queue;
+-
+ 	/* the list node for the virtqueues list */
+ 	struct list_head node;
+ };
+@@ -322,15 +316,13 @@ static void vm_del_vq(struct virtqueue *vq)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
+ 	struct virtio_mmio_vq_info *info = vq->priv;
+-	unsigned long flags, size;
++	unsigned long flags;
+ 	unsigned int index = vq->index;
+ 
+ 	spin_lock_irqsave(&vm_dev->lock, flags);
+ 	list_del(&info->node);
+ 	spin_unlock_irqrestore(&vm_dev->lock, flags);
+ 
+-	vring_del_virtqueue(vq);
+-
+ 	/* Select and deactivate the queue */
+ 	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
+ 	if (vm_dev->version == 1) {
+@@ -340,8 +332,8 @@ static void vm_del_vq(struct virtqueue *vq)
+ 		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
+ 	}
+ 
+-	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_MMIO_VRING_ALIGN));
+-	free_pages_exact(info->queue, size);
++	vring_del_virtqueue(vq);
++
+ 	kfree(info);
  }
  
--static void alpha_noop_free_coherent(struct device *dev, size_t size,
--				     void *cpu_addr, dma_addr_t dma_addr,
--				     struct dma_attrs *attrs)
--{
--	free_pages((unsigned long)cpu_addr, get_order(size));
--}
+@@ -356,8 +348,6 @@ static void vm_del_vqs(struct virtio_device *vdev)
+ 	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
+ }
+ 
 -
--static dma_addr_t alpha_noop_map_page(struct device *dev, struct page *page,
--				      unsigned long offset, size_t size,
--				      enum dma_data_direction dir,
--				      struct dma_attrs *attrs)
--{
--	return page_to_pa(page) + offset;
--}
 -
--static int alpha_noop_map_sg(struct device *dev, struct scatterlist *sgl, int nents,
--			     enum dma_data_direction dir, struct dma_attrs *attrs)
--{
--	int i;
--	struct scatterlist *sg;
+ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 				  void (*callback)(struct virtqueue *vq),
+ 				  const char *name)
+@@ -365,7 +355,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+ 	struct virtio_mmio_vq_info *info;
+ 	struct virtqueue *vq;
+-	unsigned long flags, size;
++	unsigned long flags;
++	unsigned int num;
+ 	int err;
+ 
+ 	if (!name)
+@@ -388,66 +379,40 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 		goto error_kmalloc;
+ 	}
+ 
+-	/* Allocate pages for the queue - start with a queue as big as
+-	 * possible (limited by maximum size allowed by device), drop down
+-	 * to a minimal size, just big enough to fit descriptor table
+-	 * and two rings (which makes it "alignment_size * 2")
+-	 */
+-	info->num = readl(vm_dev->base + VIRTIO_MMIO_QUEUE_NUM_MAX);
 -
--	for_each_sg(sgl, sg, nents, i) {
--		void *va;
--
--		BUG_ON(!sg_page(sg));
--		va = sg_virt(sg);
--		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va);
--		sg_dma_len(sg) = sg->length;
+-	/* If the device reports a 0 entry queue, we won't be able to
+-	 * use it to perform I/O, and vring_new_virtqueue() can't create
+-	 * empty queues anyway, so don't bother to set up the device.
+-	 */
+-	if (info->num == 0) {
++	num = readl(vm_dev->base + VIRTIO_MMIO_QUEUE_NUM_MAX);
++	if (num == 0) {
+ 		err = -ENOENT;
+-		goto error_alloc_pages;
 -	}
 -
--	return nents;
--}
+-	while (1) {
+-		size = PAGE_ALIGN(vring_size(info->num,
+-				VIRTIO_MMIO_VRING_ALIGN));
+-		/* Did the last iter shrink the queue below minimum size? */
+-		if (size < VIRTIO_MMIO_VRING_ALIGN * 2) {
+-			err = -ENOMEM;
+-			goto error_alloc_pages;
+-		}
 -
--static int alpha_noop_mapping_error(struct device *dev, dma_addr_t dma_addr)
--{
--	return 0;
--}
+-		info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
+-		if (info->queue)
+-			break;
 -
- static int alpha_noop_supported(struct device *dev, u64 mask)
- {
- 	return mask < 0x00ffffffUL ? 0 : 1;
-@@ -168,10 +130,10 @@ static int alpha_noop_supported(struct device *dev, u64 mask)
+-		info->num /= 2;
++		goto error_new_virtqueue;
+ 	}
  
- struct dma_map_ops alpha_noop_ops = {
- 	.alloc			= alpha_noop_alloc_coherent,
--	.free			= alpha_noop_free_coherent,
--	.map_page		= alpha_noop_map_page,
--	.map_sg			= alpha_noop_map_sg,
--	.mapping_error		= alpha_noop_mapping_error,
-+	.free			= dma_noop_free_coherent,
-+	.map_page		= dma_noop_map_page,
-+	.map_sg			= dma_noop_map_sg,
-+	.mapping_error		= dma_noop_mapping_error,
- 	.dma_supported		= alpha_noop_supported,
- };
+ 	/* Create the vring */
+-	vq = vring_new_virtqueue(index, info->num, VIRTIO_MMIO_VRING_ALIGN, vdev,
+-				 true, info->queue, vm_notify, callback, name);
++	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
++				 true, true, vm_notify, callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto error_new_virtqueue;
+ 	}
  
+ 	/* Activate the queue */
+-	writel(info->num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
++	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+ 	if (vm_dev->version == 1) {
+ 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
+-		writel(virt_to_phys(info->queue) >> PAGE_SHIFT,
++		writel(virtqueue_get_desc_addr(vq) >> PAGE_SHIFT,
+ 				vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
+ 	} else {
+ 		u64 addr;
+ 
+-		addr = virt_to_phys(info->queue);
++		addr = virtqueue_get_desc_addr(vq);
+ 		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
+ 		writel((u32)(addr >> 32),
+ 				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
+ 
+-		addr = virt_to_phys(virtqueue_get_avail(vq));
++		addr = virtqueue_get_avail_addr(vq);
+ 		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
+ 		writel((u32)(addr >> 32),
+ 				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
+ 
+-		addr = virt_to_phys(virtqueue_get_used(vq));
++		addr = virtqueue_get_used_addr(vq);
+ 		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
+ 		writel((u32)(addr >> 32),
+ 				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
+@@ -471,8 +436,6 @@ error_new_virtqueue:
+ 		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
+ 		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
+ 	}
+-	free_pages_exact(info->queue, size);
+-error_alloc_pages:
+ 	kfree(info);
+ error_kmalloc:
+ error_available:
 -- 
 2.5.0
