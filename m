@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v7 3/9] s390/dma: Allow per device dma ops
-Date: Tue,  2 Feb 2016 21:46:34 -0800
-Message-ID: <df2d6b89dde05190a3d3cc6a841f5eb8943503a4.1454477782.git.luto@kernel.org>
+Subject: [PATCH v7 4/9] vring: Introduce vring_use_dma_api()
+Date: Tue,  2 Feb 2016 21:46:35 -0800
+Message-ID: <14db226dda9e0d6af5d2bfab0f75ffddfb116bf9.1454477782.git.luto@kernel.org>
 References: <cover.1454477782.git.luto@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,120 +25,51 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+This is a kludge, but no one has come up with a a better idea yet.
+We'll introduce DMA API support guarded by vring_use_dma_api().
+Eventually we may be able to return true on more and more systems,
+and hopefully we can get rid of vring_use_dma_api() entirely some
+day.
 
-As virtio-ccw will have dma ops, we can no longer default to the
-zPCI ones. Make use of dev_archdata to keep the dma_ops per device.
-The pci devices now use that to override the default, and the
-default is changed to use the noop ops for everything that does not
-specify a device specific one.
-To compile without PCI support we will enable HAS_DMA all the time,
-via the default config in lib/Kconfig.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 Signed-off-by: Andy Lutomirski <luto@kernel.org>
 ---
- arch/s390/Kconfig                   | 5 +----
- arch/s390/include/asm/device.h      | 6 +++++-
- arch/s390/include/asm/dma-mapping.h | 6 ++++--
- arch/s390/pci/pci.c                 | 1 +
- arch/s390/pci/pci_dma.c             | 4 ++--
- 5 files changed, 13 insertions(+), 9 deletions(-)
+ drivers/virtio/virtio_ring.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 3be9c832dec1..b29c66e77e32 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -124,6 +124,7 @@ config S390
- 	select HAVE_CMPXCHG_DOUBLE
- 	select HAVE_CMPXCHG_LOCAL
- 	select HAVE_DEBUG_KMEMLEAK
-+	select HAVE_DMA_API_DEBUG
- 	select HAVE_DYNAMIC_FTRACE
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS
- 	select HAVE_FTRACE_MCOUNT_RECORD
-@@ -619,10 +620,6 @@ config HAS_IOMEM
- config IOMMU_HELPER
- 	def_bool PCI
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index e12e385f7ac3..ab0be6c084f6 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -104,6 +104,30 @@ struct vring_virtqueue {
  
--config HAS_DMA
--	def_bool PCI
--	select HAVE_DMA_API_DEBUG
--
- config NEED_SG_DMA_LENGTH
- 	def_bool PCI
+ #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
  
-diff --git a/arch/s390/include/asm/device.h b/arch/s390/include/asm/device.h
-index d8f9872b0e2d..4a9f35e0973f 100644
---- a/arch/s390/include/asm/device.h
-+++ b/arch/s390/include/asm/device.h
-@@ -3,5 +3,9 @@
-  *
-  * This file is released under the GPLv2
-  */
--#include <asm-generic/device.h>
-+struct dev_archdata {
-+	struct dma_map_ops *dma_ops;
-+};
- 
-+struct pdev_archdata {
-+};
-diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-index e64bfcb9702f..3249b7464889 100644
---- a/arch/s390/include/asm/dma-mapping.h
-+++ b/arch/s390/include/asm/dma-mapping.h
-@@ -11,11 +11,13 @@
- 
- #define DMA_ERROR_CODE		(~(dma_addr_t) 0x0)
- 
--extern struct dma_map_ops s390_dma_ops;
-+extern struct dma_map_ops s390_pci_dma_ops;
- 
- static inline struct dma_map_ops *get_dma_ops(struct device *dev)
- {
--	return &s390_dma_ops;
-+	if (dev && dev->archdata.dma_ops)
-+		return dev->archdata.dma_ops;
-+	return &dma_noop_ops;
- }
- 
- static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 11d4f277e9f6..f5931135b9ae 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -649,6 +649,7 @@ int pcibios_add_device(struct pci_dev *pdev)
- 
- 	zdev->pdev = pdev;
- 	pdev->dev.groups = zpci_attr_groups;
-+	pdev->dev.archdata.dma_ops = &s390_pci_dma_ops;
- 	zpci_map_resources(pdev);
- 
- 	for (i = 0; i < PCI_BAR_COUNT; i++) {
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index 4638b93c7632..a79173ec54b9 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -544,7 +544,7 @@ static int __init dma_debug_do_init(void)
- }
- fs_initcall(dma_debug_do_init);
- 
--struct dma_map_ops s390_dma_ops = {
-+struct dma_map_ops s390_pci_dma_ops = {
- 	.alloc		= s390_dma_alloc,
- 	.free		= s390_dma_free,
- 	.map_sg		= s390_dma_map_sg,
-@@ -555,7 +555,7 @@ struct dma_map_ops s390_dma_ops = {
- 	.is_phys	= 0,
- 	/* dma_supported is unconditionally true without a callback */
- };
--EXPORT_SYMBOL_GPL(s390_dma_ops);
-+EXPORT_SYMBOL_GPL(s390_pci_dma_ops);
- 
- static int __init s390_iommu_setup(char *str)
++/*
++ * The interaction between virtio and a possible IOMMU is a mess.
++ *
++ * On most systems with virtio, physical addresses match bus addresses,
++ * and it doesn't particularly matter whether we use the DMA API.
++ *
++ * On some systems, including Xen and any system with a physical device
++ * that speaks virtio behind a physical IOMMU, we must use the DMA API
++ * for virtio DMA to work at all.
++ *
++ * On other systems, including SPARC and PPC64, virtio-pci devices are
++ * enumerated as though they are behind an IOMMU, but the virtio host
++ * ignores the IOMMU, so we must either pretend that the IOMMU isn't
++ * there or somehow map everything as the identity.
++ *
++ * For the time being, we preserve historic behavior and bypass the DMA
++ * API.
++ */
++
++static bool vring_use_dma_api(struct virtio_device *vdev)
++{
++	return false;
++}
++
+ static struct vring_desc *alloc_indirect(struct virtqueue *_vq,
+ 					 unsigned int total_sg, gfp_t gfp)
  {
 -- 
 2.5.0
