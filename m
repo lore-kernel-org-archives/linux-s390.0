@@ -1,293 +1,338 @@
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [RFC PATCH v4 4/6] livepatch: reuse module loader code to write
- relocations
-Date: Mon, 8 Feb 2016 16:05:38 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1602081554320.12964@pobox.suse.cz>
-References: <1454548271-24923-1-git-send-email-jeyu@redhat.com> <1454548271-24923-5-git-send-email-jeyu@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [RFC PATCH v4 2/6] module: preserve Elf information for
+ livepatch modules
+Date: Mon, 8 Feb 2016 14:10:39 -0600
+Message-ID: <20160208201039.GC23106@treble.redhat.com>
+References: <1454548271-24923-1-git-send-email-jeyu@redhat.com>
+ <1454548271-24923-3-git-send-email-jeyu@redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1454548271-24923-5-git-send-email-jeyu@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1454548271-24923-3-git-send-email-jeyu@redhat.com>
 Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
 To: Jessica Yu <jeyu@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Josh Poimboeuf <jpoimboe@redhat.com>, Seth Jennings <sjenning@redhat.com>, Jiri Kosina <jikos@kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Seth Jennings <sjenning@redhat.com>, Jiri Kosina <jikos@kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, Miroslav Benes <mbenes@suse.cz>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Wed, Feb 03, 2016 at 08:11:07PM -0500, Jessica Yu wrote:
+> For livepatch modules, copy Elf section, symbol, and string information
+> from the load_info struct in the module loader. Persist copies of the
+> original symbol table and string table.
+> 
+> Livepatch manages its own relocation sections in order to reuse module
+> loader code to write relocations. Livepatch modules must preserve Elf
+> information such as section indices in order to apply livepatch relocation
+> sections using the module loader's apply_relocate_add() function.
+> 
+> In order to apply livepatch relocation sections, livepatch modules must
+> keep a complete copy of their original symbol table in memory. Normally, a
+> stripped down copy of a module's symbol table (containing only "core"
+> symbols) is made available through module->core_symtab. But for livepatch
+> modules, the symbol table copied into memory on module load must be exactly
+> the same as the symbol table produced when the patch module was compiled.
+> This is because the relocations in each livepatch relocation section refer
+> to their respective symbols with their symbol indices, and the original
+> symbol indices (and thus the symtab ordering) must be preserved in order
+> for apply_relocate_add() to find the right symbol.
 
-Hi,
+This patch didn't apply clean to linux-next/master.  I didn't
+investigate why, but maybe it depends on the other patch set which
+removes the notifiers?  (If so, that should be mentioned in the cover
+letter.)
 
-several minor things and nits below. Otherwise it is ok.
+A couple of minor comments below...
 
-On Wed, 3 Feb 2016, Jessica Yu wrote:
-
-> + * Check if a livepatch symbol is formatted properly.
-> + *
-> + * See Documentation/livepatch/module-elf-format.txt for a
-> + * detailed outline of requirements.
-> + */
-> +static int klp_check_symbol_format(struct module *pmod, Elf_Sym *sym)
-> +{
-> +	size_t len;
-> +	char *s, *objname, *symname;
+> Signed-off-by: Jessica Yu <jeyu@redhat.com>
+> ---
+>  include/linux/module.h |  25 ++++++++++
+>  kernel/module.c        | 133 ++++++++++++++++++++++++++++++++++++++++++++++---
+>  2 files changed, 151 insertions(+), 7 deletions(-)
+> 
+> diff --git a/include/linux/module.h b/include/linux/module.h
+> index 4560d8f..58e6200 100644
+> --- a/include/linux/module.h
+> +++ b/include/linux/module.h
+> @@ -324,6 +324,15 @@ struct module_layout {
+>  #define __module_layout_align
+>  #endif
+>  
+> +#ifdef CONFIG_LIVEPATCH
+> +struct klp_modinfo {
+> +	Elf_Ehdr hdr;
+> +	Elf_Shdr *sechdrs;
+> +	char *secstrings;
+> +	unsigned int symndx;
+> +};
+> +#endif
 > +
-> +	if (sym->st_shndx != SHN_LIVEPATCH)
-> +		return -EINVAL;
+>  struct module {
+>  	enum module_state state;
+>  
+> @@ -455,7 +464,11 @@ struct module {
+>  #endif
+>  
+>  #ifdef CONFIG_LIVEPATCH
+> +	bool klp; /* Is this a livepatch module? */
+>  	bool klp_alive;
+> +
+> +	/* Elf information */
+> +	struct klp_modinfo *klp_info;
+>  #endif
+>  
+>  #ifdef CONFIG_MODULE_UNLOAD
+> @@ -629,6 +642,18 @@ static inline bool module_requested_async_probing(struct module *module)
+>  	return module && module->async_probe_requested;
+>  }
+>  
+> +#ifdef CONFIG_LIVEPATCH
+> +static inline bool is_livepatch_module(struct module *mod)
+> +{
+> +	return mod->klp;
+> +}
+> +#else /* !CONFIG_LIVEPATCH */
+> +static inline bool is_livepatch_module(struct module *mod)
+> +{
+> +	return false;
+> +}
+> +#endif /* CONFIG_LIVEPATCH */
+> +
+>  #else /* !CONFIG_MODULES... */
+>  
+>  /* Given an address, look for it in the exception tables. */
+> diff --git a/kernel/module.c b/kernel/module.c
+> index 71c77ed..9c16eb2 100644
+> --- a/kernel/module.c
+> +++ b/kernel/module.c
+> @@ -1970,6 +1970,82 @@ static void module_enable_nx(const struct module *mod) { }
+>  static void module_disable_nx(const struct module *mod) { }
+>  #endif
+>  
+> +#ifdef CONFIG_LIVEPATCH
+> +/*
+> + * Persist Elf information about a module. Copy the Elf header,
+> + * section header table, section string table, and symtab section
+> + * index from info to mod->klp_info.
+> + */
+> +static int copy_module_elf(struct module *mod, struct load_info *info)
+> +{
+> +	unsigned int size, symndx;
+> +	int ret = 0;
+> +
+> +	size = sizeof(*mod->klp_info);
+> +	mod->klp_info = kmalloc(size, GFP_KERNEL);
+> +	if (mod->klp_info == NULL)
+> +		return -ENOMEM;
+> +
+> +	/* Elf header */
+> +	size = sizeof(Elf_Ehdr);
+> +	memcpy(&mod->klp_info->hdr, info->hdr, size);
+> +
+> +	/* Elf section header table */
+> +	size = sizeof(Elf_Shdr) * info->hdr->e_shnum;
+> +	mod->klp_info->sechdrs = kmalloc(size, GFP_KERNEL);
+> +	if (mod->klp_info->sechdrs == NULL) {
+> +		ret = -ENOMEM;
+> +		goto free_info;
+> +	}
+> +	memcpy(mod->klp_info->sechdrs, info->sechdrs, size);
+> +
+> +	/* Elf section name string table */
+> +	size = info->sechdrs[info->hdr->e_shstrndx].sh_size;
+> +	mod->klp_info->secstrings = kmalloc(size, GFP_KERNEL);
+> +	if (mod->klp_info->secstrings == NULL) {
+> +		ret = -ENOMEM;
+> +		goto free_sechdrs;
+> +	}
+> +	memcpy(mod->klp_info->secstrings, info->secstrings, size);
+> +
+> +	/* Elf symbol section index */
+> +	symndx = info->index.sym;
+> +	mod->klp_info->symndx = symndx;
 > +
 > +	/*
-> +	 * Livepatch symbol names must follow this format:
-> +	 * .klp.sym.objname.symbol_name,sympos
+> +	 * For livepatch modules, core_symtab is a complete copy
+> +	 * of the original symbol table. Adjust sh_addr to point
+> +	 * to core_symtab since the copy of the symtab in module
+> +	 * init memory is freed at the end of do_init_module().
 > +	 */
-> +	s = pmod->strtab + sym->st_name;
-> +	/* [.klp.sym.]objname.symbol_name,sympos */
-> +	if (!s || strncmp(s, KLP_SYM_PREFIX, KLP_SYM_PREFIX_LEN))
-> +		return -EINVAL;
+> +	mod->klp_info->sechdrs[symndx].sh_addr = (unsigned long) mod->core_symtab;
 > +
-> +	/* .klp.sym.[objname].symbol_name,sympos */
-> +	objname = s + KLP_SYM_PREFIX_LEN;
-> +	len = strcspn(objname, ".");
-> +	if (!(len > 0))
-> +		return -EINVAL;
-
-strcspn() returns size_t, so we can check only for 0
-
-if (!len)
-	return -EINVAL
-
-> +
-> +	/* .klp.sym.objname.symbol_name,[sympos] */
-> +	if (!strchr(s, ','))
-> +		return -EINVAL;
-> +
-> +	/* .klp.sym.objname.[symbol_name],sympos */
-> +	symname = objname + len + 1;
-> +	len = strcspn(symname, ",");
-> +	if (!(len > 0))
-> +		return -EINVAL;
-
-Same here.
-
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Check if a livepatch relocation section is formatted properly.
-> + *
-> + * See Documentation/livepatch/module-elf-format.txt for a
-> + * detailed outline of requirements.
-> + */
-> +static int klp_check_relasec_format(struct module *pmod, Elf_Shdr *relasec)
-> +{
-> +	char *secname;
-> +	size_t len;
-> +
-
-This is really a nitpick, but you have a comment about mandatory format of 
-the name here in klp_check_symbol_format().
-
-> +	secname = pmod->klp_info->secstrings + relasec->sh_name;
-> +	/* [.klp.rela.]objname.section_name */
-> +	if (!secname || strncmp(secname, KLP_RELASEC_PREFIX,
-> +				KLP_RELASEC_PREFIX_LEN))
-> +		return -EINVAL;
-> +
-> +	/* .klp.rela.[objname].section_name */
-> +	len = strcspn(secname + KLP_RELASEC_PREFIX_LEN, ".");
-> +	if (!(len > 0))
-> +		return -EINVAL;
-
-You don't check if section_name part is non-empty.
-
-[...]
-
-> +/* .klp.sym.[objname].symbol_name,sympos */
-> +static int klp_get_sym_objname(char *s, char **result)
-> +{
-
-Do we need result to be a double-pointer? If I am not mistaken just 'char 
-*result' could be sufficient. You check the return value, so result could 
-be NULL or objname as found. No?
-
-> +	size_t len;
-> +	char *objname, *objname_start;
-> +
-> +	/* .klp.sym.[objname].symbol_name,sympos */
-> +	objname_start = s + KLP_SYM_PREFIX_LEN;
-> +	len = strcspn(objname_start, ".");
-> +	objname = kstrndup(objname_start, len, GFP_KERNEL);
-> +	if (objname == NULL)
-> +		return -ENOMEM;
-> +
-> +	/* klp_find_object_symbol() treats NULL as vmlinux */
-> +	if (!strcmp(objname, "vmlinux")) {
-> +		*result = NULL;
-> +		kfree(objname);
-> +	} else
-> +		*result = objname;
-
-According to CodingStyle there should be curly braces even for else 
-branch.
-
-> +	return 0;
-> +}
-> +
-> +/* .klp.sym.objname.[symbol_name],sympos */
-> +static int klp_get_symbol_name(char *s, char **result)
-
-Same here.
-
-> +{
-> +	size_t len;
-> +	char *objname, *symname;
-> +
-> +	/* .klp.sym.[objname].symbol_name,sympos */
-> +	objname = s + KLP_SYM_PREFIX_LEN;
-> +	len = strcspn(objname, ".");
-> +
-> +	/* .klp.sym.objname.[symbol_name],sympos */
-> +	symname = objname + len + 1;
-> +	len = strcspn(symname, ",");
-> +
-> +	*result = kstrndup(symname, len, GFP_KERNEL);
-> +	if (*result == NULL)
-> +		return -ENOMEM;
-> +
-> +	return 0;
-> +}
-
-[...]
-> +static int klp_resolve_symbols(Elf_Shdr *relasec, struct module *pmod)
->  {
-> -	const struct kernel_symbol *sym;
-> -
-> -	/* first, check if it's an exported symbol */
-> -	preempt_disable();
-> -	sym = find_symbol(name, NULL, NULL, true, true);
-> -	if (sym) {
-> -		*addr = sym->value;
-> -		preempt_enable();
-> -		return 0;
-> +	int i, ret = 0;
-> +	Elf_Rela *relas;
-> +	Elf_Sym *sym;
-> +	char *s, *symbol_name, *sym_objname;
-> +	unsigned long sympos;
-> +
-> +	relas = (Elf_Rela *) relasec->sh_addr;
-> +	/* For each rela in this .klp.rela. section */
-> +	for (i = 0; i < relasec->sh_size / sizeof(Elf_Rela); i++) {
-> +		sym = pmod->symtab + ELF_R_SYM(relas[i].r_info);
-> +
-> +		/* Check if the symbol is formatted correctly */
-> +		ret = klp_check_symbol_format(pmod, sym);
-> +		if (ret)
-> +			goto out;
-> +		/* Format: .klp.sym.objname.symbol_name,sympos */
-> +		s = pmod->strtab + sym->st_name;
-> +		ret = klp_get_symbol_name(s, &symbol_name);
-> +		if (ret)
-> +			goto out;
-> +		ret = klp_get_sym_objname(s, &sym_objname);
-> +		if (ret)
-> +			goto free_symbol_name;
-> +		ret = klp_get_sympos(s, &sympos);
-> +		if (ret)
-> +			goto free_objname;
-> +
-> +		ret = klp_find_object_symbol(sym_objname, symbol_name, sympos,
-> +					     (unsigned long *) &sym->st_value);
-> +free_objname:
-> +		kfree(sym_objname);
-> +free_symbol_name:
-> +		kfree(symbol_name);
-> +		if (ret)
-> +			goto out;
->  	}
-> -	preempt_enable();
-> -
-> -	/*
-> -	 * Check if it's in another .o within the patch module. This also
-> -	 * checks that the external symbol is unique.
-> -	 */
-> -	return klp_find_object_symbol(pmod->name, name, 0, addr);
-> +out:
 > +	return ret;
->  }
-
-I wonder if 'break;' instead of 'goto out;' would generate 
-different/better/more readable code. Anyway out label is not necessary and 
-we can achieve the same with break. It is up to you though.
-
->  static int klp_write_object_relocations(struct module *pmod,
->  					struct klp_object *obj)
+> +
+> +free_sechdrs:
+> +	kfree(mod->klp_info->sechdrs);
+> +free_info:
+> +	kfree(mod->klp_info);
+> +	return ret;
+> +}
+> +
+> +static void free_module_elf(struct module *mod)
+> +{
+> +	kfree(mod->klp_info->sechdrs);
+> +	kfree(mod->klp_info->secstrings);
+> +	kfree(mod->klp_info);
+> +}
+> +#else /* !CONFIG_LIVEPATCH */
+> +static int copy_module_elf(struct module *mod, struct load_info *info)
+> +{
+> +	return 0;
+> +}
+> +
+> +static void free_module_elf(struct module *mod)
+> +{
+> +}
+> +#endif /* CONFIG_LIVEPATCH */
+> +
+>  void __weak module_memfree(void *module_region)
 >  {
-> -	int ret = 0;
-> -	unsigned long val;
-> -	struct klp_reloc *reloc;
-> +	int i, ret = 0;
-> +	Elf_Shdr *sec;
+>  	vfree(module_region);
+> @@ -2008,6 +2084,10 @@ static void free_module(struct module *mod)
+>  	/* Free any allocated parameters. */
+>  	destroy_params(mod->kp, mod->num_kp);
 >  
->  	if (WARN_ON(!klp_is_object_loaded(obj)))
->  		return -EINVAL;
+> +	/* Free Elf information if it was saved */
+> +	if (is_livepatch_module(mod))
+> +		free_module_elf(mod);
+> +
+
+I think this code is self-evident, so the comment isn't necessary.
+
+
+>  	/* Now we can delete it from the lists */
+>  	mutex_lock(&module_mutex);
+>  	/* Unlink carefully: kallsyms could be walking list. */
+> @@ -2123,6 +2203,10 @@ static int simplify_symbols(struct module *mod, const struct load_info *info)
+>  			       (long)sym[i].st_value);
+>  			break;
 >  
-> -	if (WARN_ON(!obj->relocs))
-> -		return -EINVAL;
-> -
->  	module_disable_ro(pmod);
-> +	/* For each klp relocation section */
-> +	for (i = 1; i < pmod->klp_info->hdr.e_shnum; i++) {
-> +		sec = pmod->klp_info->sechdrs + i;
-> +		if (!(sec->sh_flags & SHF_RELA_LIVEPATCH))
-> +			continue;
+> +		case SHN_LIVEPATCH:
+> +			/* Livepatch symbols are resolved by livepatch */
+> +			break;
+> +
+>  		case SHN_UNDEF:
+>  			ksym = resolve_symbol_wait(mod, info, name);
+>  			/* Ok if resolved.  */
+> @@ -2171,6 +2255,10 @@ static int apply_relocations(struct module *mod, const struct load_info *info)
+>  		if (!(info->sechdrs[infosec].sh_flags & SHF_ALLOC))
+>  			continue;
 >  
-> -	for (reloc = obj->relocs; reloc->name; reloc++) {
-> -		/* discover the address of the referenced symbol */
-> -		if (reloc->external) {
-> -			if (reloc->sympos > 0) {
-> -				pr_err("non-zero sympos for external reloc symbol '%s' is not supported\n",
-> -				       reloc->name);
-> -				ret = -EINVAL;
-> -				goto out;
-> -			}
-> -			ret = klp_find_external_symbol(pmod, reloc->name, &val);
-> -		} else
-> -			ret = klp_find_object_symbol(obj->name,
-> -						     reloc->name,
-> -						     reloc->sympos,
-> -						     &val);
-> +		/* Check if the klp section is formatted correctly */
-> +		ret = klp_check_relasec_format(pmod, sec);
->  		if (ret)
->  			goto out;
->  
-> -		ret = klp_write_module_reloc(pmod, reloc->type, reloc->loc,
-> -					     val + reloc->addend);
-> -		if (ret) {
-> -			pr_err("relocation failed for symbol '%s' at 0x%016lx (%d)\n",
-> -			       reloc->name, val, ret);
-> +		/* Check if the klp section belongs to obj */
-> +		if (!klp_relasec_matches_object(pmod, sec, obj))
+> +		/* Livepatch relocation sections are applied by livepatch */
+> +		if (info->sechdrs[i].sh_flags & SHF_RELA_LIVEPATCH)
 > +			continue;
 > +
-> +		/* Resolve all livepatch syms referenced in this rela section */
-> +		ret = klp_resolve_symbols(sec, pmod);
-> +		if (ret)
->  			goto out;
-> -		}
-> -	}
+>  		if (info->sechdrs[i].sh_type == SHT_REL)
+>  			err = apply_relocate(info->sechdrs, info->strtab,
+>  					     info->index.sym, i, mod);
+> @@ -2466,7 +2554,7 @@ static void layout_symtab(struct module *mod, struct load_info *info)
 >  
-> +		ret = apply_relocate_add(pmod->klp_info->sechdrs, pmod->strtab,
-> +					 pmod->klp_info->symndx, i, pmod);
-> +		if (ret)
-> +			goto out;
+>  	/* Compute total space required for the core symbols' strtab. */
+>  	for (ndst = i = 0; i < nsrc; i++) {
+> -		if (i == 0 ||
+> +		if (i == 0 || is_livepatch_module(mod) ||
+>  		    is_core_symbol(src+i, info->sechdrs, info->hdr->e_shnum,
+>  				   info->index.pcpu)) {
+>  			strtab_size += strlen(&info->strtab[src[i].st_name])+1;
+> @@ -2509,7 +2597,7 @@ static void add_kallsyms(struct module *mod, const struct load_info *info)
+>  	mod->core_strtab = s = mod->core_layout.base + info->stroffs;
+>  	src = mod->symtab;
+>  	for (ndst = i = 0; i < mod->num_symtab; i++) {
+> -		if (i == 0 ||
+> +		if (i == 0 || is_livepatch_module(mod) ||
+>  		    is_core_symbol(src+i, info->sechdrs, info->hdr->e_shnum,
+>  				   info->index.pcpu)) {
+>  			dst[ndst] = src[i];
+> @@ -2676,6 +2764,23 @@ static int copy_module_from_user(const void __user *umod, unsigned long len,
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_LIVEPATCH
+> +static int find_livepatch_modinfo(struct module *mod, struct load_info *info)
+> +{
+> +	mod->klp = get_modinfo(info, "livepatch") ? true : false;
+> +
+> +	return 0;
+> +}
+> +#else /* !CONFIG_LIVEPATCH */
+> +static int find_livepatch_modinfo(struct module *mod, struct load_info *info)
+> +{
+> +	if (get_modinfo(info, "livepatch"))
+> +		return -ENOEXEC;
+> +
+> +	return 0;
+> +}
+> +#endif /* CONFIG_LIVEPATCH */
+> +
+>  /* Sets info->hdr and info->len. */
+>  static int copy_module_from_fd(int fd, struct load_info *info)
+>  {
+> @@ -2859,6 +2964,10 @@ static int check_modinfo(struct module *mod, struct load_info *info, int flags)
+>  			"is unknown, you have been warned.\n", mod->name);
+>  	}
+>  
+> +	err = find_livepatch_modinfo(mod, info);
+> +	if (err)
+> +		return err;
+> +
+>  	/* Set up license info based on the info section */
+>  	set_license(mod, get_modinfo(info, "license"));
+>  
+> @@ -3222,6 +3331,12 @@ static noinline int do_init_module(struct module *mod)
+>  	 */
+>  	current->flags &= ~PF_USED_ASYNC;
+>  
+> +#ifdef CONFIG_KALLSYMS
+> +	/* Make symtab and strtab available prior to module init call */
+> +	mod->num_symtab = mod->core_num_syms;
+> +	mod->symtab = mod->core_symtab;
+> +	mod->strtab = mod->core_strtab;
+> +#endif
+>  	do_mod_ctors(mod);
+>  	/* Start the module */
+>  	if (mod->init != NULL)
+> @@ -3266,11 +3381,6 @@ static noinline int do_init_module(struct module *mod)
+>  	/* Drop initial reference. */
+>  	module_put(mod);
+>  	trim_init_extable(mod);
+> -#ifdef CONFIG_KALLSYMS
+> -	mod->num_symtab = mod->core_num_syms;
+> -	mod->symtab = mod->core_symtab;
+> -	mod->strtab = mod->core_strtab;
+> -#endif
+>  	mod_tree_remove_init(mod);
+>  	disable_ro_nx(&mod->init_layout);
+>  	module_arch_freeing_init(mod);
+> @@ -3522,6 +3632,13 @@ static int load_module(struct load_info *info, const char __user *uargs,
+>  	if (err < 0)
+>  		goto bug_cleanup;
+>  
+> +	/* For livepatch modules, save Elf info from load_info struct */
+> +	if (is_livepatch_module(mod)) {
+> +		err = copy_module_elf(mod, info);
+> +		if (err < 0)
+> +			goto sysfs_cleanup;
 > +	}
->  out:
->  	module_enable_ro(pmod);
->  	return ret;
+> +
 
-Same thing with break instead of all gotos.
+Same here, unecessary comment IMO.
 
-Thanks,
-Miroslav
+>  	/* Get rid of temporary copy. */
+>  	free_copy(info);
+>  
+> @@ -3530,6 +3647,8 @@ static int load_module(struct load_info *info, const char __user *uargs,
+>  
+>  	return do_init_module(mod);
+>  
+> + sysfs_cleanup:
+> +	mod_sysfs_teardown(mod);
+>   bug_cleanup:
+>  	/* module_bug_cleanup needs module_mutex protection */
+>  	mutex_lock(&module_mutex);
+> -- 
+> 2.4.3
+> 
+
+-- 
+Josh
