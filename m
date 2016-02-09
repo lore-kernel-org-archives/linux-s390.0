@@ -1,43 +1,29 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [RFC PATCH v4 2/6] module: preserve Elf information for livepatch
- modules
-Date: Tue, 9 Feb 2016 11:33:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1602091131510.22727@cbobk.fhfr.pm>
-References: <1454548271-24923-1-git-send-email-jeyu@redhat.com> <1454548271-24923-3-git-send-email-jeyu@redhat.com> <20160209084443.GA12548@pathway.suse.cz>
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: Re: [RFC PATCH v4 4/6] livepatch: reuse module loader code to write
+ relocations
+Date: Tue, 9 Feb 2016 14:32:05 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1602091431080.13193@pobox.suse.cz>
+References: <1454548271-24923-1-git-send-email-jeyu@redhat.com> <1454548271-24923-5-git-send-email-jeyu@redhat.com> <alpine.LNX.2.00.1602081554320.12964@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160209084443.GA12548@pathway.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1602081554320.12964@pobox.suse.cz>
+Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: Petr Mladek <pmladek@suse.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Josh Poimboeuf <jpoimboe@redhat.com>, Seth Jennings <sjenning@redhat.com>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, Miroslav Benes <mbenes@suse.cz>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
+To: Jessica Yu <jeyu@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Josh Poimboeuf <jpoimboe@redhat.com>, Seth Jennings <sjenning@redhat.com>, Jiri Kosina <jikos@kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 9 Feb 2016, Petr Mladek wrote:
 
-> > +#ifdef CONFIG_KALLSYMS
-> > +	/* Make symtab and strtab available prior to module init call */
-> > +	mod->num_symtab = mod->core_num_syms;
-> > +	mod->symtab = mod->core_symtab;
-> > +	mod->strtab = mod->core_strtab;
-> > +#endif
+> > +/* .klp.sym.[objname].symbol_name,sympos */
+> > +static int klp_get_sym_objname(char *s, char **result)
+> > +{
 > 
-> This should be done with module_mutex. Otherwise, it looks racy at least 
-> against module_kallsyms_on_each_symbol().
+> Do we need result to be a double-pointer? If I am not mistaken just 'char 
+> *result' could be sufficient. You check the return value, so result could 
+> be NULL or objname as found. No?
 
-Hmm, if this is the case, the comment describing the locking rules for 
-module_mutex should be updated.
+Um, no. We need this. Sorry for the noise.
 
-> BTW: I wonder why even the original code is not racy for example against 
-> module_get_kallsym. It is called without the mutex. This code sets the 
-> number of entries before the pointer to the entries.
-> 
-> Note that the module is in the list even in the UNFORMED state.
-
-module_kallsyms_on_each_symbol() gives up in such case though.
-
--- 
-Jiri Kosina
-SUSE Labs
+Miroslav
