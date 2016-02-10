@@ -1,283 +1,350 @@
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [RFC PATCH v4 4/6] livepatch: reuse module loader code to write
- relocations
-Date: Tue, 9 Feb 2016 16:57:49 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1602091656170.13193@pobox.suse.cz>
-References: <1454548271-24923-1-git-send-email-jeyu@redhat.com> <1454548271-24923-5-git-send-email-jeyu@redhat.com> <20160209140106.GC12548@pathway.suse.cz>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC PATCH v4 2/6] module: preserve Elf information for livepatch modules
+Date: Wed, 10 Feb 2016 10:48:00 +1030
+Message-ID: <87io1xzadj.fsf@rustcorp.com.au>
+References: <1454548271-24923-1-git-send-email-jeyu@redhat.com> <1454548271-24923-3-git-send-email-jeyu@redhat.com> <20160209084443.GA12548@pathway.suse.cz> <alpine.LNX.2.00.1602091131510.22727@cbobk.fhfr.pm> <20160209123148.GB12548@pathway.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20160209140106.GC12548@pathway.suse.cz>
-Sender: linux-doc-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160209123148.GB12548@pathway.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: Petr Mladek <pmladek@suse.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Josh Poimboeuf <jpoimboe@redhat.com>, Seth Jennings <sjenning@redhat.com>, Jiri Kosina <jikos@kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
+To: Petr Mladek <pmladek@suse.com>, Jiri Kosina <jikos@kernel.org>
+Cc: Jessica Yu <jeyu@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Seth Jennings <sjenning@redhat.com>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, Miroslav Benes <mbenes@suse.cz>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 9 Feb 2016, Petr Mladek wrote:
+Petr Mladek <pmladek@suse.com> writes:
+> On Tue 2016-02-09 11:33:07, Jiri Kosina wrote:
+>> On Tue, 9 Feb 2016, Petr Mladek wrote:
+>> 
+>> > > +#ifdef CONFIG_KALLSYMS
+>> > > +	/* Make symtab and strtab available prior to module init call */
+>> > > +	mod->num_symtab = mod->core_num_syms;
+>> > > +	mod->symtab = mod->core_symtab;
+>> > > +	mod->strtab = mod->core_strtab;
+>> > > +#endif
+>> > 
+>> > This should be done with module_mutex. Otherwise, it looks racy at least 
+>> > against module_kallsyms_on_each_symbol().
+>> 
+>> Hmm, if this is the case, the comment describing the locking rules for 
+>> module_mutex should be updated.
+>> 
+>> > BTW: I wonder why even the original code is not racy for example against 
+>> > module_get_kallsym. It is called without the mutex. This code sets the 
+>> > number of entries before the pointer to the entries.
+>> > 
+>> > Note that the module is in the list even in the UNFORMED state.
+>> 
+>> module_kallsyms_on_each_symbol() gives up in such case though.
+>
+> The problem is that we set the three values above in the COMMING
+> state. They were even set in the LIVE state before this patch.
 
-> On Wed 2016-02-03 20:11:09, Jessica Yu wrote:
-> > Reuse module loader code to write relocations, thereby eliminating the need
-> > for architecture specific relocation code in livepatch. Specifically, reuse
-> > the apply_relocate_add() function in the module loader to write relocations
-> > instead of duplicating functionality in livepatch's arch-dependent
-> > klp_write_module_reloc() function.
-> > 
-> > In order to accomplish this, livepatch modules manage their own relocation
-> > sections (marked with the SHF_RELA_LIVEPATCH section flag) and
-> > livepatch-specific symbols (marked with SHN_LIVEPATCH symbol section
-> > index). To apply livepatch relocation sections, livepatch symbols
-> > referenced by relocs are resolved and then apply_relocate_add() is called
-> > to apply those relocations.
-> > 
-> > In addition, remove x86 livepatch relocation code and the s390
-> > klp_write_module_reloc() function stub. They are no longer needed since
-> > relocation work has been offloaded to module loader.
-> > 
-> > diff --git a/kernel/livepatch/core.c b/kernel/livepatch/core.c
-> > index 7aa975d..c1fe57c 100644
-> > --- a/kernel/livepatch/core.c
-> > +++ b/kernel/livepatch/core.c
-> > @@ -28,6 +28,9 @@
-> >  #include <linux/list.h>
-> >  #include <linux/kallsyms.h>
-> >  #include <linux/livepatch.h>
-> > +#include <linux/elf.h>
-> > +#include <linux/string.h>
-> > +#include <linux/moduleloader.h>
-> >  #include <asm/cacheflush.h>
-> >  
-> >  /**
-> > @@ -87,6 +90,166 @@ static bool klp_is_object_loaded(struct klp_object *obj)
-> >  	return !obj->name || obj->mod;
-> >  }
-> >  
-> > +/*
-> > + * Check if a livepatch symbol is formatted properly.
-> > + *
-> > + * See Documentation/livepatch/module-elf-format.txt for a
-> > + * detailed outline of requirements.
-> > + */
-> > +static int klp_check_symbol_format(struct module *pmod, Elf_Sym *sym)
-> > +{
-> > +	size_t len;
-> > +	char *s, *objname, *symname;
-> > +
-> > +	if (sym->st_shndx != SHN_LIVEPATCH)
-> > +		return -EINVAL;
-> > +
-> > +	/*
-> > +	 * Livepatch symbol names must follow this format:
-> > +	 * .klp.sym.objname.symbol_name,sympos
-> > +	 */
-> > +	s = pmod->strtab + sym->st_name;
-> > +	/* [.klp.sym.]objname.symbol_name,sympos */
-> > +	if (!s || strncmp(s, KLP_SYM_PREFIX, KLP_SYM_PREFIX_LEN))
-> > +		return -EINVAL;
-> > +
-> > +	/* .klp.sym.[objname].symbol_name,sympos */
-> > +	objname = s + KLP_SYM_PREFIX_LEN;
-> > +	len = strcspn(objname, ".");
-> > +	if (!(len > 0))
-> > +		return -EINVAL;
-> > +
-> > +	/* .klp.sym.objname.symbol_name,[sympos] */
-> > +	if (!strchr(s, ','))
-> > +		return -EINVAL;
-> > +
-> > +	/* .klp.sym.objname.[symbol_name],sympos */
-> > +	symname = objname + len + 1;
-> > +	len = strcspn(symname, ",");
-> > +	if (!(len > 0))
-> > +		return -EINVAL;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +/*
-> > + * Check if a livepatch relocation section is formatted properly.
-> > + *
-> > + * See Documentation/livepatch/module-elf-format.txt for a
-> > + * detailed outline of requirements.
-> > + */
-> > +static int klp_check_relasec_format(struct module *pmod, Elf_Shdr *relasec)
-> > +{
-> > +	char *secname;
-> > +	size_t len;
-> > +
-> > +	secname = pmod->klp_info->secstrings + relasec->sh_name;
-> > +	/* [.klp.rela.]objname.section_name */
-> > +	if (!secname || strncmp(secname, KLP_RELASEC_PREFIX,
-> > +				KLP_RELASEC_PREFIX_LEN))
-> > +		return -EINVAL;
-> > +
-> > +	/* .klp.rela.[objname].section_name */
-> > +	len = strcspn(secname + KLP_RELASEC_PREFIX_LEN, ".");
-> > +	if (!(len > 0))
-> > +		return -EINVAL;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +/*
-> > + * Check if obj->name matches the objname encoded in the rela
-> > + * section name (.klp.rela.[objname].section_name)
-> > + *
-> > + * Must pass klp_check_relasec_format() before calling this.
-> > + */
-> > +static bool klp_relasec_matches_object(struct module *pmod, Elf_Shdr *relasec,
-> > +				       struct klp_object *obj)
-> > +{
-> > +	size_t len;
-> > +	const char *obj_objname, *sec_objname, *secname;
-> > +
-> > +	secname = pmod->klp_info->secstrings + relasec->sh_name;
-> > +	/* .klp.rela.[objname].section_name */
-> > +	sec_objname = secname + KLP_RELASEC_PREFIX_LEN;
-> > +	obj_objname = klp_is_module(obj) ? obj->name : "vmlinux";
-> > +
-> > +	/* Get length of the objname encoded in the section name */
-> > +	len = strcspn(sec_objname, ".");
-> > +
-> > +	if (strlen(obj_objname) != len)
-> > +		return false;
-> > +
-> > +	return strncmp(sec_objname, obj_objname, len) ? false : true;
-> > +}
-> > +
-> > +/*
-> > + * klp_get_* helper functions
-> > + *
-> > + * klp_get_* functions extract different components of the name
-> > + * of a livepatch symbol. The full symbol name from the strtab
-> > + * is passed in as parameter @s, and @result is filled in with
-> > + * the extracted component.
-> > + *
-> > + * These functions assume a correctly formatted symbol and the
-> > + * klp_check_symbol_format() test *must* pass before calling any
-> > + * of these functions.
-> > + */
-> > +
-> > +/* .klp.sym.[objname].symbol_name,sympos */
-> > +static int klp_get_sym_objname(char *s, char **result)
-> > +{
-> > +	size_t len;
-> > +	char *objname, *objname_start;
-> > +
-> > +	/* .klp.sym.[objname].symbol_name,sympos */
-> > +	objname_start = s + KLP_SYM_PREFIX_LEN;
-> > +	len = strcspn(objname_start, ".");
-> > +	objname = kstrndup(objname_start, len, GFP_KERNEL);
-> > +	if (objname == NULL)
-> > +		return -ENOMEM;
-> > +
-> > +	/* klp_find_object_symbol() treats NULL as vmlinux */
-> > +	if (!strcmp(objname, "vmlinux")) {
-> > +		*result = NULL;
-> > +		kfree(objname);
-> > +	} else
-> > +		*result = objname;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +/* .klp.sym.objname.[symbol_name],sympos */
-> > +static int klp_get_symbol_name(char *s, char **result)
-> > +{
-> > +	size_t len;
-> > +	char *objname, *symname;
-> > +
-> > +	/* .klp.sym.[objname].symbol_name,sympos */
-> > +	objname = s + KLP_SYM_PREFIX_LEN;
-> > +	len = strcspn(objname, ".");
-> > +
-> > +	/* .klp.sym.objname.[symbol_name],sympos */
-> > +	symname = objname + len + 1;
-> > +	len = strcspn(symname, ",");
-> > +
-> > +	*result = kstrndup(symname, len, GFP_KERNEL);
-> > +	if (*result == NULL)
-> > +		return -ENOMEM;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +/* .klp.sym.objname.symbol_name,[sympos] */
-> > +static int klp_get_sympos(char *s, unsigned long *result)
-> > +{
-> > +	char *sympos;
-> > +
-> > +	/* .klp.sym.symbol_name,[sympos] */
-> > +	sympos = strchr(s, ',') + 1;
-> > +	return kstrtol(sympos, 10, result);
-> > +}
-> 
-> The usage of the helper function is nicely strightforward.
-> Also I like a lot all the comments with the [] brackets
-> that highlight what each check or search is for.
-> 
-> But I think that there is a lot of duplicated code in
-> the check_ and in the get_ functions. Also there is
-> a lot of strdup/free games.
-> 
-> The length of the elemets is limited by definition.
-> The functions are called under klp_mutex.
-> 
-> Therefore it might be easier to maintain a two parse
-> function that would fill static buffers and return
-> error in case of wrong value.
-> 
-> I mean something like:
-> 
-> static char mod_name[MODULE_NAME_LEN + 1];
-> static char symbol_name[KSYM_SYMBOL_LEN + 1];
-> 
-> static int
-> klp_parse_symbol_format(struct module *pmod, Elf_Sym *sym,
-> 			char *mod_name, char *symbol_name,
-> 			int *sympos)
-> {
-> 	char *substr;
-> 
-> 
-> 	/*
-> 	 * Livepatch symbol names must follow this format:
-> 	 * .klp.sym.objname.symbol_name,sympos
-> 	 */
-> 	s = pmod->strtab + sym->st_name;
-> 	/* [.klp.sym.]objname.symbol_name,sympos */
-> 	if (!s || strncmp(s, KLP_SYM_PREFIX, KLP_SYM_PREFIX_LEN))
-> 		return -EINVAL;
-> 
-> 	/* .klp.sym.[objname].symbol_name,sympos */
-> 	substr = s + KLP_SYM_PREFIX_LEN;
-> 	len = strcspn(substr, ".");
-> 	if (!len || len > MODULE_NAME_LEN)
-> 		return -EINVAL;
-> 	strncpy(mod_name, substr, len);
-> 	mod_name[len] = '\0';
-> 
-> 	/* .klp.sym.objname.[symbol_name],sympos */
-> 	substr = substr + len + 1;
-> 	len = strcspn(substr, ",");
-> 	if (!len || len > KSYM_SYMBOL_LEN)
-> 		return -EINVAL;
-> 	strncpy(symbol_name, substr, len);
-> 	mod_name[len] = '\0';
-> 
-> 	/* .klp.sym.objname.symbol_name,[sympos] */
-> 	substr = substr + len + 1;
-> 	len = strlen(substr);
-> 	if (!len)
-> 		return -EINVAL;
-> 
-> 	return kstrtol(substr, 10, sympos);
-> }
-> 
-> How does that sound, please?
+True.  Indeed, I have a fix for exactly this queued in my fixes tree,
+and am about to send Linus a pull req.
 
-It sounds good to me. And it would be even better with Josh's idea of 
-sscanf included.
+Below is the fix I went with, for your reference (part of a series, but
+you get the idea).
 
-Miroslav
+Thanks!
+Rusty.
+
+commit 8244062ef1e54502ef55f54cced659913f244c3e
+Author: Rusty Russell <rusty@rustcorp.com.au>
+Date:   Wed Feb 3 16:55:26 2016 +1030
+
+    modules: fix longstanding /proc/kallsyms vs module insertion race.
+    
+    For CONFIG_KALLSYMS, we keep two symbol tables and two string tables.
+    There's one full copy, marked SHF_ALLOC and laid out at the end of the
+    module's init section.  There's also a cut-down version that only
+    contains core symbols and strings, and lives in the module's core
+    section.
+    
+    After module init (and before we free the module memory), we switch
+    the mod->symtab, mod->num_symtab and mod->strtab to point to the core
+    versions.  We do this under the module_mutex.
+    
+    However, kallsyms doesn't take the module_mutex: it uses
+    preempt_disable() and rcu tricks to walk through the modules, because
+    it's used in the oops path.  It's also used in /proc/kallsyms.
+    There's nothing atomic about the change of these variables, so we can
+    get the old (larger!) num_symtab and the new symtab pointer; in fact
+    this is what I saw when trying to reproduce.
+    
+    By grouping these variables together, we can use a
+    carefully-dereferenced pointer to ensure we always get one or the
+    other (the free of the module init section is already done in an RCU
+    callback, so that's safe).  We allocate the init one at the end of the
+    module init section, and keep the core one inside the struct module
+    itself (it could also have been allocated at the end of the module
+    core, but that's probably overkill).
+    
+    Reported-by: Weilong Chen <chenweilong@huawei.com>
+    Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=111541
+    Cc: stable@kernel.org
+    Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/include/linux/module.h b/include/linux/module.h
+index 4560d8f1545d..2bb0c3085706 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -324,6 +324,12 @@ struct module_layout {
+ #define __module_layout_align
+ #endif
+ 
++struct mod_kallsyms {
++	Elf_Sym *symtab;
++	unsigned int num_symtab;
++	char *strtab;
++};
++
+ struct module {
+ 	enum module_state state;
+ 
+@@ -405,15 +411,10 @@ struct module {
+ #endif
+ 
+ #ifdef CONFIG_KALLSYMS
+-	/*
+-	 * We keep the symbol and string tables for kallsyms.
+-	 * The core_* fields below are temporary, loader-only (they
+-	 * could really be discarded after module init).
+-	 */
+-	Elf_Sym *symtab, *core_symtab;
+-	unsigned int num_symtab, core_num_syms;
+-	char *strtab, *core_strtab;
+-
++	/* Protected by RCU and/or module_mutex: use rcu_dereference() */
++	struct mod_kallsyms *kallsyms;
++	struct mod_kallsyms core_kallsyms;
++	
+ 	/* Section attributes */
+ 	struct module_sect_attrs *sect_attrs;
+ 
+diff --git a/kernel/module.c b/kernel/module.c
+index 1e79d8157712..9537da37ce87 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -303,6 +303,9 @@ struct load_info {
+ 	struct _ddebug *debug;
+ 	unsigned int num_debug;
+ 	bool sig_ok;
++#ifdef CONFIG_KALLSYMS
++	unsigned long mod_kallsyms_init_off;
++#endif
+ 	struct {
+ 		unsigned int sym, str, mod, vers, info, pcpu;
+ 	} index;
+@@ -2480,10 +2483,21 @@ static void layout_symtab(struct module *mod, struct load_info *info)
+ 	strsect->sh_flags |= SHF_ALLOC;
+ 	strsect->sh_entsize = get_offset(mod, &mod->init_layout.size, strsect,
+ 					 info->index.str) | INIT_OFFSET_MASK;
+-	mod->init_layout.size = debug_align(mod->init_layout.size);
+ 	pr_debug("\t%s\n", info->secstrings + strsect->sh_name);
++
++	/* We'll tack temporary mod_kallsyms on the end. */
++	mod->init_layout.size = ALIGN(mod->init_layout.size,
++				      __alignof__(struct mod_kallsyms));
++	info->mod_kallsyms_init_off = mod->init_layout.size;
++	mod->init_layout.size += sizeof(struct mod_kallsyms);
++	mod->init_layout.size = debug_align(mod->init_layout.size);
+ }
+ 
++/*
++ * We use the full symtab and strtab which layout_symtab arranged to
++ * be appended to the init section.  Later we switch to the cut-down
++ * core-only ones.
++ */
+ static void add_kallsyms(struct module *mod, const struct load_info *info)
+ {
+ 	unsigned int i, ndst;
+@@ -2492,29 +2506,34 @@ static void add_kallsyms(struct module *mod, const struct load_info *info)
+ 	char *s;
+ 	Elf_Shdr *symsec = &info->sechdrs[info->index.sym];
+ 
+-	mod->symtab = (void *)symsec->sh_addr;
+-	mod->num_symtab = symsec->sh_size / sizeof(Elf_Sym);
++	/* Set up to point into init section. */
++	mod->kallsyms = mod->init_layout.base + info->mod_kallsyms_init_off;
++
++	mod->kallsyms->symtab = (void *)symsec->sh_addr;
++	mod->kallsyms->num_symtab = symsec->sh_size / sizeof(Elf_Sym);
+ 	/* Make sure we get permanent strtab: don't use info->strtab. */
+-	mod->strtab = (void *)info->sechdrs[info->index.str].sh_addr;
++	mod->kallsyms->strtab = (void *)info->sechdrs[info->index.str].sh_addr;
+ 
+ 	/* Set types up while we still have access to sections. */
+-	for (i = 0; i < mod->num_symtab; i++)
+-		mod->symtab[i].st_info = elf_type(&mod->symtab[i], info);
+-
+-	mod->core_symtab = dst = mod->core_layout.base + info->symoffs;
+-	mod->core_strtab = s = mod->core_layout.base + info->stroffs;
+-	src = mod->symtab;
+-	for (ndst = i = 0; i < mod->num_symtab; i++) {
++	for (i = 0; i < mod->kallsyms->num_symtab; i++)
++		mod->kallsyms->symtab[i].st_info
++			= elf_type(&mod->kallsyms->symtab[i], info);
++
++	/* Now populate the cut down core kallsyms for after init. */
++	mod->core_kallsyms.symtab = dst = mod->core_layout.base + info->symoffs;
++	mod->core_kallsyms.strtab = s = mod->core_layout.base + info->stroffs;
++	src = mod->kallsyms->symtab;
++	for (ndst = i = 0; i < mod->kallsyms->num_symtab; i++) {
+ 		if (i == 0 ||
+ 		    is_core_symbol(src+i, info->sechdrs, info->hdr->e_shnum,
+ 				   info->index.pcpu)) {
+ 			dst[ndst] = src[i];
+-			dst[ndst++].st_name = s - mod->core_strtab;
+-			s += strlcpy(s, &mod->strtab[src[i].st_name],
++			dst[ndst++].st_name = s - mod->core_kallsyms.strtab;
++			s += strlcpy(s, &mod->kallsyms->strtab[src[i].st_name],
+ 				     KSYM_NAME_LEN) + 1;
+ 		}
+ 	}
+-	mod->core_num_syms = ndst;
++	mod->core_kallsyms.num_symtab = ndst;
+ }
+ #else
+ static inline void layout_symtab(struct module *mod, struct load_info *info)
+@@ -3263,9 +3282,8 @@ static noinline int do_init_module(struct module *mod)
+ 	module_put(mod);
+ 	trim_init_extable(mod);
+ #ifdef CONFIG_KALLSYMS
+-	mod->num_symtab = mod->core_num_syms;
+-	mod->symtab = mod->core_symtab;
+-	mod->strtab = mod->core_strtab;
++	/* Switch to core kallsyms now init is done: kallsyms may be walking! */
++	rcu_assign_pointer(mod->kallsyms, &mod->core_kallsyms);
+ #endif
+ 	mod_tree_remove_init(mod);
+ 	disable_ro_nx(&mod->init_layout);
+@@ -3627,9 +3645,9 @@ static inline int is_arm_mapping_symbol(const char *str)
+ 	       && (str[2] == '\0' || str[2] == '.');
+ }
+ 
+-static const char *symname(struct module *mod, unsigned int symnum)
++static const char *symname(struct mod_kallsyms *kallsyms, unsigned int symnum)
+ {
+-	return mod->strtab + mod->symtab[symnum].st_name;
++	return kallsyms->strtab + kallsyms->symtab[symnum].st_name;
+ }
+ 
+ static const char *get_ksymbol(struct module *mod,
+@@ -3639,6 +3657,7 @@ static const char *get_ksymbol(struct module *mod,
+ {
+ 	unsigned int i, best = 0;
+ 	unsigned long nextval;
++	struct mod_kallsyms *kallsyms = rcu_dereference_sched(mod->kallsyms);
+ 
+ 	/* At worse, next value is at end of module */
+ 	if (within_module_init(addr, mod))
+@@ -3648,32 +3667,32 @@ static const char *get_ksymbol(struct module *mod,
+ 
+ 	/* Scan for closest preceding symbol, and next symbol. (ELF
+ 	   starts real symbols at 1). */
+-	for (i = 1; i < mod->num_symtab; i++) {
+-		if (mod->symtab[i].st_shndx == SHN_UNDEF)
++	for (i = 1; i < kallsyms->num_symtab; i++) {
++		if (kallsyms->symtab[i].st_shndx == SHN_UNDEF)
+ 			continue;
+ 
+ 		/* We ignore unnamed symbols: they're uninformative
+ 		 * and inserted at a whim. */
+-		if (*symname(mod, i) == '\0'
+-		    || is_arm_mapping_symbol(symname(mod, i)))
++		if (*symname(kallsyms, i) == '\0'
++		    || is_arm_mapping_symbol(symname(kallsyms, i)))
+ 			continue;
+ 
+-		if (mod->symtab[i].st_value <= addr
+-		    && mod->symtab[i].st_value > mod->symtab[best].st_value)
++		if (kallsyms->symtab[i].st_value <= addr
++		    && kallsyms->symtab[i].st_value > kallsyms->symtab[best].st_value)
+ 			best = i;
+-		if (mod->symtab[i].st_value > addr
+-		    && mod->symtab[i].st_value < nextval)
+-			nextval = mod->symtab[i].st_value;
++		if (kallsyms->symtab[i].st_value > addr
++		    && kallsyms->symtab[i].st_value < nextval)
++			nextval = kallsyms->symtab[i].st_value;
+ 	}
+ 
+ 	if (!best)
+ 		return NULL;
+ 
+ 	if (size)
+-		*size = nextval - mod->symtab[best].st_value;
++		*size = nextval - kallsyms->symtab[best].st_value;
+ 	if (offset)
+-		*offset = addr - mod->symtab[best].st_value;
+-	return symname(mod, best);
++		*offset = addr - kallsyms->symtab[best].st_value;
++	return symname(kallsyms, best);
+ }
+ 
+ /* For kallsyms to ask for address resolution.  NULL means not found.  Careful
+@@ -3763,18 +3782,21 @@ int module_get_kallsym(unsigned int symnum, unsigned long *value, char *type,
+ 
+ 	preempt_disable();
+ 	list_for_each_entry_rcu(mod, &modules, list) {
++		struct mod_kallsyms *kallsyms;
++
+ 		if (mod->state == MODULE_STATE_UNFORMED)
+ 			continue;
+-		if (symnum < mod->num_symtab) {
+-			*value = mod->symtab[symnum].st_value;
+-			*type = mod->symtab[symnum].st_info;
+-			strlcpy(name, symname(mod, symnum), KSYM_NAME_LEN);
++		kallsyms = rcu_dereference_sched(mod->kallsyms);
++		if (symnum < kallsyms->num_symtab) {
++			*value = kallsyms->symtab[symnum].st_value;
++			*type = kallsyms->symtab[symnum].st_info;
++			strlcpy(name, symname(kallsyms, symnum), KSYM_NAME_LEN);
+ 			strlcpy(module_name, mod->name, MODULE_NAME_LEN);
+ 			*exported = is_exported(name, *value, mod);
+ 			preempt_enable();
+ 			return 0;
+ 		}
+-		symnum -= mod->num_symtab;
++		symnum -= kallsyms->num_symtab;
+ 	}
+ 	preempt_enable();
+ 	return -ERANGE;
+@@ -3783,11 +3805,12 @@ int module_get_kallsym(unsigned int symnum, unsigned long *value, char *type,
+ static unsigned long mod_find_symname(struct module *mod, const char *name)
+ {
+ 	unsigned int i;
++	struct mod_kallsyms *kallsyms = rcu_dereference_sched(mod->kallsyms);
+ 
+-	for (i = 0; i < mod->num_symtab; i++)
+-		if (strcmp(name, symname(mod, i)) == 0 &&
+-		    mod->symtab[i].st_info != 'U')
+-			return mod->symtab[i].st_value;
++	for (i = 0; i < kallsyms->num_symtab; i++)
++		if (strcmp(name, symname(kallsyms, i)) == 0 &&
++		    kallsyms->symtab[i].st_info != 'U')
++			return kallsyms->symtab[i].st_value;
+ 	return 0;
+ }
+ 
+@@ -3826,11 +3849,14 @@ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
+ 	module_assert_mutex();
+ 
+ 	list_for_each_entry(mod, &modules, list) {
++		/* We hold module_mutex: no need for rcu_dereference_sched */
++		struct mod_kallsyms *kallsyms = mod->kallsyms;
++
+ 		if (mod->state == MODULE_STATE_UNFORMED)
+ 			continue;
+-		for (i = 0; i < mod->num_symtab; i++) {
+-			ret = fn(data, symname(mod, i),
+-				 mod, mod->symtab[i].st_value);
++		for (i = 0; i < kallsyms->num_symtab; i++) {
++			ret = fn(data, symname(kallsyms, i),
++				 mod, kallsyms->symtab[i].st_value);
+ 			if (ret != 0)
+ 				return ret;
+ 		}
