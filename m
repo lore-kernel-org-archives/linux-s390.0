@@ -1,10 +1,8 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 06/18] KVM: s390: gaccess: implement instruction fetching mode
-Date: Fri, 12 Feb 2016 14:22:50 +0100
-Message-ID: <1455283382-62999-7-git-send-email-borntraeger@de.ibm.com>
-References: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 00/18] KVM: s390: Fixes and features for kvm/next (4.6)
+Date: Fri, 12 Feb 2016 14:22:44 +0100
+Message-ID: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,97 +10,71 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Paolo,
 
-When an instruction is to be fetched, special handling applies to
-secondary-space mode and access-register mode. The instruction is to be
-fetched from primary space.
+here is the first set of patches for s390/kvm targetting the next merge 
+window for 4.6 (kvm/next)
+This time with less testing than usual on the branch itself, as 4.5-rc3
+is broken in several ways (with fixes or workarounds or people working on
+the issues). So this time these patches have been partially tested against
+a 4.4 base and partially tested agains kvm/next :-/
 
-We can easily support this by selecting the right asce for translation.
-Access registers will never be used during translation, so don't
-include them in the interface. As we only want to read from the current
-PSW address for now, let's also hide that detail.
+The following changes since commit bce87cce88c71957c56479809db8316a836ec8b1:
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/gaccess.c | 11 +++++++----
- arch/s390/kvm/gaccess.h | 21 +++++++++++++++++++++
- 2 files changed, 28 insertions(+), 4 deletions(-)
+  KVM: x86: consolidate different ways to test for in-kernel LAPIC (2016-02-09 16:57:45 +0100)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index c72ad91..66938d2 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -480,22 +480,25 @@ static int get_vcpu_asce(struct kvm_vcpu *vcpu, union asce *asce,
- 			 ar_t ar, enum gacc_mode mode)
- {
- 	int rc;
--	psw_t *psw = &vcpu->arch.sie_block->gpsw;
-+	struct psw_bits psw = psw_bits(vcpu->arch.sie_block->gpsw);
- 	struct kvm_s390_pgm_info *pgm = &vcpu->arch.pgm;
- 	struct trans_exc_code_bits *tec_bits;
- 
- 	memset(pgm, 0, sizeof(*pgm));
- 	tec_bits = (struct trans_exc_code_bits *)&pgm->trans_exc_code;
- 	tec_bits->fsi = mode == GACC_STORE ? FSI_STORE : FSI_FETCH;
--	tec_bits->as = psw_bits(*psw).as;
-+	tec_bits->as = psw.as;
- 
--	if (!psw_bits(*psw).t) {
-+	if (!psw.t) {
- 		asce->val = 0;
- 		asce->r = 1;
- 		return 0;
- 	}
- 
--	switch (psw_bits(vcpu->arch.sie_block->gpsw).as) {
-+	if (mode == GACC_IFETCH)
-+		psw.as = psw.as == PSW_AS_HOME ? PSW_AS_HOME : PSW_AS_PRIMARY;
-+
-+	switch (psw.as) {
- 	case PSW_AS_PRIMARY:
- 		asce->val = vcpu->arch.sie_block->gcr[1];
- 		return 0;
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 2a6f8bf..df0a79d 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -158,6 +158,7 @@ int read_guest_lc(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
- enum gacc_mode {
- 	GACC_FETCH,
- 	GACC_STORE,
-+	GACC_IFETCH,
- };
- 
- int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva,
-@@ -244,6 +245,26 @@ int read_guest(struct kvm_vcpu *vcpu, unsigned long ga, ar_t ar, void *data,
- }
- 
- /**
-+ * read_guest_instr - copy instruction data from guest space to kernel space
-+ * @vcpu: virtual cpu
-+ * @data: destination address in kernel space
-+ * @len: number of bytes to copy
-+ *
-+ * Copy @len bytes from the current psw address (guest space) to @data (kernel
-+ * space).
-+ *
-+ * The behaviour of read_guest_instr is identical to read_guest, except that
-+ * instruction data will be read from primary space when in home-space or
-+ * address-space mode.
-+ */
-+static inline __must_check
-+int read_guest_instr(struct kvm_vcpu *vcpu, void *data, unsigned long len)
-+{
-+	return access_guest(vcpu, vcpu->arch.sie_block->gpsw.addr, 0, data, len,
-+			    GACC_IFETCH);
-+}
-+
-+/**
-  * write_guest_abs - copy data from kernel space to guest space absolute
-  * @vcpu: virtual cpu
-  * @gpa: guest physical (absolute) address
--- 
-2.3.0
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.6-1
+
+for you to fetch changes up to 1763f8d09d522b3ac998229dcf038476e88b78fc:
+
+  KVM: s390: bail out early on fatal signal in dirty logging (2016-02-10 13:12:57 +0100)
+
+----------------------------------------------------------------
+KVM: s390: Fixes and features for kvm/next (4.6)
+
+1. also provide the floating point registers via sync regs
+2. Separate out intruction vs. data accesses
+3. Fix program interrupts in some cases
+4. Documentation fixes
+5. dirty log improvements for huge guests
+
+----------------------------------------------------------------
+Christian Borntraeger (3):
+      KVM: s390: do not take mmap_sem on dirty log query
+      KVM: s390: do not block CPU on dirty logging
+      KVM: s390: bail out early on fatal signal in dirty logging
+
+Cornelia Huck (1):
+      KVM: s390: usage hint for adapter mappings
+
+David Hildenbrand (14):
+      KVM: s390: allow sync of fp registers via vregs
+      KVM: s390: sync of fp registers via kvm_run
+      KVM: s390: PSW forwarding / rewinding / ilc rework
+      KVM: s390: migration / injection of prog irq ilc
+      KVM: s390: gaccess: introduce access modes
+      KVM: s390: gaccess: implement instruction fetching mode
+      KVM: s390: read the correct opcode on SIE faults
+      KVM: s390: clean up prog irq injection on prog irq icpts
+      KVM: s390: irq delivery should not rely on icptcode
+      KVM: s390: provide prog irq ilc on SIE faults
+      KVM: s390: instruction-fetching exceptions on SIE faults
+      KVM: s390: remove old fragment of vector registers
+      KVM: s390: add documentation of KVM_S390_VM_TOD
+      KVM: s390: add documentation of KVM_S390_VM_CRYPTO
+
+ Documentation/virtual/kvm/devices/s390_flic.txt |  2 +
+ Documentation/virtual/kvm/devices/vm.txt        | 52 +++++++++++++++++
+ arch/s390/include/asm/kvm_host.h                |  8 +--
+ arch/s390/include/uapi/asm/kvm.h                |  8 ++-
+ arch/s390/kvm/gaccess.c                         | 57 +++++++++---------
+ arch/s390/kvm/gaccess.h                         | 38 ++++++++++--
+ arch/s390/kvm/intercept.c                       | 78 +++++++++++++++----------
+ arch/s390/kvm/interrupt.c                       | 40 ++++++-------
+ arch/s390/kvm/kvm-s390.c                        | 55 +++++++++++------
+ arch/s390/kvm/kvm-s390.h                        | 17 +++++-
+ arch/s390/kvm/priv.c                            | 13 +++--
+ include/uapi/linux/kvm.h                        |  8 ++-
+ 12 files changed, 254 insertions(+), 122 deletions(-)
