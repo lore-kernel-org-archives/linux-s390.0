@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 04/18] KVM: s390: migration / injection of prog irq ilc
-Date: Fri, 12 Feb 2016 14:22:48 +0100
-Message-ID: <1455283382-62999-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 12/18] KVM: s390: remove old fragment of vector registers
+Date: Fri, 12 Feb 2016 14:22:56 +0100
+Message-ID: <1455283382-62999-13-git-send-email-borntraeger@de.ibm.com>
 References: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,96 +14,38 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-We have to migrate the program irq ilc and someday we will have to
-specify the ilc without KVM trying to autodetect the value.
+Since commit 9977e886cbbc ("s390/kernel: lazy restore fpu registers"),
+vregs in struct sie_page is unsed. We can safely remove the field and
+the definition.
 
-Let's reuse one of the spare fields in our program irq that should
-always be set to 0 by user space. Because we also want to make use
-of 0 ilcs ("not available"), we need a validity indicator.
-
-If no valid ilc is given, we try to autodetect the ilc via the current
-icptcode and icptstatus + parameter and store the valid ilc in the
-irq structure.
-
-This has a nice effect: QEMU's making use of KVM_S390_IRQ /
-KVM_S390_SET_IRQ_STATE / KVM_S390_GET_IRQ_STATE for migration will
-directly migrate the ilc without any changes.
-
-Please note that we use bit 0 as validity and bit 1,2 for the ilc, so
-by applying the ilc mask we directly get the ilen which is usually what
-we work with.
-
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 12 +++++++++++-
- include/uapi/linux/kvm.h  |  7 ++++++-
- 2 files changed, 17 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index daa4fdb..e594a78 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -571,7 +571,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
- 	struct kvm_s390_pgm_info pgm_info;
- 	int rc = 0, nullifying = false;
--	u16 ilen = kvm_s390_get_ilen(vcpu);
-+	u16 ilen;
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 8959ebb..727e7f7 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -229,17 +229,11 @@ struct kvm_s390_itdb {
+ 	__u8	data[256];
+ } __packed;
  
- 	spin_lock(&li->lock);
- 	pgm_info = li->irq.pgm;
-@@ -579,6 +579,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- 	memset(&li->irq.pgm, 0, sizeof(pgm_info));
- 	spin_unlock(&li->lock);
+-struct kvm_s390_vregs {
+-	__vector128 vrs[32];
+-	__u8	reserved200[512];	/* for future vector expansion */
+-} __packed;
+-
+ struct sie_page {
+ 	struct kvm_s390_sie_block sie_block;
+ 	__u8 reserved200[1024];		/* 0x0200 */
+ 	struct kvm_s390_itdb itdb;	/* 0x0600 */
+-	__u8 reserved700[1280];		/* 0x0700 */
+-	struct kvm_s390_vregs vregs;	/* 0x0c00 */
++	__u8 reserved700[2304];		/* 0x0700 */
+ } __packed;
  
-+	ilen = pgm_info.flags & KVM_S390_PGM_FLAGS_ILC_MASK;
- 	VCPU_EVENT(vcpu, 3, "deliver: program irq code 0x%x, ilen:%d",
- 		   pgm_info.code, ilen);
- 	vcpu->stat.deliver_program_int++;
-@@ -1043,8 +1044,16 @@ static int __inject_prog(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
- 				   irq->u.pgm.code, 0);
- 
-+	if (!(irq->u.pgm.flags & KVM_S390_PGM_FLAGS_ILC_VALID)) {
-+		/* auto detection if no valid ILC was given */
-+		irq->u.pgm.flags &= ~KVM_S390_PGM_FLAGS_ILC_MASK;
-+		irq->u.pgm.flags |= kvm_s390_get_ilen(vcpu);
-+		irq->u.pgm.flags |= KVM_S390_PGM_FLAGS_ILC_VALID;
-+	}
-+
- 	if (irq->u.pgm.code == PGM_PER) {
- 		li->irq.pgm.code |= PGM_PER;
-+		li->irq.pgm.flags = irq->u.pgm.flags;
- 		/* only modify PER related information */
- 		li->irq.pgm.per_address = irq->u.pgm.per_address;
- 		li->irq.pgm.per_code = irq->u.pgm.per_code;
-@@ -1053,6 +1062,7 @@ static int __inject_prog(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	} else if (!(irq->u.pgm.code & PGM_PER)) {
- 		li->irq.pgm.code = (li->irq.pgm.code & PGM_PER) |
- 				   irq->u.pgm.code;
-+		li->irq.pgm.flags = irq->u.pgm.flags;
- 		/* only modify non-PER information */
- 		li->irq.pgm.trans_exc_code = irq->u.pgm.trans_exc_code;
- 		li->irq.pgm.mon_code = irq->u.pgm.mon_code;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 9da9051..4e20a40 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -541,7 +541,12 @@ struct kvm_s390_pgm_info {
- 	__u8 exc_access_id;
- 	__u8 per_access_id;
- 	__u8 op_access_id;
--	__u8 pad[3];
-+#define KVM_S390_PGM_FLAGS_ILC_VALID	0x01
-+#define KVM_S390_PGM_FLAGS_ILC_0	0x02
-+#define KVM_S390_PGM_FLAGS_ILC_1	0x04
-+#define KVM_S390_PGM_FLAGS_ILC_MASK	0x06
-+	__u8 flags;
-+	__u8 pad[2];
- };
- 
- struct kvm_s390_prefix_info {
+ struct kvm_vcpu_stat {
 -- 
 2.3.0
