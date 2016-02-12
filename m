@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 01/18] KVM: s390: allow sync of fp registers via vregs
-Date: Fri, 12 Feb 2016 14:22:45 +0100
-Message-ID: <1455283382-62999-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 08/18] KVM: s390: clean up prog irq injection on prog irq icpts
+Date: Fri, 12 Feb 2016 14:22:52 +0100
+Message-ID: <1455283382-62999-9-git-send-email-borntraeger@de.ibm.com>
 References: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,35 +14,119 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-If we have MACHINE_HAS_VX, the floating point registers are stored
-in the vector register format, event if the guest isn't enabled for vector
-registers. So we can allow KVM_SYNC_VRS as soon as MACHINE_HAS_VX is
-available.
+__extract_prog_irq() is used only once for getting the program check data
+in one place. Let's combine it with an injection function to avoid a memset
+and to prevent misuse on injection by simplifying the interface to only
+have the VCPU as parameter.
 
-This can in return be used by user space to support floating point
-registers via struct kvm_run when the machine has vector registers.
-
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/s390/kvm/intercept.c | 41 ++++++++++++++++++++---------------------
+ 1 file changed, 20 insertions(+), 21 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 4af21c7..8fcdf98 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1414,7 +1414,10 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- 				    KVM_SYNC_PFAULT;
- 	if (test_kvm_facility(vcpu->kvm, 64))
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_RICCB;
--	if (test_kvm_facility(vcpu->kvm, 129))
-+	/* fprs can be synchronized via vrs, even if the guest has no vx. With
-+	 * MACHINE_HAS_VX, (load|store)_fpu_regs() will work with vrs format.
-+	 */
-+	if (MACHINE_HAS_VX)
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_VRS;
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 44bb923..6b4e5b5 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -136,11 +136,11 @@ static int handle_instruction(struct kvm_vcpu *vcpu)
+ 	return -EOPNOTSUPP;
+ }
  
- 	if (kvm_is_ucontrol(vcpu->kvm))
+-static void __extract_prog_irq(struct kvm_vcpu *vcpu,
+-			       struct kvm_s390_pgm_info *pgm_info)
++static int inject_prog_on_prog_intercept(struct kvm_vcpu *vcpu)
+ {
+-	memset(pgm_info, 0, sizeof(struct kvm_s390_pgm_info));
+-	pgm_info->code = vcpu->arch.sie_block->iprcc;
++	struct kvm_s390_pgm_info pgm_info = {
++		.code = vcpu->arch.sie_block->iprcc,
++	};
+ 
+ 	switch (vcpu->arch.sie_block->iprcc & ~PGM_PER) {
+ 	case PGM_AFX_TRANSLATION:
+@@ -153,7 +153,7 @@ static void __extract_prog_irq(struct kvm_vcpu *vcpu,
+ 	case PGM_PRIMARY_AUTHORITY:
+ 	case PGM_SECONDARY_AUTHORITY:
+ 	case PGM_SPACE_SWITCH:
+-		pgm_info->trans_exc_code = vcpu->arch.sie_block->tecmc;
++		pgm_info.trans_exc_code = vcpu->arch.sie_block->tecmc;
+ 		break;
+ 	case PGM_ALEN_TRANSLATION:
+ 	case PGM_ALE_SEQUENCE:
+@@ -161,7 +161,7 @@ static void __extract_prog_irq(struct kvm_vcpu *vcpu,
+ 	case PGM_ASTE_SEQUENCE:
+ 	case PGM_ASTE_VALIDITY:
+ 	case PGM_EXTENDED_AUTHORITY:
+-		pgm_info->exc_access_id = vcpu->arch.sie_block->eai;
++		pgm_info.exc_access_id = vcpu->arch.sie_block->eai;
+ 		break;
+ 	case PGM_ASCE_TYPE:
+ 	case PGM_PAGE_TRANSLATION:
+@@ -169,32 +169,33 @@ static void __extract_prog_irq(struct kvm_vcpu *vcpu,
+ 	case PGM_REGION_SECOND_TRANS:
+ 	case PGM_REGION_THIRD_TRANS:
+ 	case PGM_SEGMENT_TRANSLATION:
+-		pgm_info->trans_exc_code = vcpu->arch.sie_block->tecmc;
+-		pgm_info->exc_access_id  = vcpu->arch.sie_block->eai;
+-		pgm_info->op_access_id  = vcpu->arch.sie_block->oai;
++		pgm_info.trans_exc_code = vcpu->arch.sie_block->tecmc;
++		pgm_info.exc_access_id  = vcpu->arch.sie_block->eai;
++		pgm_info.op_access_id  = vcpu->arch.sie_block->oai;
+ 		break;
+ 	case PGM_MONITOR:
+-		pgm_info->mon_class_nr = vcpu->arch.sie_block->mcn;
+-		pgm_info->mon_code = vcpu->arch.sie_block->tecmc;
++		pgm_info.mon_class_nr = vcpu->arch.sie_block->mcn;
++		pgm_info.mon_code = vcpu->arch.sie_block->tecmc;
+ 		break;
+ 	case PGM_VECTOR_PROCESSING:
+ 	case PGM_DATA:
+-		pgm_info->data_exc_code = vcpu->arch.sie_block->dxc;
++		pgm_info.data_exc_code = vcpu->arch.sie_block->dxc;
+ 		break;
+ 	case PGM_PROTECTION:
+-		pgm_info->trans_exc_code = vcpu->arch.sie_block->tecmc;
+-		pgm_info->exc_access_id  = vcpu->arch.sie_block->eai;
++		pgm_info.trans_exc_code = vcpu->arch.sie_block->tecmc;
++		pgm_info.exc_access_id  = vcpu->arch.sie_block->eai;
+ 		break;
+ 	default:
+ 		break;
+ 	}
+ 
+ 	if (vcpu->arch.sie_block->iprcc & PGM_PER) {
+-		pgm_info->per_code = vcpu->arch.sie_block->perc;
+-		pgm_info->per_atmid = vcpu->arch.sie_block->peratmid;
+-		pgm_info->per_address = vcpu->arch.sie_block->peraddr;
+-		pgm_info->per_access_id = vcpu->arch.sie_block->peraid;
++		pgm_info.per_code = vcpu->arch.sie_block->perc;
++		pgm_info.per_atmid = vcpu->arch.sie_block->peratmid;
++		pgm_info.per_address = vcpu->arch.sie_block->peraddr;
++		pgm_info.per_access_id = vcpu->arch.sie_block->peraid;
+ 	}
++	return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
+ }
+ 
+ /*
+@@ -223,7 +224,6 @@ static int handle_itdb(struct kvm_vcpu *vcpu)
+ 
+ static int handle_prog(struct kvm_vcpu *vcpu)
+ {
+-	struct kvm_s390_pgm_info pgm_info;
+ 	psw_t psw;
+ 	int rc;
+ 
+@@ -249,8 +249,7 @@ static int handle_prog(struct kvm_vcpu *vcpu)
+ 	if (rc)
+ 		return rc;
+ 
+-	__extract_prog_irq(vcpu, &pgm_info);
+-	return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
++	return inject_prog_on_prog_intercept(vcpu);
+ }
+ 
+ /**
 -- 
 2.3.0
