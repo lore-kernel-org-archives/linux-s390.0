@@ -1,110 +1,71 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v5 2/3] kallsyms: don't overload absolute symbol type for percpu symbols
-Date: Mon,  8 Feb 2016 18:57:47 +0100
-Message-ID: <1454954268-3225-3-git-send-email-ard.biesheuvel@linaro.org>
-References: <1454954268-3225-1-git-send-email-ard.biesheuvel@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1454954268-3225-1-git-send-email-ard.biesheuvel@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, keescook@chromium.org, akpm@linux-foundation.org, mingo@kernel.org, hpa@zytor.com, heiko.carstens@de.ibm.com, benh@kernel.crashing.org, mpe@ellerman.id.au, mmarek@suse.cz, rusty@rustcorp.com.au, arnd@arndb.de, linux-arch@vger.kernel.org, linux@roeck-us.net
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 09/18] KVM: s390: irq delivery should not rely on icptcode
+Date: Fri, 12 Feb 2016 14:22:53 +0100
+Message-ID: <1455283382-62999-10-git-send-email-borntraeger@de.ibm.com>
+References: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit c6bda7c988a5 ("kallsyms: fix percpu vars on x86-64 with relocation")
-overloaded the 'A' (absolute) symbol type to signify that a symbol is not
-subject to dynamic relocation. However, the original A type does not imply
-that at all, and depending on the version of the toolchain, many A type
-symbols are emitted that are in fact relative to the kernel text, i.e., if
-the kernel is relocated at runtime, these symbols should be updated as well.
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-For instance, on sparc32, the following symbols are emitted as absolute
-(kindly provided by Guenter Roeck):
+Program irq injection during program irq intercepts is the last candidates
+that injects nullifying irqs and relies on delivery to do the right thing.
 
-  f035a420 A _etext
-  f03d9000 A _sdata
-  f03de8c4 A jiffies
-  f03f8860 A _edata
-  f03fc000 A __init_begin
-  f041bdc8 A __init_text_end
-  f0423000 A __bss_start
-  f0423000 A __init_end
-  f044457d A __bss_stop
-  f044457d A _end
+As we should not rely on the icptcode during any delivery (because that
+value will not be migrated), let's add a flag, telling prog IRQ delivery
+to not rewind the PSW in case of nullifying prog IRQs.
 
-On x86_64, similar behavior can be observed:
-
-  ffffffff81a00000 A __end_rodata_hpage_align
-  ffffffff81b19000 A __vvar_page
-  ffffffff81d3d000 A _end
-
-Even if only a couple of them pass the symbol range check that results in
-them to be taken into account for the final kallsyms symbol table, it is
-obvious that 'A' does not mean the symbol does not need to be updated at
-relocation time, and overloading its meaning to signify that is perhaps not
-a good idea.
-
-So instead, add a new percpu_absolute member to struct sym_entry, and when
---absolute-percpu is in effect, use it to record symbols whose addresses
-should be emitted as final values rather than values that still require
-relocation at runtime. That way, we can drop the check against the 'A' type.
-
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Tested-by: Kees Cook <keescook@chromium.org>
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- scripts/kallsyms.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/s390/kvm/intercept.c | 2 ++
+ arch/s390/kvm/interrupt.c | 2 +-
+ include/uapi/linux/kvm.h  | 1 +
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
-index 8fa81e84e295..d39a1eeb080e 100644
---- a/scripts/kallsyms.c
-+++ b/scripts/kallsyms.c
-@@ -34,6 +34,7 @@ struct sym_entry {
- 	unsigned int len;
- 	unsigned int start_pos;
- 	unsigned char *sym;
-+	unsigned int percpu_absolute;
- };
- 
- struct addr_range {
-@@ -171,6 +172,8 @@ static int read_symbol(FILE *in, struct sym_entry *s)
- 	strcpy((char *)s->sym + 1, str);
- 	s->sym[0] = stype;
- 
-+	s->percpu_absolute = 0;
-+
- 	/* Record if we've found __per_cpu_start/end. */
- 	check_symbol_range(sym, s->addr, &percpu_range, 1);
- 
-@@ -325,7 +328,7 @@ static int expand_symbol(unsigned char *data, int len, char *result)
- 
- static int symbol_absolute(struct sym_entry *s)
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 6b4e5b5..2e6b54e 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -140,6 +140,8 @@ static int inject_prog_on_prog_intercept(struct kvm_vcpu *vcpu)
  {
--	return toupper(s->sym[0]) == 'A';
-+	return s->percpu_absolute;
- }
+ 	struct kvm_s390_pgm_info pgm_info = {
+ 		.code = vcpu->arch.sie_block->iprcc,
++		/* the PSW has already been rewound */
++		.flags = KVM_S390_PGM_FLAGS_NO_REWIND,
+ 	};
  
- static void write_src(void)
-@@ -681,8 +684,15 @@ static void make_percpus_absolute(void)
- 	unsigned int i;
+ 	switch (vcpu->arch.sie_block->iprcc & ~PGM_PER) {
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index e594a78..87e2d1a 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -665,7 +665,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ 				   (u8 *) __LC_PER_ACCESS_ID);
+ 	}
  
- 	for (i = 0; i < table_cnt; i++)
--		if (symbol_in_range(&table[i], &percpu_range, 1))
-+		if (symbol_in_range(&table[i], &percpu_range, 1)) {
-+			/*
-+			 * Keep the 'A' override for percpu symbols to
-+			 * ensure consistent behavior compared to older
-+			 * versions of this tool.
-+			 */
- 			table[i].sym[0] = 'A';
-+			table[i].percpu_absolute = 1;
-+		}
- }
+-	if (nullifying && vcpu->arch.sie_block->icptcode == ICPT_INST)
++	if (nullifying && !(pgm_info.flags & KVM_S390_PGM_FLAGS_NO_REWIND))
+ 		kvm_s390_rewind_psw(vcpu, ilen);
  
- int main(int argc, char **argv)
+ 	/* bit 1+2 of the target are the ilc, so we can directly use ilen */
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 4e20a40..a2fe0ac 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -545,6 +545,7 @@ struct kvm_s390_pgm_info {
+ #define KVM_S390_PGM_FLAGS_ILC_0	0x02
+ #define KVM_S390_PGM_FLAGS_ILC_1	0x04
+ #define KVM_S390_PGM_FLAGS_ILC_MASK	0x06
++#define KVM_S390_PGM_FLAGS_NO_REWIND	0x08
+ 	__u8 flags;
+ 	__u8 pad[2];
+ };
 -- 
-2.5.0
+2.3.0
