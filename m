@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 03/18] KVM: s390: PSW forwarding / rewinding / ilc rework
-Date: Fri, 12 Feb 2016 14:22:47 +0100
-Message-ID: <1455283382-62999-4-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 04/18] KVM: s390: migration / injection of prog irq ilc
+Date: Fri, 12 Feb 2016 14:22:48 +0100
+Message-ID: <1455283382-62999-5-git-send-email-borntraeger@de.ibm.com>
 References: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,226 +14,96 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-We have some confusion about ilc vs. ilen in our current code. So let's
-correctly use the term ilen when dealing with (ilc << 1).
+We have to migrate the program irq ilc and someday we will have to
+specify the ilc without KVM trying to autodetect the value.
 
-Program irq injection didn't take care of the correct ilc in case of
-irqs triggered by EXECUTE functions, let's provide one function
-kvm_s390_get_ilen() to take care of all that.
+Let's reuse one of the spare fields in our program irq that should
+always be set to 0 by user space. Because we also want to make use
+of 0 ilcs ("not available"), we need a validity indicator.
 
-Also, manually specifying in intercept handlers the size of the
-instruction (and sometimes overwriting that value for EXECUTE internally)
-doesn't make too much sense. So also provide the functions:
-- kvm_s390_retry_instr to retry the currently intercepted instruction
-- kvm_s390_rewind_psw to rewind the PSW without internal overwrites
-- kvm_s390_forward_psw to forward the PSW
+If no valid ilc is given, we try to autodetect the ilc via the current
+icptcode and icptstatus + parameter and store the valid ilc in the
+irq structure.
+
+This has a nice effect: QEMU's making use of KVM_S390_IRQ /
+KVM_S390_SET_IRQ_STATE / KVM_S390_GET_IRQ_STATE for migration will
+directly migrate the ilc without any changes.
+
+Please note that we use bit 0 as validity and bit 1,2 for the ilc, so
+by applying the ilc mask we directly get the ilen which is usually what
+we work with.
 
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/intercept.c | 31 +++++++++++++++++++++++--------
- arch/s390/kvm/interrupt.c | 28 ++++++----------------------
- arch/s390/kvm/kvm-s390.c  |  2 +-
- arch/s390/kvm/kvm-s390.h  | 17 ++++++++++++++++-
- arch/s390/kvm/priv.c      |  8 ++++----
- 5 files changed, 50 insertions(+), 36 deletions(-)
+ arch/s390/kvm/interrupt.c | 12 +++++++++++-
+ include/uapi/linux/kvm.h  |  7 ++++++-
+ 2 files changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index d53c107..7f992e0 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -38,17 +38,32 @@ static const intercept_handler_t instruction_handlers[256] = {
- 	[0xeb] = kvm_s390_handle_eb,
- };
- 
--void kvm_s390_rewind_psw(struct kvm_vcpu *vcpu, int ilc)
-+u8 kvm_s390_get_ilen(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
-+	u8 ilen = 0;
- 
--	/* Use the length of the EXECUTE instruction if necessary */
--	if (sie_block->icptstatus & 1) {
--		ilc = (sie_block->icptstatus >> 4) & 0x6;
--		if (!ilc)
--			ilc = 4;
-+	switch (vcpu->arch.sie_block->icptcode) {
-+	case ICPT_INST:
-+	case ICPT_INSTPROGI:
-+	case ICPT_OPEREXC:
-+	case ICPT_PARTEXEC:
-+	case ICPT_IOINST:
-+		/* instruction only stored for these icptcodes */
-+		ilen = insn_length(vcpu->arch.sie_block->ipa >> 8);
-+		/* Use the length of the EXECUTE instruction if necessary */
-+		if (sie_block->icptstatus & 1) {
-+			ilen = (sie_block->icptstatus >> 4) & 0x6;
-+			if (!ilen)
-+				ilen = 4;
-+		}
-+		break;
-+	case ICPT_PROGI:
-+		/* bit 1+2 of pgmilc are the ilc, so we directly get ilen */
-+		ilen = vcpu->arch.sie_block->pgmilc & 0x6;
-+		break;
- 	}
--	sie_block->gpsw.addr = __rewind_psw(sie_block->gpsw, ilc);
-+	return ilen;
- }
- 
- static int handle_noop(struct kvm_vcpu *vcpu)
-@@ -318,7 +333,7 @@ static int handle_mvpg_pei(struct kvm_vcpu *vcpu)
- 	if (rc != 0)
- 		return rc;
- 
--	kvm_s390_rewind_psw(vcpu, 4);
-+	kvm_s390_retry_instr(vcpu);
- 
- 	return 0;
- }
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index f88ca72..daa4fdb 100644
+index daa4fdb..e594a78 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -335,23 +335,6 @@ static void set_intercept_indicators(struct kvm_vcpu *vcpu)
- 	set_intercept_indicators_stop(vcpu);
- }
- 
--static u16 get_ilc(struct kvm_vcpu *vcpu)
--{
--	switch (vcpu->arch.sie_block->icptcode) {
--	case ICPT_INST:
--	case ICPT_INSTPROGI:
--	case ICPT_OPEREXC:
--	case ICPT_PARTEXEC:
--	case ICPT_IOINST:
--		/* last instruction only stored for these icptcodes */
--		return insn_length(vcpu->arch.sie_block->ipa >> 8);
--	case ICPT_PROGI:
--		return vcpu->arch.sie_block->pgmilc;
--	default:
--		return 0;
--	}
--}
--
- static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-@@ -588,7 +571,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+@@ -571,7 +571,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
  	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
  	struct kvm_s390_pgm_info pgm_info;
  	int rc = 0, nullifying = false;
--	u16 ilc = get_ilc(vcpu);
-+	u16 ilen = kvm_s390_get_ilen(vcpu);
+-	u16 ilen = kvm_s390_get_ilen(vcpu);
++	u16 ilen;
  
  	spin_lock(&li->lock);
  	pgm_info = li->irq.pgm;
-@@ -596,8 +579,8 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+@@ -579,6 +579,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
  	memset(&li->irq.pgm, 0, sizeof(pgm_info));
  	spin_unlock(&li->lock);
  
--	VCPU_EVENT(vcpu, 3, "deliver: program irq code 0x%x, ilc:%d",
--		   pgm_info.code, ilc);
-+	VCPU_EVENT(vcpu, 3, "deliver: program irq code 0x%x, ilen:%d",
-+		   pgm_info.code, ilen);
++	ilen = pgm_info.flags & KVM_S390_PGM_FLAGS_ILC_MASK;
+ 	VCPU_EVENT(vcpu, 3, "deliver: program irq code 0x%x, ilen:%d",
+ 		   pgm_info.code, ilen);
  	vcpu->stat.deliver_program_int++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
- 					 pgm_info.code, 0);
-@@ -682,9 +665,10 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- 	}
+@@ -1043,8 +1044,16 @@ static int __inject_prog(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
+ 				   irq->u.pgm.code, 0);
  
- 	if (nullifying && vcpu->arch.sie_block->icptcode == ICPT_INST)
--		kvm_s390_rewind_psw(vcpu, ilc);
-+		kvm_s390_rewind_psw(vcpu, ilen);
- 
--	rc |= put_guest_lc(vcpu, ilc, (u16 *) __LC_PGM_ILC);
-+	/* bit 1+2 of the target are the ilc, so we can directly use ilen */
-+	rc |= put_guest_lc(vcpu, ilen, (u16 *) __LC_PGM_ILC);
- 	rc |= put_guest_lc(vcpu, vcpu->arch.sie_block->gbea,
- 				 (u64 *) __LC_LAST_BREAK);
- 	rc |= put_guest_lc(vcpu, pgm_info.code,
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2270fe4..cd84a3e 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2181,7 +2181,7 @@ static int vcpu_post_run_fault_in_sie(struct kvm_vcpu *vcpu)
- 	rc = read_guest(vcpu, psw->addr, 0, &opcode, 1);
- 	if (rc)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
--	psw->addr = __rewind_psw(*psw, -insn_length(opcode));
-+	kvm_s390_forward_psw(vcpu, insn_length(opcode));
- 
- 	return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
- }
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index df1abad..1c756c7 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -19,6 +19,7 @@
- #include <linux/kvm.h>
- #include <linux/kvm_host.h>
- #include <asm/facility.h>
-+#include <asm/processor.h>
- 
- typedef int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
- 
-@@ -212,8 +213,22 @@ int kvm_s390_reinject_io_int(struct kvm *kvm,
- int kvm_s390_mask_adapter(struct kvm *kvm, unsigned int id, bool masked);
- 
- /* implemented in intercept.c */
--void kvm_s390_rewind_psw(struct kvm_vcpu *vcpu, int ilc);
-+u8 kvm_s390_get_ilen(struct kvm_vcpu *vcpu);
- int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu);
-+static inline void kvm_s390_rewind_psw(struct kvm_vcpu *vcpu, int ilen)
-+{
-+	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
++	if (!(irq->u.pgm.flags & KVM_S390_PGM_FLAGS_ILC_VALID)) {
++		/* auto detection if no valid ILC was given */
++		irq->u.pgm.flags &= ~KVM_S390_PGM_FLAGS_ILC_MASK;
++		irq->u.pgm.flags |= kvm_s390_get_ilen(vcpu);
++		irq->u.pgm.flags |= KVM_S390_PGM_FLAGS_ILC_VALID;
++	}
 +
-+	sie_block->gpsw.addr = __rewind_psw(sie_block->gpsw, ilen);
-+}
-+static inline void kvm_s390_forward_psw(struct kvm_vcpu *vcpu, int ilen)
-+{
-+	kvm_s390_rewind_psw(vcpu, -ilen);
-+}
-+static inline void kvm_s390_retry_instr(struct kvm_vcpu *vcpu)
-+{
-+	kvm_s390_rewind_psw(vcpu, kvm_s390_get_ilen(vcpu));
-+}
+ 	if (irq->u.pgm.code == PGM_PER) {
+ 		li->irq.pgm.code |= PGM_PER;
++		li->irq.pgm.flags = irq->u.pgm.flags;
+ 		/* only modify PER related information */
+ 		li->irq.pgm.per_address = irq->u.pgm.per_address;
+ 		li->irq.pgm.per_code = irq->u.pgm.per_code;
+@@ -1053,6 +1062,7 @@ static int __inject_prog(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	} else if (!(irq->u.pgm.code & PGM_PER)) {
+ 		li->irq.pgm.code = (li->irq.pgm.code & PGM_PER) |
+ 				   irq->u.pgm.code;
++		li->irq.pgm.flags = irq->u.pgm.flags;
+ 		/* only modify non-PER information */
+ 		li->irq.pgm.trans_exc_code = irq->u.pgm.trans_exc_code;
+ 		li->irq.pgm.mon_code = irq->u.pgm.mon_code;
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 9da9051..4e20a40 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -541,7 +541,12 @@ struct kvm_s390_pgm_info {
+ 	__u8 exc_access_id;
+ 	__u8 per_access_id;
+ 	__u8 op_access_id;
+-	__u8 pad[3];
++#define KVM_S390_PGM_FLAGS_ILC_VALID	0x01
++#define KVM_S390_PGM_FLAGS_ILC_0	0x02
++#define KVM_S390_PGM_FLAGS_ILC_1	0x04
++#define KVM_S390_PGM_FLAGS_ILC_MASK	0x06
++	__u8 flags;
++	__u8 pad[2];
+ };
  
- /* implemented in priv.c */
- int is_valid_psw(psw_t *psw);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index ed74e86..d58cbe9 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -173,7 +173,7 @@ static int handle_skey(struct kvm_vcpu *vcpu)
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 
--	kvm_s390_rewind_psw(vcpu, 4);
-+	kvm_s390_retry_instr(vcpu);
- 	VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
- 	return 0;
- }
-@@ -184,7 +184,7 @@ static int handle_ipte_interlock(struct kvm_vcpu *vcpu)
- 	if (psw_bits(vcpu->arch.sie_block->gpsw).p)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 	wait_event(vcpu->kvm->arch.ipte_wq, !ipte_lock_held(vcpu));
--	kvm_s390_rewind_psw(vcpu, 4);
-+	kvm_s390_retry_instr(vcpu);
- 	VCPU_EVENT(vcpu, 4, "%s", "retrying ipte interlock operation");
- 	return 0;
- }
-@@ -759,8 +759,8 @@ static int handle_essa(struct kvm_vcpu *vcpu)
- 	if (((vcpu->arch.sie_block->ipb & 0xf0000000) >> 28) > 6)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	/* Rewind PSW to repeat the ESSA instruction */
--	kvm_s390_rewind_psw(vcpu, 4);
-+	/* Retry the ESSA instruction */
-+	kvm_s390_retry_instr(vcpu);
- 	vcpu->arch.sie_block->cbrlo &= PAGE_MASK;	/* reset nceo */
- 	cbrlo = phys_to_virt(vcpu->arch.sie_block->cbrlo);
- 	down_read(&gmap->mm->mmap_sem);
+ struct kvm_s390_prefix_info {
 -- 
 2.3.0
