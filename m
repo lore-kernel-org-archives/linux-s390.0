@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 13/18] KVM: s390: add documentation of KVM_S390_VM_TOD
-Date: Fri, 12 Feb 2016 14:22:57 +0100
-Message-ID: <1455283382-62999-14-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 11/18] KVM: s390: instruction-fetching exceptions on SIE faults
+Date: Fri, 12 Feb 2016 14:22:55 +0100
+Message-ID: <1455283382-62999-12-git-send-email-borntraeger@de.ibm.com>
 References: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,41 +14,43 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's properly document KVM_S390_VM_TOD and its attributes.
+On instruction-fetch exceptions, we have to forward the PSW by any
+valid ilc and correctly use that ilc when injecting the irq. Injection
+will already take care of rewinding the PSW if we injected a nullifying
+program irq, so we don't need special handling prior to injection.
 
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Until now, autodetection would have guessed an ilc of 0.
+
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/devices/vm.txt | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
-index f083a16..27c1a3b 100644
---- a/Documentation/virtual/kvm/devices/vm.txt
-+++ b/Documentation/virtual/kvm/devices/vm.txt
-@@ -84,3 +84,22 @@ Returns:    -EBUSY in case 1 or more vcpus are already activated (only in write
- 	    -EFAULT if the given address is not accessible from kernel space
- 	    -ENOMEM if not enough memory is available to process the ioctl
- 	    0 in case of success
-+
-+3. GROUP: KVM_S390_VM_TOD
-+Architectures: s390
-+
-+3.1. ATTRIBUTE: KVM_S390_VM_TOD_HIGH
-+
-+Allows user space to set/get the TOD clock extension (u8).
-+
-+Parameters: address of a buffer in user space to store the data (u8) to
-+Returns:    -EFAULT if the given address is not accessible from kernel space
-+	    -EINVAL if setting the TOD clock extension to != 0 is not supported
-+
-+3.2. ATTRIBUTE: KVM_S390_VM_TOD_LOW
-+
-+Allows user space to set/get bits 0-63 of the TOD clock register as defined in
-+the POP (u64).
-+
-+Parameters: address of a buffer in user space to store the data (u64) to
-+Returns:    -EFAULT if the given address is not accessible from kernel space
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 12cec63ed..d0dcf73 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2181,9 +2181,17 @@ static int vcpu_post_run_fault_in_sie(struct kvm_vcpu *vcpu)
+ 	 * to be able to forward the PSW.
+ 	 */
+ 	rc = read_guest_instr(vcpu, &opcode, 1);
+-	if (rc)
+-		return kvm_s390_inject_prog_cond(vcpu, rc);
+ 	ilen = insn_length(opcode);
++	if (rc < 0) {
++		return rc;
++	} else if (rc) {
++		/* Instruction-Fetching Exceptions - we can't detect the ilen.
++		 * Forward by arbitrary ilc, injection will take care of
++		 * nullification if necessary.
++		 */
++		pgm_info = vcpu->arch.pgm;
++		ilen = 4;
++	}
+ 	pgm_info.flags = ilen | KVM_S390_PGM_FLAGS_ILC_VALID;
+ 	kvm_s390_forward_psw(vcpu, ilen);
+ 	return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
 -- 
 2.3.0
