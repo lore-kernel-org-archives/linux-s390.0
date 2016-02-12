@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 17/18] KVM: s390: do not block CPU on dirty logging
-Date: Fri, 12 Feb 2016 14:23:01 +0100
-Message-ID: <1455283382-62999-18-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 02/18] KVM: s390: sync of fp registers via kvm_run
+Date: Fri, 12 Feb 2016 14:22:46 +0100
+Message-ID: <1455283382-62999-3-git-send-email-borntraeger@de.ibm.com>
 References: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1455283382-62999-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,49 +12,91 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-When doing dirty logging on huge guests (e.g.600GB) we sometimes
-get rcu stall timeouts with backtraces like
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-[ 2753.194083] ([<0000000000112fb2>] show_trace+0x12a/0x130)
-[ 2753.194092]  [<0000000000113024>] show_stack+0x6c/0xe8
-[ 2753.194094]  [<00000000001ee6a8>] rcu_pending+0x358/0xa48
-[ 2753.194099]  [<00000000001f20cc>] rcu_check_callbacks+0x84/0x168
-[ 2753.194102]  [<0000000000167654>] update_process_times+0x54/0x80
-[ 2753.194107]  [<00000000001bdb5c>] tick_sched_handle.isra.16+0x4c/0x60
-[ 2753.194113]  [<00000000001bdbd8>] tick_sched_timer+0x68/0x90
-[ 2753.194115]  [<0000000000182a88>] __run_hrtimer+0x88/0x1f8
-[ 2753.194119]  [<00000000001838ba>] hrtimer_interrupt+0x122/0x2b0
-[ 2753.194121]  [<000000000010d034>] do_extint+0x16c/0x170
-[ 2753.194123]  [<00000000005e206e>] ext_skip+0x38/0x3e
-[ 2753.194129]  [<000000000012157c>] gmap_test_and_clear_dirty+0xcc/0x118
-[ 2753.194134] ([<00000000001214ea>] gmap_test_and_clear_dirty+0x3a/0x118)
-[ 2753.194137]  [<0000000000132da4>] kvm_vm_ioctl_get_dirty_log+0xd4/0x1b0
-[ 2753.194143]  [<000000000012ac12>] kvm_vm_ioctl+0x21a/0x548
-[ 2753.194146]  [<00000000002b57f6>] do_vfs_ioctl+0x30e/0x518
-[ 2753.194149]  [<00000000002b5a9c>] SyS_ioctl+0x9c/0xb0
-[ 2753.194151]  [<00000000005e1ae6>] sysc_tracego+0x14/0x1a
-[ 2753.194153]  [<000003ffb75f3972>] 0x3ffb75f3972
+As we already store the floating point registers in the vector save area
+in floating point register format when we don't have MACHINE_HAS_VX, we can
+directly expose them to user space using a new sync flag.
 
-We should do a cond_resched in here.
+The floating point registers will be valid when KVM_SYNC_FPRS is set. The
+fpc will also be valid when KVM_SYNC_FPRS is set.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Either KVM_SYNC_FPRS or KVM_SYNC_VRS will be enabled, never both.
+
+Let's also change two positions where we access vrs, making the code easier
+to read and one comment superfluous.
+
+Suggested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/include/uapi/asm/kvm.h |  8 ++++++--
+ arch/s390/kvm/kvm-s390.c         | 12 +++++++-----
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index fe84bd5..347fe5a 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -154,6 +154,7 @@ struct kvm_guest_debug_arch {
+ #define KVM_SYNC_PFAULT (1UL << 5)
+ #define KVM_SYNC_VRS    (1UL << 6)
+ #define KVM_SYNC_RICCB  (1UL << 7)
++#define KVM_SYNC_FPRS   (1UL << 8)
+ /* definition of registers in kvm_run */
+ struct kvm_sync_regs {
+ 	__u64 prefix;	/* prefix register */
+@@ -168,9 +169,12 @@ struct kvm_sync_regs {
+ 	__u64 pft;	/* pfault token [PFAULT] */
+ 	__u64 pfs;	/* pfault select [PFAULT] */
+ 	__u64 pfc;	/* pfault compare [PFAULT] */
+-	__u64 vrs[32][2];	/* vector registers */
++	union {
++		__u64 vrs[32][2];	/* vector registers (KVM_SYNC_VRS) */
++		__u64 fprs[16];		/* fp registers (KVM_SYNC_FPRS) */
++	};
+ 	__u8  reserved[512];	/* for future vector expansion */
+-	__u32 fpc;	/* only valid with vector registers */
++	__u32 fpc;		/* valid on KVM_SYNC_VRS or KVM_SYNC_FPRS */
+ 	__u8 padding[52];	/* riccb needs to be 64byte aligned */
+ 	__u8 riccb[64];		/* runtime instrumentation controls block */
+ };
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d4bcd86..bb99ca2 100644
+index 8fcdf98..2270fe4 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -281,6 +281,7 @@ static void kvm_s390_sync_dirty_log(struct kvm *kvm,
+@@ -1419,6 +1419,8 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
+ 	 */
+ 	if (MACHINE_HAS_VX)
+ 		vcpu->run->kvm_valid_regs |= KVM_SYNC_VRS;
++	else
++		vcpu->run->kvm_valid_regs |= KVM_SYNC_FPRS;
  
- 		if (gmap_test_and_clear_dirty(address, gmap))
- 			mark_page_dirty(kvm, cur_gfn);
-+		cond_resched();
+ 	if (kvm_is_ucontrol(vcpu->kvm))
+ 		return __kvm_ucontrol_vcpu_init(vcpu);
+@@ -1433,10 +1435,10 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ 	vcpu->arch.host_fpregs.fpc = current->thread.fpu.fpc;
+ 	vcpu->arch.host_fpregs.regs = current->thread.fpu.regs;
+ 
+-	/* Depending on MACHINE_HAS_VX, data stored to vrs either
+-	 * has vector register or floating point register format.
+-	 */
+-	current->thread.fpu.regs = vcpu->run->s.regs.vrs;
++	if (MACHINE_HAS_VX)
++		current->thread.fpu.regs = vcpu->run->s.regs.vrs;
++	else
++		current->thread.fpu.regs = vcpu->run->s.regs.fprs;
+ 	current->thread.fpu.fpc = vcpu->run->s.regs.fpc;
+ 	if (test_fp_ctl(current->thread.fpu.fpc))
+ 		/* User space provided an invalid FPC, let's clear it */
+@@ -2389,7 +2391,7 @@ int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long gpa)
+ 				     fprs, 128);
+ 	} else {
+ 		rc = write_guest_abs(vcpu, gpa + __LC_FPREGS_SAVE_AREA,
+-				     vcpu->run->s.regs.vrs, 128);
++				     vcpu->run->s.regs.fprs, 128);
  	}
- }
- 
+ 	rc |= write_guest_abs(vcpu, gpa + __LC_GPREGS_SAVE_AREA,
+ 			      vcpu->run->s.regs.gprs, 128);
 -- 
 2.3.0
