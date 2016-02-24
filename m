@@ -1,64 +1,52 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH v2 0/5] all: s390: make compat wrappers the generic solution
-Date: Wed, 24 Feb 2016 21:34:09 +0300
-Message-ID: <1456338854-14901-1-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 2/5] all: introduce COMPAT_WRAPPER option and enable it for s390
+Date: Wed, 24 Feb 2016 21:34:11 +0300
+Message-ID: <1456338854-14901-3-git-send-email-ynorov@caviumnetworks.com>
+In-Reply-To: <1456338854-14901-1-git-send-email-ynorov@caviumnetworks.com>
+References: <1456338854-14901-1-git-send-email-ynorov@caviumnetworks.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160224183409.Z0-V7M-5gyw9GvgM_xLdQ4umDDai2oMiIv0Fk768GR0@z>
+Message-ID: <20160224183411.3BagGddeYJJBc0v0u-1Amx1u8W5aIsKQqzjrVHzAZ30@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: heiko.carstens@de.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Prasun.Kapoor@caviumnetworks.com, pinskia@gmail.com, agraf@suse.de, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, Nathan_Lynch@mentor.com, klimov.linux@gmail.com, bamvor.zhangjian@huawei.com, Yury Norov <ynorov@caviumnetworks.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The problem that makes us use wrappers is that some compat
-architectures allows user code to access top halves of registers.
-This is not a problem for syscalls that are already handled by compat
-code, or for that who has types of the same size in kernel and
-userspace. In case of s390 and lp64/ilp32 the problem is in pointer
-types, long, unsigned long.
+Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+---
+ arch/Kconfig      | 4 ++++
+ arch/s390/Kconfig | 1 +
+ 2 files changed, 5 insertions(+)
 
-S390 folks already have the solution for it. In this patchset,
-it is turned to be general, as arm64/ilp32 needs it too.
-
-This patchset is created as the part of the work of enabling arm64
-with ILP32 user mode. See details here:
-http://thread.gmane.org/gmane.linux.kernel/2126946
-
-This is the implementation of one of two possible approaches. First
-one defines new syscall handler declaration macro, that creates both compat and
-non-compat handlers, see [1]. This one declares all wrappers in separated file
-kernel/compat_wrapper.c
-
-Build-tested on s390.
-
-[1] http://www.spinics.net/lists/linux-s390/msg11593.html
-
-Yury Norov (5):
-  all: syscall wrappers: add documentation
-  all: introduce COMPAT_WRAPPER option and enable it for s390
-  all: s390: move wrapper infrastructure to generic headers
-  all: s390: move compat_wrappers.c from arch/s390/kernel to kernel/
-  all: wrap needed syscalls in generic unistd
-
- Documentation/adding-syscalls.txt |  32 +++++
- arch/Kconfig                      |   4 +
- arch/s390/Kconfig                 |   1 +
- arch/s390/include/asm/compat.h    |  17 ++-
- arch/s390/kernel/Makefile         |   2 +-
- arch/s390/kernel/compat_wrapper.c | 180 ------------------------
- include/linux/compat.h            | 278 ++++++++++++++++++++++++++++++++++++++
- include/linux/syscalls.h          |  57 +-------
- include/linux/syscalls_structs.h  |  60 ++++++++
- include/uapi/asm-generic/unistd.h | 231 +++++++++++++++----------------
- kernel/Makefile                   |   1 +
- kernel/compat_wrapper.c           | 170 +++++++++++++++++++++++
- 12 files changed, 680 insertions(+), 353 deletions(-)
- delete mode 100644 arch/s390/kernel/compat_wrapper.c
- create mode 100644 include/linux/syscalls_structs.h
- create mode 100644 kernel/compat_wrapper.c
-
+diff --git a/arch/Kconfig b/arch/Kconfig
+index f6b649d..6393093 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -583,6 +583,10 @@ config HAVE_COPY_THREAD_TLS
+ 	  normal C parameter passing, rather than extracting the syscall
+ 	  argument from pt_regs.
+ 
++config COMPAT_WRAPPER
++	bool
++	depends on COMPAT
++
+ #
+ # ABI hall of shame
+ #
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 3be9c83..082b861 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -333,6 +333,7 @@ config COMPAT
+ 	select COMPAT_BINFMT_ELF if BINFMT_ELF
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT_OLD_SIGACTION
++	select COMPAT_WRAPPER
+ 	depends on MULTIUSER
+ 	help
+ 	  Select this option if you want to enable your system kernel to
 -- 
 2.5.0
