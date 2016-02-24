@@ -1,53 +1,64 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 3/5] all: s390: move wrapper infrastructure to generic
- headers
-Date: Thu, 25 Feb 2016 23:20:47 +0100
-Message-ID: <20160225222047.GB5950@osiris>
-References: <1456338854-14901-1-git-send-email-ynorov@caviumnetworks.com>
- <1456338854-14901-4-git-send-email-ynorov@caviumnetworks.com>
- <20160225085140.GC3980@osiris>
- <20160225202350.GB16123@yury-N73SV>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160225202350.GB16123@yury-N73SV>
-Sender: linux-doc-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Yury Norov <ynorov@caviumnetworks.com>
+Subject: [PATCH v2 0/5] all: s390: make compat wrappers the generic solution
+Date: Wed, 24 Feb 2016 21:34:09 +0300
+Message-ID: <1456338854-14901-1-git-send-email-ynorov@caviumnetworks.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20160224183409.Z0-V7M-5gyw9GvgM_xLdQ4umDDai2oMiIv0Fk768GR0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Yury Norov <ynorov@caviumnetworks.com>
-Cc: arnd@arndb.de, catalin.marinas@arm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Prasun.Kapoor@caviumnetworks.com, pinskia@gmail.com, agraf@suse.de, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, Nathan_Lynch@mentor.com, klimov.linux@gmail.com, bamvor.zhangjian@huawei.com
+To: heiko.carstens@de.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: Prasun.Kapoor@caviumnetworks.com, pinskia@gmail.com, agraf@suse.de, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, Nathan_Lynch@mentor.com, klimov.linux@gmail.com, bamvor.zhangjian@huawei.com, Yury Norov <ynorov@caviumnetworks.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Feb 25, 2016 at 11:23:50PM +0300, Yury Norov wrote:
-> On Thu, Feb 25, 2016 at 09:51:40AM +0100, Heiko Carstens wrote:
-> > On Wed, Feb 24, 2016 at 09:34:12PM +0300, Yury Norov wrote:
-> > > diff --git a/include/linux/syscalls_structs.h b/include/linux/syscalls_structs.h
-> > > new file mode 100644
-> > > index 0000000..a920cbc
-> > > --- /dev/null
-> > > +++ b/include/linux/syscalls_structs.h
-> > > @@ -0,0 +1,60 @@
-> > > +#ifndef _LINUX_SYSCALL_STRUCTS_H
-> > > +#define _LINUX_SYSCALL_STRUCTS_H
-> > > +
-> > > +struct epoll_event;
-> > > +struct iattr;
-> > > +struct inode;
-> > > +struct iocb;
-> > > +struct io_event;
-> > > +struct iovec;
-> > > +struct itimerspec;
-> > > +struct itimerval;
-> > 
-> > This is not needed for s390, right? So might be worth a separate patch
-> > which moves the forward declarations?
-> 
-> This patch also introduces __SC_WRAP, not needed as well. The idea of
-> this patch is to introduce all the tricky machinery at once. If you
-> think we need split it, I'm OK, but maybe it's enough to add more
-> detailed description... What do you think?
+The problem that makes us use wrappers is that some compat
+architectures allows user code to access top halves of registers.
+This is not a problem for syscalls that are already handled by compat
+code, or for that who has types of the same size in kernel and
+userspace. In case of s390 and lp64/ilp32 the problem is in pointer
+types, long, unsigned long.
 
-Ok, I see. Then the only change I'd like to request is to update the
-comment in front of the COMPAT_SYSCALL_WRAPx macro which talks about 33/31
-bit pointer sizes. This doesn't make too much sense for common code :)
+S390 folks already have the solution for it. In this patchset,
+it is turned to be general, as arm64/ilp32 needs it too.
+
+This patchset is created as the part of the work of enabling arm64
+with ILP32 user mode. See details here:
+http://thread.gmane.org/gmane.linux.kernel/2126946
+
+This is the implementation of one of two possible approaches. First
+one defines new syscall handler declaration macro, that creates both compat and
+non-compat handlers, see [1]. This one declares all wrappers in separated file
+kernel/compat_wrapper.c
+
+Build-tested on s390.
+
+[1] http://www.spinics.net/lists/linux-s390/msg11593.html
+
+Yury Norov (5):
+  all: syscall wrappers: add documentation
+  all: introduce COMPAT_WRAPPER option and enable it for s390
+  all: s390: move wrapper infrastructure to generic headers
+  all: s390: move compat_wrappers.c from arch/s390/kernel to kernel/
+  all: wrap needed syscalls in generic unistd
+
+ Documentation/adding-syscalls.txt |  32 +++++
+ arch/Kconfig                      |   4 +
+ arch/s390/Kconfig                 |   1 +
+ arch/s390/include/asm/compat.h    |  17 ++-
+ arch/s390/kernel/Makefile         |   2 +-
+ arch/s390/kernel/compat_wrapper.c | 180 ------------------------
+ include/linux/compat.h            | 278 ++++++++++++++++++++++++++++++++++++++
+ include/linux/syscalls.h          |  57 +-------
+ include/linux/syscalls_structs.h  |  60 ++++++++
+ include/uapi/asm-generic/unistd.h | 231 +++++++++++++++----------------
+ kernel/Makefile                   |   1 +
+ kernel/compat_wrapper.c           | 170 +++++++++++++++++++++++
+ 12 files changed, 680 insertions(+), 353 deletions(-)
+ delete mode 100644 arch/s390/kernel/compat_wrapper.c
+ create mode 100644 include/linux/syscalls_structs.h
+ create mode 100644 kernel/compat_wrapper.c
+
+-- 
+2.5.0
