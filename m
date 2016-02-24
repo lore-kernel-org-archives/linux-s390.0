@@ -1,38 +1,75 @@
 Return-Path: <owner-linux-mm@kvack.org>
-MIME-Version: 1.0
-In-Reply-To: <1456329483-4220-1-git-send-email-kirill.shutemov@linux.intel.com>
-References: <1456329483-4220-1-git-send-email-kirill.shutemov@linux.intel.com>
-Date: Wed, 24 Feb 2016 10:49:06 -0800
-Message-ID: <CA+55aFyTzjpk-7ThfhpksgSxQV0KQL0jHR3hbpwPntWFJdKh2g@mail.gmail.com>
-Subject: Re: [PATCH] thp: call pmdp_invalidate() with correct virtual address
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8
+From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: [PATCH] thp: call pmdp_invalidate() with correct virtual address
+Date: Wed, 24 Feb 2016 18:58:03 +0300
+Message-Id: <1456329483-4220-1-git-send-email-kirill.shutemov@linux.intel.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, linux-mm <linux-mm@kvack.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Feb 24, 2016 at 7:58 AM, Kirill A. Shutemov
-<kirill.shutemov@linux.intel.com> wrote:
-> Sebastian Ott and Gerald Schaefer reported random crashes on s390.
-> It was bisected to my THP refcounting patchset.
->
-> The problem is that pmdp_invalidated() called with wrong virtual
-> address. It got offset up by HPAGE_PMD_SIZE by loop over ptes.
->
-> The solution is to introduce new variable to be used in loop and don't
-> touch 'haddr'.
+Sebastian Ott and Gerald Schaefer reported random crashes on s390.
+It was bisected to my THP refcounting patchset.
 
-Thanks, I applied this directly rather than wait for this to go
-through Andrew (which would have been "proper channels").
+The problem is that pmdp_invalidated() called with wrong virtual
+address. It got offset up by HPAGE_PMD_SIZE by loop over ptes.
 
-This issue has been worrying me for a while now and was my main core
-worry for 4.5. Good to have it resolved, and thanks to everybody who
-tested and got involved.
+The solution is to introduce new variable to be used in loop and don't
+touch 'haddr'.
 
-                 Linus
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reported-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Reported-by Sebastian Ott <sebott@linux.vnet.ibm.com>
+---
+ mm/huge_memory.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 1c317b85ea7d..e10a4fee88d2 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2836,6 +2836,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 	pgtable_t pgtable;
+ 	pmd_t _pmd;
+ 	bool young, write, dirty;
++	unsigned long addr;
+ 	int i;
+ 
+ 	VM_BUG_ON(haddr & ~HPAGE_PMD_MASK);
+@@ -2865,7 +2866,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
+ 	pmd_populate(mm, &_pmd, pgtable);
+ 
+-	for (i = 0; i < HPAGE_PMD_NR; i++, haddr += PAGE_SIZE) {
++	for (i = 0, addr = haddr; i < HPAGE_PMD_NR; i++, addr += PAGE_SIZE) {
+ 		pte_t entry, *pte;
+ 		/*
+ 		 * Note that NUMA hinting access restrictions are not
+@@ -2886,9 +2887,9 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 		}
+ 		if (dirty)
+ 			SetPageDirty(page + i);
+-		pte = pte_offset_map(&_pmd, haddr);
++		pte = pte_offset_map(&_pmd, addr);
+ 		BUG_ON(!pte_none(*pte));
+-		set_pte_at(mm, haddr, pte, entry);
++		set_pte_at(mm, addr, pte, entry);
+ 		atomic_inc(&page[i]._mapcount);
+ 		pte_unmap(pte);
+ 	}
+@@ -2938,7 +2939,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 	pmd_populate(mm, pmd, pgtable);
+ 
+ 	if (freeze) {
+-		for (i = 0; i < HPAGE_PMD_NR; i++, haddr += PAGE_SIZE) {
++		for (i = 0; i < HPAGE_PMD_NR; i++) {
+ 			page_remove_rmap(page + i, false);
+ 			put_page(page + i);
+ 		}
+-- 
+2.7.0
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
