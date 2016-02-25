@@ -1,44 +1,64 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 0/9] virtio DMA API, yet again
-Date: Wed, 17 Feb 2016 11:29:03 +0200
-Message-ID: <20160217112747-mutt-send-email-mst@redhat.com>
-References: <cover.1454477782.git.luto@kernel.org>
-	<CALCETrXtcL18QnouuNQavDNPvSSf54KxRviGZC3yJD7jECTqcQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CALCETrXtcL18QnouuNQavDNPvSSf54KxRviGZC3yJD7jECTqcQ@mail.gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: David Daney <ddaney.cavm@gmail.com>
+Subject: [PATCH 0/2] NUMA related header file cleanups.
+Date: Wed, 24 Feb 2016 16:02:06 -0800
+Message-ID: <1456358528-24213-1-git-send-email-ddaney.cavm@gmail.com>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20160225000206.foocFJJ2YV7DbhAYbjdwDe4NDzxvfnYVU6NleFI7Jmc@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Chris Metcalf <cmetcalf@ezchip.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, David Daney <david.daney@cavium.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Feb 16, 2016 at 09:48:58PM -0800, Andy Lutomirski wrote:
-> On Tue, Feb 2, 2016 at 9:46 PM, Andy Lutomirski <luto@kernel.org> wrote:
-> > This switches virtio to use the DMA API on Xen and if requested by
-> > module option.
-> 
-> Michael, any update on this?
-> 
-> --Andy
+From: David Daney <david.daney@cavium.com>
 
-I was hoping for an explicit ack from David Woodhouse,
-but I guess the informal "let's not hold this up"
-that was sent on v5 will do.
+Refactor many architectures' cpumask_of_pcibus and NODE_DATA definitions
+by moving them to asm-generic.
 
-I've queued this up for 4.6, thanks everyone!
+Tested on arm64.
+
+Build tested on ia64, m32r, powerpc, s390, sh, sparc(64), tile, x86
+
+This patch set (arm64 portion) depends on this one:
+
+https://lkml.org/lkml/2016/2/22/1066
+
+Earler versions of these patches were part of the arm64 NUMA patch
+set.  They have been split out here into a separate set.
+
+Ganapatrao Kulkarni (2):
+  topology, cleanup: Avoid redefinition of cpumask_of_pcibus in asm
+    header files.
+  numa, mm, cleanup: remove redundant NODE_DATA macro from asm header
+    files.
+
+ arch/arm64/include/asm/mmzone.h     |  4 +---
+ arch/arm64/include/asm/topology.h   |  3 ---
+ arch/ia64/include/asm/topology.h    |  4 ----
+ arch/m32r/include/asm/mmzone.h      |  4 +---
+ arch/metag/include/asm/mmzone.h     |  4 +---
+ arch/metag/include/asm/topology.h   |  3 ---
+ arch/powerpc/include/asm/mmzone.h   |  8 ++------
+ arch/powerpc/include/asm/topology.h |  4 ----
+ arch/s390/include/asm/mmzone.h      |  6 +-----
+ arch/s390/include/asm/pci.h         |  2 +-
+ arch/s390/include/asm/topology.h    |  1 +
+ arch/sh/include/asm/mmzone.h        |  4 +---
+ arch/sh/include/asm/topology.h      |  3 ---
+ arch/sparc/include/asm/mmzone.h     |  6 ++----
+ arch/tile/include/asm/pci.h         |  2 --
+ arch/tile/include/asm/topology.h    |  3 +++
+ arch/x86/include/asm/mmzone.h       |  3 +--
+ arch/x86/include/asm/mmzone_32.h    |  5 -----
+ arch/x86/include/asm/mmzone_64.h    | 17 -----------------
+ arch/x86/include/asm/pci.h          |  2 +-
+ arch/x86/include/asm/topology.h     |  1 +
+ include/asm-generic/mmzone.h        | 24 ++++++++++++++++++++++++
+ include/asm-generic/topology.h      |  4 ++--
+ 23 files changed, 43 insertions(+), 74 deletions(-)
+ delete mode 100644 arch/x86/include/asm/mmzone_64.h
+ create mode 100644 include/asm-generic/mmzone.h
 
 -- 
-MST
+1.8.3.1
