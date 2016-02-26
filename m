@@ -1,66 +1,35 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 25 Feb 2016 09:30:14 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 4.5-rc6
-Message-ID: <20160225093014.03aacf3d@mschwide>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [RFC v2 4/7] asm/sections: add a generic push_section_tbl()
+Date: Fri, 26 Feb 2016 15:56:04 +0100
+Message-ID: <20160226145603.GA3964@osiris>
+References: <1455889559-9428-1-git-send-email-mcgrof@kernel.org>
+ <1455889559-9428-5-git-send-email-mcgrof@kernel.org>
+ <56C77A8B.7080800@zytor.com>
+ <20160219210609.GU25240@wotan.suse.de>
+ <56CA7889.60000@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <56CA7889.60000@zytor.com>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Luis R. Rodriguez" <mcgrof@kernel.org>, schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, linux-kernel@vger.kernel.org, luto@amacapital.net, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, david.vrabel@citrix.com, konrad.wilk@oracle.com, mcb30@ipxe.org, jgross@suse.com, ming.lei@canonical.com, gregkh@linuxfoundation.org, arnd@arndb.de, linux-arch@vger.kernel.org, linux@arm.linux.org.uk, benh@kernel.crashing.org, jbaron@akamai.com, ananth@in.ibm.com, anil.s.keshavamurthy@intel.com, davem@davemloft.net, masami.hiramatsu.pt@hitachi.com, andriy.shevchenko@linux.intel.com, dwmw2@infradead.org, xen-devel@lists.xensource.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On Sun, Feb 21, 2016 at 06:55:05PM -0800, H. Peter Anvin wrote:
+> On 02/19/16 13:06, Luis R. Rodriguez wrote:
+> >>
+> >> I think the \n\t is unnecessary.
+> > 
+> > Super! I wonder if we we can just use this on s390 as well without it pooping?
+> > I ask as this would set a precedent.
+> > 
+> 
+> Ask Heike, but I think just ; or \n ought be be fine.  I do not know of
+> *any* case where \t at the end of a string would ever be necessary, and
+> it would *always* be possible to replace it with a space in a pinch.
 
-please pull from the 'for-linus' branch of
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
-
-to receive the following updates:
-
-Two critical bug fixes for the signal handling.
-
-Martin Schwidefsky (2):
-      s390/compat: correct restore of high gprs on signal return
-      s390/fpu: signals vs. floating point control register
-
- arch/s390/include/asm/fpu/internal.h | 2 ++
- arch/s390/kernel/compat_signal.c     | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/include/asm/fpu/internal.h b/arch/s390/include/asm/fpu/internal.h
-index ea91ddf..629c908 100644
---- a/arch/s390/include/asm/fpu/internal.h
-+++ b/arch/s390/include/asm/fpu/internal.h
-@@ -40,6 +40,7 @@ static inline void convert_fp_to_vx(__vector128 *vxrs, freg_t *fprs)
- static inline void fpregs_store(_s390_fp_regs *fpregs, struct fpu *fpu)
- {
- 	fpregs->pad = 0;
-+	fpregs->fpc = fpu->fpc;
- 	if (MACHINE_HAS_VX)
- 		convert_vx_to_fp((freg_t *)&fpregs->fprs, fpu->vxrs);
- 	else
-@@ -49,6 +50,7 @@ static inline void fpregs_store(_s390_fp_regs *fpregs, struct fpu *fpu)
- 
- static inline void fpregs_load(_s390_fp_regs *fpregs, struct fpu *fpu)
- {
-+	fpu->fpc = fpregs->fpc;
- 	if (MACHINE_HAS_VX)
- 		convert_fp_to_vx(fpu->vxrs, (freg_t *)&fpregs->fprs);
- 	else
-diff --git a/arch/s390/kernel/compat_signal.c b/arch/s390/kernel/compat_signal.c
-index 66c9441..4af6037 100644
---- a/arch/s390/kernel/compat_signal.c
-+++ b/arch/s390/kernel/compat_signal.c
-@@ -271,7 +271,7 @@ static int restore_sigregs_ext32(struct pt_regs *regs,
- 
- 	/* Restore high gprs from signal stack */
- 	if (__copy_from_user(&gprs_high, &sregs_ext->gprs_high,
--			     sizeof(&sregs_ext->gprs_high)))
-+			     sizeof(sregs_ext->gprs_high)))
- 		return -EFAULT;
- 	for (i = 0; i < NUM_GPRS; i++)
- 		*(__u32 *)&regs->gprs[i] = gprs_high[i];
+\n should be fine on s390.
