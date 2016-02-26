@@ -1,51 +1,360 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 2/5] all: introduce COMPAT_WRAPPER option and enable it for s390
-Date: Fri, 26 Feb 2016 17:34:52 +0300
-Message-ID: <1456497295-22991-3-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 3/5] all: s390: move wrapper infrastructure to generic headers
+Date: Fri, 26 Feb 2016 17:34:53 +0300
+Message-ID: <1456497295-22991-4-git-send-email-ynorov@caviumnetworks.com>
 References: <1456497295-22991-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 In-Reply-To: <1456497295-22991-1-git-send-email-ynorov@caviumnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: heiko.carstens@de.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Prasun.Kapoor@caviumnetworks.com, pinskia@gmail.com, agraf@suse.de, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, Nathan_Lynch@mentor.com, klimov.linux@gmail.com, bamvor.zhangjian@huawei.com, Yury Norov <ynorov@caviumnetworks.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+This patch moves required code to generic files to let other arches use
+it if needed. Here also, additional code is introduced, as s390 uses asm
+syscall tables, while in general case, wrappers may be used in C code.
+
+__SC_COMPAT_CAST for s390 is too specific due to 31-bit pointer length, so it's
+moved to arch/s390/include/asm/compat.h. Generic declaration assumes that long,
+unsigned long and pointer types are all 32-bit length.
+
+linux/syscalls_structs.h header is introduced, because from now (see next patch)
+structure types listed there are needed for both normal and compat mode.
+
+cond_syscall_wrapped now defined two symbols: sys_foo() and compat_sys_foo(), if
+compat wrappers are enabled.
+
+Here __SC_WRAP() macro is introduced as well. s390 doesn't need it as it uses
+asm-generated syscall table. But architectures that generate that tables with
+C code (ARM64/ILP32) should redefine it as '#define __SC_WRAP(name) compat_##name'.
+
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 ---
- arch/Kconfig      | 4 ++++
- arch/s390/Kconfig | 1 +
- 2 files changed, 5 insertions(+)
+ arch/s390/include/asm/compat.h    | 17 +++++++++--
+ arch/s390/kernel/compat_wrapper.c | 51 ---------------------------------
+ include/linux/compat.h            | 53 ++++++++++++++++++++++++++++++++++
+ include/linux/syscalls.h          | 57 +------------------------------------
+ include/linux/syscalls_structs.h  | 60 +++++++++++++++++++++++++++++++++++++++
+ include/uapi/asm-generic/unistd.h |  4 +++
+ 6 files changed, 133 insertions(+), 109 deletions(-)
+ create mode 100644 include/linux/syscalls_structs.h
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index f6b649d..6393093 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -583,6 +583,10 @@ config HAVE_COPY_THREAD_TLS
- 	  normal C parameter passing, rather than extracting the syscall
- 	  argument from pt_regs.
+diff --git a/arch/s390/include/asm/compat.h b/arch/s390/include/asm/compat.h
+index 352f7bd..f412723 100644
+--- a/arch/s390/include/asm/compat.h
++++ b/arch/s390/include/asm/compat.h
+@@ -7,13 +7,26 @@
+ #include <linux/sched.h>
+ #include <linux/thread_info.h>
  
-+config COMPAT_WRAPPER
-+	bool
-+	depends on COMPAT
+-#define __TYPE_IS_PTR(t) (!__builtin_types_compatible_p(typeof(0?(t)0:0ULL), u64))
+-
+ #define __SC_DELOUSE(t,v) ({ \
+ 	BUILD_BUG_ON(sizeof(t) > 4 && !__TYPE_IS_PTR(t)); \
+ 	(t)(__TYPE_IS_PTR(t) ? ((v) & 0x7fffffff) : (v)); \
+ })
+ 
++#define __SC_COMPAT_CAST(t, a)						\
++({									\
++	long __ReS = a;							\
++									\
++	BUILD_BUG_ON((sizeof(t) > 4) && !__TYPE_IS_L(t) &&		\
++		     !__TYPE_IS_UL(t) && !__TYPE_IS_PTR(t));		\
++	if (__TYPE_IS_L(t))						\
++		__ReS = (s32)a;						\
++	if (__TYPE_IS_UL(t))						\
++		__ReS = (u32)a;						\
++	if (__TYPE_IS_PTR(t))						\
++		__ReS = a & 0x7fffffff;					\
++	(t)__ReS;							\
++})
 +
- #
- # ABI hall of shame
- #
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 3be9c83..082b861 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -333,6 +333,7 @@ config COMPAT
- 	select COMPAT_BINFMT_ELF if BINFMT_ELF
- 	select ARCH_WANT_OLD_COMPAT_IPC
- 	select COMPAT_OLD_SIGACTION
-+	select COMPAT_WRAPPER
- 	depends on MULTIUSER
- 	help
- 	  Select this option if you want to enable your system kernel to
+ #define PSW32_MASK_PER		0x40000000UL
+ #define PSW32_MASK_DAT		0x04000000UL
+ #define PSW32_MASK_IO		0x02000000UL
+diff --git a/arch/s390/kernel/compat_wrapper.c b/arch/s390/kernel/compat_wrapper.c
+index ae2cda5..1614e15 100644
+--- a/arch/s390/kernel/compat_wrapper.c
++++ b/arch/s390/kernel/compat_wrapper.c
+@@ -8,57 +8,6 @@
+ #include <linux/compat.h>
+ #include "entry.h"
+ 
+-#define COMPAT_SYSCALL_WRAP1(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(1, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP2(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(2, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP3(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(3, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP4(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(4, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP5(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(5, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP6(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(6, _##name, __VA_ARGS__)
+-
+-#define __SC_COMPAT_TYPE(t, a) \
+-	__typeof(__builtin_choose_expr(sizeof(t) > 4, 0L, (t)0)) a
+-
+-#define __SC_COMPAT_CAST(t, a)						\
+-({									\
+-	long __ReS = a;							\
+-									\
+-	BUILD_BUG_ON((sizeof(t) > 4) && !__TYPE_IS_L(t) &&		\
+-		     !__TYPE_IS_UL(t) && !__TYPE_IS_PTR(t));		\
+-	if (__TYPE_IS_L(t))						\
+-		__ReS = (s32)a;						\
+-	if (__TYPE_IS_UL(t))						\
+-		__ReS = (u32)a;						\
+-	if (__TYPE_IS_PTR(t))						\
+-		__ReS = a & 0x7fffffff;					\
+-	(t)__ReS;							\
+-})
+-
+-/*
+- * The COMPAT_SYSCALL_WRAP macro generates system call wrappers to be used by
+- * compat tasks. These wrappers will only be used for system calls where only
+- * the system call arguments need sign or zero extension or zeroing of the upper
+- * 33 bits of pointers.
+- * Note: since the wrapper function will afterwards call a system call which
+- * again performs zero and sign extension for all system call arguments with
+- * a size of less than eight bytes, these compat wrappers only touch those
+- * system call arguments with a size of eight bytes ((unsigned) long and
+- * pointers). Zero and sign extension for e.g. int parameters will be done by
+- * the regular system call wrappers.
+- */
+-#define COMPAT_SYSCALL_WRAPx(x, name, ...)					\
+-asmlinkage long sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));			\
+-asmlinkage long notrace compat_sys##name(__MAP(x,__SC_COMPAT_TYPE,__VA_ARGS__));\
+-asmlinkage long notrace compat_sys##name(__MAP(x,__SC_COMPAT_TYPE,__VA_ARGS__))	\
+-{										\
+-	return sys##name(__MAP(x,__SC_COMPAT_CAST,__VA_ARGS__));		\
+-}
+-
+ COMPAT_SYSCALL_WRAP2(creat, const char __user *, pathname, umode_t, mode);
+ COMPAT_SYSCALL_WRAP2(link, const char __user *, oldname, const char __user *, newname);
+ COMPAT_SYSCALL_WRAP1(unlink, const char __user *, pathname);
+diff --git a/include/linux/compat.h b/include/linux/compat.h
+index a76c917..f14347e 100644
+--- a/include/linux/compat.h
++++ b/include/linux/compat.h
+@@ -28,6 +28,10 @@
+ #define __SC_DELOUSE(t,v) ((t)(unsigned long)(v))
+ #endif
+ 
++#ifndef __TYPE_IS_PTR
++#define __TYPE_IS_PTR(t) (!__builtin_types_compatible_p(typeof(0?(t)0:0ULL), u64))
++#endif
++
+ #define COMPAT_SYSCALL_DEFINE0(name) \
+ 	asmlinkage long compat_sys_##name(void)
+ 
+@@ -718,4 +722,53 @@ asmlinkage long compat_sys_fanotify_mark(int, unsigned int, __u32, __u32,
+ #define is_compat_task() (0)
+ 
+ #endif /* CONFIG_COMPAT */
++
++#ifdef CONFIG_COMPAT_WRAPPER
++
++#define COMPAT_SYSCALL_WRAP1(name, ...) COMPAT_SYSCALL_WRAPx(1, _##name, __VA_ARGS__)
++#define COMPAT_SYSCALL_WRAP2(name, ...) COMPAT_SYSCALL_WRAPx(2, _##name, __VA_ARGS__)
++#define COMPAT_SYSCALL_WRAP3(name, ...) COMPAT_SYSCALL_WRAPx(3, _##name, __VA_ARGS__)
++#define COMPAT_SYSCALL_WRAP4(name, ...) COMPAT_SYSCALL_WRAPx(4, _##name, __VA_ARGS__)
++#define COMPAT_SYSCALL_WRAP5(name, ...) COMPAT_SYSCALL_WRAPx(5, _##name, __VA_ARGS__)
++#define COMPAT_SYSCALL_WRAP6(name, ...) COMPAT_SYSCALL_WRAPx(6, _##name, __VA_ARGS__)
++
++#ifndef __SC_COMPAT_TYPE
++#define __SC_COMPAT_TYPE(t, a) \
++	__typeof(__builtin_choose_expr(sizeof(t) > 4, 0L, (t)0)) a
++#endif
++
++#ifndef __SC_COMPAT_CAST
++#define __SC_COMPAT_CAST(t, a) ({					\
++	BUILD_BUG_ON((sizeof(t) > 4) && !__TYPE_IS_L(t) &&		\
++		     !__TYPE_IS_UL(t) && !__TYPE_IS_PTR(t));		\
++	((t) ((t)(-1) < 0 ? (s64)(s32)(a) : (u64)(u32)(a)));		\
++})
++#endif
++
++#ifndef COMPAT_SYSCALL_WRAPx
++/*
++ * The COMPAT_SYSCALL_WRAP macro generates system call wrappers to be used by
++ * compat tasks. These wrappers will only be used for system calls where only
++ * the system call arguments need sign or zero extension or zeroing of the upper
++ * parts of arguments passed in register.
++ * Note: since the wrapper function will afterwards call a system call which
++ * again performs zero and sign extension for all system call arguments with
++ * a size of less than eight bytes, these compat wrappers only touch those
++ * system call arguments with a size of eight bytes ((unsigned) long and
++ * pointers). Zero and sign extension for e.g. int parameters will be done by
++ * the regular system call wrappers.
++ */
++#define COMPAT_SYSCALL_WRAPx(x, name, ...)						\
++asmlinkage long sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));				\
++asmlinkage long compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))			\
++		__attribute__((alias(__stringify(compat_SyS##name))));			\
++asmlinkage long notrace compat_SyS##name(__MAP(x,__SC_COMPAT_TYPE,__VA_ARGS__));	\
++asmlinkage long notrace compat_SyS##name(__MAP(x,__SC_COMPAT_TYPE,__VA_ARGS__))		\
++{											\
++	return sys##name(__MAP(x,__SC_COMPAT_CAST,__VA_ARGS__));			\
++}
++#endif
++
++#endif /* CONFIG_COMPAT_WRAPPER */
++
+ #endif /* _LINUX_COMPAT_H */
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 185815c..2875b13 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -11,62 +11,7 @@
+ #ifndef _LINUX_SYSCALLS_H
+ #define _LINUX_SYSCALLS_H
+ 
+-struct epoll_event;
+-struct iattr;
+-struct inode;
+-struct iocb;
+-struct io_event;
+-struct iovec;
+-struct itimerspec;
+-struct itimerval;
+-struct kexec_segment;
+-struct linux_dirent;
+-struct linux_dirent64;
+-struct list_head;
+-struct mmap_arg_struct;
+-struct msgbuf;
+-struct user_msghdr;
+-struct mmsghdr;
+-struct msqid_ds;
+-struct new_utsname;
+-struct nfsctl_arg;
+-struct __old_kernel_stat;
+-struct oldold_utsname;
+-struct old_utsname;
+-struct pollfd;
+-struct rlimit;
+-struct rlimit64;
+-struct rusage;
+-struct sched_param;
+-struct sched_attr;
+-struct sel_arg_struct;
+-struct semaphore;
+-struct sembuf;
+-struct shmid_ds;
+-struct sockaddr;
+-struct stat;
+-struct stat64;
+-struct statfs;
+-struct statfs64;
+-struct __sysctl_args;
+-struct sysinfo;
+-struct timespec;
+-struct timeval;
+-struct timex;
+-struct timezone;
+-struct tms;
+-struct utimbuf;
+-struct mq_attr;
+-struct compat_stat;
+-struct compat_timeval;
+-struct robust_list_head;
+-struct getcpu_cache;
+-struct old_linux_dirent;
+-struct perf_event_attr;
+-struct file_handle;
+-struct sigaltstack;
+-union bpf_attr;
+-
++#include <linux/syscalls_structs.h>
+ #include <linux/types.h>
+ #include <linux/aio_abi.h>
+ #include <linux/capability.h>
+diff --git a/include/linux/syscalls_structs.h b/include/linux/syscalls_structs.h
+new file mode 100644
+index 0000000..a920cbc
+--- /dev/null
++++ b/include/linux/syscalls_structs.h
+@@ -0,0 +1,60 @@
++#ifndef _LINUX_SYSCALL_STRUCTS_H
++#define _LINUX_SYSCALL_STRUCTS_H
++
++struct epoll_event;
++struct iattr;
++struct inode;
++struct iocb;
++struct io_event;
++struct iovec;
++struct itimerspec;
++struct itimerval;
++struct kexec_segment;
++struct linux_dirent;
++struct linux_dirent64;
++struct list_head;
++struct mmap_arg_struct;
++struct msgbuf;
++struct user_msghdr;
++struct mmsghdr;
++struct msqid_ds;
++struct new_utsname;
++struct nfsctl_arg;
++struct __old_kernel_stat;
++struct oldold_utsname;
++struct old_utsname;
++struct pollfd;
++struct rlimit;
++struct rlimit64;
++struct rusage;
++struct sched_param;
++struct sched_attr;
++struct sel_arg_struct;
++struct semaphore;
++struct sembuf;
++struct shmid_ds;
++struct sockaddr;
++struct stat;
++struct stat64;
++struct statfs;
++struct statfs64;
++struct __sysctl_args;
++struct sysinfo;
++struct timespec;
++struct timeval;
++struct timex;
++struct timezone;
++struct tms;
++struct utimbuf;
++struct mq_attr;
++struct compat_stat;
++struct compat_timeval;
++struct robust_list_head;
++struct getcpu_cache;
++struct old_linux_dirent;
++struct perf_event_attr;
++struct file_handle;
++struct sigaltstack;
++union bpf_attr;
++
++#endif /* _LINUX_SYSCALL_STRUCTS_H */
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 2622b33..f10a316 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -29,6 +29,10 @@
+ #define __SC_COMP_3264(_nr, _32, _64, _comp) __SC_3264(_nr, _32, _64)
+ #endif
+ 
++#ifndef __SC_WRAP
++#define __SC_WRAP __SYSCALL
++#endif
++
+ #define __NR_io_setup 0
+ __SC_COMP(__NR_io_setup, sys_io_setup, compat_sys_io_setup)
+ #define __NR_io_destroy 1
 -- 
 2.5.0
