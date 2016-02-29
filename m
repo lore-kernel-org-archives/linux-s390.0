@@ -1,7 +1,7 @@
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 09/11] xtensa, rwsem: provide __down_write_killable
-Date: Mon, 29 Feb 2016 13:58:23 +0100
-Message-ID: <1456750705-7141-10-git-send-email-mhocko@kernel.org>
+Subject: [PATCH 04/11] alpha, rwsem: provide __down_write_killable
+Date: Mon, 29 Feb 2016 13:58:18 +0100
+Message-ID: <1456750705-7141-5-git-send-email-mhocko@kernel.org>
 References: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
 Return-path: <linux-arch-owner@vger.kernel.org>
 In-Reply-To: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
@@ -14,37 +14,53 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michal Hocko <mhocko@suse.com>
 
-which uses the same fast path as __down_write except it falls back to
-rwsem_down_write_failed_killable slow path and return -EINTR if killed.
+Introduce ___down_write for the fast path and reuse it for __down_write
+resp. __down_write_killable each using the respective generic slow path
+(rwsem_down_write_failed resp. rwsem_down_write_failed_killable).
 
 Signed-off-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/xtensa/include/asm/rwsem.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/alpha/include/asm/rwsem.h | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/arch/xtensa/include/asm/rwsem.h b/arch/xtensa/include/asm/rwsem.h
-index 593483f6e1ff..6283823b8040 100644
---- a/arch/xtensa/include/asm/rwsem.h
-+++ b/arch/xtensa/include/asm/rwsem.h
-@@ -59,6 +59,19 @@ static inline void __down_write(struct rw_semaphore *sem)
+diff --git a/arch/alpha/include/asm/rwsem.h b/arch/alpha/include/asm/rwsem.h
+index a83bbea62c67..0131a7058778 100644
+--- a/arch/alpha/include/asm/rwsem.h
++++ b/arch/alpha/include/asm/rwsem.h
+@@ -63,7 +63,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ 	return res >= 0 ? 1 : 0;
+ }
+ 
+-static inline void __down_write(struct rw_semaphore *sem)
++static inline long ___down_write(struct rw_semaphore *sem)
+ {
+ 	long oldcount;
+ #ifndef	CONFIG_SMP
+@@ -83,10 +83,24 @@ static inline void __down_write(struct rw_semaphore *sem)
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (unlikely(oldcount))
++	return oldcount;
++}
++
++static inline void __down_write(struct rw_semaphore *sem)
++{
++	if (unlikely(___down_write(sem)))
  		rwsem_down_write_failed(sem);
  }
  
 +static inline int __down_write_killable(struct rw_semaphore *sem)
 +{
-+	int tmp;
-+
-+	tmp = atomic_add_return(RWSEM_ACTIVE_WRITE_BIAS,
-+				(atomic_t *)(&sem->count));
-+	if (tmp != RWSEM_ACTIVE_WRITE_BIAS)
++	if (unlikely(___down_write(sem)))
 +		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
 +			return -EINTR;
 +
 +	return 0;
 +}
 +
- static inline int __down_write_trylock(struct rw_semaphore *sem)
- {
- 	int tmp;
+ /*
+  * trylock for writing -- returns 1 if successful, 0 if contention
+  */
 -- 
 2.7.0
