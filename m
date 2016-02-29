@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 06/11] s390, rwsem: provide __down_write_killable
-Date: Mon, 29 Feb 2016 13:58:20 +0100
-Message-ID: <1456750705-7141-7-git-send-email-mhocko@kernel.org>
+Subject: [PATCH 05/11] ia64, rwsem: provide __down_write_killable
+Date: Mon, 29 Feb 2016 13:58:19 +0100
+Message-ID: <1456750705-7141-6-git-send-email-mhocko@kernel.org>
 In-Reply-To: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
 References: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160229125820.DrILDt94OvB75Dn15rS7xVEV4_JMGCxwE9exYxLQekU@z>
+Message-ID: <20160229125819.FlVDymy4bNhtM2i2y_T_drgzmL-3sI4llAwuPYm6_kE@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
@@ -21,38 +21,41 @@ resp. __down_write_killable each using the respective generic slow path
 
 Signed-off-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/s390/include/asm/rwsem.h | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ arch/ia64/include/asm/rwsem.h | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/rwsem.h b/arch/s390/include/asm/rwsem.h
-index 8e52e72f3efc..8e7b2b7e10f3 100644
---- a/arch/s390/include/asm/rwsem.h
-+++ b/arch/s390/include/asm/rwsem.h
-@@ -90,7 +90,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+diff --git a/arch/ia64/include/asm/rwsem.h b/arch/ia64/include/asm/rwsem.h
+index 3027e7516d85..5e78cb40d9df 100644
+--- a/arch/ia64/include/asm/rwsem.h
++++ b/arch/ia64/include/asm/rwsem.h
+@@ -49,8 +49,8 @@ __down_read (struct rw_semaphore *sem)
  /*
   * lock for writing
   */
--static inline void __down_write(struct rw_semaphore *sem)
-+static inline long ___down_write(struct rw_semaphore *sem)
+-static inline void
+-__down_write (struct rw_semaphore *sem)
++static inline long
++___down_write (struct rw_semaphore *sem)
  {
- 	signed long old, new, tmp;
+ 	long old, new;
  
-@@ -104,10 +104,25 @@ static inline void __down_write(struct rw_semaphore *sem)
- 		: "=&d" (old), "=&d" (new), "=Q" (sem->count)
- 		: "Q" (sem->count), "m" (tmp)
- 		: "cc", "memory");
+@@ -59,10 +59,26 @@ __down_write (struct rw_semaphore *sem)
+ 		new = old + RWSEM_ACTIVE_WRITE_BIAS;
+ 	} while (cmpxchg_acq(&sem->count, old, new) != old);
+ 
 -	if (old != 0)
-+
 +	return old;
 +}
 +
-+static inline void __down_write(struct rw_semaphore *sem)
++static inline void
++__down_write (struct rw_semaphore *sem)
 +{
 +	if (___down_write(sem))
  		rwsem_down_write_failed(sem);
  }
  
-+static inline int __down_write_killable(struct rw_semaphore *sem)
++static inline int
++__down_write_killable (struct rw_semaphore *sem)
 +{
 +	if (___down_write(sem))
 +		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
@@ -62,7 +65,7 @@ index 8e52e72f3efc..8e7b2b7e10f3 100644
 +}
 +
  /*
-  * trylock for writing -- returns 1 if successful, 0 if contention
+  * unlock after reading
   */
 -- 
 2.7.0
