@@ -1,61 +1,188 @@
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 0/11] introduce down_write_killable for rw_semaphore
-Date: Mon, 29 Feb 2016 13:58:14 +0100
-Message-ID: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
+Subject: [PATCH 01/11] locking, rwsem: get rid of __down_write_nested
+Date: Mon, 29 Feb 2016 13:58:15 +0100
+Message-ID: <1456750705-7141-2-git-send-email-mhocko@kernel.org>
+References: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
 Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Michal Hocko <mhocko@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
-I have posted this series [1] and there didn't seem to be any
-fundamental objections except for x86 maintainers who preferred the asm
-__down_write implementation which I have reworked for this series. Apart
-from that I have refreshed on top of the current linux-next and fixed
-one unused variable warning which happened to trigger a compilation
-failure on ppc.
+From: Michal Hocko <mhocko@suse.com>
 
-The following patchset implements a killable variant of write lock for
-rw_semaphore. My usecase is to turn as many mmap_sem write users to use
-a killable variant which will be helpful for the oom_reaper [2] to
-asynchronously tear down the oom victim address space which requires
-mmap_sem for read. This will reduce a likelihood of OOM livelocks caused
-by oom victim being stuck on a lock or other resource which prevents it
-to reach its exit path and release the memory. I haven't implemented
-the killable variant of the read lock because I do not have any usecase
-for this API.
+This is no longer used anywhere and all callers (__down_write) use
+0 as a subclass. Ditch __down_write_nested to make the code easier
+to follow.
 
-The patchset is organized as follows.
-- Patch 1 is a trivial cleanup
-- Patch 2, I belive, shouldn't introduce any functional changes as per
-  Documentation/memory-barriers.txt.
-- Patch 3 is the preparatory work and necessary infrastructure for
-  down_write_killable. It implements generic __down_write_killable
-  and prepares the write lock slow path to bail out earlier when told so
-- Patch 4-1- are implementing arch specific __down_write_killable. One
-  patch per architecture.
-- finally patch 11 implements down_write_killable and ties everything
-  together. I am not really an expert on lockdep so I hope I got it right.
+This shouldn't introduce any functional change.
 
-Many of arch specific patches are basically same and I can squash them
-into one patch if this is preferred but I thought that one patch per
-arch is preferable.
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+---
+ arch/s390/include/asm/rwsem.h   | 7 +------
+ arch/sh/include/asm/rwsem.h     | 5 -----
+ arch/sparc/include/asm/rwsem.h  | 7 +------
+ arch/x86/include/asm/rwsem.h    | 7 +------
+ include/asm-generic/rwsem.h     | 7 +------
+ include/linux/rwsem-spinlock.h  | 1 -
+ kernel/locking/rwsem-spinlock.c | 7 +------
+ 7 files changed, 5 insertions(+), 36 deletions(-)
 
-My patch to change mmap_sem write users to killable form is not part of
-the series because it is a larger change and I would like to prevent
-from spamming people too much. I will post the series shortly.
-
-I have tested on x86 with OOM situations with high mmap_sem contention
-(basically many parallel page faults racing with many parallel mmap/munmap
-tight loops) so the waiters for the write locks are routinely interrupted
-by SIGKILL.
-
-Patches should apply cleanly on both Linus and next tree.
-
-[1] http://lkml.kernel.org/r/1454444369-2146-1-git-send-email-mhocko@kernel.org
-[2] http://lkml.kernel.org/r/1452094975-551-1-git-send-email-mhocko@kernel.org
-
-Any feedback is highly appreciated.
+diff --git a/arch/s390/include/asm/rwsem.h b/arch/s390/include/asm/rwsem.h
+index 4b43ee7e6776..8e52e72f3efc 100644
+--- a/arch/s390/include/asm/rwsem.h
++++ b/arch/s390/include/asm/rwsem.h
+@@ -90,7 +90,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	signed long old, new, tmp;
+ 
+@@ -108,11 +108,6 @@ static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 		rwsem_down_write_failed(sem);
+ }
+ 
+-static inline void __down_write(struct rw_semaphore *sem)
+-{
+-	__down_write_nested(sem, 0);
+-}
+-
+ /*
+  * trylock for writing -- returns 1 if successful, 0 if contention
+  */
+diff --git a/arch/sh/include/asm/rwsem.h b/arch/sh/include/asm/rwsem.h
+index edab57265293..a5104bebd1eb 100644
+--- a/arch/sh/include/asm/rwsem.h
++++ b/arch/sh/include/asm/rwsem.h
+@@ -114,11 +114,6 @@ static inline void __downgrade_write(struct rw_semaphore *sem)
+ 		rwsem_downgrade_wake(sem);
+ }
+ 
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+-{
+-	__down_write(sem);
+-}
+-
+ /*
+  * implement exchange and add functionality
+  */
+diff --git a/arch/sparc/include/asm/rwsem.h b/arch/sparc/include/asm/rwsem.h
+index 069bf4d663a1..e5a0d575bc7f 100644
+--- a/arch/sparc/include/asm/rwsem.h
++++ b/arch/sparc/include/asm/rwsem.h
+@@ -45,7 +45,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+ 
+@@ -55,11 +55,6 @@ static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 		rwsem_down_write_failed(sem);
+ }
+ 
+-static inline void __down_write(struct rw_semaphore *sem)
+-{
+-	__down_write_nested(sem, 0);
+-}
+-
+ static inline int __down_write_trylock(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+diff --git a/arch/x86/include/asm/rwsem.h b/arch/x86/include/asm/rwsem.h
+index ceec86eb68e9..4a8292a0d6e1 100644
+--- a/arch/x86/include/asm/rwsem.h
++++ b/arch/x86/include/asm/rwsem.h
+@@ -99,7 +99,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+ 	asm volatile("# beginning down_write\n\t"
+@@ -116,11 +116,6 @@ static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 		     : "memory", "cc");
+ }
+ 
+-static inline void __down_write(struct rw_semaphore *sem)
+-{
+-	__down_write_nested(sem, 0);
+-}
+-
+ /*
+  * trylock for writing -- returns 1 if successful, 0 if contention
+  */
+diff --git a/include/asm-generic/rwsem.h b/include/asm-generic/rwsem.h
+index d6d5dc98d7da..b8d8a6cf4ca8 100644
+--- a/include/asm-generic/rwsem.h
++++ b/include/asm-generic/rwsem.h
+@@ -53,7 +53,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+ 
+@@ -63,11 +63,6 @@ static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 		rwsem_down_write_failed(sem);
+ }
+ 
+-static inline void __down_write(struct rw_semaphore *sem)
+-{
+-	__down_write_nested(sem, 0);
+-}
+-
+ static inline int __down_write_trylock(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+diff --git a/include/linux/rwsem-spinlock.h b/include/linux/rwsem-spinlock.h
+index 561e8615528d..a733a5467e6c 100644
+--- a/include/linux/rwsem-spinlock.h
++++ b/include/linux/rwsem-spinlock.h
+@@ -34,7 +34,6 @@ struct rw_semaphore {
+ extern void __down_read(struct rw_semaphore *sem);
+ extern int __down_read_trylock(struct rw_semaphore *sem);
+ extern void __down_write(struct rw_semaphore *sem);
+-extern void __down_write_nested(struct rw_semaphore *sem, int subclass);
+ extern int __down_write_trylock(struct rw_semaphore *sem);
+ extern void __up_read(struct rw_semaphore *sem);
+ extern void __up_write(struct rw_semaphore *sem);
+diff --git a/kernel/locking/rwsem-spinlock.c b/kernel/locking/rwsem-spinlock.c
+index 3a5048572065..bab26104a5d0 100644
+--- a/kernel/locking/rwsem-spinlock.c
++++ b/kernel/locking/rwsem-spinlock.c
+@@ -191,7 +191,7 @@ int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * get a write lock on the semaphore
+  */
+-void __sched __down_write_nested(struct rw_semaphore *sem, int subclass)
++void __sched __down_write(struct rw_semaphore *sem)
+ {
+ 	struct rwsem_waiter waiter;
+ 	struct task_struct *tsk;
+@@ -227,11 +227,6 @@ void __sched __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
+ }
+ 
+-void __sched __down_write(struct rw_semaphore *sem)
+-{
+-	__down_write_nested(sem, 0);
+-}
+-
+ /*
+  * trylock for writing -- returns 1 if successful, 0 if contention
+  */
+-- 
+2.7.0
