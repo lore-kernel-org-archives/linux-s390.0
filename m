@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 02/11] locking, rwsem: drop explicit memory barriers
-Date: Mon, 29 Feb 2016 13:58:16 +0100
-Message-ID: <1456750705-7141-3-git-send-email-mhocko@kernel.org>
+Subject: [PATCH 08/11] sparc, rwsem: provide __down_write_killable
+Date: Mon, 29 Feb 2016 13:58:22 +0100
+Message-ID: <1456750705-7141-9-git-send-email-mhocko@kernel.org>
 In-Reply-To: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
 References: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160229125816.J6vnlFCCa5CEjGld8t8IUfLvBfLSeu22bOj26z71Cn4@z>
+Message-ID: <20160229125822.cZMERBqWezprX0lZNTWzl1iLUDwsgPkfQwmpOhere2s@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
@@ -15,164 +15,37 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michal Hocko <mhocko@suse.com>
 
-sh and xtensa seem to be the only architectures which use explicit
-memory barriers for rw_semaphore operations even though they are not
-really needed because there is the full memory barrier is always implied
-by atomic_{inc,dec,add,sub}_return resp. cmpxchg. Remove them.
+which uses the same fast path as __down_write except it falls back to
+rwsem_down_write_failed_killable slow path and return -EINTR if killed.
 
 Signed-off-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/sh/include/asm/rwsem.h     | 14 ++------------
- arch/xtensa/include/asm/rwsem.h | 14 ++------------
- 2 files changed, 4 insertions(+), 24 deletions(-)
+ arch/sparc/include/asm/rwsem.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/sh/include/asm/rwsem.h b/arch/sh/include/asm/rwsem.h
-index a5104bebd1eb..f6c951c7a875 100644
---- a/arch/sh/include/asm/rwsem.h
-+++ b/arch/sh/include/asm/rwsem.h
-@@ -24,9 +24,7 @@
-  */
- static inline void __down_read(struct rw_semaphore *sem)
- {
--	if (atomic_inc_return((atomic_t *)(&sem->count)) > 0)
--		smp_wmb();
--	else
-+	if (atomic_inc_return((atomic_t *)(&sem->count)) <= 0)
- 		rwsem_down_read_failed(sem);
- }
- 
-@@ -37,7 +35,6 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
- 	while ((tmp = sem->count) >= 0) {
- 		if (tmp == cmpxchg(&sem->count, tmp,
- 				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
--			smp_wmb();
- 			return 1;
- 		}
- 	}
-@@ -53,9 +50,7 @@ static inline void __down_write(struct rw_semaphore *sem)
- 
- 	tmp = atomic_add_return(RWSEM_ACTIVE_WRITE_BIAS,
- 				(atomic_t *)(&sem->count));
--	if (tmp == RWSEM_ACTIVE_WRITE_BIAS)
--		smp_wmb();
--	else
-+	if (tmp != RWSEM_ACTIVE_WRITE_BIAS)
+diff --git a/arch/sparc/include/asm/rwsem.h b/arch/sparc/include/asm/rwsem.h
+index e5a0d575bc7f..c1e9e32e8b63 100644
+--- a/arch/sparc/include/asm/rwsem.h
++++ b/arch/sparc/include/asm/rwsem.h
+@@ -55,6 +55,19 @@ static inline void __down_write(struct rw_semaphore *sem)
  		rwsem_down_write_failed(sem);
  }
  
-@@ -65,7 +60,6 @@ static inline int __down_write_trylock(struct rw_semaphore *sem)
- 
- 	tmp = cmpxchg(&sem->count, RWSEM_UNLOCKED_VALUE,
- 		      RWSEM_ACTIVE_WRITE_BIAS);
--	smp_wmb();
- 	return tmp == RWSEM_UNLOCKED_VALUE;
- }
- 
-@@ -76,7 +70,6 @@ static inline void __up_read(struct rw_semaphore *sem)
++static inline int __down_write_killable(struct rw_semaphore *sem)
++{
++	long tmp;
++
++	tmp = atomic64_add_return(RWSEM_ACTIVE_WRITE_BIAS,
++				  (atomic64_t *)(&sem->count));
++	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
++		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
++			return -EINTR;
++
++	return 0;
++}
++
+ static inline int __down_write_trylock(struct rw_semaphore *sem)
  {
- 	int tmp;
- 
--	smp_wmb();
- 	tmp = atomic_dec_return((atomic_t *)(&sem->count));
- 	if (tmp < -1 && (tmp & RWSEM_ACTIVE_MASK) == 0)
- 		rwsem_wake(sem);
-@@ -87,7 +80,6 @@ static inline void __up_read(struct rw_semaphore *sem)
-  */
- static inline void __up_write(struct rw_semaphore *sem)
- {
--	smp_wmb();
- 	if (atomic_sub_return(RWSEM_ACTIVE_WRITE_BIAS,
- 			      (atomic_t *)(&sem->count)) < 0)
- 		rwsem_wake(sem);
-@@ -108,7 +100,6 @@ static inline void __downgrade_write(struct rw_semaphore *sem)
- {
- 	int tmp;
- 
--	smp_wmb();
- 	tmp = atomic_add_return(-RWSEM_WAITING_BIAS, (atomic_t *)(&sem->count));
- 	if (tmp < 0)
- 		rwsem_downgrade_wake(sem);
-@@ -119,7 +110,6 @@ static inline void __downgrade_write(struct rw_semaphore *sem)
-  */
- static inline int rwsem_atomic_update(int delta, struct rw_semaphore *sem)
- {
--	smp_mb();
- 	return atomic_add_return(delta, (atomic_t *)(&sem->count));
- }
- 
-diff --git a/arch/xtensa/include/asm/rwsem.h b/arch/xtensa/include/asm/rwsem.h
-index 249619e7e7f2..593483f6e1ff 100644
---- a/arch/xtensa/include/asm/rwsem.h
-+++ b/arch/xtensa/include/asm/rwsem.h
-@@ -29,9 +29,7 @@
-  */
- static inline void __down_read(struct rw_semaphore *sem)
- {
--	if (atomic_add_return(1,(atomic_t *)(&sem->count)) > 0)
--		smp_wmb();
--	else
-+	if (atomic_add_return(1,(atomic_t *)(&sem->count)) <= 0)
- 		rwsem_down_read_failed(sem);
- }
- 
-@@ -42,7 +40,6 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
- 	while ((tmp = sem->count) >= 0) {
- 		if (tmp == cmpxchg(&sem->count, tmp,
- 				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
--			smp_wmb();
- 			return 1;
- 		}
- 	}
-@@ -58,9 +55,7 @@ static inline void __down_write(struct rw_semaphore *sem)
- 
- 	tmp = atomic_add_return(RWSEM_ACTIVE_WRITE_BIAS,
- 				(atomic_t *)(&sem->count));
--	if (tmp == RWSEM_ACTIVE_WRITE_BIAS)
--		smp_wmb();
--	else
-+	if (tmp != RWSEM_ACTIVE_WRITE_BIAS)
- 		rwsem_down_write_failed(sem);
- }
- 
-@@ -70,7 +65,6 @@ static inline int __down_write_trylock(struct rw_semaphore *sem)
- 
- 	tmp = cmpxchg(&sem->count, RWSEM_UNLOCKED_VALUE,
- 		      RWSEM_ACTIVE_WRITE_BIAS);
--	smp_wmb();
- 	return tmp == RWSEM_UNLOCKED_VALUE;
- }
- 
-@@ -81,7 +75,6 @@ static inline void __up_read(struct rw_semaphore *sem)
- {
- 	int tmp;
- 
--	smp_wmb();
- 	tmp = atomic_sub_return(1,(atomic_t *)(&sem->count));
- 	if (tmp < -1 && (tmp & RWSEM_ACTIVE_MASK) == 0)
- 		rwsem_wake(sem);
-@@ -92,7 +85,6 @@ static inline void __up_read(struct rw_semaphore *sem)
-  */
- static inline void __up_write(struct rw_semaphore *sem)
- {
--	smp_wmb();
- 	if (atomic_sub_return(RWSEM_ACTIVE_WRITE_BIAS,
- 			      (atomic_t *)(&sem->count)) < 0)
- 		rwsem_wake(sem);
-@@ -113,7 +105,6 @@ static inline void __downgrade_write(struct rw_semaphore *sem)
- {
- 	int tmp;
- 
--	smp_wmb();
- 	tmp = atomic_add_return(-RWSEM_WAITING_BIAS, (atomic_t *)(&sem->count));
- 	if (tmp < 0)
- 		rwsem_downgrade_wake(sem);
-@@ -124,7 +115,6 @@ static inline void __downgrade_write(struct rw_semaphore *sem)
-  */
- static inline int rwsem_atomic_update(int delta, struct rw_semaphore *sem)
- {
--	smp_mb();
- 	return atomic_add_return(delta, (atomic_t *)(&sem->count));
- }
- 
+ 	long tmp;
 -- 
 2.7.0
