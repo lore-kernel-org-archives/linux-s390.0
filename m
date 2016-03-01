@@ -1,11 +1,14 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 0/2] virtio/s390 patches
-Date: Tue,  1 Mar 2016 13:44:51 +0100
-Message-ID: <1456836293-49239-1-git-send-email-cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/2] virtio/s390 patches
+Date: Tue, 1 Mar 2016 15:01:21 +0200
+Message-ID: <20160301150110-mutt-send-email-mst@redhat.com>
+References: <1456836293-49239-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1456836293-49239-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +20,28 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: mst@redhat.com
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Michael,
+On Tue, Mar 01, 2016 at 01:44:51PM +0100, Cornelia Huck wrote:
+> Hi Michael,
+> 
+> here are two virtio/s390 patches (one cleanup, one bugfix), prepared
+> against your vhost branch of mst/vhost.git.
+> 
+> Please apply.
 
-here are two virtio/s390 patches (one cleanup, one bugfix), prepared
-against your vhost branch of mst/vhost.git.
+Will do, thanks!
 
-Please apply.
-
-Cornelia Huck (1):
-  virtio/s390: size of SET_IND payload
-
-Geliang Tang (1):
-  virtio/s390: use dev_to_virtio
-
- drivers/s390/virtio/virtio_ccw.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
-
--- 
-2.3.9
+> Cornelia Huck (1):
+>   virtio/s390: size of SET_IND payload
+> 
+> Geliang Tang (1):
+>   virtio/s390: use dev_to_virtio
+> 
+>  drivers/s390/virtio/virtio_ccw.c | 15 +++++++++------
+>  1 file changed, 9 insertions(+), 6 deletions(-)
+> 
+> -- 
+> 2.3.9
