@@ -1,51 +1,65 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [RFC 0/12] introduce down_write_killable for rw_semaphore
-Date: Thu, 10 Mar 2016 11:24:13 +0100
-Message-ID: <20160310102412.GA21593@gmail.com>
-References: <1454444369-2146-1-git-send-email-mhocko@kernel.org>
- <20160309121850.GA14915@gmail.com>
- <20160309125641.GH27018@dhcp22.suse.cz>
- <20160309131710.GB7978@gmail.com>
- <20160309132855.GI27018@dhcp22.suse.cz>
- <20160309134339.GA20911@gmail.com>
- <20160309144140.GJ27018@dhcp22.suse.cz>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH 2/2] numa, mm, cleanup: remove redundant NODE_DATA macro
+ from asm header files.
+Date: Wed, 2 Mar 2016 02:15:50 +0000
+Message-ID: <20160302021550.GI14022@arm.com>
+References: <1456358528-24213-1-git-send-email-ddaney.cavm@gmail.com>
+ <1456358528-24213-3-git-send-email-ddaney.cavm@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-ia64-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160309144140.GJ27018@dhcp22.suse.cz>
+In-Reply-To: <1456358528-24213-3-git-send-email-ddaney.cavm@gmail.com>
 Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Michal Hocko <mhocko@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: David Daney <ddaney.cavm@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Chris Metcalf <cmetcalf@ezchip.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.ker
 List-ID: <linux-s390.vger.kernel.org>
 
-
-* Michal Hocko <mhocko@kernel.org> wrote:
-
-> > > Why? Each syscall already is killable as the task might be killed by the OOM 
-> > > killer.
-> > 
-> > Not all syscalls are interruptible - for example sys_sync() isn't:
+On Wed, Feb 24, 2016 at 04:02:08PM -0800, David Daney wrote:
+> From: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 > 
-> I guess we are talking past each other. [...]
+> NODE_DATA is defined across multiple asm header files.
+> Moving generic definition to asm-generic/mmzone.h to
+> remove redundant definitions.
+> 
+> Reviewed-by: Robert Richter <rrichter@cavium.com>
+> Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
+> Signed-off-by: David Daney <david.daney@cavium.com>
+> ---
+>  arch/arm64/include/asm/mmzone.h   |  4 +---
+>  arch/m32r/include/asm/mmzone.h    |  4 +---
+>  arch/metag/include/asm/mmzone.h   |  4 +---
+>  arch/powerpc/include/asm/mmzone.h |  8 ++------
+>  arch/s390/include/asm/mmzone.h    |  6 +-----
+>  arch/sh/include/asm/mmzone.h      |  4 +---
+>  arch/sparc/include/asm/mmzone.h   |  6 ++----
+>  arch/x86/include/asm/mmzone.h     |  3 +--
+>  arch/x86/include/asm/mmzone_32.h  |  5 -----
+>  arch/x86/include/asm/mmzone_64.h  | 17 -----------------
+>  include/asm-generic/mmzone.h      | 24 ++++++++++++++++++++++++
+>  11 files changed, 34 insertions(+), 51 deletions(-)
+>  delete mode 100644 arch/x86/include/asm/mmzone_64.h
+>  create mode 100644 include/asm-generic/mmzone.h
+> 
+> diff --git a/arch/arm64/include/asm/mmzone.h b/arch/arm64/include/asm/mmzone.h
+> index a0de9e6..611a1cf 100644
+> --- a/arch/arm64/include/asm/mmzone.h
+> +++ b/arch/arm64/include/asm/mmzone.h
+> @@ -4,9 +4,7 @@
+>  #ifdef CONFIG_NUMA
+>  
+>  #include <asm/numa.h>
+> -
+> -extern struct pglist_data *node_data[];
+> -#define NODE_DATA(nid)		(node_data[(nid)])
+> +#include  <asm-generic/mmzone.h>
+>  
+>  #endif /* CONFIG_NUMA */
+>  #endif /* __ASM_MMZONE_H */
 
-Heh, you are being polite, I think what happened is that I was being dense and 
-didn't understand your point:
+Actually, we can remove the header file entirely and use a generic-y
+line in Kbuild instead.
 
-> [...] What I meant was that while all syscalls are allowed to not return to the 
-> userspace because the task might get killed but not all of them accept to get 
-> interrupted by a signal and return with EINTR. None of the man page of mmap, 
-> mremap, mlock, mprotect list EINTR as a possibility so I would be really afraid 
-> of returning an unexpected error code.
-
-Indeed.
-
-> Does this make more sense now?
-
-It does!
-
-Thanks,
-
-	Ingo
+Will
