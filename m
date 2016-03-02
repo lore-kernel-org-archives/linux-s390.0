@@ -1,65 +1,63 @@
 From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH 2/2] numa, mm, cleanup: remove redundant NODE_DATA macro
- from asm header files.
-Date: Wed, 2 Mar 2016 02:15:50 +0000
-Message-ID: <20160302021550.GI14022@arm.com>
+Subject: Re: [PATCH 1/2] topology, cleanup: Avoid redefinition of
+ cpumask_of_pcibus in asm header files.
+Date: Wed, 2 Mar 2016 02:17:10 +0000
+Message-ID: <20160302021710.GJ14022@arm.com>
 References: <1456358528-24213-1-git-send-email-ddaney.cavm@gmail.com>
- <1456358528-24213-3-git-send-email-ddaney.cavm@gmail.com>
+ <1456358528-24213-2-git-send-email-ddaney.cavm@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1456358528-24213-3-git-send-email-ddaney.cavm@gmail.com>
-Sender: linux-ia64-owner@vger.kernel.org
+In-Reply-To: <1456358528-24213-2-git-send-email-ddaney.cavm@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: David Daney <ddaney.cavm@gmail.com>
 Cc: linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Chris Metcalf <cmetcalf@ezchip.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.ker
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Feb 24, 2016 at 04:02:08PM -0800, David Daney wrote:
+On Wed, Feb 24, 2016 at 04:02:07PM -0800, David Daney wrote:
 > From: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 > 
-> NODE_DATA is defined across multiple asm header files.
-> Moving generic definition to asm-generic/mmzone.h to
-> remove redundant definitions.
+> At present cpumask_of_pcibus is defined for !CONFIG_NUMA and moving out
+> to common will allow to use for numa too. This also avoids
+> redefinition of this macro in respective architecture header files.
 > 
 > Reviewed-by: Robert Richter <rrichter@cavium.com>
 > Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 > Signed-off-by: David Daney <david.daney@cavium.com>
 > ---
->  arch/arm64/include/asm/mmzone.h   |  4 +---
->  arch/m32r/include/asm/mmzone.h    |  4 +---
->  arch/metag/include/asm/mmzone.h   |  4 +---
->  arch/powerpc/include/asm/mmzone.h |  8 ++------
->  arch/s390/include/asm/mmzone.h    |  6 +-----
->  arch/sh/include/asm/mmzone.h      |  4 +---
->  arch/sparc/include/asm/mmzone.h   |  6 ++----
->  arch/x86/include/asm/mmzone.h     |  3 +--
->  arch/x86/include/asm/mmzone_32.h  |  5 -----
->  arch/x86/include/asm/mmzone_64.h  | 17 -----------------
->  include/asm-generic/mmzone.h      | 24 ++++++++++++++++++++++++
->  11 files changed, 34 insertions(+), 51 deletions(-)
->  delete mode 100644 arch/x86/include/asm/mmzone_64.h
->  create mode 100644 include/asm-generic/mmzone.h
+>  arch/arm64/include/asm/topology.h   | 3 ---
+>  arch/ia64/include/asm/topology.h    | 4 ----
+>  arch/metag/include/asm/topology.h   | 3 ---
+>  arch/powerpc/include/asm/topology.h | 4 ----
+>  arch/s390/include/asm/pci.h         | 2 +-
+>  arch/s390/include/asm/topology.h    | 1 +
+>  arch/sh/include/asm/topology.h      | 3 ---
+>  arch/tile/include/asm/pci.h         | 2 --
+>  arch/tile/include/asm/topology.h    | 3 +++
+>  arch/x86/include/asm/pci.h          | 2 +-
+>  arch/x86/include/asm/topology.h     | 1 +
+>  include/asm-generic/topology.h      | 4 ++--
+>  12 files changed, 9 insertions(+), 23 deletions(-)
 > 
-> diff --git a/arch/arm64/include/asm/mmzone.h b/arch/arm64/include/asm/mmzone.h
-> index a0de9e6..611a1cf 100644
-> --- a/arch/arm64/include/asm/mmzone.h
-> +++ b/arch/arm64/include/asm/mmzone.h
-> @@ -4,9 +4,7 @@
->  #ifdef CONFIG_NUMA
+> diff --git a/arch/arm64/include/asm/topology.h b/arch/arm64/include/asm/topology.h
+> index 8b57339..6e1f62c 100644
+> --- a/arch/arm64/include/asm/topology.h
+> +++ b/arch/arm64/include/asm/topology.h
+> @@ -26,9 +26,6 @@ const struct cpumask *cpu_coregroup_mask(int cpu);
 >  
->  #include <asm/numa.h>
-> -
-> -extern struct pglist_data *node_data[];
-> -#define NODE_DATA(nid)		(node_data[(nid)])
-> +#include  <asm-generic/mmzone.h>
+>  struct pci_bus;
+>  int pcibus_to_node(struct pci_bus *bus);
+> -#define cpumask_of_pcibus(bus)	(pcibus_to_node(bus) == -1 ?		\
+> -				 cpu_all_mask :				\
+> -				 cpumask_of_node(pcibus_to_node(bus)))
 >  
 >  #endif /* CONFIG_NUMA */
->  #endif /* __ASM_MMZONE_H */
 
-Actually, we can remove the header file entirely and use a generic-y
-line in Kbuild instead.
+Looks like a sensible clean up to me (on top of the arm64 NUMA patches):
+
+Acked-by: Will Deacon <will.deacon@arm.com>
 
 Will
