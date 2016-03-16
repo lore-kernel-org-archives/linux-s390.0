@@ -1,20 +1,20 @@
 Reply-To: kernel-hardening@lists.openwall.com
-Date: Sat, 12 Mar 2016 12:15:40 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Message-ID: <20160312111540.GA17395@osiris>
 References: <20160310173144.GA25532@www.outflux.net>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <56E9B860.2060802@de.ibm.com>
+Date: Wed, 16 Mar 2016 20:47:44 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20160310173144.GA25532@www.outflux.net>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Subject: [kernel-hardening] Re: [PATCH] s390: disable postinit-readonly for now
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Kees Cook <keescook@chromium.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kernel-hardening@lists.openwall.com
+To: Kees Cook <keescook@chromium.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kernel-hardening@lists.openwall.com, Ingo Molnar <mingo@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Mar 10, 2016 at 09:31:44AM -0800, Kees Cook wrote:
+On 03/10/2016 06:31 PM, Kees Cook wrote:
 > This is a temporary fix to let lkdtm run again on s390, though it'll
 > still fail the ro_after_init tests. Until rodata and ro_after_init
 > sections can be split on s390, disable special handling of ro_after_init.
@@ -22,6 +22,10 @@ On Thu, Mar 10, 2016 at 09:31:44AM -0800, Kees Cook wrote:
 > Signed-off-by: Kees Cook <keescook@chromium.org>
 > ---
 > for -next ...
+
+Given that the other patches are already merged in linus master via Ingo,
+do you want this to go via Ingo as well?
+
 > ---
 >  arch/s390/include/asm/cache.h | 3 +++
 >  1 file changed, 3 insertions(+)
@@ -38,5 +42,4 @@ On Thu, Mar 10, 2016 at 09:31:44AM -0800, Kees Cook wrote:
 > +#define __ro_after_init __read_mostly
 > +
 >  #endif
-
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
