@@ -1,7 +1,7 @@
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 06/11] s390, rwsem: provide __down_write_killable
-Date: Fri,  1 Apr 2016 13:04:50 +0200
-Message-ID: <1459508695-14915-7-git-send-email-mhocko@kernel.org>
+Subject: [PATCH 04/11] alpha, rwsem: provide __down_write_killable
+Date: Fri,  1 Apr 2016 13:04:48 +0200
+Message-ID: <1459508695-14915-5-git-send-email-mhocko@kernel.org>
 References: <1459508695-14915-1-git-send-email-mhocko@kernel.org>
 Return-path: <linux-arch-owner@vger.kernel.org>
 In-Reply-To: <1459508695-14915-1-git-send-email-mhocko@kernel.org>
@@ -20,40 +20,39 @@ resp. __down_write_killable each using the respective generic slow path
 
 Signed-off-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/s390/include/asm/rwsem.h | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ arch/alpha/include/asm/rwsem.h | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/rwsem.h b/arch/s390/include/asm/rwsem.h
-index 8e52e72f3efc..8e7b2b7e10f3 100644
---- a/arch/s390/include/asm/rwsem.h
-+++ b/arch/s390/include/asm/rwsem.h
-@@ -90,7 +90,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
- /*
-  * lock for writing
-  */
+diff --git a/arch/alpha/include/asm/rwsem.h b/arch/alpha/include/asm/rwsem.h
+index a83bbea62c67..0131a7058778 100644
+--- a/arch/alpha/include/asm/rwsem.h
++++ b/arch/alpha/include/asm/rwsem.h
+@@ -63,7 +63,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ 	return res >= 0 ? 1 : 0;
+ }
+ 
 -static inline void __down_write(struct rw_semaphore *sem)
 +static inline long ___down_write(struct rw_semaphore *sem)
  {
- 	signed long old, new, tmp;
- 
-@@ -104,10 +104,25 @@ static inline void __down_write(struct rw_semaphore *sem)
- 		: "=&d" (old), "=&d" (new), "=Q" (sem->count)
- 		: "Q" (sem->count), "m" (tmp)
- 		: "cc", "memory");
--	if (old != 0)
-+
-+	return old;
+ 	long oldcount;
+ #ifndef	CONFIG_SMP
+@@ -83,10 +83,24 @@ static inline void __down_write(struct rw_semaphore *sem)
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (unlikely(oldcount))
++	return oldcount;
 +}
 +
 +static inline void __down_write(struct rw_semaphore *sem)
 +{
-+	if (___down_write(sem))
++	if (unlikely(___down_write(sem)))
  		rwsem_down_write_failed(sem);
  }
  
 +static inline int __down_write_killable(struct rw_semaphore *sem)
 +{
-+	if (___down_write(sem))
++	if (unlikely(___down_write(sem)))
 +		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
 +			return -EINTR;
 +
