@@ -1,11 +1,11 @@
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 09/11] xtensa, rwsem: provide __down_write_killable
-Date: Fri,  1 Apr 2016 13:04:53 +0200
-Message-ID: <1459508695-14915-10-git-send-email-mhocko@kernel.org>
+Subject: [PATCH 08/11] sparc, rwsem: provide __down_write_killable
+Date: Fri,  1 Apr 2016 13:04:52 +0200
+Message-ID: <1459508695-14915-9-git-send-email-mhocko@kernel.org>
 References: <1459508695-14915-1-git-send-email-mhocko@kernel.org>
-Return-path: <sparclinux-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 In-Reply-To: <1459508695-14915-1-git-send-email-mhocko@kernel.org>
-Sender: sparclinux-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
@@ -19,24 +19,24 @@ rwsem_down_write_failed_killable slow path and return -EINTR if killed.
 
 Signed-off-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/xtensa/include/asm/rwsem.h | 13 +++++++++++++
+ arch/sparc/include/asm/rwsem.h | 13 +++++++++++++
  1 file changed, 13 insertions(+)
 
-diff --git a/arch/xtensa/include/asm/rwsem.h b/arch/xtensa/include/asm/rwsem.h
-index 593483f6e1ff..6283823b8040 100644
---- a/arch/xtensa/include/asm/rwsem.h
-+++ b/arch/xtensa/include/asm/rwsem.h
-@@ -59,6 +59,19 @@ static inline void __down_write(struct rw_semaphore *sem)
+diff --git a/arch/sparc/include/asm/rwsem.h b/arch/sparc/include/asm/rwsem.h
+index e5a0d575bc7f..c1e9e32e8b63 100644
+--- a/arch/sparc/include/asm/rwsem.h
++++ b/arch/sparc/include/asm/rwsem.h
+@@ -55,6 +55,19 @@ static inline void __down_write(struct rw_semaphore *sem)
  		rwsem_down_write_failed(sem);
  }
  
 +static inline int __down_write_killable(struct rw_semaphore *sem)
 +{
-+	int tmp;
++	long tmp;
 +
-+	tmp = atomic_add_return(RWSEM_ACTIVE_WRITE_BIAS,
-+				(atomic_t *)(&sem->count));
-+	if (tmp != RWSEM_ACTIVE_WRITE_BIAS)
++	tmp = atomic64_add_return(RWSEM_ACTIVE_WRITE_BIAS,
++				  (atomic64_t *)(&sem->count));
++	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
 +		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
 +			return -EINTR;
 +
@@ -45,6 +45,6 @@ index 593483f6e1ff..6283823b8040 100644
 +
  static inline int __down_write_trylock(struct rw_semaphore *sem)
  {
- 	int tmp;
+ 	long tmp;
 -- 
 2.8.0.rc3
