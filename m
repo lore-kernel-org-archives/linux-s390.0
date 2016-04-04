@@ -1,179 +1,131 @@
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 2/2] sh, rwsem: drop superfluous arch specific implementation
-Date: Mon,  4 Apr 2016 11:06:40 +0200
-Message-ID: <1459760800-13477-2-git-send-email-mhocko@kernel.org>
-References: <20160404090335.GB10272@dhcp22.suse.cz>
- <1459760800-13477-1-git-send-email-mhocko@kernel.org>
-Return-path: <sparclinux-owner@vger.kernel.org>
-In-Reply-To: <1459760800-13477-1-git-send-email-mhocko@kernel.org>
-Sender: sparclinux-owner@vger.kernel.org
+Subject: Re: [PATCH 03/11] locking, rwsem: introduce basis for
+ down_write_killable
+Date: Mon, 4 Apr 2016 11:17:00 +0200
+Message-ID: <20160404091659.GA13463@dhcp22.suse.cz>
+References: <1459508695-14915-1-git-send-email-mhocko@kernel.org>
+ <1459508695-14915-4-git-send-email-mhocko@kernel.org>
+ <20160402044125.GC5329@linux-uzut.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160402044125.GC5329@linux-uzut.site>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Michal Hocko <mhocko@suse.com>
+To: Davidlohr Bueso <dave@stgolabs.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michal Hocko <mhocko@suse.com>
+On Fri 01-04-16 21:41:25, Davidlohr Bueso wrote:
+> On Fri, 01 Apr 2016, Michal Hocko wrote:
+> 
+> >From: Michal Hocko <mhocko@suse.com>
+> >
+> >Introduce a generic implementation necessary for down_write_killable.
+> >This is a trivial extension of the already existing down_write call
+> >which can be interrupted by SIGKILL.  This patch doesn't provide
+> >down_write_killable yet because arches have to provide the necessary
+> >pieces before.
+> >
+> >rwsem_down_write_failed which is a generic slow path for the
+> >write lock is extended to allow a task state and renamed to
+> >__rwsem_down_write_failed_state. The return value is either a valid
+> >semaphore pointer or ERR_PTR(-EINTR).
+> >
+> >rwsem_down_write_failed_killable is exported as a new way to wait for
+> >the lock and be killable.
+> >
+> >For rwsem-spinlock implementation the current __down_write it updated
+> >in a similar way as __rwsem_down_write_failed_state except it doesn't
+> >need new exports just visible __down_write_killable.
+> >
+> >Architectures which are not using the generic rwsem implementation are
+> >supposed to provide their __down_write_killable implementation and
+> >use rwsem_down_write_failed_killable for the slow path.
+> 
+> So in a nutshell, this is supposed to be the (writer) rwsem counterpart of
+> mutex_lock_killable() and down_killable(), right?
 
-since "locking, rwsem: drop explicit memory barriers" the arch specific
-code is basically same as the the generic one so we can drop the
-superfluous code.
+Yes.
 
-Suggested-by: Davidlohr Bueso <dave@stgolabs.net>
-Signed-off-by: Michal Hocko <mhocko@suse.com>
----
- arch/sh/include/asm/Kbuild  |   1 +
- arch/sh/include/asm/rwsem.h | 130 --------------------------------------------
- 2 files changed, 1 insertion(+), 130 deletions(-)
- delete mode 100644 arch/sh/include/asm/rwsem.h
+> [...]
+> 
+> >--- a/kernel/locking/rwsem-xadd.c
+> >+++ b/kernel/locking/rwsem-xadd.c
+> >@@ -433,12 +433,13 @@ static inline bool rwsem_has_spinner(struct rw_semaphore *sem)
+> >/*
+> > * Wait until we successfully acquire the write lock
+> > */
+> >-__visible
+> >-struct rw_semaphore __sched *rwsem_down_write_failed(struct rw_semaphore *sem)
+> >+static inline struct rw_semaphore *
+> >+__rwsem_down_write_failed_state(struct rw_semaphore *sem, int state)
+> 
+> fwiw I'm not a fan of the _state naming. While I understand why you chose it, I feel
+> it does not really describe the purpose of the call itself. The state logic alone is
+> really quite small and therefore should not govern the function name. Why not just apply
+> kiss and label things _common, ie like mutexes do? This would also standardize names a
+> bit.
 
-diff --git a/arch/sh/include/asm/Kbuild b/arch/sh/include/asm/Kbuild
-index aac452b26aa8..6d866c7a9b74 100644
---- a/arch/sh/include/asm/Kbuild
-+++ b/arch/sh/include/asm/Kbuild
-@@ -25,6 +25,7 @@ generic-y += percpu.h
- generic-y += poll.h
- generic-y += preempt.h
- generic-y += resource.h
-+generic-y += rwsem.h
- generic-y += sembuf.h
- generic-y += serial.h
- generic-y += shmbuf.h
-diff --git a/arch/sh/include/asm/rwsem.h b/arch/sh/include/asm/rwsem.h
-deleted file mode 100644
-index 8a457b83d2a5..000000000000
---- a/arch/sh/include/asm/rwsem.h
-+++ /dev/null
-@@ -1,130 +0,0 @@
--/*
-- * include/asm-sh/rwsem.h: R/W semaphores for SH using the stuff
-- * in lib/rwsem.c.
-- */
--
--#ifndef _ASM_SH_RWSEM_H
--#define _ASM_SH_RWSEM_H
--
--#ifndef _LINUX_RWSEM_H
--#error "please don't include asm/rwsem.h directly, use linux/rwsem.h instead"
--#endif
--
--#ifdef __KERNEL__
--
--#define RWSEM_UNLOCKED_VALUE		0x00000000
--#define RWSEM_ACTIVE_BIAS		0x00000001
--#define RWSEM_ACTIVE_MASK		0x0000ffff
--#define RWSEM_WAITING_BIAS		(-0x00010000)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
--
--/*
-- * lock for reading
-- */
--static inline void __down_read(struct rw_semaphore *sem)
--{
--	if (atomic_inc_return((atomic_t *)(&sem->count)) <= 0)
--		rwsem_down_read_failed(sem);
--}
--
--static inline int __down_read_trylock(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	while ((tmp = sem->count) >= 0) {
--		if (tmp == cmpxchg(&sem->count, tmp,
--				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
--			return 1;
--		}
--	}
--	return 0;
--}
--
--/*
-- * lock for writing
-- */
--static inline void __down_write(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	tmp = atomic_add_return(RWSEM_ACTIVE_WRITE_BIAS,
--				(atomic_t *)(&sem->count));
--	if (tmp != RWSEM_ACTIVE_WRITE_BIAS)
--		rwsem_down_write_failed(sem);
--}
--
--static inline int __down_write_killable(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	tmp = atomic_add_return(RWSEM_ACTIVE_WRITE_BIAS,
--				(atomic_t *)(&sem->count));
--	if (tmp != RWSEM_ACTIVE_WRITE_BIAS)
--		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
--			return -EINTR;
--
--	return 0;
--}
--
--static inline int __down_write_trylock(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	tmp = cmpxchg(&sem->count, RWSEM_UNLOCKED_VALUE,
--		      RWSEM_ACTIVE_WRITE_BIAS);
--	return tmp == RWSEM_UNLOCKED_VALUE;
--}
--
--/*
-- * unlock after reading
-- */
--static inline void __up_read(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	tmp = atomic_dec_return((atomic_t *)(&sem->count));
--	if (tmp < -1 && (tmp & RWSEM_ACTIVE_MASK) == 0)
--		rwsem_wake(sem);
--}
--
--/*
-- * unlock after writing
-- */
--static inline void __up_write(struct rw_semaphore *sem)
--{
--	if (atomic_sub_return(RWSEM_ACTIVE_WRITE_BIAS,
--			      (atomic_t *)(&sem->count)) < 0)
--		rwsem_wake(sem);
--}
--
--/*
-- * implement atomic add functionality
-- */
--static inline void rwsem_atomic_add(int delta, struct rw_semaphore *sem)
--{
--	atomic_add(delta, (atomic_t *)(&sem->count));
--}
--
--/*
-- * downgrade write lock to read lock
-- */
--static inline void __downgrade_write(struct rw_semaphore *sem)
--{
--	int tmp;
--
--	tmp = atomic_add_return(-RWSEM_WAITING_BIAS, (atomic_t *)(&sem->count));
--	if (tmp < 0)
--		rwsem_downgrade_wake(sem);
--}
--
--/*
-- * implement exchange and add functionality
-- */
--static inline int rwsem_atomic_update(int delta, struct rw_semaphore *sem)
--{
--	return atomic_add_return(delta, (atomic_t *)(&sem->count));
--}
--
--#endif /* __KERNEL__ */
--#endif /* _ASM_SH_RWSEM_H */
+I really do not care much about naming. So if _common sounds better I
+can certainly rename.
+
+> 
+> >{
+> >	long count;
+> >	bool waiting = true; /* any queued threads before us */
+> >	struct rwsem_waiter waiter;
+> >+	struct rw_semaphore *ret = sem;
+> >
+> >	/* undo write bias from down_write operation, stop active locking */
+> >	count = rwsem_atomic_update(-RWSEM_ACTIVE_WRITE_BIAS, sem);
+> >@@ -478,7 +479,7 @@ struct rw_semaphore __sched *rwsem_down_write_failed(struct rw_semaphore *sem)
+> >		count = rwsem_atomic_update(RWSEM_WAITING_BIAS, sem);
+> >
+> >	/* wait until we successfully acquire the lock */
+> >-	set_current_state(TASK_UNINTERRUPTIBLE);
+> >+	set_current_state(state);
+> >	while (true) {
+> >		if (rwsem_try_write_lock(count, sem))
+> >			break;
+> >@@ -486,21 +487,39 @@ struct rw_semaphore __sched *rwsem_down_write_failed(struct rw_semaphore *sem)
+> >
+> >		/* Block until there are no active lockers. */
+> >		do {
+> >+			if (signal_pending_state(state, current)) {
+> 
+>                           ^^ unlikely()?
+
+The generated code is identical after I've added unlikely. I haven't
+tried more gcc versions (mine is 5.3.1) but is this worth it?
+
+> 
+> >+				raw_spin_lock_irq(&sem->wait_lock);
+> 
+> If the lock is highly contended + a bad workload for spin-on-owner, this could take a while :)
+> Of course, this is a side effect of the wait until no active lockers optimization which avoids
+> the wait_lock in the first place, so fortunately it somewhat mitigates the situation.
+> 
+> >+				ret = ERR_PTR(-EINTR);
+> >+				goto out;
+> >+			}
+> >			schedule();
+> >-			set_current_state(TASK_UNINTERRUPTIBLE);
+> >+			set_current_state(state);
+> >		} while ((count = sem->count) & RWSEM_ACTIVE_MASK);
+> >
+> >		raw_spin_lock_irq(&sem->wait_lock);
+> >	}
+> >+out:
+> >	__set_current_state(TASK_RUNNING);
+> >-
+> 
+> You certainly don't want this iff exiting due to TASK_KILLABLE situation.
+
+Not sure I got your point here.
+
 -- 
-2.8.0.rc3
+Michal Hocko
+SUSE Labs
