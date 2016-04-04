@@ -1,35 +1,37 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 03/11] locking, rwsem: introduce basis for
- down_write_killable
-Date: Mon, 4 Apr 2016 11:21:43 +0200
-Message-ID: <20160404092143.GX3448@twins.programming.kicks-ass.net>
-References: <1459508695-14915-1-git-send-email-mhocko@kernel.org>
- <1459508695-14915-4-git-send-email-mhocko@kernel.org>
- <20160402044125.GC5329@linux-uzut.site>
- <20160404091659.GA13463@dhcp22.suse.cz>
+From: Max Filippov <jcmvbkbc@gmail.com>
+Subject: Re: [PATCH 1/2] xtensa, rwsem: drop superfluous arch specific implementation
+Date: Mon, 4 Apr 2016 13:23:56 +0300
+Message-ID: <CAMo8BfLCqaJ36qPQm4ttAREw22YDwTwT-JeRfr_mu_d0pAcGsg@mail.gmail.com>
+References: <20160404090335.GB10272@dhcp22.suse.cz>
+	<1459760800-13477-1-git-send-email-mhocko@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160404091659.GA13463@dhcp22.suse.cz>
-Sender: linux-arch-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <1459760800-13477-1-git-send-email-mhocko@kernel.org>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Michal Hocko <mhocko@kernel.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, "maintainer:X86 ARCHITECTURE..." <x86@kernel.org>, "open list:ALPHA PORT" <linux-alpha@vger.kernel.org>, "open list:IA64 (Itanium) PL..." <linux-ia64@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "open list:SUPERH" <linux-sh@vger.kernel.org>, "open list:SPARC + UltraSPAR..." <sparclinux@vger.kernel.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, Linux-Arch <linux-arch@vger.kernel.org>, Michal Hocko <mhocko@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 04, 2016 at 11:17:00AM +0200, Michal Hocko wrote:
-> > >@@ -486,21 +487,39 @@ struct rw_semaphore __sched *rwsem_down_write_failed(struct rw_semaphore *sem)
-> > >
-> > >		/* Block until there are no active lockers. */
-> > >		do {
-> > >+			if (signal_pending_state(state, current)) {
-> > 
-> >                           ^^ unlikely()?
-> 
-> The generated code is identical after I've added unlikely. I haven't
-> tried more gcc versions (mine is 5.3.1) but is this worth it?
+On Mon, Apr 4, 2016 at 12:06 PM, Michal Hocko <mhocko@kernel.org> wrote:
+> From: Michal Hocko <mhocko@suse.com>
+>
+> since "locking, rwsem: drop explicit memory barriers" the arch specific
+> code is basically same as the the generic one so we can drop the
+> superfluous code.
+>
+> Suggested-by: Davidlohr Bueso <dave@stgolabs.net>
+> Signed-off-by: Michal Hocko <mhocko@suse.com>
+> ---
+>  arch/xtensa/include/asm/Kbuild  |   1 +
+>  arch/xtensa/include/asm/rwsem.h | 134 ----------------------------------------
+>  2 files changed, 1 insertion(+), 134 deletions(-)
+>  delete mode 100644 arch/xtensa/include/asm/rwsem.h
 
-Both signal_pending() and __fatal_signal_pending() already have an
-unlikely(), which is why adding it here is superfluous.
+Acked-by: Max Filippov <jcmvbkbc@gmail.com>
+
+-- 
+Thanks.
+-- Max
