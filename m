@@ -1,22 +1,24 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH 1/1] s390/mm/kvm: fix mis-merge in gmap handling
-Date: Mon, 4 Apr 2016 09:47:39 +0200
-Message-ID: <20160404074739.GA4058@osiris>
+Date: Tue, 5 Apr 2016 11:25:38 +0200
+Message-ID: <57038492.1020202@redhat.com>
 References: <1459755692-126047-1-git-send-email-borntraeger@de.ibm.com>
  <1459755692-126047-2-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <1459755692-126047-2-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 04, 2016 at 09:41:32AM +0200, Christian Borntraeger wrote:
+
+
+On 04/04/2016 09:41, Christian Borntraeger wrote:
 > commit 1e133ab296f3 ("s390/mm: split arch/s390/mm/pgtable.c") dropped
 > some changes from commit a3a92c31bf0b ("KVM: s390: fix mismatch
 > between user and in-kernel guest limit") - this breaks KVM for some
@@ -51,5 +53,10 @@ On Mon, Apr 04, 2016 at 09:41:32AM +0200, Christian Borntraeger wrote:
 > -	    from + len > TASK_MAX_SIZE || to + len > gmap->asce_end)
 > +	    from + len - 1 > TASK_MAX_SIZE || to + len - 1 > gmap->asce_end)
 >  		return -EINVAL;
+>  
+>  	flush = 0;
+> 
 
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Applied, thanks.  Pull request going out in a few hours.
+
+Paolo
