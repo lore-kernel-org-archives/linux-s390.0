@@ -1,7 +1,7 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 12/25] arm64: compat: change config dependences to aarch32
-Date: Wed, 6 Apr 2016 01:08:34 +0300
-Message-ID: <1459894127-17698-13-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 13/25] arm64:uapi: set __BITS_PER_LONG correctly for ILP32 and LP64
+Date: Wed, 6 Apr 2016 01:08:35 +0300
+Message-ID: <1459894127-17698-14-git-send-email-ynorov@caviumnetworks.com>
 References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -11,42 +11,43 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Pinski <apinski@cavium.com>, Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>
+From: Andrew Pinski <apinski@cavium.com>
 
-With the patches of ILP32, COMPAT is not equivalent to AARCH32 in EL0.
-This patch fix this by updating the dependency from COMPAT to
-AARCH32_EL0 for ARMV8_DEPRECATED and ARM64_ERRATUM_845719.
+Define __BITS_PER_LONG depending on the ABI used (i.e. check whether
+__ILP32__ or __LP64__ is defined).  This is necessary for glibc to
+determine the appropriate type definitions for the system call interface.
 
-Signed-off-by: Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>
+Signed-off-by: Andrew Pinski <apinski@cavium.com>
+Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+Reviewed-by: David Daney <ddaney@caviumnetworks.com>
 ---
- arch/arm64/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/uapi/asm/bitsperlong.h | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index f923687..ebaf38a 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -370,7 +370,7 @@ config ARM64_ERRATUM_834220
+diff --git a/arch/arm64/include/uapi/asm/bitsperlong.h b/arch/arm64/include/uapi/asm/bitsperlong.h
+index fce9c29..4265243 100644
+--- a/arch/arm64/include/uapi/asm/bitsperlong.h
++++ b/arch/arm64/include/uapi/asm/bitsperlong.h
+@@ -16,7 +16,14 @@
+ #ifndef __ASM_BITSPERLONG_H
+ #define __ASM_BITSPERLONG_H
  
- config ARM64_ERRATUM_845719
- 	bool "Cortex-A53: 845719: a load might read incorrect data"
--	depends on COMPAT
-+	depends on AARCH32_EL0
- 	default y
- 	help
- 	  This option adds an alternative code sequence to work around ARM
-@@ -655,7 +655,7 @@ config FORCE_MAX_ZONEORDER
+-#define __BITS_PER_LONG 64
++#if defined(__LP64__)
++/* Assuming __LP64__ will be defined for native ELF64's and not for ILP32. */
++#  define __BITS_PER_LONG 64
++#elif defined(__ILP32__)
++#  define __BITS_PER_LONG 32
++#else
++#  error "Neither LP64 nor ILP32: unsupported ABI in asm/bitsperlong.h"
++#endif
  
- menuconfig ARMV8_DEPRECATED
- 	bool "Emulate deprecated/obsolete ARMv8 instructions"
--	depends on COMPAT
-+	depends on AARCH32_EL0
- 	help
- 	  Legacy software support may require certain instructions
- 	  that have been deprecated or obsoleted in the architecture.
+ #include <asm-generic/bitsperlong.h>
+ 
 -- 
 2.5.0
