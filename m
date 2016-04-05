@@ -1,103 +1,58 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 10/11] x86, rwsem: provide __down_write_killable
-Date: Fri,  1 Apr 2016 13:04:54 +0200
-Message-ID: <1459508695-14915-11-git-send-email-mhocko@kernel.org>
-References: <1459508695-14915-1-git-send-email-mhocko@kernel.org>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1459508695-14915-1-git-send-email-mhocko@kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
+From: Yury Norov <ynorov@caviumnetworks.com>
+Subject: [PATCH 09/25] arm64: ensure the kernel is compiled for LP64
+Date: Wed, 6 Apr 2016 01:08:31 +0300
+Message-ID: <1459894127-17698-10-git-send-email-ynorov@caviumnetworks.com>
+References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Michal Hocko <mhocko@suse.com>
+To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Pinski <apinski@cavium.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michal Hocko <mhocko@suse.com>
+From: Andrew Pinski <apinski@cavium.com>
 
-which uses the same fast path as __down_write except it falls back to
-call_rwsem_down_write_failed_killable slow path and return -EINTR if
-killed. To prevent from code duplication extract the skeleton of
-__down_write into a helper macro which just takes the semaphore
-and the slow path function to be called.
+The kernel needs to be compiled as a LP64 binary for ARM64, even when
+using a compiler that defaults to code-generation for the ILP32 ABI.
+Consequently, we need to explicitly pass '-mabi=lp64' (supported on
+gcc-4.9 and newer).
 
-Signed-off-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
+Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+Reviewed-by: David Daney <ddaney@caviumnetworks.com>
 ---
- arch/x86/include/asm/rwsem.h | 41 ++++++++++++++++++++++++++++-------------
- arch/x86/lib/rwsem.S         |  8 ++++++++
- 2 files changed, 36 insertions(+), 13 deletions(-)
+ arch/arm64/Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/x86/include/asm/rwsem.h b/arch/x86/include/asm/rwsem.h
-index d79a218675bc..4c3d90dbe89a 100644
---- a/arch/x86/include/asm/rwsem.h
-+++ b/arch/x86/include/asm/rwsem.h
-@@ -99,21 +99,36 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
- /*
-  * lock for writing
-  */
-+#define ____down_write(sem, slow_path)			\
-+({							\
-+	long tmp;					\
-+	struct rw_semaphore* ret = sem;			\
-+	asm volatile("# beginning down_write\n\t"	\
-+		     LOCK_PREFIX "  xadd      %1,(%2)\n\t"	\
-+		     /* adds 0xffff0001, returns the old value */ \
-+		     "  test " __ASM_SEL(%w1,%k1) "," __ASM_SEL(%w1,%k1) "\n\t" \
-+		     /* was the active mask 0 before? */\
-+		     "  jz        1f\n"			\
-+		     "  call " slow_path "\n"		\
-+		     "1:\n"				\
-+		     "# ending down_write"		\
-+		     : "+m" (sem->count), "=d" (tmp), "+a" (ret)	\
-+		     : "a" (sem), "1" (RWSEM_ACTIVE_WRITE_BIAS) \
-+		     : "memory", "cc");			\
-+	ret;						\
-+})
-+
- static inline void __down_write(struct rw_semaphore *sem)
- {
--	long tmp;
--	asm volatile("# beginning down_write\n\t"
--		     LOCK_PREFIX "  xadd      %1,(%2)\n\t"
--		     /* adds 0xffff0001, returns the old value */
--		     "  test " __ASM_SEL(%w1,%k1) "," __ASM_SEL(%w1,%k1) "\n\t"
--		     /* was the active mask 0 before? */
--		     "  jz        1f\n"
--		     "  call call_rwsem_down_write_failed\n"
--		     "1:\n"
--		     "# ending down_write"
--		     : "+m" (sem->count), "=d" (tmp)
--		     : "a" (sem), "1" (RWSEM_ACTIVE_WRITE_BIAS)
--		     : "memory", "cc");
-+	____down_write(sem, "call_rwsem_down_write_failed");
-+}
-+
-+static inline int __down_write_killable(struct rw_semaphore *sem)
-+{
-+	if (IS_ERR(____down_write(sem, "call_rwsem_down_write_failed_killable")))
-+		return -EINTR;
-+
-+	return 0;
- }
+diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+index 354d754..29ebf23 100644
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -35,14 +35,19 @@ KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
+ KBUILD_CFLAGS	+= $(call cc-option, -mpc-relative-literal-loads)
+ KBUILD_AFLAGS	+= $(lseinstr)
  
- /*
-diff --git a/arch/x86/lib/rwsem.S b/arch/x86/lib/rwsem.S
-index 40027db99140..d1a1397e1fb3 100644
---- a/arch/x86/lib/rwsem.S
-+++ b/arch/x86/lib/rwsem.S
-@@ -101,6 +101,14 @@ ENTRY(call_rwsem_down_write_failed)
- 	ret
- ENDPROC(call_rwsem_down_write_failed)
- 
-+ENTRY(call_rwsem_down_write_failed_killable)
-+	save_common_regs
-+	movq %rax,%rdi
-+	call rwsem_down_write_failed_killable
-+	restore_common_regs
-+	ret
-+ENDPROC(call_rwsem_down_write_failed_killable)
++KBUILD_CFLAGS	+= $(call cc-option,-mabi=lp64)
++KBUILD_AFLAGS	+= $(call cc-option,-mabi=lp64)
 +
- ENTRY(call_rwsem_wake)
- 	/* do nothing if still outstanding active readers */
- 	__ASM_HALF_SIZE(dec) %__ASM_HALF_REG(dx)
+ ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
+ KBUILD_CPPFLAGS	+= -mbig-endian
+ AS		+= -EB
+ LD		+= -EB
++LDFLAGS		+= -maarch64linuxb
+ else
+ KBUILD_CPPFLAGS	+= -mlittle-endian
+ AS		+= -EL
+ LD		+= -EL
++LDFLAGS		+= -maarch64linux
+ endif
+ 
+ CHECKFLAGS	+= -D__aarch64__
 -- 
-2.8.0.rc3
+2.5.0
