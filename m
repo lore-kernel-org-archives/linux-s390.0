@@ -1,7 +1,7 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 19/25] arm64: ptrace: handle ptrace_request differently for aarch32 and ilp32
-Date: Wed, 6 Apr 2016 01:08:41 +0300
-Message-ID: <1459894127-17698-20-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table (in entry.S) to use it
+Date: Wed, 6 Apr 2016 01:08:42 +0300
+Message-ID: <1459894127-17698-21-git-send-email-ynorov@caviumnetworks.com>
 References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -11,188 +11,163 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Pinski <apinski@cavium.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Here new aarch32 ptrace syscall handler is introsuced to avoid run-time
-detection of the task type.
+From: Andrew Pinski <apinski@cavium.com>
 
+Add a separate syscall-table for ILP32, which dispatches either to native
+LP64 system call implementation or to compat-syscalls, as appropriate.
+
+Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 ---
- arch/arm64/include/asm/unistd32.h |  2 +-
- arch/arm64/kernel/ptrace.c        | 50 ++++++++++++++++++++++++++++++++++++++-
- arch/arm64/kernel/sys32.c         |  1 +
- include/linux/ptrace.h            |  6 +++++
- kernel/ptrace.c                   | 10 ++++----
- 5 files changed, 62 insertions(+), 7 deletions(-)
+ arch/arm64/include/asm/unistd.h | 11 ++++++-
+ arch/arm64/kernel/Makefile      |  2 +-
+ arch/arm64/kernel/entry.S       | 12 +++++++-
+ arch/arm64/kernel/sys_ilp32.c   | 65 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 87 insertions(+), 3 deletions(-)
+ create mode 100644 arch/arm64/kernel/sys_ilp32.c
 
-diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
-index 5b925b7..f57bbe3 100644
---- a/arch/arm64/include/asm/unistd32.h
-+++ b/arch/arm64/include/asm/unistd32.h
-@@ -74,7 +74,7 @@ __SYSCALL(__NR_getuid, sys_getuid16)
- 			/* 25 was sys_stime */
- __SYSCALL(25, sys_ni_syscall)
- #define __NR_ptrace 26
--__SYSCALL(__NR_ptrace, compat_sys_ptrace)
-+__SYSCALL(__NR_ptrace, compat_sys_aarch32_ptrace)
- 			/* 27 was sys_alarm */
- __SYSCALL(27, sys_ni_syscall)
- 			/* 28 was sys_fstat */
-diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index 38a09338..a861105 100644
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -29,6 +29,7 @@
- #include <linux/user.h>
- #include <linux/seccomp.h>
- #include <linux/security.h>
-+#include <linux/syscalls.h>
- #include <linux/init.h>
- #include <linux/signal.h>
- #include <linux/uaccess.h>
-@@ -1114,7 +1115,7 @@ static int compat_ptrace_sethbpregs(struct task_struct *tsk, compat_long_t num,
- }
- #endif	/* CONFIG_HAVE_HW_BREAKPOINT */
- 
--long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
-+static long compat_a32_ptrace(struct task_struct *child, compat_long_t request,
- 			compat_ulong_t caddr, compat_ulong_t cdata)
- {
- 	unsigned long addr = caddr;
-@@ -1191,8 +1192,55 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
- 
- 	return ret;
- }
+diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+index 2971dea..5ea18ef 100644
+--- a/arch/arm64/include/asm/unistd.h
++++ b/arch/arm64/include/asm/unistd.h
+@@ -13,9 +13,18 @@
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
 +
-+COMPAT_SYSCALL_DEFINE4(aarch32_ptrace, compat_long_t, request, compat_long_t, pid,
-+		       compat_long_t, addr, compat_long_t, data)
-+{
-+	struct task_struct *child;
-+	long ret;
-+
-+	if (request == PTRACE_TRACEME) {
-+		ret = ptrace_traceme();
-+		goto out;
-+	}
-+
-+	child = ptrace_get_task_struct(pid);
-+	if (IS_ERR(child)) {
-+		ret = PTR_ERR(child);
-+		goto out;
-+	}
-+
-+	if (request == PTRACE_ATTACH || request == PTRACE_SEIZE) {
-+		ret = ptrace_attach(child, request, addr, data);
-+		goto out_put_task_struct;
-+	}
-+
-+	ret = ptrace_check_attach(child, request == PTRACE_KILL ||
-+				  request == PTRACE_INTERRUPT);
-+	if (!ret) {
-+		ret = compat_a32_ptrace(child, request, addr, data);
-+		if (ret || request != PTRACE_DETACH)
-+			ptrace_unfreeze_traced(child);
-+	}
-+
-+ out_put_task_struct:
-+	put_task_struct(child);
-+ out:
-+	return ret;
-+}
-+
- #endif /* CONFIG_AARCH32_EL0 */
- 
 +#ifdef CONFIG_COMPAT
++#define __ARCH_WANT_COMPAT_STAT64
++#endif
 +
-+long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
-+			compat_ulong_t caddr, compat_ulong_t cdata)
-+{
-+	return compat_ptrace_request(child, request, caddr, cdata);
-+}
++#ifdef CONFIG_ARM64_ILP32
++#define __ARCH_WANT_COMPAT_SYS_PREADV64
++#define __ARCH_WANT_COMPAT_SYS_PWRITEV64
++#endif
 +
-+#endif /* CONFIG_COMPAT */
-+
- const struct user_regset_view *task_user_regset_view(struct task_struct *task)
- {
  #ifdef CONFIG_AARCH32_EL0
-diff --git a/arch/arm64/kernel/sys32.c b/arch/arm64/kernel/sys32.c
-index a40b134..3752443 100644
---- a/arch/arm64/kernel/sys32.c
-+++ b/arch/arm64/kernel/sys32.c
-@@ -38,6 +38,7 @@ asmlinkage long compat_sys_fadvise64_64_wrapper(void);
- asmlinkage long compat_sys_sync_file_range2_wrapper(void);
- asmlinkage long compat_sys_fallocate_wrapper(void);
- asmlinkage long compat_sys_mmap2_wrapper(void);
-+asmlinkage long compat_sys_aarch32_ptrace(void);
- 
- #undef __SYSCALL
- #define __SYSCALL(nr, sym)	[nr] = sym,
-diff --git a/include/linux/ptrace.h b/include/linux/ptrace.h
-index 504c98a..75887a0 100644
---- a/include/linux/ptrace.h
-+++ b/include/linux/ptrace.h
-@@ -97,6 +97,12 @@ int generic_ptrace_peekdata(struct task_struct *tsk, unsigned long addr,
- 			    unsigned long data);
- int generic_ptrace_pokedata(struct task_struct *tsk, unsigned long addr,
- 			    unsigned long data);
-+int ptrace_traceme(void);
-+struct task_struct *ptrace_get_task_struct(pid_t pid);
-+int ptrace_attach(struct task_struct *task, long request,
-+			 unsigned long addr, unsigned long flags);
-+int ptrace_check_attach(struct task_struct *child, bool ignore_state);
-+void ptrace_unfreeze_traced(struct task_struct *task);
- 
- /**
-  * ptrace_parent - return the task that is tracing the given task
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index d49bfa1..cadf24c 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -136,7 +136,7 @@ static bool ptrace_freeze_traced(struct task_struct *task)
- 	return ret;
- }
- 
--static void ptrace_unfreeze_traced(struct task_struct *task)
-+void ptrace_unfreeze_traced(struct task_struct *task)
- {
- 	if (task->state != __TASK_TRACED)
- 		return;
-@@ -168,7 +168,7 @@ static void ptrace_unfreeze_traced(struct task_struct *task)
-  * RETURNS:
-  * 0 on success, -ESRCH if %child is not ready.
+ #define __ARCH_WANT_COMPAT_SYS_GETDENTS64
+-#define __ARCH_WANT_COMPAT_STAT64
+ #define __ARCH_WANT_SYS_GETHOSTNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_GETPGRP
+diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
+index 9dfdf86..7aa65ea 100644
+--- a/arch/arm64/kernel/Makefile
++++ b/arch/arm64/kernel/Makefile
+@@ -28,7 +28,7 @@ $(obj)/%.stub.o: $(obj)/%.o FORCE
+ arm64-obj-$(CONFIG_AARCH32_EL0)		+= sys32.o kuser32.o signal32.o 	\
+ 					   sys_compat.o entry32.o		\
+ 					   ../../arm/kernel/opcodes.o binfmt_elf32.o
+-arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o
++arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o sys_ilp32.o
+ arm64-obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o entry-ftrace.o
+ arm64-obj-$(CONFIG_MODULES)		+= arm64ksyms.o module.o
+ arm64-obj-$(CONFIG_ARM64_MODULE_PLTS)	+= module-plts.o
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index cf4d1ae..1f7a145 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -715,9 +715,13 @@ ENDPROC(ret_from_fork)
   */
--static int ptrace_check_attach(struct task_struct *child, bool ignore_state)
-+int ptrace_check_attach(struct task_struct *child, bool ignore_state)
- {
- 	int ret = -ESRCH;
+ 	.align	6
+ el0_svc:
+-	adrp	stbl, sys_call_table		// load syscall table pointer
+ 	uxtw	scno, w8			// syscall number in w8
+ 	mov	sc_nr, #__NR_syscalls
++#ifdef CONFIG_ARM64_ILP32
++	ldr	x16, [tsk, #TI_FLAGS]
++	tbnz	x16, #TIF_32BIT_AARCH64, el0_ilp32_svc // We are using ILP32
++#endif
++	adrp	stbl, sys_call_table		// load syscall table pointer
+ el0_svc_naked:					// compat entry point
+ 	stp	x0, scno, [sp, #S_ORIG_X0]	// save the original x0 and syscall number
+ 	enable_dbg_and_irq
+@@ -737,6 +741,12 @@ ni_sys:
+ 	b	ret_fast_syscall
+ ENDPROC(el0_svc)
  
-@@ -292,7 +292,7 @@ bool ptrace_may_access(struct task_struct *task, unsigned int mode)
- 	return !err;
- }
- 
--static int ptrace_attach(struct task_struct *task, long request,
-+int ptrace_attach(struct task_struct *task, long request,
- 			 unsigned long addr,
- 			 unsigned long flags)
- {
-@@ -406,7 +406,7 @@ out:
-  * Performs checks and sets PT_PTRACED.
-  * Should be used by all ptrace implementations for PTRACE_TRACEME.
-  */
--static int ptrace_traceme(void)
-+ int ptrace_traceme(void)
- {
- 	int ret = -EPERM;
- 
-@@ -1056,7 +1056,7 @@ int ptrace_request(struct task_struct *child, long request,
- 	return ret;
- }
- 
--static struct task_struct *ptrace_get_task_struct(pid_t pid)
-+struct task_struct *ptrace_get_task_struct(pid_t pid)
- {
- 	struct task_struct *child;
- 
++#ifdef CONFIG_ARM64_ILP32
++el0_ilp32_svc:
++	adrp	stbl, sys_call_ilp32_table // load syscall table pointer
++	b el0_svc_naked
++#endif
++
+ 	/*
+ 	 * This is the really slow path.  We're going to be doing context
+ 	 * switches, and waiting for our parent to respond.
+diff --git a/arch/arm64/kernel/sys_ilp32.c b/arch/arm64/kernel/sys_ilp32.c
+new file mode 100644
+index 0000000..0996d8e
+--- /dev/null
++++ b/arch/arm64/kernel/sys_ilp32.c
+@@ -0,0 +1,65 @@
++/*
++ * AArch64- ILP32 specific system calls implementation
++ *
++ * Copyright (C) 2016 Cavium Inc.
++ * Author: Andrew Pinski <apinski@cavium.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <linux/compiler.h>
++#include <linux/errno.h>
++#include <linux/fs.h>
++#include <linux/mm.h>
++#include <linux/msg.h>
++#include <linux/export.h>
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/syscalls.h>
++#include <linux/compat.h>
++#include <asm-generic/syscalls.h>
++
++/* Using non-compat syscalls where necessary */
++#define compat_sys_fadvise64_64        sys_fadvise64_64
++#define compat_sys_fallocate           sys_fallocate
++#define compat_sys_ftruncate64         sys_ftruncate
++#define compat_sys_lookup_dcookie      sys_lookup_dcookie
++#define compat_sys_pread64             sys_pread64
++#define compat_sys_pwrite64            sys_pwrite64
++#define compat_sys_readahead           sys_readahead
++#define compat_sys_shmat               sys_shmat
++#define compat_sys_sync_file_range     sys_sync_file_range
++#define compat_sys_truncate64          sys_truncate
++#define sys_llseek                     sys_lseek
++#define sys_mmap2		       sys_mmap
++
++#include <asm/syscall.h>
++
++#undef __SYSCALL
++#undef __SC_COMP
++#undef __SC_WRAP
++#undef __SC_3264
++#undef __SC_COMP_3264
++
++#define __SYSCALL_COMPAT
++#define __SYSCALL(nr, sym)	[nr] = sym,
++#define __SC_WRAP(nr, sym)	[nr] = compat_##sym,
++
++/*
++ * The sys_call_ilp32_table array must be 4K aligned to be accessible from
++ * kernel/entry.S.
++ */
++void *sys_call_ilp32_table[__NR_syscalls] __aligned(4096) = {
++	[0 ... __NR_syscalls - 1] = sys_ni_syscall,
++#include <asm/unistd.h>
++};
 -- 
 2.5.0
