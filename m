@@ -1,7 +1,7 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 22/25] arm64: signal32: move ilp32 and aarch32 common code to separated file
-Date: Wed, 6 Apr 2016 01:08:44 +0300
-Message-ID: <1459894127-17698-23-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 24/25] arm64:ilp32: add vdso-ilp32 and use for signal return
+Date: Wed, 6 Apr 2016 01:08:46 +0300
+Message-ID: <1459894127-17698-25-git-send-email-ynorov@caviumnetworks.com>
 References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -11,170 +11,186 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+
+ILP32 VDSO exports next symbols:
+ __kernel_rt_sigreturn;
+ __kernel_gettimeofday;
+ __kernel_clock_gettime;
+ __kernel_clock_getres;
+
+What shared object to use, kernel selects depending on result of
+is_ilp32_compat_task() in arch/arm64/kernel/vdso.c, so it substitutes
+correct pages and spec.
+
+Adjusted to move the move data page before code pages in sync with
+commit 601255ae3c98fdeeee3a8bb4696425e4f868b4f1
+
+Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 ---
- arch/arm64/include/asm/signal32_common.h |  25 +++++++
- arch/arm64/kernel/Makefile               |   1 +
- arch/arm64/kernel/signal32.c             |  85 -----------------------
- arch/arm64/kernel/signal32_common.c      | 115 +++++++++++++++++++++++++++++++
- 4 files changed, 141 insertions(+), 85 deletions(-)
- create mode 100644 arch/arm64/include/asm/signal32_common.h
- create mode 100644 arch/arm64/kernel/signal32_common.c
+ arch/arm64/include/asm/vdso.h                 |  6 ++
+ arch/arm64/kernel/Makefile                    |  5 ++
+ arch/arm64/kernel/signal.c                    |  2 +
+ arch/arm64/kernel/vdso-ilp32/.gitignore       |  2 +
+ arch/arm64/kernel/vdso-ilp32/Makefile         | 72 ++++++++++++++++++++
+ arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S     | 33 ++++++++++
+ arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S | 95 +++++++++++++++++++++++++++
+ arch/arm64/kernel/vdso.c                      | 61 ++++++++++++++---
+ 8 files changed, 266 insertions(+), 10 deletions(-)
+ create mode 100644 arch/arm64/kernel/vdso-ilp32/.gitignore
+ create mode 100644 arch/arm64/kernel/vdso-ilp32/Makefile
+ create mode 100644 arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S
+ create mode 100644 arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
 
-diff --git a/arch/arm64/include/asm/signal32_common.h b/arch/arm64/include/asm/signal32_common.h
-new file mode 100644
-index 0000000..b4f2099
---- /dev/null
-+++ b/arch/arm64/include/asm/signal32_common.h
-@@ -0,0 +1,25 @@
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+ */
-+#ifndef __ASM_SIGNAL32_COMMON_H
-+#define __ASM_SIGNAL32_COMMON_H
+diff --git a/arch/arm64/include/asm/vdso.h b/arch/arm64/include/asm/vdso.h
+index 839ce00..649a9a4 100644
+--- a/arch/arm64/include/asm/vdso.h
++++ b/arch/arm64/include/asm/vdso.h
+@@ -29,6 +29,12 @@
+ 
+ #include <generated/vdso-offsets.h>
+ 
++#ifdef CONFIG_ARM64_ILP32
++#include <generated/vdso-ilp32-offsets.h>
++#else
++#define vdso_offset_sigtramp_ilp32
++#endif
 +
-+#ifdef CONFIG_COMPAT
-+
-+int copy_siginfo_to_user32(compat_siginfo_t __user *to, const siginfo_t *from);
-+int copy_siginfo_from_user32(siginfo_t *to, compat_siginfo_t __user *from);
-+
-+#endif /* CONFIG_COMPAT*/
-+
-+#endif /* __ASM_SIGNAL32_COMMON_H */
-+
+ #define VDSO_SYMBOL(base, name)						   \
+ ({									   \
+ 	(void *)(vdso_offset_##name - VDSO_LBASE + (unsigned long)(base)); \
 diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
-index 7aa65ea..3ed55eb 100644
+index 09e4373..b43ff12 100644
 --- a/arch/arm64/kernel/Makefile
 +++ b/arch/arm64/kernel/Makefile
-@@ -29,6 +29,7 @@ arm64-obj-$(CONFIG_AARCH32_EL0)		+= sys32.o kuser32.o signal32.o 	\
- 					   sys_compat.o entry32.o		\
- 					   ../../arm/kernel/opcodes.o binfmt_elf32.o
- arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o sys_ilp32.o
-+arm64-obj-$(CONFIG_COMPAT)		+= signal32_common.o
- arm64-obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o entry-ftrace.o
- arm64-obj-$(CONFIG_MODULES)		+= arm64ksyms.o module.o
- arm64-obj-$(CONFIG_ARM64_MODULE_PLTS)	+= module-plts.o
-diff --git a/arch/arm64/kernel/signal32.c b/arch/arm64/kernel/signal32.c
-index b7063de..b103af3 100644
---- a/arch/arm64/kernel/signal32.c
-+++ b/arch/arm64/kernel/signal32.c
-@@ -125,91 +125,6 @@ static inline int get_sigset_t(sigset_t *set,
- 	return 0;
- }
+@@ -50,6 +50,7 @@ arm64-obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+ arm64-obj-$(CONFIG_RANDOMIZE_BASE)	+= kaslr.o
  
--int copy_siginfo_to_user32(compat_siginfo_t __user *to, const siginfo_t *from)
--{
--	int err;
--
--	if (!access_ok(VERIFY_WRITE, to, sizeof(*to)))
--		return -EFAULT;
--
--	/* If you change siginfo_t structure, please be sure
--	 * this code is fixed accordingly.
--	 * It should never copy any pad contained in the structure
--	 * to avoid security leaks, but must copy the generic
--	 * 3 ints plus the relevant union member.
--	 * This routine must convert siginfo from 64bit to 32bit as well
--	 * at the same time.
--	 */
--	err = __put_user(from->si_signo, &to->si_signo);
--	err |= __put_user(from->si_errno, &to->si_errno);
--	err |= __put_user((short)from->si_code, &to->si_code);
--	if (from->si_code < 0)
--		err |= __copy_to_user(&to->_sifields._pad, &from->_sifields._pad,
--				      SI_PAD_SIZE);
--	else switch (from->si_code & __SI_MASK) {
--	case __SI_KILL:
--		err |= __put_user(from->si_pid, &to->si_pid);
--		err |= __put_user(from->si_uid, &to->si_uid);
--		break;
--	case __SI_TIMER:
--		 err |= __put_user(from->si_tid, &to->si_tid);
--		 err |= __put_user(from->si_overrun, &to->si_overrun);
--		 err |= __put_user(from->si_int, &to->si_int);
--		break;
--	case __SI_POLL:
--		err |= __put_user(from->si_band, &to->si_band);
--		err |= __put_user(from->si_fd, &to->si_fd);
--		break;
--	case __SI_FAULT:
--		err |= __put_user((compat_uptr_t)(unsigned long)from->si_addr,
--				  &to->si_addr);
--#ifdef BUS_MCEERR_AO
--		/*
--		 * Other callers might not initialize the si_lsb field,
--		 * so check explicitly for the right codes here.
--		 */
--		if (from->si_signo == SIGBUS &&
--		    (from->si_code == BUS_MCEERR_AR || from->si_code == BUS_MCEERR_AO))
--			err |= __put_user(from->si_addr_lsb, &to->si_addr_lsb);
--#endif
--		break;
--	case __SI_CHLD:
--		err |= __put_user(from->si_pid, &to->si_pid);
--		err |= __put_user(from->si_uid, &to->si_uid);
--		err |= __put_user(from->si_status, &to->si_status);
--		err |= __put_user(from->si_utime, &to->si_utime);
--		err |= __put_user(from->si_stime, &to->si_stime);
--		break;
--	case __SI_RT: /* This is not generated by the kernel as of now. */
--	case __SI_MESGQ: /* But this is */
--		err |= __put_user(from->si_pid, &to->si_pid);
--		err |= __put_user(from->si_uid, &to->si_uid);
--		err |= __put_user(from->si_int, &to->si_int);
--		break;
--	case __SI_SYS:
--		err |= __put_user((compat_uptr_t)(unsigned long)
--				from->si_call_addr, &to->si_call_addr);
--		err |= __put_user(from->si_syscall, &to->si_syscall);
--		err |= __put_user(from->si_arch, &to->si_arch);
--		break;
--	default: /* this is just in case for now ... */
--		err |= __put_user(from->si_pid, &to->si_pid);
--		err |= __put_user(from->si_uid, &to->si_uid);
--		break;
--	}
--	return err;
--}
--
--int copy_siginfo_from_user32(siginfo_t *to, compat_siginfo_t __user *from)
--{
--	if (copy_from_user(to, from, __ARCH_SI_PREAMBLE_SIZE) ||
--	    copy_from_user(to->_sifields._pad,
--			   from->_sifields._pad, SI_PAD_SIZE))
--		return -EFAULT;
--
--	return 0;
--}
--
- /*
-  * VFP save/restore code.
-  *
-diff --git a/arch/arm64/kernel/signal32_common.c b/arch/arm64/kernel/signal32_common.c
+ obj-y					+= $(arm64-obj-y) vdso/
++obj-$(CONFIG_ARM64_ILP32)		+= vdso-ilp32/
+ obj-m					+= $(arm64-obj-m)
+ head-y					:= head.o
+ extra-y					+= $(head-y) vmlinux.lds
+@@ -57,3 +58,7 @@ extra-y					+= $(head-y) vmlinux.lds
+ # vDSO - this must be built first to generate the symbol offsets
+ $(call objectify,$(arm64-obj-y)): $(obj)/vdso/vdso-offsets.h
+ $(obj)/vdso/vdso-offsets.h: $(obj)/vdso
++
++# vDSO - this must be built first to generate the symbol offsets
++$(call objectify,$(arm64-obj-y)): $(obj)/vdso-ilp32/vdso-ilp32-offsets.h
++$(obj)/vdso-ilp32/vdso-ilp32-offsets.h: $(obj)/vdso-ilp32
+diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+index 45bcd96..933cdcf 100644
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -264,6 +264,8 @@ void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
+ 
+ 	if (ka->sa.sa_flags & SA_RESTORER)
+ 		sigtramp = ka->sa.sa_restorer;
++	else if (is_ilp32_compat_task())
++		sigtramp = VDSO_SYMBOL(current->mm->context.vdso, sigtramp_ilp32);
+ 	else
+ 		sigtramp = VDSO_SYMBOL(current->mm->context.vdso, sigtramp);
+ 
+diff --git a/arch/arm64/kernel/vdso-ilp32/.gitignore b/arch/arm64/kernel/vdso-ilp32/.gitignore
 new file mode 100644
-index 0000000..8fbb609
+index 0000000..61806c3
 --- /dev/null
-+++ b/arch/arm64/kernel/signal32_common.c
-@@ -0,0 +1,115 @@
++++ b/arch/arm64/kernel/vdso-ilp32/.gitignore
+@@ -0,0 +1,2 @@
++vdso-ilp32.lds
++vdso-ilp32-offsets.h
+diff --git a/arch/arm64/kernel/vdso-ilp32/Makefile b/arch/arm64/kernel/vdso-ilp32/Makefile
+new file mode 100644
+index 0000000..c8f5472
+--- /dev/null
++++ b/arch/arm64/kernel/vdso-ilp32/Makefile
+@@ -0,0 +1,72 @@
++#
++# Building a vDSO image for AArch64.
++#
++# Author: Will Deacon <will.deacon@arm.com>
++# Heavily based on the vDSO Makefiles for other archs.
++#
++
++obj-ilp32-vdso := gettimeofday-ilp32.o note-ilp32.o sigreturn-ilp32.o
++
++# Build rules
++targets := $(obj-ilp32-vdso) vdso-ilp32.so vdso-ilp32.so.dbg
++obj-ilp32-vdso := $(addprefix $(obj)/, $(obj-ilp32-vdso))
++
++ccflags-y := -shared -fno-common -fno-builtin
++ccflags-y += -nostdlib -Wl,-soname=linux-ilp32-vdso.so.1 \
++		$(call cc-ldoption, -Wl$(comma)--hash-style=sysv)
++
++obj-y += vdso-ilp32.o
++extra-y += vdso-ilp32.lds vdso-ilp32-offsets.h
++CPPFLAGS_vdso-ilp32.lds += -P -C -U$(ARCH) -mabi=ilp32
++
++# Force dependency (incbin is bad)
++$(obj)/vdso-ilp32.o : $(obj)/vdso-ilp32.so
++
++# Link rule for the .so file, .lds has to be first
++$(obj)/vdso-ilp32.so.dbg: $(src)/vdso-ilp32.lds $(obj-ilp32-vdso)
++	$(call if_changed,vdso-ilp32ld)
++
++# Strip rule for the .so file
++$(obj)/%.so: OBJCOPYFLAGS := -S
++$(obj)/%.so: $(obj)/%.so.dbg FORCE
++	$(call if_changed,objcopy)
++
++# Generate VDSO offsets using helper script
++gen-vdsosym := $(srctree)/$(src)/../vdso/gen_vdso_offsets.sh
++quiet_cmd_vdsosym = VDSOSYM $@
++define cmd_vdsosym
++	$(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@ && \
++	cp $@ include/generated/
++endef
++
++$(obj)/vdso-ilp32-offsets.h: $(obj)/vdso-ilp32.so.dbg FORCE
++	$(call if_changed,vdsosym)
++
++# Assembly rules for the .S files
++#$(obj-ilp32-vdso): %.o: $(src)/../vdso/$(subst -ilp32,,%.S)
++#	$(call if_changed_dep,vdso-ilp32as)
++
++$(obj)/gettimeofday-ilp32.o: $(src)/../vdso/gettimeofday.S
++	$(call if_changed_dep,vdso-ilp32as)
++
++$(obj)/note-ilp32.o: $(src)/../vdso/note.S
++	$(call if_changed_dep,vdso-ilp32as)
++
++$(obj)/sigreturn-ilp32.o: $(src)/../vdso/sigreturn.S
++	$(call if_changed_dep,vdso-ilp32as)
++
++# Actual build commands
++quiet_cmd_vdso-ilp32ld = VDSOILP32L $@
++      cmd_vdso-ilp32ld = $(CC) $(c_flags) -mabi=ilp32  -Wl,-n -Wl,-T $^ -o $@
++quiet_cmd_vdso-ilp32as = VDSOILP32A $@
++      cmd_vdso-ilp32as = $(CC) $(a_flags) -mabi=ilp32 -c -o $@ $<
++
++# Install commands for the unstripped file
++quiet_cmd_vdso_install = INSTALL $@
++      cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
++
++vdso-ilp32.so: $(obj)/vdso-ilp32.so.dbg
++	@mkdir -p $(MODLIB)/vdso
++	$(call cmd,vdso_install)
++
++vdso_install: vdso-ilp32.so
+diff --git a/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S
+new file mode 100644
+index 0000000..46ac072
+--- /dev/null
++++ b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S
+@@ -0,0 +1,33 @@
 +/*
-+ * Based on arch/arm/kernel/signal.c
-+ *
-+ * Copyright (C) 1995-2009 Russell King
-+ * Copyright (C) 2012 ARM Ltd.
-+ * Modified by Will Deacon <will.deacon@arm.com>
++ * Copyright (C) 2012 ARM Limited
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
@@ -187,102 +203,253 @@ index 0000000..8fbb609
 + *
 + * You should have received a copy of the GNU General Public License
 + * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author: Will Deacon <will.deacon@arm.com>
 + */
 +
-+#include <linux/compat.h>
-+#include <linux/signal.h>
-+#include <linux/ratelimit.h>
++#include <linux/init.h>
++#include <linux/linkage.h>
++#include <linux/const.h>
++#include <asm/page.h>
 +
-+#include <asm/esr.h>
-+#include <asm/fpsimd.h>
-+#include <asm/signal32_common.h>
-+#include <asm/uaccess.h>
-+#include <asm/unistd.h>
++	__PAGE_ALIGNED_DATA
 +
-+int copy_siginfo_to_user32(compat_siginfo_t __user *to, const siginfo_t *from)
++	.globl vdso_ilp32_start, vdso_ilp32_end
++	.balign PAGE_SIZE
++vdso_ilp32_start:
++	.incbin "arch/arm64/kernel/vdso-ilp32/vdso-ilp32.so"
++	.balign PAGE_SIZE
++vdso_ilp32_end:
++
++	.previous
+diff --git a/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
+new file mode 100644
+index 0000000..ddc63fd
+--- /dev/null
++++ b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
+@@ -0,0 +1,95 @@
++/*
++ * GNU linker script for the VDSO library.
++ *
++ * Copyright (C) 2012 ARM Limited
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author: Will Deacon <will.deacon@arm.com>
++ * Heavily based on the vDSO linker scripts for other archs.
++ */
++
++#include <linux/const.h>
++#include <asm/page.h>
++#include <asm/vdso.h>
++
++SECTIONS
 +{
-+	int err;
++	PROVIDE(_vdso_data = . - PAGE_SIZE);
++	. = VDSO_LBASE + SIZEOF_HEADERS;
 +
-+	if (!access_ok(VERIFY_WRITE, to, sizeof(*to)))
-+		return -EFAULT;
++	.hash		: { *(.hash) }			:text
++	.gnu.hash	: { *(.gnu.hash) }
++	.dynsym		: { *(.dynsym) }
++	.dynstr		: { *(.dynstr) }
++	.gnu.version	: { *(.gnu.version) }
++	.gnu.version_d	: { *(.gnu.version_d) }
++	.gnu.version_r	: { *(.gnu.version_r) }
 +
-+	/* If you change siginfo_t structure, please be sure
-+	 * this code is fixed accordingly.
-+	 * It should never copy any pad contained in the structure
-+	 * to avoid security leaks, but must copy the generic
-+	 * 3 ints plus the relevant union member.
-+	 * This routine must convert siginfo from 64bit to 32bit as well
-+	 * at the same time.
-+	 */
-+	err = __put_user(from->si_signo, &to->si_signo);
-+	err |= __put_user(from->si_errno, &to->si_errno);
-+	err |= __put_user((short)from->si_code, &to->si_code);
-+	if (from->si_code < 0)
-+		err |= __copy_to_user(&to->_sifields._pad, &from->_sifields._pad,
-+				      SI_PAD_SIZE);
-+	else switch (from->si_code & __SI_MASK) {
-+	case __SI_KILL:
-+		err |= __put_user(from->si_pid, &to->si_pid);
-+		err |= __put_user(from->si_uid, &to->si_uid);
-+		break;
-+	case __SI_TIMER:
-+		 err |= __put_user(from->si_tid, &to->si_tid);
-+		 err |= __put_user(from->si_overrun, &to->si_overrun);
-+		 err |= __put_user(from->si_int, &to->si_int);
-+		break;
-+	case __SI_POLL:
-+		err |= __put_user(from->si_band, &to->si_band);
-+		err |= __put_user(from->si_fd, &to->si_fd);
-+		break;
-+	case __SI_FAULT:
-+		err |= __put_user((compat_uptr_t)(unsigned long)from->si_addr,
-+				  &to->si_addr);
-+#ifdef BUS_MCEERR_AO
-+		/*
-+		 * Other callers might not initialize the si_lsb field,
-+		 * so check explicitly for the right codes here.
-+		 */
-+		if (from->si_signo == SIGBUS &&
-+		    (from->si_code == BUS_MCEERR_AR || from->si_code == BUS_MCEERR_AO))
-+			err |= __put_user(from->si_addr_lsb, &to->si_addr_lsb);
-+#endif
-+		break;
-+	case __SI_CHLD:
-+		err |= __put_user(from->si_pid, &to->si_pid);
-+		err |= __put_user(from->si_uid, &to->si_uid);
-+		err |= __put_user(from->si_status, &to->si_status);
-+		err |= __put_user(from->si_utime, &to->si_utime);
-+		err |= __put_user(from->si_stime, &to->si_stime);
-+		break;
-+	case __SI_RT: /* This is not generated by the kernel as of now. */
-+	case __SI_MESGQ: /* But this is */
-+		err |= __put_user(from->si_pid, &to->si_pid);
-+		err |= __put_user(from->si_uid, &to->si_uid);
-+		err |= __put_user(from->si_int, &to->si_int);
-+		break;
-+	case __SI_SYS:
-+		err |= __put_user((compat_uptr_t)(unsigned long)
-+				from->si_call_addr, &to->si_call_addr);
-+		err |= __put_user(from->si_syscall, &to->si_syscall);
-+		err |= __put_user(from->si_arch, &to->si_arch);
-+		break;
-+	default: /* this is just in case for now ... */
-+		err |= __put_user(from->si_pid, &to->si_pid);
-+		err |= __put_user(from->si_uid, &to->si_uid);
-+		break;
++	.note		: { *(.note.*) }		:text	:note
++
++	. = ALIGN(16);
++
++	.text		: { *(.text*) }			:text	=0xd503201f
++	PROVIDE (__etext = .);
++	PROVIDE (_etext = .);
++	PROVIDE (etext = .);
++
++	.eh_frame_hdr	: { *(.eh_frame_hdr) }		:text	:eh_frame_hdr
++	.eh_frame	: { KEEP (*(.eh_frame)) }	:text
++
++	.dynamic	: { *(.dynamic) }		:text	:dynamic
++
++	.rodata		: { *(.rodata*) }		:text
++
++	_end = .;
++	PROVIDE(end = .);
++
++	/DISCARD/	: {
++		*(.note.GNU-stack)
++		*(.data .data.* .gnu.linkonce.d.* .sdata*)
++		*(.bss .sbss .dynbss .dynsbss)
 +	}
-+	return err;
 +}
 +
-+int copy_siginfo_from_user32(siginfo_t *to, compat_siginfo_t __user *from)
++/*
++ * We must supply the ELF program headers explicitly to get just one
++ * PT_LOAD segment, and set the flags explicitly to make segments read-only.
++ */
++PHDRS
 +{
-+	if (copy_from_user(to, from, __ARCH_SI_PREAMBLE_SIZE) ||
-+	    copy_from_user(to->_sifields._pad,
-+			   from->_sifields._pad, SI_PAD_SIZE))
-+		return -EFAULT;
-+
-+	return 0;
++	text		PT_LOAD		FLAGS(5) FILEHDR PHDRS; /* PF_R|PF_X */
++	dynamic		PT_DYNAMIC	FLAGS(4);		/* PF_R */
++	note		PT_NOTE		FLAGS(4);		/* PF_R */
++	eh_frame_hdr	PT_GNU_EH_FRAME;
 +}
 +
++/*
++ * This controls what symbols we export from the DSO.
++ */
++VERSION
++{
++	LINUX_2.6 {
++	global:
++		__kernel_rt_sigreturn;
++		__kernel_gettimeofday;
++		__kernel_clock_gettime;
++		__kernel_clock_getres;
++	local: *;
++	};
++}
++
++/*
++ * Make the sigreturn code visible to the kernel.
++ */
++VDSO_sigtramp_ilp32		= __kernel_rt_sigreturn;
+diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
+index 26352a6..521a8e4 100644
+--- a/arch/arm64/kernel/vdso.c
++++ b/arch/arm64/kernel/vdso.c
+@@ -40,6 +40,12 @@ extern char vdso_start, vdso_end;
+ static unsigned long vdso_pages;
+ static struct page **vdso_pagelist;
+ 
++#ifdef CONFIG_ARM64_ILP32
++extern char vdso_ilp32_start, vdso_ilp32_end;
++static unsigned long vdso_ilp32_pages;
++static struct page **vdso_ilp32_pagelist;
++#endif
++
+ /*
+  * The vDSO data page.
+  */
+@@ -109,24 +115,29 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
+ }
+ #endif /* CONFIG_AARCH32_EL0 */
+ 
+-static struct vm_special_mapping vdso_spec[2];
+-
+-static int __init vdso_init(void)
++static int __init vdso_init_common(char *vdso_start, char *vdso_end,
++					  unsigned long *vdso_pagesp,
++					  struct page ***vdso_pagelistp,
++					  struct vm_special_mapping* vdso_spec)
+ {
+ 	int i;
++	unsigned long vdso_pages;
++	struct page **vdso_pagelist;
+ 
+-	if (memcmp(&vdso_start, "\177ELF", 4)) {
++	if (memcmp(vdso_start, "\177ELF", 4)) {
+ 		pr_err("vDSO is not a valid ELF object!\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	vdso_pages = (&vdso_end - &vdso_start) >> PAGE_SHIFT;
++	vdso_pages = (vdso_end - vdso_start) >> PAGE_SHIFT;
++	*vdso_pagesp = vdso_pages;
+ 	pr_info("vdso: %ld pages (%ld code @ %p, %ld data @ %p)\n",
+-		vdso_pages + 1, vdso_pages, &vdso_start, 1L, vdso_data);
++		vdso_pages + 1, vdso_pages, vdso_start, 1L, vdso_data);
+ 
+ 	/* Allocate the vDSO pagelist, plus a page for the data. */
+ 	vdso_pagelist = kcalloc(vdso_pages + 1, sizeof(struct page *),
+ 				GFP_KERNEL);
++	*vdso_pagelistp = vdso_pagelist;
+ 	if (vdso_pagelist == NULL)
+ 		return -ENOMEM;
+ 
+@@ -135,7 +146,7 @@ static int __init vdso_init(void)
+ 
+ 	/* Grab the vDSO code pages. */
+ 	for (i = 0; i < vdso_pages; i++)
+-		vdso_pagelist[i + 1] = virt_to_page(&vdso_start + i * PAGE_SIZE);
++		vdso_pagelist[i + 1] = virt_to_page(vdso_start + i * PAGE_SIZE);
+ 
+ 	/* Populate the special mapping structures */
+ 	vdso_spec[0] = (struct vm_special_mapping) {
+@@ -150,16 +161,46 @@ static int __init vdso_init(void)
+ 
+ 	return 0;
+ }
++
++static struct vm_special_mapping vdso_spec[2];
++
++static int __init vdso_init(void)
++{
++	return vdso_init_common(&vdso_start, &vdso_end,
++				&vdso_pages, &vdso_pagelist,
++				vdso_spec);
++}
+ arch_initcall(vdso_init);
+ 
++#ifdef CONFIG_ARM64_ILP32
++static struct vm_special_mapping vdso_ilp32_spec[2];
++
++static int __init vdso_ilp32_init(void)
++{
++	return vdso_init_common(&vdso_ilp32_start, &vdso_ilp32_end,
++				&vdso_ilp32_pages, &vdso_ilp32_pagelist,
++				vdso_ilp32_spec);
++}
++arch_initcall(vdso_ilp32_init);
++#endif
++
+ int arch_setup_additional_pages(struct linux_binprm *bprm,
+ 				int uses_interp)
+ {
+ 	struct mm_struct *mm = current->mm;
+ 	unsigned long vdso_base, vdso_text_len, vdso_mapping_len;
+ 	void *ret;
++	unsigned long pages = vdso_pages;
++	struct vm_special_mapping *spec = vdso_spec;
++
++#ifdef CONFIG_ARM64_ILP32
++	if (is_ilp32_compat_task()) {
++	        pages = vdso_ilp32_pages;
++	        spec = vdso_ilp32_spec;
++	}
++#endif
+ 
+-	vdso_text_len = vdso_pages << PAGE_SHIFT;
++	vdso_text_len = pages << PAGE_SHIFT;
+ 	/* Be sure to map the data page */
+ 	vdso_mapping_len = vdso_text_len + PAGE_SIZE;
+ 
+@@ -171,7 +212,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm,
+ 	}
+ 	ret = _install_special_mapping(mm, vdso_base, PAGE_SIZE,
+ 				       VM_READ|VM_MAYREAD,
+-				       &vdso_spec[0]);
++				       &spec[0]);
+ 	if (IS_ERR(ret))
+ 		goto up_fail;
+ 
+@@ -180,7 +221,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm,
+ 	ret = _install_special_mapping(mm, vdso_base, vdso_text_len,
+ 				       VM_READ|VM_EXEC|
+ 				       VM_MAYREAD|VM_MAYWRITE|VM_MAYEXEC,
+-				       &vdso_spec[1]);
++				       &spec[1]);
+ 	if (IS_ERR(ret))
+ 		goto up_fail;
+ 
 -- 
 2.5.0
