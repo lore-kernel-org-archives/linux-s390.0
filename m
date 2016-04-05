@@ -1,7 +1,7 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 14/25] thread: move thread bits accessors to separated file
-Date: Wed, 6 Apr 2016 01:08:36 +0300
-Message-ID: <1459894127-17698-15-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 12/25] arm64: compat: change config dependences to aarch32
+Date: Wed, 6 Apr 2016 01:08:34 +0300
+Message-ID: <1459894127-17698-13-git-send-email-ynorov@caviumnetworks.com>
 References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -11,145 +11,42 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-They may be accessed from low-level code, so isolating is a measure to
-avoid circular dependencies in header files.
+From: Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>
 
-The exact reason for circular dependency is WARN_ON() macro added by Al
-Viro in patch "set_restore_sigmask() is never called without SIGPENDING
-(and never should be)" [edd63a27]
+With the patches of ILP32, COMPAT is not equivalent to AARCH32 in EL0.
+This patch fix this by updating the dependency from COMPAT to
+AARCH32_EL0 for ARMV8_DEPRECATED and ARM64_ERRATUM_845719.
 
+Signed-off-by: Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 ---
- include/linux/thread_bits.h | 55 +++++++++++++++++++++++++++++++++++++++++++++
- include/linux/thread_info.h | 44 +-----------------------------------
- 2 files changed, 56 insertions(+), 43 deletions(-)
- create mode 100644 include/linux/thread_bits.h
+ arch/arm64/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/thread_bits.h b/include/linux/thread_bits.h
-new file mode 100644
-index 0000000..0d05d16
---- /dev/null
-+++ b/include/linux/thread_bits.h
-@@ -0,0 +1,55 @@
-+
-+/* thread_bits.h: common low-level thread bits accessors */
-+
-+#ifndef _LINUX_THREAD_BITS_H
-+#define _LINUX_THREAD_BITS_H
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <linux/bitops.h>
-+#include <asm/thread_info.h>
-+
-+/*
-+ * flag set/clear/test wrappers
-+ * - pass TIF_xxxx constants to these functions
-+ */
-+
-+static inline void set_ti_thread_flag(struct thread_info *ti, int flag)
-+{
-+	set_bit(flag, (unsigned long *)&ti->flags);
-+}
-+
-+static inline void clear_ti_thread_flag(struct thread_info *ti, int flag)
-+{
-+	clear_bit(flag, (unsigned long *)&ti->flags);
-+}
-+
-+static inline int test_and_set_ti_thread_flag(struct thread_info *ti, int flag)
-+{
-+	return test_and_set_bit(flag, (unsigned long *)&ti->flags);
-+}
-+
-+static inline int test_and_clear_ti_thread_flag(struct thread_info *ti, int flag)
-+{
-+	return test_and_clear_bit(flag, (unsigned long *)&ti->flags);
-+}
-+
-+static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
-+{
-+	return test_bit(flag, (unsigned long *)&ti->flags);
-+}
-+
-+#define set_thread_flag(flag) \
-+	set_ti_thread_flag(current_thread_info(), flag)
-+#define clear_thread_flag(flag) \
-+	clear_ti_thread_flag(current_thread_info(), flag)
-+#define test_and_set_thread_flag(flag) \
-+	test_and_set_ti_thread_flag(current_thread_info(), flag)
-+#define test_and_clear_thread_flag(flag) \
-+	test_and_clear_ti_thread_flag(current_thread_info(), flag)
-+#define test_thread_flag(flag) \
-+	test_ti_thread_flag(current_thread_info(), flag)
-+
-+#endif /* !__ASSEMBLY__ */
-+#endif /* _LINUX_THREAD_BITS_H */
-+
-diff --git a/include/linux/thread_info.h b/include/linux/thread_info.h
-index b4c2a48..b094aed 100644
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -50,8 +50,7 @@ struct restart_block {
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index f923687..ebaf38a 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -370,7 +370,7 @@ config ARM64_ERRATUM_834220
  
- extern long do_no_restart_syscall(struct restart_block *parm);
+ config ARM64_ERRATUM_845719
+ 	bool "Cortex-A53: 845719: a load might read incorrect data"
+-	depends on COMPAT
++	depends on AARCH32_EL0
+ 	default y
+ 	help
+ 	  This option adds an alternative code sequence to work around ARM
+@@ -655,7 +655,7 @@ config FORCE_MAX_ZONEORDER
  
--#include <linux/bitops.h>
--#include <asm/thread_info.h>
-+#include <linux/thread_bits.h>
- 
- #ifdef __KERNEL__
- 
-@@ -62,47 +61,6 @@ extern long do_no_restart_syscall(struct restart_block *parm);
- # define THREADINFO_GFP		(GFP_KERNEL_ACCOUNT | __GFP_NOTRACK)
- #endif
- 
--/*
-- * flag set/clear/test wrappers
-- * - pass TIF_xxxx constants to these functions
-- */
--
--static inline void set_ti_thread_flag(struct thread_info *ti, int flag)
--{
--	set_bit(flag, (unsigned long *)&ti->flags);
--}
--
--static inline void clear_ti_thread_flag(struct thread_info *ti, int flag)
--{
--	clear_bit(flag, (unsigned long *)&ti->flags);
--}
--
--static inline int test_and_set_ti_thread_flag(struct thread_info *ti, int flag)
--{
--	return test_and_set_bit(flag, (unsigned long *)&ti->flags);
--}
--
--static inline int test_and_clear_ti_thread_flag(struct thread_info *ti, int flag)
--{
--	return test_and_clear_bit(flag, (unsigned long *)&ti->flags);
--}
--
--static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
--{
--	return test_bit(flag, (unsigned long *)&ti->flags);
--}
--
--#define set_thread_flag(flag) \
--	set_ti_thread_flag(current_thread_info(), flag)
--#define clear_thread_flag(flag) \
--	clear_ti_thread_flag(current_thread_info(), flag)
--#define test_and_set_thread_flag(flag) \
--	test_and_set_ti_thread_flag(current_thread_info(), flag)
--#define test_and_clear_thread_flag(flag) \
--	test_and_clear_ti_thread_flag(current_thread_info(), flag)
--#define test_thread_flag(flag) \
--	test_ti_thread_flag(current_thread_info(), flag)
--
- #define tif_need_resched() test_thread_flag(TIF_NEED_RESCHED)
- 
- #if defined TIF_RESTORE_SIGMASK && !defined HAVE_SET_RESTORE_SIGMASK
+ menuconfig ARMV8_DEPRECATED
+ 	bool "Emulate deprecated/obsolete ARMv8 instructions"
+-	depends on COMPAT
++	depends on AARCH32_EL0
+ 	help
+ 	  Legacy software support may require certain instructions
+ 	  that have been deprecated or obsoleted in the architecture.
 -- 
 2.5.0
