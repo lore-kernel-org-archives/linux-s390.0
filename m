@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 05/11] sparc, rwsem: drop superfluous arch specific implementation
-Date: Thu,  7 Apr 2016 17:12:25 +0200
-Message-ID: <1460041951-22347-6-git-send-email-mhocko@kernel.org>
+Subject: [PATCH 01/11] locking, rwsem: get rid of __down_write_nested
+Date: Thu,  7 Apr 2016 17:12:21 +0200
+Message-ID: <1460041951-22347-2-git-send-email-mhocko@kernel.org>
 In-Reply-To: <1460041951-22347-1-git-send-email-mhocko@kernel.org>
 References: <1460041951-22347-1-git-send-email-mhocko@kernel.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160407151225.9zoVJt3hgsgXHen1irVHa-VdjmTQnxTtHDZ7pJTZFuU@z>
+Message-ID: <20160407151221.ZMhuLn_jGuGl9AkRxIrhUK4TjYy3JMJCIPWIhGNAU10@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: LKML <linux-kernel@vger.kernel.org>
@@ -15,152 +15,176 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michal Hocko <mhocko@suse.com>
 
-sparc basically reuses generic implementation of rwsem so we can
-reuse the code rather than duplicate it.
+This is no longer used anywhere and all callers (__down_write) use
+0 as a subclass. Ditch __down_write_nested to make the code easier
+to follow.
 
+This shouldn't introduce any functional change.
+
+Acked-by: Davidlohr Bueso <dave@stgolabs.net>
 Signed-off-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/sparc/include/asm/Kbuild  |   1 +
- arch/sparc/include/asm/rwsem.h | 119 -----------------------------------------
- 2 files changed, 1 insertion(+), 119 deletions(-)
- delete mode 100644 arch/sparc/include/asm/rwsem.h
+ arch/s390/include/asm/rwsem.h   | 7 +------
+ arch/sh/include/asm/rwsem.h     | 5 -----
+ arch/sparc/include/asm/rwsem.h  | 7 +------
+ arch/x86/include/asm/rwsem.h    | 7 +------
+ include/asm-generic/rwsem.h     | 7 +------
+ include/linux/rwsem-spinlock.h  | 1 -
+ kernel/locking/rwsem-spinlock.c | 7 +------
+ 7 files changed, 5 insertions(+), 36 deletions(-)
 
-diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
-index e928618838bc..6024c26c0585 100644
---- a/arch/sparc/include/asm/Kbuild
-+++ b/arch/sparc/include/asm/Kbuild
-@@ -16,6 +16,7 @@ generic-y += mm-arch-hooks.h
- generic-y += module.h
- generic-y += mutex.h
- generic-y += preempt.h
-+generic-y += rwsem.h
- generic-y += serial.h
- generic-y += trace_clock.h
- generic-y += types.h
-diff --git a/arch/sparc/include/asm/rwsem.h b/arch/sparc/include/asm/rwsem.h
-deleted file mode 100644
-index e5a0d575bc7f..000000000000
---- a/arch/sparc/include/asm/rwsem.h
-+++ /dev/null
-@@ -1,119 +0,0 @@
--/*
-- * rwsem.h: R/W semaphores implemented using CAS
-- *
-- * Written by David S. Miller (davem@redhat.com), 2001.
-- * Derived from asm-i386/rwsem.h
-- */
--#ifndef _SPARC64_RWSEM_H
--#define _SPARC64_RWSEM_H
--
--#ifndef _LINUX_RWSEM_H
--#error "please don't include asm/rwsem.h directly, use linux/rwsem.h instead"
--#endif
--
--#ifdef __KERNEL__
--
--#define RWSEM_UNLOCKED_VALUE		0x00000000L
--#define RWSEM_ACTIVE_BIAS		0x00000001L
--#define RWSEM_ACTIVE_MASK		0xffffffffL
--#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
--
--/*
-- * lock for reading
-- */
--static inline void __down_read(struct rw_semaphore *sem)
--{
--	if (unlikely(atomic64_inc_return((atomic64_t *)(&sem->count)) <= 0L))
--		rwsem_down_read_failed(sem);
--}
--
--static inline int __down_read_trylock(struct rw_semaphore *sem)
--{
--	long tmp;
--
--	while ((tmp = sem->count) >= 0L) {
--		if (tmp == cmpxchg(&sem->count, tmp,
--				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
--			return 1;
--		}
--	}
--	return 0;
--}
--
--/*
-- * lock for writing
-- */
+diff --git a/arch/s390/include/asm/rwsem.h b/arch/s390/include/asm/rwsem.h
+index 4b43ee7e6776..8e52e72f3efc 100644
+--- a/arch/s390/include/asm/rwsem.h
++++ b/arch/s390/include/asm/rwsem.h
+@@ -90,7 +90,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	signed long old, new, tmp;
+ 
+@@ -108,11 +108,6 @@ static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 		rwsem_down_write_failed(sem);
+ }
+ 
 -static inline void __down_write(struct rw_semaphore *sem)
 -{
--	long tmp;
--
--	tmp = atomic64_add_return(RWSEM_ACTIVE_WRITE_BIAS,
--				  (atomic64_t *)(&sem->count));
--	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
--		rwsem_down_write_failed(sem);
+-	__down_write_nested(sem, 0);
 -}
 -
--static inline int __down_write_trylock(struct rw_semaphore *sem)
+ /*
+  * trylock for writing -- returns 1 if successful, 0 if contention
+  */
+diff --git a/arch/sh/include/asm/rwsem.h b/arch/sh/include/asm/rwsem.h
+index edab57265293..a5104bebd1eb 100644
+--- a/arch/sh/include/asm/rwsem.h
++++ b/arch/sh/include/asm/rwsem.h
+@@ -114,11 +114,6 @@ static inline void __downgrade_write(struct rw_semaphore *sem)
+ 		rwsem_downgrade_wake(sem);
+ }
+ 
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
 -{
--	long tmp;
--
--	tmp = cmpxchg(&sem->count, RWSEM_UNLOCKED_VALUE,
--		      RWSEM_ACTIVE_WRITE_BIAS);
--	return tmp == RWSEM_UNLOCKED_VALUE;
+-	__down_write(sem);
 -}
 -
--/*
-- * unlock after reading
-- */
--static inline void __up_read(struct rw_semaphore *sem)
+ /*
+  * implement exchange and add functionality
+  */
+diff --git a/arch/sparc/include/asm/rwsem.h b/arch/sparc/include/asm/rwsem.h
+index 069bf4d663a1..e5a0d575bc7f 100644
+--- a/arch/sparc/include/asm/rwsem.h
++++ b/arch/sparc/include/asm/rwsem.h
+@@ -45,7 +45,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+ 
+@@ -55,11 +55,6 @@ static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 		rwsem_down_write_failed(sem);
+ }
+ 
+-static inline void __down_write(struct rw_semaphore *sem)
 -{
--	long tmp;
--
--	tmp = atomic64_dec_return((atomic64_t *)(&sem->count));
--	if (unlikely(tmp < -1L && (tmp & RWSEM_ACTIVE_MASK) == 0L))
--		rwsem_wake(sem);
+-	__down_write_nested(sem, 0);
 -}
 -
--/*
-- * unlock after writing
-- */
--static inline void __up_write(struct rw_semaphore *sem)
+ static inline int __down_write_trylock(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+diff --git a/arch/x86/include/asm/rwsem.h b/arch/x86/include/asm/rwsem.h
+index cad82c9c2fde..d79a218675bc 100644
+--- a/arch/x86/include/asm/rwsem.h
++++ b/arch/x86/include/asm/rwsem.h
+@@ -99,7 +99,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+ 	asm volatile("# beginning down_write\n\t"
+@@ -116,11 +116,6 @@ static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 		     : "memory", "cc");
+ }
+ 
+-static inline void __down_write(struct rw_semaphore *sem)
 -{
--	if (unlikely(atomic64_sub_return(RWSEM_ACTIVE_WRITE_BIAS,
--					 (atomic64_t *)(&sem->count)) < 0L))
--		rwsem_wake(sem);
+-	__down_write_nested(sem, 0);
 -}
 -
--/*
-- * implement atomic add functionality
-- */
--static inline void rwsem_atomic_add(long delta, struct rw_semaphore *sem)
+ /*
+  * trylock for writing -- returns 1 if successful, 0 if contention
+  */
+diff --git a/include/asm-generic/rwsem.h b/include/asm-generic/rwsem.h
+index d6d5dc98d7da..b8d8a6cf4ca8 100644
+--- a/include/asm-generic/rwsem.h
++++ b/include/asm-generic/rwsem.h
+@@ -53,7 +53,7 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+ 
+@@ -63,11 +63,6 @@ static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 		rwsem_down_write_failed(sem);
+ }
+ 
+-static inline void __down_write(struct rw_semaphore *sem)
 -{
--	atomic64_add(delta, (atomic64_t *)(&sem->count));
+-	__down_write_nested(sem, 0);
 -}
 -
--/*
-- * downgrade write lock to read lock
-- */
--static inline void __downgrade_write(struct rw_semaphore *sem)
+ static inline int __down_write_trylock(struct rw_semaphore *sem)
+ {
+ 	long tmp;
+diff --git a/include/linux/rwsem-spinlock.h b/include/linux/rwsem-spinlock.h
+index 561e8615528d..a733a5467e6c 100644
+--- a/include/linux/rwsem-spinlock.h
++++ b/include/linux/rwsem-spinlock.h
+@@ -34,7 +34,6 @@ struct rw_semaphore {
+ extern void __down_read(struct rw_semaphore *sem);
+ extern int __down_read_trylock(struct rw_semaphore *sem);
+ extern void __down_write(struct rw_semaphore *sem);
+-extern void __down_write_nested(struct rw_semaphore *sem, int subclass);
+ extern int __down_write_trylock(struct rw_semaphore *sem);
+ extern void __up_read(struct rw_semaphore *sem);
+ extern void __up_write(struct rw_semaphore *sem);
+diff --git a/kernel/locking/rwsem-spinlock.c b/kernel/locking/rwsem-spinlock.c
+index 3a5048572065..bab26104a5d0 100644
+--- a/kernel/locking/rwsem-spinlock.c
++++ b/kernel/locking/rwsem-spinlock.c
+@@ -191,7 +191,7 @@ int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * get a write lock on the semaphore
+  */
+-void __sched __down_write_nested(struct rw_semaphore *sem, int subclass)
++void __sched __down_write(struct rw_semaphore *sem)
+ {
+ 	struct rwsem_waiter waiter;
+ 	struct task_struct *tsk;
+@@ -227,11 +227,6 @@ void __sched __down_write_nested(struct rw_semaphore *sem, int subclass)
+ 	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
+ }
+ 
+-void __sched __down_write(struct rw_semaphore *sem)
 -{
--	long tmp;
--
--	tmp = atomic64_add_return(-RWSEM_WAITING_BIAS, (atomic64_t *)(&sem->count));
--	if (tmp < 0L)
--		rwsem_downgrade_wake(sem);
+-	__down_write_nested(sem, 0);
 -}
 -
--/*
-- * implement exchange and add functionality
-- */
--static inline long rwsem_atomic_update(long delta, struct rw_semaphore *sem)
--{
--	return atomic64_add_return(delta, (atomic64_t *)(&sem->count));
--}
--
--#endif /* __KERNEL__ */
--
--#endif /* _SPARC64_RWSEM_H */
+ /*
+  * trylock for writing -- returns 1 if successful, 0 if contention
+  */
 -- 
 2.8.0.rc3
