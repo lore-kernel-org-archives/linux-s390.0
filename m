@@ -1,148 +1,166 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: [PATCH] x86/locking/rwsem: Cleanup ____down_write()
-Date: Wed, 27 Apr 2016 14:02:17 +0200
-Message-ID: <20160427120217.GE21011@pd.tnic>
-References: <20160413091625.GF14351@dhcp22.suse.cz>
- <20160413091943.GA17858@gmail.com>
- <20160413102731.GA29896@gmail.com>
- <20160413124943.GH14351@dhcp22.suse.cz>
- <20160420134019.GX3448@twins.programming.kicks-ass.net>
- <91A11395-ACAA-4043-B770-2DF6CBAED54C@zytor.com>
- <20160420204501.GA6815@pd.tnic>
- <5717EF59.1030709@zytor.com>
- <20160420213637.GA4978@pd.tnic>
- <FB0197A2-6A76-43FC-A30E-BE619D3BC67E@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <FB0197A2-6A76-43FC-A30E-BE619D3BC67E@zytor.com>
-Sender: linux-alpha-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: [PATCH 05/11] sparc, rwsem: drop superfluous arch specific implementation
+Date: Thu,  7 Apr 2016 17:12:25 +0200
+Message-ID: <1460041951-22347-6-git-send-email-mhocko@kernel.org>
+In-Reply-To: <1460041951-22347-1-git-send-email-mhocko@kernel.org>
+References: <1460041951-22347-1-git-send-email-mhocko@kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20160407151225.9zoVJt3hgsgXHen1irVHa-VdjmTQnxTtHDZ7pJTZFuU@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Ingo Molnar <mingo@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Michal Hocko <mhocko@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Apr 20, 2016 at 03:29:30PM -0700, H. Peter Anvin wrote:
-> Since it is a fixed register we could just mark edx clobbered, but
-> with more flexible register constraints it can permit gcc to allocate
-> a temp resister for us.
+From: Michal Hocko <mhocko@suse.com>
 
-How about the following?
+sparc basically reuses generic implementation of rwsem so we can
+reuse the code rather than duplicate it.
 
-It boots fine in kvm and the asm changes are only trivial gcc comments
-differences:
-
+Signed-off-by: Michal Hocko <mhocko@suse.com>
 ---
-From: Borislav Petkov <bp@suse.de>
-Date: Wed, 27 Apr 2016 13:47:32 +0200
-Subject: [PATCH] x86/locking/rwsem: Cleanup ____down_write()
+ arch/sparc/include/asm/Kbuild  |   1 +
+ arch/sparc/include/asm/rwsem.h | 119 -----------------------------------------
+ 2 files changed, 1 insertion(+), 119 deletions(-)
+ delete mode 100644 arch/sparc/include/asm/rwsem.h
 
-Move the RWSEM_ACTIVE_WRITE_BIAS out of the inline asm to reduce the
-number of arguments. Also, make it an input argument only (why it was an
-output operand, I still don't know...).
-
-For better readability, use symbolic names for the arguments and move
-the linebreak backspace to 80 cols.
-
-Resulting asm differs only in the temporary gcc variable names and
-locations:
-
-  --- before      2016-04-27 13:39:05.320778458 +0200
-  +++ after       2016-04-27 13:52:37.336778994 +0200
-  @@ -11,8 +11,8 @@ down_write_killable:
-   .LBB84:
-   .LBB85:
-   .LBB86:
-  -        .loc 2 128 0
-  -        movabsq $-4294967295, %rdx      #, tmp
-  +        .loc 2 130 0
-  +        movabsq $-4294967295, %rdx      #, tmp94
-           movq    %rdi, %rax      # sem, sem
-   .LBE86:
-   .LBE85:
-  @@ -23,17 +23,17 @@ down_write_killable:
-   .LBB89:
-   .LBB88:
-   .LBB87:
-  -        .loc 2 128 0
-  +        .loc 2 130 0
-   #APP
-  -# 128 "./arch/x86/include/asm/rwsem.h" 1
-  +# 130 "./arch/x86/include/asm/rwsem.h" 1
-           # beginning down_write
-           .pushsection .smp_locks,"a"
-   .balign 4
-   .long 671f - .
-   .popsection
-   671:
-  -        lock;   xadd      %rdx,(%rax)   # tmp, sem
-  -          test  %edx , %edx     # tmp
-  +        lock;   xadd      %rdx,(%rax)   # tmp94, sem
-  +          test  %edx , %edx     # tmp94
-             jz        1f
-     call call_rwsem_down_write_failed_killable
-   1:
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
----
- arch/x86/include/asm/rwsem.h | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
-
-diff --git a/arch/x86/include/asm/rwsem.h b/arch/x86/include/asm/rwsem.h
-index 453744c1d347..d2f8d10a6d97 100644
---- a/arch/x86/include/asm/rwsem.h
-+++ b/arch/x86/include/asm/rwsem.h
-@@ -99,23 +99,25 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
- /*
-  * lock for writing
-  */
--#define ____down_write(sem, slow_path)			\
--({							\
--	long tmp;					\
--	struct rw_semaphore* ret;			\
--	asm volatile("# beginning down_write\n\t"	\
--		     LOCK_PREFIX "  xadd      %1,(%3)\n\t"	\
--		     /* adds 0xffff0001, returns the old value */ \
--		     "  test " __ASM_SEL(%w1,%k1) "," __ASM_SEL(%w1,%k1) "\n\t" \
--		     /* was the active mask 0 before? */\
--		     "  jz        1f\n"			\
--		     "  call " slow_path "\n"		\
--		     "1:\n"				\
--		     "# ending down_write"		\
--		     : "+m" (sem->count), "=d" (tmp), "=a" (ret)	\
--		     : "a" (sem), "1" (RWSEM_ACTIVE_WRITE_BIAS) \
--		     : "memory", "cc");			\
--	ret;						\
-+#define ____down_write(sem, slow_path)						\
-+({										\
-+	long tmp = RWSEM_ACTIVE_WRITE_BIAS;					\
-+	struct rw_semaphore* ret;						\
-+										\
-+	asm volatile("# beginning down_write\n\t"				\
-+		     LOCK_PREFIX "  xadd      %[tmp],(%[sem])\n\t"		\
-+		     /* adds 0xffff0001, returns the old value */		\
-+		     "  test " __ASM_SEL(%w[tmp],%k[tmp]) ","			\
-+			       __ASM_SEL(%w[tmp],%k[tmp]) "\n\t"		\
-+		     /* was the active mask 0 before? */			\
-+		     "  jz        1f\n"						\
-+		     "  call " slow_path "\n"					\
-+		     "1:\n"							\
-+		     "# ending down_write"					\
-+		     : "+m" (sem->count), "=a" (ret)				\
-+		     : [sem] "a" (sem), [tmp] "r" (tmp)				\
-+		     : "memory", "cc");						\
-+	ret;									\
- })
- 
- static inline void __down_write(struct rw_semaphore *sem)
+diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
+index e928618838bc..6024c26c0585 100644
+--- a/arch/sparc/include/asm/Kbuild
++++ b/arch/sparc/include/asm/Kbuild
+@@ -16,6 +16,7 @@ generic-y += mm-arch-hooks.h
+ generic-y += module.h
+ generic-y += mutex.h
+ generic-y += preempt.h
++generic-y += rwsem.h
+ generic-y += serial.h
+ generic-y += trace_clock.h
+ generic-y += types.h
+diff --git a/arch/sparc/include/asm/rwsem.h b/arch/sparc/include/asm/rwsem.h
+deleted file mode 100644
+index e5a0d575bc7f..000000000000
+--- a/arch/sparc/include/asm/rwsem.h
++++ /dev/null
+@@ -1,119 +0,0 @@
+-/*
+- * rwsem.h: R/W semaphores implemented using CAS
+- *
+- * Written by David S. Miller (davem@redhat.com), 2001.
+- * Derived from asm-i386/rwsem.h
+- */
+-#ifndef _SPARC64_RWSEM_H
+-#define _SPARC64_RWSEM_H
+-
+-#ifndef _LINUX_RWSEM_H
+-#error "please don't include asm/rwsem.h directly, use linux/rwsem.h instead"
+-#endif
+-
+-#ifdef __KERNEL__
+-
+-#define RWSEM_UNLOCKED_VALUE		0x00000000L
+-#define RWSEM_ACTIVE_BIAS		0x00000001L
+-#define RWSEM_ACTIVE_MASK		0xffffffffL
+-#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
+-#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
+-#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
+-
+-/*
+- * lock for reading
+- */
+-static inline void __down_read(struct rw_semaphore *sem)
+-{
+-	if (unlikely(atomic64_inc_return((atomic64_t *)(&sem->count)) <= 0L))
+-		rwsem_down_read_failed(sem);
+-}
+-
+-static inline int __down_read_trylock(struct rw_semaphore *sem)
+-{
+-	long tmp;
+-
+-	while ((tmp = sem->count) >= 0L) {
+-		if (tmp == cmpxchg(&sem->count, tmp,
+-				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
+-			return 1;
+-		}
+-	}
+-	return 0;
+-}
+-
+-/*
+- * lock for writing
+- */
+-static inline void __down_write(struct rw_semaphore *sem)
+-{
+-	long tmp;
+-
+-	tmp = atomic64_add_return(RWSEM_ACTIVE_WRITE_BIAS,
+-				  (atomic64_t *)(&sem->count));
+-	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
+-		rwsem_down_write_failed(sem);
+-}
+-
+-static inline int __down_write_trylock(struct rw_semaphore *sem)
+-{
+-	long tmp;
+-
+-	tmp = cmpxchg(&sem->count, RWSEM_UNLOCKED_VALUE,
+-		      RWSEM_ACTIVE_WRITE_BIAS);
+-	return tmp == RWSEM_UNLOCKED_VALUE;
+-}
+-
+-/*
+- * unlock after reading
+- */
+-static inline void __up_read(struct rw_semaphore *sem)
+-{
+-	long tmp;
+-
+-	tmp = atomic64_dec_return((atomic64_t *)(&sem->count));
+-	if (unlikely(tmp < -1L && (tmp & RWSEM_ACTIVE_MASK) == 0L))
+-		rwsem_wake(sem);
+-}
+-
+-/*
+- * unlock after writing
+- */
+-static inline void __up_write(struct rw_semaphore *sem)
+-{
+-	if (unlikely(atomic64_sub_return(RWSEM_ACTIVE_WRITE_BIAS,
+-					 (atomic64_t *)(&sem->count)) < 0L))
+-		rwsem_wake(sem);
+-}
+-
+-/*
+- * implement atomic add functionality
+- */
+-static inline void rwsem_atomic_add(long delta, struct rw_semaphore *sem)
+-{
+-	atomic64_add(delta, (atomic64_t *)(&sem->count));
+-}
+-
+-/*
+- * downgrade write lock to read lock
+- */
+-static inline void __downgrade_write(struct rw_semaphore *sem)
+-{
+-	long tmp;
+-
+-	tmp = atomic64_add_return(-RWSEM_WAITING_BIAS, (atomic64_t *)(&sem->count));
+-	if (tmp < 0L)
+-		rwsem_downgrade_wake(sem);
+-}
+-
+-/*
+- * implement exchange and add functionality
+- */
+-static inline long rwsem_atomic_update(long delta, struct rw_semaphore *sem)
+-{
+-	return atomic64_add_return(delta, (atomic64_t *)(&sem->count));
+-}
+-
+-#endif /* __KERNEL__ */
+-
+-#endif /* _SPARC64_RWSEM_H */
 -- 
-2.7.3
-
-
--- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
+2.8.0.rc3
