@@ -1,32 +1,112 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH 0/11] introduce down_write_killable for rw_semaphore v3
-Date: Tue, 12 Apr 2016 20:01:34 +0200
-Message-ID: <20160412180133.GA4727@dhcp22.suse.cz>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 10/11] x86, rwsem: provide __down_write_killable
+Date: Wed, 13 Apr 2016 11:08:30 +0200
+Message-ID: <20160413090829.GB29579@gmail.com>
 References: <1460041951-22347-1-git-send-email-mhocko@kernel.org>
- <20160412093708.GB10771@dhcp22.suse.cz>
- <20160412154004.GI1087@worktop>
+ <1460041951-22347-11-git-send-email-mhocko@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160412154004.GI1087@worktop>
-Sender: linux-alpha-owner@vger.kernel.org
+In-Reply-To: <1460041951-22347-11-git-send-email-mhocko@kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, LKML <linux-kernel@vger.kernel.org>
+To: Michal Hocko <mhocko@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Michal Hocko <mhocko@suse.com>, Josh Poimboeuf <jpoimboe@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue 12-04-16 17:40:04, Peter Zijlstra wrote:
-> On Tue, Apr 12, 2016 at 11:37:08AM +0200, Michal Hocko wrote:
-> > Hi Ingo, Peter,
-> > do you plan to pull this into tip/locking or are you waiting for some
-> > more feedback or things to resolve?
+
+* Michal Hocko <mhocko@kernel.org> wrote:
+
+> From: Michal Hocko <mhocko@suse.com>
 > 
-> I am planning to take it; but I'm traveling this week.
+> which uses the same fast path as __down_write except it falls back to
+> call_rwsem_down_write_failed_killable slow path and return -EINTR if
+> killed. To prevent from code duplication extract the skeleton of
+> __down_write into a helper macro which just takes the semaphore
+> and the slow path function to be called.
+> 
+> Signed-off-by: Michal Hocko <mhocko@suse.com>
+> ---
+>  arch/x86/include/asm/rwsem.h | 41 ++++++++++++++++++++++++++++-------------
+>  arch/x86/lib/rwsem.S         |  8 ++++++++
+>  2 files changed, 36 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/rwsem.h b/arch/x86/include/asm/rwsem.h
+> index d79a218675bc..4c3d90dbe89a 100644
+> --- a/arch/x86/include/asm/rwsem.h
+> +++ b/arch/x86/include/asm/rwsem.h
+> @@ -99,21 +99,36 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+>  /*
+>   * lock for writing
+>   */
+> +#define ____down_write(sem, slow_path)			\
+> +({							\
+> +	long tmp;					\
+> +	struct rw_semaphore* ret = sem;			\
+> +	asm volatile("# beginning down_write\n\t"	\
+> +		     LOCK_PREFIX "  xadd      %1,(%2)\n\t"	\
+> +		     /* adds 0xffff0001, returns the old value */ \
+> +		     "  test " __ASM_SEL(%w1,%k1) "," __ASM_SEL(%w1,%k1) "\n\t" \
+> +		     /* was the active mask 0 before? */\
+> +		     "  jz        1f\n"			\
+> +		     "  call " slow_path "\n"		\
+> +		     "1:\n"				\
+> +		     "# ending down_write"		\
+> +		     : "+m" (sem->count), "=d" (tmp), "+a" (ret)	\
+> +		     : "a" (sem), "1" (RWSEM_ACTIVE_WRITE_BIAS) \
+> +		     : "memory", "cc");			\
+> +	ret;						\
+> +})
+> +
+>  static inline void __down_write(struct rw_semaphore *sem)
+>  {
+> -	long tmp;
+> -	asm volatile("# beginning down_write\n\t"
+> -		     LOCK_PREFIX "  xadd      %1,(%2)\n\t"
+> -		     /* adds 0xffff0001, returns the old value */
+> -		     "  test " __ASM_SEL(%w1,%k1) "," __ASM_SEL(%w1,%k1) "\n\t"
+> -		     /* was the active mask 0 before? */
+> -		     "  jz        1f\n"
+> -		     "  call call_rwsem_down_write_failed\n"
+> -		     "1:\n"
+> -		     "# ending down_write"
+> -		     : "+m" (sem->count), "=d" (tmp)
+> -		     : "a" (sem), "1" (RWSEM_ACTIVE_WRITE_BIAS)
+> -		     : "memory", "cc");
+> +	____down_write(sem, "call_rwsem_down_write_failed");
+> +}
+> +
+> +static inline int __down_write_killable(struct rw_semaphore *sem)
+> +{
+> +	if (IS_ERR(____down_write(sem, "call_rwsem_down_write_failed_killable")))
+> +		return -EINTR;
+> +
+> +	return 0;
+>  }
+>  
+>  /*
+> diff --git a/arch/x86/lib/rwsem.S b/arch/x86/lib/rwsem.S
+> index 40027db99140..d1a1397e1fb3 100644
+> --- a/arch/x86/lib/rwsem.S
+> +++ b/arch/x86/lib/rwsem.S
+> @@ -101,6 +101,14 @@ ENTRY(call_rwsem_down_write_failed)
+>  	ret
+>  ENDPROC(call_rwsem_down_write_failed)
+>  
+> +ENTRY(call_rwsem_down_write_failed_killable)
+> +	save_common_regs
+> +	movq %rax,%rdi
+> +	call rwsem_down_write_failed_killable
+> +	restore_common_regs
+> +	ret
+> +ENDPROC(call_rwsem_down_write_failed_killable)
 
-OK, thanks!
+Got this objtool warning on x86-64 allyesconfig:
 
--- 
-Michal Hocko
-SUSE Labs
+  arch/x86/lib/rwsem.o: warning: objtool: call_rwsem_down_write_failed_killable()+0xe: call without frame pointer save/setup
+
+Thanks,
+
+	Ingo
