@@ -1,91 +1,70 @@
-From: Andrew Pinski <pinskia@gmail.com>
-Subject: Re: [RFC6 PATCH v6 00/21] ILP32 for ARM64
-Date: Thu, 7 Apr 2016 19:49:33 -0700
-Message-ID: <CA+=Sn1kx1UumTYHa8AE-XAUNiSXTd5zoDxae1LL5YczC_VXe_w@mail.gmail.com>
-References: <20160407121838.GA22098@angband.pl>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: linux-next: Tree for Apr 4
+Date: Wed, 13 Apr 2016 09:52:35 +0200
+Message-ID: <20160413075235.GB3832@osiris>
+References: <20160404140951.148c95f6@canb.auug.org.au>
+ <57025C35.6090206@gmail.com>
+ <20160404142635.GF4058@osiris>
+ <20160412183408.248092c7@mschwide>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20160407121838.GA22098@angband.pl>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Adam Borowski <kilobyte@angband.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Prasun Kapoor <Prasun.Kapoor@caviumnetworks.com>, Andreas Schwab <schwab@suse.de>, Nathan Lynch <Nathan_Lynch@mentor.com>, Alexander Graf <agraf@suse.de>, Alexey Klimov <klimov.linux@gmail.com>, Mark Brown <broonie@kernel.org>, "Joseph S. Myers" <joseph@codesourcery.com>, christoph.muellner@theobroma-systems.com, "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Yury Norov <ynorov@caviumnetworks.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160412183408.248092c7@mschwide>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 7, 2016 at 5:18 AM, Adam Borowski <kilobyte@angband.pl> wro=
-te:
-> On Wed, 6 Apr 2016, Geert Uytterhoeven wrote:
->> On Wed, Apr 6, 2016 at 12:08 AM, Yury Norov <ynorov@caviumnetworks.c=
-om> wrote:
->>>  v6:
->>>  - time_t, __kenel_off_t and other types turned to be 32-bit
->>>    for compatibility reasons (after v5 discussion);
->
-> Introducing a new arch today with y2038 problems is not a good idea.
-> Linus said so with appropriately pointy words in 2011.
+On Tue, Apr 12, 2016 at 06:34:08PM +0200, Martin Schwidefsky wrote:
+> On Mon, 4 Apr 2016 16:26:35 +0200
+> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> 
+> > On Mon, Apr 04, 2016 at 05:51:09PM +0530, Sudip Mukherjee wrote:
+> > > On Monday 04 April 2016 09:39 AM, Stephen Rothwell wrote:
+> > > >Hi all,
+> > > >
+> > > >Changes since 20160401:
+> > > 
+> > > s390 allmodconfig build fails with the error:
+> > > 
+> > > arch/s390/crypto/ghash_s390.c:14:24: fatal error: crypt_s390.h: No
+> > > such file or directory
+> > >  #include "crypt_s390.h"
+> > >                       ^
+> > > 
+> > > build log is at:
+> > > https://travis-ci.org/sudipm-mukherjee/parport/jobs/120536718
+> > > 
+> > > caused by the commit -
+> > > ce69a690149c ("s390/crypto: cleanup and move the header with the
+> > > cpacf definitions") which removed the file "crypt_s390.h"
+> > 
+> > Thanks for letting us know!
+> > 
+> > I just removed that specific patch from the 'features' branch again. It was
+> > incomplete since it didn't convert the ghash module at all.
+> > 
+> > No idea what Martin was thinking when pushing that patch.
+> 
+> That is strange. On my local features branch that I use to push to kerne.org
+> there is no ghash commit. The last commit is this:
 
-This is the third time we had this discussion on time_t for ILP32.  I
-had originally it as 32bit, then Catalin suggested I change it to
-64bit and then Arnd (with his work for 2038 issue on 32bit arch) said
-ILP32 should match all other 32bit targets and the other 64bit time_t
-be fixed by the current work he was working on.  Now you are
-suggesting we change it again.
-Arnd can you please comment more on why we want 32bit time_t instead
-of the 64bit one?  I Know there was some POSIX (or was it C90)
-violation but I suspect there is an easy way to workaround this inside
-the kernel but the discussion to move over to 32bit time_t was already
-made by the time I started to look into that.
+Nobody said there is a ghash commit ;)
 
->
->> What makes you think these "applications that can=E2=80=99t readily =
-be migrated to LP64
->> because they were written assuming an ILP32 data model, and that wil=
-l never
->> become suitable for a LP64 data model and will remain locked into IL=
-P32
->> operating environments" are more likely to be fixed for y2038 later,=
- than for
->> LP64 now?
->
-> Such broken applications already have plenty of bogus architecture de=
-tection
-> code so you need porting anyway...
+> commit ce69a690149c7431d05b4679409ab8fa6ad3a09f
+> Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Date:   Thu Mar 17 15:22:12 2016 +0100
+> 
+>     s390/crypto: cleanup and move the header with the cpacf definitions
+> 
+> which Heiko now removed. My guest right now is that the ghash commit stems
+> from another tree merged into linux-next and we simply have an unresolved
+> dependency here. I do have an updated ghash patch that includes the correct
+> header.
 
-I don't disagree here; just see below ...
-
->
->> We're already closer to the (future) y2038 than to the (past) introd=
-uction of
->> LP64...
->>
->> These unfixable legacy applications have been spreading through x32 =
-to
->> the shiny new arm64 server architecture (does ppc64el also have an I=
-LP32 mode,
->> or is it planned)? Lots of resources are spent on maintaining the st=
-atus quo,
->> instead of on fixing the real problems.
->
-> As an x32 (userland) porter, I can tell you that time_t!=3Dlong _did_=
- cause
-> non-trivial amounts of work.  But that work is already done (at least=
- in
-> Debian), so you might as well benefit from it.
-
-There is actually private code out there which uses timespec and
-timeval to pass time over the wire; yes I know bad coding style and
-all but they did it that way.  This is code which was working for x86
-and we are porting it to ARM64; a data center code by the way; not
-some networking code even.  This means they have not ported the code
-to fully 64bit yet and they might never.
-
-Thanks,
-Andrew
-
->
->
-> --
-> A tit a day keeps the vet away.
+Your patch did not convert/touch arch/s390/crypto/ghash_s390.c which is
+very old code. And you need to do more within that file than just changing
+the include.
