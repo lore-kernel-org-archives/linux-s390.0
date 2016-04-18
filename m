@@ -1,68 +1,134 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 18 Apr 2016 09:48:05 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: linux-next: Tree for Apr 4
-Date: Tue, 12 Apr 2016 18:34:08 +0200
-Message-ID: <20160412183408.248092c7@mschwide>
-References: <20160404140951.148c95f6@canb.auug.org.au>
-	<57025C35.6090206@gmail.com>
-	<20160404142635.GF4058@osiris>
-Mime-Version: 1.0
+Subject: [GIT PULL] s390 patches for 4.6-rc5
+Message-ID: <20160418094805.2ff60511@mschwide>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20160404142635.GF4058@osiris>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 4 Apr 2016 16:26:35 +0200
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+Hi Linus,
 
-> On Mon, Apr 04, 2016 at 05:51:09PM +0530, Sudip Mukherjee wrote:
-> > On Monday 04 April 2016 09:39 AM, Stephen Rothwell wrote:
-> > >Hi all,
-> > >
-> > >Changes since 20160401:
-> > 
-> > s390 allmodconfig build fails with the error:
-> > 
-> > arch/s390/crypto/ghash_s390.c:14:24: fatal error: crypt_s390.h: No
-> > such file or directory
-> >  #include "crypt_s390.h"
-> >                       ^
-> > 
-> > build log is at:
-> > https://travis-ci.org/sudipm-mukherjee/parport/jobs/120536718
-> > 
-> > caused by the commit -
-> > ce69a690149c ("s390/crypto: cleanup and move the header with the
-> > cpacf definitions") which removed the file "crypt_s390.h"
-> 
-> Thanks for letting us know!
-> 
-> I just removed that specific patch from the 'features' branch again. It was
-> incomplete since it didn't convert the ghash module at all.
-> 
-> No idea what Martin was thinking when pushing that patch.
+please pull from the 'for-linus' branch of
 
-That is strange. On my local features branch that I use to push to kerne.org
-there is no ghash commit. The last commit is this:
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-commit ce69a690149c7431d05b4679409ab8fa6ad3a09f
-Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date:   Thu Mar 17 15:22:12 2016 +0100
+to receive the following updates:
 
-    s390/crypto: cleanup and move the header with the cpacf definitions
+A couple of bug fixes.
 
-which Heiko now removed. My guest right now is that the ghash commit stems
-from another tree merged into linux-next and we simply have an unresolved
-dependency here. I do have an updated ghash patch that includes the correct
-header.
+Gerald Schaefer (1):
+      s390/dcssblk: fix possible deadlock in remove vs. per-device attributes
 
--- 
-blue skies,
-   Martin.
+Heiko Carstens (2):
+      s390/spinlock: avoid yield to non existent cpu
+      s390: add CPU_BIG_ENDIAN config option
 
-"Reality continues to ruin my life." - Calvin.
+Sebastian Ott (2):
+      s390/scm_blk: fix deadlock for requests != REQ_TYPE_FS
+      s390/pci: add extra padding to function measurement block
+
+Sudip Mukherjee (1):
+      s390/seccomp: include generic seccomp header file
+
+ arch/s390/Kconfig               | 3 +++
+ arch/s390/include/asm/pci.h     | 3 ++-
+ arch/s390/include/asm/seccomp.h | 2 ++
+ arch/s390/lib/spinlock.c        | 1 +
+ drivers/s390/block/dcssblk.c    | 5 +++--
+ drivers/s390/block/scm_blk.c    | 2 +-
+ 6 files changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index aad23e3..bf24ab1 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -4,6 +4,9 @@ config MMU
+ config ZONE_DMA
+ 	def_bool y
+ 
++config CPU_BIG_ENDIAN
++	def_bool y
++
+ config LOCKDEP_SUPPORT
+ 	def_bool y
+ 
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index b6bfa16..535a46d 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -44,7 +44,8 @@ struct zpci_fmb {
+ 	u64 rpcit_ops;
+ 	u64 dma_rbytes;
+ 	u64 dma_wbytes;
+-} __packed __aligned(64);
++	u64 pad[2];
++} __packed __aligned(128);
+ 
+ enum zpci_state {
+ 	ZPCI_FN_STATE_RESERVED,
+diff --git a/arch/s390/include/asm/seccomp.h b/arch/s390/include/asm/seccomp.h
+index 781a9cf..e10f833 100644
+--- a/arch/s390/include/asm/seccomp.h
++++ b/arch/s390/include/asm/seccomp.h
+@@ -13,4 +13,6 @@
+ #define __NR_seccomp_exit_32	__NR_exit
+ #define __NR_seccomp_sigreturn_32 __NR_sigreturn
+ 
++#include <asm-generic/seccomp.h>
++
+ #endif	/* _ASM_S390_SECCOMP_H */
+diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
+index d4549c9..e5f50a7 100644
+--- a/arch/s390/lib/spinlock.c
++++ b/arch/s390/lib/spinlock.c
+@@ -105,6 +105,7 @@ void arch_spin_lock_wait_flags(arch_spinlock_t *lp, unsigned long flags)
+ 			if (_raw_compare_and_swap(&lp->lock, 0, cpu))
+ 				return;
+ 			local_irq_restore(flags);
++			continue;
+ 		}
+ 		/* Check if the lock owner is running. */
+ 		if (first_diag && cpu_is_preempted(~owner)) {
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 1bce9cf..b839086 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -756,15 +756,16 @@ dcssblk_remove_store(struct device *dev, struct device_attribute *attr, const ch
+ 	blk_cleanup_queue(dev_info->dcssblk_queue);
+ 	dev_info->gd->queue = NULL;
+ 	put_disk(dev_info->gd);
+-	device_unregister(&dev_info->dev);
+ 
+ 	/* unload all related segments */
+ 	list_for_each_entry(entry, &dev_info->seg_list, lh)
+ 		segment_unload(entry->segment_name);
+ 
+-	put_device(&dev_info->dev);
+ 	up_write(&dcssblk_devices_sem);
+ 
++	device_unregister(&dev_info->dev);
++	put_device(&dev_info->dev);
++
+ 	rc = count;
+ out_buf:
+ 	kfree(local_buf);
+diff --git a/drivers/s390/block/scm_blk.c b/drivers/s390/block/scm_blk.c
+index 75d9896..e6f54d3 100644
+--- a/drivers/s390/block/scm_blk.c
++++ b/drivers/s390/block/scm_blk.c
+@@ -303,7 +303,7 @@ static void scm_blk_request(struct request_queue *rq)
+ 		if (req->cmd_type != REQ_TYPE_FS) {
+ 			blk_start_request(req);
+ 			blk_dump_rq_flags(req, KMSG_COMPONENT " bad request");
+-			blk_end_request_all(req, -EIO);
++			__blk_end_request_all(req, -EIO);
+ 			continue;
+ 		}
+ 
