@@ -1,36 +1,66 @@
-From: Borislav Petkov <bp@alien8.de>
+From: Ingo Molnar <mingo@kernel.org>
 Subject: Re: [PATCH 10/11] x86, rwsem: provide __down_write_killable
-Date: Thu, 21 Apr 2016 15:21:53 +0200
-Message-ID: <20160421132153.GH28821@pd.tnic>
-References: <20160413102731.GA29896@gmail.com>
+Date: Fri, 22 Apr 2016 08:53:49 +0200
+Message-ID: <20160422065349.GA1135@gmail.com>
+References: <1460041951-22347-1-git-send-email-mhocko@kernel.org>
+ <1460041951-22347-11-git-send-email-mhocko@kernel.org>
+ <20160413090829.GB29579@gmail.com>
+ <20160413091625.GF14351@dhcp22.suse.cz>
+ <20160413091943.GA17858@gmail.com>
+ <20160413102731.GA29896@gmail.com>
  <20160413124943.GH14351@dhcp22.suse.cz>
  <20160420134019.GX3448@twins.programming.kicks-ass.net>
- <91A11395-ACAA-4043-B770-2DF6CBAED54C@zytor.com>
- <20160420204501.GA6815@pd.tnic>
- <5717EF59.1030709@zytor.com>
- <20160420213637.GA4978@pd.tnic>
- <FB0197A2-6A76-43FC-A30E-BE619D3BC67E@zytor.com>
- <20160421113516.GB28821@pd.tnic>
- <20160421130910.GB18427@dhcp22.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-ia64-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160421130910.GB18427@dhcp22.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20160420134019.GX3448@twins.programming.kicks-ass.net>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Michal Hocko <mhocko@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Michal Hocko <mhocko@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 21, 2016 at 09:09:11AM -0400, Michal Hocko wrote:
-> Thanks Boris! This is highly appreciated.
 
-I know ;-)
+* Peter Zijlstra <peterz@infradead.org> wrote:
 
--- 
-Regards/Gruss,
-    Boris.
+> On Wed, Apr 13, 2016 at 02:49:43PM +0200, Michal Hocko wrote:
+> > On Wed 13-04-16 12:27:31, Ingo Molnar wrote:
+> > >=20
+> > > * Ingo Molnar <mingo@kernel.org> wrote:
+> > >=20
+> > > > I'm testing your patches today, if they are otherwise OK [...]
+> > >=20
+> > > got this build failure:
+> > >=20
+> > >   ./arch/x86/include/asm/rwsem.h:106:2: error: =E2=80=98asm=E2=80=
+=99 operand has impossible constraints
+> >=20
+> > Hmm, I have no idea why 64b didn't have problem with the asm but 32=
+b
+> > complains. Anyway, the following makes both happy. I have checked t=
+he
+> > generated code for 64b and it hasn't changed after the patch. 32b a=
+lso
+> > seems to be generating a proper code. My gcc asm()-foo is rather we=
+ak so
+> > I would feel better if somebody double checked after me.
+>=20
+> I completely blow at this gcc-asm constraints thing too :/
+>=20
+> In any case, Ingo will you look after the rest of these patches, or d=
+o
+> you want me to pick up the remaining bits?
 
-ECO tip #101: Trim your mails when you reply.
+Yeah, it's on my list!
+
+Thanks,
+
+	Ingo
+--
+To unsubscribe from this list: send the line "unsubscribe linux-ia64" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
