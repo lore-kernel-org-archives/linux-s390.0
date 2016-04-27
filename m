@@ -1,71 +1,209 @@
-From: Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table
- (in entry.S) to use it
-Date: Tue, 26 Apr 2016 17:57:01 +0100
-Message-ID: <20160426165701.GE8525@e104818-lin.cambridge.arm.com>
+From: Andrew Pinski <pinskia@gmail.com>
+Subject: Re: [RFC6 PATCH v6 00/21] ILP32 for ARM64 - LTP results
+Date: Wed, 27 Apr 2016 00:30:06 -0700
+Message-ID: <CA+=Sn1kT7-3k4smZ60zcjcXeVMzjH6AxV6-um68SNhD9meC=ZA@mail.gmail.com>
 References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
- <1459894127-17698-21-git-send-email-ynorov@caviumnetworks.com>
+	<20160405224412.GA18300@yury-N73SV>
+	<571AEDF9.6030701@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1459894127-17698-21-git-send-email-ynorov@caviumnetworks.com>
-Sender: linux-doc-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <571AEDF9.6030701@huawei.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Yury Norov <ynorov@caviumnetworks.com>
-Cc: arnd@arndb.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, broonie@kernel.org, linux-doc@vger.kernel.org, heiko.carstens@de.ibm.com, agraf@suse.de, klimov.linux@gmail.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, bamvor.zhangjian@huawei.com, Andrew Pinski <apinski@cavium.com>, schwidefsky@de.ibm.com, Nathan_Lynch@mentor.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
+To: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
+Cc: Yury Norov <ynorov@caviumnetworks.com>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Kapoor, Prasun" <Prasun.Kapoor@caviumnetworks.com>, Andreas Schwab <schwab@suse.de>, Nathan Lynch <Nathan_Lynch@mentor.com>, Alexander Graf <agraf@suse.de>, Alexey Klimov <klimov.linux@gmail.com>, Mark Brown <broonie@kernel.org>, "Joseph S. Myers" <joseph@codesourcery.com>, christoph.muellner@theobroma-systems.com, linux-doc@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Hanjun Guo <guohanjun@huawei.com>, GCC Mailing List <gcc@gcc.gnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Apr 06, 2016 at 01:08:42AM +0300, Yury Norov wrote:
-> +/* Using non-compat syscalls where necessary */
-> +#define compat_sys_fadvise64_64        sys_fadvise64_64
-> +#define compat_sys_fallocate           sys_fallocate
-> +#define compat_sys_ftruncate64         sys_ftruncate
-> +#define compat_sys_lookup_dcookie      sys_lookup_dcookie
-> +#define compat_sys_pread64             sys_pread64
-> +#define compat_sys_pwrite64            sys_pwrite64
-> +#define compat_sys_readahead           sys_readahead
-> +#define compat_sys_shmat               sys_shmat
+On Fri, Apr 22, 2016 at 8:37 PM, Zhangjian (Bamvor)
+<bamvor.zhangjian@huawei.com> wrote:
+> Hi, Yury
+>
+>
+> On 2016/4/6 6:44, Yury Norov wrote:
+>>
+>> There are about 20 failing tests of 782 in lite scenario.
+>> float_bessel
+>> float_exp_log
+>> float_iperb
+>> float_power
+>> float_trigo
+>> pipeio_1
+>> pipeio_3
+>> pipeio_5
+>> pipeio_8
+>> abort01
+>> clone02
+>> kill11
+>> mmap16
+>> open12
+>> pause01
+>> rename11
+>> rmdir02
+>> umount2_01
+>> umount2_02
+>> umount2_03
+>> utime06
+>> mtest06
+>>
+>> The list is rough because some tests fail not every time.
+>>
+>> Tests abort01 and kill11 fail for lp64 too, so maybe there's
+>> a reason unrelated to ilp32 itself.
+>>
+>> float_xxx tests fail because they call unwind() from signal context,
+>> and GCC for ilp32 has problem with it, as Andrew told.
+>
+> Is there some progress about this issue. When we talk about unwind
+> functions, do you mean the function in libgcc?
+>
+> We encountered another issue(abort not segfault) which also called
+> pthread_cancel(). The test code is in the attachment. Here is the
+> backtrace:
 
-Why don't we use compat_sys_shmat? Is it because of COMPAT_SHMLBA?
+Yes this was a known issue I knew about.  I have a patch GCC to fix
+this.  Basically REG_VALUE_IN_UNWIND_CONTEXT needs to be defined while
+building libgcc to support the correct unwind information.
+I will be posting a GCC patch to fix this tomorrow.  This was a bug
+even in the original set of ilp32 patches.  I only finally was able to
+sit down and fix it today.
 
-> +#define compat_sys_sync_file_range     sys_sync_file_range
-> +#define compat_sys_truncate64          sys_truncate
-> +#define sys_llseek                     sys_lseek
-> +#define sys_mmap2		       sys_mmap
 
-Nitpick: there are some whitespace inconsistencies above (just convert
-all spaces to tabs).
+Thanks,
+Andrew
 
-I think you should also update Documentation/arm64/ilp32.txt to include
-the list above.
-
-> +
-> +#include <asm/syscall.h>
-> +
-> +#undef __SYSCALL
-> +#undef __SC_COMP
-> +#undef __SC_WRAP
-> +#undef __SC_3264
-> +#undef __SC_COMP_3264
-
-Minor detail: do we actually need to undef all these? Maybe we can get
-away with just defining __SYSCALL_COMPAT at the top of the file.
-
-> +
-> +#define __SYSCALL_COMPAT
-> +#define __SYSCALL(nr, sym)	[nr] = sym,
-> +#define __SC_WRAP(nr, sym)	[nr] = compat_##sym,
-> +
-> +/*
-> + * The sys_call_ilp32_table array must be 4K aligned to be accessible from
-> + * kernel/entry.S.
-> + */
-> +void *sys_call_ilp32_table[__NR_syscalls] __aligned(4096) = {
-> +	[0 ... __NR_syscalls - 1] = sys_ni_syscall,
-> +#include <asm/unistd.h>
-> +};
-
--- 
-Catalin
+>
+> ```
+> Program received signal SIGABRT, Aborted.
+> [Switching to Thread 0xf77ee330 (LWP 2958)]
+> 0x000000000040f5bc in raise (sig=sig@entry=6)
+>     at ../sysdeps/unix/sysv/linux/raise.c:55
+> 55      ../sysdeps/unix/sysv/linux/raise.c: No such file or directory.
+> (gdb) bt
+> #0  0x000000000040f5bc in raise (sig=sig@entry=6)
+>     at ../sysdeps/unix/sysv/linux/raise.c:55
+> #1  0x000000000040f884 in abort () at abort.c:89
+>
+> #2  0x00000000004073b4 in uw_update_context_1 (
+>     context=context@entry=0xf77ec820, fs=fs@entry=0xf77ebec8)
+> at /home/GCC-Build/p660/p660_build_dir/src/gcc-4.9/libgcc/unwind-dw2.c:1430
+>
+> #3  0x00000000004078c0 in uw_update_context
+> (context=context@entry=0xf77ec820,
+>     fs=fs@entry=0xf77ebec8)
+>    at
+> /home/GCC-Build/p660/p660_build_dir/src/gcc-4.9/libgcc/unwind-dw2.c:1506
+> #4  0x0000000000407a9c in uw_advance_context (fs=0xf77ebec8,
+>     context=0xf77ec820)
+>     at
+> /home/GCC-Build/p660/p660_build_dir/src/gcc-4.9/libgcc/unwind-dw2.c:1529
+> #5  _Unwind_ForcedUnwind_Phase2 (exc=exc@entry=0xf77ee580,
+>     context=context@entry=0xf77ec820)
+>     at /home/GCC-Build/p660/p660_build_dir/src/gcc-4.9/libgcc/unwind.inc:185
+> #6  0x0000000000408228 in _Unwind_ForcedUnwind (exc=0xf77ee580,
+>     stop=stop@entry=0x405440 <unwind_stop>, stop_argument=0xf77eddd8)
+>     at /home/GCC-Build/p660/p660_build_dir/src/gcc-4.9/libgcc/unwind.inc:207
+> #7  0x00000000004055c4 in __pthread_unwind (buf=<optimized out>)
+>     at unwind.c:126
+> #8  0x00000000004050b4 in __do_cancel () at ./pthreadP.h:283
+> #9  sigcancel_handler (sig=<optimized out>, si=<optimized out>,
+>     ctx=<optimized out>) at nptl-init.c:225
+> ---Type <return> to continue, or q <return> to quit---
+> #10 <signal handler called>
+>
+> #11 0x0000000000000000 in ?? ()
+>
+> #12 0x0000000000423084 in __select (nfds=-66661, readfds=<optimized out>,
+>     writefds=<optimized out>, exceptfds=<optimized out>, timeout=0x0)
+>     at ../sysdeps/unix/sysv/linux/generic/select.c:45
+> #13 0x0000000000400604 in TEST_TaskDelay (
+>     uiMillSecs=<error reading variable: can't compute CFA for this frame>)
+>     at test-cancel.c:18
+> #14 0x0000000000400680 in printids (
+>     s=<error reading variable: can't compute CFA for this frame>)
+>     at test-cancel.c:38
+> #15 0x00000000004006d0 in thr_fn (
+>     arg=<error reading variable: can't compute CFA for this frame>)
+>     at test-cancel.c:49
+> #16 0x0000000000401b28 in start_thread (arg=0x4a3000) at
+> pthread_create.c:335
+> #17 0x0000000000401b28 in start_thread (arg=0x4a3000) at
+> pthread_create.c:335
+> Backtrace stopped: previous frame identical to this frame (corrupt stack?)
+> ```
+>
+> Such abort is raise by the following code:
+> ```
+> static void
+> uw_update_context_1 (struct _Unwind_Context *context, _Unwind_FrameState
+> *fs)
+> {
+> //...
+>   /* Compute this frame's CFA.  */
+>   switch (fs->regs.cfa_how)
+>     {
+>     case CFA_REG_OFFSET:
+>       cfa = _Unwind_GetPtr (&orig_context, fs->regs.cfa_reg);
+>       cfa += fs->regs.cfa_offset;
+>       break;
+>
+>     case CFA_EXP:
+>       {
+>         const unsigned char *exp = fs->regs.cfa_exp;
+>         _uleb128_t len;
+>
+>         exp = read_uleb128 (exp, &len);
+>         cfa = (void *) (_Unwind_Ptr)
+>           execute_stack_op (exp, exp + len, &orig_context, 0);
+>         break;
+>       }
+>
+>     default:
+>       gcc_unreachable ();
+>     }
+>   context->cfa = cfa;
+> //...
+> }
+> ``
+>
+> Any suggestion is appreciated.
+>
+> CC gcc mailing list. Sorry if it is off topic.
+>
+> Regards
+>
+> Bamvor
+>
+>
+>
+>
+>> pipeio_x tests are very unstable and may fail randomly. I strongly
+>> suspect race conditions, as they all work like a charm if pinned to
+>> single CPU with taskset. Probably, race is the reason of clone02 too.
+>> Though I'm not sure, is the race in kernel, glibc or test itself.
+>>
+>> But I know for sure that pause01 fails due to test design:
+>>         if (setitimer(ITIMER_REAL, &it, NULL)) // For 1000us
+>>                 tst_brkm(TBROK | TERRNO, NULL, "setitimer() failed");
+>>
+>>         TEST(pause());
+>>
+>> As setitimer() and pause() calls are not atomic, alarm may come before
+>> pause()
+>> is called, and be silently dropped by the handler. Next pause() call hangs
+>> test forever. I already reported to LTP list.
+>>
+>> open12, rename11, rmdir02, mmap16, mtest06 - all call mkfs tool, and it
+>> returns
+>> error code. I didn't investigate it much yet.
+>>
+>> umount02_x, utime06 - cannot reproduce out of scenario, even run it in
+>> infinite
+>> loop - they work fine.
+>>
+>> Full test log is attached.
+>>
+>> Yury
+>>
+>
