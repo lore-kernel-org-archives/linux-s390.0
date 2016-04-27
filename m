@@ -1,66 +1,148 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH 10/11] x86, rwsem: provide __down_write_killable
-Date: Fri, 22 Apr 2016 08:53:49 +0200
-Message-ID: <20160422065349.GA1135@gmail.com>
-References: <1460041951-22347-1-git-send-email-mhocko@kernel.org>
- <1460041951-22347-11-git-send-email-mhocko@kernel.org>
- <20160413090829.GB29579@gmail.com>
- <20160413091625.GF14351@dhcp22.suse.cz>
+From: Borislav Petkov <bp@alien8.de>
+Subject: [PATCH] x86/locking/rwsem: Cleanup ____down_write()
+Date: Wed, 27 Apr 2016 14:02:17 +0200
+Message-ID: <20160427120217.GE21011@pd.tnic>
+References: <20160413091625.GF14351@dhcp22.suse.cz>
  <20160413091943.GA17858@gmail.com>
  <20160413102731.GA29896@gmail.com>
  <20160413124943.GH14351@dhcp22.suse.cz>
  <20160420134019.GX3448@twins.programming.kicks-ass.net>
+ <91A11395-ACAA-4043-B770-2DF6CBAED54C@zytor.com>
+ <20160420204501.GA6815@pd.tnic>
+ <5717EF59.1030709@zytor.com>
+ <20160420213637.GA4978@pd.tnic>
+ <FB0197A2-6A76-43FC-A30E-BE619D3BC67E@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160420134019.GX3448@twins.programming.kicks-ass.net>
-Sender: linux-ia64-owner@vger.kernel.org
+In-Reply-To: <FB0197A2-6A76-43FC-A30E-BE619D3BC67E@zytor.com>
+Sender: linux-alpha-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Michal Hocko <mhocko@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Ingo Molnar <mingo@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Wed, Apr 20, 2016 at 03:29:30PM -0700, H. Peter Anvin wrote:
+> Since it is a fixed register we could just mark edx clobbered, but
+> with more flexible register constraints it can permit gcc to allocate
+> a temp resister for us.
 
-* Peter Zijlstra <peterz@infradead.org> wrote:
+How about the following?
 
-> On Wed, Apr 13, 2016 at 02:49:43PM +0200, Michal Hocko wrote:
-> > On Wed 13-04-16 12:27:31, Ingo Molnar wrote:
-> > >=20
-> > > * Ingo Molnar <mingo@kernel.org> wrote:
-> > >=20
-> > > > I'm testing your patches today, if they are otherwise OK [...]
-> > >=20
-> > > got this build failure:
-> > >=20
-> > >   ./arch/x86/include/asm/rwsem.h:106:2: error: =E2=80=98asm=E2=80=
-=99 operand has impossible constraints
-> >=20
-> > Hmm, I have no idea why 64b didn't have problem with the asm but 32=
-b
-> > complains. Anyway, the following makes both happy. I have checked t=
-he
-> > generated code for 64b and it hasn't changed after the patch. 32b a=
-lso
-> > seems to be generating a proper code. My gcc asm()-foo is rather we=
-ak so
-> > I would feel better if somebody double checked after me.
->=20
-> I completely blow at this gcc-asm constraints thing too :/
->=20
-> In any case, Ingo will you look after the rest of these patches, or d=
-o
-> you want me to pick up the remaining bits?
+It boots fine in kvm and the asm changes are only trivial gcc comments
+differences:
 
-Yeah, it's on my list!
+---
+From: Borislav Petkov <bp@suse.de>
+Date: Wed, 27 Apr 2016 13:47:32 +0200
+Subject: [PATCH] x86/locking/rwsem: Cleanup ____down_write()
 
-Thanks,
+Move the RWSEM_ACTIVE_WRITE_BIAS out of the inline asm to reduce the
+number of arguments. Also, make it an input argument only (why it was an
+output operand, I still don't know...).
 
-	Ingo
---
-To unsubscribe from this list: send the line "unsubscribe linux-ia64" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+For better readability, use symbolic names for the arguments and move
+the linebreak backspace to 80 cols.
+
+Resulting asm differs only in the temporary gcc variable names and
+locations:
+
+  --- before      2016-04-27 13:39:05.320778458 +0200
+  +++ after       2016-04-27 13:52:37.336778994 +0200
+  @@ -11,8 +11,8 @@ down_write_killable:
+   .LBB84:
+   .LBB85:
+   .LBB86:
+  -        .loc 2 128 0
+  -        movabsq $-4294967295, %rdx      #, tmp
+  +        .loc 2 130 0
+  +        movabsq $-4294967295, %rdx      #, tmp94
+           movq    %rdi, %rax      # sem, sem
+   .LBE86:
+   .LBE85:
+  @@ -23,17 +23,17 @@ down_write_killable:
+   .LBB89:
+   .LBB88:
+   .LBB87:
+  -        .loc 2 128 0
+  +        .loc 2 130 0
+   #APP
+  -# 128 "./arch/x86/include/asm/rwsem.h" 1
+  +# 130 "./arch/x86/include/asm/rwsem.h" 1
+           # beginning down_write
+           .pushsection .smp_locks,"a"
+   .balign 4
+   .long 671f - .
+   .popsection
+   671:
+  -        lock;   xadd      %rdx,(%rax)   # tmp, sem
+  -          test  %edx , %edx     # tmp
+  +        lock;   xadd      %rdx,(%rax)   # tmp94, sem
+  +          test  %edx , %edx     # tmp94
+             jz        1f
+     call call_rwsem_down_write_failed_killable
+   1:
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+---
+ arch/x86/include/asm/rwsem.h | 36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
+
+diff --git a/arch/x86/include/asm/rwsem.h b/arch/x86/include/asm/rwsem.h
+index 453744c1d347..d2f8d10a6d97 100644
+--- a/arch/x86/include/asm/rwsem.h
++++ b/arch/x86/include/asm/rwsem.h
+@@ -99,23 +99,25 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ /*
+  * lock for writing
+  */
+-#define ____down_write(sem, slow_path)			\
+-({							\
+-	long tmp;					\
+-	struct rw_semaphore* ret;			\
+-	asm volatile("# beginning down_write\n\t"	\
+-		     LOCK_PREFIX "  xadd      %1,(%3)\n\t"	\
+-		     /* adds 0xffff0001, returns the old value */ \
+-		     "  test " __ASM_SEL(%w1,%k1) "," __ASM_SEL(%w1,%k1) "\n\t" \
+-		     /* was the active mask 0 before? */\
+-		     "  jz        1f\n"			\
+-		     "  call " slow_path "\n"		\
+-		     "1:\n"				\
+-		     "# ending down_write"		\
+-		     : "+m" (sem->count), "=d" (tmp), "=a" (ret)	\
+-		     : "a" (sem), "1" (RWSEM_ACTIVE_WRITE_BIAS) \
+-		     : "memory", "cc");			\
+-	ret;						\
++#define ____down_write(sem, slow_path)						\
++({										\
++	long tmp = RWSEM_ACTIVE_WRITE_BIAS;					\
++	struct rw_semaphore* ret;						\
++										\
++	asm volatile("# beginning down_write\n\t"				\
++		     LOCK_PREFIX "  xadd      %[tmp],(%[sem])\n\t"		\
++		     /* adds 0xffff0001, returns the old value */		\
++		     "  test " __ASM_SEL(%w[tmp],%k[tmp]) ","			\
++			       __ASM_SEL(%w[tmp],%k[tmp]) "\n\t"		\
++		     /* was the active mask 0 before? */			\
++		     "  jz        1f\n"						\
++		     "  call " slow_path "\n"					\
++		     "1:\n"							\
++		     "# ending down_write"					\
++		     : "+m" (sem->count), "=a" (ret)				\
++		     : [sem] "a" (sem), [tmp] "r" (tmp)				\
++		     : "memory", "cc");						\
++	ret;									\
+ })
+ 
+ static inline void __down_write(struct rw_semaphore *sem)
+-- 
+2.7.3
+
+
+-- 
+Regards/Gruss,
+    Boris.
+
+ECO tip #101: Trim your mails when you reply.
