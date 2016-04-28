@@ -1,8 +1,9 @@
 Return-Path: <jpoimboe@redhat.com>
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [RFC PATCH v2 09/18] livepatch/x86: add TIF_PATCH_PENDING thread flag
-Date: Thu, 28 Apr 2016 15:44:40 -0500
-Message-Id: <6360fe5cab85aad424600518f645a9ac773cc72e.1461875890.git.jpoimboe@redhat.com>
+Subject: [RFC PATCH v2 10/18] livepatch/powerpc: add TIF_PATCH_PENDING thread
+ flag
+Date: Thu, 28 Apr 2016 15:44:41 -0500
+Message-Id: <948131afc5d1e0fab00e78287a665d7b383cf884.1461875890.git.jpoimboe@redhat.com>
 In-Reply-To: <cover.1461875890.git.jpoimboe@redhat.com>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -18,79 +19,69 @@ Cc: live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
 List-ID: <linux-s390.vger.kernel.org>
 
 Add the TIF_PATCH_PENDING thread flag to enable the new livepatch
-per-task consistency model for x86_64.  The bit getting set indicates
+per-task consistency model for powerpc.  The bit getting set indicates
 the thread has a pending patch which needs to be applied when the thread
 exits the kernel.
 
-The bit is placed in the least-significant word of the thread_info flags
-so that it gets automatically included in the _TIF_ALLWORK_MASK macro.
-This results in exit_to_usermode_loop() and klp_patch_task() getting
-called when the bit is set.
+The bit is included in the _TIF_USER_WORK_MASK macro so that
+do_notify_resume() and klp_patch_task() get called when the bit is set.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
- arch/x86/entry/common.c            | 9 ++++++---
- arch/x86/include/asm/thread_info.h | 2 ++
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/thread_info.h | 4 +++-
+ arch/powerpc/kernel/signal.c           | 4 ++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
-index ec138e5..0eaa1d9 100644
---- a/arch/x86/entry/common.c
-+++ b/arch/x86/entry/common.c
-@@ -21,6 +21,7 @@
- #include <linux/context_tracking.h>
- #include <linux/user-return-notifier.h>
+diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
+index 8febc3f..df262ca 100644
+--- a/arch/powerpc/include/asm/thread_info.h
++++ b/arch/powerpc/include/asm/thread_info.h
+@@ -88,6 +88,7 @@ static inline struct thread_info *current_thread_info(void)
+ 					   TIF_NEED_RESCHED */
+ #define TIF_32BIT		4	/* 32 bit binary */
+ #define TIF_RESTORE_TM		5	/* need to restore TM FP/VEC/VSX */
++#define TIF_PATCH_PENDING	6	/* pending live patching update */
+ #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
+ #define TIF_SINGLESTEP		8	/* singlestepping active */
+ #define TIF_NOHZ		9	/* in adaptive nohz mode */
+@@ -111,6 +112,7 @@ static inline struct thread_info *current_thread_info(void)
+ #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
+ #define _TIF_32BIT		(1<<TIF_32BIT)
+ #define _TIF_RESTORE_TM		(1<<TIF_RESTORE_TM)
++#define _TIF_PATCH_PENDING	(1<<TIF_PATCH_PENDING)
+ #define _TIF_SYSCALL_AUDIT	(1<<TIF_SYSCALL_AUDIT)
+ #define _TIF_SINGLESTEP		(1<<TIF_SINGLESTEP)
+ #define _TIF_SECCOMP		(1<<TIF_SECCOMP)
+@@ -127,7 +129,7 @@ static inline struct thread_info *current_thread_info(void)
+ 
+ #define _TIF_USER_WORK_MASK	(_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
+ 				 _TIF_NOTIFY_RESUME | _TIF_UPROBE | \
+-				 _TIF_RESTORE_TM)
++				 _TIF_RESTORE_TM | _TIF_PATCH_PENDING)
+ #define _TIF_PERSYSCALL_MASK	(_TIF_RESTOREALL|_TIF_NOERROR)
+ 
+ /* Bits in local_flags */
+diff --git a/arch/powerpc/kernel/signal.c b/arch/powerpc/kernel/signal.c
+index cb64d6f..844497b 100644
+--- a/arch/powerpc/kernel/signal.c
++++ b/arch/powerpc/kernel/signal.c
+@@ -14,6 +14,7 @@
  #include <linux/uprobes.h>
+ #include <linux/key.h>
+ #include <linux/context_tracking.h>
 +#include <linux/livepatch.h>
+ #include <asm/hw_breakpoint.h>
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -159,6 +160,9 @@ void do_notify_resume(struct pt_regs *regs, unsigned long thread_info_flags)
+ 		tracehook_notify_resume(regs);
+ 	}
  
- #include <asm/desc.h>
- #include <asm/traps.h>
-@@ -202,14 +203,13 @@ long syscall_trace_enter(struct pt_regs *regs)
- 
- #define EXIT_TO_USERMODE_LOOP_FLAGS				\
- 	(_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_UPROBE |	\
--	 _TIF_NEED_RESCHED | _TIF_USER_RETURN_NOTIFY)
-+	 _TIF_NEED_RESCHED | _TIF_USER_RETURN_NOTIFY | _TIF_PATCH_PENDING)
- 
- static void exit_to_usermode_loop(struct pt_regs *regs, u32 cached_flags)
- {
- 	/*
- 	 * In order to return to user mode, we need to have IRQs off with
--	 * none of _TIF_SIGPENDING, _TIF_NOTIFY_RESUME, _TIF_USER_RETURN_NOTIFY,
--	 * _TIF_UPROBE, or _TIF_NEED_RESCHED set.  Several of these flags
-+	 * none of EXIT_TO_USERMODE_LOOP_FLAGS set.  Several of these flags
- 	 * can be set at any time on preemptable kernels if we have IRQs on,
- 	 * so we need to loop.  Disabling preemption wouldn't help: doing the
- 	 * work to clear some of the flags can sleep.
-@@ -236,6 +236,9 @@ static void exit_to_usermode_loop(struct pt_regs *regs, u32 cached_flags)
- 		if (cached_flags & _TIF_USER_RETURN_NOTIFY)
- 			fire_user_return_notifiers();
- 
-+		if (cached_flags & _TIF_PATCH_PENDING)
-+			klp_patch_task(current);
++	if (thread_info_flags & _TIF_PATCH_PENDING)
++		klp_patch_task(current);
 +
- 		/* Disable IRQs and retry */
- 		local_irq_disable();
+ 	user_enter();
+ }
  
-diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
-index 30c133a..4e4f50e 100644
---- a/arch/x86/include/asm/thread_info.h
-+++ b/arch/x86/include/asm/thread_info.h
-@@ -97,6 +97,7 @@ struct thread_info {
- #define TIF_SECCOMP		8	/* secure computing */
- #define TIF_USER_RETURN_NOTIFY	11	/* notify kernel of userspace return */
- #define TIF_UPROBE		12	/* breakpointed or singlestepping */
-+#define TIF_PATCH_PENDING	13	/* pending live patching update */
- #define TIF_NOTSC		16	/* TSC is not accessible in userland */
- #define TIF_IA32		17	/* IA32 compatibility process */
- #define TIF_FORK		18	/* ret_from_fork */
-@@ -121,6 +122,7 @@ struct thread_info {
- #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
- #define _TIF_USER_RETURN_NOTIFY	(1 << TIF_USER_RETURN_NOTIFY)
- #define _TIF_UPROBE		(1 << TIF_UPROBE)
-+#define _TIF_PATCH_PENDING	(1 << TIF_PATCH_PENDING)
- #define _TIF_NOTSC		(1 << TIF_NOTSC)
- #define _TIF_IA32		(1 << TIF_IA32)
- #define _TIF_FORK		(1 << TIF_FORK)
 -- 
 2.4.11
