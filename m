@@ -1,9 +1,8 @@
 Return-Path: <jpoimboe@redhat.com>
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [RFC PATCH v2 10/18] livepatch/powerpc: add TIF_PATCH_PENDING thread
- flag
-Date: Thu, 28 Apr 2016 15:44:41 -0500
-Message-Id: <948131afc5d1e0fab00e78287a665d7b383cf884.1461875890.git.jpoimboe@redhat.com>
+Subject: [RFC PATCH v2 11/18] livepatch/s390: reorganize TIF thread flag bits
+Date: Thu, 28 Apr 2016 15:44:42 -0500
+Message-Id: <2cc2dc90abc8b999594d5e8cf2f396df26cd76d6.1461875890.git.jpoimboe@redhat.com>
 In-Reply-To: <cover.1461875890.git.jpoimboe@redhat.com>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -18,70 +17,65 @@ To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes
 Cc: live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add the TIF_PATCH_PENDING thread flag to enable the new livepatch
-per-task consistency model for powerpc.  The bit getting set indicates
-the thread has a pending patch which needs to be applied when the thread
-exits the kernel.
+From: Jiri Slaby <jslaby@suse.cz>
 
-The bit is included in the _TIF_USER_WORK_MASK macro so that
-do_notify_resume() and klp_patch_task() get called when the bit is set.
+Group the TIF thread flag bits by their inclusion in the _TIF_WORK and
+_TIF_TRACE macros.
 
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
- arch/powerpc/include/asm/thread_info.h | 4 +++-
- arch/powerpc/kernel/signal.c           | 4 ++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/thread_info.h | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
-index 8febc3f..df262ca 100644
---- a/arch/powerpc/include/asm/thread_info.h
-+++ b/arch/powerpc/include/asm/thread_info.h
-@@ -88,6 +88,7 @@ static inline struct thread_info *current_thread_info(void)
- 					   TIF_NEED_RESCHED */
- #define TIF_32BIT		4	/* 32 bit binary */
- #define TIF_RESTORE_TM		5	/* need to restore TM FP/VEC/VSX */
-+#define TIF_PATCH_PENDING	6	/* pending live patching update */
- #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
- #define TIF_SINGLESTEP		8	/* singlestepping active */
- #define TIF_NOHZ		9	/* in adaptive nohz mode */
-@@ -111,6 +112,7 @@ static inline struct thread_info *current_thread_info(void)
- #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
- #define _TIF_32BIT		(1<<TIF_32BIT)
- #define _TIF_RESTORE_TM		(1<<TIF_RESTORE_TM)
-+#define _TIF_PATCH_PENDING	(1<<TIF_PATCH_PENDING)
- #define _TIF_SYSCALL_AUDIT	(1<<TIF_SYSCALL_AUDIT)
- #define _TIF_SINGLESTEP		(1<<TIF_SINGLESTEP)
- #define _TIF_SECCOMP		(1<<TIF_SECCOMP)
-@@ -127,7 +129,7 @@ static inline struct thread_info *current_thread_info(void)
- 
- #define _TIF_USER_WORK_MASK	(_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
- 				 _TIF_NOTIFY_RESUME | _TIF_UPROBE | \
--				 _TIF_RESTORE_TM)
-+				 _TIF_RESTORE_TM | _TIF_PATCH_PENDING)
- #define _TIF_PERSYSCALL_MASK	(_TIF_RESTOREALL|_TIF_NOERROR)
- 
- /* Bits in local_flags */
-diff --git a/arch/powerpc/kernel/signal.c b/arch/powerpc/kernel/signal.c
-index cb64d6f..844497b 100644
---- a/arch/powerpc/kernel/signal.c
-+++ b/arch/powerpc/kernel/signal.c
-@@ -14,6 +14,7 @@
- #include <linux/uprobes.h>
- #include <linux/key.h>
- #include <linux/context_tracking.h>
-+#include <linux/livepatch.h>
- #include <asm/hw_breakpoint.h>
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -159,6 +160,9 @@ void do_notify_resume(struct pt_regs *regs, unsigned long thread_info_flags)
- 		tracehook_notify_resume(regs);
- 	}
- 
-+	if (thread_info_flags & _TIF_PATCH_PENDING)
-+		klp_patch_task(current);
+diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
+index 2fffc2c..8642c1d 100644
+--- a/arch/s390/include/asm/thread_info.h
++++ b/arch/s390/include/asm/thread_info.h
+@@ -70,14 +70,12 @@ void arch_release_task_struct(struct task_struct *tsk);
+ /*
+  * thread information flags bit numbers
+  */
++/* _TIF_WORK bits */
+ #define TIF_NOTIFY_RESUME	0	/* callback before returning to user */
+ #define TIF_SIGPENDING		1	/* signal pending */
+ #define TIF_NEED_RESCHED	2	/* rescheduling necessary */
+-#define TIF_SYSCALL_TRACE	3	/* syscall trace active */
+-#define TIF_SYSCALL_AUDIT	4	/* syscall auditing active */
+-#define TIF_SECCOMP		5	/* secure computing */
+-#define TIF_SYSCALL_TRACEPOINT	6	/* syscall tracepoint instrumentation */
+-#define TIF_UPROBE		7	/* breakpointed or single-stepping */
++#define TIF_UPROBE		3	/* breakpointed or single-stepping */
 +
- 	user_enter();
- }
+ #define TIF_31BIT		16	/* 32bit process */
+ #define TIF_MEMDIE		17	/* is terminating due to OOM killer */
+ #define TIF_RESTORE_SIGMASK	18	/* restore signal mask in do_signal() */
+@@ -85,15 +83,23 @@ void arch_release_task_struct(struct task_struct *tsk);
+ #define TIF_BLOCK_STEP		20	/* This task is block stepped */
+ #define TIF_UPROBE_SINGLESTEP	21	/* This task is uprobe single stepped */
  
++/* _TIF_TRACE bits */
++#define TIF_SYSCALL_TRACE	24	/* syscall trace active */
++#define TIF_SYSCALL_AUDIT	25	/* syscall auditing active */
++#define TIF_SECCOMP		26	/* secure computing */
++#define TIF_SYSCALL_TRACEPOINT	27	/* syscall tracepoint instrumentation */
++
+ #define _TIF_NOTIFY_RESUME	_BITUL(TIF_NOTIFY_RESUME)
+ #define _TIF_SIGPENDING		_BITUL(TIF_SIGPENDING)
+ #define _TIF_NEED_RESCHED	_BITUL(TIF_NEED_RESCHED)
++#define _TIF_UPROBE		_BITUL(TIF_UPROBE)
++
++#define _TIF_31BIT		_BITUL(TIF_31BIT)
++#define _TIF_SINGLE_STEP	_BITUL(TIF_SINGLE_STEP)
++
+ #define _TIF_SYSCALL_TRACE	_BITUL(TIF_SYSCALL_TRACE)
+ #define _TIF_SYSCALL_AUDIT	_BITUL(TIF_SYSCALL_AUDIT)
+ #define _TIF_SECCOMP		_BITUL(TIF_SECCOMP)
+ #define _TIF_SYSCALL_TRACEPOINT	_BITUL(TIF_SYSCALL_TRACEPOINT)
+-#define _TIF_UPROBE		_BITUL(TIF_UPROBE)
+-#define _TIF_31BIT		_BITUL(TIF_31BIT)
+-#define _TIF_SINGLE_STEP	_BITUL(TIF_SINGLE_STEP)
+ 
+ #endif /* _ASM_THREAD_INFO_H */
 -- 
 2.4.11
