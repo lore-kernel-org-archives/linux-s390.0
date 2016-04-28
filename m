@@ -1,9 +1,8 @@
 Return-Path: <jpoimboe@redhat.com>
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [RFC PATCH v2 03/18] x86/asm/head: standardize the bottom of the
- stack for idle tasks
-Date: Thu, 28 Apr 2016 15:44:34 -0500
-Message-Id: <9268772b31cc7bc4dc40c617e3baf45e07322145.1461875890.git.jpoimboe@redhat.com>
+Subject: [RFC PATCH v2 04/18] x86: move _stext marker before head code
+Date: Thu, 28 Apr 2016 15:44:35 -0500
+Message-Id: <ae43d8404763ed562f9f96d003f194a38d3f1c57.1461875890.git.jpoimboe@redhat.com>
 In-Reply-To: <cover.1461875890.git.jpoimboe@redhat.com>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -18,53 +17,35 @@ To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes
 Cc: live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Thanks to all the recent x86 entry code refactoring, most tasks' kernel
-stacks start at the same offset right above their saved pt_regs,
-regardless of which syscall was used to enter the kernel.  That creates
-a nice convention which makes it straightforward to identify the
-"bottom" of the stack, which can be useful for stack walking code which
-needs to verify the stack is sane.
+When core_kernel_text() is used to determine whether an address on a
+task's stack trace is a kernel text address, it incorrectly returns
+false for early text addresses for the head code between the _text and
+_stext markers.
 
-However there are still a few types of tasks which don't yet follow that
-convention:
-
-1) CPU idle tasks, aka the "swapper" tasks
-
-2) freshly forked TIF_FORK tasks which don't have a stack at all
-
-Make the idle tasks conform to the new stack bottom convention by
-starting their stack at a sizeof(pt_regs) offset from the end of the
-stack page.
+Head code is text code too, so mark it as such.  This seems to match the
+intent of other users of the _stext symbol, and it also seems consistent
+with what other architectures are already doing.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
- arch/x86/kernel/head_64.S | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/x86/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 6dbd2c0..0b12311 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -296,8 +296,9 @@ ENTRY(start_cpu)
- 	 *	REX.W + FF /5 JMP m16:64 Jump far, absolute indirect,
- 	 *		address given in m16:64.
- 	 */
--	movq	initial_code(%rip),%rax
--	pushq	$0		# fake return address to stop unwinder
-+	call	1f		# put return address on stack for unwinder
-+1:	xorq	%rbp, %rbp	# clear frame pointer
-+	movq	initial_code(%rip), %rax
- 	pushq	$__KERNEL_CS	# set correct cs
- 	pushq	%rax		# target address in negative space
- 	lretq
-@@ -325,7 +326,7 @@ ENDPROC(start_cpu0)
- 	GLOBAL(initial_gs)
- 	.quad	INIT_PER_CPU_VAR(irq_stack_union)
- 	GLOBAL(initial_stack)
--	.quad  init_thread_union+THREAD_SIZE-8
-+	.quad  init_thread_union + THREAD_SIZE - SIZEOF_PTREGS
- 	__FINITDATA
- 
- bad_address:
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 4c941f8..79e15ef 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -91,10 +91,10 @@ SECTIONS
+ 	/* Text and read-only data */
+ 	.text :  AT(ADDR(.text) - LOAD_OFFSET) {
+ 		_text = .;
++		_stext = .;
+ 		/* bootstrapping code */
+ 		HEAD_TEXT
+ 		. = ALIGN(8);
+-		_stext = .;
+ 		TEXT_TEXT
+ 		SCHED_TEXT
+ 		LOCK_TEXT
 -- 
 2.4.11
