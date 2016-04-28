@@ -1,9 +1,8 @@
 Return-Path: <jpoimboe@redhat.com>
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [RFC PATCH v2 08/18] livepatch: temporary stubs for
- klp_patch_pending() and klp_patch_task()
-Date: Thu, 28 Apr 2016 15:44:39 -0500
-Message-Id: <887523cb94f22fb08fdd8843a0ecdf14666000d0.1461875890.git.jpoimboe@redhat.com>
+Subject: [RFC PATCH v2 09/18] livepatch/x86: add TIF_PATCH_PENDING thread flag
+Date: Thu, 28 Apr 2016 15:44:40 -0500
+Message-Id: <6360fe5cab85aad424600518f645a9ac773cc72e.1461875890.git.jpoimboe@redhat.com>
 In-Reply-To: <cover.1461875890.git.jpoimboe@redhat.com>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -18,50 +17,80 @@ To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes
 Cc: live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Create temporary stubs for klp_patch_pending() and klp_patch_task() so
-we can add TIF_PATCH_PENDING to different architectures in separate
-patches without breaking build bisectability.
+Add the TIF_PATCH_PENDING thread flag to enable the new livepatch
+per-task consistency model for x86_64.  The bit getting set indicates
+the thread has a pending patch which needs to be applied when the thread
+exits the kernel.
+
+The bit is placed in the least-significant word of the thread_info flags
+so that it gets automatically included in the _TIF_ALLWORK_MASK macro.
+This results in exit_to_usermode_loop() and klp_patch_task() getting
+called when the bit is set.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
- include/linux/livepatch.h | 7 ++++++-
- kernel/livepatch/core.c   | 3 +++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ arch/x86/entry/common.c            | 9 ++++++---
+ arch/x86/include/asm/thread_info.h | 2 ++
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/livepatch.h b/include/linux/livepatch.h
-index 0933ca4..a8c6c9c 100644
---- a/include/linux/livepatch.h
-+++ b/include/linux/livepatch.h
-@@ -118,10 +118,15 @@ int klp_disable_patch(struct klp_patch *);
- int klp_module_coming(struct module *mod);
- void klp_module_going(struct module *mod);
+diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
+index ec138e5..0eaa1d9 100644
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -21,6 +21,7 @@
+ #include <linux/context_tracking.h>
+ #include <linux/user-return-notifier.h>
+ #include <linux/uprobes.h>
++#include <linux/livepatch.h>
  
-+static inline bool klp_patch_pending(struct task_struct *task) { return false; }
-+void klp_patch_task(struct task_struct *task);
-+
- #else /* !CONFIG_LIVEPATCH */
+ #include <asm/desc.h>
+ #include <asm/traps.h>
+@@ -202,14 +203,13 @@ long syscall_trace_enter(struct pt_regs *regs)
  
- static inline int klp_module_coming(struct module *mod) { return 0; }
--static inline void klp_module_going(struct module *mod) { }
-+static inline void klp_module_going(struct module *mod) {}
-+static inline bool klp_patch_pending(struct task_struct *task) { return false; }
-+static inline void klp_patch_task(struct task_struct *task) {}
+ #define EXIT_TO_USERMODE_LOOP_FLAGS				\
+ 	(_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_UPROBE |	\
+-	 _TIF_NEED_RESCHED | _TIF_USER_RETURN_NOTIFY)
++	 _TIF_NEED_RESCHED | _TIF_USER_RETURN_NOTIFY | _TIF_PATCH_PENDING)
  
- #endif /* CONFIG_LIVEPATCH */
- 
-diff --git a/kernel/livepatch/core.c b/kernel/livepatch/core.c
-index a19f195..6ea6880 100644
---- a/kernel/livepatch/core.c
-+++ b/kernel/livepatch/core.c
-@@ -64,6 +64,9 @@ static LIST_HEAD(klp_ops);
- 
- static struct kobject *klp_root_kobj;
- 
-+/* TODO: temporary stub */
-+void klp_patch_task(struct task_struct *task) {}
-+
- static struct klp_ops *klp_find_ops(unsigned long old_addr)
+ static void exit_to_usermode_loop(struct pt_regs *regs, u32 cached_flags)
  {
- 	struct klp_ops *ops;
+ 	/*
+ 	 * In order to return to user mode, we need to have IRQs off with
+-	 * none of _TIF_SIGPENDING, _TIF_NOTIFY_RESUME, _TIF_USER_RETURN_NOTIFY,
+-	 * _TIF_UPROBE, or _TIF_NEED_RESCHED set.  Several of these flags
++	 * none of EXIT_TO_USERMODE_LOOP_FLAGS set.  Several of these flags
+ 	 * can be set at any time on preemptable kernels if we have IRQs on,
+ 	 * so we need to loop.  Disabling preemption wouldn't help: doing the
+ 	 * work to clear some of the flags can sleep.
+@@ -236,6 +236,9 @@ static void exit_to_usermode_loop(struct pt_regs *regs, u32 cached_flags)
+ 		if (cached_flags & _TIF_USER_RETURN_NOTIFY)
+ 			fire_user_return_notifiers();
+ 
++		if (cached_flags & _TIF_PATCH_PENDING)
++			klp_patch_task(current);
++
+ 		/* Disable IRQs and retry */
+ 		local_irq_disable();
+ 
+diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
+index 30c133a..4e4f50e 100644
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -97,6 +97,7 @@ struct thread_info {
+ #define TIF_SECCOMP		8	/* secure computing */
+ #define TIF_USER_RETURN_NOTIFY	11	/* notify kernel of userspace return */
+ #define TIF_UPROBE		12	/* breakpointed or singlestepping */
++#define TIF_PATCH_PENDING	13	/* pending live patching update */
+ #define TIF_NOTSC		16	/* TSC is not accessible in userland */
+ #define TIF_IA32		17	/* IA32 compatibility process */
+ #define TIF_FORK		18	/* ret_from_fork */
+@@ -121,6 +122,7 @@ struct thread_info {
+ #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
+ #define _TIF_USER_RETURN_NOTIFY	(1 << TIF_USER_RETURN_NOTIFY)
+ #define _TIF_UPROBE		(1 << TIF_UPROBE)
++#define _TIF_PATCH_PENDING	(1 << TIF_PATCH_PENDING)
+ #define _TIF_NOTSC		(1 << TIF_NOTSC)
+ #define _TIF_IA32		(1 << TIF_IA32)
+ #define _TIF_FORK		(1 << TIF_FORK)
 -- 
 2.4.11
