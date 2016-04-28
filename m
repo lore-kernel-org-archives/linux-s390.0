@@ -1,18 +1,8 @@
-Return-Path: <luto@amacapital.net>
-MIME-Version: 1.0
-In-Reply-To: <20160429232746.3lp6qlwojdmm52fb@treble>
-References: <cover.1461875890.git.jpoimboe@redhat.com>
- <9268772b31cc7bc4dc40c617e3baf45e07322145.1461875890.git.jpoimboe@redhat.com>
- <CALCETrVYzPFjJwZp_PbscGkQDx-K-p5sAt37oz+FoxGx8hSM=A@mail.gmail.com>
- <20160429205047.t6k7rsskx7mhvwxg@treble>
- <CALCETrUokdo=WR7SHMz3pbjxryWDTg7vsErDGGMrieL8RcaRKw@mail.gmail.com>
- <20160429232746.3lp6qlwojdmm52fb@treble>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Fri, 29 Apr 2016 17:10:05 -0700
-Message-ID: <CALCETrUTbmpSg515o3CsvA_dhODYehAbS4zw=qg49KmJtRi3gQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 03/18] x86/asm/head: standardize the bottom of the
- stack for idle tasks
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <jpoimboe@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [RFC PATCH v2 00/18] livepatch: hybrid consistency model
+Date: Thu, 28 Apr 2016 15:44:31 -0500
+Message-Id: <cover.1461875890.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -21,83 +11,154 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Chris J Arges <chris.j.arges@canonical.com>, linuxppc-dev@lists.ozlabs.org, Jessica Yu <jeyu@redhat.com>, Petr Mladek <pmladek@suse.com>, Jiri Slaby <jslaby@suse.cz>, Vojtech Pavlik <vojtech@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Miroslav Benes <mbenes@suse.cz>, Peter Zijlstra <peterz@infradead.org>
+To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Apr 29, 2016 4:27 PM, "Josh Poimboeuf" <jpoimboe@redhat.com> wrote:
->
-> On Fri, Apr 29, 2016 at 02:38:02PM -0700, Andy Lutomirski wrote:
-> > On Fri, Apr 29, 2016 at 1:50 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> > > On Fri, Apr 29, 2016 at 12:39:16PM -0700, Andy Lutomirski wrote:
-> > >> On Thu, Apr 28, 2016 at 1:44 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> > >> > Thanks to all the recent x86 entry code refactoring, most tasks' kernel
-> > >> > stacks start at the same offset right above their saved pt_regs,
-> > >> > regardless of which syscall was used to enter the kernel.  That creates
-> > >> > a nice convention which makes it straightforward to identify the
-> > >> > "bottom" of the stack, which can be useful for stack walking code which
-> > >> > needs to verify the stack is sane.
-> > >> >
-> > >> > However there are still a few types of tasks which don't yet follow that
-> > >> > convention:
-> > >> >
-> > >> > 1) CPU idle tasks, aka the "swapper" tasks
-> > >> >
-> > >> > 2) freshly forked TIF_FORK tasks which don't have a stack at all
-> > >> >
-> > >> > Make the idle tasks conform to the new stack bottom convention by
-> > >> > starting their stack at a sizeof(pt_regs) offset from the end of the
-> > >> > stack page.
-> > >> >
-> > >> > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> > >> > ---
-> > >> >  arch/x86/kernel/head_64.S | 7 ++++---
-> > >> >  1 file changed, 4 insertions(+), 3 deletions(-)
-> > >> >
-> > >> > diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-> > >> > index 6dbd2c0..0b12311 100644
-> > >> > --- a/arch/x86/kernel/head_64.S
-> > >> > +++ b/arch/x86/kernel/head_64.S
-> > >> > @@ -296,8 +296,9 @@ ENTRY(start_cpu)
-> > >> >          *      REX.W + FF /5 JMP m16:64 Jump far, absolute indirect,
-> > >> >          *              address given in m16:64.
-> > >> >          */
-> > >> > -       movq    initial_code(%rip),%rax
-> > >> > -       pushq   $0              # fake return address to stop unwinder
-> > >> > +       call    1f              # put return address on stack for unwinder
-> > >> > +1:     xorq    %rbp, %rbp      # clear frame pointer
-> > >> > +       movq    initial_code(%rip), %rax
-> > >> >         pushq   $__KERNEL_CS    # set correct cs
-> > >> >         pushq   %rax            # target address in negative space
-> > >> >         lretq
-> > >> > @@ -325,7 +326,7 @@ ENDPROC(start_cpu0)
-> > >> >         GLOBAL(initial_gs)
-> > >> >         .quad   INIT_PER_CPU_VAR(irq_stack_union)
-> > >> >         GLOBAL(initial_stack)
-> > >> > -       .quad  init_thread_union+THREAD_SIZE-8
-> > >> > +       .quad  init_thread_union + THREAD_SIZE - SIZEOF_PTREGS
-> > >>
-> > >> As long as you're doing this, could you also set orig_ax to -1?  I
-> > >> remember running into some oddities resulting from orig_ax containing
-> > >> garbage at some point.
-> > >
-> > > I assume you mean to initialize the orig_rax value in the pt_regs at the
-> > > bottom of the stack of the idle task?
-> > >
-> > > How could that cause a problem?  Since the idle task never returns from
-> > > a system call, I'd assume that memory never gets accessed?
-> > >
-> >
-> > Look at collect_syscall in lib/syscall.c
->
-> I don't see how collect_syscall() can be called for the per-cpu idle
-> "swapper" tasks (which is what the above code affects).  They don't have
-> pids or /proc entries so you can't do /proc/<pid>/syscall on them.
+This is v2 of the livepatch hybrid consistency model, based on
+linux-next/master.
 
-If so, then never mind.
+v1 of this patch set was posted over a year ago:
 
---Andy
+  https://lkml.kernel.org/r/cover.1423499826.git.jpoimboe@redhat.com
 
->
-> --
-> Josh
+The biggest complaint at that time was that stack traces are unreliable.
+Since CONFIG_STACK_VALIDATION was merged, that issue has been addressed.
+I've also tried to address all other outstanding complaints and issues.
+
+Ingo and Peter, note that I'm using task_rq_lock() in patch 17/18 to
+make sure a task stays asleep while its stack gets checked.  I'm not
+sure if there's a better way to achieve that goal -- any suggestions
+there would be greatly appreciated.
+
+Patches 1-7 create a mechanism for detecting whether a given stack trace
+can be deemed reliable.
+
+Patches 8-18 add the consistency model.  See patch 17/18 for more
+details about the consistency model itself.
+
+Remaining TODOs:
+- how to patch kthreads without RELIABLE_STACKTRACE?
+- safe patch module removal
+- fake signal facility
+- allow user to force a task to the patched state
+- enable the patching of kthreads which are sleeping on affected
+  functions, via the livepatch ftrace handler
+- WARN on certain stack error conditions
+
+v2:
+- "universe" -> "patch state"
+- rename klp_update_task_universe() -> klp_patch_task()
+- add preempt IRQ tracking (TF_PREEMPT_IRQ)
+- fix print_context_stack_reliable() bug
+- improve print_context_stack_reliable() comments
+- klp_ftrace_handler comment fixes
+- add "patch_state" proc file to tid_base_stuff
+- schedule work even for !RELIABLE_STACKTRACE
+- forked child inherits patch state from parent
+- add detailed comment to livepatch.h klp_func definition about the
+  klp_func patched/transition state transitions
+- update exit_to_usermode_loop() comment
+- clear all TIF_KLP_NEED_UPDATE flags in klp_complete_transition()
+- remove unnecessary function externs
+- add livepatch documentation, sysfs documentation, /proc documentation
+- /proc/pid/patch_state: -1 means no patch is currently being applied/reverted
+- "TIF_KLP_NEED_UPDATE" -> "TIF_PATCH_PENDING"
+- support for s390 and powerpc-le
+- don't assume stacks with dynamic ftrace trampolines are reliable
+- add _TIF_ALLWORK_MASK info to commit log
+
+v1.9:
+- revive from the dead and rebased
+- reliable stacks!
+- add support for immediate consistency model
+- add a ton of comments
+- fix up memory barriers
+- remove "allow patch modules to be removed" patch for now, it still 
+  needs more discussion and thought - it can be done with something
+- "proc/pid/universe" -> "proc/pid/patch_status"
+- remove WARN_ON_ONCE from !func condition in ftrace handler -- can
+  happen because of RCU
+- keep klp_mutex private by putting the work_fn in core.c
+- convert states from int to boolean
+- remove obsolete '@state' comments
+- several header file and include improvements suggested by Jiri S
+- change kallsyms_lookup_size_offset() errors from EINVAL -> ENOENT
+- change proc file permissions S_IRUGO -> USR
+- use klp_for_each_object/func helpers
+
+
+Jiri Slaby (1):
+  livepatch/s390: reorganize TIF thread flag bits
+
+Josh Poimboeuf (16):
+  x86/asm/head: clean up initial stack variable
+  x86/asm/head: use a common function for starting CPUs
+  x86/asm/head: standardize the bottom of the stack for idle tasks
+  x86: move _stext marker before head code
+  sched: add task flag for preempt IRQ tracking
+  x86: dump_trace() error handling
+  stacktrace/x86: function for detecting reliable stack traces
+  livepatch: temporary stubs for klp_patch_pending() and
+    klp_patch_task()
+  livepatch/x86: add TIF_PATCH_PENDING thread flag
+  livepatch/powerpc: add TIF_PATCH_PENDING thread flag
+  livepatch: separate enabled and patched states
+  livepatch: remove unnecessary object loaded check
+  livepatch: move patching functions into patch.c
+  livepatch: store function sizes
+  livepatch: change to a per-task consistency model
+  livepatch: add /proc/<pid>/patch_state
+
+Miroslav Benes (1):
+  livepatch/s390: add TIF_PATCH_PENDING thread flag
+
+ Documentation/ABI/testing/sysfs-kernel-livepatch |   8 +
+ Documentation/filesystems/proc.txt               |  18 +
+ Documentation/livepatch/livepatch.txt            | 132 ++++++-
+ arch/Kconfig                                     |   6 +
+ arch/powerpc/include/asm/thread_info.h           |   4 +-
+ arch/powerpc/kernel/signal.c                     |   4 +
+ arch/s390/include/asm/thread_info.h              |  24 +-
+ arch/s390/kernel/entry.S                         |  31 +-
+ arch/x86/Kconfig                                 |   1 +
+ arch/x86/entry/common.c                          |   9 +-
+ arch/x86/include/asm/realmode.h                  |   2 +-
+ arch/x86/include/asm/smp.h                       |   3 -
+ arch/x86/include/asm/stacktrace.h                |  36 +-
+ arch/x86/include/asm/thread_info.h               |   2 +
+ arch/x86/kernel/acpi/sleep.c                     |   2 +-
+ arch/x86/kernel/dumpstack.c                      | 108 +++++-
+ arch/x86/kernel/dumpstack_32.c                   |  22 +-
+ arch/x86/kernel/dumpstack_64.c                   |  53 ++-
+ arch/x86/kernel/head_32.S                        |   8 +-
+ arch/x86/kernel/head_64.S                        |  34 +-
+ arch/x86/kernel/smpboot.c                        |   2 +-
+ arch/x86/kernel/stacktrace.c                     |  24 ++
+ arch/x86/kernel/vmlinux.lds.S                    |   2 +-
+ fs/proc/base.c                                   |  15 +
+ include/linux/init_task.h                        |   9 +
+ include/linux/kernel.h                           |   1 +
+ include/linux/livepatch.h                        |  57 ++-
+ include/linux/sched.h                            |   4 +
+ include/linux/stacktrace.h                       |  20 +-
+ kernel/extable.c                                 |   2 +-
+ kernel/fork.c                                    |   5 +-
+ kernel/livepatch/Makefile                        |   2 +-
+ kernel/livepatch/core.c                          | 342 +++++-----------
+ kernel/livepatch/patch.c                         | 254 ++++++++++++
+ kernel/livepatch/patch.h                         |  33 ++
+ kernel/livepatch/transition.c                    | 474 +++++++++++++++++++++++
+ kernel/livepatch/transition.h                    |  14 +
+ kernel/sched/core.c                              |   4 +
+ kernel/sched/idle.c                              |   4 +
+ kernel/stacktrace.c                              |   4 +-
+ lib/Kconfig.debug                                |   6 +
+ 41 files changed, 1413 insertions(+), 372 deletions(-)
+ create mode 100644 kernel/livepatch/patch.c
+ create mode 100644 kernel/livepatch/patch.h
+ create mode 100644 kernel/livepatch/transition.c
+ create mode 100644 kernel/livepatch/transition.h
+
+-- 
+2.4.11
