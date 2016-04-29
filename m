@@ -1,15 +1,17 @@
-Return-Path: <jpoimboe@redhat.com>
-Date: Fri, 29 Apr 2016 15:28:39 -0500
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [RFC PATCH v2 03/18] x86/asm/head: standardize the bottom of the
- stack for idle tasks
-Message-ID: <20160429202839.czi7f2cabf2ehh6q@treble>
-References: <cover.1461875890.git.jpoimboe@redhat.com>
- <9268772b31cc7bc4dc40c617e3baf45e07322145.1461875890.git.jpoimboe@redhat.com>
- <CAMzpN2hLWx4pp7_TwZ_KBStS7T7_Nvxjtf0k3679gq8VAh33uA@mail.gmail.com>
+Return-Path: <luto@amacapital.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CAMzpN2hLWx4pp7_TwZ_KBStS7T7_Nvxjtf0k3679gq8VAh33uA@mail.gmail.com>
+In-Reply-To: <20160429202701.yijrohqdsurdxv2a@treble>
+References: <cover.1461875890.git.jpoimboe@redhat.com>
+ <f8816223098569a9b2f478caa5b4a7a0c27dda00.1461875890.git.jpoimboe@redhat.com>
+ <CALCETrVjJdPCE92D6NY3B2+0STAdWL0pbNqCBfQUwn-sVWLD5w@mail.gmail.com>
+ <20160429201139.pudoged2yathyo64@treble>
+ <CALCETrW8G8qCHBkH7GFDTFuH82abJpbVq_-bDaRAdL7U0jLGNQ@mail.gmail.com>
+ <20160429202701.yijrohqdsurdxv2a@treble>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Fri, 29 Apr 2016 13:32:53 -0700
+Message-ID: <CALCETrVKt8k11ewSOvGiCNsqgtD5cMaLix8Tf8JJakgodJeLyA@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
+Content-Type: text/plain; charset=UTF-8
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -18,55 +20,71 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Brian Gerst <brgerst@gmail.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>, linuxppc-dev@lists.ozlabs.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Apr 29, 2016 at 02:46:10PM -0400, Brian Gerst wrote:
-> On Thu, Apr 28, 2016 at 4:44 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> > Thanks to all the recent x86 entry code refactoring, most tasks' kernel
-> > stacks start at the same offset right above their saved pt_regs,
-> > regardless of which syscall was used to enter the kernel.  That creates
-> > a nice convention which makes it straightforward to identify the
-> > "bottom" of the stack, which can be useful for stack walking code which
-> > needs to verify the stack is sane.
-> >
-> > However there are still a few types of tasks which don't yet follow that
-> > convention:
-> >
-> > 1) CPU idle tasks, aka the "swapper" tasks
-> >
-> > 2) freshly forked TIF_FORK tasks which don't have a stack at all
-> >
-> > Make the idle tasks conform to the new stack bottom convention by
-> > starting their stack at a sizeof(pt_regs) offset from the end of the
-> > stack page.
-> >
-> > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> > ---
-> >  arch/x86/kernel/head_64.S | 7 ++++---
-> >  1 file changed, 4 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-> > index 6dbd2c0..0b12311 100644
-> > --- a/arch/x86/kernel/head_64.S
-> > +++ b/arch/x86/kernel/head_64.S
-> > @@ -296,8 +296,9 @@ ENTRY(start_cpu)
-> >          *      REX.W + FF /5 JMP m16:64 Jump far, absolute indirect,
-> >          *              address given in m16:64.
-> >          */
-> > -       movq    initial_code(%rip),%rax
-> > -       pushq   $0              # fake return address to stop unwinder
-> > +       call    1f              # put return address on stack for unwinder
-> > +1:     xorq    %rbp, %rbp      # clear frame pointer
-> > +       movq    initial_code(%rip), %rax
-> >         pushq   $__KERNEL_CS    # set correct cs
-> >         pushq   %rax            # target address in negative space
-> >         lretq
-> 
-> This chunk looks like it should be a separate patch.
+On Fri, Apr 29, 2016 at 1:27 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> On Fri, Apr 29, 2016 at 01:19:23PM -0700, Andy Lutomirski wrote:
+>> On Fri, Apr 29, 2016 at 1:11 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+>> > On Fri, Apr 29, 2016 at 11:06:53AM -0700, Andy Lutomirski wrote:
+>> >> On Thu, Apr 28, 2016 at 1:44 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+>> >> > A preempted function might not have had a chance to save the frame
+>> >> > pointer to the stack yet, which can result in its caller getting skipped
+>> >> > on a stack trace.
+>> >> >
+>> >> > Add a flag to indicate when the task has been preempted so that stack
+>> >> > dump code can determine whether the stack trace is reliable.
+>> >>
+>> >> I think I like this, but how do you handle the rather similar case in
+>> >> which a task goes to sleep because it's waiting on IO that happened in
+>> >> response to get_user, put_user, copy_from_user, etc?
+>> >
+>> > Hm, good question.  I was thinking that page faults had a dedicated
+>> > stack, but now looking at the entry and traps code, that doesn't seem to
+>> > be the case.
+>> >
+>> > Anyway I think it shouldn't be a problem if we make sure that any kernel
+>> > function which might trigger a valid page fault (e.g.,
+>> > copy_user_generic_string) do the proper frame pointer setup first.  Then
+>> > the stack should still be reliable.
+>> >
+>> > In fact I might be able to teach objtool to enforce that: any function
+>> > which uses an exception table should create a stack frame.
+>> >
+>> > Or alternatively, maybe set some kind of flag for page faults, similar
+>> > to what I did with this patch.
+>> >
+>>
+>> How about doing it the other way around: teach the unwinder to detect
+>> when it hits a non-outermost entry (i.e. it lands in idtentry, etc)
+>> and use some reasonable heuristic as to whether it's okay to keep
+>> unwinding.  You should be able to handle preemption like that, too --
+>> the unwind process will end up in an IRQ frame.
+>
+> How exactly would the unwinder detect if a text address is in an
+> idtentry?  Maybe put all the idt entries in a special ELF section?
+>
 
-Agreed, thanks.
+Hmm.
 
--- 
-Josh
+What actually happens when you unwind all the way into the entry code?
+ Don't you end up in something that isn't in an ELF function?  Can you
+detect that?  Ideally, the unwinder could actually detect that it's
+hit a pt_regs struct and report that.  If used for stack dumps, it
+could display some indication of this and then continue its unwinding
+by decoding the pt_regs.  If used for patching, it could take some
+other appropriate action.
+
+I would have no objection to annotating all the pt_regs-style entry
+code, whether by putting it in a separate section or by making a table
+of addresses.
+
+There are a couple of nasty cases if NMI or MCE is involved but, as of
+4.6, outside of NMI, MCE, and vmalloc faults (ugh!), there should
+always be a complete pt_regs on the stack before interrupts get
+enabled for each entry.  Of course, finding the thing may be
+nontrivial in case other things were pushed.  I suppose we could try
+to rejigger the code so that rbp points to pt_regs or similar.
+
+--Andy
