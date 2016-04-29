@@ -1,9 +1,8 @@
-Return-Path: <jikos@kernel.org>
-Date: Sat, 30 Apr 2016 00:11:45 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
+Return-Path: <jpoimboe@redhat.com>
+Date: Fri, 29 Apr 2016 17:41:12 -0500
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
-In-Reply-To: <CALCETrV2wtsEZH-OEDDGzYK-s02EeCWq1MZsYbrdjfyrbU7ugw@mail.gmail.com>
-Message-ID: <alpine.LNX.2.00.1604300007070.27368@cbobk.fhfr.pm>
+Message-ID: <20160429224112.kl3jlk7ccvfceg2r@treble>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
  <f8816223098569a9b2f478caa5b4a7a0c27dda00.1461875890.git.jpoimboe@redhat.com>
  <CALCETrVjJdPCE92D6NY3B2+0STAdWL0pbNqCBfQUwn-sVWLD5w@mail.gmail.com>
@@ -14,7 +13,8 @@ References: <cover.1461875890.git.jpoimboe@redhat.com>
  <20160429212546.t26mvthtvh7543ff@treble>
  <CALCETrV2wtsEZH-OEDDGzYK-s02EeCWq1MZsYbrdjfyrbU7ugw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CALCETrV2wtsEZH-OEDDGzYK-s02EeCWq1MZsYbrdjfyrbU7ugw@mail.gmail.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -24,26 +24,44 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: Andy Lutomirski <luto@amacapital.net>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>, Jessica Yu <jeyu@redhat.com>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>, linuxppc-dev@lists.ozlabs.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>, linuxppc-dev@lists.ozlabs.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 29 Apr 2016, Andy Lutomirski wrote:
-
-> > NMI, MCE and interrupts aren't a problem because they have dedicated
-> > stacks, which are easy to detect.  If the tasks' stack is on an
-> > exception stack or an irq stack, we consider it unreliable.
+On Fri, Apr 29, 2016 at 02:37:41PM -0700, Andy Lutomirski wrote:
+> On Fri, Apr 29, 2016 at 2:25 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> > I think the easiest way to make it work would be to modify the idtentry
+> > macro to put all the idt entries in a dedicated section.  Then the
+> > unwinder could easily detect any calls from that code.
 > 
-> Only on x86_64.
+> That would work.  Would it make sense to do the same for the irq entries?
 
-Well, MCEs are more or less x86-specific as well. But otherwise good 
-point, thanks Andy.
+Yes, I think so.
 
-So, how does stack layout generally look like in case when NMI is actually 
-running on proper kernel stack? I thought it's guaranteed to contain 
-pt_regs anyway in all cases. Is that not guaranteed to be the case?
+> >> I suppose we could try to rejigger the code so that rbp points to
+> >> pt_regs or similar.
+> >
+> > I think we should avoid doing something like that because it would break
+> > gdb and all the other unwinders who don't know about it.
+> 
+> How so?
+> 
+> Currently, rbp in the entry code is meaningless.  I'm suggesting that,
+> when we do, for example, 'call \do_sym' in idtentry, we point rbp to
+> the pt_regs.  Currently it points to something stale (which the
+> dump_stack code might be relying on.  Hmm.)  But it's probably also
+> safe to assume that if you unwind to the 'call \do_sym', then pt_regs
+> is the next thing on the stack, so just doing the section thing would
+> work.
 
-Thanks,
+Yes, rbp is meaningless on the entry from user space.  But if an
+in-kernel interrupt occurs (e.g. page fault, preemption) and you have
+nested entry, rbp keeps its old value, right?  So the unwinder can walk
+past the nested entry frame and keep going until it gets to the original
+entry.
+
+> We should really re-add DWARF some day.
+
+Working on it :-)
 
 -- 
-Jiri Kosina
-SUSE Labs
+Josh
