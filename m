@@ -1,8 +1,10 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC 0/8] basic vfio-ccw infrastructure
-Date: Fri, 29 Apr 2016 14:11:47 +0200
-Message-ID: <1461931915-22397-1-git-send-email-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH RFC 8/8] vfio: ccw: realize VFIO_DEVICE_CCW_CMD_REQUEST ioctl
+Date: Fri, 29 Apr 2016 14:11:55 +0200
+Message-ID: <1461931915-22397-9-git-send-email-bjsdjshi@linux.vnet.ibm.com>
+References: <1461931915-22397-1-git-send-email-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1461931915-22397-1-git-send-email-bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,220 +12,315 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-vfio: ccw: basic vfio-ccw infrastructure
-========================================
+Introduce VFIO_DEVICE_CCW_CMD_REQUEST ioctl for vfio-ccw
+to handle the translated ccw commands.
 
-Introduction
-------------
+We implement the basic ccw command handling infrastructure
+here:
+1. Issue the translated ccw commands to the device.
+2. Once we get the execution result, update the guest SCSW
+   with it.
 
-Here we describe the vfio support for Channel I/O devices (aka. CCW
-devices) for Linux/s390. Motivation for vfio-ccw is to passthrough CCW
-devices to a virtual machine, while vfio is the means.
+Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+---
+ drivers/vfio/ccw/vfio_ccw.c | 190 +++++++++++++++++++++++++++++++++++++++++++-
+ include/uapi/linux/vfio.h   |  23 ++++++
+ 2 files changed, 212 insertions(+), 1 deletion(-)
 
-Different than other hardware architectures, s390 has defined a unified
-I/O access method, which is so called Channel I/O. It has its own
-access patterns:
-- Channel programs run asynchronously on a separate (co)processor.
-- The channel subsystem will access any memory designated by the caller
-  in the channel program directly, i.e. there is no iommu involved.
-Thus when we introduce vfio support for these devices, we realize it
-with a no-iommu vfio implementation.
-
-This document does not intend to explain the s390 hardware architecture
-in every detail. More information/reference could be found here:
-- A good start to know Channel I/O in general:
-  https://en.wikipedia.org/wiki/Channel_I/O
-- s390 architecture:
-  s390 Principles of Operation manual (IBM Form. No. SA22-7832)
-- The existing Qemu code which implements a simple emulated channel
-  subsystem could also be a good reference. It makes it easier to
-  follow the flow.
-  qemu/hw/s390x/css.c
-
-Motivation of vfio-ccw
-----------------------
-
-Currently, a guest virtualized via qemu/kvm on s390 only sees
-paravirtualized virtio devices via the "Virtio Over Channel I/O
-(virtio-ccw)" transport. This makes virtio devices discoverable via
-standard operating system algorithms for handling channel devices.
-
-However this is not enough. On s390 for the majority of devices, which
-use the standard Channel I/O based mechanism, we also need to provide
-the functionality of passing through them to a Qemu virtual machine.
-This includes devices that don't have a virtio counterpart (e.g. tape
-drives) or that have specific characteristics which guests want to
-exploit.
-
-For passing a device to a guest, we want to use the same interface as
-everybody else, namely vfio. Thus, we would like to introduce vfio
-support for channel devices. And we would like to name this new vfio
-device "vfio-ccw".
-
-Access patterns of CCW devices
-------------------------------
-
-s390 architecture has implemented a so called channel subsystem, that
-provides a unified view of the devices physically attached to the
-systems. Though the s390 hardware platform knows about a huge variety of
-different peripheral attachments like disk devices (aka. DASDs), tapes,
-communication controllers, etc. They can all be accessed by a well
-defined access method and they are presenting I/O completion a unified
-way: I/O interruptions.
-
-All I/O requires the use of channel command words (CCWs). A CCW is an
-instruction to a specialized I/O channel processor. A channel program
-is a sequence of CCWs which are executed by the I/O channel subsystem.
-To issue a CCW program to the channel subsystem, it is required to
-build an operation request block (ORB), which can be used to point out
-the format of the CCW and other control information to the system. The
-operating system signals the I/O channel subsystem to begin executing
-the channel program with a SSCH (start sub-channel) instruction. The
-central processor is then free to proceed with non-I/O instructions
-until interrupted. The I/O completion result is received by the
-interrupt handler in the form of interrupt response block (IRB).
-
-Back to vfio-ccw, in short:
-- ORBs and CCW programs are built in user space (with virtual
-  addresses).
-- ORBs and CCW programs are passed to the kernel.
-- kernel translates virtual addresses to real addresses and starts the
-  IO with issuing a privileged Channel I/O instruction (e.g SSCH).
-- CCW programs run asynchronously on a separate processor.
-- I/O completion will be signaled to the host with I/O interruptions.
-  And it will be copied as IRB to user space.
-
-
-vfio-ccw patches overview
--------------------------
-
-It follows that we need vfio-ccw with a vfio no-iommu mode. For now,
-our patches are based on the current no-iommu implementation. It's a
-good start to launch the code review for vfio-ccw. Note that the
-implementation is far from complete yet; but we'd like to get feedback
-for the general architecture.
-
-The current no-iommu implementation would consider vfio-ccw as
-unsupported and will taint the kernel. This should be not true for
-vfio-ccw. But whether the end result will be using the existing
-no-iommu code or a new module would be an implementation detail.
-
-* CCW translation APIs
-- Description:
-  These introduce a group of APIs (start with 'ccwchain_') to do CCW
-  translation. The CCWs passed in by a user space program are organized
-  in a buffer, with their user virtual memory addresses. These APIs will
-  copy the CCWs into the kernel space, and assemble a runnable kernel
-  CCW program by updating the user virtual addresses with their
-  corresponding physical addresses.
-- Patches:
-  vfio: ccw: introduce page array interfaces
-  vfio: ccw: introduce ccw chain interfaces
-
-* vfio-ccw device driver
-- Description:
-  The following patches introduce vfio-ccw, which utilizes the CCW
-  translation APIs. vfio-ccw is a driver for vfio-based ccw devices
-  which can bind to any device that is passed to the guest and
-  implements the following vfio ioctls:
-    VFIO_DEVICE_GET_INFO
-    VFIO_DEVICE_CCW_HOT_RESET
-    VFIO_DEVICE_CCW_CMD_REQUEST
-  With this CMD_REQUEST ioctl, user space program can pass a CCW
-  program to the kernel, to do further CCW translation before issuing
-  them to a real device. Currently we map I/O that is basically async
-  to this synchronous interface, which means it will not return until
-  the interrupt handler got the I/O execution result.
-- Patches:
-  vfio: ccw: basic implementation for vfio_ccw driver
-  vfio: ccw: realize VFIO_DEVICE_GET_INFO ioctl
-  vfio: ccw: realize VFIO_DEVICE_CCW_HOT_RESET ioctl
-  vfio: ccw: realize VFIO_DEVICE_CCW_CMD_REQUEST ioctl
-
-The user of vfio-ccw is not limited to Qemu, while Qemu is definitely a
-good example to get understand how these patches work. Here is a little
-bit more detail how an I/O request triggered by the Qemu guest will be
-handled (without error handling).
-
-Explanation:
-Q1-Q4: Qemu side process.
-K1-K6: Kernel side process.
-
-Q1. Intercept a ssch instruction.
-Q2. Translate the guest ccw program to a user space ccw program
-    (u_ccwchain).
-Q3. Call VFIO_DEVICE_CCW_CMD_REQUEST (u_ccwchain, orb, irb).
-    K1. Copy from u_ccwchain to kernel (k_ccwchain).
-    K2. Translate the user space ccw program to a kernel space ccw
-        program, which becomes runnable for a real device.
-    K3. With the necessary information contained in the orb passed in
-        by Qemu, issue the k_ccwchain to the device, and wait event q
-        for the I/O result.
-    K4. Interrupt handler gets the I/O result, and wakes up the wait q.
-    K5. CMD_REQUEST ioctl gets the I/O result, and uses the result to
-        update the user space irb.
-    K6. Copy irb and scsw back to user space.
-Q4. Update the irb for the guest.
-
-Limitations
------------
-
-The current vfio-ccw implementation focuses on supporting basic commands
-needed to implement block device functionality (read/write) of DASD/ECKD
-device only. Some commands may need special handling in the future, for
-example, anything related to path grouping.
-
-DASD is a kind of storage device. While ECKD is a data recording format.
-More information for DASD and ECKD could be found here:
-https://en.wikipedia.org/wiki/Direct-access_storage_device
-https://en.wikipedia.org/wiki/Count_key_data
-
-Together with the corresponding work in Qemu, we can bring the passed
-through DASD/ECKD device online in a guest now and use it as a block
-device.
-
-Reference
----------
-1. ESA/s390 Principles of Operation manual (IBM Form. No. SA22-7832)
-2. ESA/390 Common I/O Device Commands manual (IBM Form. No. SA22-7204)
-3. https://en.wikipedia.org/wiki/Channel_I/O
-4. https://www.kernel.org/doc/Documentation/s390/cds.txt
-
-Dong Jia Shi (8):
-  iommu: s390: enable iommu api for s390 ccw devices
-  s390: move orb.h from drivers/s390/ to arch/s390/
-  vfio: ccw: basic implementation for vfio_ccw driver
-  vfio: ccw: realize VFIO_DEVICE_GET_INFO ioctl
-  vfio: ccw: realize VFIO_DEVICE_CCW_HOT_RESET ioctl
-  vfio: ccw: introduce page array interfaces
-  vfio: ccw: introduce ccw chain interfaces
-  vfio: ccw: realize VFIO_DEVICE_CCW_CMD_REQUEST ioctl
-
- arch/s390/include/asm/irq.h                       |   1 +
- {drivers/s390/cio => arch/s390/include/asm}/orb.h |   0
- arch/s390/kernel/irq.c                            |   1 +
- drivers/iommu/Kconfig                             |   6 +-
- drivers/s390/cio/eadm_sch.c                       |   2 +-
- drivers/s390/cio/eadm_sch.h                       |   2 +-
- drivers/s390/cio/io_sch.h                         |   2 +-
- drivers/s390/cio/ioasm.c                          |   2 +-
- drivers/s390/cio/ioasm.h                          |   2 +-
- drivers/s390/cio/trace.h                          |   2 +-
- drivers/vfio/Kconfig                              |   1 +
- drivers/vfio/Makefile                             |   1 +
- drivers/vfio/ccw/Kconfig                          |   7 +
- drivers/vfio/ccw/Makefile                         |   2 +
- drivers/vfio/ccw/ccwchain.c                       | 569 ++++++++++++++++++++++
- drivers/vfio/ccw/ccwchain.h                       |  49 ++
- drivers/vfio/ccw/vfio_ccw.c                       | 416 ++++++++++++++++
- include/uapi/linux/vfio.h                         |  32 ++
- 18 files changed, 1088 insertions(+), 9 deletions(-)
- rename {drivers/s390/cio => arch/s390/include/asm}/orb.h (100%)
- create mode 100644 drivers/vfio/ccw/Kconfig
- create mode 100644 drivers/vfio/ccw/Makefile
- create mode 100644 drivers/vfio/ccw/ccwchain.c
- create mode 100644 drivers/vfio/ccw/ccwchain.h
- create mode 100644 drivers/vfio/ccw/vfio_ccw.c
-
+diff --git a/drivers/vfio/ccw/vfio_ccw.c b/drivers/vfio/ccw/vfio_ccw.c
+index 9700448..3979544 100644
+--- a/drivers/vfio/ccw/vfio_ccw.c
++++ b/drivers/vfio/ccw/vfio_ccw.c
+@@ -17,15 +17,30 @@
+ #include <linux/vfio.h>
+ #include <asm/ccwdev.h>
+ #include <asm/cio.h>
++#include <asm/orb.h>
++#include "ccwchain.h"
+ 
+ /**
+  * struct vfio_ccw_device
+  * @cdev: ccw device
++ * @curr_intparm: record current interrupt parameter,
++ *                used for wait interrupt.
++ * @wait_q: wait for interrupt
++ * @ccwchain_cmd: address map for current ccwchain.
++ * @irb: irb info received from interrupt
++ * @orb: orb for the currently processed ssch request
++ * @scsw: scsw info
+  * @going_away: if an offline procedure was already ongoing
+  * @hot_reset: if hot-reset is ongoing
+  */
+ struct vfio_ccw_device {
+ 	struct ccw_device	*cdev;
++	u32			curr_intparm;
++	wait_queue_head_t	wait_q;
++	struct ccwchain_cmd	ccwchain_cmd;
++	struct irb		irb;
++	union orb		orb;
++	union scsw		scsw;
+ 	bool			going_away;
+ 	bool			hot_reset;
+ };
+@@ -42,6 +57,118 @@ struct ccw_device_id vfio_ccw_ids[] = {
+ MODULE_DEVICE_TABLE(ccw, vfio_ccw_ids);
+ 
+ /*
++ * LATER:
++ * This is good for Linux guests; but we may need an interface to
++ * deal with further bits in the orb.
++ */
++static unsigned long flags_from_orb(union orb *orb)
++{
++	unsigned long flags = 0;
++
++	flags |= orb->cmd.pfch ? 0 : DOIO_DENY_PREFETCH;
++	flags |= orb->cmd.spnd ? DOIO_ALLOW_SUSPEND : 0;
++	flags |= orb->cmd.ssic ? (DOIO_SUPPRESS_INTER | DOIO_ALLOW_SUSPEND) : 0;
++
++	return flags;
++}
++
++/* Check if the current intparm has been set. */
++static int doing_io(struct vfio_ccw_device *vcdev, u32 intparm)
++{
++	unsigned long flags;
++	int ret;
++
++	spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), flags);
++	ret = (vcdev->curr_intparm == intparm);
++	spin_unlock_irqrestore(get_ccwdev_lock(vcdev->cdev), flags);
++	return ret;
++}
++
++int vfio_ccw_io_helper(struct vfio_ccw_device *vcdev)
++{
++	struct ccwchain_cmd *ccwchain_cmd;
++	struct ccw1 *cpa;
++	u32 intparm;
++	unsigned long io_flags, lock_flags;
++	int ret;
++
++	ccwchain_cmd = &vcdev->ccwchain_cmd;
++	cpa = ccwchain_get_cpa(ccwchain_cmd);
++	intparm = (u32)(u64)ccwchain_cmd->k_ccwchain;
++	io_flags = flags_from_orb(&vcdev->orb);
++
++	spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), lock_flags);
++	ret = ccw_device_start(vcdev->cdev, cpa, intparm,
++			       vcdev->orb.cmd.lpm, io_flags);
++	if (!ret)
++		vcdev->curr_intparm = 0;
++	spin_unlock_irqrestore(get_ccwdev_lock(vcdev->cdev), lock_flags);
++
++	if (!ret)
++		wait_event(vcdev->wait_q,
++			   doing_io(vcdev, intparm));
++
++	ccwchain_update_scsw(ccwchain_cmd, &(vcdev->irb.scsw));
++
++	return ret;
++}
++
++/* Deal with the ccw command request from the userspace. */
++int vfio_ccw_cmd_request(struct vfio_ccw_device *vcdev,
++			 struct vfio_ccw_cmd *ccw_cmd)
++{
++	union orb *orb = &vcdev->orb;
++	union scsw *scsw = &vcdev->scsw;
++	struct irb *irb = &vcdev->irb;
++	int ret;
++
++	memcpy(orb, ccw_cmd->orb_area, sizeof(*orb));
++	memcpy(scsw, ccw_cmd->scsw_area, sizeof(*scsw));
++	vcdev->ccwchain_cmd.u_ccwchain = (void *)ccw_cmd->ccwchain_buf;
++	vcdev->ccwchain_cmd.k_ccwchain = NULL;
++	vcdev->ccwchain_cmd.nr = ccw_cmd->ccwchain_nr;
++
++	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
++		/*
++		 * XXX:
++		 * Only support prefetch enable mode now.
++		 * Only support 64bit addressing idal.
++		 */
++		if (!orb->cmd.pfch || !orb->cmd.c64)
++			return -EOPNOTSUPP;
++
++		ret = ccwchain_alloc(&vcdev->ccwchain_cmd);
++		if (ret)
++			return ret;
++
++		ret = ccwchain_prefetch(&vcdev->ccwchain_cmd);
++		if (ret) {
++			ccwchain_free(&vcdev->ccwchain_cmd);
++			return ret;
++		}
++
++		/* Start channel program and wait for I/O interrupt. */
++		ret = vfio_ccw_io_helper(vcdev);
++		if (!ret) {
++			/* Get irb info and copy it to irb_area. */
++			memcpy(ccw_cmd->irb_area, irb, sizeof(*irb));
++		}
++
++		ccwchain_free(&vcdev->ccwchain_cmd);
++	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
++		/* XXX: Handle halt. */
++		ret = -EOPNOTSUPP;
++	} else if (scsw->cmd.fctl & SCSW_FCTL_CLEAR_FUNC) {
++		/* XXX: Handle clear. */
++		ret = -EOPNOTSUPP;
++	} else {
++		ret = -EOPNOTSUPP;
++	}
++
++	return ret;
++}
++
++/*
+  * vfio callbacks
+  */
+ static int vfio_ccw_open(void *device_data)
+@@ -107,6 +234,24 @@ static long vfio_ccw_ioctl(void *device_data, unsigned int cmd,
+ 		vcdev->hot_reset = false;
+ 		spin_unlock_irqrestore(get_ccwdev_lock(vcdev->cdev), flags);
+ 		return ret;
++
++	} else if (cmd == VFIO_DEVICE_CCW_CMD_REQUEST) {
++		struct vfio_ccw_cmd ccw_cmd;
++		int ret;
++
++		minsz = offsetofend(struct vfio_ccw_cmd, ccwchain_buf);
++
++		if (copy_from_user(&ccw_cmd, (void __user *)arg, minsz))
++			return -EFAULT;
++
++		if (ccw_cmd.argsz < minsz)
++			return -EINVAL;
++
++		ret = vfio_ccw_cmd_request(vcdev, &ccw_cmd);
++		if (ret)
++			return ret;
++
++		return copy_to_user((void __user *)arg, &ccw_cmd, minsz);
+ 	}
+ 
+ 	return -ENOTTY;
+@@ -119,6 +264,25 @@ static const struct vfio_device_ops vfio_ccw_ops = {
+ 	.ioctl		= vfio_ccw_ioctl,
+ };
+ 
++static void vfio_ccw_int_handler(struct ccw_device *cdev,
++				unsigned long intparm,
++				struct irb *irb)
++{
++	struct vfio_device *device = dev_get_drvdata(&cdev->dev);
++	struct vfio_ccw_device *vdev;
++
++	if (!device)
++		return;
++
++	vdev = vfio_device_data(device);
++	if (!vdev)
++		return;
++
++	vdev->curr_intparm = intparm;
++	memcpy(&vdev->irb, irb, sizeof(*irb));
++	wake_up(&vdev->wait_q);
++}
++
+ static int vfio_ccw_probe(struct ccw_device *cdev)
+ {
+ 	struct iommu_group *group = vfio_iommu_group_get(&cdev->dev);
+@@ -126,6 +290,8 @@ static int vfio_ccw_probe(struct ccw_device *cdev)
+ 	if (!group)
+ 		return -EINVAL;
+ 
++	cdev->handler = vfio_ccw_int_handler;
++
+ 	return 0;
+ }
+ 
+@@ -142,6 +308,9 @@ static int vfio_ccw_set_offline(struct ccw_device *cdev)
+ 	if (!vdev || vdev->hot_reset || vdev->going_away)
+ 		return 0;
+ 
++	/* Put the vfio_device reference we got during the online process. */
++	vfio_device_put(device);
++
+ 	vdev->going_away = true;
+ 	vfio_del_group_dev(&cdev->dev);
+ 	kfree(vdev);
+@@ -155,6 +324,8 @@ void vfio_ccw_remove(struct ccw_device *cdev)
+ 		vfio_ccw_set_offline(cdev);
+ 
+ 	vfio_iommu_group_put(cdev->dev.iommu_group, &cdev->dev);
++
++	cdev->handler = NULL;
+ }
+ 
+ static int vfio_ccw_set_online(struct ccw_device *cdev)
+@@ -186,8 +357,25 @@ create_device:
+ 	vdev->cdev = cdev;
+ 
+ 	ret = vfio_add_group_dev(&cdev->dev, &vfio_ccw_ops, vdev);
+-	if (ret)
++	if (ret) {
++		kfree(vdev);
++		return ret;
++	}
++
++	/*
++	 * Get a reference to the vfio_device for this device, and don't put
++	 * it until device offline. Thus we don't need to get/put a reference
++	 * every time we run into the int_handler. And we will get rid of a
++	 * wrong usage of mutex in int_handler.
++	 */
++	device = vfio_device_get_from_dev(&cdev->dev);
++	if (!device) {
++		vfio_del_group_dev(&cdev->dev);
+ 		kfree(vdev);
++		return -ENODEV;
++	}
++
++	init_waitqueue_head(&vdev->wait_q);
+ 
+ 	return ret;
+ }
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 889a316..5e8a58e 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -695,6 +695,29 @@ struct vfio_iommu_spapr_tce_remove {
+  */
+ #define VFIO_DEVICE_CCW_HOT_RESET	_IO(VFIO_TYPE, VFIO_BASE + 21)
+ 
++/**
++ * VFIO_DEVICE_CCW_CMD_REQUEST - _IOWR(VFIO_TYPE, VFIO_BASE + 22,
++ *                                     struct vfio_ccw_cmd)
++ *
++ * Issue a user-space ccw program for translation and performing channel I/O
++ * operations.
++ */
++struct vfio_ccw_cmd {
++	__u32 argsz;
++	__u8 cssid;
++	__u8 ssid;
++	__u16 devno;
++#define ORB_AREA_SIZE 12
++	__u8 orb_area[ORB_AREA_SIZE];
++#define SCSW_AREA_SIZE 12
++	__u8 scsw_area[SCSW_AREA_SIZE];
++#define IRB_AREA_SIZE 96
++	__u8 irb_area[IRB_AREA_SIZE];
++	__u32 ccwchain_nr;
++	__u64 ccwchain_buf;
++} __attribute__((packed));
++#define VFIO_DEVICE_CCW_CMD_REQUEST	_IO(VFIO_TYPE, VFIO_BASE + 22)
++
+ /* ***************************************************************** */
+ 
+ #endif /* _UAPIVFIO_H */
 -- 
 2.6.6
