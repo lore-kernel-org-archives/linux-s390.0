@@ -1,12 +1,13 @@
 Return-Path: <luto@amacapital.net>
 MIME-Version: 1.0
-In-Reply-To: <f8816223098569a9b2f478caa5b4a7a0c27dda00.1461875890.git.jpoimboe@redhat.com>
+In-Reply-To: <6360fe5cab85aad424600518f645a9ac773cc72e.1461875890.git.jpoimboe@redhat.com>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
- <f8816223098569a9b2f478caa5b4a7a0c27dda00.1461875890.git.jpoimboe@redhat.com>
+ <6360fe5cab85aad424600518f645a9ac773cc72e.1461875890.git.jpoimboe@redhat.com>
 From: Andy Lutomirski <luto@amacapital.net>
-Date: Fri, 29 Apr 2016 11:06:53 -0700
-Message-ID: <CALCETrVjJdPCE92D6NY3B2+0STAdWL0pbNqCBfQUwn-sVWLD5w@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
+Date: Fri, 29 Apr 2016 11:08:04 -0700
+Message-ID: <CALCETrWj8doini-xtONoRX0=OzQL=HFxnPKrEL_7kdoZZT-Uug@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 09/18] livepatch/x86: add TIF_PATCH_PENDING thread
+ flag
 Content-Type: text/plain; charset=UTF-8
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
@@ -21,15 +22,16 @@ Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, Apr 28, 2016 at 1:44 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> A preempted function might not have had a chance to save the frame
-> pointer to the stack yet, which can result in its caller getting skipped
-> on a stack trace.
+> Add the TIF_PATCH_PENDING thread flag to enable the new livepatch
+> per-task consistency model for x86_64.  The bit getting set indicates
+> the thread has a pending patch which needs to be applied when the thread
+> exits the kernel.
 >
-> Add a flag to indicate when the task has been preempted so that stack
-> dump code can determine whether the stack trace is reliable.
+> The bit is placed in the least-significant word of the thread_info flags
 
-I think I like this, but how do you handle the rather similar case in
-which a task goes to sleep because it's waiting on IO that happened in
-response to get_user, put_user, copy_from_user, etc?
+NAK to that part.
+
+The least-significant word thing is a huge hack that has gotten out of
+control.  Please add the thing explicitly to all relevant masks.
 
 --Andy
