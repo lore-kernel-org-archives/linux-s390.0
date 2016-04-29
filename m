@@ -1,8 +1,6 @@
-Return-Path: <jpoimboe@redhat.com>
-Date: Fri, 29 Apr 2016 16:25:46 -0500
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
-Message-ID: <20160429212546.t26mvthtvh7543ff@treble>
+Return-Path: <luto@amacapital.net>
+MIME-Version: 1.0
+In-Reply-To: <20160429212546.t26mvthtvh7543ff@treble>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
  <f8816223098569a9b2f478caa5b4a7a0c27dda00.1461875890.git.jpoimboe@redhat.com>
  <CALCETrVjJdPCE92D6NY3B2+0STAdWL0pbNqCBfQUwn-sVWLD5w@mail.gmail.com>
@@ -10,9 +8,12 @@ References: <cover.1461875890.git.jpoimboe@redhat.com>
  <CALCETrW8G8qCHBkH7GFDTFuH82abJpbVq_-bDaRAdL7U0jLGNQ@mail.gmail.com>
  <20160429202701.yijrohqdsurdxv2a@treble>
  <CALCETrVKt8k11ewSOvGiCNsqgtD5cMaLix8Tf8JJakgodJeLyA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CALCETrVKt8k11ewSOvGiCNsqgtD5cMaLix8Tf8JJakgodJeLyA@mail.gmail.com>
+ <20160429212546.t26mvthtvh7543ff@treble>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Fri, 29 Apr 2016 14:37:41 -0700
+Message-ID: <CALCETrV2wtsEZH-OEDDGzYK-s02EeCWq1MZsYbrdjfyrbU7ugw@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
+Content-Type: text/plain; charset=UTF-8
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -21,102 +22,130 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Andy Lutomirski <luto@amacapital.net>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>, linuxppc-dev@lists.ozlabs.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Apr 29, 2016 at 01:32:53PM -0700, Andy Lutomirski wrote:
-> On Fri, Apr 29, 2016 at 1:27 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> > On Fri, Apr 29, 2016 at 01:19:23PM -0700, Andy Lutomirski wrote:
-> >> On Fri, Apr 29, 2016 at 1:11 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> >> > On Fri, Apr 29, 2016 at 11:06:53AM -0700, Andy Lutomirski wrote:
-> >> >> On Thu, Apr 28, 2016 at 1:44 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> >> >> > A preempted function might not have had a chance to save the frame
-> >> >> > pointer to the stack yet, which can result in its caller getting skipped
-> >> >> > on a stack trace.
-> >> >> >
-> >> >> > Add a flag to indicate when the task has been preempted so that stack
-> >> >> > dump code can determine whether the stack trace is reliable.
-> >> >>
-> >> >> I think I like this, but how do you handle the rather similar case in
-> >> >> which a task goes to sleep because it's waiting on IO that happened in
-> >> >> response to get_user, put_user, copy_from_user, etc?
-> >> >
-> >> > Hm, good question.  I was thinking that page faults had a dedicated
-> >> > stack, but now looking at the entry and traps code, that doesn't seem to
-> >> > be the case.
-> >> >
-> >> > Anyway I think it shouldn't be a problem if we make sure that any kernel
-> >> > function which might trigger a valid page fault (e.g.,
-> >> > copy_user_generic_string) do the proper frame pointer setup first.  Then
-> >> > the stack should still be reliable.
-> >> >
-> >> > In fact I might be able to teach objtool to enforce that: any function
-> >> > which uses an exception table should create a stack frame.
-> >> >
-> >> > Or alternatively, maybe set some kind of flag for page faults, similar
-> >> > to what I did with this patch.
-> >> >
-> >>
-> >> How about doing it the other way around: teach the unwinder to detect
-> >> when it hits a non-outermost entry (i.e. it lands in idtentry, etc)
-> >> and use some reasonable heuristic as to whether it's okay to keep
-> >> unwinding.  You should be able to handle preemption like that, too --
-> >> the unwind process will end up in an IRQ frame.
-> >
-> > How exactly would the unwinder detect if a text address is in an
-> > idtentry?  Maybe put all the idt entries in a special ELF section?
-> >
-> 
-> Hmm.
-> 
-> What actually happens when you unwind all the way into the entry code?
->  Don't you end up in something that isn't in an ELF function?  Can you
-> detect that?
-
-For entry from user space (e.g., syscalls), it's easy to detect because
-there's always a pt_regs at the bottom of the stack.  So if the unwinder
-reaches the stack address at (thread.sp0 - sizeof(pt_regs)), it knows
-it's done.
-
-But for nested entry (e.g. in-kernel irqs/exceptions like preemption and
-page faults which don't have dedicated stacks), where the pt_regs is
-stored somewhere in the middle of the stack instead of the bottom,
-there's no reliable way to detect that.
-
-> Ideally, the unwinder could actually detect that it's
-> hit a pt_regs struct and report that.  If used for stack dumps, it
-> could display some indication of this and then continue its unwinding
-> by decoding the pt_regs.  If used for patching, it could take some
-> other appropriate action.
+On Fri, Apr 29, 2016 at 2:25 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> On Fri, Apr 29, 2016 at 01:32:53PM -0700, Andy Lutomirski wrote:
+>> On Fri, Apr 29, 2016 at 1:27 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+>> > On Fri, Apr 29, 2016 at 01:19:23PM -0700, Andy Lutomirski wrote:
+>> >> On Fri, Apr 29, 2016 at 1:11 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+>> >> > On Fri, Apr 29, 2016 at 11:06:53AM -0700, Andy Lutomirski wrote:
+>> >> >> On Thu, Apr 28, 2016 at 1:44 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+>> >> >> > A preempted function might not have had a chance to save the frame
+>> >> >> > pointer to the stack yet, which can result in its caller getting skipped
+>> >> >> > on a stack trace.
+>> >> >> >
+>> >> >> > Add a flag to indicate when the task has been preempted so that stack
+>> >> >> > dump code can determine whether the stack trace is reliable.
+>> >> >>
+>> >> >> I think I like this, but how do you handle the rather similar case in
+>> >> >> which a task goes to sleep because it's waiting on IO that happened in
+>> >> >> response to get_user, put_user, copy_from_user, etc?
+>> >> >
+>> >> > Hm, good question.  I was thinking that page faults had a dedicated
+>> >> > stack, but now looking at the entry and traps code, that doesn't seem to
+>> >> > be the case.
+>> >> >
+>> >> > Anyway I think it shouldn't be a problem if we make sure that any kernel
+>> >> > function which might trigger a valid page fault (e.g.,
+>> >> > copy_user_generic_string) do the proper frame pointer setup first.  Then
+>> >> > the stack should still be reliable.
+>> >> >
+>> >> > In fact I might be able to teach objtool to enforce that: any function
+>> >> > which uses an exception table should create a stack frame.
+>> >> >
+>> >> > Or alternatively, maybe set some kind of flag for page faults, similar
+>> >> > to what I did with this patch.
+>> >> >
+>> >>
+>> >> How about doing it the other way around: teach the unwinder to detect
+>> >> when it hits a non-outermost entry (i.e. it lands in idtentry, etc)
+>> >> and use some reasonable heuristic as to whether it's okay to keep
+>> >> unwinding.  You should be able to handle preemption like that, too --
+>> >> the unwind process will end up in an IRQ frame.
+>> >
+>> > How exactly would the unwinder detect if a text address is in an
+>> > idtentry?  Maybe put all the idt entries in a special ELF section?
+>> >
+>>
+>> Hmm.
+>>
+>> What actually happens when you unwind all the way into the entry code?
+>>  Don't you end up in something that isn't in an ELF function?  Can you
+>> detect that?
 >
-> I would have no objection to annotating all the pt_regs-style entry
-> code, whether by putting it in a separate section or by making a table
-> of addresses.
+> For entry from user space (e.g., syscalls), it's easy to detect because
+> there's always a pt_regs at the bottom of the stack.  So if the unwinder
+> reaches the stack address at (thread.sp0 - sizeof(pt_regs)), it knows
+> it's done.
+>
+> But for nested entry (e.g. in-kernel irqs/exceptions like preemption and
+> page faults which don't have dedicated stacks), where the pt_regs is
+> stored somewhere in the middle of the stack instead of the bottom,
+> there's no reliable way to detect that.
 
-I think the easiest way to make it work would be to modify the idtentry
-macro to put all the idt entries in a dedicated section.  Then the
-unwinder could easily detect any calls from that code.
+>
+>> Ideally, the unwinder could actually detect that it's
+>> hit a pt_regs struct and report that.  If used for stack dumps, it
+>> could display some indication of this and then continue its unwinding
+>> by decoding the pt_regs.  If used for patching, it could take some
+>> other appropriate action.
+>>
+>> I would have no objection to annotating all the pt_regs-style entry
+>> code, whether by putting it in a separate section or by making a table
+>> of addresses.
+>
+> I think the easiest way to make it work would be to modify the idtentry
+> macro to put all the idt entries in a dedicated section.  Then the
+> unwinder could easily detect any calls from that code.
 
-> There are a couple of nasty cases if NMI or MCE is involved but, as of
-> 4.6, outside of NMI, MCE, and vmalloc faults (ugh!), there should
-> always be a complete pt_regs on the stack before interrupts get
-> enabled for each entry.  Of course, finding the thing may be
-> nontrivial in case other things were pushed.
+That would work.  Would it make sense to do the same for the irq entries?
 
-NMI, MCE and interrupts aren't a problem because they have dedicated
-stacks, which are easy to detect.  If the tasks' stack is on an
-exception stack or an irq stack, we consider it unreliable.
+I'd be glad to review a patch.  It should be straightforward.
 
-And also, they don't sleep.  The stack of any running task (other than
-current) is automatically considered unreliable anyway, since they could
-be modifying it while we're reading it.
+>
+>> There are a couple of nasty cases if NMI or MCE is involved but, as of
+>> 4.6, outside of NMI, MCE, and vmalloc faults (ugh!), there should
+>> always be a complete pt_regs on the stack before interrupts get
+>> enabled for each entry.  Of course, finding the thing may be
+>> nontrivial in case other things were pushed.
+>
+> NMI, MCE and interrupts aren't a problem because they have dedicated
+> stacks, which are easy to detect.  If the tasks' stack is on an
+> exception stack or an irq stack, we consider it unreliable.
 
-> I suppose we could try to rejigger the code so that rbp points to
-> pt_regs or similar.
+Only on x86_64.
 
-I think we should avoid doing something like that because it would break
-gdb and all the other unwinders who don't know about it.
+>
+> And also, they don't sleep.  The stack of any running task (other than
+> current) is automatically considered unreliable anyway, since they could
+> be modifying it while we're reading it.
+
+True.
+
+>
+>> I suppose we could try to rejigger the code so that rbp points to
+>> pt_regs or similar.
+>
+> I think we should avoid doing something like that because it would break
+> gdb and all the other unwinders who don't know about it.
+
+How so?
+
+Currently, rbp in the entry code is meaningless.  I'm suggesting that,
+when we do, for example, 'call \do_sym' in idtentry, we point rbp to
+the pt_regs.  Currently it points to something stale (which the
+dump_stack code might be relying on.  Hmm.)  But it's probably also
+safe to assume that if you unwind to the 'call \do_sym', then pt_regs
+is the next thing on the stack, so just doing the section thing would
+work.
+
+We should really re-add DWARF some day.
+
+--Andy
 
 -- 
-Josh
+Andy Lutomirski
+AMA Capital Management, LLC
