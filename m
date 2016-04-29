@@ -1,7 +1,7 @@
 From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-Subject: [PATCH RFC 1/9] vfio: linux-headers update for vfio-ccw
-Date: Fri, 29 Apr 2016 14:13:15 +0200
-Message-ID: <1461932003-23830-2-git-send-email-renxiaof@linux.vnet.ibm.com>
+Subject: [PATCH RFC 2/9] vfio: No-IOMMU mode support
+Date: Fri, 29 Apr 2016 14:13:16 +0200
+Message-ID: <1461932003-23830-3-git-send-email-renxiaof@linux.vnet.ibm.com>
 References: <1461932003-23830-1-git-send-email-renxiaof@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1461932003-23830-1-git-send-email-renxiaof@linux.vnet.ibm.com>
@@ -12,62 +12,151 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This is a placeholder for a linux-headers update.
+Add qemu support for the newly introduced VFIO No-IOMMU driver.
+
+We need to add special handling for:
+- Group character device is /dev/vfio/noiommu-$GROUP.
+- No-IOMMU does not rely on a memory listener.
+- No IOMMU will be set for its group, so no need to call
+  vfio_kvm_device_add_group.
 
 Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
 ---
- linux-headers/linux/vfio.h | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ hw/vfio/common.c              | 66 ++++++++++++++++++++++++++++++++++---------
+ include/hw/vfio/vfio-common.h |  2 ++
+ 2 files changed, 55 insertions(+), 13 deletions(-)
 
-diff --git a/linux-headers/linux/vfio.h b/linux-headers/linux/vfio.h
-index 759b850..4059e3e 100644
---- a/linux-headers/linux/vfio.h
-+++ b/linux-headers/linux/vfio.h
-@@ -198,6 +198,7 @@ struct vfio_device_info {
- #define VFIO_DEVICE_FLAGS_PCI	(1 << 1)	/* vfio-pci device */
- #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
- #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
-+#define VFIO_DEVICE_FLAGS_CCW   (1 << 4)	/* vfio-ccw device */
- 	__u32	num_regions;	/* Max region index + 1 */
- 	__u32	num_irqs;	/* Max IRQ index + 1 */
- };
-@@ -686,6 +687,37 @@ struct vfio_iommu_spapr_tce_remove {
- };
- #define VFIO_IOMMU_SPAPR_TCE_REMOVE	_IO(VFIO_TYPE, VFIO_BASE + 20)
- 
-+/**
-+ * VFIO_DEVICE_CCW_HOT_RESET - _IOW(VFIO_TYPE, VFIO_BASE + 21)
-+ *
-+ * Hot reset the channel I/O device. All state of the subchannel will be
-+ * cleared.
-+ */
-+#define VFIO_DEVICE_CCW_HOT_RESET       _IO(VFIO_TYPE, VFIO_BASE + 21)
+diff --git a/hw/vfio/common.c b/hw/vfio/common.c
+index f27db36..656c303 100644
+--- a/hw/vfio/common.c
++++ b/hw/vfio/common.c
+@@ -789,6 +789,33 @@ static int vfio_connect_container(VFIOGroup *group, AddressSpace *as)
+     container = g_malloc0(sizeof(*container));
+     container->space = space;
+     container->fd = fd;
++    container->noiommu = group->noiommu;
 +
-+/**
-+ * VFIO_DEVICE_CCW_CMD_REQUEST - _IOWR(VFIO_TYPE, VFIO_BASE + 22,
-+ *                                     struct vfio_ccw_cmd)
-+ *
-+ * Issue a user-space ccw program for translation and performing channel I/O
-+ * operations.
-+ */
-+struct vfio_ccw_cmd {
-+        __u32 argsz;
-+        __u8 cssid;
-+        __u8 ssid;
-+        __u16 devno;
-+#define ORB_AREA_SIZE 12
-+        __u8 orb_area[ORB_AREA_SIZE];
-+#define SCSW_AREA_SIZE 12
-+        __u8 scsw_area[SCSW_AREA_SIZE];
-+#define IRB_AREA_SIZE 96
-+        __u8 irb_area[IRB_AREA_SIZE];
-+        __u32 ccwchain_nr;
-+        __u64 ccwchain_buf;
-+} __attribute__((packed));
-+#define VFIO_DEVICE_CCW_CMD_REQUEST    _IO(VFIO_TYPE, VFIO_BASE + 22)
++    if (container->noiommu) {
++        ret = ioctl(group->fd, VFIO_GROUP_SET_CONTAINER, &fd);
++        if (ret) {
++            error_report("vfio: failed to set group container: %m");
++            ret = -errno;
++            goto free_container_exit;
++        }
 +
- /* ***************************************************************** */
++        ret = ioctl(fd, VFIO_CHECK_EXTENSION, VFIO_NOIOMMU_IOMMU);
++        if (!ret) {
++            error_report("vfio: No available IOMMU models");
++            ret = -EINVAL;
++            goto free_container_exit;
++        }
++
++        ret = ioctl(fd, VFIO_SET_IOMMU, VFIO_NOIOMMU_IOMMU);
++        if (ret) {
++            error_report("vfio: failed to set iommu for container: %m");
++            ret = -errno;
++            goto free_container_exit;
++        }
++
++        goto listener_register;
++    }
++
+     if (ioctl(fd, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU) ||
+         ioctl(fd, VFIO_CHECK_EXTENSION, VFIO_TYPE1v2_IOMMU)) {
+         bool v2 = !!ioctl(fd, VFIO_CHECK_EXTENSION, VFIO_TYPE1v2_IOMMU);
+@@ -878,14 +905,16 @@ static int vfio_connect_container(VFIOGroup *group, AddressSpace *as)
+         goto free_container_exit;
+     }
  
- #endif /* VFIO_H */
+-    container->listener = vfio_memory_listener;
+-
+-    memory_listener_register(&container->listener, container->space->as);
+-
+-    if (container->error) {
+-        ret = container->error;
+-        error_report("vfio: memory listener initialization failed for container");
+-        goto listener_release_exit;
++listener_register:
++    if (!container->noiommu) {
++        container->listener = vfio_memory_listener;
++        memory_listener_register(&container->listener, container->space->as);
++        if (container->error) {
++            ret = container->error;
++            error_report("vfio: memory listener initialization failed for "
++                         "container");
++            goto listener_release_exit;
++        }
+     }
+ 
+     container->initialized = true;
+@@ -898,7 +927,9 @@ static int vfio_connect_container(VFIOGroup *group, AddressSpace *as)
+ 
+     return 0;
+ listener_release_exit:
+-    vfio_listener_release(container);
++    if (!container->noiommu) {
++        vfio_listener_release(container);
++    }
+ 
+ free_container_exit:
+     g_free(container);
+@@ -928,7 +959,9 @@ static void vfio_disconnect_container(VFIOGroup *group)
+         VFIOAddressSpace *space = container->space;
+         VFIOGuestIOMMU *giommu, *tmp;
+ 
+-        vfio_listener_release(container);
++        if (!container->noiommu) {
++            vfio_listener_release(container);
++        }
+         QLIST_REMOVE(container, next);
+ 
+         QLIST_FOREACH_SAFE(giommu, &container->giommu_list, giommu_next, tmp) {
+@@ -969,8 +1002,13 @@ VFIOGroup *vfio_get_group(int groupid, AddressSpace *as)
+     snprintf(path, sizeof(path), "/dev/vfio/%d", groupid);
+     group->fd = qemu_open(path, O_RDWR);
+     if (group->fd < 0) {
+-        error_report("vfio: error opening %s: %m", path);
+-        goto free_group_exit;
++        snprintf(path, sizeof(path), "/dev/vfio/noiommu-%d", groupid);
++        group->fd = qemu_open(path, O_RDWR);
++        if (group->fd < 0) {
++            error_report("vfio: error opening %s: %m", path);
++            goto free_group_exit;
++        }
++        group->noiommu = 1;
+     }
+ 
+     if (ioctl(group->fd, VFIO_GROUP_GET_STATUS, &status)) {
+@@ -999,7 +1037,9 @@ VFIOGroup *vfio_get_group(int groupid, AddressSpace *as)
+ 
+     QLIST_INSERT_HEAD(&vfio_group_list, group, next);
+ 
+-    vfio_kvm_device_add_group(group);
++    if (!group->noiommu) {
++        vfio_kvm_device_add_group(group);
++    }
+ 
+     return group;
+ 
+diff --git a/include/hw/vfio/vfio-common.h b/include/hw/vfio/vfio-common.h
+index eb0e1b0..85c2a74 100644
+--- a/include/hw/vfio/vfio-common.h
++++ b/include/hw/vfio/vfio-common.h
+@@ -72,6 +72,7 @@ struct VFIOGroup;
+ typedef struct VFIOContainer {
+     VFIOAddressSpace *space;
+     int fd; /* /dev/vfio/vfio, empowered by the attached groups */
++    bool noiommu;
+     MemoryListener listener;
+     int error;
+     bool initialized;
+@@ -121,6 +122,7 @@ struct VFIODeviceOps {
+ typedef struct VFIOGroup {
+     int fd;
+     int groupid;
++    bool noiommu;
+     VFIOContainer *container;
+     QLIST_HEAD(, VFIODevice) device_list;
+     QLIST_ENTRY(VFIOGroup) next;
 -- 
 2.6.6
