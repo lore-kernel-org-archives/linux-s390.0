@@ -1,20 +1,17 @@
 Return-Path: <luto@amacapital.net>
 MIME-Version: 1.0
-In-Reply-To: <alpine.LNX.2.00.1604300007070.27368@cbobk.fhfr.pm>
+In-Reply-To: <20160429232746.3lp6qlwojdmm52fb@treble>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
- <f8816223098569a9b2f478caa5b4a7a0c27dda00.1461875890.git.jpoimboe@redhat.com>
- <CALCETrVjJdPCE92D6NY3B2+0STAdWL0pbNqCBfQUwn-sVWLD5w@mail.gmail.com>
- <20160429201139.pudoged2yathyo64@treble>
- <CALCETrW8G8qCHBkH7GFDTFuH82abJpbVq_-bDaRAdL7U0jLGNQ@mail.gmail.com>
- <20160429202701.yijrohqdsurdxv2a@treble>
- <CALCETrVKt8k11ewSOvGiCNsqgtD5cMaLix8Tf8JJakgodJeLyA@mail.gmail.com>
- <20160429212546.t26mvthtvh7543ff@treble>
- <CALCETrV2wtsEZH-OEDDGzYK-s02EeCWq1MZsYbrdjfyrbU7ugw@mail.gmail.com>
- <alpine.LNX.2.00.1604300007070.27368@cbobk.fhfr.pm>
+ <9268772b31cc7bc4dc40c617e3baf45e07322145.1461875890.git.jpoimboe@redhat.com>
+ <CALCETrVYzPFjJwZp_PbscGkQDx-K-p5sAt37oz+FoxGx8hSM=A@mail.gmail.com>
+ <20160429205047.t6k7rsskx7mhvwxg@treble>
+ <CALCETrUokdo=WR7SHMz3pbjxryWDTg7vsErDGGMrieL8RcaRKw@mail.gmail.com>
+ <20160429232746.3lp6qlwojdmm52fb@treble>
 From: Andy Lutomirski <luto@amacapital.net>
-Date: Fri, 29 Apr 2016 17:09:56 -0700
-Message-ID: <CALCETrXC5mVPTKjW7gZG_GGbADbeUPO7X-9ARTOaCVo1icYJkw@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
+Date: Fri, 29 Apr 2016 17:10:05 -0700
+Message-ID: <CALCETrUTbmpSg515o3CsvA_dhODYehAbS4zw=qg49KmJtRi3gQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 03/18] x86/asm/head: standardize the bottom of the
+ stack for idle tasks
 Content-Type: text/plain; charset=UTF-8
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
@@ -24,35 +21,83 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, X86 ML <x86@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Chris J Arges <chris.j.arges@canonical.com>, linuxppc-dev@lists.ozlabs.org, Jessica Yu <jeyu@redhat.com>, Petr Mladek <pmladek@suse.com>, Jiri Slaby <jslaby@suse.cz>, Vojtech Pavlik <vojtech@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Miroslav Benes <mbenes@suse.cz>, Peter Zijlstra <peterz@infradead.org>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Chris J Arges <chris.j.arges@canonical.com>, linuxppc-dev@lists.ozlabs.org, Jessica Yu <jeyu@redhat.com>, Petr Mladek <pmladek@suse.com>, Jiri Slaby <jslaby@suse.cz>, Vojtech Pavlik <vojtech@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Miroslav Benes <mbenes@suse.cz>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Apr 29, 2016 3:11 PM, "Jiri Kosina" <jikos@kernel.org> wrote:
+On Apr 29, 2016 4:27 PM, "Josh Poimboeuf" <jpoimboe@redhat.com> wrote:
 >
-> On Fri, 29 Apr 2016, Andy Lutomirski wrote:
->
-> > > NMI, MCE and interrupts aren't a problem because they have dedicated
-> > > stacks, which are easy to detect.  If the tasks' stack is on an
-> > > exception stack or an irq stack, we consider it unreliable.
+> On Fri, Apr 29, 2016 at 02:38:02PM -0700, Andy Lutomirski wrote:
+> > On Fri, Apr 29, 2016 at 1:50 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> > > On Fri, Apr 29, 2016 at 12:39:16PM -0700, Andy Lutomirski wrote:
+> > >> On Thu, Apr 28, 2016 at 1:44 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> > >> > Thanks to all the recent x86 entry code refactoring, most tasks' kernel
+> > >> > stacks start at the same offset right above their saved pt_regs,
+> > >> > regardless of which syscall was used to enter the kernel.  That creates
+> > >> > a nice convention which makes it straightforward to identify the
+> > >> > "bottom" of the stack, which can be useful for stack walking code which
+> > >> > needs to verify the stack is sane.
+> > >> >
+> > >> > However there are still a few types of tasks which don't yet follow that
+> > >> > convention:
+> > >> >
+> > >> > 1) CPU idle tasks, aka the "swapper" tasks
+> > >> >
+> > >> > 2) freshly forked TIF_FORK tasks which don't have a stack at all
+> > >> >
+> > >> > Make the idle tasks conform to the new stack bottom convention by
+> > >> > starting their stack at a sizeof(pt_regs) offset from the end of the
+> > >> > stack page.
+> > >> >
+> > >> > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> > >> > ---
+> > >> >  arch/x86/kernel/head_64.S | 7 ++++---
+> > >> >  1 file changed, 4 insertions(+), 3 deletions(-)
+> > >> >
+> > >> > diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+> > >> > index 6dbd2c0..0b12311 100644
+> > >> > --- a/arch/x86/kernel/head_64.S
+> > >> > +++ b/arch/x86/kernel/head_64.S
+> > >> > @@ -296,8 +296,9 @@ ENTRY(start_cpu)
+> > >> >          *      REX.W + FF /5 JMP m16:64 Jump far, absolute indirect,
+> > >> >          *              address given in m16:64.
+> > >> >          */
+> > >> > -       movq    initial_code(%rip),%rax
+> > >> > -       pushq   $0              # fake return address to stop unwinder
+> > >> > +       call    1f              # put return address on stack for unwinder
+> > >> > +1:     xorq    %rbp, %rbp      # clear frame pointer
+> > >> > +       movq    initial_code(%rip), %rax
+> > >> >         pushq   $__KERNEL_CS    # set correct cs
+> > >> >         pushq   %rax            # target address in negative space
+> > >> >         lretq
+> > >> > @@ -325,7 +326,7 @@ ENDPROC(start_cpu0)
+> > >> >         GLOBAL(initial_gs)
+> > >> >         .quad   INIT_PER_CPU_VAR(irq_stack_union)
+> > >> >         GLOBAL(initial_stack)
+> > >> > -       .quad  init_thread_union+THREAD_SIZE-8
+> > >> > +       .quad  init_thread_union + THREAD_SIZE - SIZEOF_PTREGS
+> > >>
+> > >> As long as you're doing this, could you also set orig_ax to -1?  I
+> > >> remember running into some oddities resulting from orig_ax containing
+> > >> garbage at some point.
+> > >
+> > > I assume you mean to initialize the orig_rax value in the pt_regs at the
+> > > bottom of the stack of the idle task?
+> > >
+> > > How could that cause a problem?  Since the idle task never returns from
+> > > a system call, I'd assume that memory never gets accessed?
+> > >
 > >
-> > Only on x86_64.
+> > Look at collect_syscall in lib/syscall.c
 >
-> Well, MCEs are more or less x86-specific as well. But otherwise good
-> point, thanks Andy.
->
-> So, how does stack layout generally look like in case when NMI is actually
-> running on proper kernel stack? I thought it's guaranteed to contain
-> pt_regs anyway in all cases. Is that not guaranteed to be the case?
->
+> I don't see how collect_syscall() can be called for the per-cpu idle
+> "swapper" tasks (which is what the above code affects).  They don't have
+> pids or /proc entries so you can't do /proc/<pid>/syscall on them.
 
-On x86, at least, there will still be pt_regs for the NMI.  For the
-interrupted state, though, there might not be pt_regs, as the NMI
-might have happened while still populating pt_regs.  In fact, the NMI
-stack could overlap task_pt_regs.
-
-For x86_32, there's no guarantee that pt_regs contains sp due to
-hardware silliness.  You need to parse it more carefully, as,
-!user_mode(regs), then the old sp is just above pt_regs.
+If so, then never mind.
 
 --Andy
+
+>
+> --
+> Josh
