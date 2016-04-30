@@ -1,13 +1,20 @@
-Return-Path: <brgerst@gmail.com>
+Return-Path: <luto@amacapital.net>
 MIME-Version: 1.0
-In-Reply-To: <9268772b31cc7bc4dc40c617e3baf45e07322145.1461875890.git.jpoimboe@redhat.com>
+In-Reply-To: <20160429224112.kl3jlk7ccvfceg2r@treble>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
- <9268772b31cc7bc4dc40c617e3baf45e07322145.1461875890.git.jpoimboe@redhat.com>
-Date: Fri, 29 Apr 2016 14:46:10 -0400
-Message-ID: <CAMzpN2hLWx4pp7_TwZ_KBStS7T7_Nvxjtf0k3679gq8VAh33uA@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 03/18] x86/asm/head: standardize the bottom of the
- stack for idle tasks
-From: Brian Gerst <brgerst@gmail.com>
+ <f8816223098569a9b2f478caa5b4a7a0c27dda00.1461875890.git.jpoimboe@redhat.com>
+ <CALCETrVjJdPCE92D6NY3B2+0STAdWL0pbNqCBfQUwn-sVWLD5w@mail.gmail.com>
+ <20160429201139.pudoged2yathyo64@treble>
+ <CALCETrW8G8qCHBkH7GFDTFuH82abJpbVq_-bDaRAdL7U0jLGNQ@mail.gmail.com>
+ <20160429202701.yijrohqdsurdxv2a@treble>
+ <CALCETrVKt8k11ewSOvGiCNsqgtD5cMaLix8Tf8JJakgodJeLyA@mail.gmail.com>
+ <20160429212546.t26mvthtvh7543ff@treble>
+ <CALCETrV2wtsEZH-OEDDGzYK-s02EeCWq1MZsYbrdjfyrbU7ugw@mail.gmail.com>
+ <20160429224112.kl3jlk7ccvfceg2r@treble>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Fri, 29 Apr 2016 17:08:50 -0700
+Message-ID: <CALCETrUvRKYpF5MuhYuHSxd1QFnzSNKdXUQp+3to6rzKzQjQSw@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
 Content-Type: text/plain; charset=UTF-8
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
@@ -18,51 +25,61 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Chris J Arges <chris.j.arges@canonical.com>, linuxppc-dev@lists.ozlabs.org, Jessica Yu <jeyu@redhat.com>, Petr Mladek <pmladek@suse.com>, Jiri Slaby <jslaby@suse.cz>, Vojtech Pavlik <vojtech@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Miroslav Benes <mbenes@suse.cz>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 28, 2016 at 4:44 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
-> Thanks to all the recent x86 entry code refactoring, most tasks' kernel
-> stacks start at the same offset right above their saved pt_regs,
-> regardless of which syscall was used to enter the kernel.  That creates
-> a nice convention which makes it straightforward to identify the
-> "bottom" of the stack, which can be useful for stack walking code which
-> needs to verify the stack is sane.
+On Apr 29, 2016 3:41 PM, "Josh Poimboeuf" <jpoimboe@redhat.com> wrote:
 >
-> However there are still a few types of tasks which don't yet follow that
-> convention:
+> On Fri, Apr 29, 2016 at 02:37:41PM -0700, Andy Lutomirski wrote:
+> > On Fri, Apr 29, 2016 at 2:25 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> > > I think the easiest way to make it work would be to modify the idtentry
+> > > macro to put all the idt entries in a dedicated section.  Then the
+> > > unwinder could easily detect any calls from that code.
+> >
+> > That would work.  Would it make sense to do the same for the irq entries?
 >
-> 1) CPU idle tasks, aka the "swapper" tasks
+> Yes, I think so.
 >
-> 2) freshly forked TIF_FORK tasks which don't have a stack at all
+> > >> I suppose we could try to rejigger the code so that rbp points to
+> > >> pt_regs or similar.
+> > >
+> > > I think we should avoid doing something like that because it would break
+> > > gdb and all the other unwinders who don't know about it.
+> >
+> > How so?
+> >
+> > Currently, rbp in the entry code is meaningless.  I'm suggesting that,
+> > when we do, for example, 'call \do_sym' in idtentry, we point rbp to
+> > the pt_regs.  Currently it points to something stale (which the
+> > dump_stack code might be relying on.  Hmm.)  But it's probably also
+> > safe to assume that if you unwind to the 'call \do_sym', then pt_regs
+> > is the next thing on the stack, so just doing the section thing would
+> > work.
 >
-> Make the idle tasks conform to the new stack bottom convention by
-> starting their stack at a sizeof(pt_regs) offset from the end of the
-> stack page.
->
-> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> ---
->  arch/x86/kernel/head_64.S | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-> index 6dbd2c0..0b12311 100644
-> --- a/arch/x86/kernel/head_64.S
-> +++ b/arch/x86/kernel/head_64.S
-> @@ -296,8 +296,9 @@ ENTRY(start_cpu)
->          *      REX.W + FF /5 JMP m16:64 Jump far, absolute indirect,
->          *              address given in m16:64.
->          */
-> -       movq    initial_code(%rip),%rax
-> -       pushq   $0              # fake return address to stop unwinder
-> +       call    1f              # put return address on stack for unwinder
-> +1:     xorq    %rbp, %rbp      # clear frame pointer
-> +       movq    initial_code(%rip), %rax
->         pushq   $__KERNEL_CS    # set correct cs
->         pushq   %rax            # target address in negative space
->         lretq
+> Yes, rbp is meaningless on the entry from user space.  But if an
+> in-kernel interrupt occurs (e.g. page fault, preemption) and you have
+> nested entry, rbp keeps its old value, right?  So the unwinder can walk
+> past the nested entry frame and keep going until it gets to the original
+> entry.
 
-This chunk looks like it should be a separate patch.
+Yes.
 
---
-Brian Gerst
+It would be nice if we could do better, though, and actually notice
+the pt_regs and identify the entry.  For example, I'd love to see
+"page fault, RIP=xyz" printed in the middle of a stack dump on a
+crash.  Also, I think that just following rbp links will lose the
+actual function that took the page fault (or whatever function
+pt_regs->ip actually points to).
+
+>
+> > We should really re-add DWARF some day.
+>
+> Working on it :-)
+
+Excellent.
+
+Have you looked at my vdso unwinding test at all?  If we could do
+something similar for the kernel, IMO it would make testing much more
+pleasant.
+
+--Andy
