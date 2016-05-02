@@ -1,106 +1,91 @@
-From: Pengfei Wang <wpengfeinudt@gmail.com>
-Date: Tue, 26 Apr 2016 12:37:17 +0000
-Subject: Double-Fetch bug in Linux-4.5/drivers/s390/char/sclp_ctl.c
-Message-Id: <CACxtibSkoA3bDKgu5hbOuW8Z3WitJcL5fxdjQ-AnHwPkxM2dQA@mail.gmail.com>
-In-Reply-To: <20160425173236.34217b76@mschwide>
-References: <20160425173236.34217b76@mschwide>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--001a113e53e6b43d1e0531628d40"
-To: linux-s390@vger.kernel.org
+Return-Path: <jpoimboe@redhat.com>
+Date: Mon, 2 May 2016 08:52:43 -0500
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
+Message-ID: <20160502135243.jkbnonaesv7zfios@treble>
+References: <f8816223098569a9b2f478caa5b4a7a0c27dda00.1461875890.git.jpoimboe@redhat.com>
+ <CALCETrVjJdPCE92D6NY3B2+0STAdWL0pbNqCBfQUwn-sVWLD5w@mail.gmail.com>
+ <20160429201139.pudoged2yathyo64@treble>
+ <CALCETrW8G8qCHBkH7GFDTFuH82abJpbVq_-bDaRAdL7U0jLGNQ@mail.gmail.com>
+ <20160429202701.yijrohqdsurdxv2a@treble>
+ <CALCETrVKt8k11ewSOvGiCNsqgtD5cMaLix8Tf8JJakgodJeLyA@mail.gmail.com>
+ <20160429212546.t26mvthtvh7543ff@treble>
+ <CALCETrV2wtsEZH-OEDDGzYK-s02EeCWq1MZsYbrdjfyrbU7ugw@mail.gmail.com>
+ <20160429224112.kl3jlk7ccvfceg2r@treble>
+ <CALCETrUvRKYpF5MuhYuHSxd1QFnzSNKdXUQp+3to6rzKzQjQSw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CALCETrUvRKYpF5MuhYuHSxd1QFnzSNKdXUQp+3to6rzKzQjQSw@mail.gmail.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Jiri Kosina <jikos@kernel.org>, Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Chris J Arges <chris.j.arges@canonical.com>, linuxppc-dev@lists.ozlabs.org, Jessica Yu <jeyu@redhat.com>, Petr Mladek <pmladek@suse.com>, Jiri Slaby <jslaby@suse.cz>, Vojtech Pavlik <vojtech@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Miroslav Benes <mbenes@suse.cz>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
---001a113e53e6b43d1e0531628d40
-Content-Type: text/plain; charset=UTF-8
+On Fri, Apr 29, 2016 at 05:08:50PM -0700, Andy Lutomirski wrote:
+> On Apr 29, 2016 3:41 PM, "Josh Poimboeuf" <jpoimboe@redhat.com> wrote:
+> >
+> > On Fri, Apr 29, 2016 at 02:37:41PM -0700, Andy Lutomirski wrote:
+> > > On Fri, Apr 29, 2016 at 2:25 PM, Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> > > >> I suppose we could try to rejigger the code so that rbp points to
+> > > >> pt_regs or similar.
+> > > >
+> > > > I think we should avoid doing something like that because it would break
+> > > > gdb and all the other unwinders who don't know about it.
+> > >
+> > > How so?
+> > >
+> > > Currently, rbp in the entry code is meaningless.  I'm suggesting that,
+> > > when we do, for example, 'call \do_sym' in idtentry, we point rbp to
+> > > the pt_regs.  Currently it points to something stale (which the
+> > > dump_stack code might be relying on.  Hmm.)  But it's probably also
+> > > safe to assume that if you unwind to the 'call \do_sym', then pt_regs
+> > > is the next thing on the stack, so just doing the section thing would
+> > > work.
+> >
+> > Yes, rbp is meaningless on the entry from user space.  But if an
+> > in-kernel interrupt occurs (e.g. page fault, preemption) and you have
+> > nested entry, rbp keeps its old value, right?  So the unwinder can walk
+> > past the nested entry frame and keep going until it gets to the original
+> > entry.
+> 
+> Yes.
+> 
+> It would be nice if we could do better, though, and actually notice
+> the pt_regs and identify the entry.  For example, I'd love to see
+> "page fault, RIP=xyz" printed in the middle of a stack dump on a
+> crash.
+>
+> Also, I think that just following rbp links will lose the
+> actual function that took the page fault (or whatever function
+> pt_regs->ip actually points to).
 
-Hello,
+Hm.  I think we could fix all that in a more standard way.  Whenever a
+new pt_regs frame gets saved on entry, we could also create a new stack
+frame which points to a fake kernel_entry() function.  That would tell
+the unwinder there's a pt_regs frame without otherwise breaking frame
+pointers across the frame.
 
-I found this Double-Fetch bug in
-Linux-4.5/drivers/s390/char/sclp_ctl.c when I was examining the source
-code.
+Then I guess we wouldn't need my other solution of putting the idt
+entries in a special section.
 
-In function sclp_ctl_ioctl_sccb(), the driver fetches user space data
-by pointer ctl_sccb.sccb via copy_from_user(), and this happens twice
-at line 68 and line 74 respectively. The first fetched value (stored
-in sccb) is used to get the length element (sccb->length) so as to
-copy the whole message later at line 74, which means the copy size of
-the whole message is based on the old value that came from the first
-fetch. Besides, the whole message copied in the  second fetch also
-contains sccb->length.
+How does that sound?
 
-However, when the function copies the whole message back to user space
-after the second fetch at line 78, it uses sccb->length that came from
-the second fetch, which might be different from the one came from the
-first fetch as well as copied the message from user space to driver.
+> Have you looked at my vdso unwinding test at all?  If we could do
+> something similar for the kernel, IMO it would make testing much more
+> pleasant.
 
-If the sccb->length is modified by a user thread under race condition
-between the fetch operations, for example changing to a very large
-value, this will lead to consequence like over-boundary access on the
-buffer, information leakage.
+I found it, but I'm not sure what it would mean to do something similar
+for the kernel.  Do you mean doing something like an NMI sampling-based
+approach where we periodically do a random stack sanity check?
 
-I also reported this to bugzilla
-https://bugzilla.kernel.org/show_bug.cgi?id=116741.
+(If so, I do have something like that planned.)
 
-I am expecting a reply to confirm this, thank you!
-
-
-
-Kind regards
-Pengfei
-
---001a113e53e6b43d1e0531628d40
-Content-Type: text/x-csrc; charset=US-ASCII; name="sclp_ctl.c"
-Content-Disposition: attachment; filename="sclp_ctl.c"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_inhf2uxf0
-
-LyoKICogSU9DVEwgaW50ZXJmYWNlIGZvciBTQ0xQCiAqCiAqIENvcHlyaWdodCBJQk0gQ29ycC4g
-MjAxMgogKgogKiBBdXRob3I6IE1pY2hhZWwgSG9semhldSA8aG9semhldUBsaW51eC52bmV0Lmli
-bS5jb20+CiAqLwoKI2luY2x1ZGUgPGxpbnV4L2NvbXBhdC5oPgojaW5jbHVkZSA8bGludXgvdWFj
-Y2Vzcy5oPgojaW5jbHVkZSA8bGludXgvbWlzY2RldmljZS5oPgojaW5jbHVkZSA8bGludXgvZ2Zw
-Lmg+CiNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KI2luY2x1ZGUgPGxpbnV4L2lvY3RsLmg+CiNp
-bmNsdWRlIDxsaW51eC9mcy5oPgojaW5jbHVkZSA8YXNtL2NvbXBhdC5oPgojaW5jbHVkZSA8YXNt
-L3NjbHBfY3RsLmg+CiNpbmNsdWRlIDxhc20vc2NscC5oPgoKI2luY2x1ZGUgInNjbHAuaCIKCi8q
-CiAqIFN1cHBvcnRlZCBjb21tYW5kIHdvcmRzCiAqLwpzdGF0aWMgdW5zaWduZWQgaW50IHNjbHBf
-Y3RsX3NjY2Jfd2xpc3RbXSA9IHsKCTB4MDA0MDAwMDIsCgkweDAwNDEwMDAyLAp9OwoKLyoKICog
-Q2hlY2sgaWYgY29tbWFuZCB3b3JkIGlzIHN1cHBvcnRlZAogKi8Kc3RhdGljIGludCBzY2xwX2N0
-bF9jbWR3X3N1cHBvcnRlZCh1bnNpZ25lZCBpbnQgY21kdykKewoJaW50IGk7CgoJZm9yIChpID0g
-MDsgaSA8IEFSUkFZX1NJWkUoc2NscF9jdGxfc2NjYl93bGlzdCk7IGkrKykgewoJCWlmIChjbWR3
-ID09IHNjbHBfY3RsX3NjY2Jfd2xpc3RbaV0pCgkJCXJldHVybiAxOwoJfQoJcmV0dXJuIDA7Cn0K
-CnN0YXRpYyB2b2lkIF9fdXNlciAqdTY0X3RvX3VwdHIodTY0IHZhbHVlKQp7CglpZiAoaXNfY29t
-cGF0X3Rhc2soKSkKCQlyZXR1cm4gY29tcGF0X3B0cih2YWx1ZSk7CgllbHNlCgkJcmV0dXJuICh2
-b2lkIF9fdXNlciAqKSh1bnNpZ25lZCBsb25nKXZhbHVlOwp9CgovKgogKiBTdGFydCBTQ0xQIHJl
-cXVlc3QKICovCnN0YXRpYyBpbnQgc2NscF9jdGxfaW9jdGxfc2NjYih2b2lkIF9fdXNlciAqdXNl
-cl9hcmVhKQp7CglzdHJ1Y3Qgc2NscF9jdGxfc2NjYiBjdGxfc2NjYjsKCXN0cnVjdCBzY2NiX2hl
-YWRlciAqc2NjYjsKCWludCByYzsKCglpZiAoY29weV9mcm9tX3VzZXIoJmN0bF9zY2NiLCB1c2Vy
-X2FyZWEsIHNpemVvZihjdGxfc2NjYikpKQoJCXJldHVybiAtRUZBVUxUOwoJaWYgKCFzY2xwX2N0
-bF9jbWR3X3N1cHBvcnRlZChjdGxfc2NjYi5jbWR3KSkKCQlyZXR1cm4gLUVPUE5PVFNVUFA7Cglz
-Y2NiID0gKHZvaWQgKikgZ2V0X3plcm9lZF9wYWdlKEdGUF9LRVJORUwgfCBHRlBfRE1BKTsKCWlm
-ICghc2NjYikKCQlyZXR1cm4gLUVOT01FTTsKCWlmIChjb3B5X2Zyb21fdXNlcihzY2NiLCB1NjRf
-dG9fdXB0cihjdGxfc2NjYi5zY2NiKSwgc2l6ZW9mKCpzY2NiKSkpIHsKCQlyYyA9IC1FRkFVTFQ7
-CgkJZ290byBvdXRfZnJlZTsKCX0KCWlmIChzY2NiLT5sZW5ndGggPiBQQUdFX1NJWkUgfHwgc2Nj
-Yi0+bGVuZ3RoIDwgOCkKCQlyZXR1cm4gLUVJTlZBTDsKCWlmIChjb3B5X2Zyb21fdXNlcihzY2Ni
-LCB1NjRfdG9fdXB0cihjdGxfc2NjYi5zY2NiKSwgc2NjYi0+bGVuZ3RoKSkgewoJCXJjID0gLUVG
-QVVMVDsKCQlnb3RvIG91dF9mcmVlOwoJfQoJcmMgPSBzY2xwX3N5bmNfcmVxdWVzdChjdGxfc2Nj
-Yi5jbWR3LCBzY2NiKTsKCWlmIChyYykKCQlnb3RvIG91dF9mcmVlOwoJaWYgKGNvcHlfdG9fdXNl
-cih1NjRfdG9fdXB0cihjdGxfc2NjYi5zY2NiKSwgc2NjYiwgc2NjYi0+bGVuZ3RoKSkKCQlyYyA9
-IC1FRkFVTFQ7Cm91dF9mcmVlOgoJZnJlZV9wYWdlKCh1bnNpZ25lZCBsb25nKSBzY2NiKTsKCXJl
-dHVybiByYzsKfQoKLyoKICogU0NMUCBTQ0NCIGlvY3RsIGZ1bmN0aW9uCiAqLwpzdGF0aWMgbG9u
-ZyBzY2xwX2N0bF9pb2N0bChzdHJ1Y3QgZmlsZSAqZmlscCwgdW5zaWduZWQgaW50IGNtZCwKCQkJ
-ICAgdW5zaWduZWQgbG9uZyBhcmcpCnsKCXZvaWQgX191c2VyICphcmdwOwoKCWlmIChpc19jb21w
-YXRfdGFzaygpKQoJCWFyZ3AgPSBjb21wYXRfcHRyKGFyZyk7CgllbHNlCgkJYXJncCA9ICh2b2lk
-IF9fdXNlciAqKSBhcmc7Cglzd2l0Y2ggKGNtZCkgewoJY2FzZSBTQ0xQX0NUTF9TQ0NCOgoJCXJl
-dHVybiBzY2xwX2N0bF9pb2N0bF9zY2NiKGFyZ3ApOwoJZGVmYXVsdDogLyogdW5rbm93biBpb2N0
-bCBudW1iZXIgKi8KCQlyZXR1cm4gLUVOT1RUWTsKCX0KfQoKLyoKICogRmlsZSBvcGVyYXRpb25z
-CiAqLwpzdGF0aWMgY29uc3Qgc3RydWN0IGZpbGVfb3BlcmF0aW9ucyBzY2xwX2N0bF9mb3BzID0g
-ewoJLm93bmVyID0gVEhJU19NT0RVTEUsCgkub3BlbiA9IG5vbnNlZWthYmxlX29wZW4sCgkudW5s
-b2NrZWRfaW9jdGwgPSBzY2xwX2N0bF9pb2N0bCwKCS5jb21wYXRfaW9jdGwgPSBzY2xwX2N0bF9p
-b2N0bCwKCS5sbHNlZWsgPSBub19sbHNlZWssCn07CgovKgogKiBNaXNjIGRldmljZSBkZWZpbml0
-aW9uCiAqLwpzdGF0aWMgc3RydWN0IG1pc2NkZXZpY2Ugc2NscF9jdGxfZGV2aWNlID0gewoJLm1p
-bm9yID0gTUlTQ19EWU5BTUlDX01JTk9SLAoJLm5hbWUgPSAic2NscCIsCgkuZm9wcyA9ICZzY2xw
-X2N0bF9mb3BzLAp9OwoKLyoKICogUmVnaXN0ZXIgc2NscF9jdGwgbWlzYyBkZXZpY2UKICovCnN0
-YXRpYyBpbnQgX19pbml0IHNjbHBfY3RsX2luaXQodm9pZCkKewoJcmV0dXJuIG1pc2NfcmVnaXN0
-ZXIoJnNjbHBfY3RsX2RldmljZSk7Cn0KbW9kdWxlX2luaXQoc2NscF9jdGxfaW5pdCk7CgovKgog
-KiBEZXJlZ2lzdGVyIHNjbHBfY3RsIG1pc2MgZGV2aWNlCiAqLwpzdGF0aWMgdm9pZCBfX2V4aXQg
-c2NscF9jdGxfZXhpdCh2b2lkKQp7CgltaXNjX2RlcmVnaXN0ZXIoJnNjbHBfY3RsX2RldmljZSk7
-Cn0KbW9kdWxlX2V4aXQoc2NscF9jdGxfZXhpdCk7Cg==
---001a113e53e6b43d1e0531628d40--
+-- 
+Josh
