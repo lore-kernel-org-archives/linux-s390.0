@@ -1,9 +1,6 @@
-Return-Path: <jikos@kernel.org>
-Date: Mon, 2 May 2016 22:00:42 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
-In-Reply-To: <alpine.LNX.2.00.1605022153290.27942@cbobk.fhfr.pm>
-Message-ID: <alpine.LNX.2.00.1605022159230.27942@cbobk.fhfr.pm>
+Return-Path: <luto@amacapital.net>
+MIME-Version: 1.0
+In-Reply-To: <alpine.LNX.2.00.1605022159230.27942@cbobk.fhfr.pm>
 References: <20160429201139.pudoged2yathyo64@treble>
  <CALCETrW8G8qCHBkH7GFDTFuH82abJpbVq_-bDaRAdL7U0jLGNQ@mail.gmail.com>
  <20160429202701.yijrohqdsurdxv2a@treble>
@@ -17,8 +14,12 @@ References: <20160429201139.pudoged2yathyo64@treble>
  <20160502173148.zsg6alhknczzozb5@treble>
  <CALCETrUwHc5G37hoNKou3nBO+5RjenOJqXYR4yGaj9yCZwXbZA@mail.gmail.com>
  <alpine.LNX.2.00.1605022153290.27942@cbobk.fhfr.pm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+ <alpine.LNX.2.00.1605022159230.27942@cbobk.fhfr.pm>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Mon, 2 May 2016 17:39:52 -0700
+Message-ID: <CALCETrUV0sbmjHAFwFwJQuOUhrsXPW_egOaQ2k38tSm6ni=3qg@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 05/18] sched: add task flag for preempt IRQ tracking
+Content-Type: text/plain; charset=UTF-8
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -27,42 +28,58 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Andy Lutomirski <luto@amacapital.net>
+To: Jiri Kosina <jikos@kernel.org>
 Cc: Josh Poimboeuf <jpoimboe@redhat.com>, Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Chris J Arges <chris.j.arges@canonical.com>, linuxppc-dev@lists.ozlabs.org, Jessica Yu <jeyu@redhat.com>, Petr Mladek <pmladek@suse.com>, Jiri Slaby <jslaby@suse.cz>, Vojtech Pavlik <vojtech@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Miroslav Benes <mbenes@suse.cz>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2 May 2016, Jiri Kosina wrote:
+On Mon, May 2, 2016 at 1:00 PM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Mon, 2 May 2016, Jiri Kosina wrote:
+>
+>> > FWIW, I just tried this:
+>> >
+>> > static bool is_entry_text(unsigned long addr)
+>> > {
+>> >     return addr >= (unsigned long)__entry_text_start &&
+>> >         addr < (unsigned long)__entry_text_end;
+>> > }
+>> >
+>> > it works.  So the entry code is already annotated reasonably well :)
+>> >
+>> > I just hacked it up here:
+>> >
+>> > https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/commit/?h=stack&id=085eacfe0edfc18768e48340084415dba9a6bd21
+>> >
+>> > and it seems to work, at least for page faults.  A better
+>> > implementation would print out the entire contents of pt_regs so that
+>> > people reading the stack trace will know the registers at the time of
+>> > the exception, which might be helpful.
+>>
+>> Sorry for being dense, but how do you distinguish here between a "real"
+>> kernel entry, that pushes pt_regs, and any "non-entry" function call that
+>> passes pt_regs around?
+>
+> Umm, actually, the more tricky part is the other way around -- how do you
+> make sure that whenever you are calling out from a code between
+> __entry_text_start and __entry_text_end, pt_regs will be at the place
+> you're looking for it? How's that guaranteed?
 
-> > FWIW, I just tried this:
-> > 
-> > static bool is_entry_text(unsigned long addr)
-> > {
-> >     return addr >= (unsigned long)__entry_text_start &&
-> >         addr < (unsigned long)__entry_text_end;
-> > }
-> > 
-> > it works.  So the entry code is already annotated reasonably well :)
-> > 
-> > I just hacked it up here:
-> > 
-> > https://git.kernel.org/cgit/linux/kernel/git/luto/linux.git/commit/?h=stack&id=085eacfe0edfc18768e48340084415dba9a6bd21
-> > 
-> > and it seems to work, at least for page faults.  A better
-> > implementation would print out the entire contents of pt_regs so that
-> > people reading the stack trace will know the registers at the time of
-> > the exception, which might be helpful.
-> 
-> Sorry for being dense, but how do you distinguish here between a "real" 
-> kernel entry, that pushes pt_regs, and any "non-entry" function call that 
-> passes pt_regs around?
+It's not guaranteed in my code.  I think we'd want to add a little
+table of call sites and their pt_regs offsets.  This was just meant to
+test that the general idea works (and it does indeed generate better
+traces than the stock kernel, which gets it unconditionally wrong).
 
-Umm, actually, the more tricky part is the other way around -- how do you 
-make sure that whenever you are calling out from a code between 
-__entry_text_start and __entry_text_end, pt_regs will be at the place 
-you're looking for it? How's that guaranteed?
+--Andy
 
-Thanks,
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
+
+
 
 -- 
-Jiri Kosina
-SUSE Labs
+Andy Lutomirski
+AMA Capital Management, LLC
