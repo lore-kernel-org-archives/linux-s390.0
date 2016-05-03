@@ -1,8 +1,8 @@
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 Subject: Re: [PATCH 1/1] KVM: halt_polling: provide a way to qualify wakeups
  during poll
-Date: Tue, 3 May 2016 14:41:23 +0200
-Message-ID: <20160503144123.1b14d174@thinkpad-w530>
+Date: Tue, 3 May 2016 14:56:12 +0200
+Message-ID: <20160503145612.58d8da82.cornelia.huck@de.ibm.com>
 References: <1462279041-17028-1-git-send-email-borntraeger@de.ibm.com>
 	<1462279041-17028-2-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
@@ -14,41 +14,54 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Wanpeng Li <kernellwp@gmail.com>, David Matlack <dmatlack@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Wanpeng Li <kernellwp@gmail.com>, David Matlack <dmatlack@google.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-> Some wakeups should not be considered a sucessful poll. For example on
-> s390 I/O interrupts are usually floating, which means that _ALL_ CPUs
-> would be considered runnable - letting all vCPUs poll all the time for
-> transactional like workload, even if one vCPU would be enough.
-> This can result in huge CPU usage for large guests.
-> This patch lets architectures provide a way to qualify wakeups if they
-> should be considered a good/bad wakeups in regard to polls.
-> 
-> For s390 the implementation will fence of halt polling for anything but
-> known good, single vCPU events. The s390 implementation for floating
-> interrupts does a wakeup for one vCPU, but the interrupt will be delivered
-> by whatever CPU checks first for a pending interrupt. We prefer the
-> woken up CPU by marking the poll of this CPU as "good" poll.
-> This code will also mark several other wakeup reasons like IPI or
-> expired timers as "good". This will of course also mark some events as
-> not sucessful. As  KVM on z runs always as a 2nd level hypervisor,
-> we prefer to not poll, unless we are really sure, though.
-> 
-> This patch successfully limits the CPU usage for cases like uperf 1byte
-> transactional ping pong workload or wakeup heavy workload like OLTP
-> while still providing a proper speedup.
-> 
-> This also introduced a new vcpu stat "halt_poll_no_tuning" that marks
-> wakeups that are considered not good for polling.
-> 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: David Matlack <dmatlack@google.com>
-> Cc: Wanpeng Li <kernellwp@gmail.com>
-> ---
+On Tue,  3 May 2016 14:37:21 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-You can keep my
-Acked-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+> diff --git a/include/trace/events/kvm.h b/include/trace/events/kvm.h
+> index aa69253..92e6fd6 100644
+> --- a/include/trace/events/kvm.h
+> +++ b/include/trace/events/kvm.h
+> @@ -38,22 +38,25 @@ TRACE_EVENT(kvm_userspace_exit,
+>  );
+> 
+>  TRACE_EVENT(kvm_vcpu_wakeup,
+> -	    TP_PROTO(__u64 ns, bool waited),
+> -	    TP_ARGS(ns, waited),
+> +	    TP_PROTO(__u64 ns, bool waited, bool tuned),
+> +	    TP_ARGS(ns, waited, tuned),
+> 
+>  	TP_STRUCT__entry(
+>  		__field(	__u64,		ns		)
+>  		__field(	bool,		waited		)
+> +		__field(	bool,		tuned		)
+>  	),
+> 
+>  	TP_fast_assign(
+>  		__entry->ns		= ns;
+>  		__entry->waited		= waited;
+> +		__entry->tuned		= tuned;
+>  	),
+> 
+> -	TP_printk("%s time %lld ns",
+> +	TP_printk("%s time %lld ns, polling %s",
+>  		  __entry->waited ? "wait" : "poll",
+> -		  __entry->ns)
+> +		  __entry->ns,
+> +		  __entry->tuned ? "changed" : "unchanged")
 
+I think "changed"/"unchanged" is a bit misleading here, as we do adjust
+the intervall if we had an invalid poll... but it's hard to find a
+suitable text here.
 
-David
+Just print "poll interval tuned" if we were (a) polling to begin with,
+(b) the poll was valid and (c) the interval was actually changed and
+print "invalid poll" if that's what happened? Or is that overkill?
+
+>  );
+> 
+>  #if defined(CONFIG_HAVE_KVM_IRQFD)
+
+Otherwise, looks good to me.
