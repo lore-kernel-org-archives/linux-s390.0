@@ -1,121 +1,133 @@
-From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: Re: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table
- (in entry.S) to use it
-Date: Wed, 18 May 2016 20:58:59 +0300
-Message-ID: <20160518175859.GA2560@yury-N73SV>
-References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
- <1459894127-17698-21-git-send-email-ynorov@caviumnetworks.com>
- <20160514150352.GA30533@yury-N73SV>
- <20160516170605.GB19290@e104818-lin.cambridge.arm.com>
- <20160517190526.GA3731@yury-N73SV>
- <20160518112145.GD22378@e104818-lin.cambridge.arm.com>
+From: Dong Jia <bjsdjshi@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC 0/8] basic vfio-ccw infrastructure
+Date: Wed, 4 May 2016 17:26:29 +0800
+Message-ID: <20160504172629.77226d35@oc7835276234>
+References: <1461931915-22397-1-git-send-email-bjsdjshi@linux.vnet.ibm.com>
+	<20160429111735.0358be80@t450s.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160518112145.GD22378@e104818-lin.cambridge.arm.com>
-Sender: linux-doc-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, arnd@arndb.de, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, Nathan_Lynch@mentor.com, joseph@codesourcery.com, linux-doc@vger.kernel.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, agraf@suse.de, klimov.linux@gmail.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, broonie@kernel.org, bamvor.zhangjian@huawei.com, Andrew Pinski <apinski@cavium.com>, schwab@suse.de, schwidefsky@de.ibm.com, linux-arm-kernel@lists.infradead.org, christoph.muellner@theobroma-systems.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20160429111735.0358be80@t450s.home>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, May 18, 2016 at 12:21:46PM +0100, Catalin Marinas wrote:
-> On Tue, May 17, 2016 at 10:05:26PM +0300, Yury Norov wrote:
-> > On Mon, May 16, 2016 at 06:06:05PM +0100, Catalin Marinas wrote:
-> > > On Sat, May 14, 2016 at 06:03:52PM +0300, Yury Norov wrote:
-> > > > +SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
-> > > > +       unsigned long, prot, unsigned long, flags, unsigned long, fd,
-> > > > +       unsigned long, pgoff)
-> > > 
-> > > To avoid the types confusion we could add __SC_WRAP to mmap2 in unistd.h
-> > > and use COMPAT_SYSCALL_DEFINE6 here (together with compat_ptr_t etc.).
-> > > 
-> > > > +{
-> > > > +       if (pgoff & (~PAGE_MASK >> 12))
-> > > > +               return -EINVAL;
-> > > > +
-> > > > +       return sys_mmap_pgoff((compat_uptr_t) addr, (compat_size_t) len,
-> > > > +		       (int) prot, (int) flags, (int) fd,
-> > > > +		       pgoff >> (PAGE_SHIFT-12));
-> > > 
-> > > Then we wouldn't need the explicit casting here.
+On Fri, 29 Apr 2016 11:17:35 -0600
+Alex Williamson <alex.williamson@redhat.com> wrote:
+
+Dear Alex:
+
+Thanks for the comments.
+
+[...]
+
 > > 
-> > See below
+> > The user of vfio-ccw is not limited to Qemu, while Qemu is definitely a
+> > good example to get understand how these patches work. Here is a little
+> > bit more detail how an I/O request triggered by the Qemu guest will be
+> > handled (without error handling).
 > > 
-> > > > +}
-> > > > +
-> > > > +COMPAT_SYSCALL_DEFINE4(pread64, unsigned int, fd, compat_uptr_t __user *, ubuf,
-> > > > +		       compat_size_t, count, off_t, offset)
-> > > > +{
-> > > > +	return sys_pread64(fd, (char *) ubuf, count, offset);
-> > > > +}
-> > > > +
-> > > > +COMPAT_SYSCALL_DEFINE4(pwrite64, unsigned int, fd, compat_uptr_t __user *, ubuf,
-> > > > +		       compat_size_t, count, off_t, offset)
-> > > > +{
-> > > > +	return sys_pwrite64(fd, (char *) ubuf, count, offset);
-> > > 
-> > > Nitpick: no space between cast type and variable name: (char *)ubuf, ...
+> > Explanation:
+> > Q1-Q4: Qemu side process.
+> > K1-K6: Kernel side process.
 > > 
-> > I think it's really a matter of taste. I prefer to have a space, and
-> > there's no solid rule in coding style.
-> > 
-> > And there are 13032 insertions of my version vs 35030 of yours:
-> > ~/work/linux$ git grep ' \*)[a-zA-Z]'|wc -l
-> > 35030
-> > ~/work/linux$ git grep ' \*) [a-zA-Z]'|wc -l
-> > 13032
-> > 
-> > Of course, I will change it if you insist.
+> > Q1. Intercept a ssch instruction.
+> > Q2. Translate the guest ccw program to a user space ccw program
+> >     (u_ccwchain).
 > 
-> Not really, I thought it's covered by CodingStyle but it doesn't seem
-> to.
-> 
-> > > We can also make these functions static as they are not used outside
-> > > this file.
-> > 
-> > If it's OK, we can use just compat_sys_xxx() instead of
-> > COMPAT_SYSCALL_DEFINEx(xxx),
-> 
-> I got lost in macros, what difference would COMPAT_SYSCALL_DEFINE vs
-> compat_sys_*() make? Is this the delouse stuff?
-> 
-
-Hmm... I looked again. It seems that COMPAT delouses all arguments,
-including off_t, and that's what we try to avoid. So we *should* use
-naked functions. 
-
-include/linux/compat.h:
-53 #define COMPAT_SYSCALL_DEFINEx(x, name, ...) \
-54         asmlinkage long compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))\
-55              __attribute__((alias(__stringify(compat_SyS##name))));  \
-56         static inline long C_SYSC##name(__MAP(x,__SC_DECL,__VA_ARGS__));\
-57         asmlinkage long compat_SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__));\
-58         asmlinkage long compat_SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__))\
-59         { \
-60                 return C_SYSC##name(__MAP(x,__SC_DELOUSE,__VA_ARGS__)); \
-61         } \
-62         static inline long C_SYSC##name(__MAP(x,__SC_DECL,__VA_ARGS__))
-
-
-> > and for mmap2 we'll not need to change _SYSCALL to _SC_WRAP in
-> > unistd.h that way.
-> 
-> Looking at the generic unistd.h, adding _SC_WRAP for sys_mmap2 is
-> indeed not easy:
-> 
-> #define __NR3264_mmap 222
-> __SC_3264(__NR3264_mmap, sys_mmap2, sys_mmap)
-> 
-> So defining a compat_sys_mmap2() would work but I think you'd also need:
-> 
-
-> #define sys_mmap2	compat_sys_mmap2()
-
-OK.
+> Is this replacing guest physical address in the program with QEMU
+> virtual addresses?
+Yes.
 
 > 
-> -- 
-> Catalin
+> > Q3. Call VFIO_DEVICE_CCW_CMD_REQUEST (u_ccwchain, orb, irb).
+> >     K1. Copy from u_ccwchain to kernel (k_ccwchain).
+> >     K2. Translate the user space ccw program to a kernel space ccw
+> >         program, which becomes runnable for a real device.
+> 
+> And here we translate and likely pin QEMU virtual address to physical
+> addresses to further modify the program sent into the channel?
+Yes. Exactly.
+
+> 
+> >     K3. With the necessary information contained in the orb passed in
+> >         by Qemu, issue the k_ccwchain to the device, and wait event q
+> >         for the I/O result.
+> >     K4. Interrupt handler gets the I/O result, and wakes up the wait q.
+> >     K5. CMD_REQUEST ioctl gets the I/O result, and uses the result to
+> >         update the user space irb.
+> >     K6. Copy irb and scsw back to user space.
+> > Q4. Update the irb for the guest.
+> 
+> If the answers to my questions above are both yes,
+Yes, they are.
+
+> then this is really a mediated interface, not a direct assignment.
+Right. This is true.
+
+> We don't need an iommu
+> because we're policing and translating the program for the device
+> before it gets sent to hardware.  I think there are better ways than
+> noiommu to handle such devices perhaps even with better performance
+> than this two-stage translation.  In fact, I think the solution we plan
+> to implement for vGPU support would work here.
+> 
+> Like your device, a vGPU is mediated, we don't have IOMMU level
+> translation or isolation since a vGPU is largely a software construct,
+> but we do have software policing and translating how the GPU is
+> programmed.  To do this we're creating a type1 compatible vfio iommu
+> backend that uses the existing map and unmap ioctls, but rather than
+> programming them into an IOMMU for a device, it simply stores the
+> translations for use by later requests.  This means that a device
+> programmed in a VM with guest physical addresses can have the
+> vfio kernel convert that address to process virtual address, pin the
+> page and program the hardware with the host physical address in one
+> step.
+I've read through the mail threads those discuss how to add vGPU
+support in VFIO. I'm afraid that proposal could not be simply addressed
+to this case, especially if we want to make the vfio api completely
+compatible with the existing usage.
+
+AFAIU, a PCI device (or a vGPU device) uses a dedicated, exclusive and
+fixed range of address in the memory space for DMA operations. Any
+address inside this range will not be used for other purpose. Thus we
+can add memory listener on this range, and pin the pages for further
+use (DMA operation). And we can keep the pages pinned during the life
+cycle of the VM (not quite accurate, or I should say 'the target
+device').
+
+Well, a Subchannel Device does not have such a range of address. The
+device driver simply calls kalloc() to get a piece of memory, and
+assembles a ccw program with it, before issuing the ccw program to
+perform an I/O operation. So the Qemu memory listener can't tell if an
+address is for an I/O operation, or for whatever else. And this makes
+the memory listener unnecessary for our case.
+
+The only time point that we know we should pin pages for I/O, is the
+time that an I/O instruction (e.g. ssch) was intercepted. At this
+point, we know the address contented in the parameter of the ssch
+instruction points to a piece of memory that contents a ccw program.
+Then we do: pin the pages --> convert the ccw program --> perform the
+I/O --> return the I/O result --> and unpin the pages.
+
+> 
+> This architecture also makes the vfio api completely compatible with
+> existing usage without tainting QEMU with support for noiommu devices.
+> I would strongly suggest following a similar approach and dropping the
+> noiommu interface.  We really do not need to confuse users with noiommu
+> devices that are safe and assignable and devices where noiommu should
+> warn them to stay away.  Thanks,
+Understand. But like explained above, even if we introduce a new vfio
+iommu backend, what it does would probably look quite like what the
+no-iommu backend does. Any idea about this?
+
+> 
+> Alex
+> 
+
+--------
+Dong Jia
