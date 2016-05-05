@@ -1,16 +1,16 @@
 Return-Path: <pmladek@suse.com>
-Date: Thu, 5 May 2016 13:57:01 +0200
+Date: Thu, 5 May 2016 15:06:42 +0200
 From: Petr Mladek <pmladek@suse.com>
-Subject: Re: klp_task_patch: was: [RFC PATCH v2 17/18] livepatch: change to a
- per-task consistency model
-Message-ID: <20160505115701.GY2749@pathway.suse.cz>
+Subject: Re: [RFC PATCH v2 17/18] livepatch: change to a per-task consistency
+ model
+Message-ID: <20160505130642.GZ2749@pathway.suse.cz>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
  <d60b2b9ce6911bb10dbbf244df58df31c7a8af66.1461875890.git.jpoimboe@redhat.com>
- <20160504144854.GT2749@pathway.suse.cz>
- <20160504175700.nizuvflyisfd3lks@treble>
+ <20160504084223.GQ2749@pathway.suse.cz>
+ <20160504155121.twuvstygaeag7yjq@treble>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160504175700.nizuvflyisfd3lks@treble>
+In-Reply-To: <20160504155121.twuvstygaeag7yjq@treble>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -23,170 +23,168 @@ To: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed 2016-05-04 12:57:00, Josh Poimboeuf wrote:
-> On Wed, May 04, 2016 at 04:48:54PM +0200, Petr Mladek wrote:
+On Wed 2016-05-04 10:51:21, Josh Poimboeuf wrote:
+> On Wed, May 04, 2016 at 10:42:23AM +0200, Petr Mladek wrote:
 > > On Thu 2016-04-28 15:44:48, Josh Poimboeuf wrote:
 > > > Change livepatch to use a basic per-task consistency model.  This is the
 > > > foundation which will eventually enable us to patch those ~10% of
 > > > security patches which change function or data semantics.  This is the
 > > > biggest remaining piece needed to make livepatch more generally useful.
-> > > 
+> > 
+> > > --- a/kernel/fork.c
+> > > +++ b/kernel/fork.c
+> > > @@ -76,6 +76,7 @@
+> > >  #include <linux/compiler.h>
+> > >  #include <linux/sysctl.h>
+> > >  #include <linux/kcov.h>
+> > > +#include <linux/livepatch.h>
+> > >  
+> > >  #include <asm/pgtable.h>
+> > >  #include <asm/pgalloc.h>
+> > > @@ -1586,6 +1587,8 @@ static struct task_struct *copy_process(unsigned long clone_flags,
+> > >  		p->parent_exec_id = current->self_exec_id;
+> > >  	}
+> > >  
+> > > +	klp_copy_process(p);
+> > 
+> > I am in doubts here. We copy the state from the parent here. It means
+> > that the new process might still need to be converted. But at the same
+> > point print_context_stack_reliable() returns zero without printing
+> > any stack trace when TIF_FORK flag is set. It means that a freshly
+> > forked task might get be converted immediately. I seems that boot
+> > operations are always done when copy_process() is called. But
+> > they are contradicting each other.
+> > 
+> > I guess that print_context_stack_reliable() should either return
+> > -EINVAL when TIF_FORK is set. Or it should try to print the
+> > stack of the newly forked task.
+> > 
+> > Or do I miss something, please?
+> 
+> Ok, I admit it's confusing.
+> 
+> A newly forked task doesn't *have* a stack (other than the pt_regs frame
+> it needs for the return to user space), which is why
+> print_context_stack_reliable() returns success with an empty array of
+> addresses.
+> 
+> For a little background, see the second switch_to() macro in
+> arch/x86/include/asm/switch_to.h.  When a newly forked task runs for the
+> first time, it returns from __switch_to() with no stack.  It then jumps
+> straight to ret_from_fork in entry_64.S, calls a few C functions, and
+> eventually returns to user space.  So, assuming we aren't patching entry
+> code or the switch_to() macro in __schedule(), it should be safe to
+> patch the task before it does all that.
+
+This is great explanation. Thanks for it.
+
+> So, having said all that, I'm really not sure what the best approach is
+> for print_context_stack_reliable().  Right now I'm thinking I'll change
+> it back to return -EINVAL for a newly forked task, so it'll be more
+> future-proof: better to have a false positive than a false negative.
+> Either way it will probably need to be changed again if the
+> ret_from_fork code gets cleaned up.
+
+I would prefer the -EINVAL. It might safe some hairs when anyone
+is working on patching the switch_to stuff. Also it is not that
+big loss beacuse most tasks will get migrated on the return to
+userspace.
+
+It might help a bit with the newly forked kthreads. But there should
+be more safe location where the new kthreads might get migrated,
+e.g. right before the main function gets called.
+
+
 > > > diff --git a/kernel/livepatch/transition.c b/kernel/livepatch/transition.c
 > > > new file mode 100644
 > > > index 0000000..92819bb
 > > > --- /dev/null
 > > > +++ b/kernel/livepatch/transition.c
 > > > +/*
-> > > + * klp_patch_task() - change the patched state of a task
-> > > + * @task:	The task to change
-> > > + *
-> > > + * Switches the patched state of the task to the set of functions in the target
-> > > + * patch state.
+> > > + * This function can be called in the middle of an existing transition to
+> > > + * reverse the direction of the target patch state.  This can be done to
+> > > + * effectively cancel an existing enable or disable operation if there are any
+> > > + * tasks which are stuck in the initial patch state.
 > > > + */
-> > > +void klp_patch_task(struct task_struct *task)
+> > > +void klp_reverse_transition(void)
 > > > +{
-> > > +	clear_tsk_thread_flag(task, TIF_PATCH_PENDING);
+> > > +	struct klp_patch *patch = klp_transition_patch;
+> > > +
+> > > +	klp_target_state = !klp_target_state;
 > > > +
 > > > +	/*
-> > > +	 * The corresponding write barriers are in klp_init_transition() and
-> > > +	 * klp_reverse_transition().  See the comments there for an explanation.
+> > > +	 * Ensure that if another CPU goes through the syscall barrier, sees
+> > > +	 * the TIF_PATCH_PENDING writes in klp_start_transition(), and calls
+> > > +	 * klp_patch_task(), it also sees the above write to the target state.
+> > > +	 * Otherwise it can put the task in the wrong universe.
 > > > +	 */
-> > > +	smp_rmb();
+> > > +	smp_wmb();
 > > > +
-> > > +	task->patch_state = klp_target_state;
-> > > +}
-> > > +
-> > > diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
-> > > index bd12c6c..60d633f 100644
-> > > --- a/kernel/sched/idle.c
-> > > +++ b/kernel/sched/idle.c
-> > > @@ -9,6 +9,7 @@
-> > >  #include <linux/mm.h>
-> > >  #include <linux/stackprotector.h>
-> > >  #include <linux/suspend.h>
-> > > +#include <linux/livepatch.h>
-> > >  
-> > >  #include <asm/tlb.h>
-> > >  
-> > > @@ -266,6 +267,9 @@ static void cpu_idle_loop(void)
-> > >  
-> > >  		sched_ttwu_pending();
-> > >  		schedule_preempt_disabled();
-> > > +
-> > > +		if (unlikely(klp_patch_pending(current)))
-> > > +			klp_patch_task(current);
-> > >  	}
+> > > +	klp_start_transition();
+> > > +	klp_try_complete_transition();
 > > 
-> > Some more ideas from the world of crazy races. I was shaking my head
-> > if this was safe or not.
+> > It is a bit strange that we keep the work scheduled. It might be
+> > better to use
 > > 
-> > The problem might be if the task get rescheduled between the check
-> > for the pending stuff or inside the klp_patch_task() function.
-> > This will get even more important when we use this construct
-> > on some more locations, e.g. in some kthreads.
-> > 
-> > If the task is sleeping on this strange locations, it might assign
-> > strange values on strange times.
-> > 
-> > I think that it is safe only because it is called with the
-> > 'current' parameter and on a safe locations. It means that
-> > the result is always safe and consistent. Also we could assign
-> > an outdated value only when sleeping between reading klp_target_state
-> > and storing task->patch_state. But if anyone modified
-> > klp_target_state at this point, he also set TIF_PENDING_PATCH,
-> > so the change will not get lost.
-> > 
-> > I think that we should document that klp_patch_func() must be
-> > called only from a safe location from within the affected task.
-> > 
-> > I even suggest to avoid misuse by removing the struct *task_struct
-> > parameter. It should always be called with current.
+> >        mod_delayed_work(system_wq, &klp_work, 0);
 > 
-> Would the race involve two tasks trying to call klp_patch_task() for the
-> same task at the same time?  If so I don't think that would be a problem
-> since they would both write the same value for task->patch_state.
+> True, I think that would be better.
+> 
+> > Which triggers more ideas from the nitpicking deparment:
+> > 
+> > I would move the work definition from core.c to transition.c because
+> > it is closely related to klp_try_complete_transition();
+> 
+> That could be good, but there's a slight problem: klp_work_fn() requires
+> klp_mutex, which is static to core.c.  It's kind of nice to keep the use
+> of the mutex in core.c only.
 
-I have missed that the two commands are called with preemption
-disabled. So, I had the following crazy scenario in mind:
+I see and am surprised that we take the lock only in core.c ;-)
 
+I do not have a strong opinion then. Just a small one. The lock guards
+also operations from the other .c files. I think that it is only a matter
+of time when we will need to access it there. But the work is clearly
+transition-related. But it is a real nitpicking. I am sorry for it.
 
-CPU0				CPU1
+> > When on it. I would make it more clear that the work is related
+> > to transition.
+> 
+> How would you recommend doing that?  How about:
+> 
+> - rename "klp_work" -> "klp_transition_work"
+> - rename "klp_work_fn" -> "klp_transition_work_fn" 
 
-klp_enable_patch()
+Yup, sounds better.
 
-  klp_target_state = KLP_PATCHED;
+> > Also I would call queue_delayed_work() directly
+> > instead of adding the klp_schedule_work() wrapper. The delay
+> > might be defined using a constant, e.g.
+> > 
+> > #define KLP_TRANSITION_DELAY round_jiffies_relative(HZ)
+> > 
+> > queue_delayed_work(system_wq, &klp_transition_work, KLP_TRANSITION_DELAY);
+> 
+> Sure.
+> 
+> > Finally, the following is always called right after
+> > klp_start_transition(), so I would call it from there.
+> > 
+> > 	if (!klp_try_complete_transition())
+> > 		klp_schedule_work();
+> 
+> Except for when it's called by klp_reverse_transition().  And it really
+> depends on whether we want to allow transition.c to use the mutex.  I
+> don't have a strong opinion either way, I may need to think about it
+> some more.
 
-  for_each_task()
-     set TIF_PENDING_PATCH
+Ah, I had in mind that it could be replaced by that
 
-				# task 123
+	mod_delayed_work(system_wq, &klp_transition_work, 0);
 
-				if (klp_patch_pending(current)
-				  klp_patch_task(current)
-
-                                    clear TIF_PENDING_PATCH
-
-				    smp_rmb();
-
-				    # switch to assembly of
-				    # klp_patch_task()
-
-				    mov klp_target_state, %r12
-
-				    # interrupt and schedule
-				    # another task
-
-
-  klp_reverse_transition();
-
-    klp_target_state = KLP_UNPATCHED;
-
-    klt_try_to_complete_transition()
-
-      task = 123;
-      if (task->patch_state == klp_target_state;
-         return 0;
-
-    => task 123 is in target state and does
-    not block conversion
-
-  klp_complete_transition()
-
-
-  # disable previous patch on the stack
-  klp_disable_patch();
-
-    klp_target_state = KLP_UNPATCHED;
-  
-  
-				    # task 123 gets scheduled again
-				    lea %r12, task->patch_state
-
-				    => it happily stores an outdated
-				    state
-
-
-This is why the two functions should get called with preemption
-disabled. We should document it at least. I imagine that we will
-use them later also in another context and nobody will remember
-this crazy scenario.
-
-Well, even disabled preemption does not help. The process on
-CPU1 might be also interrupted by an NMI and do some long
-printk in it.
-
-IMHO, the only safe approach is to call klp_patch_task()
-only for "current" on a safe place. Then this race is harmless.
-The switch happen on a safe place, so that it does not matter
-into which state the process is switched.
-
-By other words, the task state might be updated only
-
-   + by the task itself on a safe place
-   + by other task when the updated on is sleeping on a safe place
-
-This should be well documented and the API should help to avoid
-a misuse.
+So, that we would never call klp_try_complete_transition()
+directly. Then it could be the same in all situations. But
+it might look strange and be ineffective when really starting
+the transition. So, maybe forget about it.
 
 Best Regards,
 Petr
