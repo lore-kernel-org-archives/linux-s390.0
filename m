@@ -1,17 +1,15 @@
 Return-Path: <jpoimboe@redhat.com>
-Date: Fri, 6 May 2016 07:38:55 -0500
+Date: Fri, 6 May 2016 07:44:10 -0500
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: klp_task_patch: was: [RFC PATCH v2 17/18] livepatch: change to a
- per-task consistency model
-Message-ID: <20160506123855.oabdeehqu3aj6nqy@treble>
+Subject: Re: [RFC PATCH v2 17/18] livepatch: change to a per-task consistency
+ model
+Message-ID: <20160506124410.cljepquopw73cong@treble>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
  <d60b2b9ce6911bb10dbbf244df58df31c7a8af66.1461875890.git.jpoimboe@redhat.com>
- <20160504144854.GT2749@pathway.suse.cz>
- <20160504175700.nizuvflyisfd3lks@treble>
- <20160505115701.GY2749@pathway.suse.cz>
+ <20160506113301.GB2749@pathway.suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20160505115701.GY2749@pathway.suse.cz>
+In-Reply-To: <20160506113301.GB2749@pathway.suse.cz>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -24,116 +22,82 @@ To: Petr Mladek <pmladek@suse.com>
 Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 05, 2016 at 01:57:01PM +0200, Petr Mladek wrote:
-> I have missed that the two commands are called with preemption
-> disabled. So, I had the following crazy scenario in mind:
+On Fri, May 06, 2016 at 01:33:01PM +0200, Petr Mladek wrote:
+> On Thu 2016-04-28 15:44:48, Josh Poimboeuf wrote:
+> > diff --git a/kernel/livepatch/patch.c b/kernel/livepatch/patch.c
+> > index 782fbb5..b3b8639 100644
+> > --- a/kernel/livepatch/patch.c
+> > +++ b/kernel/livepatch/patch.c
+> > @@ -29,6 +29,7 @@
+> >  #include <linux/bug.h>
+> >  #include <linux/printk.h>
+> >  #include "patch.h"
+> > +#include "transition.h"
+> >  
+> >  static LIST_HEAD(klp_ops);
+> >  
+> > @@ -58,11 +59,42 @@ static void notrace klp_ftrace_handler(unsigned long ip,
+> >  	ops = container_of(fops, struct klp_ops, fops);
+> >  
+> >  	rcu_read_lock();
+> > +
+> >  	func = list_first_or_null_rcu(&ops->func_stack, struct klp_func,
+> >  				      stack_node);
+> > -	if (WARN_ON_ONCE(!func))
+> > +
+> > +	if (!func)
+> >  		goto unlock;
+> >  
+> > +	/*
+> > +	 * See the comment for the 2nd smp_wmb() in klp_init_transition() for
+> > +	 * an explanation of why this read barrier is needed.
+> > +	 */
+> > +	smp_rmb();
+> > +
+> > +	if (unlikely(func->transition)) {
+> > +
+> > +		/*
+> > +		 * See the comment for the 1st smp_wmb() in
+> > +		 * klp_init_transition() for an explanation of why this read
+> > +		 * barrier is needed.
+> > +		 */
+> > +		smp_rmb();
 > 
+> I would add here:
 > 
-> CPU0				CPU1
+> 		WARN_ON_ONCE(current->patch_state == KLP_UNDEFINED);
 > 
-> klp_enable_patch()
+> We do not know in which context this is called, so the printk's are
+> not ideal. But it will get triggered only if there is a bug in
+> the livepatch implementation. It should happen on random locations
+> and rather early when a bug is introduced.
 > 
->   klp_target_state = KLP_PATCHED;
-> 
->   for_each_task()
->      set TIF_PENDING_PATCH
-> 
-> 				# task 123
-> 
-> 				if (klp_patch_pending(current)
-> 				  klp_patch_task(current)
-> 
->                                     clear TIF_PENDING_PATCH
-> 
-> 				    smp_rmb();
-> 
-> 				    # switch to assembly of
-> 				    # klp_patch_task()
-> 
-> 				    mov klp_target_state, %r12
-> 
-> 				    # interrupt and schedule
-> 				    # another task
-> 
-> 
->   klp_reverse_transition();
-> 
->     klp_target_state = KLP_UNPATCHED;
-> 
->     klt_try_to_complete_transition()
-> 
->       task = 123;
->       if (task->patch_state == klp_target_state;
->          return 0;
-> 
->     => task 123 is in target state and does
->     not block conversion
-> 
->   klp_complete_transition()
-> 
-> 
->   # disable previous patch on the stack
->   klp_disable_patch();
-> 
->     klp_target_state = KLP_UNPATCHED;
->   
->   
-> 				    # task 123 gets scheduled again
-> 				    lea %r12, task->patch_state
-> 
-> 				    => it happily stores an outdated
-> 				    state
-> 
+> Anyway, better to die and catch the bug that let the system running
+> in an undefined state and produce cryptic errors later on.
 
-Thanks for the clear explanation, this helps a lot.
+Ok, makes sense.
 
-> This is why the two functions should get called with preemption
-> disabled. We should document it at least. I imagine that we will
-> use them later also in another context and nobody will remember
-> this crazy scenario.
+> > +		if (current->patch_state == KLP_UNPATCHED) {
+> > +			/*
+> > +			 * Use the previously patched version of the function.
+> > +			 * If no previous patches exist, use the original
+> > +			 * function.
+> > +			 */
+> > +			func = list_entry_rcu(func->stack_node.next,
+> > +					      struct klp_func, stack_node);
+> > +
+> > +			if (&func->stack_node == &ops->func_stack)
+> > +				goto unlock;
+> > +		}
+> > +	}
 > 
-> Well, even disabled preemption does not help. The process on
-> CPU1 might be also interrupted by an NMI and do some long
-> printk in it.
-> 
-> IMHO, the only safe approach is to call klp_patch_task()
-> only for "current" on a safe place. Then this race is harmless.
-> The switch happen on a safe place, so that it does not matter
-> into which state the process is switched.
+> I am staring into the code for too long now. I need to step back for a
+> while. I'll do another look when you send the next version. Anyway,
+> you did a great work. I speak mainly for the livepatch part and
+> I like it.
 
-I'm not sure about this solution.  When klp_complete_transition() is
-called, we need all tasks to be patched, for good.  We don't want any of
-them to randomly switch to the wrong state at some later time in the
-middle of a future patch operation.  How would changing klp_patch_task()
-to only use "current" prevent that?
-
-> By other words, the task state might be updated only
-> 
->    + by the task itself on a safe place
->    + by other task when the updated on is sleeping on a safe place
-> 
-> This should be well documented and the API should help to avoid
-> a misuse.
-
-I think we could fix it to be safe for future callers who might not have
-preemption disabled with a couple of changes to klp_patch_task():
-disabling preemption and testing/clearing the TIF_PATCH_PENDING flag
-before changing the patch state:
-
-  void klp_patch_task(struct task_struct *task)
-  {
-  	preempt_disable();
-  
-  	if (test_and_clear_tsk_thread_flag(task, TIF_PATCH_PENDING))
-  		task->patch_state = READ_ONCE(klp_target_state);
-  
-  	preempt_enable();
-  }
-
-We would also need a synchronize_sched() after the patching is complete,
-either at the end of klp_try_complete_transition() or in
-klp_complete_transition().  That would make sure that all existing calls
-to klp_patch_task() are done.
+Thanks for the helpful reviews!  I'll be on vacation again next week so
+I get a break too :-)
 
 -- 
 Josh
