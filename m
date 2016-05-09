@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 04/10] KVM: s390: enable SRS only if enabled for the guest
-Date: Mon,  9 May 2016 11:20:15 +0200
-Message-ID: <1462785621-12600-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 07/10] KVM: s390: document KVM_CAP_S390_RI
+Date: Mon,  9 May 2016 11:20:18 +0200
+Message-ID: <1462785621-12600-8-git-send-email-borntraeger@de.ibm.com>
 References: <1462785621-12600-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1462785621-12600-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,61 +14,33 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-If we don't have SIGP SENSE RUNNING STATUS enabled for the guest, let's
-not enable interpretation so we can correctly report an invalid order.
+We forgot to document that capability, let's add documentation.
 
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/sigp.h | 1 +
- arch/s390/kvm/kvm-s390.c     | 4 +++-
- arch/s390/kvm/sigp.c         | 6 ++++++
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ Documentation/virtual/kvm/api.txt | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/s390/include/asm/sigp.h b/arch/s390/include/asm/sigp.h
-index ec60cf7..35c91da 100644
---- a/arch/s390/include/asm/sigp.h
-+++ b/arch/s390/include/asm/sigp.h
-@@ -33,6 +33,7 @@
- #define SIGP_STATUS_INVALID_PARAMETER	0x00000100UL
- #define SIGP_STATUS_INCORRECT_STATE	0x00000200UL
- #define SIGP_STATUS_NOT_RUNNING		0x00000400UL
-+#define SIGP_STATUS_INVALID_ORDER	0x00000002UL
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 4d0542c..8cc857f 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -3788,6 +3788,14 @@ a KVM_EXIT_IOAPIC_EOI vmexit will be reported to userspace.
+ Fails if VCPU has already been created, or if the irqchip is already in the
+ kernel (i.e. KVM_CREATE_IRQCHIP has already been called).
  
- #ifndef __ASSEMBLY__
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 13b3f5e..e1e375c 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1645,7 +1645,9 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 
- 	kvm_s390_vcpu_setup_model(vcpu);
- 
--	vcpu->arch.sie_block->ecb   = 6;
-+	vcpu->arch.sie_block->ecb = 0x02;
-+	if (test_kvm_facility(vcpu->kvm, 9))
-+		vcpu->arch.sie_block->ecb |= 0x04;
- 	if (test_kvm_facility(vcpu->kvm, 50) && test_kvm_facility(vcpu->kvm, 73))
- 		vcpu->arch.sie_block->ecb |= 0x10;
- 
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index 77c22d6..28ea0ca 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -240,6 +240,12 @@ static int __sigp_sense_running(struct kvm_vcpu *vcpu,
- 	struct kvm_s390_local_interrupt *li;
- 	int rc;
- 
-+	if (!test_kvm_facility(vcpu->kvm, 9)) {
-+		*reg &= 0xffffffff00000000UL;
-+		*reg |= SIGP_STATUS_INVALID_ORDER;
-+		return SIGP_CC_STATUS_STORED;
-+	}
++7.6 KVM_CAP_S390_RI
 +
- 	li = &dst_vcpu->arch.local_int;
- 	if (atomic_read(li->cpuflags) & CPUSTAT_RUNNING) {
- 		/* running */
++Architectures: s390
++Parameters: none
++
++Allows use of runtime-instrumentation introduced with zEC12 processor.
++Will return -EINVAL if the machine does not support runtime-instrumentation.
++Will return -EBUSY if a VCPU has already been created.
+ 
+ 8. Other capabilities.
+ ----------------------
 -- 
 2.5.5
