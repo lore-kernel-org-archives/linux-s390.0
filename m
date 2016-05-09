@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 07/10] KVM: s390: document KVM_CAP_S390_RI
-Date: Mon,  9 May 2016 11:20:18 +0200
-Message-ID: <1462785621-12600-8-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 01/10] KVM: s390: cmma: don't check entry content
+Date: Mon,  9 May 2016 11:20:12 +0200
+Message-ID: <1462785621-12600-2-git-send-email-borntraeger@de.ibm.com>
 References: <1462785621-12600-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1462785621-12600-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,33 +14,57 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-We forgot to document that capability, let's add documentation.
+We should never inject an exception after we manually rewound the PSW
+(to retry the ESSA instruction in this case). This will mess up the PSW.
+So this never worked and therefore never really triggered.
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Looking at the details, we don't even have to perform any validity checks.
+1. Bits 52-63 of an entry are stored as 0 by the hardware.
+2. We are dealing with absolute addresses but only check for the prefix
+   starting at address 0. This isn't correct and doesn't make much sense,
+   cpus could still zap the prefix of other cpus. But as prefix pages
+   cannot be swapped out without a notifier being called for the affected
+   VCPU, a zap can never remove a protected prefix.
+
+Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/s390/kvm/priv.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index 4d0542c..8cc857f 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -3788,6 +3788,14 @@ a KVM_EXIT_IOAPIC_EOI vmexit will be reported to userspace.
- Fails if VCPU has already been created, or if the irqchip is already in the
- kernel (i.e. KVM_CREATE_IRQCHIP has already been called).
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 0a1591d..3561119 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -744,7 +744,7 @@ static int handle_essa(struct kvm_vcpu *vcpu)
+ {
+ 	/* entries expected to be 1FF */
+ 	int entries = (vcpu->arch.sie_block->cbrlo & ~PAGE_MASK) >> 3;
+-	unsigned long *cbrlo, cbrle;
++	unsigned long *cbrlo;
+ 	struct gmap *gmap;
+ 	int i;
  
-+7.6 KVM_CAP_S390_RI
-+
-+Architectures: s390
-+Parameters: none
-+
-+Allows use of runtime-instrumentation introduced with zEC12 processor.
-+Will return -EINVAL if the machine does not support runtime-instrumentation.
-+Will return -EBUSY if a VCPU has already been created.
+@@ -765,17 +765,9 @@ static int handle_essa(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.sie_block->cbrlo &= PAGE_MASK;	/* reset nceo */
+ 	cbrlo = phys_to_virt(vcpu->arch.sie_block->cbrlo);
+ 	down_read(&gmap->mm->mmap_sem);
+-	for (i = 0; i < entries; ++i) {
+-		cbrle = cbrlo[i];
+-		if (unlikely(cbrle & ~PAGE_MASK || cbrle < 2 * PAGE_SIZE))
+-			/* invalid entry */
+-			break;
+-		/* try to free backing */
+-		__gmap_zap(gmap, cbrle);
+-	}
++	for (i = 0; i < entries; ++i)
++		__gmap_zap(gmap, cbrlo[i]);
+ 	up_read(&gmap->mm->mmap_sem);
+-	if (i < entries)
+-		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 	return 0;
+ }
  
- 8. Other capabilities.
- ----------------------
 -- 
 2.5.5
