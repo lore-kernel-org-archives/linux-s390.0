@@ -1,58 +1,124 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [GIT PULL 04/10] KVM: s390: enable SRS only if enabled for the
- guest
-Date: Mon, 9 May 2016 13:31:12 +0200
-Message-ID: <57307500.80802@de.ibm.com>
+Subject: [GIT PULL 05/10] KVM: s390: cleanup cpuid handling
+Date: Mon,  9 May 2016 11:20:16 +0200
+Message-ID: <1462785621-12600-6-git-send-email-borntraeger@de.ibm.com>
 References: <1462785621-12600-1-git-send-email-borntraeger@de.ibm.com>
- <1462785621-12600-5-git-send-email-borntraeger@de.ibm.com>
- <20160509103220.GA4081@osiris> <57306DCA.8040605@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <57306DCA.8040605@de.ibm.com>
+In-Reply-To: <1462785621-12600-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/09/2016 01:00 PM, Christian Borntraeger wrote:
-> On 05/09/2016 12:32 PM, Heiko Carstens wrote:
->> On Mon, May 09, 2016 at 11:20:15AM +0200, Christian Borntraeger wrote:
->>> From: David Hildenbrand <dahi@linux.vnet.ibm.com>
->>>
->>> If we don't have SIGP SENSE RUNNING STATUS enabled for the guest, let's
->>> not enable interpretation so we can correctly report an invalid order.
->>>
->>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>> Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
->>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>> ---
->>>  arch/s390/include/asm/sigp.h | 1 +
->>>  arch/s390/kvm/kvm-s390.c     | 4 +++-
->>>  arch/s390/kvm/sigp.c         | 6 ++++++
->>>  3 files changed, 10 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/arch/s390/include/asm/sigp.h b/arch/s390/include/asm/sigp.h
->>> index ec60cf7..35c91da 100644
->>> --- a/arch/s390/include/asm/sigp.h
->>> +++ b/arch/s390/include/asm/sigp.h
->>> @@ -33,6 +33,7 @@
->>>  #define SIGP_STATUS_INVALID_PARAMETER	0x00000100UL
->>>  #define SIGP_STATUS_INCORRECT_STATE	0x00000200UL
->>>  #define SIGP_STATUS_NOT_RUNNING		0x00000400UL
->>> +#define SIGP_STATUS_INVALID_ORDER	0x00000002UL
->>
->> This new define should have been added at the top the list to keep the list
->> sorted. Maybe Paolo or Radim can change this when applying this patch.
-> 
-> Its a signed pull request and I must redo it if requested.
-> 
-> 
-> 
-Conny noticed a typo in the subject of patch3. So I will redo the
-pull request as we have now 2 things to change.
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Christian
+We only have one cpuid for all VCPUs, so let's directly use the one in the
+cpu model. Also always store it directly as u64, no need for struct cpuid.
+
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h |  6 +-----
+ arch/s390/kvm/kvm-s390.c         | 17 +++++++++--------
+ arch/s390/kvm/priv.c             |  2 +-
+ 3 files changed, 11 insertions(+), 14 deletions(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 6da41fa..9282ccf 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -544,10 +544,6 @@ struct kvm_vcpu_arch {
+ 	struct kvm_s390_local_interrupt local_int;
+ 	struct hrtimer    ckc_timer;
+ 	struct kvm_s390_pgm_info pgm;
+-	union  {
+-		struct cpuid	cpu_id;
+-		u64		stidp_data;
+-	};
+ 	struct gmap *gmap;
+ 	struct kvm_guestdbg_info_arch guestdbg;
+ 	unsigned long pfault_token;
+@@ -605,7 +601,7 @@ struct kvm_s390_cpu_model {
+ 	__u64 fac_mask[S390_ARCH_FAC_LIST_SIZE_U64];
+ 	/* facility list requested by guest (in dma page) */
+ 	__u64 *fac_list;
+-	struct cpuid cpu_id;
++	u64 cpuid;
+ 	unsigned short ibc;
+ };
+ 
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index e1e375c..0d2f242 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -652,8 +652,7 @@ static int kvm_s390_set_processor(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	}
+ 	if (!copy_from_user(proc, (void __user *)attr->addr,
+ 			    sizeof(*proc))) {
+-		memcpy(&kvm->arch.model.cpu_id, &proc->cpuid,
+-		       sizeof(struct cpuid));
++		kvm->arch.model.cpuid = proc->cpuid;
+ 		kvm->arch.model.ibc = proc->ibc;
+ 		memcpy(kvm->arch.model.fac_list, proc->fac_list,
+ 		       S390_ARCH_FAC_LIST_SIZE_BYTE);
+@@ -687,7 +686,7 @@ static int kvm_s390_get_processor(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+-	memcpy(&proc->cpuid, &kvm->arch.model.cpu_id, sizeof(struct cpuid));
++	proc->cpuid = kvm->arch.model.cpuid;
+ 	proc->ibc = kvm->arch.model.ibc;
+ 	memcpy(&proc->fac_list, kvm->arch.model.fac_list,
+ 	       S390_ARCH_FAC_LIST_SIZE_BYTE);
+@@ -1081,10 +1080,13 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
+ 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
+ }
+ 
+-static void kvm_s390_get_cpu_id(struct cpuid *cpu_id)
++static u64 kvm_s390_get_initial_cpuid(void)
+ {
+-	get_cpu_id(cpu_id);
+-	cpu_id->version = 0xff;
++	struct cpuid cpuid;
++
++	get_cpu_id(&cpuid);
++	cpuid.version = 0xff;
++	return *((u64 *) &cpuid);
+ }
+ 
+ static void kvm_s390_crypto_init(struct kvm *kvm)
+@@ -1175,7 +1177,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	memcpy(kvm->arch.model.fac_list, kvm->arch.model.fac_mask,
+ 	       S390_ARCH_FAC_LIST_SIZE_BYTE);
+ 
+-	kvm_s390_get_cpu_id(&kvm->arch.model.cpu_id);
++	kvm->arch.model.cpuid = kvm_s390_get_initial_cpuid();
+ 	kvm->arch.model.ibc = sclp.ibc & 0x0fff;
+ 
+ 	kvm_s390_crypto_init(kvm);
+@@ -1624,7 +1626,6 @@ static void kvm_s390_vcpu_setup_model(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_cpu_model *model = &vcpu->kvm->arch.model;
+ 
+-	vcpu->arch.cpu_id = model->cpu_id;
+ 	vcpu->arch.sie_block->ibc = model->ibc;
+ 	if (test_kvm_facility(vcpu->kvm, 7))
+ 		vcpu->arch.sie_block->fac = (u32)(u64) model->fac_list;
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 3137479..95916fa 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -439,7 +439,7 @@ static int handle_lpswe(struct kvm_vcpu *vcpu)
+ 
+ static int handle_stidp(struct kvm_vcpu *vcpu)
+ {
+-	u64 stidp_data = vcpu->arch.stidp_data;
++	u64 stidp_data = vcpu->kvm->arch.model.cpuid;
+ 	u64 operand2;
+ 	int rc;
+ 	ar_t ar;
+-- 
+2.5.5
