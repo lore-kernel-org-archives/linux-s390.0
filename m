@@ -1,14 +1,18 @@
-Return-Path: <mbenes@suse.cz>
-Date: Mon, 9 May 2016 11:41:37 +0200 (CEST)
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [RFC PATCH v2 17/18] livepatch: change to a per-task consistency
- model
-In-Reply-To: <d60b2b9ce6911bb10dbbf244df58df31c7a8af66.1461875890.git.jpoimboe@redhat.com>
-Message-ID: <alpine.LNX.2.00.1605091131050.22758@pobox.suse.cz>
+Return-Path: <pmladek@suse.com>
+Date: Mon, 9 May 2016 14:23:03 +0200
+From: Petr Mladek <pmladek@suse.com>
+Subject: Re: klp_task_patch: was: [RFC PATCH v2 17/18] livepatch: change to a
+ per-task consistency model
+Message-ID: <20160509122303.GD2895@pathway.suse.cz>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
  <d60b2b9ce6911bb10dbbf244df58df31c7a8af66.1461875890.git.jpoimboe@redhat.com>
+ <20160504144854.GT2749@pathway.suse.cz>
+ <20160504175700.nizuvflyisfd3lks@treble>
+ <20160505115701.GY2749@pathway.suse.cz>
+ <20160506123855.oabdeehqu3aj6nqy@treble>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160506123855.oabdeehqu3aj6nqy@treble>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -18,200 +22,164 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Fri 2016-05-06 07:38:55, Josh Poimboeuf wrote:
+> On Thu, May 05, 2016 at 01:57:01PM +0200, Petr Mladek wrote:
+> > I have missed that the two commands are called with preemption
+> > disabled. So, I had the following crazy scenario in mind:
+> > 
+> > 
+> > CPU0				CPU1
+> > 
+> > klp_enable_patch()
+> > 
+> >   klp_target_state = KLP_PATCHED;
+> > 
+> >   for_each_task()
+> >      set TIF_PENDING_PATCH
+> > 
+> > 				# task 123
+> > 
+> > 				if (klp_patch_pending(current)
+> > 				  klp_patch_task(current)
+> > 
+> >                                     clear TIF_PENDING_PATCH
+> > 
+> > 				    smp_rmb();
+> > 
+> > 				    # switch to assembly of
+> > 				    # klp_patch_task()
+> > 
+> > 				    mov klp_target_state, %r12
+> > 
+> > 				    # interrupt and schedule
+> > 				    # another task
+> > 
+> > 
+> >   klp_reverse_transition();
+> > 
+> >     klp_target_state = KLP_UNPATCHED;
+> > 
+> >     klt_try_to_complete_transition()
+> > 
+> >       task = 123;
+> >       if (task->patch_state == klp_target_state;
+> >          return 0;
+> > 
+> >     => task 123 is in target state and does
+> >     not block conversion
+> > 
+> >   klp_complete_transition()
+> > 
+> > 
+> >   # disable previous patch on the stack
+> >   klp_disable_patch();
+> > 
+> >     klp_target_state = KLP_UNPATCHED;
+> >   
+> >   
+> > 				    # task 123 gets scheduled again
+> > 				    lea %r12, task->patch_state
+> > 
+> > 				    => it happily stores an outdated
+> > 				    state
+> > 
+> 
+> Thanks for the clear explanation, this helps a lot.
+> 
+> > This is why the two functions should get called with preemption
+> > disabled. We should document it at least. I imagine that we will
+> > use them later also in another context and nobody will remember
+> > this crazy scenario.
+> > 
+> > Well, even disabled preemption does not help. The process on
+> > CPU1 might be also interrupted by an NMI and do some long
+> > printk in it.
+> > 
+> > IMHO, the only safe approach is to call klp_patch_task()
+> > only for "current" on a safe place. Then this race is harmless.
+> > The switch happen on a safe place, so that it does not matter
+> > into which state the process is switched.
+> 
+> I'm not sure about this solution.  When klp_complete_transition() is
+> called, we need all tasks to be patched, for good.  We don't want any of
+> them to randomly switch to the wrong state at some later time in the
+> middle of a future patch operation.  How would changing klp_patch_task()
+> to only use "current" prevent that?
 
-[...]
+You are right that it is pity but it really should be safe because
+it is not entirely random.
 
-> +static int klp_target_state;
+If the race happens and assign an outdated value, there are two
+situations:
 
-[...]
+1. It is assigned when there is not transition in the progress.
+   Then it is OK because it will be ignored by the ftrace handler.
+   The right state will be set before the next transition starts.
 
-> +void klp_init_transition(struct klp_patch *patch, int state)
-> +{
-> +	struct task_struct *g, *task;
-> +	unsigned int cpu;
-> +	struct klp_object *obj;
-> +	struct klp_func *func;
-> +	int initial_state = !state;
-> +
-> +	klp_transition_patch = patch;
-> +
-> +	/*
-> +	 * If the patch can be applied or reverted immediately, skip the
-> +	 * per-task transitions.
-> +	 */
-> +	if (patch->immediate)
-> +		return;
-> +
-> +	/*
-> +	 * Initialize all tasks to the initial patch state to prepare them for
-> +	 * switching to the target state.
-> +	 */
-> +	read_lock(&tasklist_lock);
-> +	for_each_process_thread(g, task)
-> +		task->patch_state = initial_state;
-> +	read_unlock(&tasklist_lock);
-> +
-> +	/*
-> +	 * Ditto for the idle "swapper" tasks.
-> +	 */
-> +	get_online_cpus();
-> +	for_each_online_cpu(cpu)
-> +		idle_task(cpu)->patch_state = initial_state;
-> +	put_online_cpus();
-> +
-> +	/*
-> +	 * Ensure klp_ftrace_handler() sees the task->patch_state updates
-> +	 * before the func->transition updates.  Otherwise it could read an
-> +	 * out-of-date task state and pick the wrong function.
-> +	 */
-> +	smp_wmb();
-> +
-> +	/*
-> +	 * Set the func transition states so klp_ftrace_handler() will know to
-> +	 * switch to the transition logic.
-> +	 *
-> +	 * When patching, the funcs aren't yet in the func_stack and will be
-> +	 * made visible to the ftrace handler shortly by the calls to
-> +	 * klp_patch_object().
-> +	 *
-> +	 * When unpatching, the funcs are already in the func_stack and so are
-> +	 * already visible to the ftrace handler.
-> +	 */
-> +	klp_for_each_object(patch, obj)
-> +		klp_for_each_func(obj, func)
-> +			func->transition = true;
-> +
-> +	/*
-> +	 * Set the global target patch state which tasks will switch to.  This
-> +	 * has no effect until the TIF_PATCH_PENDING flags get set later.
-> +	 */
-> +	klp_target_state = state;
+2. It is assigned when some other transition is in progress.
+   Then it is OK as long as the function is called from "current".
+   The "wrong" state will be used consistently. It will switch
+   to the right state on another safe state.
 
-I am afraid there is a problem for (patch->immediate == true) patches. 
-klp_target_state is not set for those and the comment is not entirely 
-true, because klp_target_state has an effect in several places.
 
-[...]
+> > By other words, the task state might be updated only
+> > 
+> >    + by the task itself on a safe place
+> >    + by other task when the updated on is sleeping on a safe place
+> > 
+> > This should be well documented and the API should help to avoid
+> > a misuse.
+> 
+> I think we could fix it to be safe for future callers who might not have
+> preemption disabled with a couple of changes to klp_patch_task():
+> disabling preemption and testing/clearing the TIF_PATCH_PENDING flag
+> before changing the patch state:
+> 
+>   void klp_patch_task(struct task_struct *task)
+>   {
+>   	preempt_disable();
+>   
+>   	if (test_and_clear_tsk_thread_flag(task, TIF_PATCH_PENDING))
+>   		task->patch_state = READ_ONCE(klp_target_state);
+>   
+>   	preempt_enable();
+>   }
 
-> +void klp_start_transition(void)
-> +{
-> +	struct task_struct *g, *task;
-> +	unsigned int cpu;
-> +
-> +	pr_notice("'%s': %s...\n", klp_transition_patch->mod->name,
-> +		  klp_target_state == KLP_PATCHED ? "patching" : "unpatching");
+It reduces the race window a bit but it is still there. For example,
+NMI still might add a huge delay between reading klp_target_state
+and assigning task->patch state.
 
-Here...
+What about the following?
 
-> +
-> +	/*
-> +	 * If the patch can be applied or reverted immediately, skip the
-> +	 * per-task transitions.
-> +	 */
-> +	if (klp_transition_patch->immediate)
-> +		return;
-> +
+/*
+ * This function might assign an outdated value if the transaction
+`* is reverted and finalized in parallel. But it is safe. If the value
+ * is assigned outside of a transaction, it is ignored and the next
+ * transaction will set the right one. Or if it gets assigned
+ * inside another transaction, it will repeat the cycle and
+ * set the right state.
+ */
+void klp_update_current_patch_state()
+{
+	while (test_and_clear_tsk_thread_flag(current, TIF_PATCH_PENDING))
+		current->patch_state = READ_ONCE(klp_target_state);
+}
 
-[...]
+Note that the disabled preemption helped only partially,
+so I think that it was not really needed.
 
-> +bool klp_try_complete_transition(void)
-> +{
-> +	unsigned int cpu;
-> +	struct task_struct *g, *task;
-> +	bool complete = true;
-> +
-> +	/*
-> +	 * If the patch can be applied or reverted immediately, skip the
-> +	 * per-task transitions.
-> +	 */
-> +	if (klp_transition_patch->immediate)
-> +		goto success;
-> +
-> +	/*
-> +	 * Try to switch the tasks to the target patch state by walking their
-> +	 * stacks and looking for any to-be-patched or to-be-unpatched
-> +	 * functions.  If such functions are found on a stack, or if the stack
-> +	 * is deemed unreliable, the task can't be switched yet.
-> +	 *
-> +	 * Usually this will transition most (or all) of the tasks on a system
-> +	 * unless the patch includes changes to a very common function.
-> +	 */
-> +	read_lock(&tasklist_lock);
-> +	for_each_process_thread(g, task)
-> +		if (!klp_try_switch_task(task))
-> +			complete = false;
-> +	read_unlock(&tasklist_lock);
-> +
-> +	/*
-> +	 * Ditto for the idle "swapper" tasks.
-> +	 */
-> +	get_online_cpus();
-> +	for_each_online_cpu(cpu)
-> +		if (!klp_try_switch_task(idle_task(cpu)))
-> +			complete = false;
-> +	put_online_cpus();
-> +
-> +	/*
-> +	 * Some tasks weren't able to be switched over.  Try again later and/or
-> +	 * wait for other methods like syscall barrier switching.
-> +	 */
-> +	if (!complete)
-> +		return false;
-> +
-> +success:
-> +	/*
-> +	 * When unpatching, all tasks have transitioned to KLP_UNPATCHED so we
-> +	 * can now remove the new functions from the func_stack.
-> +	 */
-> +	if (klp_target_state == KLP_UNPATCHED) {
+Hmm, it means that the task->patch_state  might be either
+KLP_PATCHED or KLP_UNPATCHED outside a transition. I wonder
+if the tristate really brings some advantages.
 
-Here (this is the most important one I think).
 
-> +		klp_unpatch_objects(klp_transition_patch);
-> +
-> +		/*
-> +		 * Don't allow any existing instances of ftrace handlers to
-> +		 * access any obsolete funcs before we reset the func
-> +		 * transition states to false.  Otherwise the handler may see
-> +		 * the deleted "new" func, see that it's not in transition, and
-> +		 * wrongly pick the new version of the function.
-> +		 */
-> +		synchronize_rcu();
-> +	}
-> +
-> +	pr_notice("'%s': %s complete\n", klp_transition_patch->mod->name,
-> +		  klp_target_state == KLP_PATCHED ? "patching" : "unpatching");
+Alternatively, we might synchronize the operation with klp_mutex.
+The function is called in a slow path and in a safe context.
+Well, it might cause contention on the lock when many CPUs are
+trying to update their tasks.
 
-Here
-
-> +
-> +	/* we're done, now cleanup the data structures */
-> +	klp_complete_transition();
-> +
-> +	return true;
-> +}
-> +
-> +/*
-> + * This function can be called in the middle of an existing transition to
-> + * reverse the direction of the target patch state.  This can be done to
-> + * effectively cancel an existing enable or disable operation if there are any
-> + * tasks which are stuck in the initial patch state.
-> + */
-> +void klp_reverse_transition(void)
-> +{
-> +	struct klp_patch *patch = klp_transition_patch;
-> +
-> +	klp_target_state = !klp_target_state;
-
-And probably here.
-
-All other references look safe.
-
-I guess we need to set klp_target_state even for immediate patches. Should 
-we also initialize it with KLP_UNDEFINED and set it to KLP_UNDEFINED in 
-klp_complete_transition()?
-
-Miroslav
+Best Regards,
+Petr
