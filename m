@@ -1,18 +1,17 @@
-Return-Path: <pmladek@suse.com>
-Date: Mon, 9 May 2016 14:23:03 +0200
-From: Petr Mladek <pmladek@suse.com>
-Subject: Re: klp_task_patch: was: [RFC PATCH v2 17/18] livepatch: change to a
+Return-Path: <mbenes@suse.cz>
+Date: Mon, 9 May 2016 17:42:41 +0200 (CEST)
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: Re: barriers: was: [RFC PATCH v2 17/18] livepatch: change to a
  per-task consistency model
-Message-ID: <20160509122303.GD2895@pathway.suse.cz>
+In-Reply-To: <20160504172517.tdatoj2nlkqwyd4g@treble>
+Message-ID: <alpine.LNX.2.00.1605091729450.22758@pobox.suse.cz>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
  <d60b2b9ce6911bb10dbbf244df58df31c7a8af66.1461875890.git.jpoimboe@redhat.com>
- <20160504144854.GT2749@pathway.suse.cz>
- <20160504175700.nizuvflyisfd3lks@treble>
- <20160505115701.GY2749@pathway.suse.cz>
- <20160506123855.oabdeehqu3aj6nqy@treble>
+ <20160504123940.GR2749@pathway.suse.cz>
+ <20160504141205.GS2749@pathway.suse.cz>
+ <20160504172517.tdatoj2nlkqwyd4g@treble>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160506123855.oabdeehqu3aj6nqy@treble>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -22,164 +21,77 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
+Cc: Petr Mladek <pmladek@suse.com>, Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri 2016-05-06 07:38:55, Josh Poimboeuf wrote:
-> On Thu, May 05, 2016 at 01:57:01PM +0200, Petr Mladek wrote:
-> > I have missed that the two commands are called with preemption
-> > disabled. So, I had the following crazy scenario in mind:
+On Wed, 4 May 2016, Josh Poimboeuf wrote:
+
+> On Wed, May 04, 2016 at 04:12:05PM +0200, Petr Mladek wrote:
+> > On Wed 2016-05-04 14:39:40, Petr Mladek wrote:
+> > > 		 *
+> > > 		 * Note that the task must never be migrated to the target
+> > > 		 * state when being inside this ftrace handler.
+> > > 		 */
+> > > 
+> > > We might want to move the second paragraph on top of the function.
+> > > It is a basic and important fact. It actually explains why the first
+> > > read barrier is not needed when the patch is being disabled.
 > > 
+> > I wrote the statement partly intuitively. I think that it is really
+> > somehow important. And I am slightly in doubts if we are on the safe side.
 > > 
-> > CPU0				CPU1
+> > First, why is it important that the task->patch_state is not switched
+> > when being inside the ftrace handler?
 > > 
-> > klp_enable_patch()
+> > If we are inside the handler, we are kind-of inside the called
+> > function. And the basic idea of this consistency model is that
+> > we must not switch a task when it is inside a patched function.
+> > This is normally decided by the stack.
 > > 
-> >   klp_target_state = KLP_PATCHED;
+> > The handler is a bit special because it is called right before the
+> > function. If it was the only patched function on the stack, it would
+> > not matter if we choose the new or old code. Both decisions would
+> > be safe for the moment.
 > > 
-> >   for_each_task()
-> >      set TIF_PENDING_PATCH
+> > The fun starts when the function calls another patched function.
+> > The other patched function must be called consistently with
+> > the first one. If the first function was from the patch,
+> > the other must be from the patch as well and vice versa.
 > > 
-> > 				# task 123
+> > This is why we must not switch task->patch_state dangerously
+> > when being inside the ftrace handler.
 > > 
-> > 				if (klp_patch_pending(current)
-> > 				  klp_patch_task(current)
+> > Now I am not sure if this condition is fulfilled. The ftrace handler
+> > is called as the very first instruction of the function. Does not
+> > it break the stack validity? Could we sleep inside the ftrace
+> > handler? Will the patched function be detected on the stack?
 > > 
-> >                                     clear TIF_PENDING_PATCH
-> > 
-> > 				    smp_rmb();
-> > 
-> > 				    # switch to assembly of
-> > 				    # klp_patch_task()
-> > 
-> > 				    mov klp_target_state, %r12
-> > 
-> > 				    # interrupt and schedule
-> > 				    # another task
-> > 
-> > 
-> >   klp_reverse_transition();
-> > 
-> >     klp_target_state = KLP_UNPATCHED;
-> > 
-> >     klt_try_to_complete_transition()
-> > 
-> >       task = 123;
-> >       if (task->patch_state == klp_target_state;
-> >          return 0;
-> > 
-> >     => task 123 is in target state and does
-> >     not block conversion
-> > 
-> >   klp_complete_transition()
-> > 
-> > 
-> >   # disable previous patch on the stack
-> >   klp_disable_patch();
-> > 
-> >     klp_target_state = KLP_UNPATCHED;
-> >   
-> >   
-> > 				    # task 123 gets scheduled again
-> > 				    lea %r12, task->patch_state
-> > 
-> > 				    => it happily stores an outdated
-> > 				    state
-> > 
+> > Or is my brain already too far in the fantasy world?
 > 
-> Thanks for the clear explanation, this helps a lot.
+> I think this isn't a possibility.
 > 
-> > This is why the two functions should get called with preemption
-> > disabled. We should document it at least. I imagine that we will
-> > use them later also in another context and nobody will remember
-> > this crazy scenario.
-> > 
-> > Well, even disabled preemption does not help. The process on
-> > CPU1 might be also interrupted by an NMI and do some long
-> > printk in it.
-> > 
-> > IMHO, the only safe approach is to call klp_patch_task()
-> > only for "current" on a safe place. Then this race is harmless.
-> > The switch happen on a safe place, so that it does not matter
-> > into which state the process is switched.
+> In today's code base, this can't happen because task patch states are
+> only switched when sleeping or when exiting the kernel.  The ftrace
+> handler doesn't sleep directly.
 > 
-> I'm not sure about this solution.  When klp_complete_transition() is
-> called, we need all tasks to be patched, for good.  We don't want any of
-> them to randomly switch to the wrong state at some later time in the
-> middle of a future patch operation.  How would changing klp_patch_task()
-> to only use "current" prevent that?
+> If it were preempted, it couldn't be switched there either because we
+> consider preempted stacks to be unreliable.
 
-You are right that it is pity but it really should be safe because
-it is not entirely random.
+And IIRC ftrace handlers cannot sleep and are called with preemption 
+disabled as of now. The code is a bit obscure, but see 
+__ftrace_ops_list_func for example. This is "main" ftrace handler that 
+calls all the registered ones in case FTRACE_OPS_FL_DYNAMIC is set (which 
+is always true for handlers coming from modules) and CONFIG_PREEMPT is 
+on. If it is off and there is only one handler registered for a function 
+dynamic trampoline is used. See commit 12cce594fa8f ("ftrace/x86: Allow 
+!CONFIG_PREEMPT dynamic ops to use allocated trampolines"). I think 
+Steven had a plan to implement dynamic trampolines even for 
+CONFIG_PREEMPT case but he still hasn't done it. It should use RCU_TASKS 
+infrastructure.
 
-If the race happens and assign an outdated value, there are two
-situations:
+The reason for all the mess is that ftrace needs to be sure that no task 
+is in the handler when the handler/trampoline is freed.
 
-1. It is assigned when there is not transition in the progress.
-   Then it is OK because it will be ignored by the ftrace handler.
-   The right state will be set before the next transition starts.
+So we should be safe for now even from this side.
 
-2. It is assigned when some other transition is in progress.
-   Then it is OK as long as the function is called from "current".
-   The "wrong" state will be used consistently. It will switch
-   to the right state on another safe state.
-
-
-> > By other words, the task state might be updated only
-> > 
-> >    + by the task itself on a safe place
-> >    + by other task when the updated on is sleeping on a safe place
-> > 
-> > This should be well documented and the API should help to avoid
-> > a misuse.
-> 
-> I think we could fix it to be safe for future callers who might not have
-> preemption disabled with a couple of changes to klp_patch_task():
-> disabling preemption and testing/clearing the TIF_PATCH_PENDING flag
-> before changing the patch state:
-> 
->   void klp_patch_task(struct task_struct *task)
->   {
->   	preempt_disable();
->   
->   	if (test_and_clear_tsk_thread_flag(task, TIF_PATCH_PENDING))
->   		task->patch_state = READ_ONCE(klp_target_state);
->   
->   	preempt_enable();
->   }
-
-It reduces the race window a bit but it is still there. For example,
-NMI still might add a huge delay between reading klp_target_state
-and assigning task->patch state.
-
-What about the following?
-
-/*
- * This function might assign an outdated value if the transaction
-`* is reverted and finalized in parallel. But it is safe. If the value
- * is assigned outside of a transaction, it is ignored and the next
- * transaction will set the right one. Or if it gets assigned
- * inside another transaction, it will repeat the cycle and
- * set the right state.
- */
-void klp_update_current_patch_state()
-{
-	while (test_and_clear_tsk_thread_flag(current, TIF_PATCH_PENDING))
-		current->patch_state = READ_ONCE(klp_target_state);
-}
-
-Note that the disabled preemption helped only partially,
-so I think that it was not really needed.
-
-Hmm, it means that the task->patch_state  might be either
-KLP_PATCHED or KLP_UNPATCHED outside a transition. I wonder
-if the tristate really brings some advantages.
-
-
-Alternatively, we might synchronize the operation with klp_mutex.
-The function is called in a slow path and in a safe context.
-Well, it might cause contention on the lock when many CPUs are
-trying to update their tasks.
-
-Best Regards,
-Petr
+Miroslav
