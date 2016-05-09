@@ -1,26 +1,28 @@
-From: Neo Jia <cjia@nvidia.com>
+From: Dong Jia <bjsdjshi@linux.vnet.ibm.com>
 Subject: Re: [PATCH RFC 0/8] basic vfio-ccw infrastructure
-Date: Thu, 5 May 2016 13:23:11 -0700
-Message-ID: <20160505202311.GA28046@nvidia.com>
+Date: Mon, 9 May 2016 17:55:40 +0800
+Message-ID: <20160509175540.2b14ce8c@oc7835276234>
 References: <1461931915-22397-1-git-send-email-bjsdjshi@linux.vnet.ibm.com>
- <20160429111735.0358be80@t450s.home>
- <20160504172629.77226d35@oc7835276234>
- <20160504132653.766c54db@t450s.home>
- <20160505182908.7dec8f4e@oc7835276234>
- <20160505131945.1dd6ca88@t450s.home>
+	<20160429111735.0358be80@t450s.home>
+	<20160504172629.77226d35@oc7835276234>
+	<20160504132653.766c54db@t450s.home>
+	<20160505182908.7dec8f4e@oc7835276234>
+	<20160505131945.1dd6ca88@t450s.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <20160505131945.1dd6ca88@t450s.home>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Alex Williamson <alex.williamson@redhat.com>
-Cc: Dong Jia <bjsdjshi@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, "Tian, Kevin" <kevin.tian@intel.com>, "Song, Jike" <jike.song@intel.com>, Kirti Wankhede <kwankhede@nvidia.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, "Tian, Kevin" <kevin.tian@intel.com>, "Song, Jike" <jike.song@intel.com>, Neo Jia <cjia@nvidia.com>, Kirti Wankhede <kwankhede@nvidia.com>, Dong Jia <bjsdjshi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 05, 2016 at 01:19:45PM -0600, Alex Williamson wrote:
+On Thu, 5 May 2016 13:19:45 -0600
+Alex Williamson <alex.williamson@redhat.com> wrote:
+
 > [cc +Intel,NVIDIA]
 > 
 > On Thu, 5 May 2016 18:29:08 +0800
@@ -161,12 +163,16 @@ On Thu, May 05, 2016 at 01:19:45PM -0600, Alex Williamson wrote:
 > not.  So we already have code that is supposed to handle the difference
 > between whether we're mapping all of guest memory or whether we're only
 > registering translations populated in the IOMMU for the device.
+Big thanks! I'm clear about this now.
+
 > 
 > It appears that S390 implements some sort of IOMMU in the guest, so
 > theoretically DMA_MAP and DMA_UNMAP operations are only going to map
 > the IOTLB translations relevant to that device.  At least that's how
 > it's supposed to work.  So we shouldn't be pinning all of guest memory
 > for the PCI case.
+Nod.
+
 > 
 > When we switch to the vgpu/mediated-device approach, everything should
 > work the same except the DMA_MAP and DMA_UNMAP ioctls don't do any
@@ -176,6 +182,8 @@ On Thu, May 05, 2016 at 01:19:45PM -0600, Alex Williamson wrote:
 > do an IOVA-to-VA translation and page_to_pfn(get_user_pages()) to get a
 > host physical address, which is only pinned while the operation is
 > inflight.
+Got this.
+
 > 
 > > 2. Didn't you have the long time starting problem either? Or I
 > > must miss something. For the vfio-ccw case, there is no fixed range. So
@@ -188,10 +196,20 @@ On Thu, May 05, 2016 at 01:19:45PM -0600, Alex Williamson wrote:
 > could optimize though.  x86 without a guest IOMMU only performs DMA_MAP
 > operations for the actual populated guest memory.  This is of course
 > not free, but is negligible for small guests and scales as the memory
-> size of the guest increases.  According the the vgpu/mediated-device
+> size of the guest increases.
+I can't recall clearly, but our problem must have something to do with
+the iommu_replay action in vfio_listener_region_add. It lead us to do
+iommu replay in the whole guest address space at that time.
+
+Since we will definitely not pin all the guest memory. This won't be a
+problem for us anymore. :>
+
+>  According the the vgpu/mediated-device
 > proposal, there would be no pinning occurring at startup, the DMA_MAP
 > would only be populating a tree of IOVA-to-VA mappings using the
 > granularity of the DMA_MAP parameters itself.
+Understand and got this too.
+
 > 
 > > > 
 > > > That's not what vGPU is about.  In the case of vGPU the proposal is to
@@ -210,14 +228,22 @@ On Thu, May 05, 2016 at 01:19:45PM -0600, Alex Williamson wrote:
 > vfio, there's nothing ccw specific there.  Pages would not be pinned,
 > only registered for later retrieval by the mediated-device backend and
 > only for the runtime of the ccw program in your case.
+This sounds reasonable and feasible.
+
 > 
 > > #2. In the driver of the ccw devices, when an I/O instruction was
 > > intercepted, query the database and translate the ccw program for I/O
 > > operation.
 > 
-> The database query would be the point at which the page is pinned, so
+> The database query would be the point at which the page is pinned,
+Just like Kirti's vfio_pin_pages.
+
+> so
 > there would be some sort of 'put' of the translation after the ccw
 > program executes to release the pin.
+Right. Quite obviously, if we call vfio_pin_pages, we should call
+vfio_unpin_pages in pair.
+
 > 
 > > I also noticed in another thread:
 > > ---------------------------------
@@ -238,12 +264,7 @@ On Thu, May 05, 2016 at 01:19:45PM -0600, Alex Williamson wrote:
 > wants the on-demand approach while Intel vGPU wants to pin the entire
 > guest, at least for an initial solution.  This iommu backend would need
 > to support both as determined by the mediated device backend.
-
-Right, we will add a new callback to mediated device backend interface for this
-purpose in v4 version patch.
-
-Thanks,
-Neo
+I will stay tuned with their discussion.
 
 > 
 > > do:
@@ -262,6 +283,8 @@ Neo
 > advantage, but obviously there are numerous disadvantages for the
 > pinning itself.  Pinning on-demand has overhead to setup each DMA
 > operations by the device but has a much smaller pinning footprint.
+Got it.
+
 > 
 > > > > Well, a Subchannel Device does not have such a range of address. The
 > > > > device driver simply calls kalloc() to get a piece of memory, and
@@ -313,3 +336,9 @@ Neo
 > 
 > Thanks,
 > Alex
+> 
+
+Thanks again. Things get cleared for me a lot.
+
+--------
+Dong Jia
