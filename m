@@ -1,61 +1,67 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 1/1] KVM: halt_polling: provide a way to qualify wakeups
- during poll
-Date: Fri, 13 May 2016 12:18:44 +0200
-Message-ID: <5735AA04.2080400@de.ibm.com>
-References: <1462279041-17028-1-git-send-email-borntraeger@de.ibm.com>
- <1462279041-17028-2-git-send-email-borntraeger@de.ibm.com>
- <20160503150902.GF30059@potion> <5729A9E1.3050706@de.ibm.com>
- <20160504100545.090be51b.cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Subject: [GIT PULL 09/10] s390/sclp: Add hmfai field
+Date: Mon,  9 May 2016 11:20:20 +0200
+Message-ID: <1462785621-12600-10-git-send-email-borntraeger@de.ibm.com>
+References: <1462785621-12600-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20160504100545.090be51b.cornelia.huck@de.ibm.com>
+In-Reply-To: <1462785621-12600-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Wanpeng Li <kernellwp@gmail.com>, David Matlack <dmatlack@google.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/04/2016 10:05 AM, Cornelia Huck wrote:
-> On Wed, 4 May 2016 09:50:57 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> 
->> The feedback about the logic triggered some more experiments on my side.
->> So I was experimenting with some different workloads/heuristics and it
->> seems that even more aggressive shrinking (basically resetting to 0 as soon
->> as an invalid poll comes along) does improve the cpu usage even more.
-> 
-> Do we still keep the shrink instead of resetting to 0 explicitly? (In
-> case the default shrink factor was set to != 0.) We'd lose a tuneable,
-> but it seems the aggressiveness is warranted.
-> 
->> (So the new diff looks like)
->> @@ -2034,7 +2036,9 @@ void kvm_vcpu_block(struct kvm_vcpu *vcpu)
->>  out:
->>         block_ns = ktime_to_ns(cur) - ktime_to_ns(start);
->>
->> -       if (halt_poll_ns) {
->> +       if (!vcpu_valid_wakeup(vcpu))
->> +                shrink_halt_poll_ns(vcpu);
->> +       else if (halt_poll_ns) {
->>                 if (block_ns <= vcpu->halt_poll_ns)
->>                         ;
-> 
-> ...making this
-> 
-> if (halt_poll_ns && vcpu_valid_wakeup(vcpu)) {
-> 
+From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 
-I decided to keep my version as it should be functionally equivalent for shrink==0
-but it allows the performance folks to do future testing for better heuristics.
+Let's add hypervisor-managed facility-apportionment indications field to
+SCLP structs. KVM will use it to reduce maintenance cost of
+Non-Hypervisor-Managed facility bits.
 
-David, Wanpeng,
-I just send out the patch set but I forgot to Cc you :-/
+Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/sclp.h   | 1 +
+ drivers/s390/char/sclp_early.c | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-
-
-
-Christian
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index bab456b..994a66c 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -69,6 +69,7 @@ struct sclp_info {
+ 	unsigned int max_cores;
+ 	unsigned long hsa_size;
+ 	unsigned long facilities;
++	unsigned int hmfai;
+ };
+ extern struct sclp_info sclp;
+ 
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index 6804354..0ac520d 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -49,7 +49,9 @@ struct read_info_sccb {
+ 	u8	_pad_117[119 - 117];	/* 117-118 */
+ 	u8	fac119;			/* 119 */
+ 	u16	hcpua;			/* 120-121 */
+-	u8	_pad_122[4096 - 122];	/* 122-4095 */
++	u8	_pad_122[124 - 122];	/* 122-123 */
++	u32	hmfai;			/* 124-127 */
++	u8	_pad_128[4096 - 128];	/* 128-4095 */
+ } __packed __aligned(PAGE_SIZE);
+ 
+ static char sccb_early[PAGE_SIZE] __aligned(PAGE_SIZE) __initdata;
+@@ -155,6 +157,8 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
+ 	sclp.mtid = (sccb->fac42 & 0x80) ? (sccb->fac42 & 31) : 0;
+ 	sclp.mtid_cp = (sccb->fac42 & 0x80) ? (sccb->fac43 & 31) : 0;
+ 	sclp.mtid_prev = (sccb->fac42 & 0x80) ? (sccb->fac66 & 31) : 0;
++
++	sclp.hmfai = sccb->hmfai;
+ }
+ 
+ /*
+-- 
+2.5.5
