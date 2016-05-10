@@ -1,165 +1,257 @@
 From: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
-Subject: Re: [PATCH 24/25] arm64:ilp32: add vdso-ilp32 and use for signal
- return
-Date: Mon, 9 May 2016 18:07:06 +0800
-Message-ID: <5730614A.2000601@huawei.com>
+Subject: Re: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table
+ (in entry.S) to use it
+Date: Tue, 10 May 2016 15:42:07 +0800
+Message-ID: <573190CF.6030408@huawei.com>
 References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
- <1554541.oDP7Ro5zB2@wuerfel>
- <20160503090045.GB10733@e104818-lin.cambridge.arm.com>
- <3846428.6xx69KGEja@wuerfel> <57288660.9030607@huawei.com>
- <57289C75.50904@huawei.com> <20160504214949.GA28217@yury-N73SV>
- <CA+=Sn1ngpaJWHpGDmU+kXBkz56SO+XDW2qzMMLAbbBWnaB0eqw@mail.gmail.com>
- <572AAED2.7050604@huawei.com>
- <CA+=Sn1mNdd+Xy5QL5ScRyZOCWwKkG6o1Pb50sFPuiKX=0Z2B1w@mail.gmail.com>
- <20160506140022.GA18587@yury-N73SV>
+ <1459894127-17698-21-git-send-email-ynorov@caviumnetworks.com>
+ <572C8B30.7000005@huawei.com> <20160506123731.GA11959@yury-N73SV>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20160506140022.GA18587@yury-N73SV>
-Sender: linux-arch-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160506123731.GA11959@yury-N73SV>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Yury Norov <ynorov@caviumnetworks.com>, Andrew Pinski <pinskia@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Kapoor, Prasun" <Prasun.Kapoor@caviumnetworks.com>, Andreas Schwab <schwab@suse.de>, Mark Brown <broonie@kernel.org>, linux-doc@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Alexey Klimov <klimov.linux@gmail.com>, "Joseph S. Myers" <joseph@codesourcery.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Nathan Lynch <Nathan_Lynch@mentor.com>, Philipp Tomsich <philipp.tomsich@theobroma-systems.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, christoph.muellner@theobroma-systems.com, Hanjun Guo <guohanjun@huawei.com>, "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
+To: Yury Norov <ynorov@caviumnetworks.com>
+Cc: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, heiko.carstens@de.ibm.com, linux-doc@vger.kernel.org, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, broonie@kernel.org, Andrew Pinski <apinski@cavium.com>, schwab@suse.de, schwidefsky@de.ibm.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, "jijun (D)" <jijun2@huawei.com>, "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi, yury
+Hi, Yury
 
-I tested successful in both little endian and big endian.
-Just two comments below:
+On 2016/5/6 20:37, Yury Norov wrote:
+> On Fri, May 06, 2016 at 08:16:48PM +0800, Zhangjian (Bamvor) wrote:
+>> Hi,
+>>
+>> On 2016/4/6 6:08, Yury Norov wrote:
+>>> From: Andrew Pinski <apinski@cavium.com>
+>>>
+>>> Add a separate syscall-table for ILP32, which dispatches either to native
+>>> LP64 system call implementation or to compat-syscalls, as appropriate.
+>>>
+>>> Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+>>> Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+>>> ---
+>>>   arch/arm64/include/asm/unistd.h | 11 ++++++-
+>>>   arch/arm64/kernel/Makefile      |  2 +-
+>>>   arch/arm64/kernel/entry.S       | 12 +++++++-
+>>>   arch/arm64/kernel/sys_ilp32.c   | 65 +++++++++++++++++++++++++++++++++++++++++
+>>>   4 files changed, 87 insertions(+), 3 deletions(-)
+>>>   create mode 100644 arch/arm64/kernel/sys_ilp32.c
+>>>
+>>> diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+>>> index 2971dea..5ea18ef 100644
+>>> --- a/arch/arm64/include/asm/unistd.h
+>>> +++ b/arch/arm64/include/asm/unistd.h
+>>> @@ -13,9 +13,18 @@
+>>>    * You should have received a copy of the GNU General Public License
+>>>    * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+>>>    */
+>>> +
+>>> +#ifdef CONFIG_COMPAT
+>>> +#define __ARCH_WANT_COMPAT_STAT64
+>>> +#endif
+>>> +
+>>> +#ifdef CONFIG_ARM64_ILP32
+>>> +#define __ARCH_WANT_COMPAT_SYS_PREADV64
+>>> +#define __ARCH_WANT_COMPAT_SYS_PWRITEV64
+>>> +#endif
+>>> +
+>>>   #ifdef CONFIG_AARCH32_EL0
+>>>   #define __ARCH_WANT_COMPAT_SYS_GETDENTS64
+>>> -#define __ARCH_WANT_COMPAT_STAT64
+>>>   #define __ARCH_WANT_SYS_GETHOSTNAME
+>>>   #define __ARCH_WANT_SYS_PAUSE
+>>>   #define __ARCH_WANT_SYS_GETPGRP
+>>> diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
+>>> index 9dfdf86..7aa65ea 100644
+>>> --- a/arch/arm64/kernel/Makefile
+>>> +++ b/arch/arm64/kernel/Makefile
+>>> @@ -28,7 +28,7 @@ $(obj)/%.stub.o: $(obj)/%.o FORCE
+>>>   arm64-obj-$(CONFIG_AARCH32_EL0)		+= sys32.o kuser32.o signal32.o 	\
+>>>   					   sys_compat.o entry32.o		\
+>>>   					   ../../arm/kernel/opcodes.o binfmt_elf32.o
+>>> -arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o
+>>> +arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o sys_ilp32.o
+>>>   arm64-obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o entry-ftrace.o
+>>>   arm64-obj-$(CONFIG_MODULES)		+= arm64ksyms.o module.o
+>>>   arm64-obj-$(CONFIG_ARM64_MODULE_PLTS)	+= module-plts.o
+>>> diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+>>> index cf4d1ae..1f7a145 100644
+>>> --- a/arch/arm64/kernel/entry.S
+>>> +++ b/arch/arm64/kernel/entry.S
+>>> @@ -715,9 +715,13 @@ ENDPROC(ret_from_fork)
+>>>    */
+>>>   	.align	6
+>>>   el0_svc:
+>>> -	adrp	stbl, sys_call_table		// load syscall table pointer
+>>>   	uxtw	scno, w8			// syscall number in w8
+>>>   	mov	sc_nr, #__NR_syscalls
+>>> +#ifdef CONFIG_ARM64_ILP32
+>>> +	ldr	x16, [tsk, #TI_FLAGS]
+>>> +	tbnz	x16, #TIF_32BIT_AARCH64, el0_ilp32_svc // We are using ILP32
+>>> +#endif
+>>> +	adrp	stbl, sys_call_table		// load syscall table pointer
+>>>   el0_svc_naked:					// compat entry point
+>>>   	stp	x0, scno, [sp, #S_ORIG_X0]	// save the original x0 and syscall number
+>>>   	enable_dbg_and_irq
+>>> @@ -737,6 +741,12 @@ ni_sys:
+>>>   	b	ret_fast_syscall
+>>>   ENDPROC(el0_svc)
+>>>
+>>> +#ifdef CONFIG_ARM64_ILP32
+>>> +el0_ilp32_svc:
+>>> +	adrp	stbl, sys_call_ilp32_table // load syscall table pointer
+>>> +	b el0_svc_naked
+>>> +#endif
+>>> +
+>>>   	/*
+>>>   	 * This is the really slow path.  We're going to be doing context
+>>>   	 * switches, and waiting for our parent to respond.
+>>> diff --git a/arch/arm64/kernel/sys_ilp32.c b/arch/arm64/kernel/sys_ilp32.c
+>>> new file mode 100644
+>>> index 0000000..0996d8e
+>>> --- /dev/null
+>>> +++ b/arch/arm64/kernel/sys_ilp32.c
+>>> @@ -0,0 +1,65 @@
+>>> +/*
+>>> + * AArch64- ILP32 specific system calls implementation
+>>> + *
+>>> + * Copyright (C) 2016 Cavium Inc.
+>>> + * Author: Andrew Pinski <apinski@cavium.com>
+>>> + *
+>>> + * This program is free software; you can redistribute it and/or modify
+>>> + * it under the terms of the GNU General Public License version 2 as
+>>> + * published by the Free Software Foundation.
+>>> + *
+>>> + * This program is distributed in the hope that it will be useful,
+>>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>>> + * GNU General Public License for more details.
+>>> + *
+>>> + * You should have received a copy of the GNU General Public License
+>>> + * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+>>> + */
+>>> +
+>>> +#include <linux/compiler.h>
+>>> +#include <linux/errno.h>
+>>> +#include <linux/fs.h>
+>>> +#include <linux/mm.h>
+>>> +#include <linux/msg.h>
+>>> +#include <linux/export.h>
+>>> +#include <linux/sched.h>
+>>> +#include <linux/slab.h>
+>>> +#include <linux/syscalls.h>
+>>> +#include <linux/compat.h>
+>>> +#include <asm-generic/syscalls.h>
+>>> +
+>>> +/* Using non-compat syscalls where necessary */
+>>> +#define compat_sys_fadvise64_64        sys_fadvise64_64
+>>> +#define compat_sys_fallocate           sys_fallocate
+>>> +#define compat_sys_ftruncate64         sys_ftruncate
+>>> +#define compat_sys_lookup_dcookie      sys_lookup_dcookie
+>>> +#define compat_sys_pread64             sys_pread64
+>>> +#define compat_sys_pwrite64            sys_pwrite64
+>>> +#define compat_sys_readahead           sys_readahead
+>>> +#define compat_sys_shmat               sys_shmat
+>>> +#define compat_sys_sync_file_range     sys_sync_file_range
+>>> +#define compat_sys_truncate64          sys_truncate
+>>> +#define sys_llseek                     sys_lseek
+>>> +#define sys_mmap2		       sys_mmap
+>> I am a little bit confused here. We wrap the mmap to mmap2 in glibc
+>> without shift the 4096 and We map mmap2 to mmap in kernel which
+>> means we shift with the real page size. It works unless the
+>> application want to mmap the offset bigger then 2G. In ILP32 app,
+>> if the offset is bigger than 2G(e.g. 0xfb000000), it is a negative
+>> number and extend to 64bit nagetive number in kernel
+>> (0xfffffff fb000000). I add the "COMPAT_SYSCALL_WRAP6(mmap, ...)" in
+>> kernel/compat_wrapper.c. But it is not works. I am not sure if it is
+>> already sign extended in userspace.
+>>
+>> On the other hand, I read the code of mmap in arm and other
+>> architecture. Usually, they will shift 4096 in userspace and shift
+>> others in kernel if needed. Should we follow the similar ways or we
+>> could call mmap_pgoff in glibc and do the shift according the real
+>> page shift(getpages())?
+>>
+>> Thanks
+>>
+>> Bamvor
+>>
+>>
+>
+> Hi,
+>
+> AFAIR, here we don't shift offset, as it's 64-bit both in user-
+> and kernel-space,
+In your ilp32-2.22 branch, you wrapper mmap to mmap2 in which type of
+offset is off_t. And off_t is 32bit in ilp32, correct?
+"sysdeps/unix/sysv/linux/aarch64/ilp32/mmap64.c"
+/* mmap is provided by mmap as they are the same. */
+void *__mmap (void *__addr, size_t __len, int __prot,
+                      int __flags, int __fd, __off_t __offset)
+{
+    void *result;
+    result = (void *)
+      INLINE_SYSCALL (mmap2, 6, __addr,
+                      __len, __prot, __flags, __fd, __offset);
+    return result;
+}
+> and just pass it from user to kernel thru glibc
+> with no changes.
+>
+> It definitely works, as there are many mappings made by linker and
+> libc in 2G+ area, and there are no problems with them. This is a
+> typical ILP32 application map:
+Ok, the different is I am talking about the offset in mmap. I am NOT
+talking about the map result.
+If I run my test case with strace:
+"strace -e trace=mmap ./mmap.arm64_ilp32 0xfb000000 0x1000", here is
+the part of log:
 
-On 2016/5/6 22:00, Yury Norov wrote:
-> Hello colleagues,
->
-> After all comments, VDSO fix looks like this for me.
->
-> Note I renamed Andrew's ZERO macro to DELOUSE, as
-> there already is __SC_DELOUSE which does the same,
-> but in C, not asm.
->
-> Like Bamvor, I'm not sure how we'd apply this patch -
-> standalone or meld to VDSO. I think, VDSO patch is too
-> big and bad-structurized, and if I find how to refactor
-> it, I'll incorporate this fix.
->
-> Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
-> ---
->   arch/arm64/kernel/asm-offsets.c               |  7 +++++++
->   arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S |  2 +-
->   arch/arm64/kernel/vdso/gettimeofday.S         | 20 +++++++++++++++++---
->   3 files changed, 25 insertions(+), 4 deletions(-)
->
-> diff --git a/arch/arm64/kernel/asm-offsets.c b/arch/arm64/kernel/asm-offsets.c
-> index e229525..fcfd087 100644
-> --- a/arch/arm64/kernel/asm-offsets.c
-> +++ b/arch/arm64/kernel/asm-offsets.c
-> @@ -101,6 +101,13 @@ int main(void)
->     DEFINE(TSPEC_TV_SEC,		offsetof(struct timespec, tv_sec));
->     DEFINE(TSPEC_TV_NSEC,		offsetof(struct timespec, tv_nsec));
->     BLANK();
-> +#ifdef CONFIG_ARM64_ILP32
-The following structs exist in both aarch32 el0 and ilp32. How about change it to
-"#ifdef CONFIG_COMPAT"?
-> +  DEFINE(COMPAT_TVAL_TV_SEC,	offsetof(struct compat_timeval, tv_sec));
-> +  DEFINE(COMPAT_TVAL_TV_USEC,	offsetof(struct compat_timeval, tv_usec));
-> +  DEFINE(COMPAT_TSPEC_TV_SEC,	offsetof(struct compat_timespec, tv_sec));
-> +  DEFINE(COMPAT_TSPEC_TV_NSEC,	offsetof(struct compat_timespec, tv_nsec));
-> +  BLANK();
-> +#endif
->     DEFINE(TZ_MINWEST,		offsetof(struct timezone, tz_minuteswest));
->     DEFINE(TZ_DSTTIME,		offsetof(struct timezone, tz_dsttime));
->     BLANK();
-> diff --git a/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
-> index ddc63fd..d182a8d 100644
-> --- a/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
-> +++ b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
-> @@ -79,7 +79,7 @@ PHDRS
->    */
->   VERSION
->   {
-> -	LINUX_2.6 {
-> +	LINUX_2.6.39 {
-Do we really want to this version? Maybe 4.x is better?
+1 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xf7721000
+2 mmap(NULL, 65536, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xf7557000
+3 page size<0x1000>, offset is <0xfb000000>
+4 mmap(NULL, 4096, PROT_READ, MAP_SHARED, 3, 0xfffffffffb000000) = -1 EINVAL (Invalid argument)
+5 mmap of mmapfile failed
+
+As you said, line 1 and 2 show that mmap could map above 2G. But it
+is NOT what I want to discussion.
+As I said, when I pass the offset above 2G(e.g. 0xfb0000000), we
+could find that the actual offset pass to kernel is
+0xfffffffffb000000(reference line 4).
+It will fail if I map in /dev/mmem. It will not fail if the fd is
+a normal file. But in both of case the offset is wrong.
 
 Regards
 
 Bamvor
 
->   	global:
->   		__kernel_rt_sigreturn;
->   		__kernel_gettimeofday;
-> diff --git a/arch/arm64/kernel/vdso/gettimeofday.S b/arch/arm64/kernel/vdso/gettimeofday.S
-> index efa79e8..a2d8a70 100644
-> --- a/arch/arm64/kernel/vdso/gettimeofday.S
-> +++ b/arch/arm64/kernel/vdso/gettimeofday.S
-> @@ -25,6 +25,16 @@
->   #define NSEC_PER_SEC_LO16	0xca00
->   #define NSEC_PER_SEC_HI16	0x3b9a
+> 00400000-00401000 r-xp 00000000 08:00 130400     /root/mykill
+> 00410000-00411000 rwxp 00000000 08:00 130400     /root/mykill
+> 00527000-00549000 rwxp 00000000 00:00 0          [heap]
+> c6278000-c6298000 rwxp 00000000 00:00 0
+> c6298000-c63d0000 r-xp 00000000 08:00 135293     /root/sys-root/libilp32/libc-2.22.so
+> c63d0000-c63e0000 ---p 00138000 08:00 135293     /root/sys-root/libilp32/libc-2.22.so
+> c63e0000-c63e2000 r-xp 00138000 08:00 135293     /root/sys-root/libilp32/libc-2.22.so
+> c63e2000-c63e3000 rwxp 0013a000 08:00 135293     /root/sys-root/libilp32/libc-2.22.so
+> c63e3000-c63e6000 rwxp 00000000 00:00 0
+> c63e6000-c63fc000 r-xp 00000000 08:00 135313     /root/sys-root/libilp32/libpthread-2.22.so
+> c63fc000-c640b000 ---p 00016000 08:00 135313     /root/sys-root/libilp32/libpthread-2.22.so
+> c640b000-c640c000 r-xp 00015000 08:00 135313     /root/sys-root/libilp32/libpthread-2.22.so
+> c640c000-c640d000 rwxp 00016000 08:00 135313     /root/sys-root/libilp32/libpthread-2.22.so
+> c640d000-c640f000 rwxp 00000000 00:00 0
+> c640f000-c642c000 r-xp 00000000 08:00 135288     /root/sys-root/libilp32/ld-2.22.so
+> c6437000-c6439000 rwxp 00000000 00:00 0
+> c6439000-c643a000 r--p 00000000 00:00 0          [vvar]
+> c643a000-c643b000 r-xp 00000000 00:00 0          [vdso]
+> c643b000-c643c000 r-xp 0001c000 08:00 135288     /root/sys-root/libilp32/ld-2.22.so
+> c643c000-c643d000 rwxp 0001d000 08:00 135288     /root/sys-root/libilp32/ld-2.22.so
+> ffe2d000-ffe4e000 rw-p 00000000 00:00 0          [stack]
 >
-> +#ifdef __LP64__
-> +#define PTR_REG(n)	x##n
-> +#define OFFSET(n)	n
-> +#define DELOUSE(n)
-> +#else
-> +#define PTR_REG(n)	w##n
-> +#define OFFSET(n)	COMPAT_##n
-> +#define DELOUSE(n)	mov     w##n, w##n
-> +#endif
-> +
->   vdso_data	.req	x6
->   use_syscall	.req	w7
->   seqcnt		.req	w8
-> @@ -51,6 +61,8 @@ seqcnt		.req	w8
->   /* int __kernel_gettimeofday(struct timeval *tv, struct timezone *tz); */
->   ENTRY(__kernel_gettimeofday)
->   	.cfi_startproc
-> +	DELOUSE(0)
-> +	DELOUSE(1)
->   	mov	x2, x30
->   	.cfi_register x30, x2
 >
-> @@ -68,7 +80,7 @@ ENTRY(__kernel_gettimeofday)
->   	mov	x13, #1000
->   	lsl	x13, x13, x12
->   	udiv	x11, x11, x13
-> -	stp	x10, x11, [x0, #TVAL_TV_SEC]
-> +	stp	PTR_REG(10), PTR_REG(11), [x0, #OFFSET(TVAL_TV_SEC)]
->   2:
->   	/* If tz is NULL, return 0. */
->   	cbz	x1, 3f
-> @@ -88,6 +100,7 @@ ENDPROC(__kernel_gettimeofday)
->   /* int __kernel_clock_gettime(clockid_t clock_id, struct timespec *tp); */
->   ENTRY(__kernel_clock_gettime)
->   	.cfi_startproc
-> +	DELOUSE(1)
->   	cmp	w0, #CLOCK_REALTIME
->   	ccmp	w0, #CLOCK_MONOTONIC, #0x4, ne
->   	b.ne	2f
-> @@ -159,7 +172,7 @@ ENTRY(__kernel_clock_gettime)
->
->   6:	/* Store to the user timespec. */
->   	lsr	x11, x11, x12
-> -	stp	x10, x11, [x1, #TSPEC_TV_SEC]
-> +	stp	PTR_REG(10), PTR_REG(11), [x1, #OFFSET(TSPEC_TV_SEC)]
->   	mov	x0, xzr
->   	ret
->   7:
-> @@ -174,6 +187,7 @@ ENDPROC(__kernel_clock_gettime)
->   /* int __kernel_clock_getres(clockid_t clock_id, struct timespec *res); */
->   ENTRY(__kernel_clock_getres)
->   	.cfi_startproc
-> +	DELOUSE(1)
->   	cmp	w0, #CLOCK_REALTIME
->   	ccmp	w0, #CLOCK_MONOTONIC, #0x4, ne
->   	b.ne	1f
-> @@ -187,7 +201,7 @@ ENTRY(__kernel_clock_getres)
->   	ldr	x2, 6f
->   2:
->   	cbz	w1, 3f
-> -	stp	xzr, x2, [x1]
-> +	stp	PTR_REG(zr), PTR_REG(2), [x1]
->
->   3:	/* res == NULL. */
->   	mov	w0, wzr
->
+>> _______________________________________________
+>> linux-arm-kernel mailing list
+>> linux-arm-kernel@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
