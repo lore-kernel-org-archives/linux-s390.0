@@ -1,76 +1,105 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table (in entry.S) to use it
-Date: Wed, 11 May 2016 21:30:07 +0200
-Message-ID: <4989778.Fs81NJurjH@wuerfel>
-References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com> <5842999.Zgpfq4gkVz@wuerfel> <20160511165900.GM3051@e104818-lin.cambridge.arm.com>
+From: Yury Norov <ynorov@caviumnetworks.com>
+Subject: Re: [RFC6 PATCH v6 00/21] ILP32 for ARM64
+Date: Thu, 12 May 2016 03:20:00 +0300
+Message-ID: <20160512002000.GA30997@yury-N73SV>
+References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20160511165900.GM3051@e104818-lin.cambridge.arm.com>
-Sender: linux-doc-owner@vger.kernel.org
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Yury Norov <ynorov@caviumnetworks.com>, linux-doc@vger.kernel.org, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, heiko.carstens@de.ibm.com, Hanjun Guo <guohanjun@huawei.com>, joseph@codesourcery.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, "jijun (D)" <jijun2@huawei.com>, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, agraf@suse.de, pinskia@gmail.com, klimov.linux@gmail.com, broonie@kernel.org, "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>, linux-arm-kernel@lists.infradead.org, Nathan_Lynch@mentor.com, linux-kernel@vger.kernel.org, Andrew Pinski <apinski@cavium.com>, schwidefsky@de.ibm.com, christoph.muellner@theobroma-systems.com
+To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wednesday 11 May 2016 17:59:01 Catalin Marinas wrote:
-> On Wed, May 11, 2016 at 12:55:01PM +0200, Arnd Bergmann wrote:
-> > On Wednesday 11 May 2016 11:04:38 Yury Norov wrote:
-> > > On Wed, May 11, 2016 at 10:04:16AM +0800, Zhangjian (Bamvor) wrote:
-> > > [...]
-> > > 
-> > > > >>Ok, I will test the ltp syscall test.
-> > > > >>With this changes, the issue I mentioned should be fixed. But we still
-> > > > >>use mmap2 syscall for ILP32 application when we pass the offset instead
-> > > > >>of page offset. Is it correct?
-> > > > >
-> > > > >I don't remember. It's probably not important whether we have the shift
-> > > > >in there, as long as it's independent of the actual kernel page size and
-> > > > >user space and kernel agree on the calling conventions.
-> > > > Well. I am ok with where to shift the pages size because we get the same
-> > > > result. I was just thinking if we should get rid of the name of mmap2 in our
-> > > > ILP32 porting. Actually, it is mmap but we name it as mmap2. User may confused
-> > > > if they do not know the implementations.
-> > > > 
-> > > 
-> > > This is what generic unistd.h does. If you want to change it, you'd
-> > > change each arch that uses generic unistd.h.
-> > 
-> > Generic unistd.h has this:
-> > 
-> > #ifdef __SYSCALL_COMPAT
-> > #define __SC_COMP_3264(_nr, _32, _64, _comp) __SYSCALL(_nr, _comp)
-> > #else
-> > #define __SC_COMP_3264(_nr, _32, _64, _comp) __SC_3264(_nr, _32, _64)
-> > #endif
-> > 
-> > #define __NR3264_mmap 222
-> > __SC_3264(__NR3264_mmap, sys_mmap2, sys_mmap)
-> > 
-> > 
-> > #if __BITS_PER_LONG == 64 && !defined(__SYSCALL_COMPAT)
-> > #define __NR_mmap __NR3264_mmap
-> > #else
-> > #define __NR_mmap2 __NR3264_mmap
-> > #endif
-> > 
-> > So by default we get __NR_mmap2 and sys_mmap2 on 32-bit ABIs, but
-> > __NR_mmap and sys_mmap on 64-bit ABIs, as it should be.
-> > 
-> > The problem is that arch/arm64/kernel/sys_ilp32.c now overrides
-> > this to use __NR_mmap2 with sys_mmap, so we have a mismatch. I think
-> > we should either override both the implementation and the number,
-> > or neither of them.
-> 
-> I would vote for "neither of them" (so we use __NR_mmap2 and sys_mmap2)
-> to keep it close to new 32-bit architectures, even though we would have
-> some shifts by 12 in both glibc and kernel.
+Hi,
 
-I don't think the shifts are a problem, the main downside would be
-the limit to 44 bits of file offsets (16TB files), but it's also
-unclear if that is a practical problem at all. If it is, we run
-into the same problem on all other 32-bit architectures too.
+I debugged preadv02 and pwritev02 failures and found very weird bug.
+Test passes {iovec_base = 0xffffffff, iovec_len = 64} as one element
+of vector, and kernel reports successful read/write.
 
-	Arnd
+There are 2 problems:
+1. How kernel allows such address to be passed to fs subsystem;
+2. How fs successes to read/write at non-mapped, and in fact non-user
+address.
+
+I don't know the answer on 2'nd question, and it might be something
+generic. But I investigated first problem.
+
+The problem is that compat_rw_copy_check_uvector() uses access_ok() to
+validate user address, and on arm64 it ends up with checking buffer
+end against current_thread_info()->addr_limit.
+
+current_thread_info()->addr_limit for ilp32, and most probably for
+aarch32 is equal to aarch64 one, and so adress_ok() doesn't fail.
+It happens because on thread creation we call flush_old_exec() to set 
+addr_limit, and completely ignore compat mode there.
+
+This patch fixes it. It also fixes USER_DS macro to return different
+values depending on compat.
+
+This patch is enough to handle preadv02 and pwritev02, but problem #2
+is still there.
+
+Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+---
+ arch/arm64/include/asm/elf.h     | 1 +
+ arch/arm64/include/asm/uaccess.h | 2 +-
+ arch/arm64/kernel/binfmt_elf32.c | 1 +
+ arch/arm64/kernel/binfmt_ilp32.c | 1 +
+ 4 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/include/asm/elf.h b/arch/arm64/include/asm/elf.h
+index 7a39683..6ba4952 100644
+--- a/arch/arm64/include/asm/elf.h
++++ b/arch/arm64/include/asm/elf.h
+@@ -146,6 +146,7 @@ typedef struct user_fpsimd_state elf_fpregset_t;
+ do {						\
+ 	clear_thread_flag(TIF_32BIT_AARCH64);	\
+ 	clear_thread_flag(TIF_32BIT);		\
++	set_fs(TASK_SIZE_64);			\
+ } while (0)
+ 
+ #define ARCH_DLINFO							\
+diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
+index 19cfdc5..3b0dd8d 100644
+--- a/arch/arm64/include/asm/uaccess.h
++++ b/arch/arm64/include/asm/uaccess.h
+@@ -51,7 +51,7 @@
+ #define KERNEL_DS	(-1UL)
+ #define get_ds()	(KERNEL_DS)
+ 
+-#define USER_DS		TASK_SIZE_64
++#define USER_DS		TASK_SIZE
+ #define get_fs()	(current_thread_info()->addr_limit)
+ 
+ static inline void set_fs(mm_segment_t fs)
+diff --git a/arch/arm64/kernel/binfmt_elf32.c b/arch/arm64/kernel/binfmt_elf32.c
+index 5487872..2e8d9f3 100644
+--- a/arch/arm64/kernel/binfmt_elf32.c
++++ b/arch/arm64/kernel/binfmt_elf32.c
+@@ -12,6 +12,7 @@
+ do {						\
+ 	clear_thread_flag(TIF_32BIT_AARCH64);	\
+ 	set_thread_flag(TIF_32BIT);		\
++	set_fs(TASK_SIZE_32);			\
+ } while (0)
+ 
+ #define COMPAT_ARCH_DLINFO
+diff --git a/arch/arm64/kernel/binfmt_ilp32.c b/arch/arm64/kernel/binfmt_ilp32.c
+index a934fd4..a8599c6 100644
+--- a/arch/arm64/kernel/binfmt_ilp32.c
++++ b/arch/arm64/kernel/binfmt_ilp32.c
+@@ -59,6 +59,7 @@ static void cputime_to_compat_timeval(const cputime_t cputime,
+ do {									\
+ 	set_thread_flag(TIF_32BIT_AARCH64);				\
+ 	clear_thread_flag(TIF_32BIT);					\
++	set_fs(TASK_SIZE_32);						\
+ } while (0)
+ 
+ #undef ARCH_DLINFO
+-- 
+2.5.0
