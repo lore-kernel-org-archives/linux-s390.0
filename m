@@ -1,73 +1,79 @@
-From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: Re: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table
- (in entry.S) to use it
-Date: Thu, 12 May 2016 15:59:09 +0300
-Message-ID: <20160512125909.GA29077@yury-N73SV>
-References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
- <573305A8.50406@huawei.com> <5733149C.4030903@huawei.com>
- <5250356.myv9GIZ34h@wuerfel> <5733FC71.8070101@huawei.com>
- <20160512082427.GA1587@yury-N73SV> <57347C9E.7010708@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table (in entry.S) to use it
+Date: Thu, 12 May 2016 15:06:39 +0200
+Message-ID: <4521594.dSmlmmAdFg@wuerfel>
+References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com> <2733875.IzutTZKHMc@wuerfel> <57347BD4.8010105@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <57347C9E.7010708@huawei.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <57347BD4.8010105@huawei.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
-Cc: linux-doc@vger.kernel.org, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, catalin.marinas@arm.com, heiko.carstens@de.ibm.com, Hanjun Guo <guohanjun@huawei.com>, joseph@codesourcery.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, "jijun (D)" <jijun2@huawei.com>, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, agraf@suse.de, Arnd Bergmann <arnd@arndb.de>, pinskia@gmail.com, klimov.linux@gmail.com, broonie@kernel.org, linux-arm-kernel@lists.infradead.org, Nathan_Lynch@mentor.com, linux-kernel@vger.kernel.org, Andrew Pinski <apinski@cavium.com>, schwidefsky@de.ibm.com, christoph.muellner@theobroma-systems.com
+Cc: Catalin Marinas <catalin.marinas@arm.com>, linux-doc@vger.kernel.org, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, heiko.carstens@de.ibm.com, Yury Norov <ynorov@caviumnetworks.com>, Hanjun Guo <guohanjun@huawei.com>, joseph@codesourcery.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, "jijun (D)" <jijun2@huawei.com>, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, agraf@suse.de, pinskia@gmail.com, klimov.linux@gmail.com, broonie@kernel.org, linux-arm-kernel@lists.infradead.org, Nathan_Lynch@mentor.com, linux-kernel@vger.kernel.org, Andrew Pinski <apinski@cavium.com>, schwidefsky@de.ibm.com, christoph.muellner@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 12, 2016 at 08:52:46PM +0800, Zhangjian (Bamvor) wrote:
+On Thursday 12 May 2016 20:49:24 Zhangjian wrote:
 > Hi,
 > 
-> On 2016/5/12 16:24, Yury Norov wrote:
-> >On Thu, May 12, 2016 at 11:45:53AM +0800, Zhangjian (Bamvor) wrote:
+> On 2016/5/12 17:21, Arnd Bergmann wrote:
+> > On Thursday 12 May 2016 10:17:58 Catalin Marinas wrote:
+> >> On Wed, May 11, 2016 at 09:30:07PM +0200, Arnd Bergmann wrote:
+> >>> On Wednesday 11 May 2016 17:59:01 Catalin Marinas wrote:
+> >>>
+> >>> I don't think the shifts are a problem, the main downside would be
+> >>> the limit to 44 bits of file offsets (16TB files), but it's also
+> >>> unclear if that is a practical problem at all. If it is, we run
+> >>> into the same problem on all other 32-bit architectures too.
+> >>
+> >> I hope people are seriously thinking of moving to an LP64 ABI if they
+> >> have such large file offset needs.
 > >
-> >[...]
-> >
-> >>>Hmm, that is indeed tricky. I think COMPAT_SYSCALL_WRAP4 rightfully
-> >>>refuses the loff_t argument here, as the common case is that this is
-> >>>not possible.
-> >>It works if I apply the following patch, I defined the wrong `__TYPE_IS_xxx`
-> >>yesterday. Should we merge this into ILP32 series or send the compat.h
-> >>and syscalls.h individually? The current series of ILP32 is a little bit
-> >>long and hard to review.
-> >>diff --git a/include/linux/compat.h b/include/linux/compat.h
-> >>index ba6ebe0..22a9565 100644
-> >>--- a/include/linux/compat.h
-> >>+++ b/include/linux/compat.h
-> >>@@ -747,7 +747,8 @@ asmlinkage long compat_sys_fanotify_mark(int, unsigned int, __u32, __u32,
-> >>  #ifndef __SC_COMPAT_CAST
-> >>  #define __SC_COMPAT_CAST(t, a) ({                                      \
-> >>         BUILD_BUG_ON((sizeof(t) > 4) && !__TYPE_IS_L(t) &&              \
-> >>-                    !__TYPE_IS_UL(t) && !__TYPE_IS_PTR(t));            \
-> >>+                    !__TYPE_IS_UL(t) && !__TYPE_IS_PTR(t) &&           \
-> >>+                    !__TYPE_IS_LOFFT(t));                              \
-> >
-> >I think it's wrong, as loff_t is 64-bit in 32-bit userspace, and this
-> >will clear meaningful data in top halve.
-> Yes. It is my fault. The original thoughts is clear the up 32bit for size_t.
-> How should we skip the loff_t?
+> > Good point. 44 bits of file size is certainly enough for mmap()
+> > on a 32-bit task: you would only be able to map a very small fraction
+> > of the file anyway, and if you want to map larger files, and should
+> > move to 64-bit tasks long before this becomes a limitation.
+> Hi,
 > 
-> Regards
+> I apply the following patch in order to make use of the REAL mmmap2. LTP
+> test pass in litle endian. mmap16 successful with segfault in big endian.
 > 
-> Bamvor
+> BTW, I saw the similar code in tile, mips, microblaze and s390 compat. Should
+> we merge these code into a common syscall wrapper?
 
-I already suggested:
+I think that's a good idea. The function used to be slightly different
+for each architecture, but now it seems we have a significant number
+of identical implementations that we could just merge them together
+into one.
 
-For cases like this I think we should write wrappers by hands. In
-unistd.h we can use __SC_WRAP, so they will work like wrappers
-generated by COMPAT_SYSCALL_WRAPx()
+sys_mmap_pgoff was originally introduced as the common implementation
+and it reduced the amount of duplication a lot, but as its units
+are based on PAGE_SIZE rather than hardwired 4096 bytes, it's
+not as useful.
 
-Do you see any downsides?
+> diff --git a/arch/arm64/kernel/sys_ilp32.c b/arch/arm64/kernel/sys_ilp32.c
+> index d85fe94..2cd72eb 100644
+> --- a/arch/arm64/kernel/sys_ilp32.c
+> +++ b/arch/arm64/kernel/sys_ilp32.c
+> @@ -41,7 +41,16 @@
+>   #define compat_sys_sync_file_range     sys_sync_file_range
+>   #define compat_sys_truncate64          sys_truncate
+>   #define sys_llseek                     sys_lseek
+> -#define sys_mmap2                     sys_mmap
+> +
+> +SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
+> +       unsigned long, prot, unsigned long, flags, unsigned long, fd,
+> +       unsigned long, pgoff)
+> +{
+> +       if (pgoff & (~PAGE_MASK >> 12))
+> +               return -EINVAL;
+> +
+> +       return sys_mmap_pgoff(addr, len, prot, flags, fd, pgoff >> (PAGE_SHIFT-12));
+> +}
+> 
+
+Looks good to me.
+
+	Arnd
