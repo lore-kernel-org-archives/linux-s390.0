@@ -1,131 +1,192 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
 Subject: Re: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table
  (in entry.S) to use it
-Date: Sat, 14 May 2016 15:49:50 +0300
-Message-ID: <20160514124950.GA27841@yury-N73SV>
+Date: Sat, 14 May 2016 18:03:52 +0300
+Message-ID: <20160514150352.GA30533@yury-N73SV>
 References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
- <2733875.IzutTZKHMc@wuerfel>
- <57347BD4.8010105@huawei.com>
- <4521594.dSmlmmAdFg@wuerfel>
- <20160512131948.GA30205@yury-N73SV>
+ <1459894127-17698-21-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160512131948.GA30205@yury-N73SV>
-Sender: linux-doc-owner@vger.kernel.org
+In-Reply-To: <1459894127-17698-21-git-send-email-ynorov@caviumnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>, Catalin Marinas <catalin.marinas@arm.com>, linux-doc@vger.kernel.org, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, heiko.carstens@de.ibm.com, Hanjun Guo <guohanjun@huawei.com>, joseph@codesourcery.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, "jijun (D)" <jijun2@huawei.com>, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, agraf@suse.de, pinskia@gmail.com, klimov.linux@gmail.com, broonie@kernel.org, linux-arm-kernel@lists.infradead.org, Nathan_Lynch@mentor.com, linux-kernel@vger.kernel.org, Andrew Pinski <apinski@cavium.com>, schwidefsky@de.ibm.com, christoph.muellner@theobroma-systems.com, jan.dakinevich@gmail.com
+To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Pinski <apinski@cavium.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 12, 2016 at 04:19:48PM +0300, Yury Norov wrote:
+So, after all discussions, this patch is looking like this.
 
-[...]
+Changes:
+ - assembler part reworked to be more clear, as Catalin recommended;
+ - mmap now points to mmap2, as in 1st versions (suggested by Bamvor),
+   and ilp32 wrapper delouses required arguments;
+ - pread64 and pwrite64 wrappers introduced to delouse args as well;
+ - removed unneeded #undefs;
 
-> > I think that's a good idea. The function used to be slightly different
-> > for each architecture, but now it seems we have a significant number
-> > of identical implementations that we could just merge them together
-> > into one.
-> > 
-> > sys_mmap_pgoff was originally introduced as the common implementation
-> > and it reduced the amount of duplication a lot, but as its units
-> > are based on PAGE_SIZE rather than hardwired 4096 bytes, it's
-> > not as useful.
-> > 
-> 
-> microblaze and mips (twice) are doing like this. And aarh32 as well,
-> in arch/arm64/kernel/entry32.S
-> 
-> In previous submissions it was a patch that shares aarch32 code to
-> ilp32. If we decided turn around again, I think, we'd pick up that patch.
-> 
-> The other option is to make this hack generic, as so many arches use it.
+Did I miss something?
 
-Hi again,
-
-I picked up that old patch from Jan, and found that it doesn't delouse
-addr and length, which is wrong for ilp32. So now I think we'd pick
-Bamvor version.
-
-Jan's patch (rebased) is attached for reference.
-
-Yury.
-
-
-From 02ad258662c40d457ac041634e67e1cbdbb800f3 Mon Sep 17 00:00:00 2001
-From: Jan Dakinevich <jan.dakinevich@gmail.com>
-Date: Tue, 3 Nov 2015 02:30:41 +0300
-Subject: ilp32: common 32-bit wrappers
-
-Signed-off-by: Jan Dakinevich <jan.dakinevich@gmail.com>
-Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
-
+diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+index 2971dea..5ea18ef 100644
+--- a/arch/arm64/include/asm/unistd.h
++++ b/arch/arm64/include/asm/unistd.h
+@@ -13,9 +13,18 @@
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
++
++#ifdef CONFIG_COMPAT
++#define __ARCH_WANT_COMPAT_STAT64
++#endif
++
++#ifdef CONFIG_ARM64_ILP32
++#define __ARCH_WANT_COMPAT_SYS_PREADV64
++#define __ARCH_WANT_COMPAT_SYS_PWRITEV64
++#endif
++
+ #ifdef CONFIG_AARCH32_EL0
+ #define __ARCH_WANT_COMPAT_SYS_GETDENTS64
+-#define __ARCH_WANT_COMPAT_STAT64
+ #define __ARCH_WANT_SYS_GETHOSTNAME
+ #define __ARCH_WANT_SYS_PAUSE
+ #define __ARCH_WANT_SYS_GETPGRP
 diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
-index 9dfdf86..2319042 100644
+index 9dfdf86..7aa65ea 100644
 --- a/arch/arm64/kernel/Makefile
 +++ b/arch/arm64/kernel/Makefile
-@@ -30,6 +30,7 @@ arm64-obj-$(CONFIG_AARCH32_EL0)		+= sys32.o kuser32.o signal32.o 	\
+@@ -28,7 +28,7 @@ $(obj)/%.stub.o: $(obj)/%.o FORCE
+ arm64-obj-$(CONFIG_AARCH32_EL0)		+= sys32.o kuser32.o signal32.o 	\
+ 					   sys_compat.o entry32.o		\
  					   ../../arm/kernel/opcodes.o binfmt_elf32.o
- arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o
+-arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o
++arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o sys_ilp32.o
  arm64-obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o entry-ftrace.o
-+arm64-obj-$(CONFIG_COMPAT)		+= entry32-common.o
  arm64-obj-$(CONFIG_MODULES)		+= arm64ksyms.o module.o
  arm64-obj-$(CONFIG_ARM64_MODULE_PLTS)	+= module-plts.o
- arm64-obj-$(CONFIG_PERF_EVENTS)		+= perf_regs.o perf_callchain.o
-diff --git a/arch/arm64/kernel/entry32-common.S b/arch/arm64/kernel/entry32-common.S
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index cf4d1ae..0f651bc 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -500,6 +500,7 @@ el0_svc_compat:
+ 	 * AArch32 syscall handling
+ 	 */
+ 	adrp	stbl, compat_sys_call_table	// load compat syscall table pointer
++	ldr     x16, [tsk, #TI_FLAGS]
+ 	uxtw	scno, w7			// syscall number in w7 (r7)
+ 	mov     sc_nr, #__NR_compat_syscalls
+ 	b	el0_svc_naked
+@@ -716,15 +717,20 @@ ENDPROC(ret_from_fork)
+ 	.align	6
+ el0_svc:
+ 	adrp	stbl, sys_call_table		// load syscall table pointer
++	ldr	x16, [tsk, #TI_FLAGS]
+ 	uxtw	scno, w8			// syscall number in w8
+ 	mov	sc_nr, #__NR_syscalls
++#ifdef CONFIG_ARM64_ILP32
++	adrp	x17, sys_call_ilp32_table	// load ilp32 syscall table pointer
++	tst	x16, #_TIF_32BIT_AARCH64
++	csel    stbl, stbl, x17, eq		// We are using ILP32
++#endif
+ el0_svc_naked:					// compat entry point
+ 	stp	x0, scno, [sp, #S_ORIG_X0]	// save the original x0 and syscall number
+ 	enable_dbg_and_irq
+ 	ct_user_exit 1
+ 
+-	ldr	x16, [tsk, #TI_FLAGS]		// check for syscall hooks
+-	tst	x16, #_TIF_SYSCALL_WORK
++	tst	x16, #_TIF_SYSCALL_WORK		// check for syscall hooks
+ 	b.ne	__sys_trace
+ 	cmp     scno, sc_nr                     // check upper syscall limit
+ 	b.hs	ni_sys
+diff --git a/arch/arm64/kernel/sys_ilp32.c b/arch/arm64/kernel/sys_ilp32.c
 new file mode 100644
-index 0000000..1a0abe3
+index 0000000..64db612
 --- /dev/null
-+++ b/arch/arm64/kernel/entry32-common.S
-@@ -0,0 +1,23 @@
-+#include <linux/linkage.h>
-+#include <linux/const.h>
++++ b/arch/arm64/kernel/sys_ilp32.c
+@@ -0,0 +1,84 @@
++/*
++ * AArch64- ILP32 specific system calls implementation
++ *
++ * Copyright (C) 2016 Cavium Inc.
++ * Author: Andrew Pinski <apinski@cavium.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
 +
-+#include <asm/assembler.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/errno.h>
-+#include <asm/page.h>
++#define __SYSCALL_COMPAT
++
++#include <linux/compiler.h>
++#include <linux/errno.h>
++#include <linux/fs.h>
++#include <linux/mm.h>
++#include <linux/msg.h>
++#include <linux/export.h>
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/syscalls.h>
++#include <linux/compat.h>
++#include <asm-generic/syscalls.h>
++
++/* Using non-compat syscalls where necessary */
++#define compat_sys_fadvise64_64        sys_fadvise64_64
++#define compat_sys_fallocate           sys_fallocate
++#define compat_sys_ftruncate64         sys_ftruncate
++#define compat_sys_lookup_dcookie      sys_lookup_dcookie
++#define compat_sys_readahead           sys_readahead
++#define compat_sys_shmat               sys_shmat
++#define compat_sys_sync_file_range     sys_sync_file_range
++#define compat_sys_truncate64          sys_truncate
++#define sys_llseek                     sys_lseek
++
++SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
++       unsigned long, prot, unsigned long, flags, unsigned long, fd,
++       unsigned long, pgoff)
++{
++       if (pgoff & (~PAGE_MASK >> 12))
++               return -EINVAL;
++
++       return sys_mmap_pgoff((compat_uptr_t) addr, (compat_size_t) len,
++		       (int) prot, (int) flags, (int) fd,
++		       pgoff >> (PAGE_SHIFT-12));
++}
++
++COMPAT_SYSCALL_DEFINE4(pread64, unsigned int, fd, compat_uptr_t __user *, ubuf,
++		       compat_size_t, count, off_t, offset)
++{
++	return sys_pread64(fd, (char *) ubuf, count, offset);
++}
++
++COMPAT_SYSCALL_DEFINE4(pwrite64, unsigned int, fd, compat_uptr_t __user *, ubuf,
++		       compat_size_t, count, off_t, offset)
++{
++	return sys_pwrite64(fd, (char *) ubuf, count, offset);
++}
++
++#include <asm/syscall.h>
++
++#undef __SYSCALL
++#undef __SC_WRAP
++
++#define __SYSCALL(nr, sym)	[nr] = sym,
++#define __SC_WRAP(nr, sym)	[nr] = compat_##sym,
 +
 +/*
-+ * Note: off_4k (w5) is always in units of 4K. If we can't do the
-+ * requested offset because it is not page-aligned, we return -EINVAL.
++ * The sys_call_ilp32_table array must be 4K aligned to be accessible from
++ * kernel/entry.S.
 + */
-+ENTRY(compat_sys_mmap2_wrapper)
-+#if PAGE_SHIFT > 12
-+	tst	w5, #~PAGE_MASK >> 12
-+	b.ne	1f
-+	lsr	w5, w5, #PAGE_SHIFT - 12
-+#endif
-+	b	sys_mmap_pgoff
-+1:	mov	x0, #-EINVAL
-+	ret
-+ENDPROC(compat_sys_mmap2_wrapper)
-+
-diff --git a/arch/arm64/kernel/entry32.S b/arch/arm64/kernel/entry32.S
-index f332d5d..58cb5b0 100644
---- a/arch/arm64/kernel/entry32.S
-+++ b/arch/arm64/kernel/entry32.S
-@@ -55,21 +55,6 @@ ENTRY(compat_sys_fstatfs64_wrapper)
- ENDPROC(compat_sys_fstatfs64_wrapper)
- 
- /*
-- * Note: off_4k (w5) is always in units of 4K. If we can't do the
-- * requested offset because it is not page-aligned, we return -EINVAL.
-- */
--ENTRY(compat_sys_mmap2_wrapper)
--#if PAGE_SHIFT > 12
--	tst	w5, #~PAGE_MASK >> 12
--	b.ne	1f
--	lsr	w5, w5, #PAGE_SHIFT - 12
--#endif
--	b	sys_mmap_pgoff
--1:	mov	x0, #-EINVAL
--	ret
--ENDPROC(compat_sys_mmap2_wrapper)
--
--/*
-  * Wrappers for AArch32 syscalls that either take 64-bit parameters
-  * in registers or that take 32-bit parameters which require sign
-  * extension.
++void *sys_call_ilp32_table[__NR_syscalls] __aligned(4096) = {
++	[0 ... __NR_syscalls - 1] = sys_ni_syscall,
++#include <asm/unistd.h>
++};
