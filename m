@@ -1,78 +1,45 @@
-From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: Re: [PATCH 20/25] arm64:ilp32: add sys_ilp32.c and a separate table
- (in entry.S) to use it
-Date: Tue, 17 May 2016 22:05:26 +0300
-Message-ID: <20160517190526.GA3731@yury-N73SV>
-References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
- <1459894127-17698-21-git-send-email-ynorov@caviumnetworks.com>
- <20160514150352.GA30533@yury-N73SV>
- <20160516170605.GB19290@e104818-lin.cambridge.arm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [RFC6 PATCH v6 00/21] ILP32 for ARM64
+Date: Wed, 18 May 2016 00:45:51 +0200
+Message-ID: <4095406.jADDlVRiDg@wuerfel>
+References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com> <alpine.DEB.2.20.1605171542340.24255@digraph.polyomino.org.uk> <mvm1t50ad0j.fsf@hawking.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160516170605.GB19290@e104818-lin.cambridge.arm.com>
-Sender: linux-arch-owner@vger.kernel.org
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <mvm1t50ad0j.fsf@hawking.suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: arnd@arndb.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, heiko.carstens@de.ibm.com, linux-doc@vger.kernel.org, Nathan_Lynch@mentor.com, agraf@suse.de, klimov.linux@gmail.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, broonie@kernel.org, bamvor.zhangjian@huawei.com, Andrew Pinski <apinski@cavium.com>, schwab@suse.de, schwidefsky@de.ibm.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
+To: Andreas Schwab <schwab@suse.de>
+Cc: Joseph Myers <joseph@codesourcery.com>, Szabolcs Nagy <szabolcs.nagy@arm.com>, Yury Norov <ynorov@caviumnetworks.com>, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, nd@arm.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, broonie@kernel.org, linux-doc@vger.kernel.org, heiko.carstens@de.ibm.com, agraf@suse.de, klimov.linux@gmail.com, bamvor.zhangjian@huawei.com, schwidefsky@de.ibm.com, Nathan_Lynch@mentor.com, christoph.muellner@theobroma-systems.com, GNU C Library <libc-alpha@sourceware.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, May 16, 2016 at 06:06:05PM +0100, Catalin Marinas wrote:
-> On Sat, May 14, 2016 at 06:03:52PM +0300, Yury Norov wrote:
-> > +SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
-> > +       unsigned long, prot, unsigned long, flags, unsigned long, fd,
-> > +       unsigned long, pgoff)
+On Tuesday 17 May 2016 18:02:36 Andreas Schwab wrote:
+> Joseph Myers <joseph@codesourcery.com> writes:
 > 
-> To avoid the types confusion we could add __SC_WRAP to mmap2 in unistd.h
-> and use COMPAT_SYSCALL_DEFINE6 here (together with compat_ptr_t etc.).
+> > On Tue, 17 May 2016, Arnd Bergmann wrote:
+> >
+> >> I think it has become easier to override now and we just need to
+> >> update sysdeps/unix/sysv/linux/generic/bits/typesizes.h to set
+> >> 
+> >> #define __INO64_T_TYPE          __UQUAD_TYPE
+> >> #define __OFF64_T_TYPE          __UQUAD_TYPE
+> >> #define __OFF_T_MATCHES_OFF64_T        1
+> >> #define __INO_T_MATCHES_INO64_T        1
+> >> 
+> >> for new architectures (obviously not the ones that already use the
+> >> 32-bit types). I haven't tries this, so there may be other things
+> >> that are required.
+> >
+> > I think more than that would be needed to get struct stat to match and get 
+> > things aliased for that (which is presumably desirable).
 > 
-> > +{
-> > +       if (pgoff & (~PAGE_MASK >> 12))
-> > +               return -EINVAL;
-> > +
-> > +       return sys_mmap_pgoff((compat_uptr_t) addr, (compat_size_t) len,
-> > +		       (int) prot, (int) flags, (int) fd,
-> > +		       pgoff >> (PAGE_SHIFT-12));
-> 
-> Then we wouldn't need the explicit casting here.
+> Looking at sysdeps/unix/sysv/linux/generic/bits/stat.h, there is at
+> least blkcnt_t that differs between stat and stat64.  And you probably
+> want to alias statfs and statfs64 as well, ie. fs{blk,fil}cnt_t.
 
-See below
+Makes sense. Indeed that is a bit more work than I hoped, in particular
+if we have to audit the uses of __WORDSIZE as well.
 
-> 
-> > +}
-> > +
-> > +COMPAT_SYSCALL_DEFINE4(pread64, unsigned int, fd, compat_uptr_t __user *, ubuf,
-> > +		       compat_size_t, count, off_t, offset)
-> > +{
-> > +	return sys_pread64(fd, (char *) ubuf, count, offset);
-> > +}
-> > +
-> > +COMPAT_SYSCALL_DEFINE4(pwrite64, unsigned int, fd, compat_uptr_t __user *, ubuf,
-> > +		       compat_size_t, count, off_t, offset)
-> > +{
-> > +	return sys_pwrite64(fd, (char *) ubuf, count, offset);
-> 
-> Nitpick: no space between cast type and variable name: (char *)ubuf, ...
-
-I think it's really a matter of taste. I prefer to have a space, and
-there's no solid rule in coding style.
-
-And there are 13032 insertions of my version vs 35030 of yours:
-~/work/linux$ git grep ' \*)[a-zA-Z]'|wc -l
-35030
-~/work/linux$ git grep ' \*) [a-zA-Z]'|wc -l
-13032
-
-Of course, I will change it if you insist.
-
-> We can also make these functions static as they are not used outside
-> this file.
-
-If it's OK, we can use just compat_sys_xxx() instead of
-COMPAT_SYSCALL_DEFINEx(xxx), and for mmap2 we'll not need to change 
-_SYSCALL to _SC_WRAP in unistd.h that way.
-
-> > -- 
-> Catalin
+	Arnd
