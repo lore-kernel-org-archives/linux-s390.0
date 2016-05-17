@@ -1,19 +1,13 @@
-Return-Path: <jpoimboe@redhat.com>
-Date: Mon, 16 May 2016 13:12:50 -0500
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: klp_task_patch: was: [RFC PATCH v2 17/18] livepatch: change to a
- per-task consistency model
-Message-ID: <20160516181250.k3bqqk4hd3dyxldf@treble>
+Return-Path: <jeyu@redhat.com>
+Date: Tue, 17 May 2016 18:53:58 -0400
+From: Jessica Yu <jeyu@redhat.com>
+Subject: Re: livepatch: change to a per-task consistency model
+Message-ID: <20160517225357.GA30725@packer-debian-8-amd64.digitalocean.com>
 References: <cover.1461875890.git.jpoimboe@redhat.com>
  <d60b2b9ce6911bb10dbbf244df58df31c7a8af66.1461875890.git.jpoimboe@redhat.com>
- <20160504144854.GT2749@pathway.suse.cz>
- <20160504175700.nizuvflyisfd3lks@treble>
- <20160505115701.GY2749@pathway.suse.cz>
- <20160506123855.oabdeehqu3aj6nqy@treble>
- <20160509122303.GD2895@pathway.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20160509122303.GD2895@pathway.suse.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <d60b2b9ce6911bb10dbbf244df58df31c7a8af66.1461875890.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -22,192 +16,151 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Petr Mladek <pmladek@suse.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Petr Mladek <pmladek@suse.com>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, May 09, 2016 at 02:23:03PM +0200, Petr Mladek wrote:
-> On Fri 2016-05-06 07:38:55, Josh Poimboeuf wrote:
-> > On Thu, May 05, 2016 at 01:57:01PM +0200, Petr Mladek wrote:
-> > > I have missed that the two commands are called with preemption
-> > > disabled. So, I had the following crazy scenario in mind:
-> > > 
-> > > 
-> > > CPU0				CPU1
-> > > 
-> > > klp_enable_patch()
-> > > 
-> > >   klp_target_state = KLP_PATCHED;
-> > > 
-> > >   for_each_task()
-> > >      set TIF_PENDING_PATCH
-> > > 
-> > > 				# task 123
-> > > 
-> > > 				if (klp_patch_pending(current)
-> > > 				  klp_patch_task(current)
-> > > 
-> > >                                     clear TIF_PENDING_PATCH
-> > > 
-> > > 				    smp_rmb();
-> > > 
-> > > 				    # switch to assembly of
-> > > 				    # klp_patch_task()
-> > > 
-> > > 				    mov klp_target_state, %r12
-> > > 
-> > > 				    # interrupt and schedule
-> > > 				    # another task
-> > > 
-> > > 
-> > >   klp_reverse_transition();
-> > > 
-> > >     klp_target_state = KLP_UNPATCHED;
-> > > 
-> > >     klt_try_to_complete_transition()
-> > > 
-> > >       task = 123;
-> > >       if (task->patch_state == klp_target_state;
-> > >          return 0;
-> > > 
-> > >     => task 123 is in target state and does
-> > >     not block conversion
-> > > 
-> > >   klp_complete_transition()
-> > > 
-> > > 
-> > >   # disable previous patch on the stack
-> > >   klp_disable_patch();
-> > > 
-> > >     klp_target_state = KLP_UNPATCHED;
-> > >   
-> > >   
-> > > 				    # task 123 gets scheduled again
-> > > 				    lea %r12, task->patch_state
-> > > 
-> > > 				    => it happily stores an outdated
-> > > 				    state
-> > > 
-> > 
-> > Thanks for the clear explanation, this helps a lot.
-> > 
-> > > This is why the two functions should get called with preemption
-> > > disabled. We should document it at least. I imagine that we will
-> > > use them later also in another context and nobody will remember
-> > > this crazy scenario.
-> > > 
-> > > Well, even disabled preemption does not help. The process on
-> > > CPU1 might be also interrupted by an NMI and do some long
-> > > printk in it.
-> > > 
-> > > IMHO, the only safe approach is to call klp_patch_task()
-> > > only for "current" on a safe place. Then this race is harmless.
-> > > The switch happen on a safe place, so that it does not matter
-> > > into which state the process is switched.
-> > 
-> > I'm not sure about this solution.  When klp_complete_transition() is
-> > called, we need all tasks to be patched, for good.  We don't want any of
-> > them to randomly switch to the wrong state at some later time in the
-> > middle of a future patch operation.  How would changing klp_patch_task()
-> > to only use "current" prevent that?
-> 
-> You are right that it is pity but it really should be safe because
-> it is not entirely random.
-> 
-> If the race happens and assign an outdated value, there are two
-> situations:
-> 
-> 1. It is assigned when there is not transition in the progress.
->    Then it is OK because it will be ignored by the ftrace handler.
->    The right state will be set before the next transition starts.
-> 
-> 2. It is assigned when some other transition is in progress.
->    Then it is OK as long as the function is called from "current".
->    The "wrong" state will be used consistently. It will switch
->    to the right state on another safe state.
++++ Josh Poimboeuf [28/04/16 15:44 -0500]:
 
-Maybe it would be safe, though I'm not entirely convinced.  Regardless I
-think we should avoid these situations entirely because they create
-windows for future bugs and races.
+[snip]
 
-> > > By other words, the task state might be updated only
-> > > 
-> > >    + by the task itself on a safe place
-> > >    + by other task when the updated on is sleeping on a safe place
-> > > 
-> > > This should be well documented and the API should help to avoid
-> > > a misuse.
-> > 
-> > I think we could fix it to be safe for future callers who might not have
-> > preemption disabled with a couple of changes to klp_patch_task():
-> > disabling preemption and testing/clearing the TIF_PATCH_PENDING flag
-> > before changing the patch state:
-> > 
-> >   void klp_patch_task(struct task_struct *task)
-> >   {
-> >   	preempt_disable();
-> >   
-> >   	if (test_and_clear_tsk_thread_flag(task, TIF_PATCH_PENDING))
-> >   		task->patch_state = READ_ONCE(klp_target_state);
-> >   
-> >   	preempt_enable();
-> >   }
-> 
-> It reduces the race window a bit but it is still there. For example,
-> NMI still might add a huge delay between reading klp_target_state
-> and assigning task->patch state.
+>diff --git a/Documentation/livepatch/livepatch.txt b/Documentation/livepatch/livepatch.txt
+>index 6c43f6e..bee86d0 100644
+>--- a/Documentation/livepatch/livepatch.txt
+>+++ b/Documentation/livepatch/livepatch.txt
+>@@ -72,7 +72,8 @@ example, they add a NULL pointer or a boundary check, fix a race by adding
+> a missing memory barrier, or add some locking around a critical section.
+> Most of these changes are self contained and the function presents itself
+> the same way to the rest of the system. In this case, the functions might
+>-be updated independently one by one.
+>+be updated independently one by one.  (This can be done by setting the
+>+'immediate' flag in the klp_patch struct.)
+>
+> But there are more complex fixes. For example, a patch might change
+> ordering of locking in multiple functions at the same time. Or a patch
+>@@ -86,20 +87,103 @@ or no data are stored in the modified structures at the moment.
+> The theory about how to apply functions a safe way is rather complex.
+> The aim is to define a so-called consistency model. It attempts to define
+> conditions when the new implementation could be used so that the system
+>-stays consistent. The theory is not yet finished. See the discussion at
+>-http://thread.gmane.org/gmane.linux.kernel/1823033/focus=1828189
+>-
+>-The current consistency model is very simple. It guarantees that either
+>-the old or the new function is called. But various functions get redirected
+>-one by one without any synchronization.
+>-
+>-In other words, the current implementation _never_ modifies the behavior
+>-in the middle of the call. It is because it does _not_ rewrite the entire
+>-function in the memory. Instead, the function gets redirected at the
+>-very beginning. But this redirection is used immediately even when
+>-some other functions from the same patch have not been redirected yet.
+>-
+>-See also the section "Limitations" below.
+>+stays consistent.
+>+
+>+Livepatch has a consistency model which is a hybrid of kGraft and
+>+kpatch:  it uses kGraft's per-task consistency and syscall barrier
+>+switching combined with kpatch's stack trace switching.  There are also
+>+a number of fallback options which make it quite flexible.
+>+
+>+Patches are applied on a per-task basis, when the task is deemed safe to
+>+switch over.  When a patch is enabled, livepatch enters into a
+>+transition state where tasks are converging to the patched state.
+>+Usually this transition state can complete in a few seconds.  The same
+>+sequence occurs when a patch is disabled, except the tasks converge from
+>+the patched state to the unpatched state.
+>+
+>+An interrupt handler inherits the patched state of the task it
+>+interrupts.  The same is true for forked tasks: the child inherits the
+>+patched state of the parent.
+>+
+>+Livepatch uses several complementary approaches to determine when it's
+>+safe to patch tasks:
+>+
+>+1. The first and most effective approach is stack checking of sleeping
+>+   tasks.  If no affected functions are on the stack of a given task,
+>+   the task is patched.  In most cases this will patch most or all of
+>+   the tasks on the first try.  Otherwise it'll keep trying
+>+   periodically.  This option is only available if the architecture has
+>+   reliable stacks (CONFIG_RELIABLE_STACKTRACE and
+>+   CONFIG_STACK_VALIDATION).
+>+
+>+2. The second approach, if needed, is kernel exit switching.  A
+>+   task is switched when it returns to user space from a system call, a
+>+   user space IRQ, or a signal.  It's useful in the following cases:
+>+
+>+   a) Patching I/O-bound user tasks which are sleeping on an affected
+>+      function.  In this case you have to send SIGSTOP and SIGCONT to
+>+      force it to exit the kernel and be patched.
 
-Maybe you missed this paragraph from my last email:
+See below -
 
-| We would also need a synchronize_sched() after the patching is complete,
-| either at the end of klp_try_complete_transition() or in
-| klp_complete_transition().  That would make sure that all existing calls
-| to klp_patch_task() are done.
+>+   b) Patching CPU-bound user tasks.  If the task is highly CPU-bound
+>+      then it will get patched the next time it gets interrupted by an
+>+      IRQ.
+>+   c) Applying patches for architectures which don't yet have
+>+      CONFIG_RELIABLE_STACKTRACE.  In this case you'll have to signal
+>+      most of the tasks on the system.  However this isn't a complete
+>+      solution, because there's currently no way to patch kthreads
+>+      without CONFIG_RELIABLE_STACKTRACE.
+>+
+>+   Note: since idle "swapper" tasks don't ever exit the kernel, they
+>+   instead have a kpatch_patch_task() call in the idle loop which allows
+>+   them to patched before the CPU enters the idle state.
+>+
+>+3. A third approach (not yet implemented) is planned for the case where
+>+   a kthread is sleeping on an affected function.  In that case we could
+>+   kick the kthread with a signal and then try to patch the task from
+>+   the to-be-patched function's livepatch ftrace handler when it
+>+   re-enters the function.  This will require
+>+   CONFIG_RELIABLE_STACKTRACE.
+>+
+>+All the above approaches may be skipped by setting the 'immediate' flag
+>+in the 'klp_patch' struct, which will patch all tasks immediately.  This
+>+can be useful if the patch doesn't change any function or data
+>+semantics.  Note that, even with this flag set, it's possible that some
+>+tasks may still be running with an old version of the function, until
+>+that function returns.
+>+
+>+There's also an 'immediate' flag in the 'klp_func' struct which allows
+>+you to specify that certain functions in the patch can be applied
+>+without per-task consistency.  This might be useful if you want to patch
+>+a common function like schedule(), and the function change doesn't need
+>+consistency but the rest of the patch does.
+>+
+>+For architectures which don't have CONFIG_RELIABLE_STACKTRACE, there
+>+are two options:
+>+
+>+a) the user can set the patch->immediate flag which causes all tasks to
+>+   be patched immediately.  This option should be used with care, only
+>+   when the patch doesn't change any function or data semantics; or
+>+
+>+b) use the kernel exit switching approach (this is the default).
+>+   Note the patching will never complete because there's no currently no
+>+   way to patch kthreads without CONFIG_RELIABLE_STACKTRACE.
+>+
+>+The /sys/kernel/livepatch/<patch>/transition file shows whether a patch
+>+is in transition.  Only a single patch (the topmost patch on the stack)
+>+can be in transition at a given time.  A patch can remain in transition
+>+indefinitely, if any of the tasks are stuck in the initial patch state.
+>+
+>+A transition can be reversed and effectively canceled by writing the
+>+opposite value to the /sys/kernel/livepatch/<patch>/enabled file while
+>+the transition is in progress.  Then all the tasks will attempt to
+>+converge back to the original patch state.
+>+
+>+There's also a /proc/<pid>/patch_state file which can be used to
+>+determine which tasks are blocking completion of a patching operation.
+>+If a patch is in transition, this file shows 0 to indicate the task is
+>+unpatched and 1 to indicate it's patched.  Otherwise, if no patch is in
+>+transition, it shows -1. Any tasks which are blocking the transition
+>+can be signaled with SIGSTOP and SIGCONT to force them to change their
+>+patched state.
 
-So a huge NMI delay wouldn't be a problem here.  The call to
-synchronize_sched() in klp_complete_transition() would sleep until the
-NMI handler returns and the critical section of klp_patch_task()
-finishes.  So once a patch is complete, we know that it's really
-complete.
+What about tasks sleeping on affected functions in uninterruptible
+sleep (possibly indefinitely)? Since all signals are ignored, we
+wouldn't be able to patch those tasks in this way, right? Would that
+be an unsupported case? Might be useful to mention this in the
+documentation somewhere.
 
-> What about the following?
-> 
-> /*
->  * This function might assign an outdated value if the transaction
-> `* is reverted and finalized in parallel. But it is safe. If the value
->  * is assigned outside of a transaction, it is ignored and the next
->  * transaction will set the right one. Or if it gets assigned
->  * inside another transaction, it will repeat the cycle and
->  * set the right state.
->  */
-> void klp_update_current_patch_state()
-> {
-> 	while (test_and_clear_tsk_thread_flag(current, TIF_PATCH_PENDING))
-> 		current->patch_state = READ_ONCE(klp_target_state);
-> }
-
-I'm not sure how this would work.  How would the thread flag get set
-again after it's been cleared?
-
-Also I really don't like the idea of randomly updating a task's patch
-state after the transition has been completed.
-
-> Note that the disabled preemption helped only partially,
-> so I think that it was not really needed.
-> 
-> Hmm, it means that the task->patch_state  might be either
-> KLP_PATCHED or KLP_UNPATCHED outside a transition. I wonder
-> if the tristate really brings some advantages.
-> 
-> 
-> Alternatively, we might synchronize the operation with klp_mutex.
-> The function is called in a slow path and in a safe context.
-> Well, it might cause contention on the lock when many CPUs are
-> trying to update their tasks.
-
-I don't think a mutex would work because at least the ftrace handler
-(and maybe more) can't sleep.  Maybe a spinlock could work but I think
-that would be overkill.
-
--- 
-Josh
+Jessica
