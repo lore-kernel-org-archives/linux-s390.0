@@ -1,256 +1,93 @@
-From: Szabolcs Nagy <szabolcs.nagy@arm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [RFC6 PATCH v6 00/21] ILP32 for ARM64
-Date: Tue, 17 May 2016 13:10:53 +0100
-Message-ID: <573B0A4D.4090704@arm.com>
-References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
+Date: Tue, 17 May 2016 17:37:55 +0200
+Message-ID: <4173531.IRSphtVpg9@wuerfel>
+References: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com> <573B0A4D.4090704@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1459894127-17698-1-git-send-email-ynorov@caviumnetworks.com>
+In-Reply-To: <573B0A4D.4090704@arm.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Yury Norov <ynorov@caviumnetworks.com>, arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: nd@arm.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, broonie@kernel.org, linux-doc@vger.kernel.org, heiko.carstens@de.ibm.com, agraf@suse.de, klimov.linux@gmail.com, bamvor.zhangjian@huawei.com, schwidefsky@de.ibm.com, Nathan_Lynch@mentor.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, GNU C Library <libc-alpha@sourceware.org>
+To: Szabolcs Nagy <szabolcs.nagy@arm.com>
+Cc: Yury Norov <ynorov@caviumnetworks.com>, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, nd@arm.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, pinskia@gmail.com, Prasun.Kapoor@caviumnetworks.com, schwab@suse.de, broonie@kernel.org, linux-doc@vger.kernel.org, heiko.carstens@de.ibm.com, agraf@suse.de, klimov.linux@gmail.com, bamvor.zhangjian@huawei.com, schwidefsky@de.ibm.com, Nathan_Lynch@mentor.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, GNU C Library <libc-alpha@sourceware.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/04/16 23:08, Yury Norov wrote:
-> This version is rebased on kernel v4.6-rc2, and has fixes in signal subsystem.
-> It works with updated glibc [1] (though very draft), and tested with LTP.
+On Tuesday 17 May 2016 13:10:53 Szabolcs Nagy wrote:
+> On 05/04/16 23:08, Yury Norov wrote:
+> > This version is rebased on kernel v4.6-rc2, and has fixes in signal subsystem.
+> > It works with updated glibc [1] (though very draft), and tested with LTP.
+> > 
+> > It was tested on QEMU and ThunderX machines. No major difference found.
+> > This is RFC because ILP32 is not tested in big-endian mode.
+> > 
+> >  v3: https://lkml.org/lkml/2014/9/3/704
+> >  v4: https://lkml.org/lkml/2015/4/13/691
+> >  v5: https://lkml.org/lkml/2015/9/29/911
+> > 
+> >  v6:
+> >  - time_t, __kenel_off_t and other types turned to be 32-bit
+> >    for compatibility reasons (after v5 discussion);
 > 
-> It was tested on QEMU and ThunderX machines. No major difference found.
-> This is RFC because ILP32 is not tested in big-endian mode.
+> i added libc-alpha to cc, the thread is at
+> https://lkml.org/lkml/2016/4/5/872
+> or http://thread.gmane.org/gmane.linux.kernel.cross-arch/31449
 > 
->  v3: https://lkml.org/lkml/2014/9/3/704
->  v4: https://lkml.org/lkml/2015/4/13/691
->  v5: https://lkml.org/lkml/2015/9/29/911
+> the kernel position seems to be that the aarch64 ilp32 syscall abi
+> will follow regular 32bit abis (apart from signal context and ptrace
+> related things and syscalls will take 64bit arguments).
 > 
->  v6:
->  - time_t, __kenel_off_t and other types turned to be 32-bit
->    for compatibility reasons (after v5 discussion);
+> i think the reasoning is that this allows legacy (non-64bit-safe)
+> software to use this abi on aarch64 without trouble.
+> 
+> i think this design should be ok for glibc.
+> 
+> there are some interop issues between processes following different abis
+> (e.g. shared mutexes, abi specific file formats, lib paths,..) which apply,
+> but i assume it is no different from existing 32bit vs 64bit issues.
+> 
+> the 32bit time_t and off_t are ugly and i wonder if 32bit __kernel_off_t
+> is really necessary. (i don't see where that is changed: it is supposed
+> to be __kernel_long_t which is 64bit).
 
-i added libc-alpha to cc, the thread is at
-https://lkml.org/lkml/2016/4/5/872
-or http://thread.gmane.org/gmane.linux.kernel.cross-arch/31449
+__kernel_off_t and __kernel_ino_t are always 'long' and 'unsigned long'
+for historic reasons, but they are not used at all on modern architectures.
+We could add a few lines with #ifdef to the kernel headers to hide the
+definition on architectures that don't use them, but that seems pointless
+given that glibc just defines its own version.
 
-the kernel position seems to be that the aarch64 ilp32 syscall abi
-will follow regular 32bit abis (apart from signal context and ptrace
-related things and syscalls will take 64bit arguments).
+For time_t, I'm working on the same thing in the long run: there will
+be a 64 bit __kernel_time64_t that is always used on all architectures,
+and a __kernel_time_t that is provided for backwards compatibility
+with old libc on architectures that started out having it.
 
-i think the reasoning is that this allows legacy (non-64bit-safe)
-software to use this abi on aarch64 without trouble.
+__kernel_long_t should not be 64 bit on 32-bit architectures, it is the
+size of the 'long' type in the ABI and defining it as 'long long' on
+x32 keeps causing problems that we should not add on new architectures.
 
-i think this design should be ok for glibc.
+> i think even legacy software should be able to deal with 64bit off_t,
+> so we could avoid having two sets of filesystem apis or is 64bit-only
+> off_t more work to do in linux/glibc?
 
-there are some interop issues between processes following different abis
-(e.g. shared mutexes, abi specific file formats, lib paths,..) which apply,
-but i assume it is no different from existing 32bit vs 64bit issues.
+All architectures that got merged in the last 10 years only support
+64-bit __kernel_loff_t in the kernel but not __kernel_off_t, this
+includes arc, c6x, h8300, hexagon, metag, nios2, openrisc, tile and
+unicore32. However, glibc implements 32-bit off_t on top of the
+64-bit syscall interfaces. I believe this was done to keep the code
+looking more like the older 32-bit architectures.
 
-the 32bit time_t and off_t are ugly and i wonder if 32bit __kernel_off_t
-is really necessary. (i don't see where that is changed: it is supposed
-to be __kernel_long_t which is 64bit).
+I think it has become easier to override now and we just need to
+update sysdeps/unix/sysv/linux/generic/bits/typesizes.h to set
 
-i think even legacy software should be able to deal with 64bit off_t,
-so we could avoid having two sets of filesystem apis or is 64bit-only
-off_t more work to do in linux/glibc?
+#define __INO64_T_TYPE          __UQUAD_TYPE
+#define __OFF64_T_TYPE          __UQUAD_TYPE
+#define __OFF_T_MATCHES_OFF64_T        1
+#define __INO_T_MATCHES_INO64_T        1
 
->  - related changes applied to ILP32 syscall table and handlers;
->  - ILP32 VDSO code excluded. It's not mandatory, and caused questions
->    during review process. We definitely make sure we will follow up
->    with a VDSO later on because it is needed for performance reasons;
->  - fixed build issues with different combinations of AARCH32 / ILP32
->    enabling in config;
->  - ILP32 TLS bug fixed;
->  - entry32-common.S introduced to hold wrappers needed for both ILP32
->    and AARCH32_EL0;
->  - documentation updated according to latest changes;
->  - rebased to the current head;
->  - coding style re-checked;
->  - ILP32 syscall table turned around.
-> 
->    rfc3:
->  - all structures and system calls are just like AARCH32 ones now. with 2
->    exceptions: syscalls that take 64-bit parameter in 2 32-bit regosters
->    are replaced with LP64 version; struct rt_sigframe is constructed both
->    from LP64 and AARCH32 fields to be consistent with AARCH64 register set;
->  - documentation rewritten accordingly;
->  - common code for all 3 ABIs is moved to separated files for easy use,
->    new headers and objects are introduced, incl: is_compat.h, thread_bits.h,
->    signal_common.h, signal32_common.h.
->  - ILP32 VDSO code restored, Nathans comments are addressed;
->  - patch "arm64: ilp32: force IPC_64 in msgctl, shmctl, semctl" removed, as
->    Arnd suggested general solution for IPC_64 problem.
-> 
->    rfc4:
->  - sys_ilp32.c syscall list is fixed according to comments;
->  - binfmt_elf32.c and binfmt_ilp32.c are introduced to host the code handling
->    corresponding formats;
->  - statfs64, fstsatfs64 and mmap wrappers are removed;
->  - rebased on v4.4-rc8 + http://www.spinics.net/lists/kernel/msg2151759.html
-> 
->  rfc5:
->  - addressed rfc4 comments;
->  - turned s390 compat wrappers to be generic and applied it to arm64/ilp32.
->    Heiko Carsten and Martin Schwidefsky added to CC as s390 maintainers.
-> 
->  rfc6:
->  - glibc follows new ABI, [1];
->  - significant rework for signal subsystem (patches 21, 23) - struct ucontext
->    is now corresponds user representation;
->  - compat wrappers and 32-bit off_t patchsets are joined with this patchset,
->    as for now ilp32 is the only user for them;
->  - moved to kernel v4.6-rc2;
->  - few minor bugfixes.
-> 
-> [1] https://github.com/norov/glibc/tree/new-api
-> 
-> Andrew Pinski (7):
->   arm64: ensure the kernel is compiled for LP64
->   arm64: rename COMPAT to AARCH32_EL0 in Kconfig
->   arm64: change some CONFIG_COMPAT over to use CONFIG_AARCH32_EL0
->     instead
->   arm64:uapi: set __BITS_PER_LONG correctly for ILP32 and LP64
->   arm64:ilp32: add sys_ilp32.c and a separate table (in entry.S) to use
->     it
->   arm64: ilp32: introduce ilp32-specific handlers for sigframe and
->     ucontext
->   arm64:ilp32: add ARM64_ILP32 to Kconfig
-> 
-> Bamvor Jian Zhang (1):
->   arm64: compat: change config dependences to aarch32
-> 
-> Philipp Tomsich (1):
->   arm64:ilp32: add vdso-ilp32 and use for signal return
-> 
-> Yury Norov (16):
->   all: syscall wrappers: add documentation
->   all: introduce COMPAT_WRAPPER option and enable it for s390
->   all: s390: move wrapper infrastructure to generic headers
->   all: s390: move compat_wrappers.c from arch/s390/kernel to kernel/
->   all: wrap needed syscalls in generic unistd
->   compat ABI: use non-compat openat and open_by_handle_at variants
->   32-bit ABI: introduce ARCH_32BIT_OFF_T config option
->   arm64: ilp32: add documentation on the ILP32 ABI for ARM64
->   thread: move thread bits accessors to separated file
->   arm64: introduce is_a32_task and is_a32_thread (for AArch32 compat)
->   arm64: ilp32: add is_ilp32_compat_{task,thread} and TIF_32BIT_AARCH64
->   arm64: introduce binfmt_elf32.c
->   arm64: ilp32: introduce binfmt_ilp32.c
->   arm64: ptrace: handle ptrace_request differently for aarch32 and ilp32
->   arm64: signal: share lp64 signal routines to ilp32
->   arm64: signal32: move ilp32 and aarch32 common code to separated file
-> 
->  Documentation/adding-syscalls.txt             |  32 +++
->  Documentation/arm64/ilp32.txt                 |  13 ++
->  arch/Kconfig                                  |   8 +
->  arch/arc/Kconfig                              |   1 +
->  arch/arm/Kconfig                              |   1 +
->  arch/arm64/Kconfig                            |  17 +-
->  arch/arm64/Makefile                           |   5 +
->  arch/arm64/include/asm/compat.h               |  19 +-
->  arch/arm64/include/asm/elf.h                  |  35 +---
->  arch/arm64/include/asm/fpsimd.h               |   2 +-
->  arch/arm64/include/asm/ftrace.h               |   2 +-
->  arch/arm64/include/asm/hwcap.h                |   6 +-
->  arch/arm64/include/asm/is_compat.h            |  84 ++++++++
->  arch/arm64/include/asm/memory.h               |   3 +-
->  arch/arm64/include/asm/processor.h            |  11 +-
->  arch/arm64/include/asm/ptrace.h               |   2 +-
->  arch/arm64/include/asm/signal32.h             |   6 +-
->  arch/arm64/include/asm/signal32_common.h      |  25 +++
->  arch/arm64/include/asm/signal_common.h        |  33 +++
->  arch/arm64/include/asm/signal_ilp32.h         |  34 ++++
->  arch/arm64/include/asm/syscall.h              |   2 +-
->  arch/arm64/include/asm/thread_info.h          |   3 +-
->  arch/arm64/include/asm/unistd.h               |  11 +-
->  arch/arm64/include/asm/unistd32.h             |   2 +-
->  arch/arm64/include/asm/vdso.h                 |   6 +
->  arch/arm64/include/uapi/asm/bitsperlong.h     |   9 +-
->  arch/arm64/kernel/Makefile                    |  12 +-
->  arch/arm64/kernel/asm-offsets.c               |   2 +-
->  arch/arm64/kernel/binfmt_elf32.c              |  33 +++
->  arch/arm64/kernel/binfmt_ilp32.c              |  91 +++++++++
->  arch/arm64/kernel/cpufeature.c                |   8 +-
->  arch/arm64/kernel/cpuinfo.c                   |   4 +-
->  arch/arm64/kernel/entry.S                     |  18 +-
->  arch/arm64/kernel/entry_ilp32.S               |  23 +++
->  arch/arm64/kernel/head.S                      |   2 +-
->  arch/arm64/kernel/hw_breakpoint.c             |  10 +-
->  arch/arm64/kernel/perf_regs.c                 |   2 +-
->  arch/arm64/kernel/process.c                   |   7 +-
->  arch/arm64/kernel/ptrace.c                    |  67 ++++++-
->  arch/arm64/kernel/signal.c                    | 100 ++++++----
->  arch/arm64/kernel/signal32.c                  |  85 --------
->  arch/arm64/kernel/signal32_common.c           | 115 +++++++++++
->  arch/arm64/kernel/signal_ilp32.c              | 192 ++++++++++++++++++
->  arch/arm64/kernel/sys32.c                     |   1 +
->  arch/arm64/kernel/sys_ilp32.c                 |  68 +++++++
->  arch/arm64/kernel/traps.c                     |   5 +-
->  arch/arm64/kernel/vdso-ilp32/.gitignore       |   2 +
->  arch/arm64/kernel/vdso-ilp32/Makefile         |  72 +++++++
->  arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S     |  33 +++
->  arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S |  95 +++++++++
->  arch/arm64/kernel/vdso.c                      |  65 ++++--
->  arch/blackfin/Kconfig                         |   1 +
->  arch/cris/Kconfig                             |   1 +
->  arch/frv/Kconfig                              |   1 +
->  arch/h8300/Kconfig                            |   1 +
->  arch/hexagon/Kconfig                          |   1 +
->  arch/m32r/Kconfig                             |   1 +
->  arch/m68k/Kconfig                             |   1 +
->  arch/metag/Kconfig                            |   1 +
->  arch/microblaze/Kconfig                       |   1 +
->  arch/mips/Kconfig                             |   1 +
->  arch/mn10300/Kconfig                          |   1 +
->  arch/nios2/Kconfig                            |   1 +
->  arch/openrisc/Kconfig                         |   1 +
->  arch/parisc/Kconfig                           |   1 +
->  arch/powerpc/Kconfig                          |   1 +
->  arch/s390/Kconfig                             |   1 +
->  arch/s390/include/asm/compat.h                |  17 +-
->  arch/s390/kernel/Makefile                     |   2 +-
->  arch/s390/kernel/compat_linux.c               |   4 +
->  arch/s390/kernel/compat_wrapper.c             | 180 -----------------
->  arch/score/Kconfig                            |   1 +
->  arch/sh/Kconfig                               |   1 +
->  arch/sparc/Kconfig                            |   1 +
->  arch/tile/Kconfig                             |   1 +
->  arch/tile/kernel/compat.c                     |   3 +
->  arch/unicore32/Kconfig                        |   1 +
->  arch/x86/Kconfig                              |   1 +
->  arch/x86/um/Kconfig                           |   1 +
->  arch/xtensa/Kconfig                           |   1 +
->  drivers/clocksource/arm_arch_timer.c          |   2 +-
->  include/linux/compat.h                        | 277 ++++++++++++++++++++++++++
->  include/linux/fcntl.h                         |   2 +-
->  include/linux/ptrace.h                        |   6 +
->  include/linux/syscalls.h                      |  57 +-----
->  include/linux/syscalls_structs.h              |  60 ++++++
->  include/linux/thread_bits.h                   |  55 +++++
->  include/linux/thread_info.h                   |  44 +---
->  include/uapi/asm-generic/unistd.h             | 231 ++++++++++-----------
->  kernel/Makefile                               |   1 +
->  kernel/compat_wrapper.c                       | 175 ++++++++++++++++
->  kernel/ptrace.c                               |  10 +-
->  92 files changed, 1997 insertions(+), 637 deletions(-)
->  create mode 100644 Documentation/arm64/ilp32.txt
->  create mode 100644 arch/arm64/include/asm/is_compat.h
->  create mode 100644 arch/arm64/include/asm/signal32_common.h
->  create mode 100644 arch/arm64/include/asm/signal_common.h
->  create mode 100644 arch/arm64/include/asm/signal_ilp32.h
->  create mode 100644 arch/arm64/kernel/binfmt_elf32.c
->  create mode 100644 arch/arm64/kernel/binfmt_ilp32.c
->  create mode 100644 arch/arm64/kernel/entry_ilp32.S
->  create mode 100644 arch/arm64/kernel/signal32_common.c
->  create mode 100644 arch/arm64/kernel/signal_ilp32.c
->  create mode 100644 arch/arm64/kernel/sys_ilp32.c
->  create mode 100644 arch/arm64/kernel/vdso-ilp32/.gitignore
->  create mode 100644 arch/arm64/kernel/vdso-ilp32/Makefile
->  create mode 100644 arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S
->  create mode 100644 arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
->  delete mode 100644 arch/s390/kernel/compat_wrapper.c
->  create mode 100644 include/linux/syscalls_structs.h
->  create mode 100644 include/linux/thread_bits.h
->  create mode 100644 kernel/compat_wrapper.c
-> 
+for new architectures (obviously not the ones that already use the
+32-bit types). I haven't tries this, so there may be other things
+that are required.
+
+	Arnd
