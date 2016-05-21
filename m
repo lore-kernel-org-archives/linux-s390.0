@@ -1,31 +1,36 @@
 From: Andrea Gelmini <andrea.gelmini@gelma.net>
-Date: Sat, 21 May 2016 12:09:05 +0000
-Subject: [PATCH 0250/1529] Fix typo
-Message-Id: <20160521120905.13105-1-andrea.gelmini@gelma.net>
+Date: Sat, 21 May 2016 12:09:12 +0000
+Subject: [PATCH 0251/1529] Fix typo
+Message-Id: <20160521120912.13155-1-andrea.gelmini@gelma.net>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
 ---
- arch/s390/net/bpf_jit.S | 4 ++--
+ arch/s390/net/bpf_jit_comp.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit.S b/arch/s390/net/bpf_jit.S
-index a1c917d..18f463f 100644
---- a/arch/s390/net/bpf_jit.S
-+++ b/arch/s390/net/bpf_jit.S
-@@ -58,10 +58,10 @@ ENTRY(sk_load_##NAME##_pos);						\
- sk_load_##NAME##_slow:;							\
- 	lgr	%r2,%r7;		/* Arg1 = skb pointer */	\
- 	aghi	%r3,-SIZE;		/* Arg2 = offset */		\
--	la	%r4,STK_OFF_TMP(%r15);	/* Arg3 = temp bufffer */	\
-+	la	%r4,STK_OFF_TMP(%r15);	/* Arg3 = temp buffer */	\
- 	lghi	%r5,SIZE;		/* Arg4 = size */		\
- 	brasl	%r14,skb_copy_bits;	/* Get data from skb */		\
--	LOAD	%r14,STK_OFF_TMP(%r15);	/* Load from temp bufffer */	\
-+	LOAD	%r14,STK_OFF_TMP(%r15);	/* Load from temp buffer */	\
- 	ltgr	%r2,%r2;		/* Set cc to (%r2 != 0) */	\
- 	br	%r6;			/* Return */
- 
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 9133b0e..8476aef 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -410,7 +410,7 @@ static void emit_load_skb_data_hlen(struct bpf_jit *jit)
+  * Emit function prologue
+  *
+  * Save registers and create stack frame if necessary.
+- * See stack frame layout desription in "bpf_jit.h"!
++ * See stack frame layout description in "bpf_jit.h"!
+  */
+ static void bpf_jit_prologue(struct bpf_jit *jit)
+ {
+@@ -1305,7 +1305,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
+ 	/*
+ 	 * Three initial passes:
+ 	 *   - 1/2: Determine clobbered registers
+-	 *   - 3:   Calculate program size and addrs arrray
++	 *   - 3:   Calculate program size and addrs array
+ 	 */
+ 	for (pass = 1; pass <= 3; pass++) {
+ 		if (bpf_jit_prog(&jit, fp)) {
 -- 
 2.8.2.534.g1f66975
