@@ -1,40 +1,27 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Jason Baron <jbaron@akamai.com>
-Subject: [PATCH v2 3/4] s390: add explicit <linux/stringify.h> for jump label
-Date: Fri, 20 May 2016 17:16:35 -0400
-Message-Id: <f242f753b4c819b8da5351007d81ed055b4b8bdf.1463778029.git.jbaron@akamai.com>
-In-Reply-To: <cover.1463778029.git.jbaron@akamai.com>
-References: <cover.1463778029.git.jbaron@akamai.com>
-In-Reply-To: <cover.1463778029.git.jbaron@akamai.com>
-References: <cover.1463778029.git.jbaron@akamai.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: akpm@linux-foundation.org
-Cc: joe@perches.com, peterz@infradead.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+From: Andrea Gelmini <andrea.gelmini@gelma.net>
+Date: Sat, 21 May 2016 11:43:48 +0000
+Subject: [PATCH 0052/1529] Fix typo
+Message-Id: <20160521114348.1747-1-andrea.gelmini@gelma.net>
+To: linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Ensure that we always have __stringify().
-
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Jason Baron <jbaron@akamai.com>
+Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
 ---
- arch/s390/include/asm/jump_label.h | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/s390/3270.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/jump_label.h b/arch/s390/include/asm/jump_label.h
-index 7f9fd5e..9be198f5 100644
---- a/arch/s390/include/asm/jump_label.h
-+++ b/arch/s390/include/asm/jump_label.h
-@@ -4,6 +4,7 @@
- #ifndef __ASSEMBLY__
+diff --git a/Documentation/s390/3270.txt b/Documentation/s390/3270.txt
+index 7c715de..0f416fd 100644
+--- a/Documentation/s390/3270.txt
++++ b/Documentation/s390/3270.txt
+@@ -11,7 +11,7 @@ INTRODUCTION.
  
- #include <linux/types.h>
-+#include <linux/stringify.h>
+ This paper describes installing and operating 3270 devices under
+ Linux/390.  A 3270 device is a block-mode rows-and-columns terminal of
+-which I'm sure hundreds of millions were sold by IBM and clonemakers
++which I'm sure hundreds of millions were sold by IBM and clone-makers
+ twenty and thirty years ago.
  
- #define JUMP_LABEL_NOP_SIZE 6
- #define JUMP_LABEL_NOP_OFFSET 2
+ You may have 3270s in-house and not know it.  If you're using the
 -- 
-2.6.1
+2.8.2.534.g1f66975
