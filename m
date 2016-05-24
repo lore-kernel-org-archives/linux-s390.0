@@ -1,208 +1,130 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 17/23] arm64: ptrace: handle ptrace_request differently for
- aarch32 and ilp32
-Date: Tue, 24 May 2016 03:04:46 +0300
-Message-ID: <1464048292-30136-18-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 14/23] arm64: ilp32: add is_ilp32_compat_{task,thread} and TIF_32BIT_AARCH64
+Date: Tue, 24 May 2016 03:04:43 +0300
+Message-ID: <1464048292-30136-15-git-send-email-ynorov@caviumnetworks.com>
 References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org
-Cc: kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, geert@linux-m68k.org, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, broonie@kernel.org, ynorov@caviumnetworks.com, schwidefsky@de.ibm.com, bamvor.zhangjian@huawei.com, philipp.tomsich@theobroma-systems.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Here new aarch32 ptrace syscall handler is introsuced to avoid run-time
-detection of the task type.
+ILP32 tasks are needed to be distinguished from lp64 and aarch32.
+This patch adds helper functions is_ilp32_compat_{task,thread} and
+thread flag TIF_32BIT_AARCH64 to address it. This is a preparation
+for following patches in ilp32 patchset.
 
+For consistency, SET_PERSONALITY is changed here accordingly.
+
+Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+Reviewed-by: David Daney <ddaney@caviumnetworks.com>
 ---
- arch/arm64/include/asm/unistd32.h |  2 +-
- arch/arm64/kernel/ptrace.c        | 50 ++++++++++++++++++++++++++++++++++++++-
- arch/arm64/kernel/sys32.c         |  1 +
- include/linux/ptrace.h            |  6 +++++
- kernel/ptrace.c                   | 10 ++++----
- 5 files changed, 62 insertions(+), 7 deletions(-)
+ arch/arm64/include/asm/elf.h         | 13 +++++++++++--
+ arch/arm64/include/asm/is_compat.h   | 28 +++++++++++++++++++++++++++-
+ arch/arm64/include/asm/thread_info.h |  2 ++
+ 3 files changed, 40 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
-index 5b925b7..f57bbe3 100644
---- a/arch/arm64/include/asm/unistd32.h
-+++ b/arch/arm64/include/asm/unistd32.h
-@@ -74,7 +74,7 @@ __SYSCALL(__NR_getuid, sys_getuid16)
- 			/* 25 was sys_stime */
- __SYSCALL(25, sys_ni_syscall)
- #define __NR_ptrace 26
--__SYSCALL(__NR_ptrace, compat_sys_ptrace)
-+__SYSCALL(__NR_ptrace, compat_sys_aarch32_ptrace)
- 			/* 27 was sys_alarm */
- __SYSCALL(27, sys_ni_syscall)
- 			/* 28 was sys_fstat */
-diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index 38a09338..a861105 100644
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -29,6 +29,7 @@
- #include <linux/user.h>
- #include <linux/seccomp.h>
- #include <linux/security.h>
-+#include <linux/syscalls.h>
- #include <linux/init.h>
- #include <linux/signal.h>
- #include <linux/uaccess.h>
-@@ -1114,7 +1115,7 @@ static int compat_ptrace_sethbpregs(struct task_struct *tsk, compat_long_t num,
- }
- #endif	/* CONFIG_HAVE_HW_BREAKPOINT */
+diff --git a/arch/arm64/include/asm/elf.h b/arch/arm64/include/asm/elf.h
+index b5437c5..e18bb8a 100644
+--- a/arch/arm64/include/asm/elf.h
++++ b/arch/arm64/include/asm/elf.h
+@@ -142,7 +142,11 @@ typedef struct user_fpsimd_state elf_fpregset_t;
+  */
+ #define ELF_PLAT_INIT(_r, load_addr)	(_r)->regs[0] = 0
  
--long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
-+static long compat_a32_ptrace(struct task_struct *child, compat_long_t request,
- 			compat_ulong_t caddr, compat_ulong_t cdata)
- {
- 	unsigned long addr = caddr;
-@@ -1191,8 +1192,55 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+-#define SET_PERSONALITY(ex)		clear_thread_flag(TIF_32BIT);
++#define SET_PERSONALITY(ex)		\
++do {						\
++	clear_thread_flag(TIF_32BIT_AARCH64);	\
++	clear_thread_flag(TIF_32BIT);		\
++} while (0)
  
- 	return ret;
- }
+ #define ARCH_DLINFO							\
+ do {									\
+@@ -181,7 +185,12 @@ typedef compat_elf_greg_t		compat_elf_gregset_t[COMPAT_ELF_NGREG];
+ 					 ((x)->e_flags & EF_ARM_EABI_MASK))
+ 
+ #define compat_start_thread		compat_start_thread
+-#define COMPAT_SET_PERSONALITY(ex)	set_thread_flag(TIF_32BIT);
++#define COMPAT_SET_PERSONALITY(ex)		\
++do {						\
++	clear_thread_flag(TIF_32BIT_AARCH64);	\
++	set_thread_flag(TIF_32BIT);		\
++} while (0)
 +
-+COMPAT_SYSCALL_DEFINE4(aarch32_ptrace, compat_long_t, request, compat_long_t, pid,
-+		       compat_long_t, addr, compat_long_t, data)
-+{
-+	struct task_struct *child;
-+	long ret;
-+
-+	if (request == PTRACE_TRACEME) {
-+		ret = ptrace_traceme();
-+		goto out;
-+	}
-+
-+	child = ptrace_get_task_struct(pid);
-+	if (IS_ERR(child)) {
-+		ret = PTR_ERR(child);
-+		goto out;
-+	}
-+
-+	if (request == PTRACE_ATTACH || request == PTRACE_SEIZE) {
-+		ret = ptrace_attach(child, request, addr, data);
-+		goto out_put_task_struct;
-+	}
-+
-+	ret = ptrace_check_attach(child, request == PTRACE_KILL ||
-+				  request == PTRACE_INTERRUPT);
-+	if (!ret) {
-+		ret = compat_a32_ptrace(child, request, addr, data);
-+		if (ret || request != PTRACE_DETACH)
-+			ptrace_unfreeze_traced(child);
-+	}
-+
-+ out_put_task_struct:
-+	put_task_struct(child);
-+ out:
-+	return ret;
-+}
-+
+ #define COMPAT_ARCH_DLINFO
+ extern int aarch32_setup_vectors_page(struct linux_binprm *bprm,
+ 				      int uses_interp);
+diff --git a/arch/arm64/include/asm/is_compat.h b/arch/arm64/include/asm/is_compat.h
+index 6139b5a..55134cf 100644
+--- a/arch/arm64/include/asm/is_compat.h
++++ b/arch/arm64/include/asm/is_compat.h
+@@ -45,11 +45,37 @@ static inline int is_a32_compat_thread(struct thread_info *thread)
+ 
  #endif /* CONFIG_AARCH32_EL0 */
  
-+#ifdef CONFIG_COMPAT
++#ifdef CONFIG_ARM64_ILP32
 +
-+long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
-+			compat_ulong_t caddr, compat_ulong_t cdata)
++static inline int is_ilp32_compat_task(void)
 +{
-+	return compat_ptrace_request(child, request, caddr, cdata);
++	return test_thread_flag(TIF_32BIT_AARCH64);
 +}
 +
-+#endif /* CONFIG_COMPAT */
++static inline int is_ilp32_compat_thread(struct thread_info *thread)
++{
++	return test_ti_thread_flag(thread, TIF_32BIT_AARCH64);
++}
 +
- const struct user_regset_view *task_user_regset_view(struct task_struct *task)
++#else
++
++static inline int is_ilp32_compat_task(void)
++{
++	return 0;
++}
++
++static inline int is_ilp32_compat_thread(struct thread_info *thread)
++{
++	return 0;
++}
++
++#endif /* CONFIG_ARM64_ILP32 */
++
+ #ifdef CONFIG_COMPAT
+ 
+ static inline int is_compat_task(void)
  {
- #ifdef CONFIG_AARCH32_EL0
-diff --git a/arch/arm64/kernel/sys32.c b/arch/arm64/kernel/sys32.c
-index a40b134..3752443 100644
---- a/arch/arm64/kernel/sys32.c
-+++ b/arch/arm64/kernel/sys32.c
-@@ -38,6 +38,7 @@ asmlinkage long compat_sys_fadvise64_64_wrapper(void);
- asmlinkage long compat_sys_sync_file_range2_wrapper(void);
- asmlinkage long compat_sys_fallocate_wrapper(void);
- asmlinkage long compat_sys_mmap2_wrapper(void);
-+asmlinkage long compat_sys_aarch32_ptrace(void);
- 
- #undef __SYSCALL
- #define __SYSCALL(nr, sym)	[nr] = sym,
-diff --git a/include/linux/ptrace.h b/include/linux/ptrace.h
-index 504c98a..75887a0 100644
---- a/include/linux/ptrace.h
-+++ b/include/linux/ptrace.h
-@@ -97,6 +97,12 @@ int generic_ptrace_peekdata(struct task_struct *tsk, unsigned long addr,
- 			    unsigned long data);
- int generic_ptrace_pokedata(struct task_struct *tsk, unsigned long addr,
- 			    unsigned long data);
-+int ptrace_traceme(void);
-+struct task_struct *ptrace_get_task_struct(pid_t pid);
-+int ptrace_attach(struct task_struct *task, long request,
-+			 unsigned long addr, unsigned long flags);
-+int ptrace_check_attach(struct task_struct *child, bool ignore_state);
-+void ptrace_unfreeze_traced(struct task_struct *task);
- 
- /**
-  * ptrace_parent - return the task that is tracing the given task
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index d49bfa1..cadf24c 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -136,7 +136,7 @@ static bool ptrace_freeze_traced(struct task_struct *task)
- 	return ret;
+-	return is_a32_compat_task();
++	return is_a32_compat_task() || is_ilp32_compat_task();
  }
  
--static void ptrace_unfreeze_traced(struct task_struct *task)
-+void ptrace_unfreeze_traced(struct task_struct *task)
- {
- 	if (task->state != __TASK_TRACED)
- 		return;
-@@ -168,7 +168,7 @@ static void ptrace_unfreeze_traced(struct task_struct *task)
-  * RETURNS:
-  * 0 on success, -ESRCH if %child is not ready.
-  */
--static int ptrace_check_attach(struct task_struct *child, bool ignore_state)
-+int ptrace_check_attach(struct task_struct *child, bool ignore_state)
- {
- 	int ret = -ESRCH;
+ #endif /* CONFIG_COMPAT */
+diff --git a/arch/arm64/include/asm/thread_info.h b/arch/arm64/include/asm/thread_info.h
+index 4daa559..8802645 100644
+--- a/arch/arm64/include/asm/thread_info.h
++++ b/arch/arm64/include/asm/thread_info.h
+@@ -119,6 +119,7 @@ static inline struct thread_info *current_thread_info(void)
+ #define TIF_RESTORE_SIGMASK	20
+ #define TIF_SINGLESTEP		21
+ #define TIF_32BIT		22	/* AARCH32 process */
++#define TIF_32BIT_AARCH64	23	/* 32 bit process on AArch64(ILP32) */
  
-@@ -292,7 +292,7 @@ bool ptrace_may_access(struct task_struct *task, unsigned int mode)
- 	return !err;
- }
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+ #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
+@@ -130,6 +131,7 @@ static inline struct thread_info *current_thread_info(void)
+ #define _TIF_SYSCALL_TRACEPOINT	(1 << TIF_SYSCALL_TRACEPOINT)
+ #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
+ #define _TIF_32BIT		(1 << TIF_32BIT)
++#define _TIF_32BIT_AARCH64	(1 << TIF_32BIT_AARCH64)
  
--static int ptrace_attach(struct task_struct *task, long request,
-+int ptrace_attach(struct task_struct *task, long request,
- 			 unsigned long addr,
- 			 unsigned long flags)
- {
-@@ -406,7 +406,7 @@ out:
-  * Performs checks and sets PT_PTRACED.
-  * Should be used by all ptrace implementations for PTRACE_TRACEME.
-  */
--static int ptrace_traceme(void)
-+ int ptrace_traceme(void)
- {
- 	int ret = -EPERM;
- 
-@@ -1056,7 +1056,7 @@ int ptrace_request(struct task_struct *child, long request,
- 	return ret;
- }
- 
--static struct task_struct *ptrace_get_task_struct(pid_t pid)
-+struct task_struct *ptrace_get_task_struct(pid_t pid)
- {
- 	struct task_struct *child;
- 
+ #define _TIF_WORK_MASK		(_TIF_NEED_RESCHED | _TIF_SIGPENDING | \
+ 				 _TIF_NOTIFY_RESUME | _TIF_FOREIGN_FPSTATE)
 -- 
 2.5.0
