@@ -1,7 +1,8 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 10/23] arm64: rename COMPAT to AARCH32_EL0 in Kconfig
-Date: Tue, 24 May 2016 03:04:39 +0300
-Message-ID: <1464048292-30136-11-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 13/23] arm64: introduce is_a32_task and is_a32_thread (for
+ AArch32 compat)
+Date: Tue, 24 May 2016 03:04:42 +0300
+Message-ID: <1464048292-30136-14-git-send-email-ynorov@caviumnetworks.com>
 References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,411 +21,458 @@ Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org
-Cc: kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, geert@linux-m68k.org, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, broonie@kernel.org, ynorov@caviumnetworks.com, Andrew Pinski <apinski@cavium.com>, schwidefsky@de.ibm.com, bamvor.zhangjian@huawei.com, philipp.tomsich@theobroma-systems.com, Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
+Cc: kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, geert@linux-m68k.org, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, broonie@kernel.org, ynorov@caviumnetworks.com, schwidefsky@de.ibm.com, bamvor.zhangjian@huawei.com, philipp.tomsich@theobroma-systems.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Andrew Pinski <apinski@cavium.com>
+Based on patch of Andrew Pinski.
 
-In this patchset  ILP32 ABI support is added. Additionally to AARCH32,
-which is binary-compatible with ARM, ILP32 is (mostly) ABI-compatible.
+This patch introduces is_a32_compat_task and is_a32_thread so it is
+easier to say this is a a32 specific thread or a generic compat thread/task.
+Corresponding functions are located in <asm/is_compat.h> to avoid mess in
+headers.
 
-From now, AARCH32_EL0 (former COMPAT) config option means the support of
-AARCH32 userspace, ARM64_ILP32 - support of ILP32 ABI (see next patches),
-and COMPAT indicates that one of them, or both, is enabled.
+Some files include both <linux/compat.h> and <asm/compat.h>,
+and this is wrong because <linux/compat.h> has <asm/compat.h> already
+included. It was fixed too.
 
-Where needed, CONFIG_COMPAT is changed over to use CONFIG_AARCH32_EL0 instead
-
-Reviewed-by: David Daney <ddaney@caviumnetworks.com>
-Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
-Signed-off-by: Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>
-Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+Reviewed-by: David Daney <ddaney@caviumnetworks.com>
 ---
- arch/arm64/Kconfig                   | 9 +++++++--
- arch/arm64/include/asm/fpsimd.h      | 2 +-
- arch/arm64/include/asm/hwcap.h       | 4 ++--
- arch/arm64/include/asm/processor.h   | 6 +++---
- arch/arm64/include/asm/ptrace.h      | 2 +-
- arch/arm64/include/asm/signal32.h    | 6 ++++--
- arch/arm64/include/asm/unistd.h      | 2 +-
- arch/arm64/kernel/Makefile           | 2 +-
- arch/arm64/kernel/asm-offsets.c      | 2 +-
- arch/arm64/kernel/cpufeature.c       | 8 ++++----
- arch/arm64/kernel/cpuinfo.c          | 4 ++--
- arch/arm64/kernel/entry.S            | 6 +++---
- arch/arm64/kernel/head.S             | 2 +-
- arch/arm64/kernel/ptrace.c           | 8 ++++----
- arch/arm64/kernel/traps.c            | 2 +-
- arch/arm64/kernel/vdso.c             | 4 ++--
- drivers/clocksource/arm_arch_timer.c | 2 +-
- 17 files changed, 39 insertions(+), 32 deletions(-)
+ arch/arm64/include/asm/compat.h      | 19 ++----------
+ arch/arm64/include/asm/elf.h         | 10 +++----
+ arch/arm64/include/asm/ftrace.h      |  2 +-
+ arch/arm64/include/asm/is_compat.h   | 58 ++++++++++++++++++++++++++++++++++++
+ arch/arm64/include/asm/memory.h      |  3 +-
+ arch/arm64/include/asm/processor.h   |  5 ++--
+ arch/arm64/include/asm/syscall.h     |  2 +-
+ arch/arm64/include/asm/thread_info.h |  2 +-
+ arch/arm64/kernel/hw_breakpoint.c    | 10 +++----
+ arch/arm64/kernel/perf_regs.c        |  2 +-
+ arch/arm64/kernel/process.c          |  7 ++---
+ arch/arm64/kernel/ptrace.c           | 11 ++++---
+ arch/arm64/kernel/signal.c           |  4 +--
+ arch/arm64/kernel/traps.c            |  3 +-
+ 14 files changed, 91 insertions(+), 47 deletions(-)
+ create mode 100644 arch/arm64/include/asm/is_compat.h
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 4f43622..ede9b2e 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -370,7 +370,7 @@ config ARM64_ERRATUM_834220
+diff --git a/arch/arm64/include/asm/compat.h b/arch/arm64/include/asm/compat.h
+index eb8432b..df2f72d 100644
+--- a/arch/arm64/include/asm/compat.h
++++ b/arch/arm64/include/asm/compat.h
+@@ -24,6 +24,8 @@
+ #include <linux/types.h>
+ #include <linux/sched.h>
  
- config ARM64_ERRATUM_845719
- 	bool "Cortex-A53: 845719: a load might read incorrect data"
--	depends on COMPAT
-+	depends on AARCH32_EL0
- 	default y
- 	help
- 	  This option adds an alternative code sequence to work around ARM
-@@ -655,7 +655,7 @@ config FORCE_MAX_ZONEORDER
- 
- menuconfig ARMV8_DEPRECATED
- 	bool "Emulate deprecated/obsolete ARMv8 instructions"
--	depends on COMPAT
-+	depends on AARCH32_EL0
- 	help
- 	  Legacy software support may require certain instructions
- 	  that have been deprecated or obsoleted in the architecture.
-@@ -925,7 +925,12 @@ menu "Userspace binary formats"
- source "fs/Kconfig.binfmt"
- 
- config COMPAT
-+	bool
-+	depends on AARCH32_EL0
++#include <asm/is_compat.h>
 +
-+config AARCH32_EL0
- 	bool "Kernel support for 32-bit EL0"
-+	def_bool y
- 	depends on ARM64_4K_PAGES || EXPERT
- 	select COMPAT_BINFMT_ELF
- 	select HAVE_UID16
-diff --git a/arch/arm64/include/asm/fpsimd.h b/arch/arm64/include/asm/fpsimd.h
-index 50f559f..63b19f1 100644
---- a/arch/arm64/include/asm/fpsimd.h
-+++ b/arch/arm64/include/asm/fpsimd.h
-@@ -52,7 +52,7 @@ struct fpsimd_partial_state {
+ #define COMPAT_USER_HZ		100
+ #ifdef __AARCH64EB__
+ #define COMPAT_UTS_MACHINE	"armv8b\0\0"
+@@ -298,23 +300,6 @@ struct compat_shmid64_ds {
+ 	compat_ulong_t __unused5;
  };
  
+-static inline int is_compat_task(void)
+-{
+-	return test_thread_flag(TIF_32BIT);
+-}
+-
+-static inline int is_compat_thread(struct thread_info *thread)
+-{
+-	return test_ti_thread_flag(thread, TIF_32BIT);
+-}
+-
+-#else /* !CONFIG_COMPAT */
+-
+-static inline int is_compat_thread(struct thread_info *thread)
+-{
+-	return 0;
+-}
+-
+ #endif /* CONFIG_COMPAT */
+ #endif /* __KERNEL__ */
+ #endif /* __ASM_COMPAT_H */
+diff --git a/arch/arm64/include/asm/elf.h b/arch/arm64/include/asm/elf.h
+index 24ed037..b5437c5 100644
+--- a/arch/arm64/include/asm/elf.h
++++ b/arch/arm64/include/asm/elf.h
+@@ -16,6 +16,10 @@
+ #ifndef __ASM_ELF_H
+ #define __ASM_ELF_H
  
--#if defined(__KERNEL__) && defined(CONFIG_COMPAT)
-+#if defined(__KERNEL__) && defined(CONFIG_AARCH32_EL0)
- /* Masks for extracting the FPSR and FPCR from the FPSCR */
- #define VFP_FPSCR_STAT_MASK	0xf800009f
- #define VFP_FPSCR_CTRL_MASK	0x07f79f00
-diff --git a/arch/arm64/include/asm/hwcap.h b/arch/arm64/include/asm/hwcap.h
-index 400b80b..2c7fc5d 100644
---- a/arch/arm64/include/asm/hwcap.h
-+++ b/arch/arm64/include/asm/hwcap.h
-@@ -46,7 +46,7 @@
-  */
- #define ELF_HWCAP		(elf_hwcap)
++#ifndef __ASSEMBLY__
++#include <linux/compat.h>
++#endif
++
+ #include <asm/hwcap.h>
  
+ /*
+@@ -152,13 +156,9 @@ extern int arch_setup_additional_pages(struct linux_binprm *bprm,
+ 				       int uses_interp);
+ 
+ /* 1GB of VA */
 -#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- #define COMPAT_ELF_HWCAP	(compat_elf_hwcap)
- #define COMPAT_ELF_HWCAP2	(compat_elf_hwcap2)
- extern unsigned int compat_elf_hwcap, compat_elf_hwcap2;
-@@ -54,7 +54,7 @@ extern unsigned int compat_elf_hwcap, compat_elf_hwcap2;
+-#define STACK_RND_MASK			(test_thread_flag(TIF_32BIT) ? \
++#define STACK_RND_MASK			(is_compat_task() ? \
+ 						0x7ff >> (PAGE_SHIFT - 12) : \
+ 						0x3ffff >> (PAGE_SHIFT - 12))
+-#else
+-#define STACK_RND_MASK			(0x3ffff >> (PAGE_SHIFT - 12))
+-#endif
  
- enum {
- 	CAP_HWCAP = 1,
--#ifdef CONFIG_COMPAT
+ #ifdef CONFIG_COMPAT
+ 
+diff --git a/arch/arm64/include/asm/ftrace.h b/arch/arm64/include/asm/ftrace.h
+index caa955f..0feb28a 100644
+--- a/arch/arm64/include/asm/ftrace.h
++++ b/arch/arm64/include/asm/ftrace.h
+@@ -54,7 +54,7 @@ static inline unsigned long ftrace_call_adjust(unsigned long addr)
+ #define ARCH_TRACE_IGNORE_COMPAT_SYSCALLS
+ static inline bool arch_trace_is_compat_syscall(struct pt_regs *regs)
+ {
+-	return is_compat_task();
++	return is_a32_compat_task();
+ }
+ #endif /* ifndef __ASSEMBLY__ */
+ 
+diff --git a/arch/arm64/include/asm/is_compat.h b/arch/arm64/include/asm/is_compat.h
+new file mode 100644
+index 0000000..6139b5a
+--- /dev/null
++++ b/arch/arm64/include/asm/is_compat.h
+@@ -0,0 +1,58 @@
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef __ASM_IS_COMPAT_H
++#define __ASM_IS_COMPAT_H
++#ifndef __ASSEMBLY__
++
++#include <linux/thread_bits.h>
++
 +#ifdef CONFIG_AARCH32_EL0
- 	CAP_COMPAT_HWCAP,
- 	CAP_COMPAT_HWCAP2,
- #endif
++
++static inline int is_a32_compat_task(void)
++{
++	return test_thread_flag(TIF_32BIT);
++}
++
++static inline int is_a32_compat_thread(struct thread_info *thread)
++{
++	return test_ti_thread_flag(thread, TIF_32BIT);
++}
++
++#else
++
++static inline int is_a32_compat_task(void)
++
++{
++	return 0;
++}
++
++static inline int is_a32_compat_thread(struct thread_info *thread)
++{
++	return 0;
++}
++
++#endif /* CONFIG_AARCH32_EL0 */
++
++#ifdef CONFIG_COMPAT
++
++static inline int is_compat_task(void)
++{
++	return is_a32_compat_task();
++}
++
++#endif /* CONFIG_COMPAT */
++
++#endif /* !__ASSEMBLY__ */
++#endif /* __ASM_IS_COMPAT_H */
+diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+index 12f8a00..a66a0f7 100644
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -26,6 +26,7 @@
+ #include <linux/types.h>
+ #include <asm/bug.h>
+ #include <asm/sizes.h>
++#include <asm/is_compat.h>
+ 
+ /*
+  * Allow for constants defined here to be used from assembly code
+@@ -61,7 +62,7 @@
+ 
+ #ifdef CONFIG_COMPAT
+ #define TASK_SIZE_32		UL(0x100000000)
+-#define TASK_SIZE		(test_thread_flag(TIF_32BIT) ? \
++#define TASK_SIZE		(is_compat_task() ?		\
+ 				TASK_SIZE_32 : TASK_SIZE_64)
+ #define TASK_SIZE_OF(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT) ? \
+ 				TASK_SIZE_32 : TASK_SIZE_64)
 diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index cef1cf3..5bbdbb4 100644
+index 5bbdbb4..1eccf47 100644
 --- a/arch/arm64/include/asm/processor.h
 +++ b/arch/arm64/include/asm/processor.h
-@@ -81,7 +81,7 @@ struct cpu_context {
- struct thread_struct {
- 	struct cpu_context	cpu_context;	/* cpu context */
- 	unsigned long		tp_value;	/* TLS register */
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	unsigned long		tp2_value;
- #endif
- 	struct fpsimd_state	fpsimd_state;
-@@ -90,7 +90,7 @@ struct thread_struct {
- 	struct debug_info	debug;		/* debugging */
- };
+@@ -30,6 +30,7 @@
+ #include <linux/string.h>
  
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
+ #include <asm/alternative.h>
++#include <asm/is_compat.h>
+ #include <asm/fpsimd.h>
+ #include <asm/hw_breakpoint.h>
+ #include <asm/lse.h>
+@@ -41,7 +42,7 @@
+ #define STACK_TOP_MAX		TASK_SIZE_64
+ #ifdef CONFIG_COMPAT
+ #define AARCH32_VECTORS_BASE	0xffff0000
+-#define STACK_TOP		(test_thread_flag(TIF_32BIT) ? \
++#define STACK_TOP		(is_compat_task() ? \
+ 				AARCH32_VECTORS_BASE : STACK_TOP_MAX)
+ #else
+ #define STACK_TOP		STACK_TOP_MAX
+@@ -94,7 +95,7 @@ struct thread_struct {
  #define task_user_tls(t)						\
  ({									\
  	unsigned long *__tls;						\
-@@ -121,7 +121,7 @@ static inline void start_thread(struct pt_regs *regs, unsigned long pc,
- 	regs->sp = sp;
- }
- 
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
- 				       unsigned long sp)
- {
-diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
-index a307eb6..4c730c3 100644
---- a/arch/arm64/include/asm/ptrace.h
-+++ b/arch/arm64/include/asm/ptrace.h
-@@ -121,7 +121,7 @@ struct pt_regs {
- 
- #define arch_has_single_step()	(1)
- 
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- #define compat_thumb_mode(regs) \
- 	(((regs)->pstate & COMPAT_PSR_T_BIT))
- #else
-diff --git a/arch/arm64/include/asm/signal32.h b/arch/arm64/include/asm/signal32.h
-index eeaa975..e68fcce 100644
---- a/arch/arm64/include/asm/signal32.h
-+++ b/arch/arm64/include/asm/signal32.h
-@@ -17,7 +17,9 @@
- #define __ASM_SIGNAL32_H
- 
- #ifdef __KERNEL__
--#ifdef CONFIG_COMPAT
-+
-+#ifdef CONFIG_AARCH32_EL0
-+
- #include <linux/compat.h>
- 
- #define AARCH32_KERN_SIGRET_CODE_OFFSET	0x500
-@@ -47,6 +49,6 @@ static inline int compat_setup_rt_frame(int usig, struct ksignal *ksig, sigset_t
- static inline void compat_setup_restart_syscall(struct pt_regs *regs)
- {
- }
--#endif /* CONFIG_COMPAT */
-+#endif /* CONFIG_AARCH32_EL0 */
- #endif /* __KERNEL__ */
- #endif /* __ASM_SIGNAL32_H */
-diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
-index 41e58fe..2971dea 100644
---- a/arch/arm64/include/asm/unistd.h
-+++ b/arch/arm64/include/asm/unistd.h
-@@ -13,7 +13,7 @@
-  * You should have received a copy of the GNU General Public License
-  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-	if (is_compat_thread(task_thread_info(t)))			\
++	if (is_a32_compat_thread(task_thread_info(t)))			\
+ 		__tls = &(t)->thread.tp2_value;				\
+ 	else								\
+ 		__tls = &(t)->thread.tp_value;				\
+diff --git a/arch/arm64/include/asm/syscall.h b/arch/arm64/include/asm/syscall.h
+index 709a574..ce09641 100644
+--- a/arch/arm64/include/asm/syscall.h
++++ b/arch/arm64/include/asm/syscall.h
+@@ -113,7 +113,7 @@ static inline void syscall_set_arguments(struct task_struct *task,
   */
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- #define __ARCH_WANT_COMPAT_SYS_GETDENTS64
- #define __ARCH_WANT_COMPAT_STAT64
- #define __ARCH_WANT_SYS_GETHOSTNAME
-diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
-index 3793003..75dd250 100644
---- a/arch/arm64/kernel/Makefile
-+++ b/arch/arm64/kernel/Makefile
-@@ -25,7 +25,7 @@ OBJCOPYFLAGS := --prefix-symbols=__efistub_
- $(obj)/%.stub.o: $(obj)/%.o FORCE
- 	$(call if_changed,objcopy)
+ static inline int syscall_get_arch(void)
+ {
+-	if (is_compat_task())
++	if (is_a32_compat_task())
+ 		return AUDIT_ARCH_ARM;
  
--arm64-obj-$(CONFIG_COMPAT)		+= sys32.o kuser32.o signal32.o 	\
-+arm64-obj-$(CONFIG_AARCH32_EL0)		+= sys32.o kuser32.o signal32.o 	\
- 					   sys_compat.o entry32.o		\
- 					   ../../arm/kernel/opcodes.o
- arm64-obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o entry-ftrace.o
-diff --git a/arch/arm64/kernel/asm-offsets.c b/arch/arm64/kernel/asm-offsets.c
-index 3ae6b31..e229525 100644
---- a/arch/arm64/kernel/asm-offsets.c
-+++ b/arch/arm64/kernel/asm-offsets.c
-@@ -52,7 +52,7 @@ int main(void)
-   DEFINE(S_X7,			offsetof(struct pt_regs, regs[7]));
-   DEFINE(S_LR,			offsetof(struct pt_regs, regs[30]));
-   DEFINE(S_SP,			offsetof(struct pt_regs, sp));
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
-   DEFINE(S_COMPAT_SP,		offsetof(struct pt_regs, compat_sp));
- #endif
-   DEFINE(S_PSTATE,		offsetof(struct pt_regs, pstate));
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 943f514..6f77412 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -32,7 +32,7 @@
- unsigned long elf_hwcap __read_mostly;
- EXPORT_SYMBOL_GPL(elf_hwcap);
+ 	return AUDIT_ARCH_AARCH64;
+diff --git a/arch/arm64/include/asm/thread_info.h b/arch/arm64/include/asm/thread_info.h
+index abd64bd..4daa559 100644
+--- a/arch/arm64/include/asm/thread_info.h
++++ b/arch/arm64/include/asm/thread_info.h
+@@ -118,7 +118,7 @@ static inline struct thread_info *current_thread_info(void)
+ #define TIF_FREEZE		19
+ #define TIF_RESTORE_SIGMASK	20
+ #define TIF_SINGLESTEP		21
+-#define TIF_32BIT		22	/* 32bit process */
++#define TIF_32BIT		22	/* AARCH32 process */
  
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- #define COMPAT_ELF_HWCAP_DEFAULT	\
- 				(COMPAT_HWCAP_HALF|COMPAT_HWCAP_THUMB|\
- 				 COMPAT_HWCAP_FAST_MULT|COMPAT_HWCAP_EDSP|\
-@@ -751,7 +751,7 @@ static const struct arm64_cpu_capabilities arm64_hwcaps[] = {
- 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_FP_SHIFT, FTR_SIGNED, 1, CAP_HWCAP, HWCAP_FPHP),
- 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_ASIMD_SHIFT, FTR_SIGNED, 0, CAP_HWCAP, HWCAP_ASIMD),
- 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_ASIMD_SHIFT, FTR_SIGNED, 1, CAP_HWCAP, HWCAP_ASIMDHP),
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_PMULL),
- 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_AES),
- 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_SHA1_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_SHA1),
-@@ -767,7 +767,7 @@ static void __init cap_set_hwcap(const struct arm64_cpu_capabilities *cap)
- 	case CAP_HWCAP:
- 		elf_hwcap |= cap->hwcap;
- 		break;
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	case CAP_COMPAT_HWCAP:
- 		compat_elf_hwcap |= (u32)cap->hwcap;
- 		break;
-@@ -790,7 +790,7 @@ static bool __maybe_unused cpus_have_hwcap(const struct arm64_cpu_capabilities *
- 	case CAP_HWCAP:
- 		rc = (elf_hwcap & cap->hwcap) != 0;
- 		break;
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	case CAP_COMPAT_HWCAP:
- 		rc = (compat_elf_hwcap & (u32)cap->hwcap) != 0;
- 		break;
-diff --git a/arch/arm64/kernel/cpuinfo.c b/arch/arm64/kernel/cpuinfo.c
-index 84c8684..32fb4f3 100644
---- a/arch/arm64/kernel/cpuinfo.c
-+++ b/arch/arm64/kernel/cpuinfo.c
-@@ -127,7 +127,7 @@ static int c_show(struct seq_file *m, void *v)
- 		 */
- 		seq_puts(m, "Features\t:");
- 		if (personality(current->personality) == PER_LINUX32) {
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 			for (j = 0; compat_hwcap_str[j]; j++)
- 				if (compat_elf_hwcap & (1 << j))
- 					seq_printf(m, " %s", compat_hwcap_str[j]);
-@@ -135,7 +135,7 @@ static int c_show(struct seq_file *m, void *v)
- 			for (j = 0; compat_hwcap2_str[j]; j++)
- 				if (compat_elf_hwcap2 & (1 << j))
- 					seq_printf(m, " %s", compat_hwcap2_str[j]);
--#endif /* CONFIG_COMPAT */
-+#endif /* CONFIG_AARCH32_EL0 */
- 		} else {
- 			for (j = 0; hwcap_str[j]; j++)
- 				if (elf_hwcap & (1 << j))
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index ec8bb48..21a0624 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -260,7 +260,7 @@ ENTRY(vectors)
- 	ventry	el0_fiq_invalid			// FIQ 64-bit EL0
- 	ventry	el0_error_invalid		// Error 64-bit EL0
- 
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	ventry	el0_sync_compat			// Synchronous 32-bit EL0
- 	ventry	el0_irq_compat			// IRQ 32-bit EL0
- 	ventry	el0_fiq_invalid_compat		// FIQ 32-bit EL0
-@@ -300,7 +300,7 @@ el0_error_invalid:
- 	inv_entry 0, BAD_ERROR
- ENDPROC(el0_error_invalid)
- 
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- el0_fiq_invalid_compat:
- 	inv_entry 0, BAD_FIQ, 32
- ENDPROC(el0_fiq_invalid_compat)
-@@ -463,7 +463,7 @@ el0_sync:
- 	b.ge	el0_dbg
- 	b	el0_inv
- 
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	.align	6
- el0_sync_compat:
- 	kernel_entry 0, 32
-diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
-index 85da0f5..35e70d8 100644
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -608,7 +608,7 @@ CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
- 	msr	cptr_el2, x0			// Disable copro. traps to EL2
- 1:
- 
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	msr	hstr_el2, xzr			// Disable CP15 traps to EL2
- #endif
- 
-diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index 3f6cd5c..aa79e81 100644
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -82,7 +82,7 @@ static void ptrace_hbptriggered(struct perf_event *bp,
- 		.si_addr	= (void __user *)(bkpt->trigger),
- 	};
- 
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	int i;
- 
- 	if (!is_compat_task())
-@@ -657,7 +657,7 @@ static const struct user_regset_view user_aarch64_view = {
- 	.regsets = aarch64_regsets, .n = ARRAY_SIZE(aarch64_regsets)
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+ #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
+diff --git a/arch/arm64/kernel/hw_breakpoint.c b/arch/arm64/kernel/hw_breakpoint.c
+index b45c95d..baa1eba 100644
+--- a/arch/arm64/kernel/hw_breakpoint.c
++++ b/arch/arm64/kernel/hw_breakpoint.c
+@@ -164,7 +164,7 @@ enum hw_breakpoint_ops {
+ 	HW_BREAKPOINT_RESTORE
  };
  
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- #include <linux/compat.h>
- 
- enum compat_regset {
-@@ -1192,11 +1192,11 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
- 
- 	return ret;
- }
--#endif /* CONFIG_COMPAT */
-+#endif /* CONFIG_AARCH32_EL0 */
- 
- const struct user_regset_view *task_user_regset_view(struct task_struct *task)
+-static int is_compat_bp(struct perf_event *bp)
++static int is_a32_compat_bp(struct perf_event *bp)
  {
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
+ 	struct task_struct *tsk = bp->hw.target;
+ 
+@@ -175,7 +175,7 @@ static int is_compat_bp(struct perf_event *bp)
+ 	 * deprecated behaviour if we use unaligned watchpoints in
+ 	 * AArch64 state.
+ 	 */
+-	return tsk && is_compat_thread(task_thread_info(tsk));
++	return tsk && is_a32_compat_thread(task_thread_info(tsk));
+ }
+ 
+ /**
+@@ -435,7 +435,7 @@ static int arch_build_bp_info(struct perf_event *bp)
+ 	 * Watchpoints can be of length 1, 2, 4 or 8 bytes.
+ 	 */
+ 	if (info->ctrl.type == ARM_BREAKPOINT_EXECUTE) {
+-		if (is_compat_bp(bp)) {
++		if (is_a32_compat_bp(bp)) {
+ 			if (info->ctrl.len != ARM_BREAKPOINT_LEN_2 &&
+ 			    info->ctrl.len != ARM_BREAKPOINT_LEN_4)
+ 				return -EINVAL;
+@@ -492,7 +492,7 @@ int arch_validate_hwbkpt_settings(struct perf_event *bp)
+ 	 * AArch32 tasks expect some simple alignment fixups, so emulate
+ 	 * that here.
+ 	 */
+-	if (is_compat_bp(bp)) {
++	if (is_a32_compat_bp(bp)) {
+ 		if (info->ctrl.len == ARM_BREAKPOINT_LEN_8)
+ 			alignment_mask = 0x7;
+ 		else
+@@ -679,7 +679,7 @@ static int watchpoint_handler(unsigned long addr, unsigned int esr,
+ 
+ 		info = counter_arch_bp(wp);
+ 		/* AArch32 watchpoints are either 4 or 8 bytes aligned. */
+-		if (is_compat_task()) {
++		if (is_a32_compat_task()) {
+ 			if (info->ctrl.len == ARM_BREAKPOINT_LEN_8)
+ 				alignment_mask = 0x7;
+ 			else
+diff --git a/arch/arm64/kernel/perf_regs.c b/arch/arm64/kernel/perf_regs.c
+index 3f62b35..a79058f 100644
+--- a/arch/arm64/kernel/perf_regs.c
++++ b/arch/arm64/kernel/perf_regs.c
+@@ -45,7 +45,7 @@ int perf_reg_validate(u64 mask)
+ 
+ u64 perf_reg_abi(struct task_struct *task)
+ {
+-	if (is_compat_thread(task_thread_info(task)))
++	if (is_a32_compat_thread(task_thread_info(task)))
+ 		return PERF_SAMPLE_REGS_ABI_32;
+ 	else
+ 		return PERF_SAMPLE_REGS_ABI_64;
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index 8062482..746f2d3 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -47,7 +47,6 @@
+ #include <trace/events/power.h>
+ 
+ #include <asm/alternative.h>
+-#include <asm/compat.h>
+ #include <asm/cacheflush.h>
+ #include <asm/fpsimd.h>
+ #include <asm/mmu_context.h>
+@@ -211,7 +210,7 @@ static void tls_thread_flush(void)
+ {
+ 	asm ("msr tpidr_el0, xzr");
+ 
+-	if (is_compat_task()) {
++	if (is_a32_compat_task()) {
+ 		current->thread.tp_value = 0;
+ 
+ 		/*
+@@ -263,7 +262,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
+ 		asm("mrs %0, tpidr_el0" : "=r" (*task_user_tls(p)));
+ 
+ 		if (stack_start) {
+-			if (is_compat_thread(task_thread_info(p)))
++			if (is_a32_compat_thread(task_thread_info(p)))
+ 				childregs->compat_sp = stack_start;
+ 			/* 16-byte aligned stack mandatory on AArch64 */
+ 			else if (stack_start & 15)
+@@ -303,7 +302,7 @@ static void tls_thread_switch(struct task_struct *next)
+ 	*task_user_tls(current) = tpidr;
+ 
+ 	tpidr = *task_user_tls(next);
+-	tpidrro = is_compat_thread(task_thread_info(next)) ?
++	tpidrro = is_a32_compat_thread(task_thread_info(next)) ?
+ 		  next->thread.tp_value : 0;
+ 
+ 	asm(
+diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
+index aa79e81..38a09338 100644
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -38,7 +38,6 @@
+ #include <linux/tracehook.h>
+ #include <linux/elf.h>
+ 
+-#include <asm/compat.h>
+ #include <asm/debug-monitors.h>
+ #include <asm/pgtable.h>
+ #include <asm/syscall.h>
+@@ -85,7 +84,7 @@ static void ptrace_hbptriggered(struct perf_event *bp,
+ #ifdef CONFIG_AARCH32_EL0
+ 	int i;
+ 
+-	if (!is_compat_task())
++	if (!is_a32_compat_task())
+ 		goto send_sig;
+ 
+ 	for (i = 0; i < ARM_MAX_BRP; ++i) {
+@@ -1203,9 +1202,9 @@ const struct user_regset_view *task_user_regset_view(struct task_struct *task)
+ 	 * 32-bit children use an extended user_aarch32_ptrace_view to allow
+ 	 * access to the TLS register.
+ 	 */
+-	if (is_compat_task())
++	if (is_a32_compat_task())
+ 		return &user_aarch32_view;
+-	else if (is_compat_thread(task_thread_info(task)))
++	else if (is_a32_compat_thread(task_thread_info(task)))
+ 		return &user_aarch32_ptrace_view;
+ #endif
+ 	return &user_aarch64_view;
+@@ -1232,7 +1231,7 @@ static void tracehook_report_syscall(struct pt_regs *regs,
+ 	 * A scratch register (ip(r12) on AArch32, x7 on AArch64) is
+ 	 * used to denote syscall entry/exit:
+ 	 */
+-	regno = (is_compat_task() ? 12 : 7);
++	regno = (is_a32_compat_task() ? 12 : 7);
+ 	saved_reg = regs->regs[regno];
+ 	regs->regs[regno] = dir;
+ 
+@@ -1343,7 +1342,7 @@ int valid_user_regs(struct user_pt_regs *regs, struct task_struct *task)
+ 	if (!test_tsk_thread_flag(task, TIF_SINGLESTEP))
+ 		regs->pstate &= ~DBG_SPSR_SS;
+ 
+-	if (is_compat_thread(task_thread_info(task)))
++	if (is_a32_compat_thread(task_thread_info(task)))
+ 		return valid_compat_regs(regs);
+ 	else
+ 		return valid_native_regs(regs);
+diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+index a8eafdb..be02f65 100644
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -276,7 +276,7 @@ static int setup_rt_frame(int usig, struct ksignal *ksig, sigset_t *set,
+ 
+ static void setup_restart_syscall(struct pt_regs *regs)
+ {
+-	if (is_compat_task())
++	if (is_a32_compat_task())
+ 		compat_setup_restart_syscall(regs);
+ 	else
+ 		regs->regs[8] = __NR_restart_syscall;
+@@ -295,7 +295,7 @@ static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
  	/*
- 	 * Core dumping of 32-bit tasks or compat ptrace requests must use the
- 	 * user_aarch32_view compatible with arm32. Native ptrace requests on
+ 	 * Set up the stack frame
+ 	 */
+-	if (is_compat_task()) {
++	if (is_a32_compat_task()) {
+ 		if (ksig->ka.sa.sa_flags & SA_SIGINFO)
+ 			ret = compat_setup_rt_frame(usig, ksig, oldset, regs);
+ 		else
 diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
-index e16ae22..85461e8 100644
+index 85461e8..515444a 100644
 --- a/arch/arm64/kernel/traps.c
 +++ b/arch/arm64/kernel/traps.c
-@@ -409,7 +409,7 @@ long compat_arm_syscall(struct pt_regs *regs);
- 
- asmlinkage long do_ni_syscall(struct pt_regs *regs)
- {
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	long ret;
- 	if (is_compat_task()) {
- 		ret = compat_arm_syscall(regs);
-diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
-index 97bc68f..26352a6 100644
---- a/arch/arm64/kernel/vdso.c
-+++ b/arch/arm64/kernel/vdso.c
-@@ -49,7 +49,7 @@ static union {
- } vdso_data_store __page_aligned_data;
- struct vdso_data *vdso_data = &vdso_data_store.data;
- 
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- /*
-  * Create and map the vectors page for AArch32 tasks.
+@@ -18,6 +18,7 @@
   */
-@@ -107,7 +107,7 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
  
- 	return PTR_ERR_OR_ZERO(ret);
- }
--#endif /* CONFIG_COMPAT */
-+#endif /* CONFIG_AARCH32_EL0 */
- 
- static struct vm_special_mapping vdso_spec[2];
- 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 5152b38..d5e699d 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -321,7 +321,7 @@ static void arch_timer_evtstrm_enable(int divider)
- 			| ARCH_TIMER_VIRT_EVT_EN;
- 	arch_timer_set_cntkctl(cntkctl);
- 	elf_hwcap |= HWCAP_EVTSTRM;
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_AARCH32_EL0
- 	compat_elf_hwcap |= COMPAT_HWCAP_EVTSTRM;
- #endif
- }
+ #include <linux/bug.h>
++#include <linux/compat.h>
+ #include <linux/signal.h>
+ #include <linux/personality.h>
+ #include <linux/kallsyms.h>
+@@ -411,7 +412,7 @@ asmlinkage long do_ni_syscall(struct pt_regs *regs)
+ {
+ #ifdef CONFIG_AARCH32_EL0
+ 	long ret;
+-	if (is_compat_task()) {
++	if (is_a32_compat_task()) {
+ 		ret = compat_arm_syscall(regs);
+ 		if (ret != -ENOSYS)
+ 			return ret;
 -- 
 2.5.0
