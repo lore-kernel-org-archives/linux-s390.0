@@ -1,552 +1,395 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 22/23] arm64:ilp32: add vdso-ilp32 and use for signal return
-Date: Tue, 24 May 2016 03:04:51 +0300
-Message-ID: <1464048292-30136-23-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 07/23] 32-bit ABI: introduce ARCH_32BIT_OFF_T config option
+Date: Tue, 24 May 2016 03:04:36 +0300
+Message-ID: <1464048292-30136-8-git-send-email-ynorov@caviumnetworks.com>
 References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com
+Cc: kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, geert@linux-m68k.org, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, broonie@kernel.org, ynorov@caviumnetworks.com, schwidefsky@de.ibm.com, bamvor.zhangjian@huawei.com, philipp.tomsich@theobroma-systems.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+All new 32-bit architectures should have 64-bit off_t type, but existing
+architectures has 32-bit ones.
 
-ILP32 VDSO exports next symbols:
- __kernel_rt_sigreturn;
- __kernel_gettimeofday;
- __kernel_clock_gettime;
- __kernel_clock_getres;
+To handle it, new config option is added to arch/Kconfig that defaults
+ARCH_32BIT_OFF_T to be disabled for non-64 bit architectures. All existing
+32-bit architectures enable it explicitly here.
 
-What shared object to use, kernel selects depending on result of
-is_ilp32_compat_task() in arch/arm64/kernel/vdso.c, so it substitutes
-correct pages and spec.
+New option affects force_o_largefile() behaviour. Namely, if off_t is
+64-bits long, we have no reason to reject user to open big files.
 
-Adjusted to move the move data page before code pages in sync with
-commit 601255ae3c98fdeeee3a8bb4696425e4f868b4f1
+Note that even if architectures has only 64-bit off_t in the kernel
+(arc, c6x, h8300, hexagon, metag, nios2, openrisc, tile32 and unicore32),
+a libc may use 32-bit off_t, and therefore want to limit the file size
+to 4GB unless specified differently in the open flags.
 
-Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
-Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 ---
- arch/arm64/include/asm/vdso.h                 |  6 ++
- arch/arm64/kernel/Makefile                    |  7 ++
- arch/arm64/kernel/asm-offsets.c               |  7 ++
- arch/arm64/kernel/signal.c                    |  2 +
- arch/arm64/kernel/vdso-ilp32/.gitignore       |  2 +
- arch/arm64/kernel/vdso-ilp32/Makefile         | 74 +++++++++++++++++++++
- arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S     | 33 ++++++++++
- arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S | 95 +++++++++++++++++++++++++++
- arch/arm64/kernel/vdso.c                      | 61 ++++++++++++++---
- arch/arm64/kernel/vdso/gettimeofday.S         | 20 +++++-
- 10 files changed, 294 insertions(+), 13 deletions(-)
- create mode 100644 arch/arm64/kernel/vdso-ilp32/.gitignore
- create mode 100644 arch/arm64/kernel/vdso-ilp32/Makefile
- create mode 100644 arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S
- create mode 100644 arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
+ arch/Kconfig            | 4 ++++
+ arch/arc/Kconfig        | 1 +
+ arch/arm/Kconfig        | 1 +
+ arch/blackfin/Kconfig   | 1 +
+ arch/cris/Kconfig       | 1 +
+ arch/frv/Kconfig        | 1 +
+ arch/h8300/Kconfig      | 1 +
+ arch/hexagon/Kconfig    | 1 +
+ arch/m32r/Kconfig       | 1 +
+ arch/m68k/Kconfig       | 1 +
+ arch/metag/Kconfig      | 1 +
+ arch/microblaze/Kconfig | 1 +
+ arch/mips/Kconfig       | 1 +
+ arch/mn10300/Kconfig    | 1 +
+ arch/nios2/Kconfig      | 1 +
+ arch/openrisc/Kconfig   | 1 +
+ arch/parisc/Kconfig     | 1 +
+ arch/powerpc/Kconfig    | 1 +
+ arch/score/Kconfig      | 1 +
+ arch/sh/Kconfig         | 1 +
+ arch/sparc/Kconfig      | 1 +
+ arch/tile/Kconfig       | 1 +
+ arch/unicore32/Kconfig  | 1 +
+ arch/x86/Kconfig        | 1 +
+ arch/x86/um/Kconfig     | 1 +
+ arch/xtensa/Kconfig     | 1 +
+ include/linux/fcntl.h   | 2 +-
+ 27 files changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/vdso.h b/arch/arm64/include/asm/vdso.h
-index 839ce00..649a9a4 100644
---- a/arch/arm64/include/asm/vdso.h
-+++ b/arch/arm64/include/asm/vdso.h
-@@ -29,6 +29,12 @@
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 92fcbd4..a2b7cf3 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -230,6 +230,10 @@ config ARCH_THREAD_INFO_ALLOCATOR
+ config ARCH_WANTS_DYNAMIC_TASK_STRUCT
+ 	bool
  
- #include <generated/vdso-offsets.h>
++config ARCH_32BIT_OFF_T
++	bool
++	depends on !64BIT
++
+ config HAVE_REGS_AND_STACK_ACCESS_API
+ 	bool
+ 	help
+diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
+index a876743..13f66cc 100644
+--- a/arch/arc/Kconfig
++++ b/arch/arc/Kconfig
+@@ -9,6 +9,7 @@
+ config ARC
+ 	def_bool y
+ 	select ARCH_SUPPORTS_ATOMIC_RMW if ARC_HAS_LLSC
++	select ARCH_32BIT_OFF_T
+ 	select BUILDTIME_EXTABLE_SORT
+ 	select COMMON_CLK
+ 	select CLONE_BACKWARDS
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index cdfa6c2..efe3ca2 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1,6 +1,7 @@
+ config ARM
+ 	bool
+ 	default y
++	select ARCH_32BIT_OFF_T
+ 	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
+ 	select ARCH_HAS_DEVMEM_IS_ALLOWED
+ 	select ARCH_HAS_ELF_RANDOMIZE
+diff --git a/arch/blackfin/Kconfig b/arch/blackfin/Kconfig
+index a63c122..ef4368e 100644
+--- a/arch/blackfin/Kconfig
++++ b/arch/blackfin/Kconfig
+@@ -12,6 +12,7 @@ config RWSEM_XCHGADD_ALGORITHM
  
-+#ifdef CONFIG_ARM64_ILP32
-+#include <generated/vdso-ilp32-offsets.h>
-+#else
-+#define vdso_offset_sigtramp_ilp32
-+#endif
-+
- #define VDSO_SYMBOL(base, name)						   \
- ({									   \
- 	(void *)(vdso_offset_##name - VDSO_LBASE + (unsigned long)(base)); \
-diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
-index 09e4373..e98add5 100644
---- a/arch/arm64/kernel/Makefile
-+++ b/arch/arm64/kernel/Makefile
-@@ -50,6 +50,7 @@ arm64-obj-$(CONFIG_PARAVIRT)		+= paravirt.o
- arm64-obj-$(CONFIG_RANDOMIZE_BASE)	+= kaslr.o
+ config BLACKFIN
+ 	def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select HAVE_DYNAMIC_FTRACE
+diff --git a/arch/cris/Kconfig b/arch/cris/Kconfig
+index e086f9e..5bc9203 100644
+--- a/arch/cris/Kconfig
++++ b/arch/cris/Kconfig
+@@ -50,6 +50,7 @@ config LOCKDEP_SUPPORT
+ config CRIS
+ 	bool
+ 	default y
++	select ARCH_32BIT_OFF_T
+ 	select HAVE_IDE
+ 	select GENERIC_ATOMIC64
+ 	select HAVE_UID16
+diff --git a/arch/frv/Kconfig b/arch/frv/Kconfig
+index eefd9a4..2f14904 100644
+--- a/arch/frv/Kconfig
++++ b/arch/frv/Kconfig
+@@ -1,6 +1,7 @@
+ config FRV
+ 	bool
+ 	default y
++	select ARCH_32BIT_OFF_T
+ 	select HAVE_IDE
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select HAVE_PERF_EVENTS
+diff --git a/arch/h8300/Kconfig b/arch/h8300/Kconfig
+index 986ea84..8c221f1 100644
+--- a/arch/h8300/Kconfig
++++ b/arch/h8300/Kconfig
+@@ -1,5 +1,6 @@
+ config H8300
+         def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select GENERIC_ATOMIC64
+ 	select HAVE_UID16
+ 	select VIRT_TO_BUS
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 57298e7..df84602 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -3,6 +3,7 @@ comment "Linux Kernel Configuration for Hexagon"
  
- obj-y					+= $(arm64-obj-y) vdso/
-+obj-$(CONFIG_ARM64_ILP32)		+= vdso-ilp32/
- obj-m					+= $(arm64-obj-m)
- head-y					:= head.o
- extra-y					+= $(head-y) vmlinux.lds
-@@ -57,3 +58,9 @@ extra-y					+= $(head-y) vmlinux.lds
- # vDSO - this must be built first to generate the symbol offsets
- $(call objectify,$(arm64-obj-y)): $(obj)/vdso/vdso-offsets.h
- $(obj)/vdso/vdso-offsets.h: $(obj)/vdso
-+
-+ifeq ($(CONFIG_ARM64_ILP32),y)
-+# vDSO - this must be built first to generate the symbol offsets
-+$(call objectify,$(arm64-obj-y)): $(obj)/vdso-ilp32/vdso-ilp32-offsets.h
-+$(obj)/vdso-ilp32/vdso-ilp32-offsets.h: $(obj)/vdso-ilp32
-+endif
-diff --git a/arch/arm64/kernel/asm-offsets.c b/arch/arm64/kernel/asm-offsets.c
-index e229525..af69b81 100644
---- a/arch/arm64/kernel/asm-offsets.c
-+++ b/arch/arm64/kernel/asm-offsets.c
-@@ -101,6 +101,13 @@ int main(void)
-   DEFINE(TSPEC_TV_SEC,		offsetof(struct timespec, tv_sec));
-   DEFINE(TSPEC_TV_NSEC,		offsetof(struct timespec, tv_nsec));
-   BLANK();
-+#ifdef CONFIG_COMPAT
-+  DEFINE(COMPAT_TVAL_TV_SEC,	offsetof(struct compat_timeval, tv_sec));
-+  DEFINE(COMPAT_TVAL_TV_USEC,	offsetof(struct compat_timeval, tv_usec));
-+  DEFINE(COMPAT_TSPEC_TV_SEC,	offsetof(struct compat_timespec, tv_sec));
-+  DEFINE(COMPAT_TSPEC_TV_NSEC,	offsetof(struct compat_timespec, tv_nsec));
-+  BLANK();
-+#endif
-   DEFINE(TZ_MINWEST,		offsetof(struct timezone, tz_minuteswest));
-   DEFINE(TZ_DSTTIME,		offsetof(struct timezone, tz_dsttime));
-   BLANK();
-diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index 45bcd96..933cdcf 100644
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -264,6 +264,8 @@ void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
+ config HEXAGON
+ 	def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select HAVE_OPROFILE
+ 	# Other pending projects/to-do items.
+ 	# select HAVE_REGS_AND_STACK_ACCESS_API
+diff --git a/arch/m32r/Kconfig b/arch/m32r/Kconfig
+index c82b292..7866bca 100644
+--- a/arch/m32r/Kconfig
++++ b/arch/m32r/Kconfig
+@@ -1,6 +1,7 @@
+ config M32R
+ 	bool
+ 	default y
++	select ARCH_32BIT_OFF_T
+ 	select HAVE_IDE
+ 	select HAVE_OPROFILE
+ 	select INIT_ALL_POSSIBLE
+diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
+index 498b567..e9897e4 100644
+--- a/arch/m68k/Kconfig
++++ b/arch/m68k/Kconfig
+@@ -1,6 +1,7 @@
+ config M68K
+ 	bool
+ 	default y
++	select ARCH_32BIT_OFF_T
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT if ISA
+ 	select HAVE_IDE
+ 	select HAVE_AOUT if MMU
+diff --git a/arch/metag/Kconfig b/arch/metag/Kconfig
+index a0fa88d..5b7620a 100644
+--- a/arch/metag/Kconfig
++++ b/arch/metag/Kconfig
+@@ -1,5 +1,6 @@
+ config METAG
+ 	def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select EMBEDDED
+ 	select GENERIC_ATOMIC64
+ 	select GENERIC_CLOCKEVENTS
+diff --git a/arch/microblaze/Kconfig b/arch/microblaze/Kconfig
+index 3d793b5..bdb0f83 100644
+--- a/arch/microblaze/Kconfig
++++ b/arch/microblaze/Kconfig
+@@ -1,5 +1,6 @@
+ config MICROBLAZE
+ 	def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_WANT_IPC_PARSE_VERSION
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 2018c2b..079a6d2 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -1,6 +1,7 @@
+ config MIPS
+ 	bool
+ 	default y
++	select ARCH_32BIT_OFF_T if !64BIT
+ 	select ARCH_SUPPORTS_UPROBES
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+diff --git a/arch/mn10300/Kconfig b/arch/mn10300/Kconfig
+index 06ddb55..bc1aae5 100644
+--- a/arch/mn10300/Kconfig
++++ b/arch/mn10300/Kconfig
+@@ -1,5 +1,6 @@
+ config MN10300
+ 	def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select HAVE_OPROFILE
+ 	select HAVE_UID16
+ 	select GENERIC_IRQ_SHOW
+diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
+index 4375554..a38fc38 100644
+--- a/arch/nios2/Kconfig
++++ b/arch/nios2/Kconfig
+@@ -1,5 +1,6 @@
+ config NIOS2
+ 	def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select ARCH_WANT_OPTIONAL_GPIOLIB
+ 	select CLKSRC_OF
+ 	select GENERIC_ATOMIC64
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index e118c02..0271714 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -5,6 +5,7 @@
  
- 	if (ka->sa.sa_flags & SA_RESTORER)
- 		sigtramp = ka->sa.sa_restorer;
-+	else if (is_ilp32_compat_task())
-+		sigtramp = VDSO_SYMBOL(current->mm->context.vdso, sigtramp_ilp32);
- 	else
- 		sigtramp = VDSO_SYMBOL(current->mm->context.vdso, sigtramp);
+ config OPENRISC
+ 	def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select OF
+ 	select OF_EARLY_FLATTREE
+ 	select IRQ_DOMAIN
+diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
+index 88cfaa8..affad75 100644
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -1,5 +1,6 @@
+ config PARISC
+ 	def_bool y
++	select ARCH_32BIT_OFF_T if !64BIT
+ 	select ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select HAVE_IDE
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 7cd32c0..2c7a795 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -85,6 +85,7 @@ config ARCH_HAS_DMA_SET_COHERENT_MASK
+ config PPC
+ 	bool
+ 	default y
++	select ARCH_32BIT_OFF_T if PPC32
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+ 	select BINFMT_ELF
+diff --git a/arch/score/Kconfig b/arch/score/Kconfig
+index 366e1b5..bc7bc7a 100644
+--- a/arch/score/Kconfig
++++ b/arch/score/Kconfig
+@@ -2,6 +2,7 @@ menu "Machine selection"
  
-diff --git a/arch/arm64/kernel/vdso-ilp32/.gitignore b/arch/arm64/kernel/vdso-ilp32/.gitignore
-new file mode 100644
-index 0000000..61806c3
---- /dev/null
-+++ b/arch/arm64/kernel/vdso-ilp32/.gitignore
-@@ -0,0 +1,2 @@
-+vdso-ilp32.lds
-+vdso-ilp32-offsets.h
-diff --git a/arch/arm64/kernel/vdso-ilp32/Makefile b/arch/arm64/kernel/vdso-ilp32/Makefile
-new file mode 100644
-index 0000000..0671e88
---- /dev/null
-+++ b/arch/arm64/kernel/vdso-ilp32/Makefile
-@@ -0,0 +1,74 @@
-+#
-+# Building a vDSO image for AArch64.
-+#
-+# Author: Will Deacon <will.deacon@arm.com>
-+# Heavily based on the vDSO Makefiles for other archs.
-+#
-+
-+obj-ilp32-vdso := gettimeofday-ilp32.o note-ilp32.o sigreturn-ilp32.o
-+
-+# Build rules
-+targets := $(obj-ilp32-vdso) vdso-ilp32.so vdso-ilp32.so.dbg
-+obj-ilp32-vdso := $(addprefix $(obj)/, $(obj-ilp32-vdso))
-+
-+ccflags-y := -shared -fno-common -fno-builtin
-+ccflags-y += -nostdlib -Wl,-soname=linux-ilp32-vdso.so.1 \
-+		$(call cc-ldoption, -Wl$(comma)--hash-style=sysv)
-+
-+obj-y += vdso-ilp32.o
-+extra-y += vdso-ilp32.lds vdso-ilp32-offsets.h
-+CPPFLAGS_vdso-ilp32.lds += -P -C -U$(ARCH) -mabi=ilp32
-+
-+# Force dependency (incbin is bad)
-+$(obj)/vdso-ilp32.o : $(obj)/vdso-ilp32.so
-+
-+# Link rule for the .so file, .lds has to be first
-+$(obj)/vdso-ilp32.so.dbg: $(src)/vdso-ilp32.lds $(obj-ilp32-vdso)
-+	$(call if_changed,vdso-ilp32ld)
-+
-+# Strip rule for the .so file
-+$(obj)/%.so: OBJCOPYFLAGS := -S
-+$(obj)/%.so: $(obj)/%.so.dbg FORCE
-+	$(call if_changed,objcopy)
-+
-+# Generate VDSO offsets using helper script
-+gen-vdsosym := $(srctree)/$(src)/../vdso/gen_vdso_offsets.sh
-+quiet_cmd_vdsosym = VDSOSYM $@
-+define cmd_vdsosym
-+	$(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@ && \
-+	cp $@ include/generated/
-+endef
-+
-+$(obj)/vdso-ilp32-offsets.h: $(obj)/vdso-ilp32.so.dbg FORCE
-+	$(call if_changed,vdsosym)
-+
-+# Assembly rules for the .S files
-+#$(obj-ilp32-vdso): %.o: $(src)/../vdso/$(subst -ilp32,,%.S)
-+#	$(call if_changed_dep,vdso-ilp32as)
-+
-+$(obj)/gettimeofday-ilp32.o: $(src)/../vdso/gettimeofday.S
-+	$(call if_changed_dep,vdso-ilp32as)
-+
-+$(obj)/note-ilp32.o: $(src)/../vdso/note.S
-+	$(call if_changed_dep,vdso-ilp32as)
-+
-+# This one should be fine because ILP32 uses the same generic
-+# __NR_rt_sigreturn syscall number.
-+$(obj)/sigreturn-ilp32.o: $(src)/../vdso/sigreturn.S
-+	$(call if_changed_dep,vdso-ilp32as)
-+
-+# Actual build commands
-+quiet_cmd_vdso-ilp32ld = VDSOILP32L $@
-+      cmd_vdso-ilp32ld = $(CC) $(c_flags) -mabi=ilp32  -Wl,-n -Wl,-T $^ -o $@
-+quiet_cmd_vdso-ilp32as = VDSOILP32A $@
-+      cmd_vdso-ilp32as = $(CC) $(a_flags) -mabi=ilp32 -c -o $@ $<
-+
-+# Install commands for the unstripped file
-+quiet_cmd_vdso_install = INSTALL $@
-+      cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
-+
-+vdso-ilp32.so: $(obj)/vdso-ilp32.so.dbg
-+	@mkdir -p $(MODLIB)/vdso
-+	$(call cmd,vdso_install)
-+
-+vdso_install: vdso-ilp32.so
-diff --git a/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S
-new file mode 100644
-index 0000000..46ac072
---- /dev/null
-+++ b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.S
-@@ -0,0 +1,33 @@
-+/*
-+ * Copyright (C) 2012 ARM Limited
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ * Author: Will Deacon <will.deacon@arm.com>
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/linkage.h>
-+#include <linux/const.h>
-+#include <asm/page.h>
-+
-+	__PAGE_ALIGNED_DATA
-+
-+	.globl vdso_ilp32_start, vdso_ilp32_end
-+	.balign PAGE_SIZE
-+vdso_ilp32_start:
-+	.incbin "arch/arm64/kernel/vdso-ilp32/vdso-ilp32.so"
-+	.balign PAGE_SIZE
-+vdso_ilp32_end:
-+
-+	.previous
-diff --git a/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
-new file mode 100644
-index 0000000..1dde31f
---- /dev/null
-+++ b/arch/arm64/kernel/vdso-ilp32/vdso-ilp32.lds.S
-@@ -0,0 +1,95 @@
-+/*
-+ * GNU linker script for the VDSO library.
-+ *
-+ * Copyright (C) 2012 ARM Limited
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+ *
-+ * Author: Will Deacon <will.deacon@arm.com>
-+ * Heavily based on the vDSO linker scripts for other archs.
-+ */
-+
-+#include <linux/const.h>
-+#include <asm/page.h>
-+#include <asm/vdso.h>
-+
-+SECTIONS
-+{
-+	PROVIDE(_vdso_data = . - PAGE_SIZE);
-+	. = VDSO_LBASE + SIZEOF_HEADERS;
-+
-+	.hash		: { *(.hash) }			:text
-+	.gnu.hash	: { *(.gnu.hash) }
-+	.dynsym		: { *(.dynsym) }
-+	.dynstr		: { *(.dynstr) }
-+	.gnu.version	: { *(.gnu.version) }
-+	.gnu.version_d	: { *(.gnu.version_d) }
-+	.gnu.version_r	: { *(.gnu.version_r) }
-+
-+	.note		: { *(.note.*) }		:text	:note
-+
-+	. = ALIGN(16);
-+
-+	.text		: { *(.text*) }			:text	=0xd503201f
-+	PROVIDE (__etext = .);
-+	PROVIDE (_etext = .);
-+	PROVIDE (etext = .);
-+
-+	.eh_frame_hdr	: { *(.eh_frame_hdr) }		:text	:eh_frame_hdr
-+	.eh_frame	: { KEEP (*(.eh_frame)) }	:text
-+
-+	.dynamic	: { *(.dynamic) }		:text	:dynamic
-+
-+	.rodata		: { *(.rodata*) }		:text
-+
-+	_end = .;
-+	PROVIDE(end = .);
-+
-+	/DISCARD/	: {
-+		*(.note.GNU-stack)
-+		*(.data .data.* .gnu.linkonce.d.* .sdata*)
-+		*(.bss .sbss .dynbss .dynsbss)
-+	}
-+}
-+
-+/*
-+ * We must supply the ELF program headers explicitly to get just one
-+ * PT_LOAD segment, and set the flags explicitly to make segments read-only.
-+ */
-+PHDRS
-+{
-+	text		PT_LOAD		FLAGS(5) FILEHDR PHDRS; /* PF_R|PF_X */
-+	dynamic		PT_DYNAMIC	FLAGS(4);		/* PF_R */
-+	note		PT_NOTE		FLAGS(4);		/* PF_R */
-+	eh_frame_hdr	PT_GNU_EH_FRAME;
-+}
-+
-+/*
-+ * This controls what symbols we export from the DSO.
-+ */
-+VERSION
-+{
-+	LINUX_4.6 {
-+	global:
-+		__kernel_rt_sigreturn;
-+		__kernel_gettimeofday;
-+		__kernel_clock_gettime;
-+		__kernel_clock_getres;
-+	local: *;
-+	};
-+}
-+
-+/*
-+ * Make the sigreturn code visible to the kernel.
-+ */
-+VDSO_sigtramp_ilp32		= __kernel_rt_sigreturn;
-diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
-index 26352a6..521a8e4 100644
---- a/arch/arm64/kernel/vdso.c
-+++ b/arch/arm64/kernel/vdso.c
-@@ -40,6 +40,12 @@ extern char vdso_start, vdso_end;
- static unsigned long vdso_pages;
- static struct page **vdso_pagelist;
+ config SCORE
+        def_bool y
++       select ARCH_32BIT_OFF_T
+        select GENERIC_IRQ_SHOW
+        select GENERIC_IOMAP
+        select GENERIC_ATOMIC64
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index 7ed20fc..2438390 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -52,6 +52,7 @@ config SUPERH
  
-+#ifdef CONFIG_ARM64_ILP32
-+extern char vdso_ilp32_start, vdso_ilp32_end;
-+static unsigned long vdso_ilp32_pages;
-+static struct page **vdso_ilp32_pagelist;
-+#endif
-+
- /*
-  * The vDSO data page.
-  */
-@@ -109,24 +115,29 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
- }
- #endif /* CONFIG_AARCH32_EL0 */
+ config SUPERH32
+ 	def_bool ARCH = "sh"
++	select ARCH_32BIT_OFF_T
+ 	select HAVE_KPROBES
+ 	select HAVE_KRETPROBES
+ 	select HAVE_IOREMAP_PROT if MMU && !X2TLB
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index 57ffaf2..c88b82d 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -45,6 +45,7 @@ config SPARC
  
--static struct vm_special_mapping vdso_spec[2];
--
--static int __init vdso_init(void)
-+static int __init vdso_init_common(char *vdso_start, char *vdso_end,
-+					  unsigned long *vdso_pagesp,
-+					  struct page ***vdso_pagelistp,
-+					  struct vm_special_mapping* vdso_spec)
- {
- 	int i;
-+	unsigned long vdso_pages;
-+	struct page **vdso_pagelist;
+ config SPARC32
+ 	def_bool !64BIT
++	select ARCH_32BIT_OFF_T
+ 	select GENERIC_ATOMIC64
+ 	select CLZ_TAB
+ 	select HAVE_UID16
+diff --git a/arch/tile/Kconfig b/arch/tile/Kconfig
+index 8171930..f9d61e7 100644
+--- a/arch/tile/Kconfig
++++ b/arch/tile/Kconfig
+@@ -3,6 +3,7 @@
  
--	if (memcmp(&vdso_start, "\177ELF", 4)) {
-+	if (memcmp(vdso_start, "\177ELF", 4)) {
- 		pr_err("vDSO is not a valid ELF object!\n");
- 		return -EINVAL;
- 	}
+ config TILE
+ 	def_bool y
++	select ARCH_32BIT_OFF_T if !64BIT
+ 	select HAVE_PERF_EVENTS
+ 	select USE_PMC if PERF_EVENTS
+ 	select HAVE_DMA_API_DEBUG
+diff --git a/arch/unicore32/Kconfig b/arch/unicore32/Kconfig
+index e5602ee..b995104 100644
+--- a/arch/unicore32/Kconfig
++++ b/arch/unicore32/Kconfig
+@@ -1,6 +1,7 @@
+ config UNICORE32
+ 	def_bool y
+ 	select ARCH_HAS_DEVMEM_IS_ALLOWED
++	select ARCH_32BIT_OFF_T
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+ 	select HAVE_MEMBLOCK
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 2dc18605..3628b14 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -20,6 +20,7 @@ config X86
+ 	select ACPI_LEGACY_TABLES_LOOKUP	if ACPI
+ 	select ACPI_SYSTEM_POWER_STATES_SUPPORT	if ACPI
+ 	select ANON_INODES
++	select ARCH_32BIT_OFF_T			if X86_32
+ 	select ARCH_CLOCKSOURCE_DATA
+ 	select ARCH_DISCARD_MEMBLOCK
+ 	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
+diff --git a/arch/x86/um/Kconfig b/arch/x86/um/Kconfig
+index ed56a1c..8436bcd 100644
+--- a/arch/x86/um/Kconfig
++++ b/arch/x86/um/Kconfig
+@@ -21,6 +21,7 @@ config 64BIT
+ config X86_32
+ 	def_bool !64BIT
+ 	select HAVE_AOUT
++	select ARCH_32BIT_OFF_T
+ 	select ARCH_WANT_IPC_PARSE_VERSION
+ 	select MODULES_USE_ELF_REL
+ 	select CLONE_BACKWARDS
+diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
+index e832d3e..b68de31 100644
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -3,6 +3,7 @@ config ZONE_DMA
  
--	vdso_pages = (&vdso_end - &vdso_start) >> PAGE_SHIFT;
-+	vdso_pages = (vdso_end - vdso_start) >> PAGE_SHIFT;
-+	*vdso_pagesp = vdso_pages;
- 	pr_info("vdso: %ld pages (%ld code @ %p, %ld data @ %p)\n",
--		vdso_pages + 1, vdso_pages, &vdso_start, 1L, vdso_data);
-+		vdso_pages + 1, vdso_pages, vdso_start, 1L, vdso_data);
+ config XTENSA
+ 	def_bool y
++	select ARCH_32BIT_OFF_T
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select ARCH_WANT_IPC_PARSE_VERSION
+ 	select ARCH_WANT_OPTIONAL_GPIOLIB
+diff --git a/include/linux/fcntl.h b/include/linux/fcntl.h
+index 76ce329..46960a1 100644
+--- a/include/linux/fcntl.h
++++ b/include/linux/fcntl.h
+@@ -5,7 +5,7 @@
  
- 	/* Allocate the vDSO pagelist, plus a page for the data. */
- 	vdso_pagelist = kcalloc(vdso_pages + 1, sizeof(struct page *),
- 				GFP_KERNEL);
-+	*vdso_pagelistp = vdso_pagelist;
- 	if (vdso_pagelist == NULL)
- 		return -ENOMEM;
  
-@@ -135,7 +146,7 @@ static int __init vdso_init(void)
+ #ifndef force_o_largefile
+-#define force_o_largefile() (BITS_PER_LONG != 32)
++#define force_o_largefile() (!IS_ENABLED(CONFIG_ARCH_32BIT_OFF_T))
+ #endif
  
- 	/* Grab the vDSO code pages. */
- 	for (i = 0; i < vdso_pages; i++)
--		vdso_pagelist[i + 1] = virt_to_page(&vdso_start + i * PAGE_SIZE);
-+		vdso_pagelist[i + 1] = virt_to_page(vdso_start + i * PAGE_SIZE);
- 
- 	/* Populate the special mapping structures */
- 	vdso_spec[0] = (struct vm_special_mapping) {
-@@ -150,16 +161,46 @@ static int __init vdso_init(void)
- 
- 	return 0;
- }
-+
-+static struct vm_special_mapping vdso_spec[2];
-+
-+static int __init vdso_init(void)
-+{
-+	return vdso_init_common(&vdso_start, &vdso_end,
-+				&vdso_pages, &vdso_pagelist,
-+				vdso_spec);
-+}
- arch_initcall(vdso_init);
- 
-+#ifdef CONFIG_ARM64_ILP32
-+static struct vm_special_mapping vdso_ilp32_spec[2];
-+
-+static int __init vdso_ilp32_init(void)
-+{
-+	return vdso_init_common(&vdso_ilp32_start, &vdso_ilp32_end,
-+				&vdso_ilp32_pages, &vdso_ilp32_pagelist,
-+				vdso_ilp32_spec);
-+}
-+arch_initcall(vdso_ilp32_init);
-+#endif
-+
- int arch_setup_additional_pages(struct linux_binprm *bprm,
- 				int uses_interp)
- {
- 	struct mm_struct *mm = current->mm;
- 	unsigned long vdso_base, vdso_text_len, vdso_mapping_len;
- 	void *ret;
-+	unsigned long pages = vdso_pages;
-+	struct vm_special_mapping *spec = vdso_spec;
-+
-+#ifdef CONFIG_ARM64_ILP32
-+	if (is_ilp32_compat_task()) {
-+	        pages = vdso_ilp32_pages;
-+	        spec = vdso_ilp32_spec;
-+	}
-+#endif
- 
--	vdso_text_len = vdso_pages << PAGE_SHIFT;
-+	vdso_text_len = pages << PAGE_SHIFT;
- 	/* Be sure to map the data page */
- 	vdso_mapping_len = vdso_text_len + PAGE_SIZE;
- 
-@@ -171,7 +212,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm,
- 	}
- 	ret = _install_special_mapping(mm, vdso_base, PAGE_SIZE,
- 				       VM_READ|VM_MAYREAD,
--				       &vdso_spec[0]);
-+				       &spec[0]);
- 	if (IS_ERR(ret))
- 		goto up_fail;
- 
-@@ -180,7 +221,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm,
- 	ret = _install_special_mapping(mm, vdso_base, vdso_text_len,
- 				       VM_READ|VM_EXEC|
- 				       VM_MAYREAD|VM_MAYWRITE|VM_MAYEXEC,
--				       &vdso_spec[1]);
-+				       &spec[1]);
- 	if (IS_ERR(ret))
- 		goto up_fail;
- 
-diff --git a/arch/arm64/kernel/vdso/gettimeofday.S b/arch/arm64/kernel/vdso/gettimeofday.S
-index efa79e8..a2d8a70 100644
---- a/arch/arm64/kernel/vdso/gettimeofday.S
-+++ b/arch/arm64/kernel/vdso/gettimeofday.S
-@@ -25,6 +25,16 @@
- #define NSEC_PER_SEC_LO16	0xca00
- #define NSEC_PER_SEC_HI16	0x3b9a
- 
-+#ifdef __LP64__
-+#define PTR_REG(n)	x##n
-+#define OFFSET(n)	n
-+#define DELOUSE(n)
-+#else
-+#define PTR_REG(n)	w##n
-+#define OFFSET(n)	COMPAT_##n
-+#define DELOUSE(n)	mov     w##n, w##n
-+#endif
-+
- vdso_data	.req	x6
- use_syscall	.req	w7
- seqcnt		.req	w8
-@@ -51,6 +61,8 @@ seqcnt		.req	w8
- /* int __kernel_gettimeofday(struct timeval *tv, struct timezone *tz); */
- ENTRY(__kernel_gettimeofday)
- 	.cfi_startproc
-+	DELOUSE(0)
-+	DELOUSE(1)
- 	mov	x2, x30
- 	.cfi_register x30, x2
- 
-@@ -68,7 +80,7 @@ ENTRY(__kernel_gettimeofday)
- 	mov	x13, #1000
- 	lsl	x13, x13, x12
- 	udiv	x11, x11, x13
--	stp	x10, x11, [x0, #TVAL_TV_SEC]
-+	stp	PTR_REG(10), PTR_REG(11), [x0, #OFFSET(TVAL_TV_SEC)]
- 2:
- 	/* If tz is NULL, return 0. */
- 	cbz	x1, 3f
-@@ -88,6 +100,7 @@ ENDPROC(__kernel_gettimeofday)
- /* int __kernel_clock_gettime(clockid_t clock_id, struct timespec *tp); */
- ENTRY(__kernel_clock_gettime)
- 	.cfi_startproc
-+	DELOUSE(1)
- 	cmp	w0, #CLOCK_REALTIME
- 	ccmp	w0, #CLOCK_MONOTONIC, #0x4, ne
- 	b.ne	2f
-@@ -159,7 +172,7 @@ ENTRY(__kernel_clock_gettime)
- 
- 6:	/* Store to the user timespec. */
- 	lsr	x11, x11, x12
--	stp	x10, x11, [x1, #TSPEC_TV_SEC]
-+	stp	PTR_REG(10), PTR_REG(11), [x1, #OFFSET(TSPEC_TV_SEC)]
- 	mov	x0, xzr
- 	ret
- 7:
-@@ -174,6 +187,7 @@ ENDPROC(__kernel_clock_gettime)
- /* int __kernel_clock_getres(clockid_t clock_id, struct timespec *res); */
- ENTRY(__kernel_clock_getres)
- 	.cfi_startproc
-+	DELOUSE(1)
- 	cmp	w0, #CLOCK_REALTIME
- 	ccmp	w0, #CLOCK_MONOTONIC, #0x4, ne
- 	b.ne	1f
-@@ -187,7 +201,7 @@ ENTRY(__kernel_clock_getres)
- 	ldr	x2, 6f
- 2:
- 	cbz	w1, 3f
--	stp	xzr, x2, [x1]
-+	stp	PTR_REG(zr), PTR_REG(2), [x1]
- 
- 3:	/* res == NULL. */
- 	mov	w0, wzr
+ #if BITS_PER_LONG == 32
 -- 
 2.5.0
