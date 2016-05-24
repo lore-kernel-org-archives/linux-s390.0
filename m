@@ -1,194 +1,430 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 18/23] arm64: ilp32: add sys_ilp32.c and a separate table (in entry.S) to use it
-Date: Tue, 24 May 2016 03:04:47 +0300
-Message-ID: <1464048292-30136-19-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 10/23] arm64: rename COMPAT to AARCH32_EL0 in Kconfig
+Date: Tue, 24 May 2016 03:04:39 +0300
+Message-ID: <1464048292-30136-11-git-send-email-ynorov@caviumnetworks.com>
 References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, Andrew Pinski <apinski@cavium.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+Cc: kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, geert@linux-m68k.org, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, broonie@kernel.org, ynorov@caviumnetworks.com, Andrew Pinski <apinski@cavium.com>, schwidefsky@de.ibm.com, bamvor.zhangjian@huawei.com, philipp.tomsich@theobroma-systems.com, Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Andrew Pinski <apinski@cavium.com>
 
-Add a separate syscall-table for ILP32, which dispatches either to native
-LP64 system call implementation or to compat-syscalls, as appropriate.
+In this patchset  ILP32 ABI support is added. Additionally to AARCH32,
+which is binary-compatible with ARM, ILP32 is (mostly) ABI-compatible.
 
+From now, AARCH32_EL0 (former COMPAT) config option means the support of
+AARCH32 userspace, ARM64_ILP32 - support of ILP32 ABI (see next patches),
+and COMPAT indicates that one of them, or both, is enabled.
+
+Where needed, CONFIG_COMPAT is changed over to use CONFIG_AARCH32_EL0 instead
+
+Reviewed-by: David Daney <ddaney@caviumnetworks.com>
 Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
+Signed-off-by: Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 ---
- arch/arm64/include/asm/unistd.h | 11 +++++-
- arch/arm64/kernel/Makefile      |  2 +-
- arch/arm64/kernel/entry.S       | 10 ++++-
- arch/arm64/kernel/sys_ilp32.c   | 83 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 102 insertions(+), 4 deletions(-)
- create mode 100644 arch/arm64/kernel/sys_ilp32.c
+ arch/arm64/Kconfig                   | 9 +++++++--
+ arch/arm64/include/asm/fpsimd.h      | 2 +-
+ arch/arm64/include/asm/hwcap.h       | 4 ++--
+ arch/arm64/include/asm/processor.h   | 6 +++---
+ arch/arm64/include/asm/ptrace.h      | 2 +-
+ arch/arm64/include/asm/signal32.h    | 6 ++++--
+ arch/arm64/include/asm/unistd.h      | 2 +-
+ arch/arm64/kernel/Makefile           | 2 +-
+ arch/arm64/kernel/asm-offsets.c      | 2 +-
+ arch/arm64/kernel/cpufeature.c       | 8 ++++----
+ arch/arm64/kernel/cpuinfo.c          | 4 ++--
+ arch/arm64/kernel/entry.S            | 6 +++---
+ arch/arm64/kernel/head.S             | 2 +-
+ arch/arm64/kernel/ptrace.c           | 8 ++++----
+ arch/arm64/kernel/traps.c            | 2 +-
+ arch/arm64/kernel/vdso.c             | 4 ++--
+ drivers/clocksource/arm_arch_timer.c | 2 +-
+ 17 files changed, 39 insertions(+), 32 deletions(-)
 
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 4f43622..ede9b2e 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -370,7 +370,7 @@ config ARM64_ERRATUM_834220
+ 
+ config ARM64_ERRATUM_845719
+ 	bool "Cortex-A53: 845719: a load might read incorrect data"
+-	depends on COMPAT
++	depends on AARCH32_EL0
+ 	default y
+ 	help
+ 	  This option adds an alternative code sequence to work around ARM
+@@ -655,7 +655,7 @@ config FORCE_MAX_ZONEORDER
+ 
+ menuconfig ARMV8_DEPRECATED
+ 	bool "Emulate deprecated/obsolete ARMv8 instructions"
+-	depends on COMPAT
++	depends on AARCH32_EL0
+ 	help
+ 	  Legacy software support may require certain instructions
+ 	  that have been deprecated or obsoleted in the architecture.
+@@ -925,7 +925,12 @@ menu "Userspace binary formats"
+ source "fs/Kconfig.binfmt"
+ 
+ config COMPAT
++	bool
++	depends on AARCH32_EL0
++
++config AARCH32_EL0
+ 	bool "Kernel support for 32-bit EL0"
++	def_bool y
+ 	depends on ARM64_4K_PAGES || EXPERT
+ 	select COMPAT_BINFMT_ELF
+ 	select HAVE_UID16
+diff --git a/arch/arm64/include/asm/fpsimd.h b/arch/arm64/include/asm/fpsimd.h
+index 50f559f..63b19f1 100644
+--- a/arch/arm64/include/asm/fpsimd.h
++++ b/arch/arm64/include/asm/fpsimd.h
+@@ -52,7 +52,7 @@ struct fpsimd_partial_state {
+ };
+ 
+ 
+-#if defined(__KERNEL__) && defined(CONFIG_COMPAT)
++#if defined(__KERNEL__) && defined(CONFIG_AARCH32_EL0)
+ /* Masks for extracting the FPSR and FPCR from the FPSCR */
+ #define VFP_FPSCR_STAT_MASK	0xf800009f
+ #define VFP_FPSCR_CTRL_MASK	0x07f79f00
+diff --git a/arch/arm64/include/asm/hwcap.h b/arch/arm64/include/asm/hwcap.h
+index 400b80b..2c7fc5d 100644
+--- a/arch/arm64/include/asm/hwcap.h
++++ b/arch/arm64/include/asm/hwcap.h
+@@ -46,7 +46,7 @@
+  */
+ #define ELF_HWCAP		(elf_hwcap)
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ #define COMPAT_ELF_HWCAP	(compat_elf_hwcap)
+ #define COMPAT_ELF_HWCAP2	(compat_elf_hwcap2)
+ extern unsigned int compat_elf_hwcap, compat_elf_hwcap2;
+@@ -54,7 +54,7 @@ extern unsigned int compat_elf_hwcap, compat_elf_hwcap2;
+ 
+ enum {
+ 	CAP_HWCAP = 1,
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	CAP_COMPAT_HWCAP,
+ 	CAP_COMPAT_HWCAP2,
+ #endif
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index cef1cf3..5bbdbb4 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -81,7 +81,7 @@ struct cpu_context {
+ struct thread_struct {
+ 	struct cpu_context	cpu_context;	/* cpu context */
+ 	unsigned long		tp_value;	/* TLS register */
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	unsigned long		tp2_value;
+ #endif
+ 	struct fpsimd_state	fpsimd_state;
+@@ -90,7 +90,7 @@ struct thread_struct {
+ 	struct debug_info	debug;		/* debugging */
+ };
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ #define task_user_tls(t)						\
+ ({									\
+ 	unsigned long *__tls;						\
+@@ -121,7 +121,7 @@ static inline void start_thread(struct pt_regs *regs, unsigned long pc,
+ 	regs->sp = sp;
+ }
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
+ 				       unsigned long sp)
+ {
+diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
+index a307eb6..4c730c3 100644
+--- a/arch/arm64/include/asm/ptrace.h
++++ b/arch/arm64/include/asm/ptrace.h
+@@ -121,7 +121,7 @@ struct pt_regs {
+ 
+ #define arch_has_single_step()	(1)
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ #define compat_thumb_mode(regs) \
+ 	(((regs)->pstate & COMPAT_PSR_T_BIT))
+ #else
+diff --git a/arch/arm64/include/asm/signal32.h b/arch/arm64/include/asm/signal32.h
+index eeaa975..e68fcce 100644
+--- a/arch/arm64/include/asm/signal32.h
++++ b/arch/arm64/include/asm/signal32.h
+@@ -17,7 +17,9 @@
+ #define __ASM_SIGNAL32_H
+ 
+ #ifdef __KERNEL__
+-#ifdef CONFIG_COMPAT
++
++#ifdef CONFIG_AARCH32_EL0
++
+ #include <linux/compat.h>
+ 
+ #define AARCH32_KERN_SIGRET_CODE_OFFSET	0x500
+@@ -47,6 +49,6 @@ static inline int compat_setup_rt_frame(int usig, struct ksignal *ksig, sigset_t
+ static inline void compat_setup_restart_syscall(struct pt_regs *regs)
+ {
+ }
+-#endif /* CONFIG_COMPAT */
++#endif /* CONFIG_AARCH32_EL0 */
+ #endif /* __KERNEL__ */
+ #endif /* __ASM_SIGNAL32_H */
 diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
-index 2971dea..5ea18ef 100644
+index 41e58fe..2971dea 100644
 --- a/arch/arm64/include/asm/unistd.h
 +++ b/arch/arm64/include/asm/unistd.h
-@@ -13,9 +13,18 @@
+@@ -13,7 +13,7 @@
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
-+
-+#ifdef CONFIG_COMPAT
-+#define __ARCH_WANT_COMPAT_STAT64
-+#endif
-+
-+#ifdef CONFIG_ARM64_ILP32
-+#define __ARCH_WANT_COMPAT_SYS_PREADV64
-+#define __ARCH_WANT_COMPAT_SYS_PWRITEV64
-+#endif
-+
- #ifdef CONFIG_AARCH32_EL0
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
  #define __ARCH_WANT_COMPAT_SYS_GETDENTS64
--#define __ARCH_WANT_COMPAT_STAT64
+ #define __ARCH_WANT_COMPAT_STAT64
  #define __ARCH_WANT_SYS_GETHOSTNAME
- #define __ARCH_WANT_SYS_PAUSE
- #define __ARCH_WANT_SYS_GETPGRP
 diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
-index 9dfdf86..7aa65ea 100644
+index 3793003..75dd250 100644
 --- a/arch/arm64/kernel/Makefile
 +++ b/arch/arm64/kernel/Makefile
-@@ -28,7 +28,7 @@ $(obj)/%.stub.o: $(obj)/%.o FORCE
- arm64-obj-$(CONFIG_AARCH32_EL0)		+= sys32.o kuser32.o signal32.o 	\
+@@ -25,7 +25,7 @@ OBJCOPYFLAGS := --prefix-symbols=__efistub_
+ $(obj)/%.stub.o: $(obj)/%.o FORCE
+ 	$(call if_changed,objcopy)
+ 
+-arm64-obj-$(CONFIG_COMPAT)		+= sys32.o kuser32.o signal32.o 	\
++arm64-obj-$(CONFIG_AARCH32_EL0)		+= sys32.o kuser32.o signal32.o 	\
  					   sys_compat.o entry32.o		\
- 					   ../../arm/kernel/opcodes.o binfmt_elf32.o
--arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o
-+arm64-obj-$(CONFIG_ARM64_ILP32)		+= binfmt_ilp32.o sys_ilp32.o
+ 					   ../../arm/kernel/opcodes.o
  arm64-obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o entry-ftrace.o
- arm64-obj-$(CONFIG_MODULES)		+= arm64ksyms.o module.o
- arm64-obj-$(CONFIG_ARM64_MODULE_PLTS)	+= module-plts.o
+diff --git a/arch/arm64/kernel/asm-offsets.c b/arch/arm64/kernel/asm-offsets.c
+index 3ae6b31..e229525 100644
+--- a/arch/arm64/kernel/asm-offsets.c
++++ b/arch/arm64/kernel/asm-offsets.c
+@@ -52,7 +52,7 @@ int main(void)
+   DEFINE(S_X7,			offsetof(struct pt_regs, regs[7]));
+   DEFINE(S_LR,			offsetof(struct pt_regs, regs[30]));
+   DEFINE(S_SP,			offsetof(struct pt_regs, sp));
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+   DEFINE(S_COMPAT_SP,		offsetof(struct pt_regs, compat_sp));
+ #endif
+   DEFINE(S_PSTATE,		offsetof(struct pt_regs, pstate));
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 943f514..6f77412 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -32,7 +32,7 @@
+ unsigned long elf_hwcap __read_mostly;
+ EXPORT_SYMBOL_GPL(elf_hwcap);
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ #define COMPAT_ELF_HWCAP_DEFAULT	\
+ 				(COMPAT_HWCAP_HALF|COMPAT_HWCAP_THUMB|\
+ 				 COMPAT_HWCAP_FAST_MULT|COMPAT_HWCAP_EDSP|\
+@@ -751,7 +751,7 @@ static const struct arm64_cpu_capabilities arm64_hwcaps[] = {
+ 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_FP_SHIFT, FTR_SIGNED, 1, CAP_HWCAP, HWCAP_FPHP),
+ 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_ASIMD_SHIFT, FTR_SIGNED, 0, CAP_HWCAP, HWCAP_ASIMD),
+ 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_ASIMD_SHIFT, FTR_SIGNED, 1, CAP_HWCAP, HWCAP_ASIMDHP),
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 2, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_PMULL),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_AES_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_AES),
+ 	HWCAP_CAP(SYS_ID_ISAR5_EL1, ID_ISAR5_SHA1_SHIFT, FTR_UNSIGNED, 1, CAP_COMPAT_HWCAP2, COMPAT_HWCAP2_SHA1),
+@@ -767,7 +767,7 @@ static void __init cap_set_hwcap(const struct arm64_cpu_capabilities *cap)
+ 	case CAP_HWCAP:
+ 		elf_hwcap |= cap->hwcap;
+ 		break;
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	case CAP_COMPAT_HWCAP:
+ 		compat_elf_hwcap |= (u32)cap->hwcap;
+ 		break;
+@@ -790,7 +790,7 @@ static bool __maybe_unused cpus_have_hwcap(const struct arm64_cpu_capabilities *
+ 	case CAP_HWCAP:
+ 		rc = (elf_hwcap & cap->hwcap) != 0;
+ 		break;
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	case CAP_COMPAT_HWCAP:
+ 		rc = (compat_elf_hwcap & (u32)cap->hwcap) != 0;
+ 		break;
+diff --git a/arch/arm64/kernel/cpuinfo.c b/arch/arm64/kernel/cpuinfo.c
+index 84c8684..32fb4f3 100644
+--- a/arch/arm64/kernel/cpuinfo.c
++++ b/arch/arm64/kernel/cpuinfo.c
+@@ -127,7 +127,7 @@ static int c_show(struct seq_file *m, void *v)
+ 		 */
+ 		seq_puts(m, "Features\t:");
+ 		if (personality(current->personality) == PER_LINUX32) {
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 			for (j = 0; compat_hwcap_str[j]; j++)
+ 				if (compat_elf_hwcap & (1 << j))
+ 					seq_printf(m, " %s", compat_hwcap_str[j]);
+@@ -135,7 +135,7 @@ static int c_show(struct seq_file *m, void *v)
+ 			for (j = 0; compat_hwcap2_str[j]; j++)
+ 				if (compat_elf_hwcap2 & (1 << j))
+ 					seq_printf(m, " %s", compat_hwcap2_str[j]);
+-#endif /* CONFIG_COMPAT */
++#endif /* CONFIG_AARCH32_EL0 */
+ 		} else {
+ 			for (j = 0; hwcap_str[j]; j++)
+ 				if (elf_hwcap & (1 << j))
 diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 21a0624..acea2cb 100644
+index ec8bb48..21a0624 100644
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -501,6 +501,7 @@ el0_svc_compat:
- 	 * AArch32 syscall handling
- 	 */
- 	adrp	stbl, compat_sys_call_table	// load compat syscall table pointer
-+	ldr     x16, [tsk, #TI_FLAGS]
- 	uxtw	scno, w7			// syscall number in w7 (r7)
- 	mov     sc_nr, #__NR_compat_syscalls
- 	b	el0_svc_naked
-@@ -717,15 +718,20 @@ ENDPROC(ret_from_fork)
- 	.align	6
- el0_svc:
- 	adrp	stbl, sys_call_table		// load syscall table pointer
-+	ldr	x16, [tsk, #TI_FLAGS]
- 	uxtw	scno, w8			// syscall number in w8
- 	mov	sc_nr, #__NR_syscalls
-+#ifdef CONFIG_ARM64_ILP32
-+	adrp	x17, sys_call_ilp32_table	// load ilp32 syscall table pointer
-+	tst	x16, #_TIF_32BIT_AARCH64
-+	csel    stbl, stbl, x17, eq		// We are using ILP32
-+#endif
- el0_svc_naked:					// compat entry point
- 	stp	x0, scno, [sp, #S_ORIG_X0]	// save the original x0 and syscall number
- 	enable_dbg_and_irq
- 	ct_user_exit 1
+@@ -260,7 +260,7 @@ ENTRY(vectors)
+ 	ventry	el0_fiq_invalid			// FIQ 64-bit EL0
+ 	ventry	el0_error_invalid		// Error 64-bit EL0
  
--	ldr	x16, [tsk, #TI_FLAGS]		// check for syscall hooks
--	tst	x16, #_TIF_SYSCALL_WORK
-+	tst	x16, #_TIF_SYSCALL_WORK		// check for syscall hooks
- 	b.ne	__sys_trace
- 	cmp     scno, sc_nr                     // check upper syscall limit
- 	b.hs	ni_sys
-diff --git a/arch/arm64/kernel/sys_ilp32.c b/arch/arm64/kernel/sys_ilp32.c
-new file mode 100644
-index 0000000..d4cd2a9
---- /dev/null
-+++ b/arch/arm64/kernel/sys_ilp32.c
-@@ -0,0 +1,83 @@
-+/*
-+ * AArch64- ILP32 specific system calls implementation
-+ *
-+ * Copyright (C) 2016 Cavium Inc.
-+ * Author: Andrew Pinski <apinski@cavium.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+ */
-+
-+#define __SYSCALL_COMPAT
-+
-+#include <linux/compiler.h>
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/mm.h>
-+#include <linux/msg.h>
-+#include <linux/export.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/syscalls.h>
-+#include <linux/compat.h>
-+#include <asm-generic/syscalls.h>
-+
-+/* Using non-compat syscalls where necessary */
-+#define compat_sys_fadvise64_64		sys_fadvise64_64
-+#define compat_sys_fallocate		sys_fallocate
-+#define compat_sys_ftruncate64		sys_ftruncate
-+#define compat_sys_lookup_dcookie	sys_lookup_dcookie
-+#define compat_sys_readahead		sys_readahead
-+#define compat_sys_shmat		sys_shmat
-+#define compat_sys_sync_file_range	sys_sync_file_range
-+#define compat_sys_truncate64		sys_truncate
-+#define sys_llseek			sys_lseek
-+#define sys_mmap2			compat_sys_mmap2
-+
-+static unsigned long compat_sys_mmap2(compat_uptr_t addr, compat_size_t len,
-+       int prot, int flags, int fd, off_t pgoff)
-+{
-+       if (pgoff & (~PAGE_MASK >> 12))
-+               return -EINVAL;
-+
-+       return sys_mmap_pgoff(addr, len, prot, flags, fd,
-+		       pgoff >> (PAGE_SHIFT - 12));
-+}
-+
-+static unsigned long compat_sys_pread64(unsigned int fd,
-+		compat_uptr_t __user *ubuf, compat_size_t count, off_t offset)
-+{
-+	return sys_pread64(fd, (char *) ubuf, count, offset);
-+}
-+
-+static unsigned long compat_sys_pwrite64(unsigned int fd,
-+		compat_uptr_t __user *ubuf, compat_size_t count, off_t offset)
-+{
-+	return sys_pwrite64(fd, (char *) ubuf, count, offset);
-+}
-+
-+#include <asm/syscall.h>
-+
-+#undef __SYSCALL
-+#undef __SC_WRAP
-+
-+#define __SYSCALL(nr, sym)	[nr] = sym,
-+#define __SC_WRAP(nr, sym)	[nr] = compat_##sym,
-+
-+/*
-+ * The sys_call_ilp32_table array must be 4K aligned to be accessible from
-+ * kernel/entry.S.
-+ */
-+void *sys_call_ilp32_table[__NR_syscalls] __aligned(4096) = {
-+	[0 ... __NR_syscalls - 1] = sys_ni_syscall,
-+#include <asm/unistd.h>
-+};
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	ventry	el0_sync_compat			// Synchronous 32-bit EL0
+ 	ventry	el0_irq_compat			// IRQ 32-bit EL0
+ 	ventry	el0_fiq_invalid_compat		// FIQ 32-bit EL0
+@@ -300,7 +300,7 @@ el0_error_invalid:
+ 	inv_entry 0, BAD_ERROR
+ ENDPROC(el0_error_invalid)
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ el0_fiq_invalid_compat:
+ 	inv_entry 0, BAD_FIQ, 32
+ ENDPROC(el0_fiq_invalid_compat)
+@@ -463,7 +463,7 @@ el0_sync:
+ 	b.ge	el0_dbg
+ 	b	el0_inv
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	.align	6
+ el0_sync_compat:
+ 	kernel_entry 0, 32
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index 85da0f5..35e70d8 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -608,7 +608,7 @@ CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
+ 	msr	cptr_el2, x0			// Disable copro. traps to EL2
+ 1:
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	msr	hstr_el2, xzr			// Disable CP15 traps to EL2
+ #endif
+ 
+diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
+index 3f6cd5c..aa79e81 100644
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -82,7 +82,7 @@ static void ptrace_hbptriggered(struct perf_event *bp,
+ 		.si_addr	= (void __user *)(bkpt->trigger),
+ 	};
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	int i;
+ 
+ 	if (!is_compat_task())
+@@ -657,7 +657,7 @@ static const struct user_regset_view user_aarch64_view = {
+ 	.regsets = aarch64_regsets, .n = ARRAY_SIZE(aarch64_regsets)
+ };
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ #include <linux/compat.h>
+ 
+ enum compat_regset {
+@@ -1192,11 +1192,11 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+ 
+ 	return ret;
+ }
+-#endif /* CONFIG_COMPAT */
++#endif /* CONFIG_AARCH32_EL0 */
+ 
+ const struct user_regset_view *task_user_regset_view(struct task_struct *task)
+ {
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	/*
+ 	 * Core dumping of 32-bit tasks or compat ptrace requests must use the
+ 	 * user_aarch32_view compatible with arm32. Native ptrace requests on
+diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
+index e16ae22..85461e8 100644
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -409,7 +409,7 @@ long compat_arm_syscall(struct pt_regs *regs);
+ 
+ asmlinkage long do_ni_syscall(struct pt_regs *regs)
+ {
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	long ret;
+ 	if (is_compat_task()) {
+ 		ret = compat_arm_syscall(regs);
+diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
+index 97bc68f..26352a6 100644
+--- a/arch/arm64/kernel/vdso.c
++++ b/arch/arm64/kernel/vdso.c
+@@ -49,7 +49,7 @@ static union {
+ } vdso_data_store __page_aligned_data;
+ struct vdso_data *vdso_data = &vdso_data_store.data;
+ 
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ /*
+  * Create and map the vectors page for AArch32 tasks.
+  */
+@@ -107,7 +107,7 @@ int aarch32_setup_vectors_page(struct linux_binprm *bprm, int uses_interp)
+ 
+ 	return PTR_ERR_OR_ZERO(ret);
+ }
+-#endif /* CONFIG_COMPAT */
++#endif /* CONFIG_AARCH32_EL0 */
+ 
+ static struct vm_special_mapping vdso_spec[2];
+ 
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index 5152b38..d5e699d 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -321,7 +321,7 @@ static void arch_timer_evtstrm_enable(int divider)
+ 			| ARCH_TIMER_VIRT_EVT_EN;
+ 	arch_timer_set_cntkctl(cntkctl);
+ 	elf_hwcap |= HWCAP_EVTSTRM;
+-#ifdef CONFIG_COMPAT
++#ifdef CONFIG_AARCH32_EL0
+ 	compat_elf_hwcap |= COMPAT_HWCAP_EVTSTRM;
+ #endif
+ }
 -- 
 2.5.0
