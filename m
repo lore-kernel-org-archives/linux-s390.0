@@ -1,58 +1,61 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: [PATCH 09/23] arm64: ensure the kernel is compiled for LP64
-Date: Tue, 24 May 2016 03:04:38 +0300
-Message-ID: <1464048292-30136-10-git-send-email-ynorov@caviumnetworks.com>
+Subject: [PATCH 02/23] all: introduce COMPAT_WRAPPER option and enable it for
+ s390
+Date: Tue, 24 May 2016 03:04:31 +0300
+Message-ID: <1464048292-30136-3-git-send-email-ynorov@caviumnetworks.com>
 References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ynorov@caviumnetworks.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, Andrew Pinski <apinski@cavium.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+Cc: kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, geert@linux-m68k.org, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, broonie@kernel.org, ynorov@caviumnetworks.com, schwidefsky@de.ibm.com, bamvor.zhangjian@huawei.com, philipp.tomsich@theobroma-systems.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Andrew Pinski <apinski@cavium.com>
-
-The kernel needs to be compiled as a LP64 binary for ARM64, even when
-using a compiler that defaults to code-generation for the ILP32 ABI.
-Consequently, we need to explicitly pass '-mabi=lp64' (supported on
-gcc-4.9 and newer).
-
-Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
-Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
-Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
 Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
-Reviewed-by: David Daney <ddaney@caviumnetworks.com>
 ---
- arch/arm64/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/Kconfig      | 4 ++++
+ arch/s390/Kconfig | 1 +
+ 2 files changed, 5 insertions(+)
 
-diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-index 354d754..29ebf23 100644
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -35,14 +35,19 @@ KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
- KBUILD_CFLAGS	+= $(call cc-option, -mpc-relative-literal-loads)
- KBUILD_AFLAGS	+= $(lseinstr)
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 81869a5..92fcbd4 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -589,6 +589,10 @@ config HAVE_STACK_VALIDATION
+ 	  Architecture supports the 'objtool check' host tool command, which
+ 	  performs compile-time stack metadata validation.
  
-+KBUILD_CFLAGS	+= $(call cc-option,-mabi=lp64)
-+KBUILD_AFLAGS	+= $(call cc-option,-mabi=lp64)
++config COMPAT_WRAPPER
++	bool
++	depends on COMPAT
 +
- ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
- KBUILD_CPPFLAGS	+= -mbig-endian
- AS		+= -EB
- LD		+= -EB
-+LDFLAGS		+= -maarch64linuxb
- else
- KBUILD_CPPFLAGS	+= -mlittle-endian
- AS		+= -EL
- LD		+= -EL
-+LDFLAGS		+= -maarch64linux
- endif
- 
- CHECKFLAGS	+= -D__aarch64__
+ #
+ # ABI hall of shame
+ #
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index bf24ab1..6d643b3 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -340,6 +340,7 @@ config COMPAT
+ 	select COMPAT_BINFMT_ELF if BINFMT_ELF
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT_OLD_SIGACTION
++	select COMPAT_WRAPPER
+ 	depends on MULTIUSER
+ 	help
+ 	  Select this option if you want to enable your system kernel to
 -- 
 2.5.0
