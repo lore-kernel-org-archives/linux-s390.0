@@ -1,40 +1,64 @@
-From: David Miller <davem@davemloft.net>
+From: Yury Norov <ynorov@caviumnetworks.com>
 Subject: Re: [PATCH 01/23] all: syscall wrappers: add documentation
-Date: Thu, 26 May 2016 12:43:44 -0700 (PDT)
-Message-ID: <20160526.124344.1660236473079504674.davem@davemloft.net>
-References: <6407614.fdv5XFSBue@wuerfel>
-	<20160525.142821.1719403997976778673.davem@davemloft.net>
-	<20160526142057.GA7456@e104818-lin.cambridge.arm.com>
+Date: Thu, 26 May 2016 23:48:19 +0300
+Message-ID: <20160526204819.GA10274@yury-N73SV>
+References: <6293194.tGy03QJ9ME@wuerfel>
+ <20160525.135039.244098606649448826.davem@davemloft.net>
+ <6407614.fdv5XFSBue@wuerfel>
+ <20160525.142821.1719403997976778673.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20160526142057.GA7456@e104818-lin.cambridge.arm.com>
+Content-Disposition: inline
+In-Reply-To: <20160525.142821.1719403997976778673.davem@davemloft.net>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: catalin.marinas@arm.com
-Cc: arnd@arndb.de, ynorov@caviumnetworks.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com
+To: David Miller <davem@davemloft.net>
+Cc: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Thu, 26 May 2016 15:20:58 +0100
+On Wed, May 25, 2016 at 02:28:21PM -0700, David Miller wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> Date: Wed, 25 May 2016 23:01:06 +0200
+> 
+> > On Wednesday, May 25, 2016 1:50:39 PM CEST David Miller wrote:
+> >> From: Arnd Bergmann <arnd@arndb.de>
+> >> Date: Wed, 25 May 2016 22:47:33 +0200
+> >> 
+> >> > If we use the normal calling conventions, we could remove these overrides
+> >> > along with the respective special-case handling in glibc. None of them
+> >> > look particularly performance-sensitive, but I could be wrong there.
+> >> 
+> >> You could set the lowest bit in the system call entry pointer to indicate
+> >> the upper-half clears should be elided.
+> > 
+> > Right, but that would introduce an extra conditional branch in the syscall
+> > hotpath, and likely eliminate the gains from passing the loff_t arguments
+> > in a single register instead of a pair.
+> 
+> Ok, then, how much are you really gaining from avoiding a 'shift' and
+> an 'or' to build the full 64-bit value?  3 cycles?  Maybe 4?
 
-> We can solve (a) by adding more __SC_WRAP annotations in the generic
-> unistd.h.
- ...
+4 cycles in kernel and ~same cost in glibc to create a pair. And 8
+'mov's that exist for every syscall, even yield().
 
-I really think it's much more robust to clear the tops of the registers
-by default.  Then you won't be auditing constantly and adding more and
-more wrappers.
+> And the executing the wrappers, those have a non-trivial cost too.
 
-You can't even quantify the performance gains for me in any precise
-way.  Whatever you gain by avoiding the 64-bit
-decompostion/reconstitution for those few system calls with 64-bit
-registers, you are losing by calling the wrappers for more common
-system calls, more often.
+The cost is pretty trivial though. See kernel/compat_wrapper.o:
+COMPAT_SYSCALL_WRAP2(creat, const char __user *, pathname, umode_t, mode);
+0:   a9bf7bfd        stp     x29, x30, [sp,#-16]!
+4:   910003fd        mov     x29, sp
+8:   2a0003e0        mov     w0, w0
+c:   94000000        bl      0 <sys_creat>
+10:  a8c17bfd        ldp     x29, x30, [sp],#16
+14:  d65f03c0        ret
 
-"it's more natural to pass 64-bit values in a register" is not a clear
-justification for this change.
+> Cost wise, this seems like it all cancels out in the end, but what
+> do I know?
 
-This looks way over engineered to me.
+I think you know something, and I also think Heiko and other s390 guys
+know something as well. So I'd like to listen their arguments here.
+
+For me spark64 way is looking reasonable only because it's really simple
+and takes less coding. I'll try it on some branch and share here what happened.
