@@ -1,53 +1,61 @@
 From: Catalin Marinas <catalin.marinas@arm.com>
 Subject: Re: [PATCH 01/23] all: syscall wrappers: add documentation
-Date: Fri, 27 May 2016 10:30:52 +0100
-Message-ID: <20160527093052.GB7865@e104818-lin.cambridge.arm.com>
-References: <6293194.tGy03QJ9ME@wuerfel>
- <20160527003753.GA14247@yury-N73SV>
- <20160527060357.GB3820@osiris>
- <13240365.okADkKsTBJ@wuerfel>
+Date: Fri, 27 May 2016 11:10:37 +0100
+Message-ID: <20160527101036.GC7865@e104818-lin.cambridge.arm.com>
+References: <6407614.fdv5XFSBue@wuerfel>
+ <20160525.142821.1719403997976778673.davem@davemloft.net>
+ <20160526142057.GA7456@e104818-lin.cambridge.arm.com>
+ <20160526.124344.1660236473079504674.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <13240365.okADkKsTBJ@wuerfel>
+In-Reply-To: <20160526.124344.1660236473079504674.davem@davemloft.net>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Yury Norov <ynorov@caviumnetworks.com>, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, schwidefsky@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com
+To: David Miller <davem@davemloft.net>
+Cc: arnd@arndb.de, ynorov@caviumnetworks.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, May 27, 2016 at 10:42:59AM +0200, Arnd Bergmann wrote:
-> On Friday, May 27, 2016 8:03:57 AM CEST Heiko Carstens wrote:
-> > > > > > Cost wise, this seems like it all cancels out in the end, but what
-> > > > > > do I know?
-> > > > > 
-> > > > > I think you know something, and I also think Heiko and other s390 guys
-> > > > > know something as well. So I'd like to listen their arguments here.
-> > 
-> > If it comes to 64 bit arguments for compat system calls: s390 also has an
-> > x32-like ABI extension which allows user space to use full 64 bit
-> > registers. As far as I know hardly anybody ever made use of that.
-> > 
-> > However even if that would be widely used, to me it wouldn't make sense to
-> > add new compat system calls which allow 64 bit arguments, simply because
-> > something like
-> > 
-> > c = (u32)a | (u64)b << 32;
-> > 
-> > can be done with a single 1-cycle instruction. It's just not worth the
-> > extra effort to maintain additional system call variants.
+On Thu, May 26, 2016 at 12:43:44PM -0700, David Miller wrote:
+> From: Catalin Marinas <catalin.marinas@arm.com>
+> Date: Thu, 26 May 2016 15:20:58 +0100
 > 
-> For reference, both tile and mips also have separate 32-bit ABIs that are
-> only used on 64-bit kernels (aside from the normal 32-bit ABI). Tile
-> does it like s390 and passes 64-bit arguments as pairs, while MIPS
-> and x86 and pass them as single registers.
+> > We can solve (a) by adding more __SC_WRAP annotations in the generic
+> > unistd.h.
+>  ...
+> 
+> I really think it's much more robust to clear the tops of the registers
+> by default.  Then you won't be auditing constantly and adding more and
+> more wrappers.
 
-AFAIK, x32 also requires that the upper half of a 64-bit reg is zeroed
-by the user when a 32-bit value is passed. We could require the same on
-AArch64/ILP32 but I'm a bit uneasy on trusting a multitude of C
-libraries on this.
+I think we could avoid adding a new __SC_WRAP by redefining __SYSCALL
+for ILP32 to always invoke a wrapper. But given the wrapper overhead,
+cache locality, I don't think we would notice any performance difference
+in either case.
+
+> You can't even quantify the performance gains for me in any precise
+> way.  Whatever you gain by avoiding the 64-bit
+> decompostion/reconstitution for those few system calls with 64-bit
+> registers, you are losing by calling the wrappers for more common
+> system calls, more often.
+
+I hope Yury can provide some numbers. All being equal, I would go for
+the lowest code maintenance cost (which is probably less annotations and
+wrappers).
+
+> "it's more natural to pass 64-bit values in a register" is not a clear
+> justification for this change.
+
+It's more related to how we went about the ILP32 ABI. We initially asked
+for a 64-bit native ABI similar to x32 until the libc-alpha community
+raised some POSIX compliance issues on time structures. So we decided to
+go for a 32-bit-like ABI while keeping the syscall interface close to
+the AArch64/ILP32 procedure calling standard (64-bit values passed in a
+single register). And now we have this discussion, revisiting this
+decision again (which is perfectly fine, we better get it right before
+any merging plans; thanks for your input).
 
 -- 
 Catalin
