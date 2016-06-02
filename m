@@ -1,57 +1,85 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: Re: [RFC 10/12] x86, rwsem: simplify __down_write
-Date: Fri, 10 Jun 2016 09:39:41 -0700
-Message-ID: <20160610163941.GC3868@linux.vnet.ibm.com>
-References: <20160603223417.GB3892@twins.programming.kicks-ass.net>
- <1454444369-2146-1-git-send-email-mhocko@kernel.org>
- <1454444369-2146-11-git-send-email-mhocko@kernel.org>
- <20160203081016.GD32652@gmail.com>
- <20160603161339.GC3693@twins.programming.kicks-ass.net>
- <29355.1465483258@warthog.procyon.org.uk>
- <20160609173640.GX30154@twins.programming.kicks-ass.net>
-Reply-To: paulmck@linux.vnet.ibm.com
+From: Yury Norov <ynorov@caviumnetworks.com>
+Subject: Re: [PATCH v6 00/21] ILP32 for ARM64
+Date: Thu, 2 Jun 2016 22:03:44 +0300
+Message-ID: <20160602190344.GA24533@yury-N73SV>
+References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <sparclinux-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20160609173640.GX30154@twins.programming.kicks-ass.net>
-Sender: sparclinux-owner@vger.kernel.org
+In-Reply-To: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: David Howells <dhowells@redhat.com>, Ingo Molnar <mingo@kernel.org>, Michal Hocko <mhocko@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Michal Hocko <mhocko@suse.com>, Linus Torvalds <torvalds@linux-foundation.org>, Jason Low <jason.low2@hpe.com>
+To: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org
+Cc: kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, broonie@kernel.org, bamvor.zhangjian@huawei.com, schwidefsky@de.ibm.com, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jun 09, 2016 at 07:36:40PM +0200, Peter Zijlstra wrote:
-> On Thu, Jun 09, 2016 at 03:40:58PM +0100, David Howells wrote:
-> > Peter Zijlstra <peterz@infradead.org> wrote:
-> > 
-> > > Blergh; so looking at more asm there's still a few tricks we cannot do.
-> > > So while overall size is down, some paths do end up more expensive. (It
-> > > typically boils down to creative use of condition flags, which is very
-> > > hard in C)
-> > 
-> > It can be done using ISO __atomic_fetch_add() and suchlike.
+On Tue, May 24, 2016 at 03:04:29AM +0300, Yury Norov wrote:
+> This series enables aarch64 with ilp32 mode, and as supporting work,
+> introduces compat wrappers based on s390 solution, and also introduces
+> ARCH_32BIT_OFF_T configuration option that is enabled for existing
+> 32-bit architectures but disabled for new arches (so 64-bit off_t is 
+> is used by new userspace).
 > 
-> (ISO-C11, ISO as such is a bad abbreviation I think)
+> This version is based on kernel v4.6.
+> It works with glibc-2.23, and tested with LTP.
 > 
-> Maybe, but we're almost there with __GCC_ASM_FLAG_OUTPUTS__.
+> It was tested on QEMU and ThunderX machines. No major differences found.
 > 
-> atomic_long_add_negative() can be made to do inc;j(n)s for __down_read.
+> This is not RFC anymore, because ILP32 is now tested in big-endian mode;
+> signals, vDSO and other subsystems are tested, and look working
 > 
-> the try_cmpxchg family you wanted to add independent from the ISO-C11
-> bits can do the cmpxchg-j(n)z for __down_{read,write}_trylock.
+>  v3: https://lkml.org/lkml/2014/9/3/704
+>  v4: https://lkml.org/lkml/2015/4/13/691
+>  v5: https://lkml.org/lkml/2015/9/29/911
+>  v6: ABI reworked significantly;
+>     - syscall input arguments are deloused with compat wrappers;
+>     - vDSO is now working for both BE and LE;
+>     - signal subsystem is reworked to handle signal context properly;
+>     - binfmt_elf is reworked, and now most of places where execution mode
+>       should be detected, are handled statically;
+>     - many other less-important fixes.
 > 
-> That only leaves us wanting an atomic_long_fetch_add_negative() for
-> __up_{read,write}().
+> ILP32 glibc branch is available here:
+> https://github.com/norov/glibc/tree/ilp32-2.23
 > 
-> Although I suppose, for this to be of use for our weakly ordered
-> friends, we need _relaxed versions of all that (so that _acquire and
-> _release variants are generated).
 
-Historically, the compilers have won this sort of contest over the
-long term.  That said, there is nothing quite like raising the bar for
-them to help them generate decent code.  So, David and Peter, I am behind
-both of you 100%.  ;-)
+So for AARCH64/ILP32 we turn next types to 64-bit in glibc:
+#define __INO_T_TYPE            __UQUAD_TYPE
+#define __OFF_T_TYPE            __SQUAD_TYPE
+#define __BLKCNT_T_TYPE         __SQUAD_TYPE
+#define __FSBLKCNT_T_TYPE       __UQUAD_TYPE
+#define __FSFILCNT_T_TYPE       __UQUAD_TYPE
 
-							Thanx, Paul
+And define:
+# define __INO_T_MATCHES_INO64_T                1
+# define __OFF_T_MATCHES_OFF64_T                1
+# define __BLKCNT_T_MATCHES_BLKCNT64_T          1
+# define __FSBLKCNT_T_MATCHES_FSBLKCNT64_T      1
+# define __FSFILCNT_T_MATCHES_FSFILCNT_T        1
+
+If so, stat and statfs  structures for ilp32 are turning the same as
+for lp64. And so we'd handle related syscalls with native lp64
+handlers (wrapped, to zero top halves) in kernel. 
+
+And we don't need stat64 for ilp32.
+
+Did I miss something? Is everything correct?
+
+OFF_T is turned to 64-bit quite smoothly, others make applications
+crash with segfault. Now I'm in deep debugging.
+
+https://github.com/norov/glibc/commits/ilp32-dev
+https://github.com/norov/linux/commits/ilp32
+
+Yury.
