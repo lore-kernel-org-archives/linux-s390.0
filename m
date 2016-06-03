@@ -1,637 +1,443 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Fri, 03 Jun 2016 15:27:02 +0000
-Subject: [PATCH net-next 03/15] smc: establish pnet table management
-Message-Id: <201606031527.u53FPxD9037218@mx0a-001b2d01.pphosted.com>
+Date: Fri, 03 Jun 2016 15:27:03 +0000
+Subject: [PATCH net-next 04/15] smc: introduce SMC as an IB-client
+Message-Id: <201606031527.u53FQ5ne045181@mx0a-001b2d01.pphosted.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Richter <tmricht@linux.vnet.ibm.com>
+* create a list of SMC IB-devices (IB-devices mentioned in PNET table)
+* determine RoCE device and port belonging to used internal TCP interface
+  according to the PNET table definitions
 
-Connection creation with SMC-R starts through an internal
-TCP-connection. The Ethernet interface for this TCP-connection is not
-restricted to the Ethernet interface of a RoCE device. Any existing
-Ethernet interface belonging to the same physical net can be used, as
-long as there is a defined relation between the Ethernet interface and
-some RoCE devices. This relation is defined with the help of an
-identification string called "Physical Net ID" or short "pnet ID".
-Information about defined pnet IDs and their related Ethernet
-interfaces and RoCE devices is stored in the SMC-R pnet table.
-
-This patch adds pnet table configuration support as a set of
-sysfs files listed under /sys/kernel/smc. Attribute files
-exist to add and delete pnet IDs and to map RoCE devices and
-ethernet interfaces to an individual pnet ID.
-
-There is no cross check if ethernet interfaces or infiniband
-devices really exist in the system. This enables the configuration of
-the pnet table after module load even if interfaces or devices might
-not yet be available.
-
-Signed-off-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
  net/smc/Makefile   |   2 +-
- net/smc/af_smc.c   |  11 +-
- net/smc/smc_pnet.c | 510 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_pnet.h |  19 ++
- 4 files changed, 539 insertions(+), 3 deletions(-)
- create mode 100644 net/smc/smc_pnet.c
- create mode 100644 net/smc/smc_pnet.h
+ net/smc/af_smc.c   |  10 ++++
+ net/smc/smc.h      |   5 ++
+ net/smc/smc_ib.c   | 157 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_ib.h   |  40 ++++++++++++++
+ net/smc/smc_pnet.c |  98 +++++++++++++++++++++++++++++++++
+ net/smc/smc_pnet.h |   7 +++
+ 7 files changed, 318 insertions(+), 1 deletion(-)
+ create mode 100644 net/smc/smc_ib.c
+ create mode 100644 net/smc/smc_ib.h
 
 diff --git a/net/smc/Makefile b/net/smc/Makefile
-index c285c86..64dab53 100644
+index 64dab53..50f39ff 100644
 --- a/net/smc/Makefile
 +++ b/net/smc/Makefile
 @@ -1,2 +1,2 @@
  obj-$(CONFIG_SMC)	+= smc.o
--smc-y := af_smc.o
-+smc-y := af_smc.o smc_pnet.o
+-smc-y := af_smc.o smc_pnet.o
++smc-y := af_smc.o smc_pnet.o smc_ib.o
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index ae3332c..e6bbadc 100644
+index e6bbadc..2fa3042 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
 @@ -20,6 +20,7 @@
  #include <net/sock.h>
  
  #include "smc.h"
-+#include "smc_pnet.h"
++#include "smc_ib.h"
+ #include "smc_pnet.h"
  
  static void smc_set_keepalive(struct sock *sk, int val)
- {
-@@ -588,10 +589,14 @@ static int __init smc_init(void)
- {
- 	int rc;
- 
-+	rc = smc_pnet_init();
-+	if (rc)
-+		return rc;
-+
- 	rc = proto_register(&smc_proto, 1);
- 	if (rc) {
- 		pr_err("%s: proto_register fails with %d\n", __func__, rc);
--		goto out;
-+		goto out_pnet;
+@@ -605,8 +606,16 @@ static int __init smc_init(void)
+ 		goto out_proto;
  	}
  
- 	rc = sock_register(&smc_sock_family_ops);
-@@ -604,7 +609,8 @@ static int __init smc_init(void)
++	rc = smc_ib_register_client();
++	if (rc) {
++		pr_err("%s: ib_register fails with %d\n", __func__, rc);
++		goto out_sock;
++	}
++
+ 	return 0;
  
++out_sock:
++	sock_unregister(PF_SMC);
  out_proto:
  	proto_unregister(&smc_proto);
--out:
-+out_pnet:
-+	smc_pnet_exit();
- 	return rc;
- }
+ out_pnet:
+@@ -616,6 +625,7 @@ out_pnet:
  
-@@ -612,6 +618,7 @@ static void __exit smc_exit(void)
+ static void __exit smc_exit(void)
  {
++	smc_ib_unregister_client();
  	sock_unregister(PF_SMC);
  	proto_unregister(&smc_proto);
-+	smc_pnet_exit();
+ 	smc_pnet_exit();
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index f282b27..8f5c014 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -33,4 +33,9 @@ static inline struct smc_sock *smc_sk(const struct sock *sk)
+ {
+ 	return (struct smc_sock *)sk;
  }
- 
- module_init(smc_init);
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
++
++#define SMC_SYSTEMID_LEN		8
++
++extern u8	local_systemid[SMC_SYSTEMID_LEN]; /* unique system identifier */
++
+ #endif	/* _SMC_H */
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
 new file mode 100644
-index 0000000..1d41375
+index 0000000..8b6bb50
 --- /dev/null
-+++ b/net/smc/smc_pnet.c
-@@ -0,0 +1,510 @@
++++ b/net/smc/smc_ib.c
+@@ -0,0 +1,157 @@
 +/*
 + *  Shared Memory Communications over RDMA (SMC-R) and RoCE
 + *
-+ *  Sysfs support functions
++ *  IB infrastructure:
++ *  Establish SMC-R as an Infiniband Client to be notified about added and
++ *  removed IB devices of type RDMA.
++ *  Determine device and port characteristics for these IB devices.
 + *
 + *  Copyright IBM Corp. 2016
 + *
-+ *  Author(s):  Thomas Richter <tmricht@linux.vnet.ibm.com>
++ *  Author(s):  Ursula Braun <ubraun@linux.vnet.ibm.com>
 + */
 +
-+#include <linux/device.h>
-+#include <linux/netdevice.h>
-+#include <linux/inetdevice.h>
-+#include <linux/types.h>
-+#include <linux/ctype.h>
-+
-+#include <net/sock.h>
-+
++#include <linux/random.h>
 +#include <rdma/ib_verbs.h>
 +
 +#include "smc_pnet.h"
++#include "smc_ib.h"
++#include "smc.h"
 +
-+#define SMC_MAX_PNET_ID_LEN	16	/* Max. length of PNET id */
-+
-+/* Sysfs interface for the pnet table
-+ *
-+ * Create a directory /sys/kernel/smc/ with these files:
-+ * /sys/kernel/smc/pnetid_add       --> Create a PNETID
-+ * /sys/kernel/smc/pnetid_delete    --> Delete a PNETID
-+ * /sys/kernel/smc/flush            --> Delete all PNETIDs
-+ * /sys/kernel/smc/pnetids/xxxxx    --> Created PNETIDs
-+ *
-+ * Create PNETID PNET1:
-+ * A new file named PNET1 shows up in /sys/kernel/smc/pnetids/.
-+ * echo PNET1 > /sys/kernel/smc/pnetid_add
-+ *
-+ * Display all created PNETIDs:
-+ * ls -l /sys/kernel/smc/pnetids
-+ *
-+ * Delete PNETID PNET1:
-+ * File PNET1 is removed from directory /sys/kernel/smc/pnetids/.
-+ * echo PNET1 > /sys/kernel/smc/pnetid_del
-+ *
-+ * Add an ethernet interface to PNETID PNET1:
-+ * A leading '+' is optional.
-+ * echo "eth enccw0.0.f5f0" > /sys/kernel/smc/pnetids/PNET1
-+ *
-+ * Add an RDMA device to PNETID PNET1:
-+ * A leading '+' is optional
-+ * The 3rd field is an optional port. If not specified it defaults to 1.
-+ * Currently accepted port numbers are 1 and 2. Other numbers generate an
-+ * error.
-+ * echo "ib mlx4_0 1" > /sys/kernel/smc/pnetids/PNET1
-+ * echo "+ib mlx4_1 2" > /sys/kernel/smc/pnetids/PNET1
-+ *
-+ * Display all entries belonging to PNETID PNET1:
-+ * cat /sys/kernel/smc/pnetids/PNET1
-+ *
-+ * Delete any entry from PNETID PNET1 with a leading '-':
-+ * echo "-ib mlx4_1 2" > /sys/kernel/smc/pnetids/PNET1
-+ *
-+ * Delete all created PNETIDs at once:
-+ * echo - > /sys/kernel/smc/flush
-+ *
-+ * No load balancing and link fail over is supported.
-+ * This results a one to one relationship between ethernet interface and
-+ * RDMA device including port name. Therefore each pnet identifier maps
-+ * one ethernet interface to one RDMA device.
-+ */
-+
-+/**
-+ * struct smc_pnettable - SMC sysfs anchor
-+ * @kset: SMC sysfs anchor
-+ * @pnetids_kobj: Anchor to /sys/kernel/smc/pnetids
-+ * @lock: Lock for list action
-+ * @pnetlist: List of PNETIDs
-+ */
-+static struct smc_pnettable {
-+	struct kset *kset;
-+	struct kobject pnetids_kobj;
-+	rwlock_t lock;
-+	struct list_head pnetlist;
-+} smc_pnettable = {
-+	.pnetlist = LIST_HEAD_INIT(smc_pnettable.pnetlist),
-+	.lock = __RW_LOCK_UNLOCKED(smc_pnettable.lock)
++struct smc_ib_devices smc_ib_devices = {	/* smc-registered ib devices */
++	.lock = __SPIN_LOCK_UNLOCKED(smc_ib_devices.lock),
++	.list = LIST_HEAD_INIT(smc_ib_devices.list),
 +};
 +
-+/**
-+ * struct smc_pnetentry - pnet identifier name entry
-+ * @list: List node.
-+ * @attr: Embedded attribute structure
-+ * @pnet_name: Pnet identifier name
-+ * @if_name: Name of the ethernet interface.
-+ * @ib_name: Name of the RDMA device.
-+ * @ib_port: RDMA device port number.
-+ */
-+struct smc_pnetentry {
-+	struct list_head list;
-+	struct kobj_attribute attr;
-+	char pnet_name[SMC_MAX_PNET_ID_LEN + 1];
-+	char if_name[IFNAMSIZ];
-+	char ib_name[IB_DEVICE_NAME_MAX];
-+	u8 ib_port;
-+};
++#define SMC_LOCAL_SYSTEMID_RESET	"%%%%%%%"
 +
-+#define to_smcpnetentry(a)	container_of((a), struct smc_pnetentry, attr)
++u8 local_systemid[SMC_SYSTEMID_LEN] = SMC_LOCAL_SYSTEMID_RESET;	/* unique system
++								 * identifier
++								 */
 +
-+/* Release /sys/kernel/smc/pnetids and delete all pnetids. This function
-+ * is called when the kobject anchor in smc_pnettable.pnetids_kobj is freed.
-+ */
-+static void smc_pnetid_release(struct kobject *kobj)
++static int smc_ib_fill_gid_and_mac(struct smc_ib_device *smcibdev, u8 ibport)
 +{
-+	struct smc_pnetentry *e, *tmp_e;
-+
-+	write_lock(&smc_pnettable.lock);
-+	list_for_each_entry_safe(e, tmp_e, &smc_pnettable.pnetlist, list) {
-+		list_del(&e->list);
-+		kfree(e);
-+	}
-+	write_unlock(&smc_pnettable.lock);
-+}
-+
-+static struct kobj_type smc_pnet_ktype = {
-+	.release = smc_pnetid_release,
-+	.sysfs_ops = &kobj_sysfs_ops
-+};
-+
-+/* Remove an ethernet entry from the PNET table */
-+static int smc_pnet_del_eth(struct smc_pnetentry *pnetelem, char *name)
-+{
-+	int rc = -ENOENT;
-+
-+	write_lock(&smc_pnettable.lock);
-+	if (!strncmp(pnetelem->if_name, name, sizeof(pnetelem->if_name))) {
-+		rc = 0;
-+		pnetelem->if_name[0] = '\0';
-+	}
-+	write_unlock(&smc_pnettable.lock);
-+	return rc;
-+}
-+
-+/* Add an ethernet entry to the PNET table. Search the complete pnet table to
-+ * make sure the same ethernet interface is not listed under different PNET ids.
-+ */
-+static int smc_pnet_add_eth(struct smc_pnetentry *pnetelem, char *name)
-+{
-+	struct smc_pnetentry *p;
-+	int rc = -EEXIST;
-+
-+	write_lock(&smc_pnettable.lock);
-+	list_for_each_entry(p, &smc_pnettable.pnetlist, list) {
-+		if (!strncmp(p->if_name, name, sizeof(p->if_name)))
-+			goto out;
-+	}
-+	if (pnetelem->if_name[0] == '\0') {
-+		strncpy(pnetelem->if_name, name, sizeof(pnetelem->if_name));
-+		rc = 0;
-+	}
-+out:
-+	write_unlock(&smc_pnettable.lock);
-+	return rc;
-+}
-+
-+/* Create an ethernet interface entry. */
-+static int smc_pnet_makeeth(struct smc_pnetentry *pnetelem, bool add,
-+			    char *name)
-+{
-+	name = skip_spaces(name);
-+	if (!dev_valid_name(name))
-+		return -EINVAL;
-+	return (add) ? smc_pnet_add_eth(pnetelem, name)
-+		     : smc_pnet_del_eth(pnetelem, name);
-+}
-+
-+/* Check if two RDMA device entries are identical. Use device name and port
-+ * number for comparison.
-+ */
-+static bool smc_pnet_same_ibname(struct smc_pnetentry *a, char *name, u8 ibport)
-+{
-+	return a->ib_port == ibport &&
-+	       !strncmp(a->ib_name, name, sizeof(a->ib_name));
-+}
-+
-+/* Add an RDMA device entry to the PNET table */
-+static int smc_pnet_add_ib(struct smc_pnetentry *pnetelem, char *name,
-+			   u8 ibport)
-+{
-+	struct smc_pnetentry *p;
-+	int rc = -EEXIST;
-+
-+	write_lock(&smc_pnettable.lock);
-+	list_for_each_entry(p, &smc_pnettable.pnetlist, list) {
-+		if (smc_pnet_same_ibname(p, name, ibport))
-+			goto out;
-+	}
-+	if (pnetelem->ib_name[0] == '\0') {
-+		strncpy(pnetelem->ib_name, name, sizeof(pnetelem->ib_name));
-+		pnetelem->ib_port = ibport;
-+		rc = 0;
-+	}
-+out:
-+	write_unlock(&smc_pnettable.lock);
-+	return rc;
-+}
-+
-+/* Remove an RDMA device entry from the PNET table */
-+static int smc_pnet_del_ib(struct smc_pnetentry *pnetelem, char *name,
-+			   u8 ibport)
-+{
-+	int rc = -ENOENT;
-+
-+	write_lock(&smc_pnettable.lock);
-+	if (smc_pnet_same_ibname(pnetelem, name, ibport)) {
-+		rc = 0;
-+		pnetelem->ib_name[0] = '\0';
-+		pnetelem->ib_port = 0;
-+	}
-+	write_unlock(&smc_pnettable.lock);
-+	return rc;
-+}
-+
-+/* Create an RDMA device entry. Optional port number delimited by blank
-+ * from name. Missing port number defaults to 1.
-+ */
-+static int smc_pnet_makeib(struct smc_pnetentry *pnetelem, bool add, char *name)
-+{
-+	unsigned int tmp_port = 1;
-+	char *portno;
++	struct net_device *ndev;
 +	int rc;
 +
-+	name = skip_spaces(name);
-+	portno = strchr(name, ' ');
-+	if (portno) {		/* Port number specified */
-+		*portno = '\0';
-+		portno = skip_spaces(portno + 1);
-+		rc = kstrtouint(portno, 10, &tmp_port);
-+		if (rc || tmp_port > SMC_MAX_PORTS || !tmp_port) {
-+			rc = -EINVAL;
-+			goto out;
-+		}
++	rc = ib_query_gid(smcibdev->ibdev, ibport, 0,
++			  &smcibdev->gid[ibport - 1], NULL);
++	/* the SMC protocol requires specification of the roce MAC address;
++	 * if net_device cannot be determined, it can be derived from gid 0
++	 */
++	ndev = smcibdev->ibdev->get_netdev(smcibdev->ibdev, ibport);
++	if (ndev) {
++		memcpy(&smcibdev->mac, ndev->dev_addr, ETH_ALEN);
++	} else if (!rc) {
++		memcpy(&smcibdev->mac[ibport - 1][0],
++		       &smcibdev->gid[ibport - 1].raw[8], 3);
++		memcpy(&smcibdev->mac[ibport - 1][3],
++		       &smcibdev->gid[ibport - 1].raw[13], 3);
++		smcibdev->mac[ibport - 1][0] &= ~0x02;
 +	}
-+	rc = (add) ? smc_pnet_add_ib(pnetelem, name, (u8)tmp_port)
-+		   : smc_pnet_del_ib(pnetelem, name, (u8)tmp_port);
++	return rc;
++}
++
++/* Create an identifier unique for this instance of SMC-R.
++ * The MAC-address of the first active registered IB device
++ * plus a random 2-byte number is used to create this identifier.
++ * This name is delivered to the peer during connection initialization.
++ */
++static inline void smc_ib_define_local_systemid(struct smc_ib_device *smcibdev,
++						u8 ibport)
++{
++	memcpy(&local_systemid[2], &smcibdev->mac[ibport - 1],
++	       sizeof(smcibdev->mac[ibport - 1]));
++	get_random_bytes(&local_systemid[0], 2);
++}
++
++bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
++{
++	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
++}
++
++int smc_ib_remember_port_attr(struct smc_ib_device *smcibdev, u8 ibport)
++{
++	int rc;
++
++	memset(&smcibdev->pattr[ibport - 1], 0,
++	       sizeof(smcibdev->pattr[ibport - 1]));
++	rc = ib_query_port(smcibdev->ibdev, ibport,
++			   &smcibdev->pattr[ibport - 1]);
++	if (rc)
++		goto out;
++	rc = smc_ib_fill_gid_and_mac(smcibdev, ibport);
++	if (rc)
++		goto out;
++	if (!strncmp(local_systemid, SMC_LOCAL_SYSTEMID_RESET,
++		     sizeof(local_systemid)) &&
++	    smc_ib_port_active(smcibdev, ibport))
++		/* create unique system identifier */
++		smc_ib_define_local_systemid(smcibdev, ibport);
 +out:
 +	return rc;
 +}
 +
-+static ssize_t smc_pnetidfile_attr_store(struct kobject *kobj,
-+					 struct kobj_attribute *ka,
-+					 const char *buf, size_t len)
++static struct ib_client smc_ib_client;
++
++/* callback function for ib_register_client() */
++static void smc_ib_add_dev(struct ib_device *ibdev)
 +{
-+	char *text, *buf_copy;
-+	bool add = true;
-+	int rc;
++	struct smc_ib_device *smcibdev;
++	int i;
 +
-+	/* Operate on a copy of the buffer, we might modify the string */
-+	buf_copy = kstrdup(buf, GFP_KERNEL);
-+	if (!buf_copy)
-+		return -ENOMEM;
-+	text = strim(buf_copy);
-+	switch (*text) {
-+	case '-':
-+		add = false;
-+		/* Fall through intended */
-+	case '+':
-+		++text;
-+		break;
-+	}
-+	text = skip_spaces(text);
-+	rc = -EINVAL;
-+	if (!strncmp(text, "ib ", 3))
-+		rc = smc_pnet_makeib(to_smcpnetentry(ka), add, text + 3);
-+	else if (!strncmp(text, "eth ", 4))
-+		rc = smc_pnet_makeeth(to_smcpnetentry(ka), add, text + 4);
-+	kfree(buf_copy);
-+	return rc ?: len;
-+}
++	if (ibdev->node_type != RDMA_NODE_IB_CA)
++		return;
 +
-+/* List all entries of a PNETID. List ethernet entries first followed by
-+ * RDMA device entries. Output limited to PAGE_SIZE bytes.
-+ */
-+static ssize_t smc_pnetidfile_attr_show(struct kobject *kobj,
-+					struct kobj_attribute *ka,
-+					char *buf)
-+{
-+	struct smc_pnetentry *pnetelem = to_smcpnetentry(ka);
-+	size_t pos = 0;
++	smcibdev = kzalloc(sizeof(*smcibdev), GFP_KERNEL);
++	if (!smcibdev)
++		return;
 +
-+	read_lock(&smc_pnettable.lock);
-+	if (strlen(pnetelem->if_name)) {
-+		snprintf(buf, PAGE_SIZE, "eth %s\n", pnetelem->if_name);
-+		pos = strlen(buf);
-+	}
-+	if (strlen(pnetelem->ib_name))
-+		snprintf(buf + pos, PAGE_SIZE - pos, "ib %s %u\n",
-+			 pnetelem->ib_name, pnetelem->ib_port);
-+	read_unlock(&smc_pnettable.lock);
-+	return strlen(buf);
-+}
++	smcibdev->ibdev = ibdev;
 +
-+/* Delete a PNETID attribute file in /sys/kernel/smc/pnetids.
-+ * Remove the sysfs file first and then remove the node from the list and
-+ * release memory.
-+ */
-+static int smc_pnetid_del_file(char *pnetid)
-+{
-+	struct smc_pnetentry *e, *tmp_e, *found = NULL;
-+
-+	write_lock(&smc_pnettable.lock);
-+	list_for_each_entry_safe(e, tmp_e, &smc_pnettable.pnetlist, list) {
-+		if (!strncmp(e->pnet_name, pnetid, sizeof(e->pnet_name))) {
-+			list_del(&e->list);
-+			found = e;
++	for (i = 1; i <= SMC_MAX_PORTS; i++) {
++		if (smc_pnet_exists_in_table(smcibdev, i) &&
++		    !smcibdev->initialized) {
++			/* dev hotplug: ib device and port is in pnet table */
++			if (smc_ib_remember_port_attr(smcibdev, i)) {
++				kfree(smcibdev);
++				return;
++			}
++			smcibdev->initialized = 1;
 +			break;
 +		}
 +	}
-+	write_unlock(&smc_pnettable.lock);
-+	if (!found)
-+		return -ENOENT;
-+	sysfs_remove_file(&smc_pnettable.pnetids_kobj, &found->attr.attr);
-+	kfree(found);
-+	return 0;
++	spin_lock(&smc_ib_devices.lock);
++	list_add_tail(&smcibdev->list, &smc_ib_devices.list);
++	spin_unlock(&smc_ib_devices.lock);
++	ib_set_client_data(ibdev, &smc_ib_client, smcibdev);
 +}
 +
-+/* Append a PNETID to the end of the list if not already on this list. */
-+static int smc_pnet_append_pnetentry(struct smc_pnetentry *new)
++/* callback function for ib_register_client() */
++static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
 +{
-+	struct smc_pnetentry *pnetelem;
-+	int rc = 0;
++	struct smc_ib_device *smcibdev;
 +
-+	write_lock(&smc_pnettable.lock);
-+	list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
-+		if (!strncmp(pnetelem->pnet_name, new->pnet_name,
-+			     sizeof(new->pnet_name))) {
-+			rc = -EEXIST;
-+			goto found;
-+		}
-+	}
-+	list_add_tail(&new->list, &smc_pnettable.pnetlist);
-+found:
-+	write_unlock(&smc_pnettable.lock);
-+	return rc;
++	smcibdev = ib_get_client_data(ibdev, &smc_ib_client);
++	ib_set_client_data(ibdev, &smc_ib_client, NULL);
++	spin_lock(&smc_ib_devices.lock);
++	list_del_init(&smcibdev->list); /* remove from smc_ib_devices */
++	spin_unlock(&smc_ib_devices.lock);
++	kfree(smcibdev);
 +}
 +
-+/* Add a PNETID attribute file in /sys/kernel/smc/pnetids. */
-+static int smc_pnetid_add_file(char *pnetname)
-+{
-+	struct smc_pnetentry *pnetelem = kzalloc(sizeof(*pnetelem), GFP_KERNEL);
-+	struct kobj_attribute *ka;
-+	int rc;
-+
-+	if (!pnetelem)
-+		return -ENOMEM;
-+	ka = &pnetelem->attr;
-+	sysfs_attr_init(&ka->attr);
-+	strncpy(pnetelem->pnet_name, pnetname, sizeof(pnetelem->pnet_name));
-+	ka->attr.name = pnetelem->pnet_name;
-+	ka->attr.mode = S_IWUSR | S_IRUGO;
-+	ka->show = smc_pnetidfile_attr_show;
-+	ka->store = smc_pnetidfile_attr_store;
-+	rc = smc_pnet_append_pnetentry(pnetelem);
-+	if (rc)
-+		goto outfree;
-+	rc = sysfs_create_file_ns(&smc_pnettable.pnetids_kobj, &ka->attr, NULL);
-+	if (!rc)
-+		return rc;
-+	/* sysfs failure, remove node from list */
-+	write_lock(&smc_pnettable.lock);
-+	list_del(&pnetelem->list);
-+	write_unlock(&smc_pnettable.lock);
-+outfree:
-+	kfree(pnetelem);
-+	return rc;
-+}
-+
-+/* The limit for PNETID is 16 characters.
-+ * Valid characters should be (single-byte character set) a-z, A-Z, 0-9.
-+ * Lower case letters are converted to upper case.
-+ * Interior blanks should not be used.
-+ */
-+static bool smc_pnetid_valid(const char *buf, char *pnetid)
-+{
-+	char *bf = skip_spaces(buf);
-+	size_t len = strlen(bf);
-+	char *end = bf + len;
-+
-+	if (!len)
-+		return false;
-+	while (--end >= bf && isspace(*end))
-+		;
-+	if (end - bf >= SMC_MAX_PNET_ID_LEN)
-+		return false;
-+	while (bf <= end) {
-+		if (!isalnum(*bf))
-+			return false;
-+		*pnetid++ = islower(*bf) ? toupper(*bf) : *bf;
-+		bf++;
-+	}
-+	*pnetid = '\0';
-+	return true;
-+}
-+
-+static ssize_t smc_pnetid_store(bool add, const char *buf)
-+{
-+	char pnetid[SMC_MAX_PNET_ID_LEN + 1];
-+
-+	if (!smc_pnetid_valid(buf, pnetid))
-+		return -EINVAL;
-+	return add ? smc_pnetid_add_file(pnetid) : smc_pnetid_del_file(pnetid);
-+}
-+
-+#define SMC_ATTR_WO(_name)	\
-+	struct kobj_attribute smc_attr_##_name = __ATTR(_name, S_IWUSR, NULL, \
-+							smc_##_name##_store)
-+
-+static ssize_t smc_pnetid_del_store(struct kobject *kobj,
-+				    struct kobj_attribute *attr,
-+				    const char *buf, size_t count)
-+{
-+	ssize_t rc = smc_pnetid_store(false, buf);
-+
-+	return rc ?: count;
-+}
-+static SMC_ATTR_WO(pnetid_del);
-+
-+static ssize_t smc_pnetid_add_store(struct kobject *kobj,
-+				    struct kobj_attribute *attr,
-+				    const char *buf, size_t count)
-+{
-+	ssize_t rc = smc_pnetid_store(true, buf);
-+
-+	return rc ?: count;
-+}
-+static SMC_ATTR_WO(pnetid_add);
-+
-+/* Delete all PNETIDs. Any string with leading '-' will do.
-+ * smc_pnetid_del_file() can not be called directly, because function
-+ * sysfs_remove_file() can not be called under lock. Get the first entry
-+ * of the list and remove it. smc_pnetid_del_file() can handle the case
-+ * when a PNETID already has been deleted in the mean time.
-+ */
-+static ssize_t smc_flush_store(struct kobject *kobj,
-+			       struct kobj_attribute *attr,
-+			       const char *buf, size_t count)
-+{
-+	struct smc_pnettable *ptr = &smc_pnettable;
-+	char pnetname[SMC_MAX_PNET_ID_LEN + 1];
-+	struct smc_pnetentry *pnetelem;
-+	char *bf = skip_spaces(buf);
-+
-+	if (*bf != '-')
-+		return -EINVAL;
-+	do {
-+		read_lock(&ptr->lock);
-+		pnetelem = list_first_entry_or_null(&ptr->pnetlist,
-+						    struct smc_pnetentry, list);
-+		if (pnetelem)
-+			strncpy(pnetname, pnetelem->pnet_name,
-+				sizeof(pnetname));
-+		read_unlock(&ptr->lock);
-+		if (pnetelem)
-+			smc_pnetid_del_file(pnetname);
-+	} while (pnetelem);
-+	return count;
-+}
-+static SMC_ATTR_WO(flush);
-+
-+static struct attribute *smc_pnetid_attrs[] = { /* Default SMC attributes */
-+	&smc_attr_pnetid_add.attr,
-+	&smc_attr_pnetid_del.attr,
-+	&smc_attr_flush.attr,
-+	NULL
++static struct ib_client smc_ib_client = {
++	.name	= "smc_ib",
++	.add	= smc_ib_add_dev,
++	.remove = smc_ib_remove_dev,
 +};
 +
-+static struct attribute_group smc_attr_group = {
-+	.attrs = smc_pnetid_attrs
-+};
-+
-+/* Remove directory tree created under /sys/kernel/smc/. */
-+void smc_pnet_exit(void)
++int __init smc_ib_register_client(void)
 +{
-+	kobject_put(&smc_pnettable.pnetids_kobj);
-+	sysfs_remove_group(&smc_pnettable.kset->kobj, &smc_attr_group);
-+	kset_unregister(smc_pnettable.kset);
++	return ib_register_client(&smc_ib_client);
 +}
 +
-+/* Create directory tree for SMC under /sys/kernel/smc/. */
-+int __init smc_pnet_init(void)
++void smc_ib_unregister_client(void)
 +{
-+	int rc = -ENOMEM;
-+
-+	smc_pnettable.kset = kset_create_and_add("smc", NULL, kernel_kobj);
-+	if (!smc_pnettable.kset)
-+		goto bad0;
-+	rc = sysfs_create_group(&smc_pnettable.kset->kobj, &smc_attr_group);
-+	if (rc)
-+		goto bad1;
-+	rc = kobject_init_and_add(&smc_pnettable.pnetids_kobj, &smc_pnet_ktype,
-+				  &smc_pnettable.kset->kobj, "pnetids");
-+	if (rc)
-+		goto bad2;
-+	return rc;
-+
-+bad2:
-+	sysfs_remove_group(&smc_pnettable.kset->kobj, &smc_attr_group);
-+bad1:
-+	kset_unregister(smc_pnettable.kset);
-+bad0:
-+	return rc;
++	ib_unregister_client(&smc_ib_client);
 +}
-diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
 new file mode 100644
-index 0000000..34f85f6
+index 0000000..a1ca04f
 --- /dev/null
-+++ b/net/smc/smc_pnet.h
-@@ -0,0 +1,19 @@
++++ b/net/smc/smc_ib.h
+@@ -0,0 +1,40 @@
 +/*
 + * Shared Memory Communications over RDMA (SMC-R) and RoCE
 + *
-+ *  PNET table queries
++ *  Definitions for IB environment
 + *
 + *  Copyright IBM Corp. 2016
 + *
-+ *  Author(s):  Thomas Richter <tmricht@linux.vnet.ibm.com>
++ *  Author(s):  Ursula Braun <Ursula Braun@linux.vnet.ibm.com>
 + */
 +
-+#ifndef _SMC_PNET_H
-+#define _SMC_PNET_H
++#ifndef _SMC_IB_H
++#define _SMC_IB_H
 +
-+#define SMC_MAX_PORTS		2	/* Max # of ports */
++#include <rdma/ib_verbs.h>
 +
-+int smc_pnet_init(void) __init;
-+void smc_pnet_exit(void);
++#define SMC_MAX_PORTS			2	/* Max # of ports */
++#define SMC_GID_SIZE			sizeof(union ib_gid)
++
++struct smc_ib_devices {			/* list of smc ib devices definition */
++	struct list_head	list;
++	spinlock_t		lock;	/* protects list of smc ib devices */
++};
++
++extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
++
++struct smc_ib_device {				/* ib-device infos for smc */
++	struct list_head	list;
++	struct ib_device	*ibdev;
++	struct ib_port_attr	pattr[SMC_MAX_PORTS];	/* ib dev. port attrs */
++	char			mac[SMC_MAX_PORTS][6]; /* mac address per port*/
++	union ib_gid		gid[SMC_MAX_PORTS]; /* gid per port */
++	u8			initialized : 1; /* ib dev CQ, evthdl done */
++};
++
++int smc_ib_register_client(void) __init;
++void smc_ib_unregister_client(void);
++bool smc_ib_port_active(struct smc_ib_device *, u8);
++int smc_ib_remember_port_attr(struct smc_ib_device *, u8);
 +
 +#endif
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 1d41375..ee4876d 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -18,6 +18,7 @@
+ 
+ #include <rdma/ib_verbs.h>
+ 
++#include "smc_ib.h"
+ #include "smc_pnet.h"
+ 
+ #define SMC_MAX_PNET_ID_LEN	16	/* Max. length of PNET id */
+@@ -185,6 +186,8 @@ static bool smc_pnet_same_ibname(struct smc_pnetentry *a, char *name, u8 ibport)
+ static int smc_pnet_add_ib(struct smc_pnetentry *pnetelem, char *name,
+ 			   u8 ibport)
+ {
++	struct smc_ib_device *smcibdev = NULL;
++	struct smc_ib_device *dev;
+ 	struct smc_pnetentry *p;
+ 	int rc = -EEXIST;
+ 
+@@ -196,10 +199,32 @@ static int smc_pnet_add_ib(struct smc_pnetentry *pnetelem, char *name,
+ 	if (pnetelem->ib_name[0] == '\0') {
+ 		strncpy(pnetelem->ib_name, name, sizeof(pnetelem->ib_name));
+ 		pnetelem->ib_port = ibport;
++		spin_lock(&smc_ib_devices.lock);
++		/* using string ib_name, search smcibdev in global list */
++		list_for_each_entry(dev, &smc_ib_devices.list, list) {
++			if (!strncmp(dev->ibdev->name, pnetelem->ib_name,
++				     sizeof(pnetelem->ib_name))) {
++				smcibdev = dev;
++				break;
++			}
++		}
++		spin_unlock(&smc_ib_devices.lock);
+ 		rc = 0;
+ 	}
+ out:
+ 	write_unlock(&smc_pnettable.lock);
++	if (smcibdev && !smcibdev->initialized) {
++		/* ib dev already existed [dev coldplug].
++		 * Complements: smc_ib_add_dev() [dev hotplug],
++		 * smc_ib_global_event_handler() [port hotplug].
++		 * Function call chain can sleep so outside of our locks.
++		 */
++		rc = smc_ib_remember_port_attr(smcibdev,
++					       pnetelem->ib_port);
++		if (rc)
++			return rc;
++		smcibdev->initialized = 1;
++	}
+ 	return rc;
+ }
+ 
+@@ -508,3 +533,76 @@ bad1:
+ bad0:
+ 	return rc;
+ }
++
++/* Scan the pnet table and find an IB device given the pnetid entry.
++ * Return infiniband device and port number if an active port is found.
++ * This function is called under smc_pnettable.lock.
++ */
++static void smc_pnet_ib_dev_by_pnet(struct smc_pnetentry *pnetelem,
++				    struct smc_ib_device **smcibdev, u8 *ibport)
++{
++	struct smc_ib_device *dev;
++
++	*smcibdev = NULL;
++	*ibport = 0;
++	spin_lock(&smc_ib_devices.lock);
++	/* using string ib->ib_name, search ibdev in global list */
++	list_for_each_entry(dev, &smc_ib_devices.list, list) {
++		if (!strncmp(dev->ibdev->name, pnetelem->ib_name,
++			     sizeof(pnetelem->ib_name)) &&
++		    smc_ib_port_active(dev, pnetelem->ib_port)) {
++			*smcibdev = dev;
++			*ibport = pnetelem->ib_port;
++			break;
++		}
++	}
++	spin_unlock(&smc_ib_devices.lock);
++}
++
++/* PNET table analysis for a given sock:
++ * determine ib_device and port belonging to used internal TCP socket
++ * ethernet interface.
++ */
++void smc_pnet_find_roce_resource(struct sock *sk,
++				 struct smc_ib_device **smcibdev, u8 *ibport)
++{
++	struct dst_entry *dst = sk_dst_get(sk);
++	struct smc_pnetentry *pnetelem;
++
++	*smcibdev = NULL;
++	*ibport = 0;
++
++	if (!dst)
++		return;
++	if (!dst->dev)
++		goto out_rel;
++	read_lock(&smc_pnettable.lock);
++	list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
++		if (!strncmp(dst->dev->name, pnetelem->if_name, IFNAMSIZ)) {
++			smc_pnet_ib_dev_by_pnet(pnetelem, smcibdev, ibport);
++			break;
++		}
++	}
++	read_unlock(&smc_pnettable.lock);
++out_rel:
++	dst_release(dst);
++}
++
++/* Returns true if a specific ib_device and port is in the PNET table. */
++bool smc_pnet_exists_in_table(struct smc_ib_device *smcibdev, u8 ibport)
++{
++	struct smc_pnetentry *pnetelem;
++	int rc = false;
++
++	read_lock(&smc_pnettable.lock);
++	list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
++		if (!strncmp(smcibdev->ibdev->name, pnetelem->ib_name,
++			     IB_DEVICE_NAME_MAX) &&
++		    ibport == pnetelem->ib_port) {
++			rc = true;
++			break;
++		}
++	}
++	read_unlock(&smc_pnettable.lock);
++	return rc;
++}
+diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
+index 34f85f6..1ff35df 100644
+--- a/net/smc/smc_pnet.h
++++ b/net/smc/smc_pnet.h
+@@ -13,6 +13,13 @@
+ 
+ #define SMC_MAX_PORTS		2	/* Max # of ports */
+ 
++#include <net/sock.h>
++
++struct smc_ib_device;
++
++bool smc_pnet_exists_in_table(struct smc_ib_device *, u8);
++void smc_pnet_find_roce_resource(struct sock *, struct smc_ib_device **, u8 *);
++
+ int smc_pnet_init(void) __init;
+ void smc_pnet_exit(void);
+ 
 -- 
 2.6.6
