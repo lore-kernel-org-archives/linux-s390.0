@@ -1,195 +1,91 @@
-From: kbuild test robot <fengguang.wu@intel.com>
-Date: Thu, 02 Jun 2016 04:26:10 +0000
-Subject: [s390:features 19/19] arch/s390/kernel/machine_kexec.c:172:3: error: implicit declaration of functio
-Message-Id: <201606021208.jYI80H3I%fengguang.wu@intel.com>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--LZvS9be/3tNcYl/X"
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Fri, 03 Jun 2016 15:27:00 +0000
+Subject: [PATCH net-next 01/15] net: introduce keepalive function in struct proto
+Message-Id: <201606031528.u53FQ0Ue037267@mx0a-001b2d01.pphosted.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Direct call of tcp_set_keepalive() function from protocol-agnostic
+sock_setsockopt() function in net/core/sock.c violates network
+layering. And newly introduced protocol (SMC-R) will need its own
+keepalive function. Therefore, add "keepalive" function pointer
+to "struct proto", and call it from sock_setsockopt() via this pointer.
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-head:   0b45bc53cb188daba69a02725967af8ace276c60
-commit: 0b45bc53cb188daba69a02725967af8ace276c60 [19/19] s390/kexec: fix crash on resize of reserved memory
-config: s390-zfcpdump_defconfig (attached as .config)
-compiler: s390x-linux-gnu-gcc (Debian 5.3.1-8) 5.3.1 20160205
-reproduce:
-        wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        git checkout 0b45bc53cb188daba69a02725967af8ace276c60
-        # save the attached .config to linux build tree
-        make.cross ARCH=s390 
-
-Note: the s390/features HEAD 0b45bc53cb188daba69a02725967af8ace276c60 builds fine.
-      It only hurts bisectibility.
-
-All errors (new ones prefixed by >>):
-
-   arch/s390/kernel/machine_kexec.c: In function 'crash_protect_pages':
->> arch/s390/kernel/machine_kexec.c:172:3: error: implicit declaration of function 'set_memory_ro' [-Werror=implicit-function-declaration]
-      set_memory_ro(crashk_res.start, size >> PAGE_SHIFT);
-      ^
->> arch/s390/kernel/machine_kexec.c:174:3: error: implicit declaration of function 'set_memory_rw' [-Werror=implicit-function-declaration]
-      set_memory_rw(crashk_res.start, size >> PAGE_SHIFT);
-      ^
-   cc1: some warnings being treated as errors
-
-vim +/set_memory_ro +172 arch/s390/kernel/machine_kexec.c
-
-   166		unsigned long size;
-   167	
-   168		if (!crashk_res.end)
-   169			return;
-   170		size = resource_size(&crashk_res);
-   171		if (protect)
- > 172			set_memory_ro(crashk_res.start, size >> PAGE_SHIFT);
-   173		else
- > 174			set_memory_rw(crashk_res.start, size >> PAGE_SHIFT);
-   175	}
-   176	
-   177	void arch_kexec_protect_crashkres(void)
-
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Reviewed-by: Utz Bacher <utz.bacher@de.ibm.com>
 ---
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+ include/net/sock.h   | 1 +
+ net/core/sock.c      | 7 ++-----
+ net/ipv4/tcp_ipv4.c  | 1 +
+ net/ipv4/tcp_timer.c | 1 +
+ net/ipv6/tcp_ipv6.c  | 1 +
+ 5 files changed, 6 insertions(+), 5 deletions(-)
 
---LZvS9be/3tNcYl/X
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
-
-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
-o0wpTLe9G4OZ+T+QuQJheGcAAA==
-
---LZvS9be/3tNcYl/X--
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 649d2a8..454eefc 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -988,6 +988,7 @@ struct proto {
+ 	int			(*getsockopt)(struct sock *sk, int level,
+ 					int optname, char __user *optval,
+ 					int __user *option);
++	void			(*keepalive)(struct sock *sk, int valbool);
+ #ifdef CONFIG_COMPAT
+ 	int			(*compat_setsockopt)(struct sock *sk,
+ 					int level,
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 08bf97e..8493b27 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -760,11 +760,8 @@ set_rcvbuf:
+ 		goto set_rcvbuf;
+ 
+ 	case SO_KEEPALIVE:
+-#ifdef CONFIG_INET
+-		if (sk->sk_protocol == IPPROTO_TCP &&
+-		    sk->sk_type == SOCK_STREAM)
+-			tcp_set_keepalive(sk, valbool);
+-#endif
++		if (sk->sk_prot->keepalive)
++			sk->sk_prot->keepalive(sk, valbool);
+ 		sock_valbool_flag(sk, SOCK_KEEPOPEN, valbool);
+ 		break;
+ 
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index 3708de2..9f2b00b 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -2332,6 +2332,7 @@ struct proto tcp_prot = {
+ 	.shutdown		= tcp_shutdown,
+ 	.setsockopt		= tcp_setsockopt,
+ 	.getsockopt		= tcp_getsockopt,
++	.keepalive		= tcp_set_keepalive,
+ 	.recvmsg		= tcp_recvmsg,
+ 	.sendmsg		= tcp_sendmsg,
+ 	.sendpage		= tcp_sendpage,
+diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
+index debdd8b..66d0c05 100644
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -565,6 +565,7 @@ void tcp_set_keepalive(struct sock *sk, int val)
+ 	else if (!val)
+ 		inet_csk_delete_keepalive_timer(sk);
+ }
++EXPORT_SYMBOL(tcp_set_keepalive);
+ 
+ 
+ static void tcp_keepalive_timer (unsigned long data)
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index 79e33e0..03ae520 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -1875,6 +1875,7 @@ struct proto tcpv6_prot = {
+ 	.shutdown		= tcp_shutdown,
+ 	.setsockopt		= tcp_setsockopt,
+ 	.getsockopt		= tcp_getsockopt,
++	.keepalive		= tcp_set_keepalive,
+ 	.recvmsg		= tcp_recvmsg,
+ 	.sendmsg		= tcp_sendmsg,
+ 	.sendpage		= tcp_sendpage,
+-- 
+2.6.6
