@@ -1,145 +1,167 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Fri, 03 Jun 2016 15:27:11 +0000
-Subject: [PATCH net-next 12/15] smc: send data (through RDMA)
-Message-Id: <201606031527.u53FQ0Tq002631@mx0a-001b2d01.pphosted.com>
-In-Reply-To: <201606031527.u53FQ1xa015796@mx0a-001b2d01.pphosted.com>
-References: <201606031527.u53FQ1xa015796@mx0a-001b2d01.pphosted.com>
+Date: Fri, 03 Jun 2016 15:27:12 +0000
+Subject: [PATCH net-next 13/15] smc: receive data from RMBE
+Message-Id: <201606031527.u53FQ0xv015720@mx0a-001b2d01.pphosted.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-copy data to kernel send buffer, and trigger RDMA write
+move RMBE data into user space buffer and update managing cursors
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/Makefile  |   2 +-
- net/smc/af_smc.c  |  13 +-
- net/smc/smc.h     |   1 +
- net/smc/smc_cdc.c |   7 +-
- net/smc/smc_tx.c  | 421 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_tx.h  |  34 +++++
- 6 files changed, 474 insertions(+), 4 deletions(-)
- create mode 100644 net/smc/smc_tx.c
- create mode 100644 net/smc/smc_tx.h
+ net/smc/Makefile   |   2 +-
+ net/smc/af_smc.c   |   7 +-
+ net/smc/smc.h      |   4 +
+ net/smc/smc_cdc.c  |   6 +-
+ net/smc/smc_core.c |  10 +++
+ net/smc/smc_rx.c   | 212 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_rx.h   |  22 ++++++
+ net/smc/smc_tx.c   |  32 ++++++++
+ net/smc/smc_tx.h   |   1 +
+ 9 files changed, 293 insertions(+), 3 deletions(-)
+ create mode 100644 net/smc/smc_rx.c
+ create mode 100644 net/smc/smc_rx.h
 
 diff --git a/net/smc/Makefile b/net/smc/Makefile
-index ec0fd03..fc28d79 100644
+index fc28d79..6255e29 100644
 --- a/net/smc/Makefile
 +++ b/net/smc/Makefile
 @@ -1,3 +1,3 @@
  obj-$(CONFIG_SMC)	+= smc.o
  smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
--smc-y += smc_cdc.o
-+smc-y += smc_cdc.o smc_tx.o
+-smc-y += smc_cdc.o smc_tx.o
++smc-y += smc_cdc.o smc_tx.o smc_rx.o
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index af82d28..c96a234 100644
+index c96a234..4652759 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -36,6 +36,7 @@
- #include "smc_core.h"
+@@ -37,6 +37,7 @@
  #include "smc_ib.h"
  #include "smc_pnet.h"
-+#include "smc_tx.h"
+ #include "smc_tx.h"
++#include "smc_rx.h"
  
  static DEFINE_MUTEX(smc_create_lgr_pending);	/* serialize link group
  						 * creation
-@@ -420,6 +421,8 @@ static int smc_connect_rdma(struct smc_sock *smc)
- 	}
+@@ -422,6 +423,7 @@ static int smc_connect_rdma(struct smc_sock *smc)
  
  	mutex_unlock(&smc_create_lgr_pending);
-+	smc_tx_init(smc);
-+
+ 	smc_tx_init(smc);
++	smc_rx_init(smc);
+ 
  out_connected:
  	smc_copy_sock_settings_to_clc(smc);
- 	smc->sk.sk_state = SMC_ACTIVE;
-@@ -761,6 +764,8 @@ static void smc_listen_work(struct work_struct *work)
- 			goto decline_rdma;
+@@ -765,6 +767,7 @@ static void smc_listen_work(struct work_struct *work)
  	}
  
-+	smc_tx_init(new_smc);
-+
+ 	smc_tx_init(new_smc);
++	smc_rx_init(new_smc);
+ 
  out_connected:
  	sk_refcnt_debug_inc(newsmcsk);
- 	newsmcsk->sk_state = SMC_ACTIVE;
-@@ -934,7 +939,7 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+@@ -960,7 +963,7 @@ static int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
  	if (smc->use_fallback)
- 		rc = smc->clcsock->ops->sendmsg(smc->clcsock, msg, len);
+ 		rc = smc->clcsock->ops->recvmsg(smc->clcsock, msg, len, flags);
  	else
--		rc = sock_no_sendmsg(sock, msg, len);
-+		rc = smc_tx_sendmsg(smc, msg, len);
+-		rc = sock_no_recvmsg(sock, msg, len, flags);
++		rc = smc_rx_recvmsg(smc, msg, len, flags);
  out:
  	release_sock(sk);
  	return rc;
-@@ -1015,6 +1020,12 @@ static unsigned int smc_poll(struct file *file, struct socket *sock,
- 			mask |= smc_accept_poll(sk);
- 		if (sk->sk_err)
- 			mask |= POLLERR;
-+		if (atomic_read(&smc->conn.sndbuf_space)) {
-+			mask |= POLLOUT | POLLWRNORM;
-+		} else {
-+			sk_set_bit(SOCKWQ_ASYNC_NOSPACE, sk);
-+			set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
-+		}
+@@ -1026,6 +1029,8 @@ static unsigned int smc_poll(struct file *file, struct socket *sock,
+ 			sk_set_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+ 			set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+ 		}
++		if (atomic_read(&smc->conn.bytes_to_rcv))
++			mask |= POLLIN | POLLRDNORM;
  		/* for now - to be enhanced in follow-on patch */
  	}
  
 diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 49e56469..488bc86 100644
+index 488bc86..8aa9be8 100644
 --- a/net/smc/smc.h
 +++ b/net/smc/smc.h
-@@ -125,6 +125,7 @@ struct smc_connection {
- 	atomic_t		sndbuf_space;	/* remaining space in sndbuf */
- 	u16			tx_cdc_seq;	/* sequence # for CDC send */
- 	spinlock_t		send_lock;	/* protect wr_sends */
-+	struct work_struct	tx_work;	/* retry of smc_cdc_msg_send */
+@@ -107,6 +107,10 @@ struct smc_connection {
+ 	struct smc_buf_desc	*rmb_desc;	/* RMBE descriptor */
+ 	int			rmbe_size;	/* RMBE size <== sock rmem */
+ 	int			rmbe_size_short;/* compressed notation */
++	int			rmbe_update_limit;
++						/* lower limit for consumer
++						 * cursor update
++						 */
  
- 	struct smc_host_cdc_msg	local_rx_ctrl;	/* filled during event_handl.
- 						 * .prod cf. TCP rcv_nxt
+ 	struct smc_host_cdc_msg	local_tx_ctrl;	/* host byte order staging
+ 						 * buffer for CDC msg send
 diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 2db2b27..01b582a 100644
+index 01b582a..d8a8dce 100644
 --- a/net/smc/smc_cdc.c
 +++ b/net/smc/smc_cdc.c
-@@ -14,6 +14,7 @@
- #include "smc.h"
+@@ -15,6 +15,7 @@
  #include "smc_wr.h"
  #include "smc_cdc.h"
-+#include "smc_tx.h"
+ #include "smc_tx.h"
++#include "smc_rx.h"
  
  /********************************** send *************************************/
  
-@@ -51,7 +52,7 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
- 		xchg(&cdcpend->conn->tx_curs_fin.acurs,
- 		     cdcpend->cursor.acurs);
+@@ -190,6 +191,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 		atomic_add(diff_prod, &conn->bytes_to_rcv);
+ 		/* guarantee 0 <= bytes_to_rcv <= rmbe_size */
+ 		smp_mb__after_atomic();
++		smc->sk.sk_data_ready(&smc->sk);
  	}
--	/* subsequent patch: wake if send buffer space available */
-+	smc_tx_sndbuf_nonfull(smc);
- 	bh_unlock_sock(&smc->sk);
+ 
+ 	if (conn->local_rx_ctrl.conn_state_flags.peer_conn_abort)
+@@ -213,7 +215,9 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 		return;
+ 
+ 	/* data available */
+-	/* subsequent patch: send delayed ack, wake receivers */
++	if ((conn->local_rx_ctrl.prod_flags.write_blocked) ||
++	    (conn->local_rx_ctrl.prod_flags.cons_curs_upd_req))
++		smc_tx_consumer_update(conn);
  }
  
-@@ -201,7 +202,9 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 	}
+ /* called under tasklet context */
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index d751d3f..cbc9c0e 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -511,6 +511,15 @@ struct smc_buf_desc *smc_rmb_get_slot(struct smc_link_group *lgr,
+ 	return NULL;
+ }
  
- 	/* piggy backed tx info */
--	/* subsequent patch: wake receivers if receive buffer space available */
-+	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC */
-+	if (diff_cons && smc_tx_prepared_sends(conn))
-+		smc_tx_sndbuf_nonempty(conn);
- 
- 	/* subsequent patch: trigger socket release if connection closed */
- 
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
++/* one of the conditions for announcing a receiver's current window size is
++ * that it "results in a minimum increase in the window size of 10% of the
++ * receive buffer space" [RFC7609]
++ */
++static inline int smc_rmb_wnd_update_limit(int rmbe_size)
++{
++	return min_t(int, rmbe_size / 10, SOCK_MIN_SNDBUF / 2);
++}
++
+ /* create the tx buffer for an SMC socket */
+ int smc_sndbuf_create(struct smc_sock *smc)
+ {
+@@ -642,6 +651,7 @@ int smc_rmb_create(struct smc_sock *smc)
+ 		conn->rmbe_size_short = tmp_bufsize_short;
+ 		smc->sk.sk_rcvbuf = tmp_bufsize * 2;
+ 		atomic_set(&conn->bytes_to_rcv, 0);
++		conn->rmbe_update_limit = smc_rmb_wnd_update_limit(tmp_bufsize);
+ 		return 0;
+ 	} else {
+ 		return -ENOMEM;
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
 new file mode 100644
-index 0000000..4a791c5
+index 0000000..44f9b4d
 --- /dev/null
-+++ b/net/smc/smc_tx.c
-@@ -0,0 +1,421 @@
++++ b/net/smc/smc_rx.c
+@@ -0,0 +1,212 @@
 +/*
 + * Shared Memory Communications over RDMA (SMC-R) and RoCE
 + *
-+ * Manage send buffer.
-+ * Producer:
-+ * Copy user space data into send buffer, if send buffer space available.
-+ * Consumer:
-+ * Trigger RDMA write into RMBE of peer and send CDC, if RMBE space available.
++ * Manage RMBE
++ * copy new RMBE data into user space
 + *
 + * Copyright IBM Corp. 2016
 + *
@@ -148,450 +170,286 @@ index 0000000..4a791c5
 +
 +#include <linux/net.h>
 +#include <linux/rcupdate.h>
-+#include <linux/workqueue.h>
 +#include <net/sock.h>
 +
 +#include "smc.h"
-+#include "smc_wr.h"
++#include "smc_core.h"
 +#include "smc_cdc.h"
-+#include "smc_tx.h"
++#include "smc_tx.h" /* smc_tx_consumer_update() */
++#include "smc_rx.h"
 +
-+/***************************** sndbuf producer *******************************/
-+
-+/* callback implementation for sk.sk_write_space()
-+ * to wakeup sndbuf producers that blocked with smc_tx_wait_memory().
-+ * called under sk_socket lock.
++/* callback implementation for sk.sk_data_ready()
++ * to wakeup rcvbuf consumers that blocked with smc_rx_wait_data().
++ * indirectly called by smc_cdc_msg_recv_action().
 + */
-+static void smc_tx_write_space(struct sock *sk)
++static void smc_rx_data_ready(struct sock *sk)
 +{
-+	struct socket *sock = sk->sk_socket;
-+	struct smc_sock *smc = smc_sk(sk);
 +	struct socket_wq *wq;
 +
-+	/* similar to sk_stream_write_space */
-+	if (atomic_read(&smc->conn.sndbuf_space) && sock) {
-+		clear_bit(SOCK_NOSPACE, &sock->flags);
-+		rcu_read_lock();
-+		wq = rcu_dereference(sk->sk_wq);
-+		if (skwq_has_sleeper(wq))
-+			wake_up_interruptible_poll(&wq->wait,
-+						   POLLOUT | POLLWRNORM |
-+						   POLLWRBAND);
-+		if (wq && wq->fasync_list && !(sk->sk_shutdown & SEND_SHUTDOWN))
-+			sock_wake_async(wq, SOCK_WAKE_SPACE, POLL_OUT);
-+		rcu_read_unlock();
-+	}
++	/* derived from sock_def_readable() */
++	/* called already in smc_listen_work() */
++	rcu_read_lock();
++	wq = rcu_dereference(sk->sk_wq);
++	if (skwq_has_sleeper(wq))
++		wake_up_interruptible_sync_poll(&wq->wait, POLLIN | POLLPRI |
++						POLLRDNORM | POLLRDBAND);
++	if ((sk->sk_shutdown == SHUTDOWN_MASK) ||
++	    (sk->sk_state == SMC_CLOSED))
++		sk_wake_async(sk, SOCK_WAKE_WAITD, POLL_HUP);
++	else
++		sk_wake_async(sk, SOCK_WAKE_WAITD, POLL_IN);
++	rcu_read_unlock();
 +}
 +
-+/* Wakeup sndbuf producers that blocked with smc_tx_wait_memory().
-+ * Cf. tcp_data_snd_check()=>tcp_check_space()=>tcp_new_space().
++/* blocks rcvbuf consumer until >=len bytes available or timeout or interrupted
++ *   @smc    smc socket
++ *   @timeo  pointer to max seconds to wait, pointer to value 0 for no timeout
++ * Returns:
++ * 1 if at least 1 byte available in rcvbuf or if socket error/shutdown.
++ * 0 otherwise (nothing in rcvbuf nor timeout, e.g. interrupted).
 + */
-+void smc_tx_sndbuf_nonfull(struct smc_sock *smc)
-+{
-+	if (smc->sk.sk_socket &&
-+	    test_bit(SOCK_NOSPACE, &smc->sk.sk_socket->flags))
-+		smc->sk.sk_write_space(&smc->sk);
-+}
-+
-+/* blocks sndbuf producer until at least one byte of free space available */
-+static int smc_tx_wait_memory(struct smc_sock *smc, int flags)
++static int smc_rx_wait_data(struct smc_sock *smc, long *timeo)
 +{
 +	struct smc_connection *conn = &smc->conn;
 +	struct sock *sk = &smc->sk;
 +	DEFINE_WAIT(wait);
-+	bool noblock;
-+	long timeo;
-+	int rc = 0;
++	int rc;
 +
-+	/* similar to sk_stream_wait_memory */
-+	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
-+	noblock = timeo ? false : true;
-+	while (1) {
-+		sk_set_bit(SOCKWQ_ASYNC_NOSPACE, sk);
-+		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
-+		if (sk->sk_err ||
-+		    (sk->sk_shutdown & SEND_SHUTDOWN) ||
-+		    conn->local_tx_ctrl.conn_state_flags.peer_done_writing) {
-+			rc = -EPIPE;
-+			break;
-+		}
-+		if (conn->local_rx_ctrl.conn_state_flags.peer_conn_abort) {
-+			rc = -ECONNRESET;
-+			break;
-+		}
-+		if (!timeo) {
-+			if (noblock)
-+				set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
-+			rc = -EAGAIN;
-+			break;
-+		}
-+		if (signal_pending(current)) {
-+			rc = sock_intr_errno(timeo);
-+			break;
-+		}
-+		sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
-+		if (atomic_read(&conn->sndbuf_space))
-+			break; /* at least 1 byte of free space available */
-+		set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
-+		sk->sk_write_pending++;
-+		sk_wait_event(sk, &timeo,
-+			      sk->sk_err ||
-+			      (sk->sk_shutdown & SEND_SHUTDOWN) ||
-+			      smc_cdc_rxed_any_close_or_senddone(conn) ||
-+			      atomic_read(&conn->sndbuf_space));
-+		sk->sk_write_pending--;
-+	}
++	if (atomic_read(&conn->bytes_to_rcv))
++		return 1;
++	prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
++	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
++	rc = sk_wait_event(sk, timeo,
++			   sk->sk_err ||
++			   sk->sk_shutdown & RCV_SHUTDOWN ||
++			   sock_flag(sk, SOCK_DONE) ||
++			   atomic_read(&conn->bytes_to_rcv) ||
++			   smc_cdc_rxed_any_close_or_senddone(conn));
++	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
 +	finish_wait(sk_sleep(sk), &wait);
 +	return rc;
 +}
 +
-+/* sndbuf producer: main API called by socket layer.
-+ * called under sock lock.
++/* rcvbuf consumer: main API called by socket layer.
++ * called under sk lock.
 + */
-+int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
++int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg, size_t len,
++		   int flags)
 +{
-+	size_t copylen, send_done = 0, send_remaining = len;
++	size_t copylen, read_done = 0, read_remaining = len;
 +	size_t chunk_len, chunk_off, chunk_len_sum;
 +	struct smc_connection *conn = &smc->conn;
-+	union smc_host_cursor_ovl prep;
-+	struct sock *sk = &smc->sk;
-+	char *sndbuf_base;
-+	int tx_cnt_prep;
-+	int writespace;
-+	int rc, chunk;
++	union smc_host_cursor_ovl cons;
++	int readable, chunk;
++	char *rcvbuf_base;
++	struct sock *sk;
++	long timeo;
++	int target;		/* Read at least these many bytes */
++	int rc;
 +
-+	/* This should be in poll */
-+	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
++	if (unlikely(flags & MSG_ERRQUEUE))
++		return -EINVAL; /* future work for sk.sk_family == AF_SMC */
++	if (flags & MSG_OOB)
++		return -EINVAL; /* future work */
 +
-+	if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN)) {
-+		rc = -EPIPE;
-+		goto out_err;
-+	}
++	sk = &smc->sk;
++	if (sk->sk_state == SMC_LISTEN)
++		return -ENOTCONN;
++	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
++	target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
 +
-+	while (msg_data_left(msg)) {
-+		if (sk->sk_state == SMC_INIT)
-+			return -ENOTCONN;
-+		if (smc->sk.sk_shutdown & SEND_SHUTDOWN ||
-+		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
-+			return -EPIPE;
-+		if (smc_cdc_rxed_any_close(conn))
-+			return send_done ?: -ECONNRESET;
++	msg->msg_namelen = 0;
++	/* we currently use 1 RMBE per RMB, so RMBE == RMB base addr */
++	rcvbuf_base = conn->rmb_desc->cpu_addr;
 +
-+		if (!atomic_read(&conn->sndbuf_space)) {
-+			rc = smc_tx_wait_memory(smc, msg->msg_flags);
-+			if (rc) {
-+				if (send_done)
-+					return send_done;
-+				goto out_err;
++	do { /* while (read_remaining) */
++		if (read_done >= target)
++			break;
++
++		if (atomic_read(&conn->bytes_to_rcv))
++			goto copy;
++
++		if (read_done) {
++			if (sk->sk_err ||
++			    sk->sk_state == SMC_CLOSED ||
++			    (sk->sk_shutdown & RCV_SHUTDOWN) ||
++			    !timeo ||
++			    signal_pending(current) ||
++			    smc_cdc_rxed_any_close_or_senddone(conn) ||
++			    conn->local_tx_ctrl.conn_state_flags.
++			    peer_conn_abort)
++				break;
++		} else {
++			if (sock_flag(sk, SOCK_DONE))
++				break;
++			if (sk->sk_err) {
++				read_done = sock_error(sk);
++				break;
 +			}
++			if (sk->sk_shutdown & RCV_SHUTDOWN ||
++			    smc_cdc_rxed_any_close_or_senddone(conn) ||
++			    conn->local_tx_ctrl.conn_state_flags.
++			    peer_conn_abort)
++				break;
++			if (sk->sk_state == SMC_CLOSED) {
++				if (!sock_flag(sk, SOCK_DONE)) {
++					/* This occurs when user tries to read
++					 * from never connected socket.
++					 */
++					read_done = -ENOTCONN;
++					break;
++				}
++				break;
++			}
++			if (signal_pending(current)) {
++				read_done = sock_intr_errno(timeo);
++				break;
++			}
++		}
++
++		if (!atomic_read(&conn->bytes_to_rcv)) {
++			smc_rx_wait_data(smc, &timeo);
 +			continue;
 +		}
 +
++copy:
 +		/* initialize variables for 1st iteration of subsequent loop */
-+		/* could be just 1 byte, even after smc_tx_wait_memory above */
-+		writespace = atomic_read(&conn->sndbuf_space);
++		/* could be just 1 byte, even after smc_rx_wait_data above */
++		readable = atomic_read(&conn->bytes_to_rcv);
 +		/* not more than what user space asked for */
-+		copylen = min_t(size_t, send_remaining, writespace);
-+		/* determine start of sndbuf */
-+		sndbuf_base = conn->sndbuf_desc->cpu_addr;
-+		prep.acurs = smc_curs_read(conn->tx_curs_prep.acurs);
-+		tx_cnt_prep = prep.curs.count;
-+		/* determine chunks where to write into sndbuf */
++		copylen = min_t(size_t, read_remaining, readable);
++		cons.acurs = smc_curs_read(conn->local_tx_ctrl.cons.acurs);
++		/* determine chunks where to read from rcvbuf */
 +		/* either unwrapped case, or 1st chunk of wrapped case */
 +		chunk_len = min_t(size_t,
-+				  copylen, conn->sndbuf_size - tx_cnt_prep);
++				  copylen, conn->rmbe_size - cons.curs.count);
 +		chunk_len_sum = chunk_len;
-+		chunk_off = tx_cnt_prep;
++		chunk_off = cons.curs.count;
 +		for (chunk = 0; chunk < 2; chunk++) {
-+			rc = memcpy_from_msg(sndbuf_base + chunk_off,
-+					     msg, chunk_len);
-+			if (rc) {
-+				if (send_done)
-+					return send_done;
-+				goto out_err;
++			if (!(flags & MSG_TRUNC)) {
++				rc = memcpy_to_msg(msg, rcvbuf_base + chunk_off,
++						   chunk_len);
++				if (rc) {
++					if (!read_done)
++						read_done = -EFAULT;
++					goto out;
++				}
 +			}
-+			send_done += chunk_len;
-+			send_remaining -= chunk_len;
++			read_remaining -= chunk_len;
++			read_done += chunk_len;
 +
 +			if (chunk_len_sum == copylen)
 +				break; /* either on 1st or 2nd iteration */
 +			/* prepare next (== 2nd) iteration */
 +			chunk_len = copylen - chunk_len; /* remainder */
 +			chunk_len_sum += chunk_len;
-+			chunk_off = 0; /* modulo offset in send ring buffer */
++			chunk_off = 0; /* modulo offset in recv ring buffer */
 +		}
++
 +		/* update cursors */
-+		smc_curs_add(conn->sndbuf_size, &prep.curs, copylen);
-+		xchg(&conn->tx_curs_prep.acurs, prep.acurs);
-+		/* increased in send tasklet smc_cdc_tx_handler() */
-+		smp_mb__before_atomic();
-+		atomic_sub(copylen, &conn->sndbuf_space);
-+		/* guarantee 0 <= sndbuf_space <= sndbuf_size */
-+		smp_mb__after_atomic();
-+		/* since we just produced more new data into sndbuf,
-+		 * trigger sndbuf consumer: RDMA write into peer RMBE and CDC
-+		 */
-+		smc_tx_sndbuf_nonempty(conn);
-+	} /* while (msg_data_left(msg)) */
-+
-+	return send_done;
-+
-+out_err:
-+	rc = sk_stream_error(sk, msg->msg_flags, rc);
-+	/* make sure we wake any epoll edge trigger waiter */
-+	if (unlikely(rc == -EAGAIN))
-+		sk->sk_write_space(sk);
-+	return rc;
-+}
-+
-+/***************************** sndbuf consumer *******************************/
-+
-+/* sndbuf consumer: actual data transfer of one target chunk with RDMA write */
-+static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
-+			     int num_sges, struct ib_sge sges[])
-+{
-+	struct smc_link_group *lgr = conn->lgr;
-+	struct ib_send_wr *failed_wr = NULL;
-+	struct ib_rdma_wr rdma_wr;
-+	struct smc_link *link;
-+	int rc;
-+
-+	memset(&rdma_wr, 0, sizeof(rdma_wr));
-+	link = &lgr->lnk[SMC_SINGLE_LINK];
-+	rdma_wr.wr.wr_id = smc_wr_tx_get_next_wr_id(link);
-+	rdma_wr.wr.sg_list = sges;
-+	rdma_wr.wr.num_sge = num_sges;
-+	rdma_wr.wr.opcode = IB_WR_RDMA_WRITE;
-+	rdma_wr.remote_addr =
-+		lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].dma_addr +
-+		/* RMBE within RMB */
-+		((conn->peer_conn_idx - 1) * conn->peer_rmbe_len) +
-+		/* offset within RMBE */
-+		peer_rmbe_offset;
-+	rdma_wr.rkey = lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].rkey;
-+	rc = ib_post_send(link->roce_qp, &rdma_wr.wr, &failed_wr);
-+	if (rc)
-+		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
-+	return rc;
-+}
-+
-+/* sndbuf consumer */
-+static inline void smc_tx_advance_cursors(struct smc_connection *conn,
-+					  union smc_host_cursor_ovl *prod,
-+					  union smc_host_cursor_ovl *sent,
-+					  size_t len)
-+{
-+	smc_curs_add(conn->peer_rmbe_len, &prod->curs, len);
-+	/* increased in recv tasklet smc_cdc_msg_rcv() */
-+	smp_mb__before_atomic();
-+	/* data in flight reduces usable snd_wnd */
-+	atomic_sub(len, &conn->peer_rmbe_space);
-+	/* guarantee 0 <= peer_rmbe_space <= peer_rmbe_len */
-+	smp_mb__after_atomic();
-+	smc_curs_add(conn->sndbuf_size, &sent->curs, len);
-+}
-+
-+/* sndbuf consumer: prepare all necessary (src&dst) chunks of data transmit;
-+ * usable snd_wnd as max transmit
-+ */
-+static int smc_tx_rdma_writes(struct smc_connection *conn)
-+{
-+	size_t src_off, src_len, dst_off, dst_len; /* current chunk values */
-+	size_t len, dst_len_sum, src_len_sum, dstchunk, srcchunk;
-+	union smc_host_cursor_ovl sent, prep, prod, cons;
-+	struct ib_sge sges[SMC_IB_MAX_SEND_SGE];
-+	struct smc_link_group *lgr = conn->lgr;
-+	int to_send, rmbespace;
-+	struct smc_link *link;
-+	int num_sges;
-+	int rc;
-+
-+	/* source: sndbuf */
-+	sent.acurs = smc_curs_read(conn->tx_curs_sent.acurs);
-+	prep.acurs = smc_curs_read(conn->tx_curs_prep.acurs);
-+	/* cf. wmem_alloc - (snd_max - snd_una) */
-+	to_send = smc_curs_diff(conn->sndbuf_size, &sent, &prep);
-+	if (to_send <= 0)
-+		return 0;
-+
-+	/* destination: RMBE */
-+	/* cf. snd_wnd */
-+	rmbespace = atomic_read(&conn->peer_rmbe_space);
-+	if (rmbespace <= 0)
-+		return 0;
-+	prod.acurs = smc_curs_read(conn->local_tx_ctrl.prod.acurs);
-+	cons.acurs = smc_curs_read(conn->local_rx_ctrl.cons.acurs);
-+
-+	/* if usable snd_wnd closes ask peer to advertise once it opens again */
-+	conn->local_tx_ctrl.prod_flags.write_blocked = (to_send >= rmbespace);
-+	/* cf. usable snd_wnd */
-+	len = min(to_send, rmbespace);
-+
-+	/* initialize variables for first iteration of subsequent nested loop */
-+	link = &lgr->lnk[SMC_SINGLE_LINK];
-+	dst_off = prod.curs.count;
-+	if (prod.curs.wrap == cons.curs.wrap) {
-+		/* the filled destination area is unwrapped,
-+		 * hence the available free destination space is wrapped
-+		 * and we need 2 destination chunks of sum len; start with 1st
-+		 * which is limited by what's available in sndbuf
-+		 */
-+		dst_len = min_t(size_t,
-+				conn->peer_rmbe_len - prod.curs.count, len);
-+	} else {
-+		/* the filled destination area is wrapped,
-+		 * hence the available free destination space is unwrapped
-+		 * and we need a single destination chunk of entire len
-+		 */
-+		dst_len = len;
-+	}
-+	dst_len_sum = dst_len;
-+	src_off = sent.curs.count;
-+	/* dst_len determines the maximum src_len */
-+	if (sent.curs.count + dst_len <= conn->sndbuf_size) {
-+		/* unwrapped src case: single chunk of entire dst_len */
-+		src_len = dst_len;
-+	} else {
-+		/* wrapped src case: 2 chunks of sum dst_len; start with 1st: */
-+		src_len = conn->sndbuf_size - sent.curs.count;
-+	}
-+	src_len_sum = src_len;
-+	for (dstchunk = 0; dstchunk < 2; dstchunk++) {
-+		num_sges = 0;
-+		for (srcchunk = 0; srcchunk < 2; srcchunk++) {
-+			sges[srcchunk].addr =
-+				conn->sndbuf_desc->dma_addr[SMC_SINGLE_LINK] +
-+				src_off;
-+			sges[srcchunk].length = src_len;
-+			sges[srcchunk].lkey = link->mr_tx->lkey;
-+			num_sges++;
-+			src_off += src_len;
-+			src_off %= conn->sndbuf_size; /* modulo in send ring */
-+			if (src_len_sum == dst_len)
-+				break; /* either on 1st or 2nd iteration */
-+			/* prepare next (== 2nd) iteration */
-+			src_len = dst_len - src_len; /* remainder */
-+			src_len_sum += src_len;
++		if (!(flags & MSG_PEEK)) {
++			smc_curs_add(conn->rmbe_size, &cons.curs, copylen);
++			/* increased in recv tasklet smc_cdc_msg_rcv() */
++			smp_mb__before_atomic();
++			atomic_sub(copylen, &conn->bytes_to_rcv);
++			/* guarantee 0 <= bytes_to_rcv <= rmbe_size */
++			smp_mb__after_atomic();
++			xchg(&conn->local_tx_ctrl.cons.acurs, cons.acurs);
++			/* send consumer cursor update if required */
++			/* similar to advertising new TCP rcv_wnd if required */
++			smc_tx_consumer_update(conn);
 +		}
-+		rc = smc_tx_rdma_write(conn, dst_off, num_sges, sges);
-+		if (rc)
-+			return rc;
-+		if (dst_len_sum == len)
-+			break; /* either on 1st or 2nd iteration */
-+		/* prepare next (== 2nd) iteration */
-+		dst_off = 0; /* modulo offset in RMBE ring buffer */
-+		dst_len = len - dst_len; /* remainder */
-+		dst_len_sum += dst_len;
-+		src_len = min_t(int,
-+				dst_len, conn->sndbuf_size - sent.curs.count);
-+		src_len_sum = src_len;
-+	}
-+
-+	smc_tx_advance_cursors(conn, &prod, &sent, len);
-+	/* update connection's cursors with advanced local cursors */
-+	xchg(&conn->local_tx_ctrl.prod.acurs, prod.acurs); /* dst: peer RMBE */
-+	xchg(&conn->tx_curs_sent.acurs, sent.acurs); /* src: local sndbuf */
-+
-+	return 0;
++	} while (read_remaining);
++out:
++	return read_done;
 +}
 +
-+/* Wakeup sndbuf consumers from any context (IRQ or process)
-+ * since there is more data to transmit; usable snd_wnd as max transmit
-+ */
-+int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
++/* Initialize receive properties on connection establishment. NB: not __init! */
++void smc_rx_init(struct smc_sock *smc)
 +{
-+	struct smc_cdc_tx_pend *pend;
-+	struct smc_wr_buf *wr_buf;
-+	int rc;
-+
-+	spin_lock_bh(&conn->send_lock);
-+	rc = smc_cdc_get_free_slot(&conn->lgr->lnk[SMC_SINGLE_LINK], &wr_buf,
-+				   &pend);
-+	if (rc < 0) {
-+		if (rc == -EBUSY) {
-+			rc = 0;
-+			schedule_work(&conn->tx_work);
-+		}
-+		goto out_unlock;
-+	}
-+
-+	rc = smc_tx_rdma_writes(conn);
-+	if (rc) {
-+		smc_wr_tx_put_slot(&conn->lgr->lnk[SMC_SINGLE_LINK],
-+				   (struct smc_wr_tx_pend_priv *)pend);
-+		goto out_unlock;
-+	}
-+
-+	rc = smc_cdc_msg_send(conn, wr_buf, pend);
-+
-+out_unlock:
-+	spin_unlock_bh(&conn->send_lock);
-+	return rc;
++	smc->sk.sk_data_ready = smc_rx_data_ready;
 +}
-+
-+/* Wakeup sndbuf consumers from process context
-+ * since there is more data to transmit
-+ */
-+static void smc_tx_work(struct work_struct *work)
-+{
-+	struct smc_connection *conn = container_of(work,
-+						   struct smc_connection,
-+						   tx_work);
-+	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
-+
-+	lock_sock(&smc->sk);
-+	smc_tx_sndbuf_nonempty(conn);
-+	release_sock(&smc->sk);
-+}
-+
-+/***************************** send initialize *******************************/
-+
-+/* Initialize send properties on connection establishment. NB: not __init! */
-+void smc_tx_init(struct smc_sock *smc)
-+{
-+	smc->sk.sk_write_space = smc_tx_write_space;
-+	INIT_WORK(&smc->conn.tx_work, smc_tx_work);
-+	spin_lock_init(&smc->conn.send_lock);
-+}
-diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
+diff --git a/net/smc/smc_rx.h b/net/smc/smc_rx.h
 new file mode 100644
-index 0000000..d949ca9
+index 0000000..f8abe66
 --- /dev/null
-+++ b/net/smc/smc_tx.h
-@@ -0,0 +1,34 @@
++++ b/net/smc/smc_rx.h
+@@ -0,0 +1,22 @@
 +/*
 + * Shared Memory Communications over RDMA (SMC-R) and RoCE
 + *
-+ * Manage send buffer
++ * Manage RMBE
 + *
 + * Copyright IBM Corp. 2016
 + *
 + * Author(s):  Ursula Braun <ursula.braun@de.ibm.com>
 + */
 +
-+#ifndef SMC_TX_H
-+#define SMC_TX_H
++#ifndef SMC_RX_H
++#define SMC_RX_H
 +
 +#include <linux/socket.h>
 +#include <linux/types.h>
 +
 +#include "smc.h"
-+#include "smc_cdc.h"
 +
-+static inline int smc_tx_prepared_sends(struct smc_connection *conn)
++void smc_rx_init(struct smc_sock *);
++int smc_rx_recvmsg(struct smc_sock *, struct msghdr *, size_t, int);
++
++#endif /* SMC_RX_H */
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 4a791c5..4cd54e1 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -410,6 +410,38 @@ static void smc_tx_work(struct work_struct *work)
+ 	release_sock(&smc->sk);
+ }
+ 
++void smc_tx_consumer_update(struct smc_connection *conn)
 +{
-+	union smc_host_cursor_ovl sent, prep;
++	union smc_host_cursor_ovl cfed, cons;
++	struct smc_cdc_tx_pend *pend;
++	struct smc_wr_buf *wr_buf;
++	int to_confirm, rc;
 +
-+	sent.acurs = smc_curs_read(conn->tx_curs_sent.acurs);
-+	prep.acurs = smc_curs_read(conn->tx_curs_prep.acurs);
-+	return smc_curs_diff(conn->sndbuf_size, &sent, &prep);
++	cons.acurs = smc_curs_read(conn->local_tx_ctrl.cons.acurs);
++	cfed.acurs = smc_curs_read(conn->rx_curs_confirmed.acurs);
++	to_confirm = smc_curs_diff(conn->rmbe_size, &cfed, &cons);
++
++	if (conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
++	    ((to_confirm > conn->rmbe_update_limit) &&
++	     ((to_confirm > (conn->rmbe_size / 2)) ||
++	      conn->local_rx_ctrl.prod_flags.write_blocked))) {
++		rc = smc_cdc_get_free_slot(&conn->lgr->lnk[SMC_SINGLE_LINK],
++					   &wr_buf, &pend);
++		if (!rc)
++			rc = smc_cdc_msg_send(conn, wr_buf, pend);
++		if (rc < 0) {
++			schedule_work(&conn->tx_work);
++			return;
++		}
++		xchg(&conn->rx_curs_confirmed.acurs,
++		     smc_curs_read(conn->local_tx_ctrl.cons.acurs));
++		conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
++	}
++	if (conn->local_rx_ctrl.prod_flags.write_blocked &&
++	    !atomic_read(&conn->bytes_to_rcv))
++		conn->local_rx_ctrl.prod_flags.write_blocked = 0;
 +}
 +
-+void smc_tx_init(struct smc_sock *);
-+int smc_tx_sendmsg(struct smc_sock *, struct msghdr *, size_t);
-+int smc_tx_sndbuf_nonempty(struct smc_connection *);
-+void smc_tx_sndbuf_nonfull(struct smc_sock *);
-+
-+#endif /* SMC_TX_H */
+ /***************************** send initialize *******************************/
+ 
+ /* Initialize send properties on connection establishment. NB: not __init! */
+diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
+index d949ca9..3984e4b 100644
+--- a/net/smc/smc_tx.h
++++ b/net/smc/smc_tx.h
+@@ -30,5 +30,6 @@ void smc_tx_init(struct smc_sock *);
+ int smc_tx_sendmsg(struct smc_sock *, struct msghdr *, size_t);
+ int smc_tx_sndbuf_nonempty(struct smc_connection *);
+ void smc_tx_sndbuf_nonfull(struct smc_sock *);
++void smc_tx_consumer_update(struct smc_connection *);
+ 
+ #endif /* SMC_TX_H */
 -- 
 2.6.6
