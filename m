@@ -1,62 +1,209 @@
-From: Szabolcs Nagy <szabolcs.nagy@arm.com>
-Subject: Re: [PATCH v6 00/21] ILP32 for ARM64
-Date: Fri, 3 Jun 2016 12:02:50 +0100
-Message-ID: <575163DA.3060502@arm.com>
-References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com> <20160602190344.GA24533@yury-N73SV>
+From: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
+Subject: Re: [PATCH 21/23] arm64: ilp32: introduce ilp32-specific handlers for
+ sigframe and ucontext
+Date: Sat, 4 Jun 2016 19:34:32 +0800
+Message-ID: <5752BCC8.7080205@huawei.com>
+References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
+ <1464048292-30136-22-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160602190344.GA24533@yury-N73SV>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1464048292-30136-22-git-send-email-ynorov@caviumnetworks.com>
+Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Yury Norov <ynorov@caviumnetworks.com>, arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org
-Cc: nd@arm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, bamvor.zhangjian@huawei.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, Andrew Pinski <apinski@cavium.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, Hanjun Guo <guohanjun@huawei.com>, "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/06/16 20:03, Yury Norov wrote:
-> On Tue, May 24, 2016 at 03:04:29AM +0300, Yury Norov wrote:
->> ILP32 glibc branch is available here:
->> https://github.com/norov/glibc/tree/ilp32-2.23
->>
-> 
-> So for AARCH64/ILP32 we turn next types to 64-bit in glibc:
-> #define __INO_T_TYPE            __UQUAD_TYPE
-> #define __OFF_T_TYPE            __SQUAD_TYPE
-> #define __BLKCNT_T_TYPE         __SQUAD_TYPE
-> #define __FSBLKCNT_T_TYPE       __UQUAD_TYPE
-> #define __FSFILCNT_T_TYPE       __UQUAD_TYPE
-> 
-> And define:
-> # define __INO_T_MATCHES_INO64_T                1
-> # define __OFF_T_MATCHES_OFF64_T                1
-> # define __BLKCNT_T_MATCHES_BLKCNT64_T          1
-> # define __FSBLKCNT_T_MATCHES_FSBLKCNT64_T      1
-> # define __FSFILCNT_T_MATCHES_FSFILCNT_T        1
-> 
-> If so, stat and statfs  structures for ilp32 are turning the same as
-> for lp64. And so we'd handle related syscalls with native lp64
-> handlers (wrapped, to zero top halves) in kernel. 
-> 
-> And we don't need stat64 for ilp32.
-> 
-> Did I miss something? Is everything correct?
-> 
-> OFF_T is turned to 64-bit quite smoothly, others make applications
-> crash with segfault. Now I'm in deep debugging.
-> 
+Hi,
 
-based on previous discussions, non-trivial glibc changes may
-be needed to make 64bit fs apis the default on a 32bit abi.
-http://sourceware.org/ml/libc-alpha/2016-05/msg00337.html
-http://sourceware.org/ml/libc-alpha/2016-05/msg00356.html
+I found an issue of unwind with the following code. The correct backtrace
+should be:
+(gdb) where
+#0 0x004004d0 in my_sig (sig=11) at test_force3.c:16
+#1 <signal handler called>
+#2 func2 (num=0) at test_force3.c:22
+#3 0x00400540 in func1 (num=1) at test_force3.c:28
+#4 0x00400574 in main (argc=1, argv=0xffd7bc04) at test_force3.c:33
 
-but i guess if you consistently fix the 32bit assumptions
-then it should work.
+Without my patch, the backtrace is:
+(gdb) where
+#0 0x00400490 in my_sig (sig=11) at test_force3.c:16
+#1 <signal handler called>
+#2 0x004004e4 in main (argc=1, argv=0xffe6f8f4) at test_force3.c:33
 
-> https://github.com/norov/glibc/commits/ilp32-dev
-> https://github.com/norov/linux/commits/ilp32
-> 
-> Yury.
-> 
+With my patch which fix the wrong frame pointer(setup_return calculate the offset
+of fp through ilp32_sigframe instead of sigfreame), the backtrace is:
+(gdb) where
+#0 0x00400490 in my_sig (sig=11) at test_force3.c:16
+#1 <signal handler called>
+#2 func1 () at test_force3.c:28
+#3 0x004004e4 in main (argc=1, argv=0xffe6f8f4) at test_force3.c:33
+
+I am not sure there is still some issue in kernel. But it seem that the gdb of ilp32
+does not work correctly when unwind without framepointer.
+
+The test code is:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+
+void my_sig(int sig)
+{
+	printf("sig=%d\n", sig);
+	*(int *)0 = 0x0;
+}
+
+
+void func2()
+{
+	*(int *)0 = 0x0;
+}
+
+void func1()
+{
+	func2();
+}
+
+int main(int argc, char **argv)
+{
+	signal(11, my_sig);
+	func1();
+	return 0;
+}
+
+
+The full patch is as follows:
+
+ From 7e364a765097f57aed2d73f94c1688c2e7343e79 Mon Sep 17 00:00:00 2001
+From: Bamvor Jian Zhang <bamvor.zhangjian@huawei.com>
+Date: Sat, 4 Jun 2016 14:30:05 +0800
+Subject: [PATCH] arm64: ilp32: fix for wrong fp offset when calculate the
+  new fp
+
+ILP32 define its own sigframe(ilp32_sigframe) because of the
+difference uc_context. setup_return do not use ilp32 specific
+sigframe to calculate the new offset of fp which lead to wrong
+fp in signal handler. At this circumstance, gdb backtrace will miss
+one item:
+(gdb) where
+
+It should be:
+(gdb) where
+
+The test code is as follows:
+
+void my_sig(int sig)
+{
+         printf("sig=%d\n", sig);
+         *(int *)0 = 0x0;
+}
+
+void func2(int num)
+{
+         printf("%s: %d\n", __FUNCTION__, num);
+         *(int *)0 = 0x0;
+         func2(num-1);
+}
+
+void func1(int num)
+{
+         printf("%s\n", __FUNCTION__);
+         func2(num - 1);
+}
+
+int main(int argc, char **argv)
+{
+         signal(11, my_sig);
+         func1(argc);
+         return 0;
+}
+
+This patch fix this by passing the correct offset of fp to
+setup_return.
+Test pass on both ILP32 and LP64 in aarch64 EE.
+
+Signed-off-by: Bamvor Jian Zhang <bamvor.zhangjian@huawei.com>
+---
+  arch/arm64/include/asm/signal_common.h | 3 ++-
+  arch/arm64/kernel/signal.c             | 9 +++++----
+  arch/arm64/kernel/signal_ilp32.c       | 4 ++--
+  3 files changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm64/include/asm/signal_common.h b/arch/arm64/include/asm/signal_common.h
+index de93c71..a5d7b63 100644
+--- a/arch/arm64/include/asm/signal_common.h
++++ b/arch/arm64/include/asm/signal_common.h
+@@ -29,6 +29,7 @@ int setup_sigcontex(struct sigcontext __user *uc_mcontext,
+  		    struct pt_regs *regs);
+  int restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sf);
+  void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
+-			void __user *frame, off_t sigframe_off, int usig);
++			void __user *frame, off_t sigframe_off, off_t fp_off,
++			int usig);
+
+  #endif /* __ASM_SIGNAL_COMMON_H */
+diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+index 038bebe..e66a6e9 100644
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -256,14 +256,14 @@ static struct rt_sigframe __user *get_sigframe(struct ksignal *ksig,
+  }
+
+  void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
+-			 void __user *frame, off_t sigframe_off, int usig)
++			 void __user *frame, off_t sigframe_off, off_t fp_off,
++			 int usig)
+  {
+  	__sigrestore_t sigtramp;
+
+  	regs->regs[0] = usig;
+  	regs->sp = (unsigned long)frame;
+-	regs->regs[29] = regs->sp + sigframe_off +
+-		offsetof(struct sigframe, fp);
++	regs->regs[29] = regs->sp + sigframe_off + fp_off;
+  	regs->pc = (unsigned long)ka->sa.sa_handler;
+
+  	if (ka->sa.sa_flags & SA_RESTORER)
+@@ -294,7 +294,8 @@ static int setup_rt_frame(int usig, struct ksignal *ksig, sigset_t *set,
+  	err |= setup_sigframe(&frame->sig, regs, set);
+  	if (err == 0) {
+  		setup_return(regs, &ksig->ka, frame,
+-			offsetof(struct rt_sigframe, sig), usig);
++			offsetof(struct rt_sigframe, sig),
++			offsetof(struct sigframe, fp), usig);
+  		if (ksig->ka.sa.sa_flags & SA_SIGINFO) {
+  			err |= copy_siginfo_to_user(&frame->info, &ksig->info);
+  			regs->regs[1] = (unsigned long)&frame->info;
+diff --git a/arch/arm64/kernel/signal_ilp32.c b/arch/arm64/kernel/signal_ilp32.c
+index a8ea73e..9030f14 100644
+--- a/arch/arm64/kernel/signal_ilp32.c
++++ b/arch/arm64/kernel/signal_ilp32.c
+@@ -147,7 +147,6 @@ static struct ilp32_rt_sigframe __user *ilp32_get_sigframe(struct ksignal *ksig,
+  	struct ilp32_rt_sigframe __user *frame;
+
+  	sp = sp_top = sigsp(regs->sp, ksig);
+-
+  	sp = (sp - sizeof(struct ilp32_rt_sigframe)) & ~15;
+  	frame = (struct ilp32_rt_sigframe __user *)sp;
+
+@@ -183,7 +182,8 @@ int ilp32_setup_rt_frame(int usig, struct ksignal *ksig,
+  	err |= setup_ilp32_sigframe(&frame->sig, regs, set);
+  	if (err == 0) {
+  		setup_return(regs, &ksig->ka, frame,
+-			     offsetof(struct ilp32_rt_sigframe, sig), usig);
++			     offsetof(struct ilp32_rt_sigframe, sig),
++			     offsetof(struct ilp32_sigframe, fp), usig);
+  		regs->regs[1] = (unsigned long)&frame->info;
+  		regs->regs[2] = (unsigned long)&frame->sig.uc;
+  	}
+-- 
+1.8.4.5
+
+Regards
+
+Bamvor
