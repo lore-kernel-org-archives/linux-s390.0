@@ -1,71 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 8 Jun 2016 11:09:09 +0200
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Date: Mon, 6 Jun 2016 10:21:24 +0200
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: 4.7-rc1/s390: WARNING: CPU: 5 PID: 1 at
  kernel/events/core.c:8485 perf_pmu_register+0x420/0x428
+Message-ID: <20160606082124.GA30154@twins.programming.kicks-ass.net>
 References: <201606060737.u567YMPJ012970@mx0a-001b2d01.pphosted.com>
- <20160606082124.GA30154@twins.programming.kicks-ass.net>
- <201606060929.u569T8fW028400@mx0a-001b2d01.pphosted.com>
- <20160606102900.GC30909@twins.programming.kicks-ass.net>
- <201606061045.u56AiZQh023698@mx0a-001b2d01.pphosted.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201606061045.u56AiZQh023698@mx0a-001b2d01.pphosted.com>
-Message-Id: <20160608090909.GC7998@linux.vnet.ibm.com>
+In-Reply-To: <201606060737.u567YMPJ012970@mx0a-001b2d01.pphosted.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jun 06, 2016 at 12:44:50PM +0200, Christian Borntraeger wrote:
-> On 06/06/2016 12:29 PM, Peter Zijlstra wrote:
-> > On Mon, Jun 06, 2016 at 11:29:36AM +0200, Hendrik Brueckner wrote:
-> > 
-> >>>> Looks like perf_pmu_register does not like to be called twice (once for the counter
-> >>>> and once for the sampling facility).
-> >>>
-> >>> Twice isn't the problem per se, its trying to register two PMUs for
-> >>> perf_hw_context that is the problem.
-> >>>
-> >>> The perf core does not expect or deal well with that.
-> >>>
-> >>> The perf core expects a single HW PMU in that when it schedules
-> >>> hw_context events, and encounters an failure to pmu::add() (because the
-> >>> hw pmu is 'full') it stops trying to add more events.
-> >>
-> >> On s390, there are actually two distinct measurement facilities and, thus,
-> >> two HW PMUs for each.  There is the hardware counter and hardware sampling
-> >> facility/PMU.
-> > 
-> > Can you quickly describe the cf one; or provide a link to a document
-> > doing so?
+On Mon, Jun 06, 2016 at 09:37:41AM +0200, Christian Borntraeger wrote:
+> Peter, Hendrik,
 > 
-> http://www-01.ibm.com/support/docview.wss?uid=isg26fcd1cc32246f4c8852574ce0044734a
+> commit 26657848502b ("perf/core: Verify we have a single perf_hw_context PMU") seems to 
+> trigger the newly created warning on a z196.
 > 
-> (or google for "The Load-Program-Parameter and the CPU-Measurement Facilities"
-> or SA23-2260)
-
-That's the right document.
-
 > 
-> > If this is a simple always running counter without interrupt you could
-> > make it a 'software' PMU which can always schedule, similar to the x86
-> > MSR driver (arch/x86/events/msr.c).
+> [    2.202363] ------------[ cut here ]------------
+> [    2.202372] WARNING: CPU: 5 PID: 1 at kernel/events/core.c:8485 perf_pmu_register+0x420/0x428
+> [    2.202373] Modules linked in:
+> [    2.202377] CPU: 5 PID: 1 Comm: swapper/0 Not tainted 4.7.0-rc1+ #2
+> [    2.202379] task: 00000009c5240000 ti: 00000009c5234000 task.ti: 00000009c5234000
+> [    2.202381] Krnl PSW : 0704c00180000000 0000000000220c50 (perf_pmu_register+0x420/0x428)
+> [    2.202385]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+> Krnl GPRS: ffffffffffffffff 0000000000b15ac6 0000000000000000 00000009cb440000
+> [    2.202388]            000000000022087a 0000000000000000 0000000000b78fa0 0000000000000000
+> [    2.202390]            0000000000a9aa90 0000000000000084 0000000000000005 000000000088a97a
+> [    2.202405]            0000000000000004 0000000000749dd0 000000000022087a 00000009c5237cc0
+> [    2.202415] Krnl Code: 0000000000220c44: a7f4ff54            brc     15,220aec
+>            0000000000220c48: 92011000           mvi     0(%r1),1
+>           #0000000000220c4c: a7f40001           brc     15,220c4e
+>           >0000000000220c50: a7f4ff12           brc     15,220a74
+>            0000000000220c54: 0707               bcr     0,%r7
+>            0000000000220c56: 0707               bcr     0,%r7
+>            0000000000220c58: ebdff0800024       stmg    %r13,%r15,128(%r15)
+>            0000000000220c5e: a7f13fe0           tmll    %r15,16352
+> [    2.202431] Call Trace:
+> [    2.202433] ([<000000000022087a>] perf_pmu_register+0x4a/0x428)
+> [    2.202438] ([<0000000000b2c25c>] init_cpum_sampling_pmu+0x14c/0x1f8)
+> [    2.202441] ([<0000000000100248>] do_one_initcall+0x48/0x140)
+> [    2.202444] ([<0000000000b25d26>] kernel_init_freeable+0x1e6/0x2a0)
+> [    2.202449] ([<000000000072bda4>] kernel_init+0x24/0x138)
+> [    2.202453] ([<000000000073495e>] kernel_thread_starter+0x6/0xc)
+> [    2.202455] ([<0000000000734958>] kernel_thread_starter+0x0/0xc)
+> [    2.202456] Last Breaking-Event-Address:
+> [    2.202458]  [<0000000000220c4c>] perf_pmu_register+0x41c/0x428
+> [    2.202460] ---[ end trace 0c6ef9f5b771ad97 ]---
 > 
-> Its a bunch of counters for events like cache writes, cycles, instructions,
-> but Hendrik can probably better answer that specific question.
+> Looks like perf_pmu_register does not like to be called twice (once for the counter
+> and once for the sampling facility).
 
-The counters are organized in "counter sets".  The counter sets are started
-and stopped according to the events (map to counters) that become scheduled.
-Counters in the same set can be already runnning and the PMU will take care
-of this.  And, finally, there is no interrupt for counters; they are used for
-counting (perf stat) only.
+Twice isn't the problem per se, its trying to register two PMUs for
+perf_hw_context that is the problem.
 
-So looking at MSR driver and some other x86 specific driver, I think making
-the cf PMU a 'software' PMU is a nice option to pursue.
+The perf core does not expect or deal well with that.
 
-Thanks and kind regards,
-  Hendrik
+The perf core expects a single HW PMU in that when it schedules
+hw_context events, and encounters an failure to pmu::add() (because the
+hw pmu is 'full') it stops trying to add more events.
+
+So if you mix two PMUs in, you get horrible PMU utilization issues,
+because as soon as one is full, it will not try and add more events and
+can leave the other empty.
