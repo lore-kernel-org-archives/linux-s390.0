@@ -1,78 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 17 Jun 2016 11:08:21 +0200
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: Re: [PATCH] s390/oprofile: Remove deprecated create_workqueue
-References: <20160607215912.GA19722@Karyakshetra>
- <20160609090056.GC3250@osiris>
- <20160613162914.GK25086@rric.localdomain>
- <20160614053608.GB3754@osiris>
- <20160614132823.GL25086@rric.localdomain>
- <20160614155609.GG3754@osiris>
+Date: Wed, 8 Jun 2016 03:29:12 +0530
+From: Bhaktipriya Shridhar <bhaktipriya96@gmail.com>
+Subject: [PATCH] s390/oprofile: Remove deprecated create_workqueue
+Message-ID: <20160607215912.GA19722@Karyakshetra>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20160614155609.GG3754@osiris>
-Message-Id: <20160617090821.GB5273@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Robert Richter <rric@kernel.org>, Bhaktipriya Shridhar <bhaktipriya96@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Tejun Heo <tj@kernel.org>, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Andreas Krebbel <krebbel@linux.vnet.ibm.com>, Andreas Arnez <arnez@linux.vnet.ibm.com>, William Cohen <wcohen@redhat.com>
+To: Robert Richter <rric@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Tejun Heo <tj@kernel.org>, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 14, 2016 at 05:56:09PM +0200, Heiko Carstens wrote:
-> On Tue, Jun 14, 2016 at 03:28:23PM +0200, Robert Richter wrote:
-> > > 
-> > >  Documentation/kernel-parameters.txt |    2 -
-> > >  arch/s390/oprofile/Makefile         |    1 -
-> > >  arch/s390/oprofile/hwsampler.c      | 1178 --------------------------------
-> > >  arch/s390/oprofile/hwsampler.h      |   63 --
-> > >  arch/s390/oprofile/init.c           |  489 -------------
-> > >  arch/s390/oprofile/op_counter.h     |   21 -
-> > >  6 files changed, 1754 deletions(-)
-> > 
-> > Could you send the patch for review anyway?
-> 
-> Yes, of course. I added it below, hope that's ok.
-> [I did not yet add your Ack]
-> 
-> From 74ab0aefe07573358cc6a0c462ddc62ccba4c0cf Mon Sep 17 00:00:00 2001
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Date: Fri, 10 Jun 2016 10:40:06 +0200
-> Subject: [PATCH] s390/oprofile: remove hardware sampler support
-> 
-> Remove hardware sampler support from oprofile module.
-> 
-> The oprofile user space utilty has been switched to use the kernel
-> perf interface, for which we also provide hardware sampling support.
-> 
-> In addition the hardware sampling support is also slightly broken: it
-> supports only 16 bits for the pid and therefore would generate wrong
-> results on machines which have a pid >64k.
-> 
-> Also the pt_regs structure which was passed to oprofile common code
-> cannot necessarily be used to generate sane backtraces, since the
-> task(s) in question may run while the samples are fed to oprofile.
-> So the result would be more or less random.
-> 
-> However given that the only user space tools switched to the perf
-> interface already four years ago the hardware sampler code seems to be
-> unused code, and therefore it should be reasonable to remove it.
-> 
-> The timer based oprofile support continues to work.
-> 
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
->  Documentation/kernel-parameters.txt |    2 -
->  arch/s390/oprofile/Makefile         |    1 -
->  arch/s390/oprofile/hwsampler.c      | 1178 -----------------------------------
->  arch/s390/oprofile/hwsampler.h      |   63 --
->  arch/s390/oprofile/init.c           |  489 ---------------
->  arch/s390/oprofile/op_counter.h     |   21 -
->  6 files changed, 1754 deletions(-)
->  delete mode 100644 arch/s390/oprofile/hwsampler.c
->  delete mode 100644 arch/s390/oprofile/hwsampler.h
->  delete mode 100644 arch/s390/oprofile/op_counter.h
-> 
+A dedicated workqueue has been used since the workqueue hws_wq with
+workitem &cb->worker, is involved in hardware based sampling
+on System z processors.
 
-Reviewed-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Since, these are long-running work items and aren't involved in memory
+reclaim in any way, system_long_wq has been used.
+
+Signed-off-by: Bhaktipriya Shridhar <bhaktipriya96@gmail.com>
+---
+ arch/s390/oprofile/hwsampler.c | 21 +++------------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
+
+diff --git a/arch/s390/oprofile/hwsampler.c b/arch/s390/oprofile/hwsampler.c
+index ff9b4eb..8b16bb8 100644
+--- a/arch/s390/oprofile/hwsampler.c
++++ b/arch/s390/oprofile/hwsampler.c
+@@ -42,7 +42,6 @@ static DEFINE_MUTEX(hws_sem_oom);
+ static unsigned char hws_flush_all;
+ static unsigned int hws_oom;
+ static unsigned int hws_alert;
+-static struct workqueue_struct *hws_wq;
+
+ static unsigned int hws_state;
+ enum {
+@@ -189,8 +188,7 @@ static void hws_ext_handler(struct ext_code ext_code,
+ 	inc_irq_stat(IRQEXT_CMS);
+ 	atomic_xchg(&cb->ext_params, atomic_read(&cb->ext_params) | param32);
+
+-	if (hws_wq)
+-		queue_work(hws_wq, &cb->worker);
++		queue_work(system_long_wq, &cb->worker);
+ }
+
+ static void worker(struct work_struct *work);
+@@ -566,15 +564,12 @@ int hwsampler_deactivate(unsigned int cpu)
+ 			} else  {
+ 				hws_flush_all = 1;
+ 				/* Add work to queue to read pending samples.*/
+-				queue_work_on(cpu, hws_wq, &cb->worker);
++				queue_work_on(cpu, system_long_wq, &cb->worker);
+ 			}
+ 		}
+ 	}
+ 	mutex_unlock(&hws_sem);
+
+-	if (hws_wq)
+-		flush_workqueue(hws_wq);
+-
+ 	return rc;
+ }
+
+@@ -740,7 +735,7 @@ static void worker_on_finish(unsigned int cpu)
+ 					continue;
+ 				if (!cb->finish) {
+ 					cb->finish = 1;
+-					queue_work_on(i, hws_wq,
++					queue_work_on(i, system_long_wq,
+ 						&cb->worker);
+ 				}
+ 			}
+@@ -997,9 +992,6 @@ int hwsampler_setup(void)
+ 		goto setup_exit;
+
+ 	rc = -EINVAL;
+-	hws_wq = create_workqueue("hwsampler");
+-	if (!hws_wq)
+-		goto setup_exit;
+
+ 	register_cpu_notifier(&hws_cpu_notifier);
+
+@@ -1049,9 +1041,6 @@ int hwsampler_shutdown(void)
+ 	if (hws_state == HWS_DEALLOCATED || hws_state == HWS_STOPPED) {
+ 		mutex_unlock(&hws_sem);
+
+-		if (hws_wq)
+-			flush_workqueue(hws_wq);
+-
+ 		mutex_lock(&hws_sem);
+
+ 		if (hws_state == HWS_STOPPED) {
+@@ -1059,10 +1048,6 @@ int hwsampler_shutdown(void)
+ 			hws_alert = 0;
+ 			deallocate_sdbt();
+ 		}
+-		if (hws_wq) {
+-			destroy_workqueue(hws_wq);
+-			hws_wq = NULL;
+-		}
+
+ 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT, hws_ext_handler);
+ 		hws_state = HWS_INIT;
+--
+2.1.4
