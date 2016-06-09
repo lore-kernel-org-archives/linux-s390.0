@@ -1,7 +1,7 @@
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 13/14] tile/ptrace: run seccomp after ptrace
-Date: Thu,  9 Jun 2016 14:02:03 -0700
-Message-ID: <1465506124-21866-14-git-send-email-keescook@chromium.org>
+Subject: [PATCH 08/14] arm64/ptrace: run seccomp after ptrace
+Date: Thu,  9 Jun 2016 14:01:58 -0700
+Message-ID: <1465506124-21866-9-git-send-email-keescook@chromium.org>
 References: <1465506124-21866-1-git-send-email-keescook@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,41 +20,41 @@ Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Paul Mackerras <paulus@samba.org>, Chris Metcalf <cmetcalf@mellanox.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <james.hogan@imgtec.com>, Kees Cook <keescook@chromium.org>, user-mode-linux-devel@lists.sourceforge.net, Will Deacon <will.deacon@arm.com>, Jeff Dike <jdike@addtoit.com>, Andy Lutomirski <luto@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Richard Weinberger <richard@nod.at>, Martin
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-mips@linux-mips.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Paul Mackerras <paulus@samba.org>, Chris Metcalf <cmetcalf@mellanox.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, James Hogan <james.hogan@imgtec.com>, Kees Cook <keescook@chromium.org>, user-mode-linux-devel@lists.sourceforge.net, Will Deacon <will.deacon@arm.com>, Jeff Dike <jdike@addtoit.com>, Andy Lutomirski <luto@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Richard Weinberger <richard@nod.at>, Martin
 List-ID: <linux-s390.vger.kernel.org>
 
 Close the hole where ptrace can change a syscall out from under seccomp.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Chris Metcalf <cmetcalf@mellanox.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
 ---
- arch/tile/kernel/ptrace.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/ptrace.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/tile/kernel/ptrace.c b/arch/tile/kernel/ptrace.c
-index 8c6d2f2fefa3..d89b7011667c 100644
---- a/arch/tile/kernel/ptrace.c
-+++ b/arch/tile/kernel/ptrace.c
-@@ -255,14 +255,15 @@ int do_syscall_trace_enter(struct pt_regs *regs)
+diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
+index 6e2cf046615d..602316c97a47 100644
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -1246,13 +1246,13 @@ static void tracehook_report_syscall(struct pt_regs *regs,
+ 
+ asmlinkage int syscall_trace_enter(struct pt_regs *regs)
  {
- 	u32 work = ACCESS_ONCE(current_thread_info()->flags);
- 
+-	/* Do the secure computing check first; failures should be fast. */
 -	if (secure_computing(NULL) == -1)
-+	if ((work & _TIF_SYSCALL_TRACE) &&
-+	    tracehook_report_syscall_entry(regs)) {
-+		regs->regs[TREG_SYSCALL_NR] = -1;
- 		return -1;
+-		return -1;
 -
--	if (work & _TIF_SYSCALL_TRACE) {
--		if (tracehook_report_syscall_entry(regs))
--			regs->regs[TREG_SYSCALL_NR] = -1;
- 	}
+ 	if (test_thread_flag(TIF_SYSCALL_TRACE))
+ 		tracehook_report_syscall(regs, PTRACE_SYSCALL_ENTER);
  
++	/* Do the secure computing after ptrace; failures should be fast. */
 +	if (secure_computing(NULL) == -1)
 +		return -1;
 +
- 	if (work & _TIF_SYSCALL_TRACEPOINT)
- 		trace_sys_enter(regs, regs->regs[TREG_SYSCALL_NR]);
+ 	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
+ 		trace_sys_enter(regs, regs->syscallno);
  
 -- 
 2.7.4
