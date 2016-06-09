@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [LKP] [lkp] [mm] 5c0a85fad9: unixbench.score -6.3% regression
-References: <20160606022724.GA26227@yexl-desktop>
- <20160606095136.GA79951@black.fi.intel.com>
- <87a8iw5enf.fsf@yhuang-dev.intel.com> <8760tk5aym.fsf@yhuang-dev.intel.com>
- <20160608085811.GB12655@black.fi.intel.com>
- <87porn44fm.fsf@yhuang-dev.intel.com>
- <CA+55aFy4oYis6HTu7o4YwiFawRtDOPO=87v8oHZdTFS+BjnA8g@mail.gmail.com>
- <20160613125248.GA30109@black.fi.intel.com>
- <CA+55aFx2TdqHW5VvirF-fAe4rRtSKK6BH06LyN4Ma3Q7ifJkxA@mail.gmail.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 14 Jun 2016 16:03:23 +0200
+Return-Path: <linux-btrfs-owner@vger.kernel.org>
+From: Felipe Balbi <balbi@kernel.org>
+Subject: Re: [PATCH 00/21] Delete CURRENT_TIME and CURRENT_TIME_SEC macros
+In-Reply-To: <1465448705-25055-1-git-send-email-deepa.kernel@gmail.com>
+References: <1465448705-25055-1-git-send-email-deepa.kernel@gmail.com>
+Date: Thu, 09 Jun 2016 10:51:31 +0300
+Message-ID: <87twh294vw.fsf@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <CA+55aFx2TdqHW5VvirF-fAe4rRtSKK6BH06LyN4Ma3Q7ifJkxA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Message-Id: <57600EAB.9030000@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>, Rik van Riel <riel@redhat.com>, Michal Hocko <mhocko@suse.com>, LKML <linux-kernel@vger.kernel.org>, Michal Hocko <mhocko@kernel.org>, Minchan Kim <minchan@kernel.org>, Vinayak Menon <vinmenon@codeaurora.org>, Mel Gorman <mgorman@suse.de>, Andrew Morton <akpm@linux-foundation.org>, LKP <lkp@01.org>, Dave Hansen <dave.hansen@linux.intel.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha256; protocol="application/pgp-signature"
+Sender: linux-btrfs-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-btrfs/>
+List-Post: <mailto:linux-btrfs@vger.kernel.org>
+To: Deepa Dinamani <deepa.kernel@gmail.com>, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Al Viro <viro@zeniv.linux.org.uk>, Linus Torvalds <torvalds@linux-foundation.org>, y2038@lists.linaro.org, Anna Schumaker <anna.schumaker@netapp.com>, Anton Vorontsov <anton@enomsg.org>, Benny Halevy <bhalevy@primarydata.com>, Boaz Harrosh <ooo@electrozaur.com>, Changman Lee <cm224.lee@samsung.com>, Chris Mason <clm@fb.com>, Colin Cross <ccross@android.com>, Dave Kleikamp <shaggy@kernel.org>, "David S. Miller" <davem@davemloft.net>, David Sterba <dsterba@suse.com>, Eric Van Hensbergen <ericvh@gmail.com>, Hugh Dickins <hughd@google.com>, Ian Kent <raven@themaw.net>, Jaegeuk Kim <jaegeuk@kernel.org>, Joern Engel <joern@logfs.org>, Josef Bacik <jbacik@fb.com>, Kees Cook <keescook@chromium.org>, Latchesar Ionkov <lucho@ionkov.net>, Matt Fleming <matt@codeblueprint.co.uk>, Matthew Garrett <matthew.garrett@nebula.com>, Miklos Szeredi <miklos@szeredi.hu>, Nadia Yvette Chambers <nyc@holomorphy.com>, Prasad Joshi <prasadjoshi.linux@gmail.com>, Robert Richter <rric@kernel.org>, Ron Minnich <rminnich@sandia.gov>, Tony Luck <tony.luck@intel.com>, Trond Myklebust <trond.myklebust@primarydata.com>, autofs@vger.kernel.org, cluster-devel@redhat.com, jfs-discussion@lists.sourceforge.net, linux-btrfs@vger.kernel.org, linux-efi@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org, linux-nfs@vger.kernel.org, linux-nilfs@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, linux-usb@vger.kernel.org, logfs@logfs.org, netdev@vger.kernel.org, ocfs2-devel@oss.oracle.com, oprofile-list@lists.sf.net, osd-dev@open-osd.org, selinux@tycho.nsa.gov, v9fs-developer@lists.sourceforge.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/14/2016 08:11 AM, Linus Torvalds wrote:
-> On Mon, Jun 13, 2016 at 5:52 AM, Kirill A. Shutemov
-> <kirill.shutemov@linux.intel.com> wrote:
->> On Sat, Jun 11, 2016 at 06:02:57PM -0700, Linus Torvalds wrote:
->>>
->>> I've timed it at over a thousand cycles on at least some CPU's, but
->>> that's still peanuts compared to a real page fault. It shouldn't be
->>> *that* noticeable, ie no way it's a 6% regression on its own.
->>
->> Looks like setting accessed bit is the problem.
-> 
-> Ok. I've definitely seen it as an issue, but never to the point of
-> several percent on a real benchmark that wasn't explicitly testing
-> that cost.
-> 
-> I reported the excessive dirty/accessed bit cost to Intel back in the
-> P4 days, but it's apparently not been high enough for anybody to care.
-> 
->> We spend 36% more time in page walk only, about 1% of total userspace time.
->> Combining this with page walk footprint on caches, I guess we can get to
->> this 3.5% score difference I see.
->>
->> I'm not sure if there's anything we can do to solve the issue without
->> screwing relacim logic again. :(
-> 
-> I think we should say "screw the reclaim logic" for now, and revert
-> commit 5c0a85fad949 for now.
-> 
-> Considering how much trouble the accessed bit is on some other
-> architectures too, I wonder if we should strive to simply not care
-> about it, and always leaving it set. And then rely entirely on just
-> unmapping the pages and making the "we took a page fault after
-> unmapping" be the real activity tester.
-> 
-> So get rid of the "if the page is young, mark it old but leave it in
-> the page tables" logic entirely. When we unmap a page, it will always
-> either be in the swap cache or the page cache anyway, so faulting it
-> in again should be just a minor fault with no actual IO happening.
-> 
-> That might be less of an impact in the end - yes, the unmap and
-> re-fault is much more expensive, but it presumably happens to much
-> fewer pages.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-FWIW, something like that is what Martin did for s390 3 years ago.
-We now use invalidation and page faults to implement the *young 
-functions in  pgtable.h (basically using a SW young bit). This
-helped us to get rid of the storage keys (which contain the HW 
-reference bit). The performance did not seem to suffer.
 
-See commit 0944fe3f4a323f436180d39402cae7f9c46ead17
-s390/mm: implement software referenced bits
+Hi,
 
-> 
-> What do you think?
+Deepa Dinamani <deepa.kernel@gmail.com> writes:
+>  drivers/usb/gadget/function/f_fs.c                 |  2 +-
+>  drivers/usb/gadget/legacy/inode.c                  |  2 +-
 
-Your proposal would be to do the software tracking via
-invalidation/fault part of the generic mm code and not to hide it
-in the architecture backend. Correct?
+for drivers/usb/gadget:
 
-> 
->              Linus
-> 
+Acked-by: Felipe Balbi <balbi@kernel.org>
+
+=2D-=20
+balbi
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJXWSADAAoJEIaOsuA1yqRE3xkP/iQ1fuTIybbV6wTI8KcBipLN
+RYE+b6JJVPFMIpj76aDznk/eZG+CSnwRUAPoPGWs1o7xVqnVGqfLDMWyHLp3pU5C
+NQyphaTDahzkV3cbTbAjbLpcluDKmCmRb++9YyfSyEcFP4HnlpgmIVFM7SinMADk
+OXGwum3/L0HpAs+91j4FORMHiKma5fa5CXmE5aHsM3TSWONWldycLywu9jlF/AyU
+lY83J4AjvL2qii9hWdlxX81+zFZ92Vh9v5vvms8ErPB2w3a75PbM70gaoVM2VOxQ
+kMeLZUiGywrnDv+/RKC+9WX3KiwDsAlTk1rbuDBePE7PbjQmRW/hfRtXcpECXAyG
+LrV9HskF1UIIv8aVyWoR/GwQdO0cdxoW8uBuw+/l7pSHTvfpvl3/sb+VNBH3j2lQ
+aosxpF7QlU08QxWzpPHgrQ7TNbZ0o9zl5aZ8HAhAPt9FZDu1KKHy/EEJ0aI5d25y
+p7aTdxvf2SxMGVo6K1ozZUq/EeXOW061oeOUmDLT1NZWS69g19lGBx/XSWLpqf1b
+V6SK0hpP3QqHajNOsTFfHLuP13zygCZsSQJU1Z4MO3RyawyMsgjCqAKrEHCoF0zL
+rCfYHY+r6PMRmrirPoBdPwdoWB8/i1INydBfU4OqjO/7dRgjhl2iPSUvSOPrhVlu
+g2HkIFwp1Wj8eyUm+JYM
+=tfo4
+-----END PGP SIGNATURE-----
+--=-=-=--
