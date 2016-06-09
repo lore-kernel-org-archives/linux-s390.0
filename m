@@ -1,28 +1,40 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 00/15] net/smc: Shared Memory Communications -
- RDMA
-Date: Mon, 06 Jun 2016 15:17:40 -0700 (PDT)
-Message-ID: <20160606.151740.2048296086973073274.davem@davemloft.net>
-References: <201606031527.u53FQ9dR045418@mx0a-001b2d01.pphosted.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <201606031527.u53FQ9dR045418@mx0a-001b2d01.pphosted.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: ubraun@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH 09/14] MIPS/ptrace: run seccomp after ptrace
+Date: Thu,  9 Jun 2016 14:01:59 -0700
+Message-ID: <1465506124-21866-10-git-send-email-keescook@chromium.org>
+References: <1465506124-21866-1-git-send-email-keescook@chromium.org>
+Return-path: <linux-parisc-owner@vger.kernel.org>
+In-Reply-To: <1465506124-21866-1-git-send-email-keescook@chromium.org>
+Sender: linux-parisc-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Ralf Baechle <ralf@linux-mips.org>, "Maciej W. Rozycki" <macro@imgtec.com>, James Hogan <james.hogan@imgtec.com>, linux-mips@linux-mips.org, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Catalin Marinas <catalin.marinas@arm.com>, Chris Metcalf <cmetcalf@mellanox.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Helge Deller <deller@gmx.de>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Jeff Dike <jdike@addtoit.com>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Fri,  3 Jun 2016 17:26:59 +0200
+Close the hole where ptrace can change a syscall out from under seccomp.
 
-> It is transparent to most existing TCP connection load balancers
-> that are commonly used in the enterprise data center environment for
-> multi-tier application workloads.
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: "Maciej W. Rozycki" <macro@imgtec.com>
+Cc: James Hogan <james.hogan@imgtec.com>
+Cc: linux-mips@linux-mips.org
+---
+ arch/mips/kernel/ptrace.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-I think a better word would be "bypass".  And likewise the data stream
-bypasses our packet scheduler, netfilter, classifiers, and just about
-every other interesting facility in the kernel.
+diff --git a/arch/mips/kernel/ptrace.c b/arch/mips/kernel/ptrace.c
+index c50af846ecf9..6103b24d1bfc 100644
+--- a/arch/mips/kernel/ptrace.c
++++ b/arch/mips/kernel/ptrace.c
+@@ -888,17 +888,16 @@ long arch_ptrace(struct task_struct *child, long request,
+  */
+ asmlinkage long syscall_trace_enter(struct pt_regs *regs, long syscall)
+ {
+-	long ret = 0;
+ 	user_exit();
+ 
+ 	current_thread_info()->syscall = syscall;
+ 
+-	if (secure_computing(NULL) == -1)
+-		return -1;
