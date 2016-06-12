@@ -1,86 +1,98 @@
-From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: Re: [PATCH 17/23] arm64: ptrace: handle ptrace_request differently
- for aarch32 and ilp32
-Date: Wed, 8 Jun 2016 20:00:48 +0300
-Message-ID: <20160608170048.GA24482@yury-N73SV>
+From: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
+Subject: Re: [PATCH 13/23] arm64: introduce is_a32_task and is_a32_thread (for
+ AArch32 compat)
+Date: Sun, 12 Jun 2016 20:21:04 +0800
+Message-ID: <575D53B0.5020408@huawei.com>
 References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
- <1464048292-30136-18-git-send-email-ynorov@caviumnetworks.com>
- <57577611.9000607@huawei.com>
+ <1464048292-30136-14-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <libc-alpha-return-70338-glibc-alpha=m.gmane.org@sourceware.org>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <libc-alpha-return-70527-glibc-alpha=m.gmane.org@sourceware.org>
 List-Unsubscribe: <mailto:libc-alpha-unsubscribe-glibc-alpha=m.gmane.org@sourceware.org>
 List-Subscribe: <mailto:libc-alpha-subscribe@sourceware.org>
 List-Archive: <http://sourceware.org/ml/libc-alpha/>
 List-Post: <mailto:libc-alpha@sourceware.org>
 List-Help: <mailto:libc-alpha-help@sourceware.org>, <http://sourceware.org/ml/#faqs>
 Sender: libc-alpha-owner@sourceware.org
-Content-Disposition: inline
-In-Reply-To: <57577611.9000607@huawei.com>
+In-Reply-To: <1464048292-30136-14-git-send-email-ynorov@caviumnetworks.com>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: zhouchengming <zhouchengming1@huawei.com>
-Cc: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, geert@linux-m68k.org, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, broonie@kernel.org, schwidefsky@de.ibm.com, bamvor.zhangjian@huawei.com, philipp.tomsich@theobroma-systems.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
+To: Yury Norov <ynorov@caviumnetworks.com>, arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, Hanjun Guo <guohanjun@huawei.com>, "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jun 08, 2016 at 09:34:09AM +0800, zhouchengming wrote:
-> On 2016/5/24 8:04, Yury Norov wrote:
-> >Here new aarch32 ptrace syscall handler is introsuced to avoid run-time
-> >detection of the task type.
-> >
-> >Signed-off-by: Yury Norov<ynorov@caviumnetworks.com>
+Hi, Yury
 
-[...]
-
-> Hello, I found ilp32 will use sys_ptrace, not compat_sys_ptrace. So I write
-> a little patch to see if can solve the problem correctly.
-> 
-> Thanks.
-> 
-> From f6156236df578bb05c4a17e7f9776ceaf8f7afe6 Mon Sep 17 00:00:00 2001
-> From: Zhou Chengming <zhouchengming1@huawei.com>
-> Date: Wed, 8 Jun 2016 09:46:23 +0800
-> Subject: [PATCH] ilp32: use compat_sys_ptrace instead of sys_ptrace
-> 
-> When we analyze a testcase of ptrace that failed on ilp32, we found
-> the syscall that the ilp32 uses is sys_ptrace, not compat_sys_ptrace.
-> Because in include/uapi/asm-generic/unistd.h it's defined like:
-> __SYSCALL(__NR_ptrace, sys_ptrace)
-> So we change it to __SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace),
-> let compat tasks use the compat_sys_ptrace.
-> 
-> Signed-off-by: Zhou Chengming <zhouchengming1@huawei.com>
+On 2016/5/24 8:04, Yury Norov wrote:
+> Based on patch of Andrew Pinski.
+>
+> This patch introduces is_a32_compat_task and is_a32_thread so it is
+> easier to say this is a a32 specific thread or a generic compat thread/task.
+> Corresponding functions are located in <asm/is_compat.h> to avoid mess in
+> headers.
+>
+> Some files include both <linux/compat.h> and <asm/compat.h>,
+> and this is wrong because <linux/compat.h> has <asm/compat.h> already
+> included. It was fixed too.
+>
+> Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+> Signed-off-by: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+> Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
+> Signed-off-by: Andrew Pinski <Andrew.Pinski@caviumnetworks.com>
+> Reviewed-by: David Daney <ddaney@caviumnetworks.com>
 > ---
->  include/uapi/asm-generic/unistd.h |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/include/uapi/asm-generic/unistd.h
-> b/include/uapi/asm-generic/unistd.h
-> index 2862d2e..50ee770 100644
-> --- a/include/uapi/asm-generic/unistd.h
-> +++ b/include/uapi/asm-generic/unistd.h
-> @@ -364,7 +364,7 @@ __SC_WRAP(__NR_syslog, sys_syslog)
-> 
->  /* kernel/ptrace.c */
->  #define __NR_ptrace 117
-> -__SYSCALL(__NR_ptrace, sys_ptrace)
-> +__SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace)
-> 
->  /* kernel/sched/core.c */
->  #define __NR_sched_setparam 118
-> -- 
-> 1.7.7
-> 
+>   arch/arm64/include/asm/compat.h      | 19 ++----------
+>   arch/arm64/include/asm/elf.h         | 10 +++----
+>   arch/arm64/include/asm/ftrace.h      |  2 +-
+>   arch/arm64/include/asm/is_compat.h   | 58 ++++++++++++++++++++++++++++++++++++
+>   arch/arm64/include/asm/memory.h      |  3 +-
+>   arch/arm64/include/asm/processor.h   |  5 ++--
+>   arch/arm64/include/asm/syscall.h     |  2 +-
+>   arch/arm64/include/asm/thread_info.h |  2 +-
+>   arch/arm64/kernel/hw_breakpoint.c    | 10 +++----
+>   arch/arm64/kernel/perf_regs.c        |  2 +-
+>   arch/arm64/kernel/process.c          |  7 ++---
+>   arch/arm64/kernel/ptrace.c           | 11 ++++---
+>   arch/arm64/kernel/signal.c           |  4 +--
+>   arch/arm64/kernel/traps.c            |  3 +-
+>   14 files changed, 91 insertions(+), 47 deletions(-)
+>   create mode 100644 arch/arm64/include/asm/is_compat.h
+>
+[...]
+> diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+> index 12f8a00..a66a0f7 100644
+> --- a/arch/arm64/include/asm/memory.h
+> +++ b/arch/arm64/include/asm/memory.h
+> @@ -26,6 +26,7 @@
+>   #include <linux/types.h>
+>   #include <asm/bug.h>
+>   #include <asm/sizes.h>
+> +#include <asm/is_compat.h>
+>
+>   /*
+>    * Allow for constants defined here to be used from assembly code
+> @@ -61,7 +62,7 @@
+>
+>   #ifdef CONFIG_COMPAT
+>   #define TASK_SIZE_32		UL(0x100000000)
+> -#define TASK_SIZE		(test_thread_flag(TIF_32BIT) ? \
+> +#define TASK_SIZE		(is_compat_task() ?		\
+>   				TASK_SIZE_32 : TASK_SIZE_64)
+>   #define TASK_SIZE_OF(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT) ? \
+>   				TASK_SIZE_32 : TASK_SIZE_64)
+Should we update or delete this macro?
+  #define TASK_SIZE_OF(tsk) (is_compat_task() ? \
+TASK_SIZE_32 : TASK_SIZE_64)
 
-Hi Zhou,
+x86, sparc, mips, ppc, parisc, s390 define its own version. But
+"include/linux/sched.h" will define it if
+TASK_SIZE_OF does not exist:
+#ifndef TASK_SIZE_OF
+#define TASK_SIZE_OF(tsk)       TASK_SIZE
+#endif
 
-Thank you for the catch.
 
-Could you also show the test that is failed for you. It should
-probably be sent to LTP maillist.
+Regards
 
-I'm not sure your fix correct as it affects other architectures that
-use standard unistd.h. I think it's better to redirect the syscall in
-arch/arm64/kernel/sys_ilp32.c with corresponding definition.
-
-Yury
+Bamvor
