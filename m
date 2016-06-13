@@ -1,47 +1,53 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 11/14] s390/ptrace: run seccomp after ptrace
-Date: Fri, 10 Jun 2016 12:51:58 +0200
-Message-ID: <20160610125158.16dd5497@mschwide>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 00/14] run seccomp after ptrace
+Date: Mon, 13 Jun 2016 13:50:57 -0700
+Message-ID: <CAGXu5jJsWOdhRBauQ-_S-4ODd4m+xUbdjk1_zPXQqY7Qp-Dgdw@mail.gmail.com>
 References: <1465506124-21866-1-git-send-email-keescook@chromium.org>
-        <1465506124-21866-12-git-send-email-keescook@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <1465506124-21866-12-git-send-email-keescook@chromium.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1465506124-21866-1-git-send-email-keescook@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Kees Cook <keescook@chromium.org>
-Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Catalin Marinas <catalin.marinas@arm.com>, Chris Metcalf <cmetcalf@mellanox.com>, Helge Deller <deller@gmx.de>, "James E.J. Bottomley" <jejb@parisc-linux.org>, James Hogan <james.hogan@imgtec.com>, Jeff Dike <jdike@addtoit.com>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, "Maciej W. Rozycki" <macro@imgtec.com>, Mark Rutland <mark.rutland@arm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Ralf Baechle <ralf@linux-mips.org>, Ri
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Catalin Marinas <catalin.marinas@arm.com>, Chris Metcalf <cmetcalf@mellanox.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Helge Deller <deller@gmx.de>, "James E.J. Bottomley" <jejb@parisc-linux.org>, James Hogan <james.hogan@imgtec.com>, Jeff Dike <jdike@addtoit.com>, linux-arch <linux-arch@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, linux-parisc <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "Maciej W. Rozycki" <macro@imgtec.com>, Mark Rutland <mark.rutland@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu,  9 Jun 2016 14:02:01 -0700
-Kees Cook <keescook@chromium.org> wrote:
+(Oops, forgot to send this series through the lsm list...)
 
-> Close the hole where ptrace can change a syscall out from under seccomp.
-> 
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> ---
->  arch/s390/kernel/ptrace.c | 21 +++++++++------------
->  1 file changed, 9 insertions(+), 12 deletions(-)
+On Thu, Jun 9, 2016 at 2:01 PM, Kees Cook <keescook@chromium.org> wrote:
+> There has been a long-standing (and documented) issue with seccomp
+> where ptrace can be used to change a syscall out from under seccomp.
+> This is a problem for containers and other wider seccomp filtered
+> environments where ptrace needs to remain available, as it allows
+> for an escape of the seccomp filter.
+>
+> Since the ptrace attack surface is available for any allowed syscall,
+> moving seccomp after ptrace doesn't increase the actually available
+> attack surface. And this actually improves tracing since, for
+> example, tracers will be notified of syscall entry before seccomp
+> sends a SIGSYS, which makes debugging filters much easier.
+>
+> The per-architecture changes do make one (hopefully small)
+> semantic change, which is that since ptrace comes first, it may
+> request a syscall be skipped. Running seccomp after this doesn't
+> make sense, so if ptrace wants to skip a syscall, it will bail
+> out early similarly to how seccomp was. This means that skipped
+> syscalls will not be fed through audit, though that likely means
+> we're actually avoiding noise this way.
+>
+> This series first cleans up seccomp to remove the now unneeded
+> two-phase entry, fixes the SECCOMP_RET_TRACE hole (same as the
+> ptrace hole above), and then reorders seccomp after ptrace on
+> each architecture.
 
-If the change in semantics in regard to the audit of skipped system calls
-is acceptable, the modified s390 arch code is ok.
+Has anyone else had a chance to review this series? I'd like to get it
+landed in -next as early as possible in case there are unexpected
+problems...
+
+-Kees
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Kees Cook
+Chrome OS & Brillo Security
