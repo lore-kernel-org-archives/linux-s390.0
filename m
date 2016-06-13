@@ -1,70 +1,188 @@
-From: Paul Moore <paul@paul-moore.com>
-Subject: Re: [PATCH] iucv: properly clone LSM attributes to newly created
- child sockets
-Date: Mon, 13 Jun 2016 08:38:05 -0400
-Message-ID: <CAHC9VhQPhSAudMSJ6j7cYYdZvYYwpyxMhT6yoGYeXm_oBThSaQ@mail.gmail.com>
-References: <OFBFC201CF.D9C45214-ONC1257FCD.0059BB30-C1257FCD.0059C94A@notes.na.collabserv.com>
- <1465812526.4401.4.camel@BR9GV9YG.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 1/3] af_iucv: use paged SKBs for big outbound messages
+Date: Mon, 13 Jun 2016 18:46:14 +0200
+Message-ID: <1465836376-24452-2-git-send-email-ubraun@linux.vnet.ibm.com>
+References: <1465836376-24452-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1465812526.4401.4.camel@BR9GV9YG.de.ibm.com>
+In-Reply-To: <1465836376-24452-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Cc: Paul Moore <pmoore@redhat.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jun 13, 2016 at 6:08 AM, Ursula Braun <ubraun@linux.vnet.ibm.com> wrote:
->> From: Paul Moore <paul@paul-moore.com>
->>
->> Much like we had to do for AF_BLUETOOTH and AF_ALG, make sure we
->> properly clone the parent socket's LSM attributes to newly created
->> child sockets.
->>
->> Signed-off-by: Paul Moore <paul@paul-moore.com>
->> ---
->> net/iucv/af_iucv.c |    5 ++++-
->> 1 file changed, 4 insertions(+), 1 deletion(-)
->>
->> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
->> index fc3598a..a0d1e36 100644
->> --- a/net/iucv/af_iucv.c
->> +++ b/net/iucv/af_iucv.c
->> @@ -22,6 +22,7 @@
->> #include <linux/skbuff.h>
->> #include <linux/init.h>
->> #include <linux/poll.h>
->> +#include <linux/security.h>
->> #include <net/sock.h>
->> #include <asm/ebcdic.h>
->> #include <asm/cpcmd.h>
->> @@ -530,8 +531,10 @@ static void iucv_sock_close(struct sock *sk)
->>
->> static void iucv_sock_init(struct sock *sk, struct sock *parent)
->> {
->> -                 if (parent)
->> +                 if (parent) {
->>                                   sk->sk_type = parent->sk_type;
->> +                                  security_sk_clone(parent, sk);
->> +                 }
->> }
->>
->> static struct sock *iucv_sock_alloc(struct socket *sock, int proto,
->> gfp_t prio, int kern)
->
-> applied locally - thx. Your patch will now be submitted for inclusion
-> into net-next.
+From: Eugene Crosser <Eugene.Crosser@ru.ibm.com>
 
-Hi Ursula,
+When an outbound message is bigger than a page, allocate and fill
+a paged SKB, and subsequently use IUCV send primitive with IPBUFLST
+flag. This relaxes the pressure to allocate big contiguous kernel
+buffers.
 
-For what it's worth, I applied to the selinux#next branch last week,
-it should be in the linux-next builds.
+Signed-off-by: Eugene Crosser <Eugene.Crosser@ru.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ net/iucv/af_iucv.c | 124 +++++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 77 insertions(+), 47 deletions(-)
 
-* git://git.infradead.org/users/pcmoore/selinux
-* http://git.infradead.org/users/pcmoore/selinux
-
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index fc3598a..38448d1 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -1033,6 +1033,7 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct iucv_sock *iucv = iucv_sk(sk);
++	size_t headroom, linear;
+ 	struct sk_buff *skb;
+ 	struct iucv_message txmsg = {0};
+ 	struct cmsghdr *cmsg;
+@@ -1110,20 +1111,31 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	 * this is fine for SOCK_SEQPACKET (unless we want to support
+ 	 * segmented records using the MSG_EOR flag), but
+ 	 * for SOCK_STREAM we might want to improve it in future */
+-	if (iucv->transport == AF_IUCV_TRANS_HIPER)
+-		skb = sock_alloc_send_skb(sk,
+-			len + sizeof(struct af_iucv_trans_hdr) + ETH_HLEN,
+-			noblock, &err);
+-	else
+-		skb = sock_alloc_send_skb(sk, len, noblock, &err);
++	headroom = (iucv->transport == AF_IUCV_TRANS_HIPER)
++		   ? sizeof(struct af_iucv_trans_hdr) + ETH_HLEN : 0;
++	if (headroom + len < PAGE_SIZE) {
++		linear = len;
++	} else {
++		/* In nonlinear "classic" iucv skb,
++		 * reserve space for iucv_array
++		 */
++		if (iucv->transport != AF_IUCV_TRANS_HIPER)
++			headroom += sizeof(struct iucv_array) *
++				    (MAX_SKB_FRAGS + 1);
++		linear = PAGE_SIZE - headroom;
++	}
++	skb = sock_alloc_send_pskb(sk, headroom + linear, len - linear,
++				   noblock, &err, 0);
+ 	if (!skb)
+ 		goto out;
+-	if (iucv->transport == AF_IUCV_TRANS_HIPER)
+-		skb_reserve(skb, sizeof(struct af_iucv_trans_hdr) + ETH_HLEN);
+-	if (memcpy_from_msg(skb_put(skb, len), msg, len)) {
+-		err = -EFAULT;
++	if (headroom)
++		skb_reserve(skb, headroom);
++	skb_put(skb, linear);
++	skb->len = len;
++	skb->data_len = len - linear;
++	err = skb_copy_datagram_from_iter(skb, 0, &msg->msg_iter, len);
++	if (err)
+ 		goto fail;
+-	}
+ 
+ 	/* wait if outstanding messages for iucv path has reached */
+ 	timeo = sock_sndtimeo(sk, noblock);
+@@ -1148,49 +1160,67 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 			atomic_dec(&iucv->msg_sent);
+ 			goto fail;
+ 		}
+-		goto release;
+-	}
+-	skb_queue_tail(&iucv->send_skb_q, skb);
+-
+-	if (((iucv->path->flags & IUCV_IPRMDATA) & iucv->flags)
+-	      && skb->len <= 7) {
+-		err = iucv_send_iprm(iucv->path, &txmsg, skb);
++	} else { /* Classic VM IUCV transport */
++		skb_queue_tail(&iucv->send_skb_q, skb);
++
++		if (((iucv->path->flags & IUCV_IPRMDATA) & iucv->flags) &&
++		    skb->len <= 7) {
++			err = iucv_send_iprm(iucv->path, &txmsg, skb);
++
++			/* on success: there is no message_complete callback */
++			/* for an IPRMDATA msg; remove skb from send queue   */
++			if (err == 0) {
++				skb_unlink(skb, &iucv->send_skb_q);
++				kfree_skb(skb);
++			}
+ 
+-		/* on success: there is no message_complete callback
+-		 * for an IPRMDATA msg; remove skb from send queue */
+-		if (err == 0) {
+-			skb_unlink(skb, &iucv->send_skb_q);
+-			kfree_skb(skb);
++			/* this error should never happen since the	*/
++			/* IUCV_IPRMDATA path flag is set... sever path */
++			if (err == 0x15) {
++				pr_iucv->path_sever(iucv->path, NULL);
++				skb_unlink(skb, &iucv->send_skb_q);
++				err = -EPIPE;
++				goto fail;
++			}
++		} else if (skb_is_nonlinear(skb)) {
++			struct iucv_array *iba = (struct iucv_array *)skb->head;
++			int i;
++
++			/* skip iucv_array lying in the headroom */
++			iba[0].address = (u32)(addr_t)skb->data;
++			iba[0].length = (u32)skb_headlen(skb);
++			for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
++				skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
++
++				iba[i + 1].address =
++					(u32)(addr_t)skb_frag_address(frag);
++				iba[i + 1].length = (u32)skb_frag_size(frag);
++			}
++			err = pr_iucv->message_send(iucv->path, &txmsg,
++						    IUCV_IPBUFLST, 0,
++						    (void *)iba, skb->len);
++		} else { /* non-IPRM Linear skb */
++			err = pr_iucv->message_send(iucv->path, &txmsg,
++					0, 0, (void *)skb->data, skb->len);
+ 		}
+-
+-		/* this error should never happen since the
+-		 * IUCV_IPRMDATA path flag is set... sever path */
+-		if (err == 0x15) {
+-			pr_iucv->path_sever(iucv->path, NULL);
++		if (err) {
++			if (err == 3) {
++				user_id[8] = 0;
++				memcpy(user_id, iucv->dst_user_id, 8);
++				appl_id[8] = 0;
++				memcpy(appl_id, iucv->dst_name, 8);
++				pr_err(
++		"Application %s on z/VM guest %s exceeds message limit\n",
++					appl_id, user_id);
++				err = -EAGAIN;
++			} else {
++				err = -EPIPE;
++			}
+ 			skb_unlink(skb, &iucv->send_skb_q);
+-			err = -EPIPE;
+ 			goto fail;
+ 		}
+-	} else
+-		err = pr_iucv->message_send(iucv->path, &txmsg, 0, 0,
+-					(void *) skb->data, skb->len);
+-	if (err) {
+-		if (err == 3) {
+-			user_id[8] = 0;
+-			memcpy(user_id, iucv->dst_user_id, 8);
+-			appl_id[8] = 0;
+-			memcpy(appl_id, iucv->dst_name, 8);
+-			pr_err("Application %s on z/VM guest %s"
+-				" exceeds message limit\n",
+-				appl_id, user_id);
+-			err = -EAGAIN;
+-		} else
+-			err = -EPIPE;
+-		skb_unlink(skb, &iucv->send_skb_q);
+-		goto fail;
+ 	}
+ 
+-release:
+ 	release_sock(sk);
+ 	return len;
+ 
 -- 
-paul moore
-www.paul-moore.com
+2.6.6
