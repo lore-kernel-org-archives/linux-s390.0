@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 40/52] s390/mm: don't drop errors in get_guest_storage_key
-Date: Tue, 14 Jun 2016 20:57:17 +0200
-Message-ID: <201606141857.u5EIsTtQ007835@mx0a-001b2d01.pphosted.com>
+Subject: [GIT PULL 36/52] KVM: s390: enable host-protection-interruption only with ESOP
+Date: Tue, 14 Jun 2016 20:57:13 +0200
+Message-ID: <1465930649-181383-37-git-send-email-borntraeger@de.ibm.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,49 +9,36 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, stable@vger.kernel.org, #@tuxmaker.boeblingen.de.ibm.com, 4.6+@tuxmaker.boeblingen.de.ibm.com
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Commit 1e133ab296f3 ("s390/mm: split arch/s390/mm/pgtable.c") changed
-the return value of get_guest_storage_key to an unsigned char, resulting
-in -EFAULT getting interpreted as a valid storage key.
+host-protection-interruption control was introduced with ESOP. So let's
+enable it only if we have ESOP and add an explanatory comment why
+we can live without it.
 
-Cc: stable@vger.kernel.org # 4.6+
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 2 +-
- arch/s390/mm/pgtable.c          | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 18d2beb..42b968a8 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -893,7 +893,7 @@ void ptep_zap_key(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
- bool test_and_clear_guest_dirty(struct mm_struct *mm, unsigned long address);
- int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
- 			  unsigned char key, bool nq);
--unsigned char get_guest_storage_key(struct mm_struct *mm, unsigned long addr);
-+unsigned long get_guest_storage_key(struct mm_struct *mm, unsigned long addr);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index ad93b40..4e764fa 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1837,7 +1837,9 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
  
- /*
-  * Certain architectures need to do special things when PTEs
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 4324b87..2a23ca9 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -543,7 +543,7 @@ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
- }
- EXPORT_SYMBOL(set_guest_storage_key);
+ 	kvm_s390_vcpu_setup_model(vcpu);
  
--unsigned char get_guest_storage_key(struct mm_struct *mm, unsigned long addr)
-+unsigned long get_guest_storage_key(struct mm_struct *mm, unsigned long addr)
- {
- 	unsigned char key;
- 	spinlock_t *ptl;
+-	vcpu->arch.sie_block->ecb = 0x02;
++	/* pgste_set_pte has special handling for !MACHINE_HAS_ESOP */
++	if (MACHINE_HAS_ESOP)
++		vcpu->arch.sie_block->ecb |= 0x02;
+ 	if (test_kvm_facility(vcpu->kvm, 9))
+ 		vcpu->arch.sie_block->ecb |= 0x04;
+ 	if (test_kvm_facility(vcpu->kvm, 50) && test_kvm_facility(vcpu->kvm, 73))
 -- 
 2.5.5
