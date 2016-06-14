@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 24/52] KVM: s390: enable CMMA if the interpration is available
-Date: Tue, 14 Jun 2016 20:57:01 +0200
-Message-ID: <201606141857.u5EIs0B2036530@mx0b-001b2d01.pphosted.com>
+Subject: [GIT PULL 22/52] KVM: s390: guestdbg: signal missing hardware support
+Date: Tue, 14 Jun 2016 20:56:59 +0200
+Message-ID: <1465930649-181383-23-git-send-email-borntraeger@de.ibm.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,29 +14,28 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Now that we can detect if collaborative-memory-management interpretation
-is available, replace the heuristic by a real hardware detection.
+Without guest-PER enhancement, we can't provide any debugging support.
+Therefore act like kernel support is missing.
 
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e477c8e..005e664 100644
+index efb902c..e477c8e 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -485,9 +485,8 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
- 	unsigned int idx;
- 	switch (attr->attr) {
- 	case KVM_S390_VM_MEM_ENABLE_CMMA:
--		/* enable CMMA only for z10 and later (EDAT_1) */
- 		ret = -EINVAL;
--		if (!MACHINE_IS_LPAR || !MACHINE_HAS_EDAT1)
-+		if (!sclp.has_cmma)
- 			break;
+@@ -2179,6 +2179,8 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
  
- 		ret = -EBUSY;
+ 	if (dbg->control & ~VALID_GUESTDBG_FLAGS)
+ 		return -EINVAL;
++	if (!sclp.has_gpere)
++		return -EINVAL;
+ 
+ 	if (dbg->control & KVM_GUESTDBG_ENABLE) {
+ 		vcpu->guest_debug = dbg->control;
 -- 
 2.5.5
