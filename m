@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 46/52] KVM: s390: pfmf: MR and MC are ignored without CSSKE
-Date: Tue, 14 Jun 2016 20:57:23 +0200
-Message-ID: <1465930649-181383-47-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 44/52] KVM: s390: storage keys fit into a char
+Date: Tue, 14 Jun 2016 20:57:21 +0200
+Message-ID: <201606141857.u5EIs0in141840@mx0a-001b2d01.pphosted.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,30 +14,29 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-These two bits are simply ignored when the conditional-SSKE facility is
-not installed.
+No need to convert the storage key into an unsigned long, the target
+function expects a char as argument.
 
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/priv.c | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index bfba983..5c926b7 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -675,10 +675,6 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
- 	    !test_kvm_facility(vcpu->kvm, 14))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index ad166c6..49c6039 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1120,8 +1120,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ 			break;
+ 		}
  
--	/* No support for conditional-SSKE */
--	if (vcpu->run->s.regs.gprs[reg1] & (PFMF_MR | PFMF_MC))
--		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
--
- 	start = vcpu->run->s.regs.gprs[reg2] & PAGE_MASK;
- 	start = kvm_s390_logical_to_effective(vcpu, start);
- 
+-		r = set_guest_storage_key(current->mm, hva,
+-					  (unsigned long)keys[i], 0);
++		r = set_guest_storage_key(current->mm, hva, keys[i], 0);
+ 		if (r)
+ 			break;
+ 	}
 -- 
 2.5.5
