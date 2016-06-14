@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 31/52] KVM: s390: enable cei only if available
-Date: Tue, 14 Jun 2016 20:57:08 +0200
-Message-ID: <1465930649-181383-32-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 32/52] s390/sclp: detect PFMF interpretation facility
+Date: Tue, 14 Jun 2016 20:57:09 +0200
+Message-ID: <1465930649-181383-33-git-send-email-borntraeger@de.ibm.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,30 +14,49 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's only enable conditional-external-interruption if the facility is
-actually available.
+Let's detect that facility.
 
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/sclp.h   | 1 +
+ drivers/s390/char/sclp_early.c | 4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 340fb40..1a239a6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1845,7 +1845,9 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 
- 	if (test_kvm_facility(vcpu->kvm, 8))
- 		vcpu->arch.sie_block->ecb2 |= 0x08;
--	vcpu->arch.sie_block->eca = 0x81002000U;
-+	vcpu->arch.sie_block->eca = 0x1002000U;
-+	if (sclp.has_cei)
-+		vcpu->arch.sie_block->eca |= 0x80000000U;
- 	if (sclp.has_ib)
- 		vcpu->arch.sie_block->eca |= 0x40000000U;
- 	if (sclp.has_siif)
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index c91ad19..bdb7f22 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -71,6 +71,7 @@ struct sclp_info {
+ 	unsigned char has_gsls : 1;
+ 	unsigned char has_ib : 1;
+ 	unsigned char has_cei : 1;
++	unsigned char has_pfmfi : 1;
+ 	unsigned int ibc;
+ 	unsigned int mtid;
+ 	unsigned int mtid_cp;
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index 4b330fb..500cbfd 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -46,7 +46,8 @@ struct read_info_sccb {
+ 	u64	rnmax2;			/* 104-111 */
+ 	u8	_pad_112[116 - 112];	/* 112-115 */
+ 	u8	fac116;			/* 116 */
+-	u8	_pad_117[119 - 117];	/* 117-118 */
++	u8	fac117;			/* 117 */
++	u8	_pad_118;		/* 118 */
+ 	u8	fac119;			/* 119 */
+ 	u16	hcpua;			/* 120-121 */
+ 	u8	_pad_122[124 - 122];	/* 122-123 */
+@@ -118,6 +119,7 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
+ 	sclp.has_64bscao = !!(sccb->fac116 & 0x80);
+ 	sclp.has_cmma = !!(sccb->fac116 & 0x40);
+ 	sclp.has_esca = !!(sccb->fac116 & 0x08);
++	sclp.has_pfmfi = !!(sccb->fac117 & 0x40);
+ 	sclp.has_hvs = !!(sccb->fac119 & 0x80);
+ 	if (sccb->fac85 & 0x02)
+ 		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
 -- 
 2.5.5
