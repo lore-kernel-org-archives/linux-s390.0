@@ -1,99 +1,1890 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 14 Jun 2016 15:28:23 +0200
-From: Robert Richter <rric@kernel.org>
+Date: Tue, 14 Jun 2016 17:56:09 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 Subject: Re: [PATCH] s390/oprofile: Remove deprecated create_workqueue
-Message-ID: <20160614132823.GL25086@rric.localdomain>
 References: <20160607215912.GA19722@Karyakshetra>
  <20160609090056.GC3250@osiris>
  <20160613162914.GK25086@rric.localdomain>
  <20160614053608.GB3754@osiris>
+ <20160614132823.GL25086@rric.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20160614053608.GB3754@osiris>
+In-Reply-To: <20160614132823.GL25086@rric.localdomain>
+Message-Id: <20160614155609.GG3754@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Robert Richter <rric@kernel.org>
 Cc: Bhaktipriya Shridhar <bhaktipriya96@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Tejun Heo <tj@kernel.org>, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Andreas Krebbel <krebbel@linux.vnet.ibm.com>, Andreas Arnez <arnez@linux.vnet.ibm.com>, William Cohen <wcohen@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 14.06.16 07:36:08, Heiko Carstens wrote:
-> On Mon, Jun 13, 2016 at 06:29:14PM +0200, Robert Richter wrote:
-> > Heiko,
+On Tue, Jun 14, 2016 at 03:28:23PM +0200, Robert Richter wrote:
 > > 
-> > On 09.06.16 11:00:56, Heiko Carstens wrote:
-> > > However I'm wondering if we shouldn't simply remove at least the s390
-> > > specific hwswampler code from the oprofile module. This would still leave
-> > > the common code timer based sampling mode for oprofile working on s390.
-> > > 
-> > > It looks like the oprofile user space utility nowadays (since 2012) uses
-> > > the kernel perf interface instead of the oprofile interface anyway, if
-> > > present. So the oprofile module itself doesn't seem to have too many users
-> > > left.
-> > > 
-> > > Any opinions?
-> > 
-> > yes, the kernel driver is not necessary for oprofile userland for a
-> > while now. There is no ongoing development any longer, most patches
-> > are due to changes in the kernel apis.
-> > 
-> > So if there is code that needs a larger rework due to other kernel
-> > changes and there is no user anymore, I am fine with removing the code
-> > instead of reworking it. I still would just keep existing code as long
-> > as we can keep it unchanged (some like the lightwight of oprofile,
-> > esp. in the embedded space). If there is a user of the code, a
-> > Tested-by would be good for new code changes.
-> > 
-> > If there are users of the hwswampler, speak up now. Else, let's just
-> > remove it.
+> >  Documentation/kernel-parameters.txt |    2 -
+> >  arch/s390/oprofile/Makefile         |    1 -
+> >  arch/s390/oprofile/hwsampler.c      | 1178 --------------------------------
+> >  arch/s390/oprofile/hwsampler.h      |   63 --
+> >  arch/s390/oprofile/init.c           |  489 -------------
+> >  arch/s390/oprofile/op_counter.h     |   21 -
+> >  6 files changed, 1754 deletions(-)
 > 
-> Ok, so I'll wait a week or so and remove the code if nobody speaks up. Is
-> it ok for you if I add the patch to the s390 kernel tree?
+> Could you send the patch for review anyway?
 
-Yes, pass it through your tree.
+Yes, of course. I added it below, hope that's ok.
+[I did not yet add your Ack]
 
-> The patch would only remove s390 specific architecture code.
-> 
-> I have this pending:
-> 
->     s390/oprofile: remove hardware sampler support
->     
->     Remove hardware sampler support from oprofile module.
->     
->     The oprofile user space utilty has been switched to use the kernel
->     perf interface, for which we also provide hardware sampling support.
->     
->     In addition the hardware sampling support is also slightly broken: it
->     supports only 16 bits for the pid and therefore would generate wrong
->     results on machines which have a pid >64k.
->     
->     Also the pt_regs structure which was passed to oprofile common code
->     cannot necessarily be used to generate sane backtraces, since the
->     task(s) in question may run while the samples are fed to oprofile.
->     So the result would be more or less random.
->     
->     However given that the only user space tools switched to the perf
->     interface already four years ago the hardware sampler code seems to be
->     unused code, and therefore it should be reasonable to remove it.
->     
->     The timer based oprofile support continues to work.
->     
->     Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+From 74ab0aefe07573358cc6a0c462ddc62ccba4c0cf Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Fri, 10 Jun 2016 10:40:06 +0200
+Subject: [PATCH] s390/oprofile: remove hardware sampler support
 
-Acked-by: Robert Richter <rric@kernel.org>
+Remove hardware sampler support from oprofile module.
 
-> 
->  Documentation/kernel-parameters.txt |    2 -
->  arch/s390/oprofile/Makefile         |    1 -
->  arch/s390/oprofile/hwsampler.c      | 1178 --------------------------------
->  arch/s390/oprofile/hwsampler.h      |   63 --
->  arch/s390/oprofile/init.c           |  489 -------------
->  arch/s390/oprofile/op_counter.h     |   21 -
->  6 files changed, 1754 deletions(-)
+The oprofile user space utilty has been switched to use the kernel
+perf interface, for which we also provide hardware sampling support.
 
-Could you send the patch for review anyway?
+In addition the hardware sampling support is also slightly broken: it
+supports only 16 bits for the pid and therefore would generate wrong
+results on machines which have a pid >64k.
 
-Thanks,
+Also the pt_regs structure which was passed to oprofile common code
+cannot necessarily be used to generate sane backtraces, since the
+task(s) in question may run while the samples are fed to oprofile.
+So the result would be more or less random.
 
--Robert
+However given that the only user space tools switched to the perf
+interface already four years ago the hardware sampler code seems to be
+unused code, and therefore it should be reasonable to remove it.
+
+The timer based oprofile support continues to work.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ Documentation/kernel-parameters.txt |    2 -
+ arch/s390/oprofile/Makefile         |    1 -
+ arch/s390/oprofile/hwsampler.c      | 1178 -----------------------------------
+ arch/s390/oprofile/hwsampler.h      |   63 --
+ arch/s390/oprofile/init.c           |  489 ---------------
+ arch/s390/oprofile/op_counter.h     |   21 -
+ 6 files changed, 1754 deletions(-)
+ delete mode 100644 arch/s390/oprofile/hwsampler.c
+ delete mode 100644 arch/s390/oprofile/hwsampler.h
+ delete mode 100644 arch/s390/oprofile/op_counter.h
+
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 82b42c958d1c..68b0c022861a 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -2788,8 +2788,6 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
+ 			timer: [X86] Force use of architectural NMI
+ 				timer mode (see also oprofile.timer
+ 				for generic hr timer mode)
+-				[s390] Force legacy basic mode sampling
+-                                (report cpu_type "timer")
+ 
+ 	oops=panic	Always panic on oopses. Default is to just kill the
+ 			process, but there is a small probability of
+diff --git a/arch/s390/oprofile/Makefile b/arch/s390/oprofile/Makefile
+index 496e4a7ee00e..e9dd41b0b8d3 100644
+--- a/arch/s390/oprofile/Makefile
++++ b/arch/s390/oprofile/Makefile
+@@ -7,4 +7,3 @@ DRIVER_OBJS = $(addprefix ../../../drivers/oprofile/, \
+ 		timer_int.o )
+ 
+ oprofile-y :=	$(DRIVER_OBJS) init.o
+-oprofile-y +=	hwsampler.o
+diff --git a/arch/s390/oprofile/hwsampler.c b/arch/s390/oprofile/hwsampler.c
+deleted file mode 100644
+index ff9b4eb34589..000000000000
+--- a/arch/s390/oprofile/hwsampler.c
++++ /dev/null
+@@ -1,1178 +0,0 @@
+-/*
+- * Copyright IBM Corp. 2010
+- * Author: Heinz Graalfs <graalfs@de.ibm.com>
+- */
+-
+-#include <linux/kernel_stat.h>
+-#include <linux/kernel.h>
+-#include <linux/module.h>
+-#include <linux/smp.h>
+-#include <linux/errno.h>
+-#include <linux/workqueue.h>
+-#include <linux/interrupt.h>
+-#include <linux/notifier.h>
+-#include <linux/cpu.h>
+-#include <linux/semaphore.h>
+-#include <linux/oom.h>
+-#include <linux/oprofile.h>
+-
+-#include <asm/facility.h>
+-#include <asm/cpu_mf.h>
+-#include <asm/irq.h>
+-
+-#include "hwsampler.h"
+-#include "op_counter.h"
+-
+-#define MAX_NUM_SDB 511
+-#define MIN_NUM_SDB 1
+-
+-DECLARE_PER_CPU(struct hws_cpu_buffer, sampler_cpu_buffer);
+-
+-struct hws_execute_parms {
+-	void *buffer;
+-	signed int rc;
+-};
+-
+-DEFINE_PER_CPU(struct hws_cpu_buffer, sampler_cpu_buffer);
+-EXPORT_PER_CPU_SYMBOL(sampler_cpu_buffer);
+-
+-static DEFINE_MUTEX(hws_sem);
+-static DEFINE_MUTEX(hws_sem_oom);
+-
+-static unsigned char hws_flush_all;
+-static unsigned int hws_oom;
+-static unsigned int hws_alert;
+-static struct workqueue_struct *hws_wq;
+-
+-static unsigned int hws_state;
+-enum {
+-	HWS_INIT = 1,
+-	HWS_DEALLOCATED,
+-	HWS_STOPPED,
+-	HWS_STARTED,
+-	HWS_STOPPING };
+-
+-/* set to 1 if called by kernel during memory allocation */
+-static unsigned char oom_killer_was_active;
+-/* size of SDBT and SDB as of allocate API */
+-static unsigned long num_sdbt = 100;
+-static unsigned long num_sdb = 511;
+-/* sampling interval (machine cycles) */
+-static unsigned long interval;
+-
+-static unsigned long min_sampler_rate;
+-static unsigned long max_sampler_rate;
+-
+-static void execute_qsi(void *parms)
+-{
+-	struct hws_execute_parms *ep = parms;
+-
+-	ep->rc = qsi(ep->buffer);
+-}
+-
+-static void execute_ssctl(void *parms)
+-{
+-	struct hws_execute_parms *ep = parms;
+-
+-	ep->rc = lsctl(ep->buffer);
+-}
+-
+-static int smp_ctl_ssctl_stop(int cpu)
+-{
+-	int rc;
+-	struct hws_execute_parms ep;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-	cb->ssctl.es = 0;
+-	cb->ssctl.cs = 0;
+-
+-	ep.buffer = &cb->ssctl;
+-	smp_call_function_single(cpu, execute_ssctl, &ep, 1);
+-	rc = ep.rc;
+-	if (rc) {
+-		printk(KERN_ERR "hwsampler: CPU %d CPUMF SSCTL failed.\n", cpu);
+-		dump_stack();
+-	}
+-
+-	ep.buffer = &cb->qsi;
+-	smp_call_function_single(cpu, execute_qsi, &ep, 1);
+-
+-	if (cb->qsi.es || cb->qsi.cs) {
+-		printk(KERN_EMERG "CPUMF sampling did not stop properly.\n");
+-		dump_stack();
+-	}
+-
+-	return rc;
+-}
+-
+-static int smp_ctl_ssctl_deactivate(int cpu)
+-{
+-	int rc;
+-	struct hws_execute_parms ep;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-	cb->ssctl.es = 1;
+-	cb->ssctl.cs = 0;
+-
+-	ep.buffer = &cb->ssctl;
+-	smp_call_function_single(cpu, execute_ssctl, &ep, 1);
+-	rc = ep.rc;
+-	if (rc)
+-		printk(KERN_ERR "hwsampler: CPU %d CPUMF SSCTL failed.\n", cpu);
+-
+-	ep.buffer = &cb->qsi;
+-	smp_call_function_single(cpu, execute_qsi, &ep, 1);
+-
+-	if (cb->qsi.cs)
+-		printk(KERN_EMERG "CPUMF sampling was not set inactive.\n");
+-
+-	return rc;
+-}
+-
+-static int smp_ctl_ssctl_enable_activate(int cpu, unsigned long interval)
+-{
+-	int rc;
+-	struct hws_execute_parms ep;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-	cb->ssctl.h = 1;
+-	cb->ssctl.tear = cb->first_sdbt;
+-	cb->ssctl.dear = *(unsigned long *) cb->first_sdbt;
+-	cb->ssctl.interval = interval;
+-	cb->ssctl.es = 1;
+-	cb->ssctl.cs = 1;
+-
+-	ep.buffer = &cb->ssctl;
+-	smp_call_function_single(cpu, execute_ssctl, &ep, 1);
+-	rc = ep.rc;
+-	if (rc)
+-		printk(KERN_ERR "hwsampler: CPU %d CPUMF SSCTL failed.\n", cpu);
+-
+-	ep.buffer = &cb->qsi;
+-	smp_call_function_single(cpu, execute_qsi, &ep, 1);
+-	if (ep.rc)
+-		printk(KERN_ERR "hwsampler: CPU %d CPUMF QSI failed.\n", cpu);
+-
+-	return rc;
+-}
+-
+-static int smp_ctl_qsi(int cpu)
+-{
+-	struct hws_execute_parms ep;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-	ep.buffer = &cb->qsi;
+-	smp_call_function_single(cpu, execute_qsi, &ep, 1);
+-
+-	return ep.rc;
+-}
+-
+-static void hws_ext_handler(struct ext_code ext_code,
+-			    unsigned int param32, unsigned long param64)
+-{
+-	struct hws_cpu_buffer *cb = this_cpu_ptr(&sampler_cpu_buffer);
+-
+-	if (!(param32 & CPU_MF_INT_SF_MASK))
+-		return;
+-
+-	if (!hws_alert)
+-		return;
+-
+-	inc_irq_stat(IRQEXT_CMS);
+-	atomic_xchg(&cb->ext_params, atomic_read(&cb->ext_params) | param32);
+-
+-	if (hws_wq)
+-		queue_work(hws_wq, &cb->worker);
+-}
+-
+-static void worker(struct work_struct *work);
+-
+-static void add_samples_to_oprofile(unsigned cpu, unsigned long *,
+-				unsigned long *dear);
+-
+-static void init_all_cpu_buffers(void)
+-{
+-	int cpu;
+-	struct hws_cpu_buffer *cb;
+-
+-	for_each_online_cpu(cpu) {
+-		cb = &per_cpu(sampler_cpu_buffer, cpu);
+-		memset(cb, 0, sizeof(struct hws_cpu_buffer));
+-	}
+-}
+-
+-static void prepare_cpu_buffers(void)
+-{
+-	struct hws_cpu_buffer *cb;
+-	int cpu;
+-
+-	for_each_online_cpu(cpu) {
+-		cb = &per_cpu(sampler_cpu_buffer, cpu);
+-		atomic_set(&cb->ext_params, 0);
+-		cb->worker_entry = 0;
+-		cb->sample_overflow = 0;
+-		cb->req_alert = 0;
+-		cb->incorrect_sdbt_entry = 0;
+-		cb->invalid_entry_address = 0;
+-		cb->loss_of_sample_data = 0;
+-		cb->sample_auth_change_alert = 0;
+-		cb->finish = 0;
+-		cb->oom = 0;
+-		cb->stop_mode = 0;
+-	}
+-}
+-
+-/*
+- * allocate_sdbt() - allocate sampler memory
+- * @cpu: the cpu for which sampler memory is allocated
+- *
+- * A 4K page is allocated for each requested SDBT.
+- * A maximum of 511 4K pages are allocated for the SDBs in each of the SDBTs.
+- * Set ALERT_REQ mask in each SDBs trailer.
+- * Returns zero if successful, <0 otherwise.
+- */
+-static int allocate_sdbt(int cpu)
+-{
+-	int j, k, rc;
+-	unsigned long *sdbt;
+-	unsigned long  sdb;
+-	unsigned long *tail;
+-	unsigned long *trailer;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-	if (cb->first_sdbt)
+-		return -EINVAL;
+-
+-	sdbt = NULL;
+-	tail = sdbt;
+-
+-	for (j = 0; j < num_sdbt; j++) {
+-		sdbt = (unsigned long *)get_zeroed_page(GFP_KERNEL);
+-
+-		mutex_lock(&hws_sem_oom);
+-		/* OOM killer might have been activated */
+-		barrier();
+-		if (oom_killer_was_active || !sdbt) {
+-			if (sdbt)
+-				free_page((unsigned long)sdbt);
+-
+-			goto allocate_sdbt_error;
+-		}
+-		if (cb->first_sdbt == 0)
+-			cb->first_sdbt = (unsigned long)sdbt;
+-
+-		/* link current page to tail of chain */
+-		if (tail)
+-			*tail = (unsigned long)(void *)sdbt + 1;
+-
+-		mutex_unlock(&hws_sem_oom);
+-
+-		for (k = 0; k < num_sdb; k++) {
+-			/* get and set SDB page */
+-			sdb = get_zeroed_page(GFP_KERNEL);
+-
+-			mutex_lock(&hws_sem_oom);
+-			/* OOM killer might have been activated */
+-			barrier();
+-			if (oom_killer_was_active || !sdb) {
+-				if (sdb)
+-					free_page(sdb);
+-
+-				goto allocate_sdbt_error;
+-			}
+-			*sdbt = sdb;
+-			trailer = trailer_entry_ptr(*sdbt);
+-			*trailer = SDB_TE_ALERT_REQ_MASK;
+-			sdbt++;
+-			mutex_unlock(&hws_sem_oom);
+-		}
+-		tail = sdbt;
+-	}
+-	mutex_lock(&hws_sem_oom);
+-	if (oom_killer_was_active)
+-		goto allocate_sdbt_error;
+-
+-	rc = 0;
+-	if (tail)
+-		*tail = (unsigned long)
+-			((void *)cb->first_sdbt) + 1;
+-
+-allocate_sdbt_exit:
+-	mutex_unlock(&hws_sem_oom);
+-	return rc;
+-
+-allocate_sdbt_error:
+-	rc = -ENOMEM;
+-	goto allocate_sdbt_exit;
+-}
+-
+-/*
+- * deallocate_sdbt() - deallocate all sampler memory
+- *
+- * For each online CPU all SDBT trees are deallocated.
+- * Returns the number of freed pages.
+- */
+-static int deallocate_sdbt(void)
+-{
+-	int cpu;
+-	int counter;
+-
+-	counter = 0;
+-
+-	for_each_online_cpu(cpu) {
+-		unsigned long start;
+-		unsigned long sdbt;
+-		unsigned long *curr;
+-		struct hws_cpu_buffer *cb;
+-
+-		cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-		if (!cb->first_sdbt)
+-			continue;
+-
+-		sdbt = cb->first_sdbt;
+-		curr = (unsigned long *) sdbt;
+-		start = sdbt;
+-
+-		/* we'll free the SDBT after all SDBs are processed... */
+-		while (1) {
+-			if (!*curr || !sdbt)
+-				break;
+-
+-			/* watch for link entry reset if found */
+-			if (is_link_entry(curr)) {
+-				curr = get_next_sdbt(curr);
+-				if (sdbt)
+-					free_page(sdbt);
+-
+-				/* we are done if we reach the start */
+-				if ((unsigned long) curr == start)
+-					break;
+-				else
+-					sdbt = (unsigned long) curr;
+-			} else {
+-				/* process SDB pointer */
+-				if (*curr) {
+-					free_page(*curr);
+-					curr++;
+-				}
+-			}
+-			counter++;
+-		}
+-		cb->first_sdbt = 0;
+-	}
+-	return counter;
+-}
+-
+-static int start_sampling(int cpu)
+-{
+-	int rc;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-	rc = smp_ctl_ssctl_enable_activate(cpu, interval);
+-	if (rc) {
+-		printk(KERN_INFO "hwsampler: CPU %d ssctl failed.\n", cpu);
+-		goto start_exit;
+-	}
+-
+-	rc = -EINVAL;
+-	if (!cb->qsi.es) {
+-		printk(KERN_INFO "hwsampler: CPU %d ssctl not enabled.\n", cpu);
+-		goto start_exit;
+-	}
+-
+-	if (!cb->qsi.cs) {
+-		printk(KERN_INFO "hwsampler: CPU %d ssctl not active.\n", cpu);
+-		goto start_exit;
+-	}
+-
+-	printk(KERN_INFO
+-		"hwsampler: CPU %d, CPUMF Sampling started, interval %lu.\n",
+-		cpu, interval);
+-
+-	rc = 0;
+-
+-start_exit:
+-	return rc;
+-}
+-
+-static int stop_sampling(int cpu)
+-{
+-	unsigned long v;
+-	int rc;
+-	struct hws_cpu_buffer *cb;
+-
+-	rc = smp_ctl_qsi(cpu);
+-	WARN_ON(rc);
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-	if (!rc && !cb->qsi.es)
+-		printk(KERN_INFO "hwsampler: CPU %d, already stopped.\n", cpu);
+-
+-	rc = smp_ctl_ssctl_stop(cpu);
+-	if (rc) {
+-		printk(KERN_INFO "hwsampler: CPU %d, ssctl stop error %d.\n",
+-				cpu, rc);
+-		goto stop_exit;
+-	}
+-
+-	printk(KERN_INFO "hwsampler: CPU %d, CPUMF Sampling stopped.\n", cpu);
+-
+-stop_exit:
+-	v = cb->req_alert;
+-	if (v)
+-		printk(KERN_ERR "hwsampler: CPU %d CPUMF Request alert,"
+-				" count=%lu.\n", cpu, v);
+-
+-	v = cb->loss_of_sample_data;
+-	if (v)
+-		printk(KERN_ERR "hwsampler: CPU %d CPUMF Loss of sample data,"
+-				" count=%lu.\n", cpu, v);
+-
+-	v = cb->invalid_entry_address;
+-	if (v)
+-		printk(KERN_ERR "hwsampler: CPU %d CPUMF Invalid entry address,"
+-				" count=%lu.\n", cpu, v);
+-
+-	v = cb->incorrect_sdbt_entry;
+-	if (v)
+-		printk(KERN_ERR
+-				"hwsampler: CPU %d CPUMF Incorrect SDBT address,"
+-				" count=%lu.\n", cpu, v);
+-
+-	v = cb->sample_auth_change_alert;
+-	if (v)
+-		printk(KERN_ERR
+-				"hwsampler: CPU %d CPUMF Sample authorization change,"
+-				" count=%lu.\n", cpu, v);
+-
+-	return rc;
+-}
+-
+-static int check_hardware_prerequisites(void)
+-{
+-	if (!test_facility(68))
+-		return -EOPNOTSUPP;
+-	return 0;
+-}
+-/*
+- * hws_oom_callback() - the OOM callback function
+- *
+- * In case the callback is invoked during memory allocation for the
+- *  hw sampler, all obtained memory is deallocated and a flag is set
+- *  so main sampler memory allocation can exit with a failure code.
+- * In case the callback is invoked during sampling the hw sampler
+- *  is deactivated for all CPUs.
+- */
+-static int hws_oom_callback(struct notifier_block *nfb,
+-	unsigned long dummy, void *parm)
+-{
+-	unsigned long *freed;
+-	int cpu;
+-	struct hws_cpu_buffer *cb;
+-
+-	freed = parm;
+-
+-	mutex_lock(&hws_sem_oom);
+-
+-	if (hws_state == HWS_DEALLOCATED) {
+-		/* during memory allocation */
+-		if (oom_killer_was_active == 0) {
+-			oom_killer_was_active = 1;
+-			*freed += deallocate_sdbt();
+-		}
+-	} else {
+-		int i;
+-		cpu = get_cpu();
+-		cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-		if (!cb->oom) {
+-			for_each_online_cpu(i) {
+-				smp_ctl_ssctl_deactivate(i);
+-				cb->oom = 1;
+-			}
+-			cb->finish = 1;
+-
+-			printk(KERN_INFO
+-				"hwsampler: CPU %d, OOM notify during CPUMF Sampling.\n",
+-				cpu);
+-		}
+-	}
+-
+-	mutex_unlock(&hws_sem_oom);
+-
+-	return NOTIFY_OK;
+-}
+-
+-static struct notifier_block hws_oom_notifier = {
+-	.notifier_call = hws_oom_callback
+-};
+-
+-static int hws_cpu_callback(struct notifier_block *nfb,
+-	unsigned long action, void *hcpu)
+-{
+-	/* We do not have sampler space available for all possible CPUs.
+-	   All CPUs should be online when hw sampling is activated. */
+-	return (hws_state <= HWS_DEALLOCATED) ? NOTIFY_OK : NOTIFY_BAD;
+-}
+-
+-static struct notifier_block hws_cpu_notifier = {
+-	.notifier_call = hws_cpu_callback
+-};
+-
+-/**
+- * hwsampler_deactivate() - set hardware sampling temporarily inactive
+- * @cpu:  specifies the CPU to be set inactive.
+- *
+- * Returns 0 on success, !0 on failure.
+- */
+-int hwsampler_deactivate(unsigned int cpu)
+-{
+-	/*
+-	 * Deactivate hw sampling temporarily and flush the buffer
+-	 * by pushing all the pending samples to oprofile buffer.
+-	 *
+-	 * This function can be called under one of the following conditions:
+-	 *     Memory unmap, task is exiting.
+-	 */
+-	int rc;
+-	struct hws_cpu_buffer *cb;
+-
+-	rc = 0;
+-	mutex_lock(&hws_sem);
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-	if (hws_state == HWS_STARTED) {
+-		rc = smp_ctl_qsi(cpu);
+-		WARN_ON(rc);
+-		if (cb->qsi.cs) {
+-			rc = smp_ctl_ssctl_deactivate(cpu);
+-			if (rc) {
+-				printk(KERN_INFO
+-				"hwsampler: CPU %d, CPUMF Deactivation failed.\n", cpu);
+-				cb->finish = 1;
+-				hws_state = HWS_STOPPING;
+-			} else  {
+-				hws_flush_all = 1;
+-				/* Add work to queue to read pending samples.*/
+-				queue_work_on(cpu, hws_wq, &cb->worker);
+-			}
+-		}
+-	}
+-	mutex_unlock(&hws_sem);
+-
+-	if (hws_wq)
+-		flush_workqueue(hws_wq);
+-
+-	return rc;
+-}
+-
+-/**
+- * hwsampler_activate() - activate/resume hardware sampling which was deactivated
+- * @cpu:  specifies the CPU to be set active.
+- *
+- * Returns 0 on success, !0 on failure.
+- */
+-int hwsampler_activate(unsigned int cpu)
+-{
+-	/*
+-	 * Re-activate hw sampling. This should be called in pair with
+-	 * hwsampler_deactivate().
+-	 */
+-	int rc;
+-	struct hws_cpu_buffer *cb;
+-
+-	rc = 0;
+-	mutex_lock(&hws_sem);
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-	if (hws_state == HWS_STARTED) {
+-		rc = smp_ctl_qsi(cpu);
+-		WARN_ON(rc);
+-		if (!cb->qsi.cs) {
+-			hws_flush_all = 0;
+-			rc = smp_ctl_ssctl_enable_activate(cpu, interval);
+-			if (rc) {
+-				printk(KERN_ERR
+-				"CPU %d, CPUMF activate sampling failed.\n",
+-					 cpu);
+-			}
+-		}
+-	}
+-
+-	mutex_unlock(&hws_sem);
+-
+-	return rc;
+-}
+-
+-static int check_qsi_on_setup(void)
+-{
+-	int rc;
+-	unsigned int cpu;
+-	struct hws_cpu_buffer *cb;
+-
+-	for_each_online_cpu(cpu) {
+-		cb = &per_cpu(sampler_cpu_buffer, cpu);
+-		rc = smp_ctl_qsi(cpu);
+-		WARN_ON(rc);
+-		if (rc)
+-			return -EOPNOTSUPP;
+-
+-		if (!cb->qsi.as) {
+-			printk(KERN_INFO "hwsampler: CPUMF sampling is not authorized.\n");
+-			return -EINVAL;
+-		}
+-
+-		if (cb->qsi.es) {
+-			printk(KERN_WARNING "hwsampler: CPUMF is still enabled.\n");
+-			rc = smp_ctl_ssctl_stop(cpu);
+-			if (rc)
+-				return -EINVAL;
+-
+-			printk(KERN_INFO
+-				"CPU %d, CPUMF Sampling stopped now.\n", cpu);
+-		}
+-	}
+-	return 0;
+-}
+-
+-static int check_qsi_on_start(void)
+-{
+-	unsigned int cpu;
+-	int rc;
+-	struct hws_cpu_buffer *cb;
+-
+-	for_each_online_cpu(cpu) {
+-		cb = &per_cpu(sampler_cpu_buffer, cpu);
+-		rc = smp_ctl_qsi(cpu);
+-		WARN_ON(rc);
+-
+-		if (!cb->qsi.as)
+-			return -EINVAL;
+-
+-		if (cb->qsi.es)
+-			return -EINVAL;
+-
+-		if (cb->qsi.cs)
+-			return -EINVAL;
+-	}
+-	return 0;
+-}
+-
+-static void worker_on_start(unsigned int cpu)
+-{
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-	cb->worker_entry = cb->first_sdbt;
+-}
+-
+-static int worker_check_error(unsigned int cpu, int ext_params)
+-{
+-	int rc;
+-	unsigned long *sdbt;
+-	struct hws_cpu_buffer *cb;
+-
+-	rc = 0;
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-	sdbt = (unsigned long *) cb->worker_entry;
+-
+-	if (!sdbt || !*sdbt)
+-		return -EINVAL;
+-
+-	if (ext_params & CPU_MF_INT_SF_PRA)
+-		cb->req_alert++;
+-
+-	if (ext_params & CPU_MF_INT_SF_LSDA)
+-		cb->loss_of_sample_data++;
+-
+-	if (ext_params & CPU_MF_INT_SF_IAE) {
+-		cb->invalid_entry_address++;
+-		rc = -EINVAL;
+-	}
+-
+-	if (ext_params & CPU_MF_INT_SF_ISE) {
+-		cb->incorrect_sdbt_entry++;
+-		rc = -EINVAL;
+-	}
+-
+-	if (ext_params & CPU_MF_INT_SF_SACA) {
+-		cb->sample_auth_change_alert++;
+-		rc = -EINVAL;
+-	}
+-
+-	return rc;
+-}
+-
+-static void worker_on_finish(unsigned int cpu)
+-{
+-	int rc, i;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-	if (cb->finish) {
+-		rc = smp_ctl_qsi(cpu);
+-		WARN_ON(rc);
+-		if (cb->qsi.es) {
+-			printk(KERN_INFO
+-				"hwsampler: CPU %d, CPUMF Stop/Deactivate sampling.\n",
+-				cpu);
+-			rc = smp_ctl_ssctl_stop(cpu);
+-			if (rc)
+-				printk(KERN_INFO
+-					"hwsampler: CPU %d, CPUMF Deactivation failed.\n",
+-					cpu);
+-
+-			for_each_online_cpu(i) {
+-				if (i == cpu)
+-					continue;
+-				if (!cb->finish) {
+-					cb->finish = 1;
+-					queue_work_on(i, hws_wq,
+-						&cb->worker);
+-				}
+-			}
+-		}
+-	}
+-}
+-
+-static void worker_on_interrupt(unsigned int cpu)
+-{
+-	unsigned long *sdbt;
+-	unsigned char done;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-	sdbt = (unsigned long *) cb->worker_entry;
+-
+-	done = 0;
+-	/* do not proceed if stop was entered,
+-	 * forget the buffers not yet processed */
+-	while (!done && !cb->stop_mode) {
+-		unsigned long *trailer;
+-		struct hws_trailer_entry *te;
+-		unsigned long *dear = 0;
+-
+-		trailer = trailer_entry_ptr(*sdbt);
+-		/* leave loop if no more work to do */
+-		if (!(*trailer & SDB_TE_BUFFER_FULL_MASK)) {
+-			done = 1;
+-			if (!hws_flush_all)
+-				continue;
+-		}
+-
+-		te = (struct hws_trailer_entry *)trailer;
+-		cb->sample_overflow += te->overflow;
+-
+-		add_samples_to_oprofile(cpu, sdbt, dear);
+-
+-		/* reset trailer */
+-		xchg((unsigned char *) te, 0x40);
+-
+-		/* advance to next sdb slot in current sdbt */
+-		sdbt++;
+-		/* in case link bit is set use address w/o link bit */
+-		if (is_link_entry(sdbt))
+-			sdbt = get_next_sdbt(sdbt);
+-
+-		cb->worker_entry = (unsigned long)sdbt;
+-	}
+-}
+-
+-static void add_samples_to_oprofile(unsigned int cpu, unsigned long *sdbt,
+-		unsigned long *dear)
+-{
+-	struct hws_basic_entry *sample_data_ptr;
+-	unsigned long *trailer;
+-
+-	trailer = trailer_entry_ptr(*sdbt);
+-	if (dear) {
+-		if (dear > trailer)
+-			return;
+-		trailer = dear;
+-	}
+-
+-	sample_data_ptr = (struct hws_basic_entry *)(*sdbt);
+-
+-	while ((unsigned long *)sample_data_ptr < trailer) {
+-		struct pt_regs *regs = NULL;
+-		struct task_struct *tsk = NULL;
+-
+-		/*
+-		 * Check sampling mode, 1 indicates basic (=customer) sampling
+-		 * mode.
+-		 */
+-		if (sample_data_ptr->def != 1) {
+-			/* sample slot is not yet written */
+-			break;
+-		} else {
+-			/* make sure we don't use it twice,
+-			 * the next time the sampler will set it again */
+-			sample_data_ptr->def = 0;
+-		}
+-
+-		/* Get pt_regs. */
+-		if (sample_data_ptr->P == 1) {
+-			/* userspace sample */
+-			unsigned int pid = sample_data_ptr->prim_asn;
+-			if (!counter_config.user)
+-				goto skip_sample;
+-			rcu_read_lock();
+-			tsk = pid_task(find_vpid(pid), PIDTYPE_PID);
+-			if (tsk)
+-				regs = task_pt_regs(tsk);
+-			rcu_read_unlock();
+-		} else {
+-			/* kernelspace sample */
+-			if (!counter_config.kernel)
+-				goto skip_sample;
+-			regs = task_pt_regs(current);
+-		}
+-
+-		mutex_lock(&hws_sem);
+-		oprofile_add_ext_hw_sample(sample_data_ptr->ia, regs, 0,
+-				!sample_data_ptr->P, tsk);
+-		mutex_unlock(&hws_sem);
+-	skip_sample:
+-		sample_data_ptr++;
+-	}
+-}
+-
+-static void worker(struct work_struct *work)
+-{
+-	unsigned int cpu;
+-	int ext_params;
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = container_of(work, struct hws_cpu_buffer, worker);
+-	cpu = smp_processor_id();
+-	ext_params = atomic_xchg(&cb->ext_params, 0);
+-
+-	if (!cb->worker_entry)
+-		worker_on_start(cpu);
+-
+-	if (worker_check_error(cpu, ext_params))
+-		return;
+-
+-	if (!cb->finish)
+-		worker_on_interrupt(cpu);
+-
+-	if (cb->finish)
+-		worker_on_finish(cpu);
+-}
+-
+-/**
+- * hwsampler_allocate() - allocate memory for the hardware sampler
+- * @sdbt:  number of SDBTs per online CPU (must be > 0)
+- * @sdb:   number of SDBs per SDBT (minimum 1, maximum 511)
+- *
+- * Returns 0 on success, !0 on failure.
+- */
+-int hwsampler_allocate(unsigned long sdbt, unsigned long sdb)
+-{
+-	int cpu, rc;
+-	mutex_lock(&hws_sem);
+-
+-	rc = -EINVAL;
+-	if (hws_state != HWS_DEALLOCATED)
+-		goto allocate_exit;
+-
+-	if (sdbt < 1)
+-		goto allocate_exit;
+-
+-	if (sdb > MAX_NUM_SDB || sdb < MIN_NUM_SDB)
+-		goto allocate_exit;
+-
+-	num_sdbt = sdbt;
+-	num_sdb = sdb;
+-
+-	oom_killer_was_active = 0;
+-	register_oom_notifier(&hws_oom_notifier);
+-
+-	for_each_online_cpu(cpu) {
+-		if (allocate_sdbt(cpu)) {
+-			unregister_oom_notifier(&hws_oom_notifier);
+-			goto allocate_error;
+-		}
+-	}
+-	unregister_oom_notifier(&hws_oom_notifier);
+-	if (oom_killer_was_active)
+-		goto allocate_error;
+-
+-	hws_state = HWS_STOPPED;
+-	rc = 0;
+-
+-allocate_exit:
+-	mutex_unlock(&hws_sem);
+-	return rc;
+-
+-allocate_error:
+-	rc = -ENOMEM;
+-	printk(KERN_ERR "hwsampler: CPUMF Memory allocation failed.\n");
+-	goto allocate_exit;
+-}
+-
+-/**
+- * hwsampler_deallocate() - deallocate hardware sampler memory
+- *
+- * Returns 0 on success, !0 on failure.
+- */
+-int hwsampler_deallocate(void)
+-{
+-	int rc;
+-
+-	mutex_lock(&hws_sem);
+-
+-	rc = -EINVAL;
+-	if (hws_state != HWS_STOPPED)
+-		goto deallocate_exit;
+-
+-	irq_subclass_unregister(IRQ_SUBCLASS_MEASUREMENT_ALERT);
+-	hws_alert = 0;
+-	deallocate_sdbt();
+-
+-	hws_state = HWS_DEALLOCATED;
+-	rc = 0;
+-
+-deallocate_exit:
+-	mutex_unlock(&hws_sem);
+-
+-	return rc;
+-}
+-
+-unsigned long hwsampler_query_min_interval(void)
+-{
+-	return min_sampler_rate;
+-}
+-
+-unsigned long hwsampler_query_max_interval(void)
+-{
+-	return max_sampler_rate;
+-}
+-
+-unsigned long hwsampler_get_sample_overflow_count(unsigned int cpu)
+-{
+-	struct hws_cpu_buffer *cb;
+-
+-	cb = &per_cpu(sampler_cpu_buffer, cpu);
+-
+-	return cb->sample_overflow;
+-}
+-
+-int hwsampler_setup(void)
+-{
+-	int rc;
+-	int cpu;
+-	struct hws_cpu_buffer *cb;
+-
+-	mutex_lock(&hws_sem);
+-
+-	rc = -EINVAL;
+-	if (hws_state)
+-		goto setup_exit;
+-
+-	hws_state = HWS_INIT;
+-
+-	init_all_cpu_buffers();
+-
+-	rc = check_hardware_prerequisites();
+-	if (rc)
+-		goto setup_exit;
+-
+-	rc = check_qsi_on_setup();
+-	if (rc)
+-		goto setup_exit;
+-
+-	rc = -EINVAL;
+-	hws_wq = create_workqueue("hwsampler");
+-	if (!hws_wq)
+-		goto setup_exit;
+-
+-	register_cpu_notifier(&hws_cpu_notifier);
+-
+-	for_each_online_cpu(cpu) {
+-		cb = &per_cpu(sampler_cpu_buffer, cpu);
+-		INIT_WORK(&cb->worker, worker);
+-		rc = smp_ctl_qsi(cpu);
+-		WARN_ON(rc);
+-		if (min_sampler_rate != cb->qsi.min_sampl_rate) {
+-			if (min_sampler_rate) {
+-				printk(KERN_WARNING
+-					"hwsampler: different min sampler rate values.\n");
+-				if (min_sampler_rate < cb->qsi.min_sampl_rate)
+-					min_sampler_rate =
+-						cb->qsi.min_sampl_rate;
+-			} else
+-				min_sampler_rate = cb->qsi.min_sampl_rate;
+-		}
+-		if (max_sampler_rate != cb->qsi.max_sampl_rate) {
+-			if (max_sampler_rate) {
+-				printk(KERN_WARNING
+-					"hwsampler: different max sampler rate values.\n");
+-				if (max_sampler_rate > cb->qsi.max_sampl_rate)
+-					max_sampler_rate =
+-						cb->qsi.max_sampl_rate;
+-			} else
+-				max_sampler_rate = cb->qsi.max_sampl_rate;
+-		}
+-	}
+-	register_external_irq(EXT_IRQ_MEASURE_ALERT, hws_ext_handler);
+-
+-	hws_state = HWS_DEALLOCATED;
+-	rc = 0;
+-
+-setup_exit:
+-	mutex_unlock(&hws_sem);
+-	return rc;
+-}
+-
+-int hwsampler_shutdown(void)
+-{
+-	int rc;
+-
+-	mutex_lock(&hws_sem);
+-
+-	rc = -EINVAL;
+-	if (hws_state == HWS_DEALLOCATED || hws_state == HWS_STOPPED) {
+-		mutex_unlock(&hws_sem);
+-
+-		if (hws_wq)
+-			flush_workqueue(hws_wq);
+-
+-		mutex_lock(&hws_sem);
+-
+-		if (hws_state == HWS_STOPPED) {
+-			irq_subclass_unregister(IRQ_SUBCLASS_MEASUREMENT_ALERT);
+-			hws_alert = 0;
+-			deallocate_sdbt();
+-		}
+-		if (hws_wq) {
+-			destroy_workqueue(hws_wq);
+-			hws_wq = NULL;
+-		}
+-
+-		unregister_external_irq(EXT_IRQ_MEASURE_ALERT, hws_ext_handler);
+-		hws_state = HWS_INIT;
+-		rc = 0;
+-	}
+-	mutex_unlock(&hws_sem);
+-
+-	unregister_cpu_notifier(&hws_cpu_notifier);
+-
+-	return rc;
+-}
+-
+-/**
+- * hwsampler_start_all() - start hardware sampling on all online CPUs
+- * @rate:  specifies the used interval when samples are taken
+- *
+- * Returns 0 on success, !0 on failure.
+- */
+-int hwsampler_start_all(unsigned long rate)
+-{
+-	int rc, cpu;
+-
+-	mutex_lock(&hws_sem);
+-
+-	hws_oom = 0;
+-
+-	rc = -EINVAL;
+-	if (hws_state != HWS_STOPPED)
+-		goto start_all_exit;
+-
+-	interval = rate;
+-
+-	/* fail if rate is not valid */
+-	if (interval < min_sampler_rate || interval > max_sampler_rate)
+-		goto start_all_exit;
+-
+-	rc = check_qsi_on_start();
+-	if (rc)
+-		goto start_all_exit;
+-
+-	prepare_cpu_buffers();
+-
+-	for_each_online_cpu(cpu) {
+-		rc = start_sampling(cpu);
+-		if (rc)
+-			break;
+-	}
+-	if (rc) {
+-		for_each_online_cpu(cpu) {
+-			stop_sampling(cpu);
+-		}
+-		goto start_all_exit;
+-	}
+-	hws_state = HWS_STARTED;
+-	rc = 0;
+-
+-start_all_exit:
+-	mutex_unlock(&hws_sem);
+-
+-	if (rc)
+-		return rc;
+-
+-	register_oom_notifier(&hws_oom_notifier);
+-	hws_oom = 1;
+-	hws_flush_all = 0;
+-	/* now let them in, 1407 CPUMF external interrupts */
+-	hws_alert = 1;
+-	irq_subclass_register(IRQ_SUBCLASS_MEASUREMENT_ALERT);
+-
+-	return 0;
+-}
+-
+-/**
+- * hwsampler_stop_all() - stop hardware sampling on all online CPUs
+- *
+- * Returns 0 on success, !0 on failure.
+- */
+-int hwsampler_stop_all(void)
+-{
+-	int tmp_rc, rc, cpu;
+-	struct hws_cpu_buffer *cb;
+-
+-	mutex_lock(&hws_sem);
+-
+-	rc = 0;
+-	if (hws_state == HWS_INIT) {
+-		mutex_unlock(&hws_sem);
+-		return 0;
+-	}
+-	hws_state = HWS_STOPPING;
+-	mutex_unlock(&hws_sem);
+-
+-	for_each_online_cpu(cpu) {
+-		cb = &per_cpu(sampler_cpu_buffer, cpu);
+-		cb->stop_mode = 1;
+-		tmp_rc = stop_sampling(cpu);
+-		if (tmp_rc)
+-			rc = tmp_rc;
+-	}
+-
+-	if (hws_wq)
+-		flush_workqueue(hws_wq);
+-
+-	mutex_lock(&hws_sem);
+-	if (hws_oom) {
+-		unregister_oom_notifier(&hws_oom_notifier);
+-		hws_oom = 0;
+-	}
+-	hws_state = HWS_STOPPED;
+-	mutex_unlock(&hws_sem);
+-
+-	return rc;
+-}
+diff --git a/arch/s390/oprofile/hwsampler.h b/arch/s390/oprofile/hwsampler.h
+deleted file mode 100644
+index a483d06f2fa7..000000000000
+--- a/arch/s390/oprofile/hwsampler.h
++++ /dev/null
+@@ -1,63 +0,0 @@
+-/*
+- * CPUMF HW sampler functions and internal structures
+- *
+- *    Copyright IBM Corp. 2010
+- *    Author(s): Heinz Graalfs <graalfs@de.ibm.com>
+- */
+-
+-#ifndef HWSAMPLER_H_
+-#define HWSAMPLER_H_
+-
+-#include <linux/workqueue.h>
+-#include <asm/cpu_mf.h>
+-
+-struct hws_ssctl_request_block     /* SET SAMPLING CONTROLS req block   */
+-{ /* bytes 0 - 7  Bit(s) */
+-	unsigned int s:1;           /* 0: maximum buffer indicator       */
+-	unsigned int h:1;           /* 1: part. level reserved for VM use*/
+-	unsigned long b2_53:52;     /* 2-53: zeros                       */
+-	unsigned int es:1;          /* 54: sampling enable control       */
+-	unsigned int b55_61:7;      /* 55-61: - zeros                    */
+-	unsigned int cs:1;          /* 62: sampling activation control   */
+-	unsigned int b63:1;         /* 63: zero                          */
+-	unsigned long interval;     /* 8-15: sampling interval           */
+-	unsigned long tear;         /* 16-23: TEAR contents              */
+-	unsigned long dear;         /* 24-31: DEAR contents              */
+-	/* 32-63:                                                        */
+-	unsigned long rsvrd1;       /* reserved                          */
+-	unsigned long rsvrd2;       /* reserved                          */
+-	unsigned long rsvrd3;       /* reserved                          */
+-	unsigned long rsvrd4;       /* reserved                          */
+-};
+-
+-struct hws_cpu_buffer {
+-	unsigned long first_sdbt;       /* @ of 1st SDB-Table for this CP*/
+-	unsigned long worker_entry;
+-	unsigned long sample_overflow;  /* taken from SDB ...            */
+-	struct hws_qsi_info_block qsi;
+-	struct hws_ssctl_request_block ssctl;
+-	struct work_struct worker;
+-	atomic_t ext_params;
+-	unsigned long req_alert;
+-	unsigned long loss_of_sample_data;
+-	unsigned long invalid_entry_address;
+-	unsigned long incorrect_sdbt_entry;
+-	unsigned long sample_auth_change_alert;
+-	unsigned int finish:1;
+-	unsigned int oom:1;
+-	unsigned int stop_mode:1;
+-};
+-
+-int hwsampler_setup(void);
+-int hwsampler_shutdown(void);
+-int hwsampler_allocate(unsigned long sdbt, unsigned long sdb);
+-int hwsampler_deallocate(void);
+-unsigned long hwsampler_query_min_interval(void);
+-unsigned long hwsampler_query_max_interval(void);
+-int hwsampler_start_all(unsigned long interval);
+-int hwsampler_stop_all(void);
+-int hwsampler_deactivate(unsigned int cpu);
+-int hwsampler_activate(unsigned int cpu);
+-unsigned long hwsampler_get_sample_overflow_count(unsigned int cpu);
+-
+-#endif /*HWSAMPLER_H_*/
+diff --git a/arch/s390/oprofile/init.c b/arch/s390/oprofile/init.c
+index 791935a65800..16f4c3960b87 100644
+--- a/arch/s390/oprofile/init.c
++++ b/arch/s390/oprofile/init.c
+@@ -10,488 +10,8 @@
+  */
+ 
+ #include <linux/oprofile.h>
+-#include <linux/perf_event.h>
+ #include <linux/init.h>
+-#include <linux/errno.h>
+-#include <linux/fs.h>
+-#include <linux/module.h>
+ #include <asm/processor.h>
+-#include <asm/perf_event.h>
+-
+-#include "../../../drivers/oprofile/oprof.h"
+-
+-#include "hwsampler.h"
+-#include "op_counter.h"
+-
+-#define DEFAULT_INTERVAL	4127518
+-
+-#define DEFAULT_SDBT_BLOCKS	1
+-#define DEFAULT_SDB_BLOCKS	511
+-
+-static unsigned long oprofile_hw_interval = DEFAULT_INTERVAL;
+-static unsigned long oprofile_min_interval;
+-static unsigned long oprofile_max_interval;
+-
+-static unsigned long oprofile_sdbt_blocks = DEFAULT_SDBT_BLOCKS;
+-static unsigned long oprofile_sdb_blocks = DEFAULT_SDB_BLOCKS;
+-
+-static int hwsampler_enabled;
+-static int hwsampler_running;	/* start_mutex must be held to change */
+-static int hwsampler_available;
+-
+-static struct oprofile_operations timer_ops;
+-
+-struct op_counter_config counter_config;
+-
+-enum __force_cpu_type {
+-	reserved = 0,		/* do not force */
+-	timer,
+-};
+-static int force_cpu_type;
+-
+-static int set_cpu_type(const char *str, struct kernel_param *kp)
+-{
+-	if (!strcmp(str, "timer")) {
+-		force_cpu_type = timer;
+-		printk(KERN_INFO "oprofile: forcing timer to be returned "
+-		                 "as cpu type\n");
+-	} else {
+-		force_cpu_type = 0;
+-	}
+-
+-	return 0;
+-}
+-module_param_call(cpu_type, set_cpu_type, NULL, NULL, 0);
+-MODULE_PARM_DESC(cpu_type, "Force legacy basic mode sampling"
+-		           "(report cpu_type \"timer\"");
+-
+-static int __oprofile_hwsampler_start(void)
+-{
+-	int retval;
+-
+-	retval = hwsampler_allocate(oprofile_sdbt_blocks, oprofile_sdb_blocks);
+-	if (retval)
+-		return retval;
+-
+-	retval = hwsampler_start_all(oprofile_hw_interval);
+-	if (retval)
+-		hwsampler_deallocate();
+-
+-	return retval;
+-}
+-
+-static int oprofile_hwsampler_start(void)
+-{
+-	int retval;
+-
+-	hwsampler_running = hwsampler_enabled;
+-
+-	if (!hwsampler_running)
+-		return timer_ops.start();
+-
+-	retval = perf_reserve_sampling();
+-	if (retval)
+-		return retval;
+-
+-	retval = __oprofile_hwsampler_start();
+-	if (retval)
+-		perf_release_sampling();
+-
+-	return retval;
+-}
+-
+-static void oprofile_hwsampler_stop(void)
+-{
+-	if (!hwsampler_running) {
+-		timer_ops.stop();
+-		return;
+-	}
+-
+-	hwsampler_stop_all();
+-	hwsampler_deallocate();
+-	perf_release_sampling();
+-	return;
+-}
+-
+-/*
+- * File ops used for:
+- * /dev/oprofile/0/enabled
+- * /dev/oprofile/hwsampling/hwsampler  (cpu_type = timer)
+- */
+-
+-static ssize_t hwsampler_read(struct file *file, char __user *buf,
+-		size_t count, loff_t *offset)
+-{
+-	return oprofilefs_ulong_to_user(hwsampler_enabled, buf, count, offset);
+-}
+-
+-static ssize_t hwsampler_write(struct file *file, char const __user *buf,
+-		size_t count, loff_t *offset)
+-{
+-	unsigned long val;
+-	int retval;
+-
+-	if (*offset)
+-		return -EINVAL;
+-
+-	retval = oprofilefs_ulong_from_user(&val, buf, count);
+-	if (retval <= 0)
+-		return retval;
+-
+-	if (val != 0 && val != 1)
+-		return -EINVAL;
+-
+-	if (oprofile_started)
+-		/*
+-		 * save to do without locking as we set
+-		 * hwsampler_running in start() when start_mutex is
+-		 * held
+-		 */
+-		return -EBUSY;
+-
+-	hwsampler_enabled = val;
+-
+-	return count;
+-}
+-
+-static const struct file_operations hwsampler_fops = {
+-	.read		= hwsampler_read,
+-	.write		= hwsampler_write,
+-};
+-
+-/*
+- * File ops used for:
+- * /dev/oprofile/0/count
+- * /dev/oprofile/hwsampling/hw_interval  (cpu_type = timer)
+- *
+- * Make sure that the value is within the hardware range.
+- */
+-
+-static ssize_t hw_interval_read(struct file *file, char __user *buf,
+-				size_t count, loff_t *offset)
+-{
+-	return oprofilefs_ulong_to_user(oprofile_hw_interval, buf,
+-					count, offset);
+-}
+-
+-static ssize_t hw_interval_write(struct file *file, char const __user *buf,
+-				 size_t count, loff_t *offset)
+-{
+-	unsigned long val;
+-	int retval;
+-
+-	if (*offset)
+-		return -EINVAL;
+-	retval = oprofilefs_ulong_from_user(&val, buf, count);
+-	if (retval <= 0)
+-		return retval;
+-	if (val < oprofile_min_interval)
+-		oprofile_hw_interval = oprofile_min_interval;
+-	else if (val > oprofile_max_interval)
+-		oprofile_hw_interval = oprofile_max_interval;
+-	else
+-		oprofile_hw_interval = val;
+-
+-	return count;
+-}
+-
+-static const struct file_operations hw_interval_fops = {
+-	.read		= hw_interval_read,
+-	.write		= hw_interval_write,
+-};
+-
+-/*
+- * File ops used for:
+- * /dev/oprofile/0/event
+- * Only a single event with number 0 is supported with this counter.
+- *
+- * /dev/oprofile/0/unit_mask
+- * This is a dummy file needed by the user space tools.
+- * No value other than 0 is accepted or returned.
+- */
+-
+-static ssize_t hwsampler_zero_read(struct file *file, char __user *buf,
+-				    size_t count, loff_t *offset)
+-{
+-	return oprofilefs_ulong_to_user(0, buf, count, offset);
+-}
+-
+-static ssize_t hwsampler_zero_write(struct file *file, char const __user *buf,
+-				     size_t count, loff_t *offset)
+-{
+-	unsigned long val;
+-	int retval;
+-
+-	if (*offset)
+-		return -EINVAL;
+-
+-	retval = oprofilefs_ulong_from_user(&val, buf, count);
+-	if (retval <= 0)
+-		return retval;
+-	if (val != 0)
+-		return -EINVAL;
+-	return count;
+-}
+-
+-static const struct file_operations zero_fops = {
+-	.read		= hwsampler_zero_read,
+-	.write		= hwsampler_zero_write,
+-};
+-
+-/* /dev/oprofile/0/kernel file ops.  */
+-
+-static ssize_t hwsampler_kernel_read(struct file *file, char __user *buf,
+-				     size_t count, loff_t *offset)
+-{
+-	return oprofilefs_ulong_to_user(counter_config.kernel,
+-					buf, count, offset);
+-}
+-
+-static ssize_t hwsampler_kernel_write(struct file *file, char const __user *buf,
+-				      size_t count, loff_t *offset)
+-{
+-	unsigned long val;
+-	int retval;
+-
+-	if (*offset)
+-		return -EINVAL;
+-
+-	retval = oprofilefs_ulong_from_user(&val, buf, count);
+-	if (retval <= 0)
+-		return retval;
+-
+-	if (val != 0 && val != 1)
+-		return -EINVAL;
+-
+-	counter_config.kernel = val;
+-
+-	return count;
+-}
+-
+-static const struct file_operations kernel_fops = {
+-	.read		= hwsampler_kernel_read,
+-	.write		= hwsampler_kernel_write,
+-};
+-
+-/* /dev/oprofile/0/user file ops. */
+-
+-static ssize_t hwsampler_user_read(struct file *file, char __user *buf,
+-				   size_t count, loff_t *offset)
+-{
+-	return oprofilefs_ulong_to_user(counter_config.user,
+-					buf, count, offset);
+-}
+-
+-static ssize_t hwsampler_user_write(struct file *file, char const __user *buf,
+-				    size_t count, loff_t *offset)
+-{
+-	unsigned long val;
+-	int retval;
+-
+-	if (*offset)
+-		return -EINVAL;
+-
+-	retval = oprofilefs_ulong_from_user(&val, buf, count);
+-	if (retval <= 0)
+-		return retval;
+-
+-	if (val != 0 && val != 1)
+-		return -EINVAL;
+-
+-	counter_config.user = val;
+-
+-	return count;
+-}
+-
+-static const struct file_operations user_fops = {
+-	.read		= hwsampler_user_read,
+-	.write		= hwsampler_user_write,
+-};
+-
+-
+-/*
+- * File ops used for: /dev/oprofile/timer/enabled
+- * The value always has to be the inverted value of hwsampler_enabled. So
+- * no separate variable is created. That way we do not need locking.
+- */
+-
+-static ssize_t timer_enabled_read(struct file *file, char __user *buf,
+-				  size_t count, loff_t *offset)
+-{
+-	return oprofilefs_ulong_to_user(!hwsampler_enabled, buf, count, offset);
+-}
+-
+-static ssize_t timer_enabled_write(struct file *file, char const __user *buf,
+-				   size_t count, loff_t *offset)
+-{
+-	unsigned long val;
+-	int retval;
+-
+-	if (*offset)
+-		return -EINVAL;
+-
+-	retval = oprofilefs_ulong_from_user(&val, buf, count);
+-	if (retval <= 0)
+-		return retval;
+-
+-	if (val != 0 && val != 1)
+-		return -EINVAL;
+-
+-	/* Timer cannot be disabled without having hardware sampling.  */
+-	if (val == 0 && !hwsampler_available)
+-		return -EINVAL;
+-
+-	if (oprofile_started)
+-		/*
+-		 * save to do without locking as we set
+-		 * hwsampler_running in start() when start_mutex is
+-		 * held
+-		 */
+-		return -EBUSY;
+-
+-	hwsampler_enabled = !val;
+-
+-	return count;
+-}
+-
+-static const struct file_operations timer_enabled_fops = {
+-	.read		= timer_enabled_read,
+-	.write		= timer_enabled_write,
+-};
+-
+-
+-static int oprofile_create_hwsampling_files(struct dentry *root)
+-{
+-	struct dentry *dir;
+-
+-	dir = oprofilefs_mkdir(root, "timer");
+-	if (!dir)
+-		return -EINVAL;
+-
+-	oprofilefs_create_file(dir, "enabled", &timer_enabled_fops);
+-
+-	if (!hwsampler_available)
+-		return 0;
+-
+-	/* reinitialize default values */
+-	hwsampler_enabled = 1;
+-	counter_config.kernel = 1;
+-	counter_config.user = 1;
+-
+-	if (!force_cpu_type) {
+-		/*
+-		 * Create the counter file system.  A single virtual
+-		 * counter is created which can be used to
+-		 * enable/disable hardware sampling dynamically from
+-		 * user space.  The user space will configure a single
+-		 * counter with a single event.  The value of 'event'
+-		 * and 'unit_mask' are not evaluated by the kernel code
+-		 * and can only be set to 0.
+-		 */
+-
+-		dir = oprofilefs_mkdir(root, "0");
+-		if (!dir)
+-			return -EINVAL;
+-
+-		oprofilefs_create_file(dir, "enabled", &hwsampler_fops);
+-		oprofilefs_create_file(dir, "event", &zero_fops);
+-		oprofilefs_create_file(dir, "count", &hw_interval_fops);
+-		oprofilefs_create_file(dir, "unit_mask", &zero_fops);
+-		oprofilefs_create_file(dir, "kernel", &kernel_fops);
+-		oprofilefs_create_file(dir, "user", &user_fops);
+-		oprofilefs_create_ulong(dir, "hw_sdbt_blocks",
+-					&oprofile_sdbt_blocks);
+-
+-	} else {
+-		/*
+-		 * Hardware sampling can be used but the cpu_type is
+-		 * forced to timer in order to deal with legacy user
+-		 * space tools.  The /dev/oprofile/hwsampling fs is
+-		 * provided in that case.
+-		 */
+-		dir = oprofilefs_mkdir(root, "hwsampling");
+-		if (!dir)
+-			return -EINVAL;
+-
+-		oprofilefs_create_file(dir, "hwsampler",
+-				       &hwsampler_fops);
+-		oprofilefs_create_file(dir, "hw_interval",
+-				       &hw_interval_fops);
+-		oprofilefs_create_ro_ulong(dir, "hw_min_interval",
+-					   &oprofile_min_interval);
+-		oprofilefs_create_ro_ulong(dir, "hw_max_interval",
+-					   &oprofile_max_interval);
+-		oprofilefs_create_ulong(dir, "hw_sdbt_blocks",
+-					&oprofile_sdbt_blocks);
+-	}
+-	return 0;
+-}
+-
+-static int oprofile_hwsampler_init(struct oprofile_operations *ops)
+-{
+-	/*
+-	 * Initialize the timer mode infrastructure as well in order
+-	 * to be able to switch back dynamically.  oprofile_timer_init
+-	 * is not supposed to fail.
+-	 */
+-	if (oprofile_timer_init(ops))
+-		BUG();
+-
+-	memcpy(&timer_ops, ops, sizeof(timer_ops));
+-	ops->create_files = oprofile_create_hwsampling_files;
+-
+-	/*
+-	 * If the user space tools do not support newer cpu types,
+-	 * the force_cpu_type module parameter
+-	 * can be used to always return \"timer\" as cpu type.
+-	 */
+-	if (force_cpu_type != timer) {
+-		struct cpuid id;
+-
+-		get_cpu_id (&id);
+-
+-		switch (id.machine) {
+-		case 0x2097: case 0x2098: ops->cpu_type = "s390/z10"; break;
+-		case 0x2817: case 0x2818: ops->cpu_type = "s390/z196"; break;
+-		case 0x2827: case 0x2828: ops->cpu_type = "s390/zEC12"; break;
+-		case 0x2964: case 0x2965: ops->cpu_type = "s390/z13"; break;
+-		default: return -ENODEV;
+-		}
+-	}
+-
+-	if (hwsampler_setup())
+-		return -ENODEV;
+-
+-	/*
+-	 * Query the range for the sampling interval from the
+-	 * hardware.
+-	 */
+-	oprofile_min_interval = hwsampler_query_min_interval();
+-	if (oprofile_min_interval == 0)
+-		return -ENODEV;
+-	oprofile_max_interval = hwsampler_query_max_interval();
+-	if (oprofile_max_interval == 0)
+-		return -ENODEV;
+-
+-	/* The initial value should be sane */
+-	if (oprofile_hw_interval < oprofile_min_interval)
+-		oprofile_hw_interval = oprofile_min_interval;
+-	if (oprofile_hw_interval > oprofile_max_interval)
+-		oprofile_hw_interval = oprofile_max_interval;
+-
+-	printk(KERN_INFO "oprofile: System z hardware sampling "
+-	       "facility found.\n");
+-
+-	ops->start = oprofile_hwsampler_start;
+-	ops->stop = oprofile_hwsampler_stop;
+-
+-	return 0;
+-}
+-
+-static void oprofile_hwsampler_exit(void)
+-{
+-	hwsampler_shutdown();
+-}
+ 
+ static int __s390_backtrace(void *data, unsigned long address)
+ {
+@@ -514,18 +34,9 @@ static void s390_backtrace(struct pt_regs *regs, unsigned int depth)
+ int __init oprofile_arch_init(struct oprofile_operations *ops)
+ {
+ 	ops->backtrace = s390_backtrace;
+-
+-	/*
+-	 * -ENODEV is not reported to the caller.  The module itself
+-         * will use the timer mode sampling as fallback and this is
+-         * always available.
+-	 */
+-	hwsampler_available = oprofile_hwsampler_init(ops) == 0;
+-
+ 	return 0;
+ }
+ 
+ void oprofile_arch_exit(void)
+ {
+-	oprofile_hwsampler_exit();
+ }
+diff --git a/arch/s390/oprofile/op_counter.h b/arch/s390/oprofile/op_counter.h
+deleted file mode 100644
+index 61b2531eef17..000000000000
+--- a/arch/s390/oprofile/op_counter.h
++++ /dev/null
+@@ -1,21 +0,0 @@
+-/*
+- *   Copyright IBM Corp. 2011
+- *   Author(s): Andreas Krebbel (krebbel@linux.vnet.ibm.com)
+- *
+- * @remark Copyright 2011 OProfile authors
+- */
+-
+-#ifndef OP_COUNTER_H
+-#define OP_COUNTER_H
+-
+-struct op_counter_config {
+-	/* `enabled' maps to the hwsampler_file variable.  */
+-	/* `count' maps to the oprofile_hw_interval variable.  */
+-	/* `event' and `unit_mask' are unused. */
+-	unsigned long kernel;
+-	unsigned long user;
+-};
+-
+-extern struct op_counter_config counter_config;
+-
+-#endif /* OP_COUNTER_H */
+-- 
+2.6.6
