@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 43/52] s390/mm: return key via pointer in get_guest_storage_key
-Date: Tue, 14 Jun 2016 20:57:20 +0200
-Message-ID: <1465930649-181383-44-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 51/52] KVM: s390: trace and count all skey intercepts
+Date: Tue, 14 Jun 2016 20:57:28 +0200
+Message-ID: <201606141857.u5EIs1sb075140@mx0b-001b2d01.pphosted.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,93 +14,67 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's just split returning the key and reporting errors. This makes calling
-code easier and avoids bugs as happened already.
+Let's trace and count all skey handling operations, even if lazy skey
+handling was already activated. Also, don't enable lazy skey handling if
+anything went wrong while enabling skey handling for the SIE.
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h |  3 ++-
- arch/s390/kvm/kvm-s390.c        |  8 ++------
- arch/s390/mm/pgtable.c          | 12 ++++++------
- 3 files changed, 10 insertions(+), 13 deletions(-)
+ arch/s390/kvm/priv.c  | 15 +++++++++------
+ arch/s390/kvm/trace.h |  2 +-
+ 2 files changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 42b968a8..91f0e7b 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -893,7 +893,8 @@ void ptep_zap_key(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
- bool test_and_clear_guest_dirty(struct mm_struct *mm, unsigned long address);
- int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
- 			  unsigned char key, bool nq);
--unsigned long get_guest_storage_key(struct mm_struct *mm, unsigned long addr);
-+int get_guest_storage_key(struct mm_struct *mm, unsigned long addr,
-+			  unsigned char *key);
- 
- /*
-  * Certain architectures need to do special things when PTEs
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d0156d7..ad166c6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1029,7 +1029,6 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index b8327b8..6745c2a 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -152,24 +152,27 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
+ static int __skey_check_enable(struct kvm_vcpu *vcpu)
  {
- 	uint8_t *keys;
- 	uint64_t hva;
--	unsigned long curkey;
- 	int i, r = 0;
+ 	int rc = 0;
++
++	trace_kvm_s390_skey_related_inst(vcpu);
+ 	if (!(vcpu->arch.sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)))
+ 		return rc;
  
- 	if (args->flags != 0)
-@@ -1058,12 +1057,9 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- 			break;
- 		}
- 
--		curkey = get_guest_storage_key(current->mm, hva);
--		if (IS_ERR_VALUE(curkey)) {
--			r = curkey;
-+		r = get_guest_storage_key(current->mm, hva, &keys[i]);
-+		if (r)
- 			break;
--		}
--		keys[i] = curkey;
- 	}
- 	up_read(&current->mm->mmap_sem);
- 
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 4c8d572..3e35298 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -539,9 +539,9 @@ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
+ 	rc = s390_enable_skey();
+-	VCPU_EVENT(vcpu, 3, "%s", "enabling storage keys for guest");
+-	trace_kvm_s390_skey_related_inst(vcpu);
+-	vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
++	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
++	if (!rc)
++		vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
+ 	return rc;
  }
- EXPORT_SYMBOL(set_guest_storage_key);
  
--unsigned long get_guest_storage_key(struct mm_struct *mm, unsigned long addr)
-+int get_guest_storage_key(struct mm_struct *mm, unsigned long addr,
-+			  unsigned char *key)
+ 
+ static int handle_skey(struct kvm_vcpu *vcpu)
  {
--	unsigned char key;
- 	spinlock_t *ptl;
- 	pgste_t pgste;
- 	pte_t *ptep;
-@@ -551,14 +551,14 @@ unsigned long get_guest_storage_key(struct mm_struct *mm, unsigned long addr)
- 		return -EFAULT;
+-	int rc = __skey_check_enable(vcpu);
++	int rc;
  
- 	pgste = pgste_get_lock(ptep);
--	key = (pgste_val(pgste) & (PGSTE_ACC_BITS | PGSTE_FP_BIT)) >> 56;
-+	*key = (pgste_val(pgste) & (PGSTE_ACC_BITS | PGSTE_FP_BIT)) >> 56;
- 	if (!(pte_val(*ptep) & _PAGE_INVALID))
--		key = page_get_storage_key(pte_val(*ptep) & PAGE_MASK);
-+		*key = page_get_storage_key(pte_val(*ptep) & PAGE_MASK);
- 	/* Reflect guest's logical view, not physical */
--	key |= (pgste_val(pgste) & (PGSTE_GR_BIT | PGSTE_GC_BIT)) >> 48;
-+	*key |= (pgste_val(pgste) & (PGSTE_GR_BIT | PGSTE_GC_BIT)) >> 48;
- 	pgste_set_unlock(ptep, pgste);
- 	pte_unmap_unlock(ptep, ptl);
--	return key;
-+	return 0;
- }
- EXPORT_SYMBOL(get_guest_storage_key);
- #endif
+-	if (rc)
+-		return rc;
+ 	vcpu->stat.instruction_storage_key++;
++	rc = __skey_check_enable(vcpu);
++	if (rc)
++		return rc;
+ 
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
+index 1c4586b..4fc9d4e 100644
+--- a/arch/s390/kvm/trace.h
++++ b/arch/s390/kvm/trace.h
+@@ -41,7 +41,7 @@ TRACE_EVENT(kvm_s390_skey_related_inst,
+ 	    TP_fast_assign(
+ 		    VCPU_ASSIGN_COMMON
+ 		    ),
+-	    VCPU_TP_PRINTK("%s", "first instruction related to skeys on vcpu")
++	    VCPU_TP_PRINTK("%s", "storage key related instruction")
+ 	);
+ 
+ TRACE_EVENT(kvm_s390_major_guest_pfault,
 -- 
 2.5.5
