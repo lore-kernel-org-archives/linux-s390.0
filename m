@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 27/52] KVM: s390: handle missing guest-storage-limit-suppression
-Date: Tue, 14 Jun 2016 20:57:04 +0200
-Message-ID: <201606141857.u5EIsUqO007962@mx0a-001b2d01.pphosted.com>
+Subject: [GIT PULL 17/52] s390/crypto: allow to query all known cpacf functions
+Date: Tue, 14 Jun 2016 20:56:54 +0200
+Message-ID: <1465930649-181383-18-git-send-email-borntraeger@de.ibm.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,46 +14,54 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-If guest-storage-limit-suppression is not available, we would for now
-have a valid guest address space with size 0. So let's simply set the
-origin to 0 and the limit to hamax.
+KVM will have to query these functions, let's add at least the query
+capabilities.
+
+PCKMO has RRE format, as bit 16-31 are ignored, we can still use the
+existing function. As PCKMO won't touch the cc, let's force it to 0
+upfront.
 
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Acked-by: Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 4 +++-
- arch/s390/kvm/kvm-s390.c         | 4 ++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/cpacf.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index b2a83a0..9eed5c1 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -186,7 +186,9 @@ struct kvm_s390_sie_block {
- 	__u32	scaol;			/* 0x0064 */
- 	__u8	reserved68[4];		/* 0x0068 */
- 	__u32	todpr;			/* 0x006c */
--	__u8	reserved70[32];		/* 0x0070 */
-+	__u8	reserved70[16];		/* 0x0070 */
-+	__u64	mso;			/* 0x0080 */
-+	__u64	msl;			/* 0x0088 */
- 	psw_t	gpsw;			/* 0x0090 */
- 	__u64	gg14;			/* 0x00a0 */
- 	__u64	gg15;			/* 0x00a8 */
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f695c6e..2a23955 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1897,6 +1897,10 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- 	vcpu->arch.sie_block = &sie_page->sie_block;
- 	vcpu->arch.sie_block->itdba = (unsigned long) &sie_page->itdb;
+diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
+index 1a82cf2..d28621d 100644
+--- a/arch/s390/include/asm/cpacf.h
++++ b/arch/s390/include/asm/cpacf.h
+@@ -20,6 +20,9 @@
+ #define CPACF_KMC		0xb92f		/* MSA	*/
+ #define CPACF_KIMD		0xb93e		/* MSA	*/
+ #define CPACF_KLMD		0xb93f		/* MSA	*/
++#define CPACF_PCKMO		0xb928		/* MSA3 */
++#define CPACF_KMF		0xb92a		/* MSA4 */
++#define CPACF_KMO		0xb92b		/* MSA4 */
+ #define CPACF_PCC		0xb92c		/* MSA4 */
+ #define CPACF_KMCTR		0xb92d		/* MSA4 */
+ #define CPACF_PPNO		0xb93c		/* MSA5 */
+@@ -136,6 +139,7 @@ static inline void __cpacf_query(unsigned int opcode, unsigned char *status)
+ 	register unsigned long r1 asm("1") = (unsigned long) status;
  
-+	/* the real guest size will always be smaller than msl */
-+	vcpu->arch.sie_block->mso = 0;
-+	vcpu->arch.sie_block->msl = sclp.hamax;
-+
- 	vcpu->arch.sie_block->icpua = id;
- 	spin_lock_init(&vcpu->arch.local_int.lock);
- 	vcpu->arch.local_int.float_int = &kvm->arch.float_int;
+ 	asm volatile(
++		"	spm 0\n" /* pckmo doesn't change the cc */
+ 		/* Parameter registers are ignored, but may not be 0 */
+ 		"0:	.insn	rrf,%[opc] << 16,2,2,2,0\n"
+ 		"	brc	1,0b\n"	/* handle partial completion */
+@@ -157,6 +161,12 @@ static inline int cpacf_query(unsigned int opcode, unsigned int func)
+ 		if (!test_facility(17))	/* check for MSA */
+ 			return 0;
+ 		break;
++	case CPACF_PCKMO:
++		if (!test_facility(76))	/* check for MSA3 */
++			return 0;
++		break;
++	case CPACF_KMF:
++	case CPACF_KMO:
+ 	case CPACF_PCC:
+ 	case CPACF_KMCTR:
+ 		if (!test_facility(77))	/* check for MSA4 */
 -- 
 2.5.5
