@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 19/52] s390/sclp: detect 64-bit-SCAO facility
-Date: Tue, 14 Jun 2016 20:56:56 +0200
-Message-ID: <201606141857.u5EIs1RW040015@mx0b-001b2d01.pphosted.com>
+Subject: [GIT PULL 27/52] KVM: s390: handle missing guest-storage-limit-suppression
+Date: Tue, 14 Jun 2016 20:57:04 +0200
+Message-ID: <201606141857.u5EIsUqO007962@mx0a-001b2d01.pphosted.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,41 +14,46 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's correctly detect that facility, so we can correctly handle its
-abscence later on.
+If guest-storage-limit-suppression is not available, we would for now
+have a valid guest address space with size 0. So let's simply set the
+origin to 0 and the limit to hamax.
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/sclp.h   | 1 +
- drivers/s390/char/sclp_early.c | 1 +
- 2 files changed, 2 insertions(+)
+ arch/s390/include/asm/kvm_host.h | 4 +++-
+ arch/s390/kvm/kvm-s390.c         | 4 ++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
-index 49736a0..5214000 100644
---- a/arch/s390/include/asm/sclp.h
-+++ b/arch/s390/include/asm/sclp.h
-@@ -59,6 +59,7 @@ struct sclp_info {
- 	unsigned char has_hvs : 1;
- 	unsigned char has_esca : 1;
- 	unsigned char has_sief2 : 1;
-+	unsigned char has_64bscao : 1;
- 	unsigned int ibc;
- 	unsigned int mtid;
- 	unsigned int mtid_cp;
-diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
-index 0ac520d..211eb86a 100644
---- a/drivers/s390/char/sclp_early.c
-+++ b/drivers/s390/char/sclp_early.c
-@@ -114,6 +114,7 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
- 	sclp.facilities = sccb->facilities;
- 	sclp.has_sprp = !!(sccb->fac84 & 0x02);
- 	sclp.has_core_type = !!(sccb->fac84 & 0x01);
-+	sclp.has_64bscao = !!(sccb->fac116 & 0x80);
- 	sclp.has_esca = !!(sccb->fac116 & 0x08);
- 	sclp.has_hvs = !!(sccb->fac119 & 0x80);
- 	if (sccb->fac85 & 0x02)
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index b2a83a0..9eed5c1 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -186,7 +186,9 @@ struct kvm_s390_sie_block {
+ 	__u32	scaol;			/* 0x0064 */
+ 	__u8	reserved68[4];		/* 0x0068 */
+ 	__u32	todpr;			/* 0x006c */
+-	__u8	reserved70[32];		/* 0x0070 */
++	__u8	reserved70[16];		/* 0x0070 */
++	__u64	mso;			/* 0x0080 */
++	__u64	msl;			/* 0x0088 */
+ 	psw_t	gpsw;			/* 0x0090 */
+ 	__u64	gg14;			/* 0x00a0 */
+ 	__u64	gg15;			/* 0x00a8 */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index f695c6e..2a23955 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1897,6 +1897,10 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+ 	vcpu->arch.sie_block = &sie_page->sie_block;
+ 	vcpu->arch.sie_block->itdba = (unsigned long) &sie_page->itdb;
+ 
++	/* the real guest size will always be smaller than msl */
++	vcpu->arch.sie_block->mso = 0;
++	vcpu->arch.sie_block->msl = sclp.hamax;
++
+ 	vcpu->arch.sie_block->icpua = id;
+ 	spin_lock_init(&vcpu->arch.local_int.lock);
+ 	vcpu->arch.local_int.float_int = &kvm->arch.float_int;
 -- 
 2.5.5
