@@ -1,34 +1,51 @@
-From: Davidlohr Bueso <dave@stgolabs.net>
-Subject: Re: [RFC PATCH-tip 2/6] locking/rwsem: Enable optional count-based
- spinning on reader
-Date: Tue, 14 Jun 2016 11:27:57 -0700
-Message-ID: <20160614182757.GA15903@linux-80c1.suse>
+From: Waiman Long <waiman.long@hpe.com>
+Subject: Re: [RFC PATCH-tip 6/6] xfs: Enable reader optimistic spinning for
+	DAX inodes
+Date: Tue, 14 Jun 2016 15:08:56 -0400
+Message-ID: <57605648.6060705@hpe.com>
 References: <1465927959-39719-1-git-send-email-Waiman.Long@hpe.com>
- <1465927959-39719-3-git-send-email-Waiman.Long@hpe.com>
+	<1465927959-39719-7-git-send-email-Waiman.Long@hpe.com>
+	<20160614182423.GA6330@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1465927959-39719-3-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-alpha-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <xfs-bounces@oss.sgi.com>
+In-Reply-To: <20160614182423.GA6330@infradead.org>
+List-Unsubscribe: <http://oss.sgi.com/mailman/options/xfs>,
+	<mailto:xfs-request@oss.sgi.com?subject=unsubscribe>
+List-Archive: <http://oss.sgi.com/pipermail/xfs>
+List-Post: <mailto:xfs@oss.sgi.com>
+List-Help: <mailto:xfs-request@oss.sgi.com?subject=help>
+List-Subscribe: <http://oss.sgi.com/mailman/listinfo/xfs>,
+	<mailto:xfs-request@oss.sgi.com?subject=subscribe>
+Errors-To: xfs-bounces@oss.sgi.com
+Sender: xfs-bounces@oss.sgi.com
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Waiman Long <Waiman.Long@hpe.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, xfs@oss.sgi.com, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Scott J Norton <scott.norton@hpe.com>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, linux-kernel@vger.kernel.org, xfs@oss.sgi.com, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, Douglas Hatch <doug.hatch@hpe.com>, Jason Low <jason.low2@hp.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 14 Jun 2016, Waiman Long wrote:
+On 06/14/2016 02:24 PM, Christoph Hellwig wrote:
+> On Tue, Jun 14, 2016 at 02:12:39PM -0400, Waiman Long wrote:
+>> This patch enables reader optimistic spinning for inodes that are
+>> under a DAX-based mount point.
+>>
+>> On a 4-socket Haswell machine running on a 4.7-rc1 tip-based kernel,
+>> the fio test with multithreaded randrw and randwrite tests on the
+>> same file on a XFS partition on top of a NVDIMM with DAX were run,
+>> the aggregated bandwidths before and after the patch were as follows:
+> And why is this specific to DAX?  Many I/O operations already never
+> got out to disk, and ilock is mostly held for operations that have
+> nothing to do with disk I/O.
 
->This patch provides a way for the kernel code to designate specific
->rwsems to be more aggressive in term of optimistic spinning that the
->writers will continue to spin for some additional count-based time to
->see if it can get the lock before sleeping. This aggressive spinning
->mode should only be used on rwsems where the readers are unlikely to
->go to sleep.
+It is just a showcase for the rwsem change. We can certainly have more 
+use cases.
 
-Yikes, exposing this sort of thing makes me _very_ uneasy, not to mention
-the ad-hoc nature and its easiness to mess up. I'm not really for this, even
-if it shows extraordinary performance boosts on benchmarks.
+Cheers,
+Longman
 
-Thanks,
-Davidlohr
+_______________________________________________
+xfs mailing list
+xfs@oss.sgi.com
+http://oss.sgi.com/mailman/listinfo/xfs
