@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 20/52] KVM: s390: handle missing 64-bit-SCAO facility
-Date: Tue, 14 Jun 2016 20:56:57 +0200
-Message-ID: <201606141857.u5EIs0ZL135578@mx0a-001b2d01.pphosted.com>
+Subject: [GIT PULL 26/52] s390/sclp: detect guest-storage-limit-suppression
+Date: Tue, 14 Jun 2016 20:57:03 +0200
+Message-ID: <1465930649-181383-27-git-send-email-borntraeger@de.ibm.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,63 +14,40 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Without that facility, we may only use scaol. So fallback
-to DMA allocation in that case, so we won't overwrite random memory
-via the SIE.
-
-Also disallow ESCA, so we don't have to handle that allocation case.
+Let's detect that facility.
 
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/sclp.h   | 1 +
+ drivers/s390/char/sclp_early.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f746a35..efb902c 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -317,8 +317,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 		break;
- 	case KVM_CAP_NR_VCPUS:
- 	case KVM_CAP_MAX_VCPUS:
--		r = sclp.has_esca ? KVM_S390_ESCA_CPU_SLOTS
--				  : KVM_S390_BSCA_CPU_SLOTS;
-+		r = KVM_S390_BSCA_CPU_SLOTS;
-+		if (sclp.has_esca && sclp.has_64bscao)
-+			r = KVM_S390_ESCA_CPU_SLOTS;
- 		break;
- 	case KVM_CAP_NR_MEMSLOTS:
- 		r = KVM_USER_MEM_SLOTS;
-@@ -1295,6 +1296,7 @@ static void sca_dispose(struct kvm *kvm)
- 
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
-+	gfp_t alloc_flags = GFP_KERNEL;
- 	int i, rc;
- 	char debug_name[16];
- 	static unsigned long sca_offset;
-@@ -1319,8 +1321,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	ratelimit_state_init(&kvm->arch.sthyi_limit, 5 * HZ, 500);
- 
- 	kvm->arch.use_esca = 0; /* start with basic SCA */
-+	if (!sclp.has_64bscao)
-+		alloc_flags |= GFP_DMA;
- 	rwlock_init(&kvm->arch.sca_lock);
--	kvm->arch.sca = (struct bsca_block *) get_zeroed_page(GFP_KERNEL);
-+	kvm->arch.sca = (struct bsca_block *) get_zeroed_page(alloc_flags);
- 	if (!kvm->arch.sca)
- 		goto out_err;
- 	spin_lock(&kvm_lock);
-@@ -1567,7 +1571,7 @@ static int sca_can_add_vcpu(struct kvm *kvm, unsigned int id)
- 
- 	if (id < KVM_S390_BSCA_CPU_SLOTS)
- 		return true;
--	if (!sclp.has_esca)
-+	if (!sclp.has_esca || !sclp.has_64bscao)
- 		return false;
- 
- 	mutex_lock(&kvm->lock);
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index fa40ac8..e1450dd 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -63,6 +63,7 @@ struct sclp_info {
+ 	unsigned char has_64bscao : 1;
+ 	unsigned char has_gpere : 1;
+ 	unsigned char has_cmma : 1;
++	unsigned char has_gsls : 1;
+ 	unsigned int ibc;
+ 	unsigned int mtid;
+ 	unsigned int mtid_cp;
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index 366e1a4..99fce6b 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -114,6 +114,7 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
+ 	sclp.facilities = sccb->facilities;
+ 	sclp.has_sprp = !!(sccb->fac84 & 0x02);
+ 	sclp.has_core_type = !!(sccb->fac84 & 0x01);
++	sclp.has_gsls = !!(sccb->fac85 & 0x80);
+ 	sclp.has_64bscao = !!(sccb->fac116 & 0x80);
+ 	sclp.has_cmma = !!(sccb->fac116 & 0x40);
+ 	sclp.has_esca = !!(sccb->fac116 & 0x08);
 -- 
 2.5.5
