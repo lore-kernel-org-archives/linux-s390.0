@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 33/52] KVM: s390: enable PFMFI only if available
-Date: Tue, 14 Jun 2016 20:57:10 +0200
-Message-ID: <1465930649-181383-34-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 39/52] KVM: s390: fixup I/O interrupt traces
+Date: Tue, 14 Jun 2016 20:57:16 +0200
+Message-ID: <1465930649-181383-40-git-send-email-borntraeger@de.ibm.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,34 +9,83 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+We currently have two issues with the I/O  interrupt injection logging:
+1. All QEMU versions up to 2.6 have a wrong encoding of device numbers
+etc for the I/O interrupt type, so the inject VM_EVENT will have wrong
+data. Let's fix this by using the interrupt parameters and not the
+interrupt type number.
+2. We only log in kvm_s390_inject_vm, but not when coming from
+kvm_s390_reinject_io_int or from flic. Let's move the logging to the
+common __inject_io function.
 
-Let's enable interpretation of PFMFI only if the facility is
-actually available. Emulation code still works in case the guest is
-offered EDAT-1.
+We also enhance the logging for delivery to match the data.
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kvm/interrupt.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 1a239a6..d987eb8 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1843,7 +1843,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 	if (test_kvm_facility(vcpu->kvm, 50) && test_kvm_facility(vcpu->kvm, 73))
- 		vcpu->arch.sie_block->ecb |= 0x10;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 5a80af7..d72c4a8 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -28,9 +28,6 @@
+ #include "gaccess.h"
+ #include "trace-s390.h"
  
--	if (test_kvm_facility(vcpu->kvm, 8))
-+	if (test_kvm_facility(vcpu->kvm, 8) && sclp.has_pfmfi)
- 		vcpu->arch.sie_block->ecb2 |= 0x08;
- 	vcpu->arch.sie_block->eca = 0x1002000U;
- 	if (sclp.has_cei)
+-#define IOINT_SCHID_MASK 0x0000ffff
+-#define IOINT_SSID_MASK 0x00030000
+-#define IOINT_CSSID_MASK 0x03fc0000
+ #define PFAULT_INIT 0x0600
+ #define PFAULT_DONE 0x0680
+ #define VIRTIO_PARAM 0x0d00
+@@ -821,7 +818,14 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
+ 					struct kvm_s390_interrupt_info,
+ 					list);
+ 	if (inti) {
+-		VCPU_EVENT(vcpu, 4, "deliver: I/O 0x%llx", inti->type);
++		if (inti->type & KVM_S390_INT_IO_AI_MASK)
++			VCPU_EVENT(vcpu, 4, "%s", "deliver: I/O (AI)");
++		else
++			VCPU_EVENT(vcpu, 4, "deliver: I/O %x ss %x schid %04x",
++			inti->io.subchannel_id >> 8,
++			inti->io.subchannel_id >> 1 & 0x3,
++			inti->io.subchannel_nr);
++
+ 		vcpu->stat.deliver_io_int++;
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 				inti->type,
+@@ -1415,6 +1419,13 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 	}
+ 	fi->counters[FIRQ_CNTR_IO] += 1;
+ 
++	if (inti->type & KVM_S390_INT_IO_AI_MASK)
++		VM_EVENT(kvm, 4, "%s", "inject: I/O (AI)");
++	else
++		VM_EVENT(kvm, 4, "inject: I/O %x ss %x schid %04x",
++			inti->io.subchannel_id >> 8,
++			inti->io.subchannel_id >> 1 & 0x3,
++			inti->io.subchannel_nr);
+ 	isc = int_word_to_isc(inti->io.io_int_word);
+ 	list = &fi->lists[FIRQ_LIST_IO_ISC_0 + isc];
+ 	list_add_tail(&inti->list, list);
+@@ -1531,13 +1542,6 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+ 		inti->mchk.mcic = s390int->parm64;
+ 		break;
+ 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
+-		if (inti->type & KVM_S390_INT_IO_AI_MASK)
+-			VM_EVENT(kvm, 5, "%s", "inject: I/O (AI)");
+-		else
+-			VM_EVENT(kvm, 5, "inject: I/O css %x ss %x schid %04x",
+-				 s390int->type & IOINT_CSSID_MASK,
+-				 s390int->type & IOINT_SSID_MASK,
+-				 s390int->type & IOINT_SCHID_MASK);
+ 		inti->io.subchannel_id = s390int->parm >> 16;
+ 		inti->io.subchannel_nr = s390int->parm & 0x0000ffffu;
+ 		inti->io.io_int_parm = s390int->parm64 >> 32;
 -- 
 2.5.5
