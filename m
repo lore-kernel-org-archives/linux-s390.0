@@ -1,97 +1,68 @@
-From: Waiman Long <waiman.long@hpe.com>
-Subject: Re: [RFC PATCH-tip 6/6] xfs: Enable reader optimistic spinning for
-	DAX inodes
-Date: Wed, 15 Jun 2016 14:55:11 -0400
-Message-ID: <5761A48F.1040304@hpe.com>
-References: <1465927959-39719-1-git-send-email-Waiman.Long@hpe.com>
-	<1465927959-39719-7-git-send-email-Waiman.Long@hpe.com>
-	<20160614230613.GB26977@dastard>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <xfs-bounces@oss.sgi.com>
-In-Reply-To: <20160614230613.GB26977@dastard>
-List-Unsubscribe: <http://oss.sgi.com/mailman/options/xfs>,
-	<mailto:xfs-request@oss.sgi.com?subject=unsubscribe>
-List-Archive: <http://oss.sgi.com/pipermail/xfs>
-List-Post: <mailto:xfs@oss.sgi.com>
-List-Help: <mailto:xfs-request@oss.sgi.com?subject=help>
-List-Subscribe: <http://oss.sgi.com/mailman/listinfo/xfs>,
-	<mailto:xfs-request@oss.sgi.com?subject=subscribe>
-Errors-To: xfs-bounces@oss.sgi.com
-Sender: xfs-bounces@oss.sgi.com
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Dave Chinner <david@fromorbit.com>
-Cc: linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Scott J Norton <scott.norton@hpe.com>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, linux-kernel@vger.kernel.org, xfs@oss.sgi.com, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, Douglas Hatch <doug.hatch@hpe.com>, Jason Low <jason.low2@hp.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 11/52] KVM: s390: gaccess: store guest address on ALC prot exceptions
+Date: Tue, 14 Jun 2016 20:56:48 +0200
+Message-ID: <1465930649-181383-12-git-send-email-borntraeger@de.ibm.com>
+References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/14/2016 07:06 PM, Dave Chinner wrote:
-> On Tue, Jun 14, 2016 at 02:12:39PM -0400, Waiman Long wrote:
->> This patch enables reader optimistic spinning for inodes that are
->> under a DAX-based mount point.
->>
->> On a 4-socket Haswell machine running on a 4.7-rc1 tip-based kernel,
->> the fio test with multithreaded randrw and randwrite tests on the
->> same file on a XFS partition on top of a NVDIMM with DAX were run,
->> the aggregated bandwidths before and after the patch were as follows:
->>
->>    Test      BW before patch     BW after patch  % change
->>    ----      ---------------     --------------  --------
->>    randrw        1352 MB/s          2164 MB/s      +60%
->>    randwrite     1710 MB/s          2550 MB/s      +49%
->>
->> Signed-off-by: Waiman Long<Waiman.Long@hpe.com>
->> ---
->>   fs/xfs/xfs_icache.c |    9 +++++++++
->>   1 files changed, 9 insertions(+), 0 deletions(-)
->>
->> diff --git a/fs/xfs/xfs_icache.c b/fs/xfs/xfs_icache.c
->> index 99ee6ee..09f284f 100644
->> --- a/fs/xfs/xfs_icache.c
->> +++ b/fs/xfs/xfs_icache.c
->> @@ -71,6 +71,15 @@ xfs_inode_alloc(
->>
->>   	mrlock_init(&ip->i_iolock, MRLOCK_BARRIER, "xfsio", ip->i_ino);
->>
->> +	/*
->> +	 * Enable reader spinning for DAX nount point
->> +	 */
->> +	if (mp->m_flags&  XFS_MOUNT_DAX) {
->> +		rwsem_set_rspin_threshold(&ip->i_iolock.mr_lock);
->> +		rwsem_set_rspin_threshold(&ip->i_mmaplock.mr_lock);
->> +		rwsem_set_rspin_threshold(&ip->i_lock.mr_lock);
->> +	}
-> That's wrong. DAX is a per-inode flag, not a mount wide flag. This
-> needs to be done once the inode has been fully initialised and
-> IS_DAX(inode) can be run.
->
-> Also, the benchmark doesn't show that all these locks are being
-> tested by this benchmark. e.g. the i_mmaplock isn't involved in
-> the benchmark's IO paths at all. It's only taken in page faults and
-> truncate paths....
->
-> I'd also like to see how much of the gain comes from the iolock vs
-> the ilock, as the ilock is nested inside the iolock and so
-> contention is much rarer....
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-This patch has now been superseded by a second one where changes to the 
-xfs code is no longer needed. The new patch will enable reader spinning 
-for all rwsem and dynamically disable it depending on past history.
+Let's pass the effective guest address to get_vcpu_asce(), so we
+can properly set the guest address in case we inject an ALC protection
+exception.
 
-> As it is, I'm *extremely* paranoid when it comes to changes to core
-> locking like this. Performance is secondary to correctness, and we
-> need much more than just a few benchmarks to verify there aren't
-> locking bugs being introduced....
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/gaccess.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-The core rwsem locking logic hasn't been changed. There are some minor 
-changes, however, on what RWSEM_WAITING_BIAS value to use that requires 
-more eyeballs to make sure that it hasn't introduced any new bug.
-
-Cheers,
-Longman
-
-_______________________________________________
-xfs mailing list
-xfs@oss.sgi.com
-http://oss.sgi.com/mailman/listinfo/xfs
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 66938d2..c0da9e9 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -477,7 +477,7 @@ enum {
+ };
+ 
+ static int get_vcpu_asce(struct kvm_vcpu *vcpu, union asce *asce,
+-			 ar_t ar, enum gacc_mode mode)
++			 unsigned long ga, ar_t ar, enum gacc_mode mode)
+ {
+ 	int rc;
+ 	struct psw_bits psw = psw_bits(vcpu->arch.sie_block->gpsw);
+@@ -519,6 +519,7 @@ static int get_vcpu_asce(struct kvm_vcpu *vcpu, union asce *asce,
+ 			vcpu->arch.pgm.exc_access_id = ar;
+ 			break;
+ 		case PGM_PROTECTION:
++			tec_bits->addr = ga >> PAGE_SHIFT;
+ 			tec_bits->b60 = 1;
+ 			tec_bits->b61 = 1;
+ 			break;
+@@ -783,7 +784,8 @@ int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, ar_t ar, void *data,
+ 
+ 	if (!len)
+ 		return 0;
+-	rc = get_vcpu_asce(vcpu, &asce, ar, mode);
++	ga = kvm_s390_logical_to_effective(vcpu, ga);
++	rc = get_vcpu_asce(vcpu, &asce, ga, ar, mode);
+ 	if (rc)
+ 		return rc;
+ 	nr_pages = (((ga & ~PAGE_MASK) + len - 1) >> PAGE_SHIFT) + 1;
+@@ -854,7 +856,7 @@ int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva, ar_t ar,
+ 
+ 	gva = kvm_s390_logical_to_effective(vcpu, gva);
+ 	tec = (struct trans_exc_code_bits *)&pgm->trans_exc_code;
+-	rc = get_vcpu_asce(vcpu, &asce, ar, mode);
++	rc = get_vcpu_asce(vcpu, &asce, gva, ar, mode);
+ 	tec->addr = gva >> PAGE_SHIFT;
+ 	if (rc)
+ 		return rc;
+-- 
+2.5.5
