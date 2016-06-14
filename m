@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 26/52] s390/sclp: detect guest-storage-limit-suppression
-Date: Tue, 14 Jun 2016 20:57:03 +0200
-Message-ID: <1465930649-181383-27-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 23/52] s390/sclp: detect cmma
+Date: Tue, 14 Jun 2016 20:57:00 +0200
+Message-ID: <201606141857.u5EIs0f9052344@mx0b-001b2d01.pphosted.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,10 +14,9 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's detect that facility.
+Let's detect the Collaborative-memory-management-interpretation facility,
+aka CMM assist, so we can correctly enable cmma later.
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
@@ -26,28 +25,28 @@ Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
  2 files changed, 2 insertions(+)
 
 diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
-index fa40ac8..e1450dd 100644
+index 076f631..fa40ac8 100644
 --- a/arch/s390/include/asm/sclp.h
 +++ b/arch/s390/include/asm/sclp.h
-@@ -63,6 +63,7 @@ struct sclp_info {
+@@ -62,6 +62,7 @@ struct sclp_info {
+ 	unsigned char has_sief2 : 1;
  	unsigned char has_64bscao : 1;
  	unsigned char has_gpere : 1;
- 	unsigned char has_cmma : 1;
-+	unsigned char has_gsls : 1;
++	unsigned char has_cmma : 1;
  	unsigned int ibc;
  	unsigned int mtid;
  	unsigned int mtid_cp;
 diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
-index 366e1a4..99fce6b 100644
+index a05f2d0..366e1a4 100644
 --- a/drivers/s390/char/sclp_early.c
 +++ b/drivers/s390/char/sclp_early.c
-@@ -114,6 +114,7 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
- 	sclp.facilities = sccb->facilities;
+@@ -115,6 +115,7 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
  	sclp.has_sprp = !!(sccb->fac84 & 0x02);
  	sclp.has_core_type = !!(sccb->fac84 & 0x01);
-+	sclp.has_gsls = !!(sccb->fac85 & 0x80);
  	sclp.has_64bscao = !!(sccb->fac116 & 0x80);
- 	sclp.has_cmma = !!(sccb->fac116 & 0x40);
++	sclp.has_cmma = !!(sccb->fac116 & 0x40);
  	sclp.has_esca = !!(sccb->fac116 & 0x08);
+ 	sclp.has_hvs = !!(sccb->fac119 & 0x80);
+ 	if (sccb->fac85 & 0x02)
 -- 
 2.5.5
