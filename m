@@ -1,48 +1,67 @@
 From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip v2 1/6] locking/osq: Make lock/unlock proper acquire/release barrier
-Date: Tue, 14 Jun 2016 18:48:04 -0400
-Message-ID: <1465944489-43440-2-git-send-email-Waiman.Long@hpe.com>
-References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com>
-Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-ia64-owner@vger.kernel.org
+Subject: [RFC PATCH-tip v2 0/6] locking/rwsem: Enable reader optimistic spinning
+Date: Tue, 14 Jun 2016 18:48:03 -0400
+Message-ID: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
 Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The osq_lock() and osq_unlock() function may not provide the necessary
-acquire and release barrier in some cases. This patch makes sure
-that the proper barriers are provided when osq_lock() is successful
-or when osq_unlock() is called.
+v1->v2:
+ - Fixed a 0day build error.
+ - Add a new patch 1 to make osq_lock() a proper acquire memory
+   barrier.
+ - Replaced the explicit enabling of reader spinning by an autotuning
+   mechanism that disable reader spinning for those rwsems that may
+   not benefit from reader spinning.
+ - Remove the last xfs patch as it is no longer necessary.
 
-Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
----
- kernel/locking/osq_lock.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+This patchset enables more aggressive optimistic spinning on
+both readers and writers waiting on a writer or reader owned
+lock. Spinning on writer is done by looking at the on_cpu flag of the
+lock owner. Spinning on readers, on the other hand, is count-based as
+there is no easy way to figure out if all the readers are running. The
+spinner will stop spinning once the count goes to 0. Because of that,
+spinning on readers may hurt performance in some cases.
 
-diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 05a3785..7dd4ee5 100644
---- a/kernel/locking/osq_lock.c
-+++ b/kernel/locking/osq_lock.c
-@@ -115,7 +115,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
- 	 * cmpxchg in an attempt to undo our queueing.
- 	 */
- 
--	while (!READ_ONCE(node->locked)) {
-+	while (!smp_load_acquire(&node->locked)) {
- 		/*
- 		 * If we need to reschedule bail... so we can block.
- 		 */
-@@ -198,7 +198,7 @@ void osq_unlock(struct optimistic_spin_queue *lock)
- 	 * Second most likely case.
- 	 */
- 	node = this_cpu_ptr(&osq_node);
--	next = xchg(&node->next, NULL);
-+	next = xchg_release(&node->next, NULL);
- 	if (next) {
- 		WRITE_ONCE(next->locked, 1);
- 		return;
--- 
-1.7.1
+An autotuning mechanism is used to determine if a rwsem can benefit
+from reader optimistic spinning.
+
+Patch 1 updates the osq_lock() function to make it a proper acquire
+memory barrier.
+
+Patch 2 reduces the length of the blocking window after a read locking
+attempt where writer lock stealing is disabled because of the active
+read lock. It can improve rwsem performance for contended lock. It is
+independent of the rest of the patchset.
+
+Patch 3 puts in place the autotuning mechanism to check if reader
+optimistic spinning should be used or not.
+
+Patch 4 moves down the rwsem_down_read_failed() function for later
+patches.
+
+Patch 5 changes RWSEM_WAITING_BIAS to simpify reader trylock code.
+
+Patch 6 enables readers to do optimistic spinning.
+
+Waiman Long (6):
+  locking/osq: Make lock/unlock proper acquire/release barrier
+  locking/rwsem: Stop active read lock ASAP
+  locking/rwsem: Enable count-based spinning on reader
+  locking/rwsem: move down rwsem_down_read_failed function
+  locking/rwsem: Change RWSEM_WAITING_BIAS for better disambiguation
+  locking/rwsem: Enable spinning readers
+
+ arch/alpha/include/asm/rwsem.h |    7 +-
+ arch/ia64/include/asm/rwsem.h  |    6 +-
+ arch/s390/include/asm/rwsem.h  |    6 +-
+ arch/x86/include/asm/rwsem.h   |   13 ++-
+ include/asm-generic/rwsem.h    |    9 +-
+ include/linux/rwsem.h          |   19 +++-
+ kernel/locking/osq_lock.c      |    4 +-
+ kernel/locking/rwsem-xadd.c    |  238 ++++++++++++++++++++++++++++------------
+ 8 files changed, 209 insertions(+), 93 deletions(-)
