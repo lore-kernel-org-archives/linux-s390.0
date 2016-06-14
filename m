@@ -1,89 +1,50 @@
-From: Toshi Kani <toshi.kani@hpe.com>
-Subject: [PATCH 1/6] genhd: Add GENHD_FL_DAX to gendisk flags
-Date: Mon, 13 Jun 2016 16:21:32 -0600
-Message-ID: <1465856497-19698-2-git-send-email-toshi.kani@hpe.com>
-References: <1465856497-19698-1-git-send-email-toshi.kani@hpe.com>
-Return-path: <linux-raid-owner@vger.kernel.org>
-In-Reply-To: <1465856497-19698-1-git-send-email-toshi.kani@hpe.com>
-Sender: linux-raid-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/dm-devel/>
-List-Post: <mailto:dm-devel@redhat.com>
-To: agk@redhat.com, snitzer@redhat.com, dan.j.williams@intel.com
-Cc: ross.zwisler@linux.intel.com, viro@zeniv.linux.org.uk, axboe@kernel.dk, toshi.kani@hpe.com, linux-nvdimm@lists.01.org, dm-devel@redhat.com, linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+From: Waiman Long <Waiman.Long@hpe.com>
+Subject: [RFC PATCH-tip 0/6] locking/rwsem: Enable reader optimistic spinning
+Date: Tue, 14 Jun 2016 14:12:33 -0400
+Message-ID: <1465927959-39719-1-git-send-email-Waiman.Long@hpe.com>
+Return-path: <linux-ia64-owner@vger.kernel.org>
+Sender: linux-ia64-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, xfs@oss.sgi.com, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, presence of direct_access() in block_device_operations
-indicates support of DAX on its block device.  Because
-block_device_operations is instantiated with 'const', this DAX
-capablity may not be enabled conditinally.
+This patchset adds an option to enable more aggressive optimistic
+spinning on both readers and writers waiting on a writer or reader
+owned lock. Spinning on writer is done by looking at the on_cpu
+flag of the lock owner. Spinning on readers, on the other hand, is
+count-based as there is no easy way to figure out if all the readers
+are running. The spinner will stop spinning once the count goes to
+0. Because of that, spinning on readers may hurt performance in some
+cases. So this feature is optional and has to explicitly enabled for
+those rwsems where the readers are unlikely to go to sleep.
 
-In preparation for supporting DAX to device-mapper devices, add
-GENHD_FL_DAX to gendisk flags to indicate that this block device
-supports DAX.  This will allow to set the DAX capability based on
-how mapped device is composed.
+Patch 1 reduces the length of the blocking window after a read locking
+attempt where writer lock stealing is disabled because of the active
+read lock. It can improve rwsem performance for contended lock. It is
+independent of the rest of the patchset.
 
-Signed-off-by: Toshi Kani <toshi.kani@hpe.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: <linux-s390@vger.kernel.org>
----
- drivers/block/brd.c          |    2 +-
- drivers/nvdimm/pmem.c        |    2 +-
- drivers/s390/block/dcssblk.c |    1 +
- include/linux/genhd.h        |    2 +-
- 4 files changed, 4 insertions(+), 3 deletions(-)
+Patches 2-5 lays the groundwork for enabling reader optimistic spinning.
 
-diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index c04bd9b..43a6765 100644
---- a/drivers/block/brd.c
-+++ b/drivers/block/brd.c
-@@ -518,7 +518,7 @@ static struct brd_device *brd_alloc(int i)
- 	disk->fops		= &brd_fops;
- 	disk->private_data	= brd;
- 	disk->queue		= brd->brd_queue;
--	disk->flags		= GENHD_FL_EXT_DEVT;
-+	disk->flags		= GENHD_FL_EXT_DEVT | GENHD_FL_DAX;
- 	sprintf(disk->disk_name, "ram%d", i);
- 	set_capacity(disk, rd_size * 2);
- 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index 608fc44..3847449 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -295,7 +295,7 @@ static int pmem_attach_disk(struct device *dev,
- 
- 	disk->fops		= &pmem_fops;
- 	disk->queue		= q;
--	disk->flags		= GENHD_FL_EXT_DEVT;
-+	disk->flags		= GENHD_FL_EXT_DEVT | GENHD_FL_DAX;
- 	nvdimm_namespace_disk_name(ndns, disk->disk_name);
- 	disk->driverfs_dev = dev;
- 	set_capacity(disk, (pmem->size - pmem->pfn_pad - pmem->data_offset)
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index bed53c4..60b1857 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -616,6 +616,7 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
- 	dev_info->gd->queue = dev_info->dcssblk_queue;
- 	dev_info->gd->private_data = dev_info;
- 	dev_info->gd->driverfs_dev = &dev_info->dev;
-+	dev_info->gd->flags = GENHD_FL_DAX;
- 	blk_queue_make_request(dev_info->dcssblk_queue, dcssblk_make_request);
- 	blk_queue_logical_block_size(dev_info->dcssblk_queue, 4096);
- 
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 359a8e4..9dc3a3d 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -131,7 +131,7 @@ struct hd_struct {
- };
- 
- #define GENHD_FL_REMOVABLE			1
--/* 2 is unused */
-+#define GENHD_FL_DAX				2
- #define GENHD_FL_MEDIA_CHANGE_NOTIFY		4
- #define GENHD_FL_CD				8
- #define GENHD_FL_UP				16
+Patch 6 enables reader optimistic spinning in XFS for inodes that
+comes from a DAX-enabled mount point on top of persistent memory as
+the CPUs can do I/O directly without waiting or sleeping.
+
+Waiman Long (6):
+  locking/rwsem: Stop active read lock ASAP
+  locking/rwsem: Enable optional count-based spinning on reader
+  locking/rwsem: move down rwsem_down_read_failed function
+  locking/rwsem: Change RWSEM_WAITING_BIAS for better disambiguation
+  locking/rwsem: Enable spinning readers
+  xfs: Enable reader optimistic spinning for DAX inodes
+
+ arch/alpha/include/asm/rwsem.h |    7 +-
+ arch/ia64/include/asm/rwsem.h  |    6 +-
+ arch/s390/include/asm/rwsem.h  |    6 +-
+ arch/x86/include/asm/rwsem.h   |   13 ++-
+ fs/xfs/xfs_icache.c            |    9 ++
+ include/asm-generic/rwsem.h    |    9 +-
+ include/linux/rwsem.h          |   21 ++++-
+ kernel/locking/rwsem-xadd.c    |  212 ++++++++++++++++++++++++++--------------
+ 8 files changed, 192 insertions(+), 91 deletions(-)
