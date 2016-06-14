@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 04/52] KVM: s390: Add operation exception interception handler
-Date: Tue, 14 Jun 2016 20:56:41 +0200
-Message-ID: <1465930649-181383-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 12/52] KVM: s390: gaccess: function for preparing translation exceptions
+Date: Tue, 14 Jun 2016 20:56:49 +0200
+Message-ID: <1465930649-181383-13-git-send-email-borntraeger@de.ibm.com>
 References: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1465930649-181383-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,109 +9,93 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-This commit introduces code that handles operation exception
-interceptions. With this handler we can emulate instructions by using
-illegal opcodes.
+Let's provide a function trans_exc() that can be used for handling
+preparation of translation exceptions on a central basis. We will use
+that function to replace existing code in gaccess.
 
-Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/intercept.c        | 11 +++++++++++
- arch/s390/kvm/kvm-s390.c         |  1 +
- arch/s390/kvm/trace.h            | 21 +++++++++++++++++++++
- 4 files changed, 34 insertions(+)
+ arch/s390/kvm/gaccess.c | 62 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 37b9017..093ea14 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -255,6 +255,7 @@ struct kvm_vcpu_stat {
- 	u32 instruction_stctg;
- 	u32 exit_program_interruption;
- 	u32 exit_instr_and_program;
-+	u32 exit_operation_exception;
- 	u32 deliver_external_call;
- 	u32 deliver_emergency_signal;
- 	u32 deliver_service_signal;
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 2e6b54e..09c13db 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -349,6 +349,15 @@ static int handle_partial_execution(struct kvm_vcpu *vcpu)
- 	return -EOPNOTSUPP;
- }
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index c0da9e9..b6ccb26 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -476,6 +476,68 @@ enum {
+ 	FSI_FETCH   = 2  /* Exception was due to fetch operation */
+ };
  
-+static int handle_operexc(struct kvm_vcpu *vcpu)
-+{
-+	vcpu->stat.exit_operation_exception++;
-+	trace_kvm_s390_handle_operexc(vcpu, vcpu->arch.sie_block->ipa,
-+				      vcpu->arch.sie_block->ipb);
++enum prot_type {
++	PROT_TYPE_LA   = 0,
++	PROT_TYPE_KEYC = 1,
++	PROT_TYPE_ALC  = 2,
++	PROT_TYPE_DAT  = 3,
++};
 +
-+	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
++static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
++		     ar_t ar, enum gacc_mode mode, enum prot_type prot)
++{
++	struct kvm_s390_pgm_info *pgm = &vcpu->arch.pgm;
++	struct trans_exc_code_bits *tec;
++
++	memset(pgm, 0, sizeof(*pgm));
++	pgm->code = code;
++	tec = (struct trans_exc_code_bits *)&pgm->trans_exc_code;
++
++	switch (code) {
++	case PGM_ASCE_TYPE:
++	case PGM_PAGE_TRANSLATION:
++	case PGM_REGION_FIRST_TRANS:
++	case PGM_REGION_SECOND_TRANS:
++	case PGM_REGION_THIRD_TRANS:
++	case PGM_SEGMENT_TRANSLATION:
++		/*
++		 * op_access_id only applies to MOVE_PAGE -> set bit 61
++		 * exc_access_id has to be set to 0 for some instructions. Both
++		 * cases have to be handled by the caller. We can always store
++		 * exc_access_id, as it is undefined for non-ar cases.
++		 */
++		tec->addr = gva >> PAGE_SHIFT;
++		tec->fsi = mode == GACC_STORE ? FSI_STORE : FSI_FETCH;
++		tec->as = psw_bits(vcpu->arch.sie_block->gpsw).as;
++		/* FALL THROUGH */
++	case PGM_ALEN_TRANSLATION:
++	case PGM_ALE_SEQUENCE:
++	case PGM_ASTE_VALIDITY:
++	case PGM_ASTE_SEQUENCE:
++	case PGM_EXTENDED_AUTHORITY:
++		pgm->exc_access_id = ar;
++		break;
++	case PGM_PROTECTION:
++		switch (prot) {
++		case PROT_TYPE_ALC:
++			tec->b60 = 1;
++			/* FALL THROUGH */
++		case PROT_TYPE_DAT:
++			tec->b61 = 1;
++			tec->addr = gva >> PAGE_SHIFT;
++			tec->fsi = mode == GACC_STORE ? FSI_STORE : FSI_FETCH;
++			tec->as = psw_bits(vcpu->arch.sie_block->gpsw).as;
++			/* exc_access_id is undefined for most cases */
++			pgm->exc_access_id = ar;
++			break;
++		default: /* LA and KEYC set b61 to 0, other params undefined */
++			break;
++		}
++		break;
++	}
++	return code;
 +}
 +
- int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ static int get_vcpu_asce(struct kvm_vcpu *vcpu, union asce *asce,
+ 			 unsigned long ga, ar_t ar, enum gacc_mode mode)
  {
- 	if (kvm_is_ucontrol(vcpu->kvm))
-@@ -370,6 +379,8 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 		return handle_validity(vcpu);
- 	case 0x28:
- 		return handle_stop(vcpu);
-+	case 0x2c:
-+		return handle_operexc(vcpu);
- 	case 0x38:
- 		return handle_partial_execution(vcpu);
- 	default:
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6d8ec3a..f0addec 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -63,6 +63,7 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
- 	{ "exit_instruction", VCPU_STAT(exit_instruction) },
- 	{ "exit_program_interruption", VCPU_STAT(exit_program_interruption) },
- 	{ "exit_instr_and_program_int", VCPU_STAT(exit_instr_and_program) },
-+	{ "exit_operation_exception", VCPU_STAT(exit_operation_exception) },
- 	{ "halt_successful_poll", VCPU_STAT(halt_successful_poll) },
- 	{ "halt_attempted_poll", VCPU_STAT(halt_attempted_poll) },
- 	{ "halt_poll_invalid", VCPU_STAT(halt_poll_invalid) },
-diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
-index 916834d..90d26a6 100644
---- a/arch/s390/kvm/trace.h
-+++ b/arch/s390/kvm/trace.h
-@@ -412,6 +412,27 @@ TRACE_EVENT(kvm_s390_handle_stsi,
- 			   __entry->addr)
- 	);
- 
-+TRACE_EVENT(kvm_s390_handle_operexc,
-+	    TP_PROTO(VCPU_PROTO_COMMON, __u16 ipa, __u32 ipb),
-+	    TP_ARGS(VCPU_ARGS_COMMON, ipa, ipb),
-+
-+	    TP_STRUCT__entry(
-+		    VCPU_FIELD_COMMON
-+		    __field(__u64, instruction)
-+		    ),
-+
-+	    TP_fast_assign(
-+		    VCPU_ASSIGN_COMMON
-+		    __entry->instruction = ((__u64)ipa << 48) |
-+		    ((__u64)ipb << 16);
-+		    ),
-+
-+	    VCPU_TP_PRINTK("operation exception on instruction %016llx (%s)",
-+			   __entry->instruction,
-+			   __print_symbolic(icpt_insn_decoder(__entry->instruction),
-+					    icpt_insn_codes))
-+	);
-+
- #endif /* _TRACE_KVM_H */
- 
- /* This part must be outside protection */
 -- 
 2.5.5
