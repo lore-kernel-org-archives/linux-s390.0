@@ -1,106 +1,47 @@
 From: Waiman Long <waiman.long@hpe.com>
-Subject: Re: [RFC PATCH-tip v2 3/6] locking/rwsem: Enable count-based spinning
- on reader
-Date: Wed, 15 Jun 2016 15:28:03 -0400
-Message-ID: <5761AC43.5080707@hpe.com>
-References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com> <1465944489-43440-4-git-send-email-Waiman.Long@hpe.com> <20160615173830.GR30921@twins.programming.kicks-ass.net>
+Subject: Re: [RFC PATCH-tip v2 1/6] locking/osq: Make lock/unlock proper acquire/release
+ barrier
+Date: Wed, 15 Jun 2016 16:04:07 -0400
+Message-ID: <5761B4B7.3070102@hpe.com>
+References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com> <1465944489-43440-2-git-send-email-Waiman.Long@hpe.com> <20160615165659.GC2094@linux-80c1.suse> <20160615171250.GO30921@twins.programming.kicks-ass.net> <5761A7C0.6000709@hpe.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <20160615173830.GR30921@twins.programming.kicks-ass.net>
-Sender: linux-alpha-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5761A7C0.6000709@hpe.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/15/2016 01:38 PM, Peter Zijlstra wrote:
-> On Tue, Jun 14, 2016 at 06:48:06PM -0400, Waiman Long wrote:
->>   static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
->>   {
->> -	bool taken = false;
->> +	bool taken = false, can_spin;
-> I would place the variables without assignment first.
-
-Sure, easy change.
-
->
->> +	int loopcnt;
+On 06/15/2016 03:08 PM, Waiman Long wrote:
+> On 06/15/2016 01:12 PM, Peter Zijlstra wrote:
+>> On Wed, Jun 15, 2016 at 09:56:59AM -0700, Davidlohr Bueso wrote:
+>>> On Tue, 14 Jun 2016, Waiman Long wrote:
+>>>> +++ b/kernel/locking/osq_lock.c
+>>>> @@ -115,7 +115,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
+>>>>      * cmpxchg in an attempt to undo our queueing.
+>>>>      */
+>>>>
+>>>> -    while (!READ_ONCE(node->locked)) {
+>>>> +    while (!smp_load_acquire(&node->locked)) {
+>>> Hmm this being a polling path, that barrier can get pretty expensive 
+>>> and
+>>> last I checked it was unnecessary:
+>> I think he'll go rely on it later on.
 >>
->>   	preempt_disable();
->>
->> @@ -409,6 +412,8 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
->>   	if (!osq_lock(&sem->osq))
->>   		goto done;
->>
->> +	loopcnt = sem->rspin_enabled ? RWSEM_RSPIN_THRESHOLD : 0;
->> +
->>   	/*
->>   	 * Optimistically spin on the owner field and attempt to acquire the
->>   	 * lock whenever the owner changes. Spinning will be stopped when:
->> @@ -416,7 +421,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
->>   	 *  2) readers own the lock as we can't determine if they are
->>   	 *     actively running or not.
->>   	 */
->> -	while (rwsem_spin_on_owner(sem)) {
->> +	while ((can_spin = rwsem_spin_on_owner(sem)) || loopcnt) {
->>   		/*
->>   		 * Try to acquire the lock
->>   		 */
->> @@ -425,13 +430,16 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
->>   			break;
->>   		}
->>
->> +		if (!can_spin&&  loopcnt)
->> +			loopcnt--;
-> This seems to suggest 'can_spin' is a bad name, because if we cannot
-> spin, we do in fact spin anyway?
+>> In any case, its fairly simple to cure, just add
+>> smp_acquire__after_ctrl_dep() at the end. If we bail because
+>> need_resched() we don't need the acquire I think.
 >
-> Maybe call it write_spin or something, which makes it clear that if its
-> not a write spin we'll do a read spin?
-
-I am fine with the write_spin name.
-
+> Yes, I only need the acquire barrier when the locking is successful. 
+> Thanks for the suggestion. I will make the change accordingly.
 >
-> Also, isn't this the wrong level to do loopcnt at?
-> rwsem_spin_on_owner() can have spend any amount of cycles spinning. So
-> you're not counting loops of similar unit.
 
-The loopcnt does not include time spinning on writer. It will be 
-decremented only if the lock is owned by reader (can_spin == false). I 
-will clarify that with additional comments.
-
->> +	/*
->> +	 * Was owner a reader?
->> +	 */
->> +	if (rwsem_owner_is_reader(sem->owner)) {
->> +		/*
->> +		 * Update rspin_enabled for reader spinning
-> full stop and newline?
-
-Sure.
-
->
->> +		 * Increment by 1 if successfully&  decrement by 8 if
->> +		 * unsuccessful.
-> This is bloody obvious from the code, explain why, not what the code
-> does.
-
-Will clarify the comment.
-
->>                                 The decrement amount is kind of arbitrary
->> +		 * and can be adjusted if necessary.
->> +		 */
->> +		if (taken&&  (sem->rspin_enabled<  RWSEM_RSPIN_ENABLED_MAX))
->> +			sem->rspin_enabled++;
->> +		else if (!taken)
->> +			sem->rspin_enabled = (sem->rspin_enabled>= 8)
->> +					   ? sem->rspin_enabled - 8 : 0;
-> This is unreadable and against coding style.
-
-I will fix the coding style problem.
+BTW, when will the smp_acquire__after_ctrl_dep() patch goes into the tip 
+tree? My patch will have a dependency on that when I make the change.
 
 Cheers,
 Longman
