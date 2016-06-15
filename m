@@ -1,93 +1,96 @@
-From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip v2 2/6] locking/rwsem: Stop active read lock ASAP
-Date: Tue, 14 Jun 2016 18:48:05 -0400
-Message-ID: <1465944489-43440-3-git-send-email-Waiman.Long@hpe.com>
+From: Boqun Feng <boqun.feng@gmail.com>
+Subject: Re: [RFC PATCH-tip v2 1/6] locking/osq: Make lock/unlock proper
+ acquire/release barrier
+Date: Wed, 15 Jun 2016 16:04:46 +0800
+Message-ID: <20160615080446.GA28443@insomnia>
 References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-kernel-owner@vger.kernel.org
+ <1465944489-43440-2-git-send-email-Waiman.Long@hpe.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1465944489-43440-2-git-send-email-Waiman.Long@hpe.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
+To: Waiman Long <Waiman.Long@hpe.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, when down_read() fails, the active read locking isn't undone
-until the rwsem_down_read_failed() function grabs the wait_lock. If the
-wait_lock is contended, it may takes a while to get the lock. During
-that period, writer lock stealing will be disabled because of the
-active read lock.
 
-This patch will release the active read lock ASAP so that writer lock
-stealing can happen sooner. The only downside is when the reader is
-the first one in the wait queue as it has to issue another atomic
-operation to update the count.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On a 4-socket Haswell machine running on a 4.7-rc1 tip-based kernel,
-the fio test with multithreaded randrw and randwrite tests on the
-same file on a XFS partition on top of a NVDIMM with DAX were run,
-the aggregated bandwidths before and after the patch were as follows:
+Hi Waiman,
 
-  Test      BW before patch     BW after patch  % change
-  ----      ---------------     --------------  --------
-  randrw        1210 MB/s          1352 MB/s      +12%
-  randwrite     1622 MB/s          1710 MB/s      +5.4%
+On Tue, Jun 14, 2016 at 06:48:04PM -0400, Waiman Long wrote:
+> The osq_lock() and osq_unlock() function may not provide the necessary
+> acquire and release barrier in some cases. This patch makes sure
+> that the proper barriers are provided when osq_lock() is successful
+> or when osq_unlock() is called.
+>=20
+> Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
+> ---
+>  kernel/locking/osq_lock.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
+> index 05a3785..7dd4ee5 100644
+> --- a/kernel/locking/osq_lock.c
+> +++ b/kernel/locking/osq_lock.c
+> @@ -115,7 +115,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
+>  	 * cmpxchg in an attempt to undo our queueing.
+>  	 */
+> =20
+> -	while (!READ_ONCE(node->locked)) {
+> +	while (!smp_load_acquire(&node->locked)) {
+>  		/*
+>  		 * If we need to reschedule bail... so we can block.
+>  		 */
+> @@ -198,7 +198,7 @@ void osq_unlock(struct optimistic_spin_queue *lock)
+>  	 * Second most likely case.
+>  	 */
+>  	node =3D this_cpu_ptr(&osq_node);
+> -	next =3D xchg(&node->next, NULL);
+> +	next =3D xchg_release(&node->next, NULL);
+>  	if (next) {
+>  		WRITE_ONCE(next->locked, 1);
 
-The write-only microbench also showed improvement because some read
-locking was done by the XFS code.
+So we still use WRITE_ONCE() rather than smp_store_release() here?
 
-Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
----
- kernel/locking/rwsem-xadd.c |   19 ++++++++++++++-----
- 1 files changed, 14 insertions(+), 5 deletions(-)
+Though, IIUC, This is fine for all the archs but ARM64, because there
+will always be a xchg_release()/xchg() before the WRITE_ONCE(), which
+carries a necessary barrier to upgrade WRITE_ONCE() to a RELEASE.
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index 2031281..29027c6 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -230,11 +230,18 @@ __rwsem_mark_wake(struct rw_semaphore *sem,
- __visible
- struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- {
--	long count, adjustment = -RWSEM_ACTIVE_READ_BIAS;
-+	long count, adjustment = 0;
- 	struct rwsem_waiter waiter;
- 	struct task_struct *tsk = current;
- 	WAKE_Q(wake_q);
- 
-+	/*
-+	 * Undo read bias from down_read operation, stop active locking.
-+	 * Doing that after taking the wait_lock may block writer lock
-+	 * stealing for too long.
-+	 */
-+	atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
-+
- 	/* set up my own style of waitqueue */
- 	waiter.task = tsk;
- 	waiter.type = RWSEM_WAITING_FOR_READ;
-@@ -244,8 +251,11 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- 		adjustment += RWSEM_WAITING_BIAS;
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
--	/* we're now waiting on the lock, but no longer actively locking */
--	count = atomic_long_add_return(adjustment, &sem->count);
-+	/* we're now waiting on the lock */
-+	if (adjustment)
-+		count = atomic_long_add_return(adjustment, &sem->count);
-+	else
-+		count = atomic_long_read(&sem->count);
- 
- 	/* If there are no active locks, wake the front queued process(es).
- 	 *
-@@ -253,8 +263,7 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- 	 * wake our own waiter to join the existing active readers !
- 	 */
- 	if (count == RWSEM_WAITING_BIAS ||
--	    (count > RWSEM_WAITING_BIAS &&
--	     adjustment != -RWSEM_ACTIVE_READ_BIAS))
-+	    (count > RWSEM_WAITING_BIAS && adjustment))
- 		sem = __rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
- 
- 	raw_spin_unlock_irq(&sem->wait_lock);
--- 
-1.7.1
+Not sure whether it's a problem on ARM64, but I think we certainly need
+to add some comments here, if we count on this trick.
+
+Am I missing something or misunderstanding you here?
+
+Regards,
+Boqun
+
+>  		return;
+> --=20
+> 1.7.1
+>=20
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAABCAAGBQJXYQwZAAoJEEl56MO1B/q4BTEIAJfTXZU/LW00kU5SZGECAbIb
+k/lhU4XFRPM4wCMZNsAgs3aO6V/VE7+F3TMfDdVik0w9zm0wvMGl3ELRTCcDNhgv
+JVguF3wnwfkOIWIG/pPvGaKOGMc/1g6Pi21cxAOceTF5H5roeB7hqcJfZ3fr32gd
+DYko8LgQ8xhqDV0HwIuekIgc7GP+D1sdesOcesntHOEi3xYjdDAPzZHGh0iMGzpv
+cFZVTa1+dTSpJYO3LoF/zcab6yb0q2WBAYZPuLRka9Wq/yJQ230Scq3Lwy+PoJPx
+eN++9Y5oXMaMAUB1PqsNPp4MOucrnakBo8dal7qA2z7k+fEFbWDxU0f5NmQDkeY=
+=mWBt
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--
