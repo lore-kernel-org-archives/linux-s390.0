@@ -1,101 +1,106 @@
 From: Waiman Long <waiman.long@hpe.com>
-Subject: Re: [RFC PATCH-tip v2 5/6] locking/rwsem: Change RWSEM_WAITING_BIAS
- for better disambiguation
-Date: Wed, 15 Jun 2016 15:35:47 -0400
-Message-ID: <5761AE13.9040107@hpe.com>
-References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com> <1465944489-43440-6-git-send-email-Waiman.Long@hpe.com> <20160615174508.GU30921@twins.programming.kicks-ass.net>
+Subject: Re: [RFC PATCH-tip v2 3/6] locking/rwsem: Enable count-based spinning
+ on reader
+Date: Wed, 15 Jun 2016 15:28:03 -0400
+Message-ID: <5761AC43.5080707@hpe.com>
+References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com> <1465944489-43440-4-git-send-email-Waiman.Long@hpe.com> <20160615173830.GR30921@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <20160615174508.GU30921@twins.programming.kicks-ass.net>
-Sender: linux-ia64-owner@vger.kernel.org
+Return-path: <linux-alpha-owner@vger.kernel.org>
+In-Reply-To: <20160615173830.GR30921@twins.programming.kicks-ass.net>
+Sender: linux-alpha-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/15/2016 01:45 PM, Peter Zijlstra wrote:
-> On Tue, Jun 14, 2016 at 06:48:08PM -0400, Waiman Long wrote:
->> +++ b/arch/alpha/include/asm/rwsem.h
->> @@ -17,9 +17,9 @@
->>   #define RWSEM_UNLOCKED_VALUE		0x0000000000000000L
->>   #define RWSEM_ACTIVE_BIAS		0x0000000000000001L
->>   #define RWSEM_ACTIVE_MASK		0x00000000ffffffffL
->> -#define RWSEM_WAITING_BIAS		(-0x0000000100000000L)
->> +#define RWSEM_WAITING_BIAS		0xc000000000000000L
->>   #define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
->> -#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
->> +#define RWSEM_ACTIVE_WRITE_BIAS		(-RWSEM_ACTIVE_MASK)
->> +++ b/arch/ia64/include/asm/rwsem.h
->> @@ -30,9 +30,9 @@
->>   #define RWSEM_UNLOCKED_VALUE		__IA64_UL_CONST(0x0000000000000000)
->>   #define RWSEM_ACTIVE_BIAS		(1L)
->>   #define RWSEM_ACTIVE_MASK		(0xffffffffL)
->> -#define RWSEM_WAITING_BIAS		(-0x100000000L)
->> +#define RWSEM_WAITING_BIAS		(-(1L<<  62))
->>   #define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
->> -#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
->> +#define RWSEM_ACTIVE_WRITE_BIAS		(-RWSEM_ACTIVE_MASK)
->> +++ b/arch/s390/include/asm/rwsem.h
->> @@ -42,9 +42,9 @@
->>   #define RWSEM_UNLOCKED_VALUE	0x0000000000000000L
->>   #define RWSEM_ACTIVE_BIAS	0x0000000000000001L
->>   #define RWSEM_ACTIVE_MASK	0x00000000ffffffffL
->> -#define RWSEM_WAITING_BIAS	(-0x0000000100000000L)
->> +#define RWSEM_WAITING_BIAS	0xc000000000000000L
->>   #define RWSEM_ACTIVE_READ_BIAS	RWSEM_ACTIVE_BIAS
->> -#define RWSEM_ACTIVE_WRITE_BIAS	(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
->> +#define RWSEM_ACTIVE_WRITE_BIAS	(-RWSEM_ACTIVE_MASK)
->> +++ b/arch/x86/include/asm/rwsem.h
->> @@ -41,21 +41,23 @@
->>
->>   /*
->>    * The bias values and the counter type limits the number of
->> - * potential readers/writers to 32767 for 32 bits and 2147483647
->> - * for 64 bits.
->> + * potential writers to 16383 for 32 bits and 1073741823 for 64 bits.
->> + * The combined readers and writers can go up to 65534 for 32-bits and
->> + * 4294967294 for 64-bits.
->>    */
->>
->>   #ifdef CONFIG_X86_64
->>   # define RWSEM_ACTIVE_MASK		0xffffffffL
->> +# define RWSEM_WAITING_BIAS		(-(1L<<  62))
->>   #else
->>   # define RWSEM_ACTIVE_MASK		0x0000ffffL
->> +# define RWSEM_WAITING_BIAS		(-(1L<<  30))
->>   #endif
->>
->>   #define RWSEM_UNLOCKED_VALUE		0x00000000L
->>   #define RWSEM_ACTIVE_BIAS		0x00000001L
->> -#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
->>   #define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
->> -#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
->> +#define RWSEM_ACTIVE_WRITE_BIAS		(-RWSEM_ACTIVE_MASK)
->> +++ b/include/asm-generic/rwsem.h
->> @@ -18,15 +18,16 @@
->>    */
->>   #ifdef CONFIG_64BIT
->>   # define RWSEM_ACTIVE_MASK		0xffffffffL
->> +# define RWSEM_WAITING_BIAS		(-(1L<<  62))
->>   #else
->>   # define RWSEM_ACTIVE_MASK		0x0000ffffL
->> +# define RWSEM_WAITING_BIAS		(-(1L<<  30))
->>   #endif
->>
->>   #define RWSEM_UNLOCKED_VALUE		0x00000000L
->>   #define RWSEM_ACTIVE_BIAS		0x00000001L
->> -#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
->>   #define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
->> -#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
->> +#define RWSEM_ACTIVE_WRITE_BIAS		(-RWSEM_ACTIVE_MASK)
-> Can't we collapse all that? They all seem very similar.
+On 06/15/2016 01:38 PM, Peter Zijlstra wrote:
+> On Tue, Jun 14, 2016 at 06:48:06PM -0400, Waiman Long wrote:
+>>   static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
+>>   {
+>> -	bool taken = false;
+>> +	bool taken = false, can_spin;
+> I would place the variables without assignment first.
 
-Yes, they are actually the same. I think we could extract the macro 
-definitions into asm-generic/rwsem-macros.h, for instance, and make the 
-architecture specific header file include the new generic header.
+Sure, easy change.
+
+>
+>> +	int loopcnt;
+>>
+>>   	preempt_disable();
+>>
+>> @@ -409,6 +412,8 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
+>>   	if (!osq_lock(&sem->osq))
+>>   		goto done;
+>>
+>> +	loopcnt = sem->rspin_enabled ? RWSEM_RSPIN_THRESHOLD : 0;
+>> +
+>>   	/*
+>>   	 * Optimistically spin on the owner field and attempt to acquire the
+>>   	 * lock whenever the owner changes. Spinning will be stopped when:
+>> @@ -416,7 +421,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
+>>   	 *  2) readers own the lock as we can't determine if they are
+>>   	 *     actively running or not.
+>>   	 */
+>> -	while (rwsem_spin_on_owner(sem)) {
+>> +	while ((can_spin = rwsem_spin_on_owner(sem)) || loopcnt) {
+>>   		/*
+>>   		 * Try to acquire the lock
+>>   		 */
+>> @@ -425,13 +430,16 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
+>>   			break;
+>>   		}
+>>
+>> +		if (!can_spin&&  loopcnt)
+>> +			loopcnt--;
+> This seems to suggest 'can_spin' is a bad name, because if we cannot
+> spin, we do in fact spin anyway?
+>
+> Maybe call it write_spin or something, which makes it clear that if its
+> not a write spin we'll do a read spin?
+
+I am fine with the write_spin name.
+
+>
+> Also, isn't this the wrong level to do loopcnt at?
+> rwsem_spin_on_owner() can have spend any amount of cycles spinning. So
+> you're not counting loops of similar unit.
+
+The loopcnt does not include time spinning on writer. It will be 
+decremented only if the lock is owned by reader (can_spin == false). I 
+will clarify that with additional comments.
+
+>> +	/*
+>> +	 * Was owner a reader?
+>> +	 */
+>> +	if (rwsem_owner_is_reader(sem->owner)) {
+>> +		/*
+>> +		 * Update rspin_enabled for reader spinning
+> full stop and newline?
+
+Sure.
+
+>
+>> +		 * Increment by 1 if successfully&  decrement by 8 if
+>> +		 * unsuccessful.
+> This is bloody obvious from the code, explain why, not what the code
+> does.
+
+Will clarify the comment.
+
+>>                                 The decrement amount is kind of arbitrary
+>> +		 * and can be adjusted if necessary.
+>> +		 */
+>> +		if (taken&&  (sem->rspin_enabled<  RWSEM_RSPIN_ENABLED_MAX))
+>> +			sem->rspin_enabled++;
+>> +		else if (!taken)
+>> +			sem->rspin_enabled = (sem->rspin_enabled>= 8)
+>> +					   ? sem->rspin_enabled - 8 : 0;
+> This is unreadable and against coding style.
+
+I will fix the coding style problem.
 
 Cheers,
 Longman
