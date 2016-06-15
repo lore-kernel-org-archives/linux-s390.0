@@ -1,28 +1,30 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [RFC PATCH-tip v2 4/6] locking/rwsem: move down
- rwsem_down_read_failed function
-Date: Wed, 15 Jun 2016 19:40:55 +0200
-Message-ID: <20160615174055.GS30921@twins.programming.kicks-ass.net>
+Subject: Re: [RFC PATCH-tip v2 5/6] locking/rwsem: Change RWSEM_WAITING_BIAS
+ for better disambiguation
+Date: Wed, 15 Jun 2016 19:43:48 +0200
+Message-ID: <20160615174348.GT30921@twins.programming.kicks-ass.net>
 References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com>
- <1465944489-43440-5-git-send-email-Waiman.Long@hpe.com>
+ <1465944489-43440-6-git-send-email-Waiman.Long@hpe.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1465944489-43440-5-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-ia64-owner@vger.kernel.org
+In-Reply-To: <1465944489-43440-6-git-send-email-Waiman.Long@hpe.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Waiman Long <Waiman.Long@hpe.com>
 Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 14, 2016 at 06:48:07PM -0400, Waiman Long wrote:
-> Move the rwsem_down_read_failed() function down to below the optimistic
-> spinning section before enabling optimistic spinning for the readers.
+On Tue, Jun 14, 2016 at 06:48:08PM -0400, Waiman Long wrote:
+> even the reduced maximum of about 16k (32-bit) or 1G (64-bit) should
+> be more than enough for the foreseeable future.
 
-newline
+So what happens if I manage to create 16k+ threads on my 32bit kernel
+and get them all to do mmap() or so at the same time.
 
-> There is no change in code.
+That doesn't seem too far fetched.
 
-Changelog fails to explain the why part.
+Then again, with double that (the current limit) that doesn't seem
+impossible either.
