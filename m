@@ -1,33 +1,38 @@
 From: Waiman Long <waiman.long@hpe.com>
-Subject: Re: [RFC PATCH-tip v2 4/6] locking/rwsem: move down rwsem_down_read_failed
- function
-Date: Wed, 15 Jun 2016 15:21:13 -0400
-Message-ID: <5761AAA9.1080406@hpe.com>
-References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com> <1465944489-43440-5-git-send-email-Waiman.Long@hpe.com> <20160615174055.GS30921@twins.programming.kicks-ass.net>
+Subject: Re: [RFC PATCH-tip v2 5/6] locking/rwsem: Change RWSEM_WAITING_BIAS
+ for better disambiguation
+Date: Wed, 15 Jun 2016 15:31:51 -0400
+Message-ID: <5761AD27.9020106@hpe.com>
+References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com> <1465944489-43440-6-git-send-email-Waiman.Long@hpe.com> <20160615174348.GT30921@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160615174055.GS30921@twins.programming.kicks-ass.net>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-alpha-owner@vger.kernel.org>
+In-Reply-To: <20160615174348.GT30921@twins.programming.kicks-ass.net>
+Sender: linux-alpha-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/15/2016 01:40 PM, Peter Zijlstra wrote:
-> On Tue, Jun 14, 2016 at 06:48:07PM -0400, Waiman Long wrote:
->> Move the rwsem_down_read_failed() function down to below the optimistic
->> spinning section before enabling optimistic spinning for the readers.
-> newline
+On 06/15/2016 01:43 PM, Peter Zijlstra wrote:
+> On Tue, Jun 14, 2016 at 06:48:08PM -0400, Waiman Long wrote:
+>> even the reduced maximum of about 16k (32-bit) or 1G (64-bit) should
+>> be more than enough for the foreseeable future.
+> So what happens if I manage to create 16k+ threads on my 32bit kernel
+> and get them all to do mmap() or so at the same time.
 >
->> There is no change in code.
-> Changelog fails to explain the why part.
+> That doesn't seem too far fetched.
+>
+> Then again, with double that (the current limit) that doesn't seem
+> impossible either.
 
-Thanks for pointing this out. I will update the changelog to mention 
-that the movement is needed because it is going to call 
-rwsem_optimistic_spin() in later patch.
+To hit the limit, we need to have all the threads calling down_write() 
+at exactly the same instance in time which, I think, is pretty hard to 
+do. Also, I don't believe you will ever see a 16k-cpu massive SMP system 
+running on 32-bit kernel. I can imagine such a system running on 64-bit 
+kernel, but certainly not 32-bit.
 
 Cheers,
 Longman
