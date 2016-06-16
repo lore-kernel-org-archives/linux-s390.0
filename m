@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 13/13] s390/qeth: fix indentation in qeth_l3_arp_query
-Date: Thu, 16 Jun 2016 16:19:03 +0200
-Message-ID: <1466086743-55484-14-git-send-email-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 07/13] qeth: introduce linearization fail count to stats
+Date: Thu, 16 Jun 2016 16:18:57 +0200
+Message-ID: <1466086743-55484-8-git-send-email-ubraun@linux.vnet.ibm.com>
 References: <1466086743-55484-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1466086743-55484-1-git-send-email-ubraun@linux.vnet.ibm.com>
@@ -12,66 +12,108 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+From: Eugene Crosser <Eugene.Crosser@ru.ibm.com>
 
-gcc-6 warns about obviously wrong indentation:
-drivers/s390/net/qeth_l3_main.c: In function 'qeth_l3_arp_query':
-drivers/s390/net/qeth_l3_main.c:2315:3: warning: this 'if' clause does not
-guard... [-Wmisleading-indentation]
-   if (copy_to_user(udata, qinfo.udata, 4))
-   ^~
-drivers/s390/net/qeth_l3_main.c:2317:4: note: ...this statement, but the
-latter is misleadingly indented as if it is guarded by the 'if'
-    goto free_and_out;
-    ^~~~
+When skb data touches too many pages, skb_linearize() is called
+opportunistically in the hope that less pages will be required
+for a big linear buffer than for multiple fragments. This patch
+intoduces a separate counter in ethtool statistics structure
+representing _failed_ linearization attempts.
 
-Although this particular case is harmless, fix the indentation to get rid
-of that warning and improve readability.
-
-Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Signed-off-by: Eugene Crosser <Eugene.Crosser@ru.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Reviewed-by: Lakhvich Dmitriy <ldmitriy@ru.ibm.com>
+Reviewed-by: Thomas Richter <tmricht@de.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 25 ++++++++++++-------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ drivers/s390/net/qeth_core.h      |  1 +
+ drivers/s390/net/qeth_core_main.c |  6 ++++--
+ drivers/s390/net/qeth_l2_main.c   | 12 +++++++++---
+ drivers/s390/net/qeth_l3_main.c   | 12 +++++++++---
+ 4 files changed, 23 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index c3ab956..b4f14e4 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -145,6 +145,7 @@ struct qeth_perf_stats {
+ 	unsigned int sg_alloc_page_rx;
+ 	unsigned int tx_csum;
+ 	unsigned int tx_lin;
++	unsigned int tx_linfail;
+ };
+ 
+ /* Routing stuff */
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index a91a31d..9806ee0 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5801,6 +5801,7 @@ static struct {
+ 	{"tx do_QDIO count"},
+ 	{"tx csum"},
+ 	{"tx lin"},
++	{"tx linfail"},
+ 	{"cq handler count"},
+ 	{"cq handler time"}
+ };
+@@ -5861,8 +5862,9 @@ void qeth_core_get_ethtool_stats(struct net_device *dev,
+ 	data[32] = card->perf_stats.outbound_do_qdio_cnt;
+ 	data[33] = card->perf_stats.tx_csum;
+ 	data[34] = card->perf_stats.tx_lin;
+-	data[35] = card->perf_stats.cq_cnt;
+-	data[36] = card->perf_stats.cq_time;
++	data[35] = card->perf_stats.tx_linfail;
++	data[36] = card->perf_stats.cq_cnt;
++	data[37] = card->perf_stats.cq_time;
+ }
+ EXPORT_SYMBOL_GPL(qeth_core_get_ethtool_stats);
+ 
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index e24627f..08b5fa9 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -898,10 +898,16 @@ static int qeth_l2_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	 */
+ 	if ((card->info.type != QETH_CARD_TYPE_IQD) &&
+ 	    !qeth_get_elements_no(card, new_skb, 0)) {
+-		if (skb_linearize(new_skb))
++		int lin_rc = skb_linearize(new_skb);
++
++		if (card->options.performance_stats) {
++			if (lin_rc)
++				card->perf_stats.tx_linfail++;
++			else
++				card->perf_stats.tx_lin++;
++		}
++		if (lin_rc)
+ 			goto tx_drop;
+-		if (card->options.performance_stats)
+-			card->perf_stats.tx_lin++;
+ 	}
+ 
+ 	if (card->info.type == QETH_CARD_TYPE_OSN)
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 05f764c..bcd324e 100644
+index 0afdb14..51077fb 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2314,22 +2314,21 @@ static int qeth_l3_arp_query(struct qeth_card *card, char __user *udata)
- 	if (rc) {
- 		if (copy_to_user(udata, qinfo.udata, 4))
- 			rc = -EFAULT;
--			goto free_and_out;
--	} else {
-+		goto free_and_out;
-+	}
- #ifdef CONFIG_QETH_IPV6
--		if (qinfo.mask_bits & QETH_QARP_WITH_IPV6) {
--			/* fails in case of GuestLAN QDIO mode */
--			qeth_l3_query_arp_cache_info(card, QETH_PROT_IPV6,
--				&qinfo);
--		}
-+	if (qinfo.mask_bits & QETH_QARP_WITH_IPV6) {
-+		/* fails in case of GuestLAN QDIO mode */
-+		qeth_l3_query_arp_cache_info(card, QETH_PROT_IPV6, &qinfo);
-+	}
- #endif
--		if (copy_to_user(udata, qinfo.udata, qinfo.udata_len)) {
--			QETH_CARD_TEXT(card, 4, "qactf");
--			rc = -EFAULT;
--			goto free_and_out;
--		}
--		QETH_CARD_TEXT(card, 4, "qacts");
-+	if (copy_to_user(udata, qinfo.udata, qinfo.udata_len)) {
-+		QETH_CARD_TEXT(card, 4, "qactf");
-+		rc = -EFAULT;
-+		goto free_and_out;
- 	}
-+	QETH_CARD_TEXT(card, 4, "qacts");
+@@ -2918,10 +2918,16 @@ static int qeth_l3_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if ((card->info.type != QETH_CARD_TYPE_IQD) &&
+ 	    ((use_tso && !qeth_l3_get_elements_no_tso(card, new_skb, 1)) ||
+ 	     (!use_tso && !qeth_get_elements_no(card, new_skb, 0)))) {
+-		if (skb_linearize(new_skb))
++		int lin_rc = skb_linearize(new_skb);
 +
- free_and_out:
- 	kfree(qinfo.udata);
- out:
++		if (card->options.performance_stats) {
++			if (lin_rc)
++				card->perf_stats.tx_linfail++;
++			else
++				card->perf_stats.tx_lin++;
++		}
++		if (lin_rc)
+ 			goto tx_drop;
+-		if (card->options.performance_stats)
+-			card->perf_stats.tx_lin++;
+ 	}
+ 
+ 	if (use_tso) {
 -- 
 2.6.6
