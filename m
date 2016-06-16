@@ -1,35 +1,31 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [RFC PATCH-tip v2 1/6] locking/osq: Make lock/unlock proper
- acquire/release barrier
-Date: Wed, 15 Jun 2016 23:59:18 +0200
-Message-ID: <20160615215918.GY30921@twins.programming.kicks-ass.net>
+From: Davidlohr Bueso <dave@stgolabs.net>
+Subject: Re: [RFC PATCH-tip v2 2/6] locking/rwsem: Stop active read lock ASAP
+Date: Wed, 15 Jun 2016 19:14:36 -0700
+Message-ID: <20160616021436.GA7765@linux-80c1.suse>
 References: <1465944489-43440-1-git-send-email-Waiman.Long@hpe.com>
- <1465944489-43440-2-git-send-email-Waiman.Long@hpe.com>
- <20160615165659.GC2094@linux-80c1.suse>
- <20160615171250.GO30921@twins.programming.kicks-ass.net>
- <5761A7C0.6000709@hpe.com>
- <5761B4B7.3070102@hpe.com>
+ <1465944489-43440-3-git-send-email-Waiman.Long@hpe.com>
+ <20160615172242.GQ30921@twins.programming.kicks-ass.net>
+ <5761A9DE.6040702@hpe.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5761B4B7.3070102@hpe.com>
-Sender: linux-ia64-owner@vger.kernel.org
+In-Reply-To: <5761A9DE.6040702@hpe.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Waiman Long <waiman.long@hpe.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jun 15, 2016 at 04:04:07PM -0400, Waiman Long wrote:
-> 
-> BTW, when will the smp_acquire__after_ctrl_dep() patch goes into the tip
-> tree? My patch will have a dependency on that when I make the change.
+On Wed, 15 Jun 2016, Waiman Long wrote:
 
-Should already be in as part of that spin_unlock_wait() fixup.
+>I think there will be a little bit of performance impact for a 
+>workload that produce just the right amount of rwsem contentions. 
 
-/me checks..
+I'm not saying the change doesn't make sense, but this is the sort of
+thing that will show nice numbers in one workload and go bite you in
+another.
 
-tip/locking/core contains:
-
-33ac279677dc ("locking/barriers: Introduce smp_acquire__after_ctrl_dep()")
+Thanks,
+Davidlohr
