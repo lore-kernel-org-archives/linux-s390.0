@@ -1,272 +1,222 @@
-From: Yury Norov <ynorov@caviumnetworks.com>
-Subject: Re: [PATCH 16/23] arm64: ilp32: introduce binfmt_ilp32.c
-Date: Wed, 15 Jun 2016 03:40:19 +0300
-Message-ID: <20160615004019.GA20783@yury-N73SV>
-References: <5746FEF6.9070405@huawei.com>
+From: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
+Subject: Re: [PATCH 21/23] arm64: ilp32: introduce ilp32-specific handlers for
+ sigframe and ucontext
+Date: Thu, 16 Jun 2016 19:21:22 +0800
+Message-ID: <57628BB2.7080100@huawei.com>
+References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
+ <1464048292-30136-22-git-send-email-ynorov@caviumnetworks.com>
+ <5752BCC8.7080205@huawei.com> <20160612174430.GA12067@yury-N73SV>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <libc-alpha-return-70641-glibc-alpha=m.gmane.org@sourceware.org>
-List-Unsubscribe: <mailto:libc-alpha-unsubscribe-glibc-alpha=m.gmane.org@sourceware.org>
-List-Subscribe: <mailto:libc-alpha-subscribe@sourceware.org>
-List-Archive: <http://sourceware.org/ml/libc-alpha/>
-List-Post: <mailto:libc-alpha@sourceware.org>
-List-Help: <mailto:libc-alpha-help@sourceware.org>, <http://sourceware.org/ml/#faqs>
-Sender: libc-alpha-owner@sourceware.org
-Content-Disposition: inline
-In-Reply-To: <5746FEF6.9070405@huawei.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160612174430.GA12067@yury-N73SV>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
-Cc: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, Hanjun Guo <guohanjun@huawei.com>
+To: Yury Norov <ynorov@caviumnetworks.com>
+Cc: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, Andrew Pinski <apinski@cavium.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, Hanjun Guo <guohanjun@huawei.com>, "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 26, 2016 at 09:49:42PM +0800, Zhangjian (Bamvor) wrote:
-> Hi, yury
-> 
-> The coredump is usable in our platform. It miss the following definition:
-> +#define compat_elf_greg_t	elf_greg_t
-> +#define compat_elf_gregset_t	elf_gregset_t
-> 
-> And it leads to the wrong register save in core dump. After apply this patch,
-> gdb could debug core dump files.
-> 
-> Here is the full patch:
-> From 102624840aa5dacdd1bbfe3b390290f52f530ea2 Mon Sep 17 00:00:00 2001
-> From: Bamvor Jian Zhang <bamvor.zhangjian@huawei.com>
-> Date: Thu, 26 May 2016 21:00:16 +0800
-> Subject: [PATCH hulk-4.1-next] arm64: ilp32: fix coredump issue
-> 
-> ILP32 use aarch64 register and 32bit signal struct which means it
-> could not make use of the existing compat_elf_prstatus/elf_prstatus
-> and compat_elf_prpsinfo/elf_prpsinfo.
-> 
-> This patch fix this issue by introducing the different
-> compat_elf_greg_t, compat_elf_gregset_t for aarch64 ilp32 and aarch32
-> el0.
-> 
-> Tested pass on huawei's hardware in bigendian.
-> 
-> Signed-off-by: Bamvor Jian Zhang <bamvor.zhangjian@huawei.com>
-> ---
->  arch/arm64/include/asm/elf.h     | 14 +++++++-------
->  arch/arm64/kernel/binfmt_elf32.c |  3 +++
->  arch/arm64/kernel/binfmt_ilp32.c |  8 +++++++-
->  arch/arm64/kernel/ptrace.c       | 20 ++++++++++----------
->  4 files changed, 27 insertions(+), 18 deletions(-)
-> 
-> diff --git a/arch/arm64/include/asm/elf.h b/arch/arm64/include/asm/elf.h
-> index 0106d18..9019441 100644
-> --- a/arch/arm64/include/asm/elf.h
-> +++ b/arch/arm64/include/asm/elf.h
-> @@ -154,18 +154,18 @@ extern int arch_setup_additional_pages(struct linux_binprm *bprm,
->  				       int uses_interp);
-> 
->  /* 1GB of VA */
-> -#define STACK_RND_MASK			(is_compat_task() ? \
-> -						0x7ff >> (PAGE_SHIFT - 12) : \
-> -						0x3ffff >> (PAGE_SHIFT - 12))
-> +#define STACK_RND_MASK		(is_compat_task() ? \
-> +					0x7ff >> (PAGE_SHIFT - 12) : \
-> +					0x3ffff >> (PAGE_SHIFT - 12))
-> 
->  #ifdef CONFIG_COMPAT
-> 
-> -#define COMPAT_ELF_ET_DYN_BASE		(2 * TASK_SIZE_32 / 3)
-> +#define COMPAT_ELF_ET_DYN_BASE	(2 * TASK_SIZE_32 / 3)
-> 
->  /* AArch32 registers. */
-> -#define COMPAT_ELF_NGREG		18
-> -typedef unsigned int			compat_elf_greg_t;
-> -typedef compat_elf_greg_t		compat_elf_gregset_t[COMPAT_ELF_NGREG];
-> +#define COMPAT_ELF_NGREG	18
-> +typedef unsigned int		compat_a32_elf_greg_t;
-> +typedef compat_a32_elf_greg_t	compat_a32_elf_gregset_t[COMPAT_ELF_NGREG];
-> 
->  #endif /* CONFIG_COMPAT */
-> 
-> diff --git a/arch/arm64/kernel/binfmt_elf32.c b/arch/arm64/kernel/binfmt_elf32.c
-> index 7b9b445..f75253c 100644
-> --- a/arch/arm64/kernel/binfmt_elf32.c
-> +++ b/arch/arm64/kernel/binfmt_elf32.c
-> @@ -31,4 +31,7 @@ struct linux_binprm;
->  extern int aarch32_setup_vectors_page(struct linux_binprm *bprm,
->  				      int uses_interp);
-> 
-> +#define compat_elf_greg_t	compat_a32_elf_greg_t
-> +#define compat_elf_gregset_t	compat_a32_elf_gregset_t
-> +
->  #include "../../../fs/compat_binfmt_elf.c"
-> diff --git a/arch/arm64/kernel/binfmt_ilp32.c b/arch/arm64/kernel/binfmt_ilp32.c
-> index b827a9a..01baf83 100644
-> --- a/arch/arm64/kernel/binfmt_ilp32.c
-> +++ b/arch/arm64/kernel/binfmt_ilp32.c
-> @@ -2,7 +2,9 @@
->   * Support for ILP32 Linux/aarch64 ELF binaries.
->   */
-> 
-> -#include <linux/elfcore-compat.h>
-> +#include <linux/elf.h>
-> +#include <linux/elfcore.h>
-> +#include <linux/compat.h>
->  #include <linux/time.h>
-> 
->  #undef	ELF_CLASS
-> @@ -30,9 +32,13 @@
->   * The machine-dependent core note format types are defined in elfcore-compat.h,
->   * which requires asm/elf.h to define compat_elf_gregset_t et al.
->   */
-> +#define compat_elf_greg_t	elf_greg_t
-> +#define compat_elf_gregset_t	elf_gregset_t
->  #define elf_prstatus	compat_elf_prstatus
->  #define elf_prpsinfo	compat_elf_prpsinfo
-> 
-> +#include <linux/elfcore-compat.h>
-> +
->  /*
->   * Compat version of cputime_to_compat_timeval, perhaps this
->   * should be an inline in <linux/compat.h>.
-> diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-> index 5c86135..9784c77 100644
-> --- a/arch/arm64/kernel/ptrace.c
-> +++ b/arch/arm64/kernel/ptrace.c
-> @@ -913,8 +913,8 @@ static const struct user_regset aarch32_regsets[] = {
->  	[REGSET_COMPAT_GPR] = {
->  		.core_note_type = NT_PRSTATUS,
->  		.n = COMPAT_ELF_NGREG,
-> -		.size = sizeof(compat_elf_greg_t),
-> -		.align = sizeof(compat_elf_greg_t),
-> +		.size = sizeof(compat_a32_elf_greg_t),
-> +		.align = sizeof(compat_a32_elf_greg_t),
->  		.get = compat_gpr_get,
->  		.set = compat_gpr_set
->  	},
-> @@ -947,7 +947,7 @@ static int compat_ptrace_read_user(struct task_struct *tsk, compat_ulong_t off,
->  		tmp = tsk->mm->start_data;
->  	else if (off == COMPAT_PT_TEXT_END_ADDR)
->  		tmp = tsk->mm->end_code;
-> -	else if (off < sizeof(compat_elf_gregset_t))
-> +	else if (off < sizeof(compat_a32_elf_gregset_t))
->  		return copy_regset_to_user(tsk, &user_aarch32_view,
->  					   REGSET_COMPAT_GPR, off,
->  					   sizeof(compat_ulong_t), ret);
-> @@ -968,7 +968,7 @@ static int compat_ptrace_write_user(struct task_struct *tsk, compat_ulong_t off,
->  	if (off & 3 || off >= COMPAT_USER_SZ)
->  		return -EIO;
-> 
-> -	if (off >= sizeof(compat_elf_gregset_t))
-> +	if (off >= sizeof(compat_a32_elf_gregset_t))
->  		return 0;
-> 
->  	set_fs(KERNEL_DS);
-> @@ -1116,9 +1116,11 @@ static long compat_a32_ptrace(struct task_struct *child, compat_long_t request,
->  	unsigned long addr = caddr;
->  	unsigned long data = cdata;
->  	void __user *datap = compat_ptr(data);
-> +	unsigned int pr_reg_size = sizeof(compat_a32_elf_gregset_t);
->  	int ret;
-> 
->  	switch (request) {
-> +
->  		case PTRACE_PEEKUSR:
->  			ret = compat_ptrace_read_user(child, addr, datap);
->  			break;
-> @@ -1130,17 +1132,15 @@ static long compat_a32_ptrace(struct task_struct *child, compat_long_t request,
->  		case COMPAT_PTRACE_GETREGS:
->  			ret = copy_regset_to_user(child,
->  						  &user_aarch32_view,
-> -						  REGSET_COMPAT_GPR,
-> -						  0, sizeof(compat_elf_gregset_t),
-> -						  datap);
-> +						  REGSET_COMPAT_GPR, 0,
-> +						  pr_reg_size, datap);
->  			break;
-> 
->  		case COMPAT_PTRACE_SETREGS:
->  			ret = copy_regset_from_user(child,
->  						    &user_aarch32_view,
-> -						    REGSET_COMPAT_GPR,
-> -						    0, sizeof(compat_elf_gregset_t),
-> -						    datap);
-> +						    REGSET_COMPAT_GPR, 0,
-> +						    pr_reg_size, datap);
->  			break;
-> 
->  		case COMPAT_PTRACE_GET_THREAD_AREA:
+Hi,
 
-Hi Bamvor,
+On 2016/6/13 1:44, Yury Norov wrote:
+> Hi Bamvor,
+>
+> Sorry, I missed this patch.
+>
+> On Sat, Jun 04, 2016 at 07:34:32PM +0800, Zhangjian (Bamvor) wrote:
+>> Hi,
+>>
+>> I found an issue of unwind with the following code. The correct backtrace
+>> should be:
+>> (gdb) where
+>> #0 0x004004d0 in my_sig (sig=11) at test_force3.c:16
+>> #1 <signal handler called>
+>> #2 func2 (num=0) at test_force3.c:22
+>> #3 0x00400540 in func1 (num=1) at test_force3.c:28
+>> #4 0x00400574 in main (argc=1, argv=0xffd7bc04) at test_force3.c:33
+>>
+>> Without my patch, the backtrace is:
+>> (gdb) where
+>> #0 0x00400490 in my_sig (sig=11) at test_force3.c:16
+>> #1 <signal handler called>
+>> #2 0x004004e4 in main (argc=1, argv=0xffe6f8f4) at test_force3.c:33
+>>
+>> With my patch which fix the wrong frame pointer(setup_return calculate the offset
+>> of fp through ilp32_sigframe instead of sigfreame), the backtrace is:
+>> (gdb) where
+>> #0 0x00400490 in my_sig (sig=11) at test_force3.c:16
+>> #1 <signal handler called>
+>> #2 func1 () at test_force3.c:28
+>> #3 0x004004e4 in main (argc=1, argv=0xffe6f8f4) at test_force3.c:33
+>>
+>> I am not sure there is still some issue in kernel. But it seem that the gdb of ilp32
+>> does not work correctly when unwind without framepointer.
+>>
+>> The test code is:
+>>
+>>  From 7e364a765097f57aed2d73f94c1688c2e7343e79 Mon Sep 17 00:00:00 2001
+>> From: Bamvor Jian Zhang <bamvor.zhangjian@huawei.com>
+>> Date: Sat, 4 Jun 2016 14:30:05 +0800
+>> Subject: [PATCH] arm64: ilp32: fix for wrong fp offset when calculate the
+>>   new fp
+>>
+>> ILP32 define its own sigframe(ilp32_sigframe) because of the
+>> difference uc_context. setup_return do not use ilp32 specific
+>> sigframe to calculate the new offset of fp which lead to wrong
+>> fp in signal handler. At this circumstance, gdb backtrace will miss
+>> one item:
+>> (gdb) where
+>>
+>> It should be:
+>> (gdb) where
+>>
+>> The test code is as follows:
+>>
+>> void my_sig(int sig)
+>> {
+>>          printf("sig=%d\n", sig);
+>>          *(int *)0 = 0x0;
+>> }
+>>
+>> void func2(int num)
+>> {
+>>          printf("%s: %d\n", __FUNCTION__, num);
+>>          *(int *)0 = 0x0;
+>>          func2(num-1);
+>> }
+>>
+>> void func1(int num)
+>> {
+>>          printf("%s\n", __FUNCTION__);
+>>          func2(num - 1);
+>> }
+>>
+>> int main(int argc, char **argv)
+>> {
+>>          signal(11, my_sig);
+>>          func1(argc);
+>>          return 0;
+>> }
+>>
+>> This patch fix this by passing the correct offset of fp to
+>> setup_return.
+>> Test pass on both ILP32 and LP64 in aarch64 EE.
+>>
+>> Signed-off-by: Bamvor Jian Zhang <bamvor.zhangjian@huawei.com>
+>> ---
+>>   arch/arm64/include/asm/signal_common.h | 3 ++-
+>>   arch/arm64/kernel/signal.c             | 9 +++++----
+>>   arch/arm64/kernel/signal_ilp32.c       | 4 ++--
+>>   3 files changed, 9 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/arch/arm64/include/asm/signal_common.h b/arch/arm64/include/asm/signal_common.h
+>> index de93c71..a5d7b63 100644
+>> --- a/arch/arm64/include/asm/signal_common.h
+>> +++ b/arch/arm64/include/asm/signal_common.h
+>> @@ -29,6 +29,7 @@ int setup_sigcontex(struct sigcontext __user *uc_mcontext,
+>>   		    struct pt_regs *regs);
+>>   int restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sf);
+>>   void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
+>> -			void __user *frame, off_t sigframe_off, int usig);
+>> +			void __user *frame, off_t sigframe_off, off_t fp_off,
+>> +			int usig);
+>>
+>>   #endif /* __ASM_SIGNAL_COMMON_H */
+>> diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+>> index 038bebe..e66a6e9 100644
+>> --- a/arch/arm64/kernel/signal.c
+>> +++ b/arch/arm64/kernel/signal.c
+>> @@ -256,14 +256,14 @@ static struct rt_sigframe __user *get_sigframe(struct ksignal *ksig,
+>>   }
+>>
+>>   void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
+>> -			 void __user *frame, off_t sigframe_off, int usig)
+>> +			 void __user *frame, off_t sigframe_off, off_t fp_off,
+>> +			 int usig)
+>>   {
+>>   	__sigrestore_t sigtramp;
+>>
+>>   	regs->regs[0] = usig;
+>>   	regs->sp = (unsigned long)frame;
+>> -	regs->regs[29] = regs->sp + sigframe_off +
+>> -		offsetof(struct sigframe, fp);
+>> +	regs->regs[29] = regs->sp + sigframe_off + fp_off;
+>
+> I think you are right here. The only nitpick is what for we send 2
+> offsets just to add one to another inside setup_return()?
+> We can do like this:
+>
+>          void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
+>          			 void __user *frame, off_t fp_off, int usig)
+>          {
+>          	__sigrestore_t sigtramp;
+>
+>          	regs->regs[0] = usig;
+>          	regs->sp = (unsigned long)frame;
+>          	regs->regs[29] = regs->sp + fp_off;
+>                  [...]
+>          }
+>
+> Where fp_off calculation is done by caller.
+>
+> 	setup_return(regs, &ksig->ka, frame,
+> 		offsetof(struct rt_sigframe, sig) + offsetof(struct sigframe, fp),
+>                  usig);
+>
+> For me it's more clear to understand what happens with this approach.
+> I don't think struct rt_sigframe will grow, but we can even introduce
+> some helper for it:
+>          #define RT_SIGFRAME_FP_POS (offsetof(struct rt_sigframe, sig) + offsetof(struct sigframe, fp))
+>
+> If no objections, I'll apply your patch with my fix in next series.
+Sure. Thanks.
 
-I didn't work much with ilp32 debugging and coredumps yet, but what I
-see in your patch is an attempt to use elf_gregset_t in compat_elf_prstatus
-for ilp32 instead of compat_elf_gregset_t.
+Regards
 
-I think we can do it simpler. That's what pahole shows for binfmt_ilp32.o
-after applying the attached patch:
-
-struct compat_elf_prstatus {
-        struct compat_elf_siginfo  pr_info;              /*     0    12 */
-        short int                  pr_cursig;            /*    12     2 */
-
-        /* XXX 2 bytes hole, try to pack */
-
-        compat_ulong_t             pr_sigpend;           /*    16     4 */
-        compat_ulong_t             pr_sighold;           /*    20     4 */
-        compat_pid_t               pr_pid;               /*    24     4 */
-        compat_pid_t               pr_ppid;              /*    28     4 */
-        compat_pid_t               pr_pgrp;              /*    32     4 */
-        compat_pid_t               pr_sid;               /*    36     4 */
-        struct compat_timeval      pr_utime;             /*    40     8 */
-        struct compat_timeval      pr_stime;             /*    48     8 */
-        struct compat_timeval      pr_cutime;            /*    56     8 */
-        /* --- cacheline 1 boundary (64 bytes) --- */
-        struct compat_timeval      pr_cstime;            /*    64     8 */
-        elf_gregset_t              pr_reg;               /*    72   272 */
-        /* --- cacheline 5 boundary (320 bytes) was 24 bytes ago --- */
-        compat_int_t               pr_fpvalid;           /*   344     4 */
-
-        /* size: 352, cachelines: 6, members: 14 */
-        /* sum members: 346, holes: 1, sum holes: 2 */
-        /* padding: 4 */
-        /* last cacheline: 32 bytes */
-};
-
-Did I miss something?
----
- arch/arm64/include/asm/elf.h     | 6 ++++++
- arch/arm64/kernel/binfmt_ilp32.c | 1 +
- 2 files changed, 7 insertions(+)
-
-diff --git a/arch/arm64/include/asm/elf.h b/arch/arm64/include/asm/elf.h
-index a967726..4dcbcec 100644
---- a/arch/arm64/include/asm/elf.h
-+++ b/arch/arm64/include/asm/elf.h
-@@ -174,10 +174,16 @@ extern int arch_setup_additional_pages(struct linux_binprm *bprm,
- 
- #define COMPAT_ELF_ET_DYN_BASE		(2 * TASK_SIZE_32 / 3)
- 
-+#ifndef USE_AARCH64_GREG
- /* AArch32 registers. */
- #define COMPAT_ELF_NGREG		18
- typedef unsigned int			compat_elf_greg_t;
- typedef compat_elf_greg_t		compat_elf_gregset_t[COMPAT_ELF_NGREG];
-+#else /* AArch64 registers for AARCH64/ILP32 */
-+#define COMPAT_ELF_NGREG	ELF_NGREG
-+#define compat_elf_greg_t	elf_greg_t
-+#define compat_elf_gregset_t	elf_gregset_t
-+#endif
- 
- /* AArch32 EABI. */
- #define EF_ARM_EABI_MASK		0xff000000
-diff --git a/arch/arm64/kernel/binfmt_ilp32.c b/arch/arm64/kernel/binfmt_ilp32.c
-index b2bd590..416b3f5 100644
---- a/arch/arm64/kernel/binfmt_ilp32.c
-+++ b/arch/arm64/kernel/binfmt_ilp32.c
-@@ -1,6 +1,7 @@
- /*
-  * Support for ILP32 Linux/aarch64 ELF binaries.
-  */
-+#define USE_AARCH64_GREG
- 
- #include <linux/elfcore-compat.h>
- #include <linux/time.h>
--- 
-2.7.4
+Bamvor
+>
+>>   	regs->pc = (unsigned long)ka->sa.sa_handler;
+>>
+>>   	if (ka->sa.sa_flags & SA_RESTORER)
+>> @@ -294,7 +294,8 @@ static int setup_rt_frame(int usig, struct ksignal *ksig, sigset_t *set,
+>>   	err |= setup_sigframe(&frame->sig, regs, set);
+>>   	if (err == 0) {
+>>   		setup_return(regs, &ksig->ka, frame,
+>> -			offsetof(struct rt_sigframe, sig), usig);
+>> +			offsetof(struct rt_sigframe, sig),
+>> +			offsetof(struct sigframe, fp), usig);
+>>   		if (ksig->ka.sa.sa_flags & SA_SIGINFO) {
+>>   			err |= copy_siginfo_to_user(&frame->info, &ksig->info);
+>>   			regs->regs[1] = (unsigned long)&frame->info;
+>> diff --git a/arch/arm64/kernel/signal_ilp32.c b/arch/arm64/kernel/signal_ilp32.c
+>> index a8ea73e..9030f14 100644
+>> --- a/arch/arm64/kernel/signal_ilp32.c
+>> +++ b/arch/arm64/kernel/signal_ilp32.c
+>> @@ -147,7 +147,6 @@ static struct ilp32_rt_sigframe __user *ilp32_get_sigframe(struct ksignal *ksig,
+>>   	struct ilp32_rt_sigframe __user *frame;
+>>
+>>   	sp = sp_top = sigsp(regs->sp, ksig);
+>> -
+>>   	sp = (sp - sizeof(struct ilp32_rt_sigframe)) & ~15;
+>>   	frame = (struct ilp32_rt_sigframe __user *)sp;
+>>
+>> @@ -183,7 +182,8 @@ int ilp32_setup_rt_frame(int usig, struct ksignal *ksig,
+>>   	err |= setup_ilp32_sigframe(&frame->sig, regs, set);
+>>   	if (err == 0) {
+>>   		setup_return(regs, &ksig->ka, frame,
+>> -			     offsetof(struct ilp32_rt_sigframe, sig), usig);
+>> +			     offsetof(struct ilp32_rt_sigframe, sig),
+>> +			     offsetof(struct ilp32_sigframe, fp), usig);
+>>   		regs->regs[1] = (unsigned long)&frame->info;
+>>   		regs->regs[2] = (unsigned long)&frame->sig.uc;
+>>   	}
+>> --
+>> 1.8.4.5
+>>
+>> Regards
+>>
+>> Bamvor
+>>
+>>
