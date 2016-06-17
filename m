@@ -1,7 +1,7 @@
 From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip/locking/core v3 10/10] locking/rwsem: Add a boot parameter to reader spinning threshold
-Date: Fri, 17 Jun 2016 11:41:36 -0400
-Message-ID: <1466178096-5623-11-git-send-email-Waiman.Long@hpe.com>
+Subject: [RFC PATCH-tip/locking/core v3 05/10] locking/rwsem: move down rwsem_down_read_failed function
+Date: Fri, 17 Jun 2016 11:41:31 -0400
+Message-ID: <1466178096-5623-6-git-send-email-Waiman.Long@hpe.com>
 References: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
@@ -12,64 +12,151 @@ To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
 Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The default reader spining threshold is current set to 4096. However,
-the right reader spinning threshold may vary from one system to
-another and among the different architectures. This patch adds a new
-kernel boot parameter to modify the threshold value. This enables
-better tailoring to the needs of different systems as well as for
-testing purposes.
+Move the rwsem_down_read_failed() function down to below the
+optimistic spinning section before enabling optimistic spinning for
+the readers. It is because the rwsem_down_read_failed() function will
+call rwsem_optimistic_spin() in later patch.
+
+There is no change in code.
 
 Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
 ---
- Documentation/kernel-parameters.txt |    3 +++
- kernel/locking/rwsem-xadd.c         |   14 +++++++++++++-
- 2 files changed, 16 insertions(+), 1 deletions(-)
+ kernel/locking/rwsem-xadd.c |  116 +++++++++++++++++++++---------------------
+ 1 files changed, 58 insertions(+), 58 deletions(-)
 
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index 82b42c9..3bee995 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -3645,6 +3645,9 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
- 
- 	rw		[KNL] Mount root device read-write on boot
- 
-+	rwsem_rspin_threshold=
-+			[KNL] Set rw semaphore reader spinning threshold
-+
- 	S		[KNL] Run init in single mode
- 
- 	s390_iommu=	[HW,S390]
 diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index c6b6105..6360180 100644
+index ce68b54..5fd689e 100644
 --- a/kernel/locking/rwsem-xadd.c
 +++ b/kernel/locking/rwsem-xadd.c
-@@ -280,6 +280,18 @@ static inline bool rwsem_try_write_lock(long count, struct rw_semaphore *sem)
+@@ -226,64 +226,6 @@ __rwsem_mark_wake(struct rw_semaphore *sem,
+ }
  
- #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
  /*
-+ * Reader spinning threshold
+- * Wait for the read lock to be granted
+- */
+-__visible
+-struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
+-{
+-	long count, adjustment = 0;
+-	struct rwsem_waiter waiter;
+-	struct task_struct *tsk = current;
+-	WAKE_Q(wake_q);
+-
+-	/*
+-	 * Undo read bias from down_read operation, stop active locking.
+-	 * Doing that after taking the wait_lock may block writer lock
+-	 * stealing for too long.
+-	 */
+-	atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
+-
+-	/* set up my own style of waitqueue */
+-	waiter.task = tsk;
+-	waiter.type = RWSEM_WAITING_FOR_READ;
+-
+-	raw_spin_lock_irq(&sem->wait_lock);
+-	if (list_empty(&sem->wait_list))
+-		adjustment += RWSEM_WAITING_BIAS;
+-	list_add_tail(&waiter.list, &sem->wait_list);
+-
+-	/* we're now waiting on the lock */
+-	if (adjustment)
+-		count = atomic_long_add_return(adjustment, &sem->count);
+-	else
+-		count = atomic_long_read(&sem->count);
+-
+-	/* If there are no active locks, wake the front queued process(es).
+-	 *
+-	 * If there are no writers and we are first in the queue,
+-	 * wake our own waiter to join the existing active readers !
+-	 */
+-	if (count == RWSEM_WAITING_BIAS ||
+-	    (count > RWSEM_WAITING_BIAS && adjustment))
+-		sem = __rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
+-
+-	raw_spin_unlock_irq(&sem->wait_lock);
+-	wake_up_q(&wake_q);
+-
+-	/* wait to be given the lock */
+-	while (true) {
+-		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+-		if (!waiter.task)
+-			break;
+-		schedule();
+-	}
+-
+-	__set_task_state(tsk, TASK_RUNNING);
+-	return sem;
+-}
+-EXPORT_SYMBOL(rwsem_down_read_failed);
+-
+-/*
+  * This function must be called with the sem->wait_lock held to prevent
+  * race conditions between checking the rwsem wait list and setting the
+  * sem->count accordingly.
+@@ -525,6 +467,64 @@ static inline bool reader_spinning_enabled(struct rw_semaphore *sem)
+ #endif
+ 
+ /*
++ * Wait for the read lock to be granted
 + */
-+static int __read_mostly rspin_threshold = RWSEM_RSPIN_THRESHOLD;
-+
-+static int __init set_rspin_threshold(char *str)
++__visible
++struct rw_semaphore __sched * rwsem_down_read_failed(struct rw_semaphore *sem)
 +{
-+	get_option(&str, &rspin_threshold);
-+	return 0;
++	long count, adjustment = 0;
++	struct rwsem_waiter waiter;
++	struct task_struct *tsk = current;
++	WAKE_Q(wake_q);
++
++	/*
++	 * Undo read bias from down_read operation, stop active locking.
++	 * Doing that after taking the wait_lock may block writer lock
++	 * stealing for too long.
++	 */
++	atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
++
++	/* set up my own style of waitqueue */
++	waiter.task = tsk;
++	waiter.type = RWSEM_WAITING_FOR_READ;
++
++	raw_spin_lock_irq(&sem->wait_lock);
++	if (list_empty(&sem->wait_list))
++		adjustment += RWSEM_WAITING_BIAS;
++	list_add_tail(&waiter.list, &sem->wait_list);
++
++	/* we're now waiting on the lock */
++	if (adjustment)
++		count = atomic_long_add_return(adjustment, &sem->count);
++	else
++		count = atomic_long_read(&sem->count);
++
++	/* If there are no active locks, wake the front queued process(es).
++	 *
++	 * If there are no writers and we are first in the queue,
++	 * wake our own waiter to join the existing active readers !
++	 */
++	if (count == RWSEM_WAITING_BIAS ||
++	    (count > RWSEM_WAITING_BIAS && adjustment))
++		sem = __rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
++
++	raw_spin_unlock_irq(&sem->wait_lock);
++	wake_up_q(&wake_q);
++
++	/* wait to be given the lock */
++	while (true) {
++		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
++		if (!waiter.task)
++			break;
++		schedule();
++	}
++
++	__set_task_state(tsk, TASK_RUNNING);
++	return sem;
 +}
-+early_param("rwsem_rspin_threshold", set_rspin_threshold);
++EXPORT_SYMBOL(rwsem_down_read_failed);
 +
 +/*
-  * Try to acquire write lock before the writer has been put on wait queue.
+  * Wait until we successfully acquire the write lock
   */
- static inline bool rwsem_try_write_lock_unqueued(struct rw_semaphore *sem)
-@@ -402,7 +414,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem,
- 	if (!osq_lock(&sem->osq))
- 		goto done;
- 
--	rspin_cnt = sem->rspin_enabled ? RWSEM_RSPIN_THRESHOLD : 0;
-+	rspin_cnt = sem->rspin_enabled ? rspin_threshold : 0;
- 
- 	/*
- 	 * Optimistically spin on the owner field and attempt to acquire the
+ static inline struct rw_semaphore *
 -- 
 1.7.1
