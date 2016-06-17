@@ -1,105 +1,117 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 11/13] qeth: improve set_features error handling
-Date: Thu, 16 Jun 2016 16:19:01 +0200
-Message-ID: <1466086743-55484-12-git-send-email-ubraun@linux.vnet.ibm.com>
-References: <1466086743-55484-1-git-send-email-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1466086743-55484-1-git-send-email-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
+From: Waiman Long <Waiman.Long@hpe.com>
+Subject: [RFC PATCH-tip/locking/core v3 09/10] locking/rwsem: Enable reactivation of reader spinning
+Date: Fri, 17 Jun 2016 11:41:35 -0400
+Message-ID: <1466178096-5623-10-git-send-email-Waiman.Long@hpe.com>
+References: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.vnet.ibm.com>
+Reader optimistic spinning will be disabled once the rspin_enabled
+count reaches 0. After that, it cannot be re-enabled. This may cause
+an eligible rwsem locked out of reader spinning because of a series
+of unfortunate events.
 
-The function set_features is called to configure network device features
-on the hardware. If errors occur, the network device features should
-reflect the changed hardware state and the function should return an
-error in order to notify the user.
+This patch looks at the regular writer-on-writer spinning history. If
+there are sufficient more successful spin attempts than failed ones,
+it will try to reactivate reader spinning.
 
-In case of an error, the current implementation does not necessarily
-save the changed hardware state in the network device features before an
-error is returned.
-
-This patch improves error handling by saving features, that could be
-changed, to the network device features before returning an error. If
-the device is not running, an additional check in fix_features removes
-features, that require hardware changes, before they are passed to
-set_features. Thus, the corresponding check was removed in set_features.
-
-Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
 ---
- drivers/s390/net/qeth_core_main.c | 38 +++++++++++++++++++++++++++-----------
- 1 file changed, 27 insertions(+), 11 deletions(-)
+ include/linux/rwsem.h       |   12 ++++++++----
+ kernel/locking/rwsem-xadd.c |   27 +++++++++++++++++++++++++--
+ 2 files changed, 33 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 19a6ee0..44d3200 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6125,27 +6125,38 @@ static int qeth_set_ipa_tso(struct qeth_card *card, int on)
- int qeth_set_features(struct net_device *dev, netdev_features_t features)
- {
- 	struct qeth_card *card = dev->ml_priv;
--	netdev_features_t changed = card->dev->features ^ features;
-+	netdev_features_t changed = dev->features ^ features;
- 	int rc = 0;
+diff --git a/include/linux/rwsem.h b/include/linux/rwsem.h
+index 8978f87..98284b4 100644
+--- a/include/linux/rwsem.h
++++ b/include/linux/rwsem.h
+@@ -32,7 +32,11 @@ struct rw_semaphore {
+ 	raw_spinlock_t wait_lock;
+ #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+ 	struct optimistic_spin_queue osq; /* spinner MCS lock */
+-	int rspin_enabled;	/* protected by osq lock */
++	/*
++	 * Reader optimistic spinning fields protected by osq lock
++	 */
++	uint16_t rspin_enabled;
++	int16_t  wspin_cnt;
  
- 	QETH_DBF_TEXT(SETUP, 2, "setfeat");
- 	QETH_DBF_HEX(SETUP, 2, &features, sizeof(features));
+ 	/*
+ 	 * Write owner. Used as a speculative check to see
+@@ -74,10 +78,10 @@ static inline int rwsem_is_locked(struct rw_semaphore *sem)
+ /*
+  * Each successful reader spin will increment the rspin_enabled by 1.
+  * Each unsuccessful spin, on the other hand, will decrement it by 2.
+- * Reader spinning will be permanently disabled when it reaches 0.
++ * Reader spinning will be disabled when it reaches 0.
+  */
+ #ifndef RWSEM_RSPIN_ENABLED_DEFAULT
+-# define RWSEM_RSPIN_ENABLED_DEFAULT	40
++# define RWSEM_RSPIN_ENABLED_DEFAULT	30
+ #endif
+ #define RWSEM_RSPIN_ENABLED_MAX		1024
  
--	if (card->state == CARD_STATE_DOWN ||
--	    card->state == CARD_STATE_RECOVER)
--		return 0;
--
--	if ((changed & NETIF_F_IP_CSUM))
-+	if ((changed & NETIF_F_IP_CSUM)) {
- 		rc = qeth_set_ipa_csum(card,
- 				       features & NETIF_F_IP_CSUM ? 1 : 0,
- 				       IPA_OUTBOUND_CHECKSUM);
--	if ((changed & NETIF_F_RXCSUM))
--		rc |= qeth_set_ipa_csum(card,
-+		if (rc)
-+			changed ^= NETIF_F_IP_CSUM;
-+	}
-+	if ((changed & NETIF_F_RXCSUM)) {
-+		rc = qeth_set_ipa_csum(card,
- 					features & NETIF_F_RXCSUM ? 1 : 0,
- 					IPA_INBOUND_CHECKSUM);
--	if ((changed & NETIF_F_TSO))
--		rc |= qeth_set_ipa_tso(card, features & NETIF_F_TSO ? 1 : 0);
--	return rc ? -EIO : 0;
-+		if (rc)
-+			changed ^= NETIF_F_RXCSUM;
-+	}
-+	if ((changed & NETIF_F_TSO)) {
-+		rc = qeth_set_ipa_tso(card, features & NETIF_F_TSO ? 1 : 0);
-+		if (rc)
-+			changed ^= NETIF_F_TSO;
-+	}
-+
-+	/* everything changed successfully? */
-+	if ((dev->features ^ features) == changed)
-+		return 0;
-+	/* something went wrong. save changed features and return error */
-+	dev->features ^= changed;
-+	return -EIO;
+@@ -87,7 +91,7 @@ static inline int rwsem_is_locked(struct rw_semaphore *sem)
+ 
+ #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+ #define __RWSEM_OPT_INIT(lockname) , .osq = OSQ_LOCK_UNLOCKED, .owner = NULL, \
+-		.rspin_enabled = RWSEM_RSPIN_ENABLED_DEFAULT
++		.rspin_enabled = RWSEM_RSPIN_ENABLED_DEFAULT, .wspin_cnt = 0
+ #else
+ #define __RWSEM_OPT_INIT(lockname)
+ #endif
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 42c8dda..c6b6105 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -108,6 +108,7 @@ void __init_rwsem(struct rw_semaphore *sem, const char *name,
+ #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+ 	sem->owner = NULL;
+ 	sem->rspin_enabled = RWSEM_RSPIN_ENABLED_DEFAULT;
++	sem->wspin_cnt = 0;
+ 	osq_lock_init(&sem->osq);
+ #endif
  }
- EXPORT_SYMBOL_GPL(qeth_set_features);
- 
-@@ -6164,6 +6175,11 @@ netdev_features_t qeth_fix_features(struct net_device *dev,
- 		dev_info(&card->gdev->dev, "Outbound TSO not supported on %s\n",
- 			 QETH_CARD_IFNAME(card));
+@@ -466,10 +467,32 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem,
+ 		if (taken && (sem->rspin_enabled < RWSEM_RSPIN_ENABLED_MAX)) {
+ 			sem->rspin_enabled++;
+ 		} else if (!taken) {
+-			if  (sem->rspin_enabled > 2)
++			if  (sem->rspin_enabled > 2) {
+ 				sem->rspin_enabled -= 2;
+-			else
++			} else if (sem->rspin_enabled) {
+ 				sem->rspin_enabled = 0;
++				/*
++				 * Reset wspin_cnt so that it won't get
++				 * re-enabled too soon.
++				 */
++				if (sem->wspin_cnt > -30)
++					sem->wspin_cnt = -30;
++			}
++		}
++	} else if (type == RWSEM_WAITING_FOR_WRITE) {
++		/*
++		 * Every 10 successful writer-on-writer spins more than failed
++		 * spins will increment rspin_enabled to encourage more
++		 * writer-on-reader spinning attempts.
++		 */
++		if (taken) {
++			if ((++sem->wspin_cnt >= 10) &&
++			    (sem->rspin_enabled < RWSEM_RSPIN_ENABLED_MAX)) {
++				sem->wspin_cnt = 0;
++				sem->rspin_enabled++;
++			}
++		} else if (sem->wspin_cnt > -100) {
++			sem->wspin_cnt--;
+ 		}
  	}
-+	/* if the card isn't up, remove features that require hw changes */
-+	if (card->state == CARD_STATE_DOWN ||
-+	    card->state == CARD_STATE_RECOVER)
-+		features = features & ~(NETIF_F_IP_CSUM | NETIF_F_RXCSUM |
-+					NETIF_F_TSO);
- 	QETH_DBF_HEX(SETUP, 2, &features, sizeof(features));
- 	return features;
- }
+ 	osq_unlock(&sem->osq);
 -- 
-2.6.6
+1.7.1
