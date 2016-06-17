@@ -1,7 +1,7 @@
 From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip/locking/core v3 09/10] locking/rwsem: Enable reactivation of reader spinning
-Date: Fri, 17 Jun 2016 11:41:35 -0400
-Message-ID: <1466178096-5623-10-git-send-email-Waiman.Long@hpe.com>
+Subject: [RFC PATCH-tip/locking/core v3 03/10] locking/rwsem: Make rwsem_spin_on_owner() return a tri-state value
+Date: Fri, 17 Jun 2016 11:41:29 -0400
+Message-ID: <1466178096-5623-4-git-send-email-Waiman.Long@hpe.com>
 References: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
@@ -12,106 +12,61 @@ To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
 Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Reader optimistic spinning will be disabled once the rspin_enabled
-count reaches 0. After that, it cannot be re-enabled. This may cause
-an eligible rwsem locked out of reader spinning because of a series
-of unfortunate events.
-
-This patch looks at the regular writer-on-writer spinning history. If
-there are sufficient more successful spin attempts than failed ones,
-it will try to reactivate reader spinning.
+This patch modifies rwsem_spin_on_owner() to return a tri-state value
+to better reflect the state of lock holder which enables us to make a
+better decision of what to do next.
 
 Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
 ---
- include/linux/rwsem.h       |   12 ++++++++----
- kernel/locking/rwsem-xadd.c |   27 +++++++++++++++++++++++++--
- 2 files changed, 33 insertions(+), 6 deletions(-)
+ kernel/locking/rwsem-xadd.c |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/rwsem.h b/include/linux/rwsem.h
-index 8978f87..98284b4 100644
---- a/include/linux/rwsem.h
-+++ b/include/linux/rwsem.h
-@@ -32,7 +32,11 @@ struct rw_semaphore {
- 	raw_spinlock_t wait_lock;
- #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
- 	struct optimistic_spin_queue osq; /* spinner MCS lock */
--	int rspin_enabled;	/* protected by osq lock */
-+	/*
-+	 * Reader optimistic spinning fields protected by osq lock
-+	 */
-+	uint16_t rspin_enabled;
-+	int16_t  wspin_cnt;
- 
- 	/*
- 	 * Write owner. Used as a speculative check to see
-@@ -74,10 +78,10 @@ static inline int rwsem_is_locked(struct rw_semaphore *sem)
- /*
-  * Each successful reader spin will increment the rspin_enabled by 1.
-  * Each unsuccessful spin, on the other hand, will decrement it by 2.
-- * Reader spinning will be permanently disabled when it reaches 0.
-+ * Reader spinning will be disabled when it reaches 0.
-  */
- #ifndef RWSEM_RSPIN_ENABLED_DEFAULT
--# define RWSEM_RSPIN_ENABLED_DEFAULT	40
-+# define RWSEM_RSPIN_ENABLED_DEFAULT	30
- #endif
- #define RWSEM_RSPIN_ENABLED_MAX		1024
- 
-@@ -87,7 +91,7 @@ static inline int rwsem_is_locked(struct rw_semaphore *sem)
- 
- #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
- #define __RWSEM_OPT_INIT(lockname) , .osq = OSQ_LOCK_UNLOCKED, .owner = NULL, \
--		.rspin_enabled = RWSEM_RSPIN_ENABLED_DEFAULT
-+		.rspin_enabled = RWSEM_RSPIN_ENABLED_DEFAULT, .wspin_cnt = 0
- #else
- #define __RWSEM_OPT_INIT(lockname)
- #endif
 diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index 42c8dda..c6b6105 100644
+index 29027c6..198b732 100644
 --- a/kernel/locking/rwsem-xadd.c
 +++ b/kernel/locking/rwsem-xadd.c
-@@ -108,6 +108,7 @@ void __init_rwsem(struct rw_semaphore *sem, const char *name,
- #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
- 	sem->owner = NULL;
- 	sem->rspin_enabled = RWSEM_RSPIN_ENABLED_DEFAULT;
-+	sem->wspin_cnt = 0;
- 	osq_lock_init(&sem->osq);
- #endif
+@@ -360,9 +360,13 @@ done:
  }
-@@ -466,10 +467,32 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem,
- 		if (taken && (sem->rspin_enabled < RWSEM_RSPIN_ENABLED_MAX)) {
- 			sem->rspin_enabled++;
- 		} else if (!taken) {
--			if  (sem->rspin_enabled > 2)
-+			if  (sem->rspin_enabled > 2) {
- 				sem->rspin_enabled -= 2;
--			else
-+			} else if (sem->rspin_enabled) {
- 				sem->rspin_enabled = 0;
-+				/*
-+				 * Reset wspin_cnt so that it won't get
-+				 * re-enabled too soon.
-+				 */
-+				if (sem->wspin_cnt > -30)
-+					sem->wspin_cnt = -30;
-+			}
-+		}
-+	} else if (type == RWSEM_WAITING_FOR_WRITE) {
-+		/*
-+		 * Every 10 successful writer-on-writer spins more than failed
-+		 * spins will increment rspin_enabled to encourage more
-+		 * writer-on-reader spinning attempts.
-+		 */
-+		if (taken) {
-+			if ((++sem->wspin_cnt >= 10) &&
-+			    (sem->rspin_enabled < RWSEM_RSPIN_ENABLED_MAX)) {
-+				sem->wspin_cnt = 0;
-+				sem->rspin_enabled++;
-+			}
-+		} else if (sem->wspin_cnt > -100) {
-+			sem->wspin_cnt--;
+ 
+ /*
+- * Return true only if we can still spin on the owner field of the rwsem.
++ * Return the folowing three values depending on the lock owner state.
++ *   1	when owner has changed and no reader is detected yet.
++ *   0	when owner has change and/or owner is a reader.
++ *  -1	when optimistic spinning has to stop because either the owner stops
++ *	running or its timeslice has been used up.
+  */
+-static noinline bool rwsem_spin_on_owner(struct rw_semaphore *sem)
++static noinline int rwsem_spin_on_owner(struct rw_semaphore *sem)
+ {
+ 	struct task_struct *owner = READ_ONCE(sem->owner);
+ 
+@@ -382,7 +386,7 @@ static noinline bool rwsem_spin_on_owner(struct rw_semaphore *sem)
+ 		/* abort spinning when need_resched or owner is not running */
+ 		if (!owner->on_cpu || need_resched()) {
+ 			rcu_read_unlock();
+-			return false;
++			return -1;
  		}
- 	}
- 	osq_unlock(&sem->osq);
+ 
+ 		cpu_relax_lowlatency();
+@@ -393,7 +397,7 @@ out:
+ 	 * If there is a new owner or the owner is not set, we continue
+ 	 * spinning.
+ 	 */
+-	return !rwsem_owner_is_reader(READ_ONCE(sem->owner));
++	return rwsem_owner_is_reader(READ_ONCE(sem->owner)) ? 0 : 1;
+ }
+ 
+ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
+@@ -416,7 +420,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
+ 	 *  2) readers own the lock as we can't determine if they are
+ 	 *     actively running or not.
+ 	 */
+-	while (rwsem_spin_on_owner(sem)) {
++	while (rwsem_spin_on_owner(sem) > 0) {
+ 		/*
+ 		 * Try to acquire the lock
+ 		 */
 -- 
 1.7.1
