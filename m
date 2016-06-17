@@ -1,179 +1,75 @@
 From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip/locking/core v3 06/10] locking/rwsem: Move common rwsem macros to asm-generic/rwsem_types.h
-Date: Fri, 17 Jun 2016 11:41:32 -0400
-Message-ID: <1466178096-5623-7-git-send-email-Waiman.Long@hpe.com>
+Subject: [RFC PATCH-tip/locking/core v3 10/10] locking/rwsem: Add a boot parameter to reader spinning threshold
+Date: Fri, 17 Jun 2016 11:41:36 -0400
+Message-ID: <1466178096-5623-11-git-send-email-Waiman.Long@hpe.com>
 References: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
 Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Almost all the macro definitions in the various architecture specific
-rwsem.h header files are essentially the same. This patch moves all
-of them into a common header asm-generic/rwsem_types.h to eliminate
-the duplication.
+The default reader spining threshold is current set to 4096. However,
+the right reader spinning threshold may vary from one system to
+another and among the different architectures. This patch adds a new
+kernel boot parameter to modify the threshold value. This enables
+better tailoring to the needs of different systems as well as for
+testing purposes.
 
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
 ---
- arch/alpha/include/asm/rwsem.h    |    8 +-------
- arch/ia64/include/asm/rwsem.h     |    7 ++-----
- arch/s390/include/asm/rwsem.h     |    7 +------
- arch/x86/include/asm/rwsem.h      |   19 +------------------
- include/asm-generic/rwsem.h       |   16 +---------------
- include/asm-generic/rwsem_types.h |   26 ++++++++++++++++++++++++++
- 6 files changed, 32 insertions(+), 51 deletions(-)
- create mode 100644 include/asm-generic/rwsem_types.h
+ Documentation/kernel-parameters.txt |    3 +++
+ kernel/locking/rwsem-xadd.c         |   14 +++++++++++++-
+ 2 files changed, 16 insertions(+), 1 deletions(-)
 
-diff --git a/arch/alpha/include/asm/rwsem.h b/arch/alpha/include/asm/rwsem.h
-index 77873d0..f99e39a 100644
---- a/arch/alpha/include/asm/rwsem.h
-+++ b/arch/alpha/include/asm/rwsem.h
-@@ -13,13 +13,7 @@
- #ifdef __KERNEL__
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 82b42c9..3bee995 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -3645,6 +3645,9 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
  
- #include <linux/compiler.h>
--
--#define RWSEM_UNLOCKED_VALUE		0x0000000000000000L
--#define RWSEM_ACTIVE_BIAS		0x0000000000000001L
--#define RWSEM_ACTIVE_MASK		0x00000000ffffffffL
--#define RWSEM_WAITING_BIAS		(-0x0000000100000000L)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
-+#include <asm-generic/rwsem_types.h>
+ 	rw		[KNL] Mount root device read-write on boot
  
- static inline void __down_read(struct rw_semaphore *sem)
- {
-diff --git a/arch/ia64/include/asm/rwsem.h b/arch/ia64/include/asm/rwsem.h
-index 8fa98dd..21a9066 100644
---- a/arch/ia64/include/asm/rwsem.h
-+++ b/arch/ia64/include/asm/rwsem.h
-@@ -26,13 +26,10 @@
- #endif
- 
- #include <asm/intrinsics.h>
-+#include <asm-generic/rwsem_types.h>
- 
-+#undef  RWSEM_UNLOCKED_VALUE
- #define RWSEM_UNLOCKED_VALUE		__IA64_UL_CONST(0x0000000000000000)
--#define RWSEM_ACTIVE_BIAS		(1L)
--#define RWSEM_ACTIVE_MASK		(0xffffffffL)
--#define RWSEM_WAITING_BIAS		(-0x100000000L)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
- 
- /*
-  * lock for reading
-diff --git a/arch/s390/include/asm/rwsem.h b/arch/s390/include/asm/rwsem.h
-index 597e7e9..13dedc8 100644
---- a/arch/s390/include/asm/rwsem.h
-+++ b/arch/s390/include/asm/rwsem.h
-@@ -39,12 +39,7 @@
- #error "please don't include asm/rwsem.h directly, use linux/rwsem.h instead"
- #endif
- 
--#define RWSEM_UNLOCKED_VALUE	0x0000000000000000L
--#define RWSEM_ACTIVE_BIAS	0x0000000000000001L
--#define RWSEM_ACTIVE_MASK	0x00000000ffffffffL
--#define RWSEM_WAITING_BIAS	(-0x0000000100000000L)
--#define RWSEM_ACTIVE_READ_BIAS	RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS	(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
-+#include <asm-generic/rwsem_types.h>
- 
- /*
-  * lock for reading
-diff --git a/arch/x86/include/asm/rwsem.h b/arch/x86/include/asm/rwsem.h
-index 089ced4..c6d155e 100644
---- a/arch/x86/include/asm/rwsem.h
-+++ b/arch/x86/include/asm/rwsem.h
-@@ -38,24 +38,7 @@
- 
- #ifdef __KERNEL__
- #include <asm/asm.h>
--
--/*
-- * The bias values and the counter type limits the number of
-- * potential readers/writers to 32767 for 32 bits and 2147483647
-- * for 64 bits.
-- */
--
--#ifdef CONFIG_X86_64
--# define RWSEM_ACTIVE_MASK		0xffffffffL
--#else
--# define RWSEM_ACTIVE_MASK		0x0000ffffL
--#endif
--
--#define RWSEM_UNLOCKED_VALUE		0x00000000L
--#define RWSEM_ACTIVE_BIAS		0x00000001L
--#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
-+#include <asm-generic/rwsem_types.h>
- 
- /*
-  * lock for reading
-diff --git a/include/asm-generic/rwsem.h b/include/asm-generic/rwsem.h
-index 5be122e..3cb8d98 100644
---- a/include/asm-generic/rwsem.h
-+++ b/include/asm-generic/rwsem.h
-@@ -12,21 +12,7 @@
-  * Adapted largely from include/asm-i386/rwsem.h
-  * by Paul Mackerras <paulus@samba.org>.
-  */
--
--/*
-- * the semaphore definition
-- */
--#ifdef CONFIG_64BIT
--# define RWSEM_ACTIVE_MASK		0xffffffffL
--#else
--# define RWSEM_ACTIVE_MASK		0x0000ffffL
--#endif
--
--#define RWSEM_UNLOCKED_VALUE		0x00000000L
--#define RWSEM_ACTIVE_BIAS		0x00000001L
--#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
--#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
--#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
-+#include <asm-generic/rwsem_types.h>
- 
- /*
-  * lock for reading
-diff --git a/include/asm-generic/rwsem_types.h b/include/asm-generic/rwsem_types.h
-new file mode 100644
-index 0000000..093ef6a
---- /dev/null
-+++ b/include/asm-generic/rwsem_types.h
-@@ -0,0 +1,26 @@
-+#ifndef _ASM_GENERIC_RWSEM_TYPES_H
-+#define _ASM_GENERIC_RWSEM_TYPES_H
++	rwsem_rspin_threshold=
++			[KNL] Set rw semaphore reader spinning threshold
 +
-+#ifdef __KERNEL__
+ 	S		[KNL] Run init in single mode
+ 
+ 	s390_iommu=	[HW,S390]
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index c6b6105..6360180 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -280,6 +280,18 @@ static inline bool rwsem_try_write_lock(long count, struct rw_semaphore *sem)
+ 
+ #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+ /*
++ * Reader spinning threshold
++ */
++static int __read_mostly rspin_threshold = RWSEM_RSPIN_THRESHOLD;
++
++static int __init set_rspin_threshold(char *str)
++{
++	get_option(&str, &rspin_threshold);
++	return 0;
++}
++early_param("rwsem_rspin_threshold", set_rspin_threshold);
 +
 +/*
-+ * the semaphore definition
-+ *
-+ * The bias values and the counter type limits the number of
-+ * potential readers/writers to 32767 for 32 bits and 2147483647
-+ * for 64 bits.
-+ */
-+#ifdef CONFIG_64BIT
-+# define RWSEM_ACTIVE_MASK		0xffffffffL
-+#else
-+# define RWSEM_ACTIVE_MASK		0x0000ffffL
-+#endif
-+
-+#define RWSEM_UNLOCKED_VALUE		0x00000000L
-+#define RWSEM_ACTIVE_BIAS		0x00000001L
-+#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
-+#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
-+#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
-+
-+#endif	/* __KERNEL__ */
-+#endif	/* _ASM_GENERIC_RWSEM_TYPES_H */
+  * Try to acquire write lock before the writer has been put on wait queue.
+  */
+ static inline bool rwsem_try_write_lock_unqueued(struct rw_semaphore *sem)
+@@ -402,7 +414,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem,
+ 	if (!osq_lock(&sem->osq))
+ 		goto done;
+ 
+-	rspin_cnt = sem->rspin_enabled ? RWSEM_RSPIN_THRESHOLD : 0;
++	rspin_cnt = sem->rspin_enabled ? rspin_threshold : 0;
+ 
+ 	/*
+ 	 * Optimistically spin on the owner field and attempt to acquire the
 -- 
 1.7.1
