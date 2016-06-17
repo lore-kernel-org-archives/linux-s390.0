@@ -1,100 +1,94 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip/locking/core v3 00/10]  locking/rwsem: Enable reader optimistic spinning
-Date: Fri, 17 Jun 2016 11:41:26 -0400
-Message-ID: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
+Subject: [RFC PATCH-tip/locking/core v3 02/10] locking/rwsem: Stop active read lock ASAP
+Date: Fri, 17 Jun 2016 11:41:28 -0400
+Message-ID: <1466178096-5623-3-git-send-email-Waiman.Long@hpe.com>
+In-Reply-To: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
+References: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160617154126.71Vh8a1JOORZu3aHkOcixTGNFjmD5alLAem_RcYrOKU@z>
+Message-ID: <20160617154128.dZjcIpfk8ojrKoAz90paHLdLQe4gogrYQfQRsy6J9G0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
 Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-v2->v3:
- - Used smp_acquire__after_ctrl_dep() to provide acquire barrier.
- - Added the following new patches:
-   1) make rwsem_spin_on_owner() return a tristate value.
-   2) reactivate reader spinning when there is a large number of
-      favorable writer-on-writer spinnings.
-   3) move all the rwsem macros in arch-specific rwsem.h files
-      into a common asm-generic/rwsem_types.h file.
-   4) add a boot parameter to specify the reader spinning threshold.
- - Updated some of the patches as suggested by PeterZ and adjusted
-   some of the reader spinning parameters.
+Currently, when down_read() fails, the active read locking isn't undone
+until the rwsem_down_read_failed() function grabs the wait_lock. If the
+wait_lock is contended, it may takes a while to get the lock. During
+that period, writer lock stealing will be disabled because of the
+active read lock.
 
-v1->v2:
- - Fixed a 0day build error.
- - Added a new patch 1 to make osq_lock() a proper acquire memory
-   barrier.
- - Replaced the explicit enabling of reader spinning by an autotuning
-   mechanism that disable reader spinning for those rwsems that may
-   not benefit from reader spinning.
- - Remove the last xfs patch as it is no longer necessary.
+This patch will release the active read lock ASAP so that writer lock
+stealing can happen sooner. The only downside is when the reader is
+the first one in the wait queue as it has to issue another atomic
+operation to update the count.
 
-This patchset enables more aggressive optimistic spinning on
-both readers and writers waiting on a writer or reader owned
-lock. Spinning on writer is done by looking at the on_cpu flag of the
-lock owner. Spinning on readers, on the other hand, is count-based as
-there is no easy way to figure out if all the readers are running. The
-spinner will stop spinning once the count goes to 0. Because of that,
-spinning on readers may hurt performance in some cases.
+On a 4-socket Haswell machine running on a 4.7-rc1 tip-based kernel,
+the fio test with multithreaded randrw and randwrite tests on the
+same file on a XFS partition on top of a NVDIMM with DAX were run,
+the aggregated bandwidths before and after the patch were as follows:
 
-An autotuning mechanism is used to determine if a rwsem can benefit
-from reader optimistic spinning. It will maintain reader spinning as
-long as no less than 80% of the spins are successful.
+  Test      BW before patch     BW after patch  % change
+  ----      ---------------     --------------  --------
+  randrw        1210 MB/s          1352 MB/s      +12%
+  randwrite     1622 MB/s          1710 MB/s      +5.4%
 
-Patch 1 updates the osq_lock() function to make it a proper acquire
-memory barrier.
+The write-only microbench also showed improvement because some read
+locking was done by the XFS code.
 
-Patch 2 reduces the length of the blocking window after a read locking
-attempt where writer lock stealing is disabled because of the active
-read lock. It can improve rwsem performance for contended lock. It is
-independent of the rest of the patchset.
+Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
+---
+ kernel/locking/rwsem-xadd.c |   19 ++++++++++++++-----
+ 1 files changed, 14 insertions(+), 5 deletions(-)
 
-Patch 3 modifies rwsem_spin_on_owner() to return a tri-state value
-that can be used in later patch.
-
-Patch 4 puts in place the autotuning mechanism to check if reader
-optimistic spinning should be used or not.
-
-Patch 5 moves down the rwsem_down_read_failed() function for later
-patches.
-
-Patch 6 moves the macro definitions in various arch-specific rwsem.h
-header files into a commont asm-generic/rwsem_types.h file.
-
-Patch 7 changes RWSEM_WAITING_BIAS to simpify reader trylock code.
-
-Patch 8 enables readers to do optimistic spinning.
-
-Patch 9 allows reactivation of reader spinning when a lot of
-writer-on-writer spins are successful.
-
-Patch 10 adds a new boot parameter to change the reader spinning
-threshold which can be system specific.
-
-Waiman Long (10):
-  locking/osq: Make lock/unlock proper acquire/release barrier
-  locking/rwsem: Stop active read lock ASAP
-  locking/rwsem: Make rwsem_spin_on_owner() return a tri-state value
-  locking/rwsem: Enable count-based spinning on reader
-  locking/rwsem: move down rwsem_down_read_failed function
-  locking/rwsem: Move common rwsem macros to asm-generic/rwsem_types.h
-  locking/rwsem: Change RWSEM_WAITING_BIAS for better disambiguation
-  locking/rwsem: Enable spinning readers
-  locking/rwsem: Enable reactivation of reader spinning
-  locking/rwsem: Add a boot parameter to reader spinning threshold
-
- Documentation/kernel-parameters.txt |    3 +
- arch/alpha/include/asm/rwsem.h      |   11 +-
- arch/ia64/include/asm/rwsem.h       |    9 +-
- arch/s390/include/asm/rwsem.h       |    9 +-
- arch/x86/include/asm/rwsem.h        |   22 +---
- include/asm-generic/rwsem.h         |   20 +--
- include/asm-generic/rwsem_types.h   |   28 ++++
- include/linux/rwsem.h               |   23 +++-
- kernel/locking/osq_lock.c           |    7 +-
- kernel/locking/rwsem-xadd.c         |  296 ++++++++++++++++++++++++++---------
- 10 files changed, 296 insertions(+), 132 deletions(-)
- create mode 100644 include/asm-generic/rwsem_types.h
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 2031281..29027c6 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -230,11 +230,18 @@ __rwsem_mark_wake(struct rw_semaphore *sem,
+ __visible
+ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
+ {
+-	long count, adjustment = -RWSEM_ACTIVE_READ_BIAS;
++	long count, adjustment = 0;
+ 	struct rwsem_waiter waiter;
+ 	struct task_struct *tsk = current;
+ 	WAKE_Q(wake_q);
+ 
++	/*
++	 * Undo read bias from down_read operation, stop active locking.
++	 * Doing that after taking the wait_lock may block writer lock
++	 * stealing for too long.
++	 */
++	atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
++
+ 	/* set up my own style of waitqueue */
+ 	waiter.task = tsk;
+ 	waiter.type = RWSEM_WAITING_FOR_READ;
+@@ -244,8 +251,11 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
+ 		adjustment += RWSEM_WAITING_BIAS;
+ 	list_add_tail(&waiter.list, &sem->wait_list);
+ 
+-	/* we're now waiting on the lock, but no longer actively locking */
+-	count = atomic_long_add_return(adjustment, &sem->count);
++	/* we're now waiting on the lock */
++	if (adjustment)
++		count = atomic_long_add_return(adjustment, &sem->count);
++	else
++		count = atomic_long_read(&sem->count);
+ 
+ 	/* If there are no active locks, wake the front queued process(es).
+ 	 *
+@@ -253,8 +263,7 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
+ 	 * wake our own waiter to join the existing active readers !
+ 	 */
+ 	if (count == RWSEM_WAITING_BIAS ||
+-	    (count > RWSEM_WAITING_BIAS &&
+-	     adjustment != -RWSEM_ACTIVE_READ_BIAS))
++	    (count > RWSEM_WAITING_BIAS && adjustment))
+ 		sem = __rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
+ 
+ 	raw_spin_unlock_irq(&sem->wait_lock);
+-- 
+1.7.1
