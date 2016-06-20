@@ -1,94 +1,52 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip/locking/core v3 02/10] locking/rwsem: Stop active read lock ASAP
-Date: Fri, 17 Jun 2016 11:41:28 -0400
-Message-ID: <1466178096-5623-3-git-send-email-Waiman.Long@hpe.com>
-In-Reply-To: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
-References: <1466178096-5623-1-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160617154128.dZjcIpfk8ojrKoAz90paHLdLQe4gogrYQfQRsy6J9G0@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 1/1] mm/page_ref: introduce page_ref_inc_return
+Date: Mon, 20 Jun 2016 12:38:13 +0200
+Message-ID: <1466419093-114348-2-git-send-email-borntraeger@de.ibm.com>
+References: <1466419093-114348-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1466419093-114348-1-git-send-email-borntraeger@de.ibm.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>, Joonsoo Kim <iamjoonsoo.kim@lge.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, when down_read() fails, the active read locking isn't undone
-until the rwsem_down_read_failed() function grabs the wait_lock. If the
-wait_lock is contended, it may takes a while to get the lock. During
-that period, writer lock stealing will be disabled because of the
-active read lock.
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-This patch will release the active read lock ASAP so that writer lock
-stealing can happen sooner. The only downside is when the reader is
-the first one in the wait queue as it has to issue another atomic
-operation to update the count.
+Let's introduce that helper.
 
-On a 4-socket Haswell machine running on a 4.7-rc1 tip-based kernel,
-the fio test with multithreaded randrw and randwrite tests on the
-same file on a XFS partition on top of a NVDIMM with DAX were run,
-the aggregated bandwidths before and after the patch were as follows:
-
-  Test      BW before patch     BW after patch  % change
-  ----      ---------------     --------------  --------
-  randrw        1210 MB/s          1352 MB/s      +12%
-  randwrite     1622 MB/s          1710 MB/s      +5.4%
-
-The write-only microbench also showed improvement because some read
-locking was done by the XFS code.
-
-Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- kernel/locking/rwsem-xadd.c |   19 ++++++++++++++-----
- 1 files changed, 14 insertions(+), 5 deletions(-)
+ include/linux/page_ref.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index 2031281..29027c6 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -230,11 +230,18 @@ __rwsem_mark_wake(struct rw_semaphore *sem,
- __visible
- struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- {
--	long count, adjustment = -RWSEM_ACTIVE_READ_BIAS;
-+	long count, adjustment = 0;
- 	struct rwsem_waiter waiter;
- 	struct task_struct *tsk = current;
- 	WAKE_Q(wake_q);
+diff --git a/include/linux/page_ref.h b/include/linux/page_ref.h
+index 8b5e0a9..610e132 100644
+--- a/include/linux/page_ref.h
++++ b/include/linux/page_ref.h
+@@ -124,6 +124,15 @@ static inline int page_ref_sub_and_test(struct page *page, int nr)
+ 	return ret;
+ }
  
-+	/*
-+	 * Undo read bias from down_read operation, stop active locking.
-+	 * Doing that after taking the wait_lock may block writer lock
-+	 * stealing for too long.
-+	 */
-+	atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
++static inline int page_ref_inc_return(struct page *page)
++{
++	int ret = atomic_inc_return(&page->_refcount);
 +
- 	/* set up my own style of waitqueue */
- 	waiter.task = tsk;
- 	waiter.type = RWSEM_WAITING_FOR_READ;
-@@ -244,8 +251,11 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- 		adjustment += RWSEM_WAITING_BIAS;
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
--	/* we're now waiting on the lock, but no longer actively locking */
--	count = atomic_long_add_return(adjustment, &sem->count);
-+	/* we're now waiting on the lock */
-+	if (adjustment)
-+		count = atomic_long_add_return(adjustment, &sem->count);
-+	else
-+		count = atomic_long_read(&sem->count);
- 
- 	/* If there are no active locks, wake the front queued process(es).
- 	 *
-@@ -253,8 +263,7 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- 	 * wake our own waiter to join the existing active readers !
- 	 */
- 	if (count == RWSEM_WAITING_BIAS ||
--	    (count > RWSEM_WAITING_BIAS &&
--	     adjustment != -RWSEM_ACTIVE_READ_BIAS))
-+	    (count > RWSEM_WAITING_BIAS && adjustment))
- 		sem = __rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
- 
- 	raw_spin_unlock_irq(&sem->wait_lock);
++	if (page_ref_tracepoint_active(__tracepoint_page_ref_mod_and_return))
++		__page_ref_mod_and_return(page, 1, ret);
++	return ret;
++}
++
+ static inline int page_ref_dec_and_test(struct page *page)
+ {
+ 	int ret = atomic_dec_and_test(&page->_refcount);
 -- 
-1.7.1
+2.5.5
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
