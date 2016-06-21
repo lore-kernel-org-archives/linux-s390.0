@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 50/51] KVM: s390: vsie: add indication for future features
-Date: Tue, 21 Jun 2016 15:13:28 +0200
-Message-ID: <1466514809-146638-51-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 27/51] mm/page_ref: introduce page_ref_inc_return
+Date: Tue, 21 Jun 2016 15:13:05 +0200
+Message-ID: <1466514809-146638-28-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,64 +14,34 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-We have certain SIE features that we cannot support for now.
-Let's add these features, so user space can directly prepare to enable
-them, so we don't have to update yet another component.
+Let's introduce that helper.
 
-In addition, add a comment block, telling why it is for now not possible to
-forward/enable these features.
-
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Acked-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/uapi/asm/kvm.h |  4 ++++
- arch/s390/kvm/kvm-s390.c         | 18 ++++++++++++++++++
- 2 files changed, 22 insertions(+)
+ include/linux/page_ref.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index c128567..a2ffec4 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -106,6 +106,10 @@ struct kvm_s390_vm_cpu_machine {
- #define KVM_S390_VM_CPU_FEAT_IB		6
- #define KVM_S390_VM_CPU_FEAT_CEI	7
- #define KVM_S390_VM_CPU_FEAT_IBS	8
-+#define KVM_S390_VM_CPU_FEAT_SKEY	9
-+#define KVM_S390_VM_CPU_FEAT_CMMA	10
-+#define KVM_S390_VM_CPU_FEAT_PFMFI	11
-+#define KVM_S390_VM_CPU_FEAT_SIGPIF	12
- struct kvm_s390_vm_cpu_feat {
- 	__u64 feat[16];
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6fdf1f7..31cf22f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -281,6 +281,24 @@ static void kvm_s390_cpu_feat_init(void)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_CEI);
- 	if (sclp.has_ibs)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_IBS);
-+	/*
-+	 * KVM_S390_VM_CPU_FEAT_SKEY: Wrong shadow of PTE.I bits will make
-+	 * all skey handling functions read/set the skey from the PGSTE
-+	 * instead of the real storage key.
-+	 *
-+	 * KVM_S390_VM_CPU_FEAT_CMMA: Wrong shadow of PTE.I bits will make
-+	 * pages being detected as preserved although they are resident.
-+	 *
-+	 * KVM_S390_VM_CPU_FEAT_PFMFI: Wrong shadow of PTE.I bits will
-+	 * have the same effect as for KVM_S390_VM_CPU_FEAT_SKEY.
-+	 *
-+	 * For KVM_S390_VM_CPU_FEAT_SKEY, KVM_S390_VM_CPU_FEAT_CMMA and
-+	 * KVM_S390_VM_CPU_FEAT_PFMFI, all PTE.I and PGSTE bits have to be
-+	 * correctly shadowed. We can do that for the PGSTE but not for PTE.I.
-+	 *
-+	 * KVM_S390_VM_CPU_FEAT_SIGPIF: Wrong SCB addresses in the SCA. We
-+	 * cannot easily shadow the SCA because of the ipte lock.
-+	 */
+diff --git a/include/linux/page_ref.h b/include/linux/page_ref.h
+index 8b5e0a9..610e132 100644
+--- a/include/linux/page_ref.h
++++ b/include/linux/page_ref.h
+@@ -124,6 +124,15 @@ static inline int page_ref_sub_and_test(struct page *page, int nr)
+ 	return ret;
  }
  
- int kvm_arch_init(void *opaque)
++static inline int page_ref_inc_return(struct page *page)
++{
++	int ret = atomic_inc_return(&page->_refcount);
++
++	if (page_ref_tracepoint_active(__tracepoint_page_ref_mod_and_return))
++		__page_ref_mod_and_return(page, 1, ret);
++	return ret;
++}
++
+ static inline int page_ref_dec_and_test(struct page *page)
+ {
+ 	int ret = atomic_dec_and_test(&page->_refcount);
 -- 
 2.5.5
