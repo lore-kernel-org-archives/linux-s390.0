@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 14/51] s390/mm: push ste protection down to shadow pte
-Date: Tue, 21 Jun 2016 15:12:52 +0200
-Message-ID: <1466514809-146638-15-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 32/51] KVM: s390: vsie: support host-protection-interruption
+Date: Tue, 21 Jun 2016 15:13:10 +0200
+Message-ID: <1466514809-146638-33-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,33 +14,29 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-If a guest ste is read-only, it doesn't make sense to force the ptes in as
-writable in the host. If the source page is read-only in the host, it won't
-have to be made writable. Please note that if the source page is not
-available, it will still be faulted in writable. This can be changed
-internally later on.
+Introduced with ESOP, therefore available for the guest if it
+is allowed to use ESOP.
 
-If ste protection is removed, underlying shadow tables are also removed,
-therefore this change does not affect the guest.
-
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kvm/vsie.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index e70f916..a85bc6c 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1111,6 +1111,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
- 		rc = PGM_PAGE_TRANSLATION;
- 	if (!rc && (pte.z || pte.co))
- 		rc = PGM_TRANSLATION_SPEC;
-+	pte.p |= dat_protection;
- 	if (!rc)
- 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
- 	ipte_unlock(vcpu);
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 7c9835b..aaed63c 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -240,6 +240,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 
+ 	/* MVPG and Protection Exception Interpretation are always available */
+ 	scb_s->eca |= scb_o->eca & 0x01002000U;
++	/* Host-protection-interruption introduced with ESOP */
++	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ESOP))
++		scb_s->ecb |= scb_o->ecb & 0x02U;
+ 
+ 	prepare_ibc(vcpu, vsie_page);
+ out:
 -- 
 2.5.5
