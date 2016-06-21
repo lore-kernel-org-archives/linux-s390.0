@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 25/51] KVM: s390: backup the currently enabled gmap when scheduled out
-Date: Tue, 21 Jun 2016 15:13:03 +0200
-Message-ID: <1466514809-146638-26-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 12/51] s390/mm: protection exceptions are corrrectly shadowed
+Date: Tue, 21 Jun 2016 15:12:50 +0200
+Message-ID: <1466514809-146638-13-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,102 +14,63 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Nested virtualization will have to enable own gmaps. Current code
-would enable the wrong gmap whenever scheduled out and back in,
-therefore resulting in the wrong gmap being enabled.
+As gmap shadows contains correct protection permissions, protection
+exceptons can directly be forwarded to guest 3. If we would encounter
+a protection exception while faulting, the next guest 3 run will
+automatically handle that for us.
 
-This patch reenables the last enabled gmap, therefore avoiding having to
-touch vcpu->arch.gmap when enabling a different gmap.
+Keep the dat_protection logic in place, as it will be helpful later.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/gmap.h     |  1 +
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/kvm-s390.c         |  8 +++++---
- arch/s390/mm/gmap.c              | 11 +++++++++++
- 4 files changed, 19 insertions(+), 3 deletions(-)
+ arch/s390/kvm/gaccess.c | 6 +-----
+ arch/s390/kvm/gaccess.h | 2 +-
+ 2 files changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index c67fb85..741ddba 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -94,6 +94,7 @@ void gmap_put(struct gmap *gmap);
- 
- void gmap_enable(struct gmap *gmap);
- void gmap_disable(struct gmap *gmap);
-+struct gmap *gmap_get_enabled(void);
- int gmap_map_segment(struct gmap *gmap, unsigned long from,
- 		     unsigned long to, unsigned long len);
- int gmap_unmap_segment(struct gmap *gmap, unsigned long to, unsigned long len);
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 9eed5c1..96bef30 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -551,6 +551,8 @@ struct kvm_vcpu_arch {
- 	struct hrtimer    ckc_timer;
- 	struct kvm_s390_pgm_info pgm;
- 	struct gmap *gmap;
-+	/* backup location for the currently enabled gmap when scheduled out */
-+	struct gmap *enabled_gmap;
- 	struct kvm_guestdbg_info_arch guestdbg;
- 	unsigned long pfault_token;
- 	unsigned long pfault_select;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 45a8316..a890f7d 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1719,7 +1719,7 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- 
- 	save_access_regs(vcpu->arch.host_acrs);
- 	restore_access_regs(vcpu->run->s.regs.acrs);
--	gmap_enable(vcpu->arch.gmap);
-+	gmap_enable(vcpu->arch.enabled_gmap);
- 	atomic_or(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
- 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
- 		__start_cpu_timer_accounting(vcpu);
-@@ -1732,7 +1732,8 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
- 		__stop_cpu_timer_accounting(vcpu);
- 	atomic_andnot(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
--	gmap_disable(vcpu->arch.gmap);
-+	vcpu->arch.enabled_gmap = gmap_get_enabled();
-+	gmap_disable(vcpu->arch.enabled_gmap);
- 
- 	/* Save guest register state */
- 	save_fpu_regs();
-@@ -1781,7 +1782,8 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- 		vcpu->arch.gmap = vcpu->kvm->arch.gmap;
- 		sca_add_vcpu(vcpu);
- 	}
--
-+	/* make vcpu_load load the right gmap on the first trigger */
-+	vcpu->arch.enabled_gmap = vcpu->arch.gmap;
- }
- 
- static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 738d754..af0ae6d 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -270,6 +270,17 @@ void gmap_disable(struct gmap *gmap)
- }
- EXPORT_SYMBOL_GPL(gmap_disable);
- 
-+/**
-+ * gmap_get_enabled - get a pointer to the currently enabled gmap
-+ *
-+ * Returns a pointer to the currently enabled gmap. 0 if none is enabled.
-+ */
-+struct gmap *gmap_get_enabled(void)
-+{
-+	return (struct gmap *) S390_lowcore.gmap;
-+}
-+EXPORT_SYMBOL_GPL(gmap_get_enabled);
-+
- /*
-  * gmap_alloc_table is assumed to be called with mmap_sem held
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 5b5eee2..b2783dd 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1075,7 +1075,6 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+  * kvm_s390_shadow_fault - handle fault on a shadow page table
+  * @sg: pointer to the shadow guest address space structure
+  * @saddr: faulting address in the shadow gmap
+- * @write: =1 map r/w, =0 map r/o
+  *
+  * Returns: - 0 if the shadow fault was successfully resolved
+  *	    - > 0 (pgm exception code) on exceptions while faulting
+@@ -1083,7 +1082,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+  *	    - -EFAULT when accessing invalid guest addresses
+  *	    - -ENOMEM if out of memory
   */
+-int kvm_s390_shadow_fault(struct gmap *sg, unsigned long saddr, int write)
++int kvm_s390_shadow_fault(struct gmap *sg, unsigned long saddr)
+ {
+ 	union vaddress vaddr;
+ 	union page_table_entry pte;
+@@ -1104,9 +1103,6 @@ int kvm_s390_shadow_fault(struct gmap *sg, unsigned long saddr, int write)
+ 		rc = PGM_PAGE_TRANSLATION;
+ 	if (!rc && (pte.z || pte.co))
+ 		rc = PGM_TRANSLATION_SPEC;
+-	dat_protection |= pte.p;
+-	if (!rc && write && dat_protection)
+-		rc = PGM_PROTECTION;
+ 	if (!rc)
+ 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
+ 	up_read(&sg->mm->mmap_sem);
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index e5ec473..0d044d0 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -361,6 +361,6 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+ int ipte_lock_held(struct kvm_vcpu *vcpu);
+ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
+ 
+-int kvm_s390_shadow_fault(struct gmap *shadow, unsigned long saddr, int write);
++int kvm_s390_shadow_fault(struct gmap *shadow, unsigned long saddr);
+ 
+ #endif /* __KVM_S390_GACCESS_H */
 -- 
 2.5.5
