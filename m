@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 42/51] KVM: s390: vsie: support intervention-bypass
-Date: Tue, 21 Jun 2016 15:13:20 +0200
-Message-ID: <1466514809-146638-43-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 23/51] s390/mm: don't fault everything in read-write in gmap_pte_op_fixup()
+Date: Tue, 21 Jun 2016 15:13:01 +0200
+Message-ID: <1466514809-146638-24-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,55 +14,100 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-We can easily enable intervention bypass for guest 2, so it can use it
-for guest 3.
+Let's not fault in everything in read-write but limit it to read-only
+where possible.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+When restricting access rights, we already have the required protection
+level in our hands. When reading from guest 2 storage (gmap_read_table),
+it is obviously PROT_READ. When shadowing a pte, the required protection
+level is given via the guest 2 provided pte.
+
+Based on an initial patch by Martin Schwidefsky.
+
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/uapi/asm/kvm.h | 1 +
- arch/s390/kvm/kvm-s390.c         | 2 ++
- arch/s390/kvm/vsie.c             | 2 ++
- 3 files changed, 5 insertions(+)
+ arch/s390/mm/gmap.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 9ed0747..347f4f6 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -103,6 +103,7 @@ struct kvm_s390_vm_cpu_machine {
- #define KVM_S390_VM_CPU_FEAT_SIIF	3
- #define KVM_S390_VM_CPU_FEAT_GPERE	4
- #define KVM_S390_VM_CPU_FEAT_GSLS	5
-+#define KVM_S390_VM_CPU_FEAT_IB		6
- struct kvm_s390_vm_cpu_feat {
- 	__u64 feat[16];
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ce9813a..5ec598c 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -273,6 +273,8 @@ static void kvm_s390_cpu_feat_init(void)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_GPERE);
- 	if (sclp.has_gsls)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_GSLS);
-+	if (sclp.has_ib)
-+		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_IB);
- }
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index d00e4ab..738d754 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -811,19 +811,22 @@ static pte_t *gmap_pte_op_walk(struct gmap *gmap, unsigned long gaddr,
+  * @gmap: pointer to guest mapping meta data structure
+  * @gaddr: virtual address in the guest address space
+  * @vmaddr: address in the host process address space
++ * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
+  *
+  * Returns 0 if the caller can retry __gmap_translate (might fail again),
+  * -ENOMEM if out of memory and -EFAULT if anything goes wrong while fixing
+  * up or connecting the gmap page table.
+  */
+ static int gmap_pte_op_fixup(struct gmap *gmap, unsigned long gaddr,
+-			     unsigned long vmaddr)
++			     unsigned long vmaddr, int prot)
+ {
+ 	struct mm_struct *mm = gmap->mm;
++	unsigned int fault_flags;
+ 	bool unlocked = false;
  
- int kvm_arch_init(void *opaque)
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index ea65bf2..d29bd59 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -322,6 +322,8 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_s->ecb3 |= scb_o->ecb3 & 0x01U;
- 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_SIIF))
- 		scb_s->eca |= scb_o->eca & 0x00000001U;
-+	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_IB))
-+		scb_s->eca |= scb_o->eca & 0x40000000U;
+ 	BUG_ON(gmap_is_shadow(gmap));
+-	if (fixup_user_fault(current, mm, vmaddr, FAULT_FLAG_WRITE, &unlocked))
++	fault_flags = (prot == PROT_WRITE) ? FAULT_FLAG_WRITE : 0;
++	if (fixup_user_fault(current, mm, vmaddr, fault_flags, &unlocked))
+ 		return -EFAULT;
+ 	if (unlocked)
+ 		/* lost mmap_sem, caller has to retry __gmap_translate */
+@@ -875,7 +878,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 			vmaddr = __gmap_translate(gmap, gaddr);
+ 			if (IS_ERR_VALUE(vmaddr))
+ 				return vmaddr;
+-			rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr);
++			rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr, prot);
+ 			if (rc)
+ 				return rc;
+ 			continue;
+@@ -957,7 +960,7 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val)
+ 			rc = vmaddr;
+ 			break;
+ 		}
+-		rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr);
++		rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr, PROT_READ);
+ 		if (rc)
+ 			break;
+ 	}
+@@ -1041,7 +1044,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
+ 		radix_tree_preload_end();
+ 		if (rc) {
+ 			kfree(rmap);
+-			rc = gmap_pte_op_fixup(parent, paddr, vmaddr);
++			rc = gmap_pte_op_fixup(parent, paddr, vmaddr, prot);
+ 			if (rc)
+ 				return rc;
+ 			continue;
+@@ -1910,10 +1913,12 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
+ 	unsigned long vmaddr, paddr;
+ 	spinlock_t *ptl;
+ 	pte_t *sptep, *tptep;
++	int prot;
+ 	int rc;
  
- 	prepare_ibc(vcpu, vsie_page);
- 	rc = shadow_crycb(vcpu, vsie_page);
+ 	BUG_ON(!gmap_is_shadow(sg));
+ 	parent = sg->parent;
++	prot = (pte_val(pte) & _PAGE_PROTECT) ? PROT_READ : PROT_WRITE;
+ 
+ 	rmap = kzalloc(sizeof(*rmap), GFP_KERNEL);
+ 	if (!rmap)
+@@ -1955,7 +1960,7 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
+ 		radix_tree_preload_end();
+ 		if (!rc)
+ 			break;
+-		rc = gmap_pte_op_fixup(parent, paddr, vmaddr);
++		rc = gmap_pte_op_fixup(parent, paddr, vmaddr, prot);
+ 		if (rc)
+ 			break;
+ 	}
 -- 
 2.5.5
