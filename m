@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 24/51] KVM: s390: fast path for shadow gmaps in gmap notifier
-Date: Tue, 21 Jun 2016 15:13:02 +0200
-Message-ID: <1466514809-146638-25-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 14/51] s390/mm: push ste protection down to shadow pte
+Date: Tue, 21 Jun 2016 15:12:52 +0200
+Message-ID: <1466514809-146638-15-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,28 +14,33 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-The default kvm gmap notifier doesn't have to handle shadow gmaps.
-So let's just directly exit in case we get notified about one.
+If a guest ste is read-only, it doesn't make sense to force the ptes in as
+writable in the host. If the source page is read-only in the host, it won't
+have to be made writable. Please note that if the source page is not
+available, it will still be faulted in writable. This can be changed
+internally later on.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+If ste protection is removed, underlying shadow tables are also removed,
+therefore this change does not affect the guest.
+
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kvm/gaccess.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 9dd5298..45a8316 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1986,6 +1986,8 @@ static void kvm_gmap_notifier(struct gmap *gmap, unsigned long start,
- 	unsigned long prefix;
- 	int i;
- 
-+	if (gmap_is_shadow(gmap))
-+		return;
- 	if (start >= 1UL << 31)
- 		/* We are only interested in prefix pages */
- 		return;
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index e70f916..a85bc6c 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1111,6 +1111,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 		rc = PGM_PAGE_TRANSLATION;
+ 	if (!rc && (pte.z || pte.co))
+ 		rc = PGM_TRANSLATION_SPEC;
++	pte.p |= dat_protection;
+ 	if (!rc)
+ 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
+ 	ipte_unlock(vcpu);
 -- 
 2.5.5
