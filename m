@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 21/51] s390/mm: remember the int code for the last gmap fault
-Date: Tue, 21 Jun 2016 15:12:59 +0200
-Message-ID: <1466514809-146638-22-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 26/51] s390: introduce page_to_virt() and pfn_to_virt()
+Date: Tue, 21 Jun 2016 15:13:04 +0200
+Message-ID: <1466514809-146638-27-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,41 +14,26 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-For nested virtualization, we want to know if we are handling a protection
-exception, because these can directly be forwarded to the guest without
-additional checks.
-
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/processor.h | 1 +
- arch/s390/mm/fault.c              | 1 +
- 2 files changed, 2 insertions(+)
+ arch/s390/include/asm/page.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 94c80b6..8c2922f 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -110,6 +110,7 @@ struct thread_struct {
- 	mm_segment_t mm_segment;
- 	unsigned long gmap_addr;	/* address of last gmap fault. */
- 	unsigned int gmap_write_flag;	/* gmap fault write indication */
-+	unsigned int gmap_int_code;	/* int code of last gmap fault */
- 	unsigned int gmap_pfault;	/* signal of a pending guest pfault */
- 	struct per_regs per_user;	/* User specified PER registers */
- 	struct per_event per_event;	/* Cause of the last PER trap */
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index b84416c..730e0d3 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -419,6 +419,7 @@ static inline int do_exception(struct pt_regs *regs, int access)
- 	if (gmap) {
- 		current->thread.gmap_addr = address;
- 		current->thread.gmap_write_flag = !!(flags & FAULT_FLAG_WRITE);
-+		current->thread.gmap_int_code = regs->int_code & 0xffff;
- 		address = __gmap_translate(gmap, address);
- 		if (address == -EFAULT) {
- 			fault = VM_FAULT_BADMAP;
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index f874e7d5..b5edff3 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -147,6 +147,8 @@ static inline int devmem_is_allowed(unsigned long pfn)
+ #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
+ #define page_to_phys(page)	(page_to_pfn(page) << PAGE_SHIFT)
+ #define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
++#define pfn_to_virt(pfn)	__va((pfn) << PAGE_SHIFT)
++#define page_to_virt(page)	pfn_to_virt(page_to_pfn(page))
+ 
+ #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 -- 
 2.5.5
