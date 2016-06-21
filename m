@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 22/51] s390/mm: allow to check if a gmap shadow is valid
-Date: Tue, 21 Jun 2016 15:13:00 +0200
-Message-ID: <1466514809-146638-23-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 36/51] KVM: s390: vsie: support vectory facility (SIMD)
+Date: Tue, 21 Jun 2016 15:13:14 +0200
+Message-ID: <1466514809-146638-37-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,59 +14,87 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-It will be very helpful to have a mechanism to check without any locks
-if a given gmap shadow is still valid and matches the given properties.
+As soon as guest 2 is allowed to use the vector facility (indicated via
+STFLE), it can also enable it for guest 3. We have to take care of the
+sattellite block that might be used when not relying on lazy vector
+copying (not the case for KVM).
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/gmap.h |  1 +
- arch/s390/mm/gmap.c          | 20 ++++++++++++++++++++
- 2 files changed, 21 insertions(+)
+ arch/s390/include/asm/kvm_host.h |  2 +-
+ arch/s390/kvm/vsie.c             | 31 +++++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 752cf47..c67fb85 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -109,6 +109,7 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val);
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 255609c..190ad63 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -229,7 +229,7 @@ struct kvm_s390_sie_block {
+ 	__u8	reserved1e6[2];		/* 0x01e6 */
+ 	__u64	itdba;			/* 0x01e8 */
+ 	__u64   riccbd;			/* 0x01f0 */
+-	__u8    reserved1f8[8];		/* 0x01f8 */
++	__u64	gvrd;			/* 0x01f8 */
+ } __attribute__((packed));
  
- struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
- 			 int edat_level);
-+int gmap_shadow_valid(struct gmap *sg, unsigned long asce, int edat_level);
- int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
- 		    int fake);
- int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 4a1434b..d00e4ab 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1408,6 +1408,26 @@ static struct gmap *gmap_find_shadow(struct gmap *parent, unsigned long asce,
+ struct kvm_s390_itdb {
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 4e2c71c..6d9f405 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -307,6 +307,11 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 			prefix_unmapped(vsie_page);
+ 		scb_s->ecb |= scb_o->ecb & 0x10U;
+ 	}
++	/* SIMD */
++	if (test_kvm_facility(vcpu->kvm, 129)) {
++		scb_s->eca |= scb_o->eca & 0x00020000U;
++		scb_s->ecd |= scb_o->ecd & 0x20000000U;
++	}
+ 
+ 	prepare_ibc(vcpu, vsie_page);
+ 	rc = shadow_crycb(vcpu, vsie_page);
+@@ -452,6 +457,13 @@ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		unpin_guest_page(vcpu->kvm, gpa, hpa);
+ 		scb_s->itdba = 0;
+ 	}
++
++	hpa = scb_s->gvrd;
++	if (hpa) {
++		gpa = scb_o->gvrd & ~0x1ffUL;
++		unpin_guest_page(vcpu->kvm, gpa, hpa);
++		scb_s->gvrd = 0;
++	}
  }
  
- /**
-+ * gmap_shadow_valid - check if a shadow guest address space matches the
-+ *                     given properties and is still valid
-+ * @sg: pointer to the shadow guest address space structure
-+ * @asce: ASCE for which the shadow table is requested
-+ * @edat_level: edat level to be used for the shadow translation
-+ *
-+ * Returns 1 if the gmap shadow is still valid and matches the given
-+ * properties, the caller can continue using it. Returns 0 otherwise, the
-+ * caller has to request a new shadow gmap in this case.
-+ *
-+ */
-+int gmap_shadow_valid(struct gmap *sg, unsigned long asce, int edat_level)
-+{
-+	if (sg->removed)
-+		return 0;
-+	return sg->orig_asce == asce && sg->edat_level == edat_level;
-+}
-+EXPORT_SYMBOL_GPL(gmap_shadow_valid);
+ /*
+@@ -510,6 +522,25 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 			goto unpin;
+ 		scb_s->itdba = hpa;
+ 	}
 +
-+/**
-  * gmap_shadow - create/find a shadow guest address space
-  * @parent: pointer to the parent gmap
-  * @asce: ASCE for which the shadow table is created
++	gpa = scb_o->gvrd & ~0x1ffUL;
++	if (gpa && (scb_s->eca & 0x00020000U) &&
++	    !(scb_s->ecd & 0x20000000U)) {
++		if (!(gpa & ~0x1fffUL)) {
++			rc = set_validity_icpt(scb_s, 0x1310U);
++			goto unpin;
++		}
++		/*
++		 * 512 bytes vector registers cannot cross page boundaries
++		 * if this block gets bigger, we have to shadow it.
++		 */
++		rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
++		if (rc == -EINVAL)
++			rc = set_validity_icpt(scb_s, 0x1310U);
++		if (rc)
++			goto unpin;
++		scb_s->gvrd = hpa;
++	}
+ 	return 0;
+ unpin:
+ 	unpin_blocks(vcpu, vsie_page);
 -- 
 2.5.5
