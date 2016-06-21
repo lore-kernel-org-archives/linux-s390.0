@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 36/51] KVM: s390: vsie: support vectory facility (SIMD)
-Date: Tue, 21 Jun 2016 15:13:14 +0200
-Message-ID: <1466514809-146638-37-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 20/51] s390/mm: limit number of real-space gmap shadows
+Date: Tue, 21 Jun 2016 15:12:58 +0200
+Message-ID: <1466514809-146638-21-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,87 +14,45 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-As soon as guest 2 is allowed to use the vector facility (indicated via
-STFLE), it can also enable it for guest 3. We have to take care of the
-sattellite block that might be used when not relying on lazy vector
-copying (not the case for KVM).
+We have no known user of real-space designation and only support it to
+be architecture compliant.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Gmap shadows with real-space designation are never unshadowed
+automatically, as there is nothing to protect for the top level table.
+
+So let's simply limit the number of such shadows to one by removing
+existing ones on creation of another one.
+
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  2 +-
- arch/s390/kvm/vsie.c             | 31 +++++++++++++++++++++++++++++++
- 2 files changed, 32 insertions(+), 1 deletion(-)
+ arch/s390/mm/gmap.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 255609c..190ad63 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -229,7 +229,7 @@ struct kvm_s390_sie_block {
- 	__u8	reserved1e6[2];		/* 0x01e6 */
- 	__u64	itdba;			/* 0x01e8 */
- 	__u64   riccbd;			/* 0x01f0 */
--	__u8    reserved1f8[8];		/* 0x01f8 */
-+	__u64	gvrd;			/* 0x01f8 */
- } __attribute__((packed));
- 
- struct kvm_s390_itdb {
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 4e2c71c..6d9f405 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -307,6 +307,11 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 			prefix_unmapped(vsie_page);
- 		scb_s->ecb |= scb_o->ecb & 0x10U;
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index c07d64f..4a1434b 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1455,6 +1455,19 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
+ 		gmap_free(new);
+ 		return sg;
  	}
-+	/* SIMD */
-+	if (test_kvm_facility(vcpu->kvm, 129)) {
-+		scb_s->eca |= scb_o->eca & 0x00020000U;
-+		scb_s->ecd |= scb_o->ecd & 0x20000000U;
-+	}
- 
- 	prepare_ibc(vcpu, vsie_page);
- 	rc = shadow_crycb(vcpu, vsie_page);
-@@ -452,6 +457,13 @@ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		unpin_guest_page(vcpu->kvm, gpa, hpa);
- 		scb_s->itdba = 0;
- 	}
-+
-+	hpa = scb_s->gvrd;
-+	if (hpa) {
-+		gpa = scb_o->gvrd & ~0x1ffUL;
-+		unpin_guest_page(vcpu->kvm, gpa, hpa);
-+		scb_s->gvrd = 0;
-+	}
- }
- 
- /*
-@@ -510,6 +522,25 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 			goto unpin;
- 		scb_s->itdba = hpa;
- 	}
-+
-+	gpa = scb_o->gvrd & ~0x1ffUL;
-+	if (gpa && (scb_s->eca & 0x00020000U) &&
-+	    !(scb_s->ecd & 0x20000000U)) {
-+		if (!(gpa & ~0x1fffUL)) {
-+			rc = set_validity_icpt(scb_s, 0x1310U);
-+			goto unpin;
++	if (asce & _ASCE_REAL_SPACE) {
++		/* only allow one real-space gmap shadow */
++		list_for_each_entry(sg, &parent->children, list) {
++			if (sg->orig_asce & _ASCE_REAL_SPACE) {
++				spin_lock(&sg->guest_table_lock);
++				gmap_unshadow(sg);
++				spin_unlock(&sg->guest_table_lock);
++				list_del(&sg->list);
++				gmap_put(sg);
++				break;
++			}
 +		}
-+		/*
-+		 * 512 bytes vector registers cannot cross page boundaries
-+		 * if this block gets bigger, we have to shadow it.
-+		 */
-+		rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
-+		if (rc == -EINVAL)
-+			rc = set_validity_icpt(scb_s, 0x1310U);
-+		if (rc)
-+			goto unpin;
-+		scb_s->gvrd = hpa;
 +	}
- 	return 0;
- unpin:
- 	unpin_blocks(vcpu, vsie_page);
+ 	atomic_set(&new->ref_count, 2);
+ 	list_add(&new->list, &parent->children);
+ 	if (asce & _ASCE_REAL_SPACE) {
 -- 
 2.5.5
