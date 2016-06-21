@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 39/51] KVM: s390: vsie: support shared IPTE-interlock facility
-Date: Tue, 21 Jun 2016 15:13:17 +0200
-Message-ID: <1466514809-146638-40-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 43/51] KVM: s390: vsie: support conditional-external-interception
+Date: Tue, 21 Jun 2016 15:13:21 +0200
+Message-ID: <1466514809-146638-44-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,8 +14,7 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-As we forward the whole SCA provided by guest 2, we can directly forward
-SIIF if available.
+We can easily enable cei for guest 2, so he can use it for guest 3.
 
 Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
@@ -27,40 +26,40 @@ Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
  3 files changed, 5 insertions(+)
 
 diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index c5e4537..1d2e820 100644
+index 347f4f6..7630dd7 100644
 --- a/arch/s390/include/uapi/asm/kvm.h
 +++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -100,6 +100,7 @@ struct kvm_s390_vm_cpu_machine {
- #define KVM_S390_VM_CPU_FEAT_ESOP	0
- #define KVM_S390_VM_CPU_FEAT_SIEF2	1
- #define KVM_S390_VM_CPU_FEAT_64BSCAO	2
-+#define KVM_S390_VM_CPU_FEAT_SIIF	3
+@@ -104,6 +104,7 @@ struct kvm_s390_vm_cpu_machine {
+ #define KVM_S390_VM_CPU_FEAT_GPERE	4
+ #define KVM_S390_VM_CPU_FEAT_GSLS	5
+ #define KVM_S390_VM_CPU_FEAT_IB		6
++#define KVM_S390_VM_CPU_FEAT_CEI	7
  struct kvm_s390_vm_cpu_feat {
  	__u64 feat[16];
  };
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e0c5a57..d735612 100644
+index 5ec598c..1c1188b 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -267,6 +267,8 @@ static void kvm_s390_cpu_feat_init(void)
- 	allow_cpu_feat(KVM_S390_VM_CPU_FEAT_SIEF2);
- 	if (sclp.has_64bscao)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_64BSCAO);
-+	if (sclp.has_siif)
-+		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_SIIF);
+@@ -275,6 +275,8 @@ static void kvm_s390_cpu_feat_init(void)
+ 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_GSLS);
+ 	if (sclp.has_ib)
+ 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_IB);
++	if (sclp.has_cei)
++		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_CEI);
  }
  
  int kvm_arch_init(void *opaque)
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 44e66c3..1615ed3 100644
+index d29bd59..f3a4a0b 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -315,6 +315,8 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	/* Run-time-Instrumentation */
- 	if (test_kvm_facility(vcpu->kvm, 64))
- 		scb_s->ecb3 |= scb_o->ecb3 & 0x01U;
-+	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_SIIF))
-+		scb_s->eca |= scb_o->eca & 0x00000001U;
+@@ -324,6 +324,8 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		scb_s->eca |= scb_o->eca & 0x00000001U;
+ 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_IB))
+ 		scb_s->eca |= scb_o->eca & 0x40000000U;
++	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_CEI))
++		scb_s->eca |= scb_o->eca & 0x80000000U;
  
  	prepare_ibc(vcpu, vsie_page);
  	rc = shadow_crycb(vcpu, vsie_page);
