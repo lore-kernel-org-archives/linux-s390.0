@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 23/51] s390/mm: don't fault everything in read-write in gmap_pte_op_fixup()
-Date: Tue, 21 Jun 2016 15:13:01 +0200
-Message-ID: <1466514809-146638-24-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 11/51] s390/mm: take the mmap_sem in kvm_s390_shadow_fault()
+Date: Tue, 21 Jun 2016 15:12:49 +0200
+Message-ID: <1466514809-146638-12-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,100 +14,62 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's not fault in everything in read-write but limit it to read-only
-where possible.
-
-When restricting access rights, we already have the required protection
-level in our hands. When reading from guest 2 storage (gmap_read_table),
-it is obviously PROT_READ. When shadowing a pte, the required protection
-level is given via the guest 2 provided pte.
-
-Based on an initial patch by Martin Schwidefsky.
+Instead of doing it in the caller, let's just take the mmap_sem
+in kvm_s390_shadow_fault(). By taking it as read, we allow parallel
+faulting on shadow page tables, gmap shadow code is prepared for that.
 
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/mm/gmap.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/s390/kvm/gaccess.c | 32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index d00e4ab..738d754 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -811,19 +811,22 @@ static pte_t *gmap_pte_op_walk(struct gmap *gmap, unsigned long gaddr,
-  * @gmap: pointer to guest mapping meta data structure
-  * @gaddr: virtual address in the guest address space
-  * @vmaddr: address in the host process address space
-+ * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
-  *
-  * Returns 0 if the caller can retry __gmap_translate (might fail again),
-  * -ENOMEM if out of memory and -EFAULT if anything goes wrong while fixing
-  * up or connecting the gmap page table.
-  */
- static int gmap_pte_op_fixup(struct gmap *gmap, unsigned long gaddr,
--			     unsigned long vmaddr)
-+			     unsigned long vmaddr, int prot)
- {
- 	struct mm_struct *mm = gmap->mm;
-+	unsigned int fault_flags;
- 	bool unlocked = false;
- 
- 	BUG_ON(gmap_is_shadow(gmap));
--	if (fixup_user_fault(current, mm, vmaddr, FAULT_FLAG_WRITE, &unlocked))
-+	fault_flags = (prot == PROT_WRITE) ? FAULT_FLAG_WRITE : 0;
-+	if (fixup_user_fault(current, mm, vmaddr, fault_flags, &unlocked))
- 		return -EFAULT;
- 	if (unlocked)
- 		/* lost mmap_sem, caller has to retry __gmap_translate */
-@@ -875,7 +878,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
- 			vmaddr = __gmap_translate(gmap, gaddr);
- 			if (IS_ERR_VALUE(vmaddr))
- 				return vmaddr;
--			rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr);
-+			rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr, prot);
- 			if (rc)
- 				return rc;
- 			continue;
-@@ -957,7 +960,7 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val)
- 			rc = vmaddr;
- 			break;
- 		}
--		rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr);
-+		rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr, PROT_READ);
- 		if (rc)
- 			break;
- 	}
-@@ -1041,7 +1044,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
- 		radix_tree_preload_end();
- 		if (rc) {
- 			kfree(rmap);
--			rc = gmap_pte_op_fixup(parent, paddr, vmaddr);
-+			rc = gmap_pte_op_fixup(parent, paddr, vmaddr, prot);
- 			if (rc)
- 				return rc;
- 			continue;
-@@ -1910,10 +1913,12 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
- 	unsigned long vmaddr, paddr;
- 	spinlock_t *ptl;
- 	pte_t *sptep, *tptep;
-+	int prot;
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index c5f79c1..5b5eee2 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1091,26 +1091,24 @@ int kvm_s390_shadow_fault(struct gmap *sg, unsigned long saddr, int write)
+ 	int dat_protection;
  	int rc;
  
- 	BUG_ON(!gmap_is_shadow(sg));
- 	parent = sg->parent;
-+	prot = (pte_val(pte) & _PAGE_PROTECT) ? PROT_READ : PROT_WRITE;
++	down_read(&sg->mm->mmap_sem);
++
+ 	rc = gmap_shadow_pgt_lookup(sg, saddr, &pgt, &dat_protection);
+-	if (rc) {
++	if (rc)
+ 		rc = kvm_s390_shadow_tables(sg, saddr, &pgt, &dat_protection);
+-		if (rc)
+-			return rc;
+-	}
  
- 	rmap = kzalloc(sizeof(*rmap), GFP_KERNEL);
- 	if (!rmap)
-@@ -1955,7 +1960,7 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
- 		radix_tree_preload_end();
- 		if (!rc)
- 			break;
--		rc = gmap_pte_op_fixup(parent, paddr, vmaddr);
-+		rc = gmap_pte_op_fixup(parent, paddr, vmaddr, prot);
- 		if (rc)
- 			break;
- 	}
+ 	vaddr.addr = saddr;
+-	rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
+-	if (rc)
+-		return rc;
+-	if (pte.i)
+-		return PGM_PAGE_TRANSLATION;
+-	if (pte.z || pte.co)
+-		return PGM_TRANSLATION_SPEC;
++	if (!rc)
++		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
++	if (!rc && pte.i)
++		rc = PGM_PAGE_TRANSLATION;
++	if (!rc && (pte.z || pte.co))
++		rc = PGM_TRANSLATION_SPEC;
+ 	dat_protection |= pte.p;
+-	if (write && dat_protection)
+-		return PGM_PROTECTION;
+-	rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
+-	if (rc)
+-		return rc;
+-	return 0;
++	if (!rc && write && dat_protection)
++		rc = PGM_PROTECTION;
++	if (!rc)
++		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
++	up_read(&sg->mm->mmap_sem);
++	return rc;
+ }
 -- 
 2.5.5
