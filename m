@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 13/51] s390/mm: take ipte_lock during shadow faults
-Date: Tue, 21 Jun 2016 15:12:51 +0200
-Message-ID: <1466514809-146638-14-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 29/51] KVM: s390: vsie: optimize gmap prefix mapping
+Date: Tue, 21 Jun 2016 15:13:07 +0200
+Message-ID: <1466514809-146638-30-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,72 +14,136 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's take the ipte_lock while working on guest 2 provided page table, just
-like the other gaccess functions.
+In order to not always map the prefix, we have to take care of certain
+aspects that implicitly unmap the prefix:
+- Changes to the prefix address
+- Changes to MSO, because the HVA of the prefix is changed
+- Changes of the gmap shadow (e.g. unshadowed, asce or edat changes)
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+By properly handling these cases, we can stop remapping the prefix when
+there is no reason to do so.
+
+This also allows us now to not acquire any gmap shadow locks when
+rerunning the vsie and still having a valid gmap shadow.
+
+Please note, to detect changing gmap shadows, we have to keep the reference
+of the gmap shadow. The address of a gmap shadow does otherwise not
+reliably indicate if the gmap shadow has changed (the memory chunk
+could get reused).
+
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 11 ++++++++++-
- arch/s390/kvm/gaccess.h |  3 ++-
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ arch/s390/kvm/vsie.c | 31 +++++++++++++++++++++++++++++--
+ 1 file changed, 29 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index b2783dd..e70f916 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1073,6 +1073,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 747d4f9..2839efc 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -62,6 +62,11 @@ static void prefix_mapped(struct vsie_page *vsie_page)
+ 	atomic_andnot(PROG_REQUEST, &vsie_page->scb_s.prog20);
+ }
  
- /**
-  * kvm_s390_shadow_fault - handle fault on a shadow page table
-+ * @vcpu: virtual cpu
-  * @sg: pointer to the shadow guest address space structure
-  * @saddr: faulting address in the shadow gmap
-  *
-@@ -1082,7 +1083,8 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
-  *	    - -EFAULT when accessing invalid guest addresses
-  *	    - -ENOMEM if out of memory
-  */
--int kvm_s390_shadow_fault(struct gmap *sg, unsigned long saddr)
-+int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
-+			  unsigned long saddr)
++/* test if the prefix is mapped into the gmap shadow */
++static int prefix_is_mapped(struct vsie_page *vsie_page)
++{
++	return !(atomic_read(&vsie_page->scb_s.prog20) & PROG_REQUEST);
++}
+ 
+ /* copy the updated intervention request bits into the shadow scb */
+ static void update_intervention_requests(struct vsie_page *vsie_page)
+@@ -152,6 +157,7 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
  {
- 	union vaddress vaddr;
- 	union page_table_entry pte;
-@@ -1091,6 +1093,12 @@ int kvm_s390_shadow_fault(struct gmap *sg, unsigned long saddr)
+ 	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
+ 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
++	unsigned long new_mso;
  	int rc;
  
- 	down_read(&sg->mm->mmap_sem);
-+	/*
-+	 * We don't want any guest-2 tables to change - so the parent
-+	 * tables/pointers we read stay valid - unshadowing is however
-+	 * always possible - only guest_table_lock protects us.
-+	 */
-+	ipte_lock(vcpu);
+ 	/* make sure we don't have any leftovers when reusing the scb */
+@@ -192,9 +198,13 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	scb_s->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
+ 	scb_s->icpua = scb_o->icpua;
  
- 	rc = gmap_shadow_pgt_lookup(sg, saddr, &pgt, &dat_protection);
- 	if (rc)
-@@ -1105,6 +1113,7 @@ int kvm_s390_shadow_fault(struct gmap *sg, unsigned long saddr)
- 		rc = PGM_TRANSLATION_SPEC;
- 	if (!rc)
- 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
-+	ipte_unlock(vcpu);
- 	up_read(&sg->mm->mmap_sem);
- 	return rc;
++	new_mso = scb_o->mso & 0xfffffffffff00000UL;
++	/* if the hva of the prefix changes, we have to remap the prefix */
++	if (scb_s->mso != new_mso || scb_s->prefix != scb_o->prefix)
++		prefix_unmapped(vsie_page);
+ 	 /* SIE will do mso/msl validity and exception checks for us */
+ 	scb_s->msl = scb_o->msl & 0xfffffffffff00000UL;
+-	scb_s->mso = scb_o->mso & 0xfffffffffff00000UL;
++	scb_s->mso = new_mso;
+ 	scb_s->prefix = scb_o->prefix;
+ 
+ 	/* We have to definetly flush the tlb if this scb never ran */
+@@ -262,6 +272,9 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	u64 prefix = scb_s->prefix << GUEST_PREFIX_SHIFT;
+ 	int rc;
+ 
++	if (prefix_is_mapped(vsie_page))
++		return 0;
++
+ 	/* mark it as mapped so we can catch any concurrent unmappers */
+ 	prefix_mapped(vsie_page);
+ 
+@@ -532,6 +545,7 @@ static void release_gmap_shadow(struct vsie_page *vsie_page)
+ 	if (vsie_page->gmap)
+ 		gmap_put(vsie_page->gmap);
+ 	WRITE_ONCE(vsie_page->gmap, NULL);
++	prefix_unmapped(vsie_page);
  }
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 0d044d0..8756569 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -361,6 +361,7 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
- int ipte_lock_held(struct kvm_vcpu *vcpu);
- int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
  
--int kvm_s390_shadow_fault(struct gmap *shadow, unsigned long saddr);
-+int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *shadow,
-+			  unsigned long saddr);
+ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
+@@ -547,6 +561,16 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
+ 	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
+ 	edat += edat && test_kvm_facility(vcpu->kvm, 78);
  
- #endif /* __KVM_S390_GACCESS_H */
++	/*
++	 * ASCE or EDAT could have changed since last icpt, or the gmap
++	 * we're holding has been unshadowed. If the gmap is still valid,
++	 * we can safely reuse it.
++	 */
++	if (vsie_page->gmap && gmap_shadow_valid(vsie_page->gmap, asce, edat))
++		return 0;
++
++	/* release the old shadow - if any, and mark the prefix as unmapped */
++	release_gmap_shadow(vsie_page);
+ 	gmap = gmap_shadow(vcpu->arch.gmap, asce, edat);
+ 	if (IS_ERR(gmap))
+ 		return PTR_ERR(gmap);
+@@ -578,7 +602,6 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 			rc = do_vsie_run(vcpu, vsie_page);
+ 			gmap_enable(vcpu->arch.gmap);
+ 		}
+-		release_gmap_shadow(vsie_page);
+ 
+ 		if (rc == -EAGAIN)
+ 			rc = 0;
+@@ -667,6 +690,7 @@ static struct vsie_page *get_vsie_page(struct kvm *kvm, unsigned long addr)
+ 
+ 	vsie_page = page_to_virt(page);
+ 	memset(&vsie_page->scb_s, 0, sizeof(struct kvm_s390_sie_block));
++	release_gmap_shadow(vsie_page);
+ 	vsie_page->scb_s.ihcpu = 0xffffU;
+ 	return vsie_page;
+ }
+@@ -739,6 +763,7 @@ void kvm_s390_vsie_init(struct kvm *kvm)
+ /* Destroy the vsie data structures. To be called when a vm is destroyed. */
+ void kvm_s390_vsie_destroy(struct kvm *kvm)
+ {
++	struct vsie_page *vsie_page;
+ 	struct page *page;
+ 	int i;
+ 
+@@ -746,6 +771,8 @@ void kvm_s390_vsie_destroy(struct kvm *kvm)
+ 	for (i = 0; i < kvm->arch.vsie.page_count; i++) {
+ 		page = kvm->arch.vsie.pages[i];
+ 		kvm->arch.vsie.pages[i] = NULL;
++		vsie_page = page_to_virt(page);
++		release_gmap_shadow(vsie_page);
+ 		/* free the radix tree entry */
+ 		radix_tree_delete(&kvm->arch.vsie.addr_to_page, page->index >> 9);
+ 		__free_page(page);
 -- 
 2.5.5
