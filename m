@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 32/51] KVM: s390: vsie: support host-protection-interruption
-Date: Tue, 21 Jun 2016 15:13:10 +0200
-Message-ID: <1466514809-146638-33-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 22/51] s390/mm: allow to check if a gmap shadow is valid
+Date: Tue, 21 Jun 2016 15:13:00 +0200
+Message-ID: <1466514809-146638-23-git-send-email-borntraeger@de.ibm.com>
 References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,29 +14,59 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Introduced with ESOP, therefore available for the guest if it
-is allowed to use ESOP.
+It will be very helpful to have a mechanism to check without any locks
+if a given gmap shadow is still valid and matches the given properties.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/include/asm/gmap.h |  1 +
+ arch/s390/mm/gmap.c          | 20 ++++++++++++++++++++
+ 2 files changed, 21 insertions(+)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 7c9835b..aaed63c 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -240,6 +240,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index 752cf47..c67fb85 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -109,6 +109,7 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val);
  
- 	/* MVPG and Protection Exception Interpretation are always available */
- 	scb_s->eca |= scb_o->eca & 0x01002000U;
-+	/* Host-protection-interruption introduced with ESOP */
-+	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ESOP))
-+		scb_s->ecb |= scb_o->ecb & 0x02U;
+ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
+ 			 int edat_level);
++int gmap_shadow_valid(struct gmap *sg, unsigned long asce, int edat_level);
+ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
+ 		    int fake);
+ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 4a1434b..d00e4ab 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1408,6 +1408,26 @@ static struct gmap *gmap_find_shadow(struct gmap *parent, unsigned long asce,
+ }
  
- 	prepare_ibc(vcpu, vsie_page);
- out:
+ /**
++ * gmap_shadow_valid - check if a shadow guest address space matches the
++ *                     given properties and is still valid
++ * @sg: pointer to the shadow guest address space structure
++ * @asce: ASCE for which the shadow table is requested
++ * @edat_level: edat level to be used for the shadow translation
++ *
++ * Returns 1 if the gmap shadow is still valid and matches the given
++ * properties, the caller can continue using it. Returns 0 otherwise, the
++ * caller has to request a new shadow gmap in this case.
++ *
++ */
++int gmap_shadow_valid(struct gmap *sg, unsigned long asce, int edat_level)
++{
++	if (sg->removed)
++		return 0;
++	return sg->orig_asce == asce && sg->edat_level == edat_level;
++}
++EXPORT_SYMBOL_GPL(gmap_shadow_valid);
++
++/**
+  * gmap_shadow - create/find a shadow guest address space
+  * @parent: pointer to the parent gmap
+  * @asce: ASCE for which the shadow table is created
 -- 
 2.5.5
