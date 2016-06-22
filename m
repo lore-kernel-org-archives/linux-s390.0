@@ -1,73 +1,26 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 14 Jun 2016 18:57:28 +0000
-Subject: [GIT PULL 51/52] KVM: s390: trace and count all skey intercepts
-Message-Id: <201606141857.u5EIsRC3133811@mx0a-001b2d01.pphosted.com>
+From: Lakhvich Dmitriy <Ldmitriy@ru.ibm.com>
+Date: Wed, 22 Jun 2016 16:07:26 +0000
+Subject: [PATCH] qeth:  autodetect layer2/3 of z/VM VSWITCH
+Message-Id: <1466611647-4065-1-git-send-email-Ldmitriy@ru.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+From: Lakhvich Dmitriy <LDmitriy@ru.ibm.com>
 
-Let's trace and count all skey handling operations, even if lazy skey
-handling was already activated. Also, don't enable lazy skey handling if
-anything went wrong while enabling skey handling for the SIE.
+Current version of qeth driver has a problem with 
+layer setting for virtual z/VM nics(VSWITCH or GUEST LAN). 
+Such nics are supports  just one layer. Setting unsupported layer produce
+errors so linux user must know which layer the virtual nic supports.
+This patch fix the problem, now qeth driver can detect z/VM nic's
+supported layer, also to avoid errors layer changing for
+z/VM virtual nics now is forbidden.
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/priv.c  | 15 +++++++++------
- arch/s390/kvm/trace.h |  2 +-
- 2 files changed, 10 insertions(+), 7 deletions(-)
+Lakhvich Dmitriy (1):
+  qeth: autodetect layer2/3 of z/VM VSWITCH/GUESTLAN
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index b8327b8..6745c2a 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -152,24 +152,27 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
- static int __skey_check_enable(struct kvm_vcpu *vcpu)
- {
- 	int rc = 0;
-+
-+	trace_kvm_s390_skey_related_inst(vcpu);
- 	if (!(vcpu->arch.sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)))
- 		return rc;
- 
- 	rc = s390_enable_skey();
--	VCPU_EVENT(vcpu, 3, "%s", "enabling storage keys for guest");
--	trace_kvm_s390_skey_related_inst(vcpu);
--	vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
-+	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
-+	if (!rc)
-+		vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
- 	return rc;
- }
- 
- 
- static int handle_skey(struct kvm_vcpu *vcpu)
- {
--	int rc = __skey_check_enable(vcpu);
-+	int rc;
- 
--	if (rc)
--		return rc;
- 	vcpu->stat.instruction_storage_key++;
-+	rc = __skey_check_enable(vcpu);
-+	if (rc)
-+		return rc;
- 
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
-index 1c4586b..4fc9d4e 100644
---- a/arch/s390/kvm/trace.h
-+++ b/arch/s390/kvm/trace.h
-@@ -41,7 +41,7 @@ TRACE_EVENT(kvm_s390_skey_related_inst,
- 	    TP_fast_assign(
- 		    VCPU_ASSIGN_COMMON
- 		    ),
--	    VCPU_TP_PRINTK("%s", "first instruction related to skeys on vcpu")
-+	    VCPU_TP_PRINTK("%s", "storage key related instruction")
- 	);
- 
- TRACE_EVENT(kvm_s390_major_guest_pfault,
+ drivers/s390/net/qeth_core_main.c | 104 +++++++++++++++++++++++++++++++++++---
+ drivers/s390/net/qeth_core_sys.c  |   6 +++
+ 2 files changed, 102 insertions(+), 8 deletions(-)
+
 -- 
-2.5.5
+2.5.0
