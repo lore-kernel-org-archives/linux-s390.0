@@ -1,222 +1,246 @@
-From: "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
-Subject: Re: [PATCH 21/23] arm64: ilp32: introduce ilp32-specific handlers for
- sigframe and ucontext
-Date: Thu, 16 Jun 2016 19:21:22 +0800
-Message-ID: <57628BB2.7080100@huawei.com>
-References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com>
- <1464048292-30136-22-git-send-email-ynorov@caviumnetworks.com>
- <5752BCC8.7080205@huawei.com> <20160612174430.GA12067@yury-N73SV>
+From: zhouchengming <zhouchengming1@huawei.com>
+Subject: Re: [PATCH 17/23] arm64: ptrace: handle ptrace_request differently
+ for aarch32 and ilp32
+Date: Sat, 25 Jun 2016 17:36:26 +0800
+Message-ID: <576E509A.7090702@huawei.com>
+References: <1464048292-30136-1-git-send-email-ynorov@caviumnetworks.com> <1464048292-30136-18-git-send-email-ynorov@caviumnetworks.com> <57577611.9000607@huawei.com> <20160608170048.GA24482@yury-N73SV>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160612174430.GA12067@yury-N73SV>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: multipart/mixed;
+	boundary="------------020409060404030701010104"
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20160608170048.GA24482@yury-N73SV>
+Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Yury Norov <ynorov@caviumnetworks.com>
-Cc: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pinskia@gmail.com, broonie@kernel.org, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com, szabolcs.nagy@arm.com, klimov.linux@gmail.com, Nathan_Lynch@mentor.com, agraf@suse.de, Prasun.Kapoor@caviumnetworks.com, kilobyte@angband.pl, geert@linux-m68k.org, philipp.tomsich@theobroma-systems.com, Andrew Pinski <apinski@cavium.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, Hanjun Guo <guohanjun@huawei.com>, "Zhangjian (Bamvor)" <bamvor.zhangjian@huawei.com>
+Cc: arnd@arndb.de, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, libc-alpha@sourceware.org, kilobyte@angband.pl, pinskia@gmail.com, szabolcs.nagy@arm.com, Nathan_Lynch@mentor.com, heiko.carstens@de.ibm.com, agraf@suse.de, geert@linux-m68k.org, Prasun.Kapoor@caviumnetworks.com, klimov.linux@gmail.com, broonie@kernel.org, schwidefsky@de.ibm.com, bamvor.zhangjian@huawei.com, philipp.tomsich@theobroma-systems.com, joseph@codesourcery.com, christoph.muellner@theobroma-systems.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+--------------020409060404030701010104
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 2016/6/13 1:44, Yury Norov wrote:
-> Hi Bamvor,
+On 2016/6/9 1:00, Yury Norov wrote:
+> On Wed, Jun 08, 2016 at 09:34:09AM +0800, zhouchengming wrote:
+>> On 2016/5/24 8:04, Yury Norov wrote:
+>>> Here new aarch32 ptrace syscall handler is introsuced to avoid run-time
+>>> detection of the task type.
+>>>
+>>> Signed-off-by: Yury Norov<ynorov@caviumnetworks.com>
 >
-> Sorry, I missed this patch.
+> [...]
 >
-> On Sat, Jun 04, 2016 at 07:34:32PM +0800, Zhangjian (Bamvor) wrote:
->> Hi,
+>> Hello, I found ilp32 will use sys_ptrace, not compat_sys_ptrace. So I write
+>> a little patch to see if can solve the problem correctly.
 >>
->> I found an issue of unwind with the following code. The correct backtrace
->> should be:
->> (gdb) where
->> #0 0x004004d0 in my_sig (sig=11) at test_force3.c:16
->> #1 <signal handler called>
->> #2 func2 (num=0) at test_force3.c:22
->> #3 0x00400540 in func1 (num=1) at test_force3.c:28
->> #4 0x00400574 in main (argc=1, argv=0xffd7bc04) at test_force3.c:33
+>> Thanks.
 >>
->> Without my patch, the backtrace is:
->> (gdb) where
->> #0 0x00400490 in my_sig (sig=11) at test_force3.c:16
->> #1 <signal handler called>
->> #2 0x004004e4 in main (argc=1, argv=0xffe6f8f4) at test_force3.c:33
+>>  From f6156236df578bb05c4a17e7f9776ceaf8f7afe6 Mon Sep 17 00:00:00 2001
+>> From: Zhou Chengming<zhouchengming1@huawei.com>
+>> Date: Wed, 8 Jun 2016 09:46:23 +0800
+>> Subject: [PATCH] ilp32: use compat_sys_ptrace instead of sys_ptrace
 >>
->> With my patch which fix the wrong frame pointer(setup_return calculate the offset
->> of fp through ilp32_sigframe instead of sigfreame), the backtrace is:
->> (gdb) where
->> #0 0x00400490 in my_sig (sig=11) at test_force3.c:16
->> #1 <signal handler called>
->> #2 func1 () at test_force3.c:28
->> #3 0x004004e4 in main (argc=1, argv=0xffe6f8f4) at test_force3.c:33
+>> When we analyze a testcase of ptrace that failed on ilp32, we found
+>> the syscall that the ilp32 uses is sys_ptrace, not compat_sys_ptrace.
+>> Because in include/uapi/asm-generic/unistd.h it's defined like:
+>> __SYSCALL(__NR_ptrace, sys_ptrace)
+>> So we change it to __SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace),
+>> let compat tasks use the compat_sys_ptrace.
 >>
->> I am not sure there is still some issue in kernel. But it seem that the gdb of ilp32
->> does not work correctly when unwind without framepointer.
->>
->> The test code is:
->>
->>  From 7e364a765097f57aed2d73f94c1688c2e7343e79 Mon Sep 17 00:00:00 2001
->> From: Bamvor Jian Zhang <bamvor.zhangjian@huawei.com>
->> Date: Sat, 4 Jun 2016 14:30:05 +0800
->> Subject: [PATCH] arm64: ilp32: fix for wrong fp offset when calculate the
->>   new fp
->>
->> ILP32 define its own sigframe(ilp32_sigframe) because of the
->> difference uc_context. setup_return do not use ilp32 specific
->> sigframe to calculate the new offset of fp which lead to wrong
->> fp in signal handler. At this circumstance, gdb backtrace will miss
->> one item:
->> (gdb) where
->>
->> It should be:
->> (gdb) where
->>
->> The test code is as follows:
->>
->> void my_sig(int sig)
->> {
->>          printf("sig=%d\n", sig);
->>          *(int *)0 = 0x0;
->> }
->>
->> void func2(int num)
->> {
->>          printf("%s: %d\n", __FUNCTION__, num);
->>          *(int *)0 = 0x0;
->>          func2(num-1);
->> }
->>
->> void func1(int num)
->> {
->>          printf("%s\n", __FUNCTION__);
->>          func2(num - 1);
->> }
->>
->> int main(int argc, char **argv)
->> {
->>          signal(11, my_sig);
->>          func1(argc);
->>          return 0;
->> }
->>
->> This patch fix this by passing the correct offset of fp to
->> setup_return.
->> Test pass on both ILP32 and LP64 in aarch64 EE.
->>
->> Signed-off-by: Bamvor Jian Zhang <bamvor.zhangjian@huawei.com>
+>> Signed-off-by: Zhou Chengming<zhouchengming1@huawei.com>
 >> ---
->>   arch/arm64/include/asm/signal_common.h | 3 ++-
->>   arch/arm64/kernel/signal.c             | 9 +++++----
->>   arch/arm64/kernel/signal_ilp32.c       | 4 ++--
->>   3 files changed, 9 insertions(+), 7 deletions(-)
+>>   include/uapi/asm-generic/unistd.h |    2 +-
+>>   1 files changed, 1 insertions(+), 1 deletions(-)
 >>
->> diff --git a/arch/arm64/include/asm/signal_common.h b/arch/arm64/include/asm/signal_common.h
->> index de93c71..a5d7b63 100644
->> --- a/arch/arm64/include/asm/signal_common.h
->> +++ b/arch/arm64/include/asm/signal_common.h
->> @@ -29,6 +29,7 @@ int setup_sigcontex(struct sigcontext __user *uc_mcontext,
->>   		    struct pt_regs *regs);
->>   int restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sf);
->>   void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
->> -			void __user *frame, off_t sigframe_off, int usig);
->> +			void __user *frame, off_t sigframe_off, off_t fp_off,
->> +			int usig);
+>> diff --git a/include/uapi/asm-generic/unistd.h
+>> b/include/uapi/asm-generic/unistd.h
+>> index 2862d2e..50ee770 100644
+>> --- a/include/uapi/asm-generic/unistd.h
+>> +++ b/include/uapi/asm-generic/unistd.h
+>> @@ -364,7 +364,7 @@ __SC_WRAP(__NR_syslog, sys_syslog)
 >>
->>   #endif /* __ASM_SIGNAL_COMMON_H */
->> diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
->> index 038bebe..e66a6e9 100644
->> --- a/arch/arm64/kernel/signal.c
->> +++ b/arch/arm64/kernel/signal.c
->> @@ -256,14 +256,14 @@ static struct rt_sigframe __user *get_sigframe(struct ksignal *ksig,
->>   }
+>>   /* kernel/ptrace.c */
+>>   #define __NR_ptrace 117
+>> -__SYSCALL(__NR_ptrace, sys_ptrace)
+>> +__SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace)
 >>
->>   void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
->> -			 void __user *frame, off_t sigframe_off, int usig)
->> +			 void __user *frame, off_t sigframe_off, off_t fp_off,
->> +			 int usig)
->>   {
->>   	__sigrestore_t sigtramp;
->>
->>   	regs->regs[0] = usig;
->>   	regs->sp = (unsigned long)frame;
->> -	regs->regs[29] = regs->sp + sigframe_off +
->> -		offsetof(struct sigframe, fp);
->> +	regs->regs[29] = regs->sp + sigframe_off + fp_off;
->
-> I think you are right here. The only nitpick is what for we send 2
-> offsets just to add one to another inside setup_return()?
-> We can do like this:
->
->          void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
->          			 void __user *frame, off_t fp_off, int usig)
->          {
->          	__sigrestore_t sigtramp;
->
->          	regs->regs[0] = usig;
->          	regs->sp = (unsigned long)frame;
->          	regs->regs[29] = regs->sp + fp_off;
->                  [...]
->          }
->
-> Where fp_off calculation is done by caller.
->
-> 	setup_return(regs, &ksig->ka, frame,
-> 		offsetof(struct rt_sigframe, sig) + offsetof(struct sigframe, fp),
->                  usig);
->
-> For me it's more clear to understand what happens with this approach.
-> I don't think struct rt_sigframe will grow, but we can even introduce
-> some helper for it:
->          #define RT_SIGFRAME_FP_POS (offsetof(struct rt_sigframe, sig) + offsetof(struct sigframe, fp))
->
-> If no objections, I'll apply your patch with my fix in next series.
-Sure. Thanks.
-
-Regards
-
-Bamvor
->
->>   	regs->pc = (unsigned long)ka->sa.sa_handler;
->>
->>   	if (ka->sa.sa_flags & SA_RESTORER)
->> @@ -294,7 +294,8 @@ static int setup_rt_frame(int usig, struct ksignal *ksig, sigset_t *set,
->>   	err |= setup_sigframe(&frame->sig, regs, set);
->>   	if (err == 0) {
->>   		setup_return(regs, &ksig->ka, frame,
->> -			offsetof(struct rt_sigframe, sig), usig);
->> +			offsetof(struct rt_sigframe, sig),
->> +			offsetof(struct sigframe, fp), usig);
->>   		if (ksig->ka.sa.sa_flags & SA_SIGINFO) {
->>   			err |= copy_siginfo_to_user(&frame->info, &ksig->info);
->>   			regs->regs[1] = (unsigned long)&frame->info;
->> diff --git a/arch/arm64/kernel/signal_ilp32.c b/arch/arm64/kernel/signal_ilp32.c
->> index a8ea73e..9030f14 100644
->> --- a/arch/arm64/kernel/signal_ilp32.c
->> +++ b/arch/arm64/kernel/signal_ilp32.c
->> @@ -147,7 +147,6 @@ static struct ilp32_rt_sigframe __user *ilp32_get_sigframe(struct ksignal *ksig,
->>   	struct ilp32_rt_sigframe __user *frame;
->>
->>   	sp = sp_top = sigsp(regs->sp, ksig);
->> -
->>   	sp = (sp - sizeof(struct ilp32_rt_sigframe)) & ~15;
->>   	frame = (struct ilp32_rt_sigframe __user *)sp;
->>
->> @@ -183,7 +182,8 @@ int ilp32_setup_rt_frame(int usig, struct ksignal *ksig,
->>   	err |= setup_ilp32_sigframe(&frame->sig, regs, set);
->>   	if (err == 0) {
->>   		setup_return(regs, &ksig->ka, frame,
->> -			     offsetof(struct ilp32_rt_sigframe, sig), usig);
->> +			     offsetof(struct ilp32_rt_sigframe, sig),
->> +			     offsetof(struct ilp32_sigframe, fp), usig);
->>   		regs->regs[1] = (unsigned long)&frame->info;
->>   		regs->regs[2] = (unsigned long)&frame->sig.uc;
->>   	}
+>>   /* kernel/sched/core.c */
+>>   #define __NR_sched_setparam 118
 >> --
->> 1.8.4.5
+>> 1.7.7
 >>
->> Regards
->>
->> Bamvor
->>
->>
+>
+> Hi Zhou,
+>
+> Thank you for the catch.
+>
+> Could you also show the test that is failed for you. It should
+> probably be sent to LTP maillist.
+>
+> I'm not sure your fix correct as it affects other architectures that
+> use standard unistd.h. I think it's better to redirect the syscall in
+> arch/arm64/kernel/sys_ilp32.c with corresponding definition.
+>
+> Yury
+>
+> .
+>
+
+Sorry, I missed this mail. Thanks for your reply. :)
+I attach the testcase file of ptrace that failed on ilp32.
+I also think it's better to redirect the syscall in ilp32, so I changed
+the patch.
+
+
+ From 7e692ba1adf02c2a2f125836f5222f455c9ffe56 Mon Sep 17 00:00:00 2001
+From: Zhou Chengming <zhouchengming1@huawei.com>
+Date: Sat, 25 Jun 2016 18:02:51 +0800
+Subject: [PATCH] ilp32 should use compat_sys_ptrace
+
+The file include/uapi/asm-generic/unistd.h defines this:
+__SYSCALL(__NR_ptrace, sys_ptrace)
+It may cause some ptrace tests failed on ilp32. So we redirect the ptrace
+syscall in arch/arm64/kernel/sys_ilp32.c with corresponding definition.
+
+Signed-off-by: Zhou Chengming <zhouchengming1@huawei.com>
+---
+  arch/arm64/kernel/sys_ilp32.c |    3 +++
+  1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm64/kernel/sys_ilp32.c b/arch/arm64/kernel/sys_ilp32.c
+index d85fe94..06d5e1b 100644
+--- a/arch/arm64/kernel/sys_ilp32.c
++++ b/arch/arm64/kernel/sys_ilp32.c
+@@ -46,6 +46,9 @@
+  asmlinkage long ilp32_sys_rt_sigreturn_wrapper(void);
+  #define compat_sys_rt_sigreturn        ilp32_sys_rt_sigreturn_wrapper
+
++/* ilp32 should use compat_sys_ptrace */
++#define sys_ptrace		       compat_sys_ptrace
++
+  #include <asm/syscall.h>
+
+  #undef __SYSCALL
+-- 
+1.7.7
+
+
+
+
+--------------020409060404030701010104
+Content-Type: text/plain; charset="gb18030";
+	name="tc_ptrace_setoptions_09.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="tc_ptrace_setoptions_09.c"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ptrace.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/user.h>
+#include <signal.h>
+
+int main()
+{
+    pid_t child;
+    unsigned long exit_status;
+    int status;
+    int is_get_event = 0;
+    long ptrace_ret;
+
+    int result = SIGTRAP | (PTRACE_EVENT_EXIT<<8);
+
+    child = fork();
+    if(child < 0)
+    {
+        printf("fork error\n");
+        exit(1);
+    }
+    else if(child == 0)
+    {
+        sleep(1);
+        exit(127);
+    }
+    else
+    {
+        ptrace_ret = ptrace(PTRACE_ATTACH, child, NULL, NULL);
+        if(ptrace_ret != 0)                                   
+        {
+            printf("ptrace PTRACE_ATTACH error %d \n", errno);
+            exit(1);
+        }
+
+        printf("ATTACH SUCCESS\n");
+        sleep(1);
+       
+        ptrace_ret = ptrace(PTRACE_SETOPTIONS, child, NULL, PTRACE_O_TRACEEXIT);
+        if(ptrace_ret != 0)                                   
+        {
+            printf("ptrace PTRACE_SETOPTIONS PTRACE_O_TRACEFORK error %d \n", errno);
+            ptrace(PTRACE_DETACH, child, NULL, NULL);
+            exit(1);
+        }
+
+        printf("SETOPTIONS SUCCESS!\n");
+
+        while(1)
+        {
+            usleep(1);
+            pid_t pid;
+            if ((pid = wait(&status)) == -1) {
+                perror("wait");
+                exit(1);
+            };
+   
+            printf("pid : %d\n", pid);
+            printf("the child process stops. status: %d, signal? %d, exit? %d, continue? %d, stop? %d\n" , WEXITSTATUS(status) , WIFSIGNALED(status) , WIFEXITED(status) , WIFCONTINUED(status) ,WIFSTOPPED(status));
+
+            if (WSTOPSIG(status) == SIGTRAP)
+            {
+                printf("status : %d\n", status>>8);
+                if (status>>8 == result)
+                {
+                    if (ptrace(PTRACE_GETEVENTMSG, child, NULL, &exit_status))
+                    {
+                        perror("error geteventmsg");
+                        exit(1);
+                    }
+                
+                    printf("exit_status %d\n", WEXITSTATUS((int)exit_status));
+
+                    exit_status = WEXITSTATUS(exit_status);
+
+                    if (exit_status != 127)
+                    {
+                        printf("exit status is not equal with 127!\n");
+                        exit(1);
+                    }
+                    is_get_event = 1;
+                }
+            }
+
+            if (WIFEXITED(status))
+            {
+                printf("child exit!\n");
+                break;
+            }
+
+            if(ptrace(PTRACE_CONT, pid, NULL, (void *) SIGCONT))
+            {
+                printf("ptrace cont %d error %d\n", pid, errno);
+                exit(1);
+            }
+
+        }
+
+        if (is_get_event)
+            exit(0);
+        else
+            exit(1);
+    }
+}
+
+--------------020409060404030701010104--
