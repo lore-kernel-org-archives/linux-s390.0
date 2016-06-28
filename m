@@ -1,8 +1,10 @@
 Return-Path: <xinhui.pan@linux.vnet.ibm.com>
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v2 0/4] implement vcpu preempted check
-Date: Tue, 28 Jun 2016 10:43:07 -0400
-Message-Id: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v2 1/4] kernel/sched: introduce vcpu preempted check interface
+Date: Tue, 28 Jun 2016 10:43:08 -0400
+In-Reply-To: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Message-Id: <1467124991-13164-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -15,42 +17,42 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: peterz@infradead.org, mingo@redhat.com, mpe@ellerman.id.au, paulus@samba.org, benh@kernel.crashing.org, paulmck@linux.vnet.ibm.com, waiman.long@hpe.com, will.deacon@arm.com, boqun.feng@gmail.com, dave@stgolabs.net, schwidefsky@de.ibm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-change fomr v1:
-	a simplier definition of default vcpu_is_preempted
-	skip mahcine type check on ppc, and add config. remove dedicated macro.
-	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
-	add more comments
-	thanks boqun and Peter's suggestion.
+This patch support to fix lock holder preemption issue.
 
-This patch set aims to fix lock holder preemption issues.
+For kernel users, we could use bool vcpu_is_preempted(int cpu) to detech if
+one vcpu is preempted or not.
 
-test-case:
-perf record -a perf bench sched messaging -g 400 -p && perf report
+The default implementation is a macro defined by false. So compiler can
+wrap it out if arch dose not support such vcpu pteempted check.
 
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+---
+ include/linux/sched.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
-loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
-These spin_on_onwer variant also cause rcu stall before we apply this patch set
-
-Pan Xinhui (4):
-  kernel/sched: introduce vcpu preempted check interface
-  powerpc/spinlock: support vcpu preempted check
-  locking/osq: Drop the overload of osq_lock()
-  kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
-
- arch/powerpc/include/asm/spinlock.h | 18 ++++++++++++++++++
- include/linux/sched.h               | 12 ++++++++++++
- kernel/locking/mutex.c              | 15 +++++++++++++--
- kernel/locking/osq_lock.c           | 10 +++++++++-
- kernel/locking/rwsem-xadd.c         | 16 +++++++++++++---
- 5 files changed, 65 insertions(+), 6 deletions(-)
-
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 6e42ada..cbe0574 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -3293,6 +3293,18 @@ static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
+ 
+ #endif /* CONFIG_SMP */
+ 
++/*
++ * In order to deal with a various lock holder preemption issues provide an
++ * interface to see if a vCPU is currently running or not.
++ *
++ * This allows us to terminate optimistic spin loops and block, analogous to
++ * the native optimistic spin heuristic of testing if the lock owner task is
++ * running or not.
++ */
++#ifndef vcpu_is_preempted
++#define vcpu_is_preempted(cpu)	false
++#endif
++
+ extern long sched_setaffinity(pid_t pid, const struct cpumask *new_mask);
+ extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
+ 
 -- 
 2.4.11
