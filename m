@@ -1,65 +1,48 @@
-From: Mike Snitzer <snitzer@redhat.com>
-Subject: Re: [PATCH v2 1/3] block: add QUEUE_FLAG_DAX for devices to
- advertise their DAX support
-Date: Thu, 23 Jun 2016 17:11:32 -0400
-Message-ID: <20160623211131.GA9163@redhat.com>
-References: <1466639694-25394-1-git-send-email-toshi.kani@hpe.com>
- <1466639694-25394-2-git-send-email-toshi.kani@hpe.com>
- <CACTTzNYAxtY-d8+8Vo=Y2WpuXVaSkJk9PC7DcHXKJuU=gqvXFw@mail.gmail.com>
- <1466702773.3504.363.camel@hpe.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH v2] s390: ensure that syscall arguments are properly
+	masked on s390
+Date: Tue, 28 Jun 2016 06:51:12 +0200
+Message-ID: <20160628045112.GA3784@osiris>
+References: <146703807642.15496.11673601281156224299.stgit@localhost>
+	<CAGH-KgunDc74vuRa=z4yF8x5Ccxcery8-Ya1AqxdpAjaXEBxGQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-raid-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-audit-bounces@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <1466702773.3504.363.camel@hpe.com>
-Sender: linux-raid-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/dm-devel/>
-List-Post: <mailto:dm-devel@redhat.com>
-To: "Kani, Toshimitsu" <toshi.kani@hpe.com>
-Cc: "yigal@plexistor.com" <yigal@plexistor.com>, "axboe@kernel.dk" <axboe@kernel.dk>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-nvdimm@lists.01.org" <linux-nvdimm@ml01.01.org>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>, "dm-devel@redhat.com" <dm-devel@redhat.com>, "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "dan.j.williams@intel.com" <dan.j.williams@intel.com>, "agk@redhat.com" <agk@redhat.com>
+In-Reply-To: <CAGH-KgunDc74vuRa=z4yF8x5Ccxcery8-Ya1AqxdpAjaXEBxGQ@mail.gmail.com>
+List-Unsubscribe: <https://www.redhat.com/mailman/options/linux-audit>,
+	<mailto:linux-audit-request@redhat.com?subject=unsubscribe>
+List-Archive: <https://www.redhat.com/archives/linux-audit>
+List-Post: <mailto:linux-audit@redhat.com>
+List-Help: <mailto:linux-audit-request@redhat.com?subject=help>
+List-Subscribe: <https://www.redhat.com/mailman/listinfo/linux-audit>,
+	<mailto:linux-audit-request@redhat.com?subject=subscribe>
+Sender: linux-audit-bounces@redhat.com
+Errors-To: linux-audit-bounces@redhat.com
+List-Archive: <https://lore.kernel.org/linux-audit/>
+To: Paul Moore <pmoore@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-audit@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jun 23 2016 at  1:36pm -0400,
-Kani, Toshimitsu <toshi.kani@hpe.com> wrote:
+On Mon, Jun 27, 2016 at 10:37:59AM -0400, Paul Moore wrote:
+> On Mon, Jun 27, 2016 at 10:34 AM, Paul Moore <pmoore@redhat.com> wrote:
+> > From: Paul Moore <paul@paul-moore.com>
+> >
+> > When executing s390 code on s390x the syscall arguments are not
+> > properly masked, leading to some malformed audit records.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > ---
+> >  arch/s390/kernel/ptrace.c |   10 +++++++---
+> >  1 file changed, 7 insertions(+), 3 deletions(-)
+> 
+> The only change between v2 and the original patch is the use of
+> is_compat_task() instead of the #ifdef, as suggested by Heiko.  Like
+> before, I've added this patch to the audit#next branch; I think we
+> have sorted all the feedback, but if any objections remain please let
+> me know.
 
-> On Thu, 2016-06-23 at 19:31 +0300, Yigal Korman wrote:
-> > On Thu, Jun 23, 2016 at 2:54 AM, Toshi Kani <toshi.kani@hpe.com> wr=
-ote:
-> > >=20
-> > >=20
-> > > Currently, presence of direct_access() in block_device_operations
-> > > indicates support of DAX on its block device.=A0=A0Because
-> > > block_device_operations is instantiated with 'const', this DAX
-> > > capablity may not be enabled conditinally.
-> > >=20
-> > > In preparation for supporting DAX to device-mapper devices, add
-> > > QUEUE_FLAG_DAX to request_queue flags to advertise their DAX
-> > > support.=A0=A0This will allow to set the DAX capability based on =
-how
-> > > mapped device is composed.
-> >=20
-> > Hi Toshi,
-> > This patch is very helpful!
-> > I think QUEUE_FLAG_DAX can also help with identifying dax devices i=
-n
-> > userspace.
-> > Perhaps you'd be willing to squash the patch below with this one or
-> > add it to your submission?
->=20
-> Hi Yigal,
->=20
-> Good idea. =A0Mike can probably take it into his tree, but I will inc=
-lude it
-> into the series if I needed to submit v3.
->=20
-> Acked-by: Toshi Kani <toshi.kani@hpe.com>
+Thanks!
 
-As you can see I sent out v3 of this set.  Jens will need to pick up th=
-e
-"block:" patches but I'll pick up the DM patches once Jens does so.
---
-To unsubscribe from this list: send the line "unsubscribe linux-raid" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
