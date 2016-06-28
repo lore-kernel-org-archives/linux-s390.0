@@ -1,137 +1,56 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 46/51] KVM: s390: vsie: speed up VCPU irq delivery when handling vsie
-Date: Tue, 21 Jun 2016 15:13:24 +0200
-Message-ID: <1466514809-146638-47-git-send-email-borntraeger@de.ibm.com>
-References: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1466514809-146638-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-Path: <xinhui.pan@linux.vnet.ibm.com>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v2 0/4] implement vcpu preempted check
+Date: Tue, 28 Jun 2016 10:43:07 -0400
+Message-Id: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org
+Cc: peterz@infradead.org, mingo@redhat.com, mpe@ellerman.id.au, paulus@samba.org, benh@kernel.crashing.org, paulmck@linux.vnet.ibm.com, waiman.long@hpe.com, will.deacon@arm.com, boqun.feng@gmail.com, dave@stgolabs.net, schwidefsky@de.ibm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+change fomr v1:
+	a simplier definition of default vcpu_is_preempted
+	skip mahcine type check on ppc, and add config. remove dedicated macro.
+	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+	add more comments
+	thanks boqun and Peter's suggestion.
 
-Whenever we want to wake up a VCPU (e.g. when injecting an IRQ), we
-have to kick it out of vsie, so the request will be handled faster.
+This patch set aims to fix lock holder preemption issues.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/interrupt.c        |  5 +++++
- arch/s390/kvm/kvm-s390.h         |  1 +
- arch/s390/kvm/vsie.c             | 35 +++++++++++++++++++++++++++++++++++
- 4 files changed, 43 insertions(+)
+test-case:
+perf record -a perf bench sched messaging -g 400 -p && perf report
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 190ad63..946fc86 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -549,6 +549,8 @@ struct kvm_guestdbg_info_arch {
- 
- struct kvm_vcpu_arch {
- 	struct kvm_s390_sie_block *sie_block;
-+	/* if vsie is active, currently executed shadow sie control block */
-+	struct kvm_s390_sie_block *vsie_block;
- 	unsigned int      host_acrs[NUM_ACRS];
- 	struct fpu	  host_fpregs;
- 	struct kvm_s390_local_interrupt local_int;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index d72c4a8..ca19627 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -995,6 +995,11 @@ void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu)
- 		swake_up(&vcpu->wq);
- 		vcpu->stat.halt_wakeup++;
- 	}
-+	/*
-+	 * The VCPU might not be sleeping but is executing the VSIE. Let's
-+	 * kick it, so it leaves the SIE to process the request.
-+	 */
-+	kvm_s390_vsie_kick(vcpu);
- }
- 
- enum hrtimer_restart kvm_s390_idle_wakeup(struct hrtimer *timer)
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index b137fba..ffbbdd28 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -254,6 +254,7 @@ int kvm_s390_handle_eb(struct kvm_vcpu *vcpu);
- 
- /* implemented in vsie.c */
- int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu);
-+void kvm_s390_vsie_kick(struct kvm_vcpu *vcpu);
- void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, unsigned long start,
- 				 unsigned long end);
- void kvm_s390_vsie_init(struct kvm *kvm);
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 7482488..c8c8763 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -838,6 +838,23 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
- }
- 
- /*
-+ * Register the shadow scb at the VCPU, e.g. for kicking out of vsie.
-+ */
-+static void register_shadow_scb(struct kvm_vcpu *vcpu,
-+				struct vsie_page *vsie_page)
-+{
-+	WRITE_ONCE(vcpu->arch.vsie_block, &vsie_page->scb_s);
-+}
-+
-+/*
-+ * Unregister a shadow scb from a VCPU.
-+ */
-+static void unregister_shadow_scb(struct kvm_vcpu *vcpu)
-+{
-+	WRITE_ONCE(vcpu->arch.vsie_block, NULL);
-+}
-+
-+/*
-  * Run the vsie on a shadowed scb, managing the gmap shadow, handling
-  * prefix pages and faults.
-  *
-@@ -860,6 +877,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 			rc = do_vsie_run(vcpu, vsie_page);
- 			gmap_enable(vcpu->arch.gmap);
- 		}
-+		atomic_andnot(PROG_BLOCK_SIE, &scb_s->prog20);
- 
- 		if (rc == -EAGAIN)
- 			rc = 0;
-@@ -1000,7 +1018,9 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
- 	rc = pin_blocks(vcpu, vsie_page);
- 	if (rc)
- 		goto out_unshadow;
-+	register_shadow_scb(vcpu, vsie_page);
- 	rc = vsie_run(vcpu, vsie_page);
-+	unregister_shadow_scb(vcpu);
- 	unpin_blocks(vcpu, vsie_page);
- out_unshadow:
- 	unshadow_scb(vcpu, vsie_page);
-@@ -1039,3 +1059,18 @@ void kvm_s390_vsie_destroy(struct kvm *kvm)
- 	kvm->arch.vsie.page_count = 0;
- 	mutex_unlock(&kvm->arch.vsie.mutex);
- }
-+
-+void kvm_s390_vsie_kick(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_sie_block *scb = READ_ONCE(vcpu->arch.vsie_block);
-+
-+	/*
-+	 * Even if the VCPU lets go of the shadow sie block reference, it is
-+	 * still valid in the cache. So we can safely kick it.
-+	 */
-+	if (scb) {
-+		atomic_or(PROG_BLOCK_SIE, &scb->prog20);
-+		if (scb->prog0c & PROG_IN_SIE)
-+			atomic_or(CPUSTAT_STOP_INT, &scb->cpuflags);
-+	}
-+}
+18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+ 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+ 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+ 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
+ 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+
+We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
+loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
+These spin_on_onwer variant also cause rcu stall before we apply this patch set
+
+Pan Xinhui (4):
+  kernel/sched: introduce vcpu preempted check interface
+  powerpc/spinlock: support vcpu preempted check
+  locking/osq: Drop the overload of osq_lock()
+  kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
+
+ arch/powerpc/include/asm/spinlock.h | 18 ++++++++++++++++++
+ include/linux/sched.h               | 12 ++++++++++++
+ kernel/locking/mutex.c              | 15 +++++++++++++--
+ kernel/locking/osq_lock.c           | 10 +++++++++-
+ kernel/locking/rwsem-xadd.c         | 16 +++++++++++++---
+ 5 files changed, 65 insertions(+), 6 deletions(-)
+
 -- 
-2.5.5
+2.4.11
