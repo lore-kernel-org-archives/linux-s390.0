@@ -1,87 +1,138 @@
-Return-Path: <xinhui.pan@linux.vnet.ibm.com>
-From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v2 3/4] locking/osq: Drop the overload of osq_lock()
-Date: Tue, 28 Jun 2016 10:43:10 -0400
-In-Reply-To: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Message-Id: <1467124991-13164-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org
-Cc: peterz@infradead.org, mingo@redhat.com, mpe@ellerman.id.au, paulus@samba.org, benh@kernel.crashing.org, paulmck@linux.vnet.ibm.com, waiman.long@hpe.com, will.deacon@arm.com, boqun.feng@gmail.com, dave@stgolabs.net, schwidefsky@de.ibm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [PATCH v5 37/44] s390: dma-mapping: Use unsigned long for dma_attrs
+Date: Thu, 30 Jun 2016 10:26:04 +0200
+Message-id: <1467275171-6298-37-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1467275171-6298-1-git-send-email-k.kozlowski@samsung.com>
+References: <1467275019-30789-1-git-send-email-k.kozlowski@samsung.com>
+ <1467275171-6298-1-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-An over-committed guest with more vCPUs than pCPUs has a heavy overload in
-osq_lock().
+Split out subsystem specific changes for easier reviews. This will be
+squashed with main commit.
 
-This is because vCPU A hold the osq lock and yield out, vCPU B wait per_cpu
-node->locked to be set. IOW, vCPU B wait vCPU A to run and unlock the osq
-lock.
-
-Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
-currently running or not. So break the spin loops on true condition.
-
-test case:
-perf record -a perf bench sched messaging -g 400 -p && perf report
-
-before patch:
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
-
-after patch:
-20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
- 8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
- 3.01%  sched-messaging  [kernel.vmlinux]  [k] system_call_common
- 2.83%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
- 2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+[for s390]
+Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 ---
- kernel/locking/osq_lock.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/dma-mapping.h |  1 -
+ arch/s390/pci/pci_dma.c             | 23 ++++++++++++-----------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 05a3785..39d1385 100644
---- a/kernel/locking/osq_lock.c
-+++ b/kernel/locking/osq_lock.c
-@@ -21,6 +21,11 @@ static inline int encode_cpu(int cpu_nr)
- 	return cpu_nr + 1;
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+index 3249b7464889..ffaba07f50ab 100644
+--- a/arch/s390/include/asm/dma-mapping.h
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -5,7 +5,6 @@
+ #include <linux/types.h>
+ #include <linux/mm.h>
+ #include <linux/scatterlist.h>
+-#include <linux/dma-attrs.h>
+ #include <linux/dma-debug.h>
+ #include <linux/io.h>
+ 
+diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
+index 1ea8c07eab84..159f767f9011 100644
+--- a/arch/s390/pci/pci_dma.c
++++ b/arch/s390/pci/pci_dma.c
+@@ -285,7 +285,7 @@ static inline void zpci_err_dma(unsigned long rc, unsigned long addr)
+ static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
+ 				     unsigned long offset, size_t size,
+ 				     enum dma_data_direction direction,
+-				     struct dma_attrs *attrs)
++				     unsigned long attrs)
+ {
+ 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+ 	unsigned long nr_pages, iommu_page_index;
+@@ -331,7 +331,7 @@ out_err:
+ 
+ static void s390_dma_unmap_pages(struct device *dev, dma_addr_t dma_addr,
+ 				 size_t size, enum dma_data_direction direction,
+-				 struct dma_attrs *attrs)
++				 unsigned long attrs)
+ {
+ 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+ 	unsigned long iommu_page_index;
+@@ -354,7 +354,7 @@ static void s390_dma_unmap_pages(struct device *dev, dma_addr_t dma_addr,
+ 
+ static void *s390_dma_alloc(struct device *dev, size_t size,
+ 			    dma_addr_t *dma_handle, gfp_t flag,
+-			    struct dma_attrs *attrs)
++			    unsigned long attrs)
+ {
+ 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+ 	struct page *page;
+@@ -369,7 +369,7 @@ static void *s390_dma_alloc(struct device *dev, size_t size,
+ 	pa = page_to_phys(page);
+ 	memset((void *) pa, 0, size);
+ 
+-	map = s390_dma_map_pages(dev, page, 0, size, DMA_BIDIRECTIONAL, NULL);
++	map = s390_dma_map_pages(dev, page, 0, size, DMA_BIDIRECTIONAL, 0);
+ 	if (dma_mapping_error(dev, map)) {
+ 		free_pages(pa, get_order(size));
+ 		return NULL;
+@@ -383,19 +383,19 @@ static void *s390_dma_alloc(struct device *dev, size_t size,
+ 
+ static void s390_dma_free(struct device *dev, size_t size,
+ 			  void *pa, dma_addr_t dma_handle,
+-			  struct dma_attrs *attrs)
++			  unsigned long attrs)
+ {
+ 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+ 
+ 	size = PAGE_ALIGN(size);
+ 	atomic64_sub(size / PAGE_SIZE, &zdev->allocated_pages);
+-	s390_dma_unmap_pages(dev, dma_handle, size, DMA_BIDIRECTIONAL, NULL);
++	s390_dma_unmap_pages(dev, dma_handle, size, DMA_BIDIRECTIONAL, 0);
+ 	free_pages((unsigned long) pa, get_order(size));
  }
  
-+static inline int node_cpu(struct optimistic_spin_node *node)
-+{
-+	return node->cpu - 1;
-+}
-+
- static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_val)
+ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 			   int nr_elements, enum dma_data_direction dir,
+-			   struct dma_attrs *attrs)
++			   unsigned long attrs)
  {
- 	int cpu_nr = encoded_cpu_val - 1;
-@@ -118,8 +123,11 @@ bool osq_lock(struct optimistic_spin_queue *lock)
- 	while (!READ_ONCE(node->locked)) {
- 		/*
- 		 * If we need to reschedule bail... so we can block.
-+		 * Use vcpu_is_preempted to detech lock holder preemption issue
-+		 * and break. vcpu_is_preempted is a macro defined by false if
-+		 * arch does not support vcpu preempted check,
- 		 */
--		if (need_resched())
-+		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
- 			goto unqueue;
+ 	int mapped_elements = 0;
+ 	struct scatterlist *s;
+@@ -404,7 +404,7 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 	for_each_sg(sg, s, nr_elements, i) {
+ 		struct page *page = sg_page(s);
+ 		s->dma_address = s390_dma_map_pages(dev, page, s->offset,
+-						    s->length, dir, NULL);
++						    s->length, dir, 0);
+ 		if (!dma_mapping_error(dev, s->dma_address)) {
+ 			s->dma_length = s->length;
+ 			mapped_elements++;
+@@ -418,7 +418,7 @@ unmap:
+ 	for_each_sg(sg, s, mapped_elements, i) {
+ 		if (s->dma_address)
+ 			s390_dma_unmap_pages(dev, s->dma_address, s->dma_length,
+-					     dir, NULL);
++					     dir, 0);
+ 		s->dma_address = 0;
+ 		s->dma_length = 0;
+ 	}
+@@ -428,13 +428,14 @@ unmap:
  
- 		cpu_relax_lowlatency();
+ static void s390_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
+ 			      int nr_elements, enum dma_data_direction dir,
+-			      struct dma_attrs *attrs)
++			      unsigned long attrs)
+ {
+ 	struct scatterlist *s;
+ 	int i;
+ 
+ 	for_each_sg(sg, s, nr_elements, i) {
+-		s390_dma_unmap_pages(dev, s->dma_address, s->dma_length, dir, NULL);
++		s390_dma_unmap_pages(dev, s->dma_address, s->dma_length, dir,
++				     0);
+ 		s->dma_address = 0;
+ 		s->dma_length = 0;
+ 	}
 -- 
-2.4.11
+1.9.1
