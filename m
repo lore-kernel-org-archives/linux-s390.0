@@ -1,27 +1,33 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 0/1] qeth: important fix to avoid panic on oops
-Date: Mon,  4 Jul 2016 14:07:15 +0200
-Message-ID: <1467634036-49548-1-git-send-email-ubraun@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 1/1] qeth: delete napi struct when removing a qeth
+ device
+Date: Mon, 04 Jul 2016 23:33:05 -0700 (PDT)
+Message-ID: <20160704.233305.1481087690582871164.davem@davemloft.net>
+References: <1467634036-49548-1-git-send-email-ubraun@linux.vnet.ibm.com>
+	<1467634036-49548-2-git-send-email-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1467634036-49548-2-git-send-email-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
+To: ubraun@linux.vnet.ibm.com
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Mon,  4 Jul 2016 14:07:16 +0200
 
-here is an important qeth patch built for the net-tree fixing a qeth crash.
+> A qeth_card contains a napi_struct linked to the net_device during
+> device probing. This struct must be deleted when removing the qeth
+> device, otherwise Panic on oops can occur when qeth devices are
+> repeatedly removed and added.
+> 
+> Fixes: a1c3ed4c9ca ("qeth: NAPI support for l2 and l3 discipline")
+> Cc: stable@vger.kernel.org # v2.6.37+
+> Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+> Tested-by: Alexander Klein <ALKL@de.ibm.com>
 
-Thanks, Ursula
-
-Ursula Braun (1):
-  Subject: [PATCH] qeth: delete napi struct when removing a qeth device
-
- drivers/s390/net/qeth_l2_main.c | 1 +
- drivers/s390/net/qeth_l3_main.c | 1 +
- 2 files changed, 2 insertions(+)
-
--- 
-2.6.6
+Applied, thanks.
