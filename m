@@ -1,18 +1,14 @@
-Return-Path: <xinhui.pan@linux.vnet.ibm.com>
-Date: Wed, 06 Jul 2016 18:18:27 +0800
-From: xinhui <xinhui.pan@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Subject: Re: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
+Return-Path: <paolo.bonzini@gmail.com>
+Sender: Paolo Bonzini <paolo.bonzini@gmail.com>
+Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
 References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
- <1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
- <CANRm+CxQMSrg69p2Xey829Mz4Au9YCai+4JD17i9urdbj0VgkQ@mail.gmail.com>
- <577C8FE3.3010208@linux.vnet.ibm.com>
- <CANRm+CySutzEYQuCaeqyLKKVPPcFDFT94UsNaYWo8fU43VsSig@mail.gmail.com>
- <20160706075814.GF30921@twins.programming.kicks-ass.net>
- <CANRm+Cz5-XGDTNkZ_RcoX+gxF_+JDpUB6OB+ECOQcScuaeKfGA@mail.gmail.com>
-In-Reply-To: <CANRm+Cz5-XGDTNkZ_RcoX+gxF_+JDpUB6OB+ECOQcScuaeKfGA@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Message-Id: <577CDAF3.4030401@linux.vnet.ibm.com>
+ <20160706065255.GH30909@twins.programming.kicks-ass.net>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <14a24854-9787-e4a1-c9a8-76eba4e97301@redhat.com>
+Date: Wed, 6 Jul 2016 12:44:58 +0200
+MIME-Version: 1.0
+In-Reply-To: <20160706065255.GH30909@twins.programming.kicks-ass.net>
+Content-Type: text/plain; charset=windows-1252
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -21,36 +17,46 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Wanpeng Li <kernellwp@gmail.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390 <linux-s390@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, mpe@ellerman.id.au, Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, Waiman Long <waiman.long@hpe.com>, will.deacon@arm.com, boqun.feng@gmail.com, Davidlohr Bueso <dave@stgolabs.net>, schwidefsky@de.ibm.com, Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, waiman.long@hpe.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
-Content-Transfer-Encoding: 8bit
 
 
-On 2016年07月06日 16:32, Wanpeng Li wrote:
-> 2016-07-06 15:58 GMT+08:00 Peter Zijlstra <peterz@infradead.org>:
->> On Wed, Jul 06, 2016 at 02:46:34PM +0800, Wanpeng Li wrote:
->>>> SO it's easy for ppc to implement such interface. Note that yield_count is
->>>> set by powerVM/KVM.
->>>> and only pSeries can run a guest for now. :)
->>>>
->>>> I also review x86 related code, looks like we need add one hyer-call to get
->>>> such vcpu preemption info?
->>>
->>> There is no such stuff to record lock holder in x86 kvm, maybe we
->>> don't need to depend on PLE handler algorithm to guess it if we can
->>> know lock holder vCPU directly.
+
+On 06/07/2016 08:52, Peter Zijlstra wrote:
+> On Tue, Jun 28, 2016 at 10:43:07AM -0400, Pan Xinhui wrote:
+>> change fomr v1:
+>> 	a simplier definition of default vcpu_is_preempted
+>> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
+>> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+>> 	add more comments
+>> 	thanks boqun and Peter's suggestion.
 >>
->> x86/kvm has vcpu->preempted to indicate if a vcpu is currently preempted
->> or not. I'm just not sure if that is visible to the guest or how to make
->> it so.
->
-> Yeah, I miss it. I can be the volunteer to do it if there is any idea,
-> ping Paolo. :)
->
-glad to know that. :)
+>> This patch set aims to fix lock holder preemption issues.
+>>
+>> test-case:
+>> perf record -a perf bench sched messaging -g 400 -p && perf report
+>>
+>> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+>> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+>>  5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+>>  3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+>>  3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+>>  3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
+>>  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+>>
+>> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
+>> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
+>> These spin_on_onwer variant also cause rcu stall before we apply this patch set
+>>
+> 
+> Paolo, could you help out with an (x86) KVM interface for this?
 
+If it's just for spin loops, you can check if the version field in the
+steal time structure has changed.
 
-> Regards,
-> Wanpeng Li
->
+Paolo
+
+> Waiman, could you see if you can utilize this to get rid of the
+> SPIN_THRESHOLD in qspinlock_paravirt?
+> 
