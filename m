@@ -1,73 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 18 Jul 2016 09:00:56 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] s390/pci: Delete an unnecessary check before the
- function call "pci_dev_put"
-In-Reply-To: <b46227fb-5a08-7c09-5fe8-facace841880@users.sourceforge.net>
-References: <5307CAA2.8060406@users.sourceforge.net>
-	<alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
-	<530A086E.8010901@users.sourceforge.net>
-	<alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
-	<530A72AA.3000601@users.sourceforge.net>
-	<alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
-	<530B5FB6.6010207@users.sourceforge.net>
-	<alpine.DEB.2.10.1402241710370.2074@hadrien>
-	<530C5E18.1020800@users.sourceforge.net>
-	<alpine.DEB.2.10.1402251014170.2080@hadrien>
-	<530CD2C4.4050903@users.sourceforge.net>
-	<alpine.DEB.2.10.1402251840450.7035@hadrien>
-	<530CF8FF.8080600@users.sourceforge.net>
-	<alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
-	<530DD06F.4090703@users.sourceforge.net>
-	<alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
-	<5317A59D.4@users.sourceforge.net>
-	<b46227fb-5a08-7c09-5fe8-facace841880@users.sourceforge.net>
+Message-Id: <20160711122532.121846277@linutronix.de>
+Date: Mon, 11 Jul 2016 12:28:36 -0000
+From: Anna-Maria Gleixner <anna-maria@linutronix.de>
+Subject: [patch 18/66] s390: perf: Convert the hotplug notifier to state
+ machine callbacks (Counter)
+References: <20160711122450.923603742@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20160718090056.2ab0afce@mschwide>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Disposition: inline;
+ filename=0018-s390-perf-Convert-the-hotplug-notifier-to-state-mach.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald =?UTF-8?B?U2Now6RmZXI=?= <gerald.schaefer@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Anna-Maria Gleixner <anna-maria@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, 16 Jul 2016 20:40:23 +0200
-SF Markus Elfring <elfring@users.sourceforge.net> wrote:
+From: Thomas Gleixner <tglx@linutronix.de>
 
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sat, 16 Jul 2016 20:15:17 +0200
-> 
-> The pci_dev_put() function tests whether its argument is NULL and then
-> returns immediately. Thus the test around the call is not needed.
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
->  arch/s390/pci/pci_event.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-> index fb2a9a5..c2b27ad 100644
-> --- a/arch/s390/pci/pci_event.c
-> +++ b/arch/s390/pci/pci_event.c
-> @@ -145,8 +145,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
->  	default:
->  		break;
->  	}
-> -	if (pdev)
-> -		pci_dev_put(pdev);
-> +	pci_dev_put(pdev);
->  }
-> 
->  void zpci_event_availability(void *data)
+Install the callbacks via the state machine and let the core invoke
+the callbacks on the already online CPUs.
 
-Applied,  thanks.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Anna-Maria Gleixner <anna-maria@linutronix.de>
+---
+ arch/s390/kernel/perf_cpum_cf.c |   44 ++++++++++++++++------------------------
+ include/linux/cpuhotplug.h      |    1 
+ 2 files changed, 19 insertions(+), 26 deletions(-)
 
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -664,30 +664,22 @@ static struct pmu cpumf_pmu = {
+ 	.cancel_txn   = cpumf_pmu_cancel_txn,
+ };
+ 
+-static int cpumf_pmu_notifier(struct notifier_block *self, unsigned long action,
+-			      void *hcpu)
++static int cpumf_pmf_setup(unsigned int cpu, int flags)
+ {
+-	int flags;
++	local_irq_disable();
++	setup_pmc_cpu(&flags);
++	local_irq_enable();
++	return 0;
++}
+ 
+-	switch (action & ~CPU_TASKS_FROZEN) {
+-	case CPU_ONLINE:
+-	case CPU_DOWN_FAILED:
+-		flags = PMC_INIT;
+-		local_irq_disable();
+-		setup_pmc_cpu(&flags);
+-		local_irq_enable();
+-		break;
+-	case CPU_DOWN_PREPARE:
+-		flags = PMC_RELEASE;
+-		local_irq_disable();
+-		setup_pmc_cpu(&flags);
+-		local_irq_enable();
+-		break;
+-	default:
+-		break;
+-	}
++static int s390_pmu_online_cpu(unsigned int cpu)
++{
++	return cpumf_pmf_setup(cpu, PMC_INIT);
++}
+ 
+-	return NOTIFY_OK;
++static int s390_pmu_offline_cpu(unsigned int cpu)
++{
++	return cpumf_pmf_setup(cpu, PMC_RELEASE);
+ }
+ 
+ static int __init cpumf_pmu_init(void)
+@@ -707,7 +699,7 @@ static int __init cpumf_pmu_init(void)
+ 	if (rc) {
+ 		pr_err("Registering for CPU-measurement alerts "
+ 		       "failed with rc=%i\n", rc);
+-		goto out;
++		return rc;
+ 	}
+ 
+ 	cpumf_pmu.attr_groups = cpumf_cf_event_group();
+@@ -716,10 +708,10 @@ static int __init cpumf_pmu_init(void)
+ 		pr_err("Registering the cpum_cf PMU failed with rc=%i\n", rc);
+ 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT,
+ 					cpumf_measurement_alert);
+-		goto out;
++		return rc;
+ 	}
+-	perf_cpu_notifier(cpumf_pmu_notifier);
+-out:
+-	return rc;
++	return cpuhp_setup_state(CPUHP_AP_PERF_S390_CF_ONLINE,
++				 "AP_PERF_S390_CF_ONLINE",
++				 s390_pmu_online_cpu, s390_pmu_offline_cpu);
+ }
+ early_initcall(cpumf_pmu_init);
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -42,6 +42,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_PERF_X86_RAPL_ONLINE,
+ 	CPUHP_AP_PERF_X86_CQM_ONLINE,
+ 	CPUHP_AP_PERF_X86_CSTATE_ONLINE,
++	CPUHP_AP_PERF_S390_CF_ONLINE,
+ 	CPUHP_AP_NOTIFY_ONLINE,
+ 	CPUHP_AP_ONLINE_DYN,
+ 	CPUHP_AP_ONLINE_DYN_END		= CPUHP_AP_ONLINE_DYN + 30,
