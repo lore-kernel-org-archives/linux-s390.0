@@ -1,100 +1,174 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 2/2] virtio/s390: deprecate old transport
-Date: Thu,  7 Jul 2016 17:07:57 +0200
-Message-ID: <1467904077-1887-3-git-send-email-cornelia.huck@de.ibm.com>
-References: <1467904077-1887-1-git-send-email-cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1467904077-1887-1-git-send-email-cornelia.huck@de.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: mst@redhat.com
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [PATCH v6 38/46] s390: dma-mapping: Use unsigned long for dma_attrs
+Date: Wed, 13 Jul 2016 10:41:29 +0200
+Message-id: <1468399300-5399-38-git-send-email-k.kozlowski@samsung.com>
+In-reply-to: <1468399300-5399-37-git-send-email-k.kozlowski@samsung.com>
+References: <1468399167-28083-1-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-1-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-2-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-3-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-4-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-5-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-6-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-7-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-8-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-9-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-10-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-11-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-12-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-13-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-14-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-15-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-16-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-17-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-18-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-19-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-20-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-21-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-22-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-23-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-24-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-25-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-26-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-27-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-28-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-29-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-30-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-31-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-32-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-33-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-34-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-35-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-36-git-send-email-k.kozlowski@samsung.com>
+ <1468399300-5399-37-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-There only ever have been two host implementations of the old
-s390-virtio (pre-ccw) transport: the experimental kuli userspace,
-and qemu. As qemu switched its default to ccw with 2.4 (with most
-users having used ccw well before that) and removed the old transport
-entirely in 2.6, s390-virtio probably hasn't been in active use for
-quite some time and is therefore likely to bitrot.
+Split out subsystem specific changes for easier reviews. This will be
+squashed with main commit.
 
-Let's start the slow march towards removing the code by deprecating
-it.
-
-Note that this also deprecates the early virtio console code, which
-has been causing trouble in the guest without being wired up in any
-relevant hypervisor code.
-
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Reviewed-by: Sascha Silbe <silbe@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+[for s390]
+Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 ---
- arch/s390/Kconfig                | 13 +++++++++++++
- drivers/s390/virtio/Makefile     |  6 +++++-
- drivers/s390/virtio/kvm_virtio.c |  2 ++
- 3 files changed, 20 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/dma-mapping.h |  1 -
+ arch/s390/pci/pci_dma.c             | 23 ++++++++++++-----------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index a8c2590..80fffc2 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -875,4 +875,17 @@ config S390_GUEST
- 	  Select this option if you want to run the kernel as a guest under
- 	  the KVM hypervisor.
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+index 3249b7464889..ffaba07f50ab 100644
+--- a/arch/s390/include/asm/dma-mapping.h
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -5,7 +5,6 @@
+ #include <linux/types.h>
+ #include <linux/mm.h>
+ #include <linux/scatterlist.h>
+-#include <linux/dma-attrs.h>
+ #include <linux/dma-debug.h>
+ #include <linux/io.h>
  
-+config S390_GUEST_OLD_TRANSPORT
-+	def_bool y
-+	prompt "Guest support for old s390 virtio transport (DEPRECATED)"
-+	depends on S390_GUEST
-+	help
-+	  Enable this option to add support for the old s390-virtio
-+	  transport (i.e. virtio devices NOT based on virtio-ccw). This
-+	  type of virtio devices is only available on the experimental
-+	  kuli userspace or with old (< 2.6) qemu. If you are running
-+	  with a modern version of qemu (which supports virtio-ccw since
-+	  1.4 and uses it by default since version 2.4), you probably won't
-+	  need this.
-+
- endmenu
-diff --git a/drivers/s390/virtio/Makefile b/drivers/s390/virtio/Makefile
-index 241891a..df40692 100644
---- a/drivers/s390/virtio/Makefile
-+++ b/drivers/s390/virtio/Makefile
-@@ -6,4 +6,8 @@
- # it under the terms of the GNU General Public License (version 2 only)
- # as published by the Free Software Foundation.
+diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
+index 070f1ae5cfad..7297fce9bf80 100644
+--- a/arch/s390/pci/pci_dma.c
++++ b/arch/s390/pci/pci_dma.c
+@@ -286,7 +286,7 @@ static inline void zpci_err_dma(unsigned long rc, unsigned long addr)
+ static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
+ 				     unsigned long offset, size_t size,
+ 				     enum dma_data_direction direction,
+-				     struct dma_attrs *attrs)
++				     unsigned long attrs)
+ {
+ 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+ 	unsigned long nr_pages, iommu_page_index;
+@@ -332,7 +332,7 @@ out_err:
  
--obj-$(CONFIG_S390_GUEST) += kvm_virtio.o virtio_ccw.o
-+s390-virtio-objs := virtio_ccw.o
-+ifdef CONFIG_S390_GUEST_OLD_TRANSPORT
-+s390-virtio-objs += kvm_virtio.o
-+endif
-+obj-$(CONFIG_S390_GUEST) += $(s390-virtio-objs)
-diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
-index b0a849f..5e5c11f 100644
---- a/drivers/s390/virtio/kvm_virtio.c
-+++ b/drivers/s390/virtio/kvm_virtio.c
-@@ -458,6 +458,8 @@ static int __init kvm_devices_init(void)
- 	if (test_devices_support(total_memory_size) < 0)
- 		return -ENODEV;
+ static void s390_dma_unmap_pages(struct device *dev, dma_addr_t dma_addr,
+ 				 size_t size, enum dma_data_direction direction,
+-				 struct dma_attrs *attrs)
++				 unsigned long attrs)
+ {
+ 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+ 	unsigned long iommu_page_index;
+@@ -355,7 +355,7 @@ static void s390_dma_unmap_pages(struct device *dev, dma_addr_t dma_addr,
  
-+	pr_warn("The s390-virtio transport is deprecated. Please switch to a modern host providing virtio-ccw.\n");
-+
- 	rc = vmem_add_mapping(total_memory_size, PAGE_SIZE);
- 	if (rc)
- 		return rc;
+ static void *s390_dma_alloc(struct device *dev, size_t size,
+ 			    dma_addr_t *dma_handle, gfp_t flag,
+-			    struct dma_attrs *attrs)
++			    unsigned long attrs)
+ {
+ 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+ 	struct page *page;
+@@ -370,7 +370,7 @@ static void *s390_dma_alloc(struct device *dev, size_t size,
+ 	pa = page_to_phys(page);
+ 	memset((void *) pa, 0, size);
+ 
+-	map = s390_dma_map_pages(dev, page, 0, size, DMA_BIDIRECTIONAL, NULL);
++	map = s390_dma_map_pages(dev, page, 0, size, DMA_BIDIRECTIONAL, 0);
+ 	if (dma_mapping_error(dev, map)) {
+ 		free_pages(pa, get_order(size));
+ 		return NULL;
+@@ -384,19 +384,19 @@ static void *s390_dma_alloc(struct device *dev, size_t size,
+ 
+ static void s390_dma_free(struct device *dev, size_t size,
+ 			  void *pa, dma_addr_t dma_handle,
+-			  struct dma_attrs *attrs)
++			  unsigned long attrs)
+ {
+ 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+ 
+ 	size = PAGE_ALIGN(size);
+ 	atomic64_sub(size / PAGE_SIZE, &zdev->allocated_pages);
+-	s390_dma_unmap_pages(dev, dma_handle, size, DMA_BIDIRECTIONAL, NULL);
++	s390_dma_unmap_pages(dev, dma_handle, size, DMA_BIDIRECTIONAL, 0);
+ 	free_pages((unsigned long) pa, get_order(size));
+ }
+ 
+ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 			   int nr_elements, enum dma_data_direction dir,
+-			   struct dma_attrs *attrs)
++			   unsigned long attrs)
+ {
+ 	int mapped_elements = 0;
+ 	struct scatterlist *s;
+@@ -405,7 +405,7 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 	for_each_sg(sg, s, nr_elements, i) {
+ 		struct page *page = sg_page(s);
+ 		s->dma_address = s390_dma_map_pages(dev, page, s->offset,
+-						    s->length, dir, NULL);
++						    s->length, dir, 0);
+ 		if (!dma_mapping_error(dev, s->dma_address)) {
+ 			s->dma_length = s->length;
+ 			mapped_elements++;
+@@ -419,7 +419,7 @@ unmap:
+ 	for_each_sg(sg, s, mapped_elements, i) {
+ 		if (s->dma_address)
+ 			s390_dma_unmap_pages(dev, s->dma_address, s->dma_length,
+-					     dir, NULL);
++					     dir, 0);
+ 		s->dma_address = 0;
+ 		s->dma_length = 0;
+ 	}
+@@ -429,13 +429,14 @@ unmap:
+ 
+ static void s390_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
+ 			      int nr_elements, enum dma_data_direction dir,
+-			      struct dma_attrs *attrs)
++			      unsigned long attrs)
+ {
+ 	struct scatterlist *s;
+ 	int i;
+ 
+ 	for_each_sg(sg, s, nr_elements, i) {
+-		s390_dma_unmap_pages(dev, s->dma_address, s->dma_length, dir, NULL);
++		s390_dma_unmap_pages(dev, s->dma_address, s->dma_length, dir,
++				     0);
+ 		s->dma_address = 0;
+ 		s->dma_length = 0;
+ 	}
 -- 
-2.6.6
+1.9.1
