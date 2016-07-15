@@ -1,85 +1,79 @@
-Reply-To: kernel-hardening@lists.openwall.com
-MIME-Version: 1.0
-In-Reply-To: <578601B3.3050903@de.ibm.com>
-References: <cover.1468270393.git.luto@kernel.org> <578601B3.3050903@de.ibm.com>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Wed, 13 Jul 2016 11:36:28 -0700
-Message-ID: <CALCETrUD0R08xkpTgBgey1zMVk4kKm9ZgdXC+KpHQHqCjw9_sg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Subject: [kernel-hardening] Re: [PATCH v5 00/32] virtually mapped stacks and thread_info cleanup
-List-Archive: <https://lore.kernel.org/kernel-hardening/>
-List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Andy Lutomirski <luto@kernel.org>, X86 ML <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Borislav Petkov <bp@alien8.de>, Nadav Amit <nadav.amit@gmail.com>, Kees Cook <keescook@chromium.org>, Brian Gerst <brgerst@gmail.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Linus Torvalds <torvalds@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Jann Horn <jann@thejh.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+From: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+Subject: Re: [PATCH V3 4/5] kvm/stats: Add provisioning for 64-bit vm and vcpu
+ statistics
+Date: Fri, 15 Jul 2016 17:49:59 +1000
+Message-ID: <578895A7.5060001@gmail.com>
+References: <1468400015-4834-1-git-send-email-sjitindarsingh@gmail.com>
+ <57860408.1000203@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <57860408.1000203@de.ibm.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
+Cc: pbonzini@redhat.com, rkrcmar@redhat.com, christoffer.dall@linaro.org, marc.zyngier@arm.com, james.hogan@imgtec.com, agraf@suse.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, cornelia.huck@de.ibm.com, kvm@vger.kernel.org, kvm-ppc@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-mips@linux-mips.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jul 13, 2016 at 1:54 AM, Christian Borntraeger
-<borntraeger@de.ibm.com> wrote:
-> On 07/11/2016 10:53 PM, Andy Lutomirski wrote:
->> Hi all-
+
+
+On 13/07/16 19:04, Christian Borntraeger wrote:
+> On 07/13/2016 10:53 AM, Suraj Jitindar Singh wrote:
+>> vms and vcpus have statistics associated with them which can be viewed
+>> within the debugfs. Currently it is assumed within the vcpu_stat_get() and
+>> vm_stat_get() functions that all of these statistics are represented as
+>> u32s, however the next patch adds some u64 statistics.
 >>
->> Since the dawn of time, a kernel stack overflow has been a real PITA
->> to debug, has caused nondeterministic crashes some time after the
->> actual overflow, and has generally been easy to exploit for root.
+>> Thus modify these two functions, vcpu_stat_get() and vm_stat_get(), such
+>> that they expect u64 statistics and update vm and vcpu statistics to u64s
+>> accordingly.
 >>
->> With this series, arches can enable HAVE_ARCH_VMAP_STACK.  Arches
->> that enable it (just x86 for now) get virtually mapped stacks with
->> guard pages.  This causes reliable faults when the stack overflows.
+>> ---
+>> Change Log:
 >>
->> If the arch implements it well, we get a nice OOPS on stack overflow
->> (as opposed to panicing directly or otherwise exploding badly).  On
->> x86, the OOPS is nice, has a usable call trace, and the overflowing
->> task is killed cleanly.
->>
->> This series (starting with v4) also extensively cleans up
->> thread_info.  thread_info has been partially redundant with
->> thread_struct for a long time -- both are places for arch code to
->> add additional per-task variables.  thread_struct is much cleaner:
->> it's always in task_struct, and there's nothing particularly magical
->> about it.  So this series contains a bunch of cleanups on x86 to
->> move almost everything from thread_info to thread_struct (which,
->> even by itself, deletes more code than it adds) and to remove x86's
->> dependence on thread_info's position on the stack.  Then it opts x86
->> into a new config option THREAD_INFO_IN_TASK to get rid of
->> arch-specific thread_info entirely and simply embed a defanged
->> thread_info (containing only flags) and 'int cpu' into task_struct.
->>
->> Once thread_info stops being magical, there's another benefit: we
->> can free the thread stack as soon as the task is dead (without
->> waiting for RCU) and then, if vmapped stacks are in use, cache the
->> entire stack for reuse on the same cpu.
->>
->> This seems to be an overall speedup of about 0.5-1 =C2=B5s per
->> pthread_create/join in a simple test -- a percpu cache of vmalloced
->> stacks appears to be a bit faster than a high-order stack
->> allocation, at least when the cache hits.  (I expect that workloads
->> with a low cache hit rate are likely to be dominated by other
->> effects anyway.)
->>
->> This does not address interrupt stacks.
->>
->> It's worth noting that s390 has an arch-specific gcc feature that
->> detects stack overflows by adjusting function prologues.  Arches
->> with features like that may wish to avoid using vmapped stacks to
->> minimize the performance hit.
+>> V1 -> V2:
+>> 	- Nothing
+>> V2 -> V3:
+>> 	- Instead of implementing separate u32 and u64 functions keep the
+>> 	  generic functions and modify them to expect u64s. Thus update all
+>> 	  vm and vcpu statistics to u64s accordingly.
+> Have not looked into everything, but I agree with changing everything to 64bit.
 >
-> Yes, might not need this for stack overflow detection. What might
-> be interesting is the thread_info/thread_struct change, if we can
-> strip down thread_info.(CONFIG_THREAD_INFO_IN_TASK). Would it actually
-> make sense to separate these two changes to see what performance
-> impact  CONFIG_THREAD_INFO_IN_TASK has on its own?
 >
+>> @@ -3583,8 +3583,8 @@ static const struct file_operations vcpu_stat_get_per_vm_fops = {
+>>  };
+>>
+>>  static const struct file_operations *stat_fops_per_vm[] = {
+>> -	[KVM_STAT_VCPU] = &vcpu_stat_get_per_vm_fops,
+>> -	[KVM_STAT_VM]   = &vm_stat_get_per_vm_fops,
+>> +	[KVM_STAT_VCPU]		= &vcpu_stat_get_per_vm_fops,
+>> +	[KVM_STAT_VM]		= &vm_stat_get_per_vm_fops,
+>>  };
+> unrelated white space changes?
 
-They're already separated.
+Woops, I'll fix that. Thanks
 
-CONFIG_THREAD_INFO_IN_TASK should have basically no performance impact
-unless there are arch-dependent (percpu?) issues involved.  It does
-enable immediate thread stack deallocation, though, and it would be
-straightforward to make CONFIG_THREAD_INFO_IN_TASK cache stacks even
-if CONFIG_VMAP_STACK=3Dn.  That should be a moderate clone() speedup.
-
-
---=20
-Andy Lutomirski
-AMA Capital Management, LLC
+>
+>>  static int vm_stat_get(void *_offset, u64 *val)
+>> @@ -3628,8 +3628,8 @@ static int vcpu_stat_get(void *_offset, u64 *val)
+>>  DEFINE_SIMPLE_ATTRIBUTE(vcpu_stat_fops, vcpu_stat_get, NULL, "%llu\n");
+>>
+>>  static const struct file_operations *stat_fops[] = {
+>> -	[KVM_STAT_VCPU] = &vcpu_stat_fops,
+>> -	[KVM_STAT_VM]   = &vm_stat_fops,
+>> +	[KVM_STAT_VCPU]		= &vcpu_stat_fops,
+>> +	[KVM_STAT_VM]		= &vm_stat_fops,
+>>  };
+>>
+>>  static int kvm_init_debug(void)
+>>
