@@ -1,122 +1,155 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20160713153334.518084858@linutronix.de>
-Date: Wed, 13 Jul 2016 17:16:22 -0000
-From: Anna-Maria Gleixner <anna-maria@linutronix.de>
-Subject: [patch V2 20/67] s390/perf: Convert the hotplug notifier to state
- machine callbacks (Sampling)
-References: <20160713153219.128052238@linutronix.de>
+From: Jiri Slaby <jslaby@suse.cz>
+Date: Fri, 15 Jul 2016 08:17:56 +0000
+Subject: [PATCH 5/5] frv, mn10300, s390, sh: remove empty vga.h
+Message-Id: <20160715081756.24048-5-jslaby@suse.cz>
+References: <20160715081756.24048-1-jslaby@suse.cz>
+In-Reply-To: <20160715081756.24048-1-jslaby@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Disposition: inline;
- filename=0019-s390-perf-Convert-the-hotplug-notifier-to-state-mach.patch
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, rt@linutronix.de, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Anna-Maria Gleixner <anna-maria@linutronix.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+List-Archive: <https://lore.kernel.org/linux-sh/>
+List-Post: <mailto:linux-sh@vger.kernel.org>
+To: akpm@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>, David Howells <dhowells@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, linux-am33-list@redhat.com, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Provided the architectures do not need any special handling (they seem
+not to support vga at all, actually), there is no need to have an
+empty vga.h. Let them refer to the generic one instead.
 
-Install the callbacks via the state machine and let the core invoke the
-callbacks on the already online CPUs.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: David Howells <dhowells@redhat.com>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: linux-am33-list@redhat.com
 Cc: linux-s390@vger.kernel.org
-Signed-off-by: Anna-Maria Gleixner <anna-maria@linutronix.de>
+Cc: linux-sh@vger.kernel.org
 ---
- arch/s390/kernel/perf_cpum_sf.c | 45 +++++++++++++++++------------------------
- include/linux/cpuhotplug.h      |  1 +
- 2 files changed, 20 insertions(+), 26 deletions(-)
+ arch/frv/include/asm/Kbuild     |  1 +
+ arch/frv/include/asm/vga.h      | 17 -----------------
+ arch/mn10300/include/asm/Kbuild |  1 +
+ arch/mn10300/include/asm/vga.h  | 17 -----------------
+ arch/s390/include/asm/Kbuild    |  1 +
+ arch/s390/include/asm/vga.h     |  6 ------
+ arch/sh/include/asm/Kbuild      |  1 +
+ arch/sh/include/asm/vga.h       |  6 ------
+ 8 files changed, 4 insertions(+), 46 deletions(-)
+ delete mode 100644 arch/frv/include/asm/vga.h
+ delete mode 100644 arch/mn10300/include/asm/vga.h
+ delete mode 100644 arch/s390/include/asm/vga.h
+ delete mode 100644 arch/sh/include/asm/vga.h
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index a8e8321..f4a4c11 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1506,37 +1506,28 @@ static void cpumf_measurement_alert(struct ext_code ext_code,
- 		sf_disable();
- 	}
- }
+diff --git a/arch/frv/include/asm/Kbuild b/arch/frv/include/asm/Kbuild
+index 1fa084cf1a43..d1a5c16a2e0f 100644
+--- a/arch/frv/include/asm/Kbuild
++++ b/arch/frv/include/asm/Kbuild
+@@ -7,4 +7,5 @@ generic-y += mcs_spinlock.h
+ generic-y += mm-arch-hooks.h
+ generic-y += preempt.h
+ generic-y += trace_clock.h
++generic-y += vga.h
+ generic-y += word-at-a-time.h
+diff --git a/arch/frv/include/asm/vga.h b/arch/frv/include/asm/vga.h
+deleted file mode 100644
+index a702c800a229..000000000000
+--- a/arch/frv/include/asm/vga.h
++++ /dev/null
+@@ -1,17 +0,0 @@
+-/* vga.h: VGA register stuff
+- *
+- * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
+- * Written by David Howells (dhowells@redhat.com)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
 -
--static int cpumf_pmu_notifier(struct notifier_block *self,
--			      unsigned long action, void *hcpu)
-+static int cpusf_pmu_setup(unsigned int cpu, int flags)
- {
--	int flags;
+-#ifndef _ASM_VGA_H
+-#define _ASM_VGA_H
 -
- 	/* Ignore the notification if no events are scheduled on the PMU.
- 	 * This might be racy...
- 	 */
- 	if (!atomic_read(&num_events))
--		return NOTIFY_OK;
 -
--	switch (action & ~CPU_TASKS_FROZEN) {
--	case CPU_ONLINE:
--	case CPU_DOWN_FAILED:
--		flags = PMC_INIT;
--		local_irq_disable();
--		setup_pmc_cpu(&flags);
--		local_irq_enable();
--		break;
--	case CPU_DOWN_PREPARE:
--		flags = PMC_RELEASE;
--		local_irq_disable();
--		setup_pmc_cpu(&flags);
--		local_irq_enable();
--		break;
--	default:
--		break;
--	}
-+		return 0;
- 
--	return NOTIFY_OK;
-+	local_irq_disable();
-+	setup_pmc_cpu(&flags);
-+	local_irq_enable();
-+	return 0;
-+}
-+
-+static int s390_pmu_sf_online_cpu(unsigned int cpu)
-+{
-+	return cpusf_pmu_setup(cpu, PMC_INIT);
-+}
-+
-+static int s390_pmu_sf_offline_cpu(unsigned int cpu)
-+{
-+	return cpusf_pmu_setup(cpu, PMC_RELEASE);
- }
- 
- static int param_get_sfb_size(char *buffer, const struct kernel_param *kp)
-@@ -1636,7 +1627,9 @@ static int __init init_cpum_sampling_pmu(void)
- 					cpumf_measurement_alert);
- 		goto out;
- 	}
--	perf_cpu_notifier(cpumf_pmu_notifier);
-+
-+	cpuhp_setup_state(CPUHP_AP_PERF_S390_SF_ONLINE, "AP_PERF_S390_SF_ONLINE",
-+			  s390_pmu_sf_online_cpu, s390_pmu_sf_offline_cpu);
- out:
- 	return err;
- }
-diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
-index d4e09cb..fea6666 100644
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -43,6 +43,7 @@ enum cpuhp_state {
- 	CPUHP_AP_PERF_X86_CQM_ONLINE,
- 	CPUHP_AP_PERF_X86_CSTATE_ONLINE,
- 	CPUHP_AP_PERF_S390_CF_ONLINE,
-+	CPUHP_AP_PERF_S390_SF_ONLINE,
- 	CPUHP_AP_NOTIFY_ONLINE,
- 	CPUHP_AP_ONLINE_DYN,
- 	CPUHP_AP_ONLINE_DYN_END		= CPUHP_AP_ONLINE_DYN + 30,
+-
+-#endif /* _ASM_VGA_H */
+diff --git a/arch/mn10300/include/asm/Kbuild b/arch/mn10300/include/asm/Kbuild
+index 1c8dd0f5cd5d..ee06fceabde0 100644
+--- a/arch/mn10300/include/asm/Kbuild
++++ b/arch/mn10300/include/asm/Kbuild
+@@ -9,4 +9,5 @@ generic-y += mm-arch-hooks.h
+ generic-y += preempt.h
+ generic-y += sections.h
+ generic-y += trace_clock.h
++generic-y += vga.h
+ generic-y += word-at-a-time.h
+diff --git a/arch/mn10300/include/asm/vga.h b/arch/mn10300/include/asm/vga.h
+deleted file mode 100644
+index 0163e50a3459..000000000000
+--- a/arch/mn10300/include/asm/vga.h
++++ /dev/null
+@@ -1,17 +0,0 @@
+-/* MN10300 VGA register definitions
+- *
+- * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
+- * Written by David Howells (dhowells@redhat.com)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public Licence
+- * as published by the Free Software Foundation; either version
+- * 2 of the Licence, or (at your option) any later version.
+- */
+-
+-#ifndef _ASM_VGA_H
+-#define _ASM_VGA_H
+-
+-
+-
+-#endif /* _ASM_VGA_H */
+diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
+index 9043d2e1e2ae..3ac3936e46e3 100644
+--- a/arch/s390/include/asm/Kbuild
++++ b/arch/s390/include/asm/Kbuild
+@@ -6,4 +6,5 @@ generic-y += mcs_spinlock.h
+ generic-y += mm-arch-hooks.h
+ generic-y += preempt.h
+ generic-y += trace_clock.h
++generic-y += vga.h
+ generic-y += word-at-a-time.h
+diff --git a/arch/s390/include/asm/vga.h b/arch/s390/include/asm/vga.h
+deleted file mode 100644
+index d375526c261f..000000000000
+--- a/arch/s390/include/asm/vga.h
++++ /dev/null
+@@ -1,6 +0,0 @@
+-#ifndef _ASM_S390_VGA_H
+-#define _ASM_S390_VGA_H
+-
+-/* Avoid compile errors due to missing asm/vga.h */
+-
+-#endif /* _ASM_S390_VGA_H */
+diff --git a/arch/sh/include/asm/Kbuild b/arch/sh/include/asm/Kbuild
+index 751c3373a92c..5b8bfba7522d 100644
+--- a/arch/sh/include/asm/Kbuild
++++ b/arch/sh/include/asm/Kbuild
+@@ -38,4 +38,5 @@ generic-y += termbits.h
+ generic-y += termios.h
+ generic-y += trace_clock.h
+ generic-y += ucontext.h
++generic-y += vga.h
+ generic-y += xor.h
+diff --git a/arch/sh/include/asm/vga.h b/arch/sh/include/asm/vga.h
+deleted file mode 100644
+index 06a5de8ace1a..000000000000
+--- a/arch/sh/include/asm/vga.h
++++ /dev/null
+@@ -1,6 +0,0 @@
+-#ifndef __ASM_SH_VGA_H
+-#define __ASM_SH_VGA_H
+-
+-/* Stupid drivers. */
+-
+-#endif /* __ASM_SH_VGA_H */
 -- 
-2.8.1
+2.9.1
