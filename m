@@ -1,14 +1,14 @@
-Return-Path: <waiman.long@hpe.com>
-Message-ID: <578533FE.9050606@hpe.com>
-Date: Tue, 12 Jul 2016 14:16:30 -0400
-From: Waiman Long <waiman.long@hpe.com>
-MIME-Version: 1.0
-Subject: Re: [PATCH v2 0/4] implement vcpu preempted check
+Return-Path: <xinhui@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 2/4] powerpc/spinlock: support vcpu preempted check
 References: <1467124991-13164-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
- <20160706065255.GH30909@twins.programming.kicks-ass.net>
- <5783B6D7.7020903@hpe.com> <57846F02.7000306@suse.com>
-In-Reply-To: <57846F02.7000306@suse.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+ <1467124991-13164-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+ <1467802454.9143.1.camel@gmail.com>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+Date: Fri, 15 Jul 2016 23:35:14 +0800
+MIME-Version: 1.0
+In-Reply-To: <1467802454.9143.1.camel@gmail.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Message-Id: <3290f85e-932c-250c-6e28-8ec41ae829df@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -17,64 +17,83 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Juergen Gross <jgross@suse.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org, dave@stgolabs.net, benh@kernel.crashing.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, boqun.feng@gmail.com, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: Balbir Singh <bsingharora@gmail.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org
+Cc: dave@stgolabs.net, peterz@infradead.org, mpe@ellerman.id.au, boqun.feng@gmail.com, will.deacon@arm.com, waiman.long@hpe.com, mingo@redhat.com, paulus@samba.org, benh@kernel.crashing.org, schwidefsky@de.ibm.com, paulmck@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On 07/12/2016 12:16 AM, Juergen Gross wrote:
-> On 11/07/16 17:10, Waiman Long wrote:
->> On 07/06/2016 02:52 AM, Peter Zijlstra wrote:
->>> On Tue, Jun 28, 2016 at 10:43:07AM -0400, Pan Xinhui wrote:
->>>> change fomr v1:
->>>>      a simplier definition of default vcpu_is_preempted
->>>>      skip mahcine type check on ppc, and add config. remove dedicated
->>>> macro.
->>>>      add one patch to drop overload of rwsem_spin_on_owner and
->>>> mutex_spin_on_owner.
->>>>      add more comments
->>>>      thanks boqun and Peter's suggestion.
->>>>
->>>> This patch set aims to fix lock holder preemption issues.
->>>>
->>>> test-case:
->>>> perf record -a perf bench sched messaging -g 400 -p&&   perf report
->>>>
->>>> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
->>>> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
->>>>    5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
->>>>    3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
->>>>    3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
->>>>    3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
->>>>    2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
->>>>
->>>> We introduce interface bool vcpu_is_preempted(int cpu) and use it in
->>>> some spin
->>>> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
->>>> These spin_on_onwer variant also cause rcu stall before we apply this
->>>> patch set
->>>>
->>> Paolo, could you help out with an (x86) KVM interface for this?
->>>
->>> Waiman, could you see if you can utilize this to get rid of the
->>> SPIN_THRESHOLD in qspinlock_paravirt?
->> That API is certainly useful to make the paravirt spinlock perform
->> better. However, I am not sure if we can completely get rid of the
->> SPIN_THRESHOLD at this point. It is not just the kvm, the xen code need
->> to be modified as well.
-> This should be rather easy. The relevant information is included in the
-> runstate data mapped into kernel memory. I can provide a patch for Xen
-> if needed.
+Hi, Baibir
+	sorry for late responce, I missed reading your mail.
+
+在 16/7/6 18:54, Balbir Singh 写道:
+> On Tue, 2016-06-28 at 10:43 -0400, Pan Xinhui wrote:
+>> This is to fix some lock holder preemption issues. Some other locks
+>> implementation do a spin loop before acquiring the lock itself. Currently
+>> kernel has an interface of bool vcpu_is_preempted(int cpu). It take the cpu
+> 								^^ takes
+>> as parameter and return true if the cpu is preempted. Then kernel can break
+>> the spin loops upon on the retval of vcpu_is_preempted.
+>>
+>> As kernel has used this interface, So lets support it.
+>>
+>> Only pSeries need supoort it. And the fact is powerNV are built into same
+> 		   ^^ support
+>> kernel image with pSeries. So we need return false if we are runnig as
+>> powerNV. The another fact is that lppaca->yiled_count keeps zero on
+> 					  ^^ yield
+>> powerNV. So we can just skip the machine type.
+>>
+
+Blame on me, I indeed need avoid such typo..
+thanks for pointing it out.
+
+>> Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+>> Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+>> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+>> ---
+>>  arch/powerpc/include/asm/spinlock.h | 18 ++++++++++++++++++
+>>  1 file changed, 18 insertions(+)
+>>
+>> diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/asm/spinlock.h
+>> index 523673d..3ac9fcb 100644
+>> --- a/arch/powerpc/include/asm/spinlock.h
+>> +++ b/arch/powerpc/include/asm/spinlock.h
+>> @@ -52,6 +52,24 @@
+>>  #define SYNC_IO
+>>  #endif
+>>
+>> +/*
+>> + * This support kernel to check if one cpu is preempted or not.
+>> + * Then we can fix some lock holder preemption issue.
+>> + */
+>> +#ifdef CONFIG_PPC_PSERIES
+>> +#define vcpu_is_preempted vcpu_is_preempted
+>> +static inline bool vcpu_is_preempted(int cpu)
+>> +{
+>> +	/*
+>> +	 * pSeries and powerNV can be built into same kernel image. In
+>> +	 * principle we need return false directly if we are running as
+>> +	 * powerNV. However the yield_count is always zero on powerNV, So
+>> +	 * skip such machine type check
+>
+> Or you could use the ppc_md interface callbacks if required, but your
+> solution works as well
+>
+
+thanks, So I can keep my code as is.
+
+thanks
+xinhui
+
+>> +	 */
+>> +	return !!(be32_to_cpu(lppaca_of(cpu).yield_count) & 1);
+>> +}
+>> +#endif
+>> +
+>>  static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+>>  {
+>>  	return lock.slock == 0;
 >
 >
-> Juergen
-
-Thanks for the offering. We will wait until Xinhui's patch comes through 
-before working on the next step.
-
-As for the elimination of SPIN_THRESHOLD, the queue head may not always 
-have the right CPU number of the lock holder. So I don't think we can 
-eliminate that for the queue head spinning. I think we can eliminates 
-the SPIN_THRESHOLD spinning for the other queue node vCPUs.
-
-Cheers,
-Longman
+> Balbir Singh.
+>
