@@ -1,50 +1,63 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 4/5] s390: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
-Date: Sun, 31 Jul 2016 08:23:04 -0400
-Message-ID: <20160731082304.05f4aad7@mschwide>
-References: <1469462394-8970-1-git-send-email-james.hogan@imgtec.com>
-	<1469462394-8970-5-git-send-email-james.hogan@imgtec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: [PATCH] s390/pci: Delete an unnecessary check before the function
+ call "pci_dev_put"
+References: <5307CAA2.8060406@users.sourceforge.net>
+ <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
+ <530A086E.8010901@users.sourceforge.net>
+ <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
+ <530A72AA.3000601@users.sourceforge.net>
+ <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
+ <530B5FB6.6010207@users.sourceforge.net>
+ <alpine.DEB.2.10.1402241710370.2074@hadrien>
+ <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+ <530DD06F.4090703@users.sourceforge.net>
+ <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Message-ID: <b46227fb-5a08-7c09-5fe8-facace841880@users.sourceforge.net>
+Date: Sat, 16 Jul 2016 20:40:23 +0200
+MIME-Version: 1.0
+In-Reply-To: <5317A59D.4@users.sourceforge.net>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1469462394-8970-5-git-send-email-james.hogan@imgtec.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: James Hogan <james.hogan@imgtec.com>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?Q?Gerald_Sch=c3=a4fer?= <gerald.schaefer@de.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 25 Jul 2016 16:59:53 +0100
-James Hogan <james.hogan@imgtec.com> wrote:
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sat, 16 Jul 2016 20:15:17 +0200
 
-> AT_VECTOR_SIZE_ARCH should be defined with the maximum number of
-> NEW_AUX_ENT entries that ARCH_DLINFO can contain, but it wasn't defined
-> for s390 at all even though ARCH_DLINFO can contain one NEW_AUX_ENT when
-> VDSO is enabled.
-> 
-> This shouldn't be a problem as AT_VECTOR_SIZE_BASE includes space for
-> AT_BASE_PLATFORM which s390 doesn't use, but lets define it now and add
-> the comment above ARCH_DLINFO as found in several other architectures to
-> remind future modifiers of ARCH_DLINFO to keep AT_VECTOR_SIZE_ARCH up to
-> date.
-> 
-> Fixes: b020632e40c3 ("[S390] introduce vdso on s390")
-> Signed-off-by: James Hogan <james.hogan@imgtec.com>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: linux-s390@vger.kernel.org
+The pci_dev_put() function tests whether its argument is NULL and then
+returns immediately. Thus the test around the call is not needed.
 
-The patch makes sense. I not quite sure about the checkpoint-restore code
-that clears the last two entries of the user_auxv[] without knowing how
-many aux entries there really are. That seems kind of strange.
+This issue was detected by using the Coccinelle software.
 
-I will the patch to our repositories and we'll give it a spin. If there
-is no fallout I queue it to linux-s390.
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ arch/s390/pci/pci_event.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
+diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+index fb2a9a5..c2b27ad 100644
+--- a/arch/s390/pci/pci_event.c
++++ b/arch/s390/pci/pci_event.c
+@@ -145,8 +145,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+ 	default:
+ 		break;
+ 	}
+-	if (pdev)
+-		pci_dev_put(pdev);
++	pci_dev_put(pdev);
+ }
+ 
+ void zpci_event_availability(void *data)
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.9.1
