@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 29 Jul 2016 11:46:08 +0200 (CEST)
+Date: Sat, 16 Jul 2016 12:35:26 +0200 (CEST)
 From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Subject: Re: [PATCH] s390/pci: Remove unnecessary if condition
-In-Reply-To: <alpine.DEB.2.10.1607291046000.2161@hadrien>
-References: <20160729083150.GA8819@amitoj-Inspiron-3542> <alpine.LFD.2.20.1607291037530.3349@schleppi> <alpine.DEB.2.10.1607291046000.2161@hadrien>
+Subject: Re: [PATCH] s390/cio/chp : Remove deprecated
+ create_singlethread_workqueue
+In-Reply-To: <20160716084834.GA7728@Karyakshetra>
+References: <20160716084834.GA7728@Karyakshetra>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <alpine.LFD.2.20.1607291138100.3349@schleppi>
+Message-Id: <alpine.LFD.2.20.1607161234360.1961@schleppi>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Julia Lawall <julia.lawall@lip6.fr>
-Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bhaktipriya Shridhar <bhaktipriya96@gmail.com>
+Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 29 Jul 2016, Julia Lawall wrote:
-> On Fri, 29 Jul 2016, Sebastian Ott wrote:
-> > On Fri, 29 Jul 2016, Amitoj Kaur Chawla wrote:
-> > > Remove unnecessary error handling because the only failure value that
-> > > can be returned is NULL and so the test can never be true.
-> > >
-> > > The Coccinelle semantic patch used to make this change is as follows:
-> > > @@
-> > > expression e;
-> > > @@
-> > >
-> > >   e = debugfs_create_file(...);
-> > > - if(IS_ERR(e)) { e = NULL; }
-> >
-> > Nope. For !CONFIG_DEBUG_FS debugfs_create_file returns an ERR_PTR.
+On Sat, 16 Jul 2016, Bhaktipriya Shridhar wrote:
+> The workqueue "chp_wq" is involved in performing pending
+> configure tasks for channel paths.
 > 
-> Clicking around in lxr doesn't show that, but perhaps an alternative
-> definition is overlooked?
+> It has a single work item(&cfg_work) and hence doesn't require
+> ordering. Also, it is not being used on a memory reclaim path.
+> Hence, the singlethreaded workqueue has been replaced with the use of
+> system_wq.
+> 
+> System workqueues have been able to handle high level of concurrency
+> for a long time now and hence it's not required to have a singlethreaded
+> workqueue just to gain concurrency. Unlike a dedicated per-cpu workqueue
+> created with create_singlethread_workqueue(), system_wq allows multiple
+> work items to overlap executions even on the same CPU; however, a
+> per-cpu workqueue doesn't have any CPU locality or global ordering
+> guarantee unless the target CPU is explicitly specified and thus the
+> increase of local concurrency shouldn't make any difference.
+> 
+> Signed-off-by: Bhaktipriya Shridhar <bhaktipriya96@gmail.com>
 
-It looks that way.
+Applied, thanks!
 
-
-[sebott@schleppi linux]$ git grep -W "debugfs_create_file(" include/linux/debugfs.h
-include/linux/debugfs.h:struct dentry *debugfs_create_file(const char *name, umode_t mode,
-include/linux/debugfs.h-                                   struct dentry *parent, void *data,
-include/linux/debugfs.h-                                   const struct file_operations *fops);
---
-include/linux/debugfs.h:static inline struct dentry *debugfs_create_file(const char *name, umode_t mode,
-include/linux/debugfs.h-                                        struct dentry *parent, void *data,
-include/linux/debugfs.h-                                        const struct file_operations *fops)
-include/linux/debugfs.h-{
-include/linux/debugfs.h-        return ERR_PTR(-ENODEV);
-include/linux/debugfs.h-}
-include/linux/debugfs.h-
-
-Regards,
 Sebastian
