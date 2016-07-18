@@ -1,83 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch] netiucv: silence an underflow warning
-References: <20160714113016.GJ18175@mwanda>
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Fri, 15 Jul 2016 09:11:58 +0200
+Date: Mon, 18 Jul 2016 09:07:35 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch] s390/smp: clean up a condition
+In-Reply-To: <20160714104022.GF18175@mwanda>
+References: <20160714104022.GF18175@mwanda>
 MIME-Version: 1.0
-In-Reply-To: <20160714113016.GJ18175@mwanda>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <57888CBE.9050002@linux.vnet.ibm.com>
+Message-Id: <20160718090735.103390c9@mschwide>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dan,
+On Thu, 14 Jul 2016 13:40:22 +0300
+Dan Carpenter <dan.carpenter@oracle.com> wrote:
 
-thanks for reporting this netiucv-problem. There is an implication: 
-Without fix, buffer values between 2**31 and 2**32 are not detected as 
-invalid values. Your fix would help, but since we have to touch the 
-code, I suggest to modernize it, moving from simple_strtoul() to 
-kstrtouint(). This would be the patch I have in mind:
-
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -1564,21 +1564,21 @@ static ssize_t buffer_write (struct devi
-  {
-  	struct netiucv_priv *priv = dev_get_drvdata(dev);
-  	struct net_device *ndev = priv->conn->netdev;
--	char         *e;
--	int          bs1;
-+	unsigned int bs1;
-+	int rc;
-
-  	IUCV_DBF_TEXT(trace, 3, __func__);
-  	if (count >= 39)
-  		return -EINVAL;
-
--	bs1 = simple_strtoul(buf, &e, 0);
-+	rc = kstrtouint(buf, 0, &bs1);
-
--	if (e && (!isspace(*e))) {
--		IUCV_DBF_TEXT_(setup, 2, "buffer_write: invalid char %02x\n",
--			*e);
-+	if (rc == -EINVAL) {
-+		IUCV_DBF_TEXT_(setup, 2, "buffer_write: invalid char %s\n",
-+			buf);
-  		return -EINVAL;
-  	}
--	if (bs1 > NETIUCV_BUFSIZE_MAX) {
-+	if ((rc == -ERANGE) || (bs1 > NETIUCV_BUFSIZE_MAX)) {
-  		IUCV_DBF_TEXT_(setup, 2,
-  			"buffer_write: buffer size %d too large\n",
-  			bs1);
-
-And a question about your static checker detecting this problem: Is it a 
-private checker, or something we could use as well?
-Does your checker like my patch version?
-
-Thanks, Ursula
-
-On 07/14/2016 01:30 PM, Dan Carpenter wrote:
-> I haven't looked at the implications but we accidentally allow bs1 to
-> be negative.  It makes my static checker complain.
->
+> I can never remember precedence rules.  Let's add some parenthesis so
+> this code is more clear.
+> 
 > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
->
-> diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-> index b0e8ffd..85a5744 100644
-> --- a/drivers/s390/net/netiucv.c
-> +++ b/drivers/s390/net/netiucv.c
-> @@ -1578,7 +1578,7 @@ static ssize_t buffer_write (struct device *dev, struct device_attribute *attr,
->   			*e);
->   		return -EINVAL;
->   	}
-> -	if (bs1 > NETIUCV_BUFSIZE_MAX) {
-> +	if (bs1 < 0 || bs1 > NETIUCV_BUFSIZE_MAX) {
->   		IUCV_DBF_TEXT_(setup, 2,
->   			"buffer_write: buffer size %d too large\n",
->   			bs1);
->
+> ---
+> The original code is correct right?  We didn't intend to say:
+> 
+> 	sclp_max = sclp.max_cores * (sclp_max ?: nr_cpu_ids);
+> 
+> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+> index 5c8f7ca..35531fe 100644
+> --- a/arch/s390/kernel/smp.c
+> +++ b/arch/s390/kernel/smp.c
+> @@ -887,7 +887,7 @@ void __init smp_fill_possible_mask(void)
+> 
+>  	sclp_max = max(sclp.mtid, sclp.mtid_cp) + 1;
+>  	sclp_max = min(smp_max_threads, sclp_max);
+> -	sclp_max = sclp.max_cores * sclp_max ?: nr_cpu_ids;
+> +	sclp_max = (sclp.max_cores * sclp_max) ?: nr_cpu_ids;
+>  	possible = setup_possible_cpus ?: nr_cpu_ids;
+>  	possible = min(possible, sclp_max);
+>  	for (cpu = 0; cpu < possible && cpu < nr_cpu_ids; cpu++)
+> 
+
+The code calculates the number of threads to use, then multiplies
+it with the number of cores to get the number of logical CPUs.
+If the product happens to be zero because the number of cores
+could not be determined, then nr_cpu_ids is going to be used.
+
+So the code is correct but with the parenthesis it is easier to
+read. Applied & thanks.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
