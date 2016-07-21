@@ -1,28 +1,28 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v3 0/4] implement vcpu preempted check
-Date: Thu, 21 Jul 2016 07:45:10 -0400
-Message-ID: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
+Subject: [PATCH v3 3/4] locking/osq: Drop the overhead of osq_lock()
+Date: Thu, 21 Jul 2016 07:45:13 -0400
+Message-ID: <1469101514-49475-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
 Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-change from v2:
-	no code change, fix typos, update some comments
+An over-committed guest with more vCPUs than pCPUs has a heavy overhead in
+osq_lock().
 
-change from v1:
-	a simplier definition of default vcpu_is_preempted
-	skip mahcine type check on ppc, and add config. remove dedicated macro.
-	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
-	add more comments
-	thanks boqun and Peter's suggestion.
+This is because vCPU A hold the osq lock and yield out, vCPU B wait per_cpu
+node->locked to be set. IOW, vCPU B wait vCPU A to run and unlock the osq
+lock.
 
-This patch set aims to fix lock holder preemption issues.
+Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
+currently running or not. So break the spin loops on true condition.
 
-test-case:
+test case:
 perf record -a perf bench sched messaging -g 400 -p && perf report
 
 before patch:
@@ -35,30 +35,48 @@ before patch:
  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
 
 after patch:
- 9.99%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 5.28%  sched-messaging  [unknown]         [H] 0xc0000000000768e0
- 4.27%  sched-messaging  [kernel.vmlinux]  [k] __copy_tofrom_user_power7
- 3.77%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
- 3.24%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.02%  sched-messaging  [kernel.vmlinux]  [k] system_call
- 2.69%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
+ 8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
+ 3.01%  sched-messaging  [kernel.vmlinux]  [k] system_call_common
+ 2.83%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
+ 2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+ 2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
 
-We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
-loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
-These spin_on_onwer variant also cause rcu stall before we apply this patch set
+Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+---
+ kernel/locking/osq_lock.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-Pan Xinhui (4):
-  kernel/sched: introduce vcpu preempted check interface
-  powerpc/spinlock: support vcpu preempted check
-  locking/osq: Drop the overhead of osq_lock()
-  kernel/locking: Drop the overhead of {mutex,rwsem}_spin_on_owner
-
- arch/powerpc/include/asm/spinlock.h | 18 ++++++++++++++++++
- include/linux/sched.h               | 12 ++++++++++++
- kernel/locking/mutex.c              | 15 +++++++++++++--
- kernel/locking/osq_lock.c           | 10 +++++++++-
- kernel/locking/rwsem-xadd.c         | 16 +++++++++++++---
- 5 files changed, 65 insertions(+), 6 deletions(-)
-
+diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
+index 05a3785..858a0ed 100644
+--- a/kernel/locking/osq_lock.c
++++ b/kernel/locking/osq_lock.c
+@@ -21,6 +21,11 @@ static inline int encode_cpu(int cpu_nr)
+ 	return cpu_nr + 1;
+ }
+ 
++static inline int node_cpu(struct optimistic_spin_node *node)
++{
++	return node->cpu - 1;
++}
++
+ static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_val)
+ {
+ 	int cpu_nr = encoded_cpu_val - 1;
+@@ -118,8 +123,11 @@ bool osq_lock(struct optimistic_spin_queue *lock)
+ 	while (!READ_ONCE(node->locked)) {
+ 		/*
+ 		 * If we need to reschedule bail... so we can block.
++		 * Use vcpu_is_preempted to detech lock holder preemption issue
++		 * and break the loop. vcpu_is_preempted is a macro defined by
++		 * false if arch does not support vcpu preempted check,
+ 		 */
+-		if (need_resched())
++		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
+ 			goto unqueue;
+ 
+ 		cpu_relax_lowlatency();
 -- 
 2.4.11
