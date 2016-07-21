@@ -1,27 +1,53 @@
-From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Subject: Re: PREVIEW: [GIT PULL 0/2] KVM: s390: Feature and fix for kvm/next
- (4.8) part 4
-Date: Thu, 21 Jul 2016 15:07:18 +0200
-Message-ID: <20160721130717.GA2317@potion>
-References: <1469018400-8397-1-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1469018400-8397-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v3 1/4] kernel/sched: introduce vcpu preempted check interface
+Date: Thu, 21 Jul 2016 07:45:11 -0400
+Message-ID: <1469101514-49475-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Marc Zyngier <marc.zyngier@arm.com>, Christoffer Dall <christoffer.dall@linaro.org>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
+Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-2016-07-20 14:39+0200, Christian Borntraeger:
-> Paolo, Radim,
-> 
-> hopefully the last update for s390 for 4.8.
-> Please note the CAP number conflicts with kvmarm, when merging the one
-> or the other first. You might also need to adopt the number in
-> Documentation/virtual/kvm/api.txt in case arm has something in here as well.
+This patch supports to fix lock holder preemption issue.
 
-Merged, thanks.  Capability 130 is KVM_CAP_S390_USER_INSTR0.
+For kernel users, we could use bool vcpu_is_preempted(int cpu) to detech if
+one vcpu is preempted or not.
+
+The default implementation is a macro defined by false. So compiler can
+wrap it out if arch dose not support such vcpu pteempted check.
+
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+---
+ include/linux/sched.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 6e42ada..cbe0574 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -3293,6 +3293,18 @@ static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
+ 
+ #endif /* CONFIG_SMP */
+ 
++/*
++ * In order to deal with a various lock holder preemption issues provide an
++ * interface to see if a vCPU is currently running or not.
++ *
++ * This allows us to terminate optimistic spin loops and block, analogous to
++ * the native optimistic spin heuristic of testing if the lock owner task is
++ * running or not.
++ */
++#ifndef vcpu_is_preempted
++#define vcpu_is_preempted(cpu)	false
++#endif
++
+ extern long sched_setaffinity(pid_t pid, const struct cpumask *new_mask);
+ extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
+ 
+-- 
+2.4.11
