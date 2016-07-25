@@ -1,82 +1,71 @@
-From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v3 3/4] locking/osq: Drop the overhead of osq_lock()
-Date: Thu, 21 Jul 2016 07:45:13 -0400
-Message-ID: <1469101514-49475-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
-Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+From: James Hogan <james.hogan@imgtec.com>
+Subject: [PATCH 0/5] Define AT_VECTOR_SIZE_ARCH correctly
+Date: Mon, 25 Jul 2016 16:59:49 +0100
+Message-ID: <1469462394-8970-1-git-send-email-james.hogan@imgtec.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-arch-owner@vger.kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, Russell King <linux@armlinux.org.uk>, Nathan Lynch <nathan_lynch@mentor.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Chris Metcalf <cmetcalf@mellanox.com>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, linux-mips@linux-mips.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
 List-ID: <linux-s390.vger.kernel.org>
 
-An over-committed guest with more vCPUs than pCPUs has a heavy overhead in
-osq_lock().
+Several architectures define ARCH_DLINFO to [sometimes] contain
+NEW_AUX_ENT entries, but don't define AT_VECTOR_SIZE_ARCH with the
+corresponding maximum number of NEW_AUX_ENT entries.
 
-This is because vCPU A hold the osq lock and yield out, vCPU B wait per_cpu
-node->locked to be set. IOW, vCPU B wait vCPU A to run and unlock the osq
-lock.
+In practice this doesn't cause any problems as AT_VECTOR_SIZE_BASE
+includes space for AT_BASE_PLATFORM which none of these arches use, but
+nevertheless lets define it now and add the comment above ARCH_DLINFO as
+found in several other architectures to remind future modifiers of
+ARCH_DLINFO to keep AT_VECTOR_SIZE_ARCH up to date.
 
-Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
-currently running or not. So break the spin loops on true condition.
+Arch maintainers, please take via your own trees if you're happy to do
+so.
 
-test case:
-perf record -a perf bench sched messaging -g 400 -p && perf report
+- I haven't included an update for x86/um as it doesn't follow the same
+  pattern as other architectures so it is unclear to me whether it has
+  the same issue.
 
-before patch:
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+- Build tested on MIPS, ARM & tile.
 
-after patch:
-20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
- 8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
- 3.01%  sched-messaging  [kernel.vmlinux]  [k] system_call_common
- 2.83%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
- 2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+- Tested on MIPS.
 
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
----
- kernel/locking/osq_lock.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+James Hogan (5):
+  MIPS: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
+  ARM: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
+  arm64: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
+  s390: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
+  tile: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
 
-diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 05a3785..858a0ed 100644
---- a/kernel/locking/osq_lock.c
-+++ b/kernel/locking/osq_lock.c
-@@ -21,6 +21,11 @@ static inline int encode_cpu(int cpu_nr)
- 	return cpu_nr + 1;
- }
- 
-+static inline int node_cpu(struct optimistic_spin_node *node)
-+{
-+	return node->cpu - 1;
-+}
-+
- static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_val)
- {
- 	int cpu_nr = encoded_cpu_val - 1;
-@@ -118,8 +123,11 @@ bool osq_lock(struct optimistic_spin_queue *lock)
- 	while (!READ_ONCE(node->locked)) {
- 		/*
- 		 * If we need to reschedule bail... so we can block.
-+		 * Use vcpu_is_preempted to detech lock holder preemption issue
-+		 * and break the loop. vcpu_is_preempted is a macro defined by
-+		 * false if arch does not support vcpu preempted check,
- 		 */
--		if (need_resched())
-+		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
- 			goto unqueue;
- 
- 		cpu_relax_lowlatency();
+ arch/arm/include/asm/elf.h           | 1 +
+ arch/arm/include/uapi/asm/auxvec.h   | 2 ++
+ arch/arm64/include/asm/elf.h         | 1 +
+ arch/arm64/include/uapi/asm/auxvec.h | 2 ++
+ arch/mips/include/asm/elf.h          | 1 +
+ arch/mips/include/uapi/asm/auxvec.h  | 2 ++
+ arch/s390/include/asm/elf.h          | 1 +
+ arch/s390/include/uapi/asm/auxvec.h  | 2 ++
+ arch/tile/include/asm/elf.h          | 1 +
+ arch/tile/include/uapi/asm/auxvec.h  | 2 ++
+ 10 files changed, 15 insertions(+)
+
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Nathan Lynch <nathan_lynch@mentor.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Chris Metcalf <cmetcalf@mellanox.com>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: linux-mips@linux-mips.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: user-mode-linux-devel@lists.sourceforge.net
 -- 
-2.4.11
+2.4.10
