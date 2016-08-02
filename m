@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0900/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 19:56:24 +0800
-Message-Id: <20160802115624.9973-1-baolex.ni@intel.com>
+Subject: [PATCH 0901/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 19:56:28 +0800
+Message-Id: <20160802115628.10039-1-baolex.ni@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,28 +19,33 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/s390/scsi/zfcp_dbf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_fc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-index 5d7fbe4..ae1b08a 100644
---- a/drivers/s390/scsi/zfcp_dbf.c
-+++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -19,13 +19,13 @@
+diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
+index 237688a..83741e2 100644
+--- a/drivers/s390/scsi/zfcp_fc.c
++++ b/drivers/s390/scsi/zfcp_fc.c
+@@ -28,17 +28,17 @@ static u32 zfcp_fc_rscn_range_mask[] = {
+ };
  
- static u32 dbfsize = 4;
+ static bool no_auto_port_rescan;
+-module_param_named(no_auto_port_rescan, no_auto_port_rescan, bool, 0600);
++module_param_named(no_auto_port_rescan, no_auto_port_rescan, bool, S_IRUSR | S_IWUSR);
+ MODULE_PARM_DESC(no_auto_port_rescan,
+ 		 "no automatic port_rescan (default off)");
  
--module_param(dbfsize, uint, 0400);
-+module_param(dbfsize, uint, S_IRUSR);
- MODULE_PARM_DESC(dbfsize,
- 		 "number of pages for each debug feature area (default 4)");
+ static unsigned int port_scan_backoff = 500;
+-module_param(port_scan_backoff, uint, 0600);
++module_param(port_scan_backoff, uint, S_IRUSR | S_IWUSR);
+ MODULE_PARM_DESC(port_scan_backoff,
+ 	"upper limit of port scan random backoff in msecs (default 500)");
  
- static u32 dbflevel = 3;
+ static unsigned int port_scan_ratelimit = 60000;
+-module_param(port_scan_ratelimit, uint, 0600);
++module_param(port_scan_ratelimit, uint, S_IRUSR | S_IWUSR);
+ MODULE_PARM_DESC(port_scan_ratelimit,
+ 	"minimum interval between port scans in msecs (default 60000)");
  
--module_param(dbflevel, uint, 0400);
-+module_param(dbflevel, uint, S_IRUSR);
- MODULE_PARM_DESC(dbflevel,
- 		 "log level for each debug feature area "
- 		 "(default 3, range 0..6)");
 -- 
 2.9.2
