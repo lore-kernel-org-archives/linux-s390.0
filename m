@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0886/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 19:55:18 +0800
-Message-Id: <20160802115518.9048-1-baolex.ni@intel.com>
+Subject: [PATCH 0887/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 19:55:23 +0800
+Message-Id: <20160802115523.9114-1-baolex.ni@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,39 +19,37 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/s390/cio/css.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/cio/device.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 3d2b20e..db4783c 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -266,7 +266,7 @@ static ssize_t type_show(struct device *dev, struct device_attribute *attr,
- 	return sprintf(buf, "%01x\n", sch->st);
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 7ada078..3eca737 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -634,15 +634,15 @@ static ssize_t vpm_show(struct device *dev, struct device_attribute *attr,
+ 	return sprintf(buf, "%02x\n", sch->vpm);
  }
  
--static DEVICE_ATTR(type, 0444, type_show, NULL);
-+static DEVICE_ATTR(type, S_IRUSR | S_IRGRP | S_IROTH, type_show, NULL);
- 
- static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
- 			     char *buf)
-@@ -276,7 +276,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
- 	return sprintf(buf, "css:t%01X\n", sch->st);
- }
- 
+-static DEVICE_ATTR(chpids, 0444, chpids_show, NULL);
+-static DEVICE_ATTR(pimpampom, 0444, pimpampom_show, NULL);
+-static DEVICE_ATTR(devtype, 0444, devtype_show, NULL);
+-static DEVICE_ATTR(cutype, 0444, cutype_show, NULL);
 -static DEVICE_ATTR(modalias, 0444, modalias_show, NULL);
+-static DEVICE_ATTR(online, 0644, online_show, online_store);
+-static DEVICE_ATTR(availability, 0444, available_show, NULL);
+-static DEVICE_ATTR(logging, 0200, NULL, initiate_logging);
+-static DEVICE_ATTR(vpm, 0444, vpm_show, NULL);
++static DEVICE_ATTR(chpids, S_IRUSR | S_IRGRP | S_IROTH, chpids_show, NULL);
++static DEVICE_ATTR(pimpampom, S_IRUSR | S_IRGRP | S_IROTH, pimpampom_show, NULL);
++static DEVICE_ATTR(devtype, S_IRUSR | S_IRGRP | S_IROTH, devtype_show, NULL);
++static DEVICE_ATTR(cutype, S_IRUSR | S_IRGRP | S_IROTH, cutype_show, NULL);
 +static DEVICE_ATTR(modalias, S_IRUSR | S_IRGRP | S_IROTH, modalias_show, NULL);
++static DEVICE_ATTR(online, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, online_show, online_store);
++static DEVICE_ATTR(availability, S_IRUSR | S_IRGRP | S_IROTH, available_show, NULL);
++static DEVICE_ATTR(logging, S_IWUSR, NULL, initiate_logging);
++static DEVICE_ATTR(vpm, S_IRUSR | S_IRGRP | S_IROTH, vpm_show, NULL);
  
- static struct attribute *subch_attrs[] = {
- 	&dev_attr_type.attr,
-@@ -766,7 +766,7 @@ css_cm_enable_store(struct device *dev, struct device_attribute *attr,
- 	return ret < 0 ? ret : count;
- }
- 
--static DEVICE_ATTR(cm_enable, 0644, css_cm_enable_show, css_cm_enable_store);
-+static DEVICE_ATTR(cm_enable, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, css_cm_enable_show, css_cm_enable_store);
- 
- static int __init setup_css(int nr)
- {
+ static struct attribute *io_subchannel_attrs[] = {
+ 	&dev_attr_chpids.attr,
 -- 
 2.9.2
