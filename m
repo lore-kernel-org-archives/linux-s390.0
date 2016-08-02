@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0901/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 19:56:28 +0800
-Message-Id: <20160802115628.10039-1-baolex.ni@intel.com>
+Subject: [PATCH 0902/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 19:56:37 +0800
+Message-Id: <20160802115637.10105-1-baolex.ni@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,33 +19,21 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/s390/scsi/zfcp_fc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/scsi/zfcp_qdio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index 237688a..83741e2 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -28,17 +28,17 @@ static u32 zfcp_fc_rscn_range_mask[] = {
- };
+diff --git a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
+index dbf2b547..19d09f8 100644
+--- a/drivers/s390/scsi/zfcp_qdio.c
++++ b/drivers/s390/scsi/zfcp_qdio.c
+@@ -15,7 +15,7 @@
+ #include "zfcp_qdio.h"
  
- static bool no_auto_port_rescan;
--module_param_named(no_auto_port_rescan, no_auto_port_rescan, bool, 0600);
-+module_param_named(no_auto_port_rescan, no_auto_port_rescan, bool, S_IRUSR | S_IWUSR);
- MODULE_PARM_DESC(no_auto_port_rescan,
- 		 "no automatic port_rescan (default off)");
+ static bool enable_multibuffer = 1;
+-module_param_named(datarouter, enable_multibuffer, bool, 0400);
++module_param_named(datarouter, enable_multibuffer, bool, S_IRUSR);
+ MODULE_PARM_DESC(datarouter, "Enable hardware data router support (default on)");
  
- static unsigned int port_scan_backoff = 500;
--module_param(port_scan_backoff, uint, 0600);
-+module_param(port_scan_backoff, uint, S_IRUSR | S_IWUSR);
- MODULE_PARM_DESC(port_scan_backoff,
- 	"upper limit of port scan random backoff in msecs (default 500)");
- 
- static unsigned int port_scan_ratelimit = 60000;
--module_param(port_scan_ratelimit, uint, 0600);
-+module_param(port_scan_ratelimit, uint, S_IRUSR | S_IWUSR);
- MODULE_PARM_DESC(port_scan_ratelimit,
- 	"minimum interval between port scans in msecs (default 60000)");
- 
+ static void zfcp_qdio_handler_error(struct zfcp_qdio *qdio, char *id,
 -- 
 2.9.2
