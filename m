@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0890/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 19:55:36 +0800
-Message-Id: <20160802115536.9313-1-baolex.ni@intel.com>
+Subject: [PATCH 0891/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 19:55:41 +0800
+Message-Id: <20160802115541.9379-1-baolex.ni@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,21 +19,27 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/s390/net/ctcm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/net/ctcm_sysfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index ad17fc5..84fbad0 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1779,7 +1779,7 @@ static ssize_t ctcm_driver_group_store(struct device_driver *ddrv,
- 	err = ccwgroup_create_dev(ctcm_root_dev, &ctcm_group_driver, 2, buf);
- 	return err ? err : count;
+diff --git a/drivers/s390/net/ctcm_sysfs.c b/drivers/s390/net/ctcm_sysfs.c
+index ddb0aa3..103bdde 100644
+--- a/drivers/s390/net/ctcm_sysfs.c
++++ b/drivers/s390/net/ctcm_sysfs.c
+@@ -186,10 +186,10 @@ static ssize_t ctcm_type_show(struct device *dev,
+ 			ctcm_type[cgdev->cdev[0]->id.driver_info]);
  }
--static DRIVER_ATTR(group, 0200, NULL, ctcm_driver_group_store);
-+static DRIVER_ATTR(group, S_IWUSR, NULL, ctcm_driver_group_store);
  
- static struct attribute *ctcm_drv_attrs[] = {
- 	&driver_attr_group.attr,
+-static DEVICE_ATTR(buffer, 0644, ctcm_buffer_show, ctcm_buffer_write);
+-static DEVICE_ATTR(protocol, 0644, ctcm_proto_show, ctcm_proto_store);
+-static DEVICE_ATTR(type, 0444, ctcm_type_show, NULL);
+-static DEVICE_ATTR(stats, 0644, stats_show, stats_write);
++static DEVICE_ATTR(buffer, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, ctcm_buffer_show, ctcm_buffer_write);
++static DEVICE_ATTR(protocol, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, ctcm_proto_show, ctcm_proto_store);
++static DEVICE_ATTR(type, S_IRUSR | S_IRGRP | S_IROTH, ctcm_type_show, NULL);
++static DEVICE_ATTR(stats, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, stats_show, stats_write);
+ 
+ static struct attribute *ctcm_attr[] = {
+ 	&dev_attr_protocol.attr,
 -- 
 2.9.2
