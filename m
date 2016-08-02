@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0885/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 19:55:14 +0800
-Message-Id: <20160802115514.8982-1-baolex.ni@intel.com>
+Subject: [PATCH 0886/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 19:55:18 +0800
+Message-Id: <20160802115518.9048-1-baolex.ni@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,42 +19,39 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/s390/cio/cmf.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/s390/cio/css.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/cio/cmf.c b/drivers/s390/cio/cmf.c
-index b2afad5..2b8b387 100644
---- a/drivers/s390/cio/cmf.c
-+++ b/drivers/s390/cio/cmf.c
-@@ -96,7 +96,7 @@ enum cmb_format {
-  * enum cmb_format.
-  */
- static int format = CMF_AUTODETECT;
--module_param(format, bint, 0444);
-+module_param(format, bint, S_IRUSR | S_IRGRP | S_IROTH);
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 3d2b20e..db4783c 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -266,7 +266,7 @@ static ssize_t type_show(struct device *dev, struct device_attribute *attr,
+ 	return sprintf(buf, "%01x\n", sch->st);
+ }
  
- /**
-  * struct cmb_operations - functions to use depending on cmb_format
-@@ -470,7 +470,7 @@ static struct cmb_area cmb_area = {
-  * maximum is 4096.
-  */
+-static DEVICE_ATTR(type, 0444, type_show, NULL);
++static DEVICE_ATTR(type, S_IRUSR | S_IRGRP | S_IROTH, type_show, NULL);
  
--module_param_named(maxchannels, cmb_area.num_channels, uint, 0444);
-+module_param_named(maxchannels, cmb_area.num_channels, uint, S_IRUSR | S_IRGRP | S_IROTH);
+ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
+ 			     char *buf)
+@@ -276,7 +276,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
+ 	return sprintf(buf, "css:t%01X\n", sch->st);
+ }
  
- /**
-  * struct cmb - basic channel measurement block
-@@ -1106,9 +1106,9 @@ cmf_attr_avg(device_active_only_time);
- cmf_attr_avg(device_busy_time);
- cmf_attr_avg(initial_command_response_time);
+-static DEVICE_ATTR(modalias, 0444, modalias_show, NULL);
++static DEVICE_ATTR(modalias, S_IRUSR | S_IRGRP | S_IROTH, modalias_show, NULL);
  
--static DEVICE_ATTR(avg_sample_interval, 0444, cmb_show_avg_sample_interval,
-+static DEVICE_ATTR(avg_sample_interval, S_IRUSR | S_IRGRP | S_IROTH, cmb_show_avg_sample_interval,
- 		   NULL);
--static DEVICE_ATTR(avg_utilization, 0444, cmb_show_avg_utilization, NULL);
-+static DEVICE_ATTR(avg_utilization, S_IRUSR | S_IRGRP | S_IROTH, cmb_show_avg_utilization, NULL);
+ static struct attribute *subch_attrs[] = {
+ 	&dev_attr_type.attr,
+@@ -766,7 +766,7 @@ css_cm_enable_store(struct device *dev, struct device_attribute *attr,
+ 	return ret < 0 ? ret : count;
+ }
  
- static struct attribute *cmf_attributes[] = {
- 	&dev_attr_avg_sample_interval.attr,
+-static DEVICE_ATTR(cm_enable, 0644, css_cm_enable_show, css_cm_enable_store);
++static DEVICE_ATTR(cm_enable, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, css_cm_enable_show, css_cm_enable_store);
+ 
+ static int __init setup_css(int nr)
+ {
 -- 
 2.9.2
