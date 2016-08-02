@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0899/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 19:56:19 +0800
-Message-Id: <20160802115619.9907-1-baolex.ni@intel.com>
+Subject: [PATCH 0900/1285] Replace numeric parameter like 0444 with macro
+Date: Tue,  2 Aug 2016 19:56:24 +0800
+Message-Id: <20160802115624.9973-1-baolex.ni@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,21 +19,28 @@ thus, I suggest replacing the numeric parameter with the macro.
 Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
 Signed-off-by: Baole Ni <baolex.ni@intel.com>
 ---
- drivers/s390/scsi/zfcp_aux.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_dbf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-index c00ac46..bf3fbe2 100644
---- a/drivers/s390/scsi/zfcp_aux.c
-+++ b/drivers/s390/scsi/zfcp_aux.c
-@@ -44,7 +44,7 @@ MODULE_DESCRIPTION("FCP HBA driver");
- MODULE_LICENSE("GPL");
+diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+index 5d7fbe4..ae1b08a 100644
+--- a/drivers/s390/scsi/zfcp_dbf.c
++++ b/drivers/s390/scsi/zfcp_dbf.c
+@@ -19,13 +19,13 @@
  
- static char *init_device;
--module_param_named(device, init_device, charp, 0400);
-+module_param_named(device, init_device, charp, S_IRUSR);
- MODULE_PARM_DESC(device, "specify initial device");
+ static u32 dbfsize = 4;
  
- static struct kmem_cache * __init zfcp_cache_hw_align(const char *name,
+-module_param(dbfsize, uint, 0400);
++module_param(dbfsize, uint, S_IRUSR);
+ MODULE_PARM_DESC(dbfsize,
+ 		 "number of pages for each debug feature area (default 4)");
+ 
+ static u32 dbflevel = 3;
+ 
+-module_param(dbflevel, uint, 0400);
++module_param(dbflevel, uint, S_IRUSR);
+ MODULE_PARM_DESC(dbflevel,
+ 		 "log level for each debug feature area "
+ 		 "(default 3, range 0..6)");
 -- 
 2.9.2
