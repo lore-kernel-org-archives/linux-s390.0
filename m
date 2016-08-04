@@ -1,52 +1,61 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Wed, 03 Aug 2016 12:40:54 +0000
-Subject: [bug report] [S390] z/VM unit record device driver
-Message-Id: <20160803124054.GA8279@mwanda>
+From: Stefan Haberland <sth@linux.vnet.ibm.com>
+Date: Thu, 04 Aug 2016 07:34:17 +0000
+Subject: Re: [bug report] [S390] dasd: Add support for raw ECKD access.
+Message-Id: <57A2EFF9.1010706@linux.vnet.ibm.com>
+In-Reply-To: <20160803124338.GA16986@mwanda>
+References: <20160803124338.GA16986@mwanda>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Frank Munzert,
+Hi,
 
-The patch 810cb5b32ded: "[S390] z/VM unit record device driver" from
-Jul 17, 2007, leads to the following static checker warning:
+thanks for the report.
 
-	drivers/s390/char/vmur.c:320 ur_int_handler()
-	warn: 'irb' isn't an ERR_PTR
+Am 03.08.2016 um 14:43 schrieb Dan Carpenter:
+> Hello Stefan Haberland,
+>
+> The patch e4dbb0f2b5dd: "[S390] dasd: Add support for raw ECKD
+> access." from Jan 5, 2011, leads to the following static checker
+> warning:
+>
+> 	drivers/s390/block/dasd_eckd.c:3970 dasd_raw_build_cp()
+> 	warn: 'cqr' isn't an ERR_PTR
+>
+> drivers/s390/block/dasd_eckd.c
+>    3961          cqr->startdev = startdev;
+>    3962          cqr->memdev = startdev;
+>    3963          cqr->block = block;
+>    3964          cqr->expires = startdev->default_expires * HZ;
+>    3965          cqr->lpm = startdev->path_data.ppm;
+>    3966          cqr->retries = startdev->default_retries;
+>    3967          cqr->buildclk = get_tod_clock();
+>    3968          cqr->status = DASD_CQR_FILLED;
+>                  ^^^^^^^^^^^
+> We're dereferencing cqr pretty hard here.
 
-drivers/s390/char/vmur.c
-   304  static void ur_int_handler(struct ccw_device *cdev, unsigned long intparm,
-   305                             struct irb *irb)
-   306  {
-   307          struct urdev *urd;
-   308  
-   309          TRACE("ur_int_handler: intparm=0x%lx cstat=%02x dstat=%02x res=%u\n",
-   310                intparm, irb->scsw.cmd.cstat, irb->scsw.cmd.dstat,
-                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   311                irb->scsw.cmd.count);
-                      ^^^^^^^^^^^^^^^^^^^
-We already dereferenced irb several times.
+cqr is checked previously so it is valid at this point.
 
-   312  
-   313          if (!intparm) {
-   314                  TRACE("ur_int_handler: unsolicited interrupt\n");
-   315                  return;
-   316          }
-   317          urd = dev_get_drvdata(&cdev->dev);
-   318          BUG_ON(!urd);
-   319          /* On special conditions irb is an error pointer */
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This is possibly true.  The static checker is assuming x86_64 rules.
+>
+>    3969
+>    3970          if (IS_ERR(cqr) && PTR_ERR(cqr) != -EAGAIN)
+>                      ^^^^^^^^^^^
+> so it had better not be an error pointer.  Perhaps move this after the
+> out label?
 
-   320          if (IS_ERR(irb))
-                    ^^^^^^^^^^
-   321                  urd->io_request_rc = PTR_ERR(irb);
-   322          else if (irb->scsw.cmd.dstat == (DEV_STAT_CHN_END | DEV_STAT_DEV_END))
-   323                  urd->io_request_rc = 0;
-   324          else
-   325                  urd->io_request_rc = -EIO;
-   326  
-   327          complete(urd->io_done);
-   328  }
+This line does not make any sense.
+It will never be reached since cqr is checked previously and returning 
+an error in cqr is correct. I will remove it.
 
-regards,
-dan carpenter
+>
+>    3971                  cqr = NULL;
+>    3972  out:
+>    3973          return cqr;
+>    3974  }
+>
+> regards,
+> dan carpenter
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
