@@ -1,85 +1,65 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH RESEND net-next 07/15] smc: remote memory buffers (RMBs)
- (fwd)
-Date: Tue, 9 Aug 2016 14:09:46 +0200 (CEST)
-Message-ID: <alpine.DEB.2.10.1608091409080.2911@hadrien>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 0/2] virtio/s390 patches for 4.8
+Date: Mon, 8 Aug 2016 13:39:10 +0200
+Message-ID: <20160808133910.0bb69cea.cornelia.huck@de.ibm.com>
+References: <1467904077-1887-1-git-send-email-cornelia.huck@de.ibm.com>
+	<20160707194246-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com, ubraun@linux.vnet.ibm.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20160707194246-mutt-send-email-mst@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Is there a guarantee that the contrinues can't fall off the end of the
-loop?
+On Thu, 7 Jul 2016 19:42:52 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-julia
+> On Thu, Jul 07, 2016 at 05:07:55PM +0200, Cornelia Huck wrote:
+> > Michael,
+> > 
+> > here are two virtio/s390 patches for 4.8.
+> > 
+> > First, Jing Liu noticed that she could trigger panics while playing
+> > around with hvc0 as preferred console but no virtio console: This
+> > can be fixed by not discarding our early_put_chars after init (as
+> > the minimal fix).
+> > 
+> > This made us wonder why we still have that code around when no current
+> > host code supports the old transport: We have no idea whether this
+> > still works, and it's probably a good idea to put a deprecation
+> > message in there to check whether anyone screams.
+> > 
+> > Patches are against your vhost branch.
+> 
+> thanks!
 
----------- Forwarded message ----------
-Date: Tue, 9 Aug 2016 20:06:24 +0800
-From: kbuild test robot <fengguang.wu@intel.com>
-To: kbuild@01.org
-Cc: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH RESEND net-next 07/15] smc: remote memory buffers (RMBs)
+Hm, don't see these in 4.8-rc1...
 
-CC: kbuild-all@01.org
-In-Reply-To: <1470737580-43012-8-git-send-email-ubraun@linux.vnet.ibm.com>
-TO: Ursula Braun <ubraun@linux.vnet.ibm.com>
-CC: davem@davemloft.net
-CC: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com, ubraun@linux.vnet.ibm.com
-
-Hi Ursula,
-
-[auto build test WARNING on net-next/master]
-
-url:    https://github.com/0day-ci/linux/commits/Ursula-Braun/net-smc-Shared-Memory-Communications-RDMA/20160809-182526
-:::::: branch date: 2 hours ago
-:::::: commit date: 2 hours ago
-
->> net/smc/smc_core.c:570:17-25: ERROR: reference preceded by free on line 549
-   net/smc/smc_core.c:570:17-25: ERROR: reference preceded by free on line 560
-   net/smc/smc_core.c:507:20-31: ERROR: reference preceded by free on line 486
-   net/smc/smc_core.c:507:20-31: ERROR: reference preceded by free on line 497
-
-git remote add linux-review https://github.com/0day-ci/linux
-git remote update linux-review
-git checkout 2e8eda2734f14a860721121549f05e5ecd13d81d
-vim +570 net/smc/smc_core.c
-
-2e8eda27 Ursula Braun 2016-08-09  543  			break; /* give up with -ENOMEM */
-2e8eda27 Ursula Braun 2016-08-09  544  		rmb_desc->cpu_addr = kzalloc(tmp_bufsize,
-2e8eda27 Ursula Braun 2016-08-09  545  					     GFP_KERNEL | __GFP_NOWARN |
-2e8eda27 Ursula Braun 2016-08-09  546  					     __GFP_NOMEMALLOC |
-2e8eda27 Ursula Braun 2016-08-09  547  					     __GFP_NORETRY);
-2e8eda27 Ursula Braun 2016-08-09  548  		if (!rmb_desc->cpu_addr) {
-2e8eda27 Ursula Braun 2016-08-09 @549  			kfree(rmb_desc);
-2e8eda27 Ursula Braun 2016-08-09  550  			/* if RMB allocation has failed,
-2e8eda27 Ursula Braun 2016-08-09  551  			 * try a smaller one
-2e8eda27 Ursula Braun 2016-08-09  552  			 */
-2e8eda27 Ursula Braun 2016-08-09  553  			continue;
-2e8eda27 Ursula Braun 2016-08-09  554  		}
-2e8eda27 Ursula Braun 2016-08-09  555  		rc = smc_ib_buf_map(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
-2e8eda27 Ursula Braun 2016-08-09  556  				    tmp_bufsize, rmb_desc,
-2e8eda27 Ursula Braun 2016-08-09  557  				    DMA_FROM_DEVICE);
-2e8eda27 Ursula Braun 2016-08-09  558  		if (rc) {
-2e8eda27 Ursula Braun 2016-08-09  559  			kfree(rmb_desc->cpu_addr);
-2e8eda27 Ursula Braun 2016-08-09  560  			kfree(rmb_desc);
-2e8eda27 Ursula Braun 2016-08-09  561  			continue; /* if mapping failed, try smaller one */
-2e8eda27 Ursula Braun 2016-08-09  562  		}
-2e8eda27 Ursula Braun 2016-08-09  563  		rmb_desc->used = 1;
-2e8eda27 Ursula Braun 2016-08-09  564  		write_lock_bh(&lgr->rmbs_lock);
-2e8eda27 Ursula Braun 2016-08-09  565  		list_add(&rmb_desc->list,
-2e8eda27 Ursula Braun 2016-08-09  566  			 &lgr->rmbs[tmp_bufsize_short]);
-2e8eda27 Ursula Braun 2016-08-09  567  		write_unlock_bh(&lgr->rmbs_lock);
-2e8eda27 Ursula Braun 2016-08-09  568  		break;
-2e8eda27 Ursula Braun 2016-08-09  569  	}
-2e8eda27 Ursula Braun 2016-08-09 @570  	if (rmb_desc && rmb_desc->cpu_addr) {
-2e8eda27 Ursula Braun 2016-08-09  571  		conn->rmb_desc = rmb_desc;
-2e8eda27 Ursula Braun 2016-08-09  572  		conn->rmbe_size = tmp_bufsize;
-2e8eda27 Ursula Braun 2016-08-09  573  		conn->rmbe_size_short = tmp_bufsize_short;
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+> 
+> > Christian Borntraeger (1):
+> >   virtio/s390: keep early_put_chars
+> > 
+> > Cornelia Huck (1):
+> >   virtio/s390: deprecate old transport
+> > 
+> >  arch/s390/Kconfig                | 13 +++++++++++++
+> >  drivers/s390/virtio/Makefile     |  6 +++++-
+> >  drivers/s390/virtio/kvm_virtio.c |  4 +++-
+> >  3 files changed, 21 insertions(+), 2 deletions(-)
+> > 
+> > -- 
+> > 2.6.6
+> 
