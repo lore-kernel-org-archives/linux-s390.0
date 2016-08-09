@@ -1,14 +1,15 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH RESEND net-next 13/15] smc: receive data from RMBE
-Date: Tue, 09 Aug 2016 14:32:45 -0700 (PDT)
-Message-ID: <20160809.143245.2022037008405834176.davem@davemloft.net>
+Subject: Re: [PATCH RESEND net-next 15/15] smc: proc-fs interface for smc
+ connections
+Date: Tue, 09 Aug 2016 14:40:47 -0700 (PDT)
+Message-ID: <20160809.144047.675292713371843984.davem@davemloft.net>
 References: <1470737580-43012-1-git-send-email-ubraun@linux.vnet.ibm.com>
-	<1470737580-43012-14-git-send-email-ubraun@linux.vnet.ibm.com>
+	<1470737580-43012-16-git-send-email-ubraun@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1470737580-43012-14-git-send-email-ubraun@linux.vnet.ibm.com>
+In-Reply-To: <1470737580-43012-16-git-send-email-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -17,19 +18,17 @@ Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, 
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Tue,  9 Aug 2016 12:12:58 +0200
+Date: Tue,  9 Aug 2016 12:13:00 +0200
 
-> +		xchg(&conn->rx_curs_confirmed.acurs,
-> +		     smc_curs_read(conn->local_tx_ctrl.cons.acurs));
+> +	sock_hold(&smc->sk);
+ ...
+> +out_line:
+> +	seq_putc(m, '\n');
+> +	sock_put(&smc->sk);
 
-Why in the world do you need to use xchg() in all of these places?
+You hold the smc_proc_list_lock during this function's execution,
+therefore the table cannot change and therefore the socket cannot
+go away.
 
-It makes no sense whatsoever, especially since you don't even check
-the return value.
-
-If you need the operation to be atomic, then you have to check the
-return value and do something to recover if something else beat
-you to the xchg() and put something else into the location.
-
-Otherwise, you therefore don't need it be atomic and can avoid
-this expensive operation and just store the value normally.
+Therefore taking a reference count here is unnecessary overhead,
+please remove it.
