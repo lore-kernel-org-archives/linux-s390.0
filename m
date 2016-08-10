@@ -1,86 +1,91 @@
 From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH 09/10] zfcp: fix payload trace length for SAN request&response
-Date: Wed, 10 Aug 2016 18:30:52 +0200
-Message-ID: <1470846653-90691-10-git-send-email-maier@linux.vnet.ibm.com>
+Subject: [PATCH 01/10] zfcp: fix fc_host port_type with NPIV
+Date: Wed, 10 Aug 2016 18:30:44 +0200
+Message-ID: <1470846653-90691-2-git-send-email-maier@linux.vnet.ibm.com>
 References: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, "#2 . 6 . 38+" <stable@vger.kernel.org>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, "#2 . 6 . 30+" <stable@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-commit 2c55b750a884b86dea8b4cc5f15e1484cc47a25c
-("[SCSI] zfcp: Redesign of the debug tracing for SAN records.")
-started to add FC_CT_HDR_LEN which made zfcp dump random data
-out of bounds for RSPN GS responses because u.rspn.rsp
-is the largest and last field in the union of struct zfcp_fc_req.
-Other request/response types only happened to stay within bounds
-due to the padding of the union or
-due to the trace capping of u.gspn.rsp to ZFCP_DBF_SAN_MAX_PAYLOAD.
+For an NPIV-enabled FCP device, zfcp can erroneously show
+"NPort (fabric via point-to-point)" instead of "NPIV VPORT"
+for the port_type sysfs attribute of the corresponding
+fc_host.
+s390-tools that can be affected are dbginfo.sh and ziomon.
 
-Timestamp      : ...
-Area           : SAN
-Subarea        : 00
-Level          : 1
-Exception      : -
-CPU id         : ..
-Caller         : ...
-Record id      : 2
-Tag            : fsscth2
-Request id     : 0x...
-Destination ID : 0x00fffffc
-Payload short  : 01000000 fc020000 80020000 00000000
-                 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx <===
-                 00000000 00000000 00000000 00000000
-Payload length : 32                                  <===
+zfcp_fsf_exchange_config_evaluate() ignores
+fsf_qtcb_bottom_config.connection_features indicating NPIV
+and only sets fc_host_port_type to FC_PORTTYPE_NPORT if
+fsf_qtcb_bottom_config.fc_topology is FSF_TOPO_FABRIC.
 
-struct zfcp_fc_req {
-    [0] struct zfcp_fsf_ct_els ct_els;
-   [56] struct scatterlist sg_req;
-   [96] struct scatterlist sg_rsp;
-        union {
-            struct {req; rsp;} adisc;    SIZE: 28+28=   56
-            struct {req; rsp;} gid_pn;   SIZE: 24+20=   44
-            struct {rspsg; req;} gpn_ft; SIZE: 40*4+20=180
-            struct {req; rsp;} gspn;     SIZE: 20+273= 293
-            struct {req; rsp;} rspn;     SIZE: 277+16= 293
-  [136] } u;
-}
-SIZE: 432
+Only the independent zfcp_fsf_exchange_port_evaluate()
+evaluates connection_features to overwrite fc_host_port_type
+to FC_PORTTYPE_NPIV in case of NPIV.
+Code was introduced with upstream kernel 2.6.30
+commit 0282985da5923fa6365adcc1a1586ae0c13c1617
+("[SCSI] zfcp: Report fc_host_port_type as NPIV").
+
+This works during FCP device recovery (such as set online)
+because it performs FSF_QTCB_EXCHANGE_CONFIG_DATA followed by
+FSF_QTCB_EXCHANGE_PORT_DATA in sequence.
+
+However, the zfcp-specific scsi host sysfs attributes
+"requests", "megabytes", or "seconds_active" trigger only
+zfcp_fsf_exchange_config_evaluate() resetting fc_host
+port_type to FC_PORTTYPE_NPORT despite NPIV.
+
+The zfcp-specific scsi host sysfs attribute "utilization"
+triggers only zfcp_fsf_exchange_port_evaluate() correcting
+the fc_host port_type again in case of NPIV.
+
+Evaluate fsf_qtcb_bottom_config.connection_features
+in zfcp_fsf_exchange_config_evaluate() where it belongs to.
 
 Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Fixes: 2c55b750a884 ("[SCSI] zfcp: Redesign of the debug tracing for SAN records.")
-Cc: <stable@vger.kernel.org> #2.6.38+
-Reviewed-by: Alexey Ishchuk <aishchuk@linux.vnet.ibm.com>
+Fixes: 0282985da592 ("[SCSI] zfcp: Report fc_host_port_type as NPIV")
+Cc: <stable@vger.kernel.org> #2.6.30+
 Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_dbf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_fsf.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-index 968897f5e1c6..d8c0bfb40366 100644
---- a/drivers/s390/scsi/zfcp_dbf.c
-+++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -389,7 +389,7 @@ void zfcp_dbf_san_req(char *tag, struct zfcp_fsf_req *fsf, u32 d_id)
- 	struct zfcp_fsf_ct_els *ct_els = fsf->data;
- 	u16 length;
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index 522a633c866a..84353f45cfe6 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -3,7 +3,7 @@
+  *
+  * Implementation of FSF commands.
+  *
+- * Copyright IBM Corp. 2002, 2013
++ * Copyright IBM Corp. 2002, 2015
+  */
  
--	length = (u16)(ct_els->req->length + FC_CT_HDR_LEN);
-+	length = (u16)(ct_els->req->length);
- 	zfcp_dbf_san(tag, dbf, sg_virt(ct_els->req), ZFCP_DBF_SAN_REQ, length,
- 		     fsf->req_id, d_id);
- }
-@@ -405,7 +405,7 @@ void zfcp_dbf_san_res(char *tag, struct zfcp_fsf_req *fsf)
- 	struct zfcp_fsf_ct_els *ct_els = fsf->data;
- 	u16 length;
+ #define KMSG_COMPONENT "zfcp"
+@@ -508,7 +508,10 @@ static int zfcp_fsf_exchange_config_evaluate(struct zfcp_fsf_req *req)
+ 		fc_host_port_type(shost) = FC_PORTTYPE_PTP;
+ 		break;
+ 	case FSF_TOPO_FABRIC:
+-		fc_host_port_type(shost) = FC_PORTTYPE_NPORT;
++		if (bottom->connection_features & FSF_FEATURE_NPIV_MODE)
++			fc_host_port_type(shost) = FC_PORTTYPE_NPIV;
++		else
++			fc_host_port_type(shost) = FC_PORTTYPE_NPORT;
+ 		break;
+ 	case FSF_TOPO_AL:
+ 		fc_host_port_type(shost) = FC_PORTTYPE_NLPORT;
+@@ -613,7 +616,6 @@ static void zfcp_fsf_exchange_port_evaluate(struct zfcp_fsf_req *req)
  
--	length = (u16)(ct_els->resp->length + FC_CT_HDR_LEN);
-+	length = (u16)(ct_els->resp->length);
- 	zfcp_dbf_san(tag, dbf, sg_virt(ct_els->resp), ZFCP_DBF_SAN_RES, length,
- 		     fsf->req_id, ct_els->d_id);
- }
+ 	if (adapter->connection_features & FSF_FEATURE_NPIV_MODE) {
+ 		fc_host_permanent_port_name(shost) = bottom->wwpn;
+-		fc_host_port_type(shost) = FC_PORTTYPE_NPIV;
+ 	} else
+ 		fc_host_permanent_port_name(shost) = fc_host_port_name(shost);
+ 	fc_host_maxframe_size(shost) = bottom->maximum_frame_size;
 -- 
 2.6.6
