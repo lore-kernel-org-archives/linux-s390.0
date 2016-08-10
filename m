@@ -1,58 +1,105 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: Software evolution around scripts for the semantic patch
- langugae
-Date: Thu, 25 Aug 2016 23:04:58 +0200
-Message-ID: <20160825230458.7fc85c66.cornelia.huck@de.ibm.com>
-References: <82b84c9c-38a4-4d17-910f-312668dbae01@users.sourceforge.net>
-        <bb710b21-d8c4-e172-63d4-b46c80645cb3@users.sourceforge.net>
-        <ddb2bbd9-757b-fc62-8642-ce827a7a666d@de.ibm.com>
-        <e72e9854-443b-7033-d674-8a2d237600ca@users.sourceforge.net>
-        <c3323f6b-4af2-0bfb-9399-e529952e378e@users.sourceforge.net>
-        <20160825181009.381411d9.cornelia.huck@de.ibm.com>
-        <b35caa5e-35c7-d2d9-b1e0-bd8ca5379535@users.sourceforge.net>
-        <alpine.DEB.2.10.1608251412520.3094@hadrien>
-        <fe9cae9f-6dbd-984c-1c12-32b55964a8f4@users.sourceforge.net>
-        <alpine.DEB.2.10.1608251422030.3094@hadrien>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: Re: [PATCH RESEND net-next 07/15] smc: remote memory buffers (RMBs)
+ (fwd)
+Date: Wed, 10 Aug 2016 16:10:44 +0200
+Message-ID: <0c2f7a6c-e96f-6df2-08e7-5bfb213047db@linux.vnet.ibm.com>
+References: <alpine.DEB.2.10.1608091409080.2911@hadrien>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.DEB.2.10.1608251422030.3094@hadrien>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <alpine.DEB.2.10.1608091409080.2911@hadrien>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
 To: Julia Lawall <julia.lawall@lip6.fr>
-Cc: SF Markus Elfring <elfring@users.sourceforge.net>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Christian =?UTF-8?B?Qm9ybnRyw6RnZXI=?= <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Walter Harms <wharms@bfs.de>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 25 Aug 2016 14:23:35 -0400 (EDT)
-Julia Lawall <julia.lawall@lip6.fr> wrote:
+Hi Julia,
 
-> On Thu, 25 Aug 2016, SF Markus Elfring wrote:
-> 
-> > > Or some close variant.
-> >
-> > I have got more script variants evolving in my software collection.
-> >
-> > There are further approaches available from various contributors,
-> > aren't there?
-> 
-> What she is asking for is a concise and precise decription of what you
-> have done.  If you have some other variants, eg controlling where the
-> sizeof argument is (left or right of *), you don't necessarily have to
-> include it in the patch, if such a rule was not used for the specific
-> patch anyway.
+I am afraid I do not understand your question. This is how the code is 
+supposed to work:
 
-*nod*
+An SMC-R connection is allowed to run with one of 16 discrete possible 
+buffer sizes and requires contiguous memory for this buffer. If there is 
+no buffer available that can be reused (from a previous SMC-R 
+connection), a new one is allocated. If allocation fails, the code 
+"continues" and reduces the desired buffer size to the next smaller 
+buffer size, and tries to reuse or allocate memory of this size. 
+"continue" stops, if the lowest possible value has been tried without 
+success. In this case tmp_bufsize_short is negative and -ENOMEM is returned.
 
-If I see a patch that says "I've run the following cocchinelle patch to
-perform $TRANSFORMATION, and here's the result", I can be reasonably
-sure that the result will be what is intended to be changed in the
-first place (and I can assess whether the change makes sense at all.)
-If I see only the resulting patch, I won't know whether you have
-performed the changes manually (and possibly introduced bugs, as
-happens to all of us.)
-
-Moreover, a good semantic patch is useful to others as well and might
-even be reused in other contexts that have similar requirements. You
-really lose value if you don't publish them.
+On 08/09/2016 02:09 PM, Julia Lawall wrote:
+> Is there a guarantee that the contrinues can't fall off the end of the
+> loop?
+>
+> julia
+>
+> ---------- Forwarded message ----------
+> Date: Tue, 9 Aug 2016 20:06:24 +0800
+> From: kbuild test robot <fengguang.wu@intel.com>
+> To: kbuild@01.org
+> Cc: Julia Lawall <julia.lawall@lip6.fr>
+> Subject: Re: [PATCH RESEND net-next 07/15] smc: remote memory buffers (RMBs)
+>
+> CC: kbuild-all@01.org
+> In-Reply-To: <1470737580-43012-8-git-send-email-ubraun@linux.vnet.ibm.com>
+> TO: Ursula Braun <ubraun@linux.vnet.ibm.com>
+> CC: davem@davemloft.net
+> CC: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com, ubraun@linux.vnet.ibm.com
+>
+> Hi Ursula,
+>
+> [auto build test WARNING on net-next/master]
+>
+> url:    https://github.com/0day-ci/linux/commits/Ursula-Braun/net-smc-Shared-Memory-Communications-RDMA/20160809-182526
+> :::::: branch date: 2 hours ago
+> :::::: commit date: 2 hours ago
+>
+>>> net/smc/smc_core.c:570:17-25: ERROR: reference preceded by free on line 549
+>    net/smc/smc_core.c:570:17-25: ERROR: reference preceded by free on line 560
+>    net/smc/smc_core.c:507:20-31: ERROR: reference preceded by free on line 486
+>    net/smc/smc_core.c:507:20-31: ERROR: reference preceded by free on line 497
+>
+> git remote add linux-review https://github.com/0day-ci/linux
+> git remote update linux-review
+> git checkout 2e8eda2734f14a860721121549f05e5ecd13d81d
+> vim +570 net/smc/smc_core.c
+>
+> 2e8eda27 Ursula Braun 2016-08-09  543  			break; /* give up with -ENOMEM */
+> 2e8eda27 Ursula Braun 2016-08-09  544  		rmb_desc->cpu_addr = kzalloc(tmp_bufsize,
+> 2e8eda27 Ursula Braun 2016-08-09  545  					     GFP_KERNEL | __GFP_NOWARN |
+> 2e8eda27 Ursula Braun 2016-08-09  546  					     __GFP_NOMEMALLOC |
+> 2e8eda27 Ursula Braun 2016-08-09  547  					     __GFP_NORETRY);
+> 2e8eda27 Ursula Braun 2016-08-09  548  		if (!rmb_desc->cpu_addr) {
+> 2e8eda27 Ursula Braun 2016-08-09 @549  			kfree(rmb_desc);
+> 2e8eda27 Ursula Braun 2016-08-09  550  			/* if RMB allocation has failed,
+> 2e8eda27 Ursula Braun 2016-08-09  551  			 * try a smaller one
+> 2e8eda27 Ursula Braun 2016-08-09  552  			 */
+> 2e8eda27 Ursula Braun 2016-08-09  553  			continue;
+> 2e8eda27 Ursula Braun 2016-08-09  554  		}
+> 2e8eda27 Ursula Braun 2016-08-09  555  		rc = smc_ib_buf_map(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
+> 2e8eda27 Ursula Braun 2016-08-09  556  				    tmp_bufsize, rmb_desc,
+> 2e8eda27 Ursula Braun 2016-08-09  557  				    DMA_FROM_DEVICE);
+> 2e8eda27 Ursula Braun 2016-08-09  558  		if (rc) {
+> 2e8eda27 Ursula Braun 2016-08-09  559  			kfree(rmb_desc->cpu_addr);
+> 2e8eda27 Ursula Braun 2016-08-09  560  			kfree(rmb_desc);
+> 2e8eda27 Ursula Braun 2016-08-09  561  			continue; /* if mapping failed, try smaller one */
+> 2e8eda27 Ursula Braun 2016-08-09  562  		}
+> 2e8eda27 Ursula Braun 2016-08-09  563  		rmb_desc->used = 1;
+> 2e8eda27 Ursula Braun 2016-08-09  564  		write_lock_bh(&lgr->rmbs_lock);
+> 2e8eda27 Ursula Braun 2016-08-09  565  		list_add(&rmb_desc->list,
+> 2e8eda27 Ursula Braun 2016-08-09  566  			 &lgr->rmbs[tmp_bufsize_short]);
+> 2e8eda27 Ursula Braun 2016-08-09  567  		write_unlock_bh(&lgr->rmbs_lock);
+> 2e8eda27 Ursula Braun 2016-08-09  568  		break;
+> 2e8eda27 Ursula Braun 2016-08-09  569  	}
+> 2e8eda27 Ursula Braun 2016-08-09 @570  	if (rmb_desc && rmb_desc->cpu_addr) {
+> 2e8eda27 Ursula Braun 2016-08-09  571  		conn->rmb_desc = rmb_desc;
+> 2e8eda27 Ursula Braun 2016-08-09  572  		conn->rmbe_size = tmp_bufsize;
+> 2e8eda27 Ursula Braun 2016-08-09  573  		conn->rmbe_size_short = tmp_bufsize_short;
+>
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+>
