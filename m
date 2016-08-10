@@ -1,7 +1,7 @@
 From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH 02/10] zfcp: fix ELS/GS request&response length for hardware data router
-Date: Wed, 10 Aug 2016 18:30:45 +0200
-Message-ID: <1470846653-90691-3-git-send-email-maier@linux.vnet.ibm.com>
+Subject: [PATCH 06/10] zfcp: trace on request for open and close of WKA port
+Date: Wed, 10 Aug 2016 18:30:49 +0200
+Message-ID: <1470846653-90691-7-git-send-email-maier@linux.vnet.ibm.com>
 References: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
@@ -9,84 +9,122 @@ Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, "# 3 . 2+" <stable@vger.kernel.org>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, "#2 . 6 . 38+" <stable@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-In the hardware data router case, introduced with kernel 3.2
-commit 86a9668a8d29 ("[SCSI] zfcp: support for hardware data router")
-the ELS/GS request&response length needs to be initialized
-as in the chained SBAL case.
-
-Otherwise, the FCP channel rejects ELS requests with
-FSF_REQUEST_SIZE_TOO_LARGE.
-
-Such ELS requests can be issued by user space through BSG / HBA API,
-or zfcp itself uses ADISC ELS for remote port link test on RSCN.
-The latter can cause a short path outage due to
-unnecessary remote target port recovery because the always
-failing ADISC cannot detect extremely short path interruptions
-beyond the local FCP channel.
-
-Below example is decoded with zfcpdbf from s390-tools:
-
-Timestamp      : ...
-Area           : SAN
-Subarea        : 00
-Level          : 1
-Exception      : -
-CPU id         : ..
-Caller         : zfcp_dbf_san_req+0408
-Record id      : 1
-Tag            : fssels1
-Request id     : 0x<reqid>
-Destination ID : 0x00<target d_id>
-Payload info   : 52000000 00000000 <our wwpn       >           [ADISC]
-                 <our wwnn       > 00<s_id> 00000000
-                 00000000 00000000 00000000 00000000
-
-Timestamp      : ...
-Area           : HBA
-Subarea        : 00
-Level          : 1
-Exception      : -
-CPU id         : ..
-Caller         : zfcp_dbf_hba_fsf_res+0740
-Record id      : 1
-Tag            : fs_ferr
-Request id     : 0x<reqid>
-Request status : 0x00000010
-FSF cmnd       : 0x0000000b               [FSF_QTCB_SEND_ELS]
-FSF sequence no: 0x...
-FSF issued     : ...
-FSF stat       : 0x00000061		  [FSF_REQUEST_SIZE_TOO_LARGE]
-FSF stat qual  : 00000000 00000000 00000000 00000000
-Prot stat      : 0x00000100
-Prot stat qual : 00000000 00000000 00000000 00000000
+Since commit a54ca0f62f953898b05549391ac2a8a4dad6482b
+("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+HBA records no longer contain WWPN, D_ID, or LUN
+to reduce duplicate information which is already in REC records.
+In contrast to "regular" target ports, we don't use recovery to open
+WKA ports such as directory/nameserver, so we don't get REC records.
+Therefore, introduce pseudo REC running records without any
+actual recovery action but including D_ID of WKA port on open/close.
 
 Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Fixes: 86a9668a8d29 ("[SCSI] zfcp: support for hardware data router")
-Cc: <stable@vger.kernel.org> # 3.2+
+Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+Cc: <stable@vger.kernel.org> #2.6.38+
 Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/s390/scsi/zfcp_dbf.c | 32 ++++++++++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_ext.h |  1 +
+ drivers/s390/scsi/zfcp_fsf.c |  8 ++++++--
+ 3 files changed, 39 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+index e6ff199f7572..df68a4df8cdb 100644
+--- a/drivers/s390/scsi/zfcp_dbf.c
++++ b/drivers/s390/scsi/zfcp_dbf.c
+@@ -321,6 +321,38 @@ void zfcp_dbf_rec_run(char *tag, struct zfcp_erp_action *erp)
+ 	spin_unlock_irqrestore(&dbf->rec_lock, flags);
+ }
+ 
++/**
++ * zfcp_dbf_rec_run_wka - trace wka port event with info like running recovery
++ * @tag: identifier for event
++ * @wka_port: well known address port
++ * @req_id: request ID to correlate with potential HBA trace record
++ */
++void zfcp_dbf_rec_run_wka(char *tag, struct zfcp_fc_wka_port *wka_port,
++			  u64 req_id)
++{
++	struct zfcp_dbf *dbf = wka_port->adapter->dbf;
++	struct zfcp_dbf_rec *rec = &dbf->rec_buf;
++	unsigned long flags;
++
++	spin_lock_irqsave(&dbf->rec_lock, flags);
++	memset(rec, 0, sizeof(*rec));
++
++	rec->id = ZFCP_DBF_REC_RUN;
++	memcpy(rec->tag, tag, ZFCP_DBF_TAG_LEN);
++	rec->port_status = wka_port->status;
++	rec->d_id = wka_port->d_id;
++	rec->lun = ZFCP_DBF_INVALID_LUN;
++
++	rec->u.run.fsf_req_id = req_id;
++	rec->u.run.rec_status = ~0;
++	rec->u.run.rec_step = ~0;
++	rec->u.run.rec_action = ~0;
++	rec->u.run.rec_count = ~0;
++
++	debug_event(dbf->rec, 1, rec, sizeof(*rec));
++	spin_unlock_irqrestore(&dbf->rec_lock, flags);
++}
++
+ static inline
+ void zfcp_dbf_san(char *tag, struct zfcp_dbf *dbf, void *data, u8 id, u16 len,
+ 		  u64 req_id, u32 d_id)
+diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
+index fd03a943cde2..c8fed9fa1cca 100644
+--- a/drivers/s390/scsi/zfcp_ext.h
++++ b/drivers/s390/scsi/zfcp_ext.h
+@@ -35,6 +35,7 @@ extern void zfcp_dbf_adapter_unregister(struct zfcp_adapter *);
+ extern void zfcp_dbf_rec_trig(char *, struct zfcp_adapter *,
+ 			      struct zfcp_port *, struct scsi_device *, u8, u8);
+ extern void zfcp_dbf_rec_run(char *, struct zfcp_erp_action *);
++extern void zfcp_dbf_rec_run_wka(char *, struct zfcp_fc_wka_port *, u64);
+ extern void zfcp_dbf_hba_fsf_uss(char *, struct zfcp_fsf_req *);
+ extern void zfcp_dbf_hba_fsf_res(char *, int, struct zfcp_fsf_req *);
+ extern void zfcp_dbf_hba_bit_err(char *, struct zfcp_fsf_req *);
 diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 84353f45cfe6..96d35a7209fa 100644
+index 96d35a7209fa..f56906f09bb3 100644
 --- a/drivers/s390/scsi/zfcp_fsf.c
 +++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -984,8 +984,12 @@ static int zfcp_fsf_setup_ct_els_sbals(struct zfcp_fsf_req *req,
- 	if (zfcp_adapter_multi_buffer_active(adapter)) {
- 		if (zfcp_qdio_sbals_from_sg(qdio, &req->qdio_req, sg_req))
- 			return -EIO;
-+		qtcb->bottom.support.req_buf_length =
-+			zfcp_qdio_real_bytes(sg_req);
- 		if (zfcp_qdio_sbals_from_sg(qdio, &req->qdio_req, sg_resp))
- 			return -EIO;
-+		qtcb->bottom.support.resp_buf_length =
-+			zfcp_qdio_real_bytes(sg_resp);
+@@ -1581,7 +1581,7 @@ out:
+ int zfcp_fsf_open_wka_port(struct zfcp_fc_wka_port *wka_port)
+ {
+ 	struct zfcp_qdio *qdio = wka_port->adapter->qdio;
+-	struct zfcp_fsf_req *req;
++	struct zfcp_fsf_req *req = NULL;
+ 	int retval = -EIO;
  
- 		zfcp_qdio_set_data_div(qdio, &req->qdio_req,
- 					zfcp_qdio_sbale_count(sg_req));
+ 	spin_lock_irq(&qdio->req_q_lock);
+@@ -1610,6 +1610,8 @@ int zfcp_fsf_open_wka_port(struct zfcp_fc_wka_port *wka_port)
+ 		zfcp_fsf_req_free(req);
+ out:
+ 	spin_unlock_irq(&qdio->req_q_lock);
++	if (req && !IS_ERR(req))
++		zfcp_dbf_rec_run_wka("fsowp_1", wka_port, req->req_id);
+ 	return retval;
+ }
+ 
+@@ -1634,7 +1636,7 @@ static void zfcp_fsf_close_wka_port_handler(struct zfcp_fsf_req *req)
+ int zfcp_fsf_close_wka_port(struct zfcp_fc_wka_port *wka_port)
+ {
+ 	struct zfcp_qdio *qdio = wka_port->adapter->qdio;
+-	struct zfcp_fsf_req *req;
++	struct zfcp_fsf_req *req = NULL;
+ 	int retval = -EIO;
+ 
+ 	spin_lock_irq(&qdio->req_q_lock);
+@@ -1663,6 +1665,8 @@ int zfcp_fsf_close_wka_port(struct zfcp_fc_wka_port *wka_port)
+ 		zfcp_fsf_req_free(req);
+ out:
+ 	spin_unlock_irq(&qdio->req_q_lock);
++	if (req && !IS_ERR(req))
++		zfcp_dbf_rec_run_wka("fscwp_1", wka_port, req->req_id);
+ 	return retval;
+ }
+ 
 -- 
 2.6.6
