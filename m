@@ -1,56 +1,105 @@
 From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH 07/10] zfcp: restore tracing of handle for port and LUN with HBA records
-Date: Wed, 10 Aug 2016 18:30:50 +0200
-Message-ID: <1470846653-90691-8-git-send-email-maier@linux.vnet.ibm.com>
+Subject: [PATCH 08/10] zfcp: fix D_ID field with actual value on tracing SAN responses
+Date: Wed, 10 Aug 2016 18:30:51 +0200
+Message-ID: <1470846653-90691-9-git-send-email-maier@linux.vnet.ibm.com>
 References: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
-Sender: stable-owner@vger.kernel.org
+Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
 Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, "#2 . 6 . 38+" <stable@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-This information was lost with
-commit a54ca0f62f953898b05549391ac2a8a4dad6482b
-("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
-but is required to debug e.g. invalid handle situations.
+With commit 2c55b750a884b86dea8b4cc5f15e1484cc47a25c
+("[SCSI] zfcp: Redesign of the debug tracing for SAN records.")
+we lost the N_Port-ID where an ELS response comes from.
+With commit 7c7dc196814b9e1d5cc254dc579a5fa78ae524f7
+("[SCSI] zfcp: Simplify handling of ct and els requests")
+we lost the N_Port-ID where a CT response comes from.
+It's especially useful if the request SAN trace record
+with D_ID was already lost due to trace buffer wrap.
+
+GS uses an open WKA port handle and ELS just a D_ID, and
+only for ELS we could get D_ID from QTCB bottom via zfcp_fsf_req.
+To cover both cases, add a new field to zfcp_fsf_ct_els
+and fill it in on request to use in SAN response trace.
+Strictly speaking the D_ID on SAN response is the FC frame's S_ID.
+We don't need a field for the other end which is always us.
 
 Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+Fixes: 2c55b750a884 ("[SCSI] zfcp: Redesign of the debug tracing for SAN records.")
+Fixes: 7c7dc196814b ("[SCSI] zfcp: Simplify handling of ct and els requests")
 Cc: <stable@vger.kernel.org> #2.6.38+
 Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_dbf.c | 2 ++
- drivers/s390/scsi/zfcp_dbf.h | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/s390/scsi/zfcp_dbf.c | 2 +-
+ drivers/s390/scsi/zfcp_fsf.c | 2 ++
+ drivers/s390/scsi/zfcp_fsf.h | 4 +++-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-index df68a4df8cdb..ceb934c93232 100644
+index ceb934c93232..968897f5e1c6 100644
 --- a/drivers/s390/scsi/zfcp_dbf.c
 +++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -85,6 +85,8 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struct zfcp_fsf_req *req)
- 	rec->u.res.req_issued = req->issued;
- 	rec->u.res.prot_status = q_pref->prot_status;
- 	rec->u.res.fsf_status = q_head->fsf_status;
-+	rec->u.res.port_handle = q_head->port_handle;
-+	rec->u.res.lun_handle = q_head->lun_handle;
+@@ -407,7 +407,7 @@ void zfcp_dbf_san_res(char *tag, struct zfcp_fsf_req *fsf)
  
- 	memcpy(rec->u.res.prot_status_qual, &q_pref->prot_status_qual,
- 	       FSF_PROT_STATUS_QUAL_SIZE);
-diff --git a/drivers/s390/scsi/zfcp_dbf.h b/drivers/s390/scsi/zfcp_dbf.h
-index c879b54046ee..6ee46f1f9e43 100644
---- a/drivers/s390/scsi/zfcp_dbf.h
-+++ b/drivers/s390/scsi/zfcp_dbf.h
-@@ -131,6 +131,8 @@ struct zfcp_dbf_hba_res {
- 	u8  prot_status_qual[FSF_PROT_STATUS_QUAL_SIZE];
- 	u32 fsf_status;
- 	u8  fsf_status_qual[FSF_STATUS_QUALIFIER_SIZE];
-+	u32 port_handle;
-+	u32 lun_handle;
- } __packed;
+ 	length = (u16)(ct_els->resp->length + FC_CT_HDR_LEN);
+ 	zfcp_dbf_san(tag, dbf, sg_virt(ct_els->resp), ZFCP_DBF_SAN_RES, length,
+-		     fsf->req_id, 0);
++		     fsf->req_id, ct_els->d_id);
+ }
  
  /**
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index f56906f09bb3..75f820ca17b7 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -1079,6 +1079,7 @@ int zfcp_fsf_send_ct(struct zfcp_fc_wka_port *wka_port,
+ 
+ 	req->handler = zfcp_fsf_send_ct_handler;
+ 	req->qtcb->header.port_handle = wka_port->handle;
++	ct->d_id = wka_port->d_id;
+ 	req->data = ct;
+ 
+ 	zfcp_dbf_san_req("fssct_1", req, wka_port->d_id);
+@@ -1175,6 +1176,7 @@ int zfcp_fsf_send_els(struct zfcp_adapter *adapter, u32 d_id,
+ 
+ 	hton24(req->qtcb->bottom.support.d_id, d_id);
+ 	req->handler = zfcp_fsf_send_els_handler;
++	els->d_id = d_id;
+ 	req->data = els;
+ 
+ 	zfcp_dbf_san_req("fssels1", req, d_id);
+diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
+index 57ae3ae1046d..be1c04b334c5 100644
+--- a/drivers/s390/scsi/zfcp_fsf.h
++++ b/drivers/s390/scsi/zfcp_fsf.h
+@@ -3,7 +3,7 @@
+  *
+  * Interface to the FSF support functions.
+  *
+- * Copyright IBM Corp. 2002, 2010
++ * Copyright IBM Corp. 2002, 2015
+  */
+ 
+ #ifndef FSF_H
+@@ -436,6 +436,7 @@ struct zfcp_blk_drv_data {
+  * @handler_data: data passed to handler function
+  * @port: Optional pointer to port for zfcp internal ELS (only test link ADISC)
+  * @status: used to pass error status to calling function
++ * @d_id: Destination ID of either open WKA port for CT or of D_ID for ELS
+  */
+ struct zfcp_fsf_ct_els {
+ 	struct scatterlist *req;
+@@ -444,6 +445,7 @@ struct zfcp_fsf_ct_els {
+ 	void *handler_data;
+ 	struct zfcp_port *port;
+ 	int status;
++	u32 d_id;
+ };
+ 
+ #endif				/* FSF_H */
 -- 
 2.6.6
