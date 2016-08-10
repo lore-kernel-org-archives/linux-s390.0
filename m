@@ -1,34 +1,47 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH RESEND net-next 15/15] smc: proc-fs interface for smc
- connections
-Date: Tue, 09 Aug 2016 14:40:47 -0700 (PDT)
-Message-ID: <20160809.144047.675292713371843984.davem@davemloft.net>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: Re: [PATCH RESEND net-next 13/15] smc: receive data from RMBE
+Date: Wed, 10 Aug 2016 15:44:00 +0200
+Message-ID: <653f839a-8098-da62-3437-8b002d929a50@linux.vnet.ibm.com>
 References: <1470737580-43012-1-git-send-email-ubraun@linux.vnet.ibm.com>
-	<1470737580-43012-16-git-send-email-ubraun@linux.vnet.ibm.com>
+ <1470737580-43012-14-git-send-email-ubraun@linux.vnet.ibm.com>
+ <20160809.143245.2022037008405834176.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1470737580-43012-16-git-send-email-ubraun@linux.vnet.ibm.com>
+In-Reply-To: <20160809.143245.2022037008405834176.davem@davemloft.net>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: ubraun@linux.vnet.ibm.com
+To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Tue,  9 Aug 2016 12:13:00 +0200
 
-> +	sock_hold(&smc->sk);
- ...
-> +out_line:
-> +	seq_putc(m, '\n');
-> +	sock_put(&smc->sk);
 
-You hold the smc_proc_list_lock during this function's execution,
-therefore the table cannot change and therefore the socket cannot
-go away.
-
-Therefore taking a reference count here is unnecessary overhead,
-please remove it.
+On 08/09/2016 11:32 PM, David Miller wrote:
+> From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+> Date: Tue,  9 Aug 2016 12:12:58 +0200
+>
+>> +		xchg(&conn->rx_curs_confirmed.acurs,
+>> +		     smc_curs_read(conn->local_tx_ctrl.cons.acurs));
+>
+> Why in the world do you need to use xchg() in all of these places?
+>
+> It makes no sense whatsoever, especially since you don't even check
+> the return value.
+> 98e906b2
+> If you need the operation to be atomic, then you have to check the
+> return value and do something to recover if something else beat
+> you to the xchg() and put something else into the location.
+>
+> Otherwise, you therefore don't need it be atomic and can avoid
+> this expensive operation and just store the value normally.
+>
+Reviewing my xchg() usages, I really detected some paranoid usages, that 
+I am going to remove. But there are still usages (and 
+conn->rx_curs_confirmed is one of them), where I need an 8-byte cursor 
+field to be read and written atomicaly, even though I do not care 
+whether the write operation has been beaten or not. But I do care that 
+reading the cursor does not return a partially updated cursor. Isn't 
+xchg() a possible solution in this case?
