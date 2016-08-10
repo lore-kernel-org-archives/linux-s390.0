@@ -1,130 +1,217 @@
 From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH 06/10] zfcp: trace on request for open and close of WKA port
-Date: Wed, 10 Aug 2016 18:30:49 +0200
-Message-ID: <1470846653-90691-7-git-send-email-maier@linux.vnet.ibm.com>
+Subject: [PATCH 10/10] zfcp: trace full payload of all SAN records (req,resp,iels)
+Date: Wed, 10 Aug 2016 18:30:53 +0200
+Message-ID: <1470846653-90691-11-git-send-email-maier@linux.vnet.ibm.com>
 References: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
 Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, "#2 . 6 . 38+" <stable@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Since commit a54ca0f62f953898b05549391ac2a8a4dad6482b
-("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
-HBA records no longer contain WWPN, D_ID, or LUN
-to reduce duplicate information which is already in REC records.
-In contrast to "regular" target ports, we don't use recovery to open
-WKA ports such as directory/nameserver, so we don't get REC records.
-Therefore, introduce pseudo REC running records without any
-actual recovery action but including D_ID of WKA port on open/close.
+This was lost with commit 2c55b750a884b86dea8b4cc5f15e1484cc47a25c
+("[SCSI] zfcp: Redesign of the debug tracing for SAN records.")
+but is necessary for problem determination, e.g. to see the
+currently active zone set during automatic port scan.
+
+For the large GPN_FT response (4 pages), save space by not dumping
+any empty residual entries.
 
 Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+Fixes: 2c55b750a884 ("[SCSI] zfcp: Redesign of the debug tracing for SAN records.")
 Cc: <stable@vger.kernel.org> #2.6.38+
+Reviewed-by: Alexey Ishchuk <aishchuk@linux.vnet.ibm.com>
 Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_dbf.c | 32 ++++++++++++++++++++++++++++++++
- drivers/s390/scsi/zfcp_ext.h |  1 +
- drivers/s390/scsi/zfcp_fsf.c |  8 ++++++--
- 3 files changed, 39 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_dbf.c | 116 ++++++++++++++++++++++++++++++++++++++-----
+ drivers/s390/scsi/zfcp_dbf.h |   1 +
+ 2 files changed, 104 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-index e6ff199f7572..df68a4df8cdb 100644
+index d8c0bfb40366..637cf8973c9e 100644
 --- a/drivers/s390/scsi/zfcp_dbf.c
 +++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -321,6 +321,38 @@ void zfcp_dbf_rec_run(char *tag, struct zfcp_erp_action *erp)
- 	spin_unlock_irqrestore(&dbf->rec_lock, flags);
+@@ -3,7 +3,7 @@
+  *
+  * Debug traces for zfcp.
+  *
+- * Copyright IBM Corp. 2002, 2015
++ * Copyright IBM Corp. 2002, 2016
+  */
+ 
+ #define KMSG_COMPONENT "zfcp"
+@@ -356,12 +356,15 @@ void zfcp_dbf_rec_run_wka(char *tag, struct zfcp_fc_wka_port *wka_port,
  }
  
-+/**
-+ * zfcp_dbf_rec_run_wka - trace wka port event with info like running recovery
-+ * @tag: identifier for event
-+ * @wka_port: well known address port
-+ * @req_id: request ID to correlate with potential HBA trace record
-+ */
-+void zfcp_dbf_rec_run_wka(char *tag, struct zfcp_fc_wka_port *wka_port,
-+			  u64 req_id)
-+{
-+	struct zfcp_dbf *dbf = wka_port->adapter->dbf;
-+	struct zfcp_dbf_rec *rec = &dbf->rec_buf;
-+	unsigned long flags;
+ static inline
+-void zfcp_dbf_san(char *tag, struct zfcp_dbf *dbf, void *data, u8 id, u16 len,
+-		  u64 req_id, u32 d_id)
++void zfcp_dbf_san(char *tag, struct zfcp_dbf *dbf,
++		  char *paytag, struct scatterlist *sg, u8 id, u16 len,
++		  u64 req_id, u32 d_id, u16 cap_len)
+ {
+ 	struct zfcp_dbf_san *rec = &dbf->san_buf;
+ 	u16 rec_len;
+ 	unsigned long flags;
++	struct zfcp_dbf_pay *payload = &dbf->pay_buf;
++	u16 pay_sum = 0;
+ 
+ 	spin_lock_irqsave(&dbf->san_lock, flags);
+ 	memset(rec, 0, sizeof(*rec));
+@@ -369,10 +372,41 @@ void zfcp_dbf_san(char *tag, struct zfcp_dbf *dbf, void *data, u8 id, u16 len,
+ 	rec->id = id;
+ 	rec->fsf_req_id = req_id;
+ 	rec->d_id = d_id;
+-	rec_len = min(len, (u16)ZFCP_DBF_SAN_MAX_PAYLOAD);
+-	memcpy(rec->payload, data, rec_len);
+ 	memcpy(rec->tag, tag, ZFCP_DBF_TAG_LEN);
++	rec->pl_len = len; /* full length even if we cap pay below */
++	if (!sg)
++		goto out;
++	rec_len = min_t(unsigned int, sg->length, ZFCP_DBF_SAN_MAX_PAYLOAD);
++	memcpy(rec->payload, sg_virt(sg), rec_len); /* part of 1st sg entry */
++	if (len <= rec_len)
++		goto out; /* skip pay record if full content in rec->payload */
 +
-+	spin_lock_irqsave(&dbf->rec_lock, flags);
-+	memset(rec, 0, sizeof(*rec));
++	/* if (len > rec_len):
++	 * dump data up to cap_len ignoring small duplicate in rec->payload
++	 */
++	spin_lock_irqsave(&dbf->pay_lock, flags);
++	memset(payload, 0, sizeof(*payload));
++	memcpy(payload->area, paytag, ZFCP_DBF_TAG_LEN);
++	payload->fsf_req_id = req_id;
++	payload->counter = 0;
++	for (; sg && pay_sum < cap_len; sg = sg_next(sg)) {
++		u16 pay_len, offset = 0;
 +
-+	rec->id = ZFCP_DBF_REC_RUN;
-+	memcpy(rec->tag, tag, ZFCP_DBF_TAG_LEN);
-+	rec->port_status = wka_port->status;
-+	rec->d_id = wka_port->d_id;
-+	rec->lun = ZFCP_DBF_INVALID_LUN;
-+
-+	rec->u.run.fsf_req_id = req_id;
-+	rec->u.run.rec_status = ~0;
-+	rec->u.run.rec_step = ~0;
-+	rec->u.run.rec_action = ~0;
-+	rec->u.run.rec_count = ~0;
-+
-+	debug_event(dbf->rec, 1, rec, sizeof(*rec));
-+	spin_unlock_irqrestore(&dbf->rec_lock, flags);
++		while (offset < sg->length && pay_sum < cap_len) {
++			pay_len = min((u16)ZFCP_DBF_PAY_MAX_REC,
++				      (u16)(sg->length - offset));
++			/* cap_len <= pay_sum < cap_len+ZFCP_DBF_PAY_MAX_REC */
++			memcpy(payload->data, sg_virt(sg) + offset, pay_len);
++			debug_event(dbf->pay, 1, payload,
++				    zfcp_dbf_plen(pay_len));
++			payload->counter++;
++			offset += pay_len;
++			pay_sum += pay_len;
++		}
++	}
++	spin_unlock(&dbf->pay_lock);
+ 
++out:
+ 	debug_event(dbf->san, 1, rec, sizeof(*rec));
+ 	spin_unlock_irqrestore(&dbf->san_lock, flags);
+ }
+@@ -389,9 +423,62 @@ void zfcp_dbf_san_req(char *tag, struct zfcp_fsf_req *fsf, u32 d_id)
+ 	struct zfcp_fsf_ct_els *ct_els = fsf->data;
+ 	u16 length;
+ 
+-	length = (u16)(ct_els->req->length);
+-	zfcp_dbf_san(tag, dbf, sg_virt(ct_els->req), ZFCP_DBF_SAN_REQ, length,
+-		     fsf->req_id, d_id);
++	length = (u16)zfcp_qdio_real_bytes(ct_els->req);
++	zfcp_dbf_san(tag, dbf, "san_req", ct_els->req, ZFCP_DBF_SAN_REQ,
++		     length, fsf->req_id, d_id, length);
 +}
 +
- static inline
- void zfcp_dbf_san(char *tag, struct zfcp_dbf *dbf, void *data, u8 id, u16 len,
- 		  u64 req_id, u32 d_id)
-diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
-index fd03a943cde2..c8fed9fa1cca 100644
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -35,6 +35,7 @@ extern void zfcp_dbf_adapter_unregister(struct zfcp_adapter *);
- extern void zfcp_dbf_rec_trig(char *, struct zfcp_adapter *,
- 			      struct zfcp_port *, struct scsi_device *, u8, u8);
- extern void zfcp_dbf_rec_run(char *, struct zfcp_erp_action *);
-+extern void zfcp_dbf_rec_run_wka(char *, struct zfcp_fc_wka_port *, u64);
- extern void zfcp_dbf_hba_fsf_uss(char *, struct zfcp_fsf_req *);
- extern void zfcp_dbf_hba_fsf_res(char *, int, struct zfcp_fsf_req *);
- extern void zfcp_dbf_hba_bit_err(char *, struct zfcp_fsf_req *);
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 96d35a7209fa..f56906f09bb3 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1581,7 +1581,7 @@ out:
- int zfcp_fsf_open_wka_port(struct zfcp_fc_wka_port *wka_port)
- {
- 	struct zfcp_qdio *qdio = wka_port->adapter->qdio;
--	struct zfcp_fsf_req *req;
-+	struct zfcp_fsf_req *req = NULL;
- 	int retval = -EIO;
- 
- 	spin_lock_irq(&qdio->req_q_lock);
-@@ -1610,6 +1610,8 @@ int zfcp_fsf_open_wka_port(struct zfcp_fc_wka_port *wka_port)
- 		zfcp_fsf_req_free(req);
- out:
- 	spin_unlock_irq(&qdio->req_q_lock);
-+	if (req && !IS_ERR(req))
-+		zfcp_dbf_rec_run_wka("fsowp_1", wka_port, req->req_id);
- 	return retval;
++static u16 zfcp_dbf_san_res_cap_len_if_gpn_ft(char *tag,
++					      struct zfcp_fsf_req *fsf,
++					      u16 len)
++{
++	struct zfcp_fsf_ct_els *ct_els = fsf->data;
++	struct fc_ct_hdr *reqh = sg_virt(ct_els->req);
++	struct fc_ns_gid_ft *reqn = (struct fc_ns_gid_ft *)(reqh + 1);
++	struct scatterlist *resp_entry = ct_els->resp;
++	struct fc_gpn_ft_resp *acc;
++	int max_entries, x, last = 0;
++
++	if (!(memcmp(tag, "fsscth2", 7) == 0
++	      && ct_els->d_id == FC_FID_DIR_SERV
++	      && reqh->ct_rev == FC_CT_REV
++	      && reqh->ct_in_id[0] == 0
++	      && reqh->ct_in_id[1] == 0
++	      && reqh->ct_in_id[2] == 0
++	      && reqh->ct_fs_type == FC_FST_DIR
++	      && reqh->ct_fs_subtype == FC_NS_SUBTYPE
++	      && reqh->ct_options == 0
++	      && reqh->_ct_resvd1 == 0
++	      && reqh->ct_cmd == FC_NS_GPN_FT
++	      /* reqh->ct_mr_size can vary so do not match but read below */
++	      && reqh->_ct_resvd2 == 0
++	      && reqh->ct_reason == 0
++	      && reqh->ct_explan == 0
++	      && reqh->ct_vendor == 0
++	      && reqn->fn_resvd == 0
++	      && reqn->fn_domain_id_scope == 0
++	      && reqn->fn_area_id_scope == 0
++	      && reqn->fn_fc4_type == FC_TYPE_FCP))
++		return len; /* not GPN_FT response so do not cap */
++
++	acc = sg_virt(resp_entry);
++	max_entries = (reqh->ct_mr_size * 4 / sizeof(struct fc_gpn_ft_resp))
++		+ 1 /* zfcp_fc_scan_ports: bytes correct, entries off-by-one
++		     * to account for header as 1st pseudo "entry" */;
++
++	/* the basic CT_IU preamble is the same size as one entry in the GPN_FT
++	 * response, allowing us to skip special handling for it - just skip it
++	 */
++	for (x = 1; x < max_entries && !last; x++) {
++		if (x % (ZFCP_FC_GPN_FT_ENT_PAGE + 1))
++			acc++;
++		else
++			acc = sg_virt(++resp_entry);
++
++		last = acc->fp_flags & FC_NS_FID_LAST;
++	}
++	len = min(len, (u16)(x * sizeof(struct fc_gpn_ft_resp)));
++	return len; /* cap after last entry */
  }
  
-@@ -1634,7 +1636,7 @@ static void zfcp_fsf_close_wka_port_handler(struct zfcp_fsf_req *req)
- int zfcp_fsf_close_wka_port(struct zfcp_fc_wka_port *wka_port)
- {
- 	struct zfcp_qdio *qdio = wka_port->adapter->qdio;
--	struct zfcp_fsf_req *req;
-+	struct zfcp_fsf_req *req = NULL;
- 	int retval = -EIO;
+ /**
+@@ -405,9 +492,10 @@ void zfcp_dbf_san_res(char *tag, struct zfcp_fsf_req *fsf)
+ 	struct zfcp_fsf_ct_els *ct_els = fsf->data;
+ 	u16 length;
  
- 	spin_lock_irq(&qdio->req_q_lock);
-@@ -1663,6 +1665,8 @@ int zfcp_fsf_close_wka_port(struct zfcp_fc_wka_port *wka_port)
- 		zfcp_fsf_req_free(req);
- out:
- 	spin_unlock_irq(&qdio->req_q_lock);
-+	if (req && !IS_ERR(req))
-+		zfcp_dbf_rec_run_wka("fscwp_1", wka_port, req->req_id);
- 	return retval;
+-	length = (u16)(ct_els->resp->length);
+-	zfcp_dbf_san(tag, dbf, sg_virt(ct_els->resp), ZFCP_DBF_SAN_RES, length,
+-		     fsf->req_id, ct_els->d_id);
++	length = (u16)zfcp_qdio_real_bytes(ct_els->resp);
++	zfcp_dbf_san(tag, dbf, "san_res", ct_els->resp, ZFCP_DBF_SAN_RES,
++		     length, fsf->req_id, ct_els->d_id,
++		     zfcp_dbf_san_res_cap_len_if_gpn_ft(tag, fsf, length));
  }
  
+ /**
+@@ -421,11 +509,13 @@ void zfcp_dbf_san_in_els(char *tag, struct zfcp_fsf_req *fsf)
+ 	struct fsf_status_read_buffer *srb =
+ 		(struct fsf_status_read_buffer *) fsf->data;
+ 	u16 length;
++	struct scatterlist sg;
+ 
+ 	length = (u16)(srb->length -
+ 			offsetof(struct fsf_status_read_buffer, payload));
+-	zfcp_dbf_san(tag, dbf, srb->payload.data, ZFCP_DBF_SAN_ELS, length,
+-		     fsf->req_id, ntoh24(srb->d_id));
++	sg_init_one(&sg, srb->payload.data, length);
++	zfcp_dbf_san(tag, dbf, "san_els", &sg, ZFCP_DBF_SAN_ELS, length,
++		     fsf->req_id, ntoh24(srb->d_id), length);
+ }
+ 
+ /**
+diff --git a/drivers/s390/scsi/zfcp_dbf.h b/drivers/s390/scsi/zfcp_dbf.h
+index 6ee46f1f9e43..36d07584271d 100644
+--- a/drivers/s390/scsi/zfcp_dbf.h
++++ b/drivers/s390/scsi/zfcp_dbf.h
+@@ -115,6 +115,7 @@ struct zfcp_dbf_san {
+ 	u32 d_id;
+ #define ZFCP_DBF_SAN_MAX_PAYLOAD (FC_CT_HDR_LEN + 32)
+ 	char payload[ZFCP_DBF_SAN_MAX_PAYLOAD];
++	u16 pl_len;
+ } __packed;
+ 
+ /**
 -- 
 2.6.6
