@@ -1,16 +1,16 @@
 From: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH 09/10] zfcp: fix payload trace length for SAN
- request&response
-Date: Thu, 11 Aug 2016 13:24:40 +0200
-Message-ID: <78ed972a-49a0-05fd-68a2-2ef1e73da0ef@suse.de>
+Subject: Re: [PATCH 10/10] zfcp: trace full payload of all SAN records
+ (req,resp,iels)
+Date: Thu, 11 Aug 2016 13:25:42 +0200
+Message-ID: <db17dcb3-0bed-b286-4049-0f370513826a@suse.de>
 References: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
- <1470846653-90691-10-git-send-email-maier@linux.vnet.ibm.com>
+ <1470846653-90691-11-git-send-email-maier@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <1470846653-90691-10-git-send-email-maier@linux.vnet.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1470846653-90691-11-git-send-email-maier@linux.vnet.ibm.com>
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: Steffen Maier <maier@linux.vnet.ibm.com>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
@@ -18,44 +18,13 @@ Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <
 List-ID: <linux-s390.vger.kernel.org>
 
 On 08/10/2016 06:30 PM, Steffen Maier wrote:
-> commit 2c55b750a884b86dea8b4cc5f15e1484cc47a25c
+> This was lost with commit 2c55b750a884b86dea8b4cc5f15e1484cc47a25c
 > ("[SCSI] zfcp: Redesign of the debug tracing for SAN records.")
-> started to add FC_CT_HDR_LEN which made zfcp dump random data
-> out of bounds for RSPN GS responses because u.rspn.rsp
-> is the largest and last field in the union of struct zfcp_fc_req.
-> Other request/response types only happened to stay within bounds
-> due to the padding of the union or
-> due to the trace capping of u.gspn.rsp to ZFCP_DBF_SAN_MAX_PAYLOAD.
+> but is necessary for problem determination, e.g. to see the
+> currently active zone set during automatic port scan.
 >=20
-> Timestamp      : ...
-> Area           : SAN
-> Subarea        : 00
-> Level          : 1
-> Exception      : -
-> CPU id         : ..
-> Caller         : ...
-> Record id      : 2
-> Tag            : fsscth2
-> Request id     : 0x...
-> Destination ID : 0x00fffffc
-> Payload short  : 01000000 fc020000 80020000 00000000
->                  xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx <=3D=3D=3D
->                  00000000 00000000 00000000 00000000
-> Payload length : 32                                  <=3D=3D=3D
->=20
-> struct zfcp_fc_req {
->     [0] struct zfcp_fsf_ct_els ct_els;
->    [56] struct scatterlist sg_req;
->    [96] struct scatterlist sg_rsp;
->         union {
->             struct {req; rsp;} adisc;    SIZE: 28+28=3D   56
->             struct {req; rsp;} gid_pn;   SIZE: 24+20=3D   44
->             struct {rspsg; req;} gpn_ft; SIZE: 40*4+20=3D180
->             struct {req; rsp;} gspn;     SIZE: 20+273=3D 293
->             struct {req; rsp;} rspn;     SIZE: 277+16=3D 293
->   [136] } u;
-> }
-> SIZE: 432
+> For the large GPN_FT response (4 pages), save space by not dumping
+> any empty residual entries.
 >=20
 > Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
 > Fixes: 2c55b750a884 ("[SCSI] zfcp: Redesign of the debug tracing for SAN =
@@ -64,35 +33,14 @@ records.")
 > Reviewed-by: Alexey Ishchuk <aishchuk@linux.vnet.ibm.com>
 > Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 > ---
->  drivers/s390/scsi/zfcp_dbf.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-> index 968897f5e1c6..d8c0bfb40366 100644
-> --- a/drivers/s390/scsi/zfcp_dbf.c
-> +++ b/drivers/s390/scsi/zfcp_dbf.c
-> @@ -389,7 +389,7 @@ void zfcp_dbf_san_req(char *tag, struct zfcp_fsf_req =
-*fsf, u32 d_id)
->  	struct zfcp_fsf_ct_els *ct_els =3D fsf->data;
->  	u16 length;
-> =20
-> -	length =3D (u16)(ct_els->req->length + FC_CT_HDR_LEN);
-> +	length =3D (u16)(ct_els->req->length);
->  	zfcp_dbf_san(tag, dbf, sg_virt(ct_els->req), ZFCP_DBF_SAN_REQ, length,
->  		     fsf->req_id, d_id);
->  }
-> @@ -405,7 +405,7 @@ void zfcp_dbf_san_res(char *tag, struct zfcp_fsf_req =
-*fsf)
->  	struct zfcp_fsf_ct_els *ct_els =3D fsf->data;
->  	u16 length;
-> =20
-> -	length =3D (u16)(ct_els->resp->length + FC_CT_HDR_LEN);
-> +	length =3D (u16)(ct_els->resp->length);
->  	zfcp_dbf_san(tag, dbf, sg_virt(ct_els->resp), ZFCP_DBF_SAN_RES, length,
->  		     fsf->req_id, ct_els->d_id);
->  }
+>  drivers/s390/scsi/zfcp_dbf.c | 116 +++++++++++++++++++++++++++++++++++++=
++-----
+>  drivers/s390/scsi/zfcp_dbf.h |   1 +
+>  2 files changed, 104 insertions(+), 13 deletions(-)
 >=20
 Reviewed-by: Hannes Reinecke <hare@suse.com>
+
+Despite the _really_ ugly if() statement...
 
 Cheers,
 
