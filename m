@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 31 Aug 2016 01:57:20 +0530
-From: Bhaktipriya Shridhar <bhaktipriya96@gmail.com>
-Subject: [PATCH] s390: Remove deprecated create_singlethread_workqueue
-Message-ID: <20160830202720.GA31494@Karyakshetra>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>
-Cc: Tejun Heo <tj@kernel.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Hannes Reinecke <hare@suse.de>
+Subject: Re: [PATCH 07/10] zfcp: restore tracing of handle for port and LUN
+ with HBA records
+Date: Thu, 11 Aug 2016 13:23:23 +0200
+Message-ID: <315328c1-cbce-f97a-a035-17aea2643b56@suse.de>
+References: <1470846653-90691-1-git-send-email-maier@linux.vnet.ibm.com>
+ <1470846653-90691-8-git-send-email-maier@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1470846653-90691-8-git-send-email-maier@linux.vnet.ibm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: Steffen Maier <maier@linux.vnet.ibm.com>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "#2 . 6 . 38+" <stable@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The workqueue "appldata_wq" has been replaced with an ordered dedicated
-workqueue.
+On 08/10/2016 06:30 PM, Steffen Maier wrote:
+> This information was lost with
+> commit a54ca0f62f953898b05549391ac2a8a4dad6482b
+> ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+> but is required to debug e.g. invalid handle situations.
+>=20
+> Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
+> Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA =
+records.")
+> Cc: <stable@vger.kernel.org> #2.6.38+
+> Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
+> ---
+>  drivers/s390/scsi/zfcp_dbf.c | 2 ++
+>  drivers/s390/scsi/zfcp_dbf.h | 2 ++
+>  2 files changed, 4 insertions(+)
+>=20
+> diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+> index df68a4df8cdb..ceb934c93232 100644
+> --- a/drivers/s390/scsi/zfcp_dbf.c
+> +++ b/drivers/s390/scsi/zfcp_dbf.c
+> @@ -85,6 +85,8 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struct =
+zfcp_fsf_req *req)
+>  	rec->u.res.req_issued =3D req->issued;
+>  	rec->u.res.prot_status =3D q_pref->prot_status;
+>  	rec->u.res.fsf_status =3D q_head->fsf_status;
+> +	rec->u.res.port_handle =3D q_head->port_handle;
+> +	rec->u.res.lun_handle =3D q_head->lun_handle;
+> =20
+>  	memcpy(rec->u.res.prot_status_qual, &q_pref->prot_status_qual,
+>  	       FSF_PROT_STATUS_QUAL_SIZE);
+> diff --git a/drivers/s390/scsi/zfcp_dbf.h b/drivers/s390/scsi/zfcp_dbf.h
+> index c879b54046ee..6ee46f1f9e43 100644
+> --- a/drivers/s390/scsi/zfcp_dbf.h
+> +++ b/drivers/s390/scsi/zfcp_dbf.h
+> @@ -131,6 +131,8 @@ struct zfcp_dbf_hba_res {
+>  	u8  prot_status_qual[FSF_PROT_STATUS_QUAL_SIZE];
+>  	u32 fsf_status;
+>  	u8  fsf_status_qual[FSF_STATUS_QUALIFIER_SIZE];
+> +	u32 port_handle;
+> +	u32 lun_handle;
+>  } __packed;
+> =20
+>  /**
+>=20
+Reviewed-by: Hannes Reinecke <hare@suse.com>
 
-WQ_MEM_RECLAIM has not been set since the workqueue is not being used on
-a memory reclaim path.
+Cheers,
 
-The adapter->work_queue queues multiple work items viz
-&adapter->scan_work, &port->rport_work, &adapter->ns_up_work,
-&adapter->stat_work, adapter->work_queue, &adapter->events.work,
-&port->gid_pn_work, &port->test_link_work. Hence, an ordered
-dedicated workqueue has been used.
-
-WQ_MEM_RECLAIM has been set to ensure forward progress under memory
-pressure.
-
-Signed-off-by: Bhaktipriya Shridhar <bhaktipriya96@gmail.com>
----
- arch/s390/appldata/appldata_base.c | 2 +-
- drivers/s390/scsi/zfcp_aux.c       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
-index 15c9424..f587c48 100644
---- a/arch/s390/appldata/appldata_base.c
-+++ b/arch/s390/appldata/appldata_base.c
-@@ -542,7 +542,7 @@ static int __init appldata_init(void)
- 		rc = PTR_ERR(appldata_pdev);
- 		goto out_driver;
- 	}
--	appldata_wq = create_singlethread_workqueue("appldata");
-+	appldata_wq = alloc_ordered_workqueue("appldata", 0);
- 	if (!appldata_wq) {
- 		rc = -ENOMEM;
- 		goto out_device;
-diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-index c00ac46..bcc8f3d 100644
---- a/drivers/s390/scsi/zfcp_aux.c
-+++ b/drivers/s390/scsi/zfcp_aux.c
-@@ -310,7 +310,7 @@ static int zfcp_setup_adapter_work_queue(struct zfcp_adapter *adapter)
-
- 	snprintf(name, sizeof(name), "zfcp_q_%s",
- 		 dev_name(&adapter->ccw_device->dev));
--	adapter->work_queue = create_singlethread_workqueue(name);
-+	adapter->work_queue = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
-
- 	if (adapter->work_queue)
- 		return 0;
---
-2.1.4
+Hannes
+--=20
+Dr. Hannes Reinecke		   Teamlead Storage & Networking
+hare@suse.de			               +49 911 74053 688
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
+GF: F. Imend=F6rffer, J. Smithard, J. Guild, D. Upmanyu, G. Norton
+HRB 21284 (AG N=FCrnberg)
