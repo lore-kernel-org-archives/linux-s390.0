@@ -1,59 +1,43 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: Fwd: Re: [PATCH RESEND net-next 13/15] smc: receive data from RMBE
-Date: Wed, 10 Aug 2016 17:15:01 +0200
-Message-ID: <40f250c2-d865-5bd3-8d20-a2dc2fd7d257@linux.vnet.ibm.com>
-References: <653f839a-8098-da62-3437-8b002d929a50@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <653f839a-8098-da62-3437-8b002d929a50@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Dave Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Utz Bacher <utz.bacher@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/2] KVM: s390: set the prefix initially properly
+Date: Fri, 12 Aug 2016 10:06:35 +0200
+Message-ID: <1470989196-95234-2-git-send-email-borntraeger@de.ibm.com>
+References: <1470989196-95234-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1470989196-95234-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Julius Niedworok <jniedwor@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+From: Julius Niedworok <jniedwor@linux.vnet.ibm.com>
 
-sorry, forget my previous mail from today. I now realize that xchg() 
-does not help on 32-bit architectures. I have to think about 
-alternatives here.
+When KVM_RUN is triggered on a VCPU without an initial reset, a
+validity intercept occurs.
+Setting the prefix will set the KVM_REQ_MMU_RELOAD bit initially,
+thus preventing the bug.
 
--------- Forwarded Message --------
-Subject: Re: [PATCH RESEND net-next 13/15] smc: receive data from RMBE
-Date: Wed, 10 Aug 2016 15:44:00 +0200
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-To: David Miller <davem@davemloft.net>
-CC: netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
-schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Julius Niedworok <jniedwor@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-
-
-On 08/09/2016 11:32 PM, David Miller wrote:
-> From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-> Date: Tue,  9 Aug 2016 12:12:58 +0200
->
->> +		xchg(&conn->rx_curs_confirmed.acurs,
->> +		     smc_curs_read(conn->local_tx_ctrl.cons.acurs));
->
-> Why in the world do you need to use xchg() in all of these places?
->
-> It makes no sense whatsoever, especially since you don't even check
-> the return value.
-> 98e906b2
-> If you need the operation to be atomic, then you have to check the
-> return value and do something to recover if something else beat
-> you to the xchg() and put something else into the location.
->
-> Otherwise, you therefore don't need it be atomic and can avoid
-> this expensive operation and just store the value normally.
->
-Reviewing my xchg() usages, I really detected some paranoid usages, that 
-I am going to remove. But there are still usages (and 
-conn->rx_curs_confirmed is one of them), where I need an 8-byte cursor 
-field to be read and written atomicaly, even though I do not care 
-whether the write operation has been beaten or not. But I do care that 
-reading the cursor does not return a partially updated cursor. Isn't 
-xchg() a possible solution in this case?
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 3f3ae48..e63f6ed 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1672,6 +1672,7 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
+ 				    KVM_SYNC_CRS |
+ 				    KVM_SYNC_ARCH0 |
+ 				    KVM_SYNC_PFAULT;
++	kvm_s390_set_prefix(vcpu, 0);
+ 	if (test_kvm_facility(vcpu->kvm, 64))
+ 		vcpu->run->kvm_valid_regs |= KVM_SYNC_RICCB;
+ 	/* fprs can be synchronized via vrs, even if the guest has no vx. With
+-- 
+2.5.5
