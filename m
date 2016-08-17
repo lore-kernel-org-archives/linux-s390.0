@@ -1,11 +1,14 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 0/4] KVM-S390: Fine-tuning for kvm_s390_import_bp_data()
-Date: Wed, 17 Aug 2016 20:02:53 +0200
-Message-ID: <82b84c9c-38a4-4d17-910f-312668dbae01@users.sourceforge.net>
+Subject: [PATCH 4/4] KVM-S390: Delete an unnecessary initialisation for a
+ buffer variable
+Date: Wed, 17 Aug 2016 20:12:15 +0200
+Message-ID: <6cf36937-3937-0521-5f11-258f557e0c32@users.sourceforge.net>
+References: <82b84c9c-38a4-4d17-910f-312668dbae01@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <82b84c9c-38a4-4d17-910f-312668dbae01@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -14,19 +17,30 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia 
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 17 Aug 2016 19:49:29 +0200
+Date: Wed, 17 Aug 2016 19:28:15 +0200
 
-Some update suggestions were taken into account
-from static source code analysis.
+The variable "bp_data" will eventually be set to an appropriate pointer
+from a call of the memdup_user() function.
+Thus omit the explicit initialisation which became unnecessary with
+a previous update step.
 
-Markus Elfring (4):
-  Improve determination of sizes
-  Use memdup_user()
-  Less function calls after error detection
-  Delete an unnecessary initialisation
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ arch/s390/kvm/guestdbg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- arch/s390/kvm/guestdbg.c | 35 +++++++++++++++--------------------
- 1 file changed, 15 insertions(+), 20 deletions(-)
-
+diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+index f2514af..ad04609 100644
+--- a/arch/s390/kvm/guestdbg.c
++++ b/arch/s390/kvm/guestdbg.c
+@@ -207,7 +207,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+ 			    struct kvm_guest_debug *dbg)
+ {
+ 	int ret = 0, nr_wp = 0, nr_bp = 0, i, size;
+-	struct kvm_hw_breakpoint *bp_data = NULL;
++	struct kvm_hw_breakpoint *bp_data;
+ 	struct kvm_hw_wp_info_arch *wp_info = NULL;
+ 	struct kvm_hw_bp_info_arch *bp_info = NULL;
+ 
 -- 
 2.9.3
