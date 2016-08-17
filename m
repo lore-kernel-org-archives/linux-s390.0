@@ -1,8 +1,8 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 3/4] KVM-S390: Less function calls in
- kvm_s390_import_bp_data() after error detection
-Date: Wed, 17 Aug 2016 20:10:37 +0200
-Message-ID: <47f88a11-b949-28ed-5589-925888a37574@users.sourceforge.net>
+Subject: [PATCH 1/4] KVM-S390: Improve determination of sizes in
+ kvm_s390_import_bp_data()
+Date: Wed, 17 Aug 2016 20:06:59 +0200
+Message-ID: <033d8595-d051-1fa8-95b1-5d2056eb5667@users.sourceforge.net>
 References: <82b84c9c-38a4-4d17-910f-312668dbae01@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -17,65 +17,47 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia 
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 17 Aug 2016 19:25:50 +0200
+Date: Wed, 17 Aug 2016 18:29:04 +0200
 
-The kfree() function was called in a few cases by the
-kvm_s390_import_bp_data() function during error handling
-even if a passed variable contained a null pointer.
-
-Adjust jump targets according to the Linux coding style convention.
+Replace the specification of data structures by pointer dereferences
+to make the corresponding size determination a bit safer according to
+the Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- arch/s390/kvm/guestdbg.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ arch/s390/kvm/guestdbg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index 8f886ee..f2514af 100644
+index d1f8241..b68db4b 100644
 --- a/arch/s390/kvm/guestdbg.c
 +++ b/arch/s390/kvm/guestdbg.c
-@@ -239,7 +239,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+@@ -216,7 +216,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+ 	else if (dbg->arch.nr_hw_bp > MAX_BP_COUNT)
+ 		return -EINVAL;
+ 
+-	size = dbg->arch.nr_hw_bp * sizeof(struct kvm_hw_breakpoint);
++	size = dbg->arch.nr_hw_bp * sizeof(*bp_data);
+ 	bp_data = kmalloc(size, GFP_KERNEL);
+ 	if (!bp_data) {
+ 		ret = -ENOMEM;
+@@ -241,7 +241,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+ 		}
+ 	}
+ 
+-	size = nr_wp * sizeof(struct kvm_hw_wp_info_arch);
++	size = nr_wp * sizeof(*wp_info);
+ 	if (size > 0) {
  		wp_info = kmalloc(size, GFP_KERNEL);
  		if (!wp_info) {
- 			ret = -ENOMEM;
--			goto error;
-+			goto free_bp_data;
+@@ -249,7 +249,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+ 			goto error;
  		}
  	}
- 	size = nr_bp * sizeof(*bp_info);
-@@ -247,7 +247,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+-	size = nr_bp * sizeof(struct kvm_hw_bp_info_arch);
++	size = nr_bp * sizeof(*bp_info);
+ 	if (size > 0) {
  		bp_info = kmalloc(size, GFP_KERNEL);
  		if (!bp_info) {
- 			ret = -ENOMEM;
--			goto error;
-+			goto free_wp_info;
- 		}
- 	}
- 
-@@ -257,7 +257,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
- 			ret = __import_wp_info(vcpu, &bp_data[i],
- 					       &wp_info[nr_wp]);
- 			if (ret)
--				goto error;
-+				goto free_bp_info;
- 			nr_wp++;
- 			break;
- 		case KVM_HW_BP:
-@@ -273,10 +273,12 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
- 	vcpu->arch.guestdbg.nr_hw_wp = nr_wp;
- 	vcpu->arch.guestdbg.hw_wp_info = wp_info;
- 	return 0;
--error:
--	kfree(bp_data);
--	kfree(wp_info);
-+free_bp_info:
- 	kfree(bp_info);
-+free_wp_info:
-+	kfree(wp_info);
-+free_bp_data:
-+	kfree(bp_data);
- 	return ret;
- }
- 
 -- 
 2.9.3
