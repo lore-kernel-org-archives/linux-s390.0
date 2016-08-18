@@ -1,33 +1,75 @@
-From: Wanpeng Li <kernellwp@gmail.com>
-Subject: Re: [RFC PATCH-tip v4 07/10] locking/rwsem: Change RWSEM_WAITING_BIAS
- for better disambiguation
-Date: Fri, 19 Aug 2016 13:57:49 +0800
-Message-ID: <CANRm+CzfQFHDZDdBc+WxSkFPaE6x=b+PGBeEnnAqgmjDi=1DDA@mail.gmail.com>
-References: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com> <1471554672-38662-8-git-send-email-Waiman.Long@hpe.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1471554672-38662-8-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-doc-owner@vger.kernel.org
+From: Waiman Long <Waiman.Long@hpe.com>
+Subject: [RFC PATCH-tip v4 10/10] locking/rwsem: Add a boot parameter to reader spinning threshold
+Date: Thu, 18 Aug 2016 17:11:12 -0400
+Message-ID: <1471554672-38662-11-git-send-email-Waiman.Long@hpe.com>
+References: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com>
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Waiman Long <Waiman.Long@hpe.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
+To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-2016-08-19 5:11 GMT+08:00 Waiman Long <Waiman.Long@hpe.com>:
-> When the count value is in between 0 and RWSEM_WAITING_BIAS, there
-> are 2 possibilities.
-> Either a writer is present and there is no waiter
+The default reader spining threshold is current set to 4096. However,
+the right reader spinning threshold may vary from one system to
+another and among the different architectures. This patch adds a new
+kernel boot parameter to modify the threshold value. This enables
+better tailoring to the needs of different systems as well as for
+testing purposes.
 
-count = 0xffff0001
+Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
+---
+ Documentation/kernel-parameters.txt |    3 +++
+ kernel/locking/rwsem-xadd.c         |   14 +++++++++++++-
+ 2 files changed, 16 insertions(+), 1 deletions(-)
 
->or there are waiters and readers. There is no easy way to
-
-count = 0xffff000X
-
-However, RWSEM_WAITING_BIAS is equal to 0xffff0000, so both these two
-cases are beyond RWSEM_WAITING_BIAS, right?
-
-Regards,
-Wanpeng Li
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 46c030a..90892ac 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -3690,6 +3690,9 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
+ 
+ 	rw		[KNL] Mount root device read-write on boot
+ 
++	rwsem_rspin_threshold=
++			[KNL] Set rw semaphore reader spinning threshold
++
+ 	S		[KNL] Run init in single mode
+ 
+ 	s390_iommu=	[HW,S390]
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 9978159..7bb6255 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -272,6 +272,18 @@ static inline bool rwsem_try_write_lock(long count, struct rw_semaphore *sem)
+ 
+ #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+ /*
++ * Reader spinning threshold
++ */
++static int __read_mostly rspin_threshold = RWSEM_RSPIN_THRESHOLD;
++
++static int __init set_rspin_threshold(char *str)
++{
++	get_option(&str, &rspin_threshold);
++	return 0;
++}
++early_param("rwsem_rspin_threshold", set_rspin_threshold);
++
++/*
+  * Try to acquire write lock before the writer has been put on wait queue.
+  */
+ static inline bool rwsem_try_write_lock_unqueued(struct rw_semaphore *sem)
+@@ -394,7 +406,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem,
+ 	if (!osq_lock(&sem->osq))
+ 		goto done;
+ 
+-	rspin_cnt = sem->rspin_enabled ? RWSEM_RSPIN_THRESHOLD : 0;
++	rspin_cnt = sem->rspin_enabled ? rspin_threshold : 0;
+ 
+ 	/*
+ 	 * Optimistically spin on the owner field and attempt to acquire the
+-- 
+1.7.1
