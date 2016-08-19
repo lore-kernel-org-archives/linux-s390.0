@@ -1,147 +1,43 @@
-From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip v4 08/10] locking/rwsem: Enable spinning readers
-Date: Thu, 18 Aug 2016 17:11:10 -0400
-Message-ID: <1471554672-38662-9-git-send-email-Waiman.Long@hpe.com>
-References: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com>
-Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-ia64-owner@vger.kernel.org
+From: Waiman Long <waiman.long@hpe.com>
+Subject: Re: [RFC PATCH-tip v4 07/10] locking/rwsem: Change RWSEM_WAITING_BIAS
+ for better disambiguation
+Date: Fri, 19 Aug 2016 12:21:57 -0400
+Message-ID: <57B73225.7020303@hpe.com>
+References: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com> <1471554672-38662-8-git-send-email-Waiman.Long@hpe.com> <CANRm+CzfQFHDZDdBc+WxSkFPaE6x=b+PGBeEnnAqgmjDi=1DDA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CANRm+CzfQFHDZDdBc+WxSkFPaE6x=b+PGBeEnnAqgmjDi=1DDA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
+To: Wanpeng Li <kernellwp@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch enables readers to optimistically spin when the
-rspin_threshold is non-zero. That threshold value should only
-be set when the lock owners of the rwsem are unlikely to go to
-sleep. Otherwise enabling reader spinning may make the performance
-worse in some cases.
+On 08/19/2016 01:57 AM, Wanpeng Li wrote:
+> 2016-08-19 5:11 GMT+08:00 Waiman Long<Waiman.Long@hpe.com>:
+>> When the count value is in between 0 and RWSEM_WAITING_BIAS, there
+>> are 2 possibilities.
+>> Either a writer is present and there is no waiter
+> count = 0xffff0001
+>
+>> or there are waiters and readers. There is no easy way to
+> count = 0xffff000X
+>
+> However, RWSEM_WAITING_BIAS is equal to 0xffff0000, so both these two
+> cases are beyond RWSEM_WAITING_BIAS, right?
+>
+> Regards,
+> Wanpeng Li
 
-On a 4-socket Haswell machine running on a 4.7-rc1 tip-based kernel,
-the fio test with multithreaded randrw and randwrite tests on the
-same file on a XFS partition on top of a NVDIMM with DAX were run,
-the aggregated bandwidths before and after the reader optimistic
-spinning patchset were as follows:
+Perhaps I should make it clear that I am talking from a signed quantity 
+point of view (it is an atomic_long_t). So
 
-  Test      BW before patch     BW after patch  % change
-  ----      ---------------     --------------  --------
-  randrw        1352 MB/s          2164 MB/s      +60%
-  randwrite     1710 MB/s          2550 MB/s      +49%
+     RWSEM_WAITING_BIAS < RWSEM_ACTIVE_WRITE_BIAS < 0
 
-Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
----
- kernel/locking/rwsem-xadd.c |   48 ++++++++++++++++++++++++++++++++++++------
- 1 files changed, 41 insertions(+), 7 deletions(-)
+Hope this clarify your question.
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index 8b118b3..d850214 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -83,6 +83,12 @@
-  *	 (2) WAITING_BIAS - ACTIVE_WRITE_BIAS < count < 0
-  */
- 
-+static inline bool count_has_writer(long count)
-+{
-+	return (count < RWSEM_WAITING_BIAS) || ((count < 0) &&
-+	       (count > RWSEM_WAITING_BIAS - RWSEM_ACTIVE_WRITE_BIAS));
-+}
-+
- /*
-  * Initialize an rwsem:
-  */
-@@ -286,6 +292,25 @@ static inline bool rwsem_try_write_lock_unqueued(struct rw_semaphore *sem)
- 	}
- }
- 
-+/*
-+ * Try to acquire read lock before the reader is put on wait queue
-+ */
-+static inline bool rwsem_try_read_lock_unqueued(struct rw_semaphore *sem)
-+{
-+	long count = atomic_long_read(&sem->count);
-+
-+	if (count_has_writer(count))
-+		return false;
-+	count = atomic_long_add_return_acquire(RWSEM_ACTIVE_READ_BIAS,
-+					       &sem->count);
-+	if (!count_has_writer(count))
-+		return true;
-+
-+	/* Back out the change */
-+	atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
-+	return false;
-+}
-+
- static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem)
- {
- 	struct task_struct *owner;
-@@ -352,7 +377,8 @@ out:
- 	return rwsem_owner_is_reader(READ_ONCE(sem->owner)) ? 0 : 1;
- }
- 
--static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
-+static bool rwsem_optimistic_spin(struct rw_semaphore *sem,
-+				  enum rwsem_waiter_type type)
- {
- 	bool taken = false;
- 	int owner_state;	/* Lock owner state */
-@@ -380,10 +406,11 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
- 		/*
- 		 * Try to acquire the lock
- 		 */
--		if (rwsem_try_write_lock_unqueued(sem)) {
--			taken = true;
-+		taken = (type == RWSEM_WAITING_FOR_WRITE)
-+		      ? rwsem_try_write_lock_unqueued(sem)
-+		      : rwsem_try_read_lock_unqueued(sem);
-+		if (taken)
- 			break;
--		}
- 
- 		/*
- 		 * We only decremnt the rspin_cnt when the lock is owned
-@@ -418,7 +445,8 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
- 	 * Check the success or failure of writer spinning on reader so as
- 	 * to adjust the rspin_enabled count accordingly.
- 	 */
--	if (rwsem_owner_is_reader(sem->owner)) {
-+	if ((type == RWSEM_WAITING_FOR_WRITE) &&
-+	    rwsem_owner_is_reader(sem->owner)) {
- 		/*
- 		 * Update rspin_enabled for reader spinning.
- 		 *
-@@ -458,7 +486,8 @@ static inline bool reader_spinning_enabled(struct rw_semaphore *sem)
- 	return sem->rspin_enabled;
- }
- #else
--static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
-+static bool rwsem_optimistic_spin(struct rw_semaphore *sem,
-+				  enum rwsem_waiter_type type)
- {
- 	return false;
- }
-@@ -492,6 +521,11 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- 	 */
- 	atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
- 
-+	/* do optimistic spinning and steal lock if possible */
-+	if (reader_spinning_enabled(sem) &&
-+	    rwsem_optimistic_spin(sem, RWSEM_WAITING_FOR_READ))
-+		return sem;
-+
- 	waiter.task = tsk;
- 	waiter.type = RWSEM_WAITING_FOR_READ;
- 
-@@ -548,7 +582,7 @@ __rwsem_down_write_failed_common(struct rw_semaphore *sem, int state)
- 	count = atomic_long_sub_return(RWSEM_ACTIVE_WRITE_BIAS, &sem->count);
- 
- 	/* do optimistic spinning and steal lock if possible */
--	if (rwsem_optimistic_spin(sem))
-+	if (rwsem_optimistic_spin(sem, RWSEM_WAITING_FOR_WRITE))
- 		return sem;
- 
- 	/*
--- 
-1.7.1
+Cheers,
+Longman
