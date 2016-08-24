@@ -1,46 +1,87 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: Replacing specific kmalloc() calls by kmalloc_array()?
-Date: Wed, 24 Aug 2016 11:00:04 -0400 (EDT)
-Message-ID: <1214121824.5255512.1472050804153.JavaMail.zimbra@redhat.com>
-References: <82b84c9c-38a4-4d17-910f-312668dbae01@users.sourceforge.net> <033d8595-d051-1fa8-95b1-5d2056eb5667@users.sourceforge.net> <57B562F3.1080004@bfs.de> <alpine.DEB.2.10.1608180502080.3107@hadrien> <9db1986a-9b93-72ca-f35e-85b5b5e9f351@redhat.com> <f2c99dcc-8dea-b8a4-5244-08bb7c0ee1e8@users.sourceforge.net>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 3/4] KVM-S390: Less function calls in
+ kvm_s390_import_bp_data() after error detection
+Date: Wed, 24 Aug 2016 11:10:03 -0400
+Message-ID: <f9f50675-b283-4c03-8764-c7c570647fe4@de.ibm.com>
+References: <82b84c9c-38a4-4d17-910f-312668dbae01@users.sourceforge.net>
+ <47f88a11-b949-28ed-5589-925888a37574@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <f2c99dcc-8dea-b8a4-5244-08bb7c0ee1e8@users.sourceforge.net>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <47f88a11-b949-28ed-5589-925888a37574@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, walter harms <wharms@bfs.de>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Christian =?utf-8?Q?Borntr=C3=A4ger?= <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
------ Original Message -----
-> From: "SF Markus Elfring" <elfring@users.sourceforge.net>
-> To: "Paolo Bonzini" <pbonzini@redhat.com>
-> Cc: "Julia Lawall" <julia.lawall@lip6.fr>, "walter harms" <wharms@bfs.de>, kvm@vger.kernel.org,
-> linux-s390@vger.kernel.org, "Christian Bornträger" <borntraeger@de.ibm.com>, "Cornelia Huck"
-> <cornelia.huck@de.ibm.com>, "David Hildenbrand" <dahi@linux.vnet.ibm.com>, "Heiko Carstens"
-> <heiko.carstens@de.ibm.com>, "Martin Schwidefsky" <schwidefsky@de.ibm.com>, "Radim Krčmář" <rkrcmar@redhat.com>,
-> "LKML" <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-> Sent: Wednesday, August 24, 2016 2:10:13 PM
-> Subject: Re: Replacing specific kmalloc() calls by kmalloc_array()?
+On 08/17/2016 02:10 PM, SF Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Wed, 17 Aug 2016 19:25:50 +0200
 > 
-> > Or kmalloc_array, since zeroing is not necessary.  Might be an idea for
-> > a new Coccinelle script, like
-> > 
-> > - kmalloc (N * sizeof T, GFP)
-> > + kmalloc_array(N, sizeof T, GFP)
+> The kfree() function was called in a few cases by the
+> kvm_s390_import_bp_data() function during error handling
+> even if a passed variable contained a null pointer.
 > 
-> I have picked your idea up. The corresponding script for the semantic
-> patch language became longer than your general suggestion
-> (if additional source code control flow aspects are integrated).
+> Adjust jump targets according to the Linux coding style convention.
 > 
-> Would it make sense to check any more function combinations
-> in a similar way?
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  arch/s390/kvm/guestdbg.c | 14 ++++++++------
+>  1 file changed, 8 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+> index 8f886ee..f2514af 100644
+> --- a/arch/s390/kvm/guestdbg.c
+> +++ b/arch/s390/kvm/guestdbg.c
+> @@ -239,7 +239,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>  		wp_info = kmalloc(size, GFP_KERNEL);
+>  		if (!wp_info) {
+>  			ret = -ENOMEM;
+> -			goto error;
+> +			goto free_bp_data;
+>  		}
+>  	}
+>  	size = nr_bp * sizeof(*bp_info);
+> @@ -247,7 +247,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>  		bp_info = kmalloc(size, GFP_KERNEL);
+>  		if (!bp_info) {
+>  			ret = -ENOMEM;
+> -			goto error;
+> +			goto free_wp_info;
+>  		}
+>  	}
+> 
+> @@ -257,7 +257,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>  			ret = __import_wp_info(vcpu, &bp_data[i],
+>  					       &wp_info[nr_wp]);
+>  			if (ret)
+> -				goto error;
+> +				goto free_bp_info;
+>  			nr_wp++;
+>  			break;
+>  		case KVM_HW_BP:
+> @@ -273,10 +273,12 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>  	vcpu->arch.guestdbg.nr_hw_wp = nr_wp;
+>  	vcpu->arch.guestdbg.hw_wp_info = wp_info;
+>  	return 0;
+> -error:
+> -	kfree(bp_data);
+> -	kfree(wp_info);
+> +free_bp_info:
+>  	kfree(bp_info);
+> +free_wp_info:
+> +	kfree(wp_info);
+> +free_bp_data:
+> +	kfree(bp_data);
+>  	return ret;
+>  }
 
-I don't know :) but I'm interested in seeing the semantic patch!
+I agree with Cornelia, while it seems correct from a technical point of view, it will
+make the code harder to maintain. For example if we ever add a new malloc and remove 
+another one over time we would need to reshuffle the labels and this did went wrong
+several times in the past.
 
-Paolo
+Christian
