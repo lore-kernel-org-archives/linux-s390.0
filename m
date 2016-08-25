@@ -1,95 +1,65 @@
-From: Waiman Long <Waiman.Long@hpe.com>
-Subject: [RFC PATCH-tip v4 02/10] locking/rwsem: Stop active read lock ASAP
-Date: Thu, 18 Aug 2016 17:11:04 -0400
-Message-ID: <1471554672-38662-3-git-send-email-Waiman.Long@hpe.com>
-References: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>, Waiman Long <Waiman.Long@hpe.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/1] KVM: s390: don't use current->thread.fpu.* when accessing registers
+Date: Thu, 25 Aug 2016 17:53:57 +0200
+Message-ID: <1472140437-66482-2-git-send-email-borntraeger@de.ibm.com>
+References: <1472140437-66482-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1472140437-66482-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, stable@vger.kernel.org, #@tuxmaker.boeblingen.de.ibm.com, 4.7@tuxmaker.boeblingen.de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, when down_read() fails, the active read locking isn't undone
-until the rwsem_down_read_failed() function grabs the wait_lock. If the
-wait_lock is contended, it may takes a while to get the lock. During
-that period, writer lock stealing will be disabled because of the
-active read lock.
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-This patch will release the active read lock ASAP so that writer lock
-stealing can happen sooner. The only downside is when the reader is
-the first one in the wait queue as it has to issue another atomic
-operation to update the count.
+As the meaning of these variables and pointers seems to change more
+frequently, let's directly access our save area, instead of going via
+current->thread.
 
-On a 4-socket Haswell machine running on a 4.7-rc1 tip-based kernel,
-the fio test with multithreaded randrw and randwrite tests on the
-same file on a XFS partition on top of a NVDIMM with DAX were run,
-the aggregated bandwidths before and after the patch were as follows:
+Right now, this is broken for set/get_fpu. They simply overwrite the
+host registers, as the pointers to the current save area were turned
+into the static host save area.
 
-  Test      BW before patch     BW after patch  % change
-  ----      ---------------     --------------  --------
-  randrw        1210 MB/s          1352 MB/s      +12%
-  randwrite     1622 MB/s          1710 MB/s      +5.4%
-
-The write-only microbench also showed improvement because some read
-locking was done by the XFS code.
-
-Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
+Cc: stable@vger.kernel.org # 4.7
+Fixes: 3f6813b9a5e0 ("s390/fpu: allocate 'struct fpu' with the task_struct")
+Reported-by: Hao QingFeng <haoqf@linux.vnet.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- kernel/locking/rwsem-xadd.c |   21 +++++++++++++++------
- 1 files changed, 15 insertions(+), 6 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index 2337b4b..9309e72 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -222,21 +222,31 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
- __visible
- struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- {
--	long count, adjustment = -RWSEM_ACTIVE_READ_BIAS;
-+	long count, adjustment = 0;
- 	struct rwsem_waiter waiter;
- 	struct task_struct *tsk = current;
- 	WAKE_Q(wake_q);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index f142215..607ec91 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2231,9 +2231,10 @@ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+ 		return -EINVAL;
+ 	current->thread.fpu.fpc = fpu->fpc;
+ 	if (MACHINE_HAS_VX)
+-		convert_fp_to_vx(current->thread.fpu.vxrs, (freg_t *)fpu->fprs);
++		convert_fp_to_vx((__vector128 *) vcpu->run->s.regs.vrs,
++				 (freg_t *) fpu->fprs);
+ 	else
+-		memcpy(current->thread.fpu.fprs, &fpu->fprs, sizeof(fpu->fprs));
++		memcpy(vcpu->run->s.regs.fprs, &fpu->fprs, sizeof(fpu->fprs));
+ 	return 0;
+ }
  
-+	/*
-+	 * Undo read bias from down_read operation to stop active locking.
-+	 * Doing that after taking the wait_lock may block writer lock
-+	 * stealing for too long impacting system performance.
-+	 */
-+	atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
-+
- 	waiter.task = tsk;
- 	waiter.type = RWSEM_WAITING_FOR_READ;
- 
- 	raw_spin_lock_irq(&sem->wait_lock);
- 	if (list_empty(&sem->wait_list))
--		adjustment += RWSEM_WAITING_BIAS;
-+		adjustment = RWSEM_WAITING_BIAS;
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
--	/* we're now waiting on the lock, but no longer actively locking */
--	count = atomic_long_add_return(adjustment, &sem->count);
-+	/* we're now waiting on the lock */
-+	if (adjustment)
-+		count = atomic_long_add_return(adjustment, &sem->count);
-+	else
-+		count = atomic_long_read(&sem->count);
- 
- 	/*
- 	 * If there are no active locks, wake the front queued process(es).
-@@ -245,8 +255,7 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- 	 * wake our own waiter to join the existing active readers !
- 	 */
- 	if (count == RWSEM_WAITING_BIAS ||
--	    (count > RWSEM_WAITING_BIAS &&
--	     adjustment != -RWSEM_ACTIVE_READ_BIAS))
-+	    (count > RWSEM_WAITING_BIAS && adjustment))
- 		__rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
- 
- 	raw_spin_unlock_irq(&sem->wait_lock);
+@@ -2242,9 +2243,10 @@ int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+ 	/* make sure we have the latest values */
+ 	save_fpu_regs();
+ 	if (MACHINE_HAS_VX)
+-		convert_vx_to_fp((freg_t *)fpu->fprs, current->thread.fpu.vxrs);
++		convert_vx_to_fp((freg_t *) fpu->fprs,
++				 (__vector128 *) vcpu->run->s.regs.vrs);
+ 	else
+-		memcpy(fpu->fprs, current->thread.fpu.fprs, sizeof(fpu->fprs));
++		memcpy(fpu->fprs, vcpu->run->s.regs.fprs, sizeof(fpu->fprs));
+ 	fpu->fpc = current->thread.fpu.fpc;
+ 	return 0;
+ }
 -- 
-1.7.1
+2.5.5
