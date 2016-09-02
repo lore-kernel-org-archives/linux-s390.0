@@ -1,29 +1,34 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH RESEND net-next 13/15] smc: receive data from RMBE
-Date: Fri, 02 Sep 2016 10:59:33 -0700 (PDT)
-Message-ID: <20160902.105933.1696366729773029010.davem@davemloft.net>
-References: <653f839a-8098-da62-3437-8b002d929a50@linux.vnet.ibm.com>
-        <20160810.104556.1507709019319192063.davem@davemloft.net>
-        <7121effc-5f89-ac22-bbab-a8aedebae9fd@linux.vnet.ibm.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH] trivial treewide: Convert dev_set_uevent_suppress
+ argument to bool
+Date: Fri, 02 Sep 2016 09:49:29 -0700
+Message-ID: <1472834969.6758.52.camel@perches.com>
+References: <699402ce4c488995b4ddabff0f3b262851cf56ac.1472760613.git.joe@perches.com>
+         <BLUPR02MB1683CF8A399E613B8C209C3B81E50@BLUPR02MB1683.namprd02.prod.outlook.com>
+         <1472777516.4176.149.camel@perches.com>
+         <BLUPR02MB1683E6A75F29015CBCAD804D81E50@BLUPR02MB1683.namprd02.prod.outlook.com>
+         <1472830862.6758.7.camel@perches.com>
+         <7405780b-3dcd-3c6a-9268-3fac6f3a7b3f@sandisk.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <7121effc-5f89-ac22-bbab-a8aedebae9fd@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: ubraun@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <7405780b-3dcd-3c6a-9268-3fac6f3a7b3f@sandisk.com>
+Sender: linux-acpi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-acpi/>
+List-Post: <mailto:linux-acpi@vger.kernel.org>
+To: Bart Van Assche <bart.vanassche@sandisk.com>, Jens Axboe <axboe@kernel.dk>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Miklos Szeredi <miklos@szeredi.hu>, Jiri Kosina <trivial@kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Fri, 2 Sep 2016 15:05:01 +0200
+On Fri, 2016-09-02 at 08:59 -0700, Bart Van Assche wrote:
+> How about the following:
+>=20
+> dev_set_uevent_suppress() expects a boolean as second argument. Make=A0
+> this clear by passing true/false instead of 1/0 as the second
+> argument.
 
-> Understood, I wrongly used xchg() for atomicity. I now realize that I
-> would need cursor locking for 32-bit architectures - something I would
-> like to defer. Thus I would like to come up with V2 of SMC-R with
-> builds restricted to 64-bit architectures only, and thus no usage of
-> xchg() anymore.
+dev_set_uevent_suppress()=A0doesn't currently expect a boolean.
 
-Please don't restrict the driver build to 64-bit
+The patch changes the function definition argument from int to bool
+and also changes all callers of the function to true/false from 1/0.
