@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 14/17] s390/debug: Improve a size determination in
- debug_sprintf_format_fn()
+Subject: [PATCH 16/17] s390/debug: Improve determination of sizes in
+ debug_info_alloc()
 References: <566ABCD9.1060404@users.sourceforge.net>
  <e4359dc9-9e20-e33b-9743-9ebade853268@users.sourceforge.net>
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <40fd0234-45c3-6856-43b3-c7528a794e8e@users.sourceforge.net>
-Date: Sat, 3 Sep 2016 14:34:09 +0200
+Message-ID: <79188cdc-317f-7abd-d543-7d4935a3c41d@users.sourceforge.net>
+Date: Sat, 3 Sep 2016 14:38:11 +0200
 MIME-Version: 1.0
 In-Reply-To: <e4359dc9-9e20-e33b-9743-9ebade853268@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -18,29 +18,34 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia 
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Fri, 2 Sep 2016 14:32:08 +0200
+Date: Fri, 2 Sep 2016 14:39:00 +0200
 
-Replace a multiplication by a reference for a local array variable
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer.
+* Replace two multiplications by references for an array in a local
+  data structure as the parameter for the operator "sizeof" to make
+  the corresponding size determination a bit safer.
+
+* Improve source code layout for one function call.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- arch/s390/kernel/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/debug.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index 32ceb5e..6792a9c 100644
+index ff8e705..408a8da 100644
 --- a/arch/s390/kernel/debug.c
 +++ b/arch/s390/kernel/debug.c
-@@ -1486,7 +1486,7 @@ debug_sprintf_format_fn(debug_info_t * id, struct debug_view *view,
- 	/* number of arguments used for sprintf (without the format string) */
- 	num_used_args   = min(DEBUG_SPRINTF_MAX_ARGS, (num_longs - 1));
+@@ -269,9 +269,8 @@ debug_info_alloc(const char *name, int pages_per_area, int nr_areas,
+ 	rc->buf_size       = buf_size;
+ 	rc->entry_size     = sizeof(debug_entry_t) + buf_size;
+ 	strlcpy(rc->name, name, sizeof(rc->name));
+-	memset(rc->views, 0, DEBUG_MAX_VIEWS * sizeof(struct debug_view *));
+-	memset(rc->debugfs_entries, 0, DEBUG_MAX_VIEWS *
+-		sizeof(struct dentry*));
++	memset(rc->views, 0, sizeof(rc->views));
++	memset(rc->debugfs_entries, 0, sizeof(rc->debugfs_entries));
+ 	atomic_set(&(rc->ref_count), 0);
  
--	memset(index, 0, DEBUG_SPRINTF_MAX_ARGS * sizeof(int));
-+	memset(index, 0, sizeof(index));
- 
- 	for (i = 0; i < num_used_args; i++)
- 		index[i] = i;
+ 	return rc;
 -- 
 2.9.3
