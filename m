@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 16/17] s390/debug: Improve determination of sizes in
+Subject: [PATCH 17/17] s390/debug: Improve another size determination in
  debug_info_alloc()
 References: <566ABCD9.1060404@users.sourceforge.net>
  <e4359dc9-9e20-e33b-9743-9ebade853268@users.sourceforge.net>
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <79188cdc-317f-7abd-d543-7d4935a3c41d@users.sourceforge.net>
-Date: Sat, 3 Sep 2016 14:38:11 +0200
+Message-ID: <9bdb0620-4983-a3a3-c71c-54c698bc7d68@users.sourceforge.net>
+Date: Sat, 3 Sep 2016 14:40:08 +0200
 MIME-Version: 1.0
 In-Reply-To: <e4359dc9-9e20-e33b-9743-9ebade853268@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -18,34 +18,30 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia 
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Fri, 2 Sep 2016 14:39:00 +0200
+Date: Fri, 2 Sep 2016 14:41:02 +0200
 
-* Replace two multiplications by references for an array in a local
-  data structure as the parameter for the operator "sizeof" to make
-  the corresponding size determination a bit safer.
-
-* Improve source code layout for one function call.
+Replace the specification of a data type by a pointer dereference
+as the parameter for the operator "sizeof" to make the corresponding size
+determination a bit safer according to the Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- arch/s390/kernel/debug.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/s390/kernel/debug.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index ff8e705..408a8da 100644
+index 408a8da..ffc6af6 100644
 --- a/arch/s390/kernel/debug.c
 +++ b/arch/s390/kernel/debug.c
-@@ -269,9 +269,8 @@ debug_info_alloc(const char *name, int pages_per_area, int nr_areas,
- 	rc->buf_size       = buf_size;
- 	rc->entry_size     = sizeof(debug_entry_t) + buf_size;
- 	strlcpy(rc->name, name, sizeof(rc->name));
--	memset(rc->views, 0, DEBUG_MAX_VIEWS * sizeof(struct debug_view *));
--	memset(rc->debugfs_entries, 0, DEBUG_MAX_VIEWS *
--		sizeof(struct dentry*));
-+	memset(rc->views, 0, sizeof(rc->views));
-+	memset(rc->debugfs_entries, 0, sizeof(rc->debugfs_entries));
- 	atomic_set(&(rc->ref_count), 0);
+@@ -241,8 +241,7 @@ debug_info_alloc(const char *name, int pages_per_area, int nr_areas,
+ 	debug_info_t* rc;
  
- 	return rc;
+ 	/* alloc everything */
+-
+-	rc = kmalloc(sizeof(debug_info_t), GFP_KERNEL);
++	rc = kmalloc(sizeof(*rc), GFP_KERNEL);
+ 	if(!rc)
+ 		goto exit;
+ 	rc->active_entries = kcalloc(nr_areas, sizeof(int), GFP_KERNEL);
 -- 
 2.9.3
