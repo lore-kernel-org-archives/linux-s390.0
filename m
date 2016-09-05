@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] s390/cpum_cf: Use kmalloc_array() in merge_attr()
-Message-ID: <97bb5de4-f9c1-1e2c-cf39-3ecfee114d52@users.sourceforge.net>
-Date: Sat, 3 Sep 2016 15:27:42 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?Q?Hendrik_Br=c3=bcckner?= <brueckner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>, Paolo Bonzini <pbonzini@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [GIT PULL 1/1] KVM: s390: vsie: fix riccbd
+Date: Mon,  5 Sep 2016 14:07:03 +0200
+Message-ID: <20160905120703.9491-2-cornelia.huck@de.ibm.com>
+References: <20160905120703.9491-1-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20160905120703.9491-1-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 3 Sep 2016 15:17:45 +0200
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-* A multiplication for the size determination of a memory allocation
-  indicated that an array data structure should be processed.
-  Thus reuse the corresponding function "kmalloc_array".
+We store the address of riccbd at the wrong location, overwriting
+gvrd. This means that our nested guest will not be able to use runtime
+instrumentation. Also, a memory leak, if our KVM guest actually sets gvrd.
 
-* Replace the specification of a data type by a pointer dereference
-  to make the corresponding size determination a bit safer according to
-  the Linux coding style convention.
+Not noticed until now, as KVM guests never make use of gvrd and runtime
+instrumentation wasn't completely tested yet.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Reported-by: Fan Zhang <zhangfan@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kernel/perf_cpum_cf_events.c | 2 +-
+ arch/s390/kvm/vsie.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_cf_events.c b/arch/s390/kernel/perf_cpum_cf_events.c
-index 4554a4b..0d6340b 100644
---- a/arch/s390/kernel/perf_cpum_cf_events.c
-+++ b/arch/s390/kernel/perf_cpum_cf_events.c
-@@ -274,7 +274,7 @@ static __init struct attribute **merge_attr(struct attribute **a,
- 		j++;
- 	j++;
- 
--	new = kmalloc(sizeof(struct attribute *) * j, GFP_KERNEL);
-+	new = kmalloc_array(j, sizeof(*new), GFP_KERNEL);
- 	if (!new)
- 		return NULL;
- 	j = 0;
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index c106488..d8673e2 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -584,7 +584,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		/* Validity 0x0044 will be checked by SIE */
+ 		if (rc)
+ 			goto unpin;
+-		scb_s->gvrd = hpa;
++		scb_s->riccbd = hpa;
+ 	}
+ 	return 0;
+ unpin:
 -- 
 2.9.3
