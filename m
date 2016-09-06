@@ -1,39 +1,45 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [GIT PULL 0/1] KVM: s390: Fix for 4.8 (via kvm/master)
-Date: Mon,  5 Sep 2016 14:07:02 +0200
-Message-ID: <20160905120703.9491-1-cornelia.huck@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH][V2] s390/crypto: initialize ret to nbytes to avoid returning garbage value
+Date: Tue,  6 Sep 2016 08:25:13 +0100
+Message-ID: <20160906072513.7210-1-colin.king@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-crypto-owner@vger.kernel.org>
+Sender: linux-crypto-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-crypto/>
+List-Post: <mailto:linux-crypto@vger.kernel.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo, Radim,
+From: Colin Ian King <colin.king@canonical.com>
 
-The following changes since commit 20b8f9e2dde171c69da4a79c34fccdc2a8492797:
+Static analysis with cppcheck detected that ret is not initialized
+and hence garbage is potentially being returned in the case where
+prng_data->ppnows.reseed_counter <= prng_reseed_limit.
 
-  Merge tag 'kvm-s390-master-4.8-2' of git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux into kvm-master (2016-08-30 14:11:33 +0200)
+Thanks to Martin Schwidefsky for spotting a mistake in my original
+fix.
 
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-master-4.8-3
-
-for you to fetch changes up to 4d21cef3ea00ba3ac508eb61fb8db70e3e31df67:
-
-  KVM: s390: vsie: fix riccbd (2016-09-05 13:48:50 +0200)
-
-----------------------------------------------------------------
-A bugfix for the vsie code (setting the wrong field).
-
-----------------------------------------------------------------
-
-David Hildenbrand (1):
-  KVM: s390: vsie: fix riccbd
-
- arch/s390/kvm/vsie.c | 2 +-
+Fixes: 0177db01adf26cf9 ("s390/crypto: simplify return code handling")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ arch/s390/crypto/prng.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/arch/s390/crypto/prng.c b/arch/s390/crypto/prng.c
+index 79e3a1f..5592df9 100644
+--- a/arch/s390/crypto/prng.c
++++ b/arch/s390/crypto/prng.c
+@@ -412,7 +412,7 @@ static int prng_sha512_reseed(void)
+ 
+ static int prng_sha512_generate(u8 *buf, size_t nbytes)
+ {
+-	int ret;
++	int ret = nbytes;
+ 
+ 	/* reseed needed ? */
+ 	if (prng_data->ppnows.reseed_counter > prng_reseed_limit) {
 -- 
 2.9.3
