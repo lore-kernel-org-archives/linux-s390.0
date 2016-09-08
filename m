@@ -1,55 +1,157 @@
-From: Bart Van Assche <bart.vanassche@sandisk.com>
-Subject: Re: [PATCH] trivial treewide: Convert dev_set_uevent_suppress
- argument to bool
-Date: Fri, 2 Sep 2016 08:59:47 -0700
-Message-ID: <7405780b-3dcd-3c6a-9268-3fac6f3a7b3f@sandisk.com>
-References: <699402ce4c488995b4ddabff0f3b262851cf56ac.1472760613.git.joe@perches.com>
- <BLUPR02MB1683CF8A399E613B8C209C3B81E50@BLUPR02MB1683.namprd02.prod.outlook.com>
- <1472777516.4176.149.camel@perches.com>
- <BLUPR02MB1683E6A75F29015CBCAD804D81E50@BLUPR02MB1683.namprd02.prod.outlook.com>
- <1472830862.6758.7.camel@perches.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <1472830862.6758.7.camel@perches.com>
-Sender: linux-block-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Joe Perches <joe@perches.com>, Jens Axboe <axboe@kernel.dk>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Miklos Szeredi <miklos@szeredi.hu>, Jiri Kosina <trivial@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 09/11] KVM: s390: allow 255 VCPUs when sca entries aren't used
+Date: Thu,  8 Sep 2016 14:00:21 +0200
+Message-ID: <1473336023-15522-10-git-send-email-borntraeger@de.ibm.com>
+References: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/02/2016 08:41 AM, Joe Perches wrote:
-> On Fri, 2016-09-02 at 13:41 +0000, Bart Van Assche wrote:
->> On 09/01/16 17:51, Joe Perches wrote:
->>> On Fri, 2016-09-02 at 00:47 +0000, Bart Van Assche wrote:
->>>> On 09/01/16 13:11, Joe Perches wrote:
->>>>> Assigning an int to a bitfield:1 can lose precision.
->>>>> Change the caller argument uses from 1/0 to true/false.
->>>> Can you clarify how assigning 0 or 1 to a one-bit bitfield can cause a
->>>> loss of precision?
->>> There are no existing defects.
->>> Using 1/0 is not a loss of precision, it's just
->>> changing to use bool avoids potential errors and
->>> promotes consistency.
->>> Other uses of this function already use true/false.
->> In the patch description you refer to loss of precision. However, your
->> patch does not address any loss of precision issues. So I think that the
->> patch description is misleading and could be made more clear.
->
-> I tend towards terse being better than verbose.
-> The original patch description says
->
-> "no change to objects"
->
-> What would you suggest?
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Hello Joe,
+If the SCA entries aren't used by the hardware (no SIGPIF), we
+can simply not set the entries, stick to the basic sca and allow more
+than 64 VCPUs.
 
-How about the following:
+To hinder any other facility from using these entries, let's properly
+provoke intercepts by not setting the MCN and keeping the entries
+unset.
 
-dev_set_uevent_suppress() expects a boolean as second argument. Make 
-this clear by passing true/false instead of 1/0 as the second argument.
+This effectively allows when running KVM under KVM (vSIE) or under z/VM to
+provide more than 64 VCPUs to a guest. Let's limit it to 255 for now, to
+not run into problems if the CPU numbers are limited somewhere else.
 
-Bart.
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h |  2 +-
+ arch/s390/kvm/interrupt.c        |  4 ++++
+ arch/s390/kvm/kvm-s390.c         | 18 +++++++++++++++++-
+ arch/s390/kvm/kvm-s390.h         | 10 ++++++++++
+ 4 files changed, 32 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 8e5daf7..876173c 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -28,7 +28,7 @@
+ 
+ #define KVM_S390_BSCA_CPU_SLOTS 64
+ #define KVM_S390_ESCA_CPU_SLOTS 248
+-#define KVM_MAX_VCPUS KVM_S390_ESCA_CPU_SLOTS
++#define KVM_MAX_VCPUS 255
+ #define KVM_USER_MEM_SLOTS 32
+ 
+ /*
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 353e0b7..be4db07 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -42,6 +42,7 @@ static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
+ 	if (!(atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_ECALL_PEND))
+ 		return 0;
+ 
++	BUG_ON(!kvm_s390_use_sca_entries());
+ 	read_lock(&vcpu->kvm->arch.sca_lock);
+ 	if (vcpu->kvm->arch.use_esca) {
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+@@ -70,6 +71,7 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+ {
+ 	int expect, rc;
+ 
++	BUG_ON(!kvm_s390_use_sca_entries());
+ 	read_lock(&vcpu->kvm->arch.sca_lock);
+ 	if (vcpu->kvm->arch.use_esca) {
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+@@ -111,6 +113,8 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	int rc, expect;
+ 
++	if (!kvm_s390_use_sca_entries())
++		return;
+ 	atomic_andnot(CPUSTAT_ECALL_PEND, li->cpuflags);
+ 	read_lock(&vcpu->kvm->arch.sca_lock);
+ 	if (vcpu->kvm->arch.use_esca) {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 892abf4..3a628eb 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -376,7 +376,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_NR_VCPUS:
+ 	case KVM_CAP_MAX_VCPUS:
+ 		r = KVM_S390_BSCA_CPU_SLOTS;
+-		if (sclp.has_esca && sclp.has_64bscao)
++		if (!kvm_s390_use_sca_entries())
++			r = KVM_MAX_VCPUS;
++		else if (sclp.has_esca && sclp.has_64bscao)
+ 			r = KVM_S390_ESCA_CPU_SLOTS;
+ 		break;
+ 	case KVM_CAP_NR_MEMSLOTS:
+@@ -1553,6 +1555,8 @@ static int __kvm_ucontrol_vcpu_init(struct kvm_vcpu *vcpu)
+ 
+ static void sca_del_vcpu(struct kvm_vcpu *vcpu)
+ {
++	if (!kvm_s390_use_sca_entries())
++		return;
+ 	read_lock(&vcpu->kvm->arch.sca_lock);
+ 	if (vcpu->kvm->arch.use_esca) {
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+@@ -1570,6 +1574,13 @@ static void sca_del_vcpu(struct kvm_vcpu *vcpu)
+ 
+ static void sca_add_vcpu(struct kvm_vcpu *vcpu)
+ {
++	if (!kvm_s390_use_sca_entries()) {
++		struct bsca_block *sca = vcpu->kvm->arch.sca;
++
++		/* we still need the basic sca for the ipte control */
++		vcpu->arch.sie_block->scaoh = (__u32)(((__u64)sca) >> 32);
++		vcpu->arch.sie_block->scaol = (__u32)(__u64)sca;
++	}
+ 	read_lock(&vcpu->kvm->arch.sca_lock);
+ 	if (vcpu->kvm->arch.use_esca) {
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+@@ -1650,6 +1661,11 @@ static int sca_can_add_vcpu(struct kvm *kvm, unsigned int id)
+ {
+ 	int rc;
+ 
++	if (!kvm_s390_use_sca_entries()) {
++		if (id < KVM_MAX_VCPUS)
++			return true;
++		return false;
++	}
+ 	if (id < KVM_S390_BSCA_CPU_SLOTS)
+ 		return true;
+ 	if (!sclp.has_esca || !sclp.has_64bscao)
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 9995cab..3a4e97f 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -20,6 +20,7 @@
+ #include <linux/kvm_host.h>
+ #include <asm/facility.h>
+ #include <asm/processor.h>
++#include <asm/sclp.h>
+ 
+ typedef int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
+ 
+@@ -387,4 +388,13 @@ static inline union ipte_control *kvm_s390_get_ipte_control(struct kvm *kvm)
+ 
+ 	return &sca->ipte_control;
+ }
++static inline int kvm_s390_use_sca_entries(void)
++{
++	/*
++	 * Without SIGP interpretation, only SRS interpretation (if available)
++	 * might use the entries. By not setting the entries and keeping them
++	 * invalid, hardware will not access them but intercept.
++	 */
++	return sclp.has_sigpif;
++}
+ #endif
+-- 
+2.5.5
