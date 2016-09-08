@@ -1,107 +1,76 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 06/11] KVM: s390: guestdbg: separate defines for per code
-Date: Thu,  8 Sep 2016 14:00:18 +0200
-Message-ID: <1473336023-15522-7-git-send-email-borntraeger@de.ibm.com>
-References: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 00/11] KVM: s390: features and fixes for 4.9 (via kvm/next)
+Date: Thu,  8 Sep 2016 14:00:12 +0200
+Message-ID: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Paolo, Radim,
 
-Let's avoid working with the PER_EVENT* defines, used for control register
-manipulation, when checking the u8 PER code. Introduce separate defines
-based on the existing defines.
+here are the features and fixes for s390 KVM for 4.9.
+It is based on 4.8-rc3 and it contains a merge of 
+topic branch (that is also merged in Martin Schwidefsky
+feature branch) to avoid potential merge conflicts as
+this file touches code outside */kvm/*.
 
-Reviewed-by: Eric Farman <farman@linux.vnet.ibm.com>
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/guestdbg.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+The following changes since commit fa8410b355251fd30341662a40ac6b22d3e38468:
 
-diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index 31a0533..d1f8241 100644
---- a/arch/s390/kvm/guestdbg.c
-+++ b/arch/s390/kvm/guestdbg.c
-@@ -382,14 +382,20 @@ void kvm_s390_prepare_debug_exit(struct kvm_vcpu *vcpu)
- 	vcpu->guest_debug &= ~KVM_GUESTDBG_EXIT_PENDING;
- }
- 
-+#define PER_CODE_MASK		(PER_EVENT_MASK >> 24)
-+#define PER_CODE_BRANCH		(PER_EVENT_BRANCH >> 24)
-+#define PER_CODE_IFETCH		(PER_EVENT_IFETCH >> 24)
-+#define PER_CODE_STORE		(PER_EVENT_STORE >> 24)
-+#define PER_CODE_STORE_REAL	(PER_EVENT_STORE_REAL >> 24)
-+
- #define per_bp_event(code) \
--			(code & (PER_EVENT_IFETCH | PER_EVENT_BRANCH))
-+			(code & (PER_CODE_IFETCH | PER_CODE_BRANCH))
- #define per_write_wp_event(code) \
--			(code & (PER_EVENT_STORE | PER_EVENT_STORE_REAL))
-+			(code & (PER_CODE_STORE | PER_CODE_STORE_REAL))
- 
- static int debug_exit_required(struct kvm_vcpu *vcpu)
- {
--	u32 perc = (vcpu->arch.sie_block->perc << 24);
-+	u8 perc = vcpu->arch.sie_block->perc;
- 	struct kvm_debug_exit_arch *debug_exit = &vcpu->run->debug.arch;
- 	struct kvm_hw_wp_info_arch *wp_info = NULL;
- 	struct kvm_hw_bp_info_arch *bp_info = NULL;
-@@ -444,7 +450,7 @@ int kvm_s390_handle_per_ifetch_icpt(struct kvm_vcpu *vcpu)
- 	const u8 ilen = kvm_s390_get_ilen(vcpu);
- 	struct kvm_s390_pgm_info pgm_info = {
- 		.code = PGM_PER,
--		.per_code = PER_EVENT_IFETCH >> 24,
-+		.per_code = PER_CODE_IFETCH,
- 		.per_address = __rewind_psw(vcpu->arch.sie_block->gpsw, ilen),
- 	};
- 
-@@ -458,33 +464,33 @@ int kvm_s390_handle_per_ifetch_icpt(struct kvm_vcpu *vcpu)
- 
- static void filter_guest_per_event(struct kvm_vcpu *vcpu)
- {
--	u32 perc = vcpu->arch.sie_block->perc << 24;
-+	const u8 perc = vcpu->arch.sie_block->perc;
- 	u64 peraddr = vcpu->arch.sie_block->peraddr;
- 	u64 addr = vcpu->arch.sie_block->gpsw.addr;
- 	u64 cr9 = vcpu->arch.sie_block->gcr[9];
- 	u64 cr10 = vcpu->arch.sie_block->gcr[10];
- 	u64 cr11 = vcpu->arch.sie_block->gcr[11];
- 	/* filter all events, demanded by the guest */
--	u32 guest_perc = perc & cr9 & PER_EVENT_MASK;
-+	u8 guest_perc = perc & (cr9 >> 24) & PER_CODE_MASK;
- 
- 	if (!guest_per_enabled(vcpu))
- 		guest_perc = 0;
- 
- 	/* filter "successful-branching" events */
--	if (guest_perc & PER_EVENT_BRANCH &&
-+	if (guest_perc & PER_CODE_BRANCH &&
- 	    cr9 & PER_CONTROL_BRANCH_ADDRESS &&
- 	    !in_addr_range(addr, cr10, cr11))
--		guest_perc &= ~PER_EVENT_BRANCH;
-+		guest_perc &= ~PER_CODE_BRANCH;
- 
- 	/* filter "instruction-fetching" events */
--	if (guest_perc & PER_EVENT_IFETCH &&
-+	if (guest_perc & PER_CODE_IFETCH &&
- 	    !in_addr_range(peraddr, cr10, cr11))
--		guest_perc &= ~PER_EVENT_IFETCH;
-+		guest_perc &= ~PER_CODE_IFETCH;
- 
- 	/* All other PER events will be given to the guest */
- 	/* TODO: Check altered address/address space */
- 
--	vcpu->arch.sie_block->perc = guest_perc >> 24;
-+	vcpu->arch.sie_block->perc = guest_perc;
- 
- 	if (!guest_perc)
- 		vcpu->arch.sie_block->iprcc &= ~PGM_PER;
--- 
-2.5.5
+  Linux 4.8-rc3 (2016-08-21 16:14:10 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.9-1
+
+for you to fetch changes up to b0eb91ae630a4f2771790e306bb4df323127a397:
+
+  Merge remote-tracking branch 'kvms390/s390forkvm' into kvms390next (2016-09-08 13:41:08 +0200)
+
+----------------------------------------------------------------
+KVM: s390: features and fixes for 4.9
+
+- lazy enablement of runtime instrumentation
+- up to 255 CPUs for nested guests
+- rework of machine check deliver
+- cleanups/fixes
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      Merge remote-tracking branch 'kvms390/s390forkvm' into kvms390next
+
+David Hildenbrand (6):
+      KVM: s390: factor out actual delivery of machine checks
+      KVM: s390: split store status and machine check handling
+      KVM: s390: fix delivery of vector regs during machine checks
+      KVM: s390: write external damage code on machine checks
+      KVM: s390: guestdbg: separate defines for per code
+      KVM: s390: allow 255 VCPUs when sca entries aren't used
+
+Fan Zhang (1):
+      KVM: s390: lazy enable RI
+
+Heiko Carstens (1):
+      KVM: s390: generate facility mask from readable list
+
+Janosch Frank (1):
+      KVM: s390: gaccess: simplify translation exception handling
+
+Markus Elfring (2):
+      KVM: s390: Improve determination of sizes in kvm_s390_import_bp_data()
+      KVM: s390: Use memdup_user() rather than duplicating code
+
+ arch/s390/include/asm/facilities_src.h | 24 +++++++++
+ arch/s390/include/asm/kvm_host.h       |  2 +-
+ arch/s390/kernel/asm-offsets.c         |  1 +
+ arch/s390/kvm/gaccess.c                | 37 +++++++------
+ arch/s390/kvm/guestdbg.c               | 59 ++++++++++----------
+ arch/s390/kvm/intercept.c              |  1 +
+ arch/s390/kvm/interrupt.c              | 98 ++++++++++++++++++++++++++--------
+ arch/s390/kvm/kvm-s390.c               | 70 +++++++++++-------------
+ arch/s390/kvm/kvm-s390.h               | 14 +++--
+ arch/s390/kvm/priv.c                   | 21 ++++++++
+ 10 files changed, 213 insertions(+), 114 deletions(-)
