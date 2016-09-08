@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 07/11] KVM: s390: gaccess: simplify translation exception handling
-Date: Thu,  8 Sep 2016 14:00:19 +0200
-Message-ID: <1473336023-15522-8-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 04/11] KVM: s390: fix delivery of vector regs during machine checks
+Date: Thu,  8 Sep 2016 14:00:16 +0200
+Message-ID: <1473336023-15522-5-git-send-email-borntraeger@de.ibm.com>
 References: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,85 +9,139 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-The payload data for protection exceptions is a superset of the
-payload of other translation exceptions. Let's set the additional
-flags and use a fall through to minimize code duplication.
+Vector registers are only to be stored if the facility is available
+and if the guest has set up the machine check extended save area.
 
-Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+If anything goes wrong while writing the vector registers, the vector
+registers are to be marked as invalid. Please note that we are allowed
+to write the registers although they are marked as invalid.
+
+Machine checks and "store status" SIGP orders are two different concepts,
+let's correctly separate these. As the SIGP part is completely handled in
+user space, we can drop it.
+
+This patch is based on a patch from Cornelia Huck.
+
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 37 ++++++++++++++++++-------------------
- 1 file changed, 18 insertions(+), 19 deletions(-)
+ arch/s390/kvm/interrupt.c | 15 +++++++++++++--
+ arch/s390/kvm/kvm-s390.c  | 32 --------------------------------
+ arch/s390/kvm/kvm-s390.h  |  3 ---
+ 3 files changed, 13 insertions(+), 37 deletions(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 5420020..4aa8a7e 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -495,6 +495,18 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
- 	tec = (struct trans_exc_code_bits *)&pgm->trans_exc_code;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 84d6dc6..c0ef625 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -25,6 +25,7 @@
+ #include <asm/isc.h>
+ #include <asm/gmap.h>
+ #include <asm/switch_to.h>
++#include <asm/nmi.h>
+ #include "kvm-s390.h"
+ #include "gaccess.h"
+ #include "trace-s390.h"
+@@ -406,8 +407,10 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
+ {
+ 	unsigned long ext_sa_addr;
+ 	freg_t fprs[NUM_FPRS];
++	union mci mci;
+ 	int rc;
  
- 	switch (code) {
-+	case PGM_PROTECTION:
-+		switch (prot) {
-+		case PROT_TYPE_ALC:
-+			tec->b60 = 1;
-+			/* FALL THROUGH */
-+		case PROT_TYPE_DAT:
-+			tec->b61 = 1;
-+			break;
-+		default: /* LA and KEYC set b61 to 0, other params undefined */
-+			return code;
-+		}
-+		/* FALL THROUGH */
- 	case PGM_ASCE_TYPE:
- 	case PGM_PAGE_TRANSLATION:
- 	case PGM_REGION_FIRST_TRANS:
-@@ -504,8 +516,7 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
- 		/*
- 		 * op_access_id only applies to MOVE_PAGE -> set bit 61
- 		 * exc_access_id has to be set to 0 for some instructions. Both
--		 * cases have to be handled by the caller. We can always store
--		 * exc_access_id, as it is undefined for non-ar cases.
-+		 * cases have to be handled by the caller.
- 		 */
- 		tec->addr = gva >> PAGE_SHIFT;
- 		tec->fsi = mode == GACC_STORE ? FSI_STORE : FSI_FETCH;
-@@ -516,25 +527,13 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
- 	case PGM_ASTE_VALIDITY:
- 	case PGM_ASTE_SEQUENCE:
- 	case PGM_EXTENDED_AUTHORITY:
-+		/*
-+		 * We can always store exc_access_id, as it is
-+		 * undefined for non-ar cases. It is undefined for
-+		 * most DAT protection exceptions.
-+		 */
- 		pgm->exc_access_id = ar;
- 		break;
--	case PGM_PROTECTION:
--		switch (prot) {
--		case PROT_TYPE_ALC:
--			tec->b60 = 1;
--			/* FALL THROUGH */
--		case PROT_TYPE_DAT:
--			tec->b61 = 1;
--			tec->addr = gva >> PAGE_SHIFT;
--			tec->fsi = mode == GACC_STORE ? FSI_STORE : FSI_FETCH;
--			tec->as = psw_bits(vcpu->arch.sie_block->gpsw).as;
--			/* exc_access_id is undefined for most cases */
--			pgm->exc_access_id = ar;
--			break;
--		default: /* LA and KEYC set b61 to 0, other params undefined */
--			break;
--		}
--		break;
- 	}
- 	return code;
++	mci.val = mchk->mcic;
+ 	/* take care of lazy register loading via vcpu load/put */
+ 	save_fpu_regs();
+ 	save_access_regs(vcpu->run->s.regs.acrs);
+@@ -415,7 +418,15 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
+ 	/* Extended save area */
+ 	rc = read_guest_lc(vcpu, __LC_VX_SAVE_AREA_ADDR, &ext_sa_addr,
+ 			    sizeof(unsigned long));
+-	rc |= kvm_s390_vcpu_store_adtl_status(vcpu, ext_sa_addr);
++	/* Only bits 0-53 are used for address formation */
++	ext_sa_addr &= ~0x3ffUL;
++	if (!rc && mci.vr && ext_sa_addr && test_kvm_facility(vcpu->kvm, 129)) {
++		if (write_guest_abs(vcpu, ext_sa_addr, vcpu->run->s.regs.vrs,
++				    512))
++			mci.vr = 0;
++	} else {
++		mci.vr = 0;
++	}
+ 
+ 	/* General interruption information */
+ 	rc |= put_guest_lc(vcpu, 1, (u8 __user *) __LC_AR_MODE_ID);
+@@ -423,7 +434,7 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
+ 			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+ 	rc |= read_guest_lc(vcpu, __LC_MCK_NEW_PSW,
+ 			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-	rc |= put_guest_lc(vcpu, mchk->mcic, (u64 __user *) __LC_MCCK_CODE);
++	rc |= put_guest_lc(vcpu, mci.val, (u64 __user *) __LC_MCCK_CODE);
+ 
+ 	/* Register-save areas */
+ 	if (MACHINE_HAS_VX) {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index f142215..dead20a 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2837,38 +2837,6 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
+ 	return kvm_s390_store_status_unloaded(vcpu, addr);
  }
+ 
+-/*
+- * store additional status at address
+- */
+-int kvm_s390_store_adtl_status_unloaded(struct kvm_vcpu *vcpu,
+-					unsigned long gpa)
+-{
+-	/* Only bits 0-53 are used for address formation */
+-	if (!(gpa & ~0x3ff))
+-		return 0;
+-
+-	return write_guest_abs(vcpu, gpa & ~0x3ff,
+-			       (void *)&vcpu->run->s.regs.vrs, 512);
+-}
+-
+-int kvm_s390_vcpu_store_adtl_status(struct kvm_vcpu *vcpu, unsigned long addr)
+-{
+-	if (!test_kvm_facility(vcpu->kvm, 129))
+-		return 0;
+-
+-	/*
+-	 * The guest VXRS are in the host VXRs due to the lazy
+-	 * copying in vcpu load/put. We can simply call save_fpu_regs()
+-	 * to save the current register state because we are in the
+-	 * middle of a load/put cycle.
+-	 *
+-	 * Let's update our copies before we save it into the save area.
+-	 */
+-	save_fpu_regs();
+-
+-	return kvm_s390_store_adtl_status_unloaded(vcpu, addr);
+-}
+-
+ static void __disable_ibs_on_vcpu(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_check_request(KVM_REQ_ENABLE_IBS, vcpu);
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index b843286..c3d4f16 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -273,10 +273,7 @@ int handle_sthyi(struct kvm_vcpu *vcpu);
+ void kvm_s390_set_tod_clock(struct kvm *kvm, u64 tod);
+ long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
+ int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
+-int kvm_s390_store_adtl_status_unloaded(struct kvm_vcpu *vcpu,
+-					unsigned long addr);
+ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
+-int kvm_s390_vcpu_store_adtl_status(struct kvm_vcpu *vcpu, unsigned long addr);
+ void kvm_s390_vcpu_start(struct kvm_vcpu *vcpu);
+ void kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu);
+ void kvm_s390_vcpu_block(struct kvm_vcpu *vcpu);
 -- 
 2.5.5
