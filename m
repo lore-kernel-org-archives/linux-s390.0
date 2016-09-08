@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 01/11] KVM: s390: generate facility mask from readable list
-Date: Thu,  8 Sep 2016 14:00:13 +0200
-Message-ID: <1473336023-15522-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 05/11] KVM: s390: write external damage code on machine checks
+Date: Thu,  8 Sep 2016 14:00:17 +0200
+Message-ID: <1473336023-15522-6-git-send-email-borntraeger@de.ibm.com>
 References: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1473336023-15522-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,71 +9,46 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Automatically generate the KVM facility mask out of a readable list.
-Manually changing the masks is very error prone, especially if the
-special IBM bit numbering has to be considered.
+Let's also write the external damage code already provided by
+struct kvm_s390_mchk_info.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/facilities_src.h | 24 ++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.c               |  5 +----
- 2 files changed, 25 insertions(+), 4 deletions(-)
+ arch/s390/kernel/asm-offsets.c | 1 +
+ arch/s390/kvm/interrupt.c      | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/s390/include/asm/facilities_src.h b/arch/s390/include/asm/facilities_src.h
-index 4917728..3b758f6 100644
---- a/arch/s390/include/asm/facilities_src.h
-+++ b/arch/s390/include/asm/facilities_src.h
-@@ -55,4 +55,28 @@ static struct facility_def facility_defs[] = {
- 			-1 /* END */
- 		}
- 	},
-+	{
-+		.name = "FACILITIES_KVM",
-+		.bits = (int[]){
-+			0,  /* N3 instructions */
-+			1,  /* z/Arch mode installed */
-+			2,  /* z/Arch mode active */
-+			3,  /* DAT-enhancement */
-+			4,  /* idte segment table */
-+			5,  /* idte region table */
-+			6,  /* ASN-and-LX reuse */
-+			7,  /* stfle */
-+			8,  /* enhanced-DAT 1 */
-+			9,  /* sense-running-status */
-+			10, /* conditional sske */
-+			13, /* ipte-range */
-+			14, /* nonquiescing key-setting */
-+			73, /* transactional execution */
-+			75, /* access-exception-fetch/store indication */
-+			76, /* msa extension 3 */
-+			77, /* msa extension 4 */
-+			78, /* enhanced-DAT 2 */
-+			-1  /* END */
-+		}
-+	},
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3f3ae48..4f484e0 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -132,10 +132,7 @@ module_param(nested, int, S_IRUGO);
- MODULE_PARM_DESC(nested, "Nested virtualization support");
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index 1f95cc1..f3df9e0 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -125,6 +125,7 @@ int main(void)
+ 	OFFSET(__LC_STFL_FAC_LIST, lowcore, stfl_fac_list);
+ 	OFFSET(__LC_STFLE_FAC_LIST, lowcore, stfle_fac_list);
+ 	OFFSET(__LC_MCCK_CODE, lowcore, mcck_interruption_code);
++	OFFSET(__LC_EXT_DAMAGE_CODE, lowcore, external_damage_code);
+ 	OFFSET(__LC_MCCK_FAIL_STOR_ADDR, lowcore, failing_storage_address);
+ 	OFFSET(__LC_LAST_BREAK, lowcore, breaking_event_addr);
+ 	OFFSET(__LC_RST_OLD_PSW, lowcore, restart_old_psw);
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index c0ef625..353e0b7 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -460,6 +460,8 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
+ 			     &vcpu->arch.sie_block->gcr, 128);
  
- /* upper facilities limit for kvm */
--unsigned long kvm_s390_fac_list_mask[16] = {
--	0xffe6000000000000UL,
--	0x005e000000000000UL,
--};
-+unsigned long kvm_s390_fac_list_mask[16] = { FACILITIES_KVM };
- 
- unsigned long kvm_s390_fac_list_mask_size(void)
- {
+ 	/* Extended interruption information */
++	rc |= put_guest_lc(vcpu, mchk->ext_damage_code,
++			   (u32 __user *) __LC_EXT_DAMAGE_CODE);
+ 	rc |= put_guest_lc(vcpu, mchk->failing_storage_address,
+ 			   (u64 __user *) __LC_MCCK_FAIL_STOR_ADDR);
+ 	rc |= write_guest_lc(vcpu, __LC_PSW_SAVE_AREA, &mchk->fixed_logout,
 -- 
 2.5.5
