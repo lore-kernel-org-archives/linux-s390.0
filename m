@@ -1,46 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 20 Sep 2016 14:27:53 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] s390: migrate exception table users off module.h and
- onto extable.h
-In-Reply-To: <20160919215456.5453-1-paul.gortmaker@windriver.com>
-References: <20160919215456.5453-1-paul.gortmaker@windriver.com>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH] s390: migrate exception table users off module.h and onto extable.h
+Date: Mon, 19 Sep 2016 17:54:56 -0400
+Message-ID: <20160919215456.5453-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20160920142753.374604c1@mschwide>
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 19 Sep 2016 17:54:56 -0400
-Paul Gortmaker <paul.gortmaker@windriver.com> wrote:
+These files were only including module.h for exception table
+related functions.  We've now separated that content out into its
+own file "extable.h" so now move over to that and avoid all the
+extra header content in module.h that we don't really need to compile
+these files.
 
-> These files were only including module.h for exception table
-> related functions.  We've now separated that content out into its
-> own file "extable.h" so now move over to that and avoid all the
-> extra header content in module.h that we don't really need to compile
-> these files.
-> 
-> The additions of uaccess.h are to deal with implict includes like:
-> 
-> arch/s390/kernel/traps.c: In function 'do_report_trap':
-> arch/s390/kernel/traps.c:56:4: error: implicit declaration of function 'extable_fixup' [-Werror=implicit-function-declaration]
-> arch/s390/kernel/traps.c: In function 'illegal_op':
-> arch/s390/kernel/traps.c:173:3: error: implicit declaration of function 'get_user' [-Werror=implicit-function-declaration]
-> 
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+The additions of uaccess.h are to deal with implict includes like:
 
-Added to the linux-s390 tree for the next merge window. Thanks.
+arch/s390/kernel/traps.c: In function 'do_report_trap':
+arch/s390/kernel/traps.c:56:4: error: implicit declaration of function 'extable_fixup' [-Werror=implicit-function-declaration]
+arch/s390/kernel/traps.c: In function 'illegal_op':
+arch/s390/kernel/traps.c:173:3: error: implicit declaration of function 'get_user' [-Werror=implicit-function-declaration]
 
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+---
+
+[see: https://lkml.org/lkml/2016/7/24/224 for additional context if needed]
+
+ arch/s390/kernel/early.c   | 2 +-
+ arch/s390/kernel/kprobes.c | 2 ++
+ arch/s390/kernel/traps.c   | 3 ++-
+ arch/s390/mm/fault.c       | 2 +-
+ 4 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 717b03aa16b5..2374c5b46bbc 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -13,7 +13,7 @@
+ #include <linux/string.h>
+ #include <linux/ctype.h>
+ #include <linux/lockdep.h>
+-#include <linux/module.h>
++#include <linux/extable.h>
+ #include <linux/pfn.h>
+ #include <linux/uaccess.h>
+ #include <linux/kernel.h>
+diff --git a/arch/s390/kernel/kprobes.c b/arch/s390/kernel/kprobes.c
+index 250f5972536a..4871c7c3ccde 100644
+--- a/arch/s390/kernel/kprobes.c
++++ b/arch/s390/kernel/kprobes.c
+@@ -26,12 +26,14 @@
+ #include <linux/stop_machine.h>
+ #include <linux/kdebug.h>
+ #include <linux/uaccess.h>
++#include <linux/extable.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/hardirq.h>
+ #include <linux/ftrace.h>
+ #include <asm/cacheflush.h>
+ #include <asm/sections.h>
++#include <asm/uaccess.h>
+ #include <asm/dis.h>
+ 
+ DEFINE_PER_CPU(struct kprobe *, current_kprobe);
+diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
+index dd97a3e8a34a..d0539f76fd24 100644
+--- a/arch/s390/kernel/traps.c
++++ b/arch/s390/kernel/traps.c
+@@ -14,11 +14,12 @@
+  */
+ #include <linux/kprobes.h>
+ #include <linux/kdebug.h>
+-#include <linux/module.h>
++#include <linux/extable.h>
+ #include <linux/ptrace.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
++#include <asm/uaccess.h>
+ #include <asm/fpu/api.h>
+ #include "entry.h"
+ 
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index a58bca62a93b..cca73881e672 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -24,7 +24,7 @@
+ #include <linux/kdebug.h>
+ #include <linux/init.h>
+ #include <linux/console.h>
+-#include <linux/module.h>
++#include <linux/extable.h>
+ #include <linux/hardirq.h>
+ #include <linux/kprobes.h>
+ #include <linux/uaccess.h>
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.8.4
