@@ -1,49 +1,46 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 2/7] s390/qeth: use ip_lock for hsuid configuration
-Date: Thu, 15 Sep 2016 14:39:22 +0200
-Message-ID: <20160915123927.86579-3-ubraun@linux.vnet.ibm.com>
-References: <20160915123927.86579-1-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20160915123927.86579-1-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ubraun@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 20 Sep 2016 14:27:53 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390: migrate exception table users off module.h and
+ onto extable.h
+In-Reply-To: <20160919215456.5453-1-paul.gortmaker@windriver.com>
+References: <20160919215456.5453-1-paul.gortmaker@windriver.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20160920142753.374604c1@mschwide>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-qeth_l3_dev_hsuid_store() changes the ip hash table, which
-requires the ip_lock.
+On Mon, 19 Sep 2016 17:54:56 -0400
+Paul Gortmaker <paul.gortmaker@windriver.com> wrote:
 
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- drivers/s390/net/qeth_l3_sys.c | 5 +++++
- 1 file changed, 5 insertions(+)
+> These files were only including module.h for exception table
+> related functions.  We've now separated that content out into its
+> own file "extable.h" so now move over to that and avoid all the
+> extra header content in module.h that we don't really need to compile
+> these files.
+> 
+> The additions of uaccess.h are to deal with implict includes like:
+> 
+> arch/s390/kernel/traps.c: In function 'do_report_trap':
+> arch/s390/kernel/traps.c:56:4: error: implicit declaration of function 'extable_fixup' [-Werror=implicit-function-declaration]
+> arch/s390/kernel/traps.c: In function 'illegal_op':
+> arch/s390/kernel/traps.c:173:3: error: implicit declaration of function 'get_user' [-Werror=implicit-function-declaration]
+> 
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index 65645b1..0e00a5c 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -297,7 +297,9 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
- 		addr->u.a6.pfxlen = 0;
- 		addr->type = QETH_IP_TYPE_NORMAL;
- 
-+		spin_lock_bh(&card->ip_lock);
- 		qeth_l3_delete_ip(card, addr);
-+		spin_unlock_bh(&card->ip_lock);
- 		kfree(addr);
- 	}
- 
-@@ -329,7 +331,10 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
- 		addr->type = QETH_IP_TYPE_NORMAL;
- 	} else
- 		return -ENOMEM;
-+
-+	spin_lock_bh(&card->ip_lock);
- 	qeth_l3_add_ip(card, addr);
-+	spin_unlock_bh(&card->ip_lock);
- 	kfree(addr);
- 
- 	return count;
+Added to the linux-s390 tree for the next merge window. Thanks.
+
 -- 
-2.8.4
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
