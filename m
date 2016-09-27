@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 28 Sep 2016 09:04:20 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] s390/dasd: add missing \n to end of dev_err messages
-In-Reply-To: <20160927191318.15264-1-colin.king@canonical.com>
-References: <20160927191318.15264-1-colin.king@canonical.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20160928090420.2e137f3f@mschwide>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] virtio/s390: add missing \n to end of dev_err message
+Date: Tue, 27 Sep 2016 13:08:44 -0700
+Message-ID: <20160927200844.16008-1-colin.king@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Colin King <colin.king@canonical.com>
-Cc: Stefan Weinhuber <wein@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 27 Sep 2016 12:13:18 -0700
-Colin King <colin.king@canonical.com> wrote:
+From: Colin Ian King <colin.king@canonical.com>
 
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> Trival fix, dev_err messages are missing a \n, so add it.
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  drivers/s390/block/dasd_erp.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+Trival fix, dev_err message is missing a \n, so add it.
 
-Applied, thanks.
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/s390/virtio/virtio_ccw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 8688ad4..9d36dc4 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -462,7 +462,7 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
+ 	 * This may happen on device detach.
+ 	 */
+ 	if (ret && (ret != -ENODEV))
+-		dev_warn(&vq->vdev->dev, "Error %d while deleting queue %d",
++		dev_warn(&vq->vdev->dev, "Error %d while deleting queue %d\n",
+ 			 ret, index);
+ 
+ 	vring_del_virtqueue(vq);
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.9.3
