@@ -1,90 +1,101 @@
-Date: Sat, 3 Sep 2016 12:59:28 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] uprobes: remove function declarations from
- arch/{mips,s390}
-References: <1472804384-17830-1-git-send-email-marcin.nowakowski@imgtec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1472804384-17830-1-git-send-email-marcin.nowakowski@imgtec.com>
-Message-Id: <20160903105928.GB3917@osiris>
-Return-Path: <heiko.carstens@de.ibm.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, ralf@linux-mips.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] s390x/spinlock: Provide vcpu_is_preempted globally
+Date: Thu, 29 Sep 2016 15:21:58 +0200
+Message-ID: <d640763a-ed52-feea-41d6-b570794018b4@de.ibm.com>
+References: <1475150056-58774-1-git-send-email-borntraeger@de.ibm.com>
+	<20160929151116.3b5e8f07@mschwide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20160929151116.3b5e8f07@mschwide>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Sep 02, 2016 at 10:19:44AM +0200, Marcin Nowakowski wrote:
-> The declarations of arch-specific functions have been moved to a common
-> header in commit 3820b4d2789f ('uprobes: Move function declarations out of
-> arch'), but MIPS and S390 has added them to their own trees later.
-> Remove the unnecessary duplicates.
+On 09/29/2016 03:11 PM, Martin Schwidefsky wrote:
+> On Thu, 29 Sep 2016 13:54:16 +0200
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > 
-> Signed-off-by: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
-> ---
->  arch/mips/include/asm/uprobes.h | 12 ------------
->  arch/s390/include/asm/uprobes.h | 10 ----------
->  2 files changed, 22 deletions(-)
+>> this implements the s390 backend for commit
+>> "kernel/sched: introduce vcpu preempted check interface"
+>> by simply reusing the existing cpu_is_preempted function.
+>>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>> Martin, Heiko,
+>>
+>> this patch is a minimal change by not touching all existing users of
+>> cpu_is_preempted in spinlock.c. If you want it differently, let me
+>> know.
+>>
+>>
+>>  arch/s390/include/asm/spinlock.h | 7 +++++++
+>>  arch/s390/lib/spinlock.c         | 3 ++-
+>>  2 files changed, 9 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/spinlock.h
+>> index 63ebf37..6e82986 100644
+>> --- a/arch/s390/include/asm/spinlock.h
+>> +++ b/arch/s390/include/asm/spinlock.h
+>> @@ -21,6 +21,13 @@ _raw_compare_and_swap(unsigned int *lock, unsigned int old, unsigned int new)
+>>  	return __sync_bool_compare_and_swap(lock, old, new);
+>>  }
+>>
+>> +int arch_vcpu_is_preempted(int cpu);
+>> +#define vcpu_is_preempted cpu_is_preempted
+>> +static inline bool cpu_is_preempted(int cpu)
+>> +{
+>> +	return arch_vcpu_is_preempted(cpu);
+>> +}
+>> +
+>>  /*
+>>   * Simple spin lock operations.  There are two variants, one clears IRQ's
+>>   * on the local processor, one does not.
+>> diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
+>> index e5f50a7..9f473c8 100644
+>> --- a/arch/s390/lib/spinlock.c
+>> +++ b/arch/s390/lib/spinlock.c
+>> @@ -37,7 +37,7 @@ static inline void _raw_compare_and_delay(unsigned int *lock, unsigned int old)
+>>  	asm(".insn rsy,0xeb0000000022,%0,0,%1" : : "d" (old), "Q" (*lock));
+>>  }
+>>
+>> -static inline int cpu_is_preempted(int cpu)
+>> +int arch_vcpu_is_preempted(int cpu)
+>>  {
+>>  	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
+>>  		return 0;
+>> @@ -45,6 +45,7 @@ static inline int cpu_is_preempted(int cpu)
+>>  		return 0;
+>>  	return 1;
+>>  }
+>> +EXPORT_SYMBOL(arch_vcpu_is_preempted);
+>>
+>>  void arch_spin_lock_wait(arch_spinlock_t *lp)
+>>  {
+> 
+> Hmm, if I look at the code we now have an additional function for
+> the spinlock loops. The call arch_vcpu_is_preempted which test
+> CIF_ENABLED_WAIT and then calls smp_vcpu_scheduled(). The test
+> used to be inline.
+> 
+> A better solution would be to move the CIF_ENABLED_WAIT test to the
+> smp_vcpu_scheduled() function, rename it to arch_vcpu_is_preempted()
+> and then export that function.
+ The cpu_is_preempted() function is
+> replaced by arch_vcpu_is_preempted() which does make a lot of sense,
+> no?
+> 
 
-You may either split this patch into two patches (mips/s390) so it can be
-applied to the different architecture trees, or send it as single patch to
-Andrew Morton, so he can pick it.
-
-In any case:
-
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-
-> 
-> diff --git a/arch/mips/include/asm/uprobes.h b/arch/mips/include/asm/uprobes.h
-> index 34c325c..28ab364 100644
-> --- a/arch/mips/include/asm/uprobes.h
-> +++ b/arch/mips/include/asm/uprobes.h
-> @@ -43,16 +43,4 @@ struct arch_uprobe_task {
->  	unsigned long saved_trap_nr;
->  };
-> 
-> -extern int arch_uprobe_analyze_insn(struct arch_uprobe *aup,
-> -	struct mm_struct *mm, unsigned long addr);
-> -extern int arch_uprobe_pre_xol(struct arch_uprobe *aup, struct pt_regs *regs);
-> -extern int arch_uprobe_post_xol(struct arch_uprobe *aup, struct pt_regs *regs);
-> -extern bool arch_uprobe_xol_was_trapped(struct task_struct *tsk);
-> -extern int arch_uprobe_exception_notify(struct notifier_block *self,
-> -	unsigned long val, void *data);
-> -extern void arch_uprobe_abort_xol(struct arch_uprobe *aup,
-> -	struct pt_regs *regs);
-> -extern unsigned long arch_uretprobe_hijack_return_addr(
-> -	unsigned long trampoline_vaddr, struct pt_regs *regs);
-> -
->  #endif /* __ASM_UPROBES_H */
-> diff --git a/arch/s390/include/asm/uprobes.h b/arch/s390/include/asm/uprobes.h
-> index 1411dff..658393c 100644
-> --- a/arch/s390/include/asm/uprobes.h
-> +++ b/arch/s390/include/asm/uprobes.h
-> @@ -29,14 +29,4 @@ struct arch_uprobe {
->  struct arch_uprobe_task {
->  };
-> 
-> -int arch_uprobe_analyze_insn(struct arch_uprobe *aup, struct mm_struct *mm,
-> -			     unsigned long addr);
-> -int arch_uprobe_pre_xol(struct arch_uprobe *aup, struct pt_regs *regs);
-> -int arch_uprobe_post_xol(struct arch_uprobe *aup, struct pt_regs *regs);
-> -bool arch_uprobe_xol_was_trapped(struct task_struct *tsk);
-> -int arch_uprobe_exception_notify(struct notifier_block *self, unsigned long val,
-> -				 void *data);
-> -void arch_uprobe_abort_xol(struct arch_uprobe *ap, struct pt_regs *regs);
-> -unsigned long arch_uretprobe_hijack_return_addr(unsigned long trampoline,
-> -						struct pt_regs *regs);
->  #endif	/* _ASM_UPROBES_H */
-> -- 
-> 2.7.4
-> 
+Yes that makes sense, will spin a v2.
