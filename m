@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 04/17] s390/debug: Rename jump labels in debug_areas_alloc()
-References: <566ABCD9.1060404@users.sourceforge.net>
- <e4359dc9-9e20-e33b-9743-9ebade853268@users.sourceforge.net>
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <6ee03537-9ec5-70ca-bc18-44499909d251@users.sourceforge.net>
-Date: Sat, 3 Sep 2016 14:16:28 +0200
-MIME-Version: 1.0
-In-Reply-To: <e4359dc9-9e20-e33b-9743-9ebade853268@users.sourceforge.net>
-Content-Type: text/plain; charset=utf-8
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
+Date: Thu, 29 Sep 2016 12:10:40 +0200
+Message-ID: <20160929101040.GV5016@twins.programming.kicks-ass.net>
+References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, David Hildenbrand <dahi@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Joe Perches <joe@perches.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>, Paolo Bonzini <pbonzini@redhat.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 1 Sep 2016 18:10:21 +0200
+On Thu, Jul 21, 2016 at 07:45:10AM -0400, Pan Xinhui wrote:
+> change from v2:
+> 	no code change, fix typos, update some comments
+> 
+> change from v1:
+> 	a simplier definition of default vcpu_is_preempted
+> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
+> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+> 	add more comments
+> 	thanks boqun and Peter's suggestion.
+> 
+> This patch set aims to fix lock holder preemption issues.
 
-Adjust jump labels according to the current Linux coding style convention.
+So I really like the concept, but I would also really like to see
+support for more hypervisors included before we can move forward with
+this.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- arch/s390/kernel/debug.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index 5bb9108..0af14a4 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -198,33 +198,32 @@ debug_areas_alloc(int pages_per_area, int nr_areas)
- 
- 	areas = kmalloc_array(nr_areas, sizeof(*areas), GFP_KERNEL);
- 	if (!areas)
--		goto fail_malloc_areas;
-+		goto exit;
- 	for (i = 0; i < nr_areas; i++) {
- 		areas[i] = kmalloc_array(pages_per_area,
- 					 sizeof(*areas[i]),
- 					 GFP_KERNEL);
- 		if (!areas[i])
--			goto fail_malloc_areas2;
-+			goto free_areas;
- 		for (j = 0; j < pages_per_area; j++) {
- 			areas[i][j] = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 			if (!areas[i][j]) {
- 				for (j--; j >= 0; j--)
- 					kfree(areas[i][j]);
- 				kfree(areas[i]);
--				goto fail_malloc_areas2;
-+				goto free_areas;
- 			}
- 		}
- 	}
- 	return areas;
--
--fail_malloc_areas2:
-+ free_areas:
- 	for (i--; i >= 0; i--) {
- 		for (j = 0; j < pages_per_area; j++)
- 			kfree(areas[i][j]);
- 		kfree(areas[i]);
- 	}
- 	kfree(areas);
--fail_malloc_areas:
-+ exit:
- 	return NULL;
- 
- }
--- 
-2.9.3
+Please consider s390 and (x86/arm) KVM. Once we have a few, more can
+follow later, but I think its important to not only have PPC support for
+this.
