@@ -1,99 +1,26 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
-Subject: [PATCH v2 06/11] s390/tracing: fix compat syscall handling
-Date: Fri, 16 Sep 2016 09:11:22 +0200
-Message-ID: <1474009887-7225-7-git-send-email-marcin.nowakowski@imgtec.com>
-In-Reply-To: <1474009887-7225-1-git-send-email-marcin.nowakowski@imgtec.com>
-References: <1474009887-7225-1-git-send-email-marcin.nowakowski@imgtec.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Marcin Nowakowski <marcin.nowakowski@imgtec.com>, Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v2 0/1] s390 preparation for vcpu preempted check
+Date: Thu, 29 Sep 2016 17:51:04 +0200
+Message-ID: <1475164265-246160-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add missing arch code - arch_trace_is_compat_syscall and
-arch_syscall_addr
+This patch should enable s390 support for the upcoming vcpu
+preempt check support, but it should compile and work fine 
+without that patch set as well.
 
-Signed-off-by: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/include/asm/ftrace.h  | 11 +++++++++++
- arch/s390/include/asm/syscall.h |  1 +
- arch/s390/kernel/Makefile       |  1 +
- arch/s390/kernel/ftrace.c       | 12 ++++++++++++
- 4 files changed, 25 insertions(+)
+Christian Borntraeger (1):
+  s390/spinlock: Provide vcpu_is_preempted
 
-diff --git a/arch/s390/include/asm/ftrace.h b/arch/s390/include/asm/ftrace.h
-index 64053d9..af8ba9c 100644
---- a/arch/s390/include/asm/ftrace.h
-+++ b/arch/s390/include/asm/ftrace.h
-@@ -82,5 +82,16 @@ static inline void ftrace_generate_call_insn(struct ftrace_insn *insn,
- #endif
- }
- 
-+#if defined(CONFIG_FTRACE_SYSCALLS) && defined(CONFIG_COMPAT)
-+#include <linux/compat.h>
-+#include <asm/compat.h>
-+
-+#define ARCH_COMPAT_SYSCALL_NUMBERS_OVERLAP 1
-+static inline bool arch_trace_is_compat_syscall(struct pt_regs *regs)
-+{
-+	return in_compat_syscall();
-+}
-+#endif /* CONFIG_FTRACE_SYSCALLS && CONFIG_COMPAT */
-+
- #endif /* __ASSEMBLY__ */
- #endif /* _ASM_S390_FTRACE_H */
-diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
-index 6ba0bf9..a08db5b 100644
---- a/arch/s390/include/asm/syscall.h
-+++ b/arch/s390/include/asm/syscall.h
-@@ -16,6 +16,7 @@
- #include <linux/sched.h>
- #include <linux/err.h>
- #include <asm/ptrace.h>
-+#include <linux/compat.h>
- 
- /*
-  * The syscall table always contains 32 bit pointers since we know that the
-diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
-index 3234817..23572b8 100644
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -70,6 +70,7 @@ obj-$(CONFIG_COMPAT)		+= compat_wrapper.o $(compat-obj-y)
- obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
- obj-$(CONFIG_KPROBES)		+= kprobes.o
- obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o ftrace.o
-+obj-$(CONFIG_FTRACE_SYSCALLS)	+= ftrace.o
- obj-$(CONFIG_CRASH_DUMP)	+= crash_dump.o
- obj-$(CONFIG_UPROBES)		+= uprobes.o
- 
-diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-index 0f7bfeb..31f7858 100644
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -242,3 +242,15 @@ int ftrace_disable_ftrace_graph_caller(void)
- }
- 
- #endif /* CONFIG_FUNCTION_GRAPH_TRACER */
-+
-+#if (defined CONFIG_FTRACE_SYSCALLS) && (defined CONFIG_COMPAT)
-+
-+unsigned long __init arch_syscall_addr(int nr, bool compat)
-+{
-+	if (compat)
-+		return (unsigned long)sys_call_table_emu[nr];
-+
-+	return (unsigned long)sys_call_table[nr];
-+}
-+
-+#endif /* CONFIG_FTRACE_SYSCALLS && CONFIG_COMPAT */
+ arch/s390/include/asm/spinlock.h |  3 +++
+ arch/s390/kernel/smp.c           |  9 +++++++--
+ arch/s390/lib/spinlock.c         | 25 ++++++++-----------------
+ 3 files changed, 18 insertions(+), 19 deletions(-)
+
 -- 
-2.7.4
+2.5.5
