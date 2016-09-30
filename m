@@ -1,82 +1,75 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
 Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
-Date: Fri, 30 Sep 2016 11:08:10 +0200
-Message-ID: <f0e8b549-e647-6a01-a93d-9f192adc70c6@redhat.com>
+Date: Fri, 30 Sep 2016 17:31:48 +0800
+Message-ID: <ce64b907-6316-7c36-428b-680d869ef045@linux.vnet.ibm.com>
 References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
- <20160929101040.GV5016@twins.programming.kicks-ass.net>
- <166f3bad-f700-4624-6c1c-996f90ad609c@de.ibm.com>
- <20160929103133.GW5016@twins.programming.kicks-ass.net>
- <496ba299-1f1d-e98b-7827-f861eeea5558@linux.vnet.ibm.com>
- <2136938368.606190.1475218738567.JavaMail.zimbra@redhat.com>
- <caabadb6-fe62-aaf7-260f-79f230d03a1c@linux.vnet.ibm.com>
+	<20160929101040.GV5016@twins.programming.kicks-ass.net>
+	<166f3bad-f700-4624-6c1c-996f90ad609c@de.ibm.com>
+	<20160929103133.GW5016@twins.programming.kicks-ass.net>
+	<496ba299-1f1d-e98b-7827-f861eeea5558@linux.vnet.ibm.com>
+	<2136938368.606190.1475218738567.JavaMail.zimbra@redhat.com>
+	<caabadb6-fe62-aaf7-260f-79f230d03a1c@linux.vnet.ibm.com>
+	<f0e8b549-e647-6a01-a93d-9f192adc70c6@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <caabadb6-fe62-aaf7-260f-79f230d03a1c@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <f0e8b549-e647-6a01-a93d-9f192adc70c6@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, paulmck@linux.vnet.ibm.com, will deacon <will.deacon@arm.com>, kernellwp@gmail.com, jgross@suse.com, bsingharora@gmail.com, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, will deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 30/09/2016 10:52, Pan Xinhui wrote:
->> x86 has no hypervisor support, and I'd like to understand the desired
->> semantics first, so I don't think it should block this series.  In
-> 
-> Once a guest do a hypercall or something similar, IOW, there is a
-> kvm_guest_exit. we think this is a lock holder preemption.
-> Adn PPC implement it in this way.
-
-Ok, good.
-
->> particular, there are at least the following choices:
->>
->> 1) exit to userspace (5-10.000 clock cycles best case) counts as
->> lock holder preemption
->>
->> 2) any time the vCPU thread not running counts as lock holder
->> preemption
->>
->> To implement the latter you'd need a hypercall or MSR (at least as
->> a slow path), because the KVM preempt notifier is only active
->> during the KVM_RUN ioctl.
->
-> seems a little expensive. :(
-> How many clock cycles it might cost.
-
-An MSR read is about 1500 clock cycles, but it need not be the fast path
-(e.g. use a bit to check if the CPU is running, if not use the MSR to
-check if the CPU is in userspace but the CPU thread is scheduled).  But
-it's not necessary if you are just matching PPC semantics.
-
-Then the simplest thing is to use the kvm_steal_time struct, and add a
-new field to it that replaces pad[0].  You can write a 0 to the flag in
-record_steal_time (not preempted) and a 1 in kvm_arch_vcpu_put
-(preempted).  record_steal_time is called before the VM starts running,
-immediately after KVM_RUN and also after every sched_in.
-
-If KVM doesn't implement the flag, it won't touch that field at all.  So
-the kernel can write a 0, meaning "not preempted", and not care if the
-hypervisor implements the flag or not: the answer will always be safe.
-
-The pointer to the flag can be placed in a per-cpu u32*, and again if
-the u32* is NULL that means "not preempted".
-
-Paolo
-
-
-> I am still looking for one shared struct between kvm and guest kernel on
-> x86.
-> and every time kvm_guest_exit/enter called, we store some info in it. So
-> guest kernel can check one vcpu is running or not quickly.
-> 
-> thanks
-> xinhui
-> 
->> Paolo
->>
-> 
+CgrlnKggMjAxNi85LzMwIDE3OjA4LCBQYW9sbyBCb256aW5pIOWGmemBkzoKPgo+Cj4gT24gMzAv
+MDkvMjAxNiAxMDo1MiwgUGFuIFhpbmh1aSB3cm90ZToKPj4+IHg4NiBoYXMgbm8gaHlwZXJ2aXNv
+ciBzdXBwb3J0LCBhbmQgSSdkIGxpa2UgdG8gdW5kZXJzdGFuZCB0aGUgZGVzaXJlZAo+Pj4gc2Vt
+YW50aWNzIGZpcnN0LCBzbyBJIGRvbid0IHRoaW5rIGl0IHNob3VsZCBibG9jayB0aGlzIHNlcmll
+cy4gIEluCj4+Cj4+IE9uY2UgYSBndWVzdCBkbyBhIGh5cGVyY2FsbCBvciBzb21ldGhpbmcgc2lt
+aWxhciwgSU9XLCB0aGVyZSBpcyBhCj4+IGt2bV9ndWVzdF9leGl0LiB3ZSB0aGluayB0aGlzIGlz
+IGEgbG9jayBob2xkZXIgcHJlZW1wdGlvbi4KPj4gQWRuIFBQQyBpbXBsZW1lbnQgaXQgaW4gdGhp
+cyB3YXkuCj4KPiBPaywgZ29vZC4KPgo+Pj4gcGFydGljdWxhciwgdGhlcmUgYXJlIGF0IGxlYXN0
+IHRoZSBmb2xsb3dpbmcgY2hvaWNlczoKPj4+Cj4+PiAxKSBleGl0IHRvIHVzZXJzcGFjZSAoNS0x
+MC4wMDAgY2xvY2sgY3ljbGVzIGJlc3QgY2FzZSkgY291bnRzIGFzCj4+PiBsb2NrIGhvbGRlciBw
+cmVlbXB0aW9uCj4+Pgo+Pj4gMikgYW55IHRpbWUgdGhlIHZDUFUgdGhyZWFkIG5vdCBydW5uaW5n
+IGNvdW50cyBhcyBsb2NrIGhvbGRlcgo+Pj4gcHJlZW1wdGlvbgo+Pj4KPj4+IFRvIGltcGxlbWVu
+dCB0aGUgbGF0dGVyIHlvdSdkIG5lZWQgYSBoeXBlcmNhbGwgb3IgTVNSIChhdCBsZWFzdCBhcwo+
+Pj4gYSBzbG93IHBhdGgpLCBiZWNhdXNlIHRoZSBLVk0gcHJlZW1wdCBub3RpZmllciBpcyBvbmx5
+IGFjdGl2ZQo+Pj4gZHVyaW5nIHRoZSBLVk1fUlVOIGlvY3RsLgo+Pgo+PiBzZWVtcyBhIGxpdHRs
+ZSBleHBlbnNpdmUuIDooCj4+IEhvdyBtYW55IGNsb2NrIGN5Y2xlcyBpdCBtaWdodCBjb3N0Lgo+
+Cj4gQW4gTVNSIHJlYWQgaXMgYWJvdXQgMTUwMCBjbG9jayBjeWNsZXMsIGJ1dCBpdCBuZWVkIG5v
+dCBiZSB0aGUgZmFzdCBwYXRoCj4gKGUuZy4gdXNlIGEgYml0IHRvIGNoZWNrIGlmIHRoZSBDUFUg
+aXMgcnVubmluZywgaWYgbm90IHVzZSB0aGUgTVNSIHRvCj4gY2hlY2sgaWYgdGhlIENQVSBpcyBp
+biB1c2Vyc3BhY2UgYnV0IHRoZSBDUFUgdGhyZWFkIGlzIHNjaGVkdWxlZCkuICBCdXQKPiBpdCdz
+IG5vdCBuZWNlc3NhcnkgaWYgeW91IGFyZSBqdXN0IG1hdGNoaW5nIFBQQyBzZW1hbnRpY3MuCj4K
+PiBUaGVuIHRoZSBzaW1wbGVzdCB0aGluZyBpcyB0byB1c2UgdGhlIGt2bV9zdGVhbF90aW1lIHN0
+cnVjdCwgYW5kIGFkZCBhCj4gbmV3IGZpZWxkIHRvIGl0IHRoYXQgcmVwbGFjZXMgcGFkWzBdLiAg
+WW91IGNhbiB3cml0ZSBhIDAgdG8gdGhlIGZsYWcgaW4KPiByZWNvcmRfc3RlYWxfdGltZSAobm90
+IHByZWVtcHRlZCkgYW5kIGEgMSBpbiBrdm1fYXJjaF92Y3B1X3B1dAo+IChwcmVlbXB0ZWQpLiAg
+cmVjb3JkX3N0ZWFsX3RpbWUgaXMgY2FsbGVkIGJlZm9yZSB0aGUgVk0gc3RhcnRzIHJ1bm5pbmcs
+Cj4gaW1tZWRpYXRlbHkgYWZ0ZXIgS1ZNX1JVTiBhbmQgYWxzbyBhZnRlciBldmVyeSBzY2hlZF9p
+bi4KPgo+IElmIEtWTSBkb2Vzbid0IGltcGxlbWVudCB0aGUgZmxhZywgaXQgd29uJ3QgdG91Y2gg
+dGhhdCBmaWVsZCBhdCBhbGwuICBTbwo+IHRoZSBrZXJuZWwgY2FuIHdyaXRlIGEgMCwgbWVhbmlu
+ZyAibm90IHByZWVtcHRlZCIsIGFuZCBub3QgY2FyZSBpZiB0aGUKPiBoeXBlcnZpc29yIGltcGxl
+bWVudHMgdGhlIGZsYWcgb3Igbm90OiB0aGUgYW5zd2VyIHdpbGwgYWx3YXlzIGJlIHNhZmUuCj4K
+PiBUaGUgcG9pbnRlciB0byB0aGUgZmxhZyBjYW4gYmUgcGxhY2VkIGluIGEgcGVyLWNwdSB1MzIq
+LCBhbmQgYWdhaW4gaWYKPiB0aGUgdTMyKiBpcyBOVUxMIHRoYXQgbWVhbnMgIm5vdCBwcmVlbXB0
+ZWQiLgo+CnJlYWxseSBuaWNlIHN1Z2dlc3Rpb24hICBUaGF0J3Mgd2hhdCBJIHdhbnQgOikKCnRo
+YW5rcwp4aW5odWkKCj4gUGFvbG8KPgo+Cj4+IEkgYW0gc3RpbGwgbG9va2luZyBmb3Igb25lIHNo
+YXJlZCBzdHJ1Y3QgYmV0d2VlbiBrdm0gYW5kIGd1ZXN0IGtlcm5lbCBvbgo+PiB4ODYuCj4+IGFu
+ZCBldmVyeSB0aW1lIGt2bV9ndWVzdF9leGl0L2VudGVyIGNhbGxlZCwgd2Ugc3RvcmUgc29tZSBp
+bmZvIGluIGl0LiBTbwo+PiBndWVzdCBrZXJuZWwgY2FuIGNoZWNrIG9uZSB2Y3B1IGlzIHJ1bm5p
+bmcgb3Igbm90IHF1aWNrbHkuCj4+Cj4+IHRoYW5rcwo+PiB4aW5odWkKPj4KPj4+IFBhb2xvCj4+
+Pgo+Pgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
