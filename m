@@ -1,14 +1,16 @@
-From: Boqun Feng <boqun.feng@gmail.com>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
 Subject: Re: [PATCH v2 1/1] s390/spinlock: Provide vcpu_is_preempted
-Date: Fri, 30 Sep 2016 13:52:44 +0800
-Message-ID: <20160930055236.GB22004@tardis.cn.ibm.com>
+Date: Fri, 30 Sep 2016 14:35:38 +0800
+Message-ID: <99d81ce9-8362-1b6b-15e1-e451ed379d50@linux.vnet.ibm.com>
 References: <1475164265-246160-1-git-send-email-borntraeger@de.ibm.com>
 	<1475164265-246160-2-git-send-email-borntraeger@de.ibm.com>
 	<b2ace794-c1cc-11be-f9f5-d6429e192825@linux.vnet.ibm.com>
+	<20160930055236.GB22004@tardis.cn.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3093541685354505050=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b2ace794-c1cc-11be-f9f5-d6429e192825@linux.vnet.ibm.com>
+In-Reply-To: <20160930055236.GB22004@tardis.cn.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,241 +22,128 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+To: Boqun Feng <boqun.feng@gmail.com>
 Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-
---===============3093541685354505050==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="ALfTUftag+2gvp1h"
-Content-Disposition: inline
-
-
---ALfTUftag+2gvp1h
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Sep 30, 2016 at 12:49:52PM +0800, Pan Xinhui wrote:
->=20
->=20
-> =E5=9C=A8 2016/9/29 23:51, Christian Borntraeger =E5=86=99=E9=81=93:
-> > this implements the s390 backend for commit
-> > "kernel/sched: introduce vcpu preempted check interface"
-> > by reworking the existing smp_vcpu_scheduled into
-> > arch_vcpu_is_preempted. We can then also get rid of the
-> > local cpu_is_preempted function by moving the
-> > CIF_ENABLED_WAIT test into arch_vcpu_is_preempted.
-> >=20
-> > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > ---
->=20
-> hi, Christian
-> 	thanks for your patch!
->=20
-> >  arch/s390/include/asm/spinlock.h |  3 +++
-> >  arch/s390/kernel/smp.c           |  9 +++++++--
-> >  arch/s390/lib/spinlock.c         | 25 ++++++++-----------------
-> >  3 files changed, 18 insertions(+), 19 deletions(-)
-> >=20
-> > diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/s=
-pinlock.h
-> > index 63ebf37..e16e02f 100644
-> > --- a/arch/s390/include/asm/spinlock.h
-> > +++ b/arch/s390/include/asm/spinlock.h
-> > @@ -21,6 +21,9 @@ _raw_compare_and_swap(unsigned int *lock, unsigned in=
-t old, unsigned int new)
-> >  	return __sync_bool_compare_and_swap(lock, old, new);
-> >  }
-> >=20
-> > +bool arch_vcpu_is_preempted(int cpu);
-> > +#define vcpu_is_preempted arch_vcpu_is_preempted
-> > +
-> >  /*
-> >   * Simple spin lock operations.  There are two variants, one clears IR=
-Q's
-> >   * on the local processor, one does not.
-> > diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-> > index 7b89a75..4aadd16 100644
-> > --- a/arch/s390/kernel/smp.c
-> > +++ b/arch/s390/kernel/smp.c
-> > @@ -376,10 +376,15 @@ int smp_find_processor_id(u16 address)
-> >  	return -1;
-> >  }
-> >=20
-> > -int smp_vcpu_scheduled(int cpu)
-> root@ltcalpine2-lp13:~/linux# git grep -wn smp_vcpu_scheduled arch/s390/
-> arch/s390/include/asm/smp.h:34:extern int smp_vcpu_scheduled(int cpu);
-> arch/s390/include/asm/smp.h:56:static inline int smp_vcpu_scheduled(int c=
-pu) { return 1; }
-> arch/s390/kernel/smp.c:371:int smp_vcpu_scheduled(int cpu)
-> arch/s390/lib/spinlock.c:44:    if (smp_vcpu_scheduled(cpu))
->=20
-> > +bool arch_vcpu_is_preempted(int cpu)
-> >  {
-> > -	return pcpu_running(pcpu_devices + cpu);
-> > +	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
-> > +		return false;
-> > +	if (pcpu_running(pcpu_devices + cpu))
-> > +		return false;
-> I saw smp_vcpu_scheduled() returns true always on !SMP system.
->=20
-> maybe we can do somegthing silimar. like below
->=20
-> #ifndef CONFIG_SMP
-> static inline bool arch_vcpu_is_preempted(int cpu) { return !test_cpu_fla=
-g_of(CIF_ENABLED_WAIT, cpu); }
-> #else
-> ...
->=20
-> but I can't help thinking that if this is a!SMP system, maybe we could on=
-ly
-> #ifndef CONFIG_SMP
-> static inline bool arch_vcpu_is_preempted(int cpu) { return false; }
-> #else
-
-Why do we need a vcpu_is_preempted() implementation for UP? Where will
-you use it?
-
-Regards,
-Boqun
-
-> ...
->=20
->=20
-> thanks
-> xinhui
->=20
-> > +	return true;
-> >  }
-> > +EXPORT_SYMBOL(arch_vcpu_is_preempted);
-> >=20
-> >  void smp_yield_cpu(int cpu)
-> >  {
-> > diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
-> > index e5f50a7..e48a48e 100644
-> > --- a/arch/s390/lib/spinlock.c
-> > +++ b/arch/s390/lib/spinlock.c
-> > @@ -37,15 +37,6 @@ static inline void _raw_compare_and_delay(unsigned i=
-nt *lock, unsigned int old)
-> >  	asm(".insn rsy,0xeb0000000022,%0,0,%1" : : "d" (old), "Q" (*lock));
-> >  }
-> >=20
-> > -static inline int cpu_is_preempted(int cpu)
-> > -{
-> > -	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
-> > -		return 0;
-> > -	if (smp_vcpu_scheduled(cpu))
-> > -		return 0;
-> > -	return 1;
-> > -}
-> > -
-> >  void arch_spin_lock_wait(arch_spinlock_t *lp)
-> >  {
-> >  	unsigned int cpu =3D SPINLOCK_LOCKVAL;
-> > @@ -62,7 +53,7 @@ void arch_spin_lock_wait(arch_spinlock_t *lp)
-> >  			continue;
-> >  		}
-> >  		/* First iteration: check if the lock owner is running. */
-> > -		if (first_diag && cpu_is_preempted(~owner)) {
-> > +		if (first_diag && arch_vcpu_is_preempted(~owner)) {
-> >  			smp_yield_cpu(~owner);
-> >  			first_diag =3D 0;
-> >  			continue;
-> > @@ -81,7 +72,7 @@ void arch_spin_lock_wait(arch_spinlock_t *lp)
-> >  		 * yield the CPU unconditionally. For LPAR rely on the
-> >  		 * sense running status.
-> >  		 */
-> > -		if (!MACHINE_IS_LPAR || cpu_is_preempted(~owner)) {
-> > +		if (!MACHINE_IS_LPAR || arch_vcpu_is_preempted(~owner)) {
-> >  			smp_yield_cpu(~owner);
-> >  			first_diag =3D 0;
-> >  		}
-> > @@ -108,7 +99,7 @@ void arch_spin_lock_wait_flags(arch_spinlock_t *lp, =
-unsigned long flags)
-> >  			continue;
-> >  		}
-> >  		/* Check if the lock owner is running. */
-> > -		if (first_diag && cpu_is_preempted(~owner)) {
-> > +		if (first_diag && arch_vcpu_is_preempted(~owner)) {
-> >  			smp_yield_cpu(~owner);
-> >  			first_diag =3D 0;
-> >  			continue;
-> > @@ -127,7 +118,7 @@ void arch_spin_lock_wait_flags(arch_spinlock_t *lp,=
- unsigned long flags)
-> >  		 * yield the CPU unconditionally. For LPAR rely on the
-> >  		 * sense running status.
-> >  		 */
-> > -		if (!MACHINE_IS_LPAR || cpu_is_preempted(~owner)) {
-> > +		if (!MACHINE_IS_LPAR || arch_vcpu_is_preempted(~owner)) {
-> >  			smp_yield_cpu(~owner);
-> >  			first_diag =3D 0;
-> >  		}
-> > @@ -165,7 +156,7 @@ void _raw_read_lock_wait(arch_rwlock_t *rw)
-> >  	owner =3D 0;
-> >  	while (1) {
-> >  		if (count-- <=3D 0) {
-> > -			if (owner && cpu_is_preempted(~owner))
-> > +			if (owner && arch_vcpu_is_preempted(~owner))
-> >  				smp_yield_cpu(~owner);
-> >  			count =3D spin_retry;
-> >  		}
-> > @@ -211,7 +202,7 @@ void _raw_write_lock_wait(arch_rwlock_t *rw, unsign=
-ed int prev)
-> >  	owner =3D 0;
-> >  	while (1) {
-> >  		if (count-- <=3D 0) {
-> > -			if (owner && cpu_is_preempted(~owner))
-> > +			if (owner && arch_vcpu_is_preempted(~owner))
-> >  				smp_yield_cpu(~owner);
-> >  			count =3D spin_retry;
-> >  		}
-> > @@ -241,7 +232,7 @@ void _raw_write_lock_wait(arch_rwlock_t *rw)
-> >  	owner =3D 0;
-> >  	while (1) {
-> >  		if (count-- <=3D 0) {
-> > -			if (owner && cpu_is_preempted(~owner))
-> > +			if (owner && arch_vcpu_is_preempted(~owner))
-> >  				smp_yield_cpu(~owner);
-> >  			count =3D spin_retry;
-> >  		}
-> > @@ -285,7 +276,7 @@ void arch_lock_relax(unsigned int cpu)
-> >  {
-> >  	if (!cpu)
-> >  		return;
-> > -	if (MACHINE_IS_LPAR && !cpu_is_preempted(~cpu))
-> > +	if (MACHINE_IS_LPAR && !arch_vcpu_is_preempted(~cpu))
-> >  		return;
-> >  	smp_yield_cpu(~cpu);
-> >  }
-> >=20
->=20
-
---ALfTUftag+2gvp1h
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAABCAAGBQJX7f2pAAoJEEl56MO1B/q4SAYIAKDn78gdtlZJ7tjMjuu/hXSR
-kgVpphv7Kxz8PSEzG1j3oVebCpFF2LiqxhcTDA2P+7pXgR3OdAlAsmtCJ76y/epa
-nhRQaZZPByg3GO8ftt0EM2Q/kiMyGEI9JsT3dKMVfHbg2qxR9qiBW7QnNYbQihXq
-uZryO0jcHYY1zu7vISxbJrdJGHEOBGFlJR+70MwsX3QUzdrNK6XtkOpMOkfjAcaJ
-fljAH9GUyTpU01IILRiOX4cVn2PelhU84fDEu4hawly1U52b7/RSySpySTaKF5KC
-vDxEGe+aeCj4XS/Cz3fOFLoKrcVGknLxU73CH2vcPMHQS0ygN65Ke712nwi7N8g=
-=j4Ci
------END PGP SIGNATURE-----
-
---ALfTUftag+2gvp1h--
-
---===============3093541685354505050==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3093541685354505050==--
+CgrlnKggMjAxNi85LzMwIDEzOjUyLCBCb3F1biBGZW5nIOWGmemBkzoKPiBPbiBGcmksIFNlcCAz
+MCwgMjAxNiBhdCAxMjo0OTo1MlBNICswODAwLCBQYW4gWGluaHVpIHdyb3RlOgo+Pgo+Pgo+PiDl
+nKggMjAxNi85LzI5IDIzOjUxLCBDaHJpc3RpYW4gQm9ybnRyYWVnZXIg5YaZ6YGTOgo+Pj4gdGhp
+cyBpbXBsZW1lbnRzIHRoZSBzMzkwIGJhY2tlbmQgZm9yIGNvbW1pdAo+Pj4gImtlcm5lbC9zY2hl
+ZDogaW50cm9kdWNlIHZjcHUgcHJlZW1wdGVkIGNoZWNrIGludGVyZmFjZSIKPj4+IGJ5IHJld29y
+a2luZyB0aGUgZXhpc3Rpbmcgc21wX3ZjcHVfc2NoZWR1bGVkIGludG8KPj4+IGFyY2hfdmNwdV9p
+c19wcmVlbXB0ZWQuIFdlIGNhbiB0aGVuIGFsc28gZ2V0IHJpZCBvZiB0aGUKPj4+IGxvY2FsIGNw
+dV9pc19wcmVlbXB0ZWQgZnVuY3Rpb24gYnkgbW92aW5nIHRoZQo+Pj4gQ0lGX0VOQUJMRURfV0FJ
+VCB0ZXN0IGludG8gYXJjaF92Y3B1X2lzX3ByZWVtcHRlZC4KPj4+Cj4+PiBTaWduZWQtb2ZmLWJ5
+OiBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgPGJvcm50cmFlZ2VyQGRlLmlibS5jb20+Cj4+PiAtLS0K
+Pj4KPj4gaGksIENocmlzdGlhbgo+PiAJdGhhbmtzIGZvciB5b3VyIHBhdGNoIQo+Pgo+Pj4gIGFy
+Y2gvczM5MC9pbmNsdWRlL2FzbS9zcGlubG9jay5oIHwgIDMgKysrCj4+PiAgYXJjaC9zMzkwL2tl
+cm5lbC9zbXAuYyAgICAgICAgICAgfCAgOSArKysrKysrLS0KPj4+ICBhcmNoL3MzOTAvbGliL3Nw
+aW5sb2NrLmMgICAgICAgICB8IDI1ICsrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0KPj4+ICAzIGZp
+bGVzIGNoYW5nZWQsIDE4IGluc2VydGlvbnMoKyksIDE5IGRlbGV0aW9ucygtKQo+Pj4KPj4+IGRp
+ZmYgLS1naXQgYS9hcmNoL3MzOTAvaW5jbHVkZS9hc20vc3BpbmxvY2suaCBiL2FyY2gvczM5MC9p
+bmNsdWRlL2FzbS9zcGlubG9jay5oCj4+PiBpbmRleCA2M2ViZjM3Li5lMTZlMDJmIDEwMDY0NAo+
+Pj4gLS0tIGEvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4+ICsrKyBiL2FyY2gv
+czM5MC9pbmNsdWRlL2FzbS9zcGlubG9jay5oCj4+PiBAQCAtMjEsNiArMjEsOSBAQCBfcmF3X2Nv
+bXBhcmVfYW5kX3N3YXAodW5zaWduZWQgaW50ICpsb2NrLCB1bnNpZ25lZCBpbnQgb2xkLCB1bnNp
+Z25lZCBpbnQgbmV3KQo+Pj4gIAlyZXR1cm4gX19zeW5jX2Jvb2xfY29tcGFyZV9hbmRfc3dhcChs
+b2NrLCBvbGQsIG5ldyk7Cj4+PiAgfQo+Pj4KPj4+ICtib29sIGFyY2hfdmNwdV9pc19wcmVlbXB0
+ZWQoaW50IGNwdSk7Cj4+PiArI2RlZmluZSB2Y3B1X2lzX3ByZWVtcHRlZCBhcmNoX3ZjcHVfaXNf
+cHJlZW1wdGVkCj4+PiArCj4+PiAgLyoKPj4+ICAgKiBTaW1wbGUgc3BpbiBsb2NrIG9wZXJhdGlv
+bnMuICBUaGVyZSBhcmUgdHdvIHZhcmlhbnRzLCBvbmUgY2xlYXJzIElSUSdzCj4+PiAgICogb24g
+dGhlIGxvY2FsIHByb2Nlc3Nvciwgb25lIGRvZXMgbm90Lgo+Pj4gZGlmZiAtLWdpdCBhL2FyY2gv
+czM5MC9rZXJuZWwvc21wLmMgYi9hcmNoL3MzOTAva2VybmVsL3NtcC5jCj4+PiBpbmRleCA3Yjg5
+YTc1Li40YWFkZDE2IDEwMDY0NAo+Pj4gLS0tIGEvYXJjaC9zMzkwL2tlcm5lbC9zbXAuYwo+Pj4g
+KysrIGIvYXJjaC9zMzkwL2tlcm5lbC9zbXAuYwo+Pj4gQEAgLTM3NiwxMCArMzc2LDE1IEBAIGlu
+dCBzbXBfZmluZF9wcm9jZXNzb3JfaWQodTE2IGFkZHJlc3MpCj4+PiAgCXJldHVybiAtMTsKPj4+
+ICB9Cj4+Pgo+Pj4gLWludCBzbXBfdmNwdV9zY2hlZHVsZWQoaW50IGNwdSkKPj4gcm9vdEBsdGNh
+bHBpbmUyLWxwMTM6fi9saW51eCMgZ2l0IGdyZXAgLXduIHNtcF92Y3B1X3NjaGVkdWxlZCBhcmNo
+L3MzOTAvCj4+IGFyY2gvczM5MC9pbmNsdWRlL2FzbS9zbXAuaDozNDpleHRlcm4gaW50IHNtcF92
+Y3B1X3NjaGVkdWxlZChpbnQgY3B1KTsKPj4gYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NtcC5oOjU2
+OnN0YXRpYyBpbmxpbmUgaW50IHNtcF92Y3B1X3NjaGVkdWxlZChpbnQgY3B1KSB7IHJldHVybiAx
+OyB9Cj4+IGFyY2gvczM5MC9rZXJuZWwvc21wLmM6MzcxOmludCBzbXBfdmNwdV9zY2hlZHVsZWQo
+aW50IGNwdSkKPj4gYXJjaC9zMzkwL2xpYi9zcGlubG9jay5jOjQ0OiAgICBpZiAoc21wX3ZjcHVf
+c2NoZWR1bGVkKGNwdSkpCj4+Cj4+PiArYm9vbCBhcmNoX3ZjcHVfaXNfcHJlZW1wdGVkKGludCBj
+cHUpCj4+PiAgewo+Pj4gLQlyZXR1cm4gcGNwdV9ydW5uaW5nKHBjcHVfZGV2aWNlcyArIGNwdSk7
+Cj4+PiArCWlmICh0ZXN0X2NwdV9mbGFnX29mKENJRl9FTkFCTEVEX1dBSVQsIGNwdSkpCj4+PiAr
+CQlyZXR1cm4gZmFsc2U7Cj4+PiArCWlmIChwY3B1X3J1bm5pbmcocGNwdV9kZXZpY2VzICsgY3B1
+KSkKPj4+ICsJCXJldHVybiBmYWxzZTsKPj4gSSBzYXcgc21wX3ZjcHVfc2NoZWR1bGVkKCkgcmV0
+dXJucyB0cnVlIGFsd2F5cyBvbiAhU01QIHN5c3RlbS4KPj4KPj4gbWF5YmUgd2UgY2FuIGRvIHNv
+bWVndGhpbmcgc2lsaW1hci4gbGlrZSBiZWxvdwo+Pgo+PiAjaWZuZGVmIENPTkZJR19TTVAKPj4g
+c3RhdGljIGlubGluZSBib29sIGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQoaW50IGNwdSkgeyByZXR1
+cm4gIXRlc3RfY3B1X2ZsYWdfb2YoQ0lGX0VOQUJMRURfV0FJVCwgY3B1KTsgfQo+PiAjZWxzZQo+
+PiAuLi4KPj4KPj4gYnV0IEkgY2FuJ3QgaGVscCB0aGlua2luZyB0aGF0IGlmIHRoaXMgaXMgYSFT
+TVAgc3lzdGVtLCBtYXliZSB3ZSBjb3VsZCBvbmx5Cj4+ICNpZm5kZWYgQ09ORklHX1NNUAo+PiBz
+dGF0aWMgaW5saW5lIGJvb2wgYXJjaF92Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KSB7IHJldHVy
+biBmYWxzZTsgfQo+PiAjZWxzZQo+Cj4gV2h5IGRvIHdlIG5lZWQgYSB2Y3B1X2lzX3ByZWVtcHRl
+ZCgpIGltcGxlbWVudGF0aW9uIGZvciBVUD8gV2hlcmUgd2lsbAo+IHlvdSB1c2UgaXQ/Cj4KeWVw
+LCBJIGFsc28gd29uZGVyIHRoYXQgOikKCkJ1dCB0aGVyZSBpcyBhIGRlZmluaXRhaW9uIG9mIHNt
+cF92Y3B1X3NjaGVkdWxlZCgpIGZvciAhU01QIGtlcm5lbC4KU28gSSBhbSBhIGxpdHRsZSB3b3Jy
+aWVkIHRoYXQgc29tZSBjb2RlIGhhcyBpbmNsdWRlZCB0aGlzIHNwaW5sb2NrLmggZm9yIFVQIGtl
+cm5lbCBhbHNvLgoKSGksIENocmlzdGlhbgoJQ291bGQgeW91IGhlbHAgY29uZmlybXMgdGhhdCB5
+b3VyIHBhdGNoIHdvcmtzIG9uIFVQPyA6KQoKdGhhbmtzCnhpbmh1aQoKPiBSZWdhcmRzLAo+IEJv
+cXVuCj4KPj4gLi4uCj4+Cj4+Cj4+IHRoYW5rcwo+PiB4aW5odWkKPj4KPj4+ICsJcmV0dXJuIHRy
+dWU7Cj4+PiAgfQo+Pj4gK0VYUE9SVF9TWU1CT0woYXJjaF92Y3B1X2lzX3ByZWVtcHRlZCk7Cj4+
+Pgo+Pj4gIHZvaWQgc21wX3lpZWxkX2NwdShpbnQgY3B1KQo+Pj4gIHsKPj4+IGRpZmYgLS1naXQg
+YS9hcmNoL3MzOTAvbGliL3NwaW5sb2NrLmMgYi9hcmNoL3MzOTAvbGliL3NwaW5sb2NrLmMKPj4+
+IGluZGV4IGU1ZjUwYTcuLmU0OGE0OGUgMTAwNjQ0Cj4+PiAtLS0gYS9hcmNoL3MzOTAvbGliL3Nw
+aW5sb2NrLmMKPj4+ICsrKyBiL2FyY2gvczM5MC9saWIvc3BpbmxvY2suYwo+Pj4gQEAgLTM3LDE1
+ICszNyw2IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBfcmF3X2NvbXBhcmVfYW5kX2RlbGF5KHVuc2ln
+bmVkIGludCAqbG9jaywgdW5zaWduZWQgaW50IG9sZCkKPj4+ICAJYXNtKCIuaW5zbiByc3ksMHhl
+YjAwMDAwMDAwMjIsJTAsMCwlMSIgOiA6ICJkIiAob2xkKSwgIlEiICgqbG9jaykpOwo+Pj4gIH0K
+Pj4+Cj4+PiAtc3RhdGljIGlubGluZSBpbnQgY3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KQo+Pj4g
+LXsKPj4+IC0JaWYgKHRlc3RfY3B1X2ZsYWdfb2YoQ0lGX0VOQUJMRURfV0FJVCwgY3B1KSkKPj4+
+IC0JCXJldHVybiAwOwo+Pj4gLQlpZiAoc21wX3ZjcHVfc2NoZWR1bGVkKGNwdSkpCj4+PiAtCQly
+ZXR1cm4gMDsKPj4+IC0JcmV0dXJuIDE7Cj4+PiAtfQo+Pj4gLQo+Pj4gIHZvaWQgYXJjaF9zcGlu
+X2xvY2tfd2FpdChhcmNoX3NwaW5sb2NrX3QgKmxwKQo+Pj4gIHsKPj4+ICAJdW5zaWduZWQgaW50
+IGNwdSA9IFNQSU5MT0NLX0xPQ0tWQUw7Cj4+PiBAQCAtNjIsNyArNTMsNyBAQCB2b2lkIGFyY2hf
+c3Bpbl9sb2NrX3dhaXQoYXJjaF9zcGlubG9ja190ICpscCkKPj4+ICAJCQljb250aW51ZTsKPj4+
+ICAJCX0KPj4+ICAJCS8qIEZpcnN0IGl0ZXJhdGlvbjogY2hlY2sgaWYgdGhlIGxvY2sgb3duZXIg
+aXMgcnVubmluZy4gKi8KPj4+IC0JCWlmIChmaXJzdF9kaWFnICYmIGNwdV9pc19wcmVlbXB0ZWQo
+fm93bmVyKSkgewo+Pj4gKwkJaWYgKGZpcnN0X2RpYWcgJiYgYXJjaF92Y3B1X2lzX3ByZWVtcHRl
+ZCh+b3duZXIpKSB7Cj4+PiAgCQkJc21wX3lpZWxkX2NwdSh+b3duZXIpOwo+Pj4gIAkJCWZpcnN0
+X2RpYWcgPSAwOwo+Pj4gIAkJCWNvbnRpbnVlOwo+Pj4gQEAgLTgxLDcgKzcyLDcgQEAgdm9pZCBh
+cmNoX3NwaW5fbG9ja193YWl0KGFyY2hfc3BpbmxvY2tfdCAqbHApCj4+PiAgCQkgKiB5aWVsZCB0
+aGUgQ1BVIHVuY29uZGl0aW9uYWxseS4gRm9yIExQQVIgcmVseSBvbiB0aGUKPj4+ICAJCSAqIHNl
+bnNlIHJ1bm5pbmcgc3RhdHVzLgo+Pj4gIAkJICovCj4+PiAtCQlpZiAoIU1BQ0hJTkVfSVNfTFBB
+UiB8fCBjcHVfaXNfcHJlZW1wdGVkKH5vd25lcikpIHsKPj4+ICsJCWlmICghTUFDSElORV9JU19M
+UEFSIHx8IGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQofm93bmVyKSkgewo+Pj4gIAkJCXNtcF95aWVs
+ZF9jcHUofm93bmVyKTsKPj4+ICAJCQlmaXJzdF9kaWFnID0gMDsKPj4+ICAJCX0KPj4+IEBAIC0x
+MDgsNyArOTksNyBAQCB2b2lkIGFyY2hfc3Bpbl9sb2NrX3dhaXRfZmxhZ3MoYXJjaF9zcGlubG9j
+a190ICpscCwgdW5zaWduZWQgbG9uZyBmbGFncykKPj4+ICAJCQljb250aW51ZTsKPj4+ICAJCX0K
+Pj4+ICAJCS8qIENoZWNrIGlmIHRoZSBsb2NrIG93bmVyIGlzIHJ1bm5pbmcuICovCj4+PiAtCQlp
+ZiAoZmlyc3RfZGlhZyAmJiBjcHVfaXNfcHJlZW1wdGVkKH5vd25lcikpIHsKPj4+ICsJCWlmIChm
+aXJzdF9kaWFnICYmIGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQofm93bmVyKSkgewo+Pj4gIAkJCXNt
+cF95aWVsZF9jcHUofm93bmVyKTsKPj4+ICAJCQlmaXJzdF9kaWFnID0gMDsKPj4+ICAJCQljb250
+aW51ZTsKPj4+IEBAIC0xMjcsNyArMTE4LDcgQEAgdm9pZCBhcmNoX3NwaW5fbG9ja193YWl0X2Zs
+YWdzKGFyY2hfc3BpbmxvY2tfdCAqbHAsIHVuc2lnbmVkIGxvbmcgZmxhZ3MpCj4+PiAgCQkgKiB5
+aWVsZCB0aGUgQ1BVIHVuY29uZGl0aW9uYWxseS4gRm9yIExQQVIgcmVseSBvbiB0aGUKPj4+ICAJ
+CSAqIHNlbnNlIHJ1bm5pbmcgc3RhdHVzLgo+Pj4gIAkJICovCj4+PiAtCQlpZiAoIU1BQ0hJTkVf
+SVNfTFBBUiB8fCBjcHVfaXNfcHJlZW1wdGVkKH5vd25lcikpIHsKPj4+ICsJCWlmICghTUFDSElO
+RV9JU19MUEFSIHx8IGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQofm93bmVyKSkgewo+Pj4gIAkJCXNt
+cF95aWVsZF9jcHUofm93bmVyKTsKPj4+ICAJCQlmaXJzdF9kaWFnID0gMDsKPj4+ICAJCX0KPj4+
+IEBAIC0xNjUsNyArMTU2LDcgQEAgdm9pZCBfcmF3X3JlYWRfbG9ja193YWl0KGFyY2hfcndsb2Nr
+X3QgKnJ3KQo+Pj4gIAlvd25lciA9IDA7Cj4+PiAgCXdoaWxlICgxKSB7Cj4+PiAgCQlpZiAoY291
+bnQtLSA8PSAwKSB7Cj4+PiAtCQkJaWYgKG93bmVyICYmIGNwdV9pc19wcmVlbXB0ZWQofm93bmVy
+KSkKPj4+ICsJCQlpZiAob3duZXIgJiYgYXJjaF92Y3B1X2lzX3ByZWVtcHRlZCh+b3duZXIpKQo+
+Pj4gIAkJCQlzbXBfeWllbGRfY3B1KH5vd25lcik7Cj4+PiAgCQkJY291bnQgPSBzcGluX3JldHJ5
+Owo+Pj4gIAkJfQo+Pj4gQEAgLTIxMSw3ICsyMDIsNyBAQCB2b2lkIF9yYXdfd3JpdGVfbG9ja193
+YWl0KGFyY2hfcndsb2NrX3QgKnJ3LCB1bnNpZ25lZCBpbnQgcHJldikKPj4+ICAJb3duZXIgPSAw
+Owo+Pj4gIAl3aGlsZSAoMSkgewo+Pj4gIAkJaWYgKGNvdW50LS0gPD0gMCkgewo+Pj4gLQkJCWlm
+IChvd25lciAmJiBjcHVfaXNfcHJlZW1wdGVkKH5vd25lcikpCj4+PiArCQkJaWYgKG93bmVyICYm
+IGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQofm93bmVyKSkKPj4+ICAJCQkJc21wX3lpZWxkX2NwdSh+
+b3duZXIpOwo+Pj4gIAkJCWNvdW50ID0gc3Bpbl9yZXRyeTsKPj4+ICAJCX0KPj4+IEBAIC0yNDEs
+NyArMjMyLDcgQEAgdm9pZCBfcmF3X3dyaXRlX2xvY2tfd2FpdChhcmNoX3J3bG9ja190ICpydykK
+Pj4+ICAJb3duZXIgPSAwOwo+Pj4gIAl3aGlsZSAoMSkgewo+Pj4gIAkJaWYgKGNvdW50LS0gPD0g
+MCkgewo+Pj4gLQkJCWlmIChvd25lciAmJiBjcHVfaXNfcHJlZW1wdGVkKH5vd25lcikpCj4+PiAr
+CQkJaWYgKG93bmVyICYmIGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQofm93bmVyKSkKPj4+ICAJCQkJ
+c21wX3lpZWxkX2NwdSh+b3duZXIpOwo+Pj4gIAkJCWNvdW50ID0gc3Bpbl9yZXRyeTsKPj4+ICAJ
+CX0KPj4+IEBAIC0yODUsNyArMjc2LDcgQEAgdm9pZCBhcmNoX2xvY2tfcmVsYXgodW5zaWduZWQg
+aW50IGNwdSkKPj4+ICB7Cj4+PiAgCWlmICghY3B1KQo+Pj4gIAkJcmV0dXJuOwo+Pj4gLQlpZiAo
+TUFDSElORV9JU19MUEFSICYmICFjcHVfaXNfcHJlZW1wdGVkKH5jcHUpKQo+Pj4gKwlpZiAoTUFD
+SElORV9JU19MUEFSICYmICFhcmNoX3ZjcHVfaXNfcHJlZW1wdGVkKH5jcHUpKQo+Pj4gIAkJcmV0
+dXJuOwo+Pj4gIAlzbXBfeWllbGRfY3B1KH5jcHUpOwo+Pj4gIH0KPj4+Cj4+CgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
