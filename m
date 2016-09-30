@@ -1,102 +1,48 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
 Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
-Date: Thu, 29 Sep 2016 13:05:13 +0200
-Message-ID: <e0cfa717-0f23-f326-2907-2524ad755f91@de.ibm.com>
+Date: Fri, 30 Sep 2016 12:00:12 +0800
+Message-ID: <15710298-7a7b-5c01-6cf6-25c7dc0bcbdc@linux.vnet.ibm.com>
 References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
- <20160929101040.GV5016@twins.programming.kicks-ass.net>
- <166f3bad-f700-4624-6c1c-996f90ad609c@de.ibm.com>
- <f521d8cb-c38b-a608-eca8-a5c45184bbca@de.ibm.com>
+	<20160929101040.GV5016@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <f521d8cb-c38b-a608-eca8-a5c45184bbca@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20160929101040.GV5016@twins.programming.kicks-ass.net>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/29/2016 12:40 PM, Christian Borntraeger wrote:
-> On 09/29/2016 12:23 PM, Christian Borntraeger wrote:
->> On 09/29/2016 12:10 PM, Peter Zijlstra wrote:
->>> On Thu, Jul 21, 2016 at 07:45:10AM -0400, Pan Xinhui wrote:
->>>> change from v2:
->>>> 	no code change, fix typos, update some comments
->>>>
->>>> change from v1:
->>>> 	a simplier definition of default vcpu_is_preempted
->>>> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
->>>> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
->>>> 	add more comments
->>>> 	thanks boqun and Peter's suggestion.
->>>>
->>>> This patch set aims to fix lock holder preemption issues.
->>>
->>> So I really like the concept, but I would also really like to see
->>> support for more hypervisors included before we can move forward with
->>> this.
->>>
->>> Please consider s390 and (x86/arm) KVM. Once we have a few, more can
->>> follow later, but I think its important to not only have PPC support for
->>> this.
->>
->> Actually the s390 preemted check via sigp sense running  is available for
->> all hypervisors (z/VM, LPAR and KVM) which implies everywhere as you can no
->> longer buy s390 systems without LPAR.
->>
->> As Heiko already pointed out we could simply use a small inline function
->> that calls cpu_is_preempted from arch/s390/lib/spinlock (or smp_vcpu_scheduled from smp.c)
-> 
-> Maybe something like
-> (untested and just pasted, so white space damaged)
-
-Now tested. With 8 host cpus and 16 guest cpus perf bench sched shows the
-same improvements as in Pan Xinhuis cover letter.
-Also the runtime shrinks a lot.
-
-> 
-> diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/spinlock.h
-> index 63ebf37..6e82986 100644
-> --- a/arch/s390/include/asm/spinlock.h
-> +++ b/arch/s390/include/asm/spinlock.h
-> @@ -21,6 +21,13 @@ _raw_compare_and_swap(unsigned int *lock, unsigned int old, unsigned int new)
->         return __sync_bool_compare_and_swap(lock, old, new);
->  }
-> 
-> +int arch_vcpu_is_preempted(int cpu);
-> +#define vcpu_is_preempted cpu_is_preempted
-> +static inline bool cpu_is_preempted(int cpu)
-> +{
-> +       return arch_vcpu_is_preempted(cpu);
-> +}
-> +
->  /*
->   * Simple spin lock operations.  There are two variants, one clears IRQ's
->   * on the local processor, one does not.
-> diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
-> index e5f50a7..260d179 100644
-> --- a/arch/s390/lib/spinlock.c
-> +++ b/arch/s390/lib/spinlock.c
-> @@ -37,7 +37,7 @@ static inline void _raw_compare_and_delay(unsigned int *lock, unsigned int old)
->         asm(".insn rsy,0xeb0000000022,%0,0,%1" : : "d" (old), "Q" (*lock));
->  }
-> 
-> -static inline int cpu_is_preempted(int cpu)
-> +int arch_vcpu_is_preempted(int cpu)
->  {
->         if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
->                 return 0;
-> @@ -45,6 +45,7 @@ static inline int cpu_is_preempted(int cpu)
->                 return 0;
->         return 1;
->  }
-> +EXPORT_SYMBOL(arch_vcpu_is_preempted);
-> 
->  void arch_spin_lock_wait(arch_spinlock_t *lp)
->  {
-> 
-> 
-> 
-> If ok I can respin into a proper patch.
+CgrlnKggMjAxNi85LzI5IDE4OjEwLCBQZXRlciBaaWpsc3RyYSDlhpnpgZM6Cj4gT24gVGh1LCBK
+dWwgMjEsIDIwMTYgYXQgMDc6NDU6MTBBTSAtMDQwMCwgUGFuIFhpbmh1aSB3cm90ZToKPj4gY2hh
+bmdlIGZyb20gdjI6Cj4+IAlubyBjb2RlIGNoYW5nZSwgZml4IHR5cG9zLCB1cGRhdGUgc29tZSBj
+b21tZW50cwo+Pgo+PiBjaGFuZ2UgZnJvbSB2MToKPj4gCWEgc2ltcGxpZXIgZGVmaW5pdGlvbiBv
+ZiBkZWZhdWx0IHZjcHVfaXNfcHJlZW1wdGVkCj4+IAlza2lwIG1haGNpbmUgdHlwZSBjaGVjayBv
+biBwcGMsIGFuZCBhZGQgY29uZmlnLiByZW1vdmUgZGVkaWNhdGVkIG1hY3JvLgo+PiAJYWRkIG9u
+ZSBwYXRjaCB0byBkcm9wIG92ZXJsb2FkIG9mIHJ3c2VtX3NwaW5fb25fb3duZXIgYW5kIG11dGV4
+X3NwaW5fb25fb3duZXIuCj4+IAlhZGQgbW9yZSBjb21tZW50cwo+PiAJdGhhbmtzIGJvcXVuIGFu
+ZCBQZXRlcidzIHN1Z2dlc3Rpb24uCj4+Cj4+IFRoaXMgcGF0Y2ggc2V0IGFpbXMgdG8gZml4IGxv
+Y2sgaG9sZGVyIHByZWVtcHRpb24gaXNzdWVzLgo+Cj4gU28gSSByZWFsbHkgbGlrZSB0aGUgY29u
+Y2VwdCwgYnV0IEkgd291bGQgYWxzbyByZWFsbHkgbGlrZSB0byBzZWUKPiBzdXBwb3J0IGZvciBt
+b3JlIGh5cGVydmlzb3JzIGluY2x1ZGVkIGJlZm9yZSB3ZSBjYW4gbW92ZSBmb3J3YXJkIHdpdGgK
+PiB0aGlzLgo+Cj4gUGxlYXNlIGNvbnNpZGVyIHMzOTAgYW5kICh4ODYvYXJtKSBLVk0uIE9uY2Ug
+d2UgaGF2ZSBhIGZldywgbW9yZSBjYW4KPiBmb2xsb3cgbGF0ZXIsIGJ1dCBJIHRoaW5rIGl0cyBp
+bXBvcnRhbnQgdG8gbm90IG9ubHkgaGF2ZSBQUEMgc3VwcG9ydCBmb3IKPiB0aGlzLgo+CmhpLCBQ
+ZXRlcgoJcmlnaHQsIHdlIG5lZWQgY29uc2lkZXIgbW9yZSBhcmNoZXMuCkkgd2lsbCB0cnkgdG8g
+d29yayBvdXQgYSBSRkMgcGF0Y2ggb24geDg2IGFueXdheS4gVGhlcmUgYXJlIGFscmVhZHkgc29t
+ZSBkaXNjdXNzaW9ucyBvZiB0aGUgc29sdXRpb24gb24geDg2IDopCgp0aGFua3MKeGluaHVpCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
