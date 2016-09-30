@@ -1,20 +1,18 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
-Date: Fri, 30 Sep 2016 17:31:48 +0800
-Message-ID: <ce64b907-6316-7c36-428b-680d869ef045@linux.vnet.ibm.com>
+Date: Fri, 30 Sep 2016 12:44:39 +0200
+Message-ID: <aa24b1ac-8ab6-1aa6-f864-e52b34f042d3@de.ibm.com>
 References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 	<20160929101040.GV5016@twins.programming.kicks-ass.net>
 	<166f3bad-f700-4624-6c1c-996f90ad609c@de.ibm.com>
 	<20160929103133.GW5016@twins.programming.kicks-ass.net>
 	<496ba299-1f1d-e98b-7827-f861eeea5558@linux.vnet.ibm.com>
 	<2136938368.606190.1475218738567.JavaMail.zimbra@redhat.com>
-	<caabadb6-fe62-aaf7-260f-79f230d03a1c@linux.vnet.ibm.com>
-	<f0e8b549-e647-6a01-a93d-9f192adc70c6@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f0e8b549-e647-6a01-a93d-9f192adc70c6@redhat.com>
+In-Reply-To: <2136938368.606190.1475218738567.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,50 +24,50 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, Pan Xinhui <xinhui@linux.vnet.ibm.com>
 Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, will deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-CgrlnKggMjAxNi85LzMwIDE3OjA4LCBQYW9sbyBCb256aW5pIOWGmemBkzoKPgo+Cj4gT24gMzAv
-MDkvMjAxNiAxMDo1MiwgUGFuIFhpbmh1aSB3cm90ZToKPj4+IHg4NiBoYXMgbm8gaHlwZXJ2aXNv
-ciBzdXBwb3J0LCBhbmQgSSdkIGxpa2UgdG8gdW5kZXJzdGFuZCB0aGUgZGVzaXJlZAo+Pj4gc2Vt
-YW50aWNzIGZpcnN0LCBzbyBJIGRvbid0IHRoaW5rIGl0IHNob3VsZCBibG9jayB0aGlzIHNlcmll
-cy4gIEluCj4+Cj4+IE9uY2UgYSBndWVzdCBkbyBhIGh5cGVyY2FsbCBvciBzb21ldGhpbmcgc2lt
-aWxhciwgSU9XLCB0aGVyZSBpcyBhCj4+IGt2bV9ndWVzdF9leGl0LiB3ZSB0aGluayB0aGlzIGlz
-IGEgbG9jayBob2xkZXIgcHJlZW1wdGlvbi4KPj4gQWRuIFBQQyBpbXBsZW1lbnQgaXQgaW4gdGhp
-cyB3YXkuCj4KPiBPaywgZ29vZC4KPgo+Pj4gcGFydGljdWxhciwgdGhlcmUgYXJlIGF0IGxlYXN0
-IHRoZSBmb2xsb3dpbmcgY2hvaWNlczoKPj4+Cj4+PiAxKSBleGl0IHRvIHVzZXJzcGFjZSAoNS0x
-MC4wMDAgY2xvY2sgY3ljbGVzIGJlc3QgY2FzZSkgY291bnRzIGFzCj4+PiBsb2NrIGhvbGRlciBw
-cmVlbXB0aW9uCj4+Pgo+Pj4gMikgYW55IHRpbWUgdGhlIHZDUFUgdGhyZWFkIG5vdCBydW5uaW5n
-IGNvdW50cyBhcyBsb2NrIGhvbGRlcgo+Pj4gcHJlZW1wdGlvbgo+Pj4KPj4+IFRvIGltcGxlbWVu
-dCB0aGUgbGF0dGVyIHlvdSdkIG5lZWQgYSBoeXBlcmNhbGwgb3IgTVNSIChhdCBsZWFzdCBhcwo+
-Pj4gYSBzbG93IHBhdGgpLCBiZWNhdXNlIHRoZSBLVk0gcHJlZW1wdCBub3RpZmllciBpcyBvbmx5
-IGFjdGl2ZQo+Pj4gZHVyaW5nIHRoZSBLVk1fUlVOIGlvY3RsLgo+Pgo+PiBzZWVtcyBhIGxpdHRs
-ZSBleHBlbnNpdmUuIDooCj4+IEhvdyBtYW55IGNsb2NrIGN5Y2xlcyBpdCBtaWdodCBjb3N0Lgo+
-Cj4gQW4gTVNSIHJlYWQgaXMgYWJvdXQgMTUwMCBjbG9jayBjeWNsZXMsIGJ1dCBpdCBuZWVkIG5v
-dCBiZSB0aGUgZmFzdCBwYXRoCj4gKGUuZy4gdXNlIGEgYml0IHRvIGNoZWNrIGlmIHRoZSBDUFUg
-aXMgcnVubmluZywgaWYgbm90IHVzZSB0aGUgTVNSIHRvCj4gY2hlY2sgaWYgdGhlIENQVSBpcyBp
-biB1c2Vyc3BhY2UgYnV0IHRoZSBDUFUgdGhyZWFkIGlzIHNjaGVkdWxlZCkuICBCdXQKPiBpdCdz
-IG5vdCBuZWNlc3NhcnkgaWYgeW91IGFyZSBqdXN0IG1hdGNoaW5nIFBQQyBzZW1hbnRpY3MuCj4K
-PiBUaGVuIHRoZSBzaW1wbGVzdCB0aGluZyBpcyB0byB1c2UgdGhlIGt2bV9zdGVhbF90aW1lIHN0
-cnVjdCwgYW5kIGFkZCBhCj4gbmV3IGZpZWxkIHRvIGl0IHRoYXQgcmVwbGFjZXMgcGFkWzBdLiAg
-WW91IGNhbiB3cml0ZSBhIDAgdG8gdGhlIGZsYWcgaW4KPiByZWNvcmRfc3RlYWxfdGltZSAobm90
-IHByZWVtcHRlZCkgYW5kIGEgMSBpbiBrdm1fYXJjaF92Y3B1X3B1dAo+IChwcmVlbXB0ZWQpLiAg
-cmVjb3JkX3N0ZWFsX3RpbWUgaXMgY2FsbGVkIGJlZm9yZSB0aGUgVk0gc3RhcnRzIHJ1bm5pbmcs
-Cj4gaW1tZWRpYXRlbHkgYWZ0ZXIgS1ZNX1JVTiBhbmQgYWxzbyBhZnRlciBldmVyeSBzY2hlZF9p
-bi4KPgo+IElmIEtWTSBkb2Vzbid0IGltcGxlbWVudCB0aGUgZmxhZywgaXQgd29uJ3QgdG91Y2gg
-dGhhdCBmaWVsZCBhdCBhbGwuICBTbwo+IHRoZSBrZXJuZWwgY2FuIHdyaXRlIGEgMCwgbWVhbmlu
-ZyAibm90IHByZWVtcHRlZCIsIGFuZCBub3QgY2FyZSBpZiB0aGUKPiBoeXBlcnZpc29yIGltcGxl
-bWVudHMgdGhlIGZsYWcgb3Igbm90OiB0aGUgYW5zd2VyIHdpbGwgYWx3YXlzIGJlIHNhZmUuCj4K
-PiBUaGUgcG9pbnRlciB0byB0aGUgZmxhZyBjYW4gYmUgcGxhY2VkIGluIGEgcGVyLWNwdSB1MzIq
-LCBhbmQgYWdhaW4gaWYKPiB0aGUgdTMyKiBpcyBOVUxMIHRoYXQgbWVhbnMgIm5vdCBwcmVlbXB0
-ZWQiLgo+CnJlYWxseSBuaWNlIHN1Z2dlc3Rpb24hICBUaGF0J3Mgd2hhdCBJIHdhbnQgOikKCnRo
-YW5rcwp4aW5odWkKCj4gUGFvbG8KPgo+Cj4+IEkgYW0gc3RpbGwgbG9va2luZyBmb3Igb25lIHNo
-YXJlZCBzdHJ1Y3QgYmV0d2VlbiBrdm0gYW5kIGd1ZXN0IGtlcm5lbCBvbgo+PiB4ODYuCj4+IGFu
-ZCBldmVyeSB0aW1lIGt2bV9ndWVzdF9leGl0L2VudGVyIGNhbGxlZCwgd2Ugc3RvcmUgc29tZSBp
-bmZvIGluIGl0LiBTbwo+PiBndWVzdCBrZXJuZWwgY2FuIGNoZWNrIG9uZSB2Y3B1IGlzIHJ1bm5p
-bmcgb3Igbm90IHF1aWNrbHkuCj4+Cj4+IHRoYW5rcwo+PiB4aW5odWkKPj4KPj4+IFBhb2xvCj4+
-Pgo+Pgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On 09/30/2016 08:58 AM, Paolo Bonzini wrote:
+>>>>> Please consider s390 and (x86/arm) KVM. Once we have a few, more can
+>>>>> follow later, but I think its important to not only have PPC support for
+>>>>> this.
+>>>>
+>>>> Actually the s390 preemted check via sigp sense running  is available for
+>>>> all hypervisors (z/VM, LPAR and KVM) which implies everywhere as you can
+>>>> no longer buy s390 systems without LPAR.
+>>>>
+>>>> As Heiko already pointed out we could simply use a small inline function
+>>>> that calls cpu_is_preempted from arch/s390/lib/spinlock (or
+>>>> smp_vcpu_scheduled from smp.c)
+>>>
+>>> Sure, and I had vague memories of Heiko's email. This patch set however
+>>> completely fails to do that trivial hooking up.
+>>
+>> sorry for that.
+>> I will try to work it out on x86.
+> 
+> x86 has no hypervisor support, and I'd like to understand the desired
+> semantics first, so I don't think it should block this series.  In
+> particular, there are at least the following choices:
+
+I think the semantics can be slightly different for different architectures
+after all it is still a heuristics to improve performance.
+> 
+> 1) exit to userspace (5-10.000 clock cycles best case) counts as
+> lock holder preemption
+> 
+> 2) any time the vCPU thread not running counts as lock holder
+> preemption
+> 
+> To implement the latter you'd need a hypercall or MSR (at least as
+> a slow path), because the KVM preempt notifier is only active
+> during the KVM_RUN ioctl.
+
+FWIW, The s390 implementation uses kvm_arch_vcpu_put/load as trigger
+points for (un)setting the CPUSTAT_RUNNING. Strictly speaking an exit to
+userspace is not preempted, But as KVM has no control if we are being
+scheduled out when in QEMU this is the compromise that seems to work quite
+well for the s390 spinlock code (which checks the running state before 
+doing a yield hypercall). 
+In addition an exit to QEMU is really a rare case.
