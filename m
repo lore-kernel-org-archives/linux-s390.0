@@ -1,93 +1,87 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] s390x/spinlock: Provide vcpu_is_preempted globally
-Date: Thu, 29 Sep 2016 15:11:16 +0200
-Message-ID: <20160929151116.3b5e8f07@mschwide>
-References: <1475150056-58774-1-git-send-email-borntraeger@de.ibm.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v2 2/2] KVM: s390: Use memdup_user() rather than
+ duplicating code
+Date: Mon, 3 Oct 2016 14:11:18 +0200
+Message-ID: <CAMuHMdVX6RKZYQyOrX35D+EKoRH6ZFAkyiC=BKnyKtE1Ph4t8g@mail.gmail.com>
+References: <82b84c9c-38a4-4d17-910f-312668dbae01@users.sourceforge.net>
+ <bb710b21-d8c4-e172-63d4-b46c80645cb3@users.sourceforge.net>
+ <ddb2bbd9-757b-fc62-8642-ce827a7a666d@de.ibm.com> <e72e9854-443b-7033-d674-8a2d237600ca@users.sourceforge.net>
+ <c86f7520-885e-2829-ae9c-b81caa898e84@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1475150056-58774-1-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <c86f7520-885e-2829-ae9c-b81caa898e84@users.sourceforge.net>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: kvm@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, LKML <linux-kernel@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, Julia Lawall <julia.lawall@lip6.fr>, Walter Harms <wharms@bfs.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 29 Sep 2016 13:54:16 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+Hi Markus,
 
-> this implements the s390 backend for commit
-> "kernel/sched: introduce vcpu preempted check interface"
-> by simply reusing the existing cpu_is_preempted function.
-> 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+On Wed, Aug 24, 2016 at 8:40 PM, SF Markus Elfring
+<elfring@users.sourceforge.net> wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Wed, 24 Aug 2016 20:10:09 +0200
+>
+> * Reuse existing functionality from memdup_user() instead of keeping
+>   duplicate source code.
+>
+>   This issue was detected by using the Coccinelle software.
+>
+> * Return directly if this copy operation failed.
+>
+> Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 > ---
-> Martin, Heiko,
-> 
-> this patch is a minimal change by not touching all existing users of
-> cpu_is_preempted in spinlock.c. If you want it differently, let me
-> know.
-> 
-> 
->  arch/s390/include/asm/spinlock.h | 7 +++++++
->  arch/s390/lib/spinlock.c         | 3 ++-
->  2 files changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/spinlock.h
-> index 63ebf37..6e82986 100644
-> --- a/arch/s390/include/asm/spinlock.h
-> +++ b/arch/s390/include/asm/spinlock.h
-> @@ -21,6 +21,13 @@ _raw_compare_and_swap(unsigned int *lock, unsigned int old, unsigned int new)
->  	return __sync_bool_compare_and_swap(lock, old, new);
->  }
-> 
-> +int arch_vcpu_is_preempted(int cpu);
-> +#define vcpu_is_preempted cpu_is_preempted
-> +static inline bool cpu_is_preempted(int cpu)
-> +{
-> +	return arch_vcpu_is_preempted(cpu);
-> +}
-> +
->  /*
->   * Simple spin lock operations.  There are two variants, one clears IRQ's
->   * on the local processor, one does not.
-> diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
-> index e5f50a7..9f473c8 100644
-> --- a/arch/s390/lib/spinlock.c
-> +++ b/arch/s390/lib/spinlock.c
-> @@ -37,7 +37,7 @@ static inline void _raw_compare_and_delay(unsigned int *lock, unsigned int old)
->  	asm(".insn rsy,0xeb0000000022,%0,0,%1" : : "d" (old), "Q" (*lock));
->  }
-> 
-> -static inline int cpu_is_preempted(int cpu)
-> +int arch_vcpu_is_preempted(int cpu)
->  {
->  	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
->  		return 0;
-> @@ -45,6 +45,7 @@ static inline int cpu_is_preempted(int cpu)
->  		return 0;
->  	return 1;
->  }
-> +EXPORT_SYMBOL(arch_vcpu_is_preempted);
-> 
->  void arch_spin_lock_wait(arch_spinlock_t *lp)
->  {
+>
+> v2: Rebased on source files from "Linux next-20160824".
+>
+>  arch/s390/kvm/guestdbg.c | 18 ++++--------------
+>  1 file changed, 4 insertions(+), 14 deletions(-)
+>
+> diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+> index 70b71ac..d7c6a7f 100644
+> --- a/arch/s390/kvm/guestdbg.c
+> +++ b/arch/s390/kvm/guestdbg.c
+> @@ -216,20 +216,10 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>         else if (dbg->arch.nr_hw_bp > MAX_BP_COUNT)
+>                 return -EINVAL;
+>
+> -       bp_data = kmalloc_array(dbg->arch.nr_hw_bp,
+> -                               sizeof(*bp_data),
+> -                               GFP_KERNEL);
 
-Hmm, if I look at the code we now have an additional function for
-the spinlock loops. The call arch_vcpu_is_preempted which test
-CIF_ENABLED_WAIT and then calls smp_vcpu_scheduled(). The test
-used to be inline.
+Probably not an issue here, but if "sizeof(*bp_data) * dbg->arch.nr_hw_bp"
+overflows, kmalloc_array() would have returned NULL here...
 
-A better solution would be to move the CIF_ENABLED_WAIT test to the
-smp_vcpu_scheduled() function, rename it to arch_vcpu_is_preempted()
-and then export that function. The cpu_is_preempted() function is
-replaced by arch_vcpu_is_preempted() which does make a lot of sense,
-no?
+> -       if (!bp_data) {
+> -               ret = -ENOMEM;
+> -               goto error;
+> -       }
+> -
+> -       if (copy_from_user(bp_data,
+> -                          dbg->arch.hw_bp,
+> -                          sizeof(*bp_data) * dbg->arch.nr_hw_bp)) {
+> -               ret = -EFAULT;
+> -               goto error;
+> -       }
+> +       bp_data = memdup_user(dbg->arch.hw_bp,
+> +                             sizeof(*bp_data) * dbg->arch.nr_hw_bp);
 
--- 
-blue skies,
-   Martin.
+... while this would continue silently, and corrupt memory.
 
-"Reality continues to ruin my life." - Calvin.
+> +       if (IS_ERR(bp_data))
+> +               return PTR_ERR(bp_data);
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
