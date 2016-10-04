@@ -1,80 +1,94 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v3 0/4] implement vcpu preempted check
-Date: Wed, 5 Oct 2016 13:00:51 +0200
-Message-ID: <847f7377-61d3-835e-458b-aa9f4f5fcf8c@de.ibm.com>
-References: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+From: Davidlohr Bueso <dave@stgolabs.net>
+Subject: Re: [RFC PATCH-tip v4 01/10] locking/osq: Make lock/unlock proper
+ acquire/release barrier
+Date: Tue, 4 Oct 2016 12:06:01 -0700
+Message-ID: <20161004190601.GD24086@linux-80c1.suse>
+References: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com>
+ <1471554672-38662-2-git-send-email-Waiman.Long@hpe.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1469101514-49475-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
-Cc: kernellwp@gmail.com, jgross@suse.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1471554672-38662-2-git-send-email-Waiman.Long@hpe.com>
+Sender: linux-doc-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Waiman Long <Waiman.Long@hpe.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/21/2016 01:45 PM, Pan Xinhui wrote:
-> change from v2:
-> 	no code change, fix typos, update some comments
-> 
-> change from v1:
-> 	a simplier definition of default vcpu_is_preempted
-> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
-> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
-> 	add more comments
-> 	thanks boqun and Peter's suggestion.
-> 
-> This patch set aims to fix lock holder preemption issues.
-> 
-> test-case:
-> perf record -a perf bench sched messaging -g 400 -p && perf report
-> 
-> before patch:
-> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
->  5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
->  3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
->  3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
->  3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
->  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
-> 
-> after patch:
->  9.99%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
->  5.28%  sched-messaging  [unknown]         [H] 0xc0000000000768e0
->  4.27%  sched-messaging  [kernel.vmlinux]  [k] __copy_tofrom_user_power7
->  3.77%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
->  3.24%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
->  3.02%  sched-messaging  [kernel.vmlinux]  [k] system_call
->  2.69%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
-> 
-> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
-> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
-> These spin_on_onwer variant also cause rcu stall before we apply this patch set
-> 
-> Pan Xinhui (4):
->   kernel/sched: introduce vcpu preempted check interface
->   powerpc/spinlock: support vcpu preempted check
->   locking/osq: Drop the overhead of osq_lock()
->   kernel/locking: Drop the overhead of {mutex,rwsem}_spin_on_owner
-> 
->  arch/powerpc/include/asm/spinlock.h | 18 ++++++++++++++++++
->  include/linux/sched.h               | 12 ++++++++++++
->  kernel/locking/mutex.c              | 15 +++++++++++++--
->  kernel/locking/osq_lock.c           | 10 +++++++++-
->  kernel/locking/rwsem-xadd.c         | 16 +++++++++++++---
->  5 files changed, 65 insertions(+), 6 deletions(-)
-> 
+On Thu, 18 Aug 2016, Waiman Long wrote:
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-for the full series. With my patch on top this really improves
-some benchmarks for overcommitted KVM guests.
+>The osq_lock() and osq_unlock() function may not provide the necessary
+>acquire and release barrier in some cases. This patch makes sure
+>that the proper barriers are provided when osq_lock() is successful
+>or when osq_unlock() is called.
+
+But why do we need these guarantees given that osq is only used internally
+for lock owner spinning situations? Leaking out of the critical region will
+obviously be bad if using it as a full lock, but, as is, this can only hurt
+performance of two of the most popular locks in the kernel -- although yes,
+using smp_acquire__after_ctrl_dep is nicer for polling.
+
+If you need tighter osq for rwsems, could it be refactored such that mutexes
+do not take a hit?
+
+>
+>Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+>Signed-off-by: Waiman Long <Waiman.Long@hpe.com>
+>---
+> kernel/locking/osq_lock.c |   24 ++++++++++++++++++------
+> 1 files changed, 18 insertions(+), 6 deletions(-)
+>
+>diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
+>index 05a3785..3da0b97 100644
+>--- a/kernel/locking/osq_lock.c
+>+++ b/kernel/locking/osq_lock.c
+>@@ -124,6 +124,11 @@ bool osq_lock(struct optimistic_spin_queue *lock)
+>
+> 		cpu_relax_lowlatency();
+> 	}
+>+	/*
+>+	 * Add an acquire memory barrier for pairing with the release barrier
+>+	 * in unlock.
+>+	 */
+>+	smp_acquire__after_ctrl_dep();
+> 	return true;
+>
+> unqueue:
+>@@ -198,13 +203,20 @@ void osq_unlock(struct optimistic_spin_queue *lock)
+> 	 * Second most likely case.
+> 	 */
+> 	node = this_cpu_ptr(&osq_node);
+>-	next = xchg(&node->next, NULL);
+>-	if (next) {
+>-		WRITE_ONCE(next->locked, 1);
+>+	next = xchg_relaxed(&node->next, NULL);
+>+	if (next)
+>+		goto unlock;
+>+
+>+	next = osq_wait_next(lock, node, NULL);
+>+	if (unlikely(!next)) {
+>+		/*
+>+		 * In the unlikely event that the OSQ is empty, we need to
+>+		 * provide a proper release barrier.
+>+		 */
+>+		smp_mb();
+> 		return;
+> 	}
+>
+>-	next = osq_wait_next(lock, node, NULL);
+>-	if (next)
+>-		WRITE_ONCE(next->locked, 1);
+>+unlock:
+>+	smp_store_release(&next->locked, 1);
+> }
+
+As well as for the smp_acquire__after_ctrl_dep comment you have above, this also
+obviously pairs with the osq_lock's smp_load_acquire while backing out (unqueueing,
+step A). Given the above, for this case we might also just rely on READ_ONCE(node->locked),
+if we get the conditional wrong and miss the node becoming locked, all we do is another
+iteration, and while there is a cmpxchg() there, it is mitigated with the ccas thingy.
+
+Thanks,
+Davidlohr
