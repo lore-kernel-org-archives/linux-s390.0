@@ -1,57 +1,40 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: Re: [PATCH V2 net-next 15/15] smc: proc-fs interface for smc
- connections
-Date: Wed, 12 Oct 2016 16:00:27 +0200
-Message-ID: <a02646ea-9f36-85fc-f761-fd6ed123051c@linux.vnet.ibm.com>
-References: <20160927164156.26184-1-ubraun@linux.vnet.ibm.com>
- <20160927164156.26184-16-ubraun@linux.vnet.ibm.com>
- <20160927.222741.584893707513031004.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Tue, 04 Oct 2016 05:19:26 +0000
+Subject: Re: [PATCH -resend 6/6] frv, mn10300, s390, sh: remove empty vga.h
+Message-Id: <20161004071926.1b4e3036@mschwide>
+References: <20161003090736.19926-1-jslaby@suse.cz>
+        <20161003090736.19926-6-jslaby@suse.cz>
+In-Reply-To: <20161003090736.19926-6-jslaby@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20160927.222741.584893707513031004.davem@davemloft.net>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, utz.bacher@de.ibm.com
+List-Archive: <https://lore.kernel.org/linux-sh/>
+List-Post: <mailto:linux-sh@vger.kernel.org>
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: akpm@linux-foundation.org, linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, linux-am33-list@redhat.com, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Mon,  3 Oct 2016 11:07:36 +0200
+Jiri Slaby <jslaby@suse.cz> wrote:
 
-Hi Dave,
+> Provided the architectures do not need any special handling (they seem
+> not to support vga at all, actually), there is no need to have an
+> empty vga.h. Let them refer to the generic one instead.
+> 
+> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+> Cc: David Howells <dhowells@redhat.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: linux-am33-list@redhat.com
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-sh@vger.kernel.org
 
-thank you for your feedback. Following your guidance I studied the
-inet_diag/tcp_diag kernel code for AF_INET sockets. It could make sense
-to create an smc_diag module with an smc_diag_handler to provide
-SMC-socket data to userspace. Userspace tools could exploit this by
-receiving the SMC-socket data via AF_NETLINK sockets of protocol
-NETLINK_SOCK_DIAG.
-Please let me know, if this is the right direction.
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Regards, Ursula
+-- 
+blue skies,
+   Martin.
 
-On 09/28/2016 04:27 AM, David Miller wrote:
-> From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-> Date: Tue, 27 Sep 2016 18:41:56 +0200
-> 
->> Maintain a list of SMC sockets and display important SMC socket
->> information in /proc/net/smc.
->>
->> Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
-> 
-> Dumping internal tables and information via /procfs is strongly
-> deprecated.
-> 
-> Please use a more modern mechanism (such as netlink) to expose this
-> information to the user.
-> 
-> You'll be most likely to succeed in your submission if you make use of
-> or design a generic facility that allows other drivers similar to
-> your's to provide this kind of information as well.
-> 
-> I'm sorry if this is frustrating, but this is a huge piece of
-> infrastructure, therefore you can expect lots of pieces to get
-> feedback and require changes like this.
-> 
-> 
+"Reality continues to ruin my life." - Calvin.
