@@ -1,51 +1,81 @@
-From: Davidlohr Bueso <dave@stgolabs.net>
-Subject: Re: [RFC PATCH-tip v4 02/10] locking/rwsem: Stop active read lock
- ASAP
-Date: Thu, 6 Oct 2016 11:17:18 -0700
-Message-ID: <20161006181718.GA14967@linux-80c1.suse>
-References: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com>
- <1471554672-38662-3-git-send-email-Waiman.Long@hpe.com>
+From: Waiman Long <waiman.long@hpe.com>
+Subject: Re: [RFC PATCH-tip v4 01/10] locking/osq: Make lock/unlock proper
+ acquire/release barrier
+Date: Thu, 6 Oct 2016 15:30:15 -0400
+Message-ID: <57F6A647.3010207@hpe.com>
+References: <1471554672-38662-1-git-send-email-Waiman.Long@hpe.com> <1471554672-38662-2-git-send-email-Waiman.Long@hpe.com> <20161004190601.GD24086@linux-80c1.suse> <57F4EFCA.6050503@hpe.com> <57F5181F.60202@hpe.com> <20161006054747.GB29373@linux-80c1.suse>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1471554672-38662-3-git-send-email-Waiman.Long@hpe.com>
-Sender: linux-doc-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-alpha-owner@vger.kernel.org>
+In-Reply-To: <20161006054747.GB29373@linux-80c1.suse>
+Sender: linux-alpha-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Waiman Long <Waiman.Long@hpe.com>
+To: Davidlohr Bueso <dave@stgolabs.net>
 Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, Jason Low <jason.low2@hp.com>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, Scott J Norton <scott.norton@hpe.com>, Douglas Hatch <doug.hatch@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 18 Aug 2016, Waiman Long wrote:
-
->Currently, when down_read() fails, the active read locking isn't undone
->until the rwsem_down_read_failed() function grabs the wait_lock. If the
->wait_lock is contended, it may takes a while to get the lock. During
->that period, writer lock stealing will be disabled because of the
->active read lock.
+On 10/06/2016 01:47 AM, Davidlohr Bueso wrote:
+> On Wed, 05 Oct 2016, Waiman Long wrote:
 >
->This patch will release the active read lock ASAP so that writer lock
->stealing can happen sooner. The only downside is when the reader is
->the first one in the wait queue as it has to issue another atomic
->operation to update the count.
+>> diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
+>> index 05a3785..1e6823a 100644
+>> --- a/kernel/locking/osq_lock.c
+>> +++ b/kernel/locking/osq_lock.c
+>> @@ -12,6 +12,23 @@
+>>  */
+>> static DEFINE_PER_CPU_SHARED_ALIGNED(struct optimistic_spin_node, 
+>> osq_node);
+>>
+>> +enum mbtype {
+>> +    acquire,
+>> +    release,
+>> +    relaxed,
+>> +};
 >
->On a 4-socket Haswell machine running on a 4.7-rc1 tip-based kernel,
->the fio test with multithreaded randrw and randwrite tests on the
->same file on a XFS partition on top of a NVDIMM with DAX were run,
->the aggregated bandwidths before and after the patch were as follows:
+> No, please.
 >
->  Test      BW before patch     BW after patch  % change
->  ----      ---------------     --------------  --------
->  randrw        1210 MB/s          1352 MB/s      +12%
->  randwrite     1622 MB/s          1710 MB/s      +5.4%
+>> +
+>> +static __always_inline int
+>> +_atomic_cmpxchg_(const enum mbtype barrier, atomic_t *v, int old, 
+>> int new)
+>> +{
+>> +    if (barrier == acquire)
+>> +        return atomic_cmpxchg_acquire(v, old, new);
+>> +    else if (barrier == release)
+>> +        return atomic_cmpxchg_release(v, old, new);
+>> +    else
+>> +        return atomic_cmpxchg_relaxed(v, old, new);
+>> +}
+>
+> Things like the above are icky. How about something like below? I'm not
+> crazy about it, but there are other similar macros, ie lockref. We still
+> provide the osq_lock/unlock to imply acquire/release and the new _relaxed
+> flavor, as I agree that should be the correct naming
+>
+> While I have not touched osq_wait_next(), the following are impacted:
+>
+> - node->locked is now completely without ordering for _relaxed() 
+> (currently
+> its under smp_load_acquire, which does not match and the race is harmless
+> to begin with as we just iterate again. For the acquire flavor, it is 
+> always
+> formed with ctr dep + smp_rmb().
+>
+> - If osq_lock() fails we never guarantee any ordering.
+>
+> What do you think?
+>
+> Thanks,
+> Davidlohr
 
-Yeah, this is really a bad workload to make decisions on locking
-heuristics imo - if I'm thinking of the same workload. Mainly because
-concurrent buffered io to the same file isn't very realistic and you
-end up pathologically pounding on i_rwsem (which used to be until
-recently i_mutex until Al's parallel lookup/readdir). Obviously write
-lock stealing wins in this case.
+Yes, I am OK with your change. However, I need some additional changes 
+in osq_wait_next() as well. Either it is changed to use the release 
+variants of atomic_cmpxchg and xchg or using macro like what you did 
+with osq_lock and osq_unlock. The release variant is needed in the 
+osq_lock(). As osq_wait_next() is only invoked in the failure path of 
+osq_lock(), the barrier type doesn't really matter.
 
-Thanks,
-Davidlohr
+Cheers,
+Longman
