@@ -1,43 +1,99 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH v3] s390/spinlock: Provide vcpu_is_preempted
-Date: Wed, 19 Oct 2016 10:50:18 +0200
-Message-ID: <20161019085018.GE4077@osiris>
-References: <20161019074448.GC4077@osiris>
-	<1476866524-7724-1-git-send-email-borntraeger@de.ibm.com>
+From: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
+Subject: [PATCH v3 06/11] s390/tracing: fix compat syscall handling
+Date: Tue, 11 Oct 2016 12:42:51 +0200
+Message-ID: <1476182576-15247-7-git-send-email-marcin.nowakowski@imgtec.com>
+References: <1476182576-15247-1-git-send-email-marcin.nowakowski@imgtec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1476866524-7724-1-git-send-email-borntraeger@de.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1476182576-15247-1-git-send-email-marcin.nowakowski@imgtec.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-api@vger.kernel.org, luto@amacapital.net, rostedt@goodmis.org, Marcin Nowakowski <marcin.nowakowski@imgtec.com>, Ingo Molnar <mingo@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 19, 2016 at 10:42:04AM +0200, Christian Borntraeger wrote:
-> this implements the s390 backend for commit
-> "kernel/sched: introduce vcpu preempted check interface"
-> by reworking the existing smp_vcpu_scheduled into
-> arch_vcpu_is_preempted. We can then also get rid of the
-> local cpu_is_preempted function by moving the
-> CIF_ENABLED_WAIT test into arch_vcpu_is_preempted.
-> 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->  arch/s390/include/asm/spinlock.h |  8 ++++++++
->  arch/s390/kernel/smp.c           |  9 +++++++--
->  arch/s390/lib/spinlock.c         | 25 ++++++++-----------------
->  3 files changed, 23 insertions(+), 19 deletions(-)
+Add missing arch code - arch_trace_is_compat_syscall and
+arch_syscall_addr
 
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/include/asm/ftrace.h  | 11 +++++++++++
+ arch/s390/include/asm/syscall.h |  1 +
+ arch/s390/kernel/Makefile       |  1 +
+ arch/s390/kernel/ftrace.c       | 12 ++++++++++++
+ 4 files changed, 25 insertions(+)
+
+diff --git a/arch/s390/include/asm/ftrace.h b/arch/s390/include/asm/ftrace.h
+index 64053d9..af8ba9c 100644
+--- a/arch/s390/include/asm/ftrace.h
++++ b/arch/s390/include/asm/ftrace.h
+@@ -82,5 +82,16 @@ static inline void ftrace_generate_call_insn(struct ftrace_insn *insn,
+ #endif
+ }
+ 
++#if defined(CONFIG_FTRACE_SYSCALLS) && defined(CONFIG_COMPAT)
++#include <linux/compat.h>
++#include <asm/compat.h>
++
++#define ARCH_COMPAT_SYSCALL_NUMBERS_OVERLAP 1
++static inline bool arch_trace_is_compat_syscall(struct pt_regs *regs)
++{
++	return in_compat_syscall();
++}
++#endif /* CONFIG_FTRACE_SYSCALLS && CONFIG_COMPAT */
++
+ #endif /* __ASSEMBLY__ */
+ #endif /* _ASM_S390_FTRACE_H */
+diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+index 6ba0bf9..a08db5b 100644
+--- a/arch/s390/include/asm/syscall.h
++++ b/arch/s390/include/asm/syscall.h
+@@ -16,6 +16,7 @@
+ #include <linux/sched.h>
+ #include <linux/err.h>
+ #include <asm/ptrace.h>
++#include <linux/compat.h>
+ 
+ /*
+  * The syscall table always contains 32 bit pointers since we know that the
+diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+index 1f0fe98..6254eec 100644
+--- a/arch/s390/kernel/Makefile
++++ b/arch/s390/kernel/Makefile
+@@ -73,6 +73,7 @@ obj-$(CONFIG_COMPAT)		+= compat_wrapper.o $(compat-obj-y)
+ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+ obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o ftrace.o
++obj-$(CONFIG_FTRACE_SYSCALLS)	+= ftrace.o
+ obj-$(CONFIG_CRASH_DUMP)	+= crash_dump.o
+ obj-$(CONFIG_UPROBES)		+= uprobes.o
+ 
+diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+index 60a8a4e..3ce668e 100644
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -243,3 +243,15 @@ int ftrace_disable_ftrace_graph_caller(void)
+ }
+ 
+ #endif /* CONFIG_FUNCTION_GRAPH_TRACER */
++
++#if (defined CONFIG_FTRACE_SYSCALLS) && (defined CONFIG_COMPAT)
++
++unsigned long __init arch_syscall_addr(int nr, bool compat)
++{
++	if (compat)
++		return (unsigned long)sys_call_table_emu[nr];
++
++	return (unsigned long)sys_call_table[nr];
++}
++
++#endif /* CONFIG_FTRACE_SYSCALLS && CONFIG_COMPAT */
+-- 
+2.7.4
