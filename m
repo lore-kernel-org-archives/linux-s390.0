@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 1/3] s390/netiucv: get rid of one memcpy in netiucv_printuser
-Date: Wed, 12 Oct 2016 12:38:49 +0200
-Message-ID: <fc9696091325573020c1417c9d4ed010108f2172.1476263985.git.ursula.braun@de.ibm.com>
+Subject: [PATCH net 3/3] s390/lcs: remove trailing space at end of dev_err message
+Date: Wed, 12 Oct 2016 12:38:51 +0200
+Message-ID: <684d55b5d05a64e1b360b1d436a14774aa78fff1.1476263985.git.ursula.braun@de.ibm.com>
 References: <cover.1476263985.git.ursula.braun@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <cover.1476263985.git.ursula.braun@de.ibm.com>
@@ -14,27 +14,29 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Save a memcpy in netiucv_printuser().
+From: Colin Ian King <colin.king@canonical.com> 
 
+There is a trailing white space at the end of a dev_err
+message that does nothing useful - remove it.
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Reported-by: David Binderman <dcb314@hotmail.com>
 ---
- drivers/s390/net/netiucv.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/s390/net/lcs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index b0e8ffd..88b6e9c 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -302,8 +302,7 @@ static char *netiucv_printuser(struct iucv_connection *conn)
- 	if (memcmp(conn->userdata, iucvMagic_ebcdic, 16)) {
- 		tmp_uid[8] = '\0';
- 		tmp_udat[16] = '\0';
--		memcpy(tmp_uid, conn->userid, 8);
--		memcpy(tmp_uid, netiucv_printname(tmp_uid, 8), 8);
-+		memcpy(tmp_uid, netiucv_printname(conn->userid, 8), 8);
- 		memcpy(tmp_udat, conn->userdata, 16);
- 		EBCASC(tmp_udat, 16);
- 		memcpy(tmp_udat, netiucv_printname(tmp_udat, 16), 16);
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 251db0a..211b31d 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1888,7 +1888,7 @@ lcs_stop_device(struct net_device *dev)
+ 	rc = lcs_stopcard(card);
+ 	if (rc)
+ 		dev_err(&card->dev->dev,
+-			" Shutting down the LCS device failed\n ");
++			" Shutting down the LCS device failed\n");
+ 	return rc;
+ }
+ 
 -- 
 2.8.4
