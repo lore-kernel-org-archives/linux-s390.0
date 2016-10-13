@@ -1,280 +1,183 @@
-From: Lorenzo Stoakes <lstoakes@gmail.com>
-Subject: [PATCH 07/10] mm: replace get_user_pages_remote() write/force parameters with gup_flags
-Date: Thu, 13 Oct 2016 01:20:17 +0100
-Message-ID: <20161013002020.3062-8-lstoakes@gmail.com>
-References: <20161013002020.3062-1-lstoakes@gmail.com>
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20161013002020.3062-1-lstoakes@gmail.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/ceph-devel/>
-List-Post: <mailto:ceph-devel@vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Jan Kara <jack@suse.cz>, Hugh Dickins <hughd@google.com>, Dave Hansen <dave.hansen@linux.intel.com>, Rik van Riel <riel@redhat.com>, Mel Gorman <mgorman@techsingularity.net>, Andrew Morton <akpm@linux-foundation.org>, adi-buildroot-devel@lists.sourceforge.net, ceph-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, kvm@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-cris-kernel@axis.com, linux-fbdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-mips@linux-mips.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org, linux-sh@vger.kerne
+From: Johannes Thumshirn <jthumshirn@suse.de>
+Subject: Re: [PATCH v2 00/16] Convert FibreChannel bsg code to use bsg-lib
+Date: Thu, 13 Oct 2016 09:39:30 +0200
+Message-ID: <20161013073930.3xpijer2ozsjtriw@linux-x5ow.site>
+References: <cover.1476276823.git.jthumshirn@suse.de>
+ <7ad9f92c-e0e9-fa44-ccbf-a6719f040387@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <7ad9f92c-e0e9-fa44-ccbf-a6719f040387@linux.vnet.ibm.com>
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: Steffen Maier <maier@linux.vnet.ibm.com>
+Cc: "Martin K . Petersen" <martin.petersen@oracle.com>, Christoph Hellwig <hch@infradead.org>, Hannes Reinecke <hare@suse.de>, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, Linux SCSI Mailinglist <linux-scsi@vger.kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch removes the write and force parameters from get_user_pages_remote()
-and replaces them with a gup_flags parameter to make the use of FOLL_FORCE
-explicit in callers as use of this flag can result in surprising behaviour (and
-hence bugs) within the mm subsystem.
+On Wed, Oct 12, 2016 at 05:54:45PM +0200, Steffen Maier wrote:
+> Hi Johannes,
+>=20
+> On 10/12/2016 03:06 PM, Johannes Thumshirn wrote:
+> > This series converts the current bsg usage in the FibreChannel drivers =
+over
+> > to use bsg-lib. SAS will follow once FC is in a good enough shape.
+> >=20
+> > I did take some inspiration from a similar patchset from Mike Christie
+> > dating back to 2011 but it's not a 1:1 copy. Patch 15/16 is heavily bas=
+ed
+> > on his series and attribution is given to him in the commit message.
+> >=20
+> > It is currently regression tested on FCoE using the 'fcns' and
+> > 'fcrls' utilities.  I'm still trying to figure out how to test the other
+> > LLDDs. So any pointer from the respective maintainers are appreciated
+>=20
+> The first thing that comes to mind for zfcp is libzfcphbaapi and simply r=
+un
+> its tools for starters. They issue a few different CT GLS requests.
+> http://www.ibm.com/support/knowledgecenter/linuxonibm/com.ibm.linux.z.lhd=
+d/lhdd_t_fcp_api_runappl.html
+> or
+> http://www.ibm.com/support/knowledgecenter/linuxonibm/com.ibm.linux.z.lgd=
+d/lgdd_t_fcp_api_runappl.html
+> (upstream:
+> http://www.ibm.com/developerworks/linux/linux390/zfcp-hbaapi.html)
 
-Signed-off-by: Lorenzo Stoakes <lstoakes@gmail.com>
----
- drivers/gpu/drm/etnaviv/etnaviv_gem.c   |  7 +++++--
- drivers/gpu/drm/i915/i915_gem_userptr.c |  6 +++++-
- drivers/infiniband/core/umem_odp.c      |  7 +++++--
- fs/exec.c                               |  9 +++++++--
- include/linux/mm.h                      |  2 +-
- kernel/events/uprobes.c                 |  6 ++++--
- mm/gup.c                                | 22 +++++++---------------
- mm/memory.c                             |  6 +++++-
- security/tomoyo/domain.c                |  2 +-
- 9 files changed, 40 insertions(+), 27 deletions(-)
+I'll give it a try, thanks. zfcp_show was the 1st hit on Google as well, wh=
+en
+I was looking for a way to test it.
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem.c b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-index 5ce3603..0370b84 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-@@ -748,19 +748,22 @@ static struct page **etnaviv_gem_userptr_do_get_pages(
- 	int ret = 0, pinned, npages = etnaviv_obj->base.size >> PAGE_SHIFT;
- 	struct page **pvec;
- 	uintptr_t ptr;
-+	unsigned int flags = 0;
- 
- 	pvec = drm_malloc_ab(npages, sizeof(struct page *));
- 	if (!pvec)
- 		return ERR_PTR(-ENOMEM);
- 
-+	if (!etnaviv_obj->userptr.ro)
-+		flags |= FOLL_WRITE;
-+
- 	pinned = 0;
- 	ptr = etnaviv_obj->userptr.ptr;
- 
- 	down_read(&mm->mmap_sem);
- 	while (pinned < npages) {
- 		ret = get_user_pages_remote(task, mm, ptr, npages - pinned,
--					    !etnaviv_obj->userptr.ro, 0,
--					    pvec + pinned, NULL);
-+					    flags, pvec + pinned, NULL);
- 		if (ret < 0)
- 			break;
- 
-diff --git a/drivers/gpu/drm/i915/i915_gem_userptr.c b/drivers/gpu/drm/i915/i915_gem_userptr.c
-index e537930..c6f780f 100644
---- a/drivers/gpu/drm/i915/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/i915_gem_userptr.c
-@@ -508,6 +508,10 @@ __i915_gem_userptr_get_pages_worker(struct work_struct *_work)
- 	pvec = drm_malloc_gfp(npages, sizeof(struct page *), GFP_TEMPORARY);
- 	if (pvec != NULL) {
- 		struct mm_struct *mm = obj->userptr.mm->mm;
-+		unsigned int flags = 0;
-+
-+		if (!obj->userptr.read_only)
-+			flags |= FOLL_WRITE;
- 
- 		ret = -EFAULT;
- 		if (atomic_inc_not_zero(&mm->mm_users)) {
-@@ -517,7 +521,7 @@ __i915_gem_userptr_get_pages_worker(struct work_struct *_work)
- 					(work->task, mm,
- 					 obj->userptr.ptr + pinned * PAGE_SIZE,
- 					 npages - pinned,
--					 !obj->userptr.read_only, 0,
-+					 flags,
- 					 pvec + pinned, NULL);
- 				if (ret < 0)
- 					break;
-diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
-index 75077a0..1f0fe32 100644
---- a/drivers/infiniband/core/umem_odp.c
-+++ b/drivers/infiniband/core/umem_odp.c
-@@ -527,6 +527,7 @@ int ib_umem_odp_map_dma_pages(struct ib_umem *umem, u64 user_virt, u64 bcnt,
- 	u64 off;
- 	int j, k, ret = 0, start_idx, npages = 0;
- 	u64 base_virt_addr;
-+	unsigned int flags = 0;
- 
- 	if (access_mask == 0)
- 		return -EINVAL;
-@@ -556,6 +557,9 @@ int ib_umem_odp_map_dma_pages(struct ib_umem *umem, u64 user_virt, u64 bcnt,
- 		goto out_put_task;
- 	}
- 
-+	if (access_mask & ODP_WRITE_ALLOWED_BIT)
-+		flags |= FOLL_WRITE;
-+
- 	start_idx = (user_virt - ib_umem_start(umem)) >> PAGE_SHIFT;
- 	k = start_idx;
- 
-@@ -574,8 +578,7 @@ int ib_umem_odp_map_dma_pages(struct ib_umem *umem, u64 user_virt, u64 bcnt,
- 		 */
- 		npages = get_user_pages_remote(owning_process, owning_mm,
- 				user_virt, gup_num_pages,
--				access_mask & ODP_WRITE_ALLOWED_BIT,
--				0, local_page_list, NULL);
-+				flags, local_page_list, NULL);
- 		up_read(&owning_mm->mmap_sem);
- 
- 		if (npages < 0)
-diff --git a/fs/exec.c b/fs/exec.c
-index 6fcfb3f..4e497b9 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -191,6 +191,7 @@ static struct page *get_arg_page(struct linux_binprm *bprm, unsigned long pos,
- {
- 	struct page *page;
- 	int ret;
-+	unsigned int gup_flags = FOLL_FORCE;
- 
- #ifdef CONFIG_STACK_GROWSUP
- 	if (write) {
-@@ -199,12 +200,16 @@ static struct page *get_arg_page(struct linux_binprm *bprm, unsigned long pos,
- 			return NULL;
- 	}
- #endif
-+
-+	if (write)
-+		gup_flags |= FOLL_WRITE;
-+
- 	/*
- 	 * We are doing an exec().  'current' is the process
- 	 * doing the exec and bprm->mm is the new process's mm.
- 	 */
--	ret = get_user_pages_remote(current, bprm->mm, pos, 1, write,
--			1, &page, NULL);
-+	ret = get_user_pages_remote(current, bprm->mm, pos, 1, gup_flags,
-+			&page, NULL);
- 	if (ret <= 0)
- 		return NULL;
- 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 686a477..2a481d3 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1276,7 +1276,7 @@ long __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
- 		      struct vm_area_struct **vmas, int *nonblocking);
- long get_user_pages_remote(struct task_struct *tsk, struct mm_struct *mm,
- 			    unsigned long start, unsigned long nr_pages,
--			    int write, int force, struct page **pages,
-+			    unsigned int gup_flags, struct page **pages,
- 			    struct vm_area_struct **vmas);
- long get_user_pages(unsigned long start, unsigned long nr_pages,
- 			    unsigned int gup_flags, struct page **pages,
-diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index d4129bb..f9ec9ad 100644
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -300,7 +300,8 @@ int uprobe_write_opcode(struct mm_struct *mm, unsigned long vaddr,
- 
- retry:
- 	/* Read the page with vaddr into memory */
--	ret = get_user_pages_remote(NULL, mm, vaddr, 1, 0, 1, &old_page, &vma);
-+	ret = get_user_pages_remote(NULL, mm, vaddr, 1, FOLL_FORCE, &old_page,
-+			&vma);
- 	if (ret <= 0)
- 		return ret;
- 
-@@ -1710,7 +1711,8 @@ static int is_trap_at_addr(struct mm_struct *mm, unsigned long vaddr)
- 	 * but we treat this as a 'remote' access since it is
- 	 * essentially a kernel access to the memory.
- 	 */
--	result = get_user_pages_remote(NULL, mm, vaddr, 1, 0, 1, &page, NULL);
-+	result = get_user_pages_remote(NULL, mm, vaddr, 1, FOLL_FORCE, &page,
-+			NULL);
- 	if (result < 0)
- 		return result;
- 
-diff --git a/mm/gup.c b/mm/gup.c
-index dc91303..0deecf3 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -905,9 +905,7 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
-  * @mm:		mm_struct of target mm
-  * @start:	starting user address
-  * @nr_pages:	number of pages from start to pin
-- * @write:	whether pages will be written to by the caller
-- * @force:	whether to force access even when user mapping is currently
-- *		protected (but never forces write access to shared mapping).
-+ * @gup_flags:	flags modifying lookup behaviour
-  * @pages:	array that receives pointers to the pages pinned.
-  *		Should be at least nr_pages long. Or NULL, if caller
-  *		only intends to ensure the pages are faulted in.
-@@ -936,9 +934,9 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
-  * or similar operation cannot guarantee anything stronger anyway because
-  * locks can't be held over the syscall boundary.
-  *
-- * If write=0, the page must not be written to. If the page is written to,
-- * set_page_dirty (or set_page_dirty_lock, as appropriate) must be called
-- * after the page is finished with, and before put_page is called.
-+ * If gup_flags & FOLL_WRITE == 0, the page must not be written to. If the page
-+ * is written to, set_page_dirty (or set_page_dirty_lock, as appropriate) must
-+ * be called after the page is finished with, and before put_page is called.
-  *
-  * get_user_pages is typically used for fewer-copy IO operations, to get a
-  * handle on the memory by some means other than accesses via the user virtual
-@@ -955,18 +953,12 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
-  */
- long get_user_pages_remote(struct task_struct *tsk, struct mm_struct *mm,
- 		unsigned long start, unsigned long nr_pages,
--		int write, int force, struct page **pages,
-+		unsigned int gup_flags, struct page **pages,
- 		struct vm_area_struct **vmas)
- {
--	unsigned int flags = FOLL_TOUCH | FOLL_REMOTE;
--
--	if (write)
--		flags |= FOLL_WRITE;
--	if (force)
--		flags |= FOLL_FORCE;
--
- 	return __get_user_pages_locked(tsk, mm, start, nr_pages, pages, vmas,
--				       NULL, false, flags);
-+				       NULL, false,
-+				       gup_flags | FOLL_TOUCH | FOLL_REMOTE);
- }
- EXPORT_SYMBOL(get_user_pages_remote);
- 
-diff --git a/mm/memory.c b/mm/memory.c
-index fc1987d..20a9adb 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3873,6 +3873,10 @@ static int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
- {
- 	struct vm_area_struct *vma;
- 	void *old_buf = buf;
-+	unsigned int flags = FOLL_FORCE;
-+
-+	if (write)
-+		flags |= FOLL_WRITE;
- 
- 	down_read(&mm->mmap_sem);
- 	/* ignore errors, just check how much was successfully transferred */
-@@ -3882,7 +3886,7 @@ static int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
- 		struct page *page = NULL;
- 
- 		ret = get_user_pages_remote(tsk, mm, addr, 1,
--				write, 1, &page, &vma);
-+				flags, &page, &vma);
- 		if (ret <= 0) {
- #ifndef CONFIG_HAVE_IOREMAP_PROT
- 			break;
-diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
-index ade7c6c..682b73a 100644
---- a/security/tomoyo/domain.c
-+++ b/security/tomoyo/domain.c
-@@ -881,7 +881,7 @@ bool tomoyo_dump_page(struct linux_binprm *bprm, unsigned long pos,
- 	 * the execve().
- 	 */
- 	if (get_user_pages_remote(current, bprm->mm, pos, 1,
--				0, 1, &page, NULL) <= 0)
-+				FOLL_FORCE, &page, NULL) <= 0)
- 		return false;
- #else
- 	page = bprm->page[pos / PAGE_SIZE];
--- 
-2.10.0
+>=20
+> Theoretically above tools could be built against libHBAAPI on other
+> architectures.
+> Currently I don't have anything handy for ELS requests.
+>=20
+> Maybe there is some common code tool (possibly building directly on BSG
+> IOCTL) to exercise more code paths?
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Yes this is something I had in mind as well and it could become handy later=
+ on
+anyways.
+
+>=20
+> Just as a heads up the result of my example run (need to dig deeper why it
+> crashed):
+>=20
+> # zfcp_show -n
+>=20
+> Local Port List:
+> <<<end of ssh output, Linux console following...>>>
+> > [  799.640378] Oops: 0038 ilc:3 [#1] [  799.640387] PREEMPT  SMP [  799=
+.640393]
+> > [  799.640399] Modules linked in: nf_log_ipv6 xt_pkttype nf_log_ipv4 nf=
+_log_common xt_LOG xt_limit ip6t_REJECT nf_reject_ipv6 xt_tcpudp nf_conntra=
+ck_ipv6 nf_defrag_ipv6 ip6table_raw ipt_REJECT nf_reject_ipv4 iptable_raw x=
+t_CT iptable_filter ip6table_mangle nf_conntrack_netbios_ns nf_conntrack_br=
+oadcast nf_conntrack_ipv4 nf_defrag_ipv4 ip_tables xt_conntrack nf_conntrac=
+k ip6table_filter ip6_tables x_tables ghash_s390 prng ecb aes_s390 des_s390=
+ dm_mod des_generic sha512_s390 sha256_s390 qeth_l2 sha1_s390 qeth zfcp sha=
+_common ccwgroup qdio autofs4
+> > [  799.640542] CPU: 1 PID: 2210 Comm: zfcp_show Not tainted 4.8.0fcbsg+=
+ #6
+> > [  799.640550] Hardware name: IBM              2964 N96              70=
+2              (z/VM)
+> > [  799.640558] task: 0000000047b60008 task.stack: 0000000062428000
+> > [  799.640567] Krnl PSW : 0404e00180000000 00000000001b125c[  799.64058=
+1]  (__lock_acquire+0x104/0x7d8)
+> > [  799.640590]
+> > [  799.640599]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:2=
+ PM:0[  799.640618]  RI:0 EA:3
+> > [  799.640621]
+> > [  799.640621] Krnl GPRS: 0000000000000000 0000000000000008 07f40707c00=
+40000 0000000000000000
+> > [  799.640624]            0000000000000000 0000000000000000 00000000000=
+00001 0000000000000000
+> > [  799.640627]            0000000000000000 0000000000355cb4 00000000000=
+00000 0000000047b60008
+> > [  799.640630]            0300000000000000 00000000009b17b0 00000000624=
+2b800 000000006242b778
+> > [  799.640643] Krnl Code: 00000000001b124c: b9040029            lgr    =
+ %r2,%r9
+> > [  799.640648]            00000000001b1250: c0e5ffffd6a4        brasl  =
+ %r14,1abf98
+> >                          #00000000001b1256: ec28ffad007c       cgij    =
+%r2,0,8,1b11b0
+> > [  799.640659]           >00000000001b125c: eb012198006a        asi    =
+ 408(%r2,1
+> >                           00000000001b1262: 5830ba10           l       =
+%r3,2576(%r11)
+> > [  799.640669]            00000000001b1266: 5030f0a4            st     =
+ %r3,164(%r15)
+> >                           00000000001b126a: c01000e3f9db       larl    =
+%r1,1e30620
+> > [  799.640678]            00000000001b1270: e31010000012        lt     =
+ %r1,0(%r1)
+> > [  799.640682]
+> > [  799.640684] Call Trace:
+> > [  799.640687] ([<ffffffffffffffff>] 0xffffffffffffffff)
+> > [  799.640691] ([<00000000001b21f4>] lock_acquire+0x30c/0x358)
+> > [  799.640699] ([<000000000099fdae>] mutex_lock_interruptible_nested+0x=
+7e/0x4f8)
+> > [  799.640717] ([<000003ff8047a090>] zfcp_fc_wka_port_get+0x40/0x128 [z=
+fcp])
+> > [  799.640724] ([<000003ff8047bd54>] zfcp_fc_exec_bsg_job+0x244/0x2d8 [=
+zfcp])
+> > [  799.640732] ([<00000000007c8b1e>] fc_bsg_dispatch+0x20e/0x280)
+> > [  799.640739] ([<00000000006dea1a>] bsg_request_fn+0x132/0x1e0)
+> > [  799.640746] ([<00000000006b8e0a>] __blk_run_queue+0x52/0x68)
+> > [  799.640751] ([<00000000006c549a>] blk_execute_rq_nowait+0xf2/0x110)
+> > [  799.640754] ([<00000000006c557a>] blk_execute_rq+0xa2/0x110)
+> > [  799.640757] ([<00000000006de0ee>] bsg_ioctl+0x1f6/0x268)
+> > [  799.640763] ([<000000000036ca20>] do_vfs_ioctl+0x680/0x6d8)
+> > [  799.640767] ([<000000000036caf4>] SyS_ioctl+0x7c/0xb0)
+> > [  799.640771] ([<00000000009a50de>] system_call+0xd6/0x270)
+> > [  799.640774] INFO: lockdep is turned off.
+> > [  799.640776] Last Breaking-Event-Address:
+> > [  799.640779]  [<00000000001b1244>] __lock_acquire+0xec/0x7d8
+> > [  799.640782]  [  799.640785] Kernel panic - not syncing: Fatal except=
+ion: panic_on_oops
+
+I'll have a look into it. But from a first quick glance over it I must admi=
+t I
+don't see the problem yet. I could imagine two reasons for it though. One
+being the change in the refcounting and one being the patches changing over=
+ to
+the fc_bsg_to{shost,rport}() helpers. I think a git bisect will help here.
+
+>=20
+>=20
+> > although the LLDD changes are purely mechanical. All they do is change =
+from
+> > 'struct fc_bsg_job' to 'struct bsg_job' and corresponding changes in or=
+der
+> > to get the series bisectable.
+> >=20
+> > The idea for this change arose when discussing racy sysfs handling the =
+FC
+> > bsg code with Christoph and is a next step in moving all bsg clients to
+> > bsg-lib to eventually clean up the in kernel bsg API.
+> >=20
+> > Changes to v1:
+> > * Reduce the number of individual patches (44 -> 16)
+>=20
+> nice
+>=20
+> > * Fix s390 build failure (forgotten to kill fc_bsg_job from zfcp_ext.h)
+>=20
+> I pushed your patches on today's linux.git, i.e. post v4.8 with zfcp fixes
+> of v4.9 merge window already included and it did build with our
+> default_defconfig but qdio and zfcp as modules rather than built-in.
+
+Thanks for the feedback.
+
+	Johannes
+
+--=20
+Johannes Thumshirn                                          Storage
+jthumshirn@suse.de                                +49 911 74053 689
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
+GF: Felix Imend=F6rffer, Jane Smithard, Graham Norton
+HRB 21284 (AG N=FCrnberg)
+Key fingerprint =3D EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
