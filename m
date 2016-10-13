@@ -1,37 +1,68 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Steffen Maier <maier@linux.vnet.ibm.com>
 Subject: Re: [patch] zfcp: spin_lock_irqsave() is not nestable
-Date: Tue, 25 Oct 2016 09:28:29 +0200
-Message-ID: <e926cd4a-ba76-36f0-9d1c-d039d9ca5d11@de.ibm.com>
+Date: Thu, 13 Oct 2016 12:49:18 +0200
+Message-ID: <409dfaed-85eb-01ba-539d-df95f008a6bf@linux.vnet.ibm.com>
 References: <20161013085358.GH16198@mwanda>
- <409dfaed-85eb-01ba-539d-df95f008a6bf@linux.vnet.ibm.com>
- <yq11szilm1d.fsf@sermon.lab.mkp.net>
- <63c024b9-8662-e521-62e0-e0ebe980b217@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <63c024b9-8662-e521-62e0-e0ebe980b217@de.ibm.com>
+In-Reply-To: <20161013085358.GH16198@mwanda>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "Martin K. Petersen" <martin.petersen@oracle.com>, Steffen Maier <maier@linux.vnet.ibm.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-scsi@vger.kernel.org, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, =?UTF-8?Q?Hendrik_Br=c3=bcckner?= <brueckner@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>, linux-scsi@vger.kernel.org, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, =?UTF-8?Q?Hendrik_Br=c3=bcckner?= <brueckner@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/24/2016 10:18 AM, Christian Borntraeger wrote:
-> On 10/14/2016 10:21 PM, Martin K. Petersen wrote:
->>>>>>> "Steffen" == Steffen Maier <maier@linux.vnet.ibm.com> writes:
->>
->> Steffen> could you please queue this as fix for one of my patches that
->> Steffen> went into the 4.9 merge window, so for 4.9-rc I guess?
->>
->> Applied to 4.9/scsi-fixes.
->>
-> 
-> FWIW, I do see rcu stall errors with 4.9-rc1 from time to time, so I assume
-> that this fix is not only theoretical but fixes a real life issue.
+Dan, many thanks for catching this! Sparse did not notice, is there=20
+other tooling that would find such things?
 
-Yes, with that patch the rcu stalls are gone, I assume its already on a branch
-that does not rebase, otherwise feel free to add
+James, Martin, could you please queue this as fix for one of my patches=20
+that went into the 4.9 merge window, so for 4.9-rc I guess?
+https://lkml.kernel.org/r/20161013085358.GH16198@mwanda
+or
+https://lkml.org/lkml/2016/10/13/94
 
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+On 10/13/2016 10:53 AM, Dan Carpenter wrote:
+> We accidentally overwrite the original saved value of "flags" so that
+> we can't re-enable IRQs at the end of the function.  Presumably this
+> function is mostly called with IRQs disabled or it would be obvious in
+> testing.
+>
+> Fixes: aceeffbb59bb ("zfcp: trace full payload of all SAN records (req,re=
+sp,iels)")
+
+Cc: <stable@vger.kernel.org> #2.6.38+
+
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
+
+>
+> diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+> index 637cf89..5810019 100644
+> --- a/drivers/s390/scsi/zfcp_dbf.c
+> +++ b/drivers/s390/scsi/zfcp_dbf.c
+> @@ -384,7 +384,7 @@ void zfcp_dbf_san(char *tag, struct zfcp_dbf *dbf,
+>  	/* if (len > rec_len):
+>  	 * dump data up to cap_len ignoring small duplicate in rec->payload
+>  	 */
+> -	spin_lock_irqsave(&dbf->pay_lock, flags);
+> +	spin_lock(&dbf->pay_lock);
+>  	memset(payload, 0, sizeof(*payload));
+>  	memcpy(payload->area, paytag, ZFCP_DBF_TAG_LEN);
+>  	payload->fsf_req_id =3D req_id;
+>
+
+--=20
+Mit freundlichen Gr=FC=DFen / Kind regards
+Steffen Maier
+
+Linux on z Systems Development
+
+IBM Deutschland Research & Development GmbH
+Vorsitzende des Aufsichtsrats: Martina Koederitz
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
