@@ -1,26 +1,27 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
 Subject: Re: [patch] zfcp: spin_lock_irqsave() is not nestable
-Date: Thu, 13 Oct 2016 14:27:38 +0300
-Message-ID: <20161013112737.GE5687@mwanda>
+Date: Fri, 14 Oct 2016 16:21:02 -0400
+Message-ID: <yq11szilm1d.fsf@sermon.lab.mkp.net>
 References: <20161013085358.GH16198@mwanda>
- <409dfaed-85eb-01ba-539d-df95f008a6bf@linux.vnet.ibm.com>
+        <409dfaed-85eb-01ba-539d-df95f008a6bf@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Type: text/plain
+Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <409dfaed-85eb-01ba-539d-df95f008a6bf@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+        (Steffen Maier's message of "Thu, 13 Oct 2016 12:49:18 +0200")
+Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: Steffen Maier <maier@linux.vnet.ibm.com>
-Cc: linux-scsi@vger.kernel.org, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Hendrik =?iso-8859-1?Q?Br=FCckner?= <brueckner@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-scsi@vger.kernel.org, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Hendrik =?utf-8?Q?Br=C3=BCckner?= <brueckner@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Oct 13, 2016 at 12:49:18PM +0200, Steffen Maier wrote:
-> Dan, many thanks for catching this! Sparse did not notice, is there
-> other tooling that would find such things?
+>>>>> "Steffen" == Steffen Maier <maier@linux.vnet.ibm.com> writes:
 
-This was a Smatch warning.
+Steffen> could you please queue this as fix for one of my patches that
+Steffen> went into the 4.9 merge window, so for 4.9-rc I guess?
 
-regards,
-dan carpenter
+Applied to 4.9/scsi-fixes.
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
