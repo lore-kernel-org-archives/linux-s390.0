@@ -1,30 +1,32 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [patch] zfcp: spin_lock_irqsave() is not nestable
-Date: Mon, 24 Oct 2016 10:18:45 +0200
-Message-ID: <63c024b9-8662-e521-62e0-e0ebe980b217@de.ibm.com>
-References: <20161013085358.GH16198@mwanda>
- <409dfaed-85eb-01ba-539d-df95f008a6bf@linux.vnet.ibm.com>
- <yq11szilm1d.fsf@sermon.lab.mkp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <yq11szilm1d.fsf@sermon.lab.mkp.net>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "Martin K. Petersen" <martin.petersen@oracle.com>, Steffen Maier <maier@linux.vnet.ibm.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-scsi@vger.kernel.org, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, =?UTF-8?Q?Hendrik_Br=c3=bcckner?= <brueckner@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Fri, 14 Oct 2016 10:24:55 +0000
+Subject: Re: [PATCH 1/1] s390: mm: use hugetlb_bad_size()
+Message-Id: <20161014102455.GB4047@osiris>
+In-Reply-To: <1476375607-7973-1-git-send-email-mayhs11saini@gmail.com>
+References: <1476375607-7973-1-git-send-email-mayhs11saini@gmail.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/14/2016 10:21 PM, Martin K. Petersen wrote:
->>>>>> "Steffen" == Steffen Maier <maier@linux.vnet.ibm.com> writes:
+On Thu, Oct 13, 2016 at 09:50:07PM +0530, Shyam Saini wrote:
+> Update setup_hugepagesz() to call hugetlb_bad_size() when unsupported
+> hugepage size is found.
 > 
-> Steffen> could you please queue this as fix for one of my patches that
-> Steffen> went into the 4.9 merge window, so for 4.9-rc I guess?
+> ----------
+> This patch is not tested on actual s390 architecture
 > 
-> Applied to 4.9/scsi-fixes.
+> Signed-off-by: Shyam Saini <mayhs11saini@gmail.com>
+> ---
+>  arch/s390/mm/hugetlbpage.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
+> diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
+> index cd404aa..4a0c5bc 100644
+> --- a/arch/s390/mm/hugetlbpage.c
+> +++ b/arch/s390/mm/hugetlbpage.c
+> @@ -217,6 +217,7 @@ static __init int setup_hugepagesz(char *opt)
+>  	} else if (MACHINE_HAS_EDAT2 && size == PUD_SIZE) {
+>  		hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
+>  	} else {
+> +		hugetlb_bad_size();
 
-FWIW, I do see rcu stall errors with 4.9-rc1 from time to time, so I assume
-that this fix is not only theoretical but fixes a real life issue.
+Applied, thanks!
