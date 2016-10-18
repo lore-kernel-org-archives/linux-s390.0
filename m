@@ -1,76 +1,63 @@
-From: Johannes Thumshirn <jthumshirn@suse.de>
-Subject: [PATCH 03/44] zfcp: don't use fc_bsg_job::request and fc_bsg_job::reply directly
-Date: Tue, 11 Oct 2016 13:28:34 +0200
-Message-ID: <53a42af175ac34e3267aac3f30b4e839498ac44a.1476180827.git.jthumshirn@suse.de>
-References: <cover.1476180827.git.jthumshirn@suse.de>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <cover.1476180827.git.jthumshirn@suse.de>
-In-Reply-To: <cover.1476180827.git.jthumshirn@suse.de>
-References: <cover.1476180827.git.jthumshirn@suse.de>
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Hannes Reinecke <hare@suse.de>, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, Linux SCSI Mailinglist <linux-scsi@vger.kernel.org>, Johannes Thumshirn <jthumshirn@suse.de>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "open list:S390 ZFCP DRIVER" <linux-s390@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 18 Oct 2016 10:53:28 +0200 (CEST)
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Subject: Re: [PATCH 25/28] s390: pci: don't print uninitialized data for
+ debugging
+In-Reply-To: <20161018084855.1a100670@mschwide>
+References: <20161017220342.1627073-1-arnd@arndb.de> <20161017221650.1902729-6-arnd@arndb.de> <20161018084855.1a100670@mschwide>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <alpine.LFD.2.20.1610181034070.1706@schleppi>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Don't use fc_bsg_job::request and fc_bsg_job::reply directly, but use
-helper variables bsg_request and bsg_reply. This will be helpfull when
-transitioning to bsg-lib.
+On Tue, 18 Oct 2016, Martin Schwidefsky wrote:
+> On Tue, 18 Oct 2016 00:16:13 +0200
+> Arnd Bergmann <arnd@arndb.de> wrote:
+> 
+> > gcc correctly warns about an incorrect use of the 'pa' variable
+> > in case we pass an empty scatterlist to __s390_dma_map_sg:
+> > 
+> > arch/s390/pci/pci_dma.c: In function '__s390_dma_map_sg':
+> > arch/s390/pci/pci_dma.c:309:13: warning: 'pa' may be used uninitialized in this function [-Wmaybe-uninitialized]
+> > 
+> > This adds a bogus initialization to the function to sanitize
+> > the debug output.  I would have preferred a solution without
+> > the initialization, but I only got the report from the
+> > kbuild bot after turning on the warning again, and didn't
+> > manage to reproduce it myself.
+> > 
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > ---
+> >  arch/s390/pci/pci_dma.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
+> > index 7350c8b..6b2f72f 100644
+> > --- a/arch/s390/pci/pci_dma.c
+> > +++ b/arch/s390/pci/pci_dma.c
+> > @@ -423,7 +423,7 @@ static int __s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+> >  	dma_addr_t dma_addr_base, dma_addr;
+> >  	int flags = ZPCI_PTE_VALID;
+> >  	struct scatterlist *s;
+> > -	unsigned long pa;
+> > +	unsigned long pa = 0;
+> >  	int ret;
+> > 
+> >  	size = PAGE_ALIGN(size);
+> 
+> The compiler is right. pa is set in the for-loop. If "dma_addr < dma_addr_base + size"
+> is never true and __dma_purge_tlb() returns with an error, pa *is* uninitialized.
+> The fix seems sensible to me.
 
-Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
----
- drivers/s390/scsi/zfcp_fc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Although that could only happen if map_sg is called with zero length sg
+list entries I'm in favor getting rid of that warning.
 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index 237688a..4c4023f 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -900,8 +900,9 @@ static struct zfcp_fc_wka_port *zfcp_fc_job_wka_port(struct fc_bsg_job *job)
- 	u32 preamble_word1;
- 	u8 gs_type;
- 	struct zfcp_adapter *adapter;
-+	struct fc_bsg_request *bsg_request = job->request;
- 
--	preamble_word1 = job->request->rqst_data.r_ct.preamble_word1;
-+	preamble_word1 = bsg_request->rqst_data.r_ct.preamble_word1;
- 	gs_type = (preamble_word1 & 0xff000000) >> 24;
- 
- 	adapter = (struct zfcp_adapter *) job->shost->hostdata[0];
-@@ -938,6 +939,7 @@ static int zfcp_fc_exec_els_job(struct fc_bsg_job *job,
- {
- 	struct zfcp_fsf_ct_els *els = job->dd_data;
- 	struct fc_rport *rport = job->rport;
-+	struct fc_bsg_request *bsg_request = job->request;
- 	struct zfcp_port *port;
- 	u32 d_id;
- 
-@@ -949,7 +951,7 @@ static int zfcp_fc_exec_els_job(struct fc_bsg_job *job,
- 		d_id = port->d_id;
- 		put_device(&port->dev);
- 	} else
--		d_id = ntoh24(job->request->rqst_data.h_els.port_id);
-+		d_id = ntoh24(bsg_request->rqst_data.h_els.port_id);
- 
- 	els->handler = zfcp_fc_ct_els_job_handler;
- 	return zfcp_fsf_send_els(adapter, d_id, els, job->req->timeout / HZ);
-@@ -983,6 +985,7 @@ int zfcp_fc_exec_bsg_job(struct fc_bsg_job *job)
- 	struct Scsi_Host *shost;
- 	struct zfcp_adapter *adapter;
- 	struct zfcp_fsf_ct_els *ct_els = job->dd_data;
-+	struct fc_bsg_request *bsg_request = job->request;
- 
- 	shost = job->rport ? rport_to_shost(job->rport) : job->shost;
- 	adapter = (struct zfcp_adapter *)shost->hostdata[0];
-@@ -994,7 +997,7 @@ int zfcp_fc_exec_bsg_job(struct fc_bsg_job *job)
- 	ct_els->resp = job->reply_payload.sg_list;
- 	ct_els->handler_data = job;
- 
--	switch (job->request->msgcode) {
-+	switch (bsg_request->msgcode) {
- 	case FC_BSG_RPT_ELS:
- 	case FC_BSG_HST_ELS_NOLOGIN:
- 		return zfcp_fc_exec_els_job(job, adapter);
--- 
-1.8.5.6
+Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+
+Regards,
+Sebastian
