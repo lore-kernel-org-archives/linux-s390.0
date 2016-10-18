@@ -1,53 +1,75 @@
-From: Lorenzo Stoakes <lstoakes@gmail.com>
-Subject: Re: [PATCH 04/10] mm: replace get_user_pages_locked() write/force
- parameters with gup_flags
-Date: Tue, 18 Oct 2016 14:56:09 +0100
-Message-ID: <20161018135609.GA30025@lucifer>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH 00/10] mm: adjust get_user_pages* functions to explicitly
+ pass FOLL_* flags
+Date: Tue, 18 Oct 2016 17:30:50 +0200
+Message-ID: <20161018153050.GC13117@dhcp22.suse.cz>
 References: <20161013002020.3062-1-lstoakes@gmail.com>
- <20161013002020.3062-5-lstoakes@gmail.com>
- <20161018125425.GD29967@quack2.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-fsdevel-owner@vger.kernel.org>
+Return-path: <owner-linux-mm@kvack.org>
 Content-Disposition: inline
-In-Reply-To: <20161018125425.GD29967@quack2.suse.cz>
-Sender: linux-fsdevel-owner@vger.kernel.org
+In-Reply-To: <20161013002020.3062-1-lstoakes@gmail.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/ceph-devel/>
 List-Post: <mailto:ceph-devel@vger.kernel.org>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-mm@kvack.org, Linus Torvalds <torvalds@linux-foundation.org>, Hugh Dickins <hughd@google.com>, Dave Hansen <dave.hansen@linux.intel.com>, Rik van Riel <riel@redhat.com>, Mel Gorman <mgorman@techsingularity.net>, Andrew Morton <akpm@linux-foundation.org>, adi-buildroot-devel@lists.sourceforge.net, ceph-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, kvm@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-cris-kernel@axis.com, linux-fbdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-mips@linux-mips.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: Lorenzo Stoakes <lstoakes@gmail.com>
+Cc: linux-mm@kvack.org, Linus Torvalds <torvalds@linux-foundation.org>, Jan Kara <jack@suse.cz>, Hugh Dickins <hughd@google.com>, Dave Hansen <dave.hansen@linux.intel.com>, Rik van Riel <riel@redhat.com>, Mel Gorman <mgorman@techsingularity.net>, Andrew Morton <akpm@linux-foundation.org>, adi-buildroot-devel@lists.sourceforge.net, ceph-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, kvm@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-cris-kernel@axis.com, linux-fbdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-mips@linux-mips.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Oct 18, 2016 at 02:54:25PM +0200, Jan Kara wrote:
-> > @@ -1282,7 +1282,7 @@ long get_user_pages(unsigned long start, unsigned long nr_pages,
-> >  			    int write, int force, struct page **pages,
-> >  			    struct vm_area_struct **vmas);
-> >  long get_user_pages_locked(unsigned long start, unsigned long nr_pages,
-> > -		    int write, int force, struct page **pages, int *locked);
-> > +		    unsigned int gup_flags, struct page **pages, int *locked);
->
-> Hum, the prototype is inconsistent with e.g. __get_user_pages_unlocked()
-> where gup_flags come after **pages argument. Actually it makes more sense
-> to have it before **pages so that input arguments come first and output
-> arguments second but I don't care that much. But it definitely should be
-> consistent...
+On Thu 13-10-16 01:20:10, Lorenzo Stoakes wrote:
+> This patch series adjusts functions in the get_user_pages* family such that
+> desired FOLL_* flags are passed as an argument rather than implied by flags.
+> 
+> The purpose of this change is to make the use of FOLL_FORCE explicit so it is
+> easier to grep for and clearer to callers that this flag is being used. The use
+> of FOLL_FORCE is an issue as it overrides missing VM_READ/VM_WRITE flags for the
+> VMA whose pages we are reading from/writing to, which can result in surprising
+> behaviour.
+> 
+> The patch series came out of the discussion around commit 38e0885, which
+> addressed a BUG_ON() being triggered when a page was faulted in with PROT_NONE
+> set but having been overridden by FOLL_FORCE. do_numa_page() was run on the
+> assumption the page _must_ be one marked for NUMA node migration as an actual
+> PROT_NONE page would have been dealt with prior to this code path, however
+> FOLL_FORCE introduced a situation where this assumption did not hold.
+> 
+> See https://marc.info/?l=linux-mm&m=147585445805166 for the patch proposal.
 
-It was difficult to decide quite how to arrange parameters as there was
-inconsitency with regards to parameter ordering already - for example
-__get_user_pages() places its flags argument before pages whereas, as you note,
-__get_user_pages_unlocked() puts them afterwards.
+I like this cleanup. Tracking FOLL_FORCE users was always a nightmare
+and the flag behavior is really subtle so we should better be explicit
+about it. I haven't gone through each patch separately but rather
+applied the whole series and checked the resulting diff. This all seems
+OK to me and feel free to add
+Acked-by: Michal Hocko <mhocko@suse.com>
 
-I ended up compromising by trying to match the existing ordering of the function
-as much as I could by replacing write, force pairs with gup_flags in the same
-location (with the exception of get_user_pages_unlocked() which I felt should
-match __get_user_pages_unlocked() in signature) or if there was already a
-gup_flags parameter as in the case of __get_user_pages_unlocked() I simply
-removed the write, force pair and left the flags as the last parameter.
+I am wondering whether we can go further. E.g. it is not really clear to
+me whether we need an explicit FOLL_REMOTE when we can in fact check
+mm != current->mm and imply that. Maybe there are some contexts which
+wouldn't work, I haven't checked.
 
-I am happy to rearrange parameters as needed, however I am not sure if it'd be
-worthwhile for me to do so (I am keen to try to avoid adding too much noise here
-:)
+Then I am also wondering about FOLL_TOUCH behavior.
+__get_user_pages_unlocked has only few callers which used to be
+get_user_pages_unlocked before 1e9877902dc7e ("mm/gup: Introduce
+get_user_pages_remote()"). To me a dropped FOLL_TOUCH seems
+unintentional. Now that get_user_pages_unlocked has gup_flags argument I
+guess we might want to get rid of the __g-u-p-u version altogether, no?
 
-If we were to rearrange parameters for consistency I'd suggest adjusting
-__get_user_pages_unlocked() to put gup_flags before pages and do the same with
-get_user_pages_unlocked(), let me know what you think.
+__get_user_pages is quite low level and imho shouldn't be exported. It's
+only user - kvm - should rather pull those two functions to gup instead
+and export them. There is nothing really KVM specific in them.
+
+I also cannot say I would be entirely thrilled about get_user_pages_locked,
+we only have one user which can simply do lock g-u-p unlock AFAICS.
+
+I guess there is more work in that area and I do not want to impose all
+that work on you, but I couldn't resist once I saw you playing in that
+area ;) Definitely a good start!
+-- 
+Michal Hocko
+SUSE Labs
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
