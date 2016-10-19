@@ -1,37 +1,28 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Juergen Gross <jgross@suse.com>
 Subject: Re: [PATCH v4 0/5] implement vcpu preempted check
-Date: Wed, 19 Oct 2016 08:47:09 +0200
-Message-ID: <e3fd1bd3-c57d-f0b0-68c4-ecd450d1ad32@de.ibm.com>
+Date: Wed, 19 Oct 2016 17:58:46 +0200
+Message-ID: <a801cd40-1019-01e2-1013-f04363fc7f31@suse.com>
 References: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: multipart/mixed;
+ boundary="------------0DA18E86B982FAA044921A6E"
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
-Cc: kernellwp@gmail.com, jgross@suse.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
+Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/19/2016 12:20 PM, Pan Xinhui wrote:
+This is a multi-part message in MIME format.
+--------------0DA18E86B982FAA044921A6E
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+
+On 19/10/16 12:20, Pan Xinhui wrote:
 > change from v3:
 > 	add x86 vcpu preempted check patch
-
-If you want you could add the s390 patch that I provided for your last version.
-I also gave my Acked-by for all previous patches.
-
-
-
 > change from v2:
 > 	no code change, fix typos, update some comments
 > change from v1:
@@ -104,6 +95,20 @@ I also gave my Acked-by for all previous patches.
 >   kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
 >   powerpc/spinlock: support vcpu preempted check
 >   x86, kvm: support vcpu preempted check
+
+The attached patch adds Xen support for x86. Please tell me whether you
+want to add this patch to your series or if I should post it when your
+series has been accepted.
+
+You can add my
+
+Tested-by: Juergen Gross <jgross@suse.com>
+
+for patches 1-3 and 5 (paravirt parts only).
+
+
+Juergen
+
 > 
 >  arch/powerpc/include/asm/spinlock.h   |  8 ++++++++
 >  arch/x86/include/asm/paravirt_types.h |  6 ++++++
@@ -118,3 +123,56 @@ I also gave my Acked-by for all previous patches.
 >  kernel/locking/rwsem-xadd.c           | 16 +++++++++++++---
 >  11 files changed, 105 insertions(+), 7 deletions(-)
 > 
+
+
+--------------0DA18E86B982FAA044921A6E
+Content-Type: text/x-patch;
+ name="0001-x86-xen-support-vcpu-preempted-check.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0001-x86-xen-support-vcpu-preempted-check.patch"
+
+From c79b86d00a812d6207ef788d453e2d0289ef22a0 Mon Sep 17 00:00:00 2001
+From: Juergen Gross <jgross@suse.com>
+Date: Wed, 19 Oct 2016 15:30:59 +0200
+Subject: [PATCH] x86, xen: support vcpu preempted check
+
+Support the vcpu_is_preempted() functionality under Xen. This will
+enhance lock performance on overcommitted hosts (more runnable vcpus
+than physical cpus in the system) as doing busy waits for preempted
+vcpus will hurt system performance far worse than early yielding.
+
+A quick test (4 vcpus on 1 physical cpu doing a parallel build job
+with "make -j 8") reduced system time by about 5% with this patch.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ arch/x86/xen/spinlock.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 3d6e006..1d53b1b 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -114,7 +114,6 @@ void xen_uninit_lock_cpu(int cpu)
+ 	per_cpu(irq_name, cpu) = NULL;
+ }
+ 
+-
+ /*
+  * Our init of PV spinlocks is split in two init functions due to us
+  * using paravirt patching and jump labels patching and having to do
+@@ -137,6 +136,8 @@ void __init xen_init_spinlocks(void)
+ 	pv_lock_ops.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
+ 	pv_lock_ops.wait = xen_qlock_wait;
+ 	pv_lock_ops.kick = xen_qlock_kick;
++
++	pv_vcpu_ops.vcpu_is_preempted = xen_vcpu_stolen;
+ }
+ 
+ /*
+-- 
+2.6.6
+
+
+--------------0DA18E86B982FAA044921A6E--
