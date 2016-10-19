@@ -1,14 +1,15 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 0/5] implement vcpu preempted check
-Date: Thu, 20 Oct 2016 01:08:02 +0800
-Message-ID: <59e0f857-0a5c-929d-98dc-878e97bcfb3c@linux.vnet.ibm.com>
+From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Subject: Re: [PATCH v4 5/5] x86, kvm: support vcpu preempted check
+Date: Wed, 19 Oct 2016 19:24:03 +0200
+Message-ID: <20161019172403.GA9240@potion>
 References: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<a801cd40-1019-01e2-1013-f04363fc7f31@suse.com>
+	<1476872416-42752-6-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a801cd40-1019-01e2-1013-f04363fc7f31@suse.com>
+Content-Disposition: inline
+In-Reply-To: <1476872416-42752-6-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,96 +21,122 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Juergen Gross <jgross@suse.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
-Cc: kernellwp@gmail.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, peterz@infradead.org, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, boqun.feng@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-CuWcqCAyMDE2LzEwLzE5IDIzOjU4LCBKdWVyZ2VuIEdyb3NzIOWGmemBkzoKPiBPbiAxOS8xMC8x
-NiAxMjoyMCwgUGFuIFhpbmh1aSB3cm90ZToKPj4gY2hhbmdlIGZyb20gdjM6Cj4+IAlhZGQgeDg2
-IHZjcHUgcHJlZW1wdGVkIGNoZWNrIHBhdGNoCj4+IGNoYW5nZSBmcm9tIHYyOgo+PiAJbm8gY29k
-ZSBjaGFuZ2UsIGZpeCB0eXBvcywgdXBkYXRlIHNvbWUgY29tbWVudHMKPj4gY2hhbmdlIGZyb20g
-djE6Cj4+IAlhIHNpbXBsaWVyIGRlZmluaXRpb24gb2YgZGVmYXVsdCB2Y3B1X2lzX3ByZWVtcHRl
-ZAo+PiAJc2tpcCBtYWhjaW5lIHR5cGUgY2hlY2sgb24gcHBjLCBhbmQgYWRkIGNvbmZpZy4gcmVt
-b3ZlIGRlZGljYXRlZCBtYWNyby4KPj4gCWFkZCBvbmUgcGF0Y2ggdG8gZHJvcCBvdmVybG9hZCBv
-ZiByd3NlbV9zcGluX29uX293bmVyIGFuZCBtdXRleF9zcGluX29uX293bmVyLgo+PiAJYWRkIG1v
-cmUgY29tbWVudHMKPj4gCXRoYW5rcyBib3F1biBhbmQgUGV0ZXIncyBzdWdnZXN0aW9uLgo+Pgo+
-PiBUaGlzIHBhdGNoIHNldCBhaW1zIHRvIGZpeCBsb2NrIGhvbGRlciBwcmVlbXB0aW9uIGlzc3Vl
-cy4KPj4KPj4gdGVzdC1jYXNlOgo+PiBwZXJmIHJlY29yZCAtYSBwZXJmIGJlbmNoIHNjaGVkIG1l
-c3NhZ2luZyAtZyA0MDAgLXAgJiYgcGVyZiByZXBvcnQKPj4KPj4gMTguMDklICBzY2hlZC1tZXNz
-YWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSBvc3FfbG9jawo+PiAxMi4yOCUgIHNjaGVkLW1l
-c3NhZ2luZyAgW2tlcm5lbC52bWxpbnV4XSAgW2tdIHJ3c2VtX3NwaW5fb25fb3duZXIKPj4gIDUu
-MjclICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSBtdXRleF91bmxvY2sK
-Pj4gIDMuODklICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSB3YWl0X2Nv
-bnNpZGVyX3Rhc2sKPj4gIDMuNjQlICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0g
-IFtrXSBfcmF3X3dyaXRlX2xvY2tfaXJxCj4+ICAzLjQxJSAgc2NoZWQtbWVzc2FnaW5nICBba2Vy
-bmVsLnZtbGludXhdICBba10gbXV0ZXhfc3Bpbl9vbl9vd25lci5pcwo+PiAgMi40OSUgIHNjaGVk
-LW1lc3NhZ2luZyAgW2tlcm5lbC52bWxpbnV4XSAgW2tdIHN5c3RlbV9jYWxsCj4+Cj4+IFdlIGlu
-dHJvZHVjZSBpbnRlcmZhY2UgYm9vbCB2Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KSBhbmQgdXNl
-IGl0IGluIHNvbWUgc3Bpbgo+PiBsb29wcyBvZiBvc3FfbG9jaywgcndzZW1fc3Bpbl9vbl9vd25l
-ciBhbmQgbXV0ZXhfc3Bpbl9vbl9vd25lci4KPj4gVGhlc2Ugc3Bpbl9vbl9vbndlciB2YXJpYW50
-IGFsc28gY2F1c2UgcmN1IHN0YWxsIGJlZm9yZSB3ZSBhcHBseSB0aGlzIHBhdGNoIHNldAo+Pgo+
-PiBXZSBhbHNvIGhhdmUgb2JzZXJ2ZWQgc29tZSBwZXJmb3JtYWNlIGltcHJvdmVtZW50cy4KPj4K
-Pj4gUFBDIHRlc3QgcmVzdWx0Ogo+Pgo+PiAxIGNvcHkgLSAwLjk0JQo+PiAyIGNvcHkgLSA3LjE3
-JQo+PiA0IGNvcHkgLSAxMS45JQo+PiA4IGNvcHkgLSAgMy4wNCUKPj4gMTYgY29weSAtIDE1LjEx
-JQo+Pgo+PiBkZXRhaWxzIGJlbG93Ogo+PiBXaXRob3V0IHBhdGNoOgo+Pgo+PiAxIGNvcHkgLSBG
-aWxlIFdyaXRlIDQwOTYgYnVmc2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgIDIxODgyMjMuMCBLQnBz
-ICAoMzAuMCBzLCAxIHNhbXBsZXMpCj4+IDIgY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZzaXpl
-IDgwMDAgbWF4YmxvY2tzICAgICAgMTgwNDQzMy4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxlcykK
-Pj4gNCBjb3B5IC0gRmlsZSBXcml0ZSA0MDk2IGJ1ZnNpemUgODAwMCBtYXhibG9ja3MgICAgICAx
-MjM3MjU3LjAgS0JwcyAgKDMwLjAgcywgMSBzYW1wbGVzKQo+PiA4IGNvcHkgLSBGaWxlIFdyaXRl
-IDQwOTYgYnVmc2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgIDEwMzI2NTguMCBLQnBzICAoMzAuMCBz
-LCAxIHNhbXBsZXMpCj4+IDE2IGNvcHkgLSBGaWxlIFdyaXRlIDQwOTYgYnVmc2l6ZSA4MDAwIG1h
-eGJsb2NrcyAgICAgICA3NjgwMDAuMCBLQnBzICAoMzAuMSBzLCAxIHNhbXBsZXMpCj4+Cj4+IFdp
-dGggcGF0Y2g6Cj4+Cj4+IDEgY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4
-YmxvY2tzICAgICAgMjIwOTE4OS4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxlcykKPj4gMiBjb3B5
-IC0gRmlsZSBXcml0ZSA0MDk2IGJ1ZnNpemUgODAwMCBtYXhibG9ja3MgICAgICAxOTQzODE2LjAg
-S0JwcyAgKDMwLjAgcywgMSBzYW1wbGVzKQo+PiA0IGNvcHkgLSBGaWxlIFdyaXRlIDQwOTYgYnVm
-c2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgIDE0MDU1OTEuMCBLQnBzICAoMzAuMCBzLCAxIHNhbXBs
-ZXMpCj4+IDggY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tzICAg
-ICAgMTA2NTA4MC4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxlcykKPj4gMTYgY29weSAtIEZpbGUg
-V3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tzICAgICAgIDkwNDc2Mi4wIEtCcHMgICgz
-MC4wIHMsIDEgc2FtcGxlcykKPj4KPj4gWDg2IHRlc3QgcmVzdWx0Ogo+PiAJdGVzdC1jYXNlCQkJ
-YWZ0ZXItcGF0Y2gJICBiZWZvcmUtcGF0Y2gKPj4gRXhlY2wgVGhyb3VnaHB1dCAgICAgICAgICAg
-ICAgICAgICAgICAgfCAgICAxODMwNy45IGxwcyAgfCAgICAxMTcwMS42IGxwcwo+PiBGaWxlIENv
-cHkgMTAyNCBidWZzaXplIDIwMDAgbWF4YmxvY2tzICB8ICAxMzUyNDA3LjMgS0JwcyB8ICAgNzkw
-NDE4LjkgS0Jwcwo+PiBGaWxlIENvcHkgMjU2IGJ1ZnNpemUgNTAwIG1heGJsb2NrcyAgICB8ICAg
-MzY3NTU1LjYgS0JwcyB8ICAgMjIyODY3LjcgS0Jwcwo+PiBGaWxlIENvcHkgNDA5NiBidWZzaXpl
-IDgwMDAgbWF4YmxvY2tzICB8ICAzNjc1NjQ5LjcgS0JwcyB8ICAxNzgwNjE0LjQgS0Jwcwo+PiBQ
-aXBlIFRocm91Z2hwdXQgICAgICAgICAgICAgICAgICAgICAgICB8IDExODcyMjA4LjcgbHBzICB8
-IDExODU1NjI4LjkgbHBzCj4+IFBpcGUtYmFzZWQgQ29udGV4dCBTd2l0Y2hpbmcgICAgICAgICAg
-IHwgIDE0OTUxMjYuNSBscHMgIHwgIDE0OTA1MzMuOSBscHMKPj4gUHJvY2VzcyBDcmVhdGlvbiAg
-ICAgICAgICAgICAgICAgICAgICAgfCAgICAyOTg4MS4yIGxwcyAgfCAgICAyODU3Mi44IGxwcwo+
-PiBTaGVsbCBTY3JpcHRzICgxIGNvbmN1cnJlbnQpICAgICAgICAgICB8ICAgIDIzMjI0LjMgbHBt
-ICB8ICAgIDIyNjA3LjQgbHBtCj4+IFNoZWxsIFNjcmlwdHMgKDggY29uY3VycmVudCkgICAgICAg
-ICAgIHwgICAgIDM1MzEuNCBscG0gIHwgICAgIDMyMTEuOSBscG0KPj4gU3lzdGVtIENhbGwgT3Zl
-cmhlYWQgICAgICAgICAgICAgICAgICAgfCAxMDM4NTY1My4wIGxwcyAgfCAxMDQxOTk3OS4wIGxw
-cwo+Pgo+PiBQYW4gWGluaHVpICg1KToKPj4gICBrZXJuZWwvc2NoZWQ6IGludHJvZHVjZSB2Y3B1
-IHByZWVtcHRlZCBjaGVjayBpbnRlcmZhY2UKPj4gICBsb2NraW5nL29zcTogRHJvcCB0aGUgb3Zl
-cmxvYWQgb2Ygb3NxX2xvY2soKQo+PiAgIGtlcm5lbC9sb2NraW5nOiBEcm9wIHRoZSBvdmVybG9h
-ZCBvZiB7bXV0ZXgscndzZW19X3NwaW5fb25fb3duZXIKPj4gICBwb3dlcnBjL3NwaW5sb2NrOiBz
-dXBwb3J0IHZjcHUgcHJlZW1wdGVkIGNoZWNrCj4+ICAgeDg2LCBrdm06IHN1cHBvcnQgdmNwdSBw
-cmVlbXB0ZWQgY2hlY2sKPgo+IFRoZSBhdHRhY2hlZCBwYXRjaCBhZGRzIFhlbiBzdXBwb3J0IGZv
-ciB4ODYuIFBsZWFzZSB0ZWxsIG1lIHdoZXRoZXIgeW91Cj4gd2FudCB0byBhZGQgdGhpcyBwYXRj
-aCB0byB5b3VyIHNlcmllcyBvciBpZiBJIHNob3VsZCBwb3N0IGl0IHdoZW4geW91cgo+IHNlcmll
-cyBoYXMgYmVlbiBhY2NlcHRlZC4KPgpoaSwgSnVlcmdlbgoJWW91ciBwYXRjaCBpcyBwcmV0dHkg
-c21hbGwgYW5kIG5pY2UgOikgdGhhbmtzIQpJIGNhbiBpbmNsdWRlIHlvdXIgcGF0Y2ggaW50byBt
-eSBuZXh0IHBhdGNoc2V0IGFmdGVyIHRoaXMgcGF0Y2hzZXQgcmV2aWV3ZWQuIDopCgoKPiBZb3Ug
-Y2FuIGFkZCBteQo+Cj4gVGVzdGVkLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+
-Cj4KPiBmb3IgcGF0Y2hlcyAxLTMgYW5kIDUgKHBhcmF2aXJ0IHBhcnRzIG9ubHkpLgo+CgpUaGFu
-a3MgYSBsb3QhCgp4aW5odWkKCj4KPiBKdWVyZ2VuCj4KPj4KPj4gIGFyY2gvcG93ZXJwYy9pbmNs
-dWRlL2FzbS9zcGlubG9jay5oICAgfCAgOCArKysrKysrKwo+PiAgYXJjaC94ODYvaW5jbHVkZS9h
-c20vcGFyYXZpcnRfdHlwZXMuaCB8ICA2ICsrKysrKwo+PiAgYXJjaC94ODYvaW5jbHVkZS9hc20v
-c3BpbmxvY2suaCAgICAgICB8ICA4ICsrKysrKysrCj4+ICBhcmNoL3g4Ni9pbmNsdWRlL3VhcGkv
-YXNtL2t2bV9wYXJhLmggIHwgIDMgKystCj4+ICBhcmNoL3g4Ni9rZXJuZWwva3ZtLmMgICAgICAg
-ICAgICAgICAgIHwgMTEgKysrKysrKysrKysKPj4gIGFyY2gveDg2L2tlcm5lbC9wYXJhdmlydC5j
-ICAgICAgICAgICAgfCAxMSArKysrKysrKysrKwo+PiAgYXJjaC94ODYva3ZtL3g4Ni5jICAgICAg
-ICAgICAgICAgICAgICB8IDEyICsrKysrKysrKysrKwo+PiAgaW5jbHVkZS9saW51eC9zY2hlZC5o
-ICAgICAgICAgICAgICAgICB8IDEyICsrKysrKysrKysrKwo+PiAga2VybmVsL2xvY2tpbmcvbXV0
-ZXguYyAgICAgICAgICAgICAgICB8IDE1ICsrKysrKysrKysrKystLQo+PiAga2VybmVsL2xvY2tp
-bmcvb3NxX2xvY2suYyAgICAgICAgICAgICB8IDEwICsrKysrKysrKy0KPj4gIGtlcm5lbC9sb2Nr
-aW5nL3J3c2VtLXhhZGQuYyAgICAgICAgICAgfCAxNiArKysrKysrKysrKysrLS0tCj4+ICAxMSBm
-aWxlcyBjaGFuZ2VkLCAxMDUgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMoLSkKPj4KPgoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+2016-10-19 06:20-0400, Pan Xinhui:
+> This is to fix some lock holder preemption issues. Some other locks
+> implementation do a spin loop before acquiring the lock itself.
+> Currently kernel has an interface of bool vcpu_is_preempted(int cpu). It
+> takes the cpu as parameter and return true if the cpu is preempted.  Then
+> kernel can break the spin loops upon on the retval of vcpu_is_preempted.
+> 
+> As kernel has used this interface, So lets support it.
+> 
+> We use one field of struct kvm_steal_time to indicate that if one vcpu
+> is running or not.
+> 
+> unix benchmark result:
+> host:  kernel 4.8.1, i5-4570, 4 cpus
+> guest: kernel 4.8.1, 8 vcpus
+> 
+> 	test-case			after-patch	  before-patch
+> Execl Throughput                       |    18307.9 lps  |    11701.6 lps 
+> File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
+> File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
+> File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
+> Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps 
+> Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps 
+> Process Creation                       |    29881.2 lps  |    28572.8 lps 
+> Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm 
+> Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm 
+> System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps 
+> 
+> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+> ---
+> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+> @@ -98,6 +98,10 @@ struct pv_time_ops {
+>  	unsigned long long (*steal_clock)(int cpu);
+>  };
+>  
+> +struct pv_vcpu_ops {
+> +	bool (*vcpu_is_preempted)(int cpu);
+> +};
+> +
+
+(I would put it into pv_lock_ops to save the plumbing.)
+
+> diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
+> @@ -45,7 +45,8 @@ struct kvm_steal_time {
+>  	__u64 steal;
+>  	__u32 version;
+>  	__u32 flags;
+> -	__u32 pad[12];
+> +	__u32 preempted;
+
+Why __u32 instead of __u8?
+
+> +	__u32 pad[11];
+>  };
+
+Please document the change in Documentation/virtual/kvm/msr.txt, section
+MSR_KVM_STEAL_TIME.
+
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> @@ -415,6 +415,15 @@ void kvm_disable_steal_time(void)
+> +static bool kvm_vcpu_is_preempted(int cpu)
+> +{
+> +	struct kvm_steal_time *src;
+> +
+> +	src = &per_cpu(steal_time, cpu);
+> +
+> +	return !!src->preempted;
+> +}
+> +
+>  #ifdef CONFIG_SMP
+>  static void __init kvm_smp_prepare_boot_cpu(void)
+>  {
+> @@ -488,6 +497,8 @@ void __init kvm_guest_init(void)
+>  	kvm_guest_cpu_init();
+>  #endif
+>  
+> +	pv_vcpu_ops.vcpu_is_preempted = kvm_vcpu_is_preempted;
+
+Would be nicer to assign conditionally in the KVM_FEATURE_STEAL_TIME
+block.  The steal_time structure has to be zeroed, so this code would
+work, but the native function (return false) is better if we know that
+the kvm_vcpu_is_preempted() would always return false anway.
+
+Old KVMs won't have the feature, so we could also assign only when KVM
+reports it, but that requires extra definitions and the performance gain
+is fairly small, so I'm ok with this.
+
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> @@ -2057,6 +2057,8 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
+>  		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time))))
+>  		return;
+>  
+> +	vcpu->arch.st.steal.preempted = 0;
+> +
+>  	if (vcpu->arch.st.steal.version & 1)
+>  		vcpu->arch.st.steal.version += 1;  /* first time write, random junk */
+>  
+> @@ -2812,6 +2814,16 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+>  
+>  void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+>  {
+> +	if (vcpu->arch.st.msr_val & KVM_MSR_ENABLED)
+> +		if (kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
+> +					&vcpu->arch.st.steal,
+> +					sizeof(struct kvm_steal_time)) == 0) {
+> +			vcpu->arch.st.steal.preempted = 1;
+> +			kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
+> +					&vcpu->arch.st.steal,
+> +					sizeof(struct kvm_steal_time));
+> +		}
+
+Please name this block of code.  Something like
+  kvm_steal_time_set_preempted(vcpu);
+
+Thanks.
