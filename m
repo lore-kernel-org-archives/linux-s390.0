@@ -1,40 +1,39 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v4 2/5] locking/osq: Drop the overload of osq_lock()
-Date: Wed, 19 Oct 2016 06:20:13 -0400
-Message-ID: <1476872416-42752-3-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v4 3/5] kernel/locking: Drop the overload of {mutex,
+	rwsem}_spin_on_owner
+Date: Wed, 19 Oct 2016 06:20:14 -0400
+Message-ID: <1476872416-42752-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 References: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
-Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: kernellwp@gmail.com, jgross@suse.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
 An over-committed guest with more vCPUs than pCPUs has a heavy overload in
-osq_lock().
-
-This is because vCPU A hold the osq lock and yield out, vCPU B wait per_cpu
-node->locked to be set. IOW, vCPU B wait vCPU A to run and unlock the osq
-lock.
+the two spin_on_owner. This blames on the lock holder preemption issue.
 
 Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
 currently running or not. So break the spin loops on true condition.
 
-test case:
+test-case:
 perf record -a perf bench sched messaging -g 400 -p && perf report
 
 before patch:
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
-
-after patch:
 20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
  8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
  4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
@@ -43,40 +42,88 @@ after patch:
  2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
  2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
 
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+after patch:
+ 9.99%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 5.28%  sched-messaging  [unknown]         [H] 0xc0000000000768e0
+ 4.27%  sched-messaging  [kernel.vmlinux]  [k] __copy_tofrom_user_power7
+ 3.77%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
+ 3.24%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+ 3.02%  sched-messaging  [kernel.vmlinux]  [k] system_call
+ 2.69%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 ---
- kernel/locking/osq_lock.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ kernel/locking/mutex.c      | 15 +++++++++++++--
+ kernel/locking/rwsem-xadd.c | 16 +++++++++++++---
+ 2 files changed, 26 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 05a3785..39d1385 100644
---- a/kernel/locking/osq_lock.c
-+++ b/kernel/locking/osq_lock.c
-@@ -21,6 +21,11 @@ static inline int encode_cpu(int cpu_nr)
- 	return cpu_nr + 1;
- }
+diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
+index a70b90d..8927e96 100644
+--- a/kernel/locking/mutex.c
++++ b/kernel/locking/mutex.c
+@@ -236,7 +236,13 @@ bool mutex_spin_on_owner(struct mutex *lock, struct task_struct *owner)
+ 		 */
+ 		barrier();
  
-+static inline int node_cpu(struct optimistic_spin_node *node)
-+{
-+	return node->cpu - 1;
-+}
-+
- static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_val)
- {
- 	int cpu_nr = encoded_cpu_val - 1;
-@@ -118,8 +123,11 @@ bool osq_lock(struct optimistic_spin_queue *lock)
- 	while (!READ_ONCE(node->locked)) {
- 		/*
- 		 * If we need to reschedule bail... so we can block.
+-		if (!owner->on_cpu || need_resched()) {
++		/*
 +		 * Use vcpu_is_preempted to detech lock holder preemption issue
 +		 * and break. vcpu_is_preempted is a macro defined by false if
 +		 * arch does not support vcpu preempted check,
- 		 */
--		if (need_resched())
-+		if (need_resched() || vcpu_is_preempted(node_cpu(node->prev)))
- 			goto unqueue;
++		 */
++		if (!owner->on_cpu || need_resched() ||
++				vcpu_is_preempted(task_cpu(owner))) {
+ 			ret = false;
+ 			break;
+ 		}
+@@ -261,8 +267,13 @@ static inline int mutex_can_spin_on_owner(struct mutex *lock)
  
- 		cpu_relax_lowlatency();
+ 	rcu_read_lock();
+ 	owner = READ_ONCE(lock->owner);
++
++	/*
++	 * As lock holder preemption issue, we both skip spinning if task is not
++	 * on cpu or its cpu is preempted
++	 */
+ 	if (owner)
+-		retval = owner->on_cpu;
++		retval = owner->on_cpu && !vcpu_is_preempted(task_cpu(owner));
+ 	rcu_read_unlock();
+ 	/*
+ 	 * if lock->owner is not set, the mutex owner may have just acquired
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 2337b4b..ad0b5bb 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -336,7 +336,11 @@ static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem)
+ 		goto done;
+ 	}
+ 
+-	ret = owner->on_cpu;
++	/*
++	 * As lock holder preemption issue, we both skip spinning if task is not
++	 * on cpu or its cpu is preempted
++	 */
++	ret = owner->on_cpu && !vcpu_is_preempted(task_cpu(owner));
+ done:
+ 	rcu_read_unlock();
+ 	return ret;
+@@ -362,8 +366,14 @@ static noinline bool rwsem_spin_on_owner(struct rw_semaphore *sem)
+ 		 */
+ 		barrier();
+ 
+-		/* abort spinning when need_resched or owner is not running */
+-		if (!owner->on_cpu || need_resched()) {
++		/*
++		 * abort spinning when need_resched or owner is not running or
++		 * owner's cpu is preempted. vcpu_is_preempted is a macro
++		 * defined by false if arch does not support vcpu preempted
++		 * check
++		 */
++		if (!owner->on_cpu || need_resched() ||
++				vcpu_is_preempted(task_cpu(owner))) {
+ 			rcu_read_unlock();
+ 			return false;
+ 		}
 -- 
 2.4.11
