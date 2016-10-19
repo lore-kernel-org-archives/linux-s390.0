@@ -1,93 +1,177 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH v2 1/1] s390/spinlock: Provide vcpu_is_preempted
-Date: Tue, 4 Oct 2016 12:17:32 +0200
-Message-ID: <3195b219-28f3-883a-7f3f-c555860098fb@de.ibm.com>
+Date: Wed, 19 Oct 2016 08:56:36 +0200
+Message-ID: <190cd825-ca7c-d160-a0ac-4e0d27ac4a93@de.ibm.com>
 References: <1475164265-246160-1-git-send-email-borntraeger@de.ibm.com>
-	<1475164265-246160-2-git-send-email-borntraeger@de.ibm.com>
-	<b2ace794-c1cc-11be-f9f5-d6429e192825@linux.vnet.ibm.com>
-	<20160930055236.GB22004@tardis.cn.ibm.com>
-	<99d81ce9-8362-1b6b-15e1-e451ed379d50@linux.vnet.ibm.com>
+ <1475164265-246160-2-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <99d81ce9-8362-1b6b-15e1-e451ed379d50@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1475164265-246160-2-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pan Xinhui <xinhui@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>
-Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, benh@kernel.crashing.org, jgross@suse.com, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, xen-devel-request@lists.xenproject.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com
+To: Peter Zijlstra <peterz@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gMDkvMzAvMjAxNiAwODozNSBBTSwgUGFuIFhpbmh1aSB3cm90ZToKPiAKPiAKPiDlnKggMjAx
-Ni85LzMwIDEzOjUyLCBCb3F1biBGZW5nIOWGmemBkzoKPj4gT24gRnJpLCBTZXAgMzAsIDIwMTYg
-YXQgMTI6NDk6NTJQTSArMDgwMCwgUGFuIFhpbmh1aSB3cm90ZToKPj4+Cj4+Pgo+Pj4g5ZyoIDIw
-MTYvOS8yOSAyMzo1MSwgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIOWGmemBkzoKPj4+PiB0aGlzIGlt
-cGxlbWVudHMgdGhlIHMzOTAgYmFja2VuZCBmb3IgY29tbWl0Cj4+Pj4gImtlcm5lbC9zY2hlZDog
-aW50cm9kdWNlIHZjcHUgcHJlZW1wdGVkIGNoZWNrIGludGVyZmFjZSIKPj4+PiBieSByZXdvcmtp
-bmcgdGhlIGV4aXN0aW5nIHNtcF92Y3B1X3NjaGVkdWxlZCBpbnRvCj4+Pj4gYXJjaF92Y3B1X2lz
-X3ByZWVtcHRlZC4gV2UgY2FuIHRoZW4gYWxzbyBnZXQgcmlkIG9mIHRoZQo+Pj4+IGxvY2FsIGNw
-dV9pc19wcmVlbXB0ZWQgZnVuY3Rpb24gYnkgbW92aW5nIHRoZQo+Pj4+IENJRl9FTkFCTEVEX1dB
-SVQgdGVzdCBpbnRvIGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQuCj4+Pj4KPj4+PiBTaWduZWQtb2Zm
-LWJ5OiBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgPGJvcm50cmFlZ2VyQGRlLmlibS5jb20+Cj4+Pj4g
-LS0tCj4+Pgo+Pj4gaGksIENocmlzdGlhbgo+Pj4gICAgIHRoYW5rcyBmb3IgeW91ciBwYXRjaCEK
-Pj4+Cj4+Pj4gIGFyY2gvczM5MC9pbmNsdWRlL2FzbS9zcGlubG9jay5oIHwgIDMgKysrCj4+Pj4g
-IGFyY2gvczM5MC9rZXJuZWwvc21wLmMgICAgICAgICAgIHwgIDkgKysrKysrKy0tCj4+Pj4gIGFy
-Y2gvczM5MC9saWIvc3BpbmxvY2suYyAgICAgICAgIHwgMjUgKysrKysrKystLS0tLS0tLS0tLS0t
-LS0tLQo+Pj4+ICAzIGZpbGVzIGNoYW5nZWQsIDE4IGluc2VydGlvbnMoKyksIDE5IGRlbGV0aW9u
-cygtKQo+Pj4+Cj4+Pj4gZGlmZiAtLWdpdCBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9zcGlubG9j
-ay5oIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4+PiBpbmRleCA2M2ViZjM3
-Li5lMTZlMDJmIDEwMDY0NAo+Pj4+IC0tLSBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9zcGlubG9j
-ay5oCj4+Pj4gKysrIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmgKPj4+PiBAQCAt
-MjEsNiArMjEsOSBAQCBfcmF3X2NvbXBhcmVfYW5kX3N3YXAodW5zaWduZWQgaW50ICpsb2NrLCB1
-bnNpZ25lZCBpbnQgb2xkLCB1bnNpZ25lZCBpbnQgbmV3KQo+Pj4+ICAgICAgcmV0dXJuIF9fc3lu
-Y19ib29sX2NvbXBhcmVfYW5kX3N3YXAobG9jaywgb2xkLCBuZXcpOwo+Pj4+ICB9Cj4+Pj4KPj4+
-PiArYm9vbCBhcmNoX3ZjcHVfaXNfcHJlZW1wdGVkKGludCBjcHUpOwo+Pj4+ICsjZGVmaW5lIHZj
-cHVfaXNfcHJlZW1wdGVkIGFyY2hfdmNwdV9pc19wcmVlbXB0ZWQKPj4+PiArCj4+Pj4gIC8qCj4+
-Pj4gICAqIFNpbXBsZSBzcGluIGxvY2sgb3BlcmF0aW9ucy4gIFRoZXJlIGFyZSB0d28gdmFyaWFu
-dHMsIG9uZSBjbGVhcnMgSVJRJ3MKPj4+PiAgICogb24gdGhlIGxvY2FsIHByb2Nlc3Nvciwgb25l
-IGRvZXMgbm90Lgo+Pj4+IGRpZmYgLS1naXQgYS9hcmNoL3MzOTAva2VybmVsL3NtcC5jIGIvYXJj
-aC9zMzkwL2tlcm5lbC9zbXAuYwo+Pj4+IGluZGV4IDdiODlhNzUuLjRhYWRkMTYgMTAwNjQ0Cj4+
-Pj4gLS0tIGEvYXJjaC9zMzkwL2tlcm5lbC9zbXAuYwo+Pj4+ICsrKyBiL2FyY2gvczM5MC9rZXJu
-ZWwvc21wLmMKPj4+PiBAQCAtMzc2LDEwICszNzYsMTUgQEAgaW50IHNtcF9maW5kX3Byb2Nlc3Nv
-cl9pZCh1MTYgYWRkcmVzcykKPj4+PiAgICAgIHJldHVybiAtMTsKPj4+PiAgfQo+Pj4+Cj4+Pj4g
-LWludCBzbXBfdmNwdV9zY2hlZHVsZWQoaW50IGNwdSkKPj4+IHJvb3RAbHRjYWxwaW5lMi1scDEz
-On4vbGludXgjIGdpdCBncmVwIC13biBzbXBfdmNwdV9zY2hlZHVsZWQgYXJjaC9zMzkwLwo+Pj4g
-YXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NtcC5oOjM0OmV4dGVybiBpbnQgc21wX3ZjcHVfc2NoZWR1
-bGVkKGludCBjcHUpOwo+Pj4gYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3NtcC5oOjU2OnN0YXRpYyBp
-bmxpbmUgaW50IHNtcF92Y3B1X3NjaGVkdWxlZChpbnQgY3B1KSB7IHJldHVybiAxOyB9Cj4+PiBh
-cmNoL3MzOTAva2VybmVsL3NtcC5jOjM3MTppbnQgc21wX3ZjcHVfc2NoZWR1bGVkKGludCBjcHUp
-Cj4+PiBhcmNoL3MzOTAvbGliL3NwaW5sb2NrLmM6NDQ6ICAgIGlmIChzbXBfdmNwdV9zY2hlZHVs
-ZWQoY3B1KSkKPj4+Cj4+Pj4gK2Jvb2wgYXJjaF92Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KQo+
-Pj4+ICB7Cj4+Pj4gLSAgICByZXR1cm4gcGNwdV9ydW5uaW5nKHBjcHVfZGV2aWNlcyArIGNwdSk7
-Cj4+Pj4gKyAgICBpZiAodGVzdF9jcHVfZmxhZ19vZihDSUZfRU5BQkxFRF9XQUlULCBjcHUpKQo+
-Pj4+ICsgICAgICAgIHJldHVybiBmYWxzZTsKPj4+PiArICAgIGlmIChwY3B1X3J1bm5pbmcocGNw
-dV9kZXZpY2VzICsgY3B1KSkKPj4+PiArICAgICAgICByZXR1cm4gZmFsc2U7Cj4+PiBJIHNhdyBz
-bXBfdmNwdV9zY2hlZHVsZWQoKSByZXR1cm5zIHRydWUgYWx3YXlzIG9uICFTTVAgc3lzdGVtLgo+
-Pj4KPj4+IG1heWJlIHdlIGNhbiBkbyBzb21lZ3RoaW5nIHNpbGltYXIuIGxpa2UgYmVsb3cKPj4+
-Cj4+PiAjaWZuZGVmIENPTkZJR19TTVAKPj4+IHN0YXRpYyBpbmxpbmUgYm9vbCBhcmNoX3ZjcHVf
-aXNfcHJlZW1wdGVkKGludCBjcHUpIHsgcmV0dXJuICF0ZXN0X2NwdV9mbGFnX29mKENJRl9FTkFC
-TEVEX1dBSVQsIGNwdSk7IH0KPj4+ICNlbHNlCj4+PiAuLi4KPj4+Cj4+PiBidXQgSSBjYW4ndCBo
-ZWxwIHRoaW5raW5nIHRoYXQgaWYgdGhpcyBpcyBhIVNNUCBzeXN0ZW0sIG1heWJlIHdlIGNvdWxk
-IG9ubHkKPj4+ICNpZm5kZWYgQ09ORklHX1NNUAo+Pj4gc3RhdGljIGlubGluZSBib29sIGFyY2hf
-dmNwdV9pc19wcmVlbXB0ZWQoaW50IGNwdSkgeyByZXR1cm4gZmFsc2U7IH0KPj4+ICNlbHNlCj4+
-Cj4+IFdoeSBkbyB3ZSBuZWVkIGEgdmNwdV9pc19wcmVlbXB0ZWQoKSBpbXBsZW1lbnRhdGlvbiBm
-b3IgVVA/IFdoZXJlIHdpbGwKPj4geW91IHVzZSBpdD8KPj4KPiB5ZXAsIEkgYWxzbyB3b25kZXIg
-dGhhdCA6KQo+IAo+IEJ1dCB0aGVyZSBpcyBhIGRlZmluaXRhaW9uIG9mIHNtcF92Y3B1X3NjaGVk
-dWxlZCgpIGZvciAhU01QIGtlcm5lbC4KPiBTbyBJIGFtIGEgbGl0dGxlIHdvcnJpZWQgdGhhdCBz
-b21lIGNvZGUgaGFzIGluY2x1ZGVkIHRoaXMgc3BpbmxvY2suaCBmb3IgVVAga2VybmVsIGFsc28u
-Cj4gCj4gSGksIENocmlzdGlhbgo+ICAgICBDb3VsZCB5b3UgaGVscCBjb25maXJtcyB0aGF0IHlv
-dXIgcGF0Y2ggd29ya3Mgb24gVVA/IDopCgpNeSBwYXRjaCBhcyBpcyBzZWVtcyB0byB3b3JrIGZp
-bmUgZm9yICFTTVAuIFNvIGl0IGxvb2tzIGxpa2UgdGhlIGV4dHJhIGRlZmluZQppcyBub3QgbmVj
-ZXNzYXJ5IGFuZCB3ZSBjb3VsZCBzaW1wbHkgZ28gd2l0aCB2MgoKCgoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 09/29/2016 05:51 PM, Christian Borntraeger wrote:
+> this implements the s390 backend for commit
+> "kernel/sched: introduce vcpu preempted check interface"
+> by reworking the existing smp_vcpu_scheduled into
+> arch_vcpu_is_preempted. We can then also get rid of the
+> local cpu_is_preempted function by moving the
+> CIF_ENABLED_WAIT test into arch_vcpu_is_preempted.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+
+Martin, Peter,
+
+I think we could go with the patch as is. In other words not providing
+arch_vcpu_is_preempted for !CONFIG_SMP.
+
+This will result in compile errors if code does spinning or yielding for
+non-SMP kernels - which does not make sense to me, so this might actually
+be a nice indicator.
+If you prefer the !CONFIG_SMP implementation let me know and I will respin.
+
+In any case, Martin if the patch is ok for you, can you ack, so that Peter 
+can take that patch together with Pan Xinhui series?
+
+> ---
+>  arch/s390/include/asm/spinlock.h |  3 +++
+>  arch/s390/kernel/smp.c           |  9 +++++++--
+>  arch/s390/lib/spinlock.c         | 25 ++++++++-----------------
+>  3 files changed, 18 insertions(+), 19 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/spinlock.h
+> index 63ebf37..e16e02f 100644
+> --- a/arch/s390/include/asm/spinlock.h
+> +++ b/arch/s390/include/asm/spinlock.h
+> @@ -21,6 +21,9 @@ _raw_compare_and_swap(unsigned int *lock, unsigned int old, unsigned int new)
+>  	return __sync_bool_compare_and_swap(lock, old, new);
+>  }
+> 
+> +bool arch_vcpu_is_preempted(int cpu);
+> +#define vcpu_is_preempted arch_vcpu_is_preempted
+> +
+>  /*
+>   * Simple spin lock operations.  There are two variants, one clears IRQ's
+>   * on the local processor, one does not.
+> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+> index 7b89a75..4aadd16 100644
+> --- a/arch/s390/kernel/smp.c
+> +++ b/arch/s390/kernel/smp.c
+> @@ -376,10 +376,15 @@ int smp_find_processor_id(u16 address)
+>  	return -1;
+>  }
+> 
+> -int smp_vcpu_scheduled(int cpu)
+> +bool arch_vcpu_is_preempted(int cpu)
+>  {
+> -	return pcpu_running(pcpu_devices + cpu);
+> +	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
+> +		return false;
+> +	if (pcpu_running(pcpu_devices + cpu))
+> +		return false;
+> +	return true;
+>  }
+> +EXPORT_SYMBOL(arch_vcpu_is_preempted);
+> 
+>  void smp_yield_cpu(int cpu)
+>  {
+> diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
+> index e5f50a7..e48a48e 100644
+> --- a/arch/s390/lib/spinlock.c
+> +++ b/arch/s390/lib/spinlock.c
+> @@ -37,15 +37,6 @@ static inline void _raw_compare_and_delay(unsigned int *lock, unsigned int old)
+>  	asm(".insn rsy,0xeb0000000022,%0,0,%1" : : "d" (old), "Q" (*lock));
+>  }
+> 
+> -static inline int cpu_is_preempted(int cpu)
+> -{
+> -	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
+> -		return 0;
+> -	if (smp_vcpu_scheduled(cpu))
+> -		return 0;
+> -	return 1;
+> -}
+> -
+>  void arch_spin_lock_wait(arch_spinlock_t *lp)
+>  {
+>  	unsigned int cpu = SPINLOCK_LOCKVAL;
+> @@ -62,7 +53,7 @@ void arch_spin_lock_wait(arch_spinlock_t *lp)
+>  			continue;
+>  		}
+>  		/* First iteration: check if the lock owner is running. */
+> -		if (first_diag && cpu_is_preempted(~owner)) {
+> +		if (first_diag && arch_vcpu_is_preempted(~owner)) {
+>  			smp_yield_cpu(~owner);
+>  			first_diag = 0;
+>  			continue;
+> @@ -81,7 +72,7 @@ void arch_spin_lock_wait(arch_spinlock_t *lp)
+>  		 * yield the CPU unconditionally. For LPAR rely on the
+>  		 * sense running status.
+>  		 */
+> -		if (!MACHINE_IS_LPAR || cpu_is_preempted(~owner)) {
+> +		if (!MACHINE_IS_LPAR || arch_vcpu_is_preempted(~owner)) {
+>  			smp_yield_cpu(~owner);
+>  			first_diag = 0;
+>  		}
+> @@ -108,7 +99,7 @@ void arch_spin_lock_wait_flags(arch_spinlock_t *lp, unsigned long flags)
+>  			continue;
+>  		}
+>  		/* Check if the lock owner is running. */
+> -		if (first_diag && cpu_is_preempted(~owner)) {
+> +		if (first_diag && arch_vcpu_is_preempted(~owner)) {
+>  			smp_yield_cpu(~owner);
+>  			first_diag = 0;
+>  			continue;
+> @@ -127,7 +118,7 @@ void arch_spin_lock_wait_flags(arch_spinlock_t *lp, unsigned long flags)
+>  		 * yield the CPU unconditionally. For LPAR rely on the
+>  		 * sense running status.
+>  		 */
+> -		if (!MACHINE_IS_LPAR || cpu_is_preempted(~owner)) {
+> +		if (!MACHINE_IS_LPAR || arch_vcpu_is_preempted(~owner)) {
+>  			smp_yield_cpu(~owner);
+>  			first_diag = 0;
+>  		}
+> @@ -165,7 +156,7 @@ void _raw_read_lock_wait(arch_rwlock_t *rw)
+>  	owner = 0;
+>  	while (1) {
+>  		if (count-- <= 0) {
+> -			if (owner && cpu_is_preempted(~owner))
+> +			if (owner && arch_vcpu_is_preempted(~owner))
+>  				smp_yield_cpu(~owner);
+>  			count = spin_retry;
+>  		}
+> @@ -211,7 +202,7 @@ void _raw_write_lock_wait(arch_rwlock_t *rw, unsigned int prev)
+>  	owner = 0;
+>  	while (1) {
+>  		if (count-- <= 0) {
+> -			if (owner && cpu_is_preempted(~owner))
+> +			if (owner && arch_vcpu_is_preempted(~owner))
+>  				smp_yield_cpu(~owner);
+>  			count = spin_retry;
+>  		}
+> @@ -241,7 +232,7 @@ void _raw_write_lock_wait(arch_rwlock_t *rw)
+>  	owner = 0;
+>  	while (1) {
+>  		if (count-- <= 0) {
+> -			if (owner && cpu_is_preempted(~owner))
+> +			if (owner && arch_vcpu_is_preempted(~owner))
+>  				smp_yield_cpu(~owner);
+>  			count = spin_retry;
+>  		}
+> @@ -285,7 +276,7 @@ void arch_lock_relax(unsigned int cpu)
+>  {
+>  	if (!cpu)
+>  		return;
+> -	if (MACHINE_IS_LPAR && !cpu_is_preempted(~cpu))
+> +	if (MACHINE_IS_LPAR && !arch_vcpu_is_preempted(~cpu))
+>  		return;
+>  	smp_yield_cpu(~cpu);
+>  }
+> 
