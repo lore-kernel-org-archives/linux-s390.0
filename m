@@ -1,178 +1,111 @@
-From: Juergen Gross <jgross@suse.com>
+From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
 Subject: Re: [PATCH v4 0/5] implement vcpu preempted check
-Date: Wed, 19 Oct 2016 17:58:46 +0200
-Message-ID: <a801cd40-1019-01e2-1013-f04363fc7f31@suse.com>
+Date: Thu, 20 Oct 2016 00:57:40 +0800
+Message-ID: <8e65db06-8a98-4f38-386f-5dde110b1cc4@linux.vnet.ibm.com>
 References: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+	<e3fd1bd3-c57d-f0b0-68c4-ecd450d1ad32@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------0DA18E86B982FAA044921A6E"
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <e3fd1bd3-c57d-f0b0-68c4-ecd450d1ad32@de.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
-Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
+Cc: kernellwp@gmail.com, jgross@suse.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------0DA18E86B982FAA044921A6E
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-
-On 19/10/16 12:20, Pan Xinhui wrote:
-> change from v3:
-> 	add x86 vcpu preempted check patch
-> change from v2:
-> 	no code change, fix typos, update some comments
-> change from v1:
-> 	a simplier definition of default vcpu_is_preempted
-> 	skip mahcine type check on ppc, and add config. remove dedicated macro.
-> 	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
-> 	add more comments
-> 	thanks boqun and Peter's suggestion.
-> 
-> This patch set aims to fix lock holder preemption issues.
-> 
-> test-case:
-> perf record -a perf bench sched messaging -g 400 -p && perf report
-> 
-> 18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-> 12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
->  5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
->  3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
->  3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
->  3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
->  2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
-> 
-> We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
-> loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
-> These spin_on_onwer variant also cause rcu stall before we apply this patch set
-> 
-> We also have observed some performace improvements.
-> 
-> PPC test result:
-> 
-> 1 copy - 0.94%
-> 2 copy - 7.17%
-> 4 copy - 11.9%
-> 8 copy -  3.04%
-> 16 copy - 15.11%
-> 
-> details below:
-> Without patch:
-> 
-> 1 copy - File Write 4096 bufsize 8000 maxblocks      2188223.0 KBps  (30.0 s, 1 samples)
-> 2 copy - File Write 4096 bufsize 8000 maxblocks      1804433.0 KBps  (30.0 s, 1 samples)
-> 4 copy - File Write 4096 bufsize 8000 maxblocks      1237257.0 KBps  (30.0 s, 1 samples)
-> 8 copy - File Write 4096 bufsize 8000 maxblocks      1032658.0 KBps  (30.0 s, 1 samples)
-> 16 copy - File Write 4096 bufsize 8000 maxblocks       768000.0 KBps  (30.1 s, 1 samples)
-> 
-> With patch: 
-> 
-> 1 copy - File Write 4096 bufsize 8000 maxblocks      2209189.0 KBps  (30.0 s, 1 samples)
-> 2 copy - File Write 4096 bufsize 8000 maxblocks      1943816.0 KBps  (30.0 s, 1 samples)
-> 4 copy - File Write 4096 bufsize 8000 maxblocks      1405591.0 KBps  (30.0 s, 1 samples)
-> 8 copy - File Write 4096 bufsize 8000 maxblocks      1065080.0 KBps  (30.0 s, 1 samples)
-> 16 copy - File Write 4096 bufsize 8000 maxblocks       904762.0 KBps  (30.0 s, 1 samples)
-> 
-> X86 test result:
-> 	test-case			after-patch	  before-patch
-> Execl Throughput                       |    18307.9 lps  |    11701.6 lps 
-> File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
-> File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
-> File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
-> Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps 
-> Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps 
-> Process Creation                       |    29881.2 lps  |    28572.8 lps 
-> Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm 
-> Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm 
-> System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps 
-> 
-> Pan Xinhui (5):
->   kernel/sched: introduce vcpu preempted check interface
->   locking/osq: Drop the overload of osq_lock()
->   kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
->   powerpc/spinlock: support vcpu preempted check
->   x86, kvm: support vcpu preempted check
-
-The attached patch adds Xen support for x86. Please tell me whether you
-want to add this patch to your series or if I should post it when your
-series has been accepted.
-
-You can add my
-
-Tested-by: Juergen Gross <jgross@suse.com>
-
-for patches 1-3 and 5 (paravirt parts only).
-
-
-Juergen
-
-> 
->  arch/powerpc/include/asm/spinlock.h   |  8 ++++++++
->  arch/x86/include/asm/paravirt_types.h |  6 ++++++
->  arch/x86/include/asm/spinlock.h       |  8 ++++++++
->  arch/x86/include/uapi/asm/kvm_para.h  |  3 ++-
->  arch/x86/kernel/kvm.c                 | 11 +++++++++++
->  arch/x86/kernel/paravirt.c            | 11 +++++++++++
->  arch/x86/kvm/x86.c                    | 12 ++++++++++++
->  include/linux/sched.h                 | 12 ++++++++++++
->  kernel/locking/mutex.c                | 15 +++++++++++++--
->  kernel/locking/osq_lock.c             | 10 +++++++++-
->  kernel/locking/rwsem-xadd.c           | 16 +++++++++++++---
->  11 files changed, 105 insertions(+), 7 deletions(-)
-> 
-
-
---------------0DA18E86B982FAA044921A6E
-Content-Type: text/x-patch;
- name="0001-x86-xen-support-vcpu-preempted-check.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="0001-x86-xen-support-vcpu-preempted-check.patch"
-
-From c79b86d00a812d6207ef788d453e2d0289ef22a0 Mon Sep 17 00:00:00 2001
-From: Juergen Gross <jgross@suse.com>
-Date: Wed, 19 Oct 2016 15:30:59 +0200
-Subject: [PATCH] x86, xen: support vcpu preempted check
-
-Support the vcpu_is_preempted() functionality under Xen. This will
-enhance lock performance on overcommitted hosts (more runnable vcpus
-than physical cpus in the system) as doing busy waits for preempted
-vcpus will hurt system performance far worse than early yielding.
-
-A quick test (4 vcpus on 1 physical cpu doing a parallel build job
-with "make -j 8") reduced system time by about 5% with this patch.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- arch/x86/xen/spinlock.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 3d6e006..1d53b1b 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -114,7 +114,6 @@ void xen_uninit_lock_cpu(int cpu)
- 	per_cpu(irq_name, cpu) = NULL;
- }
- 
--
- /*
-  * Our init of PV spinlocks is split in two init functions due to us
-  * using paravirt patching and jump labels patching and having to do
-@@ -137,6 +136,8 @@ void __init xen_init_spinlocks(void)
- 	pv_lock_ops.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
- 	pv_lock_ops.wait = xen_qlock_wait;
- 	pv_lock_ops.kick = xen_qlock_kick;
-+
-+	pv_vcpu_ops.vcpu_is_preempted = xen_vcpu_stolen;
- }
- 
- /*
--- 
-2.6.6
-
-
---------------0DA18E86B982FAA044921A6E--
+CgrlnKggMjAxNi8xMC8xOSAxNDo0NywgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIOWGmemBkzoKPiBP
+biAxMC8xOS8yMDE2IDEyOjIwIFBNLCBQYW4gWGluaHVpIHdyb3RlOgo+PiBjaGFuZ2UgZnJvbSB2
+MzoKPj4gCWFkZCB4ODYgdmNwdSBwcmVlbXB0ZWQgY2hlY2sgcGF0Y2gKPgo+IElmIHlvdSB3YW50
+IHlvdSBjb3VsZCBhZGQgdGhlIHMzOTAgcGF0Y2ggdGhhdCBJIHByb3ZpZGVkIGZvciB5b3VyIGxh
+c3QgdmVyc2lvbi4KPiBJIGFsc28gZ2F2ZSBteSBBY2tlZC1ieSBmb3IgYWxsIHByZXZpb3VzIHBh
+dGNoZXMuCj4KaGksIENocmlzdGlhbgoJVGhhbmtzIGEgbG9077yBCkkgY2FuIGluY2x1ZGUgeW91
+ciBuZXcgczM5MCBwYXRjaCBpbnRvIG15IG5leHQgcGF0Y2hzZXQoaWYgdjUgaXMgbmVlZGVkKS4K
+Cnhpbmh1aQoKPgo+Cj4+IGNoYW5nZSBmcm9tIHYyOgo+PiAJbm8gY29kZSBjaGFuZ2UsIGZpeCB0
+eXBvcywgdXBkYXRlIHNvbWUgY29tbWVudHMKPj4gY2hhbmdlIGZyb20gdjE6Cj4+IAlhIHNpbXBs
+aWVyIGRlZmluaXRpb24gb2YgZGVmYXVsdCB2Y3B1X2lzX3ByZWVtcHRlZAo+PiAJc2tpcCBtYWhj
+aW5lIHR5cGUgY2hlY2sgb24gcHBjLCBhbmQgYWRkIGNvbmZpZy4gcmVtb3ZlIGRlZGljYXRlZCBt
+YWNyby4KPj4gCWFkZCBvbmUgcGF0Y2ggdG8gZHJvcCBvdmVybG9hZCBvZiByd3NlbV9zcGluX29u
+X293bmVyIGFuZCBtdXRleF9zcGluX29uX293bmVyLgo+PiAJYWRkIG1vcmUgY29tbWVudHMKPj4g
+CXRoYW5rcyBib3F1biBhbmQgUGV0ZXIncyBzdWdnZXN0aW9uLgo+Pgo+PiBUaGlzIHBhdGNoIHNl
+dCBhaW1zIHRvIGZpeCBsb2NrIGhvbGRlciBwcmVlbXB0aW9uIGlzc3Vlcy4KPj4KPj4gdGVzdC1j
+YXNlOgo+PiBwZXJmIHJlY29yZCAtYSBwZXJmIGJlbmNoIHNjaGVkIG1lc3NhZ2luZyAtZyA0MDAg
+LXAgJiYgcGVyZiByZXBvcnQKPj4KPj4gMTguMDklICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwu
+dm1saW51eF0gIFtrXSBvc3FfbG9jawo+PiAxMi4yOCUgIHNjaGVkLW1lc3NhZ2luZyAgW2tlcm5l
+bC52bWxpbnV4XSAgW2tdIHJ3c2VtX3NwaW5fb25fb3duZXIKPj4gIDUuMjclICBzY2hlZC1tZXNz
+YWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSBtdXRleF91bmxvY2sKPj4gIDMuODklICBzY2hl
+ZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSB3YWl0X2NvbnNpZGVyX3Rhc2sKPj4g
+IDMuNjQlICBzY2hlZC1tZXNzYWdpbmcgIFtrZXJuZWwudm1saW51eF0gIFtrXSBfcmF3X3dyaXRl
+X2xvY2tfaXJxCj4+ICAzLjQxJSAgc2NoZWQtbWVzc2FnaW5nICBba2VybmVsLnZtbGludXhdICBb
+a10gbXV0ZXhfc3Bpbl9vbl9vd25lci5pcwo+PiAgMi40OSUgIHNjaGVkLW1lc3NhZ2luZyAgW2tl
+cm5lbC52bWxpbnV4XSAgW2tdIHN5c3RlbV9jYWxsCj4+Cj4+IFdlIGludHJvZHVjZSBpbnRlcmZh
+Y2UgYm9vbCB2Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KSBhbmQgdXNlIGl0IGluIHNvbWUgc3Bp
+bgo+PiBsb29wcyBvZiBvc3FfbG9jaywgcndzZW1fc3Bpbl9vbl9vd25lciBhbmQgbXV0ZXhfc3Bp
+bl9vbl9vd25lci4KPj4gVGhlc2Ugc3Bpbl9vbl9vbndlciB2YXJpYW50IGFsc28gY2F1c2UgcmN1
+IHN0YWxsIGJlZm9yZSB3ZSBhcHBseSB0aGlzIHBhdGNoIHNldAo+Pgo+PiBXZSBhbHNvIGhhdmUg
+b2JzZXJ2ZWQgc29tZSBwZXJmb3JtYWNlIGltcHJvdmVtZW50cy4KPj4KPj4gUFBDIHRlc3QgcmVz
+dWx0Ogo+Pgo+PiAxIGNvcHkgLSAwLjk0JQo+PiAyIGNvcHkgLSA3LjE3JQo+PiA0IGNvcHkgLSAx
+MS45JQo+PiA4IGNvcHkgLSAgMy4wNCUKPj4gMTYgY29weSAtIDE1LjExJQo+Pgo+PiBkZXRhaWxz
+IGJlbG93Ogo+PiBXaXRob3V0IHBhdGNoOgo+Pgo+PiAxIGNvcHkgLSBGaWxlIFdyaXRlIDQwOTYg
+YnVmc2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgIDIxODgyMjMuMCBLQnBzICAoMzAuMCBzLCAxIHNh
+bXBsZXMpCj4+IDIgY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tz
+ICAgICAgMTgwNDQzMy4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxlcykKPj4gNCBjb3B5IC0gRmls
+ZSBXcml0ZSA0MDk2IGJ1ZnNpemUgODAwMCBtYXhibG9ja3MgICAgICAxMjM3MjU3LjAgS0JwcyAg
+KDMwLjAgcywgMSBzYW1wbGVzKQo+PiA4IGNvcHkgLSBGaWxlIFdyaXRlIDQwOTYgYnVmc2l6ZSA4
+MDAwIG1heGJsb2NrcyAgICAgIDEwMzI2NTguMCBLQnBzICAoMzAuMCBzLCAxIHNhbXBsZXMpCj4+
+IDE2IGNvcHkgLSBGaWxlIFdyaXRlIDQwOTYgYnVmc2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgICA3
+NjgwMDAuMCBLQnBzICAoMzAuMSBzLCAxIHNhbXBsZXMpCj4+Cj4+IFdpdGggcGF0Y2g6Cj4+Cj4+
+IDEgY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tzICAgICAgMjIw
+OTE4OS4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxlcykKPj4gMiBjb3B5IC0gRmlsZSBXcml0ZSA0
+MDk2IGJ1ZnNpemUgODAwMCBtYXhibG9ja3MgICAgICAxOTQzODE2LjAgS0JwcyAgKDMwLjAgcywg
+MSBzYW1wbGVzKQo+PiA0IGNvcHkgLSBGaWxlIFdyaXRlIDQwOTYgYnVmc2l6ZSA4MDAwIG1heGJs
+b2NrcyAgICAgIDE0MDU1OTEuMCBLQnBzICAoMzAuMCBzLCAxIHNhbXBsZXMpCj4+IDggY29weSAt
+IEZpbGUgV3JpdGUgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tzICAgICAgMTA2NTA4MC4wIEtC
+cHMgICgzMC4wIHMsIDEgc2FtcGxlcykKPj4gMTYgY29weSAtIEZpbGUgV3JpdGUgNDA5NiBidWZz
+aXplIDgwMDAgbWF4YmxvY2tzICAgICAgIDkwNDc2Mi4wIEtCcHMgICgzMC4wIHMsIDEgc2FtcGxl
+cykKPj4KPj4gWDg2IHRlc3QgcmVzdWx0Ogo+PiAJdGVzdC1jYXNlCQkJYWZ0ZXItcGF0Y2gJICBi
+ZWZvcmUtcGF0Y2gKPj4gRXhlY2wgVGhyb3VnaHB1dCAgICAgICAgICAgICAgICAgICAgICAgfCAg
+ICAxODMwNy45IGxwcyAgfCAgICAxMTcwMS42IGxwcwo+PiBGaWxlIENvcHkgMTAyNCBidWZzaXpl
+IDIwMDAgbWF4YmxvY2tzICB8ICAxMzUyNDA3LjMgS0JwcyB8ICAgNzkwNDE4LjkgS0Jwcwo+PiBG
+aWxlIENvcHkgMjU2IGJ1ZnNpemUgNTAwIG1heGJsb2NrcyAgICB8ICAgMzY3NTU1LjYgS0JwcyB8
+ICAgMjIyODY3LjcgS0Jwcwo+PiBGaWxlIENvcHkgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tz
+ICB8ICAzNjc1NjQ5LjcgS0JwcyB8ICAxNzgwNjE0LjQgS0Jwcwo+PiBQaXBlIFRocm91Z2hwdXQg
+ICAgICAgICAgICAgICAgICAgICAgICB8IDExODcyMjA4LjcgbHBzICB8IDExODU1NjI4LjkgbHBz
+Cj4+IFBpcGUtYmFzZWQgQ29udGV4dCBTd2l0Y2hpbmcgICAgICAgICAgIHwgIDE0OTUxMjYuNSBs
+cHMgIHwgIDE0OTA1MzMuOSBscHMKPj4gUHJvY2VzcyBDcmVhdGlvbiAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgICAyOTg4MS4yIGxwcyAgfCAgICAyODU3Mi44IGxwcwo+PiBTaGVsbCBTY3JpcHRz
+ICgxIGNvbmN1cnJlbnQpICAgICAgICAgICB8ICAgIDIzMjI0LjMgbHBtICB8ICAgIDIyNjA3LjQg
+bHBtCj4+IFNoZWxsIFNjcmlwdHMgKDggY29uY3VycmVudCkgICAgICAgICAgIHwgICAgIDM1MzEu
+NCBscG0gIHwgICAgIDMyMTEuOSBscG0KPj4gU3lzdGVtIENhbGwgT3ZlcmhlYWQgICAgICAgICAg
+ICAgICAgICAgfCAxMDM4NTY1My4wIGxwcyAgfCAxMDQxOTk3OS4wIGxwcwo+Pgo+PiBQYW4gWGlu
+aHVpICg1KToKPj4gICBrZXJuZWwvc2NoZWQ6IGludHJvZHVjZSB2Y3B1IHByZWVtcHRlZCBjaGVj
+ayBpbnRlcmZhY2UKPj4gICBsb2NraW5nL29zcTogRHJvcCB0aGUgb3ZlcmxvYWQgb2Ygb3NxX2xv
+Y2soKQo+PiAgIGtlcm5lbC9sb2NraW5nOiBEcm9wIHRoZSBvdmVybG9hZCBvZiB7bXV0ZXgscndz
+ZW19X3NwaW5fb25fb3duZXIKPj4gICBwb3dlcnBjL3NwaW5sb2NrOiBzdXBwb3J0IHZjcHUgcHJl
+ZW1wdGVkIGNoZWNrCj4+ICAgeDg2LCBrdm06IHN1cHBvcnQgdmNwdSBwcmVlbXB0ZWQgY2hlY2sK
+Pj4KPj4gIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9zcGlubG9jay5oICAgfCAgOCArKysrKysr
+Kwo+PiAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnRfdHlwZXMuaCB8ICA2ICsrKysrKwo+
+PiAgYXJjaC94ODYvaW5jbHVkZS9hc20vc3BpbmxvY2suaCAgICAgICB8ICA4ICsrKysrKysrCj4+
+ICBhcmNoL3g4Ni9pbmNsdWRlL3VhcGkvYXNtL2t2bV9wYXJhLmggIHwgIDMgKystCj4+ICBhcmNo
+L3g4Ni9rZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgMTEgKysrKysrKysrKysKPj4gIGFy
+Y2gveDg2L2tlcm5lbC9wYXJhdmlydC5jICAgICAgICAgICAgfCAxMSArKysrKysrKysrKwo+PiAg
+YXJjaC94ODYva3ZtL3g4Ni5jICAgICAgICAgICAgICAgICAgICB8IDEyICsrKysrKysrKysrKwo+
+PiAgaW5jbHVkZS9saW51eC9zY2hlZC5oICAgICAgICAgICAgICAgICB8IDEyICsrKysrKysrKysr
+Kwo+PiAga2VybmVsL2xvY2tpbmcvbXV0ZXguYyAgICAgICAgICAgICAgICB8IDE1ICsrKysrKysr
+KysrKystLQo+PiAga2VybmVsL2xvY2tpbmcvb3NxX2xvY2suYyAgICAgICAgICAgICB8IDEwICsr
+KysrKysrKy0KPj4gIGtlcm5lbC9sb2NraW5nL3J3c2VtLXhhZGQuYyAgICAgICAgICAgfCAxNiAr
+KysrKysrKysrKysrLS0tCj4+ICAxMSBmaWxlcyBjaGFuZ2VkLCAxMDUgaW5zZXJ0aW9ucygrKSwg
+NyBkZWxldGlvbnMoLSkKPj4KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
