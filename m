@@ -1,7 +1,8 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v5 1/9] kernel/sched: introduce vcpu preempted check interface
-Date: Thu, 20 Oct 2016 17:27:46 -0400
-Message-ID: <1476998874-2089-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v5 3/9] kernel/locking: Drop the overload of {mutex,
+	rwsem}_spin_on_owner
+Date: Thu, 20 Oct 2016 17:27:48 -0400
+Message-ID: <1476998874-2089-4-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,44 +24,108 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: kernellwp@gmail.com, jgross@suse.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch support to fix lock holder preemption issue.
+An over-committed guest with more vCPUs than pCPUs has a heavy overload in
+the two spin_on_owner. This blames on the lock holder preemption issue.
 
-For kernel users, we could use bool vcpu_is_preempted(int cpu) to detech if
-one vcpu is preempted or not.
+Kernel has an interface bool vcpu_is_preempted(int cpu) to see if a vCPU is
+currently running or not. So break the spin loops on true condition.
 
-The default implementation is a macro defined by false. So compiler can
-wrap it out if arch dose not support such vcpu pteempted check.
+test-case:
+perf record -a perf bench sched messaging -g 400 -p && perf report
 
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+before patch:
+20.68%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner
+ 8.45%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 4.12%  sched-messaging  [kernel.vmlinux]  [k] system_call
+ 3.01%  sched-messaging  [kernel.vmlinux]  [k] system_call_common
+ 2.83%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
+ 2.64%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+ 2.00%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+
+after patch:
+ 9.99%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 5.28%  sched-messaging  [unknown]         [H] 0xc0000000000768e0
+ 4.27%  sched-messaging  [kernel.vmlinux]  [k] __copy_tofrom_user_power7
+ 3.77%  sched-messaging  [kernel.vmlinux]  [k] copypage_power7
+ 3.24%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+ 3.02%  sched-messaging  [kernel.vmlinux]  [k] system_call
+ 2.69%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Tested-by: Juergen Gross <jgross@suse.com>
 ---
- include/linux/sched.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ kernel/locking/mutex.c      | 15 +++++++++++++--
+ kernel/locking/rwsem-xadd.c | 16 +++++++++++++---
+ 2 files changed, 26 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 348f51b..44c1ce7 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -3506,6 +3506,18 @@ static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
+diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
+index a70b90d..82108f5 100644
+--- a/kernel/locking/mutex.c
++++ b/kernel/locking/mutex.c
+@@ -236,7 +236,13 @@ bool mutex_spin_on_owner(struct mutex *lock, struct task_struct *owner)
+ 		 */
+ 		barrier();
  
- #endif /* CONFIG_SMP */
+-		if (!owner->on_cpu || need_resched()) {
++		/*
++		 * Use vcpu_is_preempted to detech lock holder preemption issue
++		 * and break. vcpu_is_preempted is a macro defined by false if
++		 * arch does not support vcpu preempted check,
++		 */
++		if (!owner->on_cpu || need_resched() ||
++				vcpu_is_preempted(task_cpu(owner))) {
+ 			ret = false;
+ 			break;
+ 		}
+@@ -261,8 +267,13 @@ static inline int mutex_can_spin_on_owner(struct mutex *lock)
  
-+/*
-+ * In order to deal with a various lock holder preemption issues provide an
-+ * interface to see if a vCPU is currently running or not.
-+ *
-+ * This allows us to terminate optimistic spin loops and block, analogous to
-+ * the native optimistic spin heuristic of testing if the lock owner task is
-+ * running or not.
-+ */
-+#ifndef vcpu_is_preempted
-+#define vcpu_is_preempted(cpu)	false
-+#endif
+ 	rcu_read_lock();
+ 	owner = READ_ONCE(lock->owner);
 +
- extern long sched_setaffinity(pid_t pid, const struct cpumask *new_mask);
- extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
++	/*
++	 * As lock holder preemption issue, we both skip spinning if task is not
++	 * on cpu or its cpu is preempted
++	 */
+ 	if (owner)
+-		retval = owner->on_cpu;
++		retval = owner->on_cpu && !vcpu_is_preempted(task_cpu(owner));
+ 	rcu_read_unlock();
+ 	/*
+ 	 * if lock->owner is not set, the mutex owner may have just acquired
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 2337b4b..0897179 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -336,7 +336,11 @@ static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem)
+ 		goto done;
+ 	}
  
+-	ret = owner->on_cpu;
++	/*
++	 * As lock holder preemption issue, we both skip spinning if task is not
++	 * on cpu or its cpu is preempted
++	 */
++	ret = owner->on_cpu && !vcpu_is_preempted(task_cpu(owner));
+ done:
+ 	rcu_read_unlock();
+ 	return ret;
+@@ -362,8 +366,14 @@ static noinline bool rwsem_spin_on_owner(struct rw_semaphore *sem)
+ 		 */
+ 		barrier();
+ 
+-		/* abort spinning when need_resched or owner is not running */
+-		if (!owner->on_cpu || need_resched()) {
++		/*
++		 * abort spinning when need_resched or owner is not running or
++		 * owner's cpu is preempted. vcpu_is_preempted is a macro
++		 * defined by false if arch does not support vcpu preempted
++		 * check
++		 */
++		if (!owner->on_cpu || need_resched() ||
++				vcpu_is_preempted(task_cpu(owner))) {
+ 			rcu_read_unlock();
+ 			return false;
+ 		}
 -- 
 2.4.11
