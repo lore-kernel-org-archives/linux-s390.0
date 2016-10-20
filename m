@@ -1,102 +1,68 @@
-From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v4 0/5] implement vcpu preempted check
-Date: Wed, 19 Oct 2016 06:20:11 -0400
-Message-ID: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/1] KVM: s390: reject invalid modes for runtime instrumentation
+Date: Thu, 20 Oct 2016 20:20:06 +0200
+Message-ID: <1476987606-123515-2-git-send-email-borntraeger@de.ibm.com>
+References: <1476987606-123515-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1476987606-123515-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
-Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, stable@vger.kernel.org, #@tuxmaker.boeblingen.de.ibm.com, v4.5+@tuxmaker.boeblingen.de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-change from v3:
-	add x86 vcpu preempted check patch
-change from v2:
-	no code change, fix typos, update some comments
-change from v1:
-	a simplier definition of default vcpu_is_preempted
-	skip mahcine type check on ppc, and add config. remove dedicated macro.
-	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
-	add more comments
-	thanks boqun and Peter's suggestion.
+Usually a validity intercept is a programming error of the host
+because of invalid entries in the state description.
+We can get a validity intercept if the mode of the runtime
+instrumentation control block is wrong. As the host does not know
+which modes are valid, this can be used by userspace to trigger
+a WARN.
+Instead of printing a WARN let's return an error to userspace as
+this can only happen if userspace provides a malformed initial
+value (e.g. on migration). The kernel should never warn on bogus
+input. Instead let's log it into the s390 debug feature.
 
-This patch set aims to fix lock holder preemption issues.
+While at it, let's return -EINVAL for all validity intercepts as
+this will trigger an error in QEMU like
 
-test-case:
-perf record -a perf bench sched messaging -g 400 -p && perf report
+error: kvm run failed Invalid argument
+PSW=mask 0404c00180000000 addr 000000000063c226 cc 00
+R00=000000000000004f R01=0000000000000004 R02=0000000000760005 R03=000000007fe0a000
+R04=000000000064ba2a R05=000000049db73dd0 R06=000000000082c4b0 R07=0000000000000041
+R08=0000000000000002 R09=000003e0804042a8 R10=0000000496152c42 R11=000000007fe0afb0
+[...]
 
-18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
-12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
- 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
- 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
- 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
- 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
- 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+This will avoid an endless loop of validity intercepts.
 
-We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
-loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
-These spin_on_onwer variant also cause rcu stall before we apply this patch set
+Cc: stable@vger.kernel.org # v4.5+
+Fixes: c6e5f166373a ("KVM: s390: implement the RI support of guest")
+Acked-by: Fan Zhang <zhangfan@linux.vnet.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/intercept.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-We also have observed some performace improvements.
-
-PPC test result:
-
-1 copy - 0.94%
-2 copy - 7.17%
-4 copy - 11.9%
-8 copy -  3.04%
-16 copy - 15.11%
-
-details below:
-Without patch:
-
-1 copy - File Write 4096 bufsize 8000 maxblocks      2188223.0 KBps  (30.0 s, 1 samples)
-2 copy - File Write 4096 bufsize 8000 maxblocks      1804433.0 KBps  (30.0 s, 1 samples)
-4 copy - File Write 4096 bufsize 8000 maxblocks      1237257.0 KBps  (30.0 s, 1 samples)
-8 copy - File Write 4096 bufsize 8000 maxblocks      1032658.0 KBps  (30.0 s, 1 samples)
-16 copy - File Write 4096 bufsize 8000 maxblocks       768000.0 KBps  (30.1 s, 1 samples)
-
-With patch: 
-
-1 copy - File Write 4096 bufsize 8000 maxblocks      2209189.0 KBps  (30.0 s, 1 samples)
-2 copy - File Write 4096 bufsize 8000 maxblocks      1943816.0 KBps  (30.0 s, 1 samples)
-4 copy - File Write 4096 bufsize 8000 maxblocks      1405591.0 KBps  (30.0 s, 1 samples)
-8 copy - File Write 4096 bufsize 8000 maxblocks      1065080.0 KBps  (30.0 s, 1 samples)
-16 copy - File Write 4096 bufsize 8000 maxblocks       904762.0 KBps  (30.0 s, 1 samples)
-
-X86 test result:
-	test-case			after-patch	  before-patch
-Execl Throughput                       |    18307.9 lps  |    11701.6 lps 
-File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
-File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
-File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
-Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps 
-Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps 
-Process Creation                       |    29881.2 lps  |    28572.8 lps 
-Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm 
-Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm 
-System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps 
-
-Pan Xinhui (5):
-  kernel/sched: introduce vcpu preempted check interface
-  locking/osq: Drop the overload of osq_lock()
-  kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
-  powerpc/spinlock: support vcpu preempted check
-  x86, kvm: support vcpu preempted check
-
- arch/powerpc/include/asm/spinlock.h   |  8 ++++++++
- arch/x86/include/asm/paravirt_types.h |  6 ++++++
- arch/x86/include/asm/spinlock.h       |  8 ++++++++
- arch/x86/include/uapi/asm/kvm_para.h  |  3 ++-
- arch/x86/kernel/kvm.c                 | 11 +++++++++++
- arch/x86/kernel/paravirt.c            | 11 +++++++++++
- arch/x86/kvm/x86.c                    | 12 ++++++++++++
- include/linux/sched.h                 | 12 ++++++++++++
- kernel/locking/mutex.c                | 15 +++++++++++++--
- kernel/locking/osq_lock.c             | 10 +++++++++-
- kernel/locking/rwsem-xadd.c           | 16 +++++++++++++---
- 11 files changed, 105 insertions(+), 7 deletions(-)
-
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 1cab8a1..7a27eeb 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -119,8 +119,13 @@ static int handle_validity(struct kvm_vcpu *vcpu)
+ 
+ 	vcpu->stat.exit_validity++;
+ 	trace_kvm_s390_intercept_validity(vcpu, viwhy);
+-	WARN_ONCE(true, "kvm: unhandled validity intercept 0x%x\n", viwhy);
+-	return -EOPNOTSUPP;
++	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%pK)", viwhy,
++		  current->pid, vcpu->kvm);
++
++	/* do not warn on invalid runtime instrumentation mode */
++	WARN_ONCE(viwhy != 0x44, "kvm: unhandled validity intercept 0x%x\n",
++		  viwhy);
++	return -EINVAL;
+ }
+ 
+ static int handle_instruction(struct kvm_vcpu *vcpu)
 -- 
-2.4.11
+2.5.5
