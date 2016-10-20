@@ -1,110 +1,149 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 00/28] Reenable maybe-uninitialized warnings
-Date: Tue, 18 Oct 2016 00:03:28 +0200
-Message-ID: <20161017220342.1627073-1-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-List-Archive: <https://lore.kernel.org/ceph-devel/>
-List-Post: <mailto:ceph-devel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-s390@vger.kernel.org, linux-ext4@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org, x86@kernel.org, ceph-devel@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-f2fs-devel@lists.sourceforge.net, linux-mtd@lists.infradead.org, linux-crypto@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, netfilter-devel@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, "David S. Miller" <davem@davemloft.net>, linux-media@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH net-next v2 8/9] s390/net: use net core MTU range checking
+Date: Thu, 20 Oct 2016 13:55:23 -0400
+Message-Id: <20161020175524.6184-9-jarod@redhat.com>
+In-Reply-To: <20161020175524.6184-1-jarod@redhat.com>
+References: <20161019023333.15760-1-jarod@redhat.com>
+ <20161020175524.6184-1-jarod@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Jarod Wilson <jarod@redhat.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ubraun@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-VGhpcyBpcyBhIHNldCBvZiBwYXRjaGVzIHRoYXQgSSBob3BlIHRvIGdldCBpbnRvIHY0LjkgaW4g
-c29tZSBmb3JtCmluIG9yZGVyIHRvIHR1cm4gb24gdGhlIC1XbWF5YmUtdW5pbml0aWFsaXplZCB3
-YXJuaW5ncyBhZ2Fpbi4KCkFmdGVyIHRhbGtpbmcgdG8gTGludXMgaW4gcGVyc29uIGF0IExpbmFy
-byBDb25uZWN0IGFib3V0IHRoaXMsIEkKc3BlbnQgc29tZSB0aW1lIG9uIGZpbmRpbmcgYWxsIHRo
-ZSByZW1haW5pbmcgd2FybmluZ3MsIGFuZCB0aGlzCmlzIHRoZSByZXN1bHRpbmcgcGF0Y2ggc2Vy
-aWVzLiBNb3JlIGRldGFpbHMgYXJlIGluIHRoZSBkZXNjcmlwdGlvbgpvZiB0aGUgbGFzdCBwYXRj
-aCB0aGF0IGFjdHVhbGx5IGVuYWJsZXMgdGhlIHdhcm5pbmcuCgpMZXQgbWUga25vdyBpZiB0aGVy
-ZSBhcmUgb3RoZXIgd2FybmluZ3MgdGhhdCBJIG1pc3NlZCwgYW5kIHdoZXRoZXIKeW91IHRoaW5r
-IHRoZXNlIGFyZSBzdGlsbCBhcHByb3ByaWF0ZSBmb3IgdjQuOSBvciBub3QuCkEgY291cGxlIG9m
-IHBhdGNoZXMgYXJlIG5vbi1vYnZpb3VzLCBhbmQgY291bGQgdXNlIHNvbWUgbW9yZQpkZXRhaWxl
-ZCByZXZpZXcuCgoJQXJuZAoKQXJuZCBCZXJnbWFubiAoMjgpOgogIFt2Ml0gbmV0ZmlsdGVyOiBu
-Zl90YWJsZXM6IGF2b2lkIHVuaW5pdGlhbGl6ZWQgdmFyaWFibGUgd2FybmluZwogIFt2Ml0gbXRk
-OiBtdGs6IGF2b2lkIHdhcm5pbmcgaW4gbXRrX2VjY19lbmNvZGUKICBbdjJdIGluZmluaWJhbmQ6
-IHNodXQgdXAgYSBtYXliZS11bmluaXRpYWxpemVkIHdhcm5pbmcKICBmMmZzOiByZXBsYWNlIGEg
-YnVpbGQtdGltZSB3YXJuaW5nIHdpdGggcnVudGltZSBXQVJOX09OCiAgZXh0MjogYXZvaWQgYm9n
-dXMgLVdtYXliZS11bmluaXRpYWxpemVkIHdhcm5pbmcKICBORlN2NC4xOiB3b3JrIGFyb3VuZCAt
-V21heWJlLXVuaW5pdGlhbGl6ZWQgd2FybmluZwogIGNlcGg6IGF2b2lkIGZhbHNlIHBvc2l0aXZl
-IG1heWJlLXVuaW5pdGlhbGl6ZWQgd2FybmluZwogIHN0YWdpbmc6IGx1c3RyZTogcmVzdG9yZSBp
-bml0aWFsaXphdGlvbiBvZiByZXR1cm4gY29kZQogIHN0YWdpbmc6IGx1c3RyZTogcmVtb3ZlIGJy
-b2tlbiBkZWFkIGNvZGUgaW4KICAgIGNmc19jcHRfdGFibGVfY3JlYXRlX3BhdHRlcm4KICBVQkk6
-IGZpeCB1bmluaXRpYWxpemVkIGFjY2VzcyBvZiB2aWRfaGRyIHBvaW50ZXIKICBibG9jazogcmRi
-OiBmYWxzZS1wb3N0aXZlIGdjYy00LjkgLVdtYXliZS11bmluaXRpYWxpemVkCiAgW21lZGlhXSBy
-YzogcHJpbnQgY29ycmVjdCB2YXJpYWJsZSBmb3IgejhmMDgxMQogIFttZWRpYV0gZGliMDcwMDog
-Zml4IHVuaW5pdGlhbGl6ZWQgZGF0YSBvbiAncmVwZWF0JyBldmVudAogIGlpbzogYWNjZWw6IHNj
-YTMwMDBfY29yZTogYXZvaWQgcG90ZW50aWFsbHkgdW5pbml0aWFsaXplZCB2YXJpYWJsZQogIGNy
-eXB0bzogYWVzbmk6IGF2b2lkIC1XbWF5YmUtdW5pbml0aWFsaXplZCB3YXJuaW5nCiAgcGNtY2lh
-OiBmaXggcmV0dXJuIHZhbHVlIG9mIHNvY19wY21jaWFfcmVndWxhdG9yX3NldAogIHNwaTogZnNs
-LWVzcGk6IGF2b2lkIHByb2Nlc3NpbmcgdW5pbml0YWxpemVkIGRhdGEgb24gZXJyb3IKICBkcm06
-IGF2b2lkIHVuaW5pdGlhbGl6ZWQgdGltZXN0YW1wIHVzZSBpbiB3YWl0X3ZibGFuawogIGJyY21m
-bWFjOiBhdm9pZCBtYXliZS11bmluaXRpYWxpemVkIHdhcm5pbmcgaW4gYnJjbWZfY2ZnODAyMTFf
-c3RhcnRfYXAKICBuZXQ6IGJjbTYzeHg6IGF2b2lkIHJlZmVyZW5jaW5nIHVuaW5pdGlhbGl6ZWQg
-dmFyaWFibGUKICBuZXQvaHlwZXJ2OiBhdm9pZCB1bmluaXRpYWxpemVkIHZhcmlhYmxlCiAgeDg2
-OiBhcG06IGF2b2lkIHVuaW5pdGlhbGl6ZWQgZGF0YQogIHg4NjogbWFyayB0YXJnZXQgYWRkcmVz
-cyBhcyBvdXRwdXQgaW4gJ2luc2InIGFzbQogIHg4NjogbWF0aC1lbXU6IHBvc3NpYmxlIHVuaW5p
-dGlhbGl6ZWQgdmFyaWFibGUgdXNlCiAgczM5MDogcGNpOiBkb24ndCBwcmludCB1bmluaXRpYWxp
-emVkIGRhdGEgZm9yIGRlYnVnZ2luZwogIG5pb3MyOiBmaXggdGltZXIgaW5pdGNhbGwgcmV0dXJu
-IHZhbHVlCiAgcm9ja2VyOiBmaXggbWF5YmUtdW5pbml0aWFsaXplZCB3YXJuaW5nCiAgS2J1aWxk
-OiBicmluZyBiYWNrIC1XbWF5YmUtdW5pbml0aWFsaXplZCB3YXJuaW5nCgogTWFrZWZpbGUgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMTAgKy0KIGFyY2gvYXJj
-L01ha2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA0ICstCiBhcmNo
-L25pb3MyL2tlcm5lbC90aW1lLmMgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMSArCiBh
-cmNoL3MzOTAvcGNpL3BjaV9kbWEuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiAr
-LQogYXJjaC94ODYvY3J5cHRvL2Flc25pLWludGVsX2dsdWUuYyAgICAgICAgICAgICAgICAgfCAx
-MjEgKysrKysrKysrKysrKy0tLS0tLS0tCiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9pby5oICAgICAg
-ICAgICAgICAgICAgICAgICAgICB8ICAgNCArLQogYXJjaC94ODYva2VybmVsL2FwbV8zMi5jICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKy0KIGFyY2gveDg2L21hdGgtZW11L01ha2Vm
-aWxlICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA0ICstCiBhcmNoL3g4Ni9tYXRoLWVtdS9y
-ZWdfY29tcGFyZS5jICAgICAgICAgICAgICAgICAgICB8ICAxNiArLS0KIGRyaXZlcnMvYmxvY2sv
-cmJkLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAxICsKIGRyaXZlcnMvZ3B1
-L2RybS9kcm1faXJxLmMgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA0ICstCiBkcml2ZXJz
-L2luZmluaWJhbmQvY29yZS9jbWEuYyAgICAgICAgICAgICAgICAgICAgICB8ICA1NiArKysrKy0t
-LS0tCiBkcml2ZXJzL21lZGlhL2kyYy9pci1rYmQtaTJjLmMgICAgICAgICAgICAgICAgICAgICB8
-ICAgMiArLQogZHJpdmVycy9tZWRpYS91c2IvZHZiLXVzYi9kaWIwNzAwX2NvcmUuYyAgICAgICAg
-ICAgfCAgMTAgKy0KIGRyaXZlcnMvbXRkL25hbmQvbXRrX2VjYy5jICAgICAgICAgICAgICAgICAg
-ICAgICAgIHwgIDE5ICsrLS0KIGRyaXZlcnMvbXRkL3ViaS9lYmEuYyAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIHwgICAyICstCiBkcml2ZXJzL25ldC9ldGhlcm5ldC9icm9hZGNvbS9iY202
-M3h4X2VuZXQuYyAgICAgICB8ICAgMyArLQogZHJpdmVycy9uZXQvZXRoZXJuZXQvcm9ja2VyL3Jv
-Y2tlcl9vZmRwYS5jICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvbmV0L2h5cGVydi9uZXR2c2Nf
-ZHJ2LmMgICAgICAgICAgICAgICAgICAgIHwgICAyICstCiAuLi4vYnJvYWRjb20vYnJjbTgwMjEx
-L2JyY21mbWFjL2NmZzgwMjExLmMgICAgICAgICB8ICAgMiArLQogZHJpdmVycy9wY21jaWEvc29j
-X2NvbW1vbi5jICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0KIGRyaXZlcnMvc3BpL3Nw
-aS1mc2wtZXNwaS5jICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAyICstCiBkcml2ZXJzL3N0
-YWdpbmcvaWlvL2FjY2VsL3NjYTMwMDBfY29yZS5jICAgICAgICAgICB8ICAgMiArCiAuLi4vc3Rh
-Z2luZy9sdXN0cmUvbG5ldC9saWJjZnMvbGludXgvbGludXgtY3B1LmMgICB8ICAgNyAtLQogZHJp
-dmVycy9zdGFnaW5nL2x1c3RyZS9sdXN0cmUvbG92L2xvdl9wYWNrLmMgICAgICAgfCAgIDIgKwog
-ZnMvY2VwaC9zdXBlci5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDMg
-Ky0KIGZzL2V4dDIvaW5vZGUuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-ICA3ICstCiBmcy9mMmZzL2RhdGEuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICB8ICAgNyArKwogZnMvbmZzL25mczRzZXNzaW9uLmMgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfCAgMTAgKy0KIG5ldC9uZXRmaWx0ZXIvbmZ0X3JhbmdlLmMgICAgICAgICAgICAgICAg
-ICAgICAgICAgIHwgIDEwICstCiBzY3JpcHRzL01ha2VmaWxlLnVic2FuICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICB8ICAgNCArCiAzMSBmaWxlcyBjaGFuZ2VkLCAxODcgaW5zZXJ0aW9ucygr
-KSwgMTQxIGRlbGV0aW9ucygtKQoKLS0gCkNjOiB4ODZAa2VybmVsLm9yZwpDYzogbGludXgtbWVk
-aWFAdmdlci5rZXJuZWwub3JnCkNjOiBNYXVybyBDYXJ2YWxobyBDaGVoYWIgPG1jaGVoYWJAa2Vy
-bmVsLm9yZz4KQ2M6IE1hcnRpbiBTY2h3aWRlZnNreSA8c2Nod2lkZWZza3lAZGUuaWJtLmNvbT4K
-Q2M6IGxpbnV4LXMzOTBAdmdlci5rZXJuZWwub3JnCkNjOiBJbHlhIERyeW9tb3YgPGlkcnlvbW92
-QGdtYWlsLmNvbT4KQ2M6IGRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKQ2M6IGxpbnV4
-LW10ZEBsaXN0cy5pbmZyYWRlYWQub3JnCkNjOiBIZXJiZXJ0IFh1IDxoZXJiZXJ0QGdvbmRvci5h
-cGFuYS5vcmcuYXU+CkNjOiBsaW51eC1jcnlwdG9Admdlci5rZXJuZWwub3JnCkNjOiAiRGF2aWQg
-Uy4gTWlsbGVyIiA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KQ2M6IG5ldGRldkB2Z2VyLmtlcm5lbC5v
-cmcKQ2M6IEdyZWcgS3JvYWgtSGFydG1hbiA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+CkNj
-OiBjZXBoLWRldmVsQHZnZXIua2VybmVsLm9yZwpDYzogbGludXgtZjJmcy1kZXZlbEBsaXN0cy5z
-b3VyY2Vmb3JnZS5uZXQKQ2M6IGxpbnV4LWV4dDRAdmdlci5rZXJuZWwub3JnCkNjOiBuZXRmaWx0
-ZXItZGV2ZWxAdmdlci5rZXJuZWwub3JnCjIuOS4wCgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBs
-aXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1h
-bi9saXN0aW5mby9kcmktZGV2ZWwK
+ctcm:
+- min_mtu = 576, max_mtu = 65527
+
+netiucv:
+- min_mtu = 576, max_mtu = 65535
+
+qeth:
+- min_mtu = 64, max_mtu = 65535
+
+CC: netdev@vger.kernel.org
+CC: linux-s390@vger.kernel.org
+CC: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+---
+ drivers/s390/net/ctcm_main.c      |  5 ++---
+ drivers/s390/net/netiucv.c        | 24 ++----------------------
+ drivers/s390/net/qeth_core_main.c |  4 ----
+ drivers/s390/net/qeth_l2_main.c   |  2 ++
+ drivers/s390/net/qeth_l3_main.c   |  2 ++
+ 5 files changed, 8 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index ad17fc5..ac65f12 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1032,9 +1032,6 @@ static int ctcm_change_mtu(struct net_device *dev, int new_mtu)
+ 	struct ctcm_priv *priv;
+ 	int max_bufsize;
+ 
+-	if (new_mtu < 576 || new_mtu > 65527)
+-		return -EINVAL;
+-
+ 	priv = dev->ml_priv;
+ 	max_bufsize = priv->channel[CTCM_READ]->max_bufsize;
+ 
+@@ -1123,6 +1120,8 @@ void static ctcm_dev_setup(struct net_device *dev)
+ 	dev->type = ARPHRD_SLIP;
+ 	dev->tx_queue_len = 100;
+ 	dev->flags = IFF_POINTOPOINT | IFF_NOARP;
++	dev->min_mtu = 576;
++	dev->max_mtu = 65527;
+ }
+ 
+ /*
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index 2f0f391..2981024 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -1428,27 +1428,6 @@ static struct net_device_stats *netiucv_stats (struct net_device * dev)
+ 	return &priv->stats;
+ }
+ 
+-/**
+- * netiucv_change_mtu
+- * @dev: Pointer to interface struct.
+- * @new_mtu: The new MTU to use for this interface.
+- *
+- * Sets MTU of an interface.
+- *
+- * Returns 0 on success, -EINVAL if MTU is out of valid range.
+- *         (valid range is 576 .. NETIUCV_MTU_MAX).
+- */
+-static int netiucv_change_mtu(struct net_device * dev, int new_mtu)
+-{
+-	IUCV_DBF_TEXT(trace, 3, __func__);
+-	if (new_mtu < 576 || new_mtu > NETIUCV_MTU_MAX) {
+-		IUCV_DBF_TEXT(setup, 2, "given MTU out of valid range\n");
+-		return -EINVAL;
+-	}
+-	dev->mtu = new_mtu;
+-	return 0;
+-}
+-
+ /*
+  * attributes in sysfs
+  */
+@@ -1986,12 +1965,13 @@ static const struct net_device_ops netiucv_netdev_ops = {
+ 	.ndo_stop		= netiucv_close,
+ 	.ndo_get_stats		= netiucv_stats,
+ 	.ndo_start_xmit		= netiucv_tx,
+-	.ndo_change_mtu	   	= netiucv_change_mtu,
+ };
+ 
+ static void netiucv_setup_netdevice(struct net_device *dev)
+ {
+ 	dev->mtu	         = NETIUCV_MTU_DEFAULT;
++	dev->min_mtu		 = 576;
++	dev->max_mtu		 = NETIUCV_MTU_MAX;
+ 	dev->destructor          = netiucv_free_netdevice;
+ 	dev->hard_header_len     = NETIUCV_HDRLEN;
+ 	dev->addr_len            = 0;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 20cf296..e335583 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -4202,10 +4202,6 @@ int qeth_change_mtu(struct net_device *dev, int new_mtu)
+ 	sprintf(dbf_text, "%8x", new_mtu);
+ 	QETH_CARD_TEXT(card, 4, dbf_text);
+ 
+-	if (new_mtu < 64)
+-		return -EINVAL;
+-	if (new_mtu > 65535)
+-		return -EINVAL;
+ 	if ((!qeth_is_supported(card, IPA_IP_FRAGMENTATION)) &&
+ 	    (!qeth_mtu_is_valid(card, new_mtu)))
+ 		return -EINVAL;
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index bb27058..9c921c28 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1107,6 +1107,8 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
+ 	card->dev->ml_priv = card;
+ 	card->dev->watchdog_timeo = QETH_TX_TIMEOUT;
+ 	card->dev->mtu = card->info.initial_mtu;
++	card->dev->min_mtu = 64;
++	card->dev->max_mtu = ETH_MAX_MTU;
+ 	card->dev->netdev_ops = &qeth_l2_netdev_ops;
+ 	card->dev->ethtool_ops =
+ 		(card->info.type != QETH_CARD_TYPE_OSN) ?
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 272d9e7..ac37d05 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -3140,6 +3140,8 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 	card->dev->ml_priv = card;
+ 	card->dev->watchdog_timeo = QETH_TX_TIMEOUT;
+ 	card->dev->mtu = card->info.initial_mtu;
++	card->dev->min_mtu = 64;
++	card->dev->max_mtu = ETH_MAX_MTU;
+ 	card->dev->ethtool_ops = &qeth_l3_ethtool_ops;
+ 	card->dev->features |=	NETIF_F_HW_VLAN_CTAG_TX |
+ 				NETIF_F_HW_VLAN_CTAG_RX |
+-- 
+2.10.0
