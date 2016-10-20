@@ -1,49 +1,66 @@
-From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Subject: Re: [GIT PULL 0/1] KVM: s390: fix for 4.9 (via kvm/master)
-Date: Thu, 20 Oct 2016 20:47:20 +0200
-Message-ID: <20161020184720.GA17270@potion>
-References: <1476987606-123515-1-git-send-email-borntraeger@de.ibm.com>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v5 1/9] kernel/sched: introduce vcpu preempted check interface
+Date: Thu, 20 Oct 2016 17:27:46 -0400
+Message-ID: <1476998874-2089-2-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1476987606-123515-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
+Cc: kernellwp@gmail.com, jgross@suse.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-2016-10-20 20:20+0200, Christian Borntraeger:
-> Paolo, Radim,
-> 
-> The following changes since commit 1001354ca34179f3db924eb66672442a173147dc:
-> 
->   Linux 4.9-rc1 (2016-10-15 12:17:50 -0700)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.9-1
-> 
-> for you to fetch changes up to a5efb6b6c99a3a6dc4330f51d8066f638bdea0ac:
-> 
->   KVM: s390: reject invalid modes for runtime instrumentation (2016-10-20 20:06:12 +0200)
+This patch support to fix lock holder preemption issue.
 
-Pulled, thanks.
+For kernel users, we could use bool vcpu_is_preempted(int cpu) to detech if
+one vcpu is preempted or not.
 
-> ----------------------------------------------------------------
-> KVM: s390: Fix for user-triggerable WARN_ON
-> 
-> A malicious user space can provide an invalid mode for runtime
-> instrumentation via the interfaces that are normally used on
-> the target host during migration. This would trigger a WARN_ON
-> via validity intercept. Let's detect this special case.
-> 
-> ----------------------------------------------------------------
-> Christian Borntraeger (1):
->       KVM: s390: reject invalid modes for runtime instrumentation
-> 
->  arch/s390/kvm/intercept.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
+The default implementation is a macro defined by false. So compiler can
+wrap it out if arch dose not support such vcpu pteempted check.
+
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Tested-by: Juergen Gross <jgross@suse.com>
+---
+ include/linux/sched.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 348f51b..44c1ce7 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -3506,6 +3506,18 @@ static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
+ 
+ #endif /* CONFIG_SMP */
+ 
++/*
++ * In order to deal with a various lock holder preemption issues provide an
++ * interface to see if a vCPU is currently running or not.
++ *
++ * This allows us to terminate optimistic spin loops and block, analogous to
++ * the native optimistic spin heuristic of testing if the lock owner task is
++ * running or not.
++ */
++#ifndef vcpu_is_preempted
++#define vcpu_is_preempted(cpu)	false
++#endif
++
+ extern long sched_setaffinity(pid_t pid, const struct cpumask *new_mask);
+ extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
+ 
+-- 
+2.4.11
