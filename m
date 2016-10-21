@@ -1,65 +1,59 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 9/9] Documentation: virtual: kvm: Support vcpu
-	preempted check
-Date: Fri, 21 Oct 2016 09:42:22 +0800
-Message-ID: <26e3f487-10e5-3a45-0b8d-e4554d716ae8@linux.vnet.ibm.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v5 7/9] x86, xen: support vcpu preempted check
+Date: Fri, 21 Oct 2016 07:08:19 +0200
+Message-ID: <7ebcc196-e483-097c-41c8-070b46297c9d@suse.com>
 References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1476998874-2089-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20161021012348.GC8429@tardis.cn.ibm.com>
+ <1476998874-2089-8-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161021012348.GC8429@tardis.cn.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1476998874-2089-8-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Boqun Feng <boqun.feng@gmail.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, rkrcmar@redhat.com, peterz@infradead.org, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
+Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David Vrabel <david.vrabel@citrix.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-CgrlnKggMjAxNi8xMC8yMSAwOToyMywgQm9xdW4gRmVuZyDlhpnpgZM6Cj4gT24gVGh1LCBPY3Qg
-MjAsIDIwMTYgYXQgMDU6Mjc6NTRQTSAtMDQwMCwgUGFuIFhpbmh1aSB3cm90ZToKPj4gQ29tbWl0
-ICgieDg2LCBrdm06IHN1cHBvcnQgdmNwdSBwcmVlbXB0ZWQgY2hlY2siKSBhZGQgb25lIGZpZWxk
-ICJfX3U4Cj4+IHByZWVtcHRlZCIgaW50byBzdHJ1Y3Qga3ZtX3N0ZWFsX3RpbWUuIFRoaXMgZmll
-bGQgdGVsbHMgaWYgb25lIHZjcHUgaXMKPj4gcnVubmluZyBvciBub3QuCj4+Cj4+IEl0IGlzIHpl
-cm8gaWYgMSkgc29tZSBvbGQgS1ZNIGRlb3Mgbm90IHN1cHBvcnQgdGhpcyBmaWxlZC4gMikgdGhl
-IHZjcHUgaXMKPj4gcHJlZW1wdGVkLiBPdGhlciB2YWx1ZXMgbWVhbnMgdGhlIHZjcHUgaGFzIGJl
-ZW4gcHJlZW1wdGVkLgo+ICAgXl5eXl5eXl5eCj4gcy9wcmVlbXB0ZWQvbm90IHByZWVtcHRlZAo+
-Cnllcy4gdGhlIGxlc3Mgb2YgKm5vdCogZGVmaW5pdGVseSBzb3VsZCBiZSBhdm9pZGVkLi4KPiBB
-bmQgYmV0dGVyIHRvIGZpeCBvdGhlciB0eXBvcyBpbiB0aGUgY29tbWl0IGxvZyA7LSkKPiBNYXli
-ZSB5b3UgY2FuIHRyeSBhc3BlbGw/IFRoYXQgd29ya3MgZm9yIG1lLgo+Ckkgd2lsbCB0cnkgaXQu
-IDopCgo+IFJlZ2FyZHMsCj4gQm9xdW4KPgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBQYW4gWGluaHVp
-IDx4aW5odWkucGFuQGxpbnV4LnZuZXQuaWJtLmNvbT4KPj4gLS0tCj4+ICBEb2N1bWVudGF0aW9u
-L3ZpcnR1YWwva3ZtL21zci50eHQgfCA4ICsrKysrKystCj4+ICAxIGZpbGUgY2hhbmdlZCwgNyBp
-bnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0
-aW9uL3ZpcnR1YWwva3ZtL21zci50eHQgYi9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwva3ZtL21zci50
-eHQKPj4gaW5kZXggMmE3MWM4Zi4uMzM3NmYxMyAxMDA2NDQKPj4gLS0tIGEvRG9jdW1lbnRhdGlv
-bi92aXJ0dWFsL2t2bS9tc3IudHh0Cj4+ICsrKyBiL0RvY3VtZW50YXRpb24vdmlydHVhbC9rdm0v
-bXNyLnR4dAo+PiBAQCAtMjA4LDcgKzIwOCw4IEBAIE1TUl9LVk1fU1RFQUxfVElNRTogMHg0YjU2
-NGQwMwo+PiAgCQlfX3U2NCBzdGVhbDsKPj4gIAkJX191MzIgdmVyc2lvbjsKPj4gIAkJX191MzIg
-ZmxhZ3M7Cj4+IC0JCV9fdTMyIHBhZFsxMl07Cj4+ICsJCV9fdTggIHByZWVtcHRlZDsKPj4gKwkJ
-X191MzIgcGFkWzExXTsKPj4gIAl9Cj4+Cj4+ICAJd2hvc2UgZGF0YSB3aWxsIGJlIGZpbGxlZCBp
-biBieSB0aGUgaHlwZXJ2aXNvciBwZXJpb2RpY2FsbHkuIE9ubHkgb25lCj4+IEBAIC0yMzIsNiAr
-MjMzLDExIEBAIE1TUl9LVk1fU1RFQUxfVElNRTogMHg0YjU2NGQwMwo+PiAgCQluYW5vc2Vjb25k
-cy4gVGltZSBkdXJpbmcgd2hpY2ggdGhlIHZjcHUgaXMgaWRsZSwgd2lsbCBub3QgYmUKPj4gIAkJ
-cmVwb3J0ZWQgYXMgc3RlYWwgdGltZS4KPj4KPj4gKwkJcHJlZW1wdGVkOiBpbmRpY2F0ZSB0aGUg
-VkNQVSB3aG8gb3ducyB0aGlzIHN0cnVjdCBpcyBydW5uaW5nIG9yCj4+ICsJCW5vdC4gTm9uLXpl
-cm8gdmFsdWVzIG1lYW4gdGhlIFZDUFUgaGFzIGJlZW4gcHJlZW1wdGVkLiBaZXJvCj4+ICsJCW1l
-YW5zIHRoZSBWQ1BVIGlzIG5vdCBwcmVlbXB0ZWQuIE5PVEUsIGl0IGlzIGFsd2F5cyB6ZXJvIGlm
-IHRoZQo+PiArCQl0aGUgaHlwZXJ2aXNvciBkb2Vzbid0IHN1cHBvcnQgdGhpcyBmaWVsZC4KPj4g
-Kwo+PiAgTVNSX0tWTV9FT0lfRU46IDB4NGI1NjRkMDQKPj4gIAlkYXRhOiBCaXQgMCBpcyAxIHdo
-ZW4gUFYgZW5kIG9mIGludGVycnVwdCBpcyBlbmFibGVkIG9uIHRoZSB2Y3B1OyAwCj4+ICAJd2hl
-biBkaXNhYmxlZC4gIEJpdCAxIGlzIHJlc2VydmVkIGFuZCBtdXN0IGJlIHplcm8uICBXaGVuIFBW
-IGVuZCBvZgo+PiAtLQo+PiAyLjQuMTEKPj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Corrected xen-devel mailing list address, added other Xen maintainers
+
+On 20/10/16 23:27, Pan Xinhui wrote:
+> From: Juergen Gross <jgross@suse.com>
+> 
+> Support the vcpu_is_preempted() functionality under Xen. This will
+> enhance lock performance on overcommitted hosts (more runnable vcpus
+> than physical cpus in the system) as doing busy waits for preempted
+> vcpus will hurt system performance far worse than early yielding.
+> 
+> A quick test (4 vcpus on 1 physical cpu doing a parallel build job
+> with "make -j 8") reduced system time by about 5% with this patch.
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+> ---
+>  arch/x86/xen/spinlock.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+> index 3d6e006..74756bb 100644
+> --- a/arch/x86/xen/spinlock.c
+> +++ b/arch/x86/xen/spinlock.c
+> @@ -114,7 +114,6 @@ void xen_uninit_lock_cpu(int cpu)
+>  	per_cpu(irq_name, cpu) = NULL;
+>  }
+>  
+> -
+>  /*
+>   * Our init of PV spinlocks is split in two init functions due to us
+>   * using paravirt patching and jump labels patching and having to do
+> @@ -137,6 +136,8 @@ void __init xen_init_spinlocks(void)
+>  	pv_lock_ops.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
+>  	pv_lock_ops.wait = xen_qlock_wait;
+>  	pv_lock_ops.kick = xen_qlock_kick;
+> +
+> +	pv_lock_ops.vcpu_is_preempted = xen_vcpu_stolen;
+>  }
+>  
+>  /*
+> 
