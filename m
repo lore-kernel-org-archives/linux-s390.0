@@ -1,38 +1,90 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 2/5] stop_machine: yield CPU during stop machine
-Date: Mon, 24 Oct 2016 10:47:47 +0200
-Message-ID: <20161024084747.GE3102@twins.programming.kicks-ass.net>
-References: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
-	<1477051138-1610-3-git-send-email-borntraeger@de.ibm.com>
-	<20161021120536.GC3142@twins.programming.kicks-ass.net>
-	<20161022110636.410f20bd@roar.ozlabs.ibm.com>
-	<251574ff-13ba-c0df-76c3-cb7df30894cb@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <251574ff-13ba-c0df-76c3-cb7df30894cb@de.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH/RFC 0/5] cpu_relax: introduce yield, remove lowlatency
+Date: Fri, 21 Oct 2016 13:58:53 +0200
+Message-ID: <1477051138-1610-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <linux-arch-owner@vger.kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-arch@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, kvm@vger.kernel.org, xen-devel-request@lists.xenproject.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, virtualization@lists.linux-foundation.org, Noam Camus <noamc@ezchip.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>, linux-kernel@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Noam Camus <noamc@ezchip.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Oct 24, 2016 at 09:52:31AM +0200, Christian Borntraeger wrote:
-> Peter, I will fixup the patch set (I forgot to remove the lowlatency
-> in 2 places) and push it on my tree for linux-next. Lets see what happens.
-> Would the tip tree be the right place if things work out ok?
+For spinning loops people did often use barrier() or cpu_relax().
+For most architectures cpu_relax and barrier are the same, but on
+some architectures cpu_relax can add some latency. For example on s390
+cpu_relax gives up the time slice to the hypervisor. On power cpu_relax
+tries to give some of the CPU to the neighbor threads. To reduce the
+latency another variant cpu_relax_lowlatency was introduced. Before this
+is used in more and more places, lets revert the logic of provide a new
+function cpu_relax_yield that can spend some time and for s390 yields
+the guest CPU.
 
-I think so, you're touching a fair bit of kernel/locking/ and there's
-bound to be some conflicts with work there. So carrying it in the
-locking tree might be best.
+So my proposal boils down to:
+- lowest latency: use barrier() or mb() if necessary
+- low latency: use cpu_relax (e.g. might give up some cpu for the other
+  threads)
+- really give up CPU: use  cpu_relax_yield
+
+The alternative is to keep cpu_relax_lowlatency if there is some need.
+
+Not fully sure about arc/eznps and power, but lets hear first if the
+approach is ok.
+
+PS: In the long run I would also try to provide for s390 something like
+cpu_relax_yield_to with a cpu number (or just add that to cpu_relax_yield),
+since a yield_to is always better than a yield as long as we know the waiter.
+
+
+Christian Borntraeger (5):
+  processor.h: introduce cpu_relax_yield
+  stop_machine: yield CPU during stop machine
+  s390: make cpu_relax a barrier again
+  Remove cpu_relax_lowlatency users
+  remove cpu_relax_lowlatency
+
+ arch/alpha/include/asm/processor.h      | 2 +-
+ arch/arc/include/asm/processor.h        | 2 ++
+ arch/arm/include/asm/processor.h        | 2 +-
+ arch/arm64/include/asm/processor.h      | 2 +-
+ arch/avr32/include/asm/processor.h      | 2 +-
+ arch/blackfin/include/asm/processor.h   | 2 +-
+ arch/c6x/include/asm/processor.h        | 2 +-
+ arch/cris/include/asm/processor.h       | 2 +-
+ arch/frv/include/asm/processor.h        | 2 +-
+ arch/h8300/include/asm/processor.h      | 2 +-
+ arch/hexagon/include/asm/processor.h    | 2 +-
+ arch/ia64/include/asm/processor.h       | 2 +-
+ arch/m32r/include/asm/processor.h       | 2 +-
+ arch/m68k/include/asm/processor.h       | 2 +-
+ arch/metag/include/asm/processor.h      | 2 +-
+ arch/microblaze/include/asm/processor.h | 2 +-
+ arch/mips/include/asm/processor.h       | 2 +-
+ arch/mn10300/include/asm/processor.h    | 2 +-
+ arch/nios2/include/asm/processor.h      | 2 +-
+ arch/openrisc/include/asm/processor.h   | 2 +-
+ arch/parisc/include/asm/processor.h     | 2 +-
+ arch/powerpc/include/asm/processor.h    | 2 +-
+ arch/s390/include/asm/processor.h       | 4 ++--
+ arch/s390/kernel/processor.c            | 4 ++--
+ arch/score/include/asm/processor.h      | 2 +-
+ arch/sh/include/asm/processor.h         | 2 +-
+ arch/sparc/include/asm/processor_32.h   | 2 +-
+ arch/sparc/include/asm/processor_64.h   | 2 +-
+ arch/tile/include/asm/processor.h       | 2 +-
+ arch/unicore32/include/asm/processor.h  | 2 +-
+ arch/x86/include/asm/processor.h        | 2 +-
+ arch/xtensa/include/asm/processor.h     | 2 +-
+ drivers/gpu/drm/i915/i915_gem_request.c | 2 +-
+ drivers/vhost/net.c                     | 4 ++--
+ kernel/locking/mcs_spinlock.h           | 4 ++--
+ kernel/locking/mutex.c                  | 4 ++--
+ kernel/locking/osq_lock.c               | 6 +++---
+ kernel/locking/qrwlock.c                | 6 +++---
+ kernel/locking/rwsem-xadd.c             | 4 ++--
+ kernel/stop_machine.c                   | 2 +-
+ lib/lockref.c                           | 2 +-
+ 41 files changed, 52 insertions(+), 50 deletions(-)
+
+-- 
+2.5.5
