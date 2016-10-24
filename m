@@ -1,55 +1,142 @@
 From: xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 9/9] Documentation: virtual: kvm: Support vcpu preempted
-	check
-Date: Mon, 24 Oct 2016 10:46:54 +0800
-Message-ID: <580D761E.5000508@linux.vnet.ibm.com>
-References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1476998874-2089-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<063D6719AE5E284EB5DD2968C1650D6DB0207B44@AcuExch.aculab.com>
-	<20161021183951.GA29131@potion>
+Subject: Re: [PATCH v5 6/9] x86, kvm: support vcpu preempted check
+Date: Mon, 24 Oct 2016 16:08:37 +0800
+Message-ID: <580DC185.1060602@linux.vnet.ibm.com>
+References: <1476998874-2089-1-git-send-email-xinhui.pan@linux.vnet.ibm.com> <1476998874-2089-7-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161021183951.GA29131@potion>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1476998874-2089-7-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: "rkrcmar@redhat.com" <rkrcmar@redhat.com>, David Laight <David.Laight@ACULAB.COM>
-Cc: "kernellwp@gmail.com" <kernellwp@gmail.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "jgross@suse.com" <jgross@suse.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "peterz@infradead.org" <peterz@infradead.org>, "xen-devel-request@lists.xenproject.org" <xen-devel-request@lists.xenproject.org>, "boqun.feng@gmail.com" <boqun.feng@gmail.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "paulus@samba.org" <paulus@samba.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "paulmck@linux.vnet.ibm.com" <paulmck@linux.vnet.ibm.com>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org
+Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM
 List-ID: <linux-s390.vger.kernel.org>
 
-CgpPbiAyMDE25bm0MTDmnIgyMuaXpSAwMjozOSwgcmtyY21hckByZWRoYXQuY29tIHdyb3RlOgo+
-IDIwMTYtMTAtMjEgMTE6MjcrMDAwMCwgRGF2aWQgTGFpZ2h0Ogo+PiBGcm9tOiBQYW4gWGluaHVp
-Cj4+PiBTZW50OiAyMCBPY3RvYmVyIDIwMTYgMjI6MjgKPj4+IENvbW1pdCAoIng4Niwga3ZtOiBz
-dXBwb3J0IHZjcHUgcHJlZW1wdGVkIGNoZWNrIikgYWRkIG9uZSBmaWVsZCAiX191OAo+Pj4gcHJl
-ZW1wdGVkIiBpbnRvIHN0cnVjdCBrdm1fc3RlYWxfdGltZS4gVGhpcyBmaWVsZCB0ZWxscyBpZiBv
-bmUgdmNwdSBpcwo+Pj4gcnVubmluZyBvciBub3QuCj4+Pgo+Pj4gSXQgaXMgemVybyBpZiAxKSBz
-b21lIG9sZCBLVk0gZGVvcyBub3Qgc3VwcG9ydCB0aGlzIGZpbGVkLiAyKSB0aGUgdmNwdSBpcwo+
-Pj4gcHJlZW1wdGVkLiBPdGhlciB2YWx1ZXMgbWVhbnMgdGhlIHZjcHUgaGFzIGJlZW4gcHJlZW1w
-dGVkLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IFBhbiBYaW5odWkgPHhpbmh1aS5wYW5AbGludXgu
-dm5ldC5pYm0uY29tPgo+Pj4gLS0tCj4+PiAgIERvY3VtZW50YXRpb24vdmlydHVhbC9rdm0vbXNy
-LnR4dCB8IDggKysrKysrKy0KPj4+ICAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwg
-MSBkZWxldGlvbigtKQo+Pj4KPj4+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwv
-a3ZtL21zci50eHQgYi9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwva3ZtL21zci50eHQKPj4+IGluZGV4
-IDJhNzFjOGYuLjMzNzZmMTMgMTAwNjQ0Cj4+PiAtLS0gYS9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwv
-a3ZtL21zci50eHQKPj4+ICsrKyBiL0RvY3VtZW50YXRpb24vdmlydHVhbC9rdm0vbXNyLnR4dAo+
-Pj4gQEAgLTIwOCw3ICsyMDgsOCBAQCBNU1JfS1ZNX1NURUFMX1RJTUU6IDB4NGI1NjRkMDMKPj4+
-ICAgCQlfX3U2NCBzdGVhbDsKPj4+ICAgCQlfX3UzMiB2ZXJzaW9uOwo+Pj4gICAJCV9fdTMyIGZs
-YWdzOwo+Pj4gLQkJX191MzIgcGFkWzEyXTsKPj4+ICsJCV9fdTggIHByZWVtcHRlZDsKPj4+ICsJ
-CV9fdTMyIHBhZFsxMV07Cj4+PiAgIAl9Cj4+Cj4+IEkgdGhpbmsgSSdkIGJlIGV4cGxpY2l0IGFi
-b3V0IHRoZSAzIHBhZCBieXRlcyB5b3UndmUgbGVmdC4KPgo+IFNlY29uZGVkLgo+Cj4gV2l0aCB0
-aGF0IGNoYW5nZSBhcmUgYWxsIEtWTSBiaXRzCj4KbGlrZSBiZWxvdz8KX191OCBwcmVlbXB0ZWQ7
-Cl9fdTgga3ZtX3BhZFszXTsKCgo+IEFja2VkLWJ5OiBSYWRpbSBLcsSNbcOhxZkgPHJrcmNtYXJA
-cmVkaGF0LmNvbT4KPgp0aGFua3MhCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This is new version for [PATCH v6 6/9] x86, kvm: support vcpu preempted check
+change:
+	an explicit pad[3] after __u8 preempted.
+
+ From b876ea1a2a724c004b543b2c103a1f8faa5f106e Mon Sep 17 00:00:00 2001
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Date: Thu, 20 Oct 2016 08:14:41 -0400
+Subject: [PATCH v6 6/9] x86, kvm: support vcpu preempted check
+
+Support the vcpu_is_preempted() functionality under KVM. This will
+enhance lock performance on overcommitted hosts (more runnable vcpus
+than physical cpus in the system) as doing busy waits for preempted
+vcpus will hurt system performance far worse than early yielding.
+
+Use one field of struct kvm_steal_time to indicate that if one vcpu
+is running or not.
+
+unix benchmark result:
+host:  kernel 4.8.1, i5-4570, 4 cpus
+guest: kernel 4.8.1, 8 vcpus
+
+         test-case                       after-patch       before-patch
+Execl Throughput                       |    18307.9 lps  |    11701.6 lps
+File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
+File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
+File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
+Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps
+Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps
+Process Creation                       |    29881.2 lps  |    28572.8 lps
+Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm
+Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm
+System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps
+
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+---
+  arch/x86/include/uapi/asm/kvm_para.h |  4 +++-
+  arch/x86/kernel/kvm.c                | 12 ++++++++++++
+  arch/x86/kvm/x86.c                   | 18 ++++++++++++++++++
+  3 files changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
+index 94dc8ca..1421a65 100644
+--- a/arch/x86/include/uapi/asm/kvm_para.h
++++ b/arch/x86/include/uapi/asm/kvm_para.h
+@@ -45,7 +45,9 @@ struct kvm_steal_time {
+  	__u64 steal;
+  	__u32 version;
+  	__u32 flags;
+-	__u32 pad[12];
++	__u8  preempted;
++	__u8  u8_pad[3];
++	__u32 pad[11];
+  };
+  
+  #define KVM_STEAL_ALIGNMENT_BITS 5
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index edbbfc8..0b48dd2 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -415,6 +415,15 @@ void kvm_disable_steal_time(void)
+  	wrmsr(MSR_KVM_STEAL_TIME, 0, 0);
+  }
+  
++static bool kvm_vcpu_is_preempted(int cpu)
++{
++	struct kvm_steal_time *src;
++
++	src = &per_cpu(steal_time, cpu);
++
++	return !!src->preempted;
++}
++
+  #ifdef CONFIG_SMP
+  static void __init kvm_smp_prepare_boot_cpu(void)
+  {
+@@ -471,6 +480,9 @@ void __init kvm_guest_init(void)
+  	if (kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
+  		has_steal_clock = 1;
+  		pv_time_ops.steal_clock = kvm_steal_clock;
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++		pv_lock_ops.vcpu_is_preempted = kvm_vcpu_is_preempted;
++#endif
+  	}
+  
+  	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 6c633de..a627537 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2057,6 +2057,8 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
+  		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time))))
+  		return;
+  
++	vcpu->arch.st.steal.preempted = 0;
++
+  	if (vcpu->arch.st.steal.version & 1)
+  		vcpu->arch.st.steal.version += 1;  /* first time write, random junk */
+  
+@@ -2810,8 +2812,24 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+  	kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
+  }
+  
++static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
++{
++	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
++		return;
++
++	if (unlikely(kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
++			&vcpu->arch.st.steal, sizeof(struct kvm_steal_time))))
++		return;
++
++	vcpu->arch.st.steal.preempted = 1;
++
++	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
++			&vcpu->arch.st.steal, sizeof(struct kvm_steal_time));
++}
++
+  void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+  {
++	kvm_steal_time_set_preempted(vcpu);
+  	kvm_x86_ops->vcpu_put(vcpu);
+  	kvm_put_guest_fpu(vcpu);
+  	vcpu->arch.last_host_tsc = rdtsc();
+-- 
+2.4.11
