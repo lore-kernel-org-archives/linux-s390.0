@@ -1,118 +1,42 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH v4 5/5] x86, kvm: support vcpu preempted check
-Date: Thu, 20 Oct 2016 02:45:33 +0800
-Message-ID: <34aefe78-af86-19b3-9e2f-cb3ee6b5f735@linux.vnet.ibm.com>
+Date: Mon, 24 Oct 2016 16:39:39 +0200
+Message-ID: <c00e636e-ea06-6bbb-6a67-39804ee8ba75@redhat.com>
 References: <1476872416-42752-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1476872416-42752-6-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20161019172403.GA9240@potion>
+ <1476872416-42752-6-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+ <20161019172403.GA9240@potion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20161019172403.GA9240@potion>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Cc: kernellwp@gmail.com, linux-s390@vger.kernel.org, jgross@suse.com, kvm@vger.kernel.org, peterz@infradead.org, xen-devel-request@lists.xenproject.org, will.deacon@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, paulus@samba.org, mpe@ellerman.id.au, benh@kernel.crashing.org, pbonzini@redhat.com, paulmck@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, boqun.feng@gmail.com
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-CuWcqCAyMDE2LzEwLzIwIDAxOjI0LCBSYWRpbSBLcsSNbcOhxZkg5YaZ6YGTOgo+IDIwMTYtMTAt
-MTkgMDY6MjAtMDQwMCwgUGFuIFhpbmh1aToKPj4gVGhpcyBpcyB0byBmaXggc29tZSBsb2NrIGhv
-bGRlciBwcmVlbXB0aW9uIGlzc3Vlcy4gU29tZSBvdGhlciBsb2Nrcwo+PiBpbXBsZW1lbnRhdGlv
-biBkbyBhIHNwaW4gbG9vcCBiZWZvcmUgYWNxdWlyaW5nIHRoZSBsb2NrIGl0c2VsZi4KPj4gQ3Vy
-cmVudGx5IGtlcm5lbCBoYXMgYW4gaW50ZXJmYWNlIG9mIGJvb2wgdmNwdV9pc19wcmVlbXB0ZWQo
-aW50IGNwdSkuIEl0Cj4+IHRha2VzIHRoZSBjcHUgYXMgcGFyYW1ldGVyIGFuZCByZXR1cm4gdHJ1
-ZSBpZiB0aGUgY3B1IGlzIHByZWVtcHRlZC4gIFRoZW4KPj4ga2VybmVsIGNhbiBicmVhayB0aGUg
-c3BpbiBsb29wcyB1cG9uIG9uIHRoZSByZXR2YWwgb2YgdmNwdV9pc19wcmVlbXB0ZWQuCj4+Cj4+
-IEFzIGtlcm5lbCBoYXMgdXNlZCB0aGlzIGludGVyZmFjZSwgU28gbGV0cyBzdXBwb3J0IGl0Lgo+
-Pgo+PiBXZSB1c2Ugb25lIGZpZWxkIG9mIHN0cnVjdCBrdm1fc3RlYWxfdGltZSB0byBpbmRpY2F0
-ZSB0aGF0IGlmIG9uZSB2Y3B1Cj4+IGlzIHJ1bm5pbmcgb3Igbm90Lgo+Pgo+PiB1bml4IGJlbmNo
-bWFyayByZXN1bHQ6Cj4+IGhvc3Q6ICBrZXJuZWwgNC44LjEsIGk1LTQ1NzAsIDQgY3B1cwo+PiBn
-dWVzdDoga2VybmVsIDQuOC4xLCA4IHZjcHVzCj4+Cj4+IAl0ZXN0LWNhc2UJCQlhZnRlci1wYXRj
-aAkgIGJlZm9yZS1wYXRjaAo+PiBFeGVjbCBUaHJvdWdocHV0ICAgICAgICAgICAgICAgICAgICAg
-ICB8ICAgIDE4MzA3LjkgbHBzICB8ICAgIDExNzAxLjYgbHBzCj4+IEZpbGUgQ29weSAxMDI0IGJ1
-ZnNpemUgMjAwMCBtYXhibG9ja3MgIHwgIDEzNTI0MDcuMyBLQnBzIHwgICA3OTA0MTguOSBLQnBz
-Cj4+IEZpbGUgQ29weSAyNTYgYnVmc2l6ZSA1MDAgbWF4YmxvY2tzICAgIHwgICAzNjc1NTUuNiBL
-QnBzIHwgICAyMjI4NjcuNyBLQnBzCj4+IEZpbGUgQ29weSA0MDk2IGJ1ZnNpemUgODAwMCBtYXhi
-bG9ja3MgIHwgIDM2NzU2NDkuNyBLQnBzIHwgIDE3ODA2MTQuNCBLQnBzCj4+IFBpcGUgVGhyb3Vn
-aHB1dCAgICAgICAgICAgICAgICAgICAgICAgIHwgMTE4NzIyMDguNyBscHMgIHwgMTE4NTU2Mjgu
-OSBscHMKPj4gUGlwZS1iYXNlZCBDb250ZXh0IFN3aXRjaGluZyAgICAgICAgICAgfCAgMTQ5NTEy
-Ni41IGxwcyAgfCAgMTQ5MDUzMy45IGxwcwo+PiBQcm9jZXNzIENyZWF0aW9uICAgICAgICAgICAg
-ICAgICAgICAgICB8ICAgIDI5ODgxLjIgbHBzICB8ICAgIDI4NTcyLjggbHBzCj4+IFNoZWxsIFNj
-cmlwdHMgKDEgY29uY3VycmVudCkgICAgICAgICAgIHwgICAgMjMyMjQuMyBscG0gIHwgICAgMjI2
-MDcuNCBscG0KPj4gU2hlbGwgU2NyaXB0cyAoOCBjb25jdXJyZW50KSAgICAgICAgICAgfCAgICAg
-MzUzMS40IGxwbSAgfCAgICAgMzIxMS45IGxwbQo+PiBTeXN0ZW0gQ2FsbCBPdmVyaGVhZCAgICAg
-ICAgICAgICAgICAgICB8IDEwMzg1NjUzLjAgbHBzICB8IDEwNDE5OTc5LjAgbHBzCj4+Cj4+IFNp
-Z25lZC1vZmYtYnk6IFBhbiBYaW5odWkgPHhpbmh1aS5wYW5AbGludXgudm5ldC5pYm0uY29tPgo+
-PiAtLS0KPj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0X3R5cGVz
-LmggYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydF90eXBlcy5oCj4+IEBAIC05OCw2ICs5
-OCwxMCBAQCBzdHJ1Y3QgcHZfdGltZV9vcHMgewo+PiAgCXVuc2lnbmVkIGxvbmcgbG9uZyAoKnN0
-ZWFsX2Nsb2NrKShpbnQgY3B1KTsKPj4gIH07Cj4+Cj4+ICtzdHJ1Y3QgcHZfdmNwdV9vcHMgewo+
-PiArCWJvb2wgKCp2Y3B1X2lzX3ByZWVtcHRlZCkoaW50IGNwdSk7Cj4+ICt9Owo+PiArCj4KPiAo
-SSB3b3VsZCBwdXQgaXQgaW50byBwdl9sb2NrX29wcyB0byBzYXZlIHRoZSBwbHVtYmluZy4pCj4K
-aGksIFJhZGltCgl0aGFua3MgZm9yIHlvdXIgcmVwbHkuCgp5ZXMsIGEgbmV3IHN0cnVjdCBsZWFk
-cyBwYXRjaCBpbnRvIHVubmVjZXNzYXJ5IGxpbmVzIGNoYW5nZWQuCkkgZG8gdGhhdCBqdXN0IGJl
-Y2F1c2UgSSBhbSBub3Qgc3VyZSB3aGljaCBleGlzdGluZyB4eHhfb3BzIEkgc2hvdWxkIHBsYWNl
-IHRoZSB2Y3B1X2lzX3ByZWVtcHRlZCBpbi4KCj4+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNs
-dWRlL3VhcGkvYXNtL2t2bV9wYXJhLmggYi9hcmNoL3g4Ni9pbmNsdWRlL3VhcGkvYXNtL2t2bV9w
-YXJhLmgKPj4gQEAgLTQ1LDcgKzQ1LDggQEAgc3RydWN0IGt2bV9zdGVhbF90aW1lIHsKPj4gIAlf
-X3U2NCBzdGVhbDsKPj4gIAlfX3UzMiB2ZXJzaW9uOwo+PiAgCV9fdTMyIGZsYWdzOwo+PiAtCV9f
-dTMyIHBhZFsxMl07Cj4+ICsJX191MzIgcHJlZW1wdGVkOwo+Cj4gV2h5IF9fdTMyIGluc3RlYWQg
-b2YgX191OD8KPgpJIHRob3VnaHQgaXQgaXMgMzItYml0cyBhbGlnbmVkLi4uCnllcywgdTggaXMg
-Z29vZCB0byBzdG9yZSB0aGUgcHJlZW1wdCBzdGF0dXMuCgo+PiArCV9fdTMyIHBhZFsxMV07Cj4+
-ICB9Owo+Cj4gUGxlYXNlIGRvY3VtZW50IHRoZSBjaGFuZ2UgaW4gRG9jdW1lbnRhdGlvbi92aXJ0
-dWFsL2t2bS9tc3IudHh0LCBzZWN0aW9uCj4gTVNSX0tWTV9TVEVBTF9USU1FLgo+Cm9rYXksIEkg
-dG90YWxseSBmb3Jnb3QgdG8gZG8gdGhhdC4gdGhhbmtzIQoKPj4gZGlmZiAtLWdpdCBhL2FyY2gv
-eDg2L2tlcm5lbC9rdm0uYyBiL2FyY2gveDg2L2tlcm5lbC9rdm0uYwo+PiBAQCAtNDE1LDYgKzQx
-NSwxNSBAQCB2b2lkIGt2bV9kaXNhYmxlX3N0ZWFsX3RpbWUodm9pZCkKPj4gK3N0YXRpYyBib29s
-IGt2bV92Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KQo+PiArewo+PiArCXN0cnVjdCBrdm1fc3Rl
-YWxfdGltZSAqc3JjOwo+PiArCj4+ICsJc3JjID0gJnBlcl9jcHUoc3RlYWxfdGltZSwgY3B1KTsK
-Pj4gKwo+PiArCXJldHVybiAhIXNyYy0+cHJlZW1wdGVkOwo+PiArfQo+PiArCj4+ICAjaWZkZWYg
-Q09ORklHX1NNUAo+PiAgc3RhdGljIHZvaWQgX19pbml0IGt2bV9zbXBfcHJlcGFyZV9ib290X2Nw
-dSh2b2lkKQo+PiAgewo+PiBAQCAtNDg4LDYgKzQ5Nyw4IEBAIHZvaWQgX19pbml0IGt2bV9ndWVz
-dF9pbml0KHZvaWQpCj4+ICAJa3ZtX2d1ZXN0X2NwdV9pbml0KCk7Cj4+ICAjZW5kaWYKPj4KPj4g
-Kwlwdl92Y3B1X29wcy52Y3B1X2lzX3ByZWVtcHRlZCA9IGt2bV92Y3B1X2lzX3ByZWVtcHRlZDsK
-Pgo+IFdvdWxkIGJlIG5pY2VyIHRvIGFzc2lnbiBjb25kaXRpb25hbGx5IGluIHRoZSBLVk1fRkVB
-VFVSRV9TVEVBTF9USU1FCj4gYmxvY2suICBUaGUgc3RlYWxfdGltZSBzdHJ1Y3R1cmUgaGFzIHRv
-IGJlIHplcm9lZCwgc28gdGhpcyBjb2RlIHdvdWxkCj4gd29yaywgYnV0IHRoZSBuYXRpdmUgZnVu
-Y3Rpb24gKHJldHVybiBmYWxzZSkgaXMgYmV0dGVyIGlmIHdlIGtub3cgdGhhdAo+IHRoZSBrdm1f
-dmNwdV9pc19wcmVlbXB0ZWQoKSB3b3VsZCBhbHdheXMgcmV0dXJuIGZhbHNlIGFud2F5Lgo+Cnll
-cywgYWdyZWUuIFdpbGwgZG8gdGhhdC4KCkkgb25jZSB0aG91Z2h0IHdlIGNhbiBwYXRjaCB0aGUg
-Y29kZSBydW50aW1lLgp3ZSByZXBsYWNlIGJpbmFyeSBjb2RlCiJjYWxsIDB4WFhYWFhYWFggI3B2
-X3ZjcHVfb3BzLnZjcHVfaXNfcHJlZW1wdGVkIgp3aXRoCiJ4b3IgZWF4LCBlYXgiCmhvd2V2ZXIg
-aXQgaXMgbm90IHdvcnRoIGRvaW5nIHRoYXQuIHRoZSBwZXJmb3JtYWNlIGltcHJvdmVtZW50cyBt
-aWdodCBiZSB2ZXJ5IHNtYWxsLgoKPiBPbGQgS1ZNcyB3b24ndCBoYXZlIHRoZSBmZWF0dXJlLCBz
-byB3ZSBjb3VsZCBhbHNvIGFzc2lnbiBvbmx5IHdoZW4gS1ZNCj4gcmVwb3J0cyBpdCwgYnV0IHRo
-YXQgcmVxdWlyZXMgZXh0cmEgZGVmaW5pdGlvbnMgYW5kIHRoZSBwZXJmb3JtYW5jZSBnYWluCj4g
-aXMgZmFpcmx5IHNtYWxsLCBzbyBJJ20gb2sgd2l0aCB0aGlzLgo+Cj4+IGRpZmYgLS1naXQgYS9h
-cmNoL3g4Ni9rdm0veDg2LmMgYi9hcmNoL3g4Ni9rdm0veDg2LmMKPj4gQEAgLTIwNTcsNiArMjA1
-Nyw4IEBAIHN0YXRpYyB2b2lkIHJlY29yZF9zdGVhbF90aW1lKHN0cnVjdCBrdm1fdmNwdSAqdmNw
-dSkKPj4gIAkJJnZjcHUtPmFyY2guc3Quc3RlYWwsIHNpemVvZihzdHJ1Y3Qga3ZtX3N0ZWFsX3Rp
-bWUpKSkpCj4+ICAJCXJldHVybjsKPj4KPj4gKwl2Y3B1LT5hcmNoLnN0LnN0ZWFsLnByZWVtcHRl
-ZCA9IDA7Cj4+ICsKPj4gIAlpZiAodmNwdS0+YXJjaC5zdC5zdGVhbC52ZXJzaW9uICYgMSkKPj4g
-IAkJdmNwdS0+YXJjaC5zdC5zdGVhbC52ZXJzaW9uICs9IDE7ICAvKiBmaXJzdCB0aW1lIHdyaXRl
-LCByYW5kb20ganVuayAqLwo+Pgo+PiBAQCAtMjgxMiw2ICsyODE0LDE2IEBAIHZvaWQga3ZtX2Fy
-Y2hfdmNwdV9sb2FkKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgaW50IGNwdSkKPj4KPj4gIHZvaWQg
-a3ZtX2FyY2hfdmNwdV9wdXQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+PiAgewo+PiArCWlmICh2
-Y3B1LT5hcmNoLnN0Lm1zcl92YWwgJiBLVk1fTVNSX0VOQUJMRUQpCj4+ICsJCWlmIChrdm1fcmVh
-ZF9ndWVzdF9jYWNoZWQodmNwdS0+a3ZtLCAmdmNwdS0+YXJjaC5zdC5zdGltZSwKPj4gKwkJCQkJ
-JnZjcHUtPmFyY2guc3Quc3RlYWwsCj4+ICsJCQkJCXNpemVvZihzdHJ1Y3Qga3ZtX3N0ZWFsX3Rp
-bWUpKSA9PSAwKSB7Cj4+ICsJCQl2Y3B1LT5hcmNoLnN0LnN0ZWFsLnByZWVtcHRlZCA9IDE7Cj4+
-ICsJCQlrdm1fd3JpdGVfZ3Vlc3RfY2FjaGVkKHZjcHUtPmt2bSwgJnZjcHUtPmFyY2guc3Quc3Rp
-bWUsCj4+ICsJCQkJCSZ2Y3B1LT5hcmNoLnN0LnN0ZWFsLAo+PiArCQkJCQlzaXplb2Yoc3RydWN0
-IGt2bV9zdGVhbF90aW1lKSk7Cj4+ICsJCX0KPgo+IFBsZWFzZSBuYW1lIHRoaXMgYmxvY2sgb2Yg
-Y29kZS4gIFNvbWV0aGluZyBsaWtlCj4gICBrdm1fc3RlYWxfdGltZV9zZXRfcHJlZW1wdGVkKHZj
-cHUpOwo+CnllcCwgbXkgY29kZSBzdHlsZSBpcyB1Z2x5Lgp3aWxsIGRvIHRoYXQuCgp0aGFua3MK
-eGluaHVpCgoKPiBUaGFua3MuCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+On 19/10/2016 19:24, Radim Krčmář wrote:
+>> > +	if (vcpu->arch.st.msr_val & KVM_MSR_ENABLED)
+>> > +		if (kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
+>> > +					&vcpu->arch.st.steal,
+>> > +					sizeof(struct kvm_steal_time)) == 0) {
+>> > +			vcpu->arch.st.steal.preempted = 1;
+>> > +			kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
+>> > +					&vcpu->arch.st.steal,
+>> > +					sizeof(struct kvm_steal_time));
+>> > +		}
+> Please name this block of code.  Something like
+>   kvm_steal_time_set_preempted(vcpu);
+
+While at it:
+
+1) the kvm_read_guest_cached is not necessary.  You can rig the call to
+kvm_write_guest_cached so that it only writes vcpu->arch.st.steal.preempted.
+
+2) split the patch in host and guest sides.
+
+Paolo
