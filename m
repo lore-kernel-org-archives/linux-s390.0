@@ -1,183 +1,103 @@
-From: Johannes Thumshirn <jthumshirn@suse.de>
-Subject: Re: [PATCH v2 00/16] Convert FibreChannel bsg code to use bsg-lib
-Date: Thu, 13 Oct 2016 09:39:30 +0200
-Message-ID: <20161013073930.3xpijer2ozsjtriw@linux-x5ow.site>
+From: "Andreas Krebbel1" <Andreas.Krebbel@de.ibm.com>
+Subject: Re: [PATCH v2 02/16] scsi: don't use fc_bsg_job::request and fc_bsg_job::reply
+ directly
+Date: Fri, 28 Oct 2016 18:29:38 +0200
+Message-ID: <OF02C91110.A5599383-ONC125805A.00581A77-C125805A.005A9A28@notes.na.collabserv.com>
 References: <cover.1476276823.git.jthumshirn@suse.de>
- <7ad9f92c-e0e9-fa44-ccbf-a6719f040387@linux.vnet.ibm.com>
+ <b92d12e4f78c4998bc8ad000359c127e673379f3.1476276823.git.jthumshirn@suse.de>
+ <2ea07f3f-88eb-b795-fa37-a223bf80e581@linux.vnet.ibm.com>
+ <20161013162405.aoxy3bdkc4bqtwsk@linux-x5ow.site>
+ <4b411836-e76f-b67a-3d49-ad3d51b8f216@linux.vnet.ibm.com>
+ <d9a73963-1ade-2b6f-77bd-044e19675fd8@suse.de>
+ <132d8dc4-e8d0-6eba-9ae2-4a7e2c9a589b@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <7ad9f92c-e0e9-fa44-ccbf-a6719f040387@linux.vnet.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <132d8dc4-e8d0-6eba-9ae2-4a7e2c9a589b@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: Steffen Maier <maier@linux.vnet.ibm.com>
-Cc: "Martin K . Petersen" <martin.petersen@oracle.com>, Christoph Hellwig <hch@infradead.org>, Hannes Reinecke <hare@suse.de>, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, Linux SCSI Mailinglist <linux-scsi@vger.kernel.org>, linux-s390@vger.kernel.org
+Cc: Anil Gurumurthy <anil.gurumurthy@qlogic.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Dick Kennedy <dick.kennedy@avagotech.com>, "open list:FCOE SUBSYSTEM (libfc, libfcoe, fcoe)" <fcoe-devel@open-fcoe.org>, Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@infradead.org>, heicars2@linux.vnet.ibm.com, James Smart <james.smart@avagotech.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Johannes Thumshirn <jth@kernel.org>, Johannes Thumshirn <jthumshirn@suse.de>, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, "open list:S390 ZFCP DRIVER" <linux-s390@vger.kernel.org>, Linux SCSI Mailinglist <linux-scsi@vger.kernel.org>, "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" <linuxppc-dev@lists.ozlabs.org>"Martin K . Petersen" <mart>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 12, 2016 at 05:54:45PM +0200, Steffen Maier wrote:
-> Hi Johannes,
->=20
-> On 10/12/2016 03:06 PM, Johannes Thumshirn wrote:
-> > This series converts the current bsg usage in the FibreChannel drivers =
-over
-> > to use bsg-lib. SAS will follow once FC is in a good enough shape.
-> >=20
-> > I did take some inspiration from a similar patchset from Mike Christie
-> > dating back to 2011 but it's not a 1:1 copy. Patch 15/16 is heavily bas=
-ed
-> > on his series and attribution is given to him in the commit message.
-> >=20
-> > It is currently regression tested on FCoE using the 'fcns' and
-> > 'fcrls' utilities.  I'm still trying to figure out how to test the other
-> > LLDDs. So any pointer from the respective maintainers are appreciated
->=20
-> The first thing that comes to mind for zfcp is libzfcphbaapi and simply r=
-un
-> its tools for starters. They issue a few different CT GLS requests.
-> http://www.ibm.com/support/knowledgecenter/linuxonibm/com.ibm.linux.z.lhd=
-d/lhdd_t_fcp_api_runappl.html
-> or
-> http://www.ibm.com/support/knowledgecenter/linuxonibm/com.ibm.linux.z.lgd=
-d/lgdd_t_fcp_api_runappl.html
-> (upstream:
-> http://www.ibm.com/developerworks/linux/linux390/zfcp-hbaapi.html)
+> On 10/28/2016 01:31 PM, Hannes Reinecke wrote:
+> > On 10/28/2016 11:53 AM, Steffen Maier wrote:
+> >> On 10/13/2016 06:24 PM, Johannes Thumshirn wrote:
+> >>> On Thu, Oct 13, 2016 at 05:15:25PM +0200, Steffen Maier wrote:
+...
+> fc_bsg_request_handler()
+>                          req->errors = -ENXIO;
+> 
+> > 0x7c8e6e <fc_bsg_request_handler+0x86>: mvhi    260(%r12),-6
+> 
+> crash> struct -od request.errors
+> struct request {
+>    [260] int errors;
+> }
+> 
+> ********************************************************************
+> 
+> BUT this seems the first time %r12 is used in fc_bsg_request_handler(),
+> especially I seem to miss %r12 being initalized with anything.
+> But then again I'm not at all well versed in disassembly.
+> Maybe fc_bsg_request_handler() is itself in turn inlined and I would 
+> need to start disassembling even earlier to get to %r12 init?
+> s390x ELF ABI says %r12:
+> usage: Local variable, commonly used as GOT pointer;
+> call effect: saved.
+> Even if it wasn't initialized and remained NULL below why did it not 
+> already page fault at above instruction? Silly me, we did not execute 
+> this instruction as it's "if" conditional. This makes me wonder even 
+> more where the content of %r12 comes from.
+> 
+> Ulli, Andreas, could you please shed some light on this?
+> 
+> ********************************************************************
 
-I'll give it a try, thanks. zfcp_show was the 1st hit on Google as well, wh=
-en
-I was looking for a way to test it.
+r12 holds variable req for that access. It is initialized here:
 
->=20
-> Theoretically above tools could be built against libHBAAPI on other
-> architectures.
-> Currently I don't have anything handy for ELS requests.
->=20
-> Maybe there is some common code tool (possibly building directly on BSG
-> IOCTL) to exercise more code paths?
+  req = blk_fetch_request(q);    
+  if (!req)   
+    break;
 
-Yes this is something I had in mind as well and it could become handy later=
- on
-anyways.
+The asm code ends up down below in the function and loads the return value 
+into r12. The code
+invoking blk_fetch_request got duplicated and there are three jumps before 
+the r12 access to these
+locations.
 
->=20
-> Just as a heads up the result of my example run (need to dig deeper why it
-> crashed):
->=20
-> # zfcp_show -n
->=20
-> Local Port List:
-> <<<end of ssh output, Linux console following...>>>
-> > [  799.640378] Oops: 0038 ilc:3 [#1] [  799.640387] PREEMPT  SMP [  799=
-.640393]
-> > [  799.640399] Modules linked in: nf_log_ipv6 xt_pkttype nf_log_ipv4 nf=
-_log_common xt_LOG xt_limit ip6t_REJECT nf_reject_ipv6 xt_tcpudp nf_conntra=
-ck_ipv6 nf_defrag_ipv6 ip6table_raw ipt_REJECT nf_reject_ipv4 iptable_raw x=
-t_CT iptable_filter ip6table_mangle nf_conntrack_netbios_ns nf_conntrack_br=
-oadcast nf_conntrack_ipv4 nf_defrag_ipv4 ip_tables xt_conntrack nf_conntrac=
-k ip6table_filter ip6_tables x_tables ghash_s390 prng ecb aes_s390 des_s390=
- dm_mod des_generic sha512_s390 sha256_s390 qeth_l2 sha1_s390 qeth zfcp sha=
-_common ccwgroup qdio autofs4
-> > [  799.640542] CPU: 1 PID: 2210 Comm: zfcp_show Not tainted 4.8.0fcbsg+=
- #6
-> > [  799.640550] Hardware name: IBM              2964 N96              70=
-2              (z/VM)
-> > [  799.640558] task: 0000000047b60008 task.stack: 0000000062428000
-> > [  799.640567] Krnl PSW : 0404e00180000000 00000000001b125c[  799.64058=
-1]  (__lock_acquire+0x104/0x7d8)
-> > [  799.640590]
-> > [  799.640599]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:2=
- PM:0[  799.640618]  RI:0 EA:3
-> > [  799.640621]
-> > [  799.640621] Krnl GPRS: 0000000000000000 0000000000000008 07f40707c00=
-40000 0000000000000000
-> > [  799.640624]            0000000000000000 0000000000000000 00000000000=
-00001 0000000000000000
-> > [  799.640627]            0000000000000000 0000000000355cb4 00000000000=
-00000 0000000047b60008
-> > [  799.640630]            0300000000000000 00000000009b17b0 00000000624=
-2b800 000000006242b778
-> > [  799.640643] Krnl Code: 00000000001b124c: b9040029            lgr    =
- %r2,%r9
-> > [  799.640648]            00000000001b1250: c0e5ffffd6a4        brasl  =
- %r14,1abf98
-> >                          #00000000001b1256: ec28ffad007c       cgij    =
-%r2,0,8,1b11b0
-> > [  799.640659]           >00000000001b125c: eb012198006a        asi    =
- 408(%r2,1
-> >                           00000000001b1262: 5830ba10           l       =
-%r3,2576(%r11)
-> > [  799.640669]            00000000001b1266: 5030f0a4            st     =
- %r3,164(%r15)
-> >                           00000000001b126a: c01000e3f9db       larl    =
-%r1,1e30620
-> > [  799.640678]            00000000001b1270: e31010000012        lt     =
- %r1,0(%r1)
-> > [  799.640682]
-> > [  799.640684] Call Trace:
-> > [  799.640687] ([<ffffffffffffffff>] 0xffffffffffffffff)
-> > [  799.640691] ([<00000000001b21f4>] lock_acquire+0x30c/0x358)
-> > [  799.640699] ([<000000000099fdae>] mutex_lock_interruptible_nested+0x=
-7e/0x4f8)
-> > [  799.640717] ([<000003ff8047a090>] zfcp_fc_wka_port_get+0x40/0x128 [z=
-fcp])
-> > [  799.640724] ([<000003ff8047bd54>] zfcp_fc_exec_bsg_job+0x244/0x2d8 [=
-zfcp])
-> > [  799.640732] ([<00000000007c8b1e>] fc_bsg_dispatch+0x20e/0x280)
-> > [  799.640739] ([<00000000006dea1a>] bsg_request_fn+0x132/0x1e0)
-> > [  799.640746] ([<00000000006b8e0a>] __blk_run_queue+0x52/0x68)
-> > [  799.640751] ([<00000000006c549a>] blk_execute_rq_nowait+0xf2/0x110)
-> > [  799.640754] ([<00000000006c557a>] blk_execute_rq+0xa2/0x110)
-> > [  799.640757] ([<00000000006de0ee>] bsg_ioctl+0x1f6/0x268)
-> > [  799.640763] ([<000000000036ca20>] do_vfs_ioctl+0x680/0x6d8)
-> > [  799.640767] ([<000000000036caf4>] SyS_ioctl+0x7c/0xb0)
-> > [  799.640771] ([<00000000009a50de>] system_call+0xd6/0x270)
-> > [  799.640774] INFO: lockdep is turned off.
-> > [  799.640776] Last Breaking-Event-Address:
-> > [  799.640779]  [<00000000001b1244>] __lock_acquire+0xec/0x7d8
-> > [  799.640782]  [  799.640785] Kernel panic - not syncing: Fatal except=
-ion: panic_on_oops
+  7c8e48:       ec a8 02 14 00 7c       cgije   %r10,0,7c9270 
+<fc_bsg_request_handler+0x488>  <--- x
+  7c8e4e:       d5 03 d0 04 a0 28       clc     4(4,%r13),40(%r10)
+  7c8e54:       a7 74 02 02             jne     7c9258 
+<fc_bsg_request_handler+0x470>         <--- y
+  7c8e58:       91 04 a0 48             tm      72(%r10),4
+  7c8e5c:       a7 74 01 fe             jne     7c9258 
+<fc_bsg_request_handler+0x470>         <--- y
+  7c8e60:       a7 f4 01 d5             j       7c920a 
+<fc_bsg_request_handler+0x422>
+  7c8e64:       d5 03 d0 00 a0 28       clc     0(4,%r13),40(%r10)
+  7c8e6a:       a7 84 00 1a             je      7c8e9e 
+<fc_bsg_request_handler+0xb6>
+  7c8e6e:       e5 4c c1 04 ff fa       mvhi    260(%r12),-6
+...
 
-I'll have a look into it. But from a first quick glance over it I must admi=
-t I
-don't see the problem yet. I could imagine two reasons for it though. One
-being the change in the refcounting and one being the patches changing over=
- to
-the fc_bsg_to{shost,rport}() helpers. I think a git bisect will help here.
+  7c9258:       b9 04 00 29             lgr     %r2,%r9
+  7c925c:       c0 e5 ff f7 b3 a6       brasl   %r14,6bf9a8 
+<blk_fetch_request>
+  7c9262:       b9 04 00 c2             lgr     %r12,%r2
+  7c9266:       ec 26 fd ff 00 7c       cgijne  %r2,0,7c8e64 
+<fc_bsg_request_handler+0x7c>
+  7c926c:       a7 f4 ff cf             j       7c920a 
+<fc_bsg_request_handler+0x422>
 
->=20
->=20
-> > although the LLDD changes are purely mechanical. All they do is change =
-from
-> > 'struct fc_bsg_job' to 'struct bsg_job' and corresponding changes in or=
-der
-> > to get the series bisectable.
-> >=20
-> > The idea for this change arose when discussing racy sysfs handling the =
-FC
-> > bsg code with Christoph and is a next step in moving all bsg clients to
-> > bsg-lib to eventually clean up the in kernel bsg API.
-> >=20
-> > Changes to v1:
-> > * Reduce the number of individual patches (44 -> 16)
->=20
-> nice
->=20
-> > * Fix s390 build failure (forgotten to kill fc_bsg_job from zfcp_ext.h)
->=20
-> I pushed your patches on today's linux.git, i.e. post v4.8 with zfcp fixes
-> of v4.9 merge window already included and it did build with our
-> default_defconfig but qdio and zfcp as modules rather than built-in.
+  7c9270:       b9 04 00 29             lgr     %r2,%r9
+  7c9274:       c0 e5 ff f7 b3 9a       brasl   %r14,6bf9a8 
+<blk_fetch_request>
+  7c927a:       b9 04 00 c2             lgr     %r12,%r2
+  7c927e:       ec 26 fe 10 00 7c       cgijne  %r2,0,7c8e9e 
+<fc_bsg_request_handler+0xb6>
 
-Thanks for the feedback.
-
-	Johannes
-
---=20
-Johannes Thumshirn                                          Storage
-jthumshirn@suse.de                                +49 911 74053 689
-SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
-GF: Felix Imend=F6rffer, Jane Smithard, Graham Norton
-HRB 21284 (AG N=FCrnberg)
-Key fingerprint =3D EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
+-Andreas-
