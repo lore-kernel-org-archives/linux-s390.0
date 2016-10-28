@@ -1,35 +1,35 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v6 00/11] implement vcpu preempted check
-Date: Fri, 28 Oct 2016 11:57:04 +0200
-Message-ID: <0e747fae-dd72-4b51-c6a2-6bdb9b16bf28@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] [PATCH v6 00/11] implement vcpu preempted check
+Date: Fri, 28 Oct 2016 15:38:17 -0400
+Message-ID: <20161028193817.GD2879@char.us.oracle.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
-Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM
+To: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, peterz@infradead.org, benh@kernel.crashing.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, paulus@samba.org, kernellwp@gmail.com, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, x86@kernel.org, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, boqun.feng@gmail.com, jgross@suse.com, linux-kernel@vger.kernel.org, David.Laight@ACULAB.COM, mpe@ellerman.id.au, pbonzini@redhat.com, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 28/10/2016 10:11, Pan Xinhui wrote:
+On Fri, Oct 28, 2016 at 04:11:16AM -0400, Pan Xinhui wrote:
 > change from v5:
 > 	spilt x86/kvm patch into guest/host part.
 > 	introduce kvm_write_guest_offset_cached.
 > 	fix some typos.
 > 	rebase patch onto 4.9.2
-
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-
-Thanks,
-
-Paolo
-
 > change from v4:
 > 	spilt x86 kvm vcpu preempted check into two patches.
 > 	add documentation patch.
@@ -47,6 +47,9 @@ Paolo
 > 	thanks boqun and Peter's suggestion.
 > 
 > This patch set aims to fix lock holder preemption issues.
+
+Do you have a git tree with these patches?
+
 > 
 > test-case:
 > perf record -a perf bench sched messaging -g 400 -p && perf report
@@ -139,3 +142,11 @@ Paolo
 >  virt/kvm/kvm_main.c                   | 20 ++++++++++++++------
 >  18 files changed, 151 insertions(+), 34 deletions(-)
 > 
+> -- 
+> 2.4.11
+> 
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xen.org
+> https://lists.xen.org/xen-devel
