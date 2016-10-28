@@ -1,89 +1,53 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 07/11] KVM: Introduce kvm_write_guest_offset_cached
-Date: Fri, 28 Oct 2016 04:11:23 -0400
-Message-ID: <1477642287-24104-8-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v6 10/11] x86, xen: support vcpu preempted check
+Date: Fri, 28 Oct 2016 04:11:26 -0400
+Message-ID: <1477642287-24104-11-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-It allows us to update some status or field of one struct partially.
+From: Juergen Gross <jgross@suse.com>
 
-We can also save one kvm_read_guest_cached if we just update one filed
-of the struct regardless of its current value.
+Support the vcpu_is_preempted() functionality under Xen. This will
+enhance lock performance on overcommitted hosts (more runnable vcpus
+than physical cpus in the system) as doing busy waits for preempted
+vcpus will hurt system performance far worse than early yielding.
 
+A quick test (4 vcpus on 1 physical cpu doing a parallel build job
+with "make -j 8") reduced system time by about 5% with this patch.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 ---
- include/linux/kvm_host.h |  2 ++
- virt/kvm/kvm_main.c      | 20 ++++++++++++++------
- 2 files changed, 16 insertions(+), 6 deletions(-)
+ arch/x86/xen/spinlock.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 01c0b9c..6f00237 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -645,6 +645,8 @@ int kvm_write_guest(struct kvm *kvm, gpa_t gpa, const void *data,
- 		    unsigned long len);
- int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- 			   void *data, unsigned long len);
-+int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
-+			   void *data, int offset, unsigned long len);
- int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- 			      gpa_t gpa, unsigned long len);
- int kvm_clear_guest_page(struct kvm *kvm, gfn_t gfn, int offset, int len);
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 2907b7b..95308ee 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1972,30 +1972,38 @@ int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 3d6e006..74756bb 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -114,7 +114,6 @@ void xen_uninit_lock_cpu(int cpu)
+ 	per_cpu(irq_name, cpu) = NULL;
  }
- EXPORT_SYMBOL_GPL(kvm_gfn_to_hva_cache_init);
  
--int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
--			   void *data, unsigned long len)
-+int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
-+			   void *data, int offset, unsigned long len)
- {
- 	struct kvm_memslots *slots = kvm_memslots(kvm);
- 	int r;
-+	gpa_t gpa = ghc->gpa + offset;
- 
--	BUG_ON(len > ghc->len);
-+	BUG_ON(len + offset > ghc->len);
- 
- 	if (slots->generation != ghc->generation)
- 		kvm_gfn_to_hva_cache_init(kvm, ghc, ghc->gpa, ghc->len);
- 
- 	if (unlikely(!ghc->memslot))
--		return kvm_write_guest(kvm, ghc->gpa, data, len);
-+		return kvm_write_guest(kvm, gpa, data, len);
- 
- 	if (kvm_is_error_hva(ghc->hva))
- 		return -EFAULT;
- 
--	r = __copy_to_user((void __user *)ghc->hva, data, len);
-+	r = __copy_to_user((void __user *)ghc->hva + offset, data, len);
- 	if (r)
- 		return -EFAULT;
--	mark_page_dirty_in_slot(ghc->memslot, ghc->gpa >> PAGE_SHIFT);
-+	mark_page_dirty_in_slot(ghc->memslot, gpa >> PAGE_SHIFT);
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(kvm_write_guest_offset_cached);
+-
+ /*
+  * Our init of PV spinlocks is split in two init functions due to us
+  * using paravirt patching and jump labels patching and having to do
+@@ -137,6 +136,8 @@ void __init xen_init_spinlocks(void)
+ 	pv_lock_ops.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
+ 	pv_lock_ops.wait = xen_qlock_wait;
+ 	pv_lock_ops.kick = xen_qlock_kick;
 +
-+int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
-+			   void *data, unsigned long len)
-+{
-+	return kvm_write_guest_offset_cached(kvm, ghc, data, 0, len);
-+}
- EXPORT_SYMBOL_GPL(kvm_write_guest_cached);
++	pv_lock_ops.vcpu_is_preempted = xen_vcpu_stolen;
+ }
  
- int kvm_read_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+ /*
 -- 
 2.4.11
