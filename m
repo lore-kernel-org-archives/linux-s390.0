@@ -1,59 +1,81 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 11/11] Documentation: virtual: kvm: Support vcpu preempted check
-Date: Fri, 28 Oct 2016 04:11:27 -0400
-Message-ID: <1477642287-24104-12-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v6 08/11] x86, kvm/x86.c: support vcpu preempted check
+Date: Fri, 28 Oct 2016 04:11:24 -0400
+Message-ID: <1477642287-24104-9-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit ("x86, kvm: support vcpu preempted check") add one field "__u8
-preempted" into struct kvm_steal_time. This field tells if one vcpu is
-running or not.
+Support the vcpu_is_preempted() functionality under KVM. This will
+enhance lock performance on overcommitted hosts (more runnable vcpus
+than physical cpus in the system) as doing busy waits for preempted
+vcpus will hurt system performance far worse than early yielding.
 
-It is zero if 1) some old KVM deos not support this filed. 2) the vcpu is
-not preempted. Other values means the vcpu has been preempted.
+Use one field of struct kvm_steal_time ::preempted to indicate that if
+one vcpu is running or not.
 
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Acked-by: Radim Krčmář <rkrcmar@redhat.com>
 ---
- Documentation/virtual/kvm/msr.txt | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/include/uapi/asm/kvm_para.h |  4 +++-
+ arch/x86/kvm/x86.c                   | 16 ++++++++++++++++
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/virtual/kvm/msr.txt b/Documentation/virtual/kvm/msr.txt
-index 2a71c8f..ab2ab76 100644
---- a/Documentation/virtual/kvm/msr.txt
-+++ b/Documentation/virtual/kvm/msr.txt
-@@ -208,7 +208,9 @@ MSR_KVM_STEAL_TIME: 0x4b564d03
- 		__u64 steal;
- 		__u32 version;
- 		__u32 flags;
--		__u32 pad[12];
-+		__u8  preempted;
-+		__u8  u8_pad[3];
-+		__u32 pad[11];
- 	}
+diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
+index 94dc8ca..1421a65 100644
+--- a/arch/x86/include/uapi/asm/kvm_para.h
++++ b/arch/x86/include/uapi/asm/kvm_para.h
+@@ -45,7 +45,9 @@ struct kvm_steal_time {
+ 	__u64 steal;
+ 	__u32 version;
+ 	__u32 flags;
+-	__u32 pad[12];
++	__u8  preempted;
++	__u8  u8_pad[3];
++	__u32 pad[11];
+ };
  
- 	whose data will be filled in by the hypervisor periodically. Only one
-@@ -232,6 +234,11 @@ MSR_KVM_STEAL_TIME: 0x4b564d03
- 		nanoseconds. Time during which the vcpu is idle, will not be
- 		reported as steal time.
+ #define KVM_STEAL_ALIGNMENT_BITS 5
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index e375235..f06e115 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2057,6 +2057,8 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
+ 		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time))))
+ 		return;
  
-+		preempted: indicate the VCPU who owns this struct is running or
-+		not. Non-zero values mean the VCPU has been preempted. Zero
-+		means the VCPU is not preempted. NOTE, it is always zero if the
-+		the hypervisor doesn't support this field.
++	vcpu->arch.st.steal.preempted = 0;
 +
- MSR_KVM_EOI_EN: 0x4b564d04
- 	data: Bit 0 is 1 when PV end of interrupt is enabled on the vcpu; 0
- 	when disabled.  Bit 1 is reserved and must be zero.  When PV end of
+ 	if (vcpu->arch.st.steal.version & 1)
+ 		vcpu->arch.st.steal.version += 1;  /* first time write, random junk */
+ 
+@@ -2810,8 +2812,22 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ 	kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
+ }
+ 
++static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
++{
++	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
++		return;
++
++	vcpu->arch.st.steal.preempted = 1;
++
++	kvm_write_guest_offset_cached(vcpu->kvm, &vcpu->arch.st.stime,
++			&vcpu->arch.st.steal.preempted,
++			offsetof(struct kvm_steal_time, preempted),
++			sizeof(vcpu->arch.st.steal.preempted));
++}
++
+ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+ {
++	kvm_steal_time_set_preempted(vcpu);
+ 	kvm_x86_ops->vcpu_put(vcpu);
+ 	kvm_put_guest_fpu(vcpu);
+ 	vcpu->arch.last_host_tsc = rdtsc();
 -- 
 2.4.11
