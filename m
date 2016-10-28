@@ -1,7 +1,7 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 08/11] x86, kvm/x86.c: support vcpu preempted check
-Date: Fri, 28 Oct 2016 04:11:24 -0400
-Message-ID: <1477642287-24104-9-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v6 07/11] KVM: Introduce kvm_write_guest_offset_cached
+Date: Fri, 28 Oct 2016 04:11:23 -0400
+Message-ID: <1477642287-24104-8-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
@@ -12,70 +12,78 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Support the vcpu_is_preempted() functionality under KVM. This will
-enhance lock performance on overcommitted hosts (more runnable vcpus
-than physical cpus in the system) as doing busy waits for preempted
-vcpus will hurt system performance far worse than early yielding.
+It allows us to update some status or field of one struct partially.
 
-Use one field of struct kvm_steal_time ::preempted to indicate that if
-one vcpu is running or not.
+We can also save one kvm_read_guest_cached if we just update one filed
+of the struct regardless of its current value.
 
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 ---
- arch/x86/include/uapi/asm/kvm_para.h |  4 +++-
- arch/x86/kvm/x86.c                   | 16 ++++++++++++++++
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ include/linux/kvm_host.h |  2 ++
+ virt/kvm/kvm_main.c      | 20 ++++++++++++++------
+ 2 files changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
-index 94dc8ca..1421a65 100644
---- a/arch/x86/include/uapi/asm/kvm_para.h
-+++ b/arch/x86/include/uapi/asm/kvm_para.h
-@@ -45,7 +45,9 @@ struct kvm_steal_time {
- 	__u64 steal;
- 	__u32 version;
- 	__u32 flags;
--	__u32 pad[12];
-+	__u8  preempted;
-+	__u8  u8_pad[3];
-+	__u32 pad[11];
- };
- 
- #define KVM_STEAL_ALIGNMENT_BITS 5
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index e375235..f06e115 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2057,6 +2057,8 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
- 		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time))))
- 		return;
- 
-+	vcpu->arch.st.steal.preempted = 0;
-+
- 	if (vcpu->arch.st.steal.version & 1)
- 		vcpu->arch.st.steal.version += 1;  /* first time write, random junk */
- 
-@@ -2810,8 +2812,22 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- 	kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 01c0b9c..6f00237 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -645,6 +645,8 @@ int kvm_write_guest(struct kvm *kvm, gpa_t gpa, const void *data,
+ 		    unsigned long len);
+ int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+ 			   void *data, unsigned long len);
++int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
++			   void *data, int offset, unsigned long len);
+ int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+ 			      gpa_t gpa, unsigned long len);
+ int kvm_clear_guest_page(struct kvm *kvm, gfn_t gfn, int offset, int len);
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 2907b7b..95308ee 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1972,30 +1972,38 @@ int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
  }
+ EXPORT_SYMBOL_GPL(kvm_gfn_to_hva_cache_init);
  
-+static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
-+{
-+	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
-+		return;
-+
-+	vcpu->arch.st.steal.preempted = 1;
-+
-+	kvm_write_guest_offset_cached(vcpu->kvm, &vcpu->arch.st.stime,
-+			&vcpu->arch.st.steal.preempted,
-+			offsetof(struct kvm_steal_time, preempted),
-+			sizeof(vcpu->arch.st.steal.preempted));
-+}
-+
- void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+-int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+-			   void *data, unsigned long len)
++int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
++			   void *data, int offset, unsigned long len)
  {
-+	kvm_steal_time_set_preempted(vcpu);
- 	kvm_x86_ops->vcpu_put(vcpu);
- 	kvm_put_guest_fpu(vcpu);
- 	vcpu->arch.last_host_tsc = rdtsc();
+ 	struct kvm_memslots *slots = kvm_memslots(kvm);
+ 	int r;
++	gpa_t gpa = ghc->gpa + offset;
+ 
+-	BUG_ON(len > ghc->len);
++	BUG_ON(len + offset > ghc->len);
+ 
+ 	if (slots->generation != ghc->generation)
+ 		kvm_gfn_to_hva_cache_init(kvm, ghc, ghc->gpa, ghc->len);
+ 
+ 	if (unlikely(!ghc->memslot))
+-		return kvm_write_guest(kvm, ghc->gpa, data, len);
++		return kvm_write_guest(kvm, gpa, data, len);
+ 
+ 	if (kvm_is_error_hva(ghc->hva))
+ 		return -EFAULT;
+ 
+-	r = __copy_to_user((void __user *)ghc->hva, data, len);
++	r = __copy_to_user((void __user *)ghc->hva + offset, data, len);
+ 	if (r)
+ 		return -EFAULT;
+-	mark_page_dirty_in_slot(ghc->memslot, ghc->gpa >> PAGE_SHIFT);
++	mark_page_dirty_in_slot(ghc->memslot, gpa >> PAGE_SHIFT);
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(kvm_write_guest_offset_cached);
++
++int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
++			   void *data, unsigned long len)
++{
++	return kvm_write_guest_offset_cached(kvm, ghc, data, 0, len);
++}
+ EXPORT_SYMBOL_GPL(kvm_write_guest_cached);
+ 
+ int kvm_read_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
 -- 
 2.4.11
