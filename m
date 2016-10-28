@@ -1,8 +1,11 @@
 From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v6 06/11] x86, paravirt: Add interface to support kvm/xen vcpu preempted check
-Date: Fri, 28 Oct 2016 04:11:22 -0400
-Message-ID: <1477642287-24104-7-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v6 11/11] Documentation: virtual: kvm: Support vcpu preempted check
+Date: Fri, 28 Oct 2016 04:11:27 -0400
+Message-ID: <1477642287-24104-12-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 References: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1477642287-24104-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -12,82 +15,45 @@ To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@
 Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This is to fix some lock holder preemption issues. Some other locks
-implementation do a spin loop before acquiring the lock itself.
-Currently kernel has an interface of bool vcpu_is_preempted(int cpu). It
-takes the cpu as parameter and return true if the cpu is preempted.
-Then kernel can break the spin loops upon on the retval of
-vcpu_is_preempted.
+Commit ("x86, kvm: support vcpu preempted check") add one field "__u8
+preempted" into struct kvm_steal_time. This field tells if one vcpu is
+running or not.
 
-As kernel has used this interface, So lets support it.
-
-To deal with kernel and kvm/xen, add vcpu_is_preempted into struct
-pv_lock_ops.
-
-Then kvm or xen could provide their own implementation to support
-vcpu_is_preempted.
+It is zero if 1) some old KVM deos not support this filed. 2) the vcpu is
+not preempted. Other values means the vcpu has been preempted.
 
 Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Acked-by: Radim Krčmář <rkrcmar@redhat.com>
 ---
- arch/x86/include/asm/paravirt_types.h | 2 ++
- arch/x86/include/asm/spinlock.h       | 8 ++++++++
- arch/x86/kernel/paravirt-spinlocks.c  | 6 ++++++
- 3 files changed, 16 insertions(+)
+ Documentation/virtual/kvm/msr.txt | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 0f400c0..38c3bb7 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -310,6 +310,8 @@ struct pv_lock_ops {
+diff --git a/Documentation/virtual/kvm/msr.txt b/Documentation/virtual/kvm/msr.txt
+index 2a71c8f..ab2ab76 100644
+--- a/Documentation/virtual/kvm/msr.txt
++++ b/Documentation/virtual/kvm/msr.txt
+@@ -208,7 +208,9 @@ MSR_KVM_STEAL_TIME: 0x4b564d03
+ 		__u64 steal;
+ 		__u32 version;
+ 		__u32 flags;
+-		__u32 pad[12];
++		__u8  preempted;
++		__u8  u8_pad[3];
++		__u32 pad[11];
+ 	}
  
- 	void (*wait)(u8 *ptr, u8 val);
- 	void (*kick)(int cpu);
+ 	whose data will be filled in by the hypervisor periodically. Only one
+@@ -232,6 +234,11 @@ MSR_KVM_STEAL_TIME: 0x4b564d03
+ 		nanoseconds. Time during which the vcpu is idle, will not be
+ 		reported as steal time.
+ 
++		preempted: indicate the VCPU who owns this struct is running or
++		not. Non-zero values mean the VCPU has been preempted. Zero
++		means the VCPU is not preempted. NOTE, it is always zero if the
++		the hypervisor doesn't support this field.
 +
-+	bool (*vcpu_is_preempted)(int cpu);
- };
- 
- /* This contains all the paravirt structures: we get a convenient
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 921bea7..0526f59 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -26,6 +26,14 @@
- extern struct static_key paravirt_ticketlocks_enabled;
- static __always_inline bool static_key_false(struct static_key *key);
- 
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+#define vcpu_is_preempted vcpu_is_preempted
-+static inline bool vcpu_is_preempted(int cpu)
-+{
-+	return pv_lock_ops.vcpu_is_preempted(cpu);
-+}
-+#endif
-+
- #include <asm/qspinlock.h>
- 
- /*
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index 2c55a00..2f204dd 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -21,12 +21,18 @@ bool pv_is_native_spin_unlock(void)
- 		__raw_callee_save___native_queued_spin_unlock;
- }
- 
-+static bool native_vcpu_is_preempted(int cpu)
-+{
-+	return 0;
-+}
-+
- struct pv_lock_ops pv_lock_ops = {
- #ifdef CONFIG_SMP
- 	.queued_spin_lock_slowpath = native_queued_spin_lock_slowpath,
- 	.queued_spin_unlock = PV_CALLEE_SAVE(__native_queued_spin_unlock),
- 	.wait = paravirt_nop,
- 	.kick = paravirt_nop,
-+	.vcpu_is_preempted = native_vcpu_is_preempted,
- #endif /* SMP */
- };
- EXPORT_SYMBOL(pv_lock_ops);
+ MSR_KVM_EOI_EN: 0x4b564d04
+ 	data: Bit 0 is 1 when PV end of interrupt is enabled on the vcpu; 0
+ 	when disabled.  Bit 1 is reserved and must be zero.  When PV end of
 -- 
 2.4.11
