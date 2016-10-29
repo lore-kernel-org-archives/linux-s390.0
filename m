@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH 3/3] s390: char: make slp_ctl explicitly non-modular
-Date: Sat, 29 Oct 2016 16:38:43 -0400
-Message-ID: <20161029203843.515-4-paul.gortmaker@windriver.com>
-In-Reply-To: <20161029203843.515-1-paul.gortmaker@windriver.com>
-References: <20161029203843.515-1-paul.gortmaker@windriver.com>
+Subject: [PATCH 0/3] Add new builtin_misc_device users
+Date: Sat, 29 Oct 2016 16:38:40 -0400
+Message-ID: <20161029203843.515-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Bas Vermeulen <bvermeul@blackstar.xs4all.nl>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steven Miao <realmz6@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Matias Bjorling <mb@lightnvm.io>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The Makefile currently controlling compilation of this code is obj-y,
-meaning that it currently is not being built as a module by anyone.
+The new macro builtin_misc_device doesn't currently exist anywhere
+other than Greg's char-misc tree.  As such I was going to stagger
+the patches containing users of it by a merge window to avoid any
+dependency issues, but Greg offered to take the users in via the
+char-misc tree which also solves the dependency issue (assuming
+the blackfin and s390 people don't mind).
 
-Lets remove the couple traces of modular usage, so that when reading
-the driver there is no doubt it is builtin-only.
+So these three patches are the ones from my queue that use the
+new macro.  Build tested for s390 and blackfin to ensure no typos
+or implicit include issues inadvertently crept in.
 
-Since module_misc_device translates to device_initcall in the non-modular
-case, the init ordering remains unchanged with this commit.
+We are simply replacing module_misc_device with the new
+builtin_misc_device in code that is always built in due to
+the Makefile/Kconfig settings controlling it.  Along with that
+we get rid of any other modular related references that are
+inactive in the always non-modular case.
 
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+Paul.
+
 ---
- drivers/s390/char/sclp_ctl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/char/sclp_ctl.c b/drivers/s390/char/sclp_ctl.c
-index 554eaa1e347d..78a7e4f94721 100644
---- a/drivers/s390/char/sclp_ctl.c
-+++ b/drivers/s390/char/sclp_ctl.c
-@@ -10,7 +10,7 @@
- #include <linux/uaccess.h>
- #include <linux/miscdevice.h>
- #include <linux/gfp.h>
--#include <linux/module.h>
-+#include <linux/init.h>
- #include <linux/ioctl.h>
- #include <linux/fs.h>
- #include <asm/compat.h>
-@@ -126,4 +126,4 @@ static struct miscdevice sclp_ctl_device = {
- 	.name = "sclp",
- 	.fops = &sclp_ctl_fops,
- };
--module_misc_device(sclp_ctl_device);
-+builtin_misc_device(sclp_ctl_device);
+Cc: Bas Vermeulen <bvermeul@blackstar.xs4all.nl>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Steven Miao <realmz6@gmail.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Matias Bjorling <mb@lightnvm.io>
+Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-s390@vger.kernel.org
+
+Paul Gortmaker (3):
+  lightnvm: make core.c explicitly non-modular
+  blackfin: make-bf561/coreb.c explicitly non-modular
+  s390: char: make slp_ctl explicitly non-modular
+
+ arch/blackfin/mach-bf561/coreb.c | 10 ++++------
+ drivers/lightnvm/core.c          | 14 ++++++--------
+ drivers/s390/char/sclp_ctl.c     |  4 ++--
+ 3 files changed, 12 insertions(+), 16 deletions(-)
+
 -- 
 2.10.1
