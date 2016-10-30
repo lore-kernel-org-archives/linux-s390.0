@@ -1,101 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH 9/9] s390: virtio: make ccw explicitly non-modular
-Date: Sun, 30 Oct 2016 16:37:32 -0400
-Message-ID: <20161030203732.26405-10-paul.gortmaker@windriver.com>
-In-Reply-To: <20161030203732.26405-1-paul.gortmaker@windriver.com>
-References: <20161030203732.26405-1-paul.gortmaker@windriver.com>
+Subject: [PATCH 0/9] s390: remove modular usage from non-modular code
+Date: Sun, 30 Oct 2016 16:37:23 -0400
+Message-ID: <20161030203732.26405-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Arnd Bergmann <arndb@de.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The Kconfig currently controlling compilation of this code is:
+My ongoing audit looking for non-modular code that needlessly uses
+modular macros (vs. built-in equivalents) and/or has dead code
+relating to module unloading that can never be executed led to the
+creation of these s390 related commits.
 
-arch/s390/Kconfig:config S390_GUEST
-arch/s390/Kconfig:      def_bool y
+For anyone new to the underlying goal of this cleanup, we are trying to
+not use module support for code that can never be built as a module since:
 
-...meaning that it currently is not being built as a module by anyone.
+ (1) it is easy to accidentally write unused module_exit and remove code
+ (2) it can be misleading when reading the source, thinking it can be
+     modular when the Makefile and/or Kconfig prohibit it
+ (3) it requires the include of the module.h header file which in turn
+     includes nearly everything else, thus adding to CPP overhead.
+ (4) it gets copied/replicated into other code and spreads like weeds.
 
-Lets remove the modular code that is essentially orphaned, so that
-when reading the driver there is no doubt it is builtin-only.
+Build tested on current linux-next (allyes/allno/allmod) to ensure no
+silly typos or implicit include issues that would break compilation
+crept in.
 
-Since module_init translates to device_initcall in the non-modular
-case, the init ordering remains unchanged with this commit.
+---
 
-Also note that MODULE_DEVICE_TABLE is a no-op for non-modular code.
-
-We replace module.h with moduleparam.h since the file does declare
-some module_param() and leaving that as-is is currently the easiest
-way to remain compatible with existing boot arg use cases.
-
+Cc: Arnd Bergmann <arndb@de.ibm.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux-s390@vger.kernel.org
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
----
- drivers/s390/virtio/virtio_ccw.c | 25 ++-----------------------
- 1 file changed, 2 insertions(+), 23 deletions(-)
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+Cc: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 8688ad4c825f..639ed4e6afd1 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -24,7 +24,7 @@
- #include <linux/wait.h>
- #include <linux/list.h>
- #include <linux/bitops.h>
--#include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/io.h>
- #include <linux/kvm_para.h>
- #include <linux/notifier.h>
-@@ -235,16 +235,6 @@ static struct airq_info *new_airq_info(void)
- 	return info;
- }
- 
--static void destroy_airq_info(struct airq_info *info)
--{
--	if (!info)
--		return;
--
--	unregister_adapter_interrupt(&info->airq);
--	airq_iv_release(info->aiv);
--	kfree(info);
--}
--
- static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
- 					u64 *first, void **airq_info)
- {
-@@ -1294,7 +1284,6 @@ static struct ccw_device_id virtio_ids[] = {
- 	{ CCW_DEVICE(0x3832, 0) },
- 	{},
- };
--MODULE_DEVICE_TABLE(ccw, virtio_ids);
- 
- static struct ccw_driver virtio_ccw_driver = {
- 	.driver = {
-@@ -1406,14 +1395,4 @@ static int __init virtio_ccw_init(void)
- 	no_auto_parse();
- 	return ccw_driver_register(&virtio_ccw_driver);
- }
--module_init(virtio_ccw_init);
--
--static void __exit virtio_ccw_exit(void)
--{
--	int i;
--
--	ccw_driver_unregister(&virtio_ccw_driver);
--	for (i = 0; i < MAX_AIRQ_AREAS; i++)
--		destroy_airq_info(airq_areas[i]);
--}
--module_exit(virtio_ccw_exit);
-+device_initcall(virtio_ccw_init);
+Paul Gortmaker (9):
+  s390: cio: make it explicitly non-modular
+  s390: char: make zcore explicitly non-modular
+  s390: char: make con3215 explicitly non-modular
+  s390: char: make sclp_tty explicitly non-modular
+  s390: char: make slcp_quiesce explicitly non-modular
+  s390: hotplug: make pci_hpc explicitly non-modular
+  s390: hypfs: make inode explicitly non-modular
+  s390: kernel: make lgr explicitly non-modular
+  s390: virtio: make ccw explicitly non-modular
+
+ arch/s390/hypfs/inode.c            | 24 ++++--------------------
+ arch/s390/kernel/lgr.c             |  5 +++--
+ drivers/pci/hotplug/s390_pci_hpc.c |  7 ++-----
+ drivers/s390/char/con3215.c        | 12 +-----------
+ drivers/s390/char/sclp_quiesce.c   |  4 +---
+ drivers/s390/char/sclp_tty.c       |  3 +--
+ drivers/s390/char/zcore.c          | 20 +-------------------
+ drivers/s390/cio/cmf.c             | 10 ++--------
+ drivers/s390/cio/css.c             |  6 +++---
+ drivers/s390/cio/device.c          |  6 +++---
+ drivers/s390/cio/device_ops.c      |  5 +++--
+ drivers/s390/virtio/virtio_ccw.c   | 25 ++-----------------------
+ 12 files changed, 26 insertions(+), 101 deletions(-)
+
 -- 
 2.10.1
