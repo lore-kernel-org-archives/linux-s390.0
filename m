@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH 3/9] s390: char: make con3215 explicitly non-modular
-Date: Sun, 30 Oct 2016 16:37:26 -0400
-Message-ID: <20161030203732.26405-4-paul.gortmaker@windriver.com>
+Subject: [PATCH 2/9] s390: char: make zcore explicitly non-modular
+Date: Sun, 30 Oct 2016 16:37:25 -0400
+Message-ID: <20161030203732.26405-3-paul.gortmaker@windriver.com>
 In-Reply-To: <20161030203732.26405-1-paul.gortmaker@windriver.com>
 References: <20161030203732.26405-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
@@ -16,16 +16,19 @@ List-ID: <linux-s390.vger.kernel.org>
 
 The Kconfig currently controlling compilation of this code is:
 
-drivers/s390/char/Kconfig:config TN3215
-drivers/s390/char/Kconfig:      def_bool y
+arch/s390/Kconfig:config CRASH_DUMP
+arch/s390/Kconfig:      bool "kernel crash dumps"
 
 ...meaning that it currently is not being built as a module by anyone.
 
 Lets remove the modular code that is essentially orphaned, so that
 when reading the driver there is no doubt it is builtin-only.
 
-Since module_init translates to device_initcall in the non-modular
-case, the init ordering remains unchanged with this commit.
+Since module_init wasn't even being used by this file, the init
+ordering remains unchanged with this commit.
+
+We also delete the MODULE_LICENSE tag etc. since all that information
+was (or is now) contained at the top of the file in the comments.
 
 We don't replace module.h with init.h since the file already has that.
 
@@ -34,35 +37,51 @@ Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux-s390@vger.kernel.org
 Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 ---
- drivers/s390/char/con3215.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/s390/char/zcore.c | 20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index 931d10e86837..1b8d825623bd 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -9,7 +9,6 @@
-  *	      Dan Morrison, IBM Corporation <dmorriso@cse.buffalo.edu>
+diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
+index 16992e2a40ad..5aea89a92ff4 100644
+--- a/drivers/s390/char/zcore.c
++++ b/drivers/s390/char/zcore.c
+@@ -7,6 +7,7 @@
+  *
+  * Copyright IBM Corp. 2003, 2008
+  * Author(s): Michael Holzheu
++ * License: GPL
   */
  
+ #define KMSG_COMPONENT "zdump"
+@@ -16,7 +17,6 @@
+ #include <linux/slab.h>
+ #include <linux/miscdevice.h>
+ #include <linux/debugfs.h>
 -#include <linux/module.h>
- #include <linux/types.h>
- #include <linux/kdev_t.h>
- #include <linux/tty.h>
-@@ -1215,13 +1214,4 @@ static int __init tty3215_init(void)
- 	tty3215_driver = driver;
- 	return 0;
+ #include <linux/memblock.h>
+ 
+ #include <asm/asm-offsets.h>
+@@ -364,22 +364,4 @@ static int __init zcore_init(void)
+ 	diag308(DIAG308_REL_HSA, NULL);
+ 	return rc;
  }
 -
--static void __exit tty3215_exit(void)
+-static void __exit zcore_exit(void)
 -{
--	tty_unregister_driver(tty3215_driver);
--	put_tty_driver(tty3215_driver);
--	ccw_driver_unregister(&raw3215_ccw_driver);
+-	debug_unregister(zcore_dbf);
+-	sclp_sdias_exit();
+-	free_page((unsigned long) ipl_block);
+-	debugfs_remove(zcore_hsa_file);
+-	debugfs_remove(zcore_reipl_file);
+-	debugfs_remove(zcore_memmap_file);
+-	debugfs_remove(zcore_dir);
+-	diag308(DIAG308_REL_HSA, NULL);
 -}
 -
--module_init(tty3215_init);
--module_exit(tty3215_exit);
-+device_initcall(tty3215_init);
+-MODULE_AUTHOR("Copyright IBM Corp. 2003,2008");
+-MODULE_DESCRIPTION("zcore module for zfcpdump support");
+-MODULE_LICENSE("GPL");
+-
+ subsys_initcall(zcore_init);
+-module_exit(zcore_exit);
 -- 
 2.10.1
