@@ -1,73 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH 0/9] s390: remove modular usage from non-modular code
-Date: Sun, 30 Oct 2016 16:37:23 -0400
-Message-ID: <20161030203732.26405-1-paul.gortmaker@windriver.com>
+Subject: [PATCH 6/9] s390: hotplug: make pci_hpc explicitly non-modular
+Date: Sun, 30 Oct 2016 16:37:29 -0400
+Message-ID: <20161030203732.26405-7-paul.gortmaker@windriver.com>
+In-Reply-To: <20161030203732.26405-1-paul.gortmaker@windriver.com>
+References: <20161030203732.26405-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Arnd Bergmann <arndb@de.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-My ongoing audit looking for non-modular code that needlessly uses
-modular macros (vs. built-in equivalents) and/or has dead code
-relating to module unloading that can never be executed led to the
-creation of these s390 related commits.
+The Kconfig currently controlling compilation of this code is:
 
-For anyone new to the underlying goal of this cleanup, we are trying to
-not use module support for code that can never be built as a module since:
+drivers/pci/hotplug/Kconfig:config HOTPLUG_PCI_S390
+drivers/pci/hotplug/Kconfig:    bool "System z PCI Hotplug Support"
 
- (1) it is easy to accidentally write unused module_exit and remove code
- (2) it can be misleading when reading the source, thinking it can be
-     modular when the Makefile and/or Kconfig prohibit it
- (3) it requires the include of the module.h header file which in turn
-     includes nearly everything else, thus adding to CPP overhead.
- (4) it gets copied/replicated into other code and spreads like weeds.
+...meaning that it currently is not being built as a module by anyone.
 
-Build tested on current linux-next (allyes/allno/allmod) to ensure no
-silly typos or implicit include issues that would break compilation
-crept in.
+Lets remove the couple traces of modular infrastructure use, so that
+when reading the driver there is no doubt it is builtin-only.
 
----
+We also delete the MODULE_LICENSE tag etc. since all that information
+was (or is now) contained at the top of the file in the comments.
 
-Cc: Arnd Bergmann <arndb@de.ibm.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+We don't exchange module.h for init.h or export.h since the file
+does not contain any initcalls or EXPORT of symbols.
+
 Cc: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+---
+ drivers/pci/hotplug/s390_pci_hpc.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-Paul Gortmaker (9):
-  s390: cio: make it explicitly non-modular
-  s390: char: make zcore explicitly non-modular
-  s390: char: make con3215 explicitly non-modular
-  s390: char: make sclp_tty explicitly non-modular
-  s390: char: make slcp_quiesce explicitly non-modular
-  s390: hotplug: make pci_hpc explicitly non-modular
-  s390: hypfs: make inode explicitly non-modular
-  s390: kernel: make lgr explicitly non-modular
-  s390: virtio: make ccw explicitly non-modular
-
- arch/s390/hypfs/inode.c            | 24 ++++--------------------
- arch/s390/kernel/lgr.c             |  5 +++--
- drivers/pci/hotplug/s390_pci_hpc.c |  7 ++-----
- drivers/s390/char/con3215.c        | 12 +-----------
- drivers/s390/char/sclp_quiesce.c   |  4 +---
- drivers/s390/char/sclp_tty.c       |  3 +--
- drivers/s390/char/zcore.c          | 20 +-------------------
- drivers/s390/cio/cmf.c             | 10 ++--------
- drivers/s390/cio/css.c             |  6 +++---
- drivers/s390/cio/device.c          |  6 +++---
- drivers/s390/cio/device_ops.c      |  5 +++--
- drivers/s390/virtio/virtio_ccw.c   | 25 ++-----------------------
- 12 files changed, 26 insertions(+), 101 deletions(-)
-
+diff --git a/drivers/pci/hotplug/s390_pci_hpc.c b/drivers/pci/hotplug/s390_pci_hpc.c
+index 50b8b7d54416..530d0e49f2ed 100644
+--- a/drivers/pci/hotplug/s390_pci_hpc.c
++++ b/drivers/pci/hotplug/s390_pci_hpc.c
+@@ -5,12 +5,13 @@
+  *
+  * Author(s):
+  *   Jan Glauber <jang@linux.vnet.ibm.com>
++ *
++ * License: GPL
+  */
+ 
+ #define KMSG_COMPONENT "zpci"
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+-#include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/pci.h>
+@@ -21,10 +22,6 @@
+ #define SLOT_NAME_SIZE	10
+ static LIST_HEAD(s390_hotplug_slot_list);
+ 
+-MODULE_AUTHOR("Jan Glauber <jang@linux.vnet.ibm.com");
+-MODULE_DESCRIPTION("Hot Plug PCI Controller for System z");
+-MODULE_LICENSE("GPL");
+-
+ static int zpci_fn_configured(enum zpci_state state)
+ {
+ 	return state == ZPCI_FN_STATE_CONFIGURED ||
 -- 
 2.10.1
