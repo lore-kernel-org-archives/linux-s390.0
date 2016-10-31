@@ -1,11 +1,12 @@
-Return-Path: <fengguang.wu@intel.com>
-Date: Mon, 31 Oct 2016 22:13:54 +0800
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH 3/4] cputime/powerpc/s390: make scaled cputime arch
- specific
-Message-ID: <201610312223.uH1dDdy9%fengguang.wu@intel.com>
+Return-Path: <sgruszka@redhat.com>
+Date: Mon, 31 Oct 2016 17:21:43 +0100
+From: Stanislaw Gruszka <sgruszka@redhat.com>
+Subject: [PATCH v3 3/4] cputime/powerpc/s390: make scaled cputime arch specific
+Message-ID: <20161031162143.GB12646@redhat.com>
+References: <1477917389-11341-1-git-send-email-sgruszka@redhat.com>
+ <1477917389-11341-4-git-send-email-sgruszka@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
+Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <1477917389-11341-4-git-send-email-sgruszka@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
@@ -15,437 +16,395 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Stanislaw Gruszka <sgruszka@redhat.com>
-Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Frederic Weisbecker <fweisbec@gmail.com>, Paul Mackerras <paulus@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Neuling <mikey@neuling.org>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Frederic Weisbecker <fweisbec@gmail.com>, Paul Mackerras <paulus@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Neuling <mikey@neuling.org>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Only s390 and powerpc have hardware facilities allowing to measure
+cputimes scaled by frequency. On all other architectures
+utimescaled/stimescaled are equal to utime/stime (however they are
+accounted separately).
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Patch remove {u,s}timescaled accounting on all architectures except
+powerpc and s390, where those values are explicitly accounted on proper
+places.
 
-Hi Stanislaw,
-
-[auto build test ERROR on powerpc/next]
-[also build test ERROR on v4.9-rc3 next-20161028]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-[Suggest to use git(>=2.9.0) format-patch --base=<commit> (or --base=auto for convenience) to record what (public, well-known) commit your patch series was built on]
-[Check https://git-scm.com/docs/git-format-patch for more information]
-
-url:    https://github.com/0day-ci/linux/commits/Stanislaw-Gruszka/cputime-powerpc-remove-cputime_last_delta-global-variable/20161031-204221
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux.git next
-config: s390-default_defconfig (attached as .config)
-compiler: s390x-linux-gnu-gcc (Debian 6.1.1-9) 6.1.1 20160705
-reproduce:
-        wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # save the attached .config to linux build tree
-        make.cross ARCH=s390 
-
-All errors (new ones prefixed by >>):
-
-   arch/s390/kernel/vtime.c: In function 'do_account_vtime':
->> arch/s390/kernel/vtime.c:141:5: error: 'struct task_struct' has no member named 'utimescaled'
-     tsk->utimescaled += user_scaled;
-        ^~
->> arch/s390/kernel/vtime.c:143:2: error: expected ';' before 'tsk'
-     tsk->stimescaled += system_scaled;
-     ^~~
-   arch/s390/kernel/vtime.c: In function 'vtime_account_irq_enter':
->> arch/s390/kernel/vtime.c:208:5: error: 'struct task_struct' has no member named 'stimescaled'
-     tsk->stimescaled += system_scaled;
-        ^~
-
-vim +141 arch/s390/kernel/vtime.c
-
-   135			u64 div = __this_cpu_read(mt_scaling_div);
-   136	
-   137			user_scaled = (user_scaled * mult) / div;
-   138			system_scaled = (system_scaled * mult) / div;
-   139		}
-   140		account_user_time(tsk, user);
- > 141		tsk->utimescaled += user_scaled;
-   142		account_system_time(tsk, hardirq_offset, system)
- > 143		tsk->stimescaled += system_scaled;
-   144	
-   145		steal = S390_lowcore.steal_timer;
-   146		if ((s64) steal > 0) {
-   147			S390_lowcore.steal_timer = 0;
-   148			account_steal_time(steal);
-   149		}
-   150	
-   151		return virt_timer_forward(user + system);
-   152	}
-   153	
-   154	void vtime_task_switch(struct task_struct *prev)
-   155	{
-   156		struct thread_info *ti;
-   157	
-   158		do_account_vtime(prev, 0);
-   159		ti = task_thread_info(prev);
-   160		ti->user_timer = S390_lowcore.user_timer;
-   161		ti->system_timer = S390_lowcore.system_timer;
-   162		ti = task_thread_info(current);
-   163		S390_lowcore.user_timer = ti->user_timer;
-   164		S390_lowcore.system_timer = ti->system_timer;
-   165	}
-   166	
-   167	/*
-   168	 * In s390, accounting pending user time also implies
-   169	 * accounting system time in order to correctly compute
-   170	 * the stolen time accounting.
-   171	 */
-   172	void vtime_account_user(struct task_struct *tsk)
-   173	{
-   174		if (do_account_vtime(tsk, HARDIRQ_OFFSET))
-   175			virt_timer_expire();
-   176	}
-   177	
-   178	/*
-   179	 * Update process times based on virtual cpu times stored by entry.S
-   180	 * to the lowcore fields user_timer, system_timer & steal_clock.
-   181	 */
-   182	void vtime_account_irq_enter(struct task_struct *tsk)
-   183	{
-   184		struct thread_info *ti = task_thread_info(tsk);
-   185		u64 timer, system, system_scaled;
-   186	
-   187		timer = S390_lowcore.last_update_timer;
-   188		S390_lowcore.last_update_timer = get_vtimer();
-   189		S390_lowcore.system_timer += timer - S390_lowcore.last_update_timer;
-   190	
-   191		/* Update MT utilization calculation */
-   192		if (smp_cpu_mtid &&
-   193		    time_after64(jiffies_64, this_cpu_read(mt_scaling_jiffies)))
-   194			update_mt_scaling();
-   195	
-   196		system = S390_lowcore.system_timer - ti->system_timer;
-   197		S390_lowcore.steal_timer -= system;
-   198		ti->system_timer = S390_lowcore.system_timer;
-   199		system_scaled = system;
-   200		/* Do MT utilization scaling */
-   201		if (smp_cpu_mtid) {
-   202			u64 mult = __this_cpu_read(mt_scaling_mult);
-   203			u64 div = __this_cpu_read(mt_scaling_div);
-   204	
-   205			system_scaled = (system_scaled * mult) / div;
-   206		}
-   207		account_system_time(tsk, 0, system);
- > 208		tsk->stimescaled += system_scaled;
-   209	
-   210		virt_timer_forward(system);
-   211	}
-
+Signed-off-by: Stanislaw Gruszka <sgruszka@redhat.com>
 ---
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+v1 -> v2 : fix compilation (missed comma)
+v2 -> v3 : fix compilation when ARCH_HAS_SCALED_CPUTIME should be selected
 
---r5Pyd7+fXNt84Ff3
-Content-Type: application/gzip
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
+ arch/Kconfig                |    3 ++
+ arch/ia64/kernel/time.c     |    4 +-
+ arch/powerpc/Kconfig        |    1 +
+ arch/powerpc/kernel/time.c  |    6 +++-
+ arch/s390/Kconfig           |    1 +
+ arch/s390/kernel/vtime.c    |    9 ++++--
+ include/linux/kernel_stat.h |    4 +-
+ include/linux/sched.h       |   23 ++++++++++++----
+ kernel/fork.c               |    2 +
+ kernel/sched/cputime.c      |   61 ++++++++++--------------------------------
+ 10 files changed, 53 insertions(+), 61 deletions(-)
 
-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
-NcGGKk9UjFltyfM/WP2JEHcBAQA=
-
---r5Pyd7+fXNt84Ff3--
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 659bdd0..abab659 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -512,6 +512,9 @@ config HAVE_CONTEXT_TRACKING
+ config HAVE_VIRT_CPU_ACCOUNTING
+ 	bool
+ 
++config ARCH_HAS_SCALED_CPUTIME
++	bool
++
+ config HAVE_VIRT_CPU_ACCOUNTING_GEN
+ 	bool
+ 	default y if 64BIT
+diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
+index 6f892b9..021f44a 100644
+--- a/arch/ia64/kernel/time.c
++++ b/arch/ia64/kernel/time.c
+@@ -68,7 +68,7 @@ void vtime_account_user(struct task_struct *tsk)
+ 
+ 	if (ti->ac_utime) {
+ 		delta_utime = cycle_to_cputime(ti->ac_utime);
+-		account_user_time(tsk, delta_utime, delta_utime);
++		account_user_time(tsk, delta_utime);
+ 		ti->ac_utime = 0;
+ 	}
+ }
+@@ -112,7 +112,7 @@ void vtime_account_system(struct task_struct *tsk)
+ {
+ 	cputime_t delta = vtime_delta(tsk);
+ 
+-	account_system_time(tsk, 0, delta, delta);
++	account_system_time(tsk, 0, delta);
+ }
+ EXPORT_SYMBOL_GPL(vtime_account_system);
+ 
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 65fba4c..c7f120a 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -160,6 +160,7 @@ config PPC
+ 	select HAVE_LIVEPATCH if HAVE_DYNAMIC_FTRACE_WITH_REGS
+ 	select GENERIC_CPU_AUTOPROBE
+ 	select HAVE_VIRT_CPU_ACCOUNTING
++	select ARCH_HAS_SCALED_CPUTIME if VIRT_CPU_ACCOUNTING_NATIVE
+ 	select HAVE_ARCH_HARDENED_USERCOPY
+ 	select HAVE_KERNEL_GZIP
+ 
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 8105198..be9751f 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -358,7 +358,8 @@ void vtime_account_system(struct task_struct *tsk)
+ 	unsigned long delta, sys_scaled, stolen;
+ 
+ 	delta = vtime_delta(tsk, &sys_scaled, &stolen);
+-	account_system_time(tsk, 0, delta, sys_scaled);
++	account_system_time(tsk, 0, delta);
++	tsk->stimescaled += sys_scaled;
+ 	if (stolen)
+ 		account_steal_time(stolen);
+ }
+@@ -391,7 +392,8 @@ void vtime_account_user(struct task_struct *tsk)
+ 	acct->user_time = 0;
+ 	acct->user_time_scaled = 0;
+ 	acct->utime_sspurr = 0;
+-	account_user_time(tsk, utime, utimescaled);
++	account_user_time(tsk, utime);
++	tsk->utimescaled += utimescaled;
+ }
+ 
+ #ifdef CONFIG_PPC32
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 426481d..028f97b 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -171,6 +171,7 @@ config S390
+ 	select SYSCTL_EXCEPTION_TRACE
+ 	select TTY
+ 	select VIRT_CPU_ACCOUNTING
++	select ARCH_HAS_SCALED_CPUTIME
+ 	select VIRT_TO_BUS
+ 	select HAVE_NMI
+ 
+diff --git a/arch/s390/kernel/vtime.c b/arch/s390/kernel/vtime.c
+index 856e30d..90eeb7c 100644
+--- a/arch/s390/kernel/vtime.c
++++ b/arch/s390/kernel/vtime.c
+@@ -137,8 +137,10 @@ static int do_account_vtime(struct task_struct *tsk, int hardirq_offset)
+ 		user_scaled = (user_scaled * mult) / div;
+ 		system_scaled = (system_scaled * mult) / div;
+ 	}
+-	account_user_time(tsk, user, user_scaled);
+-	account_system_time(tsk, hardirq_offset, system, system_scaled);
++	account_user_time(tsk, user);
++	tsk->utimescaled += user_scaled;
++	account_system_time(tsk, hardirq_offset, system);
++	tsk->stimescaled += system_scaled;
+ 
+ 	steal = S390_lowcore.steal_timer;
+ 	if ((s64) steal > 0) {
+@@ -202,7 +204,8 @@ void vtime_account_irq_enter(struct task_struct *tsk)
+ 
+ 		system_scaled = (system_scaled * mult) / div;
+ 	}
+-	account_system_time(tsk, 0, system, system_scaled);
++	account_system_time(tsk, 0, system);
++	tsk->stimescaled += system_scaled;
+ 
+ 	virt_timer_forward(system);
+ }
+diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
+index 44fda64..00f7768 100644
+--- a/include/linux/kernel_stat.h
++++ b/include/linux/kernel_stat.h
+@@ -78,8 +78,8 @@ static inline unsigned int kstat_cpu_irqs_sum(unsigned int cpu)
+ 	return kstat_cpu(cpu).irqs_sum;
+ }
+ 
+-extern void account_user_time(struct task_struct *, cputime_t, cputime_t);
+-extern void account_system_time(struct task_struct *, int, cputime_t, cputime_t);
++extern void account_user_time(struct task_struct *, cputime_t);
++extern void account_system_time(struct task_struct *, int, cputime_t);
+ extern void account_steal_time(cputime_t);
+ extern void account_idle_time(cputime_t);
+ 
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 348f51b..49bbca2 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1627,7 +1627,10 @@ struct task_struct {
+ 	int __user *set_child_tid;		/* CLONE_CHILD_SETTID */
+ 	int __user *clear_child_tid;		/* CLONE_CHILD_CLEARTID */
+ 
+-	cputime_t utime, stime, utimescaled, stimescaled;
++	cputime_t utime, stime;
++#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
++	cputime_t utimescaled, stimescaled;
++#endif
+ 	cputime_t gtime;
+ 	struct prev_cputime prev_cputime;
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
+@@ -2220,8 +2223,6 @@ static inline void put_task_struct(struct task_struct *t)
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
+ extern void task_cputime(struct task_struct *t,
+ 			 cputime_t *utime, cputime_t *stime);
+-extern void task_cputime_scaled(struct task_struct *t,
+-				cputime_t *utimescaled, cputime_t *stimescaled);
+ extern cputime_t task_gtime(struct task_struct *t);
+ #else
+ static inline void task_cputime(struct task_struct *t,
+@@ -2233,6 +2234,13 @@ static inline void task_cputime(struct task_struct *t,
+ 		*stime = t->stime;
+ }
+ 
++static inline cputime_t task_gtime(struct task_struct *t)
++{
++	return t->gtime;
++}
++#endif
++
++#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+ static inline void task_cputime_scaled(struct task_struct *t,
+ 				       cputime_t *utimescaled,
+ 				       cputime_t *stimescaled)
+@@ -2242,12 +2250,15 @@ static inline void task_cputime_scaled(struct task_struct *t,
+ 	if (stimescaled)
+ 		*stimescaled = t->stimescaled;
+ }
+-
+-static inline cputime_t task_gtime(struct task_struct *t)
++#else
++static inline void task_cputime_scaled(struct task_struct *t,
++				       cputime_t *utimescaled,
++				       cputime_t *stimescaled)
+ {
+-	return t->gtime;
++	task_cputime(t, utimescaled, stimescaled);
+ }
+ #endif
++
+ extern void task_cputime_adjusted(struct task_struct *p, cputime_t *ut, cputime_t *st);
+ extern void thread_group_cputime_adjusted(struct task_struct *p, cputime_t *ut, cputime_t *st);
+ 
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 623259f..d0e8d4d 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1548,7 +1548,9 @@ static void posix_cpu_timers_init(struct task_struct *tsk)
+ 	init_sigpending(&p->pending);
+ 
+ 	p->utime = p->stime = p->gtime = 0;
++#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+ 	p->utimescaled = p->stimescaled = 0;
++#endif
+ 	prev_cputime_init(&p->prev_cputime);
+ 
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
+diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+index 3229c72..ba55ebf 100644
+--- a/kernel/sched/cputime.c
++++ b/kernel/sched/cputime.c
+@@ -128,16 +128,13 @@ static inline void task_group_account_field(struct task_struct *p, int index,
+  * Account user cpu time to a process.
+  * @p: the process that the cpu time gets accounted to
+  * @cputime: the cpu time spent in user space since the last update
+- * @cputime_scaled: cputime scaled by cpu frequency
+  */
+-void account_user_time(struct task_struct *p, cputime_t cputime,
+-		       cputime_t cputime_scaled)
++void account_user_time(struct task_struct *p, cputime_t cputime)
+ {
+ 	int index;
+ 
+ 	/* Add user time to process. */
+ 	p->utime += cputime;
+-	p->utimescaled += cputime_scaled;
+ 	account_group_user_time(p, cputime);
+ 
+ 	index = (task_nice(p) > 0) ? CPUTIME_NICE : CPUTIME_USER;
+@@ -153,16 +150,13 @@ void account_user_time(struct task_struct *p, cputime_t cputime,
+  * Account guest cpu time to a process.
+  * @p: the process that the cpu time gets accounted to
+  * @cputime: the cpu time spent in virtual machine since the last update
+- * @cputime_scaled: cputime scaled by cpu frequency
+  */
+-static void account_guest_time(struct task_struct *p, cputime_t cputime,
+-			       cputime_t cputime_scaled)
++static void account_guest_time(struct task_struct *p, cputime_t cputime)
+ {
+ 	u64 *cpustat = kcpustat_this_cpu->cpustat;
+ 
+ 	/* Add guest time to process. */
+ 	p->utime += cputime;
+-	p->utimescaled += cputime_scaled;
+ 	account_group_user_time(p, cputime);
+ 	p->gtime += cputime;
+ 
+@@ -180,16 +174,13 @@ static void account_guest_time(struct task_struct *p, cputime_t cputime,
+  * Account system cpu time to a process and desired cpustat field
+  * @p: the process that the cpu time gets accounted to
+  * @cputime: the cpu time spent in kernel space since the last update
+- * @cputime_scaled: cputime scaled by cpu frequency
+- * @target_cputime64: pointer to cpustat field that has to be updated
++ * @index: pointer to cpustat field that has to be updated
+  */
+ static inline
+-void __account_system_time(struct task_struct *p, cputime_t cputime,
+-			cputime_t cputime_scaled, int index)
++void __account_system_time(struct task_struct *p, cputime_t cputime, int index)
+ {
+ 	/* Add system time to process. */
+ 	p->stime += cputime;
+-	p->stimescaled += cputime_scaled;
+ 	account_group_system_time(p, cputime);
+ 
+ 	/* Add system time to cpustat. */
+@@ -204,15 +195,14 @@ void __account_system_time(struct task_struct *p, cputime_t cputime,
+  * @p: the process that the cpu time gets accounted to
+  * @hardirq_offset: the offset to subtract from hardirq_count()
+  * @cputime: the cpu time spent in kernel space since the last update
+- * @cputime_scaled: cputime scaled by cpu frequency
+  */
+ void account_system_time(struct task_struct *p, int hardirq_offset,
+-			 cputime_t cputime, cputime_t cputime_scaled)
++			 cputime_t cputime)
+ {
+ 	int index;
+ 
+ 	if ((p->flags & PF_VCPU) && (irq_count() - hardirq_offset == 0)) {
+-		account_guest_time(p, cputime, cputime_scaled);
++		account_guest_time(p, cputime);
+ 		return;
+ 	}
+ 
+@@ -223,7 +213,7 @@ void account_system_time(struct task_struct *p, int hardirq_offset,
+ 	else
+ 		index = CPUTIME_SYSTEM;
+ 
+-	__account_system_time(p, cputime, cputime_scaled, index);
++	__account_system_time(p, cputime, index);
+ }
+ 
+ /*
+@@ -410,15 +400,15 @@ static void irqtime_account_process_tick(struct task_struct *p, int user_tick,
+ 		 * So, we have to handle it separately here.
+ 		 * Also, p->stime needs to be updated for ksoftirqd.
+ 		 */
+-		__account_system_time(p, cputime, cputime, CPUTIME_SOFTIRQ);
++		__account_system_time(p, cputime, CPUTIME_SOFTIRQ);
+ 	} else if (user_tick) {
+-		account_user_time(p, cputime, cputime);
++		account_user_time(p, cputime);
+ 	} else if (p == rq->idle) {
+ 		account_idle_time(cputime);
+ 	} else if (p->flags & PF_VCPU) { /* System time or guest time */
+-		account_guest_time(p, cputime, cputime);
++		account_guest_time(p, cputime);
+ 	} else {
+-		__account_system_time(p, cputime, cputime, CPUTIME_SYSTEM);
++		__account_system_time(p, cputime, CPUTIME_SYSTEM);
+ 	}
+ }
+ 
+@@ -521,9 +511,9 @@ void account_process_tick(struct task_struct *p, int user_tick)
+ 	cputime -= steal;
+ 
+ 	if (user_tick)
+-		account_user_time(p, cputime, cputime);
++		account_user_time(p, cputime);
+ 	else if ((p != rq->idle) || (irq_count() != HARDIRQ_OFFSET))
+-		account_system_time(p, HARDIRQ_OFFSET, cputime, cputime);
++		account_system_time(p, HARDIRQ_OFFSET, cputime);
+ 	else
+ 		account_idle_time(cputime);
+ }
+@@ -744,7 +734,7 @@ static void __vtime_account_system(struct task_struct *tsk)
+ {
+ 	cputime_t delta_cpu = get_vtime_delta(tsk);
+ 
+-	account_system_time(tsk, irq_count(), delta_cpu, delta_cpu);
++	account_system_time(tsk, irq_count(), delta_cpu);
+ }
+ 
+ void vtime_account_system(struct task_struct *tsk)
+@@ -765,7 +755,7 @@ void vtime_account_user(struct task_struct *tsk)
+ 	tsk->vtime_snap_whence = VTIME_SYS;
+ 	if (vtime_delta(tsk)) {
+ 		delta_cpu = get_vtime_delta(tsk);
+-		account_user_time(tsk, delta_cpu, delta_cpu);
++		account_user_time(tsk, delta_cpu);
+ 	}
+ 	write_seqcount_end(&tsk->vtime_seqcount);
+ }
+@@ -921,25 +911,4 @@ void task_cputime(struct task_struct *t, cputime_t *utime, cputime_t *stime)
+ 	if (stime)
+ 		*stime += sdelta;
+ }
+-
+-void task_cputime_scaled(struct task_struct *t,
+-			 cputime_t *utimescaled, cputime_t *stimescaled)
+-{
+-	cputime_t udelta, sdelta;
+-
+-	if (!vtime_accounting_enabled()) {
+-		if (utimescaled)
+-			*utimescaled = t->utimescaled;
+-		if (stimescaled)
+-			*stimescaled = t->stimescaled;
+-		return;
+-	}
+-
+-	fetch_task_cputime(t, utimescaled, stimescaled,
+-			   &t->utimescaled, &t->stimescaled, &udelta, &sdelta);
+-	if (utimescaled)
+-		*utimescaled += udelta;
+-	if (stimescaled)
+-		*stimescaled += sdelta;
+-}
+ #endif /* CONFIG_VIRT_CPU_ACCOUNTING_GEN */
+-- 
+1.7.1
