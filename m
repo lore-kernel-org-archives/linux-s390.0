@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 31 Oct 2016 10:24:20 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 0/9] s390: remove modular usage from non-modular code
+Date: Mon, 31 Oct 2016 11:56:00 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 9/9] s390: virtio: make ccw explicitly non-modular
+In-Reply-To: <20161030203732.26405-10-paul.gortmaker@windriver.com>
 References: <20161030203732.26405-1-paul.gortmaker@windriver.com>
+        <20161030203732.26405-10-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20161030203732.26405-1-paul.gortmaker@windriver.com>
-Message-Id: <20161031092420.GA4434@osiris>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20161031115600.0a0830e2.cornelia.huck@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arndb@de.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Oct 30, 2016 at 04:37:23PM -0400, Paul Gortmaker wrote:
-> My ongoing audit looking for non-modular code that needlessly uses
-> modular macros (vs. built-in equivalents) and/or has dead code
-> relating to module unloading that can never be executed led to the
-> creation of these s390 related commits.
-> 
-> For anyone new to the underlying goal of this cleanup, we are trying to
-> not use module support for code that can never be built as a module since:
-> 
->  (1) it is easy to accidentally write unused module_exit and remove code
->  (2) it can be misleading when reading the source, thinking it can be
->      modular when the Makefile and/or Kconfig prohibit it
->  (3) it requires the include of the module.h header file which in turn
->      includes nearly everything else, thus adding to CPP overhead.
->  (4) it gets copied/replicated into other code and spreads like weeds.
-> 
-> Build tested on current linux-next (allyes/allno/allmod) to ensure no
-> silly typos or implicit include issues that would break compilation
-> crept in.
-> 
-> Paul Gortmaker (9):
->   s390: cio: make it explicitly non-modular
->   s390: char: make zcore explicitly non-modular
->   s390: char: make con3215 explicitly non-modular
->   s390: char: make sclp_tty explicitly non-modular
->   s390: char: make slcp_quiesce explicitly non-modular
->   s390: hotplug: make pci_hpc explicitly non-modular
->   s390: hypfs: make inode explicitly non-modular
->   s390: kernel: make lgr explicitly non-modular
->   s390: virtio: make ccw explicitly non-modular
+On Sun, 30 Oct 2016 16:37:32 -0400
+Paul Gortmaker <paul.gortmaker@windriver.com> wrote:
 
-Whole series applied. Thanks!
+> The Kconfig currently controlling compilation of this code is:
+> 
+> arch/s390/Kconfig:config S390_GUEST
+> arch/s390/Kconfig:      def_bool y
+> 
+> ...meaning that it currently is not being built as a module by anyone.
+> 
+> Lets remove the modular code that is essentially orphaned, so that
+> when reading the driver there is no doubt it is builtin-only.
+> 
+> Since module_init translates to device_initcall in the non-modular
+> case, the init ordering remains unchanged with this commit.
+> 
+> Also note that MODULE_DEVICE_TABLE is a no-op for non-modular code.
+> 
+> We replace module.h with moduleparam.h since the file does declare
+> some module_param() and leaving that as-is is currently the easiest
+> way to remain compatible with existing boot arg use cases.
+> 
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 25 ++-----------------------
+>  1 file changed, 2 insertions(+), 23 deletions(-)
+
+There might actually be a case for making this modular, as the
+virtio-pci transport can be built as a module as well. But I don't
+think anybody really cares, and your patch is easily reverted should we
+want to do this later, so
+
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+[going through the s390 tree with the other patches is probably easier
+as taking this through the virtio tree]
