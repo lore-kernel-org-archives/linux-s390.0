@@ -1,63 +1,76 @@
-Return-Path: <fweisbec@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <1477917389-11341-1-git-send-email-sgruszka@redhat.com>
-References: <1477917389-11341-1-git-send-email-sgruszka@redhat.com>
-From: Frederic Weisbecker <fweisbec@gmail.com>
-Date: Wed, 9 Nov 2016 13:01:25 +0000
-Message-ID: <CAFTL4hwQj_feMtKuTZC-u-Og+-H8VJJeVGeOYmuc0iZ_wPeuTQ@mail.gmail.com>
-Subject: Re: [PATCH 0/4] cputime: some optimizations and cleanups
-Content-Type: text/plain; charset=UTF-8
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Stanislaw Gruszka <sgruszka@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Neuling <mikey@neuling.org>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v7 09/11] x86, kernel/kvm.c: support vcpu preempted check
+Date: Wed,  2 Nov 2016 05:08:36 -0400
+Message-ID: <1478077718-37424-10-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+References: <1478077718-37424-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1478077718-37424-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
+Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM, dave@stgolabs.net, konrad.wilk@oracle.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-2016-10-31 12:36 GMT+00:00 Stanislaw Gruszka <sgruszka@redhat.com>:
-> Patches remove accounting of utimescaled/stimescaled on architectures
-> that do not provide those values (scaled cputimes are equal to normal
-> cputimes) what is every architecture except powerpc and s390.
->
-> Patches do not change user visible behaviour.
->
-> There is very little documentation how scaled cputimes should be
-> interpreted and what useful information they provide (at least
-> I could not find that). Moreover they are exported to user-space
-> only via not commonly used taskstats and delayacct interfaces (i.e.
-> interfaces that are not used by standard linux tools AFICT). However
-> I assume they can not be removed by whole (i.e. replaced by normal
-> utimes/stimes on powerpc and s390).
->
-> Stanislaw Gruszka (4):
->   cputime/powerpc: remove cputime_last_delta global variable
->   cputime/powerpc: remove cputime_to_scaled()
->   cputime/powerpc/s390: make scaled cputime arch specific
->   cputime: simplify task_cputime()
->
->  arch/ia64/kernel/time.c               |    4 +-
->  arch/powerpc/Kconfig                  |    1 +
->  arch/powerpc/include/asm/cputime.h    |   14 ----
->  arch/powerpc/kernel/time.c            |    8 +-
->  arch/s390/Kconfig                     |    1 +
->  arch/s390/kernel/vtime.c              |    9 ++-
->  arch/x86/kernel/apm_32.c              |    4 +-
->  include/asm-generic/cputime_jiffies.h |    1 -
->  include/asm-generic/cputime_nsecs.h   |    1 -
->  include/linux/kernel_stat.h           |    4 +-
->  include/linux/sched.h                 |   29 +++++---
->  kernel/fork.c                         |    2 +
->  kernel/sched/cputime.c                |  124 +++++++++------------------------
->  kernel/time/posix-cpu-timers.c        |    4 +-
->  14 files changed, 73 insertions(+), 133 deletions(-)
->
+Support the vcpu_is_preempted() functionality under KVM. This will
+enhance lock performance on overcommitted hosts (more runnable vcpus
+than physical cpus in the system) as doing busy waits for preempted
+vcpus will hurt system performance far worse than early yielding.
 
-Excellent patchset!
-Thanks a lot Stanislaw!
+struct kvm_steal_time::preempted indicate that if one vcpu is running or
+not after commit("x86, kvm/x86.c: support vcpu preempted check").
 
-Acked-by: Frederic Weisbecker <fweisbec@gmail.com>
+unix benchmark result:
+host:  kernel 4.8.1, i5-4570, 4 cpus
+guest: kernel 4.8.1, 8 vcpus
+
+        test-case                       after-patch       before-patch
+Execl Throughput                       |    18307.9 lps  |    11701.6 lps
+File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
+File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
+File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
+Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps
+Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps
+Process Creation                       |    29881.2 lps  |    28572.8 lps
+Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm
+Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm
+System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps
+
+Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/kernel/kvm.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index edbbfc8..0b48dd2 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -415,6 +415,15 @@ void kvm_disable_steal_time(void)
+ 	wrmsr(MSR_KVM_STEAL_TIME, 0, 0);
+ }
+ 
++static bool kvm_vcpu_is_preempted(int cpu)
++{
++	struct kvm_steal_time *src;
++
++	src = &per_cpu(steal_time, cpu);
++
++	return !!src->preempted;
++}
++
+ #ifdef CONFIG_SMP
+ static void __init kvm_smp_prepare_boot_cpu(void)
+ {
+@@ -471,6 +480,9 @@ void __init kvm_guest_init(void)
+ 	if (kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
+ 		has_steal_clock = 1;
+ 		pv_time_ops.steal_clock = kvm_steal_clock;
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++		pv_lock_ops.vcpu_is_preempted = kvm_vcpu_is_preempted;
++#endif
+ 	}
+ 
+ 	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+-- 
+2.4.11
