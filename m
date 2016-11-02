@@ -1,53 +1,131 @@
-From: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-Subject: Re: [PATCH v7 06/11] x86, paravirt: Add interface to support kvm/xen
-	vcpu preempted check
-Date: Thu, 17 Nov 2016 13:16:30 +0800
-Message-ID: <cc581449-81e4-1299-2221-0b1733648fb5@linux.vnet.ibm.com>
-References: <1478077718-37424-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<1478077718-37424-7-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-	<20161115154706.GF11311@worktop.programming.kicks-ass.net>
-	<a6026a0c-9ad8-5025-c616-eb33f96e91ce@linux.vnet.ibm.com>
-	<20161116102355.GP3142@twins.programming.kicks-ass.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20161116102355.GP3142@twins.programming.kicks-ass.net>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: [PATCH v7 00/11] implement vcpu preempted check
+Date: Wed,  2 Nov 2016 05:08:27 -0400
+Message-ID: <1478077718-37424-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, benh@kernel.crashing.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, paulus@samba.org, kernellwp@gmail.com, linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, x86@kernel.org, mingo@redhat.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, konrad.wilk@oracle.com, boqun.feng@gmail.com, jgross@suse.com, linux-kernel@vger.kernel.org, David.Laight@ACULAB.COM, xen-devel-request@lists.xenproject.org, pbonzini@redhat.com, linuxppc-dev@lists.ozlabs.org
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
+Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM, dave@stgolabs.net, konrad.wilk@oracle.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-CgrlnKggMjAxNi8xMS8xNiAxODoyMywgUGV0ZXIgWmlqbHN0cmEg5YaZ6YGTOgo+IE9uIFdlZCwg
-Tm92IDE2LCAyMDE2IGF0IDEyOjE5OjA5UE0gKzA4MDAsIFBhbiBYaW5odWkgd3JvdGU6Cj4+IEhp
-LCBQZXRlci4KPj4gCUkgdGhpbmsgd2UgY2FuIGF2b2lkIGEgZnVuY3Rpb24gY2FsbCBpbiBhIHNp
-bXBsZXIgd2F5LiBIb3cgYWJvdXQgYmVsb3cKPj4KPj4gc3RhdGljIGlubGluZSBib29sIHZjcHVf
-aXNfcHJlZW1wdGVkKGludCBjcHUpCj4+IHsKPj4gCS8qIG9ubHkgc2V0IGluIHB2IGNhc2UqLwo+
-PiAJaWYgKHB2X2xvY2tfb3BzLnZjcHVfaXNfcHJlZW1wdGVkKQo+PiAJCXJldHVybiBwdl9sb2Nr
-X29wcy52Y3B1X2lzX3ByZWVtcHRlZChjcHUpOwo+PiAJcmV0dXJuIGZhbHNlOwo+PiB9Cj4KPiBU
-aGF0IGlzIHN0aWxsIG1vcmUgZXhwZW5zaXZlLiBJdCBuZWVkcyB0byBkbyBhbiBhY3R1YWwgbG9h
-ZCBhbmQgbWFrZXMgaXQKPiBoYXJkIHRvIHByZWRpY3QgdGhlIGJyYW5jaCwgeW91J2QgaGF2ZSB0
-byBhY3R1YWxseSB3YWl0IGZvciB0aGUgbG9hZCB0bwo+IGNvbXBsZXRlIGV0Yy4KPgp5ZXMsIG9u
-ZSBtb3JlIGxvYWQgaW4gbmF0aXZlIGNhc2UuIEkgdGhpbmsgdGhpcyBpcyBhY2NlcHRhYmxlIGFz
-IHZjcHVfaXNfcHJlZW1wdGVkIGlzIG5vdCBhIGNyaXRpY2FsIGZ1bmN0aW9uLgoKaG93ZXZlciBp
-ZiB3ZSB1c2UgcHZfY2FsbGVlX3NhdmVfcmVnc190aHVuaywgbW9yZSB1bm5lY2Vzc2FyeSByZWdp
-c3RlcnMgbWlnaHQgYmUgc2F2ZS9yZXNvdHJlZCBpbiBwdiBjYXNlLgp0aGF0IHdpbGwgaW50cm9k
-dWNlIGEgbGl0dGxlIG92ZXJoZWFkLgoKYnV0IEkgdGhpbmsgSSBhbSBva2F5IHdpdGggeW91ciBp
-ZGVhLiBJIGNhbiBtYWtlIGFub3RoZXIgcGF0Y2ggYmFzZWQgb24gdGhpcyBwYXRjaHNldCB3aXRo
-IHlvdXIgc3VnZ2VzdGVkLWJ5LgoKdGhhbmtzCnhpbmh1aQoKPiBBbHNvLCBpdCBnZW5lcmF0ZXMg
-bW9yZSBjb2RlLgo+Cj4gUGFyYXZpcnQgbXVjayBzaG91bGQgc3RyaXZlIHRvIGJlIGFzIGNoZWFw
-IGFzIHBvc3NpYmxlIHdoZW4gcmFuIG9uCj4gbmF0aXZlIGhhcmR3YXJlLgo+CgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+change from v6:
+	fix typos and remove uncessary comments.
+change from v5:
+	spilt x86/kvm patch into guest/host part.
+	introduce kvm_write_guest_offset_cached.
+	fix some typos.
+	rebase patch onto 4.9.2
+change from v4:
+	spilt x86 kvm vcpu preempted check into two patches.
+	add documentation patch.
+	add x86 vcpu preempted check patch under xen
+	add s390 vcpu preempted check patch 
+change from v3:
+	add x86 vcpu preempted check patch
+change from v2:
+	no code change, fix typos, update some comments
+change from v1:
+	a simplier definition of default vcpu_is_preempted
+	skip mahcine type check on ppc, and add config. remove dedicated macro.
+	add one patch to drop overload of rwsem_spin_on_owner and mutex_spin_on_owner. 
+	add more comments
+	thanks boqun and Peter's suggestion.
+
+This patch set aims to fix lock holder preemption issues.
+
+test-case:
+perf record -a perf bench sched messaging -g 400 -p && perf report
+
+18.09%  sched-messaging  [kernel.vmlinux]  [k] osq_lock
+12.28%  sched-messaging  [kernel.vmlinux]  [k] rwsem_spin_on_owner
+ 5.27%  sched-messaging  [kernel.vmlinux]  [k] mutex_unlock
+ 3.89%  sched-messaging  [kernel.vmlinux]  [k] wait_consider_task
+ 3.64%  sched-messaging  [kernel.vmlinux]  [k] _raw_write_lock_irq
+ 3.41%  sched-messaging  [kernel.vmlinux]  [k] mutex_spin_on_owner.is
+ 2.49%  sched-messaging  [kernel.vmlinux]  [k] system_call
+
+We introduce interface bool vcpu_is_preempted(int cpu) and use it in some spin
+loops of osq_lock, rwsem_spin_on_owner and mutex_spin_on_owner.
+These spin_on_onwer variant also cause rcu stall before we apply this patch set
+
+We also have observed some performace improvements in uninx benchmark tests.
+
+PPC test result:
+1 copy - 0.94%
+2 copy - 7.17%
+4 copy - 11.9%
+8 copy -  3.04%
+16 copy - 15.11%
+
+details below:
+Without patch:
+
+1 copy - File Write 4096 bufsize 8000 maxblocks      2188223.0 KBps  (30.0 s, 1 samples)
+2 copy - File Write 4096 bufsize 8000 maxblocks      1804433.0 KBps  (30.0 s, 1 samples)
+4 copy - File Write 4096 bufsize 8000 maxblocks      1237257.0 KBps  (30.0 s, 1 samples)
+8 copy - File Write 4096 bufsize 8000 maxblocks      1032658.0 KBps  (30.0 s, 1 samples)
+16 copy - File Write 4096 bufsize 8000 maxblocks       768000.0 KBps  (30.1 s, 1 samples)
+
+With patch: 
+
+1 copy - File Write 4096 bufsize 8000 maxblocks      2209189.0 KBps  (30.0 s, 1 samples)
+2 copy - File Write 4096 bufsize 8000 maxblocks      1943816.0 KBps  (30.0 s, 1 samples)
+4 copy - File Write 4096 bufsize 8000 maxblocks      1405591.0 KBps  (30.0 s, 1 samples)
+8 copy - File Write 4096 bufsize 8000 maxblocks      1065080.0 KBps  (30.0 s, 1 samples)
+16 copy - File Write 4096 bufsize 8000 maxblocks       904762.0 KBps  (30.0 s, 1 samples)
+
+X86 test result:
+	test-case			after-patch	  before-patch
+Execl Throughput                       |    18307.9 lps  |    11701.6 lps 
+File Copy 1024 bufsize 2000 maxblocks  |  1352407.3 KBps |   790418.9 KBps
+File Copy 256 bufsize 500 maxblocks    |   367555.6 KBps |   222867.7 KBps
+File Copy 4096 bufsize 8000 maxblocks  |  3675649.7 KBps |  1780614.4 KBps
+Pipe Throughput                        | 11872208.7 lps  | 11855628.9 lps 
+Pipe-based Context Switching           |  1495126.5 lps  |  1490533.9 lps 
+Process Creation                       |    29881.2 lps  |    28572.8 lps 
+Shell Scripts (1 concurrent)           |    23224.3 lpm  |    22607.4 lpm 
+Shell Scripts (8 concurrent)           |     3531.4 lpm  |     3211.9 lpm 
+System Call Overhead                   | 10385653.0 lps  | 10419979.0 lps 
+
+
+Christian Borntraeger (1):
+  s390/spinlock: Provide vcpu_is_preempted
+
+Juergen Gross (1):
+  x86, xen: support vcpu preempted check
+
+Pan Xinhui (9):
+  kernel/sched: introduce vcpu preempted check interface
+  locking/osq: Drop the overload of osq_lock()
+  kernel/locking: Drop the overload of {mutex,rwsem}_spin_on_owner
+  powerpc/spinlock: support vcpu preempted check
+  x86, paravirt: Add interface to support kvm/xen vcpu preempted check
+  KVM: Introduce kvm_write_guest_offset_cached
+  x86, kvm/x86.c: support vcpu preempted check
+  x86, kernel/kvm.c: support vcpu preempted check
+  Documentation: virtual: kvm: Support vcpu preempted check
+
+ Documentation/virtual/kvm/msr.txt     |  9 ++++++++-
+ arch/powerpc/include/asm/spinlock.h   |  8 ++++++++
+ arch/s390/include/asm/spinlock.h      |  8 ++++++++
+ arch/s390/kernel/smp.c                |  9 +++++++--
+ arch/s390/lib/spinlock.c              | 25 ++++++++-----------------
+ arch/x86/include/asm/paravirt_types.h |  2 ++
+ arch/x86/include/asm/spinlock.h       |  8 ++++++++
+ arch/x86/include/uapi/asm/kvm_para.h  |  4 +++-
+ arch/x86/kernel/kvm.c                 | 12 ++++++++++++
+ arch/x86/kernel/paravirt-spinlocks.c  |  6 ++++++
+ arch/x86/kvm/x86.c                    | 16 ++++++++++++++++
+ arch/x86/xen/spinlock.c               |  3 ++-
+ include/linux/kvm_host.h              |  2 ++
+ include/linux/sched.h                 | 12 ++++++++++++
+ kernel/locking/mutex.c                | 13 +++++++++++--
+ kernel/locking/osq_lock.c             |  8 +++++++-
+ kernel/locking/rwsem-xadd.c           | 14 +++++++++++---
+ virt/kvm/kvm_main.c                   | 20 ++++++++++++++------
+ 18 files changed, 145 insertions(+), 34 deletions(-)
+
+-- 
+2.4.11
