@@ -1,90 +1,104 @@
-From: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: [PATCH v7 07/11] KVM: Introduce kvm_write_guest_offset_cached
-Date: Wed,  2 Nov 2016 05:08:34 -0400
-Message-ID: <1478077718-37424-8-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-References: <1478077718-37424-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1478077718-37424-1-git-send-email-xinhui.pan@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, xen-devel-request@lists.xenproject.org, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
-Cc: benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, mingo@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com, will.deacon@arm.com, kernellwp@gmail.com, jgross@suse.com, pbonzini@redhat.com, bsingharora@gmail.com, boqun.feng@gmail.com, borntraeger@de.ibm.com, rkrcmar@redhat.com, David.Laight@ACULAB.COM, dave@stgolabs.net, konrad.wilk@oracle.com, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH] mm: kmemleak: scan .data.ro_after_init
+Date: Fri,  4 Nov 2016 15:42:53 +0000
+Message-ID: <1478274173-15218-1-git-send-email-jakub.kicinski@netronome.com>
+Return-path: <owner-linux-mm@kvack.org>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, Cong Wang <xiyou.wangcong@gmail.com>, Johannes Berg <johannes@sipsolutions.net>, Jakub Kicinski <jakub.kicinski@netronome.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-It allows us to update some status or field of one struct partially.
+Limit number of kmemleak's false positives by including
+.data.ro_after_init in memory scanning.  To achieve this we need to add
+symbols for start and end of the section to the linker scripts.
 
-We can also save one kvm_read_guest_cached if we just update one filed
-of the struct regardless of its current value.
+The problem has been uncovered by commit 56989f6d8568 ("genetlink: mark
+families as __ro_after_init").
 
-Signed-off-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
- include/linux/kvm_host.h |  2 ++
- virt/kvm/kvm_main.c      | 20 ++++++++++++++------
- 2 files changed, 16 insertions(+), 6 deletions(-)
+Since the RFC I dropped the use of VMLINUX_SYMBOL().  Please advise if it
+should be added back.
+---
+ arch/s390/kernel/vmlinux.lds.S    | 2 ++
+ include/asm-generic/sections.h    | 3 +++
+ include/asm-generic/vmlinux.lds.h | 5 ++++-
+ mm/kmemleak.c                     | 1 +
+ 4 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 01c0b9c..6f00237 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -645,6 +645,8 @@ int kvm_write_guest(struct kvm *kvm, gpa_t gpa, const void *data,
- 		    unsigned long len);
- int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- 			   void *data, unsigned long len);
-+int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
-+			   void *data, int offset, unsigned long len);
- int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- 			      gpa_t gpa, unsigned long len);
- int kvm_clear_guest_page(struct kvm *kvm, gfn_t gfn, int offset, int len);
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 2907b7b..95308ee 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1972,30 +1972,38 @@ int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- }
- EXPORT_SYMBOL_GPL(kvm_gfn_to_hva_cache_init);
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 000e6e91f6a0..3667d20e997f 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -62,9 +62,11 @@ SECTIONS
  
--int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
--			   void *data, unsigned long len)
-+int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
-+			   void *data, int offset, unsigned long len)
- {
- 	struct kvm_memslots *slots = kvm_memslots(kvm);
- 	int r;
-+	gpa_t gpa = ghc->gpa + offset;
+ 	. = ALIGN(PAGE_SIZE);
+ 	__start_ro_after_init = .;
++	__start_data_ro_after_init = .;
+ 	.data..ro_after_init : {
+ 		 *(.data..ro_after_init)
+ 	}
++	__end_data_ro_after_init = .;
+ 	EXCEPTION_TABLE(16)
+ 	. = ALIGN(PAGE_SIZE);
+ 	__end_ro_after_init = .;
+diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
+index af0254c09424..4df64a1fc09e 100644
+--- a/include/asm-generic/sections.h
++++ b/include/asm-generic/sections.h
+@@ -14,6 +14,8 @@
+  * [_sdata, _edata]: contains .data.* sections, may also contain .rodata.*
+  *                   and/or .init.* sections.
+  * [__start_rodata, __end_rodata]: contains .rodata.* sections
++ * [__start_data_ro_after_init, __end_data_ro_after_init]:
++ *		     contains data.ro_after_init section
+  * [__init_begin, __init_end]: contains .init.* sections, but .init.text.*
+  *                   may be out of this range on some architectures.
+  * [_sinittext, _einittext]: contains .init.text.* sections
+@@ -31,6 +33,7 @@
+ extern char __bss_start[], __bss_stop[];
+ extern char __init_begin[], __init_end[];
+ extern char _sinittext[], _einittext[];
++extern char __start_data_ro_after_init[], __end_data_ro_after_init[];
+ extern char _end[];
+ extern char __per_cpu_load[], __per_cpu_start[], __per_cpu_end[];
+ extern char __kprobes_text_start[], __kprobes_text_end[];
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index 30747960bc54..31e1d639abed 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -259,7 +259,10 @@
+  * own by defining an empty RO_AFTER_INIT_DATA.
+  */
+ #ifndef RO_AFTER_INIT_DATA
+-#define RO_AFTER_INIT_DATA *(.data..ro_after_init)
++#define RO_AFTER_INIT_DATA						\
++	__start_data_ro_after_init = .;					\
++	*(.data..ro_after_init)						\
++	__end_data_ro_after_init = .;
+ #endif
  
--	BUG_ON(len > ghc->len);
-+	BUG_ON(len + offset > ghc->len);
+ /*
+diff --git a/mm/kmemleak.c b/mm/kmemleak.c
+index e5355a5b423f..d1380ed93fdf 100644
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -1414,6 +1414,7 @@ static void kmemleak_scan(void)
+ 	/* data/bss scanning */
+ 	scan_large_block(_sdata, _edata);
+ 	scan_large_block(__bss_start, __bss_stop);
++	scan_large_block(__start_data_ro_after_init, __end_data_ro_after_init);
  
- 	if (slots->generation != ghc->generation)
- 		kvm_gfn_to_hva_cache_init(kvm, ghc, ghc->gpa, ghc->len);
- 
- 	if (unlikely(!ghc->memslot))
--		return kvm_write_guest(kvm, ghc->gpa, data, len);
-+		return kvm_write_guest(kvm, gpa, data, len);
- 
- 	if (kvm_is_error_hva(ghc->hva))
- 		return -EFAULT;
- 
--	r = __copy_to_user((void __user *)ghc->hva, data, len);
-+	r = __copy_to_user((void __user *)ghc->hva + offset, data, len);
- 	if (r)
- 		return -EFAULT;
--	mark_page_dirty_in_slot(ghc->memslot, ghc->gpa >> PAGE_SHIFT);
-+	mark_page_dirty_in_slot(ghc->memslot, gpa >> PAGE_SHIFT);
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(kvm_write_guest_offset_cached);
-+
-+int kvm_write_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
-+			   void *data, unsigned long len)
-+{
-+	return kvm_write_guest_offset_cached(kvm, ghc, data, 0, len);
-+}
- EXPORT_SYMBOL_GPL(kvm_write_guest_cached);
- 
- int kvm_read_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+ #ifdef CONFIG_SMP
+ 	/* per-cpu sections scanning */
 -- 
-2.4.11
+1.9.1
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
