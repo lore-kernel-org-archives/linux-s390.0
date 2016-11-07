@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 1/2] s390: delete unneeded #include <linux/kconfig.h> from facilities_src.h
-Date: Sun,  6 Nov 2016 12:45:27 +0900
-Message-Id: <1478403928-20799-1-git-send-email-yamada.masahiro@socionext.com>
+Date: Mon, 7 Nov 2016 08:03:22 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 2/2] s390: squash facilities_src.h into gen_facilities.c
+References: <1478403928-20799-1-git-send-email-yamada.masahiro@socionext.com>
+ <1478403928-20799-2-git-send-email-yamada.masahiro@socionext.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1478403928-20799-2-git-send-email-yamada.masahiro@socionext.com>
+Message-Id: <20161107070322.GA4075@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Sascha Silbe <silbe@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The header facilities_src.h is only included from gen_facilities.c
-and the tool is compiled with the following extra options:
+On Sun, Nov 06, 2016 at 12:45:28PM +0900, Masahiro Yamada wrote:
+> We generally expect headers in arch/$(ARCH)/include/asm directory
+> are included from kernel sources, but facilities_src.h is not;
+> it is included from the arch/s390/tools/gen_facilities.c tool.
+> 
+> There is no reason to expose this header to the public include path.
+> Furthermore, facilities_src.h makes sure to be included only from
+> gen_facilities.c by the following:
+> 
+>   #ifndef S390_GEN_FACILITIES_C
+>   #error "This file can only be included by gen_facilities.c"
+>   #endif
+> 
+> This check can be removed by merging the two files.
+> 
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> ---
 
-    HOSTCFLAGS_gen_facilities.o += -Wall $(LINUXINCLUDE)
+Both patches:
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Please note $(LINUXINCLUDE) is expanded into build options including:
-
-    -include $(srctree)/include/linux/kconfig.h
-
-So, the Makefile always forces the tool to include kconfig.h, i.e.,
-the #include <linux/kconfig.h> directive in the header is redundant.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
-
- arch/s390/include/asm/facilities_src.h | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/arch/s390/include/asm/facilities_src.h b/arch/s390/include/asm/facilities_src.h
-index 3b758f6..8b1a692 100644
---- a/arch/s390/include/asm/facilities_src.h
-+++ b/arch/s390/include/asm/facilities_src.h
-@@ -6,8 +6,6 @@
- #error "This file can only be included by gen_facilities.c"
- #endif
- 
--#include <linux/kconfig.h>
--
- struct facility_def {
- 	char *name;
- 	int *bits;
--- 
-1.9.1
+Martin, can you please pick them up?
