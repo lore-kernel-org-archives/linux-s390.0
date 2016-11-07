@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 7 Nov 2016 08:03:22 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Mon, 7 Nov 2016 10:50:05 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [PATCH 2/2] s390: squash facilities_src.h into gen_facilities.c
+In-Reply-To: <20161107070322.GA4075@osiris>
 References: <1478403928-20799-1-git-send-email-yamada.masahiro@socionext.com>
- <1478403928-20799-2-git-send-email-yamada.masahiro@socionext.com>
+        <1478403928-20799-2-git-send-email-yamada.masahiro@socionext.com>
+        <20161107070322.GA4075@osiris>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1478403928-20799-2-git-send-email-yamada.masahiro@socionext.com>
-Message-Id: <20161107070322.GA4075@osiris>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20161107105005.3477a324@mschwide>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Sascha Silbe <silbe@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-s390@vger.kernel.org, Sascha Silbe <silbe@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Nov 06, 2016 at 12:45:28PM +0900, Masahiro Yamada wrote:
-> We generally expect headers in arch/$(ARCH)/include/asm directory
-> are included from kernel sources, but facilities_src.h is not;
-> it is included from the arch/s390/tools/gen_facilities.c tool.
-> 
-> There is no reason to expose this header to the public include path.
-> Furthermore, facilities_src.h makes sure to be included only from
-> gen_facilities.c by the following:
-> 
->   #ifndef S390_GEN_FACILITIES_C
->   #error "This file can only be included by gen_facilities.c"
->   #endif
-> 
-> This check can be removed by merging the two files.
-> 
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-> ---
+On Mon, 7 Nov 2016 08:03:22 +0100
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-Both patches:
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> On Sun, Nov 06, 2016 at 12:45:28PM +0900, Masahiro Yamada wrote:
+> > We generally expect headers in arch/$(ARCH)/include/asm directory
+> > are included from kernel sources, but facilities_src.h is not;
+> > it is included from the arch/s390/tools/gen_facilities.c tool.
+> > 
+> > There is no reason to expose this header to the public include path.
+> > Furthermore, facilities_src.h makes sure to be included only from
+> > gen_facilities.c by the following:
+> > 
+> >   #ifndef S390_GEN_FACILITIES_C
+> >   #error "This file can only be included by gen_facilities.c"
+> >   #endif
+> > 
+> > This check can be removed by merging the two files.
+> > 
+> > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> > ---
+> 
+> Both patches:
+> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> Martin, can you please pick them up?
 
-Martin, can you please pick them up?
+I will add these two patches to the merge branch for 4.10.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
