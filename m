@@ -1,76 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 7 Nov 2016 14:38:07 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 2/2] s390: squash facilities_src.h into gen_facilities.c
-References: <1478403928-20799-1-git-send-email-yamada.masahiro@socionext.com>
- <1478403928-20799-2-git-send-email-yamada.masahiro@socionext.com>
- <20161107070322.GA4075@osiris>
- <20161107105005.3477a324@mschwide>
- <1478524386.29112.18.camel@tiscali.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1478524386.29112.18.camel@tiscali.nl>
-Message-Id: <20161107133807.GB4075@osiris>
+In-Reply-To: <1478523175.29112.7.camel@tiscali.nl>
+References: <1478403928-20799-1-git-send-email-yamada.masahiro@socionext.com> <1478523175.29112.7.camel@tiscali.nl>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Tue, 8 Nov 2016 10:50:31 +0900
+Message-ID: <CAK7LNATU4enycbY-ch68FGC5F7if7U=6yhS97GEgay3AK0tk3w@mail.gmail.com>
+Subject: Re: [PATCH 1/2] s390: delete unneeded #include <linux/kconfig.h> from facilities_src.h
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Paul Bolle <pebolle@tiscali.nl>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-s390@vger.kernel.org, Sascha Silbe <silbe@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Nov 07, 2016 at 02:13:06PM +0100, Paul Bolle wrote:
-> It took me some time to figure out that gen_facilities is only used to
-> generate a small header file (generated/facilities.h). And that header's only
-> goal is to define FACILITIES_ALS and FACILITIES_KVM.
-> 
-> Pasted below is an attempt to use asm/facilities.h instead of
-> generated/facilities.h. That allows to drop arch/s390/tools/ entirely. I don't
-> actually have an s390 machine at hand to test this, but this does build and
-> the preprocessed code this generates looks sane.
-> 
-> (Yes, asm/facilities.h might need another level of preprocessor defines to
-> become actually readable.)
+Hi Paul,
 
-The whole point of the tool is that we can use the bit numbers that are
-specified within the architecture document, with the additional odd IBM bit
-numbering scheme. Where the most significant bit has bit number 0(!).
 
-> diff --git a/arch/s390/include/asm/facilities.h b/arch/s390/include/asm/facilities.h
-> new file mode 100644
-> index 000000000000..c87f18d29217
-> --- /dev/null
-> +++ b/arch/s390/include/asm/facilities.h
-> @@ -0,0 +1,43 @@
-> +#ifndef __ASM_FACILITIES_H
-> +#define __ASM_FACILITIES_H
-> +
-> +#define FACILITIES_ALS \
-> +	_AC(IS_BUILTIN(CONFIG_HAVE_MARCH_Z900_FEATURES), UL) << 0 |	/* N3 instructions */ \
+2016-11-07 21:52 GMT+09:00 Paul Bolle <pebolle@tiscali.nl>:
+> On Sun, 2016-11-06 at 12:45 +0900, Masahiro Yamada wrote:
+>> The header facilities_src.h is only included from gen_facilities.c
+>> and the tool is compiled with the following extra options:
+>>
+>>     HOSTCFLAGS_gen_facilities.o += -Wall $(LINUXINCLUDE)
+>>
+>> Please note $(LINUXINCLUDE) is expanded into build options including:
+>>
+>>     -include $(srctree)/include/linux/kconfig.h
+>>
+>> So, the Makefile always forces the tool to include kconfig.h, i.e.,
+>> the #include <linux/kconfig.h> directive in the header is redundant.
+>
+> As far as I can see the only kernel header that gen_facilities.c is actually
+> interested in is autoconf.h. (autoconf.h will be included via in kconfig.h.)
+> So it seems the odd $(LINUXINCLUDE) variable in that Makefile could be
+> replaced with something like:
+>     -include $(srctree)/include/generated/autoconf.h
 
-So, this is wrong. It should be " << 63" to match the existing code.
 
-> +#define FACILITIES_KVM \
-> +	_BITUL(0)  |	/* N3 instructions */ \
-> +	_BITUL(1)  |	/* z/Arch mode installed */ \
-> +	_BITUL(2)  |	/* z/Arch mode active */ \
-> +	_BITUL(3)  |	/* DAT-enhancement */ \
-> +	_BITUL(4)  |	/* idte segment table */ \
-> +	_BITUL(5)  |	/* idte region table */ \
-> +	_BITUL(6)  |	/* ASN-and-LX reuse */ \
-> +	_BITUL(7)  |	/* stfle */ \
-> +	_BITUL(8)  |	/* enhanced-DAT 1 */ \
-> +	_BITUL(9)  |	/* sense-running-status */ \
-> +	_BITUL(10) |	/* conditional sske */ \
-> +	_BITUL(13) |	/* ipte-range */ \
-> +	_BITUL(14)  	/* nonquiescing key-setting */ \
-> +	, \
-> +	_BITUL(9)  |	/* transactional execution */ \
-> +	_BITUL(11) |	/* access-exception-fetch/store indication */ \
+This would break O= build because autoconf.h is a generated file.
 
-And this is exactly what I want to avoid: start counting from zero again if
-we cross a double word. It _must_ read 73, 75, otherwise this becomes the
-unmaintainable and error prone mess we had before.
+Rather, it should be
+      -include $(objtree)/include/generated/autoconf.h
 
-I just want a list with bit numbers and the rest must be created
-automatically.
+
+
+I thought of this at first, but I was not quite sure
+if the file path include/generated/autoconf.h is a guaranteed interface.
+
+
+Basically, now we are supposed to include autoconf.h via kconfig.h.
+
+So, I thought $(LINUXINCLUDE) is a more stable interface
+than specifying the exact path to autoconf.h
+
+I doubt that nobody would try to change it, but it is just two my cents.
+
+Anyway, arch/x86/boot/Makefile already
+referenced the path to autoconf.h
+
+
+So, if you want to change it, I will not oppose to it.
+
+
+
+-- 
+Best Regards
+Masahiro Yamada
