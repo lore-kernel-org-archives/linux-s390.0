@@ -1,104 +1,62 @@
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH] mm: kmemleak: scan .data.ro_after_init
-Date: Fri,  4 Nov 2016 15:42:53 +0000
-Message-ID: <1478274173-15218-1-git-send-email-jakub.kicinski@netronome.com>
-Return-path: <owner-linux-mm@kvack.org>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, Cong Wang <xiyou.wangcong@gmail.com>, Johannes Berg <johannes@sipsolutions.net>, Jakub Kicinski <jakub.kicinski@netronome.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <1478596565.29112.40.camel@tiscali.nl>
+Subject: Re: [PATCH 1/2] s390: delete unneeded #include <linux/kconfig.h>
+ from facilities_src.h
+From: Paul Bolle <pebolle@tiscali.nl>
+Date: Tue, 08 Nov 2016 10:16:05 +0100
+In-Reply-To: <CAK7LNATU4enycbY-ch68FGC5F7if7U=6yhS97GEgay3AK0tk3w@mail.gmail.com>
+References: <1478403928-20799-1-git-send-email-yamada.masahiro@socionext.com>
+         <1478523175.29112.7.camel@tiscali.nl>
+         <CAK7LNATU4enycbY-ch68FGC5F7if7U=6yhS97GEgay3AK0tk3w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Limit number of kmemleak's false positives by including
-.data.ro_after_init in memory scanning.  To achieve this we need to add
-symbols for start and end of the section to the linker scripts.
+Hi Mashiro,
 
-The problem has been uncovered by commit 56989f6d8568 ("genetlink: mark
-families as __ro_after_init").
+On Tue, 2016-11-08 at 10:50 +0900, Masahiro Yamada wrote:
+> 2016-11-07 21:52 GMT+09:00 Paul Bolle <pebolle@tiscali.nl>:
+> > So it seems the odd $(LINUXINCLUDE) variable in that Makefile could be
+> > replaced with something like:
+> >     -include $(srctree)/include/generated/autoconf.h
+> 
+> This would break O= build because autoconf.h is a generated file.
+> 
+> Rather, it should be
+>       -include $(objtree)/include/generated/autoconf.h
 
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
----
-Since the RFC I dropped the use of VMLINUX_SYMBOL().  Please advise if it
-should be added back.
----
- arch/s390/kernel/vmlinux.lds.S    | 2 ++
- include/asm-generic/sections.h    | 3 +++
- include/asm-generic/vmlinux.lds.h | 5 ++++-
- mm/kmemleak.c                     | 1 +
- 4 files changed, 10 insertions(+), 1 deletion(-)
+Three cheers for weasel words like "something like"!
 
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index 000e6e91f6a0..3667d20e997f 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -62,9 +62,11 @@ SECTIONS
- 
- 	. = ALIGN(PAGE_SIZE);
- 	__start_ro_after_init = .;
-+	__start_data_ro_after_init = .;
- 	.data..ro_after_init : {
- 		 *(.data..ro_after_init)
- 	}
-+	__end_data_ro_after_init = .;
- 	EXCEPTION_TABLE(16)
- 	. = ALIGN(PAGE_SIZE);
- 	__end_ro_after_init = .;
-diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
-index af0254c09424..4df64a1fc09e 100644
---- a/include/asm-generic/sections.h
-+++ b/include/asm-generic/sections.h
-@@ -14,6 +14,8 @@
-  * [_sdata, _edata]: contains .data.* sections, may also contain .rodata.*
-  *                   and/or .init.* sections.
-  * [__start_rodata, __end_rodata]: contains .rodata.* sections
-+ * [__start_data_ro_after_init, __end_data_ro_after_init]:
-+ *		     contains data.ro_after_init section
-  * [__init_begin, __init_end]: contains .init.* sections, but .init.text.*
-  *                   may be out of this range on some architectures.
-  * [_sinittext, _einittext]: contains .init.text.* sections
-@@ -31,6 +33,7 @@
- extern char __bss_start[], __bss_stop[];
- extern char __init_begin[], __init_end[];
- extern char _sinittext[], _einittext[];
-+extern char __start_data_ro_after_init[], __end_data_ro_after_init[];
- extern char _end[];
- extern char __per_cpu_load[], __per_cpu_start[], __per_cpu_end[];
- extern char __kprobes_text_start[], __kprobes_text_end[];
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index 30747960bc54..31e1d639abed 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -259,7 +259,10 @@
-  * own by defining an empty RO_AFTER_INIT_DATA.
-  */
- #ifndef RO_AFTER_INIT_DATA
--#define RO_AFTER_INIT_DATA *(.data..ro_after_init)
-+#define RO_AFTER_INIT_DATA						\
-+	__start_data_ro_after_init = .;					\
-+	*(.data..ro_after_init)						\
-+	__end_data_ro_after_init = .;
- #endif
- 
- /*
-diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-index e5355a5b423f..d1380ed93fdf 100644
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -1414,6 +1414,7 @@ static void kmemleak_scan(void)
- 	/* data/bss scanning */
- 	scan_large_block(_sdata, _edata);
- 	scan_large_block(__bss_start, __bss_stop);
-+	scan_large_block(__start_data_ro_after_init, __end_data_ro_after_init);
- 
- #ifdef CONFIG_SMP
- 	/* per-cpu sections scanning */
--- 
-1.9.1
+> I thought of this at first, but I was not quite sure
+> if the file path include/generated/autoconf.h is a guaranteed interface.
+> 
+> Basically, now we are supposed to include autoconf.h via kconfig.h.
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Yes, that seems to go back to commit 2a11c8ea20bf ("kconfig: Introduce
+IS_ENABLED(), IS_BUILTIN() and IS_MODULE()"). And when the current approach to
+the IS_*() macros was introduced - with that breathtaking hack that introduced
+__is_defined() - this was no longer needed but was not changed again.
+
+> So, I thought $(LINUXINCLUDE) is a more stable interface
+> than specifying the exact path to autoconf.h
+> 
+> I doubt that nobody would try to change it, but it is just two my cents.
+
+A bit of cruft accumulated around LINUXINCLUDE: a few dubious uses of it (and
+I think this is one of those); typos (ie, LINUX_INCLUDE); the pointless
+USERINCLUDE; things like that. It would be nice to remove that cruft. But it
+needs to be done carefully.
+
+> Anyway, arch/x86/boot/Makefile already
+> referenced the path to autoconf.h
+> 
+> So, if you want to change it, I will not oppose to it.
+
+
+Paul Bolle
