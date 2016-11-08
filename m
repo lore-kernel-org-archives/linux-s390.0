@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1478596565.29112.40.camel@tiscali.nl>
-Subject: Re: [PATCH 1/2] s390: delete unneeded #include <linux/kconfig.h>
- from facilities_src.h
+Message-ID: <1478596703.29112.42.camel@tiscali.nl>
+Subject: Re: [PATCH 2/2] s390: squash facilities_src.h into gen_facilities.c
 From: Paul Bolle <pebolle@tiscali.nl>
-Date: Tue, 08 Nov 2016 10:16:05 +0100
-In-Reply-To: <CAK7LNATU4enycbY-ch68FGC5F7if7U=6yhS97GEgay3AK0tk3w@mail.gmail.com>
+Date: Tue, 08 Nov 2016 10:18:23 +0100
+In-Reply-To: <20161107133807.GB4075@osiris>
 References: <1478403928-20799-1-git-send-email-yamada.masahiro@socionext.com>
-         <1478523175.29112.7.camel@tiscali.nl>
-         <CAK7LNATU4enycbY-ch68FGC5F7if7U=6yhS97GEgay3AK0tk3w@mail.gmail.com>
+         <1478403928-20799-2-git-send-email-yamada.masahiro@socionext.com>
+         <20161107070322.GA4075@osiris> <20161107105005.3477a324@mschwide>
+         <1478524386.29112.18.camel@tiscali.nl> <20161107133807.GB4075@osiris>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-s390@vger.kernel.org, Sascha Silbe <silbe@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Mashiro,
-
-On Tue, 2016-11-08 at 10:50 +0900, Masahiro Yamada wrote:
-> 2016-11-07 21:52 GMT+09:00 Paul Bolle <pebolle@tiscali.nl>:
-> > So it seems the odd $(LINUXINCLUDE) variable in that Makefile could be
-> > replaced with something like:
-> >     -include $(srctree)/include/generated/autoconf.h
+On Mon, 2016-11-07 at 14:38 +0100, Heiko Carstens wrote:
+> On Mon, Nov 07, 2016 at 02:13:06PM +0100, Paul Bolle wrote:
+> > --- /dev/null
+> > +++ b/arch/s390/include/asm/facilities.h
+> > @@ -0,0 +1,43 @@
+> > +#ifndef __ASM_FACILITIES_H
+> > +#define __ASM_FACILITIES_H
+> > +
+> > +#define FACILITIES_ALS \
+> > +	_AC(IS_BUILTIN(CONFIG_HAVE_MARCH_Z900_FEATURES), UL) << 0 |	/* N3 instructions */ \
 > 
-> This would break O= build because autoconf.h is a generated file.
+> So, this is wrong. It should be " << 63" to match the existing code.
+
+Bother.
+
+> > +#define FACILITIES_KVM \
+> > +	_BITUL(0)  |	/* N3 instructions */ \
+> > +	_BITUL(1)  |	/* z/Arch mode installed */ \
+> > +	_BITUL(2)  |	/* z/Arch mode active */ \
+> > +	_BITUL(3)  |	/* DAT-enhancement */ \
+> > +	_BITUL(4)  |	/* idte segment table */ \
+> > +	_BITUL(5)  |	/* idte region table */ \
+> > +	_BITUL(6)  |	/* ASN-and-LX reuse */ \
+> > +	_BITUL(7)  |	/* stfle */ \
+> > +	_BITUL(8)  |	/* enhanced-DAT 1 */ \
+> > +	_BITUL(9)  |	/* sense-running-status */ \
+> > +	_BITUL(10) |	/* conditional sske */ \
+> > +	_BITUL(13) |	/* ipte-range */ \
+> > +	_BITUL(14)  	/* nonquiescing key-setting */ \
+> > +	, \
+> > +	_BITUL(9)  |	/* transactional execution */ \
+> > +	_BITUL(11) |	/* access-exception-fetch/store indication */ \
 > 
-> Rather, it should be
->       -include $(objtree)/include/generated/autoconf.h
-
-Three cheers for weasel words like "something like"!
-
-> I thought of this at first, but I was not quite sure
-> if the file path include/generated/autoconf.h is a guaranteed interface.
+> And this is exactly what I want to avoid: start counting from zero again if
+> we cross a double word. It _must_ read 73, 75, otherwise this becomes the
+> unmaintainable and error prone mess we had before.
 > 
-> Basically, now we are supposed to include autoconf.h via kconfig.h.
+> I just want a list with bit numbers and the rest must be created
+> automatically.
 
-Yes, that seems to go back to commit 2a11c8ea20bf ("kconfig: Introduce
-IS_ENABLED(), IS_BUILTIN() and IS_MODULE()"). And when the current approach to
-the IS_*() macros was introduced - with that breathtaking hack that introduced
-__is_defined() - this was no longer needed but was not changed again.
+This sounds like a can of worms. Better keep it closed.
 
-> So, I thought $(LINUXINCLUDE) is a more stable interface
-> than specifying the exact path to autoconf.h
-> 
-> I doubt that nobody would try to change it, but it is just two my cents.
-
-A bit of cruft accumulated around LINUXINCLUDE: a few dubious uses of it (and
-I think this is one of those); typos (ie, LINUX_INCLUDE); the pointless
-USERINCLUDE; things like that. It would be nice to remove that cruft. But it
-needs to be done carefully.
-
-> Anyway, arch/x86/boot/Makefile already
-> referenced the path to autoconf.h
-> 
-> So, if you want to change it, I will not oppose to it.
+Thanks,
 
 
 Paul Bolle
