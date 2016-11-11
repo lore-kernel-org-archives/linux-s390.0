@@ -1,13 +1,14 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 02/11] NFSv4.1: work around -Wmaybe-uninitialized warning
-Date: Thu, 10 Nov 2016 17:44:45 +0100
-Message-ID: <20161110164454.293477-3-arnd@arndb.de>
+Subject: Re: [PATCH v2 00/11] getting back -Wmaybe-uninitialized
+Date: Fri, 11 Nov 2016 20:49:48 +0100
+Message-ID: <2695221.kyRJMsRMjs@wuerfel>
 References: <20161110164454.293477-1-arnd@arndb.de>
+ <CA+55aFx_scFVFKU__TBmoffw_iHvrdAU2dj5u1WKfWJXAkS4QA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20161110164454.293477-1-arnd@arndb.de>
+In-Reply-To: <CA+55aFx_scFVFKU__TBmoffw_iHvrdAU2dj5u1WKfWJXAkS4QA@mail.gmail.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
@@ -20,53 +21,59 @@ Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead
 List-Archive: <https://lore.kernel.org/linux-crypto/>
 List-Post: <mailto:linux-crypto@vger.kernel.org>
 To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Sean Young <sean@mess.org>, Trond Myklebust <trond.myklebust@primarydata.com>, linux-s390@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, x86@kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Russell King <linux@armlinux.org.uk>, Javier Martinez Canillas <javier@osg.samsung.com>, Ilya Dryomov <idryomov@gmail.com>, linux-snps-arc@lists.infradead.org, linux-media@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Michal Marek <mmarek@suse.com>, nios2-dev@lists.rocketboards.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-nfs@vger.kernel.org, linux-kernel@vger.kernel.org, Anna Schumaker <anna.schumaker@netapp.com>, "Luis R . Rodriguez" <mcgrof@kernel.org>, linux-crypto@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ley Foon Tan <lftan@altera.com>, Andrew Morton <akpm@linux-found>
+Cc: Sean Young <sean@mess.org>, sayli karnik <karniksayli1995@gmail.com>, Trond Myklebust <trond.myklebust@primarydata.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-s390 <linux-s390@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, the arch/x86 maintainers <x86@kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Russell King <linux@armlinux.org.uk>, Javier Martinez Canillas <javier@osg.samsung.com>, Ilya Dryomov <idryomov@gmail.com>, arcml <linux-snps-arc@lists.infradead.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Mark Brown <broonie@kernel.org>, nios2-dev@lists.rocketboards.org, Mauro Carvalho Chehab <mchehab@kernel.org>, Linux NFS Mailing List <linux-nfs@vger.kernel.org>, gregkh@linuxfoundation.orgLinux Kernel Mailing List <linux>
 List-ID: <linux-s390.vger.kernel.org>
 
-A bugfix introduced a harmless gcc warning in nfs4_slot_seqid_in_use
-if we enable -Wmaybe-uninitialized again:
-
-fs/nfs/nfs4session.c:203:54: error: 'cur_seq' may be used uninitialized in this function [-Werror=maybe-uninitialized]
-
-gcc is not smart enough to conclude that the IS_ERR/PTR_ERR pair
-results in a nonzero return value here. Using PTR_ERR_OR_ZERO()
-instead makes this clear to the compiler.
-
-Fixes: e09c978aae5b ("NFSv4.1: Fix Oopsable condition in server callback races")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-First submitted on Aug 31, but ended up not getting applied then
-as the warning was disabled in v4.8-rc
-
-Anna Schumaker said at the kernel summit that she had applied
-it and would send it for 4.9, but as of 2016-11-09 it has not
-made it into linux-next.
-
- fs/nfs/nfs4session.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/fs/nfs/nfs4session.c b/fs/nfs/nfs4session.c
-index b629730..150c5a1 100644
---- a/fs/nfs/nfs4session.c
-+++ b/fs/nfs/nfs4session.c
-@@ -178,12 +178,14 @@ static int nfs4_slot_get_seqid(struct nfs4_slot_table  *tbl, u32 slotid,
- 	__must_hold(&tbl->slot_tbl_lock)
- {
- 	struct nfs4_slot *slot;
-+	int ret;
- 
- 	slot = nfs4_lookup_slot(tbl, slotid);
--	if (IS_ERR(slot))
--		return PTR_ERR(slot);
--	*seq_nr = slot->seq_nr;
--	return 0;
-+	ret = PTR_ERR_OR_ZERO(slot);
-+	if (!ret)
-+		*seq_nr = slot->seq_nr;
-+
-+	return ret;
- }
- 
- /*
--- 
-2.9.0
+T24gRnJpZGF5LCBOb3ZlbWJlciAxMSwgMjAxNiA5OjEzOjAwIEFNIENFVCBMaW51cyBUb3J2YWxk
+cyB3cm90ZToKPiBPbiBUaHUsIE5vdiAxMCwgMjAxNiBhdCA4OjQ0IEFNLCBBcm5kIEJlcmdtYW5u
+IDxhcm5kQGFybmRiLmRlPiB3cm90ZToKPiA+Cj4gPiBQbGVhc2UgbWVyZ2UgdGhlc2UgZGlyZWN0
+bHkgaWYgeW91IGFyZSBoYXBweSB3aXRoIHRoZSByZXN1bHQuCj4gCj4gSSB3aWxsIHRha2UgdGhp
+cy4KClRoYW5rcyBhIGxvdCEKIAo+IEkgZG8gc2VlIHR3byB3YXJuaW5ncywgYnV0IHRoZXkgYm90
+aCBzZWVtIHRvIGJlIHZhbGlkIGFuZCByZWNlbnQsCj4gdGhvdWdoLCBzbyBJIGhhdmUgbm8gaXNz
+dWVzIHdpdGggdGhlIHNwdXJpb3VzIGNhc2VzLgoKT2ssIGJvdGggb2YgdGhlbSBzaG91bGQgaGF2
+ZSBteSBmaXhlcyBjb21pbmcgeW91ciB3YXkgYWxyZWFkeS4KCj4gV2FybmluZyAjMToKPiAKPiAg
+IHNvdW5kL3NvYy9xY29tL2xwYXNzLXBsYXRmb3JtLmM6IEluIGZ1bmN0aW9uIOKAmGxwYXNzX3Bs
+YXRmb3JtX3BjbW9wc19vcGVu4oCZOgo+ICAgc291bmQvc29jL3Fjb20vbHBhc3MtcGxhdGZvcm0u
+Yzo4MzoyOTogd2FybmluZzog4oCYZG1hX2No4oCZIG1heSBiZSB1c2VkCj4gdW5pbml0aWFsaXpl
+ZCBpbiB0aGlzIGZ1bmN0aW9uIFstV21heWJlLXVuaW5pdGlhbGl6ZWRdCj4gICAgIGRydmRhdGEt
+PnN1YnN0cmVhbVtkbWFfY2hdID0gc3Vic3RyZWFtOwo+ICAgICB+fn5+fn5+fn5+fn5+fn5+fn5+
+fn5+fn5+fn5efn5+fn5+fn5+fgo+IAo+IGFuZCAnZG1hX2NoJyB1c2FnZSB0aGVyZSByZWFsbHkg
+aXMgY3JhenkgYW5kIHdyb25nLiBCcm9rZW4gYnkKPiAwMjJkMDBlZTBiNTUgKCJBU29DOiBscGFz
+cy1wbGF0Zm9ybTogRml4IGJyb2tlbiBwY20gZGF0YSB1c2FnZSIpCgpSaWdodCwgdGhlIHBhdGNo
+ZXMgY3Jvc3NlZCBoZXJlLCB0aGUgYnVnZml4IHBhdGNoIHRoYXQgaW50cm9kdWNlZAp0aGlzIGNh
+bWUgaW50byBsaW51eC1uZXh0IG92ZXIgdGhlIGtlcm5lbCBzdW1taXQsIGFuZCB0aGUgZml4IEkK
+c2VudCBvbiBUdWVzZGF5IG1hZGUgaXQgaW50byBNYXJrIEJyb3duJ3MgdHJlZSBvbiBXZWRuZXNk
+YXkgYnV0IG5vdApiZWZvcmUgeW91IHB1bGxlZCBhbHNhIHRyZWUuIEl0IHNob3VsZCBiZSBmaXhl
+ZCB0aGUgbmV4dCB0aW1lIHlvdQpwdWxsIGZyb20gdGhlIGFsc2EgdHJlZSwgdGhlIGNvbW1pdCBp
+cwoKM2I4OWU0Yjc3ZWY5ICgiQVNvQzogbHBhc3MtcGxhdGZvcm06IGluaXRpYWxpemUgZG1hIGNo
+YW5uZWwgbnVtYmVyIikKIAo+IFdhcm5pbmcgIzIgaXMgbm90IGEgcmVhbCBidWcsIGJ1dCBpdCdz
+IHJlYXNvbmFibGUgdGhhdCBnY2MgZG9lc24ndAo+IGtub3cgdGhhdCBzdG9yYWdlX2J5dGVzIChj
+aGlwLT5yZWFkX3NpemUpIGhhcyB0byBiZSAyLzQuIEFnYWluLAo+IGludHJvZHVjZWQgcmVjZW50
+bHkgYnkgY29tbWl0IDIzMTE0N2VlNzdmMyAoImlpbzogbWF4aW1fdGhlcm1vY291cGxlOgo+IEFs
+aWduIDE2IGJpdCBiaWcgZW5kaWFuIHZhbHVlIG9mIHJhdyByZWFkcyIpLCBzbyB5b3UgZGlkbid0
+IHNlZSBpdC4KClRoaXMgaXMgdGhlIG9uZSBJIG1lbnRpb25lZCBpbiB0aGUgY29tbWl0IG1lc3Nh
+Z2UgYXMgb25lIHRoYXQKaXMgZml4ZWQgaW4gbGludXgtbmV4dCBhbmQgdGhhdCBzaG91bGQgbWFr
+ZSBpdCBpbiBzb29uLgoKPiAgIGRyaXZlcnMvaWlvL3RlbXBlcmF0dXJlL21heGltX3RoZXJtb2Nv
+dXBsZS5jOiBJbiBmdW5jdGlvbgo+IOKAmG1heGltX3RoZXJtb2NvdXBsZV9yZWFkX3Jhd+KAmToK
+PiAgIGRyaXZlcnMvaWlvL3RlbXBlcmF0dXJlL21heGltX3RoZXJtb2NvdXBsZS5jOjE0MTo1OiB3
+YXJuaW5nOiDigJhyZXTigJkKPiBtYXkgYmUgdXNlZCB1bmluaXRpYWxpemVkIGluIHRoaXMgZnVu
+Y3Rpb24gWy1XbWF5YmUtdW5pbml0aWFsaXplZF0KPiAgICAgaWYgKHJldCkKPiAgICAgICAgXgo+
+ICAgZHJpdmVycy9paW8vdGVtcGVyYXR1cmUvbWF4aW1fdGhlcm1vY291cGxlLmM6MTI4OjY6IG5v
+dGU6IOKAmHJldOKAmSB3YXMKPiBkZWNsYXJlZCBoZXJlCj4gICAgIGludCByZXQ7Cj4gICAgICAg
+ICBefn4KPiAKPiBhbmQgSSBndWVzcyB0aGF0IGNvZGUgY2FuIGp1c3QgaW5pdGlhbGl6ZSAncmV0
+JyB0byAnLUVJTlZBTCcgb3IKPiBzb21ldGhpbmcgdG8ganVzdCBtYWtlIHRoZSB0aGVvcmV0aWNh
+bCAic29tZWhvdyB3ZSBoYWQgYSB3cm9uZwo+IGNoaXAtPnJlYWRfc2l6ZSIgY2FzZSBlcnJvciBv
+dXQgY2xlYW5seS4KClJpZ2h0LCB0aGF0IHdhcyBteSBjb25jbHVzaW9uIHRvby4gSSBzZW50IHRo
+ZSBidWdmaXggb24gT2N0IDI1CmZvciBsaW51eC1uZXh0IGJ1dCBpdCBkaWRuJ3QgbWFrZSBpdCBp
+biB1bnRpbCB0aGlzIE1vbmRheSwgYWZ0ZXIKeW91IHB1bGxlZCB0aGUgcGF0Y2ggdGhhdCBpbnRy
+b2R1Y2VkIGl0IG9uIE9jdCAyOS4KClRoZSBjb21taXQgaW4gc3RhZ2luZy10ZXN0aW5nIGlzCjMy
+Y2I3ZDI3ZTY1ZCAoImlpbzogbWF4aW1fdGhlcm1vY291cGxlOiBkZXRlY3QgaW52YWxpZCBzdG9y
+YWdlIHNpemUgaW4gcmVhZCgpIikKCkdyZWcgYW5kIEpvbmF0aGFuLCBJIHNlZSBub3cgdGhhdCB0
+aGlzIGlzIHBhcnQgb2YgdGhlICdpaW8tZm9yLTQuMTBiJwpicmFuY2gsIHNvIEkgc3VzcGVjdCB5
+b3Ugd2VyZSBub3QgcGxhbm5pbmcgdG8gc2VuZCB0aGlzIGJlZm9yZSB0aGUKbWVyZ2Ugd2luZG93
+LiBDb3VsZCB5b3UgbWFrZSBzdXJlIHRoaXMgZW5kcyB1cCBpbiB2NC45IHNvIHdlIGdldAphIGNs
+ZWFuIGJ1aWxkIHdoZW4gLVdtYXliZS11bmluaXRpYWxpemVkIGdldHMgZW5hYmxlZCBhZ2Fpbj8K
+CglBcm5kCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwps
+aW51eC1zbnBzLWFyYyBtYWlsaW5nIGxpc3QKbGludXgtc25wcy1hcmNAbGlzdHMuaW5mcmFkZWFk
+Lm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LXNu
+cHMtYXJj
