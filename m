@@ -4,18 +4,18 @@ Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
 From: Ben Hutchings <ben@decadent.org.uk>
-Date: Mon, 14 Nov 2016 00:14:07 +0000
-Message-ID: <lsq.1479082447.763513823@decadent.org.uk>
-Subject: [PATCH 3.2 049/152] s390: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
-In-Reply-To: <lsq.1479082446.271293126@decadent.org.uk>
+Date: Mon, 14 Nov 2016 00:14:20 +0000
+Message-ID: <lsq.1479082460.882252445@decadent.org.uk>
+Subject: [PATCH 3.16 135/346] s390: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
+In-Reply-To: <lsq.1479082458.755945576@decadent.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: akpm@linux-foundation.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, James Hogan <james.hogan@imgtec.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, James Hogan <james.hogan@imgtec.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-3.2.84-rc1 review patch.  If anyone has any objections, please let me know.
+3.16.39-rc1 review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -39,16 +39,15 @@ Signed-off-by: James Hogan <james.hogan@imgtec.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux-s390@vger.kernel.org
-[bwh: Backported to 3.2: adjust filename]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/s390/include/asm/elf.h    | 1 +
- arch/s390/include/asm/auxvec.h | 2 ++
+ arch/s390/include/asm/elf.h         | 1 +
+ arch/s390/include/uapi/asm/auxvec.h | 2 ++
  2 files changed, 3 insertions(+)
 
 --- a/arch/s390/include/asm/elf.h
 +++ b/arch/s390/include/asm/elf.h
-@@ -199,6 +199,7 @@ do {								\
+@@ -210,6 +210,7 @@ do {								\
  
  #define STACK_RND_MASK	0x7ffUL
  
@@ -56,8 +55,8 @@ Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
  #define ARCH_DLINFO							    \
  do {									    \
  	if (vdso_enabled)						    \
---- a/arch/s390/include/asm/auxvec.h
-+++ b/arch/s390/include/asm/auxvec.h
+--- a/arch/s390/include/uapi/asm/auxvec.h
++++ b/arch/s390/include/uapi/asm/auxvec.h
 @@ -3,4 +3,6 @@
  
  #define AT_SYSINFO_EHDR		33
