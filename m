@@ -1,95 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 25 Nov 2016 10:05:49 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: next: s390 crash due to 's390: move sys_call_table and
- last_break from thread_info to thread_struct'
-In-Reply-To: <a6c571e2-412a-b344-b20a-d813851a1419@roeck-us.net>
-References: <20161115153554.GA22064@roeck-us.net>
-        <20161115165416.00dbc85d@mschwide>
-        <a6c571e2-412a-b344-b20a-d813851a1419@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20161125100549.2ea9dda4@mschwide>
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Mon, 14 Nov 2016 00:14:07 +0000
+Message-ID: <lsq.1479082447.763513823@decadent.org.uk>
+Subject: [PATCH 3.2 049/152] s390: Define AT_VECTOR_SIZE_ARCH for ARCH_DLINFO
+In-Reply-To: <lsq.1479082446.271293126@decadent.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: akpm@linux-foundation.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, James Hogan <james.hogan@imgtec.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Guenter,
+3.2.84-rc1 review patch.  If anyone has any objections, please let me know.
 
-On Thu, 24 Nov 2016 12:53:52 -0800
-Guenter Roeck <linux@roeck-us.net> wrote:
+------------------
 
-> > Thanks for the report. Builds for Z900 and Z990 are borked. This hunk
-> >
-> > @@ -287,7 +292,13 @@ ENTRY(system_call)
-> >         mvc     __PT_INT_CODE(4,%r11),__LC_SVC_ILC
-> >         stg     %r14,__PT_FLAGS(%r11)
-> >  .Lsysc_do_svc:
-> > -       lg      %r10,__TI_sysc_table(%r12)      # address of system call table
-> > +       # load address of system call table
-> > +#ifdef CONFIG_HAVE_MARCH_Z990_FEATURES
-> > +       lg      %r10,__TASK_thread+__THREAD_sysc_table(%r12)
-> > +#else
-> > +       lghi    %r10,__TASK_thread
-> > +       lg      %r10,__THREAD_sysc_table(%r10,%r12)
-> > +#endif
-> >         llgh    %r8,__PT_INT_CODE+2(%r11)
-> >         slag    %r8,%r8,2                       # shift and test for svc 0
-> >         jnz     .Lsysc_nr_ok
-> >
-> > makes ill use of %r10 in the #else part. Should be fixed now and tomorrows -next
-> > tree will have the fix. Thanks again.
-> >
-> 
-> This is still crashing in -next with exactly the same message.
+From: James Hogan <james.hogan@imgtec.com>
 
-Yes, it is (note to myself: don't do things in a hurry). The patch below
-gets linux-next booting again for CONFIG_MARCH_Z900=y on my test system.
-Sorry about the trouble.
+commit 68c5cf5a6091c2c3fabccfd42ca844d730ec24c6 upstream.
 
---
-From 2ec05f7c28963c12e9618e9f7f3b29edcec40482 Mon Sep 17 00:00:00 2001
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Fri, 25 Nov 2016 09:53:42 +0100
-Subject: [PATCH] s390: fix kernel oops for CONFIG_MARCH_Z900=y builds
+AT_VECTOR_SIZE_ARCH should be defined with the maximum number of
+NEW_AUX_ENT entries that ARCH_DLINFO can contain, but it wasn't defined
+for s390 at all even though ARCH_DLINFO can contain one NEW_AUX_ENT when
+VDSO is enabled.
 
-The LAST_BREAK macro in entry.S uses a different instruction sequence
-for CONFIG_MARCH_Z900 builds. The branch target offset to skip the
-store of the last breaking event address needs to take the different
-length of the code block into account.
+This shouldn't be a problem as AT_VECTOR_SIZE_BASE includes space for
+AT_BASE_PLATFORM which s390 doesn't use, but lets define it now and add
+the comment above ARCH_DLINFO as found in several other architectures to
+remind future modifiers of ARCH_DLINFO to keep AT_VECTOR_SIZE_ARCH up to
+date.
 
-Fixes: f8fc82b47149e344 ("s390: move sys_call_table and last_break from thread_info to thread_struct")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: b020632e40c3 ("[S390] introduce vdso on s390")
+Signed-off-by: James Hogan <james.hogan@imgtec.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+[bwh: Backported to 3.2: adjust filename]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/s390/kernel/entry.S | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/elf.h    | 1 +
+ arch/s390/include/asm/auxvec.h | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 1cc4578..e2e47f7 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -123,10 +123,11 @@ _PIF_WORK	= (_PIF_PER_TRAP)
+--- a/arch/s390/include/asm/elf.h
++++ b/arch/s390/include/asm/elf.h
+@@ -199,6 +199,7 @@ do {								\
  
- 	.macro	LAST_BREAK scratch
- 	srag	\scratch,%r10,23
--	jz	.+10
- #ifdef CONFIG_HAVE_MARCH_Z990_FEATURES
-+	jz	.+10
- 	stg	%r10,__TASK_thread+__THREAD_last_break(%r12)
- #else
-+	jz	.+14
- 	lghi	\scratch,__TASK_thread
- 	stg	%r10,__THREAD_last_break(\scratch,%r12)
+ #define STACK_RND_MASK	0x7ffUL
+ 
++/* update AT_VECTOR_SIZE_ARCH if the number of NEW_AUX_ENT entries changes */
+ #define ARCH_DLINFO							    \
+ do {									    \
+ 	if (vdso_enabled)						    \
+--- a/arch/s390/include/asm/auxvec.h
++++ b/arch/s390/include/asm/auxvec.h
+@@ -3,4 +3,6 @@
+ 
+ #define AT_SYSINFO_EHDR		33
+ 
++#define AT_VECTOR_SIZE_ARCH 1 /* entries in ARCH_DLINFO */
++
  #endif
--- 
-2.8.4
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
