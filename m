@@ -1,32 +1,17 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Fri, 14 Oct 2016 10:24:55 +0000
-Subject: Re: [PATCH 1/1] s390: mm: use hugetlb_bad_size()
-Message-Id: <20161014102455.GB4047@osiris>
-In-Reply-To: <1476375607-7973-1-git-send-email-mayhs11saini@gmail.com>
-References: <1476375607-7973-1-git-send-email-mayhs11saini@gmail.com>
-To: linux-s390@vger.kernel.org
+From: Linux-rockchip <design@formlegno.it>
+Subject: =?utf-8?B?anVzdCBhIG1lc3NhZ2U=?=
+Date: Sat, 19 Nov 2016 00:20:06 +0300
+Message-ID: <00001fe7259f$1df9e396$74156fa8$@rock-chips.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-ia64-owner@vger.kernel.org>
+Sender: linux-ia64-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-pwm/>
+List-Post: <mailto:linux-pwm@vger.kernel.org>
+To: linux-pwm <linux-pwm@vger.kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, jwerner <jwerner@chromium.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Oct 13, 2016 at 09:50:07PM +0530, Shyam Saini wrote:
-> Update setup_hugepagesz() to call hugetlb_bad_size() when unsupported
-> hugepage size is found.
-> 
-> ----------
-> This patch is not tested on actual s390 architecture
-> 
-> Signed-off-by: Shyam Saini <mayhs11saini@gmail.com>
-> ---
->  arch/s390/mm/hugetlbpage.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-> index cd404aa..4a0c5bc 100644
-> --- a/arch/s390/mm/hugetlbpage.c
-> +++ b/arch/s390/mm/hugetlbpage.c
-> @@ -217,6 +217,7 @@ static __init int setup_hugepagesz(char *opt)
->  	} else if (MACHINE_HAS_EDAT2 && size == PUD_SIZE) {
->  		hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
->  	} else {
-> +		hugetlb_bad_size();
-
-Applied, thanks!
+R3JlZXRpbmdzISANCg0KSSBqdXN0IHdhbnRlZCAgdG8gc2F5IGhpIGFuZCBzaG93ICB5b3Ugc29tZXRo
+aW5nICBpbnRlcmVzdGluZyAgYW5kIHdvdHJoeSwgIGp1c3QgdGFrZSBhIGxvb2sgIGhlcmUgPGh0dHA6
+Ly9kYXRlLnZlZ2dpZXRhbGsuY29tL2U0dmEvND4NCg0KTXkgQmVzdCwgTGludXgtcm9ja2NoaXANCg==
