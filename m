@@ -1,37 +1,78 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] s390/crypto: unlock on error in prng_tdes_read()
-Date: Fri, 18 Nov 2016 14:11:00 +0300
-Message-ID: <20161118105451.GA26523@mwanda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-crypto-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 24 Nov 2016 10:10:46 +0100
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 12/20] net/iucv: Convert to hotplug state machine
+Message-ID: <20161124091046.hixy3j4ibt7xzezr@linutronix.de>
+References: <20161117183541.8588-1-bigeasy@linutronix.de>
+ <20161117183541.8588-13-bigeasy@linutronix.de>
+ <62f8abea-093c-cac5-ffb1-7b8710aa0a91@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Sender: linux-crypto-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-crypto/>
-List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Harald Freudenberger <freude@linux.vnet.ibm.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org
+In-Reply-To: <62f8abea-093c-cac5-ffb1-7b8710aa0a91@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, rt@linutronix.de, "David S. Miller" <davem@davemloft.net>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-We added some new locking but forgot to unlock on error.
+On 2016-11-23 19:04:16 [+0100], Ursula Braun wrote:
+> Sebastian,
+Hallo Ursula,
 
-Fixes: 57127645d79d ("s390/zcrypt: Introduce new SHA-512 based Pseudo Random Generator.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> your patch looks good to me. I run successfully some small tests with it.
+> I want to suggest a small change in iucv_init() to keep the uniform technique
+> of undo labels below. Do you agree?
 
-diff --git a/arch/s390/crypto/prng.c b/arch/s390/crypto/prng.c
-index 9cc050f..1113389 100644
---- a/arch/s390/crypto/prng.c
-+++ b/arch/s390/crypto/prng.c
-@@ -507,8 +507,10 @@ static ssize_t prng_tdes_read(struct file *file, char __user *ubuf,
- 		prng_data->prngws.byte_counter += n;
- 		prng_data->prngws.reseed_counter += n;
+So what you ask for is:
+
+diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+index f0d6afc5d4a9..8f7ef167c45a 100644
+--- a/net/iucv/iucv.c
++++ b/net/iucv/iucv.c
+@@ -2038,16 +2038,16 @@ static int __init iucv_init(void)
+ 	rc = cpuhp_setup_state(CPUHP_NET_IUCV_PREPARE, "net/iucv:prepare",
+ 			       iucv_cpu_prepare, iucv_cpu_dead);
+ 	if (rc)
+-		goto out_free;
++		goto out_dev;
+ 	rc = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "net/iucv:online",
+ 			       iucv_cpu_online, iucv_cpu_down_prep);
+ 	if (rc < 0)
+-		goto out_free;
++		goto out_prep;
+ 	iucv_online = rc;
  
--		if (copy_to_user(ubuf, prng_data->buf, chunk))
--			return -EFAULT;
-+		if (copy_to_user(ubuf, prng_data->buf, chunk)) {
-+			ret = -EFAULT;
-+			break;
-+		}
+ 	rc = register_reboot_notifier(&iucv_reboot_notifier);
+ 	if (rc)
+-		goto out_free;
++		goto out_remove_hp;
+ 	ASCEBC(iucv_error_no_listener, 16);
+ 	ASCEBC(iucv_error_no_memory, 16);
+ 	ASCEBC(iucv_error_pathid, 16);
+@@ -2061,11 +2061,11 @@ static int __init iucv_init(void)
  
- 		nbytes -= chunk;
- 		ret += chunk;
+ out_reboot:
+ 	unregister_reboot_notifier(&iucv_reboot_notifier);
+-out_free:
+-	if (iucv_online)
+-		cpuhp_remove_state(iucv_online);
++out_remove_hp:
++	cpuhp_remove_state(iucv_online);
++out_prep:
+ 	cpuhp_remove_state(CPUHP_NET_IUCV_PREPARE);
+-
++out_dev:
+ 	root_device_unregister(iucv_root);
+ out_int:
+ 	unregister_external_irq(EXT_IRQ_IUCV, iucv_external_interrupt);
+
+This is your change including the removal of the `if' check in the
+`out_remove' label which got renamed to `out_remove_hp'.
+Of course, I agree with this change and a proper patch will follow in a
+few hours if nobody objects.
+
+> Kind regards, Ursula
+
+Sebastian
