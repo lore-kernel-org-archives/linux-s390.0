@@ -1,57 +1,89 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Wed, 16 Nov 2016 14:11:09 +0000
-Subject: [bug report] s390/time: steer clocksource on STP sync events
-Message-Id: <20161116132428.GA4282@mwanda>
+From: Harald Freudenberger <freude@linux.vnet.ibm.com>
+Date: Wed, 30 Nov 2016 15:18:21 +0000
+Subject: Re: [PATCH] s390/zcrypt: Convert to PM ops
+Message-Id: <f6050632-3f1c-52cb-00a2-3c84e1764c0d@linux.vnet.ibm.com>
+In-Reply-To: <1479848771-15128-1-git-send-email-lars@metafoo.de>
+References: <1479848771-15128-1-git-send-email-lars@metafoo.de>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Martin Schwidefsky,
+Lars-Peter Clausen wrote on 22.11.2016 10:06:
 
-The patch 75c7b6f3f6ba: "s390/time: steer clocksource on STP sync
-events" from Oct 11, 2016, leads to the following static checker
-warning:
+>
+>> ----- Original message -----
+>> From: Lars-Peter Clausen <lars@metafoo.de>
+>> To: Ingo Tuchscherer/Germany/IBM@IBMDE, mschwid2@linux.vnet.ibm.com,
+>> heicars2@linux.vnet.ibm.com
+>> Cc: linux-s390@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
+>> Subject: [PATCH] s390/zcrypt: Convert to PM ops
+>> Date: Tue, Nov 22, 2016 10:06 PM
+>>
+>> Switch the zcrypt bus from legacy suspend/resume callbacks to dev_pm_ops.
+>> The conversion is straight forward with the help of SIMPLE_DEV_PM_OPS().
+>> The new dev_pm_ops based version is functionally equivalent to the legacy
+>> callbacks version.
+>>
+>> This will allow to eventually remove support for legacy suspend/resume
+>> callbacks from the kernel altogether.
+>>
+>> Also remove the empty no-op resume function. There is no need to keep it
+>> around, the PM core handles the case where it is NULL just fine.
+>>
+>> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+>> ---
+>>  drivers/s390/crypto/ap_bus.c | 12 ++++--------
+>>  1 file changed, 4 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+>> index ed92fb0..f407b4f 100644
+>> --- a/drivers/s390/crypto/ap_bus.c
+>> +++ b/drivers/s390/crypto/ap_bus.c
+>> @@ -1273,7 +1273,7 @@ static int ap_uevent (struct device *dev,
+>> struct kobj_uevent_env *env)
+>>   return retval;
+>>  }
+>>
+>> -static int ap_dev_suspend(struct device *dev, pm_message_t state)
+>> +static int ap_dev_suspend(struct device *dev)
+>>  {
+>>   struct ap_device *ap_dev = to_ap_dev(dev);
+>>
+>> @@ -1287,11 +1287,6 @@ static int ap_dev_suspend(struct device *dev,
+>> pm_message_t state)
+>>   return 0;
+>>  }
+>>
+>> -static int ap_dev_resume(struct device *dev)
+>> -{
+>> - return 0;
+>> -}
+>> -
+>>  static void ap_bus_suspend(void)
+>>  {
+>>   ap_suspend_flag = 1;
+>> @@ -1356,12 +1351,13 @@ static struct notifier_block ap_power_notifier =
+> {
+>>   .notifier_call = ap_power_event,
+>>  };
+>>
+>> +static SIMPLE_DEV_PM_OPS(ap_bus_pm_ops, ap_dev_suspend, NULL);
+>> +
+>>  static struct bus_type ap_bus_type = {
+>>   .name = "ap",
+>>   .match = &ap_bus_match,
+>>   .uevent = &ap_uevent,
+>> - .suspend = ap_dev_suspend,
+>> - .resume = ap_dev_resume,
+>> + .pm = &ap_bus_pm_ops,
+>>  };
+>>
+>>  void ap_device_init_reply(struct ap_device *ap_dev,
+>> --
+>> 2.1.4
+>>
+>>
 
-	arch/s390/kernel/time.c:422 clock_sync_global()
-	warn: unsigned 'tod_steering_delta' is never less than zero.
+applied with one slight adaption.
+Many thanks !
 
-arch/s390/kernel/time.c
-   402  static void clock_sync_global(unsigned long long delta)
-   403  {
-   404          unsigned long now, adj;
-   405          struct ptff_qto qto;
-   406  
-   407          /* Fixup the monotonic sched clock. */
-   408          sched_clock_base_cc += delta;
-   409          /* Adjust TOD steering parameters. */
-   410          vdso_data->tb_update_count++;
-   411          now = get_tod_clock();
-   412          adj = tod_steering_end - now;
-   413          if (unlikely((s64) adj >= 0))
-   414                  /* Calculate how much of the old adjustment is left. */
-   415                  tod_steering_delta = ((s64) tod_steering_delta < 0) ?
-   416                          -(adj >> 15) : (adj >> 15);
-   417          tod_steering_delta += delta;
-   418          if ((abs(tod_steering_delta) >> 48) != 0)
-                     ^^^
-Pointless on ULL.
-
-   419                  panic("TOD clock sync offset %lli is too large to drift\n",
-   420                        tod_steering_delta);
-   421          tod_steering_end = now + (abs(tod_steering_delta) << 15);
-                                          ^^^^^^^^^^^^^^^^^^^^^^^
-   422          vdso_data->ts_dir = (tod_steering_delta < 0) ? 0 : 1;
-                                     ^^^^^^^^^^^^^^^^^^^^^^
-
-Maybe just make it s64 and remove the other casting?
-
-   423          vdso_data->ts_end = tod_steering_end;
-   424          vdso_data->tb_update_count++;
-   425          /* Update LPAR offset. */
-   426          if (ptff_query(PTFF_QTO) && ptff(&qto, sizeof(qto), PTFF_QTO) == 0)
-   427                  lpar_offset = qto.tod_epoch_difference;
-   428          /* Call the TOD clock change notifier. */
-   429          atomic_notifier_call_chain(&s390_epoch_delta_notifier, 0, &delta);
-   430  }
-
-regards,
-dan carpenter
+Harald Freudenberger
