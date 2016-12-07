@@ -1,16 +1,16 @@
-From: Johannes Berg <johannes@sipsolutions.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 10/10] virtio: enable endian checks for sparse builds
-Date: Wed, 07 Dec 2016 07:25:51 +0100
-Message-ID: <1481091951.4092.12.camel@sipsolutions.net>
+Date: Wed, 7 Dec 2016 15:22:14 +0200
+Message-ID: <20161207152131-mutt-send-email-mst@kernel.org>
 References: <1481038106-24899-1-git-send-email-mst@redhat.com>
 	<1481038106-24899-11-git-send-email-mst@redhat.com>
-	(sfid-20161206_164156_647850_329465D7)
+	<1481091951.4092.12.camel@sipsolutions.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481038106-24899-11-git-send-email-mst@redhat.com>
-	(sfid-20161206_164156_647850_329465D7)
+Content-Disposition: inline
+In-Reply-To: <1481091951.4092.12.camel@sipsolutions.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,33 +22,72 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/dri-devel/>
 List-Post: <mailto:dri-devel@lists.freedesktop.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@selenic.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@selenic.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gVHVlLCAyMDE2LTEyLTA2IGF0IDE3OjQxICswMjAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
-dGU6Cgo+IEl0IHNlZW1zIHRoYXQgdGhlcmUgc2hvdWxkIGJlIGEgYmV0dGVyIHdheSB0byBkbyBp
-dCwKPiBidXQgdGhpcyB3b3JrcyB0b28uCgpJbiBzb21lIGNhc2VzIHRoZXJlIG1pZ2h0IGJlOgoK
-PiAtLS0gYS9kcml2ZXJzL3MzOTAvdmlydGlvL01ha2VmaWxlCj4gKysrIGIvZHJpdmVycy9zMzkw
-L3ZpcnRpby9NYWtlZmlsZQo+IEBAIC02LDYgKzYsOCBAQAo+IMKgIyBpdCB1bmRlciB0aGUgdGVy
-bXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlICh2ZXJzaW9uIDIKPiBvbmx5KQo+
-IMKgIyBhcyBwdWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbi4KPiDCoAo+
-ICtDRkxBR1NfdmlydGlvX2Njdy5vICs9IC1EX19DSEVDS19FTkRJQU5fXwo+ICtDRkxBR1Nfa3Zt
-X3ZpcnRpby5vICs9IC1EX19DSEVDS19FTkRJQU5fXwo+IMKgczM5MC12aXJ0aW8tb2JqcyA6PSB2
-aXJ0aW9fY2N3Lm8KPiDCoGlmZGVmIENPTkZJR19TMzkwX0dVRVNUX09MRF9UUkFOU1BPUlQKPiDC
-oHMzOTAtdmlydGlvLW9ianMgKz0ga3ZtX3ZpcnRpby5vCgpIZXJlIHlvdSBjb3VsZCB1c2UKCmNj
-ZmxhZ3MteSArPSAtRF9fQ0hFQ0tfRU5ESUFOX18KCmZvciBleGFtcGxlLCBvciBldmVuCgpzdWJk
-aXItY2NmbGFncy15ICs9IC1EX19DSEVDS19FTkRJQU5fXwoKKGluIGNhc2UgYW55IHN1YmRpcnMg
-ZXZlciBnZXQgYWRkZWQgaGVyZSkKCj4gLS0tIGEvZHJpdmVycy92aG9zdC9NYWtlZmlsZQo+ICsr
-KyBiL2RyaXZlcnMvdmhvc3QvTWFrZWZpbGUKPiBAQCAtMSwzICsxLDQgQEAKPiArY2NmbGFncy15
-IDo9IC1EX19DSEVDS19FTkRJQU5fXwoKTG9va3MgbGlrZSB5b3UgZGlkIHRoYXQgaGVyZSBhbmQg
-aW4gc29tZSBvdGhlciBwbGFjZXMgdGhvdWdoIC0gc28KcGVyaGFwcyB0aGUgczM5MCBvbmUgd2Fz
-IGludGVudGlvbmFsbHkgZGlmZmVyZW50PwoKPiAtLS0gYS9uZXQvcGFja2V0L01ha2VmaWxlCj4g
-KysrIGIvbmV0L3BhY2tldC9NYWtlZmlsZQo+IEBAIC0yLDYgKzIsNyBAQAo+IMKgIyBNYWtlZmls
-ZSBmb3IgdGhlIHBhY2tldCBBRi4KPiDCoCMKPiDCoAo+ICtjY2ZsYWdzLXkgOj0gLURfX0NIRUNL
-X0VORElBTl9fCgpUZWNobmljYWxseSB0aGlzIGlzIHNsaWdodGx5IG1vcmUgdGhhbiBhZHZlcnRp
-c2VkLCBidXQgSSBndWVzcyB0aGF0CnN0aWxsIG1ha2VzIHNlbnNlIGlmIGl0J3MgY2xlYW4gbm93
-LgoKam9oYW5uZXMKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Dec 07, 2016 at 07:25:51AM +0100, Johannes Berg wrote:
+> On Tue, 2016-12-06 at 17:41 +0200, Michael S. Tsirkin wrote:
+> =
+
+> > It seems that there should be a better way to do it,
+> > but this works too.
+> =
+
+> In some cases there might be:
+> =
+
+> > --- a/drivers/s390/virtio/Makefile
+> > +++ b/drivers/s390/virtio/Makefile
+> > @@ -6,6 +6,8 @@
+> > =A0# it under the terms of the GNU General Public License (version 2
+> > only)
+> > =A0# as published by the Free Software Foundation.
+> > =A0
+> > +CFLAGS_virtio_ccw.o +=3D -D__CHECK_ENDIAN__
+> > +CFLAGS_kvm_virtio.o +=3D -D__CHECK_ENDIAN__
+> > =A0s390-virtio-objs :=3D virtio_ccw.o
+> > =A0ifdef CONFIG_S390_GUEST_OLD_TRANSPORT
+> > =A0s390-virtio-objs +=3D kvm_virtio.o
+> =
+
+> Here you could use
+> =
+
+> ccflags-y +=3D -D__CHECK_ENDIAN__
+> =
+
+> for example, or even
+> =
+
+> subdir-ccflags-y +=3D -D__CHECK_ENDIAN__
+> =
+
+> (in case any subdirs ever get added here)
+
+Oh right. I forgot this directory only has virtio stuff.
+
+> > --- a/drivers/vhost/Makefile
+> > +++ b/drivers/vhost/Makefile
+> > @@ -1,3 +1,4 @@
+> > +ccflags-y :=3D -D__CHECK_ENDIAN__
+> =
+
+> Looks like you did that here and in some other places though - so
+> perhaps the s390 one was intentionally different?
+> =
+
+> > --- a/net/packet/Makefile
+> > +++ b/net/packet/Makefile
+> > @@ -2,6 +2,7 @@
+> > =A0# Makefile for the packet AF.
+> > =A0#
+> > =A0
+> > +ccflags-y :=3D -D__CHECK_ENDIAN__
+> =
+
+> Technically this is slightly more than advertised, but I guess that
+> still makes sense if it's clean now.
+> =
+
+> johannes
