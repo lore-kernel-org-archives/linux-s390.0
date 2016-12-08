@@ -1,99 +1,165 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 0/8] enable endian checks for all sparse builds
-Date: Thu, 15 Dec 2016 07:15:06 +0200
-Message-ID: <1481778865-27667-1-git-send-email-mst@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/dri-devel/>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-s390@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, linux-mediatek@lists.infradead.org, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@selenic.com>, linux-arm-kernel@lists.infradead.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, Linus
+Return-Path: <jpoimboe@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH v3 00/15] livepatch: hybrid consistency model
+Date: Thu,  8 Dec 2016 12:08:25 -0600
+Message-Id: <cover.1481220077.git.jpoimboe@redhat.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>
+Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-This is just a reposting of the patch that enables endian checks, with addition
-of trivial patches that drop __bitwise__ and __CHECK_ENDIAN__ everywhere.
+Dusting the cobwebs off the consistency model again.  This is based on
+linux-next/master.
 
-I plan to include this in my pull request unless I hear otherwise.
+v1 was posted on 2015-02-09:
 
-Michael S. Tsirkin (8):
-  linux/types.h: enable endian checks for all sparse builds
-  tools: enable endian checks for all sparse builds
-  Documentation/sparse: drop __bitwise__
-  checkpatch: replace __bitwise__ with __bitwise
-  linux: drop __bitwise__ everywhere
-  Documentation/sparse: drop __CHECK_ENDIAN__
-  fs/logfs: drop __CHECK_ENDIAN__
-  Makefile: drop -D__CHECK_ENDIAN__ from cflags
+  https://lkml.kernel.org/r/cover.1423499826.git.jpoimboe@redhat.com
 
- Documentation/translations/zh_CN/sparse.txt               |  7 +------
- arch/arm/plat-samsung/include/plat/gpio-cfg.h             |  2 +-
- drivers/md/dm-cache-block-types.h                         |  6 +++---
- drivers/net/ethernet/sun/sunhme.h                         |  2 +-
- drivers/net/wireless/intel/iwlwifi/iwl-fw-file.h          |  4 ++--
- fs/logfs/logfs.h                                          |  4 +---
- include/linux/mmzone.h                                    |  2 +-
- include/linux/serial_core.h                               |  4 ++--
- include/linux/types.h                                     |  4 ++--
- include/scsi/iscsi_proto.h                                |  2 +-
- include/target/target_core_base.h                         |  2 +-
- include/uapi/linux/types.h                                |  4 ----
- include/uapi/linux/virtio_types.h                         |  6 +++---
- net/ieee802154/6lowpan/6lowpan_i.h                        |  2 +-
- net/mac80211/ieee80211_i.h                                |  4 ++--
- tools/include/linux/types.h                               |  4 ----
- Documentation/dev-tools/sparse.rst                        | 14 +-------------
- drivers/bluetooth/Makefile                                |  2 --
- drivers/net/can/Makefile                                  |  1 -
- drivers/net/ethernet/altera/Makefile                      |  1 -
- drivers/net/ethernet/atheros/alx/Makefile                 |  1 -
- drivers/net/ethernet/freescale/Makefile                   |  2 --
- drivers/net/wireless/ath/Makefile                         |  2 --
- drivers/net/wireless/ath/wil6210/Makefile                 |  2 --
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/Makefile |  2 --
- drivers/net/wireless/broadcom/brcm80211/brcmsmac/Makefile |  1 -
- drivers/net/wireless/intel/iwlegacy/Makefile              |  2 --
- drivers/net/wireless/intel/iwlwifi/Makefile               |  2 +-
- drivers/net/wireless/intel/iwlwifi/dvm/Makefile           |  2 +-
- drivers/net/wireless/intel/iwlwifi/mvm/Makefile           |  2 +-
- drivers/net/wireless/intersil/orinoco/Makefile            |  3 ---
- drivers/net/wireless/mediatek/mt7601u/Makefile            |  2 --
- drivers/net/wireless/realtek/rtlwifi/Makefile             |  2 --
- drivers/net/wireless/realtek/rtlwifi/btcoexist/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8188ee/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8192c/Makefile    |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8192ce/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8192cu/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8192ee/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8192se/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8723ae/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8723be/Makefile   |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8723com/Makefile  |  2 --
- drivers/net/wireless/realtek/rtlwifi/rtl8821ae/Makefile   |  2 --
- drivers/net/wireless/ti/wl1251/Makefile                   |  2 --
- drivers/net/wireless/ti/wlcore/Makefile                   |  2 --
- drivers/staging/rtl8188eu/Makefile                        |  2 +-
- drivers/staging/rtl8192e/Makefile                         |  2 --
- drivers/staging/rtl8192e/rtl8192e/Makefile                |  2 --
- net/bluetooth/Makefile                                    |  2 --
- net/ieee802154/Makefile                                   |  2 --
- net/mac80211/Makefile                                     |  2 +-
- net/mac802154/Makefile                                    |  2 --
- net/wireless/Makefile                                     |  2 --
- scripts/checkpatch.pl                                     |  4 ++--
- 56 files changed, 30 insertions(+), 120 deletions(-)
+v2 was posted on 2016-04-28:
+
+  https://lkml.kernel.org/r/cover.1461875890.git.jpoimboe@redhat.com
+
+The biggest issue from v2 was finding a decent way to detect preemption
+and page faults on the stack of a sleeping task.  That problem was
+solved by rewriting the x86 stack unwinder.  The new unwinder helps
+detect such cases by finding all pt_regs on the stack.  When
+preemption/page faults are detected, the stack is considered unreliable
+and the patching of the task is deferred.
+
+For more details about the consistency model, see patch 13/15.
+
+---
+
+v3:
+- rebase on new x86 unwinder
+- force !HAVE_RELIABLE_STACKTRACE arches to use patch->immediate for
+  now, because we don't have a way to transition kthreads otherwise
+- rebase s390 TIF_PATCH_PENDING patch onto latest entry code
+- update barrier comments and move barrier from the end of
+  klp_init_transition() to its callers
+- "klp_work" -> "klp_transition_work"
+- "klp_patch_task()" -> "klp_update_patch_state()"
+- explicit _TIF_ALLWORK_MASK
+- change klp_reverse_transition() to not try to complete transition.
+  instead modify the work queue delay to zero.
+- get rid of klp_schedule_work() in favor of calling
+  schedule_delayed_work() directly with a KLP_TRANSITION_DELAY
+- initialize klp_target_state to KLP_UNDEFINED
+- move klp_target_state assignment to before patch->immediate check in
+  klp_init_transition()
+- rcu_read_lock() in klp_update_patch_state(), test the thread flag in
+  patch task, synchronize_rcu() in klp_complete_transition()
+- use kstrtobool() in enabled_store()
+- change task_rq_lock() argument type to struct rq_flags
+- add several WARN_ON_ONCE assertions for klp_target_state and
+  task->patch_state
+
+v2:
+- "universe" -> "patch state"
+- rename klp_update_task_universe() -> klp_patch_task()
+- add preempt IRQ tracking (TF_PREEMPT_IRQ)
+- fix print_context_stack_reliable() bug
+- improve print_context_stack_reliable() comments
+- klp_ftrace_handler comment fixes
+- add "patch_state" proc file to tid_base_stuff
+- schedule work even for !RELIABLE_STACKTRACE
+- forked child inherits patch state from parent
+- add detailed comment to livepatch.h klp_func definition about the
+  klp_func patched/transition state transitions
+- update exit_to_usermode_loop() comment
+- clear all TIF_KLP_NEED_UPDATE flags in klp_complete_transition()
+- remove unnecessary function externs
+- add livepatch documentation, sysfs documentation, /proc documentation
+- /proc/pid/patch_state: -1 means no patch is currently being applied/reverted
+- "TIF_KLP_NEED_UPDATE" -> "TIF_PATCH_PENDING"
+- support for s390 and powerpc-le
+- don't assume stacks with dynamic ftrace trampolines are reliable
+- add _TIF_ALLWORK_MASK info to commit log
+
+v1.9:
+- revive from the dead and rebased
+- reliable stacks!
+- add support for immediate consistency model
+- add a ton of comments
+- fix up memory barriers
+- remove "allow patch modules to be removed" patch for now, it still 
+  needs more discussion and thought - it can be done with something
+- "proc/pid/universe" -> "proc/pid/patch_status"
+- remove WARN_ON_ONCE from !func condition in ftrace handler -- can
+  happen because of RCU
+- keep klp_mutex private by putting the work_fn in core.c
+- convert states from int to boolean
+- remove obsolete '@state' comments
+- several header file and include improvements suggested by Jiri S
+- change kallsyms_lookup_size_offset() errors from EINVAL -> ENOENT
+- change proc file permissions S_IRUGO -> USR
+- use klp_for_each_object/func helpers
+
+---
+
+Jiri Slaby (1):
+  livepatch/s390: reorganize TIF thread flag bits
+
+Josh Poimboeuf (12):
+  stacktrace/x86: add function for detecting reliable stack traces
+  x86/entry: define _TIF_ALLWORK_MASK flags explicitly
+  livepatch: temporary stubs for klp_patch_pending() and
+    klp_update_patch_state()
+  livepatch/x86: add TIF_PATCH_PENDING thread flag
+  livepatch/powerpc: add TIF_PATCH_PENDING thread flag
+  livepatch: separate enabled and patched states
+  livepatch: remove unnecessary object loaded check
+  livepatch: move patching functions into patch.c
+  livepatch: use kstrtobool() in enabled_store()
+  livepatch: store function sizes
+  livepatch: change to a per-task consistency model
+  livepatch: add /proc/<pid>/patch_state
+
+Miroslav Benes (2):
+  livepatch/s390: add TIF_PATCH_PENDING thread flag
+  livepatch: allow removal of a disabled patch
+
+ Documentation/ABI/testing/sysfs-kernel-livepatch |   8 +
+ Documentation/filesystems/proc.txt               |  18 +
+ Documentation/livepatch/livepatch.txt            | 156 ++++++--
+ arch/Kconfig                                     |   6 +
+ arch/powerpc/include/asm/thread_info.h           |   4 +-
+ arch/powerpc/kernel/signal.c                     |   4 +
+ arch/s390/include/asm/thread_info.h              |  24 +-
+ arch/s390/kernel/entry.S                         |  31 +-
+ arch/x86/Kconfig                                 |   1 +
+ arch/x86/entry/common.c                          |   9 +-
+ arch/x86/include/asm/thread_info.h               |  11 +-
+ arch/x86/include/asm/unwind.h                    |   6 +
+ arch/x86/kernel/stacktrace.c                     |  59 ++-
+ arch/x86/kernel/unwind_frame.c                   |   1 +
+ fs/proc/base.c                                   |  15 +
+ include/linux/init_task.h                        |   9 +
+ include/linux/livepatch.h                        |  66 ++-
+ include/linux/sched.h                            |   3 +
+ include/linux/stacktrace.h                       |   8 +-
+ kernel/fork.c                                    |   3 +
+ kernel/livepatch/Makefile                        |   2 +-
+ kernel/livepatch/core.c                          | 446 +++++++++------------
+ kernel/livepatch/patch.c                         | 261 ++++++++++++
+ kernel/livepatch/patch.h                         |  33 ++
+ kernel/livepatch/transition.c                    | 487 +++++++++++++++++++++++
+ kernel/livepatch/transition.h                    |  14 +
+ kernel/sched/idle.c                              |   4 +
+ kernel/stacktrace.c                              |  12 +-
+ samples/livepatch/livepatch-sample.c             |   8 +-
+ 29 files changed, 1367 insertions(+), 342 deletions(-)
+ create mode 100644 kernel/livepatch/patch.c
+ create mode 100644 kernel/livepatch/patch.h
+ create mode 100644 kernel/livepatch/transition.c
+ create mode 100644 kernel/livepatch/transition.h
 
 -- 
-MST
+2.7.4
