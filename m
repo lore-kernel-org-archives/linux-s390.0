@@ -1,119 +1,403 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 16 Dec 2016 07:45:06 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 4.10 merge window #2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20161216074506.1467a61c@mschwideX1>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: kbuild test robot <fengguang.wu@intel.com>
+Date: Wed, 14 Dec 2016 14:45:16 +0000
+Subject: [s390:for-linus 5/22] drivers/s390/crypto/ap_bus.c:801:17: error: 'ap_queue_device_list_lock' undecl
+Message-Id: <201612142201.Tjs0M0Kc%fengguang.wu@intel.com>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--d6Gm4EdcadzBjdND"
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
 
-please pull from the 'for-linus' branch of
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+head:   d67e2d9faf366d5dee1da319b2bf51be8fcf1185
+commit: 400db78afcdd03043103d4fb55eb15ee9996139b [5/22] s390/zcrypt: get rid of ap_poll_requests
+config: s390-gcov_defconfig (attached as .config)
+compiler: s390x-linux-gnu-gcc (Debian 6.1.1-9) 6.1.1 20160705
+reproduce:
+        wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        git checkout 400db78afcdd03043103d4fb55eb15ee9996139b
+        # save the attached .config to linux build tree
+        make.cross ARCH=s390 
 
-to receive the following updates:
+Note: the s390/for-linus HEAD d67e2d9faf366d5dee1da319b2bf51be8fcf1185 builds fine.
+      It only hurts bisectibility.
 
-Over 95% of the changes in this pull request are related to the zcrypt
-driver. There are five improvements for zcrypt: the ID for the CEX6 cards
-is added, workload balancing and multi-domain support are introduced,
-the debug logs are overhauled and a set of tracepoints is added.
+All error/warnings (new ones prefixed by >>):
 
-Then there are several patches in regard to inline assemblies. One compile
-fix and several missing memory clobbers. As far as we can tell the omitted
-memory clobbers have not caused any breakage.
+   drivers/s390/crypto/ap_bus.c: In function 'ap_pending_requests':
+>> drivers/s390/crypto/ap_bus.c:801:17: error: 'ap_queue_device_list_lock' undeclared (first use in this function)
+      spin_lock_bh(&ap_queue_device_list_lock[id]);
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/s390/crypto/ap_bus.c:801:17: note: each undeclared identifier is reported only once for each function it appears in
+   In file included from include/linux/list.h:8:0,
+                    from include/linux/smp.h:11,
+                    from include/linux/kernel_stat.h:4,
+                    from drivers/s390/crypto/ap_bus.c:29:
+>> drivers/s390/crypto/ap_bus.c:802:32: error: 'ap_queue_device_list' undeclared (first use in this function)
+      list_for_each_entry(ap_dev, &ap_queue_device_list[id], list) {
+                                   ^
+   include/linux/kernel.h:841:49: note: in definition of macro 'container_of'
+     const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+                                                    ^~~
+   include/linux/list.h:376:2: note: in expansion of macro 'list_entry'
+     list_entry((ptr)->next, type, member)
+     ^~~~~~~~~~
+   include/linux/list.h:463:13: note: in expansion of macro 'list_first_entry'
+     for (pos = list_first_entry(head, typeof(*pos), member); \
+                ^~~~~~~~~~~~~~~~
+>> drivers/s390/crypto/ap_bus.c:802:3: note: in expansion of macro 'list_for_each_entry'
+      list_for_each_entry(ap_dev, &ap_queue_device_list[id], list) {
+      ^~~~~~~~~~~~~~~~~~~
+   In file included from include/linux/atomic.h:4:0,
+                    from include/linux/llist.h:58,
+                    from include/linux/smp.h:14,
+                    from include/linux/kernel_stat.h:4,
+                    from drivers/s390/crypto/ap_bus.c:29:
+   drivers/s390/crypto/ap_bus.c: In function 'ap_device_remove':
+>> drivers/s390/crypto/ap_bus.c:1288:35: error: 'ap_poll_requests' undeclared (first use in this function)
+     atomic_sub(ap_dev->queue_count, &ap_poll_requests);
+                                      ^
+   arch/s390/include/asm/atomic.h:61:52: note: in definition of macro 'atomic_sub'
+    #define atomic_sub(_i, _v)  atomic_add(-(int)(_i), _v)
+                                                       ^~
 
-A small change to the PCI arch code, the machine can tells us how big
-the function measurement blocks are. The PCI function measurement will
-be disabled for a device if the queried length is larger than the
-allocated size for these blocks.
+vim +/ap_queue_device_list_lock +801 drivers/s390/crypto/ap_bus.c
 
-And two more patches to correct five printk messages.
+   795	static int ap_pending_requests(void)
+   796	{
+   797		struct ap_device *ap_dev;
+   798		int id, pending = 0;
+   799	
+   800		for (id = 0; pending == 0 && id < AP_DEVICES; id++) {
+ > 801			spin_lock_bh(&ap_queue_device_list_lock[id]);
+ > 802			list_for_each_entry(ap_dev, &ap_queue_device_list[id], list) {
+   803				spin_lock_bh(&ap_dev->lock);
+   804				if (ap_dev->queue_count)
+   805					pending = 1;
 
-That is it for s390 in regard to the 4.10 merge window. Happy holidays.
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
-Harald Freudenberger (5):
-      s390/zcrypt: Introduce CEX6 toleration
-      s390/zcrypt: Correct function bits for CEX2x and CEX3x cards.
-      s390/zcrypt: Improved invalid domain response handling.
-      s390/zcrypt: Rework debug feature invocations.
-      s390/zcrypt: tracepoint definitions for zcrypt device driver.
+--d6Gm4EdcadzBjdND
+Content-Type: application/gzip
+Content-Disposition: attachment; filename=".config.gz"
+Content-Transfer-Encoding: base64
 
-Heiko Carstens (6):
-      s390: fix compile error with memmove_early() inline assembly
-      s390/cpumf: fix qsi inline assembly
-      s390/lib: add missing memory barriers to string inline assemblies
-      s390/nmi: fix inline assembly constraints
-      s390/extmem: add missing memory clobber to dcss_set_subcodes
-      s390/zcrypt: add missing memory clobber to ap_qci inline assembly
+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
+5TpUq9n8D4S3ZIqiDAEA
 
-Ingo Tuchscherer (6):
-      s390/zcrypt: Move the ap bus into kernel
-      s390/zcrypt: Introduce workload balancing
-      s390/zcrypt: add multi domain support
-      s390/zcrypt: Introduce new zcrypt device status API
-      s390/zcrypt: Fixed attrition of AP adapters and domains
-      s390/zcrypt: Fix ap_max_domain_id for older machine types
-
-Martin Schwidefsky (4):
-      s390/zcrypt: simplify message type handling
-      s390/zcrypt: header for the AP inline assmblies
-      s390/zcrypt: get rid of ap_poll_requests
-      s390/setup: reword printk messages
-
-Sebastian Ott (1):
-      s390/pci: query fmb length
-
-Stefan Haberland (1):
-      s390/dasd: fix typos in DASD error messages
-
- arch/s390/include/asm/cpu_mf.h         |   10 +-
- arch/s390/include/asm/pci.h            |    1 +
- arch/s390/include/asm/pci_clp.h        |    3 +-
- arch/s390/include/asm/string.h         |    8 +-
- arch/s390/include/asm/trace/zcrypt.h   |  122 +++
- arch/s390/include/uapi/asm/zcrypt.h    |   37 +
- arch/s390/kernel/early.c               |    2 +-
- arch/s390/kernel/nmi.c                 |   19 +-
- arch/s390/kernel/setup.c               |    4 +-
- arch/s390/lib/string.c                 |   12 +-
- arch/s390/mm/extmem.c                  |    2 +-
- arch/s390/pci/pci.c                    |    2 +-
- arch/s390/pci/pci_clp.c                |    1 +
- drivers/s390/block/dasd_3990_erp.c     |    6 +-
- drivers/s390/crypto/Makefile           |   13 +-
- drivers/s390/crypto/ap_asm.h           |  191 +++++
- drivers/s390/crypto/ap_bus.c           | 1331 +++++++++-----------------------
- drivers/s390/crypto/ap_bus.h           |   98 ++-
- drivers/s390/crypto/ap_card.c          |  170 ++++
- drivers/s390/crypto/ap_debug.h         |   28 +
- drivers/s390/crypto/ap_queue.c         |  701 +++++++++++++++++
- drivers/s390/crypto/zcrypt_api.c       | 1137 +++++++++++++--------------
- drivers/s390/crypto/zcrypt_api.h       |   99 ++-
- drivers/s390/crypto/zcrypt_card.c      |  187 +++++
- drivers/s390/crypto/zcrypt_cex2a.c     |  214 +++--
- drivers/s390/crypto/zcrypt_cex4.c      |  319 +++++---
- drivers/s390/crypto/zcrypt_debug.h     |   50 +-
- drivers/s390/crypto/zcrypt_error.h     |  105 +--
- drivers/s390/crypto/zcrypt_msgtype50.c |  135 ++--
- drivers/s390/crypto/zcrypt_msgtype50.h |    5 +-
- drivers/s390/crypto/zcrypt_msgtype6.c  |  660 ++++++++++------
- drivers/s390/crypto/zcrypt_msgtype6.h  |   23 +-
- drivers/s390/crypto/zcrypt_pcixcc.c    |  376 ++++-----
- drivers/s390/crypto/zcrypt_queue.c     |  226 ++++++
- include/linux/mod_devicetable.h        |    3 +-
- 35 files changed, 3915 insertions(+), 2385 deletions(-)
- create mode 100644 arch/s390/include/asm/trace/zcrypt.h
- create mode 100644 drivers/s390/crypto/ap_asm.h
- create mode 100644 drivers/s390/crypto/ap_card.c
- create mode 100644 drivers/s390/crypto/ap_debug.h
- create mode 100644 drivers/s390/crypto/ap_queue.c
- create mode 100644 drivers/s390/crypto/zcrypt_card.c
- create mode 100644 drivers/s390/crypto/zcrypt_queue.c
+--d6Gm4EdcadzBjdND--
