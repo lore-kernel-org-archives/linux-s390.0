@@ -1,13 +1,12 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 10/10] virtio: enable endian checks for sparse builds
-Date: Wed, 7 Dec 2016 14:09:33 +0000
-Message-ID: <20161207140933.GF32099@stefanha-x1.localdomain>
-References: <1481038106-24899-1-git-send-email-mst@redhat.com>
-	<1481038106-24899-11-git-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 0/8] enable endian checks for all sparse builds
+Date: Thu, 15 Dec 2016 07:15:06 +0200
+Message-ID: <1481778865-27667-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7466233140133078509=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1481038106-24899-11-git-send-email-mst@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,77 +18,82 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/dri-devel/>
 List-Post: <mailto:dri-devel@lists.freedesktop.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, Matt Mackall <mpm@selenic.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-s390@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, v9fs-developer@lists.sourceforge.net, Asias He <asias@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@fb.com>, Michal Marek <mmarek@suse.com>, linux-mediatek@lists.infradead.org, Stefan Hajnoczi <stefanha@redhat.com>, Matt Mackall <mpm@selenic.com>, linux-arm-kernel@lists.infradead.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, Linus
 List-ID: <linux-s390.vger.kernel.org>
 
+This is just a reposting of the patch that enables endian checks, with addition
+of trivial patches that drop __bitwise__ and __CHECK_ENDIAN__ everywhere.
 
---===============7466233140133078509==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GLp9dJVi+aaipsRk"
-Content-Disposition: inline
+I plan to include this in my pull request unless I hear otherwise.
 
+Michael S. Tsirkin (8):
+  linux/types.h: enable endian checks for all sparse builds
+  tools: enable endian checks for all sparse builds
+  Documentation/sparse: drop __bitwise__
+  checkpatch: replace __bitwise__ with __bitwise
+  linux: drop __bitwise__ everywhere
+  Documentation/sparse: drop __CHECK_ENDIAN__
+  fs/logfs: drop __CHECK_ENDIAN__
+  Makefile: drop -D__CHECK_ENDIAN__ from cflags
 
---GLp9dJVi+aaipsRk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ Documentation/translations/zh_CN/sparse.txt               |  7 +------
+ arch/arm/plat-samsung/include/plat/gpio-cfg.h             |  2 +-
+ drivers/md/dm-cache-block-types.h                         |  6 +++---
+ drivers/net/ethernet/sun/sunhme.h                         |  2 +-
+ drivers/net/wireless/intel/iwlwifi/iwl-fw-file.h          |  4 ++--
+ fs/logfs/logfs.h                                          |  4 +---
+ include/linux/mmzone.h                                    |  2 +-
+ include/linux/serial_core.h                               |  4 ++--
+ include/linux/types.h                                     |  4 ++--
+ include/scsi/iscsi_proto.h                                |  2 +-
+ include/target/target_core_base.h                         |  2 +-
+ include/uapi/linux/types.h                                |  4 ----
+ include/uapi/linux/virtio_types.h                         |  6 +++---
+ net/ieee802154/6lowpan/6lowpan_i.h                        |  2 +-
+ net/mac80211/ieee80211_i.h                                |  4 ++--
+ tools/include/linux/types.h                               |  4 ----
+ Documentation/dev-tools/sparse.rst                        | 14 +-------------
+ drivers/bluetooth/Makefile                                |  2 --
+ drivers/net/can/Makefile                                  |  1 -
+ drivers/net/ethernet/altera/Makefile                      |  1 -
+ drivers/net/ethernet/atheros/alx/Makefile                 |  1 -
+ drivers/net/ethernet/freescale/Makefile                   |  2 --
+ drivers/net/wireless/ath/Makefile                         |  2 --
+ drivers/net/wireless/ath/wil6210/Makefile                 |  2 --
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/Makefile |  2 --
+ drivers/net/wireless/broadcom/brcm80211/brcmsmac/Makefile |  1 -
+ drivers/net/wireless/intel/iwlegacy/Makefile              |  2 --
+ drivers/net/wireless/intel/iwlwifi/Makefile               |  2 +-
+ drivers/net/wireless/intel/iwlwifi/dvm/Makefile           |  2 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/Makefile           |  2 +-
+ drivers/net/wireless/intersil/orinoco/Makefile            |  3 ---
+ drivers/net/wireless/mediatek/mt7601u/Makefile            |  2 --
+ drivers/net/wireless/realtek/rtlwifi/Makefile             |  2 --
+ drivers/net/wireless/realtek/rtlwifi/btcoexist/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8188ee/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192c/Makefile    |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192ce/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192cu/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192ee/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8192se/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8723ae/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8723be/Makefile   |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8723com/Makefile  |  2 --
+ drivers/net/wireless/realtek/rtlwifi/rtl8821ae/Makefile   |  2 --
+ drivers/net/wireless/ti/wl1251/Makefile                   |  2 --
+ drivers/net/wireless/ti/wlcore/Makefile                   |  2 --
+ drivers/staging/rtl8188eu/Makefile                        |  2 +-
+ drivers/staging/rtl8192e/Makefile                         |  2 --
+ drivers/staging/rtl8192e/rtl8192e/Makefile                |  2 --
+ net/bluetooth/Makefile                                    |  2 --
+ net/ieee802154/Makefile                                   |  2 --
+ net/mac80211/Makefile                                     |  2 +-
+ net/mac802154/Makefile                                    |  2 --
+ net/wireless/Makefile                                     |  2 --
+ scripts/checkpatch.pl                                     |  4 ++--
+ 56 files changed, 30 insertions(+), 120 deletions(-)
 
-On Tue, Dec 06, 2016 at 05:41:05PM +0200, Michael S. Tsirkin wrote:
-> __CHECK_ENDIAN__ isn't on by default presumably because
-> it triggers too many sparse warnings for correct code.
-> But virtio is now clean of these warnings, and
-> we want to keep it this way - enable this for
-> sparse builds.
->=20
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->=20
-> It seems that there should be a better way to do it,
-> but this works too.
->=20
->  drivers/block/Makefile          | 1 +
->  drivers/char/Makefile           | 1 +
->  drivers/char/hw_random/Makefile | 2 ++
->  drivers/gpu/drm/virtio/Makefile | 1 +
->  drivers/net/Makefile            | 3 +++
->  drivers/net/caif/Makefile       | 1 +
->  drivers/rpmsg/Makefile          | 1 +
->  drivers/s390/virtio/Makefile    | 2 ++
->  drivers/scsi/Makefile           | 1 +
->  drivers/vhost/Makefile          | 1 +
->  drivers/virtio/Makefile         | 3 +++
->  net/9p/Makefile                 | 1 +
->  net/packet/Makefile             | 1 +
->  net/vmw_vsock/Makefile          | 2 ++
->  14 files changed, 21 insertions(+)
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---GLp9dJVi+aaipsRk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJYSBgdAAoJEJykq7OBq3PIErIIALcfuXKP5HgamgpQoZkN0Uc0
-2n2uVTdzArmnFB44EWnkmW+iYjCl3HfmHgtoWPwsUKoY/RDBuL8x9wNSrOfDzSMf
-ymjii6GPxe3fJ4xlvzAmueh0F4wfFeKl+jrO7jm3B1vIhJh6NzEgQZJgGxmpNYvE
-X0o9IKPe5pr+x3ZAec1LMzsv9CvtJObwO3bVgAtQQlA7hlvewrbZkxgmKAojibGG
-Mdv+oNGtpp8ePXN9c0EdhLFbPF3MY9YHf0DbirN5CXp7KP1GH9FgWaOKx0n0v8IB
-3KqF7wUADa/eIWrIW1FaSy9DeGfihiwwrWaEcg/c0LoweS6OLwGhCJTXfp45GJk=
-=SL7g
------END PGP SIGNATURE-----
-
---GLp9dJVi+aaipsRk--
-
---===============7466233140133078509==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7466233140133078509==--
+-- 
+MST
