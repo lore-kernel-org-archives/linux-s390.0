@@ -1,15 +1,14 @@
-Return-Path: <jpoimboe@redhat.com>
-Date: Mon, 12 Dec 2016 08:04:05 -0600
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [PATCH v3 00/15] livepatch: hybrid consistency model
-Message-ID: <20161212140405.ai5hpgwqqvlataey@treble>
+Return-Path: <pmladek@suse.com>
+Date: Fri, 16 Dec 2016 14:07:39 +0100
+From: Petr Mladek <pmladek@suse.com>
+Subject: Re: [PATCH v3 01/15] stacktrace/x86: add function for detecting
+ reliable stack traces
+Message-ID: <20161216130739.GB393@pathway.suse.cz>
 References: <cover.1481220077.git.jpoimboe@redhat.com>
- <1481348777.28041.1.camel@gmail.com>
- <20161210171707.cpupmxyuhob4tc3i@treble>
- <aac5fa04-c15c-5210-bce7-c72e16373964@gmail.com>
+ <0315b36c08c104d56a4b43537fb300d200418996.1481220077.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <aac5fa04-c15c-5210-bce7-c72e16373964@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <0315b36c08c104d56a4b43537fb300d200418996.1481220077.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -18,88 +17,111 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Balbir Singh <bsingharora@gmail.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, live-patching@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@kernel.org>, Chris J Arges <chris.j.arges@canonical.com>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Dec 11, 2016 at 01:08:33PM +1100, Balbir Singh wrote:
+On Thu 2016-12-08 12:08:26, Josh Poimboeuf wrote:
+> For live patching and possibly other use cases, a stack trace is only
+> useful if it can be assured that it's completely reliable.  Add a new
+> save_stack_trace_tsk_reliable() function to achieve that.
 > 
+> Scenarios which indicate that a stack trace may be unreliable:
 > 
-> On 11/12/16 04:17, Josh Poimboeuf wrote:
-> > On Sat, Dec 10, 2016 at 04:46:17PM +1100, Balbir Singh wrote:
-> >> On Thu, 2016-12-08 at 12:08 -0600, Josh Poimboeuf wrote:
-> >>> Dusting the cobwebs off the consistency model again.  This is based on
-> >>> linux-next/master.
-> >>>  
-> >>> v1 was posted on 2015-02-09:
-> >>>  
-> >>>   https://lkml.kernel.org/r/cover.1423499826.git.jpoimboe@redhat.com
-> >>>  
-> >>> v2 was posted on 2016-04-28:
-> >>>  
-> >>>   https://lkml.kernel.org/r/cover.1461875890.git.jpoimboe@redhat.com
-> >>>  
-> >>> The biggest issue from v2 was finding a decent way to detect preemption
-> >>> and page faults on the stack of a sleeping task.  
-> >>
-> >> Could you please elaborate on this? Preemption of a sleeping task and
-> >> faults as in the future (time) preemption and faults?
-> > 
-> > The normal way for a task to go to sleep is to call schedule().  objtool
-> > ensures the stack trace is reliable in that case, by making sure that
-> > all functions save the frame pointer on the stack before calling out to
-> > another function.
-> > 
-> > But a task can also go to sleep in a few other ways.  One way is by
-> > preemption, where an interrupt handler interrupts the task and calls
-> > preempt_schedule_irq().
+> - running task
+
+It seems that this has to be enforced by save_stack_trace_tsk_reliable()
+caller. It should be mentioned in the function description.
+
+
+> - interrupt stack
+
+I guess that it is detected by saved regs on the stack. And it covers
+also dynamic changes like kprobes. Do I get it correctly, please? 
+
+What about ftrace? Is ftrace without regs safe and detected?
+
+
+> - preemption
+
+I wonder if some very active kthreads might almost always be
+preempted using irq in preemptive kernel. Then they block
+the conversion with the non-reliable stacks. Have you noticed
+such problems, please?
+
+
+> - corrupted stack data
+> - stack grows the wrong way
+
+This is detected in unwind_next_frame() and passed via state->error.
+Am I right?
+
+
+> - stack walk doesn't reach the bottom
+> - user didn't provide a large enough entries array
 > 
-> It's preempted, not sleeping. It's on_rq but not on_cpu.
-
-You're right, I used the word "sleeping" when I meant "not currently
-executing on a CPU".  (Peter Z also pointed that out.)
-
->   Another way is by a page fault exception.  In
-> > both cases, there's no guarantee that the interrupted function saved the
-> > frame pointer on the stack beforehand.  So the stack trace might be
-> > unreliable.  Fortunately, interrupts and exceptions leave evidence
-> > behind on the stack.  So when walking the stack of a sleeping task, we
-> > can detect when an IRQ or exception occurred, and consider such a stack
-> > unreliable.
-> > 
+> Also add CONFIG_HAVE_RELIABLE_STACKTRACE so arch-independent code can
+> determine at build time whether the function is implemented.
 > 
-> Thanks for the explanation. I presume a whole lot of this is arch specific
-> code? I'll look at the patches as well
+> diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
+> index 0653788..3e0cf5e 100644
+> --- a/arch/x86/kernel/stacktrace.c
+> +++ b/arch/x86/kernel/stacktrace.c
+> @@ -74,6 +74,64 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+>  }
+>  EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+>  
+> +#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
+> +static int __save_stack_trace_reliable(struct stack_trace *trace,
+> +				       struct task_struct *task)
+> +{
+> +	struct unwind_state state;
+> +	struct pt_regs *regs;
+> +	unsigned long addr;
+> +
+> +	for (unwind_start(&state, task, NULL, NULL); !unwind_done(&state);
+> +	     unwind_next_frame(&state)) {
+> +
+> +		regs = unwind_get_entry_regs(&state);
+> +		if (regs) {
+> +			/*
+> +			 * Preemption and page faults on the stack can make
+> +			 * frame pointers unreliable.
+> +			 */
+> +			if (!user_mode(regs))
+> +				return -1;
 
-Most of the new livepatch code is arch-independent, but the consistency
-model part of it (i.e., !klp_patch.immediate) is currently only
-supported by x86_64.
+By other words, it we find regs on the stack, it almost always mean
+a non-reliable stack. The only exception is when we are in the
+userspace mode. Do I get it correctly, please?
 
-For adding support for other architectures, there are a few options:
+> +
+> +			/*
+> +			 * This frame contains the (user mode) pt_regs at the
+> +			 * end of the stack.  Finish the unwind.
+> +			 */
+> +			unwind_next_frame(&state);
+> +			break;
+> +		}
+> +
+> +		addr = unwind_get_return_address(&state);
+> +		if (!addr || save_stack_address(trace, addr, false))
+> +			return -1;
+> +	}
+> +
+> +	if (!unwind_done(&state) || unwind_error(&state))
+> +		return -1;
+> +
+> +	if (trace->nr_entries < trace->max_entries)
+> +		trace->entries[trace->nr_entries++] = ULONG_MAX;
+> +
+> +	return 0;
+> +}
 
-1) Add CONFIG_HAVE_RELIABLE_STACKTRACE.  This means porting objtool, and
-   for non-DWARF unwinders, also making sure there's a way for the stack
-   tracing code to detect interrupts on the stack.
+Great work! I am surprised that it looks so straightforward.
 
-2) Alternatively, figure out a way to patch kthreads without stack
-   checking.  If all kthreads sleep in the same place, then we can
-   designate that place as a patching point.  I think Petr M has been
-   working on that?  In that case, arches without
-   HAVE_RELIABLE_STACKTRACE would still be able to use the
-   non-stack-checking parts of the consistency model:
+I still have to think and investigate it more. But it looks
+very promissing.
 
-   a) patching user tasks when they cross the kernel/user space
-      boundary; and
-
-   b) patching kthreads and idle tasks at their designated patch points.
-
-   This option isn't as good as option 1 because it requires signaling
-   most of the tasks to patch them.  But it could still be a good backup
-   option for those architectures which don't have reliable stack traces
-   yet.
-
-In the meantime, other architectures can keep today's behavior by
-setting klp_patch.immediate to true.
-
--- 
-Josh
+Best Regards,
+Petr
