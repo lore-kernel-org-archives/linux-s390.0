@@ -1,12 +1,12 @@
 Return-Path: <mbenes@suse.cz>
-Date: Mon, 19 Dec 2016 17:25:19 +0100 (CET)
+Date: Mon, 19 Dec 2016 17:39:54 +0100 (CET)
 From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH v3 01/15] stacktrace/x86: add function for detecting
- reliable stack traces
-In-Reply-To: <0315b36c08c104d56a4b43537fb300d200418996.1481220077.git.jpoimboe@redhat.com>
-Message-ID: <alpine.LSU.2.20.1612191712530.6638@pobox.suse.cz>
+Subject: Re: [PATCH v3 02/15] x86/entry: define _TIF_ALLWORK_MASK flags
+ explicitly
+In-Reply-To: <b03212d03f5f112ffa778c30012c7f8301f64929.1481220077.git.jpoimboe@redhat.com>
+Message-ID: <alpine.LSU.2.20.1612191738460.6638@pobox.suse.cz>
 References: <cover.1481220077.git.jpoimboe@redhat.com>
- <0315b36c08c104d56a4b43537fb300d200418996.1481220077.git.jpoimboe@redhat.com>
+ <b03212d03f5f112ffa778c30012c7f8301f64929.1481220077.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -23,29 +23,53 @@ List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, 8 Dec 2016, Josh Poimboeuf wrote:
 
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index 215612c..b4a6663 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -155,6 +155,7 @@ config X86
->  	select HAVE_PERF_REGS
->  	select HAVE_PERF_USER_STACK_DUMP
->  	select HAVE_REGS_AND_STACK_ACCESS_API
-> +	select HAVE_RELIABLE_STACKTRACE		if X86_64 && FRAME_POINTER && STACK_VALIDATION
+> The _TIF_ALLWORK_MASK macro automatically includes the least-significant
+> 16 bits of the thread_info flags, which is less than obvious and tends
+> to create confusion and surprises when reading or modifying the code.
 
-Tests to measure possible performance penalty of frame pointers were done 
-by Mel Gorman. The outcome was quite clear. There IS a measurable 
-impact. The percentage depends on the workflow but I think it is safe to 
-say that FP usually takes 5-10 percents.
+Yes.
+ 
+> Define the flags explicitly.
+> 
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
-If my understanding is correct there is no single culprit. Register 
-pressure is definitely not a problem. We ran simple benchmarks while 
-taking a register away from GCC (RBP or a common one). The impact is a 
-combination of more cacheline pressure, more memory accesses and the fact 
-that the kernel contains a lot of small functions.
+With _TIF_SINGLESTEP and _TIF_NEED_RESCHED swapped you can add my
 
-Thus, I think that DWARF should be the way to go here.
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
 
-Other than that the patch looks good to me.
+Miroslav
 
-Miroslav 
+> ---
+>  arch/x86/include/asm/thread_info.h | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
+> index ad6f5eb0..1fe6043 100644
+> --- a/arch/x86/include/asm/thread_info.h
+> +++ b/arch/x86/include/asm/thread_info.h
+> @@ -73,9 +73,6 @@ struct thread_info {
+>   * thread information flags
+>   * - these are process state flags that various assembly files
+>   *   may need to access
+> - * - pending work-to-be-done flags are in LSW
+> - * - other flags in MSW
+> - * Warning: layout of LSW is hardcoded in entry.S
+>   */
+>  #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
+>  #define TIF_NOTIFY_RESUME	1	/* callback before returning to user */
+> @@ -133,8 +130,10 @@ struct thread_info {
+>  
+>  /* work to do on any return to user space */
+>  #define _TIF_ALLWORK_MASK						\
+> -	((0x0000FFFF & ~_TIF_SECCOMP) | _TIF_SYSCALL_TRACEPOINT |	\
+> -	_TIF_NOHZ)
+> +	(_TIF_SYSCALL_TRACE | _TIF_NOTIFY_RESUME | _TIF_SIGPENDING |	\
+> +	 _TIF_SINGLESTEP | _TIF_NEED_RESCHED | _TIF_SYSCALL_EMU |	\
+> +	 _TIF_SYSCALL_AUDIT | _TIF_USER_RETURN_NOTIFY | _TIF_UPROBE |	\
+> +	 _TIF_SYSCALL_TRACEPOINT | _TIF_NOHZ)
+>  
+>  /* flags to check in __switch_to() */
+>  #define _TIF_WORK_CTXSW							\
+> -- 
+> 2.7.4
+> 
