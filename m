@@ -1,16 +1,16 @@
-Return-Path: <mbenes@suse.cz>
-Date: Mon, 19 Dec 2016 19:23:01 +0100 (CET)
-From: Miroslav Benes <mbenes@suse.cz>
+Return-Path: <pmladek@suse.com>
+Date: Tue, 20 Dec 2016 10:39:16 +0100
+From: Petr Mladek <pmladek@suse.com>
 Subject: Re: [PATCH v3 01/15] stacktrace/x86: add function for detecting
  reliable stack traces
-In-Reply-To: <20161219172549.mjm4c2midvkumqxb@treble>
-Message-ID: <alpine.LSU.2.20.1612191919580.4153@pobox.suse.cz>
+Message-ID: <20161220093916.GA14894@pathway.suse.cz>
 References: <cover.1481220077.git.jpoimboe@redhat.com>
  <0315b36c08c104d56a4b43537fb300d200418996.1481220077.git.jpoimboe@redhat.com>
  <alpine.LSU.2.20.1612191712530.6638@pobox.suse.cz>
  <20161219172549.mjm4c2midvkumqxb@treble>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20161219172549.mjm4c2midvkumqxb@treble>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -20,11 +20,10 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+Cc: Miroslav Benes <mbenes@suse.cz>, Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 19 Dec 2016, Josh Poimboeuf wrote:
-
+On Mon 2016-12-19 11:25:49, Josh Poimboeuf wrote:
 > On Mon, Dec 19, 2016 at 05:25:19PM +0100, Miroslav Benes wrote:
 > > On Thu, 8 Dec 2016, Josh Poimboeuf wrote:
 > > 
@@ -63,23 +62,16 @@ On Mon, 19 Dec 2016, Josh Poimboeuf wrote:
 > 3) probably some kind of runtime NMI stack checking feature to
 >    complement objtool, along with a lot of burn time to ensure there are
 >    no issues, particularly in entry code
+
+Could you please provide more details about this NMI stack checking?
+What is it supposed to protect that objtool could not?
+Will it run regularly or will it be just a random check?
+
+The other points are obvious. But I do not know what to
+think about this NMI thing. And so I am curious :-)
+
+
 > 4) port save_stack_trace_tsk_reliable() to work with DWARF
 
-Yes, this is a lot of work to do.
- 
-> DWARF will be nice to have, but it's definitely not required before
-> merging this consistency model.
-
-Oh, I didn't mean it to be done before merging this patch set. Sorry for 
-the confusion. The point was that as long as the performance is involved 
-FP does not look that promising and DWARF could be better (but who knows, 
-right?).
-
-> Also I doubt we'll ever be able to drop frame pointer support
-> completely.  Some embedded systems may not want the overhead of the
-> DWARF metadata.
-
-True. There should be a choice in this respect.
-
-Regards,
-Miroslav
+Best Regards,
+Petr
