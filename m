@@ -1,11 +1,11 @@
 Return-Path: <mbenes@suse.cz>
-Date: Fri, 23 Dec 2016 13:58:45 +0100 (CET)
+Date: Fri, 23 Dec 2016 14:06:27 +0100 (CET)
 From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH v3 09/15] livepatch: remove unnecessary object loaded check
-In-Reply-To: <f6bedf84258006261fd2bb632e13d1d1904cda93.1481220077.git.jpoimboe@redhat.com>
-Message-ID: <alpine.LSU.2.20.1612231358350.5990@pobox.suse.cz>
+Subject: Re: [PATCH v3 10/15] livepatch: move patching functions into patch.c
+In-Reply-To: <e2886115107c9866221896574fa45fdd6e8b0f37.1481220077.git.jpoimboe@redhat.com>
+Message-ID: <alpine.LSU.2.20.1612231405520.5990@pobox.suse.cz>
 References: <cover.1481220077.git.jpoimboe@redhat.com>
- <f6bedf84258006261fd2bb632e13d1d1904cda93.1481220077.git.jpoimboe@redhat.com>
+ <e2886115107c9866221896574fa45fdd6e8b0f37.1481220077.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -22,11 +22,8 @@ List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, 8 Dec 2016, Josh Poimboeuf wrote:
 
-> klp_patch_object()'s callers already ensure that the object is loaded,
-> so its call to klp_is_object_loaded() is unnecessary.
-> 
-> This will also make it possible to move the patching code into a
-> separate file.
+> Move functions related to the actual patching of functions and objects
+> into a new patch.c file.
 > 
 > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
