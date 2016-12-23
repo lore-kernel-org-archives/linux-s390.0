@@ -1,12 +1,11 @@
 Return-Path: <mbenes@suse.cz>
-Date: Fri, 23 Dec 2016 13:54:50 +0100 (CET)
+Date: Fri, 23 Dec 2016 13:58:45 +0100 (CET)
 From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH v3 08/15] livepatch: separate enabled and patched
- states
-In-Reply-To: <de700cbd87b4157b0152c7293558a27deaf0a37b.1481220077.git.jpoimboe@redhat.com>
-Message-ID: <alpine.LSU.2.20.1612231352200.5990@pobox.suse.cz>
+Subject: Re: [PATCH v3 09/15] livepatch: remove unnecessary object loaded check
+In-Reply-To: <f6bedf84258006261fd2bb632e13d1d1904cda93.1481220077.git.jpoimboe@redhat.com>
+Message-ID: <alpine.LSU.2.20.1612231358350.5990@pobox.suse.cz>
 References: <cover.1481220077.git.jpoimboe@redhat.com>
- <de700cbd87b4157b0152c7293558a27deaf0a37b.1481220077.git.jpoimboe@redhat.com>
+ <f6bedf84258006261fd2bb632e13d1d1904cda93.1481220077.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -23,24 +22,11 @@ List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, 8 Dec 2016, Josh Poimboeuf wrote:
 
-> Once we have a consistency model, patches and their objects will be
-> enabled and disabled at different times.  For example, when a patch is
-> disabled, its loaded objects' funcs can remain registered with ftrace
-> indefinitely until the unpatching operation is complete and they're no
-> longer in use.
+> klp_patch_object()'s callers already ensure that the object is loaded,
+> so its call to klp_is_object_loaded() is unnecessary.
 > 
-> It's less confusing if we give them different names: patches can be
-> enabled or disabled; objects (and their funcs) can be patched or
-> unpatched:
-> 
-> - Enabled means that a patch is logically enabled (but not necessarily
->   fully applied).
-> 
-> - Patched means that an object's funcs are registered with ftrace and
->   added to the klp_ops func stack.
-> 
-> Also, since these states are binary, represent them with booleans
-> instead of ints.
+> This will also make it possible to move the patching code into a
+> separate file.
 > 
 > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
