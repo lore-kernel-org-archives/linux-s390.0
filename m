@@ -1,16 +1,14 @@
-Return-Path: <pmladek@suse.com>
-Date: Fri, 23 Dec 2016 11:18:03 +0100
-From: Petr Mladek <pmladek@suse.com>
-Subject: Re: [PATCH v3 13/15] livepatch: change to a per-task consistency model
-Message-ID: <20161223101803.GB2541@linux.suse>
+Return-Path: <mbenes@suse.cz>
+Date: Fri, 23 Dec 2016 13:54:50 +0100 (CET)
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: Re: [PATCH v3 08/15] livepatch: separate enabled and patched
+ states
+In-Reply-To: <de700cbd87b4157b0152c7293558a27deaf0a37b.1481220077.git.jpoimboe@redhat.com>
+Message-ID: <alpine.LSU.2.20.1612231352200.5990@pobox.suse.cz>
 References: <cover.1481220077.git.jpoimboe@redhat.com>
- <eeda3a8cf83bcbb569db4774c646ad739b8db415.1481220077.git.jpoimboe@redhat.com>
- <20161220173246.GC25166@pathway.suse.cz>
- <20161221212505.dbxeddu2skmjmwiq@treble>
- <alpine.LSU.2.20.1612231013470.5990@pobox.suse.cz>
+ <de700cbd87b4157b0152c7293558a27deaf0a37b.1481220077.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LSU.2.20.1612231013470.5990@pobox.suse.cz>
+Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -19,83 +17,33 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Miroslav Benes <mbenes@suse.cz>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>, Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri 2016-12-23 10:24:35, Miroslav Benes wrote:
-> > > > diff --git a/kernel/livepatch/patch.c b/kernel/livepatch/patch.c
-> > > > index 5efa262..e79ebb5 100644
-> > > > --- a/kernel/livepatch/patch.c
-> > > > +++ b/kernel/livepatch/patch.c
-> > > > @@ -29,6 +29,7 @@
-> > > >  #include <linux/bug.h>
-> > > >  #include <linux/printk.h>
-> > > >  #include "patch.h"
-> > > > +#include "transition.h"
-> > > >  
-> > > >  static LIST_HEAD(klp_ops);
-> > > >  
-> > > > @@ -54,15 +55,53 @@ static void notrace klp_ftrace_handler(unsigned long ip,
-> > > >  {
-> > > >  	struct klp_ops *ops;
-> > > >  	struct klp_func *func;
-> > > > +	int patch_state;
-> > > >  
-> > > >  	ops = container_of(fops, struct klp_ops, fops);
-> > > >  
-> > > >  	rcu_read_lock();
-> > > > +
-> > > >  	func = list_first_or_null_rcu(&ops->func_stack, struct klp_func,
-> > > >  				      stack_node);
-> > > > -	if (WARN_ON_ONCE(!func))
-> > > > +
-> > > > +	if (!func)
-> > > >  		goto unlock;
-> > > 
-> > > Why do you removed the WARN_ON_ONCE(), please?
-> > > 
-> > > We still add the function on the stack before registering
-> > > the ftrace handler. Also we unregister the ftrace handler
-> > > before removing the the last entry from the stack.
-> > > 
-> > > AFAIK, unregister_ftrace_function() calls rcu_synchronize()'
-> > > to make sure that no-one is inside the handler once finished.
-> > > Mirek knows more about it.
-> > 
-> > Hm, this is news to me.  Mirek, please share :-)
+On Thu, 8 Dec 2016, Josh Poimboeuf wrote:
+
+> Once we have a consistency model, patches and their objects will be
+> enabled and disabled at different times.  For example, when a patch is
+> disabled, its loaded objects' funcs can remain registered with ftrace
+> indefinitely until the unpatching operation is complete and they're no
+> longer in use.
 > 
-> Well, I think the whole thing is well described in emails I exchanged with 
-> Steven few months ago. See [1].
+> It's less confusing if we give them different names: patches can be
+> enabled or disabled; objects (and their funcs) can be patched or
+> unpatched:
 > 
-> [1] http://lkml.kernel.org/r/alpine.LNX.2.00.1608081041060.10833@pobox.suse.cz
->  
-> > > If this is not true, we have a problem. For example,
-> > > we call kfree(ops) after unregister_ftrace_function();
-> > 
-> > Agreed.
+> - Enabled means that a patch is logically enabled (but not necessarily
+>   fully applied).
 > 
-> TL;DR - we should be ok as long as we do not do crazy things in the 
-> handler, deliberate sleeping for example.
+> - Patched means that an object's funcs are registered with ftrace and
+>   added to the klp_ops func stack.
 > 
-> WARN_ON_ONCE() may be crazy too. I think we discussed it long ago and we 
-> came to an agreement to remove it.
+> Also, since these states are binary, represent them with booleans
+> instead of ints.
+> 
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
-There are definitely situations where this might hurt. For example,
-when we redirect a function called under logbuf_lock.
+Acked-by: Miroslav Benes <mbenes@suse.cz>
 
-On the other hand, there is a work in progress[1][2] that will mitigate
-this risk a lot. Also this warning would be printed only when
-something goes wrong. IMHO, it is worth the risk. It will succeed
-in 99,999% cases and it might save us some headache when debugging
-random crashes of the system.
-
-Anyway, if there is a reason to remove the warning, it should be
-described. And if it is not strictly related to this patch, it should
-be handled separately.
-
-[1] https://lkml.kernel.org/r/20161221143605.2272-1-sergey.senozhatsky@gmail.com
-[2] https://lkml.kernel.org/r/1461333180-2897-1-git-send-email-sergey.senozhatsky@gmail.com
-
-Best Regards,
-Petr
+Miroslav
