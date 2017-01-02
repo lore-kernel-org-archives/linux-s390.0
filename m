@@ -1,96 +1,90 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: How should we handle variable address space sizes (Re: [RFC 3/4]
- x86/mm: define TASK_SIZE as current->mm->task_size)
-Date: Mon, 2 Jan 2017 08:52:41 -0800
-Message-ID: <CALCETrU+BJ2JDRocBy-6SD_G6FbD+Ez_yb1QJ6Z1KXBjVzKOHg@mail.gmail.com>
-References: <CALCETrXMCVOmVcQYxF_ghPdEjLuNNqbcnoRKRVpJegsQ=SPEFQ@mail.gmail.com>
- <20170102094907.GC30735@node.shutemov.name>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 2 Jan 2017 13:37:03 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] two bug fixes for 4.10-rc3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20170102094907.GC30735@node.shutemov.name>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: "Kirill A. Shutemov" <kirill@shutemov.name>
-Cc: linux-arch <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, X86 ML <x86@kernel.org>, Andy Lutomirski <luto@kernel.org>, Carlos O'Donell <carlos@redhat.com>, Dmitry Safonov <dsafonov@virtuozzo.com>, "H. Peter Anvin" <hpa@zytor.com>, Will Deacon <will.deacon@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Dmitry Safonov <0x7f454c46@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Linux API <linux-api@vger.kernel.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Message-Id: <20170102133703.3895157a@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 2, 2017 at 1:49 AM, Kirill A. Shutemov <kirill@shutemov.name> wrote:
-> On Fri, Dec 30, 2016 at 06:11:05PM -0800, Andy Lutomirski wrote:
->> On Fri, Dec 30, 2016 at 7:56 AM, Dmitry Safonov <dsafonov@virtuozzo.com> wrote:
->> > Keep task's virtual address space size as mm_struct field which
->> > exists for a long time - it's initialized in setup_new_exec()
->> > depending on the new task's personality.
->> > This way TASK_SIZE will always be the same as current->mm->task_size.
->> > Previously, there could be an issue about different values of
->> > TASK_SIZE and current->mm->task_size: e.g, a 32-bit process can unset
->> > ADDR_LIMIT_3GB personality (with personality syscall) and
->> > so TASK_SIZE will be 4Gb, which is larger than mm->task_size = 3Gb.
->> > As TASK_SIZE *and* current->mm->task_size are used both in code
->> > frequently, this difference creates a subtle situations, for example:
->> > one can mmap addresses > 3Gb, but they will be hidden in
->> > /proc/pid/pagemap as it checks mm->task_size.
->> > I've moved initialization of mm->task_size earlier in setup_new_exec()
->> > as arch_pick_mmap_layout() initializes mmap_legacy_base with
->> > TASK_UNMAPPED_BASE, which depends on TASK_SIZE.
->>
->> I don't like this patch so much because I think that we should figure
->> out how this will all work in the long run first.  I've added some
->> more people to the thread because other arches have similar issues and
->> because x86 is about to get considerably more complicated (choices
->> include 3GB, 4GB, 47-bit, and 56-bit (the latter IIRC)).
->>
->> Here are a few of my thoughts on the matter.  This isn't all that well
->> thought out:
->>
->> The address space limit, especially if CRIU is in play, isn't really a
->> hard limit.  For example, you could allocate high memory then lower
->> the limit.  Similarly, I see no reason that an x32 program should be
->> forbidden from mapping some high addresses or, similarly, that an i386
->> program can't (if it really wanted to) do a 64-bit mmap() and get a
->> high address.
->>
->> On that note, can we just *delete* the task_size check from pagemap?
->> It's been there since the very beginning:
->>
->> commit 85863e475e59afb027b0113290e3796ee6020b7d
->> Author: Matt Mackall <mpm@selenic.com>
->> Date:   Mon Feb 4 22:29:04 2008 -0800
->>
->>     maps4: add /proc/pid/pagemap interface
->>
->> and there's no explanation for why it's needed.
->>
->> So maybe we should have a *number* (not a bit) that indicates the
->> maximum address that mmap() will return unless an override is in use.
->> Since common practice seems to be to stick this in the personality
->> field, we may need some fancy encoding.  Executing a setuid binary
->> needs to reset to the default, and personality handles that.
->
-> If we want to be able to specify arbitrary address as maximum, a fancy
-> encoding would need to claim 51 bits (63 VA - 12 in-page address) on x86
-> from the persona flag.
-> To me, it's stretching personality interface too far.
->
-> Maybe it's easier to reset the rlimit for suid binaries?
+Hi Linus,
 
-I guess I don't see why rlimit makes any sense, though.  It's not a
-resource utilization control, hard vs soft limits make very little
-sense, requiring capabilities to exceed the hard limit doesn't help
-anything, and it's only useful to preserve it across execve() to work
-around bugs.
+please pull from the 'for-linus' branch of
 
-So if it's going to be a number, let's just make it be a new number
-with a new API to control it.
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
---Andy
+to receive the following updates:
+
+Two bug fixes for 4.10-rc3
+
+Heiko Carstens (1):
+      s390/kbuild: enable modversions for symbols exported from asm
+
+Martin Schwidefsky (1):
+      s390/vtime: correct system time accounting
+
+ arch/s390/include/asm/asm-prototypes.h | 8 ++++++++
+ arch/s390/kernel/vtime.c               | 8 ++++----
+ 2 files changed, 12 insertions(+), 4 deletions(-)
+ create mode 100644 arch/s390/include/asm/asm-prototypes.h
+
+diff --git a/arch/s390/include/asm/asm-prototypes.h b/arch/s390/include/asm/asm-prototypes.h
+new file mode 100644
+index 0000000..2c3413b
+--- /dev/null
++++ b/arch/s390/include/asm/asm-prototypes.h
+@@ -0,0 +1,8 @@
++#ifndef _ASM_S390_PROTOTYPES_H
++
++#include <linux/kvm_host.h>
++#include <linux/ftrace.h>
++#include <asm/fpu/api.h>
++#include <asm-generic/asm-prototypes.h>
++
++#endif /* _ASM_S390_PROTOTYPES_H */
+diff --git a/arch/s390/kernel/vtime.c b/arch/s390/kernel/vtime.c
+index 6b246aa..1b5c5ee 100644
+--- a/arch/s390/kernel/vtime.c
++++ b/arch/s390/kernel/vtime.c
+@@ -94,7 +94,7 @@ static void update_mt_scaling(void)
+  * Update process times based on virtual cpu times stored by entry.S
+  * to the lowcore fields user_timer, system_timer & steal_clock.
+  */
+-static int do_account_vtime(struct task_struct *tsk, int hardirq_offset)
++static int do_account_vtime(struct task_struct *tsk)
+ {
+ 	u64 timer, clock, user, system, steal;
+ 	u64 user_scaled, system_scaled;
+@@ -138,7 +138,7 @@ static int do_account_vtime(struct task_struct *tsk, int hardirq_offset)
+ 	}
+ 	account_user_time(tsk, user);
+ 	tsk->utimescaled += user_scaled;
+-	account_system_time(tsk, hardirq_offset, system);
++	account_system_time(tsk, 0, system);
+ 	tsk->stimescaled += system_scaled;
+ 
+ 	steal = S390_lowcore.steal_timer;
+@@ -152,7 +152,7 @@ static int do_account_vtime(struct task_struct *tsk, int hardirq_offset)
+ 
+ void vtime_task_switch(struct task_struct *prev)
+ {
+-	do_account_vtime(prev, 0);
++	do_account_vtime(prev);
+ 	prev->thread.user_timer = S390_lowcore.user_timer;
+ 	prev->thread.system_timer = S390_lowcore.system_timer;
+ 	S390_lowcore.user_timer = current->thread.user_timer;
+@@ -166,7 +166,7 @@ void vtime_task_switch(struct task_struct *prev)
+  */
+ void vtime_account_user(struct task_struct *tsk)
+ {
+-	if (do_account_vtime(tsk, HARDIRQ_OFFSET))
++	if (do_account_vtime(tsk))
+ 		virt_timer_expire();
+ }
+ 
