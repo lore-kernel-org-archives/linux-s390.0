@@ -1,15 +1,17 @@
-Return-Path: <mbenes@suse.cz>
-Date: Tue, 10 Jan 2017 11:45:18 +0100 (CET)
-From: Miroslav Benes <mbenes@suse.cz>
+Return-Path: <pmladek@suse.com>
+Date: Tue, 10 Jan 2017 14:00:58 +0100
+From: Petr Mladek <pmladek@suse.com>
 Subject: Re: [PATCH v3 13/15] livepatch: change to a per-task consistency model
-In-Reply-To: <20170106210120.6xdwnakjjfdoe7ra@treble>
-Message-ID: <alpine.LSU.2.20.1701101134160.28763@pobox.suse.cz>
+Message-ID: <20170110130058.GH20785@pathway.suse.cz>
 References: <cover.1481220077.git.jpoimboe@redhat.com>
  <eeda3a8cf83bcbb569db4774c646ad739b8db415.1481220077.git.jpoimboe@redhat.com>
- <alpine.LSU.2.20.1701041423100.6852@pobox.suse.cz>
- <20170106210120.6xdwnakjjfdoe7ra@treble>
+ <20161220173246.GC25166@pathway.suse.cz>
+ <20161221212505.dbxeddu2skmjmwiq@treble>
+ <20161222143452.GK25166@pathway.suse.cz>
+ <20161222183137.sdfsiv5dpi7po6zk@treble>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20161222183137.sdfsiv5dpi7po6zk@treble>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -19,101 +21,308 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-> > > --- a/kernel/sched/idle.c
-> > > +++ b/kernel/sched/idle.c
-> > > @@ -9,6 +9,7 @@
-> > >  #include <linux/mm.h>
-> > >  #include <linux/stackprotector.h>
-> > >  #include <linux/suspend.h>
-> > > +#include <linux/livepatch.h>
-> > >  
-> > >  #include <asm/tlb.h>
-> > >  
-> > > @@ -264,6 +265,9 @@ static void do_idle(void)
-> > >  
-> > >  	sched_ttwu_pending();
-> > >  	schedule_preempt_disabled();
-> > > +
-> > > +	if (unlikely(klp_patch_pending(current)))
-> > > +		klp_update_patch_state(current);
-> > >  }
+On Thu 2016-12-22 12:31:37, Josh Poimboeuf wrote:
+> On Thu, Dec 22, 2016 at 03:34:52PM +0100, Petr Mladek wrote:
+> > On Wed 2016-12-21 15:25:05, Josh Poimboeuf wrote:
+> > > On Tue, Dec 20, 2016 at 06:32:46PM +0100, Petr Mladek wrote:
+> > > > On Thu 2016-12-08 12:08:38, Josh Poimboeuf wrote:
+> > > > > Change livepatch to use a basic per-task consistency model.  This is the
+> > > > > foundation which will eventually enable us to patch those ~10% of
+> > > > > security patches which change function or data semantics.  This is the
+> > > > > biggest remaining piece needed to make livepatch more generally useful.
+> > > > > 
+> > > > > [1] https://lkml.kernel.org/r/20141107140458.GA21774@suse.cz
+> > > > > 
+> > > > > --- /dev/null
+> > > > > +++ b/kernel/livepatch/transition.c
+> > > > > +	/*
+> > > > > +	 * Enforce the order of the task->patch_state initializations and the
+> > > > > +	 * func->transition updates to ensure that, in the enable path,
+> > > > > +	 * klp_ftrace_handler() doesn't see a func in transition with a
+> > > > > +	 * task->patch_state of KLP_UNDEFINED.
+> > > > > +	 */
+> > > > > +	smp_wmb();
+> > > > > +
+> > > > > +	/*
+> > > > > +	 * Set the func transition states so klp_ftrace_handler() will know to
+> > > > > +	 * switch to the transition logic.
+> > > > > +	 *
+> > > > > +	 * When patching, the funcs aren't yet in the func_stack and will be
+> > > > > +	 * made visible to the ftrace handler shortly by the calls to
+> > > > > +	 * klp_patch_object().
+> > > > > +	 *
+> > > > > +	 * When unpatching, the funcs are already in the func_stack and so are
+> > > > > +	 * already visible to the ftrace handler.
+> > > > > +	 */
+> > > > > +	klp_for_each_object(patch, obj)
+> > > > > +		klp_for_each_func(obj, func)
+> > > > > +			func->transition = true;
+> > > > > +}
+> > > > > +
+> > > > > +/*
+> > > > > + * Start the transition to the specified target patch state so tasks can begin
+> > > > > + * switching to it.
+> > > > > + */
+> > > > > +void klp_start_transition(void)
+> > > > > +{
+> > > > > +	struct task_struct *g, *task;
+> > > > > +	unsigned int cpu;
+> > > > > +
+> > > > > +	WARN_ON_ONCE(klp_target_state == KLP_UNDEFINED);
+> > > > > +
+> > > > > +	pr_notice("'%s': %s...\n", klp_transition_patch->mod->name,
+> > > > > +		  klp_target_state == KLP_PATCHED ? "patching" : "unpatching");
+> > > > > +
+> > > > > +	/*
+> > > > > +	 * If the patch can be applied or reverted immediately, skip the
+> > > > > +	 * per-task transitions.
+> > > > > +	 */
+> > > > > +	if (klp_transition_patch->immediate)
+> > > > > +		return;
+> > > > > +
+> > > > > +	/*
+> > > > > +	 * Mark all normal tasks as needing a patch state update.  As they pass
+> > > > > +	 * through the syscall barrier they'll switch over to the target state
+> > > > > +	 * (unless we switch them in klp_try_complete_transition() first).
+> > > > > +	 */
+> > > > > +	read_lock(&tasklist_lock);
+> > > > > +	for_each_process_thread(g, task)
+> > > > > +		set_tsk_thread_flag(task, TIF_PATCH_PENDING);
+> > > > 
+> > > > This is called also from klp_reverse_transition(). We should set it
+> > > > only when the task need migration. Also we should clear it when
+> > > > the task is in the right state already.
+> > > > 
+> > > > It is not only optimization. It actually solves a race between
+> > > > klp_complete_transition() and klp_update_patch_state(), see below.
+> > > 
+> > > I agree about the race, but if I did:
+> > > 
+> > > 	for_each_process_thread(g, task) {
+> > > 		if (task->patch_state != klp_target_state)
+> > > 			set_tsk_thread_flag(task, TIF_PATCH_PENDING);
+> > > 		else
+> > > 			clear_tsk_thread_flag(task, TIF_PATCH_PENDING);
+> > > 	}
+> > > 
+> > > It would still leave a small window where TIF_PATCH_PENDING gets set for
+> > > an already patched task, if klp_update_patch_state() is running at the
+> > > same time.
 > > 
-> > I think that (theoretically) this is not sufficient, if we patch a 
-> > function present on an idle task's stack and one of the two following 
-> > scenarios happen.
-> 
-> Agreed, though I'd argue that these are rare edge cases which can
-> probably be refined later, outside the scope of this patch set.
-
-You're right. They should be really rare and we can solve them (if we even 
-want to) later.
- 
-> > 1. there is nothing to schedule on a cpu and an idle task does not leave a 
-> > loop in do_idle() for some time. It may be a nonsense practically and if 
-> > it is not we could solve with schedule_on_each_cpu() on an empty stub 
-> > somewhere in our code.
-> 
-> This might only be a theoretical issue, as it only happens when patching
-> one of the idle functions themselves.
-> 
-> If we decided that this were a real world problem, we could use
-> something like schedule_on_each_cpu() to flush them out as you
-> suggested.  Or it could even be done from user space by briefly running
-> a CPU-intensive program on the affected CPUs.
-
-Yes.
-
-> > 2. there is a cpu-bound process running on one of the cpus. No chance of 
-> > going to do_idle() there at all and the idle task would block the 
-> > patching.
-> 
-> To clarify I think this would only be an issue when trying to patch idle
-> code or schedule()/__schedule().
-
-Yes.
-
-> > We ran into it in kGraft and I tried to solve it with this new 
-> > hunk in pick_next_task()...
+> > I see your point. Well, it seems that it is more complicated:
 > > 
-> > +       /*
-> > +        * Patching is in progress, schedule an idle task to migrate it
-> > +        */
-> > +       if (kgr_in_progress_branch()) {
-> > +               if (!test_bit(0, kgr_immutable) &&
-> > +                   klp_kgraft_task_in_progress(rq->idle)) {
-> > +                       p = idle_sched_class.pick_next_task(rq, prev);
-> > +
-> > +                       return p;
-> > +               }
-> > +       }
+> > The race would be possible only when this was called from
+> > klp_reverse_transition(). But we need to call there
+> > rcu_synchronize() to prevent races with klp_update_patch_state()
+> > also to prevent prelimitary patch completion.
 > > 
-> > (kgr_in_progress_branch() is a static key basically. kgr_immutable flag 
-> > solves something we don't have a problem with in upstream livepatch thanks 
-> > to a combination of task->patch_state and klp_func->transition. 
-> > klp_kgraft_task_in_progress() checks the livepatching TIF of a task.)
+> > The result is:
 > > 
-> > It is not tested properly and it is a hack as hell so take it as that. 
-> > Also note that the problem in kGraft is more serious as we don't have a 
-> > stack checking there. So any livepatch could cause the issue easily.
+> > 	if (task->patch_state != klp_target_state) {
+> > 	    # it means that the task was already migrated before
+> > 	    # we reverted klp_target_state. It means that
+> > 	    # the TIF flag was already cleared, the related
+> > 	    # klp_update_patch_state() already finished (thanks
+> > 	    # to rcu_synchronize() and new one will be called
+> > 	    # only when we set the flag again
+> > 	    # => it is safe to set it
 > > 
-> > I can imagine even crazier solutions but nothing nice and pretty (which is 
-> > probably impossible because the whole idea to deliberately schedule an 
-> > idle task is not nice and pretty).
+> > 	    # we should also check and warn when the TIF flag
+> > 	    # was not clear before we set it here
+> > 
+> > 
+> > 	else
+> > 
+> > 	    # the task was not migrated before we reverted
+> > 	    # klp_target_state. klp_update_patch_state()
+> > 	    # could run in parallel but it will do the same
+> > 	    # what we do, clear TIF flag and keep the patch_state
+> > 	    # as is
+> > 	    # => it is safe to clear it
+> > 
+> > 
+> > I agree that this is complex like hell. But it also allows use to
+> > check that things work as we expect.
 > 
-> Yeah, that looks hairy...
+> Ouch.  I agree that it seems safe but it's way too hard to reason about.
+> And then it gets worse if you try to think about what happens when
+> adding another reverse operation.
 > 
-> Since this is such a specialized case (patching the scheduler in an idle
-> task while CPU-intensive tasks are running) this might also be more
-> reasonably accomplished from user space by briefly SIGSTOPing the CPU
-> hog.
+> > 
+> > If we always set the flag here and always clear it later, we might
+> > hide a bug.
+> > 
+> > If we want to make it slightly more straightforward, we might
+> > clear TIF flags in klp_reverse_transaction() before we revert
+> > klp_target_state. The later rcu_synchronize() should make sure
+> > that all migrations are finished and non-will run in parallel.
+> > Then we could set the TIF flag only where needed here.
+> 
+> I think this last paragraph is important.  It would simplify things
+> greatly and ensure we won't have klp_update_patch_state() changing
+> things in the background.
 
-Yes, that is true. I can imagine there are users who don't want to stop 
-the cpu hog at all. Even for a fraction of time. HPC comes to mind. But it 
-is not worth it to solve it with something like the code above. Let's add 
-it to the very end of our TODO lists :). 
+OK, let's clear all TIF_PATCH_PENDIG flags and call rcu_synchronize()
+at the beginning of klp_reverse_transition(). It might be slightly
+suboptimal but it greatly simplifies the situation. I vote for it.
+We need to prevent our heads from cracking ;-)
 
-Miroslav
+Note that I would still set TIF_PATCH_PENDING flag only for tasks
+that are not in the requested state.
+
+
+> > > > > +	read_unlock(&tasklist_lock);
+> > > > > +
+> > > > > +	/*
+> > > > > +	 * Ditto for the idle "swapper" tasks, though they never cross the
+> > > > > +	 * syscall barrier.  Instead they switch over in cpu_idle_loop().
+> > > > > +	 */
+> > > > > +	get_online_cpus();
+> > > > > +	for_each_online_cpu(cpu)
+> > > > > +		set_tsk_thread_flag(idle_task(cpu), TIF_PATCH_PENDING);
+> > > > > +	put_online_cpus();
+> > > > 
+> > > > Also this stage need to be somehow handled by CPU coming/going
+> > > > handlers.
+> > > 
+> > > Here I think we could automatically switch any offline CPUs' idle tasks.
+> > > And something similar in klp_try_complete_transition().
+> > 
+> > We still need to make sure to do not race with the cpu_up()/cpu_down()
+> > calls.
+> 
+> Hm, maybe we'd need to call cpu_hotplug_disable() before switching the
+> offline idle tasks?
+> 
+> > I would use here the trick with for_each_possible_cpu() and let
+> > the migration for the stack check.
+> 
+> There are a few issues with that:
+> 
+> 1) The idle task of a missing CPU doesn't *have* a stack, so it doesn't
+>    make much sense to try to check it.
+> 
+> 2) We can't rely *only* on the stack check, because not all arches have
+>    it.  The other way to migrate idle tasks is from the idle loop switch
+>    point.  But if the task's CPU is down, its idle loop isn't running so
+>    it can't migrate.
+> 
+>    (Note this is currently a theoretical point: we currently don't allow
+>    such arches to use the consistency model anyway because there's no
+>    way for them to migrate kthreads.)
+
+Good points. My only concern is that the transaction might take a long
+or even forever. I am not sure if it is wise to disable cpu_hotplug
+for the entire transaction.
+
+A compromise might be to disable cpu hotplug only when the task
+state is manipulated a more complex way. Hmm, cpu_hotplug_disable()
+looks like a rather costly function. We should not call it in
+klp_try_complete_transition(). But we could do:
+
+  1. When the patch is being enabled, disable cpu hotplug,
+     go through each_possible_cpu and setup the transaction
+     only for CPUs that are online. Then we could enable
+     the hotplug again.
+
+  2. Check only each_online_cpu in klp_try_complete_transition().
+     If all tasks are migrated, disable cpu hotplug and re-check
+     idle tasks on online CPUs. If any is not migrated, enable
+     hotplug and return failure. Othewise, continue with
+     completion of the transaction. [*]
+
+  3. In klp_complete_transition, update all tasks including
+     the offline CPUs and enable cpu hotplug again.
+
+If the re-check in the 2nd step looks ugly, we could add some hotlug
+notifiers to make sure that enabled/disabled CPUs are in a reasonable
+state. We still should disable the hotplug in the 1st and 3rd step.
+
+BTW: There is a new API for the cpu hotplug callbacks. I was involved
+in one conversion. You might take inspiration in
+drivers/thermal/intel_powerclamp.c. See cpuhp_setup_state_nocalls()
+there.
+
+[...]
+
+> > > > > diff --git a/samples/livepatch/livepatch-sample.c b/samples/livepatch/livepatch-sample.c
+> > > > > index e34f871..bb61c65 100644
+> > > > > --- a/samples/livepatch/livepatch-sample.c
+> > > > > +++ b/samples/livepatch/livepatch-sample.c
+> > > > > @@ -17,6 +17,8 @@
+> > > > >   * along with this program; if not, see <http://www.gnu.org/licenses/>.
+> > > > >   */
+> > > > >  
+> > > > > +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> > > > > +
+> > > > >  #include <linux/module.h>
+> > > > >  #include <linux/kernel.h>
+> > > > >  #include <linux/livepatch.h>
+> > > > > @@ -69,6 +71,11 @@ static int livepatch_init(void)
+> > > > >  {
+> > > > >  	int ret;
+> > > > >  
+> > > > > +	if (!klp_have_reliable_stack() && !patch.immediate) {
+> > > > > +		pr_notice("disabling consistency model!\n");
+> > > > > +		patch.immediate = true;
+> > > > > +	}
+> > > > 
+> > > > I am scared to have this in the sample module. It makes sense
+> > > > to use the consistency model even for immediate patches because
+> > > > it allows to remove them. But this must not be used for patches
+> > > > that really require the consistency model. We should add
+> > > > a big fat warning at least.
+> > > 
+> > > I did this so that the sample module would still work for non-x86_64
+> > > arches, for which there's currently no way to patch kthreads.
+> > > 
+> > > Notice I did add a warning:
+> > > 
+> > >   pr_notice("disabling consistency model!\n");
+> > > 
+> > > Is the warning not fat enough?
+> > 
+> > The warning does not explain who did it, why, if it is safe, and when
+> > this could be used. I suggest a comment like:
+> > 
+> > /*
+> >  * WARNING: Use this check only when you know what you do!
+> >  *
+> >  * This sample patch does not change the semantic of the data structures,
+> >  * locks, or return adresses. It is safe to be applied immediately.
+> >  * But we want to test and use the consistency model on supported
+> >  * architectures. It allows to remove the patch module.
+> >  *
+> >  * See Documentation/livepatch/livepatch.txt for more details, please.
+> >  */
+> > 
+> > Also the message might be more explicit.
+> > 
+> >  pr_notice("livepatch-sample: The consistency model is not supported on
+> >  this architecture. Using the immediate model that is safe enough.\n");
+> 
+> Ok, will try to do something like that.
+> 
+> > Alternatively, we might allow more values for patch.immediate, e.g.
+> > 
+> > enum klp_consistency_model {
+> >      KLP_CM_IMMEDIATE,
+> >      KLP_CM_TASK,
+> >      KLP_CM_TASK_OR_IMMEDIATE,
+> > };
+> > 
+> > Then we could do the decision on the kernel side.
+> > But I am not sure if this would be widely used and it
+> > it is worth the complication.
+> 
+> I'd rather avoid that :-)
+
+Same here :-)
+
+
+
+Best Regards,
+Petr
