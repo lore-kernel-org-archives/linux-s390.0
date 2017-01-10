@@ -1,13 +1,13 @@
 Return-Path: <kamalesh@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 10/15] livepatch: move patching functions into patch.c
+Subject: Re: [PATCH v3 09/15] livepatch: remove unnecessary object loaded check
 References: <cover.1481220077.git.jpoimboe@redhat.com>
- <e2886115107c9866221896574fa45fdd6e8b0f37.1481220077.git.jpoimboe@redhat.com>
+ <f6bedf84258006261fd2bb632e13d1d1904cda93.1481220077.git.jpoimboe@redhat.com>
 From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Date: Tue, 10 Jan 2017 14:45:12 +0530
+Date: Tue, 10 Jan 2017 14:44:28 +0530
 MIME-Version: 1.0
-In-Reply-To: <e2886115107c9866221896574fa45fdd6e8b0f37.1481220077.git.jpoimboe@redhat.com>
+In-Reply-To: <f6bedf84258006261fd2bb632e13d1d1904cda93.1481220077.git.jpoimboe@redhat.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
-Message-Id: <ca5568f2-af19-6b32-bd72-13cf97afaa2c@linux.vnet.ibm.com>
+Message-Id: <dc02faac-d138-ffc6-11e1-e141ac9b593a@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -21,8 +21,11 @@ Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerma
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thursday 08 December 2016 11:38 PM, Josh Poimboeuf wrote:
-> Move functions related to the actual patching of functions and objects
-> into a new patch.c file.
+> klp_patch_object()'s callers already ensure that the object is loaded,
+> so its call to klp_is_object_loaded() is unnecessary.
+>
+> This will also make it possible to move the patching code into a
+> separate file.
 >
 > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
