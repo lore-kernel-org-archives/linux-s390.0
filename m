@@ -1,14 +1,13 @@
 Return-Path: <kamalesh@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 02/15] x86/entry: define _TIF_ALLWORK_MASK flags
- explicitly
+Subject: Re: [PATCH v3 08/15] livepatch: separate enabled and patched states
 References: <cover.1481220077.git.jpoimboe@redhat.com>
- <b03212d03f5f112ffa778c30012c7f8301f64929.1481220077.git.jpoimboe@redhat.com>
+ <de700cbd87b4157b0152c7293558a27deaf0a37b.1481220077.git.jpoimboe@redhat.com>
 From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Date: Tue, 10 Jan 2017 14:19:31 +0530
+Date: Tue, 10 Jan 2017 14:40:41 +0530
 MIME-Version: 1.0
-In-Reply-To: <b03212d03f5f112ffa778c30012c7f8301f64929.1481220077.git.jpoimboe@redhat.com>
+In-Reply-To: <de700cbd87b4157b0152c7293558a27deaf0a37b.1481220077.git.jpoimboe@redhat.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
-Message-Id: <7315bfd9-f6aa-9cf9-b262-da1a600a65be@linux.vnet.ibm.com>
+Message-Id: <3f6e85b4-dcd1-ee45-1cd6-144b6db7d51b@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -22,16 +21,26 @@ Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerma
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thursday 08 December 2016 11:38 PM, Josh Poimboeuf wrote:
-> The _TIF_ALLWORK_MASK macro automatically includes the least-significant
-> 16 bits of the thread_info flags, which is less than obvious and tends
-> to create confusion and surprises when reading or modifying the code.
+> Once we have a consistency model, patches and their objects will be
+> enabled and disabled at different times.  For example, when a patch is
+> disabled, its loaded objects' funcs can remain registered with ftrace
+> indefinitely until the unpatching operation is complete and they're no
+> longer in use.
 >
-> Define the flags explicitly.
+> It's less confusing if we give them different names: patches can be
+> enabled or disabled; objects (and their funcs) can be patched or
+> unpatched:
+>
+> - Enabled means that a patch is logically enabled (but not necessarily
+>   fully applied).
+>
+> - Patched means that an object's funcs are registered with ftrace and
+>   added to the klp_ops func stack.
+>
+> Also, since these states are binary, represent them with booleans
+> instead of ints.
 >
 > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-
-For the version with swapped _TIF_SINGLESTEP and _TIF_NEED_RESCHED
-flags.
 
 Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 
