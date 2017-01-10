@@ -1,13 +1,13 @@
 Return-Path: <kamalesh@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 08/15] livepatch: separate enabled and patched states
+Subject: Re: [PATCH v3 10/15] livepatch: move patching functions into patch.c
 References: <cover.1481220077.git.jpoimboe@redhat.com>
- <de700cbd87b4157b0152c7293558a27deaf0a37b.1481220077.git.jpoimboe@redhat.com>
+ <e2886115107c9866221896574fa45fdd6e8b0f37.1481220077.git.jpoimboe@redhat.com>
 From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Date: Tue, 10 Jan 2017 14:40:41 +0530
+Date: Tue, 10 Jan 2017 14:45:12 +0530
 MIME-Version: 1.0
-In-Reply-To: <de700cbd87b4157b0152c7293558a27deaf0a37b.1481220077.git.jpoimboe@redhat.com>
+In-Reply-To: <e2886115107c9866221896574fa45fdd6e8b0f37.1481220077.git.jpoimboe@redhat.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
-Message-Id: <3f6e85b4-dcd1-ee45-1cd6-144b6db7d51b@linux.vnet.ibm.com>
+Message-Id: <ca5568f2-af19-6b32-bd72-13cf97afaa2c@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -21,24 +21,8 @@ Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerma
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thursday 08 December 2016 11:38 PM, Josh Poimboeuf wrote:
-> Once we have a consistency model, patches and their objects will be
-> enabled and disabled at different times.  For example, when a patch is
-> disabled, its loaded objects' funcs can remain registered with ftrace
-> indefinitely until the unpatching operation is complete and they're no
-> longer in use.
->
-> It's less confusing if we give them different names: patches can be
-> enabled or disabled; objects (and their funcs) can be patched or
-> unpatched:
->
-> - Enabled means that a patch is logically enabled (but not necessarily
->   fully applied).
->
-> - Patched means that an object's funcs are registered with ftrace and
->   added to the klp_ops func stack.
->
-> Also, since these states are binary, represent them with booleans
-> instead of ints.
+> Move functions related to the actual patching of functions and objects
+> into a new patch.c file.
 >
 > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
