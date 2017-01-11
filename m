@@ -1,102 +1,51 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 02/13] s390/qeth: test RX/TX checksum offload reply
-Date: Wed, 11 Jan 2017 12:55:49 +0100
-Message-ID: <20170111115600.4524-3-ubraun@linux.vnet.ibm.com>
-References: <20170111115600.4524-1-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170111115600.4524-1-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Subject: [PATCH net-next 00/13] s390: qeth patches
+Date: Wed, 11 Jan 2017 12:55:47 +0100
+Message-ID: <20170111115600.4524-1-ubraun@linux.vnet.ibm.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, stable@vger.kernel.org, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Hi Dave,
 
-Turning on receive and/or transmit checksum offload support
-on the OSA card requires 2 commands:
-1. start command which replies with available features
-2. enable command to turn on selected features.
+here are several fixes for the s390 qeth driver, built for net-next.
 
-The current version does not check the reply of the start
-command and simply uses the returned value to enable
-offload features. When the start command returns zero, this
-leads to a situation where no checksum offload
-is turned on by the hardware. Even worse no error
-indication is returned. The Linux kernel assumes
-the OSA card performs RX/TX checksum offload, but the hardware
-does not perform any checksum verification at all.
+Thanks,
+Ursula
 
-This patch checks the return of the start and enable
-command responses from the hardware and turns off
-checksum offloading if the commands fails or does not
-respond with the correct bit setting.
+Julian Wiedmann (8):
+  s390/qeth: Allow reading hsuid from sysfs while card is DOWN
+  s390/qeth: Remove unused define QETH_IP_HEADER_SIZE
+  s390/qeth: drop unused parameter from qeth_l2_del_all_macs()
+  s390/qeth: when setting group MAC, don't convert return code twice
+  s390/qeth: consolidate errno translation for MAC management
+  s390/qeth: extract qeth_l2_remove_mac()
+  s390/qeth: shuffle MAC management functions around
+  s390/qeth: issue STARTLAN as first IPA command
 
-Signed-off-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 13 +++++++++++++
- drivers/s390/net/qeth_core_mpc.h  | 10 ++++++++++
- 2 files changed, 23 insertions(+)
+Thomas Richter (3):
+  s390/qeth: rework RX/TX checksum offload command to use call back
+    functions
+  s390/qeth: test RX/TX checksum offload reply from hardware
+  s390/qeth: display warning for OSA3 RX/TX checksum offloading
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 5ab80ea..49b813f 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6104,11 +6104,19 @@ static int qeth_ipa_checksum_run_cmd(struct qeth_card *card,
- 
- static int qeth_send_checksum_on(struct qeth_card *card, int cstype)
- {
-+	const __u32 required_features = QETH_IPA_CHECKSUM_IP_HDR |
-+					QETH_IPA_CHECKSUM_UDP |
-+					QETH_IPA_CHECKSUM_TCP;
- 	struct qeth_checksum_cmd chksum_cb;
- 	int rc;
- 
- 	rc = qeth_ipa_checksum_run_cmd(card, cstype, IPA_CMD_ASS_START, 0,
- 				       &chksum_cb);
-+	if (!rc) {
-+		if ((required_features & chksum_cb.supported) !=
-+		    required_features)
-+			rc = -EIO;
-+	}
- 	if (rc) {
- 		qeth_send_simple_setassparms(card, cstype, IPA_CMD_ASS_STOP, 0);
- 		dev_warn(&card->gdev->dev,
-@@ -6118,6 +6126,11 @@ static int qeth_send_checksum_on(struct qeth_card *card, int cstype)
- 	}
- 	rc = qeth_ipa_checksum_run_cmd(card, cstype, IPA_CMD_ASS_ENABLE,
- 				       chksum_cb.supported, &chksum_cb);
-+	if (!rc) {
-+		if ((required_features & chksum_cb.enabled) !=
-+		    required_features)
-+			rc = -EIO;
-+	}
- 	if (rc) {
- 		qeth_send_simple_setassparms(card, cstype, IPA_CMD_ASS_STOP, 0);
- 		dev_warn(&card->gdev->dev,
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index f54ea72..bc69d0a 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -352,6 +352,16 @@ struct qeth_arp_query_info {
- 	char *udata;
- };
- 
-+/* IPA set assist segmentation bit definitions for receive and
-+ * transmit checksum offloading.
-+ */
-+enum qeth_ipa_checksum_bits {
-+	QETH_IPA_CHECKSUM_IP_HDR	= 0x0002,
-+	QETH_IPA_CHECKSUM_UDP		= 0x0008,
-+	QETH_IPA_CHECKSUM_TCP		= 0x0010,
-+	QETH_IPA_CHECKSUM_LP2LP		= 0x0020
-+};
-+
- /* IPA Assist checksum offload reply layout. */
- struct qeth_checksum_cmd {
- 	__u32 supported;
+Ursula Braun (2):
+  s390/qeth: fix retrieval of vipa and proxy-arp addresses
+  s390/qeth: remove OSN-devices
+
+ drivers/s390/net/qeth_core.h      |  33 ---
+ drivers/s390/net/qeth_core_main.c | 188 +++++++++-------
+ drivers/s390/net/qeth_core_mpc.c  |   3 -
+ drivers/s390/net/qeth_core_mpc.h  |  27 ++-
+ drivers/s390/net/qeth_core_sys.c  |  17 --
+ drivers/s390/net/qeth_l2_main.c   | 456 +++++++++++---------------------------
+ drivers/s390/net/qeth_l3_main.c   |  15 --
+ drivers/s390/net/qeth_l3_sys.c    |  33 ++-
+ 8 files changed, 268 insertions(+), 504 deletions(-)
+
 -- 
 2.8.4
