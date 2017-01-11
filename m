@@ -1,26 +1,42 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 0/1] af_iucv: don't use paged skbs for TX on HiperSockets
-Date: Tue, 10 Jan 2017 17:10:33 +0100
-Message-ID: <20170110161034.82445-1-ubraun@linux.vnet.ibm.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 1/1] net/af_iucv: don't use paged skbs for TX on
+ HiperSockets
+Date: Tue, 10 Jan 2017 21:07:11 -0500 (EST)
+Message-ID: <20170110.210711.1780886001866499809.davem@davemloft.net>
+References: <20170110161034.82445-1-ubraun@linux.vnet.ibm.com>
+        <20170110161034.82445-2-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170110161034.82445-2-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, stable@vger.kernel.org, ubraun@linux.vnet.ibm.com
+To: ubraun@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Tue, 10 Jan 2017 17:10:34 +0100
 
-here is an af_iucv patch built for the net-tree.
+> From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+> 
+> With commit e53743994e21
+> ("af_iucv: use paged SKBs for big outbound messages"),
+> we transmit paged skbs for both of AF_IUCV's transport modes
+> (IUCV or HiperSockets).
+> The qeth driver for Layer 3 HiperSockets currently doesn't
+> support NETIF_F_SG, so these skbs would just be linearized again
+> by the stack.
+> Avoid that overhead by using paged skbs only for IUCV transport.
+> 
+> cc stable, since this also circumvents a significant skb leak when
+> sending large messages (where the skb then needs to be linearized).
+> 
+> Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+> Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+> Cc: <stable@vger.kernel.org> # v4.8+
+> Fixes: e53743994e21 ("af_iucv: use paged SKBs for big outbound messages")
 
-Thanks, Ursula
-
-Julian Wiedmann (1):
-  net/af_iucv: don't use paged skbs for TX on HiperSockets
-
- net/iucv/af_iucv.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
-
--- 
-2.8.4
+Applied.
