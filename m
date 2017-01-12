@@ -1,66 +1,58 @@
-From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: [PATCH] s390: virtio: constify virtio_config_ops structures
-Date: Sat, 14 Jan 2017 00:18:56 +0530
-Message-ID: <1484333336-13443-1-git-send-email-bhumirks@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: julia.lawall@lip6.fr, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cornelia.huck@de.ibm.com, schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Bhumika Goyal <bhumirks@gmail.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Thu, 12 Jan 2017 12:38:24 +0000
+Subject: Re: [bug report] smc: connection and link group creation
+Message-Id: <5a3b2dbd-f2ba-c840-ff38-6e7f4e6ad2d8@linux.vnet.ibm.com>
+In-Reply-To: <20170112080823.GA27977@mwanda>
+References: <20170112080823.GA27977@mwanda>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Declare virtio_config_ops structure as const as it is only stored in the
-config field of a virtio_device structure. This field is of type const, so
-virtio_config_ops structures having this property can be declared const.
-Done using Coccinelle:
 
-@r1 disable optional_qualifier@
-identifier i;
-position p;
-@@
-static struct virtio_config_ops i@p={...};
-
-@ok1@
-identifier r1.i;
-position p;
-struct virtio_ccw_device x;
-@@
-x.vdev.config=&i@p
-
-@bad@
-position p!={r1.p,ok1.p};
-identifier r1.i;
-@@
-i@p
-
-@depends on !bad disable optional_qualifier@
-identifier r1.i;
-@@
-+const
-struct virtio_config_ops i;
-
-File size before and after applying the patch remains the same.
-text	data	bss	dec	hex   filename
-9235	296	32928	42459	a5db  drivers/s390/virtio/virtio_ccw.o
-
-Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
----
- drivers/s390/virtio/virtio_ccw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 639ed4e..6508bf4 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -920,7 +920,7 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
- 	kfree(ccw);
- }
- 
--static struct virtio_config_ops virtio_ccw_config_ops = {
-+static const struct virtio_config_ops virtio_ccw_config_ops = {
- 	.get_features = virtio_ccw_get_features,
- 	.finalize_features = virtio_ccw_finalize_features,
- 	.get = virtio_ccw_get_config,
--- 
-1.9.1
+On 01/12/2017 09:08 AM, Dan Carpenter wrote:
+> Hello Ursula Braun,
+> 
+> The patch 0cfdd8f92cac: "smc: connection and link group creation"
+> from Jan 9, 2017, leads to the following static checker warning:
+> 
+> 	net/smc/smc_clc.c:202 smc_clc_send_confirm()
+> 	error: __memcpy() '&cclc.lcl.mac' too small (6 vs 12)
+Thanks for reporting this. I will come up with a fix.
+> 
+> net/smc/smc_clc.c
+>    181  /* send CLC CONFIRM message across internal TCP socket */
+>    182  int smc_clc_send_confirm(struct smc_sock *smc)
+>    183  {
+>    184          struct smc_connection *conn = &smc->conn;
+>    185          struct smc_clc_msg_accept_confirm cclc;
+>    186          struct smc_link *link;
+>    187          int reason_code = 0;
+>    188          struct msghdr msg;
+>    189          struct kvec vec;
+>    190          int len;
+>    191  
+>    192          link = &conn->lgr->lnk[SMC_SINGLE_LINK];
+>    193          /* send SMC Confirm CLC msg */
+>    194          memset(&cclc, 0, sizeof(cclc));
+>    195          memcpy(cclc.hdr.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+>    196          cclc.hdr.type = SMC_CLC_CONFIRM;
+>    197          cclc.hdr.length = htons(sizeof(cclc));
+>    198          cclc.hdr.version = SMC_CLC_V1;          /* SMC version */
+>    199          memcpy(cclc.lcl.id_for_peer, local_systemid, sizeof(local_systemid));
+>    200          memcpy(&cclc.lcl.gid, &link->smcibdev->gid[link->ibport - 1],
+>    201                 SMC_GID_SIZE);
+>    202          memcpy(&cclc.lcl.mac, &link->smcibdev->mac[link->ibport - 1],
+>    203                 sizeof(link->smcibdev->mac));
+> 
+> We are corrupting the top bits of link here.  Or maybe there is padding?
+Not the top bits of link are overwritten, but the following field "qpn" in struct
+smc_clc_msg_accept_confirm. "qpn" is set later on anyway; that's why the code
+works, even though the memcpy length is wrong (and will be fixed).
+> 
+>    204          hton24(cclc.qpn, link->roce_qp->qp_num);
+>    205          cclc.rmb_rkey =
+>    206                  htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
+> 
+> regards,
+> dan carpenter
+> 
+Regards, Ursula Braun
