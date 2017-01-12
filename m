@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v2 10/12] s390x/css: introduce and realize ccw-request callback
-Date: Thu, 12 Jan 2017 08:25:11 +0100
-Message-ID: <20170112072513.98411-11-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH RFC v2 12/12] vfio/ccw: update sense data if a unit check is pending
+Date: Thu, 12 Jan 2017 08:25:13 +0100
+Message-ID: <20170112072513.98411-13-bjsdjshi@linux.vnet.ibm.com>
 References: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,171 +12,40 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+Concurrent-sense data is currently not delivered. This patch stores
+the concurrent-sense data to the subchannel if a unit check is pending
+and the concurrent-sense bit is enabled. Then a TSCH can retreive the
+right IRB data back to the guest.
 
-Introduce a new callback on subchannel to handle ccw-request.
-Realize the callback in vfio-ccw device. Besides, resort to
-the event notifier handler to handling the ccw-request results.
-1. Pread the I/O results via MMIO region.
-2. Update the scsw info to guest.
-3. Inject an I/O interrupt to notify guest the I/O result.
-
-Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 ---
- hw/s390x/css.c         |  4 +--
- hw/s390x/s390-ccw.h    |  1 +
- hw/vfio/ccw.c          | 73 ++++++++++++++++++++++++++++++++++++++++++++++++++
- include/hw/s390x/css.h |  2 ++
- 4 files changed, 78 insertions(+), 2 deletions(-)
+ hw/vfio/ccw.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-index 67fe468..c3a323e 100644
---- a/hw/s390x/css.c
-+++ b/hw/s390x/css.c
-@@ -238,7 +238,7 @@ uint16_t css_build_subchannel_id(SubchDev *sch)
-     return css_do_build_subchannel_id(sch->cssid, sch->ssid);
- }
- 
--static void css_inject_io_interrupt(SubchDev *sch)
-+void css_inject_io_interrupt(SubchDev *sch)
- {
-     uint8_t isc = (sch->curr_status.pmcw.flags & PMCW_FLAGS_MASK_ISC) >> 11;
- 
-@@ -644,7 +644,7 @@ static void copy_pmcw_to_guest(PMCW *dest, const PMCW *src)
-     dest->chars = cpu_to_be32(src->chars);
- }
- 
--static void copy_scsw_to_guest(SCSW *dest, const SCSW *src)
-+void copy_scsw_to_guest(SCSW *dest, const SCSW *src)
- {
-     dest->flags = cpu_to_be16(src->flags);
-     dest->ctrl = cpu_to_be16(src->ctrl);
-diff --git a/hw/s390x/s390-ccw.h b/hw/s390x/s390-ccw.h
-index 1fa4a97..2d3a2b5 100644
---- a/hw/s390x/s390-ccw.h
-+++ b/hw/s390x/s390-ccw.h
-@@ -27,6 +27,7 @@ typedef struct S390CCWDevice {
-     CcwDevice parent_obj;
-     CssDevId hostid;
-     char *mdevid;
-+    int (*handle_request) (ORB *, SCSW *, void *);
- } S390CCWDevice;
- 
- typedef struct S390CCWDeviceClass {
 diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-index c6bfce7..34c719a 100644
+index 34c719a..cc745b0 100644
 --- a/hw/vfio/ccw.c
 +++ b/hw/vfio/ccw.c
-@@ -47,6 +47,36 @@ struct VFIODeviceOps vfio_ccw_ops = {
-     .vfio_compute_needs_reset = vfio_ccw_compute_needs_reset,
- };
- 
-+static int vfio_ccw_handle_request(ORB *orb, SCSW *scsw, void *data)
-+{
-+    S390CCWDevice *cdev = data;
-+    VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
-+    struct ccw_io_region *region = vcdev->io_region;
-+    int ret;
-+
-+    QEMU_BUILD_BUG_ON(sizeof(region->orb_area) != sizeof(ORB));
-+    QEMU_BUILD_BUG_ON(sizeof(region->scsw_area) != sizeof(SCSW));
-+    QEMU_BUILD_BUG_ON(sizeof(region->irb_area) != sizeof(IRB));
-+
-+    memset(region, 0, sizeof(*region));
-+
-+    memcpy(region->orb_area, orb, sizeof(ORB));
-+    memcpy(region->scsw_area, scsw, sizeof(SCSW));
-+
-+again:
-+    ret = pwrite(vcdev->vdev.fd, region,
-+                 vcdev->io_region_size, vcdev->io_region_offset);
-+    if (ret != vcdev->io_region_size) {
-+        if (errno == EAGAIN) {
-+            goto again;
-+        }
-+        error_report("vfio-ccw: wirte I/O region failed with errno=%d",errno);
-+        return -errno;
-+    }
-+
-+    return region->ret_code;
-+}
-+
- static void vfio_ccw_reset(DeviceState *dev)
- {
-     CcwDevice *ccw_dev = DO_UPCAST(CcwDevice, parent_obj, dev);
-@@ -59,10 +89,52 @@ static void vfio_ccw_reset(DeviceState *dev)
- static void vfio_ccw_io_notifier_handler(void *opaque)
- {
-     VFIOCCWDevice *vcdev = opaque;
-+    struct ccw_io_region *region = vcdev->io_region;
-+    S390CCWDevice *cdev = S390_CCW_DEVICE(vcdev);
-+    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
-+    SubchDev *sch = ccw_dev->sch;
-+    SCSW *s = &sch->curr_status.scsw;
-+    IRB irb;
+@@ -94,6 +94,7 @@ static void vfio_ccw_io_notifier_handler(void *opaque)
+     CcwDevice *ccw_dev = CCW_DEVICE(cdev);
+     SubchDev *sch = ccw_dev->sch;
+     SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
+     IRB irb;
  
      if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
-         return;
-     }
-+
-+    if (pread(vcdev->vdev.fd, region,
-+              vcdev->io_region_size, vcdev->io_region_offset) == -1) {
-+        switch (errno) {
-+        case ENODEV:
-+            /* Generate a deferred cc 3 condition. */
-+            s->flags |= SCSW_FLAGS_MASK_CC;
-+            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
-+            s->ctrl |= (SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND);
-+            goto read_err;
-+        case EFAULT:
-+            /* memory problem, generate channel data check */
-+            s->ctrl &= ~SCSW_ACTL_START_PEND;
-+            s->cstat = SCSW_CSTAT_DATA_CHECK;
-+            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
-+            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
-+                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
-+            goto read_err;
-+        default:
-+            /* error, generate channel program check */
-+            s->ctrl &= ~SCSW_ACTL_START_PEND;
-+            s->cstat = SCSW_CSTAT_PROG_CHECK;
-+            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
-+            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
-+                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
-+            goto read_err;
-+        }
+@@ -133,6 +134,12 @@ static void vfio_ccw_io_notifier_handler(void *opaque)
+     /* Update control block via irb. */
+     copy_scsw_to_guest(s, &irb.scsw);
+ 
++    /* If a uint check is pending, copy sense data. */
++    if ((s->dstat & SCSW_DSTAT_UNIT_CHECK) &&
++        (p->chars & PMCW_CHARS_MASK_CSENSE)) {
++        memcpy(sch->sense_data, irb.ecw, sizeof(irb.ecw));
 +    }
 +
-+    memcpy(&irb, region->irb_area, sizeof(IRB));
-+
-+    /* Update control block via irb. */
-+    copy_scsw_to_guest(s, &irb.scsw);
-+
-+read_err:
-+    css_inject_io_interrupt(sch);
+ read_err:
+     css_inject_io_interrupt(sch);
  }
- 
- static void vfio_ccw_register_io_notifier(VFIOCCWDevice *vcdev, Error **errp)
-@@ -253,6 +325,7 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
-     S390CCWDeviceClass *cdc = S390_CCW_DEVICE_GET_CLASS(cdev);
-     char *path[4] = {NULL, NULL, NULL, NULL};
- 
-+    cdev->handle_request = vfio_ccw_handle_request;
-     /* Call the class init function for subchannel. */
-     if (cdc->realize) {
-         cdc->realize(cdev, errp);
-diff --git a/include/hw/s390x/css.h b/include/hw/s390x/css.h
-index c92f624..2884439 100644
---- a/include/hw/s390x/css.h
-+++ b/include/hw/s390x/css.h
-@@ -134,6 +134,8 @@ void css_subch_assign(uint8_t cssid, uint8_t ssid, uint16_t schid,
- void css_sch_build_virtual_schib(SubchDev *sch, uint8_t chpid, uint8_t type);
- int css_sch_build_schib(SubchDev *sch, CssDevId *dev_id);
- uint16_t css_build_subchannel_id(SubchDev *sch);
-+void copy_scsw_to_guest(SCSW *dest, const SCSW *src);
-+void css_inject_io_interrupt(SubchDev *sch);
- void css_reset(void);
- void css_reset_sch(SubchDev *sch);
- void css_queue_crw(uint8_t rsc, uint8_t erc, int chain, uint16_t rsid);
 -- 
 2.8.4
