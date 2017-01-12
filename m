@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v2 01/15] s390: cio: introduce cio_cancel_halt_clear
-Date: Thu, 12 Jan 2017 08:19:33 +0100
-Message-ID: <20170112071947.98071-2-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH RFC v2 06/15] vfio: ccw: register vfio_ccw to the mediated device framework
+Date: Thu, 12 Jan 2017 08:19:38 +0100
+Message-ID: <20170112071947.98071-7-bjsdjshi@linux.vnet.ibm.com>
 References: <20170112071947.98071-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170112071947.98071-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,171 +12,263 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-For future code reuse purpose, this decouples the cio code with
-the ccw device specific parts from ccw_device_cancel_halt_clear,
-and makes a new common I/O interface named cio_cancel_halt_clear.
+To make vfio support subchannel devices, we need to leverage the
+mediated device framework to create a mediated device for the
+subchannel device.
+
+This registers the subchannel device to the mediated device
+framework during probe to enable mediated device creation.
 
 Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 ---
- drivers/s390/cio/cio.c        | 59 +++++++++++++++++++++++++++++++++++++++++++
- drivers/s390/cio/cio.h        |  1 +
- drivers/s390/cio/device_fsm.c | 54 ++++++---------------------------------
- 3 files changed, 68 insertions(+), 46 deletions(-)
+ arch/s390/Kconfig                   |   2 +-
+ drivers/s390/cio/Makefile           |   2 +-
+ drivers/s390/cio/vfio_ccw_drv.c     |  10 ++-
+ drivers/s390/cio/vfio_ccw_ops.c     | 149 ++++++++++++++++++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_private.h |   9 +++
+ 5 files changed, 169 insertions(+), 3 deletions(-)
+ create mode 100644 drivers/s390/cio/vfio_ccw_ops.c
 
-diff --git a/drivers/s390/cio/cio.c b/drivers/s390/cio/cio.c
-index de6fccc..8f86072 100644
---- a/drivers/s390/cio/cio.c
-+++ b/drivers/s390/cio/cio.c
-@@ -309,6 +309,65 @@ cio_cancel (struct subchannel *sch)
- 	}
- }
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index b920df8..32008b8 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -673,7 +673,7 @@ config EADM_SCH
+ config VFIO_CCW
+ 	def_tristate n
+ 	prompt "Support for VFIO-CCW subchannels"
+-	depends on S390_CCW_IOMMU && VFIO
++	depends on S390_CCW_IOMMU && VFIO_MDEV
+ 	help
+ 	  This driver allows usage of VFIO-CCW subchannels.
  
-+/**
-+ * cio_cancel_halt_clear - Cancel running I/O by performing cancel, halt
-+ * and clear ordinally if subchannel is valid.
-+ * @sch: subchannel on which to perform the cancel_halt_clear operation
-+ * @iretry: the number of the times remained to retry the next operation
+diff --git a/drivers/s390/cio/Makefile b/drivers/s390/cio/Makefile
+index 1bec279..b0586b2 100644
+--- a/drivers/s390/cio/Makefile
++++ b/drivers/s390/cio/Makefile
+@@ -18,5 +18,5 @@ obj-$(CONFIG_CCWGROUP) += ccwgroup.o
+ qdio-objs := qdio_main.o qdio_thinint.o qdio_debug.o qdio_setup.o
+ obj-$(CONFIG_QDIO) += qdio.o
+ 
+-vfio_ccw-objs += vfio_ccw_drv.o vfio_ccw_cp.o
++vfio_ccw-objs += vfio_ccw_drv.o vfio_ccw_cp.o vfio_ccw_ops.o
+ obj-$(CONFIG_VFIO_CCW) += vfio_ccw.o
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 5759d2a..ef34b15 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -23,7 +23,7 @@
+ /*
+  * Helpers
+  */
+-static int vfio_ccw_sch_quiesce(struct subchannel *sch)
++int vfio_ccw_sch_quiesce(struct subchannel *sch)
+ {
+ 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
+ 	DECLARE_COMPLETION_ONSTACK(completion);
+@@ -156,8 +156,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	if (ret)
+ 		goto out_disable;
+ 
++	ret = vfio_ccw_mdev_reg(sch);
++	if (ret)
++		goto out_rm_group;
++
+ 	return 0;
+ 
++out_rm_group:
++	sysfs_remove_group(&sch->dev.kobj, &vfio_subchannel_attr_group);
+ out_disable:
+ 	cio_disable_subchannel(sch);
+ out_free:
+@@ -172,6 +178,8 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
+ 
+ 	vfio_ccw_sch_quiesce(sch);
+ 
++	vfio_ccw_mdev_unreg(sch);
++
+ 	sysfs_remove_group(&sch->dev.kobj, &vfio_subchannel_attr_group);
+ 
+ 	dev_set_drvdata(&sch->dev, NULL);
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+new file mode 100644
+index 0000000..6031a10
+--- /dev/null
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -0,0 +1,149 @@
++/*
++ * Physical device callbacks for vfio_ccw
 + *
-+ * This should be called repeatedly since halt/clear are asynchronous
-+ * operations. We do one try with cio_cancel, two tries with cio_halt,
-+ * 255 tries with cio_clear. The caller should initialize @iretry with
-+ * the value 255 for its first call to this, and keep using the same
-+ * @iretry in the subsequent calls until it gets a non -EBUSY return.
++ * Copyright IBM Corp. 2017
 + *
-+ * Returns 0 if device now idle, -ENODEV for device not operational,
-+ * -EBUSY if an interrupt is expected (either from halt/clear or from a
-+ * status pending), and -EIO if out of retries.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
++ *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
 + */
-+int cio_cancel_halt_clear(struct subchannel *sch, int *iretry)
++
++#include <linux/vfio.h>
++#include <linux/mdev.h>
++
++#include "vfio_ccw_private.h"
++
++#define MAX_INSTANCES	1
++static int available_instances = MAX_INSTANCES;
++
++static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
++				  unsigned long action,
++				  void *data)
 +{
++	struct vfio_ccw_private *private =
++		container_of(nb, struct vfio_ccw_private, nb);
++
++	if (!private)
++		return NOTIFY_STOP;
++
++	/*
++	 * TODO:
++	 * Vendor drivers MUST unpin pages in response to an
++	 * invalidation.
++	 */
++	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP)
++		return NOTIFY_BAD;
++
++	return NOTIFY_DONE;
++}
++
++static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
++{
++	return sprintf(buf, "I/O subchannel (Non-QDIO)\n");
++}
++MDEV_TYPE_ATTR_RO(name);
++
++static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
++			       char *buf)
++{
++	return sprintf(buf, "%s\n", VFIO_DEVICE_API_CCW_STRING);
++}
++MDEV_TYPE_ATTR_RO(device_api);
++
++static ssize_t available_instances_show(struct kobject *kobj,
++					struct device *dev, char *buf)
++{
++	return sprintf(buf, "%d\n", available_instances);
++}
++MDEV_TYPE_ATTR_RO(available_instances);
++
++static struct attribute *mdev_types_attrs[] = {
++	&mdev_type_attr_name.attr,
++	&mdev_type_attr_device_api.attr,
++	&mdev_type_attr_available_instances.attr,
++	NULL,
++};
++
++static struct attribute_group mdev_type_group = {
++	.name  = "io",
++	.attrs = mdev_types_attrs,
++};
++
++struct attribute_group *mdev_type_groups[] = {
++	&mdev_type_group,
++	NULL,
++};
++
++static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
++{
++	struct vfio_ccw_private *private = dev_get_drvdata(mdev->parent->dev);
++
++	/* Only support one mediated device for each physical subchannel. */
++	if (private->mdev)
++		return -EPERM;
++
++	private->mdev = mdev;
++	available_instances--;
++
++	return 0;
++}
++
++static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
++{
++	struct vfio_ccw_private *private = dev_get_drvdata(mdev->parent->dev);
++	struct subchannel *sch;
 +	int ret;
 +
-+	if (cio_update_schib(sch))
-+		return -ENODEV;
-+	if (!sch->schib.pmcw.ena)
-+		/* Not operational -> done. */
-+		return 0;
-+	/* Stage 1: cancel io. */
-+	if (!(scsw_actl(&sch->schib.scsw) & SCSW_ACTL_HALT_PEND) &&
-+	    !(scsw_actl(&sch->schib.scsw) & SCSW_ACTL_CLEAR_PEND)) {
-+		if (!scsw_is_tm(&sch->schib.scsw)) {
-+			ret = cio_cancel(sch);
-+			if (ret != -EINVAL)
-+				return ret;
-+		}
-+		/*
-+		 * Cancel io unsuccessful or not applicable (transport mode).
-+		 * Continue with asynchronous instructions.
-+		 */
-+		*iretry = 3;	/* 3 halt retries. */
-+	}
-+	/* Stage 2: halt io. */
-+	if (!(scsw_actl(&sch->schib.scsw) & SCSW_ACTL_CLEAR_PEND)) {
-+		if (*iretry) {
-+			*iretry -= 1;
-+			ret = cio_halt(sch);
-+			if (ret != -EBUSY)
-+				return (ret == 0) ? -EBUSY : ret;
-+		}
-+		/* Halt io unsuccessful. */
-+		*iretry = 255;	/* 255 clear retries. */
-+	}
-+	/* Stage 3: clear io. */
-+	if (*iretry) {
-+		*iretry -= 1;
-+		ret = cio_clear(sch);
-+		return (ret == 0) ? -EBUSY : ret;
-+	}
-+	/* Function was unsuccessful */
-+	return -EIO;
++	sch = private->sch;
++	ret = vfio_ccw_sch_quiesce(sch);
++	if (ret)
++		return ret;
++	ret = cio_enable_subchannel(sch, (u32)(unsigned long)sch);
++	if (ret)
++		return ret;
++
++	private->mdev = NULL;
++	available_instances++;
++
++	return 0;
 +}
- 
- static void cio_apply_config(struct subchannel *sch, struct schib *schib)
- {
-diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
-index f0e57ae..939596d 100644
---- a/drivers/s390/cio/cio.h
-+++ b/drivers/s390/cio/cio.h
-@@ -123,6 +123,7 @@ extern int cio_enable_subchannel(struct subchannel *, u32);
- extern int cio_disable_subchannel (struct subchannel *);
- extern int cio_cancel (struct subchannel *);
- extern int cio_clear (struct subchannel *);
-+extern int cio_cancel_halt_clear(struct subchannel *, int *);
- extern int cio_resume (struct subchannel *);
- extern int cio_halt (struct subchannel *);
- extern int cio_start (struct subchannel *, struct ccw1 *, __u8);
-diff --git a/drivers/s390/cio/device_fsm.c b/drivers/s390/cio/device_fsm.c
-index 9afb5ce..12016e3 100644
---- a/drivers/s390/cio/device_fsm.c
-+++ b/drivers/s390/cio/device_fsm.c
-@@ -124,14 +124,6 @@ ccw_device_set_timeout(struct ccw_device *cdev, int expires)
- 	add_timer(&cdev->private->timer);
- }
- 
--/*
-- * Cancel running i/o. This is called repeatedly since halt/clear are
-- * asynchronous operations. We do one try with cio_cancel, two tries
-- * with cio_halt, 255 tries with cio_clear. If everythings fails panic.
-- * Returns 0 if device now idle, -ENODEV for device not operational and
-- * -EBUSY if an interrupt is expected (either from halt/clear or from a
-- * status pending).
-- */
- int
- ccw_device_cancel_halt_clear(struct ccw_device *cdev)
- {
-@@ -139,44 +131,14 @@ ccw_device_cancel_halt_clear(struct ccw_device *cdev)
- 	int ret;
- 
- 	sch = to_subchannel(cdev->dev.parent);
--	if (cio_update_schib(sch))
--		return -ENODEV; 
--	if (!sch->schib.pmcw.ena)
--		/* Not operational -> done. */
--		return 0;
--	/* Stage 1: cancel io. */
--	if (!(scsw_actl(&sch->schib.scsw) & SCSW_ACTL_HALT_PEND) &&
--	    !(scsw_actl(&sch->schib.scsw) & SCSW_ACTL_CLEAR_PEND)) {
--		if (!scsw_is_tm(&sch->schib.scsw)) {
--			ret = cio_cancel(sch);
--			if (ret != -EINVAL)
--				return ret;
--		}
--		/* cancel io unsuccessful or not applicable (transport mode).
--		 * Continue with asynchronous instructions. */
--		cdev->private->iretry = 3;	/* 3 halt retries. */
--	}
--	if (!(scsw_actl(&sch->schib.scsw) & SCSW_ACTL_CLEAR_PEND)) {
--		/* Stage 2: halt io. */
--		if (cdev->private->iretry) {
--			cdev->private->iretry--;
--			ret = cio_halt(sch);
--			if (ret != -EBUSY)
--				return (ret == 0) ? -EBUSY : ret;
--		}
--		/* halt io unsuccessful. */
--		cdev->private->iretry = 255;	/* 255 clear retries. */
--	}
--	/* Stage 3: clear io. */
--	if (cdev->private->iretry) {
--		cdev->private->iretry--;
--		ret = cio_clear (sch);
--		return (ret == 0) ? -EBUSY : ret;
--	}
--	/* Function was unsuccessful */
--	CIO_MSG_EVENT(0, "0.%x.%04x: could not stop I/O\n",
--		      cdev->private->dev_id.ssid, cdev->private->dev_id.devno);
--	return -EIO;
-+	ret = cio_cancel_halt_clear(sch, &cdev->private->iretry);
 +
-+	if (ret == -EIO)
-+		CIO_MSG_EVENT(0, "0.%x.%04x: could not stop I/O\n",
-+			      cdev->private->dev_id.ssid,
-+			      cdev->private->dev_id.devno);
++static int vfio_ccw_mdev_open(struct mdev_device *mdev)
++{
++	struct vfio_ccw_private *private = dev_get_drvdata(mdev->parent->dev);
++	unsigned long events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
 +
-+	return ret;
- }
++	private->nb.notifier_call = vfio_ccw_mdev_notifier;
++
++	return vfio_register_notifier(&mdev->dev, VFIO_IOMMU_NOTIFY,
++				      &events, &private->nb);
++}
++
++void vfio_ccw_mdev_release(struct mdev_device *mdev)
++{
++	struct vfio_ccw_private *private = dev_get_drvdata(mdev->parent->dev);
++
++	vfio_unregister_notifier(&mdev->dev, VFIO_IOMMU_NOTIFY, &private->nb);
++}
++
++static const struct parent_ops vfio_ccw_mdev_ops = {
++	.owner			= THIS_MODULE,
++	.supported_type_groups  = mdev_type_groups,
++	.create			= vfio_ccw_mdev_create,
++	.remove			= vfio_ccw_mdev_remove,
++	.open			= vfio_ccw_mdev_open,
++	.release		= vfio_ccw_mdev_release,
++};
++
++int vfio_ccw_mdev_reg(struct subchannel *sch)
++{
++	return mdev_register_device(&sch->dev, &vfio_ccw_mdev_ops);
++}
++
++void vfio_ccw_mdev_unreg(struct subchannel *sch)
++{
++	mdev_unregister_device(&sch->dev);
++}
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 1617c96..4cd6657 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -20,10 +20,19 @@
+  * struct vfio_ccw_private
+  * @sch: pointor to the subchannel
+  * @completion: synchronization helper of the I/O completion
++ * @mdev: pointor to the mediated device
++ * @nb: notifier for vfio events
+  */
+ struct vfio_ccw_private {
+ 	struct subchannel	*sch;
+ 	struct completion	*completion;
++	struct mdev_device	*mdev;
++	struct notifier_block	nb;
+ } __aligned(8);
  
- void ccw_device_update_sense_data(struct ccw_device *cdev)
++extern int vfio_ccw_mdev_reg(struct subchannel *sch);
++extern void vfio_ccw_mdev_unreg(struct subchannel *sch);
++
++extern int vfio_ccw_sch_quiesce(struct subchannel *sch);
++
+ #endif
 -- 
 2.8.4
