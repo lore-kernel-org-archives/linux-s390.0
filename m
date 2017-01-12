@@ -1,115 +1,115 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC v2 02/12] vfio: linux-headers update
- for vfio-ccw
-Date: Thu, 19 Jan 2017 09:54:52 +0800
-Message-ID: <16208.5445518189$1505296780@news.gmane.org>
-References: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
-	<20170112072513.98411-3-bjsdjshi@linux.vnet.ibm.com>
-	<20170117145142.4954666f@t450s.home>
-	<20170118025117.GN30301@bjsdjshi@linux.vnet.ibm.com>
-	<20170118134147.5cf6beb0.cornelia.huck@de.ibm.com>
-	<20170118134332.4210104e@t450s.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-Content-Disposition: inline
-In-Reply-To: <20170118134332.4210104e@t450s.home>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: "Qemu-devel" <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Subject: [PATCH RFC v2 00/12] basic channel IO passthrough infrastructure based on vfio
+Date: Thu, 12 Jan 2017 08:25:01 +0100
+Message-ID: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: linux-s390@vger.kernel.org, pasic@linux.vnet.ibm.com, kvm@vger.kernel.org, pmorel@linux.vnet.ibm.com, qemu-devel@nongnu.org, borntraeger@de.ibm.com, renxiaof@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com, Cornelia Huck <cornelia.huck@de.ibm.com>, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, agraf@suse.com
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
+Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-* Alex Williamson <alex.williamson@redhat.com> [2017-01-18 13:43:32 -0700]:
+The patch series introduce a basic channel I/O passthrough
+infrastructure based on vfio.
+- Focus on supporting dasd-eckd(cu_type/dev_type = 0x3990/0x3390) as
+  the target device. 
+- Support new qemu parameters in the style of:
+   "-machine s390-ccw-virtio(,s390-map-css=on|off) ... 
+    -device vfio-ccw,id=xx,hostid=xx(,guestid=xx),mdevid=xx".
+  We want to support real (i.e. not virtual) channel devices even for
+  guests that do not support MCSS-E (where guests may see devices from
+  any channel subsystem image at once). As all virtio-ccw devices are in
+  css 0xfe (and show up in the default css 0 for guests not activating
+  MCSS-E), we need an option to map e.g. passed-through channel devices
+  from their real css (0-3, or 0 for hosts not activating MCSS-E) into
+  the default css, that is what the new machine option s390-map-css is
+  added.
 
-> On Wed, 18 Jan 2017 13:41:47 +0100
-> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-> 
-> > On Wed, 18 Jan 2017 10:51:17 +0800
-> > Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
-> > 
-> > > * Alex Williamson <alex.williamson@redhat.com> [2017-01-17 14:51:42 -0700]:
-> > >   
-> > > > On Thu, 12 Jan 2017 08:25:03 +0100
-> > > > Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
-> > > >   
-> > > > > From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-> > > > > 
-> > > > > This is a placeholder for a linux-headers update.
-> > > > > 
-> > > > > Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-> > > > > ---
-> > > > >  include/standard-headers/asm-s390/vfio_ccw.h | 28 ++++++++++++++++++++++++++++
-> > > > >  linux-headers/linux/vfio.h                   | 17 +++++++++++++++++
-> > > > >  2 files changed, 45 insertions(+)
-> > > > >  create mode 100644 include/standard-headers/asm-s390/vfio_ccw.h
-> > > > > 
-> > > > > diff --git a/include/standard-headers/asm-s390/vfio_ccw.h b/include/standard-headers/asm-s390/vfio_ccw.h
-> > > > > new file mode 100644
-> > > > > index 0000000..cddc09b
-> > > > > --- /dev/null
-> > > > > +++ b/include/standard-headers/asm-s390/vfio_ccw.h
-> > > > > @@ -0,0 +1,28 @@
-> > > > > +/*
-> > > > > + * Interfaces for vfio-ccw
-> > > > > + *
-> > > > > + * Copyright IBM Corp. 2017
-> > > > > + *
-> > > > > + * This program is free software; you can redistribute it and/or modify
-> > > > > + * it under the terms of the GNU General Public License (version 2 only)
-> > > > > + * as published by the Free Software Foundation.
-> > > > > + *
-> > > > > + * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> > > > > + */
-> > > > > +
-> > > > > +#ifndef _VFIO_CCW_H_
-> > > > > +#define _VFIO_CCW_H_
-> > > > > +
-> > > > > +#include "standard-headers/linux/types.h"
-> > > > > +
-> > > > > +struct ccw_io_region {
-> > > > > +#define ORB_AREA_SIZE 12
-> > > > > +	uint8_t  orb_area[ORB_AREA_SIZE];
-> > > > > +#define SCSW_AREA_SIZE 12
-> > > > > +	uint8_t  scsw_area[SCSW_AREA_SIZE];
-> > > > > +#define IRB_AREA_SIZE 96
-> > > > > +	uint8_t  irb_area[IRB_AREA_SIZE];
-> > > > > +	uint32_t ret_code;
-> > > > > +} QEMU_PACKED;
-> > > > > +
-> > > > > +#endif  
-> > > > 
-> > > > This is really part of the uapi for the vfio-ccw mdev device, isn't it?  
-> > > Yes, it is.
-> > >   
-> > > > Should it really be buried in asm-s390 in the kernel?
-> > > >   
-> > > We had an internal discussion on this question before, since we think
-> > > this interface is strongly s390 dependent, we put it here. What do you
-> > > suggest? Thanks,  
-> > 
-> > As there are already architecture-specific definitions in the common
-> > file, having everything in the same file is probably better. I'm
-> > certainly not against moving it out from asm-s390.
-> 
-> As soon as we use it for the interface definition to the vfio region, I
-> think it makes sense for it to move to uapi.  It's not really
-> architecture specific as much as it is device specific, for a device
-> which happens to only appear on s390 hardware.  Putting it in uapi
-> should also make sure people think twice about changing it.  Thanks,
-> 
-> Alex
-> 
-Fair enough. Let's move it to include/uapi/linux/vfio_ccw.h.
+Build and install:
+1. kernel configuration
+  CONFIG_S390_CCW_IOMMU=m
+  CONFIG_VFIO=m
+  CONFIG_VFIO_MDEV=m
+  CONFIG_VFIO_MDEV_DEVICE=m
+  CONFIG_VFIO_CCW=m
+2. modules required
+  modprobe vfio.ko
+  modprobe mdev.ko
+  modprobe vfio_mdev.ko
+  modprobe vfio_iommu_type1.ko
+  modprobe vfio_ccw.ko
+3. find a subchannel(0.0."%schid") of a DASD-ECKD device and bind it to
+  vfio_ccw driver
+  #find the dasd you can use with lsdasd on your host. e.g.:
+  devno="7e52"
+  schid="16ca"
+  #unbind the ccw device from the subchannel
+  echo 0.0."$devno" > /sys/bus/ccw/devices/0.0."$devno"/driver/unbind
+  #unbind the subchannel from io_subchannel driver
+  echo 0.0."$schid" > /sys/bus/css/devices/0.0."$schid"/driver/unbind
+  #bind the subchannel with vfio_ccw driver
+  echo 0.0."$schid" > /sys/bus/css/drivers/vfio_ccw/bind
+4. create a mediated device
+  #generate a uuid with uuidgen. e.g.:
+  uuid="6dfd3ec5-e8b3-4e18-a6fe-57bc9eceb920"
+  echo "$uuid" > \
+  /sys/bus/css/devices/0.0."$schid"/mdev_supported_types/vfio_ccw-io/create
+5. pass-through this device to a vm
+  -M s390-ccw-virtio,s390-map-css=on \
+  -device vfio-ccw,id=pass0, \
+          hostid=0.0."$schid",guestid=0.0.1234, \
+          mdevid="$uuid" \
+  ... ...
+
+Change log:
+
+v1 -> v2:
+1. Rebase the implementation to the mdev framework approach.
+2. Use pread and pwrite on an I/O region to issue I/O requests and
+   receive results.
+
+Dong Jia Shi (4):
+  update-linux-headers: add asm-s390/vfio_ccw.h
+  s390x/css: realize css_create_sch
+  vfio/ccw: get io region info
+  vfio/ccw: update sense data if a unit check is pending
+
+Xiao Feng Ren (8):
+  vfio: linux-headers update for vfio-ccw
+  s390x/css: add s390-map-css machine option
+  s390x/css: realize css_sch_build_schib
+  s390x/css: device support for s390-ccw passthrough
+  vfio/ccw: vfio based subchannel passthrough driver
+  vfio/ccw: get irqs info and set the eventfd fd
+  s390x/css: introduce and realize ccw-request callback
+  s390x/css: ccws translation infrastructure
+
+ default-configs/s390x-softmmu.mak            |   1 +
+ hw/s390x/Makefile.objs                       |   1 +
+ hw/s390x/css-bridge.c                        |   3 +
+ hw/s390x/css.c                               | 283 ++++++++++++++++-
+ hw/s390x/s390-ccw.c                          | 132 ++++++++
+ hw/s390x/s390-ccw.h                          |  39 +++
+ hw/s390x/s390-virtio-ccw.c                   |  23 ++
+ hw/s390x/virtio-ccw.c                        |   1 +
+ hw/vfio/Makefile.objs                        |   1 +
+ hw/vfio/ccw.c                                | 443 +++++++++++++++++++++++++++
+ include/hw/s390x/css-bridge.h                |   1 +
+ include/hw/s390x/css.h                       |  57 +++-
+ include/hw/s390x/s390-virtio-ccw.h           |   1 +
+ include/hw/vfio/vfio-common.h                |   1 +
+ include/standard-headers/asm-s390/vfio_ccw.h |  28 ++
+ linux-headers/linux/vfio.h                   |  17 +
+ qemu-options.hx                              |   6 +-
+ scripts/update-linux-headers.sh              |   1 +
+ target-s390x/cpu.h                           |  10 +
+ target-s390x/ioinst.c                        |   9 +
+ 20 files changed, 1029 insertions(+), 29 deletions(-)
+ create mode 100644 hw/s390x/s390-ccw.c
+ create mode 100644 hw/s390x/s390-ccw.h
+ create mode 100644 hw/vfio/ccw.c
+ create mode 100644 include/standard-headers/asm-s390/vfio_ccw.h
 
 -- 
-Dong Jia
+2.8.4
