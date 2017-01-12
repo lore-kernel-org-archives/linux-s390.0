@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v2 05/12] s390x/css: realize css_create_sch
-Date: Thu, 12 Jan 2017 08:25:06 +0100
-Message-ID: <20170112072513.98411-6-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH RFC v2 09/12] vfio/ccw: get irqs info and set the eventfd fd
+Date: Thu, 12 Jan 2017 08:25:10 +0100
+Message-ID: <20170112072513.98411-10-bjsdjshi@linux.vnet.ibm.com>
 References: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,108 +12,161 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The S390 virtual css support already has a mechanism to create a
-virtual subchannel and provide it to the guest. However, to
-pass-through subchannels to a guest, we need to introduce a new
-mechanism to create the subchannel according to the real device
-information. Thus we realize a new css_create_sch function to
-allocate and initialize the subchannel according to the real
-device information.
+From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
 
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+vfio-ccw resorts to the eventfd mechanism to communicate with userspace.
+We fetch the irqs info via the ioctl VFIO_DEVICE_GET_IRQ_INFO,
+register a event notifier to get the eventfd fd which is sent
+to kernel via the ioctl VFIO_DEVICE_SET_IRQS, then we can implement
+read operation once kernel sends the signal.
+
+Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
 ---
- hw/s390x/css.c         | 39 +++++++++++++++++++++++++++++++++++++++
- include/hw/s390x/css.h | 15 +++++++++++++++
- 2 files changed, 54 insertions(+)
+ hw/vfio/ccw.c | 102 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 102 insertions(+)
 
-diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-index 8703bc3..67fe468 100644
---- a/hw/s390x/css.c
-+++ b/hw/s390x/css.c
-@@ -1486,6 +1486,19 @@ bool css_devno_used(uint8_t cssid, uint8_t ssid, uint16_t devno)
-                       channel_subsys.css[cssid]->sch_set[ssid]->devnos_used);
+diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
+index 93394c2..c6bfce7 100644
+--- a/hw/vfio/ccw.c
++++ b/hw/vfio/ccw.c
+@@ -21,6 +21,7 @@
+ #include "hw/vfio/vfio-common.h"
+ #include "hw/s390x/s390-ccw.h"
+ #include "hw/s390x/ccw-device.h"
++#include "qemu/error-report.h"
+ #include "standard-headers/asm-s390/vfio_ccw.h"
+ 
+ #define TYPE_VFIO_CCW "vfio-ccw"
+@@ -30,6 +31,7 @@ typedef struct VFIOCCWDevice {
+     uint64_t io_region_size;
+     uint64_t io_region_offset;
+     struct ccw_io_region *io_region;
++    EventNotifier io_notifier;
+ } VFIOCCWDevice;
+ 
+ static void vfio_ccw_compute_needs_reset(VFIODevice *vdev)
+@@ -54,6 +56,98 @@ static void vfio_ccw_reset(DeviceState *dev)
+     ioctl(vcdev->vdev.fd, VFIO_DEVICE_RESET);
  }
  
-+bool css_schid_used(uint8_t cssid, uint8_t ssid, uint16_t schid)
++static void vfio_ccw_io_notifier_handler(void *opaque)
 +{
-+    if (!channel_subsys.css[cssid]) {
-+        return false;
-+    }
-+    if (!channel_subsys.css[cssid]->sch_set[ssid]) {
-+        return false;
-+    }
++    VFIOCCWDevice *vcdev = opaque;
 +
-+    return !!test_bit(schid,
-+                      channel_subsys.css[cssid]->sch_set[ssid]->schids_used);
++    if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
++        return;
++    }
 +}
 +
- void css_subch_assign(uint8_t cssid, uint8_t ssid, uint16_t schid,
-                       uint16_t devno, SubchDev *sch)
++static void vfio_ccw_register_io_notifier(VFIOCCWDevice *vcdev, Error **errp)
++{
++    VFIODevice *vdev = &vcdev->vdev;
++    struct vfio_irq_info *irq_info;
++    struct vfio_irq_set *irq_set;
++    size_t argsz;
++    int32_t *pfd;
++
++    if (vdev->num_irqs != VFIO_CCW_NUM_IRQS) {
++        error_setg(errp, "vfio: unexpected number of io irqs %u",
++                   vdev->num_irqs);
++        return;
++    }
++
++    argsz = sizeof(*irq_set);
++    irq_info = g_malloc0(argsz);
++    irq_info->index = VFIO_CCW_IO_IRQ_INDEX;
++    irq_info->argsz = argsz;
++    if (ioctl(vdev->fd, VFIO_DEVICE_GET_IRQ_INFO,
++              irq_info) < 0 || irq_info->count < 1) {
++        error_setg(errp, "vfio: Error getting irq info");
++        goto get_error;
++    }
++
++    if (event_notifier_init(&vcdev->io_notifier, 0)) {
++        error_setg(errp, "vfio: Unable to init event notifier for IO");
++        goto get_error;
++    }
++
++    argsz = sizeof(*irq_set) + sizeof(*pfd);
++    irq_set = g_malloc0(argsz);
++    irq_set->argsz = argsz;
++    irq_set->flags = VFIO_IRQ_SET_DATA_EVENTFD |
++                     VFIO_IRQ_SET_ACTION_TRIGGER;
++    irq_set->index = VFIO_CCW_IO_IRQ_INDEX;
++    irq_set->start = 0;
++    irq_set->count = 1;
++    pfd = (int32_t *) &irq_set->data;
++
++    *pfd = event_notifier_get_fd(&vcdev->io_notifier);
++    qemu_set_fd_handler(*pfd, vfio_ccw_io_notifier_handler, NULL, vcdev);
++    if (ioctl(vdev->fd, VFIO_DEVICE_SET_IRQS, irq_set)) {
++        error_setg(errp, "vfio: Failed to set up io notification");
++        qemu_set_fd_handler(*pfd, NULL, NULL, vcdev);
++        event_notifier_cleanup(&vcdev->io_notifier);
++        goto set_error;
++    }
++
++set_error:
++    g_free(irq_set);
++
++get_error:
++    g_free(irq_info);
++}
++
++static void vfio_ccw_unregister_io_notifier(VFIOCCWDevice *vcdev)
++{
++    struct vfio_irq_set *irq_set;
++    size_t argsz;
++    int32_t *pfd;
++
++    argsz = sizeof(*irq_set) + sizeof(*pfd);
++    irq_set = g_malloc0(argsz);
++    irq_set->argsz = argsz;
++    irq_set->flags = VFIO_IRQ_SET_DATA_EVENTFD |
++                     VFIO_IRQ_SET_ACTION_TRIGGER;
++    irq_set->index = VFIO_CCW_IO_IRQ_INDEX;
++    irq_set->start = 0;
++    irq_set->count = 1;
++    pfd = (int32_t *) &irq_set->data;
++    *pfd = -1;
++
++    if (ioctl(vcdev->vdev.fd, VFIO_DEVICE_SET_IRQS, irq_set)) {
++        error_report("vfio: Failed to de-assign device io fd");
++    }
++
++    qemu_set_fd_handler(event_notifier_get_fd(&vcdev->io_notifier),
++                        NULL, NULL, vcdev);
++    event_notifier_cleanup(&vcdev->io_notifier);
++
++    g_free(irq_set);
++}
++
+ static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
  {
-@@ -1911,6 +1924,32 @@ SubchDev *css_create_virtual_sch(CssDevId bus_id, Error **errp)
-     return sch;
- }
+     VFIODevice *vdev = &vcdev->vdev;
+@@ -193,8 +287,15 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
+         goto out_region_err;
+     }
  
-+SubchDev *css_create_sch(CssDevId bus_id, Error **errp)
-+{
-+    uint32_t devno;
-+    SubchDev *sch;
-+
-+    if (css_schid_used(bus_id.cssid, bus_id.ssid, bus_id.devid)) {
-+        error_setg(errp, "Subchannel %x.%x.%04x already exists",
-+                   bus_id.cssid, bus_id.ssid, bus_id.devid);
-+        return NULL;
++    vfio_ccw_register_io_notifier(vcdev, errp);
++    if (*errp) {
++        goto out_notifier_err;
 +    }
 +
-+    devno = css_find_free_devno(bus_id.cssid, bus_id.ssid, bus_id.devid);
-+    if (devno > MAX_DEVNO) {
-+        error_setg(errp, "No free devno found");
-+        return NULL;
-+    }
-+
-+    sch = g_malloc0(sizeof(*sch));
-+    sch->cssid = bus_id.cssid;
-+    sch->ssid = bus_id.ssid;
-+    sch->devno = devno;
-+    sch->schid = bus_id.devid;
-+    css_subch_assign(sch->cssid, sch->ssid, sch->schid, sch->devno, sch);
-+    return sch;
-+}
-+
- static int css_sch_get_chpids(SubchDev *sch, CssDevId *dev_id)
- {
-     char *fid_path;
-diff --git a/include/hw/s390x/css.h b/include/hw/s390x/css.h
-index 648ea2f..c92f624 100644
---- a/include/hw/s390x/css.h
-+++ b/include/hw/s390x/css.h
-@@ -128,6 +128,7 @@ void subch_device_save(SubchDev *s, QEMUFile *f);
- int subch_device_load(SubchDev *s, QEMUFile *f);
- int css_create_css_image(uint8_t cssid, bool default_image);
- bool css_devno_used(uint8_t cssid, uint8_t ssid, uint16_t devno);
-+bool css_schid_used(uint8_t cssid, uint8_t ssid, uint16_t schid);
- void css_subch_assign(uint8_t cssid, uint8_t ssid, uint16_t schid,
-                       uint16_t devno, SubchDev *sch);
- void css_sch_build_virtual_schib(SubchDev *sch, uint8_t chpid, uint8_t type);
-@@ -189,4 +190,18 @@ bool css_present(uint8_t cssid);
-  * is responsible for unregistering and freeing it.
-  */
- SubchDev *css_create_virtual_sch(CssDevId bus_id, Error **errp);
-+
-+/**
-+ * Create a subchannel for the given bus id.
-+ *
-+ * If @p bus_id is valid, verify that it is not already in use, and find
-+ * a free devno for it.
-+ * Allocate a subchannel structure, initialise it with the bus id,
-+ * subchannel id and device number, register it with the CSS and return
-+ * it. Otherwise return NULL.
-+ *
-+ * The caller becomes owner of the returned subchannel structure and
-+ * is responsible for unregistering and freeing it.
-+ */
-+SubchDev *css_create_sch(CssDevId bus_id, Error **errp);
- #endif
+     return;
+ 
++out_notifier_err:
++    vfio_ccw_put_region(vcdev);
+ out_region_err:
+     vfio_put_device(vcdev);
+ out_device_err:
+@@ -217,6 +318,7 @@ static void vfio_ccw_unrealize(DeviceState *dev, Error **errp)
+         cdc->unrealize(cdev, errp);
+     }
+ 
++    vfio_ccw_unregister_io_notifier(vcdev);
+     vfio_ccw_put_region(vcdev);
+     vfio_put_device(vcdev);
+     vfio_put_group(group);
 -- 
 2.8.4
