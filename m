@@ -1,12 +1,13 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PULL 1/5] tools/virtio/ringtest: fix run-on-all.sh for offline cpus
-Date: Mon, 16 Jan 2017 15:04:29 +0100
-Message-ID: <20170116140433.21301-2-cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PULL 0/5] virtio/s390 patches for -next
+Date: Mon, 16 Jan 2017 16:15:57 +0200
+Message-ID: <20170116161544-mutt-send-email-mst@kernel.org>
 References: <20170116140433.21301-1-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20170116140433.21301-1-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,49 +20,55 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: mst@redhat.com
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Halil Pasic <pasic@linux.vnet.ibm.com>
+On Mon, Jan 16, 2017 at 03:04:28PM +0100, Cornelia Huck wrote:
+> Michael,
+> 
+> the following patches have all been posted in the past. I've
+> collected them on top of your vhost branch -- please let me
+> know whether this works for you.
 
-Since ef1b144d ("tools/virtio/ringtest: fix run-on-all.sh to work
-without /dev/cpu") run-on-all.sh uses seq 0 $HOST_AFFINITY as the list
-of ids of the CPUs to run the command on (assuming ids of online CPUs
-are consecutive and start from 0), where $HOST_AFFINITY is the highest
-CPU id in the system previously determined using lscpu.  This can fail
-on systems with offline CPUs.
+Sure, thanks!
 
-Instead let's use lscpu to determine the list of online CPUs.
-
-Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Fixes: ef1b144d ("tools/virtio/ringtest: fix run-on-all.sh to work without
-/dev/cpu")
-Reviewed-by: Sascha Silbe <silbe@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- tools/virtio/ringtest/run-on-all.sh | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/tools/virtio/ringtest/run-on-all.sh b/tools/virtio/ringtest/run-on-all.sh
-index 2e69ca812b4c..29b0d3920bfc 100755
---- a/tools/virtio/ringtest/run-on-all.sh
-+++ b/tools/virtio/ringtest/run-on-all.sh
-@@ -1,12 +1,13 @@
- #!/bin/sh
- 
-+CPUS_ONLINE=$(lscpu --online -p=cpu|grep -v -e '#')
- #use last CPU for host. Why not the first?
- #many devices tend to use cpu0 by default so
- #it tends to be busier
--HOST_AFFINITY=$(lscpu -p=cpu | tail -1)
-+HOST_AFFINITY=$(echo "${CPUS_ONLINE}"|tail -n 1)
- 
- #run command on all cpus
--for cpu in $(seq 0 $HOST_AFFINITY)
-+for cpu in $CPUS_ONLINE
- do
- 	#Don't run guest and host on same CPU
- 	#It actually works ok if using signalling
--- 
-2.11.0
+> The following changes since commit 6bdf1e0efb04a1716373646cb6f35b73addca492:
+> 
+>   Makefile: drop -D__CHECK_ENDIAN__ from cflags (2016-12-16 00:13:43 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-s390-20170116
+> 
+> for you to fetch changes up to 364cf19a474501cf157f1d09895ebab71e603c77:
+> 
+>   virtio/s390: virtio: constify virtio_config_ops structures (2017-01-16 12:26:07 +0100)
+> 
+> ----------------------------------------------------------------
+> - ringtest fixes to make it work on s390
+> - support new READ_STATUS command
+> - minor cleanups
+> 
+> ----------------------------------------------------------------
+> 
+> Bhumika Goyal (1):
+>   virtio/s390: virtio: constify virtio_config_ops structures
+> 
+> Colin Ian King (1):
+>   virtio/s390: add missing \n to end of dev_err message
+> 
+> Halil Pasic (2):
+>   tools/virtio/ringtest: fix run-on-all.sh for offline cpus
+>   tools/virtio/ringtest: tweaks for s390
+> 
+> Pierre Morel (1):
+>   virtio/s390: support READ_STATUS command for virtio-ccw
+> 
+>  drivers/s390/virtio/virtio_ccw.c    | 29 +++++++++++++++++++++++++++--
+>  tools/virtio/ringtest/main.h        | 12 ++++++++++++
+>  tools/virtio/ringtest/run-on-all.sh |  5 +++--
+>  3 files changed, 42 insertions(+), 4 deletions(-)
+> 
+> -- 
+> 2.11.0
