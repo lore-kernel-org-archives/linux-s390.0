@@ -1,73 +1,39 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PULL 5/5] virtio/s390: virtio: constify virtio_config_ops structures
-Date: Mon, 16 Jan 2017 15:04:33 +0100
-Message-ID: <20170116140433.21301-6-cornelia.huck@de.ibm.com>
-References: <20170116140433.21301-1-cornelia.huck@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170116140433.21301-1-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: mst@redhat.com
-Cc: borntraeger@de.ibm.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Bhumika Goyal <bhumirks@gmail.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 1/1] s390/qeth: remove legacy SNA-support
+Date: Tue, 17 Jan 2017 10:26:38 -0500 (EST)
+Message-ID: <20170117.102638.568359495126686190.davem@davemloft.net>
+References: <20170117123951.88480-1-ubraun@linux.vnet.ibm.com>
+        <20170117123951.88480-2-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170117123951.88480-2-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: ubraun@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Bhumika Goyal <bhumirks@gmail.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Tue, 17 Jan 2017 13:39:51 +0100
 
-Declare virtio_config_ops structure as const as it is only stored in the
-config field of a virtio_device structure. This field is of type const, so
-virtio_config_ops structures having this property can be declared const.
-Done using Coccinelle:
+> The qeth driver supports various operation modes of the underlying
+> network interface cards.
+> One specific mode (OSN) belonged to a Linux-assisted solution
+> that enabled existing IBM mainframe operating systems to continue to run
+> the legacy IBM Systems Network Architecture (SNA) protocol.
+> Since IBM mainframes ceased to use the SNA protocol and OSN mode
+> reached its end of life, this patch removes OSN mode from the qeth
+> driver.
+> 
+> Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+> Reviewed-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+> Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+> Reference-ID: NET1609
 
-@r1 disable optional_qualifier@
-identifier i;
-position p;
-@@
-static struct virtio_config_ops i@p={...};
+Please stop trying to remove features from the tree just because a company
+decided to end of life a product.  That is not a legitimate justification.
 
-@ok1@
-identifier r1.i;
-position p;
-struct virtio_ccw_device x;
-@@
-x.vdev.config=&i@p
-
-@bad@
-position p!={r1.p,ok1.p};
-identifier r1.i;
-@@
-i@p
-
-@depends on !bad disable optional_qualifier@
-identifier r1.i;
-@@
-+const
-struct virtio_config_ops i;
-
-File size before and after applying the patch remains the same.
-text	data	bss	dec	hex   filename
-9235	296	32928	42459	a5db  drivers/s390/virtio/virtio_ccw.o
-
-Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-Message-Id: <1484333336-13443-1-git-send-email-bhumirks@gmail.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- drivers/s390/virtio/virtio_ccw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 0672c6234ae8..070c4da95f48 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -944,7 +944,7 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
- 	kfree(ccw);
- }
- 
--static struct virtio_config_ops virtio_ccw_config_ops = {
-+static const struct virtio_config_ops virtio_ccw_config_ops = {
- 	.get_features = virtio_ccw_get_features,
- 	.finalize_features = virtio_ccw_finalize_features,
- 	.get = virtio_ccw_get_config,
--- 
-2.11.0
+I am not applying this.
