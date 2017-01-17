@@ -1,86 +1,105 @@
-From: no-reply@patchew.org
-Subject: Re: [Qemu-devel] [PATCH RFC v2 00/12] basic channel IO passthrough infrastructure based on vfio
-Date: Thu, 12 Jan 2017 00:00:55 -0800 (PST)
-Message-ID: <148420805350.208.7373464568560171452@790289a7ca88>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [PATCH RFC v2 02/12] vfio: linux-headers update for vfio-ccw
+Date: Tue, 17 Jan 2017 14:51:42 -0700
+Message-ID: <20170117145142.4954666f@t450s.home>
 References: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
-Reply-To: <qemu-devel@nongnu.org>
+        <20170112072513.98411-3-bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20170112072513.98411-3-bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-Cc: famz@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, pasic@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com, borntraeger@de.ibm.com, alex.williamson@redhat.com, renxiaof@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, bjsdjshi@linux.vnet.ibm.com, agraf@suse.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-SGksCgpZb3VyIHNlcmllcyBzZWVtcyB0byBoYXZlIHNvbWUgY29kaW5nIHN0eWxlIHByb2JsZW1z
-LiBTZWUgb3V0cHV0IGJlbG93IGZvcgptb3JlIGluZm9ybWF0aW9uOgoKVHlwZTogc2VyaWVzCk1l
-c3NhZ2UtaWQ6IDIwMTcwMTEyMDcyNTEzLjk4NDExLTEtYmpzZGpzaGlAbGludXgudm5ldC5pYm0u
-Y29tClN1YmplY3Q6IFtRZW11LWRldmVsXSBbUEFUQ0ggUkZDIHYyIDAwLzEyXSBiYXNpYyBjaGFu
-bmVsIElPIHBhc3N0aHJvdWdoIGluZnJhc3RydWN0dXJlIGJhc2VkIG9uIHZmaW8KCj09PSBURVNU
-IFNDUklQVCBCRUdJTiA9PT0KIyEvYmluL2Jhc2gKCkJBU0U9YmFzZQpuPTEKdG90YWw9JChnaXQg
-bG9nIC0tb25lbGluZSAkQkFTRS4uIHwgd2MgLWwpCmZhaWxlZD0wCgojIFVzZWZ1bCBnaXQgb3B0
-aW9ucwpnaXQgY29uZmlnIC0tbG9jYWwgZGlmZi5yZW5hbWVsaW1pdCAwCmdpdCBjb25maWcgLS1s
-b2NhbCBkaWZmLnJlbmFtZXMgVHJ1ZQoKY29tbWl0cz0iJChnaXQgbG9nIC0tZm9ybWF0PSVIIC0t
-cmV2ZXJzZSAkQkFTRS4uKSIKZm9yIGMgaW4gJGNvbW1pdHM7IGRvCiAgICBlY2hvICJDaGVja2lu
-ZyBQQVRDSCAkbi8kdG90YWw6ICQoZ2l0IGxvZyAtbiAxIC0tZm9ybWF0PSVzICRjKS4uLiIKICAg
-IGlmICEgZ2l0IHNob3cgJGMgLS1mb3JtYXQ9ZW1haWwgfCAuL3NjcmlwdHMvY2hlY2twYXRjaC5w
-bCAtLW1haWxiYWNrIC07IHRoZW4KICAgICAgICBmYWlsZWQ9MQogICAgICAgIGVjaG8KICAgIGZp
-CiAgICBuPSQoKG4rMSkpCmRvbmUKCmV4aXQgJGZhaWxlZAo9PT0gVEVTVCBTQ1JJUFQgRU5EID09
-PQoKVXBkYXRpbmcgM2M4Y2Y1YTljMjFmZjg3ODIxNjRkMWRlZjdmNDRiZDg4ODcxMzM4NApGcm9t
-IGh0dHBzOi8vZ2l0aHViLmNvbS9wYXRjaGV3LXByb2plY3QvcWVtdQogKiBbbmV3IHRhZ10gICAg
-ICAgICBwYXRjaGV3LzIwMTcwMTEyMDcyNTEzLjk4NDExLTEtYmpzZGpzaGlAbGludXgudm5ldC5p
-Ym0uY29tIC0+IHBhdGNoZXcvMjAxNzAxMTIwNzI1MTMuOTg0MTEtMS1ianNkanNoaUBsaW51eC52
-bmV0LmlibS5jb20KU3dpdGNoZWQgdG8gYSBuZXcgYnJhbmNoICd0ZXN0Jwo2OTRiMGVlIHZmaW8v
-Y2N3OiB1cGRhdGUgc2Vuc2UgZGF0YSBpZiBhIHVuaXQgY2hlY2sgaXMgcGVuZGluZwo0YWZjZmIy
-IHMzOTB4L2NzczogY2N3cyB0cmFuc2xhdGlvbiBpbmZyYXN0cnVjdHVyZQpjYmE5MDk1IHMzOTB4
-L2NzczogaW50cm9kdWNlIGFuZCByZWFsaXplIGNjdy1yZXF1ZXN0IGNhbGxiYWNrCjRmOGQ2NGEg
-dmZpby9jY3c6IGdldCBpcnFzIGluZm8gYW5kIHNldCB0aGUgZXZlbnRmZCBmZAo5NmJjMWI1IHZm
-aW8vY2N3OiBnZXQgaW8gcmVnaW9uIGluZm8KOTA2OTFlYyB2ZmlvL2NjdzogdmZpbyBiYXNlZCBz
-dWJjaGFubmVsIHBhc3N0aHJvdWdoIGRyaXZlcgpiNDBhNTY3IHMzOTB4L2NzczogZGV2aWNlIHN1
-cHBvcnQgZm9yIHMzOTAtY2N3IHBhc3N0aHJvdWdoCjBkNjhmMjEgczM5MHgvY3NzOiByZWFsaXpl
-IGNzc19jcmVhdGVfc2NoCjAxMTc5ZTUgczM5MHgvY3NzOiByZWFsaXplIGNzc19zY2hfYnVpbGRf
-c2NoaWIKMTU2NGY4OCBzMzkweC9jc3M6IGFkZCBzMzkwLW1hcC1jc3MgbWFjaGluZSBvcHRpb24K
-NzliNWU4MSB2ZmlvOiBsaW51eC1oZWFkZXJzIHVwZGF0ZSBmb3IgdmZpby1jY3cKNTJiNTJhZCB1
-cGRhdGUtbGludXgtaGVhZGVyczogYWRkIGFzbS1zMzkwL3ZmaW9fY2N3LmgKCj09PSBPVVRQVVQg
-QkVHSU4gPT09CkNoZWNraW5nIFBBVENIIDEvMTI6IHVwZGF0ZS1saW51eC1oZWFkZXJzOiBhZGQg
-YXNtLXMzOTAvdmZpb19jY3cuaC4uLgpFUlJPUjogbGluZSBvdmVyIDkwIGNoYXJhY3RlcnMKIzE5
-OiBGSUxFOiBzY3JpcHRzL3VwZGF0ZS1saW51eC1oZWFkZXJzLnNoOjk0OgorICAgICAgICBjcF9w
-b3J0YWJsZSAiJHRtcGRpci9pbmNsdWRlL2FzbS92ZmlvX2Njdy5oIiAiJG91dHB1dC9pbmNsdWRl
-L3N0YW5kYXJkLWhlYWRlcnMvYXNtLXMzOTAvIgoKdG90YWw6IDEgZXJyb3JzLCAwIHdhcm5pbmdz
-LCA3IGxpbmVzIGNoZWNrZWQKCllvdXIgcGF0Y2ggaGFzIHN0eWxlIHByb2JsZW1zLCBwbGVhc2Ug
-cmV2aWV3LiAgSWYgYW55IG9mIHRoZXNlIGVycm9ycwphcmUgZmFsc2UgcG9zaXRpdmVzIHJlcG9y
-dCB0aGVtIHRvIHRoZSBtYWludGFpbmVyLCBzZWUKQ0hFQ0tQQVRDSCBpbiBNQUlOVEFJTkVSUy4K
-CkNoZWNraW5nIFBBVENIIDIvMTI6IHZmaW86IGxpbnV4LWhlYWRlcnMgdXBkYXRlIGZvciB2Zmlv
-LWNjdy4uLgpDaGVja2luZyBQQVRDSCAzLzEyOiBzMzkweC9jc3M6IGFkZCBzMzkwLW1hcC1jc3Mg
-bWFjaGluZSBvcHRpb24uLi4KQ2hlY2tpbmcgUEFUQ0ggNC8xMjogczM5MHgvY3NzOiByZWFsaXpl
-IGNzc19zY2hfYnVpbGRfc2NoaWIuLi4KV0FSTklORzogbGluZSBvdmVyIDgwIGNoYXJhY3RlcnMK
-IzEyOTogRklMRTogaHcvczM5MHgvY3NzLmM6MTk4MDoKK3N0YXRpYyBpbnQgY3NzX3NjaF9nZXRf
-Y2hwaWRfdHlwZSh1aW50OF90IGNocGlkLCB1aW50MzJfdCAqdHlwZSwgQ3NzRGV2SWQgKmRldl9p
-ZCkKCnRvdGFsOiAwIGVycm9ycywgMSB3YXJuaW5ncywgMjMzIGxpbmVzIGNoZWNrZWQKCllvdXIg
-cGF0Y2ggaGFzIHN0eWxlIHByb2JsZW1zLCBwbGVhc2UgcmV2aWV3LiAgSWYgYW55IG9mIHRoZXNl
-IGVycm9ycwphcmUgZmFsc2UgcG9zaXRpdmVzIHJlcG9ydCB0aGVtIHRvIHRoZSBtYWludGFpbmVy
-LCBzZWUKQ0hFQ0tQQVRDSCBpbiBNQUlOVEFJTkVSUy4KQ2hlY2tpbmcgUEFUQ0ggNS8xMjogczM5
-MHgvY3NzOiByZWFsaXplIGNzc19jcmVhdGVfc2NoLi4uCkNoZWNraW5nIFBBVENIIDYvMTI6IHMz
-OTB4L2NzczogZGV2aWNlIHN1cHBvcnQgZm9yIHMzOTAtY2N3IHBhc3N0aHJvdWdoLi4uCkNoZWNr
-aW5nIFBBVENIIDcvMTI6IHZmaW8vY2N3OiB2ZmlvIGJhc2VkIHN1YmNoYW5uZWwgcGFzc3Rocm91
-Z2ggZHJpdmVyLi4uCkNoZWNraW5nIFBBVENIIDgvMTI6IHZmaW8vY2N3OiBnZXQgaW8gcmVnaW9u
-IGluZm8uLi4KQ2hlY2tpbmcgUEFUQ0ggOS8xMjogdmZpby9jY3c6IGdldCBpcnFzIGluZm8gYW5k
-IHNldCB0aGUgZXZlbnRmZCBmZC4uLgpDaGVja2luZyBQQVRDSCAxMC8xMjogczM5MHgvY3NzOiBp
-bnRyb2R1Y2UgYW5kIHJlYWxpemUgY2N3LXJlcXVlc3QgY2FsbGJhY2suLi4KRVJST1I6IHNwYWNl
-IHJlcXVpcmVkIGFmdGVyIHRoYXQgJywnIChjdHg6VnhWKQojODE6IEZJTEU6IGh3L3ZmaW8vY2N3
-LmM6NzM6CisgICAgICAgIGVycm9yX3JlcG9ydCgidmZpby1jY3c6IHdpcnRlIEkvTyByZWdpb24g
-ZmFpbGVkIHdpdGggZXJybm89JWQiLGVycm5vKTsKICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBeCgp0b3RhbDogMSBl
-cnJvcnMsIDAgd2FybmluZ3MsIDEyNiBsaW5lcyBjaGVja2VkCgpZb3VyIHBhdGNoIGhhcyBzdHls
-ZSBwcm9ibGVtcywgcGxlYXNlIHJldmlldy4gIElmIGFueSBvZiB0aGVzZSBlcnJvcnMKYXJlIGZh
-bHNlIHBvc2l0aXZlcyByZXBvcnQgdGhlbSB0byB0aGUgbWFpbnRhaW5lciwgc2VlCkNIRUNLUEFU
-Q0ggaW4gTUFJTlRBSU5FUlMuCgpDaGVja2luZyBQQVRDSCAxMS8xMjogczM5MHgvY3NzOiBjY3dz
-IHRyYW5zbGF0aW9uIGluZnJhc3RydWN0dXJlLi4uCkNoZWNraW5nIFBBVENIIDEyLzEyOiB2Zmlv
-L2NjdzogdXBkYXRlIHNlbnNlIGRhdGEgaWYgYSB1bml0IGNoZWNrIGlzIHBlbmRpbmcuLi4KPT09
-IE9VVFBVVCBFTkQgPT09CgpUZXN0IGNvbW1hbmQgZXhpdGVkIHdpdGggY29kZTogMQoKCi0tLQpF
-bWFpbCBnZW5lcmF0ZWQgYXV0b21hdGljYWxseSBieSBQYXRjaGV3IFtodHRwOi8vcGF0Y2hldy5v
-cmcvXS4KUGxlYXNlIHNlbmQgeW91ciBmZWVkYmFjayB0byBwYXRjaGV3LWRldmVsQGZyZWVsaXN0
-cy5vcmc=
+On Thu, 12 Jan 2017 08:25:03 +0100
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+
+> From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> 
+> This is a placeholder for a linux-headers update.
+> 
+> Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> ---
+>  include/standard-headers/asm-s390/vfio_ccw.h | 28 ++++++++++++++++++++++++++++
+>  linux-headers/linux/vfio.h                   | 17 +++++++++++++++++
+>  2 files changed, 45 insertions(+)
+>  create mode 100644 include/standard-headers/asm-s390/vfio_ccw.h
+> 
+> diff --git a/include/standard-headers/asm-s390/vfio_ccw.h b/include/standard-headers/asm-s390/vfio_ccw.h
+> new file mode 100644
+> index 0000000..cddc09b
+> --- /dev/null
+> +++ b/include/standard-headers/asm-s390/vfio_ccw.h
+> @@ -0,0 +1,28 @@
+> +/*
+> + * Interfaces for vfio-ccw
+> + *
+> + * Copyright IBM Corp. 2017
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License (version 2 only)
+> + * as published by the Free Software Foundation.
+> + *
+> + * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> + */
+> +
+> +#ifndef _VFIO_CCW_H_
+> +#define _VFIO_CCW_H_
+> +
+> +#include "standard-headers/linux/types.h"
+> +
+> +struct ccw_io_region {
+> +#define ORB_AREA_SIZE 12
+> +	uint8_t  orb_area[ORB_AREA_SIZE];
+> +#define SCSW_AREA_SIZE 12
+> +	uint8_t  scsw_area[SCSW_AREA_SIZE];
+> +#define IRB_AREA_SIZE 96
+> +	uint8_t  irb_area[IRB_AREA_SIZE];
+> +	uint32_t ret_code;
+> +} QEMU_PACKED;
+> +
+> +#endif
+
+This is really part of the uapi for the vfio-ccw mdev device, isn't it?
+Should it really be buried in asm-s390 in the kernel?
+
+> diff --git a/linux-headers/linux/vfio.h b/linux-headers/linux/vfio.h
+> index 759b850..b09d247 100644
+> --- a/linux-headers/linux/vfio.h
+> +++ b/linux-headers/linux/vfio.h
+> @@ -198,6 +198,7 @@ struct vfio_device_info {
+>  #define VFIO_DEVICE_FLAGS_PCI	(1 << 1)	/* vfio-pci device */
+>  #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+>  #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+> +#define VFIO_DEVICE_FLAGS_CCW   (1 << 4)	/* vfio-ccw device */
+>  	__u32	num_regions;	/* Max region index + 1 */
+>  	__u32	num_irqs;	/* Max IRQ index + 1 */
+>  };
+> @@ -436,6 +437,22 @@ enum {
+>  	VFIO_PCI_NUM_IRQS
+>  };
+>  
+> +/*
+> + * The VFIO-CCW bus driver makes use of the following fixed region and
+> + * IRQ index mapping.  Unimplemented regions return a size of zero.
+> + * Unimplemented IRQ types return a count of zero.
+> + */
+> +
+> +enum {
+> +        VFIO_CCW_CONFIG_REGION_INDEX,
+> +        VFIO_CCW_NUM_REGIONS
+> +};
+> +
+> +enum {
+> +        VFIO_CCW_IO_IRQ_INDEX,
+> +        VFIO_CCW_NUM_IRQS
+> +};
+> +
+>  /**
+>   * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO - _IORW(VFIO_TYPE, VFIO_BASE + 12,
+>   *					      struct vfio_pci_hot_reset_info)
