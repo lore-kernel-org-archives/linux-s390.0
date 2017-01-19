@@ -1,775 +1,578 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 1/1] s390/qeth: remove legacy SNA-support
-Date: Tue, 17 Jan 2017 13:39:51 +0100
-Message-ID: <20170117123951.88480-2-ubraun@linux.vnet.ibm.com>
-References: <20170117123951.88480-1-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170117123951.88480-1-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ubraun@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 19 Jan 2017 09:39:17 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] two bug fixes for 4.10-rc5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20170119093917.3451854c@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The qeth driver supports various operation modes of the underlying
-network interface cards.
-One specific mode (OSN) belonged to a Linux-assisted solution
-that enabled existing IBM mainframe operating systems to continue to run
-the legacy IBM Systems Network Architecture (SNA) protocol.
-Since IBM mainframes ceased to use the SNA protocol and OSN mode
-reached its end of life, this patch removes OSN mode from the qeth
-driver.
+Hi Linus,
 
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Reference-ID: NET1609
----
- drivers/s390/net/qeth_core.h      |  28 ----
- drivers/s390/net/qeth_core_main.c |  53 ++------
- drivers/s390/net/qeth_core_mpc.c  |   3 -
- drivers/s390/net/qeth_core_mpc.h  |  10 +-
- drivers/s390/net/qeth_core_sys.c  |  17 ---
- drivers/s390/net/qeth_l2_main.c   | 267 +++++++-------------------------------
- 6 files changed, 56 insertions(+), 322 deletions(-)
+please pull from the 'for-linus' branch of
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index e7addea..a32c2aa 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -310,22 +310,10 @@ struct qeth_hdr_layer2 {
- 	__u8 reserved2[16];
- } __attribute__ ((packed));
- 
--struct qeth_hdr_osn {
--	__u8 id;
--	__u8 reserved;
--	__u16 seq_no;
--	__u16 reserved2;
--	__u16 control_flags;
--	__u16 pdu_length;
--	__u8 reserved3[18];
--	__u32 ccid;
--} __attribute__ ((packed));
--
- struct qeth_hdr {
- 	union {
- 		struct qeth_hdr_layer2 l2;
- 		struct qeth_hdr_layer3 l3;
--		struct qeth_hdr_osn    osn;
- 	} hdr;
- } __attribute__ ((packed));
- 
-@@ -372,7 +360,6 @@ enum qeth_header_ids {
- 	QETH_HEADER_TYPE_LAYER3 = 0x01,
- 	QETH_HEADER_TYPE_LAYER2 = 0x02,
- 	QETH_HEADER_TYPE_TSO	= 0x03,
--	QETH_HEADER_TYPE_OSN    = 0x04,
- };
- /* flags for qeth_hdr.ext_flags */
- #define QETH_HDR_EXT_VLAN_FRAME       0x01
-@@ -627,7 +614,6 @@ struct qeth_seqno {
- 	__u32 pdu_hdr;
- 	__u32 pdu_hdr_ack;
- 	__u16 ipa;
--	__u32 pkt_seqno;
- };
- 
- struct qeth_reply {
-@@ -703,11 +689,6 @@ enum qeth_threads {
- 	QETH_RECOVER_THREAD = 1,
- };
- 
--struct qeth_osn_info {
--	int (*assist_cb)(struct net_device *dev, void *data);
--	int (*data_cb)(struct sk_buff *skb);
--};
--
- enum qeth_discipline_id {
- 	QETH_DISCIPLINE_LAYER3 = 0,
- 	QETH_DISCIPLINE_LAYER2 = 1,
-@@ -803,7 +784,6 @@ struct qeth_card {
- 	struct qeth_qdio_info qdio;
- 	struct qeth_perf_stats perf_stats;
- 	int read_or_write_problem;
--	struct qeth_osn_info osn_info;
- 	struct qeth_discipline *discipline;
- 	atomic_t force_alloc_skb;
- 	struct service_level qeth_service_level;
-@@ -888,7 +868,6 @@ static inline int qeth_is_diagass_supported(struct qeth_card *card,
- extern struct qeth_discipline qeth_l2_discipline;
- extern struct qeth_discipline qeth_l3_discipline;
- extern const struct attribute_group *qeth_generic_attr_groups[];
--extern const struct attribute_group *qeth_osn_attr_groups[];
- extern struct workqueue_struct *qeth_wq;
- 
- int qeth_card_hw_is_reachable(struct qeth_card *);
-@@ -997,11 +976,4 @@ int qeth_set_features(struct net_device *, netdev_features_t);
- int qeth_recover_features(struct net_device *);
- netdev_features_t qeth_fix_features(struct net_device *, netdev_features_t);
- 
--/* exports for OSN */
--int qeth_osn_assist(struct net_device *, void *, int);
--int qeth_osn_register(unsigned char *read_dev_no, struct net_device **,
--		int (*assist_cb)(struct net_device *, void *),
--		int (*data_cb)(struct sk_buff *));
--void qeth_osn_deregister(struct net_device *);
--
- #endif /* __QETH_CORE_H__ */
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 315d8a2..048a19a 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -120,8 +120,6 @@ static inline const char *qeth_get_cardname(struct qeth_card *card)
- 			return " OSD Express";
- 		case QETH_CARD_TYPE_IQD:
- 			return " HiperSockets";
--		case QETH_CARD_TYPE_OSN:
--			return " OSN QDIO";
- 		case QETH_CARD_TYPE_OSM:
- 			return " OSM QDIO";
- 		case QETH_CARD_TYPE_OSX:
-@@ -174,8 +172,6 @@ const char *qeth_get_cardname_short(struct qeth_card *card)
- 			}
- 		case QETH_CARD_TYPE_IQD:
- 			return "HiperSockets";
--		case QETH_CARD_TYPE_OSN:
--			return "OSN";
- 		case QETH_CARD_TYPE_OSM:
- 			return "OSM_1000";
- 		case QETH_CARD_TYPE_OSX:
-@@ -602,10 +598,7 @@ static struct qeth_ipa_cmd *qeth_check_ipa_data(struct qeth_card *card,
- 	if (IS_IPA(iob->data)) {
- 		cmd = (struct qeth_ipa_cmd *) PDU_ENCAPSULATION(iob->data);
- 		if (IS_IPA_REPLY(cmd)) {
--			if (cmd->hdr.command != IPA_CMD_SETCCID &&
--			    cmd->hdr.command != IPA_CMD_DELCCID &&
--			    cmd->hdr.command != IPA_CMD_MODCCID &&
--			    cmd->hdr.command != IPA_CMD_SET_DIAG_ASS)
-+			if (cmd->hdr.command != IPA_CMD_SET_DIAG_ASS)
- 				qeth_issue_ipa_msg(cmd,
- 						cmd->hdr.return_code, card);
- 			return cmd;
-@@ -653,8 +646,6 @@ static struct qeth_ipa_cmd *qeth_check_ipa_data(struct qeth_card *card,
- 					return cmd;
- 				else
- 					return NULL;
--			case IPA_CMD_MODCCID:
--				return cmd;
- 			case IPA_CMD_REGISTER_LOCAL_ADDR:
- 				QETH_CARD_TEXT(card, 3, "irla");
- 				break;
-@@ -835,14 +826,6 @@ static void qeth_send_control_data_cb(struct qeth_channel *channel,
- 	cmd = qeth_check_ipa_data(card, iob);
- 	if ((cmd == NULL) && (card->state != CARD_STATE_DOWN))
- 		goto out;
--	/*in case of OSN : check if cmd is set */
--	if (card->info.type == QETH_CARD_TYPE_OSN &&
--	    cmd &&
--	    cmd->hdr.command != IPA_CMD_STARTLAN &&
--	    card->osn_info.assist_cb != NULL) {
--		card->osn_info.assist_cb(card->dev, cmd);
--		goto out;
--	}
- 
- 	spin_lock_irqsave(&card->lock, flags);
- 	list_for_each_entry_safe(reply, r, &card->cmd_waiter_list, list) {
-@@ -1529,6 +1512,11 @@ static int qeth_determine_card_type(struct qeth_card *card)
- 		    (CARD_RDEV(card)->id.dev_model ==
- 				known_devices[i][QETH_DEV_MODEL_IND])) {
- 			card->info.type = known_devices[i][QETH_DEV_MODEL_IND];
-+			if (card->info.type == QETH_CARD_TYPE_OSN) {
-+				dev_err(&card->gdev->dev,
-+				       "OSN devices are not supported\n");
-+				goto out;
-+			}
- 			card->qdio.no_out_queues =
- 				known_devices[i][QETH_QUEUE_NO_IND];
- 			card->qdio.no_in_queues = 1;
-@@ -1539,6 +1527,7 @@ static int qeth_determine_card_type(struct qeth_card *card)
- 		}
- 		i++;
- 	}
-+out:
- 	card->info.type = QETH_CARD_TYPE_UNKNOWN;
- 	dev_err(&card->gdev->dev, "The adapter hardware is of an "
- 		"unknown type\n");
-@@ -1756,7 +1745,6 @@ static void qeth_init_func_level(struct qeth_card *card)
- 		card->info.func_level =	QETH_IDX_FUNC_LEVEL_IQD;
- 		break;
- 	case QETH_CARD_TYPE_OSD:
--	case QETH_CARD_TYPE_OSN:
- 		card->info.func_level = QETH_IDX_FUNC_LEVEL_OSD;
- 		break;
- 	default:
-@@ -2255,7 +2243,6 @@ static inline int qeth_mtu_is_valid(struct qeth_card *card, int mtu)
- 	case QETH_CARD_TYPE_IQD:
- 		return ((mtu >= 576) &&
- 			(mtu <= card->info.max_mtu));
--	case QETH_CARD_TYPE_OSN:
- 	case QETH_CARD_TYPE_UNKNOWN:
- 	default:
- 		return 1;
-@@ -2331,10 +2318,7 @@ static int qeth_ulp_enable(struct qeth_card *card)
- 	*(QETH_ULP_ENABLE_LINKNUM(iob->data)) =
- 		(__u8) card->info.portno;
- 	if (card->options.layer2)
--		if (card->info.type == QETH_CARD_TYPE_OSN)
--			prot_type = QETH_PROT_OSN2;
--		else
--			prot_type = QETH_PROT_LAYER2;
-+		prot_type = QETH_PROT_LAYER2;
- 	else
- 		prot_type = QETH_PROT_TCPIP;
- 
-@@ -2927,10 +2911,7 @@ int qeth_send_ipa_cmd(struct qeth_card *card, struct qeth_cmd_buffer *iob,
- 	QETH_CARD_TEXT(card, 4, "sendipa");
- 
- 	if (card->options.layer2)
--		if (card->info.type == QETH_CARD_TYPE_OSN)
--			prot_type = QETH_PROT_OSN2;
--		else
--			prot_type = QETH_PROT_LAYER2;
-+		prot_type = QETH_PROT_LAYER2;
- 	else
- 		prot_type = QETH_PROT_TCPIP;
- 	qeth_prepare_ipa_cmd(card, iob, prot_type);
-@@ -4427,7 +4408,6 @@ int qeth_mdio_read(struct net_device *dev, int phy_id, int regnum)
- 	case MII_BMCR: /* Basic mode control register */
- 		rc = BMCR_FULLDPLX;
- 		if ((card->info.link_type != QETH_LINK_TYPE_GBIT_ETH) &&
--		    (card->info.link_type != QETH_LINK_TYPE_OSN) &&
- 		    (card->info.link_type != QETH_LINK_TYPE_10GBIT_ETH))
- 			rc |= BMCR_SPEED100;
- 		break;
-@@ -5218,10 +5198,6 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		skb_len = (*hdr)->hdr.l3.length;
- 		headroom = ETH_HLEN;
- 		break;
--	case QETH_HEADER_TYPE_OSN:
--		skb_len = (*hdr)->hdr.osn.pdu_length;
--		headroom = sizeof(struct qeth_hdr);
--		break;
- 	default:
- 		break;
- 	}
-@@ -5230,7 +5206,6 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		return NULL;
- 
- 	if (((skb_len >= card->options.rx_sg_cb) &&
--	     (!(card->info.type == QETH_CARD_TYPE_OSN)) &&
- 	     (!atomic_read(&card->force_alloc_skb))) ||
- 	    (card->options.cq == QETH_CQ_ENABLED)) {
- 		use_rx_sg = 1;
-@@ -5463,10 +5438,6 @@ static const struct device_type qeth_generic_devtype = {
- 	.name = "qeth_generic",
- 	.groups = qeth_generic_attr_groups,
- };
--static const struct device_type qeth_osn_devtype = {
--	.name = "qeth_osn",
--	.groups = qeth_osn_attr_groups,
--};
- 
- #define DBF_NAME_LEN	20
- 
-@@ -5588,13 +5559,9 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
- 		goto err_card;
- 	}
- 
--	if (card->info.type == QETH_CARD_TYPE_OSN)
--		gdev->dev.type = &qeth_osn_devtype;
--	else
--		gdev->dev.type = &qeth_generic_devtype;
-+	gdev->dev.type = &qeth_generic_devtype;
- 
- 	switch (card->info.type) {
--	case QETH_CARD_TYPE_OSN:
- 	case QETH_CARD_TYPE_OSM:
- 		rc = qeth_core_load_discipline(card, QETH_DISCIPLINE_LAYER2);
- 		if (rc)
-diff --git a/drivers/s390/net/qeth_core_mpc.c b/drivers/s390/net/qeth_core_mpc.c
-index beb4bdc..f10e5c2 100644
---- a/drivers/s390/net/qeth_core_mpc.c
-+++ b/drivers/s390/net/qeth_core_mpc.c
-@@ -238,9 +238,6 @@ static struct ipa_cmd_names qeth_ipa_cmd_names[] = {
- 	{IPA_CMD_SETVLAN,	"setvlan"},
- 	{IPA_CMD_DELVLAN,	"delvlan"},
- 	{IPA_CMD_SETBRIDGEPORT_OSA,	"set_bridge_port(osa)"},
--	{IPA_CMD_SETCCID,	"setccid"},
--	{IPA_CMD_DELCCID,	"delccid"},
--	{IPA_CMD_MODCCID,	"modccid"},
- 	{IPA_CMD_SETIP,		"setip"},
- 	{IPA_CMD_QIPASSIST,	"qipassist"},
- 	{IPA_CMD_SETASSPARMS,	"setassparms"},
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index bc69d0a..b1b43d4 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -40,8 +40,6 @@ extern unsigned char IPA_PDU_HEADER[];
- /*****************************************************************************/
- #define IPA_CMD_INITIATOR_HOST  0x00
- #define IPA_CMD_INITIATOR_OSA   0x01
--#define IPA_CMD_INITIATOR_HOST_REPLY  0x80
--#define IPA_CMD_INITIATOR_OSA_REPLY   0x81
- #define IPA_CMD_PRIM_VERSION_NO 0x01
- 
- enum qeth_card_types {
-@@ -59,7 +57,6 @@ enum qeth_link_types {
- 	QETH_LINK_TYPE_FAST_ETH     = 0x01,
- 	QETH_LINK_TYPE_HSTR         = 0x02,
- 	QETH_LINK_TYPE_GBIT_ETH     = 0x03,
--	QETH_LINK_TYPE_OSN          = 0x04,
- 	QETH_LINK_TYPE_10GBIT_ETH   = 0x10,
- 	QETH_LINK_TYPE_LANE_ETH100  = 0x81,
- 	QETH_LINK_TYPE_LANE_TR      = 0x82,
-@@ -93,9 +90,6 @@ enum qeth_ipa_cmds {
- 	IPA_CMD_SETVLAN			= 0x25,
- 	IPA_CMD_DELVLAN			= 0x26,
- 	IPA_CMD_SETBRIDGEPORT_OSA	= 0x2b,
--	IPA_CMD_SETCCID			= 0x41,
--	IPA_CMD_DELCCID			= 0x42,
--	IPA_CMD_MODCCID			= 0x43,
- 	IPA_CMD_SETIP			= 0xb1,
- 	IPA_CMD_QIPASSIST		= 0xb2,
- 	IPA_CMD_SETASSPARMS		= 0xb3,
-@@ -717,8 +711,7 @@ extern char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd);
- #define QETH_ARP_DATA_SIZE 3968
- #define QETH_ARP_CMD_LEN (QETH_ARP_DATA_SIZE + 8)
- /* Helper functions */
--#define IS_IPA_REPLY(cmd) ((cmd->hdr.initiator == IPA_CMD_INITIATOR_HOST) || \
--			   (cmd->hdr.initiator == IPA_CMD_INITIATOR_OSA_REPLY))
-+#define IS_IPA_REPLY(cmd) (cmd->hdr.initiator == IPA_CMD_INITIATOR_HOST)
- 
- /*****************************************************************************/
- /* END OF   IP Assist related definitions                                    */
-@@ -764,7 +757,6 @@ extern unsigned char ULP_ENABLE[];
- /* Layer 2 definitions */
- #define QETH_PROT_LAYER2 0x08
- #define QETH_PROT_TCPIP  0x03
--#define QETH_PROT_OSN2   0x0a
- #define QETH_ULP_ENABLE_PROT_TYPE(buffer) (buffer + 0x50)
- #define QETH_IPA_CMD_PROT_TYPE(buffer) (buffer + 0x19)
- 
-diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
-index 75b29fd2..aafd891 100644
---- a/drivers/s390/net/qeth_core_sys.c
-+++ b/drivers/s390/net/qeth_core_sys.c
-@@ -735,20 +735,3 @@ const struct attribute_group *qeth_generic_attr_groups[] = {
- 	&qeth_device_blkt_group,
- 	NULL,
- };
--
--static struct attribute *qeth_osn_device_attrs[] = {
--	&dev_attr_state.attr,
--	&dev_attr_chpid.attr,
--	&dev_attr_if_name.attr,
--	&dev_attr_card_type.attr,
--	&dev_attr_buffer_count.attr,
--	&dev_attr_recover.attr,
--	NULL,
--};
--static struct attribute_group qeth_osn_device_attr_group = {
--	.attrs = qeth_osn_device_attrs,
--};
--const struct attribute_group *qeth_osn_attr_groups[] = {
--	&qeth_osn_device_attr_group,
--	NULL,
--};
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index bea4833..525febf 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -47,9 +47,6 @@ static int qeth_l2_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- 	if (!qeth_card_hw_is_reachable(card))
- 		return -ENODEV;
- 
--	if (card->info.type == QETH_CARD_TYPE_OSN)
--		return -EPERM;
--
- 	switch (cmd) {
- 	case SIOC_QETH_ADP_SET_SNMP_CONTROL:
- 		rc = qeth_snmp_command(card, rq->ifr_ifru.ifru_data);
-@@ -103,28 +100,6 @@ static int qeth_l2_verify_dev(struct net_device *dev)
- 	return rc;
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+
+to receive the following updates:
+
+Two changes, the first is a fix to add a missing memory clobber to the
+inline assembly to load control registers. This has not caused any issues so
+far, but who knows what code gcc will generate in future versions.
+
+The second change is an update for the default configurations. This includes
+CONFIG_BUG_ON_DATA_CORRUPTION=y, we want this to be enabled for s390. The
+usual approach to debug problems on production systems is to use crash on
+a system dump and for us avoiding data corruptions is priority one.
+
+Heiko Carstens (2):
+      s390/ctl_reg: make __ctl_load a full memory barrier
+      s390: update defconfigs
+
+ arch/s390/configs/default_defconfig     | 27 +++++++++---------
+ arch/s390/configs/gcov_defconfig        | 50 ++++++++++++++++++++-------------
+ arch/s390/configs/performance_defconfig | 33 ++++++++++++++--------
+ arch/s390/defconfig                     |  5 ++--
+ arch/s390/include/asm/ctl_reg.h         |  4 ++-
+ 5 files changed, 70 insertions(+), 49 deletions(-)
+
+diff --git a/arch/s390/configs/default_defconfig b/arch/s390/configs/default_defconfig
+index e659daf..e0097536 100644
+--- a/arch/s390/configs/default_defconfig
++++ b/arch/s390/configs/default_defconfig
+@@ -69,7 +69,7 @@ CONFIG_CMA=y
+ CONFIG_CMA_DEBUG=y
+ CONFIG_CMA_DEBUGFS=y
+ CONFIG_MEM_SOFT_DIRTY=y
+-CONFIG_ZPOOL=m
++CONFIG_ZSWAP=y
+ CONFIG_ZBUD=m
+ CONFIG_ZSMALLOC=m
+ CONFIG_ZSMALLOC_STAT=y
+@@ -141,8 +141,6 @@ CONFIG_NF_CONNTRACK_SECMARK=y
+ CONFIG_NF_CONNTRACK_EVENTS=y
+ CONFIG_NF_CONNTRACK_TIMEOUT=y
+ CONFIG_NF_CONNTRACK_TIMESTAMP=y
+-CONFIG_NF_CT_PROTO_DCCP=m
+-CONFIG_NF_CT_PROTO_UDPLITE=m
+ CONFIG_NF_CONNTRACK_AMANDA=m
+ CONFIG_NF_CONNTRACK_FTP=m
+ CONFIG_NF_CONNTRACK_H323=m
+@@ -159,13 +157,12 @@ CONFIG_NF_TABLES=m
+ CONFIG_NFT_EXTHDR=m
+ CONFIG_NFT_META=m
+ CONFIG_NFT_CT=m
+-CONFIG_NFT_RBTREE=m
+-CONFIG_NFT_HASH=m
+ CONFIG_NFT_COUNTER=m
+ CONFIG_NFT_LOG=m
+ CONFIG_NFT_LIMIT=m
+ CONFIG_NFT_NAT=m
+ CONFIG_NFT_COMPAT=m
++CONFIG_NFT_HASH=m
+ CONFIG_NETFILTER_XT_SET=m
+ CONFIG_NETFILTER_XT_TARGET_AUDIT=m
+ CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
+@@ -219,7 +216,6 @@ CONFIG_NETFILTER_XT_MATCH_QUOTA=m
+ CONFIG_NETFILTER_XT_MATCH_RATEEST=m
+ CONFIG_NETFILTER_XT_MATCH_REALM=m
+ CONFIG_NETFILTER_XT_MATCH_RECENT=m
+-CONFIG_NETFILTER_XT_MATCH_SOCKET=m
+ CONFIG_NETFILTER_XT_MATCH_STATE=m
+ CONFIG_NETFILTER_XT_MATCH_STATISTIC=m
+ CONFIG_NETFILTER_XT_MATCH_STRING=m
+@@ -258,7 +254,6 @@ CONFIG_IP_VS_NQ=m
+ CONFIG_IP_VS_FTP=m
+ CONFIG_IP_VS_PE_SIP=m
+ CONFIG_NF_CONNTRACK_IPV4=m
+-# CONFIG_NF_CONNTRACK_PROC_COMPAT is not set
+ CONFIG_NF_TABLES_IPV4=m
+ CONFIG_NFT_CHAIN_ROUTE_IPV4=m
+ CONFIG_NF_TABLES_ARP=m
+@@ -436,7 +431,6 @@ CONFIG_EQUALIZER=m
+ CONFIG_IFB=m
+ CONFIG_MACVLAN=m
+ CONFIG_MACVTAP=m
+-CONFIG_IPVLAN=m
+ CONFIG_VXLAN=m
+ CONFIG_TUN=m
+ CONFIG_VETH=m
+@@ -480,6 +474,7 @@ CONFIG_VIRTIO_BALLOON=m
+ CONFIG_EXT4_FS=y
+ CONFIG_EXT4_FS_POSIX_ACL=y
+ CONFIG_EXT4_FS_SECURITY=y
++CONFIG_EXT4_ENCRYPTION=y
+ CONFIG_JBD2_DEBUG=y
+ CONFIG_JFS_FS=m
+ CONFIG_JFS_POSIX_ACL=y
+@@ -592,14 +587,12 @@ CONFIG_LOCK_STAT=y
+ CONFIG_DEBUG_LOCKDEP=y
+ CONFIG_DEBUG_ATOMIC_SLEEP=y
+ CONFIG_DEBUG_LOCKING_API_SELFTESTS=y
+-CONFIG_DEBUG_LIST=y
+ CONFIG_DEBUG_SG=y
+ CONFIG_DEBUG_NOTIFIERS=y
+ CONFIG_DEBUG_CREDENTIALS=y
+ CONFIG_RCU_TORTURE_TEST=m
+ CONFIG_RCU_CPU_STALL_TIMEOUT=300
+ CONFIG_NOTIFIER_ERROR_INJECTION=m
+-CONFIG_CPU_NOTIFIER_ERROR_INJECT=m
+ CONFIG_PM_NOTIFIER_ERROR_INJECT=m
+ CONFIG_FAULT_INJECTION=y
+ CONFIG_FAILSLAB=y
+@@ -618,6 +611,7 @@ CONFIG_STACK_TRACER=y
+ CONFIG_BLK_DEV_IO_TRACE=y
+ CONFIG_UPROBE_EVENT=y
+ CONFIG_FUNCTION_PROFILER=y
++CONFIG_HIST_TRIGGERS=y
+ CONFIG_TRACE_ENUM_MAP_FILE=y
+ CONFIG_LKDTM=m
+ CONFIG_TEST_LIST_SORT=y
+@@ -630,6 +624,7 @@ CONFIG_TEST_STRING_HELPERS=y
+ CONFIG_TEST_KSTRTOX=y
+ CONFIG_DMA_API_DEBUG=y
+ CONFIG_TEST_BPF=m
++CONFIG_BUG_ON_DATA_CORRUPTION=y
+ CONFIG_S390_PTDUMP=y
+ CONFIG_ENCRYPTED_KEYS=m
+ CONFIG_SECURITY=y
+@@ -640,16 +635,18 @@ CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=0
+ CONFIG_SECURITY_SELINUX_DISABLE=y
+ CONFIG_IMA=y
+ CONFIG_IMA_APPRAISE=y
++CONFIG_CRYPTO_RSA=m
++CONFIG_CRYPTO_DH=m
++CONFIG_CRYPTO_ECDH=m
+ CONFIG_CRYPTO_USER=m
+-# CONFIG_CRYPTO_MANAGER_DISABLE_TESTS is not set
+ CONFIG_CRYPTO_CRYPTD=m
+ CONFIG_CRYPTO_TEST=m
+ CONFIG_CRYPTO_CCM=m
+ CONFIG_CRYPTO_GCM=m
+-CONFIG_CRYPTO_CTS=m
++CONFIG_CRYPTO_CHACHA20POLY1305=m
+ CONFIG_CRYPTO_LRW=m
+ CONFIG_CRYPTO_PCBC=m
+-CONFIG_CRYPTO_XTS=m
++CONFIG_CRYPTO_KEYWRAP=m
+ CONFIG_CRYPTO_XCBC=m
+ CONFIG_CRYPTO_VMAC=m
+ CONFIG_CRYPTO_CRC32=m
+@@ -673,11 +670,13 @@ CONFIG_CRYPTO_SEED=m
+ CONFIG_CRYPTO_SERPENT=m
+ CONFIG_CRYPTO_TEA=m
+ CONFIG_CRYPTO_TWOFISH=m
+-CONFIG_CRYPTO_LZO=m
++CONFIG_CRYPTO_842=m
+ CONFIG_CRYPTO_LZ4=m
+ CONFIG_CRYPTO_LZ4HC=m
+ CONFIG_CRYPTO_USER_API_HASH=m
+ CONFIG_CRYPTO_USER_API_SKCIPHER=m
++CONFIG_CRYPTO_USER_API_RNG=m
++CONFIG_CRYPTO_USER_API_AEAD=m
+ CONFIG_ZCRYPT=m
+ CONFIG_CRYPTO_SHA1_S390=m
+ CONFIG_CRYPTO_SHA256_S390=m
+diff --git a/arch/s390/configs/gcov_defconfig b/arch/s390/configs/gcov_defconfig
+index 95ceac5..f05d2d6 100644
+--- a/arch/s390/configs/gcov_defconfig
++++ b/arch/s390/configs/gcov_defconfig
+@@ -12,6 +12,7 @@ CONFIG_TASK_IO_ACCOUNTING=y
+ CONFIG_IKCONFIG=y
+ CONFIG_IKCONFIG_PROC=y
+ CONFIG_NUMA_BALANCING=y
++# CONFIG_NUMA_BALANCING_DEFAULT_ENABLED is not set
+ CONFIG_MEMCG=y
+ CONFIG_MEMCG_SWAP=y
+ CONFIG_BLK_CGROUP=y
+@@ -54,8 +55,9 @@ CONFIG_SOLARIS_X86_PARTITION=y
+ CONFIG_UNIXWARE_DISKLABEL=y
+ CONFIG_CFQ_GROUP_IOSCHED=y
+ CONFIG_DEFAULT_DEADLINE=y
++CONFIG_LIVEPATCH=y
+ CONFIG_TUNE_ZEC12=y
+-CONFIG_NR_CPUS=256
++CONFIG_NR_CPUS=512
+ CONFIG_NUMA=y
+ CONFIG_HZ_100=y
+ CONFIG_MEMORY_HOTPLUG=y
+@@ -65,6 +67,7 @@ CONFIG_TRANSPARENT_HUGEPAGE=y
+ CONFIG_CLEANCACHE=y
+ CONFIG_FRONTSWAP=y
+ CONFIG_CMA=y
++CONFIG_MEM_SOFT_DIRTY=y
+ CONFIG_ZSWAP=y
+ CONFIG_ZBUD=m
+ CONFIG_ZSMALLOC=m
+@@ -136,8 +139,6 @@ CONFIG_NF_CONNTRACK_SECMARK=y
+ CONFIG_NF_CONNTRACK_EVENTS=y
+ CONFIG_NF_CONNTRACK_TIMEOUT=y
+ CONFIG_NF_CONNTRACK_TIMESTAMP=y
+-CONFIG_NF_CT_PROTO_DCCP=m
+-CONFIG_NF_CT_PROTO_UDPLITE=m
+ CONFIG_NF_CONNTRACK_AMANDA=m
+ CONFIG_NF_CONNTRACK_FTP=m
+ CONFIG_NF_CONNTRACK_H323=m
+@@ -154,13 +155,12 @@ CONFIG_NF_TABLES=m
+ CONFIG_NFT_EXTHDR=m
+ CONFIG_NFT_META=m
+ CONFIG_NFT_CT=m
+-CONFIG_NFT_RBTREE=m
+-CONFIG_NFT_HASH=m
+ CONFIG_NFT_COUNTER=m
+ CONFIG_NFT_LOG=m
+ CONFIG_NFT_LIMIT=m
+ CONFIG_NFT_NAT=m
+ CONFIG_NFT_COMPAT=m
++CONFIG_NFT_HASH=m
+ CONFIG_NETFILTER_XT_SET=m
+ CONFIG_NETFILTER_XT_TARGET_AUDIT=m
+ CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
+@@ -214,7 +214,6 @@ CONFIG_NETFILTER_XT_MATCH_QUOTA=m
+ CONFIG_NETFILTER_XT_MATCH_RATEEST=m
+ CONFIG_NETFILTER_XT_MATCH_REALM=m
+ CONFIG_NETFILTER_XT_MATCH_RECENT=m
+-CONFIG_NETFILTER_XT_MATCH_SOCKET=m
+ CONFIG_NETFILTER_XT_MATCH_STATE=m
+ CONFIG_NETFILTER_XT_MATCH_STATISTIC=m
+ CONFIG_NETFILTER_XT_MATCH_STRING=m
+@@ -253,7 +252,6 @@ CONFIG_IP_VS_NQ=m
+ CONFIG_IP_VS_FTP=m
+ CONFIG_IP_VS_PE_SIP=m
+ CONFIG_NF_CONNTRACK_IPV4=m
+-# CONFIG_NF_CONNTRACK_PROC_COMPAT is not set
+ CONFIG_NF_TABLES_IPV4=m
+ CONFIG_NFT_CHAIN_ROUTE_IPV4=m
+ CONFIG_NF_TABLES_ARP=m
+@@ -430,7 +428,6 @@ CONFIG_EQUALIZER=m
+ CONFIG_IFB=m
+ CONFIG_MACVLAN=m
+ CONFIG_MACVTAP=m
+-CONFIG_IPVLAN=m
+ CONFIG_VXLAN=m
+ CONFIG_TUN=m
+ CONFIG_VETH=m
+@@ -460,6 +457,7 @@ CONFIG_HW_RANDOM_VIRTIO=m
+ CONFIG_RAW_DRIVER=m
+ CONFIG_HANGCHECK_TIMER=m
+ CONFIG_TN3270_FS=y
++# CONFIG_HWMON is not set
+ CONFIG_WATCHDOG=y
+ CONFIG_WATCHDOG_NOWAYOUT=y
+ CONFIG_SOFT_WATCHDOG=m
+@@ -473,6 +471,7 @@ CONFIG_VIRTIO_BALLOON=m
+ CONFIG_EXT4_FS=y
+ CONFIG_EXT4_FS_POSIX_ACL=y
+ CONFIG_EXT4_FS_SECURITY=y
++CONFIG_EXT4_ENCRYPTION=y
+ CONFIG_JBD2_DEBUG=y
+ CONFIG_JFS_FS=m
+ CONFIG_JFS_POSIX_ACL=y
+@@ -495,6 +494,7 @@ CONFIG_AUTOFS4_FS=m
+ CONFIG_FUSE_FS=y
+ CONFIG_CUSE=m
+ CONFIG_OVERLAY_FS=m
++CONFIG_OVERLAY_FS_REDIRECT_DIR=y
+ CONFIG_FSCACHE=m
+ CONFIG_CACHEFILES=m
+ CONFIG_ISO9660_FS=y
+@@ -551,25 +551,27 @@ CONFIG_FRAME_WARN=1024
+ CONFIG_UNUSED_SYMBOLS=y
+ CONFIG_MAGIC_SYSRQ=y
+ CONFIG_DEBUG_MEMORY_INIT=y
+-CONFIG_MEMORY_NOTIFIER_ERROR_INJECT=m
+ CONFIG_PANIC_ON_OOPS=y
+ CONFIG_TIMER_STATS=y
+ CONFIG_RCU_TORTURE_TEST=m
+ CONFIG_RCU_CPU_STALL_TIMEOUT=60
+-CONFIG_NOTIFIER_ERROR_INJECTION=m
+-CONFIG_CPU_NOTIFIER_ERROR_INJECT=m
+-CONFIG_PM_NOTIFIER_ERROR_INJECT=m
+ CONFIG_LATENCYTOP=y
++CONFIG_SCHED_TRACER=y
++CONFIG_FTRACE_SYSCALLS=y
++CONFIG_STACK_TRACER=y
+ CONFIG_BLK_DEV_IO_TRACE=y
+-# CONFIG_KPROBE_EVENT is not set
++CONFIG_UPROBE_EVENT=y
++CONFIG_FUNCTION_PROFILER=y
++CONFIG_HIST_TRIGGERS=y
+ CONFIG_TRACE_ENUM_MAP_FILE=y
+ CONFIG_LKDTM=m
+-CONFIG_RBTREE_TEST=m
+-CONFIG_INTERVAL_TREE_TEST=m
+ CONFIG_PERCPU_TEST=m
+ CONFIG_ATOMIC64_SELFTEST=y
+ CONFIG_TEST_BPF=m
++CONFIG_BUG_ON_DATA_CORRUPTION=y
+ CONFIG_S390_PTDUMP=y
++CONFIG_PERSISTENT_KEYRINGS=y
++CONFIG_BIG_KEYS=y
+ CONFIG_ENCRYPTED_KEYS=m
+ CONFIG_SECURITY=y
+ CONFIG_SECURITY_NETWORK=y
+@@ -577,18 +579,25 @@ CONFIG_SECURITY_SELINUX=y
+ CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+ CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=0
+ CONFIG_SECURITY_SELINUX_DISABLE=y
++CONFIG_INTEGRITY_SIGNATURE=y
++CONFIG_INTEGRITY_ASYMMETRIC_KEYS=y
+ CONFIG_IMA=y
++CONFIG_IMA_WRITE_POLICY=y
+ CONFIG_IMA_APPRAISE=y
++CONFIG_CRYPTO_DH=m
++CONFIG_CRYPTO_ECDH=m
+ CONFIG_CRYPTO_USER=m
+ # CONFIG_CRYPTO_MANAGER_DISABLE_TESTS is not set
++CONFIG_CRYPTO_PCRYPT=m
+ CONFIG_CRYPTO_CRYPTD=m
++CONFIG_CRYPTO_MCRYPTD=m
+ CONFIG_CRYPTO_TEST=m
+ CONFIG_CRYPTO_CCM=m
+ CONFIG_CRYPTO_GCM=m
+-CONFIG_CRYPTO_CTS=m
++CONFIG_CRYPTO_CHACHA20POLY1305=m
+ CONFIG_CRYPTO_LRW=m
+ CONFIG_CRYPTO_PCBC=m
+-CONFIG_CRYPTO_XTS=m
++CONFIG_CRYPTO_KEYWRAP=m
+ CONFIG_CRYPTO_XCBC=m
+ CONFIG_CRYPTO_VMAC=m
+ CONFIG_CRYPTO_CRC32=m
+@@ -598,6 +607,7 @@ CONFIG_CRYPTO_RMD160=m
+ CONFIG_CRYPTO_RMD256=m
+ CONFIG_CRYPTO_RMD320=m
+ CONFIG_CRYPTO_SHA512=m
++CONFIG_CRYPTO_SHA3=m
+ CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_WP512=m
+ CONFIG_CRYPTO_ANUBIS=m
+@@ -612,10 +622,13 @@ CONFIG_CRYPTO_SEED=m
+ CONFIG_CRYPTO_SERPENT=m
+ CONFIG_CRYPTO_TEA=m
+ CONFIG_CRYPTO_TWOFISH=m
++CONFIG_CRYPTO_842=m
+ CONFIG_CRYPTO_LZ4=m
+ CONFIG_CRYPTO_LZ4HC=m
+ CONFIG_CRYPTO_USER_API_HASH=m
+ CONFIG_CRYPTO_USER_API_SKCIPHER=m
++CONFIG_CRYPTO_USER_API_RNG=m
++CONFIG_CRYPTO_USER_API_AEAD=m
+ CONFIG_ZCRYPT=m
+ CONFIG_CRYPTO_SHA1_S390=m
+ CONFIG_CRYPTO_SHA256_S390=m
+@@ -624,9 +637,6 @@ CONFIG_CRYPTO_DES_S390=m
+ CONFIG_CRYPTO_AES_S390=m
+ CONFIG_CRYPTO_GHASH_S390=m
+ CONFIG_CRYPTO_CRC32_S390=y
+-CONFIG_ASYMMETRIC_KEY_TYPE=y
+-CONFIG_ASYMMETRIC_PUBLIC_KEY_SUBTYPE=m
+-CONFIG_X509_CERTIFICATE_PARSER=m
+ CONFIG_CRC7=m
+ CONFIG_CRC8=m
+ CONFIG_CORDIC=m
+diff --git a/arch/s390/configs/performance_defconfig b/arch/s390/configs/performance_defconfig
+index bc7b176..2cf8734 100644
+--- a/arch/s390/configs/performance_defconfig
++++ b/arch/s390/configs/performance_defconfig
+@@ -65,6 +65,7 @@ CONFIG_TRANSPARENT_HUGEPAGE=y
+ CONFIG_CLEANCACHE=y
+ CONFIG_FRONTSWAP=y
+ CONFIG_CMA=y
++CONFIG_MEM_SOFT_DIRTY=y
+ CONFIG_ZSWAP=y
+ CONFIG_ZBUD=m
+ CONFIG_ZSMALLOC=m
+@@ -136,8 +137,6 @@ CONFIG_NF_CONNTRACK_SECMARK=y
+ CONFIG_NF_CONNTRACK_EVENTS=y
+ CONFIG_NF_CONNTRACK_TIMEOUT=y
+ CONFIG_NF_CONNTRACK_TIMESTAMP=y
+-CONFIG_NF_CT_PROTO_DCCP=m
+-CONFIG_NF_CT_PROTO_UDPLITE=m
+ CONFIG_NF_CONNTRACK_AMANDA=m
+ CONFIG_NF_CONNTRACK_FTP=m
+ CONFIG_NF_CONNTRACK_H323=m
+@@ -154,13 +153,12 @@ CONFIG_NF_TABLES=m
+ CONFIG_NFT_EXTHDR=m
+ CONFIG_NFT_META=m
+ CONFIG_NFT_CT=m
+-CONFIG_NFT_RBTREE=m
+-CONFIG_NFT_HASH=m
+ CONFIG_NFT_COUNTER=m
+ CONFIG_NFT_LOG=m
+ CONFIG_NFT_LIMIT=m
+ CONFIG_NFT_NAT=m
+ CONFIG_NFT_COMPAT=m
++CONFIG_NFT_HASH=m
+ CONFIG_NETFILTER_XT_SET=m
+ CONFIG_NETFILTER_XT_TARGET_AUDIT=m
+ CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
+@@ -214,7 +212,6 @@ CONFIG_NETFILTER_XT_MATCH_QUOTA=m
+ CONFIG_NETFILTER_XT_MATCH_RATEEST=m
+ CONFIG_NETFILTER_XT_MATCH_REALM=m
+ CONFIG_NETFILTER_XT_MATCH_RECENT=m
+-CONFIG_NETFILTER_XT_MATCH_SOCKET=m
+ CONFIG_NETFILTER_XT_MATCH_STATE=m
+ CONFIG_NETFILTER_XT_MATCH_STATISTIC=m
+ CONFIG_NETFILTER_XT_MATCH_STRING=m
+@@ -253,7 +250,6 @@ CONFIG_IP_VS_NQ=m
+ CONFIG_IP_VS_FTP=m
+ CONFIG_IP_VS_PE_SIP=m
+ CONFIG_NF_CONNTRACK_IPV4=m
+-# CONFIG_NF_CONNTRACK_PROC_COMPAT is not set
+ CONFIG_NF_TABLES_IPV4=m
+ CONFIG_NFT_CHAIN_ROUTE_IPV4=m
+ CONFIG_NF_TABLES_ARP=m
+@@ -430,7 +426,6 @@ CONFIG_EQUALIZER=m
+ CONFIG_IFB=m
+ CONFIG_MACVLAN=m
+ CONFIG_MACVTAP=m
+-CONFIG_IPVLAN=m
+ CONFIG_VXLAN=m
+ CONFIG_TUN=m
+ CONFIG_VETH=m
+@@ -474,6 +469,7 @@ CONFIG_VIRTIO_BALLOON=m
+ CONFIG_EXT4_FS=y
+ CONFIG_EXT4_FS_POSIX_ACL=y
+ CONFIG_EXT4_FS_SECURITY=y
++CONFIG_EXT4_ENCRYPTION=y
+ CONFIG_JBD2_DEBUG=y
+ CONFIG_JFS_FS=m
+ CONFIG_JFS_POSIX_ACL=y
+@@ -496,6 +492,7 @@ CONFIG_AUTOFS4_FS=m
+ CONFIG_FUSE_FS=y
+ CONFIG_CUSE=m
+ CONFIG_OVERLAY_FS=m
++CONFIG_OVERLAY_FS_REDIRECT_DIR=y
+ CONFIG_FSCACHE=m
+ CONFIG_CACHEFILES=m
+ CONFIG_ISO9660_FS=y
+@@ -563,12 +560,16 @@ CONFIG_STACK_TRACER=y
+ CONFIG_BLK_DEV_IO_TRACE=y
+ CONFIG_UPROBE_EVENT=y
+ CONFIG_FUNCTION_PROFILER=y
++CONFIG_HIST_TRIGGERS=y
+ CONFIG_TRACE_ENUM_MAP_FILE=y
+ CONFIG_LKDTM=m
+ CONFIG_PERCPU_TEST=m
+ CONFIG_ATOMIC64_SELFTEST=y
+ CONFIG_TEST_BPF=m
++CONFIG_BUG_ON_DATA_CORRUPTION=y
+ CONFIG_S390_PTDUMP=y
++CONFIG_PERSISTENT_KEYRINGS=y
++CONFIG_BIG_KEYS=y
+ CONFIG_ENCRYPTED_KEYS=m
+ CONFIG_SECURITY=y
+ CONFIG_SECURITY_NETWORK=y
+@@ -576,18 +577,25 @@ CONFIG_SECURITY_SELINUX=y
+ CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+ CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=0
+ CONFIG_SECURITY_SELINUX_DISABLE=y
++CONFIG_INTEGRITY_SIGNATURE=y
++CONFIG_INTEGRITY_ASYMMETRIC_KEYS=y
+ CONFIG_IMA=y
++CONFIG_IMA_WRITE_POLICY=y
+ CONFIG_IMA_APPRAISE=y
++CONFIG_CRYPTO_DH=m
++CONFIG_CRYPTO_ECDH=m
+ CONFIG_CRYPTO_USER=m
+ # CONFIG_CRYPTO_MANAGER_DISABLE_TESTS is not set
++CONFIG_CRYPTO_PCRYPT=m
+ CONFIG_CRYPTO_CRYPTD=m
++CONFIG_CRYPTO_MCRYPTD=m
+ CONFIG_CRYPTO_TEST=m
+ CONFIG_CRYPTO_CCM=m
+ CONFIG_CRYPTO_GCM=m
+-CONFIG_CRYPTO_CTS=m
++CONFIG_CRYPTO_CHACHA20POLY1305=m
+ CONFIG_CRYPTO_LRW=m
+ CONFIG_CRYPTO_PCBC=m
+-CONFIG_CRYPTO_XTS=m
++CONFIG_CRYPTO_KEYWRAP=m
+ CONFIG_CRYPTO_XCBC=m
+ CONFIG_CRYPTO_VMAC=m
+ CONFIG_CRYPTO_CRC32=m
+@@ -597,6 +605,7 @@ CONFIG_CRYPTO_RMD160=m
+ CONFIG_CRYPTO_RMD256=m
+ CONFIG_CRYPTO_RMD320=m
+ CONFIG_CRYPTO_SHA512=m
++CONFIG_CRYPTO_SHA3=m
+ CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_WP512=m
+ CONFIG_CRYPTO_ANUBIS=m
+@@ -611,10 +620,13 @@ CONFIG_CRYPTO_SEED=m
+ CONFIG_CRYPTO_SERPENT=m
+ CONFIG_CRYPTO_TEA=m
+ CONFIG_CRYPTO_TWOFISH=m
++CONFIG_CRYPTO_842=m
+ CONFIG_CRYPTO_LZ4=m
+ CONFIG_CRYPTO_LZ4HC=m
+ CONFIG_CRYPTO_USER_API_HASH=m
+ CONFIG_CRYPTO_USER_API_SKCIPHER=m
++CONFIG_CRYPTO_USER_API_RNG=m
++CONFIG_CRYPTO_USER_API_AEAD=m
+ CONFIG_ZCRYPT=m
+ CONFIG_CRYPTO_SHA1_S390=m
+ CONFIG_CRYPTO_SHA256_S390=m
+@@ -623,9 +635,6 @@ CONFIG_CRYPTO_DES_S390=m
+ CONFIG_CRYPTO_AES_S390=m
+ CONFIG_CRYPTO_GHASH_S390=m
+ CONFIG_CRYPTO_CRC32_S390=y
+-CONFIG_ASYMMETRIC_KEY_TYPE=y
+-CONFIG_ASYMMETRIC_PUBLIC_KEY_SUBTYPE=m
+-CONFIG_X509_CERTIFICATE_PARSER=m
+ CONFIG_CRC7=m
+ CONFIG_CRC8=m
+ CONFIG_CORDIC=m
+diff --git a/arch/s390/defconfig b/arch/s390/defconfig
+index 2d40ef0..d00e368 100644
+--- a/arch/s390/defconfig
++++ b/arch/s390/defconfig
+@@ -38,7 +38,6 @@ CONFIG_JUMP_LABEL=y
+ CONFIG_STATIC_KEYS_SELFTEST=y
+ CONFIG_MODULES=y
+ CONFIG_MODULE_UNLOAD=y
+-CONFIG_MODVERSIONS=y
+ CONFIG_BLK_DEV_INTEGRITY=y
+ CONFIG_PARTITION_ADVANCED=y
+ CONFIG_IBM_PARTITION=y
+@@ -130,8 +129,11 @@ CONFIG_DUMMY=m
+ CONFIG_EQUALIZER=m
+ CONFIG_TUN=m
+ CONFIG_VIRTIO_NET=y
++# CONFIG_NET_VENDOR_ALACRITECH is not set
++# CONFIG_NET_VENDOR_SOLARFLARE is not set
+ # CONFIG_INPUT is not set
+ # CONFIG_SERIO is not set
++CONFIG_DEVKMEM=y
+ CONFIG_RAW_DRIVER=m
+ CONFIG_VIRTIO_BALLOON=y
+ CONFIG_EXT4_FS=y
+@@ -183,7 +185,6 @@ CONFIG_TRACE_ENUM_MAP_FILE=y
+ CONFIG_KPROBES_SANITY_TEST=y
+ CONFIG_S390_PTDUMP=y
+ CONFIG_CRYPTO_CRYPTD=m
+-CONFIG_CRYPTO_AUTHENC=m
+ CONFIG_CRYPTO_TEST=m
+ CONFIG_CRYPTO_CCM=m
+ CONFIG_CRYPTO_GCM=m
+diff --git a/arch/s390/include/asm/ctl_reg.h b/arch/s390/include/asm/ctl_reg.h
+index d7697ab..8e136b8 100644
+--- a/arch/s390/include/asm/ctl_reg.h
++++ b/arch/s390/include/asm/ctl_reg.h
+@@ -15,7 +15,9 @@
+ 	BUILD_BUG_ON(sizeof(addrtype) != (high - low + 1) * sizeof(long));\
+ 	asm volatile(							\
+ 		"	lctlg	%1,%2,%0\n"				\
+-		: : "Q" (*(addrtype *)(&array)), "i" (low), "i" (high));\
++		:							\
++		: "Q" (*(addrtype *)(&array)), "i" (low), "i" (high)	\
++		: "memory");						\
  }
  
--static struct net_device *qeth_l2_netdev_by_devno(unsigned char *read_dev_no)
--{
--	struct qeth_card *card;
--	struct net_device *ndev;
--	__u16 temp_dev_no;
--	unsigned long flags;
--	struct ccw_dev_id read_devid;
--
--	ndev = NULL;
--	memcpy(&temp_dev_no, read_dev_no, 2);
--	read_lock_irqsave(&qeth_core_card_list.rwlock, flags);
--	list_for_each_entry(card, &qeth_core_card_list.list, list) {
--		ccw_device_get_id(CARD_RDEV(card), &read_devid);
--		if (read_devid.devno == temp_dev_no) {
--			ndev = card->dev;
--			break;
--		}
--	}
--	read_unlock_irqrestore(&qeth_core_card_list.rwlock, flags);
--	return ndev;
--}
--
- static int qeth_setdel_makerc(struct qeth_card *card, int retcode)
- {
- 	int rc;
-@@ -290,8 +265,6 @@ static inline u32 qeth_l2_mac_hash(const u8 *addr)
- static inline int qeth_l2_get_cast_type(struct qeth_card *card,
- 			struct sk_buff *skb)
- {
--	if (card->info.type == QETH_CARD_TYPE_OSN)
--		return RTN_UNSPEC;
- 	if (is_broadcast_ether_addr(skb->data))
- 		return RTN_BROADCAST;
- 	if (is_multicast_ether_addr(skb->data))
-@@ -463,8 +436,7 @@ static void qeth_l2_stop_card(struct qeth_card *card, int recovery_mode)
- 	if (card->read.state == CH_STATE_UP &&
- 	    card->write.state == CH_STATE_UP &&
- 	    (card->state == CARD_STATE_UP)) {
--		if (recovery_mode &&
--		    card->info.type != QETH_CARD_TYPE_OSN) {
-+		if (recovery_mode) {
- 			qeth_l2_stop(card->dev);
- 		} else {
- 			rtnl_lock();
-@@ -510,40 +482,25 @@ static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
- 			break;
- 		}
- 		skb->dev = card->dev;
--		switch (hdr->hdr.l2.id) {
--		case QETH_HEADER_TYPE_LAYER2:
--			skb->pkt_type = PACKET_HOST;
--			skb->protocol = eth_type_trans(skb, skb->dev);
--			if ((card->dev->features & NETIF_F_RXCSUM)
--			   && ((hdr->hdr.l2.flags[1] &
--				(QETH_HDR_EXT_CSUM_HDR_REQ |
--				   QETH_HDR_EXT_CSUM_TRANSP_REQ)) ==
--				(QETH_HDR_EXT_CSUM_HDR_REQ |
--				   QETH_HDR_EXT_CSUM_TRANSP_REQ)))
--				skb->ip_summed = CHECKSUM_UNNECESSARY;
--			else
--				skb->ip_summed = CHECKSUM_NONE;
--			if (skb->protocol == htons(ETH_P_802_2))
--				*((__u32 *)skb->cb) = ++card->seqno.pkt_seqno;
--			len = skb->len;
--			napi_gro_receive(&card->napi, skb);
--			break;
--		case QETH_HEADER_TYPE_OSN:
--			if (card->info.type == QETH_CARD_TYPE_OSN) {
--				skb_push(skb, sizeof(struct qeth_hdr));
--				skb_copy_to_linear_data(skb, hdr,
--						sizeof(struct qeth_hdr));
--				len = skb->len;
--				card->osn_info.data_cb(skb);
--				break;
--			}
--			/* else unknown */
--		default:
-+		if (hdr->hdr.l2.id != QETH_HEADER_TYPE_LAYER2) {
- 			dev_kfree_skb_any(skb);
- 			QETH_CARD_TEXT(card, 3, "inbunkno");
- 			QETH_DBF_HEX(CTRL, 3, hdr, QETH_DBF_CTRL_LEN);
- 			continue;
- 		}
-+		skb->pkt_type = PACKET_HOST;
-+		skb->protocol = eth_type_trans(skb, skb->dev);
-+		if ((card->dev->features & NETIF_F_RXCSUM)
-+		   && ((hdr->hdr.l2.flags[1] &
-+			(QETH_HDR_EXT_CSUM_HDR_REQ |
-+			   QETH_HDR_EXT_CSUM_TRANSP_REQ)) ==
-+			(QETH_HDR_EXT_CSUM_HDR_REQ |
-+			   QETH_HDR_EXT_CSUM_TRANSP_REQ)))
-+			skb->ip_summed = CHECKSUM_UNNECESSARY;
-+		else
-+			skb->ip_summed = CHECKSUM_NONE;
-+		len = skb->len;
-+		napi_gro_receive(&card->napi, skb);
- 		work_done++;
- 		budget--;
- 		card->stats.rx_packets++;
-@@ -676,8 +633,7 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
- 		return -EOPNOTSUPP;
- 	}
- 
--	if (card->info.type == QETH_CARD_TYPE_OSN ||
--	    card->info.type == QETH_CARD_TYPE_OSM ||
-+	if (card->info.type == QETH_CARD_TYPE_OSM ||
- 	    card->info.type == QETH_CARD_TYPE_OSX) {
- 		QETH_CARD_TEXT(card, 3, "setmcTYP");
- 		return -EOPNOTSUPP;
-@@ -767,9 +723,6 @@ static void qeth_l2_set_rx_mode(struct net_device *dev)
- 	int i;
- 	int rc;
- 
--	if (card->info.type == QETH_CARD_TYPE_OSN)
--		return;
--
- 	QETH_CARD_TEXT(card, 3, "setmulti");
- 	if (qeth_threads_running(card, QETH_RECOVER_THREAD) &&
- 	    (card->state != CARD_STATE_UP))
-@@ -835,10 +788,6 @@ static int qeth_l2_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		goto tx_drop;
- 	}
- 
--	if ((card->info.type == QETH_CARD_TYPE_OSN) &&
--	    (skb->protocol == htons(ETH_P_IPV6)))
--		goto tx_drop;
--
- 	if (card->options.performance_stats) {
- 		card->perf_stats.outbound_cnt++;
- 		card->perf_stats.outbound_start_time = qeth_get_micros();
-@@ -862,36 +811,30 @@ static int qeth_l2_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 			goto tx_drop;
- 	}
- 
--	if (card->info.type == QETH_CARD_TYPE_OSN)
--		hdr = (struct qeth_hdr *)skb->data;
--	else {
--		if (card->info.type == QETH_CARD_TYPE_IQD) {
--			new_skb = skb;
--			data_offset = ETH_HLEN;
--			hd_len = ETH_HLEN;
--			hdr = kmem_cache_alloc(qeth_core_header_cache,
--						GFP_ATOMIC);
--			if (!hdr)
--				goto tx_drop;
--			elements_needed++;
--			skb_reset_mac_header(new_skb);
--			qeth_l2_fill_header(card, hdr, new_skb, cast_type);
--			hdr->hdr.l2.pkt_length = new_skb->len;
--			memcpy(((char *)hdr) + sizeof(struct qeth_hdr),
--				skb_mac_header(new_skb), ETH_HLEN);
--		} else {
--			/* create a clone with writeable headroom */
--			new_skb = skb_realloc_headroom(skb,
--						sizeof(struct qeth_hdr));
--			if (!new_skb)
--				goto tx_drop;
--			hdr = (struct qeth_hdr *)skb_push(new_skb,
--						sizeof(struct qeth_hdr));
--			skb_set_mac_header(new_skb, sizeof(struct qeth_hdr));
--			qeth_l2_fill_header(card, hdr, new_skb, cast_type);
--			if (new_skb->ip_summed == CHECKSUM_PARTIAL)
--				qeth_l2_hdr_csum(card, hdr, new_skb);
--		}
-+	if (card->info.type == QETH_CARD_TYPE_IQD) {
-+		new_skb = skb;
-+		data_offset = ETH_HLEN;
-+		hd_len = ETH_HLEN;
-+		hdr = kmem_cache_alloc(qeth_core_header_cache, GFP_ATOMIC);
-+		if (!hdr)
-+			goto tx_drop;
-+		elements_needed++;
-+		skb_reset_mac_header(new_skb);
-+		qeth_l2_fill_header(card, hdr, new_skb, cast_type);
-+		hdr->hdr.l2.pkt_length = new_skb->len;
-+		memcpy(((char *)hdr) + sizeof(struct qeth_hdr),
-+		       skb_mac_header(new_skb), ETH_HLEN);
-+	} else {
-+		/* create a clone with writeable headroom */
-+		new_skb = skb_realloc_headroom(skb, sizeof(struct qeth_hdr));
-+		if (!new_skb)
-+			goto tx_drop;
-+		hdr = (struct qeth_hdr *)skb_push(new_skb,
-+						  sizeof(struct qeth_hdr));
-+		skb_set_mac_header(new_skb, sizeof(struct qeth_hdr));
-+		qeth_l2_fill_header(card, hdr, new_skb, cast_type);
-+		if (new_skb->ip_summed == CHECKSUM_PARTIAL)
-+			qeth_l2_hdr_csum(card, hdr, new_skb);
- 	}
- 
- 	elements = qeth_get_elements_no(card, new_skb, elements_needed);
-@@ -963,8 +906,7 @@ static int __qeth_l2_open(struct net_device *dev)
- 	if (card->state != CARD_STATE_SOFTSETUP)
- 		return -ENODEV;
- 
--	if ((card->info.type != QETH_CARD_TYPE_OSN) &&
--	     (!(card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED))) {
-+	if (!(card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED)) {
- 		QETH_CARD_TEXT(card, 4, "nomacadr");
- 		return -EPERM;
- 	}
-@@ -1045,13 +987,6 @@ static const struct ethtool_ops qeth_l2_ethtool_ops = {
- 	.get_settings = qeth_core_ethtool_get_settings,
- };
- 
--static const struct ethtool_ops qeth_l2_osn_ops = {
--	.get_strings = qeth_core_get_strings,
--	.get_ethtool_stats = qeth_core_get_ethtool_stats,
--	.get_sset_count = qeth_core_get_sset_count,
--	.get_drvinfo = qeth_core_get_drvinfo,
--};
--
- static const struct net_device_ops qeth_l2_netdev_ops = {
- 	.ndo_open		= qeth_l2_open,
- 	.ndo_stop		= qeth_l2_stop,
-@@ -1076,11 +1011,6 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
- 		card->dev = alloc_netdev(0, "hsi%d", NET_NAME_UNKNOWN,
- 					 ether_setup);
- 		break;
--	case QETH_CARD_TYPE_OSN:
--		card->dev = alloc_netdev(0, "osn%d", NET_NAME_UNKNOWN,
--					 ether_setup);
--		card->dev->flags |= IFF_NOARP;
--		break;
- 	default:
- 		card->dev = alloc_etherdev(0);
- 	}
-@@ -1094,9 +1024,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
- 	card->dev->min_mtu = 64;
- 	card->dev->max_mtu = ETH_MAX_MTU;
- 	card->dev->netdev_ops = &qeth_l2_netdev_ops;
--	card->dev->ethtool_ops =
--		(card->info.type != QETH_CARD_TYPE_OSN) ?
--		&qeth_l2_ethtool_ops : &qeth_l2_osn_ops;
-+	card->dev->ethtool_ops = &qeth_l2_ethtool_ops;
- 	card->dev->features |= NETIF_F_HW_VLAN_CTAG_FILTER;
- 	if (card->info.type == QETH_CARD_TYPE_OSD && !card->info.guestlan) {
- 		card->dev->hw_features = NETIF_F_SG;
-@@ -1158,8 +1086,7 @@ static int __qeth_l2_set_online(struct ccwgroup_device *gdev, int recovery_mode)
- 		goto out_remove;
- 	}
- 
--	if (card->info.type != QETH_CARD_TYPE_OSN)
--		qeth_l2_send_setmac(card, &card->dev->dev_addr[0]);
-+	qeth_l2_send_setmac(card, &card->dev->dev_addr[0]);
- 
- 	if (qeth_is_diagass_supported(card, QETH_DIAGS_CMD_TRAP)) {
- 		if (card->info.hwtrap &&
-@@ -1184,8 +1111,7 @@ static int __qeth_l2_set_online(struct ccwgroup_device *gdev, int recovery_mode)
- 			goto out_remove;
- 	}
- 
--	if (card->info.type != QETH_CARD_TYPE_OSN &&
--	    card->info.type != QETH_CARD_TYPE_OSM)
-+	if (card->info.type != QETH_CARD_TYPE_OSM)
- 		qeth_l2_process_vlans(card);
- 
- 	netif_tx_disable(card->dev);
-@@ -1204,8 +1130,7 @@ static int __qeth_l2_set_online(struct ccwgroup_device *gdev, int recovery_mode)
- 
- 	qeth_set_allowed_threads(card, 0xffffffff, 0);
- 	if (recover_flag == CARD_STATE_RECOVER) {
--		if (recovery_mode &&
--		    card->info.type != QETH_CARD_TYPE_OSN) {
-+		if (recovery_mode) {
- 			__qeth_l2_open(card->dev);
- 		} else {
- 			rtnl_lock();
-@@ -1421,108 +1346,6 @@ struct qeth_discipline qeth_l2_discipline = {
- };
- EXPORT_SYMBOL_GPL(qeth_l2_discipline);
- 
--static int qeth_osn_send_control_data(struct qeth_card *card, int len,
--			   struct qeth_cmd_buffer *iob)
--{
--	unsigned long flags;
--	int rc = 0;
--
--	QETH_CARD_TEXT(card, 5, "osndctrd");
--
--	wait_event(card->wait_q,
--		   atomic_cmpxchg(&card->write.irq_pending, 0, 1) == 0);
--	qeth_prepare_control_data(card, len, iob);
--	QETH_CARD_TEXT(card, 6, "osnoirqp");
--	spin_lock_irqsave(get_ccwdev_lock(card->write.ccwdev), flags);
--	rc = ccw_device_start(card->write.ccwdev, &card->write.ccw,
--			      (addr_t) iob, 0, 0);
--	spin_unlock_irqrestore(get_ccwdev_lock(card->write.ccwdev), flags);
--	if (rc) {
--		QETH_DBF_MESSAGE(2, "qeth_osn_send_control_data: "
--			   "ccw_device_start rc = %i\n", rc);
--		QETH_CARD_TEXT_(card, 2, " err%d", rc);
--		qeth_release_buffer(iob->channel, iob);
--		atomic_set(&card->write.irq_pending, 0);
--		wake_up(&card->wait_q);
--	}
--	return rc;
--}
--
--static int qeth_osn_send_ipa_cmd(struct qeth_card *card,
--			struct qeth_cmd_buffer *iob, int data_len)
--{
--	u16 s1, s2;
--
--	QETH_CARD_TEXT(card, 4, "osndipa");
--
--	qeth_prepare_ipa_cmd(card, iob, QETH_PROT_OSN2);
--	s1 = (u16)(IPA_PDU_HEADER_SIZE + data_len);
--	s2 = (u16)data_len;
--	memcpy(QETH_IPA_PDU_LEN_TOTAL(iob->data), &s1, 2);
--	memcpy(QETH_IPA_PDU_LEN_PDU1(iob->data), &s2, 2);
--	memcpy(QETH_IPA_PDU_LEN_PDU2(iob->data), &s2, 2);
--	memcpy(QETH_IPA_PDU_LEN_PDU3(iob->data), &s2, 2);
--	return qeth_osn_send_control_data(card, s1, iob);
--}
--
--int qeth_osn_assist(struct net_device *dev, void *data, int data_len)
--{
--	struct qeth_cmd_buffer *iob;
--	struct qeth_card *card;
--	int rc;
--
--	if (!dev)
--		return -ENODEV;
--	card = dev->ml_priv;
--	if (!card)
--		return -ENODEV;
--	QETH_CARD_TEXT(card, 2, "osnsdmc");
--	if (!qeth_card_hw_is_reachable(card))
--		return -ENODEV;
--	iob = qeth_wait_for_buffer(&card->write);
--	memcpy(iob->data+IPA_PDU_HEADER_SIZE, data, data_len);
--	rc = qeth_osn_send_ipa_cmd(card, iob, data_len);
--	return rc;
--}
--EXPORT_SYMBOL(qeth_osn_assist);
--
--int qeth_osn_register(unsigned char *read_dev_no, struct net_device **dev,
--		  int (*assist_cb)(struct net_device *, void *),
--		  int (*data_cb)(struct sk_buff *))
--{
--	struct qeth_card *card;
--
--	*dev = qeth_l2_netdev_by_devno(read_dev_no);
--	if (*dev == NULL)
--		return -ENODEV;
--	card = (*dev)->ml_priv;
--	if (!card)
--		return -ENODEV;
--	QETH_CARD_TEXT(card, 2, "osnreg");
--	if ((assist_cb == NULL) || (data_cb == NULL))
--		return -EINVAL;
--	card->osn_info.assist_cb = assist_cb;
--	card->osn_info.data_cb = data_cb;
--	return 0;
--}
--EXPORT_SYMBOL(qeth_osn_register);
--
--void qeth_osn_deregister(struct net_device *dev)
--{
--	struct qeth_card *card;
--
--	if (!dev)
--		return;
--	card = dev->ml_priv;
--	if (!card)
--		return;
--	QETH_CARD_TEXT(card, 2, "osndereg");
--	card->osn_info.assist_cb = NULL;
--	card->osn_info.data_cb = NULL;
--	return;
--}
--EXPORT_SYMBOL(qeth_osn_deregister);
--
- /* SETBRIDGEPORT support, async notifications */
- 
- enum qeth_an_event_type {anev_reg_unreg, anev_abort, anev_reset};
--- 
-2.8.4
+ #define __ctl_store(array, low, high) {					\
