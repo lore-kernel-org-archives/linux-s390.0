@@ -1,8 +1,11 @@
 Return-Path: <jpoimboe@redhat.com>
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH v4 00/15] livepatch: hybrid consistency model
-Date: Thu, 19 Jan 2017 09:46:08 -0600
-Message-Id: <cover.1484839971.git.jpoimboe@redhat.com>
+Subject: [PATCH v4 01/15] stacktrace/x86: add function for detecting reliable
+ stack traces
+Date: Thu, 19 Jan 2017 09:46:09 -0600
+Message-Id: <dfe1419dc06f37e1f4aec5bf81d5b60e505a8d0f.1484839971.git.jpoimboe@redhat.com>
+In-Reply-To: <cover.1484839971.git.jpoimboe@redhat.com>
+References: <cover.1484839971.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -15,151 +18,266 @@ To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes
 Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Here's v4, based on linux-next/master.  Mostly minor changes this time,
-primarily due to Petr's v3 comments.
+For live patching and possibly other use cases, a stack trace is only
+useful if it can be assured that it's completely reliable.  Add a new
+save_stack_trace_tsk_reliable() function to achieve that.
 
-v4:
-- add warnings for "impossible" scenarios in __save_stack_trace_reliable()
-- sort _TIF_ALLWORK_MASK flags
-- move klp_transition_work to transition.c.  This resulted in the following 
-  related changes:
-  - klp_mutex is now visible to transition.c
-  - klp_start_transition() now calls klp_try_complete_transition()
-  - klp_try_complete_transition() now sets up the work
-  - rearrange code in transition.c accordingly
-- klp_reverse_transition(): clear TIF flags and call synchronize_rcu()
-- klp_try_complete_transition(): do synchronize_rcu() only when unpatching
-- klp_start_transition(): only set TIF flags when necessary
-- klp_complete_transition(): add synchronize_rcu() when patching
-- klp_ftrace_handler(): put WARN_ON_ONCE back in and add comment
-- use for_each_possible_cpu() to patch offline idle tasks
-- add warnings to sample module when setting patch.immediate
-- don't use pr_debug() with the task rq lock
-- add documentation about porting consistency model to other arches
-- move klp_patch_pending() to patch 13
-- improve several comments and commit messages
+Note that if the target task isn't the current task, and the target task
+is allowed to run, then it could be writing the stack while the unwinder
+is reading it, resulting in possible corruption.  So the caller of
+save_stack_trace_tsk_reliable() must ensure that the task is either
+'current' or inactive.
 
-v3:
-- rebase on new x86 unwinder
-- force !HAVE_RELIABLE_STACKTRACE arches to use patch->immediate for
-  now, because we don't have a way to transition kthreads otherwise
-- rebase s390 TIF_PATCH_PENDING patch onto latest entry code
-- update barrier comments and move barrier from the end of
-  klp_init_transition() to its callers
-- "klp_work" -> "klp_transition_work"
-- "klp_patch_task()" -> "klp_update_patch_state()"
-- explicit _TIF_ALLWORK_MASK
-- change klp_reverse_transition() to not try to complete transition.
-  instead modify the work queue delay to zero.
-- get rid of klp_schedule_work() in favor of calling
-  schedule_delayed_work() directly with a KLP_TRANSITION_DELAY
-- initialize klp_target_state to KLP_UNDEFINED
-- move klp_target_state assignment to before patch->immediate check in
-  klp_init_transition()
-- rcu_read_lock() in klp_update_patch_state(), test the thread flag in
-  patch task, synchronize_rcu() in klp_complete_transition()
-- use kstrtobool() in enabled_store()
-- change task_rq_lock() argument type to struct rq_flags
-- add several WARN_ON_ONCE assertions for klp_target_state and
-  task->patch_state
+save_stack_trace_tsk_reliable() relies on the x86 unwinder's detection
+of pt_regs on the stack.  If the pt_regs are not user-mode registers
+from a syscall, then they indicate an in-kernel interrupt or exception
+(e.g. preemption or a page fault), in which case the stack is considered
+unreliable due to the nature of frame pointers.
 
-v2:
-- "universe" -> "patch state"
-- rename klp_update_task_universe() -> klp_patch_task()
-- add preempt IRQ tracking (TF_PREEMPT_IRQ)
-- fix print_context_stack_reliable() bug
-- improve print_context_stack_reliable() comments
-- klp_ftrace_handler comment fixes
-- add "patch_state" proc file to tid_base_stuff
-- schedule work even for !RELIABLE_STACKTRACE
-- forked child inherits patch state from parent
-- add detailed comment to livepatch.h klp_func definition about the
-  klp_func patched/transition state transitions
-- update exit_to_usermode_loop() comment
-- clear all TIF_KLP_NEED_UPDATE flags in klp_complete_transition()
-- remove unnecessary function externs
-- add livepatch documentation, sysfs documentation, /proc documentation
-- /proc/pid/patch_state: -1 means no patch is currently being applied/reverted
-- "TIF_KLP_NEED_UPDATE" -> "TIF_PATCH_PENDING"
-- support for s390 and powerpc-le
-- don't assume stacks with dynamic ftrace trampolines are reliable
-- add _TIF_ALLWORK_MASK info to commit log
+It also relies on the x86 unwinder's detection of other issues, such as:
 
-v1.9:
-- revive from the dead and rebased
-- reliable stacks!
-- add support for immediate consistency model
-- add a ton of comments
-- fix up memory barriers
-- remove "allow patch modules to be removed" patch for now, it still 
-  needs more discussion and thought - it can be done with something
-- "proc/pid/universe" -> "proc/pid/patch_status"
-- remove WARN_ON_ONCE from !func condition in ftrace handler -- can
-  happen because of RCU
-- keep klp_mutex private by putting the work_fn in core.c
-- convert states from int to boolean
-- remove obsolete '@state' comments
-- several header file and include improvements suggested by Jiri S
-- change kallsyms_lookup_size_offset() errors from EINVAL -> ENOENT
-- change proc file permissions S_IRUGO -> USR
-- use klp_for_each_object/func helpers
+- corrupted stack data
+- stack grows the wrong way
+- stack walk doesn't reach the bottom
+- user didn't provide a large enough entries array
 
+Such issues are reported by checking unwind_error() and !unwind_done().
 
-Jiri Slaby (1):
-  livepatch/s390: reorganize TIF thread flag bits
+Also add CONFIG_HAVE_RELIABLE_STACKTRACE so arch-independent code can
+determine at build time whether the function is implemented.
 
-Josh Poimboeuf (12):
-  stacktrace/x86: add function for detecting reliable stack traces
-  x86/entry: define _TIF_ALLWORK_MASK flags explicitly
-  livepatch: create temporary klp_update_patch_state() stub
-  livepatch/x86: add TIF_PATCH_PENDING thread flag
-  livepatch/powerpc: add TIF_PATCH_PENDING thread flag
-  livepatch: separate enabled and patched states
-  livepatch: remove unnecessary object loaded check
-  livepatch: move patching functions into patch.c
-  livepatch: use kstrtobool() in enabled_store()
-  livepatch: store function sizes
-  livepatch: change to a per-task consistency model
-  livepatch: add /proc/<pid>/patch_state
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+---
+ arch/Kconfig                   |  6 +++
+ arch/x86/Kconfig               |  1 +
+ arch/x86/include/asm/unwind.h  |  6 +++
+ arch/x86/kernel/stacktrace.c   | 85 +++++++++++++++++++++++++++++++++++++++++-
+ arch/x86/kernel/unwind_frame.c |  2 +
+ include/linux/stacktrace.h     |  8 ++--
+ kernel/stacktrace.c            | 12 +++++-
+ 7 files changed, 114 insertions(+), 6 deletions(-)
 
-Miroslav Benes (2):
-  livepatch/s390: add TIF_PATCH_PENDING thread flag
-  livepatch: allow removal of a disabled patch
-
- Documentation/ABI/testing/sysfs-kernel-livepatch |   8 +
- Documentation/filesystems/proc.txt               |  18 +
- Documentation/livepatch/livepatch.txt            | 186 ++++++--
- arch/Kconfig                                     |   6 +
- arch/powerpc/include/asm/thread_info.h           |   4 +-
- arch/powerpc/kernel/signal.c                     |   4 +
- arch/s390/include/asm/thread_info.h              |  24 +-
- arch/s390/kernel/entry.S                         |  31 +-
- arch/x86/Kconfig                                 |   1 +
- arch/x86/entry/common.c                          |   9 +-
- arch/x86/include/asm/thread_info.h               |  13 +-
- arch/x86/include/asm/unwind.h                    |   6 +
- arch/x86/kernel/stacktrace.c                     |  85 +++-
- arch/x86/kernel/unwind_frame.c                   |   2 +
- fs/proc/base.c                                   |  15 +
- include/linux/init_task.h                        |   9 +
- include/linux/livepatch.h                        |  68 ++-
- include/linux/sched.h                            |   3 +
- include/linux/stacktrace.h                       |   8 +-
- kernel/fork.c                                    |   3 +
- kernel/livepatch/Makefile                        |   2 +-
- kernel/livepatch/core.c                          | 431 +++++++-----------
- kernel/livepatch/patch.c                         | 266 +++++++++++
- kernel/livepatch/patch.h                         |  33 ++
- kernel/livepatch/transition.c                    | 533 +++++++++++++++++++++++
- kernel/livepatch/transition.h                    |  13 +
- kernel/sched/idle.c                              |   4 +
- kernel/stacktrace.c                              |  12 +-
- samples/livepatch/livepatch-sample.c             |  18 +-
- 29 files changed, 1465 insertions(+), 350 deletions(-)
- create mode 100644 kernel/livepatch/patch.c
- create mode 100644 kernel/livepatch/patch.h
- create mode 100644 kernel/livepatch/transition.c
- create mode 100644 kernel/livepatch/transition.h
-
+diff --git a/arch/Kconfig b/arch/Kconfig
+index a00b24b..3fb09e3 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -709,6 +709,12 @@ config HAVE_STACK_VALIDATION
+ 	  Architecture supports the 'objtool check' host tool command, which
+ 	  performs compile-time stack metadata validation.
+ 
++config HAVE_RELIABLE_STACKTRACE
++	bool
++	help
++	  Architecture has a save_stack_trace_tsk_reliable() function which
++	  only returns a stack trace if it can guarantee the trace is reliable.
++
+ config HAVE_ARCH_HASH
+ 	bool
+ 	default n
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index f1d4e8f..604e4da 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -156,6 +156,7 @@ config X86
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
++	select HAVE_RELIABLE_STACKTRACE		if X86_64 && FRAME_POINTER && STACK_VALIDATION
+ 	select HAVE_STACK_VALIDATION		if X86_64
+ 	select HAVE_SYSCALL_TRACEPOINTS
+ 	select HAVE_UNSTABLE_SCHED_CLOCK
+diff --git a/arch/x86/include/asm/unwind.h b/arch/x86/include/asm/unwind.h
+index 6fa75b1..137e9cce 100644
+--- a/arch/x86/include/asm/unwind.h
++++ b/arch/x86/include/asm/unwind.h
+@@ -11,6 +11,7 @@ struct unwind_state {
+ 	unsigned long stack_mask;
+ 	struct task_struct *task;
+ 	int graph_idx;
++	bool error;
+ #ifdef CONFIG_FRAME_POINTER
+ 	unsigned long *bp, *orig_sp;
+ 	struct pt_regs *regs;
+@@ -40,6 +41,11 @@ void unwind_start(struct unwind_state *state, struct task_struct *task,
+ 	__unwind_start(state, task, regs, first_frame);
+ }
+ 
++static inline bool unwind_error(struct unwind_state *state)
++{
++	return state->error;
++}
++
+ #ifdef CONFIG_FRAME_POINTER
+ 
+ static inline
+diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
+index 0653788..fc36842 100644
+--- a/arch/x86/kernel/stacktrace.c
++++ b/arch/x86/kernel/stacktrace.c
+@@ -74,6 +74,90 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+ }
+ EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+ 
++#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
++static int __save_stack_trace_reliable(struct stack_trace *trace,
++				       struct task_struct *task)
++{
++	struct unwind_state state;
++	struct pt_regs *regs;
++	unsigned long addr;
++
++	for (unwind_start(&state, task, NULL, NULL); !unwind_done(&state);
++	     unwind_next_frame(&state)) {
++
++		regs = unwind_get_entry_regs(&state);
++		if (regs) {
++			/*
++			 * Kernel mode registers on the stack indicate an
++			 * in-kernel interrupt or exception (e.g., preemption
++			 * or a page fault), which can make frame pointers
++			 * unreliable.
++			 */
++			if (!user_mode(regs))
++				return -1;
++
++			/*
++			 * The last frame contains the user mode syscall
++			 * pt_regs.  Skip it and finish the unwind.
++			 */
++			unwind_next_frame(&state);
++			if (WARN_ON_ONCE(!unwind_done(&state))) {
++				show_stack(task, NULL);
++				return -1;
++			}
++			break;
++		}
++
++		addr = unwind_get_return_address(&state);
++
++		/*
++		 * A NULL or invalid return address probably means there's some
++		 * generated code which __kernel_text_address() doesn't know
++		 * about.
++		 */
++		if (WARN_ON_ONCE(!addr)) {
++			show_stack(task, NULL);
++			return -1;
++		}
++
++		if (save_stack_address(trace, addr, false))
++			return -1;
++	}
++
++	/* Check for stack corruption */
++	if (WARN_ON_ONCE(unwind_error(&state))) {
++		show_stack(task, NULL);
++		return -1;
++	}
++
++	if (trace->nr_entries < trace->max_entries)
++		trace->entries[trace->nr_entries++] = ULONG_MAX;
++
++	return 0;
++}
++
++/*
++ * This function returns an error if it detects any unreliable features of the
++ * stack.  Otherwise it guarantees that the stack trace is reliable.
++ *
++ * If the task is not 'current', the caller *must* ensure the task is inactive.
++ */
++int save_stack_trace_tsk_reliable(struct task_struct *tsk,
++				  struct stack_trace *trace)
++{
++	int ret;
++
++	if (!try_get_task_stack(tsk))
++		return -EINVAL;
++
++	ret = __save_stack_trace_reliable(trace, tsk);
++
++	put_task_stack(tsk);
++
++	return ret;
++}
++#endif /* CONFIG_HAVE_RELIABLE_STACKTRACE */
++
+ /* Userspace stacktrace - based on kernel/trace/trace_sysprof.c */
+ 
+ struct stack_frame_user {
+@@ -136,4 +220,3 @@ void save_stack_trace_user(struct stack_trace *trace)
+ 	if (trace->nr_entries < trace->max_entries)
+ 		trace->entries[trace->nr_entries++] = ULONG_MAX;
+ }
+-
+diff --git a/arch/x86/kernel/unwind_frame.c b/arch/x86/kernel/unwind_frame.c
+index 23d1556..b15563d 100644
+--- a/arch/x86/kernel/unwind_frame.c
++++ b/arch/x86/kernel/unwind_frame.c
+@@ -223,6 +223,8 @@ bool unwind_next_frame(struct unwind_state *state)
+ 	return true;
+ 
+ bad_address:
++	state->error = true;
++
+ 	/*
+ 	 * When unwinding a non-current task, the task might actually be
+ 	 * running on another CPU, in which case it could be modifying its
+diff --git a/include/linux/stacktrace.h b/include/linux/stacktrace.h
+index 0a34489..8e8b67b 100644
+--- a/include/linux/stacktrace.h
++++ b/include/linux/stacktrace.h
+@@ -18,6 +18,8 @@ extern void save_stack_trace_regs(struct pt_regs *regs,
+ 				  struct stack_trace *trace);
+ extern void save_stack_trace_tsk(struct task_struct *tsk,
+ 				struct stack_trace *trace);
++extern int save_stack_trace_tsk_reliable(struct task_struct *tsk,
++					 struct stack_trace *trace);
+ 
+ extern void print_stack_trace(struct stack_trace *trace, int spaces);
+ extern int snprint_stack_trace(char *buf, size_t size,
+@@ -29,12 +31,12 @@ extern void save_stack_trace_user(struct stack_trace *trace);
+ # define save_stack_trace_user(trace)              do { } while (0)
+ #endif
+ 
+-#else
++#else /* !CONFIG_STACKTRACE */
+ # define save_stack_trace(trace)			do { } while (0)
+ # define save_stack_trace_tsk(tsk, trace)		do { } while (0)
+ # define save_stack_trace_user(trace)			do { } while (0)
+ # define print_stack_trace(trace, spaces)		do { } while (0)
+ # define snprint_stack_trace(buf, size, trace, spaces)	do { } while (0)
+-#endif
++#endif /* CONFIG_STACKTRACE */
+ 
+-#endif
++#endif /* __LINUX_STACKTRACE_H */
+diff --git a/kernel/stacktrace.c b/kernel/stacktrace.c
+index b6e4c16..4ef81dc 100644
+--- a/kernel/stacktrace.c
++++ b/kernel/stacktrace.c
+@@ -58,8 +58,8 @@ int snprint_stack_trace(char *buf, size_t size,
+ EXPORT_SYMBOL_GPL(snprint_stack_trace);
+ 
+ /*
+- * Architectures that do not implement save_stack_trace_tsk or
+- * save_stack_trace_regs get this weak alias and a once-per-bootup warning
++ * Architectures that do not implement save_stack_trace_*()
++ * get these weak aliases and once-per-bootup warnings
+  * (whenever this facility is utilized - for example by procfs):
+  */
+ __weak void
+@@ -73,3 +73,11 @@ save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
+ {
+ 	WARN_ONCE(1, KERN_INFO "save_stack_trace_regs() not implemented yet.\n");
+ }
++
++__weak int
++save_stack_trace_tsk_reliable(struct task_struct *tsk,
++			      struct stack_trace *trace)
++{
++	WARN_ONCE(1, KERN_INFO "save_stack_tsk_reliable() not implemented yet.\n");
++	return -ENOSYS;
++}
 -- 
 2.7.4
