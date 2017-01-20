@@ -1,51 +1,62 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v2 12/12] vfio/ccw: update sense data if a unit check is pending
-Date: Thu, 12 Jan 2017 08:25:13 +0100
-Message-ID: <20170112072513.98411-13-bjsdjshi@linux.vnet.ibm.com>
-References: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/1] KVM: s390: do not expose random data via facility bitmap
+Date: Fri, 20 Jan 2017 16:04:59 +0100
+Message-ID: <1484924699-183878-2-git-send-email-borntraeger@de.ibm.com>
+References: <1484924699-183878-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1484924699-183878-1-git-send-email-borntraeger@de.ibm.com>
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Concurrent-sense data is currently not delivered. This patch stores
-the concurrent-sense data to the subchannel if a unit check is pending
-and the concurrent-sense bit is enabled. Then a TSCH can retreive the
-right IRB data back to the guest.
+kvm_s390_get_machine() populates the facility bitmap by copying bytes
+from the host results that are stored in a 256 byte array in the prefix
+page. The KVM code does use the size of the target buffer (2k), thus
+copying and exposing unrelated kernel memory (mostly machine check
+related logout data).
 
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Let's use the size of the source buffer instead.  This is ok, as the
+target buffer will always be greater or equal than the source buffer as
+the KVM internal buffers (and thus S390_ARCH_FAC_LIST_SIZE_BYTE) cover
+the maximum possible size that is allowed by STFLE, which is 256
+doublewords. All structures are zero allocated so we can leave bytes
+256-2047 unchanged.
+
+Add a similar fix for kvm_arch_init_vm().
+
+Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+[found with smatch]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+CC: stable@vger.kernel.org
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/vfio/ccw.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-index 34c719a..cc745b0 100644
---- a/hw/vfio/ccw.c
-+++ b/hw/vfio/ccw.c
-@@ -94,6 +94,7 @@ static void vfio_ccw_io_notifier_handler(void *opaque)
-     CcwDevice *ccw_dev = CCW_DEVICE(cdev);
-     SubchDev *sch = ccw_dev->sch;
-     SCSW *s = &sch->curr_status.scsw;
-+    PMCW *p = &sch->curr_status.pmcw;
-     IRB irb;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index bec71e9..6484a25 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -916,7 +916,7 @@ static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	memcpy(&mach->fac_mask, kvm->arch.model.fac_mask,
+ 	       S390_ARCH_FAC_LIST_SIZE_BYTE);
+ 	memcpy((unsigned long *)&mach->fac_list, S390_lowcore.stfle_fac_list,
+-	       S390_ARCH_FAC_LIST_SIZE_BYTE);
++	       sizeof(S390_lowcore.stfle_fac_list));
+ 	if (copy_to_user((void __user *)attr->addr, mach, sizeof(*mach)))
+ 		ret = -EFAULT;
+ 	kfree(mach);
+@@ -1437,7 +1437,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
  
-     if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
-@@ -133,6 +134,12 @@ static void vfio_ccw_io_notifier_handler(void *opaque)
-     /* Update control block via irb. */
-     copy_scsw_to_guest(s, &irb.scsw);
- 
-+    /* If a uint check is pending, copy sense data. */
-+    if ((s->dstat & SCSW_DSTAT_UNIT_CHECK) &&
-+        (p->chars & PMCW_CHARS_MASK_CSENSE)) {
-+        memcpy(sch->sense_data, irb.ecw, sizeof(irb.ecw));
-+    }
-+
- read_err:
-     css_inject_io_interrupt(sch);
- }
+ 	/* Populate the facility mask initially. */
+ 	memcpy(kvm->arch.model.fac_mask, S390_lowcore.stfle_fac_list,
+-	       S390_ARCH_FAC_LIST_SIZE_BYTE);
++	       sizeof(S390_lowcore.stfle_fac_list));
+ 	for (i = 0; i < S390_ARCH_FAC_LIST_SIZE_U64; i++) {
+ 		if (i < kvm_s390_fac_list_mask_size())
+ 			kvm->arch.model.fac_mask[i] &= kvm_s390_fac_list_mask[i];
 -- 
-2.8.4
+2.7.4
