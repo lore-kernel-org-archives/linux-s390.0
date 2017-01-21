@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 3/5] s390/pci: Move three assignments for the variable "rc" in
- clp_normal_command()
+Subject: [PATCH 4/5] s390/pci: Move an assignment for the variable "ret" in
+ s390_pci_mmio_write()
 References: <f2233afd-bc54-0697-0709-9577e96fc6a6@users.sourceforge.net>
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <d8178ea8-8a46-b922-c486-d741dd916565@users.sourceforge.net>
-Date: Sat, 21 Jan 2017 19:12:27 +0100
+Message-ID: <ba783658-2c08-8e92-7f6a-16696c89b476@users.sourceforge.net>
+Date: Sat, 21 Jan 2017 19:13:33 +0100
 MIME-Version: 1.0
 In-Reply-To: <f2233afd-bc54-0697-0709-9577e96fc6a6@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -17,54 +17,37 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 21 Jan 2017 18:10:57 +0100
+Date: Sat, 21 Jan 2017 18:35:00 +0100
 
 A local variable was set to an error code before a concrete error situation
-was detected. Thus move the corresponding assignments into if branches
+was detected. Thus move the corresponding assignment into an if branch
 to indicate a software failure there.
-
-This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- arch/s390/pci/pci_clp.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/s390/pci/pci_mmio.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 28e13fa7a79c..bde0291cc724 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -521,14 +521,16 @@ static int clp_normal_command(struct clp_req *req)
- 	if (!lpcb)
- 		return -ENOMEM;
+diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
+index b1bb2b72302c..f125858a77e9 100644
+--- a/arch/s390/pci/pci_mmio.c
++++ b/arch/s390/pci/pci_mmio.c
+@@ -57,12 +57,11 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
+ 		goto out;
+ 	io_addr = (void __iomem *)((pfn << PAGE_SHIFT) | (mmio_addr & ~PAGE_MASK));
  
--	rc = -EFAULT;
- 	uptr = (void __force __user *)(unsigned long) req->data_p;
--	if (copy_from_user(lpcb, uptr, PAGE_SIZE) != 0)
-+	if (copy_from_user(lpcb, uptr, PAGE_SIZE) != 0) {
-+		rc = -EFAULT;
- 		goto out_free;
+-	ret = -EFAULT;
+-	if ((unsigned long) io_addr < ZPCI_IOMAP_ADDR_BASE)
+-		goto out;
+-
+-	if (copy_from_user(buf, user_buffer, length))
++	if ((unsigned long)io_addr < ZPCI_IOMAP_ADDR_BASE ||
++	    copy_from_user(buf, user_buffer, length)) {
++		ret = -EFAULT;
+ 		goto out;
 +	}
  
--	rc = -EINVAL;
--	if (lpcb->fmt != 0 || lpcb->reserved1 != 0 || lpcb->reserved2 != 0)
-+	if (lpcb->fmt != 0 || lpcb->reserved1 != 0 || lpcb->reserved2 != 0) {
-+		rc = -EINVAL;
- 		goto out_free;
-+	}
- 
- 	switch (req->lps) {
- 	case 0:
-@@ -541,9 +543,8 @@ static int clp_normal_command(struct clp_req *req)
- 	if (rc)
- 		goto out_free;
- 
--	rc = -EFAULT;
- 	if (copy_to_user(uptr, lpcb, PAGE_SIZE) != 0)
--		goto out_free;
-+		rc = -EFAULT;
- 
- 	rc = 0;
- 
+ 	ret = zpci_memcpy_toio(io_addr, buf, length);
+ out:
 -- 
 2.11.0
