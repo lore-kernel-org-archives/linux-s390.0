@@ -1,10 +1,14 @@
-Return-Path: <jpoimboe@redhat.com>
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH v4 15/15] livepatch: allow removal of a disabled patch
-Date: Thu, 19 Jan 2017 09:46:23 -0600
-Message-Id: <7b540d5a66243628eae1925e8871dc9678305973.1484839971.git.jpoimboe@redhat.com>
-In-Reply-To: <cover.1484839971.git.jpoimboe@redhat.com>
+Return-Path: <pmladek@suse.com>
+Date: Thu, 26 Jan 2017 14:56:03 +0100
+From: Petr Mladek <pmladek@suse.com>
+Subject: Re: [PATCH v4 01/15] stacktrace/x86: add function for detecting
+ reliable stack traces
+Message-ID: <20170126135603.GD27517@pathway.suse.cz>
 References: <cover.1484839971.git.jpoimboe@redhat.com>
+ <dfe1419dc06f37e1f4aec5bf81d5b60e505a8d0f.1484839971.git.jpoimboe@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <dfe1419dc06f37e1f4aec5bf81d5b60e505a8d0f.1484839971.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -13,356 +17,133 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>
-Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Miroslav Benes <mbenes@suse.cz>
+On Thu 2017-01-19 09:46:09, Josh Poimboeuf wrote:
+> For live patching and possibly other use cases, a stack trace is only
+> useful if it can be assured that it's completely reliable.  Add a new
+> save_stack_trace_tsk_reliable() function to achieve that.
 
-Currently we do not allow patch module to unload since there is no
-method to determine if a task is still running in the patched code.
+> diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
+> index 0653788..fc36842 100644
+> --- a/arch/x86/kernel/stacktrace.c
+> +++ b/arch/x86/kernel/stacktrace.c
+> @@ -74,6 +74,90 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+>  }
+>  EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+>  
+> +#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
+> +static int __save_stack_trace_reliable(struct stack_trace *trace,
+> +				       struct task_struct *task)
+> +{
+> +	struct unwind_state state;
+> +	struct pt_regs *regs;
+> +	unsigned long addr;
+> +
+> +	for (unwind_start(&state, task, NULL, NULL); !unwind_done(&state);
+> +	     unwind_next_frame(&state)) {
+> +
+> +		regs = unwind_get_entry_regs(&state);
+> +		if (regs) {
+> +			/*
+> +			 * Kernel mode registers on the stack indicate an
+> +			 * in-kernel interrupt or exception (e.g., preemption
+> +			 * or a page fault), which can make frame pointers
+> +			 * unreliable.
+> +			 */
+> +			if (!user_mode(regs))
+> +				return -1;
+> +
+> +			/*
+> +			 * The last frame contains the user mode syscall
+> +			 * pt_regs.  Skip it and finish the unwind.
+> +			 */
+> +			unwind_next_frame(&state);
+> +			if (WARN_ON_ONCE(!unwind_done(&state))) {
+> +				show_stack(task, NULL);
 
-The consistency model gives us the way because when the unpatching
-finishes we know that all tasks were marked as safe to call an original
-function. Thus every new call to the function calls the original code
-and at the same time no task can be somewhere in the patched code,
-because it had to leave that code to be marked as safe.
+We should make sure that show_stack() is called only once as well.
+Otherwise, it would fill logbuffer with random stacktraces without
+any context. It might easily cause flood of messages and the first
+useful one might get lost in the ring buffer.
 
-We can safely let the patch module go after that.
+> +				return -1;
+> +			}
+> +			break;
+> +		}
+> +
+> +		addr = unwind_get_return_address(&state);
+> +
+> +		/*
+> +		 * A NULL or invalid return address probably means there's some
+> +		 * generated code which __kernel_text_address() doesn't know
+> +		 * about.
+> +		 */
+> +		if (WARN_ON_ONCE(!addr)) {
+> +			show_stack(task, NULL);
 
-Completion is used for synchronization between module removal and sysfs
-infrastructure in a similar way to commit 942e443127e9 ("module: Fix
-mod->mkobj.kobj potentially freed too early").
+Same here.
 
-Note that we still do not allow the removal for immediate model, that is
-no consistency model. The module refcount may increase in this case if
-somebody disables and enables the patch several times. This should not
-cause any harm.
+> +			return -1;
+> +		}
+> +
+> +		if (save_stack_address(trace, addr, false))
+> +			return -1;
+> +	}
+> +
+> +	/* Check for stack corruption */
+> +	if (WARN_ON_ONCE(unwind_error(&state))) {
+> +		show_stack(task, NULL);
 
-With this change a call to try_module_get() is moved to
-__klp_enable_patch from klp_register_patch to make module reference
-counting symmetric (module_put() is in a patch disable path) and to
-allow to take a new reference to a disabled module when being enabled.
+And here.
 
-Finally, we need to be very careful about possible races between
-klp_unregister_patch(), kobject_put() functions and operations
-on the related sysfs files.
+> +		return -1;
+> +	}
+> +
+> +	if (trace->nr_entries < trace->max_entries)
+> +		trace->entries[trace->nr_entries++] = ULONG_MAX;
+> +
+> +	return 0;
+> +}
+> +
+> +/*
+> + * This function returns an error if it detects any unreliable features of the
+> + * stack.  Otherwise it guarantees that the stack trace is reliable.
+> + *
+> + * If the task is not 'current', the caller *must* ensure the task is inactive.
+> + */
+> +int save_stack_trace_tsk_reliable(struct task_struct *tsk,
+> +				  struct stack_trace *trace)
+> +{
+> +	int ret;
+> +
+> +	if (!try_get_task_stack(tsk))
+> +		return -EINVAL;
+> +
+> +	ret = __save_stack_trace_reliable(trace, tsk);
 
-kobject_put(&patch->kobj) must be called without klp_mutex. Otherwise,
-it might be blocked by enabled_store() that needs the mutex as well.
-In addition, enabled_store() must check if the patch was not
-unregisted in the meantime.
+__save_stack_trace_reliable() returns -1 in case of problems.
+But this function returns a meaningful error codes, line -EINVAL,
+-ENOSYS, otherwise.
 
-There is no need to do the same for other kobject_put() callsites
-at the moment. Their sysfs operations neiter take the lock nor
-they access any data that might be freed in the meantime.
+We should either transform the error code here to something
+"meaningful", probably -EINVAL. Or we should update
+__save_stack_trace_reliable() to return meaningful error codes.
 
-There was an attempt to use kobjects the right way and prevent these
-races by design. But it made the patch definition more complicated
-and opened another can of worms. See
-https://lkml.kernel.org/r/1464018848-4303-1-git-send-email-pmladek@suse.com
 
-[Thanks to Petr Mladek for improving the commit message.]
+> +	put_task_stack(tsk);
+> +
+> +	return ret;
+> +}
+> +#endif /* CONFIG_HAVE_RELIABLE_STACKTRACE */
+> +
+>  /* Userspace stacktrace - based on kernel/trace/trace_sysprof.c */
+>  
+>  struct stack_frame_user {
 
-Signed-off-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
----
- Documentation/livepatch/livepatch.txt | 28 ++++--------
- include/linux/livepatch.h             |  3 ++
- kernel/livepatch/core.c               | 80 ++++++++++++++++++++++-------------
- kernel/livepatch/transition.c         | 12 +++++-
- samples/livepatch/livepatch-sample.c  |  1 -
- 5 files changed, 72 insertions(+), 52 deletions(-)
+Otherwise, all the logic looks fine to me. Great work!
 
-diff --git a/Documentation/livepatch/livepatch.txt b/Documentation/livepatch/livepatch.txt
-index fb00d66..9816df3 100644
---- a/Documentation/livepatch/livepatch.txt
-+++ b/Documentation/livepatch/livepatch.txt
-@@ -296,8 +296,15 @@ section "Livepatch life-cycle" below for more details about these
- two operations.
- 
- Module removal is only safe when there are no users of the underlying
--functions.  The immediate consistency model is not able to detect this;
--therefore livepatch modules cannot be removed. See "Limitations" below.
-+functions. The immediate consistency model is not able to detect this. The
-+code just redirects the functions at the very beginning and it does not
-+check if the functions are in use. In other words, it knows when the
-+functions get called but it does not know when the functions return.
-+Therefore it cannot be decided when the livepatch module can be safely
-+removed. This is solved by a hybrid consistency model. When the system is
-+transitioned to a new patch state (patched/unpatched) it is guaranteed that
-+no task sleeps or runs in the old code.
-+
- 
- 5. Livepatch life-cycle
- =======================
-@@ -449,23 +456,6 @@ The current Livepatch implementation has several limitations:
-     by "notrace".
- 
- 
--  + Livepatch modules can not be removed.
--
--    The current implementation just redirects the functions at the very
--    beginning. It does not check if the functions are in use. In other
--    words, it knows when the functions get called but it does not
--    know when the functions return. Therefore it can not decide when
--    the livepatch module can be safely removed.
--
--    This will get most likely solved once a more complex consistency model
--    is supported. The idea is that a safe state for patching should also
--    mean a safe state for removing the patch.
--
--    Note that the patch itself might get disabled by writing zero
--    to /sys/kernel/livepatch/<patch>/enabled. It causes that the new
--    code will not longer get called. But it does not guarantee
--    that anyone is not sleeping anywhere in the new code.
--
- 
-   + Livepatch works reliably only when the dynamic ftrace is located at
-     the very beginning of the function.
-diff --git a/include/linux/livepatch.h b/include/linux/livepatch.h
-index ed90ad1..194991e 100644
---- a/include/linux/livepatch.h
-+++ b/include/linux/livepatch.h
-@@ -23,6 +23,7 @@
- 
- #include <linux/module.h>
- #include <linux/ftrace.h>
-+#include <linux/completion.h>
- 
- #if IS_ENABLED(CONFIG_LIVEPATCH)
- 
-@@ -114,6 +115,7 @@ struct klp_object {
-  * @list:	list node for global list of registered patches
-  * @kobj:	kobject for sysfs resources
-  * @enabled:	the patch is enabled (but operation may be incomplete)
-+ * @finish:	for waiting till it is safe to remove the patch module
-  */
- struct klp_patch {
- 	/* external */
-@@ -125,6 +127,7 @@ struct klp_patch {
- 	struct list_head list;
- 	struct kobject kobj;
- 	bool enabled;
-+	struct completion finish;
- };
- 
- #define klp_for_each_object(patch, obj) \
-diff --git a/kernel/livepatch/core.c b/kernel/livepatch/core.c
-index 4c5a816..e449fc7 100644
---- a/kernel/livepatch/core.c
-+++ b/kernel/livepatch/core.c
-@@ -29,6 +29,7 @@
- #include <linux/livepatch.h>
- #include <linux/elf.h>
- #include <linux/moduleloader.h>
-+#include <linux/completion.h>
- #include <asm/cacheflush.h>
- #include "patch.h"
- #include "transition.h"
-@@ -352,6 +353,18 @@ static int __klp_enable_patch(struct klp_patch *patch)
- 	    !list_prev_entry(patch, list)->enabled)
- 		return -EBUSY;
- 
-+	/*
-+	 * A reference is taken on the patch module to prevent it from being
-+	 * unloaded.
-+	 *
-+	 * Note: For immediate (no consistency model) patches we don't allow
-+	 * patch modules to unload since there is no safe/sane method to
-+	 * determine if a thread is still running in the patched code contained
-+	 * in the patch module once the ftrace registration is successful.
-+	 */
-+	if (!try_module_get(patch->mod))
-+		return -ENODEV;
-+
- 	pr_notice("enabling patch '%s'\n", patch->mod->name);
- 
- 	klp_init_transition(patch, KLP_PATCHED);
-@@ -441,6 +454,15 @@ static ssize_t enabled_store(struct kobject *kobj, struct kobj_attribute *attr,
- 
- 	mutex_lock(&klp_mutex);
- 
-+	if (!klp_is_patch_registered(patch)) {
-+		/*
-+		 * Module with the patch could either disappear meanwhile or is
-+		 * not properly initialized yet.
-+		 */
-+		ret = -EINVAL;
-+		goto err;
-+	}
-+
- 	if (patch->enabled == enabled) {
- 		/* already in requested state */
- 		ret = -EINVAL;
-@@ -497,10 +519,10 @@ static struct attribute *klp_patch_attrs[] = {
- 
- static void klp_kobj_release_patch(struct kobject *kobj)
- {
--	/*
--	 * Once we have a consistency model we'll need to module_put() the
--	 * patch module here.  See klp_register_patch() for more details.
--	 */
-+	struct klp_patch *patch;
-+
-+	patch = container_of(kobj, struct klp_patch, kobj);
-+	complete(&patch->finish);
- }
- 
- static struct kobj_type klp_ktype_patch = {
-@@ -571,7 +593,6 @@ static void klp_free_patch(struct klp_patch *patch)
- 	klp_free_objects_limited(patch, NULL);
- 	if (!list_empty(&patch->list))
- 		list_del(&patch->list);
--	kobject_put(&patch->kobj);
- }
- 
- static int klp_init_func(struct klp_object *obj, struct klp_func *func)
-@@ -694,11 +715,14 @@ static int klp_init_patch(struct klp_patch *patch)
- 	mutex_lock(&klp_mutex);
- 
- 	patch->enabled = false;
-+	init_completion(&patch->finish);
- 
- 	ret = kobject_init_and_add(&patch->kobj, &klp_ktype_patch,
- 				   klp_root_kobj, "%s", patch->mod->name);
--	if (ret)
--		goto unlock;
-+	if (ret) {
-+		mutex_unlock(&klp_mutex);
-+		return ret;
-+	}
- 
- 	klp_for_each_object(patch, obj) {
- 		ret = klp_init_object(patch, obj);
-@@ -714,9 +738,12 @@ static int klp_init_patch(struct klp_patch *patch)
- 
- free:
- 	klp_free_objects_limited(patch, obj);
--	kobject_put(&patch->kobj);
--unlock:
-+
- 	mutex_unlock(&klp_mutex);
-+
-+	kobject_put(&patch->kobj);
-+	wait_for_completion(&patch->finish);
-+
- 	return ret;
- }
- 
-@@ -730,23 +757,29 @@ static int klp_init_patch(struct klp_patch *patch)
-  */
- int klp_unregister_patch(struct klp_patch *patch)
- {
--	int ret = 0;
-+	int ret;
- 
- 	mutex_lock(&klp_mutex);
- 
- 	if (!klp_is_patch_registered(patch)) {
- 		ret = -EINVAL;
--		goto out;
-+		goto err;
- 	}
- 
- 	if (patch->enabled) {
- 		ret = -EBUSY;
--		goto out;
-+		goto err;
- 	}
- 
- 	klp_free_patch(patch);
- 
--out:
-+	mutex_unlock(&klp_mutex);
-+
-+	kobject_put(&patch->kobj);
-+	wait_for_completion(&patch->finish);
-+
-+	return 0;
-+err:
- 	mutex_unlock(&klp_mutex);
- 	return ret;
- }
-@@ -759,12 +792,13 @@ EXPORT_SYMBOL_GPL(klp_unregister_patch);
-  * Initializes the data structure associated with the patch and
-  * creates the sysfs interface.
-  *
-+ * There is no need to take the reference on the patch module here. It is done
-+ * later when the patch is enabled.
-+ *
-  * Return: 0 on success, otherwise error
-  */
- int klp_register_patch(struct klp_patch *patch)
- {
--	int ret;
--
- 	if (!patch || !patch->mod)
- 		return -EINVAL;
- 
-@@ -787,21 +821,7 @@ int klp_register_patch(struct klp_patch *patch)
- 		return -ENOSYS;
- 	}
- 
--	/*
--	 * A reference is taken on the patch module to prevent it from being
--	 * unloaded.  Right now, we don't allow patch modules to unload since
--	 * there is currently no method to determine if a thread is still
--	 * running in the patched code contained in the patch module once
--	 * the ftrace registration is successful.
--	 */
--	if (!try_module_get(patch->mod))
--		return -ENODEV;
--
--	ret = klp_init_patch(patch);
--	if (ret)
--		module_put(patch->mod);
--
--	return ret;
-+	return klp_init_patch(patch);
- }
- EXPORT_SYMBOL_GPL(klp_register_patch);
- 
-diff --git a/kernel/livepatch/transition.c b/kernel/livepatch/transition.c
-index 2b87ff9..b5e6f3b 100644
---- a/kernel/livepatch/transition.c
-+++ b/kernel/livepatch/transition.c
-@@ -60,13 +60,21 @@ void klp_complete_transition(void)
- 	struct klp_func *func;
- 	struct task_struct *g, *task;
- 	unsigned int cpu;
-+	bool is_immediate = false;
- 
- 	if (klp_transition_patch->immediate)
- 		goto done;
- 
--	klp_for_each_object(klp_transition_patch, obj)
--		klp_for_each_func(obj, func)
-+	klp_for_each_object(klp_transition_patch, obj) {
-+		klp_for_each_func(obj, func) {
- 			func->transition = false;
-+			if (func->immediate)
-+				is_immediate = true;
-+		}
-+	}
-+
-+	if (klp_target_state == KLP_UNPATCHED && !is_immediate)
-+		module_put(klp_transition_patch->mod);
- 
- 	/* Prevent klp_ftrace_handler() from seeing KLP_UNDEFINED state */
- 	if (klp_target_state == KLP_PATCHED)
-diff --git a/samples/livepatch/livepatch-sample.c b/samples/livepatch/livepatch-sample.c
-index 629e0dc..84795223f 100644
---- a/samples/livepatch/livepatch-sample.c
-+++ b/samples/livepatch/livepatch-sample.c
-@@ -99,7 +99,6 @@ static int livepatch_init(void)
- 
- static void livepatch_exit(void)
- {
--	WARN_ON(klp_disable_patch(&patch));
- 	WARN_ON(klp_unregister_patch(&patch));
- }
- 
--- 
-2.7.4
+Best Regards,
+Petr
