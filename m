@@ -1,95 +1,102 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: Re: [patch net-next] smc: some potential use after free bugs
-Date: Thu, 26 Jan 2017 12:23:02 +0100
-Message-ID: <d66e8e35-0be7-ea04-6e1e-7c214cc6c50b@linux.vnet.ibm.com>
-References: <20170126090527.GA966@mwanda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170126090527.GA966@mwanda>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 27 Jan 2017 14:03:46 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] two s390 bug fixes for 4.10-rc6
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20170127140346.6e9322f9@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+Hi Linus,
 
-On 01/26/2017 10:05 AM, Dan Carpenter wrote:
-> Say we got really unlucky and these failed on the last iteration, then
-> it could lead to a use after free bug.
-thanks for reporting this! I had already a similar patch prepared, but not
-yet submitted. It contains all your added lines plus these additional
-pre-initializations at definition time:
+please pull from the 'for-linus' branch of
 
-@@ -509,7 +509,7 @@ int smc_sndbuf_create(struct smc_sock *smc)
-        struct smc_connection *conn = &smc->conn;
-        struct smc_link_group *lgr = conn->lgr;
-        int tmp_bufsize, tmp_bufsize_short;
--   struct smc_buf_desc *sndbuf_desc;
-+ struct smc_buf_desc *sndbuf_desc = NULL;
-        int rc;
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+
+to receive the following updates:
+
+Another two bug fixes:
+1) The ptrace partial write information leak
+2) A guest page hinting regression introduced with v4.6
+
+Christian Borntraeger (1):
+      s390/mm: Fix cmma unused transfer from pgste into pte
+
+Martin Schwidefsky (1):
+      s390/ptrace: Preserve previous registers for short regset write
+
+ arch/s390/kernel/ptrace.c | 8 ++++++++
+ arch/s390/mm/pgtable.c    | 7 ++++---
+ 2 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 7447ba5..12020b5 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -963,6 +963,11 @@ static int s390_fpregs_set(struct task_struct *target,
+ 	if (target == current)
+ 		save_fpu_regs();
  
-        /* use socket send buffer size (w/o overhead) as start value */
-
-@@ -573,7 +575,7 @@ int smc_rmb_create(struct smc_sock *smc)
-        struct smc_connection *conn = &smc->conn;
-        struct smc_link_group *lgr = conn->lgr;
-        int tmp_bufsize, tmp_bufsize_short;
--   struct smc_buf_desc *rmb_desc;
-+ struct smc_buf_desc *rmb_desc = NULL;
-        int rc;
++	if (MACHINE_HAS_VX)
++		convert_vx_to_fp(fprs, target->thread.fpu.vxrs);
++	else
++		memcpy(&fprs, target->thread.fpu.fprs, sizeof(fprs));
++
+ 	/* If setting FPC, must validate it first. */
+ 	if (count > 0 && pos < offsetof(s390_fp_regs, fprs)) {
+ 		u32 ufpc[2] = { target->thread.fpu.fpc, 0 };
+@@ -1067,6 +1072,9 @@ static int s390_vxrs_low_set(struct task_struct *target,
+ 	if (target == current)
+ 		save_fpu_regs();
  
-        /* use socket recv buffer size (w/o overhead) as start value */
-
-If you do not contradict, I will post my enhanced patch version.
-> 
-> Fixes: cd6851f30386 ("smc: remote memory buffers (RMBs)")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 8b1d34378829..941279e1504e 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -535,6 +535,7 @@ int smc_sndbuf_create(struct smc_sock *smc)
->  			/* if send buffer allocation has failed,
->  			 * try a smaller one
->  			 */
-> +			sndbuf_desc = NULL;
->  			continue;
->  		}
->  		rc = smc_ib_buf_map(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
-> @@ -543,6 +544,7 @@ int smc_sndbuf_create(struct smc_sock *smc)
->  		if (rc) {
->  			kfree(sndbuf_desc->cpu_addr);
->  			kfree(sndbuf_desc);
-> +			sndbuf_desc = NULL;
->  			continue; /* if mapping failed, try smaller one */
->  		}
->  		sndbuf_desc->used = 1;
-> @@ -599,6 +601,7 @@ int smc_rmb_create(struct smc_sock *smc)
->  			/* if RMB allocation has failed,
->  			 * try a smaller one
->  			 */
-> +			rmb_desc = NULL;
->  			continue;
->  		}
->  		rc = smc_ib_buf_map(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
-> @@ -607,6 +610,7 @@ int smc_rmb_create(struct smc_sock *smc)
->  		if (rc) {
->  			kfree(rmb_desc->cpu_addr);
->  			kfree(rmb_desc);
-> +			rmb_desc = NULL;
->  			continue; /* if mapping failed, try smaller one */
->  		}
->  		rc = smc_ib_get_memory_region(lgr->lnk[SMC_SINGLE_LINK].roce_pd,
-> @@ -619,6 +623,7 @@ int smc_rmb_create(struct smc_sock *smc)
->  					 DMA_FROM_DEVICE);
->  			kfree(rmb_desc->cpu_addr);
->  			kfree(rmb_desc);
-> +			rmb_desc = NULL;
->  			continue;
->  		}
->  		rmb_desc->used = 1;
-> 
++	for (i = 0; i < __NUM_VXRS_LOW; i++)
++		vxrs[i] = *((__u64 *)(target->thread.fpu.vxrs + i) + 1);
++
+ 	rc = user_regset_copyin(&pos, &count, &kbuf, &ubuf, vxrs, 0, -1);
+ 	if (rc == 0)
+ 		for (i = 0; i < __NUM_VXRS_LOW; i++)
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 7a1897c..d56ef26 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -202,7 +202,7 @@ static inline pgste_t ptep_xchg_start(struct mm_struct *mm,
+ 	return pgste;
+ }
+ 
+-static inline void ptep_xchg_commit(struct mm_struct *mm,
++static inline pte_t ptep_xchg_commit(struct mm_struct *mm,
+ 				    unsigned long addr, pte_t *ptep,
+ 				    pgste_t pgste, pte_t old, pte_t new)
+ {
+@@ -220,6 +220,7 @@ static inline void ptep_xchg_commit(struct mm_struct *mm,
+ 	} else {
+ 		*ptep = new;
+ 	}
++	return old;
+ }
+ 
+ pte_t ptep_xchg_direct(struct mm_struct *mm, unsigned long addr,
+@@ -231,7 +232,7 @@ pte_t ptep_xchg_direct(struct mm_struct *mm, unsigned long addr,
+ 	preempt_disable();
+ 	pgste = ptep_xchg_start(mm, addr, ptep);
+ 	old = ptep_flush_direct(mm, addr, ptep);
+-	ptep_xchg_commit(mm, addr, ptep, pgste, old, new);
++	old = ptep_xchg_commit(mm, addr, ptep, pgste, old, new);
+ 	preempt_enable();
+ 	return old;
+ }
+@@ -246,7 +247,7 @@ pte_t ptep_xchg_lazy(struct mm_struct *mm, unsigned long addr,
+ 	preempt_disable();
+ 	pgste = ptep_xchg_start(mm, addr, ptep);
+ 	old = ptep_flush_lazy(mm, addr, ptep);
+-	ptep_xchg_commit(mm, addr, ptep, pgste, old, new);
++	old = ptep_xchg_commit(mm, addr, ptep, pgste, old, new);
+ 	preempt_enable();
+ 	return old;
+ }
