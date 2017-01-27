@@ -1,12 +1,12 @@
 Return-Path: <mbenes@suse.cz>
-Date: Fri, 27 Jan 2017 09:47:08 +0100 (CET)
+Date: Fri, 27 Jan 2017 09:52:43 +0100 (CET)
 From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH v4 01/15] stacktrace/x86: add function for detecting
- reliable stack traces
-In-Reply-To: <dfe1419dc06f37e1f4aec5bf81d5b60e505a8d0f.1484839971.git.jpoimboe@redhat.com>
-Message-ID: <alpine.LSU.2.20.1701270943420.1563@pobox.suse.cz>
+Subject: Re: [PATCH v4 03/15] livepatch: create temporary
+ klp_update_patch_state() stub
+In-Reply-To: <e2076a17e3eaa0cafead8208595befbb6e31b0ee.1484839971.git.jpoimboe@redhat.com>
+Message-ID: <alpine.LSU.2.20.1701270952250.1563@pobox.suse.cz>
 References: <cover.1484839971.git.jpoimboe@redhat.com>
- <dfe1419dc06f37e1f4aec5bf81d5b60e505a8d0f.1484839971.git.jpoimboe@redhat.com>
+ <e2076a17e3eaa0cafead8208595befbb6e31b0ee.1484839971.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -21,34 +21,15 @@ To: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Thu, 19 Jan 2017, Josh Poimboeuf wrote:
 
-> diff --git a/include/linux/stacktrace.h b/include/linux/stacktrace.h
-> index 0a34489..8e8b67b 100644
-> --- a/include/linux/stacktrace.h
-> +++ b/include/linux/stacktrace.h
-> @@ -18,6 +18,8 @@ extern void save_stack_trace_regs(struct pt_regs *regs,
->  				  struct stack_trace *trace);
->  extern void save_stack_trace_tsk(struct task_struct *tsk,
->  				struct stack_trace *trace);
-> +extern int save_stack_trace_tsk_reliable(struct task_struct *tsk,
-> +					 struct stack_trace *trace);
->  
->  extern void print_stack_trace(struct stack_trace *trace, int spaces);
->  extern int snprint_stack_trace(char *buf, size_t size,
-> @@ -29,12 +31,12 @@ extern void save_stack_trace_user(struct stack_trace *trace);
->  # define save_stack_trace_user(trace)              do { } while (0)
->  #endif
->  
-> -#else
-> +#else /* !CONFIG_STACKTRACE */
->  # define save_stack_trace(trace)			do { } while (0)
->  # define save_stack_trace_tsk(tsk, trace)		do { } while (0)
->  # define save_stack_trace_user(trace)			do { } while (0)
->  # define print_stack_trace(trace, spaces)		do { } while (0)
->  # define snprint_stack_trace(buf, size, trace, spaces)	do { } while (0)
+> Create temporary stubs for klp_update_patch_state() so we can add
+> TIF_PATCH_PENDING to different architectures in separate patches without
+> breaking build bisectability.
+> 
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> Reviewed-by: Petr Mladek <pmladek@suse.com>
 
-Is there a reason you did not define empty save_stack_trace_tsk_reliable() 
-here? Right, it should not be needed now as livepatching is the only user, 
-but still.
+Acked-by: Miroslav Benes <mbenes@suse.cz>
 
 Miroslav
