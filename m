@@ -1,15 +1,11 @@
 Return-Path: <mbenes@suse.cz>
-Date: Wed, 22 Feb 2017 10:03:15 +0100 (CET)
+Date: Tue, 31 Jan 2017 15:31:39 +0100 (CET)
 From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH v5 13/15] livepatch: change to a per-task consistency model
-In-Reply-To: <20170221212110.y2pstgeluwrmxjie@treble>
-Message-ID: <alpine.LSU.2.20.1702221002280.11859@pobox.suse.cz>
-References: <cover.1487036215.git.jpoimboe@redhat.com>
- <a999d965d598b23564355c24db0ed6799f105fa6.1487036215.git.jpoimboe@redhat.com>
- <alpine.LSU.2.20.1702161504020.16310@pobox.suse.cz>
- <20170216203156.igvctdmyt6b6zcgg@treble>
- <alpine.LSU.2.20.1702170940420.4107@pobox.suse.cz>
- <20170221212110.y2pstgeluwrmxjie@treble>
+Subject: Re: [PATCH v4 14/15] livepatch: add /proc/<pid>/patch_state
+In-Reply-To: <2c3b793fc23910f8fe15033b2b35e53b0b5dbaf3.1484839971.git.jpoimboe@redhat.com>
+Message-ID: <alpine.LSU.2.20.1701311518290.3719@pobox.suse.cz>
+References: <cover.1484839971.git.jpoimboe@redhat.com>
+ <2c3b793fc23910f8fe15033b2b35e53b0b5dbaf3.1484839971.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -24,108 +20,64 @@ To: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 21 Feb 2017, Josh Poimboeuf wrote:
+On Thu, 19 Jan 2017, Josh Poimboeuf wrote:
 
-> On Fri, Feb 17, 2017 at 09:51:29AM +0100, Miroslav Benes wrote:
-> > On Thu, 16 Feb 2017, Josh Poimboeuf wrote:
-> > > What do you think about the following?  I tried to put the logic in
-> > > klp_complete_transition(), so the module_put()'s would be in one place.
-> > > But it was too messy, so I put it in klp_cancel_transition() instead.
-> > >
-> > > diff --git a/kernel/livepatch/transition.c b/kernel/livepatch/transition.c
-> > > index e96346e..bd1c1fd 100644
-> > > --- a/kernel/livepatch/transition.c
-> > > +++ b/kernel/livepatch/transition.c
-> > > @@ -121,8 +121,28 @@ static void klp_complete_transition(void)
-> > >   */
-> > >  void klp_cancel_transition(void)
-> > >  {
-> > > +	bool immediate_func = false;
-> > > +
-> > >  	klp_target_state = !klp_target_state;
-> > >  	klp_complete_transition();
-> > > +
-> > > +	if (klp_target_state == KLP_PATCHED)
-> > > +		return;
-> > 
-> > This is not needed, I think. We call klp_cancel_transition() in 
-> > __klp_enable_patch() only. klp_target_state is set to KLP_PATCHED there 
-> > (through klp_init_transition()) and negated here. We know it must be 
-> > KLP_UNPATCHED.
+> Expose the per-task patch state value so users can determine which tasks
+> are holding up completion of a patching operation.
 > 
-> Yeah, I was trying to hedge against the possibility of future code
-> calling this function in the disable path.  But that probably won't
-> happen and it would probably be cleaner to just add a warning if
-> klp_target_state isn't KLP_PATCHED.
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> Reviewed-by: Petr Mladek <pmladek@suse.com>
+> Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+> ---
+>  Documentation/filesystems/proc.txt | 18 ++++++++++++++++++
+>  fs/proc/base.c                     | 15 +++++++++++++++
+>  2 files changed, 33 insertions(+)
 > 
-> > Moreover, due to klp_complete_transition() klp_target_state is always 
-> > KLP_UNDEFINED after it.
-> > 
-> > > +
-> > > +	/*
-> > > +	 * In the enable error path, even immediate patches can be safely
-> > > +	 * removed because the transition hasn't been started yet.
-> > > +	 *
-> > > +	 * klp_complete_transition() doesn't have a module_put() for immediate
-> > > +	 * patches, so do it here.
-> > > +	 */
-> > > +	klp_for_each_object(klp_transition_patch, obj)
-> > > +		klp_for_each_func(obj, func)
-> > > +			if (func->immediate)
-> > > +				immediate_func = true;
-> > > +
-> > > +	if (klp_transition_patch->immediate || immediate_func)
-> > > +		module_put(klp_transition_patch->mod);
-> > 
-> > Almost correct. The only problem is that klp_transition_patch is NULL at 
-> > this point. klp_complete_transition() does that and it should stay there 
-> > in my opinion to keep it simple.
-> > 
-> > So we could either move all this to __klp_enable_patch(), where patch 
-> > variable is defined, or we could store klp_transition_patch to a local 
-> > variable here in klp_cancel_transition() before klp_complete_transition() 
-> > is called. That should be safe. I like the latter more, because it keeps 
-> > the code in klp_cancel_transition() where it belongs.
-> 
-> Good points.  Here's another try:
-> 
-> diff --git a/kernel/livepatch/transition.c b/kernel/livepatch/transition.c
-> index e96346e..a23c63c 100644
-> --- a/kernel/livepatch/transition.c
-> +++ b/kernel/livepatch/transition.c
-> @@ -121,8 +121,31 @@ static void klp_complete_transition(void)
->   */
->  void klp_cancel_transition(void)
->  {
-> -	klp_target_state = !klp_target_state;
-> +	struct klp_patch *patch = klp_transition_patch;
-> +	struct klp_object *obj;
-> +	struct klp_func *func;
-> +	bool immediate_func = false;
+> diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
+> index 72624a1..85c501b 100644
+> --- a/Documentation/filesystems/proc.txt
+> +++ b/Documentation/filesystems/proc.txt
+> @@ -44,6 +44,7 @@ Table of Contents
+>    3.8   /proc/<pid>/fdinfo/<fd> - Information about opened file
+>    3.9   /proc/<pid>/map_files - Information about memory mapped files
+>    3.10  /proc/<pid>/timerslack_ns - Task timerslack value
+> +  3.11	/proc/<pid>/patch_state - Livepatch patch operation state
+>  
+>    4	Configuring procfs
+>    4.1	Mount options
+> @@ -1886,6 +1887,23 @@ Valid values are from 0 - ULLONG_MAX
+>  An application setting the value must have PTRACE_MODE_ATTACH_FSCREDS level
+>  permissions on the task specified to change its timerslack_ns value.
+>  
+> +3.11	/proc/<pid>/patch_state - Livepatch patch operation state
+> +-----------------------------------------------------------------
+> +When CONFIG_LIVEPATCH is enabled, this file displays the value of the
+> +patch state for the task.
 > +
-> +	if (WARN_ON_ONCE(klp_target_state != KLP_PATCHED))
-> +		return;
+> +A value of '-1' indicates that no patch is in transition.
 > +
-> +	klp_target_state = KLP_UNPATCHED;
->  	klp_complete_transition();
+> +A value of '0' indicates that a patch is in transition and the task is
+> +unpatched.  If the patch is being enabled, then the task hasn't been
+> +patched yet.  If the patch is being disabled, then the task has already
+> +been unpatched.
 > +
-> +	/*
-> +	 * In the enable error path, even immediate patches can be safely
-> +	 * removed because the transition hasn't been started yet.
-> +	 *
-> +	 * klp_complete_transition() doesn't have a module_put() for immediate
-> +	 * patches, so do it here.
-> +	 */
-> +	klp_for_each_object(patch, obj)
-> +		klp_for_each_func(obj, func)
-> +			if (func->immediate)
-> +				immediate_func = true;
+> +A value of '1' indicates that a patch is in transition and the task is
+> +patched.  If the patch is being enabled, then the task has already been
+> +patched.  If the patch is being disabled, then the task hasn't been
+> +unpatched yet.
 > +
-> +	if (patch->immediate || immediate_func)
-> +		module_put(patch->mod);
->  }
 
-Looks ok.
+Despite my review I thought about this some more. I think the logic make 
+sense internally but when exposed it can be confusing. We do not export 
+klp_target_state value, so users have to know if a patch is being enabled 
+or disabled. Of course, they should know that, but I guess they'd like to 
+use an userspace tool for this. Such tool needs to look at 
+/proc/<pid>/patch_state to find out which tasks are blocking the 
+completion and that is it. No more information anywhere.
 
-Thanks,
+We can either export klp_target_state, or change /proc/<pid>/patch_state 
+to show only two states - task is in transition (1), task is patched (0).
+
+What do you think?
+
 Miroslav
