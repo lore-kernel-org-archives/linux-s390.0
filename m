@@ -1,15 +1,14 @@
-Return-Path: <mbenes@suse.cz>
-Date: Wed, 1 Feb 2017 09:54:55 +0100 (CET)
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH v4 14/15] livepatch: add /proc/<pid>/patch_state
-In-Reply-To: <20170131145654.hzbxahqr4rz6r5f2@treble>
-Message-ID: <alpine.LSU.2.20.1702010951520.24423@pobox.suse.cz>
+Return-Path: <jpoimboe@redhat.com>
+Date: Wed, 1 Feb 2017 13:57:40 -0600
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH v4.1 01/15] stacktrace/x86: add function for detecting
+ reliable stack traces
+Message-ID: <20170201195740.km6kob5w3rmga5zh@treble>
 References: <cover.1484839971.git.jpoimboe@redhat.com>
- <2c3b793fc23910f8fe15033b2b35e53b0b5dbaf3.1484839971.git.jpoimboe@redhat.com>
- <alpine.LSU.2.20.1701311518290.3719@pobox.suse.cz>
- <20170131145654.hzbxahqr4rz6r5f2@treble>
+ <dfe1419dc06f37e1f4aec5bf81d5b60e505a8d0f.1484839971.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <dfe1419dc06f37e1f4aec5bf81d5b60e505a8d0f.1484839971.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -18,78 +17,287 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
+To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>
+Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 31 Jan 2017, Josh Poimboeuf wrote:
+For live patching and possibly other use cases, a stack trace is only
+useful if it can be assured that it's completely reliable.  Add a new
+save_stack_trace_tsk_reliable() function to achieve that.
 
-> On Tue, Jan 31, 2017 at 03:31:39PM +0100, Miroslav Benes wrote:
-> > On Thu, 19 Jan 2017, Josh Poimboeuf wrote:
-> > 
-> > > Expose the per-task patch state value so users can determine which tasks
-> > > are holding up completion of a patching operation.
-> > > 
-> > > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> > > Reviewed-by: Petr Mladek <pmladek@suse.com>
-> > > Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-> > > ---
-> > >  Documentation/filesystems/proc.txt | 18 ++++++++++++++++++
-> > >  fs/proc/base.c                     | 15 +++++++++++++++
-> > >  2 files changed, 33 insertions(+)
-> > > 
-> > > diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
-> > > index 72624a1..85c501b 100644
-> > > --- a/Documentation/filesystems/proc.txt
-> > > +++ b/Documentation/filesystems/proc.txt
-> > > @@ -44,6 +44,7 @@ Table of Contents
-> > >    3.8   /proc/<pid>/fdinfo/<fd> - Information about opened file
-> > >    3.9   /proc/<pid>/map_files - Information about memory mapped files
-> > >    3.10  /proc/<pid>/timerslack_ns - Task timerslack value
-> > > +  3.11	/proc/<pid>/patch_state - Livepatch patch operation state
-> > >  
-> > >    4	Configuring procfs
-> > >    4.1	Mount options
-> > > @@ -1886,6 +1887,23 @@ Valid values are from 0 - ULLONG_MAX
-> > >  An application setting the value must have PTRACE_MODE_ATTACH_FSCREDS level
-> > >  permissions on the task specified to change its timerslack_ns value.
-> > >  
-> > > +3.11	/proc/<pid>/patch_state - Livepatch patch operation state
-> > > +-----------------------------------------------------------------
-> > > +When CONFIG_LIVEPATCH is enabled, this file displays the value of the
-> > > +patch state for the task.
-> > > +
-> > > +A value of '-1' indicates that no patch is in transition.
-> > > +
-> > > +A value of '0' indicates that a patch is in transition and the task is
-> > > +unpatched.  If the patch is being enabled, then the task hasn't been
-> > > +patched yet.  If the patch is being disabled, then the task has already
-> > > +been unpatched.
-> > > +
-> > > +A value of '1' indicates that a patch is in transition and the task is
-> > > +patched.  If the patch is being enabled, then the task has already been
-> > > +patched.  If the patch is being disabled, then the task hasn't been
-> > > +unpatched yet.
-> > > +
-> > 
-> > Despite my review I thought about this some more. I think the logic make 
-> > sense internally but when exposed it can be confusing. We do not export 
-> > klp_target_state value, so users have to know if a patch is being enabled 
-> > or disabled. Of course, they should know that, but I guess they'd like to 
-> > use an userspace tool for this. Such tool needs to look at 
-> > /proc/<pid>/patch_state to find out which tasks are blocking the 
-> > completion and that is it. No more information anywhere.
-> > 
-> > We can either export klp_target_state, or change /proc/<pid>/patch_state 
-> > to show only two states - task is in transition (1), task is patched (0).
-> > 
-> > What do you think?
-> 
-> Isn't this information already available in
-> /sys/kernel/livepatch/<patch>/{enabled,transition}?
+Note that if the target task isn't the current task, and the target task
+is allowed to run, then it could be writing the stack while the unwinder
+is reading it, resulting in possible corruption.  So the caller of
+save_stack_trace_tsk_reliable() must ensure that the task is either
+'current' or inactive.
 
-transition no. That only gives the hint that something is happening with 
-the patch. But yes, enabled is the one I wanted. I don't know how I missed 
-that. Combined with /proc/<pid>/task it is exactly what a tool needs.
+save_stack_trace_tsk_reliable() relies on the x86 unwinder's detection
+of pt_regs on the stack.  If the pt_regs are not user-mode registers
+from a syscall, then they indicate an in-kernel interrupt or exception
+(e.g. preemption or a page fault), in which case the stack is considered
+unreliable due to the nature of frame pointers.
 
-Miroslav
+It also relies on the x86 unwinder's detection of other issues, such as:
+
+- corrupted stack data
+- stack grows the wrong way
+- stack walk doesn't reach the bottom
+- user didn't provide a large enough entries array
+
+Such issues are reported by checking unwind_error() and !unwind_done().
+
+Also add CONFIG_HAVE_RELIABLE_STACKTRACE so arch-independent code can
+determine at build time whether the function is implemented.
+
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+---
+v4.1 changes:
+- return -EINVAL in __save_stack_trace_reliable()
+- only call show_stack() once
+- add save_stack_trace_tsk_reliable() define for !CONFIG_STACKTRACE
+
+ arch/Kconfig                   |  6 +++
+ arch/x86/Kconfig               |  1 +
+ arch/x86/include/asm/unwind.h  |  6 +++
+ arch/x86/kernel/stacktrace.c   | 96 +++++++++++++++++++++++++++++++++++++++++-
+ arch/x86/kernel/unwind_frame.c |  2 +
+ include/linux/stacktrace.h     |  9 ++--
+ kernel/stacktrace.c            | 12 +++++-
+ 7 files changed, 126 insertions(+), 6 deletions(-)
+
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 4c17d9d..dff6ebc 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -748,6 +748,12 @@ config HAVE_STACK_VALIDATION
+ 	  Architecture supports the 'objtool check' host tool command, which
+ 	  performs compile-time stack metadata validation.
+ 
++config HAVE_RELIABLE_STACKTRACE
++	bool
++	help
++	  Architecture has a save_stack_trace_tsk_reliable() function which
++	  only returns a stack trace if it can guarantee the trace is reliable.
++
+ config HAVE_ARCH_HASH
+ 	bool
+ 	default n
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 9e5d3fe..76ca3eb 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -157,6 +157,7 @@ config X86
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
++	select HAVE_RELIABLE_STACKTRACE		if X86_64 && FRAME_POINTER && STACK_VALIDATION
+ 	select HAVE_STACK_VALIDATION		if X86_64
+ 	select HAVE_SYSCALL_TRACEPOINTS
+ 	select HAVE_UNSTABLE_SCHED_CLOCK
+diff --git a/arch/x86/include/asm/unwind.h b/arch/x86/include/asm/unwind.h
+index 6fa75b1..137e9cce 100644
+--- a/arch/x86/include/asm/unwind.h
++++ b/arch/x86/include/asm/unwind.h
+@@ -11,6 +11,7 @@ struct unwind_state {
+ 	unsigned long stack_mask;
+ 	struct task_struct *task;
+ 	int graph_idx;
++	bool error;
+ #ifdef CONFIG_FRAME_POINTER
+ 	unsigned long *bp, *orig_sp;
+ 	struct pt_regs *regs;
+@@ -40,6 +41,11 @@ void unwind_start(struct unwind_state *state, struct task_struct *task,
+ 	__unwind_start(state, task, regs, first_frame);
+ }
+ 
++static inline bool unwind_error(struct unwind_state *state)
++{
++	return state->error;
++}
++
+ #ifdef CONFIG_FRAME_POINTER
+ 
+ static inline
+diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
+index 0653788..c5490d9 100644
+--- a/arch/x86/kernel/stacktrace.c
++++ b/arch/x86/kernel/stacktrace.c
+@@ -74,6 +74,101 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+ }
+ EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+ 
++#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
++
++#define STACKTRACE_DUMP_ONCE(task) ({				\
++	static bool __section(.data.unlikely) __dumped;		\
++								\
++	if (!__dumped) {					\
++		__dumped = true;				\
++		WARN_ON(1);					\
++		show_stack(task, NULL);				\
++	}							\
++})
++
++static int __save_stack_trace_reliable(struct stack_trace *trace,
++				       struct task_struct *task)
++{
++	struct unwind_state state;
++	struct pt_regs *regs;
++	unsigned long addr;
++
++	for (unwind_start(&state, task, NULL, NULL); !unwind_done(&state);
++	     unwind_next_frame(&state)) {
++
++		regs = unwind_get_entry_regs(&state);
++		if (regs) {
++			/*
++			 * Kernel mode registers on the stack indicate an
++			 * in-kernel interrupt or exception (e.g., preemption
++			 * or a page fault), which can make frame pointers
++			 * unreliable.
++			 */
++			if (!user_mode(regs))
++				return -EINVAL;
++
++			/*
++			 * The last frame contains the user mode syscall
++			 * pt_regs.  Skip it and finish the unwind.
++			 */
++			unwind_next_frame(&state);
++			if (!unwind_done(&state)) {
++				STACKTRACE_DUMP_ONCE(task);
++				return -EINVAL;
++			}
++			break;
++		}
++
++		addr = unwind_get_return_address(&state);
++
++		/*
++		 * A NULL or invalid return address probably means there's some
++		 * generated code which __kernel_text_address() doesn't know
++		 * about.
++		 */
++		if (!addr) {
++			STACKTRACE_DUMP_ONCE(task);
++			return -EINVAL;
++		}
++
++		if (save_stack_address(trace, addr, false))
++			return -EINVAL;
++	}
++
++	/* Check for stack corruption */
++	if (unwind_error(&state)) {
++		STACKTRACE_DUMP_ONCE(task);
++		return -EINVAL;
++	}
++
++	if (trace->nr_entries < trace->max_entries)
++		trace->entries[trace->nr_entries++] = ULONG_MAX;
++
++	return 0;
++}
++
++/*
++ * This function returns an error if it detects any unreliable features of the
++ * stack.  Otherwise it guarantees that the stack trace is reliable.
++ *
++ * If the task is not 'current', the caller *must* ensure the task is inactive.
++ */
++int save_stack_trace_tsk_reliable(struct task_struct *tsk,
++				  struct stack_trace *trace)
++{
++	int ret;
++
++	if (!try_get_task_stack(tsk))
++		return -EINVAL;
++
++	ret = __save_stack_trace_reliable(trace, tsk);
++
++	put_task_stack(tsk);
++
++	return ret;
++}
++#endif /* CONFIG_HAVE_RELIABLE_STACKTRACE */
++
+ /* Userspace stacktrace - based on kernel/trace/trace_sysprof.c */
+ 
+ struct stack_frame_user {
+@@ -136,4 +231,3 @@ void save_stack_trace_user(struct stack_trace *trace)
+ 	if (trace->nr_entries < trace->max_entries)
+ 		trace->entries[trace->nr_entries++] = ULONG_MAX;
+ }
+-
+diff --git a/arch/x86/kernel/unwind_frame.c b/arch/x86/kernel/unwind_frame.c
+index 23d1556..b15563d 100644
+--- a/arch/x86/kernel/unwind_frame.c
++++ b/arch/x86/kernel/unwind_frame.c
+@@ -223,6 +223,8 @@ bool unwind_next_frame(struct unwind_state *state)
+ 	return true;
+ 
+ bad_address:
++	state->error = true;
++
+ 	/*
+ 	 * When unwinding a non-current task, the task might actually be
+ 	 * running on another CPU, in which case it could be modifying its
+diff --git a/include/linux/stacktrace.h b/include/linux/stacktrace.h
+index 0a34489..4205f71 100644
+--- a/include/linux/stacktrace.h
++++ b/include/linux/stacktrace.h
+@@ -18,6 +18,8 @@ extern void save_stack_trace_regs(struct pt_regs *regs,
+ 				  struct stack_trace *trace);
+ extern void save_stack_trace_tsk(struct task_struct *tsk,
+ 				struct stack_trace *trace);
++extern int save_stack_trace_tsk_reliable(struct task_struct *tsk,
++					 struct stack_trace *trace);
+ 
+ extern void print_stack_trace(struct stack_trace *trace, int spaces);
+ extern int snprint_stack_trace(char *buf, size_t size,
+@@ -29,12 +31,13 @@ extern void save_stack_trace_user(struct stack_trace *trace);
+ # define save_stack_trace_user(trace)              do { } while (0)
+ #endif
+ 
+-#else
++#else /* !CONFIG_STACKTRACE */
+ # define save_stack_trace(trace)			do { } while (0)
+ # define save_stack_trace_tsk(tsk, trace)		do { } while (0)
+ # define save_stack_trace_user(trace)			do { } while (0)
+ # define print_stack_trace(trace, spaces)		do { } while (0)
+ # define snprint_stack_trace(buf, size, trace, spaces)	do { } while (0)
+-#endif
++# define save_stack_trace_tsk_reliable(tsk, trace)	({ -ENOSYS; })
++#endif /* CONFIG_STACKTRACE */
+ 
+-#endif
++#endif /* __LINUX_STACKTRACE_H */
+diff --git a/kernel/stacktrace.c b/kernel/stacktrace.c
+index b6e4c16..4ef81dc 100644
+--- a/kernel/stacktrace.c
++++ b/kernel/stacktrace.c
+@@ -58,8 +58,8 @@ int snprint_stack_trace(char *buf, size_t size,
+ EXPORT_SYMBOL_GPL(snprint_stack_trace);
+ 
+ /*
+- * Architectures that do not implement save_stack_trace_tsk or
+- * save_stack_trace_regs get this weak alias and a once-per-bootup warning
++ * Architectures that do not implement save_stack_trace_*()
++ * get these weak aliases and once-per-bootup warnings
+  * (whenever this facility is utilized - for example by procfs):
+  */
+ __weak void
+@@ -73,3 +73,11 @@ save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
+ {
+ 	WARN_ONCE(1, KERN_INFO "save_stack_trace_regs() not implemented yet.\n");
+ }
++
++__weak int
++save_stack_trace_tsk_reliable(struct task_struct *tsk,
++			      struct stack_trace *trace)
++{
++	WARN_ONCE(1, KERN_INFO "save_stack_tsk_reliable() not implemented yet.\n");
++	return -ENOSYS;
++}
+-- 
+2.7.4
