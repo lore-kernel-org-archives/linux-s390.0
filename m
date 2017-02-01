@@ -1,59 +1,74 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC v2 03/12] s390x/css: add s390-map-css
- machine option
-Date: Fri, 17 Feb 2017 10:08:15 +0800
-Message-ID: <24276.2170536027$1505297607@news.gmane.org>
-References: <20170112072513.98411-1-bjsdjshi@linux.vnet.ibm.com>
-	<20170112072513.98411-4-bjsdjshi@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-Content-Disposition: inline
-In-Reply-To: <20170112072513.98411-4-bjsdjshi@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: "Qemu-devel" <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 09/12] KVM: s390: prepare to read random guest instructions
+Date: Wed,  1 Feb 2017 12:38:11 +0100
+Message-ID: <1485949094-138708-10-git-send-email-borntraeger@de.ibm.com>
+References: <1485949094-138708-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1485949094-138708-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, pasic@linux.vnet.ibm.com, kvm@vger.kernel.org, pmorel@linux.vnet.ibm.com, qemu-devel@nongnu.org, borntraeger@de.ibm.com, alex.williamson@redhat.com, renxiaof@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, agraf@suse.com
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-* Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> [2017-01-12 08:25:04 +0100]:
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-> From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-> 
-> We want to support real (i.e. not virtual) channel devices
-> even for guests that do not support MCSS-E (where guests may
-> see devices from any channel subsystem image at once). As all
-> virtio-ccw devices are in css 0xfe (and show up in the default
-> css 0 for guests not activating MCSS-E), we need an option to
-> map e.g. passed-through subchannels from their real css (0-3,
-> or 0 for hosts not activating MCSS-E) into the default css.
-> This will be exploited in a later patch.
+We will have to read instructions not residing at the current PSW
+address.
 
-After some brainstorming, we decided to change this interface a bit.
+Reviewed-by: Eric Farman <farman@linux.vnet.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/gaccess.h  | 9 +++++----
+ arch/s390/kvm/kvm-s390.c | 2 +-
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-The first thing is that, we agreed that "s390-squash-mcss" is a better
-name than "s390-map-css". The new name denotes that it is trying to
-accommodate the devices from multiple channel subsystems into a
-non-mcsse-e system, and the word "suqash" is more accurate about what
-is happening internally.
-
-The second thing is, we should never map/squash a vfio-ccw device into
-css 0xfe, which is reserved for virtio device only. So when squashing,
-we need to do it the other way around (i.e. have virtio devices at
-0.x.xxxx instead of fe.x.xxxx to accommodate non-mcsse-e).
-
-> 
-> Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-[...]
-
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index 5c9cc18..7ce47fd 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -247,10 +247,11 @@ int read_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
+ /**
+  * read_guest_instr - copy instruction data from guest space to kernel space
+  * @vcpu: virtual cpu
++ * @ga: guest address
+  * @data: destination address in kernel space
+  * @len: number of bytes to copy
+  *
+- * Copy @len bytes from the current psw address (guest space) to @data (kernel
++ * Copy @len bytes from the given address (guest space) to @data (kernel
+  * space).
+  *
+  * The behaviour of read_guest_instr is identical to read_guest, except that
+@@ -258,10 +259,10 @@ int read_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
+  * address-space mode.
+  */
+ static inline __must_check
+-int read_guest_instr(struct kvm_vcpu *vcpu, void *data, unsigned long len)
++int read_guest_instr(struct kvm_vcpu *vcpu, unsigned long ga, void *data,
++		     unsigned long len)
+ {
+-	return access_guest(vcpu, vcpu->arch.sie_block->gpsw.addr, 0, data, len,
+-			    GACC_IFETCH);
++	return access_guest(vcpu, ga, 0, data, len, GACC_IFETCH);
+ }
+ 
+ /**
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 69401b8..66e73f4 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2588,7 +2588,7 @@ static int vcpu_post_run_fault_in_sie(struct kvm_vcpu *vcpu)
+ 	 * to look up the current opcode to get the length of the instruction
+ 	 * to be able to forward the PSW.
+ 	 */
+-	rc = read_guest_instr(vcpu, &opcode, 1);
++	rc = read_guest_instr(vcpu, vcpu->arch.sie_block->gpsw.addr, &opcode, 1);
+ 	ilen = insn_length(opcode);
+ 	if (rc < 0) {
+ 		return rc;
 -- 
-Dong Jia
+2.7.4
