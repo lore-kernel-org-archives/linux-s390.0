@@ -1,62 +1,43 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 01/12] KVM: s390: do not expose random data via facility bitmap
-Date: Wed,  1 Feb 2017 12:38:03 +0100
-Message-ID: <1485949094-138708-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 04/12] KVM: s390: get rid of bogus cc initialization
+Date: Wed,  1 Feb 2017 12:38:06 +0100
+Message-ID: <1485949094-138708-5-git-send-email-borntraeger@de.ibm.com>
 References: <1485949094-138708-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1485949094-138708-1-git-send-email-borntraeger@de.ibm.com>
-Sender: stable-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, stable@vger.kernel.org
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-kvm_s390_get_machine() populates the facility bitmap by copying bytes
-from the host results that are stored in a 256 byte array in the prefix
-page. The KVM code does use the size of the target buffer (2k), thus
-copying and exposing unrelated kernel memory (mostly machine check
-related logout data).
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Let's use the size of the source buffer instead.  This is ok, as the
-target buffer will always be greater or equal than the source buffer as
-the KVM internal buffers (and thus S390_ARCH_FAC_LIST_SIZE_BYTE) cover
-the maximum possible size that is allowed by STFLE, which is 256
-doublewords. All structures are zero allocated so we can leave bytes
-256-2047 unchanged.
+The plo inline assembly has a cc output operand that is always written
+to and is also as such an operand declared. Therefore the compiler is
+free to omit the rather pointless and misleading initialization.
 
-Add a similar fix for kvm_arch_init_vm().
+Get rid of this.
 
-Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-[found with smatch]
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: stable@vger.kernel.org
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index bec71e9..6484a25 100644
+index e513081..4f74511 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -916,7 +916,7 @@ static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
- 	memcpy(&mach->fac_mask, kvm->arch.model.fac_mask,
- 	       S390_ARCH_FAC_LIST_SIZE_BYTE);
- 	memcpy((unsigned long *)&mach->fac_list, S390_lowcore.stfle_fac_list,
--	       S390_ARCH_FAC_LIST_SIZE_BYTE);
-+	       sizeof(S390_lowcore.stfle_fac_list));
- 	if (copy_to_user((void __user *)attr->addr, mach, sizeof(*mach)))
- 		ret = -EFAULT;
- 	kfree(mach);
-@@ -1437,7 +1437,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+@@ -217,7 +217,7 @@ static void allow_cpu_feat(unsigned long nr)
+ static inline int plo_test_bit(unsigned char nr)
+ {
+ 	register unsigned long r0 asm("0") = (unsigned long) nr | 0x100;
+-	int cc = 3; /* subfunction not available */
++	int cc;
  
- 	/* Populate the facility mask initially. */
- 	memcpy(kvm->arch.model.fac_mask, S390_lowcore.stfle_fac_list,
--	       S390_ARCH_FAC_LIST_SIZE_BYTE);
-+	       sizeof(S390_lowcore.stfle_fac_list));
- 	for (i = 0; i < S390_ARCH_FAC_LIST_SIZE_U64; i++) {
- 		if (i < kvm_s390_fac_list_mask_size())
- 			kvm->arch.model.fac_mask[i] &= kvm_s390_fac_list_mask[i];
+ 	asm volatile(
+ 		/* Parameter registers are ignored for "test bit" */
 -- 
 2.7.4
