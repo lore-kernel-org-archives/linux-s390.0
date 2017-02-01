@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 12/12] KVM: s390: Add debug logging to basic cpu model interface
-Date: Wed,  1 Feb 2017 12:38:14 +0100
-Message-ID: <1485949094-138708-13-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 03/12] KVM: s390: instruction-execution-protection support
+Date: Wed,  1 Feb 2017 12:38:05 +0100
+Message-ID: <1485949094-138708-4-git-send-email-borntraeger@de.ibm.com>
 References: <1485949094-138708-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1485949094-138708-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,74 +9,62 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Let's log something for changes in facilities, cpuid and ibc now that we
-have a cpu model in QEMU. All of these calls are pretty seldom, so we
-will not spill the log, the they will help to understand pontential
-guest issues, for example if some instructions are fenced off.
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
 
-As the s390 debug feature has a limited amount of parameters and
-strings must not go away we limit the facility printing to 3 double
-words, instead of building that list dynamically. This should be enough
-for several years. If we ever exceed 3 double words then the logging
-will be incomplete but no functional impact will happen.
+The new Instruction Execution Protection needs to be enabled before
+the guest can use it. Therefore we pass the IEP facility bit to the
+guest and enable IEP interpretation.
 
+Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ arch/s390/kvm/kvm-s390.c         | 2 ++
+ arch/s390/kvm/vsie.c             | 3 +++
+ arch/s390/tools/gen_facilities.c | 1 +
+ 3 files changed, 6 insertions(+)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 4078ba6..dabd3b15 100644
+index bec71e9..e513081 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -829,6 +829,13 @@ static int kvm_s390_set_processor(struct kvm *kvm, struct kvm_device_attr *attr)
+@@ -1938,6 +1938,8 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
+ 
+ 	if (test_kvm_facility(vcpu->kvm, 8) && sclp.has_pfmfi)
+ 		vcpu->arch.sie_block->ecb2 |= 0x08;
++	if (test_kvm_facility(vcpu->kvm, 130))
++		vcpu->arch.sie_block->ecb2 |= 0x20;
+ 	vcpu->arch.sie_block->eca = 0x1002000U;
+ 	if (sclp.has_cei)
+ 		vcpu->arch.sie_block->eca |= 0x80000000U;
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index d8673e2..ed62c6d 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -324,6 +324,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	/* Run-time-Instrumentation */
+ 	if (test_kvm_facility(vcpu->kvm, 64))
+ 		scb_s->ecb3 |= scb_o->ecb3 & 0x01U;
++	/* Instruction Execution Prevention */
++	if (test_kvm_facility(vcpu->kvm, 130))
++		scb_s->ecb2 |= scb_o->ecb2 & 0x20U;
+ 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_SIIF))
+ 		scb_s->eca |= scb_o->eca & 0x00000001U;
+ 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_IB))
+diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+index b6ac8df..0cf802d 100644
+--- a/arch/s390/tools/gen_facilities.c
++++ b/arch/s390/tools/gen_facilities.c
+@@ -80,6 +80,7 @@ static struct facility_def facility_defs[] = {
+ 			76, /* msa extension 3 */
+ 			77, /* msa extension 4 */
+ 			78, /* enhanced-DAT 2 */
++			130, /* instruction-execution-protection */
+ 			131, /* enhanced-SOP 2 and side-effect */
+ 			-1  /* END */
  		}
- 		memcpy(kvm->arch.model.fac_list, proc->fac_list,
- 		       S390_ARCH_FAC_LIST_SIZE_BYTE);
-+		VM_EVENT(kvm, 3, "SET: guest ibc: 0x%4.4x, guest cpuid: 0x%16.16llx",
-+			 kvm->arch.model.ibc,
-+			 kvm->arch.model.cpuid);
-+		VM_EVENT(kvm, 3, "SET: guest faclist: 0x%16.16llx.%16.16llx.%16.16llx",
-+			 kvm->arch.model.fac_list[0],
-+			 kvm->arch.model.fac_list[1],
-+			 kvm->arch.model.fac_list[2]);
- 	} else
- 		ret = -EFAULT;
- 	kfree(proc);
-@@ -902,6 +909,13 @@ static int kvm_s390_get_processor(struct kvm *kvm, struct kvm_device_attr *attr)
- 	proc->ibc = kvm->arch.model.ibc;
- 	memcpy(&proc->fac_list, kvm->arch.model.fac_list,
- 	       S390_ARCH_FAC_LIST_SIZE_BYTE);
-+	VM_EVENT(kvm, 3, "GET: guest ibc: 0x%4.4x, guest cpuid: 0x%16.16llx",
-+		 kvm->arch.model.ibc,
-+		 kvm->arch.model.cpuid);
-+	VM_EVENT(kvm, 3, "GET: guest faclist: 0x%16.16llx.%16.16llx.%16.16llx",
-+		 kvm->arch.model.fac_list[0],
-+		 kvm->arch.model.fac_list[1],
-+		 kvm->arch.model.fac_list[2]);
- 	if (copy_to_user((void __user *)attr->addr, proc, sizeof(*proc)))
- 		ret = -EFAULT;
- 	kfree(proc);
-@@ -925,6 +939,17 @@ static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
- 	       S390_ARCH_FAC_LIST_SIZE_BYTE);
- 	memcpy((unsigned long *)&mach->fac_list, S390_lowcore.stfle_fac_list,
- 	       sizeof(S390_lowcore.stfle_fac_list));
-+	VM_EVENT(kvm, 3, "GET: host ibc:  0x%4.4x, host cpuid:  0x%16.16llx",
-+		 kvm->arch.model.ibc,
-+		 kvm->arch.model.cpuid);
-+	VM_EVENT(kvm, 3, "GET: host facmask:  0x%16.16llx.%16.16llx.%16.16llx",
-+		 mach->fac_mask[0],
-+		 mach->fac_mask[1],
-+		 mach->fac_mask[2]);
-+	VM_EVENT(kvm, 3, "GET: host faclist:  0x%16.16llx.%16.16llx.%16.16llx",
-+		 mach->fac_list[0],
-+		 mach->fac_list[1],
-+		 mach->fac_list[2]);
- 	if (copy_to_user((void __user *)attr->addr, mach, sizeof(*mach)))
- 		ret = -EFAULT;
- 	kfree(mach);
 -- 
 2.7.4
