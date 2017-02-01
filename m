@@ -1,93 +1,62 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 08/12] KVM: s390: guestdbg: filter i-fetch events on icpts
-Date: Wed,  1 Feb 2017 12:38:10 +0100
-Message-ID: <1485949094-138708-9-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 01/12] KVM: s390: do not expose random data via facility bitmap
+Date: Wed,  1 Feb 2017 12:38:03 +0100
+Message-ID: <1485949094-138708-2-git-send-email-borntraeger@de.ibm.com>
 References: <1485949094-138708-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <1485949094-138708-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+kvm_s390_get_machine() populates the facility bitmap by copying bytes
+from the host results that are stored in a 256 byte array in the prefix
+page. The KVM code does use the size of the target buffer (2k), thus
+copying and exposing unrelated kernel memory (mostly machine check
+related logout data).
 
-We already filter PER events reported via icpt code 8. For icpt code
-4 and 56, this is still missing.
+Let's use the size of the source buffer instead.  This is ok, as the
+target buffer will always be greater or equal than the source buffer as
+the KVM internal buffers (and thus S390_ARCH_FAC_LIST_SIZE_BYTE) cover
+the maximum possible size that is allowed by STFLE, which is 256
+doublewords. All structures are zero allocated so we can leave bytes
+256-2047 unchanged.
 
-So let's properly detect if we have a debugging event and if we have to
-inject a PER i-fetch event into the guest at all.
+Add a similar fix for kvm_arch_init_vm().
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>
+Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+[found with smatch]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+CC: stable@vger.kernel.org
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kvm/guestdbg.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index d7c6a7f..a207783 100644
---- a/arch/s390/kvm/guestdbg.c
-+++ b/arch/s390/kvm/guestdbg.c
-@@ -388,14 +388,13 @@ void kvm_s390_prepare_debug_exit(struct kvm_vcpu *vcpu)
- #define per_write_wp_event(code) \
- 			(code & (PER_CODE_STORE | PER_CODE_STORE_REAL))
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index bec71e9..6484a25 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -916,7 +916,7 @@ static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	memcpy(&mach->fac_mask, kvm->arch.model.fac_mask,
+ 	       S390_ARCH_FAC_LIST_SIZE_BYTE);
+ 	memcpy((unsigned long *)&mach->fac_list, S390_lowcore.stfle_fac_list,
+-	       S390_ARCH_FAC_LIST_SIZE_BYTE);
++	       sizeof(S390_lowcore.stfle_fac_list));
+ 	if (copy_to_user((void __user *)attr->addr, mach, sizeof(*mach)))
+ 		ret = -EFAULT;
+ 	kfree(mach);
+@@ -1437,7 +1437,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
  
--static int debug_exit_required(struct kvm_vcpu *vcpu)
-+static int debug_exit_required(struct kvm_vcpu *vcpu, u8 perc,
-+			       unsigned long peraddr)
- {
--	u8 perc = vcpu->arch.sie_block->perc;
- 	struct kvm_debug_exit_arch *debug_exit = &vcpu->run->debug.arch;
- 	struct kvm_hw_wp_info_arch *wp_info = NULL;
- 	struct kvm_hw_bp_info_arch *bp_info = NULL;
- 	unsigned long addr = vcpu->arch.sie_block->gpsw.addr;
--	unsigned long peraddr = vcpu->arch.sie_block->peraddr;
- 
- 	if (guestdbg_hw_bp_enabled(vcpu)) {
- 		if (per_write_wp_event(perc) &&
-@@ -442,6 +441,8 @@ static int debug_exit_required(struct kvm_vcpu *vcpu)
- 
- int kvm_s390_handle_per_ifetch_icpt(struct kvm_vcpu *vcpu)
- {
-+	const u64 cr10 = vcpu->arch.sie_block->gcr[10];
-+	const u64 cr11 = vcpu->arch.sie_block->gcr[11];
- 	const u8 ilen = kvm_s390_get_ilen(vcpu);
- 	struct kvm_s390_pgm_info pgm_info = {
- 		.code = PGM_PER,
-@@ -454,7 +455,19 @@ int kvm_s390_handle_per_ifetch_icpt(struct kvm_vcpu *vcpu)
- 	 * instruction generated a PER i-fetch event. PER address therefore
- 	 * points at the previous PSW address (could be an EXECUTE function).
- 	 */
--	return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
-+	if (!guestdbg_enabled(vcpu))
-+		return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
-+
-+	if (debug_exit_required(vcpu, pgm_info.per_code, pgm_info.per_address))
-+		vcpu->guest_debug |= KVM_GUESTDBG_EXIT_PENDING;
-+
-+	if (!guest_per_enabled(vcpu) ||
-+	    !(vcpu->arch.sie_block->gcr[9] & PER_EVENT_IFETCH))
-+		return 0;
-+
-+	if (in_addr_range(pgm_info.per_address, cr10, cr11))
-+		return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
-+	return 0;
- }
- 
- static void filter_guest_per_event(struct kvm_vcpu *vcpu)
-@@ -500,7 +513,8 @@ void kvm_s390_handle_per_event(struct kvm_vcpu *vcpu)
- {
- 	int new_as;
- 
--	if (debug_exit_required(vcpu))
-+	if (debug_exit_required(vcpu, vcpu->arch.sie_block->perc,
-+				vcpu->arch.sie_block->peraddr))
- 		vcpu->guest_debug |= KVM_GUESTDBG_EXIT_PENDING;
- 
- 	filter_guest_per_event(vcpu);
+ 	/* Populate the facility mask initially. */
+ 	memcpy(kvm->arch.model.fac_mask, S390_lowcore.stfle_fac_list,
+-	       S390_ARCH_FAC_LIST_SIZE_BYTE);
++	       sizeof(S390_lowcore.stfle_fac_list));
+ 	for (i = 0; i < S390_ARCH_FAC_LIST_SIZE_U64; i++) {
+ 		if (i < kvm_s390_fac_list_mask_size())
+ 			kvm->arch.model.fac_mask[i] &= kvm_s390_fac_list_mask[i];
 -- 
 2.7.4
