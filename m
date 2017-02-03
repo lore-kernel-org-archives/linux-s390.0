@@ -1,62 +1,68 @@
-Date: Fri, 3 Feb 2017 18:26:49 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-Message-ID: <20170203182648.GB26578@leverpostej>
-References: <1486144343-24998-1-git-send-email-labbott@redhat.com>
- <1486144343-24998-3-git-send-email-labbott@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1486144343-24998-3-git-send-email-labbott@redhat.com>
-Subject: [kernel-hardening] Re: [PATCHv2 2/2] arch: Rename CONFIG_DEBUG_RODATA and
- CONFIG_DEBUG_MODULE_RONX
+Sender: keescook@google.com
+In-Reply-To: <1486144343-24998-2-git-send-email-labbott@redhat.com>
+References: <1486144343-24998-1-git-send-email-labbott@redhat.com> <1486144343-24998-2-git-send-email-labbott@redhat.com>
+From: Kees Cook <keescook@chromium.org>
+Date: Fri, 3 Feb 2017 11:45:56 -0800
+Message-ID: <CAGXu5jK6_y=dWHUDBto7ykN_sSOQ6Gx+sZs_gQ1Hoh5DjP-fTw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Subject: [kernel-hardening] Re: [PATCHv2 1/2] arch: Move CONFIG_DEBUG_RODATA and
+ CONFIG_SET_MODULE_RONX to be common
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
 To: Laura Abbott <labbott@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>, Jason Wessel <jason.wessel@windriver.com>, Jonathan Corbet <corbet@lwn.net>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Jessica Yu <jeyu@redhat.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org, kernel-hardening@lists.openwall.com, Robin Murphy <robin.murphy@arm.com>
+Cc: Jason Wessel <jason.wessel@windriver.com>, Jonathan Corbet <corbet@lwn.net>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "x86@kernel.org" <x86@kernel.org>, Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Mark Rutland <mark.rutland@arm.com>, Jessica Yu <jeyu@redhat.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-parisc <linux-parisc@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Robin Murphy <robin.murphy@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Feb 03, 2017 at 09:52:22AM -0800, Laura Abbott wrote:
-> 
-> Both of these options are poorly named. The features they provide are
-> necessary for system security and should not be considered debug only.
-> Change the name to something that accurately describes what these
-> options do.
-> 
+On Fri, Feb 3, 2017 at 9:52 AM, Laura Abbott <labbott@redhat.com> wrote:
+> There are multiple architectures that support CONFIG_DEBUG_RODATA and
+> CONFIG_SET_MODULE_RONX. These options also now have the ability to be
+> turned off at runtime. Move these to an architecture independent
+> location and make these options def_bool y for almost all of those
+> arches.
+>
 > Signed-off-by: Laura Abbott <labbott@redhat.com>
+> ---
+> v2: This patch is now doing just the refactor of the existing config options.
+> ---
+>  arch/Kconfig              | 28 ++++++++++++++++++++++++++++
+>  arch/arm/Kconfig          |  3 +++
+>  arch/arm/Kconfig.debug    | 11 -----------
+>  arch/arm/mm/Kconfig       | 12 ------------
+>  arch/arm64/Kconfig        |  5 ++---
+>  arch/arm64/Kconfig.debug  | 11 -----------
+>  arch/parisc/Kconfig       |  1 +
+>  arch/parisc/Kconfig.debug | 11 -----------
+>  arch/s390/Kconfig         |  5 ++---
+>  arch/s390/Kconfig.debug   |  3 ---
+>  arch/x86/Kconfig          |  5 ++---
+>  arch/x86/Kconfig.debug    | 11 -----------
+>  12 files changed, 38 insertions(+), 68 deletions(-)
+>
+> diff --git a/arch/Kconfig b/arch/Kconfig
+> index 99839c2..22ee01e 100644
+> --- a/arch/Kconfig
+> +++ b/arch/Kconfig
+> @@ -781,4 +781,32 @@ config VMAP_STACK
+>           the stack to map directly to the KASAN shadow map using a formula
+>           that is incorrect if the stack is in vmalloc space.
+>
+> +config ARCH_NO_STRICT_RWX_DEFAULTS
+> +       def_bool n
+> +
+> +config ARCH_HAS_STRICT_KERNEL_RWX
+> +       def_bool n
+> +
+> +config DEBUG_RODATA
+> +       def_bool y if !ARCH_NO_STRICT_RWX_DEFAULTS
+> +       prompt "Make kernel text and rodata read-only" if ARCH_NO_STRICT_RWX_DEFAULTS
 
-As with patch 1, this looks good to me. FWIW:
+Ah! Yes, perfect. I totally forgot about using conditional "prompt" lines. Nice!
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Kees Cook <keescook@chromium.org>
 
-> diff --git a/arch/arm64/Kconfig.debug b/arch/arm64/Kconfig.debug
-> index 939815e..560a8d8 100644
-> --- a/arch/arm64/Kconfig.debug
-> +++ b/arch/arm64/Kconfig.debug
-> @@ -72,7 +72,7 @@ config DEBUG_WX
->  	  If in doubt, say "Y".
->  
->  config DEBUG_ALIGN_RODATA
-> -	depends on DEBUG_RODATA
-> +	depends on STRICT_KERNEL_RWX
->  	bool "Align linker sections up to SECTION_SIZE"
->  	help
->  	  If this option is enabled, sections that may potentially be marked as
-> diff --git a/arch/arm64/kernel/insn.c b/arch/arm64/kernel/insn.c
-> index 94b62c1..67f9cb9 100644
-> --- a/arch/arm64/kernel/insn.c
-> +++ b/arch/arm64/kernel/insn.c
-> @@ -93,7 +93,7 @@ static void __kprobes *patch_map(void *addr, int fixmap)
->  	bool module = !core_kernel_text(uintaddr);
->  	struct page *page;
->  
-> -	if (module && IS_ENABLED(CONFIG_DEBUG_SET_MODULE_RONX))
-> +	if (module && IS_ENABLED(CONFIG_STRICT_MODULE_RWX))
->  		page = vmalloc_to_page(addr);
->  	else if (!module)
->  		page = pfn_to_page(PHYS_PFN(__pa(addr)));
+-Kees
 
-Since CONFIG_STRICT_MODULE_RWX is mandatory for arm64, we should be able
-to simplify this, but that can wait for a later patch.
-
-Thanks,
-Mark.
+-- 
+Kees Cook
+Pixel Security
