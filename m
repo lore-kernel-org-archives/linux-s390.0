@@ -1,71 +1,49 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [PATCH 00/14] use atomic_dec_not_zero()
-Date: Wed, 8 Feb 2017 10:28:07 -0200
-Message-ID: <20170208102807.5cf7a14d@vento.lan>
-References: <20170130183920.12476-1-fabf@skynet.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170130183920.12476-1-fabf@skynet.be>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/dri-devel/>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-To: Fabian Frederick <fabf@skynet.be>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org, openipmi-developer@lists.sourceforge.net, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net, Akinobu Mita <akinobu.mita@gmail.com>
+Date: Tue, 7 Feb 2017 12:42:11 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+References: <1486427518-14819-1-git-send-email-labbott@redhat.com>
+ <1486427518-14819-2-git-send-email-labbott@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1486427518-14819-2-git-send-email-labbott@redhat.com>
+Message-Id: <20170207114211.GB4973@osiris>
+Subject: [kernel-hardening] Re: [PATCHv3 1/2] arch: Move CONFIG_DEBUG_RODATA and
+ CONFIG_SET_MODULE_RONX to be common
+List-Archive: <https://lore.kernel.org/kernel-hardening/>
+List-Post: <mailto:kernel-hardening@lists.openwall.com>
+To: Laura Abbott <labbott@redhat.com>
+Cc: Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, Jason Wessel <jason.wessel@windriver.com>, Jonathan Corbet <corbet@lwn.net>, x86@kernel.org, Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Jessica Yu <jeyu@redhat.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org, kernel-hardening@lists.openwall.com, Robin Murphy <robin.murphy@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Em Mon, 30 Jan 2017 19:39:20 +0100
-Fabian Frederick <fabf@skynet.be> escreveu:
-
-> complementary definition to atomic_inc_not_zero() featured in
-> lib/fault-inject.c. This small patchset moves it to
-> include/linux/atomic.h using it instead of
-> atomic_add_unless(value, -1, 0)
+On Mon, Feb 06, 2017 at 04:31:57PM -0800, Laura Abbott wrote:
 > 
-> s390 patches were not compile-tested.
+> There are multiple architectures that support CONFIG_DEBUG_RODATA and
+> CONFIG_SET_MODULE_RONX. These options also now have the ability to be
+> turned off at runtime. Move these to an architecture independent
+> location and make these options def_bool y for almost all of those
+> arches.
 > 
-> Fabian Frederick (14):
->   locking/atomic: import atomic_dec_not_zero()
->   drm/exynos: use atomic_dec_not_zero()
->   drm/omap: use atomic_dec_not_zero()
+> Signed-off-by: Laura Abbott <labbott@redhat.com>
+> ---
+> v3: Make these configs selectable for arm. Include some documentation about
+> how the setup of the optional Kconfigs work as well. Stop spelling 'kenrel'
+> in prompt text.
+> ---
+>  Documentation/security/self-protection.txt |  6 ++++++
+>  arch/Kconfig                               | 34 ++++++++++++++++++++++++++++++
+>  arch/arm/Kconfig                           |  4 ++++
+>  arch/arm/Kconfig.debug                     | 11 ----------
+>  arch/arm/mm/Kconfig                        | 12 -----------
+>  arch/arm64/Kconfig                         |  5 ++---
+>  arch/arm64/Kconfig.debug                   | 11 ----------
+>  arch/parisc/Kconfig                        |  1 +
+>  arch/parisc/Kconfig.debug                  | 11 ----------
+>  arch/s390/Kconfig                          |  5 ++---
+>  arch/s390/Kconfig.debug                    |  3 ---
+>  arch/x86/Kconfig                           |  5 ++---
+>  arch/x86/Kconfig.debug                     | 11 ----------
+>  13 files changed, 51 insertions(+), 68 deletions(-)
 
->   m5mols: use atomic_dec_not_zero()
->   omap3isp: use atomic_dec_not_zero()
+For the s390 bits:
 
-For the media changes:
-
-Acked-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-
->   s390/qeth: use atomic_dec_not_zero()
->   PM / RUNTIME: use atomic_dec_not_zero()
->   ipmi: use atomic_dec_not_zero()
->   kdb: use atomic_dec_not_zero()
->   PM / Hibernate: use atomic_dec_not_zero()
->   PM: use atomic_dec_not_zero()
->   s390/topology: use atomic_dec_not_zero()
->   ext4: use atomic_dec_not_zero()
->   xfs: use atomic_dec_not_zero()
-> 
->  arch/s390/kernel/topology.c               | 2 +-
->  drivers/base/power/runtime.c              | 4 ++--
->  drivers/char/ipmi/ipmi_msghandler.c       | 2 +-
->  drivers/gpu/drm/exynos/exynos_drm_fimd.c  | 2 +-
->  drivers/gpu/drm/omapdrm/omap_dmm_tiler.c  | 2 +-
->  drivers/media/i2c/m5mols/m5mols_core.c    | 2 +-
->  drivers/media/platform/omap3isp/ispstat.c | 2 +-
->  drivers/s390/net/qeth_core_main.c         | 2 +-
->  fs/ext4/ext4.h                            | 2 +-
->  fs/xfs/xfs_buf.c                          | 2 +-
->  include/linux/atomic.h                    | 2 ++
->  kernel/debug/kdb/kdb_main.c               | 2 +-
->  kernel/power/hibernate.c                  | 4 ++--
->  kernel/power/user.c                       | 2 +-
->  lib/fault-inject.c                        | 2 --
->  15 files changed, 17 insertions(+), 17 deletions(-)
-> 
-
-
-
-Thanks,
-Mauro
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
