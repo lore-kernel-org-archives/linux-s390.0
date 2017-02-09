@@ -1,126 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH 3/3] s390: Audit and remove any remaining unnecessary uses of module.h
-Date: Thu, 9 Feb 2017 15:20:25 -0500
-Message-ID: <20170209202025.8713-4-paul.gortmaker@windriver.com>
-In-Reply-To: <20170209202025.8713-1-paul.gortmaker@windriver.com>
-References: <20170209202025.8713-1-paul.gortmaker@windriver.com>
+Subject: [PATCH 0/3] s390: audit and remove needless module.h includes
+Date: Thu, 9 Feb 2017 15:20:22 -0500
+Message-ID: <20170209202025.8713-1-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Historically a lot of these existed because we did not have
-a distinction between what was modular code and what was providing
-support to modules via EXPORT_SYMBOL and friends.  That changed
-when we forked out support for the latter into the export.h file.
+Originally module.h provided support for both what was modular code and
+what was providing support to modules via EXPORT_SYMBOL and friends.
 
-This means we should be able to reduce the usage of module.h
-in code that is obj-y Makefile or bool Kconfig.  The advantage
-in doing so is that module.h itself sources about 15 other headers;
-adding significantly to what we feed cpp, and it can obscure what
-headers we are effectively using.
+That changed when we forked out support for the latter into the export.h
+header; roughly five years ago[1].
 
-Since module.h was the source for init.h (for __init) and for
-export.h (for EXPORT_SYMBOL) we consider each change instance
-for the presence of either and replace as needed.  An instance
-where module_param was used without moduleparam.h was also fixed,
-as well as implicit use of ptrace.h and string.h headers.
+We dealt with the immediate fallout of that change back then, but we
+did not go through and "downgrade" all the non-modular module.h users
+to export.h, once the merge of that change enabled us to do so.
 
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+This means we should be able to reduce the usage of module.h in code
+that is obj-y Makefile or bool Kconfig.  In the case of some of these
+which are modular, we can extend that to also include files that are
+building basic support functionality but not related to loading or
+registering the final module; such files also have no need whatsoever
+for module.h
+
+The advantage in removing such instances is that module.h itself
+sources about 15 other headers; adding significantly to what we feed
+cpp, and it can obscure what headers we are effectively using.
+
+Consider the following pseudo patch to introduce a no-op source
+that just includes module.h:
+
+    diff --git a/init/Makefile b/init/Makefile
+    --- a/init/Makefile
+    +++ b/init/Makefile
+    @@ -2,7 +2,7 @@
+
+    -obj-y                          := main.o version.o mounts.o
+    +obj-y                          := main.o version.o mounts.o foo.o
+
+    diff --git a/init/foo.c b/init/foo.c
+    new file mode 100644
+    --- /dev/null
+    +++ b/init/foo.c
+    @@ -0,0 +1 @@
+    +#include <linux/module.h>
+
+With that in place, we then can see the impact with this:
+
+   paul@builder:~/git/linux-head$ make O=../build/ init/foo.i
+   make[1]: Entering directory '/home/paul/git/build'
+     CPP     init/foo.i
+
+   paul@builder:~/git/linux-head$ ls -lh ../build/init/foo.i 
+   -rw-rw-r-- 1 paul paul 754K Jul 12 20:04 ../build/init/foo.i
+
+So, with every module.h include, we guarantee a minimum of 3/4 of a MB
+of text output from cpp as the baseline of header preamble to process.
+
+Repeating the same experiment with <linux/init.h> and the result is less
+than 12kB; with <linux/export.h> it is only about 1/2kB; with both it
+still is less than 12kB.
+
+Since module.h might be the implicit source for init.h (for __init)
+and for export.h (for EXPORT_SYMBOL) we consider each instance for the
+requirement of either and replace as needed.  Some additional implicit
+include issues were also fixed up as they appeared during build
+coverage.
+
+The series was done on a per directory level for the larger dirs and
+then we tackle the remainder in the final commit.  This seemed like
+a better solution than one giant commit.
+
+There is no urgency to get this in tree, it can easily wait three
+weeks.  That said, the risk here is entirely on introducing build
+failures -- there is no changes to generated code, so if build
+coverage is exhaustive, the risk should be zero.
+
+To that end, I have done allmodconfig, allyesconfig and allnoconfig
+for s390 with these changes on the linux-next from today.  We've
+already merged the changes from similar audits for x86 and other
+supported architectures, so this isn't a new issue.
+
+Paul.
+
+[1] https://lwn.net/Articles/453517/
+
 ---
+
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+
+Paul Gortmaker (3):
+  s390: kernel: Audit and remove any unnecessary uses of module.h
+  s390: mm: Audit and remove any unnecessary uses of module.h
+  s390: Audit and remove any remaining unnecessary uses of module.h
+
  arch/s390/include/asm/livepatch.h | 2 +-
+ arch/s390/kernel/compat_linux.c   | 1 -
+ arch/s390/kernel/cpcmd.c          | 2 +-
+ arch/s390/kernel/crash_dump.c     | 3 ++-
+ arch/s390/kernel/debug.c          | 2 +-
+ arch/s390/kernel/diag.c           | 3 ++-
+ arch/s390/kernel/dis.c            | 2 +-
+ arch/s390/kernel/ebcdic.c         | 4 ++--
+ arch/s390/kernel/ipl.c            | 3 ++-
+ arch/s390/kernel/irq.c            | 3 ++-
+ arch/s390/kernel/jump_label.c     | 1 -
+ arch/s390/kernel/nmi.c            | 2 +-
+ arch/s390/kernel/process.c        | 2 +-
+ arch/s390/kernel/smp.c            | 2 +-
+ arch/s390/kernel/stacktrace.c     | 2 +-
+ arch/s390/kernel/sysinfo.c        | 2 +-
+ arch/s390/kernel/time.c           | 2 +-
+ arch/s390/kernel/vdso.c           | 2 +-
  arch/s390/kvm/kvm-s390.c          | 1 +
  arch/s390/lib/delay.c             | 2 +-
  arch/s390/lib/spinlock.c          | 2 +-
  arch/s390/lib/string.c            | 3 ++-
  arch/s390/lib/xor.c               | 2 +-
- 6 files changed, 7 insertions(+), 5 deletions(-)
+ arch/s390/mm/cmm.c                | 1 +
+ arch/s390/mm/dump_pagetables.c    | 1 -
+ arch/s390/mm/extmem.c             | 2 +-
+ arch/s390/mm/mem_detect.c         | 1 -
+ arch/s390/mm/mmap.c               | 2 +-
+ arch/s390/mm/pageattr.c           | 1 -
+ arch/s390/mm/vmem.c               | 2 +-
+ 30 files changed, 31 insertions(+), 29 deletions(-)
 
-diff --git a/arch/s390/include/asm/livepatch.h b/arch/s390/include/asm/livepatch.h
-index 2c1213785892..6de5c6cb0061 100644
---- a/arch/s390/include/asm/livepatch.h
-+++ b/arch/s390/include/asm/livepatch.h
-@@ -17,7 +17,7 @@
- #ifndef ASM_LIVEPATCH_H
- #define ASM_LIVEPATCH_H
- 
--#include <linux/module.h>
-+#include <asm/ptrace.h>
- 
- static inline int klp_check_compiler_support(void)
- {
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 502de74ea984..7ec5d86ca61a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -23,6 +23,7 @@
- #include <linux/kvm_host.h>
- #include <linux/mman.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/random.h>
- #include <linux/slab.h>
- #include <linux/timer.h>
-diff --git a/arch/s390/lib/delay.c b/arch/s390/lib/delay.c
-index 501dcd4ca4a0..92e90e40b6fb 100644
---- a/arch/s390/lib/delay.c
-+++ b/arch/s390/lib/delay.c
-@@ -9,7 +9,7 @@
- #include <linux/sched.h>
- #include <linux/delay.h>
- #include <linux/timex.h>
--#include <linux/module.h>
-+#include <linux/export.h>
- #include <linux/irqflags.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
-diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
-index e48a48ec24bc..03462326ca3e 100644
---- a/arch/s390/lib/spinlock.c
-+++ b/arch/s390/lib/spinlock.c
-@@ -6,7 +6,7 @@
-  */
- 
- #include <linux/types.h>
--#include <linux/module.h>
-+#include <linux/export.h>
- #include <linux/spinlock.h>
- #include <linux/init.h>
- #include <linux/smp.h>
-diff --git a/arch/s390/lib/string.c b/arch/s390/lib/string.c
-index f71d9f655970..4ee27339c792 100644
---- a/arch/s390/lib/string.c
-+++ b/arch/s390/lib/string.c
-@@ -9,7 +9,8 @@
- #define IN_ARCH_STRING_C 1
- 
- #include <linux/types.h>
--#include <linux/module.h>
-+#include <linux/string.h>
-+#include <linux/export.h>
- 
- /*
-  * Helper functions to find the end of a string
-diff --git a/arch/s390/lib/xor.c b/arch/s390/lib/xor.c
-index 7d94e3ec34a9..b4fd05c36151 100644
---- a/arch/s390/lib/xor.c
-+++ b/arch/s390/lib/xor.c
-@@ -6,7 +6,7 @@
-  */
- 
- #include <linux/types.h>
--#include <linux/module.h>
-+#include <linux/export.h>
- #include <linux/raid/xor.h>
- 
- static void xor_xc_2(unsigned long bytes, unsigned long *p1, unsigned long *p2)
 -- 
 2.11.0
