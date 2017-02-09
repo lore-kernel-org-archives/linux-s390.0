@@ -1,54 +1,59 @@
-Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date: Tue, 7 Feb 2017 08:16:46 +0100
-From: Ingo Molnar <mingo@kernel.org>
-Message-ID: <20170207071646.GA18584@gmail.com>
-References: <1486427518-14819-1-git-send-email-labbott@redhat.com>
- <1486427518-14819-2-git-send-email-labbott@redhat.com>
-MIME-Version: 1.0
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [RFC][PATCH] treewide: Move set_memory_* functions away from
+ cacheflush.h
+Date: Thu, 9 Feb 2017 10:59:56 +0100
+Message-ID: <20170209095956.GB4159@osiris>
+References: <1486501816-27600-1-git-send-email-labbott@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1486427518-14819-2-git-send-email-labbott@redhat.com>
-Subject: [kernel-hardening] Re: [PATCHv3 1/2] arch: Move CONFIG_DEBUG_RODATA and
- CONFIG_SET_MODULE_RONX to be common
-List-Archive: <https://lore.kernel.org/kernel-hardening/>
-List-Post: <mailto:kernel-hardening@lists.openwall.com>
+In-Reply-To: <1486501816-27600-1-git-send-email-labbott@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Laura Abbott <labbott@redhat.com>
-Cc: Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, Jason Wessel <jason.wessel@windriver.com>, Jonathan Corbet <corbet@lwn.net>, x86@kernel.org, Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Jessica Yu <jeyu@redhat.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org, kernel-hardening@lists.openwall.com, Robin Murphy <robin.murphy@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-* Laura Abbott <labbott@redhat.com> wrote:
-
-> 
-> There are multiple architectures that support CONFIG_DEBUG_RODATA and
-> CONFIG_SET_MODULE_RONX. These options also now have the ability to be
-> turned off at runtime. Move these to an architecture independent
-> location and make these options def_bool y for almost all of those
-> arches.
+On Tue, Feb 07, 2017 at 01:10:16PM -0800, Laura Abbott wrote:
+> The set_memory_* APIs came out of a desire to have a better way to
+> change memory attributes. Many of these attributes were linked to cache
+> functionality so the prototypes were put in cacheflush.h. These days,
+> the APIs have grown and have a much wider use than just cache APIs. To
+> support this growth, split off set_memory_* and friends into a separate
+> header file to avoid growing cacheflush.h for APIs that have nothing to
+> do with caches.
 > 
 > Signed-off-by: Laura Abbott <labbott@redhat.com>
 > ---
-> v3: Make these configs selectable for arm. Include some documentation about
-> how the setup of the optional Kconfigs work as well. Stop spelling 'kenrel'
-> in prompt text.
+> This came out of a comment Russell made while reviewing RODATA test cases
+> http://lists.infradead.org/pipermail/linux-arm-kernel/2017-January/480855.html
+> While the final result of that series was the rodata code was refactored into
+> its own header file, the set_memory_* APIs are still out of place.
+> 
+> This is a simple attempt at moving all the API stubs to their own file.
+> Another idea I had was throwing set_memory_{x,nx,ro,rw} in an asm-generic
+> file since those are commonly used for module setting across all arches.
+> 
+> This is an RFC to see if this is actually beneficial. The diffstat is not
+> negative unfortunately due to header guards in newer files.
+> I have patches to convert call sites over to set_memory.h instead of
+> cacheflush.h if there is sufficient interest.
 > ---
->  Documentation/security/self-protection.txt |  6 ++++++
->  arch/Kconfig                               | 34 ++++++++++++++++++++++++++++++
->  arch/arm/Kconfig                           |  4 ++++
->  arch/arm/Kconfig.debug                     | 11 ----------
->  arch/arm/mm/Kconfig                        | 12 -----------
->  arch/arm64/Kconfig                         |  5 ++---
->  arch/arm64/Kconfig.debug                   | 11 ----------
->  arch/parisc/Kconfig                        |  1 +
->  arch/parisc/Kconfig.debug                  | 11 ----------
->  arch/s390/Kconfig                          |  5 ++---
->  arch/s390/Kconfig.debug                    |  3 ---
->  arch/x86/Kconfig                           |  5 ++---
->  arch/x86/Kconfig.debug                     | 11 ----------
->  13 files changed, 51 insertions(+), 68 deletions(-)
+>  arch/arm/include/asm/cacheflush.h   |  21 +-------
+>  arch/arm/include/asm/set_memory.h   |  32 ++++++++++++
+>  arch/arm64/include/asm/cacheflush.h |   6 +--
+>  arch/arm64/include/asm/set_memory.h |  26 ++++++++++
+>  arch/s390/include/asm/cacheflush.h  |   6 +--
+>  arch/s390/include/asm/set_memory.h  |   9 ++++
+>  arch/x86/include/asm/cacheflush.h   |  96 +---------------------------------
+>  arch/x86/include/asm/set_memory.h   | 100 ++++++++++++++++++++++++++++++++++++
+>  8 files changed, 171 insertions(+), 125 deletions(-)
+>  create mode 100644 arch/arm/include/asm/set_memory.h
+>  create mode 100644 arch/arm64/include/asm/set_memory.h
+>  create mode 100644 arch/s390/include/asm/set_memory.h
+>  create mode 100644 arch/x86/include/asm/set_memory.h
 
-Acked-by: Ingo Molnar <mingo@kernel.org>
-
-Thanks,
-
-	Ingo
+For s390:
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
