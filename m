@@ -1,139 +1,116 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH 0/3] s390: audit and remove needless module.h includes
-Date: Thu, 9 Feb 2017 15:20:22 -0500
-Message-ID: <20170209202025.8713-1-paul.gortmaker@windriver.com>
+Date: Fri, 10 Feb 2017 21:49:54 +0000
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+Message-ID: <20170210214954.GO27312@n2100.armlinux.org.uk>
+References: <20170209183358.103094-1-thgarnie@google.com>
+ <CAGXu5j+hyXxpyU1R+BeL9RwPhT6HSNE0c_b7MP_V0rYSAepYFw@mail.gmail.com>
+ <CALCETrWrbDnka=aqzQ5+7WN2N6RwFsQb7smcnjQMsjov+y=dTQ@mail.gmail.com>
+ <CAJcbSZHv7w5jYQ2AZ-g4Kc0mX0jRRbHCKwFKx1EFuOAby1yxXA@mail.gmail.com>
+ <CALCETrVS6J2_GPWBoxUFUhjdyce0TBdroA+FjfdNywr9_k6hew@mail.gmail.com>
+ <20170210192242.GM27312@n2100.armlinux.org.uk>
+ <CAGXu5jJf5z5f0O=T4awfF98OR7+kaQaFFJu3kXXa402vq-Mj2Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGXu5jJf5z5f0O=T4awfF98OR7+kaQaFFJu3kXXa402vq-Mj2Q@mail.gmail.com>
+Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
+Subject: [kernel-hardening] Re: [RFC] syscalls: Restore address limit after a syscall
+List-Archive: <https://lore.kernel.org/kernel-hardening/>
+List-Post: <mailto:kernel-hardening@lists.openwall.com>
+To: Kees Cook <keescook@chromium.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Stephen Bates <stephen.bates@pmcs.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Linux API <linux-api@vger.kernel.org>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Dave Hansen <dave.hansen@intel.com>, Jeff Moyer <jmoyer@redhat.com>, =?iso-8859-1?Q?Ren=E9?= Nyffenegger <mail@renenyffenegger.ch>, Milosz Tanski <milosz@adfin.com>, Thomas Garnier <thgarnie@google.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Originally module.h provided support for both what was modular code and
-what was providing support to modules via EXPORT_SYMBOL and friends.
+On Fri, Feb 10, 2017 at 12:49:34PM -0800, Kees Cook wrote:
+> On Fri, Feb 10, 2017 at 11:22 AM, Russell King - ARM Linux
+> <linux@armlinux.org.uk> wrote:
+> > On Thu, Feb 09, 2017 at 06:42:34PM -0800, Andy Lutomirski wrote:
+> >> On Thu, Feb 9, 2017 at 3:41 PM, Thomas Garnier <thgarnie@google.com> wrote:
+> >> > So by default it is in the wrapper. If selected, an architecture can
+> >> > disable the wrapper put it in the best places. Understood correctly?
+> >>
+> >> Sounds good to me.
+> >>
+> >> Presumably the result should go through -mm.  Want to cc: akpm and
+> >> linux-arch@ on the next version?
+> >>
+> >> I've also cc'd arm and s390 folks -- those are the other arches that
+> >> try to be on top of hardening.
+> >
+> > The best place for this on ARM is in the assembly code, rather than in
+> > the hundreds of system calls - having it in one place is surely better
+> > for reducing the cache impact.
+> >
+> > This (untested) patch should be sufficient for ARM - there's two choices
+> > which I think make sense to do this:
+> > 1. Immediately after returning the syscall
+> > 2. Immediately before any returning to userspace
+> >
+> > (1) has the advantage that the address limit will be forced for the
+> > exit-path works that we do, preventing those making accesses to kernel
+> > space.
+> >
+> > (2) has the advantage that we'd guarantee that the address limit will
+> > be forced while userspace is running for the next entry into kernel
+> > space.
+> >
+> > There's actually a third option as well:
+> >
+> > (3) forcing the address limit on entry to the kernel from userspace.
+> >
+> > This patch implements option 1.
+> >
+> >  arch/arm/kernel/entry-common.S | 6 ++++++
+> >  1 files changed, 6 insertions(+)
+> >
+> > diff --git a/arch/arm/kernel/entry-common.S b/arch/arm/kernel/entry-common.S
+> > index eb5cd77bf1d8..6a717a2ccb88 100644
+> > --- a/arch/arm/kernel/entry-common.S
+> > +++ b/arch/arm/kernel/entry-common.S
+> > @@ -39,6 +39,8 @@
+> >  ret_fast_syscall:
+> >   UNWIND(.fnstart       )
+> >   UNWIND(.cantunwind    )
+> > +       mov     r1, #TASK_SIZE
+> > +       str     r1, [tsk, #TI_ADDR_LIMIT]
+> >         disable_irq_notrace                     @ disable interrupts
+> >         ldr     r1, [tsk, #TI_FLAGS]            @ re-check for syscall tracing
+> >         tst     r1, #_TIF_SYSCALL_WORK | _TIF_WORK_MASK
+> > @@ -64,6 +66,8 @@ ENDPROC(ret_fast_syscall)
+> >  ret_fast_syscall:
+> >   UNWIND(.fnstart       )
+> >   UNWIND(.cantunwind    )
+> > +       mov     r1, #TASK_SIZE
+> > +       str     r1, [tsk, #TI_ADDR_LIMIT]
+> >         str     r0, [sp, #S_R0 + S_OFF]!        @ save returned r0
+> >         disable_irq_notrace                     @ disable interrupts
+> >         ldr     r1, [tsk, #TI_FLAGS]            @ re-check for syscall tracing
+> > @@ -262,6 +266,8 @@ ENDPROC(vector_swi)
+> >         b       ret_slow_syscall
+> >
+> >  __sys_trace_return:
+> > +       mov     r1, #TASK_SIZE
+> > +       str     r1, [tsk, #TI_ADDR_LIMIT]
+> >         str     r0, [sp, #S_R0 + S_OFF]!        @ save returned r0
+> >         mov     r0, sp
+> >         bl      syscall_trace_exit
+> >
+> 
+> That looks pretty great! If I'm reading the macros correctly, this'll
+> only happen on _actual_ syscall exit, right? So all the crazy OABI
+> stuff won't suddenly break? e.g.:
 
-That changed when we forked out support for the latter into the export.h
-header; roughly five years ago[1].
+Correct.
 
-We dealt with the immediate fallout of that change back then, but we
-did not go through and "downgrade" all the non-modular module.h users
-to export.h, once the merge of that change enabled us to do so.
+> Is there a similarly good place to do this for arm64?
 
-This means we should be able to reduce the usage of module.h in code
-that is obj-y Makefile or bool Kconfig.  In the case of some of these
-which are modular, we can extend that to also include files that are
-building basic support functionality but not related to loading or
-registering the final module; such files also have no need whatsoever
-for module.h
+I'd imagine similar places exist in arm64:
 
-The advantage in removing such instances is that module.h itself
-sources about 15 other headers; adding significantly to what we feed
-cpp, and it can obscure what headers we are effectively using.
+ret_fast_syscall
+ret_to_user
 
-Consider the following pseudo patch to introduce a no-op source
-that just includes module.h:
-
-    diff --git a/init/Makefile b/init/Makefile
-    --- a/init/Makefile
-    +++ b/init/Makefile
-    @@ -2,7 +2,7 @@
-
-    -obj-y                          := main.o version.o mounts.o
-    +obj-y                          := main.o version.o mounts.o foo.o
-
-    diff --git a/init/foo.c b/init/foo.c
-    new file mode 100644
-    --- /dev/null
-    +++ b/init/foo.c
-    @@ -0,0 +1 @@
-    +#include <linux/module.h>
-
-With that in place, we then can see the impact with this:
-
-   paul@builder:~/git/linux-head$ make O=../build/ init/foo.i
-   make[1]: Entering directory '/home/paul/git/build'
-     CPP     init/foo.i
-
-   paul@builder:~/git/linux-head$ ls -lh ../build/init/foo.i 
-   -rw-rw-r-- 1 paul paul 754K Jul 12 20:04 ../build/init/foo.i
-
-So, with every module.h include, we guarantee a minimum of 3/4 of a MB
-of text output from cpp as the baseline of header preamble to process.
-
-Repeating the same experiment with <linux/init.h> and the result is less
-than 12kB; with <linux/export.h> it is only about 1/2kB; with both it
-still is less than 12kB.
-
-Since module.h might be the implicit source for init.h (for __init)
-and for export.h (for EXPORT_SYMBOL) we consider each instance for the
-requirement of either and replace as needed.  Some additional implicit
-include issues were also fixed up as they appeared during build
-coverage.
-
-The series was done on a per directory level for the larger dirs and
-then we tackle the remainder in the final commit.  This seemed like
-a better solution than one giant commit.
-
-There is no urgency to get this in tree, it can easily wait three
-weeks.  That said, the risk here is entirely on introducing build
-failures -- there is no changes to generated code, so if build
-coverage is exhaustive, the risk should be zero.
-
-To that end, I have done allmodconfig, allyesconfig and allnoconfig
-for s390 with these changes on the linux-next from today.  We've
-already merged the changes from similar audits for x86 and other
-supported architectures, so this isn't a new issue.
-
-Paul.
-
-[1] https://lwn.net/Articles/453517/
-
----
-
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-
-Paul Gortmaker (3):
-  s390: kernel: Audit and remove any unnecessary uses of module.h
-  s390: mm: Audit and remove any unnecessary uses of module.h
-  s390: Audit and remove any remaining unnecessary uses of module.h
-
- arch/s390/include/asm/livepatch.h | 2 +-
- arch/s390/kernel/compat_linux.c   | 1 -
- arch/s390/kernel/cpcmd.c          | 2 +-
- arch/s390/kernel/crash_dump.c     | 3 ++-
- arch/s390/kernel/debug.c          | 2 +-
- arch/s390/kernel/diag.c           | 3 ++-
- arch/s390/kernel/dis.c            | 2 +-
- arch/s390/kernel/ebcdic.c         | 4 ++--
- arch/s390/kernel/ipl.c            | 3 ++-
- arch/s390/kernel/irq.c            | 3 ++-
- arch/s390/kernel/jump_label.c     | 1 -
- arch/s390/kernel/nmi.c            | 2 +-
- arch/s390/kernel/process.c        | 2 +-
- arch/s390/kernel/smp.c            | 2 +-
- arch/s390/kernel/stacktrace.c     | 2 +-
- arch/s390/kernel/sysinfo.c        | 2 +-
- arch/s390/kernel/time.c           | 2 +-
- arch/s390/kernel/vdso.c           | 2 +-
- arch/s390/kvm/kvm-s390.c          | 1 +
- arch/s390/lib/delay.c             | 2 +-
- arch/s390/lib/spinlock.c          | 2 +-
- arch/s390/lib/string.c            | 3 ++-
- arch/s390/lib/xor.c               | 2 +-
- arch/s390/mm/cmm.c                | 1 +
- arch/s390/mm/dump_pagetables.c    | 1 -
- arch/s390/mm/extmem.c             | 2 +-
- arch/s390/mm/mem_detect.c         | 1 -
- arch/s390/mm/mmap.c               | 2 +-
- arch/s390/mm/pageattr.c           | 1 -
- arch/s390/mm/vmem.c               | 2 +-
- 30 files changed, 31 insertions(+), 29 deletions(-)
+maybe?
 
 -- 
-2.11.0
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
