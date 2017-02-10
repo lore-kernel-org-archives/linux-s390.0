@@ -1,128 +1,96 @@
+Date: Fri, 10 Feb 2017 19:22:42 +0000
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+Message-ID: <20170210192242.GM27312@n2100.armlinux.org.uk>
+References: <20170209183358.103094-1-thgarnie@google.com>
+ <CAGXu5j+hyXxpyU1R+BeL9RwPhT6HSNE0c_b7MP_V0rYSAepYFw@mail.gmail.com>
+ <CALCETrWrbDnka=aqzQ5+7WN2N6RwFsQb7smcnjQMsjov+y=dTQ@mail.gmail.com>
+ <CAJcbSZHv7w5jYQ2AZ-g4Kc0mX0jRRbHCKwFKx1EFuOAby1yxXA@mail.gmail.com>
+ <CALCETrVS6J2_GPWBoxUFUhjdyce0TBdroA+FjfdNywr9_k6hew@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAJcbSZHv7w5jYQ2AZ-g4Kc0mX0jRRbHCKwFKx1EFuOAby1yxXA@mail.gmail.com>
-References: <20170209183358.103094-1-thgarnie@google.com> <CAGXu5j+hyXxpyU1R+BeL9RwPhT6HSNE0c_b7MP_V0rYSAepYFw@mail.gmail.com>
- <CALCETrWrbDnka=aqzQ5+7WN2N6RwFsQb7smcnjQMsjov+y=dTQ@mail.gmail.com> <CAJcbSZHv7w5jYQ2AZ-g4Kc0mX0jRRbHCKwFKx1EFuOAby1yxXA@mail.gmail.com>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Thu, 9 Feb 2017 18:42:34 -0800
-Message-ID: <CALCETrVS6J2_GPWBoxUFUhjdyce0TBdroA+FjfdNywr9_k6hew@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALCETrVS6J2_GPWBoxUFUhjdyce0TBdroA+FjfdNywr9_k6hew@mail.gmail.com>
+Sender: Russell King - ARM Linux <linux@armlinux.org.uk>
 Subject: [kernel-hardening] Re: [RFC] syscalls: Restore address limit after a syscall
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Thomas Garnier <thgarnie@google.com>
-Cc: Kees Cook <keescook@chromium.org>, Dave Hansen <dave.hansen@intel.com>, Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Ren=C3=A9_Nyffenegger?= <mail@renenyffenegger.ch>, Stephen Bates <stephen.bates@pmcs.com>, Jeff Moyer <jmoyer@redhat.com>, Milosz Tanski <milosz@adfin.com>, Linux API <linux-api@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Will Deacon <will.deacon@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Thomas Garnier <thgarnie@google.com>, Stephen Bates <stephen.bates@pmcs.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Linux API <linux-api@vger.kernel.org>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave.hansen@intel.com>, Jeff Moyer <jmoyer@redhat.com>, =?iso-8859-1?Q?Ren=E9?= Nyffenegger <mail@renenyffenegger.ch>, Milosz Tanski <milosz@adfin.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Feb 9, 2017 at 3:41 PM, Thomas Garnier <thgarnie@google.com> wrote:
-> On Thu, Feb 9, 2017 at 3:05 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->> On Thu, Feb 9, 2017 at 11:31 AM, Kees Cook <keescook@chromium.org> wrote:
->>> On Thu, Feb 9, 2017 at 10:33 AM, Thomas Garnier <thgarnie@google.com> wrote:
->>>> This patch prevents a syscall to modify the address limit of the
->>>> caller. The address limit is kept by the syscall wrapper and restored
->>>> just after the syscall ends.
->>>>
->>>> For example, it would mitigation this bug:
->>>>
->>>> - https://bugs.chromium.org/p/project-zero/issues/detail?id=990
->>>>
->>>> Signed-off-by: Thomas Garnier <thgarnie@google.com>
->>>> ---
->>>> Based on next-20170209
->>>> ---
->>>>  include/linux/syscalls.h | 5 ++++-
->>>>  1 file changed, 4 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
->>>> index 91a740f6b884..a1b6a62a9849 100644
->>>> --- a/include/linux/syscalls.h
->>>> +++ b/include/linux/syscalls.h
->>>> @@ -198,7 +198,10 @@ extern struct trace_event_functions exit_syscall_print_funcs;
->>>>         asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__));      \
->>>>         asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__))       \
->>>>         {                                                               \
->>>> -               long ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));  \
->>>> +               long ret;                                               \
->>>> +               mm_segment_t fs = get_fs();                             \
->>>> +               ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));       \
->>>> +               set_fs(fs);                                             \
->>>>                 __MAP(x,__SC_TEST,__VA_ARGS__);                         \
->>>>                 __PROTECT(x, ret,__MAP(x,__SC_ARGS,__VA_ARGS__));       \
->>>>                 return ret;                                             \
->>>> --
->>>> 2.11.0.483.g087da7b7c-goog
->>>>
->>>
->>> I have a memory of Andy looking at this before, and there was some
->>> problem with how a bunch of compat code would set fs and then re-call
->>> the syscall... but I can't quite find the conversation. Andy, do you
->>> remember the details?
->>>
->>> This seems like an entirely reasonable thing to enforce for syscalls,
->>> though I'm sure there's a gotcha somewhere. :)
->>
->> This sounds vaguely familiar, but that's about all.
->>
->> Anyway, it seems reasonable that the SyS_foobar wrappers are genuinely
->> only used for syscalls and not for other things, so the code should
->> *work*.  That being said, I think there's room for several
->> improvements.
->>
->> 1. Why save the old "fs" value?  For that matter, why restore it?
->> IOW, I'd rather see BUG_ON(get_fs() != USER_DS) at the end.
->>
->
-> I guess that make sense in the wrapper.
->
->> 2. I'd rather see the mechanism be more general.  If we had, effectively:
->>
->> asmlinkage long SyS_foo(...) {
->>   sys_foo();
->>   verify_pre_usermode_state();
->> }
->>
->> and let verify_pre_usermode_state() potentially do more things, we'd
->> get a more flexible mechanism.  On arches like x86_32, we could save a
->> decent amount of code size by moving verify_pre_usermode_state() into
->> prepare_exit_to_usermode(), but that would have to be a per-arch
->> opt-in.  x86_64 probably would *not* select this due to the fast path
->> (or it would do it in asm.  hmm.).
->>
->
-> I will look into that. I like this design better.
->
->> 3. If this thing gets factored out, then arch code can call it for
->> non-syscall entries, too.
->>
->
-> Yes, it makes sense.
->
->> 4. Can we make this configurable?
->>
->>
->> For x86, a nice implementation might be:
->>
->> select ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
->>
->> ... in prepare_exit_to_usermode():
->>
->> verify_pre_usermode_state();  // right at the beginning
->>
->> ... in the asm syscall fast path:
->>
->> #ifdef CONFIG_VERIFY_PRE_USERMODE_STATE
->> call verify_pre_usermode_staet
->> #endif
->>
->> (or just inline the interesting bit)
->>
->
-> So by default it is in the wrapper. If selected, an architecture can
-> disable the wrapper put it in the best places. Understood correctly?
+On Thu, Feb 09, 2017 at 06:42:34PM -0800, Andy Lutomirski wrote:
+> On Thu, Feb 9, 2017 at 3:41 PM, Thomas Garnier <thgarnie@google.com> wrote:
+> > So by default it is in the wrapper. If selected, an architecture can
+> > disable the wrapper put it in the best places. Understood correctly?
+> 
+> Sounds good to me.
+> 
+> Presumably the result should go through -mm.  Want to cc: akpm and
+> linux-arch@ on the next version?
+> 
+> I've also cc'd arm and s390 folks -- those are the other arches that
+> try to be on top of hardening.
 
-Sounds good to me.
+The best place for this on ARM is in the assembly code, rather than in
+the hundreds of system calls - having it in one place is surely better
+for reducing the cache impact.
 
-Presumably the result should go through -mm.  Want to cc: akpm and
-linux-arch@ on the next version?
+This (untested) patch should be sufficient for ARM - there's two choices
+which I think make sense to do this:
+1. Immediately after returning the syscall
+2. Immediately before any returning to userspace
 
-I've also cc'd arm and s390 folks -- those are the other arches that
-try to be on top of hardening.
+(1) has the advantage that the address limit will be forced for the
+exit-path works that we do, preventing those making accesses to kernel
+space.
+
+(2) has the advantage that we'd guarantee that the address limit will
+be forced while userspace is running for the next entry into kernel
+space.
+
+There's actually a third option as well:
+
+(3) forcing the address limit on entry to the kernel from userspace.
+
+This patch implements option 1.
+
+ arch/arm/kernel/entry-common.S | 6 ++++++
+ 1 files changed, 6 insertions(+)
+
+diff --git a/arch/arm/kernel/entry-common.S b/arch/arm/kernel/entry-common.S
+index eb5cd77bf1d8..6a717a2ccb88 100644
+--- a/arch/arm/kernel/entry-common.S
++++ b/arch/arm/kernel/entry-common.S
+@@ -39,6 +39,8 @@
+ ret_fast_syscall:
+  UNWIND(.fnstart	)
+  UNWIND(.cantunwind	)
++	mov	r1, #TASK_SIZE
++	str	r1, [tsk, #TI_ADDR_LIMIT]
+ 	disable_irq_notrace			@ disable interrupts
+ 	ldr	r1, [tsk, #TI_FLAGS]		@ re-check for syscall tracing
+ 	tst	r1, #_TIF_SYSCALL_WORK | _TIF_WORK_MASK
+@@ -64,6 +66,8 @@ ENDPROC(ret_fast_syscall)
+ ret_fast_syscall:
+  UNWIND(.fnstart	)
+  UNWIND(.cantunwind	)
++	mov	r1, #TASK_SIZE
++	str	r1, [tsk, #TI_ADDR_LIMIT]
+ 	str	r0, [sp, #S_R0 + S_OFF]!	@ save returned r0
+ 	disable_irq_notrace			@ disable interrupts
+ 	ldr	r1, [tsk, #TI_FLAGS]		@ re-check for syscall tracing
+@@ -262,6 +266,8 @@ ENDPROC(vector_swi)
+ 	b	ret_slow_syscall
+ 
+ __sys_trace_return:
++	mov	r1, #TASK_SIZE
++	str	r1, [tsk, #TI_ADDR_LIMIT]
+ 	str	r0, [sp, #S_R0 + S_OFF]!	@ save returned r0
+ 	mov	r0, sp
+ 	bl	syscall_trace_exit
+
+
+-- 
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
