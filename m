@@ -1,9 +1,8 @@
 Return-Path: <jpoimboe@redhat.com>
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH v5 03/15] livepatch: create temporary klp_update_patch_state()
- stub
-Date: Mon, 13 Feb 2017 19:42:30 -0600
-Message-Id: <ee31e3088a1ffcf9c9fe9942ef84410912278c03.1487036215.git.jpoimboe@redhat.com>
+Subject: [PATCH v5 04/15] livepatch/x86: add TIF_PATCH_PENDING thread flag
+Date: Mon, 13 Feb 2017 19:42:31 -0600
+Message-Id: <dc5ea01305bfe3baae37b9c08b9daeec7fae9ee6.1487036215.git.jpoimboe@redhat.com>
 In-Reply-To: <cover.1487036215.git.jpoimboe@redhat.com>
 References: <cover.1487036215.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -18,49 +17,91 @@ To: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes
 Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Create temporary stubs for klp_update_patch_state() so we can add
-TIF_PATCH_PENDING to different architectures in separate patches without
-breaking build bisectability.
+Add the TIF_PATCH_PENDING thread flag to enable the new livepatch
+per-task consistency model for x86_64.  The bit getting set indicates
+the thread has a pending patch which needs to be applied when the thread
+exits the kernel.
+
+The bit is placed in the _TIF_ALLWORK_MASK macro, which results in
+exit_to_usermode_loop() calling klp_update_patch_state() when it's set.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Acked-by: Andy Lutomirski <luto@kernel.org>
 Reviewed-by: Petr Mladek <pmladek@suse.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 ---
- include/linux/livepatch.h | 5 ++++-
- kernel/livepatch/core.c   | 3 +++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/entry/common.c            | 9 ++++++---
+ arch/x86/include/asm/thread_info.h | 4 +++-
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/livepatch.h b/include/linux/livepatch.h
-index 9072f04..5cc20e5 100644
---- a/include/linux/livepatch.h
-+++ b/include/linux/livepatch.h
-@@ -123,10 +123,13 @@ void arch_klp_init_object_loaded(struct klp_patch *patch,
- int klp_module_coming(struct module *mod);
- void klp_module_going(struct module *mod);
+diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
+index b83c61c..6a9d564 100644
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -21,6 +21,7 @@
+ #include <linux/context_tracking.h>
+ #include <linux/user-return-notifier.h>
+ #include <linux/uprobes.h>
++#include <linux/livepatch.h>
  
-+void klp_update_patch_state(struct task_struct *task);
-+
- #else /* !CONFIG_LIVEPATCH */
+ #include <asm/desc.h>
+ #include <asm/traps.h>
+@@ -129,14 +130,13 @@ static long syscall_trace_enter(struct pt_regs *regs)
  
- static inline int klp_module_coming(struct module *mod) { return 0; }
--static inline void klp_module_going(struct module *mod) { }
-+static inline void klp_module_going(struct module *mod) {}
-+static inline void klp_update_patch_state(struct task_struct *task) {}
+ #define EXIT_TO_USERMODE_LOOP_FLAGS				\
+ 	(_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_UPROBE |	\
+-	 _TIF_NEED_RESCHED | _TIF_USER_RETURN_NOTIFY)
++	 _TIF_NEED_RESCHED | _TIF_USER_RETURN_NOTIFY | _TIF_PATCH_PENDING)
  
- #endif /* CONFIG_LIVEPATCH */
- 
-diff --git a/kernel/livepatch/core.c b/kernel/livepatch/core.c
-index af46438..217b39d 100644
---- a/kernel/livepatch/core.c
-+++ b/kernel/livepatch/core.c
-@@ -64,6 +64,9 @@ static LIST_HEAD(klp_ops);
- 
- static struct kobject *klp_root_kobj;
- 
-+/* TODO: temporary stub */
-+void klp_update_patch_state(struct task_struct *task) {}
-+
- static struct klp_ops *klp_find_ops(unsigned long old_addr)
+ static void exit_to_usermode_loop(struct pt_regs *regs, u32 cached_flags)
  {
- 	struct klp_ops *ops;
+ 	/*
+ 	 * In order to return to user mode, we need to have IRQs off with
+-	 * none of _TIF_SIGPENDING, _TIF_NOTIFY_RESUME, _TIF_USER_RETURN_NOTIFY,
+-	 * _TIF_UPROBE, or _TIF_NEED_RESCHED set.  Several of these flags
++	 * none of EXIT_TO_USERMODE_LOOP_FLAGS set.  Several of these flags
+ 	 * can be set at any time on preemptable kernels if we have IRQs on,
+ 	 * so we need to loop.  Disabling preemption wouldn't help: doing the
+ 	 * work to clear some of the flags can sleep.
+@@ -163,6 +163,9 @@ static void exit_to_usermode_loop(struct pt_regs *regs, u32 cached_flags)
+ 		if (cached_flags & _TIF_USER_RETURN_NOTIFY)
+ 			fire_user_return_notifiers();
+ 
++		if (cached_flags & _TIF_PATCH_PENDING)
++			klp_update_patch_state(current);
++
+ 		/* Disable IRQs and retry */
+ 		local_irq_disable();
+ 
+diff --git a/arch/x86/include/asm/thread_info.h b/arch/x86/include/asm/thread_info.h
+index 207d0d9..83372dc 100644
+--- a/arch/x86/include/asm/thread_info.h
++++ b/arch/x86/include/asm/thread_info.h
+@@ -84,6 +84,7 @@ struct thread_info {
+ #define TIF_SECCOMP		8	/* secure computing */
+ #define TIF_USER_RETURN_NOTIFY	11	/* notify kernel of userspace return */
+ #define TIF_UPROBE		12	/* breakpointed or singlestepping */
++#define TIF_PATCH_PENDING	13	/* pending live patching update */
+ #define TIF_NOTSC		16	/* TSC is not accessible in userland */
+ #define TIF_IA32		17	/* IA32 compatibility process */
+ #define TIF_NOHZ		19	/* in adaptive nohz mode */
+@@ -107,6 +108,7 @@ struct thread_info {
+ #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
+ #define _TIF_USER_RETURN_NOTIFY	(1 << TIF_USER_RETURN_NOTIFY)
+ #define _TIF_UPROBE		(1 << TIF_UPROBE)
++#define _TIF_PATCH_PENDING	(1 << TIF_PATCH_PENDING)
+ #define _TIF_NOTSC		(1 << TIF_NOTSC)
+ #define _TIF_IA32		(1 << TIF_IA32)
+ #define _TIF_NOHZ		(1 << TIF_NOHZ)
+@@ -133,7 +135,7 @@ struct thread_info {
+ 	(_TIF_SYSCALL_TRACE | _TIF_NOTIFY_RESUME | _TIF_SIGPENDING |	\
+ 	 _TIF_NEED_RESCHED | _TIF_SINGLESTEP | _TIF_SYSCALL_EMU |	\
+ 	 _TIF_SYSCALL_AUDIT | _TIF_USER_RETURN_NOTIFY | _TIF_UPROBE |	\
+-	 _TIF_NOHZ | _TIF_SYSCALL_TRACEPOINT)
++	 _TIF_PATCH_PENDING | _TIF_NOHZ | _TIF_SYSCALL_TRACEPOINT)
+ 
+ /* flags to check in __switch_to() */
+ #define _TIF_WORK_CTXSW							\
 -- 
 2.7.4
