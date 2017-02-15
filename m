@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v2 net-next] virtio: Fix affinity for #VCPUs != #queue
  pairs
-Date: Tue, 14 Feb 2017 23:05:29 +0200
-Message-ID: <20170214225629-mutt-send-email-mst@kernel.org>
+Date: Wed, 15 Feb 2017 17:23:25 +0200
+Message-ID: <20170214224033-mutt-send-email-mst@kernel.org>
 References: <20170207181506.36668-1-serebrin@google.com>
  <20170208205353-mutt-send-email-mst@kernel.org>
  <CAN+hb0Uen4_bHR8xPcUNZG+aKPYAvjUqY1Z4PA7WWOs7jG3EAA@mail.gmail.com>
@@ -33,14 +33,8 @@ On Tue, Feb 14, 2017 at 11:17:41AM -0800, Benjamin Serebrin wrote:
 > version to guest version.  But in the existing code, the driver does
 > set affinity for #VCPUs==#queues, so that's been happening anyway.
 
-Right - the idea being we load all CPUs equally so we don't
-need help from irqbalance - hopefully packets will be spread
-across queues in a balanced way.
-
-When we have less queues the load isn't balanced so we
-definitely need something fancier to take into account
-the overall system load.
-
+Right but only for the case where we are very sure we are doing the
+right thing, so we don't need any help from irqbalance.
 
 > The (original) intention of this patch was to extend the existing behavior
 > to the case where we limit queue counts, to avoid the surprising discontinuity
@@ -49,19 +43,17 @@ the overall system load.
 > It's not obvious that it's wrong to cause irqbalance to leave these
 > queues alone:  Generally you want the interrupt to come to the core that
 > caused the work, to have cache locality and avoid lock contention.
-
-But why the first N cpus? That's more or less the same as assigning them
-at random. It might benefit your workload but it's not clear it isn't
-breaking someone else's. You are right it's not obvious it's doing the
-wrong thing but it's also not obvious it's doing the right one.
-
 > Doing fancier things is outside the scope of this patch.
->
+
+Doing fancier things like trying to balance the load would be in scope
+for irqbalance so I think you need to find a way to supply default
+affinity without disabling irqbalance.
+
 > > Doesn't look like this will handle the case of num cpus < num queues well.
 > 
 > I believe it's correct.  The first #VCPUs queues will have one bit set in their
 > xps mask, and the remaining queues have no bits set.  That means each VCPU uses
 > its own assigned TX queue (and the TX interrupt comes back to that VCPU).
-> 
+>
 > Thanks again for the review!
 > Ben
