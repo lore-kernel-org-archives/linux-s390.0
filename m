@@ -1,87 +1,57 @@
-MIME-Version: 1.0
-Sender: keescook@google.com
-In-Reply-To: <1486427518-14819-1-git-send-email-labbott@redhat.com>
+Date: Thu, 16 Feb 2017 23:25:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+Message-ID: <20170216222529.GA7531@amd>
 References: <1486427518-14819-1-git-send-email-labbott@redhat.com>
-From: Kees Cook <keescook@chromium.org>
-Date: Tue, 7 Feb 2017 13:06:22 -0800
-Message-ID: <CAGXu5jKrUOhpvBye6TeZ38Rw28iZtXRNWuBd7DVBKUHYvq5H_Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: [kernel-hardening] Re: [PATCHv3 0/2] Hardening configs refactor/rename
+ <1486427518-14819-3-git-send-email-labbott@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Disposition: inline
+In-Reply-To: <1486427518-14819-3-git-send-email-labbott@redhat.com>
+Subject: [kernel-hardening] Re: [PATCHv3 2/2] arch: Rename CONFIG_DEBUG_RODATA and
+ CONFIG_DEBUG_MODULE_RONX
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
 To: Laura Abbott <labbott@redhat.com>
-Cc: Jason Wessel <jason.wessel@windriver.com>, Jonathan Corbet <corbet@lwn.net>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "x86@kernel.org" <x86@kernel.org>, Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Mark Rutland <mark.rutland@arm.com>, Jessica Yu <jeyu@redhat.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-parisc <linux-parisc@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Robin Murphy <robin.murphy@arm.com>
+Cc: Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "H. Peter Anvin" <hpa@zytor.com>, kernel-hardening@lists.openwall.com, Rob Herring <robh@kernel.org>, Jessica Yu <jeyu@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>, linux-s390@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org, Jason Wessel <jason.wessel@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Robin Murphy <robin.murphy@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Feb 6, 2017 at 4:31 PM, Laura Abbott <labbott@redhat.com> wrote:
-> Hi,
->
-> This is v3 of my series to rename/refactor CONFIG_DEBUG_RODATA
-> and CONFIG_DEBUG_SET_MODULE_RONX. Among other objections, there shouldn't
-> be 'debug' in the name since these provide necessary kernel protection.
->
-> v3 mostly focuses on changing how the Kconfig dependencies work for the
-> refactor. Russell King requested that these options be deselectable for arm.
-> I also threw in some documentation on this under kernel hardening in case other
-> arches decide to follow suit.
->
-> The plan is for this to go through the KSPP tree so if people are okay with
-> this, please give Acks. I didn't take Mark Rutland's ack from before since
-> there's been a bit of refactoring.
 
-Thanks! I've added this to my KSPP -next tree. It should appear shortly...
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--Kees
+Hi!
 
->
-> Thanks,
-> Laura
->
-> Laura Abbott (2):
->   arch: Move CONFIG_DEBUG_RODATA and CONFIG_SET_MODULE_RONX to be common
->   arch: Rename CONFIG_DEBUG_RODATA and CONFIG_DEBUG_MODULE_RONX
->
->  Documentation/DocBook/kgdb.tmpl            |  8 +++----
->  Documentation/security/self-protection.txt | 10 +++++++--
->  arch/Kconfig                               | 34 ++++++++++++++++++++++++++++++
->  arch/arm/Kconfig                           |  4 ++++
->  arch/arm/Kconfig.debug                     | 11 ----------
->  arch/arm/configs/aspeed_g4_defconfig       |  4 ++--
->  arch/arm/configs/aspeed_g5_defconfig       |  4 ++--
->  arch/arm/include/asm/cacheflush.h          |  2 +-
->  arch/arm/kernel/patch.c                    |  4 ++--
->  arch/arm/kernel/vmlinux.lds.S              |  8 +++----
->  arch/arm/mm/Kconfig                        | 14 +-----------
->  arch/arm/mm/init.c                         |  4 ++--
->  arch/arm64/Kconfig                         |  5 ++---
->  arch/arm64/Kconfig.debug                   | 13 +-----------
->  arch/arm64/kernel/insn.c                   |  2 +-
->  arch/parisc/Kconfig                        |  1 +
->  arch/parisc/Kconfig.debug                  | 11 ----------
->  arch/parisc/configs/712_defconfig          |  1 -
->  arch/parisc/configs/c3000_defconfig        |  1 -
->  arch/parisc/mm/init.c                      |  2 +-
->  arch/s390/Kconfig                          |  5 ++---
->  arch/s390/Kconfig.debug                    |  3 ---
->  arch/x86/Kconfig                           |  5 ++---
->  arch/x86/Kconfig.debug                     | 11 ----------
->  include/linux/filter.h                     |  4 ++--
->  include/linux/init.h                       |  4 ++--
->  include/linux/module.h                     |  2 +-
->  init/main.c                                |  4 ++--
->  kernel/configs/android-recommended.config  |  2 +-
->  kernel/module.c                            |  6 +++---
->  kernel/power/hibernate.c                   |  2 +-
->  kernel/power/power.h                       |  4 ++--
->  kernel/power/snapshot.c                    |  4 ++--
->  33 files changed, 90 insertions(+), 109 deletions(-)
->
-> --
-> 2.7.4
->
+> =20
+> -config DEBUG_RODATA
+> +config STRICT_KERNEL_RWX
+>  	bool "Make kernel text and rodata read-only" if ARCH_OPTIONAL_KERNEL_RWX
+>  	depends on ARCH_HAS_STRICT_KERNEL_RWX
+>  	default !ARCH_OPTIONAL_KERNEL_RWX ||
 
+Debug features are expected to have runtime cost, so kconfig help is
+silent about those. But there are runtime costs, right? It would be
+nice to mention them in the help text...
 
+								Pavel
 
--- 
-Kees Cook
-Pixel Security
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlimJtkACgkQMOfwapXb+vIejgCgsvrn5eQ2U0NHrSk8jkwMzi0k
+mSAAnR5YQy0wi16SGmy3kL+mPGH3sglk
+=h8TA
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--
