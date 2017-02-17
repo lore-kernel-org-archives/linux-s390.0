@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v3 10/11] s390x/css: ccw translation infrastructure
-Date: Fri, 17 Feb 2017 09:28:43 +0100
-Message-ID: <20170217082844.89466-11-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH RFC v3 03/11] s390x/css: realize css_sch_build_schib
+Date: Fri, 17 Feb 2017 09:28:36 +0100
+Message-ID: <20170217082844.89466-4-bjsdjshi@linux.vnet.ibm.com>
 References: <20170217082844.89466-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170217082844.89466-1-bjsdjshi@linux.vnet.ibm.com>
@@ -14,237 +14,270 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
 
-Implement a basic infrastructure of handling channel I/O instruction
-interception for passed through subchannels:
-1. Branch the code path of instruction interception handling by
-   SubChannel type.
-2. For a passed-through subchannel, issue the ORB to kernel to do ccw
-   translation and perform an I/O operation.
-3. Assign different condition code based on the I/O result, or
-   trigger a program check.
+The S390 virtual css support already has a mechanism to build virtual
+Sub-Channel Information Block and provide virtual subchannels to the
+guest. However, to pass-through subchannels to a guest, we need to
+introduce a new mechanism to build its schib according to the real
+device information. Thus we realize a new css_sch_build_schib function
+to extract the path_masks, chpids, chpid type from sysfs. To reuse
+the existing code, we refactor css_add_virtual_chpid to css_add_chpid.
 
 Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 ---
- hw/s390x/css.c         | 88 ++++++++++++++++++++++++++++++++++++++++++++++----
- hw/s390x/s390-ccw.c    | 12 +++++++
- hw/s390x/virtio-ccw.c  |  1 +
- include/hw/s390x/css.h |  4 +++
- target/s390x/ioinst.c  |  9 ++++++
- 5 files changed, 108 insertions(+), 6 deletions(-)
+ hw/s390x/css.c         | 153 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ include/hw/s390x/css.h |  36 ++++++------
+ 2 files changed, 169 insertions(+), 20 deletions(-)
 
 diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-index 6dc8c1a..204ace5 100644
+index 0f2580d..09038a2 100644
 --- a/hw/s390x/css.c
 +++ b/hw/s390x/css.c
-@@ -500,7 +500,7 @@ static int css_interpret_ccw(SubchDev *sch, hwaddr ccw_addr,
-     return ret;
+@@ -13,6 +13,7 @@
+ #include "qapi/error.h"
+ #include "qapi/visitor.h"
+ #include "hw/qdev.h"
++#include "qemu/error-report.h"
+ #include "qemu/bitops.h"
+ #include "exec/address-spaces.h"
+ #include "cpu.h"
+@@ -1278,7 +1279,8 @@ bool css_schid_final(int m, uint8_t cssid, uint8_t ssid, uint16_t schid)
+                                  (MAX_SCHID + 1) / sizeof(unsigned long));
  }
  
--static void sch_handle_start_func(SubchDev *sch, ORB *orb)
-+static void sch_handle_start_func_virtual(SubchDev *sch, ORB *orb)
+-static int css_add_virtual_chpid(uint8_t cssid, uint8_t chpid, uint8_t type)
++static int css_add_chpid(uint8_t cssid, uint8_t chpid, uint8_t type,
++                         bool is_virt)
  {
+     CssImage *css;
  
-     PMCW *p = &sch->curr_status.pmcw;
-@@ -599,13 +599,57 @@ static void sch_handle_start_func(SubchDev *sch, ORB *orb)
+@@ -1292,7 +1294,7 @@ static int css_add_virtual_chpid(uint8_t cssid, uint8_t chpid, uint8_t type)
+     }
+     css->chpids[chpid].in_use = 1;
+     css->chpids[chpid].type = type;
+-    css->chpids[chpid].is_virtual = 1;
++    css->chpids[chpid].is_virtual = is_virt;
  
+     css_generate_chp_crws(cssid, chpid);
+ 
+@@ -1316,7 +1318,7 @@ void css_sch_build_virtual_schib(SubchDev *sch, uint8_t chpid, uint8_t type)
+     p->pam = 0x80;
+     p->chpid[0] = chpid;
+     if (!css->chpids[chpid].in_use) {
+-        css_add_virtual_chpid(sch->cssid, chpid, type);
++        css_add_chpid(sch->cssid, chpid, type, true);
+     }
+ 
+     memset(s, 0, sizeof(SCSW));
+@@ -1908,3 +1910,148 @@ SubchDev *css_create_virtual_sch(CssDevId bus_id, Error **errp)
+     css_subch_assign(sch->cssid, sch->ssid, schid, sch->devno, sch);
+     return sch;
  }
- 
-+static int sch_handle_start_func_passthrough(SubchDev *sch, ORB *orb)
++
++static int css_sch_get_chpids(SubchDev *sch, CssDevId *dev_id)
 +{
-+
++    char *fid_path;
++    FILE *fd;
++    uint32_t chpid[8];
++    int i;
 +    PMCW *p = &sch->curr_status.pmcw;
-+    SCSW *s = &sch->curr_status.scsw;
-+    int ret;
 +
-+    if (!(s->ctrl & SCSW_ACTL_SUSP)) {
-+        assert(orb != NULL);
-+        p->intparm = orb->intparm;
-+    }
-+
-+    /*
-+     * Only support prefetch enable mode.
-+     * Only support 64bit addressing idal.
-+     */
-+    if (!(orb->ctrl0 & ORB_CTRL0_MASK_PFCH) ||
-+        !(orb->ctrl0 & ORB_CTRL0_MASK_C64)) {
++    fid_path = g_strdup_printf("/sys/bus/css/devices/%x.%x.%04x/chpids",
++                               dev_id->cssid, dev_id->ssid, dev_id->devid);
++    fd = fopen(fid_path, "r");
++    if (fd == NULL) {
++        error_report("%s: open %s failed", __func__, fid_path);
++        g_free(fid_path);
 +        return -EINVAL;
 +    }
 +
-+    ret = s390_ccw_cmd_request(orb, s, sch->driver_data);
-+    switch (ret) {
-+    /* Currently we don't update control block and just return the cc code. */
-+    case 0:
-+        break;
-+    case -EBUSY:
-+        break;
-+    case -ENODEV:
-+        break;
-+    case -EACCES:
-+        /* Let's reflect an inaccessible host device by cc 3. */
-+        ret = -ENODEV;
-+        break;
-+    default:
-+       /* All other return codes will trigger a program check,
-+        * or set cc to 1.
-+        */
-+       break;
-+    };
++    if (fscanf(fd, "%x %x %x %x %x %x %x %x",
++        &chpid[0], &chpid[1], &chpid[2], &chpid[3],
++        &chpid[4], &chpid[5], &chpid[6], &chpid[7]) != 8) {
++        fclose(fd);
++        g_free(fid_path);
++        return -EINVAL;
++    }
 +
-+    return ret;
-+}
++    for (i = 0; i < ARRAY_SIZE(p->chpid); i++) {
++        p->chpid[i] = chpid[i];
++    }
 +
- /*
-  * On real machines, this would run asynchronously to the main vcpus.
-  * We might want to make some parts of the ssch handling (interpreting
-  * read/writes) asynchronous later on if we start supporting more than
-  * our current very simple devices.
-  */
--static void do_subchannel_work(SubchDev *sch, ORB *orb)
-+int do_subchannel_work_virtual(SubchDev *sch, ORB *orb)
- {
- 
-     SCSW *s = &sch->curr_status.scsw;
-@@ -616,12 +660,45 @@ static void do_subchannel_work(SubchDev *sch, ORB *orb)
-         sch_handle_halt_func(sch);
-     } else if (s->ctrl & SCSW_FCTL_START_FUNC) {
-         /* Triggered by both ssch and rsch. */
--        sch_handle_start_func(sch, orb);
-+        sch_handle_start_func_virtual(sch, orb);
-     } else {
-         /* Cannot happen. */
--        return;
-+        return 0;
-     }
-     css_inject_io_interrupt(sch);
++    fclose(fd);
++    g_free(fid_path);
++
 +    return 0;
 +}
 +
-+int do_subchannel_work_passthrough(SubchDev *sch, ORB *orb)
++static int css_sch_get_path_masks(SubchDev *sch, CssDevId *dev_id)
 +{
-+    int ret;
-+    SCSW *s = &sch->curr_status.scsw;
++    char *fid_path;
++    FILE *fd;
++    uint32_t pim, pam, pom;
++    PMCW *p = &sch->curr_status.pmcw;
 +
-+    if (s->ctrl & SCSW_FCTL_CLEAR_FUNC) {
-+        /* TODO: Clear handling */
-+        sch_handle_clear_func(sch);
-+        ret = 0;
-+    } else if (s->ctrl & SCSW_FCTL_HALT_FUNC) {
-+        /* TODO: Halt handling */
-+        sch_handle_halt_func(sch);
-+        ret = 0;
-+    } else if (s->ctrl & SCSW_FCTL_START_FUNC) {
-+        ret = sch_handle_start_func_passthrough(sch, orb);
-+    } else {
-+        /* Cannot happen. */
-+        return -ENODEV;
-+    }
-+
-+    return ret;
-+}
-+
-+static int do_subchannel_work(SubchDev *sch, ORB *orb)
-+{
-+    if (sch->do_subchannel_work) {
-+        return sch->do_subchannel_work(sch, orb);
-+    } else {
++    fid_path = g_strdup_printf("/sys/bus/css/devices/%x.%x.%04x/pimpampom",
++                               dev_id->cssid, dev_id->ssid, dev_id->devid);
++    fd = fopen(fid_path, "r");
++    if (fd == NULL) {
++        error_report("%s: open %s failed", __func__, fid_path);
++        g_free(fid_path);
 +        return -EINVAL;
 +    }
- }
- 
- static void copy_pmcw_to_guest(PMCW *dest, const PMCW *src)
-@@ -940,8 +1017,7 @@ int css_do_ssch(SubchDev *sch, ORB *orb)
-     s->ctrl |= (SCSW_FCTL_START_FUNC | SCSW_ACTL_START_PEND);
-     s->flags &= ~SCSW_FLAGS_MASK_PNO;
- 
--    do_subchannel_work(sch, orb);
--    ret = 0;
-+    ret = do_subchannel_work(sch, orb);
- 
- out:
-     return ret;
-diff --git a/hw/s390x/s390-ccw.c b/hw/s390x/s390-ccw.c
-index 9b6de68..d91a8b2 100644
---- a/hw/s390x/s390-ccw.c
-+++ b/hw/s390x/s390-ccw.c
-@@ -18,6 +18,17 @@
- #include "hw/s390x/css-bridge.h"
- #include "s390-ccw.h"
- 
-+int s390_ccw_cmd_request(ORB *orb, SCSW *scsw, void *data)
-+{
-+    S390CCWDevice *cdev = data;
 +
-+    if (cdev->handle_request) {
-+        return cdev->handle_request(orb, scsw, data);
-+    } else {
-+        return -ENOSYS;
++    if (fscanf(fd, "%x %x %x", &pim, &pam, &pom) != 3) {
++        fclose(fd);
++        g_free(fid_path);
++        return -EINVAL;
 +    }
++
++    p->pim = pim;
++    p->pam = pam;
++    p->pom = pom;
++    fclose(fd);
++    g_free(fid_path);
++
++    return 0;
 +}
 +
- static void s390_ccw_get_dev_info(S390CCWDevice *cdev,
-                                   char *sysfsdev,
-                                   Error **errp)
-@@ -67,6 +78,7 @@ static void s390_ccw_realize(S390CCWDevice *cdev, char *sysfsdev, Error **errp)
-     }
- 
-     sch->driver_data = cdev;
-+    sch->do_subchannel_work = do_subchannel_work_passthrough;
- 
-     ret = css_sch_build_schib(sch, &cdev->hostid);
-     if (ret) {
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index 6c1bb0e..8d2d9d7 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -679,6 +679,7 @@ static void virtio_ccw_device_realize(VirtioCcwDevice *dev, Error **errp)
-     sch->disable_cb = virtio_sch_disable_cb;
-     sch->id.reserved = 0xff;
-     sch->id.cu_type = VIRTIO_CCW_CU_TYPE;
-+    sch->do_subchannel_work = do_subchannel_work_virtual;
-     ccw_dev->sch = sch;
-     dev->indicators = NULL;
-     dev->revision = -1;
++static int css_sch_get_chpid_type(uint8_t chpid, uint32_t *type,
++                                  CssDevId *dev_id)
++{
++    char *fid_path;
++    FILE *fd;
++
++    fid_path = g_strdup_printf("/sys/devices/css%x/chp0.%02x/type",
++                               dev_id->cssid, chpid);
++    fd = fopen(fid_path, "r");
++    if (fd == NULL) {
++        error_report("%s: open %s failed", __func__, fid_path);
++        g_free(fid_path);
++        return -EINVAL;
++    }
++
++    if (fscanf(fd, "%x", type) != 1) {
++        fclose(fd);
++        g_free(fid_path);
++        return -EINVAL;
++    }
++
++    fclose(fd);
++    g_free(fid_path);
++
++    return 0;
++}
++
++/*
++ * We currently retrieve the real device information from sysfs to build the
++ * guest subchannel information block without considering the migration feature.
++ * If migrate, it won't be sure to use the real device information directly,
++ * this point will be handled in the future.
++ */
++int css_sch_build_schib(SubchDev *sch, CssDevId *dev_id)
++{
++    CssImage *css = channel_subsys.css[sch->cssid];
++    PMCW *p = &sch->curr_status.pmcw;
++    SCSW *s = &sch->curr_status.scsw;
++    uint32_t type;
++    int i, ret;
++
++    /* We are dealing with I/O subchannels only. */
++    assert(css != NULL);
++    memset(p, 0, sizeof(PMCW));
++    p->flags |= PMCW_FLAGS_MASK_DNV;
++    p->devno = sch->devno;
++
++    /* Grab path mask from sysfs. */
++    ret = css_sch_get_path_masks(sch, dev_id);
++    if (ret) {
++        return ret;
++    }
++
++    /* Grab chpids from sysfs. */
++    ret = css_sch_get_chpids(sch, dev_id);
++    if (ret) {
++        return ret;
++    }
++
++   /* Build chpid type. */
++    for (i = 0; i < ARRAY_SIZE(p->chpid); i++) {
++        if (p->chpid[i] && !css->chpids[p->chpid[i]].in_use) {
++            ret = css_sch_get_chpid_type(p->chpid[i], &type, dev_id);
++            if (ret) {
++                return ret;
++            }
++            css_add_chpid(sch->cssid, p->chpid[i], type, false);
++        }
++    }
++
++    memset(s, 0, sizeof(SCSW));
++    sch->curr_status.mba = 0;
++    for (i = 0; i < ARRAY_SIZE(sch->curr_status.mda); i++) {
++        sch->curr_status.mda[i] = 0;
++    }
++
++    return 0;
++}
 diff --git a/include/hw/s390x/css.h b/include/hw/s390x/css.h
-index 46cdf8c..83dc711 100644
+index c96c862..648ea2f 100644
 --- a/include/hw/s390x/css.h
 +++ b/include/hw/s390x/css.h
-@@ -88,6 +88,7 @@ struct SubchDev {
-     /* transport-provided data: */
-     int (*ccw_cb) (SubchDev *, CCW1);
-     void (*disable_cb)(SubchDev *);
-+    int (*do_subchannel_work) (SubchDev *, ORB *);
-     SenseId id;
+@@ -92,6 +92,24 @@ struct SubchDev {
      void *driver_data;
  };
-@@ -144,6 +145,9 @@ void css_generate_chp_crws(uint8_t cssid, uint8_t chpid);
- void css_generate_css_crws(uint8_t cssid);
- void css_clear_sei_pending(void);
- void css_adapter_interrupt(uint8_t isc);
-+int s390_ccw_cmd_request(ORB *orb, SCSW *scsw, void *data);
-+int do_subchannel_work_virtual(SubchDev *sub, ORB *orb);
-+int do_subchannel_work_passthrough(SubchDev *sub, ORB *orb);
  
- #define CSS_IO_ADAPTER_VIRTIO 1
- int css_register_io_adapter(uint8_t type, uint8_t isc, bool swap,
-diff --git a/target/s390x/ioinst.c b/target/s390x/ioinst.c
-index 590bfa4..62a7771 100644
---- a/target/s390x/ioinst.c
-+++ b/target/s390x/ioinst.c
-@@ -244,6 +244,15 @@ void ioinst_handle_ssch(S390CPU *cpu, uint64_t reg1, uint32_t ipb)
-     case -EBUSY:
-         cc = 2;
-         break;
-+    case -EFAULT:
-+        /*
-+         * TODO:
-+         * I'm wondering whether there is something better
-+         * to do for us here (like setting some device or
-+         * subchannel status).
-+         */
-+        program_interrupt(env, PGM_ADDRESSING, 4);
-+        return;
-     case 0:
-         cc = 0;
-         break;
++/*
++ * Identify a device within the channel subsystem.
++ * Note that this can be used to identify either the subchannel or
++ * the attached I/O device, as there's always one I/O device per
++ * subchannel.
++ */
++typedef struct CssDevId {
++    uint8_t cssid;
++    uint8_t ssid;
++    uint16_t devid;
++    bool valid;
++} CssDevId;
++
++extern PropertyInfo css_devid_propinfo;
++
++#define DEFINE_PROP_CSS_DEV_ID(_n, _s, _f) \
++    DEFINE_PROP(_n, _s, _f, css_devid_propinfo, CssDevId)
++
+ typedef struct IndAddr {
+     hwaddr addr;
+     uint64_t map;
+@@ -113,6 +131,7 @@ bool css_devno_used(uint8_t cssid, uint8_t ssid, uint16_t devno);
+ void css_subch_assign(uint8_t cssid, uint8_t ssid, uint16_t schid,
+                       uint16_t devno, SubchDev *sch);
+ void css_sch_build_virtual_schib(SubchDev *sch, uint8_t chpid, uint8_t type);
++int css_sch_build_schib(SubchDev *sch, CssDevId *dev_id);
+ uint16_t css_build_subchannel_id(SubchDev *sch);
+ void css_reset(void);
+ void css_reset_sch(SubchDev *sch);
+@@ -154,23 +173,6 @@ int css_do_rsch(SubchDev *sch);
+ int css_do_rchp(uint8_t cssid, uint8_t chpid);
+ bool css_present(uint8_t cssid);
+ #endif
+-/*
+- * Identify a device within the channel subsystem.
+- * Note that this can be used to identify either the subchannel or
+- * the attached I/O device, as there's always one I/O device per
+- * subchannel.
+- */
+-typedef struct CssDevId {
+-    uint8_t cssid;
+-    uint8_t ssid;
+-    uint16_t devid;
+-    bool valid;
+-} CssDevId;
+-
+-extern PropertyInfo css_devid_propinfo;
+-
+-#define DEFINE_PROP_CSS_DEV_ID(_n, _s, _f) \
+-    DEFINE_PROP(_n, _s, _f, css_devid_propinfo, CssDevId)
+ 
+ /**
+  * Create a subchannel for the given bus id.
 -- 
 2.8.4
