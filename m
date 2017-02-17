@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v3 08/15] vfio: ccw: handle ccw command request
-Date: Fri, 17 Feb 2017 09:29:32 +0100
-Message-ID: <20170217082939.33208-9-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH RFC v3 10/15] vfio: ccw: realize VFIO_DEVICE_RESET ioctl
+Date: Fri, 17 Feb 2017 09:29:34 +0100
+Message-ID: <20170217082939.33208-11-bjsdjshi@linux.vnet.ibm.com>
 References: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,267 +12,108 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-We implement the basic ccw command handling infrastructure
-here:
-1. Translate the ccw commands.
-2. Issue the translated ccw commands to the device.
-3. Once we get the execution result, update the guest SCSW
-   with it.
+Introduce VFIO_DEVICE_RESET ioctl for vfio-ccw to make it possible
+to hot-reset the device.
+
+We try to achieve a reset by first disabling the subchannel and
+then enabling it again: this should clear all state at the subchannel.
 
 Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Acked-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c     | 114 ++++++++++++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_ops.c     |  24 ++++++--
- drivers/s390/cio/vfio_ccw_private.h |  14 +++++
- 3 files changed, 148 insertions(+), 4 deletions(-)
+ drivers/s390/cio/vfio_ccw_ops.c | 47 +++++++++++++++++++++++++++++------------
+ 1 file changed, 33 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 80d20e3..601fa1a 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -11,9 +11,13 @@
- #include <linux/init.h>
- #include <linux/device.h>
- #include <linux/slab.h>
-+#include <linux/uuid.h>
-+#include <linux/mdev.h>
- 
- #include <asm/isc.h>
- 
-+#include "ioasm.h"
-+#include "css.h"
- #include "vfio_ccw_private.h"
- 
- /*
-@@ -59,6 +63,109 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 	return ret;
- }
- 
-+static int doing_io(struct vfio_ccw_private *private, u32 intparm)
-+{
-+	return (private->intparm == intparm);
-+}
-+
-+static int vfio_ccw_sch_io_helper(struct vfio_ccw_private *private)
-+{
-+	struct subchannel *sch;
-+	union orb *orb;
-+	int ccode;
-+	__u8 lpm;
-+	u32 intparm;
-+
-+	sch = private->sch;
-+
-+	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
-+
-+	/* Issue "Start Subchannel" */
-+	ccode = ssch(sch->schid, orb);
-+
-+	switch (ccode) {
-+	case 0:
-+		/*
-+		 * Initialize device status information
-+		 */
-+		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
-+		break;
-+	case 1:		/* Status pending */
-+	case 2:		/* Busy */
-+		return -EBUSY;
-+	case 3:		/* Device/path not operational */
-+	{
-+		lpm = orb->cmd.lpm;
-+		if (lpm != 0)
-+			sch->lpm &= ~lpm;
-+		else
-+			sch->lpm = 0;
-+
-+		if (cio_update_schib(sch))
-+			return -ENODEV;
-+
-+		return sch->lpm ? -EACCES : -ENODEV;
-+	}
-+	default:
-+		return ccode;
-+	}
-+
-+	intparm = (u32)(addr_t)sch;
-+	private->intparm = 0;
-+	wait_event(private->wait_q, doing_io(private, intparm));
-+
-+	if (scsw_is_solicited(&private->irb.scsw))
-+		cp_update_scsw(&private->cp, &private->irb.scsw);
-+
-+	return 0;
-+}
-+
-+/* Deal with the ccw command request from the userspace. */
-+int vfio_ccw_sch_cmd_request(struct vfio_ccw_private *private)
-+{
-+	struct mdev_device *mdev = private->mdev;
-+	union orb *orb;
-+	union scsw *scsw = &private->scsw;
-+	struct irb *irb = &private->irb;
-+	struct ccw_io_region *io_region = &private->io_region;
-+	int ret;
-+
-+	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
-+
-+	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
-+		orb = (union orb *)io_region->orb_area;
-+
-+		ret = cp_init(&private->cp, mdev_dev(mdev), orb);
-+		if (ret)
-+			return ret;
-+
-+		ret = cp_prefetch(&private->cp);
-+		if (ret) {
-+			cp_free(&private->cp);
-+			return ret;
-+		}
-+
-+		/* Start channel program and wait for I/O interrupt. */
-+		ret = vfio_ccw_sch_io_helper(private);
-+		if (!ret) {
-+			/* Get irb info and copy it to irb_area. */
-+			memcpy(io_region->irb_area, irb, sizeof(*irb));
-+		}
-+
-+		cp_free(&private->cp);
-+	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
-+		/* XXX: Handle halt. */
-+		ret = -EOPNOTSUPP;
-+	} else if (scsw->cmd.fctl & SCSW_FCTL_CLEAR_FUNC) {
-+		/* XXX: Handle clear. */
-+		ret = -EOPNOTSUPP;
-+	} else {
-+		ret = -EOPNOTSUPP;
-+	}
-+
-+	return ret;
-+}
-+
- /*
-  * Sysfs interfaces
-  */
-@@ -113,12 +220,18 @@ static struct attribute_group vfio_subchannel_attr_group = {
- static void vfio_ccw_sch_irq(struct subchannel *sch)
- {
- 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct irb *irb;
- 
- 	inc_irq_stat(IRQIO_CIO);
- 
- 	if (!private)
- 		return;
- 
-+	irb = this_cpu_ptr(&cio_irb);
-+	memcpy(&private->irb, irb, sizeof(*irb));
-+	private->intparm = (u32)(addr_t)sch;
-+	wake_up(&private->wait_q);
-+
- 	if (private->completion)
- 		complete(private->completion);
- }
-@@ -156,6 +269,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_rm_group;
- 
-+	init_waitqueue_head(&private->wait_q);
- 	atomic_set(&private->avail, 1);
- 
- 	return 0;
 diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 6c06805..878c882 100644
+index f3300dd..125818c 100644
 --- a/drivers/s390/cio/vfio_ccw_ops.c
 +++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -23,12 +23,25 @@ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
- 		return NOTIFY_STOP;
+@@ -12,6 +12,32 @@
  
- 	/*
--	 * TODO:
- 	 * Vendor drivers MUST unpin pages in response to an
- 	 * invalidation.
+ #include "vfio_ccw_private.h"
+ 
++static int vfio_ccw_mdev_reset(struct mdev_device *mdev)
++{
++	struct vfio_ccw_private *private;
++	struct subchannel *sch;
++	int ret;
++
++	private = dev_get_drvdata(mdev_parent_dev(mdev));
++	if (!private)
++		return -ENODEV;
++
++	sch = private->sch;
++	/*
++	 * TODO:
++	 * In the cureent stage, some things like "no I/O running" and "no
++	 * interrupt pending" are clear, but we are not sure what other state
++	 * we need to care about.
++	 * There are still a lot more instructions need to be handled. We
++	 * should come back here later.
++	 */
++	ret = vfio_ccw_sch_quiesce(sch);
++	if (ret)
++		return ret;
++
++	return cio_enable_subchannel(sch, (u32)(unsigned long)sch);
++}
++
+ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
+ 				  unsigned long action,
+ 				  void *data)
+@@ -28,15 +54,11 @@ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
  	 */
--	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP)
--		return NOTIFY_BAD;
-+	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
-+		struct vfio_iommu_type1_dma_unmap *unmap = data;
-+		struct subchannel *sch = private->sch;
-+
-+		if (!cp_iova_pinned(&private->cp, unmap->iova))
-+			return NOTIFY_OK;
-+
-+		if (vfio_ccw_sch_quiesce(sch))
-+			return NOTIFY_BAD;
-+
-+		if (cio_enable_subchannel(sch, (u32)(unsigned long)sch))
-+			return NOTIFY_BAD;
-+
-+		cp_free(&private->cp);
-+		return NOTIFY_OK;
-+	}
+ 	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
+ 		struct vfio_iommu_type1_dma_unmap *unmap = data;
+-		struct subchannel *sch = private->sch;
  
- 	return NOTIFY_DONE;
- }
-@@ -167,7 +180,10 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
- 	region = &private->io_region;
- 	if (copy_from_user((void *)region + *ppos, buf, count))
- 		return -EFAULT;
--	region->ret_code = 0;
-+
-+	region->ret_code = vfio_ccw_sch_cmd_request(private);
-+	if (region->ret_code != 0)
-+		return region->ret_code;
+ 		if (!cp_iova_pinned(&private->cp, unmap->iova))
+ 			return NOTIFY_OK;
  
- 	return count;
- }
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 359e96b..79e5337 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -10,9 +10,11 @@
- #ifndef _VFIO_CCW_PRIVATE_H_
- #define _VFIO_CCW_PRIVATE_H_
+-		if (vfio_ccw_sch_quiesce(sch))
+-			return NOTIFY_BAD;
+-
+-		if (cio_enable_subchannel(sch, (u32)(unsigned long)sch))
++		if (vfio_ccw_mdev_reset(private->mdev))
+ 			return NOTIFY_BAD;
  
-+#include <linux/completion.h>
- #include <linux/vfio_ccw.h>
+ 		cp_free(&private->cp);
+@@ -100,16 +122,11 @@ static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
  
- #include "css.h"
-+#include "vfio_ccw_cp.h"
+ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
+ {
+-	struct vfio_ccw_private *private;
+-	struct subchannel *sch;
++	struct vfio_ccw_private *private =
++		dev_get_drvdata(mdev_parent_dev(mdev));
+ 	int ret;
  
- /**
-  * struct vfio_ccw_private
-@@ -22,6 +24,11 @@
-  * @mdev: pointer to the mediated device
-  * @nb: notifier for vfio events
-  * @io_region: MMIO region to input/output I/O arguments/results
-+ * @wait_q: wait for interrupt
-+ * @intparm: record current interrupt parameter, used for wait interrupt
-+ * @cp: channel program for the current I/O operation
-+ * @irb: irb info received from interrupt
-+ * @scsw: scsw info
-  */
- struct vfio_ccw_private {
- 	struct subchannel	*sch;
-@@ -30,11 +37,18 @@ struct vfio_ccw_private {
- 	struct mdev_device	*mdev;
- 	struct notifier_block	nb;
- 	struct ccw_io_region	io_region;
-+
-+	wait_queue_head_t	wait_q;
-+	u32			intparm;
-+	struct channel_program	cp;
-+	struct irb		irb;
-+	union scsw		scsw;
- } __aligned(8);
+-	private = dev_get_drvdata(mdev_parent_dev(mdev));
+-	sch = private->sch;
+-	ret = vfio_ccw_sch_quiesce(sch);
+-	if (ret)
+-		return ret;
+-	ret = cio_enable_subchannel(sch, (u32)(unsigned long)sch);
++	ret = vfio_ccw_mdev_reset(mdev);
+ 	if (ret)
+ 		return ret;
  
- extern int vfio_ccw_mdev_reg(struct subchannel *sch);
- extern void vfio_ccw_mdev_unreg(struct subchannel *sch);
+@@ -190,7 +207,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
  
- extern int vfio_ccw_sch_quiesce(struct subchannel *sch);
-+extern int vfio_ccw_sch_cmd_request(struct vfio_ccw_private *private);
+ static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
+ {
+-	info->flags = VFIO_DEVICE_FLAGS_CCW;
++	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
+ 	info->num_regions = VFIO_CCW_NUM_REGIONS;
+ 	info->num_irqs = 0;
  
- #endif
+@@ -260,6 +277,8 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+ 
+ 		return copy_to_user((void __user *)arg, &info, minsz);
+ 	}
++	case VFIO_DEVICE_RESET:
++		return vfio_ccw_mdev_reset(mdev);
+ 	default:
+ 		return -ENOTTY;
+ 	}
 -- 
 2.8.4
