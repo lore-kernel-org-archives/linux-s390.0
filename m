@@ -1,10 +1,10 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v3 07/11] vfio/ccw: get io region info
-Date: Fri, 17 Feb 2017 09:28:40 +0100
-Message-ID: <20170217082844.89466-8-bjsdjshi@linux.vnet.ibm.com>
-References: <20170217082844.89466-1-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH RFC v3 09/15] vfio: ccw: realize VFIO_DEVICE_GET_REGION_INFO ioctl
+Date: Fri, 17 Feb 2017 09:29:33 +0100
+Message-ID: <20170217082939.33208-10-bjsdjshi@linux.vnet.ibm.com>
+References: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170217082844.89466-1-bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,107 +12,140 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-vfio-ccw provides an MMIO region for I/O operations. We fetch its
-information via ioctls here, then we can use it performing I/O
-instructions and retrieving I/O results later on.
+Introduce device information about vfio-ccw: VFIO_DEVICE_FLAGS_CCW.
+Realize VFIO_DEVICE_GET_REGION_INFO ioctl for vfio-ccw.
 
-Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 ---
- hw/vfio/ccw.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 52 insertions(+)
+ drivers/s390/cio/vfio_ccw_ops.c | 78 +++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/vfio.h       | 11 ++++++
+ 2 files changed, 89 insertions(+)
 
-diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-index d5ff02f..1df2512 100644
---- a/hw/vfio/ccw.c
-+++ b/hw/vfio/ccw.c
-@@ -12,6 +12,7 @@
-  */
- 
- #include <linux/vfio.h>
-+#include <linux/vfio_ccw.h>
- #include <sys/ioctl.h>
- 
- #include "qemu/osdep.h"
-@@ -26,6 +27,9 @@
- typedef struct VFIOCCWDevice {
-     S390CCWDevice cdev;
-     VFIODevice vdev;
-+    uint64_t io_region_size;
-+    uint64_t io_region_offset;
-+    struct ccw_io_region *io_region;
- } VFIOCCWDevice;
- 
- static void vfio_ccw_compute_needs_reset(VFIODevice *vdev)
-@@ -50,6 +54,46 @@ static void vfio_ccw_reset(DeviceState *dev)
-     ioctl(vcdev->vdev.fd, VFIO_DEVICE_RESET);
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index 878c882..f3300dd 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -188,6 +188,83 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+ 	return count;
  }
  
-+static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
++static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
 +{
-+    VFIODevice *vdev = &vcdev->vdev;
-+    struct vfio_region_info *info;
-+    int ret;
++	info->flags = VFIO_DEVICE_FLAGS_CCW;
++	info->num_regions = VFIO_CCW_NUM_REGIONS;
++	info->num_irqs = 0;
 +
-+    /* Sanity check device */
-+    if (!(vdev->flags & VFIO_DEVICE_FLAGS_CCW)) {
-+        error_setg(errp, "vfio: Um, this isn't a vfio-ccw device");
-+        return;
-+    }
-+
-+    if (vdev->num_regions < VFIO_CCW_CONFIG_REGION_INDEX + 1) {
-+        error_setg(errp, "vfio: Unexpected number of the I/O region %u",
-+                   vdev->num_regions);
-+        return;
-+    }
-+
-+    ret = vfio_get_region_info(vdev, VFIO_CCW_CONFIG_REGION_INDEX, &info);
-+    if (ret) {
-+        error_setg(errp, "vfio: Error getting config info: %d", ret);
-+        return;
-+    }
-+
-+    vcdev->io_region_size = info->size;
-+    if (sizeof(*vcdev->io_region) != vcdev->io_region_size) {
-+        error_setg(errp, "vfio: Unexpected size of the I/O region");
-+        return;
-+    }
-+    vcdev->io_region_offset = info->offset;
-+    vcdev->io_region = g_malloc0(info->size);
-+
-+    g_free(info);
++	return 0;
 +}
 +
-+static void vfio_ccw_put_region(VFIOCCWDevice *vcdev)
++static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
++					 u16 *cap_type_id,
++					 void **cap_type)
 +{
-+    g_free(vcdev->io_region);
++	switch (info->index) {
++	case VFIO_CCW_CONFIG_REGION_INDEX:
++		info->offset = 0;
++		info->size = sizeof(struct ccw_io_region);
++		info->flags = VFIO_REGION_INFO_FLAG_READ
++			      | VFIO_REGION_INFO_FLAG_WRITE;
++		return 0;
++	default:
++		return -EINVAL;
++	}
 +}
 +
- static void vfio_put_device(VFIOCCWDevice *vcdev)
- {
-     g_free(vcdev->vdev.name);
-@@ -144,8 +188,15 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
-         goto out_device_err;
-     }
- 
-+    vfio_ccw_get_region(vcdev, errp);
-+    if (*errp) {
-+        goto out_region_err;
-+    }
++static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
++				   unsigned int cmd,
++				   unsigned long arg)
++{
++	int ret = 0;
++	unsigned long minsz;
 +
-     return;
++	switch (cmd) {
++	case VFIO_DEVICE_GET_INFO:
++	{
++		struct vfio_device_info info;
++
++		minsz = offsetofend(struct vfio_device_info, num_irqs);
++
++		if (copy_from_user(&info, (void __user *)arg, minsz))
++			return -EFAULT;
++
++		if (info.argsz < minsz)
++			return -EINVAL;
++
++		ret = vfio_ccw_mdev_get_device_info(&info);
++		if (ret)
++			return ret;
++
++		return copy_to_user((void __user *)arg, &info, minsz);
++	}
++	case VFIO_DEVICE_GET_REGION_INFO:
++	{
++		struct vfio_region_info info;
++		u16 cap_type_id = 0;
++		void *cap_type = NULL;
++
++		minsz = offsetofend(struct vfio_region_info, offset);
++
++		if (copy_from_user(&info, (void __user *)arg, minsz))
++			return -EFAULT;
++
++		if (info.argsz < minsz)
++			return -EINVAL;
++
++		ret = vfio_ccw_mdev_get_region_info(&info, &cap_type_id,
++						    &cap_type);
++		if (ret)
++			return ret;
++
++		return copy_to_user((void __user *)arg, &info, minsz);
++	}
++	default:
++		return -ENOTTY;
++	}
++}
++
+ static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
+ 	.owner			= THIS_MODULE,
+ 	.supported_type_groups  = mdev_type_groups,
+@@ -197,6 +274,7 @@ static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
+ 	.release		= vfio_ccw_mdev_release,
+ 	.read			= vfio_ccw_mdev_read,
+ 	.write			= vfio_ccw_mdev_write,
++	.ioctl			= vfio_ccw_mdev_ioctl,
+ };
  
-+out_region_err:
-+    vfio_put_device(vcdev);
- out_device_err:
-     vfio_ccw_put_group(group, path);
- out_group_err:
-@@ -166,6 +217,7 @@ static void vfio_ccw_unrealize(DeviceState *dev, Error **errp)
-         cdc->unrealize(cdev, errp);
-     }
+ int vfio_ccw_mdev_reg(struct subchannel *sch)
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 6183789..3fd70ff 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -198,6 +198,7 @@ struct vfio_device_info {
+ #define VFIO_DEVICE_FLAGS_PCI	(1 << 1)	/* vfio-pci device */
+ #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+ #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
++#define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
+ 	__u32	num_regions;	/* Max region index + 1 */
+ 	__u32	num_irqs;	/* Max IRQ index + 1 */
+ };
+@@ -447,6 +448,16 @@ enum {
+ 	VFIO_PCI_NUM_IRQS
+ };
  
-+    vfio_ccw_put_region(vcdev);
-     vfio_put_device(vcdev);
-     vfio_put_group(group);
- }
++/*
++ * The vfio-ccw bus driver makes use of the following fixed region.
++ * Unimplemented regions return a size of zero.
++ */
++
++enum {
++	VFIO_CCW_CONFIG_REGION_INDEX,
++	VFIO_CCW_NUM_REGIONS
++};
++
+ /**
+  * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO - _IORW(VFIO_TYPE, VFIO_BASE + 12,
+  *					      struct vfio_pci_hot_reset_info)
 -- 
 2.8.4
