@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v3 12/15] vfio: ccw: return I/O results asynchronously
-Date: Fri, 17 Feb 2017 09:29:36 +0100
-Message-ID: <20170217082939.33208-13-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH RFC v3 15/15] vfio: ccw: introduce support for ccw0
+Date: Fri, 17 Feb 2017 09:29:39 +0100
+Message-ID: <20170217082939.33208-16-bjsdjshi@linux.vnet.ibm.com>
 References: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,223 +12,132 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduce a singlethreaded workqueue to handle the I/O interrupts.
-With the work added to this queue, we store the I/O results to the
-io_region of the subchannel, then signal the userspace program to
-handle the results.
+Although Linux does not use format-0 channel command words (CCW0)
+these are a non-optional part of the platform spec, and for the sake
+of platform compliance, and possibly some non-Linux guests, we have
+to support CCW0.
 
+Making the kernel execute a format 0 channel program is too much hassle
+because we would need to allocate and use memory which can be addressed
+by 24 bit physical addresses (because of CCW0.cda). So we implement CCW0
+support by translating the channel program into an equivalent CCW1
+program instead.
+
+Signed-off-by: Kai Yue Wang <wkywang@linux.vnet.ibm.com>
 Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c     | 58 ++++++++++++++++++++++---------------
- drivers/s390/cio/vfio_ccw_ops.c     |  3 --
- drivers/s390/cio/vfio_ccw_private.h |  7 ++---
- 3 files changed, 37 insertions(+), 31 deletions(-)
+ arch/s390/Kconfig              |  7 +++++
+ drivers/s390/cio/vfio_ccw_cp.c | 58 ++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 63 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 601fa1a..dcf2d70 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -20,6 +20,8 @@
- #include "css.h"
- #include "vfio_ccw_private.h"
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 32008b8..f25d077 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -680,6 +680,13 @@ config VFIO_CCW
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called vfio_ccw.
  
-+struct workqueue_struct *vfio_ccw_work_q;
++config VFIO_CCW_CCW0
++	def_bool n
++	prompt "Support for CCW0 translation"
++	depends on VFIO_CCW
++	help
++	  Enable translation for CCW0 programs for VFIO-CCW subchannels.
++
+ endmenu
+ 
+ menu "Dump support"
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 16bbb54..b0a8bc05 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -15,6 +15,26 @@
+ 
+ #include "vfio_ccw_cp.h"
+ 
++#ifdef CONFIG_VFIO_CCW_CCW0
++/**
++ * struct ccw0 - channel command word
++ * @cmd_code: command code
++ * @cda: data address
++ * @flags: flags, like IDA addressing, etc.
++ * @reserved: will be ignored
++ * @count: byte count
++ *
++ * The format-0 ccw structure.
++ */
++struct ccw0 {
++	__u8 cmd_code;
++	__u32 cda : 24;
++	__u8  flags;
++	__u8  reserved;
++	__u16 count;
++} __packed __aligned(8);
++#endif
 +
  /*
-  * Helpers
-  */
-@@ -52,6 +54,7 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 
- 			spin_lock_irq(sch->lock);
- 			private->completion = NULL;
-+			flush_workqueue(vfio_ccw_work_q);
- 			ret = cio_cancel_halt_clear(sch, &iretry);
- 		};
- 
-@@ -63,18 +66,12 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 	return ret;
+  * Max length for ccw chain.
+  * XXX: Limit to 256, need to check more?
+@@ -243,12 +263,42 @@ static long copy_from_iova(struct device *mdev,
+ 	return l;
  }
  
--static int doing_io(struct vfio_ccw_private *private, u32 intparm)
--{
--	return (private->intparm == intparm);
--}
--
- static int vfio_ccw_sch_io_helper(struct vfio_ccw_private *private)
- {
- 	struct subchannel *sch;
- 	union orb *orb;
- 	int ccode;
- 	__u8 lpm;
--	u32 intparm;
- 
- 	sch = private->sch;
- 
-@@ -89,7 +86,7 @@ static int vfio_ccw_sch_io_helper(struct vfio_ccw_private *private)
- 		 * Initialize device status information
- 		 */
- 		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
--		break;
-+		return 0;
- 	case 1:		/* Status pending */
- 	case 2:		/* Busy */
- 		return -EBUSY;
-@@ -109,15 +106,26 @@ static int vfio_ccw_sch_io_helper(struct vfio_ccw_private *private)
- 	default:
- 		return ccode;
- 	}
-+}
- 
--	intparm = (u32)(addr_t)sch;
--	private->intparm = 0;
--	wait_event(private->wait_q, doing_io(private, intparm));
-+static void vfio_ccw_sch_io_todo(struct work_struct *work)
++#ifdef CONFIG_VFIO_CCW_CCW0
++static long copy_ccw_from_iova(struct channel_program *cp,
++			       struct ccw1 *to, u64 iova,
++			       unsigned long len)
 +{
-+	struct vfio_ccw_private *private;
-+	struct subchannel *sch;
-+	struct irb *irb;
- 
--	if (scsw_is_solicited(&private->irb.scsw))
--		cp_update_scsw(&private->cp, &private->irb.scsw);
-+	private = container_of(work, struct vfio_ccw_private, io_work);
-+	irb = &private->irb;
-+	sch = private->sch;
- 
--	return 0;
-+	if (scsw_is_solicited(&irb->scsw)) {
-+		cp_update_scsw(&private->cp, &irb->scsw);
-+		cp_free(&private->cp);
++	struct ccw0 ccw0;
++	struct ccw1 *pccw1;
++	int ret;
++	int i;
++
++	ret = copy_from_iova(cp->mdev, to, iova, len * sizeof(struct ccw1));
++	if (ret)
++		return ret;
++
++	if (!cp->orb.cmd.fmt) {
++		pccw1 = to;
++		for (i = 0; i < len; i++) {
++			ccw0 = *(struct ccw0 *)pccw1;
++			pccw1->cmd_code = ccw0.cmd_code;
++			pccw1->flags = ccw0.flags;
++			pccw1->count = ccw0.count;
++			pccw1->cda = ccw0.cda;
++			pccw1++;
++		}
 +	}
-+	memcpy(private->io_region.irb_area, irb, sizeof(*irb));
 +
-+	if (private->io_trigger)
-+		eventfd_signal(private->io_trigger, 1);
- }
- 
- /* Deal with the ccw command request from the userspace. */
-@@ -126,7 +134,6 @@ int vfio_ccw_sch_cmd_request(struct vfio_ccw_private *private)
- 	struct mdev_device *mdev = private->mdev;
- 	union orb *orb;
- 	union scsw *scsw = &private->scsw;
--	struct irb *irb = &private->irb;
- 	struct ccw_io_region *io_region = &private->io_region;
- 	int ret;
- 
-@@ -147,12 +154,8 @@ int vfio_ccw_sch_cmd_request(struct vfio_ccw_private *private)
- 
- 		/* Start channel program and wait for I/O interrupt. */
- 		ret = vfio_ccw_sch_io_helper(private);
--		if (!ret) {
--			/* Get irb info and copy it to irb_area. */
--			memcpy(io_region->irb_area, irb, sizeof(*irb));
--		}
--
--		cp_free(&private->cp);
-+		if (!ret)
-+			cp_free(&private->cp);
- 	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
- 		/* XXX: Handle halt. */
- 		ret = -EOPNOTSUPP;
-@@ -229,8 +232,8 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
- 
- 	irb = this_cpu_ptr(&cio_irb);
- 	memcpy(&private->irb, irb, sizeof(*irb));
--	private->intparm = (u32)(addr_t)sch;
--	wake_up(&private->wait_q);
-+
-+	queue_work(vfio_ccw_work_q, &private->io_work);
- 
- 	if (private->completion)
- 		complete(private->completion);
-@@ -269,7 +272,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_rm_group;
- 
--	init_waitqueue_head(&private->wait_q);
-+	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
- 	atomic_set(&private->avail, 1);
- 
- 	return 0;
-@@ -367,10 +370,16 @@ static int __init vfio_ccw_sch_init(void)
++	return ret;
++}
++#else
+ static long copy_ccw_from_iova(struct channel_program *cp,
+ 			       struct ccw1 *to, u64 iova,
+ 			       unsigned long len)
  {
- 	int ret;
+ 	return copy_from_iova(cp->mdev, to, iova, len * sizeof(struct ccw1));
+ }
++#endif
  
-+	vfio_ccw_work_q = create_singlethread_workqueue("vfio-ccw");
-+	if (!vfio_ccw_work_q)
-+		return -ENOMEM;
+ /*
+  * Helpers to operate ccwchain.
+@@ -616,10 +666,14 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	 * Only support prefetch enable mode now.
+ 	 * Only support 64bit addressing idal.
+ 	 * Only support 4k IDAW.
+-	 * Only support ccw1.
+ 	 */
+-	if (!orb->cmd.pfch || !orb->cmd.c64 || orb->cmd.i2k || !orb->cmd.fmt)
++	if (!orb->cmd.pfch || !orb->cmd.c64 || orb->cmd.i2k)
++		return -EOPNOTSUPP;
 +
- 	isc_register(VFIO_CCW_ISC);
- 	ret = css_driver_register(&vfio_ccw_sch_driver);
--	if (ret)
-+	if (ret) {
- 		isc_unregister(VFIO_CCW_ISC);
-+		destroy_workqueue(vfio_ccw_work_q);
-+	}
++#ifndef CONFIG_VFIO_CCW_CCW0
++	if (!orb->cmd.fmt)
+ 		return -EOPNOTSUPP;
++#endif
  
- 	return ret;
- }
-@@ -379,6 +388,7 @@ static void __exit vfio_ccw_sch_exit(void)
- {
- 	css_driver_unregister(&vfio_ccw_sch_driver);
- 	isc_unregister(VFIO_CCW_ISC);
-+	destroy_workqueue(vfio_ccw_work_q);
- }
- module_init(vfio_ccw_sch_init);
- module_exit(vfio_ccw_sch_exit);
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index ebc38fb..8e6754d 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -202,9 +202,6 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
- 	if (region->ret_code != 0)
- 		return region->ret_code;
- 
--	if (private->io_trigger)
--		eventfd_signal(private->io_trigger, 1);
--
- 	return count;
- }
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index dddab52..2503797 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -12,6 +12,7 @@
- 
- #include <linux/completion.h>
- #include <linux/eventfd.h>
-+#include <linux/workqueue.h>
- #include <linux/vfio_ccw.h>
- 
- #include "css.h"
-@@ -25,12 +26,11 @@
-  * @mdev: pointer to the mediated device
-  * @nb: notifier for vfio events
-  * @io_region: MMIO region to input/output I/O arguments/results
-- * @wait_q: wait for interrupt
-- * @intparm: record current interrupt parameter, used for wait interrupt
-  * @cp: channel program for the current I/O operation
-  * @irb: irb info received from interrupt
-  * @scsw: scsw info
-  * @io_trigger: eventfd ctx for signaling userspace I/O results
-+ * @io_work: work for deferral process of I/O handling
-  */
- struct vfio_ccw_private {
- 	struct subchannel	*sch;
-@@ -40,13 +40,12 @@ struct vfio_ccw_private {
- 	struct notifier_block	nb;
- 	struct ccw_io_region	io_region;
- 
--	wait_queue_head_t	wait_q;
--	u32			intparm;
- 	struct channel_program	cp;
- 	struct irb		irb;
- 	union scsw		scsw;
- 
- 	struct eventfd_ctx	*io_trigger;
-+	struct work_struct	io_work;
- } __aligned(8);
- 
- extern int vfio_ccw_mdev_reg(struct subchannel *sch);
+ 	INIT_LIST_HEAD(&cp->ccwchain_list);
+ 	memcpy(&cp->orb, orb, sizeof(*orb));
 -- 
 2.8.4
