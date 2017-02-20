@@ -1,73 +1,57 @@
-From: "Reshetova, Elena" <elena.reshetova@intel.com>
-Subject: RE: [PATCH 4/4] kvm: convert kvm.users_count from atomic_t to
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH 2/4] x86: convert threshold_bank.cpus from atomic_t to
  refcount_t
-Date: Mon, 20 Feb 2017 12:22:35 +0000
-Message-ID: <2236FBA76BA1254E88B949DDB74E612B41C4D934@IRSMSX102.ger.corp.intel.com>
+Date: Mon, 20 Feb 2017 13:30:51 +0100
+Message-ID: <20170220123051.ioox335zkcgt672s@pd.tnic>
 References: <1487588781-15123-1-git-send-email-elena.reshetova@intel.com>
- <1487588781-15123-5-git-send-email-elena.reshetova@intel.com>
- <220f229f-0e3e-2a72-62c1-1677021c3987@redhat.com>
+ <1487588781-15123-3-git-send-email-elena.reshetova@intel.com>
+ <20170220111727.7vohleiu2btmsx3g@pd.tnic>
+ <2236FBA76BA1254E88B949DDB74E612B41C4D921@IRSMSX102.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <220f229f-0e3e-2a72-62c1-1677021c3987@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <2236FBA76BA1254E88B949DDB74E612B41C4D921@IRSMSX102.ger.corp.intel.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "peterz@infradead.org" <peterz@infradead.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "tglx@linutronix.de" <tglx@linutronix.de>, "mingo@redhat.com" <mingo@redhat.com>, "Luck, Tony" <tony.luck@intel.com>, "hpa@zytor.com" <hpa@zytor.com>, Hans Liljestrand <ishkamiel@gmail.com>, Kees Cook <keescook@chromium.org>, David Windsor <dwindsor@gmail.com>
+To: "Reshetova, Elena" <elena.reshetova@intel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "peterz@infradead.org" <peterz@infradead.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "tglx@linutronix.de" <tglx@linutronix.de>, "mingo@redhat.com" <mingo@redhat.com>, "Luck, Tony" <tony.luck@intel.com>, "hpa@zytor.com" <hpa@zytor.com>, Hans Liljestrand <ishkamiel@gmail.com>, Kees Cook <keescook@chromium.org>, David Windsor <dwindsor@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-PiBPbiAyMC8wMi8yMDE3IDEyOjA2LCBFbGVuYSBSZXNoZXRvdmEgd3JvdGU6DQo+ID4gcmVmY291
-bnRfdCB0eXBlIGFuZCBjb3JyZXNwb25kaW5nIEFQSSBzaG91bGQgYmUNCj4gPiB1c2VkIGluc3Rl
-YWQgb2YgYXRvbWljX3Qgd2hlbiB0aGUgdmFyaWFibGUgaXMgdXNlZCBhcw0KPiA+IGEgcmVmZXJl
-bmNlIGNvdW50ZXIuIFRoaXMgYWxsb3dzIHRvIGF2b2lkIGFjY2lkZW50YWwNCj4gPiByZWZjb3Vu
-dGVyIG92ZXJmbG93cyB0aGF0IG1pZ2h0IGxlYWQgdG8gdXNlLWFmdGVyLWZyZWUNCj4gPiBzaXR1
-YXRpb25zLg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogRWxlbmEgUmVzaGV0b3ZhIDxlbGVuYS5y
-ZXNoZXRvdmFAaW50ZWwuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEhhbnMgTGlsamVzdHJhbmQg
-PGlzaGthbWllbEBnbWFpbC5jb20+DQo+ID4gU2lnbmVkLW9mZi1ieTogS2VlcyBDb29rIDxrZWVz
-Y29va0BjaHJvbWl1bS5vcmc+DQo+ID4gU2lnbmVkLW9mZi1ieTogRGF2aWQgV2luZHNvciA8ZHdp
-bmRzb3JAZ21haWwuY29tPg0KPiANCj4gTG9va3MgZ29vZCwgd2lsbCBhcHBseSBhZnRlciB0aGUg
-bWVyZ2Ugd2luZG93Lg0KPiANCj4gUGFvbG8NCg0KVGhhbmsgeW91IHZlcnkgbXVjaCENCg0KQmVz
-dCBSZWdhcmRzLA0KRWxlbmEuDQoNCj4gDQo+ID4gLS0tDQo+ID4gIGluY2x1ZGUvbGludXgva3Zt
-X2hvc3QuaCB8IDMgKystDQo+ID4gIHZpcnQva3ZtL2t2bV9tYWluLmMgICAgICB8IDggKysrKy0t
-LS0NCj4gPiAgMiBmaWxlcyBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0p
-DQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9rdm1faG9zdC5oIGIvaW5jbHVk
-ZS9saW51eC9rdm1faG9zdC5oDQo+ID4gaW5kZXggY2RhNDU3Yi4uN2ZhMDVhNSAxMDA2NDQNCj4g
-PiAtLS0gYS9pbmNsdWRlL2xpbnV4L2t2bV9ob3N0LmgNCj4gPiArKysgYi9pbmNsdWRlL2xpbnV4
-L2t2bV9ob3N0LmgNCj4gPiBAQCAtMjYsNiArMjYsNyBAQA0KPiA+ICAjaW5jbHVkZSA8bGludXgv
-Y29udGV4dF90cmFja2luZy5oPg0KPiA+ICAjaW5jbHVkZSA8bGludXgvaXJxYnlwYXNzLmg+DQo+
-ID4gICNpbmNsdWRlIDxsaW51eC9zd2FpdC5oPg0KPiA+ICsjaW5jbHVkZSA8bGludXgvcmVmY291
-bnQuaD4NCj4gPiAgI2luY2x1ZGUgPGFzbS9zaWduYWwuaD4NCj4gPg0KPiA+ICAjaW5jbHVkZSA8
-bGludXgva3ZtLmg+DQo+ID4gQEAgLTQwMiw3ICs0MDMsNyBAQCBzdHJ1Y3Qga3ZtIHsNCj4gPiAg
-I2VuZGlmDQo+ID4gIAlzdHJ1Y3Qga3ZtX3ZtX3N0YXQgc3RhdDsNCj4gPiAgCXN0cnVjdCBrdm1f
-YXJjaCBhcmNoOw0KPiA+IC0JYXRvbWljX3QgdXNlcnNfY291bnQ7DQo+ID4gKwlyZWZjb3VudF90
-IHVzZXJzX2NvdW50Ow0KPiA+ICAjaWZkZWYgS1ZNX0NPQUxFU0NFRF9NTUlPX1BBR0VfT0ZGU0VU
-DQo+ID4gIAlzdHJ1Y3Qga3ZtX2NvYWxlc2NlZF9tbWlvX3JpbmcgKmNvYWxlc2NlZF9tbWlvX3Jp
-bmc7DQo+ID4gIAlzcGlubG9ja190IHJpbmdfbG9jazsNCj4gPiBkaWZmIC0tZ2l0IGEvdmlydC9r
-dm0va3ZtX21haW4uYyBiL3ZpcnQva3ZtL2t2bV9tYWluLmMNCj4gPiBpbmRleCBkY2QxYzEyLi42
-YWU1Nzc1IDEwMDY0NA0KPiA+IC0tLSBhL3ZpcnQva3ZtL2t2bV9tYWluLmMNCj4gPiArKysgYi92
-aXJ0L2t2bS9rdm1fbWFpbi5jDQo+ID4gQEAgLTYyMiw3ICs2MjIsNyBAQCBzdGF0aWMgc3RydWN0
-IGt2bSAqa3ZtX2NyZWF0ZV92bSh1bnNpZ25lZCBsb25nIHR5cGUpDQo+ID4gIAltdXRleF9pbml0
-KCZrdm0tPmxvY2spOw0KPiA+ICAJbXV0ZXhfaW5pdCgma3ZtLT5pcnFfbG9jayk7DQo+ID4gIAlt
-dXRleF9pbml0KCZrdm0tPnNsb3RzX2xvY2spOw0KPiA+IC0JYXRvbWljX3NldCgma3ZtLT51c2Vy
-c19jb3VudCwgMSk7DQo+ID4gKwlyZWZjb3VudF9zZXQoJmt2bS0+dXNlcnNfY291bnQsIDEpOw0K
-PiA+ICAJSU5JVF9MSVNUX0hFQUQoJmt2bS0+ZGV2aWNlcyk7DQo+ID4NCj4gPiAgCXIgPSBrdm1f
-YXJjaF9pbml0X3ZtKGt2bSwgdHlwZSk7DQo+ID4gQEAgLTc0NSwxMyArNzQ1LDEzIEBAIHN0YXRp
-YyB2b2lkIGt2bV9kZXN0cm95X3ZtKHN0cnVjdCBrdm0gKmt2bSkNCj4gPg0KPiA+ICB2b2lkIGt2
-bV9nZXRfa3ZtKHN0cnVjdCBrdm0gKmt2bSkNCj4gPiAgew0KPiA+IC0JYXRvbWljX2luYygma3Zt
-LT51c2Vyc19jb3VudCk7DQo+ID4gKwlyZWZjb3VudF9pbmMoJmt2bS0+dXNlcnNfY291bnQpOw0K
-PiA+ICB9DQo+ID4gIEVYUE9SVF9TWU1CT0xfR1BMKGt2bV9nZXRfa3ZtKTsNCj4gPg0KPiA+ICB2
-b2lkIGt2bV9wdXRfa3ZtKHN0cnVjdCBrdm0gKmt2bSkNCj4gPiAgew0KPiA+IC0JaWYgKGF0b21p
-Y19kZWNfYW5kX3Rlc3QoJmt2bS0+dXNlcnNfY291bnQpKQ0KPiA+ICsJaWYgKHJlZmNvdW50X2Rl
-Y19hbmRfdGVzdCgma3ZtLT51c2Vyc19jb3VudCkpDQo+ID4gIAkJa3ZtX2Rlc3Ryb3lfdm0oa3Zt
-KTsNCj4gPiAgfQ0KPiA+ICBFWFBPUlRfU1lNQk9MX0dQTChrdm1fcHV0X2t2bSk7DQo+ID4gQEAg
-LTM2NDAsNyArMzY0MCw3IEBAIHN0YXRpYyBpbnQga3ZtX2RlYnVnZnNfb3BlbihzdHJ1Y3QgaW5v
-ZGUgKmlub2RlLA0KPiBzdHJ1Y3QgZmlsZSAqZmlsZSwNCj4gPiAgCSAqIFRvIGF2b2lkIHRoZSBy
-YWNlIGJldHdlZW4gb3BlbiBhbmQgdGhlIHJlbW92YWwgb2YgdGhlIGRlYnVnZnMNCj4gPiAgCSAq
-IGRpcmVjdG9yeSB3ZSB0ZXN0IGFnYWluc3QgdGhlIHVzZXJzIGNvdW50Lg0KPiA+ICAJICovDQo+
-ID4gLQlpZiAoIWF0b21pY19hZGRfdW5sZXNzKCZzdGF0X2RhdGEtPmt2bS0+dXNlcnNfY291bnQs
-IDEsIDApKQ0KPiA+ICsJaWYgKCFyZWZjb3VudF9pbmNfbm90X3plcm8oJnN0YXRfZGF0YS0+a3Zt
-LT51c2Vyc19jb3VudCkpDQo+ID4gIAkJcmV0dXJuIC1FTk9FTlQ7DQo+ID4NCj4gPiAgCWlmIChz
-aW1wbGVfYXR0cl9vcGVuKGlub2RlLCBmaWxlLCBnZXQsIHNldCwgZm10KSkgew0KPiA+DQo=
+On Mon, Feb 20, 2017 at 12:20:04PM +0000, Reshetova, Elena wrote:
+> Whole refcount conversion was a long piece of work and the above
+> people contributed to this code either as writes or reviewers or both.
+
+We have
+
+Reviewed-by:
+
+for reviewers.
+
+> I am primary writer of the code and I am handing patches in our tree
+> and sending them out, so how exactly the above should look like?
+
+Well, the SOB chain should reflect who handled the patch on its way from
+the original author to the upstream committer. If you want to express
+who contributed, you can use Originally-by, Suggested-by, ...
+
+You could also have free text in the commit message:
+
+"People who contributed to this: ..."
+
+In any case, it is all in Documentation/process/submitting-patches.rst.
+Have a look.
+
+> Please note that we have about 300 patches and if I have to modify
+> each sign-off to reflect who contributed to each commit in what
+> particular way, I will go insane.
+
+There's sed/awk/perl/python/bash... whatever tools that can do the
+proper conversions with.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
