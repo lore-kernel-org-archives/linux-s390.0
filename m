@@ -1,7 +1,7 @@
 From: Elena Reshetova <elena.reshetova@intel.com>
-Subject: [PATCH 3/4] sparc: convert mdesc_handle.refcnt from atomic_t to refcount_t
-Date: Mon, 20 Feb 2017 13:06:20 +0200
-Message-ID: <1487588781-15123-4-git-send-email-elena.reshetova@intel.com>
+Subject: [PATCH 4/4] kvm: convert kvm.users_count from atomic_t to refcount_t
+Date: Mon, 20 Feb 2017 13:06:21 +0200
+Message-ID: <1487588781-15123-5-git-send-email-elena.reshetova@intel.com>
 References: <1487588781-15123-1-git-send-email-elena.reshetova@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1487588781-15123-1-git-send-email-elena.reshetova@intel.com>
@@ -23,92 +23,68 @@ Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David Windsor <dwindsor@gmail.com>
 ---
- arch/sparc/kernel/mdesc.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ include/linux/kvm_host.h | 3 ++-
+ virt/kvm/kvm_main.c      | 8 ++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/sparc/kernel/mdesc.c b/arch/sparc/kernel/mdesc.c
-index c0765bb..ac3fe0d 100644
---- a/arch/sparc/kernel/mdesc.c
-+++ b/arch/sparc/kernel/mdesc.c
-@@ -12,6 +12,7 @@
- #include <linux/miscdevice.h>
- #include <linux/bootmem.h>
- #include <linux/export.h>
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index cda457b..7fa05a5 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -26,6 +26,7 @@
+ #include <linux/context_tracking.h>
+ #include <linux/irqbypass.h>
+ #include <linux/swait.h>
 +#include <linux/refcount.h>
+ #include <asm/signal.h>
  
- #include <asm/cpudata.h>
- #include <asm/hypervisor.h>
-@@ -70,7 +71,7 @@ struct mdesc_handle {
- 	struct list_head	list;
- 	struct mdesc_mem_ops	*mops;
- 	void			*self_base;
--	atomic_t		refcnt;
-+	refcount_t		refcnt;
- 	unsigned int		handle_size;
- 	struct mdesc_hdr	mdesc;
- };
-@@ -84,7 +85,7 @@ static void mdesc_handle_init(struct mdesc_handle *hp,
- 	memset(hp, 0, handle_size);
- 	INIT_LIST_HEAD(&hp->list);
- 	hp->self_base = base;
--	atomic_set(&hp->refcnt, 1);
-+	refcount_set(&hp->refcnt, 1);
- 	hp->handle_size = handle_size;
- }
+ #include <linux/kvm.h>
+@@ -402,7 +403,7 @@ struct kvm {
+ #endif
+ 	struct kvm_vm_stat stat;
+ 	struct kvm_arch arch;
+-	atomic_t users_count;
++	refcount_t users_count;
+ #ifdef KVM_COALESCED_MMIO_PAGE_OFFSET
+ 	struct kvm_coalesced_mmio_ring *coalesced_mmio_ring;
+ 	spinlock_t ring_lock;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index dcd1c12..6ae5775 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -622,7 +622,7 @@ static struct kvm *kvm_create_vm(unsigned long type)
+ 	mutex_init(&kvm->lock);
+ 	mutex_init(&kvm->irq_lock);
+ 	mutex_init(&kvm->slots_lock);
+-	atomic_set(&kvm->users_count, 1);
++	refcount_set(&kvm->users_count, 1);
+ 	INIT_LIST_HEAD(&kvm->devices);
  
-@@ -114,7 +115,7 @@ static void __init mdesc_memblock_free(struct mdesc_handle *hp)
- 	unsigned int alloc_size;
- 	unsigned long start;
+ 	r = kvm_arch_init_vm(kvm, type);
+@@ -745,13 +745,13 @@ static void kvm_destroy_vm(struct kvm *kvm)
  
--	BUG_ON(atomic_read(&hp->refcnt) != 0);
-+	BUG_ON(refcount_read(&hp->refcnt) != 0);
- 	BUG_ON(!list_empty(&hp->list));
- 
- 	alloc_size = PAGE_ALIGN(hp->handle_size);
-@@ -154,7 +155,7 @@ static struct mdesc_handle *mdesc_kmalloc(unsigned int mdesc_size)
- 
- static void mdesc_kfree(struct mdesc_handle *hp)
+ void kvm_get_kvm(struct kvm *kvm)
  {
--	BUG_ON(atomic_read(&hp->refcnt) != 0);
-+	BUG_ON(refcount_read(&hp->refcnt) != 0);
- 	BUG_ON(!list_empty(&hp->list));
+-	atomic_inc(&kvm->users_count);
++	refcount_inc(&kvm->users_count);
+ }
+ EXPORT_SYMBOL_GPL(kvm_get_kvm);
  
- 	kfree(hp->self_base);
-@@ -193,7 +194,7 @@ struct mdesc_handle *mdesc_grab(void)
- 	spin_lock_irqsave(&mdesc_lock, flags);
- 	hp = cur_mdesc;
- 	if (hp)
--		atomic_inc(&hp->refcnt);
-+		refcount_inc(&hp->refcnt);
- 	spin_unlock_irqrestore(&mdesc_lock, flags);
+ void kvm_put_kvm(struct kvm *kvm)
+ {
+-	if (atomic_dec_and_test(&kvm->users_count))
++	if (refcount_dec_and_test(&kvm->users_count))
+ 		kvm_destroy_vm(kvm);
+ }
+ EXPORT_SYMBOL_GPL(kvm_put_kvm);
+@@ -3640,7 +3640,7 @@ static int kvm_debugfs_open(struct inode *inode, struct file *file,
+ 	 * To avoid the race between open and the removal of the debugfs
+ 	 * directory we test against the users count.
+ 	 */
+-	if (!atomic_add_unless(&stat_data->kvm->users_count, 1, 0))
++	if (!refcount_inc_not_zero(&stat_data->kvm->users_count))
+ 		return -ENOENT;
  
- 	return hp;
-@@ -205,7 +206,7 @@ void mdesc_release(struct mdesc_handle *hp)
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&mdesc_lock, flags);
--	if (atomic_dec_and_test(&hp->refcnt)) {
-+	if (refcount_dec_and_test(&hp->refcnt)) {
- 		list_del_init(&hp->list);
- 		hp->mops->free(hp);
- 	}
-@@ -344,7 +345,7 @@ void mdesc_update(void)
- 	if (status != HV_EOK || real_len > len) {
- 		printk(KERN_ERR "MD: mdesc reread fails with %lu\n",
- 		       status);
--		atomic_dec(&hp->refcnt);
-+		refcount_dec(&hp->refcnt);
- 		mdesc_free(hp);
- 		goto out;
- 	}
-@@ -357,7 +358,7 @@ void mdesc_update(void)
- 	mdesc_notify_clients(orig_hp, hp);
- 
- 	spin_lock_irqsave(&mdesc_lock, flags);
--	if (atomic_dec_and_test(&orig_hp->refcnt))
-+	if (refcount_dec_and_test(&orig_hp->refcnt))
- 		mdesc_free(orig_hp);
- 	else
- 		list_add(&orig_hp->list, &mdesc_zombie_list);
+ 	if (simple_attr_open(inode, file, get, set, fmt)) {
 -- 
 2.7.4
