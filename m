@@ -1,6 +1,7 @@
-Date: Fri, 17 Feb 2017 18:23:13 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-Message-ID: <20170217182313.GB25876@leverpostej>
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date: Mon, 20 Feb 2017 08:21:30 +0100
+From: Ingo Molnar <mingo@kernel.org>
+Message-ID: <20170220072130.GB8974@gmail.com>
 References: <1486427518-14819-1-git-send-email-labbott@redhat.com>
  <1486427518-14819-3-git-send-email-labbott@redhat.com>
  <20170216222529.GA7531@amd>
@@ -14,10 +15,12 @@ Subject: [kernel-hardening] Re: [PATCHv3 2/2] arch: Rename CONFIG_DEBUG_RODATA a
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
 To: Kees Cook <keescook@chromium.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Laura Abbott <labbott@redhat.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "H. Peter Anvin" <hpa@zytor.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Rob Herring <robh@kernel.org>, Jessica Yu <jeyu@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Helge Deller <deller@gmx.de>, "x86@kernel.org" <x86@kernel.org>, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-parisc <linux-parisc@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Robin Murphy <robin.murphy@arm.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Laura Abbott <labbott@redhat.com>, Mark Rutland <mark.rutland@arm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "H. Peter Anvin" <hpa@zytor.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Rob Herring <robh@kernel.org>, Jessica Yu <jeyu@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Helge Deller <deller@gmx.de>, "x86@kernel.org" <x86@kernel.org>, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-parisc <linux-parisc@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Robin Murphy <robin.murphy@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Feb 16, 2017 at 05:08:20PM -0800, Kees Cook wrote:
+
+* Kees Cook <keescook@chromium.org> wrote:
+
 > On Thu, Feb 16, 2017 at 2:25 PM, Pavel Machek <pavel@ucw.cz> wrote:
 > > Hi!
 > >
@@ -48,23 +51,11 @@ On Thu, Feb 16, 2017 at 05:08:20PM -0800, Kees Cook wrote:
 > broken down to PAGE_SIZE. On x86, IIUC, there's actually no change to
 > TLB performance due to how the mappings are already set up.
 
-On arm64, we split down to page granularity if needed, but use the
-largest possible mapping we can (e.g. if we can use a 2M block, we do).
-
-Because of the way we freed the init area, we already couldn't use
-larger mappings anyway. Applying the strict permissions didn't come at a
-measureable overhead in any real testing.
-
-> I'm not sure the best way to express this in the new help text. Do you
-> have some suggestions on wording? Personally, I don't really think
-> it's worth mentioning this in Kconfig help, which, in theory, is
-> supposed to limit how technical it gets. And I think the performance
-> impact is almost entirely negligible compared to the risks addressed.
-
-I also don't see much point in describing some hypothetical architecture
-specific overhead here. In most cases this can't be turned off (so there
-isn't anything to comapre it to, and hence no cost). Where people want
-to turn it off, they already know why they wish to do so.
+BTW., a good strategy with RAM sizes above say 4GB would be to just round up to 
+the next large-TLB boundary (2MB) and waste 0-2MB of RAM - which is only 0.05% of 
+4GB of RAM. On most workloads, especially with SSDs it's probably a positive RAM 
+vs. performance trade-off.
 
 Thanks,
-Mark.
+
+	Ingo
