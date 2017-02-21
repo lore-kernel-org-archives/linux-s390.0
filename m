@@ -1,34 +1,69 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 3/4] sparc: convert mdesc_handle.refcnt from atomic_t
- to refcount_t
-Date: Mon, 20 Feb 2017 09:56:58 -0500 (EST)
-Message-ID: <20170220.095658.2221033513472748245.davem@davemloft.net>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 2/4] x86: convert threshold_bank.cpus from atomic_t to refcount_t
+Date: Tue, 21 Feb 2017 12:45:30 -0800
+Message-ID: <CAGXu5j+qpZy1sdMQJU5GrMF3NBZt7Wra55c59EiwT+WGEA_hBw@mail.gmail.com>
 References: <1487588781-15123-1-git-send-email-elena.reshetova@intel.com>
-        <1487588781-15123-4-git-send-email-elena.reshetova@intel.com>
+ <1487588781-15123-3-git-send-email-elena.reshetova@intel.com> <20170220111727.7vohleiu2btmsx3g@pd.tnic>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1487588781-15123-4-git-send-email-elena.reshetova@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20170220111727.7vohleiu2btmsx3g@pd.tnic>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: elena.reshetova@intel.com
-Cc: linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org, x86@kernel.org, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, peterz@infradead.org, gregkh@linuxfoundation.org, tglx@linutronix.de, mingo@redhat.com, tony.luck@intel.com, hpa@zytor.com, ishkamiel@gmail.com, keescook@chromium.org, dwindsor@gmail.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: Elena Reshetova <elena.reshetova@intel.com>, LKML <linux-kernel@vger.kernel.org>, linux-edac@vger.kernel.org, "x86@kernel.org" <x86@kernel.org>, sparclinux <sparclinux@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Greg KH <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Tony Luck <tony.luck@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Hans Liljestrand <ishkamiel@gmail.com>, David Windsor <dwindsor@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Elena Reshetova <elena.reshetova@intel.com>
-Date: Mon, 20 Feb 2017 13:06:20 +0200
+On Mon, Feb 20, 2017 at 3:17 AM, Borislav Petkov <bp@alien8.de> wrote:
+> On Mon, Feb 20, 2017 at 01:06:19PM +0200, Elena Reshetova wrote:
+>> refcount_t type and corresponding API should be
+>> used instead of atomic_t when the variable is used as
+>> a reference counter. This allows to avoid accidental
+>> refcounter overflows that might lead to use-after-free
+>> situations.
+>>
+>> Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
+>> Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
+>> Signed-off-by: Kees Cook <keescook@chromium.org>
+>> Signed-off-by: David Windsor <dwindsor@gmail.com>
+>
+> That SOB chain tells me that you wrote the patch and Hans, Kees and
+> David handled it in some way and the last one - David - is sending it to
+> me. It doesn't look like that though.
 
-> refcount_t type and corresponding API should be
-> used instead of atomic_t when the variable is used as
-> a reference counter. This allows to avoid accidental
-> refcounter overflows that might lead to use-after-free
-> situations.
-> 
-> Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-> Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Signed-off-by: David Windsor <dwindsor@gmail.com>
+Perhaps the least inaccurate form of this might be:
 
-Acked-by: David S. Miller <davem@davemloft.net>
+
+Inspired by atomic protections in PaX/grsecurity.
+
+Suggested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: David Windsor <dwindsor@gmail.com>
+Reviewed-by: Hans Liljestrand <ishkamiel@gmail.com>
+Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
+
+
+As this is something I'd suggested we implement based on the work in
+PaX/grsecurity, David took the first (and continuing) stab at
+conversions, Hans did more, and Elena has been doing even more along
+with the heavy-lifting of keeping the series organized. That way the
+first SoB is still the author, the last SoB is still the email sender,
+and everyone's name is mentioned.
+
+Or just:
+
+
+Inspired by atomic protections in PaX/grsecurity, based on work from
+David Windsor, Hans Liljestrand, and myself.
+
+Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
+
+
+I'm not picky -- I just want to see the conversion to refcount_t
+happen, and everyone in Elena's SoB list has done work on it...
+
+-Kees
+
+-- 
+Kees Cook
+Pixel Security
