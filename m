@@ -1,260 +1,362 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH RFC v3 11/15] vfio: ccw: realize
- VFIO_DEVICE_G(S)ET_IRQ_INFO ioctls
-Date: Fri, 24 Feb 2017 16:27:24 -0700
-Message-ID: <20170224162724.6dd2eb0e@t450s.home>
+From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC v3 04/15] vfio: ccw: basic
+ implementation for vfio_ccw driver
+Date: Tue, 21 Feb 2017 15:36:23 +0800
+Message-ID: <14389.7081762136$1505297841@news.gmane.org>
 References: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
-        <20170217082939.33208-12-bjsdjshi@linux.vnet.ibm.com>
+	<20170217082939.33208-5-bjsdjshi@linux.vnet.ibm.com>
+	<20170220193113.3ba5af2c.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170217082939.33208-12-bjsdjshi@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Content-Disposition: inline
+In-Reply-To: <20170220193113.3ba5af2c.cornelia.huck@de.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: "Qemu-devel" <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, pasic@linux.vnet.ibm.com, kvm@vger.kernel.org, pmorel@linux.vnet.ibm.com, qemu-devel@nongnu.org, borntraeger@de.ibm.com, alex.williamson@redhat.com, renxiaof@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, agraf@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 17 Feb 2017 09:29:35 +0100
-Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+* Cornelia Huck <cornelia.huck@de.ibm.com> [2017-02-20 19:31:13 +0100]:
 
-> Realize VFIO_DEVICE_GET_IRQ_INFO ioctl to retrieve
-> VFIO_CCW_IO_IRQ information.
+> On Fri, 17 Feb 2017 09:29:28 +0100
+> Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 > 
-> Realize VFIO_DEVICE_SET_IRQS ioctl to set an eventfd fd for
-> VFIO_CCW_IO_IRQ. Once a write operation to the ccw_io_region
-> was performed, trigger a signal on this fd.
+> > To make vfio support subchannel devices, we need a css driver for
+> > the vfio subchannels. This patch adds a basic vfio-ccw subchannel
+> > driver for this purpose.
+> > 
+> > To enable VFIO for vfio-ccw, enable S390_CCW_IOMMU config option
+> > and configure VFIO as required.
+> > 
+> > Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> > Acked-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+> > ---
+> >  arch/s390/Kconfig                   |  10 ++
+> >  arch/s390/include/asm/isc.h         |   1 +
+> >  drivers/iommu/Kconfig               |   8 ++
+> >  drivers/s390/cio/Makefile           |   3 +
+> >  drivers/s390/cio/vfio_ccw_drv.c     | 262 ++++++++++++++++++++++++++++++++++++
+> >  drivers/s390/cio/vfio_ccw_private.h |  25 ++++
+> >  6 files changed, 309 insertions(+)
+> >  create mode 100644 drivers/s390/cio/vfio_ccw_drv.c
+> >  create mode 100644 drivers/s390/cio/vfio_ccw_private.h
+> > 
+> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> > index c6722112..b920df8 100644
+> > --- a/arch/s390/Kconfig
+> > +++ b/arch/s390/Kconfig
+> > @@ -670,6 +670,16 @@ config EADM_SCH
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called eadm_sch.
+> > 
+> > +config VFIO_CCW
+> > +	def_tristate n
+> > +	prompt "Support for VFIO-CCW subchannels"
+> > +	depends on S390_CCW_IOMMU && VFIO
+> > +	help
+> > +	  This driver allows usage of VFIO-CCW subchannels.
 > 
-> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-> ---
->  drivers/s390/cio/vfio_ccw_ops.c     | 123 +++++++++++++++++++++++++++++++++++-
->  drivers/s390/cio/vfio_ccw_private.h |   4 ++
->  include/uapi/linux/vfio.h           |  10 ++-
->  3 files changed, 134 insertions(+), 3 deletions(-)
+> Hm...
 > 
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 125818c..ebc38fb 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -202,6 +202,9 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
->  	if (region->ret_code != 0)
->  		return region->ret_code;
->  
-> +	if (private->io_trigger)
-> +		eventfd_signal(private->io_trigger, 1);
-> +
->  	return count;
->  }
->  
-> @@ -209,7 +212,7 @@ static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
->  {
->  	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
->  	info->num_regions = VFIO_CCW_NUM_REGIONS;
-> -	info->num_irqs = 0;
-> +	info->num_irqs = VFIO_CCW_NUM_IRQS;
->  
->  	return 0;
->  }
-> @@ -230,6 +233,83 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
->  	}
->  }
->  
-> +int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
-> +{
-> +	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
-> +		return -EINVAL;
-> +
-> +	info->count = 1;
-> +	info->flags = VFIO_IRQ_INFO_EVENTFD | VFIO_IRQ_INFO_NORESIZE;
+> "This driver allows usage of I/O subchannels via VFIO-CCW."
+> 
+> ?
+> 
+This is better. Will change.
 
-I tend to think that NORESIZE isn't relevant when count is one.  We
-don't expose this flag on vfio-pci for INTx where there's only a single
-interrupt.  I don't really see how it applies, it's really trying to
-indicate if there are multiple sub-indexes within an index, if some are
-enabled, we cannot enable others without first disabling them all.
-Thus we can't resize the number of enabled sub-indexes.  There really
-are no sub-indexes when count is one.  Thanks,
+> > +
+> > +	  To compile this driver as a module, choose M here: the
+> > +	  module will be called vfio_ccw.
+> > +
+> >  endmenu
+> > 
+> >  menu "Dump support"
+> > diff --git a/arch/s390/include/asm/isc.h b/arch/s390/include/asm/isc.h
+> > index 68d7d68..8a0b721 100644
+> > --- a/arch/s390/include/asm/isc.h
+> > +++ b/arch/s390/include/asm/isc.h
+> > @@ -16,6 +16,7 @@
+> >  #define CONSOLE_ISC 1			/* console I/O subchannel */
+> >  #define EADM_SCH_ISC 4			/* EADM subchannels */
+> >  #define CHSC_SCH_ISC 7			/* CHSC subchannels */
+> > +#define VFIO_CCW_ISC IO_SCH_ISC		/* VFIO-CCW I/O subchannels */
+> 
+> This is OK for now, I guess; but do we want to have the isc
+> configurable in the long run? I.e., if a host wants to run its own I/O
+> devices at a different priority than the devices it passes to a guest?
+> 
+I think we can keep this as the default value, and provide a driver
+param to customize the ISC value in the future once we need this. I put
+this on my LATER list, or I do it in next version?
 
-Alex
+> >  /* Adapter interrupts. */
+> >  #define QDIO_AIRQ_ISC IO_SCH_ISC	/* I/O subchannel in qdio mode */
+> >  #define PCI_ISC 2			/* PCI I/O subchannels */
+> 
+> (...)
+> 
+> > diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> > new file mode 100644
+> > index 0000000..b068207
+> > --- /dev/null
+> > +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> > @@ -0,0 +1,262 @@
+> > +/*
+> > + * VFIO based Physical Subchannel device driver
+> > + *
+> > + * Copyright IBM Corp. 2017
+> > + *
+> > + * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> > + *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> > + */
+> > +
+> > +#include <linux/module.h>
+> > +#include <linux/init.h>
+> > +#include <linux/device.h>
+> > +#include <linux/slab.h>
+> > +
+> > +#include <asm/isc.h>
+> > +
+> > +#include "vfio_ccw_private.h"
+> > +
+> > +/*
+> > + * Helpers
+> > + */
+> > +static int vfio_ccw_sch_quiesce(struct subchannel *sch)
+> > +{
+> > +	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
+> > +	DECLARE_COMPLETION_ONSTACK(completion);
+> > +	int iretry, ret = 0;
+> > +
+> > +	spin_lock_irq(sch->lock);
+> > +	if (!sch->schib.pmcw.ena)
+> > +		goto out_unlock;
+> > +	ret = cio_disable_subchannel(sch);
+> > +	if (ret != -EBUSY)
+> > +		goto out_unlock;
+> > +
+> > +	do {
+> > +		iretry = 255;
+> > +
+> > +		ret = cio_cancel_halt_clear(sch, &iretry);
+> > +		while (ret == -EBUSY) {
+> > +			/*
+> > +			 * Flushing all I/O and wait the
+> 
+> "Flush all I/O and wait for..."
+> 
+Ok.
 
-> +
-> +	return 0;
-> +}
-> +
-> +static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
-> +				  uint32_t flags,
-> +				  void __user *data)
-> +{
-> +	struct vfio_ccw_private *private;
-> +	struct eventfd_ctx **ctx;
-> +
-> +	if (!(flags & VFIO_IRQ_SET_ACTION_TRIGGER))
-> +		return -EINVAL;
-> +
-> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
-> +	if (!private)
-> +		return -ENODEV;
-> +
-> +	ctx = &private->io_trigger;
-> +
-> +	switch (flags & VFIO_IRQ_SET_DATA_TYPE_MASK) {
-> +	case VFIO_IRQ_SET_DATA_NONE:
-> +	{
-> +		if (*ctx)
-> +			eventfd_signal(*ctx, 1);
-> +		return 0;
-> +	}
-> +	case VFIO_IRQ_SET_DATA_BOOL:
-> +	{
-> +		uint8_t trigger;
-> +
-> +		if (get_user(trigger, (uint8_t __user *)data))
-> +			return -EFAULT;
-> +
-> +		if (trigger && *ctx)
-> +			eventfd_signal(*ctx, 1);
-> +		return 0;
-> +	}
-> +	case VFIO_IRQ_SET_DATA_EVENTFD:
-> +	{
-> +		int32_t fd;
-> +
-> +		if (get_user(fd, (int32_t __user *)data))
-> +			return -EFAULT;
-> +
-> +		if (fd == -1) {
-> +			if (*ctx)
-> +				eventfd_ctx_put(*ctx);
-> +			*ctx = NULL;
-> +		} else if (fd >= 0) {
-> +			struct eventfd_ctx *efdctx;
-> +
-> +			efdctx = eventfd_ctx_fdget(fd);
-> +			if (IS_ERR(efdctx))
-> +				return PTR_ERR(efdctx);
-> +
-> +			if (*ctx)
-> +				eventfd_ctx_put(*ctx);
-> +
-> +			*ctx = efdctx;
-> +		} else
-> +			return -EINVAL;
-> +
-> +		return 0;
-> +	}
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
->  static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
->  				   unsigned int cmd,
->  				   unsigned long arg)
-> @@ -277,6 +357,47 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
->  
->  		return copy_to_user((void __user *)arg, &info, minsz);
->  	}
-> +	case VFIO_DEVICE_GET_IRQ_INFO:
-> +	{
-> +		struct vfio_irq_info info;
-> +
-> +		minsz = offsetofend(struct vfio_irq_info, count);
-> +
-> +		if (copy_from_user(&info, (void __user *)arg, minsz))
-> +			return -EFAULT;
-> +
-> +		if (info.argsz < minsz || info.index >= VFIO_CCW_NUM_IRQS)
-> +			return -EINVAL;
-> +
-> +		ret = vfio_ccw_mdev_get_irq_info(&info);
-> +		if (ret)
-> +			return ret;
-> +
-> +		if (info.count == -1)
-> +			return -EINVAL;
-> +
-> +		return copy_to_user((void __user *)arg, &info, minsz);
-> +	}
-> +	case VFIO_DEVICE_SET_IRQS:
-> +	{
-> +		struct vfio_irq_set hdr;
-> +		size_t data_size;
-> +		void __user *data;
-> +
-> +		minsz = offsetofend(struct vfio_irq_set, count);
-> +
-> +		if (copy_from_user(&hdr, (void __user *)arg, minsz))
-> +			return -EFAULT;
-> +
-> +		ret = vfio_set_irqs_validate_and_prepare(&hdr, 1,
-> +							 VFIO_CCW_NUM_IRQS,
-> +							 &data_size);
-> +		if (ret)
-> +			return ret;
-> +
-> +		data = (void __user *)(arg + minsz);
-> +		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, data);
-> +	}
->  	case VFIO_DEVICE_RESET:
->  		return vfio_ccw_mdev_reset(mdev);
->  	default:
-> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-> index 79e5337..dddab52 100644
-> --- a/drivers/s390/cio/vfio_ccw_private.h
-> +++ b/drivers/s390/cio/vfio_ccw_private.h
-> @@ -11,6 +11,7 @@
->  #define _VFIO_CCW_PRIVATE_H_
->  
->  #include <linux/completion.h>
-> +#include <linux/eventfd.h>
->  #include <linux/vfio_ccw.h>
->  
->  #include "css.h"
-> @@ -29,6 +30,7 @@
->   * @cp: channel program for the current I/O operation
->   * @irb: irb info received from interrupt
->   * @scsw: scsw info
-> + * @io_trigger: eventfd ctx for signaling userspace I/O results
->   */
->  struct vfio_ccw_private {
->  	struct subchannel	*sch;
-> @@ -43,6 +45,8 @@ struct vfio_ccw_private {
->  	struct channel_program	cp;
->  	struct irb		irb;
->  	union scsw		scsw;
-> +
-> +	struct eventfd_ctx	*io_trigger;
->  } __aligned(8);
->  
->  extern int vfio_ccw_mdev_reg(struct subchannel *sch);
-> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index 3fd70ff..ae46105 100644
-> --- a/include/uapi/linux/vfio.h
-> +++ b/include/uapi/linux/vfio.h
-> @@ -449,8 +449,9 @@ enum {
->  };
->  
->  /*
-> - * The vfio-ccw bus driver makes use of the following fixed region.
-> - * Unimplemented regions return a size of zero.
-> + * The vfio-ccw bus driver makes use of the following fixed region and
-> + * IRQ index mapping. Unimplemented regions return a size of zero.
-> + * Unimplemented IRQ types return a count of zero.
->   */
->  
->  enum {
-> @@ -458,6 +459,11 @@ enum {
->  	VFIO_CCW_NUM_REGIONS
->  };
->  
-> +enum {
-> +	VFIO_CCW_IO_IRQ_INDEX,
-> +	VFIO_CCW_NUM_IRQS
-> +};
-> +
->  /**
->   * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO - _IORW(VFIO_TYPE, VFIO_BASE + 12,
->   *					      struct vfio_pci_hot_reset_info)
+> > +			 * cancel/halt/clear completion.
+> > +			 */
+> > +			private->completion = &completion;
+> > +			spin_unlock_irq(sch->lock);
+> > +
+> > +			wait_for_completion(&completion);
+> 
+> What happens for cancel? It won't generate an interrupt.
+> 
+Right! How about using:
+	wait_for_completion_timeout(&completion, 3*HZ);
+
+(I stole '3*HZ' from ccw_device_kill_io.)
+
+> > +
+> > +			spin_lock_irq(sch->lock);
+> > +			private->completion = NULL;
+> > +			ret = cio_cancel_halt_clear(sch, &iretry);
+> > +		};
+> > +
+> > +		ret = cio_disable_subchannel(sch);
+> > +	} while (ret == -EBUSY);
+> > +
+> > +out_unlock:
+> > +	spin_unlock_irq(sch->lock);
+> > +	return ret;
+> > +}
+> > +
+> > +/*
+> > + * Sysfs interfaces
+> > + */
+> > +static ssize_t chpids_show(struct device *dev,
+> > +			   struct device_attribute *attr,
+> > +			   char *buf)
+> > +{
+> > +	struct subchannel *sch = to_subchannel(dev);
+> > +	struct chsc_ssd_info *ssd = &sch->ssd_info;
+> > +	ssize_t ret = 0;
+> > +	int chp;
+> > +	int mask;
+> > +
+> > +	for (chp = 0; chp < 8; chp++) {
+> > +		mask = 0x80 >> chp;
+> > +		if (ssd->path_mask & mask)
+> > +			ret += sprintf(buf + ret, "%02x ", ssd->chpid[chp].id);
+> > +		else
+> > +			ret += sprintf(buf + ret, "00 ");
+> > +	}
+> > +	ret += sprintf(buf+ret, "\n");
+> > +	return ret;
+> > +}
+> > +
+> > +static ssize_t pimpampom_show(struct device *dev,
+> > +			      struct device_attribute *attr,
+> > +			      char *buf)
+> > +{
+> > +	struct subchannel *sch = to_subchannel(dev);
+> > +	struct pmcw *pmcw = &sch->schib.pmcw;
+> > +
+> > +	return sprintf(buf, "%02x %02x %02x\n",
+> > +		       pmcw->pim, pmcw->pam, pmcw->pom);
+> > +}
+> > +
+> > +static DEVICE_ATTR(chpids, 0444, chpids_show, NULL);
+> > +static DEVICE_ATTR(pimpampom, 0444, pimpampom_show, NULL);
+> 
+> Quick question: You need to duplicate these so that lscss shows a sane
+> output for vfio-ccw subchannels?
+> 
+Yes, and also for retrieving these values in QEMU.
+
+> > +
+> > +static struct attribute *vfio_subchannel_attrs[] = {
+> > +	&dev_attr_chpids.attr,
+> > +	&dev_attr_pimpampom.attr,
+> > +	NULL,
+> > +};
+> > +
+> > +static struct attribute_group vfio_subchannel_attr_group = {
+> > +	.attrs = vfio_subchannel_attrs,
+> > +};
+> > +
+> > +/*
+> > + * Css driver callbacks
+> > + */
+> > +static void vfio_ccw_sch_irq(struct subchannel *sch)
+> > +{
+> > +	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
+> > +
+> > +	inc_irq_stat(IRQIO_CIO);
+> > +
+> > +	if (!private)
+> > +		return;
+> > +
+> > +	if (private->completion)
+> > +		complete(private->completion);
+> > +}
+> > +
+> > +static int vfio_ccw_sch_probe(struct subchannel *sch)
+> > +{
+> > +	struct pmcw *pmcw = &sch->schib.pmcw;
+> > +	struct vfio_ccw_private *private;
+> > +	int ret;
+> > +
+> > +	if (pmcw->qf) {
+> > +		dev_warn(&sch->dev, "vfio: ccw: do not support QDIO: %s\n",
+> 
+> s/do/does/
+> 
+Ok.
+
+> > +			 dev_name(&sch->dev));
+> > +		return -ENOTTY;
+> 
+> Is -ENOTTY the right return code here? -EINVAL?
+> 
+Ok. Think it again. -EINVAL makes more sense. It's like:
+"hey, I know it's an I/O subchannel, but not the kind we support".
+
+> > +	}
+> > +
+> > +	private = kzalloc(sizeof(*private), GFP_KERNEL | GFP_DMA);
+> > +	if (!private)
+> > +		return -ENOMEM;
+> > +	private->sch = sch;
+> > +	dev_set_drvdata(&sch->dev, private);
+> > +
+> > +	spin_lock_irq(sch->lock);
+> > +	sch->isc = VFIO_CCW_ISC;
+> > +	ret = cio_enable_subchannel(sch, (u32)(unsigned long)sch);
+> > +	spin_unlock_irq(sch->lock);
+> > +	if (ret)
+> > +		goto out_free;
+> > +
+> > +	ret = sysfs_create_group(&sch->dev.kobj, &vfio_subchannel_attr_group);
+> > +	if (ret)
+> > +		goto out_disable;
+> > +
+> > +	return 0;
+> > +
+> > +out_disable:
+> > +	cio_disable_subchannel(sch);
+> > +out_free:
+> > +	dev_set_drvdata(&sch->dev, NULL);
+> > +	kfree(private);
+> > +	return ret;
+> > +}
+> > +
+> 
+> (...)
+> 
+> > +/**
+> > + * vfio_ccw_sch_event - process subchannel event
+> > + * @sch: subchannel
+> > + * @process: non-zero if function is called in process context
+> > + *
+> > + * An unspecified event occurred for this subchannel. Adjust data according
+> > + * to the current operational state of the subchannel. Return zero when the
+> > + * event has been handled sufficiently or -EAGAIN when this function should
+> > + * be called again in process context.
+> > + */
+> > +static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+> > +{
+> > +	unsigned long flags;
+> > +
+> > +	spin_lock_irqsave(sch->lock, flags);
+> > +	if (!device_is_registered(&sch->dev))
+> > +		goto out_unlock;
+> > +
+> > +	if (work_pending(&sch->todo_work))
+> > +		goto out_unlock;
+> > +
+> > +	if (cio_update_schib(sch)) {
+> > +		/* Not operational. */
+> > +		css_sched_sch_todo(sch, SCH_TODO_UNREG);
+> > +
+> > +		/*
+> > +		 * TODO:
+> > +		 * Probably we should send the machine check to the guest.
+> 
+> Yes, we should do that later on. Will user space notice that the device
+> is gone? (I think crw injection should be done by user space.)
+> 
+Currently we lack this mechanism. I think there are many todos here. I
+will investigate latter.
+
+> > +		 */
+> > +		goto out_unlock;
+> > +	}
+> > +
+> > +out_unlock:
+> > +	spin_unlock_irqrestore(sch->lock, flags);
+> > +
+> > +	return 0;
+> > +}
+> 
+> (...)
+> 
+> Looks sane in general from my POV.
+Thanks for the comments.
+
+-- 
+Dong Jia
