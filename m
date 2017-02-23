@@ -1,119 +1,51 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH RFC v3 10/15] vfio: ccw: realize VFIO_DEVICE_RESET ioctl
-Date: Fri, 17 Feb 2017 09:29:34 +0100
-Message-ID: <20170217082939.33208-11-bjsdjshi@linux.vnet.ibm.com>
-References: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 23 Feb 2017 12:55:05 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390/dasd: fix spelling mistake: "supportet" ->
+ "supported"
+In-Reply-To: <20170223110609.12675-1-colin.king@canonical.com>
+References: <20170223110609.12675-1-colin.king@canonical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20170223125505.5a502956@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Colin King <colin.king@canonical.com>
+Cc: Stefan Haberland <sth@linux.vnet.ibm.com>, Jan Hoeppner <hoeppner@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduce VFIO_DEVICE_RESET ioctl for vfio-ccw to make it possible
-to hot-reset the device.
+On Thu, 23 Feb 2017 11:06:09 +0000
+Colin King <colin.king@canonical.com> wrote:
 
-We try to achieve a reset by first disabling the subchannel and
-then enabling it again: this should clear all state at the subchannel.
+> From: Colin Ian King <colin.king@canonical.com>
+> 
+> trivial fix to spelling mistake in literal string
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
+>  drivers/s390/block/dasd_eckd.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+> index 0f17137..0b38217 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -4864,7 +4864,7 @@ static void dasd_eckd_dump_sense_tcw(struct dasd_device *device,
+>  			break;
+>  		case 3: /* tsa_intrg */
+>  			len += sprintf(page + len, PRINTK_HEADER
+> -				      " tsb->tsa.intrg.: not supportet yet\n");
+> +				      " tsb->tsa.intrg.: not supported yet\n");
+>  			break;
+>  		}
+> 
 
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
----
- drivers/s390/cio/vfio_ccw_ops.c | 47 +++++++++++++++++++++++++++++------------
- 1 file changed, 33 insertions(+), 14 deletions(-)
+Applied, thanks.
 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index f3300dd..125818c 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -12,6 +12,32 @@
- 
- #include "vfio_ccw_private.h"
- 
-+static int vfio_ccw_mdev_reset(struct mdev_device *mdev)
-+{
-+	struct vfio_ccw_private *private;
-+	struct subchannel *sch;
-+	int ret;
-+
-+	private = dev_get_drvdata(mdev_parent_dev(mdev));
-+	if (!private)
-+		return -ENODEV;
-+
-+	sch = private->sch;
-+	/*
-+	 * TODO:
-+	 * In the cureent stage, some things like "no I/O running" and "no
-+	 * interrupt pending" are clear, but we are not sure what other state
-+	 * we need to care about.
-+	 * There are still a lot more instructions need to be handled. We
-+	 * should come back here later.
-+	 */
-+	ret = vfio_ccw_sch_quiesce(sch);
-+	if (ret)
-+		return ret;
-+
-+	return cio_enable_subchannel(sch, (u32)(unsigned long)sch);
-+}
-+
- static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
- 				  unsigned long action,
- 				  void *data)
-@@ -28,15 +54,11 @@ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
- 	 */
- 	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
- 		struct vfio_iommu_type1_dma_unmap *unmap = data;
--		struct subchannel *sch = private->sch;
- 
- 		if (!cp_iova_pinned(&private->cp, unmap->iova))
- 			return NOTIFY_OK;
- 
--		if (vfio_ccw_sch_quiesce(sch))
--			return NOTIFY_BAD;
--
--		if (cio_enable_subchannel(sch, (u32)(unsigned long)sch))
-+		if (vfio_ccw_mdev_reset(private->mdev))
- 			return NOTIFY_BAD;
- 
- 		cp_free(&private->cp);
-@@ -100,16 +122,11 @@ static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 
- static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
- {
--	struct vfio_ccw_private *private;
--	struct subchannel *sch;
-+	struct vfio_ccw_private *private =
-+		dev_get_drvdata(mdev_parent_dev(mdev));
- 	int ret;
- 
--	private = dev_get_drvdata(mdev_parent_dev(mdev));
--	sch = private->sch;
--	ret = vfio_ccw_sch_quiesce(sch);
--	if (ret)
--		return ret;
--	ret = cio_enable_subchannel(sch, (u32)(unsigned long)sch);
-+	ret = vfio_ccw_mdev_reset(mdev);
- 	if (ret)
- 		return ret;
- 
-@@ -190,7 +207,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
- 
- static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
- {
--	info->flags = VFIO_DEVICE_FLAGS_CCW;
-+	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
- 	info->num_regions = VFIO_CCW_NUM_REGIONS;
- 	info->num_irqs = 0;
- 
-@@ -260,6 +277,8 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 
- 		return copy_to_user((void __user *)arg, &info, minsz);
- 	}
-+	case VFIO_DEVICE_RESET:
-+		return vfio_ccw_mdev_reset(mdev);
- 	default:
- 		return -ENOTTY;
- 	}
 -- 
-2.8.4
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
