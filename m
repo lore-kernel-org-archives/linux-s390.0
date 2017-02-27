@@ -1,99 +1,92 @@
-From: "Dmitry V. Levin" <ldv@altlinux.org>
-Subject: [PATCH] uapi: fix asm/ipcbuf.h userspace compilation errors
-Date: Sun, 26 Feb 2017 21:29:27 +0300
-Message-ID: <20170226182927.GA6998@altlinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 27 Feb 2017 08:07:15 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 4.11 merge window #2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20170227080715.4c4ae517@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Include <linux/posix_types.h> to fix asm/ipcbuf.h userspace compilation
-errors like this:
+Hi Linus,
 
-/usr/include/asm-generic/ipcbuf.h:20:2: error: unknown type name '__kernel_key_t'
-  __kernel_key_t  key;
-/usr/include/asm-generic/ipcbuf.h:21:2: error: unknown type name '__kernel_uid32_t'
-  __kernel_uid32_t uid;
-/usr/include/asm-generic/ipcbuf.h:22:2: error: unknown type name '__kernel_gid32_t'
-  __kernel_gid32_t gid;
-/usr/include/asm-generic/ipcbuf.h:23:2: error: unknown type name '__kernel_uid32_t'
-  __kernel_uid32_t cuid;
-/usr/include/asm-generic/ipcbuf.h:24:2: error: unknown type name '__kernel_gid32_t'
-  __kernel_gid32_t cgid;
-/usr/include/asm-generic/ipcbuf.h:25:2: error: unknown type name '__kernel_mode_t'
-  __kernel_mode_t  mode;
-/usr/include/asm-generic/ipcbuf.h:27:35: error: '__kernel_mode_t' undeclared here (not in a function)
-  unsigned char  __pad1[4 - sizeof(__kernel_mode_t)];
-/usr/include/asm-generic/ipcbuf.h:30:2: error: unknown type name '__kernel_ulong_t'
-  __kernel_ulong_t __unused1;
-/usr/include/asm-generic/ipcbuf.h:31:2: error: unknown type name '__kernel_ulong_t'
-  __kernel_ulong_t __unused2;
+please pull from the 'for-linus' branch of
 
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
----
- include/uapi/asm-generic/ipcbuf.h     | 2 ++
- arch/s390/include/uapi/asm/ipcbuf.h   | 2 ++
- arch/sparc/include/uapi/asm/ipcbuf.h  | 2 ++
- arch/xtensa/include/uapi/asm/ipcbuf.h | 2 ++
- 4 files changed, 8 insertions(+)
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-diff --git a/include/uapi/asm-generic/ipcbuf.h b/include/uapi/asm-generic/ipcbuf.h
-index 3dbcc1e..909f825 100644
---- a/include/uapi/asm-generic/ipcbuf.h
-+++ b/include/uapi/asm-generic/ipcbuf.h
-@@ -1,6 +1,8 @@
- #ifndef __ASM_GENERIC_IPCBUF_H
- #define __ASM_GENERIC_IPCBUF_H
- 
-+#include <linux/posix_types.h>
-+
- /*
-  * The generic ipc64_perm structure:
-  * Note extra padding because this structure is passed back and forth
-diff --git a/arch/s390/include/uapi/asm/ipcbuf.h b/arch/s390/include/uapi/asm/ipcbuf.h
-index 37f293d..9f1185c 100644
---- a/arch/s390/include/uapi/asm/ipcbuf.h
-+++ b/arch/s390/include/uapi/asm/ipcbuf.h
-@@ -1,6 +1,8 @@
- #ifndef __S390_IPCBUF_H__
- #define __S390_IPCBUF_H__
- 
-+#include <linux/posix_types.h>
-+
- /*
-  * The user_ipc_perm structure for S/390 architecture.
-  * Note extra padding because this structure is passed back and forth
-diff --git a/arch/sparc/include/uapi/asm/ipcbuf.h b/arch/sparc/include/uapi/asm/ipcbuf.h
-index 66013b4..b7b1bcb 100644
---- a/arch/sparc/include/uapi/asm/ipcbuf.h
-+++ b/arch/sparc/include/uapi/asm/ipcbuf.h
-@@ -1,6 +1,8 @@
- #ifndef __SPARC_IPCBUF_H
- #define __SPARC_IPCBUF_H
- 
-+#include <linux/posix_types.h>
-+
- /*
-  * The ipc64_perm structure for sparc/sparc64 architecture.
-  * Note extra padding because this structure is passed back and forth
-diff --git a/arch/xtensa/include/uapi/asm/ipcbuf.h b/arch/xtensa/include/uapi/asm/ipcbuf.h
-index c33aa6a..7442e48 100644
---- a/arch/xtensa/include/uapi/asm/ipcbuf.h
-+++ b/arch/xtensa/include/uapi/asm/ipcbuf.h
-@@ -11,6 +11,8 @@
- #ifndef _XTENSA_IPCBUF_H
- #define _XTENSA_IPCBUF_H
- 
-+#include <linux/posix_types.h>
-+
- /*
-  * Pad space is left for:
-  * - 32-bit mode_t and seq
--- 
-ldv
+to receive the following updates:
+
+Next to the usual bug fixes (including the TASK_SIZE fix), there is
+one larger crypto item. It allows to use protected keys with the
+in-kernel crypto API. The protected key support has two parts,
+the pkey user space API to convert key formats and the paes crypto
+module that uses a protected key instead of a standard AES key.
+
+Colin Ian King (1):
+      s390/dasd: fix spelling mistake: "supportet" -> "supported"
+
+Dominik Dingel (1):
+      s390/mm: use _SEGMENT_ENTRY_EMPTY in the code
+
+Harald Freudenberger (6):
+      s390/zcrypt: Enable request count reset for cards and queues.
+      s390/crypto: Add PCKMO inline function
+      s390/zcrypt: Cleanup leftover module code.
+      s390/zcrypt: Rework CONFIG_ZCRYPT Kconfig text.
+      s390/zcrypt: export additional symbols
+      s390/pkey: Introduce pkey kernel module
+
+Heiko Carstens (5):
+      s390: rename CIF_ASCE to CIF_ASCE_PRIMARY
+      s390: restore address space when returning to user space
+      s390: opt into HAVE_COPY_THREAD_TLS
+      s390/nmi: fix order of register validation
+      s390/nmi: purge tlbs after control register validation
+
+Martin Schwidefsky (2):
+      s390/crypt: Add protected key AES module
+      s390: TASK_SIZE for kernel threads
+
+Peter Oberparleiter (1):
+      s390/chsc: Add exception handler for CHSC instruction
+
+ arch/s390/Kconfig                       |    1 +
+ arch/s390/configs/default_defconfig     |    1 +
+ arch/s390/configs/performance_defconfig |    1 +
+ arch/s390/crypto/Makefile               |    2 +-
+ arch/s390/crypto/paes_s390.c            |  619 +++++++++++++++++
+ arch/s390/defconfig                     |    1 +
+ arch/s390/include/asm/cpacf.h           |   46 +-
+ arch/s390/include/asm/mmu_context.h     |    4 +-
+ arch/s390/include/asm/pgtable.h         |   14 +-
+ arch/s390/include/asm/pkey.h            |   90 +++
+ arch/s390/include/asm/processor.h       |   19 +-
+ arch/s390/include/asm/uaccess.h         |   23 +-
+ arch/s390/include/uapi/asm/Kbuild       |    1 +
+ arch/s390/include/uapi/asm/pkey.h       |  112 +++
+ arch/s390/kernel/entry.S                |   33 +-
+ arch/s390/kernel/entry.h                |    1 +
+ arch/s390/kernel/nmi.c                  |   25 +-
+ arch/s390/kernel/process.c              |   18 +-
+ arch/s390/mm/gmap.c                     |    6 +-
+ arch/s390/mm/hugetlbpage.c              |    2 +-
+ drivers/crypto/Kconfig                  |   32 +-
+ drivers/s390/block/dasd_eckd.c          |    2 +-
+ drivers/s390/cio/ioasm.c                |    8 +-
+ drivers/s390/crypto/Makefile            |    4 +
+ drivers/s390/crypto/ap_bus.c            |   10 -
+ drivers/s390/crypto/ap_card.c           |   24 +-
+ drivers/s390/crypto/ap_queue.c          |   21 +-
+ drivers/s390/crypto/pkey_api.c          | 1148 +++++++++++++++++++++++++++++++
+ drivers/s390/crypto/zcrypt_api.c        |    5 +-
+ drivers/s390/crypto/zcrypt_api.h        |    2 +
+ 30 files changed, 2182 insertions(+), 93 deletions(-)
+ create mode 100644 arch/s390/crypto/paes_s390.c
+ create mode 100644 arch/s390/include/asm/pkey.h
+ create mode 100644 arch/s390/include/uapi/asm/pkey.h
+ create mode 100644 drivers/s390/crypto/pkey_api.c
