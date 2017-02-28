@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 27 Feb 2017 08:07:15 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 4.11 merge window #2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20170227080715.4c4ae517@mschwideX1>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [RFC PATCH] mm, hotplug: get rid of auto_online_blocks
+Date: Tue, 28 Feb 2017 11:21:05 +0100
+Message-ID: <20170228102105.GA13872@osiris>
+References: <20170227092817.23571-1-mhocko@kernel.org>
+ <87lgssvtni.fsf@vitty.brq.redhat.com>
+ <20170227112510.GA4129@osiris>
+ <20170227154304.GK26504@dhcp22.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <owner-linux-mm@kvack.org>
+Content-Disposition: inline
+In-Reply-To: <20170227154304.GK26504@dhcp22.suse.cz>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-acpi/>
+List-Post: <mailto:linux-acpi@vger.kernel.org>
+To: Michal Hocko <mhocko@kernel.org>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Greg KH <gregkh@linuxfoundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, David Rientjes <rientjes@google.com>, Daniel Kiper <daniel.kiper@oracle.com>, linux-api@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On Mon, Feb 27, 2017 at 04:43:04PM +0100, Michal Hocko wrote:
+> On Mon 27-02-17 12:25:10, Heiko Carstens wrote:
+> > On Mon, Feb 27, 2017 at 11:02:09AM +0100, Vitaly Kuznetsov wrote:
+> > > A couple of other thoughts:
+> > > 1) Having all newly added memory online ASAP is probably what people
+> > > want for all virtual machines.
+> > 
+> > This is not true for s390. On s390 we have "standby" memory that a guest
+> > sees and potentially may use if it sets it online. Every guest that sets
+> > memory offline contributes to the hypervisor's standby memory pool, while
+> > onlining standby memory takes memory away from the standby pool.
+> > 
+> > The use-case is that a system administrator in advance knows the maximum
+> > size a guest will ever have and also defines how much memory should be used
+> > at boot time. The difference is standby memory.
+> > 
+> > Auto-onlining of standby memory is the last thing we want.
+> > 
+> > > Unfortunately, we have additional complexity with memory zones
+> > > (ZONE_NORMAL, ZONE_MOVABLE) and in some cases manual intervention is
+> > > required. Especially, when further unplug is expected.
+> > 
+> > This also is a reason why auto-onlining doesn't seem be the best way.
+> 
+> Can you imagine any situation when somebody actually might want to have
+> this knob enabled? From what I understand it doesn't seem to be the
+> case.
 
-please pull from the 'for-linus' branch of
+I can only speak for s390, and at least here I think auto-online is always
+wrong, especially if you consider the added complexity that you may want to
+online memory sometimes to ZONE_NORMAL and sometimes to ZONE_MOVABLE.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
-
-to receive the following updates:
-
-Next to the usual bug fixes (including the TASK_SIZE fix), there is
-one larger crypto item. It allows to use protected keys with the
-in-kernel crypto API. The protected key support has two parts,
-the pkey user space API to convert key formats and the paes crypto
-module that uses a protected key instead of a standard AES key.
-
-Colin Ian King (1):
-      s390/dasd: fix spelling mistake: "supportet" -> "supported"
-
-Dominik Dingel (1):
-      s390/mm: use _SEGMENT_ENTRY_EMPTY in the code
-
-Harald Freudenberger (6):
-      s390/zcrypt: Enable request count reset for cards and queues.
-      s390/crypto: Add PCKMO inline function
-      s390/zcrypt: Cleanup leftover module code.
-      s390/zcrypt: Rework CONFIG_ZCRYPT Kconfig text.
-      s390/zcrypt: export additional symbols
-      s390/pkey: Introduce pkey kernel module
-
-Heiko Carstens (5):
-      s390: rename CIF_ASCE to CIF_ASCE_PRIMARY
-      s390: restore address space when returning to user space
-      s390: opt into HAVE_COPY_THREAD_TLS
-      s390/nmi: fix order of register validation
-      s390/nmi: purge tlbs after control register validation
-
-Martin Schwidefsky (2):
-      s390/crypt: Add protected key AES module
-      s390: TASK_SIZE for kernel threads
-
-Peter Oberparleiter (1):
-      s390/chsc: Add exception handler for CHSC instruction
-
- arch/s390/Kconfig                       |    1 +
- arch/s390/configs/default_defconfig     |    1 +
- arch/s390/configs/performance_defconfig |    1 +
- arch/s390/crypto/Makefile               |    2 +-
- arch/s390/crypto/paes_s390.c            |  619 +++++++++++++++++
- arch/s390/defconfig                     |    1 +
- arch/s390/include/asm/cpacf.h           |   46 +-
- arch/s390/include/asm/mmu_context.h     |    4 +-
- arch/s390/include/asm/pgtable.h         |   14 +-
- arch/s390/include/asm/pkey.h            |   90 +++
- arch/s390/include/asm/processor.h       |   19 +-
- arch/s390/include/asm/uaccess.h         |   23 +-
- arch/s390/include/uapi/asm/Kbuild       |    1 +
- arch/s390/include/uapi/asm/pkey.h       |  112 +++
- arch/s390/kernel/entry.S                |   33 +-
- arch/s390/kernel/entry.h                |    1 +
- arch/s390/kernel/nmi.c                  |   25 +-
- arch/s390/kernel/process.c              |   18 +-
- arch/s390/mm/gmap.c                     |    6 +-
- arch/s390/mm/hugetlbpage.c              |    2 +-
- drivers/crypto/Kconfig                  |   32 +-
- drivers/s390/block/dasd_eckd.c          |    2 +-
- drivers/s390/cio/ioasm.c                |    8 +-
- drivers/s390/crypto/Makefile            |    4 +
- drivers/s390/crypto/ap_bus.c            |   10 -
- drivers/s390/crypto/ap_card.c           |   24 +-
- drivers/s390/crypto/ap_queue.c          |   21 +-
- drivers/s390/crypto/pkey_api.c          | 1148 +++++++++++++++++++++++++++++++
- drivers/s390/crypto/zcrypt_api.c        |    5 +-
- drivers/s390/crypto/zcrypt_api.h        |    2 +
- 30 files changed, 2182 insertions(+), 93 deletions(-)
- create mode 100644 arch/s390/crypto/paes_s390.c
- create mode 100644 arch/s390/include/asm/pkey.h
- create mode 100644 arch/s390/include/uapi/asm/pkey.h
- create mode 100644 drivers/s390/crypto/pkey_api.c
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
