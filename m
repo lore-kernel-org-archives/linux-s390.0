@@ -1,128 +1,43 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: WTH is going on with memory hotplug sysf interface (was: Re:
- [RFC PATCH] mm, hotplug: get rid of auto_online_blocks)
-Date: Wed, 15 Mar 2017 08:57:55 +0100
-Message-ID: <20170315075755.GC32620@dhcp22.suse.cz>
-References: <20170303082723.GB31499@dhcp22.suse.cz>
- <20170303183422.6358ee8f@nial.brq.redhat.com>
- <20170306145417.GG27953@dhcp22.suse.cz>
- <20170307134004.58343e14@nial.brq.redhat.com>
- <20170309125400.GI11592@dhcp22.suse.cz>
- <20170310135807.GI3753@dhcp22.suse.cz>
- <20170310155333.GN3753@dhcp22.suse.cz>
- <20170310190037.fifahjd47joim6zy@arbab-laptop>
- <20170313092145.GG31518@dhcp22.suse.cz>
- <20170314193521.GP27056@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <owner-linux-mm@kvack.org>
-Content-Disposition: inline
-In-Reply-To: <20170314193521.GP27056@redhat.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Reza Arbab <arbab@linux.vnet.ibm.com>, Igor Mammedov <imammedo@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Greg KH <gregkh@linuxfoundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, David Rientjes <rientjes@google.com>, Daniel Kiper <daniel.kiper@oracle.com>, linux-api@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, qiuxishi@huawei.com, toshi.kani@hpe.com, xieyisheng1@huawei.com, slaoub@gmail.com, iamjoonsoo.kim@lge.com, vbabka@suse.cz, Zhang Zhen <zhenzhang.zhang@huawei.com>, Yasuaki Ishimatsu <yasu.isimatu@gmail.com>, Tang Chen <tangchen@cn.fujitsu.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <20170226010156.GA28831@altlinux.org>
+References: <20170226010156.GA28831@altlinux.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 1 Mar 2017 17:20:50 +0100
+Message-ID: <CAK8P3a0YX3RGAqWN0mwUJtBsqUX0C+QRtJLrT_UA=wX6Z+q0DA@mail.gmail.com>
+Subject: Re: [PATCH] uapi: fix asm/signal.h userspace compilation errors
+Content-Type: text/plain; charset=UTF-8
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20170301162050.Fp5LNlqZucIakWlfnPhu9-XKRr0IkblG4h2OwPmaS8E@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: "Dmitry V. Levin" <ldv@altlinux.org>
+Cc: Russell King <linux@armlinux.org.uk>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Mikael Starvik <starvik@axis.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Ralf Baechle <ralf@linux-mips.org>, David Howells <dhowells@redhat.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, linux-arch <linux-arch@vger.kernel.org>, linux-alpha@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-cris-kernel@axis.com, uclinux-h8-devel@lists.sourceforge.jp, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue 14-03-17 20:35:21, Andrea Arcangeli wrote:
-> Hello,
-> 
-> On Mon, Mar 13, 2017 at 10:21:45AM +0100, Michal Hocko wrote:
-> > On Fri 10-03-17 13:00:37, Reza Arbab wrote:
-> > > On Fri, Mar 10, 2017 at 04:53:33PM +0100, Michal Hocko wrote:
-> > > >OK, so while I was playing with this setup some more I probably got why
-> > > >this is done this way. All new memblocks are added to the zone Normal
-> > > >where they are accounted as spanned but not present.
-> > > 
-> > > It's not always zone Normal. See zone_for_memory(). This leads to a
-> > > workaround for having to do online_movable in descending block order.
-> > > Instead of this:
-> > > 
-> > > 1. probe block 34, probe block 33, probe block 32, ...
-> > > 2. online_movable 34, online_movable 33, online_movable 32, ...
-> > > 
-> > > you can online_movable the first block before adding the rest:
-> > 
-> > I do I enforce that behavior when the probe happens automagically?
-> 
-> What I provided as guide to online as movable in current and older
-> kernels is:
-> 
-> 1) Remove udev rule
-> 2) After adding memory with qemu/libvirt API run in the guest
-> 
-> ------- workaround start ----
-> #!/bin/bash
-> for i in `ls -d1 /sys/devices/system/memory/memory* | sort -nr -t y -k 5`; do if [ "`cat $i/state`" == "offline" ]; then echo online_movable > $i/state ; fi; done
-> ------- workaround end ----
-> 
-> That's how bad is onlining as movable for memory hotunplug.
+On Sun, Feb 26, 2017 at 2:01 AM, Dmitry V. Levin <ldv@altlinux.org> wrote:
+> Include <stddef.h> (guarded by #ifndef __KERNEL__) to fix asm/signal.h
+> userspace compilation errors like this:
+>
+> /usr/include/asm/signal.h:126:2: error: unknown type name 'size_t'
+>   size_t ss_size;
+>
+> As no uapi header provides a definition of size_t, inclusion
+> of <stddef.h> seems to be the most conservative fix available.
+>
+> On the kernel side size_t is typedef'ed to __kernel_size_t, so
+> an alternative fix would be to change the type of sigaltstack.ss_size
+> from size_t to __kernel_size_t for all architectures except those where
+> sizeof(size_t) < sizeof(__kernel_size_t), namely, x32 and mips n32.
+>
+> On x32 and mips n32, however, #include <stddef.h> seems to be the most
+> straightforward way to obtain the definition for sigaltstack.ss_size's
+> type.
+>
+> Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
 
-Yeah, this is really yucky. Fortunately, I already have a working prototype
-which removes this restriction altogether.
+I'm not sure if this is the best fix. We generally should not include one
+standard header from another standard header. Would it be possible
+to use __kernel_size_t instead of size_t?
 
-> > > 1. probe block 32, online_movable 32
-> > > 2. probe block 33, probe block 34, ...
-> > > 	- zone_for_memory() will cause these to start Movable
-> > > 3. online 33, online 34, ...
-> > > 	- they're already in Movable, so online_movable is equivalentr
-> > > 
-> > > I agree with your general sentiment that this stuff is very nonintuitive.
-> > 
-> > My criterion for nonintuitive is probably different because I would call
-> > this _completely_unusable_. Sorry for being so loud about this but the
-> > more I look into this area the more WTF code I see. This has seen close
-> > to zero review and seems to be building up more single usecase code on
-> > top of previous. We need to change this, seriously!
-> 
-> It's not a bug, but when I found it I called it a "constraint" and
-> when I debugged it (IIRC) it originated here:
-> 
-> 	} else if (online_type == MMOP_ONLINE_MOVABLE) {
-> 		if (!zone_can_shift(pfn, nr_pages, ZONE_MOVABLE, &zone_shift))
-> 			return -EINVAL;
-> 	}
-> 
-> Fixing it so you could online as movable even if it wasn't the last
-> block was in my todo list but then we had other plans.
-> 
-> Unfortunately unless pfn+nr_pages of the newly created Movable zone
-> matches the end of the normal zone (or whatever was there that has to
-> be converted to Movable), it will fail onlining as movable.
-
-Well, I think the main problem is that we associate pages added in the
-first phase (probe) to the Normal zone. The everything else is just a
-fallout and fiddling to make it work somehow.
- 
-[...]
-
-> To be clear, I'm not necessarily against eventually removing
-> _DEFFAULT_ONLINE, but an equally reliable and comparably fast
-> alternative should be provided first and there's no such alternative
-> right now.
-
-As pointed in other reply that is not an intention here. I primarily
-wanted to understand the scope of the problem. I believe this config
-option was rushed into the kernel without considering other alternatives
-which would make the hotplug more usable by others as well.
- 
-> If s390 has special issues requiring admin or a software hotplug
-> manager app to enable blocks of memory by hand, the _DEFFAULT_ONLINE
-> could be then an option selected or not selected by
-> arch/*/Kconfig. The udev rule is still an automatic action so it's 1:1
-> with the in-kernel feature. If the in-kernel automatic onlining is not
-> workable on s390 I would assume the udev rule is also not workable.
-
-But this is not about s390. It is about different usecases which require
-different onlining policy and that is the main problem of the hardcoded
-one in the kernel. See the other reply.
--- 
-Michal Hocko
-SUSE Labs
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+     Arnd
