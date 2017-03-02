@@ -1,90 +1,212 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Nicolai Stange <nicstange@gmail.com>
-Subject: [PATCH] s390/time: set ->min_delta_ticks and ->max_delta_ticks
-Date: Thu, 30 Mar 2017 21:54:55 +0200
-Message-Id: <20170330195455.7393-1-nicstange@gmail.com>
-In-Reply-To: <20170326134403.16226-1-nicstange@gmail.com>
-References: <20170326134403.16226-1-nicstange@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org, Nicolai Stange <nicstange@gmail.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Thu, 2 Mar 2017 03:46:07 +0300
+From: "Dmitry V. Levin" <ldv@altlinux.org>
+Subject: [PATCH] uapi: fix another asm/shmbuf.h userspace compilation error
+Message-ID: <20170302004607.GE27132@altlinux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20170302004607.QDes5ZUOqIThgAQs7gvx8r0SPan_dinkzobIX38fvLc@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Haavard Skinnemoen <hskinnemoen@gmail.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Ralf Baechle <ralf@linux-mips.org>, David Howells <dhowells@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In preparation for making the clockevents core NTP correction aware,
-all clockevent device drivers must set ->min_delta_ticks and
-->max_delta_ticks rather than ->min_delta_ns and ->max_delta_ns: a
-clockevent device's rate is going to change dynamically and thus, the
-ratio of ns to ticks ceases to stay invariant.
+Replace size_t with __kernel_size_t to fix asm/shmbuf.h userspace
+compilation errors like this:
 
-Currently, the s390's CPU timer clockevent device is initialized as
-follows:
+/usr/include/asm-generic/shmbuf.h:28:2: error: unknown type name 'size_t'
+  size_t   shm_segsz; /* size of segment (bytes) */
 
-  cd->min_delta_ns    = 1;
-  cd->max_delta_ns    = LONG_MAX;
+x32 is the only architecture where sizeof(size_t) is less than
+sizeof(__kernel_size_t), but as the kernel treats shm_segsz field as
+__kernel_size_t anyway, UAPI should follow.  Thanks to little-endiannes
+of x32 and 64-bit alignment of the field following shm_segsz, this
+change doesn't break ABI, and the difference doesn't manifest itself
+easily.
 
-Note that the device's time to cycle conversion factor, i.e.
-cd->mult / (2^cd->shift), is approx. equal to 4.
-
-Hence, this would translate to
-
-  cd->min_delta_ticks = 4;
-  cd->max_delta_ticks = 4 * LONG_MAX;
-
-However, a minimum value of 1ns is in the range of noise anyway and the
-clockevent core will take care of this by increasing it to 1us or so.
-Furthermore, 4*LONG_MAX would overflow the unsigned long argument the
-clockevent devices gets programmed with.
-
-Thus, initialize ->min_delta_ticks with 1 and ->max_delta_ticks with
-ULONG_MAX.
-
-This patch alone doesn't introduce any change in functionality as the
-clockevents core still looks exclusively at the (untouched) ->min_delta_ns
-and ->max_delta_ns. As soon as this has changed, a followup patch will
-purge the initialization of ->min_delta_ns and ->max_delta_ns from this
-driver.
-
-Signed-off-by: Nicolai Stange <nicstange@gmail.com>
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
 ---
+ include/uapi/asm-generic/shmbuf.h      | 2 +-
+ arch/alpha/include/uapi/asm/shmbuf.h   | 2 +-
+ arch/avr32/include/uapi/asm/shmbuf.h   | 2 +-
+ arch/frv/include/uapi/asm/shmbuf.h     | 2 +-
+ arch/ia64/include/uapi/asm/shmbuf.h    | 2 +-
+ arch/m32r/include/uapi/asm/shmbuf.h    | 2 +-
+ arch/mips/include/uapi/asm/shmbuf.h    | 2 +-
+ arch/mn10300/include/uapi/asm/shmbuf.h | 2 +-
+ arch/powerpc/include/uapi/asm/shmbuf.h | 2 +-
+ arch/s390/include/uapi/asm/shmbuf.h    | 2 +-
+ arch/sparc/include/uapi/asm/shmbuf.h   | 2 +-
+ arch/xtensa/include/uapi/asm/shmbuf.h  | 4 ++--
+ 12 files changed, 13 insertions(+), 13 deletions(-)
 
-Notes:
-    This prerequisite patch is part of a larger effort to feed NTP
-    corrections into the clockevent devices' frequencies and thus
-    avoiding their notion of time to diverge from the system's
-    one. If you're interested, the current state of the whole series
-    can be found at [1].
-    
-    If you haven't got any objections and these prerequisites get
-    merged by 4.12 everywhere, I'll proceed with the remainder of
-    this series in 4.13.
-    
-    Applicable to next-20170324 as well as to John' Stultz tree [2].
-    
-    [1]
-      git://nicst.de/linux.git cev-freq-adj.v10.fortglx-4.12-time
-      https://nicst.de/git/?p=linux.git;a=shortlog;h=refs/heads/cev-freq-adj.v10.fortglx-4.12-time
-    
-    [2]
-      https://git.linaro.org/people/john.stultz/linux.git fortglx/4.12/time
-
- arch/s390/kernel/time.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index c31da46bc037..c3a52f9a69a0 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -158,7 +158,9 @@ void init_cpu_timer(void)
- 	cd->mult		= 16777;
- 	cd->shift		= 12;
- 	cd->min_delta_ns	= 1;
-+	cd->min_delta_ticks	= 1;
- 	cd->max_delta_ns	= LONG_MAX;
-+	cd->max_delta_ticks	= ULONG_MAX;
- 	cd->rating		= 400;
- 	cd->cpumask		= cpumask_of(cpu);
- 	cd->set_next_event	= s390_next_event;
+diff --git a/include/uapi/asm-generic/shmbuf.h b/include/uapi/asm-generic/shmbuf.h
+index 2a6d508..0756934 100644
+--- a/include/uapi/asm-generic/shmbuf.h
++++ b/include/uapi/asm-generic/shmbuf.h
+@@ -25,7 +25,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ #if __BITS_PER_LONG != 64
+ 	unsigned long		__unused1;
+diff --git a/arch/alpha/include/uapi/asm/shmbuf.h b/arch/alpha/include/uapi/asm/shmbuf.h
+index 6156099..e32ed1f 100644
+--- a/arch/alpha/include/uapi/asm/shmbuf.h
++++ b/arch/alpha/include/uapi/asm/shmbuf.h
+@@ -14,7 +14,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+ 	__kernel_time_t		shm_ctime;	/* last change time */
+diff --git a/arch/avr32/include/uapi/asm/shmbuf.h b/arch/avr32/include/uapi/asm/shmbuf.h
+index c8e5234..2804f25 100644
+--- a/arch/avr32/include/uapi/asm/shmbuf.h
++++ b/arch/avr32/include/uapi/asm/shmbuf.h
+@@ -15,7 +15,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	unsigned long		__unused1;
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+diff --git a/arch/frv/include/uapi/asm/shmbuf.h b/arch/frv/include/uapi/asm/shmbuf.h
+index 943746c..2af199f 100644
+--- a/arch/frv/include/uapi/asm/shmbuf.h
++++ b/arch/frv/include/uapi/asm/shmbuf.h
+@@ -15,7 +15,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	unsigned long		__unused1;
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+diff --git a/arch/ia64/include/uapi/asm/shmbuf.h b/arch/ia64/include/uapi/asm/shmbuf.h
+index ca81d77e..8e35495 100644
+--- a/arch/ia64/include/uapi/asm/shmbuf.h
++++ b/arch/ia64/include/uapi/asm/shmbuf.h
+@@ -14,7 +14,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+ 	__kernel_time_t		shm_ctime;	/* last change time */
+diff --git a/arch/m32r/include/uapi/asm/shmbuf.h b/arch/m32r/include/uapi/asm/shmbuf.h
+index 714de6e..fa36b9e 100644
+--- a/arch/m32r/include/uapi/asm/shmbuf.h
++++ b/arch/m32r/include/uapi/asm/shmbuf.h
+@@ -15,7 +15,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	unsigned long		__unused1;
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+diff --git a/arch/mips/include/uapi/asm/shmbuf.h b/arch/mips/include/uapi/asm/shmbuf.h
+index f47d193..95c53ff 100644
+--- a/arch/mips/include/uapi/asm/shmbuf.h
++++ b/arch/mips/include/uapi/asm/shmbuf.h
+@@ -14,7 +14,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+ 	__kernel_time_t		shm_ctime;	/* last change time */
+diff --git a/arch/mn10300/include/uapi/asm/shmbuf.h b/arch/mn10300/include/uapi/asm/shmbuf.h
+index 71df684..e156878 100644
+--- a/arch/mn10300/include/uapi/asm/shmbuf.h
++++ b/arch/mn10300/include/uapi/asm/shmbuf.h
+@@ -15,7 +15,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	unsigned long		__unused1;
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+diff --git a/arch/powerpc/include/uapi/asm/shmbuf.h b/arch/powerpc/include/uapi/asm/shmbuf.h
+index 7937289..a2425e5 100644
+--- a/arch/powerpc/include/uapi/asm/shmbuf.h
++++ b/arch/powerpc/include/uapi/asm/shmbuf.h
+@@ -38,7 +38,7 @@ struct shmid64_ds {
+ #ifndef __powerpc64__
+ 	unsigned long		__unused4;
+ #endif
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_pid_t		shm_cpid;	/* pid of creator */
+ 	__kernel_pid_t		shm_lpid;	/* pid of last operator */
+ 	unsigned long		shm_nattch;	/* no. of current attaches */
+diff --git a/arch/s390/include/uapi/asm/shmbuf.h b/arch/s390/include/uapi/asm/shmbuf.h
+index 9ce1d9f..9ddf9e0 100644
+--- a/arch/s390/include/uapi/asm/shmbuf.h
++++ b/arch/s390/include/uapi/asm/shmbuf.h
+@@ -15,7 +15,7 @@
+ 
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ #ifndef __s390x__
+ 	unsigned long		__unused1;
+diff --git a/arch/sparc/include/uapi/asm/shmbuf.h b/arch/sparc/include/uapi/asm/shmbuf.h
+index f651952..ed72656 100644
+--- a/arch/sparc/include/uapi/asm/shmbuf.h
++++ b/arch/sparc/include/uapi/asm/shmbuf.h
+@@ -27,7 +27,7 @@ struct shmid64_ds {
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+ 	PADDING(__pad3)
+ 	__kernel_time_t		shm_ctime;	/* last change time */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_pid_t		shm_cpid;	/* pid of creator */
+ 	__kernel_pid_t		shm_lpid;	/* pid of last operator */
+ 	unsigned long		shm_nattch;	/* no. of current attaches */
+diff --git a/arch/xtensa/include/uapi/asm/shmbuf.h b/arch/xtensa/include/uapi/asm/shmbuf.h
+index ad90d05..8d9206e 100644
+--- a/arch/xtensa/include/uapi/asm/shmbuf.h
++++ b/arch/xtensa/include/uapi/asm/shmbuf.h
+@@ -24,7 +24,7 @@
+ #if defined (__XTENSA_EL__)
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	unsigned long		__unused1;
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
+@@ -40,7 +40,7 @@ struct shmid64_ds {
+ #elif defined (__XTENSA_EB__)
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
+-	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_size_t		shm_segsz;	/* size of segment (bytes) */
+ 	__kernel_time_t		shm_atime;	/* last attach time */
+ 	unsigned long		__unused1;
+ 	__kernel_time_t		shm_dtime;	/* last detach time */
 -- 
-2.12.0
+ldv
