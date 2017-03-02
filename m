@@ -1,24 +1,243 @@
-MIME-Version: 1.0
-In-Reply-To: <20170323172515.27950-2-thgarnie@google.com>
-References: <20170323172515.27950-1-thgarnie@google.com> <20170323172515.27950-2-thgarnie@google.com>
-From: Thomas Garnier <thgarnie@google.com>
-Date: Thu, 23 Mar 2017 13:36:48 -0700
-Message-ID: <CAJcbSZHo-PTbFJW66VWY0F55ajBF+cFKUq5uZp7WESicA_QTUA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: [kernel-hardening] Re: [PATCH v5 2/4] x86/syscalls: Specific usage of verify_pre_usermode_state
-List-Archive: <https://lore.kernel.org/kernel-hardening/>
-List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Howells <dhowells@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@intel.com>, Al Viro <viro@zeniv.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>, =?UTF-8?Q?Ren=C3=A9_Nyffenegger?= <mail@renenyffenegger.ch>, Thomas Garnier <thgarnie@google.com>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Kees Cook <keescook@chromium.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linux-arm-kernel@lists.infradead.org, Kernel Hardening <kernel-hardening@lists.openwall.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Thu, 2 Mar 2017 03:22:53 +0300
+From: "Dmitry V. Levin" <ldv@altlinux.org>
+Subject: [PATCH 3/3] uapi: fix asm/shmbuf.h userspace compilation errors
+Message-ID: <20170302002253.GC27132@altlinux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a3Ptm68i43BT5+kWptDw1koPwexpuFwH3-1naj_xi+arQ@mail.gmail.com>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20170302002253.3l-EchtRnTEqFAG0erZUnXjA74XeAQkfCzxHy5enBkg@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Haavard Skinnemoen <hskinnemoen@gmail.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Ralf Baechle <ralf@linux-mips.org>, David Howells <dhowells@redhat.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Mar 23, 2017 at 10:25 AM, Thomas Garnier <thgarnie@google.com> wrote:
-> Implement specific usage of verify_pre_usermode_state for user-mode
-> returns for x86.
+Include <asm/ipcbuf.h> to fix asm/shmbuf.h userspace compilation errors
+like this:
 
-Signed-off-by: Thomas Garnier <thgarnie@google.com>
+/usr/include/asm-generic/shmbuf.h:26:20: error: field 'shm_perm' has incomplete type
+  struct ipc64_perm shm_perm; /* operation perms */
+/usr/include/asm-generic/shmbuf.h:28:2: error: unknown type name '__kernel_time_t'
+  __kernel_time_t  shm_atime; /* last attach time */
+/usr/include/asm-generic/shmbuf.h:32:2: error: unknown type name '__kernel_time_t'
+  __kernel_time_t  shm_dtime; /* last detach time */
+/usr/include/asm-generic/shmbuf.h:36:2: error: unknown type name '__kernel_time_t'
+  __kernel_time_t  shm_ctime; /* last change time */
+/usr/include/asm-generic/shmbuf.h:40:2: error: unknown type name '__kernel_pid_t'
+  __kernel_pid_t  shm_cpid; /* pid of creator */
+/usr/include/asm-generic/shmbuf.h:41:2: error: unknown type name '__kernel_pid_t'
+  __kernel_pid_t  shm_lpid; /* pid of last operator */
+/usr/include/asm-generic/shmbuf.h:42:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t shm_nattch; /* no. of current attaches */
+/usr/include/asm-generic/shmbuf.h:43:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t __unused4;
+/usr/include/asm-generic/shmbuf.h:44:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t __unused5;
+/usr/include/asm-generic/shmbuf.h:48:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t shmmax;
+/usr/include/asm-generic/shmbuf.h:49:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t shmmin;
+/usr/include/asm-generic/shmbuf.h:50:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t shmmni;
+/usr/include/asm-generic/shmbuf.h:51:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t shmseg;
+/usr/include/asm-generic/shmbuf.h:52:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t shmall;
+/usr/include/asm-generic/shmbuf.h:53:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t __unused1;
+/usr/include/asm-generic/shmbuf.h:54:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t __unused2;
+/usr/include/asm-generic/shmbuf.h:55:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t __unused3;
+/usr/include/asm-generic/shmbuf.h:56:2: error: unknown type name '__kernel_ulong_t'
+  __kernel_ulong_t __unused4;
 
-Not sure why it was not there anymore.
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+---
+ include/uapi/asm-generic/shmbuf.h      | 1 +
+ arch/alpha/include/uapi/asm/shmbuf.h   | 2 ++
+ arch/avr32/include/uapi/asm/shmbuf.h   | 2 ++
+ arch/frv/include/uapi/asm/shmbuf.h     | 2 ++
+ arch/ia64/include/uapi/asm/shmbuf.h    | 2 ++
+ arch/m32r/include/uapi/asm/shmbuf.h    | 2 ++
+ arch/mips/include/uapi/asm/shmbuf.h    | 2 ++
+ arch/mn10300/include/uapi/asm/shmbuf.h | 2 ++
+ arch/parisc/include/uapi/asm/shmbuf.h  | 1 +
+ arch/powerpc/include/uapi/asm/shmbuf.h | 2 ++
+ arch/s390/include/uapi/asm/shmbuf.h    | 2 ++
+ arch/sparc/include/uapi/asm/shmbuf.h   | 2 ++
+ arch/xtensa/include/uapi/asm/shmbuf.h  | 2 ++
+ 13 files changed, 24 insertions(+)
 
+diff --git a/include/uapi/asm-generic/shmbuf.h b/include/uapi/asm-generic/shmbuf.h
+index 7e9fb2f..2a6d508 100644
+--- a/include/uapi/asm-generic/shmbuf.h
++++ b/include/uapi/asm-generic/shmbuf.h
+@@ -1,6 +1,7 @@
+ #ifndef __ASM_GENERIC_SHMBUF_H
+ #define __ASM_GENERIC_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
+ #include <asm/bitsperlong.h>
+ 
+ /*
+diff --git a/arch/alpha/include/uapi/asm/shmbuf.h b/arch/alpha/include/uapi/asm/shmbuf.h
+index 37ee84f..6156099 100644
+--- a/arch/alpha/include/uapi/asm/shmbuf.h
++++ b/arch/alpha/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _ALPHA_SHMBUF_H
+ #define _ALPHA_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /* 
+  * The shmid64_ds structure for alpha architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/avr32/include/uapi/asm/shmbuf.h b/arch/avr32/include/uapi/asm/shmbuf.h
+index b94cf8b..c8e5234 100644
+--- a/arch/avr32/include/uapi/asm/shmbuf.h
++++ b/arch/avr32/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _UAPI__ASM_AVR32_SHMBUF_H
+ #define _UAPI__ASM_AVR32_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /*
+  * The shmid64_ds structure for i386 architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/frv/include/uapi/asm/shmbuf.h b/arch/frv/include/uapi/asm/shmbuf.h
+index 4c6e711..943746c 100644
+--- a/arch/frv/include/uapi/asm/shmbuf.h
++++ b/arch/frv/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_SHMBUF_H
+ #define _ASM_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /*
+  * The shmid64_ds structure for FR-V architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/ia64/include/uapi/asm/shmbuf.h b/arch/ia64/include/uapi/asm/shmbuf.h
+index 585002a..ca81d77e 100644
+--- a/arch/ia64/include/uapi/asm/shmbuf.h
++++ b/arch/ia64/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_IA64_SHMBUF_H
+ #define _ASM_IA64_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /*
+  * The shmid64_ds structure for IA-64 architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/m32r/include/uapi/asm/shmbuf.h b/arch/m32r/include/uapi/asm/shmbuf.h
+index b0cdf0a..714de6e 100644
+--- a/arch/m32r/include/uapi/asm/shmbuf.h
++++ b/arch/m32r/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_M32R_SHMBUF_H
+ #define _ASM_M32R_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /*
+  * The shmid64_ds structure for M32R architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/mips/include/uapi/asm/shmbuf.h b/arch/mips/include/uapi/asm/shmbuf.h
+index f994438..f47d193 100644
+--- a/arch/mips/include/uapi/asm/shmbuf.h
++++ b/arch/mips/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_SHMBUF_H
+ #define _ASM_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /*
+  * The shmid64_ds structure for the MIPS architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/mn10300/include/uapi/asm/shmbuf.h b/arch/mn10300/include/uapi/asm/shmbuf.h
+index 8f300cc..71df684 100644
+--- a/arch/mn10300/include/uapi/asm/shmbuf.h
++++ b/arch/mn10300/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_SHMBUF_H
+ #define _ASM_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /*
+  * The shmid64_ds structure for MN10300 architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/parisc/include/uapi/asm/shmbuf.h b/arch/parisc/include/uapi/asm/shmbuf.h
+index 750e13e..d8105ef 100644
+--- a/arch/parisc/include/uapi/asm/shmbuf.h
++++ b/arch/parisc/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,7 @@
+ #ifndef _PARISC_SHMBUF_H
+ #define _PARISC_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
+ #include <asm/bitsperlong.h>
+ 
+ /* 
+diff --git a/arch/powerpc/include/uapi/asm/shmbuf.h b/arch/powerpc/include/uapi/asm/shmbuf.h
+index 8efa396..7937289 100644
+--- a/arch/powerpc/include/uapi/asm/shmbuf.h
++++ b/arch/powerpc/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_POWERPC_SHMBUF_H
+ #define _ASM_POWERPC_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /*
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+diff --git a/arch/s390/include/uapi/asm/shmbuf.h b/arch/s390/include/uapi/asm/shmbuf.h
+index eed2e28..9ce1d9f 100644
+--- a/arch/s390/include/uapi/asm/shmbuf.h
++++ b/arch/s390/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _S390_SHMBUF_H
+ #define _S390_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /* 
+  * The shmid64_ds structure for S/390 architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/sparc/include/uapi/asm/shmbuf.h b/arch/sparc/include/uapi/asm/shmbuf.h
+index 83a1605..f651952 100644
+--- a/arch/sparc/include/uapi/asm/shmbuf.h
++++ b/arch/sparc/include/uapi/asm/shmbuf.h
+@@ -1,6 +1,8 @@
+ #ifndef _SPARC_SHMBUF_H
+ #define _SPARC_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ /* 
+  * The shmid64_ds structure for sparc architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/xtensa/include/uapi/asm/shmbuf.h b/arch/xtensa/include/uapi/asm/shmbuf.h
+index ad4b012..ad90d05 100644
+--- a/arch/xtensa/include/uapi/asm/shmbuf.h
++++ b/arch/xtensa/include/uapi/asm/shmbuf.h
+@@ -19,6 +19,8 @@
+ #ifndef _XTENSA_SHMBUF_H
+ #define _XTENSA_SHMBUF_H
+ 
++#include <asm/ipcbuf.h>
++
+ #if defined (__XTENSA_EL__)
+ struct shmid64_ds {
+ 	struct ipc64_perm	shm_perm;	/* operation perms */
 -- 
-Thomas
+ldv
