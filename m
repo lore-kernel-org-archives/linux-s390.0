@@ -1,45 +1,26 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH RFC v3 00/15] basic vfio-ccw infrastructure
-Date: Thu, 16 Mar 2017 10:25:16 +0100
-Message-ID: <20170316102516.706fc6d6.cornelia.huck@de.ibm.com>
-References: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
-        <20170309092525.GA10189@bjsdjshi@linux.vnet.ibm.com>
-        <20170310114605.1353e810.cornelia.huck@de.ibm.com>
-        <20170313071652.GD6756@bjsdjshi@linux.vnet.ibm.com>
-Mime-Version: 1.0
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 3 Mar 2017 15:48:32 -0700
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] Documentation: Update path to sysrq.txt
+Message-ID: <20170303154832.27667d0a@lwn.net>
+In-Reply-To: <20170224084214.6889-1-krzk@kernel.org>
+References: <20170224084214.6889-1-krzk@kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170313071652.GD6756@bjsdjshi@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, renxiaof@linux.vnet.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 13 Mar 2017 15:16:52 +0800
-Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+On Fri, 24 Feb 2017 10:42:14 +0200
+Krzysztof Kozlowski <krzk@kernel.org> wrote:
 
-> Beside the fixes for former comments form you and Alex, I will also do
-> the following stuff in the next version:
-> 1. Remove the "RFC" tag from the mail subject.
-> 2. Cc the s390 CIO layer maintainers for patch 1 and 2:
->     Sebastian Ott <sebott@linux.vnet.ibm.com>
->     Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
-> 3. For the new created files, update MAINTAINERS by adding:
-> S390 VFIO-CCW DRIVER
-> M:	Cornelia Huck <cornelia.huck@de.ibm.com>
+> Commit 9d85025b0418 ("docs-rst: create an user's manual book") moved the
+> sysrq.txt leaving old paths in the kernel docs.
 
-Please add
+Applied to the docs tree, thanks.
 
-M: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-
-as well :)
-
-> L:	linux-s390@vger.kernel.org
-> L:	kvm@vger.kernel.org
-> S:	Supported
-> F:	drivers/s390/cio/vfio_ccw*
-> F:	Documentation/s390/vfio-ccw.txt
-> F:	include/uapi/linux/vfio_ccw.h
+jon
