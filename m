@@ -1,39 +1,69 @@
-From: Johannes Thumshirn <jthumshirn@suse.de>
-Subject: Re: [PATCH 21/29] drivers, s390: convert fc_fcp_pkt.ref_cnt from
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 11/29] drivers, media: convert cx88_core.refcount from
  atomic_t to refcount_t
-Date: Mon, 6 Mar 2017 16:27:11 +0100
-Message-ID: <536a58ba-8896-5639-cab9-bd2f13bed325@suse.de>
+Date: Mon, 6 Mar 2017 19:26:23 +0300
+Message-ID: <c6987419-f708-9923-0f9f-87b715600045@cogentembedded.com>
 References: <1488810076-3754-1-git-send-email-elena.reshetova@intel.com>
- <1488810076-3754-22-git-send-email-elena.reshetova@intel.com>
+ <1488810076-3754-12-git-send-email-elena.reshetova@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1488810076-3754-22-git-send-email-elena.reshetova@intel.com>
-Sender: linux-media-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1488810076-3754-12-git-send-email-elena.reshetova@intel.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
 List-Archive: <https://lore.kernel.org/linux-bcache/>
 List-Post: <mailto:linux-bcache@vger.kernel.org>
 To: Elena Reshetova <elena.reshetova@intel.com>, gregkh@linuxfoundation.org
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, netdev@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-media@vger.kernel.org, devel@linuxdriverproject.org, linux-pci@vger.kernel.org, linux-s390@vger.kernel.org, fcoe-devel@open-fcoe.org, linux-scsi@vger.kernel.org, open-iscsi@googlegroups.com, devel@driverdev.osuosl.org, target-devel@vger.kernel.org, linux-serial@vger.kernel.org, linux-usb@vger.kernel.org, peterz@infradead.org, Hans Liljestrand <ishkamiel@gmail.com>, Kees Cook <keescook@chromium.org>, David Windsor <dwindsor@gmail.com>
+Cc: devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, open-iscsi@googlegroups.com, Kees Cook <keescook@chromium.org>, linux-scsi@vger.kernel.org, David Windsor <dwindsor@gmail.com>, peterz@infradead.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org, target-devel@vger.kernel.org, linux-serial@vger.kernel.org, devel@linuxdriverproject.org, fcoe-devel@open-fcoe.org, xen-devel@lists.xenproject.org, linux1394-devel@lists.sourceforge.net, Hans Liljestrand <ishkamiel@gmail.com>, linux-media@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03/06/2017 03:21 PM, Elena Reshetova wrote:
+Hello.
+
+On 03/06/2017 05:20 PM, Elena Reshetova wrote:
+
 > refcount_t type and corresponding API should be
 > used instead of atomic_t when the variable is used as
 > a reference counter. This allows to avoid accidental
 > refcounter overflows that might lead to use-after-free
 > situations.
+>
+> Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
+> Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: David Windsor <dwindsor@gmail.com>
+[...]
+> diff --git a/drivers/media/pci/cx88/cx88.h b/drivers/media/pci/cx88/cx88.h
+> index 115414c..16c1313 100644
+> --- a/drivers/media/pci/cx88/cx88.h
+> +++ b/drivers/media/pci/cx88/cx88.h
+> @@ -24,6 +24,7 @@
+>  #include <linux/i2c-algo-bit.h>
+>  #include <linux/videodev2.h>
+>  #include <linux/kdev_t.h>
+> +#include <linux/refcount.h>
+>
+>  #include <media/v4l2-device.h>
+>  #include <media/v4l2-fh.h>
+> @@ -339,7 +340,7 @@ struct cx8802_dev;
+>
+>  struct cx88_core {
+>  	struct list_head           devlist;
+> -	atomic_t                   refcount;
+> +	refcount_t                   refcount;
 
-The subject is wrong, should be something like "scsi: libfc convert
-fc_fcp_pkt.ref_cnt from atomic_t to refcount_t" but not s390.
+    Could you please keep the name aligned with above and below?
 
-Other than that
-Acked-by: Johannes Thumshirn <jth@kernel.org>
+>
+>  	/* board name */
+>  	int                        nr;
+>
 
---=20
-Johannes Thumshirn                                          Storage
-jthumshirn@suse.de                                +49 911 74053 689
-SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
-GF: Felix Imend=F6rffer, Jane Smithard, Graham Norton
-HRB 21284 (AG N=FCrnberg)
-Key fingerprint =3D EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
+MBR, Sergei
