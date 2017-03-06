@@ -1,64 +1,39 @@
-From: Elena Reshetova <elena.reshetova@intel.com>
-Subject: [PATCH 29/29] drivers,
-	xen: convert grant_map.users from atomic_t to refcount_t
-Date: Mon,  6 Mar 2017 16:21:16 +0200
-Message-ID: <1488810076-3754-30-git-send-email-elena.reshetova@intel.com>
+From: Johannes Thumshirn <jthumshirn@suse.de>
+Subject: Re: [PATCH 21/29] drivers, s390: convert fc_fcp_pkt.ref_cnt from
+ atomic_t to refcount_t
+Date: Mon, 6 Mar 2017 16:27:11 +0100
+Message-ID: <536a58ba-8896-5639-cab9-bd2f13bed325@suse.de>
 References: <1488810076-3754-1-git-send-email-elena.reshetova@intel.com>
+ <1488810076-3754-22-git-send-email-elena.reshetova@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xen.org>
-In-Reply-To: <1488810076-3754-1-git-send-email-elena.reshetova@intel.com>
-List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xen.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1488810076-3754-22-git-send-email-elena.reshetova@intel.com>
+Sender: linux-media-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-bcache/>
 List-Post: <mailto:linux-bcache@vger.kernel.org>
-To: gregkh@linuxfoundation.org
-Cc: peterz@infradead.org, linux-pci@vger.kernel.org, target-devel@vger.kernel.org, linux1394-devel@lists.sourceforge.net, Elena Reshetova <elena.reshetova@intel.com>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, fcoe-devel@open-fcoe.org, xen-devel@lists.xenproject.org, open-iscsi@googlegroups.com, linux-media@vger.kernel.org, Kees Cook <keescook@chromium.org>, linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org, Hans Liljestrand <ishkamiel@gmail.com>, David Windsor <dwindsor@gmail.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org
+To: Elena Reshetova <elena.reshetova@intel.com>, gregkh@linuxfoundation.org
+Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, netdev@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-media@vger.kernel.org, devel@linuxdriverproject.org, linux-pci@vger.kernel.org, linux-s390@vger.kernel.org, fcoe-devel@open-fcoe.org, linux-scsi@vger.kernel.org, open-iscsi@googlegroups.com, devel@driverdev.osuosl.org, target-devel@vger.kernel.org, linux-serial@vger.kernel.org, linux-usb@vger.kernel.org, peterz@infradead.org, Hans Liljestrand <ishkamiel@gmail.com>, Kees Cook <keescook@chromium.org>, David Windsor <dwindsor@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-cmVmY291bnRfdCB0eXBlIGFuZCBjb3JyZXNwb25kaW5nIEFQSSBzaG91bGQgYmUKdXNlZCBpbnN0
-ZWFkIG9mIGF0b21pY190IHdoZW4gdGhlIHZhcmlhYmxlIGlzIHVzZWQgYXMKYSByZWZlcmVuY2Ug
-Y291bnRlci4gVGhpcyBhbGxvd3MgdG8gYXZvaWQgYWNjaWRlbnRhbApyZWZjb3VudGVyIG92ZXJm
-bG93cyB0aGF0IG1pZ2h0IGxlYWQgdG8gdXNlLWFmdGVyLWZyZWUKc2l0dWF0aW9ucy4KClNpZ25l
-ZC1vZmYtYnk6IEVsZW5hIFJlc2hldG92YSA8ZWxlbmEucmVzaGV0b3ZhQGludGVsLmNvbT4KU2ln
-bmVkLW9mZi1ieTogSGFucyBMaWxqZXN0cmFuZCA8aXNoa2FtaWVsQGdtYWlsLmNvbT4KU2lnbmVk
-LW9mZi1ieTogS2VlcyBDb29rIDxrZWVzY29va0BjaHJvbWl1bS5vcmc+ClNpZ25lZC1vZmYtYnk6
-IERhdmlkIFdpbmRzb3IgPGR3aW5kc29yQGdtYWlsLmNvbT4KLS0tCiBkcml2ZXJzL3hlbi9nbnRk
-ZXYuYyB8IDExICsrKysrKy0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspLCA1
-IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMveGVuL2dudGRldi5jIGIvZHJpdmVy
-cy94ZW4vZ250ZGV2LmMKaW5kZXggMmVmMmI2MS4uYjE4M2NiMiAxMDA2NDQKLS0tIGEvZHJpdmVy
-cy94ZW4vZ250ZGV2LmMKKysrIGIvZHJpdmVycy94ZW4vZ250ZGV2LmMKQEAgLTM1LDYgKzM1LDcg
-QEAKICNpbmNsdWRlIDxsaW51eC9zcGlubG9jay5oPgogI2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4K
-ICNpbmNsdWRlIDxsaW51eC9oaWdobWVtLmg+CisjaW5jbHVkZSA8bGludXgvcmVmY291bnQuaD4K
-IAogI2luY2x1ZGUgPHhlbi94ZW4uaD4KICNpbmNsdWRlIDx4ZW4vZ3JhbnRfdGFibGUuaD4KQEAg
-LTg1LDcgKzg2LDcgQEAgc3RydWN0IGdyYW50X21hcCB7CiAJaW50IGluZGV4OwogCWludCBjb3Vu
-dDsKIAlpbnQgZmxhZ3M7Ci0JYXRvbWljX3QgdXNlcnM7CisJcmVmY291bnRfdCB1c2VyczsKIAlz
-dHJ1Y3QgdW5tYXBfbm90aWZ5IG5vdGlmeTsKIAlzdHJ1Y3QgaW9jdGxfZ250ZGV2X2dyYW50X3Jl
-ZiAqZ3JhbnRzOwogCXN0cnVjdCBnbnR0YWJfbWFwX2dyYW50X3JlZiAgICptYXBfb3BzOwpAQCAt
-MTY1LDcgKzE2Niw3IEBAIHN0YXRpYyBzdHJ1Y3QgZ3JhbnRfbWFwICpnbnRkZXZfYWxsb2NfbWFw
-KHN0cnVjdCBnbnRkZXZfcHJpdiAqcHJpdiwgaW50IGNvdW50KQogCiAJYWRkLT5pbmRleCA9IDA7
-CiAJYWRkLT5jb3VudCA9IGNvdW50OwotCWF0b21pY19zZXQoJmFkZC0+dXNlcnMsIDEpOworCXJl
-ZmNvdW50X3NldCgmYWRkLT51c2VycywgMSk7CiAKIAlyZXR1cm4gYWRkOwogCkBAIC0yMTEsNyAr
-MjEyLDcgQEAgc3RhdGljIHZvaWQgZ250ZGV2X3B1dF9tYXAoc3RydWN0IGdudGRldl9wcml2ICpw
-cml2LCBzdHJ1Y3QgZ3JhbnRfbWFwICptYXApCiAJaWYgKCFtYXApCiAJCXJldHVybjsKIAotCWlm
-ICghYXRvbWljX2RlY19hbmRfdGVzdCgmbWFwLT51c2VycykpCisJaWYgKCFyZWZjb3VudF9kZWNf
-YW5kX3Rlc3QoJm1hcC0+dXNlcnMpKQogCQlyZXR1cm47CiAKIAlhdG9taWNfc3ViKG1hcC0+Y291
-bnQsICZwYWdlc19tYXBwZWQpOwpAQCAtMzk5LDcgKzQwMCw3IEBAIHN0YXRpYyB2b2lkIGdudGRl
-dl92bWFfb3BlbihzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QgKnZtYSkKIAlzdHJ1Y3QgZ3JhbnRfbWFw
-ICptYXAgPSB2bWEtPnZtX3ByaXZhdGVfZGF0YTsKIAogCXByX2RlYnVnKCJnbnRkZXZfdm1hX29w
-ZW4gJXBcbiIsIHZtYSk7Ci0JYXRvbWljX2luYygmbWFwLT51c2Vycyk7CisJcmVmY291bnRfaW5j
-KCZtYXAtPnVzZXJzKTsKIH0KIAogc3RhdGljIHZvaWQgZ250ZGV2X3ZtYV9jbG9zZShzdHJ1Y3Qg
-dm1fYXJlYV9zdHJ1Y3QgKnZtYSkKQEAgLTEwMDMsNyArMTAwNCw3IEBAIHN0YXRpYyBpbnQgZ250
-ZGV2X21tYXAoc3RydWN0IGZpbGUgKmZsaXAsIHN0cnVjdCB2bV9hcmVhX3N0cnVjdCAqdm1hKQog
-CQlnb3RvIHVubG9ja19vdXQ7CiAJfQogCi0JYXRvbWljX2luYygmbWFwLT51c2Vycyk7CisJcmVm
-Y291bnRfaW5jKCZtYXAtPnVzZXJzKTsKIAogCXZtYS0+dm1fb3BzID0gJmdudGRldl92bW9wczsK
-IAotLSAKMi43LjQKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW4ub3JnCmh0dHBz
-Oi8vbGlzdHMueGVuLm9yZy94ZW4tZGV2ZWwK
+On 03/06/2017 03:21 PM, Elena Reshetova wrote:
+> refcount_t type and corresponding API should be
+> used instead of atomic_t when the variable is used as
+> a reference counter. This allows to avoid accidental
+> refcounter overflows that might lead to use-after-free
+> situations.
+
+The subject is wrong, should be something like "scsi: libfc convert
+fc_fcp_pkt.ref_cnt from atomic_t to refcount_t" but not s390.
+
+Other than that
+Acked-by: Johannes Thumshirn <jth@kernel.org>
+
+--=20
+Johannes Thumshirn                                          Storage
+jthumshirn@suse.de                                +49 911 74053 689
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
+GF: Felix Imend=F6rffer, Jane Smithard, Graham Norton
+HRB 21284 (AG N=FCrnberg)
+Key fingerprint =3D EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
