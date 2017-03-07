@@ -1,17 +1,16 @@
-From: "Reshetova, Elena" <elena.reshetova@intel.com>
-Subject: RE: [PATCH 13/29] drivers, media: convert
- vb2_vmarea_handler.refcount from atomic_t to refcount_t
-Date: Tue, 7 Mar 2017 14:48:43 +0000
-Message-ID: <2236FBA76BA1254E88B949DDB74E612B41C558E6@IRSMSX102.ger.corp.intel.com>
+From: Shaohua Li <shli@kernel.org>
+Subject: Re: [PATCH 08/29] drivers, md: convert mddev.active from atomic_t to
+ refcount_t
+Date: Tue, 7 Mar 2017 11:04:49 -0800
+Message-ID: <20170307190449.baceyzzngsz776x7@kernel.org>
 References: <1488810076-3754-1-git-send-email-elena.reshetova@intel.com>
- <1488810076-3754-14-git-send-email-elena.reshetova@intel.com>
- <20170307085005.GH3220@valkosipuli.retiisi.org.uk>
+ <1488810076-3754-9-git-send-email-elena.reshetova@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20170307085005.GH3220@valkosipuli.retiisi.org.uk>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1488810076-3754-9-git-send-email-elena.reshetova@intel.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
  <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
@@ -23,99 +22,84 @@ Errors-To: driverdev-devel-bounces@linuxdriverproject.org
 Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
 List-Archive: <https://lore.kernel.org/linux-bcache/>
 List-Post: <mailto:linux-bcache@vger.kernel.org>
-To: Sakari Ailus <sakari.ailus@iki.fi>
-Cc: "peterz@infradead.org" <peterz@infradead.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "target-devel@vger.kernel.org" <target-devel@vger.kernel.org>, "linux1394-devel@lists.sourceforge.net" <linux1394-devel@lists.sourceforge.net>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "fcoe-devel@open-fcoe.org" <fcoe-devel@open-fcoe.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "open-iscsi@googlegroups.com" <open-iscsi@googlegroups.com>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, Kees Cook <keescook@chromium.org>, "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>, "linux-bcache@vger.kernel.org" <linux-bcache@vger.kerne>
+To: Elena Reshetova <elena.reshetova@intel.com>
+Cc: peterz@infradead.org, linux-pci@vger.kernel.org, target-devel@vger.kernel.org, linux1394-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, fcoe-devel@open-fcoe.org, xen-devel@lists.xenproject.org, open-iscsi@googlegroups.com, linux-media@vger.kernel.org, Kees Cook <keescook@chromium.org>, linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org, Hans Liljestrand <ishkamiel@gmail.com>, David Windsor <dwindsor@gmail.com>, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, devel@linuxdriverproject.org
 List-ID: <linux-s390.vger.kernel.org>
 
-> Hi Elena,
-> 
-> On Mon, Mar 06, 2017 at 04:21:00PM +0200, Elena Reshetova wrote:
-> > refcount_t type and corresponding API should be
-> > used instead of atomic_t when the variable is used as
-> > a reference counter. This allows to avoid accidental
-> > refcounter overflows that might lead to use-after-free
-> > situations.
-> >
-> > Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-> > Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-> > Signed-off-by: Kees Cook <keescook@chromium.org>
-> > Signed-off-by: David Windsor <dwindsor@gmail.com>
-> > ---
-> >  drivers/media/v4l2-core/videobuf2-memops.c | 6 +++---
-> >  include/media/videobuf2-memops.h           | 3 ++-
-> >  2 files changed, 5 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/media/v4l2-core/videobuf2-memops.c b/drivers/media/v4l2-
-> core/videobuf2-memops.c
-> > index 1cd322e..4bb8424 100644
-> > --- a/drivers/media/v4l2-core/videobuf2-memops.c
-> > +++ b/drivers/media/v4l2-core/videobuf2-memops.c
-> > @@ -96,10 +96,10 @@ static void vb2_common_vm_open(struct
-> vm_area_struct *vma)
-> >  	struct vb2_vmarea_handler *h = vma->vm_private_data;
-> >
-> >  	pr_debug("%s: %p, refcount: %d, vma: %08lx-%08lx\n",
-> > -	       __func__, h, atomic_read(h->refcount), vma->vm_start,
-> > +	       __func__, h, refcount_read(h->refcount), vma->vm_start,
-> >  	       vma->vm_end);
-> >
-> > -	atomic_inc(h->refcount);
-> > +	refcount_inc(h->refcount);
-> >  }
-> >
-> >  /**
-> > @@ -114,7 +114,7 @@ static void vb2_common_vm_close(struct
-> vm_area_struct *vma)
-> >  	struct vb2_vmarea_handler *h = vma->vm_private_data;
-> >
-> >  	pr_debug("%s: %p, refcount: %d, vma: %08lx-%08lx\n",
-> > -	       __func__, h, atomic_read(h->refcount), vma->vm_start,
-> > +	       __func__, h, refcount_read(h->refcount), vma->vm_start,
-> >  	       vma->vm_end);
-> >
-> >  	h->put(h->arg);
-> > diff --git a/include/media/videobuf2-memops.h b/include/media/videobuf2-
-> memops.h
-> > index 36565c7a..a6ed091 100644
-> > --- a/include/media/videobuf2-memops.h
-> > +++ b/include/media/videobuf2-memops.h
-> > @@ -16,6 +16,7 @@
-> >
-> >  #include <media/videobuf2-v4l2.h>
-> >  #include <linux/mm.h>
-> > +#include <linux/refcount.h>
-> >
-> >  /**
-> >   * struct vb2_vmarea_handler - common vma refcount tracking handler
-> > @@ -25,7 +26,7 @@
-> >   * @arg:	argument for @put callback
-> >   */
-> >  struct vb2_vmarea_handler {
-> > -	atomic_t		*refcount;
-> > +	refcount_t		*refcount;
-> 
-> This is a pointer to refcount, not refcount itself. The refcount is part of
-> a memory type specific struct, the types that you change in the following
-> three patches. I guess it would still compile and work as separate patches
-> but you'd sure get warnings at least.
+On Mon, Mar 06, 2017 at 04:20:55PM +0200, Elena Reshetova wrote:
+> refcount_t type and corresponding API should be
+> used instead of atomic_t when the variable is used as
+> a reference counter. This allows to avoid accidental
+> refcounter overflows that might lead to use-after-free
+> situations.
 
-Actually it doesn't compile without this patch if I remember it correctly back in past when I was initially splitting the patches per variable. 
-
+Looks good. Let me know how do you want to route the patch to upstream.
+ 
+> Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
+> Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: David Windsor <dwindsor@gmail.com>
+> ---
+>  drivers/md/md.c | 6 +++---
+>  drivers/md/md.h | 3 ++-
+>  2 files changed, 5 insertions(+), 4 deletions(-)
 > 
-> How about merging this and the three following patches that change the memop
-> refcount types?
-
-Sounds good!
-
-Best Regards,
-Elena.
-> 
-> >  	void			(*put)(void *arg);
-> >  	void			*arg;
-> >  };
+> diff --git a/drivers/md/md.c b/drivers/md/md.c
+> index 985374f..94c8ebf 100644
+> --- a/drivers/md/md.c
+> +++ b/drivers/md/md.c
+> @@ -449,7 +449,7 @@ EXPORT_SYMBOL(md_unplug);
+>  
+>  static inline struct mddev *mddev_get(struct mddev *mddev)
+>  {
+> -	atomic_inc(&mddev->active);
+> +	refcount_inc(&mddev->active);
+>  	return mddev;
+>  }
+>  
+> @@ -459,7 +459,7 @@ static void mddev_put(struct mddev *mddev)
+>  {
+>  	struct bio_set *bs = NULL;
+>  
+> -	if (!atomic_dec_and_lock(&mddev->active, &all_mddevs_lock))
+> +	if (!refcount_dec_and_lock(&mddev->active, &all_mddevs_lock))
+>  		return;
+>  	if (!mddev->raid_disks && list_empty(&mddev->disks) &&
+>  	    mddev->ctime == 0 && !mddev->hold_active) {
+> @@ -495,7 +495,7 @@ void mddev_init(struct mddev *mddev)
+>  	INIT_LIST_HEAD(&mddev->all_mddevs);
+>  	setup_timer(&mddev->safemode_timer, md_safemode_timeout,
+>  		    (unsigned long) mddev);
+> -	atomic_set(&mddev->active, 1);
+> +	refcount_set(&mddev->active, 1);
+>  	atomic_set(&mddev->openers, 0);
+>  	atomic_set(&mddev->active_io, 0);
+>  	spin_lock_init(&mddev->lock);
+> diff --git a/drivers/md/md.h b/drivers/md/md.h
+> index b8859cb..4811663 100644
+> --- a/drivers/md/md.h
+> +++ b/drivers/md/md.h
+> @@ -22,6 +22,7 @@
+>  #include <linux/list.h>
+>  #include <linux/mm.h>
+>  #include <linux/mutex.h>
+> +#include <linux/refcount.h>
+>  #include <linux/timer.h>
+>  #include <linux/wait.h>
+>  #include <linux/workqueue.h>
+> @@ -360,7 +361,7 @@ struct mddev {
+>  	 */
+>  	struct mutex			open_mutex;
+>  	struct mutex			reconfig_mutex;
+> -	atomic_t			active;		/* general refcount */
+> +	refcount_t			active;		/* general refcount */
+>  	atomic_t			openers;	/* number of active opens */
+>  
+>  	int				changed;	/* True if we might need to
+> -- 
+> 2.7.4
 > 
 > --
-> Kind regards,
-> 
-> Sakari Ailus
-> e-mail: sakari.ailus@iki.fi	XMPP: sailus@retiisi.org.uk
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
