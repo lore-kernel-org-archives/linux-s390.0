@@ -1,95 +1,51 @@
-From: Elena Reshetova <elena.reshetova@intel.com>
-Subject: [PATCH 07/29] drivers,
- md: convert dm_dev_internal.count from atomic_t to refcount_t
-Date: Mon,  6 Mar 2017 16:20:54 +0200
-Message-ID: <1488810076-3754-8-git-send-email-elena.reshetova@intel.com>
-References: <1488810076-3754-1-git-send-email-elena.reshetova@intel.com>
+From: Laura Abbott <labbott@redhat.com>
+Subject: [PATCHv3 09/16] watchdog: hpwdt: Use set_memory.h header
+Date: Tue,  7 Mar 2017 12:55:26 -0800
+Message-ID: <1488920133-27229-10-git-send-email-labbott@redhat.com>
+References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1488810076-3754-1-git-send-email-elena.reshetova@intel.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-List-Archive: <https://lore.kernel.org/linux-bcache/>
-List-Post: <mailto:linux-bcache@vger.kernel.org>
-To: gregkh@linuxfoundation.org
-Cc: peterz@infradead.org, linux-pci@vger.kernel.org, target-devel@vger.kernel.org, linux1394-devel@lists.sourceforge.net, Elena Reshetova <elena.reshetova@intel.com>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, fcoe-devel@open-fcoe.org, xen-devel@lists.xenproject.org, open-iscsi@googlegroups.com, linux-media@vger.kernel.org, Kees Cook <keescook@chromium.org>, linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org, Hans Liljestrand <ishkamiel@gmail.com>, David Windsor <dwindsor@gmail.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
+Cc: Mark Rutland <mark.rutland@arm.com>, David Airlie <airlied@linux.ie>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Takashi Iwai <tiwai@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-watchdog@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Jessica Yu <jeyu@redhat.com>, Daniel Borkmann <daniel@iogearbox.net>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Laura Abbott <labbott@redhat.com>, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@dave>
 List-ID: <linux-s390.vger.kernel.org>
 
-refcount_t type and corresponding API should be
-used instead of atomic_t when the variable is used as
-a reference counter. This allows to avoid accidental
-refcounter overflows that might lead to use-after-free
-situations.
+set_memory_* functions have moved to set_memory.h. Switch to this
+explicitly.
 
-Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David Windsor <dwindsor@gmail.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Laura Abbott <labbott@redhat.com>
 ---
- drivers/md/dm-table.c | 6 +++---
- drivers/md/dm.h       | 3 ++-
- 2 files changed, 5 insertions(+), 4 deletions(-)
+v3: No changes
+---
+ drivers/watchdog/hpwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 3ad16d9..d2e2741 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -416,15 +416,15 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
- 			return r;
- 		}
- 
--		atomic_set(&dd->count, 0);
-+		refcount_set(&dd->count, 1);
- 		list_add(&dd->list, &t->devices);
- 
- 	} else if (dd->dm_dev->mode != (mode | dd->dm_dev->mode)) {
- 		r = upgrade_mode(dd, mode, t->md);
- 		if (r)
- 			return r;
-+		refcount_inc(&dd->count);
- 	}
--	atomic_inc(&dd->count);
- 
- 	*result = dd->dm_dev;
- 	return 0;
-@@ -478,7 +478,7 @@ void dm_put_device(struct dm_target *ti, struct dm_dev *d)
- 		       dm_device_name(ti->table->md), d->name);
- 		return;
- 	}
--	if (atomic_dec_and_test(&dd->count)) {
-+	if (refcount_dec_and_test(&dd->count)) {
- 		dm_put_table_device(ti->table->md, d);
- 		list_del(&dd->list);
- 		kfree(dd);
-diff --git a/drivers/md/dm.h b/drivers/md/dm.h
-index f298b01..63b8142 100644
---- a/drivers/md/dm.h
-+++ b/drivers/md/dm.h
-@@ -19,6 +19,7 @@
- #include <linux/hdreg.h>
- #include <linux/completion.h>
- #include <linux/kobject.h>
-+#include <linux/refcount.h>
- 
- #include "dm-stats.h"
- 
-@@ -38,7 +39,7 @@
-  */
- struct dm_dev_internal {
- 	struct list_head list;
--	atomic_t count;
-+	refcount_t count;
- 	struct dm_dev *dm_dev;
- };
- 
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index 70c7194..67fbe35 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -34,7 +34,7 @@
+ #include <linux/nmi.h>
+ #include <linux/kdebug.h>
+ #include <linux/notifier.h>
+-#include <asm/cacheflush.h>
++#include <asm/set_memory.h>
+ #endif /* CONFIG_HPWDT_NMI_DECODING */
+ #include <asm/nmi.h>
+ #include <asm/frame.h>
 -- 
 2.7.4
