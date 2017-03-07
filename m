@@ -1,13 +1,13 @@
-Return-Path: <mingo.kernel.org@gmail.com>
-Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date: Tue, 7 Mar 2017 09:53:56 +0100
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH v5 00/15] livepatch: hybrid consistency model
-Message-ID: <20170307085356.GA7038@gmail.com>
+Return-Path: <mbenes@suse.cz>
+Date: Tue, 7 Mar 2017 15:16:41 +0100 (CET)
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: Re: [PATCH v5 13/15] livepatch: change to a per-task consistency model
+In-Reply-To: <a999d965d598b23564355c24db0ed6799f105fa6.1487036215.git.jpoimboe@redhat.com>
+Message-ID: <alpine.LSU.2.20.1703071510240.29377@pobox.suse.cz>
 References: <cover.1487036215.git.jpoimboe@redhat.com>
+ <a999d965d598b23564355c24db0ed6799f105fa6.1487036215.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cover.1487036215.git.jpoimboe@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -17,28 +17,107 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Mon, 13 Feb 2017, Josh Poimboeuf wrote:
 
-* Josh Poimboeuf <jpoimboe@redhat.com> wrote:
+> Change livepatch to use a basic per-task consistency model.  This is the
+> foundation which will eventually enable us to patch those ~10% of
+> security patches which change function or data semantics.  This is the
+> biggest remaining piece needed to make livepatch more generally useful.
+> 
+> This code stems from the design proposal made by Vojtech [1] in November
+> 2014.  It's a hybrid of kGraft and kpatch: it uses kGraft's per-task
+> consistency and syscall barrier switching combined with kpatch's stack
+> trace switching.  There are also a number of fallback options which make
+> it quite flexible.
+> 
+> Patches are applied on a per-task basis, when the task is deemed safe to
+> switch over.  When a patch is enabled, livepatch enters into a
+> transition state where tasks are converging to the patched state.
+> Usually this transition state can complete in a few seconds.  The same
+> sequence occurs when a patch is disabled, except the tasks converge from
+> the patched state to the unpatched state.
+> 
+> An interrupt handler inherits the patched state of the task it
+> interrupts.  The same is true for forked tasks: the child inherits the
+> patched state of the parent.
+> 
+> Livepatch uses several complementary approaches to determine when it's
+> safe to patch tasks:
+> 
+> 1. The first and most effective approach is stack checking of sleeping
+>    tasks.  If no affected functions are on the stack of a given task,
+>    the task is patched.  In most cases this will patch most or all of
+>    the tasks on the first try.  Otherwise it'll keep trying
+>    periodically.  This option is only available if the architecture has
+>    reliable stacks (HAVE_RELIABLE_STACKTRACE).
+> 
+> 2. The second approach, if needed, is kernel exit switching.  A
+>    task is switched when it returns to user space from a system call, a
+>    user space IRQ, or a signal.  It's useful in the following cases:
+> 
+>    a) Patching I/O-bound user tasks which are sleeping on an affected
+>       function.  In this case you have to send SIGSTOP and SIGCONT to
+>       force it to exit the kernel and be patched.
+>    b) Patching CPU-bound user tasks.  If the task is highly CPU-bound
+>       then it will get patched the next time it gets interrupted by an
+>       IRQ.
+>    c) In the future it could be useful for applying patches for
+>       architectures which don't yet have HAVE_RELIABLE_STACKTRACE.  In
+>       this case you would have to signal most of the tasks on the
+>       system.  However this isn't supported yet because there's
+>       currently no way to patch kthreads without
+>       HAVE_RELIABLE_STACKTRACE.
+> 
+> 3. For idle "swapper" tasks, since they don't ever exit the kernel, they
+>    instead have a klp_update_patch_state() call in the idle loop which
+>    allows them to be patched before the CPU enters the idle state.
+> 
+>    (Note there's not yet such an approach for kthreads.)
+> 
+> All the above approaches may be skipped by setting the 'immediate' flag
+> in the 'klp_patch' struct, which will disable per-task consistency and
+> patch all tasks immediately.  This can be useful if the patch doesn't
+> change any function or data semantics.  Note that, even with this flag
+> set, it's possible that some tasks may still be running with an old
+> version of the function, until that function returns.
+> 
+> There's also an 'immediate' flag in the 'klp_func' struct which allows
+> you to specify that certain functions in the patch can be applied
+> without per-task consistency.  This might be useful if you want to patch
+> a common function like schedule(), and the function change doesn't need
+> consistency but the rest of the patch does.
+> 
+> For architectures which don't have HAVE_RELIABLE_STACKTRACE, the user
+> must set patch->immediate which causes all tasks to be patched
+> immediately.  This option should be used with care, only when the patch
+> doesn't change any function or data semantics.
+> 
+> In the future, architectures which don't have HAVE_RELIABLE_STACKTRACE
+> may be allowed to use per-task consistency if we can come up with
+> another way to patch kthreads.
+> 
+> The /sys/kernel/livepatch/<patch>/transition file shows whether a patch
+> is in transition.  Only a single patch (the topmost patch on the stack)
+> can be in transition at a given time.  A patch can remain in transition
+> indefinitely, if any of the tasks are stuck in the initial patch state.
+> 
+> A transition can be reversed and effectively canceled by writing the
+> opposite value to the /sys/kernel/livepatch/<patch>/enabled file while
+> the transition is in progress.  Then all the tasks will attempt to
+> converge back to the original patch state.
+> 
+> [1] https://lkml.kernel.org/r/20141107140458.GA21774@suse.cz
+> 
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
->  arch/Kconfig                                     |   6 +
->  arch/powerpc/include/asm/thread_info.h           |   4 +-
->  arch/powerpc/kernel/signal.c                     |   4 +
->  arch/s390/include/asm/thread_info.h              |  24 +-
->  arch/s390/kernel/entry.S                         |  31 +-
->  arch/x86/Kconfig                                 |   1 +
->  arch/x86/entry/common.c                          |   9 +-
->  arch/x86/include/asm/thread_info.h               |  13 +-
->  arch/x86/include/asm/unwind.h                    |   6 +
->  arch/x86/kernel/stacktrace.c                     |  96 +++-
->  arch/x86/kernel/unwind_frame.c                   |   2 +
+I looked at the patch again and could not see any problem with it. I 
+tested it with a couple of live patches too and it worked as expected. 
+Good job.
 
-for the x86 and scheduler changes:
-
-Acked-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Miroslav Benes <mbenes@suse.cz>
 
 Thanks,
-
-	Ingo
+Miroslav
