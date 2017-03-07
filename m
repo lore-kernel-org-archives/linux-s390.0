@@ -1,95 +1,127 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Laura Abbott <labbott@redhat.com>
-Subject: [PATCHv3 16/16] treewide: Decouple cacheflush.h and set_memory.h
-Date: Tue,  7 Mar 2017 12:55:33 -0800
-Message-ID: <1488920133-27229-17-git-send-email-labbott@redhat.com>
+Subject: [PATCHv3 07/16] drm: Use set_memory.h header
+Date: Tue,  7 Mar 2017 12:55:24 -0800
+Message-ID: <1488920133-27229-8-git-send-email-labbott@redhat.com>
 In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20170307205533.vR_NUpdd1WHbOB0swRbd7oXBfu-OmQ4KqUruZ5oijBU@z>
+Message-ID: <20170307205524.lFLd2TCCsb9J8zDGs11yV1yRQMWG0pgLjfRYf23Sch4@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, David Airlie <airlied@linux.ie>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Daniel Borkmann <daniel@iogearbox.net>, Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Laura Abbott <labbott@redhat.com>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
+To: David Airlie <airlied@linux.ie>
+Cc: Laura Abbott <labbott@redhat.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Daniel Borkmann <daniel@iogearbox.net>, Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
+set_memory_* functions have moved to set_memory.h. Switch to this
+explicitly.
 
-Now that all call sites, completely decouple cacheflush.h and
-set_memory.h
-
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Laura Abbott <labbott@redhat.com>
 ---
-v3: No changes
+v3: Add some #ifdef CONFIG_X86
 ---
- arch/arm/include/asm/cacheflush.h   | 1 -
- arch/arm64/include/asm/cacheflush.h | 1 -
- arch/s390/include/asm/Kbuild        | 1 +
- arch/s390/include/asm/cacheflush.h  | 8 --------
- arch/x86/include/asm/cacheflush.h   | 1 -
- 5 files changed, 1 insertion(+), 11 deletions(-)
- delete mode 100644 arch/s390/include/asm/cacheflush.h
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gart.c | 3 +++
+ drivers/gpu/drm/gma500/gtt.c             | 1 +
+ drivers/gpu/drm/gma500/psb_drv.c         | 1 +
+ drivers/gpu/drm/radeon/radeon_gart.c     | 3 +++
+ drivers/gpu/drm/ttm/ttm_page_alloc.c     | 3 +++
+ drivers/gpu/drm/ttm/ttm_page_alloc_dma.c | 3 +++
+ drivers/gpu/drm/ttm/ttm_tt.c             | 3 +++
+ 7 files changed, 17 insertions(+)
 
-diff --git a/arch/arm/include/asm/cacheflush.h b/arch/arm/include/asm/cacheflush.h
-index 1cb9d11..d69bebf 100644
---- a/arch/arm/include/asm/cacheflush.h
-+++ b/arch/arm/include/asm/cacheflush.h
-@@ -16,7 +16,6 @@
- #include <asm/shmparam.h>
- #include <asm/cachetype.h>
- #include <asm/outercache.h>
--#include <asm/set_memory.h>
- 
- #define CACHE_COLOUR(vaddr)	((vaddr & (SHMLBA - 1)) >> PAGE_SHIFT)
- 
-diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
-index 7db6962..5812469 100644
---- a/arch/arm64/include/asm/cacheflush.h
-+++ b/arch/arm64/include/asm/cacheflush.h
-@@ -20,7 +20,6 @@
- #define __ASM_CACHEFLUSH_H
- 
- #include <linux/mm.h>
--#include <asm/set_memory.h>
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gart.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gart.c
+index 964d2a94..b135521 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gart.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gart.c
+@@ -27,6 +27,9 @@
+  */
+ #include <drm/drmP.h>
+ #include <drm/amdgpu_drm.h>
++#ifdef CONFIG_X86
++#include <asm/set_memory.h>
++#endif
+ #include "amdgpu.h"
  
  /*
-  * This flag is used to indicate that the page pointed to by a pte is clean
-diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
-index 8aea32f..c0a7057 100644
---- a/arch/s390/include/asm/Kbuild
-+++ b/arch/s390/include/asm/Kbuild
-@@ -1,4 +1,5 @@
- generic-y += asm-offsets.h
-+generic-y += cacheflush.h
- generic-y += clkdev.h
- generic-y += dma-contiguous.h
- generic-y += export.h
-diff --git a/arch/s390/include/asm/cacheflush.h b/arch/s390/include/asm/cacheflush.h
-deleted file mode 100644
-index afe2965..0000000
---- a/arch/s390/include/asm/cacheflush.h
-+++ /dev/null
-@@ -1,8 +0,0 @@
--#ifndef _S390_CACHEFLUSH_H
--#define _S390_CACHEFLUSH_H
--
--/* Caches aren't brain-dead on the s390. */
--#include <asm-generic/cacheflush.h>
--#include <asm/set_memory.h>
--
--#endif /* _S390_CACHEFLUSH_H */
-diff --git a/arch/x86/include/asm/cacheflush.h b/arch/x86/include/asm/cacheflush.h
-index 3d7db6f..8b4140f 100644
---- a/arch/x86/include/asm/cacheflush.h
-+++ b/arch/x86/include/asm/cacheflush.h
-@@ -4,7 +4,6 @@
- /* Caches aren't brain-dead on the intel. */
- #include <asm-generic/cacheflush.h>
- #include <asm/special_insns.h>
--#include <asm/set_memory.h>
+diff --git a/drivers/gpu/drm/gma500/gtt.c b/drivers/gpu/drm/gma500/gtt.c
+index 3f4f424..3949b09 100644
+--- a/drivers/gpu/drm/gma500/gtt.c
++++ b/drivers/gpu/drm/gma500/gtt.c
+@@ -21,6 +21,7 @@
  
- void clflush_cache_range(void *addr, unsigned int size);
+ #include <drm/drmP.h>
+ #include <linux/shmem_fs.h>
++#include <asm/set_memory.h>
+ #include "psb_drv.h"
+ #include "blitter.h"
  
+diff --git a/drivers/gpu/drm/gma500/psb_drv.c b/drivers/gpu/drm/gma500/psb_drv.c
+index 5ee93ff..1f9b35a 100644
+--- a/drivers/gpu/drm/gma500/psb_drv.c
++++ b/drivers/gpu/drm/gma500/psb_drv.c
+@@ -35,6 +35,7 @@
+ #include <linux/pm_runtime.h>
+ #include <acpi/video.h>
+ #include <linux/module.h>
++#include <asm/set_memory.h>
+ 
+ static struct drm_driver driver;
+ static int psb_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent);
+diff --git a/drivers/gpu/drm/radeon/radeon_gart.c b/drivers/gpu/drm/radeon/radeon_gart.c
+index c4777c8..0b3ec35 100644
+--- a/drivers/gpu/drm/radeon/radeon_gart.c
++++ b/drivers/gpu/drm/radeon/radeon_gart.c
+@@ -27,6 +27,9 @@
+  */
+ #include <drm/drmP.h>
+ #include <drm/radeon_drm.h>
++#ifdef CONFIG_X86
++#include <asm/set_memory.h>
++#endif
+ #include "radeon.h"
+ 
+ /*
+diff --git a/drivers/gpu/drm/ttm/ttm_page_alloc.c b/drivers/gpu/drm/ttm/ttm_page_alloc.c
+index a37de5d..eeddc1e 100644
+--- a/drivers/gpu/drm/ttm/ttm_page_alloc.c
++++ b/drivers/gpu/drm/ttm/ttm_page_alloc.c
+@@ -51,6 +51,9 @@
+ #if IS_ENABLED(CONFIG_AGP)
+ #include <asm/agp.h>
+ #endif
++#ifdef CONFIG_X86
++#include <asm/set_memory.h>
++#endif
+ 
+ #define NUM_PAGES_TO_ALLOC		(PAGE_SIZE/sizeof(struct page *))
+ #define SMALL_ALLOCATION		16
+diff --git a/drivers/gpu/drm/ttm/ttm_page_alloc_dma.c b/drivers/gpu/drm/ttm/ttm_page_alloc_dma.c
+index cec4b4b..90ddbdc 100644
+--- a/drivers/gpu/drm/ttm/ttm_page_alloc_dma.c
++++ b/drivers/gpu/drm/ttm/ttm_page_alloc_dma.c
+@@ -53,6 +53,9 @@
+ #if IS_ENABLED(CONFIG_AGP)
+ #include <asm/agp.h>
+ #endif
++#ifdef CONFIG_X86
++#include <asm/set_memory.h>
++#endif
+ 
+ #define NUM_PAGES_TO_ALLOC		(PAGE_SIZE/sizeof(struct page *))
+ #define SMALL_ALLOCATION		4
+diff --git a/drivers/gpu/drm/ttm/ttm_tt.c b/drivers/gpu/drm/ttm/ttm_tt.c
+index aee3c00..5260179 100644
+--- a/drivers/gpu/drm/ttm/ttm_tt.c
++++ b/drivers/gpu/drm/ttm/ttm_tt.c
+@@ -44,6 +44,9 @@
+ #include <drm/ttm/ttm_bo_driver.h>
+ #include <drm/ttm/ttm_placement.h>
+ #include <drm/ttm/ttm_page_alloc.h>
++#ifdef CONFIG_X86
++#include <asm/set_memory.h>
++#endif
+ 
+ /**
+  * Allocates storage for pointers to the pages that back the ttm.
 -- 
 2.7.4
