@@ -1,15 +1,15 @@
-Return-Path: <mbenes@suse.cz>
-Date: Tue, 7 Mar 2017 15:50:11 +0100 (CET)
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH v5.1 15/15] livepatch: allow removal of a disabled
- patch
-In-Reply-To: <20170306172029.vk4fk7kzlrh2ty4m@treble>
-Message-ID: <alpine.LSU.2.20.1703071549030.29377@pobox.suse.cz>
+Return-Path: <jpoimboe@redhat.com>
+Date: Tue, 7 Mar 2017 10:12:30 -0600
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [PATCH v5 01/15] stacktrace/x86: add function for detecting
+ reliable stack traces
+Message-ID: <20170307161230.44rvjm7ed7azgu6x@treble>
 References: <cover.1487036215.git.jpoimboe@redhat.com>
- <95fe68239fc91360093f84aea97418ae88cfc634.1487036215.git.jpoimboe@redhat.com>
- <20170306172029.vk4fk7kzlrh2ty4m@treble>
+ <baca30690796f3a0d938060b5f90b81375d76c30.1487036215.git.jpoimboe@redhat.com>
+ <1488869455.4285.10.camel@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1488869455.4285.10.camel@gmail.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -18,70 +18,48 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
+To: Balbir Singh <bsingharora@gmail.com>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 6 Mar 2017, Josh Poimboeuf wrote:
+On Tue, Mar 07, 2017 at 05:50:55PM +1100, Balbir Singh wrote:
+> On Mon, 2017-02-13 at 19:42 -0600, Josh Poimboeuf wrote:
+> > For live patching and possibly other use cases, a stack trace is only
+> > useful if it can be assured that it's completely reliable.  Add a new
+> > save_stack_trace_tsk_reliable() function to achieve that.
+> > 
+> > Note that if the target task isn't the current task, and the target task
+> > is allowed to run, then it could be writing the stack while the unwinder
+> > is reading it, resulting in possible corruption.  So the caller of
+> > save_stack_trace_tsk_reliable() must ensure that the task is either
+> > 'current' or inactive.
+> > 
+> > save_stack_trace_tsk_reliable() relies on the x86 unwinder's detection
+> > of pt_regs on the stack.  If the pt_regs are not user-mode registers
+> > from a syscall, then they indicate an in-kernel interrupt or exception
+> > (e.g. preemption or a page fault), in which case the stack is considered
+> > unreliable due to the nature of frame pointers.
+> > 
+> > It also relies on the x86 unwinder's detection of other issues, such as:
+> > 
+> > - corrupted stack data
+> > - stack grows the wrong way
+> > - stack walk doesn't reach the bottom
+> > - user didn't provide a large enough entries array
+> > 
+> > Such issues are reported by checking unwind_error() and !unwind_done().
+> > 
+> > Also add CONFIG_HAVE_RELIABLE_STACKTRACE so arch-independent code can
+> > determine at build time whether the function is implemented.
+> > 
+> > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> > ---
+> 
+> Could you comment on why we need a reliable trace for live-patching? Are
+> we in any way reliant on the stack trace to patch something broken?
 
-> 
-> Currently we do not allow patch module to unload since there is no
-> method to determine if a task is still running in the patched code.
-> 
-> The consistency model gives us the way because when the unpatching
-> finishes we know that all tasks were marked as safe to call an original
-> function. Thus every new call to the function calls the original code
-> and at the same time no task can be somewhere in the patched code,
-> because it had to leave that code to be marked as safe.
-> 
-> We can safely let the patch module go after that.
-> 
-> Completion is used for synchronization between module removal and sysfs
-> infrastructure in a similar way to commit 942e443127e9 ("module: Fix
-> mod->mkobj.kobj potentially freed too early").
-> 
-> Note that we still do not allow the removal for immediate model, that is
-> no consistency model. The module refcount may increase in this case if
-> somebody disables and enables the patch several times. This should not
-> cause any harm.
-> 
-> With this change a call to try_module_get() is moved to
-> __klp_enable_patch from klp_register_patch to make module reference
-> counting symmetric (module_put() is in a patch disable path) and to
-> allow to take a new reference to a disabled module when being enabled.
-> 
-> Finally, we need to be very careful about possible races between
-> klp_unregister_patch(), kobject_put() functions and operations
-> on the related sysfs files.
-> 
-> kobject_put(&patch->kobj) must be called without klp_mutex. Otherwise,
-> it might be blocked by enabled_store() that needs the mutex as well.
-> In addition, enabled_store() must check if the patch was not
-> unregisted in the meantime.
-> 
-> There is no need to do the same for other kobject_put() callsites
-> at the moment. Their sysfs operations neither take the lock nor
-> they access any data that might be freed in the meantime.
-> 
-> There was an attempt to use kobjects the right way and prevent these
-> races by design. But it made the patch definition more complicated
-> and opened another can of worms. See
-> https://lkml.kernel.org/r/1464018848-4303-1-git-send-email-pmladek@suse.com
-> 
-> [Thanks to Petr Mladek for improving the commit message.]
-> 
-> Signed-off-by: Miroslav Benes <mbenes@suse.cz>
-> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> Reviewed-by: Petr Mladek <pmladek@suse.com>
-> ---
-> v5.1: improve error handling in enable path -- call module_put() in
->       klp_cancel_transition()
+I tried to cover this comprehensively in patch 13/15 in
+Documentation/livepatch/livepatch.txt.  Does that answer your questions?
 
-Looks good.
-
-Acked-by: Miroslav Benes <mbenes@suse.cz>
-
-if it is needed for Josh's code.
-
-Regards,
-Miroslav
+-- 
+Josh
