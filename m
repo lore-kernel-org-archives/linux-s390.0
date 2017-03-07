@@ -1,29 +1,41 @@
-From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: Re: [PATCHv3 15/16] video: vermilion: Use set_memory.h header
-Date: Mon, 20 Mar 2017 18:20:33 +0100
-Message-ID: <2793672.rAfjMbnPi9@amdc3058>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Laura Abbott <labbott@redhat.com>
+Subject: [PATCHv3 15/16] video: vermilion: Use set_memory.h header
+Date: Tue,  7 Mar 2017 12:55:32 -0800
+Message-ID: <1488920133-27229-16-git-send-email-labbott@redhat.com>
+In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
 References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
- <CGME20170307205649epcas3p416380b3e38150b3532dcf1742aad56ae@epcas3p4.samsung.com>
- <1488920133-27229-16-git-send-email-labbott@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-reply-to: <1488920133-27229-16-git-send-email-labbott@redhat.com>
 Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20170307205532.sfsTPh5BvVdtDv2iyB8nVrop3VQFNrqccA1_Q9V2aUs@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Laura Abbott <labbott@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, David Airlie <airlied@linux.ie>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
+To: Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: Laura Abbott <labbott@redhat.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, David Airlie <airlied@linux.ie>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Daniel Borkmann <daniel@iogearbox.net>, Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>, linux-fbdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tuesday, March 07, 2017 12:55:32 PM Laura Abbott wrote:
-> 
-> set_memory_* functions have moved to set_memory.h. Switch to this
-> explicitly.
-> 
-> Signed-off-by: Laura Abbott <labbott@redhat.com>
 
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+set_memory_* functions have moved to set_memory.h. Switch to this
+explicitly.
 
-Best regards,
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+---
+v3: New files not caught in the first pass
+---
+ drivers/video/fbdev/vermilion/vermilion.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/video/fbdev/vermilion/vermilion.c b/drivers/video/fbdev/vermilion/vermilion.c
+index 1c1e95a..ce4c4729 100644
+--- a/drivers/video/fbdev/vermilion/vermilion.c
++++ b/drivers/video/fbdev/vermilion/vermilion.c
+@@ -37,7 +37,7 @@
+ #include <linux/mm.h>
+ #include <linux/fb.h>
+ #include <linux/pci.h>
+-#include <asm/cacheflush.h>
++#include <asm/set_memory.h>
+ #include <asm/tlbflush.h>
+ #include <linux/mmzone.h>
+ 
+-- 
+2.7.4
