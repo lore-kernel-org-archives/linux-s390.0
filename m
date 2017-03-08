@@ -1,15 +1,14 @@
-Return-Path: <jpoimboe@redhat.com>
-Date: Tue, 7 Mar 2017 10:12:30 -0600
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [PATCH v5 01/15] stacktrace/x86: add function for detecting
- reliable stack traces
-Message-ID: <20170307161230.44rvjm7ed7azgu6x@treble>
+Return-Path: <mpe@ellerman.id.au>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v5 05/15] livepatch/powerpc: add TIF_PATCH_PENDING thread
+ flag
+In-Reply-To: <69e7b24fd0bcf912aa1ea6071d0a345901b3c741.1487036215.git.jpoimboe@redhat.com>
 References: <cover.1487036215.git.jpoimboe@redhat.com>
- <baca30690796f3a0d938060b5f90b81375d76c30.1487036215.git.jpoimboe@redhat.com>
- <1488869455.4285.10.camel@gmail.com>
+ <69e7b24fd0bcf912aa1ea6071d0a345901b3c741.1487036215.git.jpoimboe@redhat.com>
+Date: Wed, 08 Mar 2017 15:02:54 +1100
+Message-ID: <87d1dsjtzl.fsf@concordia.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1488869455.4285.10.camel@gmail.com>
+Content-Type: text/plain
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -18,48 +17,33 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Balbir Singh <bsingharora@gmail.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+To: Josh Poimboeuf <jpoimboe@redhat.com>, Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>
+Cc: linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Balbir Singh <bsingharora@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Mar 07, 2017 at 05:50:55PM +1100, Balbir Singh wrote:
-> On Mon, 2017-02-13 at 19:42 -0600, Josh Poimboeuf wrote:
-> > For live patching and possibly other use cases, a stack trace is only
-> > useful if it can be assured that it's completely reliable.  Add a new
-> > save_stack_trace_tsk_reliable() function to achieve that.
-> > 
-> > Note that if the target task isn't the current task, and the target task
-> > is allowed to run, then it could be writing the stack while the unwinder
-> > is reading it, resulting in possible corruption.  So the caller of
-> > save_stack_trace_tsk_reliable() must ensure that the task is either
-> > 'current' or inactive.
-> > 
-> > save_stack_trace_tsk_reliable() relies on the x86 unwinder's detection
-> > of pt_regs on the stack.  If the pt_regs are not user-mode registers
-> > from a syscall, then they indicate an in-kernel interrupt or exception
-> > (e.g. preemption or a page fault), in which case the stack is considered
-> > unreliable due to the nature of frame pointers.
-> > 
-> > It also relies on the x86 unwinder's detection of other issues, such as:
-> > 
-> > - corrupted stack data
-> > - stack grows the wrong way
-> > - stack walk doesn't reach the bottom
-> > - user didn't provide a large enough entries array
-> > 
-> > Such issues are reported by checking unwind_error() and !unwind_done().
-> > 
-> > Also add CONFIG_HAVE_RELIABLE_STACKTRACE so arch-independent code can
-> > determine at build time whether the function is implemented.
-> > 
-> > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> > ---
-> 
-> Could you comment on why we need a reliable trace for live-patching? Are
-> we in any way reliant on the stack trace to patch something broken?
+Josh Poimboeuf <jpoimboe@redhat.com> writes:
 
-I tried to cover this comprehensively in patch 13/15 in
-Documentation/livepatch/livepatch.txt.  Does that answer your questions?
+> Add the TIF_PATCH_PENDING thread flag to enable the new livepatch
+> per-task consistency model for powerpc.  The bit getting set indicates
+> the thread has a pending patch which needs to be applied when the thread
+> exits the kernel.
+>
+> The bit is included in the _TIF_USER_WORK_MASK macro so that
+> do_notify_resume() and klp_update_patch_state() get called when the bit
+> is set.
+>
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> Reviewed-by: Petr Mladek <pmladek@suse.com>
+> Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+> Reviewed-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+> ---
+>  arch/powerpc/include/asm/thread_info.h | 4 +++-
+>  arch/powerpc/kernel/signal.c           | 4 ++++
+>  2 files changed, 7 insertions(+), 1 deletion(-)
 
--- 
-Josh
+The arch changes here seem fine. I haven't tested the whole series
+though.
+
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+
+cheers
