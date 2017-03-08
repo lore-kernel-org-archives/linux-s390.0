@@ -1,234 +1,71 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Laura Abbott <labbott@redhat.com>
-Subject: [PATCHv3 05/16] x86: Use set_memory.h header
-Date: Tue,  7 Mar 2017 12:55:22 -0800
-Message-ID: <1488920133-27229-6-git-send-email-labbott@redhat.com>
-In-Reply-To: <1488920133-27229-1-git-send-email-labbott@redhat.com>
-References: <1488920133-27229-1-git-send-email-labbott@redhat.com>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20170307205522.8lLt0Vo1aFR0Vm863zT3CByLAtkKir2thSnD7Ylvnz0@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
-Cc: Laura Abbott <labbott@redhat.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, Kees Cook <keescook@chromium.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, David Airlie <airlied@linux.ie>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Daniel Borkmann <daniel@iogearbox.net>, Jessica Yu <jeyu@redhat.com>, Takashi Iwai <tiwai@suse.com>, Andrew Morton <akpm@linux-foundation.org>
+Return-Path: <bsingharora@gmail.com>
+Message-ID: <1488966437.13674.2.camel@gmail.com>
+Subject: Re: [PATCH v5 01/15] stacktrace/x86: add function for detecting
+ reliable stack traces
+From: Balbir Singh <bsingharora@gmail.com>
+Date: Wed, 08 Mar 2017 20:47:17 +1100
+In-Reply-To: <20170307161230.44rvjm7ed7azgu6x@treble>
+References: <cover.1487036215.git.jpoimboe@redhat.com>
+ <baca30690796f3a0d938060b5f90b81375d76c30.1487036215.git.jpoimboe@redhat.com>
+ <1488869455.4285.10.camel@gmail.com>
+ <20170307161230.44rvjm7ed7azgu6x@treble>
+Content-Type: text/plain; charset="utf-8"
+Mime-Version: 1.0
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jessica Yu <jeyu@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Vojtech Pavlik <vojtech@suse.com>, Jiri Slaby <jslaby@suse.cz>, Chris J Arges <chris.j.arges@canonical.com>, Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
+Content-Transfer-Encoding: 8bit
 
-set_memory_* functions have moved to set_memory.h. Switch to this
-explicitly.
+On Tue, 2017-03-07 at 10:12 -0600, Josh Poimboeuf wrote:
+> On Tue, Mar 07, 2017 at 05:50:55PM +1100, Balbir Singh wrote:
+> > On Mon, 2017-02-13 at 19:42 -0600, Josh Poimboeuf wrote:
+> > > For live patching and possibly other use cases, a stack trace is only
+> > > useful if it can be assured that it's completely reliable.  Add a new
+> > > save_stack_trace_tsk_reliable() function to achieve that.
+> > > 
+> > > Note that if the target task isn't the current task, and the target task
+> > > is allowed to run, then it could be writing the stack while the unwinder
+> > > is reading it, resulting in possible corruption.  So the caller of
+> > > save_stack_trace_tsk_reliable() must ensure that the task is either
+> > > 'current' or inactive.
+> > > 
+> > > save_stack_trace_tsk_reliable() relies on the x86 unwinder's detection
+> > > of pt_regs on the stack.  If the pt_regs are not user-mode registers
+> > > from a syscall, then they indicate an in-kernel interrupt or exception
+> > > (e.g. preemption or a page fault), in which case the stack is considered
+> > > unreliable due to the nature of frame pointers.
+> > > 
+> > > It also relies on the x86 unwinder's detection of other issues, such as:
+> > > 
+> > > - corrupted stack data
+> > > - stack grows the wrong way
+> > > - stack walk doesn't reach the bottom
+> > > - user didn't provide a large enough entries array
+> > > 
+> > > Such issues are reported by checking unwind_error() and !unwind_done().
+> > > 
+> > > Also add CONFIG_HAVE_RELIABLE_STACKTRACE so arch-independent code can
+> > > determine at build time whether the function is implemented.
+> > > 
+> > > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> > > ---
+> > 
+> > Could you comment on why we need a reliable trace for live-patching? Are
+> > we in any way reliant on the stack trace to patch something broken?
+> 
+> I tried to cover this comprehensively in patch 13/15 in
+> Documentation/livepatch/livepatch.txt.  Does that answer your questions?
+>
 
-Acked-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Laura Abbott <labbott@redhat.com>
----
-v3: Add missing headers
----
- arch/x86/kernel/amd_gart_64.c      | 2 +-
- arch/x86/kernel/cpu/amd.c          | 2 +-
- arch/x86/kernel/cpu/bugs.c         | 2 +-
- arch/x86/kernel/ftrace.c           | 2 +-
- arch/x86/kernel/machine_kexec_32.c | 2 +-
- arch/x86/kernel/machine_kexec_64.c | 1 +
- arch/x86/mm/init.c                 | 2 +-
- arch/x86/mm/init_32.c              | 2 +-
- arch/x86/mm/init_64.c              | 2 +-
- arch/x86/mm/ioremap.c              | 2 +-
- arch/x86/mm/pageattr.c             | 1 +
- arch/x86/net/bpf_jit_comp.c        | 1 +
- arch/x86/pci/pcbios.c              | 2 +-
- arch/x86/platform/efi/efi.c        | 2 +-
- arch/x86/realmode/init.c           | 2 +-
- 15 files changed, 15 insertions(+), 12 deletions(-)
+Yes, it answers my questions
 
-diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
-index df083ef..815dd63 100644
---- a/arch/x86/kernel/amd_gart_64.c
-+++ b/arch/x86/kernel/amd_gart_64.c
-@@ -36,7 +36,7 @@
- #include <asm/proto.h>
- #include <asm/iommu.h>
- #include <asm/gart.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/swiotlb.h>
- #include <asm/dma.h>
- #include <asm/amd_nb.h>
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 35a5d5d..326d40d 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -16,7 +16,7 @@
- 
- #ifdef CONFIG_X86_64
- # include <asm/mmconfig.h>
--# include <asm/cacheflush.h>
-+# include <asm/set_memory.h>
- #endif
- 
- #include "cpu.h"
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index a44ef52..0af86d9 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -17,7 +17,7 @@
- #include <asm/paravirt.h>
- #include <asm/alternative.h>
- #include <asm/pgtable.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- 
- void __init check_bugs(void)
- {
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 8639bb2..da9f2b0 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -24,7 +24,7 @@
- 
- #include <trace/syscall.h>
- 
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/kprobes.h>
- #include <asm/ftrace.h>
- #include <asm/nops.h>
-diff --git a/arch/x86/kernel/machine_kexec_32.c b/arch/x86/kernel/machine_kexec_32.c
-index 469b23d..77d571b 100644
---- a/arch/x86/kernel/machine_kexec_32.c
-+++ b/arch/x86/kernel/machine_kexec_32.c
-@@ -23,7 +23,7 @@
- #include <asm/io_apic.h>
- #include <asm/cpufeature.h>
- #include <asm/desc.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/debugreg.h>
- 
- static void set_idt(void *newidt, __u16 limit)
-diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
-index 307b1f4..8887311 100644
---- a/arch/x86/kernel/machine_kexec_64.c
-+++ b/arch/x86/kernel/machine_kexec_64.c
-@@ -27,6 +27,7 @@
- #include <asm/debugreg.h>
- #include <asm/kexec-bzimage64.h>
- #include <asm/setup.h>
-+#include <asm/set_memory.h>
- 
- #ifdef CONFIG_KEXEC_FILE
- static struct kexec_file_ops *kexec_file_loaders[] = {
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index 22af912..adbfb09 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -5,7 +5,7 @@
- #include <linux/memblock.h>
- #include <linux/bootmem.h>	/* for max_low_pfn */
- 
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/e820.h>
- #include <asm/init.h>
- #include <asm/page.h>
-diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-index 2b4b53e..928cfde 100644
---- a/arch/x86/mm/init_32.c
-+++ b/arch/x86/mm/init_32.c
-@@ -48,7 +48,7 @@
- #include <asm/sections.h>
- #include <asm/paravirt.h>
- #include <asm/setup.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/page_types.h>
- #include <asm/init.h>
- 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 15173d3..7eef172 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -50,7 +50,7 @@
- #include <asm/sections.h>
- #include <asm/kdebug.h>
- #include <asm/numa.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/init.h>
- #include <asm/uv/uv.h>
- #include <asm/setup.h>
-diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
-index 7aaa263..8ae010c 100644
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -13,7 +13,7 @@
- #include <linux/vmalloc.h>
- #include <linux/mmiotrace.h>
- 
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/e820.h>
- #include <asm/fixmap.h>
- #include <asm/pgtable.h>
-diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
-index 28d4213..bfcdd45 100644
---- a/arch/x86/mm/pageattr.c
-+++ b/arch/x86/mm/pageattr.c
-@@ -24,6 +24,7 @@
- #include <asm/pgalloc.h>
- #include <asm/proto.h>
- #include <asm/pat.h>
-+#include <asm/set_memory.h>
- 
- /*
-  * The current flushing context - we pass it instead of 5 arguments:
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 32322ce..a63e6af 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -12,6 +12,7 @@
- #include <linux/filter.h>
- #include <linux/if_vlan.h>
- #include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <linux/bpf.h>
- 
- int bpf_jit_enable __read_mostly;
-diff --git a/arch/x86/pci/pcbios.c b/arch/x86/pci/pcbios.c
-index 1d97cea..4d510a6 100644
---- a/arch/x86/pci/pcbios.c
-+++ b/arch/x86/pci/pcbios.c
-@@ -9,7 +9,7 @@
- #include <linux/uaccess.h>
- #include <asm/pci_x86.h>
- #include <asm/pci-functions.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- 
- /* BIOS32 signature: "_32_" */
- #define BIOS32_SIGNATURE	(('_' << 0) + ('3' << 8) + ('2' << 16) + ('_' << 24))
-diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
-index 565dff3..6867d88 100644
---- a/arch/x86/platform/efi/efi.c
-+++ b/arch/x86/platform/efi/efi.c
-@@ -48,7 +48,7 @@
- #include <asm/setup.h>
- #include <asm/efi.h>
- #include <asm/time.h>
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/tlbflush.h>
- #include <asm/x86_init.h>
- #include <asm/uv/uv.h>
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index 5db706f1..a163a90 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -2,7 +2,7 @@
- #include <linux/slab.h>
- #include <linux/memblock.h>
- 
--#include <asm/cacheflush.h>
-+#include <asm/set_memory.h>
- #include <asm/pgtable.h>
- #include <asm/realmode.h>
- #include <asm/tlbflush.h>
--- 
-2.7.4
+Thanks,
+Balbir Singh.
