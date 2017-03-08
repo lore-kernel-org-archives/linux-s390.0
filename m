@@ -1,16 +1,18 @@
-From: Shaohua Li <shli@kernel.org>
-Subject: Re: [PATCH 10/29] drivers, md: convert stripe_head.count from
- atomic_t to refcount_t
-Date: Tue, 7 Mar 2017 11:07:59 -0800
-Message-ID: <20170307190759.jnrq66kfpkr4m7zl@kernel.org>
+From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 08/29] drivers, md: convert mddev.active from atomic_t to
+ refcount_t
+Date: Wed, 8 Mar 2017 11:19:14 +0100
+Message-ID: <20170308101914.GB15198@kroah.com>
 References: <1488810076-3754-1-git-send-email-elena.reshetova@intel.com>
- <1488810076-3754-11-git-send-email-elena.reshetova@intel.com>
+ <1488810076-3754-9-git-send-email-elena.reshetova@intel.com>
+ <20170307190449.baceyzzngsz776x7@kernel.org>
+ <2236FBA76BA1254E88B949DDB74E612B41C5606B@IRSMSX102.ger.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <1488810076-3754-11-git-send-email-elena.reshetova@intel.com>
+In-Reply-To: <2236FBA76BA1254E88B949DDB74E612B41C5606B@IRSMSX102.ger.corp.intel.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
  <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
@@ -22,53 +24,27 @@ Errors-To: driverdev-devel-bounces@linuxdriverproject.org
 Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
 List-Archive: <https://lore.kernel.org/linux-bcache/>
 List-Post: <mailto:linux-bcache@vger.kernel.org>
-To: Elena Reshetova <elena.reshetova@intel.com>
-Cc: peterz@infradead.org, linux-pci@vger.kernel.org, target-devel@vger.kernel.org, linux1394-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, fcoe-devel@open-fcoe.org, xen-devel@lists.xenproject.org, open-iscsi@googlegroups.com, linux-media@vger.kernel.org, Kees Cook <keescook@chromium.org>, linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org, Hans Liljestrand <ishkamiel@gmail.com>, David Windsor <dwindsor@gmail.com>, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, devel@linuxdriverproject.org
+To: "Reshetova, Elena" <elena.reshetova@intel.com>
+Cc: "peterz@infradead.org" <peterz@infradead.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "target-devel@vger.kernel.org" <target-devel@vger.kernel.org>, "linux1394-devel@lists.sourceforge.net" <linux1394-devel@lists.sourceforge.net>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "fcoe-devel@open-fcoe.org" <fcoe-devel@open-fcoe.org>, Hans Liljestrand <ishkamiel@gmail.com>, "open-iscsi@googlegroups.com" <open-iscsi@googlegroups.com>, Shaohua Li <shli@kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, Kees Cook <keescook@chromium.org>, "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>, "linux-bcache@vger.kernel.org" <linux-bcache@vger.k>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 06, 2017 at 04:20:57PM +0200, Elena Reshetova wrote:
-> refcount_t type and corresponding API should be
-> used instead of atomic_t when the variable is used as
-> a reference counter. This allows to avoid accidental
-> refcounter overflows that might lead to use-after-free
-> situations.
+On Wed, Mar 08, 2017 at 09:42:09AM +0000, Reshetova, Elena wrote:
+> > On Mon, Mar 06, 2017 at 04:20:55PM +0200, Elena Reshetova wrote:
+> > > refcount_t type and corresponding API should be
+> > > used instead of atomic_t when the variable is used as
+> > > a reference counter. This allows to avoid accidental
+> > > refcounter overflows that might lead to use-after-free
+> > > situations.
+> > 
+> > Looks good. Let me know how do you want to route the patch to upstream.
 > 
-> Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
-> Signed-off-by: Hans Liljestrand <ishkamiel@gmail.com>
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Signed-off-by: David Windsor <dwindsor@gmail.com>
-> ---
->  drivers/md/raid5-cache.c |  8 +++---
->  drivers/md/raid5.c       | 66 ++++++++++++++++++++++++------------------------
->  drivers/md/raid5.h       |  3 ++-
->  3 files changed, 39 insertions(+), 38 deletions(-)
-> 
-> diff --git a/drivers/md/raid5-cache.c b/drivers/md/raid5-cache.c
-> index 3f307be..6c05e12 100644
-> --- a/drivers/md/raid5-cache.c
-> +++ b/drivers/md/raid5-cache.c
+> Greg, you previously mentioned that driver's conversions can go via your tree. Does this still apply?
+> Or should I be asking maintainers to merge these patches via their trees? 
 
-snip
->  	       sh->check_state, sh->reconstruct_state);
->  
->  	analyse_stripe(sh, &s);
-> @@ -4924,7 +4924,7 @@ static void activate_bit_delay(struct r5conf *conf,
->  		struct stripe_head *sh = list_entry(head.next, struct stripe_head, lru);
->  		int hash;
->  		list_del_init(&sh->lru);
-> -		atomic_inc(&sh->count);
-> +		refcount_inc(&sh->count);
->  		hash = sh->hash_lock_index;
->  		__release_stripe(conf, sh, &temp_inactive_list[hash]);
->  	}
-> @@ -5240,7 +5240,7 @@ static struct stripe_head *__get_priority_stripe(struct r5conf *conf, int group)
->  		sh->group = NULL;
->  	}
->  	list_del_init(&sh->lru);
-> -	BUG_ON(atomic_inc_return(&sh->count) != 1);
-> +	BUG_ON(refcount_inc_not_zero(&sh->count));
+You should ask them to take them through their trees, if they have them.
+I'll be glad to scoop up all of the remaining ones that get missed, or
+for subsystems that do not have trees.
 
-This changes the behavior. refcount_inc_not_zero doesn't inc if original value is 0
+thanks,
 
-Thanks,
-Shaohua
+greg k-h
