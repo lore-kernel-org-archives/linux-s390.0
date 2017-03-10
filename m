@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH 2/2] s390: zfcp: Remove unneeded linux/miscdevice.h
- include
-References: <20161215141824.3297-1-clabbe.montjoie@gmail.com>
- <20161215141824.3297-2-clabbe.montjoie@gmail.com>
-From: Steffen Maier <maier@linux.vnet.ibm.com>
-Date: Tue, 7 Mar 2017 16:30:13 +0100
-MIME-Version: 1.0
-In-Reply-To: <20161215141824.3297-2-clabbe.montjoie@gmail.com>
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <f8941f5e-bbb5-43bd-5997-40f274325864@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Corentin Labbe <clabbe.montjoie@gmail.com>, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux-kernel@vger.kernel.org
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH RFC v3 00/15] basic vfio-ccw infrastructure
+Date: Fri, 10 Mar 2017 11:46:05 +0100
+Message-ID: <20170310114605.1353e810.cornelia.huck@de.ibm.com>
+References: <20170217082939.33208-1-bjsdjshi@linux.vnet.ibm.com>
+        <20170309092525.GA10189@bjsdjshi@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20170309092525.GA10189@bjsdjshi@linux.vnet.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, renxiaof@linux.vnet.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, wkywang@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Thanks, Corentin, queued for next zfcp feature submission to linux-scsi as:
+On Thu, 9 Mar 2017 17:25:25 +0800
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-"zfcp: Remove unneeded linux/miscdevice.h include"
+> * Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> [2017-02-17 09:29:24 +0100]:
+> 
+> > vfio-ccw: the basic infrastructure
+> > ==================================
+> > 
+> > Introduction
+> > ------------
+> > 
+> > Here we describe the vfio support for I/O subchannel devices for
+> > Linux/s390. Motivation for vfio-ccw is to passthrough subchannels to a
+> > virtual machine, while vfio is the means.
+> > 
+> 
+> Ping.
+> 
+> Any more comment for this version?
+> 
+> Thanks.
+> 
+> [...]
+> 
 
-In fact, this seems a minor missing code cleanup of the following older=20
-"feature" which also dropped the only former use of a misc device in zfcp:
-663e0890e31cb85f0cca5ac1faaee0d2d52880b5
-("[SCSI] zfcp: remove access control tables interface")
-b5dc3c4800cc5c2c0b3c93a97eb4c7afa0aae49a
-("[SCSI] zfcp: remove access control tables interface (keep sysfs files)")
-1b33ef23946adee4b7d9d6b16b7285ce61063451
-("zfcp: remove access control tables interface (port leftovers)").
+I just walked through the patch set again and did not notice anything
+else. There's still the area of channel path handling, but I don't see
+why it shouldn't be able to fit into the infrastructure you introduce
+here. (I'd expect most of the interesting stuff there to be handled in
+user space anyway.)
 
-On 12/15/2016 03:18 PM, Corentin Labbe wrote:
-> drivers/s390/scsi/zfcp_aux.c does not contain any miscdevice so the
-> inclusion of linux/miscdevice.h is uncessary.
->
-> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> ---
->  drivers/s390/scsi/zfcp_aux.c | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-> index bcc8f3d..82ac331 100644
-> --- a/drivers/s390/scsi/zfcp_aux.c
-> +++ b/drivers/s390/scsi/zfcp_aux.c
-> @@ -29,7 +29,6 @@
->  #define KMSG_COMPONENT "zfcp"
->  #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
->
-> -#include <linux/miscdevice.h>
->  #include <linux/seq_file.h>
->  #include <linux/slab.h>
->  #include <linux/module.h>
->
-
---=20
-Mit freundlichen Gr=FC=DFen / Kind regards
-Steffen Maier
-
-Linux on z Systems Development
-
-IBM Deutschland Research & Development GmbH
-Vorsitzende des Aufsichtsrats: Martina Koederitz
-Geschaeftsfuehrung: Dirk Wittkopp
-Sitz der Gesellschaft: Boeblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+You should update MAINTAINERS, though. I'm not sure the s390 cio folks
+are prepared to handle vfio-ccw :) (although I think you should cc:
+them on the patches exporting cio interfaces.) It's probably best to
+take vfio-ccw through the kvm-s390 tree.
