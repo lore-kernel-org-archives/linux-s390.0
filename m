@@ -1,62 +1,60 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [RFC PATCH 11/13] mm/vas: Introduce VAS segments - shareable
- address space regions
-Date: Mon, 13 Mar 2017 15:27:58 -0700
-Message-ID: <20170313222758.GB4033@bombadil.infradead.org>
+From: Richard Henderson <rth@twiddle.net>
+Subject: Re: [RFC PATCH 00/13] Introduce first class virtual address spaces
+Date: Tue, 14 Mar 2017 10:18:56 +1000
+Message-ID: <73f62aca-d442-9e4b-3e2c-6269e2632e68@twiddle.net>
 References: <20170313221415.9375-1-till.smejkal@gmail.com>
- <20170313221415.9375-12-till.smejkal@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20170313221415.9375-12-till.smejkal@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20170313221415.9375-1-till.smejkal@gmail.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/alsa-devel/>
 List-Post: <mailto:alsa-devel@alsa-project.org>
-To: Till Smejkal <till.smejkal@googlemail.com>
-Cc: linux-mips@linux-mips.org, linux-s390@vger.kernel.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, "J. Bruce Fields" <bfields@fieldses.org>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, Cyrille Pitchen <cyrille.pitchen@atmel.com>, Andy Lutomirski <luto@amacapital.net>, Jeff Layton <jlayton@poochiereds.net>, linux-kernel@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, linux-arch@vger.kernel.orgBorisBrezillonbo
+To: Till Smejkal <till.smejkal@googlemail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko
+Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-media@vger.kernel.org, linux-mtd@lists.infradead.org, linux-usb@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, linux-mm@kvack.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, alsa-devel@alsa-project.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 13, 2017 at 03:14:13PM -0700, Till Smejkal wrote:
-> +/**
-> + * Create a new VAS segment.
-> + *
-> + * @param[in] name:		The name of the new VAS segment.
-> + * @param[in] start:		The address where the VAS segment begins.
-> + * @param[in] end:		The address where the VAS segment ends.
-> + * @param[in] mode:		The access rights for the VAS segment.
-> + *
-> + * @returns:			The VAS segment ID on success, -ERRNO otherwise.
-> + **/
+On 03/14/2017 08:14 AM, Till Smejkal wrote:
+> At the current state of the development, first class virtual address spaces
+> have one limitation, that we haven't been able to solve so far. The feature
+> allows, that different threads of the same process can execute in different
+> AS at the same time. This is possible, because the VAS-switch operation
+> only changes the active mm_struct for the task_struct of the calling
+> thread. However, when a thread switches into a first class virtual address
+> space, some parts of its original AS are duplicated into the new one to
+> allow the thread to continue its execution at its current state.
+> Accordingly, parts of the processes AS (e.g. the code section, data
+> section, heap section and stack sections) exist in multiple AS if the
+> process has a VAS attached to it. Changes to these shared memory regions
+> are synchronized between the address spaces whenever a thread switches
+> between two of them. Unfortunately, in some scenarios the kernel is not
+> able to properly synchronize all these shared memory regions because of
+> conflicting changes. One such example happens if there are two threads, one
+> executing in an attached first class virtual address space, the other in
+> the tasks original address space. If both threads make changes to the heap
+> section that cause expansion of the underlying vm_area_struct, the kernel
+> cannot correctly synchronize these changes, because that would cause parts
+> of the virtual address space to be overwritten with unrelated data. In the
+> current implementation such conflicts are only detected but not resolved
+> and result in an error code being returned by the kernel during the VAS
+> switch operation. Unfortunately, that means for the particular thread that
+> tried to make the switch, that it cannot do this anymore in the future and
+> accordingly has to be killed.
 
-Please follow the kernel-doc conventions, as described in
-Documentation/doc-guide/kernel-doc.rst.  Also, function documentation
-goes with the implementation, not the declaration.
+This sounds like a fairly fundamental problem to me.
 
-> +/**
-> + * Get ID of the VAS segment belonging to a given name.
-> + *
-> + * @param[in] name:		The name of the VAS segment for which the ID
-> + *				should be returned.
-> + *
-> + * @returns:			The VAS segment ID on success, -ERRNO
-> + *				otherwise.
-> + **/
-> +extern int vas_seg_find(const char *name);
-
-So ... segments have names, and IDs ... and access permissions ...
-Why isn't this a special purpose filesystem?
+Is this an indication that full virtual address spaces are useless?  It would 
+seem like if you only use virtual address segments then you avoid all of the 
+problems with executing code, active stacks, and brk.
 
 
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
+r~
