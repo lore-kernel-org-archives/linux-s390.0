@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH v4 11/16] vfio: ccw: realize VFIO_DEVICE_G(S)ET_IRQ_INFO ioctls
-Date: Fri, 17 Mar 2017 04:17:38 +0100
-Message-ID: <20170317031743.40128-12-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH v4 07/16] vfio: ccw: introduce ccw_io_region
+Date: Fri, 17 Mar 2017 04:17:34 +0100
+Message-ID: <20170317031743.40128-8-bjsdjshi@linux.vnet.ibm.com>
 References: <20170317031743.40128-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170317031743.40128-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,232 +12,150 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Realize VFIO_DEVICE_GET_IRQ_INFO ioctl to retrieve
-VFIO_CCW_IO_IRQ information.
+To provide user-space a set of interfaces to:
+1. pass in a ccw program to perform an I/O operation.
+2. read back I/O results of the completed I/O operations.
+We introduce an MMIO region for the vfio-ccw device here.
 
-Realize VFIO_DEVICE_SET_IRQS ioctl to set an eventfd fd for
-VFIO_CCW_IO_IRQ. Once a write operation to the ccw_io_region
-was performed, trigger a signal on this fd.
+This region is defined to content:
+1. areas to store arguments that an ssch required.
+2. areas to store the I/O results.
+
+Using pwrite/pread to the device on this region, a user-space program
+could write/read data to/from the vfio-ccw device.
 
 Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_ops.c     | 123 +++++++++++++++++++++++++++++++++++-
- drivers/s390/cio/vfio_ccw_private.h |   4 ++
- include/uapi/linux/vfio.h           |  10 ++-
- 3 files changed, 134 insertions(+), 3 deletions(-)
+ drivers/s390/cio/vfio_ccw_ops.c     | 47 +++++++++++++++++++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_private.h |  4 ++++
+ include/uapi/linux/vfio_ccw.h       | 24 +++++++++++++++++++
+ 3 files changed, 75 insertions(+)
+ create mode 100644 include/uapi/linux/vfio_ccw.h
 
 diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 125818c..1294c53 100644
+index b8a2fed..6c06805 100644
 --- a/drivers/s390/cio/vfio_ccw_ops.c
 +++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -202,6 +202,9 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
- 	if (region->ret_code != 0)
- 		return region->ret_code;
- 
-+	if (private->io_trigger)
-+		eventfd_signal(private->io_trigger, 1);
-+
- 	return count;
+@@ -127,6 +127,51 @@ void vfio_ccw_mdev_release(struct mdev_device *mdev)
+ 				 &private->nb);
  }
  
-@@ -209,7 +212,7 @@ static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
- {
- 	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
- 	info->num_regions = VFIO_CCW_NUM_REGIONS;
--	info->num_irqs = 0;
-+	info->num_irqs = VFIO_CCW_NUM_IRQS;
- 
- 	return 0;
- }
-@@ -230,6 +233,83 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
- 	}
- }
- 
-+int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
-+{
-+	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
-+		return -EINVAL;
-+
-+	info->count = 1;
-+	info->flags = VFIO_IRQ_INFO_EVENTFD;
-+
-+	return 0;
-+}
-+
-+static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
-+				  uint32_t flags,
-+				  void __user *data)
++static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
++				  char __user *buf,
++				  size_t count,
++				  loff_t *ppos)
 +{
 +	struct vfio_ccw_private *private;
-+	struct eventfd_ctx **ctx;
++	struct ccw_io_region *region;
 +
-+	if (!(flags & VFIO_IRQ_SET_ACTION_TRIGGER))
++	if (*ppos + count > sizeof(*region))
 +		return -EINVAL;
 +
 +	private = dev_get_drvdata(mdev_parent_dev(mdev));
 +	if (!private)
 +		return -ENODEV;
 +
-+	ctx = &private->io_trigger;
++	region = &private->io_region;
++	if (copy_to_user(buf, (void *)region + *ppos, count))
++		return -EFAULT;
 +
-+	switch (flags & VFIO_IRQ_SET_DATA_TYPE_MASK) {
-+	case VFIO_IRQ_SET_DATA_NONE:
-+	{
-+		if (*ctx)
-+			eventfd_signal(*ctx, 1);
-+		return 0;
-+	}
-+	case VFIO_IRQ_SET_DATA_BOOL:
-+	{
-+		uint8_t trigger;
-+
-+		if (get_user(trigger, (uint8_t __user *)data))
-+			return -EFAULT;
-+
-+		if (trigger && *ctx)
-+			eventfd_signal(*ctx, 1);
-+		return 0;
-+	}
-+	case VFIO_IRQ_SET_DATA_EVENTFD:
-+	{
-+		int32_t fd;
-+
-+		if (get_user(fd, (int32_t __user *)data))
-+			return -EFAULT;
-+
-+		if (fd == -1) {
-+			if (*ctx)
-+				eventfd_ctx_put(*ctx);
-+			*ctx = NULL;
-+		} else if (fd >= 0) {
-+			struct eventfd_ctx *efdctx;
-+
-+			efdctx = eventfd_ctx_fdget(fd);
-+			if (IS_ERR(efdctx))
-+				return PTR_ERR(efdctx);
-+
-+			if (*ctx)
-+				eventfd_ctx_put(*ctx);
-+
-+			*ctx = efdctx;
-+		} else
-+			return -EINVAL;
-+
-+		return 0;
-+	}
-+	default:
-+		return -EINVAL;
-+	}
++	return count;
 +}
 +
- static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 				   unsigned int cmd,
- 				   unsigned long arg)
-@@ -277,6 +357,47 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
++static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
++				   const char __user *buf,
++				   size_t count,
++				   loff_t *ppos)
++{
++	struct vfio_ccw_private *private;
++	struct ccw_io_region *region;
++
++	if (*ppos + count > sizeof(*region))
++		return -EINVAL;
++
++	private = dev_get_drvdata(mdev_parent_dev(mdev));
++	if (!private)
++		return -ENODEV;
++
++	region = &private->io_region;
++	if (copy_from_user((void *)region + *ppos, buf, count))
++		return -EFAULT;
++	region->ret_code = 0;
++
++	return count;
++}
++
+ static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
+ 	.owner			= THIS_MODULE,
+ 	.supported_type_groups  = mdev_type_groups,
+@@ -134,6 +179,8 @@ static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
+ 	.remove			= vfio_ccw_mdev_remove,
+ 	.open			= vfio_ccw_mdev_open,
+ 	.release		= vfio_ccw_mdev_release,
++	.read			= vfio_ccw_mdev_read,
++	.write			= vfio_ccw_mdev_write,
+ };
  
- 		return copy_to_user((void __user *)arg, &info, minsz);
- 	}
-+	case VFIO_DEVICE_GET_IRQ_INFO:
-+	{
-+		struct vfio_irq_info info;
-+
-+		minsz = offsetofend(struct vfio_irq_info, count);
-+
-+		if (copy_from_user(&info, (void __user *)arg, minsz))
-+			return -EFAULT;
-+
-+		if (info.argsz < minsz || info.index >= VFIO_CCW_NUM_IRQS)
-+			return -EINVAL;
-+
-+		ret = vfio_ccw_mdev_get_irq_info(&info);
-+		if (ret)
-+			return ret;
-+
-+		if (info.count == -1)
-+			return -EINVAL;
-+
-+		return copy_to_user((void __user *)arg, &info, minsz);
-+	}
-+	case VFIO_DEVICE_SET_IRQS:
-+	{
-+		struct vfio_irq_set hdr;
-+		size_t data_size;
-+		void __user *data;
-+
-+		minsz = offsetofend(struct vfio_irq_set, count);
-+
-+		if (copy_from_user(&hdr, (void __user *)arg, minsz))
-+			return -EFAULT;
-+
-+		ret = vfio_set_irqs_validate_and_prepare(&hdr, 1,
-+							 VFIO_CCW_NUM_IRQS,
-+							 &data_size);
-+		if (ret)
-+			return ret;
-+
-+		data = (void __user *)(arg + minsz);
-+		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, data);
-+	}
- 	case VFIO_DEVICE_RESET:
- 		return vfio_ccw_mdev_reset(mdev);
- 	default:
+ int vfio_ccw_mdev_reg(struct subchannel *sch)
 diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 79e5337..dddab52 100644
+index 5afb3ba..359e96b 100644
 --- a/drivers/s390/cio/vfio_ccw_private.h
 +++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -11,6 +11,7 @@
+@@ -10,6 +10,8 @@
+ #ifndef _VFIO_CCW_PRIVATE_H_
  #define _VFIO_CCW_PRIVATE_H_
  
- #include <linux/completion.h>
-+#include <linux/eventfd.h>
- #include <linux/vfio_ccw.h>
- 
++#include <linux/vfio_ccw.h>
++
  #include "css.h"
-@@ -29,6 +30,7 @@
-  * @cp: channel program for the current I/O operation
-  * @irb: irb info received from interrupt
-  * @scsw: scsw info
-+ * @io_trigger: eventfd ctx for signaling userspace I/O results
+ 
+ /**
+@@ -19,6 +21,7 @@
+  * @avail: available for creating a mediated device
+  * @mdev: pointer to the mediated device
+  * @nb: notifier for vfio events
++ * @io_region: MMIO region to input/output I/O arguments/results
   */
  struct vfio_ccw_private {
  	struct subchannel	*sch;
-@@ -43,6 +45,8 @@ struct vfio_ccw_private {
- 	struct channel_program	cp;
- 	struct irb		irb;
- 	union scsw		scsw;
-+
-+	struct eventfd_ctx	*io_trigger;
+@@ -26,6 +29,7 @@ struct vfio_ccw_private {
+ 	atomic_t		avail;
+ 	struct mdev_device	*mdev;
+ 	struct notifier_block	nb;
++	struct ccw_io_region	io_region;
  } __aligned(8);
  
  extern int vfio_ccw_mdev_reg(struct subchannel *sch);
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 3fd70ff..ae46105 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -449,8 +449,9 @@ enum {
- };
- 
- /*
-- * The vfio-ccw bus driver makes use of the following fixed region.
-- * Unimplemented regions return a size of zero.
-+ * The vfio-ccw bus driver makes use of the following fixed region and
-+ * IRQ index mapping. Unimplemented regions return a size of zero.
-+ * Unimplemented IRQ types return a count of zero.
-  */
- 
- enum {
-@@ -458,6 +459,11 @@ enum {
- 	VFIO_CCW_NUM_REGIONS
- };
- 
-+enum {
-+	VFIO_CCW_IO_IRQ_INDEX,
-+	VFIO_CCW_NUM_IRQS
-+};
+diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
+new file mode 100644
+index 0000000..34a7f6f
+--- /dev/null
++++ b/include/uapi/linux/vfio_ccw.h
+@@ -0,0 +1,24 @@
++/*
++ * Interfaces for vfio-ccw
++ *
++ * Copyright IBM Corp. 2017
++ *
++ * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
++ */
 +
- /**
-  * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO - _IORW(VFIO_TYPE, VFIO_BASE + 12,
-  *					      struct vfio_pci_hot_reset_info)
++#ifndef _VFIO_CCW_H_
++#define _VFIO_CCW_H_
++
++#include <linux/types.h>
++
++struct ccw_io_region {
++#define ORB_AREA_SIZE 12
++	__u8	orb_area[ORB_AREA_SIZE];
++#define SCSW_AREA_SIZE 12
++	__u8	scsw_area[SCSW_AREA_SIZE];
++#define IRB_AREA_SIZE 96
++	__u8	irb_area[IRB_AREA_SIZE];
++	__u32	ret_code;
++} __packed;
++
++#endif
 -- 
 2.8.4
