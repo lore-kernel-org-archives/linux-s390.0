@@ -1,46 +1,119 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 13 Mar 2017 16:27:29 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390/decompressor: fix initrd corruption caused by bss
- clear
-References: <1489418098-1564-1-git-send-email-marcelo.cerri@canonical.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1489418098-1564-1-git-send-email-marcelo.cerri@canonical.com>
-Message-Id: <20170313152729.GC5009@osiris>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Joy Latten <joy.latten@canonical.com>, linux-kernel@vger.kernel.org
+From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH v4 10/16] vfio: ccw: realize VFIO_DEVICE_RESET ioctl
+Date: Fri, 17 Mar 2017 04:17:37 +0100
+Message-ID: <20170317031743.40128-11-bjsdjshi@linux.vnet.ibm.com>
+References: <20170317031743.40128-1-bjsdjshi@linux.vnet.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20170317031743.40128-1-bjsdjshi@linux.vnet.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
+Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 13, 2017 at 12:14:58PM -0300, Marcelo Henrique Cerri wrote:
-> Reorder the operations in decompress_kernel() to ensure initrd is moved
-> to a safe location before the bss section is zeroed.
-> 
-> During decompression bss can overlap with the initrd and this can
-> corrupt the initrd contents depending on the size of the compressed
-> kernel (which affects where the initrd is placed by the bootloader) and
-> the size of the bss section of the decompressor.
-> 
-> Also use the correct initrd size when checking for overlaps with
-> parmblock.
-> 
-> Fixes: 06c0dd72aea3 ([S390] fix boot failures with compressed kernels)
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Joy Latten <joy.latten@canonical.com>
-> Reviewed-by: Vineetha HariPai <vineetha.hari.pai@canonical.com>
-> Signed-off-by: Marcelo Henrique Cerri <marcelo.cerri@canonical.com>
-> ---
->  arch/s390/boot/compressed/misc.c | 35 +++++++++++++++++++----------------
->  1 file changed, 19 insertions(+), 16 deletions(-)
+Introduce VFIO_DEVICE_RESET ioctl for vfio-ccw to make it possible
+to hot-reset the device.
 
-Indeed. I just checked that we currently have 32 bytes within the bss
-section of the compressed kernel image, where clearing it would corrupt the
-initrd if would be placed directly behind the image.
-I will look into the patch tomorrow.
+We try to achieve a reset by first disabling the subchannel and
+then enabling it again: this should clear all state at the subchannel.
 
-Thanks,
-Heiko
+Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_ops.c | 47 +++++++++++++++++++++++++++++------------
+ 1 file changed, 33 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index f3300dd..125818c 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -12,6 +12,32 @@
+ 
+ #include "vfio_ccw_private.h"
+ 
++static int vfio_ccw_mdev_reset(struct mdev_device *mdev)
++{
++	struct vfio_ccw_private *private;
++	struct subchannel *sch;
++	int ret;
++
++	private = dev_get_drvdata(mdev_parent_dev(mdev));
++	if (!private)
++		return -ENODEV;
++
++	sch = private->sch;
++	/*
++	 * TODO:
++	 * In the cureent stage, some things like "no I/O running" and "no
++	 * interrupt pending" are clear, but we are not sure what other state
++	 * we need to care about.
++	 * There are still a lot more instructions need to be handled. We
++	 * should come back here later.
++	 */
++	ret = vfio_ccw_sch_quiesce(sch);
++	if (ret)
++		return ret;
++
++	return cio_enable_subchannel(sch, (u32)(unsigned long)sch);
++}
++
+ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
+ 				  unsigned long action,
+ 				  void *data)
+@@ -28,15 +54,11 @@ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
+ 	 */
+ 	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
+ 		struct vfio_iommu_type1_dma_unmap *unmap = data;
+-		struct subchannel *sch = private->sch;
+ 
+ 		if (!cp_iova_pinned(&private->cp, unmap->iova))
+ 			return NOTIFY_OK;
+ 
+-		if (vfio_ccw_sch_quiesce(sch))
+-			return NOTIFY_BAD;
+-
+-		if (cio_enable_subchannel(sch, (u32)(unsigned long)sch))
++		if (vfio_ccw_mdev_reset(private->mdev))
+ 			return NOTIFY_BAD;
+ 
+ 		cp_free(&private->cp);
+@@ -100,16 +122,11 @@ static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+ 
+ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
+ {
+-	struct vfio_ccw_private *private;
+-	struct subchannel *sch;
++	struct vfio_ccw_private *private =
++		dev_get_drvdata(mdev_parent_dev(mdev));
+ 	int ret;
+ 
+-	private = dev_get_drvdata(mdev_parent_dev(mdev));
+-	sch = private->sch;
+-	ret = vfio_ccw_sch_quiesce(sch);
+-	if (ret)
+-		return ret;
+-	ret = cio_enable_subchannel(sch, (u32)(unsigned long)sch);
++	ret = vfio_ccw_mdev_reset(mdev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -190,7 +207,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+ 
+ static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
+ {
+-	info->flags = VFIO_DEVICE_FLAGS_CCW;
++	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
+ 	info->num_regions = VFIO_CCW_NUM_REGIONS;
+ 	info->num_irqs = 0;
+ 
+@@ -260,6 +277,8 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+ 
+ 		return copy_to_user((void __user *)arg, &info, minsz);
+ 	}
++	case VFIO_DEVICE_RESET:
++		return vfio_ccw_mdev_reset(mdev);
+ 	default:
+ 		return -ENOTTY;
+ 	}
+-- 
+2.8.4
