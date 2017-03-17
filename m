@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH v4 08/11] vfio/ccw: get irqs info and set the eventfd fd
-Date: Fri, 17 Mar 2017 04:19:25 +0100
-Message-ID: <20170317031928.40189-9-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH v4 11/11] vfio/ccw: update sense data if a unit check is pending
+Date: Fri, 17 Mar 2017 04:19:28 +0100
+Message-ID: <20170317031928.40189-12-bjsdjshi@linux.vnet.ibm.com>
 References: <20170317031928.40189-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170317031928.40189-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,159 +12,40 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-vfio-ccw resorts to the eventfd mechanism to communicate with userspace.
-We fetch the irqs info via the ioctl VFIO_DEVICE_GET_IRQ_INFO,
-register a event notifier to get the eventfd fd which is sent
-to kernel via the ioctl VFIO_DEVICE_SET_IRQS, then we can implement
-read operation once kernel sends the signal.
+Concurrent-sense data is currently not delivered. This patch stores
+the concurrent-sense data to the subchannel if a unit check is pending
+and the concurrent-sense bit is enabled. Then a TSCH can retreive the
+right IRB data back to the guest.
 
 Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 ---
- hw/vfio/ccw.c | 102 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 102 insertions(+)
+ hw/vfio/ccw.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-index 1df2512..bb41ede 100644
+index 00ab285..b9e365a 100644
 --- a/hw/vfio/ccw.c
 +++ b/hw/vfio/ccw.c
-@@ -22,6 +22,7 @@
- #include "hw/vfio/vfio-common.h"
- #include "hw/s390x/s390-ccw.h"
- #include "hw/s390x/ccw-device.h"
-+#include "qemu/error-report.h"
+@@ -94,6 +94,7 @@ static void vfio_ccw_io_notifier_handler(void *opaque)
+     CcwDevice *ccw_dev = CCW_DEVICE(cdev);
+     SubchDev *sch = ccw_dev->sch;
+     SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
+     IRB irb;
  
- #define TYPE_VFIO_CCW "vfio-ccw"
- typedef struct VFIOCCWDevice {
-@@ -30,6 +31,7 @@ typedef struct VFIOCCWDevice {
-     uint64_t io_region_size;
-     uint64_t io_region_offset;
-     struct ccw_io_region *io_region;
-+    EventNotifier io_notifier;
- } VFIOCCWDevice;
+     if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
+@@ -133,6 +134,12 @@ static void vfio_ccw_io_notifier_handler(void *opaque)
+     /* Update control block via irb. */
+     copy_scsw_to_guest(s, &irb.scsw);
  
- static void vfio_ccw_compute_needs_reset(VFIODevice *vdev)
-@@ -54,6 +56,98 @@ static void vfio_ccw_reset(DeviceState *dev)
-     ioctl(vcdev->vdev.fd, VFIO_DEVICE_RESET);
++    /* If a uint check is pending, copy sense data. */
++    if ((s->dstat & SCSW_DSTAT_UNIT_CHECK) &&
++        (p->chars & PMCW_CHARS_MASK_CSENSE)) {
++        memcpy(sch->sense_data, irb.ecw, sizeof(irb.ecw));
++    }
++
+ read_err:
+     css_inject_io_interrupt(sch);
  }
- 
-+static void vfio_ccw_io_notifier_handler(void *opaque)
-+{
-+    VFIOCCWDevice *vcdev = opaque;
-+
-+    if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
-+        return;
-+    }
-+}
-+
-+static void vfio_ccw_register_io_notifier(VFIOCCWDevice *vcdev, Error **errp)
-+{
-+    VFIODevice *vdev = &vcdev->vdev;
-+    struct vfio_irq_info *irq_info;
-+    struct vfio_irq_set *irq_set;
-+    size_t argsz;
-+    int32_t *pfd;
-+
-+    if (vdev->num_irqs < VFIO_CCW_IO_IRQ_INDEX + 1) {
-+        error_setg(errp, "vfio: unexpected number of io irqs %u",
-+                   vdev->num_irqs);
-+        return;
-+    }
-+
-+    argsz = sizeof(*irq_set);
-+    irq_info = g_malloc0(argsz);
-+    irq_info->index = VFIO_CCW_IO_IRQ_INDEX;
-+    irq_info->argsz = argsz;
-+    if (ioctl(vdev->fd, VFIO_DEVICE_GET_IRQ_INFO,
-+              irq_info) < 0 || irq_info->count < 1) {
-+        error_setg(errp, "vfio: Error getting irq info");
-+        goto get_error;
-+    }
-+
-+    if (event_notifier_init(&vcdev->io_notifier, 0)) {
-+        error_setg(errp, "vfio: Unable to init event notifier for IO");
-+        goto get_error;
-+    }
-+
-+    argsz = sizeof(*irq_set) + sizeof(*pfd);
-+    irq_set = g_malloc0(argsz);
-+    irq_set->argsz = argsz;
-+    irq_set->flags = VFIO_IRQ_SET_DATA_EVENTFD |
-+                     VFIO_IRQ_SET_ACTION_TRIGGER;
-+    irq_set->index = VFIO_CCW_IO_IRQ_INDEX;
-+    irq_set->start = 0;
-+    irq_set->count = 1;
-+    pfd = (int32_t *) &irq_set->data;
-+
-+    *pfd = event_notifier_get_fd(&vcdev->io_notifier);
-+    qemu_set_fd_handler(*pfd, vfio_ccw_io_notifier_handler, NULL, vcdev);
-+    if (ioctl(vdev->fd, VFIO_DEVICE_SET_IRQS, irq_set)) {
-+        error_setg(errp, "vfio: Failed to set up io notification");
-+        qemu_set_fd_handler(*pfd, NULL, NULL, vcdev);
-+        event_notifier_cleanup(&vcdev->io_notifier);
-+        goto set_error;
-+    }
-+
-+set_error:
-+    g_free(irq_set);
-+
-+get_error:
-+    g_free(irq_info);
-+}
-+
-+static void vfio_ccw_unregister_io_notifier(VFIOCCWDevice *vcdev)
-+{
-+    struct vfio_irq_set *irq_set;
-+    size_t argsz;
-+    int32_t *pfd;
-+
-+    argsz = sizeof(*irq_set) + sizeof(*pfd);
-+    irq_set = g_malloc0(argsz);
-+    irq_set->argsz = argsz;
-+    irq_set->flags = VFIO_IRQ_SET_DATA_EVENTFD |
-+                     VFIO_IRQ_SET_ACTION_TRIGGER;
-+    irq_set->index = VFIO_CCW_IO_IRQ_INDEX;
-+    irq_set->start = 0;
-+    irq_set->count = 1;
-+    pfd = (int32_t *) &irq_set->data;
-+    *pfd = -1;
-+
-+    if (ioctl(vcdev->vdev.fd, VFIO_DEVICE_SET_IRQS, irq_set)) {
-+        error_report("vfio: Failed to de-assign device io fd");
-+    }
-+
-+    qemu_set_fd_handler(event_notifier_get_fd(&vcdev->io_notifier),
-+                        NULL, NULL, vcdev);
-+    event_notifier_cleanup(&vcdev->io_notifier);
-+
-+    g_free(irq_set);
-+}
-+
- static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
- {
-     VFIODevice *vdev = &vcdev->vdev;
-@@ -193,8 +287,15 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
-         goto out_region_err;
-     }
- 
-+    vfio_ccw_register_io_notifier(vcdev, errp);
-+    if (*errp) {
-+        goto out_notifier_err;
-+    }
-+
-     return;
- 
-+out_notifier_err:
-+    vfio_ccw_put_region(vcdev);
- out_region_err:
-     vfio_put_device(vcdev);
- out_device_err:
-@@ -217,6 +318,7 @@ static void vfio_ccw_unrealize(DeviceState *dev, Error **errp)
-         cdc->unrealize(cdev, errp);
-     }
- 
-+    vfio_ccw_unregister_io_notifier(vcdev);
-     vfio_ccw_put_region(vcdev);
-     vfio_put_device(vcdev);
-     vfio_put_group(group);
 -- 
 2.8.4
