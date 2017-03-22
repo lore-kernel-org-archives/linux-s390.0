@@ -1,118 +1,130 @@
-From: Thomas Garnier <thgarnie@google.com>
-Date: Wed, 22 Mar 2017 13:38:31 -0700
-Message-Id: <20170322203834.67556-1-thgarnie@google.com>
-Subject: [kernel-hardening] [PATCH v4 1/4] syscalls: Restore address limit after a syscall
-List-Archive: <https://lore.kernel.org/kernel-hardening/>
-List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, David Howells <dhowells@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Thomas Garnier <thgarnie@google.com>, =?UTF-8?q?Ren=C3=A9=20Nyffenegger?= <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Kees Cook <keescook@chromium.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Vladimir Murzin <vladimir.murzin@arm.com>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, x86@kernel.org, linux-arm-kernel@lists.infradead.org, kernel-hardening@lists.openwall.com
+Return-Path: <owner-linux-mm@kvack.org>
+From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Subject: Re: [PATCH v1] mm, hugetlb: use pte_present() instead of
+ pmd_present() in follow_huge_pmd()
+Date: Wed, 22 Mar 2017 22:53:11 +0000
+Message-ID: <20170322225310.GA23466@hori1.linux.bs1.fc.nec.co.jp>
+References: <1490149898-20231-1-git-send-email-n-horiguchi@ah.jp.nec.com>
+ <bd770cf9-c01c-dd50-bf6c-a50872f726ec@de.ibm.com>
+ <a3acee49-9ad4-ee94-2e19-55f56fc7151d@de.ibm.com>
+In-Reply-To: <a3acee49-9ad4-ee94-2e19-55f56fc7151d@de.ibm.com>
+Content-Language: ja-JP
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-ID: <9B703C8A85670D4B9F19EED540B8F340@gisp.nec.co.jp>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@kernel.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Hillf Danton <hillf.zj@alibaba-inc.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Naoya Horiguchi <nao.horiguchi@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch ensures a syscall does not return to user-mode with a kernel
-address limit. If that happened, a process can corrupt kernel-mode
-memory and elevate privileges.
+On Wed, Mar 22, 2017 at 03:39:00PM +0100, Christian Borntraeger wrote:
+> On 03/22/2017 01:53 PM, Christian Borntraeger wrote:
+> > On 03/22/2017 03:31 AM, Naoya Horiguchi wrote:
+> >> I found the race condition which triggers the following bug when
+> >> move_pages() and soft offline are called on a single hugetlb page
+> >> concurrently.
+> >>
+> >>     [61163.578957] Soft offlining page 0x119400 at 0x700000000000
+> >>     [61163.580062] BUG: unable to handle kernel paging request at ffff=
+ea0011943820
+> >>     [61163.580791] IP: follow_huge_pmd+0x143/0x190
+> >>     [61163.581203] PGD 7ffd2067
+> >>     [61163.581204] PUD 7ffd1067
+> >>     [61163.581471] PMD 0
+> >>     [61163.581723]
+> >>     [61163.582052] Oops: 0000 [#1] SMP
+> >>     [61163.582349] Modules linked in: binfmt_misc ppdev virtio_balloon=
+ parport_pc pcspkr i2c_piix4 parport i2c_core acpi_cpufreq ip_tables xfs li=
+bcrc32c ata_generic pata_acpi virtio_blk 8139too crc32c_intel ata_piix seri=
+o_raw libata virtio_pci 8139cp virtio_ring virtio mii floppy dm_mirror dm_r=
+egion_hash dm_log dm_mod [last unloaded: cap_check]
+> >>     [61163.585130] CPU: 0 PID: 22573 Comm: iterate_numa_mo Tainted: P =
+          OE   4.11.0-rc2-mm1+ #2
+> >>     [61163.586055] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+> >>     [61163.586627] task: ffff88007c951680 task.stack: ffffc90004bd8000
+> >>     [61163.587181] RIP: 0010:follow_huge_pmd+0x143/0x190
+> >>     [61163.587622] RSP: 0018:ffffc90004bdbcd0 EFLAGS: 00010202
+> >>     [61163.588096] RAX: 0000000465003e80 RBX: ffffea0004e34d30 RCX: 00=
+003ffffffff000
+> >>     [61163.588818] RDX: 0000000011943800 RSI: 0000000000080001 RDI: 00=
+00000465003e80
+> >>     [61163.589486] RBP: ffffc90004bdbd18 R08: 0000000000000000 R09: ff=
+ff880138d34000
+> >>     [61163.590097] R10: ffffea0004650000 R11: 0000000000c363b0 R12: ff=
+ffea0011943800
+> >>     [61163.590751] R13: ffff8801b8d34000 R14: ffffea0000000000 R15: 00=
+0077ff80000000
+> >>     [61163.591375] FS:  00007fc977710740(0000) GS:ffff88007dc00000(000=
+0) knlGS:0000000000000000
+> >>     [61163.592068] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> >>     [61163.592627] CR2: ffffea0011943820 CR3: 000000007a746000 CR4: 00=
+000000001406f0
+> >>     [61163.593330] Call Trace:
+> >>     [61163.593556]  follow_page_mask+0x270/0x550
+> >>     [61163.593908]  SYSC_move_pages+0x4ea/0x8f0
+> >>     [61163.594253]  ? lru_cache_add_active_or_unevictable+0x4b/0xd0
+> >>     [61163.594798]  SyS_move_pages+0xe/0x10
+> >>     [61163.595113]  do_syscall_64+0x67/0x180
+> >>     [61163.595434]  entry_SYSCALL64_slow_path+0x25/0x25
+> >>     [61163.595837] RIP: 0033:0x7fc976e03949
+> >>     [61163.596148] RSP: 002b:00007ffe72221d88 EFLAGS: 00000246 ORIG_RA=
+X: 0000000000000117
+> >>     [61163.596940] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00=
+007fc976e03949
+> >>     [61163.597567] RDX: 0000000000c22390 RSI: 0000000000001400 RDI: 00=
+00000000005827
+> >>     [61163.598177] RBP: 00007ffe72221e00 R08: 0000000000c2c3a0 R09: 00=
+00000000000004
+> >>     [61163.598842] R10: 0000000000c363b0 R11: 0000000000000246 R12: 00=
+00000000400650
+> >>     [61163.599456] R13: 00007ffe72221ee0 R14: 0000000000000000 R15: 00=
+00000000000000
+> >>     [61163.600067] Code: 81 e4 ff ff 1f 00 48 21 c2 49 c1 ec 0c 48 c1 =
+ea 0c 4c 01 e2 49 bc 00 00 00 00 00 ea ff ff 48 c1 e2 06 49 01 d4 f6 45 bc =
+04 74 90 <49> 8b 7c 24 20 40 f6 c7 01 75 2b 4c 89 e7 8b 47 1c 85 c0 7e 2a
+> >>     [61163.601845] RIP: follow_huge_pmd+0x143/0x190 RSP: ffffc90004bdb=
+cd0
+> >>     [61163.602376] CR2: ffffea0011943820
+> >>     [61163.602767] ---[ end trace e4f81353a2d23232 ]---
+> >>     [61163.603236] Kernel panic - not syncing: Fatal exception
+> >>     [61163.603706] Kernel Offset: disabled
+> >>
+> >> This bug is triggered when pmd_present() returns true for non-present
+> >> hugetlb, so fixing the present check in follow_huge_pmd() prevents it.
+> >> Using pmd_present() to determine present/non-present for hugetlb is
+> >> not correct, because pmd_present() checks multiple bits (not only
+> >> _PAGE_PRESENT) for historical reason and it can misjudge hugetlb state=
+.
+> >>
+> >> Fixes: e66f17ff7177 ("mm/hugetlb: take page table lock in follow_huge_=
+pmd()")
+> >> Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+> >> Cc: <stable@vger.kernel.org>        [4.0+]
+> >=20
+> > I think this is broken for s390. The page table entries look different =
+from
+> > the segment table entries (pmds) on s390, e.g. they have the invalid bi=
+t at
+> > different places. Using pte functions on pmd does not work here.
+> > Gerald can you confirm.
+> >=20
+>=20
+>=20
+> Hmmm, it looks like that the s390 variant of huge_ptep_get already
+> does the translation. So its probably fine.
 
-For example, it would mitigation this bug:
+Thank you for checking. I think so, generic hugetlb code should refer to
+leaf level page table entries with 'pte' even if it's actually pmd or pud.
+The detail of arch-dependency is contained in huge_ptep_get() as you pointe=
+d out.
 
-- https://bugs.chromium.org/p/project-zero/issues/detail?id=990
+- Naoya=
 
-If the CONFIG_BUG_ON_DATA_CORRUPTION option is enabled, an incorrect
-state will result in a BUG_ON.
-
-The CONFIG_ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE option is also
-added so each architecture can optimize this change.
-
-Signed-off-by: Thomas Garnier <thgarnie@google.com>
----
-Based on next-20170322
----
- arch/s390/Kconfig        |  1 +
- include/linux/syscalls.h | 18 +++++++++++++++++-
- init/Kconfig             |  7 +++++++
- kernel/sys.c             |  8 ++++++++
- 4 files changed, 33 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index a2dcef0aacc7..b73f5b87bc99 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -103,6 +103,7 @@ config S390
- 	select ARCH_INLINE_WRITE_UNLOCK_BH
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQ
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
-+	select ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
- 	select ARCH_SAVE_PAGE_KEYS if HIBERNATION
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_NUMA_BALANCING
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index 980c3c9b06f8..e659076adf6c 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -191,6 +191,19 @@ extern struct trace_event_functions exit_syscall_print_funcs;
- 	SYSCALL_METADATA(sname, x, __VA_ARGS__)			\
- 	__SYSCALL_DEFINEx(x, sname, __VA_ARGS__)
- 
-+asmlinkage void verify_pre_usermode_state(void);
-+
-+#ifndef CONFIG_ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
-+#define __CHECK_USER_CALLER() \
-+	bool user_caller = segment_eq(get_fs(), USER_DS)
-+#define __VERIFY_PRE_USERMODE_STATE() \
-+	if (user_caller) verify_pre_usermode_state()
-+#else
-+#define __CHECK_USER_CALLER()
-+#define __VERIFY_PRE_USERMODE_STATE()
-+#endif
-+
-+
- #define __PROTECT(...) asmlinkage_protect(__VA_ARGS__)
- #define __SYSCALL_DEFINEx(x, name, ...)					\
- 	asmlinkage long sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))	\
-@@ -199,7 +212,10 @@ extern struct trace_event_functions exit_syscall_print_funcs;
- 	asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__));	\
- 	asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__))	\
- 	{								\
--		long ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));	\
-+		long ret;						\
-+		__CHECK_USER_CALLER();					\
-+		ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));	\
-+		__VERIFY_PRE_USERMODE_STATE();				\
- 		__MAP(x,__SC_TEST,__VA_ARGS__);				\
- 		__PROTECT(x, ret,__MAP(x,__SC_ARGS,__VA_ARGS__));	\
- 		return ret;						\
-diff --git a/init/Kconfig b/init/Kconfig
-index c859c993c26f..c4efc3a95e4a 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -1929,6 +1929,13 @@ config PROFILING
- config TRACEPOINTS
- 	bool
- 
-+#
-+# Set by each architecture that want to optimize how verify_pre_usermode_state
-+# is called.
-+#
-+config ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
-+	bool
-+
- source "arch/Kconfig"
- 
- endmenu		# General setup
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 196c7134bee6..411163ac9dc3 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -2459,3 +2459,11 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
- 	return 0;
- }
- #endif /* CONFIG_COMPAT */
-+
-+/* Called before coming back to user-mode */
-+asmlinkage void verify_pre_usermode_state(void)
-+{
-+	if (CHECK_DATA_CORRUPTION(!segment_eq(get_fs(), USER_DS),
-+				  "incorrect get_fs() on user-mode return"))
-+		set_fs(USER_DS);
-+}
--- 
-2.12.1.500.gab5fba24ee-goog
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
