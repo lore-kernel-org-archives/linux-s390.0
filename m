@@ -1,214 +1,120 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH v4 05/11] s390x/css: device support for s390-ccw passthrough
-Date: Fri, 17 Mar 2017 04:19:22 +0100
-Message-ID: <20170317031928.40189-6-bjsdjshi@linux.vnet.ibm.com>
-References: <20170317031928.40189-1-bjsdjshi@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170317031928.40189-1-bjsdjshi@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com
+From: Thomas Garnier <thgarnie@google.com>
+Date: Wed, 22 Mar 2017 13:38:32 -0700
+Message-Id: <20170322203834.67556-2-thgarnie@google.com>
+In-Reply-To: <20170322203834.67556-1-thgarnie@google.com>
+References: <20170322203834.67556-1-thgarnie@google.com>
+Subject: [kernel-hardening] [PATCH v4 2/4] x86/syscalls: Specific usage of verify_pre_usermode_state
+List-Archive: <https://lore.kernel.org/kernel-hardening/>
+List-Post: <mailto:kernel-hardening@lists.openwall.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, David Howells <dhowells@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Thomas Garnier <thgarnie@google.com>, =?UTF-8?q?Ren=C3=A9=20Nyffenegger?= <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Kees Cook <keescook@chromium.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Vladimir Murzin <vladimir.murzin@arm.com>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, x86@kernel.org, linux-arm-kernel@lists.infradead.org, kernel-hardening@lists.openwall.com
 List-ID: <linux-s390.vger.kernel.org>
 
-In order to support subchannels pass-through, we introduce a s390
-subchannel device called "s390-ccw" to hold the real subchannel info.
-The s390-ccw devices inherit from the abstract CcwDevice which connect
-to the existing virtual-css-bus.
-
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Implement specific usage of verify_pre_usermode_state for user-mode
+returns for x86.
 ---
- hw/s390x/Makefile.objs |   1 +
- hw/s390x/s390-ccw.c    | 125 +++++++++++++++++++++++++++++++++++++++++++++++++
- hw/s390x/s390-ccw.h    |  38 +++++++++++++++
- 3 files changed, 164 insertions(+)
- create mode 100644 hw/s390x/s390-ccw.c
- create mode 100644 hw/s390x/s390-ccw.h
+Based on next-20170322
+---
+ arch/x86/Kconfig                        |  1 +
+ arch/x86/entry/common.c                 |  3 +++
+ arch/x86/entry/entry_64.S               |  8 ++++++++
+ arch/x86/include/asm/pgtable_64_types.h | 11 +++++++++++
+ arch/x86/include/asm/processor.h        | 11 -----------
+ 5 files changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/hw/s390x/Makefile.objs b/hw/s390x/Makefile.objs
-index 41ac4ec..72a3d37 100644
---- a/hw/s390x/Makefile.objs
-+++ b/hw/s390x/Makefile.objs
-@@ -13,3 +13,4 @@ obj-y += ccw-device.o
- obj-y += s390-pci-bus.o s390-pci-inst.o
- obj-y += s390-skeys.o
- obj-$(CONFIG_KVM) += s390-skeys-kvm.o
-+obj-y += s390-ccw.o
-diff --git a/hw/s390x/s390-ccw.c b/hw/s390x/s390-ccw.c
-new file mode 100644
-index 0000000..9b6de68
---- /dev/null
-+++ b/hw/s390x/s390-ccw.c
-@@ -0,0 +1,125 @@
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 0e1bdadc8222..f48c96b834b5 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -63,6 +63,7 @@ config X86
+ 	select ARCH_MIGHT_HAVE_ACPI_PDC		if ACPI
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
++	select ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+ 	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+ 	select ARCH_SUPPORTS_NUMA_BALANCING	if X86_64
+diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
+index cdefcfdd9e63..76ef050255c9 100644
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -23,6 +23,7 @@
+ #include <linux/user-return-notifier.h>
+ #include <linux/uprobes.h>
+ #include <linux/livepatch.h>
++#include <linux/syscalls.h>
+ 
+ #include <asm/desc.h>
+ #include <asm/traps.h>
+@@ -183,6 +184,8 @@ __visible inline void prepare_exit_to_usermode(struct pt_regs *regs)
+ 	struct thread_info *ti = current_thread_info();
+ 	u32 cached_flags;
+ 
++	verify_pre_usermode_state();
++
+ 	if (IS_ENABLED(CONFIG_PROVE_LOCKING) && WARN_ON(!irqs_disabled()))
+ 		local_irq_disable();
+ 
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index d2b2a2948ffe..c079b010205c 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -218,6 +218,14 @@ entry_SYSCALL_64_fastpath:
+ 	testl	$_TIF_ALLWORK_MASK, TASK_TI_flags(%r11)
+ 	jnz	1f
+ 
++	/*
++	 * If address limit is not based on user-mode, jump to slow path for
++	 * additional security checks.
++	 */
++	movq	$TASK_SIZE_MAX, %rcx
++	cmp	%rcx, TASK_addr_limit(%r11)
++	jnz	1f
++
+ 	LOCKDEP_SYS_EXIT
+ 	TRACE_IRQS_ON		/* user mode is traced as IRQs on */
+ 	movq	RIP(%rsp), %rcx
+diff --git a/arch/x86/include/asm/pgtable_64_types.h b/arch/x86/include/asm/pgtable_64_types.h
+index 516593e66bd6..12fa851c7fa8 100644
+--- a/arch/x86/include/asm/pgtable_64_types.h
++++ b/arch/x86/include/asm/pgtable_64_types.h
+@@ -78,4 +78,15 @@ typedef struct { pteval_t pte; } pte_t;
+ 
+ #define EARLY_DYNAMIC_PAGE_TABLES	64
+ 
 +/*
-+ * s390 CCW Assignment Support
-+ *
-+ * Copyright 2017 IBM Corp
-+ * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-+ *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-+ *            Pierre Morel <pmorel@linux.vnet.ibm.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2
-+ * or (at your option) any later version. See the COPYING file in the
-+ * top-level directory.
++ * User space process size. 47bits minus one guard page.  The guard
++ * page is necessary on Intel CPUs: if a SYSCALL instruction is at
++ * the highest possible canonical userspace address, then that
++ * syscall will enter the kernel with a non-canonical return
++ * address, and SYSRET will explode dangerously.  We avoid this
++ * particular problem by preventing anything from being mapped
++ * at the maximum canonical address.
 + */
-+#include "qemu/osdep.h"
-+#include "qapi/error.h"
-+#include "hw/sysbus.h"
-+#include "libgen.h"
-+#include "hw/s390x/css.h"
-+#include "hw/s390x/css-bridge.h"
-+#include "s390-ccw.h"
++#define TASK_SIZE_MAX	((_AC(1, UL) << 47) - PAGE_SIZE)
 +
-+static void s390_ccw_get_dev_info(S390CCWDevice *cdev,
-+                                  char *sysfsdev,
-+                                  Error **errp)
-+{
-+    char dev_path[PATH_MAX], *tmp;
-+    unsigned int cssid, ssid, devid;
-+
-+    if (!sysfsdev) {
-+        error_setg(errp, "No host device provided");
-+        error_append_hint(errp, "Use -vfio-ccw,sysfsdev=PATH_TO_DEVICE\n");
-+        return;
-+    }
-+
-+    if (!realpath(sysfsdev, dev_path)) {
-+        error_setg(errp, "Host device '%s' not found", sysfsdev);
-+        return;
-+    }
-+
-+    cdev->mdevid = g_strdup(basename(dev_path));
-+
-+    tmp = basename(dirname(dev_path));
-+    sscanf(tmp, "%2x.%1x.%4x", &cssid, &ssid, &devid);
-+
-+    cdev->hostid.cssid = cssid;
-+    cdev->hostid.ssid = ssid;
-+    cdev->hostid.devid = devid;
-+    cdev->hostid.valid = true;
-+}
-+
-+static void s390_ccw_realize(S390CCWDevice *cdev, char *sysfsdev, Error **errp)
-+{
-+    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
-+    DeviceState *parent = DEVICE(ccw_dev);
-+    BusState *qbus = qdev_get_parent_bus(parent);
-+    VirtualCssBus *cbus = VIRTUAL_CSS_BUS(qbus);
-+    SubchDev *sch;
-+    int ret;
-+
-+    s390_ccw_get_dev_info(cdev, sysfsdev, errp);
-+    if (*errp) {
-+        return;
-+    }
-+
-+    sch = css_create_sch(ccw_dev->bus_id, false, cbus->squash_mcss, errp);
-+    if (!sch) {
-+        return;
-+    }
-+
-+    sch->driver_data = cdev;
-+
-+    ret = css_sch_build_schib(sch, &cdev->hostid);
-+    if (ret) {
-+        error_setg(errp, "%s: Failed to build initial schib: %d",
-+                   __func__, ret);
-+        css_subch_assign(sch->cssid, sch->ssid, sch->schid, sch->devno, NULL);
-+        g_free(sch);
-+        return;
-+    }
-+    css_generate_sch_crws(sch->cssid, sch->ssid, sch->schid,
-+                          parent->hotplugged, 1);
-+
-+    ccw_dev->sch = sch;
-+
-+    return;
-+}
-+
-+static void s390_ccw_unrealize(S390CCWDevice *cdev, Error **errp)
-+{
-+    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
-+    SubchDev *sch = ccw_dev->sch;
-+
-+    if (sch) {
-+        css_subch_assign(sch->cssid, sch->ssid, sch->schid, sch->devno, NULL);
-+        g_free(sch);
-+        ccw_dev->sch = NULL;
-+    }
-+
-+    g_free(cdev->mdevid);
-+}
-+
-+static void s390_ccw_class_init(ObjectClass *klass, void *data)
-+{
-+    DeviceClass *dc = DEVICE_CLASS(klass);
-+    S390CCWDeviceClass *cdc = S390_CCW_DEVICE_CLASS(klass);
-+
-+    dc->bus_type = TYPE_VIRTUAL_CSS_BUS;
-+    cdc->realize = s390_ccw_realize;
-+    cdc->unrealize = s390_ccw_unrealize;
-+}
-+
-+static const TypeInfo s390_ccw_info = {
-+    .name          = TYPE_S390_CCW,
-+    .parent        = TYPE_CCW_DEVICE,
-+    .instance_size = sizeof(S390CCWDevice),
-+    .class_size    = sizeof(S390CCWDeviceClass),
-+    .class_init    = s390_ccw_class_init,
-+    .abstract      = true,
-+};
-+
-+static void register_s390_ccw_type(void)
-+{
-+    type_register_static(&s390_ccw_info);
-+}
-+
-+type_init(register_s390_ccw_type)
-diff --git a/hw/s390x/s390-ccw.h b/hw/s390x/s390-ccw.h
-new file mode 100644
-index 0000000..b58d8e9
---- /dev/null
-+++ b/hw/s390x/s390-ccw.h
-@@ -0,0 +1,38 @@
-+/*
-+ * s390 CCW Assignment Support
-+ *
-+ * Copyright 2017 IBM Corp.
-+ * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-+ *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or (at
-+ * your option) any later version. See the COPYING file in the top-level
-+ * directory.
-+ */
-+
-+#ifndef HW_S390_CCW_H
-+#define HW_S390_CCW_H
-+
-+#include "hw/s390x/ccw-device.h"
-+
-+#define TYPE_S390_CCW "s390-ccw"
-+#define S390_CCW_DEVICE(obj) \
-+    OBJECT_CHECK(S390CCWDevice, (obj), TYPE_S390_CCW)
-+#define S390_CCW_DEVICE_CLASS(klass) \
-+    OBJECT_CLASS_CHECK(S390CCWDeviceClass, (klass), TYPE_S390_CCW)
-+#define S390_CCW_DEVICE_GET_CLASS(obj) \
-+    OBJECT_GET_CLASS(S390CCWDeviceClass, (obj), TYPE_S390_CCW)
-+
-+typedef struct S390CCWDevice {
-+    CcwDevice parent_obj;
-+    CssDevId hostid;
-+    char *mdevid;
-+} S390CCWDevice;
-+
-+typedef struct S390CCWDeviceClass {
-+    CCWDeviceClass parent_class;
-+    void (*realize)(S390CCWDevice *dev, char *sysfsdev, Error **errp);
-+    void (*unrealize)(S390CCWDevice *dev, Error **errp);
-+} S390CCWDeviceClass;
-+
-+#endif
+ #endif /* _ASM_X86_PGTABLE_64_DEFS_H */
+diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
+index 3cada998a402..e80822582d3e 100644
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -825,17 +825,6 @@ static inline void spin_lock_prefetch(const void *x)
+ #define KSTK_ESP(task)		(task_pt_regs(task)->sp)
+ 
+ #else
+-/*
+- * User space process size. 47bits minus one guard page.  The guard
+- * page is necessary on Intel CPUs: if a SYSCALL instruction is at
+- * the highest possible canonical userspace address, then that
+- * syscall will enter the kernel with a non-canonical return
+- * address, and SYSRET will explode dangerously.  We avoid this
+- * particular problem by preventing anything from being mapped
+- * at the maximum canonical address.
+- */
+-#define TASK_SIZE_MAX	((1UL << 47) - PAGE_SIZE)
+-
+ /* This decides where the kernel will search for a free chunk of vm
+  * space during mmap's.
+  */
 -- 
-2.8.4
+2.12.1.500.gab5fba24ee-goog
