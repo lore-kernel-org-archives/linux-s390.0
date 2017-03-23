@@ -1,93 +1,131 @@
-Return-Path: <owner-linux-mm@kvack.org>
-Subject: Re: [PATCH v1] mm, hugetlb: use pte_present() instead of
- pmd_present() in follow_huge_pmd()
-References: <1490149898-20231-1-git-send-email-n-horiguchi@ah.jp.nec.com>
- <bd770cf9-c01c-dd50-bf6c-a50872f726ec@de.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 22 Mar 2017 15:39:00 +0100
-MIME-Version: 1.0
-In-Reply-To: <bd770cf9-c01c-dd50-bf6c-a50872f726ec@de.ibm.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Message-Id: <a3acee49-9ad4-ee94-2e19-55f56fc7151d@de.ibm.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, linux-mm@kvack.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@kernel.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Hillf Danton <hillf.zj@alibaba-inc.com>, linux-kernel@vger.kernel.org, Naoya Horiguchi <nao.horiguchi@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net 1/3] s390/qeth: size calculation outbound buffers
+Date: Thu, 23 Mar 2017 14:55:08 +0100
+Message-ID: <20170323135510.98972-2-ubraun@linux.vnet.ibm.com>
+References: <20170323135510.98972-1-ubraun@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170323135510.98972-1-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03/22/2017 01:53 PM, Christian Borntraeger wrote:
-> On 03/22/2017 03:31 AM, Naoya Horiguchi wrote:
->> I found the race condition which triggers the following bug when
->> move_pages() and soft offline are called on a single hugetlb page
->> concurrently.
->>
->>     [61163.578957] Soft offlining page 0x119400 at 0x700000000000
->>     [61163.580062] BUG: unable to handle kernel paging request at ffffea0011943820
->>     [61163.580791] IP: follow_huge_pmd+0x143/0x190
->>     [61163.581203] PGD 7ffd2067
->>     [61163.581204] PUD 7ffd1067
->>     [61163.581471] PMD 0
->>     [61163.581723]
->>     [61163.582052] Oops: 0000 [#1] SMP
->>     [61163.582349] Modules linked in: binfmt_misc ppdev virtio_balloon parport_pc pcspkr i2c_piix4 parport i2c_core acpi_cpufreq ip_tables xfs libcrc32c ata_generic pata_acpi virtio_blk 8139too crc32c_intel ata_piix serio_raw libata virtio_pci 8139cp virtio_ring virtio mii floppy dm_mirror dm_region_hash dm_log dm_mod [last unloaded: cap_check]
->>     [61163.585130] CPU: 0 PID: 22573 Comm: iterate_numa_mo Tainted: P           OE   4.11.0-rc2-mm1+ #2
->>     [61163.586055] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
->>     [61163.586627] task: ffff88007c951680 task.stack: ffffc90004bd8000
->>     [61163.587181] RIP: 0010:follow_huge_pmd+0x143/0x190
->>     [61163.587622] RSP: 0018:ffffc90004bdbcd0 EFLAGS: 00010202
->>     [61163.588096] RAX: 0000000465003e80 RBX: ffffea0004e34d30 RCX: 00003ffffffff000
->>     [61163.588818] RDX: 0000000011943800 RSI: 0000000000080001 RDI: 0000000465003e80
->>     [61163.589486] RBP: ffffc90004bdbd18 R08: 0000000000000000 R09: ffff880138d34000
->>     [61163.590097] R10: ffffea0004650000 R11: 0000000000c363b0 R12: ffffea0011943800
->>     [61163.590751] R13: ffff8801b8d34000 R14: ffffea0000000000 R15: 000077ff80000000
->>     [61163.591375] FS:  00007fc977710740(0000) GS:ffff88007dc00000(0000) knlGS:0000000000000000
->>     [61163.592068] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>     [61163.592627] CR2: ffffea0011943820 CR3: 000000007a746000 CR4: 00000000001406f0
->>     [61163.593330] Call Trace:
->>     [61163.593556]  follow_page_mask+0x270/0x550
->>     [61163.593908]  SYSC_move_pages+0x4ea/0x8f0
->>     [61163.594253]  ? lru_cache_add_active_or_unevictable+0x4b/0xd0
->>     [61163.594798]  SyS_move_pages+0xe/0x10
->>     [61163.595113]  do_syscall_64+0x67/0x180
->>     [61163.595434]  entry_SYSCALL64_slow_path+0x25/0x25
->>     [61163.595837] RIP: 0033:0x7fc976e03949
->>     [61163.596148] RSP: 002b:00007ffe72221d88 EFLAGS: 00000246 ORIG_RAX: 0000000000000117
->>     [61163.596940] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc976e03949
->>     [61163.597567] RDX: 0000000000c22390 RSI: 0000000000001400 RDI: 0000000000005827
->>     [61163.598177] RBP: 00007ffe72221e00 R08: 0000000000c2c3a0 R09: 0000000000000004
->>     [61163.598842] R10: 0000000000c363b0 R11: 0000000000000246 R12: 0000000000400650
->>     [61163.599456] R13: 00007ffe72221ee0 R14: 0000000000000000 R15: 0000000000000000
->>     [61163.600067] Code: 81 e4 ff ff 1f 00 48 21 c2 49 c1 ec 0c 48 c1 ea 0c 4c 01 e2 49 bc 00 00 00 00 00 ea ff ff 48 c1 e2 06 49 01 d4 f6 45 bc 04 74 90 <49> 8b 7c 24 20 40 f6 c7 01 75 2b 4c 89 e7 8b 47 1c 85 c0 7e 2a
->>     [61163.601845] RIP: follow_huge_pmd+0x143/0x190 RSP: ffffc90004bdbcd0
->>     [61163.602376] CR2: ffffea0011943820
->>     [61163.602767] ---[ end trace e4f81353a2d23232 ]---
->>     [61163.603236] Kernel panic - not syncing: Fatal exception
->>     [61163.603706] Kernel Offset: disabled
->>
->> This bug is triggered when pmd_present() returns true for non-present
->> hugetlb, so fixing the present check in follow_huge_pmd() prevents it.
->> Using pmd_present() to determine present/non-present for hugetlb is
->> not correct, because pmd_present() checks multiple bits (not only
->> _PAGE_PRESENT) for historical reason and it can misjudge hugetlb state.
->>
->> Fixes: e66f17ff7177 ("mm/hugetlb: take page table lock in follow_huge_pmd()")
->> Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
->> Cc: <stable@vger.kernel.org>        [4.0+]
-> 
-> I think this is broken for s390. The page table entries look different from
-> the segment table entries (pmds) on s390, e.g. they have the invalid bit at
-> different places. Using pte functions on pmd does not work here.
-> Gerald can you confirm.
-> 
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 
+Depending on the device type, hard_start_xmit() builds different output
+buffer formats. For instance with HiperSockets, on both L2 and L3 we
+strip the ETH header from the skb - L3 doesn't need it, and L2 carries
+it in the buffer's header element.
+For this, we pass data_offset = ETH_HLEN all the way down to
+__qeth_fill_buffer(), where skb->data is then adjusted accordingly.
+But the initial size calculation still considers the *full* skb length
+(including the ETH header). So qeth_get_elements_no() can erroneously
+reject a skb as too big, even though it would actually fit into an
+output buffer once the ETH header has been trimmed off later.
 
-Hmmm, it looks like that the s390 variant of huge_ptep_get already
-does the translation. So its probably fine.
+Fix this by passing an additional offset to qeth_get_elements_no(),
+that indicates where in the skb the on-wire data actually begins.
+Since the current code uses data_offset=-1 for some special handling
+on OSA, we need to clamp data_offset to 0...
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+On HiperSockets this helps when sending ~MTU-size skbs with weird page
+alignment. No change for OSA or AF_IUCV.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      | 3 ++-
+ drivers/s390/net/qeth_core_main.c | 5 +++--
+ drivers/s390/net/qeth_l2_main.c   | 5 +++--
+ drivers/s390/net/qeth_l3_main.c   | 5 +++--
+ 4 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index e7addea..d9561e3 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -961,7 +961,8 @@ int qeth_bridgeport_query_ports(struct qeth_card *card,
+ int qeth_bridgeport_setrole(struct qeth_card *card, enum qeth_sbp_roles role);
+ int qeth_bridgeport_an_set(struct qeth_card *card, int enable);
+ int qeth_get_priority_queue(struct qeth_card *, struct sk_buff *, int, int);
+-int qeth_get_elements_no(struct qeth_card *, struct sk_buff *, int);
++int qeth_get_elements_no(struct qeth_card *card, struct sk_buff *skb,
++			 int extra_elems, int data_offset);
+ int qeth_get_elements_for_frags(struct sk_buff *);
+ int qeth_do_send_packet_fast(struct qeth_card *, struct qeth_qdio_out_q *,
+ 			struct sk_buff *, struct qeth_hdr *, int, int, int);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 315d8a2..9a5f99c 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3837,6 +3837,7 @@ EXPORT_SYMBOL_GPL(qeth_get_elements_for_frags);
+  * @card:			qeth card structure, to check max. elems.
+  * @skb:			SKB address
+  * @extra_elems:		extra elems needed, to check against max.
++ * @data_offset:		range starts at skb->data + data_offset
+  *
+  * Returns the number of pages, and thus QDIO buffer elements, needed to cover
+  * skb data, including linear part and fragments. Checks if the result plus
+@@ -3844,10 +3845,10 @@ EXPORT_SYMBOL_GPL(qeth_get_elements_for_frags);
+  * Note: extra_elems is not included in the returned result.
+  */
+ int qeth_get_elements_no(struct qeth_card *card,
+-		     struct sk_buff *skb, int extra_elems)
++		     struct sk_buff *skb, int extra_elems, int data_offset)
+ {
+ 	int elements = qeth_get_elements_for_range(
+-				(addr_t)skb->data,
++				(addr_t)skb->data + data_offset,
+ 				(addr_t)skb->data + skb_headlen(skb)) +
+ 			qeth_get_elements_for_frags(skb);
+ 
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index bea4833..af4e6a6 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -849,7 +849,7 @@ static int qeth_l2_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	 * chaining we can not send long frag lists
+ 	 */
+ 	if ((card->info.type != QETH_CARD_TYPE_IQD) &&
+-	    !qeth_get_elements_no(card, new_skb, 0)) {
++	    !qeth_get_elements_no(card, new_skb, 0, 0)) {
+ 		int lin_rc = skb_linearize(new_skb);
+ 
+ 		if (card->options.performance_stats) {
+@@ -894,7 +894,8 @@ static int qeth_l2_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		}
+ 	}
+ 
+-	elements = qeth_get_elements_no(card, new_skb, elements_needed);
++	elements = qeth_get_elements_no(card, new_skb, elements_needed,
++					(data_offset > 0) ? data_offset : 0);
+ 	if (!elements) {
+ 		if (data_offset >= 0)
+ 			kmem_cache_free(qeth_core_header_cache, hdr);
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 06d0add..72aa953 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2867,7 +2867,7 @@ static int qeth_l3_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	 */
+ 	if ((card->info.type != QETH_CARD_TYPE_IQD) &&
+ 	    ((use_tso && !qeth_l3_get_elements_no_tso(card, new_skb, 1)) ||
+-	     (!use_tso && !qeth_get_elements_no(card, new_skb, 0)))) {
++	     (!use_tso && !qeth_get_elements_no(card, new_skb, 0, 0)))) {
+ 		int lin_rc = skb_linearize(new_skb);
+ 
+ 		if (card->options.performance_stats) {
+@@ -2909,7 +2909,8 @@ static int qeth_l3_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	elements = use_tso ?
+ 		   qeth_l3_get_elements_no_tso(card, new_skb, hdr_elements) :
+-		   qeth_get_elements_no(card, new_skb, hdr_elements);
++		   qeth_get_elements_no(card, new_skb, hdr_elements,
++					(data_offset > 0) ? data_offset : 0);
+ 	if (!elements) {
+ 		if (data_offset >= 0)
+ 			kmem_cache_free(qeth_core_header_cache, hdr);
+-- 
+2.8.4
