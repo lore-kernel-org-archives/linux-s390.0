@@ -1,66 +1,24 @@
 MIME-Version: 1.0
-In-Reply-To: <a1ab8afa-5462-dc24-2106-0a6b43773c5b@de.ibm.com>
-References: <20170323203419.GA62859@beast> <20170324081450.GA5891@osiris>
- <CAJcbSZHJ1WFcE7QY6qLM9RMUJbGXxTpp3WsCNJBX4h1U-4HEjA@mail.gmail.com> <a1ab8afa-5462-dc24-2106-0a6b43773c5b@de.ibm.com>
+In-Reply-To: <20170323172515.27950-4-thgarnie@google.com>
+References: <20170323172515.27950-1-thgarnie@google.com> <20170323172515.27950-4-thgarnie@google.com>
 From: Thomas Garnier <thgarnie@google.com>
-Date: Fri, 24 Mar 2017 09:11:33 -0700
-Message-ID: <CAJcbSZG90Ya7GafnNGsNYvPM1J-wfVARjM6MunjE6Q_wdX99-Q@mail.gmail.com>
+Date: Thu, 23 Mar 2017 13:37:16 -0700
+Message-ID: <CAJcbSZFK88J6GUt9ncUvN3=3kLEZDeOk81NvJ-Ge_piFAOGJYA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Subject: [kernel-hardening] Re: [PATCH] lkdtm: add bad USER_DS test
+Subject: [kernel-hardening] Re: [PATCH v5 4/4] arm64/syscalls: Specific usage of verify_pre_usermode_state
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, David Howells <dhowells@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@intel.com>, Al Viro <viro@zeniv.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>, =?UTF-8?Q?Ren=C3=A9_Nyffenegger?= <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Howells <dhowells@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@intel.com>, Al Viro <viro@zeniv.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>, =?UTF-8?Q?Ren=C3=A9_Nyffenegger?= <mail@renenyffenegger.ch>, Thomas Garnier <thgarnie@google.com>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Kees Cook <keescook@chromium.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linux-arm-kernel@lists.infradead.org, Kernel Hardening <kernel-hardening@lists.openwall.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Mar 24, 2017 at 8:24 AM, Christian Borntraeger
-<borntraeger@de.ibm.com> wrote:
-> On 03/24/2017 04:17 PM, Thomas Garnier wrote:
->> On Fri, Mar 24, 2017 at 1:14 AM, Heiko Carstens
->> <heiko.carstens@de.ibm.com> wrote:
->>> On Thu, Mar 23, 2017 at 01:34:19PM -0700, Kees Cook wrote:
->>>> This adds CORRUPT_USER_DS to check that the get_fs() test on syscall return
->>>> still sees USER_DS during the new VERIFY_PRE_USERMODE_STATE checks.
->>>>
->>>> Signed-off-by: Kees Cook <keescook@chromium.org>
->>>
->>> ...
->>>
->>>> +void lkdtm_CORRUPT_USER_DS(void)
->>>> +{
->>>> +     /*
->>>> +      * Test that USER_DS has been set correctly on exiting a syscall.
->>>> +      * Since setting this higher than USER_DS (TASK_SIZE) would introduce
->>>> +      * an exploitable condition, we lower it instead, since that should
->>>> +      * not create as large a problem on an unprotected system.
->>>> +      */
->>>> +     mm_segment_t lowfs;
->>>> +#ifdef MAKE_MM_SEG
->>>> +     lowfs = MAKE_MM_SEG(TASK_SIZE - PAGE_SIZE);
->>>> +#else
->>>> +     lowfs = TASK_SIZE - PAGE_SIZE;
->>>> +#endif
->>>> +
->>>> +     pr_info("setting bad task size limit\n");
->>>> +     set_fs(lowfs);
->>>> +}
->>>
->>> This won't work on architectures where the set_fs() argument does not
->>> contain an address but an address space identifier. This is true e.g. for
->>> s390 and as far as I know also for sparc.
->>> On s390 we have complete distinct address spaces for kernel and user space
->>> that each start at address zero.
->>>
->>
->> The patch that enforce USER_DS is disabled on s390 anyway. I guess, we
->> can just do a set_fs(KERNEL_DS) for the others.
->
-> that would enable the test, but it would also mean that lkdtm can be used by
-> a program to escalate its rights. I think that is the reason why Kees did this
-> lowfs things.
->
+On Thu, Mar 23, 2017 at 10:25 AM, Thomas Garnier <thgarnie@google.com> wrote:
+> Implement specific usage of verify_pre_usermode_state for user-mode
+> returns for arm64.
 
-I see, I need to look at how lkdtm works exactly.
+Signed-off-by: Thomas Garnier <thgarnie@google.com>
+
+Not sure why it was not there anymore.
 
 -- 
 Thomas
