@@ -1,54 +1,68 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Sat, 25 Mar 2017 14:25:58 -0700
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [v2 0/5] parallelized "struct page" zeroing
-Message-ID: <20170325212558.GA1288@bombadil.infradead.org>
+Date: Mon, 27 Mar 2017 08:00:32 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [v2 5/5] mm: teach platforms not to zero struct pages memory
 References: <1490383192-981017-1-git-send-email-pasha.tatashin@oracle.com>
+ <1490383192-981017-6-git-send-email-pasha.tatashin@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1490383192-981017-1-git-send-email-pasha.tatashin@oracle.com>
+In-Reply-To: <1490383192-981017-6-git-send-email-pasha.tatashin@oracle.com>
+Message-Id: <20170327060032.GB5092@osiris>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
 To: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, davem@davemloft.net, willy@infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Mar 24, 2017 at 03:19:47PM -0400, Pavel Tatashin wrote:
-> Changelog:
-> 	v1 - v2
-> 	- Per request, added s390 to deferred "struct page" zeroing
-> 	- Collected performance data on x86 which proofs the importance to
-> 	  keep memset() as prefetch (see below).
+On Fri, Mar 24, 2017 at 03:19:52PM -0400, Pavel Tatashin wrote:
+> If we are using deferred struct page initialization feature, most of
+> "struct page"es are getting initialized after other CPUs are started, and
+> hence we are benefiting from doing this job in parallel. However, we are
+> still zeroing all the memory that is allocated for "struct pages" using the
+> boot CPU.  This patch solves this problem, by deferring zeroing "struct
+> pages" to only when they are initialized.
 > 
-> When deferred struct page initialization feature is enabled, we get a
-> performance gain of initializing vmemmap in parallel after other CPUs are
-> started. However, we still zero the memory for vmemmap using one boot CPU.
-> This patch-set fixes the memset-zeroing limitation by deferring it as well.
+> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+> Reviewed-by: Shannon Nelson <shannon.nelson@oracle.com>
+> ---
+>  arch/powerpc/mm/init_64.c |    2 +-
+>  arch/s390/mm/vmem.c       |    2 +-
+>  arch/sparc/mm/init_64.c   |    2 +-
+>  arch/x86/mm/init_64.c     |    2 +-
+>  4 files changed, 4 insertions(+), 4 deletions(-)
 > 
-> Performance gain on SPARC with 32T:
-> base:	https://hastebin.com/ozanelatat.go
-> fix:	https://hastebin.com/utonawukof.go
+> diff --git a/arch/powerpc/mm/init_64.c b/arch/powerpc/mm/init_64.c
+> index eb4c270..24faf2d 100644
+> --- a/arch/powerpc/mm/init_64.c
+> +++ b/arch/powerpc/mm/init_64.c
+> @@ -181,7 +181,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
+>  		if (vmemmap_populated(start, page_size))
+>  			continue;
 > 
-> As you can see without the fix it takes: 97.89s to boot
-> With the fix it takes: 46.91 to boot.
+> -		p = vmemmap_alloc_block(page_size, node, true);
+> +		p = vmemmap_alloc_block(page_size, node, VMEMMAP_ZERO);
+>  		if (!p)
+>  			return -ENOMEM;
 > 
-> Performance gain on x86 with 1T:
-> base:	https://hastebin.com/uvifasohon.pas
-> fix:	https://hastebin.com/anodiqaguj.pas
+> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+> index 9c75214..ffe9ba1 100644
+> --- a/arch/s390/mm/vmem.c
+> +++ b/arch/s390/mm/vmem.c
+> @@ -252,7 +252,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
+>  				void *new_page;
 > 
-> On Intel we save 10.66s/T while on SPARC we save 1.59s/T. Intel has
-> twice as many pages, and also fewer nodes than SPARC (sparc 32 nodes, vs.
-> intel 8 nodes).
-> 
-> It takes one thread 11.25s to zero vmemmap on Intel for 1T, so it should
-> take additional 11.25 / 8 = 1.4s  (this machine has 8 nodes) per node to
-> initialize the memory, but it takes only additional 0.456s per node, which
-> means on Intel we also benefit from having memset() and initializing all
-> other fields in one place.
+>  				new_page = vmemmap_alloc_block(PMD_SIZE, node,
+> -							       true);
+> +							       VMEMMAP_ZERO);
+>  				if (!new_page)
+>  					goto out;
+>  				pmd_val(*pm_dir) = __pa(new_page) | sgt_prot;
 
-My question was how long it takes if you memset in neither place.
+s390 has two call sites that need to be converted, like you did in one of
+your previous patches. The same seems to be true for powerpc, unless there
+is a reason to not convert them?
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
