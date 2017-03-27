@@ -1,34 +1,36 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH] net: s390: qeth: use new api
+ ethtool_{get|set}_link_ksettings
+References: <1490534858-4049-1-git-send-email-tremyfr@gmail.com>
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Date: Mon, 27 Mar 2017 15:56:24 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170302004607.GE27132@altlinux.org>
-References: <20170302004607.GE27132@altlinux.org>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 2 Mar 2017 14:07:20 +0100
-Message-ID: <CAK8P3a1=-Q=gVRyk+PwqxTeTPXa4yrmqWKG7SyZng2d7bcbG=g@mail.gmail.com>
-Subject: Re: [PATCH] uapi: fix another asm/shmbuf.h userspace compilation error
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20170302130720.SBZpkOKWrYgyYcK4UiaUJOeF414bvFDHDD9QSvXTd_4@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: "Dmitry V. Levin" <ldv@altlinux.org>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-xtensa@linux-xtensa.org, Heiko Carstens <heiko.carstens@de.ibm.com>, David Howells <dhowells@redhat.com>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Hans-Christian Egtvedt <egtvedt@samfundet.no>, linux-arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org, linux-am33-list@redhat.com, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Chris Zankel <chris@zankel.net>, Tony Luck <tony.luck@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, linux-alpha@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1490534858-4049-1-git-send-email-tremyfr@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Message-Id: <381d471f-e1e6-a189-d2ce-bf6db1d93614@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Philippe Reynes <tremyfr@gmail.com>, ubraun@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Mar 2, 2017 at 1:46 AM, Dmitry V. Levin <ldv@altlinux.org> wrote:
-> Replace size_t with __kernel_size_t to fix asm/shmbuf.h userspace
-> compilation errors like this:
->
-> /usr/include/asm-generic/shmbuf.h:28:2: error: unknown type name 'size_t'
->   size_t   shm_segsz; /* size of segment (bytes) */
->
-> x32 is the only architecture where sizeof(size_t) is less than
-> sizeof(__kernel_size_t), but as the kernel treats shm_segsz field as
-> __kernel_size_t anyway, UAPI should follow.  Thanks to little-endiannes
-> of x32 and 64-bit alignment of the field following shm_segsz, this
-> change doesn't break ABI, and the difference doesn't manifest itself
-> easily.
->
-> Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+On 03/26/2017 03:27 PM, Philippe Reynes wrote:
+> The ethtool api {get|set}_settings is deprecated.
+> We move this driver to new api {get|set}_link_ksettings.
+> 
+> As I don't have the hardware, I'd be very pleased if
+> someone may test this patch.
+> 
+> Signed-off-by: Philippe Reynes <tremyfr@gmail.com>
+> ---
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+Hello Philippe,
+
+thank you for the patch! Unfortunately I queued up pretty much the same
+change to our internal repo just last week... should be going upstream with
+our next patch series. Sorry for the duplicated effort.
+
+Regards,
+Julian
