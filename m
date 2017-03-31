@@ -1,23 +1,52 @@
 MIME-Version: 1.0
-In-Reply-To: <20170323172515.27950-3-thgarnie@google.com>
-References: <20170323172515.27950-1-thgarnie@google.com> <20170323172515.27950-3-thgarnie@google.com>
+In-Reply-To: <CAGXu5jKbqOvb2TtfpXhjPQFxEShaBu=RbBQORtqhcF1bD3As6w@mail.gmail.com>
+References: <20170323172515.27950-1-thgarnie@google.com> <CAGXu5jKbqOvb2TtfpXhjPQFxEShaBu=RbBQORtqhcF1bD3As6w@mail.gmail.com>
 From: Thomas Garnier <thgarnie@google.com>
-Date: Thu, 23 Mar 2017 13:38:12 -0700
-Message-ID: <CAJcbSZGaaKExJfucv9AVtnJufAg-XLvzZtGqupQ_P7oKr33Ocw@mail.gmail.com>
+Date: Fri, 31 Mar 2017 08:34:14 -0700
+Message-ID: <CAJcbSZFv3CBSR--LP=A=Yrc3NmdAZb+eYbwLR4+3PFSVXdiAHQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Subject: [kernel-hardening] Re: [PATCH v5 3/4] arm/syscalls: Specific usage of verify_pre_usermode_state
+Subject: [kernel-hardening] Re: [PATCH v5 1/4] syscalls: Restore address limit after a syscall
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Howells <dhowells@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@intel.com>, Al Viro <viro@zeniv.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>, =?UTF-8?Q?Ren=C3=A9_Nyffenegger?= <mail@renenyffenegger.ch>, Thomas Garnier <thgarnie@google.com>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Kees Cook <keescook@chromium.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linux-arm-kernel@lists.infradead.org, Kernel Hardening <kernel-hardening@lists.openwall.com>
+To: Kees Cook <keescook@chromium.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Howells <dhowells@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@intel.com>, Al Viro <viro@zeniv.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>, =?UTF-8?Q?Ren=C3=A9_Nyffenegger?= <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Mar 23, 2017 at 10:25 AM, Thomas Garnier <thgarnie@google.com> wrote:
-> Implement specific usage of verify_pre_usermode_state for user-mode
-> returns for arm.
+On Thu, Mar 23, 2017 at 1:15 PM, Kees Cook <keescook@chromium.org> wrote:
+> On Thu, Mar 23, 2017 at 10:25 AM, Thomas Garnier <thgarnie@google.com> wrote:
+>> This patch ensures a syscall does not return to user-mode with a kernel
+>> address limit. If that happened, a process can corrupt kernel-mode
+>> memory and elevate privileges.
+>>
+>> For example, it would mitigation this bug:
+>>
+>> - https://bugs.chromium.org/p/project-zero/issues/detail?id=990
+>>
+>> The CONFIG_ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE option is also
+>> added so each architecture can optimize this change.
+>>
+>> Signed-off-by: Thomas Garnier <thgarnie@google.com>
+>
+> Awesome. :) I've tested this on x86 and arm with the LKDTM patch I'll
+> post in a moment.
+>
+> [   46.977823] lkdtm: Performing direct entry CORRUPT_USER_DS
+> [   46.978966] lkdtm: setting bad task size limit
+> [   46.980302] ------------[ cut here ]------------
+> [   46.981219] kernel BUG at ./include/linux/syscalls.h:200!
+>
+> Tested-by: Kees Cook <keescook@chromium.org>
 
-Signed-off-by: Thomas Garnier <thgarnie@google.com>
+Thanks Kees. Any additional feedback? Andy?
 
-Not sure why it was not there anymore.
+>
+> (Also note, your Signed-off-by lines are missing in patches 2-4)
+>
+> --
+> Kees Cook
+> Pixel Security
+
+
+
 -- 
 Thomas
