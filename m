@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 1/7] s390/qeth: use QDIO_*_QFMT defines
-Date: Wed,  5 Apr 2017 10:40:09 +0200
-Message-ID: <20170405084015.35772-2-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 7/7] s390/netiucv: improve endianness handling
+Date: Wed,  5 Apr 2017 10:40:15 +0200
+Message-ID: <20170405084015.35772-8-ubraun@linux.vnet.ibm.com>
 References: <20170405084015.35772-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170405084015.35772-1-ubraun@linux.vnet.ibm.com>
@@ -12,37 +12,29 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+From: Hans Wippel <hwippel@linux.vnet.ibm.com>
 
-better use the constant definitions.
+Replace ntohs with endianness conversion for the SKB protocol assignment
+to avoid an endianness warning reported by sparse. No functional change.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/s390/net/netiucv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 315d8a2..3b3cb3b 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4774,12 +4774,10 @@ static int qeth_query_card_info(struct qeth_card *card,
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index 3f85b97..dba94b4 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -635,7 +635,7 @@ static void netiucv_unpack_skb(struct iucv_connection *conn,
+ 	skb_put(pskb, NETIUCV_HDRLEN);
+ 	pskb->dev = dev;
+ 	pskb->ip_summed = CHECKSUM_NONE;
+-	pskb->protocol = ntohs(ETH_P_IP);
++	pskb->protocol = cpu_to_be16(ETH_P_IP);
  
- static inline int qeth_get_qdio_q_format(struct qeth_card *card)
- {
--	switch (card->info.type) {
--	case QETH_CARD_TYPE_IQD:
--		return 2;
--	default:
--		return 0;
--	}
-+	if (card->info.type == QETH_CARD_TYPE_IQD)
-+		return QDIO_IQDIO_QFMT;
-+	else
-+		return QDIO_QETH_QFMT;
- }
- 
- static void qeth_determine_capabilities(struct qeth_card *card)
+ 	while (1) {
+ 		struct sk_buff *skb;
 -- 
 2.10.2
