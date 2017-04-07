@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next V2 1/7] s390/qeth: use QDIO_*_QFMT defines
-Date: Fri,  7 Apr 2017 09:15:32 +0200
-Message-ID: <20170407071538.63253-2-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next V2 4/7] s390/qeth: Remove unused code
+Date: Fri,  7 Apr 2017 09:15:35 +0200
+Message-ID: <20170407071538.63253-5-ubraun@linux.vnet.ibm.com>
 References: <20170407071538.63253-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170407071538.63253-1-ubraun@linux.vnet.ibm.com>
@@ -14,35 +14,171 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 
-better use the constant definitions.
+1. options.add_hhlen is set but never used, drop it
+2. clean up no longer required forward declarations
+3. delete all sorts of unused defines
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/s390/net/qeth_core.h      |  5 -----
+ drivers/s390/net/qeth_core_main.c |  2 --
+ drivers/s390/net/qeth_core_mpc.h  | 17 -----------------
+ drivers/s390/net/qeth_l2_main.c   |  1 -
+ drivers/s390/net/qeth_l2_sys.c    |  3 ---
+ drivers/s390/net/qeth_l3_main.c   |  4 ----
+ 6 files changed, 32 deletions(-)
 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index d311bdc..3277eda 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -509,9 +509,6 @@ struct qeth_qdio_info {
+ #define QETH_TR_MAC_NC       0xc000 /* non-canonical */
+ #define QETH_TR_MAC_C        0x0300 /* canonical */
+ 
+-#define DEFAULT_ADD_HHLEN 0
+-#define MAX_ADD_HHLEN 1024
+-
+ /**
+  * buffer stuff for read channel
+  */
+@@ -637,7 +634,6 @@ struct qeth_reply {
+ 	atomic_t refcnt;
+ };
+ 
+-
+ struct qeth_card_blkt {
+ 	int time_total;
+ 	int inter_packet;
+@@ -678,7 +674,6 @@ struct qeth_card_options {
+ 	struct qeth_ipa_info ipa6;
+ 	struct qeth_sbp_info sbp; /* SETBRIDGEPORT options */
+ 	int fake_broadcast;
+-	int add_hhlen;
+ 	int layer2;
+ 	int performance_stats;
+ 	int rx_sg_cb;
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 9a5f99c..7142204 100644
+index 9262d94..95f9cc1 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -4775,12 +4775,10 @@ static int qeth_query_card_info(struct qeth_card *card,
+@@ -55,7 +55,6 @@ static struct mutex qeth_mod_mutex;
  
- static inline int qeth_get_qdio_q_format(struct qeth_card *card)
+ static void qeth_send_control_data_cb(struct qeth_channel *,
+ 			struct qeth_cmd_buffer *);
+-static int qeth_issue_next_read(struct qeth_card *);
+ static struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *);
+ static void qeth_setup_ccw(struct qeth_channel *, unsigned char *, __u32);
+ static void qeth_free_buffer_pool(struct qeth_card *);
+@@ -1396,7 +1395,6 @@ static void qeth_set_intial_options(struct qeth_card *card)
+ 	card->options.route4.type = NO_ROUTER;
+ 	card->options.route6.type = NO_ROUTER;
+ 	card->options.fake_broadcast = 0;
+-	card->options.add_hhlen = DEFAULT_ADD_HHLEN;
+ 	card->options.performance_stats = 0;
+ 	card->options.rx_sg_cb = QETH_RX_SG_CB;
+ 	card->options.isolation = ISOLATION_MODE_NONE;
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index bc69d0a..4accb0a 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -29,7 +29,6 @@ extern unsigned char IPA_PDU_HEADER[];
+ #define QETH_TIMEOUT		(10 * HZ)
+ #define QETH_IPA_TIMEOUT	(45 * HZ)
+ #define QETH_IDX_COMMAND_SEQNO	0xffff0000
+-#define SR_INFO_LEN		16
+ 
+ #define QETH_CLEAR_CHANNEL_PARM	-10
+ #define QETH_HALT_CHANNEL_PARM	-11
+@@ -65,7 +64,6 @@ enum qeth_link_types {
+ 	QETH_LINK_TYPE_LANE_TR      = 0x82,
+ 	QETH_LINK_TYPE_LANE_ETH1000 = 0x83,
+ 	QETH_LINK_TYPE_LANE         = 0x88,
+-	QETH_LINK_TYPE_ATM_NATIVE   = 0x90,
+ };
+ 
+ /*
+@@ -185,8 +183,6 @@ enum qeth_ipa_return_codes {
+ 	IPA_RC_ENOMEM			= 0xfffe,
+ 	IPA_RC_FFFF			= 0xffff
+ };
+-/* for DELIP */
+-#define IPA_RC_IP_ADDRESS_NOT_DEFINED	IPA_RC_PRIMARY_ALREADY_DEFINED
+ /* for SET_DIAGNOSTIC_ASSIST */
+ #define IPA_RC_INVALID_SUBCMD		IPA_RC_IP_TABLE_FULL
+ #define IPA_RC_HARDWARE_AUTH_ERROR	IPA_RC_UNKNOWN_ERROR
+@@ -631,14 +627,6 @@ enum qeth_ipa_addr_change_code {
+ 	IPA_ADDR_CHANGE_CODE_MACADDR		= 0x02,
+ 	IPA_ADDR_CHANGE_CODE_REMOVAL		= 0x80,	/* else addition */
+ };
+-enum qeth_ipa_addr_change_retcode {
+-	IPA_ADDR_CHANGE_RETCODE_OK		= 0x0000,
+-	IPA_ADDR_CHANGE_RETCODE_LOSTEVENTS	= 0x0010,
+-};
+-enum qeth_ipa_addr_change_lostmask {
+-	IPA_ADDR_CHANGE_MASK_OVERFLOW		= 0x01,
+-	IPA_ADDR_CHANGE_MASK_STATECHANGE	= 0x02,
+-};
+ 
+ struct qeth_ipacmd_addr_change_entry {
+ 	struct net_if_token token;
+@@ -817,9 +805,4 @@ extern unsigned char IDX_ACTIVATE_WRITE[];
+ 	((buffer) && \
+ 	 (*(buffer + ((*(buffer + 0x0b)) + 4)) == 0xc1))
+ 
+-#define ADDR_FRAME_TYPE_DIX 1
+-#define ADDR_FRAME_TYPE_802_3 2
+-#define ADDR_FRAME_TYPE_TR_WITHOUT_SR 0x10
+-#define ADDR_FRAME_TYPE_TR_WITH_SR 0x20
+-
+ #endif
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index af4e6a6..cd0ba9e 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -28,7 +28,6 @@
+ static int qeth_l2_set_offline(struct ccwgroup_device *);
+ static int qeth_l2_stop(struct net_device *);
+ static void qeth_l2_set_rx_mode(struct net_device *);
+-static int qeth_l2_recover(void *);
+ static void qeth_bridgeport_query_support(struct qeth_card *card);
+ static void qeth_bridge_state_change(struct qeth_card *card,
+ 					struct qeth_ipa_cmd *cmd);
+diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
+index 692db49..6879723 100644
+--- a/drivers/s390/net/qeth_l2_sys.c
++++ b/drivers/s390/net/qeth_l2_sys.c
+@@ -8,9 +8,6 @@
+ #include "qeth_core.h"
+ #include "qeth_l2.h"
+ 
+-#define QETH_DEVICE_ATTR(_id, _name, _mode, _show, _store) \
+-struct device_attribute dev_attr_##_id = __ATTR(_name, _mode, _show, _store)
+-
+ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf,
+ 				int show_state)
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 653f0fb..cba1e09 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -36,16 +36,12 @@
+ 
+ 
+ static int qeth_l3_set_offline(struct ccwgroup_device *);
+-static int qeth_l3_recover(void *);
+ static int qeth_l3_stop(struct net_device *);
+ static void qeth_l3_set_multicast_list(struct net_device *);
+-static int qeth_l3_neigh_setup(struct net_device *, struct neigh_parms *);
+ static int qeth_l3_register_addr_entry(struct qeth_card *,
+ 		struct qeth_ipaddr *);
+ static int qeth_l3_deregister_addr_entry(struct qeth_card *,
+ 		struct qeth_ipaddr *);
+-static int __qeth_l3_set_online(struct ccwgroup_device *, int);
+-static int __qeth_l3_set_offline(struct ccwgroup_device *, int);
+ 
+ static int qeth_l3_isxdigit(char *buf)
  {
--	switch (card->info.type) {
--	case QETH_CARD_TYPE_IQD:
--		return 2;
--	default:
--		return 0;
--	}
-+	if (card->info.type == QETH_CARD_TYPE_IQD)
-+		return QDIO_IQDIO_QFMT;
-+	else
-+		return QDIO_QETH_QFMT;
- }
- 
- static void qeth_determine_capabilities(struct qeth_card *card)
 -- 
 2.10.2
