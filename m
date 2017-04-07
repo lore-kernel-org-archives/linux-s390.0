@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/9] KVM: s390: log runtime instrumentation enablement
-Date: Fri,  7 Apr 2017 12:47:54 +0200
-Message-ID: <1491562082-6392-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 7/9] KVM: s390: introduce ais mode modify function
+Date: Fri,  7 Apr 2017 12:48:00 +0200
+Message-ID: <1491562082-6392-8-git-send-email-borntraeger@de.ibm.com>
 References: <1491562082-6392-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1491562082-6392-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,63 +9,261 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Fei Li <sherrylf@linux.vnet.ibm.com>, Yi Min Zhao <zyimin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We handle runtime instrumentation enablement either lazy or via
-sync_regs on migration. Make sure to add a debug log entry for that
-per CPU on the first occurrence.
+From: Fei Li <sherrylf@linux.vnet.ibm.com>
 
+Provide an interface for userspace to modify AIS
+(adapter-interruption-suppression) mode state, and add documentation
+for the interface. Allowed target modes are ALL-Interruptions mode
+and SINGLE-Interruption mode.
+
+We introduce the 'simm' and 'nimm' fields in kvm_s390_float_interrupt
+to store interruption modes for each ISC. Each bit in 'simm' and
+'nimm' targets to one ISC, and collaboratively indicate three modes:
+ALL-Interruptions, SINGLE-Interruption and NO-Interruptions. This
+interface can initiate most transitions between the states; transition
+from SINGLE-Interruption to NO-Interruptions via adapter interrupt
+injection will be introduced in a following patch. The meaningful
+combinations are as follows:
+
+    interruption mode | simm bit | nimm bit
+    ------------------|----------|----------
+             ALL      |    0     |     0
+           SINGLE     |    1     |     0
+             NO       |    1     |     1
+
+Besides, add tracepoint to track AIS mode transitions.
+
+Co-Authored-By: Yi Min Zhao <zyimin@linux.vnet.ibm.com>
+Signed-off-by: Yi Min Zhao <zyimin@linux.vnet.ibm.com>
+Signed-off-by: Fei Li <sherrylf@linux.vnet.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 14 ++++++++------
- arch/s390/kvm/priv.c     |  1 +
- 2 files changed, 9 insertions(+), 6 deletions(-)
+ Documentation/virtual/kvm/devices/s390_flic.txt | 20 ++++++++++++
+ arch/s390/include/asm/kvm_host.h                | 10 ++++++
+ arch/s390/include/uapi/asm/kvm.h                |  6 ++++
+ arch/s390/kvm/interrupt.c                       | 43 +++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.c                        |  4 +++
+ arch/s390/kvm/trace-s390.h                      | 31 ++++++++++++++++++
+ 6 files changed, 114 insertions(+)
 
+diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
+index e8ee3b6..dfd42fd 100644
+--- a/Documentation/virtual/kvm/devices/s390_flic.txt
++++ b/Documentation/virtual/kvm/devices/s390_flic.txt
+@@ -14,6 +14,7 @@ FLIC provides support to
+ - purge one pending floating I/O interrupt (KVM_DEV_FLIC_CLEAR_IO_IRQ)
+ - enable/disable for the guest transparent async page faults
+ - register and modify adapter interrupt sources (KVM_DEV_FLIC_ADAPTER_*)
++- modify AIS (adapter-interruption-suppression) mode state (KVM_DEV_FLIC_AISM)
+ 
+ Groups:
+   KVM_DEV_FLIC_ENQUEUE
+@@ -107,6 +108,25 @@ struct kvm_s390_io_adapter_req {
+       release a userspace page for the translated address specified in addr
+       from the list of mappings
+ 
++  KVM_DEV_FLIC_AISM
++    modify the adapter-interruption-suppression mode for a given isc if the
++    AIS capability is enabled. Takes a kvm_s390_ais_req describing:
++
++struct kvm_s390_ais_req {
++	__u8 isc;
++	__u16 mode;
++};
++
++    isc contains the target I/O interruption subclass, mode the target
++    adapter-interruption-suppression mode. The following modes are
++    currently supported:
++    - KVM_S390_AIS_MODE_ALL: ALL-Interruptions Mode, i.e. airq injection
++      is always allowed;
++    - KVM_S390_AIS_MODE_SINGLE: SINGLE-Interruption Mode, i.e. airq
++      injection is only allowed once and the following adapter interrupts
++      will be suppressed until the mode is set again to ALL-Interruptions
++      or SINGLE-Interruption mode.
++
+ Note: The KVM_SET_DEVICE_ATTR/KVM_GET_DEVICE_ATTR device ioctls executed on
+ FLIC with an unknown group or attribute gives the error code EINVAL (instead of
+ ENXIO, as specified in the API documentation). It is not possible to conclude
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 499c72c..552c319 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -521,6 +521,12 @@ struct kvm_s390_local_interrupt {
+ #define FIRQ_CNTR_PFAULT   3
+ #define FIRQ_MAX_COUNT     4
+ 
++/* mask the AIS mode for a given ISC */
++#define AIS_MODE_MASK(isc) (0x80 >> isc)
++
++#define KVM_S390_AIS_MODE_ALL    0
++#define KVM_S390_AIS_MODE_SINGLE 1
++
+ struct kvm_s390_float_interrupt {
+ 	unsigned long pending_irqs;
+ 	spinlock_t lock;
+@@ -530,6 +536,10 @@ struct kvm_s390_float_interrupt {
+ 	struct kvm_s390_ext_info srv_signal;
+ 	int next_rr_cpu;
+ 	unsigned long idle_mask[BITS_TO_LONGS(KVM_MAX_VCPUS)];
++	struct mutex ais_lock;
++	u8 simm;
++	u8 nimm;
++	int ais_enabled;
+ };
+ 
+ struct kvm_hw_wp_info_arch {
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 5fa144d..50d2a92 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -26,6 +26,7 @@
+ #define KVM_DEV_FLIC_ADAPTER_REGISTER	6
+ #define KVM_DEV_FLIC_ADAPTER_MODIFY	7
+ #define KVM_DEV_FLIC_CLEAR_IO_IRQ	8
++#define KVM_DEV_FLIC_AISM		9
+ /*
+  * We can have up to 4*64k pending subchannels + 8 adapter interrupts,
+  * as well as up  to ASYNC_PF_PER_VCPU*KVM_MAX_VCPUS pfault done interrupts.
+@@ -46,6 +47,11 @@ struct kvm_s390_io_adapter {
+ 
+ #define KVM_S390_ADAPTER_SUPPRESSIBLE 0x01
+ 
++struct kvm_s390_ais_req {
++	__u8 isc;
++	__u16 mode;
++};
++
+ #define KVM_S390_IO_ADAPTER_MASK 1
+ #define KVM_S390_IO_ADAPTER_MAP 2
+ #define KVM_S390_IO_ADAPTER_UNMAP 3
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index dba51ad..96b689e 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2152,6 +2152,45 @@ static int clear_io_irq(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	return 0;
+ }
+ 
++static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
++{
++	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
++	struct kvm_s390_ais_req req;
++	int ret = 0;
++
++	if (!fi->ais_enabled)
++		return -ENOTSUPP;
++
++	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
++		return -EFAULT;
++
++	if (req.isc > MAX_ISC)
++		return -EINVAL;
++
++	trace_kvm_s390_modify_ais_mode(req.isc,
++				       (fi->simm & AIS_MODE_MASK(req.isc)) ?
++				       (fi->nimm & AIS_MODE_MASK(req.isc)) ?
++				       2 : KVM_S390_AIS_MODE_SINGLE :
++				       KVM_S390_AIS_MODE_ALL, req.mode);
++
++	mutex_lock(&fi->ais_lock);
++	switch (req.mode) {
++	case KVM_S390_AIS_MODE_ALL:
++		fi->simm &= ~AIS_MODE_MASK(req.isc);
++		fi->nimm &= ~AIS_MODE_MASK(req.isc);
++		break;
++	case KVM_S390_AIS_MODE_SINGLE:
++		fi->simm |= AIS_MODE_MASK(req.isc);
++		fi->nimm &= ~AIS_MODE_MASK(req.isc);
++		break;
++	default:
++		ret = -EINVAL;
++	}
++	mutex_unlock(&fi->ais_lock);
++
++	return ret;
++}
++
+ static int flic_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
+ {
+ 	int r = 0;
+@@ -2188,6 +2227,9 @@ static int flic_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
+ 	case KVM_DEV_FLIC_CLEAR_IO_IRQ:
+ 		r = clear_io_irq(dev->kvm, attr);
+ 		break;
++	case KVM_DEV_FLIC_AISM:
++		r = modify_ais_mode(dev->kvm, attr);
++		break;
+ 	default:
+ 		r = -EINVAL;
+ 	}
+@@ -2207,6 +2249,7 @@ static int flic_has_attr(struct kvm_device *dev,
+ 	case KVM_DEV_FLIC_ADAPTER_REGISTER:
+ 	case KVM_DEV_FLIC_ADAPTER_MODIFY:
+ 	case KVM_DEV_FLIC_CLEAR_IO_IRQ:
++	case KVM_DEV_FLIC_AISM:
+ 		return 0;
+ 	}
+ 	return -ENXIO;
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index fd6cd05b..5fda468 100644
+index f83f18b..977cc16 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -2719,6 +2719,9 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+@@ -1515,6 +1515,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
  
- static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- {
-+	struct runtime_instr_cb *riccb;
+ 	kvm_s390_crypto_init(kvm);
+ 
++	mutex_init(&kvm->arch.float_int.ais_lock);
++	kvm->arch.float_int.simm = 0;
++	kvm->arch.float_int.nimm = 0;
++	kvm->arch.float_int.ais_enabled = 0;
+ 	spin_lock_init(&kvm->arch.float_int.lock);
+ 	for (i = 0; i < FIRQ_LIST_COUNT; i++)
+ 		INIT_LIST_HEAD(&kvm->arch.float_int.lists[i]);
+diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
+index 396485b..b32994d 100644
+--- a/arch/s390/kvm/trace-s390.h
++++ b/arch/s390/kvm/trace-s390.h
+@@ -280,6 +280,37 @@ TRACE_EVENT(kvm_s390_enable_disable_ibs,
+ 		      __entry->state ? "enabling" : "disabling", __entry->id)
+ 	);
+ 
++/*
++ * Trace point for modifying ais mode for a given isc.
++ */
++TRACE_EVENT(kvm_s390_modify_ais_mode,
++	    TP_PROTO(__u8 isc, __u16 from, __u16 to),
++	    TP_ARGS(isc, from, to),
 +
-+	riccb = (struct runtime_instr_cb *) &kvm_run->s.regs.riccb;
- 	vcpu->arch.sie_block->gpsw.mask = kvm_run->psw_mask;
- 	vcpu->arch.sie_block->gpsw.addr = kvm_run->psw_addr;
- 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
-@@ -2747,12 +2750,11 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	 * we should enable RI here instead of doing the lazy enablement.
- 	 */
- 	if ((kvm_run->kvm_dirty_regs & KVM_SYNC_RICCB) &&
--	    test_kvm_facility(vcpu->kvm, 64)) {
--		struct runtime_instr_cb *riccb =
--			(struct runtime_instr_cb *) &kvm_run->s.regs.riccb;
--
--		if (riccb->valid)
--			vcpu->arch.sie_block->ecb3 |= 0x01;
-+	    test_kvm_facility(vcpu->kvm, 64) &&
-+	    riccb->valid &&
-+	    !(vcpu->arch.sie_block->ecb3 & 0x01)) {
-+		VCPU_EVENT(vcpu, 3, "%s", "ENABLE: RI (sync_regs)");
-+		vcpu->arch.sie_block->ecb3 |= 0x01;
- 	}
- 	save_access_regs(vcpu->arch.host_acrs);
- 	restore_access_regs(vcpu->run->s.regs.acrs);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 64b6a30..93d6cde 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -37,6 +37,7 @@
- static int handle_ri(struct kvm_vcpu *vcpu)
- {
- 	if (test_kvm_facility(vcpu->kvm, 64)) {
-+		VCPU_EVENT(vcpu, 3, "%s", "ENABLE: RI (lazy)");
- 		vcpu->arch.sie_block->ecb3 |= 0x01;
- 		kvm_s390_retry_instr(vcpu);
- 		return 0;
++	    TP_STRUCT__entry(
++		    __field(__u8, isc)
++		    __field(__u16, from)
++		    __field(__u16, to)
++		    ),
++
++	    TP_fast_assign(
++		    __entry->isc = isc;
++		    __entry->from = from;
++		    __entry->to = to;
++		    ),
++
++	    TP_printk("for isc %x, modifying interruption mode from %s to %s",
++		      __entry->isc,
++		      (__entry->from == KVM_S390_AIS_MODE_ALL) ?
++		      "ALL-Interruptions Mode" :
++		      (__entry->from == KVM_S390_AIS_MODE_SINGLE) ?
++		      "Single-Interruption Mode" : "No-Interruptions Mode",
++		      (__entry->to == KVM_S390_AIS_MODE_ALL) ?
++		      "ALL-Interruptions Mode" :
++		      (__entry->to == KVM_S390_AIS_MODE_SINGLE) ?
++		      "Single-Interruption Mode" : "No-Interruptions Mode")
++	);
++
+ 
+ #endif /* _TRACE_KVMS390_H */
+ 
 -- 
 2.7.4
