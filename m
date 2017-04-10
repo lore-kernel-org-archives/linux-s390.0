@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 02/10] net/smc: remove useless smc_ib_devices_list check
-Date: Mon, 10 Apr 2017 14:57:57 +0200
-Message-ID: <20170410125805.13653-3-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 03/10] net/smc: return active RoCE port only
+Date: Mon, 10 Apr 2017 14:57:58 +0200
+Message-ID: <20170410125805.13653-4-ubraun@linux.vnet.ibm.com>
 References: <20170410125805.13653-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170410125805.13653-1-ubraun@linux.vnet.ibm.com>
@@ -12,56 +12,34 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The global event handler is created only, if the ib_device has already
-been used by at least one link group. It is guaranteed that there exists
-the corresponding entry in the smc_ib_devices list. Get rid of this
-superfluous check.
+SMC requires an active ib port on the RoCE device.
+smc_pnet_find_roce_resource() determines the matching RoCE device port
+according to the configured PNET table. Do not return the found
+RoCE device port, if it is not flagged active.
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
 ---
- net/smc/smc_ib.c   | 2 --
- net/smc/smc_pnet.c | 2 +-
- net/smc/smc_pnet.h | 1 -
- 3 files changed, 1 insertion(+), 4 deletions(-)
+ net/smc/smc_pnet.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index e6743c0..b762577 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -179,8 +179,6 @@ static void smc_ib_global_event_handler(struct ib_event_handler *handler,
- 	u8 port_idx;
- 
- 	smcibdev = container_of(handler, struct smc_ib_device, event_handler);
--	if (!smc_pnet_find_ib(smcibdev->ibdev->name))
--		return;
- 
- 	switch (ibevent->event) {
- 	case IB_EVENT_PORT_ERR:
 diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 9d3e7fb..f1cff01 100644
+index f1cff01..78f7af2 100644
 --- a/net/smc/smc_pnet.c
 +++ b/net/smc/smc_pnet.c
-@@ -219,7 +219,7 @@ static bool smc_pnetid_valid(const char *pnet_name, char *pnetid)
- }
- 
- /* Find an infiniband device by a given name. The device might not exist. */
--struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
-+static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
- {
- 	struct smc_ib_device *ibdev;
- 
-diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
-index 32ab3df..c4f1bcc 100644
---- a/net/smc/smc_pnet.h
-+++ b/net/smc/smc_pnet.h
-@@ -16,7 +16,6 @@ struct smc_ib_device;
- int smc_pnet_init(void) __init;
- void smc_pnet_exit(void);
- int smc_pnet_remove_by_ibdev(struct smc_ib_device *ibdev);
--struct smc_ib_device *smc_pnet_find_ib(char *ib_name);
- void smc_pnet_find_roce_resource(struct sock *sk,
- 				 struct smc_ib_device **smcibdev, u8 *ibport);
- 
+@@ -523,8 +523,11 @@ void smc_pnet_find_roce_resource(struct sock *sk,
+ 	read_lock(&smc_pnettable.lock);
+ 	list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
+ 		if (dst->dev == pnetelem->ndev) {
+-			*smcibdev = pnetelem->smcibdev;
+-			*ibport = pnetelem->ib_port;
++			if (smc_ib_port_active(pnetelem->smcibdev,
++					       pnetelem->ib_port)) {
++				*smcibdev = pnetelem->smcibdev;
++				*ibport = pnetelem->ib_port;
++			}
+ 			break;
+ 		}
+ 	}
 -- 
 2.10.2
