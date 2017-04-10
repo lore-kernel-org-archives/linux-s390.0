@@ -1,54 +1,70 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH 1/2] s390/perf: fix perf annotate error -95 (4.10
+ regression)
+References: <1491465112-45819-1-git-send-email-borntraeger@de.ibm.com>
+ <1491465112-45819-2-git-send-email-borntraeger@de.ibm.com>
+ <20170407152341.GB2388@redhat.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 1/1] s390/virtio: change maintainership
-Date: Thu, 20 Apr 2017 09:51:29 +0200
-Message-ID: <00940a05-e752-a6bb-8ba3-a9e50732daf6@de.ibm.com>
-References: <1488470903-16358-1-git-send-email-borntraeger@de.ibm.com>
-	<1488470903-16358-2-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 10 Apr 2017 11:18:55 +0200
+MIME-Version: 1.0
+In-Reply-To: <20170407152341.GB2388@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1488470903-16358-2-git-send-email-borntraeger@de.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Message-Id: <0247c7c8-60d5-f267-78e8-89863b4711af@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Andreas Krebbel <krebbel@linux.vnet.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03/02/2017 05:08 PM, Christian Borntraeger wrote:
-> Halil is doing a lot more work in the virtio area on s390 than I
-> do. Let's reflect the reality in the maintainers file.
+On 04/07/2017 05:23 PM, Arnaldo Carvalho de Melo wrote:
+> Em Thu, Apr 06, 2017 at 09:51:51AM +0200, Christian Borntraeger escreveu:
+>> since 4.10 perf annotate exits on s390 with an "unknown error -95".
+>> Turns out that commit 786c1b51844d ("perf annotate: Start supporting
+>> cross arch annotation") added a hard requirement for architecture
 > 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-> Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> ---
->  MAINTAINERS | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index ca6f5f7..52780b8 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -13203,8 +13203,8 @@ F:	include/uapi/linux/virtio_*.h
->  F:	drivers/crypto/virtio/
-> 
->  VIRTIO DRIVERS FOR S390
-> -M:	Christian Borntraeger <borntraeger@de.ibm.com>
->  M:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> +M:	Halil Pasic <pasic@linux.vnet.ibm.com>
->  L:	linux-s390@vger.kernel.org
->  L:	virtualization@lists.linux-foundation.org
->  L:	kvm@vger.kernel.org
-> 
+> Argh, that was unfortunate, I'll apply your patches and try to remove
+> that restriction, using the defaults previously in place :-\
 
-ping?
+Is there a chance to get this fix into 4.11? (the 2nd patch can certainly wait
+for the next merge window)
+
+> 
+> thanks,
+> 
+> - Arnaldo
+> 
+> 
+>> support when objdump is used but only provided x86 and arm
+>> support. Meanwhile power was added so lets add s390 as well.
+>>
+>> While at it make sure to implement the branch and jump types.
+>>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
+>> Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+>> ---
+>>  tools/perf/util/annotate.c | 6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
+>> index 273f21f..7aa5722 100644
+>> --- a/tools/perf/util/annotate.c
+>> +++ b/tools/perf/util/annotate.c
+>> @@ -130,6 +130,12 @@ static struct arch architectures[] = {
+>>  		.name = "powerpc",
+>>  		.init = powerpc__annotate_init,
+>>  	},
+>> +	{
+>> +		.name = "s390",
+>> +		.objdump =  {
+>> +			.comment_char = '#',
+>> +		},
+>> +	},
+>>  };
+>>  
+>>  static void ins__delete(struct ins_operands *ops)
+>> -- 
+>> 2.7.4
+> 
