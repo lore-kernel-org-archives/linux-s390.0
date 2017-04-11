@@ -1,128 +1,130 @@
-From: Thomas Garnier <thgarnie@google.com>
-Date: Mon, 10 Apr 2017 09:44:17 -0700
-Message-Id: <20170410164420.64003-1-thgarnie@google.com>
-Subject: [kernel-hardening] [PATCH v7 1/4] syscalls: Restore address limit after a syscall
-List-Archive: <https://lore.kernel.org/kernel-hardening/>
-List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Thomas Garnier <thgarnie@google.com>, David Howells <dhowells@redhat.com>, =?UTF-8?q?Ren=C3=A9=20Nyffenegger?= <mail@renenyffenegger.ch>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Kees Cook <keescook@chromium.org>, Rik van Riel <riel@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, x86@kernel.org, linux-arm-kernel@lists.infradead.org, kernel-hardening@lists.openwall.com
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 09/10] s390/qeth: use LINK_MODE_* to report the link characteristics
+Date: Tue, 11 Apr 2017 16:11:18 +0200
+Message-ID: <20170411141119.82526-10-jwi@linux.vnet.ibm.com>
+References: <20170411141119.82526-1-jwi@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170411141119.82526-1-jwi@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch ensures a syscall does not return to user-mode with a kernel
-address limit. If that happened, a process can corrupt kernel-mode
-memory and elevate privileges.
+LINK_MODE_* replaces the u32-limited SUPPORTED_* / ENABLED_*
+definitions.
 
-For example, it would mitigation this bug:
-
-- https://bugs.chromium.org/p/project-zero/issues/detail?id=990
-
-The CONFIG_ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE option is also
-added so each architecture can optimize this change.
-
-Signed-off-by: Thomas Garnier <thgarnie@google.com>
-Tested-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
-Based on next-20170410
----
- arch/s390/Kconfig        |  1 +
- include/linux/syscalls.h | 26 +++++++++++++++++++++++++-
- init/Kconfig             |  6 ++++++
- kernel/sys.c             | 13 +++++++++++++
- 4 files changed, 45 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_core_main.c | 71 ++++++++++++++++++++++++++-------------
+ 1 file changed, 47 insertions(+), 24 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index d25435d94b6e..489a0cc6e46b 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -103,6 +103,7 @@ config S390
- 	select ARCH_INLINE_WRITE_UNLOCK_BH
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQ
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
-+	select ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
- 	select ARCH_SAVE_PAGE_KEYS if HIBERNATION
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index 980c3c9b06f8..801a7a74fe28 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -191,6 +191,27 @@ extern struct trace_event_functions exit_syscall_print_funcs;
- 	SYSCALL_METADATA(sname, x, __VA_ARGS__)			\
- 	__SYSCALL_DEFINEx(x, sname, __VA_ARGS__)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 4304bc2a6620..88f4c6cff9a4 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -6031,52 +6031,75 @@ EXPORT_SYMBOL_GPL(qeth_core_get_drvinfo);
+ static void qeth_set_cmd_adv_sup(struct ethtool_link_ksettings *cmd,
+ 				int maxspeed, int porttype)
+ {
+-	u32 sup, adv;
++	ethtool_link_ksettings_zero_link_mode(cmd, supported);
++	ethtool_link_ksettings_zero_link_mode(cmd, advertising);
++	ethtool_link_ksettings_zero_link_mode(cmd, lp_advertising);
  
-+
-+/*
-+ * Called before coming back to user-mode. Returning to user-mode with an
-+ * address limit different than USER_DS can allow to overwrite kernel memory.
-+ */
-+static inline void verify_pre_usermode_state(void) {
-+	BUG_ON(!segment_eq(get_fs(), USER_DS));
-+}
-+
-+#ifndef CONFIG_ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
-+#define __CHECK_USER_CALLER() \
-+	bool user_caller = segment_eq(get_fs(), USER_DS)
-+#define __VERIFY_PRE_USERMODE_STATE() \
-+	if (user_caller) verify_pre_usermode_state()
-+#else
-+#define __CHECK_USER_CALLER()
-+#define __VERIFY_PRE_USERMODE_STATE()
-+asmlinkage void address_limit_check_failed(void);
-+#endif
-+
-+
- #define __PROTECT(...) asmlinkage_protect(__VA_ARGS__)
- #define __SYSCALL_DEFINEx(x, name, ...)					\
- 	asmlinkage long sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))	\
-@@ -199,7 +220,10 @@ extern struct trace_event_functions exit_syscall_print_funcs;
- 	asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__));	\
- 	asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__))	\
- 	{								\
--		long ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));	\
-+		long ret;						\
-+		__CHECK_USER_CALLER();					\
-+		ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));	\
-+		__VERIFY_PRE_USERMODE_STATE();				\
- 		__MAP(x,__SC_TEST,__VA_ARGS__);				\
- 		__PROTECT(x, ret,__MAP(x,__SC_ARGS,__VA_ARGS__));	\
- 		return ret;						\
-diff --git a/init/Kconfig b/init/Kconfig
-index 7f7027817bce..e5fbd0becfa7 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -1958,6 +1958,12 @@ config PROFILING
- config TRACEPOINTS
- 	bool
+-	sup = SUPPORTED_Autoneg;
+-	adv = ADVERTISED_Autoneg;
++	ethtool_link_ksettings_add_link_mode(cmd, supported, Autoneg);
++	ethtool_link_ksettings_add_link_mode(cmd, advertising, Autoneg);
  
-+config ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
-+	bool
-+	help
-+	  Disable the generic pre-usermode state verification. Allow each
-+	  architecture to optimize how and when the verification is done.
-+
- source "arch/Kconfig"
+ 	switch (porttype) {
+ 	case PORT_TP:
+-		sup |= SUPPORTED_TP;
+-		adv |= ADVERTISED_TP;
++		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
+ 		break;
+ 	case PORT_FIBRE:
+-		sup |= SUPPORTED_FIBRE;
+-		adv |= ADVERTISED_FIBRE;
++		ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising, FIBRE);
+ 		break;
+ 	default:
+-		sup |= SUPPORTED_TP;
+-		adv |= ADVERTISED_TP;
++		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
+ 		WARN_ON_ONCE(1);
+ 	}
  
- endmenu		# General setup
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 196c7134bee6..d30530ff8166 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -2459,3 +2459,16 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
- 	return 0;
+ 	/* fallthrough from high to low, to select all legal speeds: */
+ 	switch (maxspeed) {
+ 	case SPEED_10000:
+-		sup |= SUPPORTED_10000baseT_Full;
+-		adv |= ADVERTISED_10000baseT_Full;
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10000baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10000baseT_Full);
+ 	case SPEED_1000:
+-		sup |= SUPPORTED_1000baseT_Half | SUPPORTED_1000baseT_Full;
+-		adv |= ADVERTISED_1000baseT_Half | ADVERTISED_1000baseT_Full;
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     1000baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     1000baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     1000baseT_Half);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     1000baseT_Half);
+ 	case SPEED_100:
+-		sup |= SUPPORTED_100baseT_Half | SUPPORTED_100baseT_Full;
+-		adv |= ADVERTISED_100baseT_Half | ADVERTISED_100baseT_Full;
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     100baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     100baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     100baseT_Half);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     100baseT_Half);
+ 	case SPEED_10:
+-		sup |= SUPPORTED_10baseT_Half | SUPPORTED_10baseT_Full;
+-		adv |= ADVERTISED_10baseT_Half | ADVERTISED_10baseT_Full;
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10baseT_Half);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10baseT_Half);
+ 		/* end fallthrough */
+ 		break;
+ 	default:
+-		sup |= SUPPORTED_10baseT_Half | SUPPORTED_10baseT_Full;
+-		adv |= ADVERTISED_10baseT_Half | ADVERTISED_10baseT_Full;
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10baseT_Half);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10baseT_Half);
+ 		WARN_ON_ONCE(1);
+ 	}
+-
+-	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
+-						sup);
+-	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.advertising,
+-						adv);
  }
- #endif /* CONFIG_COMPAT */
-+
-+#ifdef CONFIG_ARCH_NO_SYSCALL_VERIFY_PRE_USERMODE_STATE
-+/*
-+ * This function is called when an architecture specific implementation detected
-+ * an invalid address limit. The generic user-mode state checker will finish on
-+ * the appropriate BUG_ON.
-+ */
-+asmlinkage void address_limit_check_failed(void)
-+{
-+	verify_pre_usermode_state();
-+	panic("address_limit_check_failed called with a valid user-mode state");
-+}
-+#endif
+ 
+ int qeth_core_ethtool_get_link_ksettings(struct net_device *netdev,
 -- 
-2.12.2.715.g7642488e1d-goog
+2.10.2
