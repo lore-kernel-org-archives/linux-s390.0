@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 10/10] s390/qeth: remove unimplemented gdev routines
-Date: Tue, 11 Apr 2017 16:11:19 +0200
-Message-ID: <20170411141119.82526-11-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 05/10] s390/qeth: use correct return type for hard_start_xmit()
+Date: Tue, 11 Apr 2017 16:11:14 +0200
+Message-ID: <20170411141119.82526-6-jwi@linux.vnet.ibm.com>
 References: <20170411141119.82526-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170411141119.82526-1-jwi@linux.vnet.ibm.com>
@@ -12,66 +12,42 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-prepare() and complete() are not implemented by any discipline, so just
-drop all the indirection.
+ndo_start_xmit() expects us to return netdev_tx_t here...
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Reviewed-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
-Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Acked-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |  2 --
- drivers/s390/net/qeth_core_main.c | 19 ++-----------------
- 2 files changed, 2 insertions(+), 19 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 3 ++-
+ drivers/s390/net/qeth_l3_main.c | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index a634ec2a08f3..f6aa21176d89 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -710,8 +710,6 @@ struct qeth_discipline {
- 	void (*remove) (struct ccwgroup_device *);
- 	int (*set_online) (struct ccwgroup_device *);
- 	int (*set_offline) (struct ccwgroup_device *);
--	int (*prepare) (struct ccwgroup_device *);
--	void (*complete) (struct ccwgroup_device *);
- 	int (*freeze)(struct ccwgroup_device *);
- 	int (*thaw) (struct ccwgroup_device *);
- 	int (*restore)(struct ccwgroup_device *);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 88f4c6cff9a4..38114a8d56e0 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5756,21 +5756,6 @@ static void qeth_core_shutdown(struct ccwgroup_device *gdev)
- 	qdio_free(CARD_DDEV(card));
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index ab0d065a9ba2..11cf4a4b36a6 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -681,7 +681,8 @@ static void qeth_l2_set_rx_mode(struct net_device *dev)
+ 		qeth_promisc_to_bridge(card);
  }
  
--static int qeth_core_prepare(struct ccwgroup_device *gdev)
--{
--	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
--	if (card->discipline && card->discipline->prepare)
--		return card->discipline->prepare(gdev);
--	return 0;
--}
--
--static void qeth_core_complete(struct ccwgroup_device *gdev)
--{
--	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
--	if (card->discipline && card->discipline->complete)
--		card->discipline->complete(gdev);
--}
--
- static int qeth_core_freeze(struct ccwgroup_device *gdev)
+-static int qeth_l2_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
++					   struct net_device *dev)
  {
- 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
-@@ -5805,8 +5790,8 @@ static struct ccwgroup_driver qeth_core_ccwgroup_driver = {
- 	.set_online = qeth_core_set_online,
- 	.set_offline = qeth_core_set_offline,
- 	.shutdown = qeth_core_shutdown,
--	.prepare = qeth_core_prepare,
--	.complete = qeth_core_complete,
-+	.prepare = NULL,
-+	.complete = NULL,
- 	.freeze = qeth_core_freeze,
- 	.thaw = qeth_core_thaw,
- 	.restore = qeth_core_restore,
+ 	int rc;
+ 	struct qeth_hdr *hdr = NULL;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 7d902b93fd5a..bea0bae0faf7 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2655,7 +2655,8 @@ static int qeth_l3_get_elements_no_tso(struct qeth_card *card,
+ 	return elements;
+ }
+ 
+-static int qeth_l3_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
++					   struct net_device *dev)
+ {
+ 	int rc;
+ 	__be16 *tag;
 -- 
 2.10.2
