@@ -1,60 +1,42 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH 2/2] vfio: ccw: improve error handling for vfio_ccw_mdev_remove
-Date: Wed, 12 Apr 2017 11:08:16 +0200
-Message-ID: <20170412090816.79108-3-bjsdjshi@linux.vnet.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 0/2] vfio: ccw: code cleanup and bugfix
+Date: Wed, 12 Apr 2017 12:47:26 +0200
+Message-ID: <20170412124726.2c687a55.cornelia.huck@de.ibm.com>
 References: <20170412090816.79108-1-bjsdjshi@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170412090816.79108-1-bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: bjsdjshi@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, dan.carpenter@oracle.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, dan.carpenter@oracle.com
 List-ID: <linux-s390.vger.kernel.org>
 
-When vfio_ccw_mdev_reset fails during the remove process of the mdev,
-the current implementation simply returns.
+On Wed, 12 Apr 2017 11:08:14 +0200
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-The failure indicates that the subchannel device is in a NOT_OPER state,
-thus the right thing to do should be removing the mdev.
+> This series have two bugfix patches.
+> 
+> Patch #1 fixes a bug that was pointed out by Dan Carpenter:
+> [bug report] vfio: ccw: introduce a finite state machine
+> Message-ID: <20170404120223.GA8525@mwanda>
+> 
+> Patch #2 fixes another bug that was noticed by Cornelia Huck during the
+> discussion on the above thread.
+> 
+> The code base is:
+> https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-v0
+> 
+> Dong Jia Shi (2):
+>   vfio: ccw: remove unnecessary NULL checks of a pointer
+>   vfio: ccw: improve error handling for vfio_ccw_mdev_remove
+> 
+>  drivers/s390/cio/vfio_ccw_fsm.c |  6 +-----
+>  drivers/s390/cio/vfio_ccw_ops.c | 34 ++++++----------------------------
+>  2 files changed, 7 insertions(+), 33 deletions(-)
+> 
 
-While we are at here, reverse the condition check to make the code more
-concise and readable.
-
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
----
- drivers/s390/cio/vfio_ccw_ops.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 55d0c87..e72abbc 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -126,19 +126,14 @@ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
- {
- 	struct vfio_ccw_private *private =
- 		dev_get_drvdata(mdev_parent_dev(mdev));
--	int ret;
--
--	if ((private->state == VFIO_CCW_STATE_NOT_OPER) ||
--	    (private->state == VFIO_CCW_STATE_STANDBY))
--		goto out;
--
--	ret = vfio_ccw_mdev_reset(mdev);
--	if (ret)
--		return ret;
- 
--	private->state = VFIO_CCW_STATE_STANDBY;
-+	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
-+	    (private->state != VFIO_CCW_STATE_STANDBY)) {
-+		if (!vfio_ccw_mdev_reset(mdev))
-+			private->state = VFIO_CCW_STATE_STANDBY;
-+		/* The state will be NOT_OPER on error. */
-+	}
- 
--out:
- 	private->mdev = NULL;
- 	atomic_inc(&private->avail);
- 
--- 
-2.10.2
+Thanks, applied.
