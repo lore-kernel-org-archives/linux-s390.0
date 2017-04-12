@@ -1,15 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 11 Apr 2017 12:46:06 -0700
+Date: Tue, 11 Apr 2017 22:37:58 -0700
 From: tip-bot for Christian Borntraeger <tipbot@zytor.com>
-Message-ID: <tip-3c1a427954399fd1bda1ee7e1b356f47b61cee74@git.kernel.org>
-Reply-To: linux-kernel@vger.kernel.org, acme@redhat.com, mingo@kernel.org,
-        tglx@linutronix.de, krebbel@linux.vnet.ibm.com,
-        linux-s390@vger.kernel.org, schwidefsky@de.ibm.com,
-        peterz@infradead.org, hpa@zytor.com, borntraeger@de.ibm.com,
-        brueckner@linux.vnet.ibm.com
+Message-ID: <tip-e77852b32d6d4430c68c38aaf73efe5650fa25af@git.kernel.org>
+Reply-To: linux-s390@vger.kernel.org, acme@redhat.com, mingo@kernel.org,
+        tglx@linutronix.de, linux-kernel@vger.kernel.org, peterz@infradead.org,
+        hpa@zytor.com, borntraeger@de.ibm.com, krebbel@linux.vnet.ibm.com,
+        schwidefsky@de.ibm.com, brueckner@linux.vnet.ibm.com
 In-Reply-To: <1491465112-45819-2-git-send-email-borntraeger@de.ibm.com>
 References: <1491465112-45819-2-git-send-email-borntraeger@de.ibm.com>
-Subject: [tip:perf/urgent] perf annotate s390: Fix perf annotate error -95
+Subject: [tip:perf/core] perf annotate s390: Fix perf annotate error -95
  (4.10 regression)
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -19,15 +18,15 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-tip-commits@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, krebbel@linux.vnet.ibm.com, tglx@linutronix.de, linux-kernel@vger.kernel.org, mingo@kernel.org, acme@redhat.com, brueckner@linux.vnet.ibm.com, schwidefsky@de.ibm.com, hpa@zytor.com, borntraeger@de.ibm.com, peterz@infradead.org
+Cc: hpa@zytor.com, schwidefsky@de.ibm.com, krebbel@linux.vnet.ibm.com, borntraeger@de.ibm.com, brueckner@linux.vnet.ibm.com, acme@redhat.com, linux-s390@vger.kernel.org, tglx@linutronix.de, mingo@kernel.org, linux-kernel@vger.kernel.org, peterz@infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit-ID:  3c1a427954399fd1bda1ee7e1b356f47b61cee74
-Gitweb:     http://git.kernel.org/tip/3c1a427954399fd1bda1ee7e1b356f47b61cee74
+Commit-ID:  e77852b32d6d4430c68c38aaf73efe5650fa25af
+Gitweb:     http://git.kernel.org/tip/e77852b32d6d4430c68c38aaf73efe5650fa25af
 Author:     Christian Borntraeger <borntraeger@de.ibm.com>
 AuthorDate: Thu, 6 Apr 2017 09:51:51 +0200
 Committer:  Arnaldo Carvalho de Melo <acme@redhat.com>
-CommitDate: Fri, 7 Apr 2017 12:33:10 -0300
+CommitDate: Tue, 11 Apr 2017 15:23:39 -0300
 
 perf annotate s390: Fix perf annotate error -95 (4.10 regression)
 
@@ -54,7 +53,7 @@ Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index 273f21f..7aa5722 100644
+index a37032b..bfb2f1d 100644
 --- a/tools/perf/util/annotate.c
 +++ b/tools/perf/util/annotate.c
 @@ -130,6 +130,12 @@ static struct arch architectures[] = {
