@@ -1,15 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 11 Apr 2017 22:37:58 -0700
+Date: Tue, 11 Apr 2017 22:38:33 -0700
 From: tip-bot for Christian Borntraeger <tipbot@zytor.com>
-Message-ID: <tip-e77852b32d6d4430c68c38aaf73efe5650fa25af@git.kernel.org>
-Reply-To: linux-s390@vger.kernel.org, acme@redhat.com, mingo@kernel.org,
-        tglx@linutronix.de, linux-kernel@vger.kernel.org, peterz@infradead.org,
-        hpa@zytor.com, borntraeger@de.ibm.com, krebbel@linux.vnet.ibm.com,
-        schwidefsky@de.ibm.com, brueckner@linux.vnet.ibm.com
-In-Reply-To: <1491465112-45819-2-git-send-email-borntraeger@de.ibm.com>
-References: <1491465112-45819-2-git-send-email-borntraeger@de.ibm.com>
-Subject: [tip:perf/core] perf annotate s390: Fix perf annotate error -95
- (4.10 regression)
+Message-ID: <tip-d9f8dfa9baf9b6ae1f2f84f887176558ecde5268@git.kernel.org>
+Reply-To: mingo@kernel.org, borntraeger@de.ibm.com, tglx@linutronix.de,
+        brueckner@linux.vnet.ibm.com, krebbel@linux.vnet.ibm.com,
+        peterz@infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, hpa@zytor.com,
+        acme@redhat.com
+In-Reply-To: <1491465112-45819-3-git-send-email-borntraeger@de.ibm.com>
+References: <1491465112-45819-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [tip:perf/core] perf annotate s390: Implement jump types for perf
+ annotate
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain; charset=UTF-8
@@ -18,25 +19,19 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-tip-commits@vger.kernel.org
-Cc: hpa@zytor.com, schwidefsky@de.ibm.com, krebbel@linux.vnet.ibm.com, borntraeger@de.ibm.com, brueckner@linux.vnet.ibm.com, acme@redhat.com, linux-s390@vger.kernel.org, tglx@linutronix.de, mingo@kernel.org, linux-kernel@vger.kernel.org, peterz@infradead.org
+Cc: linux-s390@vger.kernel.org, krebbel@linux.vnet.ibm.com, peterz@infradead.org, linux-kernel@vger.kernel.org, acme@redhat.com, schwidefsky@de.ibm.com, hpa@zytor.com, borntraeger@de.ibm.com, mingo@kernel.org, tglx@linutronix.de, brueckner@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit-ID:  e77852b32d6d4430c68c38aaf73efe5650fa25af
-Gitweb:     http://git.kernel.org/tip/e77852b32d6d4430c68c38aaf73efe5650fa25af
+Commit-ID:  d9f8dfa9baf9b6ae1f2f84f887176558ecde5268
+Gitweb:     http://git.kernel.org/tip/d9f8dfa9baf9b6ae1f2f84f887176558ecde5268
 Author:     Christian Borntraeger <borntraeger@de.ibm.com>
-AuthorDate: Thu, 6 Apr 2017 09:51:51 +0200
+AuthorDate: Thu, 6 Apr 2017 09:51:52 +0200
 Committer:  Arnaldo Carvalho de Melo <acme@redhat.com>
-CommitDate: Tue, 11 Apr 2017 15:23:39 -0300
+CommitDate: Tue, 11 Apr 2017 15:23:40 -0300
 
-perf annotate s390: Fix perf annotate error -95 (4.10 regression)
+perf annotate s390: Implement jump types for perf annotate
 
-since 4.10 perf annotate exits on s390 with an "unknown error -95".
-Turns out that commit 786c1b51844d ("perf annotate: Start supporting
-cross arch annotation") added a hard requirement for architecture
-support when objdump is used but only provided x86 and arm support.
-Meanwhile power was added so lets add s390 as well.
-
-While at it make sure to implement the branch and jump types.
+Implement simple detection for all kind of jumps and branches.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
@@ -45,27 +40,66 @@ Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: linux-s390 <linux-s390@vger.kernel.org>
 Cc: stable@kernel.org # v4.10+
-Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
-Link: http://lkml.kernel.org/r/1491465112-45819-2-git-send-email-borntraeger@de.ibm.com
+Link: http://lkml.kernel.org/r/1491465112-45819-3-git-send-email-borntraeger@de.ibm.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- tools/perf/util/annotate.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/perf/arch/s390/annotate/instructions.c | 30 ++++++++++++++++++++++++++++
+ tools/perf/util/annotate.c                   |  2 ++
+ 2 files changed, 32 insertions(+)
 
+diff --git a/tools/perf/arch/s390/annotate/instructions.c b/tools/perf/arch/s390/annotate/instructions.c
+new file mode 100644
+index 0000000..745b4b1
+--- /dev/null
++++ b/tools/perf/arch/s390/annotate/instructions.c
+@@ -0,0 +1,30 @@
++static struct ins_ops *s390__associate_ins_ops(struct arch *arch, const char *name)
++{
++	struct ins_ops *ops = NULL;
++
++	/* catch all kind of jumps */
++	if (strchr(name, 'j') ||
++	    !strncmp(name, "bct", 3) ||
++	    !strncmp(name, "br", 2))
++		ops = &jump_ops;
++	/* override call/returns */
++	if (!strcmp(name, "bras") ||
++	    !strcmp(name, "brasl") ||
++	    !strcmp(name, "basr"))
++		ops = &call_ops;
++	if (!strcmp(name, "br"))
++		ops = &ret_ops;
++
++	arch__associate_ins_ops(arch, name, ops);
++	return ops;
++}
++
++static int s390__annotate_init(struct arch *arch)
++{
++	if (!arch->initialized) {
++		arch->initialized = true;
++		arch->associate_instruction_ops = s390__associate_ins_ops;
++	}
++
++	return 0;
++}
 diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index a37032b..bfb2f1d 100644
+index bfb2f1d..44ed665 100644
 --- a/tools/perf/util/annotate.c
 +++ b/tools/perf/util/annotate.c
-@@ -130,6 +130,12 @@ static struct arch architectures[] = {
- 		.name = "powerpc",
- 		.init = powerpc__annotate_init,
- 	},
-+	{
-+		.name = "s390",
-+		.objdump =  {
-+			.comment_char = '#',
-+		},
-+	},
- };
+@@ -108,6 +108,7 @@ static int arch__associate_ins_ops(struct arch* arch, const char *name, struct i
+ #include "arch/arm64/annotate/instructions.c"
+ #include "arch/x86/annotate/instructions.c"
+ #include "arch/powerpc/annotate/instructions.c"
++#include "arch/s390/annotate/instructions.c"
  
- static void ins__delete(struct ins_operands *ops)
+ static struct arch architectures[] = {
+ 	{
+@@ -132,6 +133,7 @@ static struct arch architectures[] = {
+ 	},
+ 	{
+ 		.name = "s390",
++		.init = s390__annotate_init,
+ 		.objdump =  {
+ 			.comment_char = '#',
+ 		},
