@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH v5 12/13] vfio/ccw: update sense data if a unit check is pending
-Date: Wed, 12 Apr 2017 07:21:14 +0200
-Message-ID: <20170412052115.101657-13-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH v5 08/13] vfio/ccw: get io region info
+Date: Wed, 12 Apr 2017 07:21:10 +0200
+Message-ID: <20170412052115.101657-9-bjsdjshi@linux.vnet.ibm.com>
 References: <20170412052115.101657-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170412052115.101657-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,40 +12,107 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, renxiaof@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Concurrent-sense data is currently not delivered. This patch stores
-the concurrent-sense data to the subchannel if a unit check is pending
-and the concurrent-sense bit is enabled. Then a TSCH can retreive the
-right IRB data back to the guest.
+vfio-ccw provides an MMIO region for I/O operations. We fetch its
+information via ioctls here, then we can use it performing I/O
+instructions and retrieving I/O results later on.
 
 Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 ---
- hw/vfio/ccw.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ hw/vfio/ccw.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
 diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-index ed17d6e..fd174c1 100644
+index c491bee..20a4d1a 100644
 --- a/hw/vfio/ccw.c
 +++ b/hw/vfio/ccw.c
-@@ -94,6 +94,7 @@ static void vfio_ccw_io_notifier_handler(void *opaque)
-     CcwDevice *ccw_dev = CCW_DEVICE(cdev);
-     SubchDev *sch = ccw_dev->sch;
-     SCSW *s = &sch->curr_status.scsw;
-+    PMCW *p = &sch->curr_status.pmcw;
-     IRB irb;
+@@ -12,6 +12,7 @@
+  */
  
-     if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
-@@ -133,6 +134,12 @@ static void vfio_ccw_io_notifier_handler(void *opaque)
-     /* Update control block via irb. */
-     copy_scsw_to_guest(s, &irb.scsw);
+ #include <linux/vfio.h>
++#include <linux/vfio_ccw.h>
+ #include <sys/ioctl.h>
  
-+    /* If a uint check is pending, copy sense data. */
-+    if ((s->dstat & SCSW_DSTAT_UNIT_CHECK) &&
-+        (p->chars & PMCW_CHARS_MASK_CSENSE)) {
-+        memcpy(sch->sense_data, irb.ecw, sizeof(irb.ecw));
+ #include "qemu/osdep.h"
+@@ -26,6 +27,9 @@
+ typedef struct VFIOCCWDevice {
+     S390CCWDevice cdev;
+     VFIODevice vdev;
++    uint64_t io_region_size;
++    uint64_t io_region_offset;
++    struct ccw_io_region *io_region;
+ } VFIOCCWDevice;
+ 
+ static void vfio_ccw_compute_needs_reset(VFIODevice *vdev)
+@@ -50,6 +54,46 @@ static void vfio_ccw_reset(DeviceState *dev)
+     ioctl(vcdev->vdev.fd, VFIO_DEVICE_RESET);
+ }
+ 
++static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
++{
++    VFIODevice *vdev = &vcdev->vdev;
++    struct vfio_region_info *info;
++    int ret;
++
++    /* Sanity check device */
++    if (!(vdev->flags & VFIO_DEVICE_FLAGS_CCW)) {
++        error_setg(errp, "vfio: Um, this isn't a vfio-ccw device");
++        return;
 +    }
 +
- read_err:
-     css_inject_io_interrupt(sch);
++    if (vdev->num_regions < VFIO_CCW_CONFIG_REGION_INDEX + 1) {
++        error_setg(errp, "vfio: Unexpected number of the I/O region %u",
++                   vdev->num_regions);
++        return;
++    }
++
++    ret = vfio_get_region_info(vdev, VFIO_CCW_CONFIG_REGION_INDEX, &info);
++    if (ret) {
++        error_setg(errp, "vfio: Error getting config info: %d", ret);
++        return;
++    }
++
++    vcdev->io_region_size = info->size;
++    if (sizeof(*vcdev->io_region) != vcdev->io_region_size) {
++        error_setg(errp, "vfio: Unexpected size of the I/O region");
++        return;
++    }
++    vcdev->io_region_offset = info->offset;
++    vcdev->io_region = g_malloc0(info->size);
++
++    g_free(info);
++}
++
++static void vfio_ccw_put_region(VFIOCCWDevice *vcdev)
++{
++    g_free(vcdev->io_region);
++}
++
+ static void vfio_put_device(VFIOCCWDevice *vcdev)
+ {
+     g_free(vcdev->vdev.name);
+@@ -144,8 +188,15 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
+         goto out_device_err;
+     }
+ 
++    vfio_ccw_get_region(vcdev, errp);
++    if (*errp) {
++        goto out_region_err;
++    }
++
+     return;
+ 
++out_region_err:
++    vfio_put_device(vcdev);
+ out_device_err:
+     vfio_ccw_put_group(group, path);
+ out_group_err:
+@@ -166,6 +217,7 @@ static void vfio_ccw_unrealize(DeviceState *dev, Error **errp)
+         cdc->unrealize(cdev, errp);
+     }
+ 
++    vfio_ccw_put_region(vcdev);
+     vfio_put_device(vcdev);
+     vfio_put_group(group);
  }
 -- 
 2.10.2
