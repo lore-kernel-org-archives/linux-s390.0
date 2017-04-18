@@ -1,9 +1,9 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20170415171652.249560593@linutronix.de>
-Date: Sat, 15 Apr 2017 19:01:19 +0200
+Message-Id: <20170418170553.363283884@linutronix.de>
+Date: Tue, 18 Apr 2017 19:04:54 +0200
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 12/20] s390/kernel: Use stop_machine_locked()
-References: <20170415170107.643253702@linutronix.de>
+Subject: [patch V2 12/24] s390/kernel: Use stop_machine_cpuslocked()
+References: <20170418170442.665445272@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Disposition: inline; filename=s390-kernel-Use_stop_machine_locked.patch
@@ -19,7 +19,7 @@ stp_work_fn() holds get_online_cpus() while invoking stop_machine().
 stop_machine() invokes get_online_cpus() as well. This is correct, but
 prevents the conversion of the hotplug locking to a percpu rwsem.
 
-Use stop_machine_locked() to avoid the nested call.
+Use stop_machine_cpuslocked() to avoid the nested call.
 
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
@@ -39,7 +39,7 @@ Cc: linux-s390@vger.kernel.org
  	get_online_cpus();
  	atomic_set(&stp_sync.cpus, num_online_cpus() - 1);
 -	stop_machine(stp_sync_clock, &stp_sync, cpu_online_mask);
-+	stop_machine_locked(stp_sync_clock, &stp_sync, cpu_online_mask);
++	stop_machine_cpuslocked(stp_sync_clock, &stp_sync, cpu_online_mask);
  	put_online_cpus();
  
  	if (!check_sync_clock())
