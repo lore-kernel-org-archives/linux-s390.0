@@ -1,67 +1,83 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/9] KVM: s390: Handle sthyi also for instruction intercept
-Date: Fri,  7 Apr 2017 12:47:55 +0200
-Message-ID: <1491562082-6392-3-git-send-email-borntraeger@de.ibm.com>
-References: <1491562082-6392-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1491562082-6392-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+Return-Path: <stable-owner@vger.kernel.org>
+Subject: Patch "perf annotate s390: Fix perf annotate error -95 (4.10 regression)" has been added to the 4.10-stable tree
+From: <gregkh@linuxfoundation.org>
+Date: Tue, 18 Apr 2017 14:48:45 +0200
+Message-ID: <1492519725111176@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/stable/>
+List-Post: <mailto:stable@vger.kernel.org>
+To: borntraeger@de.ibm.com, acme@redhat.com, brueckner@linux.vnet.ibm.com, gregkh@linuxfoundation.org, krebbel@linux.vnet.ibm.com, linux-s390@vger.kernel.org, peterz@infradead.org, schwidefsky@de.ibm.com
+Cc: stable@vger.kernel.org, stable-commits@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Right now we handle the STHYI only via the operation exception intercept
-(illegal instruction). If hardware ever decides to provide an
-instruction intercept for STHYI, we should handle that as well.
+
+This is a note to let you know that I've just added the patch titled
+
+    perf annotate s390: Fix perf annotate error -95 (4.10 regression)
+
+to the 4.10-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     perf-annotate-s390-fix-perf-annotate-error-95-4.10-regression.patch
+and it can be found in the queue-4.10 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+From 3c1a427954399fd1bda1ee7e1b356f47b61cee74 Mon Sep 17 00:00:00 2001
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 6 Apr 2017 09:51:51 +0200
+Subject: perf annotate s390: Fix perf annotate error -95 (4.10 regression)
+
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+
+commit 3c1a427954399fd1bda1ee7e1b356f47b61cee74 upstream.
+
+since 4.10 perf annotate exits on s390 with an "unknown error -95".
+Turns out that commit 786c1b51844d ("perf annotate: Start supporting
+cross arch annotation") added a hard requirement for architecture
+support when objdump is used but only provided x86 and arm support.
+Meanwhile power was added so lets add s390 as well.
+
+While at it make sure to implement the branch and jump types.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/intercept.c | 3 +--
- arch/s390/kvm/priv.c      | 1 +
- arch/s390/kvm/sthyi.c     | 3 +++
- 3 files changed, 5 insertions(+), 2 deletions(-)
+Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>
+Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
+Link: http://lkml.kernel.org/r/1491465112-45819-2-git-send-email-borntraeger@de.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 59920f9..0a17646 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -368,8 +368,7 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_handle_operexc(vcpu, vcpu->arch.sie_block->ipa,
- 				      vcpu->arch.sie_block->ipb);
+---
+ tools/perf/util/annotate.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/tools/perf/util/annotate.c
++++ b/tools/perf/util/annotate.c
+@@ -130,6 +130,12 @@ static struct arch architectures[] = {
+ 		.name = "powerpc",
+ 		.init = powerpc__annotate_init,
+ 	},
++	{
++		.name = "s390",
++		.objdump =  {
++			.comment_char = '#',
++		},
++	},
+ };
  
--	if (vcpu->arch.sie_block->ipa == 0xb256 &&
--	    test_kvm_facility(vcpu->kvm, 74))
-+	if (vcpu->arch.sie_block->ipa == 0xb256)
- 		return handle_sthyi(vcpu);
- 
- 	if (vcpu->arch.sie_block->ipa == 0 && vcpu->kvm->arch.user_instr0)
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 93d6cde..26f30ba 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -760,6 +760,7 @@ static const intercept_handler_t b2_handlers[256] = {
- 	[0x3b] = handle_io_inst,
- 	[0x3c] = handle_io_inst,
- 	[0x50] = handle_ipte_interlock,
-+	[0x56] = handle_sthyi,
- 	[0x5f] = handle_io_inst,
- 	[0x74] = handle_io_inst,
- 	[0x76] = handle_io_inst,
-diff --git a/arch/s390/kvm/sthyi.c b/arch/s390/kvm/sthyi.c
-index 05c98bb..926b524 100644
---- a/arch/s390/kvm/sthyi.c
-+++ b/arch/s390/kvm/sthyi.c
-@@ -404,6 +404,9 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 	u64 code, addr, cc = 0;
- 	struct sthyi_sctns *sctns = NULL;
- 
-+	if (!test_kvm_facility(vcpu->kvm, 74))
-+		return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
-+
- 	/*
- 	 * STHYI requires extensive locking in the higher hypervisors
- 	 * and is very computational/memory expensive. Therefore we
--- 
-2.7.4
+ static void ins__delete(struct ins_operands *ops)
+
+
+Patches currently in stable-queue which might be from borntraeger@de.ibm.com are
+
+queue-4.10/perf-annotate-s390-fix-perf-annotate-error-95-4.10-regression.patch
