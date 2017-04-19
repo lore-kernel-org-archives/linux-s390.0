@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20170418170553.363283884@linutronix.de>
-Date: Tue, 18 Apr 2017 19:04:54 +0200
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V2 12/24] s390/kernel: Use stop_machine_cpuslocked()
-References: <20170418170442.665445272@linutronix.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.10 20/69] perf annotate s390: Fix perf annotate error -95 (4.10 regression)
+Date: Wed, 19 Apr 2017 16:36:49 +0200
+Message-Id: <20170419141555.950398919@linuxfoundation.org>
+In-Reply-To: <20170419141555.114738231@linuxfoundation.org>
+References: <20170419141555.114738231@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Disposition: inline; filename=s390-kernel-Use_stop_machine_locked.patch
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Sebastian Siewior <bigeasy@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andreas Krebbel <krebbel@linux.vnet.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-stp_work_fn() holds get_online_cpus() while invoking stop_machine().
+4.10-stable review patch.  If anyone has any objections, please let me know.
 
-stop_machine() invokes get_online_cpus() as well. This is correct, but
-prevents the conversion of the hotplug locking to a percpu rwsem.
+------------------
 
-Use stop_machine_cpuslocked() to avoid the nested call.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+commit 3c1a427954399fd1bda1ee7e1b356f47b61cee74 upstream.
+
+since 4.10 perf annotate exits on s390 with an "unknown error -95".
+Turns out that commit 786c1b51844d ("perf annotate: Start supporting
+cross arch annotation") added a hard requirement for architecture
+support when objdump is used but only provided x86 and arm support.
+Meanwhile power was added so lets add s390 as well.
+
+While at it make sure to implement the branch and jump types.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>
+Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
+Link: http://lkml.kernel.org/r/1491465112-45819-2-git-send-email-borntraeger@de.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kernel/time.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/annotate.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -636,7 +636,7 @@ static void stp_work_fn(struct work_stru
- 	memset(&stp_sync, 0, sizeof(stp_sync));
- 	get_online_cpus();
- 	atomic_set(&stp_sync.cpus, num_online_cpus() - 1);
--	stop_machine(stp_sync_clock, &stp_sync, cpu_online_mask);
-+	stop_machine_cpuslocked(stp_sync_clock, &stp_sync, cpu_online_mask);
- 	put_online_cpus();
+--- a/tools/perf/util/annotate.c
++++ b/tools/perf/util/annotate.c
+@@ -130,6 +130,12 @@ static struct arch architectures[] = {
+ 		.name = "powerpc",
+ 		.init = powerpc__annotate_init,
+ 	},
++	{
++		.name = "s390",
++		.objdump =  {
++			.comment_char = '#',
++		},
++	},
+ };
  
- 	if (!check_sync_clock())
+ static void ins__delete(struct ins_operands *ops)
