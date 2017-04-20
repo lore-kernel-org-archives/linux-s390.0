@@ -1,53 +1,54 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Wed, 22 Mar 2017 13:05:28 +0000
-Subject: Re: [PATCH 1/3] s390: cpacf: query instructions use unique parameters for compatibility with KMA
-Message-Id: <20170322130528.GD3808@osiris>
-In-Reply-To: <4771642a-b5fa-6010-28ca-c7242d1017ae@de.ibm.com>
-References: <4771642a-b5fa-6010-28ca-c7242d1017ae@de.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 1/1] s390/virtio: change maintainership
+Date: Thu, 20 Apr 2017 09:51:29 +0200
+Message-ID: <00940a05-e752-a6bb-8ba3-a9e50732daf6@de.ibm.com>
+References: <1488470903-16358-1-git-send-email-borntraeger@de.ibm.com>
+	<1488470903-16358-2-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1488470903-16358-2-git-send-email-borntraeger@de.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 20, 2017 at 12:45:35PM +0100, Christian Borntraeger wrote:
-> On 03/09/2017 04:55 PM, Jason J. Herne wrote:
-> > The new KMA instruction requires unique parameters. Update __cpacf_query to
-> > generate a compatible assembler instruction.
-> > 
-> > Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
-> > Acked-by: Harald Freudenberger <freude@linux.vnet.ibm.com>
+On 03/02/2017 05:08 PM, Christian Borntraeger wrote:
+> Halil is doing a lot more work in the virtio area on s390 than I
+> do. Let's reflect the reality in the maintainers file.
 > 
-> approved for devel.
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+> Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> ---
+>  MAINTAINERS | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Martin, FYI. We probably need a topic branch for this as well as soon as we have clearance.
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index ca6f5f7..52780b8 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -13203,8 +13203,8 @@ F:	include/uapi/linux/virtio_*.h
+>  F:	drivers/crypto/virtio/
 > 
+>  VIRTIO DRIVERS FOR S390
+> -M:	Christian Borntraeger <borntraeger@de.ibm.com>
+>  M:	Cornelia Huck <cornelia.huck@de.ibm.com>
+> +M:	Halil Pasic <pasic@linux.vnet.ibm.com>
+>  L:	linux-s390@vger.kernel.org
+>  L:	virtualization@lists.linux-foundation.org
+>  L:	kvm@vger.kernel.org
 > 
-> > ---
-> >  arch/s390/include/asm/cpacf.h | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-> > index 2c680db..6dd0db7 100644
-> > --- a/arch/s390/include/asm/cpacf.h
-> > +++ b/arch/s390/include/asm/cpacf.h
-> > @@ -125,8 +125,8 @@ static inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
-> > 
-> >  	asm volatile(
-> >  		"	spm 0\n" /* pckmo doesn't change the cc */
-> > -		/* Parameter registers are ignored, but may not be 0 */
-> > -		"0:	.insn	rrf,%[opc] << 16,2,2,2,0\n"
-> > +		/* Parameter regs are ignored, but must be nonzero and unique */
-> > +		"0:	.insn	rrf,%[opc] << 16,2,4,6,0\n"
-> >  		"	brc	1,0b\n"	/* handle partial completion */
 
-Why do we have this spm 0 initialization and the brc loop for partial
-completion? None of the crypto query instructions return with cc=3 for
-partial completion.
-
-> >  		: "=m" (*mask)
-
-This is also declared as write-only, still there is a memset of *mask
-before it is passed to this inline assembly.
-
-In addition the comment above this function is wrong.
-... inline assemblies ;)
-
-And yes, I know that nothing of this was introduced by Jason.
+ping?
