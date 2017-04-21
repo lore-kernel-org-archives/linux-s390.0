@@ -1,83 +1,45 @@
-Return-Path: <stable-owner@vger.kernel.org>
-Subject: Patch "perf annotate s390: Fix perf annotate error -95 (4.10 regression)" has been added to the 4.10-stable tree
-From: <gregkh@linuxfoundation.org>
-Date: Tue, 18 Apr 2017 14:48:45 +0200
-Message-ID: <1492519725111176@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/stable/>
-List-Post: <mailto:stable@vger.kernel.org>
-To: borntraeger@de.ibm.com, acme@redhat.com, brueckner@linux.vnet.ibm.com, gregkh@linuxfoundation.org, krebbel@linux.vnet.ibm.com, linux-s390@vger.kernel.org, peterz@infradead.org, schwidefsky@de.ibm.com
-Cc: stable@vger.kernel.org, stable-commits@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/4] KVM: s390: fix stale machine check data for guarded storage
+Date: Fri, 21 Apr 2017 12:09:43 +0200
+Message-ID: <1492769385-237420-3-git-send-email-borntraeger@de.ibm.com>
+References: <1492769385-237420-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1492769385-237420-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
+When delivering a machine check the CPU state is "loaded", which
+means that some registers are already in the host registers.
+Before writing the register content into the machine check
+save area, we must make sure that we save the content of the
+registers into the data structures that are used for delivering
+the machine check.
+We already do the right thing for access, vector/floating point
+registers, let's do the same for guarded storage.
 
-This is a note to let you know that I've just added the patch titled
-
-    perf annotate s390: Fix perf annotate error -95 (4.10 regression)
-
-to the 4.10-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     perf-annotate-s390-fix-perf-annotate-error-95-4.10-regression.patch
-and it can be found in the queue-4.10 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From 3c1a427954399fd1bda1ee7e1b356f47b61cee74 Mon Sep 17 00:00:00 2001
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 6 Apr 2017 09:51:51 +0200
-Subject: perf annotate s390: Fix perf annotate error -95 (4.10 regression)
-
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-
-commit 3c1a427954399fd1bda1ee7e1b356f47b61cee74 upstream.
-
-since 4.10 perf annotate exits on s390 with an "unknown error -95".
-Turns out that commit 786c1b51844d ("perf annotate: Start supporting
-cross arch annotation") added a hard requirement for architecture
-support when objdump is used but only provided x86 and arm support.
-Meanwhile power was added so lets add s390 as well.
-
-While at it make sure to implement the branch and jump types.
-
+Fixes: 4e0b1ab72b8a ("KVM: s390: gs support for kvm guests")
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
-Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-s390 <linux-s390@vger.kernel.org>
-Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
-Link: http://lkml.kernel.org/r/1491465112-45819-2-git-send-email-borntraeger@de.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- tools/perf/util/annotate.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/s390/kvm/interrupt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -130,6 +130,12 @@ static struct arch architectures[] = {
- 		.name = "powerpc",
- 		.init = powerpc__annotate_init,
- 	},
-+	{
-+		.name = "s390",
-+		.objdump =  {
-+			.comment_char = '#',
-+		},
-+	},
- };
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 482673e..caf15c8a 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -419,6 +419,8 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
+ 	/* take care of lazy register loading */
+ 	save_fpu_regs();
+ 	save_access_regs(vcpu->run->s.regs.acrs);
++	if (MACHINE_HAS_GS && vcpu->arch.gs_enabled)
++		save_gs_cb(current->thread.gs_cb);
  
- static void ins__delete(struct ins_operands *ops)
-
-
-Patches currently in stable-queue which might be from borntraeger@de.ibm.com are
-
-queue-4.10/perf-annotate-s390-fix-perf-annotate-error-95-4.10-regression.patch
+ 	/* Extended save area */
+ 	rc = read_guest_lc(vcpu, __LC_MCESAD, &ext_sa_addr,
+-- 
+2.7.4
