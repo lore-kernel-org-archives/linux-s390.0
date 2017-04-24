@@ -1,62 +1,84 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.10 20/69] perf annotate s390: Fix perf annotate error -95 (4.10 regression)
-Date: Wed, 19 Apr 2017 16:36:49 +0200
-Message-Id: <20170419141555.950398919@linuxfoundation.org>
-In-Reply-To: <20170419141555.114738231@linuxfoundation.org>
-References: <20170419141555.114738231@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andreas Krebbel <krebbel@linux.vnet.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] s390/virtio: fix compilation of kvm_virtio.c in
+ linux-next
+Date: Mon, 24 Apr 2017 19:22:03 +0300
+Message-ID: <20170424192137-mutt-send-email-mst@kernel.org>
+References: <1492776120-5186-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1492776120-5186-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-4.10-stable review patch.  If anyone has any objections, please let me know.
+On Fri, Apr 21, 2017 at 02:02:00PM +0200, Christian Borntraeger wrote:
+> Michael,
+> commit db932ced55cf ("virtio: add context flag to find vqs") of
+> linux-next causes this build failure:
+> 
+> drivers/s390/virtio/kvm_virtio.c: In function ‘kvm_find_vq’:
+> drivers/s390/virtio/kvm_virtio.c:215:18: error: passing argument 8 of
+> ‘vring_new_virtqueue’ from incompatible pointer type
+> [-Werror=incompatible-pointer-types]
+>       kvm_notify, callback, name);
+>                   ^~~~~~~~
+> In file included from drivers/s390/virtio/kvm_virtio.c:22:0:
+> ./include/linux/virtio_ring.h:93:19: note: expected ‘bool (*)(struct
+> virtqueue *) {aka _Bool (*)(struct virtqueue *)}’ but argument is of
+> type ‘void (*)(struct virtqueue *)’
+>  struct virtqueue *vring_new_virtqueue(unsigned int index,
+>                    ^~~~~~~~~~~~~~~~~~~
+> drivers/s390/virtio/kvm_virtio.c:215:28: error: passing argument 9 of
+> ‘vring_new_virtqueue’ from incompatible pointer type
+> [-Werror=incompatible-pointer-types]
+>       kvm_notify, callback, name);
+>                             ^~~~
+> In file included from drivers/s390/virtio/kvm_virtio.c:22:0:
+> ./include/linux/virtio_ring.h:93:19: note: expected ‘void (*)(struct
+> virtqueue *)’ but argument is of type ‘const char *’
+>  struct virtqueue *vring_new_virtqueue(unsigned int index,
+>                    ^~~~~~~~~~~~~~~~~~~
+> drivers/s390/virtio/kvm_virtio.c:213:7: error: too few arguments to
+> function ‘vring_new_virtqueue’
+>   vq = vring_new_virtqueue(index, config->num,
+> KVM_S390_VIRTIO_RING_ALIGN,
+>        ^~~~~~~~~~~~~~~~~~~
+> In file included from drivers/s390/virtio/kvm_virtio.c:22:0:
+> ./include/linux/virtio_ring.h:93:19: note: declared here
+>  struct virtqueue *vring_new_virtqueue(unsigned int index,
+>                    ^~~~~~~~~~~~~~~~~~~
+> cc1: some warnings being treated as errors
+> 
+> Looks like the new ctx was not added here.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-------------------
+I squashed this into my commit to avoid bisect issues.
+Thanks!
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-commit 3c1a427954399fd1bda1ee7e1b356f47b61cee74 upstream.
-
-since 4.10 perf annotate exits on s390 with an "unknown error -95".
-Turns out that commit 786c1b51844d ("perf annotate: Start supporting
-cross arch annotation") added a hard requirement for architecture
-support when objdump is used but only provided x86 and arm support.
-Meanwhile power was added so lets add s390 as well.
-
-While at it make sure to implement the branch and jump types.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
-Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-s390 <linux-s390@vger.kernel.org>
-Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
-Link: http://lkml.kernel.org/r/1491465112-45819-2-git-send-email-borntraeger@de.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- tools/perf/util/annotate.c |    6 ++++++
- 1 file changed, 6 insertions(+)
-
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -130,6 +130,12 @@ static struct arch architectures[] = {
- 		.name = "powerpc",
- 		.init = powerpc__annotate_init,
- 	},
-+	{
-+		.name = "s390",
-+		.objdump =  {
-+			.comment_char = '#',
-+		},
-+	},
- };
- 
- static void ins__delete(struct ins_operands *ops)
+> ---
+>  drivers/s390/virtio/kvm_virtio.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
+> index 81b33aa..a99d09a 100644
+> --- a/drivers/s390/virtio/kvm_virtio.c
+> +++ b/drivers/s390/virtio/kvm_virtio.c
+> @@ -211,7 +211,7 @@ static struct virtqueue *kvm_find_vq(struct virtio_device *vdev,
+>  		goto out;
+>  
+>  	vq = vring_new_virtqueue(index, config->num, KVM_S390_VIRTIO_RING_ALIGN,
+> -				 vdev, true, (void *) config->address,
+> +				 vdev, true, ctx, (void *) config->address,
+>  				 kvm_notify, callback, name);
+>  	if (!vq) {
+>  		err = -ENOMEM;
+> -- 
+> 2.7.4
