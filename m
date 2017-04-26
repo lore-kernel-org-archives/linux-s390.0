@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/3] s390/cpacf: query instructions use unique parameters for compatibility with KMA
-Date: Wed, 26 Apr 2017 14:38:13 +0200
-Message-ID: <1493210295-58687-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/3] s390/cpacf: Introduce kma instruction
+Date: Wed, 26 Apr 2017 14:38:14 +0200
+Message-ID: <1493210295-58687-3-git-send-email-borntraeger@de.ibm.com>
 References: <1493210295-58687-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1493210295-58687-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,30 +14,26 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
 
-The new KMA instruction requires unique parameters. Update __cpacf_query to
-generate a compatible assembler instruction.
+Provide a kma instruction definition for use by callers of __cpacf_query.
 
 Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
-Acked-by: Harald Freudenberger <freude@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/cpacf.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/cpacf.h | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-index e2dfbf2..175a5d7 100644
+index 175a5d7..31cac7d 100644
 --- a/arch/s390/include/asm/cpacf.h
 +++ b/arch/s390/include/asm/cpacf.h
-@@ -149,8 +149,8 @@ static inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
+@@ -26,6 +26,7 @@
+ #define CPACF_PCC		0xb92c		/* MSA4 */
+ #define CPACF_KMCTR		0xb92d		/* MSA4 */
+ #define CPACF_PPNO		0xb93c		/* MSA5 */
++#define CPACF_KMA		0xb929		/* MSA8 */
  
- 	asm volatile(
- 		"	spm 0\n" /* pckmo doesn't change the cc */
--		/* Parameter registers are ignored, but may not be 0 */
--		"0:	.insn	rrf,%[opc] << 16,2,2,2,0\n"
-+		/* Parameter regs are ignored, but must be nonzero and unique */
-+		"0:	.insn	rrf,%[opc] << 16,2,4,6,0\n"
- 		"	brc	1,0b\n"	/* handle partial completion */
- 		: "=m" (*mask)
- 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (opcode)
+ /*
+  * En/decryption modifier bits
 -- 
 2.7.4
