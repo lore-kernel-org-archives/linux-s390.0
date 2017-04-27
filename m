@@ -1,79 +1,93 @@
-From: Thomas Garnier <thgarnie@google.com>
-Date: Wed, 26 Apr 2017 11:34:25 -0700
-Message-Id: <20170426183425.32158-4-thgarnie@google.com>
-In-Reply-To: <20170426183425.32158-1-thgarnie@google.com>
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date: Thu, 27 Apr 2017 08:49:17 +0200
+From: Ingo Molnar <mingo@kernel.org>
+Message-ID: <20170427064917.phwo6yl4v4q43fql@gmail.com>
 References: <20170426183425.32158-1-thgarnie@google.com>
-Subject: [kernel-hardening] [PATCH v8 4/4] arm64/syscalls: Optimize address limit check
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170426183425.32158-1-thgarnie@google.com>
+Subject: [kernel-hardening] Re: [PATCH v8 1/4] syscalls: Verify address limit before returning
+ to user-mode
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, =?UTF-8?q?Ren=C3=A9=20Nyffenegger?= <mail@renenyffenegger.ch>, Thomas Garnier <thgarnie@google.com>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, "Eric W . Biederman" <ebiederm@xmission.com>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Kees Cook <keescook@chromium.org>, Rik van Riel <riel@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, x86@kernel.org, linux-arm-kernel@lists.infradead.org, kernel-hardening@lists.openwall.com
+To: Thomas Garnier <thgarnie@google.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, =?iso-8859-1?Q?Ren=E9?= Nyffenegger <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, "Eric W . Biederman" <ebiederm@xmission.com>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Kees Cook <keescook@chromium.org>, Rik van Riel <riel@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, x86@kernel.org, linux-arm-kernel@lists.infradead.org, kernel-hardening@lists.openwall.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Disable the generic address limit check in favor of an architecture
-specific optimized implementation.
 
-The address limit is checked on each syscall return path to user-mode.
-If it was changed, a generic handler is called to stop the kernel on an
-explicit check.
+* Thomas Garnier <thgarnie@google.com> wrote:
 
-Signed-off-by: Thomas Garnier <thgarnie@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
----
-Based on next-20170426
----
- arch/arm64/Kconfig        |  1 +
- arch/arm64/kernel/entry.S | 12 ++++++++++++
- 2 files changed, 13 insertions(+)
+> +
+> +/*
+> + * Called before coming back to user-mode. Returning to user-mode with an
+> + * address limit different than USER_DS can allow to overwrite kernel memory.
+> + */
+> +static inline void addr_limit_check_syscall(void)
+> +{
+> +	BUG_ON(!segment_eq(get_fs(), USER_DS));
+> +}
+> +
+> +#ifndef CONFIG_ADDR_LIMIT_CHECK
+> +#define __CHECK_USERMODE_SYSCALL() \
+> +	bool user_caller = segment_eq(get_fs(), USER_DS)
+> +#define __VERIFY_ADDR_LIMIT() \
+> +	if (user_caller) addr_limit_check_syscall()
+> +#else
+> +#define __CHECK_USERMODE_SYSCALL()
+> +#define __VERIFY_ADDR_LIMIT()
+> +asmlinkage void addr_limit_check_failed(void) __noreturn;
+> +#endif
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 3dcd7ec69bca..fe9466d3bf94 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -25,6 +25,7 @@ config ARM64
- 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION
- 	select ARCH_WANT_FRAME_POINTERS
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
-+	select ADDR_LIMIT_CHECK
- 	select ARM_AMBA
- 	select ARM_ARCH_TIMER
- 	select ARM_GIC
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 43512d4d7df2..c895c4402d32 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -744,6 +744,8 @@ ENDPROC(cpu_switch_to)
- ret_fast_syscall:
- 	disable_irq				// disable interrupts
- 	str	x0, [sp, #S_X0]			// returned x0
-+	ldr	x2, [tsk, #TSK_TI_ADDR_LIMIT]	// check addr limit change
-+	tbnz	x2, #63, addr_limit_fail
- 	ldr	x1, [tsk, #TSK_TI_FLAGS]	// re-check for syscall tracing
- 	and	x2, x1, #_TIF_SYSCALL_WORK
- 	cbnz	x2, ret_fast_syscall_trace
-@@ -771,6 +773,8 @@ work_pending:
-  */
- ret_to_user:
- 	disable_irq				// disable interrupts
-+	ldr	x2, [tsk, #TSK_TI_ADDR_LIMIT]	// check addr limit change
-+	tbnz	x2, #63, addr_limit_fail
- 	ldr	x1, [tsk, #TSK_TI_FLAGS]
- 	and	x2, x1, #_TIF_WORK_MASK
- 	cbnz	x2, work_pending
-@@ -780,6 +784,14 @@ finish_ret_to_user:
- ENDPROC(ret_to_user)
- 
- /*
-+ * Address limit was incorrect before returning in user-mode which could be
-+ * used to elevate privileges. Call the generic handler to stop the kernel on
-+ * the appropriate check. This function does not return.
-+ */
-+addr_limit_fail:
-+	b	addr_limit_check_failed
-+
-+/*
-  * This is how we return from a fork.
-  */
- ENTRY(ret_from_fork)
--- 
-2.13.0.rc0.306.g87b477812d-goog
+_Please_ harmonize all the externally exposed names and symbols.
+
+There's no reason for this mismash of names:
+
+	CONFIG_ADDR_LIMIT_CHECK
+
+	__CHECK_USERMODE_SYSCALL
+	__VERIFY_ADDR_LIMIT
+
+When we could just as easily name them consistently, along the existing pattern:
+
+	CONFIG_ADDR_LIMIT_CHECK
+
+	__SYSCALL_ADDR_LIMIT_CHECK
+	__ADDR_LIMIT_CHECK
+
+which should fit into existing nomenclature:
+
+>  #define __SYSCALL_DEFINEx(x, name, ...)					\
+
+But even with that fixed, the whole construct still looks pretty weird:
+
+>  	{								\
+> -		long ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));	\
+> +		long ret;						\
+> +		__CHECK_USERMODE_SYSCALL();				\
+> +		ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));	\
+> +		__ADDR_LIMIT_CHECK();					\
+>  		__MAP(x,__SC_TEST,__VA_ARGS__);				\
+>  		__PROTECT(x, ret,__MAP(x,__SC_ARGS,__VA_ARGS__));	\
+>  		return ret;						\
+
+I think something like this would be more natural to read:
+
+> +		ADDR_LIMIT_CHECK_PRE();					\
+> +		ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));	\
+> +		ADDR_LIMIT_CHECK_POST();				\
+
+it's a clear pre/post construct. Also note the lack of double underscores.
+
+BTW., a further simplification would be:
+
+#ifndef ADDR_LIMIT_CHECK_PRE
+# define ADDR_LIMIT_CHECK_PRE ...
+#endif
+
+This way architectures could override this generic functionality simply by 
+defining the helpers. Architectures that don't do that get the generic version. 
+
+Thanks,
+
+	Ingo
