@@ -1,249 +1,197 @@
 From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v6 06/13] s390x/css: device support for
- s390-ccw passthrough
-Date: Mon, 1 May 2017 13:24:47 +0200
-Message-ID: <106564bb-baaa-f04b-b8c6-d17781d576e7@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v6 10/13] s390x/css: introduce and realize
+ ccw-request callback
+Date: Mon, 1 May 2017 19:28:23 +0200
+Message-ID: <6a3e0621-9e16-ddd4-c1d9-2a7351ebb9e6@redhat.com>
 References: <20170428130951.44771-1-bjsdjshi@linux.vnet.ibm.com>
- <20170428130951.44771-7-bjsdjshi@linux.vnet.ibm.com>
- <a0ff3179-8161-47dc-5a28-74ddf6e2271a@redhat.com>
+ <20170428130951.44771-11-bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <a0ff3179-8161-47dc-5a28-74ddf6e2271a@redhat.com>
+In-Reply-To: <20170428130951.44771-11-bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>, cornelia.huck@de.ibm.com, agraf@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
 Hi Dong,
 
-On 01/05/2017 13:20, Auger Eric wrote:
-> Hi Dong,
+On 28/04/2017 15:09, Dong Jia Shi wrote:
+> From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
 > 
-> On 28/04/2017 15:09, Dong Jia Shi wrote:
->> In order to support subchannels pass-through, we introduce a s390
->> subchannel device called "s390-ccw" to hold the real subchannel info.
->> The s390-ccw devices inherit from the abstract CcwDevice which connect
->> to the existing virtual-css-bus.
+> Introduce a new callback on subchannel to handle ccw-request.
+> Realize the callback in vfio-ccw device. Besides, resort to
+> the event notifier handler to handling the ccw-request results.
+> 1. Pread the I/O results via MMIO region.
+> 2. Update the scsw info to guest.
+> 3. Inject an I/O interrupt to notify guest the I/O result.
+> 
+> Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> ---
+>  hw/s390x/css.c         |  4 +--
+>  hw/s390x/s390-ccw.h    |  1 +
+>  hw/vfio/ccw.c          | 73 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  include/hw/s390x/css.h |  2 ++
+>  4 files changed, 78 insertions(+), 2 deletions(-)
+> 
+> diff --git a/hw/s390x/css.c b/hw/s390x/css.c
+> index 1052eea..507c60f 100644
+> --- a/hw/s390x/css.c
+> +++ b/hw/s390x/css.c
+> @@ -259,7 +259,7 @@ uint16_t css_build_subchannel_id(SubchDev *sch)
+>      return css_do_build_subchannel_id(sch->cssid, sch->ssid);
+>  }
+>  
+> -static void css_inject_io_interrupt(SubchDev *sch)
+> +void css_inject_io_interrupt(SubchDev *sch)
+>  {
+>      uint8_t isc = (sch->curr_status.pmcw.flags & PMCW_FLAGS_MASK_ISC) >> 11;
+>  
+> @@ -668,7 +668,7 @@ static void copy_pmcw_to_guest(PMCW *dest, const PMCW *src)
+>      dest->chars = cpu_to_be32(src->chars);
+>  }
+>  
+> -static void copy_scsw_to_guest(SCSW *dest, const SCSW *src)
+> +void copy_scsw_to_guest(SCSW *dest, const SCSW *src)
+>  {
+>      dest->flags = cpu_to_be16(src->flags);
+>      dest->ctrl = cpu_to_be16(src->ctrl);
+> diff --git a/hw/s390x/s390-ccw.h b/hw/s390x/s390-ccw.h
+> index b58d8e9..4e2fa65 100644
+> --- a/hw/s390x/s390-ccw.h
+> +++ b/hw/s390x/s390-ccw.h
+> @@ -27,6 +27,7 @@ typedef struct S390CCWDevice {
+>      CcwDevice parent_obj;
+>      CssDevId hostid;
+>      char *mdevid;
+> +    int (*handle_request) (ORB *, SCSW *, void *);
+shouldn't this callback be part of the class instead?
 
-Forget that one. Thought my first reply has not been sent.
+>  } S390CCWDevice;
+>  
+>  typedef struct S390CCWDeviceClass {
+> diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
+> index cda3057..3ff78c5 100644
+> --- a/hw/vfio/ccw.c
+> +++ b/hw/vfio/ccw.c
+> @@ -47,6 +47,36 @@ struct VFIODeviceOps vfio_ccw_ops = {
+>      .vfio_compute_needs_reset = vfio_ccw_compute_needs_reset,
+>  };
+>  
+> +static int vfio_ccw_handle_request(ORB *orb, SCSW *scsw, void *data)
+> +{
+> +    S390CCWDevice *cdev = data;
+> +    VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
+> +    struct ccw_io_region *region = vcdev->io_region;
+> +    int ret;
+> +
+> +    QEMU_BUILD_BUG_ON(sizeof(region->orb_area) != sizeof(ORB));
+> +    QEMU_BUILD_BUG_ON(sizeof(region->scsw_area) != sizeof(SCSW));
+> +    QEMU_BUILD_BUG_ON(sizeof(region->irb_area) != sizeof(IRB));
+> +
+> +    memset(region, 0, sizeof(*region));
+> +
+> +    memcpy(region->orb_area, orb, sizeof(ORB));
+> +    memcpy(region->scsw_area, scsw, sizeof(SCSW));
+> +
+> +again:
+> +    ret = pwrite(vcdev->vdev.fd, region,
+> +                 vcdev->io_region_size, vcdev->io_region_offset);
+> +    if (ret != vcdev->io_region_size) {
+> +        if (errno == EAGAIN) {
+> +            goto again;
+> +        }
+> +        error_report("vfio-ccw: wirte I/O region failed with errno=%d", errno);
+> +        return -errno;
+> +    }
+> +
+> +    return region->ret_code;
+> +}
+> +
+>  static void vfio_ccw_reset(DeviceState *dev)
+>  {
+>      CcwDevice *ccw_dev = DO_UPCAST(CcwDevice, parent_obj, dev);
+> @@ -59,10 +89,52 @@ static void vfio_ccw_reset(DeviceState *dev)
+>  static void vfio_ccw_io_notifier_handler(void *opaque)
+>  {
+>      VFIOCCWDevice *vcdev = opaque;
+> +    struct ccw_io_region *region = vcdev->io_region;
+> +    S390CCWDevice *cdev = S390_CCW_DEVICE(vcdev);
+> +    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
+> +    SubchDev *sch = ccw_dev->sch;
+> +    SCSW *s = &sch->curr_status.scsw;
+> +    IRB irb;
+>  
+>      if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
+>          return;
+>      }
+> +
+> +    if (pread(vcdev->vdev.fd, region,
+> +              vcdev->io_region_size, vcdev->io_region_offset) == -1) {
+is it possible to read less bytes than requested?
 
 Thanks
 
 Eric
->>
->> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
->> ---
->>  hw/s390x/Makefile.objs |   1 +
->>  hw/s390x/s390-ccw.c    | 135 +++++++++++++++++++++++++++++++++++++++++++++++++
->>  hw/s390x/s390-ccw.h    |  38 ++++++++++++++
->>  3 files changed, 174 insertions(+)
->>  create mode 100644 hw/s390x/s390-ccw.c
->>  create mode 100644 hw/s390x/s390-ccw.h
->>
->> diff --git a/hw/s390x/Makefile.objs b/hw/s390x/Makefile.objs
->> index 41ac4ec..72a3d37 100644
->> --- a/hw/s390x/Makefile.objs
->> +++ b/hw/s390x/Makefile.objs
->> @@ -13,3 +13,4 @@ obj-y += ccw-device.o
->>  obj-y += s390-pci-bus.o s390-pci-inst.o
->>  obj-y += s390-skeys.o
->>  obj-$(CONFIG_KVM) += s390-skeys-kvm.o
->> +obj-y += s390-ccw.o
->> diff --git a/hw/s390x/s390-ccw.c b/hw/s390x/s390-ccw.c
->> new file mode 100644
->> index 0000000..8b4b9cf
->> --- /dev/null
->> +++ b/hw/s390x/s390-ccw.c
->> @@ -0,0 +1,135 @@
->> +/*
->> + * s390 CCW Assignment Support
->> + *
->> + * Copyright 2017 IBM Corp
->> + * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
->> + *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
->> + *            Pierre Morel <pmorel@linux.vnet.ibm.com>
->> + *
->> + * This work is licensed under the terms of the GNU GPL, version 2
->> + * or (at your option) any later version. See the COPYING file in the
->> + * top-level directory.
->> + */
->> +#include "qemu/osdep.h"
->> +#include "qapi/error.h"
->> +#include "hw/sysbus.h"
->> +#include "libgen.h"
->> +#include "hw/s390x/css.h"
->> +#include "hw/s390x/css-bridge.h"
->> +#include "s390-ccw.h"
->> +
->> +static void s390_ccw_get_dev_info(S390CCWDevice *cdev,
->> +                                  char *sysfsdev,
->> +                                  Error **errp)
->> +{
->> +    unsigned int cssid, ssid, devid;
->> +    char dev_path[PATH_MAX] = {0}, *tmp;
->> +
->> +    if (!sysfsdev) {
->> +        error_setg(errp, "No host device provided");
->> +        error_append_hint(errp,
->> +                          "Use -device vfio-ccw,sysfsdev=PATH_TO_DEVICE\n");
->> +        return;
->> +    }
->> +
->> +    if (!realpath(sysfsdev, dev_path)) {
->> +        error_setg(errp, "Host device '%s' not found", sysfsdev);
->> +        return;
->> +    }
->> +
->> +    cdev->mdevid = g_strdup(basename(dev_path));
->> +
->> +    tmp = basename(dirname(dev_path));
->> +    sscanf(tmp, "%2x.%1x.%4x", &cssid, &ssid, &devid);
-> I guess you don't need to check sscanf succeeded?
->> +
->> +    cdev->hostid.cssid = cssid;
->> +    cdev->hostid.ssid = ssid;
->> +    cdev->hostid.devid = devid;
->> +    cdev->hostid.valid = true;
->> +}
->> +
->> +static void s390_ccw_realize(S390CCWDevice *cdev, char *sysfsdev, Error **errp)
->> +{
->> +    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
->> +    CCWDeviceClass *ck = CCW_DEVICE_GET_CLASS(ccw_dev);
->> +    DeviceState *parent = DEVICE(ccw_dev);
->> +    BusState *qbus = qdev_get_parent_bus(parent);
->> +    VirtualCssBus *cbus = VIRTUAL_CSS_BUS(qbus);
->> +    SubchDev *sch;
->> +    int ret;
->> +    Error *err = NULL;
->> +
->> +    s390_ccw_get_dev_info(cdev, sysfsdev, errp);
->> +    if (*errp) {
-> In the past, I was told by Markus that derefencing errp was not clean in
-> general since caller could pass NULL to ignore errors (although qdev
-> core doesn't). You may use a local error instead.
->> +        return;
->> +    }
->> +
->> +    sch = css_create_sch(ccw_dev->devno, false, cbus->squash_mcss, errp);
->> +    if (!sch) {
->> +        return;
->> +    }
->> +    sch->driver_data = cdev;
->> +
->> +    ccw_dev->sch = sch;
->> +    ret = css_sch_build_schib(sch, &cdev->hostid);
->> +    if (ret) {
->> +        error_setg(&err, "%s: Failed to build initial schib: %d",
->> +                   __func__, ret);
->> +        goto out_err;
->> +    }
->> +
->> +    ck->realize(ccw_dev, &err);
->> +    if (err) {
->> +        goto out_err;
->> +    }
->> +
->> +    css_generate_sch_crws(sch->cssid, sch->ssid, sch->schid,
->> +                          parent->hotplugged, 1);
->> +    return;
->> +
->> +out_err:
->> +    error_propagate(errp, err);
->> +    css_subch_assign(sch->cssid, sch->ssid, sch->schid, sch->devno, NULL);
->> +    ccw_dev->sch = NULL;
->> +    g_free(sch);
-> don't you want to free cdev->mdevid too?
+> +        switch (errno) {
+> +        case ENODEV:
+> +            /* Generate a deferred cc 3 condition. */
+> +            s->flags |= SCSW_FLAGS_MASK_CC;
+> +            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
+> +            s->ctrl |= (SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND);
+> +            goto read_err;
+> +        case EFAULT:
+> +            /* memory problem, generate channel data check */
+> +            s->ctrl &= ~SCSW_ACTL_START_PEND;
+> +            s->cstat = SCSW_CSTAT_DATA_CHECK;
+> +            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
+> +            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
+> +                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
+> +            goto read_err;
+> +        default:
+> +            /* error, generate channel program check */
+> +            s->ctrl &= ~SCSW_ACTL_START_PEND;
+> +            s->cstat = SCSW_CSTAT_PROG_CHECK;
+> +            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
+> +            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
+> +                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
+> +            goto read_err;
+> +        }
+> +    }
+> +
+> +    memcpy(&irb, region->irb_area, sizeof(IRB));
+> +
+> +    /* Update control block via irb. */
+> +    copy_scsw_to_guest(s, &irb.scsw);
+> +
+> +read_err:
+> +    css_inject_io_interrupt(sch);
+>  }
+>  
+>  static void vfio_ccw_register_io_notifier(VFIOCCWDevice *vcdev, Error **errp)
+> @@ -235,6 +307,7 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
+>      VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
+>      S390CCWDeviceClass *cdc = S390_CCW_DEVICE_GET_CLASS(cdev);
+>  
+> +    cdev->handle_request = vfio_ccw_handle_request;
+>      /* Call the class init function for subchannel. */
+>      if (cdc->realize) {
+>          cdc->realize(cdev, vcdev->vdev.sysfsdev, errp);
+> diff --git a/include/hw/s390x/css.h b/include/hw/s390x/css.h
+> index a8bf1db..c8c283a 100644
+> --- a/include/hw/s390x/css.h
+> +++ b/include/hw/s390x/css.h
+> @@ -135,6 +135,8 @@ void css_subch_assign(uint8_t cssid, uint8_t ssid, uint16_t schid,
+>  void css_sch_build_virtual_schib(SubchDev *sch, uint8_t chpid, uint8_t type);
+>  int css_sch_build_schib(SubchDev *sch, CssDevId *dev_id);
+>  uint16_t css_build_subchannel_id(SubchDev *sch);
+> +void copy_scsw_to_guest(SCSW *dest, const SCSW *src);
+> +void css_inject_io_interrupt(SubchDev *sch);
+>  void css_reset(void);
+>  void css_reset_sch(SubchDev *sch);
+>  void css_queue_crw(uint8_t rsc, uint8_t erc, int chain, uint16_t rsid);
 > 
-> Thanks
-> 
-> Eric
->> +}
->> +
->> +static void s390_ccw_unrealize(S390CCWDevice *cdev, Error **errp)
->> +{
->> +    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
->> +    SubchDev *sch = ccw_dev->sch;
->> +
->> +    if (sch) {
->> +        css_subch_assign(sch->cssid, sch->ssid, sch->schid, sch->devno, NULL);
->> +        g_free(sch);
->> +        ccw_dev->sch = NULL;
->> +    }
->> +
->> +    g_free(cdev->mdevid);
->> +}
->> +
->> +static void s390_ccw_class_init(ObjectClass *klass, void *data)
->> +{
->> +    DeviceClass *dc = DEVICE_CLASS(klass);
->> +    S390CCWDeviceClass *cdc = S390_CCW_DEVICE_CLASS(klass);
->> +
->> +    dc->bus_type = TYPE_VIRTUAL_CSS_BUS;
->> +    cdc->realize = s390_ccw_realize;
->> +    cdc->unrealize = s390_ccw_unrealize;
->> +}
->> +
->> +static const TypeInfo s390_ccw_info = {
->> +    .name          = TYPE_S390_CCW,
->> +    .parent        = TYPE_CCW_DEVICE,
->> +    .instance_size = sizeof(S390CCWDevice),
->> +    .class_size    = sizeof(S390CCWDeviceClass),
->> +    .class_init    = s390_ccw_class_init,
->> +    .abstract      = true,
->> +};
->> +
->> +static void register_s390_ccw_type(void)
->> +{
->> +    type_register_static(&s390_ccw_info);
->> +}
->> +
->> +type_init(register_s390_ccw_type)
->> diff --git a/hw/s390x/s390-ccw.h b/hw/s390x/s390-ccw.h
->> new file mode 100644
->> index 0000000..b58d8e9
->> --- /dev/null
->> +++ b/hw/s390x/s390-ccw.h
->> @@ -0,0 +1,38 @@
->> +/*
->> + * s390 CCW Assignment Support
->> + *
->> + * Copyright 2017 IBM Corp.
->> + * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
->> + *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
->> + *
->> + * This work is licensed under the terms of the GNU GPL, version 2 or (at
->> + * your option) any later version. See the COPYING file in the top-level
->> + * directory.
->> + */
->> +
->> +#ifndef HW_S390_CCW_H
->> +#define HW_S390_CCW_H
->> +
->> +#include "hw/s390x/ccw-device.h"
->> +
->> +#define TYPE_S390_CCW "s390-ccw"
->> +#define S390_CCW_DEVICE(obj) \
->> +    OBJECT_CHECK(S390CCWDevice, (obj), TYPE_S390_CCW)
->> +#define S390_CCW_DEVICE_CLASS(klass) \
->> +    OBJECT_CLASS_CHECK(S390CCWDeviceClass, (klass), TYPE_S390_CCW)
->> +#define S390_CCW_DEVICE_GET_CLASS(obj) \
->> +    OBJECT_GET_CLASS(S390CCWDeviceClass, (obj), TYPE_S390_CCW)
->> +
->> +typedef struct S390CCWDevice {
->> +    CcwDevice parent_obj;
->> +    CssDevId hostid;
->> +    char *mdevid;
->> +} S390CCWDevice;
->> +
->> +typedef struct S390CCWDeviceClass {
->> +    CCWDeviceClass parent_class;
->> +    void (*realize)(S390CCWDevice *dev, char *sysfsdev, Error **errp);
->> +    void (*unrealize)(S390CCWDevice *dev, Error **errp);
->> +} S390CCWDeviceClass;
->> +
->> +#endif
->>
