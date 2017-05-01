@@ -1,44 +1,130 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/3] s390: virtio: Improve a size determination in
- virtio_ccw_setup_vq()
-Date: Tue, 16 May 2017 17:52:46 +0200
-Message-ID: <20b190c9-6ca9-4536-645a-10f7753fb53e@users.sourceforge.net>
-References: <d02fd34c-da59-0c33-d859-e49ecb4eb1c5@users.sourceforge.net>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v6 08/13] vfio/ccw: get io region info
+Date: Mon, 1 May 2017 13:08:24 +0200
+Message-ID: <0bf0a0d4-9756-cef6-a220-1c6288c08b10@redhat.com>
+References: <20170428130951.44771-1-bjsdjshi@linux.vnet.ibm.com>
+ <20170428130951.44771-9-bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d02fd34c-da59-0c33-d859-e49ecb4eb1c5@users.sourceforge.net>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20170428130951.44771-9-bjsdjshi@linux.vnet.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, Cornelia Huck <cornelia.huck@de.ibm.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
+Cc: cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, alex.williamson@redhat.com, agraf@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 16 May 2017 17:05:01 +0200
+Hi,
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
+On 28/04/2017 15:09, Dong Jia Shi wrote:
+> vfio-ccw provides an MMIO region for I/O operations. We fetch its
+> information via ioctls here, then we can use it performing I/O
+> instructions and retrieving I/O results later on.
+> 
+> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> ---
+>  hw/vfio/ccw.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 52 insertions(+)
+> 
+> diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
+> index cd4dfe8..a285b23 100644
+> --- a/hw/vfio/ccw.c
+> +++ b/hw/vfio/ccw.c
+> @@ -12,6 +12,7 @@
+>   */
+>  
+>  #include <linux/vfio.h>
+> +#include <linux/vfio_ccw.h>
+>  #include <sys/ioctl.h>
+>  
+>  #include "qemu/osdep.h"
+> @@ -26,6 +27,9 @@
+>  typedef struct VFIOCCWDevice {
+>      S390CCWDevice cdev;
+>      VFIODevice vdev;
+> +    uint64_t io_region_size;
+> +    uint64_t io_region_offset;
+> +    struct ccw_io_region *io_region;
+>  } VFIOCCWDevice;
+>  
+>  static void vfio_ccw_compute_needs_reset(VFIODevice *vdev)
+> @@ -50,6 +54,46 @@ static void vfio_ccw_reset(DeviceState *dev)
+>      ioctl(vcdev->vdev.fd, VFIO_DEVICE_RESET);
+>  }
+>  
+> +static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
+> +{
+> +    VFIODevice *vdev = &vcdev->vdev;
+> +    struct vfio_region_info *info;
+> +    int ret;
+> +
+> +    /* Sanity check device */
+> +    if (!(vdev->flags & VFIO_DEVICE_FLAGS_CCW)) {
+> +        error_setg(errp, "vfio: Um, this isn't a vfio-ccw device");
+> +        return;
+> +    }
+> +
+> +    if (vdev->num_regions < VFIO_CCW_CONFIG_REGION_INDEX + 1) {
+> +        error_setg(errp, "vfio: Unexpected number of the I/O region %u",
+> +                   vdev->num_regions);
+> +        return;
+> +    }
+> +
+> +    ret = vfio_get_region_info(vdev, VFIO_CCW_CONFIG_REGION_INDEX, &info);
+> +    if (ret) {
+> +        error_setg(errp, "vfio: Error getting config info: %d", ret);
+> +        return;
+> +    }
+> +
+> +    vcdev->io_region_size = info->size;
+> +    if (sizeof(*vcdev->io_region) != vcdev->io_region_size) {
+> +        error_setg(errp, "vfio: Unexpected size of the I/O region");
+g_free(info)
+> +        return;
+> +    }
+> +    vcdev->io_region_offset = info->offset;
+> +    vcdev->io_region = g_malloc0(info->size);
+> +
+> +    g_free(info);
+> +}
+> +
+> +static void vfio_ccw_put_region(VFIOCCWDevice *vcdev)
+> +{
+> +    g_free(vcdev->io_region);
+> +}
+> +
+>  static void vfio_put_device(VFIOCCWDevice *vcdev)
+>  {
+>      g_free(vcdev->vdev.name);
+> @@ -126,8 +170,15 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
+>          goto out_device_err;
+>      }
+>  
+> +    vfio_ccw_get_region(vcdev, errp);
+> +    if (*errp) {
+local err?
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/s390/virtio/virtio_ccw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 447fe718c0ab..bfb845d7faa7 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -495,5 +495,5 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 	unsigned long flags;
- 
- 	/* Allocate queue. */
--	info = kzalloc(sizeof(struct virtio_ccw_vq_info), GFP_KERNEL);
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
- 	if (!info) {
--- 
-2.13.0
+Eric
+> +        goto out_region_err;
+> +    }
+> +
+>      return;
+>  
+> +out_region_err:
+> +    vfio_put_device(vcdev);
+>  out_device_err:
+>      vfio_ccw_put_group(group);
+>  out_group_err:
+> @@ -144,6 +195,7 @@ static void vfio_ccw_unrealize(DeviceState *dev, Error **errp)
+>      S390CCWDeviceClass *cdc = S390_CCW_DEVICE_GET_CLASS(cdev);
+>      VFIOGroup *group = vcdev->vdev.group;
+>  
+> +    vfio_ccw_put_region(vcdev);
+>      vfio_put_device(vcdev);
+>      vfio_put_group(group);
+>  
+> 
