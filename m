@@ -1,197 +1,153 @@
 From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v6 10/13] s390x/css: introduce and realize
- ccw-request callback
-Date: Mon, 1 May 2017 19:28:23 +0200
-Message-ID: <6a3e0621-9e16-ddd4-c1d9-2a7351ebb9e6@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v6 07/13] vfio/ccw: vfio based subchannel
+ passthrough driver
+Date: Tue, 2 May 2017 08:48:38 +0200
+Message-ID: <56f3a0e3-386e-ede0-e628-e6448182a333@redhat.com>
 References: <20170428130951.44771-1-bjsdjshi@linux.vnet.ibm.com>
- <20170428130951.44771-11-bjsdjshi@linux.vnet.ibm.com>
+ <20170428130951.44771-8-bjsdjshi@linux.vnet.ibm.com>
+ <3958d3c4-2381-dc97-47cf-9a72593cd83c@redhat.com>
+ <20170502050753.GC27968@bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170428130951.44771-11-bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20170502050753.GC27968@bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>, cornelia.huck@de.ibm.com, agraf@suse.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, borntraeger@de.ibm.com, alex.williamson@redhat.com, Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>, cornelia.huck@de.ibm.com, agraf@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
 Hi Dong,
 
-On 28/04/2017 15:09, Dong Jia Shi wrote:
-> From: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+On 02/05/2017 07:07, Dong Jia Shi wrote:
+> * Auger Eric <eric.auger@redhat.com> [2017-05-01 13:08:05 +0200]:
 > 
-> Introduce a new callback on subchannel to handle ccw-request.
-> Realize the callback in vfio-ccw device. Besides, resort to
-> the event notifier handler to handling the ccw-request results.
-> 1. Pread the I/O results via MMIO region.
-> 2. Update the scsw info to guest.
-> 3. Inject an I/O interrupt to notify guest the I/O result.
+> Hi Eric,
 > 
-> Signed-off-by: Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> ---
->  hw/s390x/css.c         |  4 +--
->  hw/s390x/s390-ccw.h    |  1 +
->  hw/vfio/ccw.c          | 73 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  include/hw/s390x/css.h |  2 ++
->  4 files changed, 78 insertions(+), 2 deletions(-)
+> [...]
 > 
-> diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-> index 1052eea..507c60f 100644
-> --- a/hw/s390x/css.c
-> +++ b/hw/s390x/css.c
-> @@ -259,7 +259,7 @@ uint16_t css_build_subchannel_id(SubchDev *sch)
->      return css_do_build_subchannel_id(sch->cssid, sch->ssid);
->  }
->  
-> -static void css_inject_io_interrupt(SubchDev *sch)
-> +void css_inject_io_interrupt(SubchDev *sch)
->  {
->      uint8_t isc = (sch->curr_status.pmcw.flags & PMCW_FLAGS_MASK_ISC) >> 11;
->  
-> @@ -668,7 +668,7 @@ static void copy_pmcw_to_guest(PMCW *dest, const PMCW *src)
->      dest->chars = cpu_to_be32(src->chars);
->  }
->  
-> -static void copy_scsw_to_guest(SCSW *dest, const SCSW *src)
-> +void copy_scsw_to_guest(SCSW *dest, const SCSW *src)
->  {
->      dest->flags = cpu_to_be16(src->flags);
->      dest->ctrl = cpu_to_be16(src->ctrl);
-> diff --git a/hw/s390x/s390-ccw.h b/hw/s390x/s390-ccw.h
-> index b58d8e9..4e2fa65 100644
-> --- a/hw/s390x/s390-ccw.h
-> +++ b/hw/s390x/s390-ccw.h
-> @@ -27,6 +27,7 @@ typedef struct S390CCWDevice {
->      CcwDevice parent_obj;
->      CssDevId hostid;
->      char *mdevid;
-> +    int (*handle_request) (ORB *, SCSW *, void *);
-shouldn't this callback be part of the class instead?
-
->  } S390CCWDevice;
->  
->  typedef struct S390CCWDeviceClass {
-> diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-> index cda3057..3ff78c5 100644
-> --- a/hw/vfio/ccw.c
-> +++ b/hw/vfio/ccw.c
-> @@ -47,6 +47,36 @@ struct VFIODeviceOps vfio_ccw_ops = {
->      .vfio_compute_needs_reset = vfio_ccw_compute_needs_reset,
->  };
->  
-> +static int vfio_ccw_handle_request(ORB *orb, SCSW *scsw, void *data)
-> +{
-> +    S390CCWDevice *cdev = data;
-> +    VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
-> +    struct ccw_io_region *region = vcdev->io_region;
-> +    int ret;
-> +
-> +    QEMU_BUILD_BUG_ON(sizeof(region->orb_area) != sizeof(ORB));
-> +    QEMU_BUILD_BUG_ON(sizeof(region->scsw_area) != sizeof(SCSW));
-> +    QEMU_BUILD_BUG_ON(sizeof(region->irb_area) != sizeof(IRB));
-> +
-> +    memset(region, 0, sizeof(*region));
-> +
-> +    memcpy(region->orb_area, orb, sizeof(ORB));
-> +    memcpy(region->scsw_area, scsw, sizeof(SCSW));
-> +
-> +again:
-> +    ret = pwrite(vcdev->vdev.fd, region,
-> +                 vcdev->io_region_size, vcdev->io_region_offset);
-> +    if (ret != vcdev->io_region_size) {
-> +        if (errno == EAGAIN) {
-> +            goto again;
-> +        }
-> +        error_report("vfio-ccw: wirte I/O region failed with errno=%d", errno);
-> +        return -errno;
-> +    }
-> +
-> +    return region->ret_code;
-> +}
-> +
->  static void vfio_ccw_reset(DeviceState *dev)
->  {
->      CcwDevice *ccw_dev = DO_UPCAST(CcwDevice, parent_obj, dev);
-> @@ -59,10 +89,52 @@ static void vfio_ccw_reset(DeviceState *dev)
->  static void vfio_ccw_io_notifier_handler(void *opaque)
->  {
->      VFIOCCWDevice *vcdev = opaque;
-> +    struct ccw_io_region *region = vcdev->io_region;
-> +    S390CCWDevice *cdev = S390_CCW_DEVICE(vcdev);
-> +    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
-> +    SubchDev *sch = ccw_dev->sch;
-> +    SCSW *s = &sch->curr_status.scsw;
-> +    IRB irb;
->  
->      if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
->          return;
->      }
-> +
-> +    if (pread(vcdev->vdev.fd, region,
-> +              vcdev->io_region_size, vcdev->io_region_offset) == -1) {
-is it possible to read less bytes than requested?
+>>> diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
+>>> new file mode 100644
+>>> index 0000000..cd4dfe8
+>>> --- /dev/null
+>>> +++ b/hw/vfio/ccw.c
+> [...]
+> 
+>>> +static VFIOGroup *vfio_ccw_get_group(S390CCWDevice *cdev, Error **errp)
+>>> +{
+>>> +    char *tmp, group_path[PATH_MAX];
+>>> +    ssize_t len;
+>>> +    int groupid;
+>>> +
+>>> +    tmp = g_strdup_printf("/sys/bus/css/devices/%x.%x.%04x/%s/iommu_group",
+>>> +                          cdev->hostid.cssid, cdev->hostid.ssid,
+>>> +                          cdev->hostid.devid, cdev->mdevid);
+>> May be worth replacing this static function by a common
+>> vfio_get_device_group(VFIODevice *vbasedev, Error **errp) in common.c
+>> that would be used by vfio/pci devices? It would use the sysfsdev
+>> populated before.
+> Are you propsing that we introduce a common interface for all of the
+> devices which use the quite alike logic of populating the sysfsdev?
+Yes that's what I meant.
+> 
+> I put this on my todo list, and prefer to defer it to a time after this
+> set upstreamed.
+OK no worries.
+> 
+>>> +    len = readlink(tmp, group_path, sizeof(group_path));
+>>> +    g_free(tmp);
+>>> +
+>>> +    if (len <= 0 || len >= sizeof(group_path)) {
+>>> +        error_setg(errp, "vfio: no iommu_group found");
+>> may be good to align the error message with pci/platform. I noticed the
+>> case where len==0 is handled as ENAMETOOLONG on pci/platform which looks
+>> bad. Maybe this is why you changed it.
+> I copy this from pci.c. :>
+yep I know ;-)
 
 Thanks
 
 Eric
-> +        switch (errno) {
-> +        case ENODEV:
-> +            /* Generate a deferred cc 3 condition. */
-> +            s->flags |= SCSW_FLAGS_MASK_CC;
-> +            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
-> +            s->ctrl |= (SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND);
-> +            goto read_err;
-> +        case EFAULT:
-> +            /* memory problem, generate channel data check */
-> +            s->ctrl &= ~SCSW_ACTL_START_PEND;
-> +            s->cstat = SCSW_CSTAT_DATA_CHECK;
-> +            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
-> +            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
-> +                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
-> +            goto read_err;
-> +        default:
-> +            /* error, generate channel program check */
-> +            s->ctrl &= ~SCSW_ACTL_START_PEND;
-> +            s->cstat = SCSW_CSTAT_PROG_CHECK;
-> +            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
-> +            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
-> +                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
-> +            goto read_err;
-> +        }
-> +    }
-> +
-> +    memcpy(&irb, region->irb_area, sizeof(IRB));
-> +
-> +    /* Update control block via irb. */
-> +    copy_scsw_to_guest(s, &irb.scsw);
-> +
-> +read_err:
-> +    css_inject_io_interrupt(sch);
->  }
->  
->  static void vfio_ccw_register_io_notifier(VFIOCCWDevice *vcdev, Error **errp)
-> @@ -235,6 +307,7 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
->      VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
->      S390CCWDeviceClass *cdc = S390_CCW_DEVICE_GET_CLASS(cdev);
->  
-> +    cdev->handle_request = vfio_ccw_handle_request;
->      /* Call the class init function for subchannel. */
->      if (cdc->realize) {
->          cdc->realize(cdev, vcdev->vdev.sysfsdev, errp);
-> diff --git a/include/hw/s390x/css.h b/include/hw/s390x/css.h
-> index a8bf1db..c8c283a 100644
-> --- a/include/hw/s390x/css.h
-> +++ b/include/hw/s390x/css.h
-> @@ -135,6 +135,8 @@ void css_subch_assign(uint8_t cssid, uint8_t ssid, uint16_t schid,
->  void css_sch_build_virtual_schib(SubchDev *sch, uint8_t chpid, uint8_t type);
->  int css_sch_build_schib(SubchDev *sch, CssDevId *dev_id);
->  uint16_t css_build_subchannel_id(SubchDev *sch);
-> +void copy_scsw_to_guest(SCSW *dest, const SCSW *src);
-> +void css_inject_io_interrupt(SubchDev *sch);
->  void css_reset(void);
->  void css_reset_sch(SubchDev *sch);
->  void css_queue_crw(uint8_t rsc, uint8_t erc, int chain, uint16_t rsid);
+> 
+> And I agree with you that, the error message is better to be aligned if
+> it's possible to do that.
+> 
+>>> +        return NULL;
+>>> +    }
+>>> +
+>>> +    group_path[len] = 0;
+>>> +
+>>> +    if (sscanf(basename(group_path), "%d", &groupid) != 1) {
+>>> +        error_setg(errp, "vfio: failed to read %s", group_path);
+>>> +        return NULL;
+>>> +    }
+>>> +
+>>> +    return vfio_get_group(groupid, &address_space_memory, errp);
+>>> +}
+>>> +
+>>> +static void vfio_ccw_put_group(VFIOGroup *group)
+>> Is it really needed?
+> Ok. Removed.
+> 
+>>> +{
+>>> +    vfio_put_group(group);
+>>> +}
+>>> +
+>>> +static void vfio_ccw_realize(DeviceState *dev, Error **errp)
+>>> +{
+>>> +    VFIODevice *vbasedev;
+>>> +    VFIOGroup *group;
+>>> +    CcwDevice *ccw_dev = DO_UPCAST(CcwDevice, parent_obj, dev);
+>>> +    S390CCWDevice *cdev = DO_UPCAST(S390CCWDevice, parent_obj, ccw_dev);
+>>> +    VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
+>>> +    S390CCWDeviceClass *cdc = S390_CCW_DEVICE_GET_CLASS(cdev);
+>>> +
+>>> +    /* Call the class init function for subchannel. */
+>>> +    if (cdc->realize) {
+>>> +        cdc->realize(cdev, vcdev->vdev.sysfsdev, errp);
+>>> +        if (*errp) {
+>> use local err?
+> Ok.
+> 
+>>
+>> Thanks
+>>
+>> Eric
+>>> +            return;
+>>> +        }
+>>> +    }
+>>> +
+>>> +    group = vfio_ccw_get_group(cdev, errp);
+>>> +    if (!group) {
+>>> +        goto out_group_err;
+>>> +    }
+>>> +
+>>> +    vcdev->vdev.ops = &vfio_ccw_ops;
+>>> +    vcdev->vdev.type = VFIO_DEVICE_TYPE_CCW;
+>>> +    vcdev->vdev.name = g_strdup_printf("%x.%x.%04x", cdev->hostid.cssid,
+>>> +                                       cdev->hostid.ssid, cdev->hostid.devid);
+>>> +    QLIST_FOREACH(vbasedev, &group->device_list, next) {
+>>> +        if (strcmp(vbasedev->name, vcdev->vdev.name) == 0) {
+>>> +            error_setg(errp, "vfio: subchannel %s has already been attached",
+>>> +                       vcdev->vdev.name);
+>>> +            goto out_device_err;
+>>> +        }
+>>> +    }
+>>> +
+>>> +    if (vfio_get_device(group, cdev->mdevid, &vcdev->vdev, errp)) {
+>>> +        goto out_device_err;
+>>> +    }
+>>> +
+>>> +    return;
+>>> +
+>>> +out_device_err:
+>>> +    vfio_ccw_put_group(group);
+>>> +out_group_err:
+>>> +    if (cdc->unrealize) {
+>>> +        cdc->unrealize(cdev, errp);
+>>> +    }
+>>> +}
+>>> +
+> [...]
 > 
