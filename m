@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 2/3] s390/dasd: Fix typos in two comment lines
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-References: <4af00744-1c8a-6b33-22c8-d26d569f6c5f@users.sourceforge.net>
-Message-ID: <a37840d9-5e2f-f2da-176f-53beea1c69ae@users.sourceforge.net>
-Date: Wed, 10 May 2017 20:02:16 +0200
-MIME-Version: 1.0
-In-Reply-To: <4af00744-1c8a-6b33-22c8-d26d569f6c5f@users.sourceforge.net>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Stefan Haberland <sth@linux.vnet.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Return-Path: <owner-linux-mm@kvack.org>
+Date: Wed, 03 May 2017 10:34:28 -0400 (EDT)
+Message-Id: <20170503.103428.1598887340082574002.davem@davemloft.net>
+Subject: Re: [v2 3/5] mm: add "zero" argument to vmemmap allocators
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1490383192-981017-4-git-send-email-pasha.tatashin@oracle.com>
+References: <1490383192-981017-1-git-send-email-pasha.tatashin@oracle.com>
+	<1490383192-981017-4-git-send-email-pasha.tatashin@oracle.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: pasha.tatashin@oracle.com
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, willy@infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 10 May 2017 19:19:19 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Pavel Tatashin <pasha.tatashin@oracle.com>
+Date: Fri, 24 Mar 2017 15:19:50 -0400
 
-The script “checkpatch.pl” pointed information out like the following.
+> Allow clients to request non-zeroed memory from vmemmap allocator.
+> The following two public function have a new boolean argument called zero:
+> 
+> __vmemmap_alloc_block_buf()
+> vmemmap_alloc_block()
+> 
+> When zero is true, memory that is allocated by memblock allocator is zeroed
+> (the current behavior), when argument is false, the memory is not zeroed.
+> 
+> This change allows for optimizations where client knows when it is better
+> to zero memory: may be later when other CPUs are started, or may be client
+> is going to set every byte in the allocated memory, so no need to zero
+> memory beforehand.
+> 
+> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+> Reviewed-by: Shannon Nelson <shannon.nelson@oracle.com>
 
-CHECK: '…' may be misspelled - perhaps '…'?
+I think when you add a new argument that can adjust behavior, you
+should add the new argument but retain exactly the current behavior in
+the existing calls.
 
-Thus fix two descriptions.
+Then later you can piece by piece change behavior, and document properly
+in the commit message what is happening and why the transformation is
+legal.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/s390/block/dasd_eckd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Here, you are adding the new boolean to __earlyonly_bootmem_alloc() and
+then making sparse_mem_maps_populate_node() pass false, which changes
+behavior such that it doesn't get zero'd memory any more.
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index b3709d3cba54..e78601d97a67 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -3863,7 +3863,7 @@ static struct dasd_ccw_req *dasd_raw_build_cp(struct dasd_device *startdev,
- 	unsigned int pfx_datasize;
- 
- 	/*
--	 * raw track access needs to be mutiple of 64k and on 64k boundary
-+	 * Raw track access needs to be multiple of 64k and on 64k boundary.
- 	 * For read requests we can fix an incorrect alignment by padding
- 	 * the request with dummy pages.
- 	 */
-@@ -4143,7 +4143,7 @@ dasd_eckd_fill_info(struct dasd_device * device,
- 
- /*
-  * Release device ioctl.
-- * Buils a channel programm to releases a prior reserved
-+ * Builds a channel program to release a prior reserved
-  * (see dasd_eckd_reserve) device.
-  */
- static int
--- 
-2.12.3
+Please make one change at a time.  Otherwise review and bisection is
+going to be difficult.
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
