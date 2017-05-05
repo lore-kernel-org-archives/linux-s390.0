@@ -1,7 +1,7 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH v7 13/13] MAINTAINERS: Add vfio-ccw maintainer
-Date: Fri,  5 May 2017 04:03:52 +0200
-Message-ID: <20170505020352.8984-14-bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH v7 02/13] vfio: linux-headers update for vfio-ccw
+Date: Fri,  5 May 2017 04:03:41 +0200
+Message-ID: <20170505020352.8984-3-bjsdjshi@linux.vnet.ibm.com>
 References: <20170505020352.8984-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170505020352.8984-1-bjsdjshi@linux.vnet.ibm.com>
@@ -12,28 +12,83 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: bjsdjshi@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, eric.auger@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Add Cornelia Huck as the vfio-ccw maintainer.
+This is a placeholder for a linux-headers update.
 
 Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 ---
- MAINTAINERS | 5 +++++
- 1 file changed, 5 insertions(+)
+ linux-headers/linux/vfio.h     | 17 +++++++++++++++++
+ linux-headers/linux/vfio_ccw.h | 28 ++++++++++++++++++++++++++++
+ 2 files changed, 45 insertions(+)
+ create mode 100644 linux-headers/linux/vfio_ccw.h
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index cae3b09..c1f9917 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -999,6 +999,11 @@ S: Supported
- F: hw/vfio/*
- F: include/hw/vfio/
+diff --git a/linux-headers/linux/vfio.h b/linux-headers/linux/vfio.h
+index 531cb2e..39a1d3b 100644
+--- a/linux-headers/linux/vfio.h
++++ b/linux-headers/linux/vfio.h
+@@ -198,6 +198,7 @@ struct vfio_device_info {
+ #define VFIO_DEVICE_FLAGS_PCI	(1 << 1)	/* vfio-pci device */
+ #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+ #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
++#define VFIO_DEVICE_FLAGS_CCW   (1 << 4)	/* vfio-ccw device */
+ 	__u32	num_regions;	/* Max region index + 1 */
+ 	__u32	num_irqs;	/* Max IRQ index + 1 */
+ };
+@@ -446,6 +447,22 @@ enum {
+ 	VFIO_PCI_NUM_IRQS
+ };
  
-+vfio-ccw
-+M: Cornelia Huck <cornelia.huck@de.ibm.com>
-+S: Supported
-+F: hw/vfio/ccw.c
++/*
++ * The VFIO-CCW bus driver makes use of the following fixed region and
++ * IRQ index mapping.  Unimplemented regions return a size of zero.
++ * Unimplemented IRQ types return a count of zero.
++ */
 +
- vhost
- M: Michael S. Tsirkin <mst@redhat.com>
- S: Supported
++enum {
++        VFIO_CCW_CONFIG_REGION_INDEX,
++        VFIO_CCW_NUM_REGIONS
++};
++
++enum {
++        VFIO_CCW_IO_IRQ_INDEX,
++        VFIO_CCW_NUM_IRQS
++};
++
+ /**
+  * VFIO_DEVICE_GET_PCI_HOT_RESET_INFO - _IORW(VFIO_TYPE, VFIO_BASE + 12,
+  *					      struct vfio_pci_hot_reset_info)
+diff --git a/linux-headers/linux/vfio_ccw.h b/linux-headers/linux/vfio_ccw.h
+new file mode 100644
+index 0000000..4ee74ae
+--- /dev/null
++++ b/linux-headers/linux/vfio_ccw.h
+@@ -0,0 +1,28 @@
++/*
++ * Interfaces for vfio-ccw
++ *
++ * Copyright IBM Corp. 2017
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
++ */
++
++#ifndef _VFIO_CCW_H_
++#define _VFIO_CCW_H_
++
++#include <linux/types.h>
++
++struct ccw_io_region {
++#define ORB_AREA_SIZE 12
++	__u8	orb_area[ORB_AREA_SIZE];
++#define SCSW_AREA_SIZE 12
++	__u8	scsw_area[SCSW_AREA_SIZE];
++#define IRB_AREA_SIZE 96
++	__u8	irb_area[IRB_AREA_SIZE];
++	__u32	ret_code;
++} __packed;
++
++#endif
 -- 
 2.10.2
