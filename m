@@ -1,14 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 05/13] s390x/css: realize css_create_sch
-Date: Fri, 5 May 2017 14:11:53 +0200
-Message-ID: <20170505141153.60d0d0bf.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v7 13/13] MAINTAINERS: Add vfio-ccw maintainer
+Date: Fri, 5 May 2017 14:20:14 +0200
+Message-ID: <20170505142014.28c849b8.cornelia.huck@de.ibm.com>
 References: <20170505020352.8984-1-bjsdjshi@linux.vnet.ibm.com>
-        <20170505020352.8984-6-bjsdjshi@linux.vnet.ibm.com>
+        <20170505020352.8984-14-bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170505020352.8984-6-bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20170505020352.8984-14-bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -16,142 +16,37 @@ To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, eric.auger@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri,  5 May 2017 04:03:44 +0200
+On Fri,  5 May 2017 04:03:52 +0200
 Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-> The S390 virtual css support already has a mechanism to create a
-> virtual subchannel and provide it to the guest. However, to
-> pass-through subchannels to a guest, we need to introduce a new
-> mechanism to create the subchannel according to the real device
-> information. Thus we reconstruct css_create_virtual_sch to a new
-> css_create_sch function to handl all these cases and do allocation
-
-s/handl/handle/
-
-> and initialization of the subchannel according to the device type
-> and machine configuration.
+> Add Cornelia Huck as the vfio-ccw maintainer.
 > 
-> Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 > Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 > ---
->  hw/s390x/css-bridge.c         |  2 ++
->  hw/s390x/css.c                | 45 ++++++++++++++++++++++++++++++++++++-------
->  hw/s390x/s390-virtio-ccw.c    | 12 +++++++++---
->  hw/s390x/virtio-ccw.c         |  6 +++++-
->  include/hw/s390x/css-bridge.h |  1 +
->  include/hw/s390x/css.h        | 25 ++++++++++++++++--------
->  6 files changed, 72 insertions(+), 19 deletions(-)
+>  MAINTAINERS | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
-
-> diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-> index 748e2ad..1052eea 100644
-> --- a/hw/s390x/css.c
-> +++ b/hw/s390x/css.c
-> @@ -1924,28 +1924,59 @@ PropertyInfo css_devid_ro_propinfo = {
->      .get = get_css_devid,
->  };
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index cae3b09..c1f9917 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -999,6 +999,11 @@ S: Supported
+>  F: hw/vfio/*
+>  F: include/hw/vfio/
 > 
-> -SubchDev *css_create_virtual_sch(CssDevId bus_id, Error **errp)
-> +SubchDev *css_create_sch(CssDevId bus_id, bool is_virtio, bool squash_mcss,
-> +                         Error **errp)
->  {
->      uint16_t schid = 0;
->      SubchDev *sch;
-> 
->      if (bus_id.valid) {
-> -        /* Enforce use of virtual cssid. */
-> -        if (bus_id.cssid != VIRTUAL_CSSID) {
-> -            error_setg(errp, "cssid %hhx not valid for virtual devices",
-> -                       bus_id.cssid);
-> +        if (is_virtio != (bus_id.cssid == VIRTUAL_CSSID)) {
-> +            error_setg(errp, "cssid %hhx not valid for %s devices",
-> +                       bus_id.cssid,
-> +                       (is_virtio ? "virtio" : "non-virtio"));
+> +vfio-ccw
+> +M: Cornelia Huck <cornelia.huck@de.ibm.com>
+> +S: Supported
+> +F: hw/vfio/ccw.c
 
-This reminds me of something else: virtual 3270 devices will use the
-virtual channel subsystem by default. I think this is fine: Even though
-they are not virtio devices, they are fully virtual constructs, and it
-does not make sense to artificially shove them into another css.
+The other code related to vfio-ccw is entangled with the other virtual
+css code, so this is probably really the only file that needs to be
+listed separately.
 
-But this means the distinction should be virtual vs. non-virtual and
-not virtio vs. non-virtio, and the squashing is only applicable to
-non-virtual devices. Mainly a naming thing.
+I will likely take any vfio-ccw changes together with the other code I
+take through s390-next. I'll add the respective line when I apply.
 
-
->              return NULL;
->          }
-> +    }
 > +
-> +    if (bus_id.valid) {
-> +        if (squash_mcss) {
-> +            bus_id.cssid = channel_subsys.default_cssid;
-> +        } else if (!channel_subsys.css[bus_id.cssid]) {
-> +            css_create_css_image(bus_id.cssid, false);
-> +        }
-> +
->          if (!css_find_free_subch_for_devno(bus_id.cssid, bus_id.ssid,
->                                             bus_id.devid, &schid, errp)) {
->              return NULL;
->          }
-> -    } else {
-> -        bus_id.cssid = VIRTUAL_CSSID;
-> +    } else if (squash_mcss || is_virtio) {
-> +        bus_id.cssid = channel_subsys.default_cssid;
-> +
->          if (!css_find_free_subch_and_devno(bus_id.cssid, &bus_id.ssid,
->                                             &bus_id.devid, &schid, errp)) {
->              return NULL;
->          }
-> +    } else {
-> +        for (bus_id.cssid = 0; bus_id.cssid < MAX_CSSID; ++bus_id.cssid) {
-> +            if (bus_id.cssid == VIRTUAL_CSSID) {
-> +                continue;
-> +            }
-> +
-> +            if (!channel_subsys.css[bus_id.cssid]) {
-> +                css_create_css_image(bus_id.cssid, false);
-> +            }
-> +
-> +            if   (css_find_free_subch_and_devno(bus_id.cssid, &bus_id.ssid,
-> +                                                &bus_id.devid, &schid,
-> +                                                NULL)) {
-> +                break  ;
-
-extra blanks
-
-> +            }
-> +            if (bus_id.cssid == MAX_CSSID) {
-> +                error_setg(errp, "Virtual channel subsystem is full!");
-> +                return NULL;
-> +            }
-> +        }
->      }
-> 
->      sch = g_malloc0(sizeof(*sch));
-> diff --git a/hw/s390x/s390-virtio-ccw.c b/hw/s390x/s390-virtio-ccw.c
-> index cd007ca..735d66d 100644
-> --- a/hw/s390x/s390-virtio-ccw.c
-> +++ b/hw/s390x/s390-virtio-ccw.c
-> @@ -136,10 +136,16 @@ static void ccw_init(MachineState *machine)
->          kvm_s390_enable_css_support(s390_cpu_addr2state(0));
->      }
->      /*
-> -     * Create virtual css and set it as default so that non mcss-e
-> -     * enabled guests only see virtio devices.
-> +     * Non mcss-e enabled guests only see the devices from the default
-> +     * css, which is determined by the value of the squash_mcss property.
-> +     * Note: we must not squash non virtio devices to css 0xFE, since
-> +     * it's reserved for virtio devices only.
-
-See my virtio vs. virtual argument above.
-
->       */
-> -    ret = css_create_css_image(VIRTUAL_CSSID, true);
-> +    if (css_bus->squash_mcss) {
-> +        ret = css_create_css_image(0, true);
-> +    } else {
-> +        ret = css_create_css_image(VIRTUAL_CSSID, true);
-> +    }
->      assert(ret == 0);
-> 
->      /* Create VirtIO network adapters */
+>  vhost
+>  M: Michael S. Tsirkin <mst@redhat.com>
+>  S: Supported
