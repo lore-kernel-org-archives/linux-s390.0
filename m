@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 4/4] s390/sysinfo: Combine two function calls into one
+Subject: [PATCH 2/4] s390/processor: Use seq_putc() in show_cpu_summary()
 From: SF Markus Elfring <elfring@users.sourceforge.net>
 References: <fac68081-f0bb-2574-ba52-11ad78d792c3@users.sourceforge.net>
-Message-ID: <04517191-f1f5-19ca-d4bc-d3d5331b4556@users.sourceforge.net>
-Date: Sun, 7 May 2017 19:18:06 +0200
+Message-ID: <0d2e6c6c-00d9-b83e-0631-ee8bae32b750@users.sourceforge.net>
+Date: Sun, 7 May 2017 19:14:55 +0200
 MIME-Version: 1.0
 In-Reply-To: <fac68081-f0bb-2574-ba52-11ad78d792c3@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -17,60 +17,30 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 7 May 2017 18:48:39 +0200
+Date: Sun, 7 May 2017 18:03:11 +0200
 
-A bit of data was put into a sequence by two separate function calls
-at four places. Print the same data by single function calls instead.
+A single character (line break) should be put into a sequence.
+Thus use the corresponding function "seq_putc".
+
+This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- arch/s390/kernel/sysinfo.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ arch/s390/kernel/processor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/sysinfo.c b/arch/s390/kernel/sysinfo.c
-index e7061fcd047a..7f81d40c8f90 100644
---- a/arch/s390/kernel/sysinfo.c
-+++ b/arch/s390/kernel/sysinfo.c
-@@ -98,8 +98,7 @@ static void stsi_1_1_1(struct seq_file *m, struct sysinfo_1_1_1 *info)
- 	seq_printf(m, "Model:                %-16.16s", info->model_capacity);
- 	if (info->model[0] != '\0')
- 		seq_printf(m, " %-16.16s", info->model);
--	seq_putc(m, '\n');
--	seq_printf(m, "Sequence Code:        %-16.16s\n", info->sequence);
-+	seq_printf(m, "\nSequence Code:        %-16.16s\n", info->sequence);
- 	seq_printf(m, "Plant:                %-4.4s\n", info->plant);
- 	seq_printf(m, "Model Capacity:       %-16.16s %08u\n",
- 		   info->model_capacity, info->model_cap_rating);
-@@ -200,8 +199,7 @@ static void stsi_2_2_2(struct seq_file *m, struct sysinfo_2_2_2 *info)
- 	if (stsi(info, 2, 2, 2))
- 		return;
- 	EBCASC(info->name, sizeof(info->name));
--	seq_putc(m, '\n');
--	seq_printf(m, "LPAR Number:          %d\n", info->lpar_number);
-+	seq_printf(m, "\nLPAR Number:          %d\n", info->lpar_number);
- 	seq_puts(m, "LPAR Characteristics: ");
- 	if (info->characteristics & LPAR_CHAR_DEDICATED)
- 		seq_puts(m, "Dedicated ");
-@@ -209,8 +207,7 @@ static void stsi_2_2_2(struct seq_file *m, struct sysinfo_2_2_2 *info)
- 		seq_puts(m, "Shared ");
- 	if (info->characteristics & LPAR_CHAR_LIMITED)
- 		seq_puts(m, "Limited ");
--	seq_putc(m, '\n');
--	seq_printf(m, "LPAR Name:            %-8.8s\n", info->name);
-+	seq_printf(m, "\nLPAR Name:            %-8.8s\n", info->name);
- 	seq_printf(m, "LPAR Adjustment:      %d\n", info->caf);
- 	seq_printf(m, "LPAR CPUs Total:      %d\n", info->cpus_total);
- 	seq_printf(m, "LPAR CPUs Configured: %d\n", info->cpus_configured);
-@@ -256,8 +253,8 @@ static void stsi_3_2_2(struct seq_file *m, struct sysinfo_3_2_2 *info)
- 	for (i = 0; i < info->count; i++) {
- 		EBCASC(info->vm[i].name, sizeof(info->vm[i].name));
- 		EBCASC(info->vm[i].cpi, sizeof(info->vm[i].cpi));
--		seq_putc(m, '\n');
--		seq_printf(m, "VM%02d Name:            %-8.8s\n", i, info->vm[i].name);
-+		seq_printf(m, "\nVM%02d Name:            %-8.8s\n",
-+			   i, info->vm[i].name);
- 		seq_printf(m, "VM%02d Control Program: %-16.16s\n", i, info->vm[i].cpi);
- 		seq_printf(m, "VM%02d Adjustment:      %d\n", i, info->vm[i].caf);
- 		seq_printf(m, "VM%02d CPUs Total:      %d\n", i, info->vm[i].cpus_total);
+diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
+index 778cd6536175..b9a40c81e3d8 100644
+--- a/arch/s390/kernel/processor.c
++++ b/arch/s390/kernel/processor.c
+@@ -128,7 +128,7 @@ static void show_cpu_summary(struct seq_file *m, void *v)
+ 	for (i = 0; i < ARRAY_SIZE(int_hwcap_str); i++)
+ 		if (int_hwcap_str[i] && (int_hwcap & (1UL << i)))
+ 			seq_printf(m, "%s ", int_hwcap_str[i]);
+-	seq_puts(m, "\n");
++	seq_putc(m, '\n');
+ 	show_facilities(m);
+ 	show_cacheinfo(m);
+ 	for_each_online_cpu(cpu) {
 -- 
 2.12.2
