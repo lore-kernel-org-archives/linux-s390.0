@@ -1,56 +1,76 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/1] s390/virtio: change maintainership
-Date: Fri, 5 May 2017 23:37:56 +0300
-Message-ID: <20170505233745-mutt-send-email-mst@kernel.org>
-References: <1488470903-16358-1-git-send-email-borntraeger@de.ibm.com>
- <1488470903-16358-2-git-send-email-borntraeger@de.ibm.com>
- <00940a05-e752-a6bb-8ba3-a9e50732daf6@de.ibm.com>
- <20170505154452.1c04d328.cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170505154452.1c04d328.cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Halil Pasic <pasic@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: [PATCH 4/4] s390/sysinfo: Combine two function calls into one
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+References: <fac68081-f0bb-2574-ba52-11ad78d792c3@users.sourceforge.net>
+Message-ID: <04517191-f1f5-19ca-d4bc-d3d5331b4556@users.sourceforge.net>
+Date: Sun, 7 May 2017 19:18:06 +0200
+MIME-Version: 1.0
+In-Reply-To: <fac68081-f0bb-2574-ba52-11ad78d792c3@users.sourceforge.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org, =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Sascha Silbe <silbe@linux.vnet.ibm.com>, Vegard Nossum <vegard.nossum@oracle.com>, Viktor Mihajlovski <mihajlov@linux.vnet.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, May 05, 2017 at 03:44:52PM +0200, Cornelia Huck wrote:
-> On Thu, 20 Apr 2017 09:51:29 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> 
-> > On 03/02/2017 05:08 PM, Christian Borntraeger wrote:
-> > > Halil is doing a lot more work in the virtio area on s390 than I
-> > > do. Let's reflect the reality in the maintainers file.
-> > > 
-> > > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > > Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-> > > Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > ---
-> > >  MAINTAINERS | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index ca6f5f7..52780b8 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -13203,8 +13203,8 @@ F:	include/uapi/linux/virtio_*.h
-> > >  F:	drivers/crypto/virtio/
-> > > 
-> > >  VIRTIO DRIVERS FOR S390
-> > > -M:	Christian Borntraeger <borntraeger@de.ibm.com>
-> > >  M:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > +M:	Halil Pasic <pasic@linux.vnet.ibm.com>
-> > >  L:	linux-s390@vger.kernel.org
-> > >  L:	virtualization@lists.linux-foundation.org
-> > >  L:	kvm@vger.kernel.org
-> > > 
-> > 
-> > ping?
-> 
-> ping^2
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sun, 7 May 2017 18:48:39 +0200
 
-Will apply, thanks.
+A bit of data was put into a sequence by two separate function calls
+at four places. Print the same data by single function calls instead.
+
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ arch/s390/kernel/sysinfo.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/arch/s390/kernel/sysinfo.c b/arch/s390/kernel/sysinfo.c
+index e7061fcd047a..7f81d40c8f90 100644
+--- a/arch/s390/kernel/sysinfo.c
++++ b/arch/s390/kernel/sysinfo.c
+@@ -98,8 +98,7 @@ static void stsi_1_1_1(struct seq_file *m, struct sysinfo_1_1_1 *info)
+ 	seq_printf(m, "Model:                %-16.16s", info->model_capacity);
+ 	if (info->model[0] != '\0')
+ 		seq_printf(m, " %-16.16s", info->model);
+-	seq_putc(m, '\n');
+-	seq_printf(m, "Sequence Code:        %-16.16s\n", info->sequence);
++	seq_printf(m, "\nSequence Code:        %-16.16s\n", info->sequence);
+ 	seq_printf(m, "Plant:                %-4.4s\n", info->plant);
+ 	seq_printf(m, "Model Capacity:       %-16.16s %08u\n",
+ 		   info->model_capacity, info->model_cap_rating);
+@@ -200,8 +199,7 @@ static void stsi_2_2_2(struct seq_file *m, struct sysinfo_2_2_2 *info)
+ 	if (stsi(info, 2, 2, 2))
+ 		return;
+ 	EBCASC(info->name, sizeof(info->name));
+-	seq_putc(m, '\n');
+-	seq_printf(m, "LPAR Number:          %d\n", info->lpar_number);
++	seq_printf(m, "\nLPAR Number:          %d\n", info->lpar_number);
+ 	seq_puts(m, "LPAR Characteristics: ");
+ 	if (info->characteristics & LPAR_CHAR_DEDICATED)
+ 		seq_puts(m, "Dedicated ");
+@@ -209,8 +207,7 @@ static void stsi_2_2_2(struct seq_file *m, struct sysinfo_2_2_2 *info)
+ 		seq_puts(m, "Shared ");
+ 	if (info->characteristics & LPAR_CHAR_LIMITED)
+ 		seq_puts(m, "Limited ");
+-	seq_putc(m, '\n');
+-	seq_printf(m, "LPAR Name:            %-8.8s\n", info->name);
++	seq_printf(m, "\nLPAR Name:            %-8.8s\n", info->name);
+ 	seq_printf(m, "LPAR Adjustment:      %d\n", info->caf);
+ 	seq_printf(m, "LPAR CPUs Total:      %d\n", info->cpus_total);
+ 	seq_printf(m, "LPAR CPUs Configured: %d\n", info->cpus_configured);
+@@ -256,8 +253,8 @@ static void stsi_3_2_2(struct seq_file *m, struct sysinfo_3_2_2 *info)
+ 	for (i = 0; i < info->count; i++) {
+ 		EBCASC(info->vm[i].name, sizeof(info->vm[i].name));
+ 		EBCASC(info->vm[i].cpi, sizeof(info->vm[i].cpi));
+-		seq_putc(m, '\n');
+-		seq_printf(m, "VM%02d Name:            %-8.8s\n", i, info->vm[i].name);
++		seq_printf(m, "\nVM%02d Name:            %-8.8s\n",
++			   i, info->vm[i].name);
+ 		seq_printf(m, "VM%02d Control Program: %-16.16s\n", i, info->vm[i].cpi);
+ 		seq_printf(m, "VM%02d Adjustment:      %d\n", i, info->vm[i].caf);
+ 		seq_printf(m, "VM%02d CPUs Total:      %d\n", i, info->vm[i].cpus_total);
+-- 
+2.12.2
