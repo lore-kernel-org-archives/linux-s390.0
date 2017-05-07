@@ -1,12 +1,9 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 1/4] s390/cache: Combine two function calls into one in
- show_cacheinfo()
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-References: <fac68081-f0bb-2574-ba52-11ad78d792c3@users.sourceforge.net>
-Message-ID: <e3d24bcc-782b-5c05-1d46-cdcbbbe3bbdf@users.sourceforge.net>
-Date: Sun, 7 May 2017 19:13:59 +0200
+Subject: [PATCH 0/4] S390: Fine-tuning for six function implementations
+Message-ID: <fac68081-f0bb-2574-ba52-11ad78d792c3@users.sourceforge.net>
+Date: Sun, 7 May 2017 19:12:46 +0200
 MIME-Version: 1.0
-In-Reply-To: <fac68081-f0bb-2574-ba52-11ad78d792c3@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -18,32 +15,21 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 7 May 2017 17:53:31 +0200
+Date: Sun, 7 May 2017 19:00:09 +0200
 
-A bit of data was put into a sequence by two separate function calls.
-Print the same data by a single function call instead.
+A few update suggestions were taken into account
+from static source code analysis.
 
-This issue was detected by using the Coccinelle software.
+Markus Elfring (4):
+  Combine two function calls into one in show_cacheinfo()
+  Use seq_putc() in show_cpu_summary()
+  Replace six seq_printf() calls by seq_puts()
+  Combine two function calls into one at four places
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- arch/s390/kernel/cache.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kernel/cache.c     |  4 ++--
+ arch/s390/kernel/processor.c |  2 +-
+ arch/s390/kernel/sysinfo.c   | 25 +++++++++++--------------
+ 3 files changed, 14 insertions(+), 17 deletions(-)
 
-diff --git a/arch/s390/kernel/cache.c b/arch/s390/kernel/cache.c
-index c8a83276a4dc..9e9752ce3233 100644
---- a/arch/s390/kernel/cache.c
-+++ b/arch/s390/kernel/cache.c
-@@ -82,8 +82,8 @@ void show_cacheinfo(struct seq_file *m)
- 			   cache->disable_sysfs ? "Shared" : "Private");
- 		seq_printf(m, "size=%dK ", cache->size >> 10);
- 		seq_printf(m, "line_size=%u ", cache->coherency_line_size);
--		seq_printf(m, "associativity=%d", cache->ways_of_associativity);
--		seq_puts(m, "\n");
-+		seq_printf(m, "associativity=%d\n",
-+			   cache->ways_of_associativity);
- 	}
- }
- 
 -- 
 2.12.2
