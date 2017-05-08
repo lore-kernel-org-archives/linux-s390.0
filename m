@@ -1,142 +1,84 @@
-MIME-Version: 1.0
-In-Reply-To: <20170428153213.137279-1-thgarnie@google.com>
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date: Mon, 8 May 2017 09:33:52 +0200
+From: Ingo Molnar <mingo@kernel.org>
+Message-ID: <20170508073352.caqe3fqf7nuxypgi@gmail.com>
 References: <20170428153213.137279-1-thgarnie@google.com>
-From: Thomas Garnier <thgarnie@google.com>
-Date: Fri, 5 May 2017 15:18:30 -0700
-Message-ID: <CAJcbSZGQsRVg3QZ9QfLn2HBC+RP-7fUTab0bYDJ455d8y8GyNw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Subject: [kernel-hardening] Re: [PATCH v9 1/4] syscalls: Verify address limit before returning to user-mode
+ <CAJcbSZGQsRVg3QZ9QfLn2HBC+RP-7fUTab0bYDJ455d8y8GyNw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJcbSZGQsRVg3QZ9QfLn2HBC+RP-7fUTab0bYDJ455d8y8GyNw@mail.gmail.com>
+Subject: [kernel-hardening] Re: [PATCH v9 1/4] syscalls: Verify address limit before returning
+ to user-mode
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, David Howells <dhowells@redhat.com>, Thomas Garnier <thgarnie@google.com>, =?UTF-8?Q?Ren=C3=A9_Nyffenegger?= <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, "Eric W . Biederman" <ebiederm@xmission.com>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Kees Cook <keescook@chromium.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linux-arm-kernel@lists.infradead.org, Kernel Hardening <kernel-hardening@lists.openwall.com>
+To: Thomas Garnier <thgarnie@google.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, David Howells <dhowells@redhat.com>, =?iso-8859-1?Q?Ren=E9?= Nyffenegger <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, "Eric W . Biederman" <ebiederm@xmission.com>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Kees Cook <keescook@chromium.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linux-arm-kernel@lists.infradead.org, Kernel Hardening <kernel-hardening@lists.openwall.com>, Linus Torvalds <torvalds@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Apr 28, 2017 at 8:32 AM, Thomas Garnier <thgarnie@google.com> wrote:
-> Ensure that a syscall does not return to user-mode with a kernel address
-> limit. If that happens, a process can corrupt kernel-mode memory and
-> elevate privileges [1].
->
-> The CONFIG_ADDR_LIMIT_CHECK option disables the generic check so each
-> architecture can create optimized versions. This option is enabled by
-> default on s390 because a similar feature already exists.
->
-> [1] https://bugs.chromium.org/p/project-zero/issues/detail?id=990
->
-> Signed-off-by: Thomas Garnier <thgarnie@google.com>
-> Tested-by: Kees Cook <keescook@chromium.org>
 
-Ingo: Do you want to take the set?
+(added more Cc:s)
 
-> ---
-> Based on next-20170426
-> ---
->  arch/s390/Kconfig        |  1 +
->  include/linux/syscalls.h | 27 ++++++++++++++++++++++++++-
->  init/Kconfig             |  6 ++++++
->  kernel/sys.c             | 13 +++++++++++++
->  4 files changed, 46 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index d25435d94b6e..3d2ec084d5fc 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -64,6 +64,7 @@ config ARCH_SUPPORTS_UPROBES
->
->  config S390
->         def_bool y
-> +       select ADDR_LIMIT_CHECK
->         select ARCH_HAS_DEVMEM_IS_ALLOWED
->         select ARCH_HAS_ELF_RANDOMIZE
->         select ARCH_HAS_GCOV_PROFILE_ALL
-> diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-> index 980c3c9b06f8..e534b93ce43a 100644
-> --- a/include/linux/syscalls.h
-> +++ b/include/linux/syscalls.h
-> @@ -191,6 +191,28 @@ extern struct trace_event_functions exit_syscall_print_funcs;
->         SYSCALL_METADATA(sname, x, __VA_ARGS__)                 \
->         __SYSCALL_DEFINEx(x, sname, __VA_ARGS__)
->
-> +
-> +/*
-> + * Called before coming back to user-mode. Returning to user-mode with an
-> + * address limit different than USER_DS can allow to overwrite kernel memory.
-> + */
-> +static inline void addr_limit_check_syscall(void)
-> +{
-> +       BUG_ON(!segment_eq(get_fs(), USER_DS));
-> +}
-> +
-> +#ifndef CONFIG_ADDR_LIMIT_CHECK
-> +#define ADDR_LIMIT_CHECK_PRE() \
-> +       bool user_caller = segment_eq(get_fs(), USER_DS)
-> +#define ADDR_LIMIT_CHECK_POST() \
-> +       if (user_caller) addr_limit_check_syscall()
-> +#else
-> +#define ADDR_LIMIT_CHECK_PRE()
-> +#define ADDR_LIMIT_CHECK_POST()
-> +asmlinkage void addr_limit_check_failed(void) __noreturn;
-> +#endif
-> +
-> +
->  #define __PROTECT(...) asmlinkage_protect(__VA_ARGS__)
->  #define __SYSCALL_DEFINEx(x, name, ...)                                        \
->         asmlinkage long sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))       \
-> @@ -199,7 +221,10 @@ extern struct trace_event_functions exit_syscall_print_funcs;
->         asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__));      \
->         asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__))       \
->         {                                                               \
-> -               long ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));  \
-> +               long ret;                                               \
-> +               ADDR_LIMIT_CHECK_PRE();                                 \
-> +               ret = SYSC##name(__MAP(x,__SC_CAST,__VA_ARGS__));       \
-> +               ADDR_LIMIT_CHECK_POST();                                \
->                 __MAP(x,__SC_TEST,__VA_ARGS__);                         \
->                 __PROTECT(x, ret,__MAP(x,__SC_ARGS,__VA_ARGS__));       \
->                 return ret;                                             \
-> diff --git a/init/Kconfig b/init/Kconfig
-> index 42a346b0df43..599d9fe30703 100644
-> --- a/init/Kconfig
-> +++ b/init/Kconfig
-> @@ -1961,6 +1961,12 @@ config PROFILING
->  config TRACEPOINTS
->         bool
->
-> +config ADDR_LIMIT_CHECK
-> +       bool
-> +       help
-> +         Disable the generic address limit check. Allow each architecture to
-> +         optimize how and when the verification is done.
-> +
->  source "arch/Kconfig"
->
->  endmenu                # General setup
-> diff --git a/kernel/sys.c b/kernel/sys.c
-> index 8a94b4eabcaa..a1cbcd715d62 100644
-> --- a/kernel/sys.c
-> +++ b/kernel/sys.c
-> @@ -2458,3 +2458,16 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
->         return 0;
->  }
->  #endif /* CONFIG_COMPAT */
-> +
-> +#ifdef CONFIG_ADDR_LIMIT_CHECK
-> +/*
-> + * Used when an architecture specific implementation detects an invalid address
-> + * limit. This function does not return.
-> + */
-> +asmlinkage void addr_limit_check_failed(void)
-> +{
-> +       /* Try to fail on the generic address limit check */
-> +       addr_limit_check_syscall();
-> +       panic("Invalid address limit before returning to user-mode");
-> +}
-> +#endif
-> --
-> 2.13.0.rc0.306.g87b477812d-goog
->
+* Thomas Garnier <thgarnie@google.com> wrote:
 
+> On Fri, Apr 28, 2017 at 8:32 AM, Thomas Garnier <thgarnie@google.com> wrote:
+> > Ensure that a syscall does not return to user-mode with a kernel address
+> > limit. If that happens, a process can corrupt kernel-mode memory and
+> > elevate privileges [1].
+> >
+> > The CONFIG_ADDR_LIMIT_CHECK option disables the generic check so each
+> > architecture can create optimized versions. This option is enabled by
+> > default on s390 because a similar feature already exists.
+> >
+> > [1] https://bugs.chromium.org/p/project-zero/issues/detail?id=990
+> >
+> > Signed-off-by: Thomas Garnier <thgarnie@google.com>
+> > Tested-by: Kees Cook <keescook@chromium.org>
+> 
+> Ingo: Do you want to take the set?
 
+Yeah, so now I'm questioning the whole premise of the feature, sorry :-/
 
--- 
-Thomas
+A big disavantage is that the "security check" will add 2-5 instructions to the 
+system call fast path. Every one of them, and essentially forever. Just to handle 
+a CVE that was caused by a buggy touch-screen driver helper function leaking 
+KERNEL_DS and which was fixed long ago ...
+
+And yes, I realize that there were other such bugs and that such bugs might occur 
+in the future - but why not push the overhead of the security check to the kernel 
+build phase? I.e. I'm wondering how well we could do static analysis during kernel 
+build - would a limited mode of Sparse be good enough for that? Or we could add a 
+new static checker to tools/, built from first principles and used primarily for 
+extended syntactical checking.
+
+For example I'd consider it a good practice to mandate that if a kernel function 
+sets KERNEL_DS then it must restore it as well. Any function that does not do 
+that, or is too complex for the static analysis to prove correctness for sure 
+should be considered buggy!
+
+Are there any common kernel APIs outside set_fs() that set KERNEL_DS 
+intentionally? The overwhelming pattern ought to be:
+
+        orig_fs = get_fs();
+        set_fs(KERNEL_DS);
+	...
+        set_fs(orig_fs);
+
+... and even a relatively simple static analysis tool ought to be able to see 
+through that.
+
+I'd even suggest we do it not like Sparse builds are done today, but in a more 
+integrated fashion: do static analysis as part of a typical kernel defconfig build 
+and not tolerate warnings but go for a 'zero warnings' policy like Linus uses for 
+modconfig builds.
+
+_That_ solution I'd feel very, very good about - it would be so much better than 
+any runtime checks...
+
+Not to mention that such an integrated static analysis facility would allow many 
+other things to be checked during build time, which we couldn't possibly check 
+runtime.
+
+Thanks,
+
+	Ingo
