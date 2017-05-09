@@ -1,16 +1,18 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 05/13] s390x/css: realize css_create_sch
-Date: Mon, 8 May 2017 12:50:40 +0200
-Message-ID: <20170508125040.7dc4e1e2.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v7 13/13] MAINTAINERS: Add vfio-ccw maintainer
+Date: Tue, 9 May 2017 09:33:39 +0200
+Message-ID: <20170509093339.67cdb945.cornelia.huck@de.ibm.com>
 References: <20170505020352.8984-1-bjsdjshi@linux.vnet.ibm.com>
-        <20170505020352.8984-6-bjsdjshi@linux.vnet.ibm.com>
-        <20170505141153.60d0d0bf.cornelia.huck@de.ibm.com>
-        <20170508051822.GC15974@bjsdjshi@linux.vnet.ibm.com>
+        <20170505020352.8984-14-bjsdjshi@linux.vnet.ibm.com>
+        <20170505142014.28c849b8.cornelia.huck@de.ibm.com>
+        <20170508052927.GD15974@bjsdjshi@linux.vnet.ibm.com>
+        <20170508110927.5713c101.cornelia.huck@de.ibm.com>
+        <20170509014143.GG15974@bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170508051822.GC15974@bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20170509014143.GG15974@bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -18,64 +20,57 @@ To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, eric.auger@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 8 May 2017 13:18:22 +0800
+On Tue, 9 May 2017 09:41:43 +0800
 Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-> * Cornelia Huck <cornelia.huck@de.ibm.com> [2017-05-05 14:11:53 +0200]:
+> * Cornelia Huck <cornelia.huck@de.ibm.com> [2017-05-08 11:09:27 +0200]:
 > 
-> > On Fri,  5 May 2017 04:03:44 +0200
+> > On Mon, 8 May 2017 13:29:27 +0800
 > > Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
-
-> > > -SubchDev *css_create_virtual_sch(CssDevId bus_id, Error **errp)
-> > > +SubchDev *css_create_sch(CssDevId bus_id, bool is_virtio, bool squash_mcss,
-> > > +                         Error **errp)
-> > >  {
-> > >      uint16_t schid = 0;
-> > >      SubchDev *sch;
+> > 
+> > > * Cornelia Huck <cornelia.huck@de.ibm.com> [2017-05-05 14:20:14 +0200]:
 > > > 
-> > >      if (bus_id.valid) {
-> > > -        /* Enforce use of virtual cssid. */
-> > > -        if (bus_id.cssid != VIRTUAL_CSSID) {
-> > > -            error_setg(errp, "cssid %hhx not valid for virtual devices",
-> > > -                       bus_id.cssid);
-> > > +        if (is_virtio != (bus_id.cssid == VIRTUAL_CSSID)) {
-> > > +            error_setg(errp, "cssid %hhx not valid for %s devices",
-> > > +                       bus_id.cssid,
-> > > +                       (is_virtio ? "virtio" : "non-virtio"));
+> > > > On Fri,  5 May 2017 04:03:52 +0200
+> > > > Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+> > > > 
+> > > > > Add Cornelia Huck as the vfio-ccw maintainer.
+> > > > > 
+> > > > > Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> > > > > ---
+> > > > >  MAINTAINERS | 5 +++++
+> > > > >  1 file changed, 5 insertions(+)
+> > > > > 
+> > > > > diff --git a/MAINTAINERS b/MAINTAINERS
+> > > > > index cae3b09..c1f9917 100644
+> > > > > --- a/MAINTAINERS
+> > > > > +++ b/MAINTAINERS
+> > > > > @@ -999,6 +999,11 @@ S: Supported
+> > > > >  F: hw/vfio/*
+> > > > >  F: include/hw/vfio/
+> > > > > 
+> > > > > +vfio-ccw
+> > > > > +M: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > > > > +S: Supported
+> > > > > +F: hw/vfio/ccw.c
+> > > > 
+> > > > The other code related to vfio-ccw is entangled with the other virtual
+> > > > css code, so this is probably really the only file that needs to be
+> > > > listed separately.
+> > > "hw/s390x/" and "include/hw/s390x/" are listed under the "S390 Machines"
+> > > part.
+> > > 
+> > > Maybe you would like to list the following files separately here:
+> > > hw/s390x/s390-ccw.c
+> > > hw/s390x/s390-ccw.h
 > > 
-> > This reminds me of something else: virtual 3270 devices will use the
-> > virtual channel subsystem by default. I think this is fine: Even though
-> > they are not virtio devices, they are fully virtual constructs, and it
-> > does not make sense to artificially shove them into another css.
-> VIRTUAL CSS (0xFE) is reserved for virtio devices only, no? This is what
-> I understood... So we should not put any non-virtio devices into CSS
-> 0xFE.
-> 
-> If my understanding is not right before, I agree that we put non-virtio
-> (e.g. 3270) devices into CSS 0xFE, and ...
-> 
+> > Yes, that makes sense.
 > > 
-> > But this means the distinction should be virtual vs. non-virtual and
-> > not virtio vs. non-virtio, and the squashing is only applicable to
-> > non-virtual devices. Mainly a naming thing.
-> ... do the following modifications here:
-> s/virtio/virtual
-> s/non-virtio/non-virtual
-> s/is_virtio/is_virtual
+> > But seeing the path name here: Should s390-ccw.h rather go into
+> > include/hw/s390x/ (even if hw/s390x/ already contains several .h
+> > files...)?
+> Ok. You will find it in include/hw/s390x/ in next version.
+> 
+> Would you like me making a sepate patch to move all of the other .h
+> files to the include folder?
 
-I realize that I wanted to treat css 0xfe as virtio-only initially; but
-I think the virtual/non-virtual distinction actually makes more sense.
-
-- For devices that don't have a hardware equivalent at all (like
-virtio-ccw), it's clear that they should be in the virtual css.
-
-- For devices that are always fully emulated (because there's no device
-that could be passthroughed), I'd argue that they should be treated as
-fully virtual as well. This means 3270, and would include things like a
-card punch should anyone feel an urge to emulate that one :)
-
-- An emulation of a device that could also be passthroughed is a bit of
-a grey area. One could argue to put it either with the virtual devices
-or with the non-virtual ones. But I think we can ignore that for now
-(until someone decides that a dasd emulation is a thing qemu urgently
-needs...)
+Let's just leave them where they are for now.
