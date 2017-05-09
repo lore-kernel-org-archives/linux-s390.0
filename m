@@ -1,76 +1,239 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v7 13/13] MAINTAINERS: Add vfio-ccw maintainer
-Date: Tue, 9 May 2017 09:33:39 +0200
-Message-ID: <20170509093339.67cdb945.cornelia.huck@de.ibm.com>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v7 06/13] s390x/css: device support for
+ s390-ccw passthrough
+Date: Tue, 9 May 2017 10:18:59 +0200
+Message-ID: <40d4de10-4709-0e2b-0df0-3e9dbeddca33@redhat.com>
 References: <20170505020352.8984-1-bjsdjshi@linux.vnet.ibm.com>
-        <20170505020352.8984-14-bjsdjshi@linux.vnet.ibm.com>
-        <20170505142014.28c849b8.cornelia.huck@de.ibm.com>
-        <20170508052927.GD15974@bjsdjshi@linux.vnet.ibm.com>
-        <20170508110927.5713c101.cornelia.huck@de.ibm.com>
-        <20170509014143.GG15974@bjsdjshi@linux.vnet.ibm.com>
+ <20170505020352.8984-7-bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170509014143.GG15974@bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20170505020352.8984-7-bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, eric.auger@redhat.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cornelia.huck@de.ibm.com, agraf@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 9 May 2017 09:41:43 +0800
-Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+Hi
 
-> * Cornelia Huck <cornelia.huck@de.ibm.com> [2017-05-08 11:09:27 +0200]:
+On 05/05/2017 04:03, Dong Jia Shi wrote:
+> In order to support subchannels pass-through, we introduce a s390
+> subchannel device called "s390-ccw" to hold the real subchannel info.
+> The s390-ccw devices inherit from the abstract CcwDevice which connect
+> to the existing virtual-css-bus.
 > 
-> > On Mon, 8 May 2017 13:29:27 +0800
-> > Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
-> > 
-> > > * Cornelia Huck <cornelia.huck@de.ibm.com> [2017-05-05 14:20:14 +0200]:
-> > > 
-> > > > On Fri,  5 May 2017 04:03:52 +0200
-> > > > Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
-> > > > 
-> > > > > Add Cornelia Huck as the vfio-ccw maintainer.
-> > > > > 
-> > > > > Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> > > > > ---
-> > > > >  MAINTAINERS | 5 +++++
-> > > > >  1 file changed, 5 insertions(+)
-> > > > > 
-> > > > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > > > index cae3b09..c1f9917 100644
-> > > > > --- a/MAINTAINERS
-> > > > > +++ b/MAINTAINERS
-> > > > > @@ -999,6 +999,11 @@ S: Supported
-> > > > >  F: hw/vfio/*
-> > > > >  F: include/hw/vfio/
-> > > > > 
-> > > > > +vfio-ccw
-> > > > > +M: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > > > +S: Supported
-> > > > > +F: hw/vfio/ccw.c
-> > > > 
-> > > > The other code related to vfio-ccw is entangled with the other virtual
-> > > > css code, so this is probably really the only file that needs to be
-> > > > listed separately.
-> > > "hw/s390x/" and "include/hw/s390x/" are listed under the "S390 Machines"
-> > > part.
-> > > 
-> > > Maybe you would like to list the following files separately here:
-> > > hw/s390x/s390-ccw.c
-> > > hw/s390x/s390-ccw.h
-> > 
-> > Yes, that makes sense.
-> > 
-> > But seeing the path name here: Should s390-ccw.h rather go into
-> > include/hw/s390x/ (even if hw/s390x/ already contains several .h
-> > files...)?
-> Ok. You will find it in include/hw/s390x/ in next version.
-> 
-> Would you like me making a sepate patch to move all of the other .h
-> files to the include folder?
+> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
 
-Let's just leave them where they are for now.
+Thanks
+
+Eric
+> ---
+>  hw/s390x/Makefile.objs |   1 +
+>  hw/s390x/s390-ccw.c    | 138 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  hw/s390x/s390-ccw.h    |  38 ++++++++++++++
+>  3 files changed, 177 insertions(+)
+>  create mode 100644 hw/s390x/s390-ccw.c
+>  create mode 100644 hw/s390x/s390-ccw.h
+> 
+> diff --git a/hw/s390x/Makefile.objs b/hw/s390x/Makefile.objs
+> index 41ac4ec..72a3d37 100644
+> --- a/hw/s390x/Makefile.objs
+> +++ b/hw/s390x/Makefile.objs
+> @@ -13,3 +13,4 @@ obj-y += ccw-device.o
+>  obj-y += s390-pci-bus.o s390-pci-inst.o
+>  obj-y += s390-skeys.o
+>  obj-$(CONFIG_KVM) += s390-skeys-kvm.o
+> +obj-y += s390-ccw.o
+> diff --git a/hw/s390x/s390-ccw.c b/hw/s390x/s390-ccw.c
+> new file mode 100644
+> index 0000000..b1aadcd
+> --- /dev/null
+> +++ b/hw/s390x/s390-ccw.c
+> @@ -0,0 +1,138 @@
+> +/*
+> + * s390 CCW Assignment Support
+> + *
+> + * Copyright 2017 IBM Corp
+> + * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> + *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> + *            Pierre Morel <pmorel@linux.vnet.ibm.com>
+> + *
+> + * This work is licensed under the terms of the GNU GPL, version 2
+> + * or (at your option) any later version. See the COPYING file in the
+> + * top-level directory.
+> + */
+> +#include "qemu/osdep.h"
+> +#include "qapi/error.h"
+> +#include "hw/sysbus.h"
+> +#include "libgen.h"
+> +#include "hw/s390x/css.h"
+> +#include "hw/s390x/css-bridge.h"
+> +#include "s390-ccw.h"
+> +
+> +static void s390_ccw_get_dev_info(S390CCWDevice *cdev,
+> +                                  char *sysfsdev,
+> +                                  Error **errp)
+> +{
+> +    unsigned int cssid, ssid, devid;
+> +    char dev_path[PATH_MAX] = {0}, *tmp;
+> +
+> +    if (!sysfsdev) {
+> +        error_setg(errp, "No host device provided");
+> +        error_append_hint(errp,
+> +                          "Use -device vfio-ccw,sysfsdev=PATH_TO_DEVICE\n");
+> +        return;
+> +    }
+> +
+> +    if (!realpath(sysfsdev, dev_path)) {
+> +        error_setg_errno(errp, errno, "Host device '%s' not found", sysfsdev);
+> +        return;
+> +    }
+> +
+> +    cdev->mdevid = g_strdup(basename(dev_path));
+> +
+> +    tmp = basename(dirname(dev_path));
+> +    sscanf(tmp, "%2x.%1x.%4x", &cssid, &ssid, &devid);
+> +
+> +    cdev->hostid.cssid = cssid;
+> +    cdev->hostid.ssid = ssid;
+> +    cdev->hostid.devid = devid;
+> +    cdev->hostid.valid = true;
+> +}
+> +
+> +static void s390_ccw_realize(S390CCWDevice *cdev, char *sysfsdev, Error **errp)
+> +{
+> +    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
+> +    CCWDeviceClass *ck = CCW_DEVICE_GET_CLASS(ccw_dev);
+> +    DeviceState *parent = DEVICE(ccw_dev);
+> +    BusState *qbus = qdev_get_parent_bus(parent);
+> +    VirtualCssBus *cbus = VIRTUAL_CSS_BUS(qbus);
+> +    SubchDev *sch;
+> +    int ret;
+> +    Error *err = NULL;
+> +
+> +    s390_ccw_get_dev_info(cdev, sysfsdev, &err);
+> +    if (err) {
+> +        goto out_err_propagate;
+> +    }
+> +
+> +    sch = css_create_sch(ccw_dev->devno, false, cbus->squash_mcss, &err);
+> +    if (!sch) {
+> +        goto out_mdevid_free;
+> +    }
+> +    sch->driver_data = cdev;
+> +
+> +    ccw_dev->sch = sch;
+> +    ret = css_sch_build_schib(sch, &cdev->hostid);
+> +    if (ret) {
+> +        error_setg_errno(&err, -ret, "%s: Failed to build initial schib",
+> +                         __func__);
+> +        goto out_err;
+> +    }
+> +
+> +    ck->realize(ccw_dev, &err);
+> +    if (err) {
+> +        goto out_err;
+> +    }
+> +
+> +    css_generate_sch_crws(sch->cssid, sch->ssid, sch->schid,
+> +                          parent->hotplugged, 1);
+> +    return;
+> +
+> +out_err:
+> +    css_subch_assign(sch->cssid, sch->ssid, sch->schid, sch->devno, NULL);
+> +    ccw_dev->sch = NULL;
+> +    g_free(sch);
+> +out_mdevid_free:
+> +    g_free(cdev->mdevid);
+> +out_err_propagate:
+> +    error_propagate(errp, err);
+> +}
+> +
+> +static void s390_ccw_unrealize(S390CCWDevice *cdev, Error **errp)
+> +{
+> +    CcwDevice *ccw_dev = CCW_DEVICE(cdev);
+> +    SubchDev *sch = ccw_dev->sch;
+> +
+> +    if (sch) {
+> +        css_subch_assign(sch->cssid, sch->ssid, sch->schid, sch->devno, NULL);
+> +        g_free(sch);
+> +        ccw_dev->sch = NULL;
+> +    }
+> +
+> +    g_free(cdev->mdevid);
+> +}
+> +
+> +static void s390_ccw_class_init(ObjectClass *klass, void *data)
+> +{
+> +    DeviceClass *dc = DEVICE_CLASS(klass);
+> +    S390CCWDeviceClass *cdc = S390_CCW_DEVICE_CLASS(klass);
+> +
+> +    dc->bus_type = TYPE_VIRTUAL_CSS_BUS;
+> +    cdc->realize = s390_ccw_realize;
+> +    cdc->unrealize = s390_ccw_unrealize;
+> +}
+> +
+> +static const TypeInfo s390_ccw_info = {
+> +    .name          = TYPE_S390_CCW,
+> +    .parent        = TYPE_CCW_DEVICE,
+> +    .instance_size = sizeof(S390CCWDevice),
+> +    .class_size    = sizeof(S390CCWDeviceClass),
+> +    .class_init    = s390_ccw_class_init,
+> +    .abstract      = true,
+> +};
+> +
+> +static void register_s390_ccw_type(void)
+> +{
+> +    type_register_static(&s390_ccw_info);
+> +}
+> +
+> +type_init(register_s390_ccw_type)
+> diff --git a/hw/s390x/s390-ccw.h b/hw/s390x/s390-ccw.h
+> new file mode 100644
+> index 0000000..b58d8e9
+> --- /dev/null
+> +++ b/hw/s390x/s390-ccw.h
+> @@ -0,0 +1,38 @@
+> +/*
+> + * s390 CCW Assignment Support
+> + *
+> + * Copyright 2017 IBM Corp.
+> + * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> + *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> + *
+> + * This work is licensed under the terms of the GNU GPL, version 2 or (at
+> + * your option) any later version. See the COPYING file in the top-level
+> + * directory.
+> + */
+> +
+> +#ifndef HW_S390_CCW_H
+> +#define HW_S390_CCW_H
+> +
+> +#include "hw/s390x/ccw-device.h"
+> +
+> +#define TYPE_S390_CCW "s390-ccw"
+> +#define S390_CCW_DEVICE(obj) \
+> +    OBJECT_CHECK(S390CCWDevice, (obj), TYPE_S390_CCW)
+> +#define S390_CCW_DEVICE_CLASS(klass) \
+> +    OBJECT_CLASS_CHECK(S390CCWDeviceClass, (klass), TYPE_S390_CCW)
+> +#define S390_CCW_DEVICE_GET_CLASS(obj) \
+> +    OBJECT_GET_CLASS(S390CCWDeviceClass, (obj), TYPE_S390_CCW)
+> +
+> +typedef struct S390CCWDevice {
+> +    CcwDevice parent_obj;
+> +    CssDevId hostid;
+> +    char *mdevid;
+> +} S390CCWDevice;
+> +
+> +typedef struct S390CCWDeviceClass {
+> +    CCWDeviceClass parent_class;
+> +    void (*realize)(S390CCWDevice *dev, char *sysfsdev, Error **errp);
+> +    void (*unrealize)(S390CCWDevice *dev, Error **errp);
+> +} S390CCWDeviceClass;
+> +
+> +#endif
+> 
