@@ -1,24 +1,39 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net 0/4] s390/net fixes
-Date: Thu, 11 May 2017 12:38:14 -0400 (EDT)
-Message-ID: <20170511.123814.1367298637891934098.davem@davemloft.net>
-References: <20170510170754.53922-1-jwi@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 0/4] s390/net fixes
+Date: Wed, 10 May 2017 19:07:50 +0200
+Message-ID: <20170510170754.53922-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170510170754.53922-1-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jwi@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Date: Wed, 10 May 2017 19:07:50 +0200
+Hello Dave,
 
-> some qeth fixes for -net, the OSM/OSN one being the most crucial.
-> Please also queue these up for stable.
+some qeth fixes for -net, the OSM/OSN one being the most crucial.
+Please also queue these up for stable.
 
-Series applied and queued up for -stable, thanks.
+Thanks,
+Julian
+
+Julian Wiedmann (2):
+  s390/qeth: unbreak OSM and OSN support
+  s390/qeth: avoid null pointer dereference on OSN
+
+Ursula Braun (2):
+  s390/qeth: handle sysfs error during initialization
+  s390/qeth: add missing hash table initializations
+
+ drivers/s390/net/qeth_core.h      |  4 ++++
+ drivers/s390/net/qeth_core_main.c | 21 ++++++++++++---------
+ drivers/s390/net/qeth_core_sys.c  | 24 ++++++++++++++++--------
+ drivers/s390/net/qeth_l2.h        |  2 ++
+ drivers/s390/net/qeth_l2_main.c   | 26 ++++++++++++++++++++------
+ drivers/s390/net/qeth_l2_sys.c    |  8 ++++++++
+ drivers/s390/net/qeth_l3_main.c   |  8 +++++++-
+ 7 files changed, 69 insertions(+), 24 deletions(-)
+
+-- 
+2.10.2
