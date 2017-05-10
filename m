@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 1/3] s390/dasd: Adjust buffer output in dasd_hosts_print()
+Subject: [PATCH 2/3] s390/dasd: Fix typos in two comment lines
 From: SF Markus Elfring <elfring@users.sourceforge.net>
 References: <4af00744-1c8a-6b33-22c8-d26d569f6c5f@users.sourceforge.net>
-Message-ID: <deb83447-9b77-d297-135c-a8af8055b3af@users.sourceforge.net>
-Date: Wed, 10 May 2017 20:01:17 +0200
+Message-ID: <a37840d9-5e2f-f2da-176f-53beea1c69ae@users.sourceforge.net>
+Date: Wed, 10 May 2017 20:02:16 +0200
 MIME-Version: 1.0
 In-Reply-To: <4af00744-1c8a-6b33-22c8-d26d569f6c5f@users.sourceforge.net>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -17,47 +17,43 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 10 May 2017 18:52:28 +0200
+Date: Wed, 10 May 2017 19:19:19 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-* Use a special format string specification for the desired output of the
-  array "pgid" into a sequence.
+The script “checkpatch.pl” pointed information out like the following.
 
-  This issue was detected by using the Coccinelle software.
+CHECK: '…' may be misspelled - perhaps '…'?
 
-* Delete the local variable "j" and a call of the function "seq_puts"
-  wich became unnecessary with this refactoring.
+Thus fix two descriptions.
 
-Fixes: 5a3b7b112884f80ff19b18028fabeb4f9c035518 ("s390/dasd: add query host access to volume support")
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/s390/block/dasd_eckd.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 122456e4db89..b3709d3cba54 100644
+index b3709d3cba54..e78601d97a67 100644
 --- a/drivers/s390/block/dasd_eckd.c
 +++ b/drivers/s390/block/dasd_eckd.c
-@@ -5288,7 +5288,7 @@ static int dasd_hosts_print(struct dasd_device *device, struct seq_file *m)
- 	struct dasd_ckd_path_group_entry *entry;
- 	struct dasd_ckd_host_information *info;
- 	char sysplex[9] = "";
--	int rc, i, j;
-+	int rc, i;
+@@ -3863,7 +3863,7 @@ static struct dasd_ccw_req *dasd_raw_build_cp(struct dasd_device *startdev,
+ 	unsigned int pfx_datasize;
  
- 	access = kzalloc(sizeof(*access), GFP_NOIO);
- 	if (!access) {
-@@ -5308,10 +5308,8 @@ static int dasd_hosts_print(struct dasd_device *device, struct seq_file *m)
- 		entry = (struct dasd_ckd_path_group_entry *)
- 			(info->entry + i * info->entry_size);
- 		/* PGID */
--		seq_puts(m, "pgid ");
--		for (j = 0; j < 11; j++)
--			seq_printf(m, "%02x", entry->pgid[j]);
--		seq_putc(m, '\n');
-+		seq_printf(m, "pgid %*phN\n",
-+			   ARRAY_SIZE(entry->pgid), entry->pgid);
- 		/* FLAGS */
- 		seq_printf(m, "status_flags %02x\n", entry->status_flags);
- 		/* SYSPLEX NAME */
+ 	/*
+-	 * raw track access needs to be mutiple of 64k and on 64k boundary
++	 * Raw track access needs to be multiple of 64k and on 64k boundary.
+ 	 * For read requests we can fix an incorrect alignment by padding
+ 	 * the request with dummy pages.
+ 	 */
+@@ -4143,7 +4143,7 @@ dasd_eckd_fill_info(struct dasd_device * device,
+ 
+ /*
+  * Release device ioctl.
+- * Buils a channel programm to releases a prior reserved
++ * Builds a channel program to release a prior reserved
+  * (see dasd_eckd_reserve) device.
+  */
+ static int
 -- 
 2.12.3
