@@ -1,90 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: [PATCH 3/3] s390/dasd: Adjust six checks for null pointers
-From: SF Markus Elfring <elfring@users.sourceforge.net>
+Date: Wed, 10 May 2017 22:28:57 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 1/3] s390/dasd: Adjust buffer output in dasd_hosts_print()
+Message-ID: <20170510192857.o5cyi4xx2xdo66d7@mwanda>
 References: <4af00744-1c8a-6b33-22c8-d26d569f6c5f@users.sourceforge.net>
-Message-ID: <1395faca-9953-5873-0892-3d2eedbef2b6@users.sourceforge.net>
-Date: Wed, 10 May 2017 20:03:08 +0200
+ <deb83447-9b77-d297-135c-a8af8055b3af@users.sourceforge.net>
 MIME-Version: 1.0
-In-Reply-To: <4af00744-1c8a-6b33-22c8-d26d569f6c5f@users.sourceforge.net>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <deb83447-9b77-d297-135c-a8af8055b3af@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Stefan Haberland <sth@linux.vnet.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Jan =?iso-8859-1?Q?H=F6ppner?= <hoeppner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Stefan Haberland <sth@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 10 May 2017 19:29:17 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+On Wed, May 10, 2017 at 08:01:17PM +0200, SF Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Wed, 10 May 2017 18:52:28 +0200
+> 
+> * Use a special format string specification for the desired output of the
+>   array "pgid" into a sequence.
+> 
+>   This issue was detected by using the Coccinelle software.
+> 
+> * Delete the local variable "j" and a call of the function "seq_puts"
+>   wich became unnecessary with this refactoring.
+> 
+> Fixes: 5a3b7b112884f80ff19b18028fabeb4f9c035518 ("s390/dasd: add query host access to volume support")
 
-The script “checkpatch.pl” pointed information out like the following.
+Stop using the fixes tag when you are not fixing bugs.
 
-Comparison to NULL could be written …
-
-Thus fix the affected source code places.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/s390/block/dasd_eckd.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index e78601d97a67..d02f3bbbd552 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1080,7 +1080,7 @@ static int dasd_eckd_read_conf(struct dasd_device *device)
- 					"error %d", rc);
- 			return rc;
- 		}
--		if (conf_data == NULL) {
-+		if (!conf_data) {
- 			DBF_EVENT_DEVID(DBF_WARNING, device->cdev, "%s",
- 					"No configuration data "
- 					"retrieved");
-@@ -2049,7 +2049,7 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
- 				 "Track 0 has no records following the VTOC\n");
- 	}
- 
--	if (count_area != NULL && count_area->kl == 0) {
-+	if (count_area && count_area->kl == 0) {
- 		/* we found notthing violating our disk layout */
- 		if (dasd_check_blocksize(count_area->dl) == 0)
- 			block->bp_block = count_area->dl;
-@@ -2649,10 +2649,10 @@ static int dasd_eckd_format_process_data(struct dasd_device *base,
- 	old_start = fdata->start_unit;
- 	old_stop = fdata->stop_unit;
- 
--	if (!tpm && fmt_buffer != NULL) {
-+	if (!tpm && fmt_buffer) {
- 		/* Command Mode / Format Check */
- 		format_step = 1;
--	} else if (tpm && fmt_buffer != NULL) {
-+	} else if (tpm && fmt_buffer) {
- 		/* Transport Mode / Format Check */
- 		format_step = DASD_CQR_MAX_CCW / rpt;
- 	} else {
-@@ -4681,7 +4681,7 @@ static void dasd_eckd_dump_sense_ccw(struct dasd_device *device,
- 	int len, sl, sct;
- 
- 	page = (char *) get_zeroed_page(GFP_ATOMIC);
--	if (page == NULL) {
-+	if (!page) {
- 		DBF_DEV_EVENT(DBF_WARNING, device, "%s",
- 			      "No memory to dump sense data\n");
- 		return;
-@@ -4785,7 +4785,7 @@ static void dasd_eckd_dump_sense_tcw(struct dasd_device *device,
- 	u8 *sense, *rcq;
- 
- 	page = (char *) get_zeroed_page(GFP_ATOMIC);
--	if (page == NULL) {
-+	if (!page) {
- 		DBF_DEV_EVENT(DBF_WARNING, device, " %s",
- 			    "No memory to dump sense data");
- 		return;
--- 
-2.12.3
+regards,
+dan carpenter
