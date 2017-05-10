@@ -1,171 +1,96 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH v7 09/13] vfio/ccw: get irqs info and set the eventfd fd
-Date: Fri,  5 May 2017 04:03:48 +0200
-Message-ID: <20170505020352.8984-10-bjsdjshi@linux.vnet.ibm.com>
-References: <20170505020352.8984-1-bjsdjshi@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170505020352.8984-1-bjsdjshi@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: bjsdjshi@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com, eric.auger@redhat.com
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 1/4] s390/qeth: handle sysfs error during initialization
+Date: Wed, 10 May 2017 19:07:51 +0200
+Message-ID: <20170510170754.53922-2-jwi@linux.vnet.ibm.com>
+References: <20170510170754.53922-1-jwi@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170510170754.53922-1-jwi@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-vfio-ccw resorts to the eventfd mechanism to communicate with userspace.
-We fetch the irqs info via the ioctl VFIO_DEVICE_GET_IRQ_INFO,
-register a event notifier to get the eventfd fd which is sent
-to kernel via the ioctl VFIO_DEVICE_SET_IRQS, then we can implement
-read operation once kernel sends the signal.
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
 
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+When setting up the device from within the layer discipline's
+probe routine, creating the layer-specific sysfs attributes can fail.
+Report this error back to the caller, and handle it by
+releasing the layer discipline.
+
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+[jwi: updated commit msg, moved an OSN change to a subsequent patch]
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- hw/vfio/ccw.c | 103 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 103 insertions(+)
+ drivers/s390/net/qeth_core_main.c | 4 +++-
+ drivers/s390/net/qeth_core_sys.c  | 2 ++
+ drivers/s390/net/qeth_l2_main.c   | 5 ++++-
+ drivers/s390/net/qeth_l3_main.c   | 5 ++++-
+ 4 files changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-index 7ddcfd7..6760cee 100644
---- a/hw/vfio/ccw.c
-+++ b/hw/vfio/ccw.c
-@@ -22,6 +22,7 @@
- #include "hw/vfio/vfio-common.h"
- #include "hw/s390x/s390-ccw.h"
- #include "hw/s390x/ccw-device.h"
-+#include "qemu/error-report.h"
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 38114a8d56e0..5bfd7c15d6a9 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5731,8 +5731,10 @@ static int qeth_core_set_online(struct ccwgroup_device *gdev)
+ 		if (rc)
+ 			goto err;
+ 		rc = card->discipline->setup(card->gdev);
+-		if (rc)
++		if (rc) {
++			qeth_core_free_discipline(card);
+ 			goto err;
++		}
+ 	}
+ 	rc = card->discipline->set_online(gdev);
+ err:
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 75b29fd2fcf4..412ff61891ac 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -426,6 +426,8 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
+ 		goto out;
  
- #define TYPE_VFIO_CCW "vfio-ccw"
- typedef struct VFIOCCWDevice {
-@@ -30,6 +31,7 @@ typedef struct VFIOCCWDevice {
-     uint64_t io_region_size;
-     uint64_t io_region_offset;
-     struct ccw_io_region *io_region;
-+    EventNotifier io_notifier;
- } VFIOCCWDevice;
- 
- static void vfio_ccw_compute_needs_reset(VFIODevice *vdev)
-@@ -54,6 +56,99 @@ static void vfio_ccw_reset(DeviceState *dev)
-     ioctl(vcdev->vdev.fd, VFIO_DEVICE_RESET);
- }
- 
-+static void vfio_ccw_io_notifier_handler(void *opaque)
-+{
-+    VFIOCCWDevice *vcdev = opaque;
-+
-+    if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
-+        return;
-+    }
-+}
-+
-+static void vfio_ccw_register_io_notifier(VFIOCCWDevice *vcdev, Error **errp)
-+{
-+    VFIODevice *vdev = &vcdev->vdev;
-+    struct vfio_irq_info *irq_info;
-+    struct vfio_irq_set *irq_set;
-+    size_t argsz;
-+    int32_t *pfd;
-+
-+    if (vdev->num_irqs < VFIO_CCW_IO_IRQ_INDEX + 1) {
-+        error_setg(errp, "vfio: unexpected number of io irqs %u",
-+                   vdev->num_irqs);
-+        return;
-+    }
-+
-+    argsz = sizeof(*irq_set);
-+    irq_info = g_malloc0(argsz);
-+    irq_info->index = VFIO_CCW_IO_IRQ_INDEX;
-+    irq_info->argsz = argsz;
-+    if (ioctl(vdev->fd, VFIO_DEVICE_GET_IRQ_INFO,
-+              irq_info) < 0 || irq_info->count < 1) {
-+        error_setg_errno(errp, errno, "vfio: Error getting irq info");
-+        goto get_error;
-+    }
-+
-+    if (event_notifier_init(&vcdev->io_notifier, 0)) {
-+        error_setg_errno(errp, errno,
-+                         "vfio: Unable to init event notifier for IO");
-+        goto get_error;
-+    }
-+
-+    argsz = sizeof(*irq_set) + sizeof(*pfd);
-+    irq_set = g_malloc0(argsz);
-+    irq_set->argsz = argsz;
-+    irq_set->flags = VFIO_IRQ_SET_DATA_EVENTFD |
-+                     VFIO_IRQ_SET_ACTION_TRIGGER;
-+    irq_set->index = VFIO_CCW_IO_IRQ_INDEX;
-+    irq_set->start = 0;
-+    irq_set->count = 1;
-+    pfd = (int32_t *) &irq_set->data;
-+
-+    *pfd = event_notifier_get_fd(&vcdev->io_notifier);
-+    qemu_set_fd_handler(*pfd, vfio_ccw_io_notifier_handler, NULL, vcdev);
-+    if (ioctl(vdev->fd, VFIO_DEVICE_SET_IRQS, irq_set)) {
-+        error_setg(errp, "vfio: Failed to set up io notification");
-+        qemu_set_fd_handler(*pfd, NULL, NULL, vcdev);
-+        event_notifier_cleanup(&vcdev->io_notifier);
-+        goto set_error;
-+    }
-+
-+set_error:
-+    g_free(irq_set);
-+
-+get_error:
-+    g_free(irq_info);
-+}
-+
-+static void vfio_ccw_unregister_io_notifier(VFIOCCWDevice *vcdev)
-+{
-+    struct vfio_irq_set *irq_set;
-+    size_t argsz;
-+    int32_t *pfd;
-+
-+    argsz = sizeof(*irq_set) + sizeof(*pfd);
-+    irq_set = g_malloc0(argsz);
-+    irq_set->argsz = argsz;
-+    irq_set->flags = VFIO_IRQ_SET_DATA_EVENTFD |
-+                     VFIO_IRQ_SET_ACTION_TRIGGER;
-+    irq_set->index = VFIO_CCW_IO_IRQ_INDEX;
-+    irq_set->start = 0;
-+    irq_set->count = 1;
-+    pfd = (int32_t *) &irq_set->data;
-+    *pfd = -1;
-+
-+    if (ioctl(vcdev->vdev.fd, VFIO_DEVICE_SET_IRQS, irq_set)) {
-+        error_report("vfio: Failed to de-assign device io fd: %m");
-+    }
-+
-+    qemu_set_fd_handler(event_notifier_get_fd(&vcdev->io_notifier),
-+                        NULL, NULL, vcdev);
-+    event_notifier_cleanup(&vcdev->io_notifier);
-+
-+    g_free(irq_set);
-+}
-+
- static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
+ 	rc = card->discipline->setup(card->gdev);
++	if (rc)
++		qeth_core_free_discipline(card);
+ out:
+ 	mutex_unlock(&card->discipline_mutex);
+ 	return rc ? rc : count;
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 1b07f382d74c..2d2623182abf 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -883,8 +883,11 @@ static int qeth_l2_stop(struct net_device *dev)
+ static int qeth_l2_probe_device(struct ccwgroup_device *gdev)
  {
-     VFIODevice *vdev = &vcdev->vdev;
-@@ -173,8 +268,15 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
-         goto out_region_err;
-     }
+ 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
++	int rc;
  
-+    vfio_ccw_register_io_notifier(vcdev, &err);
-+    if (err) {
-+        goto out_notifier_err;
-+    }
-+
-     return;
+-	qeth_l2_create_device_attributes(&gdev->dev);
++	rc = qeth_l2_create_device_attributes(&gdev->dev);
++	if (rc)
++		return rc;
+ 	INIT_LIST_HEAD(&card->vid_list);
+ 	hash_init(card->mac_htable);
+ 	card->options.layer2 = 1;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 6e0354ef4b86..ae70daf33bd5 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -3039,8 +3039,11 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
++	int rc;
  
-+out_notifier_err:
-+    vfio_ccw_put_region(vcdev);
- out_region_err:
-     vfio_put_device(vcdev);
- out_device_err:
-@@ -195,6 +297,7 @@ static void vfio_ccw_unrealize(DeviceState *dev, Error **errp)
-     S390CCWDeviceClass *cdc = S390_CCW_DEVICE_GET_CLASS(cdev);
-     VFIOGroup *group = vcdev->vdev.group;
- 
-+    vfio_ccw_unregister_io_notifier(vcdev);
-     vfio_ccw_put_region(vcdev);
-     vfio_put_device(vcdev);
-     vfio_put_group(group);
+-	qeth_l3_create_device_attributes(&gdev->dev);
++	rc = qeth_l3_create_device_attributes(&gdev->dev);
++	if (rc)
++		return rc;
+ 	card->options.layer2 = 0;
+ 	card->info.hwtrap = 0;
+ 	return 0;
 -- 
 2.10.2
