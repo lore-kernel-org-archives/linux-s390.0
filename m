@@ -1,55 +1,54 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Wed, 10 May 2017 14:11:31 -0700
-From: Matthew Wilcox <willy@infradead.org>
+Date: Thu, 11 May 2017 10:05:38 +0200
+From: Michal Hocko <mhocko@kernel.org>
 Subject: Re: [v3 0/9] parallelized "struct page" zeroing
-Message-ID: <20170510211131.GD1590@bombadil.infradead.org>
-References: <20170510145726.GM31466@dhcp22.suse.cz>
+Message-ID: <20170511080537.GE26782@dhcp22.suse.cz>
+References: <20170510072419.GC31466@dhcp22.suse.cz>
+ <3f5f1416-aa91-a2ff-cc89-b97fcaa3e4db@oracle.com>
+ <20170510145726.GM31466@dhcp22.suse.cz>
  <20170510.111943.1940354761418085760.davem@davemloft.net>
- <20170510171703.GC1590@bombadil.infradead.org>
- <20170510.140026.1367439672848112283.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20170510.140026.1367439672848112283.davem@davemloft.net>
+In-Reply-To: <20170510.111943.1940354761418085760.davem@davemloft.net>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
 To: David Miller <davem@davemloft.net>
-Cc: mhocko@kernel.org, pasha.tatashin@oracle.com, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com
+Cc: pasha.tatashin@oracle.com, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, May 10, 2017 at 02:00:26PM -0400, David Miller wrote:
-> From: Matthew Wilcox <willy@infradead.org>
-> Date: Wed, 10 May 2017 10:17:03 -0700
-> > On Wed, May 10, 2017 at 11:19:43AM -0400, David Miller wrote:
-> >> I guess it might be clearer if you understand what the block
-> >> initializing stores do on sparc64.  There are no memory accesses at
-> >> all.
-> >> 
-> >> The cpu just zeros out the cache line, that's it.
-> >> 
-> >> No L3 cache line is allocated.  So this "wipe everything" behavior
-> >> will not happen in the L3.
-> > 
-> > There's either something wrong with your explanation or my reading
-> > skills :-)
-> > 
-> > "There are no memory accesses"
-> > "No L3 cache line is allocated"
-> > 
-> > You can have one or the other ... either the CPU sends a cacheline-sized
-> > write of zeroes to memory without allocating an L3 cache line (maybe
-> > using the store buffer?), or the CPU allocates an L3 cache line and sets
-> > its contents to zeroes, probably putting it in the last way of the set
-> > so it's the first thing to be evicted if not touched.
+On Wed 10-05-17 11:19:43, David S. Miller wrote:
+> From: Michal Hocko <mhocko@kernel.org>
+> Date: Wed, 10 May 2017 16:57:26 +0200
 > 
-> There is no conflict in what I said.
+> > Have you measured that? I do not think it would be super hard to
+> > measure. I would be quite surprised if this added much if anything at
+> > all as the whole struct page should be in the cache line already. We do
+> > set reference count and other struct members. Almost nobody should be
+> > looking at our page at this time and stealing the cache line. On the
+> > other hand a large memcpy will basically wipe everything away from the
+> > cpu cache. Or am I missing something?
 > 
-> Only an L2 cache line is allocated and cleared.  L3 is left alone.
+> I guess it might be clearer if you understand what the block
+> initializing stores do on sparc64.  There are no memory accesses at
+> all.
+> 
+> The cpu just zeros out the cache line, that's it.
+> 
+> No L3 cache line is allocated.  So this "wipe everything" behavior
+> will not happen in the L3.
 
-I thought SPARC had inclusive caches.  So allocating an L2 cacheline
-would necessitate allocating an L3 cacheline.  Or is this an exception
-to the normal order of things?
+OK, good to know. My undestanding of sparc64 is close to zero.
+
+Anyway, do you agree that doing the struct page initialization along
+with other writes to it shouldn't add a measurable overhead comparing
+to pre-zeroing of larger block of struct pages?  We already have an
+exclusive cache line and doing one 64B write along with few other stores
+should be basically the same.
+-- 
+Michal Hocko
+SUSE Labs
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
