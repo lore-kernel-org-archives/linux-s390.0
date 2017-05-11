@@ -1,183 +1,106 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [PATCH v7 09/13] vfio/ccw: get irqs info and set the eventfd fd
-Date: Tue, 9 May 2017 10:21:15 +0200
-Message-ID: <1c84ffc3-70fa-f6b7-fd10-def952d02a84@redhat.com>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [PATCH v7 06/13] s390x/css: device support for s390-ccw
+ passthrough
+Date: Thu, 11 May 2017 15:13:56 -0600
+Message-ID: <20170511151356.78516f2b@w520.home>
 References: <20170505020352.8984-1-bjsdjshi@linux.vnet.ibm.com>
- <20170505020352.8984-10-bjsdjshi@linux.vnet.ibm.com>
+        <20170505020352.8984-7-bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20170505020352.8984-10-bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20170505020352.8984-7-bjsdjshi@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, alex.williamson@redhat.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, cornelia.huck@de.ibm.com, borntraeger@de.ibm.com, agraf@suse.com, eric.auger@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+On Fri,  5 May 2017 04:03:45 +0200
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-On 05/05/2017 04:03, Dong Jia Shi wrote:
-> vfio-ccw resorts to the eventfd mechanism to communicate with userspace.
-> We fetch the irqs info via the ioctl VFIO_DEVICE_GET_IRQ_INFO,
-> register a event notifier to get the eventfd fd which is sent
-> to kernel via the ioctl VFIO_DEVICE_SET_IRQS, then we can implement
-> read operation once kernel sends the signal.
+> In order to support subchannels pass-through, we introduce a s390
+> subchannel device called "s390-ccw" to hold the real subchannel info.
+> The s390-ccw devices inherit from the abstract CcwDevice which connect
+> to the existing virtual-css-bus.
 > 
 > Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-
-Thanks
-
-Eric
-
 > ---
->  hw/vfio/ccw.c | 103 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 103 insertions(+)
+>  hw/s390x/Makefile.objs |   1 +
+>  hw/s390x/s390-ccw.c    | 138 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  hw/s390x/s390-ccw.h    |  38 ++++++++++++++
+>  3 files changed, 177 insertions(+)
+>  create mode 100644 hw/s390x/s390-ccw.c
+>  create mode 100644 hw/s390x/s390-ccw.h
 > 
-> diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-> index 7ddcfd7..6760cee 100644
-> --- a/hw/vfio/ccw.c
-> +++ b/hw/vfio/ccw.c
-> @@ -22,6 +22,7 @@
->  #include "hw/vfio/vfio-common.h"
->  #include "hw/s390x/s390-ccw.h"
->  #include "hw/s390x/ccw-device.h"
-> +#include "qemu/error-report.h"
->  
->  #define TYPE_VFIO_CCW "vfio-ccw"
->  typedef struct VFIOCCWDevice {
-> @@ -30,6 +31,7 @@ typedef struct VFIOCCWDevice {
->      uint64_t io_region_size;
->      uint64_t io_region_offset;
->      struct ccw_io_region *io_region;
-> +    EventNotifier io_notifier;
->  } VFIOCCWDevice;
->  
->  static void vfio_ccw_compute_needs_reset(VFIODevice *vdev)
-> @@ -54,6 +56,99 @@ static void vfio_ccw_reset(DeviceState *dev)
->      ioctl(vcdev->vdev.fd, VFIO_DEVICE_RESET);
->  }
->  
-> +static void vfio_ccw_io_notifier_handler(void *opaque)
-> +{
-> +    VFIOCCWDevice *vcdev = opaque;
+> diff --git a/hw/s390x/Makefile.objs b/hw/s390x/Makefile.objs
+> index 41ac4ec..72a3d37 100644
+> --- a/hw/s390x/Makefile.objs
+> +++ b/hw/s390x/Makefile.objs
+> @@ -13,3 +13,4 @@ obj-y += ccw-device.o
+>  obj-y += s390-pci-bus.o s390-pci-inst.o
+>  obj-y += s390-skeys.o
+>  obj-$(CONFIG_KVM) += s390-skeys-kvm.o
+> +obj-y += s390-ccw.o
+> diff --git a/hw/s390x/s390-ccw.c b/hw/s390x/s390-ccw.c
+> new file mode 100644
+> index 0000000..b1aadcd
+> --- /dev/null
+> +++ b/hw/s390x/s390-ccw.c
+> @@ -0,0 +1,138 @@
+> +/*
+> + * s390 CCW Assignment Support
+> + *
+> + * Copyright 2017 IBM Corp
+> + * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> + *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> + *            Pierre Morel <pmorel@linux.vnet.ibm.com>
+> + *
+> + * This work is licensed under the terms of the GNU GPL, version 2
+> + * or (at your option) any later version. See the COPYING file in the
+> + * top-level directory.
+> + */
+> +#include "qemu/osdep.h"
+> +#include "qapi/error.h"
+> +#include "hw/sysbus.h"
+> +#include "libgen.h"
+> +#include "hw/s390x/css.h"
+> +#include "hw/s390x/css-bridge.h"
+> +#include "s390-ccw.h"
 > +
-> +    if (!event_notifier_test_and_clear(&vcdev->io_notifier)) {
+> +static void s390_ccw_get_dev_info(S390CCWDevice *cdev,
+> +                                  char *sysfsdev,
+> +                                  Error **errp)
+> +{
+> +    unsigned int cssid, ssid, devid;
+> +    char dev_path[PATH_MAX] = {0}, *tmp;
+> +
+> +    if (!sysfsdev) {
+> +        error_setg(errp, "No host device provided");
+> +        error_append_hint(errp,
+> +                          "Use -device vfio-ccw,sysfsdev=PATH_TO_DEVICE\n");
 > +        return;
 > +    }
-> +}
 > +
-> +static void vfio_ccw_register_io_notifier(VFIOCCWDevice *vcdev, Error **errp)
-> +{
-> +    VFIODevice *vdev = &vcdev->vdev;
-> +    struct vfio_irq_info *irq_info;
-> +    struct vfio_irq_set *irq_set;
-> +    size_t argsz;
-> +    int32_t *pfd;
-> +
-> +    if (vdev->num_irqs < VFIO_CCW_IO_IRQ_INDEX + 1) {
-> +        error_setg(errp, "vfio: unexpected number of io irqs %u",
-> +                   vdev->num_irqs);
+> +    if (!realpath(sysfsdev, dev_path)) {
+> +        error_setg_errno(errp, errno, "Host device '%s' not found", sysfsdev);
 > +        return;
 > +    }
 > +
-> +    argsz = sizeof(*irq_set);
-> +    irq_info = g_malloc0(argsz);
-> +    irq_info->index = VFIO_CCW_IO_IRQ_INDEX;
-> +    irq_info->argsz = argsz;
-> +    if (ioctl(vdev->fd, VFIO_DEVICE_GET_IRQ_INFO,
-> +              irq_info) < 0 || irq_info->count < 1) {
-> +        error_setg_errno(errp, errno, "vfio: Error getting irq info");
-> +        goto get_error;
-> +    }
+> +    cdev->mdevid = g_strdup(basename(dev_path));
 > +
-> +    if (event_notifier_init(&vcdev->io_notifier, 0)) {
-> +        error_setg_errno(errp, errno,
-> +                         "vfio: Unable to init event notifier for IO");
-> +        goto get_error;
-> +    }
+> +    tmp = basename(dirname(dev_path));
+> +    sscanf(tmp, "%2x.%1x.%4x", &cssid, &ssid, &devid);
+
+
+Seems like an oversight not to check this return value.
+
+
 > +
-> +    argsz = sizeof(*irq_set) + sizeof(*pfd);
-> +    irq_set = g_malloc0(argsz);
-> +    irq_set->argsz = argsz;
-> +    irq_set->flags = VFIO_IRQ_SET_DATA_EVENTFD |
-> +                     VFIO_IRQ_SET_ACTION_TRIGGER;
-> +    irq_set->index = VFIO_CCW_IO_IRQ_INDEX;
-> +    irq_set->start = 0;
-> +    irq_set->count = 1;
-> +    pfd = (int32_t *) &irq_set->data;
-> +
-> +    *pfd = event_notifier_get_fd(&vcdev->io_notifier);
-> +    qemu_set_fd_handler(*pfd, vfio_ccw_io_notifier_handler, NULL, vcdev);
-> +    if (ioctl(vdev->fd, VFIO_DEVICE_SET_IRQS, irq_set)) {
-> +        error_setg(errp, "vfio: Failed to set up io notification");
-> +        qemu_set_fd_handler(*pfd, NULL, NULL, vcdev);
-> +        event_notifier_cleanup(&vcdev->io_notifier);
-> +        goto set_error;
-> +    }
-> +
-> +set_error:
-> +    g_free(irq_set);
-> +
-> +get_error:
-> +    g_free(irq_info);
+> +    cdev->hostid.cssid = cssid;
+> +    cdev->hostid.ssid = ssid;
+> +    cdev->hostid.devid = devid;
+> +    cdev->hostid.valid = true;
 > +}
 > +
-> +static void vfio_ccw_unregister_io_notifier(VFIOCCWDevice *vcdev)
-> +{
-> +    struct vfio_irq_set *irq_set;
-> +    size_t argsz;
-> +    int32_t *pfd;
-> +
-> +    argsz = sizeof(*irq_set) + sizeof(*pfd);
-> +    irq_set = g_malloc0(argsz);
-> +    irq_set->argsz = argsz;
-> +    irq_set->flags = VFIO_IRQ_SET_DATA_EVENTFD |
-> +                     VFIO_IRQ_SET_ACTION_TRIGGER;
-> +    irq_set->index = VFIO_CCW_IO_IRQ_INDEX;
-> +    irq_set->start = 0;
-> +    irq_set->count = 1;
-> +    pfd = (int32_t *) &irq_set->data;
-> +    *pfd = -1;
-> +
-> +    if (ioctl(vcdev->vdev.fd, VFIO_DEVICE_SET_IRQS, irq_set)) {
-> +        error_report("vfio: Failed to de-assign device io fd: %m");
-> +    }
-> +
-> +    qemu_set_fd_handler(event_notifier_get_fd(&vcdev->io_notifier),
-> +                        NULL, NULL, vcdev);
-> +    event_notifier_cleanup(&vcdev->io_notifier);
-> +
-> +    g_free(irq_set);
-> +}
-> +
->  static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
->  {
->      VFIODevice *vdev = &vcdev->vdev;
-> @@ -173,8 +268,15 @@ static void vfio_ccw_realize(DeviceState *dev, Error **errp)
->          goto out_region_err;
->      }
->  
-> +    vfio_ccw_register_io_notifier(vcdev, &err);
-> +    if (err) {
-> +        goto out_notifier_err;
-> +    }
-> +
->      return;
->  
-> +out_notifier_err:
-> +    vfio_ccw_put_region(vcdev);
->  out_region_err:
->      vfio_put_device(vcdev);
->  out_device_err:
-> @@ -195,6 +297,7 @@ static void vfio_ccw_unrealize(DeviceState *dev, Error **errp)
->      S390CCWDeviceClass *cdc = S390_CCW_DEVICE_GET_CLASS(cdev);
->      VFIOGroup *group = vcdev->vdev.group;
->  
-> +    vfio_ccw_unregister_io_notifier(vcdev);
->      vfio_ccw_put_region(vcdev);
->      vfio_put_device(vcdev);
->      vfio_put_group(group);
-> 
