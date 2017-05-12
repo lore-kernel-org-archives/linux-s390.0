@@ -1,109 +1,152 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 2/2] frv, mn10300, s390, sh: remove empty vga.h
-Date: Fri, 12 May 2017 10:42:24 +0200
-Message-ID: <20170512084224.4483-2-jslaby@suse.cz>
-References: <20170512084224.4483-1-jslaby@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20170512084224.4483-1-jslaby@suse.cz>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-List-Archive: <https://lore.kernel.org/dri-devel/>
-To: airlied@linux.ie
-Cc: linux-s390@vger.kernel.org, Rich Felker <dalias@libc.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, David Howells <dhowells@redhat.com>, linux-am33-list@redhat.com, Jiri Slaby <jslaby@suse.cz>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH V2 net 1/1] smc: switch to usage of IB_PD_UNSAFE_GLOBAL_RKEY
+Date: Fri, 12 May 2017 19:09:52 +0200
+Message-ID: <20170512170952.39863-2-ubraun@linux.vnet.ibm.com>
+References: <20170512170952.39863-1-ubraun@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170512170952.39863-1-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: davem@davemloft.net
+Cc: hch@lst.de, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-UHJvdmlkZWQgdGhlIGFyY2hpdGVjdHVyZXMgZG8gbm90IG5lZWQgYW55IHNwZWNpYWwgaGFuZGxp
-bmcgKHRoZXkgc2VlbQpub3QgdG8gc3VwcG9ydCB2Z2EgYXQgYWxsLCBhY3R1YWxseSksIHRoZXJl
-IGlzIG5vIG5lZWQgdG8gaGF2ZSBhbgplbXB0eSB2Z2EuaC4gTGV0IHRoZW0gcmVmZXIgdG8gdGhl
-IGdlbmVyaWMgb25lIGluc3RlYWQuCgpTaWduZWQtb2ZmLWJ5OiBKaXJpIFNsYWJ5IDxqc2xhYnlA
-c3VzZS5jej4KQWNrZWQtYnk6IEdlZXJ0IFV5dHRlcmhvZXZlbiA8Z2VlcnRAbGludXgtbTY4ay5v
-cmc+CkFja2VkLWJ5OiBNYXJ0aW4gU2Nod2lkZWZza3kgPHNjaHdpZGVmc2t5QGRlLmlibS5jb20+
-CkNjOiBEYXZpZCBIb3dlbGxzIDxkaG93ZWxsc0ByZWRoYXQuY29tPgpDYzogSGVpa28gQ2Fyc3Rl
-bnMgPGhlaWtvLmNhcnN0ZW5zQGRlLmlibS5jb20+CkNjOiBZb3NoaW5vcmkgU2F0byA8eXNhdG9A
-dXNlcnMuc291cmNlZm9yZ2UuanA+CkNjOiBSaWNoIEZlbGtlciA8ZGFsaWFzQGxpYmMub3JnPgpD
-YzogbGludXgtYW0zMy1saXN0QHJlZGhhdC5jb20KQ2M6IGxpbnV4LXMzOTBAdmdlci5rZXJuZWwu
-b3JnCkNjOiBsaW51eC1zaEB2Z2VyLmtlcm5lbC5vcmcKLS0tCiBhcmNoL2Zydi9pbmNsdWRlL2Fz
-bS9LYnVpbGQgICAgIHwgIDEgKwogYXJjaC9mcnYvaW5jbHVkZS9hc20vdmdhLmggICAgICB8IDE3
-IC0tLS0tLS0tLS0tLS0tLS0tCiBhcmNoL21uMTAzMDAvaW5jbHVkZS9hc20vS2J1aWxkIHwgIDEg
-KwogYXJjaC9tbjEwMzAwL2luY2x1ZGUvYXNtL3ZnYS5oICB8IDE3IC0tLS0tLS0tLS0tLS0tLS0t
-CiBhcmNoL3MzOTAvaW5jbHVkZS9hc20vS2J1aWxkICAgIHwgIDEgKwogYXJjaC9zMzkwL2luY2x1
-ZGUvYXNtL3ZnYS5oICAgICB8ICA2IC0tLS0tLQogYXJjaC9zaC9pbmNsdWRlL2FzbS9LYnVpbGQg
-ICAgICB8ICAxICsKIGFyY2gvc2gvaW5jbHVkZS9hc20vdmdhLmggICAgICAgfCAgNiAtLS0tLS0K
-IDggZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0NiBkZWxldGlvbnMoLSkKIGRlbGV0
-ZSBtb2RlIDEwMDY0NCBhcmNoL2Zydi9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAw
-NjQ0IGFyY2gvbW4xMDMwMC9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAwNjQ0IGFy
-Y2gvczM5MC9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAwNjQ0IGFyY2gvc2gvaW5j
-bHVkZS9hc20vdmdhLmgKCmRpZmYgLS1naXQgYS9hcmNoL2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQg
-Yi9hcmNoL2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQKaW5kZXggY2NlM2JjMzYwM2VhLi42YzRjOGQw
-N2JhNmUgMTAwNjQ0Ci0tLSBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL0tidWlsZAorKysgYi9hcmNo
-L2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQKQEAgLTcsNSArNyw2IEBAIGdlbmVyaWMteSArPSBtY3Nf
-c3BpbmxvY2suaAogZ2VuZXJpYy15ICs9IG1tLWFyY2gtaG9va3MuaAogZ2VuZXJpYy15ICs9IHBy
-ZWVtcHQuaAogZ2VuZXJpYy15ICs9IHRyYWNlX2Nsb2NrLmgKK2dlbmVyaWMteSArPSB2Z2EuaAog
-Z2VuZXJpYy15ICs9IHdvcmQtYXQtYS10aW1lLmgKIGdlbmVyaWMteSArPSBrcHJvYmVzLmgKZGlm
-ZiAtLWdpdCBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL3ZnYS5oIGIvYXJjaC9mcnYvaW5jbHVkZS9h
-c20vdmdhLmgKZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IGE3MDJjODAwYTIyOS4uMDAw
-MDAwMDAwMDAwCi0tLSBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL3ZnYS5oCisrKyAvZGV2L251bGwK
-QEAgLTEsMTcgKzAsMCBAQAotLyogdmdhLmg6IFZHQSByZWdpc3RlciBzdHVmZgotICoKLSAqIENv
-cHlyaWdodCAoQykgMjAwNiBSZWQgSGF0LCBJbmMuIEFsbCBSaWdodHMgUmVzZXJ2ZWQuCi0gKiBX
-cml0dGVuIGJ5IERhdmlkIEhvd2VsbHMgKGRob3dlbGxzQHJlZGhhdC5jb20pCi0gKgotICogVGhp
-cyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9v
-cgotICogbW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGlj
-IExpY2Vuc2UKLSAqIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9u
-OyBlaXRoZXIgdmVyc2lvbgotICogMiBvZiB0aGUgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9u
-KSBhbnkgbGF0ZXIgdmVyc2lvbi4KLSAqLwotCi0jaWZuZGVmIF9BU01fVkdBX0gKLSNkZWZpbmUg
-X0FTTV9WR0FfSAotCi0KLQotI2VuZGlmIC8qIF9BU01fVkdBX0ggKi8KZGlmZiAtLWdpdCBhL2Fy
-Y2gvbW4xMDMwMC9pbmNsdWRlL2FzbS9LYnVpbGQgYi9hcmNoL21uMTAzMDAvaW5jbHVkZS9hc20v
-S2J1aWxkCmluZGV4IGVkODEwZTcyMDZlOC4uM2Q3NGIzMTBmMTUyIDEwMDY0NAotLS0gYS9hcmNo
-L21uMTAzMDAvaW5jbHVkZS9hc20vS2J1aWxkCisrKyBiL2FyY2gvbW4xMDMwMC9pbmNsdWRlL2Fz
-bS9LYnVpbGQKQEAgLTksNCArOSw1IEBAIGdlbmVyaWMteSArPSBtbS1hcmNoLWhvb2tzLmgKIGdl
-bmVyaWMteSArPSBwcmVlbXB0LmgKIGdlbmVyaWMteSArPSBzZWN0aW9ucy5oCiBnZW5lcmljLXkg
-Kz0gdHJhY2VfY2xvY2suaAorZ2VuZXJpYy15ICs9IHZnYS5oCiBnZW5lcmljLXkgKz0gd29yZC1h
-dC1hLXRpbWUuaApkaWZmIC0tZ2l0IGEvYXJjaC9tbjEwMzAwL2luY2x1ZGUvYXNtL3ZnYS5oIGIv
-YXJjaC9tbjEwMzAwL2luY2x1ZGUvYXNtL3ZnYS5oCmRlbGV0ZWQgZmlsZSBtb2RlIDEwMDY0NApp
-bmRleCAwMTYzZTUwYTM0NTkuLjAwMDAwMDAwMDAwMAotLS0gYS9hcmNoL21uMTAzMDAvaW5jbHVk
-ZS9hc20vdmdhLmgKKysrIC9kZXYvbnVsbApAQCAtMSwxNyArMCwwIEBACi0vKiBNTjEwMzAwIFZH
-QSByZWdpc3RlciBkZWZpbml0aW9ucwotICoKLSAqIENvcHlyaWdodCAoQykgMjAwNyBSZWQgSGF0
-LCBJbmMuIEFsbCBSaWdodHMgUmVzZXJ2ZWQuCi0gKiBXcml0dGVuIGJ5IERhdmlkIEhvd2VsbHMg
-KGRob3dlbGxzQHJlZGhhdC5jb20pCi0gKgotICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdh
-cmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vcgotICogbW9kaWZ5IGl0IHVuZGVyIHRo
-ZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2VuY2UKLSAqIGFzIHB1Ymxpc2hl
-ZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbgotICogMiBv
-ZiB0aGUgTGljZW5jZSwgb3IgKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KLSAq
-LwotCi0jaWZuZGVmIF9BU01fVkdBX0gKLSNkZWZpbmUgX0FTTV9WR0FfSAotCi0KLQotI2VuZGlm
-IC8qIF9BU01fVkdBX0ggKi8KZGlmZiAtLWdpdCBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9LYnVp
-bGQgYi9hcmNoL3MzOTAvaW5jbHVkZS9hc20vS2J1aWxkCmluZGV4IDQ1MDkyYjEyZjU0Zi4uMjAw
-YzEyMmNmNWUwIDEwMDY0NAotLS0gYS9hcmNoL3MzOTAvaW5jbHVkZS9hc20vS2J1aWxkCisrKyBi
-L2FyY2gvczM5MC9pbmNsdWRlL2FzbS9LYnVpbGQKQEAgLTE0LDQgKzE0LDUgQEAgZ2VuZXJpYy15
-ICs9IG1jc19zcGlubG9jay5oCiBnZW5lcmljLXkgKz0gbW0tYXJjaC1ob29rcy5oCiBnZW5lcmlj
-LXkgKz0gcHJlZW1wdC5oCiBnZW5lcmljLXkgKz0gdHJhY2VfY2xvY2suaAorZ2VuZXJpYy15ICs9
-IHZnYS5oCiBnZW5lcmljLXkgKz0gd29yZC1hdC1hLXRpbWUuaApkaWZmIC0tZ2l0IGEvYXJjaC9z
-MzkwL2luY2x1ZGUvYXNtL3ZnYS5oIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3ZnYS5oCmRlbGV0
-ZWQgZmlsZSBtb2RlIDEwMDY0NAppbmRleCBkMzc1NTI2YzI2MWYuLjAwMDAwMDAwMDAwMAotLS0g
-YS9hcmNoL3MzOTAvaW5jbHVkZS9hc20vdmdhLmgKKysrIC9kZXYvbnVsbApAQCAtMSw2ICswLDAg
-QEAKLSNpZm5kZWYgX0FTTV9TMzkwX1ZHQV9ICi0jZGVmaW5lIF9BU01fUzM5MF9WR0FfSAotCi0v
-KiBBdm9pZCBjb21waWxlIGVycm9ycyBkdWUgdG8gbWlzc2luZyBhc20vdmdhLmggKi8KLQotI2Vu
-ZGlmIC8qIF9BU01fUzM5MF9WR0FfSCAqLwpkaWZmIC0tZ2l0IGEvYXJjaC9zaC9pbmNsdWRlL2Fz
-bS9LYnVpbGQgYi9hcmNoL3NoL2luY2x1ZGUvYXNtL0tidWlsZAppbmRleCBjZjJhNzUwNjNiNTMu
-LjVjYjIwMjdmYjkyMCAxMDA2NDQKLS0tIGEvYXJjaC9zaC9pbmNsdWRlL2FzbS9LYnVpbGQKKysr
-IGIvYXJjaC9zaC9pbmNsdWRlL2FzbS9LYnVpbGQKQEAgLTM3LDQgKzM3LDUgQEAgZ2VuZXJpYy15
-ICs9IHRlcm1iaXRzLmgKIGdlbmVyaWMteSArPSB0ZXJtaW9zLmgKIGdlbmVyaWMteSArPSB0cmFj
-ZV9jbG9jay5oCiBnZW5lcmljLXkgKz0gdWNvbnRleHQuaAorZ2VuZXJpYy15ICs9IHZnYS5oCiBn
-ZW5lcmljLXkgKz0geG9yLmgKZGlmZiAtLWdpdCBhL2FyY2gvc2gvaW5jbHVkZS9hc20vdmdhLmgg
-Yi9hcmNoL3NoL2luY2x1ZGUvYXNtL3ZnYS5oCmRlbGV0ZWQgZmlsZSBtb2RlIDEwMDY0NAppbmRl
-eCAwNmE1ZGU4YWNlMWEuLjAwMDAwMDAwMDAwMAotLS0gYS9hcmNoL3NoL2luY2x1ZGUvYXNtL3Zn
-YS5oCisrKyAvZGV2L251bGwKQEAgLTEsNiArMCwwIEBACi0jaWZuZGVmIF9fQVNNX1NIX1ZHQV9I
-Ci0jZGVmaW5lIF9fQVNNX1NIX1ZHQV9ICi0KLS8qIFN0dXBpZCBkcml2ZXJzLiAqLwotCi0jZW5k
-aWYgLyogX19BU01fU0hfVkdBX0ggKi8KLS0gCjIuMTMuMAoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2
-ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21h
-aWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+This patch makes users aware of the current security implications
+when using smc.
+
+The final fix to resolve the reported security issue is worked on;
+respective patches will follow as soon as possible.
+
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ net/smc/smc_clc.c  |  4 ++--
+ net/smc/smc_core.c | 16 +++-------------
+ net/smc/smc_core.h |  2 +-
+ net/smc/smc_ib.c   | 21 ++-------------------
+ net/smc/smc_ib.h   |  2 --
+ 5 files changed, 8 insertions(+), 37 deletions(-)
+
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index e41f594..03ec058 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -204,7 +204,7 @@ int smc_clc_send_confirm(struct smc_sock *smc)
+ 	memcpy(&cclc.lcl.mac, &link->smcibdev->mac[link->ibport - 1], ETH_ALEN);
+ 	hton24(cclc.qpn, link->roce_qp->qp_num);
+ 	cclc.rmb_rkey =
+-		htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
++		htonl(conn->rmb_desc->rkey[SMC_SINGLE_LINK]);
+ 	cclc.conn_idx = 1; /* for now: 1 RMB = 1 RMBE */
+ 	cclc.rmbe_alert_token = htonl(conn->alert_token_local);
+ 	cclc.qp_mtu = min(link->path_mtu, link->peer_mtu);
+@@ -256,7 +256,7 @@ int smc_clc_send_accept(struct smc_sock *new_smc, int srv_first_contact)
+ 	memcpy(&aclc.lcl.mac, link->smcibdev->mac[link->ibport - 1], ETH_ALEN);
+ 	hton24(aclc.qpn, link->roce_qp->qp_num);
+ 	aclc.rmb_rkey =
+-		htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
++		htonl(conn->rmb_desc->rkey[SMC_SINGLE_LINK]);
+ 	aclc.conn_idx = 1;			/* as long as 1 RMB = 1 RMBE */
+ 	aclc.rmbe_alert_token = htonl(conn->alert_token_local);
+ 	aclc.qp_mtu = link->path_mtu;
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 65020e9..3ac09a6 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -613,19 +613,8 @@ int smc_rmb_create(struct smc_sock *smc)
+ 			rmb_desc = NULL;
+ 			continue; /* if mapping failed, try smaller one */
+ 		}
+-		rc = smc_ib_get_memory_region(lgr->lnk[SMC_SINGLE_LINK].roce_pd,
+-					      IB_ACCESS_REMOTE_WRITE |
+-					      IB_ACCESS_LOCAL_WRITE,
+-					     &rmb_desc->mr_rx[SMC_SINGLE_LINK]);
+-		if (rc) {
+-			smc_ib_buf_unmap(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
+-					 tmp_bufsize, rmb_desc,
+-					 DMA_FROM_DEVICE);
+-			kfree(rmb_desc->cpu_addr);
+-			kfree(rmb_desc);
+-			rmb_desc = NULL;
+-			continue;
+-		}
++		rmb_desc->rkey[SMC_SINGLE_LINK] =
++			lgr->lnk[SMC_SINGLE_LINK].roce_pd->unsafe_global_rkey;
+ 		rmb_desc->used = 1;
+ 		write_lock_bh(&lgr->rmbs_lock);
+ 		list_add(&rmb_desc->list,
+@@ -668,6 +657,7 @@ int smc_rmb_rtoken_handling(struct smc_connection *conn,
+ 
+ 	for (i = 0; i < SMC_RMBS_PER_LGR_MAX; i++) {
+ 		if ((lgr->rtokens[i][SMC_SINGLE_LINK].rkey == rkey) &&
++		    (lgr->rtokens[i][SMC_SINGLE_LINK].dma_addr == dma_addr) &&
+ 		    test_bit(i, lgr->rtokens_used_mask)) {
+ 			conn->rtoken_idx = i;
+ 			return 0;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 27eb3805..b013cb4 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -93,7 +93,7 @@ struct smc_buf_desc {
+ 	u64			dma_addr[SMC_LINKS_PER_LGR_MAX];
+ 						/* mapped address of buffer */
+ 	void			*cpu_addr;	/* virtual address of buffer */
+-	struct ib_mr		*mr_rx[SMC_LINKS_PER_LGR_MAX];
++	u32			rkey[SMC_LINKS_PER_LGR_MAX];
+ 						/* for rmb only:
+ 						 * rkey provided to peer
+ 						 */
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index cb69ab9..b317155 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -37,24 +37,6 @@ u8 local_systemid[SMC_SYSTEMID_LEN] = SMC_LOCAL_SYSTEMID_RESET;	/* unique system
+ 								 * identifier
+ 								 */
+ 
+-int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
+-			     struct ib_mr **mr)
+-{
+-	int rc;
+-
+-	if (*mr)
+-		return 0; /* already done */
+-
+-	/* obtain unique key -
+-	 * next invocation of get_dma_mr returns a different key!
+-	 */
+-	*mr = pd->device->get_dma_mr(pd, access_flags);
+-	rc = PTR_ERR_OR_ZERO(*mr);
+-	if (IS_ERR(*mr))
+-		*mr = NULL;
+-	return rc;
+-}
+-
+ static int smc_ib_modify_qp_init(struct smc_link *lnk)
+ {
+ 	struct ib_qp_attr qp_attr;
+@@ -210,7 +192,8 @@ int smc_ib_create_protection_domain(struct smc_link *lnk)
+ {
+ 	int rc;
+ 
+-	lnk->roce_pd = ib_alloc_pd(lnk->smcibdev->ibdev, 0);
++	lnk->roce_pd = ib_alloc_pd(lnk->smcibdev->ibdev,
++				   IB_PD_UNSAFE_GLOBAL_RKEY);
+ 	rc = PTR_ERR_OR_ZERO(lnk->roce_pd);
+ 	if (IS_ERR(lnk->roce_pd))
+ 		lnk->roce_pd = NULL;
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 7e1f0e2..b567152 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -61,8 +61,6 @@ void smc_ib_dealloc_protection_domain(struct smc_link *lnk);
+ int smc_ib_create_protection_domain(struct smc_link *lnk);
+ void smc_ib_destroy_queue_pair(struct smc_link *lnk);
+ int smc_ib_create_queue_pair(struct smc_link *lnk);
+-int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
+-			     struct ib_mr **mr);
+ int smc_ib_ready_link(struct smc_link *lnk);
+ int smc_ib_modify_qp_rts(struct smc_link *lnk);
+ int smc_ib_modify_qp_reset(struct smc_link *lnk);
+-- 
+2.10.2
