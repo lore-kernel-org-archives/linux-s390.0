@@ -1,42 +1,109 @@
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 4/4] s390/qeth: add missing hash table initializations
-Date: Wed, 10 May 2017 19:07:54 +0200
-Message-ID: <20170510170754.53922-5-jwi@linux.vnet.ibm.com>
-References: <20170510170754.53922-1-jwi@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170510170754.53922-1-jwi@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 2/2] frv, mn10300, s390, sh: remove empty vga.h
+Date: Fri, 12 May 2017 10:42:24 +0200
+Message-ID: <20170512084224.4483-2-jslaby@suse.cz>
+References: <20170512084224.4483-1-jslaby@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170512084224.4483-1-jslaby@suse.cz>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+List-Archive: <https://lore.kernel.org/dri-devel/>
+To: airlied@linux.ie
+Cc: linux-s390@vger.kernel.org, Rich Felker <dalias@libc.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, David Howells <dhowells@redhat.com>, linux-am33-list@redhat.com, Jiri Slaby <jslaby@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-
-commit 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
-added new hash tables, but missed to initialize them.
-
-Fixes: 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
----
- drivers/s390/net/qeth_l3_main.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 6c2146fc831a..d8df1e635163 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -3044,6 +3044,8 @@ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
- 	rc = qeth_l3_create_device_attributes(&gdev->dev);
- 	if (rc)
- 		return rc;
-+	hash_init(card->ip_htable);
-+	hash_init(card->ip_mc_htable);
- 	card->options.layer2 = 0;
- 	card->info.hwtrap = 0;
- 	return 0;
--- 
-2.10.2
+UHJvdmlkZWQgdGhlIGFyY2hpdGVjdHVyZXMgZG8gbm90IG5lZWQgYW55IHNwZWNpYWwgaGFuZGxp
+bmcgKHRoZXkgc2VlbQpub3QgdG8gc3VwcG9ydCB2Z2EgYXQgYWxsLCBhY3R1YWxseSksIHRoZXJl
+IGlzIG5vIG5lZWQgdG8gaGF2ZSBhbgplbXB0eSB2Z2EuaC4gTGV0IHRoZW0gcmVmZXIgdG8gdGhl
+IGdlbmVyaWMgb25lIGluc3RlYWQuCgpTaWduZWQtb2ZmLWJ5OiBKaXJpIFNsYWJ5IDxqc2xhYnlA
+c3VzZS5jej4KQWNrZWQtYnk6IEdlZXJ0IFV5dHRlcmhvZXZlbiA8Z2VlcnRAbGludXgtbTY4ay5v
+cmc+CkFja2VkLWJ5OiBNYXJ0aW4gU2Nod2lkZWZza3kgPHNjaHdpZGVmc2t5QGRlLmlibS5jb20+
+CkNjOiBEYXZpZCBIb3dlbGxzIDxkaG93ZWxsc0ByZWRoYXQuY29tPgpDYzogSGVpa28gQ2Fyc3Rl
+bnMgPGhlaWtvLmNhcnN0ZW5zQGRlLmlibS5jb20+CkNjOiBZb3NoaW5vcmkgU2F0byA8eXNhdG9A
+dXNlcnMuc291cmNlZm9yZ2UuanA+CkNjOiBSaWNoIEZlbGtlciA8ZGFsaWFzQGxpYmMub3JnPgpD
+YzogbGludXgtYW0zMy1saXN0QHJlZGhhdC5jb20KQ2M6IGxpbnV4LXMzOTBAdmdlci5rZXJuZWwu
+b3JnCkNjOiBsaW51eC1zaEB2Z2VyLmtlcm5lbC5vcmcKLS0tCiBhcmNoL2Zydi9pbmNsdWRlL2Fz
+bS9LYnVpbGQgICAgIHwgIDEgKwogYXJjaC9mcnYvaW5jbHVkZS9hc20vdmdhLmggICAgICB8IDE3
+IC0tLS0tLS0tLS0tLS0tLS0tCiBhcmNoL21uMTAzMDAvaW5jbHVkZS9hc20vS2J1aWxkIHwgIDEg
+KwogYXJjaC9tbjEwMzAwL2luY2x1ZGUvYXNtL3ZnYS5oICB8IDE3IC0tLS0tLS0tLS0tLS0tLS0t
+CiBhcmNoL3MzOTAvaW5jbHVkZS9hc20vS2J1aWxkICAgIHwgIDEgKwogYXJjaC9zMzkwL2luY2x1
+ZGUvYXNtL3ZnYS5oICAgICB8ICA2IC0tLS0tLQogYXJjaC9zaC9pbmNsdWRlL2FzbS9LYnVpbGQg
+ICAgICB8ICAxICsKIGFyY2gvc2gvaW5jbHVkZS9hc20vdmdhLmggICAgICAgfCAgNiAtLS0tLS0K
+IDggZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0NiBkZWxldGlvbnMoLSkKIGRlbGV0
+ZSBtb2RlIDEwMDY0NCBhcmNoL2Zydi9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAw
+NjQ0IGFyY2gvbW4xMDMwMC9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAwNjQ0IGFy
+Y2gvczM5MC9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAwNjQ0IGFyY2gvc2gvaW5j
+bHVkZS9hc20vdmdhLmgKCmRpZmYgLS1naXQgYS9hcmNoL2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQg
+Yi9hcmNoL2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQKaW5kZXggY2NlM2JjMzYwM2VhLi42YzRjOGQw
+N2JhNmUgMTAwNjQ0Ci0tLSBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL0tidWlsZAorKysgYi9hcmNo
+L2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQKQEAgLTcsNSArNyw2IEBAIGdlbmVyaWMteSArPSBtY3Nf
+c3BpbmxvY2suaAogZ2VuZXJpYy15ICs9IG1tLWFyY2gtaG9va3MuaAogZ2VuZXJpYy15ICs9IHBy
+ZWVtcHQuaAogZ2VuZXJpYy15ICs9IHRyYWNlX2Nsb2NrLmgKK2dlbmVyaWMteSArPSB2Z2EuaAog
+Z2VuZXJpYy15ICs9IHdvcmQtYXQtYS10aW1lLmgKIGdlbmVyaWMteSArPSBrcHJvYmVzLmgKZGlm
+ZiAtLWdpdCBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL3ZnYS5oIGIvYXJjaC9mcnYvaW5jbHVkZS9h
+c20vdmdhLmgKZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IGE3MDJjODAwYTIyOS4uMDAw
+MDAwMDAwMDAwCi0tLSBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL3ZnYS5oCisrKyAvZGV2L251bGwK
+QEAgLTEsMTcgKzAsMCBAQAotLyogdmdhLmg6IFZHQSByZWdpc3RlciBzdHVmZgotICoKLSAqIENv
+cHlyaWdodCAoQykgMjAwNiBSZWQgSGF0LCBJbmMuIEFsbCBSaWdodHMgUmVzZXJ2ZWQuCi0gKiBX
+cml0dGVuIGJ5IERhdmlkIEhvd2VsbHMgKGRob3dlbGxzQHJlZGhhdC5jb20pCi0gKgotICogVGhp
+cyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9v
+cgotICogbW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGlj
+IExpY2Vuc2UKLSAqIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9u
+OyBlaXRoZXIgdmVyc2lvbgotICogMiBvZiB0aGUgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9u
+KSBhbnkgbGF0ZXIgdmVyc2lvbi4KLSAqLwotCi0jaWZuZGVmIF9BU01fVkdBX0gKLSNkZWZpbmUg
+X0FTTV9WR0FfSAotCi0KLQotI2VuZGlmIC8qIF9BU01fVkdBX0ggKi8KZGlmZiAtLWdpdCBhL2Fy
+Y2gvbW4xMDMwMC9pbmNsdWRlL2FzbS9LYnVpbGQgYi9hcmNoL21uMTAzMDAvaW5jbHVkZS9hc20v
+S2J1aWxkCmluZGV4IGVkODEwZTcyMDZlOC4uM2Q3NGIzMTBmMTUyIDEwMDY0NAotLS0gYS9hcmNo
+L21uMTAzMDAvaW5jbHVkZS9hc20vS2J1aWxkCisrKyBiL2FyY2gvbW4xMDMwMC9pbmNsdWRlL2Fz
+bS9LYnVpbGQKQEAgLTksNCArOSw1IEBAIGdlbmVyaWMteSArPSBtbS1hcmNoLWhvb2tzLmgKIGdl
+bmVyaWMteSArPSBwcmVlbXB0LmgKIGdlbmVyaWMteSArPSBzZWN0aW9ucy5oCiBnZW5lcmljLXkg
+Kz0gdHJhY2VfY2xvY2suaAorZ2VuZXJpYy15ICs9IHZnYS5oCiBnZW5lcmljLXkgKz0gd29yZC1h
+dC1hLXRpbWUuaApkaWZmIC0tZ2l0IGEvYXJjaC9tbjEwMzAwL2luY2x1ZGUvYXNtL3ZnYS5oIGIv
+YXJjaC9tbjEwMzAwL2luY2x1ZGUvYXNtL3ZnYS5oCmRlbGV0ZWQgZmlsZSBtb2RlIDEwMDY0NApp
+bmRleCAwMTYzZTUwYTM0NTkuLjAwMDAwMDAwMDAwMAotLS0gYS9hcmNoL21uMTAzMDAvaW5jbHVk
+ZS9hc20vdmdhLmgKKysrIC9kZXYvbnVsbApAQCAtMSwxNyArMCwwIEBACi0vKiBNTjEwMzAwIFZH
+QSByZWdpc3RlciBkZWZpbml0aW9ucwotICoKLSAqIENvcHlyaWdodCAoQykgMjAwNyBSZWQgSGF0
+LCBJbmMuIEFsbCBSaWdodHMgUmVzZXJ2ZWQuCi0gKiBXcml0dGVuIGJ5IERhdmlkIEhvd2VsbHMg
+KGRob3dlbGxzQHJlZGhhdC5jb20pCi0gKgotICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdh
+cmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vcgotICogbW9kaWZ5IGl0IHVuZGVyIHRo
+ZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2VuY2UKLSAqIGFzIHB1Ymxpc2hl
+ZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbgotICogMiBv
+ZiB0aGUgTGljZW5jZSwgb3IgKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KLSAq
+LwotCi0jaWZuZGVmIF9BU01fVkdBX0gKLSNkZWZpbmUgX0FTTV9WR0FfSAotCi0KLQotI2VuZGlm
+IC8qIF9BU01fVkdBX0ggKi8KZGlmZiAtLWdpdCBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9LYnVp
+bGQgYi9hcmNoL3MzOTAvaW5jbHVkZS9hc20vS2J1aWxkCmluZGV4IDQ1MDkyYjEyZjU0Zi4uMjAw
+YzEyMmNmNWUwIDEwMDY0NAotLS0gYS9hcmNoL3MzOTAvaW5jbHVkZS9hc20vS2J1aWxkCisrKyBi
+L2FyY2gvczM5MC9pbmNsdWRlL2FzbS9LYnVpbGQKQEAgLTE0LDQgKzE0LDUgQEAgZ2VuZXJpYy15
+ICs9IG1jc19zcGlubG9jay5oCiBnZW5lcmljLXkgKz0gbW0tYXJjaC1ob29rcy5oCiBnZW5lcmlj
+LXkgKz0gcHJlZW1wdC5oCiBnZW5lcmljLXkgKz0gdHJhY2VfY2xvY2suaAorZ2VuZXJpYy15ICs9
+IHZnYS5oCiBnZW5lcmljLXkgKz0gd29yZC1hdC1hLXRpbWUuaApkaWZmIC0tZ2l0IGEvYXJjaC9z
+MzkwL2luY2x1ZGUvYXNtL3ZnYS5oIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3ZnYS5oCmRlbGV0
+ZWQgZmlsZSBtb2RlIDEwMDY0NAppbmRleCBkMzc1NTI2YzI2MWYuLjAwMDAwMDAwMDAwMAotLS0g
+YS9hcmNoL3MzOTAvaW5jbHVkZS9hc20vdmdhLmgKKysrIC9kZXYvbnVsbApAQCAtMSw2ICswLDAg
+QEAKLSNpZm5kZWYgX0FTTV9TMzkwX1ZHQV9ICi0jZGVmaW5lIF9BU01fUzM5MF9WR0FfSAotCi0v
+KiBBdm9pZCBjb21waWxlIGVycm9ycyBkdWUgdG8gbWlzc2luZyBhc20vdmdhLmggKi8KLQotI2Vu
+ZGlmIC8qIF9BU01fUzM5MF9WR0FfSCAqLwpkaWZmIC0tZ2l0IGEvYXJjaC9zaC9pbmNsdWRlL2Fz
+bS9LYnVpbGQgYi9hcmNoL3NoL2luY2x1ZGUvYXNtL0tidWlsZAppbmRleCBjZjJhNzUwNjNiNTMu
+LjVjYjIwMjdmYjkyMCAxMDA2NDQKLS0tIGEvYXJjaC9zaC9pbmNsdWRlL2FzbS9LYnVpbGQKKysr
+IGIvYXJjaC9zaC9pbmNsdWRlL2FzbS9LYnVpbGQKQEAgLTM3LDQgKzM3LDUgQEAgZ2VuZXJpYy15
+ICs9IHRlcm1iaXRzLmgKIGdlbmVyaWMteSArPSB0ZXJtaW9zLmgKIGdlbmVyaWMteSArPSB0cmFj
+ZV9jbG9jay5oCiBnZW5lcmljLXkgKz0gdWNvbnRleHQuaAorZ2VuZXJpYy15ICs9IHZnYS5oCiBn
+ZW5lcmljLXkgKz0geG9yLmgKZGlmZiAtLWdpdCBhL2FyY2gvc2gvaW5jbHVkZS9hc20vdmdhLmgg
+Yi9hcmNoL3NoL2luY2x1ZGUvYXNtL3ZnYS5oCmRlbGV0ZWQgZmlsZSBtb2RlIDEwMDY0NAppbmRl
+eCAwNmE1ZGU4YWNlMWEuLjAwMDAwMDAwMDAwMAotLS0gYS9hcmNoL3NoL2luY2x1ZGUvYXNtL3Zn
+YS5oCisrKyAvZGV2L251bGwKQEAgLTEsNiArMCwwIEBACi0jaWZuZGVmIF9fQVNNX1NIX1ZHQV9I
+Ci0jZGVmaW5lIF9fQVNNX1NIX1ZHQV9ICi0KLS8qIFN0dXBpZCBkcml2ZXJzLiAqLwotCi0jZW5k
+aWYgLyogX19BU01fU0hfVkdBX0ggKi8KLS0gCjIuMTMuMAoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2
+ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21h
+aWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
