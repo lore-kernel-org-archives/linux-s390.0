@@ -1,36 +1,70 @@
-Date: Fri, 12 May 2017 01:11:26 -0700
-From: Christoph Hellwig <hch@infradead.org>
-Message-ID: <20170512081126.GA7188@infradead.org>
-References: <20170428153213.137279-1-thgarnie@google.com>
- <CAJcbSZGQsRVg3QZ9QfLn2HBC+RP-7fUTab0bYDJ455d8y8GyNw@mail.gmail.com>
- <20170508073352.caqe3fqf7nuxypgi@gmail.com>
- <20170508124621.GA20705@kroah.com>
- <20170509064522.anusoikaalvlux3w@gmail.com>
- <20170509085659.GA32555@infradead.org>
- <CALCETrUh8NO2scaqEM48K70Fo2+V3=Cpyk4JurCDiCYp4nm_+g@mail.gmail.com>
- <20170512070012.7dysuhbkcas7ibaj@gmail.com>
- <20170512071549.GP390@ZenIV.linux.org.uk>
- <CAK8P3a2ynRObJLn2Hh2r9_2k5+O08jErPC_UnnDmemd1jXsnkw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a2ynRObJLn2Hh2r9_2k5+O08jErPC_UnnDmemd1jXsnkw@mail.gmail.com>
+In-Reply-To: <20170512065818.mw7yqcdck7alqlzi@gmail.com>
+References: <CAJcbSZGQsRVg3QZ9QfLn2HBC+RP-7fUTab0bYDJ455d8y8GyNw@mail.gmail.com>
+ <20170508073352.caqe3fqf7nuxypgi@gmail.com> <20170508075209.7aluvpwildw325rf@gmail.com>
+ <1494256932.1167.1.camel@gmail.com> <CAGXu5jL61K0bRSEg9a_LswNyrt3K1J57REbWVcvAXT54zWwtMA@mail.gmail.com>
+ <20170509065619.wmqa6z6w3n6xpvrw@gmail.com> <20170509111007.GA14702@kroah.com>
+ <CAJcbSZFswDWZoK-1UK+xkRMJ4ttSYbtH2Y5WD5_aPR-8ru6t8A@mail.gmail.com>
+ <CAJcbSZEoRyewUtBHvqmNZL9FtT_q42Vmmd-EuC50x-ZRASiHHg@mail.gmail.com>
+ <CA+55aFwvQfs_X+paQF6Luc0Rq+W3J2fKuHRou7=ANcquDdXdDA@mail.gmail.com> <20170512065818.mw7yqcdck7alqlzi@gmail.com>
+From: Thomas Garnier <thgarnie@google.com>
+Date: Fri, 12 May 2017 10:05:58 -0700
+Message-ID: <CAJcbSZFyzanv6ji97+K2kQH1CFX6qeXWsGwRvjiK1Dk+f3niBA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Subject: Re: [kernel-hardening] Re: [PATCH v9 1/4] syscalls: Verify address
  limit before returning to user-mode
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Ingo Molnar <mingo@kernel.org>, Andy Lutomirski <luto@kernel.org>, Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>, Thomas Garnier <thgarnie@google.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, Thomas Gleixner <tglx@linutronix.de>, David Howells <dhowells@redhat.com>, =?iso-8859-1?Q?Ren=E9?= Nyffenegger <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, "Eric W . Biederman" <ebiederm@xmission.com>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Kees Cook <keescook@chromium.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Linus Torvalds <torvalds@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Ingo Molnar <mingo@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Greg KH <greg@kroah.com>, Kees Cook <keescook@chromium.org>, Daniel Micay <danielmicay@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, David Howells <dhowells@redhat.com>, =?UTF-8?Q?Ren=C3=A9_Nyffenegger?= <mail@renenyffenegger.ch>, Andrew Morton <akpm@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, "Eric W . Biederman" <ebiederm@xmission.com>, Oleg Nesterov <oleg@redhat.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Brian Gerst <brgerst@gmail.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, James Morse <james.morse@arm.com>, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Al Viro <viro@zeniv.linux.org.uk>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, May 12, 2017 at 09:43:40AM +0200, Arnd Bergmann wrote:
-> How realistic and how useful would it be to first completely eliminate
-> the ones that are in loadable modules and then wrapping the definition
-> in #ifndef MODULE (or even make it an extern function)?
+On Thu, May 11, 2017 at 11:58 PM, Ingo Molnar <mingo@kernel.org> wrote:
+>
+> * Linus Torvalds <torvalds@linux-foundation.org> wrote:
+>
+>> On Thu, May 11, 2017 at 4:17 PM, Thomas Garnier <thgarnie@google.com> wrote:
+>> >
+>> > Ingo: Do you want the change as-is? Would you like it to be optional?
+>> > What do you think?
+>>
+>> I'm not ingo, but I don't like that patch. It's in the wrong place -
+>> that system call return code is too timing-critical to add address
+>> limit checks.
+>>
+>> Now what I think you *could* do is:
+>>
+>>  - make "set_fs()" actually set a work flag in the current thread flags
+>>
+>>  - do the test in the slow-path (syscall_return_slowpath).
+>>
+>> Yes, yes, that ends up being architecture-specific, but it's fairly simple.
+>>
+>> And it only slows down the system calls that actually use "set_fs()".
+>> Sure, it will slow those down a fair amount, but they are hopefully a
+>> small subset of all cases.
+>>
+>> How does that sound to people?  Thats' where we currently do that
+>>
+>>         if (IS_ENABLED(CONFIG_PROVE_LOCKING) &&
+>>             WARN(irqs_disabled(), "syscall %ld left IRQs disabled",
+>> regs->orig_ax))
+>>                 local_irq_enable();
+>>
+>> check too, which is a fairly similar issue.
+>
+> I really like that idea and I'd be perfectly fine with that solution, because it
+> puts the overhead where the problem comes from, and adds an extra incentive for
+> code to move away from set_fs() facilities. Win-win.
 
-Should be fairly doable and might be a nice step towards cleaning the
-mess up.  In fact with my seres a large part of those are gone, and
-most of the remaining handler are ioctl handlers or what seems like
-opencoded versions of probe_kernel_read.
+Great, I will adapt the patch for that.
 
-But it won't help against exploits modifying addr_limit manually.
+>
+> Thanks,
+>
+>         Ingo
+
+
+
+-- 
+Thomas
