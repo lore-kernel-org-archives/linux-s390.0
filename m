@@ -1,52 +1,55 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Subject: Re: [v3 9/9] s390: teach platforms not to zero struct pages memory
+Date: Mon, 15 May 2017 21:38:18 +0200
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [v3 0/9] parallelized "struct page" zeroing
+Message-ID: <20170515193817.GC7551@dhcp22.suse.cz>
 References: <1494003796-748672-1-git-send-email-pasha.tatashin@oracle.com>
- <1494003796-748672-10-git-send-email-pasha.tatashin@oracle.com>
- <20170508113624.GA4876@osiris>
-From: Pasha Tatashin <pasha.tatashin@oracle.com>
-Message-ID: <0669a945-4540-096e-799a-2d2b3c18abaa@oracle.com>
-Date: Mon, 15 May 2017 14:24:00 -0400
+ <20170509181234.GA4397@dhcp22.suse.cz>
+ <e19b241d-be27-3c9a-8984-2fb20211e2e1@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20170508113624.GA4876@osiris>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e19b241d-be27-3c9a-8984-2fb20211e2e1@oracle.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, davem@davemloft.net
+To: Pasha Tatashin <pasha.tatashin@oracle.com>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Heiko,
+On Mon 15-05-17 14:12:10, Pasha Tatashin wrote:
+> Hi Michal,
+> 
+> After looking at your suggested memblock_virt_alloc_core() change again, I
+> decided to keep what I have. I do not want to inline
+> memblock_virt_alloc_internal(), because it is not a performance critical
+> path, and by inlining it we will unnecessarily increase the text size on all
+> platforms.
 
-Thank you for looking at this patch. I am worried to make the proposed 
-change, because, as I understand in this case we allocate memory not for 
-"struct page"s but for table that hold them. So, we will change the 
-behavior from the current one, where this table is allocated zeroed, but 
-now it won't be zeroed.
+I do not insist but I would really _prefer_ if the bool zero argument
+didn't proliferate all over the memblock API.
+ 
+> Also, because it will be very hard to make sure that no platform regresses
+> by making memset() default in _memblock_virt_alloc_core() (as I already
+> showed last week at least sun4v SPARC64 will require special changes in
+> order for this to work), I decided to make it available only for "deferred
+> struct page init" case. As, what is already in the patch.
 
-Pasha
+I do not think this is the right approach. Your measurements just show
+that sparc could have a more optimized memset for small sizes. If you
+keep the same memset only for the parallel initialization then you
+just hide this fact. I wouldn't worry about other architectures. All
+sane architectures should simply work reasonably well when touching a
+single or only few cache lines at the same time. If some arches really
+suffer from small memsets then the initialization should be driven by a
+specific ARCH_WANT_LARGE_PAGEBLOCK_INIT rather than making this depend
+on DEFERRED_INIT. Or if you are too worried then make it opt-in and make
+it depend on ARCH_WANT_PER_PAGE_INIT and make it enabled for x86 and
+sparc after memset optimization.
 
-> 
-> If you add the hunk below then this is
-> 
-> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> 
-> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-> index ffe9ba1aec8b..bf88a8b9c24d 100644
-> --- a/arch/s390/mm/vmem.c
-> +++ b/arch/s390/mm/vmem.c
-> @@ -272,7 +272,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
->   		if (pte_none(*pt_dir)) {
->   			void *new_page;
->   
-> -			new_page = vmemmap_alloc_block(PAGE_SIZE, node, true);
-> +			new_page = vmemmap_alloc_block(PAGE_SIZE, node, VMEMMAP_ZERO);
->   			if (!new_page)
->   				goto out;
->   			pte_val(*pt_dir) = __pa(new_page) | pgt_prot;
-> 
+-- 
+Michal Hocko
+SUSE Labs
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
