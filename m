@@ -1,10 +1,10 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH V2 net 1/1] smc: switch to usage of IB_PD_UNSAFE_GLOBAL_RKEY
-Date: Fri, 12 May 2017 19:09:52 +0200
-Message-ID: <20170512170952.39863-2-ubraun@linux.vnet.ibm.com>
-References: <20170512170952.39863-1-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH V3 net 1/1] smc: switch to usage of IB_PD_UNSAFE_GLOBAL_RKEY
+Date: Mon, 15 May 2017 17:33:37 +0200
+Message-ID: <20170515153337.31262-2-ubraun@linux.vnet.ibm.com>
+References: <20170515153337.31262-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170512170952.39863-1-ubraun@linux.vnet.ibm.com>
+In-Reply-To: <20170515153337.31262-1-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-rdma/>
 List-Post: <mailto:linux-rdma@vger.kernel.org>
@@ -12,11 +12,14 @@ To: davem@davemloft.net
 Cc: hch@lst.de, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch makes users aware of the current security implications
-when using smc.
+Currently, SMC enables remote access to physical memory when a user
+has successfully configured and established an SMC-connection until ten
+minutes after the last SMC connection is closed. Because this is considered
+a security risk, drivers are supposed to use IB_PD_UNSAFE_GLOBAL_RKEY in
+such a case.
 
-The final fix to resolve the reported security issue is worked on;
-respective patches will follow as soon as possible.
+This patch changes the current SMC code to use IB_PD_UNSAFE_GLOBAL_RKEY.
+This improves user awareness, but does not remove the security risk itself.
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
