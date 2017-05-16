@@ -1,62 +1,52 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Tue, 16 May 2017 10:36:02 +0200
-From: Michal Hocko <mhocko@kernel.org>
 Subject: Re: [v3 0/9] parallelized "struct page" zeroing
-Message-ID: <20170516083601.GB2481@dhcp22.suse.cz>
-References: <1494003796-748672-1-git-send-email-pasha.tatashin@oracle.com>
- <20170509181234.GA4397@dhcp22.suse.cz>
- <e19b241d-be27-3c9a-8984-2fb20211e2e1@oracle.com>
- <20170515193817.GC7551@dhcp22.suse.cz>
- <9b3d68aa-d2b6-2b02-4e75-f8372cbeb041@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9b3d68aa-d2b6-2b02-4e75-f8372cbeb041@oracle.com>
+From: Benjamin Herrenschmidt <benh@au1.ibm.com>
+Reply-To: benh@au1.ibm.com
+Date: Wed, 17 May 2017 09:50:57 +1000
+In-Reply-To: <20170512.133742.2144484253675877904.davem@davemloft.net>
+References: <65b8a658-76d1-0617-ece8-ff7a3c1c4046@oracle.com>
+	 <20170512.125708.475573831936972365.davem@davemloft.net>
+	 <6da8d4a6-3332-8331-c329-b05efd88a70d@oracle.com>
+	 <20170512.133742.2144484253675877904.davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <1494978657.21847.74.camel@au1.ibm.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Pasha Tatashin <pasha.tatashin@oracle.com>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
+To: David Miller <davem@davemloft.net>, pasha.tatashin@oracle.com
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon 15-05-17 16:44:26, Pasha Tatashin wrote:
-> On 05/15/2017 03:38 PM, Michal Hocko wrote:
-> >I do not think this is the right approach. Your measurements just show
-> >that sparc could have a more optimized memset for small sizes. If you
-> >keep the same memset only for the parallel initialization then you
-> >just hide this fact. I wouldn't worry about other architectures. All
-> >sane architectures should simply work reasonably well when touching a
-> >single or only few cache lines at the same time. If some arches really
-> >suffer from small memsets then the initialization should be driven by a
-> >specific ARCH_WANT_LARGE_PAGEBLOCK_INIT rather than making this depend
-> >on DEFERRED_INIT. Or if you are too worried then make it opt-in and make
-> >it depend on ARCH_WANT_PER_PAGE_INIT and make it enabled for x86 and
-> >sparc after memset optimization.
+On Fri, 2017-05-12 at 13:37 -0400, David Miller wrote:
+> > Right now it is larger, but what I suggested is to add a new optimized
+> > routine just for this case, which would do STBI for 64-bytes but
+> > without membar (do membar at the end of memmap_init_zone() and
+> > deferred_init_memmap()
+> > 
+> > #define struct_page_clear(page)A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A  \
+> > A A A A A A A A  __asm__ __volatile__(A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A  \
+> > A A A A A A A A  "stxaA A  %%g0, [%0]%2\n"A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A  \
+> > A A A A A A A A  "stxaA A  %%xg0, [%0 + %1]%2\n"A A A A A A A A A A A A A A A A A A A A A A A A A A  \
+> > A A A A A A A A  : /* No output */A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A  \
+> > A A A A A A A A  : "r" (page), "r" (0x20), "i"(ASI_BLK_INIT_QUAD_LDD_P))
+> > 
+> > And insert it into __init_single_page() instead of memset()
+> > 
+> > The final result is 4.01s/T which is even faster compared to current
+> > 4.97s/T
 > 
-> OK, I will think about this.
-> 
-> I do not really like adding new configs because they tend to clutter the
-> code. This is why,
+> Ok, indeed, that would work.
 
-Yes I hate adding new (arch) config options as well. And I still believe
-we do not need any here either...
+On ppc64, that might not. We have a dcbz instruction that clears an
+entire cache line at once. That's what we use for memset's and page
+clearing. However, 64 bytes is half a cache line on modern processors
+so we can't use it with that semantic and would have to fallback to the
+slower stores.
 
-> I wanted to rely on already existing config that I know benefits all
-> platforms that use it.
-
-I wouldn't be so sure about this. If any other platform has a similar
-issues with small memset as sparc then the overhead is just papered over
-by parallel initialization.
-
-> Eventually,
-> "CONFIG_DEFERRED_STRUCT_PAGE_INIT" is going to become the default
-> everywhere, as there should not be a drawback of using it even on small
-> machines.
-
-Maybe and I would highly appreciate that.
--- 
-Michal Hocko
-SUSE Labs
+Cheers,
+Ben.
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
