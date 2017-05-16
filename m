@@ -1,155 +1,94 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH V3 net 1/1] smc: switch to usage of IB_PD_UNSAFE_GLOBAL_RKEY
-Date: Mon, 15 May 2017 17:33:37 +0200
-Message-ID: <20170515153337.31262-2-ubraun@linux.vnet.ibm.com>
-References: <20170515153337.31262-1-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170515153337.31262-1-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-rdma/>
-List-Post: <mailto:linux-rdma@vger.kernel.org>
-To: davem@davemloft.net
-Cc: hch@lst.de, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 16 May 2017 06:19:28 -0300
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: Re: [PATCH 28/36] docs-rst: convert s390-drivers DocBook to ReST
+Message-ID: <20170516061928.14158635@vento.lan>
+In-Reply-To: <20170515100940.66de866c.cornelia.huck@de.ibm.com>
+References: <cover.1494596071.git.mchehab@s-opensource.com>
+        <bbff6b86ef7a1602870bbce87443bc1a345a83fd.1494596071.git.mchehab@s-opensource.com>
+        <20170515100940.66de866c.cornelia.huck@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Jonathan Corbet <corbet@lwn.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jani Nikula <jani.nikula@intel.com>, Markus Heiser <markus.heiser@darmarit.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Takashi Iwai <tiwai@suse.de>, "Herton R. Krzesinski" <herton@redhat.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, SMC enables remote access to physical memory when a user
-has successfully configured and established an SMC-connection until ten
-minutes after the last SMC connection is closed. Because this is considered
-a security risk, drivers are supposed to use IB_PD_UNSAFE_GLOBAL_RKEY in
-such a case.
+Em Mon, 15 May 2017 10:09:40 +0200
+Cornelia Huck <cornelia.huck@de.ibm.com> escreveu:
 
-This patch changes the current SMC code to use IB_PD_UNSAFE_GLOBAL_RKEY.
-This improves user awareness, but does not remove the security risk itself.
+> On Fri, 12 May 2017 11:00:11 -0300
+> Mauro Carvalho Chehab <mchehab@s-opensource.com> wrote:
+> 
+> > Use pandoc to convert documentation to ReST by calling
+> > Documentation/sphinx/tmplcvt script.
+> > 
+> > Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> > ---
+> >  Documentation/DocBook/Makefile            |   2 +-
+> >  Documentation/DocBook/s390-drivers.tmpl   | 161 ------------------------------
+> >  Documentation/driver-api/index.rst        |   1 +
+> >  Documentation/driver-api/s390-drivers.rst | 111 ++++++++++++++++++++
+> >  4 files changed, 113 insertions(+), 162 deletions(-)
+> >  delete mode 100644 Documentation/DocBook/s390-drivers.tmpl
+> >  create mode 100644 Documentation/driver-api/s390-drivers.rst  
+> 
+> Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- net/smc/smc_clc.c  |  4 ++--
- net/smc/smc_core.c | 16 +++-------------
- net/smc/smc_core.h |  2 +-
- net/smc/smc_ib.c   | 21 ++-------------------
- net/smc/smc_ib.h   |  2 --
- 5 files changed, 8 insertions(+), 37 deletions(-)
+Thanks!
 
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index e41f594..03ec058 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -204,7 +204,7 @@ int smc_clc_send_confirm(struct smc_sock *smc)
- 	memcpy(&cclc.lcl.mac, &link->smcibdev->mac[link->ibport - 1], ETH_ALEN);
- 	hton24(cclc.qpn, link->roce_qp->qp_num);
- 	cclc.rmb_rkey =
--		htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
-+		htonl(conn->rmb_desc->rkey[SMC_SINGLE_LINK]);
- 	cclc.conn_idx = 1; /* for now: 1 RMB = 1 RMBE */
- 	cclc.rmbe_alert_token = htonl(conn->alert_token_local);
- 	cclc.qp_mtu = min(link->path_mtu, link->peer_mtu);
-@@ -256,7 +256,7 @@ int smc_clc_send_accept(struct smc_sock *new_smc, int srv_first_contact)
- 	memcpy(&aclc.lcl.mac, link->smcibdev->mac[link->ibport - 1], ETH_ALEN);
- 	hton24(aclc.qpn, link->roce_qp->qp_num);
- 	aclc.rmb_rkey =
--		htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
-+		htonl(conn->rmb_desc->rkey[SMC_SINGLE_LINK]);
- 	aclc.conn_idx = 1;			/* as long as 1 RMB = 1 RMBE */
- 	aclc.rmbe_alert_token = htonl(conn->alert_token_local);
- 	aclc.qp_mtu = link->path_mtu;
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 65020e9..3ac09a6 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -613,19 +613,8 @@ int smc_rmb_create(struct smc_sock *smc)
- 			rmb_desc = NULL;
- 			continue; /* if mapping failed, try smaller one */
- 		}
--		rc = smc_ib_get_memory_region(lgr->lnk[SMC_SINGLE_LINK].roce_pd,
--					      IB_ACCESS_REMOTE_WRITE |
--					      IB_ACCESS_LOCAL_WRITE,
--					     &rmb_desc->mr_rx[SMC_SINGLE_LINK]);
--		if (rc) {
--			smc_ib_buf_unmap(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
--					 tmp_bufsize, rmb_desc,
--					 DMA_FROM_DEVICE);
--			kfree(rmb_desc->cpu_addr);
--			kfree(rmb_desc);
--			rmb_desc = NULL;
--			continue;
--		}
-+		rmb_desc->rkey[SMC_SINGLE_LINK] =
-+			lgr->lnk[SMC_SINGLE_LINK].roce_pd->unsafe_global_rkey;
- 		rmb_desc->used = 1;
- 		write_lock_bh(&lgr->rmbs_lock);
- 		list_add(&rmb_desc->list,
-@@ -668,6 +657,7 @@ int smc_rmb_rtoken_handling(struct smc_connection *conn,
- 
- 	for (i = 0; i < SMC_RMBS_PER_LGR_MAX; i++) {
- 		if ((lgr->rtokens[i][SMC_SINGLE_LINK].rkey == rkey) &&
-+		    (lgr->rtokens[i][SMC_SINGLE_LINK].dma_addr == dma_addr) &&
- 		    test_bit(i, lgr->rtokens_used_mask)) {
- 			conn->rtoken_idx = i;
- 			return 0;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 27eb3805..b013cb4 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -93,7 +93,7 @@ struct smc_buf_desc {
- 	u64			dma_addr[SMC_LINKS_PER_LGR_MAX];
- 						/* mapped address of buffer */
- 	void			*cpu_addr;	/* virtual address of buffer */
--	struct ib_mr		*mr_rx[SMC_LINKS_PER_LGR_MAX];
-+	u32			rkey[SMC_LINKS_PER_LGR_MAX];
- 						/* for rmb only:
- 						 * rkey provided to peer
- 						 */
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index cb69ab9..b317155 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -37,24 +37,6 @@ u8 local_systemid[SMC_SYSTEMID_LEN] = SMC_LOCAL_SYSTEMID_RESET;	/* unique system
- 								 * identifier
- 								 */
- 
--int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
--			     struct ib_mr **mr)
--{
--	int rc;
--
--	if (*mr)
--		return 0; /* already done */
--
--	/* obtain unique key -
--	 * next invocation of get_dma_mr returns a different key!
--	 */
--	*mr = pd->device->get_dma_mr(pd, access_flags);
--	rc = PTR_ERR_OR_ZERO(*mr);
--	if (IS_ERR(*mr))
--		*mr = NULL;
--	return rc;
--}
--
- static int smc_ib_modify_qp_init(struct smc_link *lnk)
- {
- 	struct ib_qp_attr qp_attr;
-@@ -210,7 +192,8 @@ int smc_ib_create_protection_domain(struct smc_link *lnk)
- {
- 	int rc;
- 
--	lnk->roce_pd = ib_alloc_pd(lnk->smcibdev->ibdev, 0);
-+	lnk->roce_pd = ib_alloc_pd(lnk->smcibdev->ibdev,
-+				   IB_PD_UNSAFE_GLOBAL_RKEY);
- 	rc = PTR_ERR_OR_ZERO(lnk->roce_pd);
- 	if (IS_ERR(lnk->roce_pd))
- 		lnk->roce_pd = NULL;
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index 7e1f0e2..b567152 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -61,8 +61,6 @@ void smc_ib_dealloc_protection_domain(struct smc_link *lnk);
- int smc_ib_create_protection_domain(struct smc_link *lnk);
- void smc_ib_destroy_queue_pair(struct smc_link *lnk);
- int smc_ib_create_queue_pair(struct smc_link *lnk);
--int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
--			     struct ib_mr **mr);
- int smc_ib_ready_link(struct smc_link *lnk);
- int smc_ib_modify_qp_rts(struct smc_link *lnk);
- int smc_ib_modify_qp_reset(struct smc_link *lnk);
--- 
-2.10.2
+> 
+> ...but I wonder how good the information in there still is, given that
+> I haven't touched it in ages...
+
+The text inside it is just a brief description of s390 specifics,
+but the real API descriptions are inside those files:
+
+.. kernel-doc:: arch/s390/include/asm/cio.h
+.. kernel-doc:: arch/s390/include/asm/ccwdev.h
+.. kernel-doc:: drivers/s390/cio/device.c
+.. kernel-doc:: drivers/s390/cio/device_ops.c
+.. kernel-doc:: arch/s390/include/asm/cmb.h
+.. kernel-doc:: drivers/s390/cio/cmf.c
+.. kernel-doc:: arch/s390/include/asm/ccwgroup.h
+.. kernel-doc:: drivers/s390/cio/ccwgroup.c
+.. kernel-doc:: drivers/s390/cio/airq.c
+
+Those 9 files seem to have been updated lately:
+
+$ git log arch/s390/include/asm/cio.h arch/s390/include/asm/ccwdev.h drivers/s390/cio/device.c drivers/s390/cio/device_ops.c arch/s390/include/asm/cmb.h drivers/s390/cio/cmf.c arch/s390/include/asm/ccwgroup.h drivers/s390/cio/ccwgroup.c drivers/s390/cio/airq.c|grep Date
+Date:   Fri Mar 17 04:17:42 2017 +0100
+Date:   Thu Feb 2 19:15:33 2017 +0100
+Date:   Thu Jan 12 18:53:56 2017 +0100
+Date:   Sun Oct 30 16:37:24 2016 -0400
+Date:   Fri Jul 29 10:43:53 2016 +0200
+Date:   Thu Jun 23 11:09:26 2016 +0200
+Date:   Tue Jul 12 19:57:57 2016 +0200
+Date:   Mon Jun 20 14:03:38 2016 +0200
+Date:   Tue May 31 09:09:57 2016 +0200
+Date:   Thu Mar 3 20:49:57 2016 -0800
+Date:   Fri Dec 18 12:59:36 2015 +0100
+Date:   Mon Jun 29 18:39:54 2015 +0200
+Date:   Mon Oct 26 12:38:13 2015 +0100
+Date:   Mon Oct 26 12:35:06 2015 +0100
+Date:   Mon Sep 21 18:40:33 2015 +0200
+...
+
+So, I guess that what's there is still valid.
+
+Yet, on a quick grep:
+
+$ git grep -l "/\*\*" drivers/s390/|wc -l
+91
+
+So, it seems that only 10% of the kernel-doc markups are actually
+documented :-)
+
+Perhaps you could add the missing files there after this patch ;-)
+
+
+Thanks,
+Mauro
