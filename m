@@ -1,68 +1,62 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Subject: Re: [v3 9/9] s390: teach platforms not to zero struct pages memory
+Date: Tue, 16 May 2017 10:36:02 +0200
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [v3 0/9] parallelized "struct page" zeroing
+Message-ID: <20170516083601.GB2481@dhcp22.suse.cz>
 References: <1494003796-748672-1-git-send-email-pasha.tatashin@oracle.com>
- <1494003796-748672-10-git-send-email-pasha.tatashin@oracle.com>
- <20170508113624.GA4876@osiris>
- <0669a945-4540-096e-799a-2d2b3c18abaa@oracle.com>
- <20170515231716.GA3314@osiris>
-From: Pasha Tatashin <pasha.tatashin@oracle.com>
-Message-ID: <a3a14b28-8389-33e4-3a84-e4db4bfdd17e@oracle.com>
-Date: Mon, 15 May 2017 20:33:29 -0400
+ <20170509181234.GA4397@dhcp22.suse.cz>
+ <e19b241d-be27-3c9a-8984-2fb20211e2e1@oracle.com>
+ <20170515193817.GC7551@dhcp22.suse.cz>
+ <9b3d68aa-d2b6-2b02-4e75-f8372cbeb041@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20170515231716.GA3314@osiris>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9b3d68aa-d2b6-2b02-4e75-f8372cbeb041@oracle.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, davem@davemloft.net
+To: Pasha Tatashin <pasha.tatashin@oracle.com>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
 List-ID: <linux-s390.vger.kernel.org>
 
-Ah OK, I will include the change.
+On Mon 15-05-17 16:44:26, Pasha Tatashin wrote:
+> On 05/15/2017 03:38 PM, Michal Hocko wrote:
+> >I do not think this is the right approach. Your measurements just show
+> >that sparc could have a more optimized memset for small sizes. If you
+> >keep the same memset only for the parallel initialization then you
+> >just hide this fact. I wouldn't worry about other architectures. All
+> >sane architectures should simply work reasonably well when touching a
+> >single or only few cache lines at the same time. If some arches really
+> >suffer from small memsets then the initialization should be driven by a
+> >specific ARCH_WANT_LARGE_PAGEBLOCK_INIT rather than making this depend
+> >on DEFERRED_INIT. Or if you are too worried then make it opt-in and make
+> >it depend on ARCH_WANT_PER_PAGE_INIT and make it enabled for x86 and
+> >sparc after memset optimization.
+> 
+> OK, I will think about this.
+> 
+> I do not really like adding new configs because they tend to clutter the
+> code. This is why,
 
-Thank you,
-Pasha
+Yes I hate adding new (arch) config options as well. And I still believe
+we do not need any here either...
 
-On 05/15/2017 07:17 PM, Heiko Carstens wrote:
-> Hello Pasha,
-> 
->> Thank you for looking at this patch. I am worried to make the proposed
->> change, because, as I understand in this case we allocate memory not for
->> "struct page"s but for table that hold them. So, we will change the behavior
->> from the current one, where this table is allocated zeroed, but now it won't
->> be zeroed.
-> 
-> The page table, if needed, is allocated and populated a couple of lines
-> above. See the vmem_pte_alloc() call. So my request to include the hunk
-> below is still valid ;)
-> 
->>> If you add the hunk below then this is
->>>
->>> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
->>>
->>> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
->>> index ffe9ba1aec8b..bf88a8b9c24d 100644
->>> --- a/arch/s390/mm/vmem.c
->>> +++ b/arch/s390/mm/vmem.c
->>> @@ -272,7 +272,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
->>>   		if (pte_none(*pt_dir)) {
->>>   			void *new_page;
->>> -			new_page = vmemmap_alloc_block(PAGE_SIZE, node, true);
->>> +			new_page = vmemmap_alloc_block(PAGE_SIZE, node, VMEMMAP_ZERO);
->>>   			if (!new_page)
->>>   				goto out;
->>>   			pte_val(*pt_dir) = __pa(new_page) | pgt_prot;
->>>
->>
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
-> 
+> I wanted to rely on already existing config that I know benefits all
+> platforms that use it.
+
+I wouldn't be so sure about this. If any other platform has a similar
+issues with small memset as sparc then the overhead is just papered over
+by parallel initialization.
+
+> Eventually,
+> "CONFIG_DEFERRED_STRUCT_PAGE_INIT" is going to become the default
+> everywhere, as there should not be a drawback of using it even on small
+> machines.
+
+Maybe and I would highly appreciate that.
+-- 
+Michal Hocko
+SUSE Labs
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
