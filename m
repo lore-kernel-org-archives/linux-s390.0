@@ -1,13 +1,13 @@
 Return-Path: <arndbergmann@gmail.com>
 MIME-Version: 1.0
 Sender: arndbergmann@gmail.com
-In-Reply-To: <20170516114812.10660-10-hch@lst.de>
+In-Reply-To: <20170516114812.10660-3-hch@lst.de>
 References: <20170516114812.10660-1-hch@lst.de>
- <20170516114812.10660-10-hch@lst.de>
+ <20170516114812.10660-3-hch@lst.de>
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 16 May 2017 21:43:34 +0200
-Message-ID: <CAK8P3a0OSuU+0GU9fdwF7ShuctiwZ3L=5zDuD_-HCA=M2_yP-g@mail.gmail.com>
-Subject: Re: [PATCH 9/9] timers: remove old timer initialization macros
+Date: Tue, 16 May 2017 22:03:56 +0200
+Message-ID: <CAK8P3a106wR4h_muGGF7S7uh5UrH-OcJObMfVgk22P9brP5Bjg@mail.gmail.com>
+Subject: Re: [PATCH 2/9] timers: provide a "modern" variant of timers
 Content-Type: text/plain; charset="UTF-8"
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
@@ -22,39 +22,80 @@ Cc: Thomas Gleixner <tglx@linutronix.de>, Mark Gross <mark.gross@intel.com>, Tej
 List-ID: <linux-s390.vger.kernel.org>
 
 On Tue, May 16, 2017 at 1:48 PM, Christoph Hellwig <hch@lst.de> wrote:
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  include/linux/timer.h | 22 +++-------------------
->  1 file changed, 3 insertions(+), 19 deletions(-)
->
-> diff --git a/include/linux/timer.h b/include/linux/timer.h
-> index 87afe52c8349..9c6694d3f66a 100644
-> --- a/include/linux/timer.h
-> +++ b/include/linux/timer.h
-> @@ -80,35 +80,19 @@ struct timer_list {
->         struct timer_list _name = INIT_TIMER(_func, _expires, _flags)
->
->  /*
-> - * Don't use the macros below, use DECLARE_TIMER and INIT_TIMER with their
-> + * Don't use the macro below, use DECLARE_TIMER and INIT_TIMER with their
->   * improved callback signature above.
->   */
-> -#define __TIMER_INITIALIZER(_function, _expires, _data, _flags) { \
-> +#define DEFINE_TIMER(_name, _function, _expires, _data)                \
-> +       struct timer_list _name = {                             \
->                 .entry = { .next = TIMER_ENTRY_STATIC },        \
->                 .function = (_function),                        \
->                 .expires = (_expires),                          \
->                 .data = (_data),                                \
-> -               .flags = (_flags),                              \
->                 __TIMER_LOCKDEP_MAP_INITIALIZER(                \
->                         __FILE__ ":" __stringify(__LINE__))     \
->         }
 
-Not sure what to do about it, but I notice that the '_expires'
-argument is completely
-bogus, I don't see any way it could be used in a meaningful way, and the only
-user that passes anything other than zero is arch/mips/mti-malta/malta-display.c
-and that seems to be unintentional.
+>         unsigned long           expires;
+> -       void                    (*function)(unsigned long);
+> +       union {
+> +               void            (*func)(struct timer_list *timer);
+> +               void            (*function)(unsigned long);
+> +       };
+...
+> +#define INIT_TIMER(_func, _expires, _flags)            \
+> +{                                                      \
+> +       .entry = { .next = TIMER_ENTRY_STATIC },        \
+> +       .func = (_func),                                \
+> +       .expires = (_expires),                          \
+> +       .flags = TIMER_MODERN | (_flags),               \
+> +       __TIMER_LOCKDEP_MAP_INITIALIZER(__FILE__ ":" __stringify(__LINE__)) \
+> +}
+
+If I remember correctly, this will fail with gcc-4.5 and earlier, which can't
+use named initializers for anonymous unions. One of these two should
+work, but they are both ugly:
+
+a) don't use a named initializer for the union (a bit fragile)
+
+ +#define INIT_TIMER(_func, _expires, _flags)            \
+ +{                                                      \
+ +       .entry = { .next = TIMER_ENTRY_STATIC },        \
+ +       .expires = (_expires),                          \
+ +       { .func = (_func) },                                \
+ +       .flags = TIMER_MODERN | (_flags),               \
+ +       __TIMER_LOCKDEP_MAP_INITIALIZER(__FILE__ ":" __stringify(__LINE__)) \
+ +}
+
+b) give the union a name (breaks any reference to timer_list->func in C code):
+
+ +       union {
+ +               void            (*func)(struct timer_list *timer);
+ +               void            (*function)(unsigned long);
+ +       } u;
+...
+ +#define INIT_TIMER(_func, _expires, _flags)            \
+ +{                                                      \
+ +       .entry = { .next = TIMER_ENTRY_STATIC },        \
+ +       .u.func = (_func),                                \
+ +       .expires = (_expires),                          \
+ +       .flags = TIMER_MODERN | (_flags),               \
+ +       __TIMER_LOCKDEP_MAP_INITIALIZER(__FILE__ ":" __stringify(__LINE__)) \
+ +}
+
+> +/**
+> + * prepare_timer - initialize a timer before first use
+> + * @timer:     timer structure to prepare
+> + * @func:      callback to be called when the timer expires
+> + * @flags      %TIMER_* flags that control timer behavior
+> + *
+> + * This function initializes a timer_list structure so that it can
+> + * be used (by calling add_timer() or mod_timer()).
+> + */
+> +static inline void prepare_timer(struct timer_list *timer,
+> +               void (*func)(struct timer_list *timer), u32 flags)
+> +{
+> +       __init_timer(timer, TIMER_MODERN | flags);
+> +       timer->func = func;
+> +}
+> +
+> +static inline void prepare_timer_on_stack(struct timer_list *timer,
+> +               void (*func)(struct timer_list *timer), u32 flags)
+> +{
+> +       __init_timer_on_stack(timer, TIMER_MODERN | flags);
+> +       timer->func = func;
+> +}
+
+I fear this breaks lockdep output, which turns the name of
+the timer into a string that gets printed later. It should work
+when these are macros, or a macro wrapping an inline function
+like __init_timer is.
 
       Arnd
