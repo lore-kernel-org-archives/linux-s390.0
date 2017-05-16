@@ -1,8 +1,8 @@
 Return-Path: <BATV+d8c56d9a67374e13c9b4+5014+infradead.org+hch@bombadil.srs.infradead.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5/9] powerpc/numa: switch topology_timer to modern timer
-Date: Tue, 16 May 2017 13:48:08 +0200
-Message-Id: <20170516114812.10660-6-hch@lst.de>
+Subject: [PATCH 6/9] s390: switch topology_timer to a modern timer
+Date: Tue, 16 May 2017 13:48:09 +0200
+Message-Id: <20170516114812.10660-7-hch@lst.de>
 In-Reply-To: <20170516114812.10660-1-hch@lst.de>
 References: <20170516114812.10660-1-hch@lst.de>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -19,31 +19,30 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/powerpc/mm/numa.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/s390/kernel/topology.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
-index 371792e4418f..93a11227716b 100644
---- a/arch/powerpc/mm/numa.c
-+++ b/arch/powerpc/mm/numa.c
-@@ -1437,7 +1437,7 @@ static void topology_schedule_update(void)
+diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+index bb47c92476f0..4a0e867fca2b 100644
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -289,7 +289,7 @@ void topology_schedule_update(void)
  	schedule_work(&topology_work);
  }
  
 -static void topology_timer_fn(unsigned long ignored)
 +static void topology_timer_fn(struct timer_list *timer)
  {
- 	if (prrn_enabled && cpumask_weight(&cpu_associativity_changes_mask))
+ 	if (ptf(PTF_CHECK))
  		topology_schedule_update();
-@@ -1447,8 +1447,7 @@ static void topology_timer_fn(unsigned long ignored)
- 		reset_topology_timer();
- 	}
+@@ -297,7 +297,7 @@ static void topology_timer_fn(unsigned long ignored)
  }
--static struct timer_list topology_timer =
--	TIMER_INITIALIZER(topology_timer_fn, 0, 0);
-+static struct timer_list topology_timer = INIT_TIMER(topology_timer_fn, 0, 0);
  
- static void reset_topology_timer(void)
- {
+ static struct timer_list topology_timer =
+-	TIMER_DEFERRED_INITIALIZER(topology_timer_fn, 0, 0);
++	INIT_TIMER(topology_timer_fn, 0, TIMER_DEFERRABLE);
+ 
+ static atomic_t topology_poll = ATOMIC_INIT(0);
+ 
 -- 
 2.11.0
