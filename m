@@ -1,46 +1,84 @@
-Return-Path: <owner-linux-mm@kvack.org>
-From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [v3 4/9] mm: do not zero vmemmap_buf
-Date: Fri,  5 May 2017 13:03:11 -0400
-Message-Id: <1494003796-748672-5-git-send-email-pasha.tatashin@oracle.com>
-In-Reply-To: <1494003796-748672-1-git-send-email-pasha.tatashin@oracle.com>
-References: <1494003796-748672-1-git-send-email-pasha.tatashin@oracle.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
+Return-Path: <stable-owner@vger.kernel.org>
+Subject: Patch "perf annotate s390: Fix perf annotate error -95 (4.10 regression)" has been added to the 4.11-stable tree
+From: <gregkh@linuxfoundation.org>
+Date: Wed, 17 May 2017 17:56:09 +0200
+Message-ID: <1495036569193236@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/stable/>
+List-Post: <mailto:stable@vger.kernel.org>
+To: borntraeger@de.ibm.com, acme@redhat.com, brueckner@linux.vnet.ibm.com, gregkh@linuxfoundation.org, krebbel@linux.vnet.ibm.com, linux-s390@vger.kernel.org, peterz@infradead.org, schwidefsky@de.ibm.com
+Cc: stable@vger.kernel.org, stable-commits@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-alloc_block_buf() can either use external allocator by calling
-vmemmap_alloc_block() or when available use pre-allocated vmemmap_buf
-to do allocation. In either case, alloc_block_buf() knows when to zero
-memory based on the "zero" argument.  This is why it is not needed to
-zero vmemmap_buf beforehand. Let clients of alloc_block_buf() to
-decide whether that is needed.
 
-Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+This is a note to let you know that I've just added the patch titled
+
+    perf annotate s390: Fix perf annotate error -95 (4.10 regression)
+
+to the 4.11-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     perf-annotate-s390-fix-perf-annotate-error-95-4.10-regression.patch
+and it can be found in the queue-4.11 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+From e77852b32d6d4430c68c38aaf73efe5650fa25af Mon Sep 17 00:00:00 2001
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 6 Apr 2017 09:51:51 +0200
+Subject: perf annotate s390: Fix perf annotate error -95 (4.10 regression)
+
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+
+commit e77852b32d6d4430c68c38aaf73efe5650fa25af upstream.
+
+since 4.10 perf annotate exits on s390 with an "unknown error -95".
+Turns out that commit 786c1b51844d ("perf annotate: Start supporting
+cross arch annotation") added a hard requirement for architecture
+support when objdump is used but only provided x86 and arm support.
+Meanwhile power was added so lets add s390 as well.
+
+While at it make sure to implement the branch and jump types.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>
+Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
+Link: http://lkml.kernel.org/r/1491465112-45819-2-git-send-email-borntraeger@de.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/sparse-vmemmap.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ tools/perf/util/annotate.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
-index 5d255b0..1e9508b 100644
---- a/mm/sparse-vmemmap.c
-+++ b/mm/sparse-vmemmap.c
-@@ -305,7 +305,7 @@ void __init sparse_mem_maps_populate_node(struct page **map_map,
+--- a/tools/perf/util/annotate.c
++++ b/tools/perf/util/annotate.c
+@@ -136,6 +136,12 @@ static struct arch architectures[] = {
+ 			.comment_char = '#',
+ 		},
+ 	},
++	{
++		.name = "s390",
++		.objdump =  {
++			.comment_char = '#',
++		},
++	},
+ };
  
- 	size = ALIGN(size, PMD_SIZE);
- 	vmemmap_buf_start = __earlyonly_bootmem_alloc(nodeid, size
--			* map_count, PMD_SIZE, __pa(MAX_DMA_ADDRESS), true);
-+			* map_count, PMD_SIZE, __pa(MAX_DMA_ADDRESS), false);
- 
- 	if (vmemmap_buf_start) {
- 		vmemmap_buf = vmemmap_buf_start;
--- 
-1.7.1
+ static void ins__delete(struct ins_operands *ops)
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+
+Patches currently in stable-queue which might be from borntraeger@de.ibm.com are
+
+queue-4.11/perf-annotate-s390-implement-jump-types-for-perf-annotate.patch
+queue-4.11/perf-annotate-s390-fix-perf-annotate-error-95-4.10-regression.patch
