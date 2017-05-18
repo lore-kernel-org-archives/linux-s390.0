@@ -1,14 +1,15 @@
 Return-Path: <hch@lst.de>
-Date: Thu, 18 May 2017 10:25:58 +0200
+Date: Thu, 18 May 2017 10:27:03 +0200
 From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 9/9] timers: remove old timer initialization macros
-Message-ID: <20170518082558.GC3812@lst.de>
+Subject: Re: RFC: better timer interface
+Message-ID: <20170518082703.GD3812@lst.de>
 References: <20170516114812.10660-1-hch@lst.de>
- <20170516114812.10660-10-hch@lst.de>
- <CAK8P3a0OSuU+0GU9fdwF7ShuctiwZ3L=5zDuD_-HCA=M2_yP-g@mail.gmail.com>
+ <CAK8P3a1FoR_usw7du3ZRMF+PPhJ712EpArL_e1bLVNs7BYBu-w@mail.gmail.com>
+ <20170516155132.GA1494@lst.de>
+ <CAK8P3a3_Rjz9gTmayN1w8HrFHWY+wakeFgQSYRTAADJzF6zKJA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAK8P3a0OSuU+0GU9fdwF7ShuctiwZ3L=5zDuD_-HCA=M2_yP-g@mail.gmail.com>
+In-Reply-To: <CAK8P3a3_Rjz9gTmayN1w8HrFHWY+wakeFgQSYRTAADJzF6zKJA@mail.gmail.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -18,31 +19,37 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@lst.de>, Thomas Gleixner <tglx@linutronix.de>, Mark Gross <mark.gross@intel.com>, Tejun Heo <tj@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, Thomas Gleixner <tglx@linutronix.de>, Tejun Heo <tj@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Mark Gross <mark.gross@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, May 16, 2017 at 09:43:34PM +0200, Arnd Bergmann wrote:
-> > - * Don't use the macros below, use DECLARE_TIMER and INIT_TIMER with their
-> > + * Don't use the macro below, use DECLARE_TIMER and INIT_TIMER with their
-> >   * improved callback signature above.
-> >   */
-> > -#define __TIMER_INITIALIZER(_function, _expires, _data, _flags) { \
-> > +#define DEFINE_TIMER(_name, _function, _expires, _data)                \
-> > +       struct timer_list _name = {                             \
-> >                 .entry = { .next = TIMER_ENTRY_STATIC },        \
-> >                 .function = (_function),                        \
-> >                 .expires = (_expires),                          \
-> >                 .data = (_data),                                \
-> > -               .flags = (_flags),                              \
-> >                 __TIMER_LOCKDEP_MAP_INITIALIZER(                \
-> >                         __FILE__ ":" __stringify(__LINE__))     \
-> >         }
+On Tue, May 16, 2017 at 10:26:39PM +0200, Arnd Bergmann wrote:
+> If we keep the unusual *_timer() naming (rather than timer_*() as hrtimer
+> has), we could use one of
 > 
-> Not sure what to do about it, but I notice that the '_expires'
-> argument is completely
-> bogus, I don't see any way it could be used in a meaningful way, and the only
-> user that passes anything other than zero is arch/mips/mti-malta/malta-display.c
-> and that seems to be unintentional.
+> a) start_timer(struct timer_list *timer, unsigned long ms);
+> b) restart_timer(struct timer_list *timer, unsigned long ms);
+> c) mod_timer_ms(struct timer_list *timer, unsigned long ms);
+>     mod_timer_sec(struct timer_list *timer, unsigned long sec);
+> 
+> The first is slightly shorter but conflicts with three files that use
+> the same name for a local function name. The third one fits
+> well with the existing interfaces and provides both millisecond
+> and second versions, I'd probably go with that.
 
-DEFINE_TIMER is the old macro and instead of fixing it up I'll just
-make sure the new DECLARE_TIMER gets rid of it.
+Yeah, I'd take c) as well.  I'll give it a spin.
+
+> We could consider even passing a default interval as another
+> argument to prepare_timer(), and using that in add_timer(),
+> but that would in those cases that have a constant interval
+> (maybe about half of the users from) and would be a bit surprising
+> to readers that are only familiar with the existing interfaces.
+
+That seems rather ugly to me.
+
+> One final option would be a larger-scale replacement of
+> the API by mirroring the hrtimer style where possible while
+> staying compatible with the existing calls, e.g. timer_prepare(),
+> timer_add_expires(), timer_start(), ...
+
+I'd chose timer_* for an entirely new API, but at this point this
+seems a bit too much churn to me.
