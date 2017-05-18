@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.10 50/93] perf annotate s390: Fix perf annotate error -95 (4.10 regression)
-Date: Thu, 18 May 2017 12:47:19 +0200
-Message-Id: <20170518104745.163322400@linuxfoundation.org>
+Subject: [PATCH 4.10 51/93] perf annotate s390: Implement jump types for perf annotate
+Date: Thu, 18 May 2017 12:47:20 +0200
+Message-Id: <20170518104745.202740967@linuxfoundation.org>
 In-Reply-To: <20170518104743.163522815@linuxfoundation.org>
 References: <20170518104743.163522815@linuxfoundation.org>
 MIME-Version: 1.0
@@ -20,15 +20,9 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-commit e77852b32d6d4430c68c38aaf73efe5650fa25af upstream.
+commit d9f8dfa9baf9b6ae1f2f84f887176558ecde5268 upstream.
 
-since 4.10 perf annotate exits on s390 with an "unknown error -95".
-Turns out that commit 786c1b51844d ("perf annotate: Start supporting
-cross arch annotation") added a hard requirement for architecture
-support when objdump is used but only provided x86 and arm support.
-Meanwhile power was added so lets add s390 as well.
-
-While at it make sure to implement the branch and jump types.
+Implement simple detection for all kind of jumps and branches.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
@@ -36,27 +30,63 @@ Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: linux-s390 <linux-s390@vger.kernel.org>
-Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
-Link: http://lkml.kernel.org/r/1491465112-45819-2-git-send-email-borntraeger@de.ibm.com
+Link: http://lkml.kernel.org/r/1491465112-45819-3-git-send-email-borntraeger@de.ibm.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/annotate.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/perf/arch/s390/annotate/instructions.c |   30 +++++++++++++++++++++++++++
+ tools/perf/util/annotate.c                   |    2 +
+ 2 files changed, 32 insertions(+)
 
+--- /dev/null
++++ b/tools/perf/arch/s390/annotate/instructions.c
+@@ -0,0 +1,30 @@
++static struct ins_ops *s390__associate_ins_ops(struct arch *arch, const char *name)
++{
++	struct ins_ops *ops = NULL;
++
++	/* catch all kind of jumps */
++	if (strchr(name, 'j') ||
++	    !strncmp(name, "bct", 3) ||
++	    !strncmp(name, "br", 2))
++		ops = &jump_ops;
++	/* override call/returns */
++	if (!strcmp(name, "bras") ||
++	    !strcmp(name, "brasl") ||
++	    !strcmp(name, "basr"))
++		ops = &call_ops;
++	if (!strcmp(name, "br"))
++		ops = &ret_ops;
++
++	arch__associate_ins_ops(arch, name, ops);
++	return ops;
++}
++
++static int s390__annotate_init(struct arch *arch)
++{
++	if (!arch->initialized) {
++		arch->initialized = true;
++		arch->associate_instruction_ops = s390__associate_ins_ops;
++	}
++
++	return 0;
++}
 --- a/tools/perf/util/annotate.c
 +++ b/tools/perf/util/annotate.c
-@@ -136,6 +136,12 @@ static struct arch architectures[] = {
+@@ -108,6 +108,7 @@ static int arch__associate_ins_ops(struc
+ #include "arch/arm64/annotate/instructions.c"
+ #include "arch/x86/annotate/instructions.c"
+ #include "arch/powerpc/annotate/instructions.c"
++#include "arch/s390/annotate/instructions.c"
+ 
+ static struct arch architectures[] = {
+ 	{
+@@ -132,6 +133,7 @@ static struct arch architectures[] = {
+ 	},
+ 	{
+ 		.name = "s390",
++		.init = s390__annotate_init,
+ 		.objdump =  {
  			.comment_char = '#',
  		},
- 	},
-+	{
-+		.name = "s390",
-+		.objdump =  {
-+			.comment_char = '#',
-+		},
-+	},
- };
- 
- static void ins__delete(struct ins_operands *ops)
