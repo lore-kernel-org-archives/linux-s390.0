@@ -1,13 +1,14 @@
 Return-Path: <hch@lst.de>
-Date: Thu, 18 May 2017 10:22:01 +0200
+Date: Thu, 18 May 2017 10:24:48 +0200
 From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 3/9] kthread: remove unused macros
-Message-ID: <20170518082201.GA3812@lst.de>
+Subject: Re: [PATCH 2/9] timers: provide a "modern" variant of timers
+Message-ID: <20170518082448.GB3812@lst.de>
 References: <20170516114812.10660-1-hch@lst.de>
- <20170516114812.10660-4-hch@lst.de> <20170517120952.GB7297@pathway.suse.cz>
+ <20170516114812.10660-3-hch@lst.de>
+ <CAK8P3a106wR4h_muGGF7S7uh5UrH-OcJObMfVgk22P9brP5Bjg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170517120952.GB7297@pathway.suse.cz>
+In-Reply-To: <CAK8P3a106wR4h_muGGF7S7uh5UrH-OcJObMfVgk22P9brP5Bjg@mail.gmail.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -16,30 +17,25 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Petr Mladek <pmladek@suse.com>
-Cc: Christoph Hellwig <hch@lst.de>, Thomas Gleixner <tglx@linutronix.de>, Mark Gross <mark.gross@intel.com>, Tejun Heo <tj@kernel.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@lst.de>, Thomas Gleixner <tglx@linutronix.de>, Mark Gross <mark.gross@intel.com>, Tejun Heo <tj@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, May 17, 2017 at 02:09:52PM +0200, Petr Mladek wrote:
-> On Tue 2017-05-16 13:48:06, Christoph Hellwig wrote:
-> > KTHREAD_DELAYED_WORK_INIT and DEFINE_KTHREAD_DELAYED_WORK are unused
-> > and are using a timer helper that's about to go away.
+> b) give the union a name (breaks any reference to timer_list->func in C code):
 > 
-> A patch using this API is flying around, see
-> https://lkml.kernel.org/r/1476715742-14924-1-git-send-email-pmladek@suse.com
-> And I have one more, for hung_task.c, in the drawer.
-> 
-> I admit that I got sidetracked and did not push these conversions
-> last months. But the conversions are useful and I want to continue
-> or find a trainee that might continue.
-> 
-> I wanted to make your life easier, took inspiration from the
-> workqueues conversion and prepared the patch below. It is tested
-> with the above mentioned API user.
-> 
-> Please, let me known if you would prefer another approach.
-> I do not want to complicate development of the new timer API.
+>  +       union {
+>  +               void            (*func)(struct timer_list *timer);
+>  +               void            (*function)(unsigned long);
+>  +       } u;
 
-Thanks, I'll add your patch to the series.  I just have a tendency to
-remove unused bits instead of trying to fix them up without being able
-to test the result.
+I'll look into that, as it seems a lot safer, and places outside
+the timer code shouldn't really touch it (although I bet they do,
+so more fixes for this series..)
+
+> I fear this breaks lockdep output, which turns the name of
+> the timer into a string that gets printed later. It should work
+> when these are macros, or a macro wrapping an inline function
+> like __init_timer is.
+
+Ok, I'll fix it up.  Although this macro mess isn't really readable
+at all.
