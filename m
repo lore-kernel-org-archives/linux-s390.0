@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: [PATCH] s390: use generic fb.h
-Date: Wed, 17 May 2017 10:34:49 +0200
-Message-Id: <20170517083449.1994-1-tklauser@distanz.ch>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.11 053/114] perf annotate s390: Fix perf annotate error -95 (4.10 regression)
+Date: Thu, 18 May 2017 12:46:03 +0200
+Message-Id: <20170518103612.905809603@linuxfoundation.org>
+In-Reply-To: <20170518103604.736737251@linuxfoundation.org>
+References: <20170518103604.736737251@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andreas Krebbel <krebbel@linux.vnet.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The arch uses a verbatim copy of the asm-generic version and does not
-add any own implemntations to the header, so use asm-generic/fb.h
-instead of duplicating code.
+4.11-stable review patch.  If anyone has any objections, please let me know.
 
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+------------------
+
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+
+commit e77852b32d6d4430c68c38aaf73efe5650fa25af upstream.
+
+since 4.10 perf annotate exits on s390 with an "unknown error -95".
+Turns out that commit 786c1b51844d ("perf annotate: Start supporting
+cross arch annotation") added a hard requirement for architecture
+support when objdump is used but only provided x86 and arm support.
+Meanwhile power was added so lets add s390 as well.
+
+While at it make sure to implement the branch and jump types.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>
+Fixes: 786c1b51844 "perf annotate: Start supporting cross arch annotation"
+Link: http://lkml.kernel.org/r/1491465112-45819-2-git-send-email-borntraeger@de.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/s390/include/asm/Kbuild |  1 +
- arch/s390/include/asm/fb.h   | 12 ------------
- 2 files changed, 1 insertion(+), 12 deletions(-)
- delete mode 100644 arch/s390/include/asm/fb.h
+ tools/perf/util/annotate.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
-index 45092b12f54f..953315cc37c4 100644
---- a/arch/s390/include/asm/Kbuild
-+++ b/arch/s390/include/asm/Kbuild
-@@ -5,6 +5,7 @@ generic-y += dma-contiguous.h
- generic-y += div64.h
- generic-y += emergency-restart.h
- generic-y += export.h
-+generic-y += fb.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kmap_types.h
-diff --git a/arch/s390/include/asm/fb.h b/arch/s390/include/asm/fb.h
-deleted file mode 100644
-index c7df38030992..000000000000
---- a/arch/s390/include/asm/fb.h
-+++ /dev/null
-@@ -1,12 +0,0 @@
--#ifndef _ASM_FB_H_
--#define _ASM_FB_H_
--#include <linux/fb.h>
--
--#define fb_pgprotect(...) do {} while (0)
--
--static inline int fb_is_primary_device(struct fb_info *info)
--{
--	return 0;
--}
--
--#endif /* _ASM_FB_H_ */
--- 
-2.13.0
+--- a/tools/perf/util/annotate.c
++++ b/tools/perf/util/annotate.c
+@@ -136,6 +136,12 @@ static struct arch architectures[] = {
+ 			.comment_char = '#',
+ 		},
+ 	},
++	{
++		.name = "s390",
++		.objdump =  {
++			.comment_char = '#',
++		},
++	},
+ };
+ 
+ static void ins__delete(struct ins_operands *ops)
