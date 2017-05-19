@@ -1,16 +1,13 @@
-Return-Path: <arndbergmann@gmail.com>
-MIME-Version: 1.0
-Sender: arndbergmann@gmail.com
-In-Reply-To: <20170518084136.GA5331@lst.de>
+Return-Path: <David.Laight@ACULAB.COM>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH 2/9] timers: provide a "modern" variant of timers
+Date: Fri, 19 May 2017 10:48:51 +0000
+Message-ID: <063D6719AE5E284EB5DD2968C1650D6DCFFFAA38@AcuExch.aculab.com>
 References: <20170516114812.10660-1-hch@lst.de>
  <20170516114812.10660-3-hch@lst.de>
- <CAK8P3a106wR4h_muGGF7S7uh5UrH-OcJObMfVgk22P9brP5Bjg@mail.gmail.com>
- <20170518082448.GB3812@lst.de> <20170518084136.GA5331@lst.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 18 May 2017 10:57:31 +0200
-Message-ID: <CAK8P3a2ddbr=ck+G+80vGkVQ+L3snWkT1bbj2+1T6UJhm+_mrQ@mail.gmail.com>
-Subject: Re: [PATCH 2/9] timers: provide a "modern" variant of timers
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170516114812.10660-3-hch@lst.de>
+Content-Type: text/plain; charset="Windows-1252"
+MIME-Version: 1.0
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -19,27 +16,25 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Mark Gross <mark.gross@intel.com>, Tejun Heo <tj@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: 'Christoph Hellwig' <hch@lst.de>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Tejun Heo <tj@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Mark Gross <mark.gross@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 18, 2017 at 10:41 AM, Christoph Hellwig <hch@lst.de> wrote:
-> On Thu, May 18, 2017 at 10:24:48AM +0200, Christoph Hellwig wrote:
->> > b) give the union a name (breaks any reference to timer_list->func in C code):
->> >
->> >  +       union {
->> >  +               void            (*func)(struct timer_list *timer);
->> >  +               void            (*function)(unsigned long);
->> >  +       } u;
->>
->> I'll look into that, as it seems a lot safer, and places outside
->> the timer code shouldn't really touch it (although I bet they do,
->> so more fixes for this series..)
+From: Christoph Hellwig
+> Sent: 16 May 2017 12:48
 >
-> Meh.  All the old init_timer users set function directly, so
-> I guess we need to use the other approach.
+> The new callback gets a pointer to the timer_list itself, which can
+> then be used to get the containing structure using container_of
+> instead of casting from and to unsigned long all the time.
 
-How expensive would it be to add another field to timer_list and
-just have both pointers?
+What about sensible drivers that put some other value in the 'data'
+field?
 
-      Arnd
+Perhaps it ought to have been 'void *data'.
+
+Seems retrograde to be passing the address of the timer structure
+(which, in principle, the callers no nothing about).
+
+So I wouldn't call it 'modern', just different.
+
+	David
