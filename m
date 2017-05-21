@@ -1,13 +1,13 @@
 Return-Path: <tglx@linutronix.de>
-Date: Sun, 21 May 2017 19:13:27 +0200 (CEST)
+Date: Sun, 21 May 2017 19:57:53 +0200 (CEST)
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: RFC: better timer interface
-In-Reply-To: <CAK8P3a3_Rjz9gTmayN1w8HrFHWY+wakeFgQSYRTAADJzF6zKJA@mail.gmail.com>
-Message-ID: <alpine.DEB.2.20.1705211859410.3023@nanos>
+Subject: Re: [PATCH 2/9] timers: provide a "modern" variant of timers
+In-Reply-To: <20170518084136.GA5331@lst.de>
+Message-ID: <alpine.DEB.2.20.1705211920280.3023@nanos>
 References: <20170516114812.10660-1-hch@lst.de>
- <CAK8P3a1FoR_usw7du3ZRMF+PPhJ712EpArL_e1bLVNs7BYBu-w@mail.gmail.com>
- <20170516155132.GA1494@lst.de>
- <CAK8P3a3_Rjz9gTmayN1w8HrFHWY+wakeFgQSYRTAADJzF6zKJA@mail.gmail.com>
+ <20170516114812.10660-3-hch@lst.de>
+ <CAK8P3a106wR4h_muGGF7S7uh5UrH-OcJObMfVgk22P9brP5Bjg@mail.gmail.com>
+ <20170518082448.GB3812@lst.de> <20170518084136.GA5331@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -18,38 +18,41 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@lst.de>, Tejun Heo <tj@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Mark Gross <mark.gross@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, Mark Gross <mark.gross@intel.com>, Tejun Heo <tj@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 16 May 2017, Arnd Bergmann wrote:
-> On Tue, May 16, 2017 at 5:51 PM, Christoph Hellwig <hch@lst.de> wrote:
-> > Yes, that sounds useful to me as well.  As you said it's an independent
-> > but somewhat related change.  I can add it to my series, but I'll
-> > need a suggestions for a good and short name.  That already was the
-> > hardest part for the setup side :)
+On Thu, 18 May 2017, Christoph Hellwig wrote:
+> On Thu, May 18, 2017 at 10:24:48AM +0200, Christoph Hellwig wrote:
+> > > b) give the union a name (breaks any reference to timer_list->func in C code):
+> > > 
+> > >  +       union {
+> > >  +               void            (*func)(struct timer_list *timer);
+> > >  +               void            (*function)(unsigned long);
+> > >  +       } u;
+> > 
+> > I'll look into that, as it seems a lot safer, and places outside
+> > the timer code shouldn't really touch it (although I bet they do,
+> > so more fixes for this series..)
 > 
-> If we keep the unusual *_timer() naming (rather than timer_*() as hrtimer
-> has), we could use one of
-> 
-> a) start_timer(struct timer_list *timer, unsigned long ms);
-> b) restart_timer(struct timer_list *timer, unsigned long ms);
-> c) mod_timer_ms(struct timer_list *timer, unsigned long ms);
->     mod_timer_sec(struct timer_list *timer, unsigned long sec);
+> Meh.  All the old init_timer users set function directly, so
+> I guess we need to use the other approach.
 
-Please make new functions prefixed with timer_ and get rid of that old
-interface completely. It's horrible.
- 
-timer_init()
-timer_start(timer, ms, abs)
-timer_start_on(timer, ms, abs, cpu)
-timer_cancel(timer, sync)
+There is another possibility. Create a coccinelle script which wraps all
 
-Is all what's required to make up a new milliseconds based interface.
+      timer.function = f;
+      timer->function = f;
 
-We really do not need all that mod/restart/ whatever variants. Where is the
-point of those?
+assignements into a helper timer_set_function(timer, func) and ask Linus to
+run it right before the next -rc. That handles everything in tree and the
+few new instances in next can be addressed with patches sent to the
+maintainers.
 
 Thanks,
 
 	tglx
+
+
+
+
+      
