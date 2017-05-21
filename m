@@ -1,18 +1,15 @@
-Return-Path: <arndbergmann@gmail.com>
-MIME-Version: 1.0
-Sender: arndbergmann@gmail.com
-In-Reply-To: <20170521070017.GA13082@lst.de>
+Return-Path: <tglx@linutronix.de>
+Date: Sun, 21 May 2017 19:13:27 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: RFC: better timer interface
+In-Reply-To: <CAK8P3a3_Rjz9gTmayN1w8HrFHWY+wakeFgQSYRTAADJzF6zKJA@mail.gmail.com>
+Message-ID: <alpine.DEB.2.20.1705211859410.3023@nanos>
 References: <20170516114812.10660-1-hch@lst.de>
- <20170516114812.10660-3-hch@lst.de>
- <CAK8P3a106wR4h_muGGF7S7uh5UrH-OcJObMfVgk22P9brP5Bjg@mail.gmail.com>
- <20170518082448.GB3812@lst.de> <20170518084136.GA5331@lst.de>
- <CAK8P3a2ddbr=ck+G+80vGkVQ+L3snWkT1bbj2+1T6UJhm+_mrQ@mail.gmail.com>
- <20170521070017.GA13082@lst.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Sun, 21 May 2017 14:29:21 +0200
-Message-ID: <CAK8P3a004SX_cAc1hcbx4wdRMEhmzp=w1wasiRy3UvexskQ5dA@mail.gmail.com>
-Subject: Re: [PATCH 2/9] timers: provide a "modern" variant of timers
-Content-Type: text/plain; charset="UTF-8"
+ <CAK8P3a1FoR_usw7du3ZRMF+PPhJ712EpArL_e1bLVNs7BYBu-w@mail.gmail.com>
+ <20170516155132.GA1494@lst.de>
+ <CAK8P3a3_Rjz9gTmayN1w8HrFHWY+wakeFgQSYRTAADJzF6zKJA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -21,31 +18,38 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Mark Gross <mark.gross@intel.com>, Tejun Heo <tj@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@lst.de>, Tejun Heo <tj@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Mark Gross <mark.gross@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, May 21, 2017 at 9:00 AM, Christoph Hellwig <hch@lst.de> wrote:
-> On Thu, May 18, 2017 at 10:57:31AM +0200, Arnd Bergmann wrote:
->> How expensive would it be to add another field to timer_list and
->> just have both pointers?
->
-> That would add 4/8 bytes to every structure containing a timer,
-> so I'd rather avoid it if possible.
+On Tue, 16 May 2017, Arnd Bergmann wrote:
+> On Tue, May 16, 2017 at 5:51 PM, Christoph Hellwig <hch@lst.de> wrote:
+> > Yes, that sounds useful to me as well.  As you said it's an independent
+> > but somewhat related change.  I can add it to my series, but I'll
+> > need a suggestions for a good and short name.  That already was the
+> > hardest part for the setup side :)
+> 
+> If we keep the unusual *_timer() naming (rather than timer_*() as hrtimer
+> has), we could use one of
+> 
+> a) start_timer(struct timer_list *timer, unsigned long ms);
+> b) restart_timer(struct timer_list *timer, unsigned long ms);
+> c) mod_timer_ms(struct timer_list *timer, unsigned long ms);
+>     mod_timer_sec(struct timer_list *timer, unsigned long sec);
 
-I didn't expect too many timers to be in allocated structures at the same
-time on most systems, but I haven't researched this at all.
+Please make new functions prefixed with timer_ and get rid of that old
+interface completely. It's horrible.
+ 
+timer_init()
+timer_start(timer, ms, abs)
+timer_start_on(timer, ms, abs, cpu)
+timer_cancel(timer, sync)
 
-We should probably update the comment about the cacheline alignment
-though: when most users embed the timer_list in some other structure,
-it's not valid at all, and forcing timer_list to be cacheline aligned would
-waste way more space than an extra field.
+Is all what's required to make up a new milliseconds based interface.
 
->  But one option might be to inflict this onto users of outdated compilers
-> and use the union for modern ones.
+We really do not need all that mod/restart/ whatever variants. Where is the
+point of those?
 
-Good idea, this sounds better than the alternatives at least. The
-remaining users of those old compilers certainly don't care that much
-about micro-optimizing the kernel anyway.
+Thanks,
 
-       Arnd
+	tglx
