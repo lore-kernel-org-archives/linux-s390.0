@@ -1,92 +1,85 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.10 51/93] perf annotate s390: Implement jump types for perf annotate
-Date: Thu, 18 May 2017 12:47:20 +0200
-Message-Id: <20170518104745.202740967@linuxfoundation.org>
-In-Reply-To: <20170518104743.163522815@linuxfoundation.org>
-References: <20170518104743.163522815@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andreas Krebbel <krebbel@linux.vnet.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PULL 1/1] s390/vfio_ccw: make some symbols static
+Date: Mon, 22 May 2017 16:21:17 +0200
+Message-ID: <20170522142117.29775-2-cornelia.huck@de.ibm.com>
+References: <20170522142117.29775-1-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20170522142117.29775-1-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: schwidefsky@de.ibm.com
+Cc: bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-4.10-stable review patch.  If anyone has any objections, please let me know.
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-------------------
+Make some symbols static to fix sparse warnings like:
+drivers/s390/cio/vfio_ccw_ops.c:73:1: warning: symbol 'mdev_type_attr_name' was not declared. Should it be static?
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-
-commit d9f8dfa9baf9b6ae1f2f84f887176558ecde5268 upstream.
-
-Implement simple detection for all kind of jumps and branches.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Andreas Krebbel <krebbel@linux.vnet.ibm.com>
-Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-s390 <linux-s390@vger.kernel.org>
-Link: http://lkml.kernel.org/r/1491465112-45819-3-git-send-email-borntraeger@de.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- tools/perf/arch/s390/annotate/instructions.c |   30 +++++++++++++++++++++++++++
- tools/perf/util/annotate.c                   |    2 +
- 2 files changed, 32 insertions(+)
+ drivers/s390/cio/vfio_ccw_ops.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- /dev/null
-+++ b/tools/perf/arch/s390/annotate/instructions.c
-@@ -0,0 +1,30 @@
-+static struct ins_ops *s390__associate_ins_ops(struct arch *arch, const char *name)
-+{
-+	struct ins_ops *ops = NULL;
-+
-+	/* catch all kind of jumps */
-+	if (strchr(name, 'j') ||
-+	    !strncmp(name, "bct", 3) ||
-+	    !strncmp(name, "br", 2))
-+		ops = &jump_ops;
-+	/* override call/returns */
-+	if (!strcmp(name, "bras") ||
-+	    !strcmp(name, "brasl") ||
-+	    !strcmp(name, "basr"))
-+		ops = &call_ops;
-+	if (!strcmp(name, "br"))
-+		ops = &ret_ops;
-+
-+	arch__associate_ins_ops(arch, name, ops);
-+	return ops;
-+}
-+
-+static int s390__annotate_init(struct arch *arch)
-+{
-+	if (!arch->initialized) {
-+		arch->initialized = true;
-+		arch->associate_instruction_ops = s390__associate_ins_ops;
-+	}
-+
-+	return 0;
-+}
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -108,6 +108,7 @@ static int arch__associate_ins_ops(struc
- #include "arch/arm64/annotate/instructions.c"
- #include "arch/x86/annotate/instructions.c"
- #include "arch/powerpc/annotate/instructions.c"
-+#include "arch/s390/annotate/instructions.c"
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index e72abbc18ee3..a66a317f3e4f 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -70,14 +70,14 @@ static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
+ {
+ 	return sprintf(buf, "I/O subchannel (Non-QDIO)\n");
+ }
+-MDEV_TYPE_ATTR_RO(name);
++static MDEV_TYPE_ATTR_RO(name);
  
- static struct arch architectures[] = {
- 	{
-@@ -132,6 +133,7 @@ static struct arch architectures[] = {
- 	},
- 	{
- 		.name = "s390",
-+		.init = s390__annotate_init,
- 		.objdump =  {
- 			.comment_char = '#',
- 		},
+ static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
+ 			       char *buf)
+ {
+ 	return sprintf(buf, "%s\n", VFIO_DEVICE_API_CCW_STRING);
+ }
+-MDEV_TYPE_ATTR_RO(device_api);
++static MDEV_TYPE_ATTR_RO(device_api);
+ 
+ static ssize_t available_instances_show(struct kobject *kobj,
+ 					struct device *dev, char *buf)
+@@ -86,7 +86,7 @@ static ssize_t available_instances_show(struct kobject *kobj,
+ 
+ 	return sprintf(buf, "%d\n", atomic_read(&private->avail));
+ }
+-MDEV_TYPE_ATTR_RO(available_instances);
++static MDEV_TYPE_ATTR_RO(available_instances);
+ 
+ static struct attribute *mdev_types_attrs[] = {
+ 	&mdev_type_attr_name.attr,
+@@ -100,7 +100,7 @@ static struct attribute_group mdev_type_group = {
+ 	.attrs = mdev_types_attrs,
+ };
+ 
+-struct attribute_group *mdev_type_groups[] = {
++static struct attribute_group *mdev_type_groups[] = {
+ 	&mdev_type_group,
+ 	NULL,
+ };
+@@ -152,7 +152,7 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
+ 				      &events, &private->nb);
+ }
+ 
+-void vfio_ccw_mdev_release(struct mdev_device *mdev)
++static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+ {
+ 	struct vfio_ccw_private *private =
+ 		dev_get_drvdata(mdev_parent_dev(mdev));
+@@ -233,7 +233,7 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
+ 	}
+ }
+ 
+-int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
++static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
+ {
+ 	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
+ 		return -EINVAL;
+-- 
+2.13.0
