@@ -1,37 +1,43 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PULL 0/1] vfio-ccw: one patch
-Date: Mon, 22 May 2017 16:21:16 +0200
-Message-ID: <20170522142117.29775-1-cornelia.huck@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 24 May 2017 12:57:14 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [patch V3 15/32] s390/kernel: Use stop_machine_cpuslocked()
+References: <20170524081511.203800767@linutronix.de>
+ <20170524081548.250203087@linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170524081548.250203087@linutronix.de>
+Message-Id: <20170524105714.GD5427@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Sebastian Siewior <bigeasy@linutronix.de>, Paul McKenney <paulmck@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, David Hildenbrand <dahi@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The following changes since commit 2ea659a9ef488125eb46da6eb571de5eae5c43f6:
+On Wed, May 24, 2017 at 10:15:26AM +0200, Thomas Gleixner wrote:
+> From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> 
+> stp_work_fn() holds get_online_cpus() while invoking stop_machine().
+> 
+> stop_machine() invokes get_online_cpus() as well. This is correct, but
+> prevents the conversion of the hotplug locking to a percpu rwsem.
+> 
+> Use stop_machine_cpuslocked() to avoid the nested call. Convert
+> *_online_cpus() to the new interfaces while at it.
+> 
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: linux-s390@vger.kernel.org
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Steven Rostedt <rostedt@goodmis.org>
+> Cc: David Hildenbrand <dahi@linux.vnet.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> ---
+>  arch/s390/kernel/time.c |    6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 
-  Linux 4.12-rc1 (2017-05-13 13:19:49 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20170522
-
-for you to fetch changes up to 5bf185366bfca4ab7730c607f530188e1591a4c0:
-
-  s390/vfio_ccw: make some symbols static (2017-05-22 15:37:11 +0200)
-
-----------------------------------------------------------------
-Make some symbols in vfio-ccw static, as detected by sparse.
-
-----------------------------------------------------------------
-
-Sebastian Ott (1):
-  s390/vfio_ccw: make some symbols static
-
- drivers/s390/cio/vfio_ccw_ops.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
--- 
-2.13.0
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
