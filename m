@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20170524081549.354513406@linutronix.de>
-Date: Wed, 24 May 2017 10:15:39 +0200
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V3 28/32] s390: Prevent hotplug rwsem recursion
-References: <20170524081511.203800767@linutronix.de>
+Date: Thu, 25 May 2017 14:28:20 -0400
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: Re: [PATCH] s390: kernel: Delete an error message for a failed
+ memory allocation in cpcmd()
+Message-ID: <20170525182820.GJ877@windriver.com>
+References: <225c2a55-eb6e-35cb-285a-cb664a34bc7e@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Disposition: inline;
- filename=s390--Prevent-hotplug-rwsem-recursion.patch
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <225c2a55-eb6e-35cb-285a-cb664a34bc7e@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Sebastian Siewior <bigeasy@linutronix.de>, Paul McKenney <paulmck@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The text patching functions which are invoked from jump_label and kprobes
-code are protected against cpu hotplug at the call sites.
+[[PATCH] s390: kernel: Delete an error message for a failed memory allocation in cpcmd()] On 25/05/2017 (Thu 19:18) SF Markus Elfring wrote:
 
-Use stop_machine_cpuslocked() to avoid recursion on the cpu hotplug
-rwsem. stop_machine_cpuslocked() contains a lockdep assertion to catch any
-unprotected callers.
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Thu, 25 May 2017 19:09:50 +0200
+> 
+> Omit an extra message for a memory allocation failure in this function.
+> 
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/kernel/jump_label.c |    2 +-
- arch/s390/kernel/kprobes.c    |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+Since I was Cc'd -- NACK.
 
---- a/arch/s390/kernel/jump_label.c
-+++ b/arch/s390/kernel/jump_label.c
-@@ -93,7 +93,7 @@ void arch_jump_label_transform(struct ju
- 	args.entry = entry;
- 	args.type = type;
- 
--	stop_machine(__sm_arch_jump_label_transform, &args, NULL);
-+	stop_machine_cpuslocked(__sm_arch_jump_label_transform, &args, NULL);
- }
- 
- void arch_jump_label_transform_static(struct jump_entry *entry,
---- a/arch/s390/kernel/kprobes.c
-+++ b/arch/s390/kernel/kprobes.c
-@@ -196,7 +196,7 @@ void arch_arm_kprobe(struct kprobe *p)
- {
- 	struct swap_insn_args args = {.p = p, .arm_kprobe = 1};
- 
--	stop_machine(swap_instruction, &args, NULL);
-+	stop_machine_cpuslocked(swap_instruction, &args, NULL);
- }
- NOKPROBE_SYMBOL(arch_arm_kprobe);
- 
-@@ -204,7 +204,7 @@ void arch_disarm_kprobe(struct kprobe *p
- {
- 	struct swap_insn_args args = {.p = p, .arm_kprobe = 0};
- 
--	stop_machine(swap_instruction, &args, NULL);
-+	stop_machine_cpuslocked(swap_instruction, &args, NULL);
- }
- NOKPROBE_SYMBOL(arch_disarm_kprobe);
- 
+Please, please stop sending garbage patches to every maintainer and
+project you can find.
+
+P.
+--
+
+> This issue was detected by using the Coccinelle software.
+> 
+> Link: http://events.linuxfoundation.org/sites/events/files/slides/LCJ16-Refactor_Strings-WSang_0.pdf
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  arch/s390/kernel/cpcmd.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/cpcmd.c b/arch/s390/kernel/cpcmd.c
+> index 9f0e4a2785f7..2f9c97813846 100644
+> --- a/arch/s390/kernel/cpcmd.c
+> +++ b/arch/s390/kernel/cpcmd.c
+> @@ -95,10 +95,9 @@ int cpcmd(const char *cmd, char *response, int rlen, int *response_code)
+>  	if ((virt_to_phys(response) != (unsigned long) response) ||
+>  			(((unsigned long)response + rlen) >> 31)) {
+>  		lowbuf = kmalloc(rlen, GFP_KERNEL | GFP_DMA);
+> -		if (!lowbuf) {
+> -			pr_warn("The cpcmd kernel function failed to allocate a response buffer\n");
+> +		if (!lowbuf)
+>  			return -ENOMEM;
+> -		}
+> +
+>  		spin_lock_irqsave(&cpcmd_lock, flags);
+>  		len = __cpcmd(cmd, lowbuf, rlen, response_code);
+>  		spin_unlock_irqrestore(&cpcmd_lock, flags);
+> -- 
+> 2.13.0
+> 
