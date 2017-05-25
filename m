@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 29 May 2017 18:07:44 +0200 (CEST)
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Subject: Re: [PATCH] s390: provide default ioremap and iounmap declaration
-In-Reply-To: <0dc5ea4a-6567-e0fc-8704-aab119de8cb4@deltatee.com>
-References: <1495727028-27656-1-git-send-email-logang@deltatee.com> <20170526123801.GC14849@osiris> <0dc5ea4a-6567-e0fc-8704-aab119de8cb4@deltatee.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <alpine.LFD.2.20.1705291803230.2108@schleppi>
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Thu, 25 May 2017 09:43:48 -0600
+Message-Id: <1495727028-27656-1-git-send-email-logang@deltatee.com>
+Subject: [PATCH] s390: provide default ioremap and iounmap declaration
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Al Viro <viro@ZenIV.linux.org.uk>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Logan Gunthorpe <logang@deltatee.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Al Viro <viro@ZenIV.linux.org.uk>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Add a default ioremap function which was not provided in all
+circumstances. (Only when CONFIG_PCI was set).
 
-On Fri, 26 May 2017, Logan Gunthorpe wrote:
-> On 26/05/17 06:38 AM, Heiko Carstens wrote:
-> > On Thu, May 25, 2017 at 09:43:48AM -0600, Logan Gunthorpe wrote:
-> > I'd rather move the #ifdef CONFIG_PCI than implementing this yet another
-> > time (see patch below). But I'll leave that up to Sebastian.
+I have designs to use them in scatterlist.c where they'd likely never
+be called without CONFIG_PCI set, but it is needed to compile. Thus,
+if the function is ever hit it returns NULL.
 
-Yes I've had prepared the same patch because of build failures in
-linux-next due to this commit (linux-next commit id)
-	db1534d linux/io.h: Add pci_remap_cfgspace() interface
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Al Viro <viro@ZenIV.linux.org.uk>
+---
 
-But I'd never send it because this commit was changed to add
-#ifdef CONFIG_PCI.
+Thanks to Al Viro for pointing out this corner case in s390.
 
-> I'd be more than happy with this change. Let me know if you want me to
-> resubmit a patch that looks like that.
+ arch/s390/include/asm/io.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-Yes please do. I'll Ack it.
+diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
+index 437e9af..f4140d4 100644
+--- a/arch/s390/include/asm/io.h
++++ b/arch/s390/include/asm/io.h
+@@ -73,6 +73,17 @@ static inline void ioport_unmap(void __iomem *p)
+ #define __raw_writel	zpci_write_u32
+ #define __raw_writeq	zpci_write_u64
 
-Thanks,
-Sebastian
++#else
++
++static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
++{
++	return NULL;
++}
++
++static inline void iounmap(void __iomem *addr)
++{
++}
++
+ #endif /* CONFIG_PCI */
+
+ #include <asm-generic/io.h>
+--
+2.1.4
