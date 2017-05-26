@@ -1,52 +1,61 @@
 Return-Path: <owner-linux-mm@kvack.org>
 Subject: Re: [v3 0/9] parallelized "struct page" zeroing
-From: Benjamin Herrenschmidt <benh@au1.ibm.com>
-Reply-To: benh@au1.ibm.com
-Date: Wed, 17 May 2017 09:50:57 +1000
-In-Reply-To: <20170512.133742.2144484253675877904.davem@davemloft.net>
-References: <65b8a658-76d1-0617-ece8-ff7a3c1c4046@oracle.com>
-	 <20170512.125708.475573831936972365.davem@davemloft.net>
-	 <6da8d4a6-3332-8331-c329-b05efd88a70d@oracle.com>
-	 <20170512.133742.2144484253675877904.davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <1494978657.21847.74.camel@au1.ibm.com>
+References: <1494003796-748672-1-git-send-email-pasha.tatashin@oracle.com>
+ <20170509181234.GA4397@dhcp22.suse.cz>
+ <e19b241d-be27-3c9a-8984-2fb20211e2e1@oracle.com>
+ <20170515193817.GC7551@dhcp22.suse.cz>
+ <9b3d68aa-d2b6-2b02-4e75-f8372cbeb041@oracle.com>
+ <20170516083601.GB2481@dhcp22.suse.cz>
+From: Pasha Tatashin <pasha.tatashin@oracle.com>
+Message-ID: <07a6772b-711d-4fdc-f688-db76f1ec4c45@oracle.com>
+Date: Fri, 26 May 2017 12:45:55 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170516083601.GB2481@dhcp22.suse.cz>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: David Miller <davem@davemloft.net>, pasha.tatashin@oracle.com
-Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Michal Hocko <mhocko@kernel.org>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 2017-05-12 at 13:37 -0400, David Miller wrote:
-> > Right now it is larger, but what I suggested is to add a new optimized
-> > routine just for this case, which would do STBI for 64-bytes but
-> > without membar (do membar at the end of memmap_init_zone() and
-> > deferred_init_memmap()
-> > 
-> > #define struct_page_clear(page)A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A  \
-> > A A A A A A A A  __asm__ __volatile__(A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A  \
-> > A A A A A A A A  "stxaA A  %%g0, [%0]%2\n"A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A  \
-> > A A A A A A A A  "stxaA A  %%xg0, [%0 + %1]%2\n"A A A A A A A A A A A A A A A A A A A A A A A A A A  \
-> > A A A A A A A A  : /* No output */A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A  \
-> > A A A A A A A A  : "r" (page), "r" (0x20), "i"(ASI_BLK_INIT_QUAD_LDD_P))
-> > 
-> > And insert it into __init_single_page() instead of memset()
-> > 
-> > The final result is 4.01s/T which is even faster compared to current
-> > 4.97s/T
-> 
-> Ok, indeed, that would work.
+Hi Michal,
 
-On ppc64, that might not. We have a dcbz instruction that clears an
-entire cache line at once. That's what we use for memset's and page
-clearing. However, 64 bytes is half a cache line on modern processors
-so we can't use it with that semantic and would have to fallback to the
-slower stores.
+I have considered your proposals:
 
-Cheers,
-Ben.
+1. Making memset(0) unconditional inside __init_single_page() is not 
+going to work because it slows down SPARC, and ppc64. On SPARC even the 
+BSTI optimization that I have proposed earlier won't work, because after 
+consulting with other engineers I was told that stores (without loads!) 
+after BSTI without membar are unsafe
+
+2. Adding ARCH_WANT_LARGE_PAGEBLOCK_INIT is not going to solve the 
+problem, because while arch might want a large memset(), it still wants 
+to get the benefit of parallelized struct page initialization.
+
+3. Another approach that have I considered is moving memset() above 
+__init_single_page() and do it in a larger chunks. However, this 
+solution is also not going to work, because inside the loops, there are 
+cases where "struct page"s are skipped, so every single page is checked:
+early_pfn_valid(pfn), early_pfn_in_nid(), and also mirroed_kernelcore cases.
+
+> I wouldn't be so sure about this. If any other platform has a similar
+> issues with small memset as sparc then the overhead is just papered over
+> by parallel initialization.
+
+That is true, and that is fine, because parallelization gives an order 
+of magnitude better improvements compared to trade of slower single 
+thread performance. Remember, this will happen during boot and memory 
+hotplug only, and not something that will eat up computing resources 
+during runtime.
+
+So, at the moment I cannot really find a better solution compared to 
+what I have proposed: do memset() inside __init_single_page() only when 
+deferred initialization is enabled.
+
+Pasha
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
