@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] S390-DASD: Delete an error message for a failed memory
- allocation in two functions
-Message-ID: <5708cda3-991c-e05c-85c4-5b2199395bb4@users.sourceforge.net>
-Date: Tue, 16 May 2017 15:36:34 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 1/1] futex: remove duplicated code
+Date: Fri, 26 May 2017 08:54:31 +0200 (CEST)
+Message-ID: <alpine.DEB.2.20.1705260849520.1902@nanos>
+References: <20170515130742.18357-1-jslaby@suse.cz>
+ <20170515131644.GA3605@arm.com> <alpine.DEB.2.20.1705222259580.2407@nanos>
+ <20170525142829.GO2859@arm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Stefan Haberland <sth@linux.vnet.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170525142829.GO2859@arm.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>,
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Will Deacon <will.deacon@arm.com>
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Ingo Molnar <mingo@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-xtensa@linux-xtensa.org, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 16 May 2017 15:30:44 +0200
+On Thu, 25 May 2017, Will Deacon wrote:
+> On Mon, May 22, 2017 at 11:11:33PM +0200, Thomas Gleixner wrote:
+> > On Mon, 15 May 2017, Will Deacon wrote:
+> > > On Mon, May 15, 2017 at 03:07:42PM +0200, Jiri Slaby wrote:
+> > > > There is code duplicated over all architecture's headers for
+> > > > futex_atomic_op_inuser. Namely op decoding, access_ok check for uaddr,
+> > > > and comparison of the result.
+> > > > 
+> > > > Remove this duplication and leave up to the arches only the needed
+> > > > assembly which is now in arch_futex_atomic_op_inuser.
+> > > > 
+> > > > Note that s390 removed access_ok check in d12a29703 ("s390/uaccess:
+> > > > remove pointless access_ok() checks") as access_ok there returns true.
+> > > > We introduce it back to the helper for the sake of simplicity (it gets
+> > > > optimized away anyway).
+> > > 
+> > > Whilst I think this is a good idea, the code in question actually results
+> > > in undefined behaviour per the C spec and is reported by UBSAN. See my
+> > > patch fixing arm64 here (which I'd forgotten about):
+> > > 
+> > > https://www.spinics.net/lists/linux-arch/msg38564.html
+> > > 
+> > > But, as stated in the thread above, I think we should go a step further
+> > > and remove FUTEX_OP_{OR,ANDN,XOR,OPARG_SHIFT} altogether. They don't
+> > > appear to be used by userspace, and this whole thing is a total mess.
+> > 
+> > You wish. The constants are not used, but FUTEX_WAKE_OP _IS_ used by
+> > glibc. They only have one argument it seems:
+> > 
+> >    #define FUTEX_OP_CLEAR_WAKE_IF_GT_ONE      ((4 << 24) | 1)
+> > 
+> > but I'm pretty sure that there is enough (probably horrible) code (think
+> > java) out there using FUTEX_WAKE_OP for whatever (non)sensical reasons in
+> > any available combination.
+> 
+> Indeed, and I'm not proposing to get rid of that. It's the grossly
+> over-engineered array of operations and the FUTEX_OP_OPARG_SHIFT modifier
+> that I think we should kill. The latter likely behaves differently across
+> different architectures and potentially depending on the toolchain you used
+> to build the kernel.
+> 
+> Does anybody know the history behind the interface design?
 
-Omit an extra message for a memory allocation failure in this function.
+Which design?
 
-This issue was detected by using the Coccinelle software.
+4732efbeb997 ("[PATCH] FUTEX_WAKE_OP: pthread_cond_signal() speedup")
 
-Link: http://events.linuxfoundation.org/sites/events/files/slides/LCJ16-Refactor_Strings-WSang_0.pdf
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/s390/block/dasd_eckd.c | 7 ++-----
- drivers/s390/block/dasd_fba.c  | 7 ++-----
- 2 files changed, 4 insertions(+), 10 deletions(-)
+Thanks,
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 122456e4db89..99c73decae49 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1721,12 +1721,9 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
- 	}
- 	if (!private) {
- 		private = kzalloc(sizeof(*private), GFP_KERNEL | GFP_DMA);
--		if (!private) {
--			dev_warn(&device->cdev->dev,
--				 "Allocating memory for private DASD data "
--				 "failed\n");
-+		if (!private)
- 			return -ENOMEM;
--		}
-+
- 		device->private = private;
- 	} else {
- 		memset(private, 0, sizeof(*private));
-diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
-index 462cab5d4302..2b2f9b0da5c2 100644
---- a/drivers/s390/block/dasd_fba.c
-+++ b/drivers/s390/block/dasd_fba.c
-@@ -132,12 +132,9 @@ dasd_fba_check_characteristics(struct dasd_device *device)
- 
- 	if (!private) {
- 		private = kzalloc(sizeof(*private), GFP_KERNEL | GFP_DMA);
--		if (!private) {
--			dev_warn(&device->cdev->dev,
--				 "Allocating memory for private DASD "
--				 "data failed\n");
-+		if (!private)
- 			return -ENOMEM;
--		}
-+
- 		device->private = private;
- 	} else {
- 		memset(private, 0, sizeof(*private));
--- 
-2.13.0
+	tglx
