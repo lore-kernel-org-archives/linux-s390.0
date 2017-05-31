@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] s390: kernel: Delete an error message for a failed memory
- allocation in cpcmd()
-Message-ID: <225c2a55-eb6e-35cb-285a-cb664a34bc7e@users.sourceforge.net>
-Date: Thu, 25 May 2017 19:18:03 +0200
+Return-Path: <owner-linux-mm@kvack.org>
+Date: Wed, 31 May 2017 20:11:51 +0300
+From: Yury Norov <ynorov@caviumnetworks.com>
+Subject: Re: [PATCH 2/6] mm: vmstat: move slab statistics from zone to node
+ counters
+Message-ID: <20170531171151.e4zh7ffzbl4w33gd@yury-thinkpad>
+References: <20170530181724.27197-1-hannes@cmpxchg.org>
+ <20170530181724.27197-3-hannes@cmpxchg.org>
+ <20170531091256.GA5914@osiris>
+ <20170531113900.GB5914@osiris>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170531113900.GB5914@osiris>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>, Josef Bacik <josef@toxicpanda.com>, Michal Hocko <mhocko@suse.com>, Vladimir Davydov <vdavydov.dev@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Rik van Riel <riel@redhat.com>, linux-mm@kvack.org, cgroups@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fb.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 25 May 2017 19:09:50 +0200
+On Wed, May 31, 2017 at 01:39:00PM +0200, Heiko Carstens wrote:
+> On Wed, May 31, 2017 at 11:12:56AM +0200, Heiko Carstens wrote:
+> > On Tue, May 30, 2017 at 02:17:20PM -0400, Johannes Weiner wrote:
+> > > To re-implement slab cache vs. page cache balancing, we'll need the
+> > > slab counters at the lruvec level, which, ever since lru reclaim was
+> > > moved from the zone to the node, is the intersection of the node, not
+> > > the zone, and the memcg.
+> > > 
+> > > We could retain the per-zone counters for when the page allocator
+> > > dumps its memory information on failures, and have counters on both
+> > > levels - which on all but NUMA node 0 is usually redundant. But let's
+> > > keep it simple for now and just move them. If anybody complains we can
+> > > restore the per-zone counters.
+> > > 
+> > > Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+> > 
+> > This patch causes an early boot crash on s390 (linux-next as of today).
+> > CONFIG_NUMA on/off doesn't make any difference. I haven't looked any
+> > further into this yet, maybe you have an idea?
 
-Omit an extra message for a memory allocation failure in this function.
+The same on arm64.
 
-This issue was detected by using the Coccinelle software.
+Yury
 
-Link: http://events.linuxfoundation.org/sites/events/files/slides/LCJ16-Refactor_Strings-WSang_0.pdf
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- arch/s390/kernel/cpcmd.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/arch/s390/kernel/cpcmd.c b/arch/s390/kernel/cpcmd.c
-index 9f0e4a2785f7..2f9c97813846 100644
---- a/arch/s390/kernel/cpcmd.c
-+++ b/arch/s390/kernel/cpcmd.c
-@@ -95,10 +95,9 @@ int cpcmd(const char *cmd, char *response, int rlen, int *response_code)
- 	if ((virt_to_phys(response) != (unsigned long) response) ||
- 			(((unsigned long)response + rlen) >> 31)) {
- 		lowbuf = kmalloc(rlen, GFP_KERNEL | GFP_DMA);
--		if (!lowbuf) {
--			pr_warn("The cpcmd kernel function failed to allocate a response buffer\n");
-+		if (!lowbuf)
- 			return -ENOMEM;
--		}
-+
- 		spin_lock_irqsave(&cpcmd_lock, flags);
- 		len = __cpcmd(cmd, lowbuf, rlen, response_code);
- 		spin_unlock_irqrestore(&cpcmd_lock, flags);
--- 
-2.13.0
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
