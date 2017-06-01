@@ -1,47 +1,94 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Wed, 31 May 2017 12:51:18 -0400 (EDT)
-Message-Id: <20170531.125118.94140984076231176.davem@davemloft.net>
 Subject: Re: [v3 0/9] parallelized "struct page" zeroing
-From: David Miller <davem@davemloft.net>
+References: <1494003796-748672-1-git-send-email-pasha.tatashin@oracle.com>
+ <20170509181234.GA4397@dhcp22.suse.cz>
+ <e19b241d-be27-3c9a-8984-2fb20211e2e1@oracle.com>
+ <20170515193817.GC7551@dhcp22.suse.cz>
+ <9b3d68aa-d2b6-2b02-4e75-f8372cbeb041@oracle.com>
+ <20170516083601.GB2481@dhcp22.suse.cz>
+ <07a6772b-711d-4fdc-f688-db76f1ec4c45@oracle.com>
+ <20170529115358.GJ19725@dhcp22.suse.cz>
+ <ae992f21-3edf-1ae7-41db-641052e411c7@oracle.com>
+ <20170531163131.GY27783@dhcp22.suse.cz>
+From: Pasha Tatashin <pasha.tatashin@oracle.com>
+Message-ID: <2fa60098-d9be-f57d-cb86-3b55cfe915b7@oracle.com>
+Date: Wed, 31 May 2017 23:35:48 -0400
+MIME-Version: 1.0
 In-Reply-To: <20170531163131.GY27783@dhcp22.suse.cz>
-References: <20170529115358.GJ19725@dhcp22.suse.cz>
-	<ae992f21-3edf-1ae7-41db-641052e411c7@oracle.com>
-	<20170531163131.GY27783@dhcp22.suse.cz>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: mhocko@kernel.org
-Cc: pasha.tatashin@oracle.com, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com
+To: Michal Hocko <mhocko@kernel.org>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michal Hocko <mhocko@kernel.org>
-Date: Wed, 31 May 2017 18:31:31 +0200
-
-> On Tue 30-05-17 13:16:50, Pasha Tatashin wrote:
->> >Could you be more specific? E.g. how are other stores done in
->> >__init_single_page safe then? I am sorry to be dense here but how does
->> >the full 64B store differ from other stores done in the same function.
->> 
->> Hi Michal,
->> 
->> It is safe to do regular 8-byte and smaller stores (stx, st, sth, stb)
->> without membar, but they are slower compared to STBI which require a membar
->> before memory can be accessed.
-> 
 > OK, so why cannot we make zero_struct_page 8x 8B stores, other arches
 > would do memset. You said it would be slower but would that be
 > measurable? I am sorry to be so persistent here but I would be really
 > happier if this didn't depend on the deferred initialization. If this is
 > absolutely a no-go then I can live with that of course.
 
-It is measurable.  That's the impetus for this work in the first place.
+Hi Michal,
 
-When the do the memory barrier, the whole store buffer flushes because
-the memory barrier is done with a dependency on the next load or store
-operation, one of which the caller is going to do immediately.
+This is actually a very good idea. I just did some measurements, and it 
+looks like performance is very good.
+
+Here is data from SPARC-M7 with 3312G memory with single thread performance:
+
+Current:
+memset() in memblock allocator takes: 8.83s
+__init_single_page() take: 8.63s
+
+Option 1:
+memset() in __init_single_page() takes: 61.09s (as we discussed because 
+of membar overhead, memset should really be optimized to do STBI only 
+when size is 1 page or bigger).
+
+Option 2:
+
+8 stores (stx) in __init_single_page(): 8.525s!
+
+So, even for single thread performance we can double the initialization 
+speed of "struct page" on SPARC by removing memset() from memblock, and 
+using 8 stx in __init_single_page(). It appears we never miss L1 in 
+__init_single_page() after the initial 8 stx.
+
+I will update patches with memset() on other platforms, and stx on SPARC.
+
+My experimental code looks like this:
+
+static void __meminit __init_single_page(struct page *page, unsigned 
+long pfn, unsigned long zone, int nid)
+{
+         __asm__ __volatile__(
+         "stx    %%g0, [%0 + 0x00]\n"
+         "stx    %%g0, [%0 + 0x08]\n"
+         "stx    %%g0, [%0 + 0x10]\n"
+         "stx    %%g0, [%0 + 0x18]\n"
+         "stx    %%g0, [%0 + 0x20]\n"
+         "stx    %%g0, [%0 + 0x28]\n"
+         "stx    %%g0, [%0 + 0x30]\n"
+         "stx    %%g0, [%0 + 0x38]\n"
+         :
+         :"r"(page));
+         set_page_links(page, zone, nid, pfn);
+         init_page_count(page);
+         page_mapcount_reset(page);
+         page_cpupid_reset_last(page);
+
+         INIT_LIST_HEAD(&page->lru);
+#ifdef WANT_PAGE_VIRTUAL
+         /* The shift won't overflow because ZONE_NORMAL is below 4G. */
+         if (!is_highmem_idx(zone))
+                 set_page_address(page, __va(pfn << PAGE_SHIFT));
+#endif
+}
+
+Thank you,
+Pasha
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
