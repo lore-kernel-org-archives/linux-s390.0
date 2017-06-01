@@ -1,52 +1,49 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: [PATCH RFC 22/26] s390: Remove spin_unlock_wait() arch-specific definitions
-Date: Thu, 29 Jun 2017 17:01:30 -0700
-Message-ID: <1498780894-8253-22-git-send-email-paulmck@linux.vnet.ibm.com>
-References: <20170629235918.GA6445@linux.vnet.ibm.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20170629235918.GA6445@linux.vnet.ibm.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: netfilter-devel@vger.kernel.org, netdev@vger.kernel.org, oleg@redhat.com, akpm@linux-foundation.org, mingo@redhat.com, dave@stgolabs.net, manfred@colorfullife.com, tj@kernel.org, arnd@arndb.de, linux-arch@vger.kernel.org, will.deacon@arm.com, peterz@infradead.org, stern@rowland.harvard.edu, parri.andrea@gmail.com, torvalds@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+Return-Path: <owner-linux-mm@kvack.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH 2/6] mm: vmstat: move slab statistics from zone to node counters
+In-Reply-To: <20170531171151.e4zh7ffzbl4w33gd@yury-thinkpad>
+References: <20170530181724.27197-1-hannes@cmpxchg.org> <20170530181724.27197-3-hannes@cmpxchg.org> <20170531091256.GA5914@osiris> <20170531113900.GB5914@osiris> <20170531171151.e4zh7ffzbl4w33gd@yury-thinkpad>
+Date: Thu, 01 Jun 2017 20:07:28 +1000
+Message-ID: <87mv9s2f8f.fsf@concordia.ellerman.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Yury Norov <ynorov@caviumnetworks.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>, Josef Bacik <josef@toxicpanda.com>, Michal Hocko <mhocko@suse.com>, Vladimir Davydov <vdavydov.dev@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Rik van Riel <riel@redhat.com>, linux-mm@kvack.org, cgroups@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fb.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-There is no agreed-upon definition of spin_unlock_wait()'s semantics,
-and it appears that all callers could do just as well with a lock/unlock
-pair.  This commit therefore removes the underlying arch-specific
-arch_spin_unlock_wait().
+Yury Norov <ynorov@caviumnetworks.com> writes:
 
-Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: <linux-s390@vger.kernel.org>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrea Parri <parri.andrea@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
----
- arch/s390/include/asm/spinlock.h | 7 -------
- 1 file changed, 7 deletions(-)
+> On Wed, May 31, 2017 at 01:39:00PM +0200, Heiko Carstens wrote:
+>> On Wed, May 31, 2017 at 11:12:56AM +0200, Heiko Carstens wrote:
+>> > On Tue, May 30, 2017 at 02:17:20PM -0400, Johannes Weiner wrote:
+>> > > To re-implement slab cache vs. page cache balancing, we'll need the
+>> > > slab counters at the lruvec level, which, ever since lru reclaim was
+>> > > moved from the zone to the node, is the intersection of the node, not
+>> > > the zone, and the memcg.
+>> > > 
+>> > > We could retain the per-zone counters for when the page allocator
+>> > > dumps its memory information on failures, and have counters on both
+>> > > levels - which on all but NUMA node 0 is usually redundant. But let's
+>> > > keep it simple for now and just move them. If anybody complains we can
+>> > > restore the per-zone counters.
+>> > > 
+>> > > Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+>> > 
+>> > This patch causes an early boot crash on s390 (linux-next as of today).
+>> > CONFIG_NUMA on/off doesn't make any difference. I haven't looked any
+>> > further into this yet, maybe you have an idea?
+>
+> The same on arm64.
 
-diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/spinlock.h
-index f7838ecd83c6..217ee5210c32 100644
---- a/arch/s390/include/asm/spinlock.h
-+++ b/arch/s390/include/asm/spinlock.h
-@@ -98,13 +98,6 @@ static inline void arch_spin_unlock(arch_spinlock_t *lp)
- 		: "cc", "memory");
- }
- 
--static inline void arch_spin_unlock_wait(arch_spinlock_t *lock)
--{
--	while (arch_spin_is_locked(lock))
--		arch_spin_relax(lock);
--	smp_acquire__after_ctrl_dep();
--}
--
- /*
-  * Read-write spinlocks, allowing multiple readers
-  * but only one writer.
--- 
-2.5.2
+And powerpc.
+
+cheers
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
