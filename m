@@ -1,71 +1,50 @@
-Return-Path: <owner-linux-mm@kvack.org>
-Date: Thu, 1 Jun 2017 10:46:09 +0200
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [v3 0/9] parallelized "struct page" zeroing
-Message-ID: <20170601084609.GF32677@dhcp22.suse.cz>
-References: <20170509181234.GA4397@dhcp22.suse.cz>
- <e19b241d-be27-3c9a-8984-2fb20211e2e1@oracle.com>
- <20170515193817.GC7551@dhcp22.suse.cz>
- <9b3d68aa-d2b6-2b02-4e75-f8372cbeb041@oracle.com>
- <20170516083601.GB2481@dhcp22.suse.cz>
- <07a6772b-711d-4fdc-f688-db76f1ec4c45@oracle.com>
- <20170529115358.GJ19725@dhcp22.suse.cz>
- <ae992f21-3edf-1ae7-41db-641052e411c7@oracle.com>
- <20170531163131.GY27783@dhcp22.suse.cz>
- <2fa60098-d9be-f57d-cb86-3b55cfe915b7@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2fa60098-d9be-f57d-cb86-3b55cfe915b7@oracle.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Pasha Tatashin <pasha.tatashin@oracle.com>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net
+From: Waiman Long <longman@redhat.com>
+Subject: [PATCH v5 9/9] locking/rwsem: Enable reader lock stealing
+Date: Thu,  1 Jun 2017 13:39:07 -0400
+Message-ID: <1496338747-20398-10-git-send-email-longman@redhat.com>
+References: <1496338747-20398-1-git-send-email-longman@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1496338747-20398-1-git-send-email-longman@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Dave Chinner <david@fromorbit.com>, Waiman Long <longman@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed 31-05-17 23:35:48, Pasha Tatashin wrote:
-> >OK, so why cannot we make zero_struct_page 8x 8B stores, other arches
-> >would do memset. You said it would be slower but would that be
-> >measurable? I am sorry to be so persistent here but I would be really
-> >happier if this didn't depend on the deferred initialization. If this is
-> >absolutely a no-go then I can live with that of course.
-> 
-> Hi Michal,
-> 
-> This is actually a very good idea. I just did some measurements, and it
-> looks like performance is very good.
-> 
-> Here is data from SPARC-M7 with 3312G memory with single thread performance:
-> 
-> Current:
-> memset() in memblock allocator takes: 8.83s
-> __init_single_page() take: 8.63s
-> 
-> Option 1:
-> memset() in __init_single_page() takes: 61.09s (as we discussed because of
-> membar overhead, memset should really be optimized to do STBI only when size
-> is 1 page or bigger).
-> 
-> Option 2:
-> 
-> 8 stores (stx) in __init_single_page(): 8.525s!
-> 
-> So, even for single thread performance we can double the initialization
-> speed of "struct page" on SPARC by removing memset() from memblock, and
-> using 8 stx in __init_single_page(). It appears we never miss L1 in
-> __init_single_page() after the initial 8 stx.
+The rwsem has supported writer lock stealing for a long time. Reader
+lock stealing isn't allowed as it may lead to writer lock starvation.
+As a result, writers are preferred over readers. However, preferring
+readers generally leads to better overall performance.
 
-OK, that is good to hear and it actually matches my understanding that
-writes to a single cacheline should add an overhead.
+This patch now enables reader lock stealing on a rwsem as long as
+the lock is reader-owned and optimistic spinning hasn't been disabled
+because of long writer wait. This will improve overall performance
+without running the risk of writer lock starvation.
 
-Thanks!
+Signed-off-by: Waiman Long <longman@redhat.com>
+---
+ kernel/locking/rwsem-xadd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index a571bec..f5caba8 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -529,6 +529,14 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
+ 		goto enqueue;
+ 
+ 	/*
++	 * Steal the lock if no writer was present and the optimistic
++	 * spinning disable bit isn't set.
++	 */
++	count = atomic_long_read(&sem->count);
++	if (!count_has_writer(count))
++		return sem;
++
++	/*
+ 	 * Undo read bias from down_read operation to stop active locking if:
+ 	 * 1) Optimistic spinners are present;
+ 	 * 2) the wait_lock isn't free; or
 -- 
-Michal Hocko
-SUSE Labs
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+1.8.3.1
