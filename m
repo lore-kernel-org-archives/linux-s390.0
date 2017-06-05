@@ -1,55 +1,42 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Mon, 5 Jun 2017 14:35:11 -0400
-From: Johannes Weiner <hannes@cmpxchg.org>
+Date: Mon, 5 Jun 2017 14:38:31 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [PATCH 2/6] mm: vmstat: move slab statistics from zone to node
  counters
-Message-ID: <20170605183511.GA8915@cmpxchg.org>
+Message-Id: <20170605143831.dac73f489bfe2644e103d2b3@linux-foundation.org>
+In-Reply-To: <20170605183511.GA8915@cmpxchg.org>
 References: <20170530181724.27197-1-hannes@cmpxchg.org>
- <20170530181724.27197-3-hannes@cmpxchg.org>
- <20170531091256.GA5914@osiris>
- <20170531113900.GB5914@osiris>
- <20170531171151.e4zh7ffzbl4w33gd@yury-thinkpad>
- <87mv9s2f8f.fsf@concordia.ellerman.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87mv9s2f8f.fsf@concordia.ellerman.id.au>
+	<20170530181724.27197-3-hannes@cmpxchg.org>
+	<20170531091256.GA5914@osiris>
+	<20170531113900.GB5914@osiris>
+	<20170531171151.e4zh7ffzbl4w33gd@yury-thinkpad>
+	<87mv9s2f8f.fsf@concordia.ellerman.id.au>
+	<20170605183511.GA8915@cmpxchg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Yury Norov <ynorov@caviumnetworks.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Josef Bacik <josef@toxicpanda.com>, Michal Hocko <mhocko@suse.com>, Vladimir Davydov <vdavydov.dev@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Rik van Riel <riel@redhat.com>, linux-mm@kvack.org, cgroups@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fb.com, linux-s390@vger.kernel.org
+To: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>, Yury Norov <ynorov@caviumnetworks.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Josef Bacik <josef@toxicpanda.com>, Michal Hocko <mhocko@suse.com>, Vladimir Davydov <vdavydov.dev@gmail.com>, Rik van Riel <riel@redhat.com>, linux-mm@kvack.org, cgroups@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fb.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jun 01, 2017 at 08:07:28PM +1000, Michael Ellerman wrote:
-> Yury Norov <ynorov@caviumnetworks.com> writes:
-> 
-> > On Wed, May 31, 2017 at 01:39:00PM +0200, Heiko Carstens wrote:
-> >> On Wed, May 31, 2017 at 11:12:56AM +0200, Heiko Carstens wrote:
-> >> > On Tue, May 30, 2017 at 02:17:20PM -0400, Johannes Weiner wrote:
-> >> > > To re-implement slab cache vs. page cache balancing, we'll need the
-> >> > > slab counters at the lruvec level, which, ever since lru reclaim was
-> >> > > moved from the zone to the node, is the intersection of the node, not
-> >> > > the zone, and the memcg.
-> >> > > 
-> >> > > We could retain the per-zone counters for when the page allocator
-> >> > > dumps its memory information on failures, and have counters on both
-> >> > > levels - which on all but NUMA node 0 is usually redundant. But let's
-> >> > > keep it simple for now and just move them. If anybody complains we can
-> >> > > restore the per-zone counters.
-> >> > > 
-> >> > > Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-> >> > 
-> >> > This patch causes an early boot crash on s390 (linux-next as of today).
-> >> > CONFIG_NUMA on/off doesn't make any difference. I haven't looked any
-> >> > further into this yet, maybe you have an idea?
-> >
-> > The same on arm64.
-> 
-> And powerpc.
+On Mon, 5 Jun 2017 14:35:11 -0400 Johannes Weiner <hannes@cmpxchg.org> wrote:
 
-It looks like we need the following on top. I can't reproduce the
-crash, but it's verifiable with WARN_ONs in the vmstat functions that
-the nodestat array isn't properly initialized when slab bootstraps:
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -5107,6 +5107,7 @@ static void build_zonelists(pg_data_t *pgdat)
+>   */
+>  static void setup_pageset(struct per_cpu_pageset *p, unsigned long batch);
+>  static DEFINE_PER_CPU(struct per_cpu_pageset, boot_pageset);
+> +static DEFINE_PER_CPU(struct per_cpu_nodestat, boot_nodestats);
+>  static void setup_zone_pageset(struct zone *zone);
 
----
+There's a few kb there.  It just sits evermore unused after boot?
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
