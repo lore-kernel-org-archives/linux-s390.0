@@ -1,64 +1,61 @@
-From: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Subject: [PATCH 3/3] perf: fix perf test case 14
-Date: Tue,  6 Jun 2017 16:31:56 +0200
-Message-ID: <20170606143156.10471-4-tmricht@linux.vnet.ibm.com>
-References: <20170606143156.10471-1-tmricht@linux.vnet.ibm.com>
-Return-path: <linux-perf-users-owner@vger.kernel.org>
-In-Reply-To: <20170606143156.10471-1-tmricht@linux.vnet.ibm.com>
-Sender: linux-perf-users-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-perf-users/>
-List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, jolsa@redhat.com
-Cc: Thomas Richter <tmricht@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH RFC tip/core/rcu 1/2] srcu: Allow use of Tiny/Tree SRCU
+ from both process and interrupt context
+Date: Tue, 6 Jun 2017 19:20:15 +0200
+Message-ID: <20170606172015.GA3023@osiris>
+References: <20170605220919.GA27820@linux.vnet.ibm.com>
+ <1496700591-30177-1-git-send-email-paulmck@linux.vnet.ibm.com>
+ <20170606105343.ibhzrk6jwhmoja5t@hirez.programming.kicks-ass.net>
+ <b77cb817-9ffb-b600-19a9-1de685049c57@redhat.com>
+ <bea28cb2-162c-57c3-1a9c-cc672aff7f1a@de.ibm.com>
+ <20170606152705.GD6681@osiris>
+ <20170606161551.dy5lr6mo6vqujk5d@hirez.programming.kicks-ass.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170606161551.dy5lr6mo6vqujk5d@hirez.programming.kicks-ass.net>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, mingo@kernel.org, jiangshanlai@gmail.com, dipankar@in.ibm.com, akpm@linux-foundation.org, mathieu.desnoyers@efficios.com, josh@joshtriplett.org, tglx@linutronix.de, rostedt@goodmis.org, dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com, oleg@redhat.com, kvm@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Command perf test -v 14 (Setup struct perf_event_attr test)
-always reports success even if the test case fails.
-It works correctly if you also specify -F (for don't fork).
+On Tue, Jun 06, 2017 at 06:15:51PM +0200, Peter Zijlstra wrote:
+> On Tue, Jun 06, 2017 at 05:27:06PM +0200, Heiko Carstens wrote:
+> > On Tue, Jun 06, 2017 at 04:45:57PM +0200, Christian Borntraeger wrote:
+> 
+> > > As a side note, I am asking myself, though, why we do need the
+> > > preempt_disable/enable for the cases where we use the opcodes 
+> > > like lao (atomic load and or to a memory location) and friends.
+> > 
+> > Because you want the atomic instruction to be executed on the local cpu for
+> > which you have to per cpu pointer. If you get preempted to a different cpu
+> > between the ptr__ assignment and lan instruction it might be executed not
+> > on the local cpu. It's not really a correctness issue.
+> 
+> As per the previous email, I think it is a correctness issue wrt CPU
+> hotplug.
 
-   root@s35lp76 perf]# ./perf test -v 14
-   14: Setup struct perf_event_attr               :
-   --- start ---
-   running './tests/attr/test-record-no-delay'
-   [ perf record: Woken up 1 times to write data ]
-   [ perf record: Captured and wrote 0.002 MB /tmp/tmp4E1h7R/perf.data
-     (1 samples) ]
-   expected task=0, got 1
-   expected precise_ip=0, got 3
-   expected wakeup_events=1, got 0
-   FAILED './tests/attr/test-record-no-delay' - match failure
-   test child finished with 0
-   ---- end ----
-   Setup struct perf_event_attr: Ok
+Yes, I realized that just a minute after I sent the above.
 
-The reason for the wrong error reporting is the return value of the
-system() library call. It is called in run_dir() file tests/attr.c
-and returns the exit status, in above case 0xff00.
-This value is given as parameter to the exit() function which
-can only handle values 0-0xff.
-The child process terminates with exit value of 0 and the parent
-does not detect any error.
+> > However in reality it doesn't matter at all, since all distributions we
+> > care about have preemption disabled.
+> 
+> Well, either you support PREEMPT=y or you don't :-) If you do, it needs
+> to be correct, irrespective of what distro's do with it.
 
-This patch corrects the error reporting and prints the
-correct test result.
+That is true. Our s390 specific percpu ops are supposed to be correct for
+PREEMPT=y, and that's apparently the only reason why I added the preempt
+disable/enable pairs back then. I just had to remember why I did that ;)
 
-Signed-off-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
----
- tools/perf/tests/attr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > So this_cpu_inc() should just generate three instructions: two to calculate
+> > the percpu pointer and an additional asi for the atomic increment, with
+> > operand specific serialization. This is supposed to be a lot faster than
+> > disabling/enabling interrupts around a non-atomic operation.
+> 
+> So typically we joke about s390 that it has an instruction for this
+> 'very-complicated-thing', but here you guys do not, what gives? ;-)
 
-diff --git a/tools/perf/tests/attr.c b/tools/perf/tests/attr.c
-index 88dc51f..131b510 100644
---- a/tools/perf/tests/attr.c
-+++ b/tools/perf/tests/attr.c
-@@ -150,7 +150,7 @@ static int run_dir(const char *d, const char *perf)
- 	snprintf(cmd, 3*PATH_MAX, PYTHON " %s/attr.py -d %s/attr/ -p %s %.*s",
- 		 d, d, perf, vcnt, v);
- 
--	return system(cmd);
-+	return system(cmd) ? TEST_FAIL : TEST_OK;
- }
- 
- int test__attr(int subtest __maybe_unused)
--- 
-2.9.3
+Tough luck. :)
