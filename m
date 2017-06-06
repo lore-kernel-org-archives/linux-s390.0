@@ -1,10 +1,8 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 5/9] s390/qeth: add missing strings for IPA return codes
-Date: Tue,  6 Jun 2017 14:33:46 +0200
-Message-ID: <20170606123350.13781-6-jwi@linux.vnet.ibm.com>
-References: <20170606123350.13781-1-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 0/9] s390/net updates
+Date: Tue,  6 Jun 2017 14:33:41 +0200
+Message-ID: <20170606123350.13781-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170606123350.13781-1-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,27 +10,39 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-commit 76b11f8e270f ("qeth: HiperSockets Network Traffic Analyzer")
-missed adding the human-readable translations when adding new RCs.
+Hi Dave,
 
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Acked-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- drivers/s390/net/qeth_core_mpc.c | 2 ++
- 1 file changed, 2 insertions(+)
+please apply the following qeth updates for net-next.
 
-diff --git a/drivers/s390/net/qeth_core_mpc.c b/drivers/s390/net/qeth_core_mpc.c
-index beb4bdc26de5..ab9b1376467f 100644
---- a/drivers/s390/net/qeth_core_mpc.c
-+++ b/drivers/s390/net/qeth_core_mpc.c
-@@ -167,6 +167,8 @@ static struct ipa_rc_msg qeth_ipa_rc_msg[] = {
- 	{IPA_RC_IP_TABLE_FULL,		"Add Addr IP Table Full - ipv6"},
- 	{IPA_RC_UNKNOWN_ERROR,		"IPA command failed - reason unknown"},
- 	{IPA_RC_UNSUPPORTED_COMMAND,	"Command not supported"},
-+	{IPA_RC_TRACE_ALREADY_ACTIVE,	"trace already active"},
-+	{IPA_RC_INVALID_FORMAT,		"invalid format or length"},
- 	{IPA_RC_DUP_IPV6_REMOTE, "ipv6 address already registered remote"},
- 	{IPA_RC_DUP_IPV6_HOME,		"ipv6 address already registered"},
- 	{IPA_RC_UNREGISTERED_ADDR,	"Address not registered"},
+Aside from some janitorial changes, this adds early setup for virtualized
+HiperSockets devices - building upon the code that landed via -net earlier.
+
+Thanks,
+Julian
+
+Julian Wiedmann (8):
+  s390/qeth: remove support for IPA_IP_FRAGMENTATION
+  s390/qeth: remove skb_is_nonlinear() check on IQD
+  s390/qeth: query IPv6 IPA support on HiperSockets
+  s390/qeth: log bridgeport capabilities
+  s390/qeth: add missing strings for IPA return codes
+  s390/qeth: consolidate pack buffer flushing
+  s390/qeth: silence qeth_fix_features()
+  s390/qeth: do early device setup for z/VM IQD NICs
+
+Ursula Braun (1):
+  s390/qeth: add support for early L3 device setup
+
+ drivers/s390/net/qeth_core.h      |   2 +
+ drivers/s390/net/qeth_core_main.c | 117 ++++++++++++++++++++------------------
+ drivers/s390/net/qeth_core_mpc.c  |   2 +
+ drivers/s390/net/qeth_core_mpc.h  |   2 +-
+ drivers/s390/net/qeth_core_sys.c  |   2 +-
+ drivers/s390/net/qeth_l2_main.c   |   8 +++
+ drivers/s390/net/qeth_l3.h        |   1 +
+ drivers/s390/net/qeth_l3_main.c   |  59 ++++++-------------
+ drivers/s390/net/qeth_l3_sys.c    |  11 ++++
+ 9 files changed, 105 insertions(+), 99 deletions(-)
+
 -- 
 2.11.2
