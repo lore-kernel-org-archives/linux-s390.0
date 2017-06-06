@@ -1,26 +1,50 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 0/9] s390/net updates
-Date: Tue, 06 Jun 2017 13:06:46 -0400 (EDT)
-Message-ID: <20170606.130646.351744100726961329.davem@davemloft.net>
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 3/9] s390/qeth: query IPv6 IPA support on HiperSockets
+Date: Tue,  6 Jun 2017 14:33:44 +0200
+Message-ID: <20170606123350.13781-4-jwi@linux.vnet.ibm.com>
 References: <20170606123350.13781-1-jwi@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170606123350.13781-1-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jwi@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Date: Tue,  6 Jun 2017 14:33:41 +0200
+HiperSocket devices don't need the full IPv6 initialization, but we
+should still query the supported assists for logging purposes.
 
-> please apply the following qeth updates for net-next.
-> 
-> Aside from some janitorial changes, this adds early setup for virtualized
-> HiperSockets devices - building upon the code that landed via -net earlier.
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Acked-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_l3_main.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Series applied, thanks.
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 56e813972d77..fb4eee2a46ee 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1035,9 +1035,6 @@ static int qeth_l3_softsetup_ipv6(struct qeth_card *card)
+ 
+ 	QETH_CARD_TEXT(card, 3, "softipv6");
+ 
+-	if (card->info.type == QETH_CARD_TYPE_IQD)
+-		goto out;
+-
+ 	rc = qeth_query_ipassists(card, QETH_PROT_IPV6);
+ 	if (rc) {
+ 		dev_err(&card->gdev->dev,
+@@ -1045,6 +1042,10 @@ static int qeth_l3_softsetup_ipv6(struct qeth_card *card)
+ 			QETH_CARD_IFNAME(card));
+ 		return rc;
+ 	}
++
++	if (card->info.type == QETH_CARD_TYPE_IQD)
++		goto out;
++
+ 	rc = qeth_send_simple_setassparms(card, IPA_IPV6,
+ 					  IPA_CMD_ASS_START, 3);
+ 	if (rc) {
+-- 
+2.11.2
