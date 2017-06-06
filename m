@@ -1,48 +1,59 @@
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 0/9] s390/net updates
-Date: Tue,  6 Jun 2017 14:33:41 +0200
-Message-ID: <20170606123350.13781-1-jwi@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+From: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Subject: [PATCH 1/3] perf: fix incorrect sample_type value for perf stat tests
+Date: Tue,  6 Jun 2017 16:31:54 +0200
+Message-ID: <20170606143156.10471-2-tmricht@linux.vnet.ibm.com>
+References: <20170606143156.10471-1-tmricht@linux.vnet.ibm.com>
+Return-path: <linux-perf-users-owner@vger.kernel.org>
+In-Reply-To: <20170606143156.10471-1-tmricht@linux.vnet.ibm.com>
+Sender: linux-perf-users-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-perf-users/>
+List-Post: <mailto:linux-perf-users@vger.kernel.org>
+To: linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, jolsa@redhat.com
+Cc: Thomas Richter <tmricht@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+Test case 14 runs 'perf stat' command to execute all
+tests/attr/test-stat* test cases. They all fail with
+a mismatch in sample_type attribute, for example:
 
-please apply the following qeth updates for net-next.
+running './tests/attr//test-stat-basic'
+...
+compare
+  matchng [event:base-stat]
+      to [event-0-0-4]
+      ...
+      [sample_type] 0 65536
+  ->FAIL
 
-Aside from some janitorial changes, this adds early setup for virtualized
-HiperSockets devices - building upon the code that landed via -net earlier.
+The reason for the failure is in create_perf_stat_counter()
+in file builtin-stat.c. When command 'perf stat record -o -'
+is used the value of perf_event_stat.sample_type is not changed.
+All other invocations of 'perf stat' change this
+member to PERF_SAMPLE_IDENTIFIER (2^16).
 
-Thanks,
-Julian
+None of the test-stat-* tests are invoked with
+'perf stat record -o -' and the sample_type comparion fails.
 
-Julian Wiedmann (8):
-  s390/qeth: remove support for IPA_IP_FRAGMENTATION
-  s390/qeth: remove skb_is_nonlinear() check on IQD
-  s390/qeth: query IPv6 IPA support on HiperSockets
-  s390/qeth: log bridgeport capabilities
-  s390/qeth: add missing strings for IPA return codes
-  s390/qeth: consolidate pack buffer flushing
-  s390/qeth: silence qeth_fix_features()
-  s390/qeth: do early device setup for z/VM IQD NICs
+Fix this by changing the expected value for attribute sample_type
+in the base_stat file.
 
-Ursula Braun (1):
-  s390/qeth: add support for early L3 device setup
+Signed-off-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+---
+ tools/perf/tests/attr/base-stat | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/s390/net/qeth_core.h      |   2 +
- drivers/s390/net/qeth_core_main.c | 117 ++++++++++++++++++++------------------
- drivers/s390/net/qeth_core_mpc.c  |   2 +
- drivers/s390/net/qeth_core_mpc.h  |   2 +-
- drivers/s390/net/qeth_core_sys.c  |   2 +-
- drivers/s390/net/qeth_l2_main.c   |   8 +++
- drivers/s390/net/qeth_l3.h        |   1 +
- drivers/s390/net/qeth_l3_main.c   |  59 ++++++-------------
- drivers/s390/net/qeth_l3_sys.c    |  11 ++++
- 9 files changed, 105 insertions(+), 99 deletions(-)
-
+diff --git a/tools/perf/tests/attr/base-stat b/tools/perf/tests/attr/base-stat
+index f4cf148..4a48d16 100644
+--- a/tools/perf/tests/attr/base-stat
++++ b/tools/perf/tests/attr/base-stat
+@@ -8,7 +8,7 @@ type=0
+ size=112
+ config=0
+ sample_period=0
+-sample_type=0
++sample_type=65536
+ read_format=3
+ disabled=1
+ inherit=1
 -- 
-2.11.2
+2.9.3
