@@ -1,59 +1,59 @@
-From: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Subject: [PATCH 1/3] perf: fix incorrect sample_type value for perf stat tests
-Date: Tue,  6 Jun 2017 16:31:54 +0200
-Message-ID: <20170606143156.10471-2-tmricht@linux.vnet.ibm.com>
+From: Jiri Olsa <jolsa@redhat.com>
+Subject: Re: [PATCH 0/3] perf fix test case 14
+Date: Wed, 7 Jun 2017 13:17:58 +0200
+Message-ID: <20170607111758.GB6356@krava>
 References: <20170606143156.10471-1-tmricht@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-perf-users-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20170606143156.10471-1-tmricht@linux.vnet.ibm.com>
 Sender: linux-perf-users-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-perf-users/>
 List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, jolsa@redhat.com
-Cc: Thomas Richter <tmricht@linux.vnet.ibm.com>
+To: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Test case 14 runs 'perf stat' command to execute all
-tests/attr/test-stat* test cases. They all fail with
-a mismatch in sample_type attribute, for example:
+On Tue, Jun 06, 2017 at 04:31:53PM +0200, Thomas Richter wrote:
+> I have taken the following commits from Jiri Olsa's
+> branch perf/attr_test to work on a fix.
+> 
+> Commit-id
+> 070b9644981e perf tests attr: Do not store failed events
+> c9666c26ead0 perf tests attr: Make compare_data global
+> 10eb9496d1c3 perf tests attr: Fix compare logic
+> 4ba31b633fab perf tests attr: Add 1s for exclude_kernel ..
+> ede0b0a2e007 perf tests attr: Fix no-delay test
+> 
+> I have then added 3 new fixes
+> 
+> Thomas Richter (3):
+>   perf: fix incorrect sample_type value for perf stat tests
+>   perf: fix exit code check in test case execution
+>   perf: fix perf test case 14
 
-running './tests/attr//test-stat-basic'
-...
-compare
-  matchng [event:base-stat]
-      to [event-0-0-4]
-      ...
-      [sample_type] 0 65536
-  ->FAIL
+those looks fine.. any chance you could take over
+those other 5 from me and post all together?
 
-The reason for the failure is in create_perf_stat_counter()
-in file builtin-stat.c. When command 'perf stat record -o -'
-is used the value of perf_event_stat.sample_type is not changed.
-All other invocations of 'perf stat' change this
-member to PERF_SAMPLE_IDENTIFIER (2^16).
+> 
+> I can test these changes only on s390.
+> With these changes some test-stat-xxx tests run fine.
+> 
+> How to handle test cases currently unsupported on a platform?
+> For example  test-stat-default issues a setup for 
+> PERF_TYPE_HARDWARE / PERF_COUNT_HW_STALLED_CYCLES_BACKEND
+> which is not supported on s390. The perf_event_open()
+> system call fails and no event-00-07--1 file is created.
+> 
+> The compare of the test result then fails because attr.py
+> has nothing to check against.
+> We could test if an event file exists and if not report an
+> unsupported test. Is this a good idea?
+> Any other proposals?
 
-None of the test-stat-* tests are invoked with
-'perf stat record -o -' and the sample_type comparion fails.
+or maybe add list of supported or not supported archs
+to test's [config] section?
 
-Fix this by changing the expected value for attribute sample_type
-in the base_stat file.
-
-Signed-off-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
----
- tools/perf/tests/attr/base-stat | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/tools/perf/tests/attr/base-stat b/tools/perf/tests/attr/base-stat
-index f4cf148..4a48d16 100644
---- a/tools/perf/tests/attr/base-stat
-+++ b/tools/perf/tests/attr/base-stat
-@@ -8,7 +8,7 @@ type=0
- size=112
- config=0
- sample_period=0
--sample_type=0
-+sample_type=65536
- read_format=3
- disabled=1
- inherit=1
--- 
-2.9.3
+thanks,
+jirka
