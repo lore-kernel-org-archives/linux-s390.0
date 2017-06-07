@@ -1,9 +1,9 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Tue, 6 Jun 2017 10:33:49 -0400
+Date: Wed, 7 Jun 2017 12:20:13 -0400
 From: Johannes Weiner <hannes@cmpxchg.org>
 Subject: Re: [PATCH 2/6] mm: vmstat: move slab statistics from zone to node
  counters
-Message-ID: <20170606143349.GB1602@cmpxchg.org>
+Message-ID: <20170607162013.GA25280@cmpxchg.org>
 References: <20170530181724.27197-1-hannes@cmpxchg.org>
  <20170530181724.27197-3-hannes@cmpxchg.org>
  <20170531091256.GA5914@osiris>
@@ -11,44 +11,40 @@ References: <20170530181724.27197-1-hannes@cmpxchg.org>
  <20170531171151.e4zh7ffzbl4w33gd@yury-thinkpad>
  <87mv9s2f8f.fsf@concordia.ellerman.id.au>
  <20170605183511.GA8915@cmpxchg.org>
- <87k24prb3u.fsf@concordia.ellerman.id.au>
- <87mv9lpdsr.fsf@concordia.ellerman.id.au>
+ <20170605143831.dac73f489bfe2644e103d2b3@linux-foundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87mv9lpdsr.fsf@concordia.ellerman.id.au>
+In-Reply-To: <20170605143831.dac73f489bfe2644e103d2b3@linux-foundation.org>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Yury Norov <ynorov@caviumnetworks.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Josef Bacik <josef@toxicpanda.com>, Michal Hocko <mhocko@suse.com>, Vladimir Davydov <vdavydov.dev@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Rik van Riel <riel@redhat.com>, linux-mm@kvack.org, cgroups@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fb.com, linux-s390@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>, Yury Norov <ynorov@caviumnetworks.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Josef Bacik <josef@toxicpanda.com>, Michal Hocko <mhocko@suse.com>, Vladimir Davydov <vdavydov.dev@gmail.com>, Rik van Riel <riel@redhat.com>, linux-mm@kvack.org, cgroups@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fb.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 06, 2017 at 09:15:48PM +1000, Michael Ellerman wrote:
-> But today's linux-next is OK. So I must have missed a fix when testing
-> this in isolation.
+On Mon, Jun 05, 2017 at 02:38:31PM -0700, Andrew Morton wrote:
+> On Mon, 5 Jun 2017 14:35:11 -0400 Johannes Weiner <hannes@cmpxchg.org> wrote:
 > 
-> commit d94b69d9a3f8139e6d5f5d03c197d8004de3905a
-> Author:     Johannes Weiner <hannes@cmpxchg.org>
-> AuthorDate: Tue Jun 6 09:19:50 2017 +1000
-> Commit:     Stephen Rothwell <sfr@canb.auug.org.au>
-> CommitDate: Tue Jun 6 09:19:50 2017 +1000
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -5107,6 +5107,7 @@ static void build_zonelists(pg_data_t *pgdat)
+> >   */
+> >  static void setup_pageset(struct per_cpu_pageset *p, unsigned long batch);
+> >  static DEFINE_PER_CPU(struct per_cpu_pageset, boot_pageset);
+> > +static DEFINE_PER_CPU(struct per_cpu_nodestat, boot_nodestats);
+> >  static void setup_zone_pageset(struct zone *zone);
 > 
->     mm: vmstat: move slab statistics from zone to node counters fix
->     
->     Unable to handle kernel paging request at virtual address 2e116007
->     pgd = c0004000
->     [2e116007] *pgd=00000000
->     Internal error: Oops: 5 [#1] SMP ARM
-> 
-> ...
-> 
-> Booted to userspace:
-> 
-> $ uname -a
-> Linux buildroot 4.12.0-rc4-gcc-5.4.1-00130-gd94b69d9a3f8 #354 SMP Tue Jun 6 20:44:42 AEST 2017 ppc64le GNU/Linux
+> There's a few kb there.  It just sits evermore unused after boot?
 
-Thanks for verifying!
+It's not the greatest, but it's nothing new. All the node stats we
+have now used to be in the zone, i.e. the then bigger boot_pageset,
+before we moved them to the node level. It just re-adds static boot
+time space for them now.
+
+Of course, if somebody has an idea on how to elegantly reuse that
+memory after boot, that'd be cool. But we've lived with that footprint
+for the longest time, so I don't think it's a showstopper.
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
