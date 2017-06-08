@@ -1,93 +1,144 @@
 From: Waiman Long <longman@redhat.com>
-Subject: [PATCH v5 2/9] locking/rwsem: Stop active read lock ASAP
-Date: Thu,  1 Jun 2017 13:39:00 -0400
-Message-ID: <1496338747-20398-3-git-send-email-longman@redhat.com>
+Subject: Re: [PATCH v5 0/9] locking/rwsem: Enable reader optimistic spinning
+Date: Thu, 8 Jun 2017 14:49:17 -0400
+Message-ID: <df455d4a-471d-1ddb-fec1-aeefbbc1c62f@redhat.com>
 References: <1496338747-20398-1-git-send-email-longman@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-ia64-owner@vger.kernel.org>
 In-Reply-To: <1496338747-20398-1-git-send-email-longman@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Dave Chinner <david@fromorbit.com>, Waiman Long <longman@redhat.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Dave Chinner <david@fromorbit.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, when down_read() fails, the active read locking isn't undone
-until the rwsem_down_read_failed() function grabs the wait_lock. If the
-wait_lock is contended, it may takes a while to get the lock. During
-that period, writer lock stealing will be disabled because of the
-active read lock.
+Hi,
 
-This patch will release the active read lock ASAP when either the
-optimisitic spinners are present or the trylock fails so that writer
-lock stealing can happen sooner.
+Got the following tip-bit about this patch performance impact.
 
-On a 2-socket 36-core x86-64 E5-2699 v3 system, a rwsem microbenchmark
-was run with 36 locking threads (one/core) doing 250k reader and writer
-lock/unlock operations each, the resulting locking rates (avg of 3
-runs) on a 4.12 based kernel were 510.1 Mop/s and 520.1 Mop/s without
-and with the patch respectively. That was an increase of about 2%.
+Cheers,
+Longman
 
-Signed-off-by: Waiman Long <longman@redhat.com>
----
- kernel/locking/rwsem-xadd.c | 27 ++++++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
+----------------------------------------------------
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index 13bdbc3..e6c2bd5 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -418,6 +418,7 @@ static inline bool rwsem_has_spinner(struct rw_semaphore *sem)
- __visible
- struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- {
-+	bool first_in_queue = false;
- 	long count, adjustment = -RWSEM_ACTIVE_READ_BIAS;
- 	struct rwsem_waiter waiter;
- 	DEFINE_WAKE_Q(wake_q);
-@@ -425,13 +426,30 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- 	waiter.task = current;
- 	waiter.type = RWSEM_WAITING_FOR_READ;
- 
-+	/*
-+	 * Undo read bias from down_read operation to stop active locking if:
-+	 * 1) Optimistic spinners are present; or
-+	 * 2) the wait_lock isn't free.
-+	 * Doing that after taking the wait_lock may otherwise block writer
-+	 * lock stealing for too long impacting performance.
-+	 */
-+	if (rwsem_has_spinner(sem) || raw_spin_is_locked(&sem->wait_lock)) {
-+		atomic_long_add(-RWSEM_ACTIVE_READ_BIAS, &sem->count);
-+		adjustment = 0;
-+	}
-+
- 	raw_spin_lock_irq(&sem->wait_lock);
--	if (list_empty(&sem->wait_list))
-+	if (list_empty(&sem->wait_list)) {
- 		adjustment += RWSEM_WAITING_BIAS;
-+		first_in_queue = true;
-+	}
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
--	/* we're now waiting on the lock, but no longer actively locking */
--	count = atomic_long_add_return(adjustment, &sem->count);
-+	/* we're now waiting on the lock */
-+	if (adjustment)
-+		count = atomic_long_add_return(adjustment, &sem->count);
-+	else
-+		count = atomic_long_read(&sem->count);
- 
- 	/*
- 	 * If there are no active locks, wake the front queued process(es).
-@@ -440,8 +458,7 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
- 	 * wake our own waiter to join the existing active readers !
- 	 */
- 	if (count == RWSEM_WAITING_BIAS ||
--	    (count > RWSEM_WAITING_BIAS &&
--	     adjustment != -RWSEM_ACTIVE_READ_BIAS))
-+	    (count > RWSEM_WAITING_BIAS && first_in_queue))
- 		__rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
- 
- 	raw_spin_unlock_irq(&sem->wait_lock);
--- 
-1.8.3.1
+Greeting,
+
+FYI, we noticed a 125.4% improvement of will-it-scale.per_thread_ops due to=
+ commit:
+
+
+commit: a150752454e4aea37a44d7eb5baf5a538bcad6fc ("locking/rwsem: Enable re=
+aders spinning on writer")
+url: https://github.com/0day-ci/linux/commits/Waiman-Long/locking-rwsem-Ena=
+ble-reader-optimistic-spinning/20170602-071830
+
+
+in testcase: will-it-scale
+on test machine: 8 threads Ivy Bridge with 16G memory
+with following parameters:
+
+	nr_task: 100%
+	mode: thread
+	test: malloc1
+	cpufreq_governor: performance
+
+test-description: Will It Scale takes a testcase and runs it from 1 through=
+ to n parallel copies to see if the testcase will scale. It builds both a p=
+rocess and threads based test in order to see any differences between the t=
+wo.
+test-url: https://github.com/antonblanchard/will-it-scale
+
+
+Details are as below:
+---------------------------------------------------------------------------=
+----------------------->
+
+
+To reproduce:
+
+        git clone https://github.com/01org/lkp-tests.git
+        cd lkp-tests
+        bin/lkp install job.yaml  # job file is attached in this email
+        bin/lkp run     job.yaml
+
+testcase/path_params/tbox_group/run: will-it-scale/100%-thread-malloc1-perf=
+ormance/lkp-ivb-d01
+
+f25a7e717bfb87ab  a150752454e4aea37a44d7eb5b =20
+----------------  -------------------------- =20
+         %stddev      change         %stddev
+             \          |                \ =20
+      6092 =B1 12%       125%      13734        will-it-scale.per_thread_ops
+  14641877 =B1 12%       126%   33029197        will-it-scale.time.minor_pa=
+ge_faults
+     15.03 =B1 13%        57%      23.66 =B1 12%  will-it-scale.time.user_t=
+ime
+  40731914 =B1 12%        46%   59414926 =B1  5%  will-it-scale.time.volunt=
+ary_context_switches
+     11954 =B1 18%        28%      15275 =B1 11%  will-it-scale.time.maximu=
+m_resident_set_size
+       142              22%        174        will-it-scale.time.percent_of=
+_cpu_this_job_got
+       414              21%        502        will-it-scale.time.system_time
+    539104             -78%     117329 =B1 13%  will-it-scale.time.involunt=
+ary_context_switches
+  31904937 =B1 13%        55%   49519854 =B1  5%  interrupts.CAL:Function_c=
+all_interrupts
+    129303 =B1 10%        48%     191426 =B1  4%  vmstat.system.in
+    297417 =B1 11%        42%     421902 =B1  4%  vmstat.system.cs
+     25.73                       26.28        turbostat.CorWatt
+     31.60                       32.21        turbostat.PkgWatt
+     22.67              19%      27.03        turbostat.%Busy
+       837              20%       1006        turbostat.Avg_MHz
+      1271 =B1 36%      6e+04      56891 =B1 74%  latency_stats.max.call_rw=
+sem_down_read_failed.__do_page_fault.do_page_fault.page_fault
+      2249 =B1 19%      5e+04      52972 =B1 86%  latency_stats.max.call_rw=
+sem_down_write_failed_killable.vm_mmap_pgoff.SyS_mmap_pgoff.SyS_mmap.entry_=
+SYSCALL_64_fastpath
+      2264 =B1 19%      5e+04      52187 =B1 88%  latency_stats.max.call_rw=
+sem_down_write_failed_killable.vm_munmap.SyS_munmap.entry_SYSCALL_64_fastpa=
+th
+      9934 =B1 25%      5e+04      57497 =B1 75%  latency_stats.max.max
+  14956191 =B1 12%       123%   33343207        perf-stat.page-faults
+  14956191 =B1 12%       123%   33343206        perf-stat.minor-faults
+ 2.266e+11 =B1  4%        46%  3.318e+11        perf-stat.branch-instructio=
+ns
+ 3.231e+11 =B1  3%        39%  4.485e+11        perf-stat.dTLB-loads
+ 1.155e+12 =B1  3%        38%  1.593e+12        perf-stat.instructions
+      0.02 =B1 11%       103%       0.05 =B1  6%  perf-stat.dTLB-store-miss=
+-rate%
+  86305241 =B1  8%        74%  1.502e+08 =B1  6%  perf-stat.dTLB-store-miss=
+es
+      0.56              14%       0.64        perf-stat.ipc
+ 2.057e+12              21%  2.481e+12        perf-stat.cpu-cycles
+ 3.674e+11 =B1  3%       -15%  3.136e+11        perf-stat.dTLB-stores
+      0.76 =B1  3%       -32%       0.51 =B1  4%  perf-stat.branch-miss-rat=
+e%
+      1869 =B1  5%        30%       2432 =B1  8%  perf-stat.instructions-pe=
+r-iTLB-miss
+ 6.014e+10 =B1  8%       -48%  3.146e+10 =B1  5%  perf-stat.cache-references
+      0.29 =B1  6%       -17%       0.24 =B1 12%  perf-stat.dTLB-load-miss-=
+rate%
+  90408163 =B1 11%        42%  1.283e+08 =B1  4%  perf-stat.context-switches
+    182383 =B1 13%       -55%      82982 =B1 49%  perf-stat.cpu-migrations
+
+
+
+
+  [*] bisect-good sample
+  [O] bisect-bad  sample
+
+
+Disclaimer:
+Results have been estimated based on internal Intel analysis and are provid=
+ed
+for informational purposes only. Any difference in system hardware or softw=
+are
+design or configuration may affect actual performance.
+
+
+Thanks,
+Xiaolong
