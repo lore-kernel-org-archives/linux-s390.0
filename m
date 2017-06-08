@@ -1,84 +1,44 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC tip/core/rcu 1/2] srcu: Allow use of Tiny/Tree SRCU
- from both process and interrupt context
-Date: Tue, 6 Jun 2017 10:00:45 -0700
-Message-ID: <20170606170045.GG3721@linux.vnet.ibm.com>
-References: <20170605220919.GA27820@linux.vnet.ibm.com>
- <1496700591-30177-1-git-send-email-paulmck@linux.vnet.ibm.com>
- <20170606105343.ibhzrk6jwhmoja5t@hirez.programming.kicks-ass.net>
- <b77cb817-9ffb-b600-19a9-1de685049c57@redhat.com>
- <bea28cb2-162c-57c3-1a9c-cc672aff7f1a@de.ibm.com>
- <20170606152705.GD6681@osiris>
- <20170606161551.dy5lr6mo6vqujk5d@hirez.programming.kicks-ass.net>
-Reply-To: paulmck@linux.vnet.ibm.com
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Subject: Re: [PATCH] perf: correct precise_ip level for s390
+Date: Thu, 8 Jun 2017 11:40:02 -0300
+Message-ID: <20170608144002.GJ6949@kernel.org>
+References: <20170608084044.71968-1-tmricht@linux.vnet.ibm.com>
+ <20170608140532.GH6949@kernel.org>
+ <20170608142915.GC4444@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-perf-users-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170606161551.dy5lr6mo6vqujk5d@hirez.programming.kicks-ass.net>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, mingo@kernel.org, jiangshanlai@gmail.com, dipankar@in.ibm.com, akpm@linux-foundation.org, mathieu.desnoyers@efficios.com, josh@joshtriplett.org, tglx@linutronix.de, rostedt@goodmis.org, dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com, oleg@redhat.com, kvm@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+In-Reply-To: <20170608142915.GC4444@linux.vnet.ibm.com>
+Sender: linux-perf-users-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-perf-users/>
+List-Post: <mailto:linux-perf-users@vger.kernel.org>
+To: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Cc: Thomas Richter <tmricht@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 06, 2017 at 06:15:51PM +0200, Peter Zijlstra wrote:
-> On Tue, Jun 06, 2017 at 05:27:06PM +0200, Heiko Carstens wrote:
-> > On Tue, Jun 06, 2017 at 04:45:57PM +0200, Christian Borntraeger wrote:
-> 
-> > > As a side note, I am asking myself, though, why we do need the
-> > > preempt_disable/enable for the cases where we use the opcodes 
-> > > like lao (atomic load and or to a memory location) and friends.
-> > 
-> > Because you want the atomic instruction to be executed on the local cpu for
-> > which you have to per cpu pointer. If you get preempted to a different cpu
-> > between the ptr__ assignment and lan instruction it might be executed not
-> > on the local cpu. It's not really a correctness issue.
-> 
-> As per the previous email, I think it is a correctness issue wrt CPU
-> hotplug.
+Em Thu, Jun 08, 2017 at 04:29:15PM +0200, Hendrik Brueckner escreveu:
+> On Thu, Jun 08, 2017 at 11:05:32AM -0300, Arnaldo Carvalho de Melo wrote:
+> > Em Thu, Jun 08, 2017 at 10:40:44AM +0200, Thomas Richter escreveu:
+> > > Fix this by changing function perf_evsel__new_cycles(). It is called
+> > > very early in the event setup. Delay the determination of
+> > > the value of precise_ip until the context is known. This is the case
+> > > when perf_evsel__config() is called.
+> > > Function perf_evsel__new_cycles() just marks precise_ip to be
+> > > determined later.
 
-In the specific case of SRCU, this might actually be OK.  We have not
-yet entered the SRCU read-side critical section, and SRCU grace periods
-don't interact with CPU hotplug.  And the per-CPU variable stick around.
-So as long as one of the per-CPU counters is incremented properly,
-it doesn't really matter which one is incremented.
+> > > Also change the modifier to 'P' for maximum detected precise level.
 
-But if you overwrite one CPU's counter with the incremented version of
-some other CPU's counter, yes, that would be very bad indeed.
+> > This "Also" usually indicates that you are folding two changes into one
+> > patch, please break it into two, and also send it to the perf
+ 
+> That's usually right.  Except for the change below.  The
+> perf_evsel__new_cycles() function constructs a perf event selection.
+> The construction includes setting evsel->precise_max and specifying
+> the event name string.  To keep setting precise_max and the event name
+> in sync, the :P modifier must be set.  This should be part of the same
+> commit and not split into two.
 
-> > #define arch_this_cpu_to_op(pcp, val, op)				\
-> > {									\
-> > 	typedef typeof(pcp) pcp_op_T__;					\
-> > 	pcp_op_T__ val__ = (val);					\
-> > 	pcp_op_T__ old__, *ptr__;					\
-> > 	preempt_disable();						\
-> > 	ptr__ = raw_cpu_ptr(&(pcp));					\
-> > 	asm volatile(							\
-> > 		op "	%[old__],%[val__],%[ptr__]\n"			\
-> > 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
-> > 		: [val__] "d" (val__)					\
-> > 		: "cc");						\
-> > 	preempt_enable();						\
-> > }
-> > 
-> > #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
-> > 
-> > However in reality it doesn't matter at all, since all distributions we
-> > care about have preemption disabled.
-> 
-> Well, either you support PREEMPT=y or you don't :-) If you do, it needs
-> to be correct, irrespective of what distro's do with it.
-> 
-> > So this_cpu_inc() should just generate three instructions: two to calculate
-> > the percpu pointer and an additional asi for the atomic increment, with
-> > operand specific serialization. This is supposed to be a lot faster than
-> > disabling/enabling interrupts around a non-atomic operation.
-> 
-> So typically we joke about s390 that it has an instruction for this
-> 'very-complicated-thing', but here you guys do not, what gives? ;-)
+Ack, you're right, I'm testing this now, thanks for the patch!
 
-Even mainframes have finite silicon area?  ;-)
-
-							Thanx, Paul
+- Arnaldo
