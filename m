@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 9 Jun 2017 12:11:41 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 10/11] s390: drivers: convert to use DRIVER_ATTR_RO/WO
-References: <20170609090314.13991-1-gregkh@linuxfoundation.org>
- <20170609090314.13991-10-gregkh@linuxfoundation.org>
+Date: Mon, 12 Jun 2017 16:36:28 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 4.12-rc6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170609090314.13991-10-gregkh@linuxfoundation.org>
-Message-Id: <20170609101141.GB3617@osiris>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20170612163628.1c851d2e@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Jun 09, 2017 at 11:03:13AM +0200, Greg Kroah-Hartman wrote:
-> We are trying to get rid of DRIVER_ATTR(), and the s390 drivers'
-> attributes can be trivially changed to use DRIVER_ATTR_RO() and
-> DRIVER_ATTR_WO().
-> 
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-> Cc: Ursula Braun <ubraun@linux.vnet.ibm.com>
-> Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-> Cc: <linux-s390@vger.kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/s390/char/sclp.c          | 12 ++++++------
->  drivers/s390/char/vmlogrdr.c      |  7 ++-----
->  drivers/s390/net/ctcm_main.c      |  6 +++---
->  drivers/s390/net/lcs.c            |  6 +++---
->  drivers/s390/net/netiucv.c        | 14 ++++++--------
->  drivers/s390/net/qeth_core_main.c |  6 +++---
->  6 files changed, 23 insertions(+), 28 deletions(-)
+Hi Linus,
 
-I assume this will go upstream via your tree.
+please pull from the 'for-linus' branch of
 
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+
+to receive the following updates:
+
+* A fix for KVM to avoid kernel oopses in case of host protection faults
+  due to runtime instrumentation
+
+* A fix for the AP bus to avoid dead devices after unbind / bind
+
+* A fix for a compile warning merged from the vfio_ccw tree
+
+* Updated default configurations
+
+Christian Borntraeger (1):
+      s390/kvm: do not rely on the ILC on kvm host protection fauls
+
+Harald Freudenberger (1):
+      s390/zcrypt: Fix blocking queue device after unbind/bind.
+
+Martin Schwidefsky (1):
+      s390: update defconfig
+
+Sebastian Ott (1):
+      s390/vfio_ccw: make some symbols static
+
+ arch/s390/configs/default_defconfig     | 39 ++++++++++++++++++++++++++++-----
+ arch/s390/configs/gcov_defconfig        | 28 +++++++++++++++++++----
+ arch/s390/configs/performance_defconfig | 27 +++++++++++++++++++----
+ arch/s390/configs/zfcpdump_defconfig    |  6 +++--
+ arch/s390/defconfig                     |  8 +++----
+ arch/s390/kernel/entry.S                | 19 +++++++++++-----
+ drivers/s390/cio/vfio_ccw_ops.c         | 12 +++++-----
+ drivers/s390/crypto/ap_bus.c            | 38 ++++++++++++++++++++------------
+ drivers/s390/crypto/ap_card.c           |  9 +++++++-
+ drivers/s390/crypto/ap_queue.c          |  9 +++++++-
+ 10 files changed, 146 insertions(+), 49 deletions(-)
