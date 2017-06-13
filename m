@@ -1,42 +1,25 @@
-Return-Path: <linux-pci-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20170624015044.16746-2-palmer@dabbelt.com>
-References: <20170624015044.16746-1-palmer@dabbelt.com> <20170624015044.16746-2-palmer@dabbelt.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Sat, 24 Jun 2017 11:34:06 +0200
-Message-ID: <CAMuHMdWd_4GzySTWsb5PupBw3UkLUKAwE-OvAgHScZutT-wiNQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] pci: Add a generic, weakly-linked pcibios_fixup_bus
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-pci-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-pci/>
-List-Post: <mailto:linux-pci@vger.kernel.org>
-To: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-pci <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Christoph Hellwig <hch@infradead.org>, Arnd Bergmann <arnd@arndb.de>, arcml <linux-snps-arc@lists.infradead.org>, Cris <linux-cris-kernel@axis.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>
+From: <gregkh@linuxfoundation.org>
+Date: Tue, 13 Jun 2017 05:59:00 +0000
+Subject: patch "s390: drivers: convert to use DRIVER_ATTR_RO/WO" added to driver-core-next
+Message-Id: <1497333540226198@kroah.com>
+In-Reply-To: <14972769314458@kroah.com>
+References: <14972769314458@kroah.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Palmer,
 
-On Sat, Jun 24, 2017 at 3:50 AM, Palmer Dabbelt <palmer@dabbelt.com> wrote:
-> Multiple architectures define this as an empty function, and I'm adding
-> another one as part of the RISC-V port.  This adds a __weak version of
-> pci_fixup_bios and deletes the now obselete ones in a handful of ports.
->
-> The only functional change should be that microblaze used to export
-> pcibios_fixup_bus.  None of the other architectures export this, so I
-> just dropped it.
->
-> Signed-off-by: Palmer Dabbelt <palmer@dabbelt.com>
+This is a note to let you know that I've just added the patch titled
 
-Given this is an empty function, wouldn't it make more sense to have
-a static inline in asm-generic, protected by #ifndef pcibios_fixup_bus?
+    s390: drivers: convert to use DRIVER_ATTR_RO/WO
 
-Gr{oetje,eeting}s,
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-next branch.
 
-                        Geert
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+If you have any questions about this process, please let me know.
