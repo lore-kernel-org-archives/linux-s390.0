@@ -1,97 +1,124 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: [PATCH 03/44] dmaengine: ioat: don't use DMA_ERROR_CODE
-Date: Fri, 16 Jun 2017 13:40:24 -0700
-Message-ID: <CAKgT0UdxrimWrxNVsLMQ9G6ABBJZwfWHTcP18qqd4rT0Fa-KWg@mail.gmail.com>
-References: <20170616181059.19206-1-hch@lst.de> <20170616181059.19206-4-hch@lst.de>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 42/44] powerpc/cell: use the dma_supported method for
+ ops switching
+Date: Sun, 18 Jun 2017 06:50:27 +1000
+Message-ID: <1497732627.2897.128.camel@kernel.crashing.org>
+References: <20170616181059.19206-1-hch@lst.de>
+ <20170616181059.19206-43-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20170616181059.19206-4-hch@lst.de>
-Sender: linux-hexagon-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170616181059.19206-43-hch@lst.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/dri-devel/>
 List-Post: <mailto:dri-devel@lists.freedesktop.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: the arch/x86 maintainers <x86@kernel.org>, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, "open list:INTEL IOMMU (VT-d)" <iommu@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Christoph Hellwig <hch@lst.de>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Jun 16, 2017 at 11:10 AM, Christoph Hellwig <hch@lst.de> wrote:
-> DMA_ERROR_CODE is not a public API and will go away.  Instead properly
-> unwind based on the loop counter.
->
+On Fri, 2017-06-16 at 20:10 +0200, Christoph Hellwig wrote:
+> Besides removing the last instance of the set_dma_mask method this also
+> reduced the code duplication.
+
+What is your rationale here ? (I have missed patch 0 it seems).
+
+dma_supported() was supposed to be pretty much a "const" function
+simply informing whether a given setup is possible. Having it perform
+an actual switch of ops seems to be pushing it...
+
+What if a driver wants to test various dma masks and then pick one ?
+
+Where does the API documents that if a driver calls dma_supported() it
+then *must* set the corresponding mask and use that ?
+
+I don't like a function that is a "boolean query" like this one to have
+such a major side effect.
+
+From an API standpoint, dma_set_mask() is when the mask is established,
+and thus when the ops switch should happen.
+
+Ben.
+
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Acked-by: Dave Jiang <dave.jiang@intel.com>
-> Acked-By: Vinod Koul <vinod.koul@intel.com>
 > ---
->  drivers/dma/ioat/init.c | 24 +++++++-----------------
->  1 file changed, 7 insertions(+), 17 deletions(-)
->
-> diff --git a/drivers/dma/ioat/init.c b/drivers/dma/ioat/init.c
-> index 6ad4384b3fa8..ed8ed1192775 100644
-> --- a/drivers/dma/ioat/init.c
-> +++ b/drivers/dma/ioat/init.c
-> @@ -839,8 +839,6 @@ static int ioat_xor_val_self_test(struct ioatdma_device *ioat_dma)
->                 goto free_resources;
->         }
->
-> -       for (i = 0; i < IOAT_NUM_SRC_TEST; i++)
-> -               dma_srcs[i] = DMA_ERROR_CODE;
->         for (i = 0; i < IOAT_NUM_SRC_TEST; i++) {
->                 dma_srcs[i] = dma_map_page(dev, xor_srcs[i], 0, PAGE_SIZE,
->                                            DMA_TO_DEVICE);
-> @@ -910,8 +908,6 @@ static int ioat_xor_val_self_test(struct ioatdma_device *ioat_dma)
->
->         xor_val_result = 1;
->
-> -       for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++)
-> -               dma_srcs[i] = DMA_ERROR_CODE;
->         for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++) {
->                 dma_srcs[i] = dma_map_page(dev, xor_val_srcs[i], 0, PAGE_SIZE,
->                                            DMA_TO_DEVICE);
-> @@ -965,8 +961,6 @@ static int ioat_xor_val_self_test(struct ioatdma_device *ioat_dma)
->         op = IOAT_OP_XOR_VAL;
->
->         xor_val_result = 0;
-> -       for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++)
-> -               dma_srcs[i] = DMA_ERROR_CODE;
->         for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++) {
->                 dma_srcs[i] = dma_map_page(dev, xor_val_srcs[i], 0, PAGE_SIZE,
->                                            DMA_TO_DEVICE);
-> @@ -1017,18 +1011,14 @@ static int ioat_xor_val_self_test(struct ioatdma_device *ioat_dma)
->         goto free_resources;
->  dma_unmap:
->         if (op == IOAT_OP_XOR) {
-> -               if (dest_dma != DMA_ERROR_CODE)
-> -                       dma_unmap_page(dev, dest_dma, PAGE_SIZE,
-> -                                      DMA_FROM_DEVICE);
-> -               for (i = 0; i < IOAT_NUM_SRC_TEST; i++)
-> -                       if (dma_srcs[i] != DMA_ERROR_CODE)
-> -                               dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE,
-> -                                              DMA_TO_DEVICE);
-> +               while (--i >= 0)
-> +                       dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE,
-> +                                      DMA_TO_DEVICE);
-> +               dma_unmap_page(dev, dest_dma, PAGE_SIZE, DMA_FROM_DEVICE);
->         } else if (op == IOAT_OP_XOR_VAL) {
-> -               for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++)
-> -                       if (dma_srcs[i] != DMA_ERROR_CODE)
-> -                               dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE,
-> -                                              DMA_TO_DEVICE);
-> +               while (--i >= 0)
-> +                       dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE,
-> +                                      DMA_TO_DEVICE);
-
-Wouldn't it make more sense to pull out the while loop and just call
-dma_unmap_page on dest_dma if "op == IOAT_OP_XOR"? Odds are it is what
-the compiler is already generating and will save a few lines of code
-so what you end up with is something like:
-    while (--i >= 0)
-        dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE, DMA_TO_DEVICE);
-    if (op == IOAT_OP_XOR)
-        dma_unmap_page(dev, dest_dma, PAGE_SIZE, DMA_FROM_DEVICE);
-
->         }
->  free_resources:
->         dma->device_free_chan_resources(dma_chan);
-> --
-> 2.11.0
->
+>  arch/powerpc/platforms/cell/iommu.c | 25 +++++++++----------------
+>  1 file changed, 9 insertions(+), 16 deletions(-)
+> 
+> diff --git a/arch/powerpc/platforms/cell/iommu.c b/arch/powerpc/platforms/cell/iommu.c
+> index 497bfbdbd967..29d4f96ed33e 100644
+> --- a/arch/powerpc/platforms/cell/iommu.c
+> +++ b/arch/powerpc/platforms/cell/iommu.c
+> @@ -644,20 +644,14 @@ static void dma_fixed_unmap_sg(struct device *dev, struct scatterlist *sg,
+>  				   direction, attrs);
+>  }
+>  
+> -static int dma_fixed_dma_supported(struct device *dev, u64 mask)
+> -{
+> -	return mask == DMA_BIT_MASK(64);
+> -}
+> -
+> -static int dma_set_mask_and_switch(struct device *dev, u64 dma_mask);
+> +static int dma_suported_and_switch(struct device *dev, u64 dma_mask);
+>  
+>  static const struct dma_map_ops dma_iommu_fixed_ops = {
+>  	.alloc          = dma_fixed_alloc_coherent,
+>  	.free           = dma_fixed_free_coherent,
+>  	.map_sg         = dma_fixed_map_sg,
+>  	.unmap_sg       = dma_fixed_unmap_sg,
+> -	.dma_supported  = dma_fixed_dma_supported,
+> -	.set_dma_mask   = dma_set_mask_and_switch,
+> +	.dma_supported  = dma_suported_and_switch,
+>  	.map_page       = dma_fixed_map_page,
+>  	.unmap_page     = dma_fixed_unmap_page,
+>  	.mapping_error	= dma_iommu_mapping_error,
+> @@ -952,11 +946,8 @@ static u64 cell_iommu_get_fixed_address(struct device *dev)
+>  	return dev_addr;
+>  }
+>  
+> -static int dma_set_mask_and_switch(struct device *dev, u64 dma_mask)
+> +static int dma_suported_and_switch(struct device *dev, u64 dma_mask)
+>  {
+> -	if (!dev->dma_mask || !dma_supported(dev, dma_mask))
+> -		return -EIO;
+> -
+>  	if (dma_mask == DMA_BIT_MASK(64) &&
+>  	    cell_iommu_get_fixed_address(dev) != OF_BAD_ADDR) {
+>  		u64 addr = cell_iommu_get_fixed_address(dev) +
+> @@ -965,14 +956,16 @@ static int dma_set_mask_and_switch(struct device *dev, u64 dma_mask)
+>  		dev_dbg(dev, "iommu: fixed addr = %llx\n", addr);
+>  		set_dma_ops(dev, &dma_iommu_fixed_ops);
+>  		set_dma_offset(dev, addr);
+> -	} else {
+> +		return 1;
+> +	}
+> +
+> +	if (dma_iommu_dma_supported(dev, dma_mask)) {
+>  		dev_dbg(dev, "iommu: not 64-bit, using default ops\n");
+>  		set_dma_ops(dev, get_pci_dma_ops());
+>  		cell_dma_dev_setup(dev);
+> +		return 1;
+>  	}
+>  
+> -	*dev->dma_mask = dma_mask;
+> -
+>  	return 0;
+>  }
+>  
+> @@ -1127,7 +1120,7 @@ static int __init cell_iommu_fixed_mapping_init(void)
+>  		cell_iommu_setup_window(iommu, np, dbase, dsize, 0);
+>  	}
+>  
+> -	dma_iommu_ops.set_dma_mask = dma_set_mask_and_switch;
+> +	dma_iommu_ops.dma_supported = dma_suported_and_switch;
+>  	set_pci_dma_ops(&dma_iommu_ops);
+>  
+>  	return 0;
