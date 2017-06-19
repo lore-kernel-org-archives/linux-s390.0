@@ -1,58 +1,128 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 42/44] powerpc/cell: use the dma_supported method for ops
- switching
-Date: Sun, 18 Jun 2017 00:13:44 -0700
-Message-ID: <20170618071344.GB18526@infradead.org>
-References: <20170616181059.19206-1-hch@lst.de>
- <20170616181059.19206-43-hch@lst.de>
- <1497732627.2897.128.camel@kernel.crashing.org>
+From: Kirill Tkhai <ktkhai@virtuozzo.com>
+Subject: [PATCH 1/7] rwsem-spinlock: Add killable versions of __down_read()
+Date: Mon, 19 Jun 2017 21:02:12 +0300
+Message-ID: <149789533283.9059.9829416940494747182.stgit@localhost.localdomain>
+References: <149789463636.9059.16943955939303454611.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1497732627.2897.128.camel@kernel.crashing.org>
-Sender: linux-hexagon-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/dri-devel/>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Christoph Hellwig <hch@lst.de>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <149789463636.9059.16943955939303454611.stgit@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-ia64@vger.kernel.org, avagin@virtuozzo.com, peterz@infradead.org, heiko.carstens@de.ibm.com, hpa@zytor.com, gorcunov@virtuozzo.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, mingo@redhat.com, mattst88@gmail.com, fenghua.yu@intel.com, arnd@arndb.de, ktkhai@virtuozzo.com, ink@jurassic.park.msu.ru, tglx@linutronix.de, rth@twiddle.net, tony.luck@intel.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, davem@davemloft.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Jun 18, 2017 at 06:50:27AM +1000, Benjamin Herrenschmidt wrote:
-> What is your rationale here ? (I have missed patch 0 it seems).
+Rename __down_read() in __down_read_common() and teach it
+to abort waiting in case of pending signals and killable
+state argument passed.
 
-Less code duplication, more modular dma_map_ops insteance.
+Note, that we shouldn't wake anybody up in EINTR path, as:
 
-> dma_supported() was supposed to be pretty much a "const" function
-> simply informing whether a given setup is possible. Having it perform
-> an actual switch of ops seems to be pushing it...
+We check for signal_pending_state() after (!waiter.task)
+test and under spinlock. So, current task wasn't able to
+be woken up. It may be in two cases: a writer is owner
+of the sem, or a writer is a first waiter of the sem.
 
-dma_supported() is already gone from the public DMA API as it doesn't
-make sense to be called separately from set_dma_mask.  It will be
-entirely gone in the next series after this one.
+If a writer is owner of the sem, no one else may work
+with it in parallel. It will wake somebody, when it
+call up_write() or downgrade_write().
 
-> What if a driver wants to test various dma masks and then pick one ?
-> 
-> Where does the API documents that if a driver calls dma_supported() it
-> then *must* set the corresponding mask and use that ?
+If a writer is the first waiter, it will be woken up,
+when the last active reader releases the sem, and
+sem->count became 0.
 
-Where is the API document for _any_ of the dma routines? (A: work in
-progress by me, but I need to clean up the mess of arch hooks before
-it can make any sense)
+Also note, that set_current_state() may be moved down
+to schedule() (after !waiter.task check), as all
+assignments in this type of semaphore (including wake_up),
+occur under spinlock, so we can't miss anything.
 
-> I don't like a function that is a "boolean query" like this one to have
-> such a major side effect.
-> 
-> >From an API standpoint, dma_set_mask() is when the mask is established,
-> and thus when the ops switch should happen.
+Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+---
+ include/linux/rwsem-spinlock.h  |    1 +
+ kernel/locking/rwsem-spinlock.c |   37 ++++++++++++++++++++++++++++---------
+ 2 files changed, 29 insertions(+), 9 deletions(-)
 
-And that's exactly what happens at the driver API level.  It just turns
-out the dma_capable method is they way better place to actually
-implement it, as the ->set_dma_mask method requires lots of code
-duplication while not offering any actual benefit over ->dma_capable.
-And because of that it's gone after this series.
-
-In theory we could rename ->dma_capable now, but it would require a
-_lot_ of churn.  Give me another merge window or two and we should
-be down to be about 2 handful of dma_map_ops instance, at which point
-we could do all this gratious renaming a lot more easily :)
+diff --git a/include/linux/rwsem-spinlock.h b/include/linux/rwsem-spinlock.h
+index ae0528b834cd..e784761a4443 100644
+--- a/include/linux/rwsem-spinlock.h
++++ b/include/linux/rwsem-spinlock.h
+@@ -32,6 +32,7 @@ struct rw_semaphore {
+ #define RWSEM_UNLOCKED_VALUE		0x00000000
+ 
+ extern void __down_read(struct rw_semaphore *sem);
++extern int __must_check __down_read_killable(struct rw_semaphore *sem);
+ extern int __down_read_trylock(struct rw_semaphore *sem);
+ extern void __down_write(struct rw_semaphore *sem);
+ extern int __must_check __down_write_killable(struct rw_semaphore *sem);
+diff --git a/kernel/locking/rwsem-spinlock.c b/kernel/locking/rwsem-spinlock.c
+index 20819df98125..0848634c5512 100644
+--- a/kernel/locking/rwsem-spinlock.c
++++ b/kernel/locking/rwsem-spinlock.c
+@@ -126,7 +126,7 @@ __rwsem_wake_one_writer(struct rw_semaphore *sem)
+ /*
+  * get a read lock on the semaphore
+  */
+-void __sched __down_read(struct rw_semaphore *sem)
++int __sched __down_read_common(struct rw_semaphore *sem, int state)
+ {
+ 	struct rwsem_waiter waiter;
+ 	unsigned long flags;
+@@ -140,8 +140,6 @@ void __sched __down_read(struct rw_semaphore *sem)
+ 		goto out;
+ 	}
+ 
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-
+ 	/* set up my own style of waitqueue */
+ 	waiter.task = current;
+ 	waiter.type = RWSEM_WAITING_FOR_READ;
+@@ -149,20 +147,41 @@ void __sched __down_read(struct rw_semaphore *sem)
+ 
+ 	list_add_tail(&waiter.list, &sem->wait_list);
+ 
+-	/* we don't need to touch the semaphore struct anymore */
+-	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
+-
+ 	/* wait to be given the lock */
+ 	for (;;) {
+ 		if (!waiter.task)
+ 			break;
++		if (signal_pending_state(state, current))
++			goto out_nolock;
++		set_current_state(state);
++		raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
+ 		schedule();
+-		set_current_state(TASK_UNINTERRUPTIBLE);
++		raw_spin_lock_irqsave(&sem->wait_lock, flags);
+ 	}
+ 
+-	__set_current_state(TASK_RUNNING);
++	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
+  out:
+-	;
++	return 0;
++
++out_nolock:
++	/*
++	 * We didn't take the lock, so that there is a writer, which
++	 * is owner or the first waiter of the sem. If it's a waiter,
++	 * it will be woken by current owner. Not need to wake anybody.
++	 */
++	list_del(&waiter.list);
++	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
++	return -EINTR;
++}
++
++void __sched __down_read(struct rw_semaphore *sem)
++{
++	__down_read_common(sem, TASK_UNINTERRUPTIBLE);
++}
++
++int __sched __down_read_killable(struct rw_semaphore *sem)
++{
++	return __down_read_common(sem, TASK_KILLABLE);
+ }
+ 
+ /*
