@@ -1,72 +1,93 @@
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Subject: [PATCH 0/7] rwsem: Implement down_read_killable()
 From: Kirill Tkhai <ktkhai@virtuozzo.com>
-Subject: Re: [PATCH 0/7] rwsem: Implement down_read_killable()
-Date: Tue, 20 Jun 2017 13:36:50 +0300
-Message-ID: <20170620103648.vi7v45mjk63msw72@virtuozzo.com>
-References: <alpine.DEB.2.10.1706191327190.95967@chino.kir.corp.google.com>
- <149789463636.9059.16943955939303454611.stgit@localhost.localdomain>
- <2406.1497947414@warthog.procyon.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <2406.1497947414@warthog.procyon.org.uk>
+Date: Mon, 19 Jun 2017 21:02:00 +0300
+Message-ID: <149789463636.9059.16943955939303454611.stgit@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20170619180200.9jzmDGDBKZHdfFKf3iCHe7N7UhqaxG-FfpPV_v0g52U@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: David Howells <dhowells@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>
-Cc: David Rientjes <rientjes@google.com>, linux-ia64@vger.kernel.org, avagin@virtuozzo.com, peterz@infradead.org, heiko.carstens@de.ibm.com, hpa@zytor.com, gorcunov@virtuozzo.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, mingo@redhat.com, mattst88@gmail.com, fenghua.yu@intel.com, arnd@arndb.de, ink@jurassic.park.msu.ru, tglx@linutronix.de, rth@twiddle.net, tony.luck@intel.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, davem@davemloft.net
+To: linux-ia64@vger.kernel.org, avagin@virtuozzo.com, peterz@infradead.org, heiko.carstens@de.ibm.com, hpa@zytor.com, gorcunov@virtuozzo.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, mingo@redhat.com, mattst88@gmail.com, fenghua.yu@intel.com, arnd@arndb.de, ktkhai@virtuozzo.com, ink@jurassic.park.msu.ru, tglx@linutronix.de, rth@twiddle.net, tony.luck@intel.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, davem@davemloft.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 20, 2017 at 09:30, David Howells wrote:
-> David Rientjes <rientjes@google.com> wrote:
-> 
-> > I would have expected to see down_read_killable() actually used somewhere 
-> > after its implementation as part of this patchset.
-> 
-> There are some places we should be using down_{read|write}_interruptible(), if
-> it existed, dressed as inode_lock{,_shared}_interruptible().
+This series implements killable version of down_read()
+similar to already existing down_write_killable() function.
+Patches [1-2/7] add arch-independent low-level primitives
+for the both rwsem types.
 
-Then let's use it in iterate_dir():
+Patches [3-6/7] add arch-dependent primitives for
+the architectures, that use rwsem-xadd implementation.
+The assembly code was modified in x86 case only, the rest
+of architectures does not need such change.
 
-[PATCH]fs: Use killable down_read() in iterate_dir()
+I tested the series in x86 (which uses RWSEM_XCHGADD_ALGORITHM
+config option), and also the RWSEM_GENERIC_SPINLOCK case,
+which were manually written in Kconfig. alpha, ia64 and s390
+are compile-tested only, but I believe, their changes are
+pretty easy. Please, people, who work with them, take your
+look at the corresponding patches.
 
-There was mutex_lock_interruptible() initially, and it was changed
-to rwsem, but there were not killable rwsem primitives that time.
-From commit 9902af79c01a:
-    
-    "The main issue is the lack of down_write_killable(), so the places
-     like readdir.c switched to plain inode_lock(); once killable
-     variants of rwsem primitives appear, that'll be dealt with"
+***
 
-Use down_read_killable() same as down_write_killable() in !shared
-case, as concurrent inode_lock() may take much time, that may be
-wanted to be interrupted by user.
+Where this came from. Cycle of creation/destroying net
+namespace is slow at the moment as it's made under net_mutex.
+During cleanup_net(), the mutex is held the whole time,
+while RCU is synchronizing. This takes a lot of time,
+especially when RCU is preemptible, and at this time
+the creation of new net namespaces is blocked. But
+this moment may be optimized by using small locks
+in pernet callbacks, where they are need, and by
+converting net_mutex into rw semaphore. In cleanup_net()
+it's only need to prevent from registration/unregistration
+of pernet_subsys and pernet_devices, which actions
+can't be missed by unhashed dead net namespace.
+down_read guarantees that, and it's lite-weight.
 
-Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Using the rwsem improves the create/destroy cycle performance
+on my development kernel much:
+
+$time for i in {1..10000}; do unshare -n -- bash -c exit; done
+
+MUTEX:
+real 1m13,372s
+user 0m9,278s
+sys 0m17.181s
+
+RWSEM:
+real 0m17,482s
+user 0m3,791s
+sys 0m13,723s
+
+Of course, it's just an example, and it's a generic use
+function. It may be used in other places.
+
 ---
- fs/readdir.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/fs/readdir.c b/fs/readdir.c
-index 89659549c09d..7c584bbb4ce3 100644
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -36,13 +36,12 @@ int iterate_dir(struct file *file, struct dir_context *ctx)
- 	if (res)
- 		goto out;
- 
--	if (shared) {
--		inode_lock_shared(inode);
--	} else {
-+	if (shared)
-+		res = down_read_killable(&inode->i_rwsem);
-+	else
- 		res = down_write_killable(&inode->i_rwsem);
--		if (res)
--			goto out;
--	}
-+	if (res)
-+		goto out;
- 
- 	res = -ENOENT;
- 	if (!IS_DEADDIR(inode)) {
+Kirill Tkhai (7):
+      rwsem-spinlock: Add killable versions of __down_read()
+      rwsem-spinlock: Add killable versions of rwsem_down_read_failed()
+      alpha: Add __down_read_killable()
+      ia64: Add __down_read_killable()
+      s390: Add __down_read_killable()
+      x86: Add __down_read_killable()
+      rwsem: Add down_read_killable()
+
+
+ arch/alpha/include/asm/rwsem.h  |   18 ++++++++++++++++--
+ arch/ia64/include/asm/rwsem.h   |   22 +++++++++++++++++++---
+ arch/s390/include/asm/rwsem.h   |   18 ++++++++++++++++--
+ arch/x86/include/asm/rwsem.h    |   37 +++++++++++++++++++++++++++----------
+ arch/x86/lib/rwsem.S            |   12 ++++++++++++
+ include/asm-generic/rwsem.h     |    8 ++++++++
+ include/linux/rwsem-spinlock.h  |    1 +
+ include/linux/rwsem.h           |    2 ++
+ kernel/locking/rwsem-spinlock.c |   37 ++++++++++++++++++++++++++++---------
+ kernel/locking/rwsem-xadd.c     |   33 ++++++++++++++++++++++++++++++---
+ kernel/locking/rwsem.c          |   16 ++++++++++++++++
+ 11 files changed, 175 insertions(+), 29 deletions(-)
+
+--
+Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
