@@ -1,41 +1,43 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 3/4] s390/diag: add diag26c support
-Date: Mon, 19 Jun 2017 13:37:43 -0400 (EDT)
-Message-ID: <20170619.133743.1638444891079509192.davem@davemloft.net>
-References: <20170619112225.30471-4-jwi@linux.vnet.ibm.com>
-        <20170619.104726.1778743929564587843.davem@davemloft.net>
-        <20170619173425.4d537667@mschwideX1>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 0/4] s390/net updates, part 2
+Date: Mon, 19 Jun 2017 13:22:21 +0200
+Message-ID: <20170619112225.30471-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170619173425.4d537667@mschwideX1>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: jwi@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Mon, 19 Jun 2017 17:34:25 +0200
+Hi Dave,
 
-> We (as in the s390 guys) tend to add __packed to hardware and hypervisor
-> structures even if the attribute is not strictly necessary. Most of the
-> diagnose related structures look that way. Dunno if it is worth to change
-> them.
+some additional qeth patches for net-next, please apply.
 
-It causes gcc to generate bad code on certain platforms (yes, probably not
-yours) and is in general something to avoid.
+Note: there's one out-of-topic modification to arch/s390 that
+adds a new hypervisor call, for use in qeth. Heiko acked to upstream
+this via your tree.
 
-Please do not use __packed unless absolutely necessary.
+Thanks,
+Julian
 
-> The diag26c struct needs to be aligned on a doubleword boundary, the
-> __aligned(8) is necessary.
 
-That's fine.
+Julian Wiedmann (3):
+  s390/qeth: fix packing buffer statistics
+  s390/diag: add diag26c support
+  s390/qeth: use diag26c to get MAC address on L2
 
-> The __packed attribute is again superfluous but follows along the
-> lines of the other diag structures.
+Kittipon Meesompop (1):
+  s390/qeth: add ipa return codes for bridgeport
 
-Please remove it.
+ arch/s390/include/asm/diag.h      | 26 +++++++++++++
+ arch/s390/kernel/diag.c           | 29 +++++++++++++++
+ drivers/s390/net/qeth_core.h      |  1 +
+ drivers/s390/net/qeth_core_main.c | 78 +++++++++++++++++++++++++++++++++++----
+ drivers/s390/net/qeth_core_mpc.c  | 14 +++++++
+ drivers/s390/net/qeth_core_mpc.h  | 18 +++++++++
+ drivers/s390/net/qeth_l2_main.c   | 50 +++++++++++++++----------
+ 7 files changed, 190 insertions(+), 26 deletions(-)
+
+-- 
+2.11.2
