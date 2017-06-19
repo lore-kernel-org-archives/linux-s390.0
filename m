@@ -1,128 +1,109 @@
 From: Kirill Tkhai <ktkhai@virtuozzo.com>
-Subject: [PATCH 1/7] rwsem-spinlock: Add killable versions of __down_read()
-Date: Mon, 19 Jun 2017 21:02:12 +0300
-Message-ID: <149789533283.9059.9829416940494747182.stgit@localhost.localdomain>
+Subject: [PATCH 2/7] rwsem-spinlock: Add killable versions of
+ rwsem_down_read_failed()
+Date: Mon, 19 Jun 2017 21:02:26 +0300
+Message-ID: <149789534632.9059.2901382369609922565.stgit@localhost.localdomain>
 References: <149789463636.9059.16943955939303454611.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 In-Reply-To: <149789463636.9059.16943955939303454611.stgit@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-alpha-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-ia64@vger.kernel.org, avagin@virtuozzo.com, peterz@infradead.org, heiko.carstens@de.ibm.com, hpa@zytor.com, gorcunov@virtuozzo.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, mingo@redhat.com, mattst88@gmail.com, fenghua.yu@intel.com, arnd@arndb.de, ktkhai@virtuozzo.com, ink@jurassic.park.msu.ru, tglx@linutronix.de, rth@twiddle.net, tony.luck@intel.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, davem@davemloft.net
 List-ID: <linux-s390.vger.kernel.org>
 
-Rename __down_read() in __down_read_common() and teach it
-to abort waiting in case of pending signals and killable
+Rename rwsem_down_read_failed() in __rwsem_down_read_failed_common()
+and teach it to abort waiting in case of pending signals and killable
 state argument passed.
 
 Note, that we shouldn't wake anybody up in EINTR path, as:
 
-We check for signal_pending_state() after (!waiter.task)
-test and under spinlock. So, current task wasn't able to
-be woken up. It may be in two cases: a writer is owner
-of the sem, or a writer is a first waiter of the sem.
-
-If a writer is owner of the sem, no one else may work
-with it in parallel. It will wake somebody, when it
-call up_write() or downgrade_write().
-
-If a writer is the first waiter, it will be woken up,
-when the last active reader releases the sem, and
-sem->count became 0.
-
-Also note, that set_current_state() may be moved down
-to schedule() (after !waiter.task check), as all
-assignments in this type of semaphore (including wake_up),
-occur under spinlock, so we can't miss anything.
+We check for (waiter.task) under spinlock before we go to out_nolock
+path. Current task wasn't able to be woken up, so there are
+a writer, owning the sem, or a writer, which is the first waiter.
+In the both cases we shouldn't wake anybody. If there is a writer,
+owning the sem, and we were the only waiter, remove RWSEM_WAITING_BIAS,
+as there are no waiters anymore.
 
 Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
 ---
- include/linux/rwsem-spinlock.h  |    1 +
- kernel/locking/rwsem-spinlock.c |   37 ++++++++++++++++++++++++++++---------
- 2 files changed, 29 insertions(+), 9 deletions(-)
+ include/linux/rwsem.h       |    1 +
+ kernel/locking/rwsem-xadd.c |   33 ++++++++++++++++++++++++++++++---
+ 2 files changed, 31 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/rwsem-spinlock.h b/include/linux/rwsem-spinlock.h
-index ae0528b834cd..e784761a4443 100644
---- a/include/linux/rwsem-spinlock.h
-+++ b/include/linux/rwsem-spinlock.h
-@@ -32,6 +32,7 @@ struct rw_semaphore {
- #define RWSEM_UNLOCKED_VALUE		0x00000000
+diff --git a/include/linux/rwsem.h b/include/linux/rwsem.h
+index dd1d14250340..0ad7318ff299 100644
+--- a/include/linux/rwsem.h
++++ b/include/linux/rwsem.h
+@@ -44,6 +44,7 @@ struct rw_semaphore {
+ };
  
- extern void __down_read(struct rw_semaphore *sem);
-+extern int __must_check __down_read_killable(struct rw_semaphore *sem);
- extern int __down_read_trylock(struct rw_semaphore *sem);
- extern void __down_write(struct rw_semaphore *sem);
- extern int __must_check __down_write_killable(struct rw_semaphore *sem);
-diff --git a/kernel/locking/rwsem-spinlock.c b/kernel/locking/rwsem-spinlock.c
-index 20819df98125..0848634c5512 100644
---- a/kernel/locking/rwsem-spinlock.c
-+++ b/kernel/locking/rwsem-spinlock.c
-@@ -126,7 +126,7 @@ __rwsem_wake_one_writer(struct rw_semaphore *sem)
+ extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
++extern struct rw_semaphore *rwsem_down_read_failed_killable(struct rw_semaphore *sem);
+ extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
+ extern struct rw_semaphore *rwsem_down_write_failed_killable(struct rw_semaphore *sem);
+ extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 34e727f18e49..02f660666ab8 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -221,8 +221,8 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
  /*
-  * get a read lock on the semaphore
+  * Wait for the read lock to be granted
   */
--void __sched __down_read(struct rw_semaphore *sem)
-+int __sched __down_read_common(struct rw_semaphore *sem, int state)
+-__visible
+-struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
++static inline struct rw_semaphore __sched *
++__rwsem_down_read_failed_common(struct rw_semaphore *sem, int state)
  {
+ 	long count, adjustment = -RWSEM_ACTIVE_READ_BIAS;
  	struct rwsem_waiter waiter;
- 	unsigned long flags;
-@@ -140,8 +140,6 @@ void __sched __down_read(struct rw_semaphore *sem)
- 		goto out;
- 	}
+@@ -255,17 +255,44 @@ struct rw_semaphore __sched *rwsem_down_read_failed(struct rw_semaphore *sem)
  
--	set_current_state(TASK_UNINTERRUPTIBLE);
--
- 	/* set up my own style of waitqueue */
- 	waiter.task = current;
- 	waiter.type = RWSEM_WAITING_FOR_READ;
-@@ -149,20 +147,41 @@ void __sched __down_read(struct rw_semaphore *sem)
- 
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
--	/* we don't need to touch the semaphore struct anymore */
--	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
--
  	/* wait to be given the lock */
- 	for (;;) {
+ 	while (true) {
+-		set_current_state(TASK_UNINTERRUPTIBLE);
++		set_current_state(state);
  		if (!waiter.task)
  			break;
-+		if (signal_pending_state(state, current))
-+			goto out_nolock;
-+		set_current_state(state);
-+		raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
++		if (signal_pending_state(state, current)) {
++			raw_spin_lock_irq(&sem->wait_lock);
++			if (waiter.task)
++				goto out_nolock;
++			raw_spin_unlock_irq(&sem->wait_lock);
++			break;
++		}
  		schedule();
--		set_current_state(TASK_UNINTERRUPTIBLE);
-+		raw_spin_lock_irqsave(&sem->wait_lock, flags);
  	}
  
--	__set_current_state(TASK_RUNNING);
-+	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
-  out:
--	;
-+	return 0;
-+
+ 	__set_current_state(TASK_RUNNING);
+ 	return sem;
 +out_nolock:
-+	/*
-+	 * We didn't take the lock, so that there is a writer, which
-+	 * is owner or the first waiter of the sem. If it's a waiter,
-+	 * it will be woken by current owner. Not need to wake anybody.
-+	 */
 +	list_del(&waiter.list);
-+	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
-+	return -EINTR;
++	if (list_empty(&sem->wait_list))
++		atomic_long_add(-RWSEM_WAITING_BIAS, &sem->count);
++	raw_spin_unlock_irq(&sem->wait_lock);
++	__set_current_state(TASK_RUNNING);
++	return ERR_PTR(-EINTR);
 +}
 +
-+void __sched __down_read(struct rw_semaphore *sem)
++__visible struct rw_semaphore * __sched
++rwsem_down_read_failed(struct rw_semaphore *sem)
 +{
-+	__down_read_common(sem, TASK_UNINTERRUPTIBLE);
-+}
-+
-+int __sched __down_read_killable(struct rw_semaphore *sem)
-+{
-+	return __down_read_common(sem, TASK_KILLABLE);
++	return __rwsem_down_read_failed_common(sem, TASK_UNINTERRUPTIBLE);
  }
+ EXPORT_SYMBOL(rwsem_down_read_failed);
  
++__visible struct rw_semaphore * __sched
++rwsem_down_read_failed_killable(struct rw_semaphore *sem)
++{
++	return __rwsem_down_read_failed_common(sem, TASK_KILLABLE);
++}
++EXPORT_SYMBOL(rwsem_down_read_failed_killable);
++
  /*
+  * This function must be called with the sem->wait_lock held to prevent
+  * race conditions between checking the rwsem wait list and setting the
