@@ -1,68 +1,77 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 42/44] powerpc/cell: use the dma_supported method for
- ops switching
-Date: Sun, 18 Jun 2017 19:54:02 +1000
-Message-ID: <1497779642.31581.6.camel@kernel.crashing.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: new dma-mapping tree, was Re: clean up and modularize arch
+        dma_mapping interface V2
+Date: Tue, 20 Jun 2017 14:41:40 +0200
+Message-ID: <20170620124140.GA27163@lst.de>
 References: <20170616181059.19206-1-hch@lst.de>
- <20170616181059.19206-43-hch@lst.de>
- <1497732627.2897.128.camel@kernel.crashing.org>
- <20170618071344.GB18526@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20170618071344.GB18526@infradead.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-ia64-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170616181059.19206-1-hch@lst.de>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/dri-devel/>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-mips@linux-mips.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, dmaengine@vger.kernel.org, iommu@lists.linux-foundation.org, openrisc@lists.librecores.org, netdev@vger.kernel.org, sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, linux-arm-kernel@lists.infradead.org
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gU3VuLCAyMDE3LTA2LTE4IGF0IDAwOjEzIC0wNzAwLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90
-ZToKPiBPbiBTdW4sIEp1biAxOCwgMjAxNyBhdCAwNjo1MDoyN0FNICsxMDAwLCBCZW5qYW1pbiBI
-ZXJyZW5zY2htaWR0IHdyb3RlOgo+ID4gV2hhdCBpcyB5b3VyIHJhdGlvbmFsZSBoZXJlID8gKEkg
-aGF2ZSBtaXNzZWQgcGF0Y2ggMCBpdCBzZWVtcykuCj4gCj4gTGVzcyBjb2RlIGR1cGxpY2F0aW9u
-LCBtb3JlIG1vZHVsYXIgZG1hX21hcF9vcHMgaW5zdGVhbmNlLgo+IAo+ID4gZG1hX3N1cHBvcnRl
-ZCgpIHdhcyBzdXBwb3NlZCB0byBiZSBwcmV0dHkgbXVjaCBhICJjb25zdCIgZnVuY3Rpb24KPiA+
-IHNpbXBseSBpbmZvcm1pbmcgd2hldGhlciBhIGdpdmVuIHNldHVwIGlzIHBvc3NpYmxlLiBIYXZp
-bmcgaXQgcGVyZm9ybQo+ID4gYW4gYWN0dWFsIHN3aXRjaCBvZiBvcHMgc2VlbXMgdG8gYmUgcHVz
-aGluZyBpdC4uLgo+IAo+IGRtYV9zdXBwb3J0ZWQoKSBpcyBhbHJlYWR5IGdvbmUgZnJvbSB0aGUg
-cHVibGljIERNQSBBUEkgYXMgaXQgZG9lc24ndAo+IG1ha2Ugc2Vuc2UgdG8gYmUgY2FsbGVkIHNl
-cGFyYXRlbHkgZnJvbSBzZXRfZG1hX21hc2suICBJdCB3aWxsIGJlCj4gZW50aXJlbHkgZ29uZSBp
-biB0aGUgbmV4dCBzZXJpZXMgYWZ0ZXIgdGhpcyBvbmUuCgpBaCBvaywgaW4gdGhhdCBjYXNlIGl0
-IG1ha2VzIG11Y2ggbW9yZSBzZW5zZSwgd2UgY2FuIHJlbmFtZSBpdCB0aGVuLgoKPiA+IFdoYXQg
-aWYgYSBkcml2ZXIgd2FudHMgdG8gdGVzdCB2YXJpb3VzIGRtYSBtYXNrcyBhbmQgdGhlbiBwaWNr
-IG9uZSA/Cj4gPiAKPiA+IFdoZXJlIGRvZXMgdGhlIEFQSSBkb2N1bWVudHMgdGhhdCBpZiBhIGRy
-aXZlciBjYWxscyBkbWFfc3VwcG9ydGVkKCkgaXQKPiA+IHRoZW4gKm11c3QqIHNldCB0aGUgY29y
-cmVzcG9uZGluZyBtYXNrIGFuZCB1c2UgdGhhdCA/Cj4gCj4gV2hlcmUgaXMgdGhlIEFQSSBkb2N1
-bWVudCBmb3IgX2FueV8gb2YgdGhlIGRtYSByb3V0aW5lcz8gKEE6IHdvcmsgaW4KPiBwcm9ncmVz
-cyBieSBtZSwgYnV0IEkgbmVlZCB0byBjbGVhbiB1cCB0aGUgbWVzcyBvZiBhcmNoIGhvb2tzIGJl
-Zm9yZQo+IGl0IGNhbiBtYWtlIGFueSBzZW5zZSkKCkhlaCBmYWlyIGVub3VnaC4KCj4gPiBJIGRv
-bid0IGxpa2UgYSBmdW5jdGlvbiB0aGF0IGlzIGEgImJvb2xlYW4gcXVlcnkiIGxpa2UgdGhpcyBv
-bmUgdG8gaGF2ZQo+ID4gc3VjaCBhIG1ham9yIHNpZGUgZWZmZWN0Lgo+ID4gCj4gPiA+IEZyb20g
-YW4gQVBJIHN0YW5kcG9pbnQsIGRtYV9zZXRfbWFzaygpIGlzIHdoZW4gdGhlIG1hc2sgaXMgZXN0
-YWJsaXNoZWQsCj4gPiAKPiA+IGFuZCB0aHVzIHdoZW4gdGhlIG9wcyBzd2l0Y2ggc2hvdWxkIGhh
-cHBlbi4KPiAKPiBBbmQgdGhhdCdzIGV4YWN0bHkgd2hhdCBoYXBwZW5zIGF0IHRoZSBkcml2ZXIg
-QVBJIGxldmVsLiAgSXQganVzdCB0dXJucwo+IG91dCB0aGUgZG1hX2NhcGFibGUgbWV0aG9kIGlz
-IHRoZXkgd2F5IGJldHRlciBwbGFjZSB0byBhY3R1YWxseQo+IGltcGxlbWVudCBpdCwgYXMgdGhl
-IC0+c2V0X2RtYV9tYXNrIG1ldGhvZCByZXF1aXJlcyBsb3RzIG9mIGNvZGUKPiBkdXBsaWNhdGlv
-biB3aGlsZSBub3Qgb2ZmZXJpbmcgYW55IGFjdHVhbCBiZW5lZml0IG92ZXIgLT5kbWFfY2FwYWJs
-ZS4KPiBBbmQgYmVjYXVzZSBvZiB0aGF0IGl0J3MgZ29uZSBhZnRlciB0aGlzIHNlcmllcy4KPiAK
-PiBJbiB0aGVvcnkgd2UgY291bGQgcmVuYW1lIC0+ZG1hX2NhcGFibGUgbm93LCBidXQgaXQgd291
-bGQgcmVxdWlyZSBhCj4gX2xvdF8gb2YgY2h1cm4uICBHaXZlIG1lIGFub3RoZXIgbWVyZ2Ugd2lu
-ZG93IG9yIHR3byBhbmQgd2Ugc2hvdWxkCj4gYmUgZG93biB0byBiZSBhYm91dCAyIGhhbmRmdWwg
-b2YgZG1hX21hcF9vcHMgaW5zdGFuY2UsIGF0IHdoaWNoIHBvaW50Cj4gd2UgY291bGQgZG8gYWxs
-IHRoaXMgZ3JhdGlvdXMgcmVuYW1pbmcgYSBsb3QgbW9yZSBlYXNpbHkgOikKClN1cmUsIEkgZ2V0
-IGl0IG5vdywgYXMgbG9uZyBhcyBpdCdzIG5vdCBwdWJsaWNseSBleHBvc2VkIHRvIGRyaXZlcnMK
-d2UgYXJlIGZpbmUuCgpDaGVlcnMsCkJlbi4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3Rz
-LmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL2RyaS1kZXZlbAo=
+On Fri, Jun 16, 2017 at 08:10:15PM +0200, Christoph Hellwig wrote:
+> I plan to create a new dma-mapping tree to collect all this work.
+> Any volunteers for co-maintainers, especially from the iommu gang?
+
+Ok, I've created the new tree:
+
+   git://git.infradead.org/users/hch/dma-mapping.git for-next
+
+Gitweb:
+
+   http://git.infradead.org/users/hch/dma-mapping.git/shortlog/refs/heads/for-next
+
+And below is the patch to add the MAINTAINERS entry, additions welcome.
+
+Stephen, can you add this to linux-next?
+
+---
+From 335979c41912e6c101a20b719862b2d837370df1 Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Tue, 20 Jun 2017 11:17:30 +0200
+Subject: MAINTAINERS: add entry for dma mapping helpers
+
+This code has been spread between getting in through arch trees, the iommu
+tree, -mm and the drivers tree.  There will be a lot of work in this area,
+including consolidating various arch implementations into more common
+code, so ensure we have a proper git tree that facilitates cooperation with
+the architecture maintainers.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ MAINTAINERS | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 09b5ab6a8a5c..56859d53a424 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2595,6 +2595,19 @@ S:	Maintained
+ F:	net/bluetooth/
+ F:	include/net/bluetooth/
+ 
++DMA MAPPING HELPERS
++M:	Christoph Hellwig <hch@lst.de>
++L:	linux-kernel@vger.kernel.org
++T:	git git://git.infradead.org/users/hch/dma-mapping.git
++W:	http://git.infradead.org/users/hch/dma-mapping.git
++S:	Supported
++F:	lib/dma-debug.c
++F:	lib/dma-noop.c
++F:	lib/dma-virt.c
++F:	drivers/base/dma-mapping.c
++F:	drivers/base/dma-coherent.c
++F:	include/linux/dma-mapping.h
++
+ BONDING DRIVER
+ M:	Jay Vosburgh <j.vosburgh@gmail.com>
+ M:	Veaceslav Falico <vfalico@gmail.com>
+-- 
+2.11.0
