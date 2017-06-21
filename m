@@ -1,109 +1,91 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 2/2] frv, mn10300, s390, sh: remove empty vga.h
-Date: Wed, 21 Jun 2017 13:40:24 +0200
-Message-ID: <20170621114024.32573-2-jslaby@suse.cz>
-References: <20170621114024.32573-1-jslaby@suse.cz>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH net-next 3/4] s390/diag: add diag26c support
+Date: Wed, 21 Jun 2017 17:30:44 +0200
+Message-ID: <20170621173044.204bd2ca@mschwideX1>
+References: <20170619112225.30471-4-jwi@linux.vnet.ibm.com>
+        <20170619.104726.1778743929564587843.davem@davemloft.net>
+        <20170619173425.4d537667@mschwideX1>
+        <20170619.133743.1638444891079509192.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20170621114024.32573-1-jslaby@suse.cz>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-List-Archive: <https://lore.kernel.org/dri-devel/>
-To: airlied@linux.ie
-Cc: linux-s390@vger.kernel.org, Rich Felker <dalias@libc.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, David Howells <dhowells@redhat.com>, linux-am33-list@redhat.com, Jiri Slaby <jslaby@suse.cz>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170619.133743.1638444891079509192.davem@davemloft.net>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: jwi@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-UHJvdmlkZWQgdGhlIGFyY2hpdGVjdHVyZXMgZG8gbm90IG5lZWQgYW55IHNwZWNpYWwgaGFuZGxp
-bmcgKHRoZXkgc2VlbQpub3QgdG8gc3VwcG9ydCB2Z2EgYXQgYWxsLCBhY3R1YWxseSksIHRoZXJl
-IGlzIG5vIG5lZWQgdG8gaGF2ZSBhbgplbXB0eSB2Z2EuaC4gTGV0IHRoZW0gcmVmZXIgdG8gdGhl
-IGdlbmVyaWMgb25lIGluc3RlYWQuCgpTaWduZWQtb2ZmLWJ5OiBKaXJpIFNsYWJ5IDxqc2xhYnlA
-c3VzZS5jej4KQWNrZWQtYnk6IEdlZXJ0IFV5dHRlcmhvZXZlbiA8Z2VlcnRAbGludXgtbTY4ay5v
-cmc+CkFja2VkLWJ5OiBNYXJ0aW4gU2Nod2lkZWZza3kgPHNjaHdpZGVmc2t5QGRlLmlibS5jb20+
-CkNjOiBEYXZpZCBIb3dlbGxzIDxkaG93ZWxsc0ByZWRoYXQuY29tPgpDYzogSGVpa28gQ2Fyc3Rl
-bnMgPGhlaWtvLmNhcnN0ZW5zQGRlLmlibS5jb20+CkNjOiBZb3NoaW5vcmkgU2F0byA8eXNhdG9A
-dXNlcnMuc291cmNlZm9yZ2UuanA+CkNjOiBSaWNoIEZlbGtlciA8ZGFsaWFzQGxpYmMub3JnPgpD
-YzogbGludXgtYW0zMy1saXN0QHJlZGhhdC5jb20KQ2M6IGxpbnV4LXMzOTBAdmdlci5rZXJuZWwu
-b3JnCkNjOiBsaW51eC1zaEB2Z2VyLmtlcm5lbC5vcmcKLS0tCiBhcmNoL2Zydi9pbmNsdWRlL2Fz
-bS9LYnVpbGQgICAgIHwgIDEgKwogYXJjaC9mcnYvaW5jbHVkZS9hc20vdmdhLmggICAgICB8IDE3
-IC0tLS0tLS0tLS0tLS0tLS0tCiBhcmNoL21uMTAzMDAvaW5jbHVkZS9hc20vS2J1aWxkIHwgIDEg
-KwogYXJjaC9tbjEwMzAwL2luY2x1ZGUvYXNtL3ZnYS5oICB8IDE3IC0tLS0tLS0tLS0tLS0tLS0t
-CiBhcmNoL3MzOTAvaW5jbHVkZS9hc20vS2J1aWxkICAgIHwgIDEgKwogYXJjaC9zMzkwL2luY2x1
-ZGUvYXNtL3ZnYS5oICAgICB8ICA2IC0tLS0tLQogYXJjaC9zaC9pbmNsdWRlL2FzbS9LYnVpbGQg
-ICAgICB8ICAxICsKIGFyY2gvc2gvaW5jbHVkZS9hc20vdmdhLmggICAgICAgfCAgNiAtLS0tLS0K
-IDggZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0NiBkZWxldGlvbnMoLSkKIGRlbGV0
-ZSBtb2RlIDEwMDY0NCBhcmNoL2Zydi9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAw
-NjQ0IGFyY2gvbW4xMDMwMC9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAwNjQ0IGFy
-Y2gvczM5MC9pbmNsdWRlL2FzbS92Z2EuaAogZGVsZXRlIG1vZGUgMTAwNjQ0IGFyY2gvc2gvaW5j
-bHVkZS9hc20vdmdhLmgKCmRpZmYgLS1naXQgYS9hcmNoL2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQg
-Yi9hcmNoL2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQKaW5kZXggMmNmNzY0ODc4N2IyLi5jODdjOThj
-YWQzNTYgMTAwNjQ0Ci0tLSBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL0tidWlsZAorKysgYi9hcmNo
-L2Zydi9pbmNsdWRlL2FzbS9LYnVpbGQKQEAgLTksNSArOSw2IEBAIGdlbmVyaWMteSArPSBtY3Nf
-c3BpbmxvY2suaAogZ2VuZXJpYy15ICs9IG1tLWFyY2gtaG9va3MuaAogZ2VuZXJpYy15ICs9IHBy
-ZWVtcHQuaAogZ2VuZXJpYy15ICs9IHRyYWNlX2Nsb2NrLmgKK2dlbmVyaWMteSArPSB2Z2EuaAog
-Z2VuZXJpYy15ICs9IHdvcmQtYXQtYS10aW1lLmgKIGdlbmVyaWMteSArPSBrcHJvYmVzLmgKZGlm
-ZiAtLWdpdCBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL3ZnYS5oIGIvYXJjaC9mcnYvaW5jbHVkZS9h
-c20vdmdhLmgKZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IGE3MDJjODAwYTIyOS4uMDAw
-MDAwMDAwMDAwCi0tLSBhL2FyY2gvZnJ2L2luY2x1ZGUvYXNtL3ZnYS5oCisrKyAvZGV2L251bGwK
-QEAgLTEsMTcgKzAsMCBAQAotLyogdmdhLmg6IFZHQSByZWdpc3RlciBzdHVmZgotICoKLSAqIENv
-cHlyaWdodCAoQykgMjAwNiBSZWQgSGF0LCBJbmMuIEFsbCBSaWdodHMgUmVzZXJ2ZWQuCi0gKiBX
-cml0dGVuIGJ5IERhdmlkIEhvd2VsbHMgKGRob3dlbGxzQHJlZGhhdC5jb20pCi0gKgotICogVGhp
-cyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9v
-cgotICogbW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGlj
-IExpY2Vuc2UKLSAqIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9u
-OyBlaXRoZXIgdmVyc2lvbgotICogMiBvZiB0aGUgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9u
-KSBhbnkgbGF0ZXIgdmVyc2lvbi4KLSAqLwotCi0jaWZuZGVmIF9BU01fVkdBX0gKLSNkZWZpbmUg
-X0FTTV9WR0FfSAotCi0KLQotI2VuZGlmIC8qIF9BU01fVkdBX0ggKi8KZGlmZiAtLWdpdCBhL2Fy
-Y2gvbW4xMDMwMC9pbmNsdWRlL2FzbS9LYnVpbGQgYi9hcmNoL21uMTAzMDAvaW5jbHVkZS9hc20v
-S2J1aWxkCmluZGV4IGRiNWI1NzgyOWE4MS4uZDE2NDk5ZTVhZjhlIDEwMDY0NAotLS0gYS9hcmNo
-L21uMTAzMDAvaW5jbHVkZS9hc20vS2J1aWxkCisrKyBiL2FyY2gvbW4xMDMwMC9pbmNsdWRlL2Fz
-bS9LYnVpbGQKQEAgLTExLDQgKzExLDUgQEAgZ2VuZXJpYy15ICs9IG1tLWFyY2gtaG9va3MuaAog
-Z2VuZXJpYy15ICs9IHByZWVtcHQuaAogZ2VuZXJpYy15ICs9IHNlY3Rpb25zLmgKIGdlbmVyaWMt
-eSArPSB0cmFjZV9jbG9jay5oCitnZW5lcmljLXkgKz0gdmdhLmgKIGdlbmVyaWMteSArPSB3b3Jk
-LWF0LWEtdGltZS5oCmRpZmYgLS1naXQgYS9hcmNoL21uMTAzMDAvaW5jbHVkZS9hc20vdmdhLmgg
-Yi9hcmNoL21uMTAzMDAvaW5jbHVkZS9hc20vdmdhLmgKZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0
-CmluZGV4IDAxNjNlNTBhMzQ1OS4uMDAwMDAwMDAwMDAwCi0tLSBhL2FyY2gvbW4xMDMwMC9pbmNs
-dWRlL2FzbS92Z2EuaAorKysgL2Rldi9udWxsCkBAIC0xLDE3ICswLDAgQEAKLS8qIE1OMTAzMDAg
-VkdBIHJlZ2lzdGVyIGRlZmluaXRpb25zCi0gKgotICogQ29weXJpZ2h0IChDKSAyMDA3IFJlZCBI
-YXQsIEluYy4gQWxsIFJpZ2h0cyBSZXNlcnZlZC4KLSAqIFdyaXR0ZW4gYnkgRGF2aWQgSG93ZWxs
-cyAoZGhvd2VsbHNAcmVkaGF0LmNvbSkKLSAqCi0gKiBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0
-d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yCi0gKiBtb2RpZnkgaXQgdW5kZXIg
-dGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5jZQotICogYXMgcHVibGlz
-aGVkIGJ5IHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uCi0gKiAy
-IG9mIHRoZSBMaWNlbmNlLCBvciAoYXQgeW91ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLgot
-ICovCi0KLSNpZm5kZWYgX0FTTV9WR0FfSAotI2RlZmluZSBfQVNNX1ZHQV9ICi0KLQotCi0jZW5k
-aWYgLyogX0FTTV9WR0FfSCAqLwpkaWZmIC0tZ2l0IGEvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL0ti
-dWlsZCBiL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9LYnVpbGQKaW5kZXggYjNjODg0NzlmZWJhLi5k
-NGQ0YjU1N2Y3NDYgMTAwNjQ0Ci0tLSBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9LYnVpbGQKKysr
-IGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL0tidWlsZApAQCAtMTYsNCArMTYsNSBAQCBnZW5lcmlj
-LXkgKz0gbWNzX3NwaW5sb2NrLmgKIGdlbmVyaWMteSArPSBtbS1hcmNoLWhvb2tzLmgKIGdlbmVy
-aWMteSArPSBwcmVlbXB0LmgKIGdlbmVyaWMteSArPSB0cmFjZV9jbG9jay5oCitnZW5lcmljLXkg
-Kz0gdmdhLmgKIGdlbmVyaWMteSArPSB3b3JkLWF0LWEtdGltZS5oCmRpZmYgLS1naXQgYS9hcmNo
-L3MzOTAvaW5jbHVkZS9hc20vdmdhLmggYi9hcmNoL3MzOTAvaW5jbHVkZS9hc20vdmdhLmgKZGVs
-ZXRlZCBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IGQzNzU1MjZjMjYxZi4uMDAwMDAwMDAwMDAwCi0t
-LSBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS92Z2EuaAorKysgL2Rldi9udWxsCkBAIC0xLDYgKzAs
-MCBAQAotI2lmbmRlZiBfQVNNX1MzOTBfVkdBX0gKLSNkZWZpbmUgX0FTTV9TMzkwX1ZHQV9ICi0K
-LS8qIEF2b2lkIGNvbXBpbGUgZXJyb3JzIGR1ZSB0byBtaXNzaW5nIGFzbS92Z2EuaCAqLwotCi0j
-ZW5kaWYgLyogX0FTTV9TMzkwX1ZHQV9IICovCmRpZmYgLS1naXQgYS9hcmNoL3NoL2luY2x1ZGUv
-YXNtL0tidWlsZCBiL2FyY2gvc2gvaW5jbHVkZS9hc20vS2J1aWxkCmluZGV4IDU5MGM5MWFlNzU0
-MS4uN2IwODlhY2E0MjcwIDEwMDY0NAotLS0gYS9hcmNoL3NoL2luY2x1ZGUvYXNtL0tidWlsZAor
-KysgYi9hcmNoL3NoL2luY2x1ZGUvYXNtL0tidWlsZApAQCAtMzYsNCArMzYsNSBAQCBnZW5lcmlj
-LXkgKz0gdGVybWJpdHMuaAogZ2VuZXJpYy15ICs9IHRlcm1pb3MuaAogZ2VuZXJpYy15ICs9IHRy
-YWNlX2Nsb2NrLmgKIGdlbmVyaWMteSArPSB1Y29udGV4dC5oCitnZW5lcmljLXkgKz0gdmdhLmgK
-IGdlbmVyaWMteSArPSB4b3IuaApkaWZmIC0tZ2l0IGEvYXJjaC9zaC9pbmNsdWRlL2FzbS92Z2Eu
-aCBiL2FyY2gvc2gvaW5jbHVkZS9hc20vdmdhLmgKZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0Cmlu
-ZGV4IDA2YTVkZThhY2UxYS4uMDAwMDAwMDAwMDAwCi0tLSBhL2FyY2gvc2gvaW5jbHVkZS9hc20v
-dmdhLmgKKysrIC9kZXYvbnVsbApAQCAtMSw2ICswLDAgQEAKLSNpZm5kZWYgX19BU01fU0hfVkdB
-X0gKLSNkZWZpbmUgX19BU01fU0hfVkdBX0gKLQotLyogU3R1cGlkIGRyaXZlcnMuICovCi0KLSNl
-bmRpZiAvKiBfX0FTTV9TSF9WR0FfSCAqLwotLSAKMi4xMy4xCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1k
-ZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcv
-bWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
+Hi Dave,
+
+On Mon, 19 Jun 2017 13:37:43 -0400 (EDT)
+David Miller <davem@davemloft.net> wrote:
+
+> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Date: Mon, 19 Jun 2017 17:34:25 +0200
+> 
+> > We (as in the s390 guys) tend to add __packed to hardware and hypervisor
+> > structures even if the attribute is not strictly necessary. Most of the
+> > diagnose related structures look that way. Dunno if it is worth to change
+> > them.  
+> 
+> It causes gcc to generate bad code on certain platforms (yes, probably not
+> yours) and is in general something to avoid.
+> 
+> Please do not use __packed unless absolutely necessary.
+> 
+> > The diag26c struct needs to be aligned on a doubleword boundary, the
+> > __aligned(8) is necessary.  
+> 
+> That's fine.
+> 
+> > The __packed attribute is again superfluous but follows along the
+> > lines of the other diag structures.  
+> 
+> Please remove it.
+
+I looked at the various structures with the packed attribute in arch/s390
+and found that we could remove a lot of them. As __packed also changes the
+alignment of the structure removing the attribute from structures defined
+in arch/s390/include/uapi/asm may cause trouble in user space. I stayed
+away from the uapi headers.
+
+For the rest of the code about 120 packed attributes could be removed, see:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/?h=packed-cleanup
+
+bloat-o-meter found only a few functions where the removal of packed
+makes a difference (gcc 7.1.0):
+
+add/remove: 1/1 grow/shrink: 8/7 up/down: 240/-308 (-68)
+function                                     old     new   delta
+pin_scb.isra                                   -     200    +200
+stp_sync_clock                               982    1000     +18
+stp_work_fn                                  416     420      +4
+sca_ext_call_pending                         290     294      +4
+kvm_arch_vcpu_create                        2008    2012      +4
+get_vcpu_asce                               1206    1210      +4
+hw_perf_event_update                        1738    1740      +2
+clp_add_pci_device                          1400    1402      +2
+__clp_rescan                                 162     164      +2
+stp_timing_state_show                        138     134      -4
+stp_timing_mode_show                         134     130      -4
+stp_ctn_type_show                            134     130      -4
+stp_time_offset_show                         150     144      -6
+ccw_device_accumulate_irb                   1838    1832      -6
+clp_misc_ioctl                              1142    1102     -40
+timing_alert_interrupt                       158     114     -44
+pin_scb                                      200       -    -200
+Total: Before=155168810, After=155168742, chg -0.00%
+
+The code gets minimally better. I am not convinced yet that this is worth
+the hassle. These structures are architecture specific and the s390 CPUs
+are perfectly fine with unaligned accesses.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
