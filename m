@@ -1,47 +1,31 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH] docs-rst: fix broken links to dynamic-debug-howto in kernel-parameters
-Date: Wed, 14 Jun 2017 12:24:12 +0200
-Message-Id: <20170614102412.82379-1-maier@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Mauro Carvalho Chehab <mchehab@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Jason Baron <jbaron@akamai.com>, Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Steffen Maier <maier@linux.vnet.ibm.com>
+From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Subject: Re: [GIT PULL 0/1] KVM: s390: fix for 4.12 (via kvm/master)
+Date: Thu, 22 Jun 2017 16:18:06 +0200
+Message-ID: <20170622141806.GB5687@potion>
+References: <1498138467-29808-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1498138467-29808-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Another place in lib/Kconfig.debug was already fixed in commit f8998c226587
-("lib/Kconfig.debug: correct documentation paths").
+2017-06-22 15:34+0200, Christian Borntraeger:
+> Paolo, Radim,
+> 
+> a late bugfix for 4.12.
+> 
+> The following changes since commit 1ba15b24f07c44f68067959522639226c963e212:
+> 
+>   KVM: s390: fix ais handling vs cpu model (2017-05-31 19:54:49 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.12-2
 
-Fixes: 9d85025b0418 ("docs-rst: create an user's manual book")
-Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
----
- Documentation/admin-guide/kernel-parameters.txt | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index facc20a3f962..774569e02959 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -721,7 +721,8 @@
- 			See also Documentation/input/joystick-parport.txt
- 
- 	ddebug_query=   [KNL,DYNAMIC_DEBUG] Enable debug messages at early boot
--			time. See Documentation/dynamic-debug-howto.txt for
-+			time. See
-+			Documentation/admin-guide/dynamic-debug-howto.rst for
- 			details.  Deprecated, see dyndbg.
- 
- 	debug		[KNL] Enable kernel debugging (events log level).
-@@ -875,7 +876,8 @@
- 	dyndbg[="val"]		[KNL,DYNAMIC_DEBUG]
- 	module.dyndbg[="val"]
- 			Enable debug messages at boot time.  See
--			Documentation/dynamic-debug-howto.txt for details.
-+			Documentation/admin-guide/dynamic-debug-howto.rst
-+			for details.
- 
- 	nompx		[X86] Disables Intel Memory Protection Extensions.
- 			See Documentation/x86/intel_mpx.txt for more
--- 
-2.11.2
+Pulled, thanks.
