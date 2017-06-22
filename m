@@ -1,93 +1,57 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: [PATCH 0/7] rwsem: Implement down_read_killable()
-From: Kirill Tkhai <ktkhai@virtuozzo.com>
-Date: Mon, 19 Jun 2017 21:02:00 +0300
-Message-ID: <149789463636.9059.16943955939303454611.stgit@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20170619180200.9jzmDGDBKZHdfFKf3iCHe7N7UhqaxG-FfpPV_v0g52U@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-ia64@vger.kernel.org, avagin@virtuozzo.com, peterz@infradead.org, heiko.carstens@de.ibm.com, hpa@zytor.com, gorcunov@virtuozzo.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, mingo@redhat.com, mattst88@gmail.com, fenghua.yu@intel.com, arnd@arndb.de, ktkhai@virtuozzo.com, ink@jurassic.park.msu.ru, tglx@linutronix.de, rth@twiddle.net, tony.luck@intel.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, davem@davemloft.net
+From: Kees Cook <keescook@chromium.org>
+Date: Thu, 22 Jun 2017 11:06:30 -0700
+Message-Id: <1498154792-49952-3-git-send-email-keescook@chromium.org>
+In-Reply-To: <1498154792-49952-1-git-send-email-keescook@chromium.org>
+References: <1498154792-49952-1-git-send-email-keescook@chromium.org>
+Subject: [kernel-hardening] [PATCH 2/4] arm64: Reduce ELF_ET_DYN_BASE
+List-Archive: <https://lore.kernel.org/kernel-hardening/>
+List-Post: <mailto:kernel-hardening@lists.openwall.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Kees Cook <keescook@chromium.org>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, James Hogan <james.hogan@imgtec.com>, Pratyush Anand <panand@redhat.com>, Ingo Molnar <mingo@kernel.org>, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, kernel-hardening@lists.openwall.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This series implements killable version of down_read()
-similar to already existing down_write_killable() function.
-Patches [1-2/7] add arch-independent low-level primitives
-for the both rwsem types.
+Now that explicitly executed loaders are loaded in the mmap region,
+position PIE binaries lower in the address space to avoid possible
+collisions with mmap or stack regions. For 64-bit, align to 4GB to
+allow runtimes to use the entire 32-bit address space for 32-bit
+pointers.
 
-Patches [3-6/7] add arch-dependent primitives for
-the architectures, that use rwsem-xadd implementation.
-The assembly code was modified in x86 case only, the rest
-of architectures does not need such change.
-
-I tested the series in x86 (which uses RWSEM_XCHGADD_ALGORITHM
-config option), and also the RWSEM_GENERIC_SPINLOCK case,
-which were manually written in Kconfig. alpha, ia64 and s390
-are compile-tested only, but I believe, their changes are
-pretty easy. Please, people, who work with them, take your
-look at the corresponding patches.
-
-***
-
-Where this came from. Cycle of creation/destroying net
-namespace is slow at the moment as it's made under net_mutex.
-During cleanup_net(), the mutex is held the whole time,
-while RCU is synchronizing. This takes a lot of time,
-especially when RCU is preemptible, and at this time
-the creation of new net namespaces is blocked. But
-this moment may be optimized by using small locks
-in pernet callbacks, where they are need, and by
-converting net_mutex into rw semaphore. In cleanup_net()
-it's only need to prevent from registration/unregistration
-of pernet_subsys and pernet_devices, which actions
-can't be missed by unhashed dead net namespace.
-down_read guarantees that, and it's lite-weight.
-
-Using the rwsem improves the create/destroy cycle performance
-on my development kernel much:
-
-$time for i in {1..10000}; do unshare -n -- bash -c exit; done
-
-MUTEX:
-real 1m13,372s
-user 0m9,278s
-sys 0m17.181s
-
-RWSEM:
-real 0m17,482s
-user 0m3,791s
-sys 0m13,723s
-
-Of course, it's just an example, and it's a generic use
-function. It may be used in other places.
-
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
+ arch/arm64/include/asm/elf.h | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-Kirill Tkhai (7):
-      rwsem-spinlock: Add killable versions of __down_read()
-      rwsem-spinlock: Add killable versions of rwsem_down_read_failed()
-      alpha: Add __down_read_killable()
-      ia64: Add __down_read_killable()
-      s390: Add __down_read_killable()
-      x86: Add __down_read_killable()
-      rwsem: Add down_read_killable()
-
-
- arch/alpha/include/asm/rwsem.h  |   18 ++++++++++++++++--
- arch/ia64/include/asm/rwsem.h   |   22 +++++++++++++++++++---
- arch/s390/include/asm/rwsem.h   |   18 ++++++++++++++++--
- arch/x86/include/asm/rwsem.h    |   37 +++++++++++++++++++++++++++----------
- arch/x86/lib/rwsem.S            |   12 ++++++++++++
- include/asm-generic/rwsem.h     |    8 ++++++++
- include/linux/rwsem-spinlock.h  |    1 +
- include/linux/rwsem.h           |    2 ++
- kernel/locking/rwsem-spinlock.c |   37 ++++++++++++++++++++++++++++---------
- kernel/locking/rwsem-xadd.c     |   33 ++++++++++++++++++++++++++++++---
- kernel/locking/rwsem.c          |   16 ++++++++++++++++
- 11 files changed, 175 insertions(+), 29 deletions(-)
-
---
-Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+diff --git a/arch/arm64/include/asm/elf.h b/arch/arm64/include/asm/elf.h
+index 5d1700425efe..f742af8f7c42 100644
+--- a/arch/arm64/include/asm/elf.h
++++ b/arch/arm64/include/asm/elf.h
+@@ -113,12 +113,13 @@
+ #define ELF_EXEC_PAGESIZE	PAGE_SIZE
+ 
+ /*
+- * This is the location that an ET_DYN program is loaded if exec'ed.  Typical
+- * use of this is to invoke "./ld.so someprog" to test out a new version of
+- * the loader.  We need to make sure that it is out of the way of the program
+- * that it will "exec", and that there is sufficient room for the brk.
++ * This is the base location for PIE (ET_DYN with INTERP) loads. On
++ * 64-bit, this is raised to 4GB to leave the entire 32-bit address
++ * space open for things that want to use the area for 32-bit pointers.
+  */
+-#define ELF_ET_DYN_BASE	(2 * TASK_SIZE_64 / 3)
++#define ELF_ET_DYN_BASE		(test_thread_flag(TIF_32BIT) ?	\
++					0x000400000UL :		\
++					0x100000000UL)
+ 
+ #ifndef __ASSEMBLY__
+ 
+@@ -173,8 +174,6 @@ extern int arch_setup_additional_pages(struct linux_binprm *bprm,
+ 
+ #ifdef CONFIG_COMPAT
+ 
+-#define COMPAT_ELF_ET_DYN_BASE		(2 * TASK_SIZE_32 / 3)
+-
+ /* AArch32 registers. */
+ #define COMPAT_ELF_NGREG		18
+ typedef unsigned int			compat_elf_greg_t;
+-- 
+2.7.4
