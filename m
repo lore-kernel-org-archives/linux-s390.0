@@ -1,75 +1,27 @@
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 2/4] s390/qeth: fix packing buffer statistics
-Date: Mon, 19 Jun 2017 13:22:23 +0200
-Message-ID: <20170619112225.30471-3-jwi@linux.vnet.ibm.com>
-References: <20170619112225.30471-1-jwi@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170619112225.30471-1-jwi@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 22 Jun 2017 10:24:55 -0600
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] docs-rst: fix broken links to dynamic-debug-howto in
+ kernel-parameters
+Message-ID: <20170622102455.7b09ad30@lwn.net>
+In-Reply-To: <20170614102412.82379-1-maier@linux.vnet.ibm.com>
+References: <20170614102412.82379-1-maier@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Steffen Maier <maier@linux.vnet.ibm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, Jason Baron <jbaron@akamai.com>, Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-There's two spots in qeth_send_packet() where we don't accurately
-account for transmitted packing buffers in qeth's performance
-statistics:
+On Wed, 14 Jun 2017 12:24:12 +0200
+Steffen Maier <maier@linux.vnet.ibm.com> wrote:
 
-1) when flushing the current buffer due to insufficient size,
-   and the next buffer is not EMPTY, we need to account for that
-   flushed buffer.
-2) when synchronizing with the TX completion code, we reset
-   flush_count and thus forget to account for any previously
-   flushed buffers.
+> Another place in lib/Kconfig.debug was already fixed in commit f8998c226587
+> ("lib/Kconfig.debug: correct documentation paths").
 
-Reported-by: Nils Hoppmann <niho@de.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+Applied to the docs tree, thanks.
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 08338f27c82c..13a55f1dee7a 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4103,7 +4103,8 @@ int qeth_do_send_packet(struct qeth_card *card, struct qeth_qdio_out_q *queue,
- 							   flush_count);
- 				atomic_set(&queue->state,
- 						QETH_OUT_Q_UNLOCKED);
--				return -EBUSY;
-+				rc = -EBUSY;
-+				goto out;
- 			}
- 		}
- 	}
-@@ -4122,19 +4123,21 @@ int qeth_do_send_packet(struct qeth_card *card, struct qeth_qdio_out_q *queue,
- 	 * In that case we will enter this loop
- 	 */
- 	while (atomic_dec_return(&queue->state)) {
--		flush_count = 0;
- 		start_index = queue->next_buf_to_fill;
- 		/* check if we can go back to non-packing state */
--		flush_count += qeth_switch_to_nonpacking_if_needed(queue);
-+		tmp = qeth_switch_to_nonpacking_if_needed(queue);
- 		/*
- 		 * check if we need to flush a packing buffer to get a pci
- 		 * flag out on the queue
- 		 */
--		if (!flush_count && !atomic_read(&queue->set_pci_flags_count))
--			flush_count += qeth_prep_flush_pack_buffer(queue);
--		if (flush_count)
--			qeth_flush_buffers(queue, start_index, flush_count);
-+		if (!tmp && !atomic_read(&queue->set_pci_flags_count))
-+			tmp = qeth_prep_flush_pack_buffer(queue);
-+		if (tmp) {
-+			qeth_flush_buffers(queue, start_index, tmp);
-+			flush_count += tmp;
-+		}
- 	}
-+out:
- 	/* at this point the queue is UNLOCKED again */
- 	if (queue->card->options.performance_stats && do_pack)
- 		queue->card->perf_stats.bufs_sent_pack += flush_count;
--- 
-2.11.2
+jon
