@@ -1,31 +1,103 @@
-From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Subject: Re: [GIT PULL 0/1] KVM: s390: fix for 4.12 (via kvm/master)
-Date: Thu, 22 Jun 2017 16:18:06 +0200
-Message-ID: <20170622141806.GB5687@potion>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/1] KVM: s390: gaccess: fix real-space designation asce handling for gmap shadows
+Date: Thu, 22 Jun 2017 15:34:27 +0200
+Message-ID: <1498138467-29808-2-git-send-email-borntraeger@de.ibm.com>
 References: <1498138467-29808-1-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <1498138467-29808-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-2017-06-22 15:34+0200, Christian Borntraeger:
-> Paolo, Radim,
-> 
-> a late bugfix for 4.12.
-> 
-> The following changes since commit 1ba15b24f07c44f68067959522639226c963e212:
-> 
->   KVM: s390: fix ais handling vs cpu model (2017-05-31 19:54:49 +0200)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.12-2
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Pulled, thanks.
+For real-space designation asces the asce origin part is only a token.
+The asce token origin must not be used to generate an effective
+address for storage references. This however is erroneously done
+within kvm_s390_shadow_tables().
+
+Furthermore within the same function the wrong parts of virtual
+addresses are used to generate a corresponding real address
+(e.g. the region second index is used as region first index).
+
+Both of the above can result in incorrect address translations. Only
+for real space designations with a token origin of zero and addresses
+below one megabyte the translation was correct.
+
+Furthermore replace a "!asce.r" statement with a "!*fake" statement to
+make it more obvious that a specific condition has nothing to do with
+the architecture, but with the fake handling of real space designations.
+
+Fixes: 3218f7094b6b ("s390/mm: support real-space for gmap shadows")
+Cc: David Hildenbrand <david@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/gaccess.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 9da243d..3b297fa 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -977,11 +977,12 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 	ptr = asce.origin * 4096;
+ 	if (asce.r) {
+ 		*fake = 1;
++		ptr = 0;
+ 		asce.dt = ASCE_TYPE_REGION1;
+ 	}
+ 	switch (asce.dt) {
+ 	case ASCE_TYPE_REGION1:
+-		if (vaddr.rfx01 > asce.tl && !asce.r)
++		if (vaddr.rfx01 > asce.tl && !*fake)
+ 			return PGM_REGION_FIRST_TRANS;
+ 		break;
+ 	case ASCE_TYPE_REGION2:
+@@ -1009,8 +1010,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 		union region1_table_entry rfte;
+ 
+ 		if (*fake) {
+-			/* offset in 16EB guest memory block */
+-			ptr = ptr + ((unsigned long) vaddr.rsx << 53UL);
++			ptr += (unsigned long) vaddr.rfx << 53;
+ 			rfte.val = ptr;
+ 			goto shadow_r2t;
+ 		}
+@@ -1036,8 +1036,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 		union region2_table_entry rste;
+ 
+ 		if (*fake) {
+-			/* offset in 8PB guest memory block */
+-			ptr = ptr + ((unsigned long) vaddr.rtx << 42UL);
++			ptr += (unsigned long) vaddr.rsx << 42;
+ 			rste.val = ptr;
+ 			goto shadow_r3t;
+ 		}
+@@ -1064,8 +1063,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 		union region3_table_entry rtte;
+ 
+ 		if (*fake) {
+-			/* offset in 4TB guest memory block */
+-			ptr = ptr + ((unsigned long) vaddr.sx << 31UL);
++			ptr += (unsigned long) vaddr.rtx << 31;
+ 			rtte.val = ptr;
+ 			goto shadow_sgt;
+ 		}
+@@ -1101,8 +1099,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 		union segment_table_entry ste;
+ 
+ 		if (*fake) {
+-			/* offset in 2G guest memory block */
+-			ptr = ptr + ((unsigned long) vaddr.sx << 20UL);
++			ptr += (unsigned long) vaddr.sx << 20;
+ 			ste.val = ptr;
+ 			goto shadow_pgt;
+ 		}
+-- 
+2.7.4
