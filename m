@@ -1,76 +1,83 @@
-From: tndave <tushar.n.dave@oracle.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: clean up and modularize arch dma_mapping interface V2
-Date: Wed, 21 Jun 2017 12:24:28 -0700
-Message-ID: <162d7932-5766-4c29-5471-07d1b699190a@oracle.com>
+Date: Sat, 24 Jun 2017 10:36:56 -0500
+Message-ID: <1498318616.31581.87.camel@kernel.crashing.org>
 References: <20170616181059.19206-1-hch@lst.de>
+ <162d7932-5766-4c29-5471-07d1b699190a@oracle.com>
+ <20170624071855.GD14580@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <20170616181059.19206-1-hch@lst.de>
-Content-Language: en-US
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/dri-devel/>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170624071855.GD14580@lst.de>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
 List-Post: <mailto:dri-devel@lists.freedesktop.org>
-To: Christoph Hellwig <hch@lst.de>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+List-Archive: <https://lore.kernel.org/dri-devel/>
+To: Christoph Hellwig <hch@lst.de>, tndave <tushar.n.dave@oracle.com>
+Cc: linux-mips@linux-mips.org, sparclinux@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, dmaengine@vger.kernel.org, iommu@lists.linux-foundation.org, openrisc@lists.librecores.org, linux-hexagon@vger.kernel.org, linux-tegra@vger.kernel.org, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 06/16/2017 11:10 AM, Christoph Hellwig wrote:
-> Hi all,
-> 
-> for a while we have a generic implementation of the dma mapping routines
-> that call into per-arch or per-device operations.  But right now there
-> still are various bits in the interfaces where don't clearly operate
-> on these ops.  This series tries to clean up a lot of those (but not all
-> yet, but the series is big enough).  It gets rid of the DMA_ERROR_CODE
-> way of signaling failures of the mapping routines from the
-> implementations to the generic code (and cleans up various drivers that
-> were incorrectly using it), and gets rid of the ->set_dma_mask routine
-> in favor of relying on the ->dma_capable method that can be used in
-> the same way, but which requires less code duplication.
-Chris,
-
-Thanks for doing this.
-So archs can still have their own definition for dma_set_mask() if 
-HAVE_ARCH_DMA_SET_MASK is y?
-(and similarly for dma_set_coherent_mask() when 
-CONFIG_ARCH_HAS_DMA_SET_COHERENT_MASK is y)
-Any plan to change these?
-
-I'm in a process of making some changes to SPARC iommu so it would be 
-good to know. Thanks.
-
--Tushar
-
-> 
-> I've got a good number of reviews last time, but a few are still missing.
-> I'd love to not have to re-spam everyone with this patchbomb, so early
-> ACKs (or complaints) are welcome.
-> 
-> I plan to create a new dma-mapping tree to collect all this work.
-> Any volunteers for co-maintainers, especially from the iommu gang?
-> 
-> The whole series is also available in git:
-> 
->      git://git.infradead.org/users/hch/misc.git dma-map
-> 
-> Gitweb:
-> 
->      http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-map
-> 
-> Changes since V1:
->   - remove two lines of code from arm dmabounce
->   - a few commit message tweaks
->   - lots of ACKs
-> 
+T24gU2F0LCAyMDE3LTA2LTI0IGF0IDA5OjE4ICswMjAwLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90
+ZToKPiBPbiBXZWQsIEp1biAyMSwgMjAxNyBhdCAxMjoyNDoyOFBNIC0wNzAwLCB0bmRhdmUgd3Jv
+dGU6Cj4gPiBUaGFua3MgZm9yIGRvaW5nIHRoaXMuCj4gPiBTbyBhcmNocyBjYW4gc3RpbGwgaGF2
+ZSB0aGVpciBvd24gZGVmaW5pdGlvbiBmb3IgZG1hX3NldF9tYXNrKCkgaWYgCj4gPiBIQVZFX0FS
+Q0hfRE1BX1NFVF9NQVNLIGlzIHk/Cj4gPiAoYW5kIHNpbWlsYXJseSBmb3IgZG1hX3NldF9jb2hl
+cmVudF9tYXNrKCkgd2hlbiAKPiA+IENPTkZJR19BUkNIX0hBU19ETUFfU0VUX0NPSEVSRU5UX01B
+U0sgaXMgeSkKPiA+IEFueSBwbGFuIHRvIGNoYW5nZSB0aGVzZT8KPiAKPiBZZXMsIHRob3NlIHNo
+b3VsZCBnbyBhd2F5LCBidXQgSSdtIG5vdCBlbnRpcmVseSBzdXJlIGhvdyB5ZXQuICBXZSdsbAo+
+IG5lZWQgc29tZSBob29rIGZvciBzd2l0Y2hpbmcgYmV0d2VlbiBhbiBJT01NVSBhbmQgYSBkaXJl
+Y3QgbWFwcGluZwo+IChJIGd1ZXNzIHRoYXQncyB3aGF0IHlvdSB3YW50IHRvIGRvIGZvciBzcGFy
+YyBhcyB3ZWxsPyksIGFuZCBJIG5lZWQKPiB0byBmaW5kIHRoZSBiZXN0IHdheSB0byBkbyB0aGF0
+LiAgUmVpbXBsZW1lbnRpbmcgYWxsIG9mIGRtYV9zZXRfbWFzawo+IGFuZCBkbWFfc2V0X2NvaGVy
+ZW50X21hc2sgaXMgc29tZXRoaW5nIHRoYXQgSSB3YW50IHRvIG1vdmUgYXdheSBmcm9tLgoKSSB0
+aGluayB3ZSBzdGlsbCBuZWVkIHRvIGRvIGl0LiBGb3IgZXhhbXBsZSB3ZSBoYXZlIGEgYnVuY2gg
+bmV3ICJmdW5reSIKY2FzZXMuCgpXZSBhbHJlYWR5IGhhdmUgdGhlIGNhc2Ugd2hlcmUgd2UgbWl4
+IHRoZSBkaXJlY3QgYW5kIGlvbW11IG1hcHBpbmdzLApvbiBzb21lIHBvd2VycGMgcGxhdGZvcm1z
+IHRoYXQgdHJhbnNsYXRlcyBpbiBhbiBpb21tdSBtYXBwaW5nIGRvd24gYXQKMCBmb3IgdGhlIDMy
+LWJpdCBzcGFjZSBhbmQgYSBkaXJlY3QgbWFwcGluZyBoaWdoIHVwIGluIHRoZSBQQ0kgYWRkcmVz
+cwpzcGFjZSAod2hpY2ggY3JvcHMgdGhlIHRvcCBiaXRzIGFuZCB0aHVzIGhpdHMgbWVtb3J5IGF0
+IDAgb253YXJkcykuCgpUaGlzIHR5cGUgb2YgaHlicmlkIGxheW91dCBpcyBuZWVkZWQgYnkgc29t
+ZSBhZGFwdGVycywgdHlwaWNhbGx5CnN0b3JhZ2UsIHdoaWNoIHdhbnQgdG8ga2VlcCB0aGUgImNv
+aGVyZW50IiBtYXNrIGF0IDMyLWJpdCBidXQgc3VwcG9ydAo2NC1iaXQgZm9yIHN0cmVhbWluZyBt
+YXNrcy4KCkFub3RoZXIgb25lIHdlIGFyZSB0cnlpbmcgdG8gZGVhbCBiZXR0ZXIgd2l0aCBhdCB0
+aGUgbW9tZW50IGlzIGRldmljZXMKd2l0aCBETUEgYWRkcmVzc2luZyBsaW1pdGF0aW9ucy4gU29t
+ZSBHUFVzIHR5cGljYWxseSAoYnV0IG5vdCBvbmx5KQpoYXZlIGxpbWl0cyB0aGF0IGdvIGFsbCBh
+Y2Nyb3NzIHRoZSBnYW11dCwgdHlwaWNhbGx5IEkndmUgc2VlbiA0MCBiaXRzLAo0NCBiaXRzIGFu
+ZCA0NyBiaXRzLi4uIEFuZCBvZiBjb3Vyc2UgdGhvc2UgYXJlICJoaWdoIHBlZm9ybWFuY2UiCmFk
+YXB0ZXJzIHNvIHdlIGRvbid0IHdhbnQgdG8gbGltaXQgdGhlbSB0byB0aGUgY29tcGFyYXRpdmVs
+eSBzbWFsbAppb21tdSBtYXBwaW5nIHdpdGggZXh0cmEgb3ZlcmhlYWQuCgpBdCB0aGUgbW9tZW50
+LCB3ZSdyZSBsb29raW5nIGF0IGEgZG1hX3NldF9tYXNrKCkgaG9vayB0aGF0IHdpbGwsIGZvcgp0
+aGVzZSBndXlzLCByZS1jb25maWd1cmUgdGhlIGlvbW11IG1hcHBpbmcgdG8gY3JlYXRlIGEgImNv
+bXByZXNzZWQiCmxpbmVhciBtYXBwaW5nIG9mIHN5c3RlbSBtZW1vcnkgKGllLCBza2lwcGluZyB0
+aGUgaG9sZXMgd2UgaGF2ZSBiZXR3ZWVuCmNoaXAgb24gUDkgZm9yIGV4YW1wbGUpIHVzaW5nIHRo
+ZSBsYXJnZXN0IHBvc3NpYmxlIGlvbW11IHBhZ2Ugc2l6ZQooMjU2TSBvbiBQOCwgMUcgb24gUDkp
+LgoKVGhpcyBpcyBtYWRlIHRyaWNreSBvZiBjb3Vyc2UgYmVjYXVzZSBzZXZlcmFsIGRldmljZXMg
+Y2FuIHBvdGVudGlhbGx5CnNoYXJlIGEgRE1BIGRvbWFpbiBiYXNlZCBvbiB2YXJpb3VzIHBsYXRm
+b3JtIHNwZWNpZmljIHJlYXNvbnMuIEFuZCBvZgpjb3Vyc2Ugd2UgaGF2ZSBubyB3YXkgdG8gZmln
+dXJlIG91dCB3aGF0J3MgdGhlICJjb21tb24gZGVub21pbmF0b3IiIG9mCmFsbCB0aG9zZSBkZXZp
+Y2VzIGJlZm9yZSB0aGV5IHN0YXJ0IGRvaW5nIERNQS4gQSBkcml2ZXIgY2FuIHN0YXJ0CmJlZm9y
+ZSB0aGUgbmVpZ2hib3VyIGlzIHByb2JlZCBhbmQgYSBkcml2ZXIgY2FuIHN0YXJ0IGRvaW5nIERN
+QXMgdXNpbmcKdGhlIHN0YW5kYXJkIDMyLWJpdCBtYXBwaW5nIHdpdGhvdXQgZG9pbmcgZG1hX3Nl
+dF9tYXNrKCkuCgpTbyBoZXVyaXN0aWNzIC4uLiB1Z2guIEJldHRlciBpZGVhcyB3ZWxjb21lIDot
+KSBBbGwgdGhhdCB0byBzYXkgdGhhdCB3ZQphcmUgZmFyIGZyb20gYmVpbmcgYWJsZSB0byBnZXQg
+cmlkIG9mIGRtYV9zZXRfbWFzaygpIGN1c3RvbQppbXBsZW1lbnRhdGlvbnMgKGFuZCBjb2hlcmVu
+dCBtYXNrIHRvbykuCgpJIHdhcyB0ZW1wdGVkIGF0IHNvbWUgcG9pbnQgcmV0aXJpbmcgdGhlIDMy
+LWJpdCBpb21tdSBtYXBwaW5nCmNvbXBsZXRlbHksIGp1c3QgZG9pbmcgdGhhdCAibGluZWFyIiB0
+aGluZyBJIG1lbnRpb25lZCBhYm92ZSBhbmQKc3dpb3RsYiBmb3IgdGhlIHJlc3QsIGFsb25nIHdp
+dGggaW50cm9kdWNpbmcgWk9ORV9ETUEzMiBvbiBwb3dlcnBjCih3aXRoIHRoZSByZWFsIDY0LWJp
+dCBieXBhc3Mgc3RpbGwgYXJvdW5kIGZvciBub24tbGltaXRlZCBkZXZpY2VzIGJ1dAp0aGF0J3Mg
+dGhlbiBqdXN0IGV4dHJhIHNwZWVkIGJ5IGJ5cGFzc2luZyB0aGUgaW9tbXUgeGxhdGUgJiBjYWNo
+ZSkuCgpCdXQgSSB3b3JyeSBvZiB0aGUgaW1wYWN0IG9uIHRob3NlIHNpbGx5IGFkYXB0ZXJzIHRo
+YXQgc2V0IHRoZSBjb2hlcmVudAptYXNrIHRvIDMyLWJpdHMgdG8ga2VlcCB0aGVpciBtaWNyb2Nv
+ZGUgJiBkZXNjcmlwdG9yIHJpbmcgZG93biBpbiAzMi0KYml0IHNwYWNlLiBJJ20gbm90IHN1cmUg
+aG93IHdlbGwgWk9ORV9ETUEzMiBiZWhhdmVzIGluIHRob3NlIGNhc2VzLgoKQ2hlZXJzLApCZW4u
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2
+ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9s
+aXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
