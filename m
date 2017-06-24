@@ -1,47 +1,42 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Mon, 26 Jun 2017 13:08:14 +0100
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH 1/1] futex: remove duplicated code and fix UB
-Message-ID: <20170626120814.GF1691@arm.com>
-References: <20170621115318.2781-1-jslaby@suse.cz>
- <alpine.DEB.2.20.1706230017520.2221@nanos>
- <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
+Return-Path: <linux-pci-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20170626120814.Cm6zMJ83tNwUZoppZ9xNShO7ovWYQdJ5R8LR0gY2ScA@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: Thomas Gleixner <tglx@linutronix.de>, mingo@redhat.com, peterz@infradead.org, dvhart@infradead.org, linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org
+In-Reply-To: <20170624015044.16746-2-palmer@dabbelt.com>
+References: <20170624015044.16746-1-palmer@dabbelt.com> <20170624015044.16746-2-palmer@dabbelt.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Sat, 24 Jun 2017 11:34:06 +0200
+Message-ID: <CAMuHMdWd_4GzySTWsb5PupBw3UkLUKAwE-OvAgHScZutT-wiNQ@mail.gmail.com>
+Subject: Re: [PATCH 1/3] pci: Add a generic, weakly-linked pcibios_fixup_bus
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-pci-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-pci/>
+List-Post: <mailto:linux-pci@vger.kernel.org>
+To: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: linux-pci <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Christoph Hellwig <hch@infradead.org>, Arnd Bergmann <arnd@arndb.de>, arcml <linux-snps-arc@lists.infradead.org>, Cris <linux-cris-kernel@axis.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jun 26, 2017 at 02:02:31PM +0200, Jiri Slaby wrote:
-> On 06/23/2017, 09:51 AM, Thomas Gleixner wrote:
-> > On Wed, 21 Jun 2017, Jiri Slaby wrote:
-> >> diff --git a/arch/arm64/include/asm/futex.h b/arch/arm64/include/asm/futex.h
-> >> index f32b42e8725d..5bb2fd4674e7 100644
-> >> --- a/arch/arm64/include/asm/futex.h
-> >> +++ b/arch/arm64/include/asm/futex.h
-> >> @@ -48,20 +48,10 @@ do {									\
-> >>  } while (0)
-> >>  
-> >>  static inline int
-> >> -futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
-> > 
-> > That unsigned int seems to be a change from the arm64 tree in next. It's
-> > not upstream and it'll cause a (easy to resolve) conflict.
-> 
-> Ugh, I thought the arm64 is in upstream already. Note that this patch
-> just takes what is in this arm64 fix and makes it effective for all
-> architectures. So I will wait with v2 until it merges upstream.
-> 
-> So, Will, will you incorporate Thomas' comments into your arm64 fix?
+Hi Palmer,
 
-I wasn't planning to (it's already queued and I think they're just cosmetic
-changes). The easiest thing is probably for you to make the changes in the
-generic version when you post v2.
+On Sat, Jun 24, 2017 at 3:50 AM, Palmer Dabbelt <palmer@dabbelt.com> wrote:
+> Multiple architectures define this as an empty function, and I'm adding
+> another one as part of the RISC-V port.  This adds a __weak version of
+> pci_fixup_bios and deletes the now obselete ones in a handful of ports.
+>
+> The only functional change should be that microblaze used to export
+> pcibios_fixup_bus.  None of the other architectures export this, so I
+> just dropped it.
+>
+> Signed-off-by: Palmer Dabbelt <palmer@dabbelt.com>
 
-Will
+Given this is an empty function, wouldn't it make more sense to have
+a static inline in asm-generic, protected by #ifndef pcibios_fixup_bus?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
