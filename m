@@ -1,40 +1,33 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 2/2] af_iucv: Move sockaddr length checks to
- before accessing sa_family in bind and connect handlers
-Date: Fri, 23 Jun 2017 14:53:45 -0400 (EDT)
-Message-ID: <20170623.145345.2050178619729566336.davem@davemloft.net>
+Subject: Re: [PATCH net-next 1/2] net/iucv: improve endianness handling
+Date: Sun, 25 Jun 2017 11:43:11 -0400 (EDT)
+Message-ID: <20170625.114311.1334785519251494698.davem@davemloft.net>
 References: <20170623173228.70128-1-jwi@linux.vnet.ibm.com>
-        <20170623173228.70128-3-jwi@linux.vnet.ibm.com>
-        <90c818a5-af59-3115-64c2-582c2dcc520b@hartkopp.net>
+        <20170623173228.70128-2-jwi@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <90c818a5-af59-3115-64c2-582c2dcc520b@hartkopp.net>
+In-Reply-To: <20170623173228.70128-2-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: socketcan@hartkopp.net
-Cc: jwi@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: jwi@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Fri, 23 Jun 2017 19:36:12 +0200
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Date: Fri, 23 Jun 2017 19:32:27 +0200
 
+> From: Hans Wippel <hwippel@linux.vnet.ibm.com>
 > 
+> Use proper endianness conversion for an skb protocol assignment. Given
+> that IUCV is only available on big endian systems (s390), this simply
+> avoids an endianness warning reported by sparse.
 > 
-> On 06/23/2017 07:32 PM, Julian Wiedmann wrote:
->> From: Mateusz Jurczyk <mjurczyk@google.com>
->> 
->> Verify that the caller-provided sockaddr structure is large enough to
->> contain the sa_family field, before accessing it in bind() and connect()
->> handlers of the AF_IUCV socket. Since neither syscall enforces a minimum
->> size of the corresponding memory region, very short sockaddrs (zero or
->> one byte long) result in operating on uninitialized memory while
->> referencing .sa_family.
-> 
-> Won't it make sense to generally check the minimum length for .sa_family at a
-> single point before fixing all called sites?
+> Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
+> Reviewed-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+> Reviewed-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+> Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 
-We had this discussion last week and we decided that putting it into
-the handlers is the way to go for now.
+Applied.
