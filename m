@@ -1,60 +1,57 @@
-Return-Path: <linux-pci-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 26 Jun 2017 07:04:45 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] one last s390 patch for 4.12-rc8/4.12
 MIME-Version: 1.0
-In-Reply-To: <20170624015044.16746-3-palmer@dabbelt.com>
-References: <20170624015044.16746-1-palmer@dabbelt.com> <20170624015044.16746-3-palmer@dabbelt.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Sat, 24 Jun 2017 11:41:42 +0200
-Message-ID: <CAMuHMdWrn4C5nwRSrA8i_8sFtpRbuQH9vtNWjq5rM5_Si15kbw@mail.gmail.com>
-Subject: Re: [PATCH 2/3] pci: Add a generic, weakly-linked pcibios_align_resource
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-pci-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-pci/>
-List-Post: <mailto:linux-pci@vger.kernel.org>
-To: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-pci <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Christoph Hellwig <hch@infradead.org>, Arnd Bergmann <arnd@arndb.de>, arcml <linux-snps-arc@lists.infradead.org>, Cris <linux-cris-kernel@axis.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20170626070445.003029a5@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Palmer,
+Hi Linus,
 
-On Sat, Jun 24, 2017 at 3:50 AM, Palmer Dabbelt <palmer@dabbelt.com> wrote:
-> Multiple architectures define this as trivial function, and I'm adding
-> another one as part of the RISC-V port.  This adds a __weak version of
-> pcibios_align_resource and deletes the now obselete ones in a handful of
-> ports.
->
-> The only functional change should be that a handful of ports used to
-> export pcibios_fixup_bus.  Only some architectures export this, so I
-> just dropped it.
->
-> Signed-off-by: Palmer Dabbelt <palmer@dabbelt.com>
+please pull from the 'for-linus' branch of
 
-This function is only ever used as a pointer passed to
-pci_bus_alloc_resource()?
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-What about having
+to receive the following updates:
 
-    #ifndef pcibios_fixup_bus
-    #define pcibios_fixup_bus NULL
-    #endif
+Revert the re-IPL semantics back to the v4.7 state. It turned out that
+the memory layout may change due to memory hotplug if load-normal is used.
 
-in asm-generic/pci.h, letting the architecture with a non-trivial
-implementation predefine the preprocessor symbol, and teaching
-pci_bus_alloc_resource() to handle NULL?
+Heiko Carstens (1):
+      s390/ipl: revert Load Normal semantics for LPAR CCW-type re-IPL
 
-[...]
+ arch/s390/kernel/ipl.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-Oh, the latter eventually calls into allocate_resource(), which already falls
-back to simple_align_resource() if the alignment function is NULL, which
-does the same thing.
-So NULL should already work.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+index e545ffe..8e622bb5 100644
+--- a/arch/s390/kernel/ipl.c
++++ b/arch/s390/kernel/ipl.c
+@@ -564,8 +564,6 @@ static struct kset *ipl_kset;
+ 
+ static void __ipl_run(void *unused)
+ {
+-	if (MACHINE_IS_LPAR && ipl_info.type == IPL_TYPE_CCW)
+-		diag308(DIAG308_LOAD_NORMAL_DUMP, NULL);
+ 	diag308(DIAG308_LOAD_CLEAR, NULL);
+ 	if (MACHINE_IS_VM)
+ 		__cpcmd("IPL", NULL, 0, NULL);
+@@ -1088,10 +1086,7 @@ static void __reipl_run(void *unused)
+ 		break;
+ 	case REIPL_METHOD_CCW_DIAG:
+ 		diag308(DIAG308_SET, reipl_block_ccw);
+-		if (MACHINE_IS_LPAR)
+-			diag308(DIAG308_LOAD_NORMAL_DUMP, NULL);
+-		else
+-			diag308(DIAG308_LOAD_CLEAR, NULL);
++		diag308(DIAG308_LOAD_CLEAR, NULL);
+ 		break;
+ 	case REIPL_METHOD_FCP_RW_DIAG:
+ 		diag308(DIAG308_SET, reipl_block_fcp);
