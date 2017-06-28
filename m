@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/9] KVM: s390: CMMA tracking, ESSA emulation, migration mode
-Date: Wed, 28 Jun 2017 19:30:36 +0200
-Message-ID: <1498671044-81240-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/9] KVM: s390: ioctls to get and set guest storage attributes
+Date: Wed, 28 Jun 2017 19:30:37 +0200
+Message-ID: <1498671044-81240-3-git-send-email-borntraeger@de.ibm.com>
 References: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,481 +14,458 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 
-* Add a migration state bitmap to keep track of which pages have dirty
-  CMMA information.
-* Disable CMMA by default, so we can track if it's used or not. Enable
-  it on first use like we do for storage keys (unless we are doing a
-  migration).
-* Creates a VM attribute to enter and leave migration mode.
-* In migration mode, CMMA is disabled in the SIE block, so ESSA is
-  always interpreted and emulated in software.
-* Free the migration state on VM destroy.
+* Add the struct used in the ioctls to get and set CMMA attributes.
+* Add the two functions needed to get and set the CMMA attributes for
+  guest pages.
+* Add the two ioctls that use the aforementioned functions.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/devices/vm.txt |  33 +++++++
- arch/s390/include/asm/kvm_host.h         |   9 ++
- arch/s390/include/uapi/asm/kvm.h         |   6 ++
- arch/s390/kvm/kvm-s390.c                 | 159 ++++++++++++++++++++++++++++++-
- arch/s390/kvm/priv.c                     | 103 +++++++++++++++++++-
- 5 files changed, 304 insertions(+), 6 deletions(-)
+ Documentation/virtual/kvm/api.txt | 135 +++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.c          | 202 +++++++++++++++++++++++++++++++++++++-
+ include/uapi/linux/kvm.h          |  33 +++++++
+ 3 files changed, 369 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
-index 575ccb0..903fc92 100644
---- a/Documentation/virtual/kvm/devices/vm.txt
-+++ b/Documentation/virtual/kvm/devices/vm.txt
-@@ -222,3 +222,36 @@ Allows user space to disable dea key wrapping, clearing the wrapping key.
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 4029943..912b7df 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -3255,6 +3255,141 @@ Otherwise, if the MCE is a corrected error, KVM will just
+ store it in the corresponding bank (provided this bank is
+ not holding a previously reported uncorrected error).
  
- Parameters: none
- Returns:    0
++4.107 KVM_S390_GET_CMMA_BITS
 +
-+5. GROUP: KVM_S390_VM_MIGRATION
++Capability: KVM_CAP_S390_CMMA_MIGRATION
 +Architectures: s390
++Type: vm ioctl
++Parameters: struct kvm_s390_cmma_log (in, out)
++Returns: 0 on success, a negative value on error
 +
-+5.1. ATTRIBUTE: KVM_S390_VM_MIGRATION_STOP (w/o)
++This ioctl is used to get the values of the CMMA bits on the s390
++architecture. It is meant to be used in two scenarios:
++- During live migration to save the CMMA values. Live migration needs
++  to be enabled via the KVM_REQ_START_MIGRATION VM property.
++- To non-destructively peek at the CMMA values, with the flag
++  KVM_S390_CMMA_PEEK set.
 +
-+Allows userspace to stop migration mode, needed for PGSTE migration.
-+Setting this attribute when migration mode is not active will have no
-+effects.
++The ioctl takes parameters via the kvm_s390_cmma_log struct. The desired
++values are written to a buffer whose location is indicated via the "values"
++member in the kvm_s390_cmma_log struct.  The values in the input struct are
++also updated as needed.
++Each CMMA value takes up one byte.
 +
-+Parameters: none
-+Returns:    0
-+
-+5.2. ATTRIBUTE: KVM_S390_VM_MIGRATION_START (w/o)
-+
-+Allows userspace to start migration mode, needed for PGSTE migration.
-+Setting this attribute when migration mode is already active will have
-+no effects.
-+
-+Parameters: none
-+Returns:    -ENOMEM if there is not enough free memory to start migration mode
-+	    -EINVAL if the state of the VM is invalid (e.g. no memory defined)
-+	    0 in case of success.
-+
-+5.3. ATTRIBUTE: KVM_S390_VM_MIGRATION_STATUS (r/o)
-+
-+Allows userspace to query the status of migration mode.
-+
-+Parameters: address of a buffer in user space to store the data (u64) to;
-+	    the data itself is either 0 if migration mode is disabled or 1
-+	    if it is enabled
-+Returns:    -EFAULT if the given address is not accessible from kernel space
-+	    0 in case of success.
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 426614a..a8cafed 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -45,6 +45,8 @@
- #define KVM_REQ_ENABLE_IBS         8
- #define KVM_REQ_DISABLE_IBS        9
- #define KVM_REQ_ICPT_OPEREXC       10
-+#define KVM_REQ_START_MIGRATION   11
-+#define KVM_REQ_STOP_MIGRATION    12
- 
- #define SIGP_CTRL_C		0x80
- #define SIGP_CTRL_SCN_MASK	0x3f
-@@ -691,6 +693,12 @@ struct kvm_s390_vsie {
- 	struct page *pages[KVM_MAX_VCPUS];
- };
- 
-+struct kvm_s390_migration_state {
-+	unsigned long bitmap_size;	/* in bits (number of guest pages) */
-+	atomic64_t dirty_pages;		/* number of dirty pages */
-+	unsigned long *pgste_bitmap;
++struct kvm_s390_cmma_log {
++	__u64 start_gfn;
++	__u32 count;
++	__u32 flags;
++	union {
++		__u64 remaining;
++		__u64 mask;
++	};
++	__u64 values;
 +};
 +
- struct kvm_arch{
- 	void *sca;
- 	int use_esca;
-@@ -718,6 +726,7 @@ struct kvm_arch{
- 	struct kvm_s390_crypto crypto;
- 	struct kvm_s390_vsie vsie;
- 	u64 epoch;
-+	struct kvm_s390_migration_state *migration_state;
- 	/* subset of available cpu features enabled by user space */
- 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
- };
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 3dd2a1d..d6879a9 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -70,6 +70,7 @@ struct kvm_s390_io_adapter_req {
- #define KVM_S390_VM_TOD			1
- #define KVM_S390_VM_CRYPTO		2
- #define KVM_S390_VM_CPU_MODEL		3
-+#define KVM_S390_VM_MIGRATION		4
- 
- /* kvm attributes for mem_ctrl */
- #define KVM_S390_VM_MEM_ENABLE_CMMA	0
-@@ -151,6 +152,11 @@ struct kvm_s390_vm_cpu_subfunc {
- #define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
- #define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
- 
-+/* kvm attributes for migration mode */
-+#define KVM_S390_VM_MIGRATION_STOP	0
-+#define KVM_S390_VM_MIGRATION_START	1
-+#define KVM_S390_VM_MIGRATION_STATUS	2
++start_gfn is the number of the first guest frame whose CMMA values are
++to be retrieved,
 +
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
++count is the length of the buffer in bytes,
++
++values points to the buffer where the result will be written to.
++
++If count is greater than KVM_S390_SKEYS_MAX, then it is considered to be
++KVM_S390_SKEYS_MAX. KVM_S390_SKEYS_MAX is re-used for consistency with
++other ioctls.
++
++The result is written in the buffer pointed to by the field values, and
++the values of the input parameter are updated as follows.
++
++Depending on the flags, different actions are performed. The only
++supported flag so far is KVM_S390_CMMA_PEEK.
++
++The default behaviour if KVM_S390_CMMA_PEEK is not set is:
++start_gfn will indicate the first page frame whose CMMA bits were dirty.
++It is not necessarily the same as the one passed as input, as clean pages
++are skipped.
++
++count will indicate the number of bytes actually written in the buffer.
++It can (and very often will) be smaller than the input value, since the
++buffer is only filled until 16 bytes of clean values are found (which
++are then not copied in the buffer). Since a CMMA migration block needs
++the base address and the length, for a total of 16 bytes, we will send
++back some clean data if there is some dirty data afterwards, as long as
++the size of the clean data does not exceed the size of the header. This
++allows to minimize the amount of data to be saved or transferred over
++the network at the expense of more roundtrips to userspace. The next
++invocation of the ioctl will skip over all the clean values, saving
++potentially more than just the 16 bytes we found.
++
++If KVM_S390_CMMA_PEEK is set:
++the existing storage attributes are read even when not in migration
++mode, and no other action is performed;
++
++the output start_gfn will be equal to the input start_gfn,
++
++the output count will be equal to the input count, except if the end of
++memory has been reached.
++
++In both cases:
++the field "remaining" will indicate the total number of dirty CMMA values
++still remaining, or 0 if KVM_S390_CMMA_PEEK is set and migration mode is
++not enabled.
++
++mask is unused.
++
++values points to the userspace buffer where the result will be stored.
++
++This ioctl can fail with -ENOMEM if not enough memory can be allocated to
++complete the task, with -ENXIO if CMMA is not enabled, with -EINVAL if
++KVM_S390_CMMA_PEEK is not set but migration mode was not enabled, with
++-EFAULT if the userspace address is invalid or if no page table is
++present for the addresses (e.g. when using hugepages).
++
++4.108 KVM_S390_SET_CMMA_BITS
++
++Capability: KVM_CAP_S390_CMMA_MIGRATION
++Architectures: s390
++Type: vm ioctl
++Parameters: struct kvm_s390_cmma_log (in)
++Returns: 0 on success, a negative value on error
++
++This ioctl is used to set the values of the CMMA bits on the s390
++architecture. It is meant to be used during live migration to restore
++the CMMA values, but there are no restrictions on its use.
++The ioctl takes parameters via the kvm_s390_cmma_values struct.
++Each CMMA value takes up one byte.
++
++struct kvm_s390_cmma_log {
++	__u64 start_gfn;
++	__u32 count;
++	__u32 flags;
++	union {
++		__u64 remaining;
++		__u64 mask;
++	};
++	__u64 values;
++};
++
++start_gfn indicates the starting guest frame number,
++
++count indicates how many values are to be considered in the buffer,
++
++flags is not used and must be 0.
++
++mask indicates which PGSTE bits are to be considered.
++
++remaining is not used.
++
++values points to the buffer in userspace where to store the values.
++
++This ioctl can fail with -ENOMEM if not enough memory can be allocated to
++complete the task, with -ENXIO if CMMA is not enabled, with -EINVAL if
++the count field is too large (e.g. more than KVM_S390_CMMA_SIZE_MAX) or
++if the flags field was not 0, with -EFAULT if the userspace address is
++invalid, if invalid pages are written to (e.g. after the end of memory)
++or if no page table is present for the addresses (e.g. when using
++hugepages).
++
+ 5. The kvm_run structure
+ ------------------------
+ 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 689ac48..c2b3914 100644
+index c2b3914..e100a7f 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -31,6 +31,7 @@
+@@ -30,8 +30,8 @@
+ #include <linux/vmalloc.h>
  #include <linux/bitmap.h>
  #include <linux/sched/signal.h>
- 
-+#include <linux/string.h>
+-
+ #include <linux/string.h>
++
  #include <asm/asm-offsets.h>
  #include <asm/lowcore.h>
  #include <asm/stp.h>
-@@ -750,6 +751,129 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
- 	return 0;
+@@ -387,6 +387,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_SKEYS:
+ 	case KVM_CAP_S390_IRQ_STATE:
+ 	case KVM_CAP_S390_USER_INSTR0:
++	case KVM_CAP_S390_CMMA_MIGRATION:
+ 	case KVM_CAP_S390_AIS:
+ 		r = 1;
+ 		break;
+@@ -1419,6 +1420,182 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ 	return r;
  }
  
-+static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
-+{
-+	int cx;
-+	struct kvm_vcpu *vcpu;
-+
-+	kvm_for_each_vcpu(cx, vcpu, kvm)
-+		kvm_s390_sync_request(req, vcpu);
-+}
++/*
++ * Base address and length must be sent at the start of each block, therefore
++ * it's cheaper to send some clean data, as long as it's less than the size of
++ * two longs.
++ */
++#define KVM_S390_MAX_BIT_DISTANCE (2 * sizeof(void *))
++/* for consistency */
++#define KVM_S390_CMMA_SIZE_MAX ((u32)KVM_S390_SKEYS_MAX)
 +
 +/*
-+ * Must be called with kvm->srcu held to avoid races on memslots, and with
-+ * kvm->lock to avoid races with ourselves and kvm_s390_vm_stop_migration.
++ * This function searches for the next page with dirty CMMA attributes, and
++ * saves the attributes in the buffer up to either the end of the buffer or
++ * until a block of at least KVM_S390_MAX_BIT_DISTANCE clean bits is found;
++ * no trailing clean bytes are saved.
++ * In case no dirty bits were found, or if CMMA was not enabled or used, the
++ * output buffer will indicate 0 as length.
 + */
-+static int kvm_s390_vm_start_migration(struct kvm *kvm)
++static int kvm_s390_get_cmma_bits(struct kvm *kvm,
++				  struct kvm_s390_cmma_log *args)
 +{
-+	struct kvm_s390_migration_state *mgs;
-+	struct kvm_memory_slot *ms;
-+	/* should be the only one */
-+	struct kvm_memslots *slots;
-+	unsigned long ram_pages;
-+	int slotnr;
++	struct kvm_s390_migration_state *s = kvm->arch.migration_state;
++	unsigned long bufsize, hva, pgstev, i, next, cur;
++	int srcu_idx, peek, r = 0, rr;
++	u8 *res;
 +
-+	/* migration mode already enabled */
-+	if (kvm->arch.migration_state)
-+		return 0;
++	cur = args->start_gfn;
++	i = next = pgstev = 0;
 +
-+	slots = kvm_memslots(kvm);
-+	if (!slots || !slots->used_slots)
-+		return -EINVAL;
-+
-+	mgs = kzalloc(sizeof(*mgs), GFP_KERNEL);
-+	if (!mgs)
-+		return -ENOMEM;
-+	kvm->arch.migration_state = mgs;
-+
-+	if (kvm->arch.use_cmma) {
-+		/*
-+		 * Get the last slot. They should be sorted by base_gfn, so the
-+		 * last slot is also the one at the end of the address space.
-+		 * We have verified above that at least one slot is present.
-+		 */
-+		ms = slots->memslots + slots->used_slots - 1;
-+		/* round up so we only use full longs */
-+		ram_pages = roundup(ms->base_gfn + ms->npages, BITS_PER_LONG);
-+		/* allocate enough bytes to store all the bits */
-+		mgs->pgste_bitmap = vmalloc(ram_pages / 8);
-+		if (!mgs->pgste_bitmap) {
-+			kfree(mgs);
-+			kvm->arch.migration_state = NULL;
-+			return -ENOMEM;
-+		}
-+
-+		mgs->bitmap_size = ram_pages;
-+		atomic64_set(&mgs->dirty_pages, ram_pages);
-+		/* mark all the pages in active slots as dirty */
-+		for (slotnr = 0; slotnr < slots->used_slots; slotnr++) {
-+			ms = slots->memslots + slotnr;
-+			bitmap_set(mgs->pgste_bitmap, ms->base_gfn, ms->npages);
-+		}
-+
-+		kvm_s390_sync_request_broadcast(kvm, KVM_REQ_START_MIGRATION);
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Must be called with kvm->lock to avoid races with ourselves and
-+ * kvm_s390_vm_start_migration.
-+ */
-+static int kvm_s390_vm_stop_migration(struct kvm *kvm)
-+{
-+	struct kvm_s390_migration_state *mgs;
-+
-+	/* migration mode already disabled */
-+	if (!kvm->arch.migration_state)
-+		return 0;
-+	mgs = kvm->arch.migration_state;
-+	kvm->arch.migration_state = NULL;
-+
-+	if (kvm->arch.use_cmma) {
-+		kvm_s390_sync_request_broadcast(kvm, KVM_REQ_STOP_MIGRATION);
-+		vfree(mgs->pgste_bitmap);
-+	}
-+	kfree(mgs);
-+	return 0;
-+}
-+
-+static int kvm_s390_vm_set_migration(struct kvm *kvm,
-+				     struct kvm_device_attr *attr)
-+{
-+	int idx, res = -ENXIO;
-+
-+	mutex_lock(&kvm->lock);
-+	switch (attr->attr) {
-+	case KVM_S390_VM_MIGRATION_START:
-+		idx = srcu_read_lock(&kvm->srcu);
-+		res = kvm_s390_vm_start_migration(kvm);
-+		srcu_read_unlock(&kvm->srcu, idx);
-+		break;
-+	case KVM_S390_VM_MIGRATION_STOP:
-+		res = kvm_s390_vm_stop_migration(kvm);
-+		break;
-+	default:
-+		break;
-+	}
-+	mutex_unlock(&kvm->lock);
-+
-+	return res;
-+}
-+
-+static int kvm_s390_vm_get_migration(struct kvm *kvm,
-+				     struct kvm_device_attr *attr)
-+{
-+	u64 mig = (kvm->arch.migration_state != NULL);
-+
-+	if (attr->attr != KVM_S390_VM_MIGRATION_STATUS)
++	if (unlikely(!kvm->arch.use_cmma))
 +		return -ENXIO;
-+
-+	if (copy_to_user((void __user *)attr->addr, &mig, sizeof(mig)))
-+		return -EFAULT;
-+	return 0;
-+}
-+
- static int kvm_s390_set_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
- {
- 	u8 gtod_high;
-@@ -1090,6 +1214,9 @@ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_CRYPTO:
- 		ret = kvm_s390_vm_set_crypto(kvm, attr);
- 		break;
-+	case KVM_S390_VM_MIGRATION:
-+		ret = kvm_s390_vm_set_migration(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1112,6 +1239,9 @@ static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_CPU_MODEL:
- 		ret = kvm_s390_get_cpu_model(kvm, attr);
- 		break;
-+	case KVM_S390_VM_MIGRATION:
-+		ret = kvm_s390_vm_get_migration(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1179,6 +1309,9 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 			break;
- 		}
- 		break;
-+	case KVM_S390_VM_MIGRATION:
-+		ret = 0;
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1633,6 +1766,10 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
- 	kvm_s390_destroy_adapters(kvm);
- 	kvm_s390_clear_float_irqs(kvm);
- 	kvm_s390_vsie_destroy(kvm);
-+	if (kvm->arch.migration_state) {
-+		vfree(kvm->arch.migration_state->pgste_bitmap);
-+		kfree(kvm->arch.migration_state);
-+	}
- 	KVM_EVENT(3, "vm 0x%pK destroyed", kvm);
- }
- 
-@@ -1977,7 +2114,6 @@ int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu)
- 	if (!vcpu->arch.sie_block->cbrlo)
- 		return -ENOMEM;
- 
--	vcpu->arch.sie_block->ecb2 |= ECB2_CMMA;
- 	vcpu->arch.sie_block->ecb2 &= ~ECB2_PFMFI;
- 	return 0;
- }
-@@ -2489,6 +2625,27 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- 		goto retry;
- 	}
- 
-+	if (kvm_check_request(KVM_REQ_START_MIGRATION, vcpu)) {
-+		/*
-+		 * Disable CMMA virtualization; we will emulate the ESSA
-+		 * instruction manually, in order to provide additional
-+		 * functionalities needed for live migration.
-+		 */
-+		vcpu->arch.sie_block->ecb2 &= ~ECB2_CMMA;
-+		goto retry;
-+	}
-+
-+	if (kvm_check_request(KVM_REQ_STOP_MIGRATION, vcpu)) {
-+		/*
-+		 * Re-enable CMMA virtualization if CMMA is available and
-+		 * was used.
-+		 */
-+		if ((vcpu->kvm->arch.use_cmma) &&
-+		    (vcpu->kvm->mm->context.use_cmma))
-+			vcpu->arch.sie_block->ecb2 |= ECB2_CMMA;
-+		goto retry;
-+	}
-+
- 	/* nothing to do, just clear the request */
- 	kvm_clear_request(KVM_REQ_UNHALT, vcpu);
- 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index c03106c..a226c45 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -24,6 +24,7 @@
- #include <asm/ebcdic.h>
- #include <asm/sysinfo.h>
- #include <asm/pgtable.h>
-+#include <asm/page-states.h>
- #include <asm/pgalloc.h>
- #include <asm/gmap.h>
- #include <asm/io.h>
-@@ -949,13 +950,72 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static inline int do_essa(struct kvm_vcpu *vcpu, const int orc)
-+{
-+	struct kvm_s390_migration_state *ms = vcpu->kvm->arch.migration_state;
-+	int r1, r2, nappended, entries;
-+	unsigned long gfn, hva, res, pgstev, ptev;
-+	unsigned long *cbrlo;
-+
-+	/*
-+	 * We don't need to set SD.FPF.SK to 1 here, because if we have a
-+	 * machine check here we either handle it or crash
-+	 */
-+
-+	kvm_s390_get_regs_rre(vcpu, &r1, &r2);
-+	gfn = vcpu->run->s.regs.gprs[r2] >> PAGE_SHIFT;
-+	hva = gfn_to_hva(vcpu->kvm, gfn);
-+	entries = (vcpu->arch.sie_block->cbrlo & ~PAGE_MASK) >> 3;
-+
-+	if (kvm_is_error_hva(hva))
-+		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+
-+	nappended = pgste_perform_essa(vcpu->kvm->mm, hva, orc, &ptev, &pgstev);
-+	if (nappended < 0) {
-+		res = orc ? 0x10 : 0;
-+		vcpu->run->s.regs.gprs[r1] = res; /* Exception Indication */
++	/* Invalid/unsupported flags were specified */
++	if (args->flags & ~KVM_S390_CMMA_PEEK)
++		return -EINVAL;
++	/* Migration mode query, and we are not doing a migration */
++	peek = !!(args->flags & KVM_S390_CMMA_PEEK);
++	if (!peek && !s)
++		return -EINVAL;
++	/* CMMA is disabled or was not used, or the buffer has length zero */
++	bufsize = min(args->count, KVM_S390_CMMA_SIZE_MAX);
++	if (!bufsize || !kvm->mm->context.use_cmma) {
++		memset(args, 0, sizeof(*args));
 +		return 0;
 +	}
-+	res = (pgstev & _PGSTE_GPS_USAGE_MASK) >> 22;
-+	/*
-+	 * Set the block-content state part of the result. 0 means resident, so
-+	 * nothing to do if the page is valid. 2 is for preserved pages
-+	 * (non-present and non-zero), and 3 for zero pages (non-present and
-+	 * zero).
-+	 */
-+	if (ptev & _PAGE_INVALID) {
-+		res |= 2;
-+		if (pgstev & _PGSTE_GPS_ZERO)
-+			res |= 1;
-+	}
-+	vcpu->run->s.regs.gprs[r1] = res;
-+	/*
-+	 * It is possible that all the normal 511 slots were full, in which case
-+	 * we will now write in the 512th slot, which is reserved for host use.
-+	 * In both cases we let the normal essa handling code process all the
-+	 * slots, including the reserved one, if needed.
-+	 */
-+	if (nappended > 0) {
-+		cbrlo = phys_to_virt(vcpu->arch.sie_block->cbrlo & PAGE_MASK);
-+		cbrlo[entries] = gfn << PAGE_SHIFT;
++
++	if (!peek) {
++		/* We are not peeking, and there are no dirty pages */
++		if (!atomic64_read(&s->dirty_pages)) {
++			memset(args, 0, sizeof(*args));
++			return 0;
++		}
++		cur = find_next_bit(s->pgste_bitmap, s->bitmap_size,
++				    args->start_gfn);
++		if (cur >= s->bitmap_size)	/* nothing found, loop back */
++			cur = find_next_bit(s->pgste_bitmap, s->bitmap_size, 0);
++		if (cur >= s->bitmap_size) {	/* again! (very unlikely) */
++			memset(args, 0, sizeof(*args));
++			return 0;
++		}
++		next = find_next_bit(s->pgste_bitmap, s->bitmap_size, cur + 1);
 +	}
 +
-+	if (orc) {
-+		/* increment only if we are really flipping the bit to 1 */
-+		if (!test_and_set_bit(gfn, ms->pgste_bitmap))
-+			atomic64_inc(&ms->dirty_pages);
-+	}
++	res = vmalloc(bufsize);
++	if (!res)
++		return -ENOMEM;
 +
-+	return nappended;
++	args->start_gfn = cur;
++
++	down_read(&kvm->mm->mmap_sem);
++	srcu_idx = srcu_read_lock(&kvm->srcu);
++	while (i < bufsize) {
++		hva = gfn_to_hva(kvm, cur);
++		if (kvm_is_error_hva(hva)) {
++			r = -EFAULT;
++			break;
++		}
++		/* decrement only if we actually flipped the bit to 0 */
++		if (!peek && test_and_clear_bit(cur, s->pgste_bitmap))
++			atomic64_dec(&s->dirty_pages);
++		r = get_pgste(kvm->mm, hva, &pgstev);
++		if (r < 0)
++			pgstev = 0;
++		/* save the value */
++		res[i++] = (pgstev >> 24) & 0x3;
++		/*
++		 * if the next bit is too far away, stop.
++		 * if we reached the previous "next", find the next one
++		 */
++		if (!peek) {
++			if (next > cur + KVM_S390_MAX_BIT_DISTANCE)
++				break;
++			if (cur == next)
++				next = find_next_bit(s->pgste_bitmap,
++						     s->bitmap_size, cur + 1);
++		/* reached the end of the bitmap or of the buffer, stop */
++			if ((next >= s->bitmap_size) ||
++			    (next >= args->start_gfn + bufsize))
++				break;
++		}
++		cur++;
++	}
++	srcu_read_unlock(&kvm->srcu, srcu_idx);
++	up_read(&kvm->mm->mmap_sem);
++	args->count = i;
++	args->remaining = s ? atomic64_read(&s->dirty_pages) : 0;
++
++	rr = copy_to_user((void __user *)args->values, res, args->count);
++	if (rr)
++		r = -EFAULT;
++
++	vfree(res);
++	return r;
 +}
 +
- static int handle_essa(struct kvm_vcpu *vcpu)
- {
- 	/* entries expected to be 1FF */
- 	int entries = (vcpu->arch.sie_block->cbrlo & ~PAGE_MASK) >> 3;
- 	unsigned long *cbrlo;
- 	struct gmap *gmap;
--	int i;
-+	int i, orc;
- 
- 	VCPU_EVENT(vcpu, 4, "ESSA: release %d pages", entries);
- 	gmap = vcpu->arch.gmap;
-@@ -965,12 +1025,45 @@ static int handle_essa(struct kvm_vcpu *vcpu)
- 
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
--
--	if (((vcpu->arch.sie_block->ipb & 0xf0000000) >> 28) > 6)
-+	/* Check for invalid operation request code */
-+	orc = (vcpu->arch.sie_block->ipb & 0xf0000000) >> 28;
-+	if (orc > ESSA_MAX)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	/* Retry the ESSA instruction */
--	kvm_s390_retry_instr(vcpu);
-+	if (likely(!vcpu->kvm->arch.migration_state)) {
-+		/*
-+		 * CMMA is enabled in the KVM settings, but is disabled in
-+		 * the SIE block and in the mm_context, and we are not doing
-+		 * a migration. Enable CMMA in the mm_context.
-+		 * Since we need to take a write lock to write to the context
-+		 * to avoid races with storage keys handling, we check if the
-+		 * value really needs to be written to; if the value is
-+		 * already correct, we do nothing and avoid the lock.
-+		 */
-+		if (vcpu->kvm->mm->context.use_cmma == 0) {
-+			down_write(&vcpu->kvm->mm->mmap_sem);
-+			vcpu->kvm->mm->context.use_cmma = 1;
-+			up_write(&vcpu->kvm->mm->mmap_sem);
-+		}
-+		/*
-+		 * If we are here, we are supposed to have CMMA enabled in
-+		 * the SIE block. Enabling CMMA works on a per-CPU basis,
-+		 * while the context use_cmma flag is per process.
-+		 * It's possible that the context flag is enabled and the
-+		 * SIE flag is not, so we set the flag always; if it was
-+		 * already set, nothing changes, otherwise we enable it
-+		 * on this CPU too.
-+		 */
-+		vcpu->arch.sie_block->ecb2 |= ECB2_CMMA;
-+		/* Retry the ESSA instruction */
-+		kvm_s390_retry_instr(vcpu);
-+	} else {
-+		/* Account for the possible extra cbrl entry */
-+		i = do_essa(vcpu, orc);
-+		if (i < 0)
-+			return i;
-+		entries += i;
++/*
++ * This function sets the CMMA attributes for the given pages. If the input
++ * buffer has zero length, no action is taken, otherwise the attributes are
++ * set and the mm->context.use_cmma flag is set.
++ */
++static int kvm_s390_set_cmma_bits(struct kvm *kvm,
++				  const struct kvm_s390_cmma_log *args)
++{
++	unsigned long hva, mask, pgstev, i;
++	uint8_t *bits;
++	int srcu_idx, r = 0;
++
++	mask = args->mask;
++
++	if (!kvm->arch.use_cmma)
++		return -ENXIO;
++	/* invalid/unsupported flags */
++	if (args->flags != 0)
++		return -EINVAL;
++	/* Enforce sane limit on memory allocation */
++	if (args->count > KVM_S390_CMMA_SIZE_MAX)
++		return -EINVAL;
++	/* Nothing to do */
++	if (args->count == 0)
++		return 0;
++
++	bits = vmalloc(sizeof(*bits) * args->count);
++	if (!bits)
++		return -ENOMEM;
++
++	r = copy_from_user(bits, (void __user *)args->values, args->count);
++	if (r) {
++		r = -EFAULT;
++		goto out;
 +	}
- 	vcpu->arch.sie_block->cbrlo &= PAGE_MASK;	/* reset nceo */
- 	cbrlo = phys_to_virt(vcpu->arch.sie_block->cbrlo);
- 	down_read(&gmap->mm->mmap_sem);
++
++	down_read(&kvm->mm->mmap_sem);
++	srcu_idx = srcu_read_lock(&kvm->srcu);
++	for (i = 0; i < args->count; i++) {
++		hva = gfn_to_hva(kvm, args->start_gfn + i);
++		if (kvm_is_error_hva(hva)) {
++			r = -EFAULT;
++			break;
++		}
++
++		pgstev = bits[i];
++		pgstev = pgstev << 24;
++		mask &= _PGSTE_GPS_USAGE_MASK;
++		set_pgste_bits(kvm->mm, hva, mask, pgstev);
++	}
++	srcu_read_unlock(&kvm->srcu, srcu_idx);
++	up_read(&kvm->mm->mmap_sem);
++
++	if (!kvm->mm->context.use_cmma) {
++		down_write(&kvm->mm->mmap_sem);
++		kvm->mm->context.use_cmma = 1;
++		up_write(&kvm->mm->mmap_sem);
++	}
++out:
++	vfree(bits);
++	return r;
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp,
+ 		       unsigned int ioctl, unsigned long arg)
+ {
+@@ -1497,6 +1674,29 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 		r = kvm_s390_set_skeys(kvm, &args);
+ 		break;
+ 	}
++	case KVM_S390_GET_CMMA_BITS: {
++		struct kvm_s390_cmma_log args;
++
++		r = -EFAULT;
++		if (copy_from_user(&args, argp, sizeof(args)))
++			break;
++		r = kvm_s390_get_cmma_bits(kvm, &args);
++		if (!r) {
++			r = copy_to_user(argp, &args, sizeof(args));
++			if (r)
++				r = -EFAULT;
++		}
++		break;
++	}
++	case KVM_S390_SET_CMMA_BITS: {
++		struct kvm_s390_cmma_log args;
++
++		r = -EFAULT;
++		if (copy_from_user(&args, argp, sizeof(args)))
++			break;
++		r = kvm_s390_set_cmma_bits(kvm, &args);
++		break;
++	}
+ 	default:
+ 		r = -ENOTTY;
+ 	}
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 577429a..2b8dc1c 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -155,6 +155,35 @@ struct kvm_s390_skeys {
+ 	__u32 reserved[9];
+ };
+ 
++#define KVM_S390_CMMA_PEEK (1 << 0)
++
++/**
++ * kvm_s390_cmma_log - Used for CMMA migration.
++ *
++ * Used both for input and output.
++ *
++ * @start_gfn: Guest page number to start from.
++ * @count: Size of the result buffer.
++ * @flags: Control operation mode via KVM_S390_CMMA_* flags
++ * @remaining: Used with KVM_S390_GET_CMMA_BITS. Indicates how many dirty
++ *             pages are still remaining.
++ * @mask: Used with KVM_S390_SET_CMMA_BITS. Bitmap of bits to actually set
++ *        in the PGSTE.
++ * @values: Pointer to the values buffer.
++ *
++ * Used in KVM_S390_{G,S}ET_CMMA_BITS ioctls.
++ */
++struct kvm_s390_cmma_log {
++	__u64 start_gfn;
++	__u32 count;
++	__u32 flags;
++	union {
++		__u64 remaining;
++		__u64 mask;
++	};
++	__u64 values;
++};
++
+ struct kvm_hyperv_exit {
+ #define KVM_EXIT_HYPERV_SYNIC          1
+ #define KVM_EXIT_HYPERV_HCALL          2
+@@ -895,6 +924,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_SPAPR_TCE_VFIO 142
+ #define KVM_CAP_X86_GUEST_MWAIT 143
+ #define KVM_CAP_ARM_USER_IRQ 144
++#define KVM_CAP_S390_CMMA_MIGRATION 145
+ 
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
+@@ -1318,6 +1348,9 @@ struct kvm_s390_ucas_mapping {
+ #define KVM_S390_GET_IRQ_STATE	  _IOW(KVMIO, 0xb6, struct kvm_s390_irq_state)
+ /* Available with KVM_CAP_X86_SMM */
+ #define KVM_SMI                   _IO(KVMIO,   0xb7)
++/* Available with KVM_CAP_S390_CMMA_MIGRATION */
++#define KVM_S390_GET_CMMA_BITS      _IOW(KVMIO, 0xb8, struct kvm_s390_cmma_log)
++#define KVM_S390_SET_CMMA_BITS      _IOW(KVMIO, 0xb9, struct kvm_s390_cmma_log)
+ 
+ #define KVM_DEV_ASSIGN_ENABLE_IOMMU	(1 << 0)
+ #define KVM_DEV_ASSIGN_PCI_2_3		(1 << 1)
 -- 
 2.7.4
