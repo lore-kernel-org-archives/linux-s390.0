@@ -1,82 +1,494 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [GIT PULL 9/9] KVM: s390: Inject machine check into the nested
- guest
-Date: Fri, 30 Jun 2017 18:30:46 +0200
-Message-ID: <5259ae43-f43f-915b-8b46-b601fc70344c@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/9] KVM: s390: CMMA tracking, ESSA emulation, migration mode
+Date: Wed, 28 Jun 2017 19:30:36 +0200
+Message-ID: <1498671044-81240-2-git-send-email-borntraeger@de.ibm.com>
 References: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
- <1498671044-81240-10-git-send-email-borntraeger@de.ibm.com>
- <9ec0f700-c686-44ce-c633-01f2b0ec46c0@redhat.com>
- <d4351d31-569e-4257-8b9d-b24c426fde58@de.ibm.com>
- <de970ef9-5fa4-1d58-b3d9-351c2a0ceb9e@redhat.com>
- <18e00d40-bdd4-84a9-f1b5-d4599aac74af@de.ibm.com>
- <19a95ab2-29d2-e7d9-f981-1e5c5c006e62@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <19a95ab2-29d2-e7d9-f981-1e5c5c006e62@de.ibm.com>
-Content-Language: en-US
+In-Reply-To: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, QingFeng Hao <haoqf@linux.vnet.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 29.06.2017 16:57, Christian Borntraeger wrote:
-> On 06/28/2017 09:16 PM, Christian Borntraeger wrote:
->> On 06/28/2017 09:08 PM, David Hildenbrand wrote:
->>> On 28.06.2017 20:59, Christian Borntraeger wrote:
->>>> On 06/28/2017 08:06 PM, David Hildenbrand wrote:
->>>>> On 28.06.2017 19:30, Christian Borntraeger wrote:
->>>>>> From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
->>>>>>
->>>>>> With vsie feature enabled, kvm can support nested guests (guest-3).
->>>>>> So inject machine check to the guest-2 if it happens when the nested
->>>>>> guest is running. And guest-2 will detect the machine check belongs
->>>>>> to guest-3 and reinject it into guest-3.
->>>>>> The host (guest-1) tries to inject the machine check to the picked
->>>>>> destination vcpu if it's a floating machine check.
->>>>>
->>>>> The subject is confusing. We don't inject anything into the nested guest
->>>>> here. We just catch machine checks during vsie and inject it into the
->>>>> ordinary kvm guest.
->>>>
->>>> Agreed, it is confusing and maybe a leftover from an early rework due to internal
->>>> feedback. We inject in guest-2 and rely on guest-2 to reinject to guest-3 would
->>>> be a better wording.
->>>>
->>>>  
->>>>
->>>>
->>>>> Are there any SIE specific things to consider here, that may have to be
->>>>> translated?
->>>>
->>>> As HW exits SIE before delivering the machine check, the SIE control block 
->>>> contains all saved guest3 registers and the host (guest1) registers contain
->>>> the lazy registers (as we have already restored them) just like a normal exit.
->>>
->>> As mentioned in the other mail, e.g. vector register validity should
->>> only be set if vector registers are enabled for the nested guest
->>> (execution control enabled).
->>
->> Yes, but sInce we inject in the base guest (non-nested) we have to check the base guest
->> execution control. 
-> 
-> While we drag the vector validity along, it looks like __write_machine_check is already
-> doing the right thing for vector and guarded storage before writing the mcic to the
-> guest, no?
+From: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 
-(sorry for the delay, I'm currently visiting a rural part of Slovakia)
+* Add a migration state bitmap to keep track of which pages have dirty
+  CMMA information.
+* Disable CMMA by default, so we can track if it's used or not. Enable
+  it on first use like we do for storage keys (unless we are doing a
+  migration).
+* Creates a VM attribute to enter and leave migration mode.
+* In migration mode, CMMA is disabled in the SIE block, so ESSA is
+  always interpreted and emulated in software.
+* Free the migration state on VM destroy.
 
-Yes, perfect. So the only thing that could actually happen is an under
-indication, which can be easily added later.
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ Documentation/virtual/kvm/devices/vm.txt |  33 +++++++
+ arch/s390/include/asm/kvm_host.h         |   9 ++
+ arch/s390/include/uapi/asm/kvm.h         |   6 ++
+ arch/s390/kvm/kvm-s390.c                 | 159 ++++++++++++++++++++++++++++++-
+ arch/s390/kvm/priv.c                     | 103 +++++++++++++++++++-
+ 5 files changed, 304 insertions(+), 6 deletions(-)
 
-Thanks!
-
-
+diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
+index 575ccb0..903fc92 100644
+--- a/Documentation/virtual/kvm/devices/vm.txt
++++ b/Documentation/virtual/kvm/devices/vm.txt
+@@ -222,3 +222,36 @@ Allows user space to disable dea key wrapping, clearing the wrapping key.
+ 
+ Parameters: none
+ Returns:    0
++
++5. GROUP: KVM_S390_VM_MIGRATION
++Architectures: s390
++
++5.1. ATTRIBUTE: KVM_S390_VM_MIGRATION_STOP (w/o)
++
++Allows userspace to stop migration mode, needed for PGSTE migration.
++Setting this attribute when migration mode is not active will have no
++effects.
++
++Parameters: none
++Returns:    0
++
++5.2. ATTRIBUTE: KVM_S390_VM_MIGRATION_START (w/o)
++
++Allows userspace to start migration mode, needed for PGSTE migration.
++Setting this attribute when migration mode is already active will have
++no effects.
++
++Parameters: none
++Returns:    -ENOMEM if there is not enough free memory to start migration mode
++	    -EINVAL if the state of the VM is invalid (e.g. no memory defined)
++	    0 in case of success.
++
++5.3. ATTRIBUTE: KVM_S390_VM_MIGRATION_STATUS (r/o)
++
++Allows userspace to query the status of migration mode.
++
++Parameters: address of a buffer in user space to store the data (u64) to;
++	    the data itself is either 0 if migration mode is disabled or 1
++	    if it is enabled
++Returns:    -EFAULT if the given address is not accessible from kernel space
++	    0 in case of success.
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 426614a..a8cafed 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -45,6 +45,8 @@
+ #define KVM_REQ_ENABLE_IBS         8
+ #define KVM_REQ_DISABLE_IBS        9
+ #define KVM_REQ_ICPT_OPEREXC       10
++#define KVM_REQ_START_MIGRATION   11
++#define KVM_REQ_STOP_MIGRATION    12
+ 
+ #define SIGP_CTRL_C		0x80
+ #define SIGP_CTRL_SCN_MASK	0x3f
+@@ -691,6 +693,12 @@ struct kvm_s390_vsie {
+ 	struct page *pages[KVM_MAX_VCPUS];
+ };
+ 
++struct kvm_s390_migration_state {
++	unsigned long bitmap_size;	/* in bits (number of guest pages) */
++	atomic64_t dirty_pages;		/* number of dirty pages */
++	unsigned long *pgste_bitmap;
++};
++
+ struct kvm_arch{
+ 	void *sca;
+ 	int use_esca;
+@@ -718,6 +726,7 @@ struct kvm_arch{
+ 	struct kvm_s390_crypto crypto;
+ 	struct kvm_s390_vsie vsie;
+ 	u64 epoch;
++	struct kvm_s390_migration_state *migration_state;
+ 	/* subset of available cpu features enabled by user space */
+ 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
+ };
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 3dd2a1d..d6879a9 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -70,6 +70,7 @@ struct kvm_s390_io_adapter_req {
+ #define KVM_S390_VM_TOD			1
+ #define KVM_S390_VM_CRYPTO		2
+ #define KVM_S390_VM_CPU_MODEL		3
++#define KVM_S390_VM_MIGRATION		4
+ 
+ /* kvm attributes for mem_ctrl */
+ #define KVM_S390_VM_MEM_ENABLE_CMMA	0
+@@ -151,6 +152,11 @@ struct kvm_s390_vm_cpu_subfunc {
+ #define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
+ #define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
+ 
++/* kvm attributes for migration mode */
++#define KVM_S390_VM_MIGRATION_STOP	0
++#define KVM_S390_VM_MIGRATION_START	1
++#define KVM_S390_VM_MIGRATION_STATUS	2
++
+ /* for KVM_GET_REGS and KVM_SET_REGS */
+ struct kvm_regs {
+ 	/* general purpose regs for s390 */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 689ac48..c2b3914 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -31,6 +31,7 @@
+ #include <linux/bitmap.h>
+ #include <linux/sched/signal.h>
+ 
++#include <linux/string.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/lowcore.h>
+ #include <asm/stp.h>
+@@ -750,6 +751,129 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	return 0;
+ }
+ 
++static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
++{
++	int cx;
++	struct kvm_vcpu *vcpu;
++
++	kvm_for_each_vcpu(cx, vcpu, kvm)
++		kvm_s390_sync_request(req, vcpu);
++}
++
++/*
++ * Must be called with kvm->srcu held to avoid races on memslots, and with
++ * kvm->lock to avoid races with ourselves and kvm_s390_vm_stop_migration.
++ */
++static int kvm_s390_vm_start_migration(struct kvm *kvm)
++{
++	struct kvm_s390_migration_state *mgs;
++	struct kvm_memory_slot *ms;
++	/* should be the only one */
++	struct kvm_memslots *slots;
++	unsigned long ram_pages;
++	int slotnr;
++
++	/* migration mode already enabled */
++	if (kvm->arch.migration_state)
++		return 0;
++
++	slots = kvm_memslots(kvm);
++	if (!slots || !slots->used_slots)
++		return -EINVAL;
++
++	mgs = kzalloc(sizeof(*mgs), GFP_KERNEL);
++	if (!mgs)
++		return -ENOMEM;
++	kvm->arch.migration_state = mgs;
++
++	if (kvm->arch.use_cmma) {
++		/*
++		 * Get the last slot. They should be sorted by base_gfn, so the
++		 * last slot is also the one at the end of the address space.
++		 * We have verified above that at least one slot is present.
++		 */
++		ms = slots->memslots + slots->used_slots - 1;
++		/* round up so we only use full longs */
++		ram_pages = roundup(ms->base_gfn + ms->npages, BITS_PER_LONG);
++		/* allocate enough bytes to store all the bits */
++		mgs->pgste_bitmap = vmalloc(ram_pages / 8);
++		if (!mgs->pgste_bitmap) {
++			kfree(mgs);
++			kvm->arch.migration_state = NULL;
++			return -ENOMEM;
++		}
++
++		mgs->bitmap_size = ram_pages;
++		atomic64_set(&mgs->dirty_pages, ram_pages);
++		/* mark all the pages in active slots as dirty */
++		for (slotnr = 0; slotnr < slots->used_slots; slotnr++) {
++			ms = slots->memslots + slotnr;
++			bitmap_set(mgs->pgste_bitmap, ms->base_gfn, ms->npages);
++		}
++
++		kvm_s390_sync_request_broadcast(kvm, KVM_REQ_START_MIGRATION);
++	}
++	return 0;
++}
++
++/*
++ * Must be called with kvm->lock to avoid races with ourselves and
++ * kvm_s390_vm_start_migration.
++ */
++static int kvm_s390_vm_stop_migration(struct kvm *kvm)
++{
++	struct kvm_s390_migration_state *mgs;
++
++	/* migration mode already disabled */
++	if (!kvm->arch.migration_state)
++		return 0;
++	mgs = kvm->arch.migration_state;
++	kvm->arch.migration_state = NULL;
++
++	if (kvm->arch.use_cmma) {
++		kvm_s390_sync_request_broadcast(kvm, KVM_REQ_STOP_MIGRATION);
++		vfree(mgs->pgste_bitmap);
++	}
++	kfree(mgs);
++	return 0;
++}
++
++static int kvm_s390_vm_set_migration(struct kvm *kvm,
++				     struct kvm_device_attr *attr)
++{
++	int idx, res = -ENXIO;
++
++	mutex_lock(&kvm->lock);
++	switch (attr->attr) {
++	case KVM_S390_VM_MIGRATION_START:
++		idx = srcu_read_lock(&kvm->srcu);
++		res = kvm_s390_vm_start_migration(kvm);
++		srcu_read_unlock(&kvm->srcu, idx);
++		break;
++	case KVM_S390_VM_MIGRATION_STOP:
++		res = kvm_s390_vm_stop_migration(kvm);
++		break;
++	default:
++		break;
++	}
++	mutex_unlock(&kvm->lock);
++
++	return res;
++}
++
++static int kvm_s390_vm_get_migration(struct kvm *kvm,
++				     struct kvm_device_attr *attr)
++{
++	u64 mig = (kvm->arch.migration_state != NULL);
++
++	if (attr->attr != KVM_S390_VM_MIGRATION_STATUS)
++		return -ENXIO;
++
++	if (copy_to_user((void __user *)attr->addr, &mig, sizeof(mig)))
++		return -EFAULT;
++	return 0;
++}
++
+ static int kvm_s390_set_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
+ {
+ 	u8 gtod_high;
+@@ -1090,6 +1214,9 @@ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	case KVM_S390_VM_CRYPTO:
+ 		ret = kvm_s390_vm_set_crypto(kvm, attr);
+ 		break;
++	case KVM_S390_VM_MIGRATION:
++		ret = kvm_s390_vm_set_migration(kvm, attr);
++		break;
+ 	default:
+ 		ret = -ENXIO;
+ 		break;
+@@ -1112,6 +1239,9 @@ static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	case KVM_S390_VM_CPU_MODEL:
+ 		ret = kvm_s390_get_cpu_model(kvm, attr);
+ 		break;
++	case KVM_S390_VM_MIGRATION:
++		ret = kvm_s390_vm_get_migration(kvm, attr);
++		break;
+ 	default:
+ 		ret = -ENXIO;
+ 		break;
+@@ -1179,6 +1309,9 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 			break;
+ 		}
+ 		break;
++	case KVM_S390_VM_MIGRATION:
++		ret = 0;
++		break;
+ 	default:
+ 		ret = -ENXIO;
+ 		break;
+@@ -1633,6 +1766,10 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+ 	kvm_s390_destroy_adapters(kvm);
+ 	kvm_s390_clear_float_irqs(kvm);
+ 	kvm_s390_vsie_destroy(kvm);
++	if (kvm->arch.migration_state) {
++		vfree(kvm->arch.migration_state->pgste_bitmap);
++		kfree(kvm->arch.migration_state);
++	}
+ 	KVM_EVENT(3, "vm 0x%pK destroyed", kvm);
+ }
+ 
+@@ -1977,7 +2114,6 @@ int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu)
+ 	if (!vcpu->arch.sie_block->cbrlo)
+ 		return -ENOMEM;
+ 
+-	vcpu->arch.sie_block->ecb2 |= ECB2_CMMA;
+ 	vcpu->arch.sie_block->ecb2 &= ~ECB2_PFMFI;
+ 	return 0;
+ }
+@@ -2489,6 +2625,27 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+ 		goto retry;
+ 	}
+ 
++	if (kvm_check_request(KVM_REQ_START_MIGRATION, vcpu)) {
++		/*
++		 * Disable CMMA virtualization; we will emulate the ESSA
++		 * instruction manually, in order to provide additional
++		 * functionalities needed for live migration.
++		 */
++		vcpu->arch.sie_block->ecb2 &= ~ECB2_CMMA;
++		goto retry;
++	}
++
++	if (kvm_check_request(KVM_REQ_STOP_MIGRATION, vcpu)) {
++		/*
++		 * Re-enable CMMA virtualization if CMMA is available and
++		 * was used.
++		 */
++		if ((vcpu->kvm->arch.use_cmma) &&
++		    (vcpu->kvm->mm->context.use_cmma))
++			vcpu->arch.sie_block->ecb2 |= ECB2_CMMA;
++		goto retry;
++	}
++
+ 	/* nothing to do, just clear the request */
+ 	kvm_clear_request(KVM_REQ_UNHALT, vcpu);
+ 
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index c03106c..a226c45 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -24,6 +24,7 @@
+ #include <asm/ebcdic.h>
+ #include <asm/sysinfo.h>
+ #include <asm/pgtable.h>
++#include <asm/page-states.h>
+ #include <asm/pgalloc.h>
+ #include <asm/gmap.h>
+ #include <asm/io.h>
+@@ -949,13 +950,72 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
+ 	return 0;
+ }
+ 
++static inline int do_essa(struct kvm_vcpu *vcpu, const int orc)
++{
++	struct kvm_s390_migration_state *ms = vcpu->kvm->arch.migration_state;
++	int r1, r2, nappended, entries;
++	unsigned long gfn, hva, res, pgstev, ptev;
++	unsigned long *cbrlo;
++
++	/*
++	 * We don't need to set SD.FPF.SK to 1 here, because if we have a
++	 * machine check here we either handle it or crash
++	 */
++
++	kvm_s390_get_regs_rre(vcpu, &r1, &r2);
++	gfn = vcpu->run->s.regs.gprs[r2] >> PAGE_SHIFT;
++	hva = gfn_to_hva(vcpu->kvm, gfn);
++	entries = (vcpu->arch.sie_block->cbrlo & ~PAGE_MASK) >> 3;
++
++	if (kvm_is_error_hva(hva))
++		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++
++	nappended = pgste_perform_essa(vcpu->kvm->mm, hva, orc, &ptev, &pgstev);
++	if (nappended < 0) {
++		res = orc ? 0x10 : 0;
++		vcpu->run->s.regs.gprs[r1] = res; /* Exception Indication */
++		return 0;
++	}
++	res = (pgstev & _PGSTE_GPS_USAGE_MASK) >> 22;
++	/*
++	 * Set the block-content state part of the result. 0 means resident, so
++	 * nothing to do if the page is valid. 2 is for preserved pages
++	 * (non-present and non-zero), and 3 for zero pages (non-present and
++	 * zero).
++	 */
++	if (ptev & _PAGE_INVALID) {
++		res |= 2;
++		if (pgstev & _PGSTE_GPS_ZERO)
++			res |= 1;
++	}
++	vcpu->run->s.regs.gprs[r1] = res;
++	/*
++	 * It is possible that all the normal 511 slots were full, in which case
++	 * we will now write in the 512th slot, which is reserved for host use.
++	 * In both cases we let the normal essa handling code process all the
++	 * slots, including the reserved one, if needed.
++	 */
++	if (nappended > 0) {
++		cbrlo = phys_to_virt(vcpu->arch.sie_block->cbrlo & PAGE_MASK);
++		cbrlo[entries] = gfn << PAGE_SHIFT;
++	}
++
++	if (orc) {
++		/* increment only if we are really flipping the bit to 1 */
++		if (!test_and_set_bit(gfn, ms->pgste_bitmap))
++			atomic64_inc(&ms->dirty_pages);
++	}
++
++	return nappended;
++}
++
+ static int handle_essa(struct kvm_vcpu *vcpu)
+ {
+ 	/* entries expected to be 1FF */
+ 	int entries = (vcpu->arch.sie_block->cbrlo & ~PAGE_MASK) >> 3;
+ 	unsigned long *cbrlo;
+ 	struct gmap *gmap;
+-	int i;
++	int i, orc;
+ 
+ 	VCPU_EVENT(vcpu, 4, "ESSA: release %d pages", entries);
+ 	gmap = vcpu->arch.gmap;
+@@ -965,12 +1025,45 @@ static int handle_essa(struct kvm_vcpu *vcpu)
+ 
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+-
+-	if (((vcpu->arch.sie_block->ipb & 0xf0000000) >> 28) > 6)
++	/* Check for invalid operation request code */
++	orc = (vcpu->arch.sie_block->ipb & 0xf0000000) >> 28;
++	if (orc > ESSA_MAX)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 
+-	/* Retry the ESSA instruction */
+-	kvm_s390_retry_instr(vcpu);
++	if (likely(!vcpu->kvm->arch.migration_state)) {
++		/*
++		 * CMMA is enabled in the KVM settings, but is disabled in
++		 * the SIE block and in the mm_context, and we are not doing
++		 * a migration. Enable CMMA in the mm_context.
++		 * Since we need to take a write lock to write to the context
++		 * to avoid races with storage keys handling, we check if the
++		 * value really needs to be written to; if the value is
++		 * already correct, we do nothing and avoid the lock.
++		 */
++		if (vcpu->kvm->mm->context.use_cmma == 0) {
++			down_write(&vcpu->kvm->mm->mmap_sem);
++			vcpu->kvm->mm->context.use_cmma = 1;
++			up_write(&vcpu->kvm->mm->mmap_sem);
++		}
++		/*
++		 * If we are here, we are supposed to have CMMA enabled in
++		 * the SIE block. Enabling CMMA works on a per-CPU basis,
++		 * while the context use_cmma flag is per process.
++		 * It's possible that the context flag is enabled and the
++		 * SIE flag is not, so we set the flag always; if it was
++		 * already set, nothing changes, otherwise we enable it
++		 * on this CPU too.
++		 */
++		vcpu->arch.sie_block->ecb2 |= ECB2_CMMA;
++		/* Retry the ESSA instruction */
++		kvm_s390_retry_instr(vcpu);
++	} else {
++		/* Account for the possible extra cbrl entry */
++		i = do_essa(vcpu, orc);
++		if (i < 0)
++			return i;
++		entries += i;
++	}
+ 	vcpu->arch.sie_block->cbrlo &= PAGE_MASK;	/* reset nceo */
+ 	cbrlo = phys_to_virt(vcpu->arch.sie_block->cbrlo);
+ 	down_read(&gmap->mm->mmap_sem);
 -- 
-
-Thanks,
-
-David
+2.7.4
