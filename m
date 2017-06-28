@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 9/9] KVM: s390: Inject machine check into the nested guest
-Date: Wed, 28 Jun 2017 19:30:44 +0200
-Message-ID: <1498671044-81240-10-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 6/9] s390/nmi: s390: New low level handling for machine check happening in guest
+Date: Wed, 28 Jun 2017 19:30:41 +0200
+Message-ID: <1498671044-81240-7-git-send-email-borntraeger@de.ibm.com>
 References: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,70 +14,215 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
 
-With vsie feature enabled, kvm can support nested guests (guest-3).
-So inject machine check to the guest-2 if it happens when the nested
-guest is running. And guest-2 will detect the machine check belongs
-to guest-3 and reinject it into guest-3.
-The host (guest-1) tries to inject the machine check to the picked
-destination vcpu if it's a floating machine check.
+Add the logic to check if the machine check happens when the guest is
+running. If yes, set the exit reason -EINTR in the machine check's
+interrupt handler. Refactor s390_do_machine_check to avoid panicing
+the host for some kinds of machine checks which happen
+when guest is running.
+Reinject the instruction processing damage's machine checks including
+Delayed Access Exception instead of damaging the host if it happens
+in the guest because it could be caused by improper update on TLB entry
+or other software case and impacts the guest only.
 
 Signed-off-by: QingFeng Hao <haoqf@linux.vnet.ibm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/nmi.h       |  7 ++++++
+ arch/s390/include/asm/processor.h |  2 ++
+ arch/s390/kernel/asm-offsets.c    |  3 +++
+ arch/s390/kernel/entry.S          | 13 +++++++++-
+ arch/s390/kernel/nmi.c            | 50 +++++++++++++++++++++++++++++++--------
+ 5 files changed, 64 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index e947657..715c19c 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -26,13 +26,18 @@
+diff --git a/arch/s390/include/asm/nmi.h b/arch/s390/include/asm/nmi.h
+index e3e8895..13623b9 100644
+--- a/arch/s390/include/asm/nmi.h
++++ b/arch/s390/include/asm/nmi.h
+@@ -14,7 +14,14 @@
+ #include <linux/const.h>
+ #include <linux/types.h>
  
- struct vsie_page {
- 	struct kvm_s390_sie_block scb_s;	/* 0x0000 */
-+	/*
-+	 * the backup info for machine check. ensure it's at
-+	 * the same offset as that in struct sie_page!
-+	 */
-+	struct mcck_volatile_info mcck_info;    /* 0x0200 */
- 	/* the pinned originial scb */
--	struct kvm_s390_sie_block *scb_o;	/* 0x0200 */
-+	struct kvm_s390_sie_block *scb_o;	/* 0x0218 */
- 	/* the shadow gmap in use by the vsie_page */
--	struct gmap *gmap;			/* 0x0208 */
-+	struct gmap *gmap;			/* 0x0220 */
- 	/* address of the last reported fault to guest2 */
--	unsigned long fault_addr;		/* 0x0210 */
--	__u8 reserved[0x0700 - 0x0218];		/* 0x0218 */
-+	unsigned long fault_addr;		/* 0x0228 */
-+	__u8 reserved[0x0700 - 0x0230];		/* 0x0230 */
- 	struct kvm_s390_crypto_cb crycb;	/* 0x0700 */
- 	__u8 fac[S390_ARCH_FAC_LIST_SIZE_BYTE];	/* 0x0800 */
- };
-@@ -801,6 +806,8 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- {
- 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
- 	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
-+	struct mcck_volatile_info *mcck_info;
-+	struct sie_page *sie_page;
- 	int rc;
++#define MCIC_SUBCLASS_MASK	(1ULL<<63 | 1ULL<<62 | 1ULL<<61 | \
++				1ULL<<59 | 1ULL<<58 | 1ULL<<56 | \
++				1ULL<<55 | 1ULL<<54 | 1ULL<<53 | \
++				1ULL<<52 | 1ULL<<47 | 1ULL<<46 | \
++				1ULL<<45 | 1ULL<<44)
+ #define MCCK_CODE_SYSTEM_DAMAGE		_BITUL(63)
++#define MCCK_CODE_EXT_DAMAGE		_BITUL(63 - 5)
++#define MCCK_CODE_CP			_BITUL(63 - 9)
+ #define MCCK_CODE_CPU_TIMER_VALID	_BITUL(63 - 46)
+ #define MCCK_CODE_PSW_MWP_VALID		_BITUL(63 - 20)
+ #define MCCK_CODE_PSW_IA_VALID		_BITUL(63 - 23)
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 60d395f..5b1b247 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -20,6 +20,7 @@
+ #define CIF_FPU			4	/* restore FPU registers */
+ #define CIF_IGNORE_IRQ		5	/* ignore interrupt (for udelay) */
+ #define CIF_ENABLED_WAIT	6	/* in enabled wait state */
++#define CIF_MCCK_GUEST		7	/* machine check happening in guest */
  
- 	handle_last_fault(vcpu, vsie_page);
-@@ -822,6 +829,14 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	local_irq_enable();
- 	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
+ #define _CIF_MCCK_PENDING	_BITUL(CIF_MCCK_PENDING)
+ #define _CIF_ASCE_PRIMARY	_BITUL(CIF_ASCE_PRIMARY)
+@@ -28,6 +29,7 @@
+ #define _CIF_FPU		_BITUL(CIF_FPU)
+ #define _CIF_IGNORE_IRQ		_BITUL(CIF_IGNORE_IRQ)
+ #define _CIF_ENABLED_WAIT	_BITUL(CIF_ENABLED_WAIT)
++#define _CIF_MCCK_GUEST		_BITUL(CIF_MCCK_GUEST)
  
-+	if (rc == -EINTR) {
-+		VCPU_EVENT(vcpu, 3, "%s", "machine check");
-+		sie_page = container_of(scb_s, struct sie_page, sie_block);
-+		mcck_info = &sie_page->mcck_info;
-+		kvm_s390_reinject_machine_check(vcpu, mcck_info);
-+		return 0;
-+	}
+ #ifndef __ASSEMBLY__
+ 
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index 6bb2963..b65c414 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -58,6 +58,9 @@ int main(void)
+ 	OFFSET(__SF_BACKCHAIN, stack_frame, back_chain);
+ 	OFFSET(__SF_GPRS, stack_frame, gprs);
+ 	OFFSET(__SF_EMPTY, stack_frame, empty1);
++	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[0]);
++	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[1]);
++	OFFSET(__SF_SIE_REASON, stack_frame, empty1[2]);
+ 	BLANK();
+ 	/* timeval/timezone offsets for use by vdso */
+ 	OFFSET(__VDSO_UPD_COUNT, vdso_data, tb_update_count);
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index a5f5d3b..9b48196 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -225,6 +225,7 @@ ENTRY(sie64a)
+ 	jnz	.Lsie_skip
+ 	TSTMSK	__LC_CPU_FLAGS,_CIF_FPU
+ 	jo	.Lsie_skip			# exit if fp/vx regs changed
++.Lsie_entry:
+ 	sie	0(%r14)
+ .Lsie_skip:
+ 	ni	__SIE_PROG0C+3(%r14),0xfe	# no longer in SIE
+@@ -1102,7 +1103,13 @@ cleanup_critical:
+ 	.quad	.Lsie_done
+ 
+ .Lcleanup_sie:
+-	lg	%r9,__SF_EMPTY(%r15)		# get control block pointer
++	cghi    %r11,__LC_SAVE_AREA_ASYNC 	#Is this in normal interrupt?
++	je      1f
++	slg     %r9,BASED(.Lsie_crit_mcck_start)
++	clg     %r9,BASED(.Lsie_crit_mcck_length)
++	jh      1f
++	oi      __LC_CPU_FLAGS+7, _CIF_MCCK_GUEST
++1:	lg	%r9,__SF_EMPTY(%r15)		# get control block pointer
+ 	ni	__SIE_PROG0C+3(%r9),0xfe	# no longer in SIE
+ 	lctlg	%c1,%c1,__LC_USER_ASCE		# load primary asce
+ 	larl	%r9,sie_exit			# skip forward to sie_exit
+@@ -1274,6 +1281,10 @@ cleanup_critical:
+ 	.quad	.Lsie_gmap
+ .Lsie_critical_length:
+ 	.quad	.Lsie_done - .Lsie_gmap
++.Lsie_crit_mcck_start:
++	.quad   .Lsie_entry
++.Lsie_crit_mcck_length:
++	.quad   .Lsie_skip - .Lsie_entry
+ #endif
+ 
+ 	.section .rodata, "a"
+diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+index 9855895..958cc33 100644
+--- a/arch/s390/kernel/nmi.c
++++ b/arch/s390/kernel/nmi.c
+@@ -25,6 +25,7 @@
+ #include <asm/crw.h>
+ #include <asm/switch_to.h>
+ #include <asm/ctl_reg.h>
++#include <asm/asm-offsets.h>
+ 
+ struct mcck_struct {
+ 	unsigned int kill_task : 1;
+@@ -280,6 +281,8 @@ static int notrace s390_validate_registers(union mci mci, int umode)
+ #define ED_STP_ISLAND	6	/* External damage STP island check */
+ #define ED_STP_SYNC	7	/* External damage STP sync check */
+ 
++#define MCCK_CODE_NO_GUEST	(MCCK_CODE_CP | MCCK_CODE_EXT_DAMAGE)
 +
- 	if (rc > 0)
- 		rc = 0; /* we could still have an icpt */
- 	else if (rc == -EFAULT)
+ /*
+  * machine check handler.
+  */
+@@ -291,6 +294,7 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 	struct mcck_struct *mcck;
+ 	unsigned long long tmp;
+ 	union mci mci;
++	unsigned long mcck_dam_code;
+ 
+ 	nmi_enter();
+ 	inc_irq_stat(NMI_NMI);
+@@ -301,7 +305,13 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 		/* System damage -> stopping machine */
+ 		s390_handle_damage();
+ 	}
+-	if (mci.pd) {
++
++	/*
++	 * Reinject the instruction processing damages' machine checks
++	 * including Delayed Access Exception into the guest
++	 * instead of damaging the host if they happen in the guest.
++	 */
++	if (mci.pd && !test_cpu_flag(CIF_MCCK_GUEST)) {
+ 		if (mci.b) {
+ 			/* Processing backup -> verify if we can survive this */
+ 			u64 z_mcic, o_mcic, t_mcic;
+@@ -358,15 +368,22 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 		if (mcck->stp_queue)
+ 			set_cpu_flag(CIF_MCCK_PENDING);
+ 	}
+-	if (mci.se)
+-		/* Storage error uncorrected */
+-		s390_handle_damage();
+-	if (mci.ke)
+-		/* Storage key-error uncorrected */
+-		s390_handle_damage();
+-	if (mci.ds && mci.fa)
+-		/* Storage degradation */
+-		s390_handle_damage();
++
++	/*
++	 * Reinject storage related machine checks into the guest if they
++	 * happen when the guest is running.
++	 */
++	if (!test_cpu_flag(CIF_MCCK_GUEST)) {
++		if (mci.se)
++			/* Storage error uncorrected */
++			s390_handle_damage();
++		if (mci.ke)
++			/* Storage key-error uncorrected */
++			s390_handle_damage();
++		if (mci.ds && mci.fa)
++			/* Storage degradation */
++			s390_handle_damage();
++	}
+ 	if (mci.cp) {
+ 		/* Channel report word pending */
+ 		mcck->channel_report = 1;
+@@ -377,6 +394,19 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 		mcck->warning = 1;
+ 		set_cpu_flag(CIF_MCCK_PENDING);
+ 	}
++
++	/*
++	 * If there are only Channel Report Pending and External Damage
++	 * machine checks, they will not be reinjected into the guest
++	 * because they refer to host conditions only.
++	 */
++	mcck_dam_code = (mci.val & MCIC_SUBCLASS_MASK);
++	if (test_cpu_flag(CIF_MCCK_GUEST) &&
++	(mcck_dam_code & MCCK_CODE_NO_GUEST) != mcck_dam_code) {
++		/* Set exit reason code for host's later handling */
++		*((long *)(regs->gprs[15] + __SF_SIE_REASON)) = -EINTR;
++	}
++	clear_cpu_flag(CIF_MCCK_GUEST);
+ 	nmi_exit();
+ }
+ 
 -- 
 2.7.4
