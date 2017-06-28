@@ -1,33 +1,36 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 28 Jun 2017 13:45:14 +0000
-Subject: Re: [GIT PULL 0/2] s390,kvm: provide plumbing for machines checks when running guests
-Message-Id: <337f8bea-25ee-35d5-fb6b-a0ac684429ca@de.ibm.com>
-In-Reply-To: <bc040dd4-0f9d-c92e-66bc-27eba404bbc8@redhat.com>
-References: <bc040dd4-0f9d-c92e-66bc-27eba404bbc8@redhat.com>
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Date: Wed, 28 Jun 2017 16:12:00 +0000
+Subject: [CRIU][PATCH 2/7] criu/pie/parasite-vdso: Handle also systems without VVAR
+Message-Id: <20170628161205.37787-3-holzheu@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/28/2017 02:48 PM, Paolo Bonzini wrote:
-> 
-> 
-> On 28/06/2017 13:53, Christian Borntraeger wrote:
->> This is probably more a question for Martin or Heiko, but our initial machine
->> check handling seems to be older than the hwpoison infrastructure (older than
->> the 2.6 git history). Historically we have killed processes with SIGSEGV on 
->> fatal errors and never included the BUS_MCEERR things so we still kill processes
->> on errors. From an architectural point of view we can get the failing address, 
->> so maybe we should consider the BUS_MCEERR things for memory errors.
-> 
-> Also because other architectures use SIGBUS, and QEMU uses SIGBUS too.
-> 
->> On the other hand since z196 (2010) the memory is protected with RAIM (in addition
->> to ECC) and I am not aware of any field incidence where HW was not able to recover
->> since the introduction of RAIM the pressure to do that is pretty small.
->>
->> If we decide to do that, this would require additional changes for KVM - we would then
->> need to translate the host address into a guest address or as V1 unset the valid
->> bit for the failing address information.
-> 
-> That's fine.  Does s390 also do background scrubbing of memory?  That
+On s390 we don't use vvar. Therefore vvar_size in not been initialized
+and the value remains VVAR_BAD_SIZE.
 
-Yes, the hardware does.
+Fix the BUG() statement to also cover this case.
+
+Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+---
+ criu/pie/parasite-vdso.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/criu/pie/parasite-vdso.c b/criu/pie/parasite-vdso.c
+index 40b2695..ad178e9 100644
+--- a/criu/pie/parasite-vdso.c
++++ b/criu/pie/parasite-vdso.c
+@@ -44,9 +44,11 @@ static int vdso_remap(char *who, unsigned long from, unsigned long to, size_t si
+ /* Park runtime vDSO in some safe place where it can be accessible from restorer */
+ int vdso_do_park(struct vdso_maps *rt, unsigned long park_at, unsigned long park_size)
+ {
++	unsigned long vvar_size;
+ 	int ret;
+ 
+-	BUG_ON((rt->sym.vdso_size + rt->sym.vvar_size) < park_size);
++	vvar_size = (rt->sym.vvar_size == VVAR_BAD_SIZE) ? 0 : rt->sym.vvar_size;
++	BUG_ON((rt->sym.vdso_size + vvar_size) < park_size);
+ 
+ 	if (rt->vvar_start != VVAR_BAD_ADDR) {
+ 		if (rt->sym.vdso_before_vvar) {
+-- 
+2.7.4
