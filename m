@@ -1,46 +1,47 @@
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Wed, 28 Jun 2017 16:12:02 +0000
-Subject: [CRIU][PATCH 4/7] criu/mount: Fix flags cast and sizeof(sflags)
-Message-Id: <20170628161205.37787-5-holzheu@linux.vnet.ibm.com>
+Date: Wed, 28 Jun 2017 16:12:03 +0000
+Subject: [CRIU][PATCH 5/7] zdtm/static/sk-netlink: Fix endian issue
+Message-Id: <20170628161205.37787-6-holzheu@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The "args" parameter in apply_sb_flags() is unsigned long. Therefore also
-use unsigned long for the cast.
+On x86 sk->groups[1] contains the most significant bits. On s390 it
+contains the least significant bits. Therefore on x86 for groups below 32
+sk->groups[1] is zero and on s390 it contains 0x80000000 for the testcase.
 
-The "sflags" variable in do_new_mount() is unsigned long. Therefore use
-sizeof(sflags) instead of sizeof(int).
+As workaround swap sk->groups[0/1] for big-endian systems.
 
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- criu/mount.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ criu/sk-netlink.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/criu/mount.c b/criu/mount.c
-index b7c4785..5fe2c86 100644
---- a/criu/mount.c
-+++ b/criu/mount.c
-@@ -1774,8 +1774,8 @@ static char *mnt_fsname(struct mount_info *mi)
+diff --git a/criu/sk-netlink.c b/criu/sk-netlink.c
+index 44982a1..bfa6831 100644
+--- a/criu/sk-netlink.c
++++ b/criu/sk-netlink.c
+@@ -107,6 +107,22 @@ static int dump_one_netlink_fd(int lfd, u32 id, const struct fd_parms *p)
+ 		 * On 64-bit sk->gsize is multiple to 8 bytes (sizeof(long)),
+ 		 * so remove the last 4 bytes if they are empty.
+ 		 */
++#ifdef __ORDER_BIG_ENDIAN__
++		/*
++		 * Big endian swap: Ugly hack for zdtm/static/sk-netlink
++		 *
++		 * For big endian systems:
++		 *
++		 * - sk->groups[0] are bits 32-64
++		 * - sk->groups[1] are bits 0-32
++		 */
++		if (ne.n_groups == 2) {
++			uint32_t tmp = sk->groups[1];
++
++			sk->groups[1] = sk->groups[0];
++			sk->groups[0] = tmp;
++		}
++#endif
+ 		if (ne.n_groups && sk->groups[ne.n_groups - 1] == 0)
+ 			ne.n_groups -= 1;
  
- static int apply_sb_flags(void *args, int fd, pid_t pid)
- {
-+	unsigned long flags = *(unsigned long *) args;
- 	int rst = -1, err = -1;
--	long flags = *(int *) args;
- 	char path[PSFDS];
- 
- 	snprintf(path, sizeof(path), "/proc/self/fd/%d", fd);
-@@ -1840,10 +1840,9 @@ static int do_new_mount(struct mount_info *mi)
- 			pr_perror("Unable to open %s", mi->mountpoint);
- 			return -1;
- 		}
--
- 		sflags |= MS_RDONLY;
- 		if (userns_call(apply_sb_flags, 0,
--				&sflags, sizeof(int), fd)) {
-+				&sflags, sizeof(sflags), fd)) {
- 			pr_perror("Unable to apply mount falgs %d for %s",
- 						mi->sb_flags, mi->mountpoint);
- 			close(fd);
 -- 
 2.7.4
