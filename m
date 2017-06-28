@@ -1,17 +1,18 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [GIT PULL 7/9] KVM: s390: Backup the guest's machine check info
-Date: Wed, 28 Jun 2017 21:14:25 +0200
-Message-ID: <58cf662e-a7c0-2c4f-8d60-402ab9b9edfe@de.ibm.com>
+Subject: Re: [GIT PULL 9/9] KVM: s390: Inject machine check into the nested
+ guest
+Date: Wed, 28 Jun 2017 21:16:08 +0200
+Message-ID: <18e00d40-bdd4-84a9-f1b5-d4599aac74af@de.ibm.com>
 References: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
- <1498671044-81240-8-git-send-email-borntraeger@de.ibm.com>
- <b335c89d-f954-0bad-6a56-e4f599804c69@redhat.com>
- <c1c85f4e-62b9-82ea-a669-6ecf1380189f@de.ibm.com>
- <5d3bbee4-b3cf-ad98-828c-779624c3a138@redhat.com>
+ <1498671044-81240-10-git-send-email-borntraeger@de.ibm.com>
+ <9ec0f700-c686-44ce-c633-01f2b0ec46c0@redhat.com>
+ <d4351d31-569e-4257-8b9d-b24c426fde58@de.ibm.com>
+ <de970ef9-5fa4-1d58-b3d9-351c2a0ceb9e@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <5d3bbee4-b3cf-ad98-828c-779624c3a138@redhat.com>
+In-Reply-To: <de970ef9-5fa4-1d58-b3d9-351c2a0ceb9e@redhat.com>
 Content-Language: en-IE
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,68 +21,62 @@ To: David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, =
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, QingFeng Hao <haoqf@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/28/2017 08:56 PM, David Hildenbrand wrote:
-> On 28.06.2017 20:37, Christian Borntraeger wrote:
->> On 06/28/2017 08:20 PM, David Hildenbrand wrote:
+On 06/28/2017 09:08 PM, David Hildenbrand wrote:
+> On 28.06.2017 20:59, Christian Borntraeger wrote:
+>> On 06/28/2017 08:06 PM, David Hildenbrand wrote:
 >>> On 28.06.2017 19:30, Christian Borntraeger wrote:
 >>>> From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
 >>>>
->>>> When a machine check happens in the guest, related mcck info (mcic,
->>>> external damage code, ...) is stored in the vcpu's lowcore on the host.
->>>> Then the machine check handler's low-level part is executed, followed
->>>> by the high-level part.
->>>>
->>>> If the high-level part's execution is interrupted by a new machine check
->>>> happening on the same vcpu on the host, the mcck info in the lowcore is
->>>> overwritten with the new machine check's data.
->>>>
->>>> If the high-level part's execution is scheduled to a different cpu,
->>>> the mcck info in the lowcore is uncertain.
->>>>
->>>> Therefore, for both cases, the further reinjection to the guest will use
->>>> the wrong data.
->>>> Let's backup the mcck info in the lowcore to the sie page
->>>> for further reinjection, so that the right data will be used.
->>>>
->>>> Add new member into struct sie_page to store related machine check's
->>>> info of mcic, failing storage address and external damage code.
->>>>
+>>>> With vsie feature enabled, kvm can support nested guests (guest-3).
+>>>> So inject machine check to the guest-2 if it happens when the nested
+>>>> guest is running. And guest-2 will detect the machine check belongs
+>>>> to guest-3 and reinject it into guest-3.
+>>>> The host (guest-1) tries to inject the machine check to the picked
+>>>> destination vcpu if it's a floating machine check.
 >>>
->>>
->>> When this happens while the guest is running, there will be some
->>> registers written into the low core save area (gprs, cr etc.) during the
->>> machine check. Are these always host registers? Or can these be guest
->>> registers?
+>>> The subject is confusing. We don't inject anything into the nested guest
+>>> here. We just catch machine checks during vsie and inject it into the
+>>> ordinary kvm guest.
 >>
->> Always host registers (the machine will exit SIE before presenting the machine
->> check).
->>>
->>> Also, do the "valid" flags always refer to guest or host bits?
+>> Agreed, it is confusing and maybe a leftover from an early rework due to internal
+>> feedback. We inject in guest-2 and rely on guest-2 to reinject to guest-3 would
+>> be a better wording.
 >>
->> The host bits.
+>>  
+>>
+>>
+>>> Are there any SIE specific things to consider here, that may have to be
+>>> translated?
+>>
+>> As HW exits SIE before delivering the machine check, the SIE control block 
+>> contains all saved guest3 registers and the host (guest1) registers contain
+>> the lazy registers (as we have already restored them) just like a normal exit.
 > 
-> Okay, then why is mcic extracted from the real machine check and passed
-> on to the guest (almost unmodified)?
-> 
-> Wouldn't all guest registers than have to be always valid?
+> As mentioned in the other mail, e.g. vector register validity should
+> only be set if vector registers are enabled for the nested guest
+> (execution control enabled).
 
-No. Several guest registers are shared with host registers and reloaded lazily.
-For example if the floating point registers are invalid, they will be invalid 
-for the host (but the registers contain the guest values).
-From a KVM perspective we can always turn off valid bits in case of doubts 
-(overindicate errors). So the current variant is certainly not perfect, but it
-at least will not claim correct registers when they are incorrect.
-We can certainly improve the handling in a future patch. (e.g. turn on validity
-for control registers), I will have a look.
+Yes, but sInce we inject in the base guest (non-nested) we have to check the base guest
+execution control. 
 
 > 
-> Also, if the guest does not have vector registers enabled, but the host
-> does, and there is a machine check, the guest would suddenly have the
-> vector registers valid flag indicated, which is strange.
-
-Yes, this should be masked away. Will provide a fixup patch.
+>>>
+>>>> +		sie_page = container_of(scb_s, struct sie_page, sie_block);
+>>>> +		mcck_info = &sie_page->mcck_info;
+>>>> +		kvm_s390_reinject_machine_check(vcpu, mcck_info);
+>>>
+>>> This could be a simple
+>>>
+>>> kvm_s390_reinject_machine_check(vcpu, &vsie_page->mcck_info);
+>>>
+>>> no?
+>>
+>> Yes that would be simpler, I guess. Looks like  is just a "do it like the low
+>> level handler". The code in nmi.c has to go back from the sie control block into
+>> SIE page. 
+>>
+>> Do you want a respin of this patch?
 > 
-> For ordinary crw machine checks, we properly take care of that (QEMU
-> build_channel_report_mcic()).
+> You can also send a fixup if you don't have to respin.
 > 
 > 
