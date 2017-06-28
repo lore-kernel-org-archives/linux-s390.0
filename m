@@ -1,37 +1,46 @@
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Wed, 28 Jun 2017 16:12:01 +0000
-Subject: [CRIU][PATCH 3/7] criu/files: Fix wait_fds_event() for 64 bit platforms
-Message-Id: <20170628161205.37787-4-holzheu@linux.vnet.ibm.com>
+Date: Wed, 28 Jun 2017 16:12:02 +0000
+Subject: [CRIU][PATCH 4/7] criu/mount: Fix flags cast and sizeof(sflags)
+Message-Id: <20170628161205.37787-5-holzheu@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The htole64() function returns a 64 bit value. This is stored in
-a 32 bit integer in wait_fds_event() which results in 0 for big-endian
-64 bit platforms. The fuxtex() system call also requires 32 bit values.
+The "args" parameter in apply_sb_flags() is unsigned long. Therefore also
+use unsigned long for the cast.
 
-Fix this and use htole32() also for 64 bit platforms.
+The "sflags" variable in do_new_mount() is unsigned long. Therefore use
+sizeof(sflags) instead of sizeof(int).
 
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- criu/files.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ criu/mount.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/criu/files.c b/criu/files.c
-index a36eb36..bad6069 100644
---- a/criu/files.c
-+++ b/criu/files.c
-@@ -193,11 +193,8 @@ void wait_fds_event(void)
+diff --git a/criu/mount.c b/criu/mount.c
+index b7c4785..5fe2c86 100644
+--- a/criu/mount.c
++++ b/criu/mount.c
+@@ -1774,8 +1774,8 @@ static char *mnt_fsname(struct mount_info *mi)
+ 
+ static int apply_sb_flags(void *args, int fd, pid_t pid)
  {
- 	futex_t *f = &current->task_st;
- 	int value;
--#if BITS_PER_LONG == 64
--	value = htole64(FDS_EVENT);
--#else
-+
- 	value = htole32(FDS_EVENT);
--#endif
- 	futex_wait_if_cond(f, value, &);
- 	clear_fds_event();
- }
++	unsigned long flags = *(unsigned long *) args;
+ 	int rst = -1, err = -1;
+-	long flags = *(int *) args;
+ 	char path[PSFDS];
+ 
+ 	snprintf(path, sizeof(path), "/proc/self/fd/%d", fd);
+@@ -1840,10 +1840,9 @@ static int do_new_mount(struct mount_info *mi)
+ 			pr_perror("Unable to open %s", mi->mountpoint);
+ 			return -1;
+ 		}
+-
+ 		sflags |= MS_RDONLY;
+ 		if (userns_call(apply_sb_flags, 0,
+-				&sflags, sizeof(int), fd)) {
++				&sflags, sizeof(sflags), fd)) {
+ 			pr_perror("Unable to apply mount falgs %d for %s",
+ 						mi->sb_flags, mi->mountpoint);
+ 			close(fd);
 -- 
 2.7.4
