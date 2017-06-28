@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 7/9] KVM: s390: Backup the guest's machine check info
-Date: Wed, 28 Jun 2017 19:30:42 +0200
-Message-ID: <1498671044-81240-8-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 4/9] KVM: S390: add new group for flic
+Date: Wed, 28 Jun 2017 19:30:39 +0200
+Message-ID: <1498671044-81240-5-git-send-email-borntraeger@de.ibm.com>
 References: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,145 +9,168 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, QingFeng Hao <haoqf@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Yi Min Zhao <zyimin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
+From: Yi Min Zhao <zyimin@linux.vnet.ibm.com>
 
-When a machine check happens in the guest, related mcck info (mcic,
-external damage code, ...) is stored in the vcpu's lowcore on the host.
-Then the machine check handler's low-level part is executed, followed
-by the high-level part.
+In some cases, userspace needs to get or set all ais states for example
+migration. So we introduce a new group KVM_DEV_FLIC_AISM_ALL to provide
+interfaces to get or set the adapter-interruption-suppression mode for
+all ISCs. The corresponding documentation is updated.
 
-If the high-level part's execution is interrupted by a new machine check
-happening on the same vcpu on the host, the mcck info in the lowcore is
-overwritten with the new machine check's data.
-
-If the high-level part's execution is scheduled to a different cpu,
-the mcck info in the lowcore is uncertain.
-
-Therefore, for both cases, the further reinjection to the guest will use
-the wrong data.
-Let's backup the mcck info in the lowcore to the sie page
-for further reinjection, so that the right data will be used.
-
-Add new member into struct sie_page to store related machine check's
-info of mcic, failing storage address and external damage code.
-
-Signed-off-by: QingFeng Hao <haoqf@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Yi Min Zhao <zyimin@linux.vnet.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 17 ++++++++++++++++-
- arch/s390/kernel/nmi.c           | 34 ++++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.c         |  1 +
- 3 files changed, 51 insertions(+), 1 deletion(-)
+ Documentation/virtual/kvm/devices/s390_flic.txt | 15 ++++++++
+ arch/s390/include/uapi/asm/kvm.h                |  6 ++++
+ arch/s390/kvm/interrupt.c                       | 48 +++++++++++++++++++++++++
+ 3 files changed, 69 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 426614a..c6e1d5f 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -107,6 +107,20 @@ struct esca_block {
- 	struct esca_entry cpu[KVM_S390_ESCA_CPU_SLOTS];
- } __packed;
+diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
+index c2518ce..2f1cbf1 100644
+--- a/Documentation/virtual/kvm/devices/s390_flic.txt
++++ b/Documentation/virtual/kvm/devices/s390_flic.txt
+@@ -16,6 +16,7 @@ FLIC provides support to
+ - register and modify adapter interrupt sources (KVM_DEV_FLIC_ADAPTER_*)
+ - modify AIS (adapter-interruption-suppression) mode state (KVM_DEV_FLIC_AISM)
+ - inject adapter interrupts on a specified adapter (KVM_DEV_FLIC_AIRQ_INJECT)
++- get/set all AIS mode states (KVM_DEV_FLIC_AISM_ALL)
  
-+/*
-+ * This struct is used to store some machine check info from lowcore
-+ * for machine checks that happen while the guest is running.
-+ * This info in host's lowcore might be overwritten by a second machine
-+ * check from host when host is in the machine check's high-level handling.
-+ * The size is 24 bytes.
-+ */
-+struct mcck_volatile_info {
-+	__u64 mcic;
-+	__u64 failing_storage_address;
-+	__u32 ext_damage_code;
-+	__u32 reserved;
+ Groups:
+   KVM_DEV_FLIC_ENQUEUE
+@@ -136,6 +137,20 @@ struct kvm_s390_ais_req {
+     an isc according to the adapter-interruption-suppression mode on condition
+     that the AIS capability is enabled.
+ 
++  KVM_DEV_FLIC_AISM_ALL
++    Gets or sets the adapter-interruption-suppression mode for all ISCs. Takes
++    a kvm_s390_ais_all describing:
++
++struct kvm_s390_ais_all {
++       __u8 simm; /* Single-Interruption-Mode mask */
++       __u8 nimm; /* No-Interruption-Mode mask *
 +};
 +
- #define CPUSTAT_STOPPED    0x80000000
- #define CPUSTAT_WAIT       0x10000000
- #define CPUSTAT_ECALL_PEND 0x08000000
-@@ -264,7 +278,8 @@ struct kvm_s390_itdb {
++    simm contains Single-Interruption-Mode mask for all ISCs, nimm contains
++    No-Interruption-Mode mask for all ISCs. Each bit in simm and nimm corresponds
++    to an ISC (MSB0 bit 0 to ISC 0 and so on). The combination of simm bit and
++    nimm bit presents AIS mode for a ISC.
++
+ Note: The KVM_SET_DEVICE_ATTR/KVM_GET_DEVICE_ATTR device ioctls executed on
+ FLIC with an unknown group or attribute gives the error code EINVAL (instead of
+ ENXIO, as specified in the API documentation). It is not possible to conclude
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index d6879a9..69d09c3 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -28,6 +28,7 @@
+ #define KVM_DEV_FLIC_CLEAR_IO_IRQ	8
+ #define KVM_DEV_FLIC_AISM		9
+ #define KVM_DEV_FLIC_AIRQ_INJECT	10
++#define KVM_DEV_FLIC_AISM_ALL		11
+ /*
+  * We can have up to 4*64k pending subchannels + 8 adapter interrupts,
+  * as well as up  to ASYNC_PF_PER_VCPU*KVM_MAX_VCPUS pfault done interrupts.
+@@ -53,6 +54,11 @@ struct kvm_s390_ais_req {
+ 	__u16 mode;
+ };
  
- struct sie_page {
- 	struct kvm_s390_sie_block sie_block;
--	__u8 reserved200[1024];		/* 0x0200 */
-+	struct mcck_volatile_info mcck_info;	/* 0x0200 */
-+	__u8 reserved218[1000];		/* 0x0218 */
- 	struct kvm_s390_itdb itdb;	/* 0x0600 */
- 	__u8 reserved700[2304];		/* 0x0700 */
- } __packed;
-diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
-index 958cc33..31d03a8 100644
---- a/arch/s390/kernel/nmi.c
-+++ b/arch/s390/kernel/nmi.c
-@@ -26,6 +26,7 @@
- #include <asm/switch_to.h>
- #include <asm/ctl_reg.h>
- #include <asm/asm-offsets.h>
-+#include <linux/kvm_host.h>
- 
- struct mcck_struct {
- 	unsigned int kill_task : 1;
-@@ -275,6 +276,31 @@ static int notrace s390_validate_registers(union mci mci, int umode)
- 	return kill_task;
++struct kvm_s390_ais_all {
++	__u8 simm;
++	__u8 nimm;
++};
++
+ #define KVM_S390_IO_ADAPTER_MASK 1
+ #define KVM_S390_IO_ADAPTER_MAP 2
+ #define KVM_S390_IO_ADAPTER_UNMAP 3
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index caf15c8a..72f3aaf 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1876,6 +1876,28 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
+ 	return ret < 0 ? ret : n;
  }
  
-+/*
-+ * Backup the guest's machine check info to its description block
-+ */
-+static void notrace s390_backup_mcck_info(struct pt_regs *regs)
++static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
 +{
-+	struct mcck_volatile_info *mcck_backup;
-+	struct sie_page *sie_page;
++	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
++	struct kvm_s390_ais_all ais;
 +
-+	/* r14 contains the sie block, which was set in sie64a */
-+	struct kvm_s390_sie_block *sie_block =
-+			(struct kvm_s390_sie_block *) regs->gprs[14];
++	if (attr->attr < sizeof(ais))
++		return -EINVAL;
 +
-+	if (sie_block == NULL)
-+		/* Something's seriously wrong, stop system. */
-+		s390_handle_damage();
++	if (!test_kvm_facility(kvm, 72))
++		return -ENOTSUPP;
 +
-+	sie_page = container_of(sie_block, struct sie_page, sie_block);
-+	mcck_backup = &sie_page->mcck_info;
-+	mcck_backup->mcic = S390_lowcore.mcck_interruption_code &
-+				~(MCCK_CODE_CP | MCCK_CODE_EXT_DAMAGE);
-+	mcck_backup->ext_damage_code = S390_lowcore.external_damage_code;
-+	mcck_backup->failing_storage_address
-+			= S390_lowcore.failing_storage_address;
++	mutex_lock(&fi->ais_lock);
++	ais.simm = fi->simm;
++	ais.nimm = fi->nimm;
++	mutex_unlock(&fi->ais_lock);
++
++	if (copy_to_user((void __user *)attr->addr, &ais, sizeof(ais)))
++		return -EFAULT;
++
++	return 0;
 +}
 +
- #define MAX_IPD_COUNT	29
- #define MAX_IPD_TIME	(5 * 60 * USEC_PER_SEC) /* 5 minutes */
- 
-@@ -355,6 +381,14 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
- 		mcck->mcck_code = mci.val;
- 		set_cpu_flag(CIF_MCCK_PENDING);
+ static int flic_get_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
+ {
+ 	int r;
+@@ -1885,6 +1907,9 @@ static int flic_get_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
+ 		r = get_all_floating_irqs(dev->kvm, (u8 __user *) attr->addr,
+ 					  attr->attr);
+ 		break;
++	case KVM_DEV_FLIC_AISM_ALL:
++		r = flic_ais_mode_get_all(dev->kvm, attr);
++		break;
+ 	default:
+ 		r = -EINVAL;
  	}
-+
-+	/*
-+	 * Backup the machine check's info if it happens when the guest
-+	 * is running.
-+	 */
-+	if (test_cpu_flag(CIF_MCCK_GUEST))
-+		s390_backup_mcck_info(regs);
-+
- 	if (mci.cd) {
- 		/* Timing facility damage */
- 		s390_handle_damage();
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 689ac48..0457e03 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2069,6 +2069,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- 	if (!vcpu)
- 		goto out;
+@@ -2235,6 +2260,25 @@ static int flic_inject_airq(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	return kvm_s390_inject_airq(kvm, adapter);
+ }
  
-+	BUILD_BUG_ON(sizeof(struct sie_page) != 4096);
- 	sie_page = (struct sie_page *) get_zeroed_page(GFP_KERNEL);
- 	if (!sie_page)
- 		goto out_free_cpu;
++static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
++{
++	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
++	struct kvm_s390_ais_all ais;
++
++	if (!test_kvm_facility(kvm, 72))
++		return -ENOTSUPP;
++
++	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
++		return -EFAULT;
++
++	mutex_lock(&fi->ais_lock);
++	fi->simm = ais.simm;
++	fi->nimm = ais.nimm;
++	mutex_unlock(&fi->ais_lock);
++
++	return 0;
++}
++
+ static int flic_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
+ {
+ 	int r = 0;
+@@ -2277,6 +2321,9 @@ static int flic_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
+ 	case KVM_DEV_FLIC_AIRQ_INJECT:
+ 		r = flic_inject_airq(dev->kvm, attr);
+ 		break;
++	case KVM_DEV_FLIC_AISM_ALL:
++		r = flic_ais_mode_set_all(dev->kvm, attr);
++		break;
+ 	default:
+ 		r = -EINVAL;
+ 	}
+@@ -2298,6 +2345,7 @@ static int flic_has_attr(struct kvm_device *dev,
+ 	case KVM_DEV_FLIC_CLEAR_IO_IRQ:
+ 	case KVM_DEV_FLIC_AISM:
+ 	case KVM_DEV_FLIC_AIRQ_INJECT:
++	case KVM_DEV_FLIC_AISM_ALL:
+ 		return 0;
+ 	}
+ 	return -ENXIO;
 -- 
 2.7.4
