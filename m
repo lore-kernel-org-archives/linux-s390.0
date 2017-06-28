@@ -1,47 +1,41 @@
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Wed, 28 Jun 2017 16:12:03 +0000
-Subject: [CRIU][PATCH 5/7] zdtm/static/sk-netlink: Fix endian issue
-Message-Id: <20170628161205.37787-6-holzheu@linux.vnet.ibm.com>
+Date: Wed, 28 Jun 2017 16:12:04 +0000
+Subject: [CRIU][PATCH 6/7] zdtm/static/fdt_shared: Fix buffer size
+Message-Id: <20170628161205.37787-7-holzheu@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On x86 sk->groups[1] contains the most significant bits. On s390 it
-contains the least significant bits. Therefore on x86 for groups below 32
-sk->groups[1] is zero and on s390 it contains 0x80000000 for the testcase.
+The TEST_STRING "Hello World!" has 13 bytes size. Therefore the 10 bytes
+used for the buffer size are not sufficient.
 
-As workaround swap sk->groups[0/1] for big-endian systems.
+Fix this and use sizeof() to be on the safe side.
 
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- criu/sk-netlink.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ test/zdtm/static/fdt_shared.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/criu/sk-netlink.c b/criu/sk-netlink.c
-index 44982a1..bfa6831 100644
---- a/criu/sk-netlink.c
-+++ b/criu/sk-netlink.c
-@@ -107,6 +107,22 @@ static int dump_one_netlink_fd(int lfd, u32 id, const struct fd_parms *p)
- 		 * On 64-bit sk->gsize is multiple to 8 bytes (sizeof(long)),
- 		 * so remove the last 4 bytes if they are empty.
- 		 */
-+#ifdef __ORDER_BIG_ENDIAN__
-+		/*
-+		 * Big endian swap: Ugly hack for zdtm/static/sk-netlink
-+		 *
-+		 * For big endian systems:
-+		 *
-+		 * - sk->groups[0] are bits 32-64
-+		 * - sk->groups[1] are bits 0-32
-+		 */
-+		if (ne.n_groups == 2) {
-+			uint32_t tmp = sk->groups[1];
-+
-+			sk->groups[1] = sk->groups[0];
-+			sk->groups[0] = tmp;
-+		}
-+#endif
- 		if (ne.n_groups && sk->groups[ne.n_groups - 1] == 0)
- 			ne.n_groups -= 1;
+diff --git a/test/zdtm/static/fdt_shared.c b/test/zdtm/static/fdt_shared.c
+index b1c74d0..2111356 100644
+--- a/test/zdtm/static/fdt_shared.c
++++ b/test/zdtm/static/fdt_shared.c
+@@ -62,7 +62,7 @@ static pid_t clone_child(int (*fn)(void *), int flags)
+ 
+ static int child2(void *_arg)
+ {
+-	char buf[10];
++	char buf[sizeof(TEST_STRING)];
+ 
+ 	forked();
+ 	test_waitsig();
+@@ -90,7 +90,7 @@ static int child3(void *_arg)
+ 
+ static int child(void *_arg)
+ {
+-	char buf[10];
++	char buf[sizeof(TEST_STRING)];
+ 	pid_t pid, pid2;
+ 	int status;
  
 -- 
 2.7.4
