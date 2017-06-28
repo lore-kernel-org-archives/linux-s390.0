@@ -1,19 +1,18 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [GIT PULL 9/9] KVM: s390: Inject machine check into the nested
- guest
-Date: Wed, 28 Jun 2017 21:17:49 +0200
-Message-ID: <41b84826-c286-4c41-2fe8-300e100ea60b@redhat.com>
+Subject: Re: [GIT PULL 7/9] KVM: s390: Backup the guest's machine check info
+Date: Wed, 28 Jun 2017 21:46:07 +0200
+Message-ID: <2659ff50-b264-b0cb-ce61-e604653b6e90@redhat.com>
 References: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
- <1498671044-81240-10-git-send-email-borntraeger@de.ibm.com>
- <9ec0f700-c686-44ce-c633-01f2b0ec46c0@redhat.com>
- <d4351d31-569e-4257-8b9d-b24c426fde58@de.ibm.com>
- <de970ef9-5fa4-1d58-b3d9-351c2a0ceb9e@redhat.com>
- <18e00d40-bdd4-84a9-f1b5-d4599aac74af@de.ibm.com>
+ <1498671044-81240-8-git-send-email-borntraeger@de.ibm.com>
+ <b335c89d-f954-0bad-6a56-e4f599804c69@redhat.com>
+ <c1c85f4e-62b9-82ea-a669-6ecf1380189f@de.ibm.com>
+ <5d3bbee4-b3cf-ad98-828c-779624c3a138@redhat.com>
+ <58cf662e-a7c0-2c4f-8d60-402ab9b9edfe@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <18e00d40-bdd4-84a9-f1b5-d4599aac74af@de.ibm.com>
+In-Reply-To: <58cf662e-a7c0-2c4f-8d60-402ab9b9edfe@de.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -22,16 +21,19 @@ To: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redh
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, QingFeng Hao <haoqf@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-
->> As mentioned in the other mail, e.g. vector register validity should
->> only be set if vector registers are enabled for the nested guest
->> (execution control enabled).
+> No. Several guest registers are shared with host registers and reloaded lazily.
+> For example if the floating point registers are invalid, they will be invalid 
+> for the host (but the registers contain the guest values).
+> From a KVM perspective we can always turn off valid bits in case of doubts 
+> (overindicate errors). So the current variant is certainly not perfect, but it
+> at least will not claim correct registers when they are incorrect.
+> We can certainly improve the handling in a future patch. (e.g. turn on validity
+> for control registers), I will have a look.
 > 
-> Yes, but sInce we inject in the base guest (non-nested) we have to check the base guest
-> execution control. 
-> 
 
-Right, confusion due to nesting levels strikes again :)
+As far as I understand, that would then mean, enabling all validity
+flags for registers that are not shared. Makes sense.
+
 
 -- 
 
