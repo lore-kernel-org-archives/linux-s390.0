@@ -1,56 +1,221 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Fri, 16 Jun 2017 11:09:18 +0000
-Subject: Re: Garbage results for system time from getrusage on 4.11
-Message-Id: <20170616110918.GA19736@osiris>
-In-Reply-To: <87zida3gyf.fsf@oldenburg.str.redhat.com>
-References: <87zida3gyf.fsf@oldenburg.str.redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Wed, 28 Jun 2017 10:41:05 +0000
+Subject: [GIT PULL 1/2] s390/nmi: s390: New low level handling for machine check happening in guest
+Message-Id: <1498646466-117843-2-git-send-email-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jun 14, 2017 at 02:13:28PM +0200, Florian Weimer wrote:
-> Occasionally, when using the ���time��� bash built-in, I get bogus output,
-> like this:
-> 
-> real    0m34.671s
-> user    0m24.755s
-> sys     .+(.0*-)m,/.222s
-> 
-> real    0m23.049s
-> user    0m15.599s
-> sys     153122387m27.677s
-> 
-> This is not corruption caused by concurrently running programs, it's
-> actually what bash prints, as shown by strace:
+From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
 
-...
+Add the logic to check if the machine check happens when the guest is
+running. If yes, set the exit reason -EINTR in the machine check's
+interrupt handler. Refactor s390_do_machine_check to avoid panicing
+the host for some kinds of machine checks which happen
+when guest is running.
+Reinject the instruction processing damage's machine checks including
+Delayed Access Exception instead of damaging the host if it happens
+in the guest because it could be caused by improper update on TLB entry
+or other software case and impacts the guest only.
 
-> I see this with kernel-4.11.0-2.fc26.s390x from Fedora.  This could be a
-> regression because I have never noticed it before when running the glibc
-> testsuite under earlier kernels.
+Signed-off-by: QingFeng Hao <haoqf@linux.vnet.ibm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/nmi.h       |  7 ++++++
+ arch/s390/include/asm/processor.h |  2 ++
+ arch/s390/kernel/asm-offsets.c    |  3 +++
+ arch/s390/kernel/entry.S          | 13 +++++++++-
+ arch/s390/kernel/nmi.c            | 50 +++++++++++++++++++++++++++++++--------
+ 5 files changed, 64 insertions(+), 11 deletions(-)
 
-Thank you for the bug report. This should have been fixed with git commit
-07a63cbe8bcb ("s390/cputime: fix incorrect system time"). This has only
-been recently merged and is marked for stable kernel backports. With that
-fix it seems to work.
-
-commit 07a63cbe8bcb6ba72fb989dcab1ec55ec6c36c7e
-Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date:   Tue May 2 13:36:00 2017 +0200
-
-    s390/cputime: fix incorrect system time
-
-    git commit c5328901aa1db134 "[S390] entry[64].S improvements" removed
-    the update of the exit_timer lowcore field from the critical section
-    cleanup of the .Lsysc_restore/.Lsysc_done and .Lio_restore/.Lio_done
-    blocks. If the PSW is updated by the critical section cleanup to point to
-    user space again, the interrupt entry code will do a vtime calculation
-    after the cleanup completed with an exit_timer value which has *not* been
-    updated. Due to this incorrect system time deltas are calculated.
-
-    If an interrupt occured with an old PSW between .Lsysc_restore/.Lsysc_done
-    or .Lio_restore/.Lio_done update __LC_EXIT_TIMER with the system entry
-    time of the interrupt.
-
-    Cc: stable@vger.kernel.org # 3.3+
-    Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-    Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+diff --git a/arch/s390/include/asm/nmi.h b/arch/s390/include/asm/nmi.h
+index e3e8895..13623b9 100644
+--- a/arch/s390/include/asm/nmi.h
++++ b/arch/s390/include/asm/nmi.h
+@@ -14,7 +14,14 @@
+ #include <linux/const.h>
+ #include <linux/types.h>
+ 
++#define MCIC_SUBCLASS_MASK	(1ULL<<63 | 1ULL<<62 | 1ULL<<61 | \
++				1ULL<<59 | 1ULL<<58 | 1ULL<<56 | \
++				1ULL<<55 | 1ULL<<54 | 1ULL<<53 | \
++				1ULL<<52 | 1ULL<<47 | 1ULL<<46 | \
++				1ULL<<45 | 1ULL<<44)
+ #define MCCK_CODE_SYSTEM_DAMAGE		_BITUL(63)
++#define MCCK_CODE_EXT_DAMAGE		_BITUL(63 - 5)
++#define MCCK_CODE_CP			_BITUL(63 - 9)
+ #define MCCK_CODE_CPU_TIMER_VALID	_BITUL(63 - 46)
+ #define MCCK_CODE_PSW_MWP_VALID		_BITUL(63 - 20)
+ #define MCCK_CODE_PSW_IA_VALID		_BITUL(63 - 23)
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 60d395f..5b1b247 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -20,6 +20,7 @@
+ #define CIF_FPU			4	/* restore FPU registers */
+ #define CIF_IGNORE_IRQ		5	/* ignore interrupt (for udelay) */
+ #define CIF_ENABLED_WAIT	6	/* in enabled wait state */
++#define CIF_MCCK_GUEST		7	/* machine check happening in guest */
+ 
+ #define _CIF_MCCK_PENDING	_BITUL(CIF_MCCK_PENDING)
+ #define _CIF_ASCE_PRIMARY	_BITUL(CIF_ASCE_PRIMARY)
+@@ -28,6 +29,7 @@
+ #define _CIF_FPU		_BITUL(CIF_FPU)
+ #define _CIF_IGNORE_IRQ		_BITUL(CIF_IGNORE_IRQ)
+ #define _CIF_ENABLED_WAIT	_BITUL(CIF_ENABLED_WAIT)
++#define _CIF_MCCK_GUEST		_BITUL(CIF_MCCK_GUEST)
+ 
+ #ifndef __ASSEMBLY__
+ 
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index 6bb2963..b65c414 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -58,6 +58,9 @@ int main(void)
+ 	OFFSET(__SF_BACKCHAIN, stack_frame, back_chain);
+ 	OFFSET(__SF_GPRS, stack_frame, gprs);
+ 	OFFSET(__SF_EMPTY, stack_frame, empty1);
++	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[0]);
++	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[1]);
++	OFFSET(__SF_SIE_REASON, stack_frame, empty1[2]);
+ 	BLANK();
+ 	/* timeval/timezone offsets for use by vdso */
+ 	OFFSET(__VDSO_UPD_COUNT, vdso_data, tb_update_count);
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index a5f5d3b..9b48196 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -225,6 +225,7 @@ ENTRY(sie64a)
+ 	jnz	.Lsie_skip
+ 	TSTMSK	__LC_CPU_FLAGS,_CIF_FPU
+ 	jo	.Lsie_skip			# exit if fp/vx regs changed
++.Lsie_entry:
+ 	sie	0(%r14)
+ .Lsie_skip:
+ 	ni	__SIE_PROG0C+3(%r14),0xfe	# no longer in SIE
+@@ -1102,7 +1103,13 @@ cleanup_critical:
+ 	.quad	.Lsie_done
+ 
+ .Lcleanup_sie:
+-	lg	%r9,__SF_EMPTY(%r15)		# get control block pointer
++	cghi    %r11,__LC_SAVE_AREA_ASYNC 	#Is this in normal interrupt?
++	je      1f
++	slg     %r9,BASED(.Lsie_crit_mcck_start)
++	clg     %r9,BASED(.Lsie_crit_mcck_length)
++	jh      1f
++	oi      __LC_CPU_FLAGS+7, _CIF_MCCK_GUEST
++1:	lg	%r9,__SF_EMPTY(%r15)		# get control block pointer
+ 	ni	__SIE_PROG0C+3(%r9),0xfe	# no longer in SIE
+ 	lctlg	%c1,%c1,__LC_USER_ASCE		# load primary asce
+ 	larl	%r9,sie_exit			# skip forward to sie_exit
+@@ -1274,6 +1281,10 @@ cleanup_critical:
+ 	.quad	.Lsie_gmap
+ .Lsie_critical_length:
+ 	.quad	.Lsie_done - .Lsie_gmap
++.Lsie_crit_mcck_start:
++	.quad   .Lsie_entry
++.Lsie_crit_mcck_length:
++	.quad   .Lsie_skip - .Lsie_entry
+ #endif
+ 
+ 	.section .rodata, "a"
+diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+index 9855895..958cc33 100644
+--- a/arch/s390/kernel/nmi.c
++++ b/arch/s390/kernel/nmi.c
+@@ -25,6 +25,7 @@
+ #include <asm/crw.h>
+ #include <asm/switch_to.h>
+ #include <asm/ctl_reg.h>
++#include <asm/asm-offsets.h>
+ 
+ struct mcck_struct {
+ 	unsigned int kill_task : 1;
+@@ -280,6 +281,8 @@ static int notrace s390_validate_registers(union mci mci, int umode)
+ #define ED_STP_ISLAND	6	/* External damage STP island check */
+ #define ED_STP_SYNC	7	/* External damage STP sync check */
+ 
++#define MCCK_CODE_NO_GUEST	(MCCK_CODE_CP | MCCK_CODE_EXT_DAMAGE)
++
+ /*
+  * machine check handler.
+  */
+@@ -291,6 +294,7 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 	struct mcck_struct *mcck;
+ 	unsigned long long tmp;
+ 	union mci mci;
++	unsigned long mcck_dam_code;
+ 
+ 	nmi_enter();
+ 	inc_irq_stat(NMI_NMI);
+@@ -301,7 +305,13 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 		/* System damage -> stopping machine */
+ 		s390_handle_damage();
+ 	}
+-	if (mci.pd) {
++
++	/*
++	 * Reinject the instruction processing damages' machine checks
++	 * including Delayed Access Exception into the guest
++	 * instead of damaging the host if they happen in the guest.
++	 */
++	if (mci.pd && !test_cpu_flag(CIF_MCCK_GUEST)) {
+ 		if (mci.b) {
+ 			/* Processing backup -> verify if we can survive this */
+ 			u64 z_mcic, o_mcic, t_mcic;
+@@ -358,15 +368,22 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 		if (mcck->stp_queue)
+ 			set_cpu_flag(CIF_MCCK_PENDING);
+ 	}
+-	if (mci.se)
+-		/* Storage error uncorrected */
+-		s390_handle_damage();
+-	if (mci.ke)
+-		/* Storage key-error uncorrected */
+-		s390_handle_damage();
+-	if (mci.ds && mci.fa)
+-		/* Storage degradation */
+-		s390_handle_damage();
++
++	/*
++	 * Reinject storage related machine checks into the guest if they
++	 * happen when the guest is running.
++	 */
++	if (!test_cpu_flag(CIF_MCCK_GUEST)) {
++		if (mci.se)
++			/* Storage error uncorrected */
++			s390_handle_damage();
++		if (mci.ke)
++			/* Storage key-error uncorrected */
++			s390_handle_damage();
++		if (mci.ds && mci.fa)
++			/* Storage degradation */
++			s390_handle_damage();
++	}
+ 	if (mci.cp) {
+ 		/* Channel report word pending */
+ 		mcck->channel_report = 1;
+@@ -377,6 +394,19 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 		mcck->warning = 1;
+ 		set_cpu_flag(CIF_MCCK_PENDING);
+ 	}
++
++	/*
++	 * If there are only Channel Report Pending and External Damage
++	 * machine checks, they will not be reinjected into the guest
++	 * because they refer to host conditions only.
++	 */
++	mcck_dam_code = (mci.val & MCIC_SUBCLASS_MASK);
++	if (test_cpu_flag(CIF_MCCK_GUEST) &&
++	(mcck_dam_code & MCCK_CODE_NO_GUEST) != mcck_dam_code) {
++		/* Set exit reason code for host's later handling */
++		*((long *)(regs->gprs[15] + __SF_SIE_REASON)) = -EINTR;
++	}
++	clear_cpu_flag(CIF_MCCK_GUEST);
+ 	nmi_exit();
+ }
+ 
+-- 
+2.7.4
