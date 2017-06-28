@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 8/9] KVM: s390: Inject machine check into the guest
-Date: Wed, 28 Jun 2017 19:30:43 +0200
-Message-ID: <1498671044-81240-9-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 7/9] KVM: s390: Backup the guest's machine check info
+Date: Wed, 28 Jun 2017 19:30:42 +0200
+Message-ID: <1498671044-81240-8-git-send-email-borntraeger@de.ibm.com>
 References: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1498671044-81240-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,149 +14,140 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
 
-If the exit flag of SIE indicates that a machine check has happened
-during guest's running and needs to be injected, inject it to the guest
-accordingly.
-But some machine checks, e.g. Channel Report Pending (CRW), refer to
-host conditions only (the guest's channel devices are not managed by
-the kernel directly) and are therefore not injected into the guest.
-External Damage (ED) is also not reinjected into the guest because ETR
-conditions are gone in Linux and STP conditions are not enabled in the
-guest, and ED contains only these 8 ETR and STP conditions.
-In general, instruction-processing damage, system recovery,
-storage error, service-processor damage and channel subsystem damage
-will be reinjected into the guest, and the remain (System damage,
-timing-facility damage, warning, ED and CRW) will be handled on the host.
+When a machine check happens in the guest, related mcck info (mcic,
+external damage code, ...) is stored in the vcpu's lowcore on the host.
+Then the machine check handler's low-level part is executed, followed
+by the high-level part.
+
+If the high-level part's execution is interrupted by a new machine check
+happening on the same vcpu on the host, the mcck info in the lowcore is
+overwritten with the new machine check's data.
+
+If the high-level part's execution is scheduled to a different cpu,
+the mcck info in the lowcore is uncertain.
+
+Therefore, for both cases, the further reinjection to the guest will use
+the wrong data.
+Let's backup the mcck info in the lowcore to the sie page
+for further reinjection, so that the right data will be used.
+
+Add new member into struct sie_page to store related machine check's
+info of mcic, failing storage address and external damage code.
 
 Signed-off-by: QingFeng Hao <haoqf@linux.vnet.ibm.com>
 Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/nmi.h |  6 ++++++
- arch/s390/kvm/interrupt.c   | 43 ++++++++++++++++++++++++++++++++++++++++++-
- arch/s390/kvm/kvm-s390.c    | 12 ++++++++++++
- arch/s390/kvm/kvm-s390.h    |  2 ++
- 4 files changed, 62 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/kvm_host.h | 17 ++++++++++++++++-
+ arch/s390/kernel/nmi.c           | 34 ++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.c         |  1 +
+ 3 files changed, 51 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/nmi.h b/arch/s390/include/asm/nmi.h
-index 13623b9..9d91cf3 100644
---- a/arch/s390/include/asm/nmi.h
-+++ b/arch/s390/include/asm/nmi.h
-@@ -26,6 +26,12 @@
- #define MCCK_CODE_PSW_MWP_VALID		_BITUL(63 - 20)
- #define MCCK_CODE_PSW_IA_VALID		_BITUL(63 - 23)
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 426614a..c6e1d5f 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -107,6 +107,20 @@ struct esca_block {
+ 	struct esca_entry cpu[KVM_S390_ESCA_CPU_SLOTS];
+ } __packed;
  
-+#define MCCK_CR14_CR_PENDING_SUB_MASK	(1 << 28)
-+#define MCCK_CR14_RECOVERY_SUB_MASK	(1 << 27)
-+#define MCCK_CR14_DEGRAD_SUB_MASK	(1 << 26)
-+#define MCCK_CR14_EXT_DAMAGE_SUB_MASK	(1 << 25)
-+#define MCCK_CR14_WARN_SUB_MASK		(1 << 24)
++/*
++ * This struct is used to store some machine check info from lowcore
++ * for machine checks that happen while the guest is running.
++ * This info in host's lowcore might be overwritten by a second machine
++ * check from host when host is in the machine check's high-level handling.
++ * The size is 24 bytes.
++ */
++struct mcck_volatile_info {
++	__u64 mcic;
++	__u64 failing_storage_address;
++	__u32 ext_damage_code;
++	__u32 reserved;
++};
 +
- #ifndef __ASSEMBLY__
+ #define CPUSTAT_STOPPED    0x80000000
+ #define CPUSTAT_WAIT       0x10000000
+ #define CPUSTAT_ECALL_PEND 0x08000000
+@@ -264,7 +278,8 @@ struct kvm_s390_itdb {
  
- union mci {
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 72f3aaf..f2c78fc 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -251,8 +251,13 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
- 		__clear_bit(IRQ_PEND_EXT_SERVICE, &active_mask);
- 	if (psw_mchk_disabled(vcpu))
- 		active_mask &= ~IRQ_PEND_MCHK_MASK;
-+	/*
-+	 * Check both floating and local interrupt's cr14 because
-+	 * bit IRQ_PEND_MCHK_REP could be set in both cases.
-+	 */
- 	if (!(vcpu->arch.sie_block->gcr[14] &
--	      vcpu->kvm->arch.float_int.mchk.cr14))
-+	   (vcpu->kvm->arch.float_int.mchk.cr14 |
-+	   vcpu->arch.local_int.irq.mchk.cr14)))
- 		__clear_bit(IRQ_PEND_MCHK_REP, &active_mask);
+ struct sie_page {
+ 	struct kvm_s390_sie_block sie_block;
+-	__u8 reserved200[1024];		/* 0x0200 */
++	struct mcck_volatile_info mcck_info;	/* 0x0200 */
++	__u8 reserved218[1000];		/* 0x0218 */
+ 	struct kvm_s390_itdb itdb;	/* 0x0600 */
+ 	__u8 reserved700[2304];		/* 0x0700 */
+ } __packed;
+diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+index 958cc33..31d03a8 100644
+--- a/arch/s390/kernel/nmi.c
++++ b/arch/s390/kernel/nmi.c
+@@ -26,6 +26,7 @@
+ #include <asm/switch_to.h>
+ #include <asm/ctl_reg.h>
+ #include <asm/asm-offsets.h>
++#include <linux/kvm_host.h>
  
- 	/*
-@@ -2463,6 +2468,42 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
- 	return ret;
+ struct mcck_struct {
+ 	unsigned int kill_task : 1;
+@@ -275,6 +276,31 @@ static int notrace s390_validate_registers(union mci mci, int umode)
+ 	return kill_task;
  }
  
 +/*
-+ * Inject the machine check to the guest.
++ * Backup the guest's machine check info to its description block
 + */
-+void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
-+				     struct mcck_volatile_info *mcck_info)
++static void notrace s390_backup_mcck_info(struct pt_regs *regs)
 +{
-+	struct kvm_s390_interrupt_info inti;
-+	struct kvm_s390_irq irq;
-+	struct kvm_s390_mchk_info *mchk;
-+	union mci mci;
-+	__u64 cr14 = 0;         /* upper bits are not used */
-+
-+	mci.val = mcck_info->mcic;
-+	if (mci.sr)
-+		cr14 |= MCCK_CR14_RECOVERY_SUB_MASK;
-+	if (mci.dg)
-+		cr14 |= MCCK_CR14_DEGRAD_SUB_MASK;
-+	if (mci.w)
-+		cr14 |= MCCK_CR14_WARN_SUB_MASK;
-+
-+	mchk = mci.ck ? &inti.mchk : &irq.u.mchk;
-+	mchk->cr14 = cr14;
-+	mchk->mcic = mcck_info->mcic;
-+	mchk->ext_damage_code = mcck_info->ext_damage_code;
-+	mchk->failing_storage_address = mcck_info->failing_storage_address;
-+	if (mci.ck) {
-+		/* Inject the floating machine check */
-+		inti.type = KVM_S390_MCHK;
-+		WARN_ON_ONCE(__inject_vm(vcpu->kvm, &inti));
-+	} else {
-+		/* Inject the machine check to specified vcpu */
-+		irq.type = KVM_S390_MCHK;
-+		WARN_ON_ONCE(kvm_s390_inject_vcpu(vcpu, &irq));
-+	}
-+}
-+
- int kvm_set_routing_entry(struct kvm *kvm,
- 			  struct kvm_kernel_irq_routing_entry *e,
- 			  const struct kvm_irq_routing_entry *ue)
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 90434760..a0f6b59 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3041,6 +3041,9 @@ static int vcpu_post_run_fault_in_sie(struct kvm_vcpu *vcpu)
- 
- static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- {
-+	struct mcck_volatile_info *mcck_info;
++	struct mcck_volatile_info *mcck_backup;
 +	struct sie_page *sie_page;
 +
- 	VCPU_EVENT(vcpu, 6, "exit sie icptcode %d",
- 		   vcpu->arch.sie_block->icptcode);
- 	trace_kvm_s390_sie_exit(vcpu, vcpu->arch.sie_block->icptcode);
-@@ -3051,6 +3054,15 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- 	vcpu->run->s.regs.gprs[14] = vcpu->arch.sie_block->gg14;
- 	vcpu->run->s.regs.gprs[15] = vcpu->arch.sie_block->gg15;
- 
-+	if (exit_reason == -EINTR) {
-+		VCPU_EVENT(vcpu, 3, "%s", "machine check");
-+		sie_page = container_of(vcpu->arch.sie_block,
-+					struct sie_page, sie_block);
-+		mcck_info = &sie_page->mcck_info;
-+		kvm_s390_reinject_machine_check(vcpu, mcck_info);
-+		return 0;
-+	}
++	/* r14 contains the sie block, which was set in sie64a */
++	struct kvm_s390_sie_block *sie_block =
++			(struct kvm_s390_sie_block *) regs->gprs[14];
 +
- 	if (vcpu->arch.sie_block->icptcode > 0) {
- 		int rc = kvm_handle_sie_intercept(vcpu);
++	if (sie_block == NULL)
++		/* Something's seriously wrong, stop system. */
++		s390_handle_damage();
++
++	sie_page = container_of(sie_block, struct sie_page, sie_block);
++	mcck_backup = &sie_page->mcck_info;
++	mcck_backup->mcic = S390_lowcore.mcck_interruption_code &
++				~(MCCK_CODE_CP | MCCK_CODE_EXT_DAMAGE);
++	mcck_backup->ext_damage_code = S390_lowcore.external_damage_code;
++	mcck_backup->failing_storage_address
++			= S390_lowcore.failing_storage_address;
++}
++
+ #define MAX_IPD_COUNT	29
+ #define MAX_IPD_TIME	(5 * 60 * USEC_PER_SEC) /* 5 minutes */
  
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 55f5c84..6fedc8b 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -397,4 +397,6 @@ static inline int kvm_s390_use_sca_entries(void)
- 	 */
- 	return sclp.has_sigpif;
- }
-+void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
-+				     struct mcck_volatile_info *mcck_info);
- #endif
+@@ -355,6 +381,14 @@ void notrace s390_do_machine_check(struct pt_regs *regs)
+ 		mcck->mcck_code = mci.val;
+ 		set_cpu_flag(CIF_MCCK_PENDING);
+ 	}
++
++	/*
++	 * Backup the machine check's info if it happens when the guest
++	 * is running.
++	 */
++	if (test_cpu_flag(CIF_MCCK_GUEST))
++		s390_backup_mcck_info(regs);
++
+ 	if (mci.cd) {
+ 		/* Timing facility damage */
+ 		s390_handle_damage();
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 689ac48..0457e03 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2069,6 +2069,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+ 	if (!vcpu)
+ 		goto out;
+ 
++	BUILD_BUG_ON(sizeof(struct sie_page) != 4096);
+ 	sie_page = (struct sie_page *) get_zeroed_page(GFP_KERNEL);
+ 	if (!sie_page)
+ 		goto out_free_cpu;
 -- 
 2.7.4
