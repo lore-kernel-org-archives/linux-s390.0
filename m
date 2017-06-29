@@ -1,68 +1,51 @@
-From: Jiri Olsa <jolsa@kernel.org>
-Date: Thu, 29 Jun 2017 09:38:11 +0000
-Subject: [PATCH] s390/syscalls: Fix out of bounds arguments access
-Message-Id: <20170629093811.6364-1-jolsa@kernel.org>
-To: linux-s390@vger.kernel.org
+From: Dmitry Safonov <0x7f454c46@gmail.com>
+Date: Thu, 29 Jun 2017 15:06:47 +0000
+Subject: Re: [CRIU] [PATCH 2/7] criu/pie/parasite-vdso: Handle also systems without VVAR
+Message-Id: <CAJwJo6a9ADjZ+VcfkGfUK45oN0z6cTqz2Jt7BEwF+zp-Vha=bg@mail.gmail.com>
+In-Reply-To: <20170628161205.37787-3-holzheu@linux.vnet.ibm.com>
+References: <20170628161205.37787-3-holzheu@linux.vnet.ibm.com>
+To: linux-s390@vger.kernel.org, openvz-criu@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Zorro reported following crash while having enabled
-syscall tracing (CONFIG_FTRACE_SYSCALLS):
+2017-06-28 19:12 GMT+03:00 Michael Holzheu <holzheu@linux.vnet.ibm.com>:
+> On s390 we don't use vvar. Therefore vvar_size in not been initialized
+> and the value remains VVAR_BAD_SIZE.
+>
+> Fix the BUG() statement to also cover this case.
+>
+> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-  Unable to handle kernel pointer dereference at virtual ...
-  Oops: 0011 [#1] SMP DEBUG_PAGEALLOC
+Thanks,
+Reviewed-by: Dmitry Safonov <dsafonov@virtuozzo.com>
 
-  SNIP
+> ---
+>  criu/pie/parasite-vdso.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/criu/pie/parasite-vdso.c b/criu/pie/parasite-vdso.c
+> index 40b2695..ad178e9 100644
+> --- a/criu/pie/parasite-vdso.c
+> +++ b/criu/pie/parasite-vdso.c
+> @@ -44,9 +44,11 @@ static int vdso_remap(char *who, unsigned long from, unsigned long to, size_t si
+>  /* Park runtime vDSO in some safe place where it can be accessible from restorer */
+>  int vdso_do_park(struct vdso_maps *rt, unsigned long park_at, unsigned long park_size)
+>  {
+> +       unsigned long vvar_size;
+>         int ret;
+>
+> -       BUG_ON((rt->sym.vdso_size + rt->sym.vvar_size) < park_size);
+> +       vvar_size = (rt->sym.vvar_size == VVAR_BAD_SIZE) ? 0 : rt->sym.vvar_size;
+> +       BUG_ON((rt->sym.vdso_size + vvar_size) < park_size);
+>
+>         if (rt->vvar_start != VVAR_BAD_ADDR) {
+>                 if (rt->sym.vdso_before_vvar) {
+> --
+> 2.7.4
+>
+> _______________________________________________
+> CRIU mailing list
+> CRIU@openvz.org
+> https://lists.openvz.org/mailman/listinfo/criu
 
-  Call Trace:
-  ([<000000000024d79c>] ftrace_syscall_enter+0xec/0x1d8)
-   [<00000000001099c6>] do_syscall_trace_enter+0x236/0x2f8
-   [<0000000000730f1c>] sysc_tracesys+0x1a/0x32
-   [<000003fffcf946a2>] 0x3fffcf946a2
-  INFO: lockdep is turned off.
-  Last Breaking-Event-Address:
-   [<000000000022dd44>] rb_event_data+0x34/0x40
-  ---[ end trace 8c795f86b1b3f7b9 ]---
-
-The crash happens in syscall_get_arguments function for
-syscalls with zero arguments, that will try to access
-first argument (args[0]) in event entry, but it's not
-allocated.
-
-Bail out of there are no arguments.
-
-Reported-by: Zorro Lang <zlang@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
----
- arch/s390/include/asm/syscall.h | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
-index 6ba0bf928909..5f7c11c932fa 100644
---- a/arch/s390/include/asm/syscall.h
-+++ b/arch/s390/include/asm/syscall.h
-@@ -64,14 +64,22 @@ static inline void syscall_get_arguments(struct task_struct *task,
- {
- 	unsigned long mask = -1UL;
- 
-+	/*
-+	 * No arguments for this syscall, there's nothing to do.
-+	 */
-+	if (!n)
-+		return;
-+
- 	BUG_ON(i + n > 6);
- #ifdef CONFIG_COMPAT
- 	if (test_tsk_thread_flag(task, TIF_31BIT))
- 		mask = 0xffffffff;
- #endif
--	while (n-- > 0)
-+	while (n-- > 0) {
- 		if (i + n > 0)
- 			args[n] = regs->gprs[2 + i + n] & mask;
-+	}
-+
- 	if (i == 0)
- 		args[0] = regs->orig_gpr2 & mask;
- }
 -- 
-2.9.4
+             Dmitry
