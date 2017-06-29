@@ -1,74 +1,68 @@
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Wed, 28 Jun 2017 16:12:05 +0000
-Subject: [CRIU][PATCH 7/7] zdtm/static/sem: Use "union semun" instead of int
-Message-Id: <20170628161205.37787-8-holzheu@linux.vnet.ibm.com>
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Thu, 29 Jun 2017 09:38:11 +0000
+Subject: [PATCH] s390/syscalls: Fix out of bounds arguments access
+Message-Id: <20170629093811.6364-1-jolsa@kernel.org>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Alice Frosi <alice@inux.vnet.ibm.com>
+Zorro reported following crash while having enabled
+syscall tracing (CONFIG_FTRACE_SYSCALLS):
 
-Use "union semun" for semctl() to make testcase also work on s390x.
+  Unable to handle kernel pointer dereference at virtual ...
+  Oops: 0011 [#1] SMP DEBUG_PAGEALLOC
 
-Signed-off-by: Alice Frosi <alice@linux.vnet.ibm.com>
+  SNIP
+
+  Call Trace:
+  ([<000000000024d79c>] ftrace_syscall_enter+0xec/0x1d8)
+   [<00000000001099c6>] do_syscall_trace_enter+0x236/0x2f8
+   [<0000000000730f1c>] sysc_tracesys+0x1a/0x32
+   [<000003fffcf946a2>] 0x3fffcf946a2
+  INFO: lockdep is turned off.
+  Last Breaking-Event-Address:
+   [<000000000022dd44>] rb_event_data+0x34/0x40
+  ---[ end trace 8c795f86b1b3f7b9 ]---
+
+The crash happens in syscall_get_arguments function for
+syscalls with zero arguments, that will try to access
+first argument (args[0]) in event entry, but it's not
+allocated.
+
+Bail out of there are no arguments.
+
+Reported-by: Zorro Lang <zlang@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
 ---
- test/zdtm/static/sem.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ arch/s390/include/asm/syscall.h | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/test/zdtm/static/sem.c b/test/zdtm/static/sem.c
-index 6e459a8..1db8f00 100644
---- a/test/zdtm/static/sem.c
-+++ b/test/zdtm/static/sem.c
-@@ -110,7 +110,13 @@ int main(int argc, char **argv)
+diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+index 6ba0bf928909..5f7c11c932fa 100644
+--- a/arch/s390/include/asm/syscall.h
++++ b/arch/s390/include/asm/syscall.h
+@@ -64,14 +64,22 @@ static inline void syscall_get_arguments(struct task_struct *task,
  {
- 	int id, key;
- 	int i;
--	int val[NSEMS];
-+	/* See man semctl */
-+	union semun {
-+		int		val;
-+		struct		semid_ds *buf;
-+		unsigned short	*array;
-+		struct seminfo	*__buf;
-+	} val[NSEMS];
- 	int ret, fail_count = 0;
+ 	unsigned long mask = -1UL;
  
- 	test_init(argc, argv);
-@@ -129,7 +135,7 @@ int main(int argc, char **argv)
- 	}
- 
- 	for (i = 0; i < NSEMS; i++) {
--		val[i] = lrand48() & 0x7;
-+		val[i].val = lrand48() & 0x7;
- 
- 		if (semctl(id, i, SETVAL, val[i]) == -1) {
- 			fail_count++;
-@@ -142,7 +148,7 @@ int main(int argc, char **argv)
- 	test_waitsig();
- 
- 	for (i = 0; i < NSEMS; i++) {
--		ret = check_sem_by_id(id, i, val[i]);
-+		ret = check_sem_by_id(id, i, val[i].val);
- 		if (ret < 0) {
- 			fail_count++;
- 			fail("Check sem %d by id failed", i);
-@@ -155,14 +161,14 @@ int main(int argc, char **argv)
- 			goto out_destroy;
- 		}
- 
--		val[i] = semctl(id, 0, GETVAL);
--		if (val[i] < 0) {
-+		val[i].val = semctl(id, 0, GETVAL);
-+		if (val[i].val < 0) {
- 			fail("Failed to get sem %d value", i);
- 			fail_count++;
- 			goto out_destroy;
- 		}
--		if (val[i] != 0) {
--			fail("Non-zero sem %d value: %d", i, val[i]);
-+		if (val[i].val != 0) {
-+			fail("Non-zero sem %d value: %d", i, val[i].val);
- 			fail_count++;
- 		}
- 	}
++	/*
++	 * No arguments for this syscall, there's nothing to do.
++	 */
++	if (!n)
++		return;
++
+ 	BUG_ON(i + n > 6);
+ #ifdef CONFIG_COMPAT
+ 	if (test_tsk_thread_flag(task, TIF_31BIT))
+ 		mask = 0xffffffff;
+ #endif
+-	while (n-- > 0)
++	while (n-- > 0) {
+ 		if (i + n > 0)
+ 			args[n] = regs->gprs[2 + i + n] & mask;
++	}
++
+ 	if (i == 0)
+ 		args[0] = regs->orig_gpr2 & mask;
+ }
 -- 
-2.7.4
+2.9.4
