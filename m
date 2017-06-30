@@ -1,46 +1,41 @@
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Fri, 30 Jun 2017 18:31:48 +0000
-Subject: [CRIU][PATCH v3 13/15] criu/mount: Fix flags cast and sizeof(sflags)
-Message-Id: <20170630183150.76021-14-holzheu@linux.vnet.ibm.com>
+Date: Fri, 30 Jun 2017 18:31:49 +0000
+Subject: [CRIU][PATCH v3 14/15] zdtm/static/fdt_shared: Fix buffer size
+Message-Id: <20170630183150.76021-15-holzheu@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The "args" parameter in apply_sb_flags() is unsigned long. Therefore also
-use unsigned long for the cast.
+The TEST_STRING "Hello World!" has 13 bytes size. Therefore the 10 bytes
+used for the buffer size are not sufficient.
 
-The "sflags" variable in do_new_mount() is unsigned long. Therefore use
-sizeof(sflags) instead of sizeof(int).
+Fix this and use sizeof() to be on the safe side.
 
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- criu/mount.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ test/zdtm/static/fdt_shared.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/criu/mount.c b/criu/mount.c
-index b7c4785..5fe2c86 100644
---- a/criu/mount.c
-+++ b/criu/mount.c
-@@ -1774,8 +1774,8 @@ static char *mnt_fsname(struct mount_info *mi)
+diff --git a/test/zdtm/static/fdt_shared.c b/test/zdtm/static/fdt_shared.c
+index b1c74d0..2111356 100644
+--- a/test/zdtm/static/fdt_shared.c
++++ b/test/zdtm/static/fdt_shared.c
+@@ -62,7 +62,7 @@ static pid_t clone_child(int (*fn)(void *), int flags)
  
- static int apply_sb_flags(void *args, int fd, pid_t pid)
+ static int child2(void *_arg)
  {
-+	unsigned long flags = *(unsigned long *) args;
- 	int rst = -1, err = -1;
--	long flags = *(int *) args;
- 	char path[PSFDS];
+-	char buf[10];
++	char buf[sizeof(TEST_STRING)];
  
- 	snprintf(path, sizeof(path), "/proc/self/fd/%d", fd);
-@@ -1840,10 +1840,9 @@ static int do_new_mount(struct mount_info *mi)
- 			pr_perror("Unable to open %s", mi->mountpoint);
- 			return -1;
- 		}
--
- 		sflags |= MS_RDONLY;
- 		if (userns_call(apply_sb_flags, 0,
--				&sflags, sizeof(int), fd)) {
-+				&sflags, sizeof(sflags), fd)) {
- 			pr_perror("Unable to apply mount falgs %d for %s",
- 						mi->sb_flags, mi->mountpoint);
- 			close(fd);
+ 	forked();
+ 	test_waitsig();
+@@ -90,7 +90,7 @@ static int child3(void *_arg)
+ 
+ static int child(void *_arg)
+ {
+-	char buf[10];
++	char buf[sizeof(TEST_STRING)];
+ 	pid_t pid, pid2;
+ 	int status;
+ 
 -- 
 2.7.4
