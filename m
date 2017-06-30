@@ -1,43 +1,67 @@
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Fri, 30 Jun 2017 14:41:20 +0000
-Subject: Re: [CRIU][PATCH 0/7] Add architecture support for s390x
-Message-Id: <20170630164120.0e1a2aef@TP-holzheu>
-In-Reply-To: <0003e239-f4d9-124a-fcd5-591b07b27b7e@virtuozzo.com>
-References: <0003e239-f4d9-124a-fcd5-591b07b27b7e@virtuozzo.com>
-To: linux-s390@vger.kernel.org
+From: Andrei Vagin <avagin@virtuozzo.com>
+Date: Fri, 30 Jun 2017 17:45:27 +0000
+Subject: Re: [CRIU] [PATCH v2 12/17] criu/pie/parasite-vdso: Handle also systems without VVAR
+Message-Id: <20170630174526.GB31550@outlook.office365.com>
+In-Reply-To: <CAJwJo6YCvkCJ-GXeRtjd+METmEQyNcguTFVMsFJbhsmVQMfjcg@mail.gmail.com>
+References: <CAJwJo6YCvkCJ-GXeRtjd+METmEQyNcguTFVMsFJbhsmVQMfjcg@mail.gmail.com>
+To: linux-s390@vger.kernel.org, openvz-criu@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Am Thu, 29 Jun 2017 17:33:51 +0300
-schrieb Pavel Emelyanov <xemul@virtuozzo.com>:
-
-> On 06/29/2017 05:23 PM, Michael Holzheu wrote:
-> > Am Thu, 29 Jun 2017 12:48:28 +0300
-> > schrieb Pavel Emelyanov <xemul@virtuozzo.com>:
-> > 
-> >> On 06/28/2017 07:11 PM, Michael Holzheu wrote:
-> >>> Hello CRIU mailing list,
-> >>>
-> >>> This set of patches adds the s390x (64 bit mainframe) backend support to
-> >>> the CRIU checkpoint/restore tool.
+On Fri, Jun 30, 2017 at 12:48:23PM +0300, Dmitry Safonov wrote:
+> 2017-06-30 0:07 GMT+03:00 Adrian Reber <adrian@lisas.de>:
+> > On Thu, Jun 29, 2017 at 09:24:40PM +0200, Michael Holzheu wrote:
+> >> On s390 we don't use vvar. Therefore vvar_size in not been initialized
+> >> and the value remains VVAR_BAD_SIZE.
 > >>
-> >> That's really cool :) thanks a lot!
+> >> Fix the BUG() statement to also cover this case.
 > >>
-> >> There's one, quite big, thing I'd like to discuss :) So far the most active community
-> >> members are x86 guys, but we already have 3 more arches (arm, aarch64 and ppc64le). 
-> >> In order not to break non-x86 heavily we've set up travis-ci jobs to constantly check
-> >> that criu compiles on non-x64 [1]. Also we have arm box and access to ppc64 VM from 
-> >> IBM and a set of jenkins jobs [2] that run tests on them.
-> >>
-> >> Would you also at least add the former piece, so that we don't break compilation of your
-> >> code. And ideally, we'd like to have the latter thing too.
-> > 
-> > Yesterday we tried to setup the travis qemu stuff, but for some reason
-> > this failed. I attached our current patch to this E-mail.
+> >> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> >> Reviewed-by: Dmitry Safonov <dsafonov@virtuozzo.com>
+> >
+> > I need this patch also on x86_64 to make criu work again so:
+> >
+> > Tested-by: Adrian Reber <areber@redhat.com>
 > 
-> OK. So we'll at least have the compilation checker :)
+> Andrew, please, take care of it independently to the set.
 
-I just learned that qemu on s390x can only emulate older z900 mainframe machines.
-Very likely the Travis Ubuntu Docker image for s390 uses newer instructions,
-which is probably the reason why it currently does not work.
+Applied, thanks!
 
-Michael
+> 
+> >
+> >> ---
+> >>  criu/pie/parasite-vdso.c | 4 +++-
+> >>  1 file changed, 3 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/criu/pie/parasite-vdso.c b/criu/pie/parasite-vdso.c
+> >> index 40b2695..ad178e9 100644
+> >> --- a/criu/pie/parasite-vdso.c
+> >> +++ b/criu/pie/parasite-vdso.c
+> >> @@ -44,9 +44,11 @@ static int vdso_remap(char *who, unsigned long from, unsigned long to, size_t si
+> >>  /* Park runtime vDSO in some safe place where it can be accessible from restorer */
+> >>  int vdso_do_park(struct vdso_maps *rt, unsigned long park_at, unsigned long park_size)
+> >>  {
+> >> +     unsigned long vvar_size;
+> >>       int ret;
+> >>
+> >> -     BUG_ON((rt->sym.vdso_size + rt->sym.vvar_size) < park_size);
+> >> +     vvar_size = (rt->sym.vvar_size == VVAR_BAD_SIZE) ? 0 : rt->sym.vvar_size;
+> >> +     BUG_ON((rt->sym.vdso_size + vvar_size) < park_size);
+> >>
+> >>       if (rt->vvar_start != VVAR_BAD_ADDR) {
+> >>               if (rt->sym.vdso_before_vvar) {
+> >> --
+> >> 2.7.4
+> >>
+> >> _______________________________________________
+> >> CRIU mailing list
+> >> CRIU@openvz.org
+> >> https://lists.openvz.org/mailman/listinfo/criu
+> > _______________________________________________
+> > CRIU mailing list
+> > CRIU@openvz.org
+> > https://lists.openvz.org/mailman/listinfo/criu
+> 
+> 
+> 
+> -- 
+>              Dmitry
