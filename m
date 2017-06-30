@@ -1,55 +1,52 @@
-From: Kees Cook <keescook@chromium.org>
-Date: Fri, 23 Jun 2017 13:59:59 -0700
-Message-Id: <1498251600-132458-5-git-send-email-keescook@chromium.org>
-In-Reply-To: <1498251600-132458-1-git-send-email-keescook@chromium.org>
-References: <1498251600-132458-1-git-send-email-keescook@chromium.org>
-Subject: [kernel-hardening] [PATCH v2 4/5] powerpc: Move ELF_ET_DYN_BASE to 4GB / 4MB
-List-Archive: <https://lore.kernel.org/kernel-hardening/>
-List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Kees Cook <keescook@chromium.org>, stable@vger.kernel.org, Rik van Riel <riel@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Daniel Micay <danielmicay@gmail.com>, Qualys Security Advisory <qsa@qualys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Pratyush Anand <panand@redhat.com>, James Hogan <james.hogan@imgtec.com>, Dmitry Safonov <dsafonov@virtuozzo.com>, Grzegorz Andrejczuk <grzegorz.andrejczuk@intel.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, kernel-hardening@lists.openwall.com
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: [PATCH RFC 22/26] s390: Remove spin_unlock_wait() arch-specific definitions
+Date: Thu, 29 Jun 2017 17:01:30 -0700
+Message-ID: <1498780894-8253-22-git-send-email-paulmck@linux.vnet.ibm.com>
+References: <20170629235918.GA6445@linux.vnet.ibm.com>
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20170629235918.GA6445@linux.vnet.ibm.com>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: netfilter-devel@vger.kernel.org, netdev@vger.kernel.org, oleg@redhat.com, akpm@linux-foundation.org, mingo@redhat.com, dave@stgolabs.net, manfred@colorfullife.com, tj@kernel.org, arnd@arndb.de, linux-arch@vger.kernel.org, will.deacon@arm.com, peterz@infradead.org, stern@rowland.harvard.edu, parri.andrea@gmail.com, torvalds@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Now that explicitly executed loaders are loaded in the mmap region, we
-have more freedom to decide where we position PIE binaries in the address
-space to avoid possible collisions with mmap or stack regions.
+There is no agreed-upon definition of spin_unlock_wait()'s semantics,
+and it appears that all callers could do just as well with a lock/unlock
+pair.  This commit therefore removes the underlying arch-specific
+arch_spin_unlock_wait().
 
-For 64-bit, align to 4GB to allow runtimes to use the entire 32-bit
-address space for 32-bit pointers. On 32-bit use 4MB, which is the
-traditional x86 minimum load location, likely to avoid historically
-requiring a 4MB page table entry when only a portion of the first 4MB
-would be used (since the NULL address is avoided).
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: <linux-s390@vger.kernel.org>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrea Parri <parri.andrea@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 ---
- arch/powerpc/include/asm/elf.h | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/spinlock.h | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/elf.h b/arch/powerpc/include/asm/elf.h
-index 09bde6e34f5d..548d9a411a0d 100644
---- a/arch/powerpc/include/asm/elf.h
-+++ b/arch/powerpc/include/asm/elf.h
-@@ -23,12 +23,13 @@
- #define CORE_DUMP_USE_REGSET
- #define ELF_EXEC_PAGESIZE	PAGE_SIZE
+diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/spinlock.h
+index f7838ecd83c6..217ee5210c32 100644
+--- a/arch/s390/include/asm/spinlock.h
++++ b/arch/s390/include/asm/spinlock.h
+@@ -98,13 +98,6 @@ static inline void arch_spin_unlock(arch_spinlock_t *lp)
+ 		: "cc", "memory");
+ }
  
--/* This is the location that an ET_DYN program is loaded if exec'ed.  Typical
--   use of this is to invoke "./ld.so someprog" to test out a new version of
--   the loader.  We need to make sure that it is out of the way of the program
--   that it will "exec", and that there is sufficient room for the brk.  */
+-static inline void arch_spin_unlock_wait(arch_spinlock_t *lock)
+-{
+-	while (arch_spin_is_locked(lock))
+-		arch_spin_relax(lock);
+-	smp_acquire__after_ctrl_dep();
+-}
 -
--#define ELF_ET_DYN_BASE	0x20000000
-+/*
-+ * This is the base location for PIE (ET_DYN with INTERP) loads. On
-+ * 64-bit, this is raised to 4GB to leave the entire 32-bit address
-+ * space open for things that want to use the area for 32-bit pointers.
-+ */
-+#define ELF_ET_DYN_BASE		(is_32bit_task() ? 0x000400000UL : \
-+						   0x100000000UL)
- 
- #define ELF_CORE_EFLAGS (is_elf2_task() ? 2 : 0)
- 
+ /*
+  * Read-write spinlocks, allowing multiple readers
+  * but only one writer.
 -- 
-2.7.4
+2.5.2
