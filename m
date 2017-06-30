@@ -1,74 +1,73 @@
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Thu, 29 Jun 2017 19:24:45 +0000
-Subject: [CRIU][PATCH v2 17/17] zdtm/static/sem: Use "union semun" instead of int
-Message-Id: <20170629192445.55580-18-holzheu@linux.vnet.ibm.com>
+From: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>
+Date: Fri, 30 Jun 2017 11:14:25 +0000
+Subject: Re: [PATCH] [PATCH v2] perf test: add platform dependency to test 15
+Message-Id: <42b0bda9-a515-ec22-ef8d-879d80b774dd@linux.vnet.ibm.com>
+In-Reply-To: <4ca2d2ae-6046-65f9-ca51-7cd84b2c1a2f@linux.vnet.ibm.com>
+References: <4ca2d2ae-6046-65f9-ca51-7cd84b2c1a2f@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Alice Frosi <alice@inux.vnet.ibm.com>
+On 06/29/2017 02:30 PM, Jiri Olsa wrote:
+> On Thu, Jun 29, 2017 at 02:27:43PM +0200, Thomas-Mich Richter wrote:
+> 
+> SNIP
+> 
+>>>> Did I miss something?
+>>>
+>>> no, my bad.. it's the perf/attr_test branch, sry
+>>>
+>>> jirka
+>>>
+>>
+>> Ok, I will rework my patch to work with your perf/attr_test branch
+>> and I will resent it to you. 
+>> This patch will then be part of your patch series (which is fine
+>> with)?
+>> And you will submit upstream to the perf tool repository?
+> 
+> sure np.. does it work for you?
+> 
+> thanks,
+> jirka
+> 
 
-Use "union semun" for semctl() to make testcase also work on s390x.
+I have cloned your perf/attr_test branch today and added my
+patch on top of it. I have then tested it and all went well.
 
-Signed-off-by: Alice Frosi <alice@linux.vnet.ibm.com>
----
- test/zdtm/static/sem.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+I will send you the patch in a seperate mail. Please
+put it into your patch set and when it gets into mainline
+kernel, I will start working on the s390x test cases.
+(Hopefully soon...)
 
-diff --git a/test/zdtm/static/sem.c b/test/zdtm/static/sem.c
-index 6e459a8..1db8f00 100644
---- a/test/zdtm/static/sem.c
-+++ b/test/zdtm/static/sem.c
-@@ -110,7 +110,13 @@ int main(int argc, char **argv)
- {
- 	int id, key;
- 	int i;
--	int val[NSEMS];
-+	/* See man semctl */
-+	union semun {
-+		int		val;
-+		struct		semid_ds *buf;
-+		unsigned short	*array;
-+		struct seminfo	*__buf;
-+	} val[NSEMS];
- 	int ret, fail_count = 0;
- 
- 	test_init(argc, argv);
-@@ -129,7 +135,7 @@ int main(int argc, char **argv)
- 	}
- 
- 	for (i = 0; i < NSEMS; i++) {
--		val[i] = lrand48() & 0x7;
-+		val[i].val = lrand48() & 0x7;
- 
- 		if (semctl(id, i, SETVAL, val[i]) == -1) {
- 			fail_count++;
-@@ -142,7 +148,7 @@ int main(int argc, char **argv)
- 	test_waitsig();
- 
- 	for (i = 0; i < NSEMS; i++) {
--		ret = check_sem_by_id(id, i, val[i]);
-+		ret = check_sem_by_id(id, i, val[i].val);
- 		if (ret < 0) {
- 			fail_count++;
- 			fail("Check sem %d by id failed", i);
-@@ -155,14 +161,14 @@ int main(int argc, char **argv)
- 			goto out_destroy;
- 		}
- 
--		val[i] = semctl(id, 0, GETVAL);
--		if (val[i] < 0) {
-+		val[i].val = semctl(id, 0, GETVAL);
-+		if (val[i].val < 0) {
- 			fail("Failed to get sem %d value", i);
- 			fail_count++;
- 			goto out_destroy;
- 		}
--		if (val[i] != 0) {
--			fail("Non-zero sem %d value: %d", i, val[i]);
-+		if (val[i].val != 0) {
-+			fail("Non-zero sem %d value: %d", i, val[i].val);
- 			fail_count++;
- 		}
- 	}
+BTY: I run into a subtle issue with your new result testing.
+I run a perf stat -e cycles test on a simulation for s390x
+with out any hardware.
+When there is no event-xx-yy-zz file in the /tmp directory
+at all there is no result value in function compare and I
+get this call stack from python2
+
+  ... 
+  loading result events
+  compare
+    matching [event:base-stat]
+        match: [event:base-stat] matches []
+Traceback (most recent call last):
+  File "./tests/attr.py", line 345, in <module>
+    main()
+  File "./tests/attr.py", line 336, in main
+    run_tests(options)
+  File "./tests/attr.py", line 279, in run_tests
+    Test(f, options).run()
+  File "./tests/attr.py", line 269, in run
+    self.compare(self.expect, self.result)
+  File "./tests/attr.py", line 213, in compare
+    exp_event.diff(res_event)
+UnboundLocalError: local variable 'res_event' referenced before assignment
+
+Hope this helps
 -- 
-2.7.4
+Thomas Richter, Dept 3303, IBM LTC Boeblingen Germany
+--
+Vorsitzende des Aufsichtsrats: Martina Koederitz 
+Gesch�ftsf�hrung: Dirk Wittkopp
+Sitz der Gesellschaft: B�blingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
