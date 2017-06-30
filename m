@@ -1,113 +1,67 @@
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Fri, 30 Jun 2017 18:31:44 +0000
-Subject: [CRIU][PATCH v3 09/15] s390:zdtm: Add test for tasks > 4TB
-Message-Id: <20170630183150.76021-10-holzheu@linux.vnet.ibm.com>
+Date: Fri, 30 Jun 2017 18:31:45 +0000
+Subject: [CRIU][PATCH v3 10/15] s390:criu: Add support for s390 consoles
+Message-Id: <20170630183150.76021-11-holzheu@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-If the kernel contains patch ee71d16d22 ("s390/mm: make TASK_SIZE
-independent from the number of page table levels") we are able
-to checkpoint tasks > 4TB.
+On s390 we have special console drivers with minors 64 and 65.
+Add support for them in criu code and in zdtm testsuite.
 
-Add a testcase to verify this.
-
+Reviewed-by: Alice Frosi <alice@linux.vnet.ibm.com>
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- test/zdtm/static/Makefile             |  1 +
- test/zdtm/static/s390x_mmap_high.c    | 64 +++++++++++++++++++++++++++++++++++
- test/zdtm/static/s390x_mmap_high.desc |  1 +
- 3 files changed, 66 insertions(+)
- create mode 100644 test/zdtm/static/s390x_mmap_high.c
- create mode 100644 test/zdtm/static/s390x_mmap_high.desc
+ criu/tty.c            | 11 +++++++++++
+ test/zdtm/static/vt.c |  8 +++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/test/zdtm/static/Makefile b/test/zdtm/static/Makefile
-index 2c6353e..12aa4f1 100644
---- a/test/zdtm/static/Makefile
-+++ b/test/zdtm/static/Makefile
-@@ -185,6 +185,7 @@ TST_NOFILE	:=				\
- 		pidns01				\
- 		pidns02				\
- 		pidns03				\
-+		s390x_mmap_high			\
- #		jobctl00			\
+diff --git a/criu/tty.c b/criu/tty.c
+index baef7f5..f674f25 100644
+--- a/criu/tty.c
++++ b/criu/tty.c
+@@ -300,6 +300,17 @@ struct tty_driver *get_tty_driver(dev_t rdev, dev_t dev)
+ 			 * of kernel).
+ 			 */
+ 			return &vt_driver;
++#ifdef __s390x__
++		/*
++		 * On s390 we have the following consoles:
++		 * - tty3215    : ttyS0   , minor = 64, linemode console
++		 * - sclp_line  : ttyS0   , minor = 64, linemode console
++		 * - sclp_vt220 : ttysclp0, minor = 65, vt220 console
++		 * See also "drivers/s390/char"
++		 */
++		else if (minor == 64 || minor == 65)
++			return &vt_driver;
++#endif
+ 		/* Other minors points to UART serial ports */
+ 		break;
+ 	case USB_SERIAL_MAJOR:
+diff --git a/test/zdtm/static/vt.c b/test/zdtm/static/vt.c
+index 0db0f2c..0d843c4 100644
+--- a/test/zdtm/static/vt.c
++++ b/test/zdtm/static/vt.c
+@@ -15,6 +15,12 @@ const char *test_author	= "Ruslan Kuprieiev <kupruser@gmail.com>";
+ char *filename;
+ TEST_OPTION(filename, string, "file name", 1);
  
- ifneq ($(SRCARCH),arm)
-diff --git a/test/zdtm/static/s390x_mmap_high.c b/test/zdtm/static/s390x_mmap_high.c
-new file mode 100644
-index 0000000..5eb06e6
---- /dev/null
-+++ b/test/zdtm/static/s390x_mmap_high.c
-@@ -0,0 +1,64 @@
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/mman.h>
-+#include <unistd.h>
++#ifdef __s390x__
++#define MINOR	64 /* ttyS0 */
++#else
++#define MINOR	5
++#endif
 +
-+#include "zdtmtst.h"
-+
-+#define TASK_SIZE_LEVEL_4	0x20000000000000UL	/* 8 PB */
-+#define MAP_SIZE	0x1000
-+#define VAL		0x77
-+
-+const char *test_doc	= "Verify that tasks > 4TB can be checkpointed";
-+const char *test_author	= "Michael Holzheu <holzheu@linux.vnet.ibm.com>";
-+
-+/*
-+ * Map memory at the very end of the 8 PB address space
-+ */
-+int main(int argc, char **argv)
-+{
-+	void *addr = (void *) TASK_SIZE_LEVEL_4 - MAP_SIZE;
-+	char *buf;
-+	int i;
-+
-+
-+	test_init(argc, argv);
-+
-+	/*
-+	 * Skip test if kernel does not have the following fix:
-+	 *
-+	 * ee71d16d22 ("s390/mm: make TASK_SIZE independent from the number
-+	 *              of page table levels")
-+	 */
-+	if (munmap(addr, MAP_SIZE) == -1) {
-+		test_daemon();
-+		test_waitsig();
-+		skip("Detected kernel without 4 level TASK_SIZE fix");
-+		pass();
-+		return 0;
-+	}
-+
-+	/* Map memory at the very end of the 8 PB address space */
-+	buf = mmap(addr, MAP_SIZE, PROT_WRITE | PROT_READ,
-+			MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
-+	if (buf == MAP_FAILED) {
-+		pr_perror("Could not create mapping");
-+		exit(1);
-+	}
-+	/* Initialize buffer with data */
-+	memset(buf, VAL, MAP_SIZE);
-+
-+	test_daemon();
-+	test_waitsig();
-+
-+	/* Verify that we restored the data correctly */
-+	for (i = 0; i < MAP_SIZE; i++) {
-+		if (buf[i] == VAL)
-+			continue;
-+		fail("%d: %d != %d\n", i, buf[i], VAL);
-+		goto out;
-+	}
-+	pass();
-+out:
-+	return 0;
-+}
-diff --git a/test/zdtm/static/s390x_mmap_high.desc b/test/zdtm/static/s390x_mmap_high.desc
-new file mode 100644
-index 0000000..8621263
---- /dev/null
-+++ b/test/zdtm/static/s390x_mmap_high.desc
-@@ -0,0 +1 @@
-+{'arch': 's390x'}
+ int main(int argc, char **argv)
+ {
+ 	struct stat st1, st2;
+@@ -22,7 +28,7 @@ int main(int argc, char **argv)
+ 
+ 	test_init(argc, argv);
+ 
+-	if (mknod(filename, S_IFCHR | S_IRUSR | S_IWUSR, makedev(4, 5))) {
++	if (mknod(filename, S_IFCHR | S_IRUSR | S_IWUSR, makedev(4, MINOR))) {
+ 		pr_perror("Can't create virtual terminal %s", filename);
+ 		return 1;
+ 	}
 -- 
 2.7.4
