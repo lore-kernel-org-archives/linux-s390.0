@@ -1,38 +1,85 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/1] KVM: s390: fixup missing srcu lock for 4.13 (kvm/master)
-Date: Tue, 25 Jul 2017 15:21:05 +0200
-Message-ID: <1500988866-28288-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 1/1] futex: remove duplicated code and fix UB
+Date: Mon, 3 Jul 2017 12:18:28 +0200 (CEST)
+Message-ID: <alpine.DEB.2.20.1707031211120.2188@nanos>
+References: <20170621115318.2781-1-jslaby@suse.cz>
+ <alpine.DEB.2.20.1706230017520.2221@nanos>
+ <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+In-Reply-To: <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>,
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, peterz@infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, mingo@redhat.com, Catalin Marinas <catalin.marinas@arm.com>, dvhart@infradead.org, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-xtensa@linux-xtensa.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo, Radim,
+On Mon, 26 Jun 2017, Jiri Slaby wrote:
+> On 06/23/2017, 09:51 AM, Thomas Gleixner wrote:
+> > On Wed, 21 Jun 2017, Jiri Slaby wrote:
+> >> diff --git a/arch/arm64/include/asm/futex.h b/arch/arm64/include/asm/futex.h
+> >> index f32b42e8725d..5bb2fd4674e7 100644
+> >> --- a/arch/arm64/include/asm/futex.h
+> >> +++ b/arch/arm64/include/asm/futex.h
+> >> @@ -48,20 +48,10 @@ do {									\
+> >>  } while (0)
+> >>  
+> >>  static inline int
+> >> -futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
+> > 
+> > That unsigned int seems to be a change from the arm64 tree in next. It's
+> > not upstream and it'll cause a (easy to resolve) conflict.
+> 
+> Ugh, I thought the arm64 is in upstream already. Note that this patch
+> just takes what is in this arm64 fix and makes it effective for all
+> architectures. So I will wait with v2 until it merges upstream.
 
-The following changes since commit f1ff89ec4447c4e39d275a1ca3de43eed2a92745:
+Ok.
 
-  kvm: x86: hyperv: avoid livelock in oneshot SynIC timers (2017-07-20 17:00:00 +0200)
+> > Yes, we probably can't change that anymore, but at least we should make it
+> > very explicit and add a comment to that effect.
+> 
+> Something like this or do you want a comment yet?
+>         unsigned int op =         (encoded_op & 0x70000000) >> 28;
+>         unsigned int cmp =        (encoded_op & 0x0f000000) >> 24;
+>         int oparg = sign_extend32((encoded_op & 0x00fff000) >> 12, 12);
+>         int cmparg = sign_extend32(encoded_op & 0x00000fff, 12);
 
-are available in the git repository at:
+Yes, that makes sense.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.13-1
+There is also the issue with the shift. See this thread for further
+reference:
 
-for you to fetch changes up to 4f899147424a189b0ad1fdd6f35784ed5a642e83:
+  http://lkml.kernel.org/r/alpine.DEB.2.20.1706282353190.1890@nanos
 
-  KVM: s390: take srcu lock when getting/setting storage keys (2017-07-25 14:59:52 +0200)
+The gist is:
 
-----------------------------------------------------------------
-KVM: s390: fixup missing srcu lock
+  "Anything using a shift value < 0 or > 31 will get crap as a
+   result. Rightfully so because it's just undefined.
 
-We need to hold the srcu lock when accessing memory slots
-during migration
+   Yes I know that the insanity of user space is unlimited, but anything
+   attempting this is so broken that we cannot break it further by making
+   that shift arg unsigned and actually limit it to 0-31"
 
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      KVM: s390: take srcu lock when getting/setting storage keys
+So we should make that case explicit as well.
 
- arch/s390/kvm/kvm-s390.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+        if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28)) {
+		if (oparg < 0 || oparg > 31)
+			return -EINVAL;
+                oparg = 1 << oparg;
+	}
+
+Thanks,
+
+	tglx
