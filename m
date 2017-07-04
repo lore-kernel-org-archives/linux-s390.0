@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 6 Jul 2017 14:25:39 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 12/18] drivers: s390: Move static and inline before
- return type
-References: <cover.1499284835.git.joe@perches.com>
- <3f980cd89084ae09716353aba3171e4b3815e690.1499284835.git.joe@perches.com>
- <20170706102940.GG3217@osiris>
- <1499338639.19466.25.camel@perches.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1499338639.19466.25.camel@perches.com>
-Message-Id: <20170706122539.GJ3217@osiris>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Joe Perches <joe@perches.com>
-Cc: Klaus-Dieter Wacker <kdwacker@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Tue, 04 Jul 2017 05:05:13 +0000
+Subject: Re: [PATCH] s390/syscalls: Fix out of bounds arguments access
+Message-Id: <20170704070513.59afca22@mschwideX1>
+In-Reply-To: <20170703152022.GB16010@krava>
+References: <20170703152022.GB16010@krava>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jul 06, 2017 at 03:57:19AM -0700, Joe Perches wrote:
-> On Thu, 2017-07-06 at 12:29 +0200, Heiko Carstens wrote:
-> > On Wed, Jul 05, 2017 at 01:02:21PM -0700, Joe Perches wrote:
-> > > Make the code like the rest of the kernel.
-> []
-> > > diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.cqq
-> []
-> > > @@ -2408,7 +2408,7 @@ static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-> > >  	return rc;
-> > >  }
-> > > 
-> > > -int inline qeth_l3_get_cast_type(struct qeth_card *card, struct sk_buff *skb)
-> > > +inline int qeth_l3_get_cast_type(struct qeth_card *card, struct sk_buff *skb)
-> > >  {
-> > 
-> > Actually the function could be made static, and "inline" should be removed,
-> > considering the large function body.
-> 
-> I agree to a certain extent.
-> 
-> It's only used once and  it looks like Klaus-Dieter Wacker
-> just missed adding static to this function.
-> 
-> $ git log --stat -p -1 ce73e10ee0cb6
-> commit ce73e10ee0cb6cde1c5075a2803da0f0eb5b2324
-> Author: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
-> 
-> But it also looks like inline is too often used in several
-> drivers/s390/net/*.c files, where most of those static inline
-> functions are only used once.
-> 
-> $ git grep -w inline drivers/s390/net/*.c | wc -l
-> 42
-> 
-> Maybe inline removals should be a separate pass for all those.
+On Mon, 3 Jul 2017 17:20:22 +0200
+Jiri Olsa <jolsa@redhat.com> wrote:
 
-Yes, Ursula or Julian can address this if they care.
+> On Mon, Jul 03, 2017 at 04:29:37PM +0200, Martin Schwidefsky wrote:
+> 
+> SNIP
+> 
+> > > ---
+> > >  arch/s390/include/asm/syscall.h | 10 +++++++++-
+> > >  1 file changed, 9 insertions(+), 1 deletion(-)  
+> > 
+> > There are callers of syscall_get_arguments with n=0. And it makes
+> > sense to check for this case in the function instead of forcing all
+> > callers to check for it.
+> >    
+> > > diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+> > > index 6ba0bf928909..5f7c11c932fa 100644
+> > > --- a/arch/s390/include/asm/syscall.h
+> > > +++ b/arch/s390/include/asm/syscall.h
+> > > @@ -64,14 +64,22 @@ static inline void syscall_get_arguments(struct task_struct *task,
+> > >  {
+> > >  	unsigned long mask = -1UL;
+> > > 
+> > > +	/*
+> > > +	 * No arguments for this syscall, there's nothing to do.
+> > > +	 */
+> > > +	if (!n)
+> > > +		return;
+> > > +
+> > >  	BUG_ON(i + n > 6);  
+> > 
+> > So yes, for this part of the patch.
+> >   
+> > >  #ifdef CONFIG_COMPAT
+> > >  	if (test_tsk_thread_flag(task, TIF_31BIT))
+> > >  		mask = 0xffffffff;
+> > >  #endif
+> > > -	while (n-- > 0)
+> > > +	while (n-- > 0) {
+> > >  		if (i + n > 0)
+> > >  			args[n] = regs->gprs[2 + i + n] & mask;
+> > > +	}
+> > > +
+> > >  	if (i == 0)
+> > >  		args[0] = regs->orig_gpr2 & mask;
+> > >  }  
+> > 
+> > But why the unrelated whitespace damage with the additional { } ?  
+> 
+> I always get shouted at when I'm not using { } in conditions/loops
+> having more than 1 line.. so I tend to add them when I see this
+> breakage ;-)
+
+I agree that there should have been { } with the initial patch.
+It is just that the cleanup is unrelated to the true bug fix
+
+> feel free to imot that or let me know and I'll send v2
+
+I will strip that part and add a Cc: stable. Thanks.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
