@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH 12/18] drivers: s390: Move static and inline before return
- type
-References: <cover.1499284835.git.joe@perches.com>
- <3f980cd89084ae09716353aba3171e4b3815e690.1499284835.git.joe@perches.com>
- <20170706102940.GG3217@osiris> <1499338639.19466.25.camel@perches.com>
- <20170706122539.GJ3217@osiris>
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Date: Thu, 6 Jul 2017 20:04:32 +0200
-MIME-Version: 1.0
-In-Reply-To: <20170706122539.GJ3217@osiris>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <a61fa6d0-9e34-adc4-bc1b-5e5abf1f64cc@linux.vnet.ibm.com>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 00/18] treewide: Move storage class before return type
+Date: Wed,  5 Jul 2017 13:02:09 -0700
+Message-Id: <cover.1499284835.git.joe@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Joe Perches <joe@perches.com>
-Cc: Klaus-Dieter Wacker <kdwacker@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-m68k@vger.kernel.org, linux-efi@vger.kernel.org, linux-s390@vger.kernel.org, linux-serial@vger.kernel.org, linux-ia64@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-omap@vger.kernel.org, alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org, linux-cris-kernel@axis.com, linux-mips@linux-mips.org, linux-sh@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/06/2017 02:25 PM, Heiko Carstens wrote:
-> On Thu, Jul 06, 2017 at 03:57:19AM -0700, Joe Perches wrote:
->> On Thu, 2017-07-06 at 12:29 +0200, Heiko Carstens wrote:
->>> On Wed, Jul 05, 2017 at 01:02:21PM -0700, Joe Perches wrote:
->>>> Make the code like the rest of the kernel.
->> []
->>>> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.cqq
->> []
->>>> @@ -2408,7 +2408,7 @@ static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
->>>>  	return rc;
->>>>  }
->>>>
->>>> -int inline qeth_l3_get_cast_type(struct qeth_card *card, struct sk_buff *skb)
->>>> +inline int qeth_l3_get_cast_type(struct qeth_card *card, struct sk_buff *skb)
->>>>  {
->>>
->>> Actually the function could be made static, and "inline" should be removed,
->>> considering the large function body.
->>
->> I agree to a certain extent.
->>
->> It's only used once and  it looks like Klaus-Dieter Wacker
->> just missed adding static to this function.
->>
->> $ git log --stat -p -1 ce73e10ee0cb6
->> commit ce73e10ee0cb6cde1c5075a2803da0f0eb5b2324
->> Author: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
->>
->> But it also looks like inline is too often used in several
->> drivers/s390/net/*.c files, where most of those static inline
->> functions are only used once.
->>
->> $ git grep -w inline drivers/s390/net/*.c | wc -l
->> 42
->>
->> Maybe inline removals should be a separate pass for all those.
-> 
-> Yes, Ursula or Julian can address this if they care.
-> 
-true, no shortage of inline in s390/net. I'll see about spending a few
-OCD cycles on it...
+Move the inline/asmlinkage keywords before the return types
+Add a checkpatch test for this too.
+
+Joe Perches (18):
+  checkpatch: improve the STORAGE_CLASS test
+  ARM: KVM: Move asmlinkage before type
+  ARM: HP Jornada 7XX: Move inline before return type
+  CRIS: gpio: Move inline before return type
+  FRV: tlbflush: Move asmlinkage before return type
+  ia64: Move inline before return type
+  ia64: sn: pci: Move inline before type
+  m68k: coldfire: Move inline before return type
+  MIPS: SMP: Move asmlinkage before return type
+  sh: Move inline before return type
+  x86/efi: Move asmlinkage before return type
+  drivers: s390: Move static and inline before return type
+  drivers: tty: serial: Move inline before return type
+  USB: serial: safe_serial: Move __inline__ before return type
+  video: fbdev: intelfb: Move inline before return type
+  video: fbdev: omap: Move inline before return type
+  ARM: samsung: usb-ohci: Move inline before return type
+  ALSA: opl4: Move inline before return type
+
+ arch/arm/include/asm/kvm_hyp.h                 |  8 ++++----
+ arch/arm/mach-sa1100/jornada720_ssp.c          |  2 +-
+ arch/cris/arch-v10/drivers/gpio.c              |  4 ++--
+ arch/frv/include/asm/tlbflush.h                |  8 ++++----
+ arch/ia64/kernel/mca.c                         |  2 +-
+ arch/ia64/sn/pci/pcibr/pcibr_ate.c             |  2 +-
+ arch/ia64/sn/pci/tioce_provider.c              |  4 ++--
+ arch/m68k/coldfire/intc-simr.c                 |  4 ++--
+ arch/mips/include/asm/smp.h                    |  2 +-
+ arch/sh/mm/cache-sh5.c                         |  2 +-
+ arch/x86/include/asm/efi.h                     |  4 ++--
+ drivers/s390/net/ctcm_main.c                   |  2 +-
+ drivers/s390/net/qeth_l3_main.c                |  2 +-
+ drivers/tty/serial/ioc3_serial.c               |  4 ++--
+ drivers/tty/serial/ioc4_serial.c               |  4 ++--
+ drivers/usb/serial/safe_serial.c               |  2 +-
+ drivers/video/fbdev/intelfb/intelfbdrv.c       |  2 +-
+ drivers/video/fbdev/omap/lcdc.c                |  6 +++---
+ include/linux/platform_data/usb-ohci-s3c2410.h |  2 +-
+ scripts/checkpatch.pl                          | 12 ++++++++++--
+ sound/drivers/opl4/opl4_lib.c                  |  2 +-
+ 21 files changed, 44 insertions(+), 36 deletions(-)
+
+-- 
+2.10.0.rc2.1.g053435c
