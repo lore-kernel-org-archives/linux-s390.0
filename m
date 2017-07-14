@@ -1,60 +1,67 @@
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Date: Fri, 14 Jul 2017 13:41:13 +0000
-Subject: [CRIU][PATCH 2/3] s390/zdtm: Also support z900 (debian)
-Message-Id: <20170714134114.36870-3-holzheu@linux.vnet.ibm.com>
+Date: Fri, 14 Jul 2017 13:41:14 +0000
+Subject: [CRIU][PATCH 3/3] s390: Enable travis
+Message-Id: <20170714134114.36870-4-holzheu@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Debian is compiled for z900 - therefore we can't use the "laa"
-instruction.
+We have to use "debian.jessie" instead of "ubuntu.xenial" because
+qemu-s390x-static can only run z900 instructions and Ubuntu is
+built with a more recent architecture level set.
 
-Fix this and replace "laa" by the older "cs" (compare and swap) loop.
+We first enable only gcc because there are still some issues with clang.
 
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- test/zdtm/lib/arch/s390/include/asm/atomic.h | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ .travis.yml                        | 1 +
+ scripts/build/Dockerfile.s390x.hdr | 4 ++++
+ scripts/build/Makefile             | 2 +-
+ scripts/build/binfmt_misc          | 3 +++
+ 4 files changed, 9 insertions(+), 1 deletion(-)
+ create mode 100644 scripts/build/Dockerfile.s390x.hdr
 
-diff --git a/test/zdtm/lib/arch/s390/include/asm/atomic.h b/test/zdtm/lib/arch/s390/include/asm/atomic.h
-index 9cf7236..b7c4b2c 100644
---- a/test/zdtm/lib/arch/s390/include/asm/atomic.h
-+++ b/test/zdtm/lib/arch/s390/include/asm/atomic.h
-@@ -5,24 +5,26 @@
+diff --git a/.travis.yml b/.travis.yml
+index d4d53e4..eaa8401 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -13,6 +13,7 @@ env:
+   - TR_ARCH=armv7hf
+   - TR_ARCH=aarch64
+   - TR_ARCH=ppc64le
++  - TR_ARCH=s390x
+   - TR_ARCH=armv7hf     CLANG=1
+   - TR_ARCH=aarch64     CLANG=1
+   - TR_ARCH=ppc64le     CLANG=1
+diff --git a/scripts/build/Dockerfile.s390x.hdr b/scripts/build/Dockerfile.s390x.hdr
+new file mode 100644
+index 0000000..be75712
+--- /dev/null
++++ b/scripts/build/Dockerfile.s390x.hdr
+@@ -0,0 +1,4 @@
++FROM s390x/debian:jessie
++
++ENV QEMU_CPU z900
++COPY scripts/build/qemu-user-static/usr/bin/qemu-s390x-static /usr/bin/qemu-s390x-static
+diff --git a/scripts/build/Makefile b/scripts/build/Makefile
+index 5308711..234649a 100644
+--- a/scripts/build/Makefile
++++ b/scripts/build/Makefile
+@@ -1,4 +1,4 @@
+-QEMU_ARCHES := armv7hf aarch64 ppc64le # require qemu
++QEMU_ARCHES := armv7hf aarch64 ppc64le s390x # require qemu
+ ARCHES := $(QEMU_ARCHES) x86_64
+ TARGETS := $(ARCHES) alpine fedora-asan
+ TARGETS_CLANG := $(addsuffix $(TARGETS),-clang)
+diff --git a/scripts/build/binfmt_misc b/scripts/build/binfmt_misc
+index a5c922e..3e76b66 100755
+--- a/scripts/build/binfmt_misc
++++ b/scripts/build/binfmt_misc
+@@ -8,3 +8,6 @@ test -f /proc/sys/fs/binfmt_misc/aarch64 ||
  
- typedef uint32_t atomic_t;
- 
--#define __ATOMIC_OP(op_name, op_type, op_string, op_barrier)		\
-+#define __ATOMIC_OP(op_name, op_type, op_string)			\
- static inline op_type op_name(op_type val, op_type *ptr)		\
- {									\
--	op_type old;							\
-+	op_type old, new;						\
- 									\
- 	asm volatile(							\
--		op_string "	%[old],%[val],%[ptr]\n"			\
--		op_barrier						\
--		: [old] "=d" (old), [ptr] "+Q" (*ptr)			\
--		: [val] "d" (val) : "cc", "memory");			\
-+		"0:	lr	%[new],%[old]\n"			\
-+		op_string "	%[new],%[val]\n"			\
-+		"	cs	%[old],%[new],%[ptr]\n"			\
-+		"	jl	0b"					\
-+		: [old] "=d" (old), [new] "=&d" (new), [ptr] "+Q" (*ptr)\
-+		: [val] "d" (val), "0" (*ptr) : "cc", "memory");	\
- 	return old;							\
--}									\
-+}
- 
- #define __ATOMIC_OPS(op_name, op_type, op_string)			\
--	__ATOMIC_OP(op_name, op_type, op_string, "\n")			\
--	__ATOMIC_OP(op_name##_barrier, op_type, op_string, "bcr 14,0\n")
-+	__ATOMIC_OP(op_name, op_type, op_string)			\
-+	__ATOMIC_OP(op_name##_barrier, op_type, op_string)
- 
--__ATOMIC_OPS(__atomic_add, uint32_t, "laa")
-+__ATOMIC_OPS(__atomic_add, uint32_t, "ar")
- 
- #undef __ATOMIC_OPS
- #undef __ATOMIC_OP
+ test -f /proc/sys/fs/binfmt_misc/ppc64le ||
+ 	echo ':ppc64le:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x15\x00:\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\x00:/usr/bin/qemu-ppc64le-static:' > /proc/sys/fs/binfmt_misc/register
++
++test -f /proc/sys/fs/binfmt_misc/s390x ||
++	echo ':s390x:M::\x7fELF\x02\x02\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x16:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff:/usr/bin/qemu-s390x-static:' > /proc/sys/fs/binfmt_misc/register
 -- 
 2.7.4
