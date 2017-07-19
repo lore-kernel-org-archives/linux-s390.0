@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 2/8] s390: zcrypt_card: constify attribute_group structures.
-Date: Wed, 19 Jul 2017 12:39:11 +0530
-Message-Id: <1500448157-24668-3-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [PATCH 4/8] s390: device: constify attribute_group structures.
+Date: Wed, 19 Jul 2017 12:39:13 +0530
+Message-Id: <1500448157-24668-5-git-send-email-arvind.yadav.cs@gmail.com>
 In-Reply-To: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -16,30 +16,31 @@ attribute_group are not supposed to change at runtime. All functions
 working with attribute_group provided by <linux/sysfs.h> work
 with const attribute_group. So mark the non-const structs as const.
 
-File size before:
-   text	   data	    bss	    dec	    hex	filename
-   1019	    160	      0	   1179	    49b	drivers/s390/crypto/zcrypt_card.o
-
-File size After adding 'const':
-   text	   data	    bss	    dec	    hex	filename
-   1083	     96	      0	   1179	    49b	drivers/s390/crypto/zcrypt_card.o
-
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/s390/crypto/zcrypt_card.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_card.c b/drivers/s390/crypto/zcrypt_card.c
-index 53436ea..f85dacf 100644
---- a/drivers/s390/crypto/zcrypt_card.c
-+++ b/drivers/s390/crypto/zcrypt_card.c
-@@ -98,7 +98,7 @@ static DEVICE_ATTR(online, 0644, zcrypt_card_online_show,
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 7be01a5..489b583 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -612,7 +612,7 @@ static ssize_t vpm_show(struct device *dev, struct device_attribute *attr,
  	NULL,
  };
  
--static struct attribute_group zcrypt_card_attr_group = {
-+static const struct attribute_group zcrypt_card_attr_group = {
- 	.attrs = zcrypt_card_attrs,
+-static struct attribute_group io_subchannel_attr_group = {
++static const struct attribute_group io_subchannel_attr_group = {
+ 	.attrs = io_subchannel_attrs,
+ };
+ 
+@@ -626,7 +626,7 @@ static ssize_t vpm_show(struct device *dev, struct device_attribute *attr,
+ 	NULL,
+ };
+ 
+-static struct attribute_group ccwdev_attr_group = {
++static const struct attribute_group ccwdev_attr_group = {
+ 	.attrs = ccwdev_attrs,
  };
  
 -- 
