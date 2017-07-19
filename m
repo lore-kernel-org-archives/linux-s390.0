@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 4/8] s390: device: constify attribute_group structures.
-Date: Wed, 19 Jul 2017 12:39:13 +0530
-Message-Id: <1500448157-24668-5-git-send-email-arvind.yadav.cs@gmail.com>
+Date: Wed, 19 Jul 2017 10:50:40 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 0/8] constify s390 attribute_group structures
 In-Reply-To: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20170719105040.66eb7a9d@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com, freude@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, sth@linux.vnet.ibm.com, hoeppner@linux.vnet.ibm.com, sebott@linux.vnet.ibm.com, oberpar@linux.vnet.ibm.com, wi@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, jwi@linux.vnet.ibm.com
-Cc: linux-kernel@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: freude@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, sth@linux.vnet.ibm.com, hoeppner@linux.vnet.ibm.com, sebott@linux.vnet.ibm.com, oberpar@linux.vnet.ibm.com, wi@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, jwi@linux.vnet.ibm.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-attribute_group are not supposed to change at runtime. All functions
-working with attribute_group provided by <linux/sysfs.h> work
-with const attribute_group. So mark the non-const structs as const.
+On Wed, 19 Jul 2017 12:39:09 +0530
+Arvind Yadav <arvind.yadav.cs@gmail.com> wrote:
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- drivers/s390/cio/device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> attribute_group are not supposed to change at runtime. All functions
+> working with attribute_group provided by <linux/sysfs.h> work
+> with const attribute_group. So mark the non-const structs as const.
+> 
+> Arvind Yadav (9):
+>   s390: zcrypt_queue: constify attribute_group structures.
+>   s390: zcrypt_card: constify attribute_group structures.
+>   s390: dasd_devmap: constify attribute_group structures.
+>   s390: device: constify attribute_group structures.
+>   s390: qeth: constify attribute_group structures.
+>   s390: raw3270: constify attribute_group structures.
+>   s390: tape_core: constify attribute_group structures.
+>   s390: sclp_ocf: constify attribute_group structures.
+> 
+>  drivers/s390/block/dasd_devmap.c   | 2 +-
+>  drivers/s390/char/raw3270.c        | 2 +-
+>  drivers/s390/char/sclp_ocf.c       | 2 +-
+>  drivers/s390/char/tape_core.c      | 2 +-
+>  drivers/s390/cio/device.c          | 4 ++--
+>  drivers/s390/crypto/zcrypt_card.c  | 2 +-
+>  drivers/s390/crypto/zcrypt_queue.c | 2 +-
+>  drivers/s390/net/qeth_l3_sys.c     | 8 ++++----
+>  8 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 7be01a5..489b583 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -612,7 +612,7 @@ static ssize_t vpm_show(struct device *dev, struct device_attribute *attr,
- 	NULL,
- };
- 
--static struct attribute_group io_subchannel_attr_group = {
-+static const struct attribute_group io_subchannel_attr_group = {
- 	.attrs = io_subchannel_attrs,
- };
- 
-@@ -626,7 +626,7 @@ static ssize_t vpm_show(struct device *dev, struct device_attribute *attr,
- 	NULL,
- };
- 
--static struct attribute_group ccwdev_attr_group = {
-+static const struct attribute_group ccwdev_attr_group = {
- 	.attrs = ccwdev_attrs,
- };
- 
+Applied to linux-s390:features for the next merge window. Thanks.
+
 -- 
-1.9.1
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
