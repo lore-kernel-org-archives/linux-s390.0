@@ -1,31 +1,46 @@
-From: Kirill Tkhai <ktkhai@virtuozzo.com>
-Subject: Re: [PATCH 2/7] rwsem-spinlock: Add killable versions of
- rwsem_down_read_failed()
-Date: Thu, 6 Jul 2017 12:45:26 +0300
-Message-ID: <edcdffb3-f9f3-cfcf-43c8-ca854e011010@virtuozzo.com>
-References: <149789463636.9059.16943955939303454611.stgit@localhost.localdomain>
- <149789534632.9059.2901382369609922565.stgit@localhost.localdomain>
- <20170706080447.a7emouoysilqex4p@hirez.programming.kicks-ass.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20170706080447.a7emouoysilqex4p@hirez.programming.kicks-ass.net>
-Content-Language: en-US
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-ia64@vger.kernel.org, avagin@virtuozzo.com, heiko.carstens@de.ibm.com, hpa@zytor.com, gorcunov@virtuozzo.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, mingo@redhat.com, mattst88@gmail.com, fenghua.yu@intel.com, arnd@arndb.de, ink@jurassic.park.msu.ru, tglx@linutronix.de, rth@twiddle.net, tony.luck@intel.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, davem@davemloft.net
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH 1/8] s390: zcrypt_queue: constify attribute_group structures.
+Date: Wed, 19 Jul 2017 12:39:10 +0530
+Message-Id: <1500448157-24668-2-git-send-email-arvind.yadav.cs@gmail.com>
+In-Reply-To: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
+References: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: schwidefsky@de.ibm.com, freude@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, sth@linux.vnet.ibm.com, hoeppner@linux.vnet.ibm.com, sebott@linux.vnet.ibm.com, oberpar@linux.vnet.ibm.com, wi@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, jwi@linux.vnet.ibm.com
+Cc: linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06.07.2017 11:04, Peter Zijlstra wrote:
-> On Mon, Jun 19, 2017 at 09:02:26PM +0300, Kirill Tkhai wrote:
-> 
->> Subject: [PATCH 2/7] rwsem-spinlock: Add killable versions of rwsem_down_read_failed()
-> 
->>  kernel/locking/rwsem-xadd.c |   33 ++++++++++++++++++++++++++++++---
-> 
-> Fixed that subject for your ;-)
+attribute_group are not supposed to change at runtime. All functions
+working with attribute_group provided by <linux/sysfs.h> work
+with const attribute_group. So mark the non-const structs as const.
 
-Thanks :)
+File size before:
+   text	   data	    bss	    dec	    hex	filename
+   1361	     96	      0	   1457	    5b1	s390/crypto/zcrypt_queue.o
+
+File size After adding 'const':
+   text	   data	    bss	    dec	    hex	filename
+   1425	     32	      0	   1457	    5b1	s390/crypto/zcrypt_queue.o
+
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/s390/crypto/zcrypt_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/crypto/zcrypt_queue.c b/drivers/s390/crypto/zcrypt_queue.c
+index a303f3b..4742be0 100644
+--- a/drivers/s390/crypto/zcrypt_queue.c
++++ b/drivers/s390/crypto/zcrypt_queue.c
+@@ -89,7 +89,7 @@ static DEVICE_ATTR(online, 0644, zcrypt_queue_online_show,
+ 	NULL,
+ };
+ 
+-static struct attribute_group zcrypt_queue_attr_group = {
++static const struct attribute_group zcrypt_queue_attr_group = {
+ 	.attrs = zcrypt_queue_attrs,
+ };
+ 
+-- 
+1.9.1
