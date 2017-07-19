@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 6/8] s390: raw3270: constify attribute_group structures.
-Date: Wed, 19 Jul 2017 12:39:15 +0530
-Message-Id: <1500448157-24668-7-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [PATCH 7/8] s390: tape_core: constify attribute_group structures.
+Date: Wed, 19 Jul 2017 12:39:16 +0530
+Message-Id: <1500448157-24668-8-git-send-email-arvind.yadav.cs@gmail.com>
 In-Reply-To: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -18,28 +18,28 @@ with const attribute_group. So mark the non-const structs as const.
 
 File size before:
    text	   data	    bss	    dec	    hex	filename
-   8069	    816	     16	   8901	   22c5	drivers/s390/char/raw3270.o
+  11511	    656	     16	  12183	   2f97	drivers/s390/char/tape_core.o
 
 File size After adding 'const':
    text	   data	    bss	    dec	    hex	filename
-   8133	    752	     16	   8901	   22c5	drivers/s390/char/raw3270.o
+  11575	    592	     16	  12183	   2f97	drivers/s390/char/tape_core.o
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/s390/char/raw3270.c | 2 +-
+ drivers/s390/char/tape_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index 710f229..5d4f053 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -1082,7 +1082,7 @@ struct raw3270_view *
- 	NULL,
+diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
+index 3c379da..9dd4534 100644
+--- a/drivers/s390/char/tape_core.c
++++ b/drivers/s390/char/tape_core.c
+@@ -175,7 +175,7 @@ static int devid_to_int(struct ccw_dev_id *dev_id)
+ 	NULL
  };
  
--static struct attribute_group raw3270_attr_group = {
-+static const struct attribute_group raw3270_attr_group = {
- 	.attrs = raw3270_attrs,
+-static struct attribute_group tape_attr_group = {
++static const struct attribute_group tape_attr_group = {
+ 	.attrs = tape_attrs,
  };
  
 -- 
