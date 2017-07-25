@@ -1,38 +1,105 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 0/8] constify s390 attribute_group structures
-Date: Wed, 19 Jul 2017 12:39:09 +0530
-Message-Id: <1500448157-24668-1-git-send-email-arvind.yadav.cs@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com, freude@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, sth@linux.vnet.ibm.com, hoeppner@linux.vnet.ibm.com, sebott@linux.vnet.ibm.com, oberpar@linux.vnet.ibm.com, wi@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, jwi@linux.vnet.ibm.com
-Cc: linux-kernel@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/1] KVM: s390: take srcu lock when getting/setting storage keys
+Date: Tue, 25 Jul 2017 15:21:06 +0200
+Message-ID: <1500988866-28288-2-git-send-email-borntraeger@de.ibm.com>
+References: <1500988866-28288-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1500988866-28288-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-attribute_group are not supposed to change at runtime. All functions
-working with attribute_group provided by <linux/sysfs.h> work
-with const attribute_group. So mark the non-const structs as const.
+The following warning was triggered by missing srcu locks around
+the storage key handling functions.
 
-Arvind Yadav (9):
-  s390: zcrypt_queue: constify attribute_group structures.
-  s390: zcrypt_card: constify attribute_group structures.
-  s390: dasd_devmap: constify attribute_group structures.
-  s390: device: constify attribute_group structures.
-  s390: qeth: constify attribute_group structures.
-  s390: raw3270: constify attribute_group structures.
-  s390: tape_core: constify attribute_group structures.
-  s390: sclp_ocf: constify attribute_group structures.
+=============================
+WARNING: suspicious RCU usage
+4.12.0+ #56 Not tainted
+-----------------------------
+./include/linux/kvm_host.h:572 suspicious rcu_dereference_check() usage!
+rcu_scheduler_active = 2, debug_locks = 1
+ 1 lock held by live_migration/4936:
+  #0:  (&mm->mmap_sem){++++++}, at: [<0000000000141be0>]
+kvm_arch_vm_ioctl+0x6b8/0x22d0
 
- drivers/s390/block/dasd_devmap.c   | 2 +-
- drivers/s390/char/raw3270.c        | 2 +-
- drivers/s390/char/sclp_ocf.c       | 2 +-
- drivers/s390/char/tape_core.c      | 2 +-
- drivers/s390/cio/device.c          | 4 ++--
- drivers/s390/crypto/zcrypt_card.c  | 2 +-
- drivers/s390/crypto/zcrypt_queue.c | 2 +-
- drivers/s390/net/qeth_l3_sys.c     | 8 ++++----
- 8 files changed, 12 insertions(+), 12 deletions(-)
+ CPU: 8 PID: 4936 Comm: live_migration Not tainted 4.12.0+ #56
+ Hardware name: IBM 2964 NC9 704 (LPAR)
+ Call Trace:
+ ([<000000000011378a>] show_stack+0xea/0xf0)
+  [<000000000055cc4c>] dump_stack+0x94/0xd8
+  [<000000000012ee70>] gfn_to_memslot+0x1a0/0x1b8
+  [<0000000000130b76>] gfn_to_hva+0x2e/0x48
+  [<0000000000141c3c>] kvm_arch_vm_ioctl+0x714/0x22d0
+  [<000000000013306c>] kvm_vm_ioctl+0x11c/0x7b8
+  [<000000000037e2c0>] do_vfs_ioctl+0xa8/0x6c8
+  [<000000000037e984>] SyS_ioctl+0xa4/0xb8
+  [<00000000008b20a4>] system_call+0xc4/0x27c
+ 1 lock held by live_migration/4936:
+  #0:  (&mm->mmap_sem){++++++}, at: [<0000000000141be0>]
+kvm_arch_vm_ioctl+0x6b8/0x22d0
 
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Pierre Morel<pmorel@linux.vnet.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 3f2884e..af09d34 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1324,7 +1324,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ {
+ 	uint8_t *keys;
+ 	uint64_t hva;
+-	int i, r = 0;
++	int srcu_idx, i, r = 0;
+ 
+ 	if (args->flags != 0)
+ 		return -EINVAL;
+@@ -1342,6 +1342,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ 		return -ENOMEM;
+ 
+ 	down_read(&current->mm->mmap_sem);
++	srcu_idx = srcu_read_lock(&kvm->srcu);
+ 	for (i = 0; i < args->count; i++) {
+ 		hva = gfn_to_hva(kvm, args->start_gfn + i);
+ 		if (kvm_is_error_hva(hva)) {
+@@ -1353,6 +1354,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ 		if (r)
+ 			break;
+ 	}
++	srcu_read_unlock(&kvm->srcu, srcu_idx);
+ 	up_read(&current->mm->mmap_sem);
+ 
+ 	if (!r) {
+@@ -1370,7 +1372,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ {
+ 	uint8_t *keys;
+ 	uint64_t hva;
+-	int i, r = 0;
++	int srcu_idx, i, r = 0;
+ 
+ 	if (args->flags != 0)
+ 		return -EINVAL;
+@@ -1396,6 +1398,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ 		goto out;
+ 
+ 	down_read(&current->mm->mmap_sem);
++	srcu_idx = srcu_read_lock(&kvm->srcu);
+ 	for (i = 0; i < args->count; i++) {
+ 		hva = gfn_to_hva(kvm, args->start_gfn + i);
+ 		if (kvm_is_error_hva(hva)) {
+@@ -1413,6 +1416,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ 		if (r)
+ 			break;
+ 	}
++	srcu_read_unlock(&kvm->srcu, srcu_idx);
+ 	up_read(&current->mm->mmap_sem);
+ out:
+ 	kvfree(keys);
 -- 
-1.9.1
+2.7.4
