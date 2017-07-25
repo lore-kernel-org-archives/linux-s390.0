@@ -1,48 +1,64 @@
-From: Hannes Reinecke <hare@suse.de>
-Subject: Re: [RFC 9/9] zfcp: decouple our scsi_eh callbacks from scsi_cmnd
-Date: Wed, 26 Jul 2017 08:16:42 +0200
-Message-ID: <7a91a979-cb1b-00e9-9ae9-6c63ce9456fe@suse.de>
-References: <20170725141427.35258-1-maier@linux.vnet.ibm.com>
- <20170725141427.35258-10-maier@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+Subject: [RFC 0/9] zfcp: decouple scsi_eh callbacks from scsi_cmnd
+Date: Tue, 25 Jul 2017 16:14:18 +0200
+Message-ID: <20170725141427.35258-1-maier@linux.vnet.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20170725141427.35258-10-maier@linux.vnet.ibm.com>
-Content-Language: en-US
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Steffen Maier <maier@linux.vnet.ibm.com>, linux-scsi@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
+To: linux-scsi@vger.kernel.org, Hannes Reinecke <hare@suse.de>
+Cc: linux-s390@vger.kernel.org, Steffen Maier <maier@linux.vnet.ibm.com>, Benjamin Block <bblock@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/25/2017 04:14 PM, Steffen Maier wrote:
-> zfcp_scsi_eh_device_reset_handler() now only depends on scsi_device.
-> zfcp_scsi_eh_target_reset_handler() now only depends on scsi_target.
-> zfcp_scsi_eh_host_reset_handler() now only depends on Scsi_Host.
-> All derive other objects from these intended callback arguments.
-> 
-> Actually change the signature of zfcp_task_mgmt_function() used by
-> zfcp_scsi_eh_device_reset_handler() & zfcp_scsi_eh_target_reset_handler().
-> Since it was prepared in a previous patch, we only need to delete
-> some local auto variables which are now the intended arguments.
-> 
-> Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-> ---
->  drivers/s390/scsi/zfcp_scsi.c | 40 ++++++++++++++++++++++++++++++++--------
->  1 file changed, 32 insertions(+), 8 deletions(-)
-> 
-Thank you for doing this.
+This is an early request for comments.
+The patch set serves as a zfcp preparation step for Hannes' series
+"[PATCH 00/47] SCSI EH argument reshuffle part II"
+http://www.spinics.net/lists/linux-scsi/msg111165.html
+or
+http://marc.info/?l=linux-scsi&m=150091945302995&w=2
 
-Reviewed-by: Hannes Reinecke <hare@suse.com>
+The series is based on 18 preceding zfcp patches,
+including some stable regression bugfixes for zfcp tracing.
+Hence it might not apply cleanly.
+However, we plan to post the 18 preceding patches soon for integration
+and I would like to get those in first.
 
-Cheers,
+Please do not apply to any tree that will merge into upstream yet,
+as it's not ready for prime time.
+It only builds (after each patch; sparse and checkpatch clean)
+but it has not seen any function testing yet.
 
-Hannes
+There are still some open questions:
+* Search victim scsi_device in target_reset_handler just to get a LUN?
+  (Even if we do, zfcp_fsf_fcp_handler_common() should not print that LUN!)
+  http://www.spinics.net/lists/linux-scsi/msg111164.html
+  http://www.spinics.net/lists/linux-scsi/msg111166.html
+* Exact rport blocking logic in host_reset_handler.
+  http://www.spinics.net/lists/linux-scsi/msg111165.html
+
+
+Steffen Maier (9):
+  zfcp: drop unsuitable scsi_cmnd usage from SCSI traces for scsi_eh /
+    TMF
+  zfcp: decouple TMF response handler from scsi_cmnd
+  zfcp: split FCP_CMND IU setup between SCSI I/O and TMF again
+  zfcp: decouple FSF request setup of TMF from scsi_cmnd
+  zfcp: decouple SCSI setup of TMF from scsi_cmnd
+  scsi: fc: start decoupling fc_block_scsi_eh from scsi_cmnd
+  zfcp: use fc_block_rport for TMFs and host reset to decouple from
+    scsi_cmnd
+  zfcp: fix waiting for rport(s) unblock in eh_host_reset_handler
+  zfcp: decouple our scsi_eh callbacks from scsi_cmnd
+
+ drivers/s390/scsi/zfcp_dbf.c     |  51 ++++++++++++-------
+ drivers/s390/scsi/zfcp_dbf.h     |  26 +++++++---
+ drivers/s390/scsi/zfcp_ext.h     |  12 +++--
+ drivers/s390/scsi/zfcp_fc.h      |  24 ++++++---
+ drivers/s390/scsi/zfcp_fsf.c     | 106 +++++++++++++++++++++++++--------------
+ drivers/s390/scsi/zfcp_scsi.c    | 105 +++++++++++++++++++++++++++++---------
+ drivers/scsi/scsi_transport_fc.c |  31 ++++++++++--
+ include/scsi/scsi_transport_fc.h |   1 +
+ 8 files changed, 252 insertions(+), 104 deletions(-)
+
 -- 
-Dr. Hannes Reinecke		   Teamlead Storage & Networking
-hare@suse.de			               +49 911 74053 688
-SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
-GF: F. Imendörffer, J. Smithard, J. Guild, D. Upmanyu, G. Norton
-HRB 21284 (AG Nürnberg)
+2.11.2
