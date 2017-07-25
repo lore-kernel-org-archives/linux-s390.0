@@ -1,105 +1,51 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/1] KVM: s390: take srcu lock when getting/setting storage keys
-Date: Tue, 25 Jul 2017 15:21:06 +0200
-Message-ID: <1500988866-28288-2-git-send-email-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [GIT PULL 0/1] KVM: s390: fixup missing srcu lock for 4.13
+ (kvm/master)
+Date: Tue, 25 Jul 2017 15:32:18 +0200
+Message-ID: <29f333ba-6fff-18c3-7c31-2217b3544eb5@redhat.com>
 References: <1500988866-28288-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1500988866-28288-1-git-send-email-borntraeger@de.ibm.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The following warning was triggered by missing srcu locks around
-the storage key handling functions.
+On 25/07/2017 15:21, Christian Borntraeger wrote:
+> Paolo, Radim,
+> 
+> The following changes since commit f1ff89ec4447c4e39d275a1ca3de43eed2a92745:
+> 
+>   kvm: x86: hyperv: avoid livelock in oneshot SynIC timers (2017-07-20 17:00:00 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.13-1
+> 
+> for you to fetch changes up to 4f899147424a189b0ad1fdd6f35784ed5a642e83:
+> 
+>   KVM: s390: take srcu lock when getting/setting storage keys (2017-07-25 14:59:52 +0200)
+> 
+> ----------------------------------------------------------------
+> KVM: s390: fixup missing srcu lock
+> 
+> We need to hold the srcu lock when accessing memory slots
+> during migration
+> 
+> ----------------------------------------------------------------
+> Christian Borntraeger (1):
+>       KVM: s390: take srcu lock when getting/setting storage keys
+> 
+>  arch/s390/kvm/kvm-s390.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
 
-=============================
-WARNING: suspicious RCU usage
-4.12.0+ #56 Not tainted
------------------------------
-./include/linux/kvm_host.h:572 suspicious rcu_dereference_check() usage!
-rcu_scheduler_active = 2, debug_locks = 1
- 1 lock held by live_migration/4936:
-  #0:  (&mm->mmap_sem){++++++}, at: [<0000000000141be0>]
-kvm_arch_vm_ioctl+0x6b8/0x22d0
+Pulled, thanks.
 
- CPU: 8 PID: 4936 Comm: live_migration Not tainted 4.12.0+ #56
- Hardware name: IBM 2964 NC9 704 (LPAR)
- Call Trace:
- ([<000000000011378a>] show_stack+0xea/0xf0)
-  [<000000000055cc4c>] dump_stack+0x94/0xd8
-  [<000000000012ee70>] gfn_to_memslot+0x1a0/0x1b8
-  [<0000000000130b76>] gfn_to_hva+0x2e/0x48
-  [<0000000000141c3c>] kvm_arch_vm_ioctl+0x714/0x22d0
-  [<000000000013306c>] kvm_vm_ioctl+0x11c/0x7b8
-  [<000000000037e2c0>] do_vfs_ioctl+0xa8/0x6c8
-  [<000000000037e984>] SyS_ioctl+0xa4/0xb8
-  [<00000000008b20a4>] system_call+0xc4/0x27c
- 1 lock held by live_migration/4936:
-  #0:  (&mm->mmap_sem){++++++}, at: [<0000000000141be0>]
-kvm_arch_vm_ioctl+0x6b8/0x22d0
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Pierre Morel<pmorel@linux.vnet.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3f2884e..af09d34 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1324,7 +1324,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- {
- 	uint8_t *keys;
- 	uint64_t hva;
--	int i, r = 0;
-+	int srcu_idx, i, r = 0;
- 
- 	if (args->flags != 0)
- 		return -EINVAL;
-@@ -1342,6 +1342,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- 		return -ENOMEM;
- 
- 	down_read(&current->mm->mmap_sem);
-+	srcu_idx = srcu_read_lock(&kvm->srcu);
- 	for (i = 0; i < args->count; i++) {
- 		hva = gfn_to_hva(kvm, args->start_gfn + i);
- 		if (kvm_is_error_hva(hva)) {
-@@ -1353,6 +1354,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- 		if (r)
- 			break;
- 	}
-+	srcu_read_unlock(&kvm->srcu, srcu_idx);
- 	up_read(&current->mm->mmap_sem);
- 
- 	if (!r) {
-@@ -1370,7 +1372,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- {
- 	uint8_t *keys;
- 	uint64_t hva;
--	int i, r = 0;
-+	int srcu_idx, i, r = 0;
- 
- 	if (args->flags != 0)
- 		return -EINVAL;
-@@ -1396,6 +1398,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- 		goto out;
- 
- 	down_read(&current->mm->mmap_sem);
-+	srcu_idx = srcu_read_lock(&kvm->srcu);
- 	for (i = 0; i < args->count; i++) {
- 		hva = gfn_to_hva(kvm, args->start_gfn + i);
- 		if (kvm_is_error_hva(hva)) {
-@@ -1413,6 +1416,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- 		if (r)
- 			break;
- 	}
-+	srcu_read_unlock(&kvm->srcu, srcu_idx);
- 	up_read(&current->mm->mmap_sem);
- out:
- 	kvfree(keys);
--- 
-2.7.4
+Paolo
