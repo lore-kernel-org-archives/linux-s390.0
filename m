@@ -1,7 +1,7 @@
 From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [RFC 8/9] zfcp: fix waiting for rport(s) unblock in eh_host_reset_handler
-Date: Tue, 25 Jul 2017 16:14:26 +0200
-Message-ID: <20170725141427.35258-9-maier@linux.vnet.ibm.com>
+Subject: [RFC 9/9] zfcp: decouple our scsi_eh callbacks from scsi_cmnd
+Date: Tue, 25 Jul 2017 16:14:27 +0200
+Message-ID: <20170725141427.35258-10-maier@linux.vnet.ibm.com>
 References: <20170725141427.35258-1-maier@linux.vnet.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <20170725141427.35258-1-maier@linux.vnet.ibm.com>
@@ -12,82 +12,87 @@ To: linux-scsi@vger.kernel.org, Hannes Reinecke <hare@suse.de>
 Cc: linux-s390@vger.kernel.org, Steffen Maier <maier@linux.vnet.ibm.com>, Benjamin Block <bblock@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-v2.6.30 commit 63caf367e1c9 ("[SCSI] zfcp: Improve reliability of SCSI eh
-handlers in zfcp") added calls to zfcp_erp_wait() within
-eh_abort_handler(), eh_device_reset_handler(), eh_target_reset_handler()
-in order to synchronize with zfcp recovery completion before returning
-from a scsi_eh callback (e.g. with SUCCESS) to prevent eh escalation.
+zfcp_scsi_eh_device_reset_handler() now only depends on scsi_device.
+zfcp_scsi_eh_target_reset_handler() now only depends on scsi_target.
+zfcp_scsi_eh_host_reset_handler() now only depends on Scsi_Host.
+All derive other objects from these intended callback arguments.
 
-v2.6.33 commit af4de36d911a ("[SCSI] zfcp: Block scsi_eh thread for rport
-state BLOCKED") introduced the use of fc_block_scsi_eh() for
-eh_abort_handler(), eh_device_reset_handler(), eh_target_reset_handler(),
-and eh_host_reset_handler(), because zfcp_erp_wait() from above commit is
-not sufficient.
-The use in zfcp_task_mgmt_function() is correct even for a LUN reset,
-as described in commit 6f2ce1c6af37 ("scsi: zfcp: fix rport unblock race
-with LUN recovery").
-However, the one call in zfcp_scsi_eh_host_reset_handler() waiting for
-just one arbitrary port of the arbitrary scsi_cmnd seems insufficient
-as the preceding adapter recovery could have recovered multiple ports
-for which we all should wait to unblock (or have run into FAST_IO_FAIL).
-
-Therefore, we now wait for all ports of the adapter with this fix.
-
-NB: We cannot easily wait for an event because there is a time window
-between zfcp_erp_wait() returned and zfcp_erp_try_rport_unblock() as part
-of zfcp_erp_action_cleanup() actually scheduled rport_work which will
-unblock an rport in zfcp_scsi_rport_work() asynchronously. Hence a
-flush_work() could come early before queue_work() was even done.
-
-v2.6.35 commit a1dbfddd02d2 ("[SCSI] zfcp: Pass return code from
-fc_block_scsi_eh to scsi eh") fixed v2.6.33 for the FAST_IO_FAIL case.
+Actually change the signature of zfcp_task_mgmt_function() used by
+zfcp_scsi_eh_device_reset_handler() & zfcp_scsi_eh_target_reset_handler().
+Since it was prepared in a previous patch, we only need to delete
+some local auto variables which are now the intended arguments.
 
 Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Fixes: af4de36d911a ("[SCSI] zfcp: Block scsi_eh thread for rport state BLOCKED")
-Fixes: a1dbfddd02d2 ("[SCSI] zfcp: Pass return code from fc_block_scsi_eh to scsi eh")
 ---
- drivers/s390/scsi/zfcp_scsi.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ drivers/s390/scsi/zfcp_scsi.c | 40 ++++++++++++++++++++++++++++++++--------
+ 1 file changed, 32 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
-index 8e96196fa877..11cf33ea8c14 100644
+index 11cf33ea8c14..4cb38cfd46e3 100644
 --- a/drivers/s390/scsi/zfcp_scsi.c
 +++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -338,16 +338,29 @@ static int zfcp_scsi_eh_host_reset_handler(struct scsi_cmnd *scpnt)
- 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(scpnt->device);
- 	struct zfcp_adapter *adapter = zfcp_sdev->port->adapter;
- 	struct zfcp_port *port;
--	int ret;
-+	int ret = SUCCESS;
- 
- 	zfcp_erp_adapter_reopen(adapter, 0, "schrh_1");
- 	zfcp_erp_wait(adapter);
--	port = zfcp_sdev->port;
--	ret = port->rport ? fc_block_rport(port->rport) : 0;
--	if (ret)
--		return ret;
-+	/* after internal recovery, wait for async unblock of rport(s) */
-+	read_lock(&adapter->port_list_lock);
-+	list_for_each_entry(port, &adapter->port_list, list) {
-+		int fc_ret;
-+
-+		if (!port->rport)
-+			continue;
-+
-+		fc_ret = fc_block_rport(port->rport);
-+		/* Any rport ran into fast_io_fail_tmo: FAST_IO_FAIL.
-+		 * To let pending requests bubble up, even if too many
-+		 * because of other rports without this timeout.
-+		 */
-+		if (fc_ret)
-+			ret = fc_ret;
-+	}
-+	read_unlock(&adapter->port_list_lock);
- 
--	return SUCCESS;
-+	return ret;
+@@ -266,11 +266,17 @@ static void zfcp_scsi_forget_cmnds(struct zfcp_port *port,
+ 	write_unlock_irqrestore(&adapter->abort_lock, flags);
  }
  
- struct scsi_transport_template *zfcp_scsi_transport_template;
+-static int zfcp_task_mgmt_function(struct scsi_cmnd *scpnt, u8 tm_flags)
++/**
++ * zfcp_task_mgmt_function() - Synchronously send a task management function.
++ * @port: Pointer to zfcp port indicating scope.
++ * @sdev: Pointer to SCSI device as scope, or %NULL if scope is only port.
++ * @tm_flags: Task management flags,
++ *            here we only handle %FCP_TMF_TGT_RESET or %FCP_TMF_LUN_RESET.
++ */
++static int zfcp_task_mgmt_function(struct zfcp_port *port,
++				   struct scsi_device *sdev, u8 tm_flags)
+ {
+-	struct scsi_device *sdev = scpnt->device;
+-	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
+-	struct zfcp_port *port = zfcp_sdev->port;
++	struct zfcp_scsi_dev *zfcp_sdev = sdev ? sdev_to_zfcp(sdev) : NULL;
+ 	struct zfcp_adapter *adapter = port->adapter;
+ 	unsigned int scsi_id = port->starget_id;
+ 	u64 scsi_lun = ZFCP_DBF_INVALID_LUN;
+@@ -325,18 +331,36 @@ static int zfcp_task_mgmt_function(struct scsi_cmnd *scpnt, u8 tm_flags)
+ 
+ static int zfcp_scsi_eh_device_reset_handler(struct scsi_cmnd *scpnt)
+ {
+-	return zfcp_task_mgmt_function(scpnt, FCP_TMF_LUN_RESET);
++	struct scsi_device *sdev = scpnt->device;
++	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
++	struct zfcp_port *port = zfcp_sdev->port;
++
++	return zfcp_task_mgmt_function(port, sdev, FCP_TMF_LUN_RESET);
+ }
+ 
+ static int zfcp_scsi_eh_target_reset_handler(struct scsi_cmnd *scpnt)
+ {
+-	return zfcp_task_mgmt_function(scpnt, FCP_TMF_TGT_RESET);
++	struct scsi_target *starget = scsi_target(scpnt->device);
++	struct fc_rport *rport = starget_to_rport(starget);
++	struct zfcp_adapter *adapter =
++		(struct zfcp_adapter *)rport_to_shost(rport)->hostdata[0];
++	struct zfcp_port *port = zfcp_get_port_by_wwpn(adapter,
++						       rport->port_name);
++	if (!port) {
++		zfcp_dbf_scsi_devreset("nopt", adapter, FCP_TMF_TGT_RESET,
++				       NULL, port->starget_id,
++				       ZFCP_DBF_INVALID_LUN);
++		return 0;
++	}
++
++	return zfcp_task_mgmt_function(port, NULL, FCP_TMF_TGT_RESET);
+ }
+ 
+ static int zfcp_scsi_eh_host_reset_handler(struct scsi_cmnd *scpnt)
+ {
+-	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(scpnt->device);
+-	struct zfcp_adapter *adapter = zfcp_sdev->port->adapter;
++	struct Scsi_Host *shost = scpnt->device->host;
++	struct zfcp_adapter *adapter =
++		(struct zfcp_adapter *)shost->hostdata[0];
+ 	struct zfcp_port *port;
+ 	int ret = SUCCESS;
+ 
 -- 
 2.11.2
