@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 26 Jul 2017 09:26:54 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Wed, 26 Jul 2017 11:40:14 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: Qemu problems in -next with 's390/spinlock: add niai spinlock
  hints'
+Message-ID: <20170726114014.1f3cc5d6@gondolin>
+In-Reply-To: <20170726074044.41bdc796@mschwideX1>
 References: <20170726011451.GA24947@roeck-us.net>
- <20170726050033.GA3218@osiris>
- <20170726074044.41bdc796@mschwideX1>
- <20170726060527.GD3218@osiris>
- <20170726083100.0146e84a@mschwideX1>
+        <20170726050033.GA3218@osiris>
+        <20170726074044.41bdc796@mschwideX1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170726083100.0146e84a@mschwideX1>
-Message-Id: <20170726072654.GE3218@osiris>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-> > > Hmm, I though that NIAI is a NOP on older machines. A runtime check for
-> > > the facility bit is out of the question as the NIAI-7 gets inlined in
-> > > the spin_unlock code. So yes, the only available fix is to make the
-> > > NIAI hinting conditional on zEC12. Which is quite ugly as we would need
-> > > an architecture level set to zEC12 for the distribution kernel to make
-> > > use of NIAI.  
+On Wed, 26 Jul 2017 07:40:44 +0200
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+
+> On Wed, 26 Jul 2017 07:00:33 +0200
+> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> 
+> > On Tue, Jul 25, 2017 at 06:14:51PM -0700, Guenter Roeck wrote:  
+> > > Hi Martin,
+> > > 
+> > > my s390 qemu tests in linux-next stopped working a few days ago.
+> > > Bisect points to commit 's390/spinlock: add niai spinlock hints'.
+> > > 
+> > > Looking at the patch, this isn't really surprising; at least to me it looks
+> > > like the patch is making instructions mandatory which are only available in
+> > > Z14 CPUs. Does this mean that older s390 CPUs (such as the Z900 used in my
+> > > qemu tests) are no longer going to be supported in Linux ?    
 > > 
-> > Alternatively you could generate a four-byte nop, and replace that at IPL
-> > time with the needed NIAI instruction, if the facility is available. Some
-> > sort of "alternative" code patching infrastructure that x86 already has.
-> > Not sure if it is worth it, however...
+> > No, that means that the patch has a bug. The NIAI instruction is only
+> > available if the execution-hint facility is installed. That facility came
+> > with zEC12. Luckily it uses the same facility indicator bit like the
+> > miscellaneous-instruction-extensions facility, which we already use anyway
+> > if the kernel gets compiled for zEC12. In that case we have early code
+> > which verifies if all required facilities to run the kernel are installed,
+> > and if not it will print a message to the console and stop the machine.
+> > 
+> > So the easiest fix would be to generate the NIAI instruction only if the
+> > kernel gets compiled for zEC12 or newer.  
 > 
-> Patching all spin_unlock inlines? There are a lot of callers for this
-> function. We could think about an out-of-line spin_unlock and patch this
-> single function but then we'd loose the advantage of inlining.
-> I do not think it is worthwhile.
-> 
-> I pushed an updated patch to the features branch of s390/linux. Should
-> be in linux-next tomorroy. Thanks. 
+> Hmm, I though that NIAI is a NOP on older machines.
 
-The idea would be to generate an extra section that contains the addresses
-of the to be patched instructions, and how they need to be patched.  That
-section, plus the code that will do the patching could reside in init
-data/code sections and would be discarded after. So the additional memory
-overhead after initialization would be close to zero.
+FWIW, the upcoming qemu 2.11 (in tcg mode) will support to activate
+stfle bit 49 and generate NOPs for NIAI and friends.
 
-However an ifdef is fine as well ;)
+If I read the PoP correctly, the only correct way is to check for stfle
+bit 49 before trying to use NIAI. While a real zEC12 or later probably
+will have the facility, you can withdraw the feature bit via the cpu
+model when running under qemu.
