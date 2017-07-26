@@ -1,55 +1,44 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/1] vfio: ccw: fix bad ptr math for TIC cda translation
-Date: Mon, 24 Jul 2017 18:47:01 +0200
-Message-ID: <20170724164701.26715-2-cohuck@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PULL 0/1] vfio-ccw: one bugfix for 4.12
+Date: Wed, 26 Jul 2017 08:28:53 +0200
+Message-ID: <20170726082853.240ad7e2@mschwideX1>
 References: <20170724164701.26715-1-cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20170724164701.26715-1-cohuck@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: bjsdjshi@linux.vnet.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: bjsdjshi@linux.vnet.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
+On Mon, 24 Jul 2017 18:47:00 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-When we are translating channel data addresses from guest to host
-address space for TIC instructions we are getting incorrect
-addresses because of a pointer arithmetic error.
+> The following changes since commit 97ca7bfc19605bc08e9183441b8b8545e84032d6:
+> 
+>   s390/mm: set change and reference bit on lazy key enablement (2017-07-13 11:28:29 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20170724
+> 
+> for you to fetch changes up to c389377c01bf2d6e2a178e86aef8535931bfbd75:
+> 
+>   vfio: ccw: fix bad ptr math for TIC cda translation (2017-07-24 09:54:37 +0200)
+> 
+> ----------------------------------------------------------------
+> A bugfix in the ccw translation code.
+> 
+> ----------------------------------------------------------------
 
-We currently calculate the offset of the TIC's cda from the start
-of the channel program chain (ccw->cda - ccw_head). We then add
-that to the address of the ccw chain in host memory (iter->ch_ccw).
-The problem is that iter->ch_ccw is a pointer to struct ccw1 so
-when we increment it we are actually incrementing by the size of
-struct ccw1 which is 8 bytes. The intent was to increment by
-n-bytes, not n*8.
+Applied to s390/linux:features. Thanks.
 
-The fix: cast iter->ch_ccw to char* so it will be incremented by
-n*1.
-
-Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Message-Id: <20170721011436.76112-1-bjsdjshi@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index ba6ac83a6c25..5ccfdc80d0ec 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -481,7 +481,7 @@ static int ccwchain_fetch_tic(struct ccwchain *chain,
- 		ccw_tail = ccw_head + (iter->ch_len - 1) * sizeof(struct ccw1);
- 
- 		if ((ccw_head <= ccw->cda) && (ccw->cda <= ccw_tail)) {
--			ccw->cda = (__u32) (addr_t) (iter->ch_ccw +
-+			ccw->cda = (__u32) (addr_t) (((char *)iter->ch_ccw) +
- 						     (ccw->cda - ccw_head));
- 			return 0;
- 		}
 -- 
-2.13.3
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
