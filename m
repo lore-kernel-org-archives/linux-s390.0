@@ -1,62 +1,68 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Wed, 26 Jul 2017 14:19:52 +0200
-From: Michal Hocko <mhocko@kernel.org>
+Date: Wed, 26 Jul 2017 15:34:31 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [PATCH] mm: take memory hotplug lock within
  numa_zonelist_order_handler()
-Message-ID: <20170726121952.GN2981@dhcp22.suse.cz>
+In-Reply-To: <20170726111738.38768-1-heiko.carstens@de.ibm.com>
+Message-ID: <alpine.DEB.2.20.1707261533360.2186@nanos>
 References: <20170726111738.38768-1-heiko.carstens@de.ibm.com>
- <20170726113112.GJ2981@dhcp22.suse.cz>
- <20170726114812.GH3218@osiris>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170726114812.GH3218@osiris>
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
 To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Andre Wild <wild@linux.vnet.ibm.com>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Thomas Gleixner <tglx@linutronix.de>, Vlastimil Babka <vbabka@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Andre Wild <wild@linux.vnet.ibm.com>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed 26-07-17 13:48:12, Heiko Carstens wrote:
-> On Wed, Jul 26, 2017 at 01:31:12PM +0200, Michal Hocko wrote:
-> > On Wed 26-07-17 13:17:38, Heiko Carstens wrote:
-> > [...]
-> > > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > > index 6d30e914afb6..fc32aa81f359 100644
-> > > --- a/mm/page_alloc.c
-> > > +++ b/mm/page_alloc.c
-> > > @@ -4891,9 +4891,11 @@ int numa_zonelist_order_handler(struct ctl_table *table, int write,
-> > >  				NUMA_ZONELIST_ORDER_LEN);
-> > >  			user_zonelist_order = oldval;
-> > >  		} else if (oldval != user_zonelist_order) {
-> > > +			mem_hotplug_begin();
-> > >  			mutex_lock(&zonelists_mutex);
-> > >  			build_all_zonelists(NULL, NULL);
-> > >  			mutex_unlock(&zonelists_mutex);
-> > > +			mem_hotplug_done();
-> > >  		}
-> > >  	}
-> > >  out:
-> > 
-> > Please note that this code has been removed by
-> > http://lkml.kernel.org/r/20170721143915.14161-2-mhocko@kernel.org. It
-> > will get to linux-next as soon as Andrew releases a new version mmotm
-> > tree.
+On Wed, 26 Jul 2017, Heiko Carstens wrote:
+> Andre Wild reported the folling warning:
 > 
-> We still would need something for 4.13, no?
+> WARNING: CPU: 2 PID: 1205 at kernel/cpu.c:240 lockdep_assert_cpus_held+0x4c/0x60
+> Modules linked in:
+> CPU: 2 PID: 1205 Comm: bash Not tainted 4.13.0-rc2-00022-gfd2b2c57ec20 #10
+> Hardware name: IBM 2964 N96 702 (z/VM 6.4.0)
+> task: 00000000701d8100 task.stack: 0000000073594000
+> Krnl PSW : 0704f00180000000 0000000000145e24 (lockdep_assert_cpus_held+0x4c/0x60)
+> ...
+> Call Trace:
+>  lockdep_assert_cpus_held+0x42/0x60)
+>  stop_machine_cpuslocked+0x62/0xf0
+>  build_all_zonelists+0x92/0x150
+>  numa_zonelist_order_handler+0x102/0x150
+>  proc_sys_call_handler.isra.12+0xda/0x118
+>  proc_sys_write+0x34/0x48
+>  __vfs_write+0x3c/0x178
+>  vfs_write+0xbc/0x1a0
+>  SyS_write+0x66/0xc0
+>  system_call+0xc4/0x2b0
+>  locks held by bash/1205:
+>  #0:  (sb_writers#4){.+.+.+}, at: [<000000000037b29e>] vfs_write+0xa6/0x1a0
+>  #1:  (zl_order_mutex){+.+...}, at: [<00000000002c8e4c>] numa_zonelist_order_handler+0x44/0x150
+>  #2:  (zonelists_mutex){+.+...}, at: [<00000000002c8efc>] numa_zonelist_order_handler+0xf4/0x150
+> Last Breaking-Event-Address:
+>  [<0000000000145e20>] lockdep_assert_cpus_held+0x48/0x60
+> 
+> This can be easily triggered with e.g.
+> 
+>  >echo n > /proc/sys/vm/numa_zonelist_order
+> 
+> With commit 3f906ba23689a ("mm/memory-hotplug: switch locking to a
+> percpu rwsem") memory hotplug locking was changed to fix a potential
+> deadlock. This also switched the stop_machine() invocation within
+> build_all_zonelists() to stop_machine_cpuslocked() which now expects
+> that online cpus are locked when being called.
+> 
+> This assumption is not true if build_all_zonelists() is being called
+> from numa_zonelist_order_handler(). In order to fix this simply add a
+> mem_hotplug_begin()/mem_hotplug_done() pair to numa_zonelist_order_handler().
 
-If this presents a real problem then yes. Has this happened in a real
-workload or during some artificial test? I mean the code has been like
-that for ages and nobody noticed/reported any problems.
+Sorry, I missed that call path when I did the conversion. So yes, that
+needs some protection....
 
-That being said, I do not have anything against your patch. It is
-trivial to rebase mine on top of yours. I am just not sure it is worth
-the code churn. E.g. do you think this patch is a stable backport
-material?
--- 
-Michal Hocko
-SUSE Labs
+Thanks,
+
+	tglx
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
