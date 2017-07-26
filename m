@@ -1,14 +1,15 @@
 From: Hannes Reinecke <hare@suse.de>
-Subject: Re: [RFC 2/9] zfcp: decouple TMF response handler from scsi_cmnd
-Date: Wed, 26 Jul 2017 07:52:12 +0200
-Message-ID: <c5ba7c87-6633-b81d-46a5-e89aef532830@suse.de>
+Subject: Re: [RFC 3/9] zfcp: split FCP_CMND IU setup between SCSI I/O and TMF
+ again
+Date: Wed, 26 Jul 2017 07:53:15 +0200
+Message-ID: <62035be1-c9cb-cb34-653f-3a0149805efc@suse.de>
 References: <20170725141427.35258-1-maier@linux.vnet.ibm.com>
- <20170725141427.35258-3-maier@linux.vnet.ibm.com>
+ <20170725141427.35258-4-maier@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20170725141427.35258-3-maier@linux.vnet.ibm.com>
+In-Reply-To: <20170725141427.35258-4-maier@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
@@ -18,25 +19,15 @@ Cc: linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 On 07/25/2017 04:14 PM, Steffen Maier wrote:
-> Do not get scsi_device via req->data any more, but pass an optional(!)
-> scsi_device to zfcp_fsf_fcp_handler_common(). The latter must now guard
-> any access to scsi_device as it can be NULL.
-> 
-> Since we always have at least a zfcp port as scope, pass this as mandatory
-> argument to zfcp_fsf_fcp_handler_common() because we cannot get it through
-> scsi_device => zfcp_scsi_dev => port any more.
-> 
-> Hence, the callers of zfcp_fsf_fcp_handler_common() must resolve req->data.
-> 
-> TMF handling now has different context data in fsf_req->data
-> depending on the TMF scope in fcp_cmnd->fc_tm_flags:
-> * scsi_device if FCP_TMF_LUN_RESET,
-> * zfcp_port if FCP_TMF_TGT_RESET.
+> This reverts commit 2443c8b23aea ("[SCSI] zfcp: Merge FCP task management
+> setup with regular FCP command setup"), because this introduced a
+> dependency on the unsuitable SCSI command for scsi_eh / TMF.
 > 
 > Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
 > ---
->  drivers/s390/scsi/zfcp_fsf.c | 72 ++++++++++++++++++++++++++++----------------
->  1 file changed, 46 insertions(+), 26 deletions(-)
+>  drivers/s390/scsi/zfcp_fc.h  | 22 ++++++++++++++--------
+>  drivers/s390/scsi/zfcp_fsf.c |  4 ++--
+>  2 files changed, 16 insertions(+), 10 deletions(-)
 > 
 Reviewed-by: Hannes Reinecke <hare@suse.com>
 
