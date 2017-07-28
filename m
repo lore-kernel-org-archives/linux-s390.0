@@ -1,7 +1,7 @@
 From: Benjamin Block <bblock@linux.vnet.ibm.com>
-Subject: [PATCH 19/22] zfcp: clean up no longer existent prototype from zfcp API header
-Date: Fri, 28 Jul 2017 12:31:05 +0200
-Message-ID: <2a15cdff83bdd38edf47cba22565208f9f851f62.1501085249.git.bblock@linux.vnet.ibm.com>
+Subject: [PATCH 05/22] zfcp: fix queuecommand for scsi_eh commands when DIX enabled
+Date: Fri, 28 Jul 2017 12:30:51 +0200
+Message-ID: <9ef47a2f823cf6010b28fd2bf0b235311aaeb996.1501085249.git.bblock@linux.vnet.ibm.com>
 References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
@@ -11,34 +11,60 @@ Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Peschke <mpeschke@linux.vnet.ibm.com>, Benjamin Block <bblock@linux.vnet.ibm.com>
+Cc: Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Steffen Maier <maier@linux.vnet.ibm.com>
 
-Commit a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA
-records.") refactored zfcp_dbf_hba_berr into zfcp_dbf_hba_bit_err
-but added the prototype for the latter without removing it for the former.
+Since commit db007fc5e20c ("[SCSI] Command protection operation"),
+scsi_eh_prep_cmnd() saves scmd->prot_op and temporarily resets it to
+SCSI_PROT_NORMAL.
+Other FCP LLDDs such as qla2xxx and lpfc shield their queuecommand()
+to only access any of scsi_prot_sg...() if
+(scsi_get_prot_op(cmd) != SCSI_PROT_NORMAL).
 
-Suggested-by: Martin Peschke <mpeschke@linux.vnet.ibm.com>
+Do the same thing for zfcp, which introduced DIX support with
+commit ef3eb71d8ba4 ("[SCSI] zfcp: Introduce experimental support for
+DIF/DIX").
+
+Otherwise, TUR SCSI commands as part of scsi_eh likely fail in zfcp,
+because the regular SCSI command with DIX protection data, that scsi_eh
+re-uses in scsi_send_eh_cmnd(), of course still has
+(scsi_prot_sg_count() != 0) and so zfcp sends down bogus requests to the
+FCP channel hardware.
+
+This causes scsi_eh_test_devices() to have (finish_cmds == 0)
+[not SCSI device is online or not scsi_eh_tur() failed]
+so regular SCSI commands, that caused / were affected by scsi_eh,
+are moved to work_q and scsi_eh_test_devices() itself returns false.
+In turn, it unnecessarily escalates in our case in scsi_eh_ready_devs()
+beyond host reset to finally scsi_eh_offline_sdevs()
+which sets affected SCSI devices offline with the following kernel message:
+
+"kernel: sd H:0:T:L: Device offlined - not ready after error recovery"
+
 Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
+Fixes: ef3eb71d8ba4 ("[SCSI] zfcp: Introduce experimental support for DIF/DIX")
+Cc: <stable@vger.kernel.org> #2.6.36+
 Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 Signed-off-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_ext.h | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/s390/scsi/zfcp_fsf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
-index 9afdbc32b23f..a9e968717dd9 100644
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -41,7 +41,6 @@ extern void zfcp_dbf_rec_run_wka(char *, struct zfcp_fc_wka_port *, u64);
- extern void zfcp_dbf_hba_fsf_uss(char *, struct zfcp_fsf_req *);
- extern void zfcp_dbf_hba_fsf_res(char *, int, struct zfcp_fsf_req *);
- extern void zfcp_dbf_hba_bit_err(char *, struct zfcp_fsf_req *);
--extern void zfcp_dbf_hba_berr(struct zfcp_dbf *, struct zfcp_fsf_req *);
- extern void zfcp_dbf_hba_def_err(struct zfcp_adapter *, u64, u16, void **);
- extern void zfcp_dbf_hba_basic(char *, struct zfcp_adapter *);
- extern void zfcp_dbf_san_req(char *, struct zfcp_fsf_req *, u32);
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index 3b69ec5e69ed..e894ec92076c 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -2257,7 +2257,8 @@ int zfcp_fsf_fcp_cmnd(struct scsi_cmnd *scsi_cmnd)
+ 	fcp_cmnd = (struct fcp_cmnd *) &req->qtcb->bottom.io.fcp_cmnd;
+ 	zfcp_fc_scsi_to_fcp(fcp_cmnd, scsi_cmnd, 0);
+ 
+-	if (scsi_prot_sg_count(scsi_cmnd)) {
++	if ((scsi_get_prot_op(scsi_cmnd) != SCSI_PROT_NORMAL) &&
++	    scsi_prot_sg_count(scsi_cmnd)) {
+ 		zfcp_qdio_set_data_div(qdio, &req->qdio_req,
+ 				       scsi_prot_sg_count(scsi_cmnd));
+ 		retval = zfcp_qdio_sbals_from_sg(qdio, &req->qdio_req,
 -- 
 2.11.2
