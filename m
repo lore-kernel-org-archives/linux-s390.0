@@ -1,12 +1,11 @@
 From: Benjamin Block <bblock@linux.vnet.ibm.com>
-Subject: [PATCH 04/22] zfcp: convert bool-definitions to use 'true' instead of '1'
-Date: Fri, 28 Jul 2017 12:30:50 +0200
-Message-ID: <d3aedd844d21b31a6b2bc8c17fa6397c3aa177e7.1501085249.git.bblock@linux.vnet.ibm.com>
-References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
+Subject: [PATCH 00/22] zfcp fixes and cleanups
+Date: Fri, 28 Jul 2017 12:30:46 +0200
+Message-ID: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
-In-Reply-To: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
-References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
@@ -14,41 +13,75 @@ To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <
 Cc: Benjamin Block <bblock@linux.vnet.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Better form and cleans remaining warnings.
+Hi all,
 
-Found with scripts/coccinelle/misc/boolinit.cocci.
+here is a series of (important) fixes and some additional cleanups for the
+zfcp driver. Our fixes are marked for stable accordingly.
 
-Signed-off-by: Benjamin Block <bblock@linux.vnet.ibm.com>
----
- drivers/s390/scsi/zfcp_qdio.c | 2 +-
- drivers/s390/scsi/zfcp_scsi.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Patches 01 - 04 are cleanups and external patches (also cleanups) that we
+      & 13 - 22     had queued for quite some time now
 
-diff --git a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
-index dbf2b54703f7..9e358fc04b78 100644
---- a/drivers/s390/scsi/zfcp_qdio.c
-+++ b/drivers/s390/scsi/zfcp_qdio.c
-@@ -14,7 +14,7 @@
- #include "zfcp_ext.h"
- #include "zfcp_qdio.h"
- 
--static bool enable_multibuffer = 1;
-+static bool enable_multibuffer = true;
- module_param_named(datarouter, enable_multibuffer, bool, 0400);
- MODULE_PARM_DESC(datarouter, "Enable hardware data router support (default on)");
- 
-diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
-index 0678cf714c0e..d99da4e1e27a 100644
---- a/drivers/s390/scsi/zfcp_scsi.c
-+++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -28,7 +28,7 @@ static bool enable_dif;
- module_param_named(dif, enable_dif, bool, 0400);
- MODULE_PARM_DESC(dif, "Enable DIF/DIX data integrity support");
- 
--static bool allow_lun_scan = 1;
-+static bool allow_lun_scan = true;
- module_param(allow_lun_scan, bool, 0600);
- MODULE_PARM_DESC(allow_lun_scan, "For NPIV, scan and attach all storage LUNs");
- 
--- 
+Patches 05 - 12 are driver fixes that are all marked for stable as well
+
+The set applies to the fixes branch of James' scsi.git.
+
+
+                                                Beste Grüße / Best regards,
+                                                  - Benjamin Block
+
+Benjamin Block (2):
+  zfcp: convert bool-definitions to use 'true' instead of '1'
+  zfcp: add handling for FCP_RESID_OVER to the fcp ingress path
+
+Corentin Labbe (1):
+  zfcp: Remove unneeded linux/miscdevice.h include
+
+LABBE Corentin (1):
+  zfcp: replace zfcp_qdio_sbale_count by sg_nents
+
+Lukáš Korenčik (1):
+  zfcp: use setup_timer instead of init_timer
+
+Martin Peschke (4):
+  zfcp: clean up redundant code with fall through in link down SRB
+    switch case
+  zfcp: clean up a member of struct zfcp_qdio that was assigned but
+    never used
+  zfcp: clean up unnecessary module_param_named() with
+    no_auto_port_rescan
+  zfcp: early returns for traces disabled via level
+
+Steffen Maier (13):
+  zfcp: fix queuecommand for scsi_eh commands when DIX enabled
+  zfcp: fix capping of unsuccessful GPN_FT SAN response trace records
+  zfcp: fix passing fsf_req to SCSI trace on TMF to correlate with HBA
+  zfcp: fix missing trace records for early returns in TMF eh handlers
+  zfcp: fix payload with full FCP_RSP IU in SCSI trace records
+  zfcp: trace HBA FSF response by default on dismiss or timedout late
+    response
+  zfcp: trace high part of "new" 64 bit SCSI LUN
+  zfcp: more fitting constant for fc_ct_hdr.ct_reason on port scan
+    response
+  zfcp: clarify that we don't need "link" test on failed open port
+  zfcp: use common code fcp_cmnd and fcp_resp with union in
+    fsf_qtcb_bottom_io
+  zfcp: use endianness conversions with common FC(P) struct fields
+  zfcp: fix kernel doc comment typos for struct zfcp_dbf_scsi
+  zfcp: clean up no longer existent prototype from zfcp API header
+
+ drivers/s390/scsi/zfcp_aux.c  |  1 -
+ drivers/s390/scsi/zfcp_dbf.c  | 95 +++++++++++++++++++++++++++++++++++--------
+ drivers/s390/scsi/zfcp_dbf.h  | 25 ++++++++----
+ drivers/s390/scsi/zfcp_erp.c  |  5 +--
+ drivers/s390/scsi/zfcp_ext.h  |  1 -
+ drivers/s390/scsi/zfcp_fc.c   | 52 +++++++++++------------
+ drivers/s390/scsi/zfcp_fc.h   | 25 ++++++++----
+ drivers/s390/scsi/zfcp_fsf.c  | 35 ++++++++--------
+ drivers/s390/scsi/zfcp_fsf.h  | 12 ++++--
+ drivers/s390/scsi/zfcp_qdio.c |  2 +-
+ drivers/s390/scsi/zfcp_qdio.h | 17 --------
+ drivers/s390/scsi/zfcp_scsi.c | 18 ++++----
+ 12 files changed, 178 insertions(+), 110 deletions(-)
+
+--
 2.11.2
