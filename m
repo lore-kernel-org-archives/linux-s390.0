@@ -1,7 +1,7 @@
 From: Benjamin Block <bblock@linux.vnet.ibm.com>
-Subject: [PATCH 18/22] zfcp: clean up redundant code with fall through in link down SRB switch case
-Date: Fri, 28 Jul 2017 12:31:04 +0200
-Message-ID: <7334912a2cfb4c46ce7bf41ce53c851187891d5d.1501085249.git.bblock@linux.vnet.ibm.com>
+Subject: [PATCH 04/22] zfcp: convert bool-definitions to use 'true' instead of '1'
+Date: Fri, 28 Jul 2017 12:30:50 +0200
+Message-ID: <d3aedd844d21b31a6b2bc8c17fa6397c3aa177e7.1501085249.git.bblock@linux.vnet.ibm.com>
 References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
@@ -11,32 +11,44 @@ Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Martin Peschke <mpeschke@linux.vnet.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
+Cc: Benjamin Block <bblock@linux.vnet.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
+Better form and cleans remaining warnings.
 
-Signed-off-by: Martin Peschke <mpeschke@linux.vnet.ibm.com>
-[maier@linux.vnet.ibm.com: re-worded short description for more details]
-Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
+Found with scripts/coccinelle/misc/boolinit.cocci.
+
 Signed-off-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/s390/scsi/zfcp_qdio.c | 2 +-
+ drivers/s390/scsi/zfcp_scsi.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index cc923c71a0fa..eefb474a9e42 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -197,8 +197,6 @@ static void zfcp_fsf_status_read_link_down(struct zfcp_fsf_req *req)
+diff --git a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
+index dbf2b54703f7..9e358fc04b78 100644
+--- a/drivers/s390/scsi/zfcp_qdio.c
++++ b/drivers/s390/scsi/zfcp_qdio.c
+@@ -14,7 +14,7 @@
+ #include "zfcp_ext.h"
+ #include "zfcp_qdio.h"
  
- 	switch (sr_buf->status_subtype) {
- 	case FSF_STATUS_READ_SUB_NO_PHYSICAL_LINK:
--		zfcp_fsf_link_down_info_eval(req, ldi);
--		break;
- 	case FSF_STATUS_READ_SUB_FDISC_FAILED:
- 		zfcp_fsf_link_down_info_eval(req, ldi);
- 		break;
+-static bool enable_multibuffer = 1;
++static bool enable_multibuffer = true;
+ module_param_named(datarouter, enable_multibuffer, bool, 0400);
+ MODULE_PARM_DESC(datarouter, "Enable hardware data router support (default on)");
+ 
+diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
+index 0678cf714c0e..d99da4e1e27a 100644
+--- a/drivers/s390/scsi/zfcp_scsi.c
++++ b/drivers/s390/scsi/zfcp_scsi.c
+@@ -28,7 +28,7 @@ static bool enable_dif;
+ module_param_named(dif, enable_dif, bool, 0400);
+ MODULE_PARM_DESC(dif, "Enable DIF/DIX data integrity support");
+ 
+-static bool allow_lun_scan = 1;
++static bool allow_lun_scan = true;
+ module_param(allow_lun_scan, bool, 0600);
+ MODULE_PARM_DESC(allow_lun_scan, "For NPIV, scan and attach all storage LUNs");
+ 
 -- 
 2.11.2
