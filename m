@@ -1,51 +1,73 @@
 From: Benjamin Block <bblock@linux.vnet.ibm.com>
-Subject: [PATCH 03/22] zfcp: Remove unneeded linux/miscdevice.h include
-Date: Fri, 28 Jul 2017 12:30:49 +0200
-Message-ID: <c4922afd6accd970bfadf89f438aa01fd979c3cb.1501085249.git.bblock@linux.vnet.ibm.com>
+Subject: [PATCH 09/22] zfcp: fix missing trace records for early returns in TMF eh handlers
+Date: Fri, 28 Jul 2017 12:30:55 +0200
+Message-ID: <ebf9c5300284d4a530896a90e3ee1eec7ef1ed63.1501085249.git.bblock@linux.vnet.ibm.com>
 References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
 In-Reply-To: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
 References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Corentin Labbe <clabbe.montjoie@gmail.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
+Cc: Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
+From: Steffen Maier <maier@linux.vnet.ibm.com>
 
-drivers/s390/scsi/zfcp_aux.c does not contain any miscdevice so the
-inclusion of linux/miscdevice.h is unnecessary.
+For problem determination we need to see that we were in scsi_eh
+as well as whether and why we were successful or not.
 
-[maier@linux.vnet.ibm.com: just for the records, this is in fact a
- minor missing code cleanup of the following older "feature"
- which also dropped the only former use of a misc device in zfcp:
- commit 663e0890e31c ("[SCSI] zfcp: remove access control tables
-				    interface")
- commit b5dc3c4800cc ("[SCSI] zfcp: remove access control tables
-				    interface (keep sysfs files)")
- commit 1b33ef23946a ("zfcp: remove access control tables interface
-			     (port leftovers)")]
+The following commits introduced new early returns without adding
+a trace record:
 
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+v2.6.35 commit a1dbfddd02d2
+("[SCSI] zfcp: Pass return code from fc_block_scsi_eh to scsi eh")
+on fc_block_scsi_eh() returning != 0 which is FAST_IO_FAIL,
+
+v2.6.30 commit 63caf367e1c9
+("[SCSI] zfcp: Improve reliability of SCSI eh handlers in zfcp")
+on not having gotten an FSF request after the maximum number of retry
+attempts and thus could not issue a TMF and has to return FAILED.
+
+Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
+Fixes: a1dbfddd02d2 ("[SCSI] zfcp: Pass return code from fc_block_scsi_eh to scsi eh")
+Fixes: 63caf367e1c9 ("[SCSI] zfcp: Improve reliability of SCSI eh handlers in zfcp")
+Cc: <stable@vger.kernel.org> #2.6.38+
+Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 Signed-off-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_aux.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/s390/scsi/zfcp_scsi.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-index bcc8f3dfd4c4..82ac331d9125 100644
---- a/drivers/s390/scsi/zfcp_aux.c
-+++ b/drivers/s390/scsi/zfcp_aux.c
-@@ -29,7 +29,6 @@
- #define KMSG_COMPONENT "zfcp"
- #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
+index 4c9ac55d053d..ec3ddd1d31d5 100644
+--- a/drivers/s390/scsi/zfcp_scsi.c
++++ b/drivers/s390/scsi/zfcp_scsi.c
+@@ -273,8 +273,10 @@ static int zfcp_task_mgmt_function(struct scsi_cmnd *scpnt, u8 tm_flags)
  
--#include <linux/miscdevice.h>
- #include <linux/seq_file.h>
- #include <linux/slab.h>
- #include <linux/module.h>
+ 		zfcp_erp_wait(adapter);
+ 		ret = fc_block_scsi_eh(scpnt);
+-		if (ret)
++		if (ret) {
++			zfcp_dbf_scsi_devreset("fiof", scpnt, tm_flags, NULL);
+ 			return ret;
++		}
+ 
+ 		if (!(atomic_read(&adapter->status) &
+ 		      ZFCP_STATUS_COMMON_RUNNING)) {
+@@ -282,8 +284,10 @@ static int zfcp_task_mgmt_function(struct scsi_cmnd *scpnt, u8 tm_flags)
+ 			return SUCCESS;
+ 		}
+ 	}
+-	if (!fsf_req)
++	if (!fsf_req) {
++		zfcp_dbf_scsi_devreset("reqf", scpnt, tm_flags, NULL);
+ 		return FAILED;
++	}
+ 
+ 	wait_for_completion(&fsf_req->completion);
+ 
 -- 
 2.11.2
