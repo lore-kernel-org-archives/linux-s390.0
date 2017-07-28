@@ -1,7 +1,7 @@
 From: Benjamin Block <bblock@linux.vnet.ibm.com>
-Subject: [PATCH 20/22] zfcp: clean up a member of struct zfcp_qdio that was assigned but never used
-Date: Fri, 28 Jul 2017 12:31:06 +0200
-Message-ID: <7f893474194435f0fe38553e6825611b179ddaf6.1501085249.git.bblock@linux.vnet.ibm.com>
+Subject: [PATCH 01/22] zfcp: replace zfcp_qdio_sbale_count by sg_nents
+Date: Fri, 28 Jul 2017 12:30:47 +0200
+Message-ID: <40f8ed99ea59fb87b9a434867527c2a3ec290d4f.1501085249.git.bblock@linux.vnet.ibm.com>
 References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
@@ -11,59 +11,61 @@ Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Martin Peschke <mpeschke@linux.vnet.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
+Cc: LABBE Corentin <clabbe.montjoie@gmail.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
 
-v2.6.38 commit a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing
-for HBA records.")
-dropped trace information previously introduced with
-v2.6.27 commit c3baa9a26c5a ("[SCSI] zfcp: Add information about interrupt
-to trace.")
-but kept and needlessly assigned a now no longer used struct field.
+The zfcp_qdio_sbale_count function do the same work than sg_nents().
+So replace it by sg_nents() for removing duplicate code.
 
-Signed-off-by: Martin Peschke <mpeschke@linux.vnet.ibm.com>
-[maier@linux.vnet.ibm.com: reword, added git history]
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
 Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 Signed-off-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c  | 1 -
- drivers/s390/scsi/zfcp_qdio.h | 2 --
- 2 files changed, 3 deletions(-)
+ drivers/s390/scsi/zfcp_fsf.c  |  3 +--
+ drivers/s390/scsi/zfcp_qdio.h | 15 ---------------
+ 2 files changed, 1 insertion(+), 17 deletions(-)
 
 diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index eefb474a9e42..69d1dc3ec79d 100644
+index 27ff38f839fc..3b69ec5e69ed 100644
 --- a/drivers/s390/scsi/zfcp_fsf.c
 +++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -2394,7 +2394,6 @@ void zfcp_fsf_reqid_check(struct zfcp_qdio *qdio, int sbal_idx)
- 			      req_id, dev_name(&adapter->ccw_device->dev));
- 		}
+@@ -991,8 +991,7 @@ static int zfcp_fsf_setup_ct_els_sbals(struct zfcp_fsf_req *req,
+ 		qtcb->bottom.support.resp_buf_length =
+ 			zfcp_qdio_real_bytes(sg_resp);
  
--		fsf_req->qdio_req.sbal_response = sbal_idx;
- 		zfcp_fsf_req_complete(fsf_req);
- 
- 		if (likely(sbale->eflags & SBAL_EFLAGS_LAST_ENTRY))
+-		zfcp_qdio_set_data_div(qdio, &req->qdio_req,
+-					zfcp_qdio_sbale_count(sg_req));
++		zfcp_qdio_set_data_div(qdio, &req->qdio_req, sg_nents(sg_req));
+ 		zfcp_qdio_set_sbale_last(qdio, &req->qdio_req);
+ 		zfcp_qdio_set_scount(qdio, &req->qdio_req);
+ 		return 0;
 diff --git a/drivers/s390/scsi/zfcp_qdio.h b/drivers/s390/scsi/zfcp_qdio.h
-index 85cdb82127e8..7f647a90c750 100644
+index 497cd379b0d1..85cdb82127e8 100644
 --- a/drivers/s390/scsi/zfcp_qdio.h
 +++ b/drivers/s390/scsi/zfcp_qdio.h
-@@ -54,7 +54,6 @@ struct zfcp_qdio {
-  * @sbal_last: last sbal for this request
-  * @sbal_limit: last possible sbal for this request
-  * @sbale_curr: current sbale at creation of this request
-- * @sbal_response: sbal used in interrupt
-  * @qdio_outb_usage: usage of outbound queue
-  */
- struct zfcp_qdio_req {
-@@ -64,7 +63,6 @@ struct zfcp_qdio_req {
- 	u8	sbal_last;
- 	u8	sbal_limit;
- 	u8	sbale_curr;
--	u8	sbal_response;
- 	u16	qdio_outb_usage;
- };
+@@ -225,21 +225,6 @@ void zfcp_qdio_set_data_div(struct zfcp_qdio *qdio,
+ }
  
+ /**
+- * zfcp_qdio_sbale_count - count sbale used
+- * @sg: pointer to struct scatterlist
+- */
+-static inline
+-unsigned int zfcp_qdio_sbale_count(struct scatterlist *sg)
+-{
+-	unsigned int count = 0;
+-
+-	for (; sg; sg = sg_next(sg))
+-		count++;
+-
+-	return count;
+-}
+-
+-/**
+  * zfcp_qdio_real_bytes - count bytes used
+  * @sg: pointer to struct scatterlist
+  */
 -- 
 2.11.2
