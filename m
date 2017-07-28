@@ -1,7 +1,7 @@
 From: Benjamin Block <bblock@linux.vnet.ibm.com>
-Subject: [PATCH 05/22] zfcp: fix queuecommand for scsi_eh commands when DIX enabled
-Date: Fri, 28 Jul 2017 12:30:51 +0200
-Message-ID: <9ef47a2f823cf6010b28fd2bf0b235311aaeb996.1501085249.git.bblock@linux.vnet.ibm.com>
+Subject: [PATCH 21/22] zfcp: clean up unnecessary module_param_named() with no_auto_port_rescan
+Date: Fri, 28 Jul 2017 12:31:07 +0200
+Message-ID: <99ca093052e6b521a0466280cf96ea2c96dc15d1.1501085249.git.bblock@linux.vnet.ibm.com>
 References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
@@ -11,60 +11,35 @@ Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
+Cc: Martin Peschke <mpeschke@linux.vnet.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Steffen Maier <maier@linux.vnet.ibm.com>
+From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
 
-Since commit db007fc5e20c ("[SCSI] Command protection operation"),
-scsi_eh_prep_cmnd() saves scmd->prot_op and temporarily resets it to
-SCSI_PROT_NORMAL.
-Other FCP LLDDs such as qla2xxx and lpfc shield their queuecommand()
-to only access any of scsi_prot_sg...() if
-(scsi_get_prot_op(cmd) != SCSI_PROT_NORMAL).
+Improves commit 43f60cbd56c4 ("[SCSI] zfcp: No automatic port_rescan on
+events")
 
-Do the same thing for zfcp, which introduced DIX support with
-commit ef3eb71d8ba4 ("[SCSI] zfcp: Introduce experimental support for
-DIF/DIX").
-
-Otherwise, TUR SCSI commands as part of scsi_eh likely fail in zfcp,
-because the regular SCSI command with DIX protection data, that scsi_eh
-re-uses in scsi_send_eh_cmnd(), of course still has
-(scsi_prot_sg_count() != 0) and so zfcp sends down bogus requests to the
-FCP channel hardware.
-
-This causes scsi_eh_test_devices() to have (finish_cmds == 0)
-[not SCSI device is online or not scsi_eh_tur() failed]
-so regular SCSI commands, that caused / were affected by scsi_eh,
-are moved to work_q and scsi_eh_test_devices() itself returns false.
-In turn, it unnecessarily escalates in our case in scsi_eh_ready_devs()
-beyond host reset to finally scsi_eh_offline_sdevs()
-which sets affected SCSI devices offline with the following kernel message:
-
-"kernel: sd H:0:T:L: Device offlined - not ready after error recovery"
-
+Signed-off-by: Martin Peschke <mpeschke@linux.vnet.ibm.com>
+[maier@linux.vnet.ibm.com: reword, underscore in description to match sysfs]
 Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Fixes: ef3eb71d8ba4 ("[SCSI] zfcp: Introduce experimental support for DIF/DIX")
-Cc: <stable@vger.kernel.org> #2.6.36+
 Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 Signed-off-by: Benjamin Block <bblock@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_fc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 3b69ec5e69ed..e894ec92076c 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -2257,7 +2257,8 @@ int zfcp_fsf_fcp_cmnd(struct scsi_cmnd *scsi_cmnd)
- 	fcp_cmnd = (struct fcp_cmnd *) &req->qtcb->bottom.io.fcp_cmnd;
- 	zfcp_fc_scsi_to_fcp(fcp_cmnd, scsi_cmnd, 0);
+diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
+index 3e715597b739..8210645c2111 100644
+--- a/drivers/s390/scsi/zfcp_fc.c
++++ b/drivers/s390/scsi/zfcp_fc.c
+@@ -29,7 +29,7 @@ static u32 zfcp_fc_rscn_range_mask[] = {
+ };
  
--	if (scsi_prot_sg_count(scsi_cmnd)) {
-+	if ((scsi_get_prot_op(scsi_cmnd) != SCSI_PROT_NORMAL) &&
-+	    scsi_prot_sg_count(scsi_cmnd)) {
- 		zfcp_qdio_set_data_div(qdio, &req->qdio_req,
- 				       scsi_prot_sg_count(scsi_cmnd));
- 		retval = zfcp_qdio_sbals_from_sg(qdio, &req->qdio_req,
+ static bool no_auto_port_rescan;
+-module_param_named(no_auto_port_rescan, no_auto_port_rescan, bool, 0600);
++module_param(no_auto_port_rescan, bool, 0600);
+ MODULE_PARM_DESC(no_auto_port_rescan,
+ 		 "no automatic port_rescan (default off)");
+ 
 -- 
 2.11.2
