@@ -1,32 +1,40 @@
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH 00/22] zfcp fixes and cleanups
-Date: Tue, 08 Aug 2017 12:07:56 -0400
-Message-ID: <yq1shh26o0z.fsf@oracle.com>
-References: <cover.1501085249.git.bblock@linux.vnet.ibm.com>
-        <yq13793b8j4.fsf@oracle.com>
-        <20170808100224.GA13050@bblock-ThinkPad-W530>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20170808100224.GA13050@bblock-ThinkPad-W530> (Benjamin Block's
-        message of "Tue, 8 Aug 2017 12:02:24 +0200")
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Benjamin Block <bblock@linux.vnet.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Bhumika Goyal <bhumirks@gmail.com>
+Subject: [PATCH 1/2] s390/sclp: add const to bin_attribute structure
+Date: Wed,  2 Aug 2017 21:37:22 +0530
+Message-Id: <1501690043-7640-2-git-send-email-bhumirks@gmail.com>
+In-Reply-To: <1501690043-7640-1-git-send-email-bhumirks@gmail.com>
+References: <1501690043-7640-1-git-send-email-bhumirks@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: julia.lawall@lip6.fr, sebott@linux.vnet.ibm.com, oberpar@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Bhumika Goyal <bhumirks@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+Declare bin_attribute structure as const as it is only passed as an
+argument to the function sysfs_create_bin_file. This argument is of
+type const, so declare the structure as const.
 
-Benjamin,
+Cross compiled for s390 architecture.
 
->> If you are OK with everything going into 4.14, then let me know. In
->> that case you don't have to shuffle the patches around.
+Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+---
+ drivers/s390/char/sclp_config.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> I think it is OK for us, if this goes into 4.14 as one series. So if
-> it is OK with you, just apply the complete series for that.
-
-OK. Applied to 4.14/scsi-queue. Thank you!
-
+diff --git a/drivers/s390/char/sclp_config.c b/drivers/s390/char/sclp_config.c
+index 1406fb6..7003d52 100644
+--- a/drivers/s390/char/sclp_config.c
++++ b/drivers/s390/char/sclp_config.c
+@@ -135,7 +135,7 @@ static ssize_t sysfs_ofb_data_write(struct file *filp, struct kobject *kobj,
+ 	return rc ?: count;
+ }
+ 
+-static struct bin_attribute ofb_bin_attr = {
++static const struct bin_attribute ofb_bin_attr = {
+ 	.attr = {
+ 		.name = "event_data",
+ 		.mode = S_IWUSR,
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+1.9.1
