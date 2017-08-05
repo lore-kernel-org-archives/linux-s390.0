@@ -1,72 +1,44 @@
-From: James Hogan <james.hogan@imgtec.com>
-Subject: Re: [PATCH] uapi: fix another asm/shmbuf.h userspace compilation
- error
-Date: Fri, 4 Aug 2017 16:22:04 +0100
-Message-ID: <20170804152203.GA31455@jhogan-linux.le.imgtec.org>
-References: <20170302004607.GE27132@altlinux.org>
- <CAK8P3a1=-Q=gVRyk+PwqxTeTPXa4yrmqWKG7SyZng2d7bcbG=g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ofekNuVaYCKmvJ0U"
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 5 Aug 2017 09:50:36 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: Re: drivers/s390/char/keyboard.c NULL pointer reference
+References: <3b10f99f.aa01.15da8632dec.Coremail.sohu0106@126.com>
+ <20170804092608.GB3278@osiris>
+ <5ad3af06.c08.15db010eb92.Coremail.sohu0106@126.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a1=-Q=gVRyk+PwqxTeTPXa4yrmqWKG7SyZng2d7bcbG=g@mail.gmail.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "Dmitry V. Levin" <ldv@altlinux.org>, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-xtensa@linux-xtensa.org, Heiko Carstens <heiko.carstens@de.ibm.com>, David Howells <dhowells@redhat.com>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Hans-Christian Egtvedt <egtvedt@samfundet.no>, linux-arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org, linux-am33-list@redhat.com, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Chris Zankel <chris@zankel.net>, Tony Luck <tony.luck@intel.com>, Linux Kernel Mailing List <linux-kernel@vg>
+In-Reply-To: <5ad3af06.c08.15db010eb92.Coremail.sohu0106@126.com>
+Message-Id: <20170805075036.GA3376@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: sohu0106 <sohu0106@126.com>
+Cc: schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
---ofekNuVaYCKmvJ0U
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sat, Aug 05, 2017 at 09:44:45AM +0800, sohu0106 wrote:
+> 
+> 
+> I don't understand a bit,My idea is 
+> 
+> in userland
+> 
+> fd=open("tty3270",O_RDONLY)
+> ...
+> ret=ioctl(fd,KDGKBDIACR,NULL)
+> ...
+> 
+> then here 
+> drivers/s390/char/keyboard.c
+> 477 
+> case KDGKBDIACR:
+> 	{
+> 		struct kbdiacrs __user *a = argp;
+> 		struct kbdiacr diacr;
+> 		int i;
+> 		
+> 		//a is NULL,a->kb_cnt will crash
+> 		if (put_user(kbd->accent_table_size, &a->kb_cnt))
 
-On Thu, Mar 02, 2017 at 02:07:20PM +0100, Arnd Bergmann wrote:
-> On Thu, Mar 2, 2017 at 1:46 AM, Dmitry V. Levin <ldv@altlinux.org> wrote:
-> > Replace size_t with __kernel_size_t to fix asm/shmbuf.h userspace
-> > compilation errors like this:
-> >
-> > /usr/include/asm-generic/shmbuf.h:28:2: error: unknown type name 'size_=
-t'
-> >   size_t   shm_segsz; /* size of segment (bytes) */
-> >
-> > x32 is the only architecture where sizeof(size_t) is less than
-> > sizeof(__kernel_size_t), but as the kernel treats shm_segsz field as
-> > __kernel_size_t anyway, UAPI should follow.  Thanks to little-endiannes
-> > of x32 and 64-bit alignment of the field following shm_segsz, this
-> > change doesn't break ABI, and the difference doesn't manifest itself
-> > easily.
-> >
-> > Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
->=20
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-
-Out of interest, is there a plan for merging these patches from Dmitry?
-
-Cheers
-James
-
---ofekNuVaYCKmvJ0U
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEd80NauSabkiESfLYbAtpk944dnoFAlmEkRMACgkQbAtpk944
-dnrAMg/+K3doXr6onSUJPfVtAuAORRxr6EypmBdFZs5/qV4cwNTkljJ0c/yGAKaM
-fUM6pJ9n56h7YGG0/y2m+YCI56TPWyh8HnoKTNyhgDtg+Sn1e2Ub4dXyEjYdQhXN
-TMTzPsP/COyFkrStEulbLuGoaU4t7UMFk5nU7FTQ1BpCeyuEO5opnUpA3JMZwehK
-KK7orqZYUE+iZ8QfbEXiuHr68EsvpMeHj0z6WNkXD/8gRzSFTMqf5wHFpm3cNTJ7
-3BRJx3LOkkE3amkPOm1kIOPWkMAEIFF11hRc79e4Wpkak6tnoCowkLvVNadB+UH2
-bb5BTgwifuU83lrWsqC6gzs6e4PR0DEAgQofoLy5uGQjVgYqJ970Q8/Cl4xsfvcL
-qVVFp8oGN5oZoXFiMWhYVQydG4m9TaruA2vOZK3F9fdrNBmd4t+fNxF+l3CTfa79
-dAGLliqjUunWrW8WBrFmIySw9Sxl8DbJKyl0jxaJUbfGCnmsmkCZO4fP8h3BK37Y
-mjMPsH3AjUnkBSLRBK+d261LMYCBgMY/SpUWwR7RqRbtxrqO7voVeNcyXQ1c4tVE
-cYJhQpy57wjDKE0luxGSU0o1ATJst6xcL+URKTvRoxIWrkZXUBPnwfusoedLqTxd
-f5AIFSEhwz7t8hBSEweo8qITuBmr86QmyKPwYN4R9xkonfb2Kis=
-=9M2T
------END PGP SIGNATURE-----
-
---ofekNuVaYCKmvJ0U--
+a->kb_cnt and &a->kb_cnt is not the same...
