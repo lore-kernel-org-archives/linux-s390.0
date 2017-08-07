@@ -1,51 +1,27 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH 06/11] s390/topology: Remove the unused parent_node()
- macro
-References: <1501076076-1974-1-git-send-email-douly.fnst@cn.fujitsu.com>
- <1501076076-1974-7-git-send-email-douly.fnst@cn.fujitsu.com>
- <20170727081929.GB3744@osiris>
-From: Dou Liyang <douly.fnst@cn.fujitsu.com>
-Message-ID: <c8f9d2c6-2466-1dfc-b7b7-bd5961e76b3b@cn.fujitsu.com>
-Date: Wed, 16 Aug 2017 20:56:10 +0800
-MIME-Version: 1.0
-In-Reply-To: <20170727081929.GB3744@osiris>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: Re: [PATCH] MAINTAINERS: Add myself to S390 ZFCP DRIVER as a co-maintainer
+Date: Mon, 07 Aug 2017 13:11:18 -0400
+Message-ID: <yq17eyfb8w9.fsf@oracle.com>
+References: <20170728102943.23974-1-bblock@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170728102943.23974-1-bblock@linux.vnet.ibm.com> (Benjamin
+        Block's message of "Fri, 28 Jul 2017 12:29:43 +0200")
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mpe@ellerman.id.au, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: Benjamin Block <bblock@linux.vnet.ibm.com>
+Cc: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Heiko,
 
-At 07/27/2017 04:19 PM, Heiko Carstens wrote:
-> On Wed, Jul 26, 2017 at 09:34:31PM +0800, Dou Liyang wrote:
->> Commit a7be6e5a7f8d ("mm: drop useless local parameters of
->> __register_one_node()") removes the last user of parent_node().
->>
->> The parent_node() macro in S390 platform is unnecessary.
->>
->> Remove it for cleanup.
->>
->> Reported-by: Michael Ellerman <mpe@ellerman.id.au>
->> Signed-off-by: Dou Liyang <douly.fnst@cn.fujitsu.com>
->> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
->> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
->> Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
->> Cc: linux-s390@vger.kernel.org
->> ---
->
-> Are arch maintainers supposed to pick these patches up?
->
+Benjamin,
 
-Yes, As Michael said, It seems these patches are merging individually.
+> I have been working with Steffen on zFCP for quite a while now and we
+> decided adding me as a co-maintainer might be a good thing.
 
-can you merge this patch in s390 tree?
+Applied to 4.14/scsi-queue. Thank you!
 
-> In any case: Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
->
->
-Thanks,
-	dou.
+-- 
+Martin K. Petersen	Oracle Linux Engineering
