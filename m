@@ -1,80 +1,68 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 24 Aug 2017 10:47:56 +0100
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH v2 1/1] futex: remove duplicated code and fix UB
-Message-ID: <20170824094756.GA6346@arm.com>
-References: <20170824073105.3901-1-jslaby@suse.cz>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170824073105.3901-1-jslaby@suse.cz>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20170824094756.0mu6esGyyYEkZOmizWB6dUdzNkCxwkNdChVQQpQ_nVw@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: tglx@linutronix.de, mingo@redhat.com, dvhart@infradead.org, peterz@infradead.org, linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org
+In-Reply-To: <20170809055257.GA4583@osiris>
+References: <1501998747-4094-1-git-send-email-bhumirks@gmail.com> <20170809055257.GA4583@osiris>
+From: Bhumika Goyal <bhumirks@gmail.com>
+Date: Wed, 9 Aug 2017 13:09:53 +0530
+Message-ID: <CAOH+1jEJJsghh38kBJq_ix0-BrBcmSaFHio3hMye=sS=QS0K=w@mail.gmail.com>
+Subject: Re: [PATCH] s390/crypto: make cca_public_sec and cca_token_hdr const
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Julia Lawall <julia.lawall@lip6.fr>, freude@de.ibm.com, schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Jiri,
+On Wed, Aug 9, 2017 at 11:22 AM, Heiko Carstens
+<heiko.carstens@de.ibm.com> wrote:
+> On Sun, Aug 06, 2017 at 11:22:27AM +0530, Bhumika Goyal wrote:
+>> Declare cca_public_sec and cca_token_hdr structures as const as they are
+>> only used during copy operations.
+>>
+>> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+>> ---
+>>  drivers/s390/crypto/zcrypt_cca_key.h | 6 +++---
+>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/zcrypt_cca_key.h b/drivers/s390/crypto/zcrypt_cca_key.h
+>> index 12cff62..7b78ba6 100644
+>> --- a/drivers/s390/crypto/zcrypt_cca_key.h
+>> +++ b/drivers/s390/crypto/zcrypt_cca_key.h
+>> @@ -116,10 +116,10 @@ struct cca_pvt_ext_CRT_sec {
+>>   */
+>>  static inline int zcrypt_type6_mex_key_en(struct ica_rsa_modexpo *mex, void *p)
+>>  {
+>> -     static struct cca_token_hdr static_pub_hdr = {
+>> +     static const struct cca_token_hdr static_pub_hdr = {
+>>               .token_identifier       =  0x1E,
+>>       };
+>> -     static struct cca_public_sec static_pub_sec = {
+>> +     static const struct cca_public_sec static_pub_sec = {
+>>               .section_identifier     =  0x04,
+>>       };
+>>       struct {
+>> @@ -176,7 +176,7 @@ static inline int zcrypt_type6_mex_key_en(struct ica_rsa_modexpo *mex, void *p)
+>>   */
+>>  static inline int zcrypt_type6_crt_key(struct ica_rsa_modexpo_crt *crt, void *p)
+>>  {
+>> -     static struct cca_public_sec static_cca_pub_sec = {
+>> +     static const struct cca_public_sec static_cca_pub_sec = {
+>>               .section_identifier = 4,
+>>               .section_length = 0x000f,
+>>               .exponent_len = 0x0003,
+>
+> If you look at the code, it seems to be questionable why these structures
+> are declared static and not simply on the stack. In the first case we are
+> talking of an assignment of two single bytes two a structure that has
+> already been zeroed.
+> Besides this, the two functions in the header file are very large and
+> shouldn't be unconditionally inlined anyway. This needs to be cleaned
+> up. So I'm not at all in favor of a patch that just adds a const keyword in
+> addition.
+>
 
-On Thu, Aug 24, 2017 at 09:31:05AM +0200, Jiri Slaby wrote:
-> There is code duplicated over all architecture's headers for
-> futex_atomic_op_inuser. Namely op decoding, access_ok check for uaddr,
-> and comparison of the result.
-> 
-> Remove this duplication and leave up to the arches only the needed
-> assembly which is now in arch_futex_atomic_op_inuser.
-> 
-> This effectively distributes the Will Deacon's arm64 fix for undefined
-> behaviour reported by UBSAN to all architectures. The fix was done in
-> commit 5f16a046f8e1 (arm64: futex: Fix undefined behaviour with
-> FUTEX_OP_OPARG_SHIFT usage). Look there for an example dump.
-> 
-> And as suggested by Thomas, check for negative oparg too, because it was
-> also reported to cause undefined behaviour report.
-> 
-> Note that s390 removed access_ok check in d12a29703 ("s390/uaccess:
-> remove pointless access_ok() checks") as access_ok there returns true.
-> We introduce it back to the helper for the sake of simplicity (it gets
-> optimized away anyway).
+Thanks for the explanation. I think that it would be better to drop the patch.
 
-For arm64 and the core code:
-
-Reviewed-by: Will Deacon <will.deacon@arm.com>
-
-Although one minor thing on the core part:
-
-> diff --git a/kernel/futex.c b/kernel/futex.c
-> index 0939255fc750..3d38eaf05492 100644
-> --- a/kernel/futex.c
-> +++ b/kernel/futex.c
-> @@ -1551,6 +1551,45 @@ futex_wake(u32 __user *uaddr, unsigned int flags, int nr_wake, u32 bitset)
->  	return ret;
->  }
->  
-> +static int futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
-> +{
-> +	unsigned int op =	  (encoded_op & 0x70000000) >> 28;
-> +	unsigned int cmp =	  (encoded_op & 0x0f000000) >> 24;
-> +	int oparg = sign_extend32((encoded_op & 0x00fff000) >> 12, 12);
-> +	int cmparg = sign_extend32(encoded_op & 0x00000fff, 12);
-> +	int oldval, ret;
-> +
-> +	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28)) {
-> +		if (oparg < 0 || oparg > 31)
-> +			return -EINVAL;
-> +		oparg = 1 << oparg;
-> +	}
-> +
-> +	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
-> +		return -EFAULT;
-> +
-> +	ret = arch_futex_atomic_op_inuser(op, oparg, &oldval, uaddr);
-> +	if (ret)
-> +		return ret;
-
-We could move the pagefault_{disable,enable} calls here, and then remove
-them from the futex_atomic_op_inuser callsites elsewhere in futex.c
-
-Will
+Thanks,
+Bhumika
