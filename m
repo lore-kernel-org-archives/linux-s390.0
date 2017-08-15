@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [RFT 03/13] s390: dasd_fba: constify ccw_device_id
-Date: Tue, 15 Aug 2017 16:05:34 +0530
-Message-Id: <1502793344-5368-4-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [RFT 02/13] s390: dasd_eckd: constify ccw_device_id
+Date: Tue, 15 Aug 2017 16:05:33 +0530
+Message-Id: <1502793344-5368-3-git-send-email-arvind.yadav.cs@gmail.com>
 In-Reply-To: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -18,21 +18,21 @@ const ccw_device_id. So mark the non-const structs as const.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/s390/block/dasd_fba.c | 2 +-
+ drivers/s390/block/dasd_eckd.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
-index 462cab5..2f7c044 100644
---- a/drivers/s390/block/dasd_fba.c
-+++ b/drivers/s390/block/dasd_fba.c
-@@ -44,7 +44,7 @@ struct dasd_fba_private {
- 	struct dasd_fba_characteristics rdc_data;
- };
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index c3e5ad6..40e7078 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -70,7 +70,7 @@ static struct dasd_discipline dasd_eckd_discipline;
  
--static struct ccw_device_id dasd_fba_ids[] = {
-+static const struct ccw_device_id dasd_fba_ids[] = {
- 	{ CCW_DEVICE_DEVTYPE (0x6310, 0, 0x9336, 0), .driver_info = 0x1},
- 	{ CCW_DEVICE_DEVTYPE (0x3880, 0, 0x3370, 0), .driver_info = 0x2},
- 	{ /* end of list */ },
+ /* The ccw bus type uses this table to find devices that it sends to
+  * dasd_eckd_probe */
+-static struct ccw_device_id dasd_eckd_ids[] = {
++static const struct ccw_device_id dasd_eckd_ids[] = {
+ 	{ CCW_DEVICE_DEVTYPE (0x3990, 0, 0x3390, 0), .driver_info = 0x1},
+ 	{ CCW_DEVICE_DEVTYPE (0x2105, 0, 0x3390, 0), .driver_info = 0x2},
+ 	{ CCW_DEVICE_DEVTYPE (0x3880, 0, 0x3380, 0), .driver_info = 0x3},
 -- 
 2.7.4
