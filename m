@@ -1,24 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: [PATCH 0/2] s390: add const to bin_attribute structures
-Date: Wed,  2 Aug 2017 21:37:21 +0530
-Message-Id: <1501690043-7640-1-git-send-email-bhumirks@gmail.com>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [RFT 09/13] s390: ctcm: constify ccw_device_id
+Date: Tue, 15 Aug 2017 16:05:40 +0530
+Message-Id: <1502793344-5368-10-git-send-email-arvind.yadav.cs@gmail.com>
+In-Reply-To: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
+References: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: julia.lawall@lip6.fr, sebott@linux.vnet.ibm.com, oberpar@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Bhumika Goyal <bhumirks@gmail.com>
+To: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, sth@linux.vnet.ibm.com, hoeppner@linux.vnet.ibm.com, jwi@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, maier@linux.vnet.ibm.com, cohuck@redhat.com, pasic@linux.vnet.ibm.com
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Declare bin_attribute structures as const.
+ccw_device_id are not supposed to change at runtime. All functions
+working with ccw_device_id provided by <asm/ccwdev.h> work with
+const ccw_device_id. So mark the non-const structs as const.
 
-Bhumika Goyal (2):
-  s390/sclp: add const to bin_attribute structure
-  s390/cio: add const to bin_attribute structures
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/s390/net/ctcm_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/s390/char/sclp_config.c | 2 +-
- drivers/s390/cio/chp.c          | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 1563b14..fb26206 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1737,7 +1737,7 @@ static int ctcm_pm_resume(struct ccwgroup_device *gdev)
+ 	return rc;
+ }
+ 
+-static struct ccw_device_id ctcm_ids[] = {
++static const struct ccw_device_id ctcm_ids[] = {
+ 	{CCW_DEVICE(0x3088, 0x08), .driver_info = ctcm_channel_type_parallel},
+ 	{CCW_DEVICE(0x3088, 0x1e), .driver_info = ctcm_channel_type_ficon},
+ 	{CCW_DEVICE(0x3088, 0x1f), .driver_info = ctcm_channel_type_escon},
 -- 
-1.9.1
+2.7.4
