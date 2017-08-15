@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [RFT 08/13] s390: vmur: constify ccw_device_id
-Date: Tue, 15 Aug 2017 16:05:39 +0530
-Message-Id: <1502793344-5368-9-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [RFT 10/13] s390: lcs: constify ccw_device_id
+Date: Tue, 15 Aug 2017 16:05:41 +0530
+Message-Id: <1502793344-5368-11-git-send-email-arvind.yadav.cs@gmail.com>
 In-Reply-To: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -18,21 +18,21 @@ const ccw_device_id. So mark the non-const structs as const.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/s390/char/vmur.c | 2 +-
+ drivers/s390/net/lcs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/char/vmur.c b/drivers/s390/char/vmur.c
-index 04aceb6..3d0cf06 100644
---- a/drivers/s390/char/vmur.c
-+++ b/drivers/s390/char/vmur.c
-@@ -49,7 +49,7 @@ static struct class *vmur_class;
- static struct debug_info *vmur_dbf;
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 619da81..55179ca 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -2373,7 +2373,7 @@ static int lcs_restore(struct ccwgroup_device *gdev)
+ 	return lcs_pm_resume(card);
+ }
  
- /* We put the device's record length (for writes) in the driver_info field */
--static struct ccw_device_id ur_ids[] = {
-+static const struct ccw_device_id ur_ids[] = {
- 	{ CCWDEV_CU_DI(READER_PUNCH_DEVTYPE, 80) },
- 	{ CCWDEV_CU_DI(PRINTER_DEVTYPE, 132) },
- 	{ /* end of list */ }
+-static struct ccw_device_id lcs_ids[] = {
++static const struct ccw_device_id lcs_ids[] = {
+ 	{CCW_DEVICE(0x3088, 0x08), .driver_info = lcs_channel_type_parallel},
+ 	{CCW_DEVICE(0x3088, 0x1f), .driver_info = lcs_channel_type_2216},
+ 	{CCW_DEVICE(0x3088, 0x60), .driver_info = lcs_channel_type_osa2},
 -- 
 2.7.4
