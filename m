@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [RFT 09/13] s390: ctcm: constify ccw_device_id
-Date: Tue, 15 Aug 2017 16:05:40 +0530
-Message-Id: <1502793344-5368-10-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [RFT 06/13] s390: tape_34xx: constify ccw_device_id
+Date: Tue, 15 Aug 2017 16:05:37 +0530
+Message-Id: <1502793344-5368-7-git-send-email-arvind.yadav.cs@gmail.com>
 In-Reply-To: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -18,21 +18,21 @@ const ccw_device_id. So mark the non-const structs as const.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/s390/net/ctcm_main.c | 2 +-
+ drivers/s390/char/tape_34xx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index 1563b14..fb26206 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1737,7 +1737,7 @@ static int ctcm_pm_resume(struct ccwgroup_device *gdev)
- 	return rc;
- }
+diff --git a/drivers/s390/char/tape_34xx.c b/drivers/s390/char/tape_34xx.c
+index de69f0d..7204b6f 100644
+--- a/drivers/s390/char/tape_34xx.c
++++ b/drivers/s390/char/tape_34xx.c
+@@ -1165,7 +1165,7 @@ static struct tape_discipline tape_discipline_34xx = {
+ 	.mtop_array = tape_34xx_mtop
+ };
  
--static struct ccw_device_id ctcm_ids[] = {
-+static const struct ccw_device_id ctcm_ids[] = {
- 	{CCW_DEVICE(0x3088, 0x08), .driver_info = ctcm_channel_type_parallel},
- 	{CCW_DEVICE(0x3088, 0x1e), .driver_info = ctcm_channel_type_ficon},
- 	{CCW_DEVICE(0x3088, 0x1f), .driver_info = ctcm_channel_type_escon},
+-static struct ccw_device_id tape_34xx_ids[] = {
++static const struct ccw_device_id tape_34xx_ids[] = {
+ 	{ CCW_DEVICE_DEVTYPE(0x3480, 0, 0x3480, 0), .driver_info = tape_3480},
+ 	{ CCW_DEVICE_DEVTYPE(0x3490, 0, 0x3490, 0), .driver_info = tape_3490},
+ 	{ /* end of list */ },
 -- 
 2.7.4
