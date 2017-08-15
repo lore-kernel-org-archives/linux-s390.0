@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [RFT 05/13] s390: raw3270: constify ccw_device_id
-Date: Tue, 15 Aug 2017 16:05:36 +0530
-Message-Id: <1502793344-5368-6-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [RFT 07/13] s390: tape_3590: constify ccw_device_id
+Date: Tue, 15 Aug 2017 16:05:38 +0530
+Message-Id: <1502793344-5368-8-git-send-email-arvind.yadav.cs@gmail.com>
 In-Reply-To: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -18,21 +18,21 @@ const ccw_device_id. So mark the non-const structs as const.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/s390/char/raw3270.c | 2 +-
+ drivers/s390/char/tape_3590.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index 710f229..e51362c 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -1267,7 +1267,7 @@ void raw3270_pm_unfreeze(struct raw3270_view *view)
- #endif
- }
+diff --git a/drivers/s390/char/tape_3590.c b/drivers/s390/char/tape_3590.c
+index e352047..576949e 100644
+--- a/drivers/s390/char/tape_3590.c
++++ b/drivers/s390/char/tape_3590.c
+@@ -1627,7 +1627,7 @@ static struct tape_discipline tape_discipline_3590 = {
+ 	.mtop_array = tape_3590_mtop
+ };
  
--static struct ccw_device_id raw3270_id[] = {
-+static const struct ccw_device_id raw3270_id[] = {
- 	{ CCW_DEVICE(0x3270, 0) },
- 	{ CCW_DEVICE(0x3271, 0) },
- 	{ CCW_DEVICE(0x3272, 0) },
+-static struct ccw_device_id tape_3590_ids[] = {
++static const struct ccw_device_id tape_3590_ids[] = {
+ 	{CCW_DEVICE_DEVTYPE(0x3590, 0, 0x3590, 0), .driver_info = tape_3590},
+ 	{CCW_DEVICE_DEVTYPE(0x3592, 0, 0x3592, 0), .driver_info = tape_3592},
+ 	{ /* end of list */ }
 -- 
 2.7.4
