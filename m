@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [RFT 07/13] s390: tape_3590: constify ccw_device_id
-Date: Tue, 15 Aug 2017 16:05:38 +0530
-Message-Id: <1502793344-5368-8-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [RFT 08/13] s390: vmur: constify ccw_device_id
+Date: Tue, 15 Aug 2017 16:05:39 +0530
+Message-Id: <1502793344-5368-9-git-send-email-arvind.yadav.cs@gmail.com>
 In-Reply-To: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1502793344-5368-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -18,21 +18,21 @@ const ccw_device_id. So mark the non-const structs as const.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/s390/char/tape_3590.c | 2 +-
+ drivers/s390/char/vmur.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/char/tape_3590.c b/drivers/s390/char/tape_3590.c
-index e352047..576949e 100644
---- a/drivers/s390/char/tape_3590.c
-+++ b/drivers/s390/char/tape_3590.c
-@@ -1627,7 +1627,7 @@ static struct tape_discipline tape_discipline_3590 = {
- 	.mtop_array = tape_3590_mtop
- };
+diff --git a/drivers/s390/char/vmur.c b/drivers/s390/char/vmur.c
+index 04aceb6..3d0cf06 100644
+--- a/drivers/s390/char/vmur.c
++++ b/drivers/s390/char/vmur.c
+@@ -49,7 +49,7 @@ static struct class *vmur_class;
+ static struct debug_info *vmur_dbf;
  
--static struct ccw_device_id tape_3590_ids[] = {
-+static const struct ccw_device_id tape_3590_ids[] = {
- 	{CCW_DEVICE_DEVTYPE(0x3590, 0, 0x3590, 0), .driver_info = tape_3590},
- 	{CCW_DEVICE_DEVTYPE(0x3592, 0, 0x3592, 0), .driver_info = tape_3592},
+ /* We put the device's record length (for writes) in the driver_info field */
+-static struct ccw_device_id ur_ids[] = {
++static const struct ccw_device_id ur_ids[] = {
+ 	{ CCWDEV_CU_DI(READER_PUNCH_DEVTYPE, 80) },
+ 	{ CCWDEV_CU_DI(PRINTER_DEVTYPE, 132) },
  	{ /* end of list */ }
 -- 
 2.7.4
