@@ -1,14 +1,16 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH RFC 2/2] KVM: RCU protected dynamic vcpus array
-Date: Thu, 17 Aug 2017 10:07:21 +0200
-Message-ID: <20170817100721.3d92f236.cohuck@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH RFC 0/2] KVM: use RCU to allow dynamic kvm->vcpus array
+Date: Thu, 17 Aug 2017 11:16:59 +0200
+Message-ID: <b69bc1e0-9d7b-5412-ba56-a5261d539a5b@redhat.com>
 References: <20170816194037.9460-1-rkrcmar@redhat.com>
- <20170816194037.9460-3-rkrcmar@redhat.com>
+ <b77b151f-e51d-3657-66e9-6fbc83887b18@suse.de>
+ <20170817093612.024cc4bc.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20170816194037.9460-3-rkrcmar@redhat.com>
+In-Reply-To: <20170817093612.024cc4bc.cohuck@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,97 +22,25 @@ Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Cc: linux-mips@linux-mips.org, James Hogan <james.hogan@imgtec.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>, David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, Christoffer Dall <cdall@linaro.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.com>, Paul Mackerras <paulus@ozlabs.org>, Paolo Bonzini <pbonzini@redhat.com>, linux-arm-kernel@lists.infradead.org
+To: Cornelia Huck <cohuck@redhat.com>, Alexander Graf <agraf@suse.de>
+Cc: linux-mips@linux-mips.org, James Hogan <james.hogan@imgtec.com>, kvm@vger.kernel.org, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, Christoffer Dall <cdall@linaro.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paul Mackerras <paulus@ozlabs.org>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gV2VkLCAxNiBBdWcgMjAxNyAyMTo0MDozNyArMDIwMApSYWRpbSBLcsSNbcOhxZkgPHJrcmNt
-YXJAcmVkaGF0LmNvbT4gd3JvdGU6Cgo+IFRoaXMgaXMgYSBwcm90b3R5cGUgd2l0aCBtYW55IFRP
-RE8gY29tbWVudHMgdG8gZ2l2ZSBhIGJldHRlciBpZGVhIG9mCj4gd2hhdCB3b3VsZCBiZSBuZWVk
-ZWQuCgpKdXN0IGEgdmVyeSBzdXBlcmZpY2lhbCByZWFkaW5nLi4uCgo+IAo+IFRoZSBtYWluIG1p
-c3NpbmcgcGllY2UgYSByZXdvcmsgb2YgZXZlcnkga3ZtX2Zvcl9lYWNoX3ZjcHUoKSBpbnRvIGEg
-bGVzcwo+IGluZWZmaWNpZW50IGxvb3AsIGJ1dCBSQ1UgcmVhZGVycyBjYW5ub3QgYmxvY2ssIHNv
-IHRoZSByZXdyaXRlIGNhbm5vdCBiZQo+IHNjcmlwdGVkLiAgIElzIHRoZXJlIGEgbW9yZSBzdWl0
-YWJsZSBwcm90ZWN0aW9uIHNjaGVtZT8KPiAKPiBJIGRpZG4ndCB0ZXN0IGl0IG11Y2ggLi4uIEkg
-YW0gc3RpbGwgbGVhbmluZyB0b3dhcmRzIHRoZSBpbnRlcm5hbGx5Cj4gc2ltcGxlciB2ZXJzaW9u
-LCAoMSksIGV2ZW4gaWYgaXQgcmVxdWlyZXMgdXNlcnNwYWNlIGNoYW5nZXMuCj4gLS0tCj4gIGFy
-Y2gvbWlwcy9rdm0vbWlwcy5jICAgICAgIHwgIDggKysrLS0tCj4gIGFyY2gvcG93ZXJwYy9rdm0v
-cG93ZXJwYy5jIHwgIDYgKysrLS0KPiAgYXJjaC9zMzkwL2t2bS9rdm0tczM5MC5jICAgfCAyNyAr
-KysrKysrKysrKysrKy0tLS0tLQo+ICBhcmNoL3g4Ni9rdm0vaHlwZXJ2LmMgICAgICB8ICAzICst
-LQo+ICBhcmNoL3g4Ni9rdm0vdm14LmMgICAgICAgICB8ICAzICsrLQo+ICBhcmNoL3g4Ni9rdm0v
-eDg2LmMgICAgICAgICB8ICA1ICsrLS0KPiAgaW5jbHVkZS9saW51eC9rdm1faG9zdC5oICAgfCA2
-MSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tCj4gIHZpcnQv
-a3ZtL2FybS9hcm0uYyAgICAgICAgIHwgMTAgKysrLS0tLS0KPiAgdmlydC9rdm0va3ZtX21haW4u
-YyAgICAgICAgfCA1OCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0t
-Cj4gIDkgZmlsZXMgY2hhbmdlZCwgMTMyIGluc2VydGlvbnMoKyksIDQ5IGRlbGV0aW9ucygtKQo+
-IAo+IGRpZmYgLS1naXQgYS9hcmNoL21pcHMva3ZtL21pcHMuYyBiL2FyY2gvbWlwcy9rdm0vbWlw
-cy5jCj4gaW5kZXggYmNlMmE2NDMxNDMwLi40YzlkMzgzYmFiZTcgMTAwNjQ0Cj4gLS0tIGEvYXJj
-aC9taXBzL2t2bS9taXBzLmMKPiArKysgYi9hcmNoL21pcHMva3ZtL21pcHMuYwo+IEBAIC0xNjQs
-NiArMTY0LDcgQEAgdm9pZCBrdm1fbWlwc19mcmVlX3ZjcHVzKHN0cnVjdCBrdm0gKmt2bSkKPiAg
-ewo+ICAJdW5zaWduZWQgaW50IGk7Cj4gIAlzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHU7Cj4gKwlzdHJ1
-Y3Qga3ZtX3ZjcHVzICp2Y3B1czsKPiAgCj4gIAlrdm1fZm9yX2VhY2hfdmNwdShpLCB2Y3B1LCBr
-dm0pIHsKPiAgCQlrdm1fYXJjaF92Y3B1X2ZyZWUodmNwdSk7Cj4gQEAgLTE3MSw4ICsxNzIsOSBA
-QCB2b2lkIGt2bV9taXBzX2ZyZWVfdmNwdXMoc3RydWN0IGt2bSAqa3ZtKQo+ICAKPiAgCW11dGV4
-X2xvY2soJmt2bS0+bG9jayk7Cj4gIAo+IC0JZm9yIChpID0gMDsgaSA8IGF0b21pY19yZWFkKCZr
-dm0tPm9ubGluZV92Y3B1cyk7IGkrKykKPiAtCQlrdm0tPnZjcHVzW2ldID0gTlVMTDsKPiArCS8v
-IFRPRE86IHJlc2V0dGluZyBvbmxpbmUgdmNwdXMgc2hvdWxkbid0IGJlIG5lZWRlZAo+ICsJdmNw
-dXMgPSByY3VfZGVyZWZlcmVuY2VfcHJvdGVjdGVkKGt2bS0+dmNwdXMsIGxvY2tkZXBfaXNfaGVs
-ZCgma3ZtLT5sb2NrKSk7Cj4gKwl2Y3B1cy0+b25saW5lID0gMDsKClRoaXMgc2VlbXMgdG8gYmUg
-YSBwYXR0ZXJuIHVzZWQgb24gbmVhcmx5IGFsbCBhcmNoaXRlY3R1cmVzLCBzbyBtYXliZQppdCB3
-YXMgc2ltcGx5IGNvcGllZD8KCklmZiB3ZSByZWFsbHkgbmVlZCBpdCAocHJvYmFibHkgbm90KSwg
-aXQgc2VlbXMgbGlrZSBzb21ldGhpbmcgdGhhdCBjYW4KYmUgZG9uZSBieSBjb21tb24gY29kZS4K
-Cj4gIAo+ICAJYXRvbWljX3NldCgma3ZtLT5vbmxpbmVfdmNwdXMsIDApOwo+ICAKKC4uLikKPiBA
-QCAtMzQyMiwxMiArMzQyNCwxNiBAQCB2b2lkIGt2bV9zMzkwX3ZjcHVfc3RhcnQoc3RydWN0IGt2
-bV92Y3B1ICp2Y3B1KQo+ICAJdHJhY2Vfa3ZtX3MzOTBfdmNwdV9zdGFydF9zdG9wKHZjcHUtPnZj
-cHVfaWQsIDEpOwo+ICAJLyogT25seSBvbmUgY3B1IGF0IGEgdGltZSBtYXkgZW50ZXIvbGVhdmUg
-dGhlIFNUT1BQRUQgc3RhdGUuICovCj4gIAlzcGluX2xvY2soJnZjcHUtPmt2bS0+YXJjaC5zdGFy
-dF9zdG9wX2xvY2spOwo+IC0Jb25saW5lX3ZjcHVzID0gYXRvbWljX3JlYWQoJnZjcHUtPmt2bS0+
-b25saW5lX3ZjcHVzKTsKPiAgCj4gLQlmb3IgKGkgPSAwOyBpIDwgb25saW5lX3ZjcHVzOyBpKysp
-IHsKPiAtCQlpZiAoIWlzX3ZjcHVfc3RvcHBlZCh2Y3B1LT5rdm0tPnZjcHVzW2ldKSkKPiArCXJj
-dV9yZWFkX2xvY2soKTsKPiArCXZjcHVzID0gcmN1X2RlcmVmZXJlbmNlKHZjcHUtPmt2bS0+dmNw
-dXMpOwo+ICsJLy8gVE9ETzogdGhpcyBwYXR0ZXJuIGlzIGt2bV9mb3JfZWFjaF92Y3B1Cj4gKwlm
-b3IgKGkgPSAwOyBpIDwgdmNwdXMtPm9ubGluZTsgaSsrKSB7Cj4gKwkJaWYgKCFpc192Y3B1X3N0
-b3BwZWQodmNwdXMtPmFycmF5W2ldKSkKPiAgCQkJc3RhcnRlZF92Y3B1cysrOwo+ICsJCS8vIFRP
-RE86IGlmIChzdGFydGVkX3ZjcHVzID4gMSkgYnJlYWs7Cj4gIAl9Cj4gKwlyY3VfcmVhZF91bmxv
-Y2soKTsKPiAgCj4gIAlpZiAoc3RhcnRlZF92Y3B1cyA9PSAwKSB7Cj4gIAkJLyogd2UncmUgdGhl
-IG9ubHkgYWN0aXZlIFZDUFUgLT4gc3BlZWQgaXQgdXAgKi8KPiBAQCAtMzQ1NSw2ICszNDYxLDcg
-QEAgdm9pZCBrdm1fczM5MF92Y3B1X3N0b3Aoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+ICB7Cj4g
-IAlpbnQgaSwgb25saW5lX3ZjcHVzLCBzdGFydGVkX3ZjcHVzID0gMDsKPiAgCXN0cnVjdCBrdm1f
-dmNwdSAqc3RhcnRlZF92Y3B1ID0gTlVMTDsKPiArCXN0cnVjdCBrdm1fdmNwdXMgKnZjcHVzOwo+
-ICAKPiAgCWlmIChpc192Y3B1X3N0b3BwZWQodmNwdSkpCj4gIAkJcmV0dXJuOwo+IEBAIC0zNDcw
-LDEyICszNDc3LDE2IEBAIHZvaWQga3ZtX3MzOTBfdmNwdV9zdG9wKHN0cnVjdCBrdm1fdmNwdSAq
-dmNwdSkKPiAgCWF0b21pY19vcihDUFVTVEFUX1NUT1BQRUQsICZ2Y3B1LT5hcmNoLnNpZV9ibG9j
-ay0+Y3B1ZmxhZ3MpOwo+ICAJX19kaXNhYmxlX2lic19vbl92Y3B1KHZjcHUpOwo+ICAKPiArCXJj
-dV9yZWFkX2xvY2soKTsKPiArCXZjcHVzID0gcmN1X2RlcmVmZXJlbmNlKHZjcHUtPmt2bS0+dmNw
-dXMpOwo+ICsJLy8gVE9ETzogdXNlIGt2bV9mb3JfZWFjaF92Y3B1Cj4gIAlmb3IgKGkgPSAwOyBp
-IDwgb25saW5lX3ZjcHVzOyBpKyspIHsKPiAtCQlpZiAoIWlzX3ZjcHVfc3RvcHBlZCh2Y3B1LT5r
-dm0tPnZjcHVzW2ldKSkgewo+ICsJCWlmICghaXNfdmNwdV9zdG9wcGVkKHZjcHVzLT5hcnJheVtp
-XSkpIHsKPiAgCQkJc3RhcnRlZF92Y3B1cysrOwo+IC0JCQlzdGFydGVkX3ZjcHUgPSB2Y3B1LT5r
-dm0tPnZjcHVzW2ldOwo+ICsJCQlzdGFydGVkX3ZjcHUgPSB2Y3B1cy0+YXJyYXlbaV07Cj4gIAkJ
-fQo+ICAJfQo+ICsJcmN1X3JlYWRfdW5sb2NrKCk7CgpUaGVzZSB0d28gb25seSBjYXJlIGZvciB0
-d28gY2FzZXM6IDAgc3RhcnRlZCBjcHVzIDwtPiAxIHN0YXJ0ZWQgY3B1IGFuZAoxIHN0YXJ0ZWQg
-Y3B1IDwtPiAyIHN0YXJ0ZWQgY3B1cy4gTWF5YmUgaXQgaXMgbW9yZSByZWFzb25hYmxlIHRvIHRy
-YWNrCnRoYXQgaW4gdGhlIGFyY2ggY29kZSBpbnN0ZWFkIG9mIHdhbGtpbmcgdGhlIGFycmF5LgoK
-PiAgCj4gIAlpZiAoc3RhcnRlZF92Y3B1cyA9PSAxKSB7Cj4gIAkJLyoKKC4uLikKPiBAQCAtMjUx
-OCwyMCArMjU1MiwyNCBAQCBzdGF0aWMgaW50IGt2bV92bV9pb2N0bF9jcmVhdGVfdmNwdShzdHJ1
-Y3Qga3ZtICprdm0sIHUzMiBpZCkKPiAgCQlnb3RvIHVubG9ja192Y3B1X2Rlc3Ryb3k7Cj4gIAl9
-Cj4gIAo+IC0Ja3ZtLT52Y3B1c1thdG9taWNfcmVhZCgma3ZtLT5vbmxpbmVfdmNwdXMpXSA9IHZj
-cHU7Cj4gLQo+IC0JLyoKPiAtCSAqIFBhaXJzIHdpdGggc21wX3JtYigpIGluIGt2bV9nZXRfdmNw
-dS4gIFdyaXRlIGt2bS0+dmNwdXMKPiAtCSAqIGJlZm9yZSBrdm0tPm9ubGluZV92Y3B1J3MgaW5j
-cmVtZW50ZWQgdmFsdWUuCj4gLQkgKi8KPiAtCXNtcF93bWIoKTsKPiAtCWF0b21pY19pbmMoJmt2
-bS0+b25saW5lX3ZjcHVzKTsKPiArCW5ldy0+YXJyYXlbb2xkLT5vbmxpbmVdID0gdmNwdTsKPiAr
-CXJjdV9hc3NpZ25fcG9pbnRlcihrdm0tPnZjcHVzLCBuZXcpOwo+ICAKPiAgCW11dGV4X3VubG9j
-aygma3ZtLT5sb2NrKTsKPiArCj4gKwkvLyB3ZSBjb3VsZCBzY2hlZHVsZSBhIGNhbGxiYWNrIGlu
-c3RlYWQKPiArCXN5bmNocm9uaXplX3JjdSgpOwo+ICsJa2ZyZWUob2xkKTsKPiArCj4gKwkvLyBU
-T0RPOiBObyBsb25nZXIgc3luY2hyb25pemVzIGFueXRoaW5nIGluIHRoZSBjb21tb24gY29kZS4K
-PiArCS8vIFJlbW92ZSBpZiB0aGUgYXJjaC1zcGVjaWZpYyB1c2VzIHdlcmUgbW9zdGx5IGhhY2tz
-Lgo+ICsJYXRvbWljX2luYygma3ZtLT5vbmxpbmVfdmNwdXMpOwoKTXVjaCBvZiB0aGUgYXJjaCBj
-b2RlIHNlZW1zIHRvIGNhcmUgYWJvdXQgb25lIG9mIHR3byB0aGluZ3M6Ci0gV2hhdCBpcyB0aGUg
-dXBwZXIgbGltaXQgZm9yIGNwdSBzZWFyY2hlcz8KLSBIYXMgYXQgbGVhc3Qgb25lIGNwdSBiZWVu
-IGNyZWF0ZWQ/Cgo+ICsKPiAgCWt2bV9hcmNoX3ZjcHVfcG9zdGNyZWF0ZSh2Y3B1KTsKPiAgCXJl
-dHVybiByOwo+ICAKPiAgdW5sb2NrX3ZjcHVfZGVzdHJveToKPiArCWt2ZnJlZShuZXcpOwo+ICAJ
-bXV0ZXhfdW5sb2NrKCZrdm0tPmxvY2spOwo+ICAJZGVidWdmc19yZW1vdmVfcmVjdXJzaXZlKHZj
-cHUtPmRlYnVnZnNfZGVudHJ5KTsKPiAgdmNwdV9kZXN0cm95OgoKCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBs
-aXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5m
-cmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+On 17/08/2017 09:36, Cornelia Huck wrote:
+>> What if we just sent a "vcpu move" request to all vcpus with the new 
+>> pointer after it moved? That way the vcpu thread itself would be 
+>> responsible for the migration to the new memory region. Only if all 
+>> vcpus successfully moved, keep rolling (and allow foreign get_vcpu again).
+>>
+>> That way we should be basically lock-less and scale well. For additional 
+>> icing, feel free to increase the vcpu array x2 every time it grows to 
+>> not run into the slow path too often.
+> 
+> I'd prefer the rcu approach: This is a mechanism already understood
+> well, no need to come up with a new one that will likely have its own
+> share of problems.
+
+What Alex is proposing _is_ RCU, except with a homegrown
+synchronize_rcu.  Using kvm->srcu seems to be the best of both worlds.
+
+Paolo
