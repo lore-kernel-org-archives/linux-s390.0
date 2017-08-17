@@ -1,81 +1,105 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH RFC 2/2] KVM: RCU protected dynamic vcpus array
-Date: Thu, 17 Aug 2017 18:54:30 +0200
-Message-ID: <1dea37fa-d51e-1381-c3f1-e067065560b7@redhat.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH RFC 0/2] KVM: use RCU to allow dynamic kvm->vcpus array
+Date: Thu, 17 Aug 2017 21:17:24 +0200
+Message-ID: <edb9403f-3a94-605d-5f06-9bc81ca4d2c3@suse.de>
 References: <20170816194037.9460-1-rkrcmar@redhat.com>
- <20170816194037.9460-3-rkrcmar@redhat.com>
- <7cb42373-355c-7cb3-2979-9529aef0641c@redhat.com>
- <20170817165044.GF2566@flask>
+ <b77b151f-e51d-3657-66e9-6fbc83887b18@suse.de> <20170817145411.GE2566@flask>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170817165044.GF2566@flask>
+In-Reply-To: <20170817145411.GE2566@flask>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-mips@linux-mips.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Christoffer Dall <cdall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, James Hogan <james.hogan@imgtec.com>, Paul Mackerras <paulus@ozlabs.org>, Alexander Graf <agraf@suse.com>
+To: =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc: linux-mips@linux-mips.org, linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, James Hogan <james.hogan@imgtec.com>, Christoffer Dall <cdall@linaro.org>, Paul Mackerras <paulus@ozlabs.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 17/08/2017 18:50, Radim Krčmář wrote:
-> 2017-08-17 13:14+0200, David Hildenbrand:
->>>  	atomic_set(&kvm->online_vcpus, 0);
->>>  	mutex_unlock(&kvm->lock);
->>> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
->>> index c8df733eed41..eb9fb5b493ac 100644
->>> --- a/include/linux/kvm_host.h
->>> +++ b/include/linux/kvm_host.h
->>> @@ -386,12 +386,17 @@ struct kvm_memslots {
->>>  	int used_slots;
->>>  };
->>>  
->>> +struct kvm_vcpus {
->>> +	u32 online;
->>> +	struct kvm_vcpu *array[];
->>
->> On option could be to simply chunk it:
->>
->> +struct kvm_vcpus {
->> +       struct kvm_vcpu vcpus[32];
-> 
-> I'm thinking of 128/256.
-> 
->> +};
->> +
->>  /*
->>   * Note:
->>   * memslots are not sorted by id anymore, please use id_to_memslot()
->> @@ -391,7 +395,7 @@ struct kvm {
->>         struct mutex slots_lock;
->>         struct mm_struct *mm; /* userspace tied to this vm */
->>         struct kvm_memslots __rcu *memslots[KVM_ADDRESS_SPACE_NUM];
->> -       struct kvm_vcpu *vcpus[KVM_MAX_VCPUS];
->> +       struct kvm_vcpus vcpus[(KVM_MAX_VCPUS + 31) / 32];
->>         /*
->>          * created_vcpus is protected by kvm->lock, and is incremented
->> @@ -483,12 +487,14 @@ static inline struct kvm_io_bus
->> *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
->>
->>
->> 1. make nobody access kvm->vcpus directly (factor out)
->> 2. allocate next chunk if necessary when creating a VCPU and store
->> pointer using WRITE_ONCE
->> 3. use READ_ONCE to test for availability of the current chunk
-> 
-> We can also use kvm->online_vcpus exactly like we did now.
-> 
->> kvm_for_each_vcpu just has to use READ_ONCE to access/test for the right
->> chunk. Pointers never get invalid. No RCU needed. Sleeping in the loop
->> is possible.
-> 
-> I like this better than SRCU because it keeps the internal code mostly
-> intact, even though it is compromise solution with a tunable.
-> (SRCU gives us more protection than we need.)
->
-> I'd do this for v2,
 
-Sounds good!
 
-Paolo
+On 17.08.17 16:54, Radim Krčmář wrote:
+> 2017-08-17 09:04+0200, Alexander Graf:
+>> On 16.08.17 21:40, Radim Krčmář  wrote:
+>>> The goal is to increase KVM_MAX_VCPUS without worrying about memory
+>>> impact of many small guests.
+>>>
+>>> This is a second out of three major "dynamic" options:
+>>>    1) size vcpu array at VM creation time
+>>>    2) resize vcpu array when new VCPUs are created
+>>>    3) use a lockless list/tree for VCPUs
+>>>
+>>> The disadvantage of (1) is its requirement on userspace changes and
+>>> limited flexibility because userspace must provide the maximal count on
+>>> start.  The main advantage is that kvm->vcpus will work like it does
+>>> now.  It has been posted as "[PATCH 0/4] KVM: add KVM_CREATE_VM2 to
+>>> allow dynamic kvm->vcpus array",
+>>> http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1377285.html
+>>>
+>>> The main problem of (2), this series, is that we cannot extend the array
+>>> in place and therefore require some kind of protection when moving it.
+>>> RCU seems best, but it makes the code slower and harder to deal with.
+>>> The main advantage is that we do not need userspace changes.
+>>
+>> Creating/Destroying vcpus is not something I consider a fast path, so why
+>> should we optimize for it? The case that needs to be fast is execution.
+> 
+> Right, the creation is not important.  I was concerned about the use of
+> lock() and unlock() needed for every access -- both in performance and
+> code, because the common case where hotplug doesn't happen and all VCPUs
+> are created upfront doesn't even need any runtime protection.
+> 
+>> What if we just sent a "vcpu move" request to all vcpus with the new pointer
+>> after it moved? That way the vcpu thread itself would be responsible for the
+>> migration to the new memory region. Only if all vcpus successfully moved,
+>> keep rolling (and allow foreign get_vcpu again).
+> 
+> I'm not sure if I understood this.  You propose to cache kvm->vcpus in
+> vcpu->vcpus and do an extensions of this,
+> 
+>    int vcpu_create(...) {
+>      if (resize_needed(kvm->vcpus)) {
+>        old_vcpus = kvm->vcpus
+>        kvm->vcpus = make_bigger(kvm->vcpus)
+
+if (kvm->vcpus != old_vcpus) :)
+
+>        kvm_make_all_cpus_request(kvm, KVM_REQ_UPDATE_VCPUS)
+
+IIRC you'd need some manual bookkeeping to ensure that all users have 
+switched to the new array. Or set the KVM_REQUEST_WAIT flag :).
+
+>        free(old_vcpus)
+>      }
+>      vcpu->vcpus = kvm->vcpus
+>    }
+> 
+> with added extra locking, (S)RCU, on accesses that do not come from
+> VCPUs (irqfd and VM ioctl)?
+
+Well, in an ideal world we wouldn't have any users to vcpu structs 
+outside of the vcpus obviously. Every time we do, we should either 
+reconsider whether the design is smart and if we think it is, protect 
+them accordingly. Maybe even hard code separate request mechanisms for 
+the few cases where it's reasonable?
+
+> 
+>> That way we should be basically lock-less and scale well. For additional
+>> icing, feel free to increase the vcpu array x2 every time it grows to not
+>> run into the slow path too often.
+> 
+> Yeah, I skipped the growing as it was not necessary for the
+> illustration.
+
+Sure.
+
+I'm also not fully advocating my solution here, but wanted to make sure 
+we have it on the radar. I *think* this option has the least runtime 
+overhead and best readability score, as it sticks to the same frameworks 
+we already have and use throughout the code base ;).
+
+That said, I'd love to get proven wrong.
+
+
+Alex
