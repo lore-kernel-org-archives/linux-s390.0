@@ -1,63 +1,44 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/2] KVM: s390: sthyi: fix specification exception detection
-Date: Mon, 21 Aug 2017 17:34:50 +0200
-Message-ID: <1503329690-34224-3-git-send-email-borntraeger@de.ibm.com>
+From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Subject: Re: [GIT PULL 0/2] KVM: s390: two fixes for sthyi emulation
+Date: Mon, 21 Aug 2017 18:49:51 +0200
+Message-ID: <20170821164951.GD17079@flask>
 References: <1503329690-34224-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1503329690-34224-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+2017-08-21 17:34+0200, Christian Borntraeger:
+> Paolo, Radim,
+> 
+> The following changes since commit 4f899147424a189b0ad1fdd6f35784ed5a642e83:
+> 
+>   KVM: s390: take srcu lock when getting/setting storage keys (2017-07-25 14:59:52 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.13-2
+> 
+> for you to fetch changes up to 857b8de96795646c5891cf44ae6fb19b9ff74bf9:
+> 
+>   KVM: s390: sthyi: fix specification exception detection (2017-08-21 15:34:54 +0200)
+> 
+> ----------------------------------------------------------------
+> KVM: s390: two fixes for sthyi emulation
+> 
+> - missing inline assembly constraint
+> - wrong exception handling
+> 
+> ----------------------------------------------------------------
+> Heiko Carstens (2):
+>       KVM: s390: sthyi: fix sthyi inline assembly
+>       KVM: s390: sthyi: fix specification exception detection
 
-sthyi should only generate a specification exception if the function
-code is zero and the response buffer is not on a 4k boundary.
-
-The current code would also test for unknown function codes if the
-response buffer, that is currently only defined for function code 0,
-is not on a 4k boundary and incorrectly inject a specification
-exception instead of returning with condition code 3 and return code 4
-(unsupported function code).
-
-Fix this by moving the boundary check.
-
-Fixes: 95ca2cb57985 ("KVM: s390: Add sthyi emulation")
-Cc: <stable@vger.kernel.org> # 4.8+
-Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/sthyi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kvm/sthyi.c b/arch/s390/kvm/sthyi.c
-index 2773a2f..a2e5c24 100644
---- a/arch/s390/kvm/sthyi.c
-+++ b/arch/s390/kvm/sthyi.c
-@@ -425,7 +425,7 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 	VCPU_EVENT(vcpu, 3, "STHYI: fc: %llu addr: 0x%016llx", code, addr);
- 	trace_kvm_s390_handle_sthyi(vcpu, code, addr);
- 
--	if (reg1 == reg2 || reg1 & 1 || reg2 & 1 || addr & ~PAGE_MASK)
-+	if (reg1 == reg2 || reg1 & 1 || reg2 & 1)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
- 	if (code & 0xffff) {
-@@ -433,6 +433,9 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 		goto out;
- 	}
- 
-+	if (addr & ~PAGE_MASK)
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+
- 	/*
- 	 * If the page has not yet been faulted in, we want to do that
- 	 * now and not after all the expensive calculations.
--- 
-2.7.4
+Pulled, thanks.
