@@ -1,25 +1,47 @@
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Subject: [07/15] mux: make device_type const
-From: Bhumika Goyal <bhumirks@gmail.com>
-Message-Id: <1503130946-2854-8-git-send-email-bhumirks@gmail.com>
-Date: Sat, 19 Aug 2017 13:52:18 +0530
-List-Archive: <https://lore.kernel.org/linux-edac/>
-List-Post: <mailto:linux-edac@vger.kernel.org>
-To: julia.lawall@lip6.fr, bp@alien8.de, mchehab@kernel.org, daniel.vetter@intel.com, jani.nikula@linux.intel.com, seanpaul@chromium.org, airlied@linux.ie, g.liakhovetski@gmx.de, tomas.winkler@intel.com, dwmw2@infradead.org, computersforpeace@gmail.com, boris.brezillon@free-electrons.com, marek.vasut@gmail.com, richard@nod.at, cyrille.pitchen@wedev4u.fr, peda@axentia.se, kishon@ti.com, bhelgaas@google.com, thierry.reding@gmail.com, jonathanh@nvidia.com, dvhart@infradead.org, andy@infradead.org, ohad@wizery.com, bjorn.andersson@linaro.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, jth@kernel.org, jejb@linux.vnet.ibm.com, martin.petersen@oracle.com, lduncan@suse.com, cleech@redhat.com, johan@kernel.org, elder@kernel.org, gregkh@linuxfoundation.org, heikki.krogerus@linux.intel.com, linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, linux-mtd@lists.infradead.org, linux-pci@vger.kernel.org, linux-tegra@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, fcoe-devel@open-fcoe.org, linux-scsi@vger.kernel.org, open-iscsi@googlegroups.com, greybus-dev@lists.linaro.org, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
-Cc: Bhumika Goyal <bhumirks@gmail.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 1/2] KVM: s390: sthyi: fix sthyi inline assembly
+Date: Mon, 21 Aug 2017 14:27:44 +0200
+Message-ID: <1503318465-19013-2-git-send-email-borntraeger@de.ibm.com>
+References: <1503318465-19013-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1503318465-19013-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: KVM <kvm@vger.kernel.org>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-TWFrZSB0aGlzIGNvbnN0IGFzIGl0IGlzIG9ubHkgc3RvcmVkIGluIHRoZSB0eXBlIGZpZWxkIG9m
-IGEgZGV2aWNlCnN0cnVjdHVyZSwgd2hpY2ggaXMgY29uc3QuCkRvbmUgdXNpbmcgQ29jY2luZWxs
-ZS4KClNpZ25lZC1vZmYtYnk6IEJodW1pa2EgR295YWwgPGJodW1pcmtzQGdtYWlsLmNvbT4KLS0t
-CiBkcml2ZXJzL211eC9tdXgtY29yZS5jIHwgMiArLQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0
-aW9uKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9tdXgvbXV4LWNvcmUu
-YyBiL2RyaXZlcnMvbXV4L211eC1jb3JlLmMKaW5kZXggMmZlOTZjNC4uNjhiZDE2ZCAxMDA2NDQK
-LS0tIGEvZHJpdmVycy9tdXgvbXV4LWNvcmUuYworKysgYi9kcml2ZXJzL211eC9tdXgtY29yZS5j
-CkBAIC01OCw3ICs1OCw3IEBAIHN0YXRpYyB2b2lkIG11eF9jaGlwX3JlbGVhc2Uoc3RydWN0IGRl
-dmljZSAqZGV2KQogCWtmcmVlKG11eF9jaGlwKTsKIH0KIAotc3RhdGljIHN0cnVjdCBkZXZpY2Vf
-dHlwZSBtdXhfdHlwZSA9IHsKK3N0YXRpYyBjb25zdCBzdHJ1Y3QgZGV2aWNlX3R5cGUgbXV4X3R5
-cGUgPSB7CiAJLm5hbWUgPSAibXV4LWNoaXAiLAogCS5yZWxlYXNlID0gbXV4X2NoaXBfcmVsZWFz
-ZSwKIH07Cg==
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+
+The sthyi inline assembly misses register r3 within the clobber
+list. The sthyi instruction will always write a return code to
+register "R2+1", which in this case would be r3. Due to that we may
+have register corruption and see host crashes or data corruption
+depending on how gcc decided to allocate and use registers during
+compile time.
+
+Fixes: 95ca2cb57985 ("KVM: s390: Add sthyi emulation")
+Cc: <stable@vger.kernel.org> # 4.8+
+Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/sthyi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/kvm/sthyi.c b/arch/s390/kvm/sthyi.c
+index 926b524..2773a2f 100644
+--- a/arch/s390/kvm/sthyi.c
++++ b/arch/s390/kvm/sthyi.c
+@@ -394,7 +394,7 @@ static int sthyi(u64 vaddr)
+ 		"srl     %[cc],28\n"
+ 		: [cc] "=d" (cc)
+ 		: [code] "d" (code), [addr] "a" (addr)
+-		: "memory", "cc");
++		: "3", "memory", "cc");
+ 	return cc;
+ }
+ 
+-- 
+2.7.4
