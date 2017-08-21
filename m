@@ -1,78 +1,181 @@
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 2/7] s390/qeth: pass full data length to l2_fill_header()
-Date: Fri, 18 Aug 2017 10:19:05 +0200
-Message-ID: <20170818081910.48869-3-jwi@linux.vnet.ibm.com>
-References: <20170818081910.48869-1-jwi@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170818081910.48869-1-jwi@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+From: =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Subject: [PATCH RFC v3 9/9] KVM: split kvm->vcpus into chunks
+Date: Mon, 21 Aug 2017 22:35:30 +0200
+Message-ID: <20170821203530.9266-10-rkrcmar@redhat.com>
+References: <20170821203530.9266-1-rkrcmar@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170821203530.9266-1-rkrcmar@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-mips@linux-mips.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, David Hildenbrand <david@redhat.com>, Christoffer Dall <cdall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, James Hogan <james.hogan@imgtec.com>, Paul Mackerras <paulus@ozlabs.org>, Alexander Graf <agraf@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-For IQD we already need to fix up the qeth_hdr's length field, and
-future changes will require more flexibility for OSA as well. The
-device-specific path knows best what header length it requires, so just
-pass it from there.
-While at it, remove the unused qeth_card parameter.
+This allows us to have high KVM_VCPU_MAX without wasting too much space
+with small guests.  RCU is a viable alternative now that we do not have
+to protect the kvm_for_each_vcpu() loop.
 
-No functional change.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
 ---
- drivers/s390/net/qeth_l2_main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/mips/kvm/mips.c     |  2 +-
+ arch/x86/kvm/vmx.c       |  2 +-
+ include/linux/kvm_host.h | 27 ++++++++++++++++++++-------
+ virt/kvm/kvm_main.c      | 27 +++++++++++++++++++++++----
+ 4 files changed, 45 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 310bfa225e20..3f5b852408d3 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -259,13 +259,14 @@ static void qeth_l2_hdr_csum(struct qeth_card *card, struct qeth_hdr *hdr,
- 		card->perf_stats.tx_csum++;
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index c841cb434486..7d452163dcef 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -488,7 +488,7 @@ int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu,
+ 	if (irq->cpu == -1)
+ 		dvcpu = vcpu;
+ 	else
+-		dvcpu = vcpu->kvm->vcpus[irq->cpu];
++		dvcpu = kvm_get_vcpu(vcpu->kvm, irq->cpu);
+ 
+ 	if (intr == 2 || intr == 3 || intr == 4) {
+ 		kvm_mips_callbacks->queue_io_int(dvcpu, irq);
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index ae0f04e26fec..2b92c2de2b3a 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -11741,7 +11741,7 @@ static int vmx_update_pi_irte(struct kvm *kvm, unsigned int host_irq,
+ 
+ 	if (!kvm_arch_has_assigned_device(kvm) ||
+ 		!irq_remapping_cap(IRQ_POSTING_CAP) ||
+-		!kvm_vcpu_apicv_active(kvm->vcpus[0]))
++		!kvm_vcpu_apicv_active(kvm_get_vcpu(kvm, 0)))
+ 		return 0;
+ 
+ 	idx = srcu_read_lock(&kvm->irq_srcu);
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 5417dac55272..5cc3ca8b92b3 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -388,12 +388,16 @@ struct kvm_memslots {
+ 	int used_slots;
+ };
+ 
++#define KVM_VCPUS_CHUNK_SIZE 128
++#define KVM_VCPUS_CHUNKS_NUM \
++	(round_up(KVM_MAX_VCPUS, KVM_VCPUS_CHUNK_SIZE) / KVM_VCPUS_CHUNK_SIZE)
++
+ struct kvm {
+ 	spinlock_t mmu_lock;
+ 	struct mutex slots_lock;
+ 	struct mm_struct *mm; /* userspace tied to this vm */
+ 	struct kvm_memslots __rcu *memslots[KVM_ADDRESS_SPACE_NUM];
+-	struct kvm_vcpu *vcpus[KVM_MAX_VCPUS];
++	struct kvm_vcpu **vcpus[KVM_VCPUS_CHUNKS_NUM];
+ 	struct list_head vcpu_list;
+ 
+ 	/*
+@@ -484,14 +488,23 @@ static inline struct kvm_io_bus *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
+ 				      !refcount_read(&kvm->users_count));
  }
  
--static void qeth_l2_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
--			struct sk_buff *skb, int cast_type)
-+static void qeth_l2_fill_header(struct qeth_hdr *hdr, struct sk_buff *skb,
-+				int cast_type, unsigned int data_len)
+-static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int i)
++static inline struct kvm_vcpu *__kvm_get_vcpu(struct kvm *kvm, int id)
  {
- 	struct vlan_ethhdr *veth = (struct vlan_ethhdr *)skb_mac_header(skb);
+-	/* Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu, in case
+-	 * the caller has read kvm->online_vcpus before (as is the case
+-	 * for kvm_for_each_vcpu, for example).
++	return kvm->vcpus[id / KVM_VCPUS_CHUNK_SIZE][id % KVM_VCPUS_CHUNK_SIZE];
++}
++
++static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int id)
++{
++	if (id >= atomic_read(&kvm->online_vcpus))
++		return NULL;
++
++	/*
++	 * Pairs with smp_wmb() in kvm_vm_ioctl_create_vcpu.  Ensures that the
++	 * pointers leading to an online vcpu are valid.
+ 	 */
+ 	smp_rmb();
+-	return kvm->vcpus[i];
++
++	return __kvm_get_vcpu(kvm, id);
+ }
  
- 	memset(hdr, 0, sizeof(struct qeth_hdr));
- 	hdr->hdr.l2.id = QETH_HEADER_TYPE_LAYER2;
-+	hdr->hdr.l2.pkt_length = data_len;
+ #define kvm_for_each_vcpu(vcpup, kvm) \
+@@ -514,7 +527,7 @@ static inline struct kvm_vcpu *kvm_get_vcpu_by_id(struct kvm *kvm, int id)
  
- 	/* set byte byte 3 to casting flags */
- 	if (cast_type == RTN_MULTICAST)
-@@ -275,7 +276,6 @@ static void qeth_l2_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
- 	else
- 		hdr->hdr.l2.flags[2] |= QETH_LAYER2_FLAG_UNICAST;
+ 	if (id < 0)
+ 		return NULL;
+-	if (id < KVM_MAX_VCPUS)
++	if (id < atomic_read(&kvm->online_vcpus))
+ 		vcpu = kvm_get_vcpu(kvm, id);
+ 	if (vcpu && vcpu->vcpu_id == id)
+ 		return vcpu;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 6cec58cad6c7..f9d68ec332c6 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -759,11 +759,14 @@ void kvm_free_vcpus(struct kvm *kvm)
  
--	hdr->hdr.l2.pkt_length = skb->len - sizeof(struct qeth_hdr);
- 	/* VSWITCH relies on the VLAN
- 	 * information to be present in
- 	 * the QDIO header */
-@@ -686,8 +686,7 @@ static int qeth_l2_xmit_iqd(struct qeth_card *card, struct sk_buff *skb,
- 	hdr = kmem_cache_alloc(qeth_core_header_cache, GFP_ATOMIC);
- 	if (!hdr)
- 		return -ENOMEM;
--	qeth_l2_fill_header(card, hdr, skb, cast_type);
--	hdr->hdr.l2.pkt_length = skb->len;
-+	qeth_l2_fill_header(hdr, skb, cast_type, skb->len);
- 	skb_copy_from_linear_data(skb, ((char *)hdr) + sizeof(*hdr),
- 				  data_offset);
+ 	mutex_lock(&kvm->lock);
  
-@@ -733,7 +732,8 @@ static int qeth_l2_xmit_osa(struct qeth_card *card, struct sk_buff *skb,
- 	if (!skb_copy)
- 		return -ENOMEM;
- 	hdr = skb_push(skb_copy, sizeof(struct qeth_hdr));
--	qeth_l2_fill_header(card, hdr, skb_copy, cast_type);
-+	qeth_l2_fill_header(hdr, skb_copy, cast_type,
-+			    skb_copy->len - sizeof(*hdr));
- 	if (skb_copy->ip_summed == CHECKSUM_PARTIAL)
- 		qeth_l2_hdr_csum(card, hdr, skb_copy);
+-	i = atomic_read(&kvm->online_vcpus);
++	i = round_up(atomic_read(&kvm->online_vcpus), KVM_VCPUS_CHUNK_SIZE) /
++		KVM_VCPUS_CHUNK_SIZE;
+ 	atomic_set(&kvm->online_vcpus, 0);
  
+-	while (i--)
++	while (i--) {
++		kfree(kvm->vcpus[i]);
+ 		kvm->vcpus[i] = NULL;
++	}
+ 
+ 	mutex_unlock(&kvm->lock);
+ }
+@@ -2480,6 +2483,8 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
+ {
+ 	int r;
+ 	struct kvm_vcpu *vcpu;
++	struct kvm_vcpu **vcpusp;
++	unsigned chunk, offset;
+ 
+ 	if (id >= KVM_MAX_VCPU_ID)
+ 		return -EINVAL;
+@@ -2517,8 +2522,22 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
+ 
+ 	vcpu->vcpus_idx = atomic_read(&kvm->online_vcpus);
+ 
+-	BUG_ON(kvm->vcpus[vcpu->vcpus_idx]);
++	chunk  = vcpu->vcpus_idx / KVM_VCPUS_CHUNK_SIZE;
++	offset = vcpu->vcpus_idx % KVM_VCPUS_CHUNK_SIZE;
+ 
++	if (!kvm->vcpus[chunk]) {
++		kvm->vcpus[chunk] = kzalloc(KVM_VCPUS_CHUNK_SIZE * sizeof(**kvm->vcpus),
++		                            GFP_KERNEL);
++		if (!kvm->vcpus[chunk]) {
++			r = -ENOMEM;
++			goto unlock_vcpu_destroy;
++		}
++
++		BUG_ON(offset != 0);
++	}
++
++	vcpusp = &kvm->vcpus[chunk][offset];
++	BUG_ON(*vcpusp);
+ 
+ 	/* Now it's all set up, let userspace reach it */
+ 	kvm_get_kvm(kvm);
+@@ -2528,7 +2547,7 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
+ 		goto unlock_vcpu_destroy;
+ 	}
+ 
+-	kvm->vcpus[atomic_read(&kvm->online_vcpus)] = vcpu;
++	*vcpusp = vcpu;
+ 	list_add_tail_rcu(&vcpu->vcpu_list, &kvm->vcpu_list);
+ 
+ 	/*
 -- 
-2.11.2
+2.13.3
