@@ -1,15 +1,14 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC v3 2/9] KVM: arm/arm64: fix vcpu self-detection in
- vgic_v3_dispatch_sgi()
-Date: Tue, 22 Aug 2017 13:43:02 +0200
-Message-ID: <a6c6b3e0-ded0-f81b-7b14-c85a12e513b5@redhat.com>
+Subject: Re: [PATCH RFC v3 3/9] KVM: remember position in kvm->vcpus array
+Date: Tue, 22 Aug 2017 13:44:13 +0200
+Message-ID: <29ad4696-f106-031e-c9b9-b10b4f4c8107@redhat.com>
 References: <20170821203530.9266-1-rkrcmar@redhat.com>
- <20170821203530.9266-3-rkrcmar@redhat.com>
+ <20170821203530.9266-4-rkrcmar@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170821203530.9266-3-rkrcmar@redhat.com>
+In-Reply-To: <20170821203530.9266-4-rkrcmar@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,38 +18,58 @@ Cc: Paolo Bonzini <pbonzini@redhat.com>, Christoffer Dall <cdall@linaro.org>, Ma
 List-ID: <linux-s390.vger.kernel.org>
 
 On 21.08.2017 22:35, Radim Krčmář wrote:
-> The index in kvm->vcpus array and vcpu->vcpu_id are very different
-> things.  Comparing struct kvm_vcpu pointers is a sure way to know.
-> 
 > Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
 > ---
->  virt/kvm/arm/vgic/vgic-mmio-v3.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  include/linux/kvm_host.h | 11 +++--------
+>  virt/kvm/kvm_main.c      |  5 ++++-
+>  2 files changed, 7 insertions(+), 9 deletions(-)
 > 
-> diff --git a/virt/kvm/arm/vgic/vgic-mmio-v3.c b/virt/kvm/arm/vgic/vgic-mmio-v3.c
-> index 408ef06638fc..9d4b69b766ec 100644
-> --- a/virt/kvm/arm/vgic/vgic-mmio-v3.c
-> +++ b/virt/kvm/arm/vgic/vgic-mmio-v3.c
-> @@ -797,7 +797,6 @@ void vgic_v3_dispatch_sgi(struct kvm_vcpu *vcpu, u64 reg)
->  	u16 target_cpus;
->  	u64 mpidr;
->  	int sgi, c;
-> -	int vcpu_id = vcpu->vcpu_id;
->  	bool broadcast;
+> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+> index 6882538eda32..a8ff956616d2 100644
+> --- a/include/linux/kvm_host.h
+> +++ b/include/linux/kvm_host.h
+> @@ -220,7 +220,8 @@ struct kvm_vcpu {
+>  	struct preempt_notifier preempt_notifier;
+>  #endif
+>  	int cpu;
+> -	int vcpu_id;
+> +	int vcpu_id; /* id given by userspace at creation */
+> +	int vcpus_idx; /* index in kvm->vcpus array */
+>  	int srcu_idx;
+>  	int mode;
+>  	unsigned long requests;
+> @@ -516,13 +517,7 @@ static inline struct kvm_vcpu *kvm_get_vcpu_by_id(struct kvm *kvm, int id)
 >  
->  	sgi = (reg & ICC_SGI1R_SGI_ID_MASK) >> ICC_SGI1R_SGI_ID_SHIFT;
-> @@ -821,7 +820,7 @@ void vgic_v3_dispatch_sgi(struct kvm_vcpu *vcpu, u64 reg)
->  			break;
+>  static inline int kvm_vcpu_get_idx(struct kvm_vcpu *vcpu)
+>  {
+> -	struct kvm_vcpu *tmp;
+> -	int idx;
+> -
+> -	kvm_for_each_vcpu(idx, tmp, vcpu->kvm)
+> -		if (tmp == vcpu)
+> -			return idx;
+> -	BUG();
+> +	return vcpu->vcpus_idx;
+>  }
 >  
->  		/* Don't signal the calling VCPU */
-> -		if (broadcast && c == vcpu_id)
-> +		if (broadcast && c_vcpu == vcpu)
->  			continue;
+>  #define kvm_for_each_memslot(memslot, slots)	\
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index e17c40d986f3..caf8323f7df7 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -2498,7 +2498,10 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
+>  		goto unlock_vcpu_destroy;
+>  	}
 >  
->  		if (!broadcast) {
+> -	BUG_ON(kvm->vcpus[atomic_read(&kvm->online_vcpus)]);
+> +	vcpu->vcpus_idx = atomic_read(&kvm->online_vcpus);
+> +
+> +	BUG_ON(kvm->vcpus[vcpu->vcpus_idx]);
+> +
+>  
+>  	/* Now it's all set up, let userspace reach it */
+>  	kvm_get_kvm(kvm);
 > 
-
-Yes, this looks correct to me.
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
