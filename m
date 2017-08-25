@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 4 Aug 2017 11:20:17 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: drivers/s390/char/keyboard.c kernel stack infoleak
-References: <116f735.aa23.15da864e94a.Coremail.sohu0106@126.com>
- <0b76e8f9-e1ea-da9e-23f2-92cdbd475ec9@tuxfamily.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0b76e8f9-e1ea-da9e-23f2-92cdbd475ec9@tuxfamily.org>
-Message-Id: <20170804092017.GA3278@osiris>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Thomas Huth <huth@tuxfamily.org>
-Cc: sohu0106 <sohu0106@126.com>, schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v2 1/1] futex: remove duplicated code and fix UB
+Date: Fri, 25 Aug 2017 22:43:41 +0200 (CEST)
+Message-ID: <alpine.DEB.2.20.1708252243020.2124@nanos>
+References: <20170824073105.3901-1-jslaby@suse.cz>
+ <20170824094756.GA6346@arm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170824094756.GA6346@arm.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Will Deacon <will.deacon@arm.com>
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, peterz@infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, mingo@redhat.com, Catalin Marinas <catalin.marinas@arm.com>, dvhart@infradead.org, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-xtensa@linux-xtensa.org, Stefan Kristiansson <stefan>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Aug 04, 2017 at 11:09:24AM +0200, Thomas Huth wrote:
->  Hi,
-> 
-> On 03.08.2017 15:59, sohu0106 wrote:
-> > 
-> > The stack object "kbdiacr" has a total size of 4 bytes. Its last 1 bytes are padding bytes after "result" which are not initialized and leaked to userland via "copy_to_user".
-> > 
-> > 
-> > diff --git a/keyboard.c b/keyboard.c
-> > index ba0e4f9..76a6d35 100644
-> > --- a/keyboard.c
-> > +++ b/keyboard.c
-> > @@ -480,6 +480,8 @@ int kbd_ioctl(struct kbd_data *kbd, unsigned int cmd, unsigned long arg)
-> >                 struct kbdiacr diacr;
-> >                 int i;
-> >  
-> > +               memset( &diacr, 0, sizeof(struct kbdiacr) );
+On Thu, 24 Aug 2017, Will Deacon wrote:
+> On Thu, Aug 24, 2017 at 09:31:05AM +0200, Jiri Slaby wrote:
+> > +static int futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
+> > +{
+> > +	unsigned int op =	  (encoded_op & 0x70000000) >> 28;
+> > +	unsigned int cmp =	  (encoded_op & 0x0f000000) >> 24;
+> > +	int oparg = sign_extend32((encoded_op & 0x00fff000) >> 12, 12);
+> > +	int cmparg = sign_extend32(encoded_op & 0x00000fff, 12);
+> > +	int oldval, ret;
 > > +
+> > +	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28)) {
+> > +		if (oparg < 0 || oparg > 31)
+> > +			return -EINVAL;
+> > +		oparg = 1 << oparg;
+> > +	}
+> > +
+> > +	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
+> > +		return -EFAULT;
+> > +
+> > +	ret = arch_futex_atomic_op_inuser(op, oparg, &oldval, uaddr);
+> > +	if (ret)
+> > +		return ret;
 > 
-> I think it would be nicer to simply init the struct with "= {}"
-> directly, i.e.:
-> 
-> 		struct kbdiacr diacr = {};
-> 
-> And by the way, please have a look at the kernel patch submission
-> guidelines first, especially the COO part here:
+> We could move the pagefault_{disable,enable} calls here, and then remove
+> them from the futex_atomic_op_inuser callsites elsewhere in futex.c
 
-The patch doesn't make sense. There is no padding and therefore no
-information leak.
+Correct, but we can do that after getting this in.
+
+Thanks,
+
+	tglx
