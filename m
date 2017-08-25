@@ -1,45 +1,80 @@
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: [PATCH 03/15] [media] i2c: make device_type const
-Date: Thu, 24 Aug 2017 18:31:19 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1708241830240.3709@axis700.grange>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 02/15] drm: make device_type const
+Date: Fri, 25 Aug 2017 15:36:24 +0200
+Message-ID: <20170825133623.3jbkpvq5k62rabf5@phenom.ffwll.local>
 References: <1503130946-2854-1-git-send-email-bhumirks@gmail.com>
- <1503130946-2854-4-git-send-email-bhumirks@gmail.com>
+ <1503130946-2854-3-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1503130946-2854-4-git-send-email-bhumirks@gmail.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <1503130946-2854-3-git-send-email-bhumirks@gmail.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
 List-Archive: <https://lore.kernel.org/dri-devel/>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
 To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: heikki.krogerus@linux.intel.com, linux-pci@vger.kernel.org, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, bjorn.andersson@linaro.org, linux-tegra@vger.kernel.org, thierry.reding@gmail.com, linux-mtd@lists.infradead.org, daniel.vetter@intel.com, kishon@ti.com, freude@de.ibm.com, boris.brezillon@free-electrons.com, jejb@linux.vnet.ibm.com, linux-scsi@vger.kernel.org, richard@nod.at, jonathanh@nvidia.com, marek.vasut@gmail.com, fcoe-devel@open-fcoe.org, dvhart@infradead.org, tomas.winkler@intel.com, open-iscsi@googlegroups.com, linux-media@vger.kernel.org, ohad@wizery.com, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-remoteproc@vger.kernel.org, johan@kernel.org, julia.lawall@lip6.fr, elder@kernel.org, bhelgaas@google.com, mchehab@kernel.org, linux-edac@vger.kernel.org, cleech@redhat.com, jth@kernel.org, martin.petersen@oracle.com
+Cc: heikki.krogerus@linux.intel.com, airlied@linux.ie, linux-pci@vger.kernel.org, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, bjorn.andersson@linaro.org, linux-tegra@vger.kernel.org, thierry.reding@gmail.com, linux-mtd@lists.infradead.org, daniel.vetter@intel.com, kishon@ti.com, freude@de.ibm.com, boris.brezillon@free-electrons.com, jejb@linux.vnet.ibm.com, linux-scsi@vger.kernel.org, richard@nod.at, jonathanh@nvidia.com, marek.vasut@gmail.com, fcoe-devel@open-fcoe.org, dvhart@infradead.org, tomas.winkler@intel.com, open-iscsi@googlegroups.com, linux-media@vger.kernel.org, ohad@wizery.com, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-remoteproc@vger.kernel.org, johan@kernel.org, jani.nikula@linux.intel.com, julia.lawall@lip6.fr, seanpaul@chromium.org, bhelgaas@google.com, mchehab@kernel.org, linux-edac@vger.kernel.org, cleech@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gU2F0LCAxOSBBdWcgMjAxNywgQmh1bWlrYSBHb3lhbCB3cm90ZToKCj4gTWFrZSB0aGlzIGNv
-bnN0IGFzIGl0IGlzIG9ubHkgc3RvcmVkIGluIHRoZSB0eXBlIGZpZWxkIG9mIGEgZGV2aWNlCj4g
-c3RydWN0dXJlLCB3aGljaCBpcyBjb25zdC4KPiBEb25lIHVzaW5nIENvY2NpbmVsbGUuCj4gCj4g
-U2lnbmVkLW9mZi1ieTogQmh1bWlrYSBHb3lhbCA8Ymh1bWlya3NAZ21haWwuY29tPgoKQWNrZWQt
-Ynk6IEd1ZW5uYWRpIExpYWtob3ZldHNraSA8Zy5saWFraG92ZXRza2lAZ214LmRlPgoKVGhhbmtz
-Ckd1ZW5uYWRpCgo+IC0tLQo+ICBkcml2ZXJzL21lZGlhL2kyYy9zb2NfY2FtZXJhL210OXQwMzEu
-YyB8IDIgKy0KPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0p
-Cj4gCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbWVkaWEvaTJjL3NvY19jYW1lcmEvbXQ5dDAzMS5j
-IGIvZHJpdmVycy9tZWRpYS9pMmMvc29jX2NhbWVyYS9tdDl0MDMxLmMKPiBpbmRleCA3MTRmYjM1
-Li40ODAyZDMwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbWVkaWEvaTJjL3NvY19jYW1lcmEvbXQ5
-dDAzMS5jCj4gKysrIGIvZHJpdmVycy9tZWRpYS9pMmMvc29jX2NhbWVyYS9tdDl0MDMxLmMKPiBA
-QCAtNTkyLDcgKzU5Miw3IEBAIHN0YXRpYyBpbnQgbXQ5dDAzMV9ydW50aW1lX3Jlc3VtZShzdHJ1
-Y3QgZGV2aWNlICpkZXYpCj4gIAkucnVudGltZV9yZXN1bWUJCT0gbXQ5dDAzMV9ydW50aW1lX3Jl
-c3VtZSwKPiAgfTsKPiAgCj4gLXN0YXRpYyBzdHJ1Y3QgZGV2aWNlX3R5cGUgbXQ5dDAzMV9kZXZf
-dHlwZSA9IHsKPiArc3RhdGljIGNvbnN0IHN0cnVjdCBkZXZpY2VfdHlwZSBtdDl0MDMxX2Rldl90
-eXBlID0gewo+ICAJLm5hbWUJPSAiTVQ5VDAzMSIsCj4gIAkucG0JPSAmbXQ5dDAzMV9kZXZfcG1f
-b3BzLAo+ICB9Owo+IC0tIAo+IDEuOS4xCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3Rz
-LmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL2RyaS1kZXZlbAo=
+On Sat, Aug 19, 2017 at 01:52:13PM +0530, Bhumika Goyal wrote:
+> Make these const as they are only stored in the type field of a device
+> structure, which is const.
+> Done using Coccinelle.
+
+I can't apply this, it's missing your s-o-b line. You can just replay with
+that.
+
+Thanks, Daniel
+
+> ---
+>  drivers/gpu/drm/drm_sysfs.c      | 2 +-
+>  drivers/gpu/drm/ttm/ttm_module.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_sysfs.c b/drivers/gpu/drm/drm_sysfs.c
+> index 1c5b5ce..84e4ebe 100644
+> --- a/drivers/gpu/drm/drm_sysfs.c
+> +++ b/drivers/gpu/drm/drm_sysfs.c
+> @@ -39,7 +39,7 @@
+>   * drm_connector_unregister().
+>   */
+>  
+> -static struct device_type drm_sysfs_device_minor = {
+> +static const struct device_type drm_sysfs_device_minor = {
+>  	.name = "drm_minor"
+>  };
+>  
+> diff --git a/drivers/gpu/drm/ttm/ttm_module.c b/drivers/gpu/drm/ttm/ttm_module.c
+> index 66fc639..e6604e0 100644
+> --- a/drivers/gpu/drm/ttm/ttm_module.c
+> +++ b/drivers/gpu/drm/ttm/ttm_module.c
+> @@ -37,7 +37,7 @@
+>  static DECLARE_WAIT_QUEUE_HEAD(exit_q);
+>  static atomic_t device_released;
+>  
+> -static struct device_type ttm_drm_class_type = {
+> +static const struct device_type ttm_drm_class_type = {
+>  	.name = "ttm",
+>  	/**
+>  	 * Add pm ops here.
+> -- 
+> 1.9.1
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
