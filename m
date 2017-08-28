@@ -1,73 +1,104 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 00/11] KVM: s390: Fixes and features for 4.14
-Date: Mon, 28 Aug 2017 14:17:38 +0200
-Message-ID: <20170828141738.5e9b47ed.cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH 05/11] KVM: s390: Support Configuration z/Architecture
+ Mode
+Date: Mon, 28 Aug 2017 16:06:18 +0200
+Message-ID: <a73ff132-288f-3acc-3b4c-3369145b48cf@redhat.com>
 References: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
+ <1503907651-65296-2-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <1503907651-65296-2-git-send-email-borntraeger@de.ibm.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 28 Aug 2017 10:07:27 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On 28.08.2017 10:07, Christian Borntraeger wrote:
+> From: "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
+> 
+> kvm has always supported the concept of starting in z/Arch mode so let's
+> reflect the feature bit to the guest.
+> 
+> Also, we change sigp set architecture to reject any request to change
+> architecture modes.
 
-> This is what I have pending for 4.14 in 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  kvm-s390-next-4.14-1
-> 
-> It contains 2 merges (on topic branch from Martin for the tlb flushing
+Hm ... this seems to imply that CZAM is always set, but what about
+running on old user space (possibly on old hw)? Old QEMU will not enable
+CZAM.
 
-Have those been posted anywhere? Might have made looking at the feature
-easier to post them as well so you do not have to track down the branch.
+And especially old user space will rely on SET ARCHITECTURE being
+handled in the kernel.
 
-> and a back-merge from the s390 fixes for master to avoid merge conflicts
-> with followup fixes). 
-> 
-> "New" patches are marked (x) below. (patches 5,6,10,11).
-> Pull request will come later this week.
-> 
-> ----------------------------------------------------------------
-> KVM: s390: Fixes and features for 4.14
-> 
-> - merge of topic branch tlb-flushing from the s390 tree to get the
->   no-dat base features
-> - wire up the no-dat enhancements in KVM
-> - multiple epoch facility (z14 feature)
-> - Configuration z/Architecture Mode fixup
-> - merge of kvm/master to avoid conflicts with additional sthyi fixes
-> - more sthyi fixes
-> 
-> ----------------------------------------------------------------
-> Christian Borntraeger (3):
->       Merge branch 'tlb-flushing' of git://git.kernel.org/.../s390/linux  into kernelorgnext
->       KVM: s390: take srcu lock when getting/setting storage keys
->       Merge tag 'kvm-s390-master-4.13-2' into kvms390/next
-> 
-> Claudio Imbrenda (1):
-> (x)   KVM: s390: expose no-DAT to guest and migration support
-> 
-> Collin L. Walling (1):
-> (x)   KVM: s390: Multiple Epoch Facility support
-> 
-> Heiko Carstens (3):
->       KVM: s390: sthyi: fix sthyi inline assembly
->       KVM: s390: sthyi: fix specification exception detection
-> (x)   KVM: s390: sthyi: remove invalid guest write access
-> 
-> Jason J. Herne (1):
-> (x)   KVM: s390: Support Configuration z/Architecture Mode
-> 
-> Martin Schwidefsky (4):
->       s390/mm: tag normal pages vs pages used in page tables
->       s390/mm: add no-dat TLB flush optimization
->       s390/mm: add guest ASCE TLB flush optimization
->       s390/mm,kvm: use nodat PGSTE tag to optimize TLB flushing
+I agree, that for QEMU we can always do that change (as we control which
+features are indicated to the guest). But I am wondering if we would
+have to stick to existing behavior unless test_kvm_facility(vcpu->kvm, 138).
 
-I have not reviewed Martin's patches (not surprising, I guess), but the
-series looks fine.
+> 
+> Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/sigp.c             | 36 +++++++++++++++++-------------------
+>  arch/s390/tools/gen_facilities.c |  1 +
+>  2 files changed, 18 insertions(+), 19 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+> index 1a252f5..11d3845 100644
+> --- a/arch/s390/kvm/sigp.c
+> +++ b/arch/s390/kvm/sigp.c
+> @@ -155,29 +155,26 @@ static int __sigp_stop_and_store_status(struct kvm_vcpu *vcpu,
+>  	return rc;
+>  }
+>  
+[...]
+
+>  	}
+> -	return rc;
+> +
+> +	*status_reg &= 0xffffffff00000000ULL;
+
+s/ULL/UL/
+
+> +
+> +	/* Reject set arch order, with czam we're always in z/Arch mode. */
+> +	*status_reg |= (all_stopped ? SIGP_STATUS_INVALID_PARAMETER :
+> +					SIGP_STATUS_INCORRECT_STATE);
+> +	return SIGP_CC_STATUS_STORED;
+>  }
+>  
+>  static int __sigp_set_prefix(struct kvm_vcpu *vcpu, struct kvm_vcpu *dst_vcpu,
+> @@ -446,7 +443,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
+>  	switch (order_code) {
+>  	case SIGP_SET_ARCHITECTURE:
+>  		vcpu->stat.instruction_sigp_arch++;
+> -		rc = __sigp_set_arch(vcpu, parameter);
+> +		rc = __sigp_set_arch(vcpu, parameter,
+> +				     &vcpu->run->s.regs.gprs[r1]);
+>  		break;
+>  	default:
+>  		rc = handle_sigp_dst(vcpu, order_code, cpu_addr,
+> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+> index 025ea20..181db5b 100644
+> --- a/arch/s390/tools/gen_facilities.c
+> +++ b/arch/s390/tools/gen_facilities.c
+> @@ -80,6 +80,7 @@ static struct facility_def facility_defs[] = {
+>  			78, /* enhanced-DAT 2 */
+>  			130, /* instruction-execution-protection */
+>  			131, /* enhanced-SOP 2 and side-effect */
+> +			138, /* configuration z/architecture mode (czam) */
+>  			146, /* msa extension 8 */
+>  			-1  /* END */
+>  		}
+> 
+
+
+-- 
+
+Thanks,
+
+David
