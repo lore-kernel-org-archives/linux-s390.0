@@ -1,135 +1,83 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 11/11] KVM: s390: expose no-DAT to guest and migration support
-Date: Mon, 28 Aug 2017 10:07:31 +0200
-Message-ID: <1503907651-65296-5-git-send-email-borntraeger@de.ibm.com>
-References: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 00/11] KVM: s390: Fixes and features for 4.14
+Date: Mon, 28 Aug 2017 10:07:27 +0200
+Message-ID: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+This is what I have pending for 4.14 in 
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  kvm-s390-next-4.14-1
 
-The STFLE bit 147 indicates whether the ESSA no-DAT operation code is
-valid, the bit is not normally provided to the host; the host is
-instead provided with an SCLP bit that indicates whether guests can
-support the feature.
+It contains 2 merges (on topic branch from Martin for the tlb flushing
+and a back-merge from the s390 fixes for master to avoid merge conflicts
+with followup fixes). 
 
-This patch:
-* enables the STFLE bit in the guest if the corresponding SCLP bit is
-  present in the host.
-* adds support for migrating the no-DAT bit in the PGSTEs
-* fixes the software interpretation of the ESSA instruction that is
-  used when migrating, both for the new operation code and for the old
-  "set stable", as per specifications.
+"New" patches are marked (x) below. (patches 5,6,10,11).
+Pull request will come later this week.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/page-states.h | 2 +-
- arch/s390/kvm/kvm-s390.c            | 8 ++++++--
- arch/s390/kvm/priv.c                | 6 +++++-
- arch/s390/mm/pgtable.c              | 6 +++++-
- 4 files changed, 17 insertions(+), 5 deletions(-)
+----------------------------------------------------------------
+KVM: s390: Fixes and features for 4.14
 
-diff --git a/arch/s390/include/asm/page-states.h b/arch/s390/include/asm/page-states.h
-index ca21b28..22b0f49 100644
---- a/arch/s390/include/asm/page-states.h
-+++ b/arch/s390/include/asm/page-states.h
-@@ -15,6 +15,6 @@
- #define ESSA_SET_STABLE_IF_RESIDENT	6
- #define ESSA_SET_STABLE_NODAT		7
- 
--#define ESSA_MAX	ESSA_SET_STABLE_IF_RESIDENT
-+#define ESSA_MAX	ESSA_SET_STABLE_NODAT
- 
- #endif
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e65b763..84c069a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1574,7 +1574,7 @@ static int kvm_s390_get_cmma_bits(struct kvm *kvm,
- 		if (r < 0)
- 			pgstev = 0;
- 		/* save the value */
--		res[i++] = (pgstev >> 24) & 0x3;
-+		res[i++] = (pgstev >> 24) & 0x43;
- 		/*
- 		 * if the next bit is too far away, stop.
- 		 * if we reached the previous "next", find the next one
-@@ -1652,7 +1652,7 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
- 
- 		pgstev = bits[i];
- 		pgstev = pgstev << 24;
--		mask &= _PGSTE_GPS_USAGE_MASK;
-+		mask &= _PGSTE_GPS_USAGE_MASK | _PGSTE_GPS_NODAT;
- 		set_pgste_bits(kvm->mm, hva, mask, pgstev);
- 	}
- 	srcu_read_unlock(&kvm->srcu, srcu_idx);
-@@ -1929,6 +1929,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 
- 	set_kvm_facility(kvm->arch.model.fac_mask, 74);
- 	set_kvm_facility(kvm->arch.model.fac_list, 74);
-+	if (MACHINE_HAS_TLB_GUEST) {
-+		set_kvm_facility(kvm->arch.model.fac_mask, 147);
-+		set_kvm_facility(kvm->arch.model.fac_list, 147);
-+	}
- 
- 	kvm->arch.model.cpuid = kvm_s390_get_initial_cpuid();
- 	kvm->arch.model.ibc = sclp.ibc & 0x0fff;
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 8a1dac7..91dc4a8 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -988,6 +988,8 @@ static inline int do_essa(struct kvm_vcpu *vcpu, const int orc)
- 		if (pgstev & _PGSTE_GPS_ZERO)
- 			res |= 1;
- 	}
-+	if (pgstev & _PGSTE_GPS_NODAT)
-+		res |= 0x20;
- 	vcpu->run->s.regs.gprs[r1] = res;
- 	/*
- 	 * It is possible that all the normal 511 slots were full, in which case
-@@ -1027,7 +1029,9 @@ static int handle_essa(struct kvm_vcpu *vcpu)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 	/* Check for invalid operation request code */
- 	orc = (vcpu->arch.sie_block->ipb & 0xf0000000) >> 28;
--	if (orc > ESSA_MAX)
-+	/* ORCs 0-6 are always valid */
-+	if (orc > (test_kvm_facility(vcpu->kvm, 147) ? ESSA_SET_STABLE_NODAT
-+						: ESSA_SET_STABLE_IF_RESIDENT))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
- 	if (likely(!vcpu->kvm->arch.migration_state)) {
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 8d018c7..459716d 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -919,7 +919,7 @@ int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
- 	case ESSA_GET_STATE:
- 		break;
- 	case ESSA_SET_STABLE:
--		pgstev &= ~_PGSTE_GPS_USAGE_MASK;
-+		pgstev &= ~(_PGSTE_GPS_USAGE_MASK | _PGSTE_GPS_NODAT);
- 		pgstev |= _PGSTE_GPS_USAGE_STABLE;
- 		break;
- 	case ESSA_SET_UNUSED:
-@@ -965,6 +965,10 @@ int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
- 			pgstev |= _PGSTE_GPS_USAGE_STABLE;
- 		}
- 		break;
-+	case ESSA_SET_STABLE_NODAT:
-+		pgstev &= ~_PGSTE_GPS_USAGE_MASK;
-+		pgstev |= _PGSTE_GPS_USAGE_STABLE | _PGSTE_GPS_NODAT;
-+		break;
- 	default:
- 		/* we should never get here! */
- 		break;
--- 
-2.7.4
+- merge of topic branch tlb-flushing from the s390 tree to get the
+  no-dat base features
+- wire up the no-dat enhancements in KVM
+- multiple epoch facility (z14 feature)
+- Configuration z/Architecture Mode fixup
+- merge of kvm/master to avoid conflicts with additional sthyi fixes
+- more sthyi fixes
+
+----------------------------------------------------------------
+Christian Borntraeger (3):
+      Merge branch 'tlb-flushing' of git://git.kernel.org/.../s390/linux  into kernelorgnext
+      KVM: s390: take srcu lock when getting/setting storage keys
+      Merge tag 'kvm-s390-master-4.13-2' into kvms390/next
+
+Claudio Imbrenda (1):
+(x)   KVM: s390: expose no-DAT to guest and migration support
+
+Collin L. Walling (1):
+(x)   KVM: s390: Multiple Epoch Facility support
+
+Heiko Carstens (3):
+      KVM: s390: sthyi: fix sthyi inline assembly
+      KVM: s390: sthyi: fix specification exception detection
+(x)   KVM: s390: sthyi: remove invalid guest write access
+
+Jason J. Herne (1):
+(x)   KVM: s390: Support Configuration z/Architecture Mode
+
+Martin Schwidefsky (4):
+      s390/mm: tag normal pages vs pages used in page tables
+      s390/mm: add no-dat TLB flush optimization
+      s390/mm: add guest ASCE TLB flush optimization
+      s390/mm,kvm: use nodat PGSTE tag to optimize TLB flushing
+
+ Documentation/virtual/kvm/devices/vm.txt |  14 ++-
+ arch/s390/include/asm/kvm_host.h         |   6 +-
+ arch/s390/include/asm/page-states.h      |   3 +-
+ arch/s390/include/asm/page.h             |   3 +
+ arch/s390/include/asm/pgtable.h          |  88 ++++++++++----
+ arch/s390/include/asm/setup.h            |   9 +-
+ arch/s390/include/asm/tlbflush.h         |   7 +-
+ arch/s390/include/uapi/asm/kvm.h         |   6 +
+ arch/s390/kernel/suspend.c               |  22 +++-
+ arch/s390/kernel/vdso.c                  |   2 +
+ arch/s390/kvm/kvm-s390.c                 | 117 +++++++++++++++++-
+ arch/s390/kvm/kvm-s390.h                 |   2 +
+ arch/s390/kvm/priv.c                     |   6 +-
+ arch/s390/kvm/sigp.c                     |  36 +++---
+ arch/s390/kvm/sthyi.c                    |  13 +-
+ arch/s390/kvm/vsie.c                     |  10 ++
+ arch/s390/mm/init.c                      |   2 +
+ arch/s390/mm/page-states.c               | 196 ++++++++++++++++++++++++++++---
+ arch/s390/mm/pageattr.c                  |   2 +-
+ arch/s390/mm/pgalloc.c                   |   2 +
+ arch/s390/mm/pgtable.c                   | 160 +++++++++++++++++++------
+ arch/s390/tools/gen_facilities.c         |   2 +
+ drivers/s390/char/sclp_early.c           |   6 +-
+ 23 files changed, 595 insertions(+), 119 deletions(-)
