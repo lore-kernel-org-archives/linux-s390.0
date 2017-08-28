@@ -1,8 +1,8 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH 05/11] KVM: s390: Support Configuration z/Architecture
  Mode
-Date: Mon, 28 Aug 2017 21:38:46 +0200
-Message-ID: <ae6cf9ff-8820-1a63-47ea-b6a28046fc5e@de.ibm.com>
+Date: Mon, 28 Aug 2017 21:41:04 +0200
+Message-ID: <758eac17-802b-741e-db6f-766ce659957f@redhat.com>
 References: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
  <1503907651-65296-2-git-send-email-borntraeger@de.ibm.com>
  <d72ff520-8fac-34d9-e71a-53697a59957c@redhat.com>
@@ -16,13 +16,11 @@ Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 08/28/2017 09:35 PM, Christian Borntraeger wrote:
+On 28.08.2017 21:35, Christian Borntraeger wrote:
 > 
 > 
 > On 08/28/2017 09:27 PM, David Hildenbrand wrote:
@@ -75,7 +73,16 @@ On 08/28/2017 09:35 PM, Christian Borntraeger wrote:
 >                S390_ARCH_FAC_LIST_SIZE_BYTE);
 > 
 > [,..]
+> 
 
-Well not identical. The patch actually enables the czam facility only if the host
-hardware while your variant enables it always. Interesting discussion if it matters
-if we should enable it on z13, z12 and earlier or not
+This would keep it unset on e.g. a z13, no? (that's why I added the
+comment regarding z14)
+
+
+By always enabling it we would behave exactly like QEMU.
+
+-- 
+
+Thanks,
+
+David
