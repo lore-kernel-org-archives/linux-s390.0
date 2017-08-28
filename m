@@ -1,62 +1,135 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 05/11] KVM: s390: Support Configuration z/Architecture
- Mode
-Date: Mon, 28 Aug 2017 11:14:42 +0200
-Message-ID: <21f91dc3-07aa-48ca-8a41-bfbec1668f80@de.ibm.com>
+Subject: [PATCH 11/11] KVM: s390: expose no-DAT to guest and migration support
+Date: Mon, 28 Aug 2017 10:07:31 +0200
+Message-ID: <1503907651-65296-5-git-send-email-borntraeger@de.ibm.com>
 References: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
- <1503907651-65296-2-git-send-email-borntraeger@de.ibm.com>
- <20170828110746.774d00e3.cohuck@redhat.com>
- <5865af6d-863f-f6b1-bc72-b2eec2ce953b@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <5865af6d-863f-f6b1-bc72-b2eec2ce953b@de.ibm.com>
-Content-Language: en-US
+In-Reply-To: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 
+The STFLE bit 147 indicates whether the ESSA no-DAT operation code is
+valid, the bit is not normally provided to the host; the host is
+instead provided with an SCLP bit that indicates whether guests can
+support the feature.
 
-On 08/28/2017 11:11 AM, Christian Borntraeger wrote:
-> 
-> 
-> On 08/28/2017 11:07 AM, Cornelia Huck wrote:
->> On Mon, 28 Aug 2017 10:07:28 +0200
->> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
->>
->>> From: "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
->>>
->>> kvm has always supported the concept of starting in z/Arch mode so let's
->>> reflect the feature bit to the guest.
->>>
->>> Also, we change sigp set architecture to reject any request to change
->>> architecture modes.
->>
->> What are the implications of this for guests? IIRC, czam is a z14
->> feature (the updated PoP is not yet out, is it?). We now reject any set
->> arch sigp, even if we profess to be an older machine. Linux can
->> probably deal with this, but is it correct?
-> 
-> Linux can deal with it. Since KVM does not support IPL in ESA mode, we basically
-> always provided the czam functionality. We now do it like it was architected.
-> z/VM does it the same way when enabling czam on an older system like z13.
-> 
-> In other words the old code was not compliant (and never was), the new code
-> is compliant. Since czam is kind of a "negative" facility, we can implement
-> it also on older systems.
+This patch:
+* enables the STFLE bit in the guest if the corresponding SCLP bit is
+  present in the host.
+* adds support for migrating the no-DAT bit in the PGSTEs
+* fixes the software interpretation of the ESSA instruction that is
+  used when migrating, both for the new operation code and for the old
+  "set stable", as per specifications.
 
-FWIW, this code will only run when QEMU does not enable the SIGP forwarding. 
-All new QEMUs handle this in QEMU. The equivalent fix in QEMU is
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/page-states.h | 2 +-
+ arch/s390/kvm/kvm-s390.c            | 8 ++++++--
+ arch/s390/kvm/priv.c                | 6 +++++-
+ arch/s390/mm/pgtable.c              | 6 +++++-
+ 4 files changed, 17 insertions(+), 5 deletions(-)
 
-commit 075e52b816648f21ca6bf5cc01624dff3993c99e
-Author:     Jason J. Herne <jjherne@linux.vnet.ibm.com>
-AuthorDate: Thu Sep 1 10:56:49 2016 +0200
-Commit:     Christian Borntraeger <borntraeger@de.ibm.com>
-CommitDate: Fri Jul 14 12:29:49 2017 +0200
-
-    s390x/cpumodel: we are always in zarchitecture model
+diff --git a/arch/s390/include/asm/page-states.h b/arch/s390/include/asm/page-states.h
+index ca21b28..22b0f49 100644
+--- a/arch/s390/include/asm/page-states.h
++++ b/arch/s390/include/asm/page-states.h
+@@ -15,6 +15,6 @@
+ #define ESSA_SET_STABLE_IF_RESIDENT	6
+ #define ESSA_SET_STABLE_NODAT		7
+ 
+-#define ESSA_MAX	ESSA_SET_STABLE_IF_RESIDENT
++#define ESSA_MAX	ESSA_SET_STABLE_NODAT
+ 
+ #endif
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index e65b763..84c069a 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1574,7 +1574,7 @@ static int kvm_s390_get_cmma_bits(struct kvm *kvm,
+ 		if (r < 0)
+ 			pgstev = 0;
+ 		/* save the value */
+-		res[i++] = (pgstev >> 24) & 0x3;
++		res[i++] = (pgstev >> 24) & 0x43;
+ 		/*
+ 		 * if the next bit is too far away, stop.
+ 		 * if we reached the previous "next", find the next one
+@@ -1652,7 +1652,7 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+ 
+ 		pgstev = bits[i];
+ 		pgstev = pgstev << 24;
+-		mask &= _PGSTE_GPS_USAGE_MASK;
++		mask &= _PGSTE_GPS_USAGE_MASK | _PGSTE_GPS_NODAT;
+ 		set_pgste_bits(kvm->mm, hva, mask, pgstev);
+ 	}
+ 	srcu_read_unlock(&kvm->srcu, srcu_idx);
+@@ -1929,6 +1929,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 
+ 	set_kvm_facility(kvm->arch.model.fac_mask, 74);
+ 	set_kvm_facility(kvm->arch.model.fac_list, 74);
++	if (MACHINE_HAS_TLB_GUEST) {
++		set_kvm_facility(kvm->arch.model.fac_mask, 147);
++		set_kvm_facility(kvm->arch.model.fac_list, 147);
++	}
+ 
+ 	kvm->arch.model.cpuid = kvm_s390_get_initial_cpuid();
+ 	kvm->arch.model.ibc = sclp.ibc & 0x0fff;
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 8a1dac7..91dc4a8 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -988,6 +988,8 @@ static inline int do_essa(struct kvm_vcpu *vcpu, const int orc)
+ 		if (pgstev & _PGSTE_GPS_ZERO)
+ 			res |= 1;
+ 	}
++	if (pgstev & _PGSTE_GPS_NODAT)
++		res |= 0x20;
+ 	vcpu->run->s.regs.gprs[r1] = res;
+ 	/*
+ 	 * It is possible that all the normal 511 slots were full, in which case
+@@ -1027,7 +1029,9 @@ static int handle_essa(struct kvm_vcpu *vcpu)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 	/* Check for invalid operation request code */
+ 	orc = (vcpu->arch.sie_block->ipb & 0xf0000000) >> 28;
+-	if (orc > ESSA_MAX)
++	/* ORCs 0-6 are always valid */
++	if (orc > (test_kvm_facility(vcpu->kvm, 147) ? ESSA_SET_STABLE_NODAT
++						: ESSA_SET_STABLE_IF_RESIDENT))
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 
+ 	if (likely(!vcpu->kvm->arch.migration_state)) {
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 8d018c7..459716d 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -919,7 +919,7 @@ int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
+ 	case ESSA_GET_STATE:
+ 		break;
+ 	case ESSA_SET_STABLE:
+-		pgstev &= ~_PGSTE_GPS_USAGE_MASK;
++		pgstev &= ~(_PGSTE_GPS_USAGE_MASK | _PGSTE_GPS_NODAT);
+ 		pgstev |= _PGSTE_GPS_USAGE_STABLE;
+ 		break;
+ 	case ESSA_SET_UNUSED:
+@@ -965,6 +965,10 @@ int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
+ 			pgstev |= _PGSTE_GPS_USAGE_STABLE;
+ 		}
+ 		break;
++	case ESSA_SET_STABLE_NODAT:
++		pgstev &= ~_PGSTE_GPS_USAGE_MASK;
++		pgstev |= _PGSTE_GPS_USAGE_STABLE | _PGSTE_GPS_NODAT;
++		break;
+ 	default:
+ 		/* we should never get here! */
+ 		break;
+-- 
+2.7.4
