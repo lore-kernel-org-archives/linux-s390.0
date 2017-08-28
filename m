@@ -1,68 +1,63 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH 05/11] KVM: s390: Support Configuration z/Architecture
  Mode
-Date: Mon, 28 Aug 2017 16:42:44 +0200
-Message-ID: <08772002-59da-6eb7-6478-05946a68eabf@de.ibm.com>
+Date: Mon, 28 Aug 2017 21:27:08 +0200
+Message-ID: <d72ff520-8fac-34d9-e71a-53697a59957c@redhat.com>
 References: <1503907651-65296-1-git-send-email-borntraeger@de.ibm.com>
  <1503907651-65296-2-git-send-email-borntraeger@de.ibm.com>
- <a73ff132-288f-3acc-3b4c-3369145b48cf@redhat.com>
- <c71d559e-a304-c6cd-3bbf-30fb7851d681@de.ibm.com>
- <fc809bdc-1ce3-a08e-b5a8-17989b8caeae@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <fc809bdc-1ce3-a08e-b5a8-17989b8caeae@redhat.com>
+In-Reply-To: <1503907651-65296-2-git-send-email-borntraeger@de.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
-
-On 08/28/2017 04:38 PM, David Hildenbrand wrote:
-> On 28.08.2017 16:24, Christian Borntraeger wrote:
->>
->>
->> On 08/28/2017 04:06 PM, David Hildenbrand wrote:
->>> On 28.08.2017 10:07, Christian Borntraeger wrote:
->>>> From: "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
->>>>
->>>> kvm has always supported the concept of starting in z/Arch mode so let's
->>>> reflect the feature bit to the guest.
->>>>
->>>> Also, we change sigp set architecture to reject any request to change
->>>> architecture modes.
->>>
->>> Hm ... this seems to imply that CZAM is always set, but what about
->>> running on old user space (possibly on old hw)? Old QEMU will not enable
->>> CZAM.
->>
->> 3 cases.
->> 1. very old QEMU without user sigp
->> 2. old QEMU with user sigp/without CPU model
->> 3. new QEMU with user sigp/cpu model
->>
->> I think we agree that cases 2 and 3 should not matter at all for this kernel patch
->> as the sigp is handled by QEMU. 
->>
->>
->>
->> This is case 1:
->>> And especially old user space will rely on SET ARCHITECTURE being
->>> handled in the kernel.
->>
->>
->> Yes, and it continues to be handled in the kernel. It is just that the guest
->> will now see a different sigp return code. Before, our sigp implementation lied
->> to the guest in a way that worked for Linux (we lied by saying "yes, we switched"). 
->> We now say "sorry, we are already in zarch mode, sigp ignored" which also works
->> perfectly fine for Linux. And IMHO it is even the better choice even without 
->> STFLE.138 being set as it matches what an old hardware would do when in zarch mode.
+>  		rc = handle_sigp_dst(vcpu, order_code, cpu_addr,
+> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+> index 025ea20..181db5b 100644
+> --- a/arch/s390/tools/gen_facilities.c
+> +++ b/arch/s390/tools/gen_facilities.c
+> @@ -80,6 +80,7 @@ static struct facility_def facility_defs[] = {
+>  			78, /* enhanced-DAT 2 */
+>  			130, /* instruction-execution-protection */
+>  			131, /* enhanced-SOP 2 and side-effect */
+> +			138, /* configuration z/architecture mode (czam) */
+>  			146, /* msa extension 8 */
+>  			-1  /* END */
+>  		}
 > 
-> Ok, if it worked for relevant Linux versions, than it should indeed be fine.
 
-I checked back to 2006 and Linux never checked the return value for this sigp.
+Thinking about it, this should be the right thing to do instead of the
+last hunk:
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 84c069afc02f..39115f5a38df 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1927,6 +1927,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned
+long type)
+        memcpy(kvm->arch.model.fac_list, kvm->arch.model.fac_mask,
+               S390_ARCH_FAC_LIST_SIZE_BYTE);
+
++       /* we are always in CZAM mode - even on pre z14 machines */
++       set_kvm_facility(kvm->arch.model.fac_mask, 138);
++       set_kvm_facility(kvm->arch.model.fac_list, 138);
++       /* we emulate STHYI in kvm */
+        set_kvm_facility(kvm->arch.model.fac_mask, 74);
+        set_kvm_facility(kvm->arch.model.fac_list, 74);
+        if (MACHINE_HAS_TLB_GUEST) {
+
+That would produce consistent results for very old QEMU.
+
+-- 
+
+Thanks,
+
+David
