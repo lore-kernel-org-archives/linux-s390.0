@@ -1,18 +1,16 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH RFC v3 1/9] KVM: s390: optimize detection of started
- vcpus
-Date: Tue, 29 Aug 2017 14:42:47 +0200
-Message-ID: <20170829144247.5b0644dc.cohuck@redhat.com>
+Subject: Re: [PATCH RFC v3 7/9] KVM: add kvm_free_vcpus and
+ kvm_arch_free_vcpus
+Date: Tue, 29 Aug 2017 15:00:44 +0200
+Message-ID: <20170829150044.554b5288.cohuck@redhat.com>
 References: <20170821203530.9266-1-rkrcmar@redhat.com>
-        <20170821203530.9266-2-rkrcmar@redhat.com>
-        <67a8b09c-3e7a-943d-8684-f9ad6e70514b@redhat.com>
-        <20170829132342.1ef25500.cohuck@redhat.com>
-        <d63ceb80-bdf7-0a24-a4ac-3265b7528a60@redhat.com>
+        <20170821203530.9266-8-rkrcmar@redhat.com>
+        <45e07499-e60c-5289-f439-9c51f59866ec@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d63ceb80-bdf7-0a24-a4ac-3265b7528a60@redhat.com>
+In-Reply-To: <45e07499-e60c-5289-f439-9c51f59866ec@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -20,41 +18,35 @@ To: David Hildenbrand <david@redhat.com>
 Cc: Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-mips@linux-mips.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, Christoffer Dall <cdall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, James Hogan <james.hogan@imgtec.com>, Paul Mackerras <paulus@ozlabs.org>, Alexander Graf <agraf@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 29 Aug 2017 14:05:40 +0200
+On Tue, 22 Aug 2017 16:18:59 +0200
 David Hildenbrand <david@redhat.com> wrote:
 
-> On 29.08.2017 13:23, Cornelia Huck wrote:
-> > On Tue, 22 Aug 2017 13:31:27 +0200
-> > David Hildenbrand <david@redhat.com> wrote:
-> >   
-> >> On 21.08.2017 22:35, Radim Krčmář wrote:  
-> >>> We can add a variable instead of scanning all online VCPUs to know how
-> >>> many are started.  We can't trivially tell which VCPU is the last one,
-> >>> though.    
-> >>
-> >> You could keep the started vcpus in a list. Then you might drop unsigned
-> >> started_vcpus;
-> >>
-> >> No started vcpus: Start pointer NULL
-> >> Single started vcpu: Only one element in the list (easy to check)  
-> >>> 1 started vcpus: More than one element int he list (easy to check)    
-> > 
-> > I'm not sure the added complication of keeping a list buys us much
-> > here: We only have the "look for the last vcpu not stopped" operation
-> > for the 2->1 transition.
-> >   
+> > diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> > index 33a15e176927..0d2d8b0c785c 100644
+> > --- a/virt/kvm/kvm_main.c
+> > +++ b/virt/kvm/kvm_main.c
+> > @@ -750,6 +750,23 @@ static void kvm_destroy_devices(struct kvm *kvm)
+> >  	}
+> >  }
+> >  
+> > +void kvm_free_vcpus(struct kvm *kvm)
+> > +{
+> > +	int i;
+> > +
+> > +	kvm_arch_free_vcpus(kvm);  
 > 
-> That is wrong, we also have to know the last remaining (started) VCPU.
-> For that, right now we have to iterate over all VCPUs.
-
-Yes, but that's only for the 2->1 transition... and all in all that is
-still much better that before.
-
+> I wonder if it would be possible to get rid of kvm_arch_free_vcpus(kvm)
+> completely and simply call
 > 
-> There shouldn't be much complexity. We already perform changes under a
-> lock, so it is as simple as adding/removing from the list.
+> kvm_for_each_vcpu(i, vcpu, kvm)
+> 	kvm_arch_vcpu_free(vcpu);
 > 
-> Detecting the transitions boils down to looking at two pointers.
+> at that point.
+> 
+> Would certainly require some refactoring, and I am not sure if we could
+> modify the special mmu handling for x86 ("Unpin any mmu pages first.").
+> But if in doubt, that part could be moved to kvm_arch_destroy_vm(), just
+> before calling kvm_free_vcpus().
 
-Having a private vcpu list feels a bit wrong... and I don't really see
-much benefit.
+Nod, that crossed my mind as well. Would avoid adding lots of
+kvm_arch_free_vcpus() that do the same thing for many archs.
