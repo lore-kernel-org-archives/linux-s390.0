@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 10/12] KVM: s390: sthyi: remove invalid guest write access
-Date: Wed, 30 Aug 2017 09:54:08 +0200
-Message-ID: <1504079650-82735-4-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 08/12] KVM: s390: Support Configuration z/Architecture Mode
+Date: Wed, 30 Aug 2017 09:54:06 +0200
+Message-ID: <1504079650-82735-2-git-send-email-borntraeger@de.ibm.com>
 References: <1504079650-82735-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1504079650-82735-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,59 +9,96 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
 
-handle_sthyi() always writes to guest memory if the sthyi function
-code is zero in order to fault in the page that later is written to.
+kvm has always supported the concept of starting in z/Arch mode so let's
+reflect the feature bit to the guest.
 
-However a function code of zero does not necessarily mean that a write
-to guest memory happens: if the KVM host is running as a second level
-guest under z/VM 6.2 the sthyi instruction is indicated to be
-available to the KVM host, however if the instruction is executed it
-will always return with a return code that indicates "unsupported
-function code".
+Also, we change sigp set architecture to reject any request to change
+architecture modes.
 
-In such a case handle_sthyi() must not write to guest memory. This
-means that the prior write access to fault in the guest page may
-result in invalid guest exceptions, and/or invalid data modification.
-
-In order to be architecture compliant simply remove the write_guest()
-call.
-
-Given that the guest assumed a write access anyway, this fix does not
-qualify for -stable. This just makes sure the sthyi handler is
-architecture compliant.
-
-Fixes: 95ca2cb57985 ("KVM: s390: Add sthyi emulation")
-Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/sthyi.c | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/s390/kvm/sigp.c             | 36 +++++++++++++++++-------------------
+ arch/s390/tools/gen_facilities.c |  1 +
+ 2 files changed, 18 insertions(+), 19 deletions(-)
 
-diff --git a/arch/s390/kvm/sthyi.c b/arch/s390/kvm/sthyi.c
-index a2e5c24..395926b 100644
---- a/arch/s390/kvm/sthyi.c
-+++ b/arch/s390/kvm/sthyi.c
-@@ -436,14 +436,6 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 	if (addr & ~PAGE_MASK)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index 1a252f5..9d592ef 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -155,29 +155,26 @@ static int __sigp_stop_and_store_status(struct kvm_vcpu *vcpu,
+ 	return rc;
+ }
  
--	/*
--	 * If the page has not yet been faulted in, we want to do that
--	 * now and not after all the expensive calculations.
--	 */
--	r = write_guest(vcpu, addr, reg2, &cc, 1);
--	if (r)
--		return kvm_s390_inject_prog_cond(vcpu, r);
+-static int __sigp_set_arch(struct kvm_vcpu *vcpu, u32 parameter)
++static int __sigp_set_arch(struct kvm_vcpu *vcpu, u32 parameter,
++			   u64 *status_reg)
+ {
+-	int rc;
+ 	unsigned int i;
+ 	struct kvm_vcpu *v;
++	bool all_stopped = true;
+ 
+-	switch (parameter & 0xff) {
+-	case 0:
+-		rc = SIGP_CC_NOT_OPERATIONAL;
+-		break;
+-	case 1:
+-	case 2:
+-		kvm_for_each_vcpu(i, v, vcpu->kvm) {
+-			v->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
+-			kvm_clear_async_pf_completion_queue(v);
+-		}
 -
- 	sctns = (void *)get_zeroed_page(GFP_KERNEL);
- 	if (!sctns)
- 		return -ENOMEM;
+-		rc = SIGP_CC_ORDER_CODE_ACCEPTED;
+-		break;
+-	default:
+-		rc = -EOPNOTSUPP;
++	kvm_for_each_vcpu(i, v, vcpu->kvm) {
++		if (v == vcpu)
++			continue;
++		if (!is_vcpu_stopped(v))
++			all_stopped = false;
+ 	}
+-	return rc;
++
++	*status_reg &= 0xffffffff00000000UL;
++
++	/* Reject set arch order, with czam we're always in z/Arch mode. */
++	*status_reg |= (all_stopped ? SIGP_STATUS_INVALID_PARAMETER :
++					SIGP_STATUS_INCORRECT_STATE);
++	return SIGP_CC_STATUS_STORED;
+ }
+ 
+ static int __sigp_set_prefix(struct kvm_vcpu *vcpu, struct kvm_vcpu *dst_vcpu,
+@@ -446,7 +443,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
+ 	switch (order_code) {
+ 	case SIGP_SET_ARCHITECTURE:
+ 		vcpu->stat.instruction_sigp_arch++;
+-		rc = __sigp_set_arch(vcpu, parameter);
++		rc = __sigp_set_arch(vcpu, parameter,
++				     &vcpu->run->s.regs.gprs[r1]);
+ 		break;
+ 	default:
+ 		rc = handle_sigp_dst(vcpu, order_code, cpu_addr,
+diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+index 025ea20..181db5b 100644
+--- a/arch/s390/tools/gen_facilities.c
++++ b/arch/s390/tools/gen_facilities.c
+@@ -80,6 +80,7 @@ static struct facility_def facility_defs[] = {
+ 			78, /* enhanced-DAT 2 */
+ 			130, /* instruction-execution-protection */
+ 			131, /* enhanced-SOP 2 and side-effect */
++			138, /* configuration z/architecture mode (czam) */
+ 			146, /* msa extension 8 */
+ 			-1  /* END */
+ 		}
 -- 
 2.7.4
