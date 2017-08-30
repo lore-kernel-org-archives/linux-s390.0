@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 12/12] KVM: s390: we are always in czam mode
-Date: Wed, 30 Aug 2017 09:54:10 +0200
-Message-ID: <1504079650-82735-6-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 10/12] KVM: s390: sthyi: remove invalid guest write access
+Date: Wed, 30 Aug 2017 09:54:08 +0200
+Message-ID: <1504079650-82735-4-git-send-email-borntraeger@de.ibm.com>
 References: <1504079650-82735-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1504079650-82735-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,52 +9,59 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <david@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <david@redhat.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Independent of the underlying hardware, kvm will now always handle
-SIGP SET ARCHITECTURE as if czam were enabled. Therefore, let's not
-only forward that bit but always set it.
+handle_sthyi() always writes to guest memory if the sthyi function
+code is zero in order to fault in the page that later is written to.
 
-While at it, add a comment regarding STHYI.
+However a function code of zero does not necessarily mean that a write
+to guest memory happens: if the KVM host is running as a second level
+guest under z/VM 6.2 the sthyi instruction is indicated to be
+available to the KVM host, however if the instruction is executed it
+will always return with a return code that indicates "unsupported
+function code".
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20170829143108.14703-1-david@redhat.com>
+In such a case handle_sthyi() must not write to guest memory. This
+means that the prior write access to fault in the guest page may
+result in invalid guest exceptions, and/or invalid data modification.
+
+In order to be architecture compliant simply remove the write_guest()
+call.
+
+Given that the guest assumed a write access anyway, this fix does not
+qualify for -stable. This just makes sure the sthyi handler is
+architecture compliant.
+
+Fixes: 95ca2cb57985 ("KVM: s390: Add sthyi emulation")
+Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c         | 4 ++++
- arch/s390/tools/gen_facilities.c | 1 -
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ arch/s390/kvm/sthyi.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 84c069a..39115f5 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1927,6 +1927,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	memcpy(kvm->arch.model.fac_list, kvm->arch.model.fac_mask,
- 	       S390_ARCH_FAC_LIST_SIZE_BYTE);
+diff --git a/arch/s390/kvm/sthyi.c b/arch/s390/kvm/sthyi.c
+index a2e5c24..395926b 100644
+--- a/arch/s390/kvm/sthyi.c
++++ b/arch/s390/kvm/sthyi.c
+@@ -436,14 +436,6 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
+ 	if (addr & ~PAGE_MASK)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
  
-+	/* we are always in czam mode - even on pre z14 machines */
-+	set_kvm_facility(kvm->arch.model.fac_mask, 138);
-+	set_kvm_facility(kvm->arch.model.fac_list, 138);
-+	/* we emulate STHYI in kvm */
- 	set_kvm_facility(kvm->arch.model.fac_mask, 74);
- 	set_kvm_facility(kvm->arch.model.fac_list, 74);
- 	if (MACHINE_HAS_TLB_GUEST) {
-diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
-index 601bfcf..19f12ce 100644
---- a/arch/s390/tools/gen_facilities.c
-+++ b/arch/s390/tools/gen_facilities.c
-@@ -80,7 +80,6 @@ static struct facility_def facility_defs[] = {
- 			78, /* enhanced-DAT 2 */
- 			130, /* instruction-execution-protection */
- 			131, /* enhanced-SOP 2 and side-effect */
--			138, /* configuration z/architecture mode (czam) */
- 			139, /* multiple epoch facility */
- 			146, /* msa extension 8 */
- 			-1  /* END */
+-	/*
+-	 * If the page has not yet been faulted in, we want to do that
+-	 * now and not after all the expensive calculations.
+-	 */
+-	r = write_guest(vcpu, addr, reg2, &cc, 1);
+-	if (r)
+-		return kvm_s390_inject_prog_cond(vcpu, r);
+-
+ 	sctns = (void *)get_zeroed_page(GFP_KERNEL);
+ 	if (!sctns)
+ 		return -ENOMEM;
 -- 
 2.7.4
