@@ -1,132 +1,94 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/1] s390/mm: avoid empty zero pages for KVM guests to avoid postcopy hangs
-Date: Mon, 28 Aug 2017 10:28:07 +0200
-Message-ID: <1503908887-67060-2-git-send-email-borntraeger@de.ibm.com>
-References: <1503908887-67060-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 00/12] KVM: s390: Fixes and features for 4.14 (kvm/next)
+Date: Wed, 30 Aug 2017 09:54:05 +0200
+Message-ID: <1504079650-82735-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1503908887-67060-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: "Dr . David Alan Gilbert" <dgilbert@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>
-Cc: qemu-devel <qemu-devel@nongnu.org>, linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Juan Quintela <quintela@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Right now there is a potential hang situation for postcopy migrations,
-if the guest is enabling storage keys on the target system during the
-postcopy process.
+Paolo, Radim,
 
-For storage key virtualization, we have to forbid the empty zero page as
-the storage key is a property of the physical page frame.  As we enable
-storage key handling lazily we then drop all mappings for empty zero
-pages for lazy refaulting later on.
+two merges and 5 patches for kvm/next targetting 4.14.
+Pathes 1-7 are patches from other trees (kvmmaster and s390) and not posted
+here
+Patches 8-12 are new patches for 4.14
 
-This does not work with the postcopy migration, which relies on the
-empty zero page never triggering a fault again in the future. The reason
-is that postcopy migration will simply read a page on the target system
-if that page is a known zero page to fault in an empty zero page.  At
-the same time postcopy remembers that this page was already transferred
-- so any future userfault on that page will be NOT retransmitted again
-to avoid races.
+The following changes since commit 520eccdfe187591a51ea9ab4c1a024ae4d0f68d9:
 
-If now the guest enters the storage key mode while in postcopy, we will
-break this assumption of postcopy.
+  Linux 4.13-rc2 (2017-07-23 16:15:17 -0700)
 
-The solution is to disable the empty zero page for KVM guests early on
-and not during storage key enablement. With this change, the postcopy
-migration process is guaranteed to start after no zero pages are left.
+are available in the git repository at:
 
-As guest pages are very likely not empty zero pages anyway the memory
-overhead is also pretty small.
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.14-1
 
-While at it this also adds proper page table locking to the zero page
-removal.
+for you to fetch changes up to 1935222dc2f22ea885e7a7ece6d1be586aafe4a1:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: stable@vger.kernel.org
----
- arch/s390/include/asm/pgtable.h |  2 +-
- arch/s390/mm/gmap.c             | 41 ++++++++++++++++++++++++++++++++++-------
- 2 files changed, 35 insertions(+), 8 deletions(-)
+  KVM: s390: we are always in czam mode (2017-08-29 16:50:20 +0200)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index bb59a0a..9d7f62a 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -506,7 +506,7 @@ static inline int mm_alloc_pgste(struct mm_struct *mm)
-  * In the case that a guest uses storage keys
-  * faults should no longer be backed by zero pages
-  */
--#define mm_forbids_zeropage mm_use_skey
-+#define mm_forbids_zeropage mm_has_pgste
- static inline int mm_use_skey(struct mm_struct *mm)
- {
- #ifdef CONFIG_PGSTE
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 4fb3d3c..ae8bd57 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2121,6 +2121,39 @@ static inline void thp_split_mm(struct mm_struct *mm)
- }
- 
- /*
-+ * Remove all empty zero pages from the mapping for lazy refaulting
-+ * - This must be called after mm->context.has_pgste is set, to avoid
-+ *   future creation of zero pages
-+ * - This must be called after THP was enabled
-+ */
-+static int __zap_zero_pages(pmd_t *pmd, unsigned long start,
-+			   unsigned long end, struct mm_walk *walk)
-+{
-+	unsigned long addr;
-+
-+	for (addr = start; addr != end; addr += PAGE_SIZE) {
-+		pte_t *ptep;
-+		spinlock_t *ptl;
-+
-+		ptep = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
-+		if (is_zero_pfn(pte_pfn(*ptep)))
-+			ptep_xchg_direct(walk->mm, addr, ptep, __pte(_PAGE_INVALID));
-+		pte_unmap_unlock(ptep, ptl);
-+	}
-+
-+	return 0;
-+
-+}
-+
-+static inline void zap_zero_pages(struct mm_struct *mm)
-+{
-+	struct mm_walk walk = { .pmd_entry = __zap_zero_pages };
-+
-+	walk.mm = mm;
-+	walk_page_range(0, TASK_SIZE, &walk);
-+}
-+
-+/*
-  * switch on pgstes for its userspace process (for kvm)
-  */
- int s390_enable_sie(void)
-@@ -2137,6 +2170,7 @@ int s390_enable_sie(void)
- 	mm->context.has_pgste = 1;
- 	/* split thp mappings and disable thp for future mappings */
- 	thp_split_mm(mm);
-+	zap_zero_pages(mm);
- 	up_write(&mm->mmap_sem);
- 	return 0;
- }
-@@ -2149,13 +2183,6 @@ EXPORT_SYMBOL_GPL(s390_enable_sie);
- static int __s390_enable_skey(pte_t *pte, unsigned long addr,
- 			      unsigned long next, struct mm_walk *walk)
- {
--	/*
--	 * Remove all zero page mappings,
--	 * after establishing a policy to forbid zero page mappings
--	 * following faults for that page will get fresh anonymous pages
--	 */
--	if (is_zero_pfn(pte_pfn(*pte)))
--		ptep_xchg_direct(walk->mm, addr, pte, __pte(_PAGE_INVALID));
- 	/* Clear storage key */
- 	ptep_zap_key(walk->mm, addr, pte);
- 	return 0;
--- 
-2.7.4
+----------------------------------------------------------------
+KVM: s390: Fixes and features for 4.14
+
+- merge of topic branch tlb-flushing from the s390 tree to get the
+  no-dat base features
+- merge of kvm/master to avoid conflicts with additional sthyi fixes
+- wire up the no-dat enhancements in KVM
+- multiple epoch facility (z14 feature)
+- Configuration z/Architecture Mode
+- more sthyi fixes
+----------------------------------------------------------------
+Christian Borntraeger (3):
+(x)    Merge branch 'tlb-flushing' of git://git.kernel.org/.../s390/linux  into kernelorgnext
+(mstr) KVM: s390: take srcu lock when getting/setting storage keys
+(x)    Merge tag 'kvm-s390-master-4.13-2' into kvms390/next
+
+Claudio Imbrenda (1):
+(x)    KVM: s390: expose no-DAT to guest and migration support
+
+Collin L. Walling (1):
+(x)    KVM: s390: Multiple Epoch Facility support
+
+David Hildenbrand (1):
+(x)    KVM: s390: we are always in czam mode
+
+Heiko Carstens (3):
+(mstr) KVM: s390: sthyi: fix sthyi inline assembly
+(mstr) KVM: s390: sthyi: fix specification exception detection
+(x)    KVM: s390: sthyi: remove invalid guest write access
+
+Jason J. Herne (1):
+(x)    KVM: s390: Support Configuration z/Architecture Mode
+
+Martin Schwidefsky (4):
+(s390) s390/mm: tag normal pages vs pages used in page tables
+(s390) s390/mm: add no-dat TLB flush optimization
+(s390) s390/mm: add guest ASCE TLB flush optimization
+(s390) s390/mm,kvm: use nodat PGSTE tag to optimize TLB flushing
+
+ Documentation/virtual/kvm/devices/vm.txt |  14 ++-
+ arch/s390/include/asm/kvm_host.h         |   6 +-
+ arch/s390/include/asm/page-states.h      |   3 +-
+ arch/s390/include/asm/page.h             |   3 +
+ arch/s390/include/asm/pgtable.h          |  88 ++++++++++----
+ arch/s390/include/asm/setup.h            |   9 +-
+ arch/s390/include/asm/tlbflush.h         |   7 +-
+ arch/s390/include/uapi/asm/kvm.h         |   6 +
+ arch/s390/kernel/suspend.c               |  22 +++-
+ arch/s390/kernel/vdso.c                  |   2 +
+ arch/s390/kvm/kvm-s390.c                 | 121 ++++++++++++++++++-
+ arch/s390/kvm/kvm-s390.h                 |   2 +
+ arch/s390/kvm/priv.c                     |   6 +-
+ arch/s390/kvm/sigp.c                     |  36 +++---
+ arch/s390/kvm/sthyi.c                    |  13 +-
+ arch/s390/kvm/vsie.c                     |  10 ++
+ arch/s390/mm/init.c                      |   2 +
+ arch/s390/mm/page-states.c               | 196 ++++++++++++++++++++++++++++---
+ arch/s390/mm/pageattr.c                  |   2 +-
+ arch/s390/mm/pgalloc.c                   |   2 +
+ arch/s390/mm/pgtable.c                   | 160 +++++++++++++++++++------
+ arch/s390/tools/gen_facilities.c         |   1 +
+ drivers/s390/char/sclp_early.c           |   6 +-
+ 23 files changed, 598 insertions(+), 119 deletions(-)
