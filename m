@@ -1,83 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 21/31] s390/char/sclp: Use separate static data field with with static timer
-Date: Thu, 31 Aug 2017 16:29:33 -0700
-Message-Id: <1504222183-61202-22-git-send-email-keescook@chromium.org>
-In-Reply-To: <1504222183-61202-1-git-send-email-keescook@chromium.org>
-References: <1504222183-61202-1-git-send-email-keescook@chromium.org>
+From: Dou Liyang <douly.fnst@cn.fujitsu.com>
+Subject: [PATCH v2 3/7] s390/topology: Remove the unused parent_node() macro
+Date: Fri, 1 Sep 2017 10:56:35 +0800
+Message-ID: <1504234599-29533-4-git-send-email-douly.fnst@cn.fujitsu.com>
+In-Reply-To: <1504234599-29533-1-git-send-email-douly.fnst@cn.fujitsu.com>
+References: <1504234599-29533-1-git-send-email-douly.fnst@cn.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: akpm@linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: Dou Liyang <douly.fnst@cn.fujitsu.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In preparation for changing the timer callback argument to the timer
-pointer, move to a separate static data variable.
+Commit a7be6e5a7f8d ("mm: drop useless local parameters of
+__register_one_node()") removes the last user of parent_node().
 
+The parent_node() macro in S390 platform is unnecessary.
+
+Remove it for cleanup.
+
+Reported-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Dou Liyang <douly.fnst@cn.fujitsu.com>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Cc: linux-s390@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/s390/char/sclp.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/topology.h | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/s390/char/sclp.c b/drivers/s390/char/sclp.c
-index d0157067a80a..40794f9f1598 100644
---- a/drivers/s390/char/sclp.c
-+++ b/drivers/s390/char/sclp.c
-@@ -90,6 +90,7 @@ static struct sclp_req sclp_suspend_req;
- 
- /* Timer for request retries. */
- static struct timer_list sclp_request_timer;
-+static unsigned long sclp_request_timer_data;
- 
- /* Timer for queued requests. */
- static struct timer_list sclp_queue_timer;
-@@ -158,7 +159,7 @@ __sclp_set_request_timer(unsigned long time, void (*function)(unsigned long),
- {
- 	del_timer(&sclp_request_timer);
- 	sclp_request_timer.function = function;
--	sclp_request_timer.data = data;
-+	sclp_request_timer_data = data;
- 	sclp_request_timer.expires = jiffies + time;
- 	add_timer(&sclp_request_timer);
+diff --git a/arch/s390/include/asm/topology.h b/arch/s390/include/asm/topology.h
+index fa1bfce..5222da1 100644
+--- a/arch/s390/include/asm/topology.h
++++ b/arch/s390/include/asm/topology.h
+@@ -77,12 +77,6 @@ static inline const struct cpumask *cpumask_of_node(int node)
+ 	return &node_to_cpumask_map[node];
  }
-@@ -166,12 +167,12 @@ __sclp_set_request_timer(unsigned long time, void (*function)(unsigned long),
- /* Request timeout handler. Restart the request queue. If DATA is non-zero,
-  * force restart of running request. */
- static void
--sclp_request_timeout(unsigned long data)
-+sclp_request_timeout(unsigned long unused)
- {
- 	unsigned long flags;
  
- 	spin_lock_irqsave(&sclp_lock, flags);
--	if (data) {
-+	if (sclp_request_timer_data) {
- 		if (sclp_running_state == sclp_running_state_running) {
- 			/* Break running state and queue NOP read event request
- 			 * to get a defined interface state. */
-@@ -557,7 +558,7 @@ sclp_sync_wait(void)
- 		if (timer_pending(&sclp_request_timer) &&
- 		    get_tod_clock_fast() > timeout &&
- 		    del_timer(&sclp_request_timer))
--			sclp_request_timer.function(sclp_request_timer.data);
-+			sclp_request_timer.function(0);
- 		cpu_relax();
- 	}
- 	local_irq_disable();
-@@ -914,7 +915,7 @@ static void sclp_check_handler(struct ext_code ext_code,
+-/*
+- * Returns the number of the node containing node 'node'. This
+- * architecture is flat, so it is a pretty simple function!
+- */
+-#define parent_node(node) (node)
+-
+ #define pcibus_to_node(bus) __pcibus_to_node(bus)
  
- /* Initial init mask request timed out. Modify request state to failed. */
- static void
--sclp_check_timeout(unsigned long data)
-+sclp_check_timeout(unsigned long unused)
- {
- 	unsigned long flags;
- 
+ #define node_distance(a, b) __node_distance(a, b)
 -- 
-2.7.4
+2.5.5
