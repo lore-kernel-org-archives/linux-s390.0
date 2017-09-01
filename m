@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/3] KVM: s390: use WARN_ON_ONCE only for checking
-Date: Fri,  1 Sep 2017 09:46:47 +0200
-Message-ID: <1504252008-102471-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/3] KVM: s390: guestdbg: fix range check
+Date: Fri,  1 Sep 2017 09:46:46 +0200
+Message-ID: <1504252008-102471-2-git-send-email-borntraeger@de.ibm.com>
 References: <1504252008-102471-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1504252008-102471-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,44 +14,33 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <david@redhat.com>
 
-Move the real logic that always has to be executed out of the
-WARN_ON_ONCE.
+Looks like the "overflowing" range check is wrong.
+
+|=======b-------a=======|
+
+addr >= a || addr <= b
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20170830160603.5452-3-david@redhat.com>
+Message-Id: <20170830160603.5452-2-david@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/s390/kvm/guestdbg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index a619dda..a832ad0 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2479,6 +2479,7 @@ void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
- 	struct kvm_s390_mchk_info *mchk;
- 	union mci mci;
- 	__u64 cr14 = 0;         /* upper bits are not used */
-+	int rc;
- 
- 	mci.val = mcck_info->mcic;
- 	if (mci.sr)
-@@ -2496,12 +2497,13 @@ void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
- 	if (mci.ck) {
- 		/* Inject the floating machine check */
- 		inti.type = KVM_S390_MCHK;
--		WARN_ON_ONCE(__inject_vm(vcpu->kvm, &inti));
-+		rc = __inject_vm(vcpu->kvm, &inti);
- 	} else {
- 		/* Inject the machine check to specified vcpu */
- 		irq.type = KVM_S390_MCHK;
--		WARN_ON_ONCE(kvm_s390_inject_vcpu(vcpu, &irq));
-+		rc = kvm_s390_inject_vcpu(vcpu, &irq);
- 	}
-+	WARN_ON_ONCE(rc);
+diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+index c2e0ddc..bcbd866 100644
+--- a/arch/s390/kvm/guestdbg.c
++++ b/arch/s390/kvm/guestdbg.c
+@@ -308,7 +308,7 @@ static inline int in_addr_range(u64 addr, u64 a, u64 b)
+ 		return (addr >= a) && (addr <= b);
+ 	else
+ 		/* "overflowing" interval */
+-		return (addr <= a) && (addr >= b);
++		return (addr >= a) || (addr <= b);
  }
  
- int kvm_set_routing_entry(struct kvm *kvm,
+ #define end_of_range(bp_info) (bp_info->addr + bp_info->len - 1)
 -- 
 2.7.4
