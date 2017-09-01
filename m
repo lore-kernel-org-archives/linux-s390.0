@@ -1,72 +1,53 @@
-From: Dou Liyang <douly.fnst@cn.fujitsu.com>
-Subject: [PATCH v2 0/7] Remove the parent_node() for each arch
-Date: Fri, 1 Sep 2017 10:56:32 +0800
-Message-ID: <1504234599-29533-1-git-send-email-douly.fnst@cn.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: akpm@linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: Dou Liyang <douly.fnst@cn.fujitsu.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, James Hogan <james.hogan@imgtec.com>, linux-mips@linux-mips.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@mellanox.com>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/3] KVM: s390: vsie: cleanup mcck reinjection
+Date: Fri,  1 Sep 2017 09:46:48 +0200
+Message-ID: <1504252008-102471-4-git-send-email-borntraeger@de.ibm.com>
+References: <1504252008-102471-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1504252008-102471-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Changelog:
+From: David Hildenbrand <david@redhat.com>
 
-v1 --> v2:
-   --Remove the patches which have been add to each arch tree individually.
-      [01/11] arm64   ...Has been added to arm64 tree, Queued for 4.14
-      [03/11] metag   ...Has been added to the -mm tree
-      [05/11] powerpc ...Has been added to the powerpc tree
-      [10/11] x86     ...Has been added to the tip sched/core
+The machine check information is part of the vsie_page.
 
-   --Rebase the remaining patches and repost.
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20170830160603.5452-4-david@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/vsie.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-Michael reports the parent_node() will never be invoked since the
-Commit a7be6e5a7f8d ("mm: drop useless local parameters of
-__register_one_node()") removes the last user of it. 
-
-So we start removing it from the topology.h headers for each arch.
-
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: linux-ia64@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <james.hogan@imgtec.com>
-Cc: linux-mips@linux-mips.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: linux-sh@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: sparclinux@vger.kernel.org
-Cc: Chris Metcalf <cmetcalf@mellanox.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arch@vger.kernel.org
-Cc: akpm@linux-foundation.org
-
-Dou Liyang (7):
-  ia64: topology: Remove the unused parent_node() macro
-  MIPS: numa: Remove the unused parent_node() macro
-  s390/topology: Remove the unused parent_node() macro
-  sh/numa: Remove the unused parent_node() macro
-  sparc64/topology: Remove the unused parent_node() macro
-  tile/topology: Remove the unused parent_node() macro
-  asm-generic: numa: Remove the unused parent_node() macro
-
- arch/ia64/include/asm/topology.h                 | 7 -------
- arch/mips/include/asm/mach-ip27/topology.h       | 1 -
- arch/mips/include/asm/mach-loongson64/topology.h | 1 -
- arch/s390/include/asm/topology.h                 | 6 ------
- arch/sh/include/asm/topology.h                   | 1 -
- arch/sparc/include/asm/topology_64.h             | 2 --
- arch/tile/include/asm/topology.h                 | 6 ------
- include/asm-generic/topology.h                   | 3 ---
- 8 files changed, 27 deletions(-)
-
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index d471910..fbe46dd 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -809,8 +809,6 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ {
+ 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+ 	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
+-	struct mcck_volatile_info *mcck_info;
+-	struct sie_page *sie_page;
+ 	int rc;
+ 
+ 	handle_last_fault(vcpu, vsie_page);
+@@ -834,9 +832,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 
+ 	if (rc == -EINTR) {
+ 		VCPU_EVENT(vcpu, 3, "%s", "machine check");
+-		sie_page = container_of(scb_s, struct sie_page, sie_block);
+-		mcck_info = &sie_page->mcck_info;
+-		kvm_s390_reinject_machine_check(vcpu, mcck_info);
++		kvm_s390_reinject_machine_check(vcpu, &vsie_page->mcck_info);
+ 		return 0;
+ 	}
+ 
 -- 
-2.5.5
+2.7.4
