@@ -1,26 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 15 Sep 2017 15:16:07 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] samples/kprobes: Add s390 case in kprobe example module
-References: <20170914121115.13748-1-jthumshirn@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170914121115.13748-1-jthumshirn@suse.de>
-Message-Id: <20170915131607.GC3576@osiris>
+From: Johannes Thumshirn <jthumshirn@suse.de>
+Subject: [PATCH] samples/kprobes: Add s390 case in kprobe example module
+Date: Thu, 14 Sep 2017 14:11:15 +0200
+Message-Id: <20170914121115.13748-1-jthumshirn@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Johannes Thumshirn <jthumshirn@suse.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, Johannes Thumshirn <jthumshirn@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Sep 14, 2017 at 02:11:15PM +0200, Johannes Thumshirn wrote:
-> Add info prints in sample kprobe handlers for S/390
-> 
-> Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
-> ---
->  samples/kprobes/kprobe_example.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
+Add info prints in sample kprobe handlers for S/390
 
-Applied, thanks!
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+---
+ samples/kprobes/kprobe_example.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/samples/kprobes/kprobe_example.c b/samples/kprobes/kprobe_example.c
+index 88b3e2d227ae..67de3b774bc9 100644
+--- a/samples/kprobes/kprobe_example.c
++++ b/samples/kprobes/kprobe_example.c
+@@ -47,6 +47,10 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
+ 			" pstate = 0x%lx\n",
+ 		p->symbol_name, p->addr, (long)regs->pc, (long)regs->pstate);
+ #endif
++#ifdef CONFIG_S390
++	pr_info("<%s> pre_handler: p->addr, 0x%p, ip = 0x%lx, flags = 0x%lx\n",
++		p->symbol_name, p->addr, regs->psw.addr, regs->flags);
++#endif
+ 
+ 	/* A dump_stack() here will give a stack backtrace */
+ 	return 0;
+@@ -76,6 +80,10 @@ static void handler_post(struct kprobe *p, struct pt_regs *regs,
+ 	pr_info("<%s> post_handler: p->addr = 0x%p, pstate = 0x%lx\n",
+ 		p->symbol_name, p->addr, (long)regs->pstate);
+ #endif
++#ifdef CONFIG_S390
++	pr_info("<%s> pre_handler: p->addr, 0x%p, flags = 0x%lx\n",
++		p->symbol_name, p->addr, regs->flags);
++#endif
+ }
+ 
+ /*
+-- 
+2.13.5
