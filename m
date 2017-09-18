@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 6/9] s390/qeth: simplify L3 sysfs group management
-Date: Mon, 18 Sep 2017 21:18:19 +0200
-Message-ID: <20170918191822.65142-7-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 9/9] s390/qeth: tidy up parameter naming for qeth_do_send_packet()
+Date: Mon, 18 Sep 2017 21:18:22 +0200
+Message-ID: <20170918191822.65142-10-jwi@linux.vnet.ibm.com>
 References: <20170918191822.65142-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170918191822.65142-1-jwi@linux.vnet.ibm.com>
@@ -12,83 +12,37 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Use the right helpers to create/remove all attribute groups in one go.
+From: Jens Remus <jremus@linux.vnet.ibm.com>
 
-Suggested-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
+Cppcheck reports the following for drivers/s390/net/qeth_core.h:
+
+    warning - line 1560 - Function 'qeth_do_send_packet' argument order
+    different:
+    declaration 'card, queue, skb, hdr, hd_len, offset, elements'
+    definition  'card, queue, skb, hdr, offset, hd_len, elements_needed'.
+
+Match the naming in the function's declaration against its definition.
+
+Signed-off-by: Jens Remus <jremus@linux.vnet.ibm.com>
+Reviewed-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l3_sys.c | 45 +++++++++++-------------------------------
- 1 file changed, 12 insertions(+), 33 deletions(-)
+ drivers/s390/net/qeth_core.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index e8bcc314cc5f..0ad0f7f4b23f 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -1028,52 +1028,31 @@ static const struct attribute_group qeth_device_rxip_group = {
- 	.attrs = qeth_rxip_device_attrs,
- };
- 
-+static const struct attribute_group *qeth_l3_only_attr_groups[] = {
-+	&qeth_l3_device_attr_group,
-+	&qeth_device_ipato_group,
-+	&qeth_device_vipa_group,
-+	&qeth_device_rxip_group,
-+	NULL,
-+};
-+
- int qeth_l3_create_device_attributes(struct device *dev)
- {
--	int ret;
--
--	ret = sysfs_create_group(&dev->kobj, &qeth_l3_device_attr_group);
--	if (ret)
--		return ret;
--
--	ret = sysfs_create_group(&dev->kobj, &qeth_device_ipato_group);
--	if (ret) {
--		sysfs_remove_group(&dev->kobj, &qeth_l3_device_attr_group);
--		return ret;
--	}
--
--	ret = sysfs_create_group(&dev->kobj, &qeth_device_vipa_group);
--	if (ret) {
--		sysfs_remove_group(&dev->kobj, &qeth_l3_device_attr_group);
--		sysfs_remove_group(&dev->kobj, &qeth_device_ipato_group);
--		return ret;
--	}
--
--	ret = sysfs_create_group(&dev->kobj, &qeth_device_rxip_group);
--	if (ret) {
--		sysfs_remove_group(&dev->kobj, &qeth_l3_device_attr_group);
--		sysfs_remove_group(&dev->kobj, &qeth_device_ipato_group);
--		sysfs_remove_group(&dev->kobj, &qeth_device_vipa_group);
--		return ret;
--	}
--	return 0;
-+	return sysfs_create_groups(&dev->kobj, qeth_l3_only_attr_groups);
- }
- 
- void qeth_l3_remove_device_attributes(struct device *dev)
- {
--	sysfs_remove_group(&dev->kobj, &qeth_l3_device_attr_group);
--	sysfs_remove_group(&dev->kobj, &qeth_device_ipato_group);
--	sysfs_remove_group(&dev->kobj, &qeth_device_vipa_group);
--	sysfs_remove_group(&dev->kobj, &qeth_device_rxip_group);
-+	sysfs_remove_groups(&dev->kobj, qeth_l3_only_attr_groups);
- }
- 
- const struct attribute_group *qeth_l3_attr_groups[] = {
- 	&qeth_device_attr_group,
- 	&qeth_device_blkt_group,
--	/* l3 specific, see l3_{create,remove}_device_attributes(): */
-+	/* l3 specific, see qeth_l3_only_attr_groups: */
- 	&qeth_l3_device_attr_group,
- 	&qeth_device_ipato_group,
- 	&qeth_device_vipa_group,
- 	&qeth_device_rxip_group,
--NULL,
-+	NULL,
- };
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index b7e8531625aa..91fcadbede80 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -967,7 +967,8 @@ int qeth_do_send_packet_fast(struct qeth_qdio_out_q *queue, struct sk_buff *skb,
+ 			     unsigned int hd_len);
+ int qeth_do_send_packet(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+ 			struct sk_buff *skb, struct qeth_hdr *hdr,
+-			unsigned int hd_len, unsigned int offset, int elements);
++			unsigned int offset, unsigned int hd_len,
++			int elements_needed);
+ int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+ int qeth_core_get_sset_count(struct net_device *, int);
+ void qeth_core_get_ethtool_stats(struct net_device *,
 -- 
 2.13.5
