@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Johannes Thumshirn <jthumshirn@suse.de>
-Subject: [PATCH] samples/kprobes: Add s390 case in kprobe example module
-Date: Thu, 14 Sep 2017 14:11:15 +0200
-Message-Id: <20170914121115.13748-1-jthumshirn@suse.de>
+Date: Mon, 18 Sep 2017 16:22:40 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH v2] s390/char: Fix cdev_add usage
+References: <20170918111313.1fc7126e@endymion>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170918111313.1fc7126e@endymion>
+Message-Id: <20170918142240.GF4649@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, Johannes Thumshirn <jthumshirn@suse.de>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add info prints in sample kprobe handlers for S/390
+On Mon, Sep 18, 2017 at 11:13:13AM +0200, Jean Delvare wrote:
+> Function cdev_add does set cdev->dev, so there is no point in setting
+> it prior to calling this function.
+> 
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+> Untested. Changes since v1 (2016-07-13):
+>  * Improved description
+>  * Added a few blank lines to make the code more readable
+> 
+>  drivers/s390/char/tape_class.c |    3 +--
+>  drivers/s390/char/vmlogrdr.c   |    4 ++--
+>  drivers/s390/char/vmur.c       |    4 ++--
+>  3 files changed, 5 insertions(+), 6 deletions(-)
 
-Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
----
- samples/kprobes/kprobe_example.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/samples/kprobes/kprobe_example.c b/samples/kprobes/kprobe_example.c
-index 88b3e2d227ae..67de3b774bc9 100644
---- a/samples/kprobes/kprobe_example.c
-+++ b/samples/kprobes/kprobe_example.c
-@@ -47,6 +47,10 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
- 			" pstate = 0x%lx\n",
- 		p->symbol_name, p->addr, (long)regs->pc, (long)regs->pstate);
- #endif
-+#ifdef CONFIG_S390
-+	pr_info("<%s> pre_handler: p->addr, 0x%p, ip = 0x%lx, flags = 0x%lx\n",
-+		p->symbol_name, p->addr, regs->psw.addr, regs->flags);
-+#endif
- 
- 	/* A dump_stack() here will give a stack backtrace */
- 	return 0;
-@@ -76,6 +80,10 @@ static void handler_post(struct kprobe *p, struct pt_regs *regs,
- 	pr_info("<%s> post_handler: p->addr = 0x%p, pstate = 0x%lx\n",
- 		p->symbol_name, p->addr, (long)regs->pstate);
- #endif
-+#ifdef CONFIG_S390
-+	pr_info("<%s> pre_handler: p->addr, 0x%p, flags = 0x%lx\n",
-+		p->symbol_name, p->addr, regs->flags);
-+#endif
- }
- 
- /*
--- 
-2.13.5
+Applied, however without the extra blank lines ;)
+Thanks!
