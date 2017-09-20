@@ -1,67 +1,75 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 10/10] net/smc: no close wait in case of process shut down
-Date: Wed, 20 Sep 2017 13:58:13 +0200
-Message-ID: <20170920115813.63745-11-ubraun@linux.vnet.ibm.com>
-References: <20170920115813.63745-1-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170920115813.63745-1-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-rdma/>
-List-Post: <mailto:linux-rdma@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+Return-Path: <stable-owner@vger.kernel.org>
+Date: Wed, 20 Sep 2017 23:54:33 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] s390: Fix perf event init
+Message-ID: <20170920205433.GA1955@avx2>
+References: <20170920050757.22857-1-paul.burton@imgtec.com>
+ <20170920085100.6adb0e0d@mschwideX1>
+ <20170920121517.GE3583@osiris>
+ <2025443.x60lSU25Yf@np-p-burton>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2025443.x60lSU25Yf@np-p-burton>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/stable/>
+List-Post: <mailto:stable@vger.kernel.org>
+To: Paul Burton <paul.burton@imgtec.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, stable <stable@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Usually socket closing is delayed if there is still data available in
-the send buffer to be transmitted. If a process is killed, the delay
-should be avoided.
+On Wed, Sep 20, 2017 at 09:04:38AM -0700, Paul Burton wrote:
+> Hi Heiko,
+> 
+> On Wednesday, 20 September 2017 05:15:17 PDT Heiko Carstens wrote:
+> > On Wed, Sep 20, 2017 at 08:51:00AM +0200, Martin Schwidefsky wrote:
+> > > Hi Paul,
+> > > 
+> > > On Tue, 19 Sep 2017 22:07:57 -0700
+> > > 
+> > > Paul Burton <paul.burton@imgtec.com> wrote:
+> > > > Commit c311c797998c ("cpumask: make "nr_cpumask_bits" unsigned")
+> > > > modified cpumsf_pmu_event_init() to cast the struct perf_event cpu field
+> > > > to an unsigned integer before it is compared with nr_cpumask_bits. This
+> > > > is broken because the cpu field may be -1 for events which follow a
+> > > > process rather than being affine to a particular CPU. When this is the
+> > > > case the cast to an unsigned int results in a value equal to ULONG_MAX,
+> > > > which is always greater than nr_cpumask_bits so we always fail
+> > > > cpumsf_pmu_event_init() and return -ENODEV.
+> > > > 
+> > > > The check against nr_cpumask_bits seems nonsensical anyway, so this
+> > > > patch simply removes it. The cpu field is going to either be 0 or a
+> > 
+> > I assume you meant to write "...either be -1..."?
+> 
+> Indeed I did... and I wrote -1 in the MIPS patch which I then copied this 
+> from, so I'm not sure how it became 0. Oops!
+> 
+> > > > valid CPU number. Comparing it with nr_cpumask_bits is effectively
+> > > > checking that it's a valid cpu number, but it seems safe to rely on the
+> > > > core perf events code to ensure that's the case.
+> > 
+> > Looks like you are right and the nr_cpumask_bits check is not needed. The
+> > sanity check is done at the beginning of perf_event_alloc() and everything
+> > else can rely on a sane cpu number (-1 or within bounds of nr_cpumask_bits).
+> > > Thanks for the patch, there is indeed an issue with nr_cpumask_bits.
+> > > But we already have a slightly different fix for this queued on the
+> > > fixes branch of s390/linux:
+> > > 
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=f
+> > > ixes&id=fc3100d64f0ae383ae8d845989103da06d62763b
+> > So we should either use your patch or remove the superfluous check with an
+> > addon patch. Martin's call ;)
+> 
+> Glad the patch is of use either way.
 
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- net/smc/smc_close.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+First, sorry for the breakage.
 
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index 5201bc103bd8..f0d16fb825f7 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -174,15 +174,15 @@ int smc_close_active(struct smc_sock *smc)
- {
- 	struct smc_cdc_conn_state_flags *txflags =
- 		&smc->conn.local_tx_ctrl.conn_state_flags;
--	long timeout = SMC_MAX_STREAM_WAIT_TIMEOUT;
- 	struct smc_connection *conn = &smc->conn;
- 	struct sock *sk = &smc->sk;
- 	int old_state;
-+	long timeout;
- 	int rc = 0;
- 
--	if (sock_flag(sk, SOCK_LINGER) &&
--	    !(current->flags & PF_EXITING))
--		timeout = sk->sk_lingertime;
-+	timeout = current->flags & PF_EXITING ?
-+		  0 : sock_flag(sk, SOCK_LINGER) ?
-+		      sk->sk_lingertime : SMC_MAX_STREAM_WAIT_TIMEOUT;
- 
- again:
- 	old_state = sk->sk_state;
-@@ -413,13 +413,14 @@ void smc_close_sock_put_work(struct work_struct *work)
- int smc_close_shutdown_write(struct smc_sock *smc)
- {
- 	struct smc_connection *conn = &smc->conn;
--	long timeout = SMC_MAX_STREAM_WAIT_TIMEOUT;
- 	struct sock *sk = &smc->sk;
- 	int old_state;
-+	long timeout;
- 	int rc = 0;
- 
--	if (sock_flag(sk, SOCK_LINGER))
--		timeout = sk->sk_lingertime;
-+	timeout = current->flags & PF_EXITING ?
-+		  0 : sock_flag(sk, SOCK_LINGER) ?
-+		      sk->sk_lingertime : SMC_MAX_STREAM_WAIT_TIMEOUT;
- 
- again:
- 	old_state = sk->sk_state;
--- 
-2.13.5
+Second, if you write code like this:
+
+	if (event->cpu >= 0) {
+		if ((unsigned int)event->cpu >= nr_cpumask_bits)
+			return -ENODEV;
+
+then cast is unnecessary as comparison is unsigned and non-negative
+values will remain themselves.
