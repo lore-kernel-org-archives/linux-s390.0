@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 06/10] net/smc: longer delay for client link group removal
-Date: Wed, 20 Sep 2017 13:58:09 +0200
-Message-ID: <20170920115813.63745-7-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 02/10] net/smc: add receive timeout check
+Date: Wed, 20 Sep 2017 13:58:05 +0200
+Message-ID: <20170920115813.63745-3-ubraun@linux.vnet.ibm.com>
 References: <20170920115813.63745-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170920115813.63745-1-ubraun@linux.vnet.ibm.com>
@@ -12,53 +12,30 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Client link group creation always follows the server linkgroup creation.
-If peer creates a new server link group, client has to create a new
-client link group. If peer reuses a server link group for a new
-connection, client has to reuse its client link group as well. This
-patch introduces a longer delay for client link group removal to make
-sure this link group still exists, once the peer decides to reuse a
-server link group. This avoids out-of-sync conditions for link groups.
-If already scheduled, modify the delay.
+From: Hans Wippel <hwippel@linux.vnet.ibm.com>
 
+The SMC receive function currently lacks a timeout check under the
+condition that no data were received and no data are available. This
+patch adds such a check.
+
+Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/smc_core.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ net/smc/smc_rx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 1a16d51e2330..20b66e79c5d6 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -25,8 +25,9 @@
- #include "smc_cdc.h"
- #include "smc_close.h"
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index b17a333e9bb0..3e631ae4b6b6 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -148,6 +148,8 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg, size_t len,
+ 				read_done = sock_intr_errno(timeo);
+ 				break;
+ 			}
++			if (!timeo)
++				return -EAGAIN;
+ 		}
  
--#define SMC_LGR_NUM_INCR	256
--#define SMC_LGR_FREE_DELAY	(600 * HZ)
-+#define SMC_LGR_NUM_INCR		256
-+#define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
-+#define SMC_LGR_FREE_DELAY_CLNT		(SMC_LGR_FREE_DELAY_SERV + 10)
- 
- static u32 smc_lgr_num;			/* unique link group number */
- 
-@@ -107,8 +108,15 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
- 		__smc_lgr_unregister_conn(conn);
- 	}
- 	write_unlock_bh(&lgr->conns_lock);
--	if (reduced && !lgr->conns_num)
--		schedule_delayed_work(&lgr->free_work, SMC_LGR_FREE_DELAY);
-+	if (!reduced || lgr->conns_num)
-+		return;
-+	/* client link group creation always follows the server link group
-+	 * creation. For client use a somewhat higher removal delay time,
-+	 * otherwise there is a risk of out-of-sync link groups.
-+	 */
-+	mod_delayed_work(system_wq, &lgr->free_work,
-+			 lgr->role == SMC_CLNT ? SMC_LGR_FREE_DELAY_CLNT :
-+						 SMC_LGR_FREE_DELAY_SERV);
- }
- 
- static void smc_lgr_free_work(struct work_struct *work)
+ 		if (!atomic_read(&conn->bytes_to_rcv)) {
 -- 
 2.13.5
