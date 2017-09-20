@@ -1,58 +1,83 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL v2] KVM: s390: Fixes and features for 4.14
-Date: Fri,  1 Sep 2017 09:46:45 +0200
-Message-ID: <1504252008-102471-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v2 21/31] s390/char/sclp: Use separate static data field with with static timer
+Date: Wed, 20 Sep 2017 16:27:45 -0700
+Message-Id: <1505950075-50223-22-git-send-email-keescook@chromium.org>
+In-Reply-To: <1505950075-50223-1-git-send-email-keescook@chromium.org>
+References: <1505950075-50223-1-git-send-email-keescook@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo, Radim,
+In preparation for changing the timer callback argument to the timer
+pointer, move to a separate static data variable.
 
-since you have not yet pulled my old patch queue, I use this as 
-a chance to add some more patches. So here are 3 patches on top
-of my old pull request. The new tag replaces the old one (tags/kvm-s390-next-4.14-1)
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ drivers/s390/char/sclp.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diffstat/patches in reply are on top and only for the additional patches,
-but the new tag (tags/kvm-s390-next-4.14-2) contains the description
-of all changes from -1 as well.
-So please pull this one instead.
-
-The following changes since commit 1935222dc2f22ea885e7a7ece6d1be586aafe4a1:
-
-  KVM: s390: we are always in czam mode (2017-08-29 16:50:20 +0200)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.14-2
-
-for you to fetch changes up to c95c895303ed13e883e0e6386e0b978174329210:
-
-  KVM: s390: vsie: cleanup mcck reinjection (2017-08-31 13:49:40 +0200)
-
-----------------------------------------------------------------
-KVM: s390: Fixes and features for 4.14
-
-- merge of topic branch tlb-flushing from the s390 tree to get the
-  no-dat base features
-- merge of kvm/master to avoid conflicts with additional sthyi fixes
-- wire up the no-dat enhancements in KVM
-- multiple epoch facility (z14 feature)
-- Configuration z/Architecture Mode
-- more sthyi fixes
-- gdb server range checking fix
-- small code cleanups
-
-----------------------------------------------------------------
-David Hildenbrand (3):
-      KVM: s390: guestdbg: fix range check
-      KVM: s390: use WARN_ON_ONCE only for checking
-      KVM: s390: vsie: cleanup mcck reinjection
-
- arch/s390/kvm/guestdbg.c  | 2 +-
- arch/s390/kvm/interrupt.c | 6 ++++--
- arch/s390/kvm/vsie.c      | 6 +-----
- 3 files changed, 6 insertions(+), 8 deletions(-)
+diff --git a/drivers/s390/char/sclp.c b/drivers/s390/char/sclp.c
+index d0157067a80a..40794f9f1598 100644
+--- a/drivers/s390/char/sclp.c
++++ b/drivers/s390/char/sclp.c
+@@ -90,6 +90,7 @@ static struct sclp_req sclp_suspend_req;
+ 
+ /* Timer for request retries. */
+ static struct timer_list sclp_request_timer;
++static unsigned long sclp_request_timer_data;
+ 
+ /* Timer for queued requests. */
+ static struct timer_list sclp_queue_timer;
+@@ -158,7 +159,7 @@ __sclp_set_request_timer(unsigned long time, void (*function)(unsigned long),
+ {
+ 	del_timer(&sclp_request_timer);
+ 	sclp_request_timer.function = function;
+-	sclp_request_timer.data = data;
++	sclp_request_timer_data = data;
+ 	sclp_request_timer.expires = jiffies + time;
+ 	add_timer(&sclp_request_timer);
+ }
+@@ -166,12 +167,12 @@ __sclp_set_request_timer(unsigned long time, void (*function)(unsigned long),
+ /* Request timeout handler. Restart the request queue. If DATA is non-zero,
+  * force restart of running request. */
+ static void
+-sclp_request_timeout(unsigned long data)
++sclp_request_timeout(unsigned long unused)
+ {
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&sclp_lock, flags);
+-	if (data) {
++	if (sclp_request_timer_data) {
+ 		if (sclp_running_state == sclp_running_state_running) {
+ 			/* Break running state and queue NOP read event request
+ 			 * to get a defined interface state. */
+@@ -557,7 +558,7 @@ sclp_sync_wait(void)
+ 		if (timer_pending(&sclp_request_timer) &&
+ 		    get_tod_clock_fast() > timeout &&
+ 		    del_timer(&sclp_request_timer))
+-			sclp_request_timer.function(sclp_request_timer.data);
++			sclp_request_timer.function(0);
+ 		cpu_relax();
+ 	}
+ 	local_irq_disable();
+@@ -914,7 +915,7 @@ static void sclp_check_handler(struct ext_code ext_code,
+ 
+ /* Initial init mask request timed out. Modify request state to failed. */
+ static void
+-sclp_check_timeout(unsigned long data)
++sclp_check_timeout(unsigned long unused)
+ {
+ 	unsigned long flags;
+ 
+-- 
+2.7.4
