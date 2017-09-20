@@ -1,131 +1,92 @@
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 7/9] s390/qeth: translate SETVLAN/DELVLAN errors
-Date: Mon, 18 Sep 2017 21:18:20 +0200
-Message-ID: <20170918191822.65142-8-jwi@linux.vnet.ibm.com>
-References: <20170918191822.65142-1-jwi@linux.vnet.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 09/10] net/smc: parameter cleanup in smc_cdc_get_free_slot()
+Date: Wed, 20 Sep 2017 13:58:12 +0200
+Message-ID: <20170920115813.63745-10-ubraun@linux.vnet.ibm.com>
+References: <20170920115813.63745-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170918191822.65142-1-jwi@linux.vnet.ibm.com>
+In-Reply-To: <20170920115813.63745-1-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Properly return any error encountered during VLAN processing to the
-the caller.
-Resulting change in behaviour: if SETVLAN fails while registering a
-new VLAN ID, the stack no longer creates the corresponding vlan device.
+Use the smc_connection as first parameter with smc_cdc_get_free_slot().
+This is just a small code cleanup, no functional change.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core_mpc.h |  1 +
- drivers/s390/net/qeth_l2_main.c  | 47 ++++++++++++++++++++++++++++++----------
- 2 files changed, 36 insertions(+), 12 deletions(-)
+ net/smc/smc_cdc.c | 7 ++++---
+ net/smc/smc_cdc.h | 3 ++-
+ net/smc/smc_tx.c  | 6 ++----
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index 2f1f0da3d089..6a7654df6e78 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -166,6 +166,7 @@ enum qeth_ipa_return_codes {
- 	IPA_RC_L2_INVALID_VLAN_ID	= 0x2015,
- 	IPA_RC_L2_DUP_VLAN_ID		= 0x2016,
- 	IPA_RC_L2_VLAN_ID_NOT_FOUND	= 0x2017,
-+	IPA_RC_L2_VLAN_ID_NOT_ALLOWED	= 0x2050,
- 	IPA_RC_VNICC_VNICBP		= 0x20B0,
- 	IPA_RC_SBP_OSA_NOT_CONFIGURED	= 0x2B0C,
- 	IPA_RC_SBP_OSA_OS_MISMATCH	= 0x2B10,
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 009de7248cc7..7b61c2ef4c74 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -78,7 +78,7 @@ static struct net_device *qeth_l2_netdev_by_devno(unsigned char *read_dev_no)
- 	return ndev;
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index a7294edbc221..5ef97e5a5f78 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -62,10 +62,12 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
+ 	bh_unlock_sock(&smc->sk);
  }
  
--static int qeth_setdel_makerc(struct qeth_card *card, int retcode)
-+static int qeth_setdelmac_makerc(struct qeth_card *card, int retcode)
+-int smc_cdc_get_free_slot(struct smc_link *link,
++int smc_cdc_get_free_slot(struct smc_connection *conn,
+ 			  struct smc_wr_buf **wr_buf,
+ 			  struct smc_cdc_tx_pend **pend)
  {
++	struct smc_link *link = &conn->lgr->lnk[SMC_SINGLE_LINK];
++
+ 	return smc_wr_tx_get_free_slot(link, smc_cdc_tx_handler, wr_buf,
+ 				       (struct smc_wr_tx_pend_priv **)pend);
+ }
+@@ -118,8 +120,7 @@ int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
+ 	struct smc_wr_buf *wr_buf;
  	int rc;
  
-@@ -128,8 +128,8 @@ static int qeth_l2_send_setdelmac(struct qeth_card *card, __u8 *mac,
- 	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
- 	cmd->data.setdelmac.mac_length = OSA_ADDR_LEN;
- 	memcpy(&cmd->data.setdelmac.mac, mac, OSA_ADDR_LEN);
--	return qeth_setdel_makerc(card, qeth_send_ipa_cmd(card, iob,
--					NULL, NULL));
-+	return qeth_setdelmac_makerc(card, qeth_send_ipa_cmd(card, iob,
-+					   NULL, NULL));
- }
+-	rc = smc_cdc_get_free_slot(&conn->lgr->lnk[SMC_SINGLE_LINK], &wr_buf,
+-				   &pend);
++	rc = smc_cdc_get_free_slot(conn, &wr_buf, &pend);
+ 	if (rc)
+ 		return rc;
  
- static int qeth_l2_send_setmac(struct qeth_card *card, __u8 *mac)
-@@ -289,17 +289,40 @@ static void qeth_l2_fill_header(struct qeth_hdr *hdr, struct sk_buff *skb,
- 	}
- }
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 8e1d76f26007..56f883d1159c 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -206,7 +206,8 @@ static inline void smc_cdc_msg_to_host(struct smc_host_cdc_msg *local,
  
-+static int qeth_setdelvlan_makerc(struct qeth_card *card, int retcode)
-+{
-+	if (retcode)
-+		QETH_CARD_TEXT_(card, 2, "err%04x", retcode);
-+
-+	switch (retcode) {
-+	case IPA_RC_SUCCESS:
-+		return 0;
-+	case IPA_RC_L2_INVALID_VLAN_ID:
-+		return -EINVAL;
-+	case IPA_RC_L2_DUP_VLAN_ID:
-+		return -EEXIST;
-+	case IPA_RC_L2_VLAN_ID_NOT_FOUND:
-+		return -ENOENT;
-+	case IPA_RC_L2_VLAN_ID_NOT_ALLOWED:
-+		return -EPERM;
-+	case -ENOMEM:
-+		return -ENOMEM;
-+	default:
-+		return -EIO;
-+	}
-+}
-+
- static int qeth_l2_send_setdelvlan_cb(struct qeth_card *card,
--			struct qeth_reply *reply, unsigned long data)
-+				      struct qeth_reply *reply,
-+				      unsigned long data)
- {
--	struct qeth_ipa_cmd *cmd;
-+	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
+ struct smc_cdc_tx_pend;
  
- 	QETH_CARD_TEXT(card, 2, "L2sdvcb");
--	cmd = (struct qeth_ipa_cmd *) data;
- 	if (cmd->hdr.return_code) {
--		QETH_DBF_MESSAGE(2, "Error in processing VLAN %i on %s: 0x%x. "
--			  "Continuing\n", cmd->data.setdelvlan.vlan_id,
--			  QETH_CARD_IFNAME(card), cmd->hdr.return_code);
-+		QETH_DBF_MESSAGE(2, "Error in processing VLAN %i on %s: 0x%x.\n",
-+				 cmd->data.setdelvlan.vlan_id,
-+				 QETH_CARD_IFNAME(card), cmd->hdr.return_code);
- 		QETH_CARD_TEXT_(card, 2, "L2VL%4x", cmd->hdr.command);
- 		QETH_CARD_TEXT_(card, 2, "err%d", cmd->hdr.return_code);
- 	}
-@@ -307,7 +330,7 @@ static int qeth_l2_send_setdelvlan_cb(struct qeth_card *card,
- }
+-int smc_cdc_get_free_slot(struct smc_link *link, struct smc_wr_buf **wr_buf,
++int smc_cdc_get_free_slot(struct smc_connection *conn,
++			  struct smc_wr_buf **wr_buf,
+ 			  struct smc_cdc_tx_pend **pend);
+ void smc_cdc_tx_dismiss_slots(struct smc_connection *conn);
+ int smc_cdc_msg_send(struct smc_connection *conn, struct smc_wr_buf *wr_buf,
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 3866573288dd..ec49bc3c3283 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -396,8 +396,7 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	int rc;
  
- static int qeth_l2_send_setdelvlan(struct qeth_card *card, __u16 i,
--				enum qeth_ipa_cmds ipacmd)
-+				   enum qeth_ipa_cmds ipacmd)
- {
- 	struct qeth_ipa_cmd *cmd;
- 	struct qeth_cmd_buffer *iob;
-@@ -318,8 +341,8 @@ static int qeth_l2_send_setdelvlan(struct qeth_card *card, __u16 i,
- 		return -ENOMEM;
- 	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
- 	cmd->data.setdelvlan.vlan_id = i;
--	return qeth_send_ipa_cmd(card, iob,
--				 qeth_l2_send_setdelvlan_cb, NULL);
-+	return qeth_setdelvlan_makerc(card, qeth_send_ipa_cmd(card, iob,
-+					    qeth_l2_send_setdelvlan_cb, NULL));
- }
- 
- static void qeth_l2_process_vlans(struct qeth_card *card)
+ 	spin_lock_bh(&conn->send_lock);
+-	rc = smc_cdc_get_free_slot(&conn->lgr->lnk[SMC_SINGLE_LINK], &wr_buf,
+-				   &pend);
++	rc = smc_cdc_get_free_slot(conn, &wr_buf, &pend);
+ 	if (rc < 0) {
+ 		if (rc == -EBUSY) {
+ 			struct smc_sock *smc =
+@@ -466,8 +465,7 @@ void smc_tx_consumer_update(struct smc_connection *conn)
+ 	    ((to_confirm > conn->rmbe_update_limit) &&
+ 	     ((to_confirm > (conn->rmbe_size / 2)) ||
+ 	      conn->local_rx_ctrl.prod_flags.write_blocked))) {
+-		rc = smc_cdc_get_free_slot(&conn->lgr->lnk[SMC_SINGLE_LINK],
+-					   &wr_buf, &pend);
++		rc = smc_cdc_get_free_slot(conn, &wr_buf, &pend);
+ 		if (!rc)
+ 			rc = smc_cdc_msg_send(conn, wr_buf, pend);
+ 		if (rc < 0) {
 -- 
 2.13.5
