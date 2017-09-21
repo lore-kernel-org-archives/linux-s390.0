@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 2/9] net/smc: add receive timeout check
-Date: Thu, 21 Sep 2017 09:16:27 +0200
-Message-ID: <20170921071634.16883-3-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net 4/9] net/smc: adjust net_device refcount
+Date: Thu, 21 Sep 2017 09:16:29 +0200
+Message-ID: <20170921071634.16883-5-ubraun@linux.vnet.ibm.com>
 References: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
@@ -12,30 +12,30 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.vnet.ibm.com>
+smc_pnet_fill_entry() uses dev_get_by_name() adding a refcount to ndev.
+The following smc_pnet_enter() has to reduce the refcount if the entry
+to be added exists already in the pnet table.
 
-The SMC receive function currently lacks a timeout check under the
-condition that no data were received and no data are available. This
-patch adds such a check.
-
-Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/smc_rx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/smc/smc_pnet.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index b17a333e9bb0..3e631ae4b6b6 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -148,6 +148,8 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg, size_t len,
- 				read_done = sock_intr_errno(timeo);
- 				break;
- 			}
-+			if (!timeo)
-+				return -EAGAIN;
- 		}
- 
- 		if (!atomic_read(&conn->bytes_to_rcv)) {
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 78f7af28ae4f..31f8453c25c5 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -181,8 +181,10 @@ static int smc_pnet_enter(struct smc_pnetentry *new_pnetelem)
+ 			     sizeof(new_pnetelem->ndev->name)) ||
+ 		    smc_pnet_same_ibname(pnetelem,
+ 					 new_pnetelem->smcibdev->ibdev->name,
+-					 new_pnetelem->ib_port))
++					 new_pnetelem->ib_port)) {
++			dev_put(pnetelem->ndev);
+ 			goto found;
++		}
+ 	}
+ 	list_add_tail(&new_pnetelem->list, &smc_pnettable.pnetlist);
+ 	rc = 0;
 -- 
 2.13.5
