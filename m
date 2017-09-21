@@ -1,41 +1,24 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 4/9] net/smc: adjust net_device refcount
-Date: Thu, 21 Sep 2017 09:16:29 +0200
-Message-ID: <20170921071634.16883-5-ubraun@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 0/9] net/smc: bug fixes 2017-09-20
+Date: Thu, 21 Sep 2017 15:31:59 -0700 (PDT)
+Message-ID: <20170921.153159.1522191604347942175.davem@davemloft.net>
 References: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-rdma/>
 List-Post: <mailto:linux-rdma@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: ubraun@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-smc_pnet_fill_entry() uses dev_get_by_name() adding a refcount to ndev.
-The following smc_pnet_enter() has to reduce the refcount if the entry
-to be added exists already in the pnet table.
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Thu, 21 Sep 2017 09:16:25 +0200
 
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- net/smc/smc_pnet.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+> here is a collection of small smc-patches built for net fixing
+> smc problems in different areas.
 
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 78f7af28ae4f..31f8453c25c5 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -181,8 +181,10 @@ static int smc_pnet_enter(struct smc_pnetentry *new_pnetelem)
- 			     sizeof(new_pnetelem->ndev->name)) ||
- 		    smc_pnet_same_ibname(pnetelem,
- 					 new_pnetelem->smcibdev->ibdev->name,
--					 new_pnetelem->ib_port))
-+					 new_pnetelem->ib_port)) {
-+			dev_put(pnetelem->ndev);
- 			goto found;
-+		}
- 	}
- 	list_add_tail(&new_pnetelem->list, &smc_pnettable.pnetlist);
- 	rc = 0;
--- 
-2.13.5
+Series applied, thanks.
