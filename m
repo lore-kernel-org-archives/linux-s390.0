@@ -1,10 +1,8 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 8/9] net/smc: introduce a delay
-Date: Thu, 21 Sep 2017 09:16:33 +0200
-Message-ID: <20170921071634.16883-9-ubraun@linux.vnet.ibm.com>
-References: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 1/1] net/smc: parameter cleanup in smc_cdc_get_free_slot()
+Date: Thu, 21 Sep 2017 09:17:34 +0200
+Message-ID: <20170921071734.16977-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-rdma/>
 List-Post: <mailto:linux-rdma@vger.kernel.org>
@@ -12,131 +10,81 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The number of outstanding work requests is limited. If all work
-requests are in use, tx processing is postponed to another scheduling
-of the tx worker. Switch to a delayed worker to have a gap for tx
-completion queue events before the next retry.
+Use the smc_connection as first parameter with smc_cdc_get_free_slot().
+This is just a small code cleanup, no functional change.
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/smc.h       |  2 +-
- net/smc/smc_close.c | 12 +++++++-----
- net/smc/smc_tx.c    | 12 ++++++++----
- 3 files changed, 16 insertions(+), 10 deletions(-)
+ net/smc/smc_cdc.c | 7 ++++---
+ net/smc/smc_cdc.h | 3 ++-
+ net/smc/smc_tx.c  | 6 ++----
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 6e44313e4467..0ccd6fa387ad 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -149,7 +149,7 @@ struct smc_connection {
- 	atomic_t		sndbuf_space;	/* remaining space in sndbuf */
- 	u16			tx_cdc_seq;	/* sequence # for CDC send */
- 	spinlock_t		send_lock;	/* protect wr_sends */
--	struct work_struct	tx_work;	/* retry of smc_cdc_msg_send */
-+	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index a7294edbc221..5ef97e5a5f78 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -62,10 +62,12 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
+ 	bh_unlock_sock(&smc->sk);
+ }
  
- 	struct smc_host_cdc_msg	local_rx_ctrl;	/* filled during event_handl.
- 						 * .prod cf. TCP rcv_nxt
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index 3c2e166b5d22..5201bc103bd8 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -208,7 +208,7 @@ int smc_close_active(struct smc_sock *smc)
- 	case SMC_ACTIVE:
- 		smc_close_stream_wait(smc, timeout);
- 		release_sock(sk);
--		cancel_work_sync(&conn->tx_work);
-+		cancel_delayed_work_sync(&conn->tx_work);
- 		lock_sock(sk);
- 		if (sk->sk_state == SMC_ACTIVE) {
- 			/* send close request */
-@@ -234,7 +234,7 @@ int smc_close_active(struct smc_sock *smc)
- 		if (!smc_cdc_rxed_any_close(conn))
- 			smc_close_stream_wait(smc, timeout);
- 		release_sock(sk);
--		cancel_work_sync(&conn->tx_work);
-+		cancel_delayed_work_sync(&conn->tx_work);
- 		lock_sock(sk);
- 		if (sk->sk_err != ECONNABORTED) {
- 			/* confirm close from peer */
-@@ -263,7 +263,9 @@ int smc_close_active(struct smc_sock *smc)
- 		/* peer sending PeerConnectionClosed will cause transition */
- 		break;
- 	case SMC_PROCESSABORT:
--		cancel_work_sync(&conn->tx_work);
-+		release_sock(sk);
-+		cancel_delayed_work_sync(&conn->tx_work);
-+		lock_sock(sk);
- 		smc_close_abort(conn);
- 		sk->sk_state = SMC_CLOSED;
- 		smc_close_wait_tx_pends(smc);
-@@ -425,7 +427,7 @@ int smc_close_shutdown_write(struct smc_sock *smc)
- 	case SMC_ACTIVE:
- 		smc_close_stream_wait(smc, timeout);
- 		release_sock(sk);
--		cancel_work_sync(&conn->tx_work);
-+		cancel_delayed_work_sync(&conn->tx_work);
- 		lock_sock(sk);
- 		/* send close wr request */
- 		rc = smc_close_wr(conn);
-@@ -439,7 +441,7 @@ int smc_close_shutdown_write(struct smc_sock *smc)
- 		if (!smc_cdc_rxed_any_close(conn))
- 			smc_close_stream_wait(smc, timeout);
- 		release_sock(sk);
--		cancel_work_sync(&conn->tx_work);
-+		cancel_delayed_work_sync(&conn->tx_work);
- 		lock_sock(sk);
- 		/* confirm close from peer */
- 		rc = smc_close_wr(conn);
+-int smc_cdc_get_free_slot(struct smc_link *link,
++int smc_cdc_get_free_slot(struct smc_connection *conn,
+ 			  struct smc_wr_buf **wr_buf,
+ 			  struct smc_cdc_tx_pend **pend)
+ {
++	struct smc_link *link = &conn->lgr->lnk[SMC_SINGLE_LINK];
++
+ 	return smc_wr_tx_get_free_slot(link, smc_cdc_tx_handler, wr_buf,
+ 				       (struct smc_wr_tx_pend_priv **)pend);
+ }
+@@ -118,8 +120,7 @@ int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
+ 	struct smc_wr_buf *wr_buf;
+ 	int rc;
+ 
+-	rc = smc_cdc_get_free_slot(&conn->lgr->lnk[SMC_SINGLE_LINK], &wr_buf,
+-				   &pend);
++	rc = smc_cdc_get_free_slot(conn, &wr_buf, &pend);
+ 	if (rc)
+ 		return rc;
+ 
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 8e1d76f26007..56f883d1159c 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -206,7 +206,8 @@ static inline void smc_cdc_msg_to_host(struct smc_host_cdc_msg *local,
+ 
+ struct smc_cdc_tx_pend;
+ 
+-int smc_cdc_get_free_slot(struct smc_link *link, struct smc_wr_buf **wr_buf,
++int smc_cdc_get_free_slot(struct smc_connection *conn,
++			  struct smc_wr_buf **wr_buf,
+ 			  struct smc_cdc_tx_pend **pend);
+ void smc_cdc_tx_dismiss_slots(struct smc_connection *conn);
+ int smc_cdc_msg_send(struct smc_connection *conn, struct smc_wr_buf *wr_buf,
 diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 3c656beb8820..3866573288dd 100644
+index 3c656beb8820..e2228f6d1c25 100644
 --- a/net/smc/smc_tx.c
 +++ b/net/smc/smc_tx.c
-@@ -24,6 +24,8 @@
- #include "smc_cdc.h"
- #include "smc_tx.h"
+@@ -394,8 +394,7 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	int rc;
  
-+#define SMC_TX_WORK_DELAY	HZ
-+
- /***************************** sndbuf producer *******************************/
- 
- /* callback implementation for sk.sk_write_space()
-@@ -406,7 +408,8 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
- 				goto out_unlock;
- 			}
- 			rc = 0;
--			schedule_work(&conn->tx_work);
-+			schedule_delayed_work(&conn->tx_work,
-+					      SMC_TX_WORK_DELAY);
- 		}
- 		goto out_unlock;
- 	}
-@@ -430,7 +433,7 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
-  */
- static void smc_tx_work(struct work_struct *work)
- {
--	struct smc_connection *conn = container_of(work,
-+	struct smc_connection *conn = container_of(to_delayed_work(work),
- 						   struct smc_connection,
- 						   tx_work);
- 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
-@@ -468,7 +471,8 @@ void smc_tx_consumer_update(struct smc_connection *conn)
+ 	spin_lock_bh(&conn->send_lock);
+-	rc = smc_cdc_get_free_slot(&conn->lgr->lnk[SMC_SINGLE_LINK], &wr_buf,
+-				   &pend);
++	rc = smc_cdc_get_free_slot(conn, &wr_buf, &pend);
+ 	if (rc < 0) {
+ 		if (rc == -EBUSY) {
+ 			struct smc_sock *smc =
+@@ -463,8 +462,7 @@ void smc_tx_consumer_update(struct smc_connection *conn)
+ 	    ((to_confirm > conn->rmbe_update_limit) &&
+ 	     ((to_confirm > (conn->rmbe_size / 2)) ||
+ 	      conn->local_rx_ctrl.prod_flags.write_blocked))) {
+-		rc = smc_cdc_get_free_slot(&conn->lgr->lnk[SMC_SINGLE_LINK],
+-					   &wr_buf, &pend);
++		rc = smc_cdc_get_free_slot(conn, &wr_buf, &pend);
  		if (!rc)
  			rc = smc_cdc_msg_send(conn, wr_buf, pend);
  		if (rc < 0) {
--			schedule_work(&conn->tx_work);
-+			schedule_delayed_work(&conn->tx_work,
-+					      SMC_TX_WORK_DELAY);
- 			return;
- 		}
- 		smc_curs_write(&conn->rx_curs_confirmed,
-@@ -487,6 +491,6 @@ void smc_tx_consumer_update(struct smc_connection *conn)
- void smc_tx_init(struct smc_sock *smc)
- {
- 	smc->sk.sk_write_space = smc_tx_write_space;
--	INIT_WORK(&smc->conn.tx_work, smc_tx_work);
-+	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
- 	spin_lock_init(&smc->conn.send_lock);
- }
 -- 
 2.13.5
