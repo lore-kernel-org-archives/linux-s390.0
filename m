@@ -1,73 +1,41 @@
-Return-Path: <stable-owner@vger.kernel.org>
-From: Paul Burton <paul.burton@imgtec.com>
-Subject: [PATCH] s390: Fix perf event init
-Date: Tue, 19 Sep 2017 22:07:57 -0700
-Message-ID: <20170920050757.22857-1-paul.burton@imgtec.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/stable/>
-List-Post: <mailto:stable@vger.kernel.org>
-To: linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Paul Burton <paul.burton@imgtec.com>, Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, stable <stable@vger.kernel.org>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net 2/9] net/smc: add receive timeout check
+Date: Thu, 21 Sep 2017 09:16:27 +0200
+Message-ID: <20170921071634.16883-3-ubraun@linux.vnet.ibm.com>
+References: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit c311c797998c ("cpumask: make "nr_cpumask_bits" unsigned")
-modified cpumsf_pmu_event_init() to cast the struct perf_event cpu field
-to an unsigned integer before it is compared with nr_cpumask_bits. This
-is broken because the cpu field may be -1 for events which follow a
-process rather than being affine to a particular CPU. When this is the
-case the cast to an unsigned int results in a value equal to ULONG_MAX,
-which is always greater than nr_cpumask_bits so we always fail
-cpumsf_pmu_event_init() and return -ENODEV.
+From: Hans Wippel <hwippel@linux.vnet.ibm.com>
 
-The check against nr_cpumask_bits seems nonsensical anyway, so this
-patch simply removes it. The cpu field is going to either be 0 or a
-valid CPU number. Comparing it with nr_cpumask_bits is effectively
-checking that it's a valid cpu number, but it seems safe to rely on the
-core perf events code to ensure that's the case.
+The SMC receive function currently lacks a timeout check under the
+condition that no data were received and no data are available. This
+patch adds such a check.
 
-The end result is that this fixes use of perf when not constraining
-events to a particular CPU, and fixes the "perf list hw" command which
-fails to list any events without this.
-
-Signed-off-by: Paul Burton <paul.burton@imgtec.com>
-Fixes: c311c797998c ("cpumask: make "nr_cpumask_bits" unsigned")
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: stable <stable@vger.kernel.org> # v4.12+
-
+Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
-This patch is purely speculative, based upon fixing perf on MIPS
-following the offending commit c311c797998c ("cpumask: make
-"nr_cpumask_bits" unsigned") which made the same change to both MIPS &
-s390. I leave it to s390 developers to verify whether this affects them
-in the same way as it affected MIPS thus whether this fix is correct
-there too.
+ net/smc/smc_rx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Thanks,
-    Paul
-
- arch/s390/kernel/perf_cpum_sf.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index c1bf75ffb875..cc570143f245 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -823,8 +823,7 @@ static int cpumsf_pmu_event_init(struct perf_event *event)
- 	}
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index b17a333e9bb0..3e631ae4b6b6 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -148,6 +148,8 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg, size_t len,
+ 				read_done = sock_intr_errno(timeo);
+ 				break;
+ 			}
++			if (!timeo)
++				return -EAGAIN;
+ 		}
  
- 	/* Check online status of the CPU to which the event is pinned */
--	if ((unsigned int)event->cpu >= nr_cpumask_bits ||
--	    (event->cpu >= 0 && !cpu_online(event->cpu)))
-+	if (event->cpu >= 0 && !cpu_online(event->cpu))
- 		return -ENODEV;
- 
- 	/* Force reset of idle/hv excludes regardless of what the
+ 		if (!atomic_read(&conn->bytes_to_rcv)) {
 -- 
-2.14.1
+2.13.5
