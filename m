@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 3/9] net/smc: take RCU read lock for routing cache lookup
-Date: Thu, 21 Sep 2017 09:16:28 +0200
-Message-ID: <20170921071634.16883-4-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net 8/9] net/smc: introduce a delay
+Date: Thu, 21 Sep 2017 09:16:33 +0200
+Message-ID: <20170921071634.16883-9-ubraun@linux.vnet.ibm.com>
 References: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20170921071634.16883-1-ubraun@linux.vnet.ibm.com>
@@ -12,46 +12,131 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-smc_netinfo_by_tcpsk() looks up the routing cache. Such a lookup requires
-protection by an RCU read lock.
+The number of outstanding work requests is limited. If all work
+requests are in use, tx processing is postponed to another scheduling
+of the tx worker. Switch to a delayed worker to have a gap for tx
+completion queue events before the next retry.
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/smc/smc.h       |  2 +-
+ net/smc/smc_close.c | 12 +++++++-----
+ net/smc/smc_tx.c    | 12 ++++++++----
+ 3 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 8c6d24b2995d..2e8d2dabac0c 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -282,6 +282,7 @@ int smc_netinfo_by_tcpsk(struct socket *clcsock,
- 			 __be32 *subnet, u8 *prefix_len)
- {
- 	struct dst_entry *dst = sk_dst_get(clcsock->sk);
-+	struct in_device *in_dev;
- 	struct sockaddr_in addr;
- 	int rc = -ENOENT;
- 	int len;
-@@ -298,14 +299,17 @@ int smc_netinfo_by_tcpsk(struct socket *clcsock,
- 	/* get address to which the internal TCP socket is bound */
- 	kernel_getsockname(clcsock, (struct sockaddr *)&addr, &len);
- 	/* analyze IPv4 specific data of net_device belonging to TCP socket */
--	for_ifa(dst->dev->ip_ptr) {
--		if (ifa->ifa_address != addr.sin_addr.s_addr)
-+	rcu_read_lock();
-+	in_dev = __in_dev_get_rcu(dst->dev);
-+	for_ifa(in_dev) {
-+		if (!inet_ifa_match(addr.sin_addr.s_addr, ifa))
- 			continue;
- 		*prefix_len = inet_mask_len(ifa->ifa_mask);
- 		*subnet = ifa->ifa_address & ifa->ifa_mask;
- 		rc = 0;
- 		break;
--	} endfor_ifa(dst->dev->ip_ptr);
-+	} endfor_ifa(in_dev);
-+	rcu_read_unlock();
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 6e44313e4467..0ccd6fa387ad 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -149,7 +149,7 @@ struct smc_connection {
+ 	atomic_t		sndbuf_space;	/* remaining space in sndbuf */
+ 	u16			tx_cdc_seq;	/* sequence # for CDC send */
+ 	spinlock_t		send_lock;	/* protect wr_sends */
+-	struct work_struct	tx_work;	/* retry of smc_cdc_msg_send */
++	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
  
- out_rel:
- 	dst_release(dst);
+ 	struct smc_host_cdc_msg	local_rx_ctrl;	/* filled during event_handl.
+ 						 * .prod cf. TCP rcv_nxt
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 3c2e166b5d22..5201bc103bd8 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -208,7 +208,7 @@ int smc_close_active(struct smc_sock *smc)
+ 	case SMC_ACTIVE:
+ 		smc_close_stream_wait(smc, timeout);
+ 		release_sock(sk);
+-		cancel_work_sync(&conn->tx_work);
++		cancel_delayed_work_sync(&conn->tx_work);
+ 		lock_sock(sk);
+ 		if (sk->sk_state == SMC_ACTIVE) {
+ 			/* send close request */
+@@ -234,7 +234,7 @@ int smc_close_active(struct smc_sock *smc)
+ 		if (!smc_cdc_rxed_any_close(conn))
+ 			smc_close_stream_wait(smc, timeout);
+ 		release_sock(sk);
+-		cancel_work_sync(&conn->tx_work);
++		cancel_delayed_work_sync(&conn->tx_work);
+ 		lock_sock(sk);
+ 		if (sk->sk_err != ECONNABORTED) {
+ 			/* confirm close from peer */
+@@ -263,7 +263,9 @@ int smc_close_active(struct smc_sock *smc)
+ 		/* peer sending PeerConnectionClosed will cause transition */
+ 		break;
+ 	case SMC_PROCESSABORT:
+-		cancel_work_sync(&conn->tx_work);
++		release_sock(sk);
++		cancel_delayed_work_sync(&conn->tx_work);
++		lock_sock(sk);
+ 		smc_close_abort(conn);
+ 		sk->sk_state = SMC_CLOSED;
+ 		smc_close_wait_tx_pends(smc);
+@@ -425,7 +427,7 @@ int smc_close_shutdown_write(struct smc_sock *smc)
+ 	case SMC_ACTIVE:
+ 		smc_close_stream_wait(smc, timeout);
+ 		release_sock(sk);
+-		cancel_work_sync(&conn->tx_work);
++		cancel_delayed_work_sync(&conn->tx_work);
+ 		lock_sock(sk);
+ 		/* send close wr request */
+ 		rc = smc_close_wr(conn);
+@@ -439,7 +441,7 @@ int smc_close_shutdown_write(struct smc_sock *smc)
+ 		if (!smc_cdc_rxed_any_close(conn))
+ 			smc_close_stream_wait(smc, timeout);
+ 		release_sock(sk);
+-		cancel_work_sync(&conn->tx_work);
++		cancel_delayed_work_sync(&conn->tx_work);
+ 		lock_sock(sk);
+ 		/* confirm close from peer */
+ 		rc = smc_close_wr(conn);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 3c656beb8820..3866573288dd 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -24,6 +24,8 @@
+ #include "smc_cdc.h"
+ #include "smc_tx.h"
+ 
++#define SMC_TX_WORK_DELAY	HZ
++
+ /***************************** sndbuf producer *******************************/
+ 
+ /* callback implementation for sk.sk_write_space()
+@@ -406,7 +408,8 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 				goto out_unlock;
+ 			}
+ 			rc = 0;
+-			schedule_work(&conn->tx_work);
++			schedule_delayed_work(&conn->tx_work,
++					      SMC_TX_WORK_DELAY);
+ 		}
+ 		goto out_unlock;
+ 	}
+@@ -430,7 +433,7 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+  */
+ static void smc_tx_work(struct work_struct *work)
+ {
+-	struct smc_connection *conn = container_of(work,
++	struct smc_connection *conn = container_of(to_delayed_work(work),
+ 						   struct smc_connection,
+ 						   tx_work);
+ 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
+@@ -468,7 +471,8 @@ void smc_tx_consumer_update(struct smc_connection *conn)
+ 		if (!rc)
+ 			rc = smc_cdc_msg_send(conn, wr_buf, pend);
+ 		if (rc < 0) {
+-			schedule_work(&conn->tx_work);
++			schedule_delayed_work(&conn->tx_work,
++					      SMC_TX_WORK_DELAY);
+ 			return;
+ 		}
+ 		smc_curs_write(&conn->rx_curs_confirmed,
+@@ -487,6 +491,6 @@ void smc_tx_consumer_update(struct smc_connection *conn)
+ void smc_tx_init(struct smc_sock *smc)
+ {
+ 	smc->sk.sk_write_space = smc_tx_write_space;
+-	INIT_WORK(&smc->conn.tx_work, smc_tx_work);
++	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
+ 	spin_lock_init(&smc->conn.send_lock);
+ }
 -- 
 2.13.5
