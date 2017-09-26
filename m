@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Himanshu Jha <himanshujha199640@gmail.com>
-Subject: [PATCH] s390/sclp: Use setup_timer and mod_timer
-Date: Sun, 24 Sep 2017 17:30:14 +0530
-Message-Id: <1506254414-10269-1-git-send-email-himanshujha199640@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Himanshu Jha <himanshujha199640@gmail.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] KVM: s390: Disable CONFIG_S390_GUEST_OLD_TRANSPORT by
+ default
+Date: Tue, 26 Sep 2017 13:10:52 +0200
+Message-ID: <20170926131052.4f97f86d.cohuck@redhat.com>
+References: <1506350729-11311-1-git-send-email-thuth@redhat.com>
+        <3c2b8ae8-ca2a-7b26-8ebd-14f14c286529@linux.vnet.ibm.com>
+        <83cacb4a-94b1-c7c2-e50d-70afea5d3e9c@de.ibm.com>
+        <20170926104019.GA3209@osiris>
+        <376655d1-87e3-4187-d2d1-d1f23c02431a@de.ibm.com>
+        <20170926104752.GB3209@osiris>
+        <ec6d80f2-17ca-4a5f-a357-5cc165b1acfd@redhat.com>
+        <20170926110403.GC3209@osiris>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20170926110403.GC3209@osiris>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Use setup_timer and mod_timer API instead of structure assignments.
+On Tue, 26 Sep 2017 13:04:03 +0200
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-This is done using Coccinelle and semantic patch used
-for this as follows:
+> On Tue, Sep 26, 2017 at 12:57:26PM +0200, Thomas Huth wrote:
+> > On 26.09.2017 12:47, Heiko Carstens wrote:  
+> > > So it's going to be removed with the next merge window.
+> > > Where is the patch? ;)  
+> > 
+> > Hmm, so far the code was always enabled by default, so in the unlikely
+> > case that somebody is still using it, they might not have noticed that
+> > this is marked as deprecated. So maybe it's better to keep the code for
+> > two more released, but disable it by default, so that people have time
+> > to realize that it is going away? ... just my 0.02 € ... but if you
+> > prefer, I can also write a patch that removes it immediately instead.  
+> 
+> Switching the default from yes to no won't prevent anybody from selecting
+> it again. So I don't see any value in waiting even longer.
+> 
+> Besides the original commit already printed a message to the console that
+> the transport is deprecated.
+> See commit 3b2fbb3f06ef ("virtio/s390: deprecate old transport").
+> 
 
-@@
-expression x,y,z,a,b;
-@@
-
--init_timer (&x);
-+setup_timer (&x, y, z);
-+mod_timer (&a, b);
--x.function = y;
--x.data = z;
--x.expires = b;
--add_timer(&a);
-
-Signed-off-by: Himanshu Jha <himanshujha199640@gmail.com>
----
- drivers/s390/char/sclp_con.c | 7 ++-----
- drivers/s390/char/sclp_tty.c | 7 ++-----
- 2 files changed, 4 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/s390/char/sclp_con.c b/drivers/s390/char/sclp_con.c
-index 6037bc8..9b5ac8f 100644
---- a/drivers/s390/char/sclp_con.c
-+++ b/drivers/s390/char/sclp_con.c
-@@ -210,11 +210,8 @@ sclp_console_write(struct console *console, const char *message,
- 	/* Setup timer to output current console buffer after 1/10 second */
- 	if (sclp_conbuf != NULL && sclp_chars_in_buffer(sclp_conbuf) != 0 &&
- 	    !timer_pending(&sclp_con_timer)) {
--		init_timer(&sclp_con_timer);
--		sclp_con_timer.function = sclp_console_timeout;
--		sclp_con_timer.data = 0UL;
--		sclp_con_timer.expires = jiffies + HZ/10;
--		add_timer(&sclp_con_timer);
-+		setup_timer(&sclp_con_timer, sclp_console_timeout, 0UL);
-+		mod_timer(&sclp_con_timer, jiffies + HZ / 10);
- 	}
- out:
- 	spin_unlock_irqrestore(&sclp_con_lock, flags);
-diff --git a/drivers/s390/char/sclp_tty.c b/drivers/s390/char/sclp_tty.c
-index 236b736..469487e 100644
---- a/drivers/s390/char/sclp_tty.c
-+++ b/drivers/s390/char/sclp_tty.c
-@@ -217,11 +217,8 @@ static int sclp_tty_write_string(const unsigned char *str, int count, int may_fa
- 	/* Setup timer to output current console buffer after 1/10 second */
- 	if (sclp_ttybuf && sclp_chars_in_buffer(sclp_ttybuf) &&
- 	    !timer_pending(&sclp_tty_timer)) {
--		init_timer(&sclp_tty_timer);
--		sclp_tty_timer.function = sclp_tty_timeout;
--		sclp_tty_timer.data = 0UL;
--		sclp_tty_timer.expires = jiffies + HZ/10;
--		add_timer(&sclp_tty_timer);
-+		setup_timer(&sclp_tty_timer, sclp_tty_timeout, 0UL);
-+		mod_timer(&sclp_tty_timer, jiffies + HZ / 10);
- 	}
- 	spin_unlock_irqrestore(&sclp_tty_lock, flags);
- out:
--- 
-2.7.4
+Would ack a removal as well.
