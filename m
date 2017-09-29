@@ -1,7 +1,7 @@
 From: Kirill Tkhai <ktkhai@virtuozzo.com>
-Subject: [PATCH REBASED 2/6] ia64: Add __down_read_killable()
-Date: Fri, 29 Sep 2017 19:06:07 +0300
-Message-ID: <150670116749.23930.14976888440968191759.stgit@localhost.localdomain>
+Subject: [PATCH REBASED 3/6] s390: Add __down_read_killable()
+Date: Fri, 29 Sep 2017 19:06:18 +0300
+Message-ID: <150670117817.23930.13068785028558453848.stgit@localhost.localdomain>
 References: <150670038738.23930.7190484711222807884.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -18,37 +18,37 @@ Similar to __down_write_killable(), and read killable primitive.
 
 Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
 ---
- arch/ia64/include/asm/rwsem.h |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/rwsem.h |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/include/asm/rwsem.h b/arch/ia64/include/asm/rwsem.h
-index 8fa98dd303b4..1fb8b7cb1c98 100644
---- a/arch/ia64/include/asm/rwsem.h
-+++ b/arch/ia64/include/asm/rwsem.h
-@@ -37,15 +37,31 @@
+diff --git a/arch/s390/include/asm/rwsem.h b/arch/s390/include/asm/rwsem.h
+index 597e7e96b59e..6bef7d5fbf1c 100644
+--- a/arch/s390/include/asm/rwsem.h
++++ b/arch/s390/include/asm/rwsem.h
+@@ -49,7 +49,7 @@
  /*
   * lock for reading
   */
--static inline void
--__down_read (struct rw_semaphore *sem)
-+static inline int
-+___down_read (struct rw_semaphore *sem)
+-static inline void __down_read(struct rw_semaphore *sem)
++static inline int ___down_read(struct rw_semaphore *sem)
  {
- 	long result = ia64_fetchadd8_acq((unsigned long *)&sem->count.counter, 1);
+ 	signed long old, new;
  
--	if (result < 0)
-+	return (result < 0);
+@@ -62,10 +62,24 @@ static inline void __down_read(struct rw_semaphore *sem)
+ 		: "=&d" (old), "=&d" (new), "=Q" (sem->count)
+ 		: "Q" (sem->count), "i" (RWSEM_ACTIVE_READ_BIAS)
+ 		: "cc", "memory");
+-	if (old < 0)
++	return (old < 0);
 +}
 +
-+static inline void
-+__down_read (struct rw_semaphore *sem)
++static inline void __down_read(struct rw_semaphore *sem)
 +{
 +	if (___down_read(sem))
  		rwsem_down_read_failed(sem);
  }
  
-+static inline int
-+__down_read_killable (struct rw_semaphore *sem)
++static inline int __down_read_killable(struct rw_semaphore *sem)
 +{
 +	if (___down_read(sem))
 +		if (IS_ERR(rwsem_down_read_failed_killable(sem)))
@@ -58,5 +58,5 @@ index 8fa98dd303b4..1fb8b7cb1c98 100644
 +}
 +
  /*
-  * lock for writing
+  * trylock for reading -- returns 1 if successful, 0 if contention
   */
