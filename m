@@ -1,86 +1,56 @@
 From: Kirill Tkhai <ktkhai@virtuozzo.com>
-Subject: [PATCH REBASED 5/6] rwsem: Add down_read_killable()
-Date: Fri, 29 Sep 2017 19:06:38 +0300
-Message-ID: <150670119884.23930.2585570605960763239.stgit@localhost.localdomain>
+Subject: [PATCH REBASED 6/6] fs: Use killable down_read() in iterate_dir()
+Date: Fri, 29 Sep 2017 19:06:48 +0300
+Message-ID: <150670120820.23930.5455667921545937220.stgit@localhost.localdomain>
 References: <150670038738.23930.7190484711222807884.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <150670038738.23930.7190484711222807884.stgit@localhost.localdomain>
-Sender: linux-ia64-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-ia64@vger.kernel.org, avagin@virtuozzo.com, peterz@infradead.org, heiko.carstens@de.ibm.com, hpa@zytor.com, gorcunov@virtuozzo.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, mingo@redhat.com, mattst88@gmail.com, fenghua.yu@intel.com, arnd@arndb.de, ktkhai@virtuozzo.com, ink@jurassic.park.msu.ru, tglx@linutronix.de, rth@twiddle.net, tony.luck@intel.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, davem@davemloft.net, rientjes@google.com, viro@zeniv.linux.org.uk
 List-ID: <linux-s390.vger.kernel.org>
 
-Similar to down_read() and down_write_killable(),
-add killable version of down_read(), based on
-__down_read_killable() function, added in previous
-patches.
+There was mutex_lock_interruptible() initially, and it was changed
+to rwsem, but there were not killable rwsem primitives that time.
+From commit 9902af79c01a:
+
+    "The main issue is the lack of down_write_killable(), so the places
+     like readdir.c switched to plain inode_lock(); once killable
+     variants of rwsem primitives appear, that'll be dealt with"
+
+Use down_read_killable() same as down_write_killable() in !shared
+case, as concurrent inode_lock() may take much time, that may be
+wanted to be interrupted by user.
 
 Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
 ---
- include/asm-generic/rwsem.h |    8 ++++++++
- include/linux/rwsem.h       |    1 +
- kernel/locking/rwsem.c      |   16 ++++++++++++++++
- 3 files changed, 25 insertions(+)
+ fs/readdir.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/include/asm-generic/rwsem.h b/include/asm-generic/rwsem.h
-index 6c6a2141f271..2f71b913b555 100644
---- a/include/asm-generic/rwsem.h
-+++ b/include/asm-generic/rwsem.h
-@@ -37,6 +37,14 @@ static inline void __down_read(struct rw_semaphore *sem)
- 		rwsem_down_read_failed(sem);
- }
+diff --git a/fs/readdir.c b/fs/readdir.c
+index 89659549c09d..7c584bbb4ce3 100644
+--- a/fs/readdir.c
++++ b/fs/readdir.c
+@@ -36,13 +36,12 @@ int iterate_dir(struct file *file, struct dir_context *ctx)
+ 	if (res)
+ 		goto out;
  
-+static inline int __down_read_killable(struct rw_semaphore *sem)
-+{
-+	if (unlikely(atomic_long_inc_return_acquire(&sem->count) <= 0))
-+		if (IS_ERR(rwsem_down_read_failed_killable(sem)))
-+			return -EINTR;
-+	return 0;
-+}
-+
- static inline int __down_read_trylock(struct rw_semaphore *sem)
- {
- 	long tmp;
-diff --git a/include/linux/rwsem.h b/include/linux/rwsem.h
-index 0ad7318ff299..6ac8ee5f15dd 100644
---- a/include/linux/rwsem.h
-+++ b/include/linux/rwsem.h
-@@ -111,6 +111,7 @@ static inline int rwsem_is_contended(struct rw_semaphore *sem)
-  * lock for reading
-  */
- extern void down_read(struct rw_semaphore *sem);
-+extern int __must_check down_read_killable(struct rw_semaphore *sem);
+-	if (shared) {
+-		inode_lock_shared(inode);
+-	} else {
++	if (shared)
++		res = down_read_killable(&inode->i_rwsem);
++	else
+ 		res = down_write_killable(&inode->i_rwsem);
+-		if (res)
+-			goto out;
+-	}
++	if (res)
++		goto out;
  
- /*
-  * trylock for reading -- returns 1 if successful, 0 if contention
-diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
-index 4d48b1c4870d..e53f7746d9fd 100644
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -28,6 +28,22 @@ void __sched down_read(struct rw_semaphore *sem)
- 
- EXPORT_SYMBOL(down_read);
- 
-+int __sched down_read_killable(struct rw_semaphore *sem)
-+{
-+	might_sleep();
-+	rwsem_acquire_read(&sem->dep_map, 0, 0, _RET_IP_);
-+
-+	if (LOCK_CONTENDED_RETURN(sem, __down_read_trylock, __down_read_killable)) {
-+		rwsem_release(&sem->dep_map, 1, _RET_IP_);
-+		return -EINTR;
-+	}
-+
-+	rwsem_set_reader_owned(sem);
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(down_read_killable);
-+
- /*
-  * trylock for reading -- returns 1 if successful, 0 if contention
-  */
+ 	res = -ENOENT;
+ 	if (!IS_DEADDIR(inode)) {
