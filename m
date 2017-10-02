@@ -1,60 +1,83 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [RFC 0/5] guest dedicated crypto adapters: QEMU usage
-Date: Thu, 26 Oct 2017 11:54:49 -0400
-Message-ID: <1509033294-4945-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-s390@vger.kernel.org, qemu-s390x@nongnu.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+From: Parav Pandit <parav@mellanox.com>
+Subject: RE: [PATCH net-next 01/10] net/smc: add missing dev_put
+Date: Mon, 2 Oct 2017 20:36:29 +0000
+Message-ID: <VI1PR0502MB30089D06B9C95D682E21511BD17D0@VI1PR0502MB3008.eurprd05.prod.outlook.com>
+References: <20170920115813.63745-1-ubraun@linux.vnet.ibm.com>
+ <20170920115813.63745-2-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20170920115813.63745-2-ubraun@linux.vnet.ibm.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: Ursula Braun <ubraun@linux.vnet.ibm.com>, "davem@davemloft.net" <davem@davemloft.net>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "jwi@linux.vnet.ibm.com" <jwi@linux.vnet.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "raspl@linux.vnet.ibm.com" <raspl@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-I was asked to post this QEMU patch set to the mailing list to illustrate
-how the KVM/kernel counterpart will be used. The KVM/kernel patches can be
-viewed at:
+Hi Ursula, Dave, Hans,
 
-https://lkml.org/lkml/2017/10/13/706
+> -----Original Message-----
+> From: linux-rdma-owner@vger.kernel.org [mailto:linux-rdma-
+> owner@vger.kernel.org] On Behalf Of Ursula Braun
+> Sent: Wednesday, September 20, 2017 6:58 AM
+> To: davem@davemloft.net
+> Cc: netdev@vger.kernel.org; linux-rdma@vger.kernel.org; linux-
+> s390@vger.kernel.org; jwi@linux.vnet.ibm.com; schwidefsky@de.ibm.com;
+> heiko.carstens@de.ibm.com; raspl@linux.vnet.ibm.com;
+> ubraun@linux.vnet.ibm.com
+> Subject: [PATCH net-next 01/10] net/smc: add missing dev_put
+>=20
+> From: Hans Wippel <hwippel@linux.vnet.ibm.com>
+>=20
+> In the infiniband part, SMC currently uses get_netdev which calls dev_hol=
+d on
+> the returned net device. However, the SMC code never calls dev_put on tha=
+t net
+> device resulting in a wrong reference count.
+>=20
+> This patch adds a dev_put after the usage of the net device to fix the is=
+sue.
+>=20
+> Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
+> Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+> ---
+>  net/smc/smc_ib.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c index
+> 547e0e113b17..0b5852299158 100644
+> --- a/net/smc/smc_ib.c
+> +++ b/net/smc/smc_ib.c
+> @@ -380,6 +380,7 @@ static int smc_ib_fill_gid_and_mac(struct smc_ib_devi=
+ce
+> *smcibdev, u8 ibport)
+>  	ndev =3D smcibdev->ibdev->get_netdev(smcibdev->ibdev, ibport);
+>  	if (ndev) {
+>  		memcpy(&smcibdev->mac, ndev->dev_addr, ETH_ALEN);
+> +		dev_put(ndev);
 
-The IBM Adjunct Processor (AP) Cryptographic Facility is comprised 
-of three AP instructions and from 1 to 256 PCIe cryptographic adapter cards.
-These AP adapters provide cryptographic functions to all CPUs assigned to a
-linux system running in an IBM Z system LPAR.
+I am sorry for providing late comments. smc_ib_fill_gid_and_mac() is not co=
+ded correctly.
+Few fixes are needed.
+1. ULP such as SMC should not open code/deference any function pointer like=
+ get_netdev() of the IB device.
+2. Replace ib_query_gid(..., NULL)
+With
+ib_query_gid(..., gid_attr);
 
-This patch series introduces a new QEMU command line option and QEMU object
-model to obtain direct guest access to one or more AP adapter cards assigned
-to the LPAR in which the host linux system is running. It is predicated 
-on the KVM/kernel model for providing direct guest access to AP adapters. A 
-complete description for dedicating crypto adapters to a linux guest can be 
-found in the docs/ap-matrix.txt file provided with this patch set.
+Use gid_attr.ndev to get the MAC address.
+Do dev_put(gid_attr.ndev);
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Code should look like below,
 
-Tony Krowiak (5):
-  s390x/ap-matrix: Adjunct Processor (AP) matrix object model
-  s390x/vfio: ap-matrix: Introduce VFIO AP Matrix device
-  s390x/ap-matrix: Configure AP matrix for KVM guest
-  s390x/cpumodel: enable AP facilities for guest
-  s390x/docs: documentation for ap-matrix
+struct ib_gid_attr gid_attr;
 
- default-configs/s390x-softmmu.mak |    1 +
- docs/ap_matrix.txt                |  529 +++++++++++++++++++++++++++++++++++++
- hw/s390x/Makefile.objs            |    2 +
- hw/s390x/ap-matrix-device.c       |   33 +++
- hw/s390x/ap-matrix-device.h       |   53 ++++
- hw/s390x/s390-ap-matrix.c         |   52 ++++
- hw/vfio/Makefile.objs             |    1 +
- hw/vfio/ap-matrix.c               |  224 ++++++++++++++++
- include/hw/s390x/s390-ap-matrix.h |   39 +++
- include/hw/vfio/vfio-common.h     |    1 +
- linux-headers/linux/vfio.h        |   29 ++-
- target/s390x/cpu_features.c       |    2 +
- target/s390x/cpu_features_def.h   |    2 +
- target/s390x/gen-features.c       |    4 +
- 14 files changed, 969 insertions(+), 3 deletions(-)
- create mode 100644 docs/ap_matrix.txt
- create mode 100644 hw/s390x/ap-matrix-device.c
- create mode 100644 hw/s390x/ap-matrix-device.h
- create mode 100644 hw/s390x/s390-ap-matrix.c
- create mode 100644 hw/vfio/ap-matrix.c
- create mode 100644 include/hw/s390x/s390-ap-matrix.h
+rc =3D ib_query_gid(..., &gid_attr);
+if (rc || !gid_addr.ndev)
+	return -ENODEV;
+else
+	memcpy(smcibdev->mac, ndev->dev_addr, ETH_ALEN);
+dev_put(gid_addr.ndev);
