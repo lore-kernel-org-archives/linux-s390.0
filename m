@@ -1,14 +1,10 @@
-Date: Wed, 11 Oct 2017 12:20:33 +0200
-From: Petr Mladek <pmladek@suse.com>
-Subject: Re: [PATCH 12/13] kthread: Convert callback to use from_timer()
-Message-ID: <20171011102033.GB2882@pathway.suse.cz>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH 02/13] timer: Remove init_timer_pinned_deferrable() in favor of timer_setup()
+Date: Wed,  4 Oct 2017 16:26:56 -0700
+Message-Id: <1507159627-127660-3-git-send-email-keescook@chromium.org>
+In-Reply-To: <1507159627-127660-1-git-send-email-keescook@chromium.org>
 References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
- <1507159627-127660-13-git-send-email-keescook@chromium.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1507159627-127660-13-git-send-email-keescook@chromium.org>
-Return-Path: <pmladek@suse.com>
+Return-Path: <keescook@chromium.org>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -20,23 +16,79 @@ List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Kees Cook <keescook@chromium.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Tejun Heo <tj@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Chris Metcalf <cmetcalf@mellanox.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Harish Patil <harish.patil@cavium.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, John Stultz <john.stultz@linaro.org>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Kalle Valo <kvalo@qca.qualcomm.com>, Lai Jiangshan <jiangshanlai@gmail.com>, Len Brown <len.brown@intel.com>, Manish Chopra <manish.chopra@cavium.com>, Mark Gross <mark.gross@intel.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Michael Reed <mdr@sgi.com>, netdev@vger.kernel.org, Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Ralf Baechle <ralf@linux-mips.org>, Sebastian Reichel <sre@kernel.org>, Stefan Richter <stefanr@s5r6.in-berlin.de>, Stephen Boyd <sboyd@codeaurora.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Viresh Kumar <viresh.kumar@linaro.org>, Wim Van Sebroeck <wim@iguana.be>, linux1394-devel@lists.sourceforge.net, linux-mips@linux-mips.org, linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kees Cook <keescook@chromium.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Chris Metcalf <cmetcalf@mellanox.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Harish Patil <harish.patil@cavium.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, John Stultz <john.stultz@linaro.org>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Kalle Valo <kvalo@qca.qualcomm.com>, Lai Jiangshan <jiangshanlai@gmail.com>, Len Brown <len.brown@intel.com>, Manish Chopra <manish.chopra@cavium.com>, Mark Gross <mark.gross@intel.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Reed <mdr@sgi.com>, netdev@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>, Petr Mladek <pmladek@suse.com>, Ralf Baechle <ralf@linux-mips.org>, Sebastian Reichel <sre@kernel.org>, Stefan Richter <stefanr@s5r6.in-berlin.de>, Stephen Boyd <sboyd@codeaurora.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Tejun Heo <tj@kernel.org>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Wim Van Sebroeck <wim@iguana.be>, linux1394-devel@lists.sourceforge.net, linux-mips@linux-mips.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed 2017-10-04 16:27:06, Kees Cook wrote:
-> In preparation for unconditionally passing the struct timer_list pointer
-> to all timer callbacks, switch kthread to use from_timer() and pass the
-> timer pointer explicitly.
-> 
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Petr Mladek <pmladek@suse.com>
-> Cc: Tejun Heo <tj@kernel.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Oleg Nesterov <oleg@redhat.com>
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+This refactors the only user of init_timer_pinned_deferrable() to use the
+new timer_setup() and from_timer(). Adds a pointer back to the policy,
+and drops the definition of init_timer_pinned_deferrable().
 
-Reviewed-by: Petr Mladek <pmladek@suse.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-pm@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ drivers/cpufreq/powernv-cpufreq.c | 13 +++++++------
+ include/linux/timer.h             |  2 --
+ 2 files changed, 7 insertions(+), 8 deletions(-)
 
-Best Regards,
-Petr
+diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
+index 3ff5160451b4..b6d7c4c98d0a 100644
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -90,6 +90,7 @@ struct global_pstate_info {
+ 	int last_gpstate_idx;
+ 	spinlock_t gpstate_lock;
+ 	struct timer_list timer;
++	struct cpufreq_policy *policy;
+ };
+ 
+ static struct cpufreq_frequency_table powernv_freqs[POWERNV_MAX_PSTATES+1];
+@@ -625,10 +626,10 @@ static inline void  queue_gpstate_timer(struct global_pstate_info *gpstates)
+  * according quadratic equation. Queues a new timer if it is still not equal
+  * to local pstate
+  */
+-void gpstate_timer_handler(unsigned long data)
++void gpstate_timer_handler(struct timer_list *t)
+ {
+-	struct cpufreq_policy *policy = (struct cpufreq_policy *)data;
+-	struct global_pstate_info *gpstates = policy->driver_data;
++	struct global_pstate_info *gpstates = from_timer(gpstates, t, timer);
++	struct cpufreq_policy *policy = gpstates->policy;
+ 	int gpstate_idx, lpstate_idx;
+ 	unsigned long val;
+ 	unsigned int time_diff = jiffies_to_msecs(jiffies)
+@@ -800,9 +801,9 @@ static int powernv_cpufreq_cpu_init(struct cpufreq_policy *policy)
+ 	policy->driver_data = gpstates;
+ 
+ 	/* initialize timer */
+-	init_timer_pinned_deferrable(&gpstates->timer);
+-	gpstates->timer.data = (unsigned long)policy;
+-	gpstates->timer.function = gpstate_timer_handler;
++	gpstates->policy = policy;
++	timer_setup(&gpstates->timer, gpstate_timer_handler,
++		    TIMER_PINNED | TIMER_DEFERRABLE);
+ 	gpstates->timer.expires = jiffies +
+ 				msecs_to_jiffies(GPSTATE_TIMER_INTERVAL);
+ 	spin_lock_init(&gpstates->gpstate_lock);
+diff --git a/include/linux/timer.h b/include/linux/timer.h
+index 5ef5c9e41a09..d11e819a86e2 100644
+--- a/include/linux/timer.h
++++ b/include/linux/timer.h
+@@ -132,8 +132,6 @@ static inline void init_timer_on_stack_key(struct timer_list *timer,
+ 	__init_timer((timer), TIMER_PINNED)
+ #define init_timer_deferrable(timer)					\
+ 	__init_timer((timer), TIMER_DEFERRABLE)
+-#define init_timer_pinned_deferrable(timer)				\
+-	__init_timer((timer), TIMER_DEFERRABLE | TIMER_PINNED)
+ #define init_timer_on_stack(timer)					\
+ 	__init_timer_on_stack((timer), 0)
+ 
+-- 
+2.7.4
