@@ -1,10 +1,16 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 12/13] kthread: Convert callback to use from_timer()
-Date: Wed,  4 Oct 2017 16:27:06 -0700
-Message-Id: <1507159627-127660-13-git-send-email-keescook@chromium.org>
-In-Reply-To: <1507159627-127660-1-git-send-email-keescook@chromium.org>
+Subject: Re: [PATCH 09/13] timer: Remove users of expire and data arguments to
+ DEFINE_TIMER
 References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
-Return-Path: <keescook@chromium.org>
+ <1507159627-127660-10-git-send-email-keescook@chromium.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <8219ece3-429a-1a25-1fd5-5ee5bacde53c@roeck-us.net>
+Date: Wed, 4 Oct 2017 17:12:21 -0700
+MIME-Version: 1.0
+In-Reply-To: <1507159627-127660-10-git-send-email-keescook@chromium.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Return-Path: <groeck7@gmail.com>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -16,92 +22,71 @@ List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, Petr Mladek <pmladek@suse.com>, Tejun Heo <tj@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Chris Metcalf <cmetcalf@mellanox.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Harish Patil <harish.patil@cavium.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, John Stultz <john.stultz@linaro.org>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Kalle Valo <kvalo@qca.qualcomm.com>, Lai Jiangshan <jiangshanlai@gmail.com>, Len Brown <len.brown@intel.com>, Manish Chopra <manish.chopra@cavium.com>, Mark Gross <mark.gross@intel.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Michael Reed <mdr@sgi.com>, netdev@vger.kernel.org, Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Ralf Baechle <ralf@linux-mips.org>, Sebastian Reichel <sre@kernel.org>, Stefan Richter <stefanr@s5r6.in-berlin.de>, Stephen Boyd <sboyd@codeaurora.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Viresh Kumar <viresh.kumar@linaro.org>, Wim Van Sebroeck <wim@iguana.be>, linux1394-devel@lists.sourceforge.net, linux-mips@linux-mips.org, linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Wim Van Sebroeck <wim@iguana.be>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Chris Metcalf <cmetcalf@mellanox.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Harish Patil <harish.patil@cavium.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, John Stultz <john.stultz@linaro.org>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Kalle Valo <kvalo@qca.qualcomm.com>, Lai Jiangshan <jiangshanlai@gmail.com>, Len Brown <len.brown@intel.com>, Manish Chopra <manish.chopra@cavium.com>, Mark Gross <mark.gross@intel.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Michael Reed <mdr@sgi.com>, netdev@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>, Petr Mladek <pmladek@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Sebastian Reichel <sre@kernel.org>, Stefan Richter <stefanr@s5r6.in-berlin.de>, Stephen Boyd <sboyd@codeaurora.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Tejun Heo <tj@kernel.org>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Viresh Kumar <viresh.kumar@linaro.org>, linux1394-devel@lists.sourceforge.net, linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In preparation for unconditionally passing the struct timer_list pointer
-to all timer callbacks, switch kthread to use from_timer() and pass the
-timer pointer explicitly.
+On 10/04/2017 04:27 PM, Kees Cook wrote:
+> The expire and data arguments of DEFINE_TIMER are only used in two places
+> and are ignored by the code (malta-display.c only uses mod_timer(),
+> never add_timer(), so the preset expires value is ignored). Set both
+> sets of arguments to zero.
+> 
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: linux-mips@linux-mips.org
+> Cc: linux-watchdog@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- include/linux/kthread.h | 10 +++++-----
- kernel/kthread.c        | 10 ++++------
- 2 files changed, 9 insertions(+), 11 deletions(-)
+For watchdog:
 
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index 0d622b350d3f..35cbe3b0ce5b 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -75,7 +75,7 @@ extern int tsk_fork_get_node(struct task_struct *tsk);
-  */
- struct kthread_work;
- typedef void (*kthread_work_func_t)(struct kthread_work *work);
--void kthread_delayed_work_timer_fn(unsigned long __data);
-+void kthread_delayed_work_timer_fn(struct timer_list *t);
- 
- enum {
- 	KTW_FREEZABLE		= 1 << 0,	/* freeze during suspend */
-@@ -116,8 +116,8 @@ struct kthread_delayed_work {
- 
- #define KTHREAD_DELAYED_WORK_INIT(dwork, fn) {				\
- 	.work = KTHREAD_WORK_INIT((dwork).work, (fn)),			\
--	.timer = __TIMER_INITIALIZER(kthread_delayed_work_timer_fn,	\
--				     (unsigned long)&(dwork),		\
-+	.timer = __TIMER_INITIALIZER((TIMER_FUNC_TYPE)kthread_delayed_work_timer_fn,\
-+				     (TIMER_DATA_TYPE)&(dwork.timer),	\
- 				     TIMER_IRQSAFE),			\
- 	}
- 
-@@ -164,8 +164,8 @@ extern void __kthread_init_worker(struct kthread_worker *worker,
- 	do {								\
- 		kthread_init_work(&(dwork)->work, (fn));		\
- 		__setup_timer(&(dwork)->timer,				\
--			      kthread_delayed_work_timer_fn,		\
--			      (unsigned long)(dwork),			\
-+			      (TIMER_FUNC_TYPE)kthread_delayed_work_timer_fn,\
-+			      (TIMER_DATA_TYPE)&(dwork)->timer,		\
- 			      TIMER_IRQSAFE);				\
- 	} while (0)
- 
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 1c19edf82427..ba3992c8c375 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -798,15 +798,14 @@ EXPORT_SYMBOL_GPL(kthread_queue_work);
- /**
-  * kthread_delayed_work_timer_fn - callback that queues the associated kthread
-  *	delayed work when the timer expires.
-- * @__data: pointer to the data associated with the timer
-+ * @t: pointer to the expired timer
-  *
-  * The format of the function is defined by struct timer_list.
-  * It should have been called from irqsafe timer with irq already off.
-  */
--void kthread_delayed_work_timer_fn(unsigned long __data)
-+void kthread_delayed_work_timer_fn(struct timer_list *t)
- {
--	struct kthread_delayed_work *dwork =
--		(struct kthread_delayed_work *)__data;
-+	struct kthread_delayed_work *dwork = from_timer(dwork, t, timer);
- 	struct kthread_work *work = &dwork->work;
- 	struct kthread_worker *worker = work->worker;
- 
-@@ -837,8 +836,7 @@ void __kthread_queue_delayed_work(struct kthread_worker *worker,
- 	struct timer_list *timer = &dwork->timer;
- 	struct kthread_work *work = &dwork->work;
- 
--	WARN_ON_ONCE(timer->function != kthread_delayed_work_timer_fn ||
--		     timer->data != (unsigned long)dwork);
-+	WARN_ON_ONCE(timer->function != (TIMER_FUNC_TYPE)kthread_delayed_work_timer_fn);
- 
- 	/*
- 	 * If @delay is 0, queue @dwork->work immediately.  This is for
--- 
-2.7.4
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+
+> ---
+>   arch/mips/mti-malta/malta-display.c | 6 +++---
+>   drivers/watchdog/alim7101_wdt.c     | 4 ++--
+>   2 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/mips/mti-malta/malta-display.c b/arch/mips/mti-malta/malta-display.c
+> index d4f807191ecd..ac813158b9b8 100644
+> --- a/arch/mips/mti-malta/malta-display.c
+> +++ b/arch/mips/mti-malta/malta-display.c
+> @@ -36,10 +36,10 @@ void mips_display_message(const char *str)
+>   	}
+>   }
+>   
+> -static void scroll_display_message(unsigned long data);
+> -static DEFINE_TIMER(mips_scroll_timer, scroll_display_message, HZ, 0);
+> +static void scroll_display_message(unsigned long unused);
+> +static DEFINE_TIMER(mips_scroll_timer, scroll_display_message, 0, 0);
+>   
+> -static void scroll_display_message(unsigned long data)
+> +static void scroll_display_message(unsigned long unused)
+>   {
+>   	mips_display_message(&display_string[display_count++]);
+>   	if (display_count == max_display_count)
+> diff --git a/drivers/watchdog/alim7101_wdt.c b/drivers/watchdog/alim7101_wdt.c
+> index 665e0e7dfe1e..3c1f6ac68ea9 100644
+> --- a/drivers/watchdog/alim7101_wdt.c
+> +++ b/drivers/watchdog/alim7101_wdt.c
+> @@ -71,7 +71,7 @@ MODULE_PARM_DESC(use_gpio,
+>   		"Use the gpio watchdog (required by old cobalt boards).");
+>   
+>   static void wdt_timer_ping(unsigned long);
+> -static DEFINE_TIMER(timer, wdt_timer_ping, 0, 1);
+> +static DEFINE_TIMER(timer, wdt_timer_ping, 0, 0);
+>   static unsigned long next_heartbeat;
+>   static unsigned long wdt_is_open;
+>   static char wdt_expect_close;
+> @@ -87,7 +87,7 @@ MODULE_PARM_DESC(nowayout,
+>    *	Whack the dog
+>    */
+>   
+> -static void wdt_timer_ping(unsigned long data)
+> +static void wdt_timer_ping(unsigned long unused)
+>   {
+>   	/* If we got a heartbeat pulse within the WDT_US_INTERVAL
+>   	 * we agree to ping the WDT
+> 
