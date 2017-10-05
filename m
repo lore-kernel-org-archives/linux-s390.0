@@ -1,50 +1,40 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1] s390/qeth: use kstrtobool() in qeth_bridgeport_hostnotification_store()
-Date: Wed,  4 Oct 2017 16:38:51 +0300
-Message-ID: <20171004133851.18595-1-andriy.shevchenko@linux.intel.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Julian Wiedmann <jwi@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, David Miller <davem@davemloft.net>, netdev@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 5 Oct 2017 19:06:30 +0200 (CEST)
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Subject: Re: [PATCH] s390: qdio: Convert timers to use timer_setup()
+In-Reply-To: <CAGXu5jL+za1du_1kOZj1i50kXDGzY91EvLhnO5EJSQ1q1WN6NQ@mail.gmail.com>
+References: <20171005005435.GA23979@beast> <alpine.LFD.2.21.1710051107190.1796@schleppi>  <CAGXu5jL+za1du_1kOZj1i50kXDGzY91EvLhnO5EJSQ1q1WN6NQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <alpine.LFD.2.21.1710051905350.1796@schleppi>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Kees Cook <keescook@chromium.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-The sysfs enabled value is a boolean, so kstrtobool() is a better fit
-for parsing the input string since it does the range checking for us.
+On Thu, 5 Oct 2017, Kees Cook wrote:
+> On Thu, Oct 5, 2017 at 2:13 AM, Sebastian Ott <sebott@linux.vnet.ibm.com> wrote:
+> > On Wed, 4 Oct 2017, Kees Cook wrote:
+> >> In preparation for unconditionally passing the struct timer_list pointer to
+> >> all timer callbacks, switch to using the new timer_setup() and from_timer()
+> >> to pass the timer pointer explicitly.
+> >
+> >> -void qdio_outbound_timer(unsigned long data)
+> >> +void qdio_outbound_timer(struct timer_list *t)
+> >>  {
+> >> -     struct qdio_q *q = (struct qdio_q *)data;
+> >> +     struct qdio_q *q = from_timer(q, t, o.out.timer);
+> >                                             ^
+> >                              this should be u.out.timer
+> 
+> Oh thank you, good catch!
+> 
+> > Will be applied to s390/linux.git
+> 
+> Did you fix this up already or should I send a v2?
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/s390/net/qeth_l2_sys.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+Already fixed, so no V2 needed.
 
-diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
-index 4608daedb204..470a4e5f3c62 100644
---- a/drivers/s390/net/qeth_l2_sys.c
-+++ b/drivers/s390/net/qeth_l2_sys.c
-@@ -146,18 +146,15 @@ static ssize_t qeth_bridgeport_hostnotification_store(struct device *dev,
- 		struct device_attribute *attr, const char *buf, size_t count)
- {
- 	struct qeth_card *card = dev_get_drvdata(dev);
--	int rc = 0;
--	int enable;
-+	bool enable;
-+	int rc;
- 
- 	if (!card)
- 		return -EINVAL;
- 
--	if (sysfs_streq(buf, "0"))
--		enable = 0;
--	else if (sysfs_streq(buf, "1"))
--		enable = 1;
--	else
--		return -EINVAL;
-+	rc = kstrtobool(buf, &enable);
-+	if (rc)
-+		return rc;
- 
- 	mutex_lock(&card->conf_mutex);
- 
--- 
-2.14.2
+Sebastian
