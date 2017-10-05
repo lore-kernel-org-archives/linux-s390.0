@@ -1,55 +1,26 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 27 Oct 2017 09:55:19 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 4.14-rc7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: Re: [PATCH v1] s390/qeth: use kstrtobool() in
+ qeth_bridgeport_hostnotification_store()
+Date: Thu, 5 Oct 2017 10:22:43 +0200
+Message-ID: <5c0ddbd0-0843-03e3-bceb-5422e2789623@linux.vnet.ibm.com>
+References: <20171004133851.18595-1-andriy.shevchenko@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20171027095519.75216309@mschwideX1>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20171004133851.18595-1-andriy.shevchenko@linux.intel.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, David Miller <davem@davemloft.net>, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On 10/04/2017 03:38 PM, Andy Shevchenko wrote:
+> The sysfs enabled value is a boolean, so kstrtobool() is a better fit
+> for parsing the input string since it does the range checking for us.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
 
-please pull from the 'for-linus' branch of
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
-
-to receive the following updates:
-
-"A fix for a regression in regard to machine check handling in KVM."
-
-Keeping my fingers crossed that this is the last s390 fix for v4.14.
-
-Martin Schwidefsky (1):
-      s390/kvm: fix detection of guest machine checks
-
- arch/s390/kernel/entry.S | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 21900e1..d185aa3 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -521,12 +521,15 @@ ENTRY(pgm_check_handler)
- 	tmhh	%r8,0x0001		# test problem state bit
- 	jnz	2f			# -> fault in user space
- #if IS_ENABLED(CONFIG_KVM)
--	# cleanup critical section for sie64a
-+	# cleanup critical section for program checks in sie64a
- 	lgr	%r14,%r9
- 	slg	%r14,BASED(.Lsie_critical_start)
- 	clg	%r14,BASED(.Lsie_critical_length)
- 	jhe	0f
--	brasl	%r14,.Lcleanup_sie
-+	lg	%r14,__SF_EMPTY(%r15)		# get control block pointer
-+	ni	__SIE_PROG0C+3(%r14),0xfe	# no longer in SIE
-+	lctlg	%c1,%c1,__LC_USER_ASCE		# load primary asce
-+	larl	%r9,sie_exit			# skip forward to sie_exit
- #endif
- 0:	tmhh	%r8,0x4000		# PER bit set in old PSW ?
- 	jnz	1f			# -> enabled, can't be a double fault
+Thanks Andy, queued up for our next upstream submission.
