@@ -1,116 +1,93 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: Re: [PATCH net-next 01/10] net/smc: add missing dev_put
-Date: Thu, 5 Oct 2017 09:54:08 +0200
-Message-ID: <7961df23-1603-7853-5f3e-f31095aebba0@linux.vnet.ibm.com>
+From: Parav Pandit <parav@mellanox.com>
+Subject: RE: [PATCH net-next 01/10] net/smc: add missing dev_put
+Date: Thu, 5 Oct 2017 14:44:52 +0000
+Message-ID: <VI1PR0502MB300821C0E577822DC66E1A83D1700@VI1PR0502MB3008.eurprd05.prod.outlook.com>
 References: <20170920115813.63745-1-ubraun@linux.vnet.ibm.com>
  <20170920115813.63745-2-ubraun@linux.vnet.ibm.com>
  <VI1PR0502MB30089D06B9C95D682E21511BD17D0@VI1PR0502MB3008.eurprd05.prod.outlook.com>
+ <7961df23-1603-7853-5f3e-f31095aebba0@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <VI1PR0502MB30089D06B9C95D682E21511BD17D0@VI1PR0502MB3008.eurprd05.prod.outlook.com>
+In-Reply-To: <7961df23-1603-7853-5f3e-f31095aebba0@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-rdma/>
 List-Post: <mailto:linux-rdma@vger.kernel.org>
-To: Parav Pandit <parav@mellanox.com>
+To: Ursula Braun <ubraun@linux.vnet.ibm.com>
 Cc: "davem@davemloft.net" <davem@davemloft.net>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "jwi@linux.vnet.ibm.com" <jwi@linux.vnet.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "raspl@linux.vnet.ibm.com" <raspl@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 10/02/2017 10:36 PM, Parav Pandit wrote:
-> Hi Ursula, Dave, Hans,
-> 
->> -----Original Message-----
->> From: linux-rdma-owner@vger.kernel.org [mailto:linux-rdma-
->> owner@vger.kernel.org] On Behalf Of Ursula Braun
->> Sent: Wednesday, September 20, 2017 6:58 AM
->> To: davem@davemloft.net
->> Cc: netdev@vger.kernel.org; linux-rdma@vger.kernel.org; linux-
->> s390@vger.kernel.org; jwi@linux.vnet.ibm.com; schwidefsky@de.ibm.com;
->> heiko.carstens@de.ibm.com; raspl@linux.vnet.ibm.com;
->> ubraun@linux.vnet.ibm.com
->> Subject: [PATCH net-next 01/10] net/smc: add missing dev_put
->>
->> From: Hans Wippel <hwippel@linux.vnet.ibm.com>
->>
->> In the infiniband part, SMC currently uses get_netdev which calls dev_hold on
->> the returned net device. However, the SMC code never calls dev_put on that net
->> device resulting in a wrong reference count.
->>
->> This patch adds a dev_put after the usage of the net device to fix the issue.
->>
->> Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
->> Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
->> ---
->>  net/smc/smc_ib.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c index
->> 547e0e113b17..0b5852299158 100644
->> --- a/net/smc/smc_ib.c
->> +++ b/net/smc/smc_ib.c
->> @@ -380,6 +380,7 @@ static int smc_ib_fill_gid_and_mac(struct smc_ib_device
->> *smcibdev, u8 ibport)
->>  	ndev = smcibdev->ibdev->get_netdev(smcibdev->ibdev, ibport);
->>  	if (ndev) {
->>  		memcpy(&smcibdev->mac, ndev->dev_addr, ETH_ALEN);
->> +		dev_put(ndev);
-> 
-> I am sorry for providing late comments. smc_ib_fill_gid_and_mac() is not coded correctly.
-> Few fixes are needed.
-> 1. ULP such as SMC should not open code/deference any function pointer like get_netdev() of the IB device.
-> 2. Replace ib_query_gid(..., NULL)
-> With
-> ib_query_gid(..., gid_attr);
-> 
-> Use gid_attr.ndev to get the MAC address.
-> Do dev_put(gid_attr.ndev);
-> 
-> Code should look like below,
-> 
-> struct ib_gid_attr gid_attr;
-> 
-> rc = ib_query_gid(..., &gid_attr);
-> if (rc || !gid_addr.ndev)
-> 	return -ENODEV;
-> else
-> 	memcpy(smcibdev->mac, ndev->dev_addr, ETH_ALEN);
-> dev_put(gid_addr.ndev);
-> 
-
-Thanks, Parav!
-Following your fix ideas I plan to change the function into this one:
-
-static int smc_ib_fill_gid_and_mac(struct smc_ib_device *smcibdev, u8 ibport)
-{
-        struct ib_gid_attr gattr;
-        int rc;
-
-        rc = ib_query_gid(smcibdev->ibdev, ibport, 0,
-                          &smcibdev->gid[ibport - 1], &gattr);
-        /* the SMC protocol requires specification of the roce MAC address;
-         * if net_device cannot be determined, it can be derived from gid 0
-         */
-        if (rc)
-                return rc;
-
-        if (gattr.ndev) {
-                memcpy(&smcibdev->mac, gattr.ndev->dev_addr, ETH_ALEN);
-                dev_put(gattr.ndev);
-        } else {
-                memcpy(&smcibdev->mac[ibport - 1][0],
-                       &smcibdev->gid[ibport - 1].raw[8], 3);
-                memcpy(&smcibdev->mac[ibport - 1][3],
-                       &smcibdev->gid[ibport - 1].raw[13], 3);
-                smcibdev->mac[ibport - 1][0] &= ~0x02;
-        }
-        return 0;
-}
-
-If you agree, I will submit the corresponding patch including a
-	Suggested-by: Parav Pandit <parav@mellanox.com>
-
-Regards, Ursula
+SGkgVXJzdWxhLA0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IFVyc3Vs
+YSBCcmF1biBbbWFpbHRvOnVicmF1bkBsaW51eC52bmV0LmlibS5jb21dDQo+IFNlbnQ6IFRodXJz
+ZGF5LCBPY3RvYmVyIDA1LCAyMDE3IDI6NTQgQU0NCj4gVG86IFBhcmF2IFBhbmRpdCA8cGFyYXZA
+bWVsbGFub3guY29tPg0KPiBDYzogZGF2ZW1AZGF2ZW1sb2Z0Lm5ldDsgbmV0ZGV2QHZnZXIua2Vy
+bmVsLm9yZzsgbGludXgtDQo+IHJkbWFAdmdlci5rZXJuZWwub3JnOyBsaW51eC1zMzkwQHZnZXIu
+a2VybmVsLm9yZzsgandpQGxpbnV4LnZuZXQuaWJtLmNvbTsNCj4gc2Nod2lkZWZza3lAZGUuaWJt
+LmNvbTsgaGVpa28uY2Fyc3RlbnNAZGUuaWJtLmNvbTsNCj4gcmFzcGxAbGludXgudm5ldC5pYm0u
+Y29tDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggbmV0LW5leHQgMDEvMTBdIG5ldC9zbWM6IGFkZCBt
+aXNzaW5nIGRldl9wdXQNCj4gDQo+IA0KPiANCj4gT24gMTAvMDIvMjAxNyAxMDozNiBQTSwgUGFy
+YXYgUGFuZGl0IHdyb3RlOg0KPiA+IEhpIFVyc3VsYSwgRGF2ZSwgSGFucywNCj4gPg0KPiA+PiAt
+LS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+PiBGcm9tOiBsaW51eC1yZG1hLW93bmVyQHZn
+ZXIua2VybmVsLm9yZyBbbWFpbHRvOmxpbnV4LXJkbWEtDQo+ID4+IG93bmVyQHZnZXIua2VybmVs
+Lm9yZ10gT24gQmVoYWxmIE9mIFVyc3VsYSBCcmF1bg0KPiA+PiBTZW50OiBXZWRuZXNkYXksIFNl
+cHRlbWJlciAyMCwgMjAxNyA2OjU4IEFNDQo+ID4+IFRvOiBkYXZlbUBkYXZlbWxvZnQubmV0DQo+
+ID4+IENjOiBuZXRkZXZAdmdlci5rZXJuZWwub3JnOyBsaW51eC1yZG1hQHZnZXIua2VybmVsLm9y
+ZzsgbGludXgtDQo+ID4+IHMzOTBAdmdlci5rZXJuZWwub3JnOyBqd2lAbGludXgudm5ldC5pYm0u
+Y29tOyBzY2h3aWRlZnNreUBkZS5pYm0uY29tOw0KPiA+PiBoZWlrby5jYXJzdGVuc0BkZS5pYm0u
+Y29tOyByYXNwbEBsaW51eC52bmV0LmlibS5jb207DQo+ID4+IHVicmF1bkBsaW51eC52bmV0Lmli
+bS5jb20NCj4gPj4gU3ViamVjdDogW1BBVENIIG5ldC1uZXh0IDAxLzEwXSBuZXQvc21jOiBhZGQg
+bWlzc2luZyBkZXZfcHV0DQo+ID4+DQo+ID4+IEZyb206IEhhbnMgV2lwcGVsIDxod2lwcGVsQGxp
+bnV4LnZuZXQuaWJtLmNvbT4NCj4gPj4NCj4gPj4gSW4gdGhlIGluZmluaWJhbmQgcGFydCwgU01D
+IGN1cnJlbnRseSB1c2VzIGdldF9uZXRkZXYgd2hpY2ggY2FsbHMNCj4gPj4gZGV2X2hvbGQgb24g
+dGhlIHJldHVybmVkIG5ldCBkZXZpY2UuIEhvd2V2ZXIsIHRoZSBTTUMgY29kZSBuZXZlcg0KPiA+
+PiBjYWxscyBkZXZfcHV0IG9uIHRoYXQgbmV0IGRldmljZSByZXN1bHRpbmcgaW4gYSB3cm9uZyBy
+ZWZlcmVuY2UgY291bnQuDQo+ID4+DQo+ID4+IFRoaXMgcGF0Y2ggYWRkcyBhIGRldl9wdXQgYWZ0
+ZXIgdGhlIHVzYWdlIG9mIHRoZSBuZXQgZGV2aWNlIHRvIGZpeCB0aGUgaXNzdWUuDQo+ID4+DQo+
+ID4+IFNpZ25lZC1vZmYtYnk6IEhhbnMgV2lwcGVsIDxod2lwcGVsQGxpbnV4LnZuZXQuaWJtLmNv
+bT4NCj4gPj4gU2lnbmVkLW9mZi1ieTogVXJzdWxhIEJyYXVuIDx1YnJhdW5AbGludXgudm5ldC5p
+Ym0uY29tPg0KPiA+PiAtLS0NCj4gPj4gIG5ldC9zbWMvc21jX2liLmMgfCAxICsNCj4gPj4gIDEg
+ZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKQ0KPiA+Pg0KPiA+PiBkaWZmIC0tZ2l0IGEvbmV0
+L3NtYy9zbWNfaWIuYyBiL25ldC9zbWMvc21jX2liLmMgaW5kZXgNCj4gPj4gNTQ3ZTBlMTEzYjE3
+Li4wYjU4NTIyOTkxNTggMTAwNjQ0DQo+ID4+IC0tLSBhL25ldC9zbWMvc21jX2liLmMNCj4gPj4g
+KysrIGIvbmV0L3NtYy9zbWNfaWIuYw0KPiA+PiBAQCAtMzgwLDYgKzM4MCw3IEBAIHN0YXRpYyBp
+bnQgc21jX2liX2ZpbGxfZ2lkX2FuZF9tYWMoc3RydWN0DQo+ID4+IHNtY19pYl9kZXZpY2UgKnNt
+Y2liZGV2LCB1OCBpYnBvcnQpDQo+ID4+ICAJbmRldiA9IHNtY2liZGV2LT5pYmRldi0+Z2V0X25l
+dGRldihzbWNpYmRldi0+aWJkZXYsIGlicG9ydCk7DQo+ID4+ICAJaWYgKG5kZXYpIHsNCj4gPj4g
+IAkJbWVtY3B5KCZzbWNpYmRldi0+bWFjLCBuZGV2LT5kZXZfYWRkciwgRVRIX0FMRU4pOw0KPiA+
+PiArCQlkZXZfcHV0KG5kZXYpOw0KPiA+DQo+ID4gSSBhbSBzb3JyeSBmb3IgcHJvdmlkaW5nIGxh
+dGUgY29tbWVudHMuIHNtY19pYl9maWxsX2dpZF9hbmRfbWFjKCkgaXMgbm90DQo+IGNvZGVkIGNv
+cnJlY3RseS4NCj4gPiBGZXcgZml4ZXMgYXJlIG5lZWRlZC4NCj4gPiAxLiBVTFAgc3VjaCBhcyBT
+TUMgc2hvdWxkIG5vdCBvcGVuIGNvZGUvZGVmZXJlbmNlIGFueSBmdW5jdGlvbiBwb2ludGVyIGxp
+a2UNCj4gZ2V0X25ldGRldigpIG9mIHRoZSBJQiBkZXZpY2UuDQo+ID4gMi4gUmVwbGFjZSBpYl9x
+dWVyeV9naWQoLi4uLCBOVUxMKQ0KPiA+IFdpdGgNCj4gPiBpYl9xdWVyeV9naWQoLi4uLCBnaWRf
+YXR0cik7DQo+ID4NCj4gPiBVc2UgZ2lkX2F0dHIubmRldiB0byBnZXQgdGhlIE1BQyBhZGRyZXNz
+Lg0KPiA+IERvIGRldl9wdXQoZ2lkX2F0dHIubmRldik7DQo+ID4NCj4gPiBDb2RlIHNob3VsZCBs
+b29rIGxpa2UgYmVsb3csDQo+ID4NCj4gPiBzdHJ1Y3QgaWJfZ2lkX2F0dHIgZ2lkX2F0dHI7DQo+
+ID4NCj4gPiByYyA9IGliX3F1ZXJ5X2dpZCguLi4sICZnaWRfYXR0cik7DQo+ID4gaWYgKHJjIHx8
+ICFnaWRfYWRkci5uZGV2KQ0KPiA+IAlyZXR1cm4gLUVOT0RFVjsNCj4gPiBlbHNlDQo+ID4gCW1l
+bWNweShzbWNpYmRldi0+bWFjLCBuZGV2LT5kZXZfYWRkciwgRVRIX0FMRU4pOw0KPiA+IGRldl9w
+dXQoZ2lkX2FkZHIubmRldik7DQo+ID4NCj4gDQo+IFRoYW5rcywgUGFyYXYhDQo+IEZvbGxvd2lu
+ZyB5b3VyIGZpeCBpZGVhcyBJIHBsYW4gdG8gY2hhbmdlIHRoZSBmdW5jdGlvbiBpbnRvIHRoaXMg
+b25lOg0KPiANCj4gc3RhdGljIGludCBzbWNfaWJfZmlsbF9naWRfYW5kX21hYyhzdHJ1Y3Qgc21j
+X2liX2RldmljZSAqc21jaWJkZXYsIHU4IGlicG9ydCkgew0KPiAgICAgICAgIHN0cnVjdCBpYl9n
+aWRfYXR0ciBnYXR0cjsNCj4gICAgICAgICBpbnQgcmM7DQo+IA0KPiAgICAgICAgIHJjID0gaWJf
+cXVlcnlfZ2lkKHNtY2liZGV2LT5pYmRldiwgaWJwb3J0LCAwLA0KPiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICZzbWNpYmRldi0+Z2lkW2licG9ydCAtIDFdLCAmZ2F0dHIpOw0KPiAgICAgICAg
+IC8qIHRoZSBTTUMgcHJvdG9jb2wgcmVxdWlyZXMgc3BlY2lmaWNhdGlvbiBvZiB0aGUgcm9jZSBN
+QUMgYWRkcmVzczsNCj4gICAgICAgICAgKiBpZiBuZXRfZGV2aWNlIGNhbm5vdCBiZSBkZXRlcm1p
+bmVkLCBpdCBjYW4gYmUgZGVyaXZlZCBmcm9tIGdpZCAwDQo+ICAgICAgICAgICovDQo+ICAgICAg
+ICAgaWYgKHJjKQ0KPiAgICAgICAgICAgICAgICAgcmV0dXJuIHJjOw0KPiANCj4gICAgICAgICBp
+ZiAoZ2F0dHIubmRldikgew0KPiAgICAgICAgICAgICAgICAgbWVtY3B5KCZzbWNpYmRldi0+bWFj
+LCBnYXR0ci5uZGV2LT5kZXZfYWRkciwgRVRIX0FMRU4pOw0KPiAgICAgICAgICAgICAgICAgZGV2
+X3B1dChnYXR0ci5uZGV2KTsNCj4gICAgICAgICB9IGVsc2Ugew0KPiAgICAgICAgICAgICAgICAg
+bWVtY3B5KCZzbWNpYmRldi0+bWFjW2licG9ydCAtIDFdWzBdLA0KPiAgICAgICAgICAgICAgICAg
+ICAgICAgICZzbWNpYmRldi0+Z2lkW2licG9ydCAtIDFdLnJhd1s4XSwgMyk7DQo+ICAgICAgICAg
+ICAgICAgICBtZW1jcHkoJnNtY2liZGV2LT5tYWNbaWJwb3J0IC0gMV1bM10sDQo+ICAgICAgICAg
+ICAgICAgICAgICAgICAgJnNtY2liZGV2LT5naWRbaWJwb3J0IC0gMV0ucmF3WzEzXSwgMyk7DQo+
+ICAgICAgICAgICAgICAgICBzbWNpYmRldi0+bWFjW2licG9ydCAtIDFdWzBdICY9IH4weDAyOw0K
+VGhpcyBlbHNlIHBhcnQgaXMgbm90IG5lZWRlZC4gWW91IGNhbiBmYWlsIHRoZSBjYWxsIGFzIHN1
+Z2dlc3RlZCBhYm92ZSwgaW5saW5lIGJlbG93IHRvby4NCmlmIChyYyB8fCAhZ2lkX2FkZHIubmRl
+dikNCiAJcmV0dXJuIC1FTk9ERVY7DQpUaGVyZSBtdXN0IGJlIHZhbGlkIG5ldGRldiBmb3IgUm9D
+RSBnaWQuDQpSZXN0IGNvZGUgbG9va3MgZmluZS4NCg==
