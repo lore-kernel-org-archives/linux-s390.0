@@ -1,15 +1,16 @@
-Date: Wed, 04 Oct 2017 17:41:34 -0700 (PDT)
-Message-Id: <20171004.174134.1260012045520624727.davem@davemloft.net>
-Subject: Re: [PATCH 04/13] timer: Remove init_timer_pinned() in favor of
+Date: Thu, 5 Oct 2017 03:02:18 +0200
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH 05/13] timer: Remove init_timer_deferrable() in favor of
  timer_setup()
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1507159627-127660-5-git-send-email-keescook@chromium.org>
+Message-ID: <20171005010218.v3aw4d3y66jn3bbo@earth>
 References: <1507159627-127660-1-git-send-email-keescook@chromium.org>
-        <1507159627-127660-5-git-send-email-keescook@chromium.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-Path: <davem@davemloft.net>
+ <1507159627-127660-6-git-send-email-keescook@chromium.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ioctv6qfrc7mty7c"
+Content-Disposition: inline
+In-Reply-To: <1507159627-127660-6-git-send-email-keescook@chromium.org>
+Return-Path: <sre@kernel.org>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -21,22 +22,48 @@ List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
-To: keescook@chromium.org
-Cc: tglx@linutronix.de, cmetcalf@mellanox.com, netdev@vger.kernel.org, akpm@linux-foundation.org, arnd@arndb.de, benh@kernel.crashing.org, geert@linux-m68k.org, gregkh@linuxfoundation.org, linux@roeck-us.net, harish.patil@cavium.com, heiko.carstens@de.ibm.com, jejb@linux.vnet.ibm.com, john.stultz@linaro.org, jwi@linux.vnet.ibm.com, kvalo@qca.qualcomm.com, jiangshanlai@gmail.com, len.brown@intel.com, manish.chopra@cavium.com, mark.gross@intel.com, martin.petersen@oracle.com, schwidefsky@de.ibm.com, mpe@ellerman.id.au, mdr@sgi.com, oleg@redhat.com, paulus@samba.org, pavel@ucw.cz, pmladek@suse.com, rjw@rjwysocki.net, ralf@linux-mips.org, sre@kernel.org, stefanr@s5r6.in-berlin.de, sboyd@codeaurora.org, sudipm.mukherjee@gmail.com, tj@kernel.org, ubraun@linux.vnet.ibm.com, viresh.kumar@linaro.org, wim@iguana.be, linux1394-devel@lists.sourceforge.net, linux-mips@linux-mips.org, linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>, Harish Patil <harish.patil@cavium.com>, Manish Chopra <manish.chopra@cavium.com>, Kalle Valo <kvalo@qca.qualcomm.com>, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Chris Metcalf <cmetcalf@mellanox.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, John Stultz <john.stultz@linaro.org>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Lai Jiangshan <jiangshanlai@gmail.com>, Len Brown <len.brown@intel.com>, Mark Gross <mark.gross@intel.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Reed <mdr@sgi.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>, Petr Mladek <pmladek@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Ralf Baechle <ralf@linux-mips.org>, Stefan Richter <stefanr@s5r6.in-berlin.de>, Stephen Boyd <sboyd@codeaurora.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Tejun Heo <tj@kernel.org>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Viresh Kumar <viresh.kumar@linaro.org>, Wim Van Sebroeck <wim@iguana.be>, linux1394-devel@lists.sourceforge.net, linux-mips@linux-mips.org, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Kees Cook <keescook@chromium.org>
-Date: Wed,  4 Oct 2017 16:26:58 -0700
 
-> This refactors the only users of init_timer_pinned() to use
-> the new timer_setup() and from_timer(). Drops the definition of
-> init_timer_pinned().
-> 
-> Cc: Chris Metcalf <cmetcalf@mellanox.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+--ioctv6qfrc7mty7c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-For networking:
+Hi,
 
-Acked-by: David S. Miller <davem@davemloft.net>
+On Wed, Oct 04, 2017 at 04:26:59PM -0700, Kees Cook wrote:
+> This refactors the only users of init_timer_deferrable() to use
+> the new timer_setup() and from_timer(). Removes definition of
+> init_timer_deferrable().
+
+[...]
+
+>  drivers/hsi/clients/ssi_protocol.c           | 32 ++++++++++++++++------------
+
+Acked-by: Sebastian Reichel <sre@kernel.org>
+
+-- Sebastian
+
+--ioctv6qfrc7mty7c
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlnVhJQACgkQ2O7X88g7
++poqtw/+NVd8QRs2QuA6PAGWHUwxaYVABpFWmmT6auUlvyFDZ3dfZJID5IF3k1iT
+na5dX3a4nAKolDTmc7NOxWF7vEH/L/ONlRhfTt69PFg9oAk5KNjS1RdEx1bdxGRU
+rUBXQwOc2zi9LqxB2Hd8GQXOOhxbw0gICl4wrLCoUdkGNJs5fPpR6zVG8PGbntpq
+WWjDPDja6L+D6+pMhGADYfYj7Xtkfm0GWn3bycnHFKvFB61feCjknnH33QHR2Ayt
+O7gqcCR5aaYf6EadcVT4wR+ZRYl/7sZt102ziwKAsy2eztiOIsj4N8aRV2oR8riz
+CGwIx8ANBkrdn6OG8XFy6BfPzSZcBXqg6L/WreDPHJa2xZAzOds566XysTlDVnS2
+mmPZzXYhzdSJT5SgWxOwzPE3LH6wgG3id80kaCHFqive8gfGI6rh6Y8zQUk3umvg
+ksAklh+tTffWw6oBVT5P2GdyJUHx53Mbb3msk6NyH/G5DmGE0ikcWNcSHg8gcjVt
+KKArZaKBako7TLOE9Xklfx43wLM7GM5RtR6oDCeUfKKG8sF1PLaANmp0SnJeWP2X
+FjPA+SlOO9G/qT++PIkxsB2T6sFZrF/TNXi5exM7V6mYdTxvwJ8OVsKNMQKyxOKq
+rFI2Ntch9Trc5vcvXqlrW84i2bzA1b0jfzO1nkKoKm0XF8UHUKo=
+=6loN
+-----END PGP SIGNATURE-----
+
+--ioctv6qfrc7mty7c--
