@@ -1,177 +1,62 @@
-From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH] zfcp: fix erp_action use-before-initialize in REC action trace
-Date: Fri, 13 Oct 2017 15:40:07 +0200
-Message-ID: <20171013134007.54534-1-maier@linux.vnet.ibm.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, stable@vger.kernel.org
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Date: Tue, 10 Oct 2017 15:19:30 +0000
+Subject: Re: linux-next: EXP: Fine-grained timer diagnostics breaks cpu hot unplug on s390
+Message-Id: <20171010151930.GZ3521@linux.vnet.ibm.com>
+In-Reply-To: <20171010061648.GB3613@osiris>
+References: <20171010061648.GB3613@osiris>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-v4.10 commit 6f2ce1c6af37 ("scsi: zfcp: fix rport unblock race with LUN
-recovery") extended accessing parent pointer fields of
-struct zfcp_erp_action for tracing.
-If an erp_action has never been enqueued before, these parent pointer
-fields are uninitialized and NULL. Examples are zfcp objects freshly added
-to the parent object's children list, before enqueueing their first
-recovery subsequently. In zfcp_erp_try_rport_unblock(), we iterate such
-list. Accessing erp_action fields can cause a NULL pointer dereference.
-Since the kernel can read from lowcore on s390, it does not immediately
-cause a kernel page fault. Instead it can cause hangs on trying to acquire
-the wrong erp_action->adapter->dbf->rec_lock in zfcp_dbf_rec_action_lvl()
-                      ^bogus^
-while holding already other locks with IRQs disabled.
+On Tue, Oct 10, 2017 at 08:16:48AM +0200, Heiko Carstens wrote:
+> On Mon, Oct 09, 2017 at 08:46:56AM -0700, Paul E. McKenney wrote:
+> > On Mon, Oct 09, 2017 at 04:47:08PM +0200, Christian Borntraeger wrote:
+> > > PID: 84     TASK: 3305a00           CPU: 2   COMMAND: "sh"
+> > >  LOWCORE INFO:
+> > >   -psw      : 0x0404c00180000000 0x00000000001163a6
+> > >   -function : smp_yield_cpu at 1163a6
+> > >   -prefix   : 0x7d780000
+> > >   -cpu timer: 0x7fffffecf69f4974
+> > >   -clock cmp: 0x42e71c731cb22c00
+> > > 
+> > >  #0 [033476e0] arch_spin_lock_wait at 850298
+> > >  #1 [03347738] lock_timer_base at 1e4d22
+> > >  #2 [033477a0] mod_timer at 1e5f2c
+> > >  #3 [03347810] __sclp_vt220_write at 6ba912
+> > >  #4 [033478a0] sclp_vt220_con_write at 6ba9ac
+> > >  #5 [033478f8] console_unlock at 1c87c8
+> > >  #6 [03347978] vprintk_emit at 1c8bbe
+> > >  #7 [03347a08] vprintk_default at 1c8e1c
+> > >  #8 [03347a68] printk at 1c9d1e
+> > >  #9 [03347af8] timers_dead_cpu at 1e66f6
+> > > #10 [03347b68] cpuhp_invoke_callback at 169b50
+> > > #11 [03347c00] _cpu_down at 851522
+> > > #12 [03347c58] do_cpu_down at 16b9fa
+> > > #13 [03347c88] device_offline at 5a7826
+> > > #14 [03347cc0] online_store at 5a796e
+> > > #15 [03347cf8] kernfs_fop_write at 3ed8d2
+> > > #16 [03347d48] __vfs_write at 34ddb6
+> > > #17 [03347e00] vfs_write at 34e10c
+> > > #18 [03347e60] sys_write at 34e44e
+> > > #19 [03347ea8] system_call at 85abf4
+> > > 
+> > > 
+> > > Reverting the patch fixes the issue, but I do not yet understand why.
+> > 
+> > Welcome to my world!  ;-)
+> > 
+> > Hmmm...  I have to ask...  Have you tried this with lockdep?  The spinning
+> > on CPUs is suspicious, though not something that I have seen.
+> 
+> This seems to simply deadlock because the cpu tries to grab a timer_base
+> lock twice: first in timers_dead_cpu() and then via the new pr_info()
+> within migrate_timer_list().
+> 
+> That one get's into our sclp device driver which tries to enqueue a timer
+> and needs to grap a timer_base lock as well. Which appearently seems to be
+> the same lock that was taken within timers_dead_cpu().
 
-Real life example from attaching lots of LUNs in parallel on many CPUs:
+Color me slow and stupid!  I have dropped this commit and will think
+about other ways of tracking my timer problem down.  And please accept
+my apologies for the hassle.
 
-crash> bt 17723
-PID: 17723  TASK: ...               CPU: 25  COMMAND: "zfcperp0.0.1800"
- LOWCORE INFO:
-  -psw      : 0x0404300180000000 0x000000000038e424
-  -function : _raw_spin_lock_wait_flags at 38e424
-...
- #0 [fdde8fc90] zfcp_dbf_rec_action_lvl at 3e0004e9862 [zfcp]
- #1 [fdde8fce8] zfcp_erp_try_rport_unblock at 3e0004dfddc [zfcp]
- #2 [fdde8fd38] zfcp_erp_strategy at 3e0004e0234 [zfcp]
- #3 [fdde8fda8] zfcp_erp_thread at 3e0004e0a12 [zfcp]
- #4 [fdde8fe60] kthread at 173550
- #5 [fdde8feb8] kernel_thread_starter at 10add2
-
-zfcp_adapter
- zfcp_port
-  zfcp_unit <address>, 0x404040d600000000
-  scsi_device NULL, returning early!
-zfcp_scsi_dev.status = 0x40000000
-0x40000000 ZFCP_STATUS_COMMON_RUNNING
-
-crash> zfcp_unit <address>
-struct zfcp_unit {
-  erp_action = {
-    adapter = 0x0,
-    port = 0x0,
-    unit = 0x0,
-  },
-}
-
-zfcp_erp_action is always fully embedded into its container object. Such
-container object is never moved in its object tree (only add or delete).
-Hence, erp_action parent pointers can never change.
-
-To fix the issue, initialize the erp_action parent pointers
-before adding the erp_action container to any list and thus before it
-becomes accessible from outside of its initializing function.
-
-In order to also close the time window between zfcp_erp_setup_act()
-memsetting the entire erp_action to zero and setting the parent pointers
-again, drop the memset and instead explicitly initialize individually all
-erp_action fields except for parent pointers. To be extra careful not to
-introduce any other unintended side effect, even keep zeroing the
-erp_action fields for list and timer. Also double-check with WARN_ON_ONCE
-that erp_action parent pointers never change, so we get to know when
-we would deviate from previous behavior.
-
-Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Fixes: 6f2ce1c6af37 ("scsi: zfcp: fix rport unblock race with LUN recovery")
-Cc: <stable@vger.kernel.org> #2.6.32+
-Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
----
-
-James, Martin,
-
-it's an important bugfix cut against James' scsi.git fixes branch,
-and would be nice if it could make it into 4.14 via rc.
-
- drivers/s390/scsi/zfcp_aux.c  |    5 +++++
- drivers/s390/scsi/zfcp_erp.c  |   18 +++++++++++-------
- drivers/s390/scsi/zfcp_scsi.c |    5 +++++
- 3 files changed, 21 insertions(+), 7 deletions(-)
-
---- a/drivers/s390/scsi/zfcp_aux.c
-+++ b/drivers/s390/scsi/zfcp_aux.c
-@@ -357,6 +357,8 @@ struct zfcp_adapter *zfcp_adapter_enqueu
- 
- 	adapter->next_port_scan = jiffies;
- 
-+	adapter->erp_action.adapter = adapter;
-+
- 	if (zfcp_qdio_setup(adapter))
- 		goto failed;
- 
-@@ -513,6 +515,9 @@ struct zfcp_port *zfcp_port_enqueue(stru
- 	port->dev.groups = zfcp_port_attr_groups;
- 	port->dev.release = zfcp_port_release;
- 
-+	port->erp_action.adapter = adapter;
-+	port->erp_action.port = port;
-+
- 	if (dev_set_name(&port->dev, "0x%016llx", (unsigned long long)wwpn)) {
- 		kfree(port);
- 		goto err_out;
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -193,9 +193,8 @@ static struct zfcp_erp_action *zfcp_erp_
- 		atomic_or(ZFCP_STATUS_COMMON_ERP_INUSE,
- 				&zfcp_sdev->status);
- 		erp_action = &zfcp_sdev->erp_action;
--		memset(erp_action, 0, sizeof(struct zfcp_erp_action));
--		erp_action->port = port;
--		erp_action->sdev = sdev;
-+		WARN_ON_ONCE(erp_action->port != port);
-+		WARN_ON_ONCE(erp_action->sdev != sdev);
- 		if (!(atomic_read(&zfcp_sdev->status) &
- 		      ZFCP_STATUS_COMMON_RUNNING))
- 			act_status |= ZFCP_STATUS_ERP_CLOSE_ONLY;
-@@ -208,8 +207,8 @@ static struct zfcp_erp_action *zfcp_erp_
- 		zfcp_erp_action_dismiss_port(port);
- 		atomic_or(ZFCP_STATUS_COMMON_ERP_INUSE, &port->status);
- 		erp_action = &port->erp_action;
--		memset(erp_action, 0, sizeof(struct zfcp_erp_action));
--		erp_action->port = port;
-+		WARN_ON_ONCE(erp_action->port != port);
-+		WARN_ON_ONCE(erp_action->sdev != NULL);
- 		if (!(atomic_read(&port->status) & ZFCP_STATUS_COMMON_RUNNING))
- 			act_status |= ZFCP_STATUS_ERP_CLOSE_ONLY;
- 		break;
-@@ -219,7 +218,8 @@ static struct zfcp_erp_action *zfcp_erp_
- 		zfcp_erp_action_dismiss_adapter(adapter);
- 		atomic_or(ZFCP_STATUS_COMMON_ERP_INUSE, &adapter->status);
- 		erp_action = &adapter->erp_action;
--		memset(erp_action, 0, sizeof(struct zfcp_erp_action));
-+		WARN_ON_ONCE(erp_action->port != NULL);
-+		WARN_ON_ONCE(erp_action->sdev != NULL);
- 		if (!(atomic_read(&adapter->status) &
- 		      ZFCP_STATUS_COMMON_RUNNING))
- 			act_status |= ZFCP_STATUS_ERP_CLOSE_ONLY;
-@@ -229,7 +229,11 @@ static struct zfcp_erp_action *zfcp_erp_
- 		return NULL;
- 	}
- 
--	erp_action->adapter = adapter;
-+	WARN_ON_ONCE(erp_action->adapter != adapter);
-+	memset(&erp_action->list, 0, sizeof(erp_action->list));
-+	memset(&erp_action->timer, 0, sizeof(erp_action->timer));
-+	erp_action->step = ZFCP_ERP_STEP_UNINITIALIZED;
-+	erp_action->fsf_req_id = 0;
- 	erp_action->action = need;
- 	erp_action->status = act_status;
- 
---- a/drivers/s390/scsi/zfcp_scsi.c
-+++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -115,10 +115,15 @@ static int zfcp_scsi_slave_alloc(struct
- 	struct zfcp_unit *unit;
- 	int npiv = adapter->connection_features & FSF_FEATURE_NPIV_MODE;
- 
-+	zfcp_sdev->erp_action.adapter = adapter;
-+	zfcp_sdev->erp_action.sdev = sdev;
-+
- 	port = zfcp_get_port_by_wwpn(adapter, rport->port_name);
- 	if (!port)
- 		return -ENXIO;
- 
-+	zfcp_sdev->erp_action.port = port;
-+
- 	unit = zfcp_unit_find(port, zfcp_scsi_dev_lun(sdev));
- 	if (unit)
- 		put_device(&unit->dev);
+							Thanx, Paul
