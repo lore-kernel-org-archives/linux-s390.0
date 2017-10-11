@@ -1,61 +1,32 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v6 02/11] locking/rwsem: Implement a new locking scheme
-Date: Wed, 11 Oct 2017 20:40:38 +0200
-Message-ID: <20171011184038.pilwo7sjf72nwaxk@hirez.programming.kicks-ass.net>
+Subject: Re: [PATCH v6 00/11] locking/rwsem: Rework rwsem-xadd & enable new
+ rwsem features
+Date: Wed, 11 Oct 2017 20:48:40 +0200
+Message-ID: <20171011184840.3uomgj3hxxzernfd@hirez.programming.kicks-ass.net>
 References: <1507744922-15196-1-git-send-email-longman@redhat.com>
- <1507744922-15196-3-git-send-email-longman@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1507744922-15196-3-git-send-email-longman@redhat.com>
-Sender: linux-arch-owner@vger.kernel.org
+In-Reply-To: <1507744922-15196-1-git-send-email-longman@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Waiman Long <longman@redhat.com>
 Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Dave Chinner <david@fromorbit.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 11, 2017 at 02:01:53PM -0400, Waiman Long wrote:
-> +/*
-> + * The definition of the atomic counter in the semaphore:
-> + *
-> + * Bit  0    - writer locked bit
-> + * Bit  1    - waiters present bit
-> + * Bits 2-7  - reserved
-> + * Bits 8-31 - 24-bit reader count
-> + *
-> + * atomic_fetch_add() is used to obtain reader lock, whereas atomic_cmpxchg()
-> + * will be used to obtain writer lock.
-> + */
-> +#define RWSEM_WRITER_LOCKED	0X00000001
-> +#define RWSEM_FLAG_WAITERS	0X00000002
-> +#define RWSEM_READER_BIAS	0x00000100
-> +#define RWSEM_READER_SHIFT	8
-> +#define RWSEM_READER_MASK	(~((1U << RWSEM_READER_SHIFT) - 1))
-> +#define RWSEM_LOCK_MASK 	(RWSEM_WRITER_LOCKED|RWSEM_READER_MASK)
-> +#define RWSEM_READ_FAILED_MASK	(RWSEM_WRITER_LOCKED|RWSEM_FLAG_WAITERS)
-> +
-> +#define RWSEM_COUNT_IS_LOCKED(c)	((c) & RWSEM_LOCK_MASK)
-> +
-> +/*
-> + * lock for reading
-> + */
-> +static inline void __down_read(struct rw_semaphore *sem)
-> +{
-> +	if (unlikely(atomic_fetch_add_acquire(RWSEM_READER_BIAS, &sem->count)
-> +		     & RWSEM_READ_FAILED_MASK))
-> +		rwsem_down_read_failed(sem);
-> +}
+On Wed, Oct 11, 2017 at 02:01:51PM -0400, Waiman Long wrote:
+>   # of Patches		   Reader 		  Writer
+>     Applied		Locking Rate		Locking Rate
+>   ------------		------------		------------
+> 	0	5,155/    5,155/    5,155    5,154/248,852/346,281
+> 	7	5,696/    5,697/    5,698  113,500/215,826/320,872
+> 	8	4,827/    5,047/    5,215    4,826/176,797/284,069
+> 	9     211,276/  509,712/1,134,007    4,894/221,839/246,818
+>        11     884,513/1,043,989/1,252,533    9,604/ 11,105/ 25,225
+> 
+> It can be seen that rwsem changes from writer-preferring to
+> reader-preferring.
 
-So I implemented rwsem-mutex (also qrwlock based) that puts
-
-  (unsigned long)current | RWSEM_WRITER
-
-in the atomic_long_t rw_semaphore::owner field. The down-side is that
-you can't do fetch_add based __down_read, because that would clobber the
-pointer. The up-side is that we have a stable owner pointer (which is
-what I needed for PI like things).
-
-I've yet to do performance tests -- and I've not done a bunch of the
-obvious optimisations either.
+A bit radically so, you almost starve the writers there.
