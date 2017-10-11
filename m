@@ -1,62 +1,195 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Waiman Long <longman@redhat.com>
-Subject: [PATCH v6 05/11] locking/rwsem: Move rwsem internal function declarations to rwsem-xadd.h
-Date: Wed, 11 Oct 2017 14:01:56 -0400
-Message-ID: <1507744922-15196-6-git-send-email-longman@redhat.com>
+Subject: [PATCH v6 01/11] locking/rwsem: relocate rwsem_down_read_failed()
+Date: Wed, 11 Oct 2017 14:01:52 -0400
+Message-ID: <1507744922-15196-2-git-send-email-longman@redhat.com>
 In-Reply-To: <1507744922-15196-1-git-send-email-longman@redhat.com>
 References: <1507744922-15196-1-git-send-email-longman@redhat.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171011180156.SFkTmJ4Y7M4KlZmNL6vJN4mCCgskkjDeqY85_QdAg2g@z>
+Message-ID: <20171011180152.w9Fca1wbV85hxPhu4uJ43nDc4WiUK_j-IjresXaFbKg@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
 Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Dave Chinner <david@fromorbit.com>, Waiman Long <longman@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We don't need to expose rwsem internal functions which are not supposed
-to be called directly from other kernel code.
+The rwsem_down_read_failed*() functions were relocted from above the
+optimistic spinning section to below that section. This enables
+them to use functions in that section in future patches. There is no
+code change.
 
 Signed-off-by: Waiman Long <longman@redhat.com>
 ---
- include/linux/rwsem.h       | 7 -------
- kernel/locking/rwsem-xadd.h | 7 +++++++
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ kernel/locking/rwsem-xadd.c | 150 ++++++++++++++++++++++----------------------
+ 1 file changed, 75 insertions(+), 75 deletions(-)
 
-diff --git a/include/linux/rwsem.h b/include/linux/rwsem.h
-index d0f59df..32389ee 100644
---- a/include/linux/rwsem.h
-+++ b/include/linux/rwsem.h
-@@ -42,13 +42,6 @@ struct rw_semaphore {
- #endif
- };
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 1fefe6d..db5dedf 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -219,81 +219,6 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
+ }
  
--extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_down_read_failed_killable(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_down_write_failed_killable(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
--extern struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore *sem);
--
- #define RWSEM_UNLOCKED_VALUE	0
- 
- /* In all implementations count != 0 means locked */
-diff --git a/kernel/locking/rwsem-xadd.h b/kernel/locking/rwsem-xadd.h
-index 4c19539..9b30f0c 100644
---- a/kernel/locking/rwsem-xadd.h
-+++ b/kernel/locking/rwsem-xadd.h
-@@ -90,6 +90,13 @@ static inline void rwsem_set_reader_owned(struct rw_semaphore *sem)
- 
- #define RWSEM_COUNT_IS_LOCKED(c)	((c) & RWSEM_LOCK_MASK)
- 
-+extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_down_read_failed_killable(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_down_write_failed_killable(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
-+extern struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore *sem);
-+
  /*
-  * lock for reading
+- * Wait for the read lock to be granted
+- */
+-static inline struct rw_semaphore __sched *
+-__rwsem_down_read_failed_common(struct rw_semaphore *sem, int state)
+-{
+-	long count, adjustment = -RWSEM_ACTIVE_READ_BIAS;
+-	struct rwsem_waiter waiter;
+-	DEFINE_WAKE_Q(wake_q);
+-
+-	waiter.task = current;
+-	waiter.type = RWSEM_WAITING_FOR_READ;
+-
+-	raw_spin_lock_irq(&sem->wait_lock);
+-	if (list_empty(&sem->wait_list))
+-		adjustment += RWSEM_WAITING_BIAS;
+-	list_add_tail(&waiter.list, &sem->wait_list);
+-
+-	/* we're now waiting on the lock, but no longer actively locking */
+-	count = atomic_long_add_return(adjustment, &sem->count);
+-
+-	/*
+-	 * If there are no active locks, wake the front queued process(es).
+-	 *
+-	 * If there are no writers and we are first in the queue,
+-	 * wake our own waiter to join the existing active readers !
+-	 */
+-	if (count == RWSEM_WAITING_BIAS ||
+-	    (count > RWSEM_WAITING_BIAS &&
+-	     adjustment != -RWSEM_ACTIVE_READ_BIAS))
+-		__rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
+-
+-	raw_spin_unlock_irq(&sem->wait_lock);
+-	wake_up_q(&wake_q);
+-
+-	/* wait to be given the lock */
+-	while (true) {
+-		set_current_state(state);
+-		if (!waiter.task)
+-			break;
+-		if (signal_pending_state(state, current)) {
+-			raw_spin_lock_irq(&sem->wait_lock);
+-			if (waiter.task)
+-				goto out_nolock;
+-			raw_spin_unlock_irq(&sem->wait_lock);
+-			break;
+-		}
+-		schedule();
+-	}
+-
+-	__set_current_state(TASK_RUNNING);
+-	return sem;
+-out_nolock:
+-	list_del(&waiter.list);
+-	if (list_empty(&sem->wait_list))
+-		atomic_long_add(-RWSEM_WAITING_BIAS, &sem->count);
+-	raw_spin_unlock_irq(&sem->wait_lock);
+-	__set_current_state(TASK_RUNNING);
+-	return ERR_PTR(-EINTR);
+-}
+-
+-__visible struct rw_semaphore * __sched
+-rwsem_down_read_failed(struct rw_semaphore *sem)
+-{
+-	return __rwsem_down_read_failed_common(sem, TASK_UNINTERRUPTIBLE);
+-}
+-EXPORT_SYMBOL(rwsem_down_read_failed);
+-
+-__visible struct rw_semaphore * __sched
+-rwsem_down_read_failed_killable(struct rw_semaphore *sem)
+-{
+-	return __rwsem_down_read_failed_common(sem, TASK_KILLABLE);
+-}
+-EXPORT_SYMBOL(rwsem_down_read_failed_killable);
+-
+-/*
+  * This function must be called with the sem->wait_lock held to prevent
+  * race conditions between checking the rwsem wait list and setting the
+  * sem->count accordingly.
+@@ -488,6 +413,81 @@ static inline bool rwsem_has_spinner(struct rw_semaphore *sem)
+ #endif
+ 
+ /*
++ * Wait for the read lock to be granted
++ */
++static inline struct rw_semaphore __sched *
++__rwsem_down_read_failed_common(struct rw_semaphore *sem, int state)
++{
++	long count, adjustment = -RWSEM_ACTIVE_READ_BIAS;
++	struct rwsem_waiter waiter;
++	DEFINE_WAKE_Q(wake_q);
++
++	waiter.task = current;
++	waiter.type = RWSEM_WAITING_FOR_READ;
++
++	raw_spin_lock_irq(&sem->wait_lock);
++	if (list_empty(&sem->wait_list))
++		adjustment += RWSEM_WAITING_BIAS;
++	list_add_tail(&waiter.list, &sem->wait_list);
++
++	/* we're now waiting on the lock, but no longer actively locking */
++	count = atomic_long_add_return(adjustment, &sem->count);
++
++	/*
++	 * If there are no active locks, wake the front queued process(es).
++	 *
++	 * If there are no writers and we are first in the queue,
++	 * wake our own waiter to join the existing active readers !
++	 */
++	if (count == RWSEM_WAITING_BIAS ||
++	    (count > RWSEM_WAITING_BIAS &&
++	     adjustment != -RWSEM_ACTIVE_READ_BIAS))
++		__rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
++
++	raw_spin_unlock_irq(&sem->wait_lock);
++	wake_up_q(&wake_q);
++
++	/* wait to be given the lock */
++	while (true) {
++		set_current_state(state);
++		if (!waiter.task)
++			break;
++		if (signal_pending_state(state, current)) {
++			raw_spin_lock_irq(&sem->wait_lock);
++			if (waiter.task)
++				goto out_nolock;
++			raw_spin_unlock_irq(&sem->wait_lock);
++			break;
++		}
++		schedule();
++	}
++
++	__set_current_state(TASK_RUNNING);
++	return sem;
++out_nolock:
++	list_del(&waiter.list);
++	if (list_empty(&sem->wait_list))
++		atomic_long_add(-RWSEM_WAITING_BIAS, &sem->count);
++	raw_spin_unlock_irq(&sem->wait_lock);
++	__set_current_state(TASK_RUNNING);
++	return ERR_PTR(-EINTR);
++}
++
++__visible struct rw_semaphore * __sched
++rwsem_down_read_failed(struct rw_semaphore *sem)
++{
++	return __rwsem_down_read_failed_common(sem, TASK_UNINTERRUPTIBLE);
++}
++EXPORT_SYMBOL(rwsem_down_read_failed);
++
++__visible struct rw_semaphore * __sched
++rwsem_down_read_failed_killable(struct rw_semaphore *sem)
++{
++	return __rwsem_down_read_failed_common(sem, TASK_KILLABLE);
++}
++EXPORT_SYMBOL(rwsem_down_read_failed_killable);
++
++/*
+  * Wait until we successfully acquire the write lock
   */
+ static inline struct rw_semaphore *
 -- 
 1.8.3.1
