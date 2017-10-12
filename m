@@ -1,23 +1,24 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH 0/2] vfio-ccw bugfix
-Date: Wed, 11 Oct 2017 04:38:20 +0200
-Message-ID: <20171011023822.42948-1-bjsdjshi@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: cohuck@redhat.com, borntraeger@de.ibm.com, bjsdjshi@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2 net 0/2] net/smc: ib_query_gid() patches
+Date: Thu, 12 Oct 2017 12:20:42 -0700 (PDT)
+Message-ID: <20171012.122042.244326206516557586.davem@davemloft.net>
+References: <20171011114723.30733-1-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20171011114723.30733-1-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: ubraun@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, parav@mellanox.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Some bugfixes according to recent discussion.
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Wed, 11 Oct 2017 13:47:21 +0200
 
-Dong Jia Shi (2):
-  vfio: ccw: bypass bad idaw address when fetching IDAL ccws
-  vfio: ccw: validate the count field of a ccw before pinning
+> triggered by Parav Pandit here are 2 cleanup patches for usage of
+> ib_query_gid() in the smc-code.
 
- drivers/s390/cio/vfio_ccw_cp.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
-
--- 
-2.13.5
+Series applied to net-next, thanks.
