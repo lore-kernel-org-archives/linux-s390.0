@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [RFC 17/19] KVM: s390: validate input to AP matrix config interface
-Date: Fri, 13 Oct 2017 13:39:02 -0400
-Message-ID: <1507916344-3896-18-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [RFC 16/19] KVM: s390: interface to configure KVM guest's AP matrix
+Date: Fri, 13 Oct 2017 13:39:01 -0400
+Message-ID: <1507916344-3896-17-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,137 +12,229 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Verifies that the AP matrix assigned to the KVM guest is
-not shared by any other KVM guest running on the same
-system.
+Provides an interface to assign AP adapters, usage domains
+and control domains to a KVM guest.
 
-The Crypto Control Block referenced by a KVM guest's SIE
-state description contains two bit mask fields that identify
-the AP adapters and usage domains to assigned to the
-guest: The AP Matrix (APM) identifies the AP adapters assigned
-to the KVM guest; and the AP Queue Matrix (AQM) identifies
-the usage domains assigned to the KVM guest. Each adapter and
-usage domain is identified by a number from 0 to 255. The
-bits in each mask, from left to right, correspond to the
-numbers 0-255. When a bit is set, the corresponding adapter
-or usage domain is assigned to the KVM guest.
+A KVM guest is started by executing the Start Interpretive Execution (SIE)
+instruction. The SIE state description is a control block that contains the
+state information for a KVM guest and is supplied as input to the SIE
+instruction. The SIE state description contains a field that references
+a Crypto Control Block (CRYCB). The CRYCB contains three bitmask fields
+identifying the adapters, usage domains and control domains assigned to the
+KVM guest:
 
-AP instructions identify the AP device to use to perform the
-cryptographic function contained in the instruction's
-payload. The AP device is identified by and AP Queue
-Number (APQN). The APQN is comprised of two fields: The
-AP Identifier (APID) that specifies an adapter ID; and
-an AP Queue Identifier (APQI) that specifies a domain ID.
+* The AP Adapter Matrix (APM) field identifies the AP adapters assigned to
+  the KVM guest
 
-The bits in the APM and AQM fields of the KVM guest's CRYCB
-specify the list of APQNs that are valid for instructions
-submitted from the KVM guest. When an AP instruction is
-executed by the KVM guest, if the bit in the APM corresponding
-to the APID contained in the APQN specified in the AP
-instruction is not set, the instruction will fail. Likewise,
-if the bit in the AQM corresponding to the APQI contained in
-the APQN specified in the AP instruction is not set, the
-instruction will fail.
+* The AP Queue Matrix (AQM) field identifies the usage domains assigned to
+  the KVM guest
 
-The APQNs that can be derived from the bits set in the
-APM and AQM fields of the KVM guest's CRYCB must not be
-available to any other KVM guest running on the same
-system. If any APQN is not unique to the KVM guest,
-the ioctl will fail.
+* The AP Domain matrix (ADM) field identifies the control domains
+  assigned to the KVM guest.
+
+Each adapter, usage domain and control domain are identified by a number
+from 0 to 255. The bits in each mask, from left to right, correspond to
+the numbers 0-255. When a bit is set, the corresponding adapter,
+usage domain or control domain will be assigned to the KVM guest.
+
+This patch will set the bits in the APM, AQM and ADM fields of the
+CRYCB referenced by the KVM guest's SIE state description. The process
+used is:
+
+1. Perform a logical AND of the AP matrix masks configured for the
+   mediated AP matrix device via its sysfs attributes files with
+   the matrix masks assigned to the LPAR in which the host linux
+   system is running to create the effective masks, EAPM, EAQM and
+   EADM.
+
+2. Set the APM, AQM and ADM in the CRYCB from the EAPM, EAQM and
+   EADM calculated in step 1.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/ap-config.c |   71 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 71 insertions(+), 0 deletions(-)
+ arch/s390/include/asm/ap-config.h |    7 ++
+ arch/s390/kvm/ap-config.c         |  144 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 151 insertions(+), 0 deletions(-)
 
+diff --git a/arch/s390/include/asm/ap-config.h b/arch/s390/include/asm/ap-config.h
+index 3064215..866f008 100644
+--- a/arch/s390/include/asm/ap-config.h
++++ b/arch/s390/include/asm/ap-config.h
+@@ -10,16 +10,23 @@
+ #define _ASM_KVM_AP_CONFIG_H_
+ 
+ #include <linux/types.h>
++#include <linux/kvm_host.h>
+ 
+ #define AP_MATRIX_MAX_MASK_BITS		256
+ #define AP_MATRIX_MASK_INDICES		(AP_MATRIX_MAX_MASK_BITS / \
+ 					(sizeof(u64) * 8))
+ #define AP_MATRIX_MAX_MASK_BYTES	(AP_MATRIX_MASK_INDICES * sizeof(u64))
+ 
++#define AP_MATRIX_MASK_TYPE_ADAPTER	"adapter"
++#define AP_MATRIX_MASK_TYPE_DOMAIN	"domain"
++#define AP_MATRIX_MASK_TYPE_CONTROL	"control domain"
++
+ struct ap_config_masks {
+ 	u64 apm[AP_MATRIX_MASK_INDICES];
+ 	u64 aqm[AP_MATRIX_MASK_INDICES];
+ 	u64 adm[AP_MATRIX_MASK_INDICES];
+ };
+ 
++extern int ap_config_matrix(struct kvm *kvm, struct ap_config_masks *masks);
++
+ #endif /* _ASM_KVM_AP_CONFIG_H_ */
 diff --git a/arch/s390/kvm/ap-config.c b/arch/s390/kvm/ap-config.c
-index dc79798..4b0794d 100644
+index 84fdf43..dc79798 100644
 --- a/arch/s390/kvm/ap-config.c
 +++ b/arch/s390/kvm/ap-config.c
-@@ -138,6 +138,73 @@ static int ap_config_get_emasks(struct ap_config_masks *masks)
- 	return 0;
- }
+@@ -7,3 +7,147 @@
+  */
  
-+static unsigned long ap_config_get_num_mask_bits(struct kvm *kvm)
+ #include <asm/ap-config.h>
++#include <asm/ap.h>
++#include <linux/bitops.h>
++
++static inline int is_format2_crycb(struct kvm *kvm)
 +{
-+	return is_format2_crycb(kvm) ? sizeof(u64) * APCB1_MASK_SIZE * 8 :
-+				       sizeof(u64) * APCB0_MASK_SIZE * 8;
++	int fmt2_mask = kvm->arch.crypto.crycbd & CRYCB_FORMAT2;
++
++	return (fmt2_mask == CRYCB_FORMAT2);
 +}
 +
-+static int ap_config_validate_queue(struct kvm *kvm, unsigned long apid,
-+				    unsigned long apqi)
++static inline u64 *ap_config_get_crycb_apm(struct kvm *kvm)
 +{
-+	int ret = 0;
-+	struct kvm *vm;
-+	u64 *mask;
++	u64 *apm;
 +
-+	mutex_lock(&kvm->lock);
++	if (is_format2_crycb(kvm))
++		apm = kvm->arch.crypto.crycb->apcb1.apm;
++	else
++		apm = kvm->arch.crypto.crycb->apcb0.apm;
 +
-+	/* No other VM may share an AP Queue with the input VM */
-+	list_for_each_entry(vm, &vm_list, vm_list) {
-+		if (kvm == vm)
-+			continue;
-+
-+		mask = ap_config_get_crycb_apm(vm);
-+		if (!test_bit_inv(apid, (unsigned long *)mask))
-+			continue;
-+
-+		mask = ap_config_get_crycb_aqm(vm);
-+		if (!test_bit_inv(apqi, (unsigned long *)mask))
-+			continue;
-+
-+		pr_err("%s: AP queue %02lx.%04lx is already registered to %s",
-+		       __func__, apid, apqi, kvm->arch.dbf->name);
-+		ret = -EBUSY;
-+
-+		goto done;
-+	}
-+
-+done:
-+	mutex_unlock(&kvm->lock);
-+	return ret;
++	return apm;
 +}
 +
-+static int ap_config_validate_queues(struct kvm *kvm,
-+				     struct ap_config_masks *masks)
++static inline u64 *ap_config_get_crycb_aqm(struct kvm *kvm)
 +{
-+	int ret;
-+	const unsigned long *apm = (unsigned long *)masks->apm;
-+	const unsigned long *aqm = (unsigned long *)masks->aqm;
-+	unsigned long nbits = ap_config_get_num_mask_bits(kvm);
-+	unsigned long apid;
-+	unsigned long apqi;
++	u64 *aqm;
 +
-+	apid = find_first_bit_inv(apm, nbits);
-+	while (apid < nbits) {
-+		apqi = find_first_bit_inv(aqm, nbits);
-+		while (apqi < nbits) {
-+			ret = ap_config_validate_queue(kvm, apid, apqi);
-+			if (ret)
-+				return ret;
++	if (is_format2_crycb(kvm))
++		aqm = kvm->arch.crypto.crycb->apcb1.aqm;
++	else
++		aqm = kvm->arch.crypto.crycb->apcb0.aqm;
 +
-+			apqi = find_next_bit_inv(aqm, nbits, apqi + 1);
++	return aqm;
++}
++
++static inline u64 *ap_config_get_crycb_adm(struct kvm *kvm)
++{
++	u64 *adm;
++
++	if (is_format2_crycb(kvm))
++		adm = kvm->arch.crypto.crycb->apcb1.adm;
++	else
++		adm = kvm->arch.crypto.crycb->apcb0.adm;
++
++	return adm;
++}
++
++static void ap_config_set_crycb_masks(struct kvm *kvm,
++				    struct ap_config_masks *masks)
++{
++	size_t i;
++	size_t masksz;
++	u64 *mask = ap_config_get_crycb_apm(kvm);
++
++	masksz = (is_format2_crycb(kvm)) ? APCB1_MASK_SIZE : APCB0_MASK_SIZE;
++
++	for (i = 0; i < masksz; i++)
++		mask[i] = masks->apm[i];
++
++	mask = ap_config_get_crycb_aqm(kvm);
++
++	for (i = 0; i < masksz; i++)
++		mask[i] = masks->aqm[i];
++
++	mask = ap_config_get_crycb_adm(kvm);
++
++	for (i = 0; i < masksz; i++)
++		mask[i] = masks->adm[i];
++}
++
++static int ap_config_set_emask(const char *mask_type, unsigned long *mask,
++			       unsigned long *cfgmask)
++{
++	unsigned long id;
++	unsigned long nbits = AP_MATRIX_MAX_MASK_BITS;
++
++	id = find_first_bit_inv(mask, nbits);
++	while (id < nbits) {
++		if (!test_bit_inv(id, cfgmask)) {
++			clear_bit_inv(id, mask);
++			pr_err("%s: %s %02lx is not installed on the host system",
++			       __func__, mask_type, id);
++			return -ENODEV;
 +		}
 +
-+		apid = find_next_bit_inv(apm, nbits, apid + 1);
++		id = find_next_bit_inv(mask, nbits, id + 1);
 +	}
 +
 +	return 0;
 +}
 +
- int ap_config_matrix(struct kvm *kvm, struct ap_config_masks *masks)
- {
- 	int ret;
-@@ -146,6 +213,10 @@ int ap_config_matrix(struct kvm *kvm, struct ap_config_masks *masks)
- 	if (ret)
- 		return ret;
- 
-+	ret = ap_config_validate_queues(kvm, masks);
++static int ap_config_get_emasks(struct ap_config_masks *masks)
++{
++	int ret;
++	struct ap_config_info config;
++
++	ret = ap_query_configuration(&config);
++	if (ret) {
++		if (ret == -EOPNOTSUPP) {
++			pr_err("%s: Query AP configuration not supported",
++			       __func__);
++
++			return ret;
++		}
++
++		pr_err("%s: Query AP configuration failed with rc=%d",
++		       __func__, ret);
++
++		return ret;
++	}
++
++	ret = ap_config_set_emask(AP_MATRIX_MASK_TYPE_ADAPTER,
++				  (unsigned long *)masks->apm,
++				  (unsigned long *)config.apm);
 +	if (ret)
 +		return ret;
 +
- 	ap_config_set_crycb_masks(kvm, masks);
- 
- 	return 0;
++	ret = ap_config_set_emask(AP_MATRIX_MASK_TYPE_DOMAIN,
++				  (unsigned long *)masks->aqm,
++				  (unsigned long *)config.aqm);
++	if (ret)
++		return ret;
++
++	ret = ap_config_set_emask(AP_MATRIX_MASK_TYPE_CONTROL,
++				  (unsigned long *)masks->adm,
++				  (unsigned long *)config.adm);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++int ap_config_matrix(struct kvm *kvm, struct ap_config_masks *masks)
++{
++	int ret;
++
++	ret = ap_config_get_emasks(masks);
++	if (ret)
++		return ret;
++
++	ap_config_set_crycb_masks(kvm, masks);
++
++	return 0;
++}
++EXPORT_SYMBOL(ap_config_matrix);
 -- 
 1.7.1
