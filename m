@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [RFC 08/19] s390/zcrypt: support for assigning adapters to matrix mdev
-Date: Fri, 13 Oct 2017 13:38:53 -0400
-Message-ID: <1507916344-3896-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [RFC 19/19] s390/facilities: enable AP facilities needed by guest
+Date: Fri, 13 Oct 2017 13:39:04 -0400
+Message-ID: <1507916344-3896-20-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,242 +12,36 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Provides the sysfs interfaces for assigning an adapter to
-and unassigning an AP adapter from a mediated matrix device.
-
-The IDs of the AP adapters assigned to the mediated matrix
-device are stored in a bit mask. The bits in the mask, from
-left to right, correspond to AP adapter numbers 0 to 255. The
-bit corresponding to the ID of the adapter being assigned will
-be set in the bit mask.
-
-The relevant sysfs structures are:
-
-/sys/devices/ap_matrix
-... [matrix]
-...... [mdev_supported_types]
-......... [ap_matrix-passthrough]
-............ [devices]
-...............[$uuid]
-.................. adapters
-.................. assign_adapter
-.................. unassign_adapter
-
-To assign an adapter to the $uuid mediated matrix device, write
-ID of the adapter (hex value) to the assign_adapter file. To
-unassign an adapter, write the ID of the adapter (hex value)
-to the unassign_adapter file. The list of adapters that have
-been assigned can be viewed by displaying the contents of the
-adapters file.
-
-For example, to assign adapter 0xad to mediated matrix device
-$uuid:
-
-	echo ad > assign_adapter
-
-To unassign adapter 0xad:
-
-	echo ad > unassign_adapter
-
-To see the list of adapters assigned:
-
-	cat adapters
+Sets up the following facilities bits to enable the specified AP
+facilities for the guest VM:
+    * STFLE.12: Enables the AP Query Configuration Information
+                facility. The AP bus running in the guest uses
+                the information returned from this instruction
+                to configure AP adapters and domains for the
+                guest machine.
+    * STFLE.15: Indicates the AP facilities test is available.
+                The AP bus running in the guest uses the
+                information.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- arch/s390/include/asm/ap-config.h        |   13 +++
- drivers/s390/crypto/vfio_ap_matrix_ops.c |  147 ++++++++++++++++++++++++++++++
- 2 files changed, 160 insertions(+), 0 deletions(-)
+ arch/s390/tools/gen_facilities.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/arch/s390/include/asm/ap-config.h b/arch/s390/include/asm/ap-config.h
-index 8491b5f..3064215 100644
---- a/arch/s390/include/asm/ap-config.h
-+++ b/arch/s390/include/asm/ap-config.h
-@@ -9,4 +9,17 @@
- #ifndef _ASM_KVM_AP_CONFIG_H_
- #define _ASM_KVM_AP_CONFIG_H_
- 
-+#include <linux/types.h>
-+
-+#define AP_MATRIX_MAX_MASK_BITS		256
-+#define AP_MATRIX_MASK_INDICES		(AP_MATRIX_MAX_MASK_BITS / \
-+					(sizeof(u64) * 8))
-+#define AP_MATRIX_MAX_MASK_BYTES	(AP_MATRIX_MASK_INDICES * sizeof(u64))
-+
-+struct ap_config_masks {
-+	u64 apm[AP_MATRIX_MASK_INDICES];
-+	u64 aqm[AP_MATRIX_MASK_INDICES];
-+	u64 adm[AP_MATRIX_MASK_INDICES];
-+};
-+
- #endif /* _ASM_KVM_AP_CONFIG_H_ */
-diff --git a/drivers/s390/crypto/vfio_ap_matrix_ops.c b/drivers/s390/crypto/vfio_ap_matrix_ops.c
-index 7d01f18..e4b1236 100644
---- a/drivers/s390/crypto/vfio_ap_matrix_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_matrix_ops.c
-@@ -23,6 +23,7 @@
- struct ap_matrix_mdev {
- 	struct mdev_device *mdev;
- 	struct list_head node;
-+	struct ap_config_masks masks;
- };
- 
- struct ap_matrix	*matrix;
-@@ -136,9 +137,155 @@ static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
- 	NULL,
- };
- 
-+static int ap_matrix_id_is_xnum(char *id)
-+{
-+	size_t i;
-+
-+	for (i = 0; i < strlen(id); i++) {
-+		if (!isxdigit(id[i]))
-+			return 0;
-+	}
-+
-+	return 1;
-+}
-+
-+static int ap_matrix_parse_id(const char *buf, unsigned int *id)
-+{
-+	int ret;
-+	char *bufcpy;
-+	char *id_str;
-+
-+	if ((strlen(buf) == 0) || (*buf == '\n')) {
-+		pr_err("%s: input buffer '%s' contains no valid hex values",
-+		       VFIO_AP_MATRIX_MODULE_NAME, buf);
-+		return -EINVAL;
-+	}
-+
-+	bufcpy = kzalloc(strlen(buf) + 1, GFP_KERNEL);
-+	if (!bufcpy)
-+		return -ENOMEM;
-+
-+	strcpy(bufcpy, buf);
-+	id_str = strim(bufcpy);
-+
-+	if (!ap_matrix_id_is_xnum(id_str)) {
-+		pr_err("%s: input id '%s' contains an invalid hex value '%s'",
-+		       VFIO_AP_MATRIX_MODULE_NAME, buf, id_str);
-+		ret = -EINVAL;
-+		goto done;
-+	}
-+
-+	ret = kstrtouint (id_str, 16, id);
-+	if (ret || (*id >= AP_MATRIX_MAX_MASK_BITS)) {
-+		pr_err("%s: input id '%s' is not a value from 0 to %x",
-+		       VFIO_AP_MATRIX_MODULE_NAME, buf,
-+		       AP_MATRIX_MAX_MASK_BITS);
-+		ret = -EINVAL;
-+		goto done;
-+	}
-+
-+	ret = 0;
-+
-+done:
-+	kfree(bufcpy);
-+	return ret;
-+}
-+
-+static ssize_t ap_matrix_adapters_assign(struct device *dev,
-+					 struct device_attribute *attr,
-+					 const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned int apid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+
-+	ret = ap_matrix_parse_id(buf, &apid);
-+	if (ret)
-+		return ret;
-+
-+	set_bit_inv((unsigned long)apid,
-+		    (unsigned long *)matrix_mdev->masks.apm);
-+
-+	return count;
-+}
-+static DEVICE_ATTR(assign_adapter, 0644, NULL, ap_matrix_adapters_assign);
-+
-+static ssize_t ap_matrix_adapters_unassign(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned int apid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+
-+	ret = ap_matrix_parse_id(buf, &apid);
-+	if (ret)
-+		return ret;
-+
-+	clear_bit_inv((unsigned long)apid,
-+		      (unsigned long *)matrix_mdev->masks.apm);
-+
-+	return count;
-+}
-+static DEVICE_ATTR(unassign_adapter, 0644, NULL, ap_matrix_adapters_unassign);
-+
-+static ssize_t ap_matrix_adapters_show(struct device *dev,
-+				       struct device_attribute *attr,
-+				       char *buf)
-+{
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long *apm = (unsigned long *)matrix_mdev->masks.apm;
-+	unsigned long id;
-+	unsigned long nbits = 256;
-+	char *bufpos = buf;
-+	int nchars = 0;
-+	int n;
-+
-+	id = find_first_bit_inv(apm, nbits);
-+	while (id < nbits) {
-+		if (nchars) {
-+			n = sprintf(bufpos, ",");
-+			bufpos += n;
-+			nchars += n;
-+		}
-+
-+		n = sprintf(bufpos, "%02lx", id);
-+		bufpos += n;
-+		nchars += n;
-+		id = find_next_bit_inv(apm, nbits, id + 1);
-+	}
-+
-+	n = sprintf(bufpos, "\n");
-+	bufpos += n;
-+	nchars += n;
-+
-+	return nchars;
-+}
-+static DEVICE_ATTR(adapters, 0644, ap_matrix_adapters_show, NULL);
-+
-+static struct attribute *ap_matrix_mdev_attrs[] = {
-+	&dev_attr_assign_adapter.attr,
-+	&dev_attr_unassign_adapter.attr,
-+	&dev_attr_adapters.attr,
-+	NULL
-+};
-+
-+static struct attribute_group ap_matrix_mdev_attr_group = {
-+	.attrs = ap_matrix_mdev_attrs
-+};
-+
-+static const struct attribute_group *ap_matrix_mdev_attr_groups[] = {
-+	&ap_matrix_mdev_attr_group,
-+	NULL
-+};
-+
- static const struct mdev_parent_ops vfio_ap_matrix_ops = {
- 	.owner                  = THIS_MODULE,
- 	.supported_type_groups  = ap_matrix_mdev_type_groups,
-+	.mdev_attr_groups	= ap_matrix_mdev_attr_groups,
- 	.create                 = ap_matrix_mdev_create,
- 	.remove                 = ap_matrix_mdev_remove,
- };
+diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+index 70dd8f1..eeaa7db 100644
+--- a/arch/s390/tools/gen_facilities.c
++++ b/arch/s390/tools/gen_facilities.c
+@@ -74,8 +74,10 @@ struct facility_def {
+ 			8,  /* enhanced-DAT 1 */
+ 			9,  /* sense-running-status */
+ 			10, /* conditional sske */
++			12, /* AP query configuration */
+ 			13, /* ipte-range */
+ 			14, /* nonquiescing key-setting */
++			15, /* AP special-command facility */
+ 			73, /* transactional execution */
+ 			75, /* access-exception-fetch/store indication */
+ 			76, /* msa extension 3 */
 -- 
 1.7.1
