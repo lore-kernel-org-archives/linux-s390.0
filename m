@@ -1,88 +1,64 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [RFC 07/19] KVM: s390: introduce AP matrix configuration interface
-Date: Fri, 13 Oct 2017 13:38:52 -0400
-Message-ID: <1507916344-3896-8-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [RFC 01/19] KVM: s390: SIE considerations for AP Queue virtualization
+Date: Fri, 13 Oct 2017 13:38:46 -0400
+Message-ID: <1507916344-3896-2-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch introduces a new compilation unit that will contain
-all of the data structures and logic for configuring AP adapters,
-usage domains and control domains for a KVM guest.
+The Crypto Control Block (CRYCB) is referenced by the SIE state
+description and controls KVM guest access to the Adjunct
+Processor (AP) adapters, usage domains and control domains.
+This patch defines the AP control blocks to be used for
+controlling guest access to the AP adapters and domains.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- MAINTAINERS                       |    2 ++
- arch/s390/include/asm/ap-config.h |   12 ++++++++++++
- arch/s390/kvm/Makefile            |    2 +-
- arch/s390/kvm/ap-config.c         |    9 +++++++++
- 4 files changed, 24 insertions(+), 1 deletions(-)
- create mode 100644 arch/s390/include/asm/ap-config.h
- create mode 100644 arch/s390/kvm/ap-config.c
+ arch/s390/include/asm/kvm_host.h |   25 +++++++++++++++++++++----
+ 1 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 0c8855a..4de0904 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11721,6 +11721,8 @@ F:	drivers/s390/crypto/ap_matrix_bus.c
- F:	drivers/s390/crypto/vfio_ap_matrix_drv.c
- F:	drivers/s390/crypto/vfio_ap_matrix_private.h
- F:	drivers/s390/crypto/vfio_ap_matrix_ops.c
-+F:	arch/s390/include/asm/kvm/ap-config.h
-+F:	arch/s390/kvm/ap-config.c
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 51375e7..50a6b25 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -685,11 +685,28 @@ struct kvm_s390_crypto {
+ 	__u8 dea_kw;
+ };
  
- S390 ZFCP DRIVER
- M:	Steffen Maier <maier@linux.vnet.ibm.com>
-diff --git a/arch/s390/include/asm/ap-config.h b/arch/s390/include/asm/ap-config.h
-new file mode 100644
-index 0000000..8491b5f
---- /dev/null
-+++ b/arch/s390/include/asm/ap-config.h
-@@ -0,0 +1,12 @@
-+/*
-+ * Adjunct Processor (AP) configuration management for KVM guests
-+ *
-+ * Copyright IBM Corp. 2017
-+ *
-+ * Author(s): Tony Krowiak <akrowia@linux.vnet.ibm.com>
-+ */
++#define APCB0_MASK_SIZE 1
++struct kvm_s390_apcb0 {
++	__u64 apm[APCB0_MASK_SIZE];		/* 0x0000 */
++	__u64 aqm[APCB0_MASK_SIZE];		/* 0x0008 */
++	__u64 adm[APCB0_MASK_SIZE];		/* 0x0010 */
++	__u64 reserved18;			/* 0x0018 */
++};
 +
-+#ifndef _ASM_KVM_AP_CONFIG_H_
-+#define _ASM_KVM_AP_CONFIG_H_
++#define APCB1_MASK_SIZE 4
++struct kvm_s390_apcb1 {
++	__u64 apm[APCB1_MASK_SIZE];		/* 0x0000 */
++	__u64 aqm[APCB1_MASK_SIZE];		/* 0x0020 */
++	__u64 adm[APCB1_MASK_SIZE];		/* 0x0040 */
++	__u64 reserved60[4];			/* 0x0060 */
++};
 +
-+#endif /* _ASM_KVM_AP_CONFIG_H_ */
-diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index 09a9e6d..0397b9c 100644
---- a/arch/s390/kvm/Makefile
-+++ b/arch/s390/kvm/Makefile
-@@ -12,6 +12,6 @@ common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqch
- ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ struct kvm_s390_crypto_cb {
+-	__u8    reserved00[72];                 /* 0x0000 */
+-	__u8    dea_wrapping_key_mask[24];      /* 0x0048 */
+-	__u8    aes_wrapping_key_mask[32];      /* 0x0060 */
+-	__u8    reserved80[128];                /* 0x0080 */
++	struct kvm_s390_apcb0 apcb0;		/* 0x0000 */
++	__u8    reserved20[40];			/* 0x0020 */
++	__u8    dea_wrapping_key_mask[24];	/* 0x0048 */
++	__u8    aes_wrapping_key_mask[32];	/* 0x0060 */
++	struct kvm_s390_apcb1 apcb1;		/* 0x0080 */
+ };
  
- kvm-objs := $(common-objs) kvm-s390.o intercept.o interrupt.o priv.o sigp.o
--kvm-objs += diag.o gaccess.o guestdbg.o sthyi.o vsie.o
-+kvm-objs += diag.o gaccess.o guestdbg.o sthyi.o vsie.o ap-config.o
- 
- obj-$(CONFIG_KVM) += kvm.o
-diff --git a/arch/s390/kvm/ap-config.c b/arch/s390/kvm/ap-config.c
-new file mode 100644
-index 0000000..84fdf43
---- /dev/null
-+++ b/arch/s390/kvm/ap-config.c
-@@ -0,0 +1,9 @@
-+/*
-+ * Adjunct Processor (AP) configuration management for KVM guests
-+ *
-+ * Copyright IBM Corp. 2017
-+ *
-+ * Author(s): Tony Krowiak <akrowia@linux.vnet.ibm.com>
-+ */
-+
-+#include <asm/ap-config.h>
+ /*
 -- 
 1.7.1
