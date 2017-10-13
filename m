@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [RFC 14/19] KVM: s390: Connect the AP mediated matrix device to KVM
-Date: Fri, 13 Oct 2017 13:38:59 -0400
-Message-ID: <1507916344-3896-15-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [RFC 12/19] s390/zcrypt: sysfs support for control domain assignment
+Date: Fri, 13 Oct 2017 13:38:57 -0400
+Message-ID: <1507916344-3896-13-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,92 +12,143 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Registers a group notifier during the open of the mediated
-device to get information on KVM presence through the
-VFIO_GROUP_NOTIFY_SET_KVM event.
+Provides the sysfs interfaces for assigning an AP control
+domain to and unassigning a control domain from a mediated
+matrix device. The relevant sysfs structures are:
 
-When notified, save the pointer to KVM inside mediated matrix device
-structure.
+/sys/devices/ap_matrix
+... [matrix]
+...... [mdev_supported_types]
+......... [ap_matrix-passthrough]
+............ [devices]
+...............[$uuid]
+.................. assign_control_domain
+.................. unassign_control_domain
+.................. control_domains
+
+To assign a control domain to the $uuid mediated matrix device,
+write its domain ID (hex value) to the assign_control_domain file.
+To unassign a control domain, write its domain ID to the
+unassign_control_domain file. To display the list of control
+domains assigned, print the domains file.
+
+For example, to assign control domain 0xff to the $uuid mediated
+matrix device:
+
+	echo ff > assign_control_domain
+
+To see the list of control domains assigned:
+
+	cat control_domains
+
+To unassign control domain 0xff:
+
+	echo ff > unassign_control_domain
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_matrix_ops.c |   43 ++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+), 0 deletions(-)
+ drivers/s390/crypto/vfio_ap_matrix_ops.c |   82 ++++++++++++++++++++++++++++++
+ 1 files changed, 82 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_matrix_ops.c b/drivers/s390/crypto/vfio_ap_matrix_ops.c
-index 10a006c..fd36074 100644
+index 74d7feb..2387916 100644
 --- a/drivers/s390/crypto/vfio_ap_matrix_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_matrix_ops.c
-@@ -12,6 +12,9 @@
- #include <linux/device.h>
- #include <linux/list.h>
- #include <linux/ctype.h>
-+#include <linux/kvm_host.h>
-+#include <linux/eventfd.h>
-+#include <linux/notifier.h>
+@@ -469,6 +469,85 @@ static ssize_t ap_matrix_domains_show(struct device *dev,
+ static DEVICE_ATTR(domains, 0644, ap_matrix_domains_show,
+ 		   NULL);
  
- #include "vfio_ap_matrix_private.h"
- 
-@@ -24,6 +27,8 @@ struct ap_matrix_mdev {
- 	struct mdev_device *mdev;
- 	struct list_head node;
- 	struct ap_config_masks masks;
-+	struct notifier_block group_notifier;
-+	struct kvm *kvm;
- };
- 
- struct ap_matrix	*matrix;
-@@ -97,6 +102,41 @@ static int ap_matrix_mdev_remove(struct mdev_device *mdev)
- 	return 0;
- }
- 
-+static int ap_matrix_mdev_group_notifier(struct notifier_block *nb,
-+					 unsigned long action, void *data)
++static ssize_t ap_matrix_control_domain_assign(struct device *dev,
++					       struct device_attribute *attr,
++					       const char *buf, size_t count)
 +{
-+	struct ap_matrix_mdev *matrix_mdev;
-+
-+	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
-+
-+	if (action == VFIO_GROUP_NOTIFY_SET_KVM)
-+		matrix_mdev->kvm = data;
-+
-+	return NOTIFY_OK;
-+}
-+
-+static int ap_matrix_mdev_open(struct mdev_device *mdev)
-+{
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long events;
 +	int ret;
-+
-+	matrix_mdev->group_notifier.notifier_call =
-+		ap_matrix_mdev_group_notifier;
-+	events = VFIO_GROUP_NOTIFY_SET_KVM;
-+	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-+				     &events, &matrix_mdev->group_notifier);
-+	return ret;
-+}
-+
-+static void ap_matrix_mdev_release(struct mdev_device *mdev)
-+{
++	unsigned int id;
++	struct mdev_device *mdev = mdev_from_dev(dev);
 +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
 +
-+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-+				 &matrix_mdev->group_notifier);
++	ret = ap_matrix_parse_id(buf, &id);
++	if (ret)
++		return ret;
++
++	set_bit_inv((unsigned long)id,
++		    (unsigned long *)matrix_mdev->masks.adm);
++
++	return count;
++}
++static DEVICE_ATTR(assign_control_domain, 0644, NULL,
++		   ap_matrix_control_domain_assign);
++
++static ssize_t ap_matrix_control_domain_unassign(struct device *dev,
++						  struct device_attribute *attr,
++						  const char *buf, size_t count)
++{
++	int ret;
++	unsigned int id;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++
++	ret = ap_matrix_parse_id(buf, &id);
++	if (ret)
++		return ret;
++
++	clear_bit_inv((unsigned long)id,
++		      (unsigned long *)matrix_mdev->masks.adm);
++
++	return count;
++}
++static DEVICE_ATTR(unassign_control_domain, 0644, NULL,
++		   ap_matrix_control_domain_unassign);
++
++static ssize_t ap_matrix_control_domains_show(struct device *dev,
++					      struct device_attribute *attr,
++					      char *buf)
++{
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long *adm = (unsigned long *)matrix_mdev->masks.adm;
++	unsigned long id;
++	unsigned long nbits = 256;
++	char *bufpos = buf;
++	int nchars = 0;
++	int n;
++
++	id = find_first_bit_inv(adm, nbits);
++	while (id < nbits) {
++		if (nchars) {
++			n = sprintf(bufpos, ",");
++			bufpos += n;
++			nchars += n;
++		}
++
++		n = sprintf(bufpos, "%04lx", id);
++		bufpos += n;
++		nchars += n;
++		id = find_next_bit_inv(adm, nbits, id + 1);
++	}
++
++	n = sprintf(bufpos, "\n");
++	bufpos += n;
++	nchars += n;
++
++	return nchars;
 +}
 +
- static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
- {
- 	return sprintf(buf, "%s\n", AP_MATRIX_MDEV_NAME_HWVIRT);
-@@ -609,6 +649,9 @@ static DEVICE_ATTR(control_domains, 0644, ap_matrix_control_domains_show,
- 	.mdev_attr_groups	= ap_matrix_mdev_attr_groups,
- 	.create                 = ap_matrix_mdev_create,
- 	.remove                 = ap_matrix_mdev_remove,
-+	.open                   = ap_matrix_mdev_open,
-+	.release                = ap_matrix_mdev_release,
++static DEVICE_ATTR(control_domains, 0644, ap_matrix_control_domains_show,
++		   NULL);
 +
+ static struct attribute *ap_matrix_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+@@ -476,6 +555,9 @@ static DEVICE_ATTR(domains, 0644, ap_matrix_domains_show,
+ 	&dev_attr_assign_domain.attr,
+ 	&dev_attr_unassign_domain.attr,
+ 	&dev_attr_domains.attr,
++	&dev_attr_assign_control_domain.attr,
++	&dev_attr_unassign_control_domain.attr,
++	&dev_attr_control_domains.attr,
+ 	NULL
  };
  
- int ap_matrix_mdev_register(struct ap_matrix *ap_matrix)
 -- 
 1.7.1
