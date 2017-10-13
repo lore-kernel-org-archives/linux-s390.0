@@ -1,70 +1,53 @@
-From: Parav Pandit <parav@mellanox.com>
-Subject: RE: [PATCH v2 net 2/2] net/smc: dev_put for netdev after usage of
- ib_query_gid()
-Date: Wed, 11 Oct 2017 14:43:05 +0000
-Message-ID: <VI1PR0502MB300838CF1E188B2D7831D28CD14A0@VI1PR0502MB3008.eurprd05.prod.outlook.com>
-References: <20171011114723.30733-1-ubraun@linux.vnet.ibm.com>
- <20171011114723.30733-3-ubraun@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 1/1] net/smc: add SMC rendezvous protocol
+Date: Thu, 12 Oct 2017 23:06:34 -0700 (PDT)
+Message-ID: <20171012.230634.24414822731374394.davem@davemloft.net>
+References: <20171011.140652.272274136617199385.davem@davemloft.net>
+        <b37b38df-cbb8-ca86-d460-9d3ec7acc2c6@linux.vnet.ibm.com>
+        <20171012111429.GG26835@breakpoint.cc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20171011114723.30733-3-ubraun@linux.vnet.ibm.com>
-Content-Language: en-US
+In-Reply-To: <20171012111429.GG26835@breakpoint.cc>
 Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-rdma/>
-List-Post: <mailto:linux-rdma@vger.kernel.org>
-To: Ursula Braun <ubraun@linux.vnet.ibm.com>, "davem@davemloft.net" <davem@davemloft.net>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "jwi@linux.vnet.ibm.com" <jwi@linux.vnet.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "raspl@linux.vnet.ibm.com" <raspl@linux.vnet.ibm.com>
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: fw@strlen.de
+Cc: ubraun@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, hwippel@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-> -----Original Message-----
-> From: Ursula Braun [mailto:ubraun@linux.vnet.ibm.com]
-> Sent: Wednesday, October 11, 2017 6:47 AM
-> To: davem@davemloft.net
-> Cc: netdev@vger.kernel.org; linux-rdma@vger.kernel.org; linux-
-> s390@vger.kernel.org; jwi@linux.vnet.ibm.com; schwidefsky@de.ibm.com;
-> heiko.carstens@de.ibm.com; raspl@linux.vnet.ibm.com;
-> ubraun@linux.vnet.ibm.com; Parav Pandit <parav@mellanox.com>
-> Subject: [PATCH v2 net 2/2] net/smc: dev_put for netdev after usage of
-> ib_query_gid()
->=20
-> For RoCEs ib_query_gid() takes a reference count on the net_device.
-> This reference count must be decreased by the caller.
->=20
-> Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
-> Reported-by: Parav Pandit <parav@mellanox.com>
-> Reviewed-by: Parav Pandit <parav@mellanox.com>
-> Fixes: 0cfdd8f92cac ("smc: connection and link group creation")
-> ---
->  net/smc/smc_core.c | 12 ++++++++----
->  1 file changed, 8 insertions(+), 4 deletions(-)
->=20
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c index
-> 20b66e79c5d6..5f6a20084157 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -380,10 +380,14 @@ static int smc_link_determine_gid(struct
-> smc_link_group *lgr)
->  		if (ib_query_gid(lnk->smcibdev->ibdev, lnk->ibport, i, &gid,
->  				 &gattr))
->  			continue;
-> -		if (gattr.ndev &&
-> -		    (vlan_dev_vlan_id(gattr.ndev) =3D=3D lgr->vlan_id)) {
-> -			lnk->gid =3D gid;
-> -			return 0;
-> +		if (gattr.ndev) {
-> +			if (is_vlan_dev(gattr.ndev) &&
-> +			    vlan_dev_vlan_id(gattr.ndev) =3D=3D lgr->vlan_id) {
-> +				lnk->gid =3D gid;
-> +				dev_put(gattr.ndev);
-> +				return 0;
-> +			}
-> +			dev_put(gattr.ndev);
->  		}
->  	}
->  	return -ENODEV;
-> --
-> 2.13.5
+From: Florian Westphal <fw@strlen.de>
+Date: Thu, 12 Oct 2017 13:14:29 +0200
 
-Looks fine now.
+> Ursula Braun <ubraun@linux.vnet.ibm.com> wrote:
+>> On 10/11/2017 11:06 PM, David Miller wrote:
+>> > From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+>> > Date: Tue, 10 Oct 2017 16:14:19 +0200
+>> > 
+>> >> The goal of this patch is to leave common TCP code unmodified. Thus,
+>> >> it uses netfilter hooks to intercept TCP SYN and SYN/ACK
+>> >> packets. For outgoing packets originating from SMC sockets, the
+>> >> experimental option is added. For inbound packets destined for SMC
+>> >> sockets, the experimental option is checked.
+>> > 
+>> > I think this really isn't going to pass.
+>> > 
+>> > It's a user experience nightmare when the kernel inserts and
+>> > deletes filtering rules outside of what the user configures
+>> > on their system.
+> 
+> It depends if the hook is passive or not (i.e. mangles
+> payload/metadata or returns verdict other than NF_ACCEPT).
+> 
+> OUTPUT hook added here is not passive as it mangles tcp options.
+> 
+>> > This approach was also considerd for ipv6 ILA, and the same
+>> > pushback was given.
+> 
+> ahem.
+> net/ipv6/ila/ila_xlat.c:   err = nf_register_net_hooks(net, ila_nf_hook_ops,
+
+My bad, I thought we had decided against that.
+
+Oh well.
