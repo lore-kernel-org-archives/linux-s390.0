@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [RFC 18/19] KVM: s390: New ioctl to configure KVM guest's AP matrix
-Date: Fri, 13 Oct 2017 13:39:03 -0400
-Message-ID: <1507916344-3896-19-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [RFC 17/19] KVM: s390: validate input to AP matrix config interface
+Date: Fri, 13 Oct 2017 13:39:02 -0400
+Message-ID: <1507916344-3896-18-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,150 +12,137 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Implements an ioctl to configure the adapters, usage domains
-and control domains to which a KVM guest will be granted
-access. The ioctl is invoked using the VFIO mediated matrix
-device's file descriptor.
+Verifies that the AP matrix assigned to the KVM guest is
+not shared by any other KVM guest running on the same
+system.
 
-Guest access to AP adapters, usage domains and control domains
-is controlled by three bit masks referenced from the
-guest's SIE state description: The AP Mask (APM) controls
-access to the AP adapters; the AP Queue Mask (AQM) controls
-access to the AP usage domains; and the AP Domain Mask (ADM)
-controls access to the AP control domains. Each bit
-in the APM represents an adapter, from left to right,
-starting with adapter 0. Each bit in the AQM represents
-a usage domain, from left to right, starting with domain 0.
-Each bit in the ADM represents a control domain, from left
-to right, starting with domain 0.
+The Crypto Control Block referenced by a KVM guest's SIE
+state description contains two bit mask fields that identify
+the AP adapters and usage domains to assigned to the
+guest: The AP Matrix (APM) identifies the AP adapters assigned
+to the KVM guest; and the AP Queue Matrix (AQM) identifies
+the usage domains assigned to the KVM guest. Each adapter and
+usage domain is identified by a number from 0 to 255. The
+bits in each mask, from left to right, correspond to the
+numbers 0-255. When a bit is set, the corresponding adapter
+or usage domain is assigned to the KVM guest.
 
-The APM, AQM and ADM bit masks will be populated from the
-bit masks stored in the corresponding mediated matrix device's
-sysfs files. The bit masks will also be returned by the ioctl
-call to the caller.
+AP instructions identify the AP device to use to perform the
+cryptographic function contained in the instruction's
+payload. The AP device is identified by and AP Queue
+Number (APQN). The APQN is comprised of two fields: The
+AP Identifier (APID) that specifies an adapter ID; and
+an AP Queue Identifier (APQI) that specifies a domain ID.
+
+The bits in the APM and AQM fields of the KVM guest's CRYCB
+specify the list of APQNs that are valid for instructions
+submitted from the KVM guest. When an AP instruction is
+executed by the KVM guest, if the bit in the APM corresponding
+to the APID contained in the APQN specified in the AP
+instruction is not set, the instruction will fail. Likewise,
+if the bit in the AQM corresponding to the APQI contained in
+the APQN specified in the AP instruction is not set, the
+instruction will fail.
+
+The APQNs that can be derived from the bits set in the
+APM and AQM fields of the KVM guest's CRYCB must not be
+available to any other KVM guest running on the same
+system. If any APQN is not unique to the KVM guest,
+the ioctl will fail.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_matrix_ops.c |   68 +++++++++++++++++++++++++++++-
- include/uapi/linux/vfio.h                |   20 +++++++++
- 2 files changed, 86 insertions(+), 2 deletions(-)
+ arch/s390/kvm/ap-config.c |   71 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 71 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_matrix_ops.c b/drivers/s390/crypto/vfio_ap_matrix_ops.c
-index 74ea8db..d81e3ab 100644
---- a/drivers/s390/crypto/vfio_ap_matrix_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_matrix_ops.c
-@@ -160,8 +160,69 @@ static int ap_matrix_mdev_get_device_info(unsigned long arg)
- 	return copy_to_user((void __user *)arg, &info, minsz);
+diff --git a/arch/s390/kvm/ap-config.c b/arch/s390/kvm/ap-config.c
+index dc79798..4b0794d 100644
+--- a/arch/s390/kvm/ap-config.c
++++ b/arch/s390/kvm/ap-config.c
+@@ -138,6 +138,73 @@ static int ap_config_get_emasks(struct ap_config_masks *masks)
+ 	return 0;
  }
  
--static ssize_t ap_matrix_mdev_ioctl(struct mdev_device *mdev,
--				    unsigned int cmd, unsigned long arg)
-+static int ap_matrix_configure(struct mdev_device *mdev)
++static unsigned long ap_config_get_num_mask_bits(struct kvm *kvm)
 +{
-+	int ret;
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+
-+	ret = ap_config_matrix(matrix_mdev->kvm, &matrix_mdev->masks);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
++	return is_format2_crycb(kvm) ? sizeof(u64) * APCB1_MASK_SIZE * 8 :
++				       sizeof(u64) * APCB0_MASK_SIZE * 8;
 +}
 +
-+static int ap_matrix_copy_to_user(struct mdev_device *mdev,
-+				  struct vfio_ap_matrix_config *mcfg,
-+				  unsigned long arg)
++static int ap_config_validate_queue(struct kvm *kvm, unsigned long apid,
++				    unsigned long apqi)
 +{
-+	size_t i;
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	int ret = 0;
++	struct kvm *vm;
++	u64 *mask;
 +
++	mutex_lock(&kvm->lock);
 +
-+	for (i = 0; i < AP_MATRIX_MASK_INDICES; i++) {
-+		if (i < VFIO_AP_MATRIX_MASK_INDICES) {
-+			mcfg->apm[i] = matrix_mdev->masks.apm[i];
-+			mcfg->aqm[i] = matrix_mdev->masks.aqm[i];
-+			mcfg->adm[i] = matrix_mdev->masks.adm[i];
++	/* No other VM may share an AP Queue with the input VM */
++	list_for_each_entry(vm, &vm_list, vm_list) {
++		if (kvm == vm)
++			continue;
++
++		mask = ap_config_get_crycb_apm(vm);
++		if (!test_bit_inv(apid, (unsigned long *)mask))
++			continue;
++
++		mask = ap_config_get_crycb_aqm(vm);
++		if (!test_bit_inv(apqi, (unsigned long *)mask))
++			continue;
++
++		pr_err("%s: AP queue %02lx.%04lx is already registered to %s",
++		       __func__, apid, apqi, kvm->arch.dbf->name);
++		ret = -EBUSY;
++
++		goto done;
++	}
++
++done:
++	mutex_unlock(&kvm->lock);
++	return ret;
++}
++
++static int ap_config_validate_queues(struct kvm *kvm,
++				     struct ap_config_masks *masks)
++{
++	int ret;
++	const unsigned long *apm = (unsigned long *)masks->apm;
++	const unsigned long *aqm = (unsigned long *)masks->aqm;
++	unsigned long nbits = ap_config_get_num_mask_bits(kvm);
++	unsigned long apid;
++	unsigned long apqi;
++
++	apid = find_first_bit_inv(apm, nbits);
++	while (apid < nbits) {
++		apqi = find_first_bit_inv(aqm, nbits);
++		while (apqi < nbits) {
++			ret = ap_config_validate_queue(kvm, apid, apqi);
++			if (ret)
++				return ret;
++
++			apqi = find_next_bit_inv(aqm, nbits, apqi + 1);
 +		}
-+	}
 +
-+	if (copy_to_user((void __user *)arg, &mcfg, sizeof(mcfg)))
-+		return -EFAULT;
++		apid = find_next_bit_inv(apm, nbits, apid + 1);
++	}
 +
 +	return 0;
 +}
 +
-+static ssize_t ap_matrix_mdev_configure(struct mdev_device *mdev,
-+					unsigned long arg)
-+{
-+	int ret;
-+	unsigned long minsz;
-+	struct vfio_ap_matrix_config mcfg;
-+
-+	minsz = offsetofend(struct vfio_ap_matrix_config, adm);
-+
-+	if (copy_from_user(&mcfg, (void __user *)arg, minsz))
-+		return -EFAULT;
-+
-+	if (mcfg.argsz < minsz) {
-+		pr_err("%s: Argument size %u less than min size %li",
-+		       VFIO_AP_MATRIX_MODULE_NAME, mcfg.argsz, minsz);
-+		return -EINVAL;
-+	}
-+
-+	ret = ap_matrix_configure(mdev);
-+	if (ret)
-+		return ret;
-+
-+	ret = ap_matrix_copy_to_user(mdev, &mcfg, arg);
-+
-+	return 0;
-+}
-+
-+static long ap_matrix_mdev_ioctl(struct mdev_device *mdev,
-+				 unsigned int cmd, unsigned long arg)
+ int ap_config_matrix(struct kvm *kvm, struct ap_config_masks *masks)
  {
  	int ret;
+@@ -146,6 +213,10 @@ int ap_config_matrix(struct kvm *kvm, struct ap_config_masks *masks)
+ 	if (ret)
+ 		return ret;
  
-@@ -169,6 +230,9 @@ static ssize_t ap_matrix_mdev_ioctl(struct mdev_device *mdev,
- 	case VFIO_DEVICE_GET_INFO:
- 		ret = ap_matrix_mdev_get_device_info(arg);
- 		break;
-+	case VFIO_AP_MATRIX_CONFIGURE:
-+		ret = ap_matrix_mdev_configure(mdev, arg);
-+		break;
- 	default:
- 		pr_err("%s: ioctl command %d is not a supported command",
- 		       VFIO_AP_MATRIX_MODULE_NAME, cmd);
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 08f1ab4..2d96c57 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -716,6 +716,26 @@ struct vfio_iommu_spapr_tce_remove {
- };
- #define VFIO_IOMMU_SPAPR_TCE_REMOVE	_IO(VFIO_TYPE, VFIO_BASE + 20)
- 
-+/**
-+ * VFIO_AP_MATRIX_CONFIGURE		_IO(VFIO_TYPE, VFIO_BASE + 21
-+ *
-+ * Configure the AP matrix for a KVM guest.
-+ */
-+#define VFIO_AP_MATRIX_CONFIGURE	_IO(VFIO_TYPE, VFIO_BASE + 21)
++	ret = ap_config_validate_queues(kvm, masks);
++	if (ret)
++		return ret;
 +
-+#define VFIO_AP_MATRIX_MASK_INDICES	4
-+#define VFIO_AP_MATTRIX_MASK_BYTES	(VFIO_AP_MATRIX_MASK_INDICES * \
-+					 sizeof(__u64))
-+#define VFIO_AP_MATRIX_MASK_BITS	(VFIO_AP_MATTRIX_MASK_BYTES * 8)
-+
-+struct vfio_ap_matrix_config {
-+	__u32 argsz;
-+	__u32 flags;
-+	/* out */
-+	__u64 apm[VFIO_AP_MATRIX_MASK_INDICES];
-+	__u64 aqm[VFIO_AP_MATRIX_MASK_INDICES];
-+	__u64 adm[VFIO_AP_MATRIX_MASK_INDICES];
-+};
- /* ***************************************************************** */
+ 	ap_config_set_crycb_masks(kvm, masks);
  
- #endif /* _UAPIVFIO_H */
+ 	return 0;
 -- 
 1.7.1
