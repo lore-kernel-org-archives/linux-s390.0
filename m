@@ -1,61 +1,52 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/2] vfio: ccw: bypass bad idaw address when fetching IDAL ccws
-Date: Mon, 16 Oct 2017 11:50:35 +0200
-Message-ID: <20171016095036.27637-2-cohuck@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PULL 0/2] vfio-ccw fixes
+Date: Mon, 16 Oct 2017 12:46:29 +0200
+Message-ID: <20171016124629.20de7c0f@mschwideX1>
 References: <20171016095036.27637-1-cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171016095036.27637-1-cohuck@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: bjsdjshi@linux.vnet.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: bjsdjshi@linux.vnet.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+On Mon, 16 Oct 2017 11:50:34 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-We currently return the same error code (-EFAULT) to indicate two
-different error cases:
-1. a bug in vfio-ccw implementation has been found.
-2. a buggy channel program has been detected.
+> The following changes since commit fe3af62553896d2a6b13c931137406681d76c3e4:
+> 
+>   s390: update defconfig (2017-10-16 08:19:28 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20171016
+> 
+> for you to fetch changes up to 4cebc5d6a6ff41c0266d235aa4854b062d34ad09:
+> 
+>   vfio: ccw: validate the count field of a ccw before pinning (2017-10-16 11:14:48 +0200)
+> 
+> ----------------------------------------------------------------
+> Some improvements in data handling for vfio-ccw.
+> 
+> ----------------------------------------------------------------
+> 
+> Dong Jia Shi (2):
+>   vfio: ccw: bypass bad idaw address when fetching IDAL ccws
+>   vfio: ccw: validate the count field of a ccw before pinning
+> 
+>  drivers/s390/cio/vfio_ccw_cp.c | 22 +++++++++++++++++-----
+>  1 file changed, 17 insertions(+), 5 deletions(-)
+> 
 
-This brings difficulty for userland program (specifically Qemu) to
-handle.
+The vfio update is merged and pushed to s390/linux:features. Thanks.
 
-Let's use -EFAULT to only indicate the first case. For the second
-case, we simply hand over the ccws to lower level for further
-handling.
-
-Notice:
-Once a bad idaw address is detected, the current behavior is to
-suppress the ssch. With this fix, the channel program will be
-accepted, and part of the channel program (the part ahead of
-the bad idaw) could possibly be executed by the device before
-I/O conclusion.
-
-Suggested-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Message-Id: <20171011023822.42948-2-bjsdjshi@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 4 ----
- 1 file changed, 4 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 5ccfdc80d0ec..722f8b8c7273 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -569,10 +569,6 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
- 
- 	for (i = 0; i < idaw_nr; i++) {
- 		idaw_iova = *(idaws + i);
--		if (IS_ERR_VALUE(idaw_iova)) {
--			ret = -EFAULT;
--			goto out_free_idaws;
--		}
- 
- 		ret = pfn_array_alloc_pin(pat->pat_pa + i, cp->mdev,
- 					  idaw_iova, 1);
 -- 
-2.13.6
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
