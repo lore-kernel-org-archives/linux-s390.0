@@ -1,51 +1,37 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [PATCH net-next 1/2] tcp: TCP experimental option for SMC
-Date: Mon, 16 Oct 2017 09:13:27 -0700
-Message-ID: <1508170407.31614.78.camel@edumazet-glaptop3.roam.corp.google.com>
-References: <20171016154202.72635-1-ubraun@linux.vnet.ibm.com>
-         <20171016154202.72635-2-ubraun@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 0/2] TCP experimental option for SMC rendezvous
+Date: Mon, 16 Oct 2017 17:42:00 +0200
+Message-ID: <20171016154202.72635-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20171016154202.72635-2-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2017-10-16 at 17:42 +0200, Ursula Braun wrote:
-...
+Dave,
 
-> +static void smc_set_capability(struct inet_request_sock *ireq,
-> +			       const struct tcp_options_received *rx_opt)
-> +{
-> +#if IS_ENABLED(CONFIG_SMC)
-> +	if (!static_key_false(&tcp_have_smc))
-> +		return;
-> +
-> +	if (rx_opt->smc_ok)
-> +		ireq->smc_ok = 1;
-> +	else
-> +		ireq->smc_ok = 0;
-> +#endif
-> +}
+SMC-capability is to be negotiated with a TCP experimental option.
+As requested during code review of our previous approach using
+netfilter hooks, here's a new version. It touches tcp-code in the
+first patch and exploits the new tcp flag in the smc-code.
 
+Kind regards, Ursula
 
-I do not think this static_key_false(&tcp_have_smc)) makes sense here.
+Ursula Braun (2):
+  tcp: TCP experimental option for SMC
+  smc: add SMC rendezvous protocol
 
-1) If you have a SYN packet while the key is not set
-2) Then tcp_have_smc is changed
-3) ACK packets comes,  and finds random value in ireq->smc_ok
+ include/linux/tcp.h      |  9 ++++--
+ include/net/inet_sock.h  |  3 +-
+ include/net/tcp.h        |  8 ++++++
+ net/ipv4/tcp.c           |  6 ++++
+ net/ipv4/tcp_input.c     | 45 ++++++++++++++++++++++++++++++
+ net/ipv4/tcp_minisocks.c | 20 ++++++++++++++
+ net/ipv4/tcp_output.c    | 71 ++++++++++++++++++++++++++++++++++++++++++++++--
+ net/smc/af_smc.c         | 21 +++++++++++++-
+ 8 files changed, 176 insertions(+), 7 deletions(-)
 
-So really here you have to set this field.
-
-static void smc_set_capability(struct inet_request_sock *ireq,
-                              const struct tcp_options_received *rx_opt)
-{
-#if IS_ENABLED(CONFIG_SMC)
-       ireq->smc_ok = rx_opt->smc_ok;
-#endif
-}
+-- 
+2.13.5
