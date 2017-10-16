@@ -1,45 +1,65 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Subject: Re: [RFC 00/19] KVM: s390/crypto/vfio: guest dedicated crypto
  adapters
-Date: Mon, 16 Oct 2017 12:27:52 -0400
-Message-ID: <ff3f4234-43b6-7a2f-9198-13477141bffd@linux.vnet.ibm.com>
+Date: Mon, 16 Oct 2017 12:30:28 -0400
+Message-ID: <66490023-ade1-8cac-962f-da0038c26c4d@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20171016120514.62145b4f.cohuck@redhat.com>
+ <20171016112755.4d6b3ea1@mschwideX1>
+ <a079c437-f2e1-9774-416d-c22f3ad3f60a@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171016120514.62145b4f.cohuck@redhat.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <a079c437-f2e1-9774-416d-c22f3ad3f60a@de.ibm.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/16/2017 06:05 AM, Cornelia Huck wrote:
-> On Fri, 13 Oct 2017 13:38:45 -0400
-> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+On 10/16/2017 06:06 AM, Christian Borntraeger wrote:
 >
->> Overview:
->> --------
->> An adjunct processor (AP) facility is an IBM Z cryptographic facility. The
->> AP facility is comprised of three AP instructions and from 1 to 256 AP
->> adapter cards. The design takes advantage of the interpretive execution mode
->> provided by the SIE architecture. With interpretive execution mode, the AP
->> instructions executed on the guest are interpreted by the hardware. This
->> allows guests direct access to AP adapter cards. The first goal of this
->> patch series is to provide direct access by a KVM guest to an AP as a
->> pass-through device. The second goal is to provide administrators with the
->> means to configure KVM guests to grant direct access to AP facilities
->> assigned to the LPAR in which the host linux system is running.
+> On 10/16/2017 11:27 AM, Martin Schwidefsky wrote:
+>> On Fri, 13 Oct 2017 13:38:45 -0400
+>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 >>
->> To facilitate the comprehension of the design, let's present an overview of
->> the AP architecture.
-> I have not yet looked at the patches (and I'm not sure whether I'll be
-> able to do so until after the KVM Forum), but I think this also needs
-> some explanation under Documentation/, so people can still make sense
-> of it in the future.
-That makes sense, I will create a document.
+>>> Tony Krowiak (19):
+>>>    KVM: s390: SIE considerations for AP Queue virtualization
+>>>    KVM: s390: refactor crypto initialization
+>>>    s390/zcrypt: new AP matrix bus
+>>>    s390/zcrypt: create an AP matrix device on the AP matrix bus
+>>>    s390/zcrypt: base implementation of AP matrix device driver
+>>>    s390/zcrypt: register matrix device with VFIO mediated device
+>>>      framework
+>>>    KVM: s390: introduce AP matrix configuration interface
+>>>    s390/zcrypt: support for assigning adapters to matrix mdev
+>>>    s390/zcrypt: validate adapter assignment
+>>>    s390/zcrypt: sysfs interfaces supporting AP domain assignment
+>>>    s390/zcrypt: validate domain assignment
+>>>    s390/zcrypt: sysfs support for control domain assignment
+>>>    s390/zcrypt: validate control domain assignment
+>>>    KVM: s390: Connect the AP mediated matrix device to KVM
+>>>    s390/zcrypt: introduce ioctl access to VFIO AP Matrix driver
+>>>    KVM: s390: interface to configure KVM guest's AP matrix
+>>>    KVM: s390: validate input to AP matrix config interface
+>>>    KVM: s390: New ioctl to configure KVM guest's AP matrix
+>>>    s390/facilities: enable AP facilities needed by guest
+>> Overall I am quite happy with the patches, only minor things I would
+>> like to see improved. We have to agree how we want to approach the
+>> upstream process between my s390/linux tree and the s390/kvm tree.
+>> Probably a tip branch again for the both tress to pull from.
+> Thanks a lot for the review of the zcrypt patches. Its very good to know
+> that these base changes are ok with you.
+>
+> Regarding merging: yes, this should be a tip branch then. Before that, we
+> have to finalize the interface and design to make sure that the changes
+> will work throughout the whole stack (kvm/vfio/qemu/libvirt).
+I would also like to add my thank you for the review comments. I am 
+currently
+debugging the QEMU code I've written and Farhan Ali is in the
+review process for the libvirt component.
+>
+>
 >
