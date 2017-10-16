@@ -1,102 +1,45 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [RFC 07/19] KVM: s390: introduce AP matrix configuration
- interface
-Date: Mon, 16 Oct 2017 12:26:47 -0400
-Message-ID: <3fd9ce01-e886-b3f3-021d-f2a147cafdb7@linux.vnet.ibm.com>
+Subject: Re: [RFC 00/19] KVM: s390/crypto/vfio: guest dedicated crypto
+ adapters
+Date: Mon, 16 Oct 2017 12:27:52 -0400
+Message-ID: <ff3f4234-43b6-7a2f-9198-13477141bffd@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1507916344-3896-8-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20171016111030.1a955866@mschwideX1>
+ <20171016120514.62145b4f.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171016111030.1a955866@mschwideX1>
+In-Reply-To: <20171016120514.62145b4f.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/16/2017 05:10 AM, Martin Schwidefsky wrote:
-> On Fri, 13 Oct 2017 13:38:52 -0400
+On 10/16/2017 06:05 AM, Cornelia Huck wrote:
+> On Fri, 13 Oct 2017 13:38:45 -0400
 > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 >
->> This patch introduces a new compilation unit that will contain
->> all of the data structures and logic for configuring AP adapters,
->> usage domains and control domains for a KVM guest.
+>> Overview:
+>> --------
+>> An adjunct processor (AP) facility is an IBM Z cryptographic facility. The
+>> AP facility is comprised of three AP instructions and from 1 to 256 AP
+>> adapter cards. The design takes advantage of the interpretive execution mode
+>> provided by the SIE architecture. With interpretive execution mode, the AP
+>> instructions executed on the guest are interpreted by the hardware. This
+>> allows guests direct access to AP adapter cards. The first goal of this
+>> patch series is to provide direct access by a KVM guest to an AP as a
+>> pass-through device. The second goal is to provide administrators with the
+>> means to configure KVM guests to grant direct access to AP facilities
+>> assigned to the LPAR in which the host linux system is running.
 >>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->> ---
->>   MAINTAINERS                       |    2 ++
->>   arch/s390/include/asm/ap-config.h |   12 ++++++++++++
->>   arch/s390/kvm/Makefile            |    2 +-
->>   arch/s390/kvm/ap-config.c         |    9 +++++++++
->>   4 files changed, 24 insertions(+), 1 deletions(-)
->>   create mode 100644 arch/s390/include/asm/ap-config.h
->>   create mode 100644 arch/s390/kvm/ap-config.c
->>
->> diff --git a/MAINTAINERS b/MAINTAINERS
->> index 0c8855a..4de0904 100644
->> --- a/MAINTAINERS
->> +++ b/MAINTAINERS
->> @@ -11721,6 +11721,8 @@ F:	drivers/s390/crypto/ap_matrix_bus.c
->>   F:	drivers/s390/crypto/vfio_ap_matrix_drv.c
->>   F:	drivers/s390/crypto/vfio_ap_matrix_private.h
->>   F:	drivers/s390/crypto/vfio_ap_matrix_ops.c
->> +F:	arch/s390/include/asm/kvm/ap-config.h
->> +F:	arch/s390/kvm/ap-config.c
->>
->>   S390 ZFCP DRIVER
->>   M:	Steffen Maier <maier@linux.vnet.ibm.com>
->> diff --git a/arch/s390/include/asm/ap-config.h b/arch/s390/include/asm/ap-config.h
->> new file mode 100644
->> index 0000000..8491b5f
->> --- /dev/null
->> +++ b/arch/s390/include/asm/ap-config.h
->> @@ -0,0 +1,12 @@
->> +/*
->> + * Adjunct Processor (AP) configuration management for KVM guests
->> + *
->> + * Copyright IBM Corp. 2017
->> + *
->> + * Author(s): Tony Krowiak <akrowia@linux.vnet.ibm.com>
->> + */
->> +
->> +#ifndef _ASM_KVM_AP_CONFIG_H_
->> +#define _ASM_KVM_AP_CONFIG_H_
->> +
->> +#endif /* _ASM_KVM_AP_CONFIG_H_ */
->> diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
->> index 09a9e6d..0397b9c 100644
->> --- a/arch/s390/kvm/Makefile
->> +++ b/arch/s390/kvm/Makefile
->> @@ -12,6 +12,6 @@ common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqch
->>   ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
->>
->>   kvm-objs := $(common-objs) kvm-s390.o intercept.o interrupt.o priv.o sigp.o
->> -kvm-objs += diag.o gaccess.o guestdbg.o sthyi.o vsie.o
->> +kvm-objs += diag.o gaccess.o guestdbg.o sthyi.o vsie.o ap-config.o
->>
->>   obj-$(CONFIG_KVM) += kvm.o
->> diff --git a/arch/s390/kvm/ap-config.c b/arch/s390/kvm/ap-config.c
->> new file mode 100644
->> index 0000000..84fdf43
->> --- /dev/null
->> +++ b/arch/s390/kvm/ap-config.c
->> @@ -0,0 +1,9 @@
->> +/*
->> + * Adjunct Processor (AP) configuration management for KVM guests
->> + *
->> + * Copyright IBM Corp. 2017
->> + *
->> + * Author(s): Tony Krowiak <akrowia@linux.vnet.ibm.com>
->> + */
->> +
->> +#include <asm/ap-config.h>
-> Another patch that introduces empty files. Please don't do that. Merge
-> patch #7 with patch #16. With the dependency in patch #8 on the ap-config.h
-> header the new place for the combined patch would be prior to patch #8.
-Sounds reasonable, will do.
+>> To facilitate the comprehension of the design, let's present an overview of
+>> the AP architecture.
+> I have not yet looked at the patches (and I'm not sure whether I'll be
+> able to do so until after the KVM Forum), but I think this also needs
+> some explanation under Documentation/, so people can still make sense
+> of it in the future.
+That makes sense, I will create a document.
 >
