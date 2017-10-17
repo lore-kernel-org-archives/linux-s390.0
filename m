@@ -1,51 +1,50 @@
-Return-Path: <stable-owner@vger.kernel.org>
-From: Dimitri John Ledkov <xnox@ubuntu.com>
-Subject: [PATCH] s390: fix zfcpdump_defconfig failing to perform zfcpdump
-Date: Thu, 12 Oct 2017 11:37:26 +0100
-Message-Id: <1507804646-6197-1-git-send-email-xnox@ubuntu.com>
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/stable/>
-List-Post: <mailto:stable@vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Dimitri John Ledkov <xnox@ubuntu.com>, stable@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 17 Oct 2017 10:59:10 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390/sclp: Convert timers to use timer_setup()
+In-Reply-To: <20171016234430.GA102114@beast>
+References: <20171016234430.GA102114@beast>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20171017105910.5735a5b9@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Kees Cook <keescook@chromium.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-zipl from s390-tools generates root=/dev/ram0 kernel cmdline for
-zfcpdump, thus BLK_DEV_RAM is required.
+On Mon, 16 Oct 2017 16:44:30 -0700
+Kees Cook <keescook@chromium.org> wrote:
 
-zfcpdump initrd mounts DEBUG_FS, thus it is also required.
+> In preparation for unconditionally passing the struct timer_list pointer to
+> all timer callbacks, switch to using the new timer_setup() and from_timer()
+> to pass the timer pointer explicitly. Instead of creating an external static
+> data variable, just define a separate callback which encodes the "force
+> restart" desire.
+> 
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  drivers/s390/char/con3215.c    |  6 +++---
+>  drivers/s390/char/con3270.c    | 10 +++++-----
+>  drivers/s390/char/sclp.c       | 45 ++++++++++++++++++++++++------------------
+>  drivers/s390/char/sclp_con.c   |  5 ++---
+>  drivers/s390/char/sclp_tty.c   |  5 ++---
+>  drivers/s390/char/sclp_vt220.c |  6 ++----
+>  drivers/s390/char/tape_core.c  | 14 ++++---------
+>  drivers/s390/char/tty3270.c    |  8 ++++----
+>  8 files changed, 48 insertions(+), 51 deletions(-)
 
-Without above two options kernel images built with zfcpdump_defconfig
-fail to perform zfcpdump. Affects v4.10+.
+Applied to s390/linux:feature branch. Thanks.
 
-Bug-Ubuntu: https://launchpad.net/bugs/1722735
-Bug-Ubuntu: https://launchpad.net/bugs/1719290
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Dimitri John Ledkov <xnox@ubuntu.com>
----
- arch/s390/configs/zfcpdump_defconfig | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/s390/configs/zfcpdump_defconfig b/arch/s390/configs/zfcpdump_defconfig
-index afa46a7..04e042e 100644
---- a/arch/s390/configs/zfcpdump_defconfig
-+++ b/arch/s390/configs/zfcpdump_defconfig
-@@ -27,6 +27,7 @@ CONFIG_NET=y
- CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
- CONFIG_DEVTMPFS=y
- # CONFIG_FIRMWARE_IN_KERNEL is not set
-+CONFIG_BLK_DEV_RAM=y
- # CONFIG_BLK_DEV_XPRAM is not set
- # CONFIG_DCSSBLK is not set
- # CONFIG_DASD is not set
-@@ -59,6 +60,7 @@ CONFIG_CONFIGFS_FS=y
- # CONFIG_NETWORK_FILESYSTEMS is not set
- CONFIG_PRINTK_TIME=y
- CONFIG_DEBUG_INFO=y
-+CONFIG_DEBUG_FS=y
- CONFIG_DEBUG_KERNEL=y
- CONFIG_PANIC_ON_OOPS=y
- # CONFIG_SCHED_DEBUG is not set
 -- 
-2.7.4
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
