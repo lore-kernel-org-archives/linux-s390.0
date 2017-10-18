@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 18 Oct 2017 08:30:28 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 4.14-rc6
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20171018083028.74f405c8@mschwideX1>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH V2 net-next 0/3] TCP experimental option for SMC rendezvous
+Date: Wed, 18 Oct 2017 16:29:57 +0200
+Message-ID: <20171018143000.23884-1-ubraun@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+Dave,
 
-please pull from the 'for-linus' branch of
+SMC-capability is to be negotiated with a TCP experimental option.
+As requested during code review of our previous approach using
+netfilter hooks, here's a new version. It touches tcp-code in the
+first patch and exploits the new tcp flag in the smc-code.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+Kind regards, Ursula
 
-to receive the following updates:
+Changelog:
 
-Two bug fixes:
+V2:
+* switch to current jump labels API
+* remove static key checking in smc_set_capability()
+  (comment from Eric Dumazet)
+* use inet_request_sock parameter for smc_set_option_cond()
+* smc_listen_work(): replace local variable lgr_lock_taken by new labels
+                     and separate this change into a prerequisite first
+                     patch
 
- * A fix for cputime accounting vs CPU hotplug
+Ursula Braun (3):
+  smc: fix mutex unlocks during link group creation 
+  tcp: TCP experimental option for SMC
+  smc: add SMC rendezvous protocol
 
- * Add two options to zfcpdump_defconfig to make SCSI dump work again
+ include/linux/tcp.h      |  9 +++++--
+ include/net/inet_sock.h  |  3 ++-
+ include/net/tcp.h        |  8 ++++++
+ net/ipv4/tcp.c           |  6 +++++
+ net/ipv4/tcp_input.c     | 34 +++++++++++++++++++++++++
+ net/ipv4/tcp_minisocks.c | 19 ++++++++++++++
+ net/ipv4/tcp_output.c    | 66 +++++++++++++++++++++++++++++++++++++++++++++---
+ net/smc/af_smc.c         | 42 ++++++++++++++++++++++--------
+ 8 files changed, 170 insertions(+), 17 deletions(-)
 
-Christian Borntraeger (1):
-      s390/cputime: fix guest/irq/softirq times after CPU hotplug
-
-Dimitri John Ledkov (1):
-      s390: fix zfcpdump-config
-
- arch/s390/configs/zfcpdump_defconfig | 2 ++
- arch/s390/kernel/smp.c               | 3 +++
- 2 files changed, 5 insertions(+)
-
-diff --git a/arch/s390/configs/zfcpdump_defconfig b/arch/s390/configs/zfcpdump_defconfig
-index afa46a7..04e042e 100644
---- a/arch/s390/configs/zfcpdump_defconfig
-+++ b/arch/s390/configs/zfcpdump_defconfig
-@@ -27,6 +27,7 @@ CONFIG_NET=y
- CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
- CONFIG_DEVTMPFS=y
- # CONFIG_FIRMWARE_IN_KERNEL is not set
-+CONFIG_BLK_DEV_RAM=y
- # CONFIG_BLK_DEV_XPRAM is not set
- # CONFIG_DCSSBLK is not set
- # CONFIG_DASD is not set
-@@ -59,6 +60,7 @@ CONFIG_CONFIGFS_FS=y
- # CONFIG_NETWORK_FILESYSTEMS is not set
- CONFIG_PRINTK_TIME=y
- CONFIG_DEBUG_INFO=y
-+CONFIG_DEBUG_FS=y
- CONFIG_DEBUG_KERNEL=y
- CONFIG_PANIC_ON_OOPS=y
- # CONFIG_SCHED_DEBUG is not set
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 1cee675..495ff69 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -293,7 +293,10 @@ static void pcpu_attach_task(struct pcpu *pcpu, struct task_struct *tsk)
- 	lc->lpp = LPP_MAGIC;
- 	lc->current_pid = tsk->pid;
- 	lc->user_timer = tsk->thread.user_timer;
-+	lc->guest_timer = tsk->thread.guest_timer;
- 	lc->system_timer = tsk->thread.system_timer;
-+	lc->hardirq_timer = tsk->thread.hardirq_timer;
-+	lc->softirq_timer = tsk->thread.softirq_timer;
- 	lc->steal_timer = 0;
- }
- 
+-- 
+2.13.5
