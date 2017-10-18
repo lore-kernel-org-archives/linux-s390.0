@@ -1,7 +1,7 @@
 From: Waiman Long <longman@redhat.com>
-Subject: [PATCH-tip v7 05/15] locking/rwsem: Move rwsem internal function declarations to rwsem-xadd.h
-Date: Wed, 18 Oct 2017 14:30:21 -0400
-Message-ID: <1508351431-22375-6-git-send-email-longman@redhat.com>
+Subject: [PATCH-tip v7 04/15] locking/rwsem: Remove kernel/locking/rwsem.h
+Date: Wed, 18 Oct 2017 14:30:20 -0400
+Message-ID: <1508351431-22375-5-git-send-email-longman@redhat.com>
 References: <1508351431-22375-1-git-send-email-longman@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1508351431-22375-1-git-send-email-longman@redhat.com>
@@ -12,50 +12,213 @@ To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
 Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Dave Chinner <david@fromorbit.com>, Waiman Long <longman@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We don't need to expose rwsem internal functions which are not supposed
-to be called directly from other kernel code.
+The content of kernel/locking/rwsem.h is now specific to rwsem-xadd. So
+we can just move the its content into rwsem-xadd.h and remove it.
 
 Signed-off-by: Waiman Long <longman@redhat.com>
 ---
- include/linux/rwsem.h       | 7 -------
- kernel/locking/rwsem-xadd.h | 7 +++++++
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ kernel/locking/percpu-rwsem.c |  4 ++-
+ kernel/locking/rwsem-xadd.c   |  2 +-
+ kernel/locking/rwsem-xadd.h   | 66 +++++++++++++++++++++++++++++++++++++++++
+ kernel/locking/rwsem.c        |  4 ++-
+ kernel/locking/rwsem.h        | 69 -------------------------------------------
+ 5 files changed, 73 insertions(+), 72 deletions(-)
+ delete mode 100644 kernel/locking/rwsem.h
 
-diff --git a/include/linux/rwsem.h b/include/linux/rwsem.h
-index 398c748..e75ea44 100644
---- a/include/linux/rwsem.h
-+++ b/include/linux/rwsem.h
-@@ -42,13 +42,6 @@ struct rw_semaphore {
- #endif
- };
+diff --git a/kernel/locking/percpu-rwsem.c b/kernel/locking/percpu-rwsem.c
+index f17dad9..d06f7c3 100644
+--- a/kernel/locking/percpu-rwsem.c
++++ b/kernel/locking/percpu-rwsem.c
+@@ -7,7 +7,9 @@
+ #include <linux/sched.h>
+ #include <linux/errno.h>
  
--extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_down_read_failed_killable(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_down_write_failed_killable(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
--extern struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore *sem);
--
- #define RWSEM_UNLOCKED_VALUE	0
+-#include "rwsem.h"
++#ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
++#include "rwsem-xadd.h"
++#endif
  
- /* In all implementations count != 0 means locked */
+ int __percpu_init_rwsem(struct percpu_rw_semaphore *sem,
+ 			const char *name, struct lock_class_key *rwsem_key)
+diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
+index 8df0b51..9ca3b64 100644
+--- a/kernel/locking/rwsem-xadd.c
++++ b/kernel/locking/rwsem-xadd.c
+@@ -18,7 +18,7 @@
+ #include <linux/sched/debug.h>
+ #include <linux/osq_lock.h>
+ 
+-#include "rwsem.h"
++#include "rwsem-xadd.h"
+ 
+ /*
+  * Guide to the rw_semaphore's count field.
 diff --git a/kernel/locking/rwsem-xadd.h b/kernel/locking/rwsem-xadd.h
-index 64afa35..2a8d878 100644
+index f727b6c..64afa35 100644
 --- a/kernel/locking/rwsem-xadd.h
 +++ b/kernel/locking/rwsem-xadd.h
-@@ -90,6 +90,13 @@ static inline void rwsem_set_reader_owned(struct rw_semaphore *sem)
+@@ -4,6 +4,72 @@
+ #include <linux/rwsem.h>
  
- #define RWSEM_COUNT_LOCKED(c)	((c) & RWSEM_LOCK_MASK)
- 
-+extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_down_read_failed_killable(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_down_write_failed_killable(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
-+extern struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore *sem);
+ /*
++ * The owner field of the rw_semaphore structure will be set to
++ * RWSEM_READ_OWNED when a reader grabs the lock. A writer will clear
++ * the owner field when it unlocks. A reader, on the other hand, will
++ * not touch the owner field when it unlocks.
++ *
++ * In essence, the owner field now has the following 3 states:
++ *  1) 0
++ *     - lock is free or the owner hasn't set the field yet
++ *  2) RWSEM_READER_OWNED
++ *     - lock is currently or previously owned by readers (lock is free
++ *       or not set by owner yet)
++ *  3) Other non-zero value
++ *     - a writer owns the lock
++ */
++#define RWSEM_READER_OWNED	((struct task_struct *)1UL)
 +
++#ifdef CONFIG_RWSEM_SPIN_ON_OWNER
++/*
++ * All writes to owner are protected by WRITE_ONCE() to make sure that
++ * store tearing can't happen as optimistic spinners may read and use
++ * the owner value concurrently without lock. Read from owner, however,
++ * may not need READ_ONCE() as long as the pointer value is only used
++ * for comparison and isn't being dereferenced.
++ */
++static inline void rwsem_set_owner(struct rw_semaphore *sem)
++{
++	WRITE_ONCE(sem->owner, current);
++}
++
++static inline void rwsem_clear_owner(struct rw_semaphore *sem)
++{
++	WRITE_ONCE(sem->owner, NULL);
++}
++
++/*
++ * This should only be called by the first reader that acquires the read lock.
++ */
++static inline void rwsem_set_reader_owned(struct rw_semaphore *sem)
++{
++	WRITE_ONCE(sem->owner, RWSEM_READER_OWNED);
++}
++
++static inline bool rwsem_owner_is_writer(struct task_struct *owner)
++{
++	return owner && (owner != RWSEM_READER_OWNED);
++}
++
++static inline bool rwsem_owner_is_reader(struct task_struct *owner)
++{
++	return owner == RWSEM_READER_OWNED;
++}
++#else
++static inline void rwsem_set_owner(struct rw_semaphore *sem)
++{
++}
++
++static inline void rwsem_clear_owner(struct rw_semaphore *sem)
++{
++}
++
++static inline void rwsem_set_reader_owned(struct rw_semaphore *sem)
++{
++}
++#endif
++
++/*
+  * The definition of the atomic counter in the semaphore:
+  *
+  * Bit  0    - writer locked bit
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index a1451d8..530567e 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -12,7 +12,9 @@
+ #include <linux/rwsem.h>
+ #include <linux/atomic.h>
+ 
+-#include "rwsem.h"
++#ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
++#include "rwsem-xadd.h"
++#endif
+ 
  /*
   * lock for reading
-  */
+diff --git a/kernel/locking/rwsem.h b/kernel/locking/rwsem.h
+deleted file mode 100644
+index 612109f..0000000
+--- a/kernel/locking/rwsem.h
++++ /dev/null
+@@ -1,69 +0,0 @@
+-/*
+- * The owner field of the rw_semaphore structure will be set to
+- * RWSEM_READ_OWNED when a reader grabs the lock. A writer will clear
+- * the owner field when it unlocks. A reader, on the other hand, will
+- * not touch the owner field when it unlocks.
+- *
+- * In essence, the owner field now has the following 3 states:
+- *  1) 0
+- *     - lock is free or the owner hasn't set the field yet
+- *  2) RWSEM_READER_OWNED
+- *     - lock is currently or previously owned by readers (lock is free
+- *       or not set by owner yet)
+- *  3) Other non-zero value
+- *     - a writer owns the lock
+- */
+-#define RWSEM_READER_OWNED	((struct task_struct *)1UL)
+-
+-#ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+-/*
+- * All writes to owner are protected by WRITE_ONCE() to make sure that
+- * store tearing can't happen as optimistic spinners may read and use
+- * the owner value concurrently without lock. Read from owner, however,
+- * may not need READ_ONCE() as long as the pointer value is only used
+- * for comparison and isn't being dereferenced.
+- */
+-static inline void rwsem_set_owner(struct rw_semaphore *sem)
+-{
+-	WRITE_ONCE(sem->owner, current);
+-}
+-
+-static inline void rwsem_clear_owner(struct rw_semaphore *sem)
+-{
+-	WRITE_ONCE(sem->owner, NULL);
+-}
+-
+-/*
+- * This should only be called by the first reader that acquires the read lock.
+- */
+-static inline void rwsem_set_reader_owned(struct rw_semaphore *sem)
+-{
+-	WRITE_ONCE(sem->owner, RWSEM_READER_OWNED);
+-}
+-
+-static inline bool rwsem_owner_is_writer(struct task_struct *owner)
+-{
+-	return owner && owner != RWSEM_READER_OWNED;
+-}
+-
+-static inline bool rwsem_owner_is_reader(struct task_struct *owner)
+-{
+-	return owner == RWSEM_READER_OWNED;
+-}
+-#else
+-static inline void rwsem_set_owner(struct rw_semaphore *sem)
+-{
+-}
+-
+-static inline void rwsem_clear_owner(struct rw_semaphore *sem)
+-{
+-}
+-
+-static inline void rwsem_set_reader_owned(struct rw_semaphore *sem)
+-{
+-}
+-#endif
+-
+-#ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
+-#include "rwsem-xadd.h"
+-#endif
 -- 
 1.8.3.1
