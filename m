@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 09/13] s390/qeth: clean up page frag creation
-Date: Wed, 18 Oct 2017 17:40:21 +0200
-Message-ID: <20171018154025.73630-10-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 06/13] s390/qeth: clean up initial MTU determination
+Date: Wed, 18 Oct 2017 17:40:18 +0200
+Message-ID: <20171018154025.73630-7-jwi@linux.vnet.ibm.com>
 References: <20171018154025.73630-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20171018154025.73630-1-jwi@linux.vnet.ibm.com>
@@ -12,84 +12,42 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Replace the open-coded skb_add_rx_frag(), and use a fall-through
-to remove some duplicated code.
+1. Drop the support for Token Ring,
+2. use the ETH_DATA_LEN macro for the default L2 MTU,
+3. handle OSM via the default case (as OSM is L2-only), and
+4. document why the L3 MTU is reduced.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 31 +++++++++++--------------------
- 1 file changed, 11 insertions(+), 20 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index acf16fa75c63..1cf4e066955f 100644
+index 735b03cae727..acf16fa75c63 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -5172,10 +5172,11 @@ EXPORT_SYMBOL_GPL(qeth_core_hardsetup_card);
- 
- static int qeth_create_skb_frag(struct qeth_qdio_buffer *qethbuffer,
- 				struct qdio_buffer_element *element,
--				struct sk_buff **pskb, int offset, int *pfrag,
--				int data_len)
-+				struct sk_buff **pskb, int offset, int data_len)
- {
- 	struct page *page = virt_to_page(element->addr);
-+	unsigned int next_frag;
-+
- 	if (*pskb == NULL) {
- 		if (qethbuffer->rx_skb) {
- 			/* only if qeth_card.options.cq == QETH_CQ_ENABLED */
-@@ -5190,28 +5191,19 @@ static int qeth_create_skb_frag(struct qeth_qdio_buffer *qethbuffer,
- 		skb_reserve(*pskb, ETH_HLEN);
- 		if (data_len <= QETH_RX_PULL_LEN) {
- 			skb_put_data(*pskb, element->addr + offset, data_len);
-+			return 0;
- 		} else {
--			get_page(page);
- 			skb_put_data(*pskb, element->addr + offset,
- 				     QETH_RX_PULL_LEN);
--			skb_fill_page_desc(*pskb, *pfrag, page,
--				offset + QETH_RX_PULL_LEN,
--				data_len - QETH_RX_PULL_LEN);
--			(*pskb)->data_len += data_len - QETH_RX_PULL_LEN;
--			(*pskb)->len      += data_len - QETH_RX_PULL_LEN;
--			(*pskb)->truesize += data_len - QETH_RX_PULL_LEN;
--			(*pfrag)++;
-+			data_len -= QETH_RX_PULL_LEN;
-+			offset += QETH_RX_PULL_LEN;
-+			/* fall through to add page frag for remaining data */
- 		}
--	} else {
--		get_page(page);
--		skb_fill_page_desc(*pskb, *pfrag, page, offset, data_len);
--		(*pskb)->data_len += data_len;
--		(*pskb)->len      += data_len;
--		(*pskb)->truesize += data_len;
--		(*pfrag)++;
+@@ -2219,18 +2219,12 @@ static int qeth_get_initial_mtu_for_card(struct qeth_card *card)
+ 	case QETH_CARD_TYPE_IQD:
+ 		return card->info.max_mtu;
+ 	case QETH_CARD_TYPE_OSD:
+-		switch (card->info.link_type) {
+-		case QETH_LINK_TYPE_HSTR:
+-		case QETH_LINK_TYPE_LANE_TR:
+-			return 2000;
+-		default:
+-			return card->options.layer2 ? 1500 : 1492;
+-		}
+-	case QETH_CARD_TYPE_OSM:
+ 	case QETH_CARD_TYPE_OSX:
+-		return card->options.layer2 ? 1500 : 1492;
++		if (!card->options.layer2)
++			return ETH_DATA_LEN - 8; /* L3: allow for LLC + SNAP */
++		/* fall through */
+ 	default:
+-		return 1500;
++		return ETH_DATA_LEN;
  	}
- 
--
-+	next_frag = skb_shinfo(*pskb)->nr_frags;
-+	get_page(page);
-+	skb_add_rx_frag(*pskb, next_frag, page, offset, data_len, data_len);
- 	return 0;
  }
  
-@@ -5234,7 +5226,6 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	int data_len;
- 	int headroom = 0;
- 	int use_rx_sg = 0;
--	int frag = 0;
- 
- 	/* qeth_hdr must not cross element boundaries */
- 	if (element->length < offset + sizeof(struct qeth_hdr)) {
-@@ -5286,7 +5277,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		if (data_len) {
- 			if (use_rx_sg) {
- 				if (qeth_create_skb_frag(qethbuffer, element,
--				    &skb, offset, &frag, data_len))
-+				    &skb, offset, data_len))
- 					goto no_mem;
- 			} else {
- 				skb_put_data(skb, data_ptr, data_len);
 -- 
 2.13.5
