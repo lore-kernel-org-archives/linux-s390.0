@@ -1,62 +1,155 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Date: Tue, 10 Oct 2017 15:19:30 +0000
-Subject: Re: linux-next: EXP: Fine-grained timer diagnostics breaks cpu hot unplug on s390
-Message-Id: <20171010151930.GZ3521@linux.vnet.ibm.com>
-In-Reply-To: <20171010061648.GB3613@osiris>
-References: <20171010061648.GB3613@osiris>
+From: kbuild test robot <fengguang.wu@intel.com>
+Date: Thu, 19 Oct 2017 09:52:53 +0000
+Subject: [s390:features 56/60] arch/s390/kernel/nmi.c:44:2: error: implicit declaration of function 'smp_emer
+Message-Id: <201710191745.DbOKKERp%fengguang.wu@intel.com>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--gKMricLos+KVdGMg"
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Oct 10, 2017 at 08:16:48AM +0200, Heiko Carstens wrote:
-> On Mon, Oct 09, 2017 at 08:46:56AM -0700, Paul E. McKenney wrote:
-> > On Mon, Oct 09, 2017 at 04:47:08PM +0200, Christian Borntraeger wrote:
-> > > PID: 84     TASK: 3305a00           CPU: 2   COMMAND: "sh"
-> > >  LOWCORE INFO:
-> > >   -psw      : 0x0404c00180000000 0x00000000001163a6
-> > >   -function : smp_yield_cpu at 1163a6
-> > >   -prefix   : 0x7d780000
-> > >   -cpu timer: 0x7fffffecf69f4974
-> > >   -clock cmp: 0x42e71c731cb22c00
-> > > 
-> > >  #0 [033476e0] arch_spin_lock_wait at 850298
-> > >  #1 [03347738] lock_timer_base at 1e4d22
-> > >  #2 [033477a0] mod_timer at 1e5f2c
-> > >  #3 [03347810] __sclp_vt220_write at 6ba912
-> > >  #4 [033478a0] sclp_vt220_con_write at 6ba9ac
-> > >  #5 [033478f8] console_unlock at 1c87c8
-> > >  #6 [03347978] vprintk_emit at 1c8bbe
-> > >  #7 [03347a08] vprintk_default at 1c8e1c
-> > >  #8 [03347a68] printk at 1c9d1e
-> > >  #9 [03347af8] timers_dead_cpu at 1e66f6
-> > > #10 [03347b68] cpuhp_invoke_callback at 169b50
-> > > #11 [03347c00] _cpu_down at 851522
-> > > #12 [03347c58] do_cpu_down at 16b9fa
-> > > #13 [03347c88] device_offline at 5a7826
-> > > #14 [03347cc0] online_store at 5a796e
-> > > #15 [03347cf8] kernfs_fop_write at 3ed8d2
-> > > #16 [03347d48] __vfs_write at 34ddb6
-> > > #17 [03347e00] vfs_write at 34e10c
-> > > #18 [03347e60] sys_write at 34e44e
-> > > #19 [03347ea8] system_call at 85abf4
-> > > 
-> > > 
-> > > Reverting the patch fixes the issue, but I do not yet understand why.
-> > 
-> > Welcome to my world!  ;-)
-> > 
-> > Hmmm...  I have to ask...  Have you tried this with lockdep?  The spinning
-> > on CPUs is suspicious, though not something that I have seen.
-> 
-> This seems to simply deadlock because the cpu tries to grab a timer_base
-> lock twice: first in timers_dead_cpu() and then via the new pr_info()
-> within migrate_timer_list().
-> 
-> That one get's into our sclp device driver which tries to enqueue a timer
-> and needs to grap a timer_base lock as well. Which appearently seems to be
-> the same lock that was taken within timers_dead_cpu().
 
-Color me slow and stupid!  I have dropped this commit and will think
-about other ways of tracking my timer problem down.  And please accept
-my apologies for the hassle.
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-							Thanx, Paul
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+head:   393734c93fb57b351e79426826f7e8348a758a28
+commit: b3c84d3d06c8fe11a2576bf37bd8934bf3ad943b [56/60] s390/nmi: use smp_emergency_stop instead of smp_send_stop
+config: s390-allnoconfig (attached as .config)
+compiler: s390x-linux-gnu-gcc (Debian 6.1.1-9) 6.1.1 20160705
+reproduce:
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        git checkout b3c84d3d06c8fe11a2576bf37bd8934bf3ad943b
+        # save the attached .config to linux build tree
+        make.cross ARCH=s390 
+
+All errors (new ones prefixed by >>):
+
+   arch/s390/kernel/nmi.c: In function 's390_handle_damage':
+>> arch/s390/kernel/nmi.c:44:2: error: implicit declaration of function 'smp_emergency_stop' [-Werror=implicit-function-declaration]
+     smp_emergency_stop();
+     ^~~~~~~~~~~~~~~~~~
+   cc1: some warnings being treated as errors
+
+vim +/smp_emergency_stop +44 arch/s390/kernel/nmi.c
+
+    41	
+    42	static notrace void s390_handle_damage(void)
+    43	{
+  > 44		smp_emergency_stop();
+    45		disabled_wait((unsigned long) __builtin_return_address(0));
+    46		while (1);
+    47	}
+    48	NOKPROBE_SYMBOL(s390_handle_damage);
+    49	
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+
+--gKMricLos+KVdGMg
+Content-Type: application/gzip
+Content-Disposition: attachment; filename=".config.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--gKMricLos+KVdGMg--
