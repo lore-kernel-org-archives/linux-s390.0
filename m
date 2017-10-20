@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Elena Reshetova <elena.reshetova@intel.com>
-Subject: [PATCH 1/3] [S390] vmur: convert urdev.ref_count from atomic_t to refcount_t
-Date: Fri, 20 Oct 2017 10:47:48 +0300
-Message-Id: <1508485670-24070-2-git-send-email-elena.reshetova@intel.com>
+Subject: [PATCH 3/3] [S390] qeth: convert qeth_reply.refcnt from atomic_t to refcount_t
+Date: Fri, 20 Oct 2017 10:47:50 +0300
+Message-Id: <1508485670-24070-4-git-send-email-elena.reshetova@intel.com>
 In-Reply-To: <1508485670-24070-1-git-send-email-elena.reshetova@intel.com>
 References: <1508485670-24070-1-git-send-email-elena.reshetova@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,7 +26,7 @@ refcount_t type and API that prevents accidental counter overflows
 and underflows. This is important since overflows and underflows
 can lead to use-after-free situation and be exploitable.
 
-The variable urdev.ref_count is used as pure reference counter.
+The variable qeth_reply.refcnt is used as pure reference counter.
 Convert it to refcount_t and fix up the operations.
 
 Suggested-by: Kees Cook <keescook@chromium.org>
@@ -34,71 +34,62 @@ Reviewed-by: David Windsor <dwindsor@gmail.com>
 Reviewed-by: Hans Liljestrand <ishkamiel@gmail.com>
 Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
 ---
- drivers/s390/char/vmur.c | 8 ++++----
- drivers/s390/char/vmur.h | 4 +++-
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/s390/net/qeth_core.h      |  3 ++-
+ drivers/s390/net/qeth_core_main.c | 10 +++++-----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/char/vmur.c b/drivers/s390/char/vmur.c
-index 04aceb6..ced8151 100644
---- a/drivers/s390/char/vmur.c
-+++ b/drivers/s390/char/vmur.c
-@@ -110,7 +110,7 @@ static struct urdev *urdev_alloc(struct ccw_device *cdev)
- 	mutex_init(&urd->io_mutex);
- 	init_waitqueue_head(&urd->wait);
- 	spin_lock_init(&urd->open_lock);
--	atomic_set(&urd->ref_count,  1);
-+	refcount_set(&urd->ref_count,  1);
- 	urd->cdev = cdev;
- 	get_device(&cdev->dev);
- 	return urd;
-@@ -126,7 +126,7 @@ static void urdev_free(struct urdev *urd)
- 
- static void urdev_get(struct urdev *urd)
- {
--	atomic_inc(&urd->ref_count);
-+	refcount_inc(&urd->ref_count);
- }
- 
- static struct urdev *urdev_get_from_cdev(struct ccw_device *cdev)
-@@ -159,7 +159,7 @@ static struct urdev *urdev_get_from_devno(u16 devno)
- 
- static void urdev_put(struct urdev *urd)
- {
--	if (atomic_dec_and_test(&urd->ref_count))
-+	if (refcount_dec_and_test(&urd->ref_count))
- 		urdev_free(urd);
- }
- 
-@@ -946,7 +946,7 @@ static int ur_set_offline_force(struct ccw_device *cdev, int force)
- 		rc = -EBUSY;
- 		goto fail_urdev_put;
- 	}
--	if (!force && (atomic_read(&urd->ref_count) > 2)) {
-+	if (!force && (refcount_read(&urd->ref_count) > 2)) {
- 		/* There is still a user of urd (e.g. ur_open) */
- 		TRACE("ur_set_offline: BUSY\n");
- 		rc = -EBUSY;
-diff --git a/drivers/s390/char/vmur.h b/drivers/s390/char/vmur.h
-index fa320ad..35ea9d1 100644
---- a/drivers/s390/char/vmur.h
-+++ b/drivers/s390/char/vmur.h
-@@ -11,6 +11,8 @@
- #ifndef _VMUR_H_
- #define _VMUR_H_
- 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 91fcadb..49ba742 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -20,6 +20,7 @@
+ #include <linux/ethtool.h>
+ #include <linux/hashtable.h>
+ #include <linux/ip.h>
 +#include <linux/refcount.h>
-+
- #define DEV_CLASS_UR_I 0x20 /* diag210 unit record input device class */
- #define DEV_CLASS_UR_O 0x10 /* diag210 unit record output device class */
- /*
-@@ -69,7 +71,7 @@ struct urdev {
- 	size_t reclen;			/* Record length for *write* CCWs */
- 	int class;			/* VM device class */
- 	int io_request_rc;		/* return code from I/O request */
--	atomic_t ref_count;		/* reference counter */
-+	refcount_t ref_count;		/* reference counter */
- 	wait_queue_head_t wait;		/* wait queue to serialize open */
- 	int open_flag;			/* "urdev is open" flag */
- 	spinlock_t open_lock;		/* serialize critical sections */
+ 
+ #include <net/ipv6.h>
+ #include <net/if_inet6.h>
+@@ -645,7 +646,7 @@ struct qeth_reply {
+ 	int rc;
+ 	void *param;
+ 	struct qeth_card *card;
+-	atomic_t refcnt;
++	refcount_t refcnt;
+ };
+ 
+ struct qeth_card_blkt {
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 68e118f..86e4c5d 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -559,7 +559,7 @@ static struct qeth_reply *qeth_alloc_reply(struct qeth_card *card)
+ 
+ 	reply = kzalloc(sizeof(struct qeth_reply), GFP_ATOMIC);
+ 	if (reply) {
+-		atomic_set(&reply->refcnt, 1);
++		refcount_set(&reply->refcnt, 1);
+ 		atomic_set(&reply->received, 0);
+ 		reply->card = card;
+ 	}
+@@ -568,14 +568,14 @@ static struct qeth_reply *qeth_alloc_reply(struct qeth_card *card)
+ 
+ static void qeth_get_reply(struct qeth_reply *reply)
+ {
+-	WARN_ON(atomic_read(&reply->refcnt) <= 0);
+-	atomic_inc(&reply->refcnt);
++	WARN_ON(refcount_read(&reply->refcnt) == 0);
++	refcount_inc(&reply->refcnt);
+ }
+ 
+ static void qeth_put_reply(struct qeth_reply *reply)
+ {
+-	WARN_ON(atomic_read(&reply->refcnt) <= 0);
+-	if (atomic_dec_and_test(&reply->refcnt))
++	WARN_ON(refcount_read(&reply->refcnt) == 0);
++	if (refcount_dec_and_test(&reply->refcnt))
+ 		kfree(reply);
+ }
+ 
 -- 
 2.7.4
