@@ -1,147 +1,96 @@
-From: Waiman Long <longman@redhat.com>
-Subject: [PATCH-tip v7 11/15] locking/rwsem: Remove rwsem_wake spinlock optimization
-Date: Wed, 18 Oct 2017 14:30:27 -0400
-Message-ID: <1508351431-22375-12-git-send-email-longman@redhat.com>
-References: <1508351431-22375-1-git-send-email-longman@redhat.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1508351431-22375-1-git-send-email-longman@redhat.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Dave Chinner <david@fromorbit.com>, Waiman Long <longman@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Elena Reshetova <elena.reshetova@intel.com>
+Subject: [PATCH 2/3] [S390] net: convert lcs_reply.refcnt from atomic_t to refcount_t
+Date: Fri, 20 Oct 2017 10:47:49 +0300
+Message-Id: <1508485670-24070-3-git-send-email-elena.reshetova@intel.com>
+In-Reply-To: <1508485670-24070-1-git-send-email-elena.reshetova@intel.com>
+References: <1508485670-24070-1-git-send-email-elena.reshetova@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, jwi@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, peterz@infradead.org, keescook@chromium.org, Elena Reshetova <elena.reshetova@intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The rwsem_wake spinlock optimization was originally put there to
-reduce lock contention in the wait_lock. However, the usefulness of
-this optimization has been reduced because of the followings:
+atomic_t variables are currently used to implement reference
+counters with the following properties:
+ - counter is initialized to 1 using atomic_set()
+ - a resource is freed upon counter reaching zero
+ - once counter reaches zero, its further
+   increments aren't allowed
+ - counter schema uses basic atomic operations
+   (set, inc, inc_not_zero, dec_and_test, etc.)
 
- 1) The use of wake_q recently in the wakeup path has greatly
-    reduce the wait_lock hold time.
- 2) Contending writers used to produce false positive calls to
-    rwsem_wake without waiter rather easily with the original locking
-    scheme. This is no longer the case with the new locking scheme.
- 3) Reader optimistic spinning reduces the chance of having waiters
-    in the wait queue.
+Such atomic variables should be converted to a newly provided
+refcount_t type and API that prevents accidental counter overflows
+and underflows. This is important since overflows and underflows
+can lead to use-after-free situation and be exploitable.
 
-On the other hand, the complexity of making sure there is no missed
-wakeup keeps increasing.  It is at a point where the drawback outgrows
-its usefulness. So the optimization code is now taken out.
+The variable lcs_reply.refcnt is used as pure reference counter.
+Convert it to refcount_t and fix up the operations.
 
-Signed-off-by: Waiman Long <longman@redhat.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: David Windsor <dwindsor@gmail.com>
+Reviewed-by: Hans Liljestrand <ishkamiel@gmail.com>
+Signed-off-by: Elena Reshetova <elena.reshetova@intel.com>
 ---
- kernel/locking/rwsem-xadd.c | 62 +--------------------------------------------
- kernel/locking/rwsem-xadd.h |  6 ++---
- 2 files changed, 4 insertions(+), 64 deletions(-)
+ drivers/s390/net/lcs.c | 10 +++++-----
+ drivers/s390/net/lcs.h |  3 ++-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/locking/rwsem-xadd.c b/kernel/locking/rwsem-xadd.c
-index 8205910..ba00795 100644
---- a/kernel/locking/rwsem-xadd.c
-+++ b/kernel/locking/rwsem-xadd.c
-@@ -714,72 +714,12 @@ static inline bool rwsem_has_spinner(struct rw_semaphore *sem)
-  * - up_read/up_write has decremented the active part of count if we come here
-  */
- __visible
--struct rw_semaphore *rwsem_wake(struct rw_semaphore *sem, int count)
-+struct rw_semaphore *rwsem_wake(struct rw_semaphore *sem)
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index d01b5c2..d7344be 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -769,15 +769,15 @@ lcs_get_lancmd(struct lcs_card *card, int count)
+ static void
+ lcs_get_reply(struct lcs_reply *reply)
  {
- 	unsigned long flags;
- 	DEFINE_WAKE_Q(wake_q);
- 
--	/*
--	* __rwsem_down_write_failed_common(sem)
--	*   rwsem_optimistic_spin(sem)
--	*     osq_unlock(sem->osq)
--	*   ...
--	*   atomic_long_add_return(&sem->count)
--	*
--	*      - VS -
--	*
--	*              __up_write()
--	*                if (atomic_long_sub_return_release(&sem->count) < 0)
--	*                  rwsem_wake(sem)
--	*                    osq_is_locked(&sem->osq)
--	*
--	* And __up_write() must observe !osq_is_locked() when it observes the
--	* atomic_long_add_return() in order to not miss a wakeup.
--	*
--	* This boils down to:
--	*
--	* [S.rel] X = 1                [RmW] r0 = (Y += 0)
--	*         MB                         RMB
--	* [RmW]   Y += 1               [L]   r1 = X
--	*
--	* exists (r0=1 /\ r1=0)
--	*/
--	smp_rmb();
--
--	/*
--	 * If a spinner is present and the handoff flag isn't set, it is
--	 * not necessary to do the wakeup.
--	 *
--	 * Try to do wakeup only if the trylock succeeds to minimize
--	 * spinlock contention which may introduce too much delay in the
--	 * unlock operation.
--	 *
--	 *    spinning writer		up_write/up_read caller
--	 *    ---------------		-----------------------
--	 * [S]   osq_unlock()		[L]   osq
--	 *	 MB			      RMB
--	 * [RmW] rwsem_try_write_lock() [RmW] spin_trylock(wait_lock)
--	 *
--	 * Here, it is important to make sure that there won't be a missed
--	 * wakeup while the rwsem is free and the only spinning writer goes
--	 * to sleep without taking the rwsem. Even when the spinning writer
--	 * is just going to break out of the waiting loop, it will still do
--	 * a trylock in rwsem_down_write_failed() before sleeping. IOW, if
--	 * rwsem_has_spinner() is true, it will guarantee at least one
--	 * trylock attempt on the rwsem later on.
--	 */
--	if (rwsem_has_spinner(sem) && !RWSEM_COUNT_HANDOFF(count)) {
--		/*
--		 * The smp_rmb() here is to make sure that the spinner
--		 * state is consulted before reading the wait_lock.
--		 */
--		smp_rmb();
--		if (!raw_spin_trylock_irqsave(&sem->wait_lock, flags))
--			return sem;
--		goto locked;
--	}
- 	raw_spin_lock_irqsave(&sem->wait_lock, flags);
--locked:
- 
- 	if (!list_empty(&sem->wait_list))
- 		__rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
-diff --git a/kernel/locking/rwsem-xadd.h b/kernel/locking/rwsem-xadd.h
-index 2429d8e..1e87e85 100644
---- a/kernel/locking/rwsem-xadd.h
-+++ b/kernel/locking/rwsem-xadd.h
-@@ -139,7 +139,7 @@ static inline void rwsem_set_reader_owned(struct rw_semaphore *sem)
- extern struct rw_semaphore *rwsem_down_read_failed_killable(struct rw_semaphore *sem);
- extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
- extern struct rw_semaphore *rwsem_down_write_failed_killable(struct rw_semaphore *sem);
--extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *, int count);
-+extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
- extern struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore *sem);
- 
- /*
-@@ -224,7 +224,7 @@ static inline void __up_read(struct rw_semaphore *sem)
- 	tmp = atomic_add_return_release(-RWSEM_READER_BIAS, &sem->count);
- 	if (unlikely((tmp & (RWSEM_LOCK_MASK|RWSEM_FLAG_WAITERS))
- 			== RWSEM_FLAG_WAITERS))
--		rwsem_wake(sem, tmp);
-+		rwsem_wake(sem);
+-	WARN_ON(atomic_read(&reply->refcnt) <= 0);
+-	atomic_inc(&reply->refcnt);
++	WARN_ON(refcount_read(&reply->refcnt) == 0);
++	refcount_inc(&reply->refcnt);
  }
  
- /*
-@@ -237,7 +237,7 @@ static inline void __up_write(struct rw_semaphore *sem)
- 	rwsem_clear_owner(sem);
- 	tmp = atomic_fetch_add_release(-RWSEM_WRITER_LOCKED, &sem->count);
- 	if (unlikely(tmp & RWSEM_FLAG_WAITERS))
--		rwsem_wake(sem, tmp);
-+		rwsem_wake(sem);
- }
+ static void
+ lcs_put_reply(struct lcs_reply *reply)
+ {
+-        WARN_ON(atomic_read(&reply->refcnt) <= 0);
+-        if (atomic_dec_and_test(&reply->refcnt)) {
++		WARN_ON(refcount_read(&reply->refcnt) == 0);
++		if (refcount_dec_and_test(&reply->refcnt)) {
+ 		kfree(reply);
+ 	}
  
- /*
+@@ -793,7 +793,7 @@ lcs_alloc_reply(struct lcs_cmd *cmd)
+ 	reply = kzalloc(sizeof(struct lcs_reply), GFP_ATOMIC);
+ 	if (!reply)
+ 		return NULL;
+-	atomic_set(&reply->refcnt,1);
++	refcount_set(&reply->refcnt,1);
+ 	reply->sequence_no = cmd->sequence_no;
+ 	reply->received = 0;
+ 	reply->rc = 0;
+diff --git a/drivers/s390/net/lcs.h b/drivers/s390/net/lcs.h
+index 150fcb4..3802f4f 100644
+--- a/drivers/s390/net/lcs.h
++++ b/drivers/s390/net/lcs.h
+@@ -4,6 +4,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>
+ #include <linux/workqueue.h>
++#include <linux/refcount.h>
+ #include <asm/ccwdev.h>
+ 
+ #define LCS_DBF_TEXT(level, name, text) \
+@@ -270,7 +271,7 @@ struct lcs_buffer {
+ struct lcs_reply {
+ 	struct list_head list;
+ 	__u16 sequence_no;
+-	atomic_t refcnt;
++	refcount_t refcnt;
+ 	/* Callback for completion notification. */
+ 	void (*callback)(struct lcs_card *, struct lcs_cmd *);
+ 	wait_queue_head_t wait_q;
 -- 
-1.8.3.1
+2.7.4
