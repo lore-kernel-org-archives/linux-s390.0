@@ -1,28 +1,23 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [PATCH net-next 12/13] s390/qeth: support GRO flush timer
-Date: Wed, 18 Oct 2017 09:08:30 -0700
-Message-ID: <1508342910.31614.121.camel@edumazet-glaptop3.roam.corp.google.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 00/13] s390/net: updates 2017-10-18
+Date: Fri, 20 Oct 2017 13:12:27 +0100 (WEST)
+Message-ID: <20171020.131227.2274169939039862173.davem@davemloft.net>
 References: <20171018154025.73630-1-jwi@linux.vnet.ibm.com>
-         <20171018154025.73630-13-jwi@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20171018154025.73630-13-jwi@linux.vnet.ibm.com>
+In-Reply-To: <20171018154025.73630-1-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>
+To: jwi@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2017-10-18 at 17:40 +0200, Julian Wiedmann wrote:
-> Switch to napi_complete_done(), and thus enable delayed GRO flushing.
-> The timeout is configured via /sys/class/net/<if>/gro_flush_timeout.
-> 
-> Default timeout is 0, so no change in behaviour.
-> 
-> Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-> ---
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Date: Wed, 18 Oct 2017 17:40:12 +0200
 
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+> please apply some additional robustness fixes and cleanups for 4.15.
+
+Series applied.
