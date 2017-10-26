@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 26 Oct 2017 12:16:02 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] s390/mm: return -ENOMEM in
- arch_get_unmapped_area[_topdown]
-In-Reply-To: <CAEemH2dtDCe1SPRTfHAmh8s75mek1jh7MwTiiTfWMq1N2AA89Q@mail.gmail.com>
-References: <20171026073610.9139-1-liwang@redhat.com>
-        <20171026112603.7c095ee6@mschwideX1>
-        <CAEemH2dtDCe1SPRTfHAmh8s75mek1jh7MwTiiTfWMq1N2AA89Q@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20171026121602.295e7a6e@mschwideX1>
+From: Li Wang <liwang@redhat.com>
+Subject: [PATCH] s390/mm: return -ENOMEM in arch_get_unmapped_area[_topdown]
+Date: Thu, 26 Oct 2017 15:36:10 +0800
+Message-Id: <20171026073610.9139-1-liwang@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Li Wang <liwang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, mingo@kernel.org, hughd@google.com, paul.gortmaker@windriver.com, mhocko@suse.com, Shu Wang <shuwang@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, mingo@kernel.org, hughd@google.com, paul.gortmaker@windriver.com, mhocko@suse.com, shuwang@redhat.com, liwang@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 26 Oct 2017 17:47:39 +0800
-Li Wang <liwang@redhat.com> wrote:
+That would be very hard to get -ENOMEM returned in crst_table_upgrade()
+because the condition(addr + len <= TASK_SIZE) makes all 'end' value
+is smaller/equal than 'TASK_SIZE_TASK'. So let's move it to the upper
+layer.
 
-> On Thu, Oct 26, 2017 at 5:26 PM, Martin Schwidefsky
-> <schwidefsky@de.ibm.com> wrote:
-> > On Thu, 26 Oct 2017 15:36:10 +0800
-> > Li Wang <liwang@redhat.com> wrote:
-> >  
-> > The code in mmap.c checks for the per-task limit, 31-bit vs 64-bit.
-> > pgalloc.c checks for the maximum allowed address and does not care
-> > about the task.
-> >  
-> >> Fixes: 8ab867cb0806 (s390/mm: fix BUG_ON in crst_table_upgrade)
-> >> Signed-off-by: Li Wang <liwang@redhat.com>  
-> >
-> > I don't think this patch fixes anything.  
-> 
-> At least there is a logic error i think, after apply the patch
-> "s390/mm: fix BUG_ON in crst_table_upgrade",
-> it makes no sense to compare "if (end >= TASK_SIZE_MAX) return
-> -ENOMEM" in crst_table_upgrade() function.
-> 
-> isn't it?
+Fixes: 8ab867cb0806 (s390/mm: fix BUG_ON in crst_table_upgrade)
+Signed-off-by: Li Wang <liwang@redhat.com>
+---
+ arch/s390/mm/mmap.c    | 6 ++++++
+ arch/s390/mm/pgalloc.c | 3 +--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-Be careful with TASK_SIZE vs. TASK_SIZE_MAX. They return different
-values for 31-bit compat tasks.
-
-If the addr parameter is correctly aligned then the if condition in
-crst_table_upgrade is superfluous as TASK_SIZE_MAX is now -PAGE_SIZE
-with the introduction of 5 level page tables. It is important for older
-kernels with only 4 level page tables with a TASK_SIZE_MAX of 2**53.
-
-On the other hand if addr is ever a value between -PAGE_SIZE and -1
-we would end up with an endless loop. That makes the if condition a
-safe-guard and I would like to keep it.
-
+diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
+index 5bea139..8ddb13a 100644
+--- a/arch/s390/mm/mmap.c
++++ b/arch/s390/mm/mmap.c
+@@ -119,6 +119,9 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+ 		return addr;
+ 
+ check_asce_limit:
++	if (addr + len >= TASK_SIZE_MAX)
++		return -ENOMEM;
++
+ 	if (addr + len > current->mm->context.asce_limit &&
+ 	    addr + len <= TASK_SIZE) {
+ 		rc = crst_table_upgrade(mm, addr + len);
+@@ -184,6 +187,9 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
+ 	}
+ 
+ check_asce_limit:
++	if (addr + len >= TASK_SIZE_MAX)
++		return -ENOMEM;
++
+ 	if (addr + len > current->mm->context.asce_limit &&
+ 	    addr + len <= TASK_SIZE) {
+ 		rc = crst_table_upgrade(mm, addr + len);
+diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+index 05f1f27..5e4b887 100644
+--- a/arch/s390/mm/pgalloc.c
++++ b/arch/s390/mm/pgalloc.c
+@@ -84,8 +84,7 @@ int crst_table_upgrade(struct mm_struct *mm, unsigned long end)
+ 
+ 	/* upgrade should only happen from 3 to 4, 3 to 5, or 4 to 5 levels */
+ 	VM_BUG_ON(mm->context.asce_limit < _REGION2_SIZE);
+-	if (end >= TASK_SIZE_MAX)
+-		return -ENOMEM;
++
+ 	rc = 0;
+ 	notify = 0;
+ 	while (mm->context.asce_limit < end) {
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.9.3
