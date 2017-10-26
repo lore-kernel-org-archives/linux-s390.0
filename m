@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 25 Oct 2017 05:11:03 -0700
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH] bitmap: Fix optimization of bitmap_set/clear for
- big-endian machines
-Message-ID: <20171025121102.GA15531@bombadil.infradead.org>
+Date: Thu, 26 Oct 2017 08:38:42 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390/ap_bus: Convert timers to use timer_setup()
+In-Reply-To: <20171025102737.GA145851@beast>
+References: <20171025102737.GA145851@beast>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20171026083842.5ca46b2f@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@ozlabs.org>, Matthew Wilcox <mawilcox@microsoft.com>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Harald Freudenberger <freude@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Wed, 25 Oct 2017 03:27:37 -0700
+Kees Cook <keescook@chromium.org> wrote:
 
-(I don't think I can reliably send patches from outlook; sorry for
-breaking the threading)
+> In preparation for unconditionally passing the struct timer_list pointer to
+> all timer callbacks, switch to using the new timer_setup() and from_timer()
+> to pass the timer pointer explicitly.
+> 
+> Cc: Harald Freudenberger <freude@de.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  drivers/s390/crypto/ap_bus.c   | 10 +++++-----
+>  drivers/s390/crypto/ap_bus.h   |  2 +-
+>  drivers/s390/crypto/ap_queue.c |  2 +-
+>  3 files changed, 7 insertions(+), 7 deletions(-)
 
-I see where we're not incrementing the failure count ... try this patch!
+Parked for the second part of the s390 updates for the next merge window.
+Thanks.
 
---- 8< ---
+-- 
+blue skies,
+   Martin.
 
-Subject: Fix bitmap optimisation tests to report errors correctly
-From: Matthew Wilcox <mawilcox@microsoft.com>
-
-I had neglected to increment the error counter when the tests failed,
-which made the tests noisy when they fail, but not actually return an
-error code.
-
-Reported-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
-Cc: stable@kernel.org
-
-diff --git a/lib/test_bitmap.c b/lib/test_bitmap.c
-index aa1f2669bdd5..ae8a830e4e54 100644
---- a/lib/test_bitmap.c
-+++ b/lib/test_bitmap.c
-@@ -430,23 +430,32 @@ static void noinline __init test_mem_optimisations(void)
- 	unsigned int start, nbits;
- 
- 	for (start = 0; start < 1024; start += 8) {
--		memset(bmap1, 0x5a, sizeof(bmap1));
--		memset(bmap2, 0x5a, sizeof(bmap2));
- 		for (nbits = 0; nbits < 1024 - start; nbits += 8) {
-+			memset(bmap1, 0x5a, sizeof(bmap1));
-+			memset(bmap2, 0x5a, sizeof(bmap2));
-+
- 			bitmap_set(bmap1, start, nbits);
- 			__bitmap_set(bmap2, start, nbits);
--			if (!bitmap_equal(bmap1, bmap2, 1024))
-+			if (!bitmap_equal(bmap1, bmap2, 1024)) {
- 				printk("set not equal %d %d\n", start, nbits);
--			if (!__bitmap_equal(bmap1, bmap2, 1024))
-+				failed_tests++;
-+			}
-+			if (!__bitmap_equal(bmap1, bmap2, 1024)) {
- 				printk("set not __equal %d %d\n", start, nbits);
-+				failed_tests++;
-+			}
- 
- 			bitmap_clear(bmap1, start, nbits);
- 			__bitmap_clear(bmap2, start, nbits);
--			if (!bitmap_equal(bmap1, bmap2, 1024))
-+			if (!bitmap_equal(bmap1, bmap2, 1024)) {
- 				printk("clear not equal %d %d\n", start, nbits);
--			if (!__bitmap_equal(bmap1, bmap2, 1024))
-+				failed_tests++;
-+			}
-+			if (!__bitmap_equal(bmap1, bmap2, 1024)) {
- 				printk("clear not __equal %d %d\n", start,
- 									nbits);
-+				failed_tests++;
-+			}
- 		}
- 	}
- }
+"Reality continues to ruin my life." - Calvin.
