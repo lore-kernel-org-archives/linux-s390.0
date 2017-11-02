@@ -1,171 +1,78 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [RFC 18/19] KVM: s390: New ioctl to configure KVM guest's AP
- matrix
-Date: Thu, 2 Nov 2017 14:55:41 -0400
-Message-ID: <5955dc6b-d7bd-2899-49d8-1f1118783b5f@linux.vnet.ibm.com>
+Subject: Re: [RFC 01/19] KVM: s390: SIE considerations for AP Queue
+ virtualization
+Date: Thu, 2 Nov 2017 15:53:26 -0400
+Message-ID: <0d0ca269-d4a0-877e-3fd4-3f8c777d9384@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1507916344-3896-19-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1507916344-3896-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <8ff4f519-560b-04a0-2786-27eafcf7463f@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1507916344-3896-19-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <8ff4f519-560b-04a0-2786-27eafcf7463f@de.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/13/2017 01:39 PM, Tony Krowiak wrote:
-> Implements an ioctl to configure the adapters, usage domains
-> and control domains to which a KVM guest will be granted
-> access. The ioctl is invoked using the VFIO mediated matrix
-> device's file descriptor.
+On 11/02/2017 07:54 AM, Christian Borntraeger wrote:
+> To make the whole series smaller I will apply some of these patches
+> directly (those of which are "obvious" and touch kvm/s390 only)
+Okay
 >
-> Guest access to AP adapters, usage domains and control domains
-> is controlled by three bit masks referenced from the
-> guest's SIE state description: The AP Mask (APM) controls
-> access to the AP adapters; the AP Queue Mask (AQM) controls
-> access to the AP usage domains; and the AP Domain Mask (ADM)
-> controls access to the AP control domains. Each bit
-> in the APM represents an adapter, from left to right,
-> starting with adapter 0. Each bit in the AQM represents
-> a usage domain, from left to right, starting with domain 0.
-> Each bit in the ADM represents a control domain, from left
-> to right, starting with domain 0.
 >
-> The APM, AQM and ADM bit masks will be populated from the
-> bit masks stored in the corresponding mediated matrix device's
-> sysfs files. The bit masks will also be returned by the ioctl
-> call to the caller.
->
-> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_matrix_ops.c |   68 +++++++++++++++++++++++++++++-
->   include/uapi/linux/vfio.h                |   20 +++++++++
->   2 files changed, 86 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/s390/crypto/vfio_ap_matrix_ops.c b/drivers/s390/crypto/vfio_ap_matrix_ops.c
-> index 74ea8db..d81e3ab 100644
-> --- a/drivers/s390/crypto/vfio_ap_matrix_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_matrix_ops.c
-> @@ -160,8 +160,69 @@ static int ap_matrix_mdev_get_device_info(unsigned long arg)
->   	return copy_to_user((void __user *)arg, &info, minsz);
->   }
->
-> -static ssize_t ap_matrix_mdev_ioctl(struct mdev_device *mdev,
-> -				    unsigned int cmd, unsigned long arg)
-> +static int ap_matrix_configure(struct mdev_device *mdev)
-> +{
-> +	int ret;
-> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> +
-> +	ret = ap_config_matrix(matrix_mdev->kvm, &matrix_mdev->masks);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +
-> +static int ap_matrix_copy_to_user(struct mdev_device *mdev,
-> +				  struct vfio_ap_matrix_config *mcfg,
-> +				  unsigned long arg)
-> +{
-> +	size_t i;
-> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> +
-> +
-> +	for (i = 0; i < AP_MATRIX_MASK_INDICES; i++) {
-> +		if (i < VFIO_AP_MATRIX_MASK_INDICES) {
-> +			mcfg->apm[i] = matrix_mdev->masks.apm[i];
-> +			mcfg->aqm[i] = matrix_mdev->masks.aqm[i];
-> +			mcfg->adm[i] = matrix_mdev->masks.adm[i];
-> +		}
-> +	}
-> +
-> +	if (copy_to_user((void __user *)arg, &mcfg, sizeof(mcfg)))
-> +		return -EFAULT;
-This is in error and needs to be:
-
-if (copy_to_user((void __user *)arg, &mcfg, sizeof(*mcfg)))
-	return -EFAULT;
-
-> +
-> +	return 0;
-> +}
-> +
-> +static ssize_t ap_matrix_mdev_configure(struct mdev_device *mdev,
-> +					unsigned long arg)
-> +{
-> +	int ret;
-> +	unsigned long minsz;
-> +	struct vfio_ap_matrix_config mcfg;
-> +
-> +	minsz = offsetofend(struct vfio_ap_matrix_config, adm);
-> +
-> +	if (copy_from_user(&mcfg, (void __user *)arg, minsz))
-> +		return -EFAULT;
-> +
-> +	if (mcfg.argsz < minsz) {
-> +		pr_err("%s: Argument size %u less than min size %li",
-> +		       VFIO_AP_MATRIX_MODULE_NAME, mcfg.argsz, minsz);
-> +		return -EINVAL;
-> +	}
-> +
-> +	ret = ap_matrix_configure(mdev);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = ap_matrix_copy_to_user(mdev, &mcfg, arg);
-> +
-> +	return 0;
-> +}
-> +
-> +static long ap_matrix_mdev_ioctl(struct mdev_device *mdev,
-> +				 unsigned int cmd, unsigned long arg)
->   {
->   	int ret;
->
-> @@ -169,6 +230,9 @@ static ssize_t ap_matrix_mdev_ioctl(struct mdev_device *mdev,
->   	case VFIO_DEVICE_GET_INFO:
->   		ret = ap_matrix_mdev_get_device_info(arg);
->   		break;
-> +	case VFIO_AP_MATRIX_CONFIGURE:
-> +		ret = ap_matrix_mdev_configure(mdev, arg);
-> +		break;
->   	default:
->   		pr_err("%s: ioctl command %d is not a supported command",
->   		       VFIO_AP_MATRIX_MODULE_NAME, cmd);
-> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index 08f1ab4..2d96c57 100644
-> --- a/include/uapi/linux/vfio.h
-> +++ b/include/uapi/linux/vfio.h
-> @@ -716,6 +716,26 @@ struct vfio_iommu_spapr_tce_remove {
->   };
->   #define VFIO_IOMMU_SPAPR_TCE_REMOVE	_IO(VFIO_TYPE, VFIO_BASE + 20)
->
-> +/**
-> + * VFIO_AP_MATRIX_CONFIGURE		_IO(VFIO_TYPE, VFIO_BASE + 21
-> + *
-> + * Configure the AP matrix for a KVM guest.
-> + */
-> +#define VFIO_AP_MATRIX_CONFIGURE	_IO(VFIO_TYPE, VFIO_BASE + 21)
-> +
-> +#define VFIO_AP_MATRIX_MASK_INDICES	4
-> +#define VFIO_AP_MATTRIX_MASK_BYTES	(VFIO_AP_MATRIX_MASK_INDICES * \
-> +					 sizeof(__u64))
-> +#define VFIO_AP_MATRIX_MASK_BITS	(VFIO_AP_MATTRIX_MASK_BYTES * 8)
-> +
-> +struct vfio_ap_matrix_config {
-> +	__u32 argsz;
-> +	__u32 flags;
-> +	/* out */
-> +	__u64 apm[VFIO_AP_MATRIX_MASK_INDICES];
-> +	__u64 aqm[VFIO_AP_MATRIX_MASK_INDICES];
-> +	__u64 adm[VFIO_AP_MATRIX_MASK_INDICES];
-> +};
->   /* ***************************************************************** */
->
->   #endif /* _UAPIVFIO_H */
+> On 10/13/2017 07:38 PM, Tony Krowiak wrote:
+>> The Crypto Control Block (CRYCB) is referenced by the SIE state
+>> description and controls KVM guest access to the Adjunct
+>> Processor (AP) adapters, usage domains and control domains.
+>> This patch defines the AP control blocks to be used for
+>> controlling guest access to the AP adapters and domains.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> thanks applied.
+>> ---
+>>   arch/s390/include/asm/kvm_host.h |   25 +++++++++++++++++++++----
+>>   1 files changed, 21 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>> index 51375e7..50a6b25 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -685,11 +685,28 @@ struct kvm_s390_crypto {
+>>   	__u8 dea_kw;
+>>   };
+>>
+>> +#define APCB0_MASK_SIZE 1
+>> +struct kvm_s390_apcb0 {
+>> +	__u64 apm[APCB0_MASK_SIZE];		/* 0x0000 */
+>> +	__u64 aqm[APCB0_MASK_SIZE];		/* 0x0008 */
+>> +	__u64 adm[APCB0_MASK_SIZE];		/* 0x0010 */
+>> +	__u64 reserved18;			/* 0x0018 */
+>> +};
+>> +
+>> +#define APCB1_MASK_SIZE 4
+>> +struct kvm_s390_apcb1 {
+>> +	__u64 apm[APCB1_MASK_SIZE];		/* 0x0000 */
+>> +	__u64 aqm[APCB1_MASK_SIZE];		/* 0x0020 */
+>> +	__u64 adm[APCB1_MASK_SIZE];		/* 0x0040 */
+>> +	__u64 reserved60[4];			/* 0x0060 */
+>> +};
+>> +
+>>   struct kvm_s390_crypto_cb {
+>> -	__u8    reserved00[72];                 /* 0x0000 */
+>> -	__u8    dea_wrapping_key_mask[24];      /* 0x0048 */
+>> -	__u8    aes_wrapping_key_mask[32];      /* 0x0060 */
+>> -	__u8    reserved80[128];                /* 0x0080 */
+>> +	struct kvm_s390_apcb0 apcb0;		/* 0x0000 */
+>> +	__u8    reserved20[40];			/* 0x0020 */
+>> +	__u8    dea_wrapping_key_mask[24];	/* 0x0048 */
+>> +	__u8    aes_wrapping_key_mask[32];	/* 0x0060 */
+>> +	struct kvm_s390_apcb1 apcb1;		/* 0x0080 */
+>>   };
+>>
+>>   /*
+>>
