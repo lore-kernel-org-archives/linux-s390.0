@@ -1,84 +1,171 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [RFC 19/19] s390/facilities: enable AP facilities needed by guest
-Date: Thu, 2 Nov 2017 14:49:12 -0400
-Message-ID: <40cdab64-9eeb-02bd-f260-80e9da8c9034@linux.vnet.ibm.com>
+Subject: Re: [RFC 18/19] KVM: s390: New ioctl to configure KVM guest's AP
+ matrix
+Date: Thu, 2 Nov 2017 14:55:41 -0400
+Message-ID: <5955dc6b-d7bd-2899-49d8-1f1118783b5f@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1507916344-3896-20-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20171016112510.39e9c330@mschwideX1>
- <3e836f59-3ef1-57d8-d6df-b66011c173c4@de.ibm.com>
- <af1bb867-f9a0-458b-b7b2-c0bb9456eb7f@linux.vnet.ibm.com>
- <6d9ae0c1-6f64-1562-bf10-864cf66e3a08@de.ibm.com>
+ <1507916344-3896-19-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6d9ae0c1-6f64-1562-bf10-864cf66e3a08@de.ibm.com>
+In-Reply-To: <1507916344-3896-19-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, freude@de.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 11/02/2017 11:53 AM, Christian Borntraeger wrote:
+On 10/13/2017 01:39 PM, Tony Krowiak wrote:
+> Implements an ioctl to configure the adapters, usage domains
+> and control domains to which a KVM guest will be granted
+> access. The ioctl is invoked using the VFIO mediated matrix
+> device's file descriptor.
 >
-> On 11/02/2017 04:36 PM, Tony Krowiak wrote:
->> On 11/02/2017 08:08 AM, Christian Borntraeger wrote:
->>> On 10/16/2017 11:25 AM, Martin Schwidefsky wrote:
->>>> On Fri, 13 Oct 2017 13:39:04 -0400
->>>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->>>>
->>>>> Sets up the following facilities bits to enable the specified AP
->>>>> facilities for the guest VM:
->>>>>      * STFLE.12: Enables the AP Query Configuration Information
->>>>>                  facility. The AP bus running in the guest uses
->>>>>                  the information returned from this instruction
->>>>>                  to configure AP adapters and domains for the
->>>>>                  guest machine.
->>>>>      * STFLE.15: Indicates the AP facilities test is available.
->>>>>                  The AP bus running in the guest uses the
->>>>>                  information.
->>>>>
->>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>>>> ---
->>>>>   arch/s390/tools/gen_facilities.c |    2 ++
->>>>>   1 files changed, 2 insertions(+), 0 deletions(-)
->>>>>
->>>>> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
->>>>> index 70dd8f1..eeaa7db 100644
->>>>> --- a/arch/s390/tools/gen_facilities.c
->>>>> +++ b/arch/s390/tools/gen_facilities.c
->>>>> @@ -74,8 +74,10 @@ struct facility_def {
->>>>>   			8,  /* enhanced-DAT 1 */
->>>>>   			9,  /* sense-running-status */
->>>>>   			10, /* conditional sske */
->>>>> +			12, /* AP query configuration */
->>>>>   			13, /* ipte-range */
->>>>>   			14, /* nonquiescing key-setting */
->>>>> +			15, /* AP special-command facility */
->>>>>   			73, /* transactional execution */
->>>>>   			75, /* access-exception-fetch/store indication */
->>>>>   			76, /* msa extension 3 */
->>>> With this all KVM guests will always have the AP instructions available, no?
->>>> In principles I like this approach, but it differs from the way z/VM does things,
->>>> there the guest will get an exception if it tries to execute an AP instruction
->>>> if there are no AP devices assigned to the guest. I wonder if there is a reason
->>>> why z/VM does it the way it does.
->>> A good question. For LPAR it seems that you have AP instructions even if you have
->>> no crypto cards.
->>>
->> I don't believe these facilities control whether or not AP instructions will be available
->>
->> to the guest.
-> This is actually handled by your patch2 enabling the ECA bit.
-> I think we must decide if we want to be able to disable these instructions
-> via the cpu model. If yes we must then couple the facilities with the enablement.
-The ECA.28 bit controls whether instructions are intercepted or 
-interpreted - i.e., handled via hardware
-virtualization. If set, as is done in patch2, then instructions will be 
-interpreted. I don't see how
-that affects enabling or disabling AP instructions, unless we don't set 
-ECA.28, intercept every instruction
-and program check. Am I missing something here?
+> Guest access to AP adapters, usage domains and control domains
+> is controlled by three bit masks referenced from the
+> guest's SIE state description: The AP Mask (APM) controls
+> access to the AP adapters; the AP Queue Mask (AQM) controls
+> access to the AP usage domains; and the AP Domain Mask (ADM)
+> controls access to the AP control domains. Each bit
+> in the APM represents an adapter, from left to right,
+> starting with adapter 0. Each bit in the AQM represents
+> a usage domain, from left to right, starting with domain 0.
+> Each bit in the ADM represents a control domain, from left
+> to right, starting with domain 0.
 >
+> The APM, AQM and ADM bit masks will be populated from the
+> bit masks stored in the corresponding mediated matrix device's
+> sysfs files. The bit masks will also be returned by the ioctl
+> call to the caller.
+>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> ---
+>   drivers/s390/crypto/vfio_ap_matrix_ops.c |   68 +++++++++++++++++++++++++++++-
+>   include/uapi/linux/vfio.h                |   20 +++++++++
+>   2 files changed, 86 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/s390/crypto/vfio_ap_matrix_ops.c b/drivers/s390/crypto/vfio_ap_matrix_ops.c
+> index 74ea8db..d81e3ab 100644
+> --- a/drivers/s390/crypto/vfio_ap_matrix_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_matrix_ops.c
+> @@ -160,8 +160,69 @@ static int ap_matrix_mdev_get_device_info(unsigned long arg)
+>   	return copy_to_user((void __user *)arg, &info, minsz);
+>   }
+>
+> -static ssize_t ap_matrix_mdev_ioctl(struct mdev_device *mdev,
+> -				    unsigned int cmd, unsigned long arg)
+> +static int ap_matrix_configure(struct mdev_device *mdev)
+> +{
+> +	int ret;
+> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +
+> +	ret = ap_config_matrix(matrix_mdev->kvm, &matrix_mdev->masks);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+> +
+> +static int ap_matrix_copy_to_user(struct mdev_device *mdev,
+> +				  struct vfio_ap_matrix_config *mcfg,
+> +				  unsigned long arg)
+> +{
+> +	size_t i;
+> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +
+> +
+> +	for (i = 0; i < AP_MATRIX_MASK_INDICES; i++) {
+> +		if (i < VFIO_AP_MATRIX_MASK_INDICES) {
+> +			mcfg->apm[i] = matrix_mdev->masks.apm[i];
+> +			mcfg->aqm[i] = matrix_mdev->masks.aqm[i];
+> +			mcfg->adm[i] = matrix_mdev->masks.adm[i];
+> +		}
+> +	}
+> +
+> +	if (copy_to_user((void __user *)arg, &mcfg, sizeof(mcfg)))
+> +		return -EFAULT;
+This is in error and needs to be:
+
+if (copy_to_user((void __user *)arg, &mcfg, sizeof(*mcfg)))
+	return -EFAULT;
+
+> +
+> +	return 0;
+> +}
+> +
+> +static ssize_t ap_matrix_mdev_configure(struct mdev_device *mdev,
+> +					unsigned long arg)
+> +{
+> +	int ret;
+> +	unsigned long minsz;
+> +	struct vfio_ap_matrix_config mcfg;
+> +
+> +	minsz = offsetofend(struct vfio_ap_matrix_config, adm);
+> +
+> +	if (copy_from_user(&mcfg, (void __user *)arg, minsz))
+> +		return -EFAULT;
+> +
+> +	if (mcfg.argsz < minsz) {
+> +		pr_err("%s: Argument size %u less than min size %li",
+> +		       VFIO_AP_MATRIX_MODULE_NAME, mcfg.argsz, minsz);
+> +		return -EINVAL;
+> +	}
+> +
+> +	ret = ap_matrix_configure(mdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = ap_matrix_copy_to_user(mdev, &mcfg, arg);
+> +
+> +	return 0;
+> +}
+> +
+> +static long ap_matrix_mdev_ioctl(struct mdev_device *mdev,
+> +				 unsigned int cmd, unsigned long arg)
+>   {
+>   	int ret;
+>
+> @@ -169,6 +230,9 @@ static ssize_t ap_matrix_mdev_ioctl(struct mdev_device *mdev,
+>   	case VFIO_DEVICE_GET_INFO:
+>   		ret = ap_matrix_mdev_get_device_info(arg);
+>   		break;
+> +	case VFIO_AP_MATRIX_CONFIGURE:
+> +		ret = ap_matrix_mdev_configure(mdev, arg);
+> +		break;
+>   	default:
+>   		pr_err("%s: ioctl command %d is not a supported command",
+>   		       VFIO_AP_MATRIX_MODULE_NAME, cmd);
+> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> index 08f1ab4..2d96c57 100644
+> --- a/include/uapi/linux/vfio.h
+> +++ b/include/uapi/linux/vfio.h
+> @@ -716,6 +716,26 @@ struct vfio_iommu_spapr_tce_remove {
+>   };
+>   #define VFIO_IOMMU_SPAPR_TCE_REMOVE	_IO(VFIO_TYPE, VFIO_BASE + 20)
+>
+> +/**
+> + * VFIO_AP_MATRIX_CONFIGURE		_IO(VFIO_TYPE, VFIO_BASE + 21
+> + *
+> + * Configure the AP matrix for a KVM guest.
+> + */
+> +#define VFIO_AP_MATRIX_CONFIGURE	_IO(VFIO_TYPE, VFIO_BASE + 21)
+> +
+> +#define VFIO_AP_MATRIX_MASK_INDICES	4
+> +#define VFIO_AP_MATTRIX_MASK_BYTES	(VFIO_AP_MATRIX_MASK_INDICES * \
+> +					 sizeof(__u64))
+> +#define VFIO_AP_MATRIX_MASK_BITS	(VFIO_AP_MATTRIX_MASK_BYTES * 8)
+> +
+> +struct vfio_ap_matrix_config {
+> +	__u32 argsz;
+> +	__u32 flags;
+> +	/* out */
+> +	__u64 apm[VFIO_AP_MATRIX_MASK_INDICES];
+> +	__u64 aqm[VFIO_AP_MATRIX_MASK_INDICES];
+> +	__u64 adm[VFIO_AP_MATRIX_MASK_INDICES];
+> +};
+>   /* ***************************************************************** */
+>
+>   #endif /* _UAPIVFIO_H */
