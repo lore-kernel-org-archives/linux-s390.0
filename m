@@ -1,70 +1,76 @@
-From: Babu Moger <babu.moger@oracle.com>
-Date: Thu, 02 Nov 2017 20:55:53 +0000
-Subject: Re: [PATCH] s390: pass endianness info to sparse
-Message-Id: <b6960945-db88-84e9-d2da-b4ab96e3baf7@oracle.com>
-In-Reply-To: <CAMHZB6ErvKcGzEmz-Zp9W2oNbZjRZsGf_MaKm32jSpRndiCiyg@mail.gmail.com>
-References: <CAMHZB6ErvKcGzEmz-Zp9W2oNbZjRZsGf_MaKm32jSpRndiCiyg@mail.gmail.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Mon, 06 Nov 2017 16:24:36 +0000
+Subject: Re: [PATCH] s390: vfio-ccw: Do not attempt to free no-op and test cda.
+Message-Id: <20171106172436.0882df47.cohuck@redhat.com>
+In-Reply-To: <1509717011-13219-1-git-send-email-jjherne@linux.vnet.ibm.com>
+References: <1509717011-13219-1-git-send-email-jjherne@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Mon, 6 Nov 2017 16:46:50 +0800
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-On 11/2/2017 3:37 PM, Luc Van Oostenryck wrote:
-> On Thu, Nov 2, 2017 at 9:17 PM, Babu Moger <babu.moger@oracle.com> wrote:
->> On 11/2/2017 3:11 AM, Arnd Bergmann wrote:
->>> On Thu, Nov 2, 2017 at 7:25 AM, Luc Van Oostenryck
->>> <luc.vanoostenryck@gmail.com> wrote:
->>>> On Thu, Nov 2, 2017 at 7:04 AM, Heiko Carstens
->>>> <heiko.carstens@de.ibm.com> wrote:
->>>>> On Tue, Oct 31, 2017 at 06:22:08PM +0100, Luc Van Oostenryck wrote:
->>>>>
->>>>>> -CHECKFLAGS   += -D__s390__ -D__s390x__
->>>>>> +CHECKFLAGS   += -D__s390__ -D__s390x__ -mbig-endian
->>>>> Applied, thanks!
->>>>>
->>>>> However something similar is required for _all_ architectures, e.g.
->>>>> setting
->>>>> -mlittle-endian for the same reason on big endian build machines.
->>>>>
->>>>> Therefore I would have expected to add the -m flag in the top-level
->>>>> Makefile depending on CONFIG_CPU_BIG_ENDIAN or CONFIG_CPU_KITTLE_ENDIAN.
->>>>> However it seems that not all architectures set any of these config
->>>>> options
->>>>> at all.
->>>>>
->>>>> If I remember correctly Arnd Bergmann was looking into this a couple of
->>>>> months ago(?)...
->>>> I'm not aware of Arnd's work for this but I checked all architectures and
->>>> sent
->>>> patches for those which needed it (for endianness and machine size).
->>> I think the patch series in question was from Babu Moger (added to Cc
->>> here),
->>> see https://lkml.org/lkml/2017/7/6/583
->>>
->>> The patches got merged into v4.14-rc1, but had a different goal, so
->>> I don't think Babu was trying to solve the problem for sparse. Adding it
->>
->> Yes. Correct. I was not trying to solve this sparse problem.
->>
->>> to the top-level CHECKFLAGS sounds appropriate, we just can't do
->>> it for the general CFLAGS.
->> Interesting..
->> Do you think we should add these definitions(-mbig-endian) all the fixed big
->> endian architectures?  Here is the list:
->> arch/frv/include/uapi/asm/byteorder.h
->> arch/h8300/include/asm/byteorder.h
->> arch/h8300/include/uapi/asm/byteorder.h
->> arch/m68k/include/uapi/asm/byteorder.h
->> arch/openrisc/include/uapi/asm/byteorder.h
->> arch/parisc/include/uapi/asm/byteorder.h
->> arch/s390/include/uapi/asm/byteorder.h
->> arch/sparc/include/uapi/asm/byteorder.h
-> I've sent CHECKFLAGS patches for m68k, openrisc, parisc, s390 & sparc
-Ok. Cool.� We are good then. Thanks.
-> (I don't remember why I concluded it wasn't needed for frv & h8300,
-> probably because I didn't saw any dependencies with something like
-> __BYTE_ORDER__ or __{BIG,LITTLE}_ENDIAN__).
-> But yes, adding the right -m flag at top-level would be slightly simpler.
-> However, it should be noted that this is not always enough
-> (for example, ARM need __ARMEL__/__ARMEB__).
->
-> -- Luc
+> * Jason J. Herne <jjherne@linux.vnet.ibm.com> [2017-11-03 09:50:11 -0400]:
+> 
+> Add Halil in Cc:.
+> 
+> > Because we do not make use of the cda (channel data address) for test
+> > and no-op ccws no address translation takes place. This means cda will
+> > contain a guest address which we do not want to attempt to free. Let's
+> > check the command type and skip cda free when it is not needed.
+> > 
+> > Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
+> > Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> > Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+> > ---
+> >  drivers/s390/cio/vfio_ccw_cp.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> > index 5ccfdc8..26f6e3e 100644
+> > --- a/drivers/s390/cio/vfio_ccw_cp.c
+> > +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> > @@ -329,6 +329,8 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
+> >  {
+> >  	struct ccw1 *ccw = chain->ch_ccw + idx;
+> > 
+> > +	if (ccw_is_test(ccw) || ccw_is_noop(ccw))
+> > +		return;
+> >  	if (!ccw->count)
+> >  		return;
+> > 
+> > -- 
+> > 2.7.4
+> >   
+> 
+> Forward Halil's comment and my reply here:
+> > Halil wrote:
+> > Oops. The ccw.count = 0 assignment is done only for format 0 TIC.
+> > For format 1 TIC we keep what the original count, which is supposed
+> > to be 0 (and channel program check is to be generated if a format 1
+> > TIC with count != 0 takes control), but actually may or may not
+> > be 0.  
+> 
+> > Do we have a problem here? Am I missing something. Anyway i recall
+> > my ack until this is clarified.  
+> Good catch! We didn't notice this problem before, I guess it's because
+> we always have (ccw->count == 0) and we only have format 1 ccw as the
+> input.
+> 
+> For a TIC ccw, ccw->cda points to either a ccw in one of the existing
+> chain, or points to a whole new allocated chain. Whatever the case is,
+> we do not need to do cda free fot it - for the second case,
+> ccwchain_free() will free the memory.
+> 
+> So we should also check TIC. E.g.:
+> if (ccw_is_test(ccw) || ccw_is_noop(ccw) || ccw_is_tic(ccw))
+> 	return;
+
+Yes, I think your reasoning is correct. We really need a tester in the
+guest that also tries those cases.
+
+> 
+> BTW, we'd also need to update the commit message if do not want a
+> separated patch to fix the TIC problem.
+
+I'd be happy to apply a v2 :)
