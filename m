@@ -1,204 +1,92 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [RFC/PATCH 03/22] s390/mm: add gmap PMD invalidation
- notification
-Date: Fri, 17 Nov 2017 10:19:28 +0100
-Message-ID: <20171117101928.1ea9d354@mschwideX1>
-References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
-        <1510007400-42493-4-git-send-email-frankja@linux.vnet.ibm.com>
-        <3b439732-70a4-8b95-4b9e-87f230dd7aaa@redhat.com>
-        <eebe97cd-5c3d-f54f-6dfc-e6a105c57dc4@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH 00/22] KVM/s390: Hugetlbfs enablement
+Date: Mon,  6 Nov 2017 23:29:38 +0100
+Message-ID: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <eebe97cd-5c3d-f54f-6dfc-e6a105c57dc4@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 17 Nov 2017 10:02:57 +0100
-Janosch Frank <frankja@linux.vnet.ibm.com> wrote:
+Since the z10 s390 does support 1M pages, but whereas hugetlbfs
+support was added quite fast, KVM always used standard 4k pages for
+guest backings.
 
-> On 15.11.2017 10:55, David Hildenbrand wrote:
-> > On 06.11.2017 23:29, Janosch Frank wrote:  
-> >> For later migration of huge pages we want to write-protect guest
-> >> PMDs. While doing this, we have to make absolutely sure, that the
-> >> guest's lowcore is always accessible when the VCPU is running. With
-> >> PTEs, this is solved by marking the PGSTEs of the lowcore pages with
-> >> the invalidation notification bit and kicking the guest out of the SIE
-> >> via a notifier function if we need to invalidate such a page.
-> >>
-> >> With PMDs we do not have PGSTEs or some other bits we could use in the
-> >> host PMD. Instead we pick one of the free bits in the gmap PMD. Every
-> >> time a host pmd will be invalidated, we will check if the respective
-> >> gmap PMD has the bit set and in that case fire up the notifier.
-> >>
-> >> In the first step we only support setting the invalidation bit, but we
-> >> do not support restricting access of guest pmds. It will follow
-> >> shortly.
-> >>
-> >> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> >> ---  
-> 
-> >> index 74e2062..3961589 100644
-> >> --- a/arch/s390/mm/gmap.c
-> >> +++ b/arch/s390/mm/gmap.c
-> >> @@ -595,10 +595,17 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
-> >>  	if (*table == _SEGMENT_ENTRY_EMPTY) {
-> >>  		rc = radix_tree_insert(&gmap->host_to_guest,
-> >>  				       vmaddr >> PMD_SHIFT, table);
-> >> -		if (!rc)
-> >> -			*table = pmd_val(*pmd);
-> >> -	} else
-> >> -		rc = 0;
-> >> +		if (!rc) {
-> >> +			if (pmd_large(*pmd)) {
-> >> +				*table = pmd_val(*pmd) &
-> >> +					(_SEGMENT_ENTRY_ORIGIN_LARGE
-> >> +					 | _SEGMENT_ENTRY_INVALID
-> >> +					 | _SEGMENT_ENTRY_LARGE
-> >> +					 | _SEGMENT_ENTRY_PROTECT);  
-> > 
-> > Can we reuse/define a mask for that?  
-> 
-> We could define GMAP masks, that only leave the bits needed for GMAP
-> usage. Integrating this in pgtable.h might be hard and we only have one
-> user of this.
-> 
-> > 
-> > Like _SEGMENT_ENTRY_BITS_LARGE
-> >   
-> >> +			} else
-> >> +				*table = pmd_val(*pmd) & ~0x03UL;  
-> > 
-> > Where exactly does the 0x03UL come from? Can we reuse e.g.
-> > _SEGMENT_ENTRY_BITS here?  
-> 
-> No, _SEGMENT_ENTRY_BITS contains these bits.
-> 
-> This is effectively ~(_SEGMENT_ENTRY_READ | _SEGMENT_ENTRY_WRITE) to get
-> rid of the software bits linux uses for tracking.
-> 
-> > 
-> > Or is there a way to unify both cases?  
-> 
-> That will be difficult because of the different origin masks.
-> 
-> >>  
-> >>  /*
-> >> + * gmap_protect_large - set pmd notification bits  
-> > 
-> > Why not gmap_protect_pmd just like gmap_protect_pte?  
-> 
-> When I started I thought adding edat2 would not be harder than adding
-> edat1. The large suffix could have later been used to do 1m and 2g
-> handling because the bits are at the same places.
-> 
-> I'll change this one and all later occurrences.
-> 
-> >   
-> >> + * @pmdp: pointer to the pmd to be protected
-> >> + * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
-> >> + * @bits: notification bits to set
-> >> + *
-> >> + * Returns 0 if successfully protected, -ENOMEM if out of memory and
-> >> + * -EAGAIN if a fixup is needed.
-> >> + *
-> >> + * Expected to be called with sg->mm->mmap_sem in read and
-> >> + * guest_table_lock held.  
-> > 
-> > gmap_pmd_op_walk() guarantees the latter, correct?  
-> 
-> Yes
-> 
-> >   
-> >> + */
-> >> +static int gmap_protect_large(struct gmap *gmap, unsigned long gaddr,
-> >> +			      pmd_t *pmdp, int prot, unsigned long bits)
-> >> +{
-> >> +	int pmd_i, pmd_p;
-> >> +
-> >> +	pmd_i = pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID;
-> >> +	pmd_p = pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT;  
-> > 
-> > initialize both directly and make them const.  
-> 
-> Sure
-> 
-> >>  static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
-> >>  			      unsigned long len, int prot, unsigned long bits)
-> >> @@ -990,11 +1026,20 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
-> >>  		rc = -EAGAIN;
-> >>  		pmdp = gmap_pmd_op_walk(gmap, gaddr);
-> >>  		if (pmdp) {
-> >> -			rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
-> >> -					      bits);
-> >> -			if (!rc) {
-> >> -				len -= PAGE_SIZE;
-> >> -				gaddr += PAGE_SIZE;
-> >> +			if (!pmd_large(*pmdp)) {
-> >> +				rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
-> >> +						      bits);
-> >> +				if (!rc) {
-> >> +					len -= PAGE_SIZE;
-> >> +					gaddr += PAGE_SIZE;
-> >> +				}
-> >> +			} else {
-> >> +				rc =  gmap_protect_large(gmap, gaddr, pmdp,
-> >> +							 prot, bits);
-> >> +				if (!rc) {
-> >> +					len = len < HPAGE_SIZE ? 0 : len - HPAGE_SIZE;  
-> > 
-> > Shouldn't you also have to take the difference to (gaddr & HPAGE_MASK)
-> > into account, like you do in the next step? (so always subtracting
-> > HPAGE_SIZE looks suspicious)  
-> 
-> Yes it seems we have to do that.
-> We just never ran into troubles because len is generally < HPAGE_SIZE
-> and tables don't seem to cross segment boundaries.
-> 
-> >> +/**
-> >> + * pmdp_notify - call all invalidation callbacks for a specific pmd
-> >> + * @mm: pointer to the process mm_struct
-> >> + * @vmaddr: virtual address in the process address space
-> >> + *
-> >> + * This function is expected to be called with mmap_sem held in read.
-> >> + */
-> >> +void pmdp_notify(struct mm_struct *mm, unsigned long vmaddr)
-> >> +{
-> >> +	unsigned long *table, gaddr;
-> >> +	struct gmap *gmap;
-> >> +
-> >> +	rcu_read_lock();
-> >> +	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
-> >> +		spin_lock(&gmap->guest_table_lock);
-> >> +		table = radix_tree_lookup(&gmap->host_to_guest,
-> >> +					  vmaddr >> PMD_SHIFT);
-> >> +		if (!table || !(*table & _SEGMENT_ENTRY_GMAP_IN)) {
-> >> +			spin_unlock(&gmap->guest_table_lock);
-> >> +			continue;
-> >> +		}
-> >> +		gaddr = __gmap_segment_gaddr(table);
-> >> +		*table &= ~_SEGMENT_ENTRY_GMAP_IN;  
-> > 
-> > We can perform this page table change without any flushing/stuff like
-> > that because we don't modify bits used by the HW. Is that guaranteed by
-> > the architecture or are there any special conditions to take into
-> > account? (applies also to were we set the _SEGMENT_ENTRY_GMAP_IN)  
-> 
-> ACC is ignored when the validity is 0 and 62 and 63 (0x3) are "available
-> for programming".
-> It pretty much sounds like these are OS bits free for any usage, I'll
-> ask the hardware team when I find time.
+This patchset adds full support for 1M huge page backings for s390
+KVM guests. I.e. we also support VSIE (nested vms) for these guests
+and are therefore able to run all combinations of backings for all
+layers of guests.
 
-Bits 62 and 63 used to be reserved bits but they have been defined for OS
-usage with the z13 PoP.
+When running a VSIE guest in a huge page backed guest, we need to
+split some huge pages to be able to set granular protection. This way
+we avoid a prot/unprot cycle if prefixes and VSIE pages containing
+level 3 gmap DAT tables share the same segment, as the prefix has to
+be accessible at all times and the VSIE page has to be write
+protected.
+
+TODO:
+* Cleanups & Documentation
+* Refactoring to get rid of a lot of indents
+* Storage key support for split pages
+* Regression testing
+* Testing large setups
+* Testing multi level VSIE
+
+Accomplished testing:
+l2: KVM guest
+l3: nested KVM guest
+
+* 1m l2 guests
+* VSIE (l3) 4k and 1m guests on 1m l2
+* 1m l2 -> l2 migration with 4k/1m l3 guests
+* l3 -> l2 migration
+* postcopy works every second try, seems to be QEMU or my setup
+
+
+The initial prototype was started by Dominik Dingel. I had the
+pleasure of adding the VSIE part, the protection transfers and the
+optimizations. A huge thanks to Christian and Martin who review(ed)
+and helped debugging/designing.
+
+
+Dominik Dingel (2):
+  s390/mm: hugetlb pages within a gmap can not be freed
+  s390/mm: clear huge page storage keys on enable_skey
+
+Janosch Frank (20):
+  s390/mm: make gmap_protect_range more modular
+  s390/mm: Abstract gmap notify bit setting
+  s390/mm: add gmap PMD invalidation notification
+  s390/mm: Add gmap pmd invalidation and clearing
+  s390/mm: Introduce gmap_pmdp_xchg
+  RFC: s390/mm: Transfer guest pmd protection to host
+  s390/mm: Add huge page dirty sync support
+  s390/mm: Add huge pmd storage key handling
+  s390/mm: Remove superfluous parameter
+  s390/mm: Add gmap_protect_large read protection support
+  s390/mm: Make gmap_read_table EDAT1 compatible
+  s390/mm: Make protect_rmap EDAT1 compatible
+  s390/mm: GMAP read table extensions
+  s390/mm: Add shadow segment code
+  s390/mm: Add VSIE reverse fake case
+  s390/mm: Remove gmap_pte_op_walk
+  s390/mm: Split huge pages if granular protection is needed
+  s390/mm: Enable gmap huge pmd support
+  KVM: s390: Add KVM HPAGE capability
+  RFC: s390/mm: Add gmap lock classes
+
+ arch/s390/include/asm/gmap.h    |   39 +-
+ arch/s390/include/asm/pgtable.h |   12 +-
+ arch/s390/kvm/gaccess.c         |   64 +-
+ arch/s390/kvm/kvm-s390.c        |   18 +-
+ arch/s390/mm/fault.c            |   10 +-
+ arch/s390/mm/gmap.c             | 1296 +++++++++++++++++++++++++++++++++++----
+ arch/s390/mm/pageattr.c         |    6 +-
+ arch/s390/mm/pgtable.c          |  143 ++++-
+ include/uapi/linux/kvm.h        |    1 +
+ 9 files changed, 1421 insertions(+), 168 deletions(-)
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.7.4
