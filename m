@@ -1,7 +1,7 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [RFC/PATCH 20/22] s390/mm: Enable gmap huge pmd support
-Date: Mon,  6 Nov 2017 23:29:58 +0100
-Message-ID: <1510007400-42493-21-git-send-email-frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH 21/22] KVM: s390: Add KVM HPAGE capability
+Date: Mon,  6 Nov 2017 23:29:59 +0100
+Message-ID: <1510007400-42493-22-git-send-email-frankja@linux.vnet.ibm.com>
 References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
@@ -12,40 +12,30 @@ To: kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Now that we have everything in place, let's allow huge pmds for gmap
-linking, effectively allowing huge pages guests.
+KVM huge page backing support can not be easily tested under
+s390. Currently testing is only possible after most of the guest has
+already been set up.
+
+To indicate, that KVM has huge page backing support, we add the
+KVM_CAP_S390_HPAGE capability. This does not mean, that transparent
+huge pages are supported.
 
 Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/mm/gmap.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ include/uapi/linux/kvm.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 430dcd9..3cc2765 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1,8 +1,10 @@
- /*
-  *  KVM guest address space mapping code
-  *
-- *    Copyright IBM Corp. 2007, 2016
-+ *    Copyright IBM Corp. 2007, 2016, 2017
-  *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ *		 David Hildenbrand <david@redhat.com>
-+ *		 Janosch Frank <frankja@linux.vnet.ibm.com>
-  */
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 8388875..2cd359a 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -930,6 +930,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_PPC_SMT_POSSIBLE 147
+ #define KVM_CAP_HYPERV_SYNIC2 148
+ #define KVM_CAP_HYPERV_VP_INDEX 149
++#define KVM_CAP_S390_HPAGE 150
  
- #include <linux/kernel.h>
-@@ -596,9 +598,6 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
- 		return -EFAULT;
- 	pmd = pmd_offset(pud, vmaddr);
- 	VM_BUG_ON(pmd_none(*pmd));
--	/* large pmds cannot yet be handled */
--	if (pmd_large(*pmd))
--		return -EFAULT;
- 	/* Link gmap segment table entry location to page table. */
- 	rc = radix_tree_preload(GFP_KERNEL);
- 	if (rc)
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
 -- 
 2.7.4
