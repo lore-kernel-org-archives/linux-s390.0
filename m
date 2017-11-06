@@ -1,7 +1,7 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [RFC/PATCH 02/22] s390/mm: Abstract gmap notify bit setting
-Date: Mon,  6 Nov 2017 23:29:40 +0100
-Message-ID: <1510007400-42493-3-git-send-email-frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH 04/22] s390/mm: Add gmap pmd invalidation and clearing
+Date: Mon,  6 Nov 2017 23:29:42 +0100
+Message-ID: <1510007400-42493-5-git-send-email-frankja@linux.vnet.ibm.com>
 References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
@@ -12,96 +12,209 @@ To: kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently we use the software PGSTE bits PGSTE_IN_BIT and PGSTE_VSIE_BIT
-to notify before an invalidation occurs on a prefix page or a VSIE page
-respectively. Both bits only work for a PGSTE, which only exists for
-page tables.
+If the host invalidates a pmd, we also have to invalidate the
+corresponding gmap pmds, as well as flush them from the TLB. This is
+necessary, as we don't share the pmd tables between host and guest as
+we do with ptes.
 
-For huge page support we also need such bits for segments (pmds) so
-let's introduce abstract GMAP_ENTRY_* bits that will be realized into
-the respective bits when gmap DAT table entries are protected.
+The clearing part of these three new functions sets a guest pmd entry
+to _SEGMENT_ENTRY_EMPTY, so the guest will fault on it and we will
+re-link it.
+
+Flushing the gmap is not necessary in the host's lazy local and csp
+cases. Both purge the TLB completely.
 
 Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/include/asm/gmap.h |  4 ++++
- arch/s390/mm/gmap.c          | 13 ++++++++-----
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/pgtable.h |   4 ++
+ arch/s390/mm/gmap.c             | 114 ++++++++++++++++++++++++++++++++++++++++
+ arch/s390/mm/pgtable.c          |  17 ++++--
+ 3 files changed, 132 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 741ddba..f3d84a8 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -8,6 +8,10 @@
- #ifndef _ASM_S390_GMAP_H
- #define _ASM_S390_GMAP_H
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 4707647..43c7b01 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -1117,6 +1117,10 @@ int set_pgste_bits(struct mm_struct *mm, unsigned long addr,
+ int get_pgste(struct mm_struct *mm, unsigned long hva, unsigned long *pgstep);
+ int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
+ 			unsigned long *oldpte, unsigned long *oldpgste);
++void gmap_pmdp_csp(struct mm_struct *mm, unsigned long vmaddr);
++void gmap_pmdp_invalidate(struct mm_struct *mm, unsigned long vmaddr);
++void gmap_pmdp_idte_local(struct mm_struct *mm, unsigned long vmaddr);
++void gmap_pmdp_idte_global(struct mm_struct *mm, unsigned long vmaddr);
  
-+/* Generic bits for GMAP notification on DAT table entry changes. */
-+#define GMAP_ENTRY_VSIE	0x2
-+#define GMAP_ENTRY_IN	0x1
-+
- /**
-  * struct gmap_struct - guest address space
-  * @list: list head for the mm->context gmap list
+ /*
+  * Certain architectures need to do special things when PTEs
 diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 9757242..74e2062 100644
+index 3961589..25297e1 100644
 --- a/arch/s390/mm/gmap.c
 +++ b/arch/s390/mm/gmap.c
-@@ -927,7 +927,7 @@ static inline void gmap_pmd_op_end(struct gmap *gmap, pmd_t *pmdp)
-  * @gaddr: virtual address in the guest address space
-  * @pmdp: pointer to the pmd associated with the pte
-  * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
-- * @bits: pgste notification bits to set
-+ * @bits: notification bits to set
-  *
-  * Returns 0 if successfully protected, -ENOMEM if out of memory and
-  * -EAGAIN if a fixup is needed.
-@@ -941,6 +941,7 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
- 	int rc;
- 	pte_t *ptep;
- 	spinlock_t *ptl = NULL;
-+	unsigned long pbits = 0;
- 
- 	/* We have no upper segment, let's go back and fix this up. */
- 	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
-@@ -954,8 +955,10 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
- 			return -ENOMEM;
- 	}
- 
-+	pbits |= (bits & GMAP_ENTRY_IN) ? PGSTE_IN_BIT : 0;
-+	pbits |= (bits & GMAP_ENTRY_VSIE) ? PGSTE_VSIE_BIT : 0;
- 	/* Protect and unlock. */
--	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
-+	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, pbits);
- 	if (ptl)
- 		gmap_pte_op_end(ptl);
- 	return rc;
-@@ -1031,7 +1034,7 @@ int gmap_mprotect_notify(struct gmap *gmap, unsigned long gaddr,
- 	if (!MACHINE_HAS_ESOP && prot == PROT_READ)
- 		return -EINVAL;
- 	down_read(&gmap->mm->mmap_sem);
--	rc = gmap_protect_range(gmap, gaddr, len, prot, PGSTE_IN_BIT);
-+	rc = gmap_protect_range(gmap, gaddr, len, prot, GMAP_ENTRY_IN);
- 	up_read(&gmap->mm->mmap_sem);
- 	return rc;
+@@ -2266,6 +2266,120 @@ void pmdp_notify(struct mm_struct *mm, unsigned long vmaddr)
  }
-@@ -1153,7 +1156,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
- 		if (ptep) {
- 			spin_lock(&sg->guest_table_lock);
- 			rc = ptep_force_prot(parent->mm, paddr, ptep, prot,
--					     PGSTE_VSIE_BIT);
-+					     GMAP_ENTRY_VSIE);
- 			if (!rc)
- 				gmap_insert_rmap(sg, vmaddr, rmap);
- 			spin_unlock(&sg->guest_table_lock);
-@@ -1622,7 +1625,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
- 	down_read(&parent->mm->mmap_sem);
- 	rc = gmap_protect_range(parent, asce & _ASCE_ORIGIN,
- 				((asce & _ASCE_TABLE_LENGTH) + 1) * PAGE_SIZE,
--				PROT_READ, PGSTE_VSIE_BIT);
-+				PROT_READ, GMAP_ENTRY_VSIE);
- 	up_read(&parent->mm->mmap_sem);
- 	spin_lock(&parent->shadow_lock);
- 	new->initialized = true;
+ EXPORT_SYMBOL_GPL(pmdp_notify);
+ 
++static void gmap_pmdp_clear(struct mm_struct *mm, unsigned long vmaddr,
++			    int purge)
++{
++	pmd_t *pmdp;
++	struct gmap *gmap;
++
++	rcu_read_lock();
++	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
++		spin_lock(&gmap->guest_table_lock);
++		pmdp = (pmd_t *)radix_tree_delete(&gmap->host_to_guest,
++						   vmaddr >> PMD_SHIFT);
++		if (pmdp) {
++			if (purge)
++				__pmdp_csp(pmdp);
++			pmd_val(*pmdp) = _SEGMENT_ENTRY_EMPTY;
++		}
++		spin_unlock(&gmap->guest_table_lock);
++	}
++	rcu_read_unlock();
++}
++
++/**
++ * gmap_pmdp_invalidate - invalidate all affected guest pmd entries without
++ *                        flushing
++ * @mm: pointer to the process mm_struct
++ * @vmaddr: virtual address in the process address space
++ */
++void gmap_pmdp_invalidate(struct mm_struct *mm, unsigned long vmaddr)
++{
++	gmap_pmdp_clear(mm, vmaddr, 0);
++}
++EXPORT_SYMBOL_GPL(gmap_pmdp_invalidate);
++
++/**
++ * gmap_pmdp_csp - csp all affected guest pmd entries
++ * @mm: pointer to the process mm_struct
++ * @vmaddr: virtual address in the process address space
++ */
++void gmap_pmdp_csp(struct mm_struct *mm, unsigned long vmaddr)
++{
++	gmap_pmdp_clear(mm, vmaddr, 1);
++}
++EXPORT_SYMBOL_GPL(gmap_pmdp_csp);
++
++/**
++ * gmap_pmdp_idte_local - invalidate and clear a guest pmd entry
++ * @mm: pointer to the process mm_struct
++ * @vmaddr: virtual address in the process address space
++ */
++void gmap_pmdp_idte_local(struct mm_struct *mm, unsigned long vmaddr)
++{
++	unsigned long *entry, gaddr;
++	struct gmap *gmap;
++	pmd_t *pmdp;
++
++	rcu_read_lock();
++	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
++		spin_lock(&gmap->guest_table_lock);
++		entry = radix_tree_delete(&gmap->host_to_guest,
++					  vmaddr >> PMD_SHIFT);
++		if (entry) {
++			pmdp = (pmd_t *)entry;
++			gaddr = __gmap_segment_gaddr(entry);
++			if (MACHINE_HAS_TLB_GUEST)
++				__pmdp_idte(gaddr, pmdp,
++					    IDTE_GUEST_ASCE,
++					    gmap->asce, IDTE_LOCAL);
++			else if (MACHINE_HAS_IDTE)
++				__pmdp_idte(gaddr, pmdp, 0, 0,
++					    IDTE_LOCAL);
++			*entry = _SEGMENT_ENTRY_EMPTY;
++		}
++		spin_unlock(&gmap->guest_table_lock);
++	}
++	rcu_read_unlock();
++}
++EXPORT_SYMBOL_GPL(gmap_pmdp_idte_local);
++
++/**
++ * gmap_pmdp_idte_global - invalidate and clear a guest pmd entry
++ * @mm: pointer to the process mm_struct
++ * @vmaddr: virtual address in the process address space
++ */
++void gmap_pmdp_idte_global(struct mm_struct *mm, unsigned long vmaddr)
++{
++	unsigned long *entry, gaddr;
++	struct gmap *gmap;
++	pmd_t *pmdp;
++
++	rcu_read_lock();
++	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
++		spin_lock(&gmap->guest_table_lock);
++		entry = radix_tree_delete(&gmap->host_to_guest,
++					  vmaddr >> PMD_SHIFT);
++		if (entry) {
++			pmdp = (pmd_t *)entry;
++			gaddr = __gmap_segment_gaddr(entry);
++			if (MACHINE_HAS_TLB_GUEST)
++				__pmdp_idte(gaddr, pmdp,
++					    IDTE_GUEST_ASCE,
++					    gmap->asce, IDTE_GLOBAL);
++			else if (MACHINE_HAS_IDTE)
++				__pmdp_idte(gaddr, pmdp, 0, 0,
++					    IDTE_GLOBAL);
++			else
++				__pmdp_csp(pmdp);
++			*entry = _SEGMENT_ENTRY_EMPTY;
++		}
++		spin_unlock(&gmap->guest_table_lock);
++	}
++	rcu_read_unlock();
++}
++EXPORT_SYMBOL_GPL(gmap_pmdp_idte_global);
++
+ static inline void thp_split_mm(struct mm_struct *mm)
+ {
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 79d35d0..c98fba9 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -346,18 +346,27 @@ static inline void pmdp_idte_local(struct mm_struct *mm,
+ 			    mm->context.asce, IDTE_LOCAL);
+ 	else
+ 		__pmdp_idte(addr, pmdp, 0, 0, IDTE_LOCAL);
++	if (mm_has_pgste(mm))
++		gmap_pmdp_idte_local(mm, addr);
+ }
+ 
+ static inline void pmdp_idte_global(struct mm_struct *mm,
+ 				    unsigned long addr, pmd_t *pmdp)
+ {
+-	if (MACHINE_HAS_TLB_GUEST)
++	if (MACHINE_HAS_TLB_GUEST) {
+ 		__pmdp_idte(addr, pmdp, IDTE_NODAT | IDTE_GUEST_ASCE,
+ 			    mm->context.asce, IDTE_GLOBAL);
+-	else if (MACHINE_HAS_IDTE)
++		if (mm_has_pgste(mm))
++			gmap_pmdp_idte_global(mm, addr);
++	} else if (MACHINE_HAS_IDTE) {
+ 		__pmdp_idte(addr, pmdp, 0, 0, IDTE_GLOBAL);
+-	else
++		if (mm_has_pgste(mm))
++			gmap_pmdp_idte_global(mm, addr);
++	} else {
+ 		__pmdp_csp(pmdp);
++		if (mm_has_pgste(mm))
++			gmap_pmdp_csp(mm, addr);
++	}
+ }
+ 
+ static inline pmd_t pmdp_flush_direct(struct mm_struct *mm,
+@@ -391,6 +400,8 @@ static inline pmd_t pmdp_flush_lazy(struct mm_struct *mm,
+ 			  cpumask_of(smp_processor_id()))) {
+ 		pmd_val(*pmdp) |= _SEGMENT_ENTRY_INVALID;
+ 		mm->context.flush_mm = 1;
++		if (mm_has_pgste(mm))
++			gmap_pmdp_invalidate(mm, addr);
+ 	} else {
+ 		pmdp_idte_global(mm, addr, pmdp);
+ 	}
 -- 
 2.7.4
