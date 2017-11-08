@@ -1,44 +1,60 @@
-From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH 0/3] zfcp: timer_setup() refactoring feature for v4.15-rc1
-Date: Wed,  8 Nov 2017 15:17:06 +0100
-Message-ID: <20171108141709.79074-1-maier@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 8 Nov 2017 21:50:17 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] s390/virtio: mark headers as BSD licensed
+Message-ID: <20171108214928-mutt-send-email-mst@kernel.org>
+References: <1510159613-12930-1-git-send-email-mst@redhat.com>
+ <20171108172844.GA9893@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20171108172844.GA9893@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Kees Cook <keescook@chromium.org>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi all,
+On Wed, Nov 08, 2017 at 06:28:44PM +0100, Greg Kroah-Hartman wrote:
+> On Wed, Nov 08, 2017 at 06:47:18PM +0200, Michael S. Tsirkin wrote:
+> > Virtio UAPI headers aren't just for UAPI, it's for guests/hypervisors as
+> > well.  The s390 ones need to be BSD as well.
+> > 
+> > Fixes: e2be04c7f995 ("License cleanup: add SPDX license identifier to uapi header files with a license")
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> > 
+> > Christian, I would appreciate your ack if you agree.
+> 
+> You are changing the license on this file, you can't just slap a BSD one
+> on the top, and have GPL below it without saying something about both
+> covering the file, right?
+> 
+> 
+> 
+> > 
+> >  arch/s390/include/uapi/asm/kvm_virtio.h | 26 ++++++++++++++++++++++-
+> >  arch/s390/include/uapi/asm/virtio-ccw.h | 37 ++++++++++++++++++++++++++++++++-
+> >  2 files changed, 61 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/s390/include/uapi/asm/kvm_virtio.h b/arch/s390/include/uapi/asm/kvm_virtio.h
+> > index 7328367..1773693 100644
+> > --- a/arch/s390/include/uapi/asm/kvm_virtio.h
+> > +++ b/arch/s390/include/uapi/asm/kvm_virtio.h
+> > @@ -1,4 +1,28 @@
+> > -/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+> 
+> There is a dual-license SPDX identifier you can use, please use that, if
+> you agree to relicense this file.
+> 
+> thanks,
+> 
+> greg k-h
 
-here is a small series for the timer_setup() refactoring of zfcp.
-We target it for the merge window to land in v4.15-rc1.
 
-Unfortunately, they don't seem to apply to the current state of neither
-James' misc branch nor Martin's 4.15/scsi-queue branch,
-because they depend on:
-v4.14-rc3 686fef928bba ("timer: Prepare to change timer callback argument type")
-and
-v4.14-rc7 ab31fd0ce65e ("scsi: zfcp: fix erp_action use-before-initialize in REC action trace").
-
-However, they do apply to Linus' tree for v4.14-rc7 or later and
-thus they would also apply for the upcoming merge window.
-
-In http://www.spinics.net/lists/linux-scsi/msg114581.html I saw a decision
-to have such changes go in via the timer tree. I would be happy with that.
-
-Kees Cook (1):
-  zfcp: convert timers to use timer_setup()
-
-Steffen Maier (2):
-  zfcp: purely mechanical update using timer API, plus blank lines
-  zfcp: drop open coded assignments of timer_list.function
-
- drivers/s390/scsi/zfcp_erp.c | 15 +++++++++------
- drivers/s390/scsi/zfcp_ext.h |  2 +-
- drivers/s390/scsi/zfcp_fsf.c | 13 ++++++-------
- 3 files changed, 16 insertions(+), 14 deletions(-)
+Will do, thanks.
 
 -- 
-2.13.5
+MST
