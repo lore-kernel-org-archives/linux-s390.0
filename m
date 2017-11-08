@@ -1,53 +1,106 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 0/5] KVM: s390: patches for 4.15
-Date: Wed, 8 Nov 2017 12:10:53 +0100
-Message-ID: <20171108121053.172fa481.cohuck@redhat.com>
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
+Subject: Re: [PATCH 5/5] KVM: s390: clear_io_irq() requests are not expected
+ for adapter interrupts
+Date: Wed, 8 Nov 2017 13:14:01 +0100
+Message-ID: <1e96b9b8-7f70-9ef8-2c2b-0b030f348196@linux.vnet.ibm.com>
 References: <20171108084143.78654-1-borntraeger@de.ibm.com>
+ <20171108084143.78654-6-borntraeger@de.ibm.com>
+ <20171108101905.0b5dabb4.cohuck@redhat.com>
+ <b26a3bf9-d5c9-7c34-f6d9-d9b410e9e740@de.ibm.com>
+ <20171108120925.3dc136cf.cohuck@redhat.com>
+Reply-To: mimu@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171108084143.78654-1-borntraeger@de.ibm.com>
+In-Reply-To: <20171108120925.3dc136cf.cohuck@redhat.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed,  8 Nov 2017 09:41:38 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> My next pull request will be pretty small it seems as exitless
-> interrupt, crypto and large page support are all not ready yet.
 
-I'm looking forward to the exitless interrupt patches :)
-
-> Anyway here is what I have pending as of today and what will
-> be part of my next pull request. 
-
-Yup, looks sane to me.
-
-> 
-> Christian Borntraeger (1):
->   KVM: s390: document memory ordering for kvm_s390_vcpu_wakeup
-> 
-> David Hildenbrand (1):
->   KVM: s390: vsie: use common code functions for pinning
-> 
-> Michael Mueller (2):
->   KVM: s390: abstract conversion between isc and enum irq_types
->   KVM: s390: clear_io_irq() requests are not expected for adapter
->     interrupts
-> 
-> Tony Krowiak (1):
->   KVM: s390: SIE considerations for AP Queue virtualization
-> 
->  Documentation/virtual/kvm/devices/s390_flic.txt |  3 ++
->  arch/s390/include/asm/kvm_host.h                | 25 +++++++++++--
->  arch/s390/kvm/interrupt.c                       | 26 +++++++++++--
->  arch/s390/kvm/vsie.c                            | 50 +++++++++----------------
->  include/linux/kvm_host.h                        |  1 +
->  virt/kvm/kvm_main.c                             |  4 +-
->  6 files changed, 67 insertions(+), 42 deletions(-)
-> 
+On 08.11.17 12:09, Cornelia Huck wrote:
+> On Wed, 8 Nov 2017 12:04:22 +0100
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>
+>> On 11/08/2017 10:19 AM, Cornelia Huck wrote:
+>>> On Wed,  8 Nov 2017 09:41:43 +0100
+>>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>>>    
+>>>> From: Michael Mueller <mimu@linux.vnet.ibm.com>
+>>>>
+>>>> There is a chance to delete not yet delivered I/O interrupts if an
+>>>> exploiter uses the subsystem identification word 0x0000 while
+>>>> processing a KVM_DEV_FLIC_CLEAR_IO_IRQ ioctl. -EINVAL will be returned
+>>>> now instead in that case.
+>>>>
+>>>> Classic interrupts will always have bit 0x10000 set in the schid while
+>>>> adapter interrupts have a zero schid. The clear_io_irq interface is
+>>>> only useful for classic interrupts (as adapter interrupts belong to
+>>>> many devices). Let's make this interface more strict and forbid a schid
+>>>> of 0.
+>>> I'm wondering: Is there any possible use case to clear adapter
+>>> interrupts? This interface was introduced to handle the case where a
+>>> CRW was made pending for a subchannel (which implies any pending
+>>> interrupt needs to be cleared.)
+>> The problem with clearing adapter interrupts is that is actually a summary
+>> interrupt for every potential device. So I somewhat consider an adapter interrupt
+>> pending when the summary indicator went from 0 to 1. So I dont think clearing
+>> a single one makes not much sense. (And this interface would be wrong for
+>> that I think)
+> Yes, this interface would be problematic. I'm not sure what's supposed
+> to happen with crws vs. pending adapter interrupts, though.
+They will be delivered based on ISC priority and the traditional first 
+when both have the same class.
+>
+>> The only use cases I can imagine for clearing adapter interrupts (e.g. reset)
+>> is already covered by KVM_DEV_FLIC_CLEAR_IRQS
+>>
+>>> Alas, I cannot check the adapter interrupt question myself, as the
+>>> public doc is lacking :( But qdio as another adapter interrupt user
+>>> comes to mind (not that we support it in qemu, but still...)
+>>>    
+>>>> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+>>>> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+>>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> ---
+>>>>   Documentation/virtual/kvm/devices/s390_flic.txt | 3 +++
+>>>>   arch/s390/kvm/interrupt.c                       | 2 ++
+>>>>   2 files changed, 5 insertions(+)
+>>>>
+>>>> diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
+>>>> index 2f1cbf1..27ad53c 100644
+>>>> --- a/Documentation/virtual/kvm/devices/s390_flic.txt
+>>>> +++ b/Documentation/virtual/kvm/devices/s390_flic.txt
+>>>> @@ -156,3 +156,6 @@ FLIC with an unknown group or attribute gives the error code EINVAL (instead of
+>>>>   ENXIO, as specified in the API documentation). It is not possible to conclude
+>>>>   that a FLIC operation is unavailable based on the error code resulting from a
+>>>>   usage attempt.
+>>>> +
+>>>> +Note: The KVM_DEV_FLIC_CLEAR_IO_IRQ ioctl will return EINVAL in case a zero
+>>>> +schid is specified.
+>>>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>>>> index a3da4f3..c8aacce 100644
+>>>> --- a/arch/s390/kvm/interrupt.c
+>>>> +++ b/arch/s390/kvm/interrupt.c
+>>>> @@ -2191,6 +2191,8 @@ static int clear_io_irq(struct kvm *kvm, struct kvm_device_attr *attr)
+>>>>   		return -EINVAL;
+>>>>   	if (copy_from_user(&schid, (void __user *) attr->addr, sizeof(schid)))
+>>>>   		return -EFAULT;
+>>>> +	if (!schid)
+>>>> +		return -EINVAL;
+>>>>   	kfree(kvm_s390_get_io_int(kvm, isc_mask, schid));
+>>>>   	/*
+>>>>   	 * If userspace is conforming to the architecture, we can have at most
+>>>    
+> As this particular interface would not be a good match for whatever we
+> need to do for adapter interrupts, let's go with this patch.
+>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>
