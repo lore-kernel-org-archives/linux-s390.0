@@ -1,90 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20171116090314.36ded7c5@mschwideX1>
-References: <20171025102737.GA145851@beast> <20171026083842.5ca46b2f@mschwideX1>
- <CAGXu5jLJY_zYf=v_xYUEG6tgLzwvW8P+-d9GNNp8XN5bhnWvzQ@mail.gmail.com>
- <20171103072926.12ef827c@mschwideX1> <CAGXu5jJ3f=fHyCHnW72GS9NL9xWvJkXjocsodddgQOqcgbjjTA@mail.gmail.com>
- <20171116090314.36ded7c5@mschwideX1>
-From: Kees Cook <keescook@chromium.org>
-Date: Thu, 16 Nov 2017 00:03:57 -0800
-Message-ID: <CAGXu5jKX4FFsxoC58aShkNrjhM4Cw3QpXnGappVKpWTTRpG1zg@mail.gmail.com>
-Subject: Re: [PATCH] s390/ap_bus: Convert timers to use timer_setup()
+In-Reply-To: <20171026121602.295e7a6e@mschwideX1>
+References: <20171026073610.9139-1-liwang@redhat.com> <20171026112603.7c095ee6@mschwideX1>
+ <CAEemH2dtDCe1SPRTfHAmh8s75mek1jh7MwTiiTfWMq1N2AA89Q@mail.gmail.com> <20171026121602.295e7a6e@mschwideX1>
+From: Li Wang <liwang@redhat.com>
+Date: Thu, 9 Nov 2017 12:36:32 +0800
+Message-ID: <CAEemH2dVN-A==ey-vELKOtCkACCQcbD-_M72S6Mr+DV=TJ1NUA@mail.gmail.com>
+Subject: Re: [PATCH] s390/mm: return -ENOMEM in arch_get_unmapped_area[_topdown]
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Harald Freudenberger <freude@de.ibm.com>, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, mingo@kernel.org, Hugh Dickins <hughd@google.com>, paul.gortmaker@windriver.com, mhocko@suse.com, Shu Wang <shuwang@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Nov 16, 2017 at 12:03 AM, Martin Schwidefsky
+On Thu, Oct 26, 2017 at 6:16 PM, Martin Schwidefsky
 <schwidefsky@de.ibm.com> wrote:
-> On Wed, 15 Nov 2017 23:58:44 -0800
-> Kees Cook <keescook@chromium.org> wrote:
+> On Thu, 26 Oct 2017 17:47:39 +0800
+> Li Wang <liwang@redhat.com> wrote:
 >
->> On Thu, Nov 2, 2017 at 11:29 PM, Martin Schwidefsky
+>> On Thu, Oct 26, 2017 at 5:26 PM, Martin Schwidefsky
 >> <schwidefsky@de.ibm.com> wrote:
->> > On Thu, 2 Nov 2017 16:36:53 -0700
->> > Kees Cook <keescook@chromium.org> wrote:
+>> > On Thu, 26 Oct 2017 15:36:10 +0800
+>> > Li Wang <liwang@redhat.com> wrote:
 >> >
->> >> On Wed, Oct 25, 2017 at 11:38 PM, Martin Schwidefsky
->> >> <schwidefsky@de.ibm.com> wrote:
->> >> > On Wed, 25 Oct 2017 03:27:37 -0700
->> >> > Kees Cook <keescook@chromium.org> wrote:
->> >> >
->> >> >> In preparation for unconditionally passing the struct timer_list pointer to
->> >> >> all timer callbacks, switch to using the new timer_setup() and from_timer()
->> >> >> to pass the timer pointer explicitly.
->> >> >>
->> >> >> Cc: Harald Freudenberger <freude@de.ibm.com>
->> >> >> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
->> >> >> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
->> >> >> Cc: linux-s390@vger.kernel.org
->> >> >> Signed-off-by: Kees Cook <keescook@chromium.org>
->> >> >> ---
->> >> >>  drivers/s390/crypto/ap_bus.c   | 10 +++++-----
->> >> >>  drivers/s390/crypto/ap_bus.h   |  2 +-
->> >> >>  drivers/s390/crypto/ap_queue.c |  2 +-
->> >> >>  3 files changed, 7 insertions(+), 7 deletions(-)
->> >> >
->> >> > Parked for the second part of the s390 updates for the next merge window.
->> >> > Thanks.
->> >>
->> >> Thanks for getting these staged. I just wanted to check with you,
->> >> since I don't see these in -next anywhere yet:
->> >>
->> >> s390: qdio: Convert timers to use timer_setup()
->> >> s390/sclp: Convert timers to use timer_setup()
->> >> s390/cio: Convert timers to use timer_setup()
->> >> s390/scsi: Convert timers to use timer_setup()
->> >> s390/ap_bus: Convert timers to use timer_setup()
->> >>
->> >> Are all of these expected to land for -rc1? (Would it help to carry
->> >> them in the timer tree?) I've got tree-wide changes ready to go once
->> >> all these conversions have landed.
+>> > The code in mmap.c checks for the per-task limit, 31-bit vs 64-bit.
+>> > pgalloc.c checks for the maximum allowed address and does not care
+>> > about the task.
 >> >
->> > These patches are parked on a private branches. The features branch
->> > on s390/linux is the one that is used for -next AND for the upstream
->> > merge. And since I do not want to rebase that branch the timer_setup
->> > patches are not in -next as well.
+>> >> Fixes: 8ab867cb0806 (s390/mm: fix BUG_ON in crst_table_upgrade)
+>> >> Signed-off-by: Li Wang <liwang@redhat.com>
 >> >
->> > Four of you patches are safe with me, the s390/scsi patch is in
->> > Steffens patch queue. All good I would say.
+>> > I don't think this patch fixes anything.
 >>
->> Hi,
+>> At least there is a logic error i think, after apply the patch
+>> "s390/mm: fix BUG_ON in crst_table_upgrade",
+>> it makes no sense to compare "if (end >= TASK_SIZE_MAX) return
+>> -ENOMEM" in crst_table_upgrade() function.
 >>
->> I saw s390 get merged for -rc1, but none of these timer_setup()
->> conversions were included. Given the possible short merge window,
->> what's the state of these? I can't do the bulk API changes at the end
->> of -rc1 without the s390 timer patches. Anything I can help with?
+>> isn't it?
 >
-> The remaining timer_setup changes are on the features branch of s390/linux,
-> I plan to send a please-pull request be the end of the week.
+> Be careful with TASK_SIZE vs. TASK_SIZE_MAX. They return different
+> values for 31-bit compat tasks.
 
-Okay, thanks! Sorry for all my nail-biting. :)
+what do you think this reproducer now failed(mmap into high region
+succeeded) on the latest kernel?
+should we enlarge the HIGH_ADDR to -PAGE_SIZE?
 
--Kees
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+
+#define HIGH_ADDR (void *)(1L << 53)
+
+int main(void)
+{
+
+    void *addr;
+    long map_sz = getpagesize();
+    int fd = open("testfile", O_RDWR | O_CREAT, 0666);
+
+    /* Attempt to mmap into highmem addr, should get ENOMEM */
+    addr = mmap(HIGH_ADDR, map_sz, PROT_READ,
+            MAP_SHARED | MAP_FIXED, fd, 0);
+    if (addr != MAP_FAILED) {
+        printf("FAIL: mmap into high region succeeded unexpectedly\n");
+        munmap(addr, map_sz);
+        close(fd);
+    }
+
+    if (errno != ENOMEM) {
+        printf("FAIL: mmap into high region failed unexpectedly -
+expect errno=ENOMEM, got\n");
+    } else {
+        printf("PASS: mmap into high region failed as expected\n");
+    }
+
+    return 0;
+}
+
+
+
+>
+> If the addr parameter is correctly aligned then the if condition in
+> crst_table_upgrade is superfluous as TASK_SIZE_MAX is now -PAGE_SIZE
+> with the introduction of 5 level page tables. It is important for older
+> kernels with only 4 level page tables with a TASK_SIZE_MAX of 2**53.
+>
+> On the other hand if addr is ever a value between -PAGE_SIZE and -1
+> we would end up with an endless loop. That makes the if condition a
+> safe-guard and I would like to keep it.
+>
+> --
+> blue skies,
+>    Martin.
+>
+> "Reality continues to ruin my life." - Calvin.
+>
+
+
 
 -- 
-Kees Cook
-Pixel Security
+Li Wang
+liwang@redhat.com
