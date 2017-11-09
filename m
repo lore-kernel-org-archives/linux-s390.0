@@ -1,37 +1,76 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 0/1] vfio-ccw: bugfix
-Date: Thu,  9 Nov 2017 17:21:19 +0100
-Message-ID: <20171109162120.27453-1-cohuck@redhat.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: bjsdjshi@linux.vnet.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 9 Nov 2017 21:48:51 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2] s390/virtio: mark headers as BSD licensed
+Message-ID: <20171109214843-mutt-send-email-mst@kernel.org>
+References: <1510160307-13235-1-git-send-email-mst@redhat.com>
+ <9c2debae-5c00-75ad-bc4d-13af9c4f431d@de.ibm.com>
+ <20171108191531.2d2f7210.cohuck@redhat.com>
+ <7ab1b0f9-6db2-1d49-3bc6-320e95c71d5b@de.ibm.com>
+ <5ea37f22-920e-adc9-e7cf-f901faac92db@de.ibm.com>
+ <20171108213424-mutt-send-email-mst@kernel.org>
+ <93547c07-dfab-70d5-6ed6-aada14670406@de.ibm.com>
+ <20171108215816-mutt-send-email-mst@kernel.org>
+ <778f7cff-5a67-ce97-3c79-7ae71bb0c696@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <778f7cff-5a67-ce97-3c79-7ae71bb0c696@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The following changes since commit 978fa72e82e375764e6e31e7a721408c5186918f:
+On Thu, Nov 09, 2017 at 09:29:32AM +0100, Christian Borntraeger wrote:
+> 
+> 
+> On 11/08/2017 08:58 PM, Michael S. Tsirkin wrote:
+> > On Wed, Nov 08, 2017 at 08:39:11PM +0100, Christian Borntraeger wrote:
+> >>
+> >>
+> >> On 11/08/2017 08:35 PM, Michael S. Tsirkin wrote:
+> >>> On Wed, Nov 08, 2017 at 07:57:28PM +0100, Christian Borntraeger wrote:
+> >>>> So what about the following
+> >>>>
+> >>>> - leave kvm_virtio.h unchanged and we will delete this file via the s390 tree
+> >>>
+> >>> Seems to be used by kvm_virtio.c - are you removing that too?
+> >>
+> >> Yes, so sorry my first url for the git.kernel.org was in the wrong subfolder:
+> >> https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit?h=features&id=7fb2b2d512448cf0e914c4647a1cf02b52263702
+> >>
+> >>
+> >>>
+> >>>> - change virtio_ccw.h to BSD license. The content of this file is really really trivial
+> >>>> and it boils down to 2 defines, that can be easily reconstructed by looking at the virtio spec.
+> >>>> Not even sure if something like this can be copyrighted.
+> >>>
+> >>> Yes. What prompted this was Greg's patch.
+> >>>
+> >>>>
+> >>>> For reference the content of this file minus comments is
+> >>>>
+> >>>> - snip -
+> >>>> #define KVM_VIRTIO_CCW_RING_ALIGN 4096
+> >>>> #define KVM_S390_VIRTIO_CCW_NOTIFY 3
+> >>>> - snip -
+> >>>>
+> >>>>
+> >>
+> >> [..]
+> > 
+> > 
+> > So for ccw if both you and Cornelia ACK, we'll be fine I think.
+> > No one else touched this code.
+> 
+> A patch that changes virtio_ccw.h to a dual gpl2/bsd licence is
+> 
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> 
+> as it matches the original intent of the virtio header relicensing
+> from 2008 while at the same time covers the fact that the whole 
+> kernel is GPL2.
 
-  s390: remove named saved segment support (2017-11-08 09:47:54 +0100)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20171109
-
-for you to fetch changes up to 408358b50deaf59b07c82a7bff8c7e7cce031fae:
-
-  s390: vfio-ccw: Do not attempt to free no-op, test and tic cda. (2017-11-08 14:39:53 +0100)
-
-----------------------------------------------------------------
-A vfio-ccw bugfix: avoid freeing that which should not be freed.
-
-----------------------------------------------------------------
-
-Jason J. Herne (1):
-  s390: vfio-ccw: Do not attempt to free no-op, test and tic cda.
-
- drivers/s390/cio/vfio_ccw_cp.c | 2 ++
- 1 file changed, 2 insertions(+)
-
--- 
-2.13.6
+Will do.
