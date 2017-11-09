@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <ffe1ebfd-36d3-3408-429f-76aceec04055@linux.vnet.ibm.com>
-References: <20171106140328.1498644-1-arnd@arndb.de> <ffe1ebfd-36d3-3408-429f-76aceec04055@linux.vnet.ibm.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 8 Nov 2017 14:56:23 +0100
-Message-ID: <CAK8P3a3tLNE1rMgJS1vEeTZEPQxrO7B5dbK6QOrdX7uYq+su9w@mail.gmail.com>
-Subject: Re: [PATCH] s390/dasd: avoid calling do_gettimeofday()
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Stefan Haberland <sth@linux.vnet.ibm.com>
-Cc: Jan Hoeppner <hoeppner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] KVM: s390: provide a capability for AIS state migration
+Date: Thu, 9 Nov 2017 10:15:23 +0100
+Message-ID: <20171109101523.03a1feb0.cohuck@redhat.com>
+References: <20171109090404.125475-1-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20171109090404.125475-1-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, Yi Min Zhao <zyimin@linux.vnet.ibm.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Nov 8, 2017 at 2:27 PM, Stefan Haberland <sth@linux.vnet.ibm.com> wrote:
-> On 06.11.2017 15:02, Arnd Bergmann wrote:
->> diff --git a/drivers/s390/block/dasd_eer.c b/drivers/s390/block/dasd_eer.c
->> index 4630782b5456..5169c717c9d6 100644
->> --- a/drivers/s390/block/dasd_eer.c
->> +++ b/drivers/s390/block/dasd_eer.c
->> @@ -296,7 +296,7 @@ static void dasd_eer_write_standard_trigger(struct
->> dasd_device *device,
->>   {
->>         struct dasd_ccw_req *temp_cqr;
->>         int data_size;
->> -       struct timeval tv;
->> +       struct timespec64 ts64;
->
-> ...
->>
->> +       ktime_get_real_ts64(&ts);
->> +       header.tv_sec = ts.tv_sec;
->> +       header.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
->>
->
-> I renamed ts64 to ts to match the usage below and fix the compile error.
->
-> Beside of this, applied. Thanks for the patch.
->
+On Thu,  9 Nov 2017 10:04:04 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Thanks and sorry for not build-testing it properly, I thought I had at
-least compiled
-this one separately with my cross-toolchain, but maybe I renamed the variable
-after testing it, or I misremember testing it.
+> The AIS capability was introduced in 4.12, while the interface
+> to migrate the state was added in 4.13. Let's add a new capability
+> that tells userspace that AIS states can be migrated.
 
-        Arnd
+I think that needs a bit more explanation (i.e., why can't userspace
+check for the migration interface?) Also, it would be good to mention
+the cap under Documentation/.
+
+[It's very likely that we will have forgotten the history of this in
+in a few month's time...]
+
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 1 +
+>  include/uapi/linux/kvm.h | 1 +
+>  2 files changed, 2 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index de6a5b7..8f4b655 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -395,6 +395,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_S390_USER_INSTR0:
+>  	case KVM_CAP_S390_CMMA_MIGRATION:
+>  	case KVM_CAP_S390_AIS:
+> +	case KVM_CAP_S390_AIS_MIGRATION:
+>  		r = 1;
+>  		break;
+>  	case KVM_CAP_S390_MEM_OP:
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index 8388875..b605956 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -930,6 +930,7 @@ struct kvm_ppc_resize_hpt {
+>  #define KVM_CAP_PPC_SMT_POSSIBLE 147
+>  #define KVM_CAP_HYPERV_SYNIC2 148
+>  #define KVM_CAP_HYPERV_VP_INDEX 149
+> +#define KVM_CAP_S390_AIS_MIGRATION 150
+>  
+>  #ifdef KVM_CAP_IRQ_ROUTING
+>  
