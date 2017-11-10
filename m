@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 4/9] KVM: s390: document memory ordering for kvm_s390_vcpu_wakeup
-Date: Fri, 10 Nov 2017 09:00:08 +0100
-Message-ID: <20171110080013.111004-5-borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/9] s390/sthyi: reorganize sthyi implementation
+Date: Fri, 10 Nov 2017 09:00:05 +0100
+Message-ID: <20171110080013.111004-2-borntraeger@de.ibm.com>
 References: <20171110080013.111004-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171110080013.111004-1-borntraeger@de.ibm.com>
@@ -9,46 +9,314 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, QingFeng Hao <haoqf@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-swait_active does not enforce any ordering and it can therefore trigger
-some subtle races when the CPU moves the read for the check before a
-previous store and that store is then used on another CPU that is
-preparing the swait.
+From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
 
-On s390 there is a call to swait_active in kvm_s390_vcpu_wakeup. The
-good thing is, on s390 all potential races cannot happen because all
-callers of kvm_s390_vcpu_wakeup do not store (no race) or use an atomic
-operation, which handles memory ordering. Since this is not guaranteed
-by the Linux semantics (but by the implementation on s390) let's add
-smp_mb_after_atomic to make this obvious and document the ordering.
+As we need to support sthyi instruction on LPAR too, move the common code
+to kernel part and kvm related code to intercept.c for better reuse.
 
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: QingFeng Hao <haoqf@linux.vnet.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/s390/include/asm/sysinfo.h   |  1 +
+ arch/s390/kernel/Makefile         |  2 +-
+ arch/s390/{kvm => kernel}/sthyi.c | 95 +++++++++++----------------------------
+ arch/s390/kvm/Makefile            |  2 +-
+ arch/s390/kvm/intercept.c         | 66 +++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.h          |  5 +--
+ 6 files changed, 98 insertions(+), 73 deletions(-)
+ rename arch/s390/{kvm => kernel}/sthyi.c (84%)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index a832ad0..23d8fb2 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1074,6 +1074,12 @@ void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu)
- 	 * in kvm_vcpu_block without having the waitqueue set (polling)
+diff --git a/arch/s390/include/asm/sysinfo.h b/arch/s390/include/asm/sysinfo.h
+index 2b498e5..e4a2830 100644
+--- a/arch/s390/include/asm/sysinfo.h
++++ b/arch/s390/include/asm/sysinfo.h
+@@ -198,4 +198,5 @@ struct service_level {
+ int register_service_level(struct service_level *);
+ int unregister_service_level(struct service_level *);
+ 
++int sthyi_fill(void *dst, u64 *rc);
+ #endif /* __ASM_S390_SYSINFO_H */
+diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+index adb3fe2..1fefb7f 100644
+--- a/arch/s390/kernel/Makefile
++++ b/arch/s390/kernel/Makefile
+@@ -55,7 +55,7 @@ obj-y	:= traps.o time.o process.o base.o early.o setup.o idle.o vtime.o
+ obj-y	+= processor.o sys_s390.o ptrace.o signal.o cpcmd.o ebcdic.o nmi.o
+ obj-y	+= debug.o irq.o ipl.o dis.o diag.o vdso.o als.o
+ obj-y	+= sysinfo.o jump_label.o lgr.o os_info.o machine_kexec.o pgm_check.o
+-obj-y	+= runtime_instr.o cache.o fpu.o dumpstack.o guarded_storage.o
++obj-y	+= runtime_instr.o cache.o fpu.o dumpstack.o guarded_storage.o sthyi.o
+ obj-y	+= entry.o reipl.o relocate_kernel.o kdebugfs.o
+ 
+ extra-y				+= head.o head64.o vmlinux.lds
+diff --git a/arch/s390/kvm/sthyi.c b/arch/s390/kernel/sthyi.c
+similarity index 84%
+rename from arch/s390/kvm/sthyi.c
+rename to arch/s390/kernel/sthyi.c
+index 395926b..3d51f86 100644
+--- a/arch/s390/kvm/sthyi.c
++++ b/arch/s390/kernel/sthyi.c
+@@ -8,22 +8,17 @@
+  * Copyright IBM Corp. 2016
+  * Author(s): Janosch Frank <frankja@linux.vnet.ibm.com>
+  */
+-#include <linux/kvm_host.h>
+ #include <linux/errno.h>
+ #include <linux/pagemap.h>
+ #include <linux/vmalloc.h>
+ #include <linux/ratelimit.h>
+ 
+-#include <asm/kvm_host.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/sclp.h>
+ #include <asm/diag.h>
+ #include <asm/sysinfo.h>
+ #include <asm/ebcdic.h>
+-
+-#include "kvm-s390.h"
+-#include "gaccess.h"
+-#include "trace.h"
++#include <asm/facility.h>
+ 
+ #define DED_WEIGHT 0xffff
+ /*
+@@ -382,88 +377,52 @@ static void fill_diag(struct sthyi_sctns *sctns)
+ 	vfree(diag204_buf);
+ }
+ 
+-static int sthyi(u64 vaddr)
++static int sthyi(u64 vaddr, u64 *rc)
+ {
+ 	register u64 code asm("0") = 0;
+ 	register u64 addr asm("2") = vaddr;
++	register u64 rcode asm("3");
+ 	int cc;
+ 
+ 	asm volatile(
+ 		".insn   rre,0xB2560000,%[code],%[addr]\n"
+ 		"ipm     %[cc]\n"
+ 		"srl     %[cc],28\n"
+-		: [cc] "=d" (cc)
++		: [cc] "=d" (cc), "=d" (rcode)
+ 		: [code] "d" (code), [addr] "a" (addr)
+-		: "3", "memory", "cc");
++		: "memory", "cc");
++	*rc = rcode;
+ 	return cc;
+ }
+ 
+-int handle_sthyi(struct kvm_vcpu *vcpu)
++/*
++ * sthyi_fill - Fill page with data returned by the STHYI instruction
++ *
++ * @dst: Pointer to zeroed page
++ * @rc:  Pointer for storing the return code of the instruction
++ *
++ * Fills the destination with system information returned by the STHYI
++ * instruction. The data is generated by emulation or execution of STHYI,
++ * if available. The return value is the condition code that would be
++ * returned, the rc parameter is the return code which is passed in
++ * register R2 + 1.
++ */
++int sthyi_fill(void *dst, u64 *rc)
+ {
+-	int reg1, reg2, r = 0;
+-	u64 code, addr, cc = 0;
+-	struct sthyi_sctns *sctns = NULL;
+-
+-	if (!test_kvm_facility(vcpu->kvm, 74))
+-		return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
++	struct sthyi_sctns *sctns = (struct sthyi_sctns *)dst;
+ 
+ 	/*
+-	 * STHYI requires extensive locking in the higher hypervisors
+-	 * and is very computational/memory expensive. Therefore we
+-	 * ratelimit the executions per VM.
++	 * If the facility is on, we don't want to emulate the instruction.
++	 * We ask the hypervisor to provide the data.
  	 */
- 	vcpu->valid_wakeup = true;
+-	if (!__ratelimit(&vcpu->kvm->arch.sthyi_limit)) {
+-		kvm_s390_retry_instr(vcpu);
+-		return 0;
+-	}
+-
+-	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
+-	code = vcpu->run->s.regs.gprs[reg1];
+-	addr = vcpu->run->s.regs.gprs[reg2];
+-
+-	vcpu->stat.instruction_sthyi++;
+-	VCPU_EVENT(vcpu, 3, "STHYI: fc: %llu addr: 0x%016llx", code, addr);
+-	trace_kvm_s390_handle_sthyi(vcpu, code, addr);
+-
+-	if (reg1 == reg2 || reg1 & 1 || reg2 & 1)
+-		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+-
+-	if (code & 0xffff) {
+-		cc = 3;
+-		goto out;
+-	}
+-
+-	if (addr & ~PAGE_MASK)
+-		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+-
+-	sctns = (void *)get_zeroed_page(GFP_KERNEL);
+-	if (!sctns)
+-		return -ENOMEM;
+-
+-	/*
+-	 * If we are a guest, we don't want to emulate an emulated
+-	 * instruction. We ask the hypervisor to provide the data.
+-	 */
+-	if (test_facility(74)) {
+-		cc = sthyi((u64)sctns);
+-		goto out;
+-	}
++	if (test_facility(74))
++		return sthyi((u64)dst, rc);
+ 
+ 	fill_hdr(sctns);
+ 	fill_stsi(sctns);
+ 	fill_diag(sctns);
+ 
+-out:
+-	if (!cc) {
+-		r = write_guest(vcpu, addr, reg2, sctns, PAGE_SIZE);
+-		if (r) {
+-			free_page((unsigned long)sctns);
+-			return kvm_s390_inject_prog_cond(vcpu, r);
+-		}
+-	}
+-
+-	free_page((unsigned long)sctns);
+-	vcpu->run->s.regs.gprs[reg2 + 1] = cc ? 4 : 0;
+-	kvm_s390_set_psw_cc(vcpu, cc);
+-	return r;
++	*rc = 0;
++	return 0;
+ }
++EXPORT_SYMBOL_GPL(sthyi_fill);
+diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+index 09a9e6d..6048b1c 100644
+--- a/arch/s390/kvm/Makefile
++++ b/arch/s390/kvm/Makefile
+@@ -12,6 +12,6 @@ common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqch
+ ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ 
+ kvm-objs := $(common-objs) kvm-s390.o intercept.o interrupt.o priv.o sigp.o
+-kvm-objs += diag.o gaccess.o guestdbg.o sthyi.o vsie.o
++kvm-objs += diag.o gaccess.o guestdbg.o vsie.o
+ 
+ obj-$(CONFIG_KVM) += kvm.o
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index a4752bf..46adda5 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -18,6 +18,7 @@
+ #include <asm/kvm_host.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/irq.h>
++#include <asm/sysinfo.h>
+ 
+ #include "kvm-s390.h"
+ #include "gaccess.h"
+@@ -360,6 +361,71 @@ static int handle_partial_execution(struct kvm_vcpu *vcpu)
+ 	return -EOPNOTSUPP;
+ }
+ 
++/*
++ * Handle the sthyi instruction that provides the guest with system
++ * information, like current CPU resources available at each level of
++ * the machine.
++ */
++int handle_sthyi(struct kvm_vcpu *vcpu)
++{
++	int reg1, reg2, r = 0;
++	u64 code, addr, cc = 0, rc = 0;
++	struct sthyi_sctns *sctns = NULL;
++
++	if (!test_kvm_facility(vcpu->kvm, 74))
++		return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
++
 +	/*
-+	 * This is mostly to document, that the read in swait_active could
-+	 * be moved before other stores, leading to subtle races.
-+	 * All current users do not store or use an atomic like update
++	 * STHYI requires extensive locking in the higher hypervisors
++	 * and is very computational/memory expensive. Therefore we
++	 * ratelimit the executions per VM.
 +	 */
-+	smp_mb__after_atomic();
- 	if (swait_active(&vcpu->wq)) {
- 		/*
- 		 * The vcpu gave up the cpu voluntarily, mark it as a good
++	if (!__ratelimit(&vcpu->kvm->arch.sthyi_limit)) {
++		kvm_s390_retry_instr(vcpu);
++		return 0;
++	}
++
++	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
++	code = vcpu->run->s.regs.gprs[reg1];
++	addr = vcpu->run->s.regs.gprs[reg2];
++
++	vcpu->stat.instruction_sthyi++;
++	VCPU_EVENT(vcpu, 3, "STHYI: fc: %llu addr: 0x%016llx", code, addr);
++	trace_kvm_s390_handle_sthyi(vcpu, code, addr);
++
++	if (reg1 == reg2 || reg1 & 1 || reg2 & 1)
++		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++
++	if (code & 0xffff) {
++		cc = 3;
++		rc = 4;
++		goto out;
++	}
++
++	if (addr & ~PAGE_MASK)
++		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++
++	sctns = (void *)get_zeroed_page(GFP_KERNEL);
++	if (!sctns)
++		return -ENOMEM;
++
++	cc = sthyi_fill(sctns, &rc);
++
++out:
++	if (!cc) {
++		r = write_guest(vcpu, addr, reg2, sctns, PAGE_SIZE);
++		if (r) {
++			free_page((unsigned long)sctns);
++			return kvm_s390_inject_prog_cond(vcpu, r);
++		}
++	}
++
++	free_page((unsigned long)sctns);
++	vcpu->run->s.regs.gprs[reg2 + 1] = rc;
++	kvm_s390_set_psw_cc(vcpu, cc);
++	return r;
++}
++
+ static int handle_operexc(struct kvm_vcpu *vcpu)
+ {
+ 	psw_t oldpsw, newpsw;
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 9f8fdd7..10d65df 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -242,6 +242,8 @@ static inline void kvm_s390_retry_instr(struct kvm_vcpu *vcpu)
+ 	kvm_s390_rewind_psw(vcpu, kvm_s390_get_ilen(vcpu));
+ }
+ 
++int handle_sthyi(struct kvm_vcpu *vcpu);
++
+ /* implemented in priv.c */
+ int is_valid_psw(psw_t *psw);
+ int kvm_s390_handle_aa(struct kvm_vcpu *vcpu);
+@@ -268,9 +270,6 @@ void kvm_s390_vsie_destroy(struct kvm *kvm);
+ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
+ int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
+ 
+-/* implemented in sthyi.c */
+-int handle_sthyi(struct kvm_vcpu *vcpu);
+-
+ /* implemented in kvm-s390.c */
+ void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
+ 				 const struct kvm_s390_vm_tod_clock *gtod);
 -- 
 2.9.4
