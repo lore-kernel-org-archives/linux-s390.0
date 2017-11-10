@@ -1,51 +1,39 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/1] s390: vfio-ccw: Do not attempt to free no-op, test and tic cda.
-Date: Thu,  9 Nov 2017 17:21:20 +0100
-Message-ID: <20171109162120.27453-2-cohuck@redhat.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PULL 0/1] vfio-ccw: bugfix
+Date: Fri, 10 Nov 2017 19:15:29 +0100
+Message-ID: <20171110181529.GA3028@osiris>
 References: <20171109162120.27453-1-cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20171109162120.27453-1-cohuck@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: bjsdjshi@linux.vnet.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: schwidefsky@de.ibm.com, bjsdjshi@linux.vnet.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
+On Thu, Nov 09, 2017 at 05:21:19PM +0100, Cornelia Huck wrote:
+> The following changes since commit 978fa72e82e375764e6e31e7a721408c5186918f:
+> 
+>   s390: remove named saved segment support (2017-11-08 09:47:54 +0100)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20171109
+> 
+> for you to fetch changes up to 408358b50deaf59b07c82a7bff8c7e7cce031fae:
+> 
+>   s390: vfio-ccw: Do not attempt to free no-op, test and tic cda. (2017-11-08 14:39:53 +0100)
+> 
+> ----------------------------------------------------------------
+> A vfio-ccw bugfix: avoid freeing that which should not be freed.
+> 
+> ----------------------------------------------------------------
+> 
+> Jason J. Herne (1):
+>   s390: vfio-ccw: Do not attempt to free no-op, test and tic cda.
 
-Because we do not make use of the cda (channel data address) for test,
-no-op ccws no address translation takes place. This means cda could
-contain a guest address which we do not want to attempt to free. Let's
-check the command type and skip cda free when it is not needed.
-
-For a TIC ccw, ccw->cda points to either a ccw in an existing chain or
-it points to a whole new allocated chain. In either case the data will
-be freed when the owning chain is freed.
-
-Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
-Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Message-Id: <1510068152-21988-1-git-send-email-jjherne@linux.vnet.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index d8f98ad9b029..7ebbd8b482f5 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -332,6 +332,8 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
- {
- 	struct ccw1 *ccw = chain->ch_ccw + idx;
- 
-+	if (ccw_is_test(ccw) || ccw_is_noop(ccw) || ccw_is_tic(ccw))
-+		return;
- 	if (!ccw->count)
- 		return;
- 
--- 
-2.13.6
+Pulled into features branch. Thanks!
