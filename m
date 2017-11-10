@@ -1,18 +1,8 @@
-MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.20.1711171138510.7700@nanos>
-References: <20171110224259.15930-1-deepa.kernel@gmail.com>
- <CAK8P3a2uD=xV5GKtL+nhVoPckb6uoXztEvXK-iP_OYbct8QvJA@mail.gmail.com>
- <CABeXuvpy1jbqjeUFHHX-MrJXQLA2QNYbAa6OX7qOpPp4q-mQYQ@mail.gmail.com>
- <alpine.DEB.2.20.1711160958430.2191@nanos> <CAK8P3a0wxs59T1zW4ahbJXeW6QjStm0mbCFoL_RQexAa6dzh_w@mail.gmail.com>
- <alpine.DEB.2.20.1711170954000.1709@nanos> <CAK8P3a3fcVKTwoqN0CxYchzcFqUZPBeko=oYsA9eNxu4bQoYyw@mail.gmail.com>
- <alpine.DEB.2.20.1711171049180.1709@nanos> <CAK8P3a10N42rBO8XBrZWYOCwVB8jayjgZu2oa8FSpHTzszQacQ@mail.gmail.com>
- <alpine.DEB.2.20.1711171138510.7700@nanos>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Fri, 17 Nov 2017 11:46:37 +0100
-Message-ID: <CAK8P3a1J0C5A+SzVWDz52ZkawG1HZYj2cR6oc=DL=QrXgYaiHg@mail.gmail.com>
-Subject: Re: [PATCH 0/9] posix_clocks: Prepare syscalls for 64 bit time_t conversion
-Content-Type: text/plain; charset="UTF-8"
-Return-Path: <arndbergmann@gmail.com>
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: [PATCH 0/9] posix_clocks: Prepare syscalls for 64 bit time_t conversion
+Date: Fri, 10 Nov 2017 14:42:50 -0800
+Message-Id: <20171110224259.15930-1-deepa.kernel@gmail.com>
+Return-Path: <deepa.kernel@gmail.com>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -24,54 +14,145 @@ List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Deepa Dinamani <deepa.kernel@gmail.com>, John Stultz <john.stultz@linaro.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, Chris Metcalf <cmetcalf@mellanox.com>, cohuck@redhat.com, David Miller <davem@davemloft.net>, Helge Deller <deller@gmx.de>, devel@driverdev.osuosl.org, gerald.schaefer@de.ibm.com, gregkh <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Hoeppner <hoeppner@linux.vnet.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Linux API <linux-api@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, "open list:RALINK MIPS ARCHITECTURE" <linux-mips@linux-mips.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Ingo Molnar <mingo@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, oberpar@linux.vnet.ibm.com, oprofile-list@lists.sf.net, Paul Mackerras <paulus@samba.org>, Peter Zijlstra <peterz@infradead.org>, Ralf Baechle <ralf@linux-mips.org>, Steven Rostedt <rostedt@goodmis.org>, Robert Richter <rric@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, sebott@linux.vnet.ibm.com, sparclinux <sparclinux@vger.kernel.org>, Stefan Haberland <sth@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Will Deacon <will.deacon@arm.com>, the arch/x86 maintainers <x86@kernel.org>
+To: tglx@linutronix.de, john.stultz@linaro.org
+Cc: linux-kernel@vger.kernel.org, arnd@arndb.de, y2038@lists.linaro.org, acme@kernel.org, benh@kernel.crashing.org, borntraeger@de.ibm.com, catalin.marinas@arm.com, cmetcalf@mellanox.com, cohuck@redhat.com, davem@davemloft.net, deller@gmx.de, devel@driverdev.osuosl.org, gerald.schaefer@de.ibm.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, hoeppner@linux.vnet.ibm.com, hpa@zytor.com, jejb@parisc-linux.org, jwi@linux.vnet.ibm.com, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, mark.rutland@arm.com, mingo@redhat.com, mpe@ellerman.id.au, oberpar@linux.vnet.ibm.com, oprofile-list@lists.sf.net, paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org, rostedt@goodmis.org, rric@kernel.org, schwidefsky@de.ibm.com, sebott@linux.vnet.ibm.com, sparclinux@vger.kernel.org, sth@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, will.deacon@arm.com, x86@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Nov 17, 2017 at 11:40 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
-> On Fri, 17 Nov 2017, Arnd Bergmann wrote:
->> On Fri, Nov 17, 2017 at 10:54 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
->> > On Fri, 17 Nov 2017, Arnd Bergmann wrote:
->> >> On Fri, Nov 17, 2017 at 9:58 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
->> >>
->> >> No, syscall that existing 32-bit user space enters would be handled by
->> >> compat_sys_nanosleep() on both 32-bit and 64-bit kernels at that
->> >> point. The idea here is to make the code path more uniform between
->> >> 32-bit and 64-bit kernels.
->> >
->> > So on a 32bit system compat_sys_nanosleep() would be the legacy
->> > sys_nanosleep() with the existing syscall number, but you don't want to
->> > introduce a new sys_nanosleep64() for 32bit. That makes a lot of sense.
->> >
->> > So back to your original question whether to use #if (MAGIC logic) or a
->> > separate config symbol. Please use the latter, these magic logic constructs
->> > are harder to read and prone to get wrong at some point. Having the
->> > decision logic in one place is always the right thing to do.
->>
->> How about this:
->>
->> config LEGACY_TIME_SYSCALLS
->>       def_bool 64BIT || !64BIT_TIME
->>       help
->>         This controls the compilation of the following system calls:
->> time, stime,
->>         gettimeofday, settimeofday, adjtimex, nanosleep, alarm, getitimer,
->>         setitimer, select, utime, utimes, futimesat, and
->> {old,new}{l,f,}stat{,64}.
->>         These all pass 32-bit time_t arguments on 32-bit architectures and
->>         are replaced by other interfaces (e.g. posix timers and clocks, statx).
->>         C libraries implementing 64-bit time_t in 32-bit architectures have to
->>         implement the handles by wrapping around the newer interfaces.
->
-> s/handles/handling/ ????
+The series is a preparation series for individual architectures
+to use 64 bit time_t syscalls in compat and 32 bit emulation modes.
 
-I meant "handlers".
+This is a follow up to the series Arnd Bergmann posted:
+https://sourceware.org/ml/libc-alpha/2015-05/msg00070.html
 
->>         New architectures should not explicitly disable this.
->
-> New architectures should never enable this, right?
+Big picture is as per the lwn article:
+https://lwn.net/Articles/643234/
 
-Right, I got an extra "not". I guess if Deepa incorporates the new option,
-she can also improve my English ;-)
+The series is directed at converting posix clock syscalls:
+clock_gettime, clock_settime, clock_getres and clock_nanosleep
+to use a new data structure __kernel_timespec at syscall boundaries.
+__kernel_timespec maintains 64 bit time_t across all execution modes.
 
-         Arnd
+vdso will be handled as part of each architecture when they enable
+support for 64 bit time_t.
+
+The compat syscalls are repurposed to provide backward compatibility
+by using them as native syscalls as well for 32 bit architectures.
+They will continue to use timespec at syscall boundaries.
+
+CONFIG_64_BIT_TIME controls whether the syscalls use __kernel_timespec
+or timespec at syscall boundaries.
+
+The series does the following:
+1. Enable compat syscalls unconditionally.
+2. Add a new __kernel_timespec type to be used as the data structure
+   for all the new syscalls.
+3. Add new config CONFIG_64BIT_TIME(intead of the CONFIG_COMPAT_TIME in
+   [1] and [2] to switch to new definition of __kernel_timespec. It is
+   the same as struct timespec otherwise.
+
+Arnd Bergmann (1):
+  y2038: introduce CONFIG_64BIT_TIME
+
+Deepa Dinamani (8):
+  include: Move compat_timespec/ timeval to compat_time.h
+  compat: Make compat helpers independent of CONFIG_COMPAT
+  compat: enable compat_get/put_timespec64 always
+  posix-clocks: Enable compat syscalls always
+  include: Add new y2038 safe __kernel_timespec
+  fix get_timespec64() for y2038 safe compat interfaces
+  change time types to new y2038 safe __kernel_* types
+  nanosleep: change time types to safe __kernel_* types
+
+ arch/Kconfig                           | 11 ++++
+ arch/arm64/include/asm/compat.h        | 11 ----
+ arch/arm64/include/asm/stat.h          |  1 +
+ arch/arm64/kernel/hw_breakpoint.c      |  1 -
+ arch/arm64/kernel/perf_regs.c          |  2 +-
+ arch/arm64/kernel/process.c            |  1 -
+ arch/mips/include/asm/compat.h         | 11 ----
+ arch/mips/kernel/signal32.c            |  2 +-
+ arch/parisc/include/asm/compat.h       | 11 ----
+ arch/powerpc/include/asm/compat.h      | 11 ----
+ arch/powerpc/kernel/asm-offsets.c      |  2 +-
+ arch/powerpc/oprofile/backtrace.c      |  2 +-
+ arch/s390/hypfs/hypfs_sprp.c           |  1 -
+ arch/s390/include/asm/compat.h         | 11 ----
+ arch/s390/include/asm/elf.h            |  3 +-
+ arch/s390/kvm/priv.c                   |  1 -
+ arch/s390/pci/pci_clp.c                |  1 -
+ arch/sparc/include/asm/compat.h        | 11 ----
+ arch/tile/include/asm/compat.h         | 11 ----
+ arch/x86/events/core.c                 |  2 +-
+ arch/x86/include/asm/compat.h          | 11 ----
+ arch/x86/include/asm/ftrace.h          |  2 +-
+ arch/x86/include/asm/sys_ia32.h        |  2 +-
+ arch/x86/kernel/sys_x86_64.c           |  2 +-
+ drivers/s390/block/dasd_ioctl.c        |  1 -
+ drivers/s390/char/fs3270.c             |  1 -
+ drivers/s390/char/sclp_ctl.c           |  1 -
+ drivers/s390/char/vmcp.c               |  1 -
+ drivers/s390/cio/chsc_sch.c            |  1 -
+ drivers/s390/net/qeth_core_main.c      |  2 +-
+ drivers/staging/pi433/pi433_if.c       |  2 +-
+ include/linux/compat.h                 |  7 ++-
+ include/linux/compat_time.h            | 23 +++++++++
+ include/linux/restart_block.h          |  7 +--
+ include/linux/syscalls.h               | 12 ++---
+ include/linux/time.h                   |  4 +-
+ include/linux/time64.h                 | 10 +++-
+ include/uapi/asm-generic/posix_types.h |  1 +
+ include/uapi/linux/time.h              |  7 +++
+ kernel/Makefile                        |  2 +-
+ kernel/compat.c                        | 92 ++++++++++++++++++----------------
+ kernel/time/hrtimer.c                  |  7 +--
+ kernel/time/posix-stubs.c              | 12 ++---
+ kernel/time/posix-timers.c             | 20 ++++----
+ kernel/time/time.c                     | 10 +++-
+ 45 files changed, 152 insertions(+), 195 deletions(-)
+ create mode 100644 include/linux/compat_time.h
+
+
+base-commit: d9e0e63d9a6f88440eb201e1491fcf730272c706
+-- 
+2.11.0
+
+Cc: acme@kernel.org
+Cc: benh@kernel.crashing.org
+Cc: borntraeger@de.ibm.com
+Cc: catalin.marinas@arm.com
+Cc: cmetcalf@mellanox.com
+Cc: cohuck@redhat.com
+Cc: davem@davemloft.net
+Cc: deller@gmx.de
+Cc: devel@driverdev.osuosl.org
+Cc: gerald.schaefer@de.ibm.com
+Cc: gregkh@linuxfoundation.org
+Cc: heiko.carstens@de.ibm.com
+Cc: hoeppner@linux.vnet.ibm.com
+Cc: hpa@zytor.com
+Cc: jejb@parisc-linux.org
+Cc: jwi@linux.vnet.ibm.com
+Cc: linux-api@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: mark.rutland@arm.com
+Cc: mingo@redhat.com
+Cc: mpe@ellerman.id.au
+Cc: oberpar@linux.vnet.ibm.com
+Cc: oprofile-list@lists.sf.net
+Cc: paulus@samba.org
+Cc: peterz@infradead.org
+Cc: ralf@linux-mips.org
+Cc: rostedt@goodmis.org
+Cc: rric@kernel.org
+Cc: schwidefsky@de.ibm.com
+Cc: sebott@linux.vnet.ibm.com
+Cc: sparclinux@vger.kernel.org
+Cc: sth@linux.vnet.ibm.com
+Cc: ubraun@linux.vnet.ibm.com
+Cc: will.deacon@arm.com
+Cc: x86@kernel.org
