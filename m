@@ -1,81 +1,91 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 9 Nov 2017 09:57:37 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2] s390/virtio: mark headers as BSD licensed
-Message-ID: <20171109095737.6a3082f7.cohuck@redhat.com>
-In-Reply-To: <778f7cff-5a67-ce97-3c79-7ae71bb0c696@de.ibm.com>
-References: <1510160307-13235-1-git-send-email-mst@redhat.com>
-        <9c2debae-5c00-75ad-bc4d-13af9c4f431d@de.ibm.com>
-        <20171108191531.2d2f7210.cohuck@redhat.com>
-        <7ab1b0f9-6db2-1d49-3bc6-320e95c71d5b@de.ibm.com>
-        <5ea37f22-920e-adc9-e7cf-f901faac92db@de.ibm.com>
-        <20171108213424-mutt-send-email-mst@kernel.org>
-        <93547c07-dfab-70d5-6ed6-aada14670406@de.ibm.com>
-        <20171108215816-mutt-send-email-mst@kernel.org>
-        <778f7cff-5a67-ce97-3c79-7ae71bb0c696@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 9/9] KVM: s390: provide a capability for AIS state migration
+Date: Fri, 10 Nov 2017 09:00:13 +0100
+Message-ID: <20171110080013.111004-10-borntraeger@de.ibm.com>
+References: <20171110080013.111004-1-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20171110080013.111004-1-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 9 Nov 2017 09:29:32 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+The AIS capability was introduced in 4.12, while the interface to
+migrate the state was added in 4.13. Unfortunately it is not possible
+for userspace to detect the migration capability without creating a flic
+kvm device. As in QEMU the cpu model detection runs on the "none"
+machine this will result in cpu model issues regarding the "ais"
+capability.
 
-> On 11/08/2017 08:58 PM, Michael S. Tsirkin wrote:
-> > On Wed, Nov 08, 2017 at 08:39:11PM +0100, Christian Borntraeger wrote:  
-> >>
-> >>
-> >> On 11/08/2017 08:35 PM, Michael S. Tsirkin wrote:  
-> >>> On Wed, Nov 08, 2017 at 07:57:28PM +0100, Christian Borntraeger wrote:  
-> >>>> So what about the following
-> >>>>
-> >>>> - leave kvm_virtio.h unchanged and we will delete this file via the s390 tree  
-> >>>
-> >>> Seems to be used by kvm_virtio.c - are you removing that too?  
-> >>
-> >> Yes, so sorry my first url for the git.kernel.org was in the wrong subfolder:
-> >> https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit?h=features&id=7fb2b2d512448cf0e914c4647a1cf02b52263702
-> >>
-> >>  
-> >>>  
-> >>>> - change virtio_ccw.h to BSD license. The content of this file is really really trivial
-> >>>> and it boils down to 2 defines, that can be easily reconstructed by looking at the virtio spec.
-> >>>> Not even sure if something like this can be copyrighted.  
-> >>>
-> >>> Yes. What prompted this was Greg's patch.
-> >>>  
-> >>>>
-> >>>> For reference the content of this file minus comments is
-> >>>>
-> >>>> - snip -
-> >>>> #define KVM_VIRTIO_CCW_RING_ALIGN 4096
-> >>>> #define KVM_S390_VIRTIO_CCW_NOTIFY 3
-> >>>> - snip -
-> >>>>
-> >>>>  
-> >>
-> >> [..]  
-> > 
-> > 
-> > So for ccw if both you and Cornelia ACK, we'll be fine I think.
-> > No one else touched this code.  
-> 
-> A patch that changes virtio_ccw.h to a dual gpl2/bsd licence is
-> 
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> as it matches the original intent of the virtio header relicensing
-> from 2008 while at the same time covers the fact that the whole 
-> kernel is GPL2.
-> 
+To get the "ais" capability properly let's add a new KVM capability that
+tells userspace that AIS states can be migrated.
 
-FWIW, that would be
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+---
+ Documentation/virtual/kvm/api.txt               | 9 +++++++++
+ Documentation/virtual/kvm/devices/s390_flic.txt | 2 ++
+ arch/s390/kvm/kvm-s390.c                        | 1 +
+ include/uapi/linux/kvm.h                        | 1 +
+ 4 files changed, 13 insertions(+)
 
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-
-as well (I wrote the header, but any copyright is with IBM).
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index e63a35f..49540e5 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -4347,3 +4347,12 @@ This capability indicates that userspace can load HV_X64_MSR_VP_INDEX msr.  Its
+ value is used to denote the target vcpu for a SynIC interrupt.  For
+ compatibilty, KVM initializes this msr to KVM's internal vcpu index.  When this
+ capability is absent, userspace can still query this msr's value.
++
++8.13 KVM_CAP_S390_AIS_MIGRATION
++
++Architectures: s390
++Parameters: none
++
++This capability indicates if the flic device will be able to get/set the
++AIS states for migration via the KVM_DEV_FLIC_AISM_ALL attribute and allows
++to discover this without having to create a flic device.
+diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
+index 27ad53c..a4e20a0 100644
+--- a/Documentation/virtual/kvm/devices/s390_flic.txt
++++ b/Documentation/virtual/kvm/devices/s390_flic.txt
+@@ -151,6 +151,8 @@ struct kvm_s390_ais_all {
+     to an ISC (MSB0 bit 0 to ISC 0 and so on). The combination of simm bit and
+     nimm bit presents AIS mode for a ISC.
+ 
++    KVM_DEV_FLIC_AISM_ALL is indicated by KVM_CAP_S390_AIS_MIGRATION.
++
+ Note: The KVM_SET_DEVICE_ATTR/KVM_GET_DEVICE_ATTR device ioctls executed on
+ FLIC with an unknown group or attribute gives the error code EINVAL (instead of
+ ENXIO, as specified in the API documentation). It is not possible to conclude
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index de6a5b7..8f4b655 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -395,6 +395,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_USER_INSTR0:
+ 	case KVM_CAP_S390_CMMA_MIGRATION:
+ 	case KVM_CAP_S390_AIS:
++	case KVM_CAP_S390_AIS_MIGRATION:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_S390_MEM_OP:
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 8388875..b605956 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -930,6 +930,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_PPC_SMT_POSSIBLE 147
+ #define KVM_CAP_HYPERV_SYNIC2 148
+ #define KVM_CAP_HYPERV_VP_INDEX 149
++#define KVM_CAP_S390_AIS_MIGRATION 150
+ 
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
+-- 
+2.9.4
