@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 8/9] KVM: s390: clear_io_irq() requests are not expected for adapter interrupts
-Date: Fri, 10 Nov 2017 09:00:12 +0100
-Message-ID: <20171110080013.111004-9-borntraeger@de.ibm.com>
+Subject: [GIT PULL 7/9] KVM: s390: abstract conversion between isc and enum irq_types
+Date: Fri, 10 Nov 2017 09:00:11 +0100
+Message-ID: <20171110080013.111004-8-borntraeger@de.ibm.com>
 References: <20171110080013.111004-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171110080013.111004-1-borntraeger@de.ibm.com>
@@ -14,50 +14,77 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-There is a chance to delete not yet delivered I/O interrupts if an
-exploiter uses the subsystem identification word 0x0000 while
-processing a KVM_DEV_FLIC_CLEAR_IO_IRQ ioctl. -EINVAL will be returned
-now instead in that case.
-
-Classic interrupts will always have bit 0x10000 set in the schid while
-adapter interrupts have a zero schid. The clear_io_irq interface is
-only useful for classic interrupts (as adapter interrupts belong to
-many devices). Let's make this interface more strict and forbid a schid
-of 0.
+The abstraction of the conversion between an isc value and an irq_type
+by means of functions isc_to_irq_type() and irq_type_to_isc() allows
+to clarify the respective operations where used.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/devices/s390_flic.txt | 3 +++
- arch/s390/kvm/interrupt.c                       | 2 ++
- 2 files changed, 5 insertions(+)
+ arch/s390/kvm/interrupt.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
-index 2f1cbf1..27ad53c 100644
---- a/Documentation/virtual/kvm/devices/s390_flic.txt
-+++ b/Documentation/virtual/kvm/devices/s390_flic.txt
-@@ -156,3 +156,6 @@ FLIC with an unknown group or attribute gives the error code EINVAL (instead of
- ENXIO, as specified in the API documentation). It is not possible to conclude
- that a FLIC operation is unavailable based on the error code resulting from a
- usage attempt.
-+
-+Note: The KVM_DEV_FLIC_CLEAR_IO_IRQ ioctl will return EINVAL in case a zero
-+schid is specified.
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index a3da4f3..c8aacce 100644
+index 23d8fb2..a3da4f3 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -2191,6 +2191,8 @@ static int clear_io_irq(struct kvm *kvm, struct kvm_device_attr *attr)
- 		return -EINVAL;
- 	if (copy_from_user(&schid, (void __user *) attr->addr, sizeof(schid)))
- 		return -EFAULT;
-+	if (!schid)
-+		return -EINVAL;
- 	kfree(kvm_s390_get_io_int(kvm, isc_mask, schid));
- 	/*
- 	 * If userspace is conforming to the architecture, we can have at most
+@@ -213,6 +213,16 @@ static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
+ 	       vcpu->arch.local_int.pending_irqs;
+ }
+ 
++static inline int isc_to_irq_type(unsigned long isc)
++{
++	return IRQ_PEND_IO_ISC_0 + isc;
++}
++
++static inline int irq_type_to_isc(unsigned long irq_type)
++{
++	return irq_type - IRQ_PEND_IO_ISC_0;
++}
++
+ static unsigned long disable_iscs(struct kvm_vcpu *vcpu,
+ 				   unsigned long active_mask)
+ {
+@@ -220,7 +230,7 @@ static unsigned long disable_iscs(struct kvm_vcpu *vcpu,
+ 
+ 	for (i = 0; i <= MAX_ISC; i++)
+ 		if (!(vcpu->arch.sie_block->gcr[6] & isc_to_isc_bits(i)))
+-			active_mask &= ~(1UL << (IRQ_PEND_IO_ISC_0 + i));
++			active_mask &= ~(1UL << (isc_to_irq_type(i)));
+ 
+ 	return active_mask;
+ }
+@@ -901,7 +911,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
+ 	fi = &vcpu->kvm->arch.float_int;
+ 
+ 	spin_lock(&fi->lock);
+-	isc_list = &fi->lists[irq_type - IRQ_PEND_IO_ISC_0];
++	isc_list = &fi->lists[irq_type_to_isc(irq_type)];
+ 	inti = list_first_entry_or_null(isc_list,
+ 					struct kvm_s390_interrupt_info,
+ 					list);
+@@ -1401,7 +1411,7 @@ static struct kvm_s390_interrupt_info *get_io_int(struct kvm *kvm,
+ 		list_del_init(&iter->list);
+ 		fi->counters[FIRQ_CNTR_IO] -= 1;
+ 		if (list_empty(isc_list))
+-			clear_bit(IRQ_PEND_IO_ISC_0 + isc, &fi->pending_irqs);
++			clear_bit(isc_to_irq_type(isc), &fi->pending_irqs);
+ 		spin_unlock(&fi->lock);
+ 		return iter;
+ 	}
+@@ -1528,7 +1538,7 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 	isc = int_word_to_isc(inti->io.io_int_word);
+ 	list = &fi->lists[FIRQ_LIST_IO_ISC_0 + isc];
+ 	list_add_tail(&inti->list, list);
+-	set_bit(IRQ_PEND_IO_ISC_0 + isc, &fi->pending_irqs);
++	set_bit(isc_to_irq_type(isc), &fi->pending_irqs);
+ 	spin_unlock(&fi->lock);
+ 	return 0;
+ }
 -- 
 2.9.4
