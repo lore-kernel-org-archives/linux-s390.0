@@ -1,133 +1,50 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3] KVM: s390: mark irq_state.flags as non-usable
-Date: Fri, 24 Nov 2017 16:11:24 +0100
-Message-ID: <20171124161124.0aeb9452.cohuck@redhat.com>
-References: <20171124144316.34418-1-borntraeger@de.ibm.com>
+From: Halil Pasic <pasic@linux.vnet.ibm.com>
+Subject: Re: [PATCH] MAINTAINERS: add virtio-ccw.h to virtio/s390 section
+Date: Mon, 13 Nov 2017 14:35:16 +0100
+Message-ID: <b7061d97-6c70-2a80-9822-96a7e512175d@linux.vnet.ibm.com>
+References: <20171110145611.15306-1-cohuck@redhat.com>
+ <20171110181558.GB3028@osiris>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171124144316.34418-1-borntraeger@de.ibm.com>
+In-Reply-To: <20171110181558.GB3028@osiris>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 24 Nov 2017 15:43:16 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> Old kernels did not check for zero in the irq_state.flags field and old
-> QEMUs did not zero the flag/reserved fields when calling
-> KVM_S390_*_IRQ_STATE.  Let's add comments to prevent future uses of
-> these fields.
+
+On 11/10/2017 07:15 PM, Heiko Carstens wrote:
+> On Fri, Nov 10, 2017 at 03:56:11PM +0100, Cornelia Huck wrote:
+>> The file arch/s390/include/uapi/asm/virtio-ccw.h belongs to the
+>> s390 virtio drivers as well.
+>>
+>> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+
+Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+
+>> ---
+>>
+>> Martin, Heiko: It's probably best to take this through your tree.
+>>
+>> ---
+>>  MAINTAINERS | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index 6671f375f7fc..48c6f1179b9b 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -14312,6 +14312,7 @@ L:	virtualization@lists.linux-foundation.org
+>>  L:	kvm@vger.kernel.org
+>>  S:	Supported
+>>  F:	drivers/s390/virtio/
+>> +F:	arch/s390/include/uapi/asm/virtio-ccw.h
 > 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> ---
-> v2->v3:
-> - be -> stay
-> - also change the documentation for KVM_S390_SET_IRQ_STATE
-> - cleanup copyright header while touching the file
->  Documentation/virtual/kvm/api.txt | 15 ++++++++++++---
->  arch/s390/kvm/kvm-s390.c          |  6 ++++--
->  include/uapi/linux/kvm.h          |  4 ++--
->  3 files changed, 18 insertions(+), 7 deletions(-)
+> Applied, thanks.
 > 
-> diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-> index f670e4b..35f9758 100644
-> --- a/Documentation/virtual/kvm/api.txt
-> +++ b/Documentation/virtual/kvm/api.txt
-> @@ -2901,14 +2901,19 @@ userspace buffer and its length:
->  
->  struct kvm_s390_irq_state {
->  	__u64 buf;
-> -	__u32 flags;
-> +	__u32 flags;        /* will stay unused for compatibility reasons */
->  	__u32 len;
-> -	__u32 reserved[4];
-> +	__u32 reserved[4];  /* will stay unused for compatibility reasons */
->  };
->  
->  Userspace passes in the above struct and for each pending interrupt a
->  struct kvm_s390_irq is copied to the provided buffer.
->  
-> +The structure contains a flags and a reserved field for future extensions. As
-> +the kernel never checked for flags == 0 and QEMU never pre-zeroed flags and
-> +reserved, these fields can not be used in the future without breaking
-> +compatibility.
-> +
->  If -ENOBUFS is returned the buffer provided was too small and userspace
->  may retry with a bigger buffer.
->  
-> @@ -2932,10 +2937,14 @@ containing a struct kvm_s390_irq_state:
->  
->  struct kvm_s390_irq_state {
->  	__u64 buf;
-> +	__u32 flags;        /* will stay unused for compatibility reasons */
->  	__u32 len;
-> -	__u32 pad;
-> +	__u32 reserved[4];  /* will stay unused for compatibility reasons */
->  };
->  
-> +The restrictions for flags and reserved apply as well.
-> +(see KVM_S390_GET_IRQ_STATE apply)
-
-s/ apply//
-
-> +
->  The userspace memory referenced by buf contains a struct kvm_s390_irq
->  for each interrupt to be injected into the guest.
->  If one of the interrupts could not be injected for some reason the
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index f47e19f..966ea61 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1,8 +1,8 @@
->  // SPDX-License-Identifier: GPL-2.0
->  /*
-> - * hosting zSeries kernel virtual machines
-> + * hosting IBM Z kernel virtual machines (s390x)
->   *
-> - * Copyright IBM Corp. 2008, 2009
-> + * Copyright IBM Corp. 2008, 2017
->   *
->   *    Author(s): Carsten Otte <cotte@de.ibm.com>
->   *               Christian Borntraeger <borntraeger@de.ibm.com>
-> @@ -3831,6 +3831,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  			r = -EINVAL;
->  			break;
->  		}
-> +		/* do not use irq_state.flags, it will break old QEMUs */
->  		r = kvm_s390_set_irq_state(vcpu,
->  					   (void __user *) irq_state.buf,
->  					   irq_state.len);
-> @@ -3846,6 +3847,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  			r = -EINVAL;
->  			break;
->  		}
-> +		/* do not use irq_state.flags, it will break old QEMUs */
->  		r = kvm_s390_get_irq_state(vcpu,
->  					   (__u8 __user *)  irq_state.buf,
->  					   irq_state.len);
-> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> index 282d7613..496e59a 100644
-> --- a/include/uapi/linux/kvm.h
-> +++ b/include/uapi/linux/kvm.h
-> @@ -630,9 +630,9 @@ struct kvm_s390_irq {
->  
->  struct kvm_s390_irq_state {
->  	__u64 buf;
-> -	__u32 flags;
-> +	__u32 flags;        /* will stay unused for compatibility reasons */
->  	__u32 len;
-> -	__u32 reserved[4];
-> +	__u32 reserved[4];  /* will stay unused for compatibility reasons */
->  };
->  
->  /* for KVM_SET_GUEST_DEBUG */
-
-With the fix above:
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
