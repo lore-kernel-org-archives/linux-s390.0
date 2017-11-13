@@ -1,99 +1,76 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 2/5] KVM: s390: SIE considerations for AP Queue
- virtualization
-Date: Thu, 9 Nov 2017 09:59:17 +0100
-Message-ID: <c1e6bed6-cf90-347b-2890-ad21a058d0bf@de.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 5/5] KVM: s390: clear_io_irq() requests are not expected
+ for adapter interrupts
+Date: Mon, 13 Nov 2017 13:25:24 +0100
+Message-ID: <20171113132524.459358f3.cohuck@redhat.com>
 References: <20171108084143.78654-1-borntraeger@de.ibm.com>
- <20171108084143.78654-3-borntraeger@de.ibm.com>
- <a9b92e42-35c4-1fff-571c-68397cb0d758@redhat.com>
+        <20171108084143.78654-6-borntraeger@de.ibm.com>
+        <20171108101905.0b5dabb4.cohuck@redhat.com>
+        <b26a3bf9-d5c9-7c34-f6d9-d9b410e9e740@de.ibm.com>
+        <20171108120925.3dc136cf.cohuck@redhat.com>
+        <1e96b9b8-7f70-9ef8-2c2b-0b030f348196@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <a9b92e42-35c4-1fff-571c-68397cb0d758@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1e96b9b8-7f70-9ef8-2c2b-0b030f348196@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+To: Michael Mueller <mimu@linux.vnet.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Wed, 8 Nov 2017 13:14:01 +0100
+Michael Mueller <mimu@linux.vnet.ibm.com> wrote:
 
+> On 08.11.17 12:09, Cornelia Huck wrote:
+> > On Wed, 8 Nov 2017 12:04:22 +0100
+> > Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> >  
+> >> On 11/08/2017 10:19 AM, Cornelia Huck wrote:  
+> >>> On Wed,  8 Nov 2017 09:41:43 +0100
+> >>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> >>>      
+> >>>> From: Michael Mueller <mimu@linux.vnet.ibm.com>
+> >>>>
+> >>>> There is a chance to delete not yet delivered I/O interrupts if an
+> >>>> exploiter uses the subsystem identification word 0x0000 while
+> >>>> processing a KVM_DEV_FLIC_CLEAR_IO_IRQ ioctl. -EINVAL will be returned
+> >>>> now instead in that case.
+> >>>>
+> >>>> Classic interrupts will always have bit 0x10000 set in the schid while
+> >>>> adapter interrupts have a zero schid. The clear_io_irq interface is
+> >>>> only useful for classic interrupts (as adapter interrupts belong to
+> >>>> many devices). Let's make this interface more strict and forbid a schid
+> >>>> of 0.  
+> >>> I'm wondering: Is there any possible use case to clear adapter
+> >>> interrupts? This interface was introduced to handle the case where a
+> >>> CRW was made pending for a subchannel (which implies any pending
+> >>> interrupt needs to be cleared.)  
+> >> The problem with clearing adapter interrupts is that is actually a summary
+> >> interrupt for every potential device. So I somewhat consider an adapter interrupt
+> >> pending when the summary indicator went from 0 to 1. So I dont think clearing
+> >> a single one makes not much sense. (And this interface would be wrong for
+> >> that I think)  
+> > Yes, this interface would be problematic. I'm not sure what's supposed
+> > to happen with crws vs. pending adapter interrupts, though.  
+> They will be delivered based on ISC priority and the traditional first 
+> when both have the same class.
 
-On 11/08/2017 10:29 AM, David Hildenbrand wrote:
-> On 08.11.2017 09:41, Christian Borntraeger wrote:
->> From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>
->> The Crypto Control Block (CRYCB) is referenced by the SIE state
->> description and controls KVM guest access to the Adjunct
->> Processor (AP) adapters, usage domains and control domains.
->> This patch defines the AP control blocks to be used for
->> controlling guest access to the AP adapters and domains.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->> Message-Id: <1507916344-3896-2-git-send-email-akrowiak@linux.vnet.ibm.com>
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->>  arch/s390/include/asm/kvm_host.h | 25 +++++++++++++++++++++----
->>  1 file changed, 21 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->> index fd006a2..646e1fe 100644
->> --- a/arch/s390/include/asm/kvm_host.h
->> +++ b/arch/s390/include/asm/kvm_host.h
->> @@ -685,11 +685,28 @@ struct kvm_s390_crypto {
->>  	__u8 dea_kw;
->>  };
->>  
->> +#define APCB0_MASK_SIZE 1
->> +struct kvm_s390_apcb0 {
->> +	__u64 apm[APCB0_MASK_SIZE];		/* 0x0000 */
->> +	__u64 aqm[APCB0_MASK_SIZE];		/* 0x0008 */
->> +	__u64 adm[APCB0_MASK_SIZE];		/* 0x0010 */
-> 
-> Do these really have to be arrays? Also, size usually specifies bytes
-> and not double words (applies also to the one definition below).
+I'm just wondering what is supposed to happen when all devices
+associated with a summary indicator go away. The OS will hopefully
+deregister the indicator if needed; the hypervisor might still set the
+indicator and trigger an adapter interrupt before that happens (and
+hopefully the OS can deal with that.)
 
-This is later used with bit operations (e.g. see [RFC 16/19] KVM: s390: interface to configure KVM guest's AP matrix)
-which operate on "long *", so I think its better than a char array.
+Likely we don't have a problem, but I'm curious if there is anything
+architected for the cases where real hardware exists (like qdio).
 
-
-> 
->> +	__u64 reserved18;			/* 0x0018 */
->> +};
->> +
->> +#define APCB1_MASK_SIZE 4
->> +struct kvm_s390_apcb1 {
->> +	__u64 apm[APCB1_MASK_SIZE];		/* 0x0000 */
->> +	__u64 aqm[APCB1_MASK_SIZE];		/* 0x0020 */
->> +	__u64 adm[APCB1_MASK_SIZE];		/* 0x0040 */
->> +	__u64 reserved60[4];			/* 0x0060 */
->> +};
->> +
->>  struct kvm_s390_crypto_cb {
->> -	__u8    reserved00[72];                 /* 0x0000 */
->> -	__u8    dea_wrapping_key_mask[24];      /* 0x0048 */
->> -	__u8    aes_wrapping_key_mask[32];      /* 0x0060 */
->> -	__u8    reserved80[128];                /* 0x0080 */
->> +	struct kvm_s390_apcb0 apcb0;		/* 0x0000 */
->> +	__u8    reserved20[40];			/* 0x0020 */
-> 
-> Not sure if should turn this into [0x0048 - 0x0020], just like we do for
-> e.g. lowcore. But maybe the specification explicitly states "40 bytes
-> reserved". The 40 makes sense.
-
-Yes [0x0048 - 0x0020] looks better, will change.
-
-> 
->> +	__u8    dea_wrapping_key_mask[24];	/* 0x0048 */
->> +	__u8    aes_wrapping_key_mask[32];	/* 0x0060 */
->> +	struct kvm_s390_apcb1 apcb1;		/* 0x0080 */
->>  };
-> 
-> While touching all lines, can we get rid of the strange indentation
-> after __u8?
-
-yes, will also fix.
-
-Thanks
+> >  
+> >> The only use cases I can imagine for clearing adapter interrupts (e.g. reset)
+> >> is already covered by KVM_DEV_FLIC_CLEAR_IRQS
+> >>  
+> >>> Alas, I cannot check the adapter interrupt question myself, as the
+> >>> public doc is lacking :( But qdio as another adapter interrupt user
+> >>> comes to mind (not that we support it in qemu, but still...)
