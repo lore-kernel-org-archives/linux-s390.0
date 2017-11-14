@@ -1,15 +1,15 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC 1/5] s390x/ap-matrix: Adjunct Processor (AP) matrix object
- model
-Date: Tue, 14 Nov 2017 15:58:44 +0100
-Message-ID: <20171114155844.60e10e1d.cohuck@redhat.com>
+Subject: Re: [RFC 2/5] s390x/vfio: ap-matrix: Introduce VFIO AP Matrix
+ device
+Date: Tue, 14 Nov 2017 16:03:08 +0100
+Message-ID: <20171114160308.77eb92ab.cohuck@redhat.com>
 References: <1509033294-4945-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1509033294-4945-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <1509033294-4945-3-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1509033294-4945-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <1509033294-4945-3-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,263 +17,315 @@ To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Cc: linux-s390@vger.kernel.org, qemu-s390x@nongnu.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, qemu-devel@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 26 Oct 2017 11:54:50 -0400
+On Thu, 26 Oct 2017 11:54:51 -0400
 Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-> This patch introduces the base object model for an AP matrix device. An AP
-> matrix is comprised of the AP adapters, usage domains and control domains
-> assigned to a KVM guest. The matrix is represented in three bit masks:
+> Introduces a VFIO based AP matrix device. This device will establish
+> a communication pathway to the VFIO AP Matrix kernel device driver
+> via a mediated AP matrix device file descriptor. This communication pathway
+> will be used to:
 > 
-> * The AP Mask (APM) specifies the AP adapters assigned to the
->   KVM guest. The APM controls which adapters are valid for the KVM guest.
->   The bits in the mask, from left to right, correspond to APIDs
->   0 up to the number of adapters that can be assigned to the LPAR. If a bit
->   is set, the corresponding adapter is valid for use by the KVM guest.
+> 1. Signal the VFIO AP matrix device driver via the VFIO_AP_MATRIX_CONFIGURE
+>    ioctl to configure the AP matrix for the KVM guest. The device driver
+>    will set the bits in the APM, AQM and ADM fields of the CRYCB
+>    referenced by the KVM guest's SIE state description according to
+>    the AP matrix configuration specified for the mediated AP matrix
+>    device's sysfs attribute files. The AP matrix configuration will be
+>    returned to the guest from the ioctl call to notify the KVM guest
+>    about the AP resources to which the guest has access.
 > 
-> * The AP Queue Mask (AQM) specifies the AP usage domains assigned
->   to the KVM guest. The bits in the mask, from left to right, correspond
->   to the usage domains, from 0 up to the number of domains that can be
->   assigned to the LPAR. If a bit is set, the corresponding usage domain is
->   valid for use by the KVM guest.
-> 
-> * The AP Domain Mask specifies the AP control domains assigned to the
->   KVM guest. The ADM bitmask controls which domains can be changed by an AP
->   command-request message sent to a usage domain from the guest. The bits in
->   the mask, from left to right, correspond to domain 0 up to the number of
->   domains that can be assigned to the LPAR. If a bit is set, the
->   corresponding domain can be modified by an AP command-request message
->   sent to a usage domain configured for the KVM guest.
+> 2. Pass intercepted AP instructions to the VFIO AP Matrix driver
+>    for execution on an AP adapter assigned to the LPAR in which the
+>    linux host is running.
 > 
 > Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 > ---
->  hw/s390x/Makefile.objs            |    2 +
->  hw/s390x/ap-matrix-device.c       |   33 +++++++++++++++++++++++
->  hw/s390x/ap-matrix-device.h       |   53 +++++++++++++++++++++++++++++++++++++
->  hw/s390x/s390-ap-matrix.c         |   52 ++++++++++++++++++++++++++++++++++++
->  include/hw/s390x/s390-ap-matrix.h |   39 +++++++++++++++++++++++++++
->  5 files changed, 179 insertions(+), 0 deletions(-)
->  create mode 100644 hw/s390x/ap-matrix-device.c
->  create mode 100644 hw/s390x/ap-matrix-device.h
->  create mode 100644 hw/s390x/s390-ap-matrix.c
->  create mode 100644 include/hw/s390x/s390-ap-matrix.h
+>  default-configs/s390x-softmmu.mak |    1 +
+>  hw/vfio/Makefile.objs             |    1 +
+>  hw/vfio/ap-matrix.c               |  179 +++++++++++++++++++++++++++++++++++++
+>  include/hw/vfio/vfio-common.h     |    1 +
+>  linux-headers/linux/vfio.h        |   28 +++++-
+>  5 files changed, 207 insertions(+), 3 deletions(-)
+>  create mode 100644 hw/vfio/ap-matrix.c
 > 
-
-> diff --git a/hw/s390x/ap-matrix-device.c b/hw/s390x/ap-matrix-device.c
+> diff --git a/default-configs/s390x-softmmu.mak b/default-configs/s390x-softmmu.mak
+> index 444bf16..1fe53ea 100644
+> --- a/default-configs/s390x-softmmu.mak
+> +++ b/default-configs/s390x-softmmu.mak
+> @@ -8,3 +8,4 @@ CONFIG_S390_FLIC=y
+>  CONFIG_S390_FLIC_KVM=$(CONFIG_KVM)
+>  CONFIG_VFIO_CCW=$(CONFIG_LINUX)
+>  CONFIG_WDT_DIAG288=y
+> +CONFIG_VFIO_AP_MATRIX=$(CONFIG_LINUX)
+> diff --git a/hw/vfio/Makefile.objs b/hw/vfio/Makefile.objs
+> index c3ab909..47e482f 100644
+> --- a/hw/vfio/Makefile.objs
+> +++ b/hw/vfio/Makefile.objs
+> @@ -6,4 +6,5 @@ obj-$(CONFIG_SOFTMMU) += platform.o
+>  obj-$(CONFIG_VFIO_XGMAC) += calxeda-xgmac.o
+>  obj-$(CONFIG_VFIO_AMD_XGBE) += amd-xgbe.o
+>  obj-$(CONFIG_SOFTMMU) += spapr.o
+> +obj-$(CONFIG_VFIO_AP_MATRIX) += ap-matrix.o
+>  endif
+> diff --git a/hw/vfio/ap-matrix.c b/hw/vfio/ap-matrix.c
 > new file mode 100644
-> index 0000000..d036ce2
+> index 0000000..eeaa439
 > --- /dev/null
-> +++ b/hw/s390x/ap-matrix-device.c
-> @@ -0,0 +1,33 @@
+> +++ b/hw/vfio/ap-matrix.c
+> @@ -0,0 +1,179 @@
 > +/*
-> + * Common device infrastructure for AP matrix devices
-> + *
-> + * Copyright 2016 IBM Corp.
-
-Hm?             ^^^^
-
-> + * Author(s): Jing Liu <liujbjl@linux.vnet.ibm.com>
-
-If Jing is the author, shouldn't the patch carry her s-o-b as well?
-
-(I'm a bit confused about the history of this.)
-
-> + *
-> + * This work is licensed under the terms of the GNU GPL, version 2 or (at
-> + * your option) any later version. See the COPYING file in the top-level
-> + * directory.
-> + */
-> +#include <ctype.h>
-> +
-> +#include "qemu/osdep.h"
-> +#include "qemu/bitops.h"
-> +#include "qemu/module.h"
-> +#include "qapi/error.h"
-> +#include "qapi/visitor.h"
-> +#include "ap-matrix-device.h"
-> +
-> +static const TypeInfo ap_matrix_device_info = {
-> +    .name = TYPE_AP_MATRIX_DEVICE,
-> +    .parent = TYPE_DEVICE,
-> +    .instance_size = sizeof(APMatrixDevice),
-> +    .class_size = sizeof(APMatrixDeviceClass),
-> +    .abstract = true,
-> +};
-> +
-> +static void ap_matrix_device_register(void)
-> +{
-> +    type_register_static(&ap_matrix_device_info);
-> +}
-> +
-> +type_init(ap_matrix_device_register)
-> diff --git a/hw/s390x/ap-matrix-device.h b/hw/s390x/ap-matrix-device.h
-> new file mode 100644
-> index 0000000..af7ae2c
-> --- /dev/null
-> +++ b/hw/s390x/ap-matrix-device.h
-> @@ -0,0 +1,53 @@
-> +/*
-> + * Adjunct Processor (AP) matrix device structures
-> + *
-> + * Copyright 2016 IBM Corp.
-> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> + *
-> + * This work is licensed under the terms of the GNU GPL, version 2 or (at
-> + * your option) any later version. See the COPYING file in the top-level
-> + * directory.
-> + */
-> +
-> +#ifndef HW_S390X_AP_MATRIX_DEVICE_H
-> +#define HW_S390X_AP_MATRIX_DEVICE_H
-> +#include "qom/object.h"
-> +#include "hw/qdev.h"
-> +
-> +#define AP_MATRIX_MASK_INDICES 4
-> +#define AP_MATRIX_MAX_MASK_BITS 256
-> +
-> +typedef struct APMatrixMasks {
-> +    uint64_t apm[AP_MATRIX_MASK_INDICES];
-> +    uint64_t aqm[AP_MATRIX_MASK_INDICES];
-> +    uint64_t adm[AP_MATRIX_MASK_INDICES];
-> +} APMatrixMasks;
-> +
-> +typedef struct APMatrixDevice {
-> +    DeviceState parent_obj;
-> +    APMatrixMasks masks;
-> +} APMatrixDevice;
-> +
-> +extern const VMStateDescription vmstate_ap_matrix_dev;
-> +#define VMSTATE_AP_MATRIX_DEVICE(_field, _state)                     \
-> +    VMSTATE_STRUCT(_field, _state, 1, vmstate_ap_matrix_dev, APMatrixDevice)
-
-I'm wondering about migration: can the other side easily reconstruct
-the state on the target?
-
-> +
-> +typedef struct APMatrixDeviceClass {
-> +    DeviceClass parent_class;
-> +} APMatrixDeviceClass;
-> +
-> +static inline APMatrixDevice *to_ap_matrix_dev(DeviceState *dev)
-> +{
-> +    return container_of(dev, APMatrixDevice, parent_obj);
-> +}
-> +
-> +#define TYPE_AP_MATRIX_DEVICE "ap-matrix-device"
-> +
-> +#define AP_MATRIX_DEVICE(obj) \
-> +    OBJECT_CHECK(APMatrixDevice, (obj), TYPE_AP_MATRIX_DEVICE)
-> +#define AP_MATRIX_DEVICE_GET_CLASS(obj) \
-> +    OBJECT_GET_CLASS(AP_MATRIXDeviceClass, (obj), TYPE_AP_MATRIX_DEVICE)
-> +#define AP_MATRIX_DEVICE_CLASS(klass) \
-> +    OBJECT_CLASS_CHECK(AP_MATRIXDeviceClass, (klass), TYPE_AP_MATRIX_DEVICE)
-> +
-> +#endif
-> diff --git a/hw/s390x/s390-ap-matrix.c b/hw/s390x/s390-ap-matrix.c
-> new file mode 100644
-> index 0000000..6d2e234
-> --- /dev/null
-> +++ b/hw/s390x/s390-ap-matrix.c
-> @@ -0,0 +1,52 @@
-> +/*
-> + * s390 AP Matrix Assignment Support
-> + *
-> + * Copyright 2017 IBM Corp
-> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> + *
-> + * This work is licensed under the terms of the GNU GPL, version 2
-> + * or (at your option) any later version. See the COPYING file in the
-> + * top-level directory.
-> + */
-> +#include "qemu/osdep.h"
-> +#include "qapi/error.h"
-> +#include "hw/sysbus.h"
-> +#include "libgen.h"
-> +#include "hw/s390x/s390-ap-matrix.h"
-> +
-> +static void s390_ap_matrix_device_realize(S390APMatrixDevice *sapmdev,
-> +                                          APMatrixMasks *masks,
-> +                                          Error **errp)
-> +{
-> +    size_t i;
-> +    APMatrixDevice *apmdev = AP_MATRIX_DEVICE(sapmdev);
-> +
-> +    for (i = 0; i < AP_MATRIX_MASK_INDICES; i++) {
-> +        apmdev->masks.apm[i] = masks->apm[i];
-> +        apmdev->masks.aqm[i] = masks->aqm[i];
-> +        apmdev->masks.adm[i] = masks->adm[i];
-
-These masks are presumably provided in a later patch?
-
-> +    }
-> +}
-> +
-> +static void s390_ap_matrix_class_init(ObjectClass *klass, void *data)
-> +{
-> +    S390APMatrixDeviceClass *apmc = S390_AP_MATRIX_DEVICE_CLASS(klass);
-> +
-> +    apmc->realize = s390_ap_matrix_device_realize;
-> +}
-> +
-> +static const TypeInfo s390_ap_matrix_info = {
-> +    .name          = TYPE_S390_AP_MATRIX_DEVICE,
-> +    .parent        = TYPE_AP_MATRIX_DEVICE,
-> +    .instance_size = sizeof(S390APMatrixDevice),
-> +    .class_size    = sizeof(S390APMatrixDeviceClass),
-> +    .class_init    = s390_ap_matrix_class_init,
-> +    .abstract      = true,
-> +};
-> +
-> +static void register_s390_ap_matrix_type(void)
-> +{
-> +    type_register_static(&s390_ap_matrix_info);
-> +}
-> +
-> +type_init(register_s390_ap_matrix_type)
-> diff --git a/include/hw/s390x/s390-ap-matrix.h b/include/hw/s390x/s390-ap-matrix.h
-> new file mode 100644
-> index 0000000..b088841
-> --- /dev/null
-> +++ b/include/hw/s390x/s390-ap-matrix.h
-> @@ -0,0 +1,39 @@
-> +/*
-> + * s390 AP Matrix Assignment Support
+> + * VFIO based AP matrix device assignment
 > + *
 > + * Copyright 2017 IBM Corp.
 > + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 > + *
-> + * This work is licensed under the terms of the GNU GPL, version 2 or (at
-> + * your option) any later version. See the COPYING file in the top-level
+> + * This work is licensed under the terms of the GNU GPL, version 2 or(at
+> + * your option) any version. See the COPYING file in the top-level
 > + * directory.
 > + */
 > +
-> +#ifndef HW_S390_AP_MATRIX_H
-> +#define HW_S390_AP_MATRIX_H
-> +
+> +#include <linux/vfio.h>
+> +#include <sys/ioctl.h>
+> +#include "qemu/osdep.h"
+> +#include "qapi/error.h"
+> +#include "hw/sysbus.h"
+> +#include "hw/vfio/vfio.h"
+> +#include "hw/vfio/vfio-common.h"
+> +#include "hw/s390x/s390-ap-matrix.h"
 > +#include "hw/s390x/ap-matrix-device.h"
+> +#include "qemu/error-report.h"
 > +
-> +#define AP_MATRIX_ADAPTERS_PROP_NAME    "adapters"
-> +#define AP_MATRIX_DOMAINS_PROP_NAME     "domains"
-> +#define AP_MATRIX_CONTROLS_PROP_NAME    "controls"
+> +#define TYPE_VFIO_AP_MATRIX_DEVICE      "vfio-ap-matrix"
+> +#define AP_MATRIX_SYSFSDEV_PROP_NAME    "sysfsdev"
+> +
+> +typedef struct VFIOAPMatrixDevice {
+> +    S390APMatrixDevice apmdev;
+> +    VFIODevice vdev;
+> +} VFIOAPMatrixDevice;
+> +
+> +static void vfio_ap_matrix_compute_needs_reset(VFIODevice *vdev)
+> +{
+> +    vdev->needs_reset = false;
 
-Also used in a later patch?
+This does not look like very much computing :)
 
-> +#define TYPE_S390_AP_MATRIX_DEVICE "s390-ap-matrix"
-> +#define S390_AP_MATRIX_DEVICE(obj) \
-> +    OBJECT_CHECK(S390APMatrixDevice, (obj), TYPE_S390_AP_MATRIX_DEVICE)
-> +#define S390_AP_MATRIX_DEVICE_CLASS(klass) \
-> +    OBJECT_CLASS_CHECK(S390APMatrixDeviceClass, (klass), \
-> +                       TYPE_S390_AP_MATRIX_DEVICE)
-> +#define S390_AP_MATRIX_DEVICE_GET_CLASS(obj) \
-> +    OBJECT_GET_CLASS(S390APMatrixDeviceClass, (obj), TYPE_S390_AP_MATRIX_DEVICE)
+> +}
 > +
-> +typedef struct S390APMatrixDevice {
-> +    APMatrixDevice parent_obj;
-> +} S390APMatrixDevice;
+> +/*
+> + * We don't need vfio_hot_reset_multi and vfio_eoi operations for
+> + * vfio-ap-matrix device now.
+> + */
+> +struct VFIODeviceOps vfio_ap_matrix_ops = {
+> +    .vfio_compute_needs_reset = vfio_ap_matrix_compute_needs_reset,
+> +};
 > +
-> +typedef struct S390APMatrixDeviceClass {
-> +    APMatrixDeviceClass parent_class;
-> +    void (*realize)(S390APMatrixDevice *sapmdev, APMatrixMasks *masks,
-> +                    Error **errp);
-> +} S390APMatrixDeviceClass;
+> +static void vfio_ap_matrix_reset(DeviceState *dev)
+> +{
+> +    APMatrixDevice *apmdev = DO_UPCAST(APMatrixDevice, parent_obj, dev);
+> +    S390APMatrixDevice *sapmdev = DO_UPCAST(S390APMatrixDevice, parent_obj,
+> +                                            apmdev);
+> +    VFIOAPMatrixDevice *vapmdev = DO_UPCAST(VFIOAPMatrixDevice, apmdev,
+> +                                            sapmdev);
 > +
-> +#endif
+> +    ioctl(vapmdev->vdev.fd, VFIO_DEVICE_RESET);
+> +}
+> +
+> +static void vfio_put_device(VFIOAPMatrixDevice *apmdev)
+> +{
+> +    g_free(apmdev->vdev.name);
+> +    vfio_put_base_device(&apmdev->vdev);
+> +}
+> +
+> +static VFIOGroup *vfio_ap_matrix_get_group(VFIOAPMatrixDevice *vapmdev,
+> +                                           Error **errp)
+> +{
+> +    char *tmp, group_path[PATH_MAX];
+> +    ssize_t len;
+> +    int groupid;
+> +
+> +    tmp = g_strdup_printf("%s/iommu_group", vapmdev->vdev.sysfsdev);
+> +    len = readlink(tmp, group_path, sizeof(group_path));
+> +    g_free(tmp);
+> +
+> +    if (len <= 0 || len >= sizeof(group_path)) {
+> +        error_setg(errp, "%s: no iommu_group found for %s",
+> +                   TYPE_VFIO_AP_MATRIX_DEVICE, vapmdev->vdev.sysfsdev);
+> +        return NULL;
+> +    }
+> +
+> +    group_path[len] = 0;
+> +
+> +    if (sscanf(basename(group_path), "%d", &groupid) != 1) {
+> +        error_setg(errp, "vfio: failed to read %s", group_path);
+> +        return NULL;
+> +    }
+> +
+> +    return vfio_get_group(groupid, &address_space_memory, errp);
+> +}
+> +
+> +static void vfio_ap_matrix_realize(DeviceState *dev, Error **errp)
+> +{
+> +    VFIODevice *vbasedev;
+> +    VFIOGroup *vfio_group;
+> +    APMatrixDevice *apmdev = DO_UPCAST(APMatrixDevice, parent_obj, dev);
+> +    S390APMatrixDevice *sapmdev = DO_UPCAST(S390APMatrixDevice, parent_obj,
+> +                                            apmdev);
+> +    VFIOAPMatrixDevice *vapmdev = DO_UPCAST(VFIOAPMatrixDevice, apmdev,
+> +                                            sapmdev);
+> +    char *mdevid;
+> +    Error *local_err = NULL;
+> +
+> +    vfio_group = vfio_ap_matrix_get_group(vapmdev, &local_err);
+> +    if (!vfio_group) {
+> +        goto out_err;
+> +    }
+> +
+> +    vapmdev->vdev.ops = &vfio_ap_matrix_ops;
+> +    vapmdev->vdev.type = VFIO_DEVICE_TYPE_AP_MATRIX;
+> +    mdevid = basename(vapmdev->vdev.sysfsdev);
+> +    vapmdev->vdev.name = g_strdup_printf("%s-%s", TYPE_VFIO_AP_MATRIX_DEVICE,
+> +                                         mdevid);
+> +    vapmdev->vdev.dev = dev;
+> +    QLIST_FOREACH(vbasedev, &vfio_group->device_list, next) {
+> +        if (strcmp(vbasedev->name, vapmdev->vdev.name) == 0) {
+> +            error_setg(&local_err,
+> +                       "%s: AP matrix device %s has already been realized",
+> +                       TYPE_VFIO_AP_MATRIX_DEVICE, vapmdev->vdev.name);
+> +            goto out_device_err;
+> +        }
+> +    }
+> +
+> +    if (vfio_get_device(vfio_group, mdevid, &vapmdev->vdev, &local_err)) {
+> +        goto out_device_err;
+> +    }
+> +
+> +    return;
+> +
+> +out_device_err:
+> +    vfio_put_group(vfio_group);
+> +out_err:
+> +    error_propagate(errp, local_err);
+> +}
+> +
+> +static void vfio_ap_matrix_unrealize(DeviceState *dev, Error **errp)
+> +{
+> +    APMatrixDevice *apm_dev = DO_UPCAST(APMatrixDevice, parent_obj, dev);
+> +    S390APMatrixDevice *apmdev = DO_UPCAST(S390APMatrixDevice, parent_obj,
+> +                                           apm_dev);
+> +    VFIOAPMatrixDevice *vapmdev = DO_UPCAST(VFIOAPMatrixDevice, apmdev, apmdev);
+> +    VFIOGroup *group = vapmdev->vdev.group;
+> +
+> +    vfio_put_device(vapmdev);
+> +    vfio_put_group(group);
+> +}
+> +
+> +static Property vfio_ap_matrix_properties[] = {
+> +    DEFINE_PROP_STRING(AP_MATRIX_SYSFSDEV_PROP_NAME, VFIOAPMatrixDevice,
+> +                       vdev.sysfsdev),
+> +    DEFINE_PROP_END_OF_LIST(),
+> +};
+> +
+> +static const VMStateDescription vfio_ap_matrix_vmstate = {
+> +    .name = TYPE_VFIO_AP_MATRIX_DEVICE,
+> +    .unmigratable = 1,
+> +};
+> +
+> +static void vfio_ap_matrix_class_init(ObjectClass *klass, void *data)
+> +{
+> +    DeviceClass *dc = DEVICE_CLASS(klass);
+> +
+> +    dc->props = vfio_ap_matrix_properties;
+> +    dc->vmsd = &vfio_ap_matrix_vmstate;
+> +    dc->desc = "VFIO-based AP matrix assignment";
+> +    dc->realize = vfio_ap_matrix_realize;
+> +    dc->unrealize = vfio_ap_matrix_unrealize;
+> +    dc->reset = vfio_ap_matrix_reset;
+> +}
+> +
+> +static const TypeInfo vfio_ap_matrix_info = {
+> +    .name = TYPE_VFIO_AP_MATRIX_DEVICE,
+> +    .parent = TYPE_S390_AP_MATRIX_DEVICE,
+> +    .instance_size = sizeof(VFIOAPMatrixDevice),
+> +    .class_init = vfio_ap_matrix_class_init,
+> +};
+> +
+> +static void register_vfio_ap_matrix_type(void)
+> +{
+> +    type_register_static(&vfio_ap_matrix_info);
+> +}
+> +
+> +type_init(register_vfio_ap_matrix_type)
+> diff --git a/include/hw/vfio/vfio-common.h b/include/hw/vfio/vfio-common.h
+> index f3a2ac9..7cdc1f3 100644
+> --- a/include/hw/vfio/vfio-common.h
+> +++ b/include/hw/vfio/vfio-common.h
+> @@ -46,6 +46,7 @@ enum {
+>      VFIO_DEVICE_TYPE_PCI = 0,
+>      VFIO_DEVICE_TYPE_PLATFORM = 1,
+>      VFIO_DEVICE_TYPE_CCW = 2,
+> +    VFIO_DEVICE_TYPE_AP_MATRIX = 3,
+>  };
+>  
+>  typedef struct VFIOMmap {
+> diff --git a/linux-headers/linux/vfio.h b/linux-headers/linux/vfio.h
+> index 4e7ab4c..2d96c57 100644
+> --- a/linux-headers/linux/vfio.h
+> +++ b/linux-headers/linux/vfio.h
+
+It would make sense to split this out as a dummy headers update.
+
+> @@ -8,8 +8,8 @@
+>   * it under the terms of the GNU General Public License version 2 as
+>   * published by the Free Software Foundation.
+>   */
+> -#ifndef VFIO_H
+> -#define VFIO_H
+> +#ifndef _UAPIVFIO_H
+> +#define _UAPIVFIO_H
+>  
+>  #include <linux/types.h>
+>  #include <linux/ioctl.h>
+> @@ -199,6 +199,7 @@ struct vfio_device_info {
+>  #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+>  #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+>  #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
+> +#define VFIO_DEVICE_FLAGS_AP_MATRIX (1 << 5)	/* vfio-ap-matrix device */
+>  	__u32	num_regions;	/* Max region index + 1 */
+>  	__u32	num_irqs;	/* Max IRQ index + 1 */
+>  };
+> @@ -214,6 +215,7 @@ struct vfio_device_info {
+>  #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
+>  #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
+>  #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
+> +#define VFIO_DEVICE_API_AP_MATRIX_STRING	"vfio-ap-matrix"
+>  
+>  /**
+>   * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
+> @@ -714,6 +716,26 @@ struct vfio_iommu_spapr_tce_remove {
+>  };
+>  #define VFIO_IOMMU_SPAPR_TCE_REMOVE	_IO(VFIO_TYPE, VFIO_BASE + 20)
+>  
+> +/**
+> + * VFIO_AP_MATRIX_CONFIGURE		_IO(VFIO_TYPE, VFIO_BASE + 21
+> + *
+> + * Configure the AP matrix for a KVM guest.
+> + */
+> +#define VFIO_AP_MATRIX_CONFIGURE	_IO(VFIO_TYPE, VFIO_BASE + 21)
+> +
+> +#define VFIO_AP_MATRIX_MASK_INDICES	4
+> +#define VFIO_AP_MATTRIX_MASK_BYTES	(VFIO_AP_MATRIX_MASK_INDICES * \
+> +					 sizeof(__u64))
+> +#define VFIO_AP_MATRIX_MASK_BITS	(VFIO_AP_MATTRIX_MASK_BYTES * 8)
+> +
+> +struct vfio_ap_matrix_config {
+> +	__u32 argsz;
+> +	__u32 flags;
+> +	/* out */
+> +	__u64 apm[VFIO_AP_MATRIX_MASK_INDICES];
+> +	__u64 aqm[VFIO_AP_MATRIX_MASK_INDICES];
+> +	__u64 adm[VFIO_AP_MATRIX_MASK_INDICES];
+> +};
+>  /* ***************************************************************** */
+>  
+> -#endif /* VFIO_H */
+> +#endif /* _UAPIVFIO_H */
