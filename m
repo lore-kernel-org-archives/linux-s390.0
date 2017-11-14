@@ -1,15 +1,15 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC 05/19] s390/zcrypt: base implementation of AP matrix
- device driver
-Date: Tue, 14 Nov 2017 13:40:40 +0100
-Message-ID: <20171114134040.3fcd6efd.cohuck@redhat.com>
+Subject: Re: [RFC 06/19] s390/zcrypt: register matrix device with VFIO
+ mediated device framework
+Date: Tue, 14 Nov 2017 14:14:21 +0100
+Message-ID: <20171114141421.584811d9.cohuck@redhat.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1507916344-3896-6-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <1507916344-3896-7-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1507916344-3896-6-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <1507916344-3896-7-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,323 +17,182 @@ To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 13 Oct 2017 13:38:50 -0400
+On Fri, 13 Oct 2017 13:38:51 -0400
 Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-> Introduces a new AP matrix device driver. This device driver
-> will ultimately perform the following functions:
+> Registers the matrix device created by the AP matrix bus with
+> the VFIO mediated device framework. Registering the matrix
+> device will create the sysfs structures needed to create
+> mediated matrix devices that can be configured with a matrix
+> of adapters, usage domains and control domains for a guest
+> machine.
 > 
-> * Register with the AP bus to let it know that the matrix
->   driver can control AP queue devices. This will allow
->   an administrator to unbind an AP queue device from its
->   device driver and bind it to the matrix device driver.
->   This is how AP queue devices will be reserved for use
->   by guest machines.
+> Registering the matrix device with the VFIO mediated device
+> framework will create the following sysfs structures:
 > 
-> * Register the matrix device created by the AP matrix bus
->   with the VFIO mediated device framework. This will create
->   the sysfs entries needed to create mediated matrix devices.
->   Each mediated matrix device can be configured with a matrix
->   of adapters, usage domains and control domains that can be
->   accessed by a guest machine.
+> /sys/devices/ap_matrix
+> ... [matrix]
+> ...... [mdev_supported_types]
+> ......... [ap_matrix-passthrough]
+> ............ available_instances
+> ............ create
+> ............ device_api
+> ............ [devices]
+> ............ name
 > 
-> * Process requests via ioctl calls defined for the mediated
->   matrix device. The guest can access the ioctl calls via
->   the mediated device's file descriptor to:
+> To create a mediated device for the AP matrix device, write a UUID
+> to the create file:
 > 
->     * Grant access to the adapters, usage domains and
->       control domains configured for the mediated matrix
->       device.
+>     uuidgen > create
 > 
-> This device driver
-> is built on the VFIO mediated device framework. The VFIO mediated
-> device framework allows a mediated device to be dedicated exclusively
-> to a single guest VM.
+> A symbolic link to the mediated device's directory will be created in the
+> devices subdirectory named after the generated $uuid:
+> 
+> /sys/devices/ap_matrix
+> ... [matrix]
+> ...... [mdev_supported_types]
+> ......... [ap_matrix-passthrough]
+> ............ [devices]
+> ............... [$uuid]
 > 
 > Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 > ---
->  MAINTAINERS                                  |    2 +
->  arch/s390/Kconfig                            |   13 +++
->  arch/s390/configs/default_defconfig          |    1 +
->  arch/s390/configs/gcov_defconfig             |    1 +
->  arch/s390/configs/performance_defconfig      |    1 +
->  arch/s390/defconfig                          |    1 +
->  drivers/s390/crypto/Makefile                 |    6 +-
->  drivers/s390/crypto/ap_matrix_bus.c          |    8 ++
->  drivers/s390/crypto/ap_matrix_bus.h          |    2 +-
->  drivers/s390/crypto/vfio_ap_matrix_drv.c     |  102 ++++++++++++++++++++++++++
->  drivers/s390/crypto/vfio_ap_matrix_private.h |   47 ++++++++++++
->  11 files changed, 182 insertions(+), 2 deletions(-)
->  create mode 100644 drivers/s390/crypto/vfio_ap_matrix_drv.c
->  create mode 100644 drivers/s390/crypto/vfio_ap_matrix_private.h
+>  MAINTAINERS                                  |    1 +
+>  drivers/s390/crypto/Makefile                 |    2 +-
+>  drivers/s390/crypto/ap_matrix_bus.c          |    1 +
+>  drivers/s390/crypto/ap_matrix_bus.h          |    4 +
+>  drivers/s390/crypto/vfio_ap_matrix_drv.c     |    5 +
+>  drivers/s390/crypto/vfio_ap_matrix_ops.c     |  172 ++++++++++++++++++++++++++
+>  drivers/s390/crypto/vfio_ap_matrix_private.h |    3 +
+>  include/uapi/linux/vfio.h                    |    1 +
+>  8 files changed, 188 insertions(+), 1 deletions(-)
+>  create mode 100644 drivers/s390/crypto/vfio_ap_matrix_ops.c
 > 
 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 48af970..411c19a 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -722,6 +722,19 @@ config VFIO_CCW
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called vfio_ccw.
->  
-> +config VFIO_AP_MATRIX
-> +	def_tristate m
-> +	prompt "Support for Adjunct Processor Matrix device interface"
-> +	depends on ZCRYPT
-> +	select VFIO
-> +	select MDEV
-> +	select VFIO_MDEV
-> +	select VFIO_MDEV_DEVICE
-> +	select IOMMU_API
-
-I think the more common pattern is to depend on the VFIO configs
-instead of selecting them.
-
-> +	help
-> +		driver grants access to Adjunct Processor (AP) devices
-> +		via the VFIO mediated device interface.
-> +
->  endmenu
->  
->  menu "Dump support"
-
-> diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
-> index 87646ca..1983afa 100644
-> --- a/drivers/s390/crypto/Makefile
-> +++ b/drivers/s390/crypto/Makefile
-> @@ -13,4 +13,8 @@ obj-$(CONFIG_ZCRYPT) += zcrypt_pcixcc.o zcrypt_cex2a.o zcrypt_cex4.o
->  
->  # pkey kernel module
->  pkey-objs := pkey_api.o
-> -obj-$(CONFIG_PKEY) += pkey.o
-> \ No newline at end of file
-> +obj-$(CONFIG_PKEY) += pkey.o
-
-Another change of that line.
-
-> +
-> +# adjunct processor matrix
-> +vfio_ap_matrix-objs := vfio_ap_matrix_drv.o
-> +obj-$(CONFIG_VFIO_AP_MATRIX) += vfio_ap_matrix.o
 > diff --git a/drivers/s390/crypto/ap_matrix_bus.c b/drivers/s390/crypto/ap_matrix_bus.c
-> index 4eb1e3c..66bfa54 100644
+> index 66bfa54..418c23b 100644
 > --- a/drivers/s390/crypto/ap_matrix_bus.c
 > +++ b/drivers/s390/crypto/ap_matrix_bus.c
-> @@ -75,10 +75,18 @@ static int ap_matrix_dev_create(void)
->  	return 0;
->  }
->  
-> +struct ap_matrix *ap_matrix_get_device(void)
-> +{
-> +	return matrix;
+> @@ -61,6 +61,7 @@ static int ap_matrix_dev_create(void)
+>  	matrix->device.bus = &ap_matrix_bus_type;
+>  	matrix->device.parent = ap_matrix_root_device;
+>  	matrix->device.release = ap_matrix_dev_release;
+> +	INIT_LIST_HEAD(&matrix->queues);
 
-See the comments I had for the previous patch. In particular, I think
-it is better to retrieve a pointer to the matrix device via driver core
-methods.
+Don't you also need to init the spin lock?
 
-> +}
-> +EXPORT_SYMBOL(ap_matrix_get_device);
-> +
->  int __init ap_matrix_init(void)
->  {
->  	int ret;
 >  
-> +	matrix = NULL;
-> +
->  	ap_matrix_root_device = root_device_register(AP_MATRIX_BUS_NAME);
->  	ret = PTR_RET(ap_matrix_root_device);
->  	if (ret)
+>  	ret = device_register(&matrix->device);
+>  	if (ret) {
 > diff --git a/drivers/s390/crypto/ap_matrix_bus.h b/drivers/s390/crypto/ap_matrix_bus.h
-> index 225db4f..c2aff23 100644
+> index c2aff23..3eccc36 100644
 > --- a/drivers/s390/crypto/ap_matrix_bus.h
 > +++ b/drivers/s390/crypto/ap_matrix_bus.h
-> @@ -16,6 +16,6 @@ struct ap_matrix {
+> @@ -12,8 +12,12 @@
+>  
+>  #include <linux/device.h>
+>  
+> +#include "ap_bus.h"
+
+Why do you need this include now? (IOW, does that need to go into
+another patch?)
+
+> +
+>  struct ap_matrix {
 >  	struct device device;
+> +	spinlock_t qlock;
+> +	struct list_head queues;
 >  };
 >  
-> -int ap_matrix_init(void);
+>  struct ap_matrix *ap_matrix_get_device(void);
 
-So, was that not needed before?
-
-> +struct ap_matrix *ap_matrix_get_device(void);
->  
->  #endif /* _AP_MATRIX_BUS_H_ */
-> diff --git a/drivers/s390/crypto/vfio_ap_matrix_drv.c b/drivers/s390/crypto/vfio_ap_matrix_drv.c
+> diff --git a/drivers/s390/crypto/vfio_ap_matrix_ops.c b/drivers/s390/crypto/vfio_ap_matrix_ops.c
 > new file mode 100644
-> index 0000000..760ed56
+> index 0000000..7d01f18
 > --- /dev/null
-> +++ b/drivers/s390/crypto/vfio_ap_matrix_drv.c
-> @@ -0,0 +1,102 @@
+> +++ b/drivers/s390/crypto/vfio_ap_matrix_ops.c
+> @@ -0,0 +1,172 @@
 > +/*
-> + * VFIO based AP Matrix device driver
+> + * Adjunct processor matrix VFIO device driver callbacks.
 > + *
 > + * Copyright IBM Corp. 2017
-> + *
 > + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> + *
 > + */
+> +#include <asm/ap-config.h>
+> +#include <linux/string.h>
+> +#include <linux/vfio.h>
+> +#include <linux/mdev.h>
+> +#include <linux/device.h>
+> +#include <linux/list.h>
+> +#include <linux/ctype.h>
 > +
-> +#include <linux/module.h>
-> +#include <linux/mod_devicetable.h>
-> +#include <linux/slab.h>
-> +
-> +#include "ap_bus.h"
-> +#include "ap_matrix_bus.h"
 > +#include "vfio_ap_matrix_private.h"
 > +
-> +#define VFIO_AP_MATRIX_DRV_NAME "vfio_ap_queue"
+> +#define AP_MATRIX_MDEV_TYPE_HWVIRT "passthrough"
+> +#define AP_MATRIX_MDEV_NAME_HWVIRT "AP Matrix Passthrough Device"
 > +
-> +MODULE_AUTHOR("IBM Corporation");
-> +MODULE_DESCRIPTION("AP Matrix device driver, Copyright IBM Corp. 2017");
-> +MODULE_LICENSE("GPL v2");
+> +#define AP_MATRIX_MAX_AVAILABLE_INSTANCES	255
 > +
-> +static struct ap_device_id ap_queue_ids[] = {
-> +	{ .dev_type = AP_DEVICE_TYPE_CEX4,
-> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-> +	{ .dev_type = AP_DEVICE_TYPE_CEX5,
-> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-> +	{ .dev_type = AP_DEVICE_TYPE_CEX6,
-> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-
-So, you explicitly don't match to all devices, but only to the newer
-ones? This needs an explaining comment.
-
-> +	{ /* end of list */ },
+> +struct ap_matrix_mdev {
+> +	struct mdev_device *mdev;
+> +	struct list_head node;
 > +};
 > +
-> +MODULE_DEVICE_TABLE(ap_matrix, ap_queue_ids);
+> +struct ap_matrix	*matrix;
+> +struct mutex		mdev_devices_lock;
+> +struct list_head	mdev_devices;
+> +int			available_instances;
+
+Having this as a global variable feels wrong. I see that vfio-ccw keeps
+things like this in driver data attached to its parent. Can you do
+something like that as well?
+
 > +
-> +static struct ap_matrix_driver {
-> +	struct ap_driver ap_drv;
-> +	struct ap_matrix *ap_matrix;
-
-Do you actually need that pointer to the matrix device? One usage is to
-pass it as an parameter to the mdev registration in the next patch. As
-you only support one matrix device, would it be better to move getting
-that device into the mdev code?
-
-For the other usage, move getting it into find_vapq()?
-
-> +} vfio_ap_matrix_drv;
-> +
-> +static int ap_matrix_queue_dev_probe(struct ap_device *apdev)
+> +static struct ap_matrix_mdev *ap_matrix_mdev_find_by_uuid(uuid_le uuid)
 > +{
-> +	struct vfio_ap_queue *vapq;
-> +	struct ap_queue *apq = to_ap_queue(&apdev->device);
-> +	struct ap_matrix *ap_matrix = vfio_ap_matrix_drv.ap_matrix;
+> +	struct ap_matrix_mdev *matrix_mdev;
 > +
-> +	vapq = kzalloc(sizeof(*vapq), GFP_KERNEL);
-> +	if (!vapq)
-> +		return -ENOMEM;
-> +
-> +	INIT_LIST_HEAD(&vapq->list);
-> +	vapq->queue = apq;
-> +	spin_lock_bh(&ap_matrix->qlock);
-> +	list_add_tail(&vapq->list, &ap_matrix->queues);
-> +	spin_unlock_bh(&ap_matrix->qlock);
-> +
-> +	return 0;
-> +}
-> +
-> +static void ap_matrix_queue_dev_remove(struct ap_device *apdev)
-> +{
-> +	struct vfio_ap_queue *vapq;
-> +	struct ap_queue *apq = to_ap_queue(&apdev->device);
-> +	struct ap_matrix *ap_matrix = vfio_ap_matrix_drv.ap_matrix;
-> +
-> +	vapq = find_vapq(ap_matrix, apq->qid);
-> +
-> +	if (vapq) {
-> +		spin_lock_bh(&ap_matrix->qlock);
-> +		list_del_init(&vapq->list);
-> +		spin_unlock_bh(&ap_matrix->qlock);
-> +		kfree(vapq);
-> +	}
-> +}
-> +
-> +int __init ap_matrix_init(void)
-> +{
-> +
-> +	int ret;
-> +
-> +	vfio_ap_matrix_drv.ap_matrix = ap_matrix_get_device();
-> +	if (!vfio_ap_matrix_drv.ap_matrix)
-> +		return -ENODEV;
-> +
-> +	vfio_ap_matrix_drv.ap_drv.probe = ap_matrix_queue_dev_probe;
-> +	vfio_ap_matrix_drv.ap_drv.remove = ap_matrix_queue_dev_remove;
-> +	vfio_ap_matrix_drv.ap_drv.ids = ap_queue_ids;
-
-Can you use an static initializer for that?
-
-> +
-> +	ret = ap_driver_register(&vfio_ap_matrix_drv.ap_drv,
-> +				 THIS_MODULE, VFIO_AP_MATRIX_DRV_NAME);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return ret;
-> +}
-> +
-> +void __exit ap_matrix_exit(void)
-> +{
-> +	ap_driver_unregister(&vfio_ap_matrix_drv.ap_drv);
-> +}
-> +
-> +module_init(ap_matrix_init);
-> +module_exit(ap_matrix_exit);
-> diff --git a/drivers/s390/crypto/vfio_ap_matrix_private.h b/drivers/s390/crypto/vfio_ap_matrix_private.h
-> new file mode 100644
-> index 0000000..11c5e02
-> --- /dev/null
-> +++ b/drivers/s390/crypto/vfio_ap_matrix_private.h
-> @@ -0,0 +1,47 @@
-> +/*
-> + * Private data and functions for adjunct processor VFIO matrix driver.
-> + *
-> + * Copyright IBM Corp. 2016
-> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> + */
-> +
-> +#ifndef _VFIO_AP_PRIVATE_H_
-> +#define _VFIO_AP_PRIVATE_H_
-> +
-> +#include <linux/types.h>
-> +
-> +#include "ap_bus.h"
-> +#include "ap_matrix_bus.h"
-> +
-> +#define VFIO_AP_MATRIX_MODULE_NAME "vfio_ap_matrix"
-> +
-> +struct vfio_ap_queue {
-> +	struct ap_queue *queue;
-> +	struct list_head list;
-> +};
-> +
-> +static inline struct vfio_ap_queue *to_vapq(struct ap_device *ap_dev)
-> +{
-> +	struct ap_queue *ap_queue = to_ap_queue(&ap_dev->device);
-> +	struct vfio_ap_queue *vapq;
-> +
-> +	vapq = container_of(&ap_queue, struct vfio_ap_queue, queue);
-
-Why not just return container_of(...); ?
-
-> +
-> +	return vapq;
-> +}
-> +
-> +static inline struct vfio_ap_queue *find_vapq(struct ap_matrix *ap_matrix,
-> +					      ap_qid_t qid)
-> +{
-> +	struct vfio_ap_queue *vapq;
-> +
-> +	if (!list_empty(&ap_matrix->queues)) {
-> +		list_for_each_entry(vapq, &ap_matrix->queues, list)
-> +			if (vapq->queue->qid == qid)
-> +				return vapq;
+> +	list_for_each_entry(matrix_mdev, &mdev_devices, node) {
+> +		if (uuid_le_cmp(mdev_uuid(matrix_mdev->mdev), uuid) == 0)
+> +			return matrix_mdev;
 > +	}
 > +
 > +	return NULL;
 > +}
+
+(...)
+
+> +int ap_matrix_mdev_register(struct ap_matrix *ap_matrix)
+> +{
+> +	int ret;
+> +	struct device *dev = &ap_matrix->device;
 > +
-> +#endif /* _VFIO_AP_PRIVATE_H_ */
+> +	ret = mdev_register_device(dev, &vfio_ap_matrix_ops);
+> +	if (ret)
+> +		return ret;
+> +
+> +	matrix = ap_matrix;
+
+I'd just grab the (one) matrix device here...
+
+> +	mutex_init(&mdev_devices_lock);
+> +	INIT_LIST_HEAD(&mdev_devices);
+> +	available_instances = AP_MATRIX_MAX_AVAILABLE_INSTANCES;
+> +
+> +	return 0;
+> +}
+> +
+> +void ap_matrix_mdev_unregister(struct ap_matrix *ap_matrix)
+> +{
+> +	struct device *dev;
+> +
+> +	if (ap_matrix == matrix) {
+
+...and lose this extra if.
+
+> +		dev = &matrix->device;
+> +		available_instances--;
+> +		mdev_unregister_device(dev);
+> +	}
+> +}
