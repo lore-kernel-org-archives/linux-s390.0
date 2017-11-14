@@ -1,139 +1,65 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [RFC 02/19] KVM: s390: refactor crypto initialization
-Date: Tue, 14 Nov 2017 10:53:12 -0500
-Message-ID: <e2530c7c-5230-3992-1e44-c6f330a647fc@linux.vnet.ibm.com>
+Subject: Re: [RFC 03/19] s390/zcrypt: new AP matrix bus
+Date: Tue, 14 Nov 2017 10:54:40 -0500
+Message-ID: <c83a41b9-4297-eac3-0a8f-44010db2c209@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1507916344-3896-3-git-send-email-akrowiak@linux.vnet.ibm.com>
- <6e65f497-5cae-f731-2885-a9ce19d92d8b@de.ibm.com>
- <20171114125028.1653a2cc.cohuck@redhat.com>
+ <1507916344-3896-4-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20171114125845.30d46087.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171114125028.1653a2cc.cohuck@redhat.com>
+In-Reply-To: <20171114125845.30d46087.cohuck@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, david@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 11/14/2017 06:50 AM, Cornelia Huck wrote:
-> On Thu, 2 Nov 2017 13:41:18 +0100
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On 11/14/2017 06:58 AM, Cornelia Huck wrote:
+> On Fri, 13 Oct 2017 13:38:48 -0400
+> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 >
->> On 10/13/2017 07:38 PM, Tony Krowiak wrote:
->>> This patch introduces the following changes to crypto initialization.
->>>
->>> * For key management operations support, the crypto control block
->>>    (CRYCB) referenced by the KVM guest's SIE state description is
->>>    formatted only if the Message-Security-Assist (MSA) extension 3
->>>    facility is installed (STFLE.76 is set). Virtualization of AP
->>>    facilities, however; requires that a CRYCB of the appropriate
->>>    format be made available to SIE regardless of the value of STFLE.76.
->>>
->>> * The Execution Controls A (ECA) field bit 28 in the SIE block needs
->>>    to be set to enable interpretive execution mode of adjunct processor (AP)
->>>    instructions.
->> We should fence setting ECA to cases where we have virtualization capability
->> for crypto. In addition we need to bind this somehow to the CPU model, so
->> I guess we need to add some CRYPTO feature e.g. add KVM_S390_VM_CPU_FEAT_AP to the
->> list of know features
->> (see arch/s390/include/uapi/asm/kvm.h)
->> ---snip---
->> #define KVM_S390_VM_CPU_FEAT_ESOP       0
->> #define KVM_S390_VM_CPU_FEAT_SIEF2      1
->> #define KVM_S390_VM_CPU_FEAT_64BSCAO    2
->> #define KVM_S390_VM_CPU_FEAT_SIIF       3
->> #define KVM_S390_VM_CPU_FEAT_GPERE      4
->> #define KVM_S390_VM_CPU_FEAT_GSLS       5
->> #define KVM_S390_VM_CPU_FEAT_IB         6
->> #define KVM_S390_VM_CPU_FEAT_CEI        7
->> #define KVM_S390_VM_CPU_FEAT_IBS        8
->> #define KVM_S390_VM_CPU_FEAT_SKEY       9
->> #define KVM_S390_VM_CPU_FEAT_CMMA       10
->> #define KVM_S390_VM_CPU_FEAT_PFMFI      11
->> #define KVM_S390_VM_CPU_FEAT_SIGPIF     12
->> #define KVM_S390_VM_CPU_FEAT_KSS        13
->> ---snip---
-> So, we need this so userspace can add the appropriate flags, right?
+>> Introduces an AP matrix bus. The sysfs location of the
+>> AP matrix bus is:
+>>
+>> /sys/bus/ap_matrix
+>>
+>> The AP matrix bus will create an AP matrix device that will
+>> hold the AP queues reserved for use by KVM guests.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>> ---
+>>   MAINTAINERS                         |    8 +++++
+>>   drivers/s390/crypto/Makefile        |    4 +-
+>>   drivers/s390/crypto/ap_matrix_bus.c |   52 +++++++++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/ap_matrix_bus.h |   15 ++++++++++
+>>   4 files changed, 77 insertions(+), 2 deletions(-)
+>>   create mode 100644 drivers/s390/crypto/ap_matrix_bus.c
+>>   create mode 100644 drivers/s390/crypto/ap_matrix_bus.h
+>>
+>> diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
+>> index be36f10..87646ca 100644
+>> --- a/drivers/s390/crypto/Makefile
+>> +++ b/drivers/s390/crypto/Makefile
+>> @@ -2,7 +2,7 @@
+>>   # S/390 crypto devices
+>>   #
+>>   
+>> -ap-objs := ap_bus.o ap_card.o ap_queue.o
+>> +ap-objs := ap_bus.o ap_card.o ap_queue.o ap_matrix_bus.o
+>>   obj-$(subst m,y,$(CONFIG_ZCRYPT)) += ap.o
+>>   # zcrypt_api.o and zcrypt_msgtype*.o depend on ap.o
+>>   zcrypt-objs := zcrypt_api.o zcrypt_card.o zcrypt_queue.o
+>> @@ -13,4 +13,4 @@ obj-$(CONFIG_ZCRYPT) += zcrypt_pcixcc.o zcrypt_cex2a.o zcrypt_cex4.o
+>>   
+>>   # pkey kernel module
+>>   pkey-objs := pkey_api.o
+>> -obj-$(CONFIG_PKEY) += pkey.o
+>> +obj-$(CONFIG_PKEY) += pkey.o
+> Unrelated change.
+will fix
 >
->>
->> I will try to find out a way to properly detect that.
-> Did you manage to find out
-The AP bus (drivers/s390/crypto/ap_bus.c) calls 
-ap_instructions_available() function in drivers/s390/crypto/ap_asm.c
-to determine whether AP instructions are installed. This function 
-executes the PQAP(TAPQ) function and incorporates
-exception table to catch the operation exception if the AP instructions 
-are not installed.  I propose externalizing
-that function so it can be called from KVM.
->
->>
->>
->>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>> ---
->>>   arch/s390/include/asm/kvm_host.h |    1 +
->>>   arch/s390/kvm/kvm-s390.c         |   17 +++++++++++++----
->>>   2 files changed, 14 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->>> index 50a6b25..5683f18 100644
->>> --- a/arch/s390/include/asm/kvm_host.h
->>> +++ b/arch/s390/include/asm/kvm_host.h
->>> @@ -188,6 +188,7 @@ struct kvm_s390_sie_block {
->>>   #define ECA_MVPGI	0x01000000
->>>   #define ECA_VX		0x00020000
->>>   #define ECA_PROTEXCI	0x00002000
->>> +#define ECA_AP		0x00000008
->>>   #define ECA_SII		0x00000001
->>>   	__u32	eca;			/* 0x004c */
->>>   #define ICPT_INST	0x04
->>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>> index 40d0a1a..e57fc9b 100644
->>> --- a/arch/s390/kvm/kvm-s390.c
->>> +++ b/arch/s390/kvm/kvm-s390.c
->>> @@ -1819,7 +1819,9 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
->>>   {
->>>   	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
->>>
->>> -	if (kvm_s390_apxa_installed())
->>> +	if (!test_kvm_facility(kvm, 76))
->>> +		kvm->arch.crypto.crycbd &= ~(CRYCB_FORMAT2); /* format 0 */
->>> +	else if (kvm_s390_apxa_installed())
->>>   		kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
->>>   	else
->>>   		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
->>> @@ -1836,12 +1838,12 @@ static u64 kvm_s390_get_initial_cpuid(void)
->>>
->>>   static void kvm_s390_crypto_init(struct kvm *kvm)
->>>   {
->>> -	if (!test_kvm_facility(kvm, 76))
->>> -		return;
->>> -
->>>   	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
->>>   	kvm_s390_set_crycb_format(kvm);
->>>
->>> +	if (!test_kvm_facility(kvm, 76))
->>> +		return;
->>> +
->>>   	/* Enable AES/DEA protected key functions by default */
->>>   	kvm->arch.crypto.aes_kw = 1;
->>>   	kvm->arch.crypto.dea_kw = 1;
->>> @@ -2366,8 +2368,15 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
->>>   	vcpu->arch.enabled_gmap = vcpu->arch.gmap;
->>>   }
->>>
->>> +static void kvm_s390_vcpu_set_crypto_exec_mode(struct kvm_vcpu *vcpu)
->>> +{
->>> +	vcpu->arch.sie_block->eca |= ECA_AP;
->>> +}
->>> +
->>>   static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
->>>   {
->>> +	kvm_s390_vcpu_set_crypto_exec_mode(vcpu);
->>> +
->>>   	if (!test_kvm_facility(vcpu->kvm, 76))
->>>   		return;
->>>    
+>> \ No newline at end of file
