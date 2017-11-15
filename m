@@ -1,16 +1,16 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH 21/22] KVM: s390: Add KVM HPAGE capability
-Date: Wed, 15 Nov 2017 13:02:30 +0100
-Message-ID: <87e884a5-1072-4bd4-8350-c751bbd62a53@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH 22/22] RFC: s390/mm: Add gmap lock classes
+Date: Wed, 15 Nov 2017 13:16:55 +0100
+Message-ID: <892509a1-bdda-13f3-af64-c73f5c2b4fc0@linux.vnet.ibm.com>
 References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1510007400-42493-22-git-send-email-frankja@linux.vnet.ibm.com>
- <ea2a81f6-10ff-7596-6df5-ad4a65765fe7@redhat.com>
+ <1510007400-42493-23-git-send-email-frankja@linux.vnet.ibm.com>
+ <91442796-11c7-6c41-fe52-1e33bc5107dc@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="EAlhHnFAdros0u6hOfIpKUjxanrLP4dLO"
+ boundary="jFtL8uPqAuGnsk5POae2LX0LnnL8tLfXG"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <ea2a81f6-10ff-7596-6df5-ad4a65765fe7@redhat.com>
+In-Reply-To: <91442796-11c7-6c41-fe52-1e33bc5107dc@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -19,89 +19,49 @@ Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, li
 List-ID: <linux-s390.vger.kernel.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---EAlhHnFAdros0u6hOfIpKUjxanrLP4dLO
-Content-Type: multipart/mixed; boundary="IPFa7JcO3rEqIUugElBFnDdJaM2Vv3UdJ";
+--jFtL8uPqAuGnsk5POae2LX0LnnL8tLfXG
+Content-Type: multipart/mixed; boundary="qlsw6FdF65R6nhAWkaP5dEHaWqwHKcJ72";
  protected-headers="v1"
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
 To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
  linux-s390@vger.kernel.org
-Message-ID: <87e884a5-1072-4bd4-8350-c751bbd62a53@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH 21/22] KVM: s390: Add KVM HPAGE capability
+Message-ID: <892509a1-bdda-13f3-af64-c73f5c2b4fc0@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH 22/22] RFC: s390/mm: Add gmap lock classes
 References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1510007400-42493-22-git-send-email-frankja@linux.vnet.ibm.com>
- <ea2a81f6-10ff-7596-6df5-ad4a65765fe7@redhat.com>
-In-Reply-To: <ea2a81f6-10ff-7596-6df5-ad4a65765fe7@redhat.com>
+ <1510007400-42493-23-git-send-email-frankja@linux.vnet.ibm.com>
+ <91442796-11c7-6c41-fe52-1e33bc5107dc@redhat.com>
+In-Reply-To: <91442796-11c7-6c41-fe52-1e33bc5107dc@redhat.com>
 
---IPFa7JcO3rEqIUugElBFnDdJaM2Vv3UdJ
+--qlsw6FdF65R6nhAWkaP5dEHaWqwHKcJ72
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 15.11.2017 11:06, David Hildenbrand wrote:
-> On 06.11.2017 23:29, Janosch Frank wrote:
->> KVM huge page backing support can not be easily tested under
->> s390. Currently testing is only possible after most of the guest has
->> already been set up.
+On 15.11.2017 11:10, David Hildenbrand wrote:
+> On 06.11.2017 23:30, Janosch Frank wrote:
+>> A shadow gmap and its parent are locked right after each other when
+>> doing VSIE management. Lockdep can't differentiate between the two
+>> classes without some help.
 >>
->> To indicate, that KVM has huge page backing support, we add the
->> KVM_CAP_S390_HPAGE capability. This does not mean, that transparent
->> huge pages are supported.
+>> TODO: Not sure yet if I have to annotate all and if gmap_pmd_walk will=
+
+>> be used by both shadow and parent
 >=20
-> Are there any plans to support it? (my feeling is that it could be
-> somewhat tricky :) )
+> Why is that new, I thought we already had the same situation before and=
 
-Better safe than sorry was the idea behind that.
-By the way, this lacks the capability announcement in
-kvm_vm_ioctl_check_extension() but I already fixed that for v2.
-
+> lockdep didn't complain?
 >=20
->>
->> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
->> ---
->>  include/uapi/linux/kvm.h | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
->> index 8388875..2cd359a 100644
->> --- a/include/uapi/linux/kvm.h
->> +++ b/include/uapi/linux/kvm.h
->> @@ -930,6 +930,7 @@ struct kvm_ppc_resize_hpt {
->>  #define KVM_CAP_PPC_SMT_POSSIBLE 147
->>  #define KVM_CAP_HYPERV_SYNIC2 148
->>  #define KVM_CAP_HYPERV_VP_INDEX 149
->> +#define KVM_CAP_S390_HPAGE 150
->> =20
-> What about facilities/features that require PGSTE to be around. Have we=
+> (worrying of we are now seeing a real problem and try to hide it)
 
-> fixed up all handlers? (I remember some features/instructions triggerin=
-g
-> special SIE exits in case they hit a large pmd in the gmap).
->=20
-> Which of these facilities will we have to disable in user space? (e.g.
-> we already handle CMM in QEMU if we detect explicit huge pages).
->=20
-> (lack of public documentation makes this hard to review/understand)
-
-Most facilities tolerate edat in a way, that changes are not necessary.
-CMMA for example would still be interpreted but it would only accept the
-stable/resident state. SKEYS have the RCP bypass. PFMF gets intercepted,
-however, it doesn't use the GMAP, but the user mapping for clearing.
-Also you already disabled a lot for VSIE, like pfmf interpretation.
-Emulation in l2 for l3 and RRBE are still on the TODO list for complete
-evaluation.
-
-This is a valid concern for everyone involved and I scan as much
-hardware documentation as possible. I have prepared unit tests for pfmf,
-cmm, cmma and storage key operations in an effort to test as much as
-possible in each level of SIE. Unfortunately I can't yet publish them,
-but I will, as soon as I'm allowed.
-I still wish for a way to disable skeys completely.
+In gmap_protect_rmap we now also need to take the parent's gmap page
+table lock, which we didn't need before, because we only touched the
+parent's ptes and had pte locks for that.
 
 
---IPFa7JcO3rEqIUugElBFnDdJaM2Vv3UdJ--
+--qlsw6FdF65R6nhAWkaP5dEHaWqwHKcJ72--
 
---EAlhHnFAdros0u6hOfIpKUjxanrLP4dLO
+--jFtL8uPqAuGnsk5POae2LX0LnnL8tLfXG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -109,19 +69,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJaDCzkAAoJEBcO/8Q8ZEV5OnYP/0y6PLPXaUJnqKinGDVogvTA
-15j3hlLsScMm591syEx40oY1V1qmghgYwRsnqbdHHG9QGa6AD+lnpEP5cqU5yKF1
-xDYxo/NgEzKvrIBQEi5GLJ5+HCOh0rctaFhKhvOr4+TjW2A4qP0uyFbz0gPHSZOh
-b6Msf2O0lJN2Ye2UXQ7P5pf/ysL5H6xy9nyeDkaixhkyt+Mj4alL9sQbvAwoPsOt
-bPjPshmPCniEvddCotjW7NM+1LITGiPn3lzFz0rUQ85GHMdpNuFkA+JCJqglQUwM
-gta1BTmqQLhbjIrQgybt3JUUBcnv7jsSbywNuCclsSuz92AmvwTaWvO+S26yRh0s
-cx0xDj5zj9C9po0dmRo2o79akUJALtl/u2fGDZXJWADHE452+HNjiQ6lDqKHN03e
-4imSboHNRUa4CBk8uB/4Po076KOKOF77x9pRWvD/tNzu6dW1gwa4kMyuKgr42KOu
-NM6RNIbLj4KT+m47z9qbKZvDmyfi5qYEbQAF20/gJtJFYjAGA+lVwXPyua0WgsFs
-eOIqn4GIjT5hukpWl0E4LsT5N2RQJ/qb4qHeQQZR3o9fIKR1Q3fJdJbzvcVn8FXp
-qJNrjkFWwxWhDYzcJlAJZMqeFijW3FI8GjxiA8prtBT/RfVF/F74tpyFH507M7Ma
-dlRaxJG+4cZ5eqHREUR3
-=Kwku
+iQIcBAEBCAAGBQJaDDA3AAoJEBcO/8Q8ZEV5pVUP/A5da4GC6fuCi1+fX4HpKbCM
+1yV7M8zE/pIN8+YWc8e6ovDNbtkM5m7T1DGgvB30/9trgpQXtk+gymFiKsfzVGv/
+4wJ25y6MqqZMAABCKlug++T8YbK1enhP/CmPzGLxHsHkWbXptq780lTTAAaRHji6
+54HKq3qn/OfAdi3sX5e29CX5ueXyinMOhMrWvg3eY8rihLcltBlJdm4CRgHCRk0a
+zztIoVm5XwYRpER198bnDPxaJUSOOqBKE7dG3rNxLeqTXpUXDvwGTDCSlQnLwrrt
+uTevj5COBVgt7Q8CqQpauqLCD+c8EacE+6c+Mba6Arog5Wt44BhMdGaAZfOIyBte
+u2QE+Us1gI7O1yckgjLmnsRx5TRDvWGi1N67F9+tYpsXMW8NMPR/paNZZMeNY2cM
+bzQLbsvhzT7tyTXv4VXhpS2wAbG2xFg0N8RXrDbVIl/+68Zswf3j3WtOSjGlpf7u
++U85DA9zuQZ7h0TKaO/5PvZfRH2Vw/+hGF+/q/wNDeyMjWMW/3+XvphanURoSCGq
+Iui7C+tfZum8XucNOjvDX5LdftRJgX39CXh4b68gzLkhHODFC1xcJndjU4Jcqn7z
+DSaV939KB9yy/x2a0iGahehRUduGXVC9r2jif9p+NmS4Y8q0ly3/xBiG0gUgcqt0
+PzThTbAb04ziedg3L2cn
+=NEab
 -----END PGP SIGNATURE-----
 
---EAlhHnFAdros0u6hOfIpKUjxanrLP4dLO--
+--jFtL8uPqAuGnsk5POae2LX0LnnL8tLfXG--
