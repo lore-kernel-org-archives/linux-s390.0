@@ -1,16 +1,14 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC/PATCH 02/22] s390/mm: Abstract gmap notify bit setting
-Date: Wed, 15 Nov 2017 10:30:27 +0100
-Message-ID: <c17a05fd-9eee-93b9-8e9f-15e3d927e9f5@redhat.com>
+Subject: Re: [RFC/PATCH 03/22] s390/mm: add gmap PMD invalidation notification
+Date: Wed, 15 Nov 2017 10:55:49 +0100
+Message-ID: <3b439732-70a4-8b95-4b9e-87f230dd7aaa@redhat.com>
 References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1510007400-42493-3-git-send-email-frankja@linux.vnet.ibm.com>
- <5939dc68-f6e8-54a0-a6d1-b9655de273a5@redhat.com>
- <84dc4936-6fe2-0636-3757-ae0e87a8938f@linux.vnet.ibm.com>
+ <1510007400-42493-4-git-send-email-frankja@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <84dc4936-6fe2-0636-3757-ae0e87a8938f@linux.vnet.ibm.com>
+In-Reply-To: <1510007400-42493-4-git-send-email-frankja@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,68 +17,247 @@ To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 13.11.2017 16:57, Janosch Frank wrote:
-> On 10.11.2017 13:57, David Hildenbrand wrote:
->> On 06.11.2017 23:29, Janosch Frank wrote:
->>> Currently we use the software PGSTE bits PGSTE_IN_BIT and PGSTE_VSIE_BIT
->>> to notify before an invalidation occurs on a prefix page or a VSIE page
->>> respectively. Both bits only work for a PGSTE, which only exists for
->>> page tables.
->>>
->>> For huge page support we also need such bits for segments (pmds) so
->>> let's introduce abstract GMAP_ENTRY_* bits that will be realized into
->>> the respective bits when gmap DAT table entries are protected.
->>>
->>> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
->>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> [...]
->>> @@ -8,6 +8,10 @@
->>>  #ifndef _ASM_S390_GMAP_H
->>>  #define _ASM_S390_GMAP_H
->>>  
->>> +/* Generic bits for GMAP notification on DAT table entry changes. */
->>> +#define GMAP_ENTRY_VSIE	0x2
->>> +#define GMAP_ENTRY_IN	0x1
->>
->> Can we rename
->> GMAP_ENTRY_VSIE -> GMAP_ENTRY_SHADOW_IN
->>
->> and also
->>
->> PGSTE_VSIE_BIT -> PGSTE_SHADOW_IN_BIT
+On 06.11.2017 23:29, Janosch Frank wrote:
+> For later migration of huge pages we want to write-protect guest
+> PMDs. While doing this, we have to make absolutely sure, that the
+> guest's lowcore is always accessible when the VCPU is running. With
+> PTEs, this is solved by marking the PGSTEs of the lowcore pages with
+> the invalidation notification bit and kicking the guest out of the SIE
+> via a notifier function if we need to invalidate such a page.
 > 
-> I'd like to keep the PGSTE bit names, the PGSTE bits are nicely
-> formatted and consistent in pgtable.h. The segment bit names are even
-> worse because of their length:
+> With PMDs we do not have PGSTEs or some other bits we could use in the
+> host PMD. Instead we pick one of the free bits in the gmap PMD. Every
+> time a host pmd will be invalidated, we will check if the respective
+> gmap PMD has the bit set and in that case fire up the notifier.
 > 
-> _SEGMENT_ENTRY_GMAP_VSIE
+> In the first step we only support setting the invalidation bit, but we
+> do not support restricting access of guest pmds. It will follow
+> shortly.
 > 
-> and if we'd use your naming it gets even longer:
+> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+> ---
+>  arch/s390/include/asm/gmap.h    |  3 ++
+>  arch/s390/include/asm/pgtable.h |  1 +
+>  arch/s390/mm/gmap.c             | 95 ++++++++++++++++++++++++++++++++++++-----
+>  arch/s390/mm/pgtable.c          |  4 ++
+>  4 files changed, 93 insertions(+), 10 deletions(-)
 > 
-> _SEGMENT_ENTRY_GMAP_SHADOW_IN_BIT
-> 
-> 
-> I'll try to come up with something consistent and good sounding, but it
-> certainly isn't a #1 priority and I might fail to do so :)
-> 
->>
->> as they are used for managing shadow page table invalidation.
->>
->> Also, a better fitting name for ENTRY would be nice :)
->> (GMAP_NOTIFY_...)
-> 
-> Yes, the ENTRY part came from the _SEGMENT_ENTRY_* constants, whose
-> names you might also dislike.
-> 
-> So I think I'll use:
-> GMAP_NOTIFY_PREFIX(_BIT)
+> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+> index f3d84a8..99cf6d8 100644
+> --- a/arch/s390/include/asm/gmap.h
+> +++ b/arch/s390/include/asm/gmap.h
+> @@ -12,6 +12,9 @@
+>  #define GMAP_ENTRY_VSIE	0x2
+>  #define GMAP_ENTRY_IN	0x1
+>  
+> +/* Status bits in the gmap segment entry. */
+> +#define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
+> +
+>  /**
+>   * struct gmap_struct - guest address space
+>   * @list: list head for the mm->context gmap list
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index 20e75a2..4707647 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -1092,6 +1092,7 @@ void ptep_set_pte_at(struct mm_struct *mm, unsigned long addr,
+>  void ptep_set_notify(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
+>  void ptep_notify(struct mm_struct *mm, unsigned long addr,
+>  		 pte_t *ptep, unsigned long bits);
+> +void pmdp_notify(struct mm_struct *mm, unsigned long addr);
+>  int ptep_force_prot(struct mm_struct *mm, unsigned long gaddr,
+>  		    pte_t *ptep, int prot, unsigned long bit);
+>  void ptep_zap_unused(struct mm_struct *mm, unsigned long addr,
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 74e2062..3961589 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -595,10 +595,17 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+>  	if (*table == _SEGMENT_ENTRY_EMPTY) {
+>  		rc = radix_tree_insert(&gmap->host_to_guest,
+>  				       vmaddr >> PMD_SHIFT, table);
+> -		if (!rc)
+> -			*table = pmd_val(*pmd);
+> -	} else
+> -		rc = 0;
+> +		if (!rc) {
+> +			if (pmd_large(*pmd)) {
+> +				*table = pmd_val(*pmd) &
+> +					(_SEGMENT_ENTRY_ORIGIN_LARGE
+> +					 | _SEGMENT_ENTRY_INVALID
+> +					 | _SEGMENT_ENTRY_LARGE
+> +					 | _SEGMENT_ENTRY_PROTECT);
 
-s/PREFIX/MPROTECT/ ?
+Can we reuse/define a mask for that?
 
-Because that's the GMAP interface being used.
+Like _SEGMENT_ENTRY_BITS_LARGE
 
-> GMAP_NOTIFY_SHADOW(_BIT)
-> 
+> +			} else
+> +				*table = pmd_val(*pmd) & ~0x03UL;
+
+Where exactly does the 0x03UL come from? Can we reuse e.g.
+_SEGMENT_ENTRY_BITS here?
+
+Or is there a way to unify both cases?
+
+> +		}
+> +	}
+>  	spin_unlock(&gmap->guest_table_lock);
+>  	spin_unlock(ptl);
+>  	radix_tree_preload_end();
+> @@ -965,6 +972,35 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
+>  }
+>  
+>  /*
+> + * gmap_protect_large - set pmd notification bits
+
+Why not gmap_protect_pmd just like gmap_protect_pte?
+
+> + * @pmdp: pointer to the pmd to be protected
+> + * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
+> + * @bits: notification bits to set
+> + *
+> + * Returns 0 if successfully protected, -ENOMEM if out of memory and
+> + * -EAGAIN if a fixup is needed.
+> + *
+> + * Expected to be called with sg->mm->mmap_sem in read and
+> + * guest_table_lock held.
+
+gmap_pmd_op_walk() guarantees the latter, correct?
+
+> + */
+> +static int gmap_protect_large(struct gmap *gmap, unsigned long gaddr,
+> +			      pmd_t *pmdp, int prot, unsigned long bits)
+> +{
+> +	int pmd_i, pmd_p;
+> +
+> +	pmd_i = pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID;
+> +	pmd_p = pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT;
+
+initialize both directly and make them const.
+
+> +
+> +	/* Fixup needed */
+> +	if ((pmd_i && (prot != PROT_NONE)) || (pmd_p && (prot & PROT_WRITE)))
+> +		return -EAGAIN;
+
+Looks just like ptep_force_prot, so should be ok.
+
+> +
+> +	if (bits & GMAP_ENTRY_IN)
+> +		pmd_val(*pmdp) |=  _SEGMENT_ENTRY_GMAP_IN;
+> +	return 0;
+> +}
+> +
+> +/*
+>   * gmap_protect_range - remove access rights to memory and set pgste bits
+>   * @gmap: pointer to guest mapping meta data structure
+>   * @gaddr: virtual address in the guest address space
+> @@ -977,7 +1013,7 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
+>   *
+>   * Called with sg->mm->mmap_sem in read.
+>   *
+> - * Note: Can also be called for shadow gmaps.
+> + * Note: Can also be called for shadow gmaps, but only with 4k pages.
+>   */
+>  static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+>  			      unsigned long len, int prot, unsigned long bits)
+> @@ -990,11 +1026,20 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+>  		rc = -EAGAIN;
+>  		pmdp = gmap_pmd_op_walk(gmap, gaddr);
+>  		if (pmdp) {
+> -			rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
+> -					      bits);
+> -			if (!rc) {
+> -				len -= PAGE_SIZE;
+> -				gaddr += PAGE_SIZE;
+> +			if (!pmd_large(*pmdp)) {
+> +				rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
+> +						      bits);
+> +				if (!rc) {
+> +					len -= PAGE_SIZE;
+> +					gaddr += PAGE_SIZE;
+> +				}
+> +			} else {
+> +				rc =  gmap_protect_large(gmap, gaddr, pmdp,
+> +							 prot, bits);
+> +				if (!rc) {
+> +					len = len < HPAGE_SIZE ? 0 : len - HPAGE_SIZE;
+
+Shouldn't you also have to take the difference to (gaddr & HPAGE_MASK)
+into account, like you do in the next step? (so always subtracting
+HPAGE_SIZE looks suspicious)
+
+> +					gaddr = (gaddr & HPAGE_MASK) + HPAGE_SIZE;
+> +				}
+>  			}
+>  			gmap_pmd_op_end(gmap, pmdp);
+>  		}
+> @@ -2191,6 +2236,36 @@ void ptep_notify(struct mm_struct *mm, unsigned long vmaddr,
+>  }
+>  EXPORT_SYMBOL_GPL(ptep_notify);
+>  
+> +/**
+> + * pmdp_notify - call all invalidation callbacks for a specific pmd
+> + * @mm: pointer to the process mm_struct
+> + * @vmaddr: virtual address in the process address space
+> + *
+> + * This function is expected to be called with mmap_sem held in read.
+> + */
+> +void pmdp_notify(struct mm_struct *mm, unsigned long vmaddr)
+> +{
+> +	unsigned long *table, gaddr;
+> +	struct gmap *gmap;
+> +
+> +	rcu_read_lock();
+> +	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
+> +		spin_lock(&gmap->guest_table_lock);
+> +		table = radix_tree_lookup(&gmap->host_to_guest,
+> +					  vmaddr >> PMD_SHIFT);
+> +		if (!table || !(*table & _SEGMENT_ENTRY_GMAP_IN)) {
+> +			spin_unlock(&gmap->guest_table_lock);
+> +			continue;
+> +		}
+> +		gaddr = __gmap_segment_gaddr(table);
+> +		*table &= ~_SEGMENT_ENTRY_GMAP_IN;
+
+We can perform this page table change without any flushing/stuff like
+that because we don't modify bits used by the HW. Is that guaranteed by
+the architecture or are there any special conditions to take into
+account? (applies also to were we set the _SEGMENT_ENTRY_GMAP_IN)
+
+> +		spin_unlock(&gmap->guest_table_lock);
+> +		gmap_call_notifier(gmap, gaddr, gaddr + HPAGE_SIZE - 1);
+> +	}
+> +	rcu_read_unlock();
+> +}
+> +EXPORT_SYMBOL_GPL(pmdp_notify);
+> +
+>  static inline void thp_split_mm(struct mm_struct *mm)
+>  {
+>  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+> index ae677f8..79d35d0 100644
+> --- a/arch/s390/mm/pgtable.c
+> +++ b/arch/s390/mm/pgtable.c
+> @@ -404,6 +404,8 @@ pmd_t pmdp_xchg_direct(struct mm_struct *mm, unsigned long addr,
+>  	pmd_t old;
+>  
+>  	preempt_disable();
+> +	if (mm_has_pgste(mm))
+> +		pmdp_notify(mm, addr);
+>  	old = pmdp_flush_direct(mm, addr, pmdp);
+>  	*pmdp = new;
+>  	preempt_enable();
+> @@ -417,6 +419,8 @@ pmd_t pmdp_xchg_lazy(struct mm_struct *mm, unsigned long addr,
+>  	pmd_t old;
+>  
+>  	preempt_disable();
+> +	if (mm_has_pgste(mm))
+> +		pmdp_notify(mm, addr);
+>  	old = pmdp_flush_lazy(mm, addr, pmdp);
+>  	*pmdp = new;
+>  	preempt_enable();
 > 
 
 
