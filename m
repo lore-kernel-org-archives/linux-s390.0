@@ -1,248 +1,127 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC/PATCH 22/22] RFC: s390/mm: Add gmap lock classes
-Date: Wed, 15 Nov 2017 11:10:09 +0100
-Message-ID: <91442796-11c7-6c41-fe52-1e33bc5107dc@redhat.com>
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH 21/22] KVM: s390: Add KVM HPAGE capability
+Date: Wed, 15 Nov 2017 13:02:30 +0100
+Message-ID: <87e884a5-1072-4bd4-8350-c751bbd62a53@linux.vnet.ibm.com>
 References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1510007400-42493-23-git-send-email-frankja@linux.vnet.ibm.com>
+ <1510007400-42493-22-git-send-email-frankja@linux.vnet.ibm.com>
+ <ea2a81f6-10ff-7596-6df5-ad4a65765fe7@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="EAlhHnFAdros0u6hOfIpKUjxanrLP4dLO"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1510007400-42493-23-git-send-email-frankja@linux.vnet.ibm.com>
-Content-Language: en-US
+In-Reply-To: <ea2a81f6-10ff-7596-6df5-ad4a65765fe7@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06.11.2017 23:30, Janosch Frank wrote:
-> A shadow gmap and its parent are locked right after each other when
-> doing VSIE management. Lockdep can't differentiate between the two
-> classes without some help.
-> 
-> TODO: Not sure yet if I have to annotate all and if gmap_pmd_walk will
-> be used by both shadow and parent
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--EAlhHnFAdros0u6hOfIpKUjxanrLP4dLO
+Content-Type: multipart/mixed; boundary="IPFa7JcO3rEqIUugElBFnDdJaM2Vv3UdJ";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
+ linux-s390@vger.kernel.org
+Message-ID: <87e884a5-1072-4bd4-8350-c751bbd62a53@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH 21/22] KVM: s390: Add KVM HPAGE capability
+References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1510007400-42493-22-git-send-email-frankja@linux.vnet.ibm.com>
+ <ea2a81f6-10ff-7596-6df5-ad4a65765fe7@redhat.com>
+In-Reply-To: <ea2a81f6-10ff-7596-6df5-ad4a65765fe7@redhat.com>
 
-Why is that new, I thought we already had the same situation before and
-lockdep didn't complain?
+--IPFa7JcO3rEqIUugElBFnDdJaM2Vv3UdJ
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-(worrying of we are now seeing a real problem and try to hide it)
+On 15.11.2017 11:06, David Hildenbrand wrote:
+> On 06.11.2017 23:29, Janosch Frank wrote:
+>> KVM huge page backing support can not be easily tested under
+>> s390. Currently testing is only possible after most of the guest has
+>> already been set up.
+>>
+>> To indicate, that KVM has huge page backing support, we add the
+>> KVM_CAP_S390_HPAGE capability. This does not mean, that transparent
+>> huge pages are supported.
+>=20
+> Are there any plans to support it? (my feeling is that it could be
+> somewhat tricky :) )
 
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> ---
->  arch/s390/include/asm/gmap.h |  6 ++++++
->  arch/s390/mm/gmap.c          | 40 ++++++++++++++++++++--------------------
->  2 files changed, 26 insertions(+), 20 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-> index 15a7834..31fad98 100644
-> --- a/arch/s390/include/asm/gmap.h
-> +++ b/arch/s390/include/asm/gmap.h
-> @@ -19,6 +19,12 @@
->  #define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
->  #define _SEGMENT_ENTRY_GMAP_VSIE	0x8000	/* vsie bit */
->  
-> +
-> +enum gmap_lock_class {
-> +	GMAP_LOCK_PARENT,
-> +	GMAP_LOCK_SHADOW
-> +};
-> +
->  /**
->   * struct gmap_struct - guest address space
->   * @list: list head for the mm->context gmap list
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 3cc2765..b17f424 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -198,7 +198,7 @@ static void gmap_free(struct gmap *gmap)
->  	gmap_radix_tree_free(&gmap->host_to_guest);
->  
->  	/* Free split pmd page tables */
-> -	spin_lock(&gmap->guest_table_lock);
-> +	spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
->  	list_for_each_entry_safe(page, next, &gmap->split_list, lru)
->  		page_table_free_pgste(page);
->  	spin_unlock(&gmap->guest_table_lock);
-> @@ -1385,7 +1385,7 @@ static int gmap_protect_rmap_large(struct gmap *sg, struct gmap_rmap *rmap,
->  	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
->  		return -EAGAIN;
->  
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	rc = gmap_protect_large(sg->parent, paddr, vmaddr, pmdp, hpmdp,
->  				prot, GMAP_ENTRY_VSIE);
->  	if (!rc)
-> @@ -1413,7 +1413,7 @@ static int gmap_protect_rmap_pte(struct gmap *sg, struct gmap_rmap *rmap,
->  		ptep = pte_alloc_map_lock(sg->parent->mm, pmdp, paddr, &ptl);
->  
->  	if (ptep) {
-> -		spin_lock(&sg->guest_table_lock);
-> +		spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  		rc = ptep_force_prot(sg->parent->mm, paddr, ptep, prot,
->  				     PGSTE_VSIE_BIT);
->  		if (!rc)
-> @@ -1932,7 +1932,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
->  		/* only allow one real-space gmap shadow */
->  		list_for_each_entry(sg, &parent->children, list) {
->  			if (sg->orig_asce & _ASCE_REAL_SPACE) {
-> -				spin_lock(&sg->guest_table_lock);
-> +				spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  				gmap_unshadow(sg);
->  				spin_unlock(&sg->guest_table_lock);
->  				list_del(&sg->list);
-> @@ -2004,7 +2004,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
->  		page->index |= GMAP_SHADOW_FAKE_TABLE;
->  	s_r2t = (unsigned long *) page_to_phys(page);
->  	/* Install shadow region second table */
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	table = gmap_table_walk(sg, saddr, 4); /* get region-1 pointer */
->  	if (!table) {
->  		rc = -EAGAIN;		/* Race with unshadow */
-> @@ -2037,7 +2037,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
->  	offset = ((r2t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
->  	len = ((r2t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
->  	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	if (!rc) {
->  		table = gmap_table_walk(sg, saddr, 4);
->  		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
-> @@ -2088,7 +2088,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
->  		page->index |= GMAP_SHADOW_FAKE_TABLE;
->  	s_r3t = (unsigned long *) page_to_phys(page);
->  	/* Install shadow region second table */
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	table = gmap_table_walk(sg, saddr, 3); /* get region-2 pointer */
->  	if (!table) {
->  		rc = -EAGAIN;		/* Race with unshadow */
-> @@ -2120,7 +2120,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
->  	offset = ((r3t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
->  	len = ((r3t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
->  	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	if (!rc) {
->  		table = gmap_table_walk(sg, saddr, 3);
->  		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
-> @@ -2171,7 +2171,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
->  		page->index |= GMAP_SHADOW_FAKE_TABLE;
->  	s_sgt = (unsigned long *) page_to_phys(page);
->  	/* Install shadow region second table */
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	table = gmap_table_walk(sg, saddr, 2); /* get region-3 pointer */
->  	if (!table) {
->  		rc = -EAGAIN;		/* Race with unshadow */
-> @@ -2204,7 +2204,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
->  	offset = ((sgt & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
->  	len = ((sgt & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
->  	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	if (!rc) {
->  		table = gmap_table_walk(sg, saddr, 2);
->  		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
-> @@ -2260,7 +2260,7 @@ int gmap_shadow_sgt_lookup(struct gmap *sg, unsigned long saddr,
->  	int rc = -EAGAIN;
->  
->  	BUG_ON(!gmap_is_shadow(sg));
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	if (sg->asce & _ASCE_TYPE_MASK) {
->  		/* >2 GB guest */
->  		r3e = (unsigned long *) gmap_table_walk(sg, saddr, 2);
-> @@ -2327,7 +2327,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
->  		page->index |= GMAP_SHADOW_FAKE_TABLE;
->  	s_pgt = (unsigned long *) page_to_phys(page);
->  	/* Install shadow page table */
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	table = gmap_table_walk(sg, saddr, 1); /* get segment pointer */
->  	if (!table) {
->  		rc = -EAGAIN;		/* Race with unshadow */
-> @@ -2355,7 +2355,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
->  	raddr = (saddr & _SEGMENT_MASK) | _SHADOW_RMAP_SEGMENT;
->  	origin = pgt & _SEGMENT_ENTRY_ORIGIN & PAGE_MASK;
->  	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE, PROT_READ);
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	if (!rc) {
->  		table = gmap_table_walk(sg, saddr, 1);
->  		if (!table || (*table & _SEGMENT_ENTRY_ORIGIN) !=
-> @@ -2417,7 +2417,7 @@ int gmap_shadow_segment(struct gmap *sg, unsigned long saddr, pmd_t pmd)
->  		if (spmdp) {
->  			if (!pmd_large(*spmdp))
->  				BUG();
-> -			spin_lock(&sg->guest_table_lock);
-> +			spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  			/* Get shadow segment table pointer */
->  			tpmdp = (pmd_t *) gmap_table_walk(sg, saddr, 1);
->  			if (!tpmdp) {
-> @@ -2513,7 +2513,7 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
->  		rc = -EAGAIN;
->  		spmdp = gmap_pmd_op_walk(parent, paddr);
->  		if (spmdp && !(pmd_val(*spmdp) & _SEGMENT_ENTRY_INVALID)) {
-> -			spin_lock(&sg->guest_table_lock);
-> +			spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  			/* Get page table pointer */
->  			tptep = (pte_t *) gmap_table_walk(sg, saddr, 0);
->  			if (!tptep) {
-> @@ -2597,7 +2597,7 @@ static void gmap_shadow_notify_pmd(struct gmap *sg, unsigned long vmaddr,
->  
->  	BUG_ON(!gmap_is_shadow(sg));
->  
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	if (sg->removed) {
->  		spin_unlock(&sg->guest_table_lock);
->  		return;
-> @@ -2658,7 +2658,7 @@ static void gmap_shadow_notify(struct gmap *sg, unsigned long vmaddr,
->  
->  	BUG_ON(!gmap_is_shadow(sg));
->  
-> -	spin_lock(&sg->guest_table_lock);
-> +	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
->  	if (sg->removed) {
->  		spin_unlock(&sg->guest_table_lock);
->  		return;
-> @@ -2899,7 +2899,7 @@ static void gmap_pmdp_clear(struct mm_struct *mm, unsigned long vmaddr,
->  
->  	rcu_read_lock();
->  	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
-> -		spin_lock(&gmap->guest_table_lock);
-> +		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
->  		pmdp = (pmd_t *)radix_tree_delete(&gmap->host_to_guest,
->  						   vmaddr >> PMD_SHIFT);
->  		if (pmdp) {
-> @@ -2949,7 +2949,7 @@ void gmap_pmdp_idte_local(struct mm_struct *mm, unsigned long vmaddr)
->  
->  	rcu_read_lock();
->  	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
-> -		spin_lock(&gmap->guest_table_lock);
-> +		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
->  		entry = radix_tree_delete(&gmap->host_to_guest,
->  					  vmaddr >> PMD_SHIFT);
->  		if (entry) {
-> @@ -2984,7 +2984,7 @@ void gmap_pmdp_idte_global(struct mm_struct *mm, unsigned long vmaddr)
->  
->  	rcu_read_lock();
->  	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
-> -		spin_lock(&gmap->guest_table_lock);
-> +		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
->  		entry = radix_tree_delete(&gmap->host_to_guest,
->  					  vmaddr >> PMD_SHIFT);
->  		if (entry) {
-> 
+Better safe than sorry was the idea behind that.
+By the way, this lacks the capability announcement in
+kvm_vm_ioctl_check_extension() but I already fixed that for v2.
+
+>=20
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+>> ---
+>>  include/uapi/linux/kvm.h | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+>> index 8388875..2cd359a 100644
+>> --- a/include/uapi/linux/kvm.h
+>> +++ b/include/uapi/linux/kvm.h
+>> @@ -930,6 +930,7 @@ struct kvm_ppc_resize_hpt {
+>>  #define KVM_CAP_PPC_SMT_POSSIBLE 147
+>>  #define KVM_CAP_HYPERV_SYNIC2 148
+>>  #define KVM_CAP_HYPERV_VP_INDEX 149
+>> +#define KVM_CAP_S390_HPAGE 150
+>> =20
+> What about facilities/features that require PGSTE to be around. Have we=
+
+> fixed up all handlers? (I remember some features/instructions triggerin=
+g
+> special SIE exits in case they hit a large pmd in the gmap).
+>=20
+> Which of these facilities will we have to disable in user space? (e.g.
+> we already handle CMM in QEMU if we detect explicit huge pages).
+>=20
+> (lack of public documentation makes this hard to review/understand)
+
+Most facilities tolerate edat in a way, that changes are not necessary.
+CMMA for example would still be interpreted but it would only accept the
+stable/resident state. SKEYS have the RCP bypass. PFMF gets intercepted,
+however, it doesn't use the GMAP, but the user mapping for clearing.
+Also you already disabled a lot for VSIE, like pfmf interpretation.
+Emulation in l2 for l3 and RRBE are still on the TODO list for complete
+evaluation.
+
+This is a valid concern for everyone involved and I scan as much
+hardware documentation as possible. I have prepared unit tests for pfmf,
+cmm, cmma and storage key operations in an effort to test as much as
+possible in each level of SIE. Unfortunately I can't yet publish them,
+but I will, as soon as I'm allowed.
+I still wish for a way to disable skeys completely.
 
 
--- 
+--IPFa7JcO3rEqIUugElBFnDdJaM2Vv3UdJ--
 
-Thanks,
+--EAlhHnFAdros0u6hOfIpKUjxanrLP4dLO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-David / dhildenb
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJaDCzkAAoJEBcO/8Q8ZEV5OnYP/0y6PLPXaUJnqKinGDVogvTA
+15j3hlLsScMm591syEx40oY1V1qmghgYwRsnqbdHHG9QGa6AD+lnpEP5cqU5yKF1
+xDYxo/NgEzKvrIBQEi5GLJ5+HCOh0rctaFhKhvOr4+TjW2A4qP0uyFbz0gPHSZOh
+b6Msf2O0lJN2Ye2UXQ7P5pf/ysL5H6xy9nyeDkaixhkyt+Mj4alL9sQbvAwoPsOt
+bPjPshmPCniEvddCotjW7NM+1LITGiPn3lzFz0rUQ85GHMdpNuFkA+JCJqglQUwM
+gta1BTmqQLhbjIrQgybt3JUUBcnv7jsSbywNuCclsSuz92AmvwTaWvO+S26yRh0s
+cx0xDj5zj9C9po0dmRo2o79akUJALtl/u2fGDZXJWADHE452+HNjiQ6lDqKHN03e
+4imSboHNRUa4CBk8uB/4Po076KOKOF77x9pRWvD/tNzu6dW1gwa4kMyuKgr42KOu
+NM6RNIbLj4KT+m47z9qbKZvDmyfi5qYEbQAF20/gJtJFYjAGA+lVwXPyua0WgsFs
+eOIqn4GIjT5hukpWl0E4LsT5N2RQJ/qb4qHeQQZR3o9fIKR1Q3fJdJbzvcVn8FXp
+qJNrjkFWwxWhDYzcJlAJZMqeFijW3FI8GjxiA8prtBT/RfVF/F74tpyFH507M7Ma
+dlRaxJG+4cZ5eqHREUR3
+=Kwku
+-----END PGP SIGNATURE-----
+
+--EAlhHnFAdros0u6hOfIpKUjxanrLP4dLO--
