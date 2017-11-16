@@ -1,81 +1,64 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [RFC 05/19] s390/zcrypt: base implementation of AP matrix device
- driver
-Date: Thu, 16 Nov 2017 09:25:27 -0500
-Message-ID: <f1def4fc-49d8-8662-208b-fcea22ee87b0@linux.vnet.ibm.com>
+Subject: Re: [RFC 00/19] KVM: s390/crypto/vfio: guest dedicated crypto
+ adapters
+Date: Thu, 16 Nov 2017 10:23:25 -0500
+Message-ID: <fcfd6a27-662b-9a30-8bad-adaac4cf0ce1@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1507916344-3896-6-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20171114134040.3fcd6efd.cohuck@redhat.com>
- <06ddee4e-e1b8-ba17-5e3e-241e4dcf7cd0@linux.vnet.ibm.com>
- <c9ec3c2e-bbc5-a08e-acea-0a3030bc90a7@linux.vnet.ibm.com>
- <20171116133531.1135a093.cohuck@redhat.com>
+ <5baf5f90-6cac-3c09-7b66-1bc8b30b8093@linux.vnet.ibm.com>
+ <20171114145722.4ab850a5.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171116133531.1135a093.cohuck@redhat.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20171114145722.4ab850a5.cohuck@redhat.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 11/16/2017 07:35 AM, Cornelia Huck wrote:
-> On Thu, 16 Nov 2017 13:02:26 +0100
-> Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+On 11/14/2017 08:57 AM, Cornelia Huck wrote:
+> On Tue, 31 Oct 2017 15:39:09 -0400
+> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 >
->> On 14/11/2017 17:37, Tony Krowiak wrote:
->>> On 11/14/2017 07:40 AM, Cornelia Huck wrote:
->>>> On Fri, 13 Oct 2017 13:38:50 -0400
->>>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->>>>> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
->>>>> index 48af970..411c19a 100644
->>>>> --- a/arch/s390/Kconfig
->>>>> +++ b/arch/s390/Kconfig
->>>>> @@ -722,6 +722,19 @@ config VFIO_CCW
->>>>>          To compile this driver as a module, choose M here: the
->>>>>          module will be called vfio_ccw.
->>>>> +config VFIO_AP_MATRIX
->>>>> +    def_tristate m
->>>>> +    prompt "Support for Adjunct Processor Matrix device interface"
->>>>> +    depends on ZCRYPT
->>>>> +    select VFIO
->>>>> +    select MDEV
->>>>> +    select VFIO_MDEV
->>>>> +    select VFIO_MDEV_DEVICE
->>>>> +    select IOMMU_API
->>>> I think the more common pattern is to depend on the VFIO configs
->>>> instead of selecting them.
->>> It's ironic because I originally changed from using 'depends on' and
->>> changed it based on review comments made
->>> on our internal mailing list. I'll go with 'depends on'.
->> Is doing like the others a sufficient good reason?
->> What if the first who did this did not really think about it?
->>
->> When an administrator configure the kernel what does he think?
->>
->> - I want to have AP through AP_VFIO in my guests
->> 	and he get implicitly VFIO
->> or
->> - I want to have VFIO
->> 	and he has to explicitly add AP_VFIO too
->>
->> It seems to me that the first is much more user friendly.
->>
->> Please tell me if I missed something. dependencies? collateral damages?
->> my logic is wrong?
-> Using select for anything that's not a simple infrastructure dependency
-> may lead into trouble (we've had issues in the past where options tried
-> to enable other options but missed dependencies).
+>> On 10/13/2017 01:38 PM, Tony Krowiak wrote:
+>> Ping
+>>> Tony Krowiak (19):
+>>>     KVM: s390: SIE considerations for AP Queue virtualization
+>>>     KVM: s390: refactor crypto initialization
+>>>     s390/zcrypt: new AP matrix bus
+>>>     s390/zcrypt: create an AP matrix device on the AP matrix bus
+>>>     s390/zcrypt: base implementation of AP matrix device driver
+>>>     s390/zcrypt: register matrix device with VFIO mediated device
+>>>       framework
+>>>     KVM: s390: introduce AP matrix configuration interface
+>>>     s390/zcrypt: support for assigning adapters to matrix mdev
+>>>     s390/zcrypt: validate adapter assignment
+>>>     s390/zcrypt: sysfs interfaces supporting AP domain assignment
+>>>     s390/zcrypt: validate domain assignment
+>>>     s390/zcrypt: sysfs support for control domain assignment
+>>>     s390/zcrypt: validate control domain assignment
+>>>     KVM: s390: Connect the AP mediated matrix device to KVM
+>>>     s390/zcrypt: introduce ioctl access to VFIO AP Matrix driver
+>>>     KVM: s390: interface to configure KVM guest's AP matrix
+>>>     KVM: s390: validate input to AP matrix config interface
+>>>     KVM: s390: New ioctl to configure KVM guest's AP matrix
+>>>     s390/facilities: enable AP facilities needed by guest
+> I think the approach is fine, and the code also looks fine for the most
+> part. Some comments:
 >
-> If a user wants to use vfio-ap, I think it is reasonable to expect them
-> to figure out that they need both ap and vfio for that.
->
-> [And config help has gotten much better than it was years ago; it's not
-> that hard to figure out what is actually needed.]
-Is it sufficient to specify 'depends on ZCRYPT && VFIO_MDEV_DEVICE'
-since 'VFIO_MDEV_DEVICE depends on VFIO && VFIO_MDEV' and 'VFIO_MDEV
-depends on VFIO' and 'VFIO depends on IOMMU_API'?
+> - various patches can be squashed together to give a better
+>    understanding at a glance
+Which patches would you squash?
+> - this needs documentation (as I already said)
+My plan is to take the cover letter patch and incorporate that into 
+documentation,
+then replace the cover letter patch with a more concise summary.
+> - some of the driver/device modelling feels a bit awkward (commented in
+>    patches) -- I'm not sure that my proposal is better, but I think we
+>    should make sure the interdependencies are modeled correctly
+I am responding to each patch review individually.
+> - some minor stuff
 >
