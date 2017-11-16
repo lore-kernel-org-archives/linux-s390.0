@@ -4,15 +4,15 @@ In-Reply-To: <20171103072926.12ef827c@mschwideX1>
 References: <20171025102737.GA145851@beast> <20171026083842.5ca46b2f@mschwideX1>
  <CAGXu5jLJY_zYf=v_xYUEG6tgLzwvW8P+-d9GNNp8XN5bhnWvzQ@mail.gmail.com> <20171103072926.12ef827c@mschwideX1>
 From: Kees Cook <keescook@chromium.org>
-Date: Fri, 3 Nov 2017 13:36:02 -0700
-Message-ID: <CAGXu5j+_ZK4Kx=GtDUae3T1wY+-oijEv3SQf+vZUecOPpBavNA@mail.gmail.com>
+Date: Wed, 15 Nov 2017 23:58:44 -0800
+Message-ID: <CAGXu5jJ3f=fHyCHnW72GS9NL9xWvJkXjocsodddgQOqcgbjjTA@mail.gmail.com>
 Subject: Re: [PATCH] s390/ap_bus: Convert timers to use timer_setup()
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Harald Freudenberger <freude@de.ibm.com>, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Harald Freudenberger <freude@de.ibm.com>, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, Nov 2, 2017 at 11:29 PM, Martin Schwidefsky
@@ -64,7 +64,14 @@ On Thu, Nov 2, 2017 at 11:29 PM, Martin Schwidefsky
 > Four of you patches are safe with me, the s390/scsi patch is in
 > Steffens patch queue. All good I would say.
 
-Great, thanks very much for double-check! :)
+Hi,
+
+I saw s390 get merged for -rc1, but none of these timer_setup()
+conversions were included. Given the possible short merge window,
+what's the state of these? I can't do the bulk API changes at the end
+of -rc1 without the s390 timer patches. Anything I can help with?
+
+Thanks!
 
 -Kees
 
