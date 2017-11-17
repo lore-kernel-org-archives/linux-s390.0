@@ -1,211 +1,97 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 30 Nov 2017 10:04:14 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 4.15-rc2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20171130100414.1468cb65@mschwideX1>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-Path: <owner-linux-mm@kvack.org>
+From: Pavel Tatashin <pasha.tatashin@oracle.com>
+Subject: [PATCH v1] mm: relax deferred struct page requirements
+Date: Thu, 16 Nov 2017 20:46:01 -0500
+Message-Id: <20171117014601.31606-1-pasha.tatashin@oracle.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, benh@kernel.crashing.org, paulus@samba.org, akpm@linux-foundation.org, kirill.shutemov@linux.intel.com, arbab@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, x86@kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, linuxppc-dev@lists.ozlabs.org, mhocko@suse.com, linux-mm@kvack.org, linux-s390@vger.kernel.org, mgorman@techsingularity.net
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+There is no need to have ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT,
+as all the page initialization code is in common code.
 
-please pull from the 'for-linus' branch of
+Also, there is no need to depend on MEMORY_HOTPLUG, as initialization code
+does not really use hotplug memory functionality. So, we can remove this
+requirement as well.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+This patch allows to use deferred struct page initialization on all
+platforms with memblock allocator.
 
-to receive the following updates:
+Tested on x86, arm64, and sparc. Also, verified that code compiles on
+PPC with CONFIG_MEMORY_HOTPLUG disabled.
 
-* SPDX identifiers are added to more of the s390 specific files.
+Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+---
+ arch/powerpc/Kconfig | 1 -
+ arch/s390/Kconfig    | 1 -
+ arch/x86/Kconfig     | 1 -
+ mm/Kconfig           | 7 +------
+ 4 files changed, 1 insertion(+), 9 deletions(-)
 
-* The ELF_ET_DYN_BASE base patch from Kees is reverted, with the change
-  some old 31-bit programs crash.
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index cb782ac1c35d..1540348691c9 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -148,7 +148,6 @@ config PPC
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+-	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
+ 	select ARCH_WANT_IPC_PARSE_VERSION
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 863a62a6de3c..525c2e3df6f5 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -108,7 +108,6 @@ config S390
+ 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
+ 	select ARCH_SAVE_PAGE_KEYS if HIBERNATION
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+-	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+ 	select ARCH_SUPPORTS_NUMA_BALANCING
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_CMPXCHG_LOCKREF
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index df3276d6bfe3..00a5446de394 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -69,7 +69,6 @@ config X86
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+-	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+ 	select ARCH_SUPPORTS_NUMA_BALANCING	if X86_64
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_QUEUED_RWLOCKS
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 9c4bdddd80c2..c6bd0309ce7a 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -639,15 +639,10 @@ config MAX_STACK_SIZE_MB
+ 
+ 	  A sane initial value is 80 MB.
+ 
+-# For architectures that support deferred memory initialisation
+-config ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+-	bool
+-
+ config DEFERRED_STRUCT_PAGE_INIT
+ 	bool "Defer initialisation of struct pages to kthreads"
+ 	default n
+-	depends on ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+-	depends on NO_BOOTMEM && MEMORY_HOTPLUG
++	depends on NO_BOOTMEM
+ 	depends on !FLATMEM
+ 	help
+ 	  Ordinarily all struct pages are initialised during early boot in a
+-- 
+2.15.0
 
-* Bug fixes and cleanups.
-
-Christian Borntraeger (1):
-      s390/debug: use pK for kernel pointers
-
-Greg Kroah-Hartman (19):
-      s390: block: add SPDX identifiers to the remaining files
-      s390: crypto: add SPDX identifiers to the remaining files
-      s390: cio: add SPDX identifiers to the remaining files
-      s390: char: add SPDX identifiers to the remaining files
-      s390: net: add SPDX identifiers to the remaining files
-      s390: scsi: zfcp_aux: add SPDX identifier
-      s390: virtio: add SPDX identifiers to the remaining files
-      s390: crypto: Remove redundant license text
-      s390: drivers: Remove redundant license text
-      s390: kernel: add SPDX identifiers to the remaining files
-      s390: crypto: add SPDX identifiers to the remaining files
-      s390: mm: add SPDX identifiers to the remaining files
-      s390: pci: add SPDX identifiers to the remaining files
-      s390: appldata: add SPDX identifiers to the remaining files
-      s390: add SPDX identifiers to the remaining files
-      s390: kernel: Remove redundant license text
-      s390: include: Remove redundant license text
-      s390: crypto: Remove redundant license text
-      s390: Remove redundant license text
-
-Harald Freudenberger (1):
-      s390/zcrypt: Fix wrong comparison leading to strange load balancing
-
-Heiko Carstens (2):
-      s390: rework __switch_to() to allow larger task_struct offsets
-      s390/disassembler: remove confusing code
-
-Martin Schwidefsky (4):
-      s390: fix alloc_pgste check in init_new_context again
-      s390: sthyi: add SPDX identifiers to the remaining files
-      s390: revert ELF_ET_DYN_BASE base changes
-      s390/gs: add compat regset for the guarded storage broadcast control block
-
-Thomas Richter (1):
-      s390/topology: fix compile error in file arch/s390/kernel/smp.c
-
-Vasily Gorbik (1):
-      s390/disassembler: correct disassembly lines alignment
-
- arch/s390/Makefile                      |  5 +----
- arch/s390/appldata/appldata_base.c      |  1 +
- arch/s390/appldata/appldata_mem.c       |  1 +
- arch/s390/appldata/appldata_net_sum.c   |  1 +
- arch/s390/appldata/appldata_os.c        |  1 +
- arch/s390/boot/install.sh               |  5 +----
- arch/s390/crypto/aes_s390.c             |  7 +------
- arch/s390/crypto/arch_random.c          |  6 +-----
- arch/s390/crypto/crc32-vx.c             |  1 +
- arch/s390/crypto/des_s390.c             |  7 +------
- arch/s390/crypto/ghash_s390.c           |  1 +
- arch/s390/crypto/paes_s390.c            |  6 +-----
- arch/s390/crypto/prng.c                 |  1 +
- arch/s390/crypto/sha.h                  |  7 +------
- arch/s390/crypto/sha256_s390.c          |  7 +------
- arch/s390/crypto/sha512_s390.c          |  7 +------
- arch/s390/crypto/sha_common.c           |  7 +------
- arch/s390/hypfs/inode.c                 |  2 +-
- arch/s390/include/asm/cpu_mf.h          |  5 +----
- arch/s390/include/asm/elf.h             | 15 ++++++++-------
- arch/s390/include/asm/kprobes.h         | 15 +--------------
- arch/s390/include/asm/kvm_host.h        |  5 +----
- arch/s390/include/asm/kvm_para.h        |  7 +------
- arch/s390/include/asm/livepatch.h       |  8 +-------
- arch/s390/include/asm/mmu_context.h     |  2 +-
- arch/s390/include/asm/syscall.h         |  5 +----
- arch/s390/include/asm/sysinfo.h         |  5 +----
- arch/s390/include/asm/topology.h        |  1 +
- arch/s390/include/uapi/asm/kvm.h        |  4 ----
- arch/s390/include/uapi/asm/kvm_para.h   |  4 ----
- arch/s390/include/uapi/asm/kvm_perf.h   |  4 ----
- arch/s390/include/uapi/asm/virtio-ccw.h |  4 ----
- arch/s390/include/uapi/asm/zcrypt.h     | 14 --------------
- arch/s390/kernel/debug.c                |  2 +-
- arch/s390/kernel/dis.c                  | 10 ++++++++--
- arch/s390/kernel/dumpstack.c            |  1 +
- arch/s390/kernel/entry.S                | 15 +++++++--------
- arch/s390/kernel/ipl.c                  |  1 +
- arch/s390/kernel/kprobes.c              | 15 +--------------
- arch/s390/kernel/lgr.c                  |  1 +
- arch/s390/kernel/module.c               | 15 +--------------
- arch/s390/kernel/nmi.c                  |  1 +
- arch/s390/kernel/perf_cpum_cf.c         |  5 +----
- arch/s390/kernel/perf_cpum_sf.c         |  5 +----
- arch/s390/kernel/perf_event.c           |  5 +----
- arch/s390/kernel/ptrace.c               |  8 ++++++++
- arch/s390/kernel/setup.c                |  1 +
- arch/s390/kernel/smp.c                  |  1 +
- arch/s390/kernel/stacktrace.c           |  1 +
- arch/s390/kernel/sthyi.c                |  5 +----
- arch/s390/kernel/time.c                 |  1 +
- arch/s390/kernel/topology.c             |  1 +
- arch/s390/kernel/vdso.c                 |  5 +----
- arch/s390/kernel/vdso32/clock_getres.S  |  5 +----
- arch/s390/kernel/vdso32/clock_gettime.S |  5 +----
- arch/s390/kernel/vdso32/gettimeofday.S  |  5 +----
- arch/s390/kernel/vdso64/clock_getres.S  |  5 +----
- arch/s390/kernel/vdso64/clock_gettime.S |  5 +----
- arch/s390/kernel/vdso64/gettimeofday.S  |  5 +----
- arch/s390/kernel/vtime.c                |  1 +
- arch/s390/mm/cmm.c                      |  1 +
- arch/s390/mm/gmap.c                     |  1 +
- arch/s390/mm/mmap.c                     | 16 +---------------
- arch/s390/mm/pgtable.c                  |  1 +
- arch/s390/pci/pci.c                     |  1 +
- arch/s390/pci/pci_debug.c               |  1 +
- arch/s390/pci/pci_dma.c                 |  1 +
- arch/s390/pci/pci_insn.c                |  1 +
- drivers/s390/block/dasd.c               |  1 +
- drivers/s390/block/dasd_devmap.c        |  1 +
- drivers/s390/block/dasd_diag.c          |  1 +
- drivers/s390/block/dasd_eckd.c          |  1 +
- drivers/s390/block/dasd_fba.c           |  1 +
- drivers/s390/block/dcssblk.c            |  1 +
- drivers/s390/block/scm_blk.c            |  1 +
- drivers/s390/block/xpram.c              |  1 +
- drivers/s390/char/fs3270.c              |  1 +
- drivers/s390/char/hmcdrv_mod.c          |  1 +
- drivers/s390/char/monreader.c           |  1 +
- drivers/s390/char/monwriter.c           |  1 +
- drivers/s390/char/raw3270.c             |  1 +
- drivers/s390/char/sclp_async.c          |  1 +
- drivers/s390/char/tape_34xx.c           |  1 +
- drivers/s390/char/tape_3590.c           |  1 +
- drivers/s390/char/tape_class.c          |  1 +
- drivers/s390/char/tape_core.c           |  1 +
- drivers/s390/char/tty3270.c             |  1 +
- drivers/s390/char/vmlogrdr.c            |  1 +
- drivers/s390/char/vmur.c                |  1 +
- drivers/s390/char/zcore.c               |  2 +-
- drivers/s390/cio/ccwgroup.c             |  1 +
- drivers/s390/cio/chp.c                  |  1 +
- drivers/s390/cio/chsc.c                 |  1 +
- drivers/s390/cio/chsc_sch.c             |  1 +
- drivers/s390/cio/cio.c                  |  1 +
- drivers/s390/cio/cmf.c                  | 15 +--------------
- drivers/s390/cio/css.c                  |  3 +--
- drivers/s390/cio/device.c               |  3 +--
- drivers/s390/cio/device_fsm.c           |  1 +
- drivers/s390/cio/device_ops.c           |  3 +--
- drivers/s390/cio/eadm_sch.c             |  1 +
- drivers/s390/cio/isc.c                  |  1 +
- drivers/s390/cio/qdio_main.c            |  1 +
- drivers/s390/cio/qdio_setup.c           |  1 +
- drivers/s390/cio/scm.c                  |  1 +
- drivers/s390/cio/vfio_ccw_drv.c         |  1 +
- drivers/s390/crypto/ap_bus.c            | 15 +--------------
- drivers/s390/crypto/ap_bus.h            | 15 +--------------
- drivers/s390/crypto/pkey_api.c          |  6 +-----
- drivers/s390/crypto/zcrypt_api.c        | 19 +++----------------
- drivers/s390/crypto/zcrypt_api.h        | 15 +--------------
- drivers/s390/crypto/zcrypt_card.c       | 11 +----------
- drivers/s390/crypto/zcrypt_cca_key.h    | 15 +--------------
- drivers/s390/crypto/zcrypt_cex2a.c      | 15 +--------------
- drivers/s390/crypto/zcrypt_cex2a.h      | 15 +--------------
- drivers/s390/crypto/zcrypt_cex4.c       |  1 +
- drivers/s390/crypto/zcrypt_error.h      | 15 +--------------
- drivers/s390/crypto/zcrypt_msgtype50.c  | 15 +--------------
- drivers/s390/crypto/zcrypt_msgtype50.h  | 15 +--------------
- drivers/s390/crypto/zcrypt_msgtype6.c   | 15 +--------------
- drivers/s390/crypto/zcrypt_msgtype6.h   | 15 +--------------
- drivers/s390/crypto/zcrypt_pcixcc.c     | 15 +--------------
- drivers/s390/crypto/zcrypt_pcixcc.h     | 15 +--------------
- drivers/s390/crypto/zcrypt_queue.c      | 11 +----------
- drivers/s390/net/ctcm_main.c            |  1 +
- drivers/s390/net/fsm.c                  |  1 +
- drivers/s390/net/lcs.c                  | 15 +--------------
- drivers/s390/net/netiucv.c              | 16 +---------------
- drivers/s390/net/qeth_core_main.c       |  1 +
- drivers/s390/net/qeth_core_sys.c        |  1 +
- drivers/s390/net/qeth_l2_main.c         |  1 +
- drivers/s390/net/qeth_l3_main.c         |  1 +
- drivers/s390/net/smsgiucv.c             | 15 +--------------
- drivers/s390/net/smsgiucv_app.c         |  1 +
- drivers/s390/scsi/zfcp_aux.c            |  1 +
- drivers/s390/virtio/Makefile            |  5 +----
- drivers/s390/virtio/virtio_ccw.c        |  5 +----
- 137 files changed, 161 insertions(+), 529 deletions(-)
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
