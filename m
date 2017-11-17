@@ -1,110 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 0/9] drivers/s390/ license text cleanup
-Date: Tue, 14 Nov 2017 18:37:59 +0100
-Message-Id: <20171114173808.25092-1-gregkh@linuxfoundation.org>
+Date: Fri, 17 Nov 2017 14:47:25 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 4.15 merge window #2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20171117144725.73dd9047@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Stefan Haberland <sth@linux.vnet.ibm.com>, Jan Hoeppner <hoeppner@linux.vnet.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, Harald Freudenberger <freude@de.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Benjamin Block <bblock@linux.vnet.ibm.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi all,
+Hi Linus,
 
-Here are 9 patches against linux-next of today that add SPDX identifiers
-to the remaining files that do not currently have them, and then it
-cleans up the various different ways that the license text boilerplate
-was written for the GPLv2 in a few files.  This cleanup was done in the
-quest to remove the 700+ different ways the kernel describes GPLv2.
+please pull from the 'for-linus' branch of
 
-No copyright headers or any other non-license-description text was
-removed in these patches.
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-FWIW, this license cleanup action has been "blessed" by IBM lawyers, but
-feel free to check internally if you are curious.
+to receive the following updates:
 
-Greg Kroah-Hartman (9):
-  s390: block: add SPDX identifiers to the remaining files
-  s390: crypto: add SPDX identifiers to the remaining files
-  s390: cio: add SPDX identifiers to the remaining files
-  s390: char: add SPDX identifiers to the remaining files
-  s390: net: add SPDX identifiers to the remaining files
-  s390: scsi: zfcp_aux: add SPDX identifier
-  s390: virtio: add SPDX identifiers to the remaining files
-  s390: crypto: Remove redundant license text
-  s390: drivers: Remove redundant license text
+The second part of the s390 patches for the 4.15 merge window:
 
- drivers/s390/block/dasd.c              |  1 +
- drivers/s390/block/dasd_devmap.c       |  1 +
- drivers/s390/block/dasd_diag.c         |  1 +
- drivers/s390/block/dasd_eckd.c         |  1 +
- drivers/s390/block/dasd_fba.c          |  1 +
- drivers/s390/block/dcssblk.c           |  1 +
- drivers/s390/block/scm_blk.c           |  1 +
- drivers/s390/block/xpram.c             |  1 +
- drivers/s390/char/fs3270.c             |  1 +
- drivers/s390/char/hmcdrv_mod.c         |  1 +
- drivers/s390/char/monreader.c          |  1 +
- drivers/s390/char/monwriter.c          |  1 +
- drivers/s390/char/raw3270.c            |  1 +
- drivers/s390/char/sclp_async.c         |  1 +
- drivers/s390/char/tape_34xx.c          |  1 +
- drivers/s390/char/tape_3590.c          |  1 +
- drivers/s390/char/tape_class.c         |  1 +
- drivers/s390/char/tape_core.c          |  1 +
- drivers/s390/char/tty3270.c            |  1 +
- drivers/s390/char/vmlogrdr.c           |  1 +
- drivers/s390/char/vmur.c               |  1 +
- drivers/s390/char/zcore.c              |  2 +-
- drivers/s390/cio/ccwgroup.c            |  1 +
- drivers/s390/cio/chp.c                 |  1 +
- drivers/s390/cio/chsc.c                |  1 +
- drivers/s390/cio/chsc_sch.c            |  1 +
- drivers/s390/cio/cio.c                 |  1 +
- drivers/s390/cio/cmf.c                 | 15 +--------------
- drivers/s390/cio/css.c                 |  3 +--
- drivers/s390/cio/device.c              |  3 +--
- drivers/s390/cio/device_fsm.c          |  1 +
- drivers/s390/cio/device_ops.c          |  3 +--
- drivers/s390/cio/eadm_sch.c            |  1 +
- drivers/s390/cio/isc.c                 |  1 +
- drivers/s390/cio/qdio_main.c           |  1 +
- drivers/s390/cio/qdio_setup.c          |  1 +
- drivers/s390/cio/scm.c                 |  1 +
- drivers/s390/cio/vfio_ccw_drv.c        |  1 +
- drivers/s390/crypto/ap_bus.c           | 15 +--------------
- drivers/s390/crypto/ap_bus.h           | 15 +--------------
- drivers/s390/crypto/pkey_api.c         |  6 +-----
- drivers/s390/crypto/zcrypt_api.c       | 15 +--------------
- drivers/s390/crypto/zcrypt_api.h       | 15 +--------------
- drivers/s390/crypto/zcrypt_card.c      | 11 +----------
- drivers/s390/crypto/zcrypt_cca_key.h   | 15 +--------------
- drivers/s390/crypto/zcrypt_cex2a.c     | 15 +--------------
- drivers/s390/crypto/zcrypt_cex2a.h     | 15 +--------------
- drivers/s390/crypto/zcrypt_cex4.c      |  1 +
- drivers/s390/crypto/zcrypt_error.h     | 15 +--------------
- drivers/s390/crypto/zcrypt_msgtype50.c | 15 +--------------
- drivers/s390/crypto/zcrypt_msgtype50.h | 15 +--------------
- drivers/s390/crypto/zcrypt_msgtype6.c  | 15 +--------------
- drivers/s390/crypto/zcrypt_msgtype6.h  | 15 +--------------
- drivers/s390/crypto/zcrypt_pcixcc.c    | 15 +--------------
- drivers/s390/crypto/zcrypt_pcixcc.h    | 15 +--------------
- drivers/s390/crypto/zcrypt_queue.c     | 11 +----------
- drivers/s390/net/ctcm_main.c           |  1 +
- drivers/s390/net/fsm.c                 |  1 +
- drivers/s390/net/lcs.c                 | 15 +--------------
- drivers/s390/net/netiucv.c             | 16 +---------------
- drivers/s390/net/qeth_core_main.c      |  1 +
- drivers/s390/net/qeth_core_sys.c       |  1 +
- drivers/s390/net/qeth_l2_main.c        |  1 +
- drivers/s390/net/qeth_l3_main.c        |  1 +
- drivers/s390/net/smsgiucv.c            | 15 +--------------
- drivers/s390/net/smsgiucv_app.c        |  1 +
- drivers/s390/scsi/zfcp_aux.c           |  1 +
- drivers/s390/virtio/Makefile           |  5 +----
- drivers/s390/virtio/virtio_ccw.c       |  5 +----
- 69 files changed, 69 insertions(+), 293 deletions(-)
+ - Rework of the vdso code to avoid the use of the access register mode
 
--- 
-2.15.0
+ - Use perf AUX buffers for the transport of diagnostic sample data
+
+ - Add perf_regs and user stack dump support
+
+ - Enable perf call graphs for user space programs
+
+ - Add perf register support for floating-point registers
+
+ - All remaining s390 related timer_setup conversions
+
+ - Bug fixes and cleanups.
+
+The shortlog:
+
+Heiko Carstens (8):
+      s390/vdso: add missing boot_vdso_data declaration
+      s390/spinlock: fix indentation
+      s390/mm: remove unused code
+      s390/nmi: remove unused code
+      s390: enable CPU alternatives unconditionally
+      s390/perf: add perf_regs support and user stack dump
+      s390/perf: add support for perf_regs and libdw
+      s390: remove unused parameter from Makefile
+
+Hendrik Brueckner (6):
+      s390/cpum_sf: do not register PMU if no sampling mode is authorized
+      s390/perf: define common DWARF register string table
+      s390/perf: extend perf_regs support to include floating-point registers
+      s390/perf: add perf register support for floating-point registers
+      s390/cpum_sf: load program parameter at sampler enablement
+      s390/cpum_sf: correctly set the PID and TID in perf samples
+
+Kees Cook (5):
+      s390: qdio: Convert timers to use timer_setup()
+      s390/cio: Convert timers to use timer_setup()
+      s390/sclp: Convert timers to use timer_setup()
+      s390/ap_bus: Convert timers to use timer_setup()
+      s390/scsi: Convert timers to use timer_setup()
+
+Martin Schwidefsky (2):
+      s390/mm,kvm: improve detection of KVM guest faults
+      s390: remove all code using the access register mode
+
+Michael Holzheu (1):
+      s390: Remove CONFIG_HARDENED_USERCOPY
+
+Pu Hou (4):
+      s390/cpumf: introduce AUX buffer for dump diagnostic sample data
+      s390/cpumf: enable using AUX buffer
+      s390/perf: add callback to perf to enable using AUX buffer
+      s390/cpumf: remove raw event support in basic-only sampling mode
+
+Steffen Maier (1):
+      zfcp: purely mechanical update using timer API, plus blank lines
+
+Vasily Gorbik (3):
+      s390: correct some inline assembly constraints
+      s390/kbuild: get rid of a warning when compiling with KCOV
+      s390/disassembler: increase show_code buffer size
+
+ arch/s390/Kconfig                               |  19 +-
+ arch/s390/configs/default_defconfig             |   5 +-
+ arch/s390/configs/gcov_defconfig                |   4 -
+ arch/s390/configs/performance_defconfig         |   4 -
+ arch/s390/include/asm/alternative.h             |  20 +-
+ arch/s390/include/asm/cpu_mf.h                  |   8 +-
+ arch/s390/include/asm/futex.h                   |   9 +-
+ arch/s390/include/asm/lowcore.h                 |  37 +-
+ arch/s390/include/asm/mmu_context.h             |  36 +-
+ arch/s390/include/asm/perf_event.h              |  17 -
+ arch/s390/include/asm/processor.h               |   6 +-
+ arch/s390/include/asm/ptrace.h                  |   2 +
+ arch/s390/include/asm/setup.h                   |   2 +-
+ arch/s390/include/asm/uaccess.h                 |  29 +-
+ arch/s390/include/asm/vdso.h                    |   1 +
+ arch/s390/include/uapi/asm/perf_regs.h          |  43 ++
+ arch/s390/kernel/Makefile                       |   5 +-
+ arch/s390/kernel/asm-offsets.c                  |   2 +-
+ arch/s390/kernel/dis.c                          |   4 +-
+ arch/s390/kernel/entry.S                        |  33 +-
+ arch/s390/kernel/head64.S                       |   2 +-
+ arch/s390/kernel/module.c                       |  15 +-
+ arch/s390/kernel/nmi.c                          |   2 -
+ arch/s390/kernel/perf_cpum_sf.c                 | 768 ++++++++++++++++++------
+ arch/s390/kernel/perf_regs.c                    |  70 +++
+ arch/s390/kernel/vdso.c                         |  44 +-
+ arch/s390/kernel/vdso32/getcpu.S                |  16 +-
+ arch/s390/kernel/vdso64/clock_gettime.S         |  19 +-
+ arch/s390/kernel/vdso64/getcpu.S                |  15 +-
+ arch/s390/lib/spinlock.c                        |   7 +-
+ arch/s390/lib/uaccess.c                         |  90 ++-
+ arch/s390/mm/fault.c                            | 110 ++--
+ arch/s390/mm/gmap.c                             |   9 +-
+ arch/s390/mm/init.c                             |   1 +
+ arch/s390/mm/pgalloc.c                          |   4 +-
+ arch/s390/tools/Makefile                        |   2 +-
+ drivers/s390/char/con3215.c                     |   6 +-
+ drivers/s390/char/con3270.c                     |  10 +-
+ drivers/s390/char/sclp.c                        |  45 +-
+ drivers/s390/char/sclp_con.c                    |   5 +-
+ drivers/s390/char/sclp_tty.c                    |   5 +-
+ drivers/s390/char/sclp_vt220.c                  |   6 +-
+ drivers/s390/char/tape_core.c                   |  14 +-
+ drivers/s390/char/tty3270.c                     |   8 +-
+ drivers/s390/cio/device.c                       |   8 +-
+ drivers/s390/cio/device.h                       |   2 +
+ drivers/s390/cio/device_fsm.c                   |  10 +-
+ drivers/s390/cio/eadm_sch.c                     |   9 +-
+ drivers/s390/cio/qdio.h                         |   2 +-
+ drivers/s390/cio/qdio_main.c                    |   4 +-
+ drivers/s390/cio/qdio_setup.c                   |   3 +-
+ drivers/s390/crypto/ap_bus.c                    |  10 +-
+ drivers/s390/crypto/ap_bus.h                    |   2 +-
+ drivers/s390/crypto/ap_queue.c                  |   2 +-
+ drivers/s390/scsi/zfcp_erp.c                    |  15 +-
+ drivers/s390/scsi/zfcp_ext.h                    |   2 +-
+ drivers/s390/scsi/zfcp_fsf.c                    |  14 +-
+ tools/perf/Makefile.config                      |   6 +-
+ tools/perf/arch/s390/include/dwarf-regs-table.h |  71 ++-
+ tools/perf/arch/s390/include/perf_regs.h        |  95 +++
+ tools/perf/arch/s390/util/Build                 |   3 +
+ tools/perf/arch/s390/util/auxtrace.c            | 118 ++++
+ tools/perf/arch/s390/util/dwarf-regs.c          |  11 +-
+ tools/perf/arch/s390/util/unwind-libdw.c        |  63 ++
+ 64 files changed, 1429 insertions(+), 580 deletions(-)
+ create mode 100644 arch/s390/include/uapi/asm/perf_regs.h
+ create mode 100644 arch/s390/kernel/perf_regs.c
+ create mode 100644 tools/perf/arch/s390/include/perf_regs.h
+ create mode 100644 tools/perf/arch/s390/util/auxtrace.c
+ create mode 100644 tools/perf/arch/s390/util/unwind-libdw.c
