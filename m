@@ -1,113 +1,49 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Tue, 21 Nov 2017 08:24:16 +0100
-From: Michal Hocko <mhocko@kernel.org>
+Message-ID: <1511275666.14446.1.camel@oracle.com>
 Subject: Re: [PATCH v1] mm: relax deferred struct page requirements
-Message-ID: <20171121072416.v77vu4osm2s4o5sq@dhcp22.suse.cz>
-References: <20171117014601.31606-1-pasha.tatashin@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Khalid Aziz <khalid.aziz@oracle.com>
+Date: Tue, 21 Nov 2017 07:47:46 -0700
 In-Reply-To: <20171117014601.31606-1-pasha.tatashin@oracle.com>
+References: <20171117014601.31606-1-pasha.tatashin@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, benh@kernel.crashing.org, paulus@samba.org, akpm@linux-foundation.org, kirill.shutemov@linux.intel.com, arbab@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, x86@kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, linuxppc-dev@lists.ozlabs.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, mgorman@techsingularity.net
+To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, benh@kernel.crashing.org, paulus@samba.org, akpm@linux-foundation.org, kirill.shutemov@linux.intel.com, arbab@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, x86@kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, linuxppc-dev@lists.ozlabs.org, mhocko@suse.com, linux-mm@kvack.org, linux-s390@vger.kernel.org, mgorman@techsingularity.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu 16-11-17 20:46:01, Pavel Tatashin wrote:
+On Thu, 2017-11-16 at 20:46 -0500, Pavel Tatashin wrote:
 > There is no need to have ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT,
 > as all the page initialization code is in common code.
-> 
-> Also, there is no need to depend on MEMORY_HOTPLUG, as initialization code
-> does not really use hotplug memory functionality. So, we can remove this
+>=20
+> Also, there is no need to depend on MEMORY_HOTPLUG, as initialization
+> code
+> does not really use hotplug memory functionality. So, we can remove
+> this
 > requirement as well.
-> 
+>=20
 > This patch allows to use deferred struct page initialization on all
 > platforms with memblock allocator.
-> 
+>=20
 > Tested on x86, arm64, and sparc. Also, verified that code compiles on
 > PPC with CONFIG_MEMORY_HOTPLUG disabled.
-
-There is slight risk that we will encounter corner cases on some
-architectures with weird memory layout/topology but we should better
-explicitly disable this code rather than make it opt-in so this looks
-like an improvement to me.
- 
+>=20
 > Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-
-Acked-by: Michal Hocko <mhocko@suse.com>
-
 > ---
->  arch/powerpc/Kconfig | 1 -
->  arch/s390/Kconfig    | 1 -
->  arch/x86/Kconfig     | 1 -
->  mm/Kconfig           | 7 +------
->  4 files changed, 1 insertion(+), 9 deletions(-)
-> 
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index cb782ac1c35d..1540348691c9 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -148,7 +148,6 @@ config PPC
->  	select ARCH_MIGHT_HAVE_PC_PARPORT
->  	select ARCH_MIGHT_HAVE_PC_SERIO
->  	select ARCH_SUPPORTS_ATOMIC_RMW
-> -	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
->  	select ARCH_USE_BUILTIN_BSWAP
->  	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
->  	select ARCH_WANT_IPC_PARSE_VERSION
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 863a62a6de3c..525c2e3df6f5 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -108,7 +108,6 @@ config S390
->  	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
->  	select ARCH_SAVE_PAGE_KEYS if HIBERNATION
->  	select ARCH_SUPPORTS_ATOMIC_RMW
-> -	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
->  	select ARCH_SUPPORTS_NUMA_BALANCING
->  	select ARCH_USE_BUILTIN_BSWAP
->  	select ARCH_USE_CMPXCHG_LOCKREF
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index df3276d6bfe3..00a5446de394 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -69,7 +69,6 @@ config X86
->  	select ARCH_MIGHT_HAVE_PC_PARPORT
->  	select ARCH_MIGHT_HAVE_PC_SERIO
->  	select ARCH_SUPPORTS_ATOMIC_RMW
-> -	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
->  	select ARCH_SUPPORTS_NUMA_BALANCING	if X86_64
->  	select ARCH_USE_BUILTIN_BSWAP
->  	select ARCH_USE_QUEUED_RWLOCKS
-> diff --git a/mm/Kconfig b/mm/Kconfig
-> index 9c4bdddd80c2..c6bd0309ce7a 100644
-> --- a/mm/Kconfig
-> +++ b/mm/Kconfig
-> @@ -639,15 +639,10 @@ config MAX_STACK_SIZE_MB
->  
->  	  A sane initial value is 80 MB.
->  
-> -# For architectures that support deferred memory initialisation
-> -config ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
-> -	bool
-> -
->  config DEFERRED_STRUCT_PAGE_INIT
->  	bool "Defer initialisation of struct pages to kthreads"
->  	default n
-> -	depends on ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
-> -	depends on NO_BOOTMEM && MEMORY_HOTPLUG
-> +	depends on NO_BOOTMEM
->  	depends on !FLATMEM
->  	help
->  	  Ordinarily all struct pages are initialised during early boot in a
-> -- 
-> 2.15.0
+> =C2=A0arch/powerpc/Kconfig | 1 -
+> =C2=A0arch/s390/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0| 1 -
+> =C2=A0arch/x86/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0| 1 -
+> =C2=A0mm/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0| 7 +------
+> =C2=A04 files changed, 1 insertion(+), 9 deletions(-)
+>=20
+>=20
 
--- 
-Michal Hocko
-SUSE Labs
+Looks reasonable to me.
+
+Reviewed-by: Khalid Aziz <khalid.aziz@oracle.com>
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
