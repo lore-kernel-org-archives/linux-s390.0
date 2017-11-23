@@ -1,57 +1,34 @@
-Return-Path: <owner-linux-mm@kvack.org>
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH v1] mm: relax deferred struct page requirements
-In-Reply-To: <20171117014601.31606-1-pasha.tatashin@oracle.com>
-References: <20171117014601.31606-1-pasha.tatashin@oracle.com>
-Date: Thu, 23 Nov 2017 23:52:45 +1100
-Message-ID: <87wp2h17j6.fsf@concordia.ellerman.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, benh@kernel.crashing.org, paulus@samba.org, akpm@linux-foundation.org, kirill.shutemov@linux.intel.com, arbab@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, x86@kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, linuxppc-dev@lists.ozlabs.org, mhocko@suse.com, linux-mm@kvack.org, linux-s390@vger.kernel.org, mgorman@techsingularity.net
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH] KVM: Only register preempt notifiers and load arch
+ cpu state as needed
+Date: Thu, 23 Nov 2017 19:43:33 +0100
+Message-ID: <38e20093-9f94-9fbb-12c3-329ce6b8467d@redhat.com>
+References: <20171123160521.27260-1-christoffer.dall@linaro.org>
+ <72357599-798d-14d0-336a-69a083f17863@redhat.com>
+ <20171123170642.GA28855@cbox>
+ <62ae4eb1-fd57-c525-cd73-e3f646d340e1@redhat.com>
+ <20171123174804.GB28855@cbox>
+ <acf7f751-d73d-8e16-fe9b-2f1f0e1f5e8d@redhat.com>
+ <20171123183214.GC28855@cbox>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20171123183214.GC28855@cbox>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christoffer Dall <cdall@linaro.org>
+Cc: Christoffer Dall <christoffer.dall@linaro.org>, kvm@vger.kernel.org, Andrew Jones <drjones@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org, Alexander Graf <agraf@suse.com>, kvm-ppc@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Pavel Tatashin <pasha.tatashin@oracle.com> writes:
+On 23/11/2017 19:32, Christoffer Dall wrote:
+> ok, that makes sense.
+> 
+> And just to be clear, you prefer that over storing the ioctl on the vcpu
+> struct, like this:
 
-> There is no need to have ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT,
-> as all the page initialization code is in common code.
->
-> Also, there is no need to depend on MEMORY_HOTPLUG, as initialization code
-> does not really use hotplug memory functionality. So, we can remove this
-> requirement as well.
->
-> This patch allows to use deferred struct page initialization on all
-> platforms with memblock allocator.
->
-> Tested on x86, arm64, and sparc. Also, verified that code compiles on
-> PPC with CONFIG_MEMORY_HOTPLUG disabled.
->
-> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-> ---
->  arch/powerpc/Kconfig | 1 -
->  arch/s390/Kconfig    | 1 -
->  arch/x86/Kconfig     | 1 -
->  mm/Kconfig           | 7 +------
->  4 files changed, 1 insertion(+), 9 deletions(-)
->
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index cb782ac1c35d..1540348691c9 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -148,7 +148,6 @@ config PPC
->  	select ARCH_MIGHT_HAVE_PC_PARPORT
->  	select ARCH_MIGHT_HAVE_PC_SERIO
->  	select ARCH_SUPPORTS_ATOMIC_RMW
-> -	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+Yes, please.
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-
-cheers
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Paolo
