@@ -1,200 +1,111 @@
 From: Christoffer Dall <cdall@linaro.org>
 Subject: Re: [RFC PATCH] KVM: Only register preempt notifiers and load arch
  cpu state as needed
-Date: Thu, 23 Nov 2017 19:32:14 +0100
-Message-ID: <20171123183214.GC28855@cbox>
+Date: Thu, 23 Nov 2017 19:32:55 +0100
+Message-ID: <20171123183255.GD28855@cbox>
 References: <20171123160521.27260-1-christoffer.dall@linaro.org>
  <72357599-798d-14d0-336a-69a083f17863@redhat.com>
  <20171123170642.GA28855@cbox>
- <62ae4eb1-fd57-c525-cd73-e3f646d340e1@redhat.com>
- <20171123174804.GB28855@cbox>
- <acf7f751-d73d-8e16-fe9b-2f1f0e1f5e8d@redhat.com>
+ <57693a50-e682-9b3b-7d8c-c46b66e33d84@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
 Content-Disposition: inline
-In-Reply-To: <acf7f751-d73d-8e16-fe9b-2f1f0e1f5e8d@redhat.com>
-Sender: kvm-owner@vger.kernel.org
+In-Reply-To: <57693a50-e682-9b3b-7d8c-c46b66e33d84@de.ibm.com>
+List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
+List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
+List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
+List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
+List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
+Errors-To: kvmarm-bounces@lists.cs.columbia.edu
+Sender: kvmarm-bounces@lists.cs.columbia.edu
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christoffer Dall <christoffer.dall@linaro.org>, kvm@vger.kernel.org, Andrew Jones <drjones@redhat.com>, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org, Alexander Graf <agraf@suse.com>, kvm-ppc@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-mips@linux-mips.org, kvm@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, Cornelia Huck <cohuck@redhat.com>, kvm-ppc@vger.kernel.org, Alexander Graf <agraf@suse.com>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Nov 23, 2017 at 07:16:32PM +0100, Paolo Bonzini wrote:
-> On 23/11/2017 18:48, Christoffer Dall wrote:
-> >>> That doesn't solve my need as I want to *only* do the arch vcpu_load for
-> >>> KVM_RUN, I should have been more clear in the commit message.
+On Thu, Nov 23, 2017 at 07:05:07PM +0100, Christian Borntraeger wrote:
+> 
+> 
+> On 11/23/2017 06:06 PM, Christoffer Dall wrote:
+> > On Thu, Nov 23, 2017 at 05:17:00PM +0100, Paolo Bonzini wrote:
+> >> On 23/11/2017 17:05, Christoffer Dall wrote:
+> >>> For example,
+> >>> arm64 is about to do significant work in vcpu load/put when running a
+> >>> vcpu, but not when doing things like KVM_SET_ONE_REG or
+> >>> KVM_SET_MP_STATE.
 > >>
-> >> That's what you want to do, but it might not be what you need to do.
+> >> Out of curiosity, in what circumstances are these ioctls a hot path?
+> >> Especially KVM_SET_MP_STATE.
+> >>
 > > 
-> > Well, why would we want to do a lot of work when there's absolutely no
-> > need to?
+> > Perhaps my commit message was misleading; we only want to do that for
+> > KVM_RUN, and not for anything else.  We're already doing things like
+> > potentially jumping to hyp mode and flushing VMIDs which really
+> > shouldn't be done unless we actually plan on running a VCPU, and we're
+> > going to do things like setting up the timer to handle timer interrupts
+> > in an ISR, which doesn't make sense unless the VCPU is running.
 > > 
-> > I see that this patch is invasive, and that's why I originally proposed
-> > the other approach of recording the ioctl number.
+> > Add to that, that loading an entire VM's state onto hardware, only to
+> > read back a single register from hardware and returning it to user
+> > space, doesn't really fall within optimization vs. non-optimization in
+> > the critical path, but is just wrong, IMHO.
+> > 
+> >>> Hi all,
+> >>>
+> >>> Drew suggested this as an alternative approach to recording the ioctl
+> >>> number on the vcpu struct [1] as it may benefit other architectures in
+> >>> general.
+> >>>
+> >>> I had a look at some of the specific ioctls across architectures, but
+> >>> must admit that I can't easily tell which architecture specific logic
+> >>> relies on having registered preempt notifiers and having called the
+> >>> architecture specific load function.
+> >>>
+> >>> It would be great if you would let me know if you think this is
+> >>> generally useful or if you prefer the less invasive approach, and in
+> >>> case this is useful, if you could have a look at all the vcpu ioctls for
+> >>> your architecture and let me know if I am being too loose or too
+> >>> careful in calling __vcpu_load() in this patch.
+> >>
+> >> I can suggest a third approach:
+> >>
+> >>         if (ioctl == KVM_GET_ONE_REG || ioctl == KVM_SET_ONE_REG)
+> >>                 return kvm_arch_vcpu_ioctl(filp, ioctl, arg);
+> >>
+> >> in kvm_vcpu_ioctl before "r = vcpu_load(vcpu);", or even better:
+> >>
+> >>         if (ioctl == KVM_GET_ONE_REG)
+> >> 		// call kvm_arch_vcpu_get_one_reg_ioctl(vcpu, &reg);
+> >> 		// and do copy_to_user
+> >> 		return kvm_vcpu_get_one_reg_ioctl(vcpu, arg);
+> >>         if (ioctl == KVM_SET_ONE_REG)
+> >> 		// do copy_from_user then call
+> >> 		// kvm_arch_vcpu_set_one_reg_ioctl(vcpu, &reg);
+> >> 		return kvm_vcpu_set_one_reg_ioctl(vcpu, arg);
+> >>
+> >> so that the kvm_arch_vcpu_get/set_one_reg_ioctl functions are called
+> >> without the lock.
+> >>
+> >> Then all architectures except ARM can be switched to do
+> >> vcpu_load/vcpu_put in kvm_arch_vcpu_get/set_one_reg_ioctl
+> > 
+> > That doesn't solve my need as I want to *only* do the arch vcpu_load for
+> > KVM_RUN, I should have been more clear in the commit message.
 > 
-> Because we need to balance performance and maintainability.  The
-> following observation is the important one:
+> What about splitting arch_vcpu_load/put into two callbacks and call the 2nd
+> one only for VCPU_run? e.g. keep arch_vcpu_load and add arch_vcpu_load_run
+> and arch_vcpu_unload_run
 > 
-
-Sure.  So I'm curious...  Is it easier to maintain and simpler for other
-architectures (x86 in particular) to call vcpu_load for the non-KVM_RUN
-ioctl?
-
-I have a vague notion that this may be related to always being able to
-do things like VMREAD no matter the context, but I couldn't easily tell
-from the code.
-
-It would have been similar for some parts of the ARM code if we only
-supported VHE, but since we don't, we anyway have to check if actually
-loaded stuff on the CPU or not, any time we access state, so there is no
-win there.
-
-> > While it may be possible to call kvm_arch_vcpu_load() for a number of
-> > non-KVM_RUN ioctls, it makes the KVM/ARM code more difficult to reason
-> > about, especially after my optimization series, because a lot of things
-> > can now happen, where we have to consider if we're really in the process
-> > of running a vcpu or not.
+> Then every architecture can move things from arch_vcpu_load into arch_vcpu_load_run
+> if its only necessary for RUN.
 > 
-> ... because outside ARM I couldn't see any maintainability drawback.
-> Now I understand (or at least, I understand enough to believe you!).
-
-I'm happy to hear that I don't need stronger evidence to earn some level
-of trust :)
-
-> 
-> The idea of this patch then is okay, but:
-> 
-> * x86 can use __vcpu_load/__vcpu_put, because the calls outside the lock
-> are all in the destruction path where no one can concurrently take the
-> lock.  So the lock+load and put+unlock variants are not necessary.
-> 
-
-ok, that simplifies things.
-
-> * Just make a huge series that, one ioctl at a time, pushes down the
-> load/put to the arch-specific functions.  No need to figure out where
-> it's actually needed, or at least you can leave it to the architecture
-> maintainers.
-> 
-
-ok, that makes sense.
-
-And just to be clear, you prefer that over storing the ioctl on the vcpu
-struct, like this:
-
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index a2b804e10c95..4c1390f1da88 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -9491,7 +9491,7 @@ static void vmx_free_vcpu_nested(struct kvm_vcpu *vcpu)
-        struct vcpu_vmx *vmx = to_vmx(vcpu);
-        int r;
- 
--       r = vcpu_load(vcpu);
-+       r = vcpu_load(vcpu, 0);
-        BUG_ON(r);
-        vmx_switch_vmcs(vcpu, &vmx->vmcs01);
-        free_nested(vmx);
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 03869eb7fcd6..22c7ef2cc699 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7723,7 +7723,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 	int r;
- 
- 	kvm_vcpu_mtrr_init(vcpu);
--	r = vcpu_load(vcpu);
-+	r = vcpu_load(vcpu, 0);
- 	if (r)
- 		return r;
- 	kvm_vcpu_reset(vcpu, false);
-@@ -7739,7 +7739,7 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- 
- 	kvm_hv_vcpu_postcreate(vcpu);
- 
--	if (vcpu_load(vcpu))
-+	if (vcpu_load(vcpu, 0))
- 		return;
- 	msr.data = 0x0;
- 	msr.index = MSR_IA32_TSC;
-@@ -7759,7 +7759,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
- 	int r;
- 	vcpu->arch.apf.msr_val = 0;
- 
--	r = vcpu_load(vcpu);
-+	r = vcpu_load(vcpu, 0);
- 	BUG_ON(r);
- 	kvm_mmu_unload(vcpu);
- 	vcpu_put(vcpu);
-@@ -8116,7 +8116,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- static void kvm_unload_vcpu_mmu(struct kvm_vcpu *vcpu)
- {
- 	int r;
--	r = vcpu_load(vcpu);
-+	r = vcpu_load(vcpu, 0);
- 	BUG_ON(r);
- 	kvm_mmu_unload(vcpu);
- 	vcpu_put(vcpu);
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 6882538eda32..da0acc02d338 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -274,6 +274,7 @@ struct kvm_vcpu {
- 	bool preempted;
- 	struct kvm_vcpu_arch arch;
- 	struct dentry *debugfs_dentry;
-+	unsigned int ioctl; /* ioctl currently executing or 0 */
- };
- 
- static inline int kvm_vcpu_exiting_guest_mode(struct kvm_vcpu *vcpu)
-@@ -533,7 +534,7 @@ static inline int kvm_vcpu_get_idx(struct kvm_vcpu *vcpu)
- int kvm_vcpu_init(struct kvm_vcpu *vcpu, struct kvm *kvm, unsigned id);
- void kvm_vcpu_uninit(struct kvm_vcpu *vcpu);
- 
--int __must_check vcpu_load(struct kvm_vcpu *vcpu);
-+int __must_check vcpu_load(struct kvm_vcpu *vcpu, unsigned int ioctl);
- void vcpu_put(struct kvm_vcpu *vcpu);
- 
- #ifdef __KVM_HAVE_IOAPIC
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 9deb5a245b83..12bc019077a7 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -147,12 +147,13 @@ bool kvm_is_reserved_pfn(kvm_pfn_t pfn)
- /*
-  * Switches to specified vcpu, until a matching vcpu_put()
-  */
--int vcpu_load(struct kvm_vcpu *vcpu)
-+int vcpu_load(struct kvm_vcpu *vcpu, unsigned int ioctl)
- {
- 	int cpu;
- 
- 	if (mutex_lock_killable(&vcpu->mutex))
- 		return -EINTR;
-+	vcpu->ioctl = ioctl;
- 	cpu = get_cpu();
- 	preempt_notifier_register(&vcpu->preempt_notifier);
- 	kvm_arch_vcpu_load(vcpu, cpu);
-@@ -167,6 +168,7 @@ void vcpu_put(struct kvm_vcpu *vcpu)
- 	kvm_arch_vcpu_put(vcpu);
- 	preempt_notifier_unregister(&vcpu->preempt_notifier);
- 	preempt_enable();
-+	vcpu->ioctl = 0;
- 	mutex_unlock(&vcpu->mutex);
- }
- EXPORT_SYMBOL_GPL(vcpu_put);
-@@ -2529,7 +2531,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
- #endif
- 
- 
--	r = vcpu_load(vcpu);
-+	r = vcpu_load(vcpu, ioctl);
- 	if (r)
- 		return r;
- 	switch (ioctl) {
-
+Unfortunately that doesn't work because the preempt notifiers don't know
+which of the two functions they should call.
 
 Thanks,
 -Christoffer
