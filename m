@@ -1,47 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 27 Nov 2017 10:16:50 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 2/2] s390/virtio: add BSD license to virtio-ccw
-Message-ID: <20171127101650.74f6e272.cohuck@redhat.com>
-In-Reply-To: <ee9ad214-db0e-002b-0d6e-dfb2142deaf5@de.ibm.com>
-References: <1511500846-24696-1-git-send-email-mst@redhat.com>
-        <1511500846-24696-2-git-send-email-mst@redhat.com>
-        <20171124140918.GF4284@osiris>
-        <20171124181148-mutt-send-email-mst@kernel.org>
-        <20171124165301.GH4284@osiris>
-        <20171124190132-mutt-send-email-mst@kernel.org>
-        <20171124171834.GA2857@osiris>
-        <ee9ad214-db0e-002b-0d6e-dfb2142deaf5@de.ibm.com>
+Date: Fri, 24 Nov 2017 07:21:06 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v2 1/2] s390/virtio: remove the old KVM virtio headers
+Message-ID: <1511500846-24696-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 27 Nov 2017 09:15:14 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+commit 7fb2b2d51 ("s390/virtio: remove the old KVM virtio transport")
+dropped the transport support. We don't need to keep the header around.
 
-> On 11/24/2017 06:18 PM, Heiko Carstens wrote:
-> > On Fri, Nov 24, 2017 at 07:02:41PM +0200, Michael S. Tsirkin wrote:  
-> >> On Fri, Nov 24, 2017 at 05:53:01PM +0100, Heiko Carstens wrote:  
-> >>>>> Is there any reason to add the whole BSD 3 clause license text? I'd prefer
-> >>>>> if it would be just the simple new SPDX-License-Identifier above.  
-> >>
-> >> I added  it for consistency with other virtio headers.  
-> > 
-> > Well, one of the points of the SPDX tags is to avoid the countless
-> > duplication of license texts. Adding a license text is easy, removing it
-> > again later is not as easy. Therefore I would prefer to avoid the
-> > duplication here again.
-> > 
-> > Cornelia, Christian, any opinion here?  
-> 
-> I would prefer to not have the full licence text and only have the SPDX string
-> if that is allowed by the licence.
-> 
+Cc: Thomas Huth <thuth@redhat.com>
+Cc: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.vnet.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/s390/include/uapi/asm/kvm_virtio.h | 65 ---------------------------------
+ 1 file changed, 65 deletions(-)
+ delete mode 100644 arch/s390/include/uapi/asm/kvm_virtio.h
 
-Works for me.
+diff --git a/arch/s390/include/uapi/asm/kvm_virtio.h b/arch/s390/include/uapi/asm/kvm_virtio.h
+deleted file mode 100644
+index 7328367..0000000
+--- a/arch/s390/include/uapi/asm/kvm_virtio.h
++++ /dev/null
+@@ -1,65 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+-/*
+- * definition for virtio for kvm on s390
+- *
+- * Copyright IBM Corp. 2008
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+- *    Author(s): Christian Borntraeger <borntraeger@de.ibm.com>
+- */
+-
+-#ifndef __KVM_S390_VIRTIO_H
+-#define __KVM_S390_VIRTIO_H
+-
+-#include <linux/types.h>
+-
+-struct kvm_device_desc {
+-	/* The device type: console, network, disk etc.  Type 0 terminates. */
+-	__u8 type;
+-	/* The number of virtqueues (first in config array) */
+-	__u8 num_vq;
+-	/*
+-	 * The number of bytes of feature bits.  Multiply by 2: one for host
+-	 * features and one for guest acknowledgements.
+-	 */
+-	__u8 feature_len;
+-	/* The number of bytes of the config array after virtqueues. */
+-	__u8 config_len;
+-	/* A status byte, written by the Guest. */
+-	__u8 status;
+-	__u8 config[0];
+-};
+-
+-/*
+- * This is how we expect the device configuration field for a virtqueue
+- * to be laid out in config space.
+- */
+-struct kvm_vqconfig {
+-	/* The token returned with an interrupt. Set by the guest */
+-	__u64 token;
+-	/* The address of the virtio ring */
+-	__u64 address;
+-	/* The number of entries in the virtio_ring */
+-	__u16 num;
+-
+-};
+-
+-#define KVM_S390_VIRTIO_NOTIFY		0
+-#define KVM_S390_VIRTIO_RESET		1
+-#define KVM_S390_VIRTIO_SET_STATUS	2
+-
+-/* The alignment to use between consumer and producer parts of vring.
+- * This is pagesize for historical reasons. */
+-#define KVM_S390_VIRTIO_RING_ALIGN	4096
+-
+-
+-/* These values are supposed to be in ext_params on an interrupt */
+-#define VIRTIO_PARAM_MASK		0xff
+-#define VIRTIO_PARAM_VRING_INTERRUPT	0x0
+-#define VIRTIO_PARAM_CONFIG_CHANGED	0x1
+-#define VIRTIO_PARAM_DEV_ADD		0x2
+-
+-#endif
+-- 
+MST
