@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH 08/12] s390: kvm: Remove redundant license text
+Date: Fri, 24 Nov 2017 15:38:08 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 00/12] arch/s390/ license text cleanup
+In-Reply-To: <20171124140043.10062-1-gregkh@linuxfoundation.org>
 References: <20171124140043.10062-1-gregkh@linuxfoundation.org>
- <20171124140043.10062-9-gregkh@linuxfoundation.org>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Fri, 24 Nov 2017 15:23:57 +0100
 MIME-Version: 1.0
-In-Reply-To: <20171124140043.10062-9-gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <aefb6e1b-d849-74d4-5fd1-89f44dc2345c@de.ibm.com>
+Message-Id: <20171124153808.63d502f0@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Fri, 24 Nov 2017 15:00:31 +0100
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
+> Here are 12 patches against linux-next of today that add SPDX
+> identifiers to the remaining files in arch/s390 that do not currently
+> have them, and then it cleans up the various different ways that the
+> license text boilerplate was written for the GPLv2 in a few files.  This
+> cleanup was done in the quest to remove the 700+ different ways the
+> kernel describes GPLv2.
+> 
+> No copyright headers or any other non-license-description text was
+> removed in these patches.
+> 
+> FWIW, this license cleanup action has been "blessed" by IBM lawyers, but
+> feel free to check internally if you are curious.
 
-On 11/24/2017 03:00 PM, Greg Kroah-Hartman wrote:
-> Now that the SPDX tag is in all arch/s390/kvm/ files, that identifies
-> the license in a specific and legally-defined manner.  So the extra GPL
-> text wording can be removed as it is no longer needed at all.
-> 
-> This is done on a quest to remove the 700+ different ways that files in
-> the kernel describe the GPL license text.  And there's unneeded stuff
-> like the address (sometimes incorrect) for the FSF which is never
-> needed.
-> 
-> No copyright headers or other non-license-description text was removed.
-> 
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Cornelia Huck <cohuck@redhat.com>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  arch/s390/kvm/Makefile    | 4 ----
->  arch/s390/kvm/diag.c      | 4 ----
->  arch/s390/kvm/gaccess.h   | 4 ----
->  arch/s390/kvm/guestdbg.c  | 4 ----
->  arch/s390/kvm/intercept.c | 4 ----
->  arch/s390/kvm/interrupt.c | 4 ----
->  arch/s390/kvm/irq.h       | 4 ----
->  arch/s390/kvm/kvm-s390.c  | 4 ----
->  arch/s390/kvm/kvm-s390.h  | 4 ----
->  arch/s390/kvm/priv.c      | 4 ----
->  arch/s390/kvm/sigp.c      | 4 ----
->  arch/s390/kvm/vsie.c      | 4 ----
->  12 files changed, 48 deletions(-)
+Ok, Christian picked up patches #2 and #8. I have added the remaining 10
+patches to the fixes branch of s390/linux and created an additional patch
+to have arch/s390/kernel/sthyi.c marked as GPL-2.0.
 
-thanks, queued  for kvms390
+Thanks Greg!
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
