@@ -1,60 +1,105 @@
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: [PATCH] perf: correct segfault in nsinfo__copy()
-Date: Fri, 17 Nov 2017 16:13:52 +0100
-Message-ID: <1510931632-28355-1-git-send-email-brueckner@linux.vnet.ibm.com>
-Return-path: <linux-perf-users-owner@vger.kernel.org>
-Sender: linux-perf-users-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-perf-users/>
-List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: linux-perf-users@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 24 Nov 2017 18:24:03 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v3 1/2] s390/virtio: remove the old KVM virtio headers
+Message-ID: <1511540578-3818-1-git-send-email-mst@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When running perf in a namespace, workload from other namespaces
-are accounted to PID 0.  During thread initialization for PID 0,
-nsinfo__new(PID 0) returns NULL.
-Later, a missing NULL pointer check in nsinfo__copy() that is
-called from map__new() to handle vdso maps might cause a
-segmentation fault.
+commit 7fb2b2d51 ("s390/virtio: remove the old KVM virtio transport")
+dropped the transport support. We don't need to keep the header around.
 
-For example, the segmentation fault can be seen when running
-perf top in a namespace created with:
-	unshare --fork --pid --mount-proc /bin/bash
-while running some workload, e.g., find /, in a different
-namespace.  The resulting stack trace might look like:
-
-  (gdb)
-  #0  nsinfo__copy (nsi=0x0) at util/namespaces.c:143
-  #1  0x000000010010fe3a in map__new (machine=<optimized out>, start=132816, len=<optimized out>, pgoff=<optimized out>, d_maj=<optimized out>, d_min=0, ino=0,
-      ino_gen=0, prot=5, flags=4098, filename=0x3fffcb01180 "[vdso]", type=MAP__FUNCTION, thread=0x101c3c050) at util/map.c:192
-  #2  0x000000010010e1a4 in machine__process_mmap2_event (machine=0x101c3bab8, event=0x3fffcb01138, sample=<optimized out>) at util/machine.c:1397
-  #3  0x00000001000659d8 in perf_top__mmap_read_idx (top=top@entry=0x3ffffff91d0, idx=idx@entry=0) at builtin-top.c:863
-  #4  0x00000001000680ae in perf_top__mmap_read (top=0x3ffffff91d0) at builtin-top.c:876
-  #5  __cmd_top (top=0x3ffffff91d0) at builtin-top.c:1021
-  #6  cmd_top (argc=<optimized out>, argv=<optimized out>) at builtin-top.c:1352
-  #7  0x00000001000b643c in run_builtin (p=0x100277b08 <commands+336>, argc=<optimized out>, argv=0x3ffffffede0) at perf.c:297
-  #8  0x00000001000419e0 in handle_internal_command (argv=<optimized out>, argc=1) at perf.c:349
-  #9  run_argv (argcp=<synthetic pointer>, argv=<synthetic pointer>) at perf.c:393
-  #10 main (argc=<optimized out>, argv=0x3ffffffede0) at perf.c:537
-
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>
+Cc: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.vnet.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- tools/perf/util/namespaces.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/tools/perf/util/namespaces.c b/tools/perf/util/namespaces.c
-index 5be0217..cf8bd12 100644
---- a/tools/perf/util/namespaces.c
-+++ b/tools/perf/util/namespaces.c
-@@ -139,6 +139,9 @@ struct nsinfo *nsinfo__copy(struct nsinfo *nsi)
- {
- 	struct nsinfo *nnsi;
- 
-+	if (nsi == NULL)
-+		return NULL;
-+
- 	nnsi = calloc(1, sizeof(*nnsi));
- 	if (nnsi != NULL) {
- 		nnsi->pid = nsi->pid;
+No changes from v2
+
+ arch/s390/include/uapi/asm/kvm_virtio.h | 65 ---------------------------------
+ 1 file changed, 65 deletions(-)
+ delete mode 100644 arch/s390/include/uapi/asm/kvm_virtio.h
+
+diff --git a/arch/s390/include/uapi/asm/kvm_virtio.h b/arch/s390/include/uapi/asm/kvm_virtio.h
+deleted file mode 100644
+index 7328367..0000000
+--- a/arch/s390/include/uapi/asm/kvm_virtio.h
++++ /dev/null
+@@ -1,65 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+-/*
+- * definition for virtio for kvm on s390
+- *
+- * Copyright IBM Corp. 2008
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+- *    Author(s): Christian Borntraeger <borntraeger@de.ibm.com>
+- */
+-
+-#ifndef __KVM_S390_VIRTIO_H
+-#define __KVM_S390_VIRTIO_H
+-
+-#include <linux/types.h>
+-
+-struct kvm_device_desc {
+-	/* The device type: console, network, disk etc.  Type 0 terminates. */
+-	__u8 type;
+-	/* The number of virtqueues (first in config array) */
+-	__u8 num_vq;
+-	/*
+-	 * The number of bytes of feature bits.  Multiply by 2: one for host
+-	 * features and one for guest acknowledgements.
+-	 */
+-	__u8 feature_len;
+-	/* The number of bytes of the config array after virtqueues. */
+-	__u8 config_len;
+-	/* A status byte, written by the Guest. */
+-	__u8 status;
+-	__u8 config[0];
+-};
+-
+-/*
+- * This is how we expect the device configuration field for a virtqueue
+- * to be laid out in config space.
+- */
+-struct kvm_vqconfig {
+-	/* The token returned with an interrupt. Set by the guest */
+-	__u64 token;
+-	/* The address of the virtio ring */
+-	__u64 address;
+-	/* The number of entries in the virtio_ring */
+-	__u16 num;
+-
+-};
+-
+-#define KVM_S390_VIRTIO_NOTIFY		0
+-#define KVM_S390_VIRTIO_RESET		1
+-#define KVM_S390_VIRTIO_SET_STATUS	2
+-
+-/* The alignment to use between consumer and producer parts of vring.
+- * This is pagesize for historical reasons. */
+-#define KVM_S390_VIRTIO_RING_ALIGN	4096
+-
+-
+-/* These values are supposed to be in ext_params on an interrupt */
+-#define VIRTIO_PARAM_MASK		0xff
+-#define VIRTIO_PARAM_VRING_INTERRUPT	0x0
+-#define VIRTIO_PARAM_CONFIG_CHANGED	0x1
+-#define VIRTIO_PARAM_DEV_ADD		0x2
+-
+-#endif
 -- 
-1.8.3.1
+MST
