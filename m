@@ -1,82 +1,56 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH 02/12] s390: kvm: add SPDX identifiers to the remaining
+ files
+References: <20171124140043.10062-1-gregkh@linuxfoundation.org>
+ <20171124140043.10062-3-gregkh@linuxfoundation.org>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 1/1] KVM: s390: mark irq_state.flags as non-usable
-Date: Tue, 21 Nov 2017 18:42:25 +0100
-Message-ID: <11a6b47b-9e82-78b0-aba0-89d8ae3e4339@de.ibm.com>
-References: <20171121150806.47075-1-borntraeger@de.ibm.com>
- <638982df-e3a1-16d4-51a2-5a400075ac3d@redhat.com>
-Mime-Version: 1.0
+Date: Fri, 24 Nov 2017 15:23:46 +0100
+MIME-Version: 1.0
+In-Reply-To: <20171124140043.10062-3-gregkh@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <638982df-e3a1-16d4-51a2-5a400075ac3d@redhat.com>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <1ecc0c9c-0890-6322-fb7f-cf37fd51d6da@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On 11/24/2017 03:00 PM, Greg Kroah-Hartman wrote:
+> It's good to have SPDX identifiers in all files to make it easier to
+> audit the kernel tree for correct licenses.
+> 
+> Update the arch/s390/kvm/ files with the correct SPDX license
+> identifier based on the license text in the file itself.  The SPDX
+> identifier is a legally binding shorthand, which can be used instead of
+> the full boiler plate text.
+> 
+> This work is based on a script and data from Thomas Gleixner, Philippe
+> Ombredanne, and Kate Stewart.
+> 
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Cornelia Huck <cohuck@redhat.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Kate Stewart <kstewart@linuxfoundation.org>
+> Cc: Philippe Ombredanne <pombredanne@nexb.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  arch/s390/kvm/Makefile    | 1 +
+>  arch/s390/kvm/diag.c      | 1 +
+>  arch/s390/kvm/gaccess.h   | 1 +
+>  arch/s390/kvm/guestdbg.c  | 1 +
+>  arch/s390/kvm/intercept.c | 1 +
+>  arch/s390/kvm/interrupt.c | 1 +
+>  arch/s390/kvm/irq.h       | 1 +
+>  arch/s390/kvm/kvm-s390.c  | 1 +
+>  arch/s390/kvm/kvm-s390.h  | 1 +
+>  arch/s390/kvm/priv.c      | 1 +
+>  arch/s390/kvm/sigp.c      | 1 +
+>  arch/s390/kvm/vsie.c      | 1 +
+>  12 files changed, 12 insertions(+)
 
-
-On 11/21/2017 04:18 PM, David Hildenbrand wrote:
-> On 21.11.2017 16:08, Christian Borntraeger wrote:
->> Old kernels did not check for zero in the irq_state.flags field and old
->> QEMUs did not zero the flag field when calling KVM_S390_*_IRQ_STATE.
->> Let's add a comment and dummy code to prevent future usage of flags
->> and pad.
->>
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->>  arch/s390/kvm/kvm-s390.c | 14 ++++++++++++++
->>  1 file changed, 14 insertions(+)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 6a5e02f..1baa393 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -3834,6 +3834,16 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->>  			r = -EINVAL;
->>  			break;
->>  		}
->> +		if (irq_state.flags) {
-> 
-> I don't see the need for if (do I need more coffee?).
-
-It is a dummy construct that matches other checks like "if flags return -EINVAL". But since
-it is dummy we can do whatever we want (even just a comment) since nobody reads flags as of
-today.
-
-> 
->> +			/*
->> +			 * This is a placeholder to make sure that nobody uses
->> +			 * flags and pad. Old kernels did not check for zero
->> +			 * and old QEMUs did not zero the flag field.
->> +			 * That means that we cannot use the flags field for
->> +			 * any possible extension.
->> +			 */
->> +			irq_state.flags = 0;
->> +		}
->>  		r = kvm_s390_set_irq_state(vcpu,
->>  					   (void __user *) irq_state.buf,
->>  					   irq_state.len);
->> @@ -3849,6 +3859,10 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->>  			r = -EINVAL;
->>  			break;
->>  		}
->> +		if (irq_state.flags) {
-> 
-> dito
-> 
->> +			/* see above */
-> 
-> /* same handling as for kvm_s390_set_irq_state() */
-> 
->> +			irq_state.flags = 0;
->> +		}
->>  		r = kvm_s390_get_irq_state(vcpu,
->>  					   (__u8 __user *)  irq_state.buf,
->>  					   irq_state.len);
->>
-> 
-> 
+thanks, queued  for kvms390
