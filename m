@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 24 Nov 2017 13:09:00 +0100
+Date: Fri, 24 Nov 2017 15:01:00 +0100
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Subject: Re: [PATCH 0/9] drivers/s390/ license text cleanup
-Message-ID: <20171124120900.GA24586@kroah.com>
+Message-ID: <20171124140100.GA10676@kroah.com>
 References: <20171114173808.25092-1-gregkh@linuxfoundation.org>
  <20171124112339.GC4284@osiris>
  <20171124114541.GA1916@kroah.com>
@@ -57,6 +57,6 @@ On Fri, Nov 24, 2017 at 12:52:35PM +0100, Heiko Carstens wrote:
 > Yes, please. As I understand it you have all the scripts in place which
 > should just work and provide the correct result.
 
-Ok, will do.
+Now sent, thanks.
 
 greg k-h
