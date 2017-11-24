@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 08/12] s390: kvm: Remove redundant license text
-Date: Fri, 24 Nov 2017 15:00:39 +0100
-Message-Id: <20171124140043.10062-9-gregkh@linuxfoundation.org>
+Subject: [PATCH 09/12] s390: kernel: Remove redundant license text
+Date: Fri, 24 Nov 2017 15:00:40 +0100
+Message-Id: <20171124140043.10062-10-gregkh@linuxfoundation.org>
 In-Reply-To: <20171124140043.10062-1-gregkh@linuxfoundation.org>
 References: <20171124140043.10062-1-gregkh@linuxfoundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Now that the SPDX tag is in all arch/s390/kvm/ files, that identifies
+Now that the SPDX tag is in all arch/s390/kernel/ files, that identifies
 the license in a specific and legally-defined manner.  So the extra GPL
 text wording can be removed as it is no longer needed at all.
 
@@ -23,206 +23,246 @@ needed.
 
 No copyright headers or other non-license-description text was removed.
 
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/Makefile    | 4 ----
- arch/s390/kvm/diag.c      | 4 ----
- arch/s390/kvm/gaccess.h   | 4 ----
- arch/s390/kvm/guestdbg.c  | 4 ----
- arch/s390/kvm/intercept.c | 4 ----
- arch/s390/kvm/interrupt.c | 4 ----
- arch/s390/kvm/irq.h       | 4 ----
- arch/s390/kvm/kvm-s390.c  | 4 ----
- arch/s390/kvm/kvm-s390.h  | 4 ----
- arch/s390/kvm/priv.c      | 4 ----
- arch/s390/kvm/sigp.c      | 4 ----
- arch/s390/kvm/vsie.c      | 4 ----
- 12 files changed, 48 deletions(-)
+ arch/s390/kernel/kprobes.c              | 14 --------------
+ arch/s390/kernel/module.c               | 14 --------------
+ arch/s390/kernel/perf_cpum_cf.c         |  4 ----
+ arch/s390/kernel/perf_cpum_sf.c         |  4 ----
+ arch/s390/kernel/perf_event.c           |  4 ----
+ arch/s390/kernel/sthyi.c                |  4 ----
+ arch/s390/kernel/vdso.c                 |  4 ----
+ arch/s390/kernel/vdso32/clock_getres.S  |  4 ----
+ arch/s390/kernel/vdso32/clock_gettime.S |  4 ----
+ arch/s390/kernel/vdso32/gettimeofday.S  |  4 ----
+ arch/s390/kernel/vdso64/clock_getres.S  |  4 ----
+ arch/s390/kernel/vdso64/clock_gettime.S |  4 ----
+ arch/s390/kernel/vdso64/gettimeofday.S  |  4 ----
+ 13 files changed, 72 deletions(-)
 
-diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index 2c5a8190d5ce..05ee90a5ea08 100644
---- a/arch/s390/kvm/Makefile
-+++ b/arch/s390/kvm/Makefile
-@@ -2,10 +2,6 @@
- # Makefile for kernel virtual machines on s390
- #
- # Copyright IBM Corp. 2008
--#
--# This program is free software; you can redistribute it and/or modify
--# it under the terms of the GNU General Public License (version 2 only)
--# as published by the Free Software Foundation.
- 
- KVM := ../../../virt/kvm
- common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqchip.o $(KVM)/vfio.o
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 481e1fe6095f..89aa114a2cba 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2011
+diff --git a/arch/s390/kernel/kprobes.c b/arch/s390/kernel/kprobes.c
+index ee055f7bdb10..af3722c28fd9 100644
+--- a/arch/s390/kernel/kprobes.c
++++ b/arch/s390/kernel/kprobes.c
+@@ -2,20 +2,6 @@
+ /*
+  *  Kernel Probes (KProbes)
   *
 - * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
 - *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+- *
+  * Copyright IBM Corp. 2002, 2006
+  *
+  * s390 port, used ppc64 as template. Mike Grundy <grundym@us.ibm.com>
+diff --git a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
+index 10d104589978..b7abfad4fd7d 100644
+--- a/arch/s390/kernel/module.c
++++ b/arch/s390/kernel/module.c
+@@ -9,20 +9,6 @@
+  *
+  *  based on i386 version
+  *    Copyright (C) 2001 Rusty Russell.
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License as published by
+- *  the Free Software Foundation; either version 2 of the License, or
+- *  (at your option) any later version.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License
+- *  along with this program; if not, write to the Free Software
+- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
   */
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 443b7fa82d56..f4c51756c462 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
+ #include <linux/module.h>
+ #include <linux/elf.h>
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+index 8f6296860186..cc085e2d2ce9 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
 @@ -4,10 +4,6 @@
   *
-  * Copyright IBM Corp. 2008, 2014
-  *
+  *  Copyright IBM Corp. 2012, 2017
+  *  Author(s): Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+- *
 - * This program is free software; you can redistribute it and/or modify
 - * it under the terms of the GNU General Public License (version 2 only)
 - * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
   */
- 
-diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index d6a1bead813c..b5f3e82006d0 100644
---- a/arch/s390/kvm/guestdbg.c
-+++ b/arch/s390/kvm/guestdbg.c
+ #define KMSG_COMPONENT	"cpum_cf"
+ #define pr_fmt(fmt)	KMSG_COMPONENT ": " fmt
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 6e404caac856..1c9ddd7aa5ec 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
 @@ -4,10 +4,6 @@
   *
-  * Copyright IBM Corp. 2014
-  *
+  * Copyright IBM Corp. 2013
+  * Author(s): Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+- *
 - * This program is free software; you can redistribute it and/or modify
 - * it under the terms of the GNU General Public License (version 2 only)
 - * as published by the Free Software Foundation.
-- *
-  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
   */
- #include <linux/kvm_host.h>
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index fc76a91a7820..9c7d70715862 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
+ #define KMSG_COMPONENT	"cpum_sf"
+ #define pr_fmt(fmt)	KMSG_COMPONENT ": " fmt
+diff --git a/arch/s390/kernel/perf_event.c b/arch/s390/kernel/perf_event.c
+index 0ef308851374..0d770e513abf 100644
+--- a/arch/s390/kernel/perf_event.c
++++ b/arch/s390/kernel/perf_event.c
 @@ -4,10 +4,6 @@
   *
-  * Copyright IBM Corp. 2008, 2014
-  *
+  *  Copyright IBM Corp. 2012, 2013
+  *  Author(s): Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+- *
 - * This program is free software; you can redistribute it and/or modify
 - * it under the terms of the GNU General Public License (version 2 only)
 - * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
   */
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index f37a34ea1601..024ad8bcc516 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2015
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  */
- 
-diff --git a/arch/s390/kvm/irq.h b/arch/s390/kvm/irq.h
-index 54a4a59cb4f9..484608c71dd0 100644
---- a/arch/s390/kvm/irq.h
-+++ b/arch/s390/kvm/irq.h
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2014
+ #define KMSG_COMPONENT	"perf"
+ #define pr_fmt(fmt)	KMSG_COMPONENT ": " fmt
+diff --git a/arch/s390/kernel/sthyi.c b/arch/s390/kernel/sthyi.c
+index 12981e197f01..0f474d893650 100644
+--- a/arch/s390/kernel/sthyi.c
++++ b/arch/s390/kernel/sthyi.c
+@@ -1,10 +1,6 @@
+ /*
+  * store hypervisor information instruction emulation functions.
   *
 - * This program is free software; you can redistribute it and/or modify
 - * it under the terms of the GNU General Public License (version 2 only)
 - * as published by the Free Software Foundation.
 - *
-  *    Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-  */
- #ifndef __KVM_IRQ_H
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0d45e32dd868..34375eed93ee 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2009
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Heiko Carstens <heiko.carstens@de.ibm.com>
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 9777924c4b5c..5e46ba429bcb 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2009
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index c9d962ac140b..28b69ab56b7b 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2013
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  */
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index d12ac5d6e8bb..c1f5cde2c878 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2013
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index d2b7886da444..5d6ae0326d9e 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -4,10 +4,6 @@
-  *
   * Copyright IBM Corp. 2016
+  * Author(s): Janosch Frank <frankja@linux.vnet.ibm.com>
+  */
+diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
+index 88f6fab68eb2..f3a1c7c6824e 100644
+--- a/arch/s390/kernel/vdso.c
++++ b/arch/s390/kernel/vdso.c
+@@ -4,10 +4,6 @@
   *
+  *  Copyright IBM Corp. 2008
+  *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
+- *
 - * This program is free software; you can redistribute it and/or modify
 - * it under the terms of the GNU General Public License (version 2 only)
 - * as published by the Free Software Foundation.
-- *
-  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
   */
- #include <linux/vmalloc.h>
+ 
+ #include <linux/init.h>
+diff --git a/arch/s390/kernel/vdso32/clock_getres.S b/arch/s390/kernel/vdso32/clock_getres.S
+index eb9f22cbfd47..f61df5253c23 100644
+--- a/arch/s390/kernel/vdso32/clock_getres.S
++++ b/arch/s390/kernel/vdso32/clock_getres.S
+@@ -5,10 +5,6 @@
+  *
+  *  Copyright IBM Corp. 2008
+  *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+  */
+ #include <asm/vdso.h>
+ #include <asm/asm-offsets.h>
+diff --git a/arch/s390/kernel/vdso32/clock_gettime.S b/arch/s390/kernel/vdso32/clock_gettime.S
+index b642c0382238..2d6ec3abe095 100644
+--- a/arch/s390/kernel/vdso32/clock_gettime.S
++++ b/arch/s390/kernel/vdso32/clock_gettime.S
+@@ -5,10 +5,6 @@
+  *
+  *  Copyright IBM Corp. 2008
+  *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+  */
+ #include <asm/vdso.h>
+ #include <asm/asm-offsets.h>
+diff --git a/arch/s390/kernel/vdso32/gettimeofday.S b/arch/s390/kernel/vdso32/gettimeofday.S
+index 8a89b54246d7..aa8bf13a2edb 100644
+--- a/arch/s390/kernel/vdso32/gettimeofday.S
++++ b/arch/s390/kernel/vdso32/gettimeofday.S
+@@ -5,10 +5,6 @@
+  *
+  *  Copyright IBM Corp. 2008
+  *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+  */
+ #include <asm/vdso.h>
+ #include <asm/asm-offsets.h>
+diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
+index 416bf711c2aa..faf5213b15df 100644
+--- a/arch/s390/kernel/vdso64/clock_getres.S
++++ b/arch/s390/kernel/vdso64/clock_getres.S
+@@ -5,10 +5,6 @@
+  *
+  *  Copyright IBM Corp. 2008
+  *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+  */
+ #include <asm/vdso.h>
+ #include <asm/asm-offsets.h>
+diff --git a/arch/s390/kernel/vdso64/clock_gettime.S b/arch/s390/kernel/vdso64/clock_gettime.S
+index d2dee331b7cd..6046b3bfca46 100644
+--- a/arch/s390/kernel/vdso64/clock_gettime.S
++++ b/arch/s390/kernel/vdso64/clock_gettime.S
+@@ -5,10 +5,6 @@
+  *
+  *  Copyright IBM Corp. 2008
+  *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+  */
+ #include <asm/vdso.h>
+ #include <asm/asm-offsets.h>
+diff --git a/arch/s390/kernel/vdso64/gettimeofday.S b/arch/s390/kernel/vdso64/gettimeofday.S
+index cf62a1611054..cc9dbc27da6f 100644
+--- a/arch/s390/kernel/vdso64/gettimeofday.S
++++ b/arch/s390/kernel/vdso64/gettimeofday.S
+@@ -5,10 +5,6 @@
+  *
+  *  Copyright IBM Corp. 2008
+  *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+  */
+ #include <asm/vdso.h>
+ #include <asm/asm-offsets.h>
 -- 
 2.15.0
