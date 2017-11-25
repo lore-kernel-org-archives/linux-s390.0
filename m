@@ -1,8 +1,8 @@
 From: Christoffer Dall <christoffer.dall@linaro.org>
-Subject: [PATCH 09/15] KVM: Move vcpu_load to arch-specific
- kvm_arch_vcpu_ioctl_set_mpstate
-Date: Sat, 25 Nov 2017 21:57:12 +0100
-Message-ID: <20171125205718.7731-10-christoffer.dall@linaro.org>
+Subject: [PATCH 15/15] KVM: arm/arm64: Avoid vcpu_load for other vcpu ioctls
+ than KVM_RUN
+Date: Sat, 25 Nov 2017 21:57:18 +0100
+Message-ID: <20171125205718.7731-16-christoffer.dall@linaro.org>
 References: <20171125205718.7731-1-christoffer.dall@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,130 +24,126 @@ To: kvm@vger.kernel.org
 Cc: linux-mips@linux-mips.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm-ppc@vger.kernel.org, Alexander Graf <agraf@suse.com>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu
 List-ID: <linux-s390.vger.kernel.org>
 
-Move vcpu_load() and vcpu_put() into the architecture specific
-implementations of kvm_arch_vcpu_ioctl_set_mpstate().
+Calling vcpu_load() takes the vcpu->mutex, registers preempt notifiers
+for this vcpu, and calls kvm_arch_vcpu_load().  The latter will soon be
+doing a lot of heavy lifting on arm/arm64 and will try to do things such
+as enabling the virtual timer and setting us up to handle interrupts
+from the timer hardware.
+
+Loading state onto hardware registers and enabling hardware to signal
+interrupts can be problematic when we're not actually about to run the
+VCPU, because it makes it difficult to establish the right context when
+handling interrupts from the timer, and it makes the register access
+code difficult to reason about.
+
+Luckily, now when we call vcpu_load in each ioctl implementation, we can
+simply change the non-KVM_RUN vcpu ioctls to only take the vcpu->mutex
+instead of calling vcpu_load(), and our kvm_arch_vcpu_load() is only
+used for loading vcpu content to the physical CPU when we're actually
+going to run the vcpu.
 
 Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
 ---
- arch/s390/kvm/kvm-s390.c |  7 ++++++-
- arch/x86/kvm/x86.c       | 17 ++++++++++++++---
- virt/kvm/arm/arm.c       | 11 +++++++++--
- virt/kvm/kvm_main.c      |  4 ----
- 4 files changed, 29 insertions(+), 10 deletions(-)
+ arch/arm64/kvm/guest.c |  8 ++++----
+ virt/kvm/arm/arm.c     | 25 ++++++++++---------------
+ 2 files changed, 14 insertions(+), 19 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ccaf5088b73e..aa76d2988178 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2870,7 +2870,11 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
+diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+index 0375d1f977c8..891d5c5e6e4f 100644
+--- a/arch/arm64/kvm/guest.c
++++ b/arch/arm64/kvm/guest.c
+@@ -363,9 +363,8 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
  {
--	int rc = 0;
-+	int rc;
-+
-+	rc = vcpu_load(vcpu);
-+	if (rc)
-+		return rc;
+ 	int ret;
  
- 	/* user space knows about this interface - let it control the state */
- 	vcpu->kvm->arch.user_cpu_state_ctrl = 1;
-@@ -2889,6 +2893,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 		rc = -ENXIO;
+-	ret = vcpu_load(vcpu);
+-	if (ret)
+-		return ret;
++	if (mutex_lock_killable(&vcpu->mutex))
++		return -EINTR;
+ 
+ 	trace_kvm_set_guest_debug(vcpu, dbg->control);
+ 
+@@ -387,8 +386,9 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+ 		vcpu->guest_debug = 0;
  	}
  
-+	vcpu_put(vcpu);
- 	return rc;
- }
- 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 71f0572a4e4a..1a4fa1f2fa46 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7446,15 +7446,22 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
-+	int ret;
-+
-+	ret = vcpu_load(vcpu);
-+	if (ret)
-+		return ret;
-+
-+	ret = -EINVAL;
- 	if (!lapic_in_kernel(vcpu) &&
- 	    mp_state->mp_state != KVM_MP_STATE_RUNNABLE)
--		return -EINVAL;
-+		goto out;
- 
- 	/* INITs are latched while in SMM */
- 	if ((is_smm(vcpu) || vcpu->arch.smi_pending) &&
- 	    (mp_state->mp_state == KVM_MP_STATE_SIPI_RECEIVED ||
- 	     mp_state->mp_state == KVM_MP_STATE_INIT_RECEIVED))
--		return -EINVAL;
-+		goto out;
- 
- 	if (mp_state->mp_state == KVM_MP_STATE_SIPI_RECEIVED) {
- 		vcpu->arch.mp_state = KVM_MP_STATE_INIT_RECEIVED;
-@@ -7462,7 +7469,11 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 	} else
- 		vcpu->arch.mp_state = mp_state->mp_state;
- 	kvm_make_request(KVM_REQ_EVENT, vcpu);
--	return 0;
-+
 +	ret = 0;
-+out:
-+	vcpu_put(vcpu);
-+	return ret;
+ out:
+-	vcpu_put(vcpu);
++	mutex_unlock(&vcpu->mutex);
+ 	return ret;
  }
  
- int kvm_task_switch(struct kvm_vcpu *vcpu, u16 tss_selector, int idt_index,
 diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index 4f36e6dd4d5e..631d04d87b25 100644
+index a1b486a71e85..5095366d3b21 100644
 --- a/virt/kvm/arm/arm.c
 +++ b/virt/kvm/arm/arm.c
-@@ -399,6 +399,12 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+@@ -381,29 +381,25 @@ static void vcpu_power_off(struct kvm_vcpu *vcpu)
+ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+ 				    struct kvm_mp_state *mp_state)
+ {
+-	int ret;
+-
+-	ret = vcpu_load(vcpu);
+-	if (ret)
+-		return ret;
++	if (mutex_lock_killable(&vcpu->mutex))
++		return -EINTR;
+ 
+ 	if (vcpu->arch.power_off)
+ 		mp_state->mp_state = KVM_MP_STATE_STOPPED;
+ 	else
+ 		mp_state->mp_state = KVM_MP_STATE_RUNNABLE;
+ 
+-	vcpu_put(vcpu);
++	mutex_unlock(&vcpu->mutex);
+ 	return 0;
+ }
+ 
  int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
  				    struct kvm_mp_state *mp_state)
  {
-+	int ret;
-+
-+	ret = vcpu_load(vcpu);
-+	if (ret)
-+		return ret;
-+
+-	int ret;
++	int ret = 0;
+ 
+-	ret = vcpu_load(vcpu);
+-	if (ret)
+-		return ret;
++	if (mutex_lock_killable(&vcpu->mutex))
++		return -EINTR;
+ 
  	switch (mp_state->mp_state) {
  	case KVM_MP_STATE_RUNNABLE:
- 		vcpu->arch.power_off = false;
-@@ -407,10 +413,11 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 		vcpu_power_off(vcpu);
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
+@@ -416,7 +412,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 		ret = -EINVAL;
  	}
  
--	return 0;
-+	vcpu_put(vcpu);
-+	return ret;
+-	vcpu_put(vcpu);
++	mutex_unlock(&vcpu->mutex);
+ 	return ret;
  }
  
- /**
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 8b7c821e0244..bcfdb4800e44 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2626,11 +2626,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		r = -EFAULT;
- 		if (copy_from_user(&mp_state, argp, sizeof(mp_state)))
- 			goto out;
--		r = vcpu_load(vcpu);
--		if (r)
--			goto out;
- 		r = kvm_arch_vcpu_ioctl_set_mpstate(vcpu, &mp_state);
--		vcpu_put(vcpu);
- 		break;
+@@ -1009,9 +1005,8 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 	struct kvm_device_attr attr;
+ 	long r;
+ 
+-	r = vcpu_load(vcpu);
+-	if (r)
+-		return r;
++	if (mutex_lock_killable(&vcpu->mutex))
++		return -EINTR;
+ 
+ 	switch (ioctl) {
+ 	case KVM_ARM_VCPU_INIT: {
+@@ -1089,7 +1084,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 		r = -EINVAL;
  	}
- 	case KVM_TRANSLATE: {
+ 
+-	vcpu_put(vcpu);
++	mutex_unlock(&vcpu->mutex);
+ 	return r;
+ }
+ 
 -- 
 2.14.2
