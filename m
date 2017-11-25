@@ -1,96 +1,153 @@
-From: Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH v2 1/1] KVM: s390: mark irq_state.flags as non-usable
-Date: Tue, 21 Nov 2017 20:55:00 +0100
-Message-ID: <2c1637f1-45e5-155a-a6e1-13b9fd8d5e19@redhat.com>
-References: <20171121191045.117029-1-borntraeger@de.ibm.com>
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Subject: [PATCH 09/15] KVM: Move vcpu_load to arch-specific
+ kvm_arch_vcpu_ioctl_set_mpstate
+Date: Sat, 25 Nov 2017 21:57:12 +0100
+Message-ID: <20171125205718.7731-10-christoffer.dall@linaro.org>
+References: <20171125205718.7731-1-christoffer.dall@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171121191045.117029-1-borntraeger@de.ibm.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
+Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
+In-Reply-To: <20171125205718.7731-1-christoffer.dall@linaro.org>
+List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
+List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
+List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
+List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
+List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
+Errors-To: kvmarm-bounces@lists.cs.columbia.edu
+Sender: kvmarm-bounces@lists.cs.columbia.edu
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Halil Pasic <pasic@linux.vnet.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-mips@linux-mips.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm-ppc@vger.kernel.org, Alexander Graf <agraf@suse.com>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu
 List-ID: <linux-s390.vger.kernel.org>
 
-On 21.11.2017 20:10, Christian Borntraeger wrote:
-> Old kernels did not check for zero in the irq_state.flags field and old
-> QEMUs did not zero the flag/reserved fields when calling
-> KVM_S390_*_IRQ_STATE.  Let's add comments to prevent future uses of
-> these fields.
-> 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->  Documentation/virtual/kvm/api.txt | 9 +++++++--
->  arch/s390/kvm/kvm-s390.c          | 2 ++
->  include/uapi/linux/kvm.h          | 4 ++--
->  3 files changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-> index f670e4b..e84c1c3 100644
-> --- a/Documentation/virtual/kvm/api.txt
-> +++ b/Documentation/virtual/kvm/api.txt
-> @@ -2901,14 +2901,19 @@ userspace buffer and its length:
->  
->  struct kvm_s390_irq_state {
->  	__u64 buf;
-> -	__u32 flags;
-> +	__u32 flags;		/* will be unused for compatibility reasons */
->  	__u32 len;
-> -	__u32 reserved[4];
-> +	__u32 reserved[4];	/* will be unused for compatibility reasons */
->  };
->  
->  Userspace passes in the above struct and for each pending interrupt a
->  struct kvm_s390_irq is copied to the provided buffer.
->  
-> +The structure contains a flags and a reserved field for future extensions. As
-> +the kernel never checked for flags == 0 and QEMU never pre-zeroed flags and
-> +reserved, these fields can not be used in the future without breaking
-> +compatibility.
-> +
->  If -ENOBUFS is returned the buffer provided was too small and userspace
->  may retry with a bigger buffer.
->  
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 6a5e02f..2a9cc0f 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3834,6 +3834,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  			r = -EINVAL;
->  			break;
->  		}
-> +		/* do not use irq_state.flags, it will break old QEMUs */
->  		r = kvm_s390_set_irq_state(vcpu,
->  					   (void __user *) irq_state.buf,
->  					   irq_state.len);
-> @@ -3849,6 +3850,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  			r = -EINVAL;
->  			break;
->  		}
-> +		/* do not use irq_state.flags, it will break old QEMUs */
->  		r = kvm_s390_get_irq_state(vcpu,
->  					   (__u8 __user *)  irq_state.buf,
->  					   irq_state.len);
-> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> index 282d7613..6f91b41 100644
-> --- a/include/uapi/linux/kvm.h
-> +++ b/include/uapi/linux/kvm.h
-> @@ -630,9 +630,9 @@ struct kvm_s390_irq {
->  
->  struct kvm_s390_irq_state {
->  	__u64 buf;
-> -	__u32 flags;
-> +	__u32 flags;		/* will be unused for compatibility reasons */
->  	__u32 len;
-> -	__u32 reserved[4];
-> +	__u32 reserved[4];	/* will be unused for compatibility reasons */
->  };
->  
->  /* for KVM_SET_GUEST_DEBUG */
-> 
+Move vcpu_load() and vcpu_put() into the architecture specific
+implementations of kvm_arch_vcpu_ioctl_set_mpstate().
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+---
+ arch/s390/kvm/kvm-s390.c |  7 ++++++-
+ arch/x86/kvm/x86.c       | 17 ++++++++++++++---
+ virt/kvm/arm/arm.c       | 11 +++++++++--
+ virt/kvm/kvm_main.c      |  4 ----
+ 4 files changed, 29 insertions(+), 10 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index ccaf5088b73e..aa76d2988178 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2870,7 +2870,11 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 				    struct kvm_mp_state *mp_state)
+ {
+-	int rc = 0;
++	int rc;
++
++	rc = vcpu_load(vcpu);
++	if (rc)
++		return rc;
+ 
+ 	/* user space knows about this interface - let it control the state */
+ 	vcpu->kvm->arch.user_cpu_state_ctrl = 1;
+@@ -2889,6 +2893,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 		rc = -ENXIO;
+ 	}
+ 
++	vcpu_put(vcpu);
+ 	return rc;
+ }
+ 
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 71f0572a4e4a..1a4fa1f2fa46 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -7446,15 +7446,22 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 				    struct kvm_mp_state *mp_state)
+ {
++	int ret;
++
++	ret = vcpu_load(vcpu);
++	if (ret)
++		return ret;
++
++	ret = -EINVAL;
+ 	if (!lapic_in_kernel(vcpu) &&
+ 	    mp_state->mp_state != KVM_MP_STATE_RUNNABLE)
+-		return -EINVAL;
++		goto out;
+ 
+ 	/* INITs are latched while in SMM */
+ 	if ((is_smm(vcpu) || vcpu->arch.smi_pending) &&
+ 	    (mp_state->mp_state == KVM_MP_STATE_SIPI_RECEIVED ||
+ 	     mp_state->mp_state == KVM_MP_STATE_INIT_RECEIVED))
+-		return -EINVAL;
++		goto out;
+ 
+ 	if (mp_state->mp_state == KVM_MP_STATE_SIPI_RECEIVED) {
+ 		vcpu->arch.mp_state = KVM_MP_STATE_INIT_RECEIVED;
+@@ -7462,7 +7469,11 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 	} else
+ 		vcpu->arch.mp_state = mp_state->mp_state;
+ 	kvm_make_request(KVM_REQ_EVENT, vcpu);
+-	return 0;
++
++	ret = 0;
++out:
++	vcpu_put(vcpu);
++	return ret;
+ }
+ 
+ int kvm_task_switch(struct kvm_vcpu *vcpu, u16 tss_selector, int idt_index,
+diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+index 4f36e6dd4d5e..631d04d87b25 100644
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -399,6 +399,12 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 				    struct kvm_mp_state *mp_state)
+ {
++	int ret;
++
++	ret = vcpu_load(vcpu);
++	if (ret)
++		return ret;
++
+ 	switch (mp_state->mp_state) {
+ 	case KVM_MP_STATE_RUNNABLE:
+ 		vcpu->arch.power_off = false;
+@@ -407,10 +413,11 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 		vcpu_power_off(vcpu);
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
+ 	}
+ 
+-	return 0;
++	vcpu_put(vcpu);
++	return ret;
+ }
+ 
+ /**
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 8b7c821e0244..bcfdb4800e44 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2626,11 +2626,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
+ 		r = -EFAULT;
+ 		if (copy_from_user(&mp_state, argp, sizeof(mp_state)))
+ 			goto out;
+-		r = vcpu_load(vcpu);
+-		if (r)
+-			goto out;
+ 		r = kvm_arch_vcpu_ioctl_set_mpstate(vcpu, &mp_state);
+-		vcpu_put(vcpu);
+ 		break;
+ 	}
+ 	case KVM_TRANSLATE: {
+-- 
+2.14.2
