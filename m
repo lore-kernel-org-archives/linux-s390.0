@@ -1,125 +1,79 @@
 From: Christoffer Dall <christoffer.dall@linaro.org>
-Subject: [PATCH 08/15] KVM: Move vcpu_load to arch-specific
- kvm_arch_vcpu_ioctl_get_mpstate
-Date: Sat, 25 Nov 2017 21:57:11 +0100
-Message-ID: <20171125205718.7731-9-christoffer.dall@linaro.org>
+Subject: [PATCH 10/15] KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_translate
+Date: Sat, 25 Nov 2017 21:57:13 +0100
+Message-ID: <20171125205718.7731-11-christoffer.dall@linaro.org>
 References: <20171125205718.7731-1-christoffer.dall@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171125205718.7731-1-christoffer.dall@linaro.org>
-List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
-List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
-List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
-List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
-List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
-Errors-To: kvmarm-bounces@lists.cs.columbia.edu
-Sender: kvmarm-bounces@lists.cs.columbia.edu
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: linux-mips@linux-mips.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm-ppc@vger.kernel.org, Alexander Graf <agraf@suse.com>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu
+Cc: Andrew Jones <drjones@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org, Alexander Graf <agraf@suse.com>, kvm-ppc@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 Move vcpu_load() and vcpu_put() into the architecture specific
-implementations of kvm_arch_vcpu_ioctl_get_mpstate().
+implementations of kvm_arch_vcpu_ioctl_translate().
 
 Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
 ---
- arch/s390/kvm/kvm-s390.c | 13 +++++++++++--
- arch/x86/kvm/x86.c       |  7 +++++++
- virt/kvm/arm/arm.c       |  7 +++++++
- virt/kvm/kvm_main.c      |  4 ----
- 4 files changed, 25 insertions(+), 6 deletions(-)
+ arch/powerpc/kvm/booke.c | 4 ++++
+ arch/x86/kvm/x86.c       | 6 ++++++
+ virt/kvm/kvm_main.c      | 4 ----
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 51569cc97a07..ccaf5088b73e 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2853,9 +2853,18 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
+diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
+index 59d1d0bd6909..8069d93bf654 100644
+--- a/arch/powerpc/kvm/booke.c
++++ b/arch/powerpc/kvm/booke.c
+@@ -1804,7 +1804,11 @@ int kvm_arch_vcpu_ioctl_translate(struct kvm_vcpu *vcpu,
  {
-+	int ret;
-+
-+	ret = vcpu_load(vcpu);
-+	if (ret)
-+		return ret;
-+
- 	/* CHECK_STOP and LOAD are not supported yet */
--	return is_vcpu_stopped(vcpu) ? KVM_MP_STATE_STOPPED :
--				       KVM_MP_STATE_OPERATING;
-+	ret = is_vcpu_stopped(vcpu) ? KVM_MP_STATE_STOPPED :
-+				      KVM_MP_STATE_OPERATING;
-+
+ 	int r;
+ 
++	r = vcpu_load(vcpu);
++	if (r)
++		return r;
+ 	r = kvmppc_core_vcpu_translate(vcpu, tr);
 +	vcpu_put(vcpu);
-+	return ret;
+ 	return r;
  }
  
- int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 1a701a2f25a3..71f0572a4e4a 100644
+index 1a4fa1f2fa46..ae8685155d11 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -7426,6 +7426,12 @@ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
-+	int ret;
+@@ -7654,6 +7654,11 @@ int kvm_arch_vcpu_ioctl_translate(struct kvm_vcpu *vcpu,
+ 	unsigned long vaddr = tr->linear_address;
+ 	gpa_t gpa;
+ 	int idx;
++	int r;
 +
-+	ret = vcpu_load(vcpu);
-+	if (ret)
-+		return ret;
-+
- 	kvm_apic_accept_events(vcpu);
- 	if (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
- 					vcpu->arch.pv.pv_unhalted)
-@@ -7433,6 +7439,7 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 	else
- 		mp_state->mp_state = vcpu->arch.mp_state;
++	r = vcpu_load(vcpu);
++	if (r)
++		return r;
  
-+	vcpu_put(vcpu);
- 	return 0;
- }
- 
-diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index 54d9aa533df9..4f36e6dd4d5e 100644
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -381,11 +381,18 @@ static void vcpu_power_off(struct kvm_vcpu *vcpu)
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
-+	int ret;
-+
-+	ret = vcpu_load(vcpu);
-+	if (ret)
-+		return ret;
-+
- 	if (vcpu->arch.power_off)
- 		mp_state->mp_state = KVM_MP_STATE_STOPPED;
- 	else
- 		mp_state->mp_state = KVM_MP_STATE_RUNNABLE;
+ 	idx = srcu_read_lock(&vcpu->kvm->srcu);
+ 	gpa = kvm_mmu_gva_to_gpa_system(vcpu, vaddr, NULL);
+@@ -7663,6 +7668,7 @@ int kvm_arch_vcpu_ioctl_translate(struct kvm_vcpu *vcpu,
+ 	tr->writeable = 1;
+ 	tr->usermode = 0;
  
 +	vcpu_put(vcpu);
  	return 0;
  }
  
 diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index f68f45e64967..8b7c821e0244 100644
+index bcfdb4800e44..173f98d9c58d 100644
 --- a/virt/kvm/kvm_main.c
 +++ b/virt/kvm/kvm_main.c
-@@ -2611,11 +2611,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 	case KVM_GET_MP_STATE: {
- 		struct kvm_mp_state mp_state;
- 
+@@ -2635,11 +2635,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
+ 		r = -EFAULT;
+ 		if (copy_from_user(&tr, argp, sizeof(tr)))
+ 			goto out;
 -		r = vcpu_load(vcpu);
 -		if (r)
 -			goto out;
- 		r = kvm_arch_vcpu_ioctl_get_mpstate(vcpu, &mp_state);
+ 		r = kvm_arch_vcpu_ioctl_translate(vcpu, &tr);
 -		vcpu_put(vcpu);
  		if (r)
  			goto out;
