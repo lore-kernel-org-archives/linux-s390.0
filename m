@@ -1,201 +1,64 @@
 From: Christoffer Dall <christoffer.dall@linaro.org>
-Subject: [PATCH 01/15] KVM: Prepare for moving vcpu_load/vcpu_put into arch
- specific code
-Date: Sat, 25 Nov 2017 21:57:04 +0100
-Message-ID: <20171125205718.7731-2-christoffer.dall@linaro.org>
-References: <20171125205718.7731-1-christoffer.dall@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
-In-Reply-To: <20171125205718.7731-1-christoffer.dall@linaro.org>
-List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
-List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
-List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
-List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
-List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
-Errors-To: kvmarm-bounces@lists.cs.columbia.edu
-Sender: kvmarm-bounces@lists.cs.columbia.edu
+Subject: [PATCH 00/15] Move vcpu_load and vcpu_put calls to arch code
+Date: Sat, 25 Nov 2017 21:57:03 +0100
+Message-ID: <20171125205718.7731-1-christoffer.dall@linaro.org>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: linux-mips@linux-mips.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm-ppc@vger.kernel.org, Alexander Graf <agraf@suse.com>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu
+Cc: Andrew Jones <drjones@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org, Alexander Graf <agraf@suse.com>, kvm-ppc@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In preparation for moving calls to vcpu_load() and vcpu_put() into the
-architecture specific implementations of the KVM vcpu ioctls, move the
-calls in the main kvm_vcpu_ioctl() dispatcher function to each case
-of the ioctl select statement.  This allows us to move the vcpu_load()
-and vcpu_put() calls into architecture specific implementations of vcpu
-ioctls, one by one.
+Some architectures may decide to do different things during
+kvm_arch_vcpu_load depending on the ioctl being executed.  For example,
+arm64 is about to do significant work in vcpu load/put when running a
+vcpu, but it's problematic to do this for any other vcpu ioctl than
+KVM_RUN.
 
-Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
----
- virt/kvm/kvm_main.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 48 insertions(+), 5 deletions(-)
+Further, while it may be possible to call kvm_arch_vcpu_load() for a
+number of non-KVM_RUN ioctls, it makes the KVM/ARM code more difficult
+to reason about, especially after my optimization series, because a lot
+of things can now happen, where we have to consider if we're really in
+the process of running a vcpu or not.
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 9deb5a245b83..fafafcc38b5a 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2528,16 +2528,15 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		return kvm_arch_vcpu_ioctl(filp, ioctl, arg);
- #endif
- 
--
--	r = vcpu_load(vcpu);
--	if (r)
--		return r;
- 	switch (ioctl) {
- 	case KVM_RUN: {
- 		struct pid *oldpid;
- 		r = -EINVAL;
- 		if (arg)
- 			goto out;
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		oldpid = rcu_access_pointer(vcpu->pid);
- 		if (unlikely(oldpid != current->pids[PIDTYPE_PID].pid)) {
- 			/* The thread running this VCPU changed. */
-@@ -2549,6 +2548,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 			put_pid(oldpid);
- 		}
- 		r = kvm_arch_vcpu_ioctl_run(vcpu, vcpu->run);
-+		vcpu_put(vcpu);
- 		trace_kvm_userspace_exit(vcpu->run->exit_reason, r);
- 		break;
- 	}
-@@ -2559,7 +2559,11 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		kvm_regs = kzalloc(sizeof(struct kvm_regs), GFP_KERNEL);
- 		if (!kvm_regs)
- 			goto out;
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_get_regs(vcpu, kvm_regs);
-+		vcpu_put(vcpu);
- 		if (r)
- 			goto out_free1;
- 		r = -EFAULT;
-@@ -2579,7 +2583,11 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 			r = PTR_ERR(kvm_regs);
- 			goto out;
- 		}
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_set_regs(vcpu, kvm_regs);
-+		vcpu_put(vcpu);
- 		kfree(kvm_regs);
- 		break;
- 	}
-@@ -2588,7 +2596,11 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		r = -ENOMEM;
- 		if (!kvm_sregs)
- 			goto out;
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_get_sregs(vcpu, kvm_sregs);
-+		vcpu_put(vcpu);
- 		if (r)
- 			goto out;
- 		r = -EFAULT;
-@@ -2604,13 +2616,21 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 			kvm_sregs = NULL;
- 			goto out;
- 		}
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_set_sregs(vcpu, kvm_sregs);
-+		vcpu_put(vcpu);
- 		break;
- 	}
- 	case KVM_GET_MP_STATE: {
- 		struct kvm_mp_state mp_state;
- 
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_get_mpstate(vcpu, &mp_state);
-+		vcpu_put(vcpu);
- 		if (r)
- 			goto out;
- 		r = -EFAULT;
-@@ -2625,7 +2645,11 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		r = -EFAULT;
- 		if (copy_from_user(&mp_state, argp, sizeof(mp_state)))
- 			goto out;
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_set_mpstate(vcpu, &mp_state);
-+		vcpu_put(vcpu);
- 		break;
- 	}
- 	case KVM_TRANSLATE: {
-@@ -2634,7 +2658,11 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		r = -EFAULT;
- 		if (copy_from_user(&tr, argp, sizeof(tr)))
- 			goto out;
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_translate(vcpu, &tr);
-+		vcpu_put(vcpu);
- 		if (r)
- 			goto out;
- 		r = -EFAULT;
-@@ -2649,7 +2677,11 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		r = -EFAULT;
- 		if (copy_from_user(&dbg, argp, sizeof(dbg)))
- 			goto out;
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_set_guest_debug(vcpu, &dbg);
-+		vcpu_put(vcpu);
- 		break;
- 	}
- 	case KVM_SET_SIGNAL_MASK: {
-@@ -2680,7 +2712,11 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		r = -ENOMEM;
- 		if (!fpu)
- 			goto out;
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_get_fpu(vcpu, fpu);
-+		vcpu_put(vcpu);
- 		if (r)
- 			goto out;
- 		r = -EFAULT;
-@@ -2696,14 +2732,21 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 			fpu = NULL;
- 			goto out;
- 		}
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl_set_fpu(vcpu, fpu);
-+		vcpu_put(vcpu);
- 		break;
- 	}
- 	default:
-+		r = vcpu_load(vcpu);
-+		if (r)
-+			goto out;
- 		r = kvm_arch_vcpu_ioctl(filp, ioctl, arg);
-+		vcpu_put(vcpu);
- 	}
- out:
--	vcpu_put(vcpu);
- 	kfree(fpu);
- 	kfree(kvm_sregs);
- 	return r;
+This series will first move the vcpu_load() and vcpu_put() calls in the
+arch generic dispatch function into each case of the switch statement
+and then, one-by-one, pushed the calls down into the architecture
+specific code making the changes for each ioctl as required.
+
+Thanks,
+-Christoffer
+
+Christoffer Dall (15):
+  KVM: Prepare for moving vcpu_load/vcpu_put into arch specific code
+  KVM: Factor out vcpu->pid adjustment for KVM_RUN
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_run
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_get_regs
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_set_regs
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_get_sregs
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_set_sregs
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_get_mpstate
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_set_mpstate
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_translate
+  KVM: Move vcpu_load to arch-specific
+    kvm_arch_vcpu_ioctl_set_guest_debug
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_get_fpu
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl_set_fpu
+  KVM: Move vcpu_load to arch-specific kvm_arch_vcpu_ioctl
+  KVM: arm/arm64: Avoid vcpu_load for other vcpu ioctls than KVM_RUN
+
+ arch/arm64/kvm/guest.c     |  17 +++++--
+ arch/mips/kvm/mips.c       |  72 +++++++++++++++++++--------
+ arch/powerpc/kvm/book3s.c  |  38 +++++++++++++-
+ arch/powerpc/kvm/booke.c   |  65 +++++++++++++++++++-----
+ arch/powerpc/kvm/powerpc.c |  24 ++++++---
+ arch/s390/kvm/kvm-s390.c   | 119 +++++++++++++++++++++++++++++++++++++-------
+ arch/x86/kvm/x86.c         | 121 ++++++++++++++++++++++++++++++++++++++-------
+ include/linux/kvm_host.h   |   2 +
+ virt/kvm/arm/arm.c         |  91 +++++++++++++++++++++++++---------
+ virt/kvm/kvm_main.c        |  43 +++++++---------
+ 10 files changed, 463 insertions(+), 129 deletions(-)
+
 -- 
 2.14.2
