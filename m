@@ -1,50 +1,65 @@
-From: Christoffer Dall <cdall@linaro.org>
-Subject: Re: [PATCH 00/15] Move vcpu_load and vcpu_put calls to arch code
-Date: Sun, 26 Nov 2017 10:11:08 +0100
-Message-ID: <20171126091108.GI28855@cbox>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 01/15] KVM: Prepare for moving vcpu_load/vcpu_put into
+ arch specific code
+Date: Mon, 27 Nov 2017 17:53:01 +0100
+Message-ID: <838db374-6040-c805-82f3-187a2cdfc40d@redhat.com>
 References: <20171125205718.7731-1-christoffer.dall@linaro.org>
+ <20171125205718.7731-2-christoffer.dall@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
-Content-Disposition: inline
-In-Reply-To: <20171125205718.7731-1-christoffer.dall@linaro.org>
-List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
-List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
-List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
-List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
-List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
-Errors-To: kvmarm-bounces@lists.cs.columbia.edu
-Sender: kvmarm-bounces@lists.cs.columbia.edu
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20171125205718.7731-2-christoffer.dall@linaro.org>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christoffer Dall <christoffer.dall@linaro.org>
-Cc: linux-mips@linux-mips.org, kvm@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, Cornelia Huck <cohuck@redhat.com>, kvm-ppc@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
+To: Christoffer Dall <christoffer.dall@linaro.org>, kvm@vger.kernel.org
+Cc: Andrew Jones <drjones@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org, Alexander Graf <agraf@suse.com>, kvm-ppc@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Nov 25, 2017 at 09:57:03PM +0100, Christoffer Dall wrote:
-> Some architectures may decide to do different things during
-> kvm_arch_vcpu_load depending on the ioctl being executed.  For example,
-> arm64 is about to do significant work in vcpu load/put when running a
-> vcpu, but it's problematic to do this for any other vcpu ioctl than
-> KVM_RUN.
+On 25/11/2017 21:57, Christoffer Dall wrote:
+> In preparation for moving calls to vcpu_load() and vcpu_put() into the
+> architecture specific implementations of the KVM vcpu ioctls, move the
+> calls in the main kvm_vcpu_ioctl() dispatcher function to each case
+> of the ioctl select statement.  This allows us to move the vcpu_load()
+> and vcpu_put() calls into architecture specific implementations of vcpu
+> ioctls, one by one.
 > 
-> Further, while it may be possible to call kvm_arch_vcpu_load() for a
-> number of non-KVM_RUN ioctls, it makes the KVM/ARM code more difficult
-> to reason about, especially after my optimization series, because a lot
-> of things can now happen, where we have to consider if we're really in
-> the process of running a vcpu or not.
+> Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+> ---
+>  virt/kvm/kvm_main.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 48 insertions(+), 5 deletions(-)
 > 
-> This series will first move the vcpu_load() and vcpu_put() calls in the
-> arch generic dispatch function into each case of the switch statement
-> and then, one-by-one, pushed the calls down into the architecture
-> specific code making the changes for each ioctl as required.
-> 
-And the patches are also available at:
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index 9deb5a245b83..fafafcc38b5a 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -2528,16 +2528,15 @@ static long kvm_vcpu_ioctl(struct file *filp,
+>  		return kvm_arch_vcpu_ioctl(filp, ioctl, arg);
+>  #endif
+>  
+> -
+> -	r = vcpu_load(vcpu);
+> -	if (r)
+> -		return r;
+>  	switch (ioctl) {
+>  	case KVM_RUN: {
+>  		struct pid *oldpid;
+>  		r = -EINVAL;
+>  		if (arg)
+>  			goto out;
+> +		r = vcpu_load(vcpu);
+> +		if (r)
+> +			goto out;
+>  		oldpid = rcu_access_pointer(vcpu->pid);
 
-git://git.kernel.org/pub/scm/linux/kernel/git/cdall/linux.git vcpu-load-put
+If it is not a problem for ARM, maybe it would actually be best to leave
+the locking in kvm_vcpu_ioctl (with the already existing exception of
+KVM_INTERRUPT).  This would make vcpu_load void, and would also let you
+keep the PID adjustment in common code.  This would be more similar to
+the previous version, but without introducing __vcpu_load/__vcpu_put.
 
-Thanks,
--Christoffer
+Looks good apart from this doubt!  Thanks,
+
+Paolo
