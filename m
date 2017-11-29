@@ -1,8 +1,8 @@
 From: Christoffer Dall <christoffer.dall@linaro.org>
-Subject: [PATCH v2 16/16] KVM: arm/arm64: Move vcpu_load call after
- kvm_vcpu_first_run_init
-Date: Wed, 29 Nov 2017 17:41:16 +0100
-Message-ID: <20171129164116.16167-17-christoffer.dall@linaro.org>
+Subject: [PATCH v2 13/16] KVM: Move vcpu_load to arch-specific
+ kvm_arch_vcpu_ioctl_set_fpu
+Date: Wed, 29 Nov 2017 17:41:13 +0100
+Message-ID: <20171129164116.16167-14-christoffer.dall@linaro.org>
 References: <20171129164116.16167-1-christoffer.dall@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,87 +24,87 @@ To: kvm@vger.kernel.org
 Cc: linux-mips@linux-mips.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm-ppc@vger.kernel.org, Alexander Graf <agraf@suse.com>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu
 List-ID: <linux-s390.vger.kernel.org>
 
-Moving the call to vcpu_load() in kvm_arch_vcpu_ioctl_run() to after
-we've called kvm_vcpu_first_run_init() simplifies some of the vgic and
-there is also no need to do vcpu_load() for things such as handling the
-immediate_exit flag.
+Move vcpu_load() and vcpu_put() into the architecture specific
+implementations of kvm_arch_vcpu_ioctl_set_fpu().
 
 Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
 ---
- virt/kvm/arm/arch_timer.c     |  4 ----
- virt/kvm/arm/arm.c            | 12 +++++-------
- virt/kvm/arm/vgic/vgic-init.c | 11 -----------
- 3 files changed, 5 insertions(+), 22 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 15 ++++++++++++---
+ arch/x86/kvm/x86.c       |  8 ++++++--
+ virt/kvm/kvm_main.c      |  2 --
+ 3 files changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/virt/kvm/arm/arch_timer.c b/virt/kvm/arm/arch_timer.c
-index 4151250..801fecf 100644
---- a/virt/kvm/arm/arch_timer.c
-+++ b/virt/kvm/arm/arch_timer.c
-@@ -839,11 +839,7 @@ int kvm_timer_enable(struct kvm_vcpu *vcpu)
- 		return ret;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 88dcb89..43278f3 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2752,15 +2752,24 @@ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
  
- no_vgic:
--	preempt_disable();
- 	timer->enabled = 1;
--	kvm_timer_vcpu_load_vgic(vcpu);
--	preempt_enable();
--
+ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+ {
+-	if (test_fp_ctl(fpu->fpc))
+-		return -EINVAL;
++	int ret = 0;
++
++	vcpu_load(vcpu);
++
++	if (test_fp_ctl(fpu->fpc)) {
++		ret = -EINVAL;
++		goto out;
++	}
+ 	vcpu->run->s.regs.fpc = fpu->fpc;
+ 	if (MACHINE_HAS_VX)
+ 		convert_fp_to_vx((__vector128 *) vcpu->run->s.regs.vrs,
+ 				 (freg_t *) fpu->fprs);
+ 	else
+ 		memcpy(vcpu->run->s.regs.fprs, &fpu->fprs, sizeof(fpu->fprs));
+-	return 0;
++
++out:
++	vcpu_put(vcpu);
++	return ret;
+ }
+ 
+ int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 8b54567..fd8b92f 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -7699,8 +7699,11 @@ int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+ 
+ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+ {
+-	struct fxregs_state *fxsave =
+-			&vcpu->arch.guest_fpu.state.fxsave;
++	struct fxregs_state *fxsave;
++
++	vcpu_load(vcpu);
++
++	fxsave = &vcpu->arch.guest_fpu.state.fxsave;
+ 
+ 	memcpy(fxsave->st_space, fpu->fpr, 128);
+ 	fxsave->cwd = fpu->fcw;
+@@ -7711,6 +7714,7 @@ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+ 	fxsave->rdp = fpu->last_dp;
+ 	memcpy(fxsave->xmm_space, fpu->xmm, sizeof fxsave->xmm_space);
+ 
++	vcpu_put(vcpu);
  	return 0;
  }
  
-diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index a760ef1..991f1aa 100644
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -622,8 +622,6 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
- 	if (unlikely(!kvm_vcpu_initialized(vcpu)))
- 		return -ENOEXEC;
- 
--	vcpu_load(vcpu);
--
- 	ret = kvm_vcpu_first_run_init(vcpu);
- 	if (ret)
- 		goto out;
-@@ -631,13 +629,13 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
- 	if (run->exit_reason == KVM_EXIT_MMIO) {
- 		ret = kvm_handle_mmio_return(vcpu, vcpu->run);
- 		if (ret)
--			goto out;
-+			return ret;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 73ad70a..06751bb 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2689,9 +2689,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
+ 			fpu = NULL;
+ 			goto out;
+ 		}
+-		vcpu_load(vcpu);
+ 		r = kvm_arch_vcpu_ioctl_set_fpu(vcpu, fpu);
+-		vcpu_put(vcpu);
+ 		break;
  	}
- 
--	if (run->immediate_exit) {
--		ret = -EINTR;
--		goto out;
--	}
-+	if (run->immediate_exit)
-+		return -EINTR;
-+
-+	vcpu_load(vcpu);
- 
- 	if (vcpu->sigset_active)
- 		sigprocmask(SIG_SETMASK, &vcpu->sigset, &sigsaved);
-diff --git a/virt/kvm/arm/vgic/vgic-init.c b/virt/kvm/arm/vgic/vgic-init.c
-index 6231012..a0688ef 100644
---- a/virt/kvm/arm/vgic/vgic-init.c
-+++ b/virt/kvm/arm/vgic/vgic-init.c
-@@ -300,17 +300,6 @@ int vgic_init(struct kvm *kvm)
- 
- 	dist->initialized = true;
- 
--	/*
--	 * If we're initializing GICv2 on-demand when first running the VCPU
--	 * then we need to load the VGIC state onto the CPU.  We can detect
--	 * this easily by checking if we are in between vcpu_load and vcpu_put
--	 * when we just initialized the VGIC.
--	 */
--	preempt_disable();
--	vcpu = kvm_arm_get_running_vcpu();
--	if (vcpu)
--		kvm_vgic_load(vcpu);
--	preempt_enable();
- out:
- 	return ret;
- }
+ 	default:
 -- 
 2.7.4
