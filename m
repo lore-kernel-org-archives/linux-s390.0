@@ -1,8 +1,8 @@
 From: Christoffer Dall <christoffer.dall@linaro.org>
-Subject: [PATCH v2 04/16] KVM: Move vcpu_load to arch-specific
- kvm_arch_vcpu_ioctl_get_regs
-Date: Wed, 29 Nov 2017 17:41:04 +0100
-Message-ID: <20171129164116.16167-5-christoffer.dall@linaro.org>
+Subject: [PATCH v2 05/16] KVM: Move vcpu_load to arch-specific
+ kvm_arch_vcpu_ioctl_set_regs
+Date: Wed, 29 Nov 2017 17:41:05 +0100
+Message-ID: <20171129164116.16167-6-christoffer.dall@linaro.org>
 References: <20171129164116.16167-1-christoffer.dall@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,7 +25,7 @@ Cc: linux-mips@linux-mips.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan 
 List-ID: <linux-s390.vger.kernel.org>
 
 Move vcpu_load() and vcpu_put() into the architecture specific
-implementations of kvm_arch_vcpu_ioctl_get_regs().
+implementations of kvm_arch_vcpu_ioctl_set_regs().
 
 Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
 ---
@@ -38,116 +38,116 @@ Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
  6 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index b5c28f0..adfca57 100644
+index adfca57..3a89871 100644
 --- a/arch/mips/kvm/mips.c
 +++ b/arch/mips/kvm/mips.c
-@@ -1165,6 +1165,8 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+@@ -1151,6 +1151,8 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
  {
  	int i;
  
 +	vcpu_load(vcpu);
 +
- 	for (i = 0; i < ARRAY_SIZE(vcpu->arch.gprs); i++)
- 		regs->gpr[i] = vcpu->arch.gprs[i];
- 
-@@ -1172,6 +1174,7 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
- 	regs->lo = vcpu->arch.lo;
- 	regs->pc = vcpu->arch.pc;
+ 	for (i = 1; i < ARRAY_SIZE(vcpu->arch.gprs); i++)
+ 		vcpu->arch.gprs[i] = regs->gpr[i];
+ 	vcpu->arch.gprs[0] = 0; /* zero is special, and cannot be set. */
+@@ -1158,6 +1160,7 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+ 	vcpu->arch.lo = regs->lo;
+ 	vcpu->arch.pc = regs->pc;
  
 +	vcpu_put(vcpu);
  	return 0;
  }
  
 diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
-index 72d977e..d85bfd7 100644
+index d85bfd7..24bc7aa 100644
 --- a/arch/powerpc/kvm/book3s.c
 +++ b/arch/powerpc/kvm/book3s.c
-@@ -497,6 +497,8 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+@@ -528,6 +528,8 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
  {
  	int i;
  
 +	vcpu_load(vcpu);
 +
- 	regs->pc = kvmppc_get_pc(vcpu);
- 	regs->cr = kvmppc_get_cr(vcpu);
- 	regs->ctr = kvmppc_get_ctr(vcpu);
-@@ -518,6 +520,7 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+ 	kvmppc_set_pc(vcpu, regs->pc);
+ 	kvmppc_set_cr(vcpu, regs->cr);
+ 	kvmppc_set_ctr(vcpu, regs->ctr);
+@@ -548,6 +550,7 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
  	for (i = 0; i < ARRAY_SIZE(regs->gpr); i++)
- 		regs->gpr[i] = kvmppc_get_gpr(vcpu, i);
+ 		kvmppc_set_gpr(vcpu, i, regs->gpr[i]);
  
 +	vcpu_put(vcpu);
  	return 0;
  }
  
 diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
-index 83b4858..e0e4f04 100644
+index e0e4f04..bcbbedd 100644
 --- a/arch/powerpc/kvm/booke.c
 +++ b/arch/powerpc/kvm/booke.c
-@@ -1431,6 +1431,8 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+@@ -1462,6 +1462,8 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
  {
  	int i;
  
 +	vcpu_load(vcpu);
 +
- 	regs->pc = vcpu->arch.pc;
- 	regs->cr = kvmppc_get_cr(vcpu);
- 	regs->ctr = vcpu->arch.ctr;
-@@ -1452,6 +1454,7 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+ 	vcpu->arch.pc = regs->pc;
+ 	kvmppc_set_cr(vcpu, regs->cr);
+ 	vcpu->arch.ctr = regs->ctr;
+@@ -1483,6 +1485,7 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
  	for (i = 0; i < ARRAY_SIZE(regs->gpr); i++)
- 		regs->gpr[i] = kvmppc_get_gpr(vcpu, i);
+ 		kvmppc_set_gpr(vcpu, i, regs->gpr[i]);
  
 +	vcpu_put(vcpu);
  	return 0;
  }
  
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2b3e874..37b7caa 100644
+index 37b7caa..e347643 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -2718,7 +2718,9 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+@@ -2712,7 +2712,9 @@ static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
  
- int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
  {
 +	vcpu_load(vcpu);
- 	memcpy(&regs->gprs, &vcpu->run->s.regs.gprs, sizeof(regs->gprs));
+ 	memcpy(&vcpu->run->s.regs.gprs, &regs->gprs, sizeof(regs->gprs));
 +	vcpu_put(vcpu);
  	return 0;
  }
  
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index d9deb62..597e1f8 100644
+index 597e1f8..75eacce 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -7309,6 +7309,8 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+@@ -7350,6 +7350,8 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
  
- int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
  {
 +	vcpu_load(vcpu);
 +
- 	if (vcpu->arch.emulate_regs_need_sync_to_vcpu) {
- 		/*
- 		 * We are here if userspace calls get_regs() in the middle of
-@@ -7342,6 +7344,7 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
- 	regs->rip = kvm_rip_read(vcpu);
- 	regs->rflags = kvm_get_rflags(vcpu);
+ 	vcpu->arch.emulate_regs_need_sync_from_vcpu = true;
+ 	vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
+ 
+@@ -7379,6 +7381,7 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+ 
+ 	kvm_make_request(KVM_REQ_EVENT, vcpu);
  
 +	vcpu_put(vcpu);
  	return 0;
  }
  
 diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 198f2f9..843d481 100644
+index 843d481..963e249 100644
 --- a/virt/kvm/kvm_main.c
 +++ b/virt/kvm/kvm_main.c
-@@ -2552,9 +2552,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		kvm_regs = kzalloc(sizeof(struct kvm_regs), GFP_KERNEL);
- 		if (!kvm_regs)
+@@ -2572,9 +2572,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
+ 			r = PTR_ERR(kvm_regs);
  			goto out;
+ 		}
 -		vcpu_load(vcpu);
- 		r = kvm_arch_vcpu_ioctl_get_regs(vcpu, kvm_regs);
+ 		r = kvm_arch_vcpu_ioctl_set_regs(vcpu, kvm_regs);
 -		vcpu_put(vcpu);
- 		if (r)
- 			goto out_free1;
- 		r = -EFAULT;
+ 		kfree(kvm_regs);
+ 		break;
+ 	}
 -- 
 2.7.4
