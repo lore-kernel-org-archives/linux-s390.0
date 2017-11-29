@@ -1,8 +1,8 @@
 From: Christoffer Dall <christoffer.dall@linaro.org>
-Subject: [PATCH v2 15/16] KVM: arm/arm64: Avoid vcpu_load for other vcpu
- ioctls than KVM_RUN
-Date: Wed, 29 Nov 2017 17:41:15 +0100
-Message-ID: <20171129164116.16167-16-christoffer.dall@linaro.org>
+Subject: [PATCH v2 16/16] KVM: arm/arm64: Move vcpu_load call after
+ kvm_vcpu_first_run_init
+Date: Wed, 29 Nov 2017 17:41:16 +0100
+Message-ID: <20171129164116.16167-17-christoffer.dall@linaro.org>
 References: <20171129164116.16167-1-christoffer.dall@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,102 +24,87 @@ To: kvm@vger.kernel.org
 Cc: linux-mips@linux-mips.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm-ppc@vger.kernel.org, Alexander Graf <agraf@suse.com>, linux-arm-kernel@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu
 List-ID: <linux-s390.vger.kernel.org>
 
-Calling vcpu_load() registers preempt notifiers for this vcpu and calls
-kvm_arch_vcpu_load().  The latter will soon be doing a lot of heavy
-lifting on arm/arm64 and will try to do things such as enabling the
-virtual timer and setting us up to handle interrupts from the timer
-hardware.
-
-Loading state onto hardware registers and enabling hardware to signal
-interrupts can be problematic when we're not actually about to run the
-VCPU, because it makes it difficult to establish the right context when
-handling interrupts from the timer, and it makes the register access
-code difficult to reason about.
-
-Luckily, now when we call vcpu_load in each ioctl implementation, we can
-simply remove the call from the non-KVM_RUN vcpu ioctls, and our
-kvm_arch_vcpu_load() is only used for loading vcpu content to the
-physical CPU when we're actually going to run the vcpu.
+Moving the call to vcpu_load() in kvm_arch_vcpu_ioctl_run() to after
+we've called kvm_vcpu_first_run_init() simplifies some of the vgic and
+there is also no need to do vcpu_load() for things such as handling the
+immediate_exit flag.
 
 Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
 ---
- arch/arm64/kvm/guest.c | 3 ---
- virt/kvm/arm/arm.c     | 9 ---------
- 2 files changed, 12 deletions(-)
+ virt/kvm/arm/arch_timer.c     |  4 ----
+ virt/kvm/arm/arm.c            | 12 +++++-------
+ virt/kvm/arm/vgic/vgic-init.c | 11 -----------
+ 3 files changed, 5 insertions(+), 22 deletions(-)
 
-diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-index d7e3299..959e50d 100644
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -363,8 +363,6 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- {
- 	int ret = 0;
+diff --git a/virt/kvm/arm/arch_timer.c b/virt/kvm/arm/arch_timer.c
+index 4151250..801fecf 100644
+--- a/virt/kvm/arm/arch_timer.c
++++ b/virt/kvm/arm/arch_timer.c
+@@ -839,11 +839,7 @@ int kvm_timer_enable(struct kvm_vcpu *vcpu)
+ 		return ret;
  
--	vcpu_load(vcpu);
+ no_vgic:
+-	preempt_disable();
+ 	timer->enabled = 1;
+-	kvm_timer_vcpu_load_vgic(vcpu);
+-	preempt_enable();
 -
- 	trace_kvm_set_guest_debug(vcpu, dbg->control);
- 
- 	if (dbg->control & ~KVM_GUESTDBG_VALID_MASK) {
-@@ -386,7 +384,6 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- 	}
- 
- out:
--	vcpu_put(vcpu);
- 	return ret;
- }
- 
-diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index 8223c59..a760ef1 100644
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -381,14 +381,11 @@ static void vcpu_power_off(struct kvm_vcpu *vcpu)
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
--	vcpu_load(vcpu);
--
- 	if (vcpu->arch.power_off)
- 		mp_state->mp_state = KVM_MP_STATE_STOPPED;
- 	else
- 		mp_state->mp_state = KVM_MP_STATE_RUNNABLE;
- 
--	vcpu_put(vcpu);
  	return 0;
  }
  
-@@ -397,8 +394,6 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- {
- 	int ret = 0;
+diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+index a760ef1..991f1aa 100644
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -622,8 +622,6 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
+ 	if (unlikely(!kvm_vcpu_initialized(vcpu)))
+ 		return -ENOEXEC;
  
 -	vcpu_load(vcpu);
 -
- 	switch (mp_state->mp_state) {
- 	case KVM_MP_STATE_RUNNABLE:
- 		vcpu->arch.power_off = false;
-@@ -410,7 +405,6 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 		ret = -EINVAL;
+ 	ret = kvm_vcpu_first_run_init(vcpu);
+ 	if (ret)
+ 		goto out;
+@@ -631,13 +629,13 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
+ 	if (run->exit_reason == KVM_EXIT_MMIO) {
+ 		ret = kvm_handle_mmio_return(vcpu, vcpu->run);
+ 		if (ret)
+-			goto out;
++			return ret;
  	}
  
--	vcpu_put(vcpu);
+-	if (run->immediate_exit) {
+-		ret = -EINTR;
+-		goto out;
+-	}
++	if (run->immediate_exit)
++		return -EINTR;
++
++	vcpu_load(vcpu);
+ 
+ 	if (vcpu->sigset_active)
+ 		sigprocmask(SIG_SETMASK, &vcpu->sigset, &sigsaved);
+diff --git a/virt/kvm/arm/vgic/vgic-init.c b/virt/kvm/arm/vgic/vgic-init.c
+index 6231012..a0688ef 100644
+--- a/virt/kvm/arm/vgic/vgic-init.c
++++ b/virt/kvm/arm/vgic/vgic-init.c
+@@ -300,17 +300,6 @@ int vgic_init(struct kvm *kvm)
+ 
+ 	dist->initialized = true;
+ 
+-	/*
+-	 * If we're initializing GICv2 on-demand when first running the VCPU
+-	 * then we need to load the VGIC state onto the CPU.  We can detect
+-	 * this easily by checking if we are in between vcpu_load and vcpu_put
+-	 * when we just initialized the VGIC.
+-	 */
+-	preempt_disable();
+-	vcpu = kvm_arm_get_running_vcpu();
+-	if (vcpu)
+-		kvm_vgic_load(vcpu);
+-	preempt_enable();
+ out:
  	return ret;
  }
- 
-@@ -1003,8 +997,6 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 	struct kvm_device_attr attr;
- 	long r;
- 
--	vcpu_load(vcpu);
--
- 	switch (ioctl) {
- 	case KVM_ARM_VCPU_INIT: {
- 		struct kvm_vcpu_init init;
-@@ -1081,7 +1073,6 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 		r = -EINVAL;
- 	}
- 
--	vcpu_put(vcpu);
- 	return r;
- }
- 
 -- 
 2.7.4
