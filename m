@@ -1,7 +1,7 @@
 From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: [PATCH 1/5] bpf: correct broken uapi for BPF_PROG_TYPE_PERF_EVENT program type
-Date: Fri,  1 Dec 2017 15:19:04 +0100
-Message-ID: <1512137948-31729-2-git-send-email-brueckner@linux.vnet.ibm.com>
+Subject: [PATCH 5/5] perf s390: add regs_query_register_offset()
+Date: Fri,  1 Dec 2017 15:19:08 +0100
+Message-ID: <1512137948-31729-6-git-send-email-brueckner@linux.vnet.ibm.com>
 References: <1512137948-31729-1-git-send-email-brueckner@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1512137948-31729-1-git-send-email-brueckner@linux.vnet.ibm.com>
@@ -9,129 +9,100 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Arnaldo Carvalho de Melo <acme@kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Namhyung Kim <namhyung@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Will Deacon <will.deacon@arm.com>, Mark Rutland <mark.rutland@arm.com>, Shuah Khan <shuah@kernel.org>, Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kselftest@vger.kernel.org, netdev@vger.kernel.org, linux-perf-users@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kselftest@vger.kernel.org, netdev@vger.kernel.org, linux-perf-users@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit 0515e5999a466dfe ("bpf: introduce BPF_PROG_TYPE_PERF_EVENT
-program type") introduced the bpf_perf_event_data structure which
-exports the pt_regs structure.  This is OK for multiple architectures
-but fail for s390 and arm64 which do not export pt_regs.  Programs
-using them, for example, the bpf selftest fail to compile on these
-architectures.
+The regs_query_register_offset() helper function converts
+register name like "%r0" to an offset of a register in user_pt_regs
+It is required by the BPF prologue generator.
 
-For s390, exporting the pt_regs is not an option because s390 wants
-to allow changes to it.  For arm64, there is a user_pt_regs structure
-that covers parts of the pt_regs structure for use by user space.
+The user_pt_regs structure was recently added to "asm/ptrace.h".
+Hence, update tools/perf/check-headers.sh to keep the header file
+in sync with kernel changes.
 
-To solve the broken uapi for s390 and arm64, introduce an abstract
-type for pt_regs and add an asm/bpf_perf_event.h file that concretes
-the type.  An asm-generic header file covers the architectures that
-export pt_regs today.
-
-The arch-specific enablement for s390 and arm64 follows in separate
-commits.
-
-Reported-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Fixes: 0515e5999a466dfe ("bpf: introduce BPF_PROG_TYPE_PERF_EVENT program type")
+Suggested-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
 Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Reviewed-and-tested-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
 Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
- include/linux/perf_event.h                | 6 +++++-
- include/uapi/asm-generic/bpf_perf_event.h | 9 +++++++++
- include/uapi/linux/bpf_perf_event.h       | 5 ++---
- kernel/events/core.c                      | 2 +-
- 4 files changed, 17 insertions(+), 5 deletions(-)
- create mode 100644 include/uapi/asm-generic/bpf_perf_event.h
+ tools/perf/arch/s390/Makefile          |  1 +
+ tools/perf/arch/s390/util/dwarf-regs.c | 32 +++++++++++++++++++++++++++++---
+ tools/perf/check-headers.sh            |  1 +
+ 3 files changed, 31 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index 2c9c87d..7546822 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -15,6 +15,7 @@
- #define _LINUX_PERF_EVENT_H
- 
- #include <uapi/linux/perf_event.h>
-+#include <uapi/linux/bpf_perf_event.h>
- 
+diff --git a/tools/perf/arch/s390/Makefile b/tools/perf/arch/s390/Makefile
+index 21322e0..09ba923 100644
+--- a/tools/perf/arch/s390/Makefile
++++ b/tools/perf/arch/s390/Makefile
+@@ -2,3 +2,4 @@ ifndef NO_DWARF
+ PERF_HAVE_DWARF_REGS := 1
+ endif
+ HAVE_KVM_STAT_SUPPORT := 1
++PERF_HAVE_ARCH_REGS_QUERY_REGISTER_OFFSET := 1
+diff --git a/tools/perf/arch/s390/util/dwarf-regs.c b/tools/perf/arch/s390/util/dwarf-regs.c
+index f47576c..a8ace5c 100644
+--- a/tools/perf/arch/s390/util/dwarf-regs.c
++++ b/tools/perf/arch/s390/util/dwarf-regs.c
+@@ -2,17 +2,43 @@
  /*
-  * Kernel-internal data types and definitions:
-@@ -787,7 +788,7 @@ struct perf_output_handle {
- };
+  * Mapping of DWARF debug register numbers into register names.
+  *
+- *    Copyright IBM Corp. 2010
+- *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>,
++ * Copyright IBM Corp. 2010, 2017
++ * Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>,
++ *	      Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+  *
+  */
  
- struct bpf_perf_event_data_kern {
--	struct pt_regs *regs;
-+	bpf_user_pt_regs_t *regs;
- 	struct perf_sample_data *data;
- 	struct perf_event *event;
- };
-@@ -1177,6 +1178,9 @@ extern void perf_tp_event(u16 event_type, u64 count, void *record,
- 		(user_mode(regs) ? PERF_RECORD_MISC_USER : PERF_RECORD_MISC_KERNEL)
- # define perf_instruction_pointer(regs)	instruction_pointer(regs)
- #endif
-+#ifndef perf_arch_bpf_user_pt_regs
-+# define perf_arch_bpf_user_pt_regs(regs) regs
-+#endif
++#include <errno.h>
+ #include <stddef.h>
+-#include <dwarf-regs.h>
++#include <stdlib.h>
+ #include <linux/kernel.h>
++#include <asm/ptrace.h>
++#include <string.h>
++#include <dwarf-regs.h>
+ #include "dwarf-regs-table.h"
  
- static inline bool has_branch_stack(struct perf_event *event)
+ const char *get_arch_regstr(unsigned int n)
  {
-diff --git a/include/uapi/asm-generic/bpf_perf_event.h b/include/uapi/asm-generic/bpf_perf_event.h
-new file mode 100644
-index 0000000..53815d2
---- /dev/null
-+++ b/include/uapi/asm-generic/bpf_perf_event.h
-@@ -0,0 +1,9 @@
-+#ifndef _UAPI__ASM_GENERIC_BPF_PERF_EVENT_H__
-+#define _UAPI__ASM_GENERIC_BPF_PERF_EVENT_H__
+ 	return (n >= ARRAY_SIZE(s390_dwarf_regs)) ? NULL : s390_dwarf_regs[n];
+ }
 +
-+#include <linux/ptrace.h>
++/*
++ * Convert the register name into an offset to struct pt_regs (kernel).
++ * This is required by the BPF prologue generator.  The BPF
++ * program is called in the BPF overflow handler in the perf
++ * core.
++ */
++int regs_query_register_offset(const char *name)
++{
++	unsigned long gpr;
 +
-+/* Export kernel pt_regs structure */
-+typedef struct pt_regs bpf_user_pt_regs_t;
++	if (!name || strncmp(name, "%r", 2))
++		return -EINVAL;
 +
-+#endif /* _UAPI__ASM_GENERIC_BPF_PERF_EVENT_H__ */
-diff --git a/include/uapi/linux/bpf_perf_event.h b/include/uapi/linux/bpf_perf_event.h
-index af549d4..8f95303 100644
---- a/include/uapi/linux/bpf_perf_event.h
-+++ b/include/uapi/linux/bpf_perf_event.h
-@@ -8,11 +8,10 @@
- #ifndef _UAPI__LINUX_BPF_PERF_EVENT_H__
- #define _UAPI__LINUX_BPF_PERF_EVENT_H__
- 
--#include <linux/types.h>
--#include <linux/ptrace.h>
-+#include <asm/bpf_perf_event.h>
- 
- struct bpf_perf_event_data {
--	struct pt_regs regs;
-+	bpf_user_pt_regs_t regs;
- 	__u64 sample_period;
- };
- 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 16beab4..ba957b9 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -7987,11 +7987,11 @@ static void bpf_overflow_handler(struct perf_event *event,
- {
- 	struct bpf_perf_event_data_kern ctx = {
- 		.data = data,
--		.regs = regs,
- 		.event = event,
- 	};
- 	int ret = 0;
- 
-+	ctx.regs = perf_arch_bpf_user_pt_regs(regs);
- 	preempt_disable();
- 	if (unlikely(__this_cpu_inc_return(bpf_prog_active) != 1))
- 		goto out;
++	errno = 0;
++	gpr = strtoul(name + 2, NULL, 10);
++	if (errno || gpr >= 16)
++		return -EINVAL;
++
++	return offsetof(user_pt_regs, gprs) + 8 * gpr;
++}
+diff --git a/tools/perf/check-headers.sh b/tools/perf/check-headers.sh
+index 77406d2..6db9d80 100755
+--- a/tools/perf/check-headers.sh
++++ b/tools/perf/check-headers.sh
+@@ -30,6 +30,7 @@ arch/x86/include/uapi/asm/vmx.h
+ arch/powerpc/include/uapi/asm/kvm.h
+ arch/s390/include/uapi/asm/kvm.h
+ arch/s390/include/uapi/asm/kvm_perf.h
++arch/s390/include/uapi/asm/ptrace.h
+ arch/s390/include/uapi/asm/sie.h
+ arch/arm/include/uapi/asm/kvm.h
+ arch/arm64/include/uapi/asm/kvm.h
 -- 
 1.8.3.1
