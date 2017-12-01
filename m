@@ -1,44 +1,66 @@
 From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: Re: [PATCH] perf s390: always build with -fPIC
-Date: Fri, 1 Dec 2017 15:12:45 +0100
-Message-ID: <20171201141245.GD6452@linux.vnet.ibm.com>
-References: <1512031765-9382-1-git-send-email-brueckner@linux.vnet.ibm.com>
- <20171201021709.GB30867@sejong>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-perf-users-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171201021709.GB30867@sejong>
-Sender: linux-perf-users-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-perf-users/>
-List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Linux perf users list <linux-perf-users@vger.kernel.org>, Linux s390 list <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Richter <tmricht@linux.vnet.ibm.com>, jonathan.hermann@de.ibm.com, kernel-team@lge.com, jolsa@kernel.org
+Subject: [PATCH 3/5] arm64/bpf: correct broken uapi for BPF_PROG_TYPE_PERF_EVENT program type
+Date: Fri,  1 Dec 2017 15:19:06 +0100
+Message-ID: <1512137948-31729-4-git-send-email-brueckner@linux.vnet.ibm.com>
+References: <1512137948-31729-1-git-send-email-brueckner@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1512137948-31729-1-git-send-email-brueckner@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Arnaldo Carvalho de Melo <acme@kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Namhyung Kim <namhyung@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Will Deacon <will.deacon@arm.com>, Mark Rutland <mark.rutland@arm.com>, Shuah Khan <shuah@kernel.org>, Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kselftest@vger.kernel.org, netdev@vger.kernel.org, linux-perf-users@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Namhyung,
+Correct the broken uapi for the BPF_PROG_TYPE_PERF_EVENT program type
+by exporting the user_pt_regs structure instead of the pt_regs structure
+that is in-kernel only.
 
-On Fri, Dec 01, 2017 at 11:17:09AM +0900, Namhyung Kim wrote:
-> On Thu, Nov 30, 2017 at 09:49:25AM +0100, Hendrik Brueckner wrote:
-> > On s390, object files must be compiled with position-indepedent code
-> > in order to be incrementally linked or linked to shared libraries.
-> > Therefore, add -fPIC to the CFLAGS for s390 to ensure each object
-> > file is built properly.
-> 
-> Could you please tell me what was the actual problem?  I guess this is
-> somewhat related to the Jiri's Fedora build fix.
+Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+---
+ arch/arm64/include/asm/perf_event.h          | 2 ++
+ arch/arm64/include/uapi/asm/bpf_perf_event.h | 9 +++++++++
+ 2 files changed, 11 insertions(+)
+ create mode 100644 arch/arm64/include/uapi/asm/bpf_perf_event.h
 
-Building, linking of perf did not work (I think it was on a Fedora 27)
-resulting in an error message like:
-
-/usr/bin/ld: perf-in.o: `__printf_chk@@GLIBC_2.4' non-PLT reloc for symbol
-defined in shared library and accessed from executable (rebuild file with
--fPIC ?)
-/usr/bin/ld: final link failed: Bad value
-
-On s390, objects must be compiled with -fPIC when used for shared object
-or position-indendepent executables (PIE). In doubt, it is better to
-build with -fPIC (there are no performance degration).
-
-Thanks and kind regards,
-  Hendrik
+diff --git a/arch/arm64/include/asm/perf_event.h b/arch/arm64/include/asm/perf_event.h
+index 8d5cbec..f9ccc36 100644
+--- a/arch/arm64/include/asm/perf_event.h
++++ b/arch/arm64/include/asm/perf_event.h
+@@ -18,6 +18,7 @@
+ #define __ASM_PERF_EVENT_H
+ 
+ #include <asm/stack_pointer.h>
++#include <asm/ptrace.h>
+ 
+ #define	ARMV8_PMU_MAX_COUNTERS	32
+ #define	ARMV8_PMU_COUNTER_MASK	(ARMV8_PMU_MAX_COUNTERS - 1)
+@@ -79,6 +80,7 @@
+ extern unsigned long perf_instruction_pointer(struct pt_regs *regs);
+ extern unsigned long perf_misc_flags(struct pt_regs *regs);
+ #define perf_misc_flags(regs)	perf_misc_flags(regs)
++#define perf_arch_bpf_user_pt_regs(regs) &regs->user_regs
+ #endif
+ 
+ #define perf_arch_fetch_caller_regs(regs, __ip) { \
+diff --git a/arch/arm64/include/uapi/asm/bpf_perf_event.h b/arch/arm64/include/uapi/asm/bpf_perf_event.h
+new file mode 100644
+index 0000000..b551b74
+--- /dev/null
++++ b/arch/arm64/include/uapi/asm/bpf_perf_event.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _UAPI__ASM_BPF_PERF_EVENT_H__
++#define _UAPI__ASM_BPF_PERF_EVENT_H__
++
++#include <asm/ptrace.h>
++
++typedef struct user_pt_regs bpf_user_pt_regs_t;
++
++#endif /* _UAPI__ASM_BPF_PERF_EVENT_H__ */
+-- 
+1.8.3.1
