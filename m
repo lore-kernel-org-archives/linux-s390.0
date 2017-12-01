@@ -1,130 +1,44 @@
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH 19/22] s390/mm: Split huge pages if granular
- protection is needed
-Date: Fri, 8 Dec 2017 08:00:01 +0100
-Message-ID: <c7493542-85d6-da62-1ab8-e683e1bf3f19@linux.vnet.ibm.com>
-References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1510007400-42493-20-git-send-email-frankja@linux.vnet.ibm.com>
- <e3030116-81cf-b419-97ab-8bd863317222@redhat.com>
+From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Subject: Re: [PATCH] perf s390: always build with -fPIC
+Date: Fri, 1 Dec 2017 15:12:45 +0100
+Message-ID: <20171201141245.GD6452@linux.vnet.ibm.com>
+References: <1512031765-9382-1-git-send-email-brueckner@linux.vnet.ibm.com>
+ <20171201021709.GB30867@sejong>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="T2tXxJRNDPnmcK0QbH1b34IfA7g5DEOCr"
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <e3030116-81cf-b419-97ab-8bd863317222@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-perf-users-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171201021709.GB30867@sejong>
+Sender: linux-perf-users-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-perf-users/>
+List-Post: <mailto:linux-perf-users@vger.kernel.org>
+To: Namhyung Kim <namhyung@kernel.org>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Linux perf users list <linux-perf-users@vger.kernel.org>, Linux s390 list <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Richter <tmricht@linux.vnet.ibm.com>, jonathan.hermann@de.ibm.com, kernel-team@lge.com, jolsa@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---T2tXxJRNDPnmcK0QbH1b34IfA7g5DEOCr
-Content-Type: multipart/mixed; boundary="G687T6ckkQM1u9F4hlnhcEBFJirh1awRw";
- protected-headers="v1"
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
-To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
- linux-s390@vger.kernel.org
-Message-ID: <c7493542-85d6-da62-1ab8-e683e1bf3f19@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH 19/22] s390/mm: Split huge pages if granular
- protection is needed
-References: <1510007400-42493-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1510007400-42493-20-git-send-email-frankja@linux.vnet.ibm.com>
- <e3030116-81cf-b419-97ab-8bd863317222@redhat.com>
-In-Reply-To: <e3030116-81cf-b419-97ab-8bd863317222@redhat.com>
+Hi Namhyung,
 
---G687T6ckkQM1u9F4hlnhcEBFJirh1awRw
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+On Fri, Dec 01, 2017 at 11:17:09AM +0900, Namhyung Kim wrote:
+> On Thu, Nov 30, 2017 at 09:49:25AM +0100, Hendrik Brueckner wrote:
+> > On s390, object files must be compiled with position-indepedent code
+> > in order to be incrementally linked or linked to shared libraries.
+> > Therefore, add -fPIC to the CFLAGS for s390 to ensure each object
+> > file is built properly.
+> 
+> Could you please tell me what was the actual problem?  I guess this is
+> somewhat related to the Jiri's Fedora build fix.
 
-On 07.12.2017 17:32, David Hildenbrand wrote:
-> On 06.11.2017 23:29, Janosch Frank wrote:
->> A guest can put DAT tables for a lower level guest in the same huge
->> segment as one of its prefixes. This would make it necessary for the
->> segment to be unprotected (because of the prefix) and protected
->> (because of the shadowing) at the same time. This is not possible in
->> this universe.
->>
->> Hence we split the affected huge segment, so we can protect on a
->> per-page basis. Such gmap segments are special and get a new software
->> bit, that helps us handling this edge case.
->=20
-> I am thinking about another condition and am not sure yet if it is
-> really a problem and already handled by this patch (if so, feel free to=
+Building, linking of perf did not work (I think it was on a Fedora 27)
+resulting in an error message like:
 
-> add it to the description :) ): G2 -> G3 page table and a contained G2
-> -> G3 page lying on same G1 huge page
+/usr/bin/ld: perf-in.o: `__printf_chk@@GLIBC_2.4' non-PLT reloc for symbol
+defined in shared library and accessed from executable (rebuild file with
+-fPIC ?)
+/usr/bin/ld: final link failed: Bad value
 
-Valid objection, but we (hopefully :) ) got you covered.
+On s390, objects must be compiled with -fPIC when used for shared object
+or position-indendepent executables (PIE). In doubt, it is better to
+build with -fPIC (there are no performance degration).
 
-We directly split on a pmd protection with the VSIE bit and then
-re-drive protection on the pte:
-
-if (((prot !=3D PROT_WRITE) && (bits & GMAP_ENTRY_VSIE))) {
-		ret =3D gmap_pmd_split(gmap, gaddr, pmdp);
-
-The red-rive is a bit ugly because of the EFAULT, but I'm open to
-suggestions.
-
-
-
->=20
-> G1 runs G2 with huge pages.
-> G2 runs G3 without huge pages,
-> G1 creates shadow page tables for G3.
->=20
-> G2 has no idea of huge pages, so it could happen that a
-> page table from G2 -> G3 falls into the same G1 huge page as a G2->G3
-> backing page.
->=20
-> Now, if we're unlucky, it can happen that this page table references
-> that G3 page, lying on the same G1 huge page.
->=20
-> G1 will create a shadow page table, protecting access to this huge page=
-
-> (do maintain the shadow properly).
->=20
-> What will happen when G3 tries to write to this page:
->=20
-> 1. Shadow page table in G1 is built, huge page is protected in g2 gmap.=
-
-> 2. Part of that huge page is to be used in the shadow page table with
-> write access. This huge page is protected but we need write access, we
-> need to fixup.
-> 3. Fixing up will invalidate the shadow page table.
->=20
-> IOW, G3 will never make progress.
->=20
->=20
-
-
-
---G687T6ckkQM1u9F4hlnhcEBFJirh1awRw--
-
---T2tXxJRNDPnmcK0QbH1b34IfA7g5DEOCr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJaKjh3AAoJEBcO/8Q8ZEV5HRwP/1+mEv+3yt9iDaLG0SJoFeHx
-JMPo8DeWXHT+yoyK2GnRyhlGBKHckXJOeFm2pWgM8U1YgXPuc4k4f9UqOUG+Bru8
-AA6ScqJkCTpAgqyJSyenbRC8fkxtnDe8JDVGENRgMnXw9DeEFCL+VkiIZSPeZ6pX
-JInZQbtr6m2julGuN9Wk4eZVwA0LkN7PbcAfjbqrTCVQK/KCM7CuP3omdKEjZ+hN
-SwqfW9nNYAaPAy/yuID5eKg5VbFoVGLZVuKe8w1HQgDI7fhF15uOiAWafmkdB6ht
-JGVNXv2MjI0BEdSOalBY7nYvhZFNmFXqbYFXcLvJuTFXl9EYiBpp1gfSgtDC/xpb
-4NOzPrOOewFA02fLZMzYyXf4YJCET88ikY1PhkNRGyiGIpKHgQWdHKHv+ZGDPQrX
-faPgbwCUe+ln0QIkL5M/P3Un6k7mKbNMWtH0OzZqGWF26Q4umBPJS+gTgP6ZFviW
-n8qWUxUqGTwCYlJi/haYfKjMxDPIM6zabgpbBpkBIvJ6KvaD5yIzR56lGn937E1k
-mvJEHQ1mfrGMuvF2Pl/crl6loMi4ZnNiQ8PGBZT48fq/MemtU/cYMmjCTsmx0i73
-IIKQw4ve1Nrv1D/8BmABHlbIyZpFZzHGRxbIk5kCjbEQt7h+OKn6Rwurvl47/Uqo
-zJsJWx+6TljbI9EBtePg
-=fgdT
------END PGP SIGNATURE-----
-
---T2tXxJRNDPnmcK0QbH1b34IfA7g5DEOCr--
+Thanks and kind regards,
+  Hendrik
