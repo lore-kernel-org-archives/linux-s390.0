@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 1/3] s390/qeth: fix thinko in IPv4 multicast address tracking
-Date: Fri,  1 Dec 2017 10:14:49 +0100
-Message-ID: <20171201091451.52270-2-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 2/3] s390/qeth: fix GSO throughput regression
+Date: Fri,  1 Dec 2017 10:14:50 +0100
+Message-ID: <20171201091451.52270-3-jwi@linux.vnet.ibm.com>
 References: <20171201091451.52270-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20171201091451.52270-1-jwi@linux.vnet.ibm.com>
@@ -12,41 +12,141 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
-reworked how secondary addresses are managed for qeth devices.
-Instead of dropping & subsequently re-adding all addresses on every
-ndo_set_rx_mode() call, qeth now keeps track of the addresses that are
-currently registered with the HW.
-On a ndo_set_rx_mode(), we thus only need to do (de-)registration
-requests for the addresses that have actually changed.
+Using GSO with small MTUs currently results in a substantial throughput
+regression - which is caused by how qeth needs to map non-linear skbs
+into its IO buffer elements:
+compared to a linear skb, each GSO-segmented skb effectively consumes
+twice as many buffer elements (ie two instead of one) due to the
+additional header-only part. This causes the Output Queue to be
+congested with low-utilized IO buffers.
 
-On L3 devices, the lookup for IPv4 Multicast addresses checks the wrong
-hashtable - and thus never finds a match. As a result, we first delete
-*all* such addresses, and then re-add them again. So each set_rx_mode()
-causes a short period where the IPv4 Multicast addresses are not
-registered, and the card stops forwarding inbound traffic for them.
+Fix this as follows:
+If the MSS is low enough so that a non-SG GSO segmentation produces
+order-0 skbs (currently ~3500 byte), opt out from NETIF_F_SG. This is
+where we anticipate the biggest savings, since an SG-enabled
+GSO segmentation produces skbs that always consume at least two
+buffer elements.
 
-Fix this by setting the ->is_multicast flag on the lookup object, thus
-enabling qeth_l3_ip_from_hash() to search the correct hashtable and
-find a match there.
+Larger MSS values continue to get a SG-enabled GSO segmentation, since
+1) the relative overhead of the additional header-only buffer element
+becomes less noticeable, and
+2) the linearization overhead increases.
 
-Fixes: 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
+With the throughput regression fixed, re-enable NETIF_F_SG by default to
+reap the significant CPU savings of GSO.
+
+Fixes: 5722963a8e83 ("qeth: do not turn on SG per default")
+Reported-by: Nils Hoppmann <niho@de.ibm.com>
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/net/qeth_core.h      |  3 +++
+ drivers/s390/net/qeth_core_main.c | 31 +++++++++++++++++++++++++++++++
+ drivers/s390/net/qeth_l2_main.c   |  2 ++
+ drivers/s390/net/qeth_l3_main.c   |  2 ++
+ 4 files changed, 38 insertions(+)
 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 9cd569ef43ec..15015a24f8ad 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -987,6 +987,9 @@ struct qeth_cmd_buffer *qeth_get_setassparms_cmd(struct qeth_card *,
+ int qeth_set_features(struct net_device *, netdev_features_t);
+ void qeth_recover_features(struct net_device *dev);
+ netdev_features_t qeth_fix_features(struct net_device *, netdev_features_t);
++netdev_features_t qeth_features_check(struct sk_buff *skb,
++				      struct net_device *dev,
++				      netdev_features_t features);
+ int qeth_vm_request_mac(struct qeth_card *card);
+ int qeth_push_hdr(struct sk_buff *skb, struct qeth_hdr **hdr, unsigned int len);
+ 
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 49b9efeba1bd..d9b0e07d4fa7 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -19,6 +19,11 @@
+ #include <linux/mii.h>
+ #include <linux/kthread.h>
+ #include <linux/slab.h>
++#include <linux/if_vlan.h>
++#include <linux/netdevice.h>
++#include <linux/netdev_features.h>
++#include <linux/skbuff.h>
++
+ #include <net/iucv/af_iucv.h>
+ #include <net/dsfield.h>
+ 
+@@ -6438,6 +6443,32 @@ netdev_features_t qeth_fix_features(struct net_device *dev,
+ }
+ EXPORT_SYMBOL_GPL(qeth_fix_features);
+ 
++netdev_features_t qeth_features_check(struct sk_buff *skb,
++				      struct net_device *dev,
++				      netdev_features_t features)
++{
++	/* GSO segmentation builds skbs with
++	 *	a (small) linear part for the headers, and
++	 *	page frags for the data.
++	 * Compared to a linear skb, the header-only part consumes an
++	 * additional buffer element. This reduces buffer utilization, and
++	 * hurts throughput. So compress small segments into one element.
++	 */
++	if (netif_needs_gso(skb, features)) {
++		/* match skb_segment(): */
++		unsigned int doffset = skb->data - skb_mac_header(skb);
++		unsigned int hsize = skb_shinfo(skb)->gso_size;
++		unsigned int hroom = skb_headroom(skb);
++
++		/* linearize only if resulting skb allocations are order-0: */
++		if (SKB_DATA_ALIGN(hroom + doffset + hsize) <= SKB_MAX_HEAD(0))
++			features &= ~NETIF_F_SG;
++	}
++
++	return vlan_features_check(skb, features);
++}
++EXPORT_SYMBOL_GPL(qeth_features_check);
++
+ static int __init qeth_core_init(void)
+ {
+ 	int rc;
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index d2537c09126d..85162712d207 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -960,6 +960,7 @@ static const struct net_device_ops qeth_l2_netdev_ops = {
+ 	.ndo_stop		= qeth_l2_stop,
+ 	.ndo_get_stats		= qeth_get_stats,
+ 	.ndo_start_xmit		= qeth_l2_hard_start_xmit,
++	.ndo_features_check	= qeth_features_check,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_rx_mode	= qeth_l2_set_rx_mode,
+ 	.ndo_do_ioctl		= qeth_do_ioctl,
+@@ -1010,6 +1011,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
+ 	if (card->info.type == QETH_CARD_TYPE_OSD && !card->info.guestlan) {
+ 		card->dev->hw_features = NETIF_F_SG;
+ 		card->dev->vlan_features = NETIF_F_SG;
++		card->dev->features |= NETIF_F_SG;
+ 		/* OSA 3S and earlier has no RX/TX support */
+ 		if (qeth_is_supported(card, IPA_OUTBOUND_CHECKSUM)) {
+ 			card->dev->hw_features |= NETIF_F_IP_CSUM;
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index aadd384316a3..e79936b50698 100644
+index e79936b50698..46a841258fc8 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1376,6 +1376,7 @@ qeth_l3_add_mc_to_hash(struct qeth_card *card, struct in_device *in4_dev)
- 
- 		tmp->u.a4.addr = be32_to_cpu(im4->multiaddr);
- 		memcpy(tmp->mac, buf, sizeof(tmp->mac));
-+		tmp->is_multicast = 1;
- 
- 		ipm = qeth_l3_ip_from_hash(card, tmp);
- 		if (ipm) {
+@@ -2918,6 +2918,7 @@ static const struct net_device_ops qeth_l3_osa_netdev_ops = {
+ 	.ndo_stop		= qeth_l3_stop,
+ 	.ndo_get_stats		= qeth_get_stats,
+ 	.ndo_start_xmit		= qeth_l3_hard_start_xmit,
++	.ndo_features_check	= qeth_features_check,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_rx_mode	= qeth_l3_set_multicast_list,
+ 	.ndo_do_ioctl		= qeth_do_ioctl,
+@@ -2958,6 +2959,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 				card->dev->vlan_features = NETIF_F_SG |
+ 					NETIF_F_RXCSUM | NETIF_F_IP_CSUM |
+ 					NETIF_F_TSO;
++				card->dev->features |= NETIF_F_SG;
+ 			}
+ 		}
+ 	} else if (card->info.type == QETH_CARD_TYPE_IQD) {
 -- 
 2.13.5
