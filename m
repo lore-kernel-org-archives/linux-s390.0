@@ -1,8 +1,8 @@
 From: Christoffer Dall <cdall@kernel.org>
-Subject: [PATCH v3 15/16] KVM: arm/arm64: Avoid vcpu_load for other vcpu
- ioctls than KVM_RUN
-Date: Mon,  4 Dec 2017 21:35:37 +0100
-Message-ID: <20171204203538.8370-16-cdall@kernel.org>
+Subject: [PATCH v3 13/16] KVM: Move vcpu_load to arch-specific
+ kvm_arch_vcpu_ioctl_set_fpu
+Date: Mon,  4 Dec 2017 21:35:35 +0100
+Message-ID: <20171204203538.8370-14-cdall@kernel.org>
 References: <20171204203538.8370-1-cdall@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,102 +26,88 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Christoffer Dall <christoffer.dall@linaro.org>
 
-Calling vcpu_load() registers preempt notifiers for this vcpu and calls
-kvm_arch_vcpu_load().  The latter will soon be doing a lot of heavy
-lifting on arm/arm64 and will try to do things such as enabling the
-virtual timer and setting us up to handle interrupts from the timer
-hardware.
+Move vcpu_load() and vcpu_put() into the architecture specific
+implementations of kvm_arch_vcpu_ioctl_set_fpu().
 
-Loading state onto hardware registers and enabling hardware to signal
-interrupts can be problematic when we're not actually about to run the
-VCPU, because it makes it difficult to establish the right context when
-handling interrupts from the timer, and it makes the register access
-code difficult to reason about.
-
-Luckily, now when we call vcpu_load in each ioctl implementation, we can
-simply remove the call from the non-KVM_RUN vcpu ioctls, and our
-kvm_arch_vcpu_load() is only used for loading vcpu content to the
-physical CPU when we're actually going to run the vcpu.
-
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
 ---
- arch/arm64/kvm/guest.c | 3 ---
- virt/kvm/arm/arm.c     | 9 ---------
- 2 files changed, 12 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 15 ++++++++++++---
+ arch/x86/kvm/x86.c       |  8 ++++++--
+ virt/kvm/kvm_main.c      |  2 --
+ 3 files changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-index d7e3299a7734..959e50d2588c 100644
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -363,8 +363,6 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 88dcb89656be..43278f334ce3 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2752,15 +2752,24 @@ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
+ 
+ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
  {
- 	int ret = 0;
- 
--	vcpu_load(vcpu);
--
- 	trace_kvm_set_guest_debug(vcpu, dbg->control);
- 
- 	if (dbg->control & ~KVM_GUESTDBG_VALID_MASK) {
-@@ -386,7 +384,6 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- 	}
- 
- out:
--	vcpu_put(vcpu);
- 	return ret;
+-	if (test_fp_ctl(fpu->fpc))
+-		return -EINVAL;
++	int ret = 0;
++
++	vcpu_load(vcpu);
++
++	if (test_fp_ctl(fpu->fpc)) {
++		ret = -EINVAL;
++		goto out;
++	}
+ 	vcpu->run->s.regs.fpc = fpu->fpc;
+ 	if (MACHINE_HAS_VX)
+ 		convert_fp_to_vx((__vector128 *) vcpu->run->s.regs.vrs,
+ 				 (freg_t *) fpu->fprs);
+ 	else
+ 		memcpy(vcpu->run->s.regs.fprs, &fpu->fprs, sizeof(fpu->fprs));
+-	return 0;
++
++out:
++	vcpu_put(vcpu);
++	return ret;
  }
  
-diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index 8223c59be507..a760ef1803be 100644
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -381,14 +381,11 @@ static void vcpu_power_off(struct kvm_vcpu *vcpu)
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
--	vcpu_load(vcpu);
--
- 	if (vcpu->arch.power_off)
- 		mp_state->mp_state = KVM_MP_STATE_STOPPED;
- 	else
- 		mp_state->mp_state = KVM_MP_STATE_RUNNABLE;
+ int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 19b70e016858..95a329580c8b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -7698,8 +7698,11 @@ int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
  
--	vcpu_put(vcpu);
+ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+ {
+-	struct fxregs_state *fxsave =
+-			&vcpu->arch.guest_fpu.state.fxsave;
++	struct fxregs_state *fxsave;
++
++	vcpu_load(vcpu);
++
++	fxsave = &vcpu->arch.guest_fpu.state.fxsave;
+ 
+ 	memcpy(fxsave->st_space, fpu->fpr, 128);
+ 	fxsave->cwd = fpu->fcw;
+@@ -7710,6 +7713,7 @@ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+ 	fxsave->rdp = fpu->last_dp;
+ 	memcpy(fxsave->xmm_space, fpu->xmm, sizeof fxsave->xmm_space);
+ 
++	vcpu_put(vcpu);
  	return 0;
  }
  
-@@ -397,8 +394,6 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- {
- 	int ret = 0;
- 
--	vcpu_load(vcpu);
--
- 	switch (mp_state->mp_state) {
- 	case KVM_MP_STATE_RUNNABLE:
- 		vcpu->arch.power_off = false;
-@@ -410,7 +405,6 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 		ret = -EINVAL;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 73ad70af6b2d..06751bbecd58 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2689,9 +2689,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
+ 			fpu = NULL;
+ 			goto out;
+ 		}
+-		vcpu_load(vcpu);
+ 		r = kvm_arch_vcpu_ioctl_set_fpu(vcpu, fpu);
+-		vcpu_put(vcpu);
+ 		break;
  	}
- 
--	vcpu_put(vcpu);
- 	return ret;
- }
- 
-@@ -1003,8 +997,6 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 	struct kvm_device_attr attr;
- 	long r;
- 
--	vcpu_load(vcpu);
--
- 	switch (ioctl) {
- 	case KVM_ARM_VCPU_INIT: {
- 		struct kvm_vcpu_init init;
-@@ -1081,7 +1073,6 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 		r = -EINVAL;
- 	}
- 
--	vcpu_put(vcpu);
- 	return r;
- }
- 
+ 	default:
 -- 
 2.14.2
