@@ -1,103 +1,164 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC 00/19] KVM: s390/crypto/vfio: guest dedicated crypto
- adapters
-Date: Tue, 5 Dec 2017 15:06:57 +0100
-Message-ID: <20171205150657.371a6e04.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Subject: Re: [RFC 19/19] s390/facilities: enable AP facilities needed by guest
+Date: Tue, 5 Dec 2017 09:14:43 -0500
+Message-ID: <5a285e57-1275-994e-3262-43b2ecdcd51e@linux.vnet.ibm.com>
 References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <5baf5f90-6cac-3c09-7b66-1bc8b30b8093@linux.vnet.ibm.com>
-        <20171114145722.4ab850a5.cohuck@redhat.com>
-        <fcfd6a27-662b-9a30-8bad-adaac4cf0ce1@linux.vnet.ibm.com>
-        <8a492b07-3d3b-f4cf-e139-7de345ea8188@linux.vnet.ibm.com>
-        <20171116180308.289e5eed.cohuck@redhat.com>
-        <c8f6768f-b916-fb29-f166-9ca41916e4c3@linux.vnet.ibm.com>
-        <1476b0a4-a2a3-2c48-107a-ab7b39b0e93e@linux.vnet.ibm.com>
-        <0b40cee7-78d3-f96b-ab46-1f40b31251cb@linux.vnet.ibm.com>
-        <20171117110742.1d416435.cohuck@redhat.com>
-        <a4b3c3d1-0806-6ba3-4739-c2a1677b9bfd@linux.vnet.ibm.com>
-        <20171120181345.3fbda311.cohuck@redhat.com>
-        <c95a906b-a174-0643-4013-906a1e4b9307@linux.vnet.ibm.com>
-        <20171122144750.1ceffe41.cohuck@redhat.com>
-        <e1e1f8e1-e274-fde0-4358-4ba89d034c1e@linux.vnet.ibm.com>
+ <1507916344-3896-20-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20171016112510.39e9c330@mschwideX1>
+ <3e836f59-3ef1-57d8-d6df-b66011c173c4@de.ibm.com>
+ <af1bb867-f9a0-458b-b7b2-c0bb9456eb7f@linux.vnet.ibm.com>
+ <6d9ae0c1-6f64-1562-bf10-864cf66e3a08@de.ibm.com>
+ <40cdab64-9eeb-02bd-f260-80e9da8c9034@linux.vnet.ibm.com>
+ <35f17b01-49e0-eafb-ad05-c642c579dd3a@de.ibm.com>
+ <8c8c7a0e-2ae4-443b-9444-e2022436c3ee@linux.vnet.ibm.com>
+ <c0d076cb-7a22-c5fd-224d-96aff7d40bac@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e1e1f8e1-e274-fde0-4358-4ba89d034c1e@linux.vnet.ibm.com>
+In-Reply-To: <c0d076cb-7a22-c5fd-224d-96aff7d40bac@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com
+To: Harald Freudenberger <freude@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, freude@de.ibm.com, pmorel@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, Boris Fiuczynski <fiuczy@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 27 Nov 2017 19:39:32 -0500
-Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-
-> On 11/22/2017 08:47 AM, Cornelia Huck wrote:
-> > On Tue, 21 Nov 2017 11:08:01 -0500
-> > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-> >
-> >  
-> >> I am not quite sure what you are asking, but I'll attempt to answer
-> >> what I think you're asking. A new type of mediated matrix device
-> >> will be introduced to configure a virtual matrix for a guest that
-> >> provides the interfaces to map a virtual adapter/domain ID to one
-> >> or more real adapter/domain IDs. If by virtualization facility,
-> >> you are talking about the VFIO AP matrix driver, then yes,
-> >> the driver will handle ioctl requests based on the type of the
-> >> mediated matrix device through which the request was submitted:
-> >>
-> >> If the request is to configure the KVM guest's matrix:
-> >>
-> >> * If the mediated matrix device type is passthrough:
-> >>     * Do validation of matrix
-> >>     * Configure the APM, AQM and ADM in the KVM guest's CRYCB
-> >>       according to the configuration specified via the mediated
-> >>       device's sysfs attribute files.
-> >> * If the mediated matrix device type is virtual:
-> >>     * Do validation of matrix
-> >>     * No need to configure CRYCB since all instructions will be
-> >>       intercepted  
-> > Ok, so we would have two distinct paths here...  
-> It depends upon what you mean by two distinct paths. Configuring the
-> mediated device would require a new mediated device type for virtualized
-> AP matrices. The ioctl for configuring the KVM guest's CRYCB would
-> require an additional check to determine whether the CRYCB need be
-> configured or not.
-
-Yes, the new type makes this distinct enough so that we can think about
-this later.
-
-> >  
-> >> If the request is to execute an intercepted AP instruction:
-> >>
-> >> * If the mediated matrix device type is passthrough:
-> >>     * Forward the instruction to the AP device and return the
-> >>       result to QEMU.
-> >>
-> >> * If the mediated matrix device type is virtual:
-> >>
-> >>     * Retrieve all of the real APQNs mapped to the virtual
-> >>       adapter and domain IDs configured in the mediated matrix
-> >>       device's sysfs attribute files
-> >>     * If there is more than one APQN mapping, then determine
-> >>       which would be best to use - algorithm TBD
-> >>     * Forward the instruction to the AP device and return the
-> >>       result.  
-> > ...and two distinct paths for most instructions here as well.  
-> The driver would require additional ioctls to handle
-> interception of all AP instructions for virtual matrices and additional
-> code to remap virtual APQNs to real APQNs and determine which real APQN
-> to which intercepted instructions should be forwarded.
-> >  
-> >> Of course, these are just preliminary ideas at this time.
-> >> I've only prototyped the sysfs configuration interfaces. No
-> >> back end prototyping has been undertaken yet. If the ideas do
-> >> not pan out, however; I think virtualization can be introduced
-> >> as an independent design.  
-> > Yes, let's cross that bridge when we get to it.  
-> That is the plan. Given Pierre's objections, I thought it might help
-> to touch on this.
-
-OK, so I admit that I lost track a bit. Are there any remaining issues
-beyond the feature handling? Would it make sense to post a v2?
+On 12/05/2017 02:52 AM, Harald Freudenberger wrote:
+> On 12/02/2017 02:30 AM, Tony Krowiak wrote:
+>> On 11/03/2017 04:47 AM, Christian Borntraeger wrote:
+>>> On 11/02/2017 07:49 PM, Tony Krowiak wrote:
+>>>> On 11/02/2017 11:53 AM, Christian Borntraeger wrote:
+>>>>> On 11/02/2017 04:36 PM, Tony Krowiak wrote:
+>>>>>> On 11/02/2017 08:08 AM, Christian Borntraeger wrote:
+>>>>>>> On 10/16/2017 11:25 AM, Martin Schwidefsky wrote:
+>>>>>>>> On Fri, 13 Oct 2017 13:39:04 -0400
+>>>>>>>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+>>>>>>>>
+>>>>>>>>> Sets up the following facilities bits to enable the specified AP
+>>>>>>>>> facilities for the guest VM:
+>>>>>>>>>        * STFLE.12: Enables the AP Query Configuration Information
+>>>>>>>>>                    facility. The AP bus running in the guest uses
+>>>>>>>>>                    the information returned from this instruction
+>>>>>>>>>                    to configure AP adapters and domains for the
+>>>>>>>>>                    guest machine.
+>>>>>>>>>        * STFLE.15: Indicates the AP facilities test is available.
+>>>>>>>>>                    The AP bus running in the guest uses the
+>>>>>>>>>                    information.
+>>>>>>>>>
+>>>>>>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>>>>>>>>> ---
+>>>>>>>>>     arch/s390/tools/gen_facilities.c |    2 ++
+>>>>>>>>>     1 files changed, 2 insertions(+), 0 deletions(-)
+>>>>>>>>>
+>>>>>>>>> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+>>>>>>>>> index 70dd8f1..eeaa7db 100644
+>>>>>>>>> --- a/arch/s390/tools/gen_facilities.c
+>>>>>>>>> +++ b/arch/s390/tools/gen_facilities.c
+>>>>>>>>> @@ -74,8 +74,10 @@ struct facility_def {
+>>>>>>>>>                 8,  /* enhanced-DAT 1 */
+>>>>>>>>>                 9,  /* sense-running-status */
+>>>>>>>>>                 10, /* conditional sske */
+>>>>>>>>> +            12, /* AP query configuration */
+>>>>>>>>>                 13, /* ipte-range */
+>>>>>>>>>                 14, /* nonquiescing key-setting */
+>>>>>>>>> +            15, /* AP special-command facility */
+>>>>>>>>>                 73, /* transactional execution */
+>>>>>>>>>                 75, /* access-exception-fetch/store indication */
+>>>>>>>>>                 76, /* msa extension 3 */
+>>>>>>>> With this all KVM guests will always have the AP instructions available, no?
+>>>>>>>> In principles I like this approach, but it differs from the way z/VM does things,
+>>>>>>>> there the guest will get an exception if it tries to execute an AP instruction
+>>>>>>>> if there are no AP devices assigned to the guest. I wonder if there is a reason
+>>>>>>>> why z/VM does it the way it does.
+>>>>>>> A good question. For LPAR it seems that you have AP instructions even if you have
+>>>>>>> no crypto cards.
+>>>>>>>
+>>>>>> I don't believe these facilities control whether or not AP instructions will be available
+>>>>>>
+>>>>>> to the guest.
+>>>>> This is actually handled by your patch2 enabling the ECA bit.
+>>>>> I think we must decide if we want to be able to disable these instructions
+>>>>> via the cpu model. If yes we must then couple the facilities with the enablement.
+>>>> The ECA.28 bit controls whether instructions are intercepted or interpreted - i.e., handled via hardware
+>>>> virtualization. If set, as is done in patch2, then instructions will be interpreted. I don't see how
+>>>> that affects enabling or disabling AP instructions, unless we don't set ECA.28, intercept every instruction
+>>>> and program check. Am I missing something here?
+>>> If we do not set ECA.28 these instructions intercept and we (the hypervisor) can then
+>>> decide what to do. For example we can give an PIC01 operation exception (illegal
+>>> instruction) - thats what we do today.
+>>>
+>>> Now: if we want to be able to migrate a guest from a new kernel back to an old kernel,
+>>> there must be a way to disable the new behaviour so that the user can configure a guest
+>>> that does NOT have these 3 instructions. That means, I want to bind the ap instruction
+>>> to a cpu model feature, so that we only enable ECA.28 and the facility bits, if the
+>>> feature is enabled in the CPU model. Otherwise we have no control on what happens
+>>> when the guest issues these instructions.
+>>>
+>>> Imagine what happens if we not do this and you migrate from an identical hw with an
+>>> identical libvirt/qemu but from a new kernel to an old kernel:
+>>>
+>>> The guest boots starts up on the new kernel
+>>> guest kernel: drivers/s390/crypto/ap_bus.c  ap_module_init -> ap_instructions_available
+>>> checks if the instructions work. They do and now the guest driver assumes that all
+>>> instructions will continue to work.
+>>>
+>>> Now the guest is migrated back to an old kernel
+>>> sooner or later the ap_scan_bus kthread will run to scan the bus (or some crypto operation
+>>> is started) and the instruction will be rejected with a PIC01. kernel oops.
+>> There are several scenarios that have to be accounted for, such as:
+>> * Migrating from a linux host where both the KVM/kernel and QEMU support AP matrix
+>>    devices to a guest host where neither the KVM/kernel nor QEMU support AP matrix
+>>    devices;
+>> * Migrating from a linux host where both the KVM/kernel and QEMU support AP matrix
+>>    devices to a guest host where the KVM/kernel does not support AP matrix devices
+>>    but QEMU does;
+>> * Starting a guest on a linux host where QEMU supports AP matrix devices and
+>>    the KVM/kernel does not;
+>> * etc.
+>>
+>> I agree with your suggestion that defining a new CPU model feature is probably
+>> the best way to resolve this issue. The question is, should we define a single
+>> feature indicating whether AP instructions are installed and set features bits
+>> for the guest based on whether or not they are set in the linux host, or should
+>> we define additional CPU model features for turning features bits on and off?
+>> I guess it boils down to what behavior is expected for the AP bus running on
+>> the linux guest. Here is a rundown of the facilities bits associated with AP
+>> and how they affect the behavior of the AP bus:
+>>
+>> * STFLE.12 indicates whether the AP query function is available. If this bit
+>>    is not set, then the AP bus scan will only test domains 0-15. For example,
+>>    if adapters 4, 5, and 6 and domains 12 and 71 (0x47) are installed, then AP
+>>    queues 04.0047, 05.0047 and 06.0047 will not be made available.
+> STFLE 12 is the indication for Query AP Configuration Information (QCI) available.
+>> * STFLE.15 indicates whether the AP facilities test function is available. If
+>>    this bit is not set, then the CEX4, CEX5 and CEX6 device drivers discovered
+>>    by the AP bus scan will not get bound to any AP device drivers. Since the
+>>    AP matrix model supports only CEX4 and greater, no devices will be bound
+>>    to any driver for a guest.
+> This T-Bit extension to the TAPQ subfunction is a must have. When kvm only
+> supports CEX4 and upper then this bit could also act as the indicator for
+> AP instructions available. Of course if you want to implement pure virtual
+> full simulated AP without any real AP hardware on the host this bit can't
+> be the indicator.
+The context for this discussion is whether we should model the STFLE bits as
+individual CPU model features or include them with the CPU model feature
+indicating AP instructions are installed. In either case, the setting of
+these bits for the guest is dependent upon whether they are set for the
+host or not. In other words, we can not set a bit for the guest if it is
+not set for the host for dedicated crypto.
+>> * STFLE.65 indicates whether AP interrupts are available. If this bit is not
+>>    set, then the AP bus will use polling instead of using interrupt handlers
+>>    to process AP events.
+>>
+>> If the AP bus running on the guest is expected to mimic the behavior of an
+>> AP bus running on the host, then I think we need a CPU model feature for each
+>> facility. Otherwise, I think we can group them within a CPU model feature
+>> that indicates AP matrix devices are supported. What say you?
+>>>
+>> -- 
+>> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>
