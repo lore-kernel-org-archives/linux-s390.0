@@ -1,233 +1,44 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/4] KVM: s390: Remove redundant license text
-Date: Tue,  5 Dec 2017 09:33:19 +0100
-Message-ID: <20171205083321.102933-3-borntraeger@de.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Subject: Re: [PATCH 4/4] KVM: s390: Fix skey emulation permission check
+Date: Tue, 5 Dec 2017 09:57:43 +0100
+Message-ID: <27144d12-6e12-f168-68b2-aada07d30b8c@redhat.com>
 References: <20171205083321.102933-1-borntraeger@de.ibm.com>
+ <20171205083321.102933-5-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171205083321.102933-1-borntraeger@de.ibm.com>
+In-Reply-To: <20171205083321.102933-5-borntraeger@de.ibm.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Halil Pasic <pasic@linux.vnet.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On 05.12.2017 09:33, Christian Borntraeger wrote:
+> From: Janosch Frank <frankja@linux.vnet.ibm.com>
+> 
+> All skey functions call skey_check_enable at their start, which checks
+> if we are in the PSTATE and injects a privileged operation exception
+> if we are.
+> 
+> Unfortunately they continue processing afterwards and perform the
+> operation anyhow as skey_check_enable does not deliver an error if the
+> exception injection was successful.
+> 
+> Let's move the PSTATE check into the skey functions and exit them on
+> such an occasion, also we now do not enable skey handling anymore in
+> such a case.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Fixes: a7e19ab ("KVM: s390: handle missing storage-key facility")
+> Cc: <stable@vger.kernel.org> # v4.8+
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/priv.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
 
-Now that the SPDX tag is in all arch/s390/kvm/ files, that identifies
-the license in a specific and legally-defined manner.  So the extra GPL
-text wording can be removed as it is no longer needed at all.
-
-This is done on a quest to remove the 700+ different ways that files in
-the kernel describe the GPL license text.  And there's unneeded stuff
-like the address (sometimes incorrect) for the FSF which is never
-needed.
-
-No copyright headers or other non-license-description text was removed.
-
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Message-Id: <20171124140043.10062-9-gregkh@linuxfoundation.org>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/Makefile    | 4 ----
- arch/s390/kvm/diag.c      | 4 ----
- arch/s390/kvm/gaccess.h   | 4 ----
- arch/s390/kvm/guestdbg.c  | 4 ----
- arch/s390/kvm/intercept.c | 4 ----
- arch/s390/kvm/interrupt.c | 4 ----
- arch/s390/kvm/irq.h       | 4 ----
- arch/s390/kvm/kvm-s390.c  | 4 ----
- arch/s390/kvm/kvm-s390.h  | 4 ----
- arch/s390/kvm/priv.c      | 4 ----
- arch/s390/kvm/sigp.c      | 4 ----
- arch/s390/kvm/vsie.c      | 4 ----
- 12 files changed, 48 deletions(-)
-
-diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index 2c5a819..05ee90a 100644
---- a/arch/s390/kvm/Makefile
-+++ b/arch/s390/kvm/Makefile
-@@ -2,10 +2,6 @@
- # Makefile for kernel virtual machines on s390
- #
- # Copyright IBM Corp. 2008
--#
--# This program is free software; you can redistribute it and/or modify
--# it under the terms of the GNU General Public License (version 2 only)
--# as published by the Free Software Foundation.
- 
- KVM := ../../../virt/kvm
- common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqchip.o $(KVM)/vfio.o
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 481e1fe..89aa114 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2011
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  */
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 443b7fa..f4c5175 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2014
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  */
- 
-diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index d6a1bea..b5f3e82 100644
---- a/arch/s390/kvm/guestdbg.c
-+++ b/arch/s390/kvm/guestdbg.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2014
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
-  */
- #include <linux/kvm_host.h>
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index fc76a91..9c7d707 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2014
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  */
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index f37a34e..024ad8bc 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2015
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  */
- 
-diff --git a/arch/s390/kvm/irq.h b/arch/s390/kvm/irq.h
-index 54a4a59..484608c 100644
---- a/arch/s390/kvm/irq.h
-+++ b/arch/s390/kvm/irq.h
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2014
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-  */
- #ifndef __KVM_IRQ_H
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0d45e32..34375eed 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2009
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Heiko Carstens <heiko.carstens@de.ibm.com>
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 9777924..5e46ba4 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2009
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index c9d962a..28b69ab 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2013
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  */
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index d12ac5d..c1f5cde 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2013
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index d2b7886..5d6ae03 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2016
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
-  */
- #include <linux/vmalloc.h>
--- 
-2.9.4
+Reviewed-by: Thomas Huth <thuth@redhat.com>
