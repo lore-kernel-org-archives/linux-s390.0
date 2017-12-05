@@ -1,14 +1,15 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v3 01/16] KVM: Take vcpu->mutex outside vcpu_load
-Date: Tue, 5 Dec 2017 15:32:30 +0100
-Message-ID: <241fe130-bc3f-533e-4bef-604b04b9818d@de.ibm.com>
+Subject: Re: [PATCH v3 03/16] KVM: Move vcpu_load to arch-specific
+ kvm_arch_vcpu_ioctl_run
+Date: Tue, 5 Dec 2017 15:39:19 +0100
+Message-ID: <fd7436c1-2c88-5056-a822-b630f1e4ae94@de.ibm.com>
 References: <20171204203538.8370-1-cdall@kernel.org>
- <20171204203538.8370-2-cdall@kernel.org>
+ <20171204203538.8370-4-cdall@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171204203538.8370-2-cdall@kernel.org>
+In-Reply-To: <20171204203538.8370-4-cdall@kernel.org>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,26 +19,15 @@ Cc: Andrew Jones <drjones@redhat.com>, Christoffer Dall <christoffer.dall@linaro
 List-ID: <linux-s390.vger.kernel.org>
 
 
+
 On 12/04/2017 09:35 PM, Christoffer Dall wrote:
 > From: Christoffer Dall <christoffer.dall@linaro.org>
 > 
-> As we're about to call vcpu_load() from architecture-specific
-> implementations of the KVM vcpu ioctls, but yet we access data
-> structures protected by the vcpu->mutex in the generic code, factor
-> this logic out from vcpu_load().
-> 
-> x86 is the only architecture which calls vcpu_load() outside of the main
-> vcpu ioctl function, and these calls will no longer take the vcpu mutex
-> following this patch.  However, with the exception of
-> kvm_arch_vcpu_postcreate (see below), the callers are either in the
-> creation or destruction path of the VCPU, which means there cannot be
-> any concurrent access to the data structure, because the file descriptor
-> is not yet accessible, or is already gone.
-> 
-> kvm_arch_vcpu_postcreate makes the newly created vcpu potentially
-> accessible by other in-kernel threads through the kvm->vcpus array, and
-> we therefore take the vcpu mutex in this case directly.
+> Move vcpu_load() and vcpu_put() into the architecture specific
+> implementations of kvm_arch_vcpu_ioctl_run().
 > 
 > Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
 
-Looks good to me.
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com> # s390 parts
+
+> ---
