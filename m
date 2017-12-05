@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/4] KVM: s390: add SPDX identifiers to the remaining files
-Date: Tue,  5 Dec 2017 09:33:18 +0100
-Message-ID: <20171205083321.102933-2-borntraeger@de.ibm.com>
+Subject: [PATCH 2/4] KVM: s390: Remove redundant license text
+Date: Tue,  5 Dec 2017 09:33:19 +0100
+Message-ID: <20171205083321.102933-3-borntraeger@de.ibm.com>
 References: <20171205083321.102933-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171205083321.102933-1-borntraeger@de.ibm.com>
@@ -9,155 +9,225 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-It's good to have SPDX identifiers in all files to make it easier to
-audit the kernel tree for correct licenses.
+Now that the SPDX tag is in all arch/s390/kvm/ files, that identifies
+the license in a specific and legally-defined manner.  So the extra GPL
+text wording can be removed as it is no longer needed at all.
 
-Update the arch/s390/kvm/ files with the correct SPDX license
-identifier based on the license text in the file itself.  The SPDX
-identifier is a legally binding shorthand, which can be used instead of
-the full boiler plate text.
+This is done on a quest to remove the 700+ different ways that files in
+the kernel describe the GPL license text.  And there's unneeded stuff
+like the address (sometimes incorrect) for the FSF which is never
+needed.
 
-This work is based on a script and data from Thomas Gleixner, Philippe
-Ombredanne, and Kate Stewart.
+No copyright headers or other non-license-description text was removed.
 
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: Cornelia Huck <cohuck@redhat.com>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Message-Id: <20171124140043.10062-3-gregkh@linuxfoundation.org>
+Message-Id: <20171124140043.10062-9-gregkh@linuxfoundation.org>
 Acked-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/Makefile    | 1 +
- arch/s390/kvm/diag.c      | 1 +
- arch/s390/kvm/gaccess.h   | 1 +
- arch/s390/kvm/guestdbg.c  | 1 +
- arch/s390/kvm/intercept.c | 1 +
- arch/s390/kvm/interrupt.c | 1 +
- arch/s390/kvm/irq.h       | 1 +
- arch/s390/kvm/kvm-s390.c  | 1 +
- arch/s390/kvm/kvm-s390.h  | 1 +
- arch/s390/kvm/priv.c      | 1 +
- arch/s390/kvm/sigp.c      | 1 +
- arch/s390/kvm/vsie.c      | 1 +
- 12 files changed, 12 insertions(+)
+ arch/s390/kvm/Makefile    | 4 ----
+ arch/s390/kvm/diag.c      | 4 ----
+ arch/s390/kvm/gaccess.h   | 4 ----
+ arch/s390/kvm/guestdbg.c  | 4 ----
+ arch/s390/kvm/intercept.c | 4 ----
+ arch/s390/kvm/interrupt.c | 4 ----
+ arch/s390/kvm/irq.h       | 4 ----
+ arch/s390/kvm/kvm-s390.c  | 4 ----
+ arch/s390/kvm/kvm-s390.h  | 4 ----
+ arch/s390/kvm/priv.c      | 4 ----
+ arch/s390/kvm/sigp.c      | 4 ----
+ arch/s390/kvm/vsie.c      | 4 ----
+ 12 files changed, 48 deletions(-)
 
 diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index 6048b1c..2c5a819 100644
+index 2c5a819..05ee90a 100644
 --- a/arch/s390/kvm/Makefile
 +++ b/arch/s390/kvm/Makefile
-@@ -1,3 +1,4 @@
-+# SPDX-License-Identifier: GPL-2.0
+@@ -2,10 +2,6 @@
  # Makefile for kernel virtual machines on s390
  #
  # Copyright IBM Corp. 2008
+-#
+-# This program is free software; you can redistribute it and/or modify
+-# it under the terms of the GNU General Public License (version 2 only)
+-# as published by the Free Software Foundation.
+ 
+ KVM := ../../../virt/kvm
+ common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqchip.o $(KVM)/vfio.o
 diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index d93a2c0..481e1fe 100644
+index 481e1fe..89aa114 100644
 --- a/arch/s390/kvm/diag.c
 +++ b/arch/s390/kvm/diag.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * handling diagnose instructions
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2008, 2011
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+  */
 diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index bec42b8..443b7fa 100644
+index 443b7fa..f4c5175 100644
 --- a/arch/s390/kvm/gaccess.h
 +++ b/arch/s390/kvm/gaccess.h
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
- /*
-  * access guest memory
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2008, 2014
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  */
+ 
 diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index bcbd866..d6a1bea 100644
+index d6a1bea..b5f3e82 100644
 --- a/arch/s390/kvm/guestdbg.c
 +++ b/arch/s390/kvm/guestdbg.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * kvm guest debug support
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2014
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
+  */
+ #include <linux/kvm_host.h>
 diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 8fe034b..fc76a91 100644
+index fc76a91..9c7d707 100644
 --- a/arch/s390/kvm/intercept.c
 +++ b/arch/s390/kvm/intercept.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * in-kernel handling for sie intercepts
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2008, 2014
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+  */
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index fa55737..f37a34e 100644
+index f37a34e..024ad8bc 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * handling kvm guest interrupts
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2008, 2015
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  */
+ 
 diff --git a/arch/s390/kvm/irq.h b/arch/s390/kvm/irq.h
-index d98e415..54a4a59 100644
+index 54a4a59..484608c 100644
 --- a/arch/s390/kvm/irq.h
 +++ b/arch/s390/kvm/irq.h
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
- /*
-  * s390 irqchip routines
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2014
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
+  */
+ #ifndef __KVM_IRQ_H
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 98ad8b9..0d45e32 100644
+index 0d45e32..34375eed 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * hosting zSeries kernel virtual machines
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2008, 2009
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+  *               Heiko Carstens <heiko.carstens@de.ibm.com>
 diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 10d65df..9777924 100644
+index 9777924..5e46ba4 100644
 --- a/arch/s390/kvm/kvm-s390.h
 +++ b/arch/s390/kvm/kvm-s390.h
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
- /*
-  * definition for kvm on s390
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2008, 2009
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
 diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index c954ac4..c9d962a 100644
+index c9d962a..28b69ab 100644
 --- a/arch/s390/kvm/priv.c
 +++ b/arch/s390/kvm/priv.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * handling privileged instructions
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2008, 2013
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+  */
 diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index 9d592ef..d12ac5d 100644
+index d12ac5d..c1f5cde 100644
 --- a/arch/s390/kvm/sigp.c
 +++ b/arch/s390/kvm/sigp.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * handling interprocessor communication
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2008, 2013
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index a311938..d2b7886 100644
+index d2b7886..5d6ae03 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -1,3 +1,4 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * kvm nested virtualization support for s390x
+@@ -4,10 +4,6 @@
   *
+  * Copyright IBM Corp. 2016
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
+  */
+ #include <linux/vmalloc.h>
 -- 
 2.9.4
