@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4/4] KVM: s390: Fix skey emulation permission check
-Date: Tue,  5 Dec 2017 09:33:21 +0100
-Message-ID: <20171205083321.102933-5-borntraeger@de.ibm.com>
+Subject: [PATCH 1/4] KVM: s390: add SPDX identifiers to the remaining files
+Date: Tue,  5 Dec 2017 09:33:18 +0100
+Message-ID: <20171205083321.102933-2-borntraeger@de.ibm.com>
 References: <20171205083321.102933-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171205083321.102933-1-borntraeger@de.ibm.com>
@@ -9,74 +9,155 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-All skey functions call skey_check_enable at their start, which checks
-if we are in the PSTATE and injects a privileged operation exception
-if we are.
+It's good to have SPDX identifiers in all files to make it easier to
+audit the kernel tree for correct licenses.
 
-Unfortunately they continue processing afterwards and perform the
-operation anyhow as skey_check_enable does not deliver an error if the
-exception injection was successful.
+Update the arch/s390/kvm/ files with the correct SPDX license
+identifier based on the license text in the file itself.  The SPDX
+identifier is a legally binding shorthand, which can be used instead of
+the full boiler plate text.
 
-Let's move the PSTATE check into the skey functions and exit them on
-such an occasion, also we now do not enable skey handling anymore in
-such a case.
+This work is based on a script and data from Thomas Gleixner, Philippe
+Ombredanne, and Kate Stewart.
 
-Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Fixes: a7e19ab ("KVM: s390: handle missing storage-key facility")
-Cc: <stable@vger.kernel.org> # v4.8+
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Message-Id: <20171124140043.10062-3-gregkh@linuxfoundation.org>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/priv.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/s390/kvm/Makefile    | 1 +
+ arch/s390/kvm/diag.c      | 1 +
+ arch/s390/kvm/gaccess.h   | 1 +
+ arch/s390/kvm/guestdbg.c  | 1 +
+ arch/s390/kvm/intercept.c | 1 +
+ arch/s390/kvm/interrupt.c | 1 +
+ arch/s390/kvm/irq.h       | 1 +
+ arch/s390/kvm/kvm-s390.c  | 1 +
+ arch/s390/kvm/kvm-s390.h  | 1 +
+ arch/s390/kvm/priv.c      | 1 +
+ arch/s390/kvm/sigp.c      | 1 +
+ arch/s390/kvm/vsie.c      | 1 +
+ 12 files changed, 12 insertions(+)
 
+diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+index 6048b1c..2c5a819 100644
+--- a/arch/s390/kvm/Makefile
++++ b/arch/s390/kvm/Makefile
+@@ -1,3 +1,4 @@
++# SPDX-License-Identifier: GPL-2.0
+ # Makefile for kernel virtual machines on s390
+ #
+ # Copyright IBM Corp. 2008
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index d93a2c0..481e1fe 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * handling diagnose instructions
+  *
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index bec42b8..443b7fa 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * access guest memory
+  *
+diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+index bcbd866..d6a1bea 100644
+--- a/arch/s390/kvm/guestdbg.c
++++ b/arch/s390/kvm/guestdbg.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * kvm guest debug support
+  *
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 8fe034b..fc76a91 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * in-kernel handling for sie intercepts
+  *
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index fa55737..f37a34e 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * handling kvm guest interrupts
+  *
+diff --git a/arch/s390/kvm/irq.h b/arch/s390/kvm/irq.h
+index d98e415..54a4a59 100644
+--- a/arch/s390/kvm/irq.h
++++ b/arch/s390/kvm/irq.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * s390 irqchip routines
+  *
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 98ad8b9..0d45e32 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * hosting zSeries kernel virtual machines
+  *
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 10d65df..9777924 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * definition for kvm on s390
+  *
 diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 28b69ab..572496c 100644
+index c954ac4..c9d962a 100644
 --- a/arch/s390/kvm/priv.c
 +++ b/arch/s390/kvm/priv.c
-@@ -232,8 +232,6 @@ static int try_handle_skey(struct kvm_vcpu *vcpu)
- 		VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
- 		return -EAGAIN;
- 	}
--	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
--		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 	return 0;
- }
- 
-@@ -244,6 +242,9 @@ static int handle_iske(struct kvm_vcpu *vcpu)
- 	int reg1, reg2;
- 	int rc;
- 
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-+
- 	rc = try_handle_skey(vcpu);
- 	if (rc)
- 		return rc != -EAGAIN ? rc : 0;
-@@ -273,6 +274,9 @@ static int handle_rrbe(struct kvm_vcpu *vcpu)
- 	int reg1, reg2;
- 	int rc;
- 
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-+
- 	rc = try_handle_skey(vcpu);
- 	if (rc)
- 		return rc != -EAGAIN ? rc : 0;
-@@ -308,6 +312,9 @@ static int handle_sske(struct kvm_vcpu *vcpu)
- 	int reg1, reg2;
- 	int rc;
- 
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-+
- 	rc = try_handle_skey(vcpu);
- 	if (rc)
- 		return rc != -EAGAIN ? rc : 0;
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * handling privileged instructions
+  *
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index 9d592ef..d12ac5d 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * handling interprocessor communication
+  *
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index a311938..d2b7886 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * kvm nested virtualization support for s390x
+  *
 -- 
 2.9.4
