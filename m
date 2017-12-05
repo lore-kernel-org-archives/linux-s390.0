@@ -1,66 +1,40 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH 4/4] KVM: s390: Fix skey emulation permission check
-Date: Tue, 5 Dec 2017 10:39:26 +0100
-Message-ID: <0657b07a-cb1c-506b-eba3-1c0c9ea1e564@de.ibm.com>
+Date: Tue, 5 Dec 2017 10:45:51 +0100
+Message-ID: <20171205104551.139d7d2f.cohuck@redhat.com>
 References: <20171205083321.102933-1-borntraeger@de.ibm.com>
- <20171205083321.102933-5-borntraeger@de.ibm.com>
- <20171205101359.1d3b09c3.cohuck@redhat.com>
+        <20171205083321.102933-5-borntraeger@de.ibm.com>
+        <20171205101359.1d3b09c3.cohuck@redhat.com>
+        <742d333c-a229-c28b-fea1-5885fdbb0358@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171205101359.1d3b09c3.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <742d333c-a229-c28b-fea1-5885fdbb0358@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Tue, 5 Dec 2017 10:32:03 +0100
+Janosch Frank <frankja@linux.vnet.ibm.com> wrote:
 
+> On 05.12.2017 10:13, Cornelia Huck wrote:
 
-On 12/05/2017 10:13 AM, Cornelia Huck wrote:
-> On Tue,  5 Dec 2017 09:33:21 +0100
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> > This reminds me of something I stumbled upon the other day:
+> > 
+> > handle_ri() and handle_gs() (both implemented in priv.c) don't seem to
+> > have a check for PSTATE, yet they enable ri/gs before retrying the
+> > instruction. Is that correct?
+> >   
 > 
->> From: Janosch Frank <frankja@linux.vnet.ibm.com>
->>
->> All skey functions call skey_check_enable at their start, which checks
->> if we are in the PSTATE and injects a privileged operation exception
->> if we are.
->>
->> Unfortunately they continue processing afterwards and perform the
->> operation anyhow as skey_check_enable does not deliver an error if the
->> exception injection was successful.
->>
->> Let's move the PSTATE check into the skey functions and exit them on
->> such an occasion, also we now do not enable skey handling anymore in
->> such a case.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
->> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> Fixes: a7e19ab ("KVM: s390: handle missing storage-key facility")
->> Cc: <stable@vger.kernel.org> # v4.8+
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->>  arch/s390/kvm/priv.c | 11 +++++++++--
->>  1 file changed, 9 insertions(+), 2 deletions(-)
+> None of the gs instructions are privileged as far as I know. Same seems
+> to be true for ri as far as I've scanned the spec.
 > 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> 
-> This reminds me of something I stumbled upon the other day:
-> 
-> handle_ri() and handle_gs() (both implemented in priv.c) don't seem to
-> have a check for PSTATE, yet they enable ri/gs before retrying the
-> instruction. Is that correct?
+> The privileged parts are the control register and PSW changes which are
+> handled elsewhere.
 
-The guarded storage ops (e3 49 and e3 4d) are problem state.
-Most of the ri instruction are as well, so problem state can enable RI
-interpretion.
-
-We could do some optimization to only enable RI if the
-instruction would enable in for the guest (e.g. an inspection of the
-control block could leave RI disabled). On the other hand that would
-require to implement these instruction in KVM, which I would like
-to avoid. Right now we enable RI and re-drive the instruction.
+OK, thanks. I found the z14 PoP, but the ri instructions don't seem to
+be documented in there.
