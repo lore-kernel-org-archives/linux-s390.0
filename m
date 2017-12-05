@@ -1,23 +1,24 @@
-From: Thomas Huth <thuth@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH 4/4] KVM: s390: Fix skey emulation permission check
-Date: Tue, 5 Dec 2017 09:57:43 +0100
-Message-ID: <27144d12-6e12-f168-68b2-aada07d30b8c@redhat.com>
+Date: Tue, 5 Dec 2017 10:13:59 +0100
+Message-ID: <20171205101359.1d3b09c3.cohuck@redhat.com>
 References: <20171205083321.102933-1-borntraeger@de.ibm.com>
- <20171205083321.102933-5-borntraeger@de.ibm.com>
+        <20171205083321.102933-5-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171205083321.102933-5-borntraeger@de.ibm.com>
-Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Halil Pasic <pasic@linux.vnet.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05.12.2017 09:33, Christian Borntraeger wrote:
+On Tue,  5 Dec 2017 09:33:21 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+
 > From: Janosch Frank <frankja@linux.vnet.ibm.com>
 > 
 > All skey functions call skey_check_enable at their start, which checks
@@ -41,4 +42,10 @@ On 05.12.2017 09:33, Christian Borntraeger wrote:
 >  arch/s390/kvm/priv.c | 11 +++++++++--
 >  1 file changed, 9 insertions(+), 2 deletions(-)
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
+This reminds me of something I stumbled upon the other day:
+
+handle_ri() and handle_gs() (both implemented in priv.c) don't seem to
+have a check for PSTATE, yet they enable ri/gs before retrying the
+instruction. Is that correct?
