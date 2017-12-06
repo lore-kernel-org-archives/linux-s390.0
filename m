@@ -1,48 +1,63 @@
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH 18/36] perf s390: Always build with -fPIC
-Date: Wed,  6 Dec 2017 11:40:57 -0300
-Message-ID: <20171206144115.15097-19-acme@kernel.org>
-References: <20171206144115.15097-1-acme@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171206144115.15097-1-acme@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-perf-users/>
-List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Richter <tmricht@linux.vnet.ibm.com>, linux s390 list <linux-s390@vger.kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: new KVM branch for linux-next
+Date: Thu, 7 Dec 2017 09:47:17 +1100
+Message-ID: <20171207094717.606e313e@canb.auug.org.au>
+References: <60545562-09bf-77bd-53f2-786508bdc53e@redhat.com>
+        <20171128082441.3d242d3a@canb.auug.org.au>
+        <150f7734-5b9e-2564-f254-d09fbc6902ac@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <150f7734-5b9e-2564-f254-d09fbc6902ac@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Hi Christian,
 
-On s390, object files must be compiled with position-indepedent code in
-order to be incrementally linked or linked to shared libraries.
-Therefore, add -fPIC to the CFLAGS for s390 to ensure each object file
-is built properly.
+On Wed, 6 Dec 2017 09:31:16 +0100 Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>
+> when we are at it: can you also add branch master of
+> git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git
+> 
+> (probably after the kvm/master thing)
+> 
+> A good name might be kvms390-fixes
+> 
+> This will contain fixes for kvm on s390 targeted for the current release.
+> Usually this branch will be merged in Paolos kvm/master which will 
+> then go to Linus
+> 
+> As contact please use
+> "Christian Borntraeger <borntraeger@de.ibm.com>"
+> "Cornelia Huck <cohuck@redhat.com>"
+> kvm@vger.kernel.org
+> linux-s390@vger.kernel.org
 
-Reported-by: Jonathan Hermann <jonathan.hermann@de.ibm.com>
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Cc: linux s390 list <linux-s390@vger.kernel.org>
-LPU-Reference: 1512031765-9382-1-git-send-email-brueckner@linux.vnet.ibm.com
-Link: https://lkml.kernel.org/n/tip-a8wga8hrl0d0r84cal96fmgv@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
----
- tools/perf/Makefile.config | 1 +
- 1 file changed, 1 insertion(+)
+Added from today.
 
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index 2c437baf8364..bf86c09ca889 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -41,6 +41,7 @@ ifeq ($(SRCARCH),x86)
-     LIBUNWIND_LIBS = -lunwind-x86 -llzma -lunwind
-   endif
-   NO_PERF_REGS := 0
-+  CFLAGS += -fPIC
- endif
- 
- ifeq ($(SRCARCH),arm)
+Thanks for adding your subsystem tree as a participant of linux-next.  As
+you may know, this is not a judgement of your code.  The purpose of
+linux-next is for integration testing and to lower the impact of
+conflicts between subsystems in the next merge window. 
+
+You will need to ensure that the patches/commits in your tree/series have
+been:
+     * submitted under GPL v2 (or later) and include the Contributor's
+        Signed-off-by,
+     * posted to the relevant mailing list,
+     * reviewed by you (or another maintainer of your subsystem tree),
+     * successfully unit tested, and 
+     * destined for the current or next Linux merge window.
+
+Basically, this should be just what you would send to Linus (or ask him
+to fetch).  It is allowed to be rebased if you deem it necessary.
+
 -- 
-2.13.6
+Cheers,
+Stephen Rothwell 
+sfr@canb.auug.org.au
