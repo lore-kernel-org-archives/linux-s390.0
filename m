@@ -1,234 +1,87 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/4] KVM: s390: Remove redundant license text
-Date: Wed,  6 Dec 2017 09:37:28 +0100
-Message-ID: <20171206083730.3452-3-borntraeger@de.ibm.com>
-References: <20171206083730.3452-1-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171206083730.3452-1-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Subject: Re: [PATCH 18/36] perf s390: Always build with -fPIC
+Date: Thu, 7 Dec 2017 09:09:51 +0100
+Message-ID: <20171207080951.GC4889@linux.vnet.ibm.com>
+References: <20171206144115.15097-1-acme@kernel.org>
+ <20171206144115.15097-19-acme@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-perf-users-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171206144115.15097-19-acme@kernel.org>
+Sender: linux-perf-users-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-perf-users/>
+List-Post: <mailto:linux-perf-users@vger.kernel.org>
+To: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Richter <tmricht@linux.vnet.ibm.com>, linux s390 list <linux-s390@vger.kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Hi Arnaldo,
 
-Now that the SPDX tag is in all arch/s390/kvm/ files, that identifies
-the license in a specific and legally-defined manner.  So the extra GPL
-text wording can be removed as it is no longer needed at all.
+On Wed, Dec 06, 2017 at 11:40:57AM -0300, Arnaldo Carvalho de Melo wrote:
+> From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+> 
+> On s390, object files must be compiled with position-indepedent code in
+> order to be incrementally linked or linked to shared libraries.
+> Therefore, add -fPIC to the CFLAGS for s390 to ensure each object file
+> is built properly.
+> 
+> Reported-by: Jonathan Hermann <jonathan.hermann@de.ibm.com>
+> Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Thomas Richter <tmricht@linux.vnet.ibm.com>
+> Cc: linux s390 list <linux-s390@vger.kernel.org>
+> LPU-Reference: 1512031765-9382-1-git-send-email-brueckner@linux.vnet.ibm.com
+> Link: https://lkml.kernel.org/n/tip-a8wga8hrl0d0r84cal96fmgv@git.kernel.org
+> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+> ---
+>  tools/perf/Makefile.config | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+> index 2c437baf8364..bf86c09ca889 100644
+> --- a/tools/perf/Makefile.config
+> +++ b/tools/perf/Makefile.config
+> @@ -41,6 +41,7 @@ ifeq ($(SRCARCH),x86)
+>      LIBUNWIND_LIBS = -lunwind-x86 -llzma -lunwind
+>    endif
+>    NO_PERF_REGS := 0
+> +  CFLAGS += -fPIC
+>  endif
 
-This is done on a quest to remove the 700+ different ways that files in
-the kernel describe the GPL license text.  And there's unneeded stuff
-like the address (sometimes incorrect) for the FSF which is never
-needed.
+I was just rebasing my syscall table work on top of your perf/core tree.
+It looks like that there is a significant difference compared to linux
+master tree.
 
-No copyright headers or other non-license-description text was removed.
+With f704ef44602fbf403e6722c7ed13f62d17e8cb20 ("s390/perf: add support for
+perf_regs and libdw"), Heiko introduced a change in the Makefile.config:
 
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Message-Id: <20171124140043.10062-9-gregkh@linuxfoundation.org>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/Makefile    | 4 ----
- arch/s390/kvm/diag.c      | 4 ----
- arch/s390/kvm/gaccess.h   | 4 ----
- arch/s390/kvm/guestdbg.c  | 4 ----
- arch/s390/kvm/intercept.c | 4 ----
- arch/s390/kvm/interrupt.c | 4 ----
- arch/s390/kvm/irq.h       | 4 ----
- arch/s390/kvm/kvm-s390.c  | 4 ----
- arch/s390/kvm/kvm-s390.h  | 4 ----
- arch/s390/kvm/priv.c      | 4 ----
- arch/s390/kvm/sigp.c      | 4 ----
- arch/s390/kvm/vsie.c      | 4 ----
- 12 files changed, 48 deletions(-)
+	--- a/tools/perf/Makefile.config
+	+++ b/tools/perf/Makefile.config
+	@@ -53,6 +53,10 @@ ifeq ($(SRCARCH),arm64)
+	   LIBUNWIND_LIBS = -lunwind -lunwind-aarch64
+	    endif
+	     
+	+ifeq ($(ARCH),s390)
+	+  NO_PERF_REGS := 0
+	+endif
+	+
+	ifeq ($(NO_PERF_REGS),0)
 
-diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index 2c5a819..05ee90a 100644
---- a/arch/s390/kvm/Makefile
-+++ b/arch/s390/kvm/Makefile
-@@ -2,10 +2,6 @@
- # Makefile for kernel virtual machines on s390
- #
- # Copyright IBM Corp. 2008
--#
--# This program is free software; you can redistribute it and/or modify
--# it under the terms of the GNU General Public License (version 2 only)
--# as published by the Free Software Foundation.
+The CFLAGS actually should applied to the s390 block and not in the x86
+block.  Somehow this got messed up with git cherryp-pick / am.  So actually,
+this should go into the section above:
+
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index ed65e82..0833d9f 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -55,6 +55,7 @@ endif
  
- KVM := ../../../virt/kvm
- common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqchip.o $(KVM)/vfio.o
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 481e1fe..89aa114 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2011
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  */
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 443b7fa..f4c5175 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2014
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  */
+ ifeq ($(ARCH),s390)
+   NO_PERF_REGS := 0
++  CFLAGS += -fPIC
+ endif
  
-diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index d6a1bea..b5f3e82 100644
---- a/arch/s390/kvm/guestdbg.c
-+++ b/arch/s390/kvm/guestdbg.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2014
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
-  */
- #include <linux/kvm_host.h>
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index fc76a91..9c7d707 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2014
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  */
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index f37a34e..024ad8bc 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2015
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  */
- 
-diff --git a/arch/s390/kvm/irq.h b/arch/s390/kvm/irq.h
-index 54a4a59..484608c 100644
---- a/arch/s390/kvm/irq.h
-+++ b/arch/s390/kvm/irq.h
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2014
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-  */
- #ifndef __KVM_IRQ_H
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0d45e32..34375eed 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2009
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Heiko Carstens <heiko.carstens@de.ibm.com>
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 9777924..5e46ba4 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2009
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index c9d962a..28b69ab 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2013
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  */
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index d12ac5d..c1f5cde 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2008, 2013
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index d2b7886..5d6ae03 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -4,10 +4,6 @@
-  *
-  * Copyright IBM Corp. 2016
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
-  */
- #include <linux/vmalloc.h>
--- 
-2.9.4
+ ifeq ($(NO_PERF_REGS),0)
