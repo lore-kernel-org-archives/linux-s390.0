@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 4/6] smc: cleanup close checking during data receival
-Date: Thu,  7 Dec 2017 13:38:47 +0100
-Message-ID: <20171207123849.52910-5-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 2/6] smc: improve smc_clc_send_decline() error handling
+Date: Thu,  7 Dec 2017 13:38:45 +0100
+Message-ID: <20171207123849.52910-3-ubraun@linux.vnet.ibm.com>
 References: <20171207123849.52910-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20171207123849.52910-1-ubraun@linux.vnet.ibm.com>
@@ -12,45 +12,63 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-When waiting for data to be received it must be checked if the
-peer signals shutdown. The SMC code uses two different checks
-for this purpose, even though just one check is sufficient.
-This patch removes the superfluous test for SOCK_DONE.
+Let smc_clc_send_decline() return with an error, if the amount
+sent is smaller than the length of an smc decline message.
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/smc_rx.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ net/smc/af_smc.c  | 9 +++------
+ net/smc/smc_clc.c | 2 +-
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index cbf58637ee14..9dc392ca06bf 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -65,7 +65,6 @@ static int smc_rx_wait_data(struct smc_sock *smc, long *timeo)
- 	rc = sk_wait_event(sk, timeo,
- 			   sk->sk_err ||
- 			   sk->sk_shutdown & RCV_SHUTDOWN ||
--			   sock_flag(sk, SOCK_DONE) ||
- 			   atomic_read(&conn->bytes_to_rcv) ||
- 			   smc_cdc_rxed_any_close_or_senddone(conn),
- 			   &wait);
-@@ -116,7 +115,7 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg, size_t len,
- 		if (read_done) {
- 			if (sk->sk_err ||
- 			    sk->sk_state == SMC_CLOSED ||
--			    (sk->sk_shutdown & RCV_SHUTDOWN) ||
-+			    sk->sk_shutdown & RCV_SHUTDOWN ||
- 			    !timeo ||
- 			    signal_pending(current) ||
- 			    smc_cdc_rxed_any_close_or_senddone(conn) ||
-@@ -124,8 +123,6 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg, size_t len,
- 			    peer_conn_abort)
- 				break;
- 		} else {
--			if (sock_flag(sk, SOCK_DONE))
--				break;
- 			if (sk->sk_err) {
- 				read_done = sock_error(sk);
- 				break;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 6451c5013e06..d3ae0d5b1677 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -520,7 +520,7 @@ static int smc_connect_rdma(struct smc_sock *smc)
+ 	smc->use_fallback = true;
+ 	if (reason_code && (reason_code != SMC_CLC_DECL_REPLY)) {
+ 		rc = smc_clc_send_decline(smc, reason_code);
+-		if (rc < sizeof(struct smc_clc_msg_decline))
++		if (rc < 0)
+ 			goto out_err;
+ 	}
+ 	goto out_connected;
+@@ -879,11 +879,9 @@ static void smc_listen_work(struct work_struct *work)
+ 		}
+ 		/* QP confirmation over RoCE fabric */
+ 		reason_code = smc_serv_conf_first_link(new_smc);
+-		if (reason_code < 0) {
++		if (reason_code < 0)
+ 			/* peer is not aware of a problem */
+-			rc = reason_code;
+ 			goto out_err_unlock;
+-		}
+ 		if (reason_code > 0)
+ 			goto decline_rdma_unlock;
+ 	}
+@@ -916,8 +914,7 @@ static void smc_listen_work(struct work_struct *work)
+ 	smc_conn_free(&new_smc->conn);
+ 	new_smc->use_fallback = true;
+ 	if (reason_code && (reason_code != SMC_CLC_DECL_REPLY)) {
+-		rc = smc_clc_send_decline(new_smc, reason_code);
+-		if (rc < sizeof(struct smc_clc_msg_decline))
++		if (smc_clc_send_decline(new_smc, reason_code) < 0)
+ 			goto out_err;
+ 	}
+ 	goto out_connected;
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 1800e16b2a02..f5e17d29112b 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -133,7 +133,7 @@ int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info)
+ 		smc->sk.sk_err = EPROTO;
+ 	if (len < 0)
+ 		smc->sk.sk_err = -len;
+-	return len;
++	return sock_error(&smc->sk);
+ }
+ 
+ /* send CLC PROPOSAL message across internal TCP socket */
 -- 
 2.13.5
