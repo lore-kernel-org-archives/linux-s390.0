@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 2/6] smc: improve smc_clc_send_decline() error handling
-Date: Thu,  7 Dec 2017 13:38:45 +0100
-Message-ID: <20171207123849.52910-3-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 6/6] smc: support variable CLC proposal messages
+Date: Thu,  7 Dec 2017 13:38:49 +0100
+Message-ID: <20171207123849.52910-7-ubraun@linux.vnet.ibm.com>
 References: <20171207123849.52910-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20171207123849.52910-1-ubraun@linux.vnet.ibm.com>
@@ -12,63 +12,277 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Let smc_clc_send_decline() return with an error, if the amount
-sent is smaller than the length of an smc decline message.
+According to RFC7609 [1] the CLC proposal message contains an area of
+unknown length for future growth. Additionally it may contain up to
+8 IPv6 prefixes. The current version of the SMC-code does not
+understand CLC proposal messages using these variable length fields and,
+thus, is incompatible with SMC implementations in other operating
+systems.
+
+This patch makes sure, SMC understands incoming CLC proposals
+* with arbitrary length values for future growth
+* with up to 8 IPv6 prefixes
+
+[1] SMC-R Informational RFC: http://www.rfc-editor.org/info/rfc7609
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Reviewed-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c  | 9 +++------
- net/smc/smc_clc.c | 2 +-
- 2 files changed, 4 insertions(+), 7 deletions(-)
+ net/smc/af_smc.c  | 15 ++++++----
+ net/smc/smc_clc.c | 82 ++++++++++++++++++++++++++++++++++++++++++++++---------
+ net/smc/smc_clc.h | 34 +++++++++++++++++++----
+ 3 files changed, 107 insertions(+), 24 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 6451c5013e06..d3ae0d5b1677 100644
+index d3ae0d5b1677..daf8075f5a4c 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -520,7 +520,7 @@ static int smc_connect_rdma(struct smc_sock *smc)
- 	smc->use_fallback = true;
- 	if (reason_code && (reason_code != SMC_CLC_DECL_REPLY)) {
- 		rc = smc_clc_send_decline(smc, reason_code);
--		if (rc < sizeof(struct smc_clc_msg_decline))
-+		if (rc < 0)
- 			goto out_err;
+@@ -751,14 +751,16 @@ static void smc_listen_work(struct work_struct *work)
+ {
+ 	struct smc_sock *new_smc = container_of(work, struct smc_sock,
+ 						smc_listen_work);
++	struct smc_clc_msg_proposal_prefix *pclc_prfx;
+ 	struct socket *newclcsock = new_smc->clcsock;
+ 	struct smc_sock *lsmc = new_smc->listen_smc;
+ 	struct smc_clc_msg_accept_confirm cclc;
+ 	int local_contact = SMC_REUSE_CONTACT;
+ 	struct sock *newsmcsk = &new_smc->sk;
+-	struct smc_clc_msg_proposal pclc;
++	struct smc_clc_msg_proposal *pclc;
+ 	struct smc_ib_device *smcibdev;
+ 	struct sockaddr_in peeraddr;
++	u8 buf[SMC_CLC_MAX_LEN];
+ 	struct smc_link *link;
+ 	int reason_code = 0;
+ 	int rc = 0, len;
+@@ -775,7 +777,7 @@ static void smc_listen_work(struct work_struct *work)
+ 	/* do inband token exchange -
+ 	 *wait for and receive SMC Proposal CLC message
+ 	 */
+-	reason_code = smc_clc_wait_msg(new_smc, &pclc, sizeof(pclc),
++	reason_code = smc_clc_wait_msg(new_smc, &buf, sizeof(buf),
+ 				       SMC_CLC_PROPOSAL);
+ 	if (reason_code < 0)
+ 		goto out_err;
+@@ -804,8 +806,11 @@ static void smc_listen_work(struct work_struct *work)
+ 		reason_code = SMC_CLC_DECL_CNFERR; /* configuration error */
+ 		goto decline_rdma;
  	}
- 	goto out_connected;
-@@ -879,11 +879,9 @@ static void smc_listen_work(struct work_struct *work)
- 		}
- 		/* QP confirmation over RoCE fabric */
- 		reason_code = smc_serv_conf_first_link(new_smc);
--		if (reason_code < 0) {
-+		if (reason_code < 0)
- 			/* peer is not aware of a problem */
--			rc = reason_code;
- 			goto out_err_unlock;
--		}
- 		if (reason_code > 0)
- 			goto decline_rdma_unlock;
+-	if ((pclc.outgoing_subnet != subnet) ||
+-	    (pclc.prefix_len != prefix_len)) {
++
++	pclc = (struct smc_clc_msg_proposal *)&buf;
++	pclc_prfx = smc_clc_proposal_get_prefix(pclc);
++	if (pclc_prfx->outgoing_subnet != subnet ||
++	    pclc_prfx->prefix_len != prefix_len) {
+ 		reason_code = SMC_CLC_DECL_CNFERR; /* configuration error */
+ 		goto decline_rdma;
  	}
-@@ -916,8 +914,7 @@ static void smc_listen_work(struct work_struct *work)
- 	smc_conn_free(&new_smc->conn);
- 	new_smc->use_fallback = true;
- 	if (reason_code && (reason_code != SMC_CLC_DECL_REPLY)) {
--		rc = smc_clc_send_decline(new_smc, reason_code);
--		if (rc < sizeof(struct smc_clc_msg_decline))
-+		if (smc_clc_send_decline(new_smc, reason_code) < 0)
- 			goto out_err;
- 	}
- 	goto out_connected;
+@@ -816,7 +821,7 @@ static void smc_listen_work(struct work_struct *work)
+ 	/* allocate connection / link group */
+ 	mutex_lock(&smc_create_lgr_pending);
+ 	local_contact = smc_conn_create(new_smc, peeraddr.sin_addr.s_addr,
+-					smcibdev, ibport, &pclc.lcl, 0);
++					smcibdev, ibport, &pclc->lcl, 0);
+ 	if (local_contact < 0) {
+ 		rc = local_contact;
+ 		if (rc == -ENOMEM)
 diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 1800e16b2a02..f5e17d29112b 100644
+index f5e17d29112b..abf7ceb6690b 100644
 --- a/net/smc/smc_clc.c
 +++ b/net/smc/smc_clc.c
-@@ -133,7 +133,7 @@ int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info)
- 		smc->sk.sk_err = EPROTO;
- 	if (len < 0)
- 		smc->sk.sk_err = -len;
--	return len;
-+	return sock_error(&smc->sk);
- }
+@@ -22,6 +22,54 @@
+ #include "smc_clc.h"
+ #include "smc_ib.h"
  
- /* send CLC PROPOSAL message across internal TCP socket */
++/* check if received message has a correct header length and contains valid
++ * heading and trailing eyecatchers
++ */
++static bool smc_clc_msg_hdr_valid(struct smc_clc_msg_hdr *clcm)
++{
++	struct smc_clc_msg_proposal_prefix *pclc_prfx;
++	struct smc_clc_msg_accept_confirm *clc;
++	struct smc_clc_msg_proposal *pclc;
++	struct smc_clc_msg_decline *dclc;
++	struct smc_clc_msg_trail *trl;
++
++	if (memcmp(clcm->eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER)))
++		return false;
++	switch (clcm->type) {
++	case SMC_CLC_PROPOSAL:
++		pclc = (struct smc_clc_msg_proposal *)clcm;
++		pclc_prfx = smc_clc_proposal_get_prefix(pclc);
++		if (ntohs(pclc->hdr.length) !=
++			sizeof(*pclc) + ntohs(pclc->iparea_offset) +
++			sizeof(*pclc_prfx) +
++			pclc_prfx->ipv6_prefixes_cnt *
++				sizeof(struct smc_clc_ipv6_prefix) +
++			sizeof(*trl))
++			return false;
++		trl = (struct smc_clc_msg_trail *)
++			((u8 *)pclc + ntohs(pclc->hdr.length) - sizeof(*trl));
++		break;
++	case SMC_CLC_ACCEPT:
++	case SMC_CLC_CONFIRM:
++		clc = (struct smc_clc_msg_accept_confirm *)clcm;
++		if (ntohs(clc->hdr.length) != sizeof(*clc))
++			return false;
++		trl = &clc->trl;
++		break;
++	case SMC_CLC_DECLINE:
++		dclc = (struct smc_clc_msg_decline *)clcm;
++		if (ntohs(dclc->hdr.length) != sizeof(*dclc))
++			return false;
++		trl = &dclc->trl;
++		break;
++	default:
++		return false;
++	}
++	if (memcmp(trl->eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER)))
++		return false;
++	return true;
++}
++
+ /* Wait for data on the tcp-socket, analyze received data
+  * Returns:
+  * 0 if success and it was not a decline that we received.
+@@ -72,9 +120,7 @@ int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
+ 	}
+ 	datlen = ntohs(clcm->length);
+ 	if ((len < sizeof(struct smc_clc_msg_hdr)) ||
+-	    (datlen < sizeof(struct smc_clc_msg_decline)) ||
+-	    (datlen > sizeof(struct smc_clc_msg_accept_confirm)) ||
+-	    memcmp(clcm->eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER)) ||
++	    (datlen > buflen) ||
+ 	    ((clcm->type != SMC_CLC_DECLINE) &&
+ 	     (clcm->type != expected_type))) {
+ 		smc->sk.sk_err = EPROTO;
+@@ -89,7 +135,7 @@ int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
+ 	krflags = MSG_WAITALL;
+ 	smc->clcsock->sk->sk_rcvtimeo = CLC_WAIT_TIME;
+ 	len = kernel_recvmsg(smc->clcsock, &msg, &vec, 1, datlen, krflags);
+-	if (len < datlen) {
++	if (len < datlen || !smc_clc_msg_hdr_valid(clcm)) {
+ 		smc->sk.sk_err = EPROTO;
+ 		reason_code = -EPROTO;
+ 		goto out;
+@@ -141,33 +187,43 @@ int smc_clc_send_proposal(struct smc_sock *smc,
+ 			  struct smc_ib_device *smcibdev,
+ 			  u8 ibport)
+ {
++	struct smc_clc_msg_proposal_prefix pclc_prfx;
+ 	struct smc_clc_msg_proposal pclc;
++	struct smc_clc_msg_trail trl;
+ 	int reason_code = 0;
++	struct kvec vec[3];
+ 	struct msghdr msg;
+-	struct kvec vec;
+-	int len, rc;
++	int len, plen, rc;
+ 
+ 	/* send SMC Proposal CLC message */
++	plen = sizeof(pclc) + sizeof(pclc_prfx) + sizeof(trl);
+ 	memset(&pclc, 0, sizeof(pclc));
+ 	memcpy(pclc.hdr.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+ 	pclc.hdr.type = SMC_CLC_PROPOSAL;
+-	pclc.hdr.length = htons(sizeof(pclc));
++	pclc.hdr.length = htons(plen);
+ 	pclc.hdr.version = SMC_CLC_V1;		/* SMC version */
+ 	memcpy(pclc.lcl.id_for_peer, local_systemid, sizeof(local_systemid));
+ 	memcpy(&pclc.lcl.gid, &smcibdev->gid[ibport - 1], SMC_GID_SIZE);
+ 	memcpy(&pclc.lcl.mac, &smcibdev->mac[ibport - 1], ETH_ALEN);
++	pclc.iparea_offset = htons(0);
+ 
++	memset(&pclc_prfx, 0, sizeof(pclc_prfx));
+ 	/* determine subnet and mask from internal TCP socket */
+-	rc = smc_netinfo_by_tcpsk(smc->clcsock, &pclc.outgoing_subnet,
+-				  &pclc.prefix_len);
++	rc = smc_netinfo_by_tcpsk(smc->clcsock, &pclc_prfx.outgoing_subnet,
++				  &pclc_prfx.prefix_len);
+ 	if (rc)
+ 		return SMC_CLC_DECL_CNFERR; /* configuration error */
+-	memcpy(pclc.trl.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
++	pclc_prfx.ipv6_prefixes_cnt = 0;
++	memcpy(trl.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+ 	memset(&msg, 0, sizeof(msg));
+-	vec.iov_base = &pclc;
+-	vec.iov_len = sizeof(pclc);
++	vec[0].iov_base = &pclc;
++	vec[0].iov_len = sizeof(pclc);
++	vec[1].iov_base = &pclc_prfx;
++	vec[1].iov_len = sizeof(pclc_prfx);
++	vec[2].iov_base = &trl;
++	vec[2].iov_len = sizeof(trl);
+ 	/* due to the few bytes needed for clc-handshake this cannot block */
+-	len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1, sizeof(pclc));
++	len = kernel_sendmsg(smc->clcsock, &msg, vec, 3, plen);
+ 	if (len < sizeof(pclc)) {
+ 		if (len >= 0) {
+ 			reason_code = -ENETUNREACH;
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 12a9af1539a2..c145a0f36a68 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -44,7 +44,7 @@ struct smc_clc_msg_hdr {	/* header1 of clc messages */
+ #if defined(__BIG_ENDIAN_BITFIELD)
+ 	u8 version : 4,
+ 	   flag    : 1,
+-	   rsvd	   : 3;
++	   rsvd    : 3;
+ #elif defined(__LITTLE_ENDIAN_BITFIELD)
+ 	u8 rsvd    : 3,
+ 	   flag    : 1,
+@@ -62,17 +62,31 @@ struct smc_clc_msg_local {	/* header2 of clc messages */
+ 	u8 mac[6];		/* mac of ib_device port */
+ };
+ 
+-struct smc_clc_msg_proposal {	/* clc proposal message */
+-	struct smc_clc_msg_hdr hdr;
+-	struct smc_clc_msg_local lcl;
+-	__be16 iparea_offset;	/* offset to IP address information area */
++struct smc_clc_ipv6_prefix {
++	u8 prefix[4];
++	u8 prefix_len;
++} __packed;
++
++struct smc_clc_msg_proposal_prefix {	/* prefix part of clc proposal message*/
+ 	__be32 outgoing_subnet;	/* subnet mask */
+ 	u8 prefix_len;		/* number of significant bits in mask */
+ 	u8 reserved[2];
+ 	u8 ipv6_prefixes_cnt;	/* number of IPv6 prefixes in prefix array */
+-	struct smc_clc_msg_trail trl; /* eye catcher "SMCR" EBCDIC */
+ } __aligned(4);
+ 
++struct smc_clc_msg_proposal {	/* clc proposal message sent by Linux */
++	struct smc_clc_msg_hdr hdr;
++	struct smc_clc_msg_local lcl;
++	__be16 iparea_offset;	/* offset to IP address information area */
++} __aligned(4);
++
++#define SMC_CLC_PROPOSAL_MAX_OFFSET	0x28
++#define SMC_CLC_PROPOSAL_MAX_PREFIX	(8 * sizeof(struct smc_clc_ipv6_prefix))
++#define SMC_CLC_MAX_LEN		(sizeof(struct smc_clc_msg_proposal) + \
++				 SMC_CLC_PROPOSAL_MAX_OFFSET + \
++				 SMC_CLC_PROPOSAL_MAX_PREFIX + \
++				 sizeof(struct smc_clc_msg_trail))
++
+ struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
+ 	struct smc_clc_msg_hdr hdr;
+ 	struct smc_clc_msg_local lcl;
+@@ -102,6 +116,14 @@ struct smc_clc_msg_decline {	/* clc decline message */
+ 	struct smc_clc_msg_trail trl; /* eye catcher "SMCR" EBCDIC */
+ } __aligned(4);
+ 
++/* determine start of the prefix area within the proposal message */
++static inline struct smc_clc_msg_proposal_prefix *
++smc_clc_proposal_get_prefix(struct smc_clc_msg_proposal *pclc)
++{
++	return (struct smc_clc_msg_proposal_prefix *)
++	       ((u8 *)pclc + sizeof(*pclc) + ntohs(pclc->iparea_offset));
++}
++
+ struct smc_sock;
+ struct smc_ib_device;
+ 
 -- 
 2.13.5
