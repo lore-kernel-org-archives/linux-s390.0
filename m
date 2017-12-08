@@ -1,27 +1,62 @@
 Return-Path: <linux-fsdevel-owner@vger.kernel.org>
-Date: Sat, 9 Dec 2017 09:20:07 -0800
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH 0/3 v3] Move groups_sort outisde of set_groups (fwd)
-Message-ID: <20171209172007.GA20973@bombadil.infradead.org>
-References: <alpine.LFD.2.21.1712081000360.13749@tbecker-rhat>
+From: Thiago Rafael Becker <thiago.becker@gmail.com>
+Date: Fri, 8 Dec 2017 10:30:24 -0200 (-02)
+Subject: [PATCH 0/3 v3] Move groups_sort outisde of set_groups (fwd)
+Message-ID: <alpine.LFD.2.21.1712081000360.13749@tbecker-rhat>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.21.1712081000360.13749@tbecker-rhat>
+Content-Type: text/plain; format=flowed; charset=US-ASCII
 Sender: linux-fsdevel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-fsdevel/>
 List-Post: <mailto:linux-fsdevel@vger.kernel.org>
-To: Thiago Rafael Becker <thiago.becker@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-nfs@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-nfs@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Dec 08, 2017 at 10:30:24AM -0200, Thiago Rafael Becker wrote:
-> Hello,
-> 
-> People in linux-nfs seem happy with this patch set. I'm looking for comments
-> from VFS and s390 maintainers.
+Hello,
 
-Well ... you sent a response to your 2/3 saying "please ignore", and I don't see a replacement 2/3.
+People in linux-nfs seem happy with this patch set. I'm looking for 
+comments from VFS and s390 maintainers.
 
-Also, there's no need to split this up into three separate patches.
-It's small enough to all be done as one.
+Thanks,
+trbecker
+
+---------- Forwarded message ----------
+Date: Tue,  5 Dec 2017 12:05:09 -0200
+From: Thiago Rafael Becker <thiago.becker@gmail.com>
+To: bfields@fieldses.org, neilb@suse.com
+Cc: linux-nfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+     linux-kernel@vger.kernel.org, Thiago Rafael Becker <thiago.becker@gmail.com>
+Subject: [PATCH 0/3 v3] Move groups_sort outisde of set_groups
+
+In cases where group_info is cached (e.g. sunrpc), multiplpe
+threads may call set_groups with a freshly created group_info
+cache (e.g. nfsd), and attempt to sort them simultaneously,
+which configures a race condition that can overwrite some
+groups in the cache and lead to errors. In the case of nfsd,
+the client was receiving EPERM if the group used to provide
+authorization was overwritten by this race condition.
+
+In an email exchange with bfields, we agreed that it seems
+unintuitive that the groups are sorted on set_groups, and that
+it would be better to move the responsibility of sorting to
+the caller of set_groups.
+
+These patches:
+  - Export groups_sort in include/linux/cred.h
+  - Add a call to groups_sort after the groups are inserted in
+    group_info
+  - Remove the call to sort_groups from set_groups
+
+Thiago Rafael Becker (3):
+   kernel: make groups_sort globally visible
+   kernel: Move groups_sort to the caller of set_groups.
+   kernel: set_groups doesn't call groups_sort anymore.
+
+  include/linux/cred.h      | 1 +
+  kernel/groups.c           | 6 ++++--
+  kernel/uid16.c            | 1 +
+  net/sunrpc/svcauth_unix.c | 7 +++++++
+  4 files changed, 13 insertions(+), 2 deletions(-)
+
+-- 
+2.9.5
