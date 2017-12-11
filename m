@@ -1,107 +1,57 @@
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: Re: [PATCH 3/3] perf trace: no longer require auditlibs if syscall
- tables are present
-Date: Thu, 7 Dec 2017 14:53:52 -0300
-Message-ID: <20171207175352.GH3173@kernel.org>
+From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Subject: Re: [PATCH 1/3] perf s390: generate system call table from
+ asm/unistd.h
+Date: Mon, 11 Dec 2017 10:06:39 +0100
+Message-ID: <20171211090639.GC4369@linux.vnet.ibm.com>
 References: <1512635281-20733-1-git-send-email-brueckner@linux.vnet.ibm.com>
- <1512635281-20733-4-git-send-email-brueckner@linux.vnet.ibm.com>
+ <1512635281-20733-2-git-send-email-brueckner@linux.vnet.ibm.com>
+ <20171207153040.GB3173@kernel.org>
+ <20171207173731.GF3173@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-perf-users-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1512635281-20733-4-git-send-email-brueckner@linux.vnet.ibm.com>
+In-Reply-To: <20171207173731.GF3173@kernel.org>
 Sender: linux-perf-users-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-perf-users/>
 List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org
+To: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Em Thu, Dec 07, 2017 at 09:28:01AM +0100, Hendrik Brueckner escreveu:
-> Change the Makefile and build process to no longer require auditlibs
-> interfaces when the architecture provides system call tables.
+Hi Arnaldo,
 
-And this one will have to wait for the fix in how the errno translation
-tables are generated, ok?
-
-- Arnaldo
- 
-> Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-> ---
->  tools/perf/Makefile.config          | 10 ++++++++--
->  tools/perf/builtin-help.c           |  2 +-
->  tools/perf/perf.c                   |  4 ++--
->  tools/perf/util/generate-cmdlist.sh |  2 +-
->  4 files changed, 12 insertions(+), 6 deletions(-)
+On Thu, Dec 07, 2017 at 02:37:31PM -0300, Arnaldo Carvalho de Melo wrote:
+> Em Thu, Dec 07, 2017 at 12:30:40PM -0300, Arnaldo Carvalho de Melo escreveu:
+> > Em Thu, Dec 07, 2017 at 09:27:59AM +0100, Hendrik Brueckner escreveu:
+> > > This should speed up accessing new system calls introduced with
+> > > the kernel rather than waiting for libaudit updates to include
+> > > them.
+> > 
+> > So, this needs to be split in multiple patches, one grabbing the
+> > tools/arch/s390/include/uapi/asm/unistd.h copy and adding it to
+> > check-headers.sh (cool, you did it! :))
+> > 
+> > I'll take a stab at splitting it here.
 > 
-> diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-> index d8447b1..6a948bf 100644
-> --- a/tools/perf/Makefile.config
-> +++ b/tools/perf/Makefile.config
-> @@ -531,8 +531,14 @@ endif
->  
->  ifndef NO_LIBAUDIT
->    ifneq ($(feature-libaudit), 1)
-> -    msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
-> -    NO_LIBAUDIT := 1
-> +    ifeq ($(NO_SYSCALL_TABLE), 1)
-> +      msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
-> +      NO_LIBAUDIT := 1
-> +    else
-> +      # With syscall table support, auditlibs are no longer required to build
-> +      # the trace tool.
-> +      $(call detected,CONFIG_AUDIT)
-> +    endif
->    else
->      CFLAGS += -DHAVE_LIBAUDIT_SUPPORT
->      EXTLIBS += -laudit
-> diff --git a/tools/perf/builtin-help.c b/tools/perf/builtin-help.c
-> index a0f7ed2..4aca13f 100644
-> --- a/tools/perf/builtin-help.c
-> +++ b/tools/perf/builtin-help.c
-> @@ -439,7 +439,7 @@ int cmd_help(int argc, const char **argv)
->  #ifdef HAVE_LIBELF_SUPPORT
->  		"probe",
->  #endif
-> -#ifdef HAVE_LIBAUDIT_SUPPORT
-> +#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
->  		"trace",
->  #endif
->  	NULL };
-> diff --git a/tools/perf/perf.c b/tools/perf/perf.c
-> index 62b1351..1b3fc8e 100644
-> --- a/tools/perf/perf.c
-> +++ b/tools/perf/perf.c
-> @@ -73,7 +73,7 @@ struct cmd_struct {
->  	{ "lock",	cmd_lock,	0 },
->  	{ "kvm",	cmd_kvm,	0 },
->  	{ "test",	cmd_test,	0 },
-> -#ifdef HAVE_LIBAUDIT_SUPPORT
-> +#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
->  	{ "trace",	cmd_trace,	0 },
->  #endif
->  	{ "inject",	cmd_inject,	0 },
-> @@ -485,7 +485,7 @@ int main(int argc, const char **argv)
->  		argv[0] = cmd;
->  	}
->  	if (strstarts(cmd, "trace")) {
-> -#ifdef HAVE_LIBAUDIT_SUPPORT
-> +#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
->  		setup_path();
->  		argv[0] = "trace";
->  		return cmd_trace(argc, argv);
-> diff --git a/tools/perf/util/generate-cmdlist.sh b/tools/perf/util/generate-cmdlist.sh
-> index 9bbcec4..ff17920 100755
-> --- a/tools/perf/util/generate-cmdlist.sh
-> +++ b/tools/perf/util/generate-cmdlist.sh
-> @@ -38,7 +38,7 @@ do
->  done
->  echo "#endif /* HAVE_LIBELF_SUPPORT */"
->  
-> -echo "#ifdef HAVE_LIBAUDIT_SUPPORT"
-> +echo "#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)"
->  sed -n -e 's/^perf-\([^ 	]*\)[ 	].* audit*/\1/p' command-list.txt |
->  sort |
->  while read cmd
-> -- 
-> 1.8.3.1
+> So, splitted it into three patches and tested the generation, showing
+> the steps and results on the second patch commit message:
+> 
+> [acme@jouet perf]$ git log -3 --oneline
+> b91e81b8e967 (HEAD -> perf/core, acme.korg/perf/core) perf trace: Use generated syscall table on s390 too
+> 8fe39fe5058d perf s390: Generate system call table from asm/unistd.h
+> fdd7d74b2782 tools include s390: Grab a copy of arch/s390/include/uapi/asm/unistd.h
+> [acme@jouet perf]$
+> 
+> And pushed it to my perf/core branch on:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/acme/linux.git
+> 
+> Please take a look and check that I didn't mess anything up :-)
+
+
+They look fine.  I have tested them again.  Many thanks for splitting them.
+I will try to follow your split guidelines for future commits.
+
+Thanks,
+  Hendrik
