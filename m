@@ -1,192 +1,127 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 14/16] KVM: Move vcpu_load to arch-specific
- kvm_arch_vcpu_ioctl
-Date: Mon, 11 Dec 2017 14:12:41 +0100
-Message-ID: <20171211141241.2129a84c.cohuck@redhat.com>
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Subject: Re: [PATCH v3 11/16] KVM: Move vcpu_load to arch-specific
+ kvm_arch_vcpu_ioctl_set_guest_debug
+Date: Mon, 11 Dec 2017 16:18:18 +0100
+Message-ID: <20171211151818.GI910@cbox>
 References: <20171204203538.8370-1-cdall@kernel.org>
-        <20171204203538.8370-15-cdall@kernel.org>
+ <20171204203538.8370-12-cdall@kernel.org>
+ <20171211133943.236f18be.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171204203538.8370-15-cdall@kernel.org>
-Sender: kvm-owner@vger.kernel.org
+Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
+Content-Disposition: inline
+In-Reply-To: <20171211133943.236f18be.cohuck@redhat.com>
+List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
+List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
+List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
+List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
+List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
+Errors-To: kvmarm-bounces@lists.cs.columbia.edu
+Sender: kvmarm-bounces@lists.cs.columbia.edu
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christoffer Dall <cdall@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm@vger.kernel.org, Andrew Jones <drjones@redhat.com>, Christoffer Dall <christoffer.dall@linaro.org>, Paolo Bonzini <pbonzini@redhat.com>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org, Paul Mackerras <paulus@ozlabs.org>, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-mips@linux-mips.org, Christoffer Dall <cdall@kernel.org>, kvm@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>, James Hogan <jhogan@kernel.org>, kvm-ppc@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon,  4 Dec 2017 21:35:36 +0100
-Christoffer Dall <cdall@kernel.org> wrote:
-
-> From: Christoffer Dall <christoffer.dall@linaro.org>
+On Mon, Dec 11, 2017 at 01:39:43PM +0100, Cornelia Huck wrote:
+> On Mon,  4 Dec 2017 21:35:33 +0100
+> Christoffer Dall <cdall@kernel.org> wrote:
 > 
-> Move the calls to vcpu_load() and vcpu_put() in to the architecture
-> specific implementations of kvm_arch_vcpu_ioctl() which dispatches
-> further architecture-specific ioctls on to other functions.
+> > From: Christoffer Dall <christoffer.dall@linaro.org>
+> > 
+> > Move vcpu_load() and vcpu_put() into the architecture specific
+> > implementations of kvm_arch_vcpu_ioctl_set_guest_debug().
+> > 
+> > Reviewed-by: David Hildenbrand <david@redhat.com>
+> > Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
+> > ---
+> >  arch/arm64/kvm/guest.c    | 15 ++++++++++++---
+> >  arch/powerpc/kvm/book3s.c |  2 ++
+> >  arch/powerpc/kvm/booke.c  | 19 +++++++++++++------
+> >  arch/s390/kvm/kvm-s390.c  | 16 ++++++++++++----
+> >  arch/x86/kvm/x86.c        |  4 +++-
+> >  virt/kvm/kvm_main.c       |  2 --
+> >  6 files changed, 42 insertions(+), 16 deletions(-)
+> > 
 > 
-> Some architectures support asynchronous vcpu ioctls which cannot call
-> vcpu_load() or take the vcpu->mutex, because that would prevent
-> concurrent execution with a running VCPU, which is the intended purpose
-> of these ioctls, for example because they inject interrupts.
+> > diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
+> > index 1b491b89cd43..7cb0e2677e60 100644
+> > --- a/arch/powerpc/kvm/booke.c
+> > +++ b/arch/powerpc/kvm/booke.c
+> > @@ -2018,12 +2018,15 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+> >  {
+> >  	struct debug_reg *dbg_reg;
+> >  	int n, b = 0, w = 0;
+> > +	int ret = 0;
+> > +
+> > +	vcpu_load(vcpu);
+> >  
+> >  	if (!(dbg->control & KVM_GUESTDBG_ENABLE)) {
+> >  		vcpu->arch.dbg_reg.dbcr0 = 0;
+> >  		vcpu->guest_debug = 0;
+> >  		kvm_guest_protect_msr(vcpu, MSR_DE, false);
+> > -		return 0;
+> > +		goto out;
+> >  	}
+> >  
+> >  	kvm_guest_protect_msr(vcpu, MSR_DE, true);
+> > @@ -2055,8 +2058,9 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+> >  #endif
+> >  
+> >  	if (!(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP))
+> > -		return 0;
+> > +		goto out;
+> >  
+> > +	ret = -EINVAL;
+> >  	for (n = 0; n < (KVMPPC_BOOKE_IAC_NUM + KVMPPC_BOOKE_DAC_NUM); n++) {
+> >  		uint64_t addr = dbg->arch.bp[n].addr;
+> >  		uint32_t type = dbg->arch.bp[n].type;
+> > @@ -2067,21 +2071,24 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+> >  		if (type & ~(KVMPPC_DEBUG_WATCH_READ |
+> >  			     KVMPPC_DEBUG_WATCH_WRITE |
+> >  			     KVMPPC_DEBUG_BREAKPOINT))
+> > -			return -EINVAL;
+> > +			goto out;
+> >  
+> >  		if (type & KVMPPC_DEBUG_BREAKPOINT) {
+> >  			/* Setting H/W breakpoint */
+> >  			if (kvmppc_booke_add_breakpoint(dbg_reg, addr, b++))
+> > -				return -EINVAL;
+> > +				goto out;
+> >  		} else {
+> >  			/* Setting H/W watchpoint */
+> >  			if (kvmppc_booke_add_watchpoint(dbg_reg, addr,
+> >  							type, w++))
+> > -				return -EINVAL;
+> > +				goto out;
+> >  		}
+> >  	}
+> >  
+> > -	return 0;
+> > +	ret = 0;
 > 
-> We repeat the separate checks for these specifics in the architecture
-> code for MIPS, S390 and PPC, and avoid taking the vcpu->mutex and
-> calling vcpu_load for these ioctls.
+> I would probably set the -EINVAL in the individual branches (so it is
+> clear that something is wrong, and it is not just a benign exit as in
+> the cases above), but your code is correct as well.
+
+I think that's better as well actually.  I got probably got a little
+used to that pattern after looking the main dispatcher function for a
+while.  I'm happy to change it.
+
+> > +out:
+> > +	vcpu_put(vcpu);
+> > +	return ret;
+> >  }
+> >  
+> >  void kvmppc_booke_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
 > 
-> Signed-off-by: Christoffer Dall <christoffer.dall@linaro.org>
-> ---
->  arch/mips/kvm/mips.c       | 49 +++++++++++++++++++++++----------------
->  arch/powerpc/kvm/powerpc.c | 13 ++++++-----
->  arch/s390/kvm/kvm-s390.c   | 19 ++++++++-------
->  arch/x86/kvm/x86.c         | 22 +++++++++++++-----
->  virt/kvm/arm/arm.c         | 58 ++++++++++++++++++++++++++++++++--------------
->  virt/kvm/kvm_main.c        |  2 --
->  6 files changed, 103 insertions(+), 60 deletions(-)
+> In any case,
 > 
-> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-> index 3a898712d6cd..4a039341dc29 100644
-> --- a/arch/mips/kvm/mips.c
-> +++ b/arch/mips/kvm/mips.c
-> @@ -913,56 +913,65 @@ long kvm_arch_vcpu_ioctl(struct file *filp, unsigned int ioctl,
->  	void __user *argp = (void __user *)arg;
->  	long r;
->  
-> +	if (ioctl == KVM_INTERRUPT) {
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-I would add a comment here that this ioctl is async to vcpu execution,
-so it is understandable why you skip the vcpu_load().
-
-[As an aside, it is nice that this is now more obvious when looking at
-the architectures' handlers.]
-
-> +		struct kvm_mips_interrupt irq;
-> +
-> +		if (copy_from_user(&irq, argp, sizeof(irq)))
-> +			return -EFAULT;
-> +		kvm_debug("[%d] %s: irq: %d\n", vcpu->vcpu_id, __func__,
-> +			  irq.irq);
-> +
-> +		return kvm_vcpu_ioctl_interrupt(vcpu, &irq);
-> +	}
-> +
-> +	vcpu_load(vcpu);
-> +
->  	switch (ioctl) {
-
-(...)
-
-> diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-> index c06bc9552438..6b5dd3a25fe8 100644
-> --- a/arch/powerpc/kvm/powerpc.c
-> +++ b/arch/powerpc/kvm/powerpc.c
-> @@ -1617,16 +1617,16 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  	void __user *argp = (void __user *)arg;
->  	long r;
->  
-> -	switch (ioctl) {
-> -	case KVM_INTERRUPT: {
-> +	if (ioctl == KVM_INTERRUPT) {
-
-Same here.
-
->  		struct kvm_interrupt irq;
-> -		r = -EFAULT;
->  		if (copy_from_user(&irq, argp, sizeof(irq)))
-> -			goto out;
-> -		r = kvm_vcpu_ioctl_interrupt(vcpu, &irq);
-> -		goto out;
-> +			return -EFAULT;
-> +		return kvm_vcpu_ioctl_interrupt(vcpu, &irq);
->  	}
->  
-> +	vcpu_load(vcpu);
-> +
-> +	switch (ioctl) {
->  	case KVM_ENABLE_CAP:
->  	{
->  		struct kvm_enable_cap cap;
-> @@ -1666,6 +1666,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  	}
->  
->  out:
-> +	vcpu_put(vcpu);
->  	return r;
->  }
->  
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 43278f334ce3..cd067b63d77f 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3743,24 +3743,25 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  	case KVM_S390_IRQ: {
->  		struct kvm_s390_irq s390irq;
->  
-> -		r = -EFAULT;
->  		if (copy_from_user(&s390irq, argp, sizeof(s390irq)))
-> -			break;
-> -		r = kvm_s390_inject_vcpu(vcpu, &s390irq);
-> -		break;
-> +			return -EFAULT;
-> +		return kvm_s390_inject_vcpu(vcpu, &s390irq);
->  	}
->  	case KVM_S390_INTERRUPT: {
->  		struct kvm_s390_interrupt s390int;
->  		struct kvm_s390_irq s390irq;
->  
-> -		r = -EFAULT;
->  		if (copy_from_user(&s390int, argp, sizeof(s390int)))
-> -			break;
-> +			return -EFAULT;
->  		if (s390int_to_s390irq(&s390int, &s390irq))
->  			return -EINVAL;
-> -		r = kvm_s390_inject_vcpu(vcpu, &s390irq);
-> -		break;
-> +		return kvm_s390_inject_vcpu(vcpu, &s390irq);
->  	}
-> +	}
-
-I find the special casing with the immediate return a bit ugly. Maybe
-introduce a helper async_vcpu_ioctl() or so that sets -ENOIOCTLCMD in
-its default case and return here if ret != -ENOIOCTLCMD? Christian,
-what do you think?
-
-> +
-> +	vcpu_load(vcpu);
-> +
-> +	switch (ioctl) {
->  	case KVM_S390_STORE_STATUS:
->  		idx = srcu_read_lock(&vcpu->kvm->srcu);
->  		r = kvm_s390_vcpu_store_status(vcpu, arg);
-> @@ -3883,6 +3884,8 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  	default:
->  		r = -ENOTTY;
->  	}
-> +
-> +	vcpu_put(vcpu);
->  	return r;
->  }
->  
-
-(...)
-
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 06751bbecd58..ad5f83159a15 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -2693,9 +2693,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
->  		break;
->  	}
->  	default:
-> -		vcpu_load(vcpu);
->  		r = kvm_arch_vcpu_ioctl(filp, ioctl, arg);
-> -		vcpu_put(vcpu);
->  	}
->  out:
->  	mutex_unlock(&vcpu->mutex);
-
-It would be nice if we could get rid of the special casing at the
-beginning of this function, but as it would involve not taking the
-mutex for special cases (and not releasing it for those special cases),
-I don't see an elegant way to do that.
+Thanks!
+-Christoffer
