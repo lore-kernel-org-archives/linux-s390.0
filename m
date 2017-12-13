@@ -1,7 +1,7 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [RFC/PATCH v2 22/22] RFC: s390/mm: Add gmap lock classes
-Date: Wed, 13 Dec 2017 13:53:33 +0100
-Message-ID: <1513169613-13509-23-git-send-email-frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH v2 21/22] KVM: s390: Add KVM HPAGE capability
+Date: Wed, 13 Dec 2017 13:53:32 +0100
+Message-ID: <1513169613-13509-22-git-send-email-frankja@linux.vnet.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
@@ -12,221 +12,62 @@ To: kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-A shadow gmap and its parent are locked right after each other when
-doing VSIE management. Lockdep can't differentiate between the two
-classes without some help.
+KVM huge page backing support can not be easily tested under
+s390. Currently testing is only possible after most of the guest has
+already been set up.
 
-TODO: Not sure yet if I have to annotate all and if gmap_pmd_walk will
-be used by both shadow and parent
+To indicate, that KVM has huge page backing support, we add the
+KVM_CAP_S390_HPAGE capability. This does not mean, that transparent
+huge pages are supported.
 
 Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
 ---
- arch/s390/include/asm/gmap.h |  6 ++++++
- arch/s390/mm/gmap.c          | 40 +++++++++++++++++++---------------------
- 2 files changed, 25 insertions(+), 21 deletions(-)
+ Documentation/virtual/kvm/api.txt | 10 ++++++++++
+ arch/s390/kvm/kvm-s390.c          |  1 +
+ include/uapi/linux/kvm.h          |  1 +
+ 3 files changed, 12 insertions(+)
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index a187033..6287aca 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -20,6 +20,12 @@
- #define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
- #define _SEGMENT_ENTRY_GMAP_VSIE	0x8000	/* vsie bit */
- 
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 57d3ee9..a56b0af 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -4369,3 +4369,13 @@ Parameters: none
+ This capability indicates if the flic device will be able to get/set the
+ AIS states for migration via the KVM_DEV_FLIC_AISM_ALL attribute and allows
+ to discover this without having to create a flic device.
 +
-+enum gmap_lock_class {
-+	GMAP_LOCK_PARENT,
-+	GMAP_LOCK_SHADOW
-+};
++8.14 KVM_CAP_S390_HPAGE
 +
- /**
-  * struct gmap_struct - guest address space
-  * @list: list head for the mm->context gmap list
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index cb03646..86a12f3 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -199,10 +199,8 @@ static void gmap_free(struct gmap *gmap)
- 	gmap_radix_tree_free(&gmap->host_to_guest);
++Architectures: s390
++This capability, if KVM_CHECK_EXTENSION indicates that it is
++available, means that KVM supports VMs that are memory backed through
++hugetlbfs with 1 megabyte pages.
++
++While it is generally possible to create and start a VM without this
++support, the VM will not be functional.
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 73fb3bc..8951ad4 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -393,6 +393,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_CMMA_MIGRATION:
+ 	case KVM_CAP_S390_AIS:
+ 	case KVM_CAP_S390_AIS_MIGRATION:
++	case KVM_CAP_S390_HPAGE:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_S390_MEM_OP:
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 496e59a..aa3d707 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -932,6 +932,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_HYPERV_SYNIC2 148
+ #define KVM_CAP_HYPERV_VP_INDEX 149
+ #define KVM_CAP_S390_AIS_MIGRATION 150
++#define KVM_CAP_S390_HPAGE 151
  
- 	/* Free split pmd page tables */
--	spin_lock(&gmap->guest_table_lock);
- 	list_for_each_entry_safe(page, next, &gmap->split_list, lru)
- 		page_table_free_pgste(page);
--	spin_unlock(&gmap->guest_table_lock);
+ #ifdef KVM_CAP_IRQ_ROUTING
  
- 	/* Free additional data for a shadow gmap */
- 	if (gmap_is_shadow(gmap)) {
-@@ -1373,7 +1371,7 @@ static int gmap_protect_rmap_pmd(struct gmap *sg, struct gmap_rmap *rmap,
- 	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
- 		return -EAGAIN;
- 
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	rc = gmap_protect_pmd(sg->parent, paddr, vmaddr, pmdp, hpmdp,
- 			      prot, GMAP_NOTIFY_SHADOW);
- 	if (!rc)
-@@ -1397,7 +1395,7 @@ static int gmap_protect_rmap_pte(struct gmap *sg, struct gmap_rmap *rmap,
- 
- 	ptep = gmap_pte_from_pmd(sg->parent, pmdp, paddr, &ptl);
- 	if (ptep) {
--		spin_lock(&sg->guest_table_lock);
-+		spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 		rc = ptep_force_prot(sg->parent->mm, paddr, ptep, prot,
- 				     PGSTE_VSIE_BIT);
- 		if (!rc)
-@@ -1913,7 +1911,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
- 		/* only allow one real-space gmap shadow */
- 		list_for_each_entry(sg, &parent->children, list) {
- 			if (sg->orig_asce & _ASCE_REAL_SPACE) {
--				spin_lock(&sg->guest_table_lock);
-+				spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 				gmap_unshadow(sg);
- 				spin_unlock(&sg->guest_table_lock);
- 				list_del(&sg->list);
-@@ -1985,7 +1983,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
- 		page->index |= GMAP_SHADOW_FAKE_TABLE;
- 	s_r2t = (unsigned long *) page_to_phys(page);
- 	/* Install shadow region second table */
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	table = gmap_table_walk(sg, saddr, 4); /* get region-1 pointer */
- 	if (!table) {
- 		rc = -EAGAIN;		/* Race with unshadow */
-@@ -2018,7 +2016,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
- 	offset = ((r2t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
- 	len = ((r2t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
- 	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	if (!rc) {
- 		table = gmap_table_walk(sg, saddr, 4);
- 		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
-@@ -2069,7 +2067,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
- 		page->index |= GMAP_SHADOW_FAKE_TABLE;
- 	s_r3t = (unsigned long *) page_to_phys(page);
- 	/* Install shadow region second table */
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	table = gmap_table_walk(sg, saddr, 3); /* get region-2 pointer */
- 	if (!table) {
- 		rc = -EAGAIN;		/* Race with unshadow */
-@@ -2101,7 +2099,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
- 	offset = ((r3t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
- 	len = ((r3t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
- 	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	if (!rc) {
- 		table = gmap_table_walk(sg, saddr, 3);
- 		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
-@@ -2152,7 +2150,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
- 		page->index |= GMAP_SHADOW_FAKE_TABLE;
- 	s_sgt = (unsigned long *) page_to_phys(page);
- 	/* Install shadow region second table */
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	table = gmap_table_walk(sg, saddr, 2); /* get region-3 pointer */
- 	if (!table) {
- 		rc = -EAGAIN;		/* Race with unshadow */
-@@ -2185,7 +2183,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
- 	offset = ((sgt & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
- 	len = ((sgt & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
- 	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	if (!rc) {
- 		table = gmap_table_walk(sg, saddr, 2);
- 		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
-@@ -2241,7 +2239,7 @@ int gmap_shadow_sgt_lookup(struct gmap *sg, unsigned long saddr,
- 	int rc = -EAGAIN;
- 
- 	BUG_ON(!gmap_is_shadow(sg));
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	if (sg->asce & _ASCE_TYPE_MASK) {
- 		/* >2 GB guest */
- 		r3e = (unsigned long *) gmap_table_walk(sg, saddr, 2);
-@@ -2308,7 +2306,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
- 		page->index |= GMAP_SHADOW_FAKE_TABLE;
- 	s_pgt = (unsigned long *) page_to_phys(page);
- 	/* Install shadow page table */
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	table = gmap_table_walk(sg, saddr, 1); /* get segment pointer */
- 	if (!table) {
- 		rc = -EAGAIN;		/* Race with unshadow */
-@@ -2336,7 +2334,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
- 	raddr = (saddr & _SEGMENT_MASK) | _SHADOW_RMAP_SEGMENT;
- 	origin = pgt & _SEGMENT_ENTRY_ORIGIN & PAGE_MASK;
- 	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE, PROT_READ);
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	if (!rc) {
- 		table = gmap_table_walk(sg, saddr, 1);
- 		if (!table || (*table & _SEGMENT_ENTRY_ORIGIN) !=
-@@ -2398,7 +2396,7 @@ int gmap_shadow_segment(struct gmap *sg, unsigned long saddr, pmd_t pmd)
- 		if (spmdp) {
- 			if (!pmd_large(*spmdp))
- 				BUG();
--			spin_lock(&sg->guest_table_lock);
-+			spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 			/* Get shadow segment table pointer */
- 			tpmdp = (pmd_t *) gmap_table_walk(sg, saddr, 1);
- 			if (!tpmdp) {
-@@ -2496,7 +2494,7 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
- 		rc = -EAGAIN;
- 		spmdp = gmap_pmd_op_walk(parent, paddr);
- 		if (spmdp && !(pmd_val(*spmdp) & _SEGMENT_ENTRY_INVALID)) {
--			spin_lock(&sg->guest_table_lock);
-+			spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 			/* Get page table pointer */
- 			tptep = (pte_t *) gmap_table_walk(sg, saddr, 0);
- 			if (!tptep) {
-@@ -2574,7 +2572,7 @@ static void gmap_shadow_notify_pmd(struct gmap *sg, unsigned long vmaddr,
- 
- 	BUG_ON(!gmap_is_shadow(sg));
- 
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	if (sg->removed) {
- 		spin_unlock(&sg->guest_table_lock);
- 		return;
-@@ -2635,7 +2633,7 @@ static void gmap_shadow_notify(struct gmap *sg, unsigned long vmaddr,
- 
- 	BUG_ON(!gmap_is_shadow(sg));
- 
--	spin_lock(&sg->guest_table_lock);
-+	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
- 	if (sg->removed) {
- 		spin_unlock(&sg->guest_table_lock);
- 		return;
-@@ -2876,7 +2874,7 @@ static void gmap_pmdp_clear(struct mm_struct *mm, unsigned long vmaddr,
- 
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
--		spin_lock(&gmap->guest_table_lock);
-+		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
- 		pmdp = (pmd_t *)radix_tree_delete(&gmap->host_to_guest,
- 						   vmaddr >> PMD_SHIFT);
- 		if (pmdp) {
-@@ -2926,7 +2924,7 @@ void gmap_pmdp_idte_local(struct mm_struct *mm, unsigned long vmaddr)
- 
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
--		spin_lock(&gmap->guest_table_lock);
-+		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
- 		entry = radix_tree_delete(&gmap->host_to_guest,
- 					  vmaddr >> PMD_SHIFT);
- 		if (entry) {
-@@ -2961,7 +2959,7 @@ void gmap_pmdp_idte_global(struct mm_struct *mm, unsigned long vmaddr)
- 
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
--		spin_lock(&gmap->guest_table_lock);
-+		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
- 		entry = radix_tree_delete(&gmap->host_to_guest,
- 					  vmaddr >> PMD_SHIFT);
- 		if (entry) {
 -- 
 2.7.4
