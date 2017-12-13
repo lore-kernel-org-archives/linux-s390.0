@@ -1,25 +1,37 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net 0/4] s390/qeth: fixes 2017-12-13
-Date: Fri, 15 Dec 2017 11:31:33 -0500 (EST)
-Message-ID: <20171215.113133.1781512842760871246.davem@davemloft.net>
-References: <20171213175632.100561-1-jwi@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 0/4] s390/qeth: fixes 2017-12-13
+Date: Wed, 13 Dec 2017 18:56:28 +0100
+Message-ID: <20171213175632.100561-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20171213175632.100561-1-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jwi@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Date: Wed, 13 Dec 2017 18:56:28 +0100
+Hi Dave,
 
-> some more patches for 4.15, that fix multiple issues with IP Takeover
-> configuration in qeth.
-> Please queue them up for stable kernels as well (4.9 and newer).
+some more patches for 4.15, that fix multiple issues with IP Takeover
+configuration in qeth.
+Please queue them up for stable kernels as well (4.9 and newer).
 
-Series applied and queued up for -stable.
+Thanks,
+Julian
+
+
+Julian Wiedmann (4):
+  s390/qeth: apply takeover changes when mode is toggled
+  s390/qeth: don't apply takeover changes to RXIP
+  s390/qeth: lock IP table while applying takeover changes
+  s390/qeth: update takeover IPs after configuration change
+
+ drivers/s390/net/qeth_core.h      |  6 ++--
+ drivers/s390/net/qeth_core_main.c |  6 ++--
+ drivers/s390/net/qeth_l3.h        |  2 +-
+ drivers/s390/net/qeth_l3_main.c   | 36 ++++++++++++++++---
+ drivers/s390/net/qeth_l3_sys.c    | 75 +++++++++++++++++++++------------------
+ 5 files changed, 79 insertions(+), 46 deletions(-)
+
+-- 
+2.13.5
