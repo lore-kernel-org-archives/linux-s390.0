@@ -1,7 +1,7 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [RFC/PATCH v2 08/22] s390/mm: Add huge page dirty sync support
-Date: Wed, 13 Dec 2017 13:53:19 +0100
-Message-ID: <1513169613-13509-9-git-send-email-frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH v2 22/22] RFC: s390/mm: Add gmap lock classes
+Date: Wed, 13 Dec 2017 13:53:33 +0100
+Message-ID: <1513169613-13509-23-git-send-email-frankja@linux.vnet.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
@@ -12,186 +12,221 @@ To: kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-To do dirty loging with huge pages, we protect huge pmds in the
-gmap. When they are written to, we unprotect them and mark them dirty.
+A shadow gmap and its parent are locked right after each other when
+doing VSIE management. Lockdep can't differentiate between the two
+classes without some help.
 
-We introduce the function gmap_test_and_clear_dirty_segment which
-handles dirty sync for huge pages.
+TODO: Not sure yet if I have to annotate all and if gmap_pmd_walk will
+be used by both shadow and parent
 
 Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/include/asm/gmap.h |  6 +++-
- arch/s390/kvm/kvm-s390.c     | 18 ++++++----
- arch/s390/mm/gmap.c          | 80 ++++++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 94 insertions(+), 10 deletions(-)
+ arch/s390/include/asm/gmap.h |  6 ++++++
+ arch/s390/mm/gmap.c          | 40 +++++++++++++++++++---------------------
+ 2 files changed, 25 insertions(+), 21 deletions(-)
 
 diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 21bb658..ba12eef 100644
+index a187033..6287aca 100644
 --- a/arch/s390/include/asm/gmap.h
 +++ b/arch/s390/include/asm/gmap.h
-@@ -13,8 +13,10 @@
- #define GMAP_NOTIFY_SHADOW	0x2
- #define GMAP_NOTIFY_MPROT	0x1
+@@ -20,6 +20,12 @@
+ #define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
+ #define _SEGMENT_ENTRY_GMAP_VSIE	0x8000	/* vsie bit */
  
--/* Status bits in the gmap segment entry. */
-+/* Status bits in huge and non-huge gmap segment entries. */
- #define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
-+/* Status bits only for huge segment entries */
-+#define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
- 
++
++enum gmap_lock_class {
++	GMAP_LOCK_PARENT,
++	GMAP_LOCK_SHADOW
++};
++
  /**
   * struct gmap_struct - guest address space
-@@ -139,4 +141,6 @@ void gmap_pte_notify(struct mm_struct *, unsigned long addr, pte_t *,
- int gmap_mprotect_notify(struct gmap *, unsigned long start,
- 			 unsigned long len, int prot);
- 
-+void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
-+			     unsigned long gaddr, unsigned long vmaddr);
- #endif /* _ASM_S390_GMAP_H */
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ec8b68e..73fb3bc 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -428,19 +428,23 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- }
- 
- static void kvm_s390_sync_dirty_log(struct kvm *kvm,
--					struct kvm_memory_slot *memslot)
-+				    struct kvm_memory_slot *memslot)
- {
- 	gfn_t cur_gfn, last_gfn;
--	unsigned long address;
-+	unsigned long gaddr, vmaddr;
-+	unsigned long *dirty = memslot->dirty_bitmap;
- 	struct gmap *gmap = kvm->arch.gmap;
- 
--	/* Loop over all guest pages */
-+	/* Loop over all guest segments */
- 	last_gfn = memslot->base_gfn + memslot->npages;
--	for (cur_gfn = memslot->base_gfn; cur_gfn <= last_gfn; cur_gfn++) {
--		address = gfn_to_hva_memslot(memslot, cur_gfn);
-+	for (cur_gfn = memslot->base_gfn; cur_gfn <= last_gfn; cur_gfn += _PAGE_ENTRIES, dirty += 4) {
-+		gaddr = gfn_to_gpa(cur_gfn);
-+		vmaddr = gfn_to_hva_memslot(memslot, cur_gfn);
-+		if (kvm_is_error_hva(vmaddr))
-+			continue;
-+
-+		gmap_sync_dirty_log_pmd(gmap, dirty, gaddr, vmaddr);
- 
--		if (test_and_clear_guest_dirty(gmap->mm, address))
--			mark_page_dirty(kvm, cur_gfn);
- 		if (fatal_signal_pending(current))
- 			return;
- 		cond_resched();
+  * @list: list head for the mm->context gmap list
 diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index dfa3a0d..fa99e21 100644
+index cb03646..86a12f3 100644
 --- a/arch/s390/mm/gmap.c
 +++ b/arch/s390/mm/gmap.c
-@@ -545,6 +545,7 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
- 	p4d_t *p4d;
- 	pud_t *pud;
- 	pmd_t *pmd;
-+	pmd_t unprot;
- 	int rc;
+@@ -199,10 +199,8 @@ static void gmap_free(struct gmap *gmap)
+ 	gmap_radix_tree_free(&gmap->host_to_guest);
  
- 	BUG_ON(gmap_is_shadow(gmap));
-@@ -602,12 +603,19 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
- 				       vmaddr >> PMD_SHIFT, table);
- 		if (!rc) {
- 			if (pmd_large(*pmd)) {
--				*table = pmd_val(*pmd) &
--					_SEGMENT_ENTRY_HARDWARE_BITS_LARGE;
-+				*table = (pmd_val(*pmd) &
-+					  _SEGMENT_ENTRY_HARDWARE_BITS_LARGE)
-+					| _SEGMENT_ENTRY_GMAP_UC;
- 			} else
- 				*table = pmd_val(*pmd) &
- 					_SEGMENT_ENTRY_HARDWARE_BITS;
- 		}
-+	} else if (*table & _SEGMENT_ENTRY_PROTECT &&
-+		   !(pmd_val(*pmd) & _SEGMENT_ENTRY_PROTECT)) {
-+		unprot = __pmd((*table & (_SEGMENT_ENTRY_HARDWARE_BITS_LARGE
-+					  & ~_SEGMENT_ENTRY_PROTECT))
-+			       | _SEGMENT_ENTRY_GMAP_UC);
-+		gmap_pmdp_xchg(gmap, (pmd_t *)table, unprot, gaddr);
- 	}
- 	spin_unlock(&gmap->guest_table_lock);
- 	spin_unlock(ptl);
-@@ -2514,6 +2522,74 @@ static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *pmdp, pmd_t new,
- 	*pmdp = new;
- }
+ 	/* Free split pmd page tables */
+-	spin_lock(&gmap->guest_table_lock);
+ 	list_for_each_entry_safe(page, next, &gmap->split_list, lru)
+ 		page_table_free_pgste(page);
+-	spin_unlock(&gmap->guest_table_lock);
  
-+/**
-+ * gmap_test_and_clear_dirty_segment - test and reset segment dirty status
-+ * @gmap: pointer to guest address space
-+ * @pmdp: pointer to the pmd to be tested
-+ * @gaddr: virtual address in the guest address space
-+ *
-+ * This function is assumed to be called with the guest_table_lock
-+ * held.
-+ */
-+bool gmap_test_and_clear_dirty_segment(struct gmap *gmap, pmd_t *pmdp,
-+				       pmd_t *hpmdp, unsigned long gaddr,
-+				       unsigned long vmaddr)
-+{
-+	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
-+		return false;
-+
-+	/* Already protected memory, which did not change is clean */
-+	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT &&
-+	    !(pmd_val(*pmdp) & _SEGMENT_ENTRY_GMAP_UC))
-+		return false;
-+
-+	/* Clear UC indication and reset protection */
-+	pmd_val(*pmdp) &= ~_SEGMENT_ENTRY_GMAP_UC;
-+	gmap_protect_pmd(gmap, gaddr, vmaddr, pmdp, hpmdp, PROT_READ, 0);
-+	return true;
-+}
-+
-+/**
-+ * gmap_sync_dirty_log_pmd - set bitmap based on dirty status of segment
-+ * @gmap: pointer to guest address space
-+ * @bitmap: dirty bitmap for this pmd
-+ * @gaddr: virtual address in the guest address space
-+ * @vmaddr: virtual address in the host address space
-+ *
-+ * This function is assumed to be called with the guest_table_lock
-+ * held.
-+ */
-+void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long bitmap[4],
-+			     unsigned long gaddr, unsigned long vmaddr)
-+{
-+	int i = 0;
-+	pmd_t *pmdp, *hpmdp;
-+	spinlock_t *ptl;
-+
-+	hpmdp = (pmd_t *)huge_pte_offset(gmap->mm, vmaddr, HPAGE_SIZE);
-+	if (!hpmdp)
-+		return;
-+	ptl = pmd_lock(gmap->mm, hpmdp);
-+	pmdp = gmap_pmd_op_walk(gmap, gaddr);
-+	if (!pmdp) {
-+		spin_unlock(ptl);
-+		return;
-+	}
-+
-+	if (pmd_large(*pmdp)) {
-+		if (gmap_test_and_clear_dirty_segment(gmap, pmdp, hpmdp,
-+						      gaddr, vmaddr))
-+			memset(bitmap, 0xFF, 32);
-+	} else {
-+		for (; i < _PAGE_ENTRIES; i++, vmaddr += PAGE_SIZE) {
-+			if (test_and_clear_guest_dirty(gmap->mm, vmaddr))
-+				set_bit_le(i, bitmap);
-+		}
-+	}
-+	gmap_pmd_op_end(gmap, pmdp);
-+	spin_unlock(ptl);
-+}
-+
- static inline void thp_split_mm(struct mm_struct *mm)
- {
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ 	/* Free additional data for a shadow gmap */
+ 	if (gmap_is_shadow(gmap)) {
+@@ -1373,7 +1371,7 @@ static int gmap_protect_rmap_pmd(struct gmap *sg, struct gmap_rmap *rmap,
+ 	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
+ 		return -EAGAIN;
+ 
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	rc = gmap_protect_pmd(sg->parent, paddr, vmaddr, pmdp, hpmdp,
+ 			      prot, GMAP_NOTIFY_SHADOW);
+ 	if (!rc)
+@@ -1397,7 +1395,7 @@ static int gmap_protect_rmap_pte(struct gmap *sg, struct gmap_rmap *rmap,
+ 
+ 	ptep = gmap_pte_from_pmd(sg->parent, pmdp, paddr, &ptl);
+ 	if (ptep) {
+-		spin_lock(&sg->guest_table_lock);
++		spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 		rc = ptep_force_prot(sg->parent->mm, paddr, ptep, prot,
+ 				     PGSTE_VSIE_BIT);
+ 		if (!rc)
+@@ -1913,7 +1911,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
+ 		/* only allow one real-space gmap shadow */
+ 		list_for_each_entry(sg, &parent->children, list) {
+ 			if (sg->orig_asce & _ASCE_REAL_SPACE) {
+-				spin_lock(&sg->guest_table_lock);
++				spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 				gmap_unshadow(sg);
+ 				spin_unlock(&sg->guest_table_lock);
+ 				list_del(&sg->list);
+@@ -1985,7 +1983,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
+ 		page->index |= GMAP_SHADOW_FAKE_TABLE;
+ 	s_r2t = (unsigned long *) page_to_phys(page);
+ 	/* Install shadow region second table */
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	table = gmap_table_walk(sg, saddr, 4); /* get region-1 pointer */
+ 	if (!table) {
+ 		rc = -EAGAIN;		/* Race with unshadow */
+@@ -2018,7 +2016,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
+ 	offset = ((r2t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((r2t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+ 	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 4);
+ 		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
+@@ -2069,7 +2067,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 		page->index |= GMAP_SHADOW_FAKE_TABLE;
+ 	s_r3t = (unsigned long *) page_to_phys(page);
+ 	/* Install shadow region second table */
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	table = gmap_table_walk(sg, saddr, 3); /* get region-2 pointer */
+ 	if (!table) {
+ 		rc = -EAGAIN;		/* Race with unshadow */
+@@ -2101,7 +2099,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 	offset = ((r3t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((r3t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+ 	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 3);
+ 		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
+@@ -2152,7 +2150,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
+ 		page->index |= GMAP_SHADOW_FAKE_TABLE;
+ 	s_sgt = (unsigned long *) page_to_phys(page);
+ 	/* Install shadow region second table */
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	table = gmap_table_walk(sg, saddr, 2); /* get region-3 pointer */
+ 	if (!table) {
+ 		rc = -EAGAIN;		/* Race with unshadow */
+@@ -2185,7 +2183,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
+ 	offset = ((sgt & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((sgt & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+ 	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 2);
+ 		if (!table || (*table & _REGION_ENTRY_ORIGIN) !=
+@@ -2241,7 +2239,7 @@ int gmap_shadow_sgt_lookup(struct gmap *sg, unsigned long saddr,
+ 	int rc = -EAGAIN;
+ 
+ 	BUG_ON(!gmap_is_shadow(sg));
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	if (sg->asce & _ASCE_TYPE_MASK) {
+ 		/* >2 GB guest */
+ 		r3e = (unsigned long *) gmap_table_walk(sg, saddr, 2);
+@@ -2308,7 +2306,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
+ 		page->index |= GMAP_SHADOW_FAKE_TABLE;
+ 	s_pgt = (unsigned long *) page_to_phys(page);
+ 	/* Install shadow page table */
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	table = gmap_table_walk(sg, saddr, 1); /* get segment pointer */
+ 	if (!table) {
+ 		rc = -EAGAIN;		/* Race with unshadow */
+@@ -2336,7 +2334,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
+ 	raddr = (saddr & _SEGMENT_MASK) | _SHADOW_RMAP_SEGMENT;
+ 	origin = pgt & _SEGMENT_ENTRY_ORIGIN & PAGE_MASK;
+ 	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE, PROT_READ);
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 1);
+ 		if (!table || (*table & _SEGMENT_ENTRY_ORIGIN) !=
+@@ -2398,7 +2396,7 @@ int gmap_shadow_segment(struct gmap *sg, unsigned long saddr, pmd_t pmd)
+ 		if (spmdp) {
+ 			if (!pmd_large(*spmdp))
+ 				BUG();
+-			spin_lock(&sg->guest_table_lock);
++			spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 			/* Get shadow segment table pointer */
+ 			tpmdp = (pmd_t *) gmap_table_walk(sg, saddr, 1);
+ 			if (!tpmdp) {
+@@ -2496,7 +2494,7 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
+ 		rc = -EAGAIN;
+ 		spmdp = gmap_pmd_op_walk(parent, paddr);
+ 		if (spmdp && !(pmd_val(*spmdp) & _SEGMENT_ENTRY_INVALID)) {
+-			spin_lock(&sg->guest_table_lock);
++			spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 			/* Get page table pointer */
+ 			tptep = (pte_t *) gmap_table_walk(sg, saddr, 0);
+ 			if (!tptep) {
+@@ -2574,7 +2572,7 @@ static void gmap_shadow_notify_pmd(struct gmap *sg, unsigned long vmaddr,
+ 
+ 	BUG_ON(!gmap_is_shadow(sg));
+ 
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	if (sg->removed) {
+ 		spin_unlock(&sg->guest_table_lock);
+ 		return;
+@@ -2635,7 +2633,7 @@ static void gmap_shadow_notify(struct gmap *sg, unsigned long vmaddr,
+ 
+ 	BUG_ON(!gmap_is_shadow(sg));
+ 
+-	spin_lock(&sg->guest_table_lock);
++	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
+ 	if (sg->removed) {
+ 		spin_unlock(&sg->guest_table_lock);
+ 		return;
+@@ -2876,7 +2874,7 @@ static void gmap_pmdp_clear(struct mm_struct *mm, unsigned long vmaddr,
+ 
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
+-		spin_lock(&gmap->guest_table_lock);
++		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
+ 		pmdp = (pmd_t *)radix_tree_delete(&gmap->host_to_guest,
+ 						   vmaddr >> PMD_SHIFT);
+ 		if (pmdp) {
+@@ -2926,7 +2924,7 @@ void gmap_pmdp_idte_local(struct mm_struct *mm, unsigned long vmaddr)
+ 
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
+-		spin_lock(&gmap->guest_table_lock);
++		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
+ 		entry = radix_tree_delete(&gmap->host_to_guest,
+ 					  vmaddr >> PMD_SHIFT);
+ 		if (entry) {
+@@ -2961,7 +2959,7 @@ void gmap_pmdp_idte_global(struct mm_struct *mm, unsigned long vmaddr)
+ 
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
+-		spin_lock(&gmap->guest_table_lock);
++		spin_lock_nested(&gmap->guest_table_lock, GMAP_LOCK_PARENT);
+ 		entry = radix_tree_delete(&gmap->host_to_guest,
+ 					  vmaddr >> PMD_SHIFT);
+ 		if (entry) {
 -- 
 2.7.4
