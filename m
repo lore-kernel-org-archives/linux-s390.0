@@ -1,59 +1,113 @@
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: [PATCH 0/3] perf: generate s390 syscall table and remove auditlibs dependency
-Date: Thu,  7 Dec 2017 09:27:58 +0100
-Message-ID: <1512635281-20733-1-git-send-email-brueckner@linux.vnet.ibm.com>
-Return-path: <linux-perf-users-owner@vger.kernel.org>
-Sender: linux-perf-users-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-perf-users/>
-List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH v2 09/22] s390/mm: clear huge page storage keys on enable_skey
+Date: Wed, 13 Dec 2017 13:53:20 +0100
+Message-ID: <1513169613-13509-10-git-send-email-frankja@linux.vnet.ibm.com>
+References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-With the perf trace command you can specify system calls with wildcards.
-To support this on s390, a system call table must be provided to perf.
-Provide a script to create the perf system call table based on the defines
-in arch/s390/include/uapi/asm/unistd.h (copied to tools/arch/s390/...).
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-Note that the first patch can be applied independent of the second and
-third patch.  In case they need further discussion, please consider to
-integrate the first one.
+When a guest starts using storage keys, we trap and set a default one
+for its whole valid address space. With this patch we are now able to
+do that for large pages.
 
-The second and third patches complete the work to remove the audit library
-dependency for perf trace when an architecture supports system call tables.
+To speed up the storage key insertion, we use
+__storage_key_init_range, which in-turn will use sske_frame to set
+multiple storage keys with one instruction. As it has been previously
+used for debuging we have to get rid of the default key check and make
+it quiescing.
 
-Inspired by the generation of the system call tables, create a similar
-approach to generate errno name mappings.  Introduce the errno_to_name()
-function to replace audit_errno_to_name() in perf trace.  The third
-patch changes the build process to build and run perf trace without
-requiring the audit library anymore (for those architectures that have
-system call table support).
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+[replaced page_set_storage_key loop with __storage_key_init_range]
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+ arch/s390/mm/gmap.c     | 26 +++++++++++++++++++++++---
+ arch/s390/mm/pageattr.c |  6 ++----
+ 2 files changed, 25 insertions(+), 7 deletions(-)
 
-Note: The patch set is based on the linux master branch (968edbd93c0cbb).
-
-
-Hendrik Brueckner (3):
-  perf s390: generate system call table from asm/unistd.h
-  perf: introduce errno_to_name() function
-  perf trace: no longer require auditlibs if syscall tables are present
-
- tools/arch/s390/include/uapi/asm/unistd.h        | 412 +++++++++++++++++++++++
- tools/perf/.gitignore                            |   1 +
- tools/perf/Makefile.config                       |  22 +-
- tools/perf/Makefile.perf                         |  12 +-
- tools/perf/arch/s390/Makefile                    |  21 ++
- tools/perf/arch/s390/entry/syscalls/mksyscalltbl |  36 ++
- tools/perf/builtin-help.c                        |   2 +-
- tools/perf/builtin-trace.c                       |  17 +-
- tools/perf/check-headers.sh                      |   1 +
- tools/perf/perf.c                                |   4 +-
- tools/perf/util/generate-cmdlist.sh              |   2 +-
- tools/perf/util/generate-errno-names.sh          |  32 ++
- tools/perf/util/syscalltbl.c                     |   4 +
- 13 files changed, 553 insertions(+), 13 deletions(-)
- create mode 100644 tools/arch/s390/include/uapi/asm/unistd.h
- create mode 100755 tools/perf/arch/s390/entry/syscalls/mksyscalltbl
- create mode 100755 tools/perf/util/generate-errno-names.sh
-
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index fa99e21..ffc11d8 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2666,17 +2666,37 @@ EXPORT_SYMBOL_GPL(s390_enable_sie);
+  * Enable storage key handling from now on and initialize the storage
+  * keys with the default key.
+  */
+-static int __s390_enable_skey(pte_t *pte, unsigned long addr,
+-			      unsigned long next, struct mm_walk *walk)
++static int __s390_enable_skey_pte(pte_t *pte, unsigned long addr,
++				  unsigned long next, struct mm_walk *walk)
+ {
+ 	/* Clear storage key */
+ 	ptep_zap_key(walk->mm, addr, pte);
+ 	return 0;
+ }
+ 
++static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
++				      unsigned long hmask, unsigned long next,
++				      struct mm_walk *walk)
++{
++	pmd_t *pmd = (pmd_t *)pte;
++	unsigned long start, end;
++
++	if (pmd_val(*pmd) & _SEGMENT_ENTRY_INVALID
++	    || !(pmd_val(*pmd) & _SEGMENT_ENTRY_WRITE))
++		return 0;
++
++	start = pmd_val(*pmd) & HPAGE_MASK;
++	end = start + HPAGE_SIZE - 1;
++	__storage_key_init_range(start, end);
++	return 0;
++}
++
+ int s390_enable_skey(void)
+ {
+-	struct mm_walk walk = { .pte_entry = __s390_enable_skey };
++	struct mm_walk walk = {
++		.hugetlb_entry = __s390_enable_skey_hugetlb,
++		.pte_entry = __s390_enable_skey_pte,
++	};
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	int rc = 0;
+diff --git a/arch/s390/mm/pageattr.c b/arch/s390/mm/pageattr.c
+index c441715..f8c6faa 100644
+--- a/arch/s390/mm/pageattr.c
++++ b/arch/s390/mm/pageattr.c
+@@ -14,7 +14,7 @@
+ 
+ static inline unsigned long sske_frame(unsigned long addr, unsigned char skey)
+ {
+-	asm volatile(".insn rrf,0xb22b0000,%[skey],%[addr],9,0"
++	asm volatile(".insn rrf,0xb22b0000,%[skey],%[addr],1,0"
+ 		     : [addr] "+a" (addr) : [skey] "d" (skey));
+ 	return addr;
+ }
+@@ -23,8 +23,6 @@ void __storage_key_init_range(unsigned long start, unsigned long end)
+ {
+ 	unsigned long boundary, size;
+ 
+-	if (!PAGE_DEFAULT_KEY)
+-		return;
+ 	while (start < end) {
+ 		if (MACHINE_HAS_EDAT1) {
+ 			/* set storage keys for a 1MB frame */
+@@ -37,7 +35,7 @@ void __storage_key_init_range(unsigned long start, unsigned long end)
+ 				continue;
+ 			}
+ 		}
+-		page_set_storage_key(start, PAGE_DEFAULT_KEY, 0);
++		page_set_storage_key(start, PAGE_DEFAULT_KEY, 1);
+ 		start += PAGE_SIZE;
+ 	}
+ }
 -- 
-1.8.3.1
+2.7.4
