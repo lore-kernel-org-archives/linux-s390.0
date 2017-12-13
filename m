@@ -1,7 +1,7 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [RFC/PATCH v2 12/22] s390/mm: Add gmap_protect_large read protection support
-Date: Wed, 13 Dec 2017 13:53:23 +0100
-Message-ID: <1513169613-13509-13-git-send-email-frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH v2 13/22] s390/mm: Make gmap_read_table EDAT1 compatible
+Date: Wed, 13 Dec 2017 13:53:24 +0100
+Message-ID: <1513169613-13509-14-git-send-email-frankja@linux.vnet.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
@@ -12,38 +12,73 @@ To: kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-We need to be able to write protect segments for when shadowing them
-for VSIE.
+For the VSIE we shadow the GMAP/DAT tables that a guest N builds for
+its N + 1 guest. This means we read the GMAP from the memory of guest
+N and use the retrieved information to build a shadow version from it
+which is actually used to run the guest.
+
+gmap_read_table is used to retrieve the data from the guest's address
+space. Unfortunately it currently has no support for reading from huge
+guests, so let's add that.
 
 Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
 ---
- arch/s390/include/asm/gmap.h | 1 +
- arch/s390/mm/gmap.c          | 1 +
- 2 files changed, 2 insertions(+)
+ arch/s390/mm/gmap.c | 37 ++++++++++++++++++++++++++-----------
+ 1 file changed, 26 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index ba12eef..518e00c 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -17,6 +17,7 @@
- #define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
- /* Status bits only for huge segment entries */
- #define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
-+#define _SEGMENT_ENTRY_GMAP_VSIE	0x8000	/* vsie bit */
- 
- /**
-  * struct gmap_struct - guest address space
 diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index d396da8..dabc734 100644
+index dabc734..828eadf 100644
 --- a/arch/s390/mm/gmap.c
 +++ b/arch/s390/mm/gmap.c
-@@ -1079,6 +1079,7 @@ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
- 	int ret = 0;
+@@ -1201,23 +1201,38 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val)
+ {
+ 	unsigned long address, vmaddr;
+ 	spinlock_t *ptl;
++	pmd_t *pmdp, pmd;
+ 	pte_t *ptep, pte;
+ 	int rc;
  
- 	sbits |= (bits & GMAP_NOTIFY_MPROT) ? _SEGMENT_ENTRY_GMAP_IN : 0;
-+	sbits |= (bits & GMAP_NOTIFY_SHADOW) ? _SEGMENT_ENTRY_GMAP_VSIE : 0;
- 	/* Protect gmap pmd */
- 	ret = gmap_pmdp_force_prot(gmap, gaddr, pmdp, prot, sbits);
- 	/*
+ 	while (1) {
+ 		rc = -EAGAIN;
+-		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
+-		if (ptep) {
+-			pte = *ptep;
+-			if (pte_present(pte) && (pte_val(pte) & _PAGE_READ)) {
+-				address = pte_val(pte) & PAGE_MASK;
+-				address += gaddr & ~PAGE_MASK;
+-				*val = *(unsigned long *) address;
+-				pte_val(*ptep) |= _PAGE_YOUNG;
+-				/* Do *NOT* clear the _PAGE_INVALID bit! */
+-				rc = 0;
++		pmdp = gmap_pmd_op_walk(gmap, gaddr);
++		if (pmdp) {
++			if (!pmd_large(*pmdp)) {
++				ptep = pte_alloc_map_lock(gmap->mm, pmdp, gaddr, &ptl);
++				if (ptep) {
++					pte = *ptep;
++					if (pte_present(pte) && (pte_val(pte) & _PAGE_READ)) {
++						address = pte_val(pte) & PAGE_MASK;
++						address += gaddr & ~PAGE_MASK;
++						*val = *(unsigned long *) address;
++						pte_val(*ptep) |= _PAGE_YOUNG;
++						/* Do *NOT* clear the _PAGE_INVALID bit! */
++						rc = 0;
++					}
++					gmap_pte_op_end(ptl);
++				}
++			} else {
++				pmd = *pmdp;
++				if (!(pmd_val(pmd) & _SEGMENT_ENTRY_INVALID)) {
++					address = pmd_val(pmd) & HPAGE_MASK;
++					address += gaddr & ~HPAGE_MASK;
++					*val = *(unsigned long *) address;
++					rc = 0;
++				}
+ 			}
+-			gmap_pte_op_end(ptl);
++			gmap_pmd_op_end(gmap, pmdp);
+ 		}
+ 		if (!rc)
+ 			break;
 -- 
 2.7.4
