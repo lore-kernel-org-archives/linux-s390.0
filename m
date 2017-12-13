@@ -1,7 +1,7 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [RFC/PATCH v2 06/22] s390/mm: Introduce gmap_pmdp_xchg
-Date: Wed, 13 Dec 2017 13:53:17 +0100
-Message-ID: <1513169613-13509-7-git-send-email-frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH v2 12/22] s390/mm: Add gmap_protect_large read protection support
+Date: Wed, 13 Dec 2017 13:53:23 +0100
+Message-ID: <1513169613-13509-13-git-send-email-frankja@linux.vnet.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
@@ -12,91 +12,38 @@ To: kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When changing guest pmds, we don't need to take care of the
-corresponding host pmd. This means, we don't need to flush the host
-TLB entries and we don't need to notify on all gmaps.
-
-Let's introduce a function, that exchanges a pmd and takes care of the
-necessary flushing and notification.
+We need to be able to write protect segments for when shadowing them
+for VSIE.
 
 Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
 ---
- arch/s390/mm/gmap.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ arch/s390/include/asm/gmap.h | 1 +
+ arch/s390/mm/gmap.c          | 1 +
+ 2 files changed, 2 insertions(+)
 
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index ba12eef..518e00c 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -17,6 +17,7 @@
+ #define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
+ /* Status bits only for huge segment entries */
+ #define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
++#define _SEGMENT_ENTRY_GMAP_VSIE	0x8000	/* vsie bit */
+ 
+ /**
+  * struct gmap_struct - guest address space
 diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 056acfc..a252fe7 100644
+index d396da8..dabc734 100644
 --- a/arch/s390/mm/gmap.c
 +++ b/arch/s390/mm/gmap.c
-@@ -23,6 +23,9 @@
+@@ -1079,6 +1079,7 @@ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
+ 	int ret = 0;
  
- #define GMAP_SHADOW_FAKE_TABLE 1ULL
- 
-+static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *old, pmd_t new,
-+			   unsigned long gaddr);
-+
- /**
-  * gmap_alloc - allocate and initialize a guest address space
-  * @mm: pointer to the parent mm_struct
-@@ -2231,6 +2234,26 @@ void ptep_notify(struct mm_struct *mm, unsigned long vmaddr,
- EXPORT_SYMBOL_GPL(ptep_notify);
- 
- /**
-+ * pmdp_notify_gmap - call all invalidation callbacks for a specific pmd
-+ * @gmap: pointer to the guest address space structure
-+ * @gaddr: guest address which is affected
-+ *
-+ * This function is expected to be called with a locked
-+ * guest_table_lock.
-+ */
-+static void pmdp_notify_gmap(struct gmap *gmap, unsigned long gaddr)
-+{
-+	unsigned long *table;
-+
-+	gaddr &= HPAGE_MASK;
-+	table = gmap_table_walk(gmap, gaddr, 1);
-+	if (!table || !(*table & _SEGMENT_ENTRY_GMAP_IN))
-+		return;
-+	*table &= ~_SEGMENT_ENTRY_GMAP_IN;
-+	gmap_call_notifier(gmap, gaddr, gaddr + HPAGE_SIZE - 1);
-+}
-+
-+/**
-  * pmdp_notify - call all invalidation callbacks for a specific pmd
-  * @mm: pointer to the process mm_struct
-  * @vmaddr: virtual address in the process address space
-@@ -2374,6 +2397,32 @@ void gmap_pmdp_idte_global(struct mm_struct *mm, unsigned long vmaddr)
- }
- EXPORT_SYMBOL_GPL(gmap_pmdp_idte_global);
- 
-+/**
-+ * gmap_pmdp_xchg - exchange a gmap pmd with another and notify
-+ * @gmap: pointer to the guest address space structure
-+ * @pmdp: pointer to the pmd entry
-+ * @new: replacement entry
-+ * @gaddr: the affected guest address
-+ *
-+ * This function is assumed to be called with the guest_table_lock
-+ * held.
-+ */
-+static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *pmdp, pmd_t new,
-+			   unsigned long gaddr)
-+{
-+	pmdp_notify_gmap(gmap, gaddr);
-+	if (MACHINE_HAS_TLB_GUEST)
-+		__pmdp_idte(gaddr, (pmd_t *)pmdp,
-+			    IDTE_GUEST_ASCE, gmap->asce,
-+			    IDTE_GLOBAL);
-+	if (MACHINE_HAS_IDTE)
-+		__pmdp_idte(gaddr, (pmd_t *)pmdp,
-+			    0, 0, IDTE_GLOBAL);
-+	else
-+		__pmdp_csp(pmdp);
-+	*pmdp = new;
-+}
-+
- static inline void thp_split_mm(struct mm_struct *mm)
- {
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ 	sbits |= (bits & GMAP_NOTIFY_MPROT) ? _SEGMENT_ENTRY_GMAP_IN : 0;
++	sbits |= (bits & GMAP_NOTIFY_SHADOW) ? _SEGMENT_ENTRY_GMAP_VSIE : 0;
+ 	/* Protect gmap pmd */
+ 	ret = gmap_pmdp_force_prot(gmap, gaddr, pmdp, prot, sbits);
+ 	/*
 -- 
 2.7.4
