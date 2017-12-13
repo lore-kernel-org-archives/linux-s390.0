@@ -1,217 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 11 Dec 2017 14:09:04 +0100
-From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+Date: Wed, 13 Dec 2017 09:33:17 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 Subject: Re: [PATCH] s390/decompressor: add fortify_panic as x86 has.
-Message-ID: <20171211140904.2f023b3c@kitsune.suse.cz>
-In-Reply-To: <20171207135507.275c5809@mschwideX1>
 References: <20171207103727.9461-1-msuchanek@suse.de>
-        <20171207135507.275c5809@mschwideX1>
+ <20171207135507.275c5809@mschwideX1>
+ <20171211140904.2f023b3c@kitsune.suse.cz>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="MP_/ZQDF4exb7Z8S/W_uQNYkBh/"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20171211140904.2f023b3c@kitsune.suse.cz>
+Message-Id: <20171213083317.GA6931@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Marcelo Henrique Cerri <marcelo.cerri@canonical.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Marcelo Henrique Cerri <marcelo.cerri@canonical.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
---MP_/ZQDF4exb7Z8S/W_uQNYkBh/
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, Dec 11, 2017 at 02:09:04PM +0100, Michal Such=E1nek wrote:
+> Hello,
+>=20
+> On Thu, 7 Dec 2017 13:55:07 +0100
+> Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+>=20
+> > On Thu,  7 Dec 2017 11:37:27 +0100
+> > Michal Suchanek <msuchanek@suse.de> wrote:
+> >=20
+> > > Fix following error:
+> > >=20
+> > >   LD      arch/s390/boot/compressed/vmlinux
+> > > drivers/s390/char/sclp_early_core.o: In function `memcpy':
+> > > ../include/linux/string.h:340: undefined reference to
+> > > `fortify_panic' make[4]: ***
+> > > [../arch/s390/boot/compressed/Makefile:29:
+> > > arch/s390/boot/compressed/vmlinux] Error 1
+> > >=20
+> > > Fixes: 79962038dffa ("s390: add support for FORTIFY_SOURCE")
+> > > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+> > > ---
+> > >  arch/s390/boot/compressed/misc.c | 4 ++++
+> > >  1 file changed, 4 insertions(+)
+> > >=20
+> > > diff --git a/arch/s390/boot/compressed/misc.c
+> > > b/arch/s390/boot/compressed/misc.c index cecf38b9ec82..e79c4499c548
+> > > 100644 --- a/arch/s390/boot/compressed/misc.c
+> > > +++ b/arch/s390/boot/compressed/misc.c
+> > > @@ -174,3 +174,7 @@ unsigned long decompress_kernel(void)
+> > >  	return (unsigned long) output;
+> > >  }
+> > >=20
+> > > +void fortify_panic(const char *name)
+> > > +{
+> > > +	error("detected buffer overflow");
+> > > +} =20
+> >=20
+> > Odd, the current linux master tree builds just fine with
+> > CONFIG_FORTIFY_SOURCE=3Dy. There *is* a reference to fortify_panic in
+> > drivers/s390/char/sclp_early.o. This object is included in the link
+> > for the compressed vmlinux, but the function  that contains the call
+> > to fortify_panic is not included in the compressed image. I wonder
+> > what causes this difference in behavior.
+> >=20
+> > The patch makes sense though and I will add it to the queue.
+> >=20
+>=20
+> It probably depends on the config.
+>=20
+> FWIW attaching the config that fails to build for me.
 
-Hello,
+Yes, with that configuration it is reproducable. However I disagree with
+the fix. We have a call to fortify_panic() within sclp_early_core.c which
+is our console driver. If that would ever trigger the result would be an
+endless loop (error() would call the console driver again). This would
+repeat until we hit an addressing exception or code gets overwritten due to
+the ever increasing stack. At some point we simply have to trust the
+code. That's also why I disabled FORTIFY_SOURCE for a couple of other files
+which contain early code.
 
-On Thu, 7 Dec 2017 13:55:07 +0100
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+Therefore the simple solution would be to just disable FORTIFY_SOURCE for
+the early sclp code as well.
 
-> On Thu,  7 Dec 2017 11:37:27 +0100
-> Michal Suchanek <msuchanek@suse.de> wrote:
-> 
-> > Fix following error:
-> > 
-> >   LD      arch/s390/boot/compressed/vmlinux
-> > drivers/s390/char/sclp_early_core.o: In function `memcpy':
-> > ../include/linux/string.h:340: undefined reference to
-> > `fortify_panic' make[4]: ***
-> > [../arch/s390/boot/compressed/Makefile:29:
-> > arch/s390/boot/compressed/vmlinux] Error 1
-> > 
-> > Fixes: 79962038dffa ("s390: add support for FORTIFY_SOURCE")
-> > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> > ---
-> >  arch/s390/boot/compressed/misc.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> > 
-> > diff --git a/arch/s390/boot/compressed/misc.c
-> > b/arch/s390/boot/compressed/misc.c index cecf38b9ec82..e79c4499c548
-> > 100644 --- a/arch/s390/boot/compressed/misc.c
-> > +++ b/arch/s390/boot/compressed/misc.c
-> > @@ -174,3 +174,7 @@ unsigned long decompress_kernel(void)
-> >  	return (unsigned long) output;
-> >  }
-> > 
-> > +void fortify_panic(const char *name)
-> > +{
-> > +	error("detected buffer overflow");
-> > +}  
-> 
-> Odd, the current linux master tree builds just fine with
-> CONFIG_FORTIFY_SOURCE=y. There *is* a reference to fortify_panic in
-> drivers/s390/char/sclp_early.o. This object is included in the link
-> for the compressed vmlinux, but the function  that contains the call
-> to fortify_panic is not included in the compressed image. I wonder
-> what causes this difference in behavior.
-> 
-> The patch makes sense though and I will add it to the queue.
-> 
+The patch below will do that:
 
-It probably depends on the config.
+From 4ec2a3fd66bb5b1da35807bc2e382f9b8d9eebb8 Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Wed, 13 Dec 2017 09:21:59 +0100
+Subject: [PATCH] s390/sclp: disable FORTIFY_SOURCE for early sclp code
 
-FWIW attaching the config that fails to build for me.
+Michal Suchanek reported the following compile error with
+FORTIFY_SOURCE enabled:
 
-Thanks
+drivers/s390/char/sclp_early_core.o: In function `memcpy':
+include/linux/string.h:340: undefined reference to `fortify_panic'
 
-Michal
---MP_/ZQDF4exb7Z8S/W_uQNYkBh/
-Content-Type: application/x-xz
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=zfcpdump.xz
+To fix this simply disable FORTIFY_SOURCE on the early sclp code as
+well, which I forgot on the initial commit.
 
-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
+Fixes: 79962038dffa ("s390: add support for FORTIFY_SOURCE")
+Reported-by: Michal Suchanek <msuchanek@suse.de>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ drivers/s390/char/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
---MP_/ZQDF4exb7Z8S/W_uQNYkBh/--
+diff --git a/drivers/s390/char/Makefile b/drivers/s390/char/Makefile
+index 05ac6ba15a53..614b44e70a28 100644
+--- a/drivers/s390/char/Makefile
++++ b/drivers/s390/char/Makefile
+@@ -17,6 +17,8 @@ CFLAGS_REMOVE_sclp_early_core.o	+=3D $(CC_FLAGS_MARCH)
+ CFLAGS_sclp_early_core.o		+=3D -march=3Dz900
+ endif
+=20
++CFLAGS_sclp_early_core.o		+=3D -D__NO_FORTIFY
++
+ obj-y +=3D ctrlchar.o keyboard.o defkeymap.o sclp.o sclp_rw.o sclp_quiesce=
+.o \
+ 	 sclp_cmd.o sclp_config.o sclp_cpi_sys.o sclp_ocf.o sclp_ctl.o \
+ 	 sclp_early.o sclp_early_core.o
+--=20
+2.13.5
