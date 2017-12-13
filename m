@@ -1,62 +1,69 @@
-Return-Path: <linux-fsdevel-owner@vger.kernel.org>
-From: Thiago Rafael Becker <thiago.becker@gmail.com>
-Date: Fri, 8 Dec 2017 10:30:24 -0200 (-02)
-Subject: [PATCH 0/3 v3] Move groups_sort outisde of set_groups (fwd)
-Message-ID: <alpine.LFD.2.21.1712081000360.13749@tbecker-rhat>
-MIME-Version: 1.0
-Content-Type: text/plain; format=flowed; charset=US-ASCII
-Sender: linux-fsdevel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-fsdevel/>
-List-Post: <mailto:linux-fsdevel@vger.kernel.org>
-To: linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-nfs@vger.kernel.org, linux-s390@vger.kernel.org
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 2/4] s390/qeth: don't apply takeover changes to RXIP
+Date: Wed, 13 Dec 2017 18:56:30 +0100
+Message-ID: <20171213175632.100561-3-jwi@linux.vnet.ibm.com>
+References: <20171213175632.100561-1-jwi@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20171213175632.100561-1-jwi@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello,
+When takeover is switched off, current code clears the 'TAKEOVER' flag on
+all IPs. But the flag is also used for RXIP addresses, and those should
+not be affected by the takeover mode.
+Fix the behaviour by consistenly applying takover logic to NORMAL
+addresses only.
 
-People in linux-nfs seem happy with this patch set. I'm looking for 
-comments from VFS and s390 maintainers.
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_l3_main.c | 5 +++--
+ drivers/s390/net/qeth_l3_sys.c  | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-Thanks,
-trbecker
-
----------- Forwarded message ----------
-Date: Tue,  5 Dec 2017 12:05:09 -0200
-From: Thiago Rafael Becker <thiago.becker@gmail.com>
-To: bfields@fieldses.org, neilb@suse.com
-Cc: linux-nfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-     linux-kernel@vger.kernel.org, Thiago Rafael Becker <thiago.becker@gmail.com>
-Subject: [PATCH 0/3 v3] Move groups_sort outisde of set_groups
-
-In cases where group_info is cached (e.g. sunrpc), multiplpe
-threads may call set_groups with a freshly created group_info
-cache (e.g. nfsd), and attempt to sort them simultaneously,
-which configures a race condition that can overwrite some
-groups in the cache and lead to errors. In the case of nfsd,
-the client was receiving EPERM if the group used to provide
-authorization was overwritten by this race condition.
-
-In an email exchange with bfields, we agreed that it seems
-unintuitive that the groups are sorted on set_groups, and that
-it would be better to move the responsibility of sorting to
-the caller of set_groups.
-
-These patches:
-  - Export groups_sort in include/linux/cred.h
-  - Add a call to groups_sort after the groups are inserted in
-    group_info
-  - Remove the call to sort_groups from set_groups
-
-Thiago Rafael Becker (3):
-   kernel: make groups_sort globally visible
-   kernel: Move groups_sort to the caller of set_groups.
-   kernel: set_groups doesn't call groups_sort anymore.
-
-  include/linux/cred.h      | 1 +
-  kernel/groups.c           | 6 ++++--
-  kernel/uid16.c            | 1 +
-  net/sunrpc/svcauth_unix.c | 7 +++++++
-  4 files changed, 13 insertions(+), 2 deletions(-)
-
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 6a73894b0cb5..4a4be81800eb 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -174,6 +174,8 @@ int qeth_l3_is_addr_covered_by_ipato(struct qeth_card *card,
+ 
+ 	if (!card->ipato.enabled)
+ 		return 0;
++	if (addr->type != QETH_IP_TYPE_NORMAL)
++		return 0;
+ 
+ 	qeth_l3_convert_addr_to_bits((u8 *) &addr->u, addr_bits,
+ 				  (addr->proto == QETH_PROT_IPV4)? 4:16);
+@@ -290,8 +292,7 @@ int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
+ 		memcpy(addr, tmp_addr, sizeof(struct qeth_ipaddr));
+ 		addr->ref_counter = 1;
+ 
+-		if (addr->type == QETH_IP_TYPE_NORMAL  &&
+-				qeth_l3_is_addr_covered_by_ipato(card, addr)) {
++		if (qeth_l3_is_addr_covered_by_ipato(card, addr)) {
+ 			QETH_CARD_TEXT(card, 2, "tkovaddr");
+ 			addr->set_flags |= QETH_IPA_SETIP_TAKEOVER_FLAG;
+ 		}
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index 198717f71b3d..e256928092e5 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -396,10 +396,11 @@ static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
+ 	card->ipato.enabled = enable;
+ 
+ 	hash_for_each(card->ip_htable, i, addr, hnode) {
++		if (addr->type != QETH_IP_TYPE_NORMAL)
++			continue;
+ 		if (!enable)
+ 			addr->set_flags &= ~QETH_IPA_SETIP_TAKEOVER_FLAG;
+-		else if (addr->type == QETH_IP_TYPE_NORMAL &&
+-			 qeth_l3_is_addr_covered_by_ipato(card, addr))
++		else if (qeth_l3_is_addr_covered_by_ipato(card, addr))
+ 			addr->set_flags |= QETH_IPA_SETIP_TAKEOVER_FLAG;
+ 	}
+ out:
 -- 
-2.9.5
+2.13.5
