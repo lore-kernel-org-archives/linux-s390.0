@@ -1,85 +1,38 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 49/67] swiotlb: refactor coherent buffer freeing
-Date: Fri, 29 Dec 2017 09:18:53 +0100
-Message-ID: <20171229081911.2802-50-hch@lst.de>
-References: <20171229081911.2802-1-hch@lst.de>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20171229081911.2802-1-hch@lst.de>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH 0/3] S390-DASD: Fine-tuning for some function
+ implementations
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+References: <4af00744-1c8a-6b33-22c8-d26d569f6c5f@users.sourceforge.net>
+Message-ID: <d7e6649b-cdb4-e686-df0e-472958c94202@users.sourceforge.net>
+Date: Thu, 14 Dec 2017 11:34:01 +0100
+MIME-Version: 1.0
+In-Reply-To: <4af00744-1c8a-6b33-22c8-d26d569f6c5f@users.sourceforge.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Stefan Haberland <sth@linux.vnet.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Factor out a new swiotlb_free_buffer helper that checks if an address
-is allocated from the swiotlb bounce buffer, and if yes frees it.
+> Date: Wed, 10 May 2017 19:43:21 +0200
+> 
+> A few update suggestions were taken into account
+> from static source code analysis.
+> 
+> Markus Elfring (3):
+>   Adjust buffer output in dasd_hosts_print()
+>   Fix typos in two comment lines
+>   Adjust six checks for null pointers
+> 
+>  drivers/s390/block/dasd_eckd.c | 24 +++++++++++-------------
+>  1 file changed, 11 insertions(+), 13 deletions(-)
 
-This allows to simplify the swiotlb_free implemenation that uses
-dma_direct_free to free the non-bounce buffer allocations.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- lib/swiotlb.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+Are there any chances that such change possibilities (and further adjustments)
+will be integrated in this software area?
 
-diff --git a/lib/swiotlb.c b/lib/swiotlb.c
-index a14fff30ee9d..adb4dd0091fa 100644
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -773,22 +773,31 @@ swiotlb_alloc_coherent(struct device *hwdev, size_t size,
- }
- EXPORT_SYMBOL(swiotlb_alloc_coherent);
- 
-+static bool swiotlb_free_buffer(struct device *dev, size_t size,
-+		dma_addr_t dma_addr)
-+{
-+	phys_addr_t phys_addr = dma_to_phys(dev, dma_addr);
-+
-+	WARN_ON_ONCE(irqs_disabled());
-+
-+	if (!is_swiotlb_buffer(phys_addr))
-+		return false;
-+
-+	/*
-+	 * DMA_TO_DEVICE to avoid memcpy in swiotlb_tbl_unmap_single.
-+	 * DMA_ATTR_SKIP_CPU_SYNC is optional.
-+	 */
-+	swiotlb_tbl_unmap_single(dev, phys_addr, size, DMA_TO_DEVICE,
-+				 DMA_ATTR_SKIP_CPU_SYNC);
-+	return true;
-+}
-+
- void
- swiotlb_free_coherent(struct device *hwdev, size_t size, void *vaddr,
- 		      dma_addr_t dev_addr)
- {
--	phys_addr_t paddr = dma_to_phys(hwdev, dev_addr);
--
--	WARN_ON(irqs_disabled());
--	if (!is_swiotlb_buffer(paddr))
-+	if (!swiotlb_free_buffer(hwdev, size, dev_addr))
- 		free_pages((unsigned long)vaddr, get_order(size));
--	else
--		/*
--		 * DMA_TO_DEVICE to avoid memcpy in swiotlb_tbl_unmap_single.
--		 * DMA_ATTR_SKIP_CPU_SYNC is optional.
--		 */
--		swiotlb_tbl_unmap_single(hwdev, paddr, size, DMA_TO_DEVICE,
--					 DMA_ATTR_SKIP_CPU_SYNC);
- }
- EXPORT_SYMBOL(swiotlb_free_coherent);
- 
-@@ -1103,9 +1112,7 @@ void *swiotlb_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
- void swiotlb_free(struct device *dev, size_t size, void *vaddr,
- 		dma_addr_t dma_addr, unsigned long attrs)
- {
--	if (is_swiotlb_buffer(dma_to_phys(dev, dma_addr)))
--		swiotlb_free_coherent(dev, size, vaddr, dma_addr);
--	else
-+	if (!swiotlb_free_buffer(dev, size, dma_addr))
- 		dma_direct_free(dev, size, vaddr, dma_addr, attrs);
- }
- 
--- 
-2.14.2
+Regards,
+Markus
