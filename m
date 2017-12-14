@@ -1,108 +1,38 @@
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 1/4] s390/qeth: apply takeover changes when mode is toggled
-Date: Wed, 13 Dec 2017 18:56:29 +0100
-Message-ID: <20171213175632.100561-2-jwi@linux.vnet.ibm.com>
-References: <20171213175632.100561-1-jwi@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20171213175632.100561-1-jwi@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 14 Dec 2017 09:40:58 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 39/45] arch/s390: remove duplicate includes
+References: <1512930417-4796-1-git-send-email-pravin.shedge4linux@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1512930417-4796-1-git-send-email-pravin.shedge4linux@gmail.com>
+Message-Id: <20171214084058.GC4238@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Pravin Shedge <pravin.shedge4linux@gmail.com>
+Cc: schwidefsky@de.ibm.com, gregkh@linuxfoundation.org, mingo@kernel.org, labbott@redhat.com, tglx@linutronix.de, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Just as for an explicit enable/disable, toggling the takeover mode also
-requires that the IP addresses get updated. Otherwise all IPs that were
-added to the table before the mode-toggle, get registered with the old
-settings.
+On Sun, Dec 10, 2017 at 11:56:57PM +0530, Pravin Shedge wrote:
+> These duplicate includes have been found with scripts/checkincludes.pl but
+> they have been removed manually to avoid removing false positives.
+> 
+> Signed-off-by: Pravin Shedge <pravin.shedge4linux@gmail.com>
+> ---
+>  arch/s390/kernel/kprobes.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/arch/s390/kernel/kprobes.c b/arch/s390/kernel/kprobes.c
+> index af3722c..943d13e 100644
+> --- a/arch/s390/kernel/kprobes.c
+> +++ b/arch/s390/kernel/kprobes.c
+> @@ -20,7 +20,6 @@
+>  #include <linux/ftrace.h>
+>  #include <asm/set_memory.h>
+>  #include <asm/sections.h>
+> -#include <linux/uaccess.h>
+>  #include <asm/dis.h>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
----
- drivers/s390/net/qeth_core.h      |  2 +-
- drivers/s390/net/qeth_core_main.c |  2 +-
- drivers/s390/net/qeth_l3_sys.c    | 35 +++++++++++++++++------------------
- 3 files changed, 19 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 15015a24f8ad..51c618d9fefe 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -565,7 +565,7 @@ enum qeth_cq {
- };
- 
- struct qeth_ipato {
--	int enabled;
-+	bool enabled;
- 	int invert4;
- 	int invert6;
- 	struct list_head entries;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 430e3214f7e2..8d18675e60e2 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1480,7 +1480,7 @@ static int qeth_setup_card(struct qeth_card *card)
- 	qeth_set_intial_options(card);
- 	/* IP address takeover */
- 	INIT_LIST_HEAD(&card->ipato.entries);
--	card->ipato.enabled = 0;
-+	card->ipato.enabled = false;
- 	card->ipato.invert4 = 0;
- 	card->ipato.invert6 = 0;
- 	/* init QDIO stuff */
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index bd12fdf678be..198717f71b3d 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -372,6 +372,7 @@ static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 	struct qeth_ipaddr *addr;
- 	int i, rc = 0;
-+	bool enable;
- 
- 	if (!card)
- 		return -EINVAL;
-@@ -384,25 +385,23 @@ static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
- 	}
- 
- 	if (sysfs_streq(buf, "toggle")) {
--		card->ipato.enabled = (card->ipato.enabled)? 0 : 1;
--	} else if (sysfs_streq(buf, "1")) {
--		card->ipato.enabled = 1;
--		hash_for_each(card->ip_htable, i, addr, hnode) {
--				if ((addr->type == QETH_IP_TYPE_NORMAL) &&
--				qeth_l3_is_addr_covered_by_ipato(card, addr))
--					addr->set_flags |=
--					QETH_IPA_SETIP_TAKEOVER_FLAG;
--			}
--	} else if (sysfs_streq(buf, "0")) {
--		card->ipato.enabled = 0;
--		hash_for_each(card->ip_htable, i, addr, hnode) {
--			if (addr->set_flags &
--			QETH_IPA_SETIP_TAKEOVER_FLAG)
--				addr->set_flags &=
--				~QETH_IPA_SETIP_TAKEOVER_FLAG;
--			}
--	} else
-+		enable = !card->ipato.enabled;
-+	} else if (kstrtobool(buf, &enable)) {
- 		rc = -EINVAL;
-+		goto out;
-+	}
-+
-+	if (card->ipato.enabled == enable)
-+		goto out;
-+	card->ipato.enabled = enable;
-+
-+	hash_for_each(card->ip_htable, i, addr, hnode) {
-+		if (!enable)
-+			addr->set_flags &= ~QETH_IPA_SETIP_TAKEOVER_FLAG;
-+		else if (addr->type == QETH_IP_TYPE_NORMAL &&
-+			 qeth_l3_is_addr_covered_by_ipato(card, addr))
-+			addr->set_flags |= QETH_IPA_SETIP_TAKEOVER_FLAG;
-+	}
- out:
- 	mutex_unlock(&card->conf_mutex);
- 	return rc ? rc : count;
--- 
-2.13.5
+Applied, thanks.
