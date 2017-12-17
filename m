@@ -1,42 +1,206 @@
-From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Date: Fri, 08 Dec 2017 06:15:42 +0000
-Subject: Re: [pmladek:for-next 5/7] arch/s390/include/asm/mmu_context.h:111:0: warning:
-Message-Id: <20171208061542.GE628@jagdpanzerIV>
-In-Reply-To: <20171208070523.5c225699@mschwideX1>
-References: <20171208070523.5c225699@mschwideX1>
+From: kbuild test robot <fengguang.wu@intel.com>
+Date: Sun, 17 Dec 2017 04:37:02 +0000
+Subject: [kvms390:for-vhost 1/1] drivers/s390/virtio/virtio_ccw.c:1322:9: error: implicit declaration of func
+Message-Id: <201712171200.w6OAf5Jm%fengguang.wu@intel.com>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--ZPt4rx8FFjLCG7dd"
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On (12/08/17 07:05), Martin Schwidefsky wrote:
-> > On (12/08/17 11:05), Sergey Senozhatsky wrote:
-> > > 
-> > > On (12/08/17 02:07), kbuild test robot wrote:  
-> > > > All warnings (new ones prefixed by >>):
-> > > > 
-> > > >    In file included from arch/s390/include/asm/elf.h:141:0,
-> > > >                     from include/linux/elf.h:5,
-> > > >                     from include/linux/module.h:15,
-> > > >                     from include/linux/kallsyms.h:13,
-> > > >                     from kernel//sched/autogroup.c:6:  
-> > > > >> arch/s390/include/asm/mmu_context.h:111:0: warning: "finish_arch_post_lock_switch" redefined  
-> > > >     #define finish_arch_post_lock_switch finish_arch_post_lock_switch
-> > > >     
-> > > >    In file included from kernel//sched/autogroup.c:2:0:
-> > > >    kernel//sched/sched.h:1328:0: note: this is the location of the previous definition
-> > > >     # define finish_arch_post_lock_switch() do { } while (0)  
-> > 
-> > 
-> > any chance you can help us out?
-> 
-> Move the include of "sched.h" in autogroup.c after all the other
-> includes. For the #ifndef in sched.h to work the arch specific
-> definition in mmu_context.h needs to be seen first.
 
-yes, makes sense. care to submit a patch?
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-for now on I sent out a patch that removes the problematic kallsyms.h
-include from autogroup.c, it doesn't need it anyway. but I agree that
-that shed.h include [I didn't even notice it until you pointed that out]
-better be the last one, indeed.
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git for-vhost
+head:   619b4b0ba832144d4be899640a2047f9675df849
+commit: 619b4b0ba832144d4be899640a2047f9675df849 [1/1] virtio/s390: implement PM operations for virtio_ccw
+config: s390-alldefconfig (attached as .config)
+compiler: s390x-linux-gnu-gcc (Debian 7.2.0-11) 7.2.0
+reproduce:
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        git checkout 619b4b0ba832144d4be899640a2047f9675df849
+        # save the attached .config to linux build tree
+        make.cross ARCH=s390 
 
-	-ss
+All errors (new ones prefixed by >>):
+
+   drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_freeze':
+>> drivers/s390/virtio/virtio_ccw.c:1322:9: error: implicit declaration of function 'virtio_device_freeze'; did you mean 'virtio_device_ready'? [-Werror=implicit-function-declaration]
+     return virtio_device_freeze(&vcdev->vdev);
+            ^~~~~~~~~~~~~~~~~~~~
+            virtio_device_ready
+   drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_restore':
+>> drivers/s390/virtio/virtio_ccw.c:1334:9: error: implicit declaration of function 'virtio_device_restore'; did you mean 'virtio_ccw_restore'? [-Werror=implicit-function-declaration]
+     return virtio_device_restore(&vcdev->vdev);
+            ^~~~~~~~~~~~~~~~~~~~~
+            virtio_ccw_restore
+   cc1: some warnings being treated as errors
+
+vim +1322 drivers/s390/virtio/virtio_ccw.c
+
+  1317	
+  1318	static int virtio_ccw_freeze(struct ccw_device *cdev)
+  1319	{
+  1320		struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+  1321	
+> 1322		return virtio_device_freeze(&vcdev->vdev);
+  1323	}
+  1324	
+  1325	static int virtio_ccw_restore(struct ccw_device *cdev)
+  1326	{
+  1327		struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+  1328		int ret;
+  1329	
+  1330		ret = virtio_ccw_set_transport_rev(vcdev);
+  1331		if (ret)
+  1332			return ret;
+  1333	
+> 1334		return virtio_device_restore(&vcdev->vdev);
+  1335	}
+  1336	
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+
+--ZPt4rx8FFjLCG7dd
+Content-Type: application/gzip
+Content-Disposition: attachment; filename=".config.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--ZPt4rx8FFjLCG7dd--
