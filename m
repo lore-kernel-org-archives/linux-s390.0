@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 06/12] [S390] dasd: drop unneeded newline
-Date: Wed, 27 Dec 2017 15:51:39 +0100
-Message-Id: <1514386305-7402-7-git-send-email-Julia.Lawall@lip6.fr>
-In-Reply-To: <1514386305-7402-1-git-send-email-Julia.Lawall@lip6.fr>
-References: <1514386305-7402-1-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Stefan Haberland <sth@linux.vnet.ibm.com>
-Cc: kernel-janitors@vger.kernel.org, Jan Hoeppner <hoeppner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL v2 0/1] s390/virtio update
+Date: Mon, 18 Dec 2017 17:21:22 +0100
+Message-ID: <20171218162123.963-1-cohuck@redhat.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: mst@redhat.com
+Cc: jasowang@redhat.com, pasic@linux.vnet.ibm.com, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-DBF_DEV_EVENT prints a newline at the end of the message string,
-so the message string does not need to include a newline explicitly.
-Done using Coccinelle.
+The following changes since commit 20677394b78ed4c4baa09c9a1bcfdf24d2b09fe4:
 
-The two strings are also concatenated into one for easier grepping.
+  Merge branch 'vhost' into vhost-next (2017-12-18 08:21:38 +0200)
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+are available in the git repository at:
 
----
- drivers/s390/block/dasd_diag.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-s390-20171218-v2
 
-diff --git a/drivers/s390/block/dasd_diag.c b/drivers/s390/block/dasd_diag.c
-index f035c2f..96c507a 100644
---- a/drivers/s390/block/dasd_diag.c
-+++ b/drivers/s390/block/dasd_diag.c
-@@ -329,8 +329,7 @@ static void dasd_ext_handler(struct ext_code ext_code,
- 		private = kzalloc(sizeof(*private), GFP_KERNEL);
- 		if (private == NULL) {
- 			DBF_DEV_EVENT(DBF_WARNING, device, "%s",
--				"Allocating memory for private DASD data "
--				      "failed\n");
-+				"Allocating memory for private DASD data failed");
- 			return -ENOMEM;
- 		}
- 		ccw_device_get_id(device->cdev, &private->dev_id);
+for you to fetch changes up to 352d303fa99330e5d197afcc28b5270734e5c541:
+
+  virtio/s390: implement PM operations for virtio_ccw (2017-12-18 10:23:47 +0100)
+
+----------------------------------------------------------------
+Hibernation support for virtio-ccw.
+
+----------------------------------------------------------------
+
+Christian Borntraeger (1):
+  virtio/s390: implement PM operations for virtio_ccw
+
+ drivers/s390/virtio/virtio_ccw.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+
+-- 
+2.13.6
