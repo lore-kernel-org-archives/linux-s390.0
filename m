@@ -1,94 +1,50 @@
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH 17/34] perf trace: Use generated syscall table on s390 too
-Date: Thu, 14 Dec 2017 14:42:30 -0300
-Message-ID: <20171214174247.16841-18-acme@kernel.org>
-References: <20171214174247.16841-1-acme@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171214174247.16841-1-acme@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-perf-users/>
-List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Jiri Olsa <jolsa@redhat.com>, Michael Petlan <mpetlan@redhat.com>, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 1/1] KVM: s390: fix cmma migration for multiple memory slots
+Date: Tue, 19 Dec 2017 09:19:21 +0100
+Message-ID: <20171219081921.81670-2-borntraeger@de.ibm.com>
+References: <20171219081921.81670-1-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20171219081921.81670-1-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+when multiple memory slots are present the cmma migration code
+does not allocate enough memory for the bitmap. The memory slots
+are sorted in reverse order, so we must use gfn and size of
+slot[0] instead of the last one.
 
-This should speed up accessing new system calls introduced with the
-kernel rather than waiting for libaudit updates to include them.
-
-It also enables users to specify wildcards, for example, perf trace -e
-'open*', just like was already possible on x86.
-
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: linux-s390@vger.kernel.org
-LPU-Reference: 1512635281-20733-2-git-send-email-brueckner@linux.vnet.ibm.com
-Link: https://lkml.kernel.org/n/tip-htplh3nbrivi7g3cffbh4fsu@git.kernel.org
-[ split from a larger patch ]
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org # 4.13+
+Fixes: 190df4a212a7 (KVM: s390: CMMA tracking, ESSA emulation, migration mode)
 ---
- tools/perf/Makefile.config   | 10 +++++++++-
- tools/perf/util/syscalltbl.c |  4 ++++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ arch/s390/kvm/kvm-s390.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index 79b117a03fd7..6f73c2316740 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -22,6 +22,7 @@ include $(srctree)/tools/scripts/Makefile.arch
- $(call detected_var,SRCARCH)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 966ea611210a..3373d8dff131 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -792,11 +792,12 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
  
- NO_PERF_REGS := 1
-+NO_SYSCALL_TABLE := 1
- 
- # Additional ARCH settings for ppc
- ifeq ($(SRCARCH),powerpc)
-@@ -33,7 +34,8 @@ endif
- ifeq ($(SRCARCH),x86)
-   $(call detected,CONFIG_X86)
-   ifeq (${IS_64_BIT}, 1)
--    CFLAGS += -DHAVE_ARCH_X86_64_SUPPORT -DHAVE_SYSCALL_TABLE -I$(OUTPUT)arch/x86/include/generated
-+    NO_SYSCALL_TABLE := 0
-+    CFLAGS += -DHAVE_ARCH_X86_64_SUPPORT -I$(OUTPUT)arch/x86/include/generated
-     ARCH_INCLUDE = ../../arch/x86/lib/memcpy_64.S ../../arch/x86/lib/memset_64.S
-     LIBUNWIND_LIBS = -lunwind-x86_64 -lunwind -llzma
-     $(call detected,CONFIG_X86_64)
-@@ -56,12 +58,18 @@ endif
- 
- ifeq ($(ARCH),s390)
-   NO_PERF_REGS := 0
-+  NO_SYSCALL_TABLE := 0
-+  CFLAGS += -I$(OUTPUT)arch/s390/include/generated
- endif
- 
- ifeq ($(NO_PERF_REGS),0)
-   $(call detected,CONFIG_PERF_REGS)
- endif
- 
-+ifneq ($(NO_SYSCALL_TABLE),1)
-+  CFLAGS += -DHAVE_SYSCALL_TABLE
-+endif
-+
- # So far there's only x86 and arm libdw unwind support merged in perf.
- # Disable it on all other architectures in case libdw unwind
- # support is detected in system. Add supported architectures
-diff --git a/tools/perf/util/syscalltbl.c b/tools/perf/util/syscalltbl.c
-index 6eea7cff3d4e..303bdb84ab5a 100644
---- a/tools/perf/util/syscalltbl.c
-+++ b/tools/perf/util/syscalltbl.c
-@@ -26,6 +26,10 @@
- #include <asm/syscalls_64.c>
- const int syscalltbl_native_max_id = SYSCALLTBL_x86_64_MAX_ID;
- static const char **syscalltbl_native = syscalltbl_x86_64;
-+#elif defined(__s390x__)
-+#include <asm/syscalls_64.c>
-+const int syscalltbl_native_max_id = SYSCALLTBL_S390_64_MAX_ID;
-+static const char **syscalltbl_native = syscalltbl_s390_64;
- #endif
- 
- struct syscall {
+ 	if (kvm->arch.use_cmma) {
+ 		/*
+-		 * Get the last slot. They should be sorted by base_gfn, so the
+-		 * last slot is also the one at the end of the address space.
+-		 * We have verified above that at least one slot is present.
++		 * Get the first slot. They are reverse sorted by base_gfn, so
++		 * the first slot is also the one at the end of the address
++		 * space. We have verified above that at least one slot is
++		 * present.
+ 		 */
+-		ms = slots->memslots + slots->used_slots - 1;
++		ms = slots->memslots;
+ 		/* round up so we only use full longs */
+ 		ram_pages = roundup(ms->base_gfn + ms->npages, BITS_PER_LONG);
+ 		/* allocate enough bytes to store all the bits */
 -- 
-2.13.6
+2.13.4
