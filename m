@@ -1,95 +1,65 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 1/1] KVM: s390: fix cmma migration for multiple memory
- slots
-Date: Tue, 19 Dec 2017 21:21:57 +0100
-Message-ID: <de15ace8-6681-cb19-c739-e18692eba84f@de.ibm.com>
-References: <20171219081921.81670-1-borntraeger@de.ibm.com>
- <20171219081921.81670-2-borntraeger@de.ibm.com>
- <1ac27d73-d4a7-b596-266b-8a3ff8aa6f41@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 20 Dec 2017 15:09:29 +0100
+From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+Subject: Re: [PATCH] s390/decompressor: add fortify_panic as x86 has.
+Message-ID: <20171220150929.38ab6771@kitsune.suse.cz>
+In-Reply-To: <20171213083317.GA6931@osiris>
+References: <20171207103727.9461-1-msuchanek@suse.de>
+        <20171207135507.275c5809@mschwideX1>
+        <20171211140904.2f023b3c@kitsune.suse.cz>
+        <20171213083317.GA6931@osiris>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1ac27d73-d4a7-b596-266b-8a3ff8aa6f41@redhat.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Marcelo Henrique Cerri <marcelo.cerri@canonical.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Wed, 13 Dec 2017 09:33:17 +0100
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
+> From 4ec2a3fd66bb5b1da35807bc2e382f9b8d9eebb8 Mon Sep 17 00:00:00 2001
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Date: Wed, 13 Dec 2017 09:21:59 +0100
+> Subject: [PATCH] s390/sclp: disable FORTIFY_SOURCE for early sclp code
+> 
+> Michal Suchanek reported the following compile error with
+> FORTIFY_SOURCE enabled:
+> 
+> drivers/s390/char/sclp_early_core.o: In function `memcpy':
+> include/linux/string.h:340: undefined reference to `fortify_panic'
+> 
+> To fix this simply disable FORTIFY_SOURCE on the early sclp code as
+> well, which I forgot on the initial commit.
+> 
+> Fixes: 79962038dffa ("s390: add support for FORTIFY_SOURCE")
+> Reported-by: Michal Suchanek <msuchanek@suse.de>
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+>  drivers/s390/char/Makefile | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/s390/char/Makefile b/drivers/s390/char/Makefile
+> index 05ac6ba15a53..614b44e70a28 100644
+> --- a/drivers/s390/char/Makefile
+> +++ b/drivers/s390/char/Makefile
+> @@ -17,6 +17,8 @@ CFLAGS_REMOVE_sclp_early_core.o	+=
+> $(CC_FLAGS_MARCH) CFLAGS_sclp_early_core.o		+=
+> -march=z900 endif
+>  
+> +CFLAGS_sclp_early_core.o		+= -D__NO_FORTIFY
+> +
+>  obj-y += ctrlchar.o keyboard.o defkeymap.o sclp.o sclp_rw.o
+> sclp_quiesce.o \ sclp_cmd.o sclp_config.o sclp_cpi_sys.o sclp_ocf.o
+> sclp_ctl.o \ sclp_early.o sclp_early_core.o
 
-On 12/19/2017 06:11 PM, David Hildenbrand wrote:
-> On 19.12.2017 09:19, Christian Borntraeger wrote:
->> when multiple memory slots are present the cmma migration code
->> does not allocate enough memory for the bitmap. The memory slots
->> are sorted in reverse order, so we must use gfn and size of
->> slot[0] instead of the last one.
->>
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> Reviewed-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
->> Cc: stable@vger.kernel.org # 4.13+
->> Fixes: 190df4a212a7 (KVM: s390: CMMA tracking, ESSA emulation, migration mode)
->> ---
->>  arch/s390/kvm/kvm-s390.c | 9 +++++----
->>  1 file changed, 5 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 966ea611210a..3373d8dff131 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -792,11 +792,12 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
->>  
->>  	if (kvm->arch.use_cmma) {
->>  		/*
->> -		 * Get the last slot. They should be sorted by base_gfn, so the
->> -		 * last slot is also the one at the end of the address space.
->> -		 * We have verified above that at least one slot is present.
->> +		 * Get the first slot. They are reverse sorted by base_gfn, so
->> +		 * the first slot is also the one at the end of the address
->> +		 * space. We have verified above that at least one slot is
->> +		 * present.
->>  		 */
->> -		ms = slots->memslots + slots->used_slots - 1;
->> +		ms = slots->memslots;
->>  		/* round up so we only use full longs */
->>  		ram_pages = roundup(ms->base_gfn + ms->npages, BITS_PER_LONG);
->>  		/* allocate enough bytes to store all the bits */
->>
-> 
-> If I am not wrong, can't user space:
-> 
-> a) Create a VM, boot linux
-> b) Trigger VM START migration, initializing the bitmap
-> c) add a new memslot
-> c) make the guest execute an ESSA instruction on that new memslot
-> 
-> in do_essa(), gfn_to_hva() will now succeed and we will write into some
-> random memory as the bitmap is too short:
-> 
-> "test_and_set_bit(gfn, ms->pgste_bitmap)"
-> 
-> 
-> The same could be possible if the guest onlines memory (creating the
-> memslot via SCLP) during VM migration
+That works for me as well.
 
-Yes, this is another bug in that code. Since I would like to avoid coupling this with
-KVM_S390_VM_MEM_LIMIT_SIZE I will likely do something like the following as an additional
-patch (or folded in).
-Will do a proper patch tomorrow.
+Tested-by: Michal Suchanek <msuchanek@suse.de>
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 572496c688cc..c554c06fdc6e 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -1006,7 +1006,7 @@ static inline int do_essa(struct kvm_vcpu *vcpu, const int orc)
-                cbrlo[entries] = gfn << PAGE_SHIFT;
-        }
- 
--       if (orc) {
-+       if (orc && gfn < ms->ram_pages) {
-                /* increment only if we are really flipping the bit to 1 */
-                if (!test_and_set_bit(gfn, ms->pgste_bitmap))
-                        atomic64_inc(&ms->dirty_pages);
+Thanks
+
+Michal
