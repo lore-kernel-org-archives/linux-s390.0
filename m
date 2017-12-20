@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 3/5] KVM: s390: add debug tracing for cpu features of CPU model
-Date: Wed, 20 Dec 2017 16:52:58 +0100
-Message-ID: <20171220155300.102321-4-borntraeger@de.ibm.com>
+Subject: [PATCH 1/5] s390x/mm: cleanup gmap_pte_op_walk()
+Date: Wed, 20 Dec 2017 16:52:56 +0100
+Message-ID: <20171220155300.102321-2-borntraeger@de.ibm.com>
 References: <20171220155300.102321-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171220155300.102321-1-borntraeger@de.ibm.com>
@@ -12,73 +12,104 @@ To: Cornelia Huck <cohuck@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The cpu model already traces the cpu facilities, the ibc and
-guest CPU ids. We should do the same for the cpu features (on
-success only).
+From: David Hildenbrand <david@redhat.com>
 
+gmap_mprotect_notify() refuses shadow gmaps. Turns out that
+a) gmap_protect_range()
+b) gmap_read_table()
+c) gmap_pte_op_walk()
+
+Are never called for gmap shadows. And never should be. This dates back
+to gmap shadow prototypes where we allowed to call mprotect_notify() on
+the gmap shadow (to get notified about the prefix pages getting removed).
+This is avoided by always getting notified about any change on the gmap
+shadow.
+
+The only real function for walking page tables on shadow gmaps is
+gmap_table_walk().
+
+So, essentially, these functions should never get called and
+gmap_pte_op_walk() can be cleaned up. Add some checks to callers of
+gmap_pte_op_walk().
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20171110151805.7541-1-david@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ arch/s390/mm/gmap.c | 23 ++++++++---------------
+ 1 file changed, 8 insertions(+), 15 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 00ef6f47e466..c85d7c4e8a38 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1084,7 +1084,6 @@ static int kvm_s390_set_processor_feat(struct kvm *kvm,
- 				       struct kvm_device_attr *attr)
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 05d459b638f5..54cfd51a5a27 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -815,27 +815,17 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
+  * @ptl: pointer to the spinlock pointer
+  *
+  * Returns a pointer to the locked pte for a guest address, or NULL
+- *
+- * Note: Can also be called for shadow gmaps.
+  */
+ static pte_t *gmap_pte_op_walk(struct gmap *gmap, unsigned long gaddr,
+ 			       spinlock_t **ptl)
  {
- 	struct kvm_s390_vm_cpu_feat data;
--	int ret = -EBUSY;
+ 	unsigned long *table;
  
- 	if (copy_from_user(&data, (void __user *)attr->addr, sizeof(data)))
- 		return -EFAULT;
-@@ -1094,13 +1093,18 @@ static int kvm_s390_set_processor_feat(struct kvm *kvm,
- 		return -EINVAL;
- 
- 	mutex_lock(&kvm->lock);
--	if (!kvm->created_vcpus) {
--		bitmap_copy(kvm->arch.cpu_feat, (unsigned long *) data.feat,
--			    KVM_S390_VM_CPU_FEAT_NR_BITS);
--		ret = 0;
-+	if (kvm->created_vcpus) {
-+		mutex_unlock(&kvm->lock);
-+		return -EBUSY;
- 	}
-+	bitmap_copy(kvm->arch.cpu_feat, (unsigned long *) data.feat,
-+		    KVM_S390_VM_CPU_FEAT_NR_BITS);
- 	mutex_unlock(&kvm->lock);
--	return ret;
-+	VM_EVENT(kvm, 3, "SET: guest feat: 0x%16.16llx.0x%16.16llx.0x%16.16llx",
-+			 data.feat[0],
-+			 data.feat[1],
-+			 data.feat[2]);
-+	return 0;
+-	if (gmap_is_shadow(gmap))
+-		spin_lock(&gmap->guest_table_lock);
++	BUG_ON(gmap_is_shadow(gmap));
+ 	/* Walk the gmap page table, lock and get pte pointer */
+ 	table = gmap_table_walk(gmap, gaddr, 1); /* get segment pointer */
+-	if (!table || *table & _SEGMENT_ENTRY_INVALID) {
+-		if (gmap_is_shadow(gmap))
+-			spin_unlock(&gmap->guest_table_lock);
++	if (!table || *table & _SEGMENT_ENTRY_INVALID)
+ 		return NULL;
+-	}
+-	if (gmap_is_shadow(gmap)) {
+-		*ptl = &gmap->guest_table_lock;
+-		return pte_offset_map((pmd_t *) table, gaddr);
+-	}
+ 	return pte_alloc_map_lock(gmap->mm, (pmd_t *) table, gaddr, ptl);
  }
  
- static int kvm_s390_set_processor_subfunc(struct kvm *kvm,
-@@ -1202,6 +1206,10 @@ static int kvm_s390_get_processor_feat(struct kvm *kvm,
- 		    KVM_S390_VM_CPU_FEAT_NR_BITS);
- 	if (copy_to_user((void __user *)attr->addr, &data, sizeof(data)))
- 		return -EFAULT;
-+	VM_EVENT(kvm, 3, "GET: guest feat: 0x%16.16llx.0x%16.16llx.0x%16.16llx",
-+			 data.feat[0],
-+			 data.feat[1],
-+			 data.feat[2]);
- 	return 0;
- }
+@@ -889,8 +879,6 @@ static void gmap_pte_op_end(spinlock_t *ptl)
+  * -EFAULT if gaddr is invalid (or mapping for shadows is missing).
+  *
+  * Called with sg->mm->mmap_sem in read.
+- *
+- * Note: Can also be called for shadow gmaps.
+  */
+ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 			      unsigned long len, int prot, unsigned long bits)
+@@ -900,6 +888,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 	pte_t *ptep;
+ 	int rc;
  
-@@ -1215,6 +1223,10 @@ static int kvm_s390_get_machine_feat(struct kvm *kvm,
- 		    KVM_S390_VM_CPU_FEAT_NR_BITS);
- 	if (copy_to_user((void __user *)attr->addr, &data, sizeof(data)))
- 		return -EFAULT;
-+	VM_EVENT(kvm, 3, "GET: host feat:  0x%16.16llx.0x%16.16llx.0x%16.16llx",
-+			 data.feat[0],
-+			 data.feat[1],
-+			 data.feat[2]);
- 	return 0;
- }
++	BUG_ON(gmap_is_shadow(gmap));
+ 	while (len) {
+ 		rc = -EAGAIN;
+ 		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
+@@ -960,7 +949,8 @@ EXPORT_SYMBOL_GPL(gmap_mprotect_notify);
+  * @val: pointer to the unsigned long value to return
+  *
+  * Returns 0 if the value was read, -ENOMEM if out of memory and -EFAULT
+- * if reading using the virtual address failed.
++ * if reading using the virtual address failed. -EINVAL if called on a gmap
++ * shadow.
+  *
+  * Called with gmap->mm->mmap_sem in read.
+  */
+@@ -971,6 +961,9 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val)
+ 	pte_t *ptep, pte;
+ 	int rc;
  
++	if (gmap_is_shadow(gmap))
++		return -EINVAL;
++
+ 	while (1) {
+ 		rc = -EAGAIN;
+ 		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
 -- 
 2.13.4
