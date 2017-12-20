@@ -1,99 +1,85 @@
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH v2 22/22] RFC: s390/mm: Add gmap lock classes
-Date: Wed, 20 Dec 2017 13:36:12 +0100
-Message-ID: <a052e498-a033-3274-dda8-89ef66ee07eb@linux.vnet.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC/PATCH v2 21/22] KVM: s390: Add KVM HPAGE capability
+Date: Wed, 20 Dec 2017 14:02:56 +0100
+Message-ID: <20171220140236.7043f9a7.cohuck@redhat.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1513169613-13509-23-git-send-email-frankja@linux.vnet.ibm.com>
- <875a7110-e255-2690-c8bc-8d7665a9f63a@de.ibm.com>
+        <1513169613-13509-22-git-send-email-frankja@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="DzeMbfkgUsIiA8IwAJjknWJBTIDB1CG6N"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <875a7110-e255-2690-c8bc-8d7665a9f63a@de.ibm.com>
+In-Reply-To: <1513169613-13509-22-git-send-email-frankja@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---DzeMbfkgUsIiA8IwAJjknWJBTIDB1CG6N
-Content-Type: multipart/mixed; boundary="9X4qkPuql5weSSy3vOeGlHXtrf7BlxDBc";
- protected-headers="v1"
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com,
- linux-s390@vger.kernel.org
-Message-ID: <a052e498-a033-3274-dda8-89ef66ee07eb@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH v2 22/22] RFC: s390/mm: Add gmap lock classes
-References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1513169613-13509-23-git-send-email-frankja@linux.vnet.ibm.com>
- <875a7110-e255-2690-c8bc-8d7665a9f63a@de.ibm.com>
-In-Reply-To: <875a7110-e255-2690-c8bc-8d7665a9f63a@de.ibm.com>
+On Wed, 13 Dec 2017 13:53:32 +0100
+Janosch Frank <frankja@linux.vnet.ibm.com> wrote:
 
---9X4qkPuql5weSSy3vOeGlHXtrf7BlxDBc
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+> KVM huge page backing support can not be easily tested under
+> s390. Currently testing is only possible after most of the guest has
+> already been set up.
+> 
+> To indicate, that KVM has huge page backing support, we add the
+> KVM_CAP_S390_HPAGE capability. This does not mean, that transparent
+> huge pages are supported.
 
-On 20.12.2017 13:24, Christian Borntraeger wrote:
-> On 12/13/2017 01:53 PM, Janosch Frank wrote:
->> A shadow gmap and its parent are locked right after each other when
->> doing VSIE management. Lockdep can't differentiate between the two
->> classes without some help.
->>  /**
->>   * struct gmap_struct - guest address space
->>   * @list: list head for the mm->context gmap list
->> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
->> index cb03646..86a12f3 100644
->> --- a/arch/s390/mm/gmap.c
->> +++ b/arch/s390/mm/gmap.c
->> @@ -199,10 +199,8 @@ static void gmap_free(struct gmap *gmap)
->>  	gmap_radix_tree_free(&gmap->host_to_guest);
->>
->>  	/* Free split pmd page tables */
->> -	spin_lock(&gmap->guest_table_lock);
->>  	list_for_each_entry_safe(page, next, &gmap->split_list, lru)
->>  		page_table_free_pgste(page);
->> -	spin_unlock(&gmap->guest_table_lock);
->=20
-> Any reason why you only remove these?
+Do you expect to use a different cap for non-1MB huge pages? If yes,
+this should probably be mentioned here.
 
-They were inserted when I had some locking problems on split pages.
-After I spoke to Martin and checked that we absolutely have no reference
-to the gmap anymore and hence can not end up in gmap_split_free at the
-same time I decided to remove them.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+> ---
+>  Documentation/virtual/kvm/api.txt | 10 ++++++++++
+>  arch/s390/kvm/kvm-s390.c          |  1 +
+>  include/uapi/linux/kvm.h          |  1 +
+>  3 files changed, 12 insertions(+)
+> 
+> diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+> index 57d3ee9..a56b0af 100644
+> --- a/Documentation/virtual/kvm/api.txt
+> +++ b/Documentation/virtual/kvm/api.txt
+> @@ -4369,3 +4369,13 @@ Parameters: none
+>  This capability indicates if the flic device will be able to get/set the
+>  AIS states for migration via the KVM_DEV_FLIC_AISM_ALL attribute and allows
+>  to discover this without having to create a flic device.
+> +
+> +8.14 KVM_CAP_S390_HPAGE
+> +
+> +Architectures: s390
+> +This capability, if KVM_CHECK_EXTENSION indicates that it is
+> +available, means that KVM supports VMs that are memory backed through
+> +hugetlbfs with 1 megabyte pages.
+> +
+> +While it is generally possible to create and start a VM without this
+> +support, the VM will not be functional.
 
-However, they should rather have never been introduced in the split
-patch than being removed here... My current internal branch has this
-fixed, as well as some other rebasing mistakes.
+This sentence applies only to the hugepage case, doesn't it?
 
-
---9X4qkPuql5weSSy3vOeGlHXtrf7BlxDBc--
-
---DzeMbfkgUsIiA8IwAJjknWJBTIDB1CG6N
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJaOllDAAoJEBcO/8Q8ZEV5Sk8P/ih+nNnrKot6JGHdGKS1qMiV
-038gFN96KJebkwM05L6Iaf2Jg3zZBg+PkIp4UC1keZ1KovtJvt+kasHH+UJgDtK0
-/kkbxUn+Y4Tw7Je2ek3EevDDPI/pEcKRn9f+QBTElSUdeETWscZMuC7ygCFs0ArD
-VMiOg3F16vRSgmaMrMJSOoEtfBUHmo8Z+vcm04HznuB5SX++ar2BnliaAUn+oT5w
-da/BUgtihRMQ/b1/LWLN76K6XYKTnWGwzcuxI4eiRnk1sWqu2idTSd0+GMTcXDEe
-Muv7egU6JZ7EGQv3yTgCuaMoqz7DLsxWyTVlvUlF8OxEpe3GdqAllYOjKyrZFDEC
-wbDHOwsHDAi+/sZdzxyqn/WxkV44nxmsdyFBisXBLNDZ5syk8lU2vRk5BdzjoemL
-ofFDWUWF5vzjJe8uqi+vaFTMj5SUCGN4v84U9JdFodM2sQ4UfL3RC3wnlq+3XR8h
-U2IOfSNF5nBzc1B92/aqR0pU02i/4a8aGpMR7JtAFj2RQyvlPUJVTZQdkwSCHbHf
-Gutd9LYohzYUfXWqsjhmfkCRaCqikx9fhIee+ieB8QpubJ3KoY65KjPFj6KcAeu2
-zVEobFigLpbaNELXxR2K/qG7tDgj5IMbCmJ2+g+DyD3U4s5ERE0XvCK60bVIyiOx
-kHvtXCqZlHYQVwkh/sxx
-=SOCR
------END PGP SIGNATURE-----
-
---DzeMbfkgUsIiA8IwAJjknWJBTIDB1CG6N--
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 73fb3bc..8951ad4 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -393,6 +393,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_S390_CMMA_MIGRATION:
+>  	case KVM_CAP_S390_AIS:
+>  	case KVM_CAP_S390_AIS_MIGRATION:
+> +	case KVM_CAP_S390_HPAGE:
+>  		r = 1;
+>  		break;
+>  	case KVM_CAP_S390_MEM_OP:
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index 496e59a..aa3d707 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -932,6 +932,7 @@ struct kvm_ppc_resize_hpt {
+>  #define KVM_CAP_HYPERV_SYNIC2 148
+>  #define KVM_CAP_HYPERV_VP_INDEX 149
+>  #define KVM_CAP_S390_AIS_MIGRATION 150
+> +#define KVM_CAP_S390_HPAGE 151
+>  
+>  #ifdef KVM_CAP_IRQ_ROUTING
+>  
