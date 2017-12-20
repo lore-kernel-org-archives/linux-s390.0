@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 15/15] s390/qeth: replace open-coded in*_pton()
-Date: Wed, 20 Dec 2017 20:11:09 +0100
-Message-ID: <20171220191109.90487-16-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 12/15] s390/qeth: unionize next-hop field in qeth L3 header
+Date: Wed, 20 Dec 2017 20:11:06 +0100
+Message-ID: <20171220191109.90487-13-jwi@linux.vnet.ibm.com>
 References: <20171220191109.90487-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20171220191109.90487-1-jwi@linux.vnet.ibm.com>
@@ -12,170 +12,96 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-There's a common helper for parsing an IP address string, let's use it.
+The L3 packet descriptor's 'dest_addr' field is used for a different
+purpose in RX descriptors. Clean up the hard-coded byte accesses and
+try to be more self-documenting.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l3.h      |  1 -
- drivers/s390/net/qeth_l3_main.c | 88 -----------------------------------------
- drivers/s390/net/qeth_l3_sys.c  | 12 ++++++
- 3 files changed, 12 insertions(+), 89 deletions(-)
+ drivers/s390/net/qeth_core.h    | 19 +++++++++++++++++--
+ drivers/s390/net/qeth_l3_main.c | 12 ++++++------
+ 2 files changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
-index 071c00841208..49f92ebbc5ad 100644
---- a/drivers/s390/net/qeth_l3.h
-+++ b/drivers/s390/net/qeth_l3.h
-@@ -69,7 +69,6 @@ struct qeth_ipato_entry {
- extern const struct attribute_group *qeth_l3_attr_groups[];
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 100f7cce0260..db42107bf2f5 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -297,8 +297,23 @@ struct qeth_hdr_layer3 {
+ 	__u8  ext_flags;
+ 	__u16 vlan_id;
+ 	__u16 frame_offset;
+-	__u8  dest_addr[16];
+-} __attribute__ ((packed));
++	union {
++		/* TX: */
++		u8 ipv6_addr[16];
++		struct ipv4 {
++			u8 res[12];
++			u32 addr;
++		} ipv4;
++		/* RX: */
++		struct rx {
++			u8 res1[2];
++			u8 src_mac[6];
++			u8 res2[4];
++			u16 vlan_id;
++			u8 res3[2];
++		} rx;
++	} next_hop;
++};
  
- void qeth_l3_ipaddr_to_string(enum qeth_prot_versions, const __u8 *, char *);
--int qeth_l3_string_to_ipaddr(const char *, enum qeth_prot_versions, __u8 *);
- int qeth_l3_create_device_attributes(struct device *);
- void qeth_l3_remove_device_attributes(struct device *);
- int qeth_l3_setrouting_v4(struct qeth_card *);
+ struct qeth_hdr_layer2 {
+ 	__u8 id;
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index e31cc4fa544c..92bcb02671bc 100644
+index e168719c4b93..4723ed9831eb 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -48,93 +48,16 @@ static int qeth_l3_register_addr_entry(struct qeth_card *,
- static int qeth_l3_deregister_addr_entry(struct qeth_card *,
- 		struct qeth_ipaddr *);
+@@ -1637,7 +1637,7 @@ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
+ 		}
+ 		if (hdr->hdr.l3.ext_flags & QETH_HDR_EXT_SRC_MAC_ADDR)
+ 			card->dev->header_ops->create(skb, card->dev, prot,
+-				tg_addr, &hdr->hdr.l3.dest_addr[2],
++				tg_addr, &hdr->hdr.l3.next_hop.rx.src_mac,
+ 				card->dev->addr_len);
+ 		else
+ 			card->dev->header_ops->create(skb, card->dev, prot,
+@@ -1652,7 +1652,7 @@ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
+ 				      QETH_HDR_EXT_INCLUDE_VLAN_TAG))) {
+ 		u16 tag = (hdr->hdr.l3.ext_flags & QETH_HDR_EXT_VLAN_FRAME) ?
+ 				hdr->hdr.l3.vlan_id :
+-				*((u16 *)&hdr->hdr.l3.dest_addr[12]);
++				hdr->hdr.l3.next_hop.rx.vlan_id;
+ 		__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), tag);
+ 	}
  
--static int qeth_l3_isxdigit(char *buf)
--{
--	while (*buf) {
--		if (!isxdigit(*buf++))
--			return 0;
--	}
--	return 1;
--}
--
- static void qeth_l3_ipaddr4_to_string(const __u8 *addr, char *buf)
- {
- 	sprintf(buf, "%pI4", addr);
+@@ -2408,7 +2408,7 @@ static void qeth_l3_fill_af_iucv_hdr(struct qeth_card *card,
+ 	daddr[0] = 0xfe;
+ 	daddr[1] = 0x80;
+ 	memcpy(&daddr[8], iucv_hdr->destUserID, 8);
+-	memcpy(hdr->hdr.l3.dest_addr, daddr, 16);
++	memcpy(hdr->hdr.l3.next_hop.ipv6_addr, daddr, 16);
  }
  
--static int qeth_l3_string_to_ipaddr4(const char *buf, __u8 *addr)
--{
--	int count = 0, rc = 0;
--	unsigned int in[4];
--	char c;
--
--	rc = sscanf(buf, "%u.%u.%u.%u%c",
--		    &in[0], &in[1], &in[2], &in[3], &c);
--	if (rc != 4 && (rc != 5 || c != '\n'))
--		return -EINVAL;
--	for (count = 0; count < 4; count++) {
--		if (in[count] > 255)
--			return -EINVAL;
--		addr[count] = in[count];
--	}
--	return 0;
--}
--
- static void qeth_l3_ipaddr6_to_string(const __u8 *addr, char *buf)
- {
- 	sprintf(buf, "%pI6", addr);
- }
+ static void qeth_l3_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
+@@ -2445,8 +2445,8 @@ static void qeth_l3_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
  
--static int qeth_l3_string_to_ipaddr6(const char *buf, __u8 *addr)
--{
--	const char *end, *end_tmp, *start;
--	__u16 *in;
--	char num[5];
--	int num2, cnt, out, found, save_cnt;
--	unsigned short in_tmp[8] = {0, };
--
--	cnt = out = found = save_cnt = num2 = 0;
--	end = start = buf;
--	in = (__u16 *) addr;
--	memset(in, 0, 16);
--	while (*end) {
--		end = strchr(start, ':');
--		if (end == NULL) {
--			end = buf + strlen(buf);
--			end_tmp = strchr(start, '\n');
--			if (end_tmp != NULL)
--				end = end_tmp;
--			out = 1;
--		}
--		if ((end - start)) {
--			memset(num, 0, 5);
--			if ((end - start) > 4)
--				return -EINVAL;
--			memcpy(num, start, end - start);
--			if (!qeth_l3_isxdigit(num))
--				return -EINVAL;
--			sscanf(start, "%x", &num2);
--			if (found)
--				in_tmp[save_cnt++] = num2;
--			else
--				in[cnt++] = num2;
--			if (out)
--				break;
--		} else {
--			if (found)
--				return -EINVAL;
--			found = 1;
--		}
--		start = ++end;
--	}
--	if (cnt + save_cnt > 8)
--		return -EINVAL;
--	cnt = 7;
--	while (save_cnt)
--		in[cnt--] = in_tmp[--save_cnt];
--	return 0;
--}
--
- void qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const __u8 *addr,
- 				char *buf)
- {
-@@ -144,17 +67,6 @@ void qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const __u8 *addr,
- 		qeth_l3_ipaddr6_to_string(addr, buf);
- }
- 
--int qeth_l3_string_to_ipaddr(const char *buf, enum qeth_prot_versions proto,
--				__u8 *addr)
--{
--	if (proto == QETH_PROT_IPV4)
--		return qeth_l3_string_to_ipaddr4(buf, addr);
--	else if (proto == QETH_PROT_IPV6)
--		return qeth_l3_string_to_ipaddr6(buf, addr);
--	else
--		return -EINVAL;
--}
--
- static void qeth_l3_convert_addr_to_bits(u8 *addr, u8 *bits, int len)
- {
- 	int i, j;
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index 6ea2b528a64e..00a10b66c01f 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -10,11 +10,23 @@
- #include <linux/slab.h>
- #include <asm/ebcdic.h>
- #include <linux/hashtable.h>
-+#include <linux/inet.h>
- #include "qeth_l3.h"
- 
- #define QETH_DEVICE_ATTR(_id, _name, _mode, _show, _store) \
- struct device_attribute dev_attr_##_id = __ATTR(_name, _mode, _show, _store)
- 
-+static int qeth_l3_string_to_ipaddr(const char *buf,
-+				    enum qeth_prot_versions proto, u8 *addr)
-+{
-+	const char *end;
-+
-+	if ((proto == QETH_PROT_IPV4 && !in4_pton(buf, -1, addr, -1, &end)) ||
-+	    (proto == QETH_PROT_IPV6 && !in6_pton(buf, -1, addr, -1, &end)))
-+		return -EINVAL;
-+	return 0;
-+}
-+
- static ssize_t qeth_l3_dev_route_show(struct qeth_card *card,
- 			struct qeth_routing_info *route, char *buf)
- {
+ 		/* IPv4 */
+ 		hdr->hdr.l3.flags = qeth_l3_get_qeth_hdr_flags4(cast_type);
+-		memset(hdr->hdr.l3.dest_addr, 0, 12);
+-		*((__be32 *) (&hdr->hdr.l3.dest_addr[12])) = *pkey;
++		memset(hdr->hdr.l3.next_hop.ipv4.res, 0, 12);
++		*((__be32 *) &hdr->hdr.l3.next_hop.ipv4.addr) = *pkey;
+ 	} else if (ipv == 6) {
+ 		struct rt6_info *rt = (struct rt6_info *) dst;
+ 		struct in6_addr *pkey = &ipv6_hdr(skb)->daddr;
+@@ -2458,7 +2458,7 @@ static void qeth_l3_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
+ 		hdr->hdr.l3.flags = qeth_l3_get_qeth_hdr_flags6(cast_type);
+ 		if (card->info.type == QETH_CARD_TYPE_IQD)
+ 			hdr->hdr.l3.flags &= ~QETH_HDR_PASSTHRU;
+-		memcpy(hdr->hdr.l3.dest_addr, pkey, 16);
++		memcpy(hdr->hdr.l3.next_hop.ipv6_addr, pkey, 16);
+ 	} else {
+ 		if (ether_addr_equal_64bits(eth_hdr(skb)->h_dest,
+ 					    skb->dev->broadcast)) {
 -- 
 2.13.5
