@@ -1,37 +1,50 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5/5] kvm_config: add CONFIG_S390_GUEST
-Date: Wed, 20 Dec 2017 16:53:00 +0100
-Message-ID: <20171220155300.102321-6-borntraeger@de.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/5] s390x/mm: cleanup gmap_pte_op_walk()
+Date: Wed, 20 Dec 2017 17:33:00 +0100
+Message-ID: <20171220173300.6f308f2f.cohuck@redhat.com>
 References: <20171220155300.102321-1-borntraeger@de.ibm.com>
+        <20171220155300.102321-2-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171220155300.102321-1-borntraeger@de.ibm.com>
+In-Reply-To: <20171220155300.102321-2-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-make kvmconfig currently does not select CONFIG_S390_GUEST. Since
-the virtio-ccw transport depends on CONFIG_S390_GUEST, we want
-to add CONFIG_S390_GUEST to kvmconfig.
+On Wed, 20 Dec 2017 16:52:56 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- kernel/configs/kvm_guest.config | 1 +
- 1 file changed, 1 insertion(+)
+> From: David Hildenbrand <david@redhat.com>
+> 
+> gmap_mprotect_notify() refuses shadow gmaps. Turns out that
+> a) gmap_protect_range()
+> b) gmap_read_table()
+> c) gmap_pte_op_walk()
+> 
+> Are never called for gmap shadows. And never should be. This dates back
+> to gmap shadow prototypes where we allowed to call mprotect_notify() on
+> the gmap shadow (to get notified about the prefix pages getting removed).
+> This is avoided by always getting notified about any change on the gmap
+> shadow.
+> 
+> The only real function for walking page tables on shadow gmaps is
+> gmap_table_walk().
+> 
+> So, essentially, these functions should never get called and
+> gmap_pte_op_walk() can be cleaned up. Add some checks to callers of
+> gmap_pte_op_walk().
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> Message-Id: <20171110151805.7541-1-david@redhat.com>
+> Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/mm/gmap.c | 23 ++++++++---------------
+>  1 file changed, 8 insertions(+), 15 deletions(-)
 
-diff --git a/kernel/configs/kvm_guest.config b/kernel/configs/kvm_guest.config
-index 8d9643767142..108fecc20fc1 100644
---- a/kernel/configs/kvm_guest.config
-+++ b/kernel/configs/kvm_guest.config
-@@ -18,6 +18,7 @@ CONFIG_VIRTUALIZATION=y
- CONFIG_HYPERVISOR_GUEST=y
- CONFIG_PARAVIRT=y
- CONFIG_KVM_GUEST=y
-+CONFIG_S390_GUEST=y
- CONFIG_VIRTIO=y
- CONFIG_VIRTIO_PCI=y
- CONFIG_VIRTIO_BLK=y
--- 
-2.13.4
+Acked-by: Cornelia Huck <cohuck@redhat.com>
