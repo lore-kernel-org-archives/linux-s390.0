@@ -1,25 +1,24 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH 2/2] KVM: s390: prevent buffer overrun on memory hotplug
  during migration
-Date: Thu, 21 Dec 2017 10:36:30 +0100
-Message-ID: <20171221103630.235c4ed5.cohuck@redhat.com>
+Date: Thu, 21 Dec 2017 12:50:50 +0100
+Message-ID: <c110d930-48d7-b815-73dd-19236d420fae@redhat.com>
 References: <20171221090416.17351-1-borntraeger@de.ibm.com>
-        <20171221090416.17351-3-borntraeger@de.ibm.com>
+ <20171221090416.17351-3-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20171221090416.17351-3-borntraeger@de.ibm.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>
+Cc: Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 21 Dec 2017 10:04:16 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
+On 21.12.2017 10:04, Christian Borntraeger wrote:
 > We must not go beyond the pre-allocated buffer. This can happen when
 > a new memory slot is added during migration.
 > 
@@ -44,5 +43,12 @@ Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 >  		/* increment only if we are really flipping the bit to 1 */
 >  		if (!test_and_set_bit(gfn, ms->pgste_bitmap))
 >  			atomic64_inc(&ms->dirty_pages);
+> 
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+
+Thanks,
+
+David / dhildenb
