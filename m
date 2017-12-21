@@ -1,92 +1,103 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC/PATCH v2 21/22] KVM: s390: Add KVM HPAGE capability
-Date: Wed, 20 Dec 2017 14:21:59 +0100
-Message-ID: <20171220142159.29cf7185.cohuck@redhat.com>
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v2 03/22] s390/mm: add gmap PMD invalidation
+ notification
+Date: Thu, 21 Dec 2017 10:24:49 +0100
+Message-ID: <39bdadc5-422a-84b8-fdd3-6620e4432686@linux.vnet.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
-        <1513169613-13509-22-git-send-email-frankja@linux.vnet.ibm.com>
-        <20171220140236.7043f9a7.cohuck@redhat.com>
-        <9def7f57-5cab-8b7b-e213-83d5b07727a0@linux.vnet.ibm.com>
+ <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="HYPN8ixaUYLi45Ov3hzKQUrE4Kx8iE2MR"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <9def7f57-5cab-8b7b-e213-83d5b07727a0@linux.vnet.ibm.com>
+In-Reply-To: <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 20 Dec 2017 14:17:24 +0100
-Janosch Frank <frankja@linux.vnet.ibm.com> wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--HYPN8ixaUYLi45Ov3hzKQUrE4Kx8iE2MR
+Content-Type: multipart/mixed; boundary="bYkNTJ3hwoJ9FJ1SIMXrp85OWQwXY3z64";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+To: kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com,
+ dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+Message-ID: <39bdadc5-422a-84b8-fdd3-6620e4432686@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v2 03/22] s390/mm: add gmap PMD invalidation
+ notification
+References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
+In-Reply-To: <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
 
-> On 20.12.2017 14:02, Cornelia Huck wrote:
-> > On Wed, 13 Dec 2017 13:53:32 +0100
-> > Janosch Frank <frankja@linux.vnet.ibm.com> wrote:
-> >   
-> >> KVM huge page backing support can not be easily tested under
-> >> s390. Currently testing is only possible after most of the guest has
-> >> already been set up.
-> >>
-> >> To indicate, that KVM has huge page backing support, we add the
-> >> KVM_CAP_S390_HPAGE capability. This does not mean, that transparent
-> >> huge pages are supported.  
-> > 
-> > Do you expect to use a different cap for non-1MB huge pages? If yes,
-> > this should probably be mentioned here.  
-> 
-> Yes probably KVM_CAP_S390_HPAGE2, but this will not come in the near future.
-> However this commit message lacks the information, that we only support
-> 1m pages, I'll add that.
+--bYkNTJ3hwoJ9FJ1SIMXrp85OWQwXY3z64
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-OK
+On 13.12.2017 13:53, Janosch Frank wrote:
+[...]
+>  #define GMAP_NOTIFY_SHADOW	0x2
+>  #define GMAP_NOTIFY_MPROT	0x1
+>=20
+> +/* Status bits in the gmap segment entry. */
+> +#define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
+> +
+>  /**
+>   * struct gmap_struct - guest address space
+>   * @list: list head for the mm->context gmap list
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pg=
+table.h
+> index 57d7bc9..ba3840c 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -269,8 +269,10 @@ static inline int is_module_addr(void *addr)
+>  #define _REGION_ENTRY_BITS_LARGE 0xffffffff8000fe2fUL
+>=20
+>  /* Bits in the segment table entry */
+> -#define _SEGMENT_ENTRY_BITS	0xfffffffffffffe33UL
+> -#define _SEGMENT_ENTRY_BITS_LARGE 0xfffffffffff0ff33UL
+> +#define _SEGMENT_ENTRY_BITS			0xfffffffffffffe33UL
+> +#define _SEGMENT_ENTRY_BITS_LARGE 		0xfffffffffff0ff33UL
+> +#define _SEGMENT_ENTRY_HARDWARE_BITS		0xfffffffffffffe30UL
+> +#define _SEGMENT_ENTRY_HARDWARE_BITS_LARGE 	0xfffffffffff00730UL
+>  #define _SEGMENT_ENTRY_ORIGIN_LARGE ~0xfffffUL /* large page address	 =
+   */
+>  #define _SEGMENT_ENTRY_ORIGIN	~0x7ffUL/* page table origin		    */
+>  #define _SEGMENT_ENTRY_PROTECT	0x200	/* segment protection bit	    */
 
-> 
-> 1m guest backing pages ought to be enough for everybody (TM) 
+@Martin: Are these constants fine with you?
 
-:)
+The whitespace damage that gets fixed in the next patch is already
+addressed in the next version :)
 
-> and the
-> pain to support 2g pages is expected to be a magnitude bigger than the
-> one for this patchset.
 
-This patchset already looks complicated enough to me...
+--bYkNTJ3hwoJ9FJ1SIMXrp85OWQwXY3z64--
 
-> 
-> >   
-> >>
-> >> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> >> ---
-> >>  Documentation/virtual/kvm/api.txt | 10 ++++++++++
-> >>  arch/s390/kvm/kvm-s390.c          |  1 +
-> >>  include/uapi/linux/kvm.h          |  1 +
-> >>  3 files changed, 12 insertions(+)
-> >>
-> >> diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-> >> index 57d3ee9..a56b0af 100644
-> >> --- a/Documentation/virtual/kvm/api.txt
-> >> +++ b/Documentation/virtual/kvm/api.txt
-> >> @@ -4369,3 +4369,13 @@ Parameters: none
-> >>  This capability indicates if the flic device will be able to get/set the
-> >>  AIS states for migration via the KVM_DEV_FLIC_AISM_ALL attribute and allows
-> >>  to discover this without having to create a flic device.
-> >> +
-> >> +8.14 KVM_CAP_S390_HPAGE
-> >> +
-> >> +Architectures: s390
-> >> +This capability, if KVM_CHECK_EXTENSION indicates that it is
-> >> +available, means that KVM supports VMs that are memory backed through
-> >> +hugetlbfs with 1 megabyte pages.
-> >> +
-> >> +While it is generally possible to create and start a VM without this
-> >> +support, the VM will not be functional.  
-> > 
-> > This sentence applies only to the hugepage case, doesn't it?  
-> 
-> Yes, of course.
-> I'll do a: s/a/such a/
-> 
-> Expect a QEMU fencing patch next year.
+--HYPN8ixaUYLi45Ov3hzKQUrE4Kx8iE2MR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Sounds good!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJaO33iAAoJEBcO/8Q8ZEV5FaQQALhV9sELcK6qjvbl1dZ4u/Pq
+B/mWkD7pGqp5Zi9IC++gQtkKmupJXoYgn4+Cmmz1MxBt4OiL2Nmp5/n5TPe92sYC
+XbbTg62NB8O8so7tlgVrTjVXvwt0r3sD/rI/tQTrMj5+GTfEOg3Mb41P0Hyi37Sd
+0ebFQK1z42F42tFvAUAtZSi00Ynh8bEoRx7PWjI8Iu6cHcV2d86k8wez0awT7SCO
+ZkTKGkO/xwGZi+Q3jjVn1Xovy4NG5uuQRuL9Wok5YdHtHfMUuSjzybC9NIsyQryr
+Yi9EngLU7AQCFvYyFmJYw2GfGT6iPNhWEwc4LIN/rF19h6TsN1Q9A4aSeVFsEknc
+gBu5AMwCjTECisABhKWD+lI+7ATyYwMBbrIkfbYLkK+bR35ugoN1f2l79ejXRTaI
+mBBQkxvGgojM0OJZbmjlkAOQwfWgY1WrNx8ie9xUxLq/D17q0QNyUQZXCRAMGGrh
+wE+lHYaU46qTx3tRQ+PFqvI780TVxLb/wBIq3ChYa/Mv+tOBvTBOnB0ixS2vaMBu
+EmtNJBFzUFF9ny717OFsCl6FQYSGJH/+1EoIi0PxgOyLq2T6r/nTPI7ldbNp0wJI
+blq3EvVGqIf9hLfGxzHOQHwy/3KI/H5OAGGeJ6rEKi8IQIiKcTtMdJbxvDd3biiK
+5SZCKv3JDJ3b+mRKPOFa
+=B/iD
+-----END PGP SIGNATURE-----
+
+--HYPN8ixaUYLi45Ov3hzKQUrE4Kx8iE2MR--
