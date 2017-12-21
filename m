@@ -1,414 +1,1056 @@
-From: Zhang Rui <rui.zhang@intel.com>
+From: Harald Freudenberger <freude@linux.vnet.ibm.com>
 Subject: Re: [-next PATCH 3/4] treewide: Use DEVICE_ATTR_RO
-Date: Thu, 21 Dec 2017 08:48:47 +0800
-Message-ID: <1513817327.2592.3.camel@intel.com>
+Date: Thu, 21 Dec 2017 08:55:51 +0100
+Message-ID: <ca11161c-d1cb-9cce-ae00-3ae7fa59fdd1@linux.vnet.ibm.com>
 References: <cover.1513706701.git.joe@perches.com>
  <2e64e7d278fa9e4e255221fb84717884a7bfb69c.1513706701.git.joe@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Type: multipart/mixed; boundary="===============1831014135=="
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 In-Reply-To: <2e64e7d278fa9e4e255221fb84717884a7bfb69c.1513706701.git.joe@perches.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 List-Archive: <https://lore.kernel.org/alsa-devel/>
 List-Post: <mailto:alsa-devel@alsa-project.org>
-To: Joe Perches <joe@perches.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Corey Minyard <minyard@acm.org>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Keith Busch <keith.busch@intel.com>, Jens Axboe <axboe@fb.com>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Harald Freudenberger <freude@de.ibm.com>, Don Brace <don.brace@microsemi.com>, "James E.J.
- Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, James Smart <james.smart@broadcom.com>, Dick Kennedy <dick.kennedy@broadcom.com>, Eduardo
+To: Joe Perches <joe@perches.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Corey Minyard <minyard@acm.org>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Keith Busch <keith.busch@intel.com>, Jens Axboe <axboe@fb.com>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, Harald Freudenberger <freude@de.ibm.com>, Don Brace <don.brace@microsemi.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, James Smart <james.smart@broadcom.com>, Dick Kennedy <dick.kennedy@broadcom.com>
 Cc: alsa-devel@alsa-project.org, Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, David Airlie <airlied@linux.ie>, Heiko Carstens <heiko.carstens@de.ibm.com>, dri-devel@lists.freedesktop.org, Takashi Iwai <tiwai@suse.com>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, esc.storagedev@microsemi.com, Russell King <linux@armlinux.org.uk>, linux-acpi@vger.kernel.org, linux-media@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-pm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-nvme@lists.infradead.org, openipmi-developer@lists.sourceforge.net, Jaroslav Kysela <perex@perex.cz>, linux-arm-kernel@lists.infradead.org, Alan Cox <alan@linux.intel.com>, linux-scsi@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Sakari
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gVHVlLCAyMDE3LTEyLTE5IGF0IDEwOjE1IC0wODAwLCBKb2UgUGVyY2hlcyB3cm90ZToKPiBD
-b252ZXJ0IERFVklDRV9BVFRSIHVzZXMgdG8gREVWSUNFX0FUVFJfUk8gd2hlcmUgcG9zc2libGUu
-Cj4gCj4gRG9uZSB3aXRoIHBlcmwgc2NyaXB0Ogo+IAo+ICQgZ2l0IGdyZXAgLXcgLS1uYW1lLW9u
-bHkgREVWSUNFX0FUVFIgfCBcCj4gwqAgeGFyZ3MgcGVybCAtaSAtZSAnbG9jYWwgJC87IHdoaWxl
-ICg8Pikgewo+IHMvXGJERVZJQ0VfQVRUUlxzKlwoXHMqKFx3KylccyosXHMqXCg/KD86XHMqU19J
-UlVHT1xzKnxccyowNDQ0XHMqKVwpPwo+IFxzKixccypcMV9zaG93XHMqLFxzKk5VTExccypcKS9E
-RVZJQ0VfQVRUUl9STyhcMSkvZzsgcHJpbnQ7fScKPiAKPiBTaWduZWQtb2ZmLWJ5OiBKb2UgUGVy
-Y2hlcyA8am9lQHBlcmNoZXMuY29tPgo+IC0tLQo+IMKgYXJjaC9hcm0vbWFjaC1weGEvc2hhcnBz
-bF9wbS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKg
-NCArKy0tCj4gwqBhcmNoL3NoL2RyaXZlcnMvcHVzaC1zd2l0Y2guY8KgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKgMiArLQo+IMKgYXJjaC90aWxlL2tl
-cm5lbC9zeXNmcy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoHwgMTAgKysrKystLS0tLQo+IMKgZHJpdmVycy9hY3BpL2RldmljZV9zeXNm
-cy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzC
-oMKgNiArKystLS0KPiDCoGRyaXZlcnMvY2hhci9pcG1pL2lwbWlfbXNnaGFuZGxlci5jwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfCAxNyArKysrKysrKwo+IC0tLS0tLS0tLQo+
-IMKgZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9zeXNmcy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKgNiArKystLS0KPiDCoGRyaXZlcnMvbnZtZS9ob3N0L2Nv
-cmUuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqB8IDEwICsrKysrLS0tLS0KPiDCoGRyaXZlcnMvczM5MC9jaW8vY3NzLmPCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKg
-OCArKysrLS0tLQo+IMKgZHJpdmVycy9zMzkwL2Npby9kZXZpY2UuY8KgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfMKgwqA4ICsrKystLS0tCj4g
-wqBkcml2ZXJzL3MzOTAvY3J5cHRvL2FwX2NhcmQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKgMiArLQo+IMKgZHJpdmVycy9zY3NpL2hwc2EuY8Kg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgfCAxMCArKysrKy0tLS0tCj4gwqBkcml2ZXJzL3Njc2kvbHBmYy9scGZjX2F0dHIu
-Y8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHwgMTggKysr
-KysrKysKPiAtLS0tLS0tLS0tCj4gwqBkcml2ZXJzL3N0YWdpbmcvbWVkaWEvYXRvbWlzcC9wY2kv
-YXRvbWlzcDIvaG1tL2htbS5jIHzCoMKgOCArKysrLS0tLQo+IMKgZHJpdmVycy90aGVybWFsL3Ro
-ZXJtYWxfc3lzZnMuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-fMKgwqA2ICsrKy0tLQoKRm9yIHRoZSB0aGVybWFsIHBhcnQsCkFDSy1ieTogWmhhbmcgUnVpIDxy
-dWkuemhhbmdAaW50ZWwuY29tPgoKdGhhbmtzLApydWkKPiDCoHNvdW5kL3NvYy9zb2MtY29yZS5j
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgfMKgwqAyICstCj4gwqBzb3VuZC9zb2Mvc29jLWRhcG0uY8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKg
-MiArLQo+IMKgMTYgZmlsZXMgY2hhbmdlZCwgNTggaW5zZXJ0aW9ucygrKSwgNjEgZGVsZXRpb25z
-KC0pCj4gCj4gZGlmZiAtLWdpdCBhL2FyY2gvYXJtL21hY2gtcHhhL3NoYXJwc2xfcG0uYyBiL2Fy
-Y2gvYXJtL21hY2gtCj4gcHhhL3NoYXJwc2xfcG0uYwo+IGluZGV4IDM5OGJhOWJhMjYzMi4uZWY5
-ZmQ5Yjc1OWNiIDEwMDY0NAo+IC0tLSBhL2FyY2gvYXJtL21hY2gtcHhhL3NoYXJwc2xfcG0uYwo+
-ICsrKyBiL2FyY2gvYXJtL21hY2gtcHhhL3NoYXJwc2xfcG0uYwo+IEBAIC04MDIsOCArODAyLDgg
-QEAgc3RhdGljIHNzaXplX3QgYmF0dGVyeV92b2x0YWdlX3Nob3coc3RydWN0IGRldmljZQo+ICpk
-ZXYsIHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlCj4gwqAJcmV0dXJuIHNwcmludGYoYnVmLCAiJWRc
-biIsCj4gc2hhcnBzbF9wbS5iYXR0c3RhdC5tYWluYmF0X3ZvbHRhZ2UpOwo+IMKgfQo+IMKgCj4g
-LXN0YXRpYyBERVZJQ0VfQVRUUihiYXR0ZXJ5X3BlcmNlbnRhZ2UsIDA0NDQsCj4gYmF0dGVyeV9w
-ZXJjZW50YWdlX3Nob3csIE5VTEwpOwo+IC1zdGF0aWMgREVWSUNFX0FUVFIoYmF0dGVyeV92b2x0
-YWdlLCAwNDQ0LCBiYXR0ZXJ5X3ZvbHRhZ2Vfc2hvdywKPiBOVUxMKTsKPiArc3RhdGljIERFVklD
-RV9BVFRSX1JPKGJhdHRlcnlfcGVyY2VudGFnZSk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhi
-YXR0ZXJ5X3ZvbHRhZ2UpOwo+IMKgCj4gwqBleHRlcm4gdm9pZCAoKmFwbV9nZXRfcG93ZXJfc3Rh
-dHVzKShzdHJ1Y3QgYXBtX3Bvd2VyX2luZm8gKik7Cj4gwqAKPiBkaWZmIC0tZ2l0IGEvYXJjaC9z
-aC9kcml2ZXJzL3B1c2gtc3dpdGNoLmMgYi9hcmNoL3NoL2RyaXZlcnMvcHVzaC0KPiBzd2l0Y2gu
-Ywo+IGluZGV4IGExNzE4MTE2MDIzMy4uNzYyYmM1NjE5OTEwIDEwMDY0NAo+IC0tLSBhL2FyY2gv
-c2gvZHJpdmVycy9wdXNoLXN3aXRjaC5jCj4gKysrIGIvYXJjaC9zaC9kcml2ZXJzL3B1c2gtc3dp
-dGNoLmMKPiBAQCAtMjQsNyArMjQsNyBAQCBzdGF0aWMgc3NpemVfdCBzd2l0Y2hfc2hvdyhzdHJ1
-Y3QgZGV2aWNlICpkZXYsCj4gwqAJc3RydWN0IHB1c2hfc3dpdGNoX3BsYXRmb3JtX2luZm8gKnBz
-d19pbmZvID0gZGV2LQo+ID5wbGF0Zm9ybV9kYXRhOwo+IMKgCXJldHVybiBzcHJpbnRmKGJ1Ziwg
-IiVzXG4iLCBwc3dfaW5mby0+bmFtZSk7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihzd2l0
-Y2gsIFNfSVJVR08sIHN3aXRjaF9zaG93LCBOVUxMKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JP
-KHN3aXRjaCk7Cj4gwqAKPiDCoHN0YXRpYyB2b2lkIHN3aXRjaF90aW1lcihzdHJ1Y3QgdGltZXJf
-bGlzdCAqdCkKPiDCoHsKPiBkaWZmIC0tZ2l0IGEvYXJjaC90aWxlL2tlcm5lbC9zeXNmcy5jIGIv
-YXJjaC90aWxlL2tlcm5lbC9zeXNmcy5jCj4gaW5kZXggYWY1MDI0ZjBmYjVhLi5iMDk0NTZhM2Q3
-N2EgMTAwNjQ0Cj4gLS0tIGEvYXJjaC90aWxlL2tlcm5lbC9zeXNmcy5jCj4gKysrIGIvYXJjaC90
-aWxlL2tlcm5lbC9zeXNmcy5jCj4gQEAgLTM4LDcgKzM4LDcgQEAgc3RhdGljIHNzaXplX3QgY2hp
-cF93aWR0aF9zaG93KHN0cnVjdCBkZXZpY2UgKmRldiwKPiDCoHsKPiDCoAlyZXR1cm4gc3ByaW50
-ZihwYWdlLCAiJXVcbiIsIHNtcF93aWR0aCk7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihj
-aGlwX3dpZHRoLCAwNDQ0LCBjaGlwX3dpZHRoX3Nob3csIE5VTEwpOwo+ICtzdGF0aWMgREVWSUNF
-X0FUVFJfUk8oY2hpcF93aWR0aCk7Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IGNoaXBfaGVpZ2h0
-X3Nob3coc3RydWN0IGRldmljZSAqZGV2LAo+IMKgCQkJCXN0cnVjdCBkZXZpY2VfYXR0cmlidXRl
-ICphdHRyLAo+IEBAIC00Niw3ICs0Niw3IEBAIHN0YXRpYyBzc2l6ZV90IGNoaXBfaGVpZ2h0X3No
-b3coc3RydWN0IGRldmljZSAqZGV2LAo+IMKgewo+IMKgCXJldHVybiBzcHJpbnRmKHBhZ2UsICIl
-dVxuIiwgc21wX2hlaWdodCk7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihjaGlwX2hlaWdo
-dCwgMDQ0NCwgY2hpcF9oZWlnaHRfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9S
-TyhjaGlwX2hlaWdodCk7Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IGNoaXBfc2VyaWFsX3Nob3co
-c3RydWN0IGRldmljZSAqZGV2LAo+IMKgCQkJCXN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRy
-LAo+IEBAIC01NCw3ICs1NCw3IEBAIHN0YXRpYyBzc2l6ZV90IGNoaXBfc2VyaWFsX3Nob3coc3Ry
-dWN0IGRldmljZSAqZGV2LAo+IMKgewo+IMKgCXJldHVybiBnZXRfaHZfY29uZnN0cihwYWdlLCBI
-Vl9DT05GU1RSX0NISVBfU0VSSUFMX05VTSk7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihj
-aGlwX3NlcmlhbCwgMDQ0NCwgY2hpcF9zZXJpYWxfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJ
-Q0VfQVRUUl9STyhjaGlwX3NlcmlhbCk7Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IGNoaXBfcmV2
-aXNpb25fc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4gwqAJCQkJwqDCoHN0cnVjdCBkZXZpY2Vf
-YXR0cmlidXRlICphdHRyLAo+IEBAIC02Miw3ICs2Miw3IEBAIHN0YXRpYyBzc2l6ZV90IGNoaXBf
-cmV2aXNpb25fc2hvdyhzdHJ1Y3QgZGV2aWNlCj4gKmRldiwKPiDCoHsKPiDCoAlyZXR1cm4gZ2V0
-X2h2X2NvbmZzdHIocGFnZSwgSFZfQ09ORlNUUl9DSElQX1JFVik7Cj4gwqB9Cj4gLXN0YXRpYyBE
-RVZJQ0VfQVRUUihjaGlwX3JldmlzaW9uLCAwNDQ0LCBjaGlwX3JldmlzaW9uX3Nob3csIE5VTEwp
-Owo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8oY2hpcF9yZXZpc2lvbik7Cj4gwqAKPiDCoAo+IMKg
-c3RhdGljIHNzaXplX3QgdHlwZV9zaG93KHN0cnVjdCBkZXZpY2UgKmRldiwKPiBAQCAtNzEsNyAr
-NzEsNyBAQCBzdGF0aWMgc3NpemVfdCB0eXBlX3Nob3coc3RydWN0IGRldmljZSAqZGV2LAo+IMKg
-ewo+IMKgCXJldHVybiBzcHJpbnRmKHBhZ2UsICJ0aWxlcmFcbiIpOwo+IMKgfQo+IC1zdGF0aWMg
-REVWSUNFX0FUVFIodHlwZSwgMDQ0NCwgdHlwZV9zaG93LCBOVUxMKTsKPiArc3RhdGljIERFVklD
-RV9BVFRSX1JPKHR5cGUpOwo+IMKgCj4gwqAjZGVmaW5lIEhWX0NPTkZfQVRUUihuYW1lLCBjb25m
-KQkJCQkJCj4gXAo+IMKgCXN0YXRpYyBzc2l6ZV90IG5hbWUgIyMgX3Nob3coc3RydWN0IGRldmlj
-ZSAqZGV2LAkJCj4gXAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2FjcGkvZGV2aWNlX3N5c2ZzLmMK
-PiBiL2RyaXZlcnMvYWNwaS9kZXZpY2Vfc3lzZnMuYwo+IGluZGV4IGEwNDE2ODllNTcwMS4uNTQ1
-ZTkxNDIwY2RlIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvYWNwaS9kZXZpY2Vfc3lzZnMuYwo+ICsr
-KyBiL2RyaXZlcnMvYWNwaS9kZXZpY2Vfc3lzZnMuYwo+IEBAIC0zNTcsNyArMzU3LDcgQEAgc3Rh
-dGljIHNzaXplX3QgcmVhbF9wb3dlcl9zdGF0ZV9zaG93KHN0cnVjdAo+IGRldmljZSAqZGV2LAo+
-IMKgCXJldHVybiBzcHJpbnRmKGJ1ZiwgIiVzXG4iLCBhY3BpX3Bvd2VyX3N0YXRlX3N0cmluZyhz
-dGF0ZSkpOwo+IMKgfQo+IMKgCj4gLXN0YXRpYyBERVZJQ0VfQVRUUihyZWFsX3Bvd2VyX3N0YXRl
-LCAwNDQ0LCByZWFsX3Bvd2VyX3N0YXRlX3Nob3csCj4gTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0Vf
-QVRUUl9STyhyZWFsX3Bvd2VyX3N0YXRlKTsKPiDCoAo+IMKgc3RhdGljIHNzaXplX3QgcG93ZXJf
-c3RhdGVfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4gwqAJCQkJc3RydWN0IGRldmljZV9hdHRy
-aWJ1dGUgKmF0dHIsIGNoYXIKPiAqYnVmKQo+IEBAIC0zNjcsNyArMzY3LDcgQEAgc3RhdGljIHNz
-aXplX3QgcG93ZXJfc3RhdGVfc2hvdyhzdHJ1Y3QgZGV2aWNlCj4gKmRldiwKPiDCoAlyZXR1cm4g
-c3ByaW50ZihidWYsICIlc1xuIiwgYWNwaV9wb3dlcl9zdGF0ZV9zdHJpbmcoYWRldi0KPiA+cG93
-ZXIuc3RhdGUpKTsKPiDCoH0KPiDCoAo+IC1zdGF0aWMgREVWSUNFX0FUVFIocG93ZXJfc3RhdGUs
-IDA0NDQsIHBvd2VyX3N0YXRlX3Nob3csIE5VTEwpOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8o
-cG93ZXJfc3RhdGUpOwo+IMKgCj4gwqBzdGF0aWMgc3NpemVfdAo+IMKgYWNwaV9lamVjdF9zdG9y
-ZShzdHJ1Y3QgZGV2aWNlICpkLCBzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwKPiBAQCAt
-NDYyLDcgKzQ2Miw3IEBAIHN0YXRpYyBzc2l6ZV90IGRlc2NyaXB0aW9uX3Nob3coc3RydWN0IGRl
-dmljZQo+ICpkZXYsCj4gwqAKPiDCoAlyZXR1cm4gcmVzdWx0Owo+IMKgfQo+IC1zdGF0aWMgREVW
-SUNFX0FUVFIoZGVzY3JpcHRpb24sIDA0NDQsIGRlc2NyaXB0aW9uX3Nob3csIE5VTEwpOwo+ICtz
-dGF0aWMgREVWSUNFX0FUVFJfUk8oZGVzY3JpcHRpb24pOwo+IMKgCj4gwqBzdGF0aWMgc3NpemVf
-dAo+IMKgYWNwaV9kZXZpY2Vfc3VuX3Nob3coc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1Y3QgZGV2
-aWNlX2F0dHJpYnV0ZQo+ICphdHRyLAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIvaXBtaS9p
-cG1pX21zZ2hhbmRsZXIuYwo+IGIvZHJpdmVycy9jaGFyL2lwbWkvaXBtaV9tc2doYW5kbGVyLmMK
-PiBpbmRleCBmNDU3MzJhMmNiM2UuLjdmNTFhY2Q3NGUxMCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJz
-L2NoYXIvaXBtaS9pcG1pX21zZ2hhbmRsZXIuYwo+ICsrKyBiL2RyaXZlcnMvY2hhci9pcG1pL2lw
-bWlfbXNnaGFuZGxlci5jCj4gQEAgLTI1ODgsNyArMjU4OCw3IEBAIHN0YXRpYyBzc2l6ZV90IGRl
-dmljZV9pZF9zaG93KHN0cnVjdCBkZXZpY2UKPiAqZGV2LAo+IMKgCj4gwqAJcmV0dXJuIHNucHJp
-bnRmKGJ1ZiwgMTAsICIldVxuIiwgaWQuZGV2aWNlX2lkKTsKPiDCoH0KPiAtc3RhdGljIERFVklD
-RV9BVFRSKGRldmljZV9pZCwgU19JUlVHTywgZGV2aWNlX2lkX3Nob3csIE5VTEwpOwo+ICtzdGF0
-aWMgREVWSUNFX0FUVFJfUk8oZGV2aWNlX2lkKTsKPiDCoAo+IMKgc3RhdGljIHNzaXplX3QgcHJv
-dmlkZXNfZGV2aWNlX3NkcnNfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4gwqAJCQkJCcKgc3Ry
-dWN0IGRldmljZV9hdHRyaWJ1dGUKPiAqYXR0ciwKPiBAQCAtMjYwNCw4ICsyNjA0LDcgQEAgc3Rh
-dGljIHNzaXplX3QgcHJvdmlkZXNfZGV2aWNlX3NkcnNfc2hvdyhzdHJ1Y3QKPiBkZXZpY2UgKmRl
-diwKPiDCoAo+IMKgCXJldHVybiBzbnByaW50ZihidWYsIDEwLCAiJXVcbiIsIChpZC5kZXZpY2Vf
-cmV2aXNpb24gJiAweDgwKQo+ID4+IDcpOwo+IMKgfQo+IC1zdGF0aWMgREVWSUNFX0FUVFIocHJv
-dmlkZXNfZGV2aWNlX3NkcnMsIFNfSVJVR08sCj4gcHJvdmlkZXNfZGV2aWNlX3NkcnNfc2hvdywK
-PiAtCQnCoMKgwqBOVUxMKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKHByb3ZpZGVzX2Rldmlj
-ZV9zZHJzKTsKPiDCoAo+IMKgc3RhdGljIHNzaXplX3QgcmV2aXNpb25fc2hvdyhzdHJ1Y3QgZGV2
-aWNlICpkZXYsIHN0cnVjdAo+IGRldmljZV9hdHRyaWJ1dGUgKmF0dHIsCj4gwqAJCQnCoMKgwqDC
-oMKgY2hhciAqYnVmKQo+IEBAIC0yNjIwLDcgKzI2MTksNyBAQCBzdGF0aWMgc3NpemVfdCByZXZp
-c2lvbl9zaG93KHN0cnVjdCBkZXZpY2UKPiAqZGV2LCBzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0ZSAq
-YXR0ciwKPiDCoAo+IMKgCXJldHVybiBzbnByaW50ZihidWYsIDIwLCAiJXVcbiIsIGlkLmRldmlj
-ZV9yZXZpc2lvbiAmIDB4MEYpOwo+IMKgfQo+IC1zdGF0aWMgREVWSUNFX0FUVFIocmV2aXNpb24s
-IFNfSVJVR08sIHJldmlzaW9uX3Nob3csIE5VTEwpOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8o
-cmV2aXNpb24pOwo+IMKgCj4gwqBzdGF0aWMgc3NpemVfdCBmaXJtd2FyZV9yZXZpc2lvbl9zaG93
-KHN0cnVjdCBkZXZpY2UgKmRldiwKPiDCoAkJCQnCoMKgwqDCoMKgwqBzdHJ1Y3QgZGV2aWNlX2F0
-dHJpYnV0ZSAqYXR0ciwKPiBAQCAtMjYzNyw3ICsyNjM2LDcgQEAgc3RhdGljIHNzaXplX3QgZmly
-bXdhcmVfcmV2aXNpb25fc2hvdyhzdHJ1Y3QKPiBkZXZpY2UgKmRldiwKPiDCoAlyZXR1cm4gc25w
-cmludGYoYnVmLCAyMCwgIiV1LiV4XG4iLCBpZC5maXJtd2FyZV9yZXZpc2lvbl8xLAo+IMKgCQkJ
-aWQuZmlybXdhcmVfcmV2aXNpb25fMik7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihmaXJt
-d2FyZV9yZXZpc2lvbiwgU19JUlVHTywKPiBmaXJtd2FyZV9yZXZpc2lvbl9zaG93LCBOVUxMKTsK
-PiArc3RhdGljIERFVklDRV9BVFRSX1JPKGZpcm13YXJlX3JldmlzaW9uKTsKPiDCoAo+IMKgc3Rh
-dGljIHNzaXplX3QgaXBtaV92ZXJzaW9uX3Nob3coc3RydWN0IGRldmljZSAqZGV2LAo+IMKgCQkJ
-CcKgc3RydWN0IGRldmljZV9hdHRyaWJ1dGUgKmF0dHIsCj4gQEAgLTI2NTUsNyArMjY1NCw3IEBA
-IHN0YXRpYyBzc2l6ZV90IGlwbWlfdmVyc2lvbl9zaG93KHN0cnVjdCBkZXZpY2UKPiAqZGV2LAo+
-IMKgCQkJaXBtaV92ZXJzaW9uX21ham9yKCZpZCksCj4gwqAJCQlpcG1pX3ZlcnNpb25fbWlub3Io
-JmlkKSk7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihpcG1pX3ZlcnNpb24sIFNfSVJVR08s
-IGlwbWlfdmVyc2lvbl9zaG93LCBOVUxMKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKGlwbWlf
-dmVyc2lvbik7Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IGFkZF9kZXZfc3VwcG9ydF9zaG93KHN0
-cnVjdCBkZXZpY2UgKmRldiwKPiDCoAkJCQnCoMKgwqDCoHN0cnVjdCBkZXZpY2VfYXR0cmlidXRl
-ICphdHRyLAo+IEBAIC0yNjg4LDcgKzI2ODcsNyBAQCBzdGF0aWMgc3NpemVfdCBtYW51ZmFjdHVy
-ZXJfaWRfc2hvdyhzdHJ1Y3QKPiBkZXZpY2UgKmRldiwKPiDCoAo+IMKgCXJldHVybiBzbnByaW50
-ZihidWYsIDIwLCAiMHglNi42eFxuIiwgaWQubWFudWZhY3R1cmVyX2lkKTsKPiDCoH0KPiAtc3Rh
-dGljIERFVklDRV9BVFRSKG1hbnVmYWN0dXJlcl9pZCwgU19JUlVHTywgbWFudWZhY3R1cmVyX2lk
-X3Nob3csCj4gTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhtYW51ZmFjdHVyZXJfaWQp
-Owo+IMKgCj4gwqBzdGF0aWMgc3NpemVfdCBwcm9kdWN0X2lkX3Nob3coc3RydWN0IGRldmljZSAq
-ZGV2LAo+IMKgCQkJwqDCoMKgwqDCoMKgwqBzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwK
-PiBAQCAtMjcwNCw3ICsyNzAzLDcgQEAgc3RhdGljIHNzaXplX3QgcHJvZHVjdF9pZF9zaG93KHN0
-cnVjdCBkZXZpY2UKPiAqZGV2LAo+IMKgCj4gwqAJcmV0dXJuIHNucHJpbnRmKGJ1ZiwgMTAsICIw
-eCU0LjR4XG4iLCBpZC5wcm9kdWN0X2lkKTsKPiDCoH0KPiAtc3RhdGljIERFVklDRV9BVFRSKHBy
-b2R1Y3RfaWQsIFNfSVJVR08sIHByb2R1Y3RfaWRfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJ
-Q0VfQVRUUl9STyhwcm9kdWN0X2lkKTsKPiDCoAo+IMKgc3RhdGljIHNzaXplX3QgYXV4X2Zpcm13
-YXJlX3Jldl9zaG93KHN0cnVjdCBkZXZpY2UgKmRldiwKPiDCoAkJCQnCoMKgwqDCoMKgc3RydWN0
-IGRldmljZV9hdHRyaWJ1dGUgKmF0dHIsCj4gQEAgLTI3NDIsNyArMjc0MSw3IEBAIHN0YXRpYyBz
-c2l6ZV90IGd1aWRfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4gc3RydWN0IGRldmljZV9hdHRy
-aWJ1dGUgKmF0dHIsCj4gwqAKPiDCoAlyZXR1cm4gc25wcmludGYoYnVmLCAzOCwgIiVwVWxcbiIs
-IGd1aWQuYik7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihndWlkLCBTX0lSVUdPLCBndWlk
-X3Nob3csIE5VTEwpOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8oZ3VpZCk7Cj4gwqAKPiDCoHN0
-YXRpYyBzdHJ1Y3QgYXR0cmlidXRlICpibWNfZGV2X2F0dHJzW10gPSB7Cj4gwqAJJmRldl9hdHRy
-X2RldmljZV9pZC5hdHRyLAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1
-X3N5c2ZzLmMKPiBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfc3lzZnMuYwo+IGluZGV4IDFk
-MGFiOGZmNTkxNS4uYjMzZDIxNThjMjM0IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9p
-OTE1L2k5MTVfc3lzZnMuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfc3lzZnMu
-Ywo+IEBAIC00NDUsMTMgKzQ0NSwxMyBAQCBzdGF0aWMgc3NpemVfdCBndF9taW5fZnJlcV9taHpf
-c3RvcmUoc3RydWN0Cj4gZGV2aWNlICprZGV2LAo+IMKgCXJldHVybiByZXQgPzogY291bnQ7Cj4g
-wqB9Cj4gwqAKPiAtc3RhdGljIERFVklDRV9BVFRSKGd0X2FjdF9mcmVxX21oeiwgU19JUlVHTywg
-Z3RfYWN0X2ZyZXFfbWh6X3Nob3csCj4gTlVMTCk7Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihndF9j
-dXJfZnJlcV9taHosIFNfSVJVR08sIGd0X2N1cl9mcmVxX21oel9zaG93LAo+IE5VTEwpOwo+ICtz
-dGF0aWMgREVWSUNFX0FUVFJfUk8oZ3RfYWN0X2ZyZXFfbWh6KTsKPiArc3RhdGljIERFVklDRV9B
-VFRSX1JPKGd0X2N1cl9mcmVxX21oeik7Cj4gwqBzdGF0aWMgREVWSUNFX0FUVFJfUlcoZ3RfYm9v
-c3RfZnJlcV9taHopOwo+IMKgc3RhdGljIERFVklDRV9BVFRSX1JXKGd0X21heF9mcmVxX21oeik7
-Cj4gwqBzdGF0aWMgREVWSUNFX0FUVFJfUlcoZ3RfbWluX2ZyZXFfbWh6KTsKPiDCoAo+IC1zdGF0
-aWMgREVWSUNFX0FUVFIodmx2X3JwZV9mcmVxX21oeiwgU19JUlVHTywgdmx2X3JwZV9mcmVxX21o
-el9zaG93LAo+IE5VTEwpOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8odmx2X3JwZV9mcmVxX21o
-eik7Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IGd0X3JwX21oel9zaG93KHN0cnVjdCBkZXZpY2Ug
-KmtkZXYsIHN0cnVjdAo+IGRldmljZV9hdHRyaWJ1dGUgKmF0dHIsIGNoYXIgKmJ1Zik7Cj4gwqBz
-dGF0aWMgREVWSUNFX0FUVFIoZ3RfUlAwX2ZyZXFfbWh6LCBTX0lSVUdPLCBndF9ycF9taHpfc2hv
-dywgTlVMTCk7Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbnZtZS9ob3N0L2NvcmUuYyBiL2RyaXZl
-cnMvbnZtZS9ob3N0L2NvcmUuYwo+IGluZGV4IDYzNjkxZTI1MWY4Yy4uOGY5ZmE2ZjFkZmI0IDEw
-MDY0NAo+IC0tLSBhL2RyaXZlcnMvbnZtZS9ob3N0L2NvcmUuYwo+ICsrKyBiL2RyaXZlcnMvbnZt
-ZS9ob3N0L2NvcmUuYwo+IEBAIC0yNTE2LDE0ICsyNTE2LDE0IEBAIHN0YXRpYyBzc2l6ZV90IHd3
-aWRfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4gc3RydWN0IGRldmljZV9hdHRyaWJ1dGUgKmF0
-dHIsCj4gwqAJCXNlcmlhbF9sZW4sIHN1YnN5cy0+c2VyaWFsLCBtb2RlbF9sZW4sIHN1YnN5cy0K
-PiA+bW9kZWwsCj4gwqAJCWhlYWQtPm5zX2lkKTsKPiDCoH0KPiAtc3RhdGljIERFVklDRV9BVFRS
-KHd3aWQsIFNfSVJVR08sIHd3aWRfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9S
-Tyh3d2lkKTsKPiDCoAo+IMKgc3RhdGljIHNzaXplX3Qgbmd1aWRfc2hvdyhzdHJ1Y3QgZGV2aWNl
-ICpkZXYsIHN0cnVjdAo+IGRldmljZV9hdHRyaWJ1dGUgKmF0dHIsCj4gwqAJCWNoYXIgKmJ1ZikK
-PiDCoHsKPiDCoAlyZXR1cm4gc3ByaW50ZihidWYsICIlcFVcbiIsIGRldl90b19uc19oZWFkKGRl
-diktCj4gPmlkcy5uZ3VpZCk7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihuZ3VpZCwgU19J
-UlVHTywgbmd1aWRfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhuZ3VpZCk7
-Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IHV1aWRfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsIHN0
-cnVjdCBkZXZpY2VfYXR0cmlidXRlCj4gKmF0dHIsCj4gwqAJCWNoYXIgKmJ1ZikKPiBAQCAtMjU0
-MCwyMSArMjU0MCwyMSBAQCBzdGF0aWMgc3NpemVfdCB1dWlkX3Nob3coc3RydWN0IGRldmljZSAq
-ZGV2LAo+IHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRyLAo+IMKgCX0KPiDCoAlyZXR1cm4g
-c3ByaW50ZihidWYsICIlcFVcbiIsICZpZHMtPnV1aWQpOwo+IMKgfQo+IC1zdGF0aWMgREVWSUNF
-X0FUVFIodXVpZCwgU19JUlVHTywgdXVpZF9zaG93LCBOVUxMKTsKPiArc3RhdGljIERFVklDRV9B
-VFRSX1JPKHV1aWQpOwo+IMKgCj4gwqBzdGF0aWMgc3NpemVfdCBldWlfc2hvdyhzdHJ1Y3QgZGV2
-aWNlICpkZXYsIHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlCj4gKmF0dHIsCj4gwqAJCWNoYXIgKmJ1
-ZikKPiDCoHsKPiDCoAlyZXR1cm4gc3ByaW50ZihidWYsICIlOHBoXG4iLCBkZXZfdG9fbnNfaGVh
-ZChkZXYpLQo+ID5pZHMuZXVpNjQpOwo+IMKgfQo+IC1zdGF0aWMgREVWSUNFX0FUVFIoZXVpLCBT
-X0lSVUdPLCBldWlfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhldWkpOwo+
-IMKgCj4gwqBzdGF0aWMgc3NpemVfdCBuc2lkX3Nob3coc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1
-Y3QgZGV2aWNlX2F0dHJpYnV0ZQo+ICphdHRyLAo+IMKgCQljaGFyICpidWYpCj4gwqB7Cj4gwqAJ
-cmV0dXJuIHNwcmludGYoYnVmLCAiJWRcbiIsIGRldl90b19uc19oZWFkKGRldiktPm5zX2lkKTsK
-PiDCoH0KPiAtc3RhdGljIERFVklDRV9BVFRSKG5zaWQsIFNfSVJVR08sIG5zaWRfc2hvdywgTlVM
-TCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhuc2lkKTsKPiDCoAo+IMKgc3RhdGljIHN0cnVj
-dCBhdHRyaWJ1dGUgKm52bWVfbnNfaWRfYXR0cnNbXSA9IHsKPiDCoAkmZGV2X2F0dHJfd3dpZC5h
-dHRyLAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3MzOTAvY2lvL2Nzcy5jIGIvZHJpdmVycy9zMzkw
-L2Npby9jc3MuYwo+IGluZGV4IDBmMTFkY2U2ZTIyNC4uOTI2M2EwZmIzODU4IDEwMDY0NAo+IC0t
-LSBhL2RyaXZlcnMvczM5MC9jaW8vY3NzLmMKPiArKysgYi9kcml2ZXJzL3MzOTAvY2lvL2Nzcy5j
-Cj4gQEAgLTI2OCw3ICsyNjgsNyBAQCBzdGF0aWMgc3NpemVfdCB0eXBlX3Nob3coc3RydWN0IGRl
-dmljZSAqZGV2LAo+IHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRyLAo+IMKgCXJldHVybiBz
-cHJpbnRmKGJ1ZiwgIiUwMXhcbiIsIHNjaC0+c3QpOwo+IMKgfQo+IMKgCj4gLXN0YXRpYyBERVZJ
-Q0VfQVRUUih0eXBlLCAwNDQ0LCB0eXBlX3Nob3csIE5VTEwpOwo+ICtzdGF0aWMgREVWSUNFX0FU
-VFJfUk8odHlwZSk7Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IG1vZGFsaWFzX3Nob3coc3RydWN0
-IGRldmljZSAqZGV2LCBzdHJ1Y3QKPiBkZXZpY2VfYXR0cmlidXRlICphdHRyLAo+IMKgCQkJwqDC
-oMKgwqDCoGNoYXIgKmJ1ZikKPiBAQCAtMjc4LDcgKzI3OCw3IEBAIHN0YXRpYyBzc2l6ZV90IG1v
-ZGFsaWFzX3Nob3coc3RydWN0IGRldmljZSAqZGV2LAo+IHN0cnVjdCBkZXZpY2VfYXR0cmlidXRl
-ICphdHRyLAo+IMKgCXJldHVybiBzcHJpbnRmKGJ1ZiwgImNzczp0JTAxWFxuIiwgc2NoLT5zdCk7
-Cj4gwqB9Cj4gwqAKPiAtc3RhdGljIERFVklDRV9BVFRSKG1vZGFsaWFzLCAwNDQ0LCBtb2RhbGlh
-c19zaG93LCBOVUxMKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKG1vZGFsaWFzKTsKPiDCoAo+
-IMKgc3RhdGljIHN0cnVjdCBhdHRyaWJ1dGUgKnN1YmNoX2F0dHJzW10gPSB7Cj4gwqAJJmRldl9h
-dHRyX3R5cGUuYXR0ciwKPiBAQCAtMzE1LDcgKzMxNSw3IEBAIHN0YXRpYyBzc2l6ZV90IGNocGlk
-c19zaG93KHN0cnVjdCBkZXZpY2UgKmRldiwKPiDCoAlyZXQgKz0gc3ByaW50ZihidWYgKyByZXQs
-ICJcbiIpOwo+IMKgCXJldHVybiByZXQ7Cj4gwqB9Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihjaHBp
-ZHMsIDA0NDQsIGNocGlkc19zaG93LCBOVUxMKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKGNo
-cGlkcyk7Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IHBpbXBhbXBvbV9zaG93KHN0cnVjdCBkZXZp
-Y2UgKmRldiwKPiDCoAkJCcKgwqDCoMKgwqDCoHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRy
-LAo+IEBAIC0zMjcsNyArMzI3LDcgQEAgc3RhdGljIHNzaXplX3QgcGltcGFtcG9tX3Nob3coc3Ry
-dWN0IGRldmljZSAqZGV2LAo+IMKgCXJldHVybiBzcHJpbnRmKGJ1ZiwgIiUwMnggJTAyeCAlMDJ4
-XG4iLAo+IMKgCQnCoMKgwqDCoMKgwqDCoHBtY3ctPnBpbSwgcG1jdy0+cGFtLCBwbWN3LT5wb20p
-Owo+IMKgfQo+IC1zdGF0aWMgREVWSUNFX0FUVFIocGltcGFtcG9tLCAwNDQ0LCBwaW1wYW1wb21f
-c2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhwaW1wYW1wb20pOwo+IMKgCj4g
-wqBzdGF0aWMgc3RydWN0IGF0dHJpYnV0ZSAqaW9fc3ViY2hhbm5lbF90eXBlX2F0dHJzW10gPSB7
-Cj4gwqAJJmRldl9hdHRyX2NocGlkcy5hdHRyLAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3MzOTAv
-Y2lvL2RldmljZS5jIGIvZHJpdmVycy9zMzkwL2Npby9kZXZpY2UuYwo+IGluZGV4IDZlZWZiNjdi
-MzFmMy4uZjUwZWEwMzVhYTliIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvczM5MC9jaW8vZGV2aWNl
-LmMKPiArKysgYi9kcml2ZXJzL3MzOTAvY2lvL2RldmljZS5jCj4gQEAgLTU5NywxMyArNTk3LDEz
-IEBAIHN0YXRpYyBzc2l6ZV90IHZwbV9zaG93KHN0cnVjdCBkZXZpY2UgKmRldiwKPiBzdHJ1Y3Qg
-ZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwKPiDCoAlyZXR1cm4gc3ByaW50ZihidWYsICIlMDJ4XG4i
-LCBzY2gtPnZwbSk7Cj4gwqB9Cj4gwqAKPiAtc3RhdGljIERFVklDRV9BVFRSKGRldnR5cGUsIDA0
-NDQsIGRldnR5cGVfc2hvdywgTlVMTCk7Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihjdXR5cGUsIDA0
-NDQsIGN1dHlwZV9zaG93LCBOVUxMKTsKPiAtc3RhdGljIERFVklDRV9BVFRSKG1vZGFsaWFzLCAw
-NDQ0LCBtb2RhbGlhc19zaG93LCBOVUxMKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKGRldnR5
-cGUpOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8oY3V0eXBlKTsKPiArc3RhdGljIERFVklDRV9B
-VFRSX1JPKG1vZGFsaWFzKTsKPiDCoHN0YXRpYyBERVZJQ0VfQVRUUl9SVyhvbmxpbmUpOwo+IMKg
-c3RhdGljIERFVklDRV9BVFRSKGF2YWlsYWJpbGl0eSwgMDQ0NCwgYXZhaWxhYmxlX3Nob3csIE5V
-TEwpOwo+IMKgc3RhdGljIERFVklDRV9BVFRSKGxvZ2dpbmcsIDAyMDAsIE5VTEwsIGluaXRpYXRl
-X2xvZ2dpbmcpOwo+IC1zdGF0aWMgREVWSUNFX0FUVFIodnBtLCAwNDQ0LCB2cG1fc2hvdywgTlVM
-TCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyh2cG0pOwo+IMKgCj4gwqBzdGF0aWMgc3RydWN0
-IGF0dHJpYnV0ZSAqaW9fc3ViY2hhbm5lbF9hdHRyc1tdID0gewo+IMKgCSZkZXZfYXR0cl9sb2dn
-aW5nLmF0dHIsCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvczM5MC9jcnlwdG8vYXBfY2FyZC5jCj4g
-Yi9kcml2ZXJzL3MzOTAvY3J5cHRvL2FwX2NhcmQuYwo+IGluZGV4IDk3YThjZjU3ODExNi4uMmM3
-MjZkZjIxMGY2IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvczM5MC9jcnlwdG8vYXBfY2FyZC5jCj4g
-KysrIGIvZHJpdmVycy9zMzkwL2NyeXB0by9hcF9jYXJkLmMKPiBAQCAtNTcsNyArNTcsNyBAQCBz
-dGF0aWMgc3NpemVfdCBhcF9mdW5jdGlvbnNfc2hvdyhzdHJ1Y3QgZGV2aWNlCj4gKmRldiwKPiDC
-oAlyZXR1cm4gc25wcmludGYoYnVmLCBQQUdFX1NJWkUsICIweCUwOFhcbiIsIGFjLT5mdW5jdGlv
-bnMpOwo+IMKgfQo+IMKgCj4gLXN0YXRpYyBERVZJQ0VfQVRUUihhcF9mdW5jdGlvbnMsIDA0NDQs
-IGFwX2Z1bmN0aW9uc19zaG93LCBOVUxMKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKGFwX2Z1
-bmN0aW9ucyk7Cj4gwqAKPiDCoHN0YXRpYyBzc2l6ZV90IGFwX3JlcV9jb3VudF9zaG93KHN0cnVj
-dCBkZXZpY2UgKmRldiwKPiDCoAkJCQnCoHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRyLAo+
-IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Njc2kvaHBzYS5jIGIvZHJpdmVycy9zY3NpL2hwc2EuYwo+
-IGluZGV4IGIwYWE1ZGMxZDU0Yy4uZDYyMzc3YjY4ZWY0IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
-c2NzaS9ocHNhLmMKPiArKysgYi9kcml2ZXJzL3Njc2kvaHBzYS5jCj4gQEAgLTkwMSwxNCArOTAx
-LDE0IEBAIHN0YXRpYyBzc2l6ZV90IGhvc3Rfc2hvd19sZWdhY3lfYm9hcmQoc3RydWN0Cj4gZGV2
-aWNlICpkZXYsCj4gwqAJcmV0dXJuIHNucHJpbnRmKGJ1ZiwgMjAsICIlZFxuIiwgaC0+bGVnYWN5
-X2JvYXJkID8gMSA6IDApOwo+IMKgfQo+IMKgCj4gLXN0YXRpYyBERVZJQ0VfQVRUUihyYWlkX2xl
-dmVsLCBTX0lSVUdPLCByYWlkX2xldmVsX3Nob3csIE5VTEwpOwo+IC1zdGF0aWMgREVWSUNFX0FU
-VFIobHVuaWQsIFNfSVJVR08sIGx1bmlkX3Nob3csIE5VTEwpOwo+IC1zdGF0aWMgREVWSUNFX0FU
-VFIodW5pcXVlX2lkLCBTX0lSVUdPLCB1bmlxdWVfaWRfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBE
-RVZJQ0VfQVRUUl9STyhyYWlkX2xldmVsKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKGx1bmlk
-KTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKHVuaXF1ZV9pZCk7Cj4gwqBzdGF0aWMgREVWSUNF
-X0FUVFIocmVzY2FuLCBTX0lXVVNSLCBOVUxMLCBob3N0X3N0b3JlX3Jlc2Nhbik7Cj4gLXN0YXRp
-YyBERVZJQ0VfQVRUUihzYXNfYWRkcmVzcywgU19JUlVHTywgc2FzX2FkZHJlc3Nfc2hvdywgTlVM
-TCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhzYXNfYWRkcmVzcyk7Cj4gwqBzdGF0aWMgREVW
-SUNFX0FUVFIoaHBfc3NkX3NtYXJ0X3BhdGhfZW5hYmxlZCwgU19JUlVHTywKPiDCoAkJCWhvc3Rf
-c2hvd19ocF9zc2Rfc21hcnRfcGF0aF9lbmFibGVkLCBOVUxMKTsKPiAtc3RhdGljIERFVklDRV9B
-VFRSKHBhdGhfaW5mbywgU19JUlVHTywgcGF0aF9pbmZvX3Nob3csIE5VTEwpOwo+ICtzdGF0aWMg
-REVWSUNFX0FUVFJfUk8ocGF0aF9pbmZvKTsKPiDCoHN0YXRpYyBERVZJQ0VfQVRUUihocF9zc2Rf
-c21hcnRfcGF0aF9zdGF0dXMsCj4gU19JV1VTUnxTX0lSVUdPfFNfSVJPVEgsCj4gwqAJCWhvc3Rf
-c2hvd19ocF9zc2Rfc21hcnRfcGF0aF9zdGF0dXMsCj4gwqAJCWhvc3Rfc3RvcmVfaHBfc3NkX3Nt
-YXJ0X3BhdGhfc3RhdHVzKTsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9zY3NpL2xwZmMvbHBmY19h
-dHRyLmMKPiBiL2RyaXZlcnMvc2NzaS9scGZjL2xwZmNfYXR0ci5jCj4gaW5kZXggOTVmN2JhM2Mz
-ZjFhLi41MTdmZjIwM2NmZGUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9zY3NpL2xwZmMvbHBmY19h
-dHRyLmMKPiArKysgYi9kcml2ZXJzL3Njc2kvbHBmYy9scGZjX2F0dHIuYwo+IEBAIC0yMjk0LDgg
-KzIyOTQsOCBAQCBzdGF0aWMgREVWSUNFX0FUVFIobnVtX2Rpc2NvdmVyZWRfcG9ydHMsCj4gU19J
-UlVHTywKPiDCoAkJwqDCoMKgbHBmY19udW1fZGlzY292ZXJlZF9wb3J0c19zaG93LCBOVUxMKTsK
-PiDCoHN0YXRpYyBERVZJQ0VfQVRUUihtZW5sb19tZ210X21vZGUsIFNfSVJVR08sIGxwZmNfbWxv
-bWdtdF9zaG93LAo+IE5VTEwpOwo+IMKgc3RhdGljIERFVklDRV9BVFRSKG5wb3J0X2V2dF9jbnQs
-IFNfSVJVR08sIGxwZmNfbnBvcnRfZXZ0X2NudF9zaG93LAo+IE5VTEwpOwo+IC1zdGF0aWMgREVW
-SUNFX0FUVFIobHBmY19kcnZyX3ZlcnNpb24sIFNfSVJVR08sCj4gbHBmY19kcnZyX3ZlcnNpb25f
-c2hvdywgTlVMTCk7Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihscGZjX2VuYWJsZV9maXAsIFNfSVJV
-R08sIGxwZmNfZW5hYmxlX2ZpcF9zaG93LAo+IE5VTEwpOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJf
-Uk8obHBmY19kcnZyX3ZlcnNpb24pOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8obHBmY19lbmFi
-bGVfZmlwKTsKPiDCoHN0YXRpYyBERVZJQ0VfQVRUUihib2FyZF9tb2RlLCBTX0lSVUdPIHwgU19J
-V1VTUiwKPiDCoAkJwqDCoMKgbHBmY19ib2FyZF9tb2RlX3Nob3csIGxwZmNfYm9hcmRfbW9kZV9z
-dG9yZSk7Cj4gwqBzdGF0aWMgREVWSUNFX0FUVFIoaXNzdWVfcmVzZXQsIFNfSVdVU1IsIE5VTEws
-IGxwZmNfaXNzdWVfcmVzZXQpOwo+IEBAIC0yMzA2LDEyICsyMzA2LDExIEBAIHN0YXRpYyBERVZJ
-Q0VfQVRUUih1c2VkX3JwaSwgU19JUlVHTywKPiBscGZjX3VzZWRfcnBpX3Nob3csIE5VTEwpOwo+
-IMKgc3RhdGljIERFVklDRV9BVFRSKG1heF94cmksIFNfSVJVR08sIGxwZmNfbWF4X3hyaV9zaG93
-LCBOVUxMKTsKPiDCoHN0YXRpYyBERVZJQ0VfQVRUUih1c2VkX3hyaSwgU19JUlVHTywgbHBmY191
-c2VkX3hyaV9zaG93LCBOVUxMKTsKPiDCoHN0YXRpYyBERVZJQ0VfQVRUUihucGl2X2luZm8sIFNf
-SVJVR08sIGxwZmNfbnBpdl9pbmZvX3Nob3csIE5VTEwpOwo+IC1zdGF0aWMgREVWSUNFX0FUVFIo
-bHBmY190ZW1wX3NlbnNvciwgU19JUlVHTywgbHBmY190ZW1wX3NlbnNvcl9zaG93LAo+IE5VTEwp
-Owo+IC1zdGF0aWMgREVWSUNFX0FUVFIobHBmY19maXBzX2xldmVsLCBTX0lSVUdPLCBscGZjX2Zp
-cHNfbGV2ZWxfc2hvdywKPiBOVUxMKTsKPiAtc3RhdGljIERFVklDRV9BVFRSKGxwZmNfZmlwc19y
-ZXYsIFNfSVJVR08sIGxwZmNfZmlwc19yZXZfc2hvdywKPiBOVUxMKTsKPiAtc3RhdGljIERFVklD
-RV9BVFRSKGxwZmNfZHNzLCBTX0lSVUdPLCBscGZjX2Rzc19zaG93LCBOVUxMKTsKPiAtc3RhdGlj
-IERFVklDRV9BVFRSKGxwZmNfc3Jpb3ZfaHdfbWF4X3ZpcnRmbiwgU19JUlVHTywKPiAtCQnCoMKg
-wqBscGZjX3NyaW92X2h3X21heF92aXJ0Zm5fc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0Vf
-QVRUUl9STyhscGZjX3RlbXBfc2Vuc29yKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKGxwZmNf
-Zmlwc19sZXZlbCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhscGZjX2ZpcHNfcmV2KTsKPiAr
-c3RhdGljIERFVklDRV9BVFRSX1JPKGxwZmNfZHNzKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JP
-KGxwZmNfc3Jpb3ZfaHdfbWF4X3ZpcnRmbik7Cj4gwqBzdGF0aWMgREVWSUNFX0FUVFIocHJvdG9j
-b2wsIFNfSVJVR08sIGxwZmNfc2xpNF9wcm90b2NvbF9zaG93LAo+IE5VTEwpOwo+IMKgc3RhdGlj
-IERFVklDRV9BVFRSKGxwZmNfeGxhbmVfc3VwcG9ydGVkLCBTX0lSVUdPLAo+IGxwZmNfb2FzX3N1
-cHBvcnRlZF9zaG93LAo+IMKgCQnCoMKgwqBOVUxMKTsKPiBAQCAtMzcxOSw4ICszNzE4LDcgQEAg
-bHBmY19zdGF0aWNfdnBvcnRfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4gc3RydWN0IGRldmlj
-ZV9hdHRyaWJ1dGUgKmF0dHIsCj4gwqAvKgo+IMKgICogU3lzZnMgYXR0cmlidXRlIHRvIGNvbnRy
-b2wgdGhlIHN0YXRpc3RpY2FsIGRhdGEgY29sbGVjdGlvbi4KPiDCoCAqLwo+IC1zdGF0aWMgREVW
-SUNFX0FUVFIobHBmY19zdGF0aWNfdnBvcnQsIFNfSVJVR08sCj4gLQkJwqDCoMKgbHBmY19zdGF0
-aWNfdnBvcnRfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhscGZjX3N0YXRp
-Y192cG9ydCk7Cj4gwqAKPiDCoC8qKgo+IMKgICogbHBmY19zdGF0X2RhdGFfY3RybF9zdG9yZSAt
-IHdyaXRlIGNhbGwgYmFjayBmb3IKPiBscGZjX3N0YXRfZGF0YV9jdHJsIHN5c2ZzIGZpbGUKPiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy9zdGFnaW5nL21lZGlhL2F0b21pc3AvcGNpL2F0b21pc3AyL2ht
-bS9obW0uYwo+IGIvZHJpdmVycy9zdGFnaW5nL21lZGlhL2F0b21pc3AvcGNpL2F0b21pc3AyL2ht
-bS9obW0uYwo+IGluZGV4IGExYzgxYzEyNzE4Yy4uNDMzOGI4YTEzMDlmIDEwMDY0NAo+IC0tLSBh
-L2RyaXZlcnMvc3RhZ2luZy9tZWRpYS9hdG9taXNwL3BjaS9hdG9taXNwMi9obW0vaG1tLmMKPiAr
-KysgYi9kcml2ZXJzL3N0YWdpbmcvbWVkaWEvYXRvbWlzcC9wY2kvYXRvbWlzcDIvaG1tL2htbS5j
-Cj4gQEAgLTE1OCwxMCArMTU4LDEwIEBAIHN0YXRpYyBzc2l6ZV90IGR5bmFtaWNfcG9vbF9zaG93
-KHN0cnVjdCBkZXZpY2UKPiAqZGV2LAo+IMKgCXJldHVybiByZXQ7Cj4gwqB9Owo+IMKgCj4gLXN0
-YXRpYyBERVZJQ0VfQVRUUihhY3RpdmVfYm8sIDA0NDQsIGFjdGl2ZV9ib19zaG93LCBOVUxMKTsK
-PiAtc3RhdGljIERFVklDRV9BVFRSKGZyZWVfYm8sIDA0NDQsIGZyZWVfYm9fc2hvdywgTlVMTCk7
-Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihyZXNlcnZlZF9wb29sLCAwNDQ0LCByZXNlcnZlZF9wb29s
-X3Nob3csIE5VTEwpOwo+IC1zdGF0aWMgREVWSUNFX0FUVFIoZHluYW1pY19wb29sLCAwNDQ0LCBk
-eW5hbWljX3Bvb2xfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhhY3RpdmVf
-Ym8pOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8oZnJlZV9ibyk7Cj4gK3N0YXRpYyBERVZJQ0Vf
-QVRUUl9STyhyZXNlcnZlZF9wb29sKTsKPiArc3RhdGljIERFVklDRV9BVFRSX1JPKGR5bmFtaWNf
-cG9vbCk7Cj4gwqAKPiDCoHN0YXRpYyBzdHJ1Y3QgYXR0cmlidXRlICpzeXNmc19hdHRyc19jdHJs
-W10gPSB7Cj4gwqAJJmRldl9hdHRyX2FjdGl2ZV9iby5hdHRyLAo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL3RoZXJtYWwvdGhlcm1hbF9zeXNmcy5jCj4gYi9kcml2ZXJzL3RoZXJtYWwvdGhlcm1hbF9z
-eXNmcy5jCj4gaW5kZXggYzAwOGFmN2ZiNDgwLi4yYmM5NjQzOTI5MjQgMTAwNjQ0Cj4gLS0tIGEv
-ZHJpdmVycy90aGVybWFsL3RoZXJtYWxfc3lzZnMuYwo+ICsrKyBiL2RyaXZlcnMvdGhlcm1hbC90
-aGVybWFsX3N5c2ZzLmMKPiBAQCAtMzk2LDEwICszOTYsMTAgQEAgY3JlYXRlX3MzMl90enBfYXR0
-cihvZmZzZXQpOwo+IMKgICogQWxsIHRoZSBhdHRyaWJ1dGVzIGNyZWF0ZWQgZm9yIHR6cCAoY3Jl
-YXRlX3MzMl90enBfYXR0cikgYWxzbyBhcmUKPiBhbHdheXMKPiDCoCAqIHByZXNlbnQgb24gdGhl
-IHN5c2ZzIGludGVyZmFjZS4KPiDCoCAqLwo+IC1zdGF0aWMgREVWSUNFX0FUVFIodHlwZSwgMDQ0
-NCwgdHlwZV9zaG93LCBOVUxMKTsKPiAtc3RhdGljIERFVklDRV9BVFRSKHRlbXAsIDA0NDQsIHRl
-bXBfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyh0eXBlKTsKPiArc3RhdGlj
-IERFVklDRV9BVFRSX1JPKHRlbXApOwo+IMKgc3RhdGljIERFVklDRV9BVFRSX1JXKHBvbGljeSk7
-Cj4gLXN0YXRpYyBERVZJQ0VfQVRUUihhdmFpbGFibGVfcG9saWNpZXMsIFNfSVJVR08sCj4gYXZh
-aWxhYmxlX3BvbGljaWVzX3Nob3csIE5VTEwpOwo+ICtzdGF0aWMgREVWSUNFX0FUVFJfUk8oYXZh
-aWxhYmxlX3BvbGljaWVzKTsKPiDCoHN0YXRpYyBERVZJQ0VfQVRUUl9SVyhzdXN0YWluYWJsZV9w
-b3dlcik7Cj4gwqAKPiDCoC8qIFRoZXNlIHRoZXJtYWwgem9uZSBkZXZpY2UgYXR0cmlidXRlcyBh
-cmUgY3JlYXRlZCBiYXNlZCBvbgo+IGNvbmRpdGlvbnMgKi8KPiBkaWZmIC0tZ2l0IGEvc291bmQv
-c29jL3NvYy1jb3JlLmMgYi9zb3VuZC9zb2Mvc29jLWNvcmUuYwo+IGluZGV4IDJkMzkyZjJkN2Zm
-ZS4uOWEzODBlNTVmNGFmIDEwMDY0NAo+IC0tLSBhL3NvdW5kL3NvYy9zb2MtY29yZS5jCj4gKysr
-IGIvc291bmQvc29jL3NvYy1jb3JlLmMKPiBAQCAtMTczLDcgKzE3Myw3IEBAIHN0YXRpYyBzc2l6
-ZV90IGNvZGVjX3JlZ19zaG93KHN0cnVjdCBkZXZpY2UgKmRldiwKPiDCoAlyZXR1cm4gc29jX2Nv
-ZGVjX3JlZ19zaG93KHJ0ZC0+Y29kZWMsIGJ1ZiwgUEFHRV9TSVpFLCAwKTsKPiDCoH0KPiDCoAo+
-IC1zdGF0aWMgREVWSUNFX0FUVFIoY29kZWNfcmVnLCAwNDQ0LCBjb2RlY19yZWdfc2hvdywgTlVM
-TCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhjb2RlY19yZWcpOwo+IMKgCj4gwqBzdGF0aWMg
-c3NpemVfdCBwbWRvd25fdGltZV9zaG93KHN0cnVjdCBkZXZpY2UgKmRldiwKPiDCoAkJCQlzdHJ1
-Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwgY2hhcgo+ICpidWYpCj4gZGlmZiAtLWdpdCBhL3Nv
-dW5kL3NvYy9zb2MtZGFwbS5jIGIvc291bmQvc29jL3NvYy1kYXBtLmMKPiBpbmRleCBhMTBiMjFj
-ZmMzMWUuLmQxOTc3Y2VkODk1ZiAxMDA2NDQKPiAtLS0gYS9zb3VuZC9zb2Mvc29jLWRhcG0uYwo+
-ICsrKyBiL3NvdW5kL3NvYy9zb2MtZGFwbS5jCj4gQEAgLTIzNjQsNyArMjM2NCw3IEBAIHN0YXRp
-YyBzc2l6ZV90IGRhcG1fd2lkZ2V0X3Nob3coc3RydWN0IGRldmljZQo+ICpkZXYsCj4gwqAJcmV0
-dXJuIGNvdW50Owo+IMKgfQo+IMKgCj4gLXN0YXRpYyBERVZJQ0VfQVRUUihkYXBtX3dpZGdldCwg
-MDQ0NCwgZGFwbV93aWRnZXRfc2hvdywgTlVMTCk7Cj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9STyhk
-YXBtX3dpZGdldCk7Cj4gwqAKPiDCoHN0cnVjdCBhdHRyaWJ1dGUgKnNvY19kYXBtX2Rldl9hdHRy
-c1tdID0gewo+IMKgCSZkZXZfYXR0cl9kYXBtX3dpZGdldC5hdHRyLApfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0Cklu
-dGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5v
-cmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK
+This is a multi-part message in MIME format.
+--===============1831014135==
+Content-Type: multipart/alternative;
+ boundary="------------38DDBDF97ED8F21E27F7B2FB"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------38DDBDF97ED8F21E27F7B2FB
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+On 12/19/2017 07:15 PM, Joe Perches wrote:
+
+> Convert DEVICE_ATTR uses to DEVICE_ATTR_RO where possible.
+>
+> Done with perl script:
+>
+> $ git grep -w --name-only DEVICE_ATTR | \
+>   xargs perl -i -e 'local $/; while (<>) { s/\bDEVICE_ATTR\s*\(\s*(\w+)\s*,\s*\(?(?:\s*S_IRUGO\s*|\s*0444\s*)\)?\s*,\s*\1_show\s*,\s*NULL\s*\)/DEVICE_ATTR_RO(\1)/g; print;}'
+>
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+>  arch/arm/mach-pxa/sharpsl_pm.c                       |  4 ++--
+>  arch/sh/drivers/push-switch.c                        |  2 +-
+>  arch/tile/kernel/sysfs.c                             | 10 +++++-----
+>  drivers/acpi/device_sysfs.c                          |  6 +++---
+>  drivers/char/ipmi/ipmi_msghandler.c                  | 17 ++++++++---------
+>  drivers/gpu/drm/i915/i915_sysfs.c                    |  6 +++---
+>  drivers/nvme/host/core.c                             | 10 +++++-----
+>  drivers/s390/cio/css.c                               |  8 ++++----
+>  drivers/s390/cio/device.c                            |  8 ++++----
+>  drivers/s390/crypto/ap_card.c                        |  2 +-
+
+For the s390 AP part,
+
+ACK-by: Harald Freudenberger <freude@linux.vnet.ibm.com> Thanks
+
+>  drivers/scsi/hpsa.c                                  | 10 +++++-----
+>  drivers/scsi/lpfc/lpfc_attr.c                        | 18 ++++++++----------
+>  drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c |  8 ++++----
+>  drivers/thermal/thermal_sysfs.c                      |  6 +++---
+>  sound/soc/soc-core.c                                 |  2 +-
+>  sound/soc/soc-dapm.c                                 |  2 +-
+>  16 files changed, 58 insertions(+), 61 deletions(-)
+>
+> diff --git a/arch/arm/mach-pxa/sharpsl_pm.c b/arch/arm/mach-pxa/sharpsl_pm.c
+> index 398ba9ba2632..ef9fd9b759cb 100644
+> --- a/arch/arm/mach-pxa/sharpsl_pm.c
+> +++ b/arch/arm/mach-pxa/sharpsl_pm.c
+> @@ -802,8 +802,8 @@ static ssize_t battery_voltage_show(struct device *dev, struct device_attribute
+>  	return sprintf(buf, "%d\n", sharpsl_pm.battstat.mainbat_voltage);
+>  }
+>
+> -static DEVICE_ATTR(battery_percentage, 0444, battery_percentage_show, NULL);
+> -static DEVICE_ATTR(battery_voltage, 0444, battery_voltage_show, NULL);
+> +static DEVICE_ATTR_RO(battery_percentage);
+> +static DEVICE_ATTR_RO(battery_voltage);
+>
+>  extern void (*apm_get_power_status)(struct apm_power_info *);
+>
+> diff --git a/arch/sh/drivers/push-switch.c b/arch/sh/drivers/push-switch.c
+> index a17181160233..762bc5619910 100644
+> --- a/arch/sh/drivers/push-switch.c
+> +++ b/arch/sh/drivers/push-switch.c
+> @@ -24,7 +24,7 @@ static ssize_t switch_show(struct device *dev,
+>  	struct push_switch_platform_info *psw_info = dev->platform_data;
+>  	return sprintf(buf, "%s\n", psw_info->name);
+>  }
+> -static DEVICE_ATTR(switch, S_IRUGO, switch_show, NULL);
+> +static DEVICE_ATTR_RO(switch);
+>
+>  static void switch_timer(struct timer_list *t)
+>  {
+> diff --git a/arch/tile/kernel/sysfs.c b/arch/tile/kernel/sysfs.c
+> index af5024f0fb5a..b09456a3d77a 100644
+> --- a/arch/tile/kernel/sysfs.c
+> +++ b/arch/tile/kernel/sysfs.c
+> @@ -38,7 +38,7 @@ static ssize_t chip_width_show(struct device *dev,
+>  {
+>  	return sprintf(page, "%u\n", smp_width);
+>  }
+> -static DEVICE_ATTR(chip_width, 0444, chip_width_show, NULL);
+> +static DEVICE_ATTR_RO(chip_width);
+>
+>  static ssize_t chip_height_show(struct device *dev,
+>  				struct device_attribute *attr,
+> @@ -46,7 +46,7 @@ static ssize_t chip_height_show(struct device *dev,
+>  {
+>  	return sprintf(page, "%u\n", smp_height);
+>  }
+> -static DEVICE_ATTR(chip_height, 0444, chip_height_show, NULL);
+> +static DEVICE_ATTR_RO(chip_height);
+>
+>  static ssize_t chip_serial_show(struct device *dev,
+>  				struct device_attribute *attr,
+> @@ -54,7 +54,7 @@ static ssize_t chip_serial_show(struct device *dev,
+>  {
+>  	return get_hv_confstr(page, HV_CONFSTR_CHIP_SERIAL_NUM);
+>  }
+> -static DEVICE_ATTR(chip_serial, 0444, chip_serial_show, NULL);
+> +static DEVICE_ATTR_RO(chip_serial);
+>
+>  static ssize_t chip_revision_show(struct device *dev,
+>  				  struct device_attribute *attr,
+> @@ -62,7 +62,7 @@ static ssize_t chip_revision_show(struct device *dev,
+>  {
+>  	return get_hv_confstr(page, HV_CONFSTR_CHIP_REV);
+>  }
+> -static DEVICE_ATTR(chip_revision, 0444, chip_revision_show, NULL);
+> +static DEVICE_ATTR_RO(chip_revision);
+>
+>
+>  static ssize_t type_show(struct device *dev,
+> @@ -71,7 +71,7 @@ static ssize_t type_show(struct device *dev,
+>  {
+>  	return sprintf(page, "tilera\n");
+>  }
+> -static DEVICE_ATTR(type, 0444, type_show, NULL);
+> +static DEVICE_ATTR_RO(type);
+>
+>  #define HV_CONF_ATTR(name, conf)					\
+>  	static ssize_t name ## _show(struct device *dev,		\
+> diff --git a/drivers/acpi/device_sysfs.c b/drivers/acpi/device_sysfs.c
+> index a041689e5701..545e91420cde 100644
+> --- a/drivers/acpi/device_sysfs.c
+> +++ b/drivers/acpi/device_sysfs.c
+> @@ -357,7 +357,7 @@ static ssize_t real_power_state_show(struct device *dev,
+>  	return sprintf(buf, "%s\n", acpi_power_state_string(state));
+>  }
+>
+> -static DEVICE_ATTR(real_power_state, 0444, real_power_state_show, NULL);
+> +static DEVICE_ATTR_RO(real_power_state);
+>
+>  static ssize_t power_state_show(struct device *dev,
+>  				struct device_attribute *attr, char *buf)
+> @@ -367,7 +367,7 @@ static ssize_t power_state_show(struct device *dev,
+>  	return sprintf(buf, "%s\n", acpi_power_state_string(adev->power.state));
+>  }
+>
+> -static DEVICE_ATTR(power_state, 0444, power_state_show, NULL);
+> +static DEVICE_ATTR_RO(power_state);
+>
+>  static ssize_t
+>  acpi_eject_store(struct device *d, struct device_attribute *attr,
+> @@ -462,7 +462,7 @@ static ssize_t description_show(struct device *dev,
+>
+>  	return result;
+>  }
+> -static DEVICE_ATTR(description, 0444, description_show, NULL);
+> +static DEVICE_ATTR_RO(description);
+>
+>  static ssize_t
+>  acpi_device_sun_show(struct device *dev, struct device_attribute *attr,
+> diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+> index f45732a2cb3e..7f51acd74e10 100644
+> --- a/drivers/char/ipmi/ipmi_msghandler.c
+> +++ b/drivers/char/ipmi/ipmi_msghandler.c
+> @@ -2588,7 +2588,7 @@ static ssize_t device_id_show(struct device *dev,
+>
+>  	return snprintf(buf, 10, "%u\n", id.device_id);
+>  }
+> -static DEVICE_ATTR(device_id, S_IRUGO, device_id_show, NULL);
+> +static DEVICE_ATTR_RO(device_id);
+>
+>  static ssize_t provides_device_sdrs_show(struct device *dev,
+>  					 struct device_attribute *attr,
+> @@ -2604,8 +2604,7 @@ static ssize_t provides_device_sdrs_show(struct device *dev,
+>
+>  	return snprintf(buf, 10, "%u\n", (id.device_revision & 0x80) >> 7);
+>  }
+> -static DEVICE_ATTR(provides_device_sdrs, S_IRUGO, provides_device_sdrs_show,
+> -		   NULL);
+> +static DEVICE_ATTR_RO(provides_device_sdrs);
+>
+>  static ssize_t revision_show(struct device *dev, struct device_attribute *attr,
+>  			     char *buf)
+> @@ -2620,7 +2619,7 @@ static ssize_t revision_show(struct device *dev, struct device_attribute *attr,
+>
+>  	return snprintf(buf, 20, "%u\n", id.device_revision & 0x0F);
+>  }
+> -static DEVICE_ATTR(revision, S_IRUGO, revision_show, NULL);
+> +static DEVICE_ATTR_RO(revision);
+>
+>  static ssize_t firmware_revision_show(struct device *dev,
+>  				      struct device_attribute *attr,
+> @@ -2637,7 +2636,7 @@ static ssize_t firmware_revision_show(struct device *dev,
+>  	return snprintf(buf, 20, "%u.%x\n", id.firmware_revision_1,
+>  			id.firmware_revision_2);
+>  }
+> -static DEVICE_ATTR(firmware_revision, S_IRUGO, firmware_revision_show, NULL);
+> +static DEVICE_ATTR_RO(firmware_revision);
+>
+>  static ssize_t ipmi_version_show(struct device *dev,
+>  				 struct device_attribute *attr,
+> @@ -2655,7 +2654,7 @@ static ssize_t ipmi_version_show(struct device *dev,
+>  			ipmi_version_major(&id),
+>  			ipmi_version_minor(&id));
+>  }
+> -static DEVICE_ATTR(ipmi_version, S_IRUGO, ipmi_version_show, NULL);
+> +static DEVICE_ATTR_RO(ipmi_version);
+>
+>  static ssize_t add_dev_support_show(struct device *dev,
+>  				    struct device_attribute *attr,
+> @@ -2688,7 +2687,7 @@ static ssize_t manufacturer_id_show(struct device *dev,
+>
+>  	return snprintf(buf, 20, "0x%6.6x\n", id.manufacturer_id);
+>  }
+> -static DEVICE_ATTR(manufacturer_id, S_IRUGO, manufacturer_id_show, NULL);
+> +static DEVICE_ATTR_RO(manufacturer_id);
+>
+>  static ssize_t product_id_show(struct device *dev,
+>  			       struct device_attribute *attr,
+> @@ -2704,7 +2703,7 @@ static ssize_t product_id_show(struct device *dev,
+>
+>  	return snprintf(buf, 10, "0x%4.4x\n", id.product_id);
+>  }
+> -static DEVICE_ATTR(product_id, S_IRUGO, product_id_show, NULL);
+> +static DEVICE_ATTR_RO(product_id);
+>
+>  static ssize_t aux_firmware_rev_show(struct device *dev,
+>  				     struct device_attribute *attr,
+> @@ -2742,7 +2741,7 @@ static ssize_t guid_show(struct device *dev, struct device_attribute *attr,
+>
+>  	return snprintf(buf, 38, "%pUl\n", guid.b);
+>  }
+> -static DEVICE_ATTR(guid, S_IRUGO, guid_show, NULL);
+> +static DEVICE_ATTR_RO(guid);
+>
+>  static struct attribute *bmc_dev_attrs[] = {
+>  	&dev_attr_device_id.attr,
+> diff --git a/drivers/gpu/drm/i915/i915_sysfs.c b/drivers/gpu/drm/i915/i915_sysfs.c
+> index 1d0ab8ff5915..b33d2158c234 100644
+> --- a/drivers/gpu/drm/i915/i915_sysfs.c
+> +++ b/drivers/gpu/drm/i915/i915_sysfs.c
+> @@ -445,13 +445,13 @@ static ssize_t gt_min_freq_mhz_store(struct device *kdev,
+>  	return ret ?: count;
+>  }
+>
+> -static DEVICE_ATTR(gt_act_freq_mhz, S_IRUGO, gt_act_freq_mhz_show, NULL);
+> -static DEVICE_ATTR(gt_cur_freq_mhz, S_IRUGO, gt_cur_freq_mhz_show, NULL);
+> +static DEVICE_ATTR_RO(gt_act_freq_mhz);
+> +static DEVICE_ATTR_RO(gt_cur_freq_mhz);
+>  static DEVICE_ATTR_RW(gt_boost_freq_mhz);
+>  static DEVICE_ATTR_RW(gt_max_freq_mhz);
+>  static DEVICE_ATTR_RW(gt_min_freq_mhz);
+>
+> -static DEVICE_ATTR(vlv_rpe_freq_mhz, S_IRUGO, vlv_rpe_freq_mhz_show, NULL);
+> +static DEVICE_ATTR_RO(vlv_rpe_freq_mhz);
+>
+>  static ssize_t gt_rp_mhz_show(struct device *kdev, struct device_attribute *attr, char *buf);
+>  static DEVICE_ATTR(gt_RP0_freq_mhz, S_IRUGO, gt_rp_mhz_show, NULL);
+> diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+> index 63691e251f8c..8f9fa6f1dfb4 100644
+> --- a/drivers/nvme/host/core.c
+> +++ b/drivers/nvme/host/core.c
+> @@ -2516,14 +2516,14 @@ static ssize_t wwid_show(struct device *dev, struct device_attribute *attr,
+>  		serial_len, subsys->serial, model_len, subsys->model,
+>  		head->ns_id);
+>  }
+> -static DEVICE_ATTR(wwid, S_IRUGO, wwid_show, NULL);
+> +static DEVICE_ATTR_RO(wwid);
+>
+>  static ssize_t nguid_show(struct device *dev, struct device_attribute *attr,
+>  		char *buf)
+>  {
+>  	return sprintf(buf, "%pU\n", dev_to_ns_head(dev)->ids.nguid);
+>  }
+> -static DEVICE_ATTR(nguid, S_IRUGO, nguid_show, NULL);
+> +static DEVICE_ATTR_RO(nguid);
+>
+>  static ssize_t uuid_show(struct device *dev, struct device_attribute *attr,
+>  		char *buf)
+> @@ -2540,21 +2540,21 @@ static ssize_t uuid_show(struct device *dev, struct device_attribute *attr,
+>  	}
+>  	return sprintf(buf, "%pU\n", &ids->uuid);
+>  }
+> -static DEVICE_ATTR(uuid, S_IRUGO, uuid_show, NULL);
+> +static DEVICE_ATTR_RO(uuid);
+>
+>  static ssize_t eui_show(struct device *dev, struct device_attribute *attr,
+>  		char *buf)
+>  {
+>  	return sprintf(buf, "%8ph\n", dev_to_ns_head(dev)->ids.eui64);
+>  }
+> -static DEVICE_ATTR(eui, S_IRUGO, eui_show, NULL);
+> +static DEVICE_ATTR_RO(eui);
+>
+>  static ssize_t nsid_show(struct device *dev, struct device_attribute *attr,
+>  		char *buf)
+>  {
+>  	return sprintf(buf, "%d\n", dev_to_ns_head(dev)->ns_id);
+>  }
+> -static DEVICE_ATTR(nsid, S_IRUGO, nsid_show, NULL);
+> +static DEVICE_ATTR_RO(nsid);
+>
+>  static struct attribute *nvme_ns_id_attrs[] = {
+>  	&dev_attr_wwid.attr,
+> diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+> index 0f11dce6e224..9263a0fb3858 100644
+> --- a/drivers/s390/cio/css.c
+> +++ b/drivers/s390/cio/css.c
+> @@ -268,7 +268,7 @@ static ssize_t type_show(struct device *dev, struct device_attribute *attr,
+>  	return sprintf(buf, "%01x\n", sch->st);
+>  }
+>
+> -static DEVICE_ATTR(type, 0444, type_show, NULL);
+> +static DEVICE_ATTR_RO(type);
+>
+>  static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
+>  			     char *buf)
+> @@ -278,7 +278,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
+>  	return sprintf(buf, "css:t%01X\n", sch->st);
+>  }
+>
+> -static DEVICE_ATTR(modalias, 0444, modalias_show, NULL);
+> +static DEVICE_ATTR_RO(modalias);
+>
+>  static struct attribute *subch_attrs[] = {
+>  	&dev_attr_type.attr,
+> @@ -315,7 +315,7 @@ static ssize_t chpids_show(struct device *dev,
+>  	ret += sprintf(buf + ret, "\n");
+>  	return ret;
+>  }
+> -static DEVICE_ATTR(chpids, 0444, chpids_show, NULL);
+> +static DEVICE_ATTR_RO(chpids);
+>
+>  static ssize_t pimpampom_show(struct device *dev,
+>  			      struct device_attribute *attr,
+> @@ -327,7 +327,7 @@ static ssize_t pimpampom_show(struct device *dev,
+>  	return sprintf(buf, "%02x %02x %02x\n",
+>  		       pmcw->pim, pmcw->pam, pmcw->pom);
+>  }
+> -static DEVICE_ATTR(pimpampom, 0444, pimpampom_show, NULL);
+> +static DEVICE_ATTR_RO(pimpampom);
+>
+>  static struct attribute *io_subchannel_type_attrs[] = {
+>  	&dev_attr_chpids.attr,
+> diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+> index 6eefb67b31f3..f50ea035aa9b 100644
+> --- a/drivers/s390/cio/device.c
+> +++ b/drivers/s390/cio/device.c
+> @@ -597,13 +597,13 @@ static ssize_t vpm_show(struct device *dev, struct device_attribute *attr,
+>  	return sprintf(buf, "%02x\n", sch->vpm);
+>  }
+>
+> -static DEVICE_ATTR(devtype, 0444, devtype_show, NULL);
+> -static DEVICE_ATTR(cutype, 0444, cutype_show, NULL);
+> -static DEVICE_ATTR(modalias, 0444, modalias_show, NULL);
+> +static DEVICE_ATTR_RO(devtype);
+> +static DEVICE_ATTR_RO(cutype);
+> +static DEVICE_ATTR_RO(modalias);
+>  static DEVICE_ATTR_RW(online);
+>  static DEVICE_ATTR(availability, 0444, available_show, NULL);
+>  static DEVICE_ATTR(logging, 0200, NULL, initiate_logging);
+> -static DEVICE_ATTR(vpm, 0444, vpm_show, NULL);
+> +static DEVICE_ATTR_RO(vpm);
+>
+>  static struct attribute *io_subchannel_attrs[] = {
+>  	&dev_attr_logging.attr,
+> diff --git a/drivers/s390/crypto/ap_card.c b/drivers/s390/crypto/ap_card.c
+> index 97a8cf578116..2c726df210f6 100644
+> --- a/drivers/s390/crypto/ap_card.c
+> +++ b/drivers/s390/crypto/ap_card.c
+> @@ -57,7 +57,7 @@ static ssize_t ap_functions_show(struct device *dev,
+>  	return snprintf(buf, PAGE_SIZE, "0x%08X\n", ac->functions);
+>  }
+>
+> -static DEVICE_ATTR(ap_functions, 0444, ap_functions_show, NULL);
+> +static DEVICE_ATTR_RO(ap_functions);
+>
+>  static ssize_t ap_req_count_show(struct device *dev,
+>  				 struct device_attribute *attr,
+> diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+> index b0aa5dc1d54c..d62377b68ef4 100644
+> --- a/drivers/scsi/hpsa.c
+> +++ b/drivers/scsi/hpsa.c
+> @@ -901,14 +901,14 @@ static ssize_t host_show_legacy_board(struct device *dev,
+>  	return snprintf(buf, 20, "%d\n", h->legacy_board ? 1 : 0);
+>  }
+>
+> -static DEVICE_ATTR(raid_level, S_IRUGO, raid_level_show, NULL);
+> -static DEVICE_ATTR(lunid, S_IRUGO, lunid_show, NULL);
+> -static DEVICE_ATTR(unique_id, S_IRUGO, unique_id_show, NULL);
+> +static DEVICE_ATTR_RO(raid_level);
+> +static DEVICE_ATTR_RO(lunid);
+> +static DEVICE_ATTR_RO(unique_id);
+>  static DEVICE_ATTR(rescan, S_IWUSR, NULL, host_store_rescan);
+> -static DEVICE_ATTR(sas_address, S_IRUGO, sas_address_show, NULL);
+> +static DEVICE_ATTR_RO(sas_address);
+>  static DEVICE_ATTR(hp_ssd_smart_path_enabled, S_IRUGO,
+>  			host_show_hp_ssd_smart_path_enabled, NULL);
+> -static DEVICE_ATTR(path_info, S_IRUGO, path_info_show, NULL);
+> +static DEVICE_ATTR_RO(path_info);
+>  static DEVICE_ATTR(hp_ssd_smart_path_status, S_IWUSR|S_IRUGO|S_IROTH,
+>  		host_show_hp_ssd_smart_path_status,
+>  		host_store_hp_ssd_smart_path_status);
+> diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+> index 95f7ba3c3f1a..517ff203cfde 100644
+> --- a/drivers/scsi/lpfc/lpfc_attr.c
+> +++ b/drivers/scsi/lpfc/lpfc_attr.c
+> @@ -2294,8 +2294,8 @@ static DEVICE_ATTR(num_discovered_ports, S_IRUGO,
+>  		   lpfc_num_discovered_ports_show, NULL);
+>  static DEVICE_ATTR(menlo_mgmt_mode, S_IRUGO, lpfc_mlomgmt_show, NULL);
+>  static DEVICE_ATTR(nport_evt_cnt, S_IRUGO, lpfc_nport_evt_cnt_show, NULL);
+> -static DEVICE_ATTR(lpfc_drvr_version, S_IRUGO, lpfc_drvr_version_show, NULL);
+> -static DEVICE_ATTR(lpfc_enable_fip, S_IRUGO, lpfc_enable_fip_show, NULL);
+> +static DEVICE_ATTR_RO(lpfc_drvr_version);
+> +static DEVICE_ATTR_RO(lpfc_enable_fip);
+>  static DEVICE_ATTR(board_mode, S_IRUGO | S_IWUSR,
+>  		   lpfc_board_mode_show, lpfc_board_mode_store);
+>  static DEVICE_ATTR(issue_reset, S_IWUSR, NULL, lpfc_issue_reset);
+> @@ -2306,12 +2306,11 @@ static DEVICE_ATTR(used_rpi, S_IRUGO, lpfc_used_rpi_show, NULL);
+>  static DEVICE_ATTR(max_xri, S_IRUGO, lpfc_max_xri_show, NULL);
+>  static DEVICE_ATTR(used_xri, S_IRUGO, lpfc_used_xri_show, NULL);
+>  static DEVICE_ATTR(npiv_info, S_IRUGO, lpfc_npiv_info_show, NULL);
+> -static DEVICE_ATTR(lpfc_temp_sensor, S_IRUGO, lpfc_temp_sensor_show, NULL);
+> -static DEVICE_ATTR(lpfc_fips_level, S_IRUGO, lpfc_fips_level_show, NULL);
+> -static DEVICE_ATTR(lpfc_fips_rev, S_IRUGO, lpfc_fips_rev_show, NULL);
+> -static DEVICE_ATTR(lpfc_dss, S_IRUGO, lpfc_dss_show, NULL);
+> -static DEVICE_ATTR(lpfc_sriov_hw_max_virtfn, S_IRUGO,
+> -		   lpfc_sriov_hw_max_virtfn_show, NULL);
+> +static DEVICE_ATTR_RO(lpfc_temp_sensor);
+> +static DEVICE_ATTR_RO(lpfc_fips_level);
+> +static DEVICE_ATTR_RO(lpfc_fips_rev);
+> +static DEVICE_ATTR_RO(lpfc_dss);
+> +static DEVICE_ATTR_RO(lpfc_sriov_hw_max_virtfn);
+>  static DEVICE_ATTR(protocol, S_IRUGO, lpfc_sli4_protocol_show, NULL);
+>  static DEVICE_ATTR(lpfc_xlane_supported, S_IRUGO, lpfc_oas_supported_show,
+>  		   NULL);
+> @@ -3719,8 +3718,7 @@ lpfc_static_vport_show(struct device *dev, struct device_attribute *attr,
+>  /*
+>   * Sysfs attribute to control the statistical data collection.
+>   */
+> -static DEVICE_ATTR(lpfc_static_vport, S_IRUGO,
+> -		   lpfc_static_vport_show, NULL);
+> +static DEVICE_ATTR_RO(lpfc_static_vport);
+>
+>  /**
+>   * lpfc_stat_data_ctrl_store - write call back for lpfc_stat_data_ctrl sysfs file
+> diff --git a/drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c b/drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c
+> index a1c81c12718c..4338b8a1309f 100644
+> --- a/drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c
+> +++ b/drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c
+> @@ -158,10 +158,10 @@ static ssize_t dynamic_pool_show(struct device *dev,
+>  	return ret;
+>  };
+>
+> -static DEVICE_ATTR(active_bo, 0444, active_bo_show, NULL);
+> -static DEVICE_ATTR(free_bo, 0444, free_bo_show, NULL);
+> -static DEVICE_ATTR(reserved_pool, 0444, reserved_pool_show, NULL);
+> -static DEVICE_ATTR(dynamic_pool, 0444, dynamic_pool_show, NULL);
+> +static DEVICE_ATTR_RO(active_bo);
+> +static DEVICE_ATTR_RO(free_bo);
+> +static DEVICE_ATTR_RO(reserved_pool);
+> +static DEVICE_ATTR_RO(dynamic_pool);
+>
+>  static struct attribute *sysfs_attrs_ctrl[] = {
+>  	&dev_attr_active_bo.attr,
+> diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
+> index c008af7fb480..2bc964392924 100644
+> --- a/drivers/thermal/thermal_sysfs.c
+> +++ b/drivers/thermal/thermal_sysfs.c
+> @@ -396,10 +396,10 @@ create_s32_tzp_attr(offset);
+>   * All the attributes created for tzp (create_s32_tzp_attr) also are always
+>   * present on the sysfs interface.
+>   */
+> -static DEVICE_ATTR(type, 0444, type_show, NULL);
+> -static DEVICE_ATTR(temp, 0444, temp_show, NULL);
+> +static DEVICE_ATTR_RO(type);
+> +static DEVICE_ATTR_RO(temp);
+>  static DEVICE_ATTR_RW(policy);
+> -static DEVICE_ATTR(available_policies, S_IRUGO, available_policies_show, NULL);
+> +static DEVICE_ATTR_RO(available_policies);
+>  static DEVICE_ATTR_RW(sustainable_power);
+>
+>  /* These thermal zone device attributes are created based on conditions */
+> diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+> index 2d392f2d7ffe..9a380e55f4af 100644
+> --- a/sound/soc/soc-core.c
+> +++ b/sound/soc/soc-core.c
+> @@ -173,7 +173,7 @@ static ssize_t codec_reg_show(struct device *dev,
+>  	return soc_codec_reg_show(rtd->codec, buf, PAGE_SIZE, 0);
+>  }
+>
+> -static DEVICE_ATTR(codec_reg, 0444, codec_reg_show, NULL);
+> +static DEVICE_ATTR_RO(codec_reg);
+>
+>  static ssize_t pmdown_time_show(struct device *dev,
+>  				struct device_attribute *attr, char *buf)
+> diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+> index a10b21cfc31e..d1977ced895f 100644
+> --- a/sound/soc/soc-dapm.c
+> +++ b/sound/soc/soc-dapm.c
+> @@ -2364,7 +2364,7 @@ static ssize_t dapm_widget_show(struct device *dev,
+>  	return count;
+>  }
+>
+> -static DEVICE_ATTR(dapm_widget, 0444, dapm_widget_show, NULL);
+> +static DEVICE_ATTR_RO(dapm_widget);
+>
+>  struct attribute *soc_dapm_dev_attrs[] = {
+>  	&dev_attr_dapm_widget.attr,
+
+
+--------------38DDBDF97ED8F21E27F7B2FB
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    <pre>On 12/19/2017 07:15 PM, Joe Perches wrote:</pre>
+    <blockquote type="cite"
+cite="mid:2e64e7d278fa9e4e255221fb84717884a7bfb69c.1513706701.git.joe@perches.com">
+      <pre wrap="">Convert DEVICE_ATTR uses to DEVICE_ATTR_RO where possible.
+
+Done with perl script:
+
+$ git grep -w --name-only DEVICE_ATTR | \
+  xargs perl -i -e 'local $/; while (&lt;&gt;) { s/\bDEVICE_ATTR\s*\(\s*(\w+)\s*,\s*\(?(?:\s*S_IRUGO\s*|\s*0444\s*)\)?\s*,\s*\1_show\s*,\s*NULL\s*\)/DEVICE_ATTR_RO(\1)/g; print;}'
+
+Signed-off-by: Joe Perches <a class="moz-txt-link-rfc2396E" href="mailto:joe@perches.com">&lt;joe@perches.com&gt;</a>
+---
+ arch/arm/mach-pxa/sharpsl_pm.c                       |  4 ++--
+ arch/sh/drivers/push-switch.c                        |  2 +-
+ arch/tile/kernel/sysfs.c                             | 10 +++++-----
+ drivers/acpi/device_sysfs.c                          |  6 +++---
+ drivers/char/ipmi/ipmi_msghandler.c                  | 17 ++++++++---------
+ drivers/gpu/drm/i915/i915_sysfs.c                    |  6 +++---
+ drivers/nvme/host/core.c                             | 10 +++++-----
+ drivers/s390/cio/css.c                               |  8 ++++----
+ drivers/s390/cio/device.c                            |  8 ++++----
+ drivers/s390/crypto/ap_card.c                        |  2 +-</pre>
+    </blockquote>
+    <pre><font face="Courier New, Courier, monospace">For the s390 AP part,
+</font></pre>
+    <pre><font face="Courier New, Courier, monospace">ACK-by: Harald Freudenberger <a class="moz-txt-link-rfc2396E" href="mailto:freude@linux.vnet.ibm.com">&lt;freude@linux.vnet.ibm.com&gt;</a>
+
+Thanks
+</font></pre>
+    <blockquote type="cite"
+cite="mid:2e64e7d278fa9e4e255221fb84717884a7bfb69c.1513706701.git.joe@perches.com">
+      <pre wrap="">
+ drivers/scsi/hpsa.c                                  | 10 +++++-----
+ drivers/scsi/lpfc/lpfc_attr.c                        | 18 ++++++++----------
+ drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c |  8 ++++----
+ drivers/thermal/thermal_sysfs.c                      |  6 +++---
+ sound/soc/soc-core.c                                 |  2 +-
+ sound/soc/soc-dapm.c                                 |  2 +-
+ 16 files changed, 58 insertions(+), 61 deletions(-)
+
+diff --git a/arch/arm/mach-pxa/sharpsl_pm.c b/arch/arm/mach-pxa/sharpsl_pm.c
+index 398ba9ba2632..ef9fd9b759cb 100644
+--- a/arch/arm/mach-pxa/sharpsl_pm.c
++++ b/arch/arm/mach-pxa/sharpsl_pm.c
+@@ -802,8 +802,8 @@ static ssize_t battery_voltage_show(struct device *dev, struct device_attribute
+ 	return sprintf(buf, "%d\n", sharpsl_pm.battstat.mainbat_voltage);
+ }
+
+-static DEVICE_ATTR(battery_percentage, 0444, battery_percentage_show, NULL);
+-static DEVICE_ATTR(battery_voltage, 0444, battery_voltage_show, NULL);
++static DEVICE_ATTR_RO(battery_percentage);
++static DEVICE_ATTR_RO(battery_voltage);
+
+ extern void (*apm_get_power_status)(struct apm_power_info *);
+
+diff --git a/arch/sh/drivers/push-switch.c b/arch/sh/drivers/push-switch.c
+index a17181160233..762bc5619910 100644
+--- a/arch/sh/drivers/push-switch.c
++++ b/arch/sh/drivers/push-switch.c
+@@ -24,7 +24,7 @@ static ssize_t switch_show(struct device *dev,
+ 	struct push_switch_platform_info *psw_info = dev-&gt;platform_data;
+ 	return sprintf(buf, "%s\n", psw_info-&gt;name);
+ }
+-static DEVICE_ATTR(switch, S_IRUGO, switch_show, NULL);
++static DEVICE_ATTR_RO(switch);
+
+ static void switch_timer(struct timer_list *t)
+ {
+diff --git a/arch/tile/kernel/sysfs.c b/arch/tile/kernel/sysfs.c
+index af5024f0fb5a..b09456a3d77a 100644
+--- a/arch/tile/kernel/sysfs.c
++++ b/arch/tile/kernel/sysfs.c
+@@ -38,7 +38,7 @@ static ssize_t chip_width_show(struct device *dev,
+ {
+ 	return sprintf(page, "%u\n", smp_width);
+ }
+-static DEVICE_ATTR(chip_width, 0444, chip_width_show, NULL);
++static DEVICE_ATTR_RO(chip_width);
+
+ static ssize_t chip_height_show(struct device *dev,
+ 				struct device_attribute *attr,
+@@ -46,7 +46,7 @@ static ssize_t chip_height_show(struct device *dev,
+ {
+ 	return sprintf(page, "%u\n", smp_height);
+ }
+-static DEVICE_ATTR(chip_height, 0444, chip_height_show, NULL);
++static DEVICE_ATTR_RO(chip_height);
+
+ static ssize_t chip_serial_show(struct device *dev,
+ 				struct device_attribute *attr,
+@@ -54,7 +54,7 @@ static ssize_t chip_serial_show(struct device *dev,
+ {
+ 	return get_hv_confstr(page, HV_CONFSTR_CHIP_SERIAL_NUM);
+ }
+-static DEVICE_ATTR(chip_serial, 0444, chip_serial_show, NULL);
++static DEVICE_ATTR_RO(chip_serial);
+
+ static ssize_t chip_revision_show(struct device *dev,
+ 				  struct device_attribute *attr,
+@@ -62,7 +62,7 @@ static ssize_t chip_revision_show(struct device *dev,
+ {
+ 	return get_hv_confstr(page, HV_CONFSTR_CHIP_REV);
+ }
+-static DEVICE_ATTR(chip_revision, 0444, chip_revision_show, NULL);
++static DEVICE_ATTR_RO(chip_revision);
+
+
+ static ssize_t type_show(struct device *dev,
+@@ -71,7 +71,7 @@ static ssize_t type_show(struct device *dev,
+ {
+ 	return sprintf(page, "tilera\n");
+ }
+-static DEVICE_ATTR(type, 0444, type_show, NULL);
++static DEVICE_ATTR_RO(type);
+
+ #define HV_CONF_ATTR(name, conf)					\
+ 	static ssize_t name ## _show(struct device *dev,		\
+diff --git a/drivers/acpi/device_sysfs.c b/drivers/acpi/device_sysfs.c
+index a041689e5701..545e91420cde 100644
+--- a/drivers/acpi/device_sysfs.c
++++ b/drivers/acpi/device_sysfs.c
+@@ -357,7 +357,7 @@ static ssize_t real_power_state_show(struct device *dev,
+ 	return sprintf(buf, "%s\n", acpi_power_state_string(state));
+ }
+
+-static DEVICE_ATTR(real_power_state, 0444, real_power_state_show, NULL);
++static DEVICE_ATTR_RO(real_power_state);
+
+ static ssize_t power_state_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+@@ -367,7 +367,7 @@ static ssize_t power_state_show(struct device *dev,
+ 	return sprintf(buf, "%s\n", acpi_power_state_string(adev-&gt;power.state));
+ }
+
+-static DEVICE_ATTR(power_state, 0444, power_state_show, NULL);
++static DEVICE_ATTR_RO(power_state);
+
+ static ssize_t
+ acpi_eject_store(struct device *d, struct device_attribute *attr,
+@@ -462,7 +462,7 @@ static ssize_t description_show(struct device *dev,
+
+ 	return result;
+ }
+-static DEVICE_ATTR(description, 0444, description_show, NULL);
++static DEVICE_ATTR_RO(description);
+
+ static ssize_t
+ acpi_device_sun_show(struct device *dev, struct device_attribute *attr,
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index f45732a2cb3e..7f51acd74e10 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -2588,7 +2588,7 @@ static ssize_t device_id_show(struct device *dev,
+
+ 	return snprintf(buf, 10, "%u\n", id.device_id);
+ }
+-static DEVICE_ATTR(device_id, S_IRUGO, device_id_show, NULL);
++static DEVICE_ATTR_RO(device_id);
+
+ static ssize_t provides_device_sdrs_show(struct device *dev,
+ 					 struct device_attribute *attr,
+@@ -2604,8 +2604,7 @@ static ssize_t provides_device_sdrs_show(struct device *dev,
+
+ 	return snprintf(buf, 10, "%u\n", (id.device_revision &amp; 0x80) &gt;&gt; 7);
+ }
+-static DEVICE_ATTR(provides_device_sdrs, S_IRUGO, provides_device_sdrs_show,
+-		   NULL);
++static DEVICE_ATTR_RO(provides_device_sdrs);
+
+ static ssize_t revision_show(struct device *dev, struct device_attribute *attr,
+ 			     char *buf)
+@@ -2620,7 +2619,7 @@ static ssize_t revision_show(struct device *dev, struct device_attribute *attr,
+
+ 	return snprintf(buf, 20, "%u\n", id.device_revision &amp; 0x0F);
+ }
+-static DEVICE_ATTR(revision, S_IRUGO, revision_show, NULL);
++static DEVICE_ATTR_RO(revision);
+
+ static ssize_t firmware_revision_show(struct device *dev,
+ 				      struct device_attribute *attr,
+@@ -2637,7 +2636,7 @@ static ssize_t firmware_revision_show(struct device *dev,
+ 	return snprintf(buf, 20, "%u.%x\n", id.firmware_revision_1,
+ 			id.firmware_revision_2);
+ }
+-static DEVICE_ATTR(firmware_revision, S_IRUGO, firmware_revision_show, NULL);
++static DEVICE_ATTR_RO(firmware_revision);
+
+ static ssize_t ipmi_version_show(struct device *dev,
+ 				 struct device_attribute *attr,
+@@ -2655,7 +2654,7 @@ static ssize_t ipmi_version_show(struct device *dev,
+ 			ipmi_version_major(&amp;id),
+ 			ipmi_version_minor(&amp;id));
+ }
+-static DEVICE_ATTR(ipmi_version, S_IRUGO, ipmi_version_show, NULL);
++static DEVICE_ATTR_RO(ipmi_version);
+
+ static ssize_t add_dev_support_show(struct device *dev,
+ 				    struct device_attribute *attr,
+@@ -2688,7 +2687,7 @@ static ssize_t manufacturer_id_show(struct device *dev,
+
+ 	return snprintf(buf, 20, "0x%6.6x\n", id.manufacturer_id);
+ }
+-static DEVICE_ATTR(manufacturer_id, S_IRUGO, manufacturer_id_show, NULL);
++static DEVICE_ATTR_RO(manufacturer_id);
+
+ static ssize_t product_id_show(struct device *dev,
+ 			       struct device_attribute *attr,
+@@ -2704,7 +2703,7 @@ static ssize_t product_id_show(struct device *dev,
+
+ 	return snprintf(buf, 10, "0x%4.4x\n", id.product_id);
+ }
+-static DEVICE_ATTR(product_id, S_IRUGO, product_id_show, NULL);
++static DEVICE_ATTR_RO(product_id);
+
+ static ssize_t aux_firmware_rev_show(struct device *dev,
+ 				     struct device_attribute *attr,
+@@ -2742,7 +2741,7 @@ static ssize_t guid_show(struct device *dev, struct device_attribute *attr,
+
+ 	return snprintf(buf, 38, "%pUl\n", guid.b);
+ }
+-static DEVICE_ATTR(guid, S_IRUGO, guid_show, NULL);
++static DEVICE_ATTR_RO(guid);
+
+ static struct attribute *bmc_dev_attrs[] = {
+ 	&amp;dev_attr_device_id.attr,
+diff --git a/drivers/gpu/drm/i915/i915_sysfs.c b/drivers/gpu/drm/i915/i915_sysfs.c
+index 1d0ab8ff5915..b33d2158c234 100644
+--- a/drivers/gpu/drm/i915/i915_sysfs.c
++++ b/drivers/gpu/drm/i915/i915_sysfs.c
+@@ -445,13 +445,13 @@ static ssize_t gt_min_freq_mhz_store(struct device *kdev,
+ 	return ret ?: count;
+ }
+
+-static DEVICE_ATTR(gt_act_freq_mhz, S_IRUGO, gt_act_freq_mhz_show, NULL);
+-static DEVICE_ATTR(gt_cur_freq_mhz, S_IRUGO, gt_cur_freq_mhz_show, NULL);
++static DEVICE_ATTR_RO(gt_act_freq_mhz);
++static DEVICE_ATTR_RO(gt_cur_freq_mhz);
+ static DEVICE_ATTR_RW(gt_boost_freq_mhz);
+ static DEVICE_ATTR_RW(gt_max_freq_mhz);
+ static DEVICE_ATTR_RW(gt_min_freq_mhz);
+
+-static DEVICE_ATTR(vlv_rpe_freq_mhz, S_IRUGO, vlv_rpe_freq_mhz_show, NULL);
++static DEVICE_ATTR_RO(vlv_rpe_freq_mhz);
+
+ static ssize_t gt_rp_mhz_show(struct device *kdev, struct device_attribute *attr, char *buf);
+ static DEVICE_ATTR(gt_RP0_freq_mhz, S_IRUGO, gt_rp_mhz_show, NULL);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 63691e251f8c..8f9fa6f1dfb4 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2516,14 +2516,14 @@ static ssize_t wwid_show(struct device *dev, struct device_attribute *attr,
+ 		serial_len, subsys-&gt;serial, model_len, subsys-&gt;model,
+ 		head-&gt;ns_id);
+ }
+-static DEVICE_ATTR(wwid, S_IRUGO, wwid_show, NULL);
++static DEVICE_ATTR_RO(wwid);
+
+ static ssize_t nguid_show(struct device *dev, struct device_attribute *attr,
+ 		char *buf)
+ {
+ 	return sprintf(buf, "%pU\n", dev_to_ns_head(dev)-&gt;ids.nguid);
+ }
+-static DEVICE_ATTR(nguid, S_IRUGO, nguid_show, NULL);
++static DEVICE_ATTR_RO(nguid);
+
+ static ssize_t uuid_show(struct device *dev, struct device_attribute *attr,
+ 		char *buf)
+@@ -2540,21 +2540,21 @@ static ssize_t uuid_show(struct device *dev, struct device_attribute *attr,
+ 	}
+ 	return sprintf(buf, "%pU\n", &amp;ids-&gt;uuid);
+ }
+-static DEVICE_ATTR(uuid, S_IRUGO, uuid_show, NULL);
++static DEVICE_ATTR_RO(uuid);
+
+ static ssize_t eui_show(struct device *dev, struct device_attribute *attr,
+ 		char *buf)
+ {
+ 	return sprintf(buf, "%8ph\n", dev_to_ns_head(dev)-&gt;ids.eui64);
+ }
+-static DEVICE_ATTR(eui, S_IRUGO, eui_show, NULL);
++static DEVICE_ATTR_RO(eui);
+
+ static ssize_t nsid_show(struct device *dev, struct device_attribute *attr,
+ 		char *buf)
+ {
+ 	return sprintf(buf, "%d\n", dev_to_ns_head(dev)-&gt;ns_id);
+ }
+-static DEVICE_ATTR(nsid, S_IRUGO, nsid_show, NULL);
++static DEVICE_ATTR_RO(nsid);
+
+ static struct attribute *nvme_ns_id_attrs[] = {
+ 	&amp;dev_attr_wwid.attr,
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 0f11dce6e224..9263a0fb3858 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -268,7 +268,7 @@ static ssize_t type_show(struct device *dev, struct device_attribute *attr,
+ 	return sprintf(buf, "%01x\n", sch-&gt;st);
+ }
+
+-static DEVICE_ATTR(type, 0444, type_show, NULL);
++static DEVICE_ATTR_RO(type);
+
+ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
+ 			     char *buf)
+@@ -278,7 +278,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
+ 	return sprintf(buf, "css:t%01X\n", sch-&gt;st);
+ }
+
+-static DEVICE_ATTR(modalias, 0444, modalias_show, NULL);
++static DEVICE_ATTR_RO(modalias);
+
+ static struct attribute *subch_attrs[] = {
+ 	&amp;dev_attr_type.attr,
+@@ -315,7 +315,7 @@ static ssize_t chpids_show(struct device *dev,
+ 	ret += sprintf(buf + ret, "\n");
+ 	return ret;
+ }
+-static DEVICE_ATTR(chpids, 0444, chpids_show, NULL);
++static DEVICE_ATTR_RO(chpids);
+
+ static ssize_t pimpampom_show(struct device *dev,
+ 			      struct device_attribute *attr,
+@@ -327,7 +327,7 @@ static ssize_t pimpampom_show(struct device *dev,
+ 	return sprintf(buf, "%02x %02x %02x\n",
+ 		       pmcw-&gt;pim, pmcw-&gt;pam, pmcw-&gt;pom);
+ }
+-static DEVICE_ATTR(pimpampom, 0444, pimpampom_show, NULL);
++static DEVICE_ATTR_RO(pimpampom);
+
+ static struct attribute *io_subchannel_type_attrs[] = {
+ 	&amp;dev_attr_chpids.attr,
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 6eefb67b31f3..f50ea035aa9b 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -597,13 +597,13 @@ static ssize_t vpm_show(struct device *dev, struct device_attribute *attr,
+ 	return sprintf(buf, "%02x\n", sch-&gt;vpm);
+ }
+
+-static DEVICE_ATTR(devtype, 0444, devtype_show, NULL);
+-static DEVICE_ATTR(cutype, 0444, cutype_show, NULL);
+-static DEVICE_ATTR(modalias, 0444, modalias_show, NULL);
++static DEVICE_ATTR_RO(devtype);
++static DEVICE_ATTR_RO(cutype);
++static DEVICE_ATTR_RO(modalias);
+ static DEVICE_ATTR_RW(online);
+ static DEVICE_ATTR(availability, 0444, available_show, NULL);
+ static DEVICE_ATTR(logging, 0200, NULL, initiate_logging);
+-static DEVICE_ATTR(vpm, 0444, vpm_show, NULL);
++static DEVICE_ATTR_RO(vpm);
+
+ static struct attribute *io_subchannel_attrs[] = {
+ 	&amp;dev_attr_logging.attr,
+diff --git a/drivers/s390/crypto/ap_card.c b/drivers/s390/crypto/ap_card.c
+index 97a8cf578116..2c726df210f6 100644
+--- a/drivers/s390/crypto/ap_card.c
++++ b/drivers/s390/crypto/ap_card.c
+@@ -57,7 +57,7 @@ static ssize_t ap_functions_show(struct device *dev,
+ 	return snprintf(buf, PAGE_SIZE, "0x%08X\n", ac-&gt;functions);
+ }
+
+-static DEVICE_ATTR(ap_functions, 0444, ap_functions_show, NULL);
++static DEVICE_ATTR_RO(ap_functions);
+
+ static ssize_t ap_req_count_show(struct device *dev,
+ 				 struct device_attribute *attr,
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index b0aa5dc1d54c..d62377b68ef4 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -901,14 +901,14 @@ static ssize_t host_show_legacy_board(struct device *dev,
+ 	return snprintf(buf, 20, "%d\n", h-&gt;legacy_board ? 1 : 0);
+ }
+
+-static DEVICE_ATTR(raid_level, S_IRUGO, raid_level_show, NULL);
+-static DEVICE_ATTR(lunid, S_IRUGO, lunid_show, NULL);
+-static DEVICE_ATTR(unique_id, S_IRUGO, unique_id_show, NULL);
++static DEVICE_ATTR_RO(raid_level);
++static DEVICE_ATTR_RO(lunid);
++static DEVICE_ATTR_RO(unique_id);
+ static DEVICE_ATTR(rescan, S_IWUSR, NULL, host_store_rescan);
+-static DEVICE_ATTR(sas_address, S_IRUGO, sas_address_show, NULL);
++static DEVICE_ATTR_RO(sas_address);
+ static DEVICE_ATTR(hp_ssd_smart_path_enabled, S_IRUGO,
+ 			host_show_hp_ssd_smart_path_enabled, NULL);
+-static DEVICE_ATTR(path_info, S_IRUGO, path_info_show, NULL);
++static DEVICE_ATTR_RO(path_info);
+ static DEVICE_ATTR(hp_ssd_smart_path_status, S_IWUSR|S_IRUGO|S_IROTH,
+ 		host_show_hp_ssd_smart_path_status,
+ 		host_store_hp_ssd_smart_path_status);
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index 95f7ba3c3f1a..517ff203cfde 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -2294,8 +2294,8 @@ static DEVICE_ATTR(num_discovered_ports, S_IRUGO,
+ 		   lpfc_num_discovered_ports_show, NULL);
+ static DEVICE_ATTR(menlo_mgmt_mode, S_IRUGO, lpfc_mlomgmt_show, NULL);
+ static DEVICE_ATTR(nport_evt_cnt, S_IRUGO, lpfc_nport_evt_cnt_show, NULL);
+-static DEVICE_ATTR(lpfc_drvr_version, S_IRUGO, lpfc_drvr_version_show, NULL);
+-static DEVICE_ATTR(lpfc_enable_fip, S_IRUGO, lpfc_enable_fip_show, NULL);
++static DEVICE_ATTR_RO(lpfc_drvr_version);
++static DEVICE_ATTR_RO(lpfc_enable_fip);
+ static DEVICE_ATTR(board_mode, S_IRUGO | S_IWUSR,
+ 		   lpfc_board_mode_show, lpfc_board_mode_store);
+ static DEVICE_ATTR(issue_reset, S_IWUSR, NULL, lpfc_issue_reset);
+@@ -2306,12 +2306,11 @@ static DEVICE_ATTR(used_rpi, S_IRUGO, lpfc_used_rpi_show, NULL);
+ static DEVICE_ATTR(max_xri, S_IRUGO, lpfc_max_xri_show, NULL);
+ static DEVICE_ATTR(used_xri, S_IRUGO, lpfc_used_xri_show, NULL);
+ static DEVICE_ATTR(npiv_info, S_IRUGO, lpfc_npiv_info_show, NULL);
+-static DEVICE_ATTR(lpfc_temp_sensor, S_IRUGO, lpfc_temp_sensor_show, NULL);
+-static DEVICE_ATTR(lpfc_fips_level, S_IRUGO, lpfc_fips_level_show, NULL);
+-static DEVICE_ATTR(lpfc_fips_rev, S_IRUGO, lpfc_fips_rev_show, NULL);
+-static DEVICE_ATTR(lpfc_dss, S_IRUGO, lpfc_dss_show, NULL);
+-static DEVICE_ATTR(lpfc_sriov_hw_max_virtfn, S_IRUGO,
+-		   lpfc_sriov_hw_max_virtfn_show, NULL);
++static DEVICE_ATTR_RO(lpfc_temp_sensor);
++static DEVICE_ATTR_RO(lpfc_fips_level);
++static DEVICE_ATTR_RO(lpfc_fips_rev);
++static DEVICE_ATTR_RO(lpfc_dss);
++static DEVICE_ATTR_RO(lpfc_sriov_hw_max_virtfn);
+ static DEVICE_ATTR(protocol, S_IRUGO, lpfc_sli4_protocol_show, NULL);
+ static DEVICE_ATTR(lpfc_xlane_supported, S_IRUGO, lpfc_oas_supported_show,
+ 		   NULL);
+@@ -3719,8 +3718,7 @@ lpfc_static_vport_show(struct device *dev, struct device_attribute *attr,
+ /*
+  * Sysfs attribute to control the statistical data collection.
+  */
+-static DEVICE_ATTR(lpfc_static_vport, S_IRUGO,
+-		   lpfc_static_vport_show, NULL);
++static DEVICE_ATTR_RO(lpfc_static_vport);
+
+ /**
+  * lpfc_stat_data_ctrl_store - write call back for lpfc_stat_data_ctrl sysfs file
+diff --git a/drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c b/drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c
+index a1c81c12718c..4338b8a1309f 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c
++++ b/drivers/staging/media/atomisp/pci/atomisp2/hmm/hmm.c
+@@ -158,10 +158,10 @@ static ssize_t dynamic_pool_show(struct device *dev,
+ 	return ret;
+ };
+
+-static DEVICE_ATTR(active_bo, 0444, active_bo_show, NULL);
+-static DEVICE_ATTR(free_bo, 0444, free_bo_show, NULL);
+-static DEVICE_ATTR(reserved_pool, 0444, reserved_pool_show, NULL);
+-static DEVICE_ATTR(dynamic_pool, 0444, dynamic_pool_show, NULL);
++static DEVICE_ATTR_RO(active_bo);
++static DEVICE_ATTR_RO(free_bo);
++static DEVICE_ATTR_RO(reserved_pool);
++static DEVICE_ATTR_RO(dynamic_pool);
+
+ static struct attribute *sysfs_attrs_ctrl[] = {
+ 	&amp;dev_attr_active_bo.attr,
+diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
+index c008af7fb480..2bc964392924 100644
+--- a/drivers/thermal/thermal_sysfs.c
++++ b/drivers/thermal/thermal_sysfs.c
+@@ -396,10 +396,10 @@ create_s32_tzp_attr(offset);
+  * All the attributes created for tzp (create_s32_tzp_attr) also are always
+  * present on the sysfs interface.
+  */
+-static DEVICE_ATTR(type, 0444, type_show, NULL);
+-static DEVICE_ATTR(temp, 0444, temp_show, NULL);
++static DEVICE_ATTR_RO(type);
++static DEVICE_ATTR_RO(temp);
+ static DEVICE_ATTR_RW(policy);
+-static DEVICE_ATTR(available_policies, S_IRUGO, available_policies_show, NULL);
++static DEVICE_ATTR_RO(available_policies);
+ static DEVICE_ATTR_RW(sustainable_power);
+
+ /* These thermal zone device attributes are created based on conditions */
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 2d392f2d7ffe..9a380e55f4af 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -173,7 +173,7 @@ static ssize_t codec_reg_show(struct device *dev,
+ 	return soc_codec_reg_show(rtd-&gt;codec, buf, PAGE_SIZE, 0);
+ }
+
+-static DEVICE_ATTR(codec_reg, 0444, codec_reg_show, NULL);
++static DEVICE_ATTR_RO(codec_reg);
+
+ static ssize_t pmdown_time_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index a10b21cfc31e..d1977ced895f 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -2364,7 +2364,7 @@ static ssize_t dapm_widget_show(struct device *dev,
+ 	return count;
+ }
+
+-static DEVICE_ATTR(dapm_widget, 0444, dapm_widget_show, NULL);
++static DEVICE_ATTR_RO(dapm_widget);
+
+ struct attribute *soc_dapm_dev_attrs[] = {
+ 	&amp;dev_attr_dapm_widget.attr,
+</pre>
+    </blockquote>
+    <br>
+  </body>
+</html>
+
+--------------38DDBDF97ED8F21E27F7B2FB--
+
+
+--===============1831014135==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+
+--===============1831014135==--
