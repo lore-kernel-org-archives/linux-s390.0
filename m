@@ -1,15 +1,13 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 2/2] KVM: s390: prevent buffer overrun on memory hotplug
- during migration
-Date: Thu, 21 Dec 2017 12:50:50 +0100
-Message-ID: <c110d930-48d7-b815-73dd-19236d420fae@redhat.com>
+Subject: Re: [PATCH 0/2] KVM: s390: fixups for cmma migration (kvm/master)
+Date: Thu, 21 Dec 2017 12:57:04 +0100
+Message-ID: <bcf68339-9e90-8d5a-0e77-2a0b72fbbc6c@redhat.com>
 References: <20171221090416.17351-1-borntraeger@de.ibm.com>
- <20171221090416.17351-3-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171221090416.17351-3-borntraeger@de.ibm.com>
+In-Reply-To: <20171221090416.17351-1-borntraeger@de.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,33 +17,44 @@ Cc: Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, 
 List-ID: <linux-s390.vger.kernel.org>
 
 On 21.12.2017 10:04, Christian Borntraeger wrote:
-> We must not go beyond the pre-allocated buffer. This can happen when
-> a new memory slot is added during migration.
+> This is targetted as minimal fixups. Claudio is reworking this
+> to handle this better in general (e.g. memory wholes).
 > 
-> Reported-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: stable@vger.kernel.org # 4.13+
-> Fixes: 190df4a212a7 (KVM: s390: CMMA tracking, ESSA emulation, migration mode)
-> ---
->  arch/s390/kvm/priv.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> I will wait for a review for patch2 (which is new) and then spin
+> a pull request as we now have 2 patches for master
 > 
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index c954ac49eee4..3211bf58d838 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -1002,7 +1002,7 @@ static inline int do_essa(struct kvm_vcpu *vcpu, const int orc)
->  		cbrlo[entries] = gfn << PAGE_SHIFT;
->  	}
->  
-> -	if (orc) {
-> +	if (orc && gfn < ms->bitmap_size) {
->  		/* increment only if we are really flipping the bit to 1 */
->  		if (!test_and_set_bit(gfn, ms->pgste_bitmap))
->  			atomic64_inc(&ms->dirty_pages);
+> Christian Borntraeger (2):
+>   KVM: s390: fix cmma migration for multiple memory slots
+>   KVM: s390: prevent buffer overrun on memory hotplug during migration
+> 
+>  arch/s390/kvm/kvm-s390.c | 9 +++++----
+>  arch/s390/kvm/priv.c     | 2 +-
+>  2 files changed, 6 insertions(+), 5 deletions(-)
 > 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+[waking up from vacation mode]
+
+Sorry to say, but I guess there is more.
+
+do_essa() can race with
+kvm_s390_vm_set_migration(KVM_S390_VM_MIGRATION_STOP).
+
+CPU0: handle_essa()
+	-> vcpu->kvm->arch.migration_state == true
+	-> do_essa()
+CPU1: kvm_s390_vm_set_migration(KVM_S390_VM_MIGRATION_STOP)
+	-> vcpu->kvm->arch.migration_state = false;
+	-> vfree(mgs->pgste_bitmap)
+CPU0: test_and_set_bit(gfn, ms->pgste_bitmap)
+	-> access to freed data structure
+
+The kvm_s390_sync_request_broadcast(kvm, KVM_REQ_STOP_MIGRATION) will
+only make sure that all CPUs have left SIE mode, not that the request
+has been processed.
+
+Does that make sense?
+
+[going back to vacation mode]
 
 -- 
 
