@@ -1,99 +1,52 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH] KVM: s390: add proper locking for CMMA migration bitmap
-Date: Fri, 22 Dec 2017 14:35:36 +0100
-Message-ID: <20171222143536.0aee4d5b.cohuck@redhat.com>
+Date: Fri, 22 Dec 2017 14:38:02 +0100
+Message-ID: <8a3e9dae-42da-5750-0575-b4b04d3c90a2@de.ibm.com>
 References: <20171222112145.80485-1-borntraeger@de.ibm.com>
+ <20171222143536.0aee4d5b.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171222112145.80485-1-borntraeger@de.ibm.com>
+In-Reply-To: <20171222143536.0aee4d5b.cohuck@redhat.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 22 Dec 2017 12:21:45 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> Some parts of the cmma migration bitmap is already protected
-> with the kvm->lock (e.g. the migration start). On the other
-> hand the read of the cmma bits is not protected against a
-> concurrent free, neither is the emulation of the ESSA instruction.
-> Let's extend the locking to all related ioctls by using
-> the slots lock and wait for the freeing until all unlocked
-> users have finished (those hold kvm->srcu for read).
+
+On 12/22/2017 02:35 PM, Cornelia Huck wrote:
+> On Fri, 22 Dec 2017 12:21:45 +0100
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > 
-> Reported-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: stable@vger.kernel.org # 4.13+
-> Fixes: 190df4a212a7 (KVM: s390: CMMA tracking, ESSA emulation, migration mode)
-> ---
->  arch/s390/kvm/kvm-s390.c | 14 +++++++++-----
->  1 file changed, 9 insertions(+), 5 deletions(-)
-
-I'm way too confused by the locking rules to give this a good review
-before Christmas... do we have a general writeup somewhere?
-
+>> Some parts of the cmma migration bitmap is already protected
+>> with the kvm->lock (e.g. the migration start). On the other
+>> hand the read of the cmma bits is not protected against a
+>> concurrent free, neither is the emulation of the ESSA instruction.
+>> Let's extend the locking to all related ioctls by using
+>> the slots lock and wait for the freeing until all unlocked
+>> users have finished (those hold kvm->srcu for read).
+>>
+>> Reported-by: David Hildenbrand <david@redhat.com>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Cc: stable@vger.kernel.org # 4.13+
+>> Fixes: 190df4a212a7 (KVM: s390: CMMA tracking, ESSA emulation, migration mode)
+>> ---
+>>  arch/s390/kvm/kvm-s390.c | 14 +++++++++-----
+>>  1 file changed, 9 insertions(+), 5 deletions(-)
 > 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 3373d8dff131..4458d7fe45df 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -837,6 +837,8 @@ static int kvm_s390_vm_stop_migration(struct kvm *kvm)
->  
->  	if (kvm->arch.use_cmma) {
->  		kvm_s390_sync_request_broadcast(kvm, KVM_REQ_STOP_MIGRATION);
-> +		/* We have to wait for the essa emulation to finish */
-> +		synchronize_srcu(&kvm->srcu);
->  		vfree(mgs->pgste_bitmap);
->  	}
->  	kfree(mgs);
-> @@ -846,14 +848,12 @@ static int kvm_s390_vm_stop_migration(struct kvm *kvm)
->  static int kvm_s390_vm_set_migration(struct kvm *kvm,
->  				     struct kvm_device_attr *attr)
->  {
-> -	int idx, res = -ENXIO;
-> +	int res = -ENXIO;
->  
-> -	mutex_lock(&kvm->lock);
-> +	mutex_lock(&kvm->slots_lock);
->  	switch (attr->attr) {
->  	case KVM_S390_VM_MIGRATION_START:
-> -		idx = srcu_read_lock(&kvm->srcu);
->  		res = kvm_s390_vm_start_migration(kvm);
-> -		srcu_read_unlock(&kvm->srcu, idx);
->  		break;
->  	case KVM_S390_VM_MIGRATION_STOP:
->  		res = kvm_s390_vm_stop_migration(kvm);
-> @@ -861,7 +861,7 @@ static int kvm_s390_vm_set_migration(struct kvm *kvm,
->  	default:
->  		break;
->  	}
-> -	mutex_unlock(&kvm->lock);
-> +	mutex_unlock(&kvm->slots_lock);
->  
->  	return res;
->  }
-> @@ -1763,7 +1763,9 @@ long kvm_arch_vm_ioctl(struct file *filp,
->  		r = -EFAULT;
->  		if (copy_from_user(&args, argp, sizeof(args)))
->  			break;
-> +		mutex_lock(&kvm->slots_lock);
->  		r = kvm_s390_get_cmma_bits(kvm, &args);
-> +		mutex_unlock(&kvm->slots_lock);
->  		if (!r) {
->  			r = copy_to_user(argp, &args, sizeof(args));
->  			if (r)
-> @@ -1777,7 +1779,9 @@ long kvm_arch_vm_ioctl(struct file *filp,
->  		r = -EFAULT;
->  		if (copy_from_user(&args, argp, sizeof(args)))
->  			break;
-> +		mutex_lock(&kvm->slots_lock);
->  		r = kvm_s390_set_cmma_bits(kvm, &args);
-> +		mutex_unlock(&kvm->slots_lock);
->  		break;
->  	}
->  	default:
+> I'm way too confused by the locking rules to give this a good review
+> before Christmas... do we have a general writeup somewhere?
+
+The hiararchy is documented (Documentation/virtual/locking) but not the purpose
+and what is locked by what. the slots_lock basically protects the memory slots
+as it is used for memslot changes (normally you would use rcu but the mutex is
+the big hammer to prevent concurrent memslot changes).
+
+
+Lets defer this to after christmas. I will do a pull request for the other
+2 patches.
