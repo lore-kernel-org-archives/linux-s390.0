@@ -1,42 +1,38 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/2] KVM: s390: prevent buffer overrun on memory hotplug during migration
-Date: Fri, 22 Dec 2017 15:51:28 +0100
-Message-ID: <20171222145128.20836-3-borntraeger@de.ibm.com>
-References: <20171222145128.20836-1-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171222145128.20836-1-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 0/4] s390/qeth: updates 2017-12-27
+Date: Wed, 27 Dec 2017 17:44:27 +0100
+Message-ID: <20171227164431.17118-1-jwi@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We must not go beyond the pre-allocated buffer. This can happen when
-a new memory slot is added during migration.
+Hi Dave,
 
-Reported-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: stable@vger.kernel.org # 4.13+
-Fixes: 190df4a212a7 (KVM: s390: CMMA tracking, ESSA emulation, migration mode)
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/kvm/priv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+please apply some post-christmas leftovers for 4.16.
+Two patches to improve IP address management on L3, and two that add
+support to auto-config the transport mode on z/VM VNICs.
+Note that one patch in the series touches arch/s390 (acked by Martin).
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 572496c688cc..0714bfa56da0 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -1006,7 +1006,7 @@ static inline int do_essa(struct kvm_vcpu *vcpu, const int orc)
- 		cbrlo[entries] = gfn << PAGE_SHIFT;
- 	}
- 
--	if (orc) {
-+	if (orc && gfn < ms->bitmap_size) {
- 		/* increment only if we are really flipping the bit to 1 */
- 		if (!test_and_set_bit(gfn, ms->pgste_bitmap))
- 			atomic64_inc(&ms->dirty_pages);
+Thanks,
+Julian
+
+
+Julian Wiedmann (4):
+  s390/qeth: improve error reporting on IP add/removal
+  s390/qeth: use common helper to display rxip/vipa
+  s390/diag: add diag26c support for VNIC info
+  s390/qeth: support early setup for z/VM NICs
+
+ arch/s390/include/asm/diag.h      |  44 +++++++++++++++-
+ drivers/s390/net/qeth_core_main.c |  86 ++++++++++++++++++++++++++++----
+ drivers/s390/net/qeth_l3.h        |  12 +++--
+ drivers/s390/net/qeth_l3_main.c   |  36 ++++++++------
+ drivers/s390/net/qeth_l3_sys.c    | 102 +++++++++++---------------------------
+ 5 files changed, 179 insertions(+), 101 deletions(-)
+
 -- 
-2.13.4
+2.13.5
