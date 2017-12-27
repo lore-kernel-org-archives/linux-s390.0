@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 3/4] s390/diag: add diag26c support for VNIC info
-Date: Wed, 27 Dec 2017 17:44:30 +0100
-Message-ID: <20171227164431.17118-4-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 2/4] s390/qeth: use common helper to display rxip/vipa
+Date: Wed, 27 Dec 2017 17:44:29 +0100
+Message-ID: <20171227164431.17118-3-jwi@linux.vnet.ibm.com>
 References: <20171227164431.17118-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20171227164431.17118-1-jwi@linux.vnet.ibm.com>
@@ -12,74 +12,158 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-With subcode 0x24, diag26c returns all sorts of VNIC-related information.
+By parameterising the address type, we need just one helper that walks
+the IP table and builds up the response string.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/include/asm/diag.h | 44 +++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 43 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_l3_sys.c | 90 +++++++++++-------------------------------
+ 1 file changed, 24 insertions(+), 66 deletions(-)
 
-diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
-index 6db78567294c..cdbaad50c7c7 100644
---- a/arch/s390/include/asm/diag.h
-+++ b/arch/s390/include/asm/diag.h
-@@ -229,13 +229,55 @@ struct diag204_x_phys_block {
- } __packed;
- 
- enum diag26c_sc {
-+	DIAG26C_PORT_VNIC    = 0x00000024,
- 	DIAG26C_MAC_SERVICES = 0x00000030
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index f8e74b384980..a645cfe66ddf 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -705,22 +705,25 @@ static const struct attribute_group qeth_device_ipato_group = {
+ 	.attrs = qeth_ipato_device_attrs,
  };
  
- enum diag26c_version {
--	DIAG26C_VERSION2 = 0x00000002	/* z/VM 5.4.0 */
-+	DIAG26C_VERSION2	 = 0x00000002,	/* z/VM 5.4.0 */
-+	DIAG26C_VERSION6_VM65918 = 0x00020006	/* z/VM 6.4.0 + VM65918 */
+-static ssize_t qeth_l3_dev_vipa_add_show(char *buf, struct qeth_card *card,
+-			enum qeth_prot_versions proto)
++static ssize_t qeth_l3_dev_ip_add_show(struct device *dev, char *buf,
++				       enum qeth_prot_versions proto,
++				       enum qeth_ip_types type)
+ {
++	struct qeth_card *card = dev_get_drvdata(dev);
+ 	struct qeth_ipaddr *ipaddr;
+ 	char addr_str[40];
+ 	int str_len = 0;
+ 	int entry_len; /* length of 1 entry string, differs between v4 and v6 */
+ 	int i;
+ 
++	if (!card)
++		return -EINVAL;
++
+ 	entry_len = (proto == QETH_PROT_IPV4)? 12 : 40;
+ 	entry_len += 2; /* \n + terminator */
+ 	spin_lock_bh(&card->ip_lock);
+ 	hash_for_each(card->ip_htable, i, ipaddr, hnode) {
+-		if (ipaddr->proto != proto)
+-			continue;
+-		if (ipaddr->type != QETH_IP_TYPE_VIPA)
++		if (ipaddr->proto != proto || ipaddr->type != type)
+ 			continue;
+ 		/* String must not be longer than PAGE_SIZE. So we check if
+ 		 * string length gets near PAGE_SIZE. Then we can savely display
+@@ -739,14 +742,11 @@ static ssize_t qeth_l3_dev_vipa_add_show(char *buf, struct qeth_card *card,
+ }
+ 
+ static ssize_t qeth_l3_dev_vipa_add4_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
++					  struct device_attribute *attr,
++					  char *buf)
+ {
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	return qeth_l3_dev_vipa_add_show(buf, card, QETH_PROT_IPV4);
++	return qeth_l3_dev_ip_add_show(dev, buf, QETH_PROT_IPV4,
++				       QETH_IP_TYPE_VIPA);
+ }
+ 
+ static int qeth_l3_parse_vipae(const char *buf, enum qeth_prot_versions proto,
+@@ -816,14 +816,11 @@ static QETH_DEVICE_ATTR(vipa_del4, del4, 0200, NULL,
+ 			qeth_l3_dev_vipa_del4_store);
+ 
+ static ssize_t qeth_l3_dev_vipa_add6_show(struct device *dev,
+-				struct device_attribute *attr, char *buf)
++					  struct device_attribute *attr,
++					  char *buf)
+ {
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	return qeth_l3_dev_vipa_add_show(buf, card, QETH_PROT_IPV6);
++	return qeth_l3_dev_ip_add_show(dev, buf, QETH_PROT_IPV6,
++				       QETH_IP_TYPE_VIPA);
+ }
+ 
+ static ssize_t qeth_l3_dev_vipa_add6_store(struct device *dev,
+@@ -868,48 +865,12 @@ static const struct attribute_group qeth_device_vipa_group = {
+ 	.attrs = qeth_vipa_device_attrs,
  };
  
-+#define DIAG26C_VNIC_INFO	0x0002
-+struct diag26c_vnic_req {
-+	u32	resp_buf_len;
-+	u32	resp_version;
-+	u16	req_format;
-+	u16	vlan_id;
-+	u64	sys_name;
-+	u8	res[2];
-+	u16	devno;
-+} __packed __aligned(8);
-+
-+#define VNIC_INFO_PROT_L3	1
-+#define VNIC_INFO_PROT_L2	2
-+/* Note: this is the bare minimum, use it for uninitialized VNICs only. */
-+struct diag26c_vnic_resp {
-+	u32	version;
-+	u32	entry_cnt;
-+	/* VNIC info: */
-+	u32	next_entry;
-+	u64	owner;
-+	u16	devno;
-+	u8	status;
-+	u8	type;
-+	u64	lan_owner;
-+	u64	lan_name;
-+	u64	port_name;
-+	u8	port_type;
-+	u8	ext_status:6;
-+	u8	protocol:2;
-+	u16	base_devno;
-+	u32	port_num;
-+	u32	ifindex;
-+	u32	maxinfo;
-+	u32	dev_count;
-+	/* 3x device info: */
-+	u8	dev_info1[28];
-+	u8	dev_info2[28];
-+	u8	dev_info3[28];
-+} __packed __aligned(8);
-+
- #define DIAG26C_GET_MAC	0x0000
- struct diag26c_mac_req {
- 	u32	resp_buf_len;
+-static ssize_t qeth_l3_dev_rxip_add_show(char *buf, struct qeth_card *card,
+-		       enum qeth_prot_versions proto)
+-{
+-	struct qeth_ipaddr *ipaddr;
+-	char addr_str[40];
+-	int str_len = 0;
+-	int entry_len; /* length of 1 entry string, differs between v4 and v6 */
+-	int i;
+-
+-	entry_len = (proto == QETH_PROT_IPV4)? 12 : 40;
+-	entry_len += 2; /* \n + terminator */
+-	spin_lock_bh(&card->ip_lock);
+-	hash_for_each(card->ip_htable, i, ipaddr, hnode) {
+-		if (ipaddr->proto != proto)
+-			continue;
+-		if (ipaddr->type != QETH_IP_TYPE_RXIP)
+-			continue;
+-		/* String must not be longer than PAGE_SIZE. So we check if
+-		 * string length gets near PAGE_SIZE. Then we can savely display
+-		 * the next IPv6 address (worst case, compared to IPv4) */
+-		if ((PAGE_SIZE - str_len) <= entry_len)
+-			break;
+-		qeth_l3_ipaddr_to_string(proto, (const u8 *)&ipaddr->u,
+-			addr_str);
+-		str_len += snprintf(buf + str_len, PAGE_SIZE - str_len, "%s\n",
+-				    addr_str);
+-	}
+-	spin_unlock_bh(&card->ip_lock);
+-	str_len += snprintf(buf + str_len, PAGE_SIZE - str_len, "\n");
+-
+-	return str_len;
+-}
+-
+ static ssize_t qeth_l3_dev_rxip_add4_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
++					  struct device_attribute *attr,
++					  char *buf)
+ {
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	return qeth_l3_dev_rxip_add_show(buf, card, QETH_PROT_IPV4);
++	return qeth_l3_dev_ip_add_show(dev, buf, QETH_PROT_IPV4,
++				       QETH_IP_TYPE_RXIP);
+ }
+ 
+ static int qeth_l3_parse_rxipe(const char *buf, enum qeth_prot_versions proto,
+@@ -996,14 +957,11 @@ static QETH_DEVICE_ATTR(rxip_del4, del4, 0200, NULL,
+ 			qeth_l3_dev_rxip_del4_store);
+ 
+ static ssize_t qeth_l3_dev_rxip_add6_show(struct device *dev,
+-		struct device_attribute *attr, char *buf)
++					  struct device_attribute *attr,
++					  char *buf)
+ {
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	return qeth_l3_dev_rxip_add_show(buf, card, QETH_PROT_IPV6);
++	return qeth_l3_dev_ip_add_show(dev, buf, QETH_PROT_IPV6,
++				       QETH_IP_TYPE_RXIP);
+ }
+ 
+ static ssize_t qeth_l3_dev_rxip_add6_store(struct device *dev,
 -- 
 2.13.5
