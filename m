@@ -1,127 +1,119 @@
-From: Joe Perches <joe@perches.com>
-Subject: [-next PATCH 4/4] treewide: Use DEVICE_ATTR_WO
-Date: Tue, 19 Dec 2017 10:15:09 -0800
-Message-ID: <fa30f1ad73f76dafff816df40cacffe613aa2f48.1513706702.git.joe@perches.com>
-References: <cover.1513706701.git.joe@perches.com>
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <cover.1513706701.git.joe@perches.com>
-Sender: linux-pm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-input/>
-List-Post: <mailto:linux-input@vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Falcon <tlfalcon@linux.vnet.ibm.com>, John Allen <jallen@linux.vnet.ibm.com>, Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>, linux-wimax@intel.com, James Smart <james.smart@broadcom.com>, Dick Kennedy <dick.kennedy@broadcom.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 00/12] drop unneeded newline
+Date: Wed, 27 Dec 2017 15:51:33 +0100
+Message-ID: <1514386305-7402-1-git-send-email-Julia.Lawall@lip6.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+List-Archive: <https://lore.kernel.org/amd-gfx/>
+List-Post: <mailto:amd-gfx@lists.freedesktop.org>
+To: dri-devel@lists.freedesktop.org
+Cc: dev@openvswitch.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, dccp@vger.kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, cluster-devel@redhat.com, esc.storagedev@microsemi.com, Namhyung Kim <namhyung@kernel.org>, linux-ext4@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Convert DEVICE_ATTR uses to DEVICE_ATTR_WO where possible.
-
-Done with perl script:
-
-$ git grep -w --name-only DEVICE_ATTR | \
-  xargs perl -i -e 'local $/; while (<>) { s/\bDEVICE_ATTR\s*\(\s*(\w+)\s*,\s*\(?(?:\s*S_IWUSR\s*|\s*0200\s*)\)?\s*,\s*NULL\s*,\s*\s_store\s*\)/DEVICE_ATTR_WO(\1)/g; print;}'
-
-Signed-off-by: Joe Perches <joe@perches.com>
----
- arch/s390/kernel/smp.c                 | 2 +-
- arch/x86/kernel/cpu/microcode/core.c   | 2 +-
- drivers/input/touchscreen/elants_i2c.c | 2 +-
- drivers/net/ethernet/ibm/ibmvnic.c     | 2 +-
- drivers/net/wimax/i2400m/sysfs.c       | 3 +--
- drivers/scsi/lpfc/lpfc_attr.c          | 3 +--
- drivers/thermal/thermal_sysfs.c        | 2 +-
- 7 files changed, 7 insertions(+), 9 deletions(-)
-
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index b8c1a85bcf2d..a919b2f0141d 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -1151,7 +1151,7 @@ static ssize_t __ref rescan_store(struct device *dev,
- 	rc = smp_rescan_cpus();
- 	return rc ? rc : count;
- }
--static DEVICE_ATTR(rescan, 0200, NULL, rescan_store);
-+static DEVICE_ATTR_WO(rescan);
- #endif /* CONFIG_HOTPLUG_CPU */
- 
- static int __init s390_smp_init(void)
-diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
-index c4fa4a85d4cb..09c74b0560dd 100644
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -560,7 +560,7 @@ static ssize_t pf_show(struct device *dev,
- 	return sprintf(buf, "0x%x\n", uci->cpu_sig.pf);
- }
- 
--static DEVICE_ATTR(reload, 0200, NULL, reload_store);
-+static DEVICE_ATTR_WO(reload);
- static DEVICE_ATTR(version, 0400, version_show, NULL);
- static DEVICE_ATTR(processor_flags, 0400, pf_show, NULL);
- 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index a458e5ec9e41..819213e88f32 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -1000,7 +1000,7 @@ static ssize_t show_iap_mode(struct device *dev,
- 				"Normal" : "Recovery");
- }
- 
--static DEVICE_ATTR(calibrate, S_IWUSR, NULL, calibrate_store);
-+static DEVICE_ATTR_WO(calibrate);
- static DEVICE_ATTR(iap_mode, S_IRUGO, show_iap_mode, NULL);
- static DEVICE_ATTR(update_fw, S_IWUSR, NULL, write_update_fw);
- 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 1dc4aef37d3a..42b96e1a1b13 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4411,7 +4411,7 @@ static ssize_t failover_store(struct device *dev, struct device_attribute *attr,
- 	return count;
- }
- 
--static DEVICE_ATTR(failover, 0200, NULL, failover_store);
-+static DEVICE_ATTR_WO(failover);
- 
- static unsigned long ibmvnic_get_desired_dma(struct vio_dev *vdev)
- {
-diff --git a/drivers/net/wimax/i2400m/sysfs.c b/drivers/net/wimax/i2400m/sysfs.c
-index 1237109f251a..8c67df11105c 100644
---- a/drivers/net/wimax/i2400m/sysfs.c
-+++ b/drivers/net/wimax/i2400m/sysfs.c
-@@ -65,8 +65,7 @@ ssize_t i2400m_idle_timeout_store(struct device *dev,
- }
- 
- static
--DEVICE_ATTR(i2400m_idle_timeout, S_IWUSR,
--	    NULL, i2400m_idle_timeout_store);
-+DEVICE_ATTR_WO(i2400m_idle_timeout);
- 
- static
- struct attribute *i2400m_dev_attrs[] = {
-diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
-index 517ff203cfde..6ddaf51a23f6 100644
---- a/drivers/scsi/lpfc/lpfc_attr.c
-+++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -2418,8 +2418,7 @@ lpfc_soft_wwn_enable_store(struct device *dev, struct device_attribute *attr,
- 
- 	return count;
- }
--static DEVICE_ATTR(lpfc_soft_wwn_enable, S_IWUSR, NULL,
--		   lpfc_soft_wwn_enable_store);
-+static DEVICE_ATTR_WO(lpfc_soft_wwn_enable);
- 
- /**
-  * lpfc_soft_wwpn_show - Return the cfg soft ww port name of the adapter
-diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
-index 2bc964392924..ba81c9080f6e 100644
---- a/drivers/thermal/thermal_sysfs.c
-+++ b/drivers/thermal/thermal_sysfs.c
-@@ -317,7 +317,7 @@ emul_temp_store(struct device *dev, struct device_attribute *attr,
- 
- 	return ret ? ret : count;
- }
--static DEVICE_ATTR(emul_temp, S_IWUSR, NULL, emul_temp_store);
-+static DEVICE_ATTR_WO(emul_temp);
- #endif
- 
- static ssize_t
--- 
-2.15.0
+RHJvcCBuZXdsaW5lIGF0IHRoZSBlbmQgb2YgYSBtZXNzYWdlIHN0cmluZyB3aGVuIHRoZSBwcmlu
+dGluZyBmdW5jdGlvbiBhZGRzCmEgbmV3bGluZS4KClRoZSBjb21wbGV0ZSBzZW1hbnRpYyBwYXRj
+aCB0aGF0IGRldGVjdHMgdGhpcyBpc3N1ZSBpcyBhcyBzaG93biBiZWxvdwooaHR0cDovL2NvY2Np
+bmVsbGUubGlwNi5mci8pLiAgSXQgd29ya3MgaW4gdHdvIHBoYXNlcyAtIHRoZSBmaXJzdCBwaGFz
+ZQpjb3VudHMgaG93IG1hbnkgdXNlcyBvZiBhIGZ1bmN0aW9uIGludm9sdmUgYSBuZXdsaW5lIGFu
+ZCBob3cgbWFueSBkb24ndCwKYW5kIHRoZW4gdGhlIHNlY29uZCBwaGFzZSByZW1vdmVzIG5ld2xp
+bmVzIGluIHRoZSBjYXNlIG9mIGNhbGxzIHdoZXJlIGEKbmV3bGluZSBpcyB1c2VkIG9uZSBmb3Vy
+dGggb2YgdGhlIHRpbWVzIG9yIGxlc3MuCgpUaGlzIGFwcHJvYWNoIGlzIG9ubHkgbW9kZXJhdGVs
+eSByZWxpYWJsZSwgYW5kIGFsbCBwYXRjaGVzIGhhdmUgYmVlbgpjaGVja2VkIHRvIGVuc3VyZSB0
+aGF0IHRoZSBuZXdsaW5lIGlzIG5vdCBuZWVkZWQuCgpUaGlzIGFsc28gY29udmVydHMgc29tZSBj
+YXNlcyBvZiBzdHJpbmcgY29uY2F0ZW5hdGlvbiB0byBzaW5nbGUgc3RyaW5ncyBpbgptb2RpZmll
+ZCBjb2RlLCBhcyB0aGlzIGltcHJvdmVzIGdyZXBwYWJpbGl0eS4KCi8vIDxzbXBsPgp2aXJ0dWFs
+IGFmdGVyX3N0YXJ0CgpAaW5pdGlhbGl6ZTpvY2FtbEAKQEAKCmxldCB3aXRobmwgPSBIYXNodGJs
+LmNyZWF0ZSAxMDEKbGV0IHdpdGhvdXRubCA9IEhhc2h0YmwuY3JlYXRlIDEwMQoKbGV0IGlnbm9y
+ZSA9CiAgWyJzdHJjcHkiOyJzdHJsY3B5Ijsic3RyY2F0Ijsic3RybGNhdCI7InN0cmNtcCI7InN0
+cm5jbXAiOyJzdHJjc3BuIjsKICAgICJzdHJzZXAiOyJzcHJpbnRmIjsicHJpbnRmIjsic3RybmNh
+c2VjbXAiOyJzZXFfcHJpbnRmIjsic3Ryc3RyIjsic3Ryc3BuIjsKICAgICJzdHJsZW4iOyJzdHJw
+YnJrIjsic3RydG9rX3IiOyJtZW1jbXAiOyJtZW1jcHkiXQoKbGV0IGRpZ25vcmUgPSBbInRvb2xz
+Ijsic2FtcGxlcyJdCgpsZXQgaW5jIHRibCBrID0KICBsZXQgY2VsbCA9CiAgICB0cnkgSGFzaHRi
+bC5maW5kIHRibCBrCiAgICB3aXRoIE5vdF9mb3VuZCAtPgogICAgICBsZXQgY2VsbCA9IHJlZiAw
+IGluCiAgICAgIEhhc2h0YmwuYWRkIHRibCBrIGNlbGw7CiAgICAgIGNlbGwgaW4KICBjZWxsIDo9
+IDEgKyAhY2VsbAoKbGV0IGVuZG5sIGMgPQogIGxldCBsZW4gPSBTdHJpbmcubGVuZ3RoIGMgaW4K
+ICB0cnkKICAgIFN0cmluZy5nZXQgYyAobGVuLTMpID0gJ1xcJyAmJiBTdHJpbmcuZ2V0IGMgKGxl
+bi0yKSA9ICduJyAmJgogICAgU3RyaW5nLmdldCBjIChsZW4tMSkgPSAnIicKICB3aXRoIF8gLT4g
+ZmFsc2UKCmxldCBjbGVhbl9zdHJpbmcgcyBleHRyYSA9CiAgbGV0IHBpZWNlcyA9IFN0ci5zcGxp
+dCAoU3RyLnJlZ2V4cCAiXCIgXCIiKSBzIGluCiAgbGV0IG5vbmVtcHR5IHMgPQogICAgbm90IChz
+ID0gIiIpICYmIFN0cmluZy5nZXQgcyAwID0gJyInICYmIG5vdCAoU3RyaW5nLmdldCBzIDEgPSAn
+IicpIGluCiAgbGV0IHJlYyBsb29wID0gZnVuY3Rpb24KICAgICAgW10gLT4gW10KICAgIHwgW3hd
+IC0+IFt4XQogICAgfCB4Ojp5OjpyZXN0IC0+CglpZiBub25lbXB0eSB4ICYmIG5vbmVtcHR5IHkK
+CXRoZW4KCSAgbGV0IHhlbmQgPSBTdHJpbmcuZ2V0IHggKFN0cmluZy5sZW5ndGggeCAtIDIpID0g
+JyAnIGluCgkgIGxldCB5ZW5kID0gU3RyaW5nLmdldCB5IDEgPSAnICcgaW4KCSAgbWF0Y2ggKHhl
+bmQseWVuZCkgd2l0aAoJICAgICh0cnVlLGZhbHNlKSB8IChmYWxzZSx0cnVlKSAtPiB4IDo6IChs
+b29wICh5OjpyZXN0KSkKCSAgfCAodHJ1ZSx0cnVlKSAtPgoJICAgICAgeCA6OiAobG9vcCAoKChT
+dHJpbmcuc3ViIHkgMCAoU3RyaW5nLmxlbmd0aCB5IC0gMikpXiJcIiIpOjpyZXN0KSkKCSAgfCAo
+ZmFsc2UsZmFsc2UpIC0+CgkgICAgICAoKFN0cmluZy5zdWIgeCAwIChTdHJpbmcubGVuZ3RoIHgg
+LSAxKSkgXiAiIFwiIikgOjoKCSAgICAgIChsb29wICh5OjpyZXN0KSkKCWVsc2UgeCA6OiAobG9v
+cCAoeTo6cmVzdCkpIGluCiAgKFN0cmluZy5jb25jYXQgIiIgKGxvb3AgcGllY2VzKSleZXh0cmEK
+CkByIGRlcGVuZHMgb24gIWFmdGVyX3N0YXJ0QApjb25zdGFudCBjaGFyW10gYzsKZXhwcmVzc2lv
+biBsaXN0W25dIGVzOwppZGVudGlmaWVyIGY7CnBvc2l0aW9uIHA7CkBACgpmQHAoZXMsYywuLi4p
+CgpAc2NyaXB0Om9jYW1sQApmIDw8IHIuZjsKbiA8PCByLm47CnAgPDwgci5wOwpjIDw8IHIuYzsK
+QEAKCmxldCBwaWVjZXMgPSBTdHIuc3BsaXQgKFN0ci5yZWdleHAgIi8iKSAoTGlzdC5oZCBwKS5m
+aWxlIGluCmlmIG5vdCAoTGlzdC5tZW0gZiBpZ25vcmUpICYmCiAgTGlzdC5mb3JfYWxsIChmdW4g
+eCAtPiBub3QgKExpc3QubWVtIHggcGllY2VzKSkgZGlnbm9yZQp0aGVuCiAgKGlmIGVuZG5sIGMK
+ICB0aGVuIGluYyB3aXRobmwgKGYsbikKICBlbHNlIGluYyB3aXRob3V0bmwgKGYsbikpCgpAZmlu
+YWxpemU6b2NhbWwgZGVwZW5kcyBvbiAhYWZ0ZXJfc3RhcnRACncxIDw8IG1lcmdlLndpdGhubDsK
+dzIgPDwgbWVyZ2Uud2l0aG91dG5sOwpAQAoKbGV0IG5hbWVzID0gcmVmIFtdIGluCmxldCBpbmNu
+IHRibCBrIHYgPQogIGxldCBjZWxsID0KICAgIHRyeSBIYXNodGJsLmZpbmQgdGJsIGsKICAgIHdp
+dGggTm90X2ZvdW5kIC0+CiAgICAgIGJlZ2luCglsZXQgY2VsbCA9IHJlZiAwIGluCglIYXNodGJs
+LmFkZCB0YmwgayBjZWxsOwoJY2VsbAogICAgICBlbmQgaW4KICAoaWYgbm90IChMaXN0Lm1lbSBr
+ICFuYW1lcykgdGhlbiBuYW1lcyA6PSBrIDo6ICFuYW1lcyk7CiAgY2VsbCA6PSAhdiArICFjZWxs
+IGluCkxpc3QuaXRlciAoZnVuY3Rpb24gdyAtPiBIYXNodGJsLml0ZXIgKGluY24gd2l0aG5sKSB3
+KSB3MTsKTGlzdC5pdGVyIChmdW5jdGlvbiB3IC0+IEhhc2h0YmwuaXRlciAoaW5jbiB3aXRob3V0
+bmwpIHcpIHcyOwoKTGlzdC5pdGVyCiAgKGZ1bmN0aW9uIG5hbWUgLT4KICAgIGxldCB3dGggPSB0
+cnkgIShIYXNodGJsLmZpbmQgd2l0aG5sIG5hbWUpIHdpdGggXyAtPiAwIGluCiAgICBsZXQgd28g
+PSB0cnkgIShIYXNodGJsLmZpbmQgd2l0aG91dG5sIG5hbWUpIHdpdGggXyAtPiAwIGluCiAgICBp
+ZiB3dGggPiAwICYmIHd0aCA8PSB3byAvIDMgdGhlbiBIYXNodGJsLnJlbW92ZSB3aXRobmwgbmFt
+ZQogICAgZWxzZSAoUHJpbnRmLmVwcmludGYgImRyb3BwaW5nICVzICVkICVkXG4iIChmc3QgbmFt
+ZSkgd3RoIHdvOyBIYXNodGJsLnJlbW92ZSB3aXRob3V0bmwgbmFtZTsgSGFzaHRibC5yZW1vdmUg
+d2l0aG5sIG5hbWUpKQogICFuYW1lczsKCmxldCBpdCA9IG5ldyBpdGVyYXRpb24oKSBpbgppdCNh
+ZGRfdmlydHVhbF9ydWxlIEFmdGVyX3N0YXJ0OwppdCNyZWdpc3RlcigpCgpAczEgZGVwZW5kcyBv
+biBhZnRlcl9zdGFydEAKY29uc3RhbnQgY2hhcltdIGM7CmV4cHJlc3Npb24gbGlzdFtuXSBlczsK
+aWRlbnRpZmllciBmOwpwb3NpdGlvbiBwOwpAQAoKZihlcyxjQHAsLi4uKQoKQHNjcmlwdDpvY2Ft
+bCBzMkAKZiA8PCBzMS5mOwpuIDw8IHMxLm47CmMgPDwgczEuYzsKbmV3YzsKQEAKCnRyeQogIGxl
+dCBfID0gSGFzaHRibC5maW5kIHdpdGhubCAoZixuKSBpbgogIGlmIGVuZG5sIGMKICB0aGVuIENv
+Y2NpbGliLmluY2x1ZGVfbWF0Y2ggZmFsc2UKICBlbHNlIG5ld2MgOj0KICAgIG1ha2VfZXhwcihj
+bGVhbl9zdHJpbmcgKFN0cmluZy5zdWIgYyAwIChTdHJpbmcubGVuZ3RoIGMgLSAxKSkgIlxcblwi
+IikKd2l0aCBOb3RfZm91bmQgLT4KdHJ5CiAgbGV0IF8gPSBIYXNodGJsLmZpbmQgd2l0aG91dG5s
+IChmLG4pIGluCiAgaWYgZW5kbmwgYwogIHRoZW4gbmV3YyA6PQogICAgbWFrZV9leHByKGNsZWFu
+X3N0cmluZyAoU3RyaW5nLnN1YiBjIDAgKFN0cmluZy5sZW5ndGggYyAtIDMpKSAiXCIiKQogIGVs
+c2UgQ29jY2lsaWIuaW5jbHVkZV9tYXRjaCBmYWxzZQp3aXRoIE5vdF9mb3VuZCAtPiBDb2NjaWxp
+Yi5pbmNsdWRlX21hdGNoIGZhbHNlCgpAQApjb25zdGFudCBjaGFyW10gczEuYzsKcG9zaXRpb24g
+czEucDsKZXhwcmVzc2lvbiBzMi5uZXdjOwpAQAoKLSBjQHAKKyBuZXdjCi8vIDwvc21wbD4KCi0t
+LQoKIGFyY2gvYXJtL21hY2gtZGF2aW5jaS9ib2FyZC1kYTg1MC1ldm0uYyAgICAgICAgICAgICAg
+ICAgfCAgICA0ICsrLS0KIGRyaXZlcnMvYmxvY2svREFDOTYwLmMgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgICA0ICsrLS0KIGRyaXZlcnMvZ3B1L2RybS9hbWQvcG93ZXJwbGF5
+L2h3bWdyL3NtdTdfaHdtZ3IuYyAgICAgICAgfCAgIDEyICsrKysrKysrLS0tLQogZHJpdmVycy9n
+cHUvZHJtL2FtZC9wb3dlcnBsYXkvc211bWdyL2Zpamlfc211bWdyLmMgICAgICB8ICAgIDIgKy0K
+IGRyaXZlcnMvZ3B1L2RybS9hbWQvcG93ZXJwbGF5L3NtdW1nci9pY2VsYW5kX3NtdW1nci5jICAg
+fCAgICAyICstCiBkcml2ZXJzL2dwdS9kcm0vYW1kL3Bvd2VycGxheS9zbXVtZ3IvcG9sYXJpczEw
+X3NtdW1nci5jIHwgICAgMiArLQogZHJpdmVycy9ncHUvZHJtL2FtZC9wb3dlcnBsYXkvc211bWdy
+L3RvbmdhX3NtdW1nci5jICAgICB8ICAgIDIgKy0KIGRyaXZlcnMvbWVkaWEvdXNiL3B2cnVzYjIv
+cHZydXNiMi1oZHcuYyAgICAgICAgICAgICAgICAgfCAgICAzICsrLQogZHJpdmVycy9zMzkwL2Js
+b2NrL2Rhc2RfZGlhZy5jICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDMgKy0tCiBkcml2
+ZXJzL3Njc2kvaHBzYS5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAg
+MiArLQogZnMvZGxtL3Bsb2NrLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB8ICAgIDMgKy0tCiBmcy9leHQyL3N1cGVyLmMgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIHwgICAgMiArLQogZnMvaHBmcy9kbm9kZS5jICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDMgKystCiBuZXQvZGNjcC9hY2t2ZWMuYyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgMiArLQogbmV0L29wZW52
+c3dpdGNoL2Nvbm50cmFjay5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDQgKyst
+LQogdG9vbHMvcGVyZi90ZXN0cy9kc28tZGF0YS5jICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICB8ICAgIDkgKysrKystLS0tCiAxNiBmaWxlcyBjaGFuZ2VkLCAzMiBpbnNlcnRpb25zKCspLCAy
+NyBkZWxldGlvbnMoLSkKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Au
+b3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRl
+dmVsCg==
