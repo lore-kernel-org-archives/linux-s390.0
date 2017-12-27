@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 2/4] s390/qeth: use common helper to display rxip/vipa
-Date: Wed, 27 Dec 2017 17:44:29 +0100
-Message-ID: <20171227164431.17118-3-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net-next 1/4] s390/qeth: improve error reporting on IP add/removal
+Date: Wed, 27 Dec 2017 17:44:28 +0100
+Message-ID: <20171227164431.17118-2-jwi@linux.vnet.ibm.com>
 References: <20171227164431.17118-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20171227164431.17118-1-jwi@linux.vnet.ibm.com>
@@ -12,158 +12,224 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-By parameterising the address type, we need just one helper that walks
-the IP table and builds up the response string.
+When adding & removing IP entries for rxip/vipa/ipato/hsuid, forward any
+resulting errors back to the sysfs-level caller.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l3_sys.c | 90 +++++++++++-------------------------------
- 1 file changed, 24 insertions(+), 66 deletions(-)
+ drivers/s390/net/qeth_l3.h      | 12 +++++++-----
+ drivers/s390/net/qeth_l3_main.c | 36 ++++++++++++++++++++++--------------
+ drivers/s390/net/qeth_l3_sys.c  | 12 ++++++------
+ 3 files changed, 35 insertions(+), 25 deletions(-)
 
+diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
+index 49f92ebbc5ad..bdd45f4dcace 100644
+--- a/drivers/s390/net/qeth_l3.h
++++ b/drivers/s390/net/qeth_l3.h
+@@ -74,13 +74,15 @@ void qeth_l3_remove_device_attributes(struct device *);
+ int qeth_l3_setrouting_v4(struct qeth_card *);
+ int qeth_l3_setrouting_v6(struct qeth_card *);
+ int qeth_l3_add_ipato_entry(struct qeth_card *, struct qeth_ipato_entry *);
+-void qeth_l3_del_ipato_entry(struct qeth_card *, enum qeth_prot_versions,
+-			u8 *, int);
++int qeth_l3_del_ipato_entry(struct qeth_card *card,
++			    enum qeth_prot_versions proto, u8 *addr,
++			    int mask_bits);
+ int qeth_l3_add_vipa(struct qeth_card *, enum qeth_prot_versions, const u8 *);
+-void qeth_l3_del_vipa(struct qeth_card *, enum qeth_prot_versions, const u8 *);
++int qeth_l3_del_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
++		     const u8 *addr);
+ int qeth_l3_add_rxip(struct qeth_card *, enum qeth_prot_versions, const u8 *);
+-void qeth_l3_del_rxip(struct qeth_card *card, enum qeth_prot_versions,
+-			const u8 *);
++int qeth_l3_del_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
++		     const u8 *addr);
+ void qeth_l3_update_ipato(struct qeth_card *card);
+ struct qeth_ipaddr *qeth_l3_get_addr_buffer(enum qeth_prot_versions);
+ int qeth_l3_add_ip(struct qeth_card *, struct qeth_ipaddr *);
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 92bcb02671bc..b0c888e86cd4 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -588,10 +588,12 @@ int qeth_l3_add_ipato_entry(struct qeth_card *card,
+ 	return rc;
+ }
+ 
+-void qeth_l3_del_ipato_entry(struct qeth_card *card,
+-		enum qeth_prot_versions proto, u8 *addr, int mask_bits)
++int qeth_l3_del_ipato_entry(struct qeth_card *card,
++			    enum qeth_prot_versions proto, u8 *addr,
++			    int mask_bits)
+ {
+ 	struct qeth_ipato_entry *ipatoe, *tmp;
++	int rc = -ENOENT;
+ 
+ 	QETH_CARD_TEXT(card, 2, "delipato");
+ 
+@@ -606,10 +608,12 @@ void qeth_l3_del_ipato_entry(struct qeth_card *card,
+ 			list_del(&ipatoe->entry);
+ 			qeth_l3_update_ipato(card);
+ 			kfree(ipatoe);
++			rc = 0;
+ 		}
+ 	}
+ 
+ 	spin_unlock_bh(&card->ip_lock);
++	return rc;
+ }
+ 
+ /*
+@@ -619,7 +623,7 @@ int qeth_l3_add_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
+ 	      const u8 *addr)
+ {
+ 	struct qeth_ipaddr *ipaddr;
+-	int rc = 0;
++	int rc;
+ 
+ 	ipaddr = qeth_l3_get_addr_buffer(proto);
+ 	if (ipaddr) {
+@@ -643,7 +647,7 @@ int qeth_l3_add_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
+ 	if (qeth_l3_ip_from_hash(card, ipaddr))
+ 		rc = -EEXIST;
+ 	else
+-		qeth_l3_add_ip(card, ipaddr);
++		rc = qeth_l3_add_ip(card, ipaddr);
+ 
+ 	spin_unlock_bh(&card->ip_lock);
+ 
+@@ -652,10 +656,11 @@ int qeth_l3_add_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
+ 	return rc;
+ }
+ 
+-void qeth_l3_del_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
+-	      const u8 *addr)
++int qeth_l3_del_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
++		     const u8 *addr)
+ {
+ 	struct qeth_ipaddr *ipaddr;
++	int rc;
+ 
+ 	ipaddr = qeth_l3_get_addr_buffer(proto);
+ 	if (ipaddr) {
+@@ -670,13 +675,14 @@ void qeth_l3_del_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
+ 		}
+ 		ipaddr->type = QETH_IP_TYPE_VIPA;
+ 	} else
+-		return;
++		return -ENOMEM;
+ 
+ 	spin_lock_bh(&card->ip_lock);
+-	qeth_l3_delete_ip(card, ipaddr);
++	rc = qeth_l3_delete_ip(card, ipaddr);
+ 	spin_unlock_bh(&card->ip_lock);
+ 
+ 	kfree(ipaddr);
++	return rc;
+ }
+ 
+ /*
+@@ -686,7 +692,7 @@ int qeth_l3_add_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
+ 	      const u8 *addr)
+ {
+ 	struct qeth_ipaddr *ipaddr;
+-	int rc = 0;
++	int rc;
+ 
+ 	ipaddr = qeth_l3_get_addr_buffer(proto);
+ 	if (ipaddr) {
+@@ -711,7 +717,7 @@ int qeth_l3_add_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
+ 	if (qeth_l3_ip_from_hash(card, ipaddr))
+ 		rc = -EEXIST;
+ 	else
+-		qeth_l3_add_ip(card, ipaddr);
++		rc = qeth_l3_add_ip(card, ipaddr);
+ 
+ 	spin_unlock_bh(&card->ip_lock);
+ 
+@@ -720,10 +726,11 @@ int qeth_l3_add_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
+ 	return rc;
+ }
+ 
+-void qeth_l3_del_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
+-			const u8 *addr)
++int qeth_l3_del_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
++		     const u8 *addr)
+ {
+ 	struct qeth_ipaddr *ipaddr;
++	int rc;
+ 
+ 	ipaddr = qeth_l3_get_addr_buffer(proto);
+ 	if (ipaddr) {
+@@ -738,13 +745,14 @@ void qeth_l3_del_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
+ 		}
+ 		ipaddr->type = QETH_IP_TYPE_RXIP;
+ 	} else
+-		return;
++		return -ENOMEM;
+ 
+ 	spin_lock_bh(&card->ip_lock);
+-	qeth_l3_delete_ip(card, ipaddr);
++	rc = qeth_l3_delete_ip(card, ipaddr);
+ 	spin_unlock_bh(&card->ip_lock);
+ 
+ 	kfree(ipaddr);
++	return rc;
+ }
+ 
+ static int qeth_l3_register_addr_entry(struct qeth_card *card,
 diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index f8e74b384980..a645cfe66ddf 100644
+index 00a10b66c01f..f8e74b384980 100644
 --- a/drivers/s390/net/qeth_l3_sys.c
 +++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -705,22 +705,25 @@ static const struct attribute_group qeth_device_ipato_group = {
- 	.attrs = qeth_ipato_device_attrs,
- };
- 
--static ssize_t qeth_l3_dev_vipa_add_show(char *buf, struct qeth_card *card,
--			enum qeth_prot_versions proto)
-+static ssize_t qeth_l3_dev_ip_add_show(struct device *dev, char *buf,
-+				       enum qeth_prot_versions proto,
-+				       enum qeth_ip_types type)
- {
-+	struct qeth_card *card = dev_get_drvdata(dev);
- 	struct qeth_ipaddr *ipaddr;
- 	char addr_str[40];
- 	int str_len = 0;
- 	int entry_len; /* length of 1 entry string, differs between v4 and v6 */
- 	int i;
- 
-+	if (!card)
-+		return -EINVAL;
-+
- 	entry_len = (proto == QETH_PROT_IPV4)? 12 : 40;
- 	entry_len += 2; /* \n + terminator */
- 	spin_lock_bh(&card->ip_lock);
- 	hash_for_each(card->ip_htable, i, ipaddr, hnode) {
--		if (ipaddr->proto != proto)
--			continue;
--		if (ipaddr->type != QETH_IP_TYPE_VIPA)
-+		if (ipaddr->proto != proto || ipaddr->type != type)
- 			continue;
- 		/* String must not be longer than PAGE_SIZE. So we check if
- 		 * string length gets near PAGE_SIZE. Then we can savely display
-@@ -739,14 +742,11 @@ static ssize_t qeth_l3_dev_vipa_add_show(char *buf, struct qeth_card *card,
- }
- 
- static ssize_t qeth_l3_dev_vipa_add4_show(struct device *dev,
--			struct device_attribute *attr, char *buf)
-+					  struct device_attribute *attr,
-+					  char *buf)
- {
--	struct qeth_card *card = dev_get_drvdata(dev);
--
--	if (!card)
--		return -EINVAL;
--
--	return qeth_l3_dev_vipa_add_show(buf, card, QETH_PROT_IPV4);
-+	return qeth_l3_dev_ip_add_show(dev, buf, QETH_PROT_IPV4,
-+				       QETH_IP_TYPE_VIPA);
- }
- 
- static int qeth_l3_parse_vipae(const char *buf, enum qeth_prot_versions proto,
-@@ -816,14 +816,11 @@ static QETH_DEVICE_ATTR(vipa_del4, del4, 0200, NULL,
- 			qeth_l3_dev_vipa_del4_store);
- 
- static ssize_t qeth_l3_dev_vipa_add6_show(struct device *dev,
--				struct device_attribute *attr, char *buf)
-+					  struct device_attribute *attr,
-+					  char *buf)
- {
--	struct qeth_card *card = dev_get_drvdata(dev);
--
--	if (!card)
--		return -EINVAL;
--
--	return qeth_l3_dev_vipa_add_show(buf, card, QETH_PROT_IPV6);
-+	return qeth_l3_dev_ip_add_show(dev, buf, QETH_PROT_IPV6,
-+				       QETH_IP_TYPE_VIPA);
- }
- 
- static ssize_t qeth_l3_dev_vipa_add6_store(struct device *dev,
-@@ -868,48 +865,12 @@ static const struct attribute_group qeth_device_vipa_group = {
- 	.attrs = qeth_vipa_device_attrs,
- };
- 
--static ssize_t qeth_l3_dev_rxip_add_show(char *buf, struct qeth_card *card,
--		       enum qeth_prot_versions proto)
--{
--	struct qeth_ipaddr *ipaddr;
--	char addr_str[40];
--	int str_len = 0;
--	int entry_len; /* length of 1 entry string, differs between v4 and v6 */
+@@ -274,7 +274,7 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 	struct qeth_ipaddr *addr;
+ 	char *tmp;
 -	int i;
--
--	entry_len = (proto == QETH_PROT_IPV4)? 12 : 40;
--	entry_len += 2; /* \n + terminator */
--	spin_lock_bh(&card->ip_lock);
--	hash_for_each(card->ip_htable, i, ipaddr, hnode) {
--		if (ipaddr->proto != proto)
--			continue;
--		if (ipaddr->type != QETH_IP_TYPE_RXIP)
--			continue;
--		/* String must not be longer than PAGE_SIZE. So we check if
--		 * string length gets near PAGE_SIZE. Then we can savely display
--		 * the next IPv6 address (worst case, compared to IPv4) */
--		if ((PAGE_SIZE - str_len) <= entry_len)
--			break;
--		qeth_l3_ipaddr_to_string(proto, (const u8 *)&ipaddr->u,
--			addr_str);
--		str_len += snprintf(buf + str_len, PAGE_SIZE - str_len, "%s\n",
--				    addr_str);
--	}
--	spin_unlock_bh(&card->ip_lock);
--	str_len += snprintf(buf + str_len, PAGE_SIZE - str_len, "\n");
--
--	return str_len;
--}
--
- static ssize_t qeth_l3_dev_rxip_add4_show(struct device *dev,
--			struct device_attribute *attr, char *buf)
-+					  struct device_attribute *attr,
-+					  char *buf)
- {
--	struct qeth_card *card = dev_get_drvdata(dev);
--
--	if (!card)
--		return -EINVAL;
--
--	return qeth_l3_dev_rxip_add_show(buf, card, QETH_PROT_IPV4);
-+	return qeth_l3_dev_ip_add_show(dev, buf, QETH_PROT_IPV4,
-+				       QETH_IP_TYPE_RXIP);
++	int rc, i;
+ 
+ 	if (!card)
+ 		return -EINVAL;
+@@ -343,11 +343,11 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
+ 		return -ENOMEM;
+ 
+ 	spin_lock_bh(&card->ip_lock);
+-	qeth_l3_add_ip(card, addr);
++	rc = qeth_l3_add_ip(card, addr);
+ 	spin_unlock_bh(&card->ip_lock);
+ 	kfree(addr);
+ 
+-	return count;
++	return rc ? rc : count;
  }
  
- static int qeth_l3_parse_rxipe(const char *buf, enum qeth_prot_versions proto,
-@@ -996,14 +957,11 @@ static QETH_DEVICE_ATTR(rxip_del4, del4, 0200, NULL,
- 			qeth_l3_dev_rxip_del4_store);
- 
- static ssize_t qeth_l3_dev_rxip_add6_show(struct device *dev,
--		struct device_attribute *attr, char *buf)
-+					  struct device_attribute *attr,
-+					  char *buf)
- {
--	struct qeth_card *card = dev_get_drvdata(dev);
--
--	if (!card)
--		return -EINVAL;
--
--	return qeth_l3_dev_rxip_add_show(buf, card, QETH_PROT_IPV6);
-+	return qeth_l3_dev_ip_add_show(dev, buf, QETH_PROT_IPV6,
-+				       QETH_IP_TYPE_RXIP);
+ static DEVICE_ATTR(hsuid, 0644, qeth_l3_dev_hsuid_show,
+@@ -585,7 +585,7 @@ static ssize_t qeth_l3_dev_ipato_del_store(const char *buf, size_t count,
+ 	mutex_lock(&card->conf_mutex);
+ 	rc = qeth_l3_parse_ipatoe(buf, proto, addr, &mask_bits);
+ 	if (!rc)
+-		qeth_l3_del_ipato_entry(card, proto, addr, mask_bits);
++		rc = qeth_l3_del_ipato_entry(card, proto, addr, mask_bits);
+ 	mutex_unlock(&card->conf_mutex);
+ 	return rc ? rc : count;
  }
- 
- static ssize_t qeth_l3_dev_rxip_add6_store(struct device *dev,
+@@ -796,7 +796,7 @@ static ssize_t qeth_l3_dev_vipa_del_store(const char *buf, size_t count,
+ 	mutex_lock(&card->conf_mutex);
+ 	rc = qeth_l3_parse_vipae(buf, proto, addr);
+ 	if (!rc)
+-		qeth_l3_del_vipa(card, proto, addr);
++		rc = qeth_l3_del_vipa(card, proto, addr);
+ 	mutex_unlock(&card->conf_mutex);
+ 	return rc ? rc : count;
+ }
+@@ -976,7 +976,7 @@ static ssize_t qeth_l3_dev_rxip_del_store(const char *buf, size_t count,
+ 	mutex_lock(&card->conf_mutex);
+ 	rc = qeth_l3_parse_rxipe(buf, proto, addr);
+ 	if (!rc)
+-		qeth_l3_del_rxip(card, proto, addr);
++		rc = qeth_l3_del_rxip(card, proto, addr);
+ 	mutex_unlock(&card->conf_mutex);
+ 	return rc ? rc : count;
+ }
 -- 
 2.13.5
