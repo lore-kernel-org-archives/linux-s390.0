@@ -1,7 +1,7 @@
 From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH 16/35] perf s390: Generate system call table from asm/unistd.h
-Date: Thu, 28 Dec 2017 11:30:08 -0300
-Message-ID: <20171228143027.30547-17-acme@kernel.org>
+Subject: [PATCH 17/35] perf trace: Use generated syscall table on s390 too
+Date: Thu, 28 Dec 2017 11:30:09 -0300
+Message-ID: <20171228143027.30547-18-acme@kernel.org>
 References: <20171228143027.30547-1-acme@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171228143027.30547-1-acme@kernel.org>
@@ -14,120 +14,81 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 
-This should speed up accessing new system calls introduced with
-the kernel rather than waiting for libaudit updates to include
-them.
+This should speed up accessing new system calls introduced with the
+kernel rather than waiting for libaudit updates to include them.
 
-Committer testing:
-
-  $ rm -rf /tmp/build/perf
-  $ mkdir /tmp/build/perf
-  $ make srctree=/home/acme/git/perf -C tools/perf/arch/s390 OUTPUT=/tmp/build/perf/ archheaders
-  make: Entering directory '/home/acme/git/perf/tools/perf/arch/s390'
-  /bin/sh '/home/acme/git/perf/tools/perf/arch/s390/entry/syscalls//mksyscalltbl' 'cc' /home/acme/git/perf/tools/arch/s390/include/uapi/asm/unistd.h > /tmp/build/perf/arch/s390/include/generated/asm/syscalls_64.c
-  make: Leaving directory '/home/acme/git/perf/tools/perf/arch/s390'
-  $ head -5 /tmp/build/perf/arch/s390/include/generated/asm/syscalls_64.c
-  static const char *syscalltbl_s390_64[] = {
-	[1] = "exit",
-	[2] = "fork",
-	[3] = "read",
-	[4] = "write",
-  $ tail -5 /tmp/build/perf/arch/s390/include/generated/asm/syscalls_64.c
-	[378] = "s390_guarded_storage",
-	[379] = "statx",
-	[380] = "s390_sthyi",
-  };
-  #define SYSCALLTBL_S390_64_MAX_ID 380
-  $
-
-Now to plug this into 'perf trace' proper.
+It also enables users to specify wildcards, for example, perf trace -e
+'open*', just like was already possible on x86.
 
 Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Michael Petlan <mpetlan@redhat.com>
 Cc: linux-s390@vger.kernel.org
 LPU-Reference: 1512635281-20733-2-git-send-email-brueckner@linux.vnet.ibm.com
-Link: https://lkml.kernel.org/n/tip-h5km60rdg3rqxvsys85q50l3@git.kernel.org
+Link: https://lkml.kernel.org/n/tip-htplh3nbrivi7g3cffbh4fsu@git.kernel.org
 [ split from a larger patch ]
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- tools/perf/arch/s390/Makefile                    | 21 ++++++++++++++
- tools/perf/arch/s390/entry/syscalls/mksyscalltbl | 36 ++++++++++++++++++++++++
- 2 files changed, 57 insertions(+)
- create mode 100755 tools/perf/arch/s390/entry/syscalls/mksyscalltbl
+ tools/perf/Makefile.config   | 10 +++++++++-
+ tools/perf/util/syscalltbl.c |  4 ++++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/arch/s390/Makefile b/tools/perf/arch/s390/Makefile
-index 09ba923debe8..48228de415d0 100644
---- a/tools/perf/arch/s390/Makefile
-+++ b/tools/perf/arch/s390/Makefile
-@@ -3,3 +3,24 @@ PERF_HAVE_DWARF_REGS := 1
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 79b117a03fd7..6f73c2316740 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -22,6 +22,7 @@ include $(srctree)/tools/scripts/Makefile.arch
+ $(call detected_var,SRCARCH)
+ 
+ NO_PERF_REGS := 1
++NO_SYSCALL_TABLE := 1
+ 
+ # Additional ARCH settings for ppc
+ ifeq ($(SRCARCH),powerpc)
+@@ -33,7 +34,8 @@ endif
+ ifeq ($(SRCARCH),x86)
+   $(call detected,CONFIG_X86)
+   ifeq (${IS_64_BIT}, 1)
+-    CFLAGS += -DHAVE_ARCH_X86_64_SUPPORT -DHAVE_SYSCALL_TABLE -I$(OUTPUT)arch/x86/include/generated
++    NO_SYSCALL_TABLE := 0
++    CFLAGS += -DHAVE_ARCH_X86_64_SUPPORT -I$(OUTPUT)arch/x86/include/generated
+     ARCH_INCLUDE = ../../arch/x86/lib/memcpy_64.S ../../arch/x86/lib/memset_64.S
+     LIBUNWIND_LIBS = -lunwind-x86_64 -lunwind -llzma
+     $(call detected,CONFIG_X86_64)
+@@ -56,12 +58,18 @@ endif
+ 
+ ifeq ($(ARCH),s390)
+   NO_PERF_REGS := 0
++  NO_SYSCALL_TABLE := 0
++  CFLAGS += -I$(OUTPUT)arch/s390/include/generated
  endif
- HAVE_KVM_STAT_SUPPORT := 1
- PERF_HAVE_ARCH_REGS_QUERY_REGISTER_OFFSET := 1
+ 
+ ifeq ($(NO_PERF_REGS),0)
+   $(call detected,CONFIG_PERF_REGS)
+ endif
+ 
++ifneq ($(NO_SYSCALL_TABLE),1)
++  CFLAGS += -DHAVE_SYSCALL_TABLE
++endif
 +
-+#
-+# Syscall table generation for perf
-+#
-+
-+out    := $(OUTPUT)arch/s390/include/generated/asm
-+header := $(out)/syscalls_64.c
-+sysdef := $(srctree)/tools/arch/s390/include/uapi/asm/unistd.h
-+sysprf := $(srctree)/tools/perf/arch/s390/entry/syscalls/
-+systbl := $(sysprf)/mksyscalltbl
-+
-+# Create output directory if not already present
-+_dummy := $(shell [ -d '$(out)' ] || mkdir -p '$(out)')
-+
-+$(header): $(sysdef) $(systbl)
-+	$(Q)$(SHELL) '$(systbl)' '$(CC)' $(sysdef) > $@
-+
-+clean::
-+	$(call QUIET_CLEAN, s390) $(RM) $(header)
-+
-+archheaders: $(header)
-diff --git a/tools/perf/arch/s390/entry/syscalls/mksyscalltbl b/tools/perf/arch/s390/entry/syscalls/mksyscalltbl
-new file mode 100755
-index 000000000000..7fa0d0abd419
---- /dev/null
-+++ b/tools/perf/arch/s390/entry/syscalls/mksyscalltbl
-@@ -0,0 +1,36 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Generate system call table for perf
-+#
-+#
-+# Copyright IBM Corp. 2017
-+# Author(s):  Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-+#
-+
-+gcc=$1
-+input=$2
-+
-+if ! test -r $input; then
-+	echo "Could not read input file" >&2
-+	exit 1
-+fi
-+
-+create_table()
-+{
-+	local max_nr
-+
-+	echo 'static const char *syscalltbl_s390_64[] = {'
-+	while read sc nr; do
-+		printf '\t[%d] = "%s",\n' $nr $sc
-+		max_nr=$nr
-+	done
-+	echo '};'
-+	echo "#define SYSCALLTBL_S390_64_MAX_ID $max_nr"
-+}
-+
-+
-+$gcc -m64 -E -dM -x c  $input	       \
-+	|sed -ne 's/^#define __NR_//p' \
-+	|sort -t' ' -k2 -nu	       \
-+	|create_table
+ # So far there's only x86 and arm libdw unwind support merged in perf.
+ # Disable it on all other architectures in case libdw unwind
+ # support is detected in system. Add supported architectures
+diff --git a/tools/perf/util/syscalltbl.c b/tools/perf/util/syscalltbl.c
+index 6eea7cff3d4e..303bdb84ab5a 100644
+--- a/tools/perf/util/syscalltbl.c
++++ b/tools/perf/util/syscalltbl.c
+@@ -26,6 +26,10 @@
+ #include <asm/syscalls_64.c>
+ const int syscalltbl_native_max_id = SYSCALLTBL_x86_64_MAX_ID;
+ static const char **syscalltbl_native = syscalltbl_x86_64;
++#elif defined(__s390x__)
++#include <asm/syscalls_64.c>
++const int syscalltbl_native_max_id = SYSCALLTBL_S390_64_MAX_ID;
++static const char **syscalltbl_native = syscalltbl_s390_64;
+ #endif
+ 
+ struct syscall {
 -- 
 2.13.6
