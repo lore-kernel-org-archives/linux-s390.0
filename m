@@ -1,169 +1,104 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 62/67] mips/netlogic: remove swiotlb support
-Date: Fri, 29 Dec 2017 09:19:06 +0100
-Message-ID: <20171229081911.2802-63-hch@lst.de>
+Subject: [PATCH 55/67] ia64: replace ZONE_DMA with ZONE_DMA32
+Date: Fri, 29 Dec 2017 09:18:59 +0100
+Message-ID: <20171229081911.2802-56-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081906.5hphm7vN2hMQHxfk2eM6AFAo6MHY1p-gWMw9duXrKJE@z>
+Message-ID: <20171229081859._8yUAgh1cdzJosf-8aRBXB6jLuKCaKJ-I1Fz0Hduhhk@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-nlm_swiotlb_dma_ops is unused code, so the whole swiotlb support is dead.
-If it gets resurrected at some point it should use the generic
-swiotlb_dma_ops instead.
+ia64 uses ZONE_DMA for allocations below 32-bits.  These days we
+name the zone for that ZONE_DMA32, which will allow to use the
+dma-direct and generic swiotlb code as-is, so rename it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/mips/include/asm/netlogic/common.h |  3 --
- arch/mips/netlogic/Kconfig              |  5 --
- arch/mips/netlogic/common/Makefile      |  1 -
- arch/mips/netlogic/common/nlm-dma.c     | 94 ---------------------------------
- 4 files changed, 103 deletions(-)
- delete mode 100644 arch/mips/netlogic/common/nlm-dma.c
+ arch/ia64/Kconfig              | 2 +-
+ arch/ia64/kernel/pci-swiotlb.c | 2 +-
+ arch/ia64/mm/contig.c          | 4 ++--
+ arch/ia64/mm/discontig.c       | 8 ++++----
+ 4 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/mips/include/asm/netlogic/common.h b/arch/mips/include/asm/netlogic/common.h
-index a6e6cbebe046..57616649b4f3 100644
---- a/arch/mips/include/asm/netlogic/common.h
-+++ b/arch/mips/include/asm/netlogic/common.h
-@@ -87,9 +87,6 @@ unsigned int nlm_get_cpu_frequency(void);
- extern const struct plat_smp_ops nlm_smp_ops;
- extern char nlm_reset_entry[], nlm_reset_entry_end[];
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index 4d18fca885ee..888acdb163cb 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -66,7 +66,7 @@ config 64BIT
+ 	select ATA_NONSTANDARD if ATA
+ 	default y
  
--/* SWIOTLB */
--extern const struct dma_map_ops nlm_swiotlb_dma_ops;
--
- extern unsigned int nlm_threads_per_core;
- extern cpumask_t nlm_cpumask;
+-config ZONE_DMA
++config ZONE_DMA32
+ 	def_bool y
+ 	depends on !IA64_SGI_SN2
  
-diff --git a/arch/mips/netlogic/Kconfig b/arch/mips/netlogic/Kconfig
-index 8296b13affd2..7fcfc7fe9f14 100644
---- a/arch/mips/netlogic/Kconfig
-+++ b/arch/mips/netlogic/Kconfig
-@@ -89,9 +89,4 @@ config IOMMU_HELPER
- config NEED_SG_DMA_LENGTH
- 	bool
+diff --git a/arch/ia64/kernel/pci-swiotlb.c b/arch/ia64/kernel/pci-swiotlb.c
+index f1ae873a8c35..4a9a6e58ad6a 100644
+--- a/arch/ia64/kernel/pci-swiotlb.c
++++ b/arch/ia64/kernel/pci-swiotlb.c
+@@ -20,7 +20,7 @@ static void *ia64_swiotlb_alloc_coherent(struct device *dev, size_t size,
+ 					 unsigned long attrs)
+ {
+ 	if (dev->coherent_dma_mask != DMA_BIT_MASK(64))
+-		gfp |= GFP_DMA;
++		gfp |= GFP_DMA32;
+ 	return swiotlb_alloc_coherent(dev, size, dma_handle, gfp);
+ }
  
--config SWIOTLB
--	def_bool y
--	select NEED_SG_DMA_LENGTH
--	select IOMMU_HELPER
--
- endif
-diff --git a/arch/mips/netlogic/common/Makefile b/arch/mips/netlogic/common/Makefile
-index 60d00b5d748e..89f6e3f39fed 100644
---- a/arch/mips/netlogic/common/Makefile
-+++ b/arch/mips/netlogic/common/Makefile
-@@ -1,6 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
- obj-y				+= irq.o time.o
--obj-y				+= nlm-dma.o
- obj-y				+= reset.o
- obj-$(CONFIG_SMP)		+= smp.o smpboot.o
- obj-$(CONFIG_EARLY_PRINTK)	+= earlycons.o
-diff --git a/arch/mips/netlogic/common/nlm-dma.c b/arch/mips/netlogic/common/nlm-dma.c
-deleted file mode 100644
-index 49c975b6aa28..000000000000
---- a/arch/mips/netlogic/common/nlm-dma.c
-+++ /dev/null
-@@ -1,94 +0,0 @@
--/*
--*  Copyright (C) 2003-2013 Broadcom Corporation
--*  All Rights Reserved
-- *
-- * This software is available to you under a choice of one of two
-- * licenses.  You may choose to be licensed under the terms of the GNU
-- * General Public License (GPL) Version 2, available from the file
-- * COPYING in the main directory of this source tree, or the Broadcom
-- * license below:
-- *
-- * Redistribution and use in source and binary forms, with or without
-- * modification, are permitted provided that the following conditions
-- * are met:
-- *
-- * 1. Redistributions of source code must retain the above copyright
-- *    notice, this list of conditions and the following disclaimer.
-- * 2. Redistributions in binary form must reproduce the above copyright
-- *    notice, this list of conditions and the following disclaimer in
-- *    the documentation and/or other materials provided with the
-- *    distribution.
-- *
-- * THIS SOFTWARE IS PROVIDED BY BROADCOM ``AS IS'' AND ANY EXPRESS OR
-- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-- * ARE DISCLAIMED. IN NO EVENT SHALL BROADCOM OR CONTRIBUTORS BE LIABLE
-- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-- * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-- */
--#include <linux/dma-mapping.h>
--#include <linux/scatterlist.h>
--#include <linux/bootmem.h>
--#include <linux/export.h>
--#include <linux/swiotlb.h>
--#include <linux/types.h>
--#include <linux/init.h>
--#include <linux/mm.h>
--
--#include <asm/bootinfo.h>
--
--static char *nlm_swiotlb;
--
--static void *nlm_dma_alloc_coherent(struct device *dev, size_t size,
--	dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
--{
--#ifdef CONFIG_ZONE_DMA32
--	if (dev->coherent_dma_mask <= DMA_BIT_MASK(32))
--		gfp |= __GFP_DMA32;
--#endif
--
--	/* Don't invoke OOM killer */
--	gfp |= __GFP_NORETRY;
--
--	return swiotlb_alloc_coherent(dev, size, dma_handle, gfp);
--}
--
--static void nlm_dma_free_coherent(struct device *dev, size_t size,
--	void *vaddr, dma_addr_t dma_handle, unsigned long attrs)
--{
--	swiotlb_free_coherent(dev, size, vaddr, dma_handle);
--}
--
--const struct dma_map_ops nlm_swiotlb_dma_ops = {
--	.alloc = nlm_dma_alloc_coherent,
--	.free = nlm_dma_free_coherent,
--	.map_page = swiotlb_map_page,
--	.unmap_page = swiotlb_unmap_page,
--	.map_sg = swiotlb_map_sg_attrs,
--	.unmap_sg = swiotlb_unmap_sg_attrs,
--	.sync_single_for_cpu = swiotlb_sync_single_for_cpu,
--	.sync_single_for_device = swiotlb_sync_single_for_device,
--	.sync_sg_for_cpu = swiotlb_sync_sg_for_cpu,
--	.sync_sg_for_device = swiotlb_sync_sg_for_device,
--	.mapping_error = swiotlb_dma_mapping_error,
--	.dma_supported = swiotlb_dma_supported
--};
--
--void __init plat_swiotlb_setup(void)
--{
--	size_t swiotlbsize;
--	unsigned long swiotlb_nslabs;
--
--	swiotlbsize = 1 << 20; /* 1 MB for now */
--	swiotlb_nslabs = swiotlbsize >> IO_TLB_SHIFT;
--	swiotlb_nslabs = ALIGN(swiotlb_nslabs, IO_TLB_SEGSIZE);
--	swiotlbsize = swiotlb_nslabs << IO_TLB_SHIFT;
--
--	nlm_swiotlb = alloc_bootmem_low_pages(swiotlbsize);
--	swiotlb_init_with_tbl(nlm_swiotlb, swiotlb_nslabs, 1);
--}
+diff --git a/arch/ia64/mm/contig.c b/arch/ia64/mm/contig.c
+index 52715a71aede..7d64b30913d1 100644
+--- a/arch/ia64/mm/contig.c
++++ b/arch/ia64/mm/contig.c
+@@ -237,9 +237,9 @@ paging_init (void)
+ 	unsigned long max_zone_pfns[MAX_NR_ZONES];
+ 
+ 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+-#ifdef CONFIG_ZONE_DMA
++#ifdef CONFIG_ZONE_DMA32
+ 	max_dma = virt_to_phys((void *) MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+-	max_zone_pfns[ZONE_DMA] = max_dma;
++	max_zone_pfns[ZONE_DMA32] = max_dma;
+ #endif
+ 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+ 
+diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
+index 9b2d994cddf6..ac46f0d60b66 100644
+--- a/arch/ia64/mm/discontig.c
++++ b/arch/ia64/mm/discontig.c
+@@ -38,7 +38,7 @@ struct early_node_data {
+ 	struct ia64_node_data *node_data;
+ 	unsigned long pernode_addr;
+ 	unsigned long pernode_size;
+-#ifdef CONFIG_ZONE_DMA
++#ifdef CONFIG_ZONE_DMA32
+ 	unsigned long num_dma_physpages;
+ #endif
+ 	unsigned long min_pfn;
+@@ -669,7 +669,7 @@ static __init int count_node_pages(unsigned long start, unsigned long len, int n
+ {
+ 	unsigned long end = start + len;
+ 
+-#ifdef CONFIG_ZONE_DMA
++#ifdef CONFIG_ZONE_DMA32
+ 	if (start <= __pa(MAX_DMA_ADDRESS))
+ 		mem_data[node].num_dma_physpages +=
+ 			(min(end, __pa(MAX_DMA_ADDRESS)) - start) >>PAGE_SHIFT;
+@@ -724,8 +724,8 @@ void __init paging_init(void)
+ 	}
+ 
+ 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+-#ifdef CONFIG_ZONE_DMA
+-	max_zone_pfns[ZONE_DMA] = max_dma;
++#ifdef CONFIG_ZONE_DMA32
++	max_zone_pfns[ZONE_DMA32] = max_dma;
+ #endif
+ 	max_zone_pfns[ZONE_NORMAL] = max_pfn;
+ 	free_area_init_nodes(max_zone_pfns);
 -- 
 2.14.2
