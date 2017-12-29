@@ -1,117 +1,132 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 65/67] arm64: use swiotlb_alloc and swiotlb_free
-Date: Fri, 29 Dec 2017 09:19:09 +0100
-Message-ID: <20171229081911.2802-66-hch@lst.de>
+Subject: [PATCH 67/67] swiotlb: remove various exports
+Date: Fri, 29 Dec 2017 09:19:11 +0100
+Message-ID: <20171229081911.2802-68-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081909.pPDckhC-ewO4pN_MH12XdGsxkBYz6EQ4ZGkNTFMwAu4@z>
+Message-ID: <20171229081911.A8mjiWXaNm0x1NgXg9Z9eY-P0yjhOz-9RIzjrqP7dzU@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The generic swiotlb_alloc and swiotlb_free routines already take care
-of CMA allocations and adding GFP_DMA32 where needed, so use them
-instead of the arm specific helpers.
+All these symbols are only used by arch dma_ops implementations or
+xen-swiotlb.  None of which can be modular.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arm64/Kconfig          |  1 +
- arch/arm64/mm/dma-mapping.c | 46 +++------------------------------------------
- 2 files changed, 4 insertions(+), 43 deletions(-)
+ lib/swiotlb.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 6b6985f15d02..53205c02b18a 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -59,6 +59,7 @@ config ARM64
- 	select COMMON_CLK
- 	select CPU_PM if (SUSPEND || CPU_IDLE)
- 	select DCACHE_WORD_ACCESS
-+	select DMA_DIRECT_OPS
- 	select EDAC_SUPPORT
- 	select FRAME_POINTER
- 	select GENERIC_ALLOCATOR
-diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c
-index 0d641875b20e..a96ec0181818 100644
---- a/arch/arm64/mm/dma-mapping.c
-+++ b/arch/arm64/mm/dma-mapping.c
-@@ -91,46 +91,6 @@ static int __free_from_pool(void *start, size_t size)
- 	return 1;
- }
+diff --git a/lib/swiotlb.c b/lib/swiotlb.c
+index 77a40b508db8..823e1055a394 100644
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -591,7 +591,6 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
  
--static void *__dma_alloc_coherent(struct device *dev, size_t size,
--				  dma_addr_t *dma_handle, gfp_t flags,
--				  unsigned long attrs)
--{
--	if (IS_ENABLED(CONFIG_ZONE_DMA32) &&
--	    dev->coherent_dma_mask <= DMA_BIT_MASK(32))
--		flags |= GFP_DMA32;
--	if (dev_get_cma_area(dev) && gfpflags_allow_blocking(flags)) {
--		struct page *page;
--		void *addr;
--
--		page = dma_alloc_from_contiguous(dev, size >> PAGE_SHIFT,
--						 get_order(size), flags);
--		if (!page)
--			return NULL;
--
--		*dma_handle = phys_to_dma(dev, page_to_phys(page));
--		addr = page_address(page);
--		memset(addr, 0, size);
--		return addr;
--	} else {
--		return swiotlb_alloc_coherent(dev, size, dma_handle, flags);
--	}
--}
--
--static void __dma_free_coherent(struct device *dev, size_t size,
--				void *vaddr, dma_addr_t dma_handle,
--				unsigned long attrs)
--{
--	bool freed;
--	phys_addr_t paddr = dma_to_phys(dev, dma_handle);
--
--
--	freed = dma_release_from_contiguous(dev,
--					phys_to_page(paddr),
--					size >> PAGE_SHIFT);
--	if (!freed)
--		swiotlb_free_coherent(dev, size, vaddr, dma_handle);
--}
--
- static void *__dma_alloc(struct device *dev, size_t size,
- 			 dma_addr_t *dma_handle, gfp_t flags,
- 			 unsigned long attrs)
-@@ -152,7 +112,7 @@ static void *__dma_alloc(struct device *dev, size_t size,
- 		return addr;
+ 	return tlb_addr;
+ }
+-EXPORT_SYMBOL_GPL(swiotlb_tbl_map_single);
+ 
+ /*
+  * Allocates bounce buffer and returns its kernel virtual address.
+@@ -661,7 +660,6 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
  	}
- 
--	ptr = __dma_alloc_coherent(dev, size, dma_handle, flags, attrs);
-+	ptr = swiotlb_alloc(dev, size, dma_handle, flags, attrs);
- 	if (!ptr)
- 		goto no_mem;
- 
-@@ -173,7 +133,7 @@ static void *__dma_alloc(struct device *dev, size_t size,
- 	return coherent_ptr;
- 
- no_map:
--	__dma_free_coherent(dev, size, ptr, *dma_handle, attrs);
-+	swiotlb_free(dev, size, ptr, *dma_handle, attrs);
- no_mem:
- 	return NULL;
+ 	spin_unlock_irqrestore(&io_tlb_lock, flags);
  }
-@@ -191,7 +151,7 @@ static void __dma_free(struct device *dev, size_t size,
- 			return;
- 		vunmap(vaddr);
+-EXPORT_SYMBOL_GPL(swiotlb_tbl_unmap_single);
+ 
+ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
+ 			     size_t size, enum dma_data_direction dir,
+@@ -693,7 +691,6 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
+ 		BUG();
  	}
--	__dma_free_coherent(dev, size, swiotlb_addr, dma_handle, attrs);
-+	swiotlb_free(dev, size, swiotlb_addr, dma_handle, attrs);
  }
+-EXPORT_SYMBOL_GPL(swiotlb_tbl_sync_single);
  
- static dma_addr_t __swiotlb_map_page(struct device *dev, struct page *page,
+ static void *
+ swiotlb_alloc_buffer(struct device *dev, size_t size, dma_addr_t *dma_handle)
+@@ -827,7 +824,6 @@ dma_addr_t swiotlb_map_page(struct device *dev, struct page *page,
+ 
+ 	return __phys_to_dma(dev, io_tlb_overflow_buffer);
+ }
+-EXPORT_SYMBOL_GPL(swiotlb_map_page);
+ 
+ /*
+  * Unmap a single streaming mode DMA translation.  The dma_addr and size must
+@@ -868,7 +864,6 @@ void swiotlb_unmap_page(struct device *hwdev, dma_addr_t dev_addr,
+ {
+ 	unmap_single(hwdev, dev_addr, size, dir, attrs);
+ }
+-EXPORT_SYMBOL_GPL(swiotlb_unmap_page);
+ 
+ /*
+  * Make physical memory consistent for a single streaming mode DMA translation
+@@ -906,7 +901,6 @@ swiotlb_sync_single_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
+ {
+ 	swiotlb_sync_single(hwdev, dev_addr, size, dir, SYNC_FOR_CPU);
+ }
+-EXPORT_SYMBOL(swiotlb_sync_single_for_cpu);
+ 
+ void
+ swiotlb_sync_single_for_device(struct device *hwdev, dma_addr_t dev_addr,
+@@ -914,7 +908,6 @@ swiotlb_sync_single_for_device(struct device *hwdev, dma_addr_t dev_addr,
+ {
+ 	swiotlb_sync_single(hwdev, dev_addr, size, dir, SYNC_FOR_DEVICE);
+ }
+-EXPORT_SYMBOL(swiotlb_sync_single_for_device);
+ 
+ /*
+  * Map a set of buffers described by scatterlist in streaming mode for DMA.
+@@ -966,7 +959,6 @@ swiotlb_map_sg_attrs(struct device *hwdev, struct scatterlist *sgl, int nelems,
+ 	}
+ 	return nelems;
+ }
+-EXPORT_SYMBOL(swiotlb_map_sg_attrs);
+ 
+ /*
+  * Unmap a set of streaming mode DMA translations.  Again, cpu read rules
+@@ -986,7 +978,6 @@ swiotlb_unmap_sg_attrs(struct device *hwdev, struct scatterlist *sgl,
+ 		unmap_single(hwdev, sg->dma_address, sg_dma_len(sg), dir,
+ 			     attrs);
+ }
+-EXPORT_SYMBOL(swiotlb_unmap_sg_attrs);
+ 
+ /*
+  * Make physical memory consistent for a set of streaming mode DMA translations
+@@ -1014,7 +1005,6 @@ swiotlb_sync_sg_for_cpu(struct device *hwdev, struct scatterlist *sg,
+ {
+ 	swiotlb_sync_sg(hwdev, sg, nelems, dir, SYNC_FOR_CPU);
+ }
+-EXPORT_SYMBOL(swiotlb_sync_sg_for_cpu);
+ 
+ void
+ swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
+@@ -1022,14 +1012,12 @@ swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
+ {
+ 	swiotlb_sync_sg(hwdev, sg, nelems, dir, SYNC_FOR_DEVICE);
+ }
+-EXPORT_SYMBOL(swiotlb_sync_sg_for_device);
+ 
+ int
+ swiotlb_dma_mapping_error(struct device *hwdev, dma_addr_t dma_addr)
+ {
+ 	return (dma_addr == __phys_to_dma(hwdev, io_tlb_overflow_buffer));
+ }
+-EXPORT_SYMBOL(swiotlb_dma_mapping_error);
+ 
+ /*
+  * Return whether the given device DMA address mask can be supported
+@@ -1042,7 +1030,6 @@ swiotlb_dma_supported(struct device *hwdev, u64 mask)
+ {
+ 	return __phys_to_dma(hwdev, io_tlb_end - 1) <= mask;
+ }
+-EXPORT_SYMBOL(swiotlb_dma_supported);
+ 
+ #ifdef CONFIG_DMA_DIRECT_OPS
+ void *swiotlb_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
 -- 
 2.14.2
