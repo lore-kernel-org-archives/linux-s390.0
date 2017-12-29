@@ -1,169 +1,132 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 57/67] ia64: clean up swiotlb support
-Date: Fri, 29 Dec 2017 09:19:01 +0100
-Message-ID: <20171229081911.2802-58-hch@lst.de>
+Subject: [PATCH 59/67] unicore32: use generic swiotlb_ops
+Date: Fri, 29 Dec 2017 09:19:03 +0100
+Message-ID: <20171229081911.2802-60-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081901.p_ki5AzRqIIaKZ9MNJjap97bb-7S0PYh8MxqaMwX4lM@z>
+Message-ID: <20171229081903.Jv-ebyx8VENAOVJF7qX54zpRHrQ3Zkirwm0l3OLOOMU@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Move the few remaining bits of swiotlb glue towards their callers,
-and remove the pointless on ia64 swiotlb variable.
+These are identical to the unicore32 ops, and would also support CMA
+if enabled on unicore32.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/ia64/include/asm/dma-mapping.h |  1 -
- arch/ia64/include/asm/swiotlb.h     | 18 ------------------
- arch/ia64/kernel/dma-mapping.c      |  9 +++++++++
- arch/ia64/kernel/pci-dma.c          | 12 ++++++++++--
- arch/ia64/kernel/pci-swiotlb.c      | 36 ------------------------------------
- drivers/iommu/intel-iommu.c         |  2 +-
- 6 files changed, 20 insertions(+), 58 deletions(-)
- delete mode 100644 arch/ia64/include/asm/swiotlb.h
- delete mode 100644 arch/ia64/kernel/pci-swiotlb.c
+ arch/unicore32/include/asm/dma-mapping.h |  9 +-----
+ arch/unicore32/mm/Kconfig                |  1 +
+ arch/unicore32/mm/Makefile               |  2 --
+ arch/unicore32/mm/dma-swiotlb.c          | 48 --------------------------------
+ 4 files changed, 2 insertions(+), 58 deletions(-)
+ delete mode 100644 arch/unicore32/mm/dma-swiotlb.c
 
-diff --git a/arch/ia64/include/asm/dma-mapping.h b/arch/ia64/include/asm/dma-mapping.h
-index eabee56d995c..76e4d6632d68 100644
---- a/arch/ia64/include/asm/dma-mapping.h
-+++ b/arch/ia64/include/asm/dma-mapping.h
-@@ -8,7 +8,6 @@
-  */
- #include <asm/machvec.h>
- #include <linux/scatterlist.h>
--#include <asm/swiotlb.h>
- #include <linux/dma-debug.h>
+diff --git a/arch/unicore32/include/asm/dma-mapping.h b/arch/unicore32/include/asm/dma-mapping.h
+index f2bfec273aa7..790bc2ef4af2 100644
+--- a/arch/unicore32/include/asm/dma-mapping.h
++++ b/arch/unicore32/include/asm/dma-mapping.h
+@@ -12,18 +12,11 @@
+ #ifndef __UNICORE_DMA_MAPPING_H__
+ #define __UNICORE_DMA_MAPPING_H__
  
- #define ARCH_HAS_DMA_GET_REQUIRED_MASK
-diff --git a/arch/ia64/include/asm/swiotlb.h b/arch/ia64/include/asm/swiotlb.h
-deleted file mode 100644
-index 841e2c7d0b21..000000000000
---- a/arch/ia64/include/asm/swiotlb.h
-+++ /dev/null
-@@ -1,18 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef ASM_IA64__SWIOTLB_H
--#define ASM_IA64__SWIOTLB_H
+-#ifdef __KERNEL__
 -
--#include <linux/dma-mapping.h>
--#include <linux/swiotlb.h>
--
--#ifdef CONFIG_SWIOTLB
--extern int swiotlb;
--extern void pci_swiotlb_init(void);
--#else
--#define swiotlb 0
--static inline void pci_swiotlb_init(void)
--{
--}
--#endif
--
--#endif /* ASM_IA64__SWIOTLB_H */
-diff --git a/arch/ia64/kernel/dma-mapping.c b/arch/ia64/kernel/dma-mapping.c
-index 7a82c9259609..f2d57e66fd86 100644
---- a/arch/ia64/kernel/dma-mapping.c
-+++ b/arch/ia64/kernel/dma-mapping.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <linux/dma-mapping.h>
-+#include <linux/swiotlb.h>
- #include <linux/export.h>
+-#include <linux/mm_types.h>
+-#include <linux/scatterlist.h>
+ #include <linux/swiotlb.h>
  
- /* Set this to 1 if there is a HW IOMMU in the system */
-@@ -23,3 +24,11 @@ const struct dma_map_ops *dma_get_ops(struct device *dev)
- 	return dma_ops;
- }
- EXPORT_SYMBOL(dma_get_ops);
-+
-+#ifdef CONFIG_SWIOTLB
-+void __init swiotlb_dma_init(void)
-+{
-+	dma_ops = &swiotlb_dma_ops;
-+	swiotlb_init(1);
-+}
-+#endif
-diff --git a/arch/ia64/kernel/pci-dma.c b/arch/ia64/kernel/pci-dma.c
-index 3ba87c22dfbc..35e0cad33b7d 100644
---- a/arch/ia64/kernel/pci-dma.c
-+++ b/arch/ia64/kernel/pci-dma.c
-@@ -104,8 +104,16 @@ void __init pci_iommu_alloc(void)
- 	detect_intel_iommu();
- 
- #ifdef CONFIG_SWIOTLB
--	pci_swiotlb_init();
--#endif
-+	if (!iommu_detected) {
-+#ifdef CONFIG_IA64_GENERIC
-+		printk(KERN_INFO "PCI-DMA: Re-initialize machine vector.\n");
-+		machvec_init("dig");
-+		swiotlb_dma_init();
-+#else
-+		panic("Unable to find Intel IOMMU");
-+#endif /* CONFIG_IA64_GENERIC */
-+	}
-+#endif /* CONFIG_SWIOTLB */
+-extern const struct dma_map_ops swiotlb_dma_map_ops;
+-
+ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+ {
+-	return &swiotlb_dma_map_ops;
++	return &swiotlb_dma_ops;
  }
  
+-#endif /* __KERNEL__ */
  #endif
-diff --git a/arch/ia64/kernel/pci-swiotlb.c b/arch/ia64/kernel/pci-swiotlb.c
-deleted file mode 100644
-index 0f8d5fbd86bd..000000000000
---- a/arch/ia64/kernel/pci-swiotlb.c
-+++ /dev/null
-@@ -1,36 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/* Glue code to lib/swiotlb.c */
+diff --git a/arch/unicore32/mm/Kconfig b/arch/unicore32/mm/Kconfig
+index c256460cd363..e9154a59d561 100644
+--- a/arch/unicore32/mm/Kconfig
++++ b/arch/unicore32/mm/Kconfig
+@@ -42,6 +42,7 @@ config CPU_TLB_SINGLE_ENTRY_DISABLE
+ 
+ config SWIOTLB
+ 	def_bool y
++	select DMA_DIRECT_OPS
+ 
+ config IOMMU_HELPER
+ 	def_bool SWIOTLB
+diff --git a/arch/unicore32/mm/Makefile b/arch/unicore32/mm/Makefile
+index 681c0ef5ec9e..8106260583ab 100644
+--- a/arch/unicore32/mm/Makefile
++++ b/arch/unicore32/mm/Makefile
+@@ -6,8 +6,6 @@
+ obj-y				:= extable.o fault.o init.o pgd.o mmu.o
+ obj-y				+= flush.o ioremap.o
+ 
+-obj-$(CONFIG_SWIOTLB)		+= dma-swiotlb.o
 -
+ obj-$(CONFIG_MODULES)		+= proc-syms.o
+ 
+ obj-$(CONFIG_ALIGNMENT_TRAP)	+= alignment.o
+diff --git a/arch/unicore32/mm/dma-swiotlb.c b/arch/unicore32/mm/dma-swiotlb.c
+deleted file mode 100644
+index 525413d6690e..000000000000
+--- a/arch/unicore32/mm/dma-swiotlb.c
++++ /dev/null
+@@ -1,48 +0,0 @@
+-/*
+- * Contains routines needed to support swiotlb for UniCore32.
+- *
+- * Copyright (C) 2010 Guan Xuetao
+- *
+- * This program is free software; you can redistribute  it and/or modify it
+- * under  the terms of  the GNU General  Public License as published by the
+- * Free Software Foundation;  either version 2 of the  License, or (at your
+- * option) any later version.
+- */
 -#include <linux/pci.h>
--#include <linux/gfp.h>
 -#include <linux/cache.h>
 -#include <linux/module.h>
 -#include <linux/dma-mapping.h>
 -#include <linux/swiotlb.h>
+-#include <linux/bootmem.h>
+-
 -#include <asm/dma.h>
--#include <asm/iommu.h>
--#include <asm/machvec.h>
 -
--int swiotlb __read_mostly;
--EXPORT_SYMBOL(swiotlb);
--
--void __init swiotlb_dma_init(void)
+-static void *unicore_swiotlb_alloc_coherent(struct device *dev, size_t size,
+-					    dma_addr_t *dma_handle, gfp_t flags,
+-					    unsigned long attrs)
 -{
--	dma_ops = &swiotlb_dma_ops;
--	swiotlb_init(1);
+-	return swiotlb_alloc_coherent(dev, size, dma_handle, flags);
 -}
 -
--void __init pci_swiotlb_init(void)
+-static void unicore_swiotlb_free_coherent(struct device *dev, size_t size,
+-					  void *vaddr, dma_addr_t dma_addr,
+-					  unsigned long attrs)
 -{
--	if (!iommu_detected) {
--#ifdef CONFIG_IA64_GENERIC
--		swiotlb = 1;
--		printk(KERN_INFO "PCI-DMA: Re-initialize machine vector.\n");
--		machvec_init("dig");
--		swiotlb_init(1);
--		dma_ops = &swiotlb_dma_ops;
--#else
--		panic("Unable to find Intel IOMMU");
--#endif
--	}
+-	swiotlb_free_coherent(dev, size, vaddr, dma_addr);
 -}
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 6c9df0773b78..569a9328e53e 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -4807,7 +4807,7 @@ int __init intel_iommu_init(void)
- 	up_write(&dmar_global_lock);
- 	pr_info("Intel(R) Virtualization Technology for Directed I/O\n");
- 
--#ifdef CONFIG_SWIOTLB
-+#if defined(CONFIG_X86) && defined(CONFIG_SWIOTLB)
- 	swiotlb = 0;
- #endif
- 	dma_ops = &intel_dma_ops;
+-
+-const struct dma_map_ops swiotlb_dma_map_ops = {
+-	.alloc = unicore_swiotlb_alloc_coherent,
+-	.free = unicore_swiotlb_free_coherent,
+-	.map_sg = swiotlb_map_sg_attrs,
+-	.unmap_sg = swiotlb_unmap_sg_attrs,
+-	.dma_supported = swiotlb_dma_supported,
+-	.map_page = swiotlb_map_page,
+-	.unmap_page = swiotlb_unmap_page,
+-	.sync_single_for_cpu = swiotlb_sync_single_for_cpu,
+-	.sync_single_for_device = swiotlb_sync_single_for_device,
+-	.sync_sg_for_cpu = swiotlb_sync_sg_for_cpu,
+-	.sync_sg_for_device = swiotlb_sync_sg_for_device,
+-	.mapping_error = swiotlb_dma_mapping_error,
+-};
+-EXPORT_SYMBOL(swiotlb_dma_map_ops);
 -- 
 2.14.2
