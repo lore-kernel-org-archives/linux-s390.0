@@ -1,177 +1,30 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC 19/19] s390/facilities: enable AP facilities needed by
- guest
-Date: Wed, 6 Dec 2017 11:15:46 +0100
-Message-ID: <20171206111546.2db47aaa.cohuck@redhat.com>
-References: <1507916344-3896-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1507916344-3896-20-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <20171016112510.39e9c330@mschwideX1>
-        <3e836f59-3ef1-57d8-d6df-b66011c173c4@de.ibm.com>
-        <af1bb867-f9a0-458b-b7b2-c0bb9456eb7f@linux.vnet.ibm.com>
-        <6d9ae0c1-6f64-1562-bf10-864cf66e3a08@de.ibm.com>
-        <40cdab64-9eeb-02bd-f260-80e9da8c9034@linux.vnet.ibm.com>
-        <35f17b01-49e0-eafb-ad05-c642c579dd3a@de.ibm.com>
-        <8c8c7a0e-2ae4-443b-9444-e2022436c3ee@linux.vnet.ibm.com>
-        <c0d076cb-7a22-c5fd-224d-96aff7d40bac@linux.vnet.ibm.com>
-        <20171205150421.01ec1ed8.cohuck@redhat.com>
-        <7557ad65-48dd-9a82-2988-8a124d765939@linux.vnet.ibm.com>
-        <1cc6019b-bb3a-83fb-fa65-c013c435d206@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1cc6019b-bb3a-83fb-fa65-c013c435d206@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, Harald Freudenberger <freude@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, freude@de.ibm.com, mjrosato@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, Boris Fiuczynski <fiuczy@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, qemu-s390x@nongnu.org, jjherne@linux.vnet.ibm.com, thuth@redhat.com
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: consolidate direct dma mapping and swiotlb support
+Date: Fri, 29 Dec 2017 09:18:04 +0100
+Message-ID: <20171229081911.2802-1-hch@lst.de>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20171229081804.GqI5LJMsl2cz9U2o5yrDiEjFN4Ey5oU3_VZpwJgNjCM@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: iommu@lists.linux-foundation.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 6 Dec 2017 10:15:51 +0100
-Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+Almost every architecture supports a direct dma mapping implementation,
+where no iommu is used and the device dma address is a 1:1 mapping to
+the physical address or has a simple linear offset.  Currently the
+code for this implementation is most duplicated over the architectures,
+and the duplicated again in the swiotlb code, and then duplicated again
+for special cases like the x86 memory encryption DMA ops.
 
-> On 05/12/2017 16:01, Tony Krowiak wrote:
-> > On 12/05/2017 09:04 AM, Cornelia Huck wrote:  
-> >> On Tue, 5 Dec 2017 08:52:57 +0100
-> >> Harald Freudenberger <freude@linux.vnet.ibm.com> wrote:
-> >>  
-> >>> On 12/02/2017 02:30 AM, Tony Krowiak wrote:  
-> >>>> I agree with your suggestion that defining a new CPU model feature 
-> >>>> is probably
-> >>>> the best way to resolve this issue. The question is, should we 
-> >>>> define a single
-> >>>> feature indicating whether AP instructions are installed and set 
-> >>>> features bits
-> >>>> for the guest based on whether or not they are set in the linux 
-> >>>> host, or should
-> >>>> we define additional CPU model features for turning features bits on 
-> >>>> and off?
-> >>>> I guess it boils down to what behavior is expected for the AP bus 
-> >>>> running on
-> >>>> the linux guest. Here is a rundown of the facilities bits associated 
-> >>>> with AP
-> >>>> and how they affect the behavior of the AP bus:
-> >>>>
-> >>>> * STFLE.12 indicates whether the AP query function is available. If 
-> >>>> this bit
-> >>>>    is not set, then the AP bus scan will only test domains 0-15. For 
-> >>>> example,
-> >>>>    if adapters 4, 5, and 6 and domains 12 and 71 (0x47) are 
-> >>>> installed, then AP
-> >>>>    queues 04.0047, 05.0047 and 06.0047 will not be made available.  
-> >>> STFLE 12 is the indication for Query AP Configuration Information 
-> >>> (QCI) available.  
-> >>>> * STFLE.15 indicates whether the AP facilities test function is 
-> >>>> available. If
-> >>>>    this bit is not set, then the CEX4, CEX5 and CEX6 device drivers 
-> >>>> discovered
-> >>>>    by the AP bus scan will not get bound to any AP device drivers. 
-> >>>> Since the
-> >>>>    AP matrix model supports only CEX4 and greater, no devices will 
-> >>>> be bound
-> >>>>    to any driver for a guest.  
-> >>> This T-Bit extension to the TAPQ subfunction is a must have. When kvm 
-> >>> only
-> >>> supports CEX4 and upper then this bit could also act as the indicator 
-> >>> for
-> >>> AP instructions available. Of course if you want to implement pure 
-> >>> virtual
-> >>> full simulated AP without any real AP hardware on the host this bit 
-> >>> can't
-> >>> be the indicator.  
-> >> It would probably make sense to group these two together. Or is there
-> >> any advantage in supporting only a part of it?  
-> > After thinking about this a little more, I've come to the conclusion that
-> > all of this might be moot for the following reasons:
-> > 
-> > * If STFLE.12 is not set for the linux host, then AP bus scan running on
-> >    the host will not detect any domains with a domain number higher than 
-> > 15,
-> >    so no AP queues with a queue index higher than 15 will be available to
-> >    bind to the vfio_ap_matrix driver. Consequently, no domain higher than
-> >    15 can be assigned to any guest. In this case, the AP bus scan 
-> > running on
-> >    the guest will never detect a domain higher than 15, regardless of the
-> >    setting of STFLE.12 for the guest.
-> > 
-> > * If STFLE.15 is not set for the linux host, then then there will be no
-> >    CEX4, CEX5 or CEX6 queues available to bind to the vfio_ap_matrix
-> >    driver, so no AP adapters or domains can be assigned to any KVM guest.
-> > 
-> > The bottom line is the STFLE bit settings for the linux host will control
-> > what APs are available to the KVM guest. Since STFLE.15 controls whether
-> > any CEX4,5 or 6 devices are even available, I think this bit can be
-> > combined into the feature that indicates whether AP is available. As long
-> > as AP instructions are available on the linux host, I'm not sure whether
-> > STFLE.12 needs a feature at all.  
-> 
-> We are implementing VFIO with SIE interpretation.
-> 
-> 1) Providing more:
-> The simple way is to provide to the guest only features existing on the 
-> host.
-> If we do provide features not existing on the host we need to be able to 
-> emulate them.
-> Even it is possible, it could be done in a future enhancement, but AFAIK 
-> it is not the goal of the current development.
+This series takes the existing very simple dma-noop dma mapping
+implementation, enhances it with all the x86 features and quirks, and
+creates a common set of architecture hooks for it and the swiotlb code.
 
-Yes. I think we currently want to provide a subset of what the SIE can
-do. Any emulation would be icing on top.
+It then switches a large number of architectures to this generic
+direct map implement and the new generic swiotlb dma_map ops.
 
-> 
-> 2) Providing less:
-> On the other hand we can mask to the guest some of the features provided 
-> by the host if we can intercept the scanning of the features.
-
-Yes. I think that applies to bit 65 (interrupts) for now.
-
-> 
-> 
-> What I understand from this is that we need all these features being 
-> separately toggled to be able to be compatible with an older system even 
-> if we have a 1:1 host:guest features match in a first version.
-
-This seems to be the case for the mentioned bits if I followed the
-discussion correctly.
-
-> 
-> If several features where introduced together in a new architecture and 
-> are available on all systems issued from this architecture we can then 
-> gather them in a set. (But I will wonder why we have several features then)
-
-You're expecting that all architecture is making sense ;)
-
-> 
-> 
-> >>  
-> >>>> * STFLE.65 indicates whether AP interrupts are available. If this 
-> >>>> bit is not
-> >>>>    set, then the AP bus will use polling instead of using interrupt 
-> >>>> handlers
-> >>>>    to process AP events.  
-> >> So, does this indicate "adapter interrupts for AP" only? If so, we
-> >> should keep this separate and only enable it when we have the gisa etc.
-> >> ready.  
-> > Yes, this indicates AP interrupts only. The plan is to enable this when
-> > GISA is available and we can implement interrupt processing.  
-> 
-> If we want to be able to work on system where STFLE.65 is not available, 
-> even if GISA is available I think it would be interesting to have a 
-> Matrix implementation with only polling.
-
-Agreed.
-
-So, it seems what we want is:
-
-- A feature for STFLE 12. This seems to be a z13 or later facility, so
-  it probably makes sense to indicate it in the guest for z13 or newer
-  if the host supports it and for older machines if it is explicitly
-  specified (and the host supports it).
-- A feature for STFLE 15. Similar to the one above, but starting with a
-  different generation (when was this introduced?)
-- A feature for STFLE 65. Can be deferred to when GISA is implemented
-  (and exploited by vfio-ap). Same as above (I think this has existed
-  for a long time, probably for any of the machines we support?)
-
-Thoughts?
+Note that for now this only handles architectures that do cache coherent
+DMA, but a similar consolidation for non-coherent architectures is in the
+work for later merge windows.
