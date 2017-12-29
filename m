@@ -1,153 +1,124 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 63/67] mips: use swiotlb_{alloc,free}
-Date: Fri, 29 Dec 2017 09:19:07 +0100
-Message-ID: <20171229081911.2802-64-hch@lst.de>
+Subject: [PATCH 64/67] arm64: replace ZONE_DMA with ZONE_DMA32
+Date: Fri, 29 Dec 2017 09:19:08 +0100
+Message-ID: <20171229081911.2802-65-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081907.PJVnZHXk7BoAVjXeaAFfdfQel6You9gDlm-FSpdt6tw@z>
+Message-ID: <20171229081908.qc3Gur9jAvsLlC6il99dizkBgP6u-vnwPUVUAGnKjCs@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-These already include the GFP_DMA/GFP_DMA32 usage, and will use CMA
-memory if enabled, thus avoiding the GFP_NORETRY hack.
+arm64 uses ZONE_DMA for allocations below 32-bits.  These days we
+name the zone for that ZONE_DMA32, which will allow to use the
+dma-direct and generic swiotlb code as-is, so rename it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/mips/cavium-octeon/Kconfig           |  1 +
- arch/mips/cavium-octeon/dma-octeon.c      | 26 +++-----------------------
- arch/mips/loongson64/Kconfig              |  1 +
- arch/mips/loongson64/common/dma-swiotlb.c | 21 ++-------------------
- 4 files changed, 7 insertions(+), 42 deletions(-)
+ arch/arm64/Kconfig          |  2 +-
+ arch/arm64/mm/dma-mapping.c |  6 +++---
+ arch/arm64/mm/init.c        | 16 ++++++++--------
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/mips/cavium-octeon/Kconfig b/arch/mips/cavium-octeon/Kconfig
-index 204a1670fd9b..b5eee1a57d6c 100644
---- a/arch/mips/cavium-octeon/Kconfig
-+++ b/arch/mips/cavium-octeon/Kconfig
-@@ -75,6 +75,7 @@ config NEED_SG_DMA_LENGTH
- 
- config SWIOTLB
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index c9a7e9e1414f..6b6985f15d02 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -227,7 +227,7 @@ config GENERIC_CSUM
+ config GENERIC_CALIBRATE_DELAY
  	def_bool y
-+	select DMA_DIRECT_OPS
- 	select IOMMU_HELPER
- 	select NEED_SG_DMA_LENGTH
  
-diff --git a/arch/mips/cavium-octeon/dma-octeon.c b/arch/mips/cavium-octeon/dma-octeon.c
-index 6440ad3f9e3b..7b335ab21697 100644
---- a/arch/mips/cavium-octeon/dma-octeon.c
-+++ b/arch/mips/cavium-octeon/dma-octeon.c
-@@ -159,33 +159,13 @@ static void octeon_dma_sync_sg_for_device(struct device *dev,
- static void *octeon_dma_alloc_coherent(struct device *dev, size_t size,
- 	dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
+-config ZONE_DMA
++config ZONE_DMA32
+ 	def_bool y
+ 
+ config HAVE_GENERIC_GUP
+diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c
+index 6840426bbe77..0d641875b20e 100644
+--- a/arch/arm64/mm/dma-mapping.c
++++ b/arch/arm64/mm/dma-mapping.c
+@@ -95,9 +95,9 @@ static void *__dma_alloc_coherent(struct device *dev, size_t size,
+ 				  dma_addr_t *dma_handle, gfp_t flags,
+ 				  unsigned long attrs)
  {
--	void *ret;
--
--	if (IS_ENABLED(CONFIG_ZONE_DMA) && dev == NULL)
--		gfp |= __GFP_DMA;
--	else if (IS_ENABLED(CONFIG_ZONE_DMA) &&
--		 dev->coherent_dma_mask <= DMA_BIT_MASK(24))
--		gfp |= __GFP_DMA;
--	else if (IS_ENABLED(CONFIG_ZONE_DMA32) &&
--		 dev->coherent_dma_mask <= DMA_BIT_MASK(32))
--		gfp |= __GFP_DMA32;
--
--	/* Don't invoke OOM killer */
--	gfp |= __GFP_NORETRY;
--
--	ret = swiotlb_alloc_coherent(dev, size, dma_handle, gfp);
-+	void *ret = swiotlb_alloc(dev, size, dma_handle, gfp, attrs);
+-	if (IS_ENABLED(CONFIG_ZONE_DMA) &&
++	if (IS_ENABLED(CONFIG_ZONE_DMA32) &&
+ 	    dev->coherent_dma_mask <= DMA_BIT_MASK(32))
+-		flags |= GFP_DMA;
++		flags |= GFP_DMA32;
+ 	if (dev_get_cma_area(dev) && gfpflags_allow_blocking(flags)) {
+ 		struct page *page;
+ 		void *addr;
+@@ -397,7 +397,7 @@ static int __init atomic_pool_init(void)
+ 		page = dma_alloc_from_contiguous(NULL, nr_pages,
+ 						 pool_size_order, GFP_KERNEL);
+ 	else
+-		page = alloc_pages(GFP_DMA, pool_size_order);
++		page = alloc_pages(GFP_DMA32, pool_size_order);
  
- 	mb();
- 
- 	return ret;
+ 	if (page) {
+ 		int ret;
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 00e7b900ca41..8f03276443c9 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -217,7 +217,7 @@ static void __init reserve_elfcorehdr(void)
  }
- 
--static void octeon_dma_free_coherent(struct device *dev, size_t size,
--	void *vaddr, dma_addr_t dma_handle, unsigned long attrs)
--{
--	swiotlb_free_coherent(dev, size, vaddr, dma_handle);
--}
--
- static dma_addr_t octeon_unity_phys_to_dma(struct device *dev, phys_addr_t paddr)
+ #endif /* CONFIG_CRASH_DUMP */
+ /*
+- * Return the maximum physical address for ZONE_DMA (DMA_BIT_MASK(32)). It
++ * Return the maximum physical address for ZONE_DMA32 (DMA_BIT_MASK(32)). It
+  * currently assumes that for memory starting above 4G, 32-bit devices will
+  * use a DMA offset.
+  */
+@@ -233,8 +233,8 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max)
  {
- 	return paddr;
-@@ -225,7 +205,7 @@ EXPORT_SYMBOL(__dma_to_phys);
- static struct octeon_dma_map_ops octeon_linear_dma_map_ops = {
- 	.dma_map_ops = {
- 		.alloc = octeon_dma_alloc_coherent,
--		.free = octeon_dma_free_coherent,
-+		.free = swiotlb_free,
- 		.map_page = octeon_dma_map_page,
- 		.unmap_page = swiotlb_unmap_page,
- 		.map_sg = octeon_dma_map_sg,
-@@ -311,7 +291,7 @@ void __init plat_swiotlb_setup(void)
- static struct octeon_dma_map_ops _octeon_pci_dma_map_ops = {
- 	.dma_map_ops = {
- 		.alloc = octeon_dma_alloc_coherent,
--		.free = octeon_dma_free_coherent,
-+		.free = swiotlb_free,
- 		.map_page = octeon_dma_map_page,
- 		.unmap_page = swiotlb_unmap_page,
- 		.map_sg = octeon_dma_map_sg,
-diff --git a/arch/mips/loongson64/Kconfig b/arch/mips/loongson64/Kconfig
-index 0d249fc3cfe9..6f109bb54cdb 100644
---- a/arch/mips/loongson64/Kconfig
-+++ b/arch/mips/loongson64/Kconfig
-@@ -136,6 +136,7 @@ config SWIOTLB
- 	bool "Soft IOMMU Support for All-Memory DMA"
- 	default y
- 	depends on CPU_LOONGSON3
-+	select DMA_DIRECT_OPS
- 	select IOMMU_HELPER
- 	select NEED_SG_DMA_LENGTH
- 	select NEED_DMA_MAP_STATE
-diff --git a/arch/mips/loongson64/common/dma-swiotlb.c b/arch/mips/loongson64/common/dma-swiotlb.c
-index 0a02ea70e39f..6a739f8ae110 100644
---- a/arch/mips/loongson64/common/dma-swiotlb.c
-+++ b/arch/mips/loongson64/common/dma-swiotlb.c
-@@ -13,29 +13,12 @@
- static void *loongson_dma_alloc_coherent(struct device *dev, size_t size,
- 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
- {
--	void *ret;
-+	void *ret = swiotlb_alloc(dev, size, dma_handle, gfp, attrs);
+ 	unsigned long max_zone_pfns[MAX_NR_ZONES]  = {0};
  
--	if ((IS_ENABLED(CONFIG_ISA) && dev == NULL) ||
--	    (IS_ENABLED(CONFIG_ZONE_DMA) &&
--	     dev->coherent_dma_mask < DMA_BIT_MASK(32)))
--		gfp |= __GFP_DMA;
--	else if (IS_ENABLED(CONFIG_ZONE_DMA32) &&
--		 dev->coherent_dma_mask < DMA_BIT_MASK(40))
--		gfp |= __GFP_DMA32;
--
--	gfp |= __GFP_NORETRY;
--
--	ret = swiotlb_alloc_coherent(dev, size, dma_handle, gfp);
- 	mb();
- 	return ret;
- }
+-	if (IS_ENABLED(CONFIG_ZONE_DMA))
+-		max_zone_pfns[ZONE_DMA] = PFN_DOWN(max_zone_dma_phys());
++	if (IS_ENABLED(CONFIG_ZONE_DMA32))
++		max_zone_pfns[ZONE_DMA32] = PFN_DOWN(max_zone_dma_phys());
+ 	max_zone_pfns[ZONE_NORMAL] = max;
  
--static void loongson_dma_free_coherent(struct device *dev, size_t size,
--		void *vaddr, dma_addr_t dma_handle, unsigned long attrs)
--{
--	swiotlb_free_coherent(dev, size, vaddr, dma_handle);
--}
--
- static dma_addr_t loongson_dma_map_page(struct device *dev, struct page *page,
- 				unsigned long offset, size_t size,
- 				enum dma_data_direction dir,
-@@ -106,7 +89,7 @@ phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t daddr)
+ 	free_area_init_nodes(max_zone_pfns);
+@@ -251,9 +251,9 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max)
+ 	memset(zone_size, 0, sizeof(zone_size));
  
- static const struct dma_map_ops loongson_dma_map_ops = {
- 	.alloc = loongson_dma_alloc_coherent,
--	.free = loongson_dma_free_coherent,
-+	.free = swiotlb_free,
- 	.map_page = loongson_dma_map_page,
- 	.unmap_page = swiotlb_unmap_page,
- 	.map_sg = loongson_dma_map_sg,
+ 	/* 4GB maximum for 32-bit only capable devices */
+-#ifdef CONFIG_ZONE_DMA
++#ifdef CONFIG_ZONE_DMA32
+ 	max_dma = PFN_DOWN(arm64_dma_phys_limit);
+-	zone_size[ZONE_DMA] = max_dma - min;
++	zone_size[ZONE_DMA32] = max_dma - min;
+ #endif
+ 	zone_size[ZONE_NORMAL] = max - max_dma;
+ 
+@@ -266,10 +266,10 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max)
+ 		if (start >= max)
+ 			continue;
+ 
+-#ifdef CONFIG_ZONE_DMA
++#ifdef CONFIG_ZONE_DMA32
+ 		if (start < max_dma) {
+ 			unsigned long dma_end = min(end, max_dma);
+-			zhole_size[ZONE_DMA] -= dma_end - start;
++			zhole_size[ZONE_DMA32] -= dma_end - start;
+ 		}
+ #endif
+ 		if (end > max_dma) {
+@@ -467,7 +467,7 @@ void __init arm64_memblock_init(void)
+ 	early_init_fdt_scan_reserved_mem();
+ 
+ 	/* 4GB maximum for 32-bit only capable devices */
+-	if (IS_ENABLED(CONFIG_ZONE_DMA))
++	if (IS_ENABLED(CONFIG_ZONE_DMA32))
+ 		arm64_dma_phys_limit = max_zone_dma_phys();
+ 	else
+ 		arm64_dma_phys_limit = PHYS_MASK + 1;
 -- 
 2.14.2
