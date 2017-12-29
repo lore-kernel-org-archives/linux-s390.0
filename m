@@ -1,38 +1,81 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 21/67] dma-mapping: warn when there is no coherent_dma_mask
-Date: Fri, 29 Dec 2017 09:18:25 +0100
-Message-ID: <20171229081911.2802-22-hch@lst.de>
+Subject: [PATCH 18/67] microblaze: remove dma_nommu_dma_supported
+Date: Fri, 29 Dec 2017 09:18:22 +0100
+Message-ID: <20171229081911.2802-19-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081825.EqCASKMCfRu0aMAZnMgzHKUjgBnA6uMSuJXvAqkSG-A@z>
+Message-ID: <20171229081822.AVdMWdmkPQXoPjyHPuP18HX2sqd7KnE4WJciayOGPJg@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-These days all devices should have a DMA coherent mask, and most dma_ops
-implementations rely on that fact.  But just to be sure add an assert to
-ring the warning bell if that is not the case.
+Always returning 1 is the same behavior as not supplying a method at all.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/dma-mapping.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/microblaze/kernel/dma.c | 6 ------
+ arch/parisc/kernel/pci-dma.c | 7 -------
+ 2 files changed, 13 deletions(-)
 
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index e77e2dec4723..2779d544485c 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -520,6 +520,7 @@ static inline void *dma_alloc_attrs(struct device *dev, size_t size,
- 	void *cpu_addr;
+diff --git a/arch/microblaze/kernel/dma.c b/arch/microblaze/kernel/dma.c
+index 364b0ac41452..49b09648679b 100644
+--- a/arch/microblaze/kernel/dma.c
++++ b/arch/microblaze/kernel/dma.c
+@@ -89,11 +89,6 @@ static int dma_nommu_map_sg(struct device *dev, struct scatterlist *sgl,
+ 	return nents;
+ }
  
- 	BUG_ON(!ops);
-+	WARN_ON_ONCE(!dev->coherent_dma_mask);
+-static int dma_nommu_dma_supported(struct device *dev, u64 mask)
+-{
+-	return 1;
+-}
+-
+ static inline dma_addr_t dma_nommu_map_page(struct device *dev,
+ 					     struct page *page,
+ 					     unsigned long offset,
+@@ -209,7 +204,6 @@ const struct dma_map_ops dma_nommu_ops = {
+ 	.free			= dma_nommu_free_coherent,
+ 	.mmap			= dma_nommu_mmap_coherent,
+ 	.map_sg			= dma_nommu_map_sg,
+-	.dma_supported		= dma_nommu_dma_supported,
+ 	.map_page		= dma_nommu_map_page,
+ 	.unmap_page		= dma_nommu_unmap_page,
+ 	.sync_single_for_cpu	= dma_nommu_sync_single_for_cpu,
+diff --git a/arch/parisc/kernel/pci-dma.c b/arch/parisc/kernel/pci-dma.c
+index 6ad9aed3d025..2a05457f7aab 100644
+--- a/arch/parisc/kernel/pci-dma.c
++++ b/arch/parisc/kernel/pci-dma.c
+@@ -75,11 +75,6 @@ void dump_resmap(void)
+ static inline void dump_resmap(void) {;}
+ #endif
  
- 	if (dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
- 		return cpu_addr;
+-static int pa11_dma_supported( struct device *dev, u64 mask)
+-{
+-	return 1;
+-}
+-
+ static inline int map_pte_uncached(pte_t * pte,
+ 		unsigned long vaddr,
+ 		unsigned long size, unsigned long *paddr_ptr)
+@@ -579,7 +574,6 @@ static void pa11_dma_cache_sync(struct device *dev, void *vaddr, size_t size,
+ }
+ 
+ const struct dma_map_ops pcxl_dma_ops = {
+-	.dma_supported =	pa11_dma_supported,
+ 	.alloc =		pa11_dma_alloc,
+ 	.free =			pa11_dma_free,
+ 	.map_page =		pa11_dma_map_page,
+@@ -617,7 +611,6 @@ static void pcx_dma_free(struct device *dev, size_t size, void *vaddr,
+ }
+ 
+ const struct dma_map_ops pcx_dma_ops = {
+-	.dma_supported =	pa11_dma_supported,
+ 	.alloc =		pcx_dma_alloc,
+ 	.free =			pcx_dma_free,
+ 	.map_page =		pa11_dma_map_page,
 -- 
 2.14.2
