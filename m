@@ -1,88 +1,110 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 44/67] powerpc: rename swiotlb_dma_ops
-Date: Fri, 29 Dec 2017 09:18:48 +0100
-Message-ID: <20171229081911.2802-45-hch@lst.de>
+Subject: [PATCH 66/67] swiotlb: remove swiotlb_{alloc,free}_coherent
+Date: Fri, 29 Dec 2017 09:19:10 +0100
+Message-ID: <20171229081911.2802-67-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081848.tj8OBbCEJw3VymfgYqVx7SSLMhaKv9H28mC9VQ4QZy0@z>
+Message-ID: <20171229081910.UCQcbULA1NBiI7un0MB-CcueQdKYt6S8oRlrIo9iQco@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-We'll need that name for a generic implementation soon.
+Unused now that everyone uses swiotlb_{alloc,free}.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/powerpc/include/asm/swiotlb.h | 2 +-
- arch/powerpc/kernel/dma-swiotlb.c  | 4 ++--
- arch/powerpc/kernel/dma.c          | 2 +-
- arch/powerpc/sysdev/fsl_pci.c      | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ include/linux/swiotlb.h |  8 --------
+ lib/swiotlb.c           | 41 -----------------------------------------
+ 2 files changed, 49 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/swiotlb.h b/arch/powerpc/include/asm/swiotlb.h
-index 9341ee804d19..f65ecf57b66c 100644
---- a/arch/powerpc/include/asm/swiotlb.h
-+++ b/arch/powerpc/include/asm/swiotlb.h
-@@ -13,7 +13,7 @@
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index 5b1f2a00491c..965be92c33b5 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -72,14 +72,6 @@ void *swiotlb_alloc(struct device *hwdev, size_t size, dma_addr_t *dma_handle,
+ void swiotlb_free(struct device *dev, size_t size, void *vaddr,
+ 		dma_addr_t dma_addr, unsigned long attrs);
  
- #include <linux/swiotlb.h>
- 
--extern const struct dma_map_ops swiotlb_dma_ops;
-+extern const struct dma_map_ops powerpc_swiotlb_dma_ops;
- 
- extern unsigned int ppc_swiotlb_enable;
- int __init swiotlb_setup_bus_notifier(void);
-diff --git a/arch/powerpc/kernel/dma-swiotlb.c b/arch/powerpc/kernel/dma-swiotlb.c
-index f1e99b9cee97..506ac4fafac5 100644
---- a/arch/powerpc/kernel/dma-swiotlb.c
-+++ b/arch/powerpc/kernel/dma-swiotlb.c
-@@ -46,7 +46,7 @@ static u64 swiotlb_powerpc_get_required(struct device *dev)
-  * map_page, and unmap_page on highmem, use normal dma_ops
-  * for everything else.
-  */
--const struct dma_map_ops swiotlb_dma_ops = {
-+const struct dma_map_ops powerpc_swiotlb_dma_ops = {
- 	.alloc = __dma_nommu_alloc_coherent,
- 	.free = __dma_nommu_free_coherent,
- 	.mmap = dma_nommu_mmap_coherent,
-@@ -89,7 +89,7 @@ static int ppc_swiotlb_bus_notify(struct notifier_block *nb,
- 
- 	/* May need to bounce if the device can't address all of DRAM */
- 	if ((dma_get_mask(dev) + 1) < memblock_end_of_DRAM())
--		set_dma_ops(dev, &swiotlb_dma_ops);
-+		set_dma_ops(dev, &powerpc_swiotlb_dma_ops);
- 
- 	return NOTIFY_DONE;
+-extern void
+-*swiotlb_alloc_coherent(struct device *hwdev, size_t size,
+-			dma_addr_t *dma_handle, gfp_t flags);
+-
+-extern void
+-swiotlb_free_coherent(struct device *hwdev, size_t size,
+-		      void *vaddr, dma_addr_t dma_handle);
+-
+ extern dma_addr_t swiotlb_map_page(struct device *dev, struct page *page,
+ 				   unsigned long offset, size_t size,
+ 				   enum dma_data_direction dir,
+diff --git a/lib/swiotlb.c b/lib/swiotlb.c
+index 4ea0b5710618..77a40b508db8 100644
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -157,13 +157,6 @@ unsigned long swiotlb_size_or_default(void)
+ 	return size ? size : (IO_TLB_DEFAULT_SIZE);
  }
-diff --git a/arch/powerpc/kernel/dma.c b/arch/powerpc/kernel/dma.c
-index 1723001d5de1..b787692b91ee 100644
---- a/arch/powerpc/kernel/dma.c
-+++ b/arch/powerpc/kernel/dma.c
-@@ -33,7 +33,7 @@ static u64 __maybe_unused get_pfn_limit(struct device *dev)
- 	struct dev_archdata __maybe_unused *sd = &dev->archdata;
  
- #ifdef CONFIG_SWIOTLB
--	if (sd->max_direct_dma_addr && dev->dma_ops == &swiotlb_dma_ops)
-+	if (sd->max_direct_dma_addr && dev->dma_ops == &powerpc_swiotlb_dma_ops)
- 		pfn = min_t(u64, pfn, sd->max_direct_dma_addr >> PAGE_SHIFT);
- #endif
+-/* Note that this doesn't work with highmem page */
+-static dma_addr_t swiotlb_virt_to_bus(struct device *hwdev,
+-				      volatile void *address)
+-{
+-	return phys_to_dma(hwdev, virt_to_phys(address));
+-}
+-
+ static bool no_iotlb_memory;
  
-diff --git a/arch/powerpc/sysdev/fsl_pci.c b/arch/powerpc/sysdev/fsl_pci.c
-index e4d0133bbeeb..61e07c78d64f 100644
---- a/arch/powerpc/sysdev/fsl_pci.c
-+++ b/arch/powerpc/sysdev/fsl_pci.c
-@@ -118,7 +118,7 @@ static void setup_swiotlb_ops(struct pci_controller *hose)
+ void swiotlb_print_info(void)
+@@ -743,31 +736,6 @@ swiotlb_alloc_buffer(struct device *dev, size_t size, dma_addr_t *dma_handle)
+ 	return NULL;
+ }
+ 
+-void *
+-swiotlb_alloc_coherent(struct device *hwdev, size_t size,
+-		       dma_addr_t *dma_handle, gfp_t flags)
+-{
+-	int order = get_order(size);
+-	void *ret;
+-
+-	ret = (void *)__get_free_pages(flags, order);
+-	if (ret) {
+-		*dma_handle = swiotlb_virt_to_bus(hwdev, ret);
+-		if (*dma_handle  + size - 1 <= hwdev->coherent_dma_mask) {
+-			memset(ret, 0, size);
+-			return ret;
+-		}
+-
+-		/*
+-		 * The allocated memory isn't reachable by the device.
+-		 */
+-		free_pages((unsigned long) ret, order);
+-	}
+-
+-	return swiotlb_alloc_buffer(hwdev, size, dma_handle);
+-}
+-EXPORT_SYMBOL(swiotlb_alloc_coherent);
+-
+ static bool swiotlb_free_buffer(struct device *dev, size_t size,
+ 		dma_addr_t dma_addr)
  {
- 	if (ppc_swiotlb_enable) {
- 		hose->controller_ops.dma_dev_setup = pci_dma_dev_setup_swiotlb;
--		set_pci_dma_ops(&swiotlb_dma_ops);
-+		set_pci_dma_ops(&powerpc_swiotlb_dma_ops);
- 	}
+@@ -787,15 +755,6 @@ static bool swiotlb_free_buffer(struct device *dev, size_t size,
+ 	return true;
  }
- #else
+ 
+-void
+-swiotlb_free_coherent(struct device *hwdev, size_t size, void *vaddr,
+-		      dma_addr_t dev_addr)
+-{
+-	if (!swiotlb_free_buffer(hwdev, size, dev_addr))
+-		free_pages((unsigned long)vaddr, get_order(size));
+-}
+-EXPORT_SYMBOL(swiotlb_free_coherent);
+-
+ static void
+ swiotlb_full(struct device *dev, size_t size, enum dma_data_direction dir,
+ 	     int do_panic)
 -- 
 2.14.2
