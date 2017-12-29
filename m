@@ -1,132 +1,153 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 67/67] swiotlb: remove various exports
-Date: Fri, 29 Dec 2017 09:19:11 +0100
-Message-ID: <20171229081911.2802-68-hch@lst.de>
+Subject: [PATCH 63/67] mips: use swiotlb_{alloc,free}
+Date: Fri, 29 Dec 2017 09:19:07 +0100
+Message-ID: <20171229081911.2802-64-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081911.A8mjiWXaNm0x1NgXg9Z9eY-P0yjhOz-9RIzjrqP7dzU@z>
+Message-ID: <20171229081907.PJVnZHXk7BoAVjXeaAFfdfQel6You9gDlm-FSpdt6tw@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-All these symbols are only used by arch dma_ops implementations or
-xen-swiotlb.  None of which can be modular.
+These already include the GFP_DMA/GFP_DMA32 usage, and will use CMA
+memory if enabled, thus avoiding the GFP_NORETRY hack.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- lib/swiotlb.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ arch/mips/cavium-octeon/Kconfig           |  1 +
+ arch/mips/cavium-octeon/dma-octeon.c      | 26 +++-----------------------
+ arch/mips/loongson64/Kconfig              |  1 +
+ arch/mips/loongson64/common/dma-swiotlb.c | 21 ++-------------------
+ 4 files changed, 7 insertions(+), 42 deletions(-)
 
-diff --git a/lib/swiotlb.c b/lib/swiotlb.c
-index 77a40b508db8..823e1055a394 100644
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -591,7 +591,6 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
+diff --git a/arch/mips/cavium-octeon/Kconfig b/arch/mips/cavium-octeon/Kconfig
+index 204a1670fd9b..b5eee1a57d6c 100644
+--- a/arch/mips/cavium-octeon/Kconfig
++++ b/arch/mips/cavium-octeon/Kconfig
+@@ -75,6 +75,7 @@ config NEED_SG_DMA_LENGTH
  
- 	return tlb_addr;
- }
--EXPORT_SYMBOL_GPL(swiotlb_tbl_map_single);
+ config SWIOTLB
+ 	def_bool y
++	select DMA_DIRECT_OPS
+ 	select IOMMU_HELPER
+ 	select NEED_SG_DMA_LENGTH
  
- /*
-  * Allocates bounce buffer and returns its kernel virtual address.
-@@ -661,7 +660,6 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
- 	}
- 	spin_unlock_irqrestore(&io_tlb_lock, flags);
- }
--EXPORT_SYMBOL_GPL(swiotlb_tbl_unmap_single);
- 
- void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
- 			     size_t size, enum dma_data_direction dir,
-@@ -693,7 +691,6 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
- 		BUG();
- 	}
- }
--EXPORT_SYMBOL_GPL(swiotlb_tbl_sync_single);
- 
- static void *
- swiotlb_alloc_buffer(struct device *dev, size_t size, dma_addr_t *dma_handle)
-@@ -827,7 +824,6 @@ dma_addr_t swiotlb_map_page(struct device *dev, struct page *page,
- 
- 	return __phys_to_dma(dev, io_tlb_overflow_buffer);
- }
--EXPORT_SYMBOL_GPL(swiotlb_map_page);
- 
- /*
-  * Unmap a single streaming mode DMA translation.  The dma_addr and size must
-@@ -868,7 +864,6 @@ void swiotlb_unmap_page(struct device *hwdev, dma_addr_t dev_addr,
+diff --git a/arch/mips/cavium-octeon/dma-octeon.c b/arch/mips/cavium-octeon/dma-octeon.c
+index 6440ad3f9e3b..7b335ab21697 100644
+--- a/arch/mips/cavium-octeon/dma-octeon.c
++++ b/arch/mips/cavium-octeon/dma-octeon.c
+@@ -159,33 +159,13 @@ static void octeon_dma_sync_sg_for_device(struct device *dev,
+ static void *octeon_dma_alloc_coherent(struct device *dev, size_t size,
+ 	dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
  {
- 	unmap_single(hwdev, dev_addr, size, dir, attrs);
- }
--EXPORT_SYMBOL_GPL(swiotlb_unmap_page);
+-	void *ret;
+-
+-	if (IS_ENABLED(CONFIG_ZONE_DMA) && dev == NULL)
+-		gfp |= __GFP_DMA;
+-	else if (IS_ENABLED(CONFIG_ZONE_DMA) &&
+-		 dev->coherent_dma_mask <= DMA_BIT_MASK(24))
+-		gfp |= __GFP_DMA;
+-	else if (IS_ENABLED(CONFIG_ZONE_DMA32) &&
+-		 dev->coherent_dma_mask <= DMA_BIT_MASK(32))
+-		gfp |= __GFP_DMA32;
+-
+-	/* Don't invoke OOM killer */
+-	gfp |= __GFP_NORETRY;
+-
+-	ret = swiotlb_alloc_coherent(dev, size, dma_handle, gfp);
++	void *ret = swiotlb_alloc(dev, size, dma_handle, gfp, attrs);
  
- /*
-  * Make physical memory consistent for a single streaming mode DMA translation
-@@ -906,7 +901,6 @@ swiotlb_sync_single_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
+ 	mb();
+ 
+ 	return ret;
+ }
+ 
+-static void octeon_dma_free_coherent(struct device *dev, size_t size,
+-	void *vaddr, dma_addr_t dma_handle, unsigned long attrs)
+-{
+-	swiotlb_free_coherent(dev, size, vaddr, dma_handle);
+-}
+-
+ static dma_addr_t octeon_unity_phys_to_dma(struct device *dev, phys_addr_t paddr)
  {
- 	swiotlb_sync_single(hwdev, dev_addr, size, dir, SYNC_FOR_CPU);
- }
--EXPORT_SYMBOL(swiotlb_sync_single_for_cpu);
- 
- void
- swiotlb_sync_single_for_device(struct device *hwdev, dma_addr_t dev_addr,
-@@ -914,7 +908,6 @@ swiotlb_sync_single_for_device(struct device *hwdev, dma_addr_t dev_addr,
+ 	return paddr;
+@@ -225,7 +205,7 @@ EXPORT_SYMBOL(__dma_to_phys);
+ static struct octeon_dma_map_ops octeon_linear_dma_map_ops = {
+ 	.dma_map_ops = {
+ 		.alloc = octeon_dma_alloc_coherent,
+-		.free = octeon_dma_free_coherent,
++		.free = swiotlb_free,
+ 		.map_page = octeon_dma_map_page,
+ 		.unmap_page = swiotlb_unmap_page,
+ 		.map_sg = octeon_dma_map_sg,
+@@ -311,7 +291,7 @@ void __init plat_swiotlb_setup(void)
+ static struct octeon_dma_map_ops _octeon_pci_dma_map_ops = {
+ 	.dma_map_ops = {
+ 		.alloc = octeon_dma_alloc_coherent,
+-		.free = octeon_dma_free_coherent,
++		.free = swiotlb_free,
+ 		.map_page = octeon_dma_map_page,
+ 		.unmap_page = swiotlb_unmap_page,
+ 		.map_sg = octeon_dma_map_sg,
+diff --git a/arch/mips/loongson64/Kconfig b/arch/mips/loongson64/Kconfig
+index 0d249fc3cfe9..6f109bb54cdb 100644
+--- a/arch/mips/loongson64/Kconfig
++++ b/arch/mips/loongson64/Kconfig
+@@ -136,6 +136,7 @@ config SWIOTLB
+ 	bool "Soft IOMMU Support for All-Memory DMA"
+ 	default y
+ 	depends on CPU_LOONGSON3
++	select DMA_DIRECT_OPS
+ 	select IOMMU_HELPER
+ 	select NEED_SG_DMA_LENGTH
+ 	select NEED_DMA_MAP_STATE
+diff --git a/arch/mips/loongson64/common/dma-swiotlb.c b/arch/mips/loongson64/common/dma-swiotlb.c
+index 0a02ea70e39f..6a739f8ae110 100644
+--- a/arch/mips/loongson64/common/dma-swiotlb.c
++++ b/arch/mips/loongson64/common/dma-swiotlb.c
+@@ -13,29 +13,12 @@
+ static void *loongson_dma_alloc_coherent(struct device *dev, size_t size,
+ 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
  {
- 	swiotlb_sync_single(hwdev, dev_addr, size, dir, SYNC_FOR_DEVICE);
- }
--EXPORT_SYMBOL(swiotlb_sync_single_for_device);
+-	void *ret;
++	void *ret = swiotlb_alloc(dev, size, dma_handle, gfp, attrs);
  
- /*
-  * Map a set of buffers described by scatterlist in streaming mode for DMA.
-@@ -966,7 +959,6 @@ swiotlb_map_sg_attrs(struct device *hwdev, struct scatterlist *sgl, int nelems,
- 	}
- 	return nelems;
+-	if ((IS_ENABLED(CONFIG_ISA) && dev == NULL) ||
+-	    (IS_ENABLED(CONFIG_ZONE_DMA) &&
+-	     dev->coherent_dma_mask < DMA_BIT_MASK(32)))
+-		gfp |= __GFP_DMA;
+-	else if (IS_ENABLED(CONFIG_ZONE_DMA32) &&
+-		 dev->coherent_dma_mask < DMA_BIT_MASK(40))
+-		gfp |= __GFP_DMA32;
+-
+-	gfp |= __GFP_NORETRY;
+-
+-	ret = swiotlb_alloc_coherent(dev, size, dma_handle, gfp);
+ 	mb();
+ 	return ret;
  }
--EXPORT_SYMBOL(swiotlb_map_sg_attrs);
  
- /*
-  * Unmap a set of streaming mode DMA translations.  Again, cpu read rules
-@@ -986,7 +978,6 @@ swiotlb_unmap_sg_attrs(struct device *hwdev, struct scatterlist *sgl,
- 		unmap_single(hwdev, sg->dma_address, sg_dma_len(sg), dir,
- 			     attrs);
- }
--EXPORT_SYMBOL(swiotlb_unmap_sg_attrs);
+-static void loongson_dma_free_coherent(struct device *dev, size_t size,
+-		void *vaddr, dma_addr_t dma_handle, unsigned long attrs)
+-{
+-	swiotlb_free_coherent(dev, size, vaddr, dma_handle);
+-}
+-
+ static dma_addr_t loongson_dma_map_page(struct device *dev, struct page *page,
+ 				unsigned long offset, size_t size,
+ 				enum dma_data_direction dir,
+@@ -106,7 +89,7 @@ phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t daddr)
  
- /*
-  * Make physical memory consistent for a set of streaming mode DMA translations
-@@ -1014,7 +1005,6 @@ swiotlb_sync_sg_for_cpu(struct device *hwdev, struct scatterlist *sg,
- {
- 	swiotlb_sync_sg(hwdev, sg, nelems, dir, SYNC_FOR_CPU);
- }
--EXPORT_SYMBOL(swiotlb_sync_sg_for_cpu);
- 
- void
- swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
-@@ -1022,14 +1012,12 @@ swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
- {
- 	swiotlb_sync_sg(hwdev, sg, nelems, dir, SYNC_FOR_DEVICE);
- }
--EXPORT_SYMBOL(swiotlb_sync_sg_for_device);
- 
- int
- swiotlb_dma_mapping_error(struct device *hwdev, dma_addr_t dma_addr)
- {
- 	return (dma_addr == __phys_to_dma(hwdev, io_tlb_overflow_buffer));
- }
--EXPORT_SYMBOL(swiotlb_dma_mapping_error);
- 
- /*
-  * Return whether the given device DMA address mask can be supported
-@@ -1042,7 +1030,6 @@ swiotlb_dma_supported(struct device *hwdev, u64 mask)
- {
- 	return __phys_to_dma(hwdev, io_tlb_end - 1) <= mask;
- }
--EXPORT_SYMBOL(swiotlb_dma_supported);
- 
- #ifdef CONFIG_DMA_DIRECT_OPS
- void *swiotlb_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ static const struct dma_map_ops loongson_dma_map_ops = {
+ 	.alloc = loongson_dma_alloc_coherent,
+-	.free = loongson_dma_free_coherent,
++	.free = swiotlb_free,
+ 	.map_page = loongson_dma_map_page,
+ 	.unmap_page = swiotlb_unmap_page,
+ 	.map_sg = loongson_dma_map_sg,
 -- 
 2.14.2
