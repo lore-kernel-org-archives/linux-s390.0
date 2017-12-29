@@ -1,78 +1,88 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 26/67] dma-direct: use phys_to_dma
-Date: Fri, 29 Dec 2017 09:18:30 +0100
-Message-ID: <20171229081911.2802-27-hch@lst.de>
+Subject: [PATCH 44/67] powerpc: rename swiotlb_dma_ops
+Date: Fri, 29 Dec 2017 09:18:48 +0100
+Message-ID: <20171229081911.2802-45-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081830.n6yun-pZRImdvxoINCqHF5fYlUvDIyNXd9WFXJsIG8A@z>
+Message-ID: <20171229081848.tj8OBbCEJw3VymfgYqVx7SSLMhaKv9H28mC9VQ4QZy0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This means it uses whatever linear remapping scheme that the architecture
-provides is used in the generic dma_direct ops.
+We'll need that name for a generic implementation soon.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- lib/dma-direct.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ arch/powerpc/include/asm/swiotlb.h | 2 +-
+ arch/powerpc/kernel/dma-swiotlb.c  | 4 ++--
+ arch/powerpc/kernel/dma.c          | 2 +-
+ arch/powerpc/sysdev/fsl_pci.c      | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/lib/dma-direct.c b/lib/dma-direct.c
-index 439db40854b7..0e087650e86b 100644
---- a/lib/dma-direct.c
-+++ b/lib/dma-direct.c
-@@ -1,12 +1,11 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-- *	lib/dma-noop.c
-- *
-- * DMA operations that map to physical addresses without flushing memory.
-+ * DMA operations that map physical memory directly without using an IOMMU or
-+ * flushing caches.
+diff --git a/arch/powerpc/include/asm/swiotlb.h b/arch/powerpc/include/asm/swiotlb.h
+index 9341ee804d19..f65ecf57b66c 100644
+--- a/arch/powerpc/include/asm/swiotlb.h
++++ b/arch/powerpc/include/asm/swiotlb.h
+@@ -13,7 +13,7 @@
+ 
+ #include <linux/swiotlb.h>
+ 
+-extern const struct dma_map_ops swiotlb_dma_ops;
++extern const struct dma_map_ops powerpc_swiotlb_dma_ops;
+ 
+ extern unsigned int ppc_swiotlb_enable;
+ int __init swiotlb_setup_bus_notifier(void);
+diff --git a/arch/powerpc/kernel/dma-swiotlb.c b/arch/powerpc/kernel/dma-swiotlb.c
+index f1e99b9cee97..506ac4fafac5 100644
+--- a/arch/powerpc/kernel/dma-swiotlb.c
++++ b/arch/powerpc/kernel/dma-swiotlb.c
+@@ -46,7 +46,7 @@ static u64 swiotlb_powerpc_get_required(struct device *dev)
+  * map_page, and unmap_page on highmem, use normal dma_ops
+  * for everything else.
   */
- #include <linux/export.h>
- #include <linux/mm.h>
--#include <linux/dma-mapping.h>
-+#include <linux/dma-direct.h>
- #include <linux/scatterlist.h>
- #include <linux/pfn.h>
+-const struct dma_map_ops swiotlb_dma_ops = {
++const struct dma_map_ops powerpc_swiotlb_dma_ops = {
+ 	.alloc = __dma_nommu_alloc_coherent,
+ 	.free = __dma_nommu_free_coherent,
+ 	.mmap = dma_nommu_mmap_coherent,
+@@ -89,7 +89,7 @@ static int ppc_swiotlb_bus_notify(struct notifier_block *nb,
  
-@@ -17,7 +16,7 @@ static void *dma_direct_alloc(struct device *dev, size_t size,
+ 	/* May need to bounce if the device can't address all of DRAM */
+ 	if ((dma_get_mask(dev) + 1) < memblock_end_of_DRAM())
+-		set_dma_ops(dev, &swiotlb_dma_ops);
++		set_dma_ops(dev, &powerpc_swiotlb_dma_ops);
  
- 	ret = (void *)__get_free_pages(gfp, get_order(size));
- 	if (ret)
--		*dma_handle = virt_to_phys(ret) - PFN_PHYS(dev->dma_pfn_offset);
-+		*dma_handle = phys_to_dma(dev, virt_to_phys(ret));
- 
- 	return ret;
+ 	return NOTIFY_DONE;
  }
-@@ -32,7 +31,7 @@ static dma_addr_t dma_direct_map_page(struct device *dev, struct page *page,
- 		unsigned long offset, size_t size, enum dma_data_direction dir,
- 		unsigned long attrs)
+diff --git a/arch/powerpc/kernel/dma.c b/arch/powerpc/kernel/dma.c
+index 1723001d5de1..b787692b91ee 100644
+--- a/arch/powerpc/kernel/dma.c
++++ b/arch/powerpc/kernel/dma.c
+@@ -33,7 +33,7 @@ static u64 __maybe_unused get_pfn_limit(struct device *dev)
+ 	struct dev_archdata __maybe_unused *sd = &dev->archdata;
+ 
+ #ifdef CONFIG_SWIOTLB
+-	if (sd->max_direct_dma_addr && dev->dma_ops == &swiotlb_dma_ops)
++	if (sd->max_direct_dma_addr && dev->dma_ops == &powerpc_swiotlb_dma_ops)
+ 		pfn = min_t(u64, pfn, sd->max_direct_dma_addr >> PAGE_SHIFT);
+ #endif
+ 
+diff --git a/arch/powerpc/sysdev/fsl_pci.c b/arch/powerpc/sysdev/fsl_pci.c
+index e4d0133bbeeb..61e07c78d64f 100644
+--- a/arch/powerpc/sysdev/fsl_pci.c
++++ b/arch/powerpc/sysdev/fsl_pci.c
+@@ -118,7 +118,7 @@ static void setup_swiotlb_ops(struct pci_controller *hose)
  {
--	return page_to_phys(page) + offset - PFN_PHYS(dev->dma_pfn_offset);
-+	return phys_to_dma(dev, page_to_phys(page)) + offset;
- }
- 
- static int dma_direct_map_sg(struct device *dev, struct scatterlist *sgl,
-@@ -42,12 +41,9 @@ static int dma_direct_map_sg(struct device *dev, struct scatterlist *sgl,
- 	struct scatterlist *sg;
- 
- 	for_each_sg(sgl, sg, nents, i) {
--		dma_addr_t offset = PFN_PHYS(dev->dma_pfn_offset);
--		void *va;
--
- 		BUG_ON(!sg_page(sg));
--		va = sg_virt(sg);
--		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va) - offset;
-+
-+		sg_dma_address(sg) = phys_to_dma(dev, sg_phys(sg));
- 		sg_dma_len(sg) = sg->length;
+ 	if (ppc_swiotlb_enable) {
+ 		hose->controller_ops.dma_dev_setup = pci_dma_dev_setup_swiotlb;
+-		set_pci_dma_ops(&swiotlb_dma_ops);
++		set_pci_dma_ops(&powerpc_swiotlb_dma_ops);
  	}
- 
+ }
+ #else
 -- 
 2.14.2
