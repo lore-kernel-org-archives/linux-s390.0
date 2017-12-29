@@ -1,43 +1,58 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 51/67] set_memory.h: provide set_memory_{en,de}crypted stubs
-Date: Fri, 29 Dec 2017 09:18:55 +0100
-Message-ID: <20171229081911.2802-52-hch@lst.de>
+Subject: [PATCH 48/67] swiotlb: rely on dev->coherent_dma_mask
+Date: Fri, 29 Dec 2017 09:18:52 +0100
+Message-ID: <20171229081911.2802-49-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081855.w-S_z8gdh-wKciDYguq6wGIRiuMdeyk4w0TJBwn14oc@z>
+Message-ID: <20171229081852.6tsJEpNSTIW7Tna92wXEOlA56Fq4ae6AgV59nutbjzk@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+These days the coherent DMA mask is always set, so don't work around the
+lack of it.
+
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/set_memory.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ lib/swiotlb.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
-index e5140648f638..da5178216da5 100644
---- a/include/linux/set_memory.h
-+++ b/include/linux/set_memory.h
-@@ -17,4 +17,16 @@ static inline int set_memory_x(unsigned long addr,  int numpages) { return 0; }
- static inline int set_memory_nx(unsigned long addr, int numpages) { return 0; }
- #endif
+diff --git a/lib/swiotlb.c b/lib/swiotlb.c
+index e0b8980334c3..a14fff30ee9d 100644
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -716,15 +716,11 @@ swiotlb_alloc_coherent(struct device *hwdev, size_t size,
+ 	dma_addr_t dev_addr;
+ 	void *ret;
+ 	int order = get_order(size);
+-	u64 dma_mask = DMA_BIT_MASK(32);
+-
+-	if (hwdev && hwdev->coherent_dma_mask)
+-		dma_mask = hwdev->coherent_dma_mask;
  
-+#ifndef CONFIG_ARCH_HAS_MEM_ENCRYPT
-+static inline int set_memory_encrypted(unsigned long addr, int numpages)
-+{
-+	return 0;
-+}
-+
-+static inline int set_memory_decrypted(unsigned long addr, int numpages)
-+{
-+	return 0;
-+}
-+#endif /* CONFIG_ARCH_HAS_MEM_ENCRYPT */
-+
- #endif /* _LINUX_SET_MEMORY_H_ */
+ 	ret = (void *)__get_free_pages(flags, order);
+ 	if (ret) {
+ 		dev_addr = swiotlb_virt_to_bus(hwdev, ret);
+-		if (dev_addr + size - 1 > dma_mask) {
++		if (dev_addr + size - 1 > hwdev->coherent_dma_mask) {
+ 			/*
+ 			 * The allocated memory isn't reachable by the device.
+ 			 */
+@@ -747,9 +743,9 @@ swiotlb_alloc_coherent(struct device *hwdev, size_t size,
+ 		dev_addr = swiotlb_phys_to_dma(hwdev, paddr);
+ 
+ 		/* Confirm address can be DMA'd by device */
+-		if (dev_addr + size - 1 > dma_mask) {
++		if (dev_addr + size - 1 > hwdev->coherent_dma_mask) {
+ 			printk("hwdev DMA mask = 0x%016Lx, dev_addr = 0x%016Lx\n",
+-			       (unsigned long long)dma_mask,
++			       (unsigned long long)hwdev->coherent_dma_mask,
+ 			       (unsigned long long)dev_addr);
+ 
+ 			/*
 -- 
 2.14.2
