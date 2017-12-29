@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 12/67] s390: remove the unused dma_capable helper
-Date: Fri, 29 Dec 2017 09:18:16 +0100
-Message-ID: <20171229081911.2802-13-hch@lst.de>
+Subject: [PATCH 10/67] m32r: remove the unused dma_capable helper
+Date: Fri, 29 Dec 2017 09:18:14 +0100
+Message-ID: <20171229081911.2802-11-hch@lst.de>
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20171229081816.oi3UYemw7AD7WLFIypIeR4giQSmighEziIFdBl9uGM8@z>
+Message-ID: <20171229081814.SeW-PWbPhviYw_CbyjY6W1S0595FNt9DXYb5am4NiAs@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
@@ -15,14 +15,14 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/include/asm/dma-mapping.h | 7 -------
+ arch/m32r/include/asm/dma-mapping.h | 7 -------
  1 file changed, 7 deletions(-)
 
-diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-index eaf490f9c5bc..2ec7240c1ada 100644
---- a/arch/s390/include/asm/dma-mapping.h
-+++ b/arch/s390/include/asm/dma-mapping.h
-@@ -16,11 +16,4 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+diff --git a/arch/m32r/include/asm/dma-mapping.h b/arch/m32r/include/asm/dma-mapping.h
+index 336ffe60814b..8967fb659691 100644
+--- a/arch/m32r/include/asm/dma-mapping.h
++++ b/arch/m32r/include/asm/dma-mapping.h
+@@ -14,11 +14,4 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
  	return &dma_noop_ops;
  }
  
@@ -33,6 +33,6 @@ index eaf490f9c5bc..2ec7240c1ada 100644
 -	return addr + size - 1 <= *dev->dma_mask;
 -}
 -
- #endif /* _ASM_S390_DMA_MAPPING_H */
+ #endif /* _ASM_M32R_DMA_MAPPING_H */
 -- 
 2.14.2
