@@ -1,16 +1,17 @@
 From: Vladimir Murzin <vladimir.murzin@arm.com>
-Subject: Re: [PATCH 26/67] dma-direct: use phys_to_dma
-Date: Tue, 2 Jan 2018 16:26:27 +0000
-Message-ID: <76092d0d-3e74-9433-5fae-afc512e34b20@arm.com>
+Subject: Re: [PATCH 30/67] dma-direct: retry allocations using GFP_DMA for
+ small masks
+Date: Tue, 2 Jan 2018 16:43:15 +0000
+Message-ID: <f6139b03-0a4a-a9fe-4818-9b0bccf419e4@arm.com>
 References: <20171229081911.2802-1-hch@lst.de>
- <20171229081911.2802-27-hch@lst.de>
+ <20171229081911.2802-31-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20171229081911.2802-27-hch@lst.de>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+In-Reply-To: <20171229081911.2802-31-hch@lst.de>
 Content-Language: en-GB
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-m68k-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org
@@ -18,72 +19,62 @@ Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.
 List-ID: <linux-s390.vger.kernel.org>
 
 On 29/12/17 08:18, Christoph Hellwig wrote:
-> This means it uses whatever linear remapping scheme that the architecture
-> provides is used in the generic dma_direct ops.
+> If we got back an allocation that wasn't inside the support coherent mask,
+> retry the allocation using GFP_DMA.
+> 
+> Based on the x86 code.
 > 
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 > ---
->  lib/dma-direct.c | 18 +++++++-----------
->  1 file changed, 7 insertions(+), 11 deletions(-)
+>  lib/dma-direct.c | 25 ++++++++++++++++++++++++-
+>  1 file changed, 24 insertions(+), 1 deletion(-)
 > 
 > diff --git a/lib/dma-direct.c b/lib/dma-direct.c
-> index 439db40854b7..0e087650e86b 100644
+> index ab81de3ac1d3..f8467cb3d89a 100644
 > --- a/lib/dma-direct.c
 > +++ b/lib/dma-direct.c
-> @@ -1,12 +1,11 @@
->  // SPDX-License-Identifier: GPL-2.0
->  /*
-> - *	lib/dma-noop.c
-> - *
-> - * DMA operations that map to physical addresses without flushing memory.
-> + * DMA operations that map physical memory directly without using an IOMMU or
-> + * flushing caches.
->   */
->  #include <linux/export.h>
->  #include <linux/mm.h>
-> -#include <linux/dma-mapping.h>
-> +#include <linux/dma-direct.h>
->  #include <linux/scatterlist.h>
->  #include <linux/pfn.h>
->  
-> @@ -17,7 +16,7 @@ static void *dma_direct_alloc(struct device *dev, size_t size,
->  
->  	ret = (void *)__get_free_pages(gfp, get_order(size));
->  	if (ret)
-> -		*dma_handle = virt_to_phys(ret) - PFN_PHYS(dev->dma_pfn_offset);
-> +		*dma_handle = phys_to_dma(dev, virt_to_phys(ret));
->  
->  	return ret;
->  }
-> @@ -32,7 +31,7 @@ static dma_addr_t dma_direct_map_page(struct device *dev, struct page *page,
->  		unsigned long offset, size_t size, enum dma_data_direction dir,
->  		unsigned long attrs)
->  {
-> -	return page_to_phys(page) + offset - PFN_PHYS(dev->dma_pfn_offset);
-> +	return phys_to_dma(dev, page_to_phys(page)) + offset;
+> @@ -28,6 +28,11 @@ check_addr(struct device *dev, dma_addr_t dma_addr, size_t size,
+>  	return true;
 >  }
 >  
->  static int dma_direct_map_sg(struct device *dev, struct scatterlist *sgl,
-> @@ -42,12 +41,9 @@ static int dma_direct_map_sg(struct device *dev, struct scatterlist *sgl,
->  	struct scatterlist *sg;
->  
->  	for_each_sg(sgl, sg, nents, i) {
-> -		dma_addr_t offset = PFN_PHYS(dev->dma_pfn_offset);
-> -		void *va;
-> -
->  		BUG_ON(!sg_page(sg));
-> -		va = sg_virt(sg);
-> -		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va) - offset;
+> +static bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size)
+> +{
+> +	return phys_to_dma(dev, phys) + size <= dev->coherent_dma_mask;
+
+Shouldn't it be: phys_to_dma(dev, phys) + size - 1 <= dev->coherent_dma_mask ?
+
+> +}
 > +
-> +		sg_dma_address(sg) = phys_to_dma(dev, sg_phys(sg));
->  		sg_dma_len(sg) = sg->length;
->  	}
+>  static void *dma_direct_alloc(struct device *dev, size_t size,
+>  		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
+>  {
+> @@ -35,11 +40,29 @@ static void *dma_direct_alloc(struct device *dev, size_t size,
+>  	int page_order = get_order(size);
+>  	struct page *page = NULL;
 >  
-> 
+> +again:
+>  	/* CMA can be used only in the context which permits sleeping */
+> -	if (gfpflags_allow_blocking(gfp))
+> +	if (gfpflags_allow_blocking(gfp)) {
+>  		page = dma_alloc_from_contiguous(dev, count, page_order, gfp);
+> +		if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
+> +			dma_release_from_contiguous(dev, page, count);
+> +			page = NULL;
+> +		}
+> +	}
+>  	if (!page)
+>  		page = alloc_pages_node(dev_to_node(dev), gfp, page_order);
+> +
+> +	if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
+> +		__free_pages(page, page_order);
+> +		page = NULL;
+> +
+> +		if (dev->coherent_dma_mask < DMA_BIT_MASK(32) &&
+> +		    !(gfp & GFP_DMA)) {
+> +			gfp = (gfp & ~GFP_DMA32) | GFP_DMA;
+> +			goto again;
 
-From ARM NOMMU perspective
-
-Reviewed-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Shouldn't we limit number of attempts?
 
 Thanks
 Vladimir
