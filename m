@@ -1,17 +1,13 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [-next PATCH 2/4] treewide: Use DEVICE_ATTR_RW
-Date: Wed, 10 Jan 2018 16:43:02 +0200
-Message-ID: <41847882-9ad9-aeb1-009b-2f9b2fdb656e@ti.com>
-References: <cover.1513706701.git.joe@perches.com>
- <cd38f14f06e1f447b3159ffe8c69c0df8241bb6e.1513706701.git.joe@perches.com>
- <20171220083403.GA27231@bitmer.com> <1513761884.1234.83.camel@perches.com>
- <20171220093211.GA16177@kroah.com> <20171220105404.GA29856@bitmer.com>
+From: Bob Peterson <rpeterso@redhat.com>
+Subject: Re: [Cluster-devel] [PATCH 00/12] drop unneeded newline
+Date: Tue, 2 Jan 2018 08:52:38 -0500 (EST)
+Message-ID: <1878806802.2632123.1514901158666.JavaMail.zimbra@redhat.com>
+References: <1514386305-7402-1-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20171220105404.GA29856@bitmer.com>
-Content-Language: en-US
+In-Reply-To: <1514386305-7402-1-git-send-email-Julia.Lawall@lip6.fr>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
@@ -21,42 +17,19 @@ List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
 Errors-To: dri-devel-bounces@lists.freedesktop.org
 Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-List-Archive: <https://lore.kernel.org/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-To: Jarkko Nikula <jarkko.nikula@bitmer.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-fbdev@vger.kernel.org, David Airlie <airlied@linux.ie>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org, Jaroslav Kysela <perex@perex.cz>, linux-s390@vger.kernel.org, linux-omap@vger.kernel.org, "James E.J.
- Bottomley" <jejb@linux.vnet.ibm.com>, linux-scsi@vger.kernel.org, Takashi Iwai <tiwai@suse.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, James Smart <james.smart@broadcom.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Darren Hart <dvhart@infradead.org>, Zhang Rui <rui.zhang@intel.com>, Dick Kennedy <dick.kennedy@broadcom.com>, Mathias Nyman <mathias.nyman@intel.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, intel-gfx@lists.
+List-Archive: <https://lore.kernel.org/amd-gfx/>
+List-Post: <mailto:amd-gfx@lists.freedesktop.org>
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: dev@openvswitch.org, linux-s390@vger.kernel.org, linux-media@vger.kernel.org, linux-scsi@vger.kernel.org, dccp@vger.kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, cluster-devel@redhat.com, amd-gfx@lists.freedesktop.org, Namhyung Kim <namhyung@kernel.org>, linux-ext4@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>, linux-arm-kernel@lists.infradead.org, esc storagedev <esc.storagedev@microsemi.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-CgpPbiAyMDE3LTEyLTIwIDEyOjU0LCBKYXJra28gTmlrdWxhIHdyb3RlOgo+IE9uIFdlZCwgRGVj
-IDIwLCAyMDE3IGF0IDEwOjMyOjExQU0gKzAxMDAsIEdyZWcgS3JvYWgtSGFydG1hbiB3cm90ZToK
-Pj4gT24gV2VkLCBEZWMgMjAsIDIwMTcgYXQgMDE6MjQ6NDRBTSAtMDgwMCwgSm9lIFBlcmNoZXMg
-d3JvdGU6Cj4+PiBPbiBXZWQsIDIwMTctMTItMjAgYXQgMTA6MzQgKzAyMDAsIEphcmtrbyBOaWt1
-bGEgd3JvdGU6Cj4+Pj4gT24gVHVlLCBEZWMgMTksIDIwMTcgYXQgMTA6MTU6MDdBTSAtMDgwMCwg
-Sm9lIFBlcmNoZXMgd3JvdGU6Cj4+Pj4+IENvbnZlcnQgREVWSUNFX0FUVFIgdXNlcyB0byBERVZJ
-Q0VfQVRUUl9SVyB3aGVyZSBwb3NzaWJsZS4KPj4+IFtdIAo+Pj4+PiBkaWZmIC0tZ2l0IGEvc291
-bmQvc29jL29tYXAvbWNic3AuYyBiL3NvdW5kL3NvYy9vbWFwL21jYnNwLmMKPj4+IFtdCj4+Pj4+
-IEBAIC04NTQsNyArODU0LDcgQEAgc3RhdGljIHNzaXplX3QgZG1hX29wX21vZGVfc3RvcmUoc3Ry
-dWN0IGRldmljZSAqZGV2LAo+Pj4+PiAgCXJldHVybiBzaXplOwo+Pj4+PiAgfQo+Pj4+PiAgCj4+
-Pj4+IC1zdGF0aWMgREVWSUNFX0FUVFIoZG1hX29wX21vZGUsIDA2NDQsIGRtYV9vcF9tb2RlX3No
-b3csIGRtYV9vcF9tb2RlX3N0b3JlKTsKPj4+Pj4gK3N0YXRpYyBERVZJQ0VfQVRUUl9SVyhkbWFf
-b3BfbW9kZSk7Cj4+Pj4+ICAKPj4+Pgo+Pj4+IFdoaWxlIEkgY2FuIGFjayB0aGlzIHBhcnQgaGVy
-ZSBpZiBpdCBoZWxwcyBnZW5lcmljIGNsZWFudXAgZWZmb3J0IEkKPj4+PiBkb24ndCB1bmRlcnN0
-YXJ0IHdvdWxkIGl0IGltcHJvdmUgY29kZSByZWFkYWJpbGl0eSBpbiBnZW5lcmFsPyBNb2RlIDY0
-NAo+Pj4+IGlzIGNsZWFyIGFuZCBkb24ndCBuZWVkIGFueSBncmVwcGluZyBidXQgZm9yIERFVklD
-RV9BVFRSX1JXKCkgSSBoYWQgdG8gZ28KPj4+PiB0aHJvdWdoIGFsbCBvZiB0aGVzZSBmaWxlcyBp
-biBvcmRlciB0byBzZWUgd2hhdCBkb2VzIGl0IG1lYW46Cj4+Cj4+IFllYWgsIDY0NCBpcyAiY2xl
-YXIiLCBidXQgX1JXKCkgaXMgZXZlbiBtb3JlIGNsZWFyLiAgSWRlYWxseSBJIHdhbnQgdG8KPj4g
-Z2V0IHJpZCBvZiBhbGwgb2YgdGhlICJub24tc3RhbmRhcmQiIHVzZXJzIHRoYXQgc2V0IHJhbmRv
-bSBtb2RlcyBvZgo+PiBzeXNmcyBmaWxlcywgYXMgd2UgZ2V0IGl0IHdyb25nIHRvbyBtYW55IHRp
-bWVzLiAgVXNpbmcgdGhlICJkZWZhdWx0cyIgaXMKPj4gbXVjaCBiZXR0ZXIuCj4+Cj4gRmFpciBl
-bm91Z2guIEZvciB0aGUgc291bmQvc29jL29tYXAvIChBY2tlZC1ieSB3YXMgbWlzc2luZyBmcm9t
-IG15Cj4gcHJldmlvdXMgcmVwbHkpOgo+IAo+IEFja2VkLWJ5OiBKYXJra28gTmlrdWxhIDxqYXJr
-a28ubmlrdWxhQGJpdG1lci5jb20+CgpBbmQgZnJvbSBtZSB0byB0aGUgc2FtZSBmaWxlIChzb3Vu
-ZC9zb2Mvb21hcC9tY2JzcC5jKToKCkFja2VkLWJ5OiBQZXRlciBVamZhbHVzaSA8cGV0ZXIudWpm
-YWx1c2lAdGkuY29tPgoKCi0gUMOpdGVyCgpUZXhhcyBJbnN0cnVtZW50cyBGaW5sYW5kIE95LCBQ
-b3Jra2FsYW5rYXR1IDIyLCAwMDE4MCBIZWxzaW5raS4KWS10dW5udXMvQnVzaW5lc3MgSUQ6IDA2
-MTU1MjEtNC4gS290aXBhaWtrYS9Eb21pY2lsZTogSGVsc2lua2kKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmkt
-ZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
-L21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+LS0tLS0gT3JpZ2luYWwgTWVzc2FnZSAtLS0tLQp8IERyb3AgbmV3bGluZSBhdCB0aGUgZW5kIG9m
+IGEgbWVzc2FnZSBzdHJpbmcgd2hlbiB0aGUgcHJpbnRpbmcgZnVuY3Rpb24gYWRkcwp8IGEgbmV3
+bGluZS4KCkhpIEp1bGlhLAoKTkFDSy4KCkFzIG11Y2ggYXMgaXQncyBhIHBhaW4gd2hlbiBzZWFy
+Y2hpbmcgdGhlIHNvdXJjZSBjb2RlIGZvciBvdXRwdXQgc3RyaW5ncywKdGhpcyBwYXRjaCBzZXQg
+Z29lcyBhZ2FpbnN0IHRoZSBhY2NlcHRlZCBMaW51eCBjb2Rpbmcgc3R5bGUgZG9jdW1lbnQuIFNl
+ZToKCmh0dHBzOi8vd3d3Lmtlcm5lbC5vcmcvZG9jL2h0bWwvdjQuMTAvcHJvY2Vzcy9jb2Rpbmct
+c3R5bGUuaHRtbCNicmVha2luZy1sb25nLWxpbmVzLWFuZC1zdHJpbmdzCgpSZWdhcmRzLAoKQm9i
+IFBldGVyc29uCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+CmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpo
+dHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
