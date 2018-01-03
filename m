@@ -1,356 +1,57 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2] mm: s390: Only notify on 4k pages
-Date: Tue, 30 Jan 2018 11:19:12 +0100
-Message-ID: <caf66413-26f1-64bc-f49c-c2f49604de46@redhat.com>
-References: <86c5bd00-a552-1737-8db8-3f7b3c21057e@redhat.com>
- <1516962882-86297-1-git-send-email-frankja@linux.vnet.ibm.com>
+From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: Re: [-next PATCH 2/4] treewide: Use DEVICE_ATTR_RW
+Date: Wed, 03 Jan 2018 16:16:08 +0100
+Message-ID: <4624388.pPJCIclP0U@amdc3058>
+References: <cover.1513706701.git.joe@perches.com>
+ <CGME20171219181536epcas2p18d023209dc13ac504457c07b8b2b8965@epcas2p1.samsung.com>
+ <cd38f14f06e1f447b3159ffe8c69c0df8241bb6e.1513706701.git.joe@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1516962882-86297-1-git-send-email-frankja@linux.vnet.ibm.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-reply-to: <cd38f14f06e1f447b3159ffe8c69c0df8241bb6e.1513706701.git.joe@perches.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+List-Archive: <https://lore.kernel.org/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+To: Joe Perches <joe@perches.com>
+Cc: linux-fbdev@vger.kernel.org, David Airlie <airlied@linux.ie>, Heiko Carstens <heiko.carstens@de.ibm.com>, alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org, Jaroslav Kysela <perex@perex.cz>, Peter Ujfalusi <peter.ujfalusi@ti.com>, linux-s390@vger.kernel.org, linux-omap@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, linux-scsi@vger.kernel.org, Takashi Iwai <tiwai@suse.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, James Smart <james.smart@broadcom.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Darren Hart <dvhart@infradead.org>, Zhang Rui <rui.zhang@intel.com>, Dick Kennedy <dick.kennedy@broadcom.com>, Mathias Nyman <mathias.nyman@intel.com>, linux-pm@vger.kernel.org, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, intel-gfx@lists.freedesktop.org, Eduardo Valentin <edube>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 26.01.2018 11:34, Janosch Frank wrote:
-> Let's try this
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> ---
->  arch/s390/include/asm/gmap.h |   5 +-
->  arch/s390/mm/gmap.c          | 142 ++++++++-----------------------------------
->  2 files changed, 28 insertions(+), 119 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-> index 6287aca..4120360 100644
-> --- a/arch/s390/include/asm/gmap.h
-> +++ b/arch/s390/include/asm/gmap.h
-> @@ -13,9 +13,8 @@
->  #define GMAP_NOTIFY_SHADOW	0x2
->  #define GMAP_NOTIFY_MPROT	0x1
->  
-> -/* Status bits in huge and non-huge gmap segment entries. */
-> -#define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
-> -#define _SEGMENT_ENTRY_GMAP_SPLIT	0x0002  /* split huge pmd */
-> +/* Status bit in huge and non-huge gmap segment entries. */
-> +#define _SEGMENT_ENTRY_GMAP_SPLIT	0x0001  /* split huge pmd */
->  /* Status bits only for huge segment entries */
->  #define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
->  #define _SEGMENT_ENTRY_GMAP_VSIE	0x8000	/* vsie bit */
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 66a68af..2f5c8ee 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -998,7 +998,7 @@ static void gmap_pte_transfer_prot(struct mm_struct *mm, unsigned long addr,
->   * and requested access rights are incompatible.
->   */
->  static int gmap_pmdp_force_prot(struct gmap *gmap, unsigned long addr,
-> -				pmd_t *pmdp, int prot, unsigned long bits)
-> +				pmd_t *pmdp, int prot)
->  {
->  	int pmd_i = pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID;
->  	int pmd_p = pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT;
-> @@ -1018,7 +1018,6 @@ static int gmap_pmdp_force_prot(struct gmap *gmap, unsigned long addr,
->  		pmd_val(new) |= _SEGMENT_ENTRY_PROTECT;
->  		gmap_pmdp_xchg(gmap, pmdp, new, addr);
->  	}
-> -	pmd_val(*pmdp) |=  bits;
->  	return 0;
->  }
->  
-> @@ -1102,10 +1101,6 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
->  	spinlock_t *ptl = NULL;
->  	unsigned long pbits = 0;
->  
-> -	/* We have no upper segment, let's go back and fix this up. */
-> -	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
-> -		return -EAGAIN;
-> -
->  	ptep = gmap_pte_from_pmd(gmap, pmdp, gaddr, &ptl);
->  	if (!ptep)
->  		return -ENOMEM;
-> @@ -1134,30 +1129,18 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
->   */
->  static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
->  			    unsigned long vmaddr, pmd_t *pmdp, pmd_t *hpmdp,
-> -			    int prot, unsigned long bits)
-> +			    int prot)
->  {
-> -	unsigned long sbits = 0;
->  	int ret = 0;
->  
-> -	sbits |= (bits & GMAP_NOTIFY_MPROT) ? _SEGMENT_ENTRY_GMAP_IN : 0;
-> -	sbits |= (bits & GMAP_NOTIFY_SHADOW) ? _SEGMENT_ENTRY_GMAP_VSIE : 0;
-> -
-> -	if (((prot != PROT_WRITE) && (bits & GMAP_NOTIFY_SHADOW))) {
-> -		ret = gmap_pmd_split(gmap, gaddr, pmdp);
-> -		if (ret)
-> -			return ret;
-> -		return -EFAULT;
-> -	}
-> -
-> -	/* Protect gmap pmd */
-> -	ret = gmap_pmdp_force_prot(gmap, gaddr, pmdp, prot, sbits);
-> +	/* Protect gmap pmd for dirty tracking. */
-> +	ret = gmap_pmdp_force_prot(gmap, gaddr, pmdp, prot);
->  	/*
->  	 * Transfer protection back to the host pmd, so userspace has
->  	 * never more access rights than the VM.
->  	 */
->  	if (!ret)
->  		gmap_pmdp_transfer_prot(gmap->mm, vmaddr, pmdp, hpmdp);
-> -
->  	return ret;
->  }
->  
-> @@ -1167,7 +1150,7 @@ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
->   * @gaddr: virtual address in the guest address space
->   * @len: size of area
->   * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
-> - * @bits: pgste notification bits to set
-> + * @bits: notification bits to set
->   *
->   * Returns 0 if successfully protected, -ENOMEM if out of memory and
->   * -EFAULT if gaddr is invalid (or mapping for shadows is missing).
-> @@ -1180,7 +1163,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
->  			      unsigned long len, int prot, unsigned long bits)
->  {
->  	spinlock_t *ptl;
-> -	unsigned long vmaddr, dist;
-> +	unsigned long vmaddr;
->  	pmd_t *pmdp, *hpmdp;
->  	int rc = 0;
->  
-> @@ -1194,13 +1177,8 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
->  		ptl = pmd_lock(gmap->mm, hpmdp);
->  
->  		pmdp = gmap_pmd_op_walk(gmap, gaddr);
-> -		if (pmdp) {
-> +		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
->  			if (!pmd_large(*pmdp)) {
-> -				if (gmap_pmd_is_split(pmdp) &&
-> -				    (bits & GMAP_NOTIFY_MPROT)) {
-> -					pmd_val(*pmdp) |= _SEGMENT_ENTRY_GMAP_IN;
-> -				}
-> -
->  				rc = gmap_protect_pte(gmap, gaddr, vmaddr,
->  						      pmdp, hpmdp, prot, bits);
->  				if (!rc) {
-> @@ -1208,13 +1186,9 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
->  					gaddr += PAGE_SIZE;
->  				}
->  			} else {
-> -				rc =  gmap_protect_pmd(gmap, gaddr, vmaddr,
-> -						       pmdp, hpmdp, prot, bits);
-> -				if (!rc) {
-> -					dist = HPAGE_SIZE - (gaddr & ~HPAGE_MASK);
-> -					len = len < dist ? 0 : len - dist;
-> -					gaddr = (gaddr & HPAGE_MASK) + HPAGE_SIZE;
-> -				}
-> +				rc = gmap_pmd_split(gmap, gaddr, pmdp);
-> +				if (!rc)
-> +					rc = -EFAULT;
->  			}
->  			gmap_pmd_op_end(gmap, pmdp);
->  		}
-> @@ -1357,29 +1331,9 @@ static inline void gmap_insert_rmap(struct gmap *sg, unsigned long vmaddr,
->  	}
->  }
->  
-> -static int gmap_protect_rmap_pmd(struct gmap *sg, struct gmap_rmap *rmap,
-> -				 unsigned long paddr, unsigned long vmaddr,
-> -				 pmd_t *pmdp, pmd_t *hpmdp, int prot)
-> -{
-> -	int rc = 0;
-> -
-> -	/* We have no upper segment, let's go back and fix this up. */
-> -	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
-> -		return -EAGAIN;
-> -
-> -	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
-> -	rc = gmap_protect_pmd(sg->parent, paddr, vmaddr, pmdp, hpmdp,
-> -			      prot, GMAP_NOTIFY_SHADOW);
-> -	if (!rc)
-> -		gmap_insert_rmap(sg, vmaddr & HPAGE_MASK, rmap);
-> -
-> -	spin_unlock(&sg->guest_table_lock);
-> -	return rc;
-> -}
-> -
->  static int gmap_protect_rmap_pte(struct gmap *sg, struct gmap_rmap *rmap,
->  				 unsigned long paddr, unsigned long vmaddr,
-> -				 pmd_t *pmdp, int prot)
-> +				 pmd_t *pmdp, pmd_t *hpmdp, int prot)
->  {
->  	int rc = 0;
->  	pte_t *ptep = NULL;
-> @@ -1392,8 +1346,8 @@ static int gmap_protect_rmap_pte(struct gmap *sg, struct gmap_rmap *rmap,
->  	ptep = gmap_pte_from_pmd(sg->parent, pmdp, paddr, &ptl);
->  	if (ptep) {
->  		spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
-> -		rc = ptep_force_prot(sg->parent->mm, paddr, ptep, prot,
-> -				     PGSTE_VSIE_BIT);
-> +		rc = gmap_protect_pte(sg->parent, paddr, vmaddr, pmdp, hpmdp,
-> +				      prot, GMAP_NOTIFY_SHADOW);
->  		if (!rc)
->  			gmap_insert_rmap(sg, vmaddr, rmap);
->  		spin_unlock(&sg->guest_table_lock);
-> @@ -1418,7 +1372,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
->  {
->  	struct gmap *parent;
->  	struct gmap_rmap *rmap;
-> -	unsigned long vmaddr, dist;
-> +	unsigned long vmaddr;
->  	pmd_t *pmdp, *hpmdp;
->  	spinlock_t *ptl;
->  	int rc;
-> @@ -1446,23 +1400,19 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
->  		}
->  		rc = -EAGAIN;
->  		pmdp = gmap_pmd_op_walk(parent, paddr);
-> -		if (pmdp) {
-> +		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
->  			if (!pmd_large(*pmdp)) {
->  				rc = gmap_protect_rmap_pte(sg, rmap, paddr,
-> -							   vmaddr, pmdp, prot);
-> +							   vmaddr, pmdp, hpmdp,
-> +							   prot);
->  				if (!rc) {
->  					paddr += PAGE_SIZE;
->  					len -= PAGE_SIZE;
->  				}
->  			} else {
-> -				rc = gmap_protect_rmap_pmd(sg, rmap, paddr,
-> -							   vmaddr, pmdp,
-> -							   hpmdp, prot);
-> -				if (!rc) {
-> -					dist = HPAGE_SIZE - (paddr & ~HPAGE_MASK);
-> -					len = len < dist ? 0 : len - dist;
-> -					paddr = (paddr & HPAGE_MASK) + HPAGE_SIZE;
-> -				}
-> +				rc = gmap_pmd_split(parent, paddr, pmdp);
-> +				if (!rc)
-> +					rc = -EFAULT;
->  			}
->  			gmap_pmd_op_end(parent, pmdp);
->  		}
-> @@ -2562,53 +2512,19 @@ static void gmap_shadow_notify_pmd(struct gmap *sg, unsigned long vmaddr,
->  				   unsigned long gaddr)
->  {
->  	struct gmap_rmap *rmap, *rnext, *head;
-> -	unsigned long start, end, bits, raddr;
-> -
-> +	unsigned long bits, raddr;
->  
->  	BUG_ON(!gmap_is_shadow(sg));
->  
->  	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
-> -	if (sg->removed) {
-> -		spin_unlock(&sg->guest_table_lock);
-> -		return;
-> -	}
-> -	/* Check for top level table */
-> -	start = sg->orig_asce & _ASCE_ORIGIN;
-> -	end = start + ((sg->orig_asce & _ASCE_TABLE_LENGTH) + 1) * 4096;
-> -	if (!(sg->orig_asce & _ASCE_REAL_SPACE) && gaddr >= start &&
-> -	    gaddr < ((end & HPAGE_MASK) + HPAGE_SIZE - 1)) {
-> -		/* The complete shadow table has to go */
-> -		gmap_unshadow(sg);
-> -		spin_unlock(&sg->guest_table_lock);
-> -		list_del(&sg->list);
-> -		gmap_put(sg);
-> -		return;
-> -	}
-> -	/* Remove the page table tree from on specific entry */
->  	head = radix_tree_delete(&sg->host_to_rmap, (vmaddr & HPAGE_MASK) >> PAGE_SHIFT);
->  	gmap_for_each_rmap_safe(rmap, rnext, head) {
->  		bits = rmap->raddr & _SHADOW_RMAP_MASK;
->  		raddr = rmap->raddr ^ bits;
-> -		switch (bits) {
-> -		case _SHADOW_RMAP_REGION1:
-> -			gmap_unshadow_r2t(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_REGION2:
-> -			gmap_unshadow_r3t(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_REGION3:
-> -			gmap_unshadow_sgt(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_SEGMENT_LP:
-> +		if (bits == _SHADOW_RMAP_SEGMENT_LP)
->  			gmap_unshadow_segment(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_SEGMENT:
-> -			gmap_unshadow_pgt(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_PGTABLE:
-> +		else
->  			gmap_unshadow_page(sg, raddr);
-> -			break;
-> -		}
->  		kfree(rmap);
->  	}
->  	spin_unlock(&sg->guest_table_lock);
-> @@ -2777,9 +2693,8 @@ static void pmdp_notify_gmap(struct gmap *gmap, unsigned long gaddr)
->  	table = gmap_table_walk(gmap, gaddr, 1);
->  	if (!table)
->  		return;
-> -	bits = *table & _SEGMENT_ENTRY_GMAP_IN;
->  	if (pmd_large(__pmd(*table)) && (*table & _SEGMENT_ENTRY_GMAP_VSIE))
-> -		bits |= _SEGMENT_ENTRY_GMAP_VSIE;
-> +		bits = _SEGMENT_ENTRY_GMAP_VSIE;
->  	if (!bits)
->  		return;
->  	*table &= ~bits;
-> @@ -2792,8 +2707,6 @@ static void pmdp_notify_gmap(struct gmap *gmap, unsigned long gaddr)
->  			gmap_shadow_notify_pmd(sg, vmaddr, gaddr);
->  		spin_unlock(&gmap->shadow_lock);
->  	}
-> -	if (bits & _SEGMENT_ENTRY_GMAP_IN)
-> -		gmap_call_notifier(gmap, gaddr, gaddr + HPAGE_SIZE - 1);
->  }
->  
->  static void pmdp_notify_split(struct mm_struct *mm, unsigned long vmaddr,
-> @@ -2841,9 +2754,8 @@ void pmdp_notify(struct mm_struct *mm, unsigned long vmaddr)
->  			continue;
->  		}
->  
-> -		bits = *table & (_SEGMENT_ENTRY_GMAP_IN);
->  		if (pmd_large(__pmd(*table)) && (*table & _SEGMENT_ENTRY_GMAP_VSIE))
-> -			bits |= _SEGMENT_ENTRY_GMAP_VSIE;
-> +			bits = _SEGMENT_ENTRY_GMAP_VSIE;
->  		*table &= ~bits;
->  		gaddr = __gmap_segment_gaddr(table);
->  		spin_unlock(&gmap->guest_table_lock);
-> @@ -2854,8 +2766,6 @@ void pmdp_notify(struct mm_struct *mm, unsigned long vmaddr)
->  				gmap_shadow_notify_pmd(sg, vmaddr, gaddr);
->  			spin_unlock(&gmap->shadow_lock);
->  		}
-> -		if (bits & _SEGMENT_ENTRY_GMAP_IN)
-> -			gmap_call_notifier(gmap, gaddr, gaddr + HPAGE_SIZE - 1);
->  	}
->  	rcu_read_unlock();
->  }
-> @@ -3028,7 +2938,7 @@ bool gmap_test_and_clear_dirty_segment(struct gmap *gmap, pmd_t *pmdp,
->  
->  	/* Clear UC indication and reset protection */
->  	pmd_val(*pmdp) &= ~_SEGMENT_ENTRY_GMAP_UC;
-> -	gmap_protect_pmd(gmap, gaddr, vmaddr, pmdp, hpmdp, PROT_READ, 0);
-> +	gmap_protect_pmd(gmap, gaddr, vmaddr, pmdp, hpmdp, PROT_READ);
->  	return true;
->  }
->  
-> 
-
-Yes looks, much better to me!
-
--- 
-
-Thanks,
-
-David / dhildenb
+T24gVHVlc2RheSwgRGVjZW1iZXIgMTksIDIwMTcgMTA6MTU6MDcgQU0gSm9lIFBlcmNoZXMgd3Jv
+dGU6Cj4gQ29udmVydCBERVZJQ0VfQVRUUiB1c2VzIHRvIERFVklDRV9BVFRSX1JXIHdoZXJlIHBv
+c3NpYmxlLgo+IAo+IERvbmUgd2l0aCBwZXJsIHNjcmlwdDoKPiAKPiAkIGdpdCBncmVwIC13IC0t
+bmFtZS1vbmx5IERFVklDRV9BVFRSIHwgXAo+ICAgeGFyZ3MgcGVybCAtaSAtZSAnbG9jYWwgJC87
+IHdoaWxlICg8PikgeyBzL1xiREVWSUNFX0FUVFJccypcKFxzKihcdyspXHMqLFxzKlwoPyhccypT
+X0lSVUdPXHMqXHxccypTX0lXVVNSfFxzKlNfSVdVU1JccypcfFxzKlNfSVJVR09ccyp8XHMqMDY0
+NFxzKilcKT9ccyosXHMqXDFfc2hvd1xzKixccypcMV9zdG9yZVxzKlwpL0RFVklDRV9BVFRSX1JX
+KFwxKS9nOyBwcmludDt9Jwo+IAo+IFNpZ25lZC1vZmYtYnk6IEpvZSBQZXJjaGVzIDxqb2VAcGVy
+Y2hlcy5jb20+Cj4gLS0tCj4gIGFyY2gvczM5MC9rZXJuZWwvdG9wb2xvZ3kuYyAgICAgICAgICB8
+ICAzICstLQo+ICBhcmNoL3RpbGUva2VybmVsL3N5c2ZzLmMgICAgICAgICAgICAgfCAgMiArLQo+
+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X3N5c2ZzLmMgICAgfCAgNiArKy0tLQo+ICBkcml2
+ZXJzL3BsYXRmb3JtL3g4Ni9jb21wYWwtbGFwdG9wLmMgfCAxOCArKysrKy0tLS0tLS0tLS0KPiAg
+ZHJpdmVycy9zMzkwL2Npby9kZXZpY2UuYyAgICAgICAgICAgIHwgIDIgKy0KPiAgZHJpdmVycy9z
+Y3NpL2xwZmMvbHBmY19hdHRyLmMgICAgICAgIHwgNDMgKysrKysrKysrKysrLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tCj4gIGRyaXZlcnMvdGhlcm1hbC90aGVybWFsX3N5c2ZzLmMgICAgICB8ICA5
+ICsrKystLS0tCj4gIGRyaXZlcnMvdHR5L3NlcmlhbC9zaC1zY2kuYyAgICAgICAgICB8ICAyICst
+Cj4gIGRyaXZlcnMvdXNiL2hvc3QveGhjaS1kYmdjYXAuYyAgICAgICB8ICAyICstCj4gIGRyaXZl
+cnMvdXNiL3BoeS9waHktdGFodm8uYyAgICAgICAgICB8ICAyICstCj4gIGRyaXZlcnMvdmlkZW8v
+ZmJkZXYvYXVvX2sxOTB4LmMgICAgICB8ICA0ICsrLS0KPiAgZHJpdmVycy92aWRlby9mYmRldi93
+MTAwZmIuYyAgICAgICAgIHwgIDQgKystLQo+ICBsaWIvdGVzdF9maXJtd2FyZS5jICAgICAgICAg
+ICAgICAgICAgfCAxNCArKysrKy0tLS0tLS0KPiAgbGliL3Rlc3Rfa21vZC5jICAgICAgICAgICAg
+ICAgICAgICAgIHwgMTQgKysrKystLS0tLS0tCj4gIHNvdW5kL3NvYy9vbWFwL21jYnNwLmMgICAg
+ICAgICAgICAgICB8ICA0ICsrLS0KPiAgMTUgZmlsZXMgY2hhbmdlZCwgNDkgaW5zZXJ0aW9ucygr
+KSwgODAgZGVsZXRpb25zKC0pCgpGb3IgZmJkZXYgY2hhbmdlczoKCkFja2VkLWJ5OiBCYXJ0bG9t
+aWVqIFpvbG5pZXJraWV3aWN6IDxiLnpvbG5pZXJraWVAc2Ftc3VuZy5jb20+CgpCZXN0IHJlZ2Fy
+ZHMsCi0tCkJhcnRsb21pZWogWm9sbmllcmtpZXdpY3oKU2Ftc3VuZyBSJkQgSW5zdGl0dXRlIFBv
+bGFuZApTYW1zdW5nIEVsZWN0cm9uaWNzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5m
+cmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0
+aW5mby9pbnRlbC1nZngK
