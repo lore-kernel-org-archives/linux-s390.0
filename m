@@ -1,26 +1,36 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 17/67] microblaze: rename dma_direct to dma_microblaze
-Date: Thu, 4 Jan 2018 09:45:33 +0100
-Message-ID: <20180104084533.GA3135@lst.de>
-References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-18-hch@lst.de> <CAGRGNgW1qwLcCAvU2Jc=3_7b-0Bu016to3cQUgVsc+ca0No_6g@mail.gmail.com>
+Subject: Re: [PATCH 16/67] powerpc: rename dma_direct_ to dma_nommu_
+Date: Thu, 4 Jan 2018 09:49:30 +0100
+Message-ID: <20180104084930.GB3251@lst.de>
+References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-17-hch@lst.de> <878tdgtwzp.fsf@concordia.ellerman.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-m68k-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAGRGNgW1qwLcCAvU2Jc=3_7b-0Bu016to3cQUgVsc+ca0No_6g@mail.gmail.com>
-Sender: linux-m68k-owner@vger.kernel.org
+In-Reply-To: <878tdgtwzp.fsf@concordia.ellerman.id.au>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Julian Calaby <julian.calaby@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, "Mailing List, Arm" <linux-arm-kernel@lists.infradead.org>, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.or>
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Dec 29, 2017 at 09:11:56PM +1100, Julian Calaby wrote:
-> Hi Christoph,
+On Tue, Jan 02, 2018 at 08:45:30PM +1100, Michael Ellerman wrote:
+> Christoph Hellwig <hch@lst.de> writes:
 > 
-> On Fri, Dec 29, 2017 at 7:18 PM, Christoph Hellwig <hch@lst.de> wrote:
-> > This frees the dma_direct_* namespace for a generic implementation.
+> > We want to use the dma_direct_ namespace for a generic implementation,
+> > so rename powerpc to the second best choice: dma_nommu_.
 > 
-> Don't you mean "dma_nommu" not "dma_microblaze" in the subject line?
+> I'm not a fan of "nommu". Some of the users of direct ops *are* using an
+> IOMMU, they're just setting up a 1:1 mapping once at init time, rather
+> than mapping dynamically.
+> 
+> Though I don't have a good idea for a better name, maybe "1to1",
+> "linear", "premapped" ?
 
-Yes, thanks.
+It seems like a nice counter part to the dma_iommu_ops used just about
+anywhere else in ppc.
+
+But I'll happily take any maintainer bike shed decision for the next
+series.  Remember that in a merge window or two it will hopefully
+go away in favor of the new generic dma_direct ops.
