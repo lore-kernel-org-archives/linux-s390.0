@@ -1,36 +1,38 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 16/67] powerpc: rename dma_direct_ to dma_nommu_
-Date: Thu, 4 Jan 2018 09:49:30 +0100
-Message-ID: <20180104084930.GB3251@lst.de>
-References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-17-hch@lst.de> <878tdgtwzp.fsf@concordia.ellerman.id.au>
+Subject: Re: [PATCH 27/67] dma-direct: add dma address sanity checks
+Date: Thu, 4 Jan 2018 09:52:05 +0100
+Message-ID: <20180104085205.GC3251@lst.de>
+References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-28-hch@lst.de> <CAMuHMdWg3PnTXezMCcr3oGf-83-cjvcj4wGiPk7j2pY1Tgzo9Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <878tdgtwzp.fsf@concordia.ellerman.id.au>
-Sender: linux-hexagon-owner@vger.kernel.org
+In-Reply-To: <CAMuHMdWg3PnTXezMCcr3oGf-83-cjvcj4wGiPk7j2pY1Tgzo9Q@mail.gmail.com>
+Sender: linux-m68k-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org, Linux MIPS Mailing List <linux-mips@linux-mips.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, adi-buildroot-devel@lists.sourceforge.net, linux-m68k <linux-m68k@lists.linux-m68k.org>, patches@groups.riscv.org, "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Michal Simek <mon>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 02, 2018 at 08:45:30PM +1100, Michael Ellerman wrote:
-> Christoph Hellwig <hch@lst.de> writes:
+On Fri, Dec 29, 2017 at 03:12:25PM +0100, Geert Uytterhoeven wrote:
+> > +check_addr(struct device *dev, dma_addr_t dma_addr, size_t size,
+> > +               const char *caller)
+> > +{
+> > +       if (unlikely(dev && !dma_capable(dev, dma_addr, size))) {
+> > +               if (*dev->dma_mask >= DMA_BIT_MASK(32)) {
+> > +                       dev_err(dev,
+> > +                               "%s: overflow %llx+%zu of device mask %llx\n",
 > 
-> > We want to use the dma_direct_ namespace for a generic implementation,
-> > so rename powerpc to the second best choice: dma_nommu_.
+> Please use "%pad" to format dma_addr_t ...
 > 
-> I'm not a fan of "nommu". Some of the users of direct ops *are* using an
-> IOMMU, they're just setting up a 1:1 mapping once at init time, rather
-> than mapping dynamically.
+> > +                               caller, (long long)dma_addr, size,
 > 
-> Though I don't have a good idea for a better name, maybe "1to1",
-> "linear", "premapped" ?
+> ... and use &dma_addr.
+> 
+> > +                               (long long)*dev->dma_mask);
+> 
+> This cast is not needed, as u64 is unsigned long long in kernelspace on
+> all architectures.
 
-It seems like a nice counter part to the dma_iommu_ops used just about
-anywhere else in ppc.
-
-But I'll happily take any maintainer bike shed decision for the next
-series.  Remember that in a merge window or two it will hopefully
-go away in favor of the new generic dma_direct ops.
+Thanks, fixed.
