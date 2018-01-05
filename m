@@ -1,61 +1,136 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 4 Jan 2018 10:02:51 +0100
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 30/67] dma-direct: retry allocations using GFP_DMA for
-        small masks
-Message-ID: <20180104090251.GE3251@lst.de>
-References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-31-hch@lst.de> <f6139b03-0a4a-a9fe-4818-9b0bccf419e4@arm.com>
+Subject: Re: [PATCH 09/67] arc: remove CONFIG_ARC_PLAT_NEEDS_PHYS_TO_DMA
+References: <20171229081911.2802-1-hch@lst.de>
+ <20171229081911.2802-10-hch@lst.de>
+From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
+Message-ID: <2c24bfd1-5f54-4b82-444e-833dc53b6efd@synopsys.com>
+Date: Fri, 5 Jan 2018 11:45:16 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f6139b03-0a4a-a9fe-4818-9b0bccf419e4@arm.com>
+In-Reply-To: <20171229081911.2802-10-hch@lst.de>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180104090251.mon_uuDKFRA3egfK9_kqOEBDBCvwbrW4ptJGo-Rc1UE@z>
+Message-ID: <20180105194516.XVGamMC_Fr_6yr2QE1aSGSFK44oK7DGhNARD70INIrA@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Vladimir Murzin <vladimir.murzin@arm.com>
-Cc: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Christoph Hellwig <hch@lst.de>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
+Cc: "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, Guan Xuetao <gxt@mprc.pku.edu.cn>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-c6x-dev@linux-c6x.org" <linux-c6x-dev@linux-c6x.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>, "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>, "patches@groups.riscv.org" <patches@groups.riscv.org>, "linux-metag@vger.kernel.org" <linux-metag@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Michal Simek <monstr@monstr.eu>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linux-cris-kernel@axis.com" <linux-cris-kernel@axis.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 02, 2018 at 04:43:15PM +0000, Vladimir Murzin wrote:
-> On 29/12/17 08:18, Christoph Hellwig wrote:
-> > If we got back an allocation that wasn't inside the support coherent mask,
-> > retry the allocation using GFP_DMA.
-> > 
-> > Based on the x86 code.
-> > 
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > ---
-> >  lib/dma-direct.c | 25 ++++++++++++++++++++++++-
-> >  1 file changed, 24 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/lib/dma-direct.c b/lib/dma-direct.c
-> > index ab81de3ac1d3..f8467cb3d89a 100644
-> > --- a/lib/dma-direct.c
-> > +++ b/lib/dma-direct.c
-> > @@ -28,6 +28,11 @@ check_addr(struct device *dev, dma_addr_t dma_addr, size_t size,
-> >  	return true;
-> >  }
-> >  
-> > +static bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size)
-> > +{
-> > +	return phys_to_dma(dev, phys) + size <= dev->coherent_dma_mask;
-> 
-> Shouldn't it be: phys_to_dma(dev, phys) + size - 1 <= dev->coherent_dma_mask ?
+On 12/29/2017 12:25 AM, Christoph Hellwig wrote:
+> We always use the stub definitions, so remove the unused other code.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Yes, I think it should.  The existing code was blindly copy and pasted
-from x86.
+Acked-by: Vineet Gupta <vgupta@synopsys.com>
 
-> > +	if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
-> > +		__free_pages(page, page_order);
-> > +		page = NULL;
-> > +
-> > +		if (dev->coherent_dma_mask < DMA_BIT_MASK(32) &&
-> > +		    !(gfp & GFP_DMA)) {
-> > +			gfp = (gfp & ~GFP_DMA32) | GFP_DMA;
-> > +			goto again;
-> 
-> Shouldn't we limit number of attempts?
+FWIW, it was removed and reintroduced as one of the customers wanted it, which is 
+not relevant now !
 
-We only retty once anyway, due to the !GFP_DMA check first and then
-ORing in GFP_DMA.
+Thx,
+-Vineet
+
+> ---
+>   arch/arc/Kconfig                   |  3 ---
+>   arch/arc/include/asm/dma-mapping.h |  7 -------
+>   arch/arc/mm/dma.c                  | 14 +++++++-------
+>   3 files changed, 7 insertions(+), 17 deletions(-)
+>
+> diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
+> index 9d5fd00d9e91..f3a80cf164cc 100644
+> --- a/arch/arc/Kconfig
+> +++ b/arch/arc/Kconfig
+> @@ -463,9 +463,6 @@ config ARCH_PHYS_ADDR_T_64BIT
+>   config ARCH_DMA_ADDR_T_64BIT
+>   	bool
+>   
+> -config ARC_PLAT_NEEDS_PHYS_TO_DMA
+> -	bool
+> -
+>   config ARC_KVADDR_SIZE
+>   	int "Kernel Virtual Address Space size (MB)"
+>   	range 0 512
+> diff --git a/arch/arc/include/asm/dma-mapping.h b/arch/arc/include/asm/dma-mapping.h
+> index 94285031c4fb..7a16824bfe98 100644
+> --- a/arch/arc/include/asm/dma-mapping.h
+> +++ b/arch/arc/include/asm/dma-mapping.h
+> @@ -11,13 +11,6 @@
+>   #ifndef ASM_ARC_DMA_MAPPING_H
+>   #define ASM_ARC_DMA_MAPPING_H
+>   
+> -#ifndef CONFIG_ARC_PLAT_NEEDS_PHYS_TO_DMA
+> -#define plat_dma_to_phys(dev, dma_handle) ((phys_addr_t)(dma_handle))
+> -#define plat_phys_to_dma(dev, paddr) ((dma_addr_t)(paddr))
+> -#else
+> -#include <plat/dma.h>
+> -#endif
+> -
+>   extern const struct dma_map_ops arc_dma_ops;
+>   
+>   static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+> diff --git a/arch/arc/mm/dma.c b/arch/arc/mm/dma.c
+> index fad18261ef6a..1d405b86250c 100644
+> --- a/arch/arc/mm/dma.c
+> +++ b/arch/arc/mm/dma.c
+> @@ -60,7 +60,7 @@ static void *arc_dma_alloc(struct device *dev, size_t size,
+>   	/* This is linear addr (0x8000_0000 based) */
+>   	paddr = page_to_phys(page);
+>   
+> -	*dma_handle = plat_phys_to_dma(dev, paddr);
+> +	*dma_handle = paddr;
+>   
+>   	/* This is kernel Virtual address (0x7000_0000 based) */
+>   	if (need_kvaddr) {
+> @@ -92,7 +92,7 @@ static void *arc_dma_alloc(struct device *dev, size_t size,
+>   static void arc_dma_free(struct device *dev, size_t size, void *vaddr,
+>   		dma_addr_t dma_handle, unsigned long attrs)
+>   {
+> -	phys_addr_t paddr = plat_dma_to_phys(dev, dma_handle);
+> +	phys_addr_t paddr = dma_handle;
+>   	struct page *page = virt_to_page(paddr);
+>   	int is_non_coh = 1;
+>   
+> @@ -111,7 +111,7 @@ static int arc_dma_mmap(struct device *dev, struct vm_area_struct *vma,
+>   {
+>   	unsigned long user_count = vma_pages(vma);
+>   	unsigned long count = PAGE_ALIGN(size) >> PAGE_SHIFT;
+> -	unsigned long pfn = __phys_to_pfn(plat_dma_to_phys(dev, dma_addr));
+> +	unsigned long pfn = __phys_to_pfn(dma_addr);
+>   	unsigned long off = vma->vm_pgoff;
+>   	int ret = -ENXIO;
+>   
+> @@ -175,7 +175,7 @@ static dma_addr_t arc_dma_map_page(struct device *dev, struct page *page,
+>   	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+>   		_dma_cache_sync(paddr, size, dir);
+>   
+> -	return plat_phys_to_dma(dev, paddr);
+> +	return paddr;
+>   }
+>   
+>   /*
+> @@ -190,7 +190,7 @@ static void arc_dma_unmap_page(struct device *dev, dma_addr_t handle,
+>   			       size_t size, enum dma_data_direction dir,
+>   			       unsigned long attrs)
+>   {
+> -	phys_addr_t paddr = plat_dma_to_phys(dev, handle);
+> +	phys_addr_t paddr = handle;
+>   
+>   	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+>   		_dma_cache_sync(paddr, size, dir);
+> @@ -224,13 +224,13 @@ static void arc_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
+>   static void arc_dma_sync_single_for_cpu(struct device *dev,
+>   		dma_addr_t dma_handle, size_t size, enum dma_data_direction dir)
+>   {
+> -	_dma_cache_sync(plat_dma_to_phys(dev, dma_handle), size, DMA_FROM_DEVICE);
+> +	_dma_cache_sync(dma_handle, size, DMA_FROM_DEVICE);
+>   }
+>   
+>   static void arc_dma_sync_single_for_device(struct device *dev,
+>   		dma_addr_t dma_handle, size_t size, enum dma_data_direction dir)
+>   {
+> -	_dma_cache_sync(plat_dma_to_phys(dev, dma_handle), size, DMA_TO_DEVICE);
+> +	_dma_cache_sync(dma_handle, size, DMA_TO_DEVICE);
+>   }
+>   
+>   static void arc_dma_sync_sg_for_cpu(struct device *dev,
