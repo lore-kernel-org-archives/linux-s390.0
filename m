@@ -1,22 +1,40 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Mon, 15 Jan 2018 23:52:43 -0800
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: consolidate direct dma mapping V4
-Message-ID: <20180116075243.GA12693@infradead.org>
-References: <20180112084232.2857-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180112084232.2857-1-hch@lst.de>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180116075243.FLQSmuxs6q3-XBObH8qMXtXlEYICIlpdi1ADBW1BnZo@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-snps-arc@lists.infradead.org, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v1] KVM: s390: cleanup struct kvm_s390_float_interrupt
+Date: Mon, 8 Jan 2018 14:42:23 +0100
+Message-ID: <67f05b75-f5fe-7da3-ea37-df9743a4a278@redhat.com>
+References: <20180108134013.32285-1-david@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20180108134013.32285-1-david@redhat.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: KVM <kvm@vger.kernel.org>
+Cc: linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-I've pulled this into the dma-mapping for-next branch so that we get
-a few days exposure before then end of the merge window.  If there is
-anything important (e.g. the powerpc naming issue) please send
-incremental patches.
+
+>  			u64 *reg)
+>  {
+> -	struct kvm_s390_local_interrupt *li;
+>  	int cpuflags;
+>  	int rc;
+>  	int ext_call_pending;
+>  
+> -	li = &dst_vcpu->arch.local_int;
+> -
+> -	cpuflags = atomic_read(li->cpuflags);
+> +	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
+
+Wonder why I always see errors just after sending the patch :)
+vcpu -> dst_vcpu
+
+
+-- 
+
+Thanks,
+
+David / dhildenb
