@@ -1,15 +1,14 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 4/5] KVM: s390: drop use of spin lock in
- __floating_irq_kick
-Date: Mon, 8 Jan 2018 13:10:38 +0100
-Message-ID: <078285ca-7777-1870-dcd6-ecd683ec6c0e@redhat.com>
+Subject: Re: [PATCH 2/5] KVM: s390: use created_vcpus in more places
+Date: Mon, 8 Jan 2018 12:08:28 +0100
+Message-ID: <fa293acc-7acd-e416-3a54-0016c2b8097d@redhat.com>
 References: <20171220155300.102321-1-borntraeger@de.ibm.com>
- <20171220155300.102321-5-borntraeger@de.ibm.com>
+ <20171220155300.102321-3-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171220155300.102321-5-borntraeger@de.ibm.com>
+In-Reply-To: <20171220155300.102321-3-borntraeger@de.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,50 +18,45 @@ Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
 On 20.12.2017 16:52, Christian Borntraeger wrote:
-> From: Michael Mueller <mimu@linux.vnet.ibm.com>
+> commit a03825bbd0c3 ("KVM: s390: use kvm->created_vcpus") introduced
+> kvm->created_vcpus to avoid races with the existing kvm->online_vcpus
+> scheme. One place was "forgotten" and one new place was "added".
+> Let's fix those.
 > 
-> It is not required to take to a lock to protect access to the cpuflags
-> of the local interrupt structure of a vcpu as the performed operation
-> is an atomic_or.
-> 
-> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reported-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+> Fixes: 4e0b1ab72b8a ("KVM: s390: gs support for kvm guests")
+> Fixes: a03825bbd0c3 ("KVM: s390: use kvm->created_vcpus")
 > ---
->  arch/s390/kvm/interrupt.c | 2 --
->  1 file changed, 2 deletions(-)
+>  arch/s390/kvm/kvm-s390.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 024ad8bcc516..818aa4248b0f 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -1569,7 +1569,6 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 40f0ae5a883f..00ef6f47e466 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -573,7 +573,7 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+>  	case KVM_CAP_S390_GS:
+>  		r = -EINVAL;
+>  		mutex_lock(&kvm->lock);
+> -		if (atomic_read(&kvm->online_vcpus)) {
+> +		if (kvm->created_vcpus) {
+>  			r = -EBUSY;
+>  		} else if (test_facility(133)) {
+>  			set_kvm_facility(kvm->arch.model.fac_mask, 133);
+> @@ -1094,7 +1094,7 @@ static int kvm_s390_set_processor_feat(struct kvm *kvm,
+>  		return -EINVAL;
 >  
->  	/* make the VCPU drop out of the SIE, or wake it up if sleeping */
->  	li = &dst_vcpu->arch.local_int;
-> -	spin_lock(&li->lock);
->  	switch (type) {
->  	case KVM_S390_MCHK:
->  		atomic_or(CPUSTAT_STOP_INT, li->cpuflags);
-> @@ -1581,7 +1580,6 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
->  		atomic_or(CPUSTAT_EXT_INT, li->cpuflags);
->  		break;
->  	}
-> -	spin_unlock(&li->lock);
->  	kvm_s390_vcpu_wakeup(dst_vcpu);
->  }
->  
+>  	mutex_lock(&kvm->lock);
+> -	if (!atomic_read(&kvm->online_vcpus)) {
+> +	if (!kvm->created_vcpus) {
+>  		bitmap_copy(kvm->arch.cpu_feat, (unsigned long *) data.feat,
+>  			    KVM_S390_VM_CPU_FEAT_NR_BITS);
+>  		ret = 0;
 > 
 
-I remember that being somehow used to avoid the target VCPU just
-clearing the indicators via __reset_intercept_indicators().
-
-But as far as I can see, this has no effect and
-set_intercept_indicators() will take care of it. In the worst case, we
-have too many flags set, simply resulting in a VCPU exit and the
-superfluous flags getting cleared.
-
-So this looks sane to me.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
 -- 
 
