@@ -1,46 +1,89 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: Re: [PATCH 09/33] dma-mapping: take dma_pfn_offset into account in
- dma_max_pfn
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 25/33] dma-direct: add dma address sanity checks
+Date: Wed, 10 Jan 2018 09:00:19 +0100
+Message-ID: <20180110080027.13879-26-hch@lst.de>
 References: <20180110080027.13879-1-hch@lst.de>
- <20180110080027.13879-10-hch@lst.de>
-From: Robin Murphy <robin.murphy@arm.com>
-Message-ID: <6e4732eb-9eaf-7e5b-863c-d3faa47bb513@arm.com>
-Date: Wed, 10 Jan 2018 11:07:55 +0000
-MIME-Version: 1.0
-In-Reply-To: <20180110080027.13879-10-hch@lst.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20180110080027.13879-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180110110755.ICMKgRQ-16iXlF5WyYQzYejYJ2HFnVYObMoyY7JdRRI@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-snps-arc@lists.infradead.org, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: iommu@lists.linux-foundation.org
+Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/01/18 08:00, Christoph Hellwig wrote:
-> This makes sure the generic version can be used with architectures /
-> devices that have a DMA offset in the direct mapping.
+Roughly based on the x86 pci-nommu implementation.
 
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ lib/dma-direct.c | 31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->   include/linux/dma-mapping.h | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-> index 81ed9b2d84dc..d84951865be7 100644
-> --- a/include/linux/dma-mapping.h
-> +++ b/include/linux/dma-mapping.h
-> @@ -692,7 +692,7 @@ static inline int dma_set_seg_boundary(struct device *dev, unsigned long mask)
->   #ifndef dma_max_pfn
->   static inline unsigned long dma_max_pfn(struct device *dev)
->   {
-> -	return *dev->dma_mask >> PAGE_SHIFT;
-> +	return (*dev->dma_mask >> PAGE_SHIFT) + dev->dma_pfn_offset;
->   }
->   #endif
->   
-> 
+diff --git a/lib/dma-direct.c b/lib/dma-direct.c
+index 12ea9653781b..32fd4d9e4c47 100644
+--- a/lib/dma-direct.c
++++ b/lib/dma-direct.c
+@@ -9,6 +9,23 @@
+ #include <linux/scatterlist.h>
+ #include <linux/pfn.h>
+ 
++#define DIRECT_MAPPING_ERROR		0
++
++static bool
++check_addr(struct device *dev, dma_addr_t dma_addr, size_t size,
++		const char *caller)
++{
++	if (unlikely(dev && !dma_capable(dev, dma_addr, size))) {
++		if (*dev->dma_mask >= DMA_BIT_MASK(32)) {
++			dev_err(dev,
++				"%s: overflow %pad+%zu of device mask %llx\n",
++				caller, &dma_addr, size, *dev->dma_mask);
++		}
++		return false;
++	}
++	return true;
++}
++
+ static void *dma_direct_alloc(struct device *dev, size_t size,
+ 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
+ {
+@@ -31,7 +48,11 @@ static dma_addr_t dma_direct_map_page(struct device *dev, struct page *page,
+ 		unsigned long offset, size_t size, enum dma_data_direction dir,
+ 		unsigned long attrs)
+ {
+-	return phys_to_dma(dev, page_to_phys(page)) + offset;
++	dma_addr_t dma_addr = phys_to_dma(dev, page_to_phys(page)) + offset;
++
++	if (!check_addr(dev, dma_addr, size, __func__))
++		return DIRECT_MAPPING_ERROR;
++	return dma_addr;
+ }
+ 
+ static int dma_direct_map_sg(struct device *dev, struct scatterlist *sgl,
+@@ -44,16 +65,24 @@ static int dma_direct_map_sg(struct device *dev, struct scatterlist *sgl,
+ 		BUG_ON(!sg_page(sg));
+ 
+ 		sg_dma_address(sg) = phys_to_dma(dev, sg_phys(sg));
++		if (!check_addr(dev, sg_dma_address(sg), sg->length, __func__))
++			return 0;
+ 		sg_dma_len(sg) = sg->length;
+ 	}
+ 
+ 	return nents;
+ }
+ 
++static int dma_direct_mapping_error(struct device *dev, dma_addr_t dma_addr)
++{
++	return dma_addr == DIRECT_MAPPING_ERROR;
++}
++
+ const struct dma_map_ops dma_direct_ops = {
+ 	.alloc			= dma_direct_alloc,
+ 	.free			= dma_direct_free,
+ 	.map_page		= dma_direct_map_page,
+ 	.map_sg			= dma_direct_map_sg,
++	.mapping_error		= dma_direct_mapping_error,
+ };
+ EXPORT_SYMBOL(dma_direct_ops);
+-- 
+2.14.2
