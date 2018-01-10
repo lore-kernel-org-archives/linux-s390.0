@@ -1,84 +1,50 @@
-From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Subject: Re: [GIT PULL 0/6] KVM: s390: Fixes and features for 4.16
-Date: Tue, 16 Jan 2018 16:27:24 +0100
-Message-ID: <20180116152724.GA23579@flask>
-References: <20180116150314.201352-1-borntraeger@de.ibm.com>
- <a35355a6-26f9-ab7d-d9cd-80edd9181866@redhat.com>
- <69c45e6a-9ad6-ecb5-c7e2-1660ef35ffff@de.ibm.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH 10/33] arm64: don't override dma_max_pfn
+Date: Wed, 10 Jan 2018 11:08:27 +0000
+Message-ID: <115563c4-7929-a68c-459a-89d787051053@arm.com>
+References: <20180110080027.13879-1-hch@lst.de>
+ <20180110080027.13879-11-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <69c45e6a-9ad6-ecb5-c7e2-1660ef35ffff@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-m68k-owner@vger.kernel.org>
+In-Reply-To: <20180110080027.13879-11-hch@lst.de>
+Content-Language: en-GB
+Sender: linux-m68k-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-snps-arc@lists.infradead.org, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-2018-01-16 16:14+0100, Christian Borntraeger:
-> On 01/16/2018 04:09 PM, Paolo Bonzini wrote:
-> > On 16/01/2018 16:03, Christian Borntraeger wrote:
-> >> Paolo, Radim,
-> >>
-> >> the first chunk (of already reviewed) patches for 4.16 via kvm/next.
-> >>
-> >>
-> >> The following changes since commit ccff53fd86ee54022e3d841f3db9280b1deb22e4:
-> >>
-> >>   KVM: x86: avoid unnecessary XSETBV on guest entry (2017-12-18 13:10:25 +0100)
-> >>
-> >> are available in the git repository at:
-> >>
-> >>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.16-1
-> >>
-> >> for you to fetch changes up to 715e0427049606f499ea6b485c997f93f0778c77:
-> >>
-> >>   KVM: s390: cleanup struct kvm_s390_float_interrupt (2018-01-16 15:53:09 +0100)
-> >>
-> >> ----------------------------------------------------------------
-> >> KVM: s390: Fixes and features for 4.16
-> >>
-> >> - add the virtio-ccw transport for kvmconfig
-> >> - more debug tracing for cpu model
-> >> - cleanups and fixes
-> >>
-> >> ----------------------------------------------------------------
-> >> Christian Borntraeger (3):
-> >>       KVM: s390: use created_vcpus in more places
-> >>       KVM: s390: add debug tracing for cpu features of CPU model
-> >>       kvm_config: add CONFIG_S390_GUEST
-> >>
-> >> David Hildenbrand (2):
-> >>       s390x/mm: cleanup gmap_pte_op_walk()
-> >>       KVM: s390: cleanup struct kvm_s390_float_interrupt
-> >>
-> >> Michael Mueller (1):
-> >>       KVM: s390: drop use of spin lock in __floating_irq_kick
-> >>
-> >>  arch/s390/include/asm/kvm_host.h |  3 ---
-> >>  arch/s390/kvm/interrupt.c        | 27 +++++++++++----------------
-> >>  arch/s390/kvm/kvm-s390.c         | 29 +++++++++++++++++++----------
-> >>  arch/s390/kvm/kvm-s390.h         |  2 +-
-> >>  arch/s390/kvm/sigp.c             | 12 ++++--------
-> >>  arch/s390/mm/gmap.c              | 23 ++++++++---------------
-> >>  kernel/configs/kvm_guest.config  |  1 +
-> >>  7 files changed, 44 insertions(+), 53 deletions(-)
-> >>
-> > 
-> > We probably will have to rebase kvm/next, sorry, to remove a series that
-> > had problems and (worse) complaints from the arch/x86 maintainers. :(
-> > Can you rebase on top of 5cb0944c0c66004c0d9006a7f0fba5782ae38
+On 10/01/18 08:00, Christoph Hellwig wrote:
+> The generic version now takes dma_pfn_offset into account, so there is no
+> more need for an architecture override.
+
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>   arch/arm64/include/asm/dma-mapping.h | 9 ---------
+>   1 file changed, 9 deletions(-)
 > 
-> Can you (when doing that) rebase on something newer? rc3 is broken in many ways
-> and only works on some of my test systems (those without multipath).
-
-I'd like to avoid rebasing that much -- so far we're only rebasing
-patches since Jan 11 and there is a batch from Dec 14 on top of rc3.
-
-> I will rebase on 4.15-rc3 to give you all the freedom you need. 
-
-I think that basing s390 on a later -rc would work for all of us,
-
-thanks.
+> diff --git a/arch/arm64/include/asm/dma-mapping.h b/arch/arm64/include/asm/dma-mapping.h
+> index 0df756b24863..eada887a93bf 100644
+> --- a/arch/arm64/include/asm/dma-mapping.h
+> +++ b/arch/arm64/include/asm/dma-mapping.h
+> @@ -76,14 +76,5 @@ static inline void dma_mark_clean(void *addr, size_t size)
+>   {
+>   }
+>   
+> -/* Override for dma_max_pfn() */
+> -static inline unsigned long dma_max_pfn(struct device *dev)
+> -{
+> -	dma_addr_t dma_max = (dma_addr_t)*dev->dma_mask;
+> -
+> -	return (ulong)dma_to_phys(dev, dma_max) >> PAGE_SHIFT;
+> -}
+> -#define dma_max_pfn(dev) dma_max_pfn(dev)
+> -
+>   #endif	/* __KERNEL__ */
+>   #endif	/* __ASM_DMA_MAPPING_H */
+> 
