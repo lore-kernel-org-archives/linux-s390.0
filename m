@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 13/33] hexagon: use the generic dma_capable helper
-Date: Wed, 10 Jan 2018 09:00:07 +0100
-Message-ID: <20180110080027.13879-14-hch@lst.de>
+Subject: [PATCH 02/33] hexagon: remove unused flush_write_buffers definition
+Date: Wed, 10 Jan 2018 08:59:56 +0100
+Message-ID: <20180110080027.13879-3-hch@lst.de>
 In-Reply-To: <20180110080027.13879-1-hch@lst.de>
 References: <20180110080027.13879-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180110080007.rEJcGJnsUw0fD2K2ZfrNx9FlGbs4BGtJY9hROtwlnNY@z>
+Message-ID: <20180110075956.LpErkmnAuMrrkVJ1lJle-w8MeBWCs-j_MomRB9wlTUc@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
@@ -14,39 +14,22 @@ Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-alpha@vger.kernel.org, linu
 List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
 ---
- arch/hexagon/include/asm/dma-mapping.h | 7 -------
- arch/hexagon/kernel/dma.c              | 1 +
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ arch/hexagon/include/asm/io.h | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/arch/hexagon/include/asm/dma-mapping.h b/arch/hexagon/include/asm/dma-mapping.h
-index 5208de242e79..263f6acbfb0f 100644
---- a/arch/hexagon/include/asm/dma-mapping.h
-+++ b/arch/hexagon/include/asm/dma-mapping.h
-@@ -37,11 +37,4 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
- 	return dma_ops;
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index 66f5e9a61efc..9e8621d94ee9 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -330,8 +330,6 @@ static inline void outsl(unsigned long port, const void *buffer, int count)
+ 	}
  }
  
--static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
--{
--	if (!dev->dma_mask)
--		return 0;
--	return addr + size - 1 <= *dev->dma_mask;
--}
+-#define flush_write_buffers() do { } while (0)
 -
- #endif
-diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c
-index 546792d176a4..ad8347c29dcf 100644
---- a/arch/hexagon/kernel/dma.c
-+++ b/arch/hexagon/kernel/dma.c
-@@ -19,6 +19,7 @@
-  */
+ #endif /* __KERNEL__ */
  
- #include <linux/dma-mapping.h>
-+#include <linux/dma-direct.h>
- #include <linux/bootmem.h>
- #include <linux/genalloc.h>
- #include <asm/dma-mapping.h>
+ #endif
 -- 
 2.14.2
