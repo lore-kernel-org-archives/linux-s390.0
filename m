@@ -1,36 +1,37 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/33] powerpc: remove unused flush_write_buffers definition
-Date: Wed, 10 Jan 2018 08:59:58 +0100
-Message-ID: <20180110080027.13879-5-hch@lst.de>
+Subject: [PATCH 01/33] alpha: mark jensen as broken
+Date: Wed, 10 Jan 2018 08:59:55 +0100
+Message-ID: <20180110080027.13879-2-hch@lst.de>
 In-Reply-To: <20180110080027.13879-1-hch@lst.de>
 References: <20180110080027.13879-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180110075958.uuXcHI2qTnVew_U5EBCilZhfXepqQkdI7iIBCe6ZvhM@z>
+Message-ID: <20180110075955.xyaqoPymRtW9wiPlNH79ciXXguYefS0SpDREHSzJJNI@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+CONFIG_ALPHA_JENSEN has failed to compile since commit 6aca0503
+("alpha/dma: use common noop dma ops"), so mark it as broken.
+
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/powerpc/include/asm/dma-mapping.h | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/alpha/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-index 5a6cbe11db6f..592c7f418aa0 100644
---- a/arch/powerpc/include/asm/dma-mapping.h
-+++ b/arch/powerpc/include/asm/dma-mapping.h
-@@ -107,9 +107,6 @@ static inline void set_dma_offset(struct device *dev, dma_addr_t off)
- 		dev->archdata.dma_offset = off;
- }
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index b31b974a03cb..e96adcbcab41 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -209,6 +209,7 @@ config ALPHA_EIGER
  
--/* this will be removed soon */
--#define flush_write_buffers()
--
- #define HAVE_ARCH_DMA_SET_MASK 1
- extern int dma_set_mask(struct device *dev, u64 dma_mask);
- 
+ config ALPHA_JENSEN
+ 	bool "Jensen"
++	depends on BROKEN
+ 	help
+ 	  DEC PC 150 AXP (aka Jensen): This is a very old Digital system - one
+ 	  of the first-generation Alpha systems. A number of these systems
 -- 
 2.14.2
