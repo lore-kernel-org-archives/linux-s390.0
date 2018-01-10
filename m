@@ -1,18 +1,18 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: Re: [PATCH 20/33] dma-mapping: clear harmful GFP_* flags in common
- code
+Subject: Re: [PATCH 11/33] dma-mapping: move swiotlb arch helpers to a new
+ header
 References: <20180110080027.13879-1-hch@lst.de>
- <20180110080027.13879-21-hch@lst.de>
+ <20180110080027.13879-12-hch@lst.de>
 From: Robin Murphy <robin.murphy@arm.com>
-Message-ID: <27b90341-f9d0-356f-0194-1c7203a3f93e@arm.com>
-Date: Wed, 10 Jan 2018 11:59:30 +0000
+Message-ID: <3721b4ba-0685-255e-06b9-6e60678a1a92@arm.com>
+Date: Wed, 10 Jan 2018 14:56:01 +0000
 MIME-Version: 1.0
-In-Reply-To: <20180110080027.13879-21-hch@lst.de>
+In-Reply-To: <20180110080027.13879-12-hch@lst.de>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-GB
 Content-Transfer-Encoding: 7bit
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180110115930.4WRO-OJiZ64fysr0n95q9RjVUAASZoTMeKtyIFGqOB0@z>
+Message-ID: <20180110145601.vM-zTBFRXJVeTsaMeEyr-jLgpB8zSncSpXT7XDge8Ik@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org
@@ -20,31 +20,27 @@ Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.
 List-ID: <linux-s390.vger.kernel.org>
 
 On 10/01/18 08:00, Christoph Hellwig wrote:
+> phys_to_dma, dma_to_phys and dma_capable are helpers published by
+> architecture code for use of swiotlb and xen-swiotlb only.  Drivers are
+> not supposed to use these directly, but use the DMA API instead.
+> 
+> Move these to a new asm/dma-direct.h helper, included by a
+> linux/dma-direct.h wrapper that provides the default linear mapping
+> unless the architecture wants to override it.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
 [...]
-> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-> index 9f28b2fa329e..88bcb1a8211d 100644
-> --- a/include/linux/dma-mapping.h
-> +++ b/include/linux/dma-mapping.h
-> @@ -518,6 +518,13 @@ static inline void *dma_alloc_attrs(struct device *dev, size_t size,
->   	if (dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
->   		return cpu_addr;
->   
-> +	/*
-> +	 * Let the implementation decide on the zone to allocate from, and
-> +	 * decide on the way of zeroing the memory given that the memory
-> +	 * returned should always be zeroed.
-> +	 */
+>   drivers/crypto/marvell/cesa.c                      |  1 +
+>   drivers/mtd/nand/qcom_nandc.c                      |  1 +
 
-Just a note that if we're all happy to enshrine the "allocations are 
-always zeroed" behaviour in the API (I am too, for the record), we 
-should remember to follow up once the dust settles to update the docs 
-and I guess just #define dma_zalloc_coherent dma_alloc_coherent.
+I took a look at these, and it seems their phys_to_dma() usage is doing 
+the thing which we subsequently formalised as dma_map_resource(). I've 
+had a crack at a quick patch to update the CESA driver; qcom_nandc looks 
+slightly more complex in that the changes probably need to span the BAM 
+dmaengine driver as well.
+
+In the process, though, I stumbled across gen_pool_dma_alloc() - yuck, 
+something needs doing there, for sure...
 
 Robin.
-
-> +	flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM | __GFP_ZERO);
-> +
->   	if (!arch_dma_alloc_attrs(&dev, &flag))
->   		return NULL;
->   	if (!ops->alloc)
-> 
