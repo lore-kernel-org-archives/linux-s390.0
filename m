@@ -1,291 +1,177 @@
 From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: Re: [Qemu-devel] [RFC PATCH 0/3] vfio: ccw: basic channel path event handling
-Date: Tue, 30 Jan 2018 13:27:06 +0800
-Message-ID: <878tcfex1x.fsf@bjsdjshi.ibm.com>
-References: <20180111030421.31418-1-bjsdjshi@linux.vnet.ibm.com> <f9224bba-08fb-589e-ed6e-d8e967a8fe67@linux.vnet.ibm.com> <20180115085945.GC12499@bjsdjshi@linux.vnet.ibm.com> <a4f39e6e-c031-0861-ff6b-e29747ba9489@linux.vnet.ibm.com> <20180123062356.GC32354@bjsdjshi@linux.vnet.ibm.com> <879459e4-e6b1-2030-e3d4-0b991b532f51@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+Subject: [RFC PATCH 0/3] vfio: ccw: basic channel path event handling
+Date: Thu, 11 Jan 2018 04:04:18 +0100
+Message-ID: <20180111030421.31418-1-bjsdjshi@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <879459e4-e6b1-2030-e3d4-0b991b532f51@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, cohuck@redhat.com, borntraeger@de.ibm.com, pmorel@linux.vnet.ibm.com
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
+Cc: cohuck@redhat.com, borntraeger@de.ibm.com, bjsdjshi@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Halil Pasic <pasic@linux.vnet.ibm.com> writes:
---text follows this line--
-Hi Halil,
---text follows this line--
-AS you may noticed, Conny replied to this thread on my mail. Some of her
-comments there could answer your questions. If that applies, I will just
-say "See Conny's mail" in the following, and you can reply to that mail,
-so we can consolidate further discussion.
+Hi Folks,
 
->>> * When a channel path malfunctions a CRW is generated and a machine
->>> check channel report pending is generated. Same goes for
->>> channel paths popping up (on HW level). Should not these get
->>> propagated?
->> AFAIR, channel path related CRW is not that reliable. I mean it seems
->> that it's not mandatory to generate CRWs for channel path malfunctions.
->> AFAIU, it depneds on machine models. For example, we won't get
->> CRW_ERC_INIT for a "path has come" event on many models I believe. And
->> that's why nobody noticed the misuse of CRW_ERC_IPARM and CRW_ERC_INIT
->> in the CRW handling logic for channel path CRWs.
->> Ref:
->> 2daace78a8c9 s390: chp: handle CRW_ERC_INIT for channel-path status change
->> 
->
-> Honestly, I forgot about this discussion. I've refreshed my memories by
-> now, but I could not find why is it supposed to be architecturally OK
-> to loose CRWs when for instance a chp goes away.
->
->> So my understanding for this is: it really a design decision for us to
->> propagate all of the channel path CRWs, or we just use other ways (like
->> using PNO and PNOM as this series shows).
->
-> From what I read, CRWs did not seem optional.
-> I wonder what should I read in order to change my mind. I'm not
-> talking about the hardware in the wild -- but that could be buggy
-> hardware.
->
-Ah, can you point out the chapter that says CRWs is mandatory?
+Background
+==========
 
-AFAIU, PoP doesn't say, for example, chp gone will lead to a CRW, but it
-only says when we got a chp gone CRW it means a chp has been gone.
+Some days ago, we had a discussion on the topic of channel path virtualization.
+Ref:
+Subject: [PATCH 0/3] Channel Path realted CRW generation
+Message-Id: <20170727015418.85407-1-bjsdjshi@linux.vnet.ibm.com>
+URL: https://lists.nongnu.org/archive/html/qemu-devel/2017-07/msg08414.html
 
-[See Conny's mail pls, and we can discuss there.]
+Indeed that thread is not short and discussed many aspects in a
+non-concentrated manner. The parts those are most valuable to me are:
+1. a re-modelling for channel path is surely the best offer, but is not
+   possible to have in the near future.
+2. to enhance the path related functionalities, using PNO and PNOM might
+   be something we can do for now. This may be something that I could improve
+   without model related arguments.
 
->> 
->> Of course, CRW propagation is good to have. But as a discussion result
->> of a former thread, that is something we can consider only after we have
->> a good channel path re-modelling. That is the problem. We can try to
->> trigger CRW event in some work of machine checks handling enhancement
->> later.
->> 
->>> * Kind of instead of the CRW you introduce a per device interrupt
->>> for channel path events on the qemu/kvm boundary. AFAIU for a chp
->>> event you do an STSCH for each (affected?) subchannel
->> Until here, yes and right.
->> 
->>> and generate an irq. Right? Why is this a good idea.
->> This is not right. This series does not generate an irq for the guest.
->
-> You misunderstood this. The word 'irq' this sentence is a short version
-> of 'per device interrupt for channel path events on the qemu/kvm boundary'
-> form the previous sentence. It's not an irq injected into the guest but
-> a notification (which you call irq in '[RFC PATCH 2/3] vfio: ccw:
-> introduce channel path irq') for QEMU.
->
-I see now. I misunderstood.
+So here I have this series targeting to add basic channel path event handling
+for vfio-ccw -- no touch of the channel path modelling in both the kernel and
+the QEMU side, but find a way to sync path status change to guest lazily using
+SCSW_FLAGS_MASK_PNO and pmcw->pnom.  In short, I want to enhance path related
+stuff (to be more specific: sync up path status to the guest) on a best effort
+basis, which means in a way that won't get us invloed to do channel path
+re-modelling.
 
->> In QEMU, when it gets the notification of a channel path status change
->> event, it read the newest SCHIB from the schib region, and update the
->> SCHIB (patch related parts) for the virtual subchannel. The guest will
->> get the new SCHIB whenever it calls STSCH then.
->
-> We are in agreement. I just wanted to say, if let's say 42 vfio-ccw devices
-> are using the same chp and it goes away, you will generate 42 notifications.
-See reply below #LabelA.
+What benifit can we get from this? The administrator of a virtual machine can
+get uptodate (in some extent) status of the current using channel paths, so
+he/she can monitor paths status and get path problem noticed timely (see the
+example below).
 
->
->> 
->> I think this is a good idea, because:
->> 1. This is complies the Linux implementation. Path status change could
->>    be noticed by Linux.
->> 2. This provides enhancement with a small work. On the contrary, channel
->>    path re-modelling needs a lot of work.
->
-> I thing your answer is based on the misunderstanding explained above.
-I see now.
+I think we can start a new round discussion based on this series. So reviewers
+can give their comments based on some code, and then we can decide if this is
+we want or not.
 
->
-> My idea was to be lazy in a different way. Instead of being lazy about
-> reading the subsection, I was wondering why not do an STSCH in the host
-> as a response to one being done in the guest.
->
-> That means: if there is no activity on the passed trough devices, nothing
-> needs to be done. (Except maybe the CRWs).
->
-#LabelA:
+As flagged with RFC, the intention of this series is to show what I have for
+now, and what could the code look like in general. Thus I can get some early
+feedbacks. I would expect to see opinions on:
+- is the target (mentioned above) of this series welcomed or not.
+- is the approach of this series good or bad.
+So I can either move on with this (or with other suggested approach) or leave
+it alone.
 
-I see your point. This is an interesting idea.
+Basic Introduction of The Patches
+=================================
 
-Pros:
-- code simplification
-- no chp event notification and handling
+This is the kernel counterpart, which mainly does:
+1. add a schib vfio region for userland to _store_ subchannel information.
+2. add a channel path vfio irq to notify userland with chp status change event.
+3. add .chp_event handler for vfio-ccw driver, so the driver handles chp event,
+   and signals userland about the event.
 
-Cons:
-- have to read schib region (or issue STSCH on host) for each STSCH
-  request from a guest
+With the above work, userland can be signaled with chp related event, and then
+it can read out uptodate SCHIB from the new region, and sync up path related
+information to the corresponding virtual subchannel. So a guest can sense the
+path update in some extent.
 
-I think code siplification is very acctractive, and performance is not
-the most important issue. Any comments? @Conny
+For the QEMU counterpart, please ref:
+[RFC PATCH 0/5] vfio/ccw: basic channel path event handling
 
-> The things aren't observable by the guest if it does not do STSCH anyway.
-Nod. This is the idea that this series is based on.
+The QEMU counterpart mainly does:
+1. add handling of the schib region, so that it can read out the newest schib
+   information.
+2. add handling of the chp irq, so that it can get notification of channel path
+   status change.
+3. once there is a chp status event, synchronize related information from the
+   newest schib information to guest lazily.
 
->
->
->> 
->>> * SCHIB.PMCW provides path information relevant for a given device.
->>> This information is retrieved using store subchannel. Is your series
->>> sufficient for making store subchannel work properly (correct and
->>> reasonably up to date)?
->> Introducing a SCHIB region is the basis of further STSCH hanlding work.
->> This series depends on it, and only focuses on the update of the channel
->> path related parts of it. And for these parts, this work I think is
->> basically correct (more review comments are surely to be welcomed).
->> 
->
-> Please elaborate on that basically. Or are those actually just correct
-> in your opinion?!
->
-As listed in a former mail, the following values will be updated for the
-guest:
-PMCW:
-  - PIM/PAM/POM
-  - PNOM
-  - CHPIDs
-SCSW
-  - PNOM bit                                                                                           
+What are still missing, thus need to be offered in the next version are:
+- I/O termination and FSM state handling if currently we have I/O on the status
+  switched path.
+- Vary on/off event is not sensible to a guest.
 
-What else do we need?
+Example
+=======
 
->> For the rest parts, this does not change anything than what have. As
->> replied to Conny in other mail of this thread: I think, if the other
->> fields are handled by QEMU well, then we don't need to trigger update
->> events for them. Currently I don't find things that need extra trigger.
->> 
->
-> Fair.
->
->>> Regarding PMCW it's supposed to get updated when io functions are
->>> preformed by the css, AFAIR. Is that right?
->> I think so. And also for some other cases, for example, when we
->> configure on/off a channel path.
->> 
->
-> Sorry, I ended up confusing opm with pom. That would have been illegal
-> (as Connie has pointed out recently) because it can only  change
-> only if the path is tried for IO.
-What is opm? Sorry, I lost in translation... See Conny's mail, and let's
-discuss there?
+With both the kernel and Qemu parts applied, we can notice some new behaviors
+of a channel path when we have a guest with a passed through vfio-ccw device
+using it. The guest can reflect the chp status change of the host side lazily,
+and synchronize the updated information.
 
->
->
->>>  If yes what are the implications? Are the manipulations you do on
->>>  some PMCW fields architecturally correct?
->> If "architecturally correct" means what guest sees/senses is all obey to
->> the PoP, then I think so. We don't have to emulate the internal
->> behaviors (which could not be seen by OS) of CSS exactly when we
->> emulate, if the emulation does not impact on what Linux guest will see,
->> right?
->> 
->> I mean, the time point we update the PMCW does not has to be in the time
->> slot of io function performance. The guest would still have to get the
->> updated information through the calls of STSCH. We only need to provide
->> the updaetd result to the guest by handling STSCH well. And that's why
->> we say we do that lazily.
->> 
->> Nothing different (added value) will be seen by the guest, comparing
->> with the current lazy implementation I think.> 
->>> * The one thing I would very much appreciate as an user of vfio,
->>> and should in my understanding be the user story of this series
->>> (and the qemu counterpart of course) is the following. If my device
->>> (that is IO operation) failed because no path could be found on
->>> which the device is accessible, I would like to be able to identify
->>> that. Preferably the same way I would do for an LPAR guest. Is this
->>> series accomplishing that? 
->> With this the guest could lazily identify that. But since we have no
->> machine check propagation yet, for those cases which generate CRWs, it
->> might not be the same way for an LPAR guest I think.
->> 
->
-> This was a yes/no question. I can't interpret your answer neither as
-> yes or as no. Maybe a little clarification: I'm talking about a
-> recent linux guest. 
-See Conny's mail.
+For example:
+0. Prepare a vfio subchannel on the host:
+[root@host ~]# lscss --vfio 013f
+MDEV                                  Subchan.  PIM PAM POM  CHPIDs
+------------------------------------------------------------------------------
+6dfd3ec5-e8b3-4e18-a6fe-57bc9eceb920  0.0.013f  f0  f0  ff   42434445 00000000
 
->
->>> * Why not just do proper STSCH for vfio-ccw?
->> I only did the interested parts (path related). For the other parts, the
->> current handling is enough, no? Anyway, after we have the schib region,
->> we can do further STSCH handling any time later we want then.
->> 
->
-> I mean, your approach works on the premise, that the host will notify
-> QEMU each time the content of the SCHIB (area) changes (modulo stuff) so
-> it can do an update in QEMU, and give the guest an up to date virtualized
-> SCHIB when it asks for it executing the STSCH instruction.
->
-> I was asking myself. Why not instead while interpreting STSCH do a
-> STSCH on the host device (that is passed through), and virtualize the
-> result as necessary.
->
-> It occurred to me if nothing simpler. 
-I think I got your point now, and replied in the above #LabelA section.
+1. Pass-through subchannel 0.0.013f to a guest:
+-device vfio-ccw,sysfsdev="$MDEV_FILE_PATH",devno=0.0.3f3f
 
->
->>> * Shouldn't we virtualize CHPIDs?
->> Nobody would say no for this. :) The problem is that this is something
->> big, and it's not a short-term goal in my current working project... I
->> really want to deliver a minimal function set in the near future
->> firstly. If the current working does not hurt, can we defer channel path
->> re-modelling and CHPIDs virtualization?
->
-> The problem is, I'm not sure it does not hurt. For instance because of
-> the question below. I would also prefer having a fair idea of what
-> we need for the envisioned (complete) solution before introducing
-> kernel interfaces (to avoid: pity in the end we need something
-> different, and resulting cluttered interface).
->
->> 
->>> What if we have a clash? Lets say my dasd is only accessible via chp
->>> 0.00 in the host. Currently we have a problem there, or (as the only
->>> path would end up being ignored)?
->> You mean the clash that sharing path 0.00 between a physical dasd and
->> the virtio ccw devices? The problem I saw is in the checking of the
->> chpid.is_virtual in css_do_rchp(). For a virtual chp, we should generate
->> INIT CRWs; while for a non-virtual one, we shouldn't. If the chp is
->> shared with virtual and non-virtual device, I don't know what to do
->> then...
->> 
->> I don't think we can fix this before we re-modelled the channel path.
->> But this is neither introduced nor aggravated by this series, right?
->
-> I'm not sure about the later. What prevents the guest from believing
-> the (to use your terminology shared) chp 0.00 has become unavailable
-> if 0.00 becomes unavailable in the host?
->
-> Would that adversely affect the virtual devices? It would at
-> least look strange.
-AFAI read the code, this series does not hurt the vritual devices, which
-always have fixed path information in SCHIB.
+2. Start the guest and check the device and path information:
+[root@guest ~]# lscss 0002
+Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+----------------------------------------------------------------------
+0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  f0  ff   42434445 00000000 
+[root@guest ~]# lschp 
+CHPID  Vary  Cfg.  Type  Cmg  Shared  PCHID
+============================================
+0.00   1     -     32    -    -       -    
+0.42   1     3     1b    -    -       -    
+0.43   1     3     1b    -    -       -    
+0.44   1     3     1b    -    -       -    
+0.45   1     3     1b    -    -       -
 
-The strange thing is, the chp 0.00 is both virtual and non-virtual with
-mix use of virtual and non-virtual devices. And any existing problem is
-not caused or enhanced by this work. If we can not fix the problem
-without MCSS support or chp re-modelling in the near future, we should
-document the problem and the effect.
+3. On the host, configure off one path.
+[root@host ~]# chchp -c 0 42
 
-I will do some test on this.
+4. On the guest, check the status:
+[root@guest ~]# lscss 0002
+Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+----------------------------------------------------------------------
+0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  f0  ff   42434445 00000000 
+#Notice: No change!
 
->
->> 
->> We'd have to document this either I think.
->> 
->>> Note: this is another unpleasant effect of not having MCSSE in the
->>> guest. The original design was to have a separate css for vfio, and
->>> then we would not have this kind of a problem.  (Virtualization of
->>> chps would still be good for migration.)
->> Nod. BTW, I don't say that I do not want channel path virtualization in
->> the long run. It's just I want a minimal function set more currently
->> from what I'm focusing perspective.
->> 
->> THANKS for these insightful questions!
->> 
+[root@localhost ~]# chccwdev -e 3f3f
+Setting device 0.0.3f3f online
+dasd-eckd 0.0.3f3f: A channel path to the device has become operational
+dasd-eckd 0.0.3f3f: New DASD 3390/0C (CU 3990/01) with 30051 cylinders, 15 heads, 224 sectors
+dasd-eckd 0.0.3f3f: DASD with 4 KB/block, 21636720 KB total size, 48 KB/track, compatible disk layout
+ dasda:VOL1/  0X3F3F: dasda1
+Done
+
+[root@guest ~]# lscss 0002
+Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+----------------------------------------------------------------------
+0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  70  ff   42434445 00000000 
+#Notice: PAM value of path 0.42 changed.
+
+5. On the host, configure on one path.
+[root@host ~]# chchp -c 1 42
+
+6. On the guest, check the status again:
+[root@guest ~]# lscss 0002
+Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+----------------------------------------------------------------------
+0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  70  ff   42434445 00000000 
+#Notice: No change!
+
+[root@localhost ~]# chccwdev -d 3f3f
+Setting device 0.0.3f3f offline
+Done
+
+[root@guest ~]# lscss 0002
+Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+----------------------------------------------------------------------
+0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  f0  ff   42434445 00000000 
+#Notice: PAM changed again.
+
+Dong Jia Shi (3):
+  vfio: ccw: introduce schib region
+  vfio: ccw: introduce channel path irq
+  vfio: ccw: handle chp event
+
+ drivers/s390/cio/vfio_ccw_drv.c     |  51 +++++++++++++++++
+ drivers/s390/cio/vfio_ccw_fsm.c     |  43 ++++++++++++++
+ drivers/s390/cio/vfio_ccw_ops.c     | 108 ++++++++++++++++++++++++++----------
+ drivers/s390/cio/vfio_ccw_private.h |   8 +++
+ include/uapi/linux/vfio.h           |   2 +
+ include/uapi/linux/vfio_ccw.h       |   6 ++
+ 6 files changed, 190 insertions(+), 28 deletions(-)
 
 -- 
-Dong Jia Shi
+2.13.5
