@@ -1,117 +1,207 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [RFC PATCH 2/3] vfio: ccw: introduce channel path irq
-Date: Thu, 11 Jan 2018 04:04:20 +0100
-Message-ID: <20180111030421.31418-3-bjsdjshi@linux.vnet.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 0/3] vfio: ccw: basic channel path event handling
+Date: Thu, 11 Jan 2018 11:54:22 +0100
+Message-ID: <20180111115422.201987ee.cohuck@redhat.com>
 References: <20180111030421.31418-1-bjsdjshi@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180111030421.31418-1-bjsdjshi@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
-Cc: cohuck@redhat.com, borntraeger@de.ibm.com, bjsdjshi@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, borntraeger@de.ibm.com, pasic@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This introduces a new irq for vfio-ccw to provide channel path
-related event for userland.
+On Thu, 11 Jan 2018 04:04:18 +0100
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
----
- drivers/s390/cio/vfio_ccw_ops.c     | 29 +++++++++++++++++++++--------
- drivers/s390/cio/vfio_ccw_private.h |  2 ++
- include/uapi/linux/vfio.h           |  1 +
- 3 files changed, 24 insertions(+), 8 deletions(-)
+> Hi Folks,
+> 
+> Background
+> ==========
+> 
+> Some days ago, we had a discussion on the topic of channel path virtualization.
+> Ref:
+> Subject: [PATCH 0/3] Channel Path realted CRW generation
+> Message-Id: <20170727015418.85407-1-bjsdjshi@linux.vnet.ibm.com>
+> URL: https://lists.nongnu.org/archive/html/qemu-devel/2017-07/msg08414.html
+> 
+> Indeed that thread is not short and discussed many aspects in a
+> non-concentrated manner. The parts those are most valuable to me are:
+> 1. a re-modelling for channel path is surely the best offer, but is not
+>    possible to have in the near future.
+> 2. to enhance the path related functionalities, using PNO and PNOM might
+>    be something we can do for now. This may be something that I could improve
+>    without model related arguments.
+> 
+> So here I have this series targeting to add basic channel path event handling
+> for vfio-ccw -- no touch of the channel path modelling in both the kernel and
+> the QEMU side, but find a way to sync path status change to guest lazily using
+> SCSW_FLAGS_MASK_PNO and pmcw->pnom.  In short, I want to enhance path related
+> stuff (to be more specific: sync up path status to the guest) on a best effort
+> basis, which means in a way that won't get us invloed to do channel path
+> re-modelling.
 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 9528fce2e7d9..972cfc8834fc 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -275,17 +275,20 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
- 
- static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
- {
--	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
-+	switch (info->index) {
-+	case VFIO_CCW_IO_IRQ_INDEX:
-+	case VFIO_CCW_CHP_IRQ_INDEX:
-+		info->count = 1;
-+		info->flags = VFIO_IRQ_INFO_EVENTFD;
-+		return 0;
-+	default:
- 		return -EINVAL;
--
--	info->count = 1;
--	info->flags = VFIO_IRQ_INFO_EVENTFD;
--
--	return 0;
-+	}
- }
- 
- static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 				  uint32_t flags,
-+				  unsigned index,
- 				  void __user *data)
- {
- 	struct vfio_ccw_private *private;
-@@ -295,7 +298,17 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 		return -EINVAL;
- 
- 	private = dev_get_drvdata(mdev_parent_dev(mdev));
--	ctx = &private->io_trigger;
-+
-+	switch (index) {
-+	case VFIO_CCW_IO_IRQ_INDEX:
-+		ctx = &private->io_trigger;
-+		break;
-+	case VFIO_CCW_CHP_IRQ_INDEX:
-+		ctx = &private->chp_trigger;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 
- 	switch (flags & VFIO_IRQ_SET_DATA_TYPE_MASK) {
- 	case VFIO_IRQ_SET_DATA_NONE:
-@@ -433,7 +446,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 			return ret;
- 
- 		data = (void __user *)(arg + minsz);
--		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, data);
-+		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, hdr.index, data);
- 	}
- 	case VFIO_DEVICE_RESET:
- 		return vfio_ccw_mdev_reset(mdev);
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 460c8b90d834..da86f82dd7b9 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -33,6 +33,7 @@
-  * @irb: irb info received from interrupt
-  * @scsw: scsw info
-  * @io_trigger: eventfd ctx for signaling userspace I/O results
-+ * @chp_trigger: eventfd ctx for signaling userspace chp event
-  * @io_work: work for deferral process of I/O handling
-  */
- struct vfio_ccw_private {
-@@ -50,6 +51,7 @@ struct vfio_ccw_private {
- 	union scsw		scsw;
- 
- 	struct eventfd_ctx	*io_trigger;
-+	struct eventfd_ctx	*chp_trigger;
- 	struct work_struct	io_work;
- } __aligned(8);
- 
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index c60244debf71..179a7492d53a 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -463,6 +463,7 @@ enum {
- 
- enum {
- 	VFIO_CCW_IO_IRQ_INDEX,
-+	VFIO_CCW_CHP_IRQ_INDEX,
- 	VFIO_CCW_NUM_IRQS
- };
- 
--- 
-2.13.5
+The guest should also get the updated PIM/PAM/POM, shouldn't it?
+
+> 
+> What benifit can we get from this? The administrator of a virtual machine can
+> get uptodate (in some extent) status of the current using channel paths, so
+> he/she can monitor paths status and get path problem noticed timely (see the
+> example below).
+> 
+> I think we can start a new round discussion based on this series. So reviewers
+> can give their comments based on some code, and then we can decide if this is
+> we want or not.
+> 
+> As flagged with RFC, the intention of this series is to show what I have for
+> now, and what could the code look like in general. Thus I can get some early
+> feedbacks. I would expect to see opinions on:
+> - is the target (mentioned above) of this series welcomed or not.
+
+It certainly makes sense to have a way to get an updated schib.
+
+> - is the approach of this series good or bad.
+
+Still need to read :)
+
+> So I can either move on with this (or with other suggested approach) or leave
+> it alone.
+> 
+> Basic Introduction of The Patches
+> =================================
+> 
+> This is the kernel counterpart, which mainly does:
+> 1. add a schib vfio region for userland to _store_ subchannel information.
+> 2. add a channel path vfio irq to notify userland with chp status change event.
+> 3. add .chp_event handler for vfio-ccw driver, so the driver handles chp event,
+>    and signals userland about the event.
+
+Do you plan to trigger schib updates for things other than path events?
+
+> 
+> With the above work, userland can be signaled with chp related event, and then
+> it can read out uptodate SCHIB from the new region, and sync up path related
+> information to the corresponding virtual subchannel. So a guest can sense the
+> path update in some extent.
+
+That's basically what Linux could do before implementing chpid related
+machine checks, so it should be at least helpful.
+
+> 
+> For the QEMU counterpart, please ref:
+> [RFC PATCH 0/5] vfio/ccw: basic channel path event handling
+> 
+> The QEMU counterpart mainly does:
+> 1. add handling of the schib region, so that it can read out the newest schib
+>    information.
+> 2. add handling of the chp irq, so that it can get notification of channel path
+>    status change.
+> 3. once there is a chp status event, synchronize related information from the
+>    newest schib information to guest lazily.
+> 
+> What are still missing, thus need to be offered in the next version are:
+> - I/O termination and FSM state handling if currently we have I/O on the status
+>   switched path.
+
+I'm wondering up to which extent we should involve ourselves here. The
+normal I/O subchannel driver handles all the path related things; but
+for vfio, we basically want to hand the subchannel to the guest and not
+involve ourselves in management. A configure off does an SCLP command;
+does that already have an impact on running commands? (I can't check
+myself due to lack of public documentation, sadly.)
+
+> - Vary on/off event is not sensible to a guest.
+
+As vary on/off basically means manipulating some internal masks and
+updating path groups if applicable, I'm not sure how much we
+could/should do here anyway.
+
+> 
+> Example
+> =======
+> 
+> With both the kernel and Qemu parts applied, we can notice some new behaviors
+> of a channel path when we have a guest with a passed through vfio-ccw device
+> using it. The guest can reflect the chp status change of the host side lazily,
+> and synchronize the updated information.
+> 
+> For example:
+> 0. Prepare a vfio subchannel on the host:
+> [root@host ~]# lscss --vfio 013f
+
+Oh, is this a new option? In which version had it been added? (My
+Fedora 26 LPAR does not yet have it.)
+
+> MDEV                                  Subchan.  PIM PAM POM  CHPIDs
+> ------------------------------------------------------------------------------
+> 6dfd3ec5-e8b3-4e18-a6fe-57bc9eceb920  0.0.013f  f0  f0  ff   42434445 00000000
+> 
+> 1. Pass-through subchannel 0.0.013f to a guest:
+> -device vfio-ccw,sysfsdev="$MDEV_FILE_PATH",devno=0.0.3f3f
+> 
+> 2. Start the guest and check the device and path information:
+> [root@guest ~]# lscss 0002
+> Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+> ----------------------------------------------------------------------
+> 0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  f0  ff   42434445 00000000 
+> [root@guest ~]# lschp 
+> CHPID  Vary  Cfg.  Type  Cmg  Shared  PCHID
+> ============================================
+> 0.00   1     -     32    -    -       -    
+> 0.42   1     3     1b    -    -       -    
+> 0.43   1     3     1b    -    -       -    
+> 0.44   1     3     1b    -    -       -    
+> 0.45   1     3     1b    -    -       -
+> 
+> 3. On the host, configure off one path.
+> [root@host ~]# chchp -c 0 42
+> 
+> 4. On the guest, check the status:
+> [root@guest ~]# lscss 0002
+> Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+> ----------------------------------------------------------------------
+> 0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  f0  ff   42434445 00000000 
+> #Notice: No change!
+> 
+> [root@localhost ~]# chccwdev -e 3f3f
+> Setting device 0.0.3f3f online
+> dasd-eckd 0.0.3f3f: A channel path to the device has become operational
+> dasd-eckd 0.0.3f3f: New DASD 3390/0C (CU 3990/01) with 30051 cylinders, 15 heads, 224 sectors
+> dasd-eckd 0.0.3f3f: DASD with 4 KB/block, 21636720 KB total size, 48 KB/track, compatible disk layout
+>  dasda:VOL1/  0X3F3F: dasda1
+> Done
+> 
+> [root@guest ~]# lscss 0002
+> Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+> ----------------------------------------------------------------------
+> 0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  70  ff   42434445 00000000 
+> #Notice: PAM value of path 0.42 changed.
+> 
+> 5. On the host, configure on one path.
+> [root@host ~]# chchp -c 1 42
+> 
+> 6. On the guest, check the status again:
+> [root@guest ~]# lscss 0002
+> Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+> ----------------------------------------------------------------------
+> 0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  70  ff   42434445 00000000 
+> #Notice: No change!
+> 
+> [root@localhost ~]# chccwdev -d 3f3f
+> Setting device 0.0.3f3f offline
+> Done
+> 
+> [root@guest ~]# lscss 0002
+> Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+> ----------------------------------------------------------------------
+> 0.0.3f3f 0.0.0002  3390/0c 3990/e9      f0  f0  ff   42434445 00000000 
+> #Notice: PAM changed again.
+
+Yes, that looks reasonable. The guest being aware of changed masks only
+if it actually did something that triggered path verification is
+probably the best we can do without implementing channel path machine
+checks.
