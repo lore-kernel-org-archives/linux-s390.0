@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/34] m32r: remove unused flush_write_buffers definition
-Date: Fri, 12 Jan 2018 09:42:01 +0100
-Message-ID: <20180112084232.2857-4-hch@lst.de>
+Subject: [PATCH 08/34] s390: remove the unused dma_capable helper
+Date: Fri, 12 Jan 2018 09:42:06 +0100
+Message-ID: <20180112084232.2857-9-hch@lst.de>
 In-Reply-To: <20180112084232.2857-1-hch@lst.de>
 References: <20180112084232.2857-1-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180112084201.NoQkSBmkbdcrNiD2Df001wCNPKyKGQn6_chbqmVOLBM@z>
+Message-ID: <20180112084206.2o23mNGOaINlCnV-83dmrhm2u0Zevj5PhRin2zq7T78@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
@@ -15,21 +15,24 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/m32r/include/asm/io.h | 2 --
- 1 file changed, 2 deletions(-)
+ arch/s390/include/asm/dma-mapping.h | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/arch/m32r/include/asm/io.h b/arch/m32r/include/asm/io.h
-index 1b653bb16f9a..a4272d8f0d9c 100644
---- a/arch/m32r/include/asm/io.h
-+++ b/arch/m32r/include/asm/io.h
-@@ -191,8 +191,6 @@ static inline void _writel(unsigned long l, unsigned long addr)
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+index eaf490f9c5bc..2ec7240c1ada 100644
+--- a/arch/s390/include/asm/dma-mapping.h
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -16,11 +16,4 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+ 	return &dma_noop_ops;
+ }
  
- #define mmiowb()
- 
--#define flush_write_buffers() do { } while (0)  /* M32R_FIXME */
+-static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+-{
+-	if (!dev->dma_mask)
+-		return false;
+-	return addr + size - 1 <= *dev->dma_mask;
+-}
 -
- static inline void
- memset_io(volatile void __iomem *addr, unsigned char val, int count)
- {
+ #endif /* _ASM_S390_DMA_MAPPING_H */
 -- 
 2.14.2
