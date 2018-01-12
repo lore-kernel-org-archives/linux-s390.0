@@ -1,57 +1,122 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH 31/33] dma-direct: reject too small dma masks
-Date: Wed, 10 Jan 2018 17:00:30 +0000
-Message-ID: <619b174d-f38d-8d9e-dfd2-cc3a64ace446@arm.com>
+From: Konrad Rzeszutek Wilk <konrad@darnok.org>
+Subject: Re: [PATCH 21/33] dma-mapping: add an arch_dma_supported hook
+Date: Fri, 12 Jan 2018 08:17:28 -0500
+Message-ID: <20180112131727.GB26900@localhost.localdomain>
 References: <20180110080027.13879-1-hch@lst.de>
- <20180110080027.13879-32-hch@lst.de>
- <0bcca030-a8da-c34a-a905-707986689f33@arm.com>
- <20180110153226.GE17790@lst.de>
+ <20180110080027.13879-22-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <20180110153226.GE17790@lst.de>
-Content-Language: en-GB
+Content-Disposition: inline
+In-Reply-To: <20180110080027.13879-22-hch@lst.de>
 Sender: linux-alpha-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Christoph Hellwig <hch@lst.de>
-Cc: iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-snps-arc@lists.infradead.org, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Cc: iommu@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 10/01/18 15:32, Christoph Hellwig wrote:
-> On Wed, Jan 10, 2018 at 11:49:34AM +0000, Robin Murphy wrote:
->>> +#ifdef CONFIG_ZONE_DMA
->>> +	if (mask < DMA_BIT_MASK(ARCH_ZONE_DMA_BITS))
->>> +		return 0;
->>> +#else
->>> +	/*
->>> +	 * Because 32-bit DMA masks are so common we expect every architecture
->>> +	 * to be able to satisfy them - either by not supporting more physical
->>> +	 * memory, or by providing a ZONE_DMA32.  If neither is the case, the
->>> +	 * architecture needs to use an IOMMU instead of the direct mapping.
->>> +	 */
->>> +	if (mask < DMA_BIT_MASK(32))
->>> +		return 0;
->>
->> Do you think it's worth the effort to be a little more accommodating here?
->> i.e.:
->>
->> 		return dma_max_pfn(dev) >= max_pfn;
->>
->> We seem to have a fair few 28-31 bit masks for older hardware which
->> probably associates with host systems packing equivalently small amounts of
->> RAM.
+On Wed, Jan 10, 2018 at 09:00:15AM +0100, Christoph Hellwig wrote:
+> To implement the x86 forbid_dac and iommu_sac_force we want an arch hook
+> so that it can apply the global options across all dma_map_ops
+> implementations.
 > 
-> And those devices don't have a ZONE_DMA?  I think we could do something
-> like that, but I'd rather have it as a separate commit with a good
-> explanation.  Maybe you can just send on on top of the series?
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Good point - other than the IXP4xx platform and possibly the Broadcom 
-network drivers, it's probably only x86-relevant stuff where the concern 
-is moot. Let's just keep the simple assumption then, until actually 
-proven otherwise.
-
-Robin.
+Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> ---
+>  arch/x86/include/asm/dma-mapping.h |  3 +++
+>  arch/x86/kernel/pci-dma.c          | 19 ++++++++++++-------
+>  include/linux/dma-mapping.h        | 11 +++++++++++
+>  3 files changed, 26 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/dma-mapping.h b/arch/x86/include/asm/dma-mapping.h
+> index dfdc9357a349..6277c83c0eb1 100644
+> --- a/arch/x86/include/asm/dma-mapping.h
+> +++ b/arch/x86/include/asm/dma-mapping.h
+> @@ -30,6 +30,9 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+>  	return dma_ops;
+>  }
+>  
+> +int arch_dma_supported(struct device *dev, u64 mask);
+> +#define arch_dma_supported arch_dma_supported
+> +
+>  bool arch_dma_alloc_attrs(struct device **dev, gfp_t *gfp);
+>  #define arch_dma_alloc_attrs arch_dma_alloc_attrs
+>  
+> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+> index 61a8f1cb3829..df7ab02f959f 100644
+> --- a/arch/x86/kernel/pci-dma.c
+> +++ b/arch/x86/kernel/pci-dma.c
+> @@ -215,7 +215,7 @@ static __init int iommu_setup(char *p)
+>  }
+>  early_param("iommu", iommu_setup);
+>  
+> -int x86_dma_supported(struct device *dev, u64 mask)
+> +int arch_dma_supported(struct device *dev, u64 mask)
+>  {
+>  #ifdef CONFIG_PCI
+>  	if (mask > 0xffffffff && forbid_dac > 0) {
+> @@ -224,12 +224,6 @@ int x86_dma_supported(struct device *dev, u64 mask)
+>  	}
+>  #endif
+>  
+> -	/* Copied from i386. Doesn't make much sense, because it will
+> -	   only work for pci_alloc_coherent.
+> -	   The caller just has to use GFP_DMA in this case. */
+> -	if (mask < DMA_BIT_MASK(24))
+> -		return 0;
+> -
+>  	/* Tell the device to use SAC when IOMMU force is on.  This
+>  	   allows the driver to use cheaper accesses in some cases.
+>  
+> @@ -249,6 +243,17 @@ int x86_dma_supported(struct device *dev, u64 mask)
+>  
+>  	return 1;
+>  }
+> +EXPORT_SYMBOL(arch_dma_supported);
+> +
+> +int x86_dma_supported(struct device *dev, u64 mask)
+> +{
+> +	/* Copied from i386. Doesn't make much sense, because it will
+> +	   only work for pci_alloc_coherent.
+> +	   The caller just has to use GFP_DMA in this case. */
+> +	if (mask < DMA_BIT_MASK(24))
+> +		return 0;
+> +	return 1;
+> +}
+>  
+>  static int __init pci_iommu_init(void)
+>  {
+> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+> index 88bcb1a8211d..d67742dad904 100644
+> --- a/include/linux/dma-mapping.h
+> +++ b/include/linux/dma-mapping.h
+> @@ -576,6 +576,14 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+>  	return 0;
+>  }
+>  
+> +/*
+> + * This is a hack for the legacy x86 forbid_dac and iommu_sac_force. Please
+> + * don't use this is new code.
+> + */
+> +#ifndef arch_dma_supported
+> +#define arch_dma_supported(dev, mask)	(1)
+> +#endif
+> +
+>  static inline void dma_check_mask(struct device *dev, u64 mask)
+>  {
+>  	if (sme_active() && (mask < (((u64)sme_get_me_mask() << 1) - 1)))
+> @@ -588,6 +596,9 @@ static inline int dma_supported(struct device *dev, u64 mask)
+>  
+>  	if (!ops)
+>  		return 0;
+> +	if (!arch_dma_supported(dev, mask))
+> +		return 0;
+> +
+>  	if (!ops->dma_supported)
+>  		return 1;
+>  	return ops->dma_supported(dev, mask);
+> -- 
+> 2.14.2
+> 
