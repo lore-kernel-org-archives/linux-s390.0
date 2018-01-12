@@ -1,108 +1,38 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 1/3] vfio: ccw: introduce schib region
-Date: Thu, 11 Jan 2018 15:16:59 +0100
-Message-ID: <20180111151659.2d997abf.cohuck@redhat.com>
+From: Halil Pasic <pasic@linux.vnet.ibm.com>
+Subject: Re: [Qemu-devel] [RFC PATCH 0/3] vfio: ccw: basic channel path event
+ handling
+Date: Fri, 12 Jan 2018 19:10:20 +0100
+Message-ID: <f9224bba-08fb-589e-ed6e-d8e967a8fe67@linux.vnet.ibm.com>
 References: <20180111030421.31418-1-bjsdjshi@linux.vnet.ibm.com>
-        <20180111030421.31418-2-bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180111030421.31418-2-bjsdjshi@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20180111030421.31418-1-bjsdjshi@linux.vnet.ibm.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, borntraeger@de.ibm.com, pasic@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
+Cc: cohuck@redhat.com, borntraeger@de.ibm.com, pmorel@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 11 Jan 2018 04:04:19 +0100
-Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-> This introduces a new region for vfio-ccw to provide subchannel
-> information for user space.
-> 
-> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> ---
->  drivers/s390/cio/vfio_ccw_fsm.c     | 21 ++++++++++
->  drivers/s390/cio/vfio_ccw_ops.c     | 79 +++++++++++++++++++++++++++----------
->  drivers/s390/cio/vfio_ccw_private.h |  3 ++
->  include/uapi/linux/vfio.h           |  1 +
->  include/uapi/linux/vfio_ccw.h       |  6 +++
->  5 files changed, 90 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-> index c30420c517b1..be081ccabea3 100644
-> --- a/drivers/s390/cio/vfio_ccw_fsm.c
-> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-> @@ -172,6 +172,22 @@ static void fsm_irq(struct vfio_ccw_private *private,
->  		complete(private->completion);
->  }
->  
-> +static void fsm_update_subch(struct vfio_ccw_private *private,
-> +			     enum vfio_ccw_event event)
-> +{
-> +	struct subchannel *sch;
-> +
-> +	sch = private->sch;
-> +	if (cio_update_schib(sch)) {
 
-This implies device gone. Do we also want to trigger some event, or
-just wait until a machine check comes around and we're notified in the
-normal way? (Probably the latter.)
+On 01/11/2018 04:04 AM, Dong Jia Shi wrote:
+> What are still missing, thus need to be offered in the next version are:
+> - I/O termination and FSM state handling if currently we have I/O on the status
+>   switched path.
+> - Vary on/off event is not sensible to a guest.
 
-> +		private->schib_region.cc = 3;
-> +		return;
-> +	}
-> +
-> +	private->schib_region.cc = 0;
-> +	memcpy(private->schib_region.schib_area, &sch->schib,
-> +	       sizeof(sch->schib));
+I don't see a doc update. We do have documentation (in
+Documentation/s390/vfio-ccw.txt) in which the uapi interface with the
+regions and their purpose/usage  is at least kind of explained. You are
+changing this interface without updating the doc.
 
-We might want to add documentation that schib_area contains the schib
-from the last successful invocation of stsch (if any). That makes sense
-as the schib remains unchanged for cc=3 after stsch anyway, but it
-can't hurt to spell it out.
+I would like to see documentation on this because I'm under the
+impression either the design is pretty convoluted or I did not
+get it at all.
 
-> +}
-> +
->  /*
->   * Device statemachine
->   */
-> @@ -180,25 +196,30 @@ fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
->  		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_nop,
->  		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_error,
->  		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_disabled_irq,
-> +		[VFIO_CCW_EVENT_UPDATE_SUBCH]	= fsm_update_subch,
->  	},
->  	[VFIO_CCW_STATE_STANDBY] = {
->  		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
->  		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_error,
->  		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
-> +		[VFIO_CCW_EVENT_UPDATE_SUBCH]	= fsm_update_subch,
->  	},
->  	[VFIO_CCW_STATE_IDLE] = {
->  		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
->  		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_request,
->  		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
-> +		[VFIO_CCW_EVENT_UPDATE_SUBCH]	= fsm_update_subch,
->  	},
->  	[VFIO_CCW_STATE_BOXED] = {
->  		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
->  		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
->  		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
-> +		[VFIO_CCW_EVENT_UPDATE_SUBCH]	= fsm_update_subch,
->  	},
->  	[VFIO_CCW_STATE_BUSY] = {
->  		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
->  		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
->  		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
-> +		[VFIO_CCW_EVENT_UPDATE_SUBCH]	= fsm_update_subch,
-
-Does it makes to trigger this through the state machine if we always do
-the same action and never change state?
-
->  	},
->  };
-
-Else, looks good.
+Regards,
+Halil
