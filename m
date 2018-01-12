@@ -1,88 +1,80 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [RFC PATCH 2/5] vfio/ccw: get schib region info
-Date: Thu, 11 Jan 2018 04:04:56 +0100
-Message-ID: <20180111030459.33757-3-bjsdjshi@linux.vnet.ibm.com>
-References: <20180111030459.33757-1-bjsdjshi@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180111030459.33757-1-bjsdjshi@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
-Cc: cohuck@redhat.com, borntraeger@de.ibm.com, bjsdjshi@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 17/34] microblaze: remove dma_nommu_dma_supported
+Date: Fri, 12 Jan 2018 09:42:15 +0100
+Message-ID: <20180112084232.2857-18-hch@lst.de>
+References: <20180112084232.2857-1-hch@lst.de>
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <20180112084232.2857-1-hch@lst.de>
+Sender: linux-ia64-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: iommu@lists.linux-foundation.org
+Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-vfio-ccw provides an MMIO region for store subchannel
-information. We fetch this information via ioctls here,
-then we can use it to update schib for virtual subchannels
-later on.
+Always returning 1 is the same behavior as not supplying a method at all.
 
-While we are at it, also modify the comment and error
-message for the config region a bit, to make these unified
-with the schib likeness.
-
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- hw/vfio/ccw.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ arch/microblaze/kernel/dma.c | 6 ------
+ arch/parisc/kernel/pci-dma.c | 7 -------
+ 2 files changed, 13 deletions(-)
 
-diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-index 16713f2c52..e673695509 100644
---- a/hw/vfio/ccw.c
-+++ b/hw/vfio/ccw.c
-@@ -32,6 +32,10 @@ typedef struct VFIOCCWDevice {
-     uint64_t io_region_offset;
-     struct ccw_io_region *io_region;
-     EventNotifier io_notifier;
-+
-+    uint64_t schib_region_size;
-+    uint64_t schib_region_offset;
-+    struct ccw_schib_region *schib_region;
- } VFIOCCWDevice;
- 
- static void vfio_ccw_compute_needs_reset(VFIODevice *vdev)
-@@ -268,9 +272,10 @@ static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
-         return;
-     }
- 
-+    /* Get I/O region info. */
-     ret = vfio_get_region_info(vdev, VFIO_CCW_CONFIG_REGION_INDEX, &info);
-     if (ret) {
--        error_setg_errno(errp, -ret, "vfio: Error getting config info");
-+        error_setg_errno(errp, -ret, "vfio: Error getting config region info");
-         return;
-     }
- 
-@@ -283,13 +288,30 @@ static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
- 
-     vcdev->io_region_offset = info->offset;
-     vcdev->io_region = g_malloc0(info->size);
-+    g_free(info);
- 
-+    /* Get SCHIB region info. */
-+    ret = vfio_get_region_info(vdev, VFIO_CCW_SCHIB_REGION_INDEX, &info);
-+    if (ret) {
-+        error_setg_errno(errp, -ret, "vfio: Error getting schib region info");
-+        return;
-+    }
-+
-+    vcdev->schib_region_size = info->size;
-+    if (sizeof(*vcdev->schib_region) != vcdev->schib_region_size) {
-+        error_setg(errp, "vfio: Unexpected size of the schib region");
-+        g_free(info);
-+        return;
-+    }
-+    vcdev->schib_region_offset = info->offset;
-+    vcdev->schib_region = g_malloc0(info->size);
-     g_free(info);
+diff --git a/arch/microblaze/kernel/dma.c b/arch/microblaze/kernel/dma.c
+index 450803e5731a..b45d8f8967af 100644
+--- a/arch/microblaze/kernel/dma.c
++++ b/arch/microblaze/kernel/dma.c
+@@ -89,11 +89,6 @@ static int dma_nommu_map_sg(struct device *dev, struct scatterlist *sgl,
+ 	return nents;
  }
  
- static void vfio_ccw_put_region(VFIOCCWDevice *vcdev)
- {
-     g_free(vcdev->io_region);
-+    g_free(vcdev->schib_region);
+-static int dma_nommu_dma_supported(struct device *dev, u64 mask)
+-{
+-	return 1;
+-}
+-
+ static inline dma_addr_t dma_nommu_map_page(struct device *dev,
+ 					     struct page *page,
+ 					     unsigned long offset,
+@@ -209,7 +204,6 @@ const struct dma_map_ops dma_nommu_ops = {
+ 	.free			= dma_nommu_free_coherent,
+ 	.mmap			= dma_nommu_mmap_coherent,
+ 	.map_sg			= dma_nommu_map_sg,
+-	.dma_supported		= dma_nommu_dma_supported,
+ 	.map_page		= dma_nommu_map_page,
+ 	.unmap_page		= dma_nommu_unmap_page,
+ 	.sync_single_for_cpu	= dma_nommu_sync_single_for_cpu,
+diff --git a/arch/parisc/kernel/pci-dma.c b/arch/parisc/kernel/pci-dma.c
+index c0dfd892f70c..91bc0cac03a1 100644
+--- a/arch/parisc/kernel/pci-dma.c
++++ b/arch/parisc/kernel/pci-dma.c
+@@ -75,11 +75,6 @@ void dump_resmap(void)
+ static inline void dump_resmap(void) {;}
+ #endif
+ 
+-static int pa11_dma_supported( struct device *dev, u64 mask)
+-{
+-	return 1;
+-}
+-
+ static inline int map_pte_uncached(pte_t * pte,
+ 		unsigned long vaddr,
+ 		unsigned long size, unsigned long *paddr_ptr)
+@@ -579,7 +574,6 @@ static void pa11_dma_cache_sync(struct device *dev, void *vaddr, size_t size,
  }
  
- static void vfio_put_device(VFIOCCWDevice *vcdev)
+ const struct dma_map_ops pcxl_dma_ops = {
+-	.dma_supported =	pa11_dma_supported,
+ 	.alloc =		pa11_dma_alloc,
+ 	.free =			pa11_dma_free,
+ 	.map_page =		pa11_dma_map_page,
+@@ -616,7 +610,6 @@ static void pcx_dma_free(struct device *dev, size_t size, void *vaddr,
+ }
+ 
+ const struct dma_map_ops pcx_dma_ops = {
+-	.dma_supported =	pa11_dma_supported,
+ 	.alloc =		pcx_dma_alloc,
+ 	.free =			pcx_dma_free,
+ 	.map_page =		pa11_dma_map_page,
 -- 
-2.13.5
+2.14.2
