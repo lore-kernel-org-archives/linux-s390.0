@@ -1,49 +1,74 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 19/34] s390: move s390_pci_dma_ops to asm/pci_dma.h
-Date: Fri, 12 Jan 2018 09:42:17 +0100
-Message-ID: <20180112084232.2857-20-hch@lst.de>
+Subject: [PATCH 27/34] dma-direct: add support for CMA allocation
+Date: Fri, 12 Jan 2018 09:42:25 +0100
+Message-ID: <20180112084232.2857-28-hch@lst.de>
 References: <20180112084232.2857-1-hch@lst.de>
-Return-path: <sparclinux-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 In-Reply-To: <20180112084232.2857-1-hch@lst.de>
-Sender: sparclinux-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: iommu@lists.linux-foundation.org
 Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This is not needed in drivers, so move it to a private header.
+Try the CMA allocator for coherent allocations if supported.
+
+Roughly modelled after the x86 code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/include/asm/dma-mapping.h | 2 --
- arch/s390/include/asm/pci_dma.h     | 3 +++
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ lib/dma-direct.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-index 2ec7240c1ada..bdc2455483f6 100644
---- a/arch/s390/include/asm/dma-mapping.h
-+++ b/arch/s390/include/asm/dma-mapping.h
-@@ -9,8 +9,6 @@
- #include <linux/dma-debug.h>
- #include <linux/io.h>
+diff --git a/lib/dma-direct.c b/lib/dma-direct.c
+index 32fd4d9e4c47..a9ae98be7af3 100644
+--- a/lib/dma-direct.c
++++ b/lib/dma-direct.c
+@@ -7,6 +7,7 @@
+ #include <linux/mm.h>
+ #include <linux/dma-direct.h>
+ #include <linux/scatterlist.h>
++#include <linux/dma-contiguous.h>
+ #include <linux/pfn.h>
  
--extern const struct dma_map_ops s390_pci_dma_ops;
--
- static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+ #define DIRECT_MAPPING_ERROR		0
+@@ -29,19 +30,30 @@ check_addr(struct device *dev, dma_addr_t dma_addr, size_t size,
+ static void *dma_direct_alloc(struct device *dev, size_t size,
+ 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
  {
- 	return &dma_noop_ops;
-diff --git a/arch/s390/include/asm/pci_dma.h b/arch/s390/include/asm/pci_dma.h
-index e8d9161fa17a..419fac7a62c0 100644
---- a/arch/s390/include/asm/pci_dma.h
-+++ b/arch/s390/include/asm/pci_dma.h
-@@ -201,4 +201,7 @@ void dma_cleanup_tables(unsigned long *);
- unsigned long *dma_walk_cpu_trans(unsigned long *rto, dma_addr_t dma_addr);
- void dma_update_cpu_trans(unsigned long *entry, void *page_addr, int flags);
+-	void *ret;
++	unsigned int count = PAGE_ALIGN(size) >> PAGE_SHIFT;
++	int page_order = get_order(size);
++	struct page *page = NULL;
  
-+extern const struct dma_map_ops s390_pci_dma_ops;
+-	ret = (void *)__get_free_pages(gfp, get_order(size));
+-	if (ret)
+-		*dma_handle = phys_to_dma(dev, virt_to_phys(ret));
++	/* CMA can be used only in the context which permits sleeping */
++	if (gfpflags_allow_blocking(gfp))
++		page = dma_alloc_from_contiguous(dev, count, page_order, gfp);
++	if (!page)
++		page = alloc_pages(gfp, page_order);
++	if (!page)
++		return NULL;
+ 
+-	return ret;
++	*dma_handle = phys_to_dma(dev, page_to_phys(page));
++	memset(page_address(page), 0, size);
++	return page_address(page);
+ }
+ 
+ static void dma_direct_free(struct device *dev, size_t size, void *cpu_addr,
+ 		dma_addr_t dma_addr, unsigned long attrs)
+ {
+-	free_pages((unsigned long)cpu_addr, get_order(size));
++	unsigned int count = PAGE_ALIGN(size) >> PAGE_SHIFT;
 +
-+
- #endif
++	if (!dma_release_from_contiguous(dev, virt_to_page(cpu_addr), count))
++		free_pages((unsigned long)cpu_addr, get_order(size));
+ }
+ 
+ static dma_addr_t dma_direct_map_page(struct device *dev, struct page *page,
 -- 
 2.14.2
