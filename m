@@ -1,51 +1,33 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1516667515.8378.24.camel@perches.com>
-Subject: Re: [PATCH v2] smc: return booleans instead of integers
-From: Joe Perches <joe@perches.com>
-Date: Mon, 22 Jan 2018 16:31:55 -0800
-In-Reply-To: <e8d5d07e-a784-b9b8-4fea-5826a3d42698@linux.vnet.ibm.com>
-References: <20180119205450.GA10785@embeddedgus>
-         <e8d5d07e-a784-b9b8-4fea-5826a3d42698@linux.vnet.ibm.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ursula Braun <ubraun@linux.vnet.ibm.com>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Return-Path: <ming.lei@redhat.com>
+Date: Fri, 12 Jan 2018 09:16:43 +0800
+From: Ming Lei <ming.lei@redhat.com>
+Subject: Re: 4.14: WARNING: CPU: 4 PID: 2895 at block/blk-mq.c:1144 with
+ virtio-blk (also 4.12 stable)
+Message-ID: <20180112011642.GA25090@ming.t460p>
+References: <419d8565-9cbe-16ac-3d5d-5945098694bc@de.ibm.com>
+ <20171127155409.GA6937@lst.de>
+ <d0f39408-b697-8d1a-2cce-b833cb8fa118@de.ibm.com>
+ <20171204162108.GA12482@lst.de>
+ <5ab91c56-b117-f4fa-3049-a4f8a5493155@de.ibm.com>
+ <20171206232924.GA16584@lst.de>
+ <0520e469-563b-486c-9ab8-00d8944ffa9d@linux.vnet.ibm.com>
+ <04aff6c6-5c04-a2b5-e886-b747cb51f39e@de.ibm.com>
+ <20180111091318.GA13969@ming.t460p>
+ <20180111174654.GA10280@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180111174654.GA10280@lst.de>
+List-Archive: <https://lore.kernel.org/linux-block/>
+List-Post: <mailto:linux-block@vger.kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Stefan Haberland <sth@linux.vnet.ibm.com>, Jens Axboe <axboe@kernel.dk>, Bart Van Assche <Bart.VanAssche@wdc.com>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-s390 <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2018-01-22 at 12:58 +0100, Ursula Braun wrote:
-> 
-> On 01/19/2018 09:54 PM, Gustavo A. R. Silva wrote:
-> > Return statements in functions returning bool should use
-> > true/false instead of 1/0.
-> > 
-> > This issue was detected with the help of Coccinelle.
-> > 
-> > Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-> > ---
-> > Changes in v2:
-> >  - Fix function using_ipsec as suggested by Ursula Braun.
-> >  - Update subject line.
-> > 
-> >  net/smc/smc.h | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/net/smc/smc.h b/net/smc/smc.h
-[]
-> > @@ -253,12 +253,12 @@ static inline int smc_uncompress_bufsize(u8 compressed)
-> >  static inline bool using_ipsec(struct smc_sock *smc)
-> >  {
-> >  	return (smc->clcsock->sk->sk_policy[0] ||
-> > -		smc->clcsock->sk->sk_policy[1]) ? 1 : 0;
-> > +		smc->clcsock->sk->sk_policy[1]) ? true : false;
+On Thu, Jan 11, 2018 at 06:46:54PM +0100, Christoph Hellwig wrote:
+> Thanks for looking into this Ming, I had missed it in the my current
+> work overload.  Can you send the updated series to Jens?
 
-Generally, any bool return like
+OK, I will post it out soon.
 
-	return condition ? true : false;
-
-could be written
-
-	return condition;
+Thanks,
+Ming
