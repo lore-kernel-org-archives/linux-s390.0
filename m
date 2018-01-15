@@ -1,44 +1,52 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 1/1] vfio-ccw: update documentation
-Date: Tue, 16 Jan 2018 17:28:18 +0100
-Message-ID: <20180116172818.6f35a1c0.cohuck@redhat.com>
-References: <20180115104353.27413-1-cohuck@redhat.com>
-        <20180115104353.27413-2-cohuck@redhat.com>
-        <5a99b7e2-3cce-c92d-f1d8-1469a334ff6d@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5a99b7e2-3cce-c92d-f1d8-1469a334ff6d@linux.vnet.ibm.com>
+Date: Mon, 15 Jan 2018 16:19:16 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: fix setgid16/setuid16 handling of -1
+References: <20180115115242.GA15131@asgard.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180115115242.GA15131@asgard.redhat.com>
+Message-Id: <20180115151916.GC4305@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.vnet.ibm.com>
-Cc: bjsdjshi@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Eugene Syromiatnikov <esyr@redhat.com>
+Cc: linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Philippe Ombredanne <pombredanne@nexb.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kate Stewart <kstewart@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 16 Jan 2018 17:17:08 +0100
-Halil Pasic <pasic@linux.vnet.ibm.com> wrote:
-
-> On 01/15/2018 11:43 AM, Cornelia Huck wrote:
-> > The vfio-ccw documentation comes from the cover letter of the
-> > original patch submission, which shows in some parts. Give it some
-> > love; in particular:
-> > 
-> > - Remove/rework statements that make sense in a cover letter, but not
-> >   in regular documentation.
-> > - Fix some typos.
-> > - Describe the current limitations in more detail.
-> > 
-> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>  
+On Mon, Jan 15, 2018 at 12:52:42PM +0100, Eugene Syromiatnikov wrote:
+> For some reason, the implementation of these two 16-bit ID system calls
+> used cast instead of low2highgid/low2highuid macros for converting [GU]IDs,
+> which leads to incorrect handling of value of -1 (which ought to be
+> considered invalid).
 > 
-> The changes look sane and definitively improve on what we have
-> right now. Acked by me if you like.
-
-Can you please give your explicit A-b on v2?
-
+> Discovered by strace test suite.
 > 
-> When we are at the limitations, the prefetch story seems to be
-> still missing. IMHO it's the most important limitation.
+> Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
+> ---
+>  arch/s390/kernel/compat_linux.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
+> index f04db37..e48a31a 100644
+> --- a/arch/s390/kernel/compat_linux.c
+> +++ b/arch/s390/kernel/compat_linux.c
+> @@ -110,7 +110,7 @@ COMPAT_SYSCALL_DEFINE2(s390_setregid16, u16, rgid, u16, egid)
+> 
+>  COMPAT_SYSCALL_DEFINE1(s390_setgid16, u16, gid)
+>  {
+> -	return sys_setgid((gid_t)gid);
+> +	return sys_setgid(low2highgid(gid));
+>  }
+> 
+>  COMPAT_SYSCALL_DEFINE2(s390_setreuid16, u16, ruid, u16, euid)
+> @@ -120,7 +120,7 @@ COMPAT_SYSCALL_DEFINE2(s390_setreuid16, u16, ruid, u16, euid)
+> 
+>  COMPAT_SYSCALL_DEFINE1(s390_setuid16, u16, uid)
+>  {
+> -	return sys_setuid((uid_t)uid);
+> +	return sys_setuid(low2highuid(uid));
 
-Yeah, that's just a start. I'm happy to take further patches :)
+Thank you! Would you mind to fix this also for s390_setfsuid16 and
+s390_setfsgid16 within the same file, and resend?
