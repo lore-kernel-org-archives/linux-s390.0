@@ -1,116 +1,73 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/6] s390x/mm: cleanup gmap_pte_op_walk()
-Date: Tue, 16 Jan 2018 16:03:09 +0100
-Message-ID: <20180116150314.201352-2-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [GIT PULL 0/6] KVM: s390: Fixes and features for 4.16
+Date: Tue, 16 Jan 2018 16:09:24 +0100
+Message-ID: <a35355a6-26f9-ab7d-d9cd-80edd9181866@redhat.com>
 References: <20180116150314.201352-1-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180116150314.201352-1-borntraeger@de.ibm.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <david@redhat.com>
+On 16/01/2018 16:03, Christian Borntraeger wrote:
+> Paolo, Radim,
+> 
+> the first chunk (of already reviewed) patches for 4.16 via kvm/next.
+> 
+> 
+> The following changes since commit ccff53fd86ee54022e3d841f3db9280b1deb22e4:
+> 
+>   KVM: x86: avoid unnecessary XSETBV on guest entry (2017-12-18 13:10:25 +0100)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.16-1
+> 
+> for you to fetch changes up to 715e0427049606f499ea6b485c997f93f0778c77:
+> 
+>   KVM: s390: cleanup struct kvm_s390_float_interrupt (2018-01-16 15:53:09 +0100)
+> 
+> ----------------------------------------------------------------
+> KVM: s390: Fixes and features for 4.16
+> 
+> - add the virtio-ccw transport for kvmconfig
+> - more debug tracing for cpu model
+> - cleanups and fixes
+> 
+> ----------------------------------------------------------------
+> Christian Borntraeger (3):
+>       KVM: s390: use created_vcpus in more places
+>       KVM: s390: add debug tracing for cpu features of CPU model
+>       kvm_config: add CONFIG_S390_GUEST
+> 
+> David Hildenbrand (2):
+>       s390x/mm: cleanup gmap_pte_op_walk()
+>       KVM: s390: cleanup struct kvm_s390_float_interrupt
+> 
+> Michael Mueller (1):
+>       KVM: s390: drop use of spin lock in __floating_irq_kick
+> 
+>  arch/s390/include/asm/kvm_host.h |  3 ---
+>  arch/s390/kvm/interrupt.c        | 27 +++++++++++----------------
+>  arch/s390/kvm/kvm-s390.c         | 29 +++++++++++++++++++----------
+>  arch/s390/kvm/kvm-s390.h         |  2 +-
+>  arch/s390/kvm/sigp.c             | 12 ++++--------
+>  arch/s390/mm/gmap.c              | 23 ++++++++---------------
+>  kernel/configs/kvm_guest.config  |  1 +
+>  7 files changed, 44 insertions(+), 53 deletions(-)
+> 
 
-gmap_mprotect_notify() refuses shadow gmaps. Turns out that
-a) gmap_protect_range()
-b) gmap_read_table()
-c) gmap_pte_op_walk()
+We probably will have to rebase kvm/next, sorry, to remove a series that
+had problems and (worse) complaints from the arch/x86 maintainers. :(
+Can you rebase on top of 5cb0944c0c66004c0d9006a7f0fba5782ae38f69?
 
-Are never called for gmap shadows. And never should be. This dates back
-to gmap shadow prototypes where we allowed to call mprotect_notify() on
-the gmap shadow (to get notified about the prefix pages getting removed).
-This is avoided by always getting notified about any change on the gmap
-shadow.
+Thanks,
 
-The only real function for walking page tables on shadow gmaps is
-gmap_table_walk().
-
-So, essentially, these functions should never get called and
-gmap_pte_op_walk() can be cleaned up. Add some checks to callers of
-gmap_pte_op_walk().
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20171110151805.7541-1-david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/mm/gmap.c | 23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
-
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 05d459b638f5..54cfd51a5a27 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -815,27 +815,17 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
-  * @ptl: pointer to the spinlock pointer
-  *
-  * Returns a pointer to the locked pte for a guest address, or NULL
-- *
-- * Note: Can also be called for shadow gmaps.
-  */
- static pte_t *gmap_pte_op_walk(struct gmap *gmap, unsigned long gaddr,
- 			       spinlock_t **ptl)
- {
- 	unsigned long *table;
- 
--	if (gmap_is_shadow(gmap))
--		spin_lock(&gmap->guest_table_lock);
-+	BUG_ON(gmap_is_shadow(gmap));
- 	/* Walk the gmap page table, lock and get pte pointer */
- 	table = gmap_table_walk(gmap, gaddr, 1); /* get segment pointer */
--	if (!table || *table & _SEGMENT_ENTRY_INVALID) {
--		if (gmap_is_shadow(gmap))
--			spin_unlock(&gmap->guest_table_lock);
-+	if (!table || *table & _SEGMENT_ENTRY_INVALID)
- 		return NULL;
--	}
--	if (gmap_is_shadow(gmap)) {
--		*ptl = &gmap->guest_table_lock;
--		return pte_offset_map((pmd_t *) table, gaddr);
--	}
- 	return pte_alloc_map_lock(gmap->mm, (pmd_t *) table, gaddr, ptl);
- }
- 
-@@ -889,8 +879,6 @@ static void gmap_pte_op_end(spinlock_t *ptl)
-  * -EFAULT if gaddr is invalid (or mapping for shadows is missing).
-  *
-  * Called with sg->mm->mmap_sem in read.
-- *
-- * Note: Can also be called for shadow gmaps.
-  */
- static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
- 			      unsigned long len, int prot, unsigned long bits)
-@@ -900,6 +888,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
- 	pte_t *ptep;
- 	int rc;
- 
-+	BUG_ON(gmap_is_shadow(gmap));
- 	while (len) {
- 		rc = -EAGAIN;
- 		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
-@@ -960,7 +949,8 @@ EXPORT_SYMBOL_GPL(gmap_mprotect_notify);
-  * @val: pointer to the unsigned long value to return
-  *
-  * Returns 0 if the value was read, -ENOMEM if out of memory and -EFAULT
-- * if reading using the virtual address failed.
-+ * if reading using the virtual address failed. -EINVAL if called on a gmap
-+ * shadow.
-  *
-  * Called with gmap->mm->mmap_sem in read.
-  */
-@@ -971,6 +961,9 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val)
- 	pte_t *ptep, pte;
- 	int rc;
- 
-+	if (gmap_is_shadow(gmap))
-+		return -EINVAL;
-+
- 	while (1) {
- 		rc = -EAGAIN;
- 		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
--- 
-2.13.4
+Paolo
