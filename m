@@ -1,35 +1,48 @@
-Date: Mon, 15 Jan 2018 13:06:52 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] s390: fix setgid16/setuid16 handling of -1
-Message-ID: <20180115120652.GA16218@kroah.com>
-References: <20180115115242.GA15131@asgard.redhat.com>
+Date: Tue, 16 Jan 2018 10:34:33 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH v3 02/10] include: Move compat_timespec/ timeval to
+ compat_time.h
+Message-ID: <20180116103433.0a1356d3@gandalf.local.home>
+In-Reply-To: <20180116021818.24791-3-deepa.kernel@gmail.com>
+References: <20180116021818.24791-1-deepa.kernel@gmail.com>
+        <20180116021818.24791-3-deepa.kernel@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180115115242.GA15131@asgard.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Eugene Syromiatnikov <esyr@redhat.com>
-Cc: linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-Path: <SRS0=m/JJ=EL=goodmis.org=rostedt@kernel.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: tglx@linutronix.de, john.stultz@linaro.org, linux-kernel@vger.kernel.org, arnd@arndb.de, y2038@lists.linaro.org, acme@kernel.org, benh@kernel.crashing.org, borntraeger@de.ibm.com, catalin.marinas@arm.com, cmetcalf@mellanox.com, cohuck@redhat.com, davem@davemloft.net, deller@gmx.de, devel@driverdev.osuosl.org, gerald.schaefer@de.ibm.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, hoeppner@linux.vnet.ibm.com, hpa@zytor.com, jejb@parisc-linux.org, jwi@linux.vnet.ibm.com, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, mark.rutland@arm.com, mingo@redhat.com, mpe@ellerman.id.au, oberpar@linux.vnet.ibm.com, oprofile-list@lists.sf.net, paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org, rric@kernel.org, schwidefsky@de.ibm.com, sebott@linux.vnet.ibm.com, sparclinux@vger.kernel.org, sth@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, will.deacon@arm.com, x86@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 15, 2018 at 12:52:42PM +0100, Eugene Syromiatnikov wrote:
-> For some reason, the implementation of these two 16-bit ID system calls
-> used cast instead of low2highgid/low2highuid macros for converting [GU]IDs,
-> which leads to incorrect handling of value of -1 (which ought to be
-> considered invalid).
-> 
-> Discovered by strace test suite.
-> 
-> Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-> ---
->  arch/s390/kernel/compat_linux.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On Mon, 15 Jan 2018 18:18:10 -0800
+Deepa Dinamani <deepa.kernel@gmail.com> wrote:
 
-Care to add a cc: stable on this?
+> diff --git a/arch/x86/include/asm/ftrace.h b/arch/x86/include/asm/ftrace.h
+> index 09ad88572746..db25aa15b705 100644
+> --- a/arch/x86/include/asm/ftrace.h
+> +++ b/arch/x86/include/asm/ftrace.h
 
-thanks,
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-greg k-h
+-- Steve
+
+> @@ -49,7 +49,7 @@ int ftrace_int3_handler(struct pt_regs *regs);
+>  #if !defined(__ASSEMBLY__) && !defined(COMPILE_OFFSETS)
+>  
+>  #if defined(CONFIG_FTRACE_SYSCALLS) && defined(CONFIG_IA32_EMULATION)
+> -#include <asm/compat.h>
+> +#include <linux/compat.h>
+>  
+>  /*
+>   * Because ia32 syscalls do not map to x86_64 syscall numbers
