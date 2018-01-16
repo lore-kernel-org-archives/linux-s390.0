@@ -1,90 +1,116 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 1/3] vfio: ccw: introduce schib region
-Date: Mon, 15 Jan 2018 13:24:22 +0100
-Message-ID: <20180115132422.6a1a805d.cohuck@redhat.com>
+Subject: Re: [RFC PATCH 0/3] vfio: ccw: basic channel path event handling
+Date: Tue, 16 Jan 2018 16:53:59 +0100
+Message-ID: <20180116165359.1b829d36.cohuck@redhat.com>
 References: <20180111030421.31418-1-bjsdjshi@linux.vnet.ibm.com>
-        <20180111030421.31418-2-bjsdjshi@linux.vnet.ibm.com>
-        <82e00fe3-22be-c4df-60c9-8348906d8c45@linux.vnet.ibm.com>
+        <20180111115422.201987ee.cohuck@redhat.com>
+        <20180115085741.GB12499@bjsdjshi@linux.vnet.ibm.com>
+        <bd035cc2-1859-91da-9051-660caec6ac0f@linux.vnet.ibm.com>
+        <20180116031627.GE12499@bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <82e00fe3-22be-c4df-60c9-8348906d8c45@linux.vnet.ibm.com>
+In-Reply-To: <20180116031627.GE12499@bjsdjshi@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, borntraeger@de.ibm.com, pasic@linux.vnet.ibm.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, borntraeger@de.ibm.com, pasic@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 15 Jan 2018 10:50:00 +0100
-Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+On Tue, 16 Jan 2018 11:16:27 +0800
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-> On 11/01/2018 04:04, Dong Jia Shi wrote:
-> > This introduces a new region for vfio-ccw to provide subchannel
-> > information for user space.
-> >
-> > Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> > ---
-> >   drivers/s390/cio/vfio_ccw_fsm.c     | 21 ++++++++++
-> >   drivers/s390/cio/vfio_ccw_ops.c     | 79 +++++++++++++++++++++++++++----------
-> >   drivers/s390/cio/vfio_ccw_private.h |  3 ++
-> >   include/uapi/linux/vfio.h           |  1 +
-> >   include/uapi/linux/vfio_ccw.h       |  6 +++
-> >   5 files changed, 90 insertions(+), 20 deletions(-)
-> >
+> * Pierre Morel <pmorel@linux.vnet.ibm.com> [2018-01-15 11:21:47 +0100]:
+> 
+> > On 15/01/2018 09:57, Dong Jia Shi wrote:  
+> > >* Cornelia Huck <cohuck@redhat.com> [2018-01-11 11:54:22 +0100]:
+> > >  
+> > >>On Thu, 11 Jan 2018 04:04:18 +0100
+> > >>Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+> > >>  
+> > >>>Hi Folks,
+> > >>>
+> > >>>Background
+> > >>>==========
+> > >>>
+> > >>>Some days ago, we had a discussion on the topic of channel path virtualization.
+> > >>>Ref:
+> > >>>Subject: [PATCH 0/3] Channel Path realted CRW generation
+> > >>>Message-Id: <20170727015418.85407-1-bjsdjshi@linux.vnet.ibm.com>
+> > >>>URL: https://lists.nongnu.org/archive/html/qemu-devel/2017-07/msg08414.html
+> > >>>
+> > >>>Indeed that thread is not short and discussed many aspects in a
+> > >>>non-concentrated manner. The parts those are most valuable to me are:
+> > >>>1. a re-modelling for channel path is surely the best offer, but is not
+> > >>>    possible to have in the near future.
+> > >>>2. to enhance the path related functionalities, using PNO and PNOM might
+> > >>>    be something we can do for now. This may be something that I could improve
+> > >>>    without model related arguments.
+> > >>>
+> > >>>So here I have this series targeting to add basic channel path event handling
+> > >>>for vfio-ccw -- no touch of the channel path modelling in both the kernel and
+> > >>>the QEMU side, but find a way to sync path status change to guest lazily using
+> > >>>SCSW_FLAGS_MASK_PNO and pmcw->pnom.  In short, I want to enhance path related
+> > >>>stuff (to be more specific: sync up path status to the guest) on a best effort
+> > >>>basis, which means in a way that won't get us invloed to do channel path
+> > >>>re-modelling.  
+> > >>The guest should also get the updated PIM/PAM/POM, shouldn't it?
+> > >>  
+> > >Yes. The following values will be updated for the guest:
+> > >PMCW:
+> > >   - PIM/PAM/POM
+> > >   - PNOM
+> > >   - CHPIDs
+> > >SCSW
+> > >   - PNOM bit
+> > >
+> > >See vfio_ccw_update_schib in patch #4 of the QEMU series.
+> > >  
+> > >>>What benifit can we get from this? The administrator of a virtual machine can
+> > >>>get uptodate (in some extent) status of the current using channel paths, so
+> > >>>he/she can monitor paths status and get path problem noticed timely (see the
+> > >>>example below).
+> > >>>
+> > >>>I think we can start a new round discussion based on this series. So reviewers
+> > >>>can give their comments based on some code, and then we can decide if this is
+> > >>>we want or not.
+> > >>>
+> > >>>As flagged with RFC, the intention of this series is to show what I have for
+> > >>>now, and what could the code look like in general. Thus I can get some early
+> > >>>feedbacks. I would expect to see opinions on:
+> > >>>- is the target (mentioned above) of this series welcomed or not.  
+> > >>It certainly makes sense to have a way to get an updated schib.
+> > >>  
+> > >:)  
+> > 
+> > I think so too, if the guest's administrator wants to be able to do
+> > something.
+> > 
+> > But I would like to see something about path virtualization.  
+> Me too... As pointed in the discussion thread (URL listed above), this
+> is something that really hard to have in the near future. The question
+> is do we want some enhancements like this without channel path
+> re-modelling, or we want nothing until we have the re-modelling firstly?
 
-> > diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-> > index 78a66d96756b..460c8b90d834 100644
-> > --- a/drivers/s390/cio/vfio_ccw_private.h
-> > +++ b/drivers/s390/cio/vfio_ccw_private.h
-> > @@ -28,6 +28,7 @@
-> >    * @mdev: pointer to the mediated device
-> >    * @nb: notifier for vfio events
-> >    * @io_region: MMIO region to input/output I/O arguments/results
-> > + * @schib_region: MMIO region of subchannel information
-> >    * @cp: channel program for the current I/O operation
-> >    * @irb: irb info received from interrupt
-> >    * @scsw: scsw info
-> > @@ -42,6 +43,7 @@ struct vfio_ccw_private {
-> >   	struct mdev_device	*mdev;
-> >   	struct notifier_block	nb;
-> >   	struct ccw_io_region	io_region;
-> > +	struct ccw_schib_region	schib_region;
-> >
-> >   	struct channel_program	cp;
-> >   	struct irb		irb;  
-> 
-> Hi,
-> 
-> I have a problem with these patches: you have 3 definitions for the 
-> subchannel status word:
-> 1: direct in the scsw entry of the vfio_ccw_private structure
-> 2: indirect in the IRB structure irb
-> 3: now in the scsw of the schib_region
-> 
-> How do you keep them all in sync?
-> 
-> The direct scsw in io region seems to only serve as a trigger used by 
-> userland, while
-> the IRB in the io region and the SCHIB in the schib region are updated 
-> asynchronously,
-> from hardware, one by polling (scsw in schib region), one by IRQ (scsw 
-> in irb in io region).
-> 
-> I find this at least a source for obfuscation.
+I consider the ability to grab an updated schib useful not only for
+path-related stuff, but for getting the whole content of it updated;
+this makes the interface interesting even in the future.
 
-I agree that this wants some more documentation.
+And I think everybody wants more path virtualization, but that's not
+going to be easy.
 
-However, some of this structure duplication is a consequence of the
-hardware design, because the scsw is present in both the schib (updated
-by stsch) and the irb (updated by tsch). There are cases where the irb
-is simply not enough (it does not contain a pmcw, and you can only do
-tsch on an enabled subchannel). So I think that we really need two
-structures for those two distinct operations (and everything
-interfacing with this needs to keep synced on the scsw, as current
-users of stsch/tsch already need to do now).
+> 
+> > Having more accurate information on hardware without virtualization is a
+> > big handicap for migration and hotplug.
+> >   
+> vfio-ccw does not support migration. What could be the handicap for
+> that? :^)
+> 
 
-The direct scsw entry is used for initiating the different functions
-(only start right now), I don't really see a good alternative for that
-(and I also don't really see any problem with needed syncing.)
+Heh :)
+
+Actually, thinking about migration has been on my to-do list for a
+while; unfortunately, it's not alone there. (I fully expect the items
+on my to-do list to hold tea parties so they don't get bored.)
