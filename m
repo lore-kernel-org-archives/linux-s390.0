@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 08/12] KVM: s390: add GISA interrupts to FLIC ioctl interface
-Date: Tue, 16 Jan 2018 21:02:13 +0100
-Message-ID: <20180116200217.211897-9-borntraeger@de.ibm.com>
+Subject: [PATCH 11/12] s390/sclp: expose the GISA format facility
+Date: Tue, 16 Jan 2018 21:02:16 +0100
+Message-ID: <20180116200217.211897-12-borntraeger@de.ibm.com>
 References: <20180116200217.211897-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180116200217.211897-1-borntraeger@de.ibm.com>
@@ -14,66 +14,52 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-Pending interrupts marked in the GISA IPM are required to
-become part of the answer of ioctl KVM_DEV_FLIC_GET_ALL_IRQS.
-
-The ioctl KVM_DEV_FLIC_ENQUEUE is already capable to enqueue
-adapter interrupts when a GISA is present.
-
-With ioctl KVM_DEV_FLIC_CLEAR_IRQS the GISA IPM wil be cleared
-now as well.
+The GISA format facility is required by the host to be able to process
+a format-1 GISA. If not available, the used GISA format will be format-0.
+All format-1 related extension will not be available in this case.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/s390/include/asm/sclp.h   | 1 +
+ drivers/s390/char/sclp_early.c | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index f4d81730d52d..6c7a024c2554 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1860,6 +1860,7 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
- 	for (i = 0; i < FIRQ_MAX_COUNT; i++)
- 		fi->counters[i] = 0;
- 	spin_unlock(&fi->lock);
-+	kvm_s390_gisa_clear(kvm);
- };
- 
- static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
-@@ -1887,6 +1888,22 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
- 
- 	max_irqs = len / sizeof(struct kvm_s390_irq);
- 
-+	if (kvm->arch.gisa &&
-+	    kvm_s390_gisa_get_ipm(kvm->arch.gisa)) {
-+		for (i = 0; i <= MAX_ISC; i++) {
-+			if (n == max_irqs) {
-+				/* signal userspace to try again */
-+				ret = -ENOMEM;
-+				goto out_nolock;
-+			}
-+			if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, i)) {
-+				irq = (struct kvm_s390_irq *) &buf[n];
-+				irq->type = KVM_S390_INT_IO(1, 0, 0, 0);
-+				irq->u.io.io_int_word = isc_to_int_word(i);
-+				n++;
-+			}
-+		}
-+	}
- 	fi = &kvm->arch.float_int;
- 	spin_lock(&fi->lock);
- 	for (i = 0; i < FIRQ_LIST_COUNT; i++) {
-@@ -1925,6 +1942,7 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
- 
- out:
- 	spin_unlock(&fi->lock);
-+out_nolock:
- 	if (!ret && n > 0) {
- 		if (copy_to_user(usrbuf, buf, sizeof(struct kvm_s390_irq) * n))
- 			ret = -EFAULT;
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index d3c1a8a2e3ad..3cae9168f63c 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -77,6 +77,7 @@ struct sclp_info {
+ 	unsigned char has_ibs : 1;
+ 	unsigned char has_skey : 1;
+ 	unsigned char has_kss : 1;
++	unsigned char has_gisaf : 1;
+ 	unsigned int ibc;
+ 	unsigned int mtid;
+ 	unsigned int mtid_cp;
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index d06bc5674e5f..6b1891539c84 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -49,7 +49,7 @@ struct read_info_sccb {
+ 	u8	_pad_112[116 - 112];	/* 112-115 */
+ 	u8	fac116;			/* 116 */
+ 	u8	fac117;			/* 117 */
+-	u8	_pad_118;		/* 118 */
++	u8	fac118;			/* 118 */
+ 	u8	fac119;			/* 119 */
+ 	u16	hcpua;			/* 120-121 */
+ 	u8	_pad_122[124 - 122];	/* 122-123 */
+@@ -100,6 +100,7 @@ static void __init sclp_early_facilities_detect(struct read_info_sccb *sccb)
+ 	sclp.has_esca = !!(sccb->fac116 & 0x08);
+ 	sclp.has_pfmfi = !!(sccb->fac117 & 0x40);
+ 	sclp.has_ibs = !!(sccb->fac117 & 0x20);
++	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
+ 	sclp.has_hvs = !!(sccb->fac119 & 0x80);
+ 	sclp.has_kss = !!(sccb->fac98 & 0x01);
+ 	if (sccb->fac85 & 0x02)
 -- 
 2.13.4
