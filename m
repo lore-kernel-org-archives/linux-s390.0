@@ -1,116 +1,87 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 0/3] vfio: ccw: basic channel path event handling
-Date: Tue, 16 Jan 2018 16:53:59 +0100
-Message-ID: <20180116165359.1b829d36.cohuck@redhat.com>
+From: Halil Pasic <pasic@linux.vnet.ibm.com>
+Subject: Re: [Qemu-devel] [RFC PATCH 0/3] vfio: ccw: basic channel path event
+ handling
+Date: Tue, 16 Jan 2018 16:57:13 +0100
+Message-ID: <a4f39e6e-c031-0861-ff6b-e29747ba9489@linux.vnet.ibm.com>
 References: <20180111030421.31418-1-bjsdjshi@linux.vnet.ibm.com>
-        <20180111115422.201987ee.cohuck@redhat.com>
-        <20180115085741.GB12499@bjsdjshi@linux.vnet.ibm.com>
-        <bd035cc2-1859-91da-9051-660caec6ac0f@linux.vnet.ibm.com>
-        <20180116031627.GE12499@bjsdjshi@linux.vnet.ibm.com>
+ <f9224bba-08fb-589e-ed6e-d8e967a8fe67@linux.vnet.ibm.com>
+ <20180115085945.GC12499@bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180116031627.GE12499@bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20180115085945.GC12499@bjsdjshi@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, borntraeger@de.ibm.com, pasic@linux.vnet.ibm.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, cohuck@redhat.com, borntraeger@de.ibm.com, pmorel@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 16 Jan 2018 11:16:27 +0800
-Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-> * Pierre Morel <pmorel@linux.vnet.ibm.com> [2018-01-15 11:21:47 +0100]:
+
+On 01/15/2018 09:59 AM, Dong Jia Shi wrote:
+> * Halil Pasic <pasic@linux.vnet.ibm.com> [2018-01-12 19:10:20 +0100]:
 > 
-> > On 15/01/2018 09:57, Dong Jia Shi wrote:  
-> > >* Cornelia Huck <cohuck@redhat.com> [2018-01-11 11:54:22 +0100]:
-> > >  
-> > >>On Thu, 11 Jan 2018 04:04:18 +0100
-> > >>Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
-> > >>  
-> > >>>Hi Folks,
-> > >>>
-> > >>>Background
-> > >>>==========
-> > >>>
-> > >>>Some days ago, we had a discussion on the topic of channel path virtualization.
-> > >>>Ref:
-> > >>>Subject: [PATCH 0/3] Channel Path realted CRW generation
-> > >>>Message-Id: <20170727015418.85407-1-bjsdjshi@linux.vnet.ibm.com>
-> > >>>URL: https://lists.nongnu.org/archive/html/qemu-devel/2017-07/msg08414.html
-> > >>>
-> > >>>Indeed that thread is not short and discussed many aspects in a
-> > >>>non-concentrated manner. The parts those are most valuable to me are:
-> > >>>1. a re-modelling for channel path is surely the best offer, but is not
-> > >>>    possible to have in the near future.
-> > >>>2. to enhance the path related functionalities, using PNO and PNOM might
-> > >>>    be something we can do for now. This may be something that I could improve
-> > >>>    without model related arguments.
-> > >>>
-> > >>>So here I have this series targeting to add basic channel path event handling
-> > >>>for vfio-ccw -- no touch of the channel path modelling in both the kernel and
-> > >>>the QEMU side, but find a way to sync path status change to guest lazily using
-> > >>>SCSW_FLAGS_MASK_PNO and pmcw->pnom.  In short, I want to enhance path related
-> > >>>stuff (to be more specific: sync up path status to the guest) on a best effort
-> > >>>basis, which means in a way that won't get us invloed to do channel path
-> > >>>re-modelling.  
-> > >>The guest should also get the updated PIM/PAM/POM, shouldn't it?
-> > >>  
-> > >Yes. The following values will be updated for the guest:
-> > >PMCW:
-> > >   - PIM/PAM/POM
-> > >   - PNOM
-> > >   - CHPIDs
-> > >SCSW
-> > >   - PNOM bit
-> > >
-> > >See vfio_ccw_update_schib in patch #4 of the QEMU series.
-> > >  
-> > >>>What benifit can we get from this? The administrator of a virtual machine can
-> > >>>get uptodate (in some extent) status of the current using channel paths, so
-> > >>>he/she can monitor paths status and get path problem noticed timely (see the
-> > >>>example below).
-> > >>>
-> > >>>I think we can start a new round discussion based on this series. So reviewers
-> > >>>can give their comments based on some code, and then we can decide if this is
-> > >>>we want or not.
-> > >>>
-> > >>>As flagged with RFC, the intention of this series is to show what I have for
-> > >>>now, and what could the code look like in general. Thus I can get some early
-> > >>>feedbacks. I would expect to see opinions on:
-> > >>>- is the target (mentioned above) of this series welcomed or not.  
-> > >>It certainly makes sense to have a way to get an updated schib.
-> > >>  
-> > >:)  
-> > 
-> > I think so too, if the guest's administrator wants to be able to do
-> > something.
-> > 
-> > But I would like to see something about path virtualization.  
-> Me too... As pointed in the discussion thread (URL listed above), this
-> is something that really hard to have in the near future. The question
-> is do we want some enhancements like this without channel path
-> re-modelling, or we want nothing until we have the re-modelling firstly?
-
-I consider the ability to grab an updated schib useful not only for
-path-related stuff, but for getting the whole content of it updated;
-this makes the interface interesting even in the future.
-
-And I think everybody wants more path virtualization, but that's not
-going to be easy.
-
-> 
-> > Having more accurate information on hardware without virtualization is a
-> > big handicap for migration and hotplug.
-> >   
-> vfio-ccw does not support migration. What could be the handicap for
-> that? :^)
+>>
+>>
+>> On 01/11/2018 04:04 AM, Dong Jia Shi wrote:
+>>> What are still missing, thus need to be offered in the next version are:
+>>> - I/O termination and FSM state handling if currently we have I/O on the status
+>>>   switched path.
+>>> - Vary on/off event is not sensible to a guest.
+>>
+>> I don't see a doc update. We do have documentation (in
+>> Documentation/s390/vfio-ccw.txt) in which the uapi interface with the
+>> regions and their purpose/usage  is at least kind of explained. You are
+>> changing this interface without updating the doc.
+>>
+>> I would like to see documentation on this because I'm under the
+>> impression either the design is pretty convoluted or I did not
+>> get it at all.
+> Ah, I missed the documentation part. Thanks for pointing out. I will add
+> it in the next cycle.
 > 
 
-Heh :)
+I would have preferred having a doc update in this cycle. E.g. as
+an answer to the cover letter.
 
-Actually, thinking about migration has been on my to-do list for a
-while; unfortunately, it's not alone there. (I fully expect the items
-on my to-do list to hold tea parties so they don't get bored.)
+As previously pointed out I don't really understand your design.
+I wanted to avoid summarizing the design myself (that is my understanding
+of it), to then question the design.
+
+To give you a feeling of what I mean here some bullet points:
+* Channel paths are css level resources (simplified).
+* When a channel path malfunctions a CRW is generated and a machine
+check channel report pending is generated. Same goes for
+channel paths popping up (on HW level). Should not these get
+propagated?
+* Kind of instead of the CRW you introduce a per device interrupt
+for channel path events on the qemu/kvm boundary. AFAIU for a chp
+event you do an STSCH for each (affected?) subchannel and generate
+an irq. Right? Why is this a good idea.
+* SCHIB.PMCW provides path information relevant for a given device.
+This information is retrieved using store subchannel. Is your series
+sufficient for making store subchannel work properly (correct and
+reasonably up to date)? Regarding PMCW it's supposed to get updated
+when io functions are preformed by the css, AFAIR. Is that right?
+If yes what are the implications? Are the manipulations you do
+on some PMCW fields architecturally correct?
+* The one thing I would very much appreciate as an user of vfio,
+and should in my understanding be the user story of this series
+(and the qemu counterpart of course) is the following. If my device
+(that is IO operation) failed because no path could be found on
+which the device is accessible, I would like to be able to identify
+that. Preferably the same way I would do for an LPAR guest. Is this
+series accomplishing that? 
+* Why not just do proper STSCH for vfio-ccw?
+* Shouldn't we virtualize CHPIDs? What if we have a clash? Lets
+say my dasd is only accessible via chp  0.00 in the host. Currently
+we have a problem there, or (as the only path would end up being
+ignored)? Note: this is another unpleasant effect of not having
+MCSSE in the guest. The original design was to have a separate
+css for vfio, and then we would not have this kind of a problem.
+(Virtualization of chps would still be good for migration.)
+
+Regards,
+Halil
