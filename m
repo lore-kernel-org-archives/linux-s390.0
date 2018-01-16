@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 09/12] KVM: s390: make kvm_s390_get_io_int() aware of GISA
-Date: Tue, 16 Jan 2018 21:02:14 +0100
-Message-ID: <20180116200217.211897-10-borntraeger@de.ibm.com>
+Subject: [PATCH 01/12] KVM: s390: reverse bit ordering of irqs in pending mask
+Date: Tue, 16 Jan 2018 21:02:06 +0100
+Message-ID: <20180116200217.211897-2-borntraeger@de.ibm.com>
 References: <20180116200217.211897-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180116200217.211897-1-borntraeger@de.ibm.com>
@@ -14,113 +14,135 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-The function returns a pending I/O interrupt with the highest
-priority defined by its ISC.
+This patch prepares a simplification of bit operations between the irq
+pending mask for emulated interrupts and the Interruption Pending Mask
+(IPM) which is part of the Guest Interruption State Area (GISA), a feature
+that allows interrupt delivery to guests by means of the SIE instruction.
 
-Together with AIV activation, pending adapter interrupts are
-managed by the GISA IPM. Thus kvm_s390_get_io_int() needs to
-inspect the IPM as well when the interrupt with the highest
-priority has to be identified.
+Without that change, a bit-wise *or* operation on parts of these two masks
+would either require a look-up table of size 256 bytes to map the IPM
+to the emulated irq pending mask bit orientation (all bits mirrored at half
+byte) or a sequence of up to 8 condidional branches to perform tests of
+single bit positions. Both options are to reject either by performance or
+space utilization reasons.
 
-In case classic and adapter interrupts with the same ISC are
-pending, the classic interrupt will be returned first.
+Beyond that this change will be transparent.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 71 +++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 65 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 54 ++++++++++++++++++++--------------------
+ arch/s390/kvm/interrupt.c        | 10 ++++----
+ 2 files changed, 32 insertions(+), 32 deletions(-)
 
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index e16a9f2a44ad..9981721f258f 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -409,35 +409,35 @@ struct kvm_vcpu_stat {
+ #define PGM_PER				0x80
+ #define PGM_CRYPTO_OPERATION		0x119
+ 
+-/* irq types in order of priority */
++/* irq types in ascend order of priorities */
+ enum irq_types {
+-	IRQ_PEND_MCHK_EX = 0,
+-	IRQ_PEND_SVC,
+-	IRQ_PEND_PROG,
+-	IRQ_PEND_MCHK_REP,
+-	IRQ_PEND_EXT_IRQ_KEY,
+-	IRQ_PEND_EXT_MALFUNC,
+-	IRQ_PEND_EXT_EMERGENCY,
+-	IRQ_PEND_EXT_EXTERNAL,
+-	IRQ_PEND_EXT_CLOCK_COMP,
+-	IRQ_PEND_EXT_CPU_TIMER,
+-	IRQ_PEND_EXT_TIMING,
+-	IRQ_PEND_EXT_SERVICE,
+-	IRQ_PEND_EXT_HOST,
+-	IRQ_PEND_PFAULT_INIT,
+-	IRQ_PEND_PFAULT_DONE,
+-	IRQ_PEND_VIRTIO,
+-	IRQ_PEND_IO_ISC_0,
+-	IRQ_PEND_IO_ISC_1,
+-	IRQ_PEND_IO_ISC_2,
+-	IRQ_PEND_IO_ISC_3,
+-	IRQ_PEND_IO_ISC_4,
+-	IRQ_PEND_IO_ISC_5,
+-	IRQ_PEND_IO_ISC_6,
+-	IRQ_PEND_IO_ISC_7,
+-	IRQ_PEND_SIGP_STOP,
++	IRQ_PEND_SET_PREFIX = 0,
+ 	IRQ_PEND_RESTART,
+-	IRQ_PEND_SET_PREFIX,
++	IRQ_PEND_SIGP_STOP,
++	IRQ_PEND_IO_ISC_7,
++	IRQ_PEND_IO_ISC_6,
++	IRQ_PEND_IO_ISC_5,
++	IRQ_PEND_IO_ISC_4,
++	IRQ_PEND_IO_ISC_3,
++	IRQ_PEND_IO_ISC_2,
++	IRQ_PEND_IO_ISC_1,
++	IRQ_PEND_IO_ISC_0,
++	IRQ_PEND_VIRTIO,
++	IRQ_PEND_PFAULT_DONE,
++	IRQ_PEND_PFAULT_INIT,
++	IRQ_PEND_EXT_HOST,
++	IRQ_PEND_EXT_SERVICE,
++	IRQ_PEND_EXT_TIMING,
++	IRQ_PEND_EXT_CPU_TIMER,
++	IRQ_PEND_EXT_CLOCK_COMP,
++	IRQ_PEND_EXT_EXTERNAL,
++	IRQ_PEND_EXT_EMERGENCY,
++	IRQ_PEND_EXT_MALFUNC,
++	IRQ_PEND_EXT_IRQ_KEY,
++	IRQ_PEND_MCHK_REP,
++	IRQ_PEND_PROG,
++	IRQ_PEND_SVC,
++	IRQ_PEND_MCHK_EX,
+ 	IRQ_PEND_COUNT
+ };
+ 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 6c7a024c2554..2f1a5603c366 100644
+index f8eb2cfa763a..b94173560dcf 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -1449,12 +1449,8 @@ static struct kvm_s390_interrupt_info *get_io_int(struct kvm *kvm,
- 	return NULL;
- }
+@@ -189,8 +189,8 @@ static int cpu_timer_irq_pending(struct kvm_vcpu *vcpu)
  
--/*
-- * Dequeue and return an I/O interrupt matching any of the interruption
-- * subclasses as designated by the isc mask in cr6 and the schid (if != 0).
-- */
--struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
--						    u64 isc_mask, u32 schid)
-+static struct kvm_s390_interrupt_info *get_top_io_int(struct kvm *kvm,
-+						      u64 isc_mask, u32 schid)
+ static inline int is_ioirq(unsigned long irq_type)
  {
- 	struct kvm_s390_interrupt_info *inti = NULL;
- 	int isc;
-@@ -1466,6 +1462,69 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
- 	return inti;
+-	return ((irq_type >= IRQ_PEND_IO_ISC_0) &&
+-		(irq_type <= IRQ_PEND_IO_ISC_7));
++	return ((irq_type >= IRQ_PEND_IO_ISC_7) &&
++		(irq_type <= IRQ_PEND_IO_ISC_0));
  }
  
-+static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
-+{
-+	unsigned long active_mask;
-+	int isc;
-+
-+	if (schid)
-+		goto out;
-+	if (!kvm->arch.gisa)
-+		goto out;
-+
-+	active_mask = (isc_mask & kvm_s390_gisa_get_ipm(kvm->arch.gisa) << 24) << 32;
-+	while (active_mask) {
-+		isc = __flogr(active_mask);
-+		if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, isc))
-+			return isc;
-+		clear_bit_inv(isc, &active_mask);
-+	}
-+out:
-+	return -EINVAL;
-+}
-+
-+/*
-+ * Dequeue and return an I/O interrupt matching any of the interruption
-+ * subclasses as designated by the isc mask in cr6 and the schid (if != 0).
-+ * Take into account the interrupts pending in the interrupt list and in GISA.
-+ */
-+struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
-+						    u64 isc_mask, u32 schid)
-+{
-+	struct kvm_s390_interrupt_info *inti, *tmp_inti;
-+	int isc;
-+
-+	inti = get_top_io_int(kvm, isc_mask, schid);
-+
-+	isc = get_top_gisa_isc(kvm, isc_mask, schid);
-+	if (isc < 0)
-+		/* no AI in GISA */
-+		goto out;
-+
-+	if (!inti)
-+		/* AI in GISA but no classical IO int */
-+		goto gisa_out;
-+
-+	/* both types of interrupts present */
-+	if (int_word_to_isc(inti->io.io_int_word) <= isc) {
-+		/* classical IO int with higher priority */
-+		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
-+		goto out;
-+	}
-+gisa_out:
-+	tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL);
-+	if (tmp_inti) {
-+		tmp_inti->type = KVM_S390_INT_IO(1, 0, 0, 0);
-+		tmp_inti->io.io_int_word = isc_to_int_word(isc);
-+		if (inti)
-+			kvm_s390_reinject_io_int(kvm, inti);
-+		inti = tmp_inti;
-+	} else
-+		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
-+out:
-+	return inti;
-+}
-+
- #define SCCB_MASK 0xFFFFFFF8
- #define SCCB_EVENT_PENDING 0x3
+ static uint64_t isc_to_isc_bits(int isc)
+@@ -211,12 +211,12 @@ static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
  
+ static inline int isc_to_irq_type(unsigned long isc)
+ {
+-	return IRQ_PEND_IO_ISC_0 + isc;
++	return IRQ_PEND_IO_ISC_0 - isc;
+ }
+ 
+ static inline int irq_type_to_isc(unsigned long irq_type)
+ {
+-	return irq_type - IRQ_PEND_IO_ISC_0;
++	return IRQ_PEND_IO_ISC_0 - irq_type;
+ }
+ 
+ static unsigned long disable_iscs(struct kvm_vcpu *vcpu,
+@@ -1155,7 +1155,7 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+ 
+ 	while ((irqs = deliverable_irqs(vcpu)) && !rc) {
+ 		/* bits are in the order of interrupt priority */
+-		irq_type = find_first_bit(&irqs, IRQ_PEND_COUNT);
++		irq_type = find_last_bit(&irqs, IRQ_PEND_COUNT);
+ 		if (is_ioirq(irq_type)) {
+ 			rc = __deliver_io(vcpu, irq_type);
+ 		} else {
 -- 
 2.13.4
