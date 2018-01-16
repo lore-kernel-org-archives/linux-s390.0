@@ -1,7 +1,7 @@
 From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: [PATCH 5/5] perf trace: Remove audit-libs dependency if syscall tables are present
-Date: Tue, 16 Jan 2018 10:46:31 +0100
-Message-ID: <1516095991-16337-6-git-send-email-brueckner@linux.vnet.ibm.com>
+Subject: [PATCH 3/5] perf util: Introduce architecture specific errno/name mapping
+Date: Tue, 16 Jan 2018 10:46:29 +0100
+Message-ID: <1516095991-16337-4-git-send-email-brueckner@linux.vnet.ibm.com>
 References: <1516095991-16337-1-git-send-email-brueckner@linux.vnet.ibm.com>
 Return-path: <linux-perf-users-owner@vger.kernel.org>
 In-Reply-To: <1516095991-16337-1-git-send-email-brueckner@linux.vnet.ibm.com>
@@ -12,88 +12,223 @@ To: Arnaldo Carvalho de Melo <acme@kernel.org>
 Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Change the Makefile and build process to no longer require audit-libs
-interfaces when the architecture provides system call tables.
+Introduce a script that generates a mapping of errno numbers to
+their names for each architecture that is supported by perf (i.e.
+has a subdirectory in tools/perf/arch/).
+
+The file is generated as util/errno-names.c.  A corresponding
+header file util/errno-names.h is provided that defines the
+arch_errno_to_name() function.  Use arch_errno_to_name() to
+lookup an errno value to obtain the errno name (e.g. ENOENT)
+for a particular architecture.
+
+This is to be used by perf trace.
 
 Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
 Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 ---
- tools/perf/Makefile.config          | 10 ++++++++--
- tools/perf/builtin-help.c           |  2 +-
- tools/perf/perf.c                   |  4 ++--
- tools/perf/util/generate-cmdlist.sh |  2 +-
- 4 files changed, 12 insertions(+), 6 deletions(-)
+ tools/perf/.gitignore                   |   1 +
+ tools/perf/Makefile.config              |   2 +-
+ tools/perf/Makefile.perf                |   9 ++-
+ tools/perf/util/Build                   |   1 +
+ tools/perf/util/errno-names.h           |   7 +++
+ tools/perf/util/generate-errno-names.sh | 101 ++++++++++++++++++++++++++++++++
+ 6 files changed, 118 insertions(+), 3 deletions(-)
+ create mode 100644 tools/perf/util/errno-names.h
+ create mode 100755 tools/perf/util/generate-errno-names.sh
 
+diff --git a/tools/perf/.gitignore b/tools/perf/.gitignore
+index 643cc4ba..1d4d43c 100644
+--- a/tools/perf/.gitignore
++++ b/tools/perf/.gitignore
+@@ -14,6 +14,7 @@ perf*.1
+ perf*.xml
+ perf*.html
+ common-cmds.h
++errno-names.c
+ perf.data
+ perf.data.old
+ output.svg
 diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index 90ce14f..8ba416c 100644
+index 12dec6e..90ce14f 100644
 --- a/tools/perf/Makefile.config
 +++ b/tools/perf/Makefile.config
-@@ -533,8 +533,14 @@ endif
+@@ -249,7 +249,7 @@ INC_FLAGS += -I$(srctree)/tools/arch/$(SRCARCH)/include/uapi
+ INC_FLAGS += -I$(srctree)/tools/arch/$(SRCARCH)/include/
+ INC_FLAGS += -I$(srctree)/tools/arch/$(SRCARCH)/
  
- ifndef NO_LIBAUDIT
-   ifneq ($(feature-libaudit), 1)
--    msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
--    NO_LIBAUDIT := 1
-+    ifeq ($(NO_SYSCALL_TABLE), 1)
-+      msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
-+      NO_LIBAUDIT := 1
-+    else
-+      # With syscall table support, auditlibs are no longer required to build
-+      # the trace tool.
-+      $(call detected,CONFIG_AUDIT)
-+    endif
-   else
-     CFLAGS += -DHAVE_LIBAUDIT_SUPPORT
-     EXTLIBS += -laudit
-diff --git a/tools/perf/builtin-help.c b/tools/perf/builtin-help.c
-index a0f7ed2..4aca13f 100644
---- a/tools/perf/builtin-help.c
-+++ b/tools/perf/builtin-help.c
-@@ -439,7 +439,7 @@ int cmd_help(int argc, const char **argv)
- #ifdef HAVE_LIBELF_SUPPORT
- 		"probe",
- #endif
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 		"trace",
- #endif
- 	NULL };
-diff --git a/tools/perf/perf.c b/tools/perf/perf.c
-index 62b1351..1b3fc8e 100644
---- a/tools/perf/perf.c
-+++ b/tools/perf/perf.c
-@@ -73,7 +73,7 @@ struct cmd_struct {
- 	{ "lock",	cmd_lock,	0 },
- 	{ "kvm",	cmd_kvm,	0 },
- 	{ "test",	cmd_test,	0 },
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 	{ "trace",	cmd_trace,	0 },
- #endif
- 	{ "inject",	cmd_inject,	0 },
-@@ -485,7 +485,7 @@ int main(int argc, const char **argv)
- 		argv[0] = cmd;
- 	}
- 	if (strstarts(cmd, "trace")) {
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 		setup_path();
- 		argv[0] = "trace";
- 		return cmd_trace(argc, argv);
-diff --git a/tools/perf/util/generate-cmdlist.sh b/tools/perf/util/generate-cmdlist.sh
-index 9bbcec4..ff17920 100755
---- a/tools/perf/util/generate-cmdlist.sh
-+++ b/tools/perf/util/generate-cmdlist.sh
-@@ -38,7 +38,7 @@ do
- done
- echo "#endif /* HAVE_LIBELF_SUPPORT */"
+-# $(obj-perf)      for generated common-cmds.h
++# $(obj-perf)      for generated common-cmds.h and errno-names.c
+ # $(obj-perf)/util for generated bison/flex headers
+ ifneq ($(OUTPUT),)
+ INC_FLAGS += -I$(obj-perf)/util
+diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
+index 9fdefd7..332b4b4 100644
+--- a/tools/perf/Makefile.perf
++++ b/tools/perf/Makefile.perf
+@@ -518,6 +518,9 @@ $(OUTPUT)common-cmds.h: util/generate-cmdlist.sh command-list.txt
+ $(OUTPUT)common-cmds.h: $(wildcard Documentation/perf-*.txt)
+ 	$(QUIET_GEN). util/generate-cmdlist.sh > $@+ && mv $@+ $@
  
--echo "#ifdef HAVE_LIBAUDIT_SUPPORT"
-+echo "#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)"
- sed -n -e 's/^perf-\([^ 	]*\)[ 	].* audit*/\1/p' command-list.txt |
- sort |
- while read cmd
++$(OUTPUT)util/errno-names.c: util/generate-errno-names.sh
++	$(QUIET_GEN). util/generate-errno-names.sh "$(CC)" "$(srctree)/tools" > $@+ && mv $@+ $@
++
+ $(SCRIPTS) : % : %.sh
+ 	$(QUIET_GEN)$(INSTALL) '$@.sh' '$(OUTPUT)$@'
+ 
+@@ -565,7 +568,8 @@ prepare: $(OUTPUT)PERF-VERSION-FILE $(OUTPUT)common-cmds.h archheaders $(drm_ioc
+ 	$(vhost_virtio_ioctl_array) \
+ 	$(madvise_behavior_array) \
+ 	$(perf_ioctl_array) \
+-	$(prctl_option_array)
++	$(prctl_option_array) \
++	$(OUTPUT)util/errno-names.c
+ 
+ $(OUTPUT)%.o: %.c prepare FORCE
+ 	$(Q)$(MAKE) -f $(srctree)/tools/build/Makefile.build dir=$(build-dir) $@
+@@ -847,7 +851,8 @@ clean:: $(LIBTRACEEVENT)-clean $(LIBAPI)-clean $(LIBBPF)-clean $(LIBSUBCMD)-clea
+ 		$(OUTPUT)$(kcmp_type_array) \
+ 		$(OUTPUT)$(vhost_virtio_ioctl_array) \
+ 		$(OUTPUT)$(perf_ioctl_array) \
+-		$(OUTPUT)$(prctl_option_array)
++		$(OUTPUT)$(prctl_option_array) \
++		$(OUTPUT)util/errno-names.c
+ 	$(QUIET_SUBDIR0)Documentation $(QUIET_SUBDIR1) clean
+ 
+ #
+diff --git a/tools/perf/util/Build b/tools/perf/util/Build
+index 7c6a8b4..6d4f8f0 100644
+--- a/tools/perf/util/Build
++++ b/tools/perf/util/Build
+@@ -5,6 +5,7 @@ libperf-y += config.o
+ libperf-y += ctype.o
+ libperf-y += db-export.o
+ libperf-y += env.o
++libperf-y += errno-names.o
+ libperf-y += event.o
+ libperf-y += evlist.o
+ libperf-y += evsel.o
+diff --git a/tools/perf/util/errno-names.h b/tools/perf/util/errno-names.h
+new file mode 100644
+index 0000000..1cdcbd3
+--- /dev/null
++++ b/tools/perf/util/errno-names.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __PERF_ERRNO_NAMES_H
++#define __PERF_ERRNO_NAMES_H
++
++const char *arch_errno_to_name(const char *arch, int err);
++
++#endif /* __PERF_ERRNO_NAMES_H */
+diff --git a/tools/perf/util/generate-errno-names.sh b/tools/perf/util/generate-errno-names.sh
+new file mode 100755
+index 0000000..1738800
+--- /dev/null
++++ b/tools/perf/util/generate-errno-names.sh
+@@ -0,0 +1,101 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0
++#
++# Generate C file mapping errno codes to errno names.
++#
++# Copyright IBM Corp. 2018
++# Author(s):  Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
++
++gcc="$1"
++toolsdir="$2"
++include_path="-I$toolsdir/include/uapi"
++
++arch_string()
++{
++	echo "$1" |sed -e 'y/- /__/' |tr '[[:upper:]]' '[[:lower:]]'
++}
++
++asm_errno_file()
++{
++	local arch="$1"
++	local header
++
++	header="$toolsdir/arch/$arch/include/uapi/asm/errno.h"
++	if test -r "$header"; then
++		echo "$header"
++	else
++		echo "$toolsdir/include/uapi/asm-generic/errno.h"
++	fi
++}
++
++create_errno_lookup_func()
++{
++	local arch=$(arch_string "$1")
++	local nr name
++
++	cat <<EoFuncBegin
++static const char *errno_to_name__$arch(int err)
++{
++	switch (err) {
++EoFuncBegin
++
++	while read name nr; do
++		printf '\tcase %d: return "%s";\n' $nr $name
++	done
++
++	cat <<EoFuncEnd
++	default:
++		return "(unknown)";
++	}
++}
++
++EoFuncEnd
++}
++
++process_arch()
++{
++	local arch="$1"
++	local asm_errno=$(asm_errno_file "$arch")
++
++	$gcc $include_path -E -dM -x c $asm_errno \
++		|grep -hE '^#define[[:blank:]]+(E[^[:blank:]]+)[[:blank:]]+([[:digit:]]+).*' \
++		|awk '{ print $2","$3; }' \
++		|sort -t, -k2 -nu \
++		|IFS=, create_errno_lookup_func "$arch"
++}
++
++create_arch_errno_table_func()
++{
++	local archlist="$1"
++	local default="$2"
++	local arch
++
++	printf 'const char *arch_errno_to_name(const char *arch, int err)\n'
++	printf '{\n'
++	for arch in $archlist; do
++		printf '\tif (!strcmp(arch, "%s"))\n' $(arch_string "$arch")
++		printf '\t\treturn errno_to_name__%s(err);\n' $(arch_string "$arch")
++	done
++	printf '\treturn errno_to_name__%s(err);\n' $(arch_string "$default")
++	printf '}'
++}
++
++cat <<EoHEADER
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#include <string.h>
++#include "errno-names.h"
++
++EoHEADER
++
++# Create list of architectures and ignore those that do not appear
++# in tools/perf/arch
++archlist=""
++for arch in $(find $toolsdir/arch -maxdepth 1 -mindepth 1 -type d -printf "%f\n" |sort); do
++	test -d arch/$arch && archlist="$archlist $arch"
++done
++
++for arch in $archlist generic; do
++	process_arch "$arch"
++done
++create_arch_errno_table_func "$archlist" "generic"
 -- 
 1.8.3.1
