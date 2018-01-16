@@ -1,14 +1,15 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 11/12] s390/sclp: expose the GISA format facility
-Date: Tue, 16 Jan 2018 21:13:38 +0100
-Message-ID: <20b7ac8a-dc97-5325-2cf4-2f9efa1c244e@redhat.com>
+Subject: Re: [PATCH 01/12] KVM: s390: reverse bit ordering of irqs in pending
+ mask
+Date: Tue, 16 Jan 2018 21:18:58 +0100
+Message-ID: <84c4a270-99cb-f127-4de6-4995653358f4@redhat.com>
 References: <20180116200217.211897-1-borntraeger@de.ibm.com>
- <20180116200217.211897-12-borntraeger@de.ibm.com>
+ <20180116200217.211897-2-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180116200217.211897-12-borntraeger@de.ibm.com>
+In-Reply-To: <20180116200217.211897-2-borntraeger@de.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,58 +21,145 @@ List-ID: <linux-s390.vger.kernel.org>
 On 16.01.2018 21:02, Christian Borntraeger wrote:
 > From: Michael Mueller <mimu@linux.vnet.ibm.com>
 > 
-> The GISA format facility is required by the host to be able to process
-> a format-1 GISA. If not available, the used GISA format will be format-0.
-> All format-1 related extension will not be available in this case.
+> This patch prepares a simplification of bit operations between the irq
+> pending mask for emulated interrupts and the Interruption Pending Mask
+> (IPM) which is part of the Guest Interruption State Area (GISA), a feature
+> that allows interrupt delivery to guests by means of the SIE instruction.
+> 
+> Without that change, a bit-wise *or* operation on parts of these two masks
+> would either require a look-up table of size 256 bytes to map the IPM
+> to the emulated irq pending mask bit orientation (all bits mirrored at half
+> byte) or a sequence of up to 8 condidional branches to perform tests of
+> single bit positions. Both options are to reject either by performance or
+> space utilization reasons.
+> 
+> Beyond that this change will be transparent.
 > 
 > Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-> Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 > Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 > Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > ---
->  arch/s390/include/asm/sclp.h   | 1 +
->  drivers/s390/char/sclp_early.c | 3 ++-
->  2 files changed, 3 insertions(+), 1 deletion(-)
+>  arch/s390/include/asm/kvm_host.h | 54 ++++++++++++++++++++--------------------
+>  arch/s390/kvm/interrupt.c        | 10 ++++----
+>  2 files changed, 32 insertions(+), 32 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
-> index d3c1a8a2e3ad..3cae9168f63c 100644
-> --- a/arch/s390/include/asm/sclp.h
-> +++ b/arch/s390/include/asm/sclp.h
-> @@ -77,6 +77,7 @@ struct sclp_info {
->  	unsigned char has_ibs : 1;
->  	unsigned char has_skey : 1;
->  	unsigned char has_kss : 1;
-> +	unsigned char has_gisaf : 1;
->  	unsigned int ibc;
->  	unsigned int mtid;
->  	unsigned int mtid_cp;
-> diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
-> index d06bc5674e5f..6b1891539c84 100644
-> --- a/drivers/s390/char/sclp_early.c
-> +++ b/drivers/s390/char/sclp_early.c
-> @@ -49,7 +49,7 @@ struct read_info_sccb {
->  	u8	_pad_112[116 - 112];	/* 112-115 */
->  	u8	fac116;			/* 116 */
->  	u8	fac117;			/* 117 */
-> -	u8	_pad_118;		/* 118 */
-> +	u8	fac118;			/* 118 */
->  	u8	fac119;			/* 119 */
->  	u16	hcpua;			/* 120-121 */
->  	u8	_pad_122[124 - 122];	/* 122-123 */
-> @@ -100,6 +100,7 @@ static void __init sclp_early_facilities_detect(struct read_info_sccb *sccb)
->  	sclp.has_esca = !!(sccb->fac116 & 0x08);
->  	sclp.has_pfmfi = !!(sccb->fac117 & 0x40);
->  	sclp.has_ibs = !!(sccb->fac117 & 0x20);
-> +	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
->  	sclp.has_hvs = !!(sccb->fac119 & 0x80);
->  	sclp.has_kss = !!(sccb->fac98 & 0x01);
->  	if (sccb->fac85 & 0x02)
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index e16a9f2a44ad..9981721f258f 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -409,35 +409,35 @@ struct kvm_vcpu_stat {
+>  #define PGM_PER				0x80
+>  #define PGM_CRYPTO_OPERATION		0x119
+>  
+> -/* irq types in order of priority */
+> +/* irq types in ascend order of priorities */
+>  enum irq_types {
+> -	IRQ_PEND_MCHK_EX = 0,
+> -	IRQ_PEND_SVC,
+> -	IRQ_PEND_PROG,
+> -	IRQ_PEND_MCHK_REP,
+> -	IRQ_PEND_EXT_IRQ_KEY,
+> -	IRQ_PEND_EXT_MALFUNC,
+> -	IRQ_PEND_EXT_EMERGENCY,
+> -	IRQ_PEND_EXT_EXTERNAL,
+> -	IRQ_PEND_EXT_CLOCK_COMP,
+> -	IRQ_PEND_EXT_CPU_TIMER,
+> -	IRQ_PEND_EXT_TIMING,
+> -	IRQ_PEND_EXT_SERVICE,
+> -	IRQ_PEND_EXT_HOST,
+> -	IRQ_PEND_PFAULT_INIT,
+> -	IRQ_PEND_PFAULT_DONE,
+> -	IRQ_PEND_VIRTIO,
+> -	IRQ_PEND_IO_ISC_0,
+> -	IRQ_PEND_IO_ISC_1,
+> -	IRQ_PEND_IO_ISC_2,
+> -	IRQ_PEND_IO_ISC_3,
+> -	IRQ_PEND_IO_ISC_4,
+> -	IRQ_PEND_IO_ISC_5,
+> -	IRQ_PEND_IO_ISC_6,
+> -	IRQ_PEND_IO_ISC_7,
+> -	IRQ_PEND_SIGP_STOP,
+> +	IRQ_PEND_SET_PREFIX = 0,
+>  	IRQ_PEND_RESTART,
+> -	IRQ_PEND_SET_PREFIX,
+> +	IRQ_PEND_SIGP_STOP,
+> +	IRQ_PEND_IO_ISC_7,
+> +	IRQ_PEND_IO_ISC_6,
+> +	IRQ_PEND_IO_ISC_5,
+> +	IRQ_PEND_IO_ISC_4,
+> +	IRQ_PEND_IO_ISC_3,
+> +	IRQ_PEND_IO_ISC_2,
+> +	IRQ_PEND_IO_ISC_1,
+> +	IRQ_PEND_IO_ISC_0,
+> +	IRQ_PEND_VIRTIO,
+> +	IRQ_PEND_PFAULT_DONE,
+> +	IRQ_PEND_PFAULT_INIT,
+> +	IRQ_PEND_EXT_HOST,
+> +	IRQ_PEND_EXT_SERVICE,
+> +	IRQ_PEND_EXT_TIMING,
+> +	IRQ_PEND_EXT_CPU_TIMER,
+> +	IRQ_PEND_EXT_CLOCK_COMP,
+> +	IRQ_PEND_EXT_EXTERNAL,
+> +	IRQ_PEND_EXT_EMERGENCY,
+> +	IRQ_PEND_EXT_MALFUNC,
+> +	IRQ_PEND_EXT_IRQ_KEY,
+> +	IRQ_PEND_MCHK_REP,
+> +	IRQ_PEND_PROG,
+> +	IRQ_PEND_SVC,
+> +	IRQ_PEND_MCHK_EX,
+>  	IRQ_PEND_COUNT
+
+We have to touch all because of irq priority, right?
+
+>  };
+>  
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index f8eb2cfa763a..b94173560dcf 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -189,8 +189,8 @@ static int cpu_timer_irq_pending(struct kvm_vcpu *vcpu)
+>  
+>  static inline int is_ioirq(unsigned long irq_type)
+>  {
+> -	return ((irq_type >= IRQ_PEND_IO_ISC_0) &&
+> -		(irq_type <= IRQ_PEND_IO_ISC_7));
+> +	return ((irq_type >= IRQ_PEND_IO_ISC_7) &&
+> +		(irq_type <= IRQ_PEND_IO_ISC_0));
+>  }
+>  
+>  static uint64_t isc_to_isc_bits(int isc)
+> @@ -211,12 +211,12 @@ static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
+>  
+>  static inline int isc_to_irq_type(unsigned long isc)
+>  {
+> -	return IRQ_PEND_IO_ISC_0 + isc;
+> +	return IRQ_PEND_IO_ISC_0 - isc;
+>  }
+>  
+>  static inline int irq_type_to_isc(unsigned long irq_type)
+>  {
+> -	return irq_type - IRQ_PEND_IO_ISC_0;
+> +	return IRQ_PEND_IO_ISC_0 - irq_type;
+>  }
+>  
+>  static unsigned long disable_iscs(struct kvm_vcpu *vcpu,
+> @@ -1155,7 +1155,7 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+>  
+>  	while ((irqs = deliverable_irqs(vcpu)) && !rc) {
+>  		/* bits are in the order of interrupt priority */
+
+this comment should now be "reversed order"
+
+> -		irq_type = find_first_bit(&irqs, IRQ_PEND_COUNT);
+> +		irq_type = find_last_bit(&irqs, IRQ_PEND_COUNT);
+>  		if (is_ioirq(irq_type)) {
+>  			rc = __deliver_io(vcpu, irq_type);
+>  		} else {
 > 
 
-No public documentation to validate.
-
-Acked-by: David Hildenbrand <david@redhat.com>
+Looks sane to me on the first sight.
 
 -- 
 
