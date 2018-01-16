@@ -1,53 +1,37 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20171229081911.2802-6-hch@lst.de>
-References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-6-hch@lst.de>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 2 Jan 2018 11:39:49 +0100
-Message-ID: <CAMuHMdV2oT9G3yOjx-oaw06nw27zF_Y34quYf--u13xjKs3dJQ@mail.gmail.com>
-Subject: Re: [PATCH 05/67] dma-mapping: replace PCI_DMA_BUS_IS_PHYS with a
- flag in struct dma_map_ops
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180102103949.BwkTgo6Ky-ZbQa1oA0NOPF1BkWIFwcVNKeMDmSKujis@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: iommu@lists.linux-foundation.org, Linux MIPS Mailing List <linux-mips@linux-mips.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, adi-buildroot-devel@lists.sourceforge.net, linux-m68k <linux-m68k@lists.linux-m68k.org>, patches@groups.riscv.org, "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, Parisc List <linux-parisc@vger.kernel.org>, Cris <linux-cris-kernel@axis.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, alpha <linux-alpha@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [GIT PULL 0/6] KVM: s390: Fixes and features for 4.16
+Date: Tue, 16 Jan 2018 16:35:45 +0100
+Message-ID: <10d9385c-923c-c932-927e-baa335516be6@redhat.com>
+References: <20180116150314.201352-1-borntraeger@de.ibm.com>
+ <a35355a6-26f9-ab7d-d9cd-80edd9181866@redhat.com>
+ <69c45e6a-9ad6-ecb5-c7e2-1660ef35ffff@de.ibm.com>
+ <20180116152724.GA23579@flask>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20180116152724.GA23579@flask>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Dec 29, 2017 at 9:18 AM, Christoph Hellwig <hch@lst.de> wrote:
-> The current PCI_DMA_BUS_IS_PHYS decided if a dma implementation is bound
-> by the dma mask in the device because it directly maps to a physical
-> address range (modulo an offset in the device), or if it is virtualized
-> by an iommu and can map any address (that includes virtual iommus like
-> swiotlb).  The problem with this scheme is that it is per-architecture and
-> not per dma_ops instance, and we are growing more and more setups that
-> have multiple different dma operations in use on a single system, for
-> which this scheme can't provide a correct answer.  Depending on the
-> architecture that means we either get a false positive or false negative
-> at the moment.
->
-> This patch instead extents the is_phys flag in struct dma_map_ops that
-> is currently only used by a few architectures to be used tree wide.
->
-> Note that this means that we now need a struct device parent in the
-> Scsi_Host or netdevice.  Every modern driver has these, but there might
-> still be a few outdated legacy drivers out there, which now won't make
-> an intelligent decision.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+On 16/01/2018 16:27, Radim Krčmář wrote:
+>>> We probably will have to rebase kvm/next, sorry, to remove a series that
+>>> had problems and (worse) complaints from the arch/x86 maintainers. :(
+>>> Can you rebase on top of 5cb0944c0c66004c0d9006a7f0fba5782ae38
+>> Can you (when doing that) rebase on something newer? rc3 is broken in many ways
+>> and only works on some of my test systems (those without multipath).
+> I'd like to avoid rebasing that much -- so far we're only rebasing
+> patches since Jan 11 and there is a batch from Dec 14 on top of rc3.
+> 
+>> I will rebase on 4.15-rc3 to give you all the freedom you need. 
+> I think that basing s390 on a later -rc would work for all of us,
 
-For m68k:
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+I agree---unless you need to rebase on top the VCPU lock pushdown,
+4.15-rc3 would work great.
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Paolo
