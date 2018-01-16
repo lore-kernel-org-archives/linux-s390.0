@@ -1,73 +1,86 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [GIT PULL 0/6] KVM: s390: Fixes and features for 4.16
-Date: Tue, 16 Jan 2018 16:09:24 +0100
-Message-ID: <a35355a6-26f9-ab7d-d9cd-80edd9181866@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/6] KVM: s390: add debug tracing for cpu features of CPU model
+Date: Tue, 16 Jan 2018 16:03:11 +0100
+Message-ID: <20180116150314.201352-4-borntraeger@de.ibm.com>
 References: <20180116150314.201352-1-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180116150314.201352-1-borntraeger@de.ibm.com>
-Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 16/01/2018 16:03, Christian Borntraeger wrote:
-> Paolo, Radim,
-> 
-> the first chunk (of already reviewed) patches for 4.16 via kvm/next.
-> 
-> 
-> The following changes since commit ccff53fd86ee54022e3d841f3db9280b1deb22e4:
-> 
->   KVM: x86: avoid unnecessary XSETBV on guest entry (2017-12-18 13:10:25 +0100)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.16-1
-> 
-> for you to fetch changes up to 715e0427049606f499ea6b485c997f93f0778c77:
-> 
->   KVM: s390: cleanup struct kvm_s390_float_interrupt (2018-01-16 15:53:09 +0100)
-> 
-> ----------------------------------------------------------------
-> KVM: s390: Fixes and features for 4.16
-> 
-> - add the virtio-ccw transport for kvmconfig
-> - more debug tracing for cpu model
-> - cleanups and fixes
-> 
-> ----------------------------------------------------------------
-> Christian Borntraeger (3):
->       KVM: s390: use created_vcpus in more places
->       KVM: s390: add debug tracing for cpu features of CPU model
->       kvm_config: add CONFIG_S390_GUEST
-> 
-> David Hildenbrand (2):
->       s390x/mm: cleanup gmap_pte_op_walk()
->       KVM: s390: cleanup struct kvm_s390_float_interrupt
-> 
-> Michael Mueller (1):
->       KVM: s390: drop use of spin lock in __floating_irq_kick
-> 
->  arch/s390/include/asm/kvm_host.h |  3 ---
->  arch/s390/kvm/interrupt.c        | 27 +++++++++++----------------
->  arch/s390/kvm/kvm-s390.c         | 29 +++++++++++++++++++----------
->  arch/s390/kvm/kvm-s390.h         |  2 +-
->  arch/s390/kvm/sigp.c             | 12 ++++--------
->  arch/s390/mm/gmap.c              | 23 ++++++++---------------
->  kernel/configs/kvm_guest.config  |  1 +
->  7 files changed, 44 insertions(+), 53 deletions(-)
-> 
+The cpu model already traces the cpu facilities, the ibc and
+guest CPU ids. We should do the same for the cpu features (on
+success only).
 
-We probably will have to rebase kvm/next, sorry, to remove a series that
-had problems and (worse) complaints from the arch/x86 maintainers. :(
-Can you rebase on top of 5cb0944c0c66004c0d9006a7f0fba5782ae38f69?
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+---
+ arch/s390/kvm/kvm-s390.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-Thanks,
-
-Paolo
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 00ef6f47e466..c85d7c4e8a38 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1084,7 +1084,6 @@ static int kvm_s390_set_processor_feat(struct kvm *kvm,
+ 				       struct kvm_device_attr *attr)
+ {
+ 	struct kvm_s390_vm_cpu_feat data;
+-	int ret = -EBUSY;
+ 
+ 	if (copy_from_user(&data, (void __user *)attr->addr, sizeof(data)))
+ 		return -EFAULT;
+@@ -1094,13 +1093,18 @@ static int kvm_s390_set_processor_feat(struct kvm *kvm,
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&kvm->lock);
+-	if (!kvm->created_vcpus) {
+-		bitmap_copy(kvm->arch.cpu_feat, (unsigned long *) data.feat,
+-			    KVM_S390_VM_CPU_FEAT_NR_BITS);
+-		ret = 0;
++	if (kvm->created_vcpus) {
++		mutex_unlock(&kvm->lock);
++		return -EBUSY;
+ 	}
++	bitmap_copy(kvm->arch.cpu_feat, (unsigned long *) data.feat,
++		    KVM_S390_VM_CPU_FEAT_NR_BITS);
+ 	mutex_unlock(&kvm->lock);
+-	return ret;
++	VM_EVENT(kvm, 3, "SET: guest feat: 0x%16.16llx.0x%16.16llx.0x%16.16llx",
++			 data.feat[0],
++			 data.feat[1],
++			 data.feat[2]);
++	return 0;
+ }
+ 
+ static int kvm_s390_set_processor_subfunc(struct kvm *kvm,
+@@ -1202,6 +1206,10 @@ static int kvm_s390_get_processor_feat(struct kvm *kvm,
+ 		    KVM_S390_VM_CPU_FEAT_NR_BITS);
+ 	if (copy_to_user((void __user *)attr->addr, &data, sizeof(data)))
+ 		return -EFAULT;
++	VM_EVENT(kvm, 3, "GET: guest feat: 0x%16.16llx.0x%16.16llx.0x%16.16llx",
++			 data.feat[0],
++			 data.feat[1],
++			 data.feat[2]);
+ 	return 0;
+ }
+ 
+@@ -1215,6 +1223,10 @@ static int kvm_s390_get_machine_feat(struct kvm *kvm,
+ 		    KVM_S390_VM_CPU_FEAT_NR_BITS);
+ 	if (copy_to_user((void __user *)attr->addr, &data, sizeof(data)))
+ 		return -EFAULT;
++	VM_EVENT(kvm, 3, "GET: host feat:  0x%16.16llx.0x%16.16llx.0x%16.16llx",
++			 data.feat[0],
++			 data.feat[1],
++			 data.feat[2]);
+ 	return 0;
+ }
+ 
+-- 
+2.13.4
