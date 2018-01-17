@@ -1,101 +1,132 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 2/6] s390: implement nospec_[load|ptr]
-Date: Wed, 17 Jan 2018 10:48:35 +0100
-Message-ID: <1516182519-10623-3-git-send-email-schwidefsky@de.ibm.com>
+Subject: [PATCH 1/6] s390/alternative: use a copy of the facility bit mask
+Date: Wed, 17 Jan 2018 10:48:34 +0100
+Message-ID: <1516182519-10623-2-git-send-email-schwidefsky@de.ibm.com>
 References: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-Implement nospec_load() and nospec_ptr() for s390 with the new
-gmb() barrier between the boundary condition and the load that
-may not be done speculatively.
+To be able to switch off specific CPU alternatives with kernel parameters
+make a copy of the facility bit mask provided by STFLE and use the copy
+for the decision to apply an alternative.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/include/asm/barrier.h | 38 ++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/alternative.c  |  7 +++++++
- 2 files changed, 45 insertions(+)
+ arch/s390/include/asm/facility.h | 18 ++++++++++++++++++
+ arch/s390/include/asm/lowcore.h  |  3 ++-
+ arch/s390/kernel/alternative.c   |  3 ++-
+ arch/s390/kernel/early.c         |  3 +++
+ arch/s390/kernel/setup.c         |  4 +++-
+ arch/s390/kernel/smp.c           |  4 +++-
+ 6 files changed, 31 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
-index 1043260..b8836a6 100644
---- a/arch/s390/include/asm/barrier.h
-+++ b/arch/s390/include/asm/barrier.h
-@@ -8,6 +8,8 @@
- #ifndef __ASM_BARRIER_H
- #define __ASM_BARRIER_H
+diff --git a/arch/s390/include/asm/facility.h b/arch/s390/include/asm/facility.h
+index f040644..2d58478 100644
+--- a/arch/s390/include/asm/facility.h
++++ b/arch/s390/include/asm/facility.h
+@@ -15,6 +15,24 @@
  
-+#include <asm/alternative.h>
-+
- /*
-  * Force strict CPU ordering.
-  * And yes, this is required on UP too when we're talking
-@@ -23,6 +25,42 @@
+ #define MAX_FACILITY_BIT (sizeof(((struct lowcore *)0)->stfle_fac_list) * 8)
  
- #define mb() do {  asm volatile(__ASM_BARRIER : : : "memory"); } while (0)
- 
-+static inline void gmb(void)
++static inline void __set_facility(unsigned long nr, void *facilities)
 +{
-+	asm volatile(
-+		ALTERNATIVE("", ".long 0xb2e8f000", 81)
-+		: : : "memory");
++	unsigned char *ptr = (unsigned char *) facilities;
++
++	if (nr >= MAX_FACILITY_BIT)
++		return;
++	ptr[nr >> 3] |= 0x80 >> (nr & 7);
 +}
-+#define gmb gmb
 +
-+#define nospec_ptr(ptr, lo, hi)					\
-+({								\
-+	typeof (ptr) __ptr = (ptr);				\
-+	typeof (ptr) __lo = (lo);				\
-+	typeof (ptr) __hi = (hi);				\
-+	typeof (ptr) __vptr = NULL;				\
-+								\
-+	if (__lo <= __ptr && __ptr < __hi) {			\
-+		gmb();						\
-+		__vptr = __ptr;					\
-+	}							\
-+	__vptr;							\
-+})
++static inline void __clear_facility(unsigned long nr, void *facilities)
++{
++	unsigned char *ptr = (unsigned char *) facilities;
 +
-+#define nospec_load(ptr, lo, hi)				\
-+({								\
-+	typeof (ptr) __ptr = (ptr);				\
-+	typeof (ptr) __lo = (lo);				\
-+	typeof (ptr) __hi = (hi);				\
-+	typeof (*ptr) __v = (typeof(*__ptr))(unsigned long) 0;	\
-+								\
-+	if (__lo <= __ptr && __ptr < __hi) {			\
-+		gmb();						\
-+		__v = *__ptr;					\
-+	}							\
-+	__v;							\
-+})
++	if (nr >= MAX_FACILITY_BIT)
++		return;
++	ptr[nr >> 3] &= ~(0x80 >> (nr & 7));
++}
 +
- #define rmb()				barrier()
- #define wmb()				barrier()
- #define dma_rmb()			mb()
+ static inline int __test_facility(unsigned long nr, void *facilities)
+ {
+ 	unsigned char *ptr;
+diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
+index ec6592e..c63986a 100644
+--- a/arch/s390/include/asm/lowcore.h
++++ b/arch/s390/include/asm/lowcore.h
+@@ -151,7 +151,8 @@ struct lowcore {
+ 	__u8	pad_0x0e20[0x0f00-0x0e20];	/* 0x0e20 */
+ 
+ 	/* Extended facility list */
+-	__u64	stfle_fac_list[32];		/* 0x0f00 */
++	__u64	stfle_fac_list[16];		/* 0x0f00 */
++	__u64	alt_stfle_fac_list[16];		/* 0x0f80 */
+ 	__u8	pad_0x1000[0x11b0-0x1000];	/* 0x1000 */
+ 
+ 	/* Pointer to the machine check extended save area */
 diff --git a/arch/s390/kernel/alternative.c b/arch/s390/kernel/alternative.c
-index 1abf4f3..33d2e88 100644
+index 574e776..1abf4f3 100644
 --- a/arch/s390/kernel/alternative.c
 +++ b/arch/s390/kernel/alternative.c
-@@ -15,6 +15,13 @@ static int __init disable_alternative_instructions(char *str)
+@@ -75,7 +75,8 @@ static void __init_or_module __apply_alternatives(struct alt_instr *start,
+ 		instr = (u8 *)&a->instr_offset + a->instr_offset;
+ 		replacement = (u8 *)&a->repl_offset + a->repl_offset;
  
- early_param("noaltinstr", disable_alternative_instructions);
+-		if (!test_facility(a->facility))
++		if (!__test_facility(a->facility,
++				     S390_lowcore.alt_stfle_fac_list))
+ 			continue;
  
-+static int __init nogmb_setup_early(char *str)
-+{
-+	__clear_facility(81, S390_lowcore.alt_stfle_fac_list);
-+	return 0;
-+}
-+early_param("nogmb", nogmb_setup_early);
-+
- struct brcl_insn {
- 	u16 opc;
- 	s32 disp;
+ 		if (unlikely(a->instrlen % 2 || a->replacementlen % 2)) {
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 497a920..510f218 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -193,6 +193,9 @@ static noinline __init void setup_facility_list(void)
+ {
+ 	stfle(S390_lowcore.stfle_fac_list,
+ 	      ARRAY_SIZE(S390_lowcore.stfle_fac_list));
++	memcpy(S390_lowcore.alt_stfle_fac_list,
++	       S390_lowcore.stfle_fac_list,
++	       sizeof(S390_lowcore.alt_stfle_fac_list));
+ }
+ 
+ static __init void detect_diag9c(void)
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 793da97..bcd2a4a 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -340,7 +340,9 @@ static void __init setup_lowcore(void)
+ 	lc->preempt_count = S390_lowcore.preempt_count;
+ 	lc->stfl_fac_list = S390_lowcore.stfl_fac_list;
+ 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
+-	       MAX_FACILITY_BIT/8);
++	       sizeof(lc->stfle_fac_list));
++	memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
++	       sizeof(lc->alt_stfle_fac_list));
+ 	nmi_alloc_boot_cpu(lc);
+ 	vdso_alloc_boot_cpu(lc);
+ 	lc->sync_enter_timer = S390_lowcore.sync_enter_timer;
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index b8c1a85..4ce68ca 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -266,7 +266,9 @@ static void pcpu_prepare_secondary(struct pcpu *pcpu, int cpu)
+ 	__ctl_store(lc->cregs_save_area, 0, 15);
+ 	save_access_regs((unsigned int *) lc->access_regs_save_area);
+ 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
+-	       MAX_FACILITY_BIT/8);
++	       sizeof(lc->stfle_fac_list));
++	memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
++	       sizeof(lc->alt_stfle_fac_list));
+ 	arch_spin_lock_setup(cpu);
+ }
+ 
 -- 
 2.7.4
