@@ -1,7 +1,7 @@
 From: Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v6 52/99] fs: Convert buffer to XArray
-Date: Wed, 17 Jan 2018 12:21:16 -0800
-Message-ID: <20180117202203.19756-53-willy@infradead.org>
+Subject: [PATCH v6 58/99] dax: Convert lock_slot to XArray
+Date: Wed, 17 Jan 2018 12:21:22 -0800
+Message-ID: <20180117202203.19756-59-willy@infradead.org>
 References: <20180117202203.19756-1-willy@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,59 +24,103 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Matthew Wilcox <mawilcox@microsoft.com>
 
-Mostly comment fixes, but one use of __xa_set_tag.
-
 Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
 ---
- fs/buffer.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ fs/dax.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/fs/buffer.c b/fs/buffer.c
-index 1a6ae530156b..e1d18307d5c8 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -592,7 +592,7 @@ void mark_buffer_dirty_inode(struct buffer_head *bh, struct inode *inode)
- EXPORT_SYMBOL(mark_buffer_dirty_inode);
- 
+diff --git a/fs/dax.c b/fs/dax.c
+index f3463d93a6ce..8eab0b56f7f9 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -188,12 +188,11 @@ static void dax_wake_mapping_entry_waiter(struct address_space *mapping,
  /*
-- * Mark the page dirty, and set it dirty in the radix tree, and mark the inode
-+ * Mark the page dirty, and set it dirty in the page cache, and mark the inode
-  * dirty.
-  *
-  * If warn is true, then emit a warning if the page is not uptodate and has
-@@ -609,8 +609,8 @@ void __set_page_dirty(struct page *page, struct address_space *mapping,
- 	if (page->mapping) {	/* Race with truncate? */
- 		WARN_ON_ONCE(warn && !PageUptodate(page));
- 		account_page_dirtied(page, mapping);
--		radix_tree_tag_set(&mapping->pages,
--				page_index(page), PAGECACHE_TAG_DIRTY);
-+		__xa_set_tag(&mapping->pages, page_index(page),
-+				PAGECACHE_TAG_DIRTY);
- 	}
- 	xa_unlock_irqrestore(&mapping->pages, flags);
+  * Mark the given slot as locked.  Must be called with xa_lock held.
+  */
+-static inline void *lock_slot(struct address_space *mapping, void **slot)
++static inline void *lock_slot(struct xa_state *xas)
+ {
+-	unsigned long v = xa_to_value(
+-		radix_tree_deref_slot_protected(slot, &mapping->pages.xa_lock));
++	unsigned long v = xa_to_value(xas_load(xas));
+ 	void *entry = xa_mk_value(v | DAX_ENTRY_LOCK);
+-	radix_tree_replace_slot(&mapping->pages, slot, entry);
++	xas_store(xas, entry);
+ 	return entry;
  }
-@@ -1072,7 +1072,7 @@ __getblk_slow(struct block_device *bdev, sector_t block,
-  * The relationship between dirty buffers and dirty pages:
-  *
-  * Whenever a page has any dirty buffers, the page's dirty bit is set, and
-- * the page is tagged dirty in its radix tree.
-+ * the page is tagged dirty in the page cache.
-  *
-  * At all times, the dirtiness of the buffers represents the dirtiness of
-  * subsections of the page.  If the page has buffers, the page dirty bit is
-@@ -1095,9 +1095,9 @@ __getblk_slow(struct block_device *bdev, sector_t block,
-  * mark_buffer_dirty - mark a buffer_head as needing writeout
-  * @bh: the buffer_head to mark dirty
-  *
-- * mark_buffer_dirty() will set the dirty bit against the buffer, then set its
-- * backing page dirty, then tag the page as dirty in its address_space's radix
-- * tree and then attach the address_space's inode to its superblock's dirty
-+ * mark_buffer_dirty() will set the dirty bit against the buffer, then set
-+ * its backing page dirty, then tag the page as dirty in the page cache
-+ * and then attach the address_space's inode to its superblock's dirty
-  * inode list.
-  *
-  * mark_buffer_dirty() is atomic.  It takes bh->b_page->mapping->private_lock,
+ 
+@@ -244,7 +243,7 @@ static void dax_unlock_mapping_entry(struct address_space *mapping,
+ 
+ 	xas_lock_irq(&xas);
+ 	entry = xas_load(&xas);
+-	if (WARN_ON_ONCE(!entry || !xa_is_value(entry) || !dax_locked(entry))) {
++	if (WARN_ON_ONCE(!xa_is_value(entry) || !dax_locked(entry))) {
+ 		xas_unlock_irq(&xas);
+ 		return;
+ 	}
+@@ -303,6 +302,7 @@ static void put_unlocked_mapping_entry(struct address_space *mapping,
+ static void *grab_mapping_entry(struct address_space *mapping, pgoff_t index,
+ 		unsigned long size_flag)
+ {
++	XA_STATE(xas, &mapping->pages, index);
+ 	bool pmd_downgrade = false; /* splitting 2MiB entry into 4k entries? */
+ 	void *entry, **slot;
+ 
+@@ -341,7 +341,7 @@ static void *grab_mapping_entry(struct address_space *mapping, pgoff_t index,
+ 			 * Make sure 'entry' remains valid while we drop
+ 			 * xa_lock.
+ 			 */
+-			entry = lock_slot(mapping, slot);
++			entry = lock_slot(&xas);
+ 		}
+ 
+ 		xa_unlock_irq(&mapping->pages);
+@@ -408,7 +408,7 @@ static void *grab_mapping_entry(struct address_space *mapping, pgoff_t index,
+ 		xa_unlock_irq(&mapping->pages);
+ 		return entry;
+ 	}
+-	entry = lock_slot(mapping, slot);
++	entry = lock_slot(&xas);
+  out_unlock:
+ 	xa_unlock_irq(&mapping->pages);
+ 	return entry;
+@@ -639,6 +639,7 @@ static int dax_writeback_one(struct block_device *bdev,
+ 		pgoff_t index, void *entry)
+ {
+ 	struct radix_tree_root *pages = &mapping->pages;
++	XA_STATE(xas, pages, index);
+ 	void *entry2, **slot, *kaddr;
+ 	long ret = 0, id;
+ 	sector_t sector;
+@@ -675,7 +676,7 @@ static int dax_writeback_one(struct block_device *bdev,
+ 	if (!radix_tree_tag_get(pages, index, PAGECACHE_TAG_TOWRITE))
+ 		goto put_unlocked;
+ 	/* Lock the entry to serialize with page faults */
+-	entry = lock_slot(mapping, slot);
++	entry = lock_slot(&xas);
+ 	/*
+ 	 * We can clear the tag now but we have to be careful so that concurrent
+ 	 * dax_writeback_one() calls for the same index cannot finish before we
+@@ -1500,8 +1501,9 @@ static int dax_insert_pfn_mkwrite(struct vm_fault *vmf,
+ 				  pfn_t pfn)
+ {
+ 	struct address_space *mapping = vmf->vma->vm_file->f_mapping;
+-	void *entry, **slot;
+ 	pgoff_t index = vmf->pgoff;
++	XA_STATE(xas, &mapping->pages, index);
++	void *entry, **slot;
+ 	int vmf_ret, error;
+ 
+ 	xa_lock_irq(&mapping->pages);
+@@ -1517,7 +1519,7 @@ static int dax_insert_pfn_mkwrite(struct vm_fault *vmf,
+ 		return VM_FAULT_NOPAGE;
+ 	}
+ 	radix_tree_tag_set(&mapping->pages, index, PAGECACHE_TAG_DIRTY);
+-	entry = lock_slot(mapping, slot);
++	entry = lock_slot(&xas);
+ 	xa_unlock_irq(&mapping->pages);
+ 	switch (pe_size) {
+ 	case PE_SIZE_PTE:
 -- 
 2.15.1
 
