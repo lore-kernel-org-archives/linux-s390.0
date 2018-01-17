@@ -1,7 +1,7 @@
 From: Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v6 58/99] dax: Convert lock_slot to XArray
-Date: Wed, 17 Jan 2018 12:21:22 -0800
-Message-ID: <20180117202203.19756-59-willy@infradead.org>
+Subject: [PATCH v6 33/99] mm: Convert add_to_swap_cache to XArray
+Date: Wed, 17 Jan 2018 12:20:57 -0800
+Message-ID: <20180117202203.19756-34-willy@infradead.org>
 References: <20180117202203.19756-1-willy@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,103 +24,176 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Matthew Wilcox <mawilcox@microsoft.com>
 
+Combine __add_to_swap_cache and add_to_swap_cache into one function
+since there is no more need to preload.
+
 Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
 ---
- fs/dax.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ mm/swap_state.c | 93 ++++++++++++++++++---------------------------------------
+ 1 file changed, 29 insertions(+), 64 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index f3463d93a6ce..8eab0b56f7f9 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -188,12 +188,11 @@ static void dax_wake_mapping_entry_waiter(struct address_space *mapping,
- /*
-  * Mark the given slot as locked.  Must be called with xa_lock held.
-  */
--static inline void *lock_slot(struct address_space *mapping, void **slot)
-+static inline void *lock_slot(struct xa_state *xas)
- {
--	unsigned long v = xa_to_value(
--		radix_tree_deref_slot_protected(slot, &mapping->pages.xa_lock));
-+	unsigned long v = xa_to_value(xas_load(xas));
- 	void *entry = xa_mk_value(v | DAX_ENTRY_LOCK);
--	radix_tree_replace_slot(&mapping->pages, slot, entry);
-+	xas_store(xas, entry);
- 	return entry;
+diff --git a/mm/swap_state.c b/mm/swap_state.c
+index 3f95e8fc4cb2..a57b5ad4c503 100644
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -107,14 +107,15 @@ void show_swap_cache_info(void)
  }
  
-@@ -244,7 +243,7 @@ static void dax_unlock_mapping_entry(struct address_space *mapping,
- 
- 	xas_lock_irq(&xas);
- 	entry = xas_load(&xas);
--	if (WARN_ON_ONCE(!entry || !xa_is_value(entry) || !dax_locked(entry))) {
-+	if (WARN_ON_ONCE(!xa_is_value(entry) || !dax_locked(entry))) {
- 		xas_unlock_irq(&xas);
- 		return;
- 	}
-@@ -303,6 +302,7 @@ static void put_unlocked_mapping_entry(struct address_space *mapping,
- static void *grab_mapping_entry(struct address_space *mapping, pgoff_t index,
- 		unsigned long size_flag)
+ /*
+- * __add_to_swap_cache resembles add_to_page_cache_locked on swapper_space,
++ * add_to_swap_cache resembles add_to_page_cache_locked on swapper_space,
+  * but sets SwapCache flag and private instead of mapping and index.
+  */
+-int __add_to_swap_cache(struct page *page, swp_entry_t entry)
++int add_to_swap_cache(struct page *page, swp_entry_t entry, gfp_t gfp)
  {
-+	XA_STATE(xas, &mapping->pages, index);
- 	bool pmd_downgrade = false; /* splitting 2MiB entry into 4k entries? */
- 	void *entry, **slot;
+-	int error, i, nr = hpage_nr_pages(page);
+-	struct address_space *address_space;
++	struct address_space *address_space = swap_address_space(entry);
+ 	pgoff_t idx = swp_offset(entry);
++	XA_STATE(xas, &address_space->pages, idx);
++	unsigned long i, nr = 1UL << compound_order(page);
  
-@@ -341,7 +341,7 @@ static void *grab_mapping_entry(struct address_space *mapping, pgoff_t index,
- 			 * Make sure 'entry' remains valid while we drop
- 			 * xa_lock.
- 			 */
--			entry = lock_slot(mapping, slot);
-+			entry = lock_slot(&xas);
+ 	VM_BUG_ON_PAGE(!PageLocked(page), page);
+ 	VM_BUG_ON_PAGE(PageSwapCache(page), page);
+@@ -123,50 +124,30 @@ int __add_to_swap_cache(struct page *page, swp_entry_t entry)
+ 	page_ref_add(page, nr);
+ 	SetPageSwapCache(page);
+ 
+-	address_space = swap_address_space(entry);
+-	xa_lock_irq(&address_space->pages);
+-	for (i = 0; i < nr; i++) {
+-		set_page_private(page + i, entry.val + i);
+-		error = radix_tree_insert(&address_space->pages,
+-					  idx + i, page + i);
+-		if (unlikely(error))
+-			break;
+-	}
+-	if (likely(!error)) {
++	do {
++		xas_lock_irq(&xas);
++		xas_create_range(&xas, idx + nr - 1);
++		if (xas_error(&xas))
++			goto unlock;
++		for (i = 0; i < nr; i++) {
++			VM_BUG_ON_PAGE(xas.xa_index != idx + i, page);
++			set_page_private(page + i, entry.val + i);
++			xas_store(&xas, page + i);
++			xas_next(&xas);
++		}
+ 		address_space->nrpages += nr;
+ 		__mod_node_page_state(page_pgdat(page), NR_FILE_PAGES, nr);
+ 		ADD_CACHE_INFO(add_total, nr);
+-	} else {
+-		/*
+-		 * Only the context which have set SWAP_HAS_CACHE flag
+-		 * would call add_to_swap_cache().
+-		 * So add_to_swap_cache() doesn't returns -EEXIST.
+-		 */
+-		VM_BUG_ON(error == -EEXIST);
+-		set_page_private(page + i, 0UL);
+-		while (i--) {
+-			radix_tree_delete(&address_space->pages, idx + i);
+-			set_page_private(page + i, 0UL);
+-		}
+-		ClearPageSwapCache(page);
+-		page_ref_sub(page, nr);
+-	}
+-	xa_unlock_irq(&address_space->pages);
++unlock:
++		xas_unlock_irq(&xas);
++	} while (xas_nomem(&xas, gfp));
+ 
+-	return error;
+-}
+-
+-
+-int add_to_swap_cache(struct page *page, swp_entry_t entry, gfp_t gfp_mask)
+-{
+-	int error;
++	if (!xas_error(&xas))
++		return 0;
+ 
+-	error = radix_tree_maybe_preload_order(gfp_mask, compound_order(page));
+-	if (!error) {
+-		error = __add_to_swap_cache(page, entry);
+-		radix_tree_preload_end();
+-	}
+-	return error;
++	ClearPageSwapCache(page);
++	page_ref_sub(page, nr);
++	return xas_error(&xas);
+ }
+ 
+ /*
+@@ -220,7 +201,7 @@ int add_to_swap(struct page *page)
+ 		goto fail;
+ 
+ 	/*
+-	 * Radix-tree node allocations from PF_MEMALLOC contexts could
++	 * XArray node allocations from PF_MEMALLOC contexts could
+ 	 * completely exhaust the page allocator. __GFP_NOMEMALLOC
+ 	 * stops emergency reserves from being allocated.
+ 	 *
+@@ -232,7 +213,6 @@ int add_to_swap(struct page *page)
+ 	 */
+ 	err = add_to_swap_cache(page, entry,
+ 			__GFP_HIGH|__GFP_NOMEMALLOC|__GFP_NOWARN);
+-	/* -ENOMEM radix-tree allocation failure */
+ 	if (err)
+ 		/*
+ 		 * add_to_swap_cache() doesn't return -EEXIST, so we can safely
+@@ -400,19 +380,11 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 				break;		/* Out of memory */
  		}
  
- 		xa_unlock_irq(&mapping->pages);
-@@ -408,7 +408,7 @@ static void *grab_mapping_entry(struct address_space *mapping, pgoff_t index,
- 		xa_unlock_irq(&mapping->pages);
- 		return entry;
- 	}
--	entry = lock_slot(mapping, slot);
-+	entry = lock_slot(&xas);
-  out_unlock:
- 	xa_unlock_irq(&mapping->pages);
- 	return entry;
-@@ -639,6 +639,7 @@ static int dax_writeback_one(struct block_device *bdev,
- 		pgoff_t index, void *entry)
- {
- 	struct radix_tree_root *pages = &mapping->pages;
-+	XA_STATE(xas, pages, index);
- 	void *entry2, **slot, *kaddr;
- 	long ret = 0, id;
- 	sector_t sector;
-@@ -675,7 +676,7 @@ static int dax_writeback_one(struct block_device *bdev,
- 	if (!radix_tree_tag_get(pages, index, PAGECACHE_TAG_TOWRITE))
- 		goto put_unlocked;
- 	/* Lock the entry to serialize with page faults */
--	entry = lock_slot(mapping, slot);
-+	entry = lock_slot(&xas);
- 	/*
- 	 * We can clear the tag now but we have to be careful so that concurrent
- 	 * dax_writeback_one() calls for the same index cannot finish before we
-@@ -1500,8 +1501,9 @@ static int dax_insert_pfn_mkwrite(struct vm_fault *vmf,
- 				  pfn_t pfn)
- {
- 	struct address_space *mapping = vmf->vma->vm_file->f_mapping;
--	void *entry, **slot;
- 	pgoff_t index = vmf->pgoff;
-+	XA_STATE(xas, &mapping->pages, index);
-+	void *entry, **slot;
- 	int vmf_ret, error;
+-		/*
+-		 * call radix_tree_preload() while we can wait.
+-		 */
+-		err = radix_tree_maybe_preload(gfp_mask & GFP_KERNEL);
+-		if (err)
+-			break;
+-
+ 		/*
+ 		 * Swap entry may have been freed since our caller observed it.
+ 		 */
+ 		err = swapcache_prepare(entry);
+ 		if (err == -EEXIST) {
+-			radix_tree_preload_end();
+ 			/*
+ 			 * We might race against get_swap_page() and stumble
+ 			 * across a SWAP_HAS_CACHE swap_map entry whose page
+@@ -420,26 +392,19 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 			 */
+ 			cond_resched();
+ 			continue;
+-		}
+-		if (err) {		/* swp entry is obsolete ? */
+-			radix_tree_preload_end();
++		} else if (err)		/* swp entry is obsolete ? */
+ 			break;
+-		}
  
- 	xa_lock_irq(&mapping->pages);
-@@ -1517,7 +1519,7 @@ static int dax_insert_pfn_mkwrite(struct vm_fault *vmf,
- 		return VM_FAULT_NOPAGE;
- 	}
- 	radix_tree_tag_set(&mapping->pages, index, PAGECACHE_TAG_DIRTY);
--	entry = lock_slot(mapping, slot);
-+	entry = lock_slot(&xas);
- 	xa_unlock_irq(&mapping->pages);
- 	switch (pe_size) {
- 	case PE_SIZE_PTE:
+-		/* May fail (-ENOMEM) if radix-tree node allocation failed. */
++		/* May fail (-ENOMEM) if XArray node allocation failed. */
+ 		__SetPageLocked(new_page);
+ 		__SetPageSwapBacked(new_page);
+-		err = __add_to_swap_cache(new_page, entry);
++		err = add_to_swap_cache(new_page, entry, gfp_mask & GFP_KERNEL);
+ 		if (likely(!err)) {
+-			radix_tree_preload_end();
+-			/*
+-			 * Initiate read into locked page and return.
+-			 */
++			/* Initiate read into locked page */
+ 			lru_cache_add_anon(new_page);
+ 			*new_page_allocated = true;
+ 			return new_page;
+ 		}
+-		radix_tree_preload_end();
+ 		__ClearPageLocked(new_page);
+ 		/*
+ 		 * add_to_swap_cache() doesn't return -EEXIST, so we can safely
 -- 
 2.15.1
 
