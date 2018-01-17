@@ -1,7 +1,7 @@
 From: Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v6 74/99] usb: Convert xhci-mem to XArray
-Date: Wed, 17 Jan 2018 12:21:38 -0800
-Message-ID: <20180117202203.19756-75-willy@infradead.org>
+Subject: [PATCH v6 79/99] blk-cgroup: Convert to XArray
+Date: Wed, 17 Jan 2018 12:21:43 -0800
+Message-ID: <20180117202203.19756-80-willy@infradead.org>
 References: <20180117202203.19756-1-willy@infradead.org>
 Return-path: <owner-linux-mm@kvack.org>
 In-Reply-To: <20180117202203.19756-1-willy@infradead.org>
@@ -14,178 +14,264 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Matthew Wilcox <mawilcox@microsoft.com>
 
-The XArray API is a slightly better fit for xhci_insert_segment_mapping()
-than the radix tree API was.
+This call to radix_tree_preload is awkward.  At the point of allocation,
+we're under not only a local lock, but also under the queue lock.  So we
+can't back out, drop the lock and retry the allocation.  Replace this
+preload call with a call to xa_reserve() which will ensure the memory is
+allocated.
 
 Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
 ---
- drivers/usb/host/xhci-mem.c | 68 +++++++++++++++++++--------------------------
- drivers/usb/host/xhci.h     |  6 ++--
- 2 files changed, 32 insertions(+), 42 deletions(-)
+ block/bfq-cgroup.c         |  4 ++--
+ block/blk-cgroup.c         | 52 ++++++++++++++++++++++------------------------
+ block/cfq-iosched.c        |  4 ++--
+ include/linux/blk-cgroup.h |  5 ++---
+ 4 files changed, 31 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index 3a29b32a3bd0..a2e15a9abc30 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -149,70 +149,60 @@ static void xhci_link_rings(struct xhci_hcd *xhci, struct xhci_ring *ring,
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index da1525ec4c87..0648aaa6498b 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -860,7 +860,7 @@ static int bfq_io_set_weight_legacy(struct cgroup_subsys_state *css,
+ 		return ret;
+ 
+ 	ret = 0;
+-	spin_lock_irq(&blkcg->lock);
++	xa_lock_irq(&blkcg->blkg_array);
+ 	bfqgd->weight = (unsigned short)val;
+ 	hlist_for_each_entry(blkg, &blkcg->blkg_list, blkcg_node) {
+ 		struct bfq_group *bfqg = blkg_to_bfqg(blkg);
+@@ -894,7 +894,7 @@ static int bfq_io_set_weight_legacy(struct cgroup_subsys_state *css,
+ 			bfqg->entity.prio_changed = 1;
+ 		}
+ 	}
+-	spin_unlock_irq(&blkcg->lock);
++	xa_unlock_irq(&blkcg->blkg_array);
+ 
+ 	return ret;
  }
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 4117524ca45b..37962d52f1a8 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -146,12 +146,12 @@ struct blkcg_gq *blkg_lookup_slowpath(struct blkcg *blkcg,
+ 	struct blkcg_gq *blkg;
  
- /*
-- * We need a radix tree for mapping physical addresses of TRBs to which stream
-- * ID they belong to.  We need to do this because the host controller won't tell
-+ * We need to map physical addresses of TRBs to the stream ID they belong to.
-+ * We need to do this because the host controller won't tell
-  * us which stream ring the TRB came from.  We could store the stream ID in an
-  * event data TRB, but that doesn't help us for the cancellation case, since the
-  * endpoint may stop before it reaches that event data TRB.
-  *
-- * The radix tree maps the upper portion of the TRB DMA address to a ring
-+ * The xarray maps the upper portion of the TRB DMA address to a ring
-  * segment that has the same upper portion of DMA addresses.  For example, say I
-  * have segments of size 1KB, that are always 1KB aligned.  A segment may
-  * start at 0x10c91000 and end at 0x10c913f0.  If I use the upper 10 bits, the
-- * key to the stream ID is 0x43244.  I can use the DMA address of the TRB to
-- * pass the radix tree a key to get the right stream ID:
-+ * index of the stream ID is 0x43244.  I can use the DMA address of the TRB as
-+ * the xarray index to get the right stream ID:
-  *
-  *	0x10c90fff >> 10 = 0x43243
-  *	0x10c912c0 >> 10 = 0x43244
-  *	0x10c91400 >> 10 = 0x43245
-  *
-  * Obviously, only those TRBs with DMA addresses that are within the segment
-- * will make the radix tree return the stream ID for that ring.
-+ * will make the xarray return the stream ID for that ring.
-  *
-- * Caveats for the radix tree:
-+ * Caveats for the xarray:
-  *
-- * The radix tree uses an unsigned long as a key pair.  On 32-bit systems, an
-+ * The xarray uses an unsigned long for the index.  On 32-bit systems, an
-  * unsigned long will be 32-bits; on a 64-bit system an unsigned long will be
-  * 64-bits.  Since we only request 32-bit DMA addresses, we can use that as the
-- * key on 32-bit or 64-bit systems (it would also be fine if we asked for 64-bit
-- * PCI DMA addresses on a 64-bit system).  There might be a problem on 32-bit
-- * extended systems (where the DMA address can be bigger than 32-bits),
-+ * index on 32-bit or 64-bit systems (it would also be fine if we asked for
-+ * 64-bit PCI DMA addresses on a 64-bit system).  There might be a problem on
-+ * 32-bit extended systems (where the DMA address can be bigger than 32-bits),
-  * if we allow the PCI dma mask to be bigger than 32-bits.  So don't do that.
-  */
--static int xhci_insert_segment_mapping(struct radix_tree_root *trb_address_map,
-+
-+static unsigned long trb_index(dma_addr_t dma)
-+{
-+	return (unsigned long)(dma >> TRB_SEGMENT_SHIFT);
-+}
-+
-+static int xhci_insert_segment_mapping(struct xarray *trb_address_map,
- 		struct xhci_ring *ring,
- 		struct xhci_segment *seg,
--		gfp_t mem_flags)
-+		gfp_t gfp)
- {
--	unsigned long key;
--	int ret;
--
--	key = (unsigned long)(seg->dma >> TRB_SEGMENT_SHIFT);
- 	/* Skip any segments that were already added. */
--	if (radix_tree_lookup(trb_address_map, key))
--		return 0;
--
--	ret = radix_tree_maybe_preload(mem_flags);
--	if (ret)
--		return ret;
--	ret = radix_tree_insert(trb_address_map,
--			key, ring);
--	radix_tree_preload_end();
--	return ret;
-+	return xa_err(xa_cmpxchg(trb_address_map, trb_index(seg->dma), NULL,
-+								ring, gfp));
- }
- 
--static void xhci_remove_segment_mapping(struct radix_tree_root *trb_address_map,
-+static void xhci_remove_segment_mapping(struct xarray *trb_address_map,
- 		struct xhci_segment *seg)
- {
--	unsigned long key;
--
--	key = (unsigned long)(seg->dma >> TRB_SEGMENT_SHIFT);
--	if (radix_tree_lookup(trb_address_map, key))
--		radix_tree_delete(trb_address_map, key);
-+	xa_erase(trb_address_map, trb_index(seg->dma));
- }
- 
- static int xhci_update_stream_segment_mapping(
--		struct radix_tree_root *trb_address_map,
-+		struct xarray *trb_address_map,
- 		struct xhci_ring *ring,
- 		struct xhci_segment *first_seg,
- 		struct xhci_segment *last_seg,
-@@ -574,8 +564,8 @@ struct xhci_ring *xhci_dma_to_transfer_ring(
- 		u64 address)
- {
- 	if (ep->ep_state & EP_HAS_STREAMS)
--		return radix_tree_lookup(&ep->stream_info->trb_address_map,
--				address >> TRB_SEGMENT_SHIFT);
-+		return xa_load(&ep->stream_info->trb_address_map,
-+				trb_index(address));
- 	return ep->ring;
- }
- 
-@@ -654,10 +644,10 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
- 	if (!stream_info->free_streams_command)
- 		goto cleanup_ctx;
- 
--	INIT_RADIX_TREE(&stream_info->trb_address_map, GFP_ATOMIC);
-+	xa_init(&stream_info->trb_address_map);
- 
- 	/* Allocate rings for all the streams that the driver will use,
--	 * and add their segment DMA addresses to the radix tree.
-+	 * and add their segment DMA addresses to the map.
- 	 * Stream 0 is reserved.
+ 	/*
+-	 * Hint didn't match.  Look up from the radix tree.  Note that the
++	 * Hint didn't match.  Fetch from the xarray.  Note that the
+ 	 * hint can only be updated under queue_lock as otherwise @blkg
+-	 * could have already been removed from blkg_tree.  The caller is
++	 * could have already been removed from blkg_array.  The caller is
+ 	 * responsible for grabbing queue_lock if @update_hint.
  	 */
+-	blkg = radix_tree_lookup(&blkcg->blkg_tree, q->id);
++	blkg = xa_load(&blkcg->blkg_array, q->id);
+ 	if (blkg && blkg->q == q) {
+ 		if (update_hint) {
+ 			lockdep_assert_held(q->queue_lock);
+@@ -223,8 +223,8 @@ static struct blkcg_gq *blkg_create(struct blkcg *blkcg,
+ 	}
  
-@@ -2376,7 +2366,7 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
- 	 * Initialize the ring segment pool.  The ring must be a contiguous
- 	 * structure comprised of TRBs.  The TRBs must be 16 byte aligned,
- 	 * however, the command ring segment needs 64-byte aligned segments
--	 * and our use of dma addresses in the trb_address_map radix tree needs
-+	 * and our use of dma addresses in the trb_address_map xarray needs
- 	 * TRB_SEGMENT_SIZE alignment, so we pick the greater alignment need.
- 	 */
- 	xhci->segment_pool = dma_pool_create("xHCI ring segments", dev,
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 054ce74524af..e8208a3eee3c 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -15,7 +15,7 @@
- #include <linux/usb.h>
- #include <linux/timer.h>
- #include <linux/kernel.h>
+ 	/* insert */
+-	spin_lock(&blkcg->lock);
+-	ret = radix_tree_insert(&blkcg->blkg_tree, q->id, blkg);
++	xa_lock(&blkcg->blkg_array);
++	ret = xa_err(__xa_store(&blkcg->blkg_array, q->id, blkg, GFP_NOWAIT));
+ 	if (likely(!ret)) {
+ 		hlist_add_head_rcu(&blkg->blkcg_node, &blkcg->blkg_list);
+ 		list_add(&blkg->q_node, &q->blkg_list);
+@@ -237,7 +237,7 @@ static struct blkcg_gq *blkg_create(struct blkcg *blkcg,
+ 		}
+ 	}
+ 	blkg->online = true;
+-	spin_unlock(&blkcg->lock);
++	xa_unlock(&blkcg->blkg_array);
+ 
+ 	if (!ret)
+ 		return blkg;
+@@ -314,7 +314,7 @@ static void blkg_destroy(struct blkcg_gq *blkg)
+ 	int i;
+ 
+ 	lockdep_assert_held(blkg->q->queue_lock);
+-	lockdep_assert_held(&blkcg->lock);
++	lockdep_assert_held(&blkcg->blkg_array.xa_lock);
+ 
+ 	/* Something wrong if we are trying to remove same group twice */
+ 	WARN_ON_ONCE(list_empty(&blkg->q_node));
+@@ -334,7 +334,7 @@ static void blkg_destroy(struct blkcg_gq *blkg)
+ 
+ 	blkg->online = false;
+ 
+-	radix_tree_delete(&blkcg->blkg_tree, blkg->q->id);
++	xa_erase(&blkcg->blkg_array, blkg->q->id);
+ 	list_del_init(&blkg->q_node);
+ 	hlist_del_init_rcu(&blkg->blkcg_node);
+ 
+@@ -368,9 +368,9 @@ static void blkg_destroy_all(struct request_queue *q)
+ 	list_for_each_entry_safe(blkg, n, &q->blkg_list, q_node) {
+ 		struct blkcg *blkcg = blkg->blkcg;
+ 
+-		spin_lock(&blkcg->lock);
++		xa_lock(&blkcg->blkg_array);
+ 		blkg_destroy(blkg);
+-		spin_unlock(&blkcg->lock);
++		xa_unlock(&blkcg->blkg_array);
+ 	}
+ 
+ 	q->root_blkg = NULL;
+@@ -443,7 +443,7 @@ static int blkcg_reset_stats(struct cgroup_subsys_state *css,
+ 	int i;
+ 
+ 	mutex_lock(&blkcg_pol_mutex);
+-	spin_lock_irq(&blkcg->lock);
++	xa_lock_irq(&blkcg->blkg_array);
+ 
+ 	/*
+ 	 * Note that stat reset is racy - it doesn't synchronize against
+@@ -462,7 +462,7 @@ static int blkcg_reset_stats(struct cgroup_subsys_state *css,
+ 		}
+ 	}
+ 
+-	spin_unlock_irq(&blkcg->lock);
++	xa_unlock_irq(&blkcg->blkg_array);
+ 	mutex_unlock(&blkcg_pol_mutex);
+ 	return 0;
+ }
+@@ -1012,7 +1012,7 @@ static void blkcg_css_offline(struct cgroup_subsys_state *css)
+ {
+ 	struct blkcg *blkcg = css_to_blkcg(css);
+ 
+-	spin_lock_irq(&blkcg->lock);
++	xa_lock_irq(&blkcg->blkg_array);
+ 
+ 	while (!hlist_empty(&blkcg->blkg_list)) {
+ 		struct blkcg_gq *blkg = hlist_entry(blkcg->blkg_list.first,
+@@ -1023,13 +1023,13 @@ static void blkcg_css_offline(struct cgroup_subsys_state *css)
+ 			blkg_destroy(blkg);
+ 			spin_unlock(q->queue_lock);
+ 		} else {
+-			spin_unlock_irq(&blkcg->lock);
++			xa_unlock_irq(&blkcg->blkg_array);
+ 			cpu_relax();
+-			spin_lock_irq(&blkcg->lock);
++			xa_lock_irq(&blkcg->blkg_array);
+ 		}
+ 	}
+ 
+-	spin_unlock_irq(&blkcg->lock);
++	xa_unlock_irq(&blkcg->blkg_array);
+ 
+ 	wb_blkcg_offline(blkcg);
+ }
+@@ -1096,8 +1096,7 @@ blkcg_css_alloc(struct cgroup_subsys_state *parent_css)
+ 			pol->cpd_init_fn(cpd);
+ 	}
+ 
+-	spin_lock_init(&blkcg->lock);
+-	INIT_RADIX_TREE(&blkcg->blkg_tree, GFP_NOWAIT | __GFP_NOWARN);
++	xa_init_flags(&blkcg->blkg_array, XA_FLAGS_LOCK_IRQ);
+ 	INIT_HLIST_HEAD(&blkcg->blkg_list);
+ #ifdef CONFIG_CGROUP_WRITEBACK
+ 	INIT_LIST_HEAD(&blkcg->cgwb_list);
+@@ -1132,14 +1131,14 @@ blkcg_css_alloc(struct cgroup_subsys_state *parent_css)
+ int blkcg_init_queue(struct request_queue *q)
+ {
+ 	struct blkcg_gq *new_blkg, *blkg;
+-	bool preloaded;
+ 	int ret;
+ 
+ 	new_blkg = blkg_alloc(&blkcg_root, q, GFP_KERNEL);
+ 	if (!new_blkg)
+ 		return -ENOMEM;
+ 
+-	preloaded = !radix_tree_preload(GFP_KERNEL);
++	if (xa_reserve(&blkcg_root.blkg_array, q->id, GFP_KERNEL))
++		return -ENOMEM;
+ 
+ 	/*
+ 	 * Make sure the root blkg exists and count the existing blkgs.  As
+@@ -1152,11 +1151,10 @@ int blkcg_init_queue(struct request_queue *q)
+ 	spin_unlock_irq(q->queue_lock);
+ 	rcu_read_unlock();
+ 
+-	if (preloaded)
+-		radix_tree_preload_end();
+-
+-	if (IS_ERR(blkg))
++	if (IS_ERR(blkg)) {
++		xa_erase(&blkcg_root.blkg_array, q->id);
+ 		return PTR_ERR(blkg);
++	}
+ 
+ 	q->root_blkg = blkg;
+ 	q->root_rl.blkg = blkg;
+@@ -1374,8 +1372,8 @@ void blkcg_deactivate_policy(struct request_queue *q,
+ 	__clear_bit(pol->plid, q->blkcg_pols);
+ 
+ 	list_for_each_entry(blkg, &q->blkg_list, q_node) {
+-		/* grab blkcg lock too while removing @pd from @blkg */
+-		spin_lock(&blkg->blkcg->lock);
++		/* grab xa_lock too while removing @pd from @blkg */
++		xa_lock(&blkg->blkcg->blkg_array);
+ 
+ 		if (blkg->pd[pol->plid]) {
+ 			if (pol->pd_offline_fn)
+@@ -1384,7 +1382,7 @@ void blkcg_deactivate_policy(struct request_queue *q,
+ 			blkg->pd[pol->plid] = NULL;
+ 		}
+ 
+-		spin_unlock(&blkg->blkcg->lock);
++		xa_unlock(&blkg->blkcg->blkg_array);
+ 	}
+ 
+ 	spin_unlock_irq(q->queue_lock);
+diff --git a/block/cfq-iosched.c b/block/cfq-iosched.c
+index 9f342ef1ad42..a51bef7af8df 100644
+--- a/block/cfq-iosched.c
++++ b/block/cfq-iosched.c
+@@ -1827,7 +1827,7 @@ static int __cfq_set_weight(struct cgroup_subsys_state *css, u64 val,
+ 	if (val < min || val > max)
+ 		return -ERANGE;
+ 
+-	spin_lock_irq(&blkcg->lock);
++	xa_lock_irq(&blkcg->blkg_array);
+ 	cfqgd = blkcg_to_cfqgd(blkcg);
+ 	if (!cfqgd) {
+ 		ret = -EINVAL;
+@@ -1859,7 +1859,7 @@ static int __cfq_set_weight(struct cgroup_subsys_state *css, u64 val,
+ 	}
+ 
+ out:
+-	spin_unlock_irq(&blkcg->lock);
++	xa_unlock_irq(&blkcg->blkg_array);
+ 	return ret;
+ }
+ 
+diff --git a/include/linux/blk-cgroup.h b/include/linux/blk-cgroup.h
+index e9825ff57b15..6278c49d3997 100644
+--- a/include/linux/blk-cgroup.h
++++ b/include/linux/blk-cgroup.h
+@@ -17,7 +17,7 @@
+ #include <linux/cgroup.h>
+ #include <linux/percpu_counter.h>
+ #include <linux/seq_file.h>
 -#include <linux/radix-tree.h>
 +#include <linux/xarray.h>
- #include <linux/usb/hcd.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
+ #include <linux/blkdev.h>
+ #include <linux/atomic.h>
+ #include <linux/kthread.h>
+@@ -44,9 +44,8 @@ struct blkcg_gq;
  
-@@ -837,7 +837,7 @@ struct xhci_stream_info {
- 	unsigned int			num_stream_ctxs;
- 	dma_addr_t			ctx_array_dma;
- 	/* For mapping physical TRB addresses to segments in stream rings */
--	struct radix_tree_root		trb_address_map;
-+	struct xarray			trb_address_map;
- 	struct xhci_command		*free_streams_command;
- };
+ struct blkcg {
+ 	struct cgroup_subsys_state	css;
+-	spinlock_t			lock;
  
-@@ -1584,7 +1584,7 @@ struct xhci_ring {
- 	unsigned int		bounce_buf_len;
- 	enum xhci_ring_type	type;
- 	bool			last_td_was_short;
--	struct radix_tree_root	*trb_address_map;
-+	struct xarray		*trb_address_map;
- };
+-	struct radix_tree_root		blkg_tree;
++	struct xarray			blkg_array;
+ 	struct blkcg_gq	__rcu		*blkg_hint;
+ 	struct hlist_head		blkg_list;
  
- struct xhci_erst_entry {
 -- 
 2.15.1
 
