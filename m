@@ -1,132 +1,77 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 1/6] s390/alternative: use a copy of the facility bit mask
-Date: Wed, 17 Jan 2018 10:48:34 +0100
-Message-ID: <1516182519-10623-2-git-send-email-schwidefsky@de.ibm.com>
-References: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Subject: [PATCH 0/6] s390: improve speculative execution handling
+Date: Wed, 17 Jan 2018 10:48:33 +0100
+Message-ID: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-To be able to switch off specific CPU alternatives with kernel parameters
-make a copy of the facility bit mask provided by STFLE and use the copy
-for the decision to apply an alternative.
+This patch series implements multiple mitigations for the speculative
+execution findings:
+1. The definition of the gmb() barrier as currently used by the
+   distributions, we may have to find a better name for it
+2. The architecture code for the nospec interfaces, the macros for
+   nospec_ptr and nospec_load just use the gmb() barrier
+3. The enablement for firmware features to switch between different
+   branch prediction modes. It comes with a config option
+   CONFIG_KERNEL_NOBP, two new kernel parameters "nobp=[0|1]" and
+   "nospec", and a new system call s390_modify_bp.
+   With CONFIG_KERNEL_NOBP=y the new branch prediction mode is active
+   for the kernel code by default and can be switched off with "nospec"
+   or "nobp=0". With CONFIG_KERNEL_NOBP=n the new mode is inactive for
+   kernel code unless "nobp=1" is specified.
+   User space code can use the trapdoor system call s390_modify_bp to
+   set the new TIF_NOBP bit. This switches to the new branch prediction
+   mode for the lifetime of the task, any children of the task will
+   inherit this attribute.
+   The vCPU of a KVM guest will run with the new branch prediction
+   mode if either the associated qemu task has TIF_NOBP set or if the
+   KVM kernel code sets TIF_NOBP_GUEST. The later will require a small
+   update to KVM backend.
+4. Transport channel reduction by clearing registers on interrupts,
+   system calls and KVM guest exits.
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
- arch/s390/include/asm/facility.h | 18 ++++++++++++++++++
- arch/s390/include/asm/lowcore.h  |  3 ++-
- arch/s390/kernel/alternative.c   |  3 ++-
- arch/s390/kernel/early.c         |  3 +++
- arch/s390/kernel/setup.c         |  4 +++-
- arch/s390/kernel/smp.c           |  4 +++-
- 6 files changed, 31 insertions(+), 4 deletions(-)
+We are working on an equivalent for retpoline, stay tuned.
 
-diff --git a/arch/s390/include/asm/facility.h b/arch/s390/include/asm/facility.h
-index f040644..2d58478 100644
---- a/arch/s390/include/asm/facility.h
-+++ b/arch/s390/include/asm/facility.h
-@@ -15,6 +15,24 @@
- 
- #define MAX_FACILITY_BIT (sizeof(((struct lowcore *)0)->stfle_fac_list) * 8)
- 
-+static inline void __set_facility(unsigned long nr, void *facilities)
-+{
-+	unsigned char *ptr = (unsigned char *) facilities;
-+
-+	if (nr >= MAX_FACILITY_BIT)
-+		return;
-+	ptr[nr >> 3] |= 0x80 >> (nr & 7);
-+}
-+
-+static inline void __clear_facility(unsigned long nr, void *facilities)
-+{
-+	unsigned char *ptr = (unsigned char *) facilities;
-+
-+	if (nr >= MAX_FACILITY_BIT)
-+		return;
-+	ptr[nr >> 3] &= ~(0x80 >> (nr & 7));
-+}
-+
- static inline int __test_facility(unsigned long nr, void *facilities)
- {
- 	unsigned char *ptr;
-diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-index ec6592e..c63986a 100644
---- a/arch/s390/include/asm/lowcore.h
-+++ b/arch/s390/include/asm/lowcore.h
-@@ -151,7 +151,8 @@ struct lowcore {
- 	__u8	pad_0x0e20[0x0f00-0x0e20];	/* 0x0e20 */
- 
- 	/* Extended facility list */
--	__u64	stfle_fac_list[32];		/* 0x0f00 */
-+	__u64	stfle_fac_list[16];		/* 0x0f00 */
-+	__u64	alt_stfle_fac_list[16];		/* 0x0f80 */
- 	__u8	pad_0x1000[0x11b0-0x1000];	/* 0x1000 */
- 
- 	/* Pointer to the machine check extended save area */
-diff --git a/arch/s390/kernel/alternative.c b/arch/s390/kernel/alternative.c
-index 574e776..1abf4f3 100644
---- a/arch/s390/kernel/alternative.c
-+++ b/arch/s390/kernel/alternative.c
-@@ -75,7 +75,8 @@ static void __init_or_module __apply_alternatives(struct alt_instr *start,
- 		instr = (u8 *)&a->instr_offset + a->instr_offset;
- 		replacement = (u8 *)&a->repl_offset + a->repl_offset;
- 
--		if (!test_facility(a->facility))
-+		if (!__test_facility(a->facility,
-+				     S390_lowcore.alt_stfle_fac_list))
- 			continue;
- 
- 		if (unlikely(a->instrlen % 2 || a->replacementlen % 2)) {
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index 497a920..510f218 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -193,6 +193,9 @@ static noinline __init void setup_facility_list(void)
- {
- 	stfle(S390_lowcore.stfle_fac_list,
- 	      ARRAY_SIZE(S390_lowcore.stfle_fac_list));
-+	memcpy(S390_lowcore.alt_stfle_fac_list,
-+	       S390_lowcore.stfle_fac_list,
-+	       sizeof(S390_lowcore.alt_stfle_fac_list));
- }
- 
- static __init void detect_diag9c(void)
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 793da97..bcd2a4a 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -340,7 +340,9 @@ static void __init setup_lowcore(void)
- 	lc->preempt_count = S390_lowcore.preempt_count;
- 	lc->stfl_fac_list = S390_lowcore.stfl_fac_list;
- 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
--	       MAX_FACILITY_BIT/8);
-+	       sizeof(lc->stfle_fac_list));
-+	memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
-+	       sizeof(lc->alt_stfle_fac_list));
- 	nmi_alloc_boot_cpu(lc);
- 	vdso_alloc_boot_cpu(lc);
- 	lc->sync_enter_timer = S390_lowcore.sync_enter_timer;
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index b8c1a85..4ce68ca 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -266,7 +266,9 @@ static void pcpu_prepare_secondary(struct pcpu *pcpu, int cpu)
- 	__ctl_store(lc->cregs_save_area, 0, 15);
- 	save_access_regs((unsigned int *) lc->access_regs_save_area);
- 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
--	       MAX_FACILITY_BIT/8);
-+	       sizeof(lc->stfle_fac_list));
-+	memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
-+	       sizeof(lc->alt_stfle_fac_list));
- 	arch_spin_lock_setup(cpu);
- }
- 
+@Greg: I have started with the backports for the stable kernel releases,
+but unless the interface for gmp/nospec_ptr/nospec_load is cast in stone
+does it make sense to send them?
+
+Christian Borntraeger (1):
+  KVM: s390: wire up seb feature
+
+Martin Schwidefsky (5):
+  s390/alternative: use a copy of the facility bit mask
+  s390: implement nospec_[load|ptr]
+  s390: add options to change branch prediction behaviour for the kernel
+  s390: add system call to run tasks with modified branch prediction
+  s390: scrub registers on kernel entry and KVM exit
+
+ arch/s390/Kconfig                   |  17 +++++
+ arch/s390/include/asm/barrier.h     |  38 ++++++++++
+ arch/s390/include/asm/facility.h    |  18 +++++
+ arch/s390/include/asm/kvm_host.h    |   3 +-
+ arch/s390/include/asm/lowcore.h     |   3 +-
+ arch/s390/include/asm/processor.h   |   1 +
+ arch/s390/include/asm/thread_info.h |   4 ++
+ arch/s390/include/uapi/asm/kvm.h    |   4 +-
+ arch/s390/include/uapi/asm/unistd.h |   3 +-
+ arch/s390/kernel/alternative.c      |  33 ++++++++-
+ arch/s390/kernel/early.c            |   5 ++
+ arch/s390/kernel/entry.S            | 134 +++++++++++++++++++++++++++++++++++-
+ arch/s390/kernel/ipl.c              |   1 +
+ arch/s390/kernel/setup.c            |   4 +-
+ arch/s390/kernel/smp.c              |   6 +-
+ arch/s390/kernel/sys_s390.c         |   8 +++
+ arch/s390/kernel/syscalls.S         |   1 +
+ arch/s390/kvm/kvm-s390.c            |  11 +++
+ arch/s390/kvm/vsie.c                |   8 +++
+ include/uapi/linux/kvm.h            |   1 +
+ 20 files changed, 294 insertions(+), 9 deletions(-)
+
 -- 
 2.7.4
