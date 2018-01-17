@@ -1,7 +1,8 @@
 From: Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v6 85/99] btrfs: Remove unused spinlock
-Date: Wed, 17 Jan 2018 12:21:49 -0800
-Message-ID: <20180117202203.19756-86-willy@infradead.org>
+Subject: [PATCH v6 29/99] page cache: Convert
+ filemap_range_has_page to XArray
+Date: Wed, 17 Jan 2018 12:20:53 -0800
+Message-ID: <20180117202203.19756-30-willy@infradead.org>
 References: <20180117202203.19756-1-willy@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,41 +25,38 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Matthew Wilcox <mawilcox@microsoft.com>
 
-The reada_lock in struct btrfs_device was only initialised, and not
-actually used.  That's good because there's another lock also called
-reada_lock in the btrfs_fs_info that was quite heavily used.  Remove
-this one.
+Instead of calling find_get_pages_range() and putting any reference,
+just use xa_find() to look for a page in the right range.
 
 Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
 ---
- fs/btrfs/volumes.c | 1 -
- fs/btrfs/volumes.h | 1 -
- 2 files changed, 2 deletions(-)
+ mm/filemap.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index a25684287501..cba286183ff9 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -244,7 +244,6 @@ static struct btrfs_device *__alloc_device(void)
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 2536fcacb5bc..cd01f353cf6a 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -461,18 +461,11 @@ bool filemap_range_has_page(struct address_space *mapping,
+ {
+ 	pgoff_t index = start_byte >> PAGE_SHIFT;
+ 	pgoff_t end = end_byte >> PAGE_SHIFT;
+-	struct page *page;
  
- 	spin_lock_init(&dev->io_lock);
+ 	if (end_byte < start_byte)
+ 		return false;
  
--	spin_lock_init(&dev->reada_lock);
- 	atomic_set(&dev->reada_in_flight, 0);
- 	atomic_set(&dev->dev_stats_ccnt, 0);
- 	btrfs_device_data_ordered_init(dev);
-diff --git a/fs/btrfs/volumes.h b/fs/btrfs/volumes.h
-index ff15208344a7..335fd1590458 100644
---- a/fs/btrfs/volumes.h
-+++ b/fs/btrfs/volumes.h
-@@ -136,7 +136,6 @@ struct btrfs_device {
- 	struct work_struct rcu_work;
+-	if (mapping->nrpages == 0)
+-		return false;
+-
+-	if (!find_get_pages_range(mapping, &index, end, 1, &page))
+-		return false;
+-	put_page(page);
+-	return true;
++	return xa_find(&mapping->pages, &index, end, XA_PRESENT);
+ }
+ EXPORT_SYMBOL(filemap_range_has_page);
  
- 	/* readahead state */
--	spinlock_t reada_lock;
- 	atomic_t reada_in_flight;
- 	u64 reada_next;
- 	struct reada_zone *reada_curr_zone;
 -- 
 2.15.1
 
