@@ -1,42 +1,49 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 10/12] KVM: s390: activate GISA for emulated interrupts
-Date: Tue, 16 Jan 2018 21:02:15 +0100
-Message-ID: <20180116200217.211897-11-borntraeger@de.ibm.com>
-References: <20180116200217.211897-1-borntraeger@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 4/6] s390: add system call to run tasks with modified
+ branch prediction
+Date: Wed, 17 Jan 2018 14:25:49 +0100
+Message-ID: <20180117132549.GC5708@osiris>
+References: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
+ <1516182519-10623-5-git-send-email-schwidefsky@de.ibm.com>
+ <5bda76be-0fec-8165-20bf-5cd8e51e955a@redhat.com>
+ <c80554d9-a7e0-00cf-9f03-b16ce34205c5@de.ibm.com>
+ <20180117125506.26f3813c@mschwideX1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180116200217.211897-1-borntraeger@de.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20180117125506.26f3813c@mschwideX1>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Florian Weimer <fweimer@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
+On Wed, Jan 17, 2018 at 12:55:06PM +0100, Martin Schwidefsky wrote:
+> On Wed, 17 Jan 2018 12:14:52 +0100
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>=20
+> > On 01/17/2018 11:03 AM, Florian Weimer wrote:
+> > > On 01/17/2018 10:48 AM, Martin Schwidefsky wrote: =20
+> > >> =A0=A0=A0=A0=A0=A0=A0=A0 rc =3D syscall(__NR_s390_modify_bp);
+> > >> =A0=A0=A0=A0=A0=A0=A0=A0 if (rc) {
+> > >> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 perror("s390_modify=
+_bp");
+> > >> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 exit(EXIT_FAILURE);
+> > >> =A0=A0=A0=A0=A0=A0=A0=A0 } =20
+> > >=20
+> > > Isn't this traditionally done through personality or prctl? =20
+> >=20
+> > I think we want this per thread (and not per process). So I assume pers=
+onality
+> > will not work out. Can a prctl be done per thread?
+>=20
+> The prctl interface seems to be usable to set a per-thread control
+> as well. But there is no architecture specific prctl as far as I
+> can see. Maybe a common PR_SET_NOBP with an arch function like
+> arch_set_nobp.
 
-If the AIV facility is available, a GISA will be used to manage emulated
-adapter interrupts.
-
-Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/interrupt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 2f1a5603c366..5215fee30f8a 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2838,7 +2838,7 @@ void kvm_s390_gisa_clear(struct kvm *kvm)
- 
- void kvm_s390_gisa_init(struct kvm *kvm)
- {
--	if (1 || !css_general_characteristics.aiv)
-+	if (!css_general_characteristics.aiv)
- 		kvm->arch.gisa = NULL;
- 	else {
- 		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
--- 
-2.13.4
+There is for example PR_MPX_ENABLE_MANAGEMENT, which is x86 specific. On
+the other hand x86 even has an arch_prctl() system call... ;)
