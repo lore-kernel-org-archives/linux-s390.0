@@ -1,11 +1,11 @@
 From: Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v6 41/99] shmem: Convert replace to XArray
-Date: Wed, 17 Jan 2018 12:21:05 -0800
-Message-ID: <20180117202203.19756-42-willy@infradead.org>
+Subject: [PATCH v6 95/99] f2fs: Convert gclist.iroot to XArray
+Date: Wed, 17 Jan 2018 12:21:59 -0800
+Message-ID: <20180117202203.19756-96-willy@infradead.org>
 References: <20180117202203.19756-1-willy@infradead.org>
-Return-path: <owner-linux-mm@kvack.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180117202203.19756-1-willy@infradead.org>
-Sender: owner-linux-mm@kvack.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/intel-gfx/>
 List-Post: <mailto:intel-gfx@lists.freedesktop.org>
 To: linux-kernel@vger.kernel.org
@@ -14,82 +14,72 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Matthew Wilcox <mawilcox@microsoft.com>
 
-shmem_radix_tree_replace() is renamed to shmem_xa_replace() and
-converted to use the XArray API.
+Straightforward conversion.
 
 Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
 ---
- mm/shmem.c | 22 ++++++++--------------
- 1 file changed, 8 insertions(+), 14 deletions(-)
+ fs/f2fs/gc.c | 14 +++++++-------
+ fs/f2fs/gc.h |  2 +-
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/mm/shmem.c b/mm/shmem.c
-index c5731bb954a1..fad6c9e7402e 100644
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -321,24 +321,20 @@ void shmem_uncharge(struct inode *inode, long pages)
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index aac1e02f75df..2b33068dc36b 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -417,7 +417,7 @@ static struct inode *find_gc_inode(struct gc_inode_list *gc_list, nid_t ino)
+ {
+ 	struct inode_entry *ie;
+ 
+-	ie = radix_tree_lookup(&gc_list->iroot, ino);
++	ie = xa_load(&gc_list->iroot, ino);
+ 	if (ie)
+ 		return ie->inode;
+ 	return NULL;
+@@ -434,7 +434,7 @@ static void add_gc_inode(struct gc_inode_list *gc_list, struct inode *inode)
+ 	new_ie = f2fs_kmem_cache_alloc(inode_entry_slab, GFP_NOFS);
+ 	new_ie->inode = inode;
+ 
+-	f2fs_radix_tree_insert(&gc_list->iroot, inode->i_ino, new_ie);
++	xa_store(&gc_list->iroot, inode->i_ino, new_ie, GFP_NOFS);
+ 	list_add_tail(&new_ie->list, &gc_list->ilist);
  }
+ 
+@@ -442,7 +442,7 @@ static void put_gc_inode(struct gc_inode_list *gc_list)
+ {
+ 	struct inode_entry *ie, *next_ie;
+ 	list_for_each_entry_safe(ie, next_ie, &gc_list->ilist, list) {
+-		radix_tree_delete(&gc_list->iroot, ie->inode->i_ino);
++		xa_erase(&gc_list->iroot, ie->inode->i_ino);
+ 		iput(ie->inode);
+ 		list_del(&ie->list);
+ 		kmem_cache_free(inode_entry_slab, ie);
+@@ -989,10 +989,10 @@ int f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
+ 	int ret = 0;
+ 	struct cp_control cpc;
+ 	unsigned int init_segno = segno;
+-	struct gc_inode_list gc_list = {
+-		.ilist = LIST_HEAD_INIT(gc_list.ilist),
+-		.iroot = RADIX_TREE_INIT(gc_list.iroot, GFP_NOFS),
+-	};
++	struct gc_inode_list gc_list;
++
++	xa_init(&gc_list.iroot);
++	INIT_LIST_HEAD(&gc_list.ilist);
+ 
+ 	trace_f2fs_gc_begin(sbi->sb, sync, background,
+ 				get_pages(sbi, F2FS_DIRTY_NODES),
+diff --git a/fs/f2fs/gc.h b/fs/f2fs/gc.h
+index 9325191fab2d..769259b0a4f6 100644
+--- a/fs/f2fs/gc.h
++++ b/fs/f2fs/gc.h
+@@ -41,7 +41,7 @@ struct f2fs_gc_kthread {
+ 
+ struct gc_inode_list {
+ 	struct list_head ilist;
+-	struct radix_tree_root iroot;
++	struct xarray iroot;
+ };
  
  /*
-- * Replace item expected in radix tree by a new item, while holding tree lock.
-+ * Replace item expected in xarray by a new item, while holding xa_lock.
-  */
--static int shmem_radix_tree_replace(struct address_space *mapping,
-+static int shmem_xa_replace(struct address_space *mapping,
- 			pgoff_t index, void *expected, void *replacement)
- {
--	struct radix_tree_node *node;
--	void **pslot;
-+	XA_STATE(xas, &mapping->pages, index);
- 	void *item;
- 
- 	VM_BUG_ON(!expected);
- 	VM_BUG_ON(!replacement);
--	item = __radix_tree_lookup(&mapping->pages, index, &node, &pslot);
--	if (!item)
--		return -ENOENT;
-+	item = xas_load(&xas);
- 	if (item != expected)
- 		return -ENOENT;
--	__radix_tree_replace(&mapping->pages, node, pslot,
--			     replacement, NULL);
-+	xas_store(&xas, replacement);
- 	return 0;
- }
- 
-@@ -605,8 +601,7 @@ static int shmem_add_to_page_cache(struct page *page,
- 	} else if (!expected) {
- 		error = radix_tree_insert(&mapping->pages, index, page);
- 	} else {
--		error = shmem_radix_tree_replace(mapping, index, expected,
--								 page);
-+		error = shmem_xa_replace(mapping, index, expected, page);
- 	}
- 
- 	if (!error) {
-@@ -635,7 +630,7 @@ static void shmem_delete_from_page_cache(struct page *page, void *radswap)
- 	VM_BUG_ON_PAGE(PageCompound(page), page);
- 
- 	xa_lock_irq(&mapping->pages);
--	error = shmem_radix_tree_replace(mapping, page->index, page, radswap);
-+	error = shmem_xa_replace(mapping, page->index, page, radswap);
- 	page->mapping = NULL;
- 	mapping->nrpages--;
- 	__dec_node_page_state(page, NR_FILE_PAGES);
-@@ -1550,8 +1545,7 @@ static int shmem_replace_page(struct page **pagep, gfp_t gfp,
- 	 * a nice clean interface for us to replace oldpage by newpage there.
- 	 */
- 	xa_lock_irq(&swap_mapping->pages);
--	error = shmem_radix_tree_replace(swap_mapping, swap_index, oldpage,
--								   newpage);
-+	error = shmem_xa_replace(swap_mapping, swap_index, oldpage, newpage);
- 	if (!error) {
- 		__inc_node_page_state(newpage, NR_FILE_PAGES);
- 		__dec_node_page_state(oldpage, NR_FILE_PAGES);
 -- 
 2.15.1
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
