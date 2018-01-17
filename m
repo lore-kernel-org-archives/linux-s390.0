@@ -1,25 +1,15 @@
 From: Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v6 55/99] f2fs: Convert to XArray
-Date: Wed, 17 Jan 2018 12:21:19 -0800
-Message-ID: <20180117202203.19756-56-willy@infradead.org>
+Subject: [PATCH v6 97/99] xen: Convert pvcalls-back to XArray
+Date: Wed, 17 Jan 2018 12:22:01 -0800
+Message-ID: <20180117202203.19756-98-willy@infradead.org>
 References: <20180117202203.19756-1-willy@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-f2fs-devel-bounces@lists.sourceforge.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180117202203.19756-1-willy@infradead.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/options/linux-f2fs-devel>,
- <mailto:linux-f2fs-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-f2fs-devel>
-List-Post: <mailto:linux-f2fs-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-f2fs-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel>,
- <mailto:linux-f2fs-devel-request@lists.sourceforge.net?subject=subscribe>
-Errors-To: linux-f2fs-devel-bounces@lists.sourceforge.net
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/intel-gfx/>
 List-Post: <mailto:intel-gfx@lists.freedesktop.org>
 To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, David Howells <dhowells@redhat.com>, linux-nilfs@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>, linux-sh@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-usb@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, Stefano Stabellini <sstabellini@kernel.org>, linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-btrfs@vger.kernel.org
+Cc: Matthew Wilcox <mawilcox@microsoft.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-nilfs@vger.kernel.org, linux-btrfs@vger.kernel.org, linux-xfs@vger.kernel.org, linux-usb@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, Stefano Stabellini <sstabellini@kernel.org>, iommu@lists.linux-foundation.org, linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, intel-gfx@lists.freedesktop.org, cgroups@vger.kernel.org, linux-sh@vger.kernel.org, David Howells <dhowells@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Matthew Wilcox <mawilcox@microsoft.com>
@@ -28,109 +18,137 @@ This is a straightforward conversion.
 
 Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
 ---
- fs/f2fs/data.c   |  3 +--
- fs/f2fs/dir.c    |  5 +----
- fs/f2fs/inline.c |  6 +-----
- fs/f2fs/node.c   | 10 ++--------
- 4 files changed, 5 insertions(+), 19 deletions(-)
+ drivers/xen/pvcalls-back.c | 51 ++++++++++++++--------------------------------
+ 1 file changed, 15 insertions(+), 36 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index c8f6d9806896..1f3f192f152f 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -2175,8 +2175,7 @@ void f2fs_set_page_dirty_nobuffers(struct page *page)
- 	xa_lock_irqsave(&mapping->pages, flags);
- 	WARN_ON_ONCE(!PageUptodate(page));
- 	account_page_dirtied(page, mapping);
--	radix_tree_tag_set(&mapping->pages,
--			page_index(page), PAGECACHE_TAG_DIRTY);
-+	__xa_set_tag(&mapping->pages, page_index(page), PAGECACHE_TAG_DIRTY);
- 	xa_unlock_irqrestore(&mapping->pages, flags);
- 	unlock_page_memcg(page);
+diff --git a/drivers/xen/pvcalls-back.c b/drivers/xen/pvcalls-back.c
+index c7822d8078b9..e059d2e777e1 100644
+--- a/drivers/xen/pvcalls-back.c
++++ b/drivers/xen/pvcalls-back.c
+@@ -15,10 +15,10 @@
+ #include <linux/inet.h>
+ #include <linux/kthread.h>
+ #include <linux/list.h>
+-#include <linux/radix-tree.h>
+ #include <linux/module.h>
+ #include <linux/semaphore.h>
+ #include <linux/wait.h>
++#include <linux/xarray.h>
+ #include <net/sock.h>
+ #include <net/inet_common.h>
+ #include <net/inet_connection_sock.h>
+@@ -50,7 +50,7 @@ struct pvcalls_fedata {
+ 	struct xen_pvcalls_back_ring ring;
+ 	int irq;
+ 	struct list_head socket_mappings;
+-	struct radix_tree_root socketpass_mappings;
++	struct xarray socketpass_mappings;
+ 	struct semaphore socket_lock;
+ };
  
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index b5515ea6bb2f..296070016ec9 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -708,7 +708,6 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
- 	unsigned int bit_pos;
- 	int slots = GET_DENTRY_SLOTS(le16_to_cpu(dentry->name_len));
- 	struct address_space *mapping = page_mapping(page);
--	unsigned long flags;
- 	int i;
+@@ -492,10 +492,9 @@ static int pvcalls_back_release(struct xenbus_device *dev,
+ 			goto out;
+ 		}
+ 	}
+-	mappass = radix_tree_lookup(&fedata->socketpass_mappings,
+-				    req->u.release.id);
++	mappass = xa_load(&fedata->socketpass_mappings, req->u.release.id);
+ 	if (mappass != NULL) {
+-		radix_tree_delete(&fedata->socketpass_mappings, mappass->id);
++		xa_erase(&fedata->socketpass_mappings, mappass->id);
+ 		up(&fedata->socket_lock);
+ 		ret = pvcalls_back_release_passive(dev, fedata, mappass);
+ 	} else
+@@ -650,10 +649,8 @@ static int pvcalls_back_bind(struct xenbus_device *dev,
+ 	map->fedata = fedata;
+ 	map->id = req->u.bind.id;
  
- 	f2fs_update_time(F2FS_I_SB(dir), REQ_TIME);
-@@ -739,10 +738,8 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
+-	down(&fedata->socket_lock);
+-	ret = radix_tree_insert(&fedata->socketpass_mappings, map->id,
+-				map);
+-	up(&fedata->socket_lock);
++	ret = xa_err(xa_store(&fedata->socketpass_mappings, map->id, map,
++								GFP_KERNEL));
+ 	if (ret)
+ 		goto out;
  
- 	if (bit_pos == NR_DENTRY_IN_BLOCK &&
- 			!truncate_hole(dir, page->index, page->index + 1)) {
--		xa_lock_irqsave(&mapping->pages, flags);
--		radix_tree_tag_clear(&mapping->pages, page_index(page),
-+		xa_clear_tag(&mapping->pages, page_index(page),
- 				     PAGECACHE_TAG_DIRTY);
--		xa_unlock_irqrestore(&mapping->pages, flags);
+@@ -689,9 +686,7 @@ static int pvcalls_back_listen(struct xenbus_device *dev,
  
- 		clear_page_dirty_for_io(page);
- 		ClearPagePrivate(page);
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index 7858b8e15f33..d3c3f84beca9 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -204,7 +204,6 @@ int f2fs_write_inline_data(struct inode *inode, struct page *page)
- 	void *src_addr, *dst_addr;
- 	struct dnode_of_data dn;
- 	struct address_space *mapping = page_mapping(page);
--	unsigned long flags;
- 	int err;
+ 	fedata = dev_get_drvdata(&dev->dev);
  
- 	set_new_dnode(&dn, inode, NULL, NULL, 0);
-@@ -226,10 +225,7 @@ int f2fs_write_inline_data(struct inode *inode, struct page *page)
- 	kunmap_atomic(src_addr);
- 	set_page_dirty(dn.inode_page);
+-	down(&fedata->socket_lock);
+-	map = radix_tree_lookup(&fedata->socketpass_mappings, req->u.listen.id);
+-	up(&fedata->socket_lock);
++	map = xa_load(&fedata->socketpass_mappings, req->u.listen.id);
+ 	if (map == NULL)
+ 		goto out;
  
--	xa_lock_irqsave(&mapping->pages, flags);
--	radix_tree_tag_clear(&mapping->pages, page_index(page),
--			     PAGECACHE_TAG_DIRTY);
--	xa_unlock_irqrestore(&mapping->pages, flags);
-+	xa_clear_tag(&mapping->pages, page_index(page), PAGECACHE_TAG_DIRTY);
+@@ -717,10 +712,7 @@ static int pvcalls_back_accept(struct xenbus_device *dev,
  
- 	set_inode_flag(inode, FI_APPEND_WRITE);
- 	set_inode_flag(inode, FI_DATA_EXIST);
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 6b64a3009d55..0a6d5c2f996e 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -88,14 +88,10 @@ bool available_free_memory(struct f2fs_sb_info *sbi, int type)
- static void clear_node_page_dirty(struct page *page)
- {
- 	struct address_space *mapping = page->mapping;
--	unsigned int long flags;
+ 	fedata = dev_get_drvdata(&dev->dev);
  
- 	if (PageDirty(page)) {
--		xa_lock_irqsave(&mapping->pages, flags);
--		radix_tree_tag_clear(&mapping->pages,
--				page_index(page),
-+		xa_clear_tag(&mapping->pages, page_index(page),
- 				PAGECACHE_TAG_DIRTY);
--		xa_unlock_irqrestore(&mapping->pages, flags);
+-	down(&fedata->socket_lock);
+-	mappass = radix_tree_lookup(&fedata->socketpass_mappings,
+-		req->u.accept.id);
+-	up(&fedata->socket_lock);
++	mappass = xa_load(&fedata->socketpass_mappings, req->u.accept.id);
+ 	if (mappass == NULL)
+ 		goto out_error;
  
- 		clear_page_dirty_for_io(page);
- 		dec_page_count(F2FS_M_SB(mapping), F2FS_DIRTY_NODES);
-@@ -1142,9 +1138,7 @@ void ra_node_page(struct f2fs_sb_info *sbi, nid_t nid)
- 		return;
- 	f2fs_bug_on(sbi, check_nid_range(sbi, nid));
+@@ -765,10 +757,7 @@ static int pvcalls_back_poll(struct xenbus_device *dev,
  
--	rcu_read_lock();
--	apage = radix_tree_lookup(&NODE_MAPPING(sbi)->pages, nid);
--	rcu_read_unlock();
-+	apage = xa_load(&NODE_MAPPING(sbi)->pages, nid);
- 	if (apage)
- 		return;
+ 	fedata = dev_get_drvdata(&dev->dev);
+ 
+-	down(&fedata->socket_lock);
+-	mappass = radix_tree_lookup(&fedata->socketpass_mappings,
+-				    req->u.poll.id);
+-	up(&fedata->socket_lock);
++	mappass = xa_load(&fedata->socketpass_mappings, req->u.poll.id);
+ 	if (mappass == NULL)
+ 		return -EINVAL;
+ 
+@@ -960,7 +949,7 @@ static int backend_connect(struct xenbus_device *dev)
+ 	fedata->dev = dev;
+ 
+ 	INIT_LIST_HEAD(&fedata->socket_mappings);
+-	INIT_RADIX_TREE(&fedata->socketpass_mappings, GFP_KERNEL);
++	xa_init(&fedata->socketpass_mappings);
+ 	sema_init(&fedata->socket_lock, 1);
+ 	dev_set_drvdata(&dev->dev, fedata);
+ 
+@@ -984,9 +973,7 @@ static int backend_disconnect(struct xenbus_device *dev)
+ 	struct pvcalls_fedata *fedata;
+ 	struct sock_mapping *map, *n;
+ 	struct sockpass_mapping *mappass;
+-	struct radix_tree_iter iter;
+-	void **slot;
+-
++	unsigned long index = 0;
+ 
+ 	fedata = dev_get_drvdata(&dev->dev);
+ 
+@@ -996,18 +983,10 @@ static int backend_disconnect(struct xenbus_device *dev)
+ 		pvcalls_back_release_active(dev, fedata, map);
+ 	}
+ 
+-	radix_tree_for_each_slot(slot, &fedata->socketpass_mappings, &iter, 0) {
+-		mappass = radix_tree_deref_slot(slot);
+-		if (!mappass)
+-			continue;
+-		if (radix_tree_exception(mappass)) {
+-			if (radix_tree_deref_retry(mappass))
+-				slot = radix_tree_iter_retry(&iter);
+-		} else {
+-			radix_tree_delete(&fedata->socketpass_mappings,
+-					  mappass->id);
+-			pvcalls_back_release_passive(dev, fedata, mappass);
+-		}
++	xa_for_each(&fedata->socketpass_mappings, mappass, index, ULONG_MAX,
++			XA_PRESENT) {
++		xa_erase(&fedata->socketpass_mappings, index);
++		pvcalls_back_release_passive(dev, fedata, mappass);
+ 	}
+ 	up(&fedata->socket_lock);
  
 -- 
 2.15.1
-
-
-------------------------------------------------------------------------------
-Check out the vibrant tech community on one of the world's most
-engaging tech sites, Slashdot.org! http://sdm.link/slashdot
