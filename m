@@ -1,7 +1,7 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 5/6] KVM: s390: wire up seb feature
-Date: Wed, 17 Jan 2018 10:48:38 +0100
-Message-ID: <1516182519-10623-6-git-send-email-schwidefsky@de.ibm.com>
+Subject: [PATCH 6/6] s390: scrub registers on kernel entry and KVM exit
+Date: Wed, 17 Jan 2018 10:48:39 +0100
+Message-ID: <1516182519-10623-7-git-send-email-schwidefsky@de.ibm.com>
 References: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
@@ -12,153 +12,103 @@ To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.or
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+Clear all user space registers on entry to the kernel and all KVM guest
+registers on KVM guest exit if the register does not contain either a
+parameter or a result value.
 
-The new firmware interfaces for branch prediction behaviour changes
-are transparently available for the guest. Nevertheless, there is
-new state attached that should be migrated and properly resetted.
-Provide a mechanism for handling reset, migration and VSIE.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Suggested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  3 ++-
- arch/s390/include/uapi/asm/kvm.h |  4 +++-
- arch/s390/kvm/kvm-s390.c         | 11 +++++++++++
- arch/s390/kvm/vsie.c             |  8 ++++++++
- include/uapi/linux/kvm.h         |  1 +
- 5 files changed, 25 insertions(+), 2 deletions(-)
+ arch/s390/kernel/entry.S | 41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index e14f381..a2f6c5d 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -207,7 +207,8 @@ struct kvm_s390_sie_block {
- 	__u16	ipa;			/* 0x0056 */
- 	__u32	ipb;			/* 0x0058 */
- 	__u32	scaoh;			/* 0x005c */
--	__u8	reserved60;		/* 0x0060 */
-+#define FPF_SEBC 	0x20
-+	__u8	fpf;			/* 0x0060 */
- #define ECB_GS		0x40
- #define ECB_TE		0x10
- #define ECB_SRSI	0x04
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 38535a57..20b9e9f 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -224,6 +224,7 @@ struct kvm_guest_debug_arch {
- #define KVM_SYNC_RICCB  (1UL << 7)
- #define KVM_SYNC_FPRS   (1UL << 8)
- #define KVM_SYNC_GSCB   (1UL << 9)
-+#define KVM_SYNC_SEBC   (1UL << 10)
- /* length and alignment of the sdnx as a power of two */
- #define SDNXC 8
- #define SDNXL (1UL << SDNXC)
-@@ -247,7 +248,8 @@ struct kvm_sync_regs {
- 	};
- 	__u8  reserved[512];	/* for future vector expansion */
- 	__u32 fpc;		/* valid on KVM_SYNC_VRS or KVM_SYNC_FPRS */
--	__u8 padding1[52];	/* riccb needs to be 64byte aligned */
-+	__u8 sebc:1;		/* spec blocking */
-+	__u8 padding1[51];	/* riccb needs to be 64byte aligned */
- 	__u8 riccb[64];		/* runtime instrumentation controls block */
- 	__u8 padding2[192];	/* sdnx needs to be 256byte aligned */
- 	union {
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2c93cbb..0c18f73 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -421,6 +421,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_GS:
- 		r = test_facility(133);
- 		break;
-+	case KVM_CAP_S390_SEB:
-+		r = test_facility(82);
-+		break;
- 	default:
- 		r = 0;
- 	}
-@@ -2198,6 +2201,8 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- 	kvm_s390_set_prefix(vcpu, 0);
- 	if (test_kvm_facility(vcpu->kvm, 64))
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_RICCB;
-+	if (test_kvm_facility(vcpu->kvm, 82))
-+		vcpu->run->kvm_valid_regs |= KVM_SYNC_SEBC;
- 	if (test_kvm_facility(vcpu->kvm, 133))
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_GSCB;
- 	/* fprs can be synchronized via vrs, even if the guest has no vx. With
-@@ -2339,6 +2344,7 @@ static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
- 	current->thread.fpu.fpc = 0;
- 	vcpu->arch.sie_block->gbea = 1;
- 	vcpu->arch.sie_block->pp = 0;
-+	vcpu->arch.sie_block->fpf &= ~FPF_SEBC;
- 	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
- 	kvm_clear_async_pf_completion_queue(vcpu);
- 	if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm))
-@@ -3298,6 +3304,10 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 		vcpu->arch.sie_block->ecd |= ECD_HOSTREGMGMT;
- 		vcpu->arch.gs_enabled = 1;
- 	}
-+	if (kvm_run->kvm_dirty_regs & KVM_SYNC_SEBC) {
-+		vcpu->arch.sie_block->fpf &= ~FPF_SEBC;
-+		vcpu->arch.sie_block->fpf |= kvm_run->s.regs.sebc ? FPF_SEBC : 0;
-+	}
- 	save_access_regs(vcpu->arch.host_acrs);
- 	restore_access_regs(vcpu->run->s.regs.acrs);
- 	/* save host (userspace) fprs/vrs */
-@@ -3344,6 +3354,7 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	kvm_run->s.regs.pft = vcpu->arch.pfault_token;
- 	kvm_run->s.regs.pfs = vcpu->arch.pfault_select;
- 	kvm_run->s.regs.pfc = vcpu->arch.pfault_compare;
-+	kvm_run->s.regs.sebc = (vcpu->arch.sie_block->fpf & FPF_SEBC) == FPF_SEBC;
- 	save_access_regs(vcpu->run->s.regs.acrs);
- 	restore_access_regs(vcpu->arch.host_acrs);
- 	/* Save guest register state */
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 5d6ae03..10ea208 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -223,6 +223,10 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	memcpy(scb_o->gcr, scb_s->gcr, 128);
- 	scb_o->pp = scb_s->pp;
- 
-+	/* speculative blocking */
-+	scb_o->fpf &= ~FPF_SEBC;
-+	scb_o->fpf |= scb_s->fpf & FPF_SEBC;
-+
- 	/* interrupt intercept */
- 	switch (scb_s->icptcode) {
- 	case ICPT_PROGI:
-@@ -265,6 +269,7 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	scb_s->ecb3 = 0;
- 	scb_s->ecd = 0;
- 	scb_s->fac = 0;
-+	scb_s->fpf = 0;
- 
- 	rc = prepare_cpuflags(vcpu, vsie_page);
- 	if (rc)
-@@ -324,6 +329,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 			prefix_unmapped(vsie_page);
- 		scb_s->ecb |= scb_o->ecb & ECB_TE;
- 	}
-+	/* speculative blocking */
-+	if (test_kvm_facility(vcpu->kvm, 82))
-+		scb_s->fpf |= scb_o->fpf & FPF_SEBC;
- 	/* SIMD */
- 	if (test_kvm_facility(vcpu->kvm, 129)) {
- 		scb_s->eca |= scb_o->eca & ECA_VX;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 496e59a..066d7ff 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -932,6 +932,7 @@ struct kvm_ppc_resize_hpt {
- #define KVM_CAP_HYPERV_SYNIC2 148
- #define KVM_CAP_HYPERV_VP_INDEX 149
- #define KVM_CAP_S390_AIS_MIGRATION 150
-+#define KVM_CAP_S390_SEB 151
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index 2a22c03..47227d3 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -322,6 +322,12 @@ ENTRY(sie64a)
+ sie_exit:
+ 	lg	%r14,__SF_EMPTY+8(%r15)		# load guest register save area
+ 	stmg	%r0,%r13,0(%r14)		# save guest gprs 0-13
++	xgr	%r0,%r0				# clear guest registers
++	xgr	%r1,%r1
++	xgr	%r2,%r2
++	xgr	%r3,%r3
++	xgr	%r4,%r4
++	xgr	%r5,%r5
+ 	lmg	%r6,%r14,__SF_GPRS(%r15)	# restore kernel registers
+ 	lg	%r2,__SF_EMPTY+16(%r15)		# return exit reason code
+ 	br	%r14
+@@ -358,6 +364,7 @@ ENTRY(system_call)
+ 	UPDATE_VTIME %r8,%r9,__LC_SYNC_ENTER_TIMER
+ 	BPENTER __TI_flags(%r12),_TIF_NOBP
+ 	stmg	%r0,%r7,__PT_R0(%r11)
++	xgr	%r0,%r0
+ 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_SYNC
+ 	mvc	__PT_PSW(16,%r11),__LC_SVC_OLD_PSW
+ 	mvc	__PT_INT_CODE(4,%r11),__LC_SVC_ILC
+@@ -640,6 +647,14 @@ ENTRY(pgm_check_handler)
+ 4:	lgr	%r13,%r11
+ 	la	%r11,STACK_FRAME_OVERHEAD(%r15)
+ 	stmg	%r0,%r7,__PT_R0(%r11)
++	xgr	%r0,%r0			# clear user space registers
++	xgr	%r1,%r1
++	xgr	%r2,%r2
++	xgr	%r3,%r3
++	xgr	%r4,%r4
++	xgr	%r5,%r5
++	xgr	%r6,%r6
++	xgr	%r7,%r7
+ 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_SYNC
+ 	stmg	%r8,%r9,__PT_PSW(%r11)
+ 	mvc	__PT_INT_CODE(4,%r11),__LC_PGM_ILC
+@@ -706,6 +721,15 @@ ENTRY(io_int_handler)
+ 	lmg	%r8,%r9,__LC_IO_OLD_PSW
+ 	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
+ 	stmg	%r0,%r7,__PT_R0(%r11)
++	xgr	%r0,%r0			# clear user space registers
++	xgr	%r1,%r1
++	xgr	%r2,%r2
++	xgr	%r3,%r3
++	xgr	%r4,%r4
++	xgr	%r5,%r5
++	xgr	%r6,%r6
++	xgr	%r7,%r7
++	xgr	%r10,%r10
+ 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_ASYNC
+ 	stmg	%r8,%r9,__PT_PSW(%r11)
+ 	mvc	__PT_INT_CODE(12,%r11),__LC_SUBCHANNEL_ID
+@@ -924,6 +948,15 @@ ENTRY(ext_int_handler)
+ 	lmg	%r8,%r9,__LC_EXT_OLD_PSW
+ 	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
+ 	stmg	%r0,%r7,__PT_R0(%r11)
++	xgr	%r0,%r0			# clear user space registers
++	xgr	%r1,%r1
++	xgr	%r2,%r2
++	xgr	%r3,%r3
++	xgr	%r4,%r4
++	xgr	%r5,%r5
++	xgr	%r6,%r6
++	xgr	%r7,%r7
++	xgr	%r10,%r10
+ 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_ASYNC
+ 	stmg	%r8,%r9,__PT_PSW(%r11)
+ 	lghi	%r1,__LC_EXT_PARAMS2
+@@ -1133,6 +1166,14 @@ ENTRY(mcck_int_handler)
+ .Lmcck_skip:
+ 	lghi	%r14,__LC_GPREGS_SAVE_AREA+64
+ 	stmg	%r0,%r7,__PT_R0(%r11)
++	xgr	%r0,%r0			# clear user space registers
++	xgr	%r2,%r2
++	xgr	%r3,%r3
++	xgr	%r4,%r4
++	xgr	%r5,%r5
++	xgr	%r6,%r6
++	xgr	%r7,%r7
++	xgr	%r10,%r10
+ 	mvc	__PT_R8(64,%r11),0(%r14)
+ 	stmg	%r8,%r9,__PT_PSW(%r11)
+ 	xc	__PT_FLAGS(8,%r11),__PT_FLAGS(%r11)
 -- 
 2.7.4
