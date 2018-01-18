@@ -1,44 +1,74 @@
 From: Eugene Syromyatnikov <evgsyr@gmail.com>
-Date: Sun, 14 Jan 2018 18:56:34 +0000
-Subject: [man-pages PATCH 3/5] s390_sthyi.2: wfix
-Message-Id: <20180114185634.GA23726@asgard.redhat.com>
-To: linux-s390@vger.kernel.org, linux-man@vger.kernel.org
+Date: Thu, 18 Jan 2018 06:16:39 +0000
+Subject: [strace PATCH 02/12] Add print_quoted_string flag to generate comment
+Message-Id: <20180118061639.GA28769@asgard.redhat.com>
+To: linux-s390@vger.kernel.org, strace@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
----
- man2/s390_sthyi.2 | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Because there are never enough print_quoted_string flags.
 
-diff --git a/man2/s390_sthyi.2 b/man2/s390_sthyi.2
-index 21a0de6..8c33041 100644
---- a/man2/s390_sthyi.2
-+++ b/man2/s390_sthyi.2
-@@ -51,7 +51,7 @@ Return CP (Central Processor) and IFL (Integrated Facility for Linux)
- capacity information.
- .PP
- The
--.I resp_buffer 
-+.I resp_buffer
- argument specifies the address of a response buffer.
- If the system call returns 0,
- the response buffer will be filled with CPU capacity information.
-@@ -98,7 +98,7 @@ is set appropriately.
- .TP
- .B EFAULT
- The value specified in
--.I resp_buffer 
-+.I resp_buffer
- or
- .I return_code
- is not a valid address.
-@@ -113,7 +113,7 @@ Allocating memory for handling the CPU capacity information failed.
- .TP
- .B EOPNOTSUPP
- The value specified in
--.I function_code 
-+.I function_code
- is not valid.
- .SH VERSIONS
- This system call is available since Linux 4.15.
+* defs.h (QUOTE_EMIT_COMMENT): New quoting flag macro constant.
+* util.c (string_quote): Emit " /* " in the beginning and " */" in the
+end if QUOTE_EMIT_COMMENT is passed.
+(print_quoted_string): Increase alloc_size by 7 if QUOTE_EMIT_COMMENT is
+passed.
+---
+ defs.h | 1 +
+ util.c | 9 ++++++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/defs.h b/defs.h
+index 2311d86..51b1355 100644
+--- a/defs.h
++++ b/defs.h
+@@ -530,6 +530,7 @@ str_strip_prefix_len(const char *str, const char *prefix, size_t prefix_len)
+ #define QUOTE_OMIT_LEADING_TRAILING_QUOTES	0x02
+ #define QUOTE_OMIT_TRAILING_0			0x08
+ #define QUOTE_FORCE_HEX				0x10
++#define QUOTE_EMIT_COMMENT			0x20
+ 
+ extern int string_quote(const char *, char *, unsigned int, unsigned int);
+ extern int print_quoted_string(const char *, unsigned int, unsigned int);
+diff --git a/util.c b/util.c
+index 49cb81b..9a99e1a 100644
+--- a/util.c
++++ b/util.c
+@@ -497,6 +497,8 @@ string_quote(const char *instr, char *outstr, const unsigned int size,
+ 		}
+ 	}
+ 
++	if (style & QUOTE_EMIT_COMMENT)
++		s = stpcpy(s, " /* ");
+ 	if (!(style & QUOTE_OMIT_LEADING_TRAILING_QUOTES))
+ 		*s++ = '\"';
+ 
+@@ -576,6 +578,8 @@ string_quote(const char *instr, char *outstr, const unsigned int size,
+ 
+ 	if (!(style & QUOTE_OMIT_LEADING_TRAILING_QUOTES))
+ 		*s++ = '\"';
++	if (style & QUOTE_EMIT_COMMENT)
++		s = stpcpy(s, " */");
+ 	*s = '\0';
+ 
+ 	/* Return zero if we printed entire ASCIZ string (didn't truncate it) */
+@@ -591,6 +595,8 @@ string_quote(const char *instr, char *outstr, const unsigned int size,
+  asciz_ended:
+ 	if (!(style & QUOTE_OMIT_LEADING_TRAILING_QUOTES))
+ 		*s++ = '\"';
++	if (style & QUOTE_EMIT_COMMENT)
++		s = stpcpy(s, " */");
+ 	*s = '\0';
+ 	/* Return zero: we printed entire ASCIZ string (didn't truncate it) */
+ 	return 0;
+@@ -632,7 +638,8 @@ print_quoted_string(const char *str, unsigned int size,
+ 		tprints("???");
+ 		return -1;
+ 	}
+-	alloc_size += 1 + (style & QUOTE_OMIT_LEADING_TRAILING_QUOTES ? 0 : 2);
++	alloc_size += 1 + (style & QUOTE_OMIT_LEADING_TRAILING_QUOTES ? 0 : 2) +
++		(style & QUOTE_EMIT_COMMENT ? 7 : 0);
+ 
+ 	if (use_alloca(alloc_size)) {
+ 		outstr = alloca(alloc_size);
 -- 
 2.1.4
