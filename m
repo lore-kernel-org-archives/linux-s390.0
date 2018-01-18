@@ -1,45 +1,42 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 3/6] s390: add options to change branch prediction
- behaviour for the kernel
-Date: Thu, 18 Jan 2018 10:52:23 +0100
-Message-ID: <20180118105223.595f6c74.cohuck@redhat.com>
-References: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
-        <1516182519-10623-4-git-send-email-schwidefsky@de.ibm.com>
+Subject: Re: [PATCH v2] KVM: s390: wire up bpb feature
+Date: Thu, 18 Jan 2018 10:59:16 +0100
+Message-ID: <20180118105916.68a1586c.cohuck@redhat.com>
+References: <1516182519-10623-6-git-send-email-schwidefsky@de.ibm.com>
+        <20180117134434.48676-1-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1516182519-10623-4-git-send-email-schwidefsky@de.ibm.com>
+In-Reply-To: <20180117134434.48676-1-borntraeger@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 17 Jan 2018 10:48:36 +0100
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+On Wed, 17 Jan 2018 14:44:34 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> Add the PPA instruction to the system entry and exit path to switch
-> the kernel to a different branch prediction behaviour. The instructions
-> are added via CPU alternatives and can be disabled with the "nospec"
-> or the "nobp=0" kernel parameter. If the default behaviour selected
-> with CONFIG_KERNEL_NOBP is set to "n" then the "nobp=1" parameter can be
-> used to enable the changed kernel branch prediction.
+> The new firmware interfaces for branch prediction behaviour changes
+> are transparently available for the guest. Nevertheless, there is
+> new state attached that should be migrated and properly resetted.
+> Provide a mechanism for handling reset, migration and VSIE.
 > 
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > ---
->  arch/s390/Kconfig                 | 17 +++++++++++++
->  arch/s390/include/asm/processor.h |  1 +
->  arch/s390/kernel/alternative.c    | 23 ++++++++++++++++++
->  arch/s390/kernel/early.c          |  2 ++
->  arch/s390/kernel/entry.S          | 50 ++++++++++++++++++++++++++++++++++++++-
->  arch/s390/kernel/ipl.c            |  1 +
->  arch/s390/kernel/smp.c            |  2 ++
->  7 files changed, 95 insertions(+), 1 deletion(-)
+> v1->v2: - review feedback from David
+> 	- rename seb(c) into bpb(c)
+>  arch/s390/include/asm/kvm_host.h |  3 ++-
+>  arch/s390/include/uapi/asm/kvm.h |  5 ++++-
+>  arch/s390/kvm/kvm-s390.c         | 12 ++++++++++++
+>  arch/s390/kvm/vsie.c             | 10 ++++++++++
+>  include/uapi/linux/kvm.h         |  1 +
+>  5 files changed, 29 insertions(+), 2 deletions(-)
 
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-[This looks sane; but as I don't have insight into the details of the
-new instructions, I don't feel confident enough to give a R-b]
+But I'd like to see some documentation (a line) for the new cap under
+Documentation/. However, this can be done as a separate update (we
+might be missing more).
