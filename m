@@ -1,8 +1,8 @@
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+From: Jiri Olsa <jolsa@redhat.com>
 Subject: Re: [PATCH 3/5] perf util: Introduce architecture specific
  errno/name mapping
-Date: Thu, 18 Jan 2018 12:33:20 +0100
-Message-ID: <20180118113320.GC4600@linux.vnet.ibm.com>
+Date: Thu, 18 Jan 2018 13:19:26 +0100
+Message-ID: <20180118121926.GA25983@krava>
 References: <1516095991-16337-1-git-send-email-brueckner@linux.vnet.ibm.com>
  <1516095991-16337-4-git-send-email-brueckner@linux.vnet.ibm.com>
  <20180118100733.GA18567@krava>
@@ -16,7 +16,7 @@ Sender: linux-perf-users-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-perf-users/>
 List-Post: <mailto:linux-perf-users@vger.kernel.org>
 To: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Jiri Olsa <jolsa@redhat.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, Jan 18, 2018 at 07:49:53AM -0300, Arnaldo Carvalho de Melo wrote:
@@ -68,25 +68,8 @@ On Thu, Jan 18, 2018 at 07:49:53AM -0300, Arnaldo Carvalho de Melo wrote:
 > On an arm64 system:
 > 
 > 	perf trace record -a sleep 1
-> 
-> scp that to an x86_64 system and do:
-> 
-> 	perf trace -i perf.data
-> 
-> But doing that strcmp per call seems excessive, perhaps we could have
-> something like:
-> 
-> 	trace->arch = arch_syscalls__init(arch_name);
-> 
-> 	char *s = arch_syscalls__strerrno(trace->arch, err);
-> 
-> Have to look at the code to find the right naming according to what we
-> already have.
 
-Another idea to get rid of the strcmp's is to introduce an arch enum
-and let normalize_arch() in util/env.c return an enum number and handle
-the arch stuff then on the enum.  Where necessary, the arch string can
-be used.  But for "internal" purposes, an enum would be better.
+oops, forgot we can store in perf trace.. ok then ;-)
 
-Thanks and kind regards,
-  Hendrik
+thanks,
+jirka
