@@ -1,68 +1,41 @@
 From: David Sterba <dsterba@suse.cz>
 Subject: Re: [PATCH v6 00/99] XArray version 6
-Date: Thu, 18 Jan 2018 17:07:50 +0100
-Message-ID: <20180118160749.GP13726@twin.jikos.cz>
+Date: Thu, 18 Jan 2018 17:56:12 +0100
+Message-ID: <20180118165612.GS13726@twin.jikos.cz>
 References: <20180117202203.19756-1-willy@infradead.org>
+ <20180118160749.GP13726@twin.jikos.cz>
+ <20180118164843.GA23800@bombadil.infradead.org>
 Reply-To: dsterba@suse.cz
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-f2fs-devel-bounces@lists.sourceforge.net>
 Content-Disposition: inline
-In-Reply-To: <20180117202203.19756-1-willy@infradead.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20180118164843.GA23800@bombadil.infradead.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/options/linux-f2fs-devel>,
+ <mailto:linux-f2fs-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-f2fs-devel>
+List-Post: <mailto:linux-f2fs-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-f2fs-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel>,
+ <mailto:linux-f2fs-devel-request@lists.sourceforge.net?subject=subscribe>
+Errors-To: linux-f2fs-devel-bounces@lists.sourceforge.net
 List-Archive: <https://lore.kernel.org/intel-gfx/>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
 To: Matthew Wilcox <willy@infradead.org>
-Cc: linux-s390@vger.kernel.org, David Howells <dhowells@redhat.com>, linux-nilfs@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>, linux-sh@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-usb@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, Stefano Stabellini <sstabellini@kernel.org>, linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-btrfs@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, David Howells <dhowells@redhat.com>, linux-nilfs@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-usb@vger.kernel.org, linux-remoteproc@vger.kernel.org, dsterba@suse.cz, linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, Stefano Stabellini <sstabellini@kernel.org>, linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-btrfs@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gV2VkLCBKYW4gMTcsIDIwMTggYXQgMTI6MjA6MjRQTSAtMDgwMCwgTWF0dGhldyBXaWxjb3gg
-d3JvdGU6Cj4gRnJvbTogTWF0dGhldyBXaWxjb3ggPG1hd2lsY294QG1pY3Jvc29mdC5jb20+Cj4g
-Cj4gVGhpcyB2ZXJzaW9uIG9mIHRoZSBYQXJyYXkgaGFzIG5vIGtub3duIGJ1Z3MuCgpJJ3ZlIGJv
-b3RlZCB0aGlzIHBhdGNoc2V0IG9uIDIgYm94ZXMsIGJvdGggaGFkIHJhbmRvbSBwcm9ibGVtcyBk
-dXJpbmcKYm9vdC4gT24gb25lIEkgd2FzIG5vdCBhYmxlIHRvIGRpYWdub3NlIHdoYXQgd2VudCB3
-cm9uZy4gT24gdGhlIG90aGVyCm9uZSB0aGUgc3lzdGVtIGJvb3RlZCB1cCB0byB1c2Vyc3BhY2Ug
-YW5kIGZhaWxlZCB0byBzZXQgdXAgbmV0d29ya2luZy4KU2VyaWFsIGNvbnNvbGUgd29ya2VkIGFu
-ZCB0aGUgbmV0d29yayBzZXJ2aWNlIGNvbXBsYWluZWQgYWJvdXQgd3JvbmcKZm9ybWF0IG9mIC91
-c3Ivc2hhcmUvd2lja2VkL3NjaGVtYS90ZWFtLnhtbCAuIFRoYXQncyBzdXBwb3NlZCB0byBiZSBh
-CnRleHQgZmlsZSwgdGhvdWdoIGhleGR1bXAgc2hvd2VkIG1lIGxvdHMgb2YgemVyb3MuIFRyaW1t
-ZWQgb3V0cHV0OgoKMDAwMDAwMDAgIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwICAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAgfC4uLi4uLi4uLi4uLi4uLi58CioKKHNpbWlsYXIgb3V0cHV0IGhlcmUp
-CioKMDAwMDBhMTAgIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwICAxMSAwMyAwMCAwMCAwMCAwMCAw
-MCAwMCAgfC4uLi4uLi4uLi4uLi4uLi58CjAwMDAwYTIwICAyMCA4YiA3ZiAwMSAwMCAwMCAwMCAw
-MCAgYTAgODQgN2QgMDEgMDAgMDAgMDAgMDAgIHwgLi4uLi4uLi4ufS4uLi4ufAowMDAwMGEzMCAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgIDEwIDg5IDdmIDAxIDAwIDAwIDAwIDAwICB8Li4uLi4u
-Li4uLi4uLi4uLnwKMDAwMDBhNDAgIGEwIDg0IDdkIDAxIDAwIDAwIDAwIDAwICAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAgfC4ufS4uLi4uLi4uLi4uLi58CjAwMDAwYTUwICA4MCA4YSA3ZiAwMSAw
-MCAwMCAwMCAwMCAgZTAgY2YgN2QgMDEgMDAgMDAgMDAgMDAgIHwuLi4uLi4uLi4ufS4uLi4ufAow
-MDAwMGE2MCAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgIDYwIDhhIDdmIDAxIDAwIDAwIDAwIDAw
-ICB8Li4uLi4uLi5gLi4uLi4uLnwKMDAwMDBhNzAgIGEwIDg0IDdkIDAxIDAwIDAwIDAwIDAwICAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAgfC4ufS4uLi4uLi4uLi4uLi58CjAwMDAwYTgwICAzMCA4
-OSA3ZiAwMSAwMCAwMCAwMCAwMCAgYTAgODQgN2QgMDEgMDAgMDAgMDAgMDAgIHwwLi4uLi4uLi4u
-fS4uLi4ufAowMDAwMGE5MCAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgIDYwIGYyIDdmIDAxIDAw
-IDAwIDAwIDAwICB8Li4uLi4uLi5gLi4uLi4uLnwKMDAwMDBhYTAgIDQwIGZkIDdlIDAxIDAwIDAw
-IDAwIDAwICAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAgfEAufi4uLi4uLi4uLi4uLi58CjAwMDAw
-YWIwICAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgIHwu
-Li4uLi4uLi4uLi4uLi4ufAoqCjAwMDAxMDAwICAzZSAwYSAyMCAyMCAzYyAyZiA2ZCA2NSAgNzQg
-NjggNmYgNjQgM2UgMGEgM2MgMmYgIHw+LiAgPC9tZXRob2Q+LjwvfAowMDAwMTAxMCAgNzMgNjUg
-NzIgNzYgNjkgNjMgNjUgM2UgIDBhICAgICAgICAgICAgICAgICAgICAgICB8c2VydmljZT4ufAoK
-VGhlcmUncyBzb21ldGhpbmcgYXQgdGhlIGVuZCBvZiB0aGUgZmlsZSB0aGF0IGRvZXMgbG9vayBs
-aWtlIGEgeG1sIGZyYWdtZW50LgpUaGUgZmlsZSBzaXplIGlzIDQxMjEuIFRoaXMgbG9va3MgdG8g
-bWUgbGlrZSBleGFjdGx5IHRoZSBmaXJzdCBwYWdlIG9mIHRoZSBmaWxlCndhcyBub3QgcmVhZCBj
-b3JyZWN0bHkuCgpUaGUgeG1sIGZpbGUgaXMgc3VwcG9zZWQgdG8gYmUgcmVhZC1vbmx5IGR1cmlu
-ZyBzdGFydHVwLCBzbyB0aGVyZSB3YXMgbm8gd3JpdGUKaW4gZmxpZ2h0LiAncnBtIC1WdicgcmVw
-b3J0ZWQgb25seSB0aGlzIGZpbGUgY29ycnVwdGVkLiBCb290aW5nIHRvIG90aGVyCmtlcm5lbHMg
-d2FzIGZpbmUsIG5ldHdvcmsgdXAsIGFuZCB0aGUgZmlsZSB3YXMgb2sgYWdhaW4uIFNvIHRoZQpj
-b3JydXB0aW9uIGhhcHBlbmVkIG9ubHkgaW4gbWVtb3J5LCB3aGljaCBsZWFkcyBtZSB0byBjb25j
-bHVzaW9uIHRoYXQKdGhlcmUgaXMgYW4gdW5rbm93biBidWcgaW4geW91ciBwYXRjaHNldC4KX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1h
-aWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMu
-ZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+On Thu, Jan 18, 2018 at 08:48:43AM -0800, Matthew Wilcox wrote:
+> Thank you!  I shall attempt to debug.  Was this with a btrfs root
+> filesystem?  I'm most suspicious of those patches right now, since they've
+> received next to no testing.  I'm going to put together a smaller patchset
+> which just does the page cache conversion and nothing else in the hope
+> that we can get that merged this year.
+
+No, the root is ext3 and there was no btrfs filesytem mounted at the
+time.
+
+------------------------------------------------------------------------------
+Check out the vibrant tech community on one of the world's most
+engaging tech sites, Slashdot.org! http://sdm.link/slashdot
