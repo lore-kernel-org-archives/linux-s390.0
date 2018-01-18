@@ -1,259 +1,324 @@
 From: Eugene Syromyatnikov <evgsyr@gmail.com>
-Date: Thu, 18 Jan 2018 06:16:51 +0000
-Subject: [strace PATCH 06/12] Introduce s390_guarded_storage system call decoder
-Message-Id: <20180118061651.GA29031@asgard.redhat.com>
+Date: Thu, 18 Jan 2018 06:16:54 +0000
+Subject: [strace PATCH 07/12] tests: check s390_guarded_storage system call decoder
+Message-Id: <20180118061654.GA29086@asgard.redhat.com>
 To: linux-s390@vger.kernel.org, strace@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-* linux/s390/syscallent.h ([378]): Change decoder to s390_guarded_storage.
-* linux/s390x/syscallent.h: Likewise.
-* s390.c (struct guard_storage_control_block,
-struct guard_storage_event_parameter_list): New structure type
-definition.
-(guard_storage_print_gsepl, guard_storage_print_gscb,
-SYS_FUNC(s390_guarded_storage)): New function.
-(DIV_ROUND_UP): New macro.
-* xlat/s390_guarded_storage_commands.in: New file.
+* configure.ac (AC_CHECK_HEADERS): Add asm/guarded_storage.h.
+* tests/s390_guarded_storage-v.c: New file.
+* tests/s390_guarded_storage.c: Likewise.
+* tests/.gitignore: Add s390_guarded_storage, s390_guarded_storage-v.
+* tests/pure_executables.list: Likewise.
+* tests/gen_tests.in (s390_guarded_storage, s390_guarded_storage-v):
+New tests.
 ---
- linux/s390/syscallent.h               |   2 +-
- linux/s390x/syscallent.h              |   2 +-
- s390.c                                | 180 ++++++++++++++++++++++++++++++++++
- xlat/s390_guarded_storage_commands.in |   5 +
- 4 files changed, 187 insertions(+), 2 deletions(-)
- create mode 100644 xlat/s390_guarded_storage_commands.in
+ configure.ac                   |   1 +
+ tests/.gitignore               |   2 +
+ tests/gen_tests.in             |   4 +-
+ tests/pure_executables.list    |   2 +
+ tests/s390_guarded_storage-v.c |   2 +
+ tests/s390_guarded_storage.c   | 229 +++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 239 insertions(+), 1 deletion(-)
+ create mode 100644 tests/s390_guarded_storage-v.c
+ create mode 100644 tests/s390_guarded_storage.c
 
-diff --git a/linux/s390/syscallent.h b/linux/s390/syscallent.h
-index dd1fbb1..522c641 100644
---- a/linux/s390/syscallent.h
-+++ b/linux/s390/syscallent.h
-@@ -407,7 +407,7 @@
- [375] = { 6,	TD,		SEN(copy_file_range),		"copy_file_range"	},
- [376] = { 6,	TD,		SEN(preadv2),			"preadv2"		},
- [377] = { 6,	TD,		SEN(pwritev2),			"pwritev2"		},
--[378] = { 2,	0,		SEN(printargs),			"s390_guarded_storage"	},
-+[378] = { 2,	0,		SEN(s390_guarded_storage),	"s390_guarded_storage"	},
- [379] = { 5,	TD|TF|TSTA,	SEN(statx),			"statx"			},
- [380] = { 4,	0,		SEN(s390_sthyi),		"s390_sthyi"		},
+diff --git a/configure.ac b/configure.ac
+index 63595ce..fc164c8 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -392,6 +392,7 @@ AC_CHECK_MEMBERS(m4_normalize([
  
-diff --git a/linux/s390x/syscallent.h b/linux/s390x/syscallent.h
-index fe5b252..8e068c9 100644
---- a/linux/s390x/syscallent.h
-+++ b/linux/s390x/syscallent.h
-@@ -391,7 +391,7 @@
- [375] = { 6,	TD,		SEN(copy_file_range),		"copy_file_range"	},
- [376] = { 6,	TD,		SEN(preadv2),			"preadv2"		},
- [377] = { 6,	TD,		SEN(pwritev2),			"pwritev2"		},
--[378] = { 2,	0,		SEN(printargs),			"s390_guarded_storage"	},
-+[378] = { 2,	0,		SEN(s390_guarded_storage),	"s390_guarded_storage"	},
- [379] = { 5,	TD|TF|TSTA,	SEN(statx),			"statx"			},
- [380] = { 4,	0,		SEN(s390_sthyi),		"s390_sthyi"		},
- 
-diff --git a/s390.c b/s390.c
-index daaf6a0..a7efd29 100644
---- a/s390.c
-+++ b/s390.c
-@@ -35,6 +35,7 @@
- 
- #include "print_fields.h"
- 
-+#include "xlat/s390_guarded_storage_commands.h"
- #include "xlat/s390_sthyi_function_codes.h"
- 
- /*
-@@ -1030,4 +1031,183 @@ SYS_FUNC(s390_sthyi)
- 	return 0;
- }
- 
-+
+ AC_CHECK_HEADERS(m4_normalize([
+ 	asm/cachectl.h
++	asm/guarded_storage.h
+ 	asm/sysmips.h
+ 	bluetooth/bluetooth.h
+ 	elf.h
+diff --git a/tests/.gitignore b/tests/.gitignore
+index 19aa493..379d8c1 100644
+--- a/tests/.gitignore
++++ b/tests/.gitignore
+@@ -357,6 +357,8 @@ rt_sigsuspend
+ rt_sigtimedwait
+ rt_tgsigqueueinfo
+ run_expect_termsig
++s390_guarded_storage
++s390_guarded_storage-v
+ s390_sthyi
+ s390_sthyi-v
+ sched_get_priority_mxx
+diff --git a/tests/gen_tests.in b/tests/gen_tests.in
+index 968f6e4..5a9e4ed 100644
+--- a/tests/gen_tests.in
++++ b/tests/gen_tests.in
+@@ -303,8 +303,10 @@ rt_sigreturn	-esignal='!USR1'
+ rt_sigsuspend	-a20 -esignal=none
+ rt_sigtimedwait	-a38
+ rt_tgsigqueueinfo	-esignal=none
++s390_guarded_storage	-a32
++s390_guarded_storage-v	-e trace=s390_guarded_storage -a32 -v
+ s390_sthyi	-a47
+-s390_sthyi-v	-e trace=s390_sthyi -a47
++s390_sthyi-v	-e trace=s390_sthyi -a47 -v
+ sched	test_trace_expr times -e/sched
+ sched_get_priority_mxx	-a33 -e trace=sched_get_priority_min,sched_get_priority_max
+ sched_rr_get_interval	-a31
+diff --git a/tests/pure_executables.list b/tests/pure_executables.list
+index d8b997d..dc43a93 100755
+--- a/tests/pure_executables.list
++++ b/tests/pure_executables.list
+@@ -296,6 +296,8 @@ rt_sigreturn
+ rt_sigsuspend
+ rt_sigtimedwait
+ rt_tgsigqueueinfo
++s390_guarded_storage
++s390_guarded_storage-v
+ s390_sthyi
+ s390_sthyi-v
+ sched_get_priority_mxx
+diff --git a/tests/s390_guarded_storage-v.c b/tests/s390_guarded_storage-v.c
+new file mode 100644
+index 0000000..05afd9f
+--- /dev/null
++++ b/tests/s390_guarded_storage-v.c
+@@ -0,0 +1,2 @@
++#define VERBOSE 1
++#include "s390_guarded_storage.c"
+diff --git a/tests/s390_guarded_storage.c b/tests/s390_guarded_storage.c
+new file mode 100644
+index 0000000..ab67c15
+--- /dev/null
++++ b/tests/s390_guarded_storage.c
+@@ -0,0 +1,229 @@
 +/*
-+ * Structures are written based on
-+ * https://www-304.ibm.com/support/docview.wss?uid=isg29c69415c1e82603c852576700058075a&aid=1#page=85
++ * Check decoding of s390_guarded_storage syscall.
++ *
++ * Copyright (c) 2018 The strace developers.
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ * 3. The name of the author may not be used to endorse or promote products
++ *    derived from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
++ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
++ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
++ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
++ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 + */
 +
-+struct guard_storage_control_block {
-+	uint64_t reserved;
-+	/**
-+	 * Guard Storage Designation
-+	 *  - Bits 0..J, J == 64-GSC - Guard Storage Origin (GSO)
-+	 *  - Bits 53..55 - Guard Load Shift (GLS)
-+	 *  - Bits 58..63 - Guard Storage Characteristic (GSC), this is J from
-+	 *                  the first item, valud values are 25..56.
-+	 */
-+	uint64_t gsd;
-+	uint64_t gssm;   /**< Guard Storage Section Mask */
-+	uint64_t gs_epl_a; /**< Guard Storage Event Parameter List Address */
-+};
++#include "tests.h"
++#include <asm/unistd.h>
 +
-+struct guard_storage_event_parameter_list {
-+	uint8_t  pad1;
-+	/**
-+	 * Guard Storage Event Addressing Mode
-+	 *  - 0x40 - Extended addressing mode (E)
-+	 *  - 0x80 - Basic addressing mode (B)
-+	 */
-+	uint8_t  gs_eam;
-+	/**
-+	 * Guard Storage Event Cause indication
-+	 *  - 0x01 - CPU was in transaction execution mode (TX)
-+	 *  - 0x02 - CPU was in constrained transaction execution mode (CX)
-+	 *  - 0x80 - Instruction causing the event: 0 - LGG, 1 - LLGFGS
-+	 */
-+	uint8_t  gs_eci;
-+	/**
-+	 * Guard Storage Event Access Information
-+	 *  - 0x01 - DAT mode
-+	 *  - Bits 1..2 - Address space indication
-+	 *  - Bits 4..7 - AR number
-+	 */
-+	uint8_t  gs_eai;
-+	uint32_t pad2;
-+	uint64_t gs_eha; /**< Guard Storage Event Handler Address */
-+	uint64_t gs_eia; /**< Guard Storage Event Instruction Address */
-+	uint64_t gs_eoa; /**< Guard Storage Event Operation Address */
-+	uint64_t gs_eir; /**< Guard Storage Event Intermediate Result */
-+	uint64_t gs_era; /**< Guard Storage Event Return Address */
-+};
++#if defined __NR_s390_guarded_storage && defined HAVE_ASM_GUARDED_STORAGE_H
++
++# include <inttypes.h>
++# include <stdbool.h>
++# include <stdint.h>
++# include <stdio.h>
++# include <unistd.h>
++
++# include <asm/guarded_storage.h>
++
++# ifndef VERBOSE
++#  define VERBOSE 0
++# endif
 +
 +static void
-+guard_storage_print_gsepl(struct tcb *tcp, uint64_t addr)
++gs_no_arg(kernel_ulong_t val, const char *val_str)
 +{
-+	struct guard_storage_event_parameter_list gsepl;
++	static const kernel_ulong_t bogus_addr =
++		(kernel_ulong_t) 0xcaffeedadeadbed5ULL;
++	static const kernel_ulong_t bogus_cmd_mask =
++		(kernel_ulong_t) 0xbadc0ded00000000ULL;
++	long rc;
 +
-+	/* Since it is 64-bit even on 31-bit s390... */
-+	if (sizeof(addr) > current_klongsize &&
-+	    addr >= (1ULL << (current_klongsize * 8))) {
-+		tprintf("%#" PRIx64, addr);
++	rc = syscall(__NR_s390_guarded_storage, val | bogus_cmd_mask,
++		     bogus_addr);
++	printf("s390_guarded_storage(%s) = %s\n", val_str, sprintrc(rc));
++}
++
++static void
++gs_print_epl(uint64_t addr, bool valid, const char *str)
++{
++	if (!valid) {
++		if (str)
++			printf("%s", str);
++		else
++			printf("%#" PRIx64, addr);
 +
 +		return;
 +	}
 +
-+	if (umove_or_printaddr(tcp, addr, &gsepl))
-+		return;
++	struct gs_epl *gsepl = (struct gs_epl *) (uintptr_t) addr;
 +
-+	tprints("[{");
++	printf("[{");
 +
-+	if (!abbrev(tcp)) {
-+		if (gsepl.pad1) {
-+			PRINT_FIELD_0X("", gsepl, pad1);
-+			tprints(", ");
++# if VERBOSE
++	if (gsepl->pad1)
++		printf("pad1=%#02x, ", gsepl->pad1);
++
++	printf("gs_eam=%#02x /* extended addressing mode: %u, "
++	       "basic addressing mode: %u */"
++	       ", gs_eci=%#02x /* CPU in TX: %u, CPU in CX: %u, "
++	       "instruction: %s */"
++	       ", gs_eai=%#02x /* DAT: %u, address space indication: %u, "
++	       "AR number: %u */, ",
++	       gsepl->gs_eam, gsepl->e, gsepl->b,
++	       gsepl->gs_eci, gsepl->tx, gsepl->cx,
++	       gsepl->in ? "LLGFGS": "LGG",
++	       gsepl->gs_eai, gsepl->t, gsepl->as, gsepl->ar);
++
++	if (gsepl->pad2)
++		printf("pad2=%#08x, ", gsepl->pad2);
++# endif /* VERBOSE */
++
++	printf("gs_eha=%#llx, ", (unsigned long long) gsepl->gs_eha);
++
++# if VERBOSE
++	printf("gs_eia=%#llx, gs_eoa=%#llx, gs_eir=%#llx, gs_era=%#llx",
++	       (unsigned long long) gsepl->gs_eia,
++	       (unsigned long long) gsepl->gs_eoa,
++	       (unsigned long long) gsepl->gs_eir,
++	       (unsigned long long) gsepl->gs_era);
++# else /* !VERBOSE */
++	printf("...");
++# endif /* VERBOSE */
++
++	printf("}]");
++}
++
++static void
++gs_set_cb(kernel_ulong_t addr, bool valid, bool epl_valid,
++	  const char *bc_str, const char *epl_str)
++{
++	static const kernel_ulong_t bogus_cmd_mask =
++		(kernel_ulong_t) 0xda7a105700000000ULL;
++
++	long rc;
++
++	printf("s390_guarded_storage(GS_SET_BC_CB, ");
++
++	if (valid) {
++		struct gs_cb *gscb = (struct gs_cb *) (uintptr_t) addr;
++
++		printf("{");
++
++		if (gscb->reserved)
++			printf("reserved=%#016llx, ",
++			       (unsigned long long) gscb->reserved);
++
++		printf("gsd=%#16llx",
++		       (unsigned long long) gscb->gsd);
++# if VERBOSE
++		printf(" /* GS origin: ");
++
++		unsigned int gsc = gscb->gsd & 0x3F;
++		unsigned int gls = (gscb->gsd >> 8) & 7;
++		bool gsc_valid = gsc >= 25 && gsc <= 56;
++
++		if (gsc_valid) {
++			uint64_t gls = gscb->gsd >> gsc;
++			int field_size = 2 + (67 - gsc) / 4;
++
++			printf("%#0*" PRIx64, field_size, gls);
++		} else {
++			printf("[invalid]");
 +		}
 +
-+		PRINT_FIELD_0X("",   gsepl, gs_eam);
-+		tprintf_comment("extended addressing mode: %u, "
-+				"basic addressing mode: %u",
-+				!!(gsepl.gs_eam & 0x2), !!(gsepl.gs_eam & 0x1));
++		printf(", guard load shift: %u, GS characteristic: %u */",
++		       gls, gsc);
++# endif /* VERBOSE */
 +
-+		PRINT_FIELD_0X(", ", gsepl, gs_eci);
-+		tprintf_comment("CPU in TX: %u, CPU in CX: %u, instruction: %s",
-+				!!(gsepl.gs_eci & 0x80),
-+				!!(gsepl.gs_eci & 0x40),
-+				gsepl.gs_eci & 0x01 ? "LLGFGS" : "LGG");
++		printf(", gssm=%#016llx, gs_epl_a=",
++		       (unsigned long long) gscb->gssm);
 +
-+		PRINT_FIELD_0X(", ", gsepl, gs_eai);
-+		tprintf_comment("DAT: %u, address space indication: %u, "
-+				"AR number: %u",
-+				!!(gsepl.gs_eai & 0x40),
-+				(gsepl.gs_eai >> 4) & 0x3,
-+				gsepl.gs_eai & 0xF);
++		gs_print_epl(gscb->gs_epl_a, epl_valid, epl_str);
 +
-+		if (gsepl.pad2)
-+			PRINT_FIELD_0X(", ", gsepl, pad2);
-+
-+		tprints(", ");
-+	}
-+
-+	PRINT_FIELD_X("", gsepl, gs_eha);
-+
-+	if (!abbrev(tcp)) {
-+		PRINT_FIELD_X(", ", gsepl, gs_eia);
-+		PRINT_FIELD_X(", ", gsepl, gs_eoa);
-+		PRINT_FIELD_X(", ", gsepl, gs_eir);
-+		PRINT_FIELD_X(", ", gsepl, gs_era);
++		printf("}");
 +	} else {
-+		tprints(", ...");
++		if (bc_str)
++			printf("%s", bc_str);
++		else
++			printf("%#llx", (unsigned long long) addr);
 +	}
 +
-+	tprints("}]");
++	rc = syscall(__NR_s390_guarded_storage,
++		     GS_SET_BC_CB | bogus_cmd_mask, addr);
++	printf(") = %s\n", sprintrc(rc));
 +}
 +
-+# define DIV_ROUND_UP(x,y) (((x) + ((y) - 1)) / (y))
-+
-+static void
-+guard_storage_print_gscb(struct tcb *tcp, kernel_ulong_t addr)
++int
++main(void)
 +{
-+	struct guard_storage_control_block gscb;
++	static const kernel_ulong_t bogus_cmd =
++		(kernel_ulong_t) 0xdeafbeefdeadc0deULL;
++	static const kernel_ulong_t bogus_addr =
++		(kernel_ulong_t) 0xfacefeedac0ffeedULL;
 +
-+	if (umove_or_printaddr(tcp, addr, &gscb))
-+		return;
++	struct gs_cb *gscb = tail_alloc(sizeof(*gscb));
++	struct gs_epl *gsepl = tail_alloc(sizeof(*gsepl));
 +
-+	tprints("{");
++	long rc;
 +
-+	if (gscb.reserved) {
-+		PRINT_FIELD_0X("", gscb, reserved);
-+		tprints(", ");
-+	}
++	rc = syscall(__NR_s390_guarded_storage, 5, 0);
++	printf("s390_guarded_storage(0x5 /* GS_??? */, NULL) = %s\n",
++	       sprintrc(rc));
 +
-+	PRINT_FIELD_0X("", gscb, gsd);
++	rc = syscall(__NR_s390_guarded_storage, bogus_cmd, bogus_addr);
++	printf("s390_guarded_storage(%#x /* GS_??? */, %#lx) = %s\n",
++	       (unsigned) bogus_cmd, (unsigned long) bogus_addr, sprintrc(rc));
 +
-+	if (!abbrev(tcp)) {
-+		unsigned int gsc = gscb.gsd & 0x3F;
-+		bool gsc_valid = gsc >= 25 && gsc <= 56;
-+		tprintf_comment("GS origin: %#*.*" PRIx64 "%s, "
-+				"guard load shift: %" PRIu64 ", "
-+				"GS characteristic: %u",
-+				gsc_valid ? 2 + DIV_ROUND_UP(64 - gsc, 4) : 0,
-+				gsc_valid ? DIV_ROUND_UP(64 - gsc, 4) : 0,
-+				gsc_valid ? gscb.gsd >> gsc : 0,
-+				gsc_valid ? "" : "[invalid]",
-+				(gscb.gsd >> 8) & 0x7, gsc);
-+	}
++	gs_no_arg(ARG_STR(GS_BROADCAST));
++	gs_no_arg(ARG_STR(GS_CLEAR_BC_CB));
++	gs_no_arg(ARG_STR(GS_DISABLE));
++	gs_no_arg(ARG_STR(GS_ENABLE));
 +
-+	PRINT_FIELD_0X(", ", gscb, gssm);
++	fill_memory(gscb, sizeof(*gscb));
++	fill_memory_ex(gsepl, sizeof(*gsepl), 0xA5, 0x5A);
 +
-+	tprints(", gs_epl_a=");
-+	guard_storage_print_gsepl(tcp, gscb.gs_epl_a);
++	gs_set_cb(0, false, false, "NULL", NULL);
++	gs_set_cb((uintptr_t) (gscb + 1), false, false, NULL, NULL);
 +
-+	tprints("}");
++	gscb->gs_epl_a = 0;
++	gs_set_cb((uintptr_t) gscb, true, false, NULL, "NULL");
++
++	fill_memory_ex(gscb, sizeof(*gscb), 0x5A, 0xA5);
++	gscb->gs_epl_a = (uintptr_t) (gsepl + 1) |
++		 (sizeof(kernel_ulong_t) < sizeof(uint64_t) ?
++			0xc0debad000000000ULL : 0);
++	gs_set_cb((uintptr_t) gscb, true, false, NULL, NULL);
++
++	fill_memory_ex(gscb, sizeof(*gscb), 0xA7, 0xA5);
++	gscb->gs_epl_a = (uintptr_t) gsepl;
++	gs_set_cb((uintptr_t) gscb, true, true, NULL, NULL);
++
++	fill_memory_ex(gscb, sizeof(*gscb), 0x55, 0xAA);
++	fill_memory_ex(gsepl, sizeof(*gsepl), 0x5A, 0xA5);
++	gscb->gs_epl_a = (uintptr_t) gsepl;
++	gs_set_cb((uintptr_t) gscb, true, true, NULL, NULL);
++
++	puts("+++ exited with 0 +++");
++	return 0;
 +}
 +
-+SYS_FUNC(s390_guarded_storage)
-+{
-+	int command = (int) tcp->u_arg[0];
-+	kernel_ulong_t gs_cb = tcp->u_arg[1];
++#else
 +
-+	printxval(s390_guarded_storage_commands, command, "GS_???");
++SKIP_MAIN_UNDEFINED("__NR_s390_guarded_storage && HAVE_ASM_GUARDED_STORAGE_H")
 +
-+	switch (command) {
-+	case GS_ENABLE:
-+	case GS_DISABLE:
-+	case GS_CLEAR_BC_CB:
-+	case GS_BROADCAST:
-+		break;
-+
-+	case GS_SET_BC_CB:
-+		tprints(", ");
-+		guard_storage_print_gscb(tcp, gs_cb);
-+		break;
-+
-+	default:
-+		tprints(", ");
-+		printaddr(gs_cb);
-+	}
-+
-+	return RVAL_DECODED;
-+}
-+
- #endif /* defined S390 || defined S390X */
-diff --git a/xlat/s390_guarded_storage_commands.in b/xlat/s390_guarded_storage_commands.in
-new file mode 100644
-index 0000000..410e33e
---- /dev/null
-+++ b/xlat/s390_guarded_storage_commands.in
-@@ -0,0 +1,5 @@
-+GS_ENABLE	0
-+GS_DISABLE	1
-+GS_SET_BC_CB	2
-+GS_CLEAR_BC_CB	3
-+GS_BROADCAST	4
++#endif
 -- 
 2.1.4
