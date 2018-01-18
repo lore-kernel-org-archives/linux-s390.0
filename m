@@ -1,90 +1,67 @@
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [PATCH 04/12] KVM: s390: implement GISA IPM related primitives
-Date: Thu, 18 Jan 2018 16:58:32 +0100
-Message-ID: <2e96491f-c73e-2782-17b0-5d9764ecf5d7@linux.vnet.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 01/12] KVM: s390: reverse bit ordering of irqs in
+ pending mask
+Date: Thu, 18 Jan 2018 17:50:04 +0100
+Message-ID: <20180118175004.415614fb.cohuck@redhat.com>
 References: <20180116200217.211897-1-borntraeger@de.ibm.com>
- <20180116200217.211897-5-borntraeger@de.ibm.com>
- <249b3566-b8f3-5825-1f2b-6e0662874ca0@redhat.com>
- <bcc245f6-c29d-4ee7-2050-9e2f29be7b94@linux.vnet.ibm.com>
- <28160f0a-4056-626e-2b83-0e6f039f27fc@redhat.com>
-Reply-To: mimu@linux.vnet.ibm.com
+        <20180116200217.211897-2-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <28160f0a-4056-626e-2b83-0e6f039f27fc@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20180116200217.211897-2-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Tue, 16 Jan 2018 21:02:06 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-
-On 18.01.18 15:33, David Hildenbrand wrote:
-> On 18.01.2018 15:29, Michael Mueller wrote:
->>
->>
->> On 17.01.18 15:35, David Hildenbrand wrote:
->>> On 16.01.2018 21:02, Christian Borntraeger wrote:
->>>> From: Michael Mueller <mimu@linux.vnet.ibm.com>
->>>>
->>>> The patch implements routines to access the GISA to test and modify
->>>> its Interruption Pending Mask (IPM) from the host side.
->>>>
->>>> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
->>>> Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
->>>> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
->>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>>> ---
->>>>    arch/s390/kvm/interrupt.c | 23 +++++++++++++++++++++++
->>>>    arch/s390/kvm/kvm-s390.h  |  4 ++++
->>>>    2 files changed, 27 insertions(+)
->>>>
->>>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->>>> index b94173560dcf..dfdecff302d2 100644
->>>> --- a/arch/s390/kvm/interrupt.c
->>>> +++ b/arch/s390/kvm/interrupt.c
->>>> @@ -2682,3 +2682,26 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
->>>>    
->>>>    	return n;
->>>>    }
->>>> +
->>>> +#define IPM_BIT_OFFSET (offsetof(struct kvm_s390_gisa, ipm) * 8)
->>>
->>> 8 -> BITS_PER_BYTE, but ...
->>>
->>> Am I wrong or can we only modify the 8 ipm bits this way? But we
->>> want/have to do it in an atomic fashion?
->>>
->>> Using an unsigned long seems wrong, because we "rewrite" more than we
->>> should. Esp. everything beyond ipm. oi / ni and friends are not
->>> available on older machines.
->>>
->>> What about something as simple as the following
->>>
->>>
->>> +void kvm_s390_gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u8 gisc)
->>> +{
->>> +       u8 value = (0x80 >> gisc);
->>> +
->>> +       __sync_fetch_and_or(&gisa->ipm, value);
->>> +}
->>> +
->>>
->>
->> Nobody is using this compiler build-in in the kernel and a quick compile
->> shows that it produces an ORK and CS instead of a LAOG beside a lot of
->> supporting instructions. Unfortunately it's not saving what you promise
->> ... ;) Will not change.
->>
+> From: Michael Mueller <mimu@linux.vnet.ibm.com>
 > 
-> Using unsigned long * bitmap operations to modify an u8 type atomically
-> just seems very very wrong >
-
-I have to reconsider this...
-
+> This patch prepares a simplification of bit operations between the irq
+> pending mask for emulated interrupts and the Interruption Pending Mask
+> (IPM) which is part of the Guest Interruption State Area (GISA), a feature
+> that allows interrupt delivery to guests by means of the SIE instruction.
 > 
+> Without that change, a bit-wise *or* operation on parts of these two masks
+> would either require a look-up table of size 256 bytes to map the IPM
+> to the emulated irq pending mask bit orientation (all bits mirrored at half
+> byte) or a sequence of up to 8 condidional branches to perform tests of
+> single bit positions. Both options are to reject either by performance or
+
+s/to reject/to be rejected/
+
+> space utilization reasons.
+> 
+> Beyond that this change will be transparent.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_host.h | 54 ++++++++++++++++++++--------------------
+>  arch/s390/kvm/interrupt.c        | 10 ++++----
+>  2 files changed, 32 insertions(+), 32 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index e16a9f2a44ad..9981721f258f 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -409,35 +409,35 @@ struct kvm_vcpu_stat {
+>  #define PGM_PER				0x80
+>  #define PGM_CRYPTO_OPERATION		0x119
+>  
+> -/* irq types in order of priority */
+> +/* irq types in ascend order of priorities */
+
+"ascending order of priority"?
+
+Otherwise (and with the "reversed order" change),
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
