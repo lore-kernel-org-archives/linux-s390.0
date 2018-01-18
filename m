@@ -1,74 +1,63 @@
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [PATCH 02/12] KVM: s390: define GISA format-0 data structure
-Date: Thu, 18 Jan 2018 16:49:48 +0100
-Message-ID: <1c9a5093-0b99-feb9-6437-4abfe4391c59@linux.vnet.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 05/12] s390/css: expose the AIV facility
+Date: Thu, 18 Jan 2018 18:54:00 +0100
+Message-ID: <20180118185400.34533a23.cohuck@redhat.com>
 References: <20180116200217.211897-1-borntraeger@de.ibm.com>
- <20180116200217.211897-3-borntraeger@de.ibm.com>
- <d25b016f-eb6f-7b8e-87d8-9224291be6c8@redhat.com>
- <20180117075722.GA5708@osiris>
-Reply-To: Heiko Carstens <heiko.carstens@de.ibm.com>,
-          David Hildenbrand <david@redhat.com>
+        <20180116200217.211897-6-borntraeger@de.ibm.com>
+        <29f77b94-a5e1-178d-2364-9dcf77dc9096@redhat.com>
+        <dbfae6e1-ceda-880c-3908-b03193c7d714@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180117075722.GA5708@osiris>
-Content-Language: en-US
+In-Reply-To: <dbfae6e1-ceda-880c-3908-b03193c7d714@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-Cc: mimu@linux.vnet.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Michael Mueller <mimu@linux.vnet.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Thu, 18 Jan 2018 13:02:45 +0100
+Michael Mueller <mimu@linux.vnet.ibm.com> wrote:
 
+> On 17.01.18 16:19, David Hildenbrand wrote:
+> > On 16.01.2018 21:02, Christian Borntraeger wrote:  
+> >> From: Michael Mueller <mimu@linux.vnet.ibm.com>
+> >>
+> >> The patch exposes the Adapter Interruption Virtualization facility (AIV)
+> >> of the general channel subsystem characteristics.
+> >>
+> >> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> >> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+> >> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >> ---
+> >>   arch/s390/include/asm/css_chars.h | 4 +++-
+> >>   1 file changed, 3 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/arch/s390/include/asm/css_chars.h b/arch/s390/include/asm/css_chars.h
+> >> index a478eb61aaf7..fb56fa3283a2 100644
+> >> --- a/arch/s390/include/asm/css_chars.h
+> >> +++ b/arch/s390/include/asm/css_chars.h
+> >> @@ -20,7 +20,9 @@ struct css_general_char {
+> >>   	u32 aif_tdd : 1; /* bit 56 */
+> >>   	u32 : 1;
+> >>   	u32 qebsm : 1;	 /* bit 58 */
+> >> -	u32 : 8;
+> >> +	u32 : 2;
+> >> +	u32 aiv : 1;     /* bit 61 */
+> >> +	u32 : 5;
+> >>   	u32 aif_osa : 1; /* bit 67 */
+> >>   	u32 : 12;
+> >>   	u32 eadm_rf : 1; /* bit 80 */
+> >>  
+> > "Expose" sounds like actually forwarding something / enabling a bit.  
+> Expose here basically means to make sth. visible what was already available.
+> > Wonder if this can be squashed with another patch?
+> >
+> > Or rename to something like "define" ...  
+> I don't plan to change anything.
 
-On 17.01.18 08:57, Heiko Carstens wrote:
-> On Tue, Jan 16, 2018 at 09:25:12PM +0100, David Hildenbrand wrote:
->>
->>> +struct kvm_s390_gisa {
->>> +	u32 next_alert;
->>> +	u8 ipm;
->>> +	u8 reserved01;
->>> +	u8:6;
->>> +	u8 g:1;
->>> +	u8 c:1;
->>> +	u8 iam;
->>> +	u8 reserved02[4];
->>> +	u32 airq_count;
->>> +};
->>> +
->>>   /*
->>> - * sie_page2 has to be allocated as DMA because fac_list and crycb need
->>> - * 31bit addresses in the sie control block.
->>> + * sie_page2 has to be allocated as DMA because fac_list, crycb and
->>> + * gisa need 31bit addresses in the sie control block.
->>>    */
->>>   struct sie_page2 {
->>>   	__u64 fac_list[S390_ARCH_FAC_LIST_SIZE_U64];	/* 0x0000 */
->>>   	struct kvm_s390_crypto_cb crycb;		/* 0x0800 */
->>> -	u8 reserved900[0x1000 - 0x900];			/* 0x0900 */
->>> +	struct kvm_s390_gisa gisa __aligned(sizeof(struct kvm_s390_gisa)); /* 0x0900 */
->>
->> can we instead specify sie_page2 as packed if really needed? (I can see
->> that we have a BUILD_BUG_ON below, which is nice)
->>
->> (alignment within well defined data structures looks strange)
-
-I'm doing that because the gisa requires "integral boundary" alignment 
-that changes with a later patch when I introduce format-1.
-
-> 
-> The alignment, if needed, should go to the definition of struct
-> kvm_s390_gisa above. The structure needs at least an alignment of eight
-> bytes since bitops are used to modify ipm (in a later patch), by using a
-> (long *) cast to this structure.
-
-adding this to the definition does not allow to use sizeof() for the 
-currently defined struct. Thus I would have to explicitly specify the
-size... :(
-
-> But of course it is all naturally aligned anyway... ;)
-> 
-
-Thanks
-Michael
+I'd prefer to simply squash this with the next patch, where the bit is
+actually checked.
