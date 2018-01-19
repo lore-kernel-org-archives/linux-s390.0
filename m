@@ -1,98 +1,129 @@
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: [PATCH v2 4/5] perf trace: Obtain errno values by using arch_syscalls__strerrno()
-Date: Fri, 19 Jan 2018 09:56:16 +0100
-Message-ID: <1516352177-11106-5-git-send-email-brueckner@linux.vnet.ibm.com>
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Subject: Re: [PATCH v2 5/5] perf trace: Remove audit-libs dependency if
+ syscall tables are present
+Date: Fri, 19 Jan 2018 11:04:26 -0300
+Message-ID: <20180119140426.GB23453@kernel.org>
 References: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
+ <1516352177-11106-6-git-send-email-brueckner@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-perf-users-owner@vger.kernel.org>
-In-Reply-To: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <1516352177-11106-6-git-send-email-brueckner@linux.vnet.ibm.com>
 Sender: linux-perf-users-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-perf-users/>
 List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: Arnaldo Carvalho de Melo <acme@kernel.org>
+To: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Replace the errno_to_name() from the audit-libs with the newly
-introduced arch_syscalls__strerrno() function.
+Em Fri, Jan 19, 2018 at 09:56:17AM +0100, Hendrik Brueckner escreveu:
+> Change the Makefile and build process to no longer require audit-libs
+> interfaces when the architecture provides system call tables.
+> 
+> Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+> Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+> Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+> Cc: Jiri Olsa <jolsa@redhat.com>
 
-With this change:
+So, I need this extra patch to really stop linking against
+audit-libs-devel (aka libaudit), which I merged with this 5/5 patch and
+have now in my tree, thanks for your work! Now we can get on with this
+and, for instance, get rid of those strcmp() and big switch statements,
+which I think that could be just an array plus a helper to see if it is
+in its bounds, etc, i.e. use an strarray, look at
+tools/perf/trace/beauty/beauty.h:
 
-1.  With replacing errno_to_name() from audit-libs, perf trace
-    does no longer require audit-lib interfaces.
+struct strarray {
+        int         offset;
+        int         nr_entries;
+        const char **entries;
+};
 
-2. In addition to 1, the audit-libs dependency can be removed
-   for architectures that support syscall tables in perf.
-   This is achieved in a follow-up commit.
+#define DEFINE_STRARRAY(array) struct strarray strarray__##array = { \
+        .nr_entries = ARRAY_SIZE(array), \
+        .entries = array, \
+}
 
-3. With the architecture specific errno number/name mapping,
-   perf trace reports can work across architectures.
+#define DEFINE_STRARRAY_OFFSET(array, off) struct strarray strarray__##array = { \
+        .offset     = off, \
+        .nr_entries = ARRAY_SIZE(array), \
+        .entries = array, \
+}
 
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
----
- tools/perf/builtin-trace.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+size_t strarray__scnprintf(struct strarray *sa, char *bf, size_t size, const char *intfmt, int val); 
 
-diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
-index 531d43b..7dece5e 100644
---- a/tools/perf/builtin-trace.c
-+++ b/tools/perf/builtin-trace.c
-@@ -21,6 +21,7 @@
- #include "builtin.h"
- #include "util/color.h"
- #include "util/debug.h"
-+#include "util/env.h"
- #include "util/event.h"
- #include "util/evlist.h"
- #include <subcmd/exec-cmd.h>
-@@ -45,14 +46,12 @@
+tools/perf/trace/beauty/ has lots of uses for it.
+
+[acme@seventh perf]$ rpm -q audit-libs-devel
+audit-libs-devel-2.8.2-1.fc27.x86_64
+[acme@seventh perf]$ ldd ~/bin/perf | grep audit
+[acme@seventh perf]$ 
+
+diff --git a/tools/perf/Build b/tools/perf/Build
+index b48ca40fccf9..e5232d567611 100644
+--- a/tools/perf/Build
++++ b/tools/perf/Build
+@@ -25,7 +25,7 @@ perf-y += builtin-data.o
+ perf-y += builtin-version.o
+ perf-y += builtin-c2c.o
  
- #include <errno.h>
- #include <inttypes.h>
--#include <libaudit.h> /* FIXME: Still needed for audit_errno_to_name */
- #include <poll.h>
- #include <signal.h>
- #include <stdlib.h>
- #include <string.h>
- #include <linux/err.h>
- #include <linux/filter.h>
--#include <linux/audit.h>
- #include <linux/kernel.h>
- #include <linux/random.h>
- #include <linux/stringify.h>
-@@ -545,6 +544,7 @@ static size_t syscall_arg__scnprintf_getrandom_flags(char *bf, size_t size,
- 	  { .scnprintf	= SCA_STRARRAY, \
- 	    .parm	= &strarray__##array, }
+-perf-$(CONFIG_AUDIT) += builtin-trace.o
++perf-$(CONFIG_TRACE) += builtin-trace.o
+ perf-$(CONFIG_LIBELF) += builtin-probe.o
  
-+#include "trace/beauty/arch_errno_names.c"
- #include "trace/beauty/eventfd.c"
- #include "trace/beauty/flock.c"
- #include "trace/beauty/futex_op.c"
-@@ -1660,6 +1660,14 @@ static int trace__fprintf_callchain(struct trace *trace, struct perf_sample *sam
- 	return sample__fprintf_callchain(sample, 38, print_opts, &callchain_cursor, trace->output);
- }
+ perf-y += bench/
+@@ -50,6 +50,6 @@ libperf-y += util/
+ libperf-y += arch/
+ libperf-y += ui/
+ libperf-y += scripts/
+-libperf-$(CONFIG_AUDIT) += trace/beauty/
++libperf-$(CONFIG_TRACE) += trace/beauty/
  
-+static const char *errno_to_name(struct perf_evsel *evsel, int err)
-+{
-+	struct perf_env *env = perf_evsel__env(evsel);
-+	const char *arch_name = perf_env__arch(env);
-+
-+	return arch_syscalls__strerrno(arch_name, err);
-+}
-+
- static int trace__sys_exit(struct trace *trace, struct perf_evsel *evsel,
- 			   union perf_event *event __maybe_unused,
- 			   struct perf_sample *sample)
-@@ -1730,7 +1738,7 @@ static int trace__sys_exit(struct trace *trace, struct perf_evsel *evsel,
- errno_print: {
- 		char bf[STRERR_BUFSIZE];
- 		const char *emsg = str_error_r(-ret, bf, sizeof(bf)),
--			   *e = audit_errno_to_name(-ret);
-+			   *e = errno_to_name(evsel, -ret);
+ gtk-y += ui/gtk/
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 896dee62078c..a042ccca4e93 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -531,20 +531,18 @@ ifndef NO_LIBUNWIND
+   EXTLIBS += $(EXTLIBS_LIBUNWIND)
+ endif
  
- 		fprintf(trace->output, ") = -1 %s %s", e, emsg);
- 	}
--- 
-1.8.3.1
+-ifndef NO_LIBAUDIT
+-  ifneq ($(feature-libaudit), 1)
+-    ifeq ($(NO_SYSCALL_TABLE), 1)
++ifeq ($(NO_SYSCALL_TABLE),0)
++  $(call detected,CONFIG_TRACE)
++else
++  ifndef NO_LIBAUDIT
++    ifneq ($(feature-libaudit), 1)
+       msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
+       NO_LIBAUDIT := 1
+     else
+-      # With syscall table support, auditlibs are no longer required to build
+-      # the trace tool.
+-      $(call detected,CONFIG_AUDIT)
++      CFLAGS += -DHAVE_LIBAUDIT_SUPPORT
++      EXTLIBS += -laudit
++      $(call detected,CONFIG_TRACE)
+     endif
+-  else
+-    CFLAGS += -DHAVE_LIBAUDIT_SUPPORT
+-    EXTLIBS += -laudit
+-    $(call detected,CONFIG_AUDIT)
+   endif
+ endif
+ 
+diff --git a/tools/perf/util/Build b/tools/perf/util/Build
+index 7c6a8b461e24..4eef0c243306 100644
+--- a/tools/perf/util/Build
++++ b/tools/perf/util/Build
+@@ -44,7 +44,7 @@ libperf-y += machine.o
+ libperf-y += map.o
+ libperf-y += pstack.o
+ libperf-y += session.o
+-libperf-$(CONFIG_AUDIT) += syscalltbl.o
++libperf-$(CONFIG_TRACE) += syscalltbl.o
+ libperf-y += ordered-events.o
+ libperf-y += namespaces.o
+ libperf-y += comm.o
