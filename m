@@ -1,30 +1,59 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 2/6] s390: implement nospec_[load|ptr]
-Date: Wed, 17 Jan 2018 13:41:54 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1801171340460.11852@cbobk.fhfr.pm>
-References: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com> <1516182519-10623-3-git-send-email-schwidefsky@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1516182519-10623-3-git-send-email-schwidefsky@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 19 Jan 2018 14:49:03 -0600
+Message-ID: <20180119144903.Horde.tbajXZQzjH9kwd_yYPMI5mo@gator4166.hostgator.com>
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: Re: [PATCH] smc: return boolean instead of integer in using_ipsec
+References: <20180118233323.GA22539@embeddedor.com>
+ <0eadb528-9d82-3e0d-dc21-cd61244900e5@linux.vnet.ibm.com>
+In-Reply-To: <0eadb528-9d82-3e0d-dc21-cd61244900e5@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed; DelSp=Yes
+MIME-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 17 Jan 2018, Martin Schwidefsky wrote:
+Hi Ursula,
 
-> Implement nospec_load() and nospec_ptr() for s390 with the new
-> gmb() barrier between the boundary condition and the load that
-> may not be done speculatively.
+Quoting Ursula Braun <ubraun@linux.vnet.ibm.com>:
 
-FWIW the naming seems to be changing constantly. The latest patchset from 
-Dan Williams [1] uses ifence_...().
+> On 01/19/2018 12:33 AM, Gustavo A. R. Silva wrote:
+>> Return statements in functions returning bool should use
+>> true/false instead of 1/0.
+>>
+>> This issue was detected with the help of Coccinelle.
+>>
+>> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+>> ---
+>>  net/smc/smc.h | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/net/smc/smc.h b/net/smc/smc.h
+>> index 0bee9d1..ef13af4 100644
+>> --- a/net/smc/smc.h
+>> +++ b/net/smc/smc.h
+>> @@ -258,7 +258,7 @@ static inline bool using_ipsec(struct smc_sock *smc)
+>>  #else
+>>  static inline bool using_ipsec(struct smc_sock *smc)
+>>  {
+>> -	return 0;
+>> +	return false;
+>>  }
+>>  #endif
+>>
+>
+> Gustavo,
+> thanks for reporting, but your improvement seems to be incomplete.  
+> Besides changing
+> line 260 of net/smc/smc.h, line 255 should be adapted the same way. Will you
+> come up with a second patch version here?
+>
 
-[1] lkml.kernel.org/r/151586744180.5820.13215059696964205856.stgit@dwillia2-desk3.amr.corp.intel.com
+You are correct. I'll send a new patch shortly.
 
--- 
-Jiri Kosina
-SUSE Labs
+Thanks for the feedback.
+--
+Gustavo
