@@ -1,7 +1,7 @@
 From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: [PATCH v2 3/5] perf util: Introduce architecture specific errno/name mapping
-Date: Fri, 19 Jan 2018 09:56:15 +0100
-Message-ID: <1516352177-11106-4-git-send-email-brueckner@linux.vnet.ibm.com>
+Subject: [PATCH v2 5/5] perf trace: Remove audit-libs dependency if syscall tables are present
+Date: Fri, 19 Jan 2018 09:56:17 +0100
+Message-ID: <1516352177-11106-6-git-send-email-brueckner@linux.vnet.ibm.com>
 References: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
 Return-path: <linux-perf-users-owner@vger.kernel.org>
 In-Reply-To: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
@@ -12,189 +12,88 @@ To: Arnaldo Carvalho de Melo <acme@kernel.org>
 Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduce a script that generates a mapping of errno numbers to
-their names for each architecture that is supported by perf (i.e.
-has a subdirectory in tools/perf/arch/).
-
-The errno mapping is generated as part of the trace beautifiers
-and can be used by including the trace/beauty/arch_errno_names.c
-file.  Then, use arch_syscalls__strerrno() to look up an errno value
-to obtain the errno name (e.g. ENOENT) for a particular architecture.
+Change the Makefile and build process to no longer require audit-libs
+interfaces when the architecture provides system call tables.
 
 Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
 Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 ---
- tools/perf/Makefile.perf                    |  13 +++-
- tools/perf/trace/beauty/arch_errno_names.c  |   1 +
- tools/perf/trace/beauty/arch_errno_names.sh | 100 ++++++++++++++++++++++++++++
- tools/perf/trace/beauty/beauty.h            |   2 +
- 4 files changed, 114 insertions(+), 2 deletions(-)
- create mode 100644 tools/perf/trace/beauty/arch_errno_names.c
- create mode 100755 tools/perf/trace/beauty/arch_errno_names.sh
+ tools/perf/Makefile.config          | 10 ++++++++--
+ tools/perf/builtin-help.c           |  2 +-
+ tools/perf/perf.c                   |  4 ++--
+ tools/perf/util/generate-cmdlist.sh |  2 +-
+ 4 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-index 9fdefd7..9a9b528 100644
---- a/tools/perf/Makefile.perf
-+++ b/tools/perf/Makefile.perf
-@@ -462,6 +462,13 @@ prctl_option_tbl := $(srctree)/tools/perf/trace/beauty/prctl_option.sh
- $(prctl_option_array): $(prctl_hdr_dir)/prctl.h $(prctl_option_tbl)
- 	$(Q)$(SHELL) '$(prctl_option_tbl)' $(prctl_hdr_dir) > $@
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 12dec6e..f02f370 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -533,8 +533,14 @@ endif
  
-+arch_errno_name_array := $(beauty_outdir)/arch_errno_name_array.c
-+arch_errno_hdr_dir := $(srctree)/tools
-+arch_errno_tbl := $(srctree)/tools/perf/trace/beauty/arch_errno_names.sh
-+
-+$(arch_errno_name_array): $(arch_errno_tbl)
-+	$(Q)$(SHELL) '$(arch_errno_tbl)' $(CC) $(arch_errno_hdr_dir) > $@
-+
- all: shell_compatibility_test $(ALL_PROGRAMS) $(LANG_BINDINGS) $(OTHER_PROGRAMS)
+ ifndef NO_LIBAUDIT
+   ifneq ($(feature-libaudit), 1)
+-    msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
+-    NO_LIBAUDIT := 1
++    ifeq ($(NO_SYSCALL_TABLE), 1)
++      msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
++      NO_LIBAUDIT := 1
++    else
++      # With syscall table support, auditlibs are no longer required to build
++      # the trace tool.
++      $(call detected,CONFIG_AUDIT)
++    endif
+   else
+     CFLAGS += -DHAVE_LIBAUDIT_SUPPORT
+     EXTLIBS += -laudit
+diff --git a/tools/perf/builtin-help.c b/tools/perf/builtin-help.c
+index a0f7ed2..4aca13f 100644
+--- a/tools/perf/builtin-help.c
++++ b/tools/perf/builtin-help.c
+@@ -439,7 +439,7 @@ int cmd_help(int argc, const char **argv)
+ #ifdef HAVE_LIBELF_SUPPORT
+ 		"probe",
+ #endif
+-#ifdef HAVE_LIBAUDIT_SUPPORT
++#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
+ 		"trace",
+ #endif
+ 	NULL };
+diff --git a/tools/perf/perf.c b/tools/perf/perf.c
+index 62b1351..1b3fc8e 100644
+--- a/tools/perf/perf.c
++++ b/tools/perf/perf.c
+@@ -73,7 +73,7 @@ struct cmd_struct {
+ 	{ "lock",	cmd_lock,	0 },
+ 	{ "kvm",	cmd_kvm,	0 },
+ 	{ "test",	cmd_test,	0 },
+-#ifdef HAVE_LIBAUDIT_SUPPORT
++#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
+ 	{ "trace",	cmd_trace,	0 },
+ #endif
+ 	{ "inject",	cmd_inject,	0 },
+@@ -485,7 +485,7 @@ int main(int argc, const char **argv)
+ 		argv[0] = cmd;
+ 	}
+ 	if (strstarts(cmd, "trace")) {
+-#ifdef HAVE_LIBAUDIT_SUPPORT
++#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
+ 		setup_path();
+ 		argv[0] = "trace";
+ 		return cmd_trace(argc, argv);
+diff --git a/tools/perf/util/generate-cmdlist.sh b/tools/perf/util/generate-cmdlist.sh
+index 9bbcec4..ff17920 100755
+--- a/tools/perf/util/generate-cmdlist.sh
++++ b/tools/perf/util/generate-cmdlist.sh
+@@ -38,7 +38,7 @@ do
+ done
+ echo "#endif /* HAVE_LIBELF_SUPPORT */"
  
- $(OUTPUT)python/perf.so: $(PYTHON_EXT_SRCS) $(PYTHON_EXT_DEPS) $(LIBTRACEEVENT_DYNAMIC_LIST)
-@@ -565,7 +572,8 @@ prepare: $(OUTPUT)PERF-VERSION-FILE $(OUTPUT)common-cmds.h archheaders $(drm_ioc
- 	$(vhost_virtio_ioctl_array) \
- 	$(madvise_behavior_array) \
- 	$(perf_ioctl_array) \
--	$(prctl_option_array)
-+	$(prctl_option_array) \
-+	$(arch_errno_name_array)
- 
- $(OUTPUT)%.o: %.c prepare FORCE
- 	$(Q)$(MAKE) -f $(srctree)/tools/build/Makefile.build dir=$(build-dir) $@
-@@ -847,7 +855,8 @@ clean:: $(LIBTRACEEVENT)-clean $(LIBAPI)-clean $(LIBBPF)-clean $(LIBSUBCMD)-clea
- 		$(OUTPUT)$(kcmp_type_array) \
- 		$(OUTPUT)$(vhost_virtio_ioctl_array) \
- 		$(OUTPUT)$(perf_ioctl_array) \
--		$(OUTPUT)$(prctl_option_array)
-+		$(OUTPUT)$(prctl_option_array) \
-+		$(OUTPUT)$(arch_errno_name_array)
- 	$(QUIET_SUBDIR0)Documentation $(QUIET_SUBDIR1) clean
- 
- #
-diff --git a/tools/perf/trace/beauty/arch_errno_names.c b/tools/perf/trace/beauty/arch_errno_names.c
-new file mode 100644
-index 0000000..ede031c
---- /dev/null
-+++ b/tools/perf/trace/beauty/arch_errno_names.c
-@@ -0,0 +1 @@
-+#include "trace/beauty/generated/arch_errno_name_array.c"
-diff --git a/tools/perf/trace/beauty/arch_errno_names.sh b/tools/perf/trace/beauty/arch_errno_names.sh
-new file mode 100755
-index 0000000..1c9e37d
---- /dev/null
-+++ b/tools/perf/trace/beauty/arch_errno_names.sh
-@@ -0,0 +1,100 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Generate C file mapping errno codes to errno names.
-+#
-+# Copyright IBM Corp. 2018
-+# Author(s):  Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-+
-+gcc="$1"
-+toolsdir="$2"
-+include_path="-I$toolsdir/include/uapi"
-+
-+arch_string()
-+{
-+	echo "$1" |sed -e 'y/- /__/' |tr '[[:upper:]]' '[[:lower:]]'
-+}
-+
-+asm_errno_file()
-+{
-+	local arch="$1"
-+	local header
-+
-+	header="$toolsdir/arch/$arch/include/uapi/asm/errno.h"
-+	if test -r "$header"; then
-+		echo "$header"
-+	else
-+		echo "$toolsdir/include/uapi/asm-generic/errno.h"
-+	fi
-+}
-+
-+create_errno_lookup_func()
-+{
-+	local arch=$(arch_string "$1")
-+	local nr name
-+
-+	cat <<EoFuncBegin
-+static const char *errno_to_name__$arch(int err)
-+{
-+	switch (err) {
-+EoFuncBegin
-+
-+	while read name nr; do
-+		printf '\tcase %d: return "%s";\n' $nr $name
-+	done
-+
-+	cat <<EoFuncEnd
-+	default:
-+		return "(unknown)";
-+	}
-+}
-+
-+EoFuncEnd
-+}
-+
-+process_arch()
-+{
-+	local arch="$1"
-+	local asm_errno=$(asm_errno_file "$arch")
-+
-+	$gcc $include_path -E -dM -x c $asm_errno \
-+		|grep -hE '^#define[[:blank:]]+(E[^[:blank:]]+)[[:blank:]]+([[:digit:]]+).*' \
-+		|awk '{ print $2","$3; }' \
-+		|sort -t, -k2 -nu \
-+		|IFS=, create_errno_lookup_func "$arch"
-+}
-+
-+create_arch_errno_table_func()
-+{
-+	local archlist="$1"
-+	local default="$2"
-+	local arch
-+
-+	printf 'const char *arch_syscalls__strerrno(const char *arch, int err)\n'
-+	printf '{\n'
-+	for arch in $archlist; do
-+		printf '\tif (!strcmp(arch, "%s"))\n' $(arch_string "$arch")
-+		printf '\t\treturn errno_to_name__%s(err);\n' $(arch_string "$arch")
-+	done
-+	printf '\treturn errno_to_name__%s(err);\n' $(arch_string "$default")
-+	printf '}'
-+}
-+
-+cat <<EoHEADER
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#include <string.h>
-+
-+EoHEADER
-+
-+# Create list of architectures and ignore those that do not appear
-+# in tools/perf/arch
-+archlist=""
-+for arch in $(find $toolsdir/arch -maxdepth 1 -mindepth 1 -type d -printf "%f\n" |sort); do
-+	test -d arch/$arch && archlist="$archlist $arch"
-+done
-+
-+for arch in $archlist generic; do
-+	process_arch "$arch"
-+done
-+create_arch_errno_table_func "$archlist" "generic"
-diff --git a/tools/perf/trace/beauty/beauty.h b/tools/perf/trace/beauty/beauty.h
-index a6dfd04..d8f6b2e 100644
---- a/tools/perf/trace/beauty/beauty.h
-+++ b/tools/perf/trace/beauty/beauty.h
-@@ -114,4 +114,6 @@ struct syscall_arg {
- void syscall_arg__set_ret_scnprintf(struct syscall_arg *arg,
- 				    size_t (*ret_scnprintf)(char *bf, size_t size, struct syscall_arg *arg));
- 
-+const char *arch_syscalls__strerrno(const char *arch, int err);
-+
- #endif /* _PERF_TRACE_BEAUTY_H */
+-echo "#ifdef HAVE_LIBAUDIT_SUPPORT"
++echo "#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)"
+ sed -n -e 's/^perf-\([^ 	]*\)[ 	].* audit*/\1/p' command-list.txt |
+ sort |
+ while read cmd
 -- 
 1.8.3.1
