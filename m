@@ -1,85 +1,200 @@
 From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: [PATCH v2 0/5] perf trace: Introduce arch-specific errno code/name mappings
-Date: Fri, 19 Jan 2018 09:56:12 +0100
-Message-ID: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
+Subject: [PATCH v2 3/5] perf util: Introduce architecture specific errno/name mapping
+Date: Fri, 19 Jan 2018 09:56:15 +0100
+Message-ID: <1516352177-11106-4-git-send-email-brueckner@linux.vnet.ibm.com>
+References: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
 Return-path: <linux-perf-users-owner@vger.kernel.org>
+In-Reply-To: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
 Sender: linux-perf-users-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-perf-users/>
 List-Post: <mailto:linux-perf-users@vger.kernel.org>
 To: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduce an interface to perf to resolve errno codes to their names.
-This is used by perf trace to display the errno name, for example, ENOENT,
-for an system call.  The previous implementation used the errno_to_name()
-function from the audit library.
+Introduce a script that generates a mapping of errno numbers to
+their names for each architecture that is supported by perf (i.e.
+has a subdirectory in tools/perf/arch/).
 
-With this change, a table of errno codes and their names are created for
-each architecture on which perf is supported (others can be easily added
-if necessary).  The errno_to_name() function from the audit library is
-replaced with an arch-specific one, arch_errno_to_name().
+The errno mapping is generated as part of the trace beautifiers
+and can be used by including the trace/beauty/arch_errno_names.c
+file.  Then, use arch_syscalls__strerrno() to look up an errno value
+to obtain the errno name (e.g. ENOENT) for a particular architecture.
 
-The benefit is that perf trace does not longer have a direct dependency
-for the audit library and the perf trace output can be displayed across
-architectures.  For example, collect trace output on s390 and display it
-on x86.
-
-The audit library dependency can be further reduced and completely removed
-for architectures that support system call tables in perf (see last commit).
-
-See also discussion on:
-- https://www.spinics.net/lists/linux-perf-users/msg04782.html
-- https://www.spinics.net/lists/linux-perf-users/msg05005.html
-
-Please note that this patch set is bases on the perf/core branch.
-
-Changes in v2:
-As the arch_errno_to_name() mapping is used by perf trace only,
-move all the scripts and generated files from tools/perf/util/
-to the tools/perf/trace/beauty/{generated/} directories.
-See also https://www.spinics.net/lists/linux-perf-users/msg05037.html
-
-
-Hendrik Brueckner (5):
-  tools include arch: Grab a copy of errno.h for arch's supported by
-    perf
-  tools include asm-generic: Grab errno.h and errno-base.h
-  perf util: Introduce architecture specific errno/name mapping
-  perf trace: Obtain errno values by using arch_syscalls__strerrno()
-  perf trace: Remove audit-libs dependency if syscall tables are present
-
- tools/arch/alpha/include/uapi/asm/errno.h   | 128 +++++++++++++++++++++++++++
- tools/arch/mips/include/asm/errno.h         |  17 ++++
- tools/arch/mips/include/uapi/asm/errno.h    | 130 ++++++++++++++++++++++++++++
- tools/arch/parisc/include/uapi/asm/errno.h  | 128 +++++++++++++++++++++++++++
- tools/arch/powerpc/include/uapi/asm/errno.h |  10 +++
- tools/arch/sparc/include/uapi/asm/errno.h   | 118 +++++++++++++++++++++++++
- tools/arch/x86/include/uapi/asm/errno.h     |   1 +
- tools/include/uapi/asm-generic/errno-base.h |  40 +++++++++
- tools/include/uapi/asm-generic/errno.h      | 123 ++++++++++++++++++++++++++
- tools/perf/Makefile.config                  |  10 ++-
- tools/perf/Makefile.perf                    |  13 ++-
- tools/perf/builtin-help.c                   |   2 +-
- tools/perf/builtin-trace.c                  |  14 ++-
- tools/perf/check-headers.sh                 |   9 ++
- tools/perf/perf.c                           |   4 +-
+Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+---
+ tools/perf/Makefile.perf                    |  13 +++-
  tools/perf/trace/beauty/arch_errno_names.c  |   1 +
- tools/perf/trace/beauty/arch_errno_names.sh | 100 +++++++++++++++++++++
+ tools/perf/trace/beauty/arch_errno_names.sh | 100 ++++++++++++++++++++++++++++
  tools/perf/trace/beauty/beauty.h            |   2 +
- tools/perf/util/generate-cmdlist.sh         |   2 +-
- 19 files changed, 841 insertions(+), 11 deletions(-)
- create mode 100644 tools/arch/alpha/include/uapi/asm/errno.h
- create mode 100644 tools/arch/mips/include/asm/errno.h
- create mode 100644 tools/arch/mips/include/uapi/asm/errno.h
- create mode 100644 tools/arch/parisc/include/uapi/asm/errno.h
- create mode 100644 tools/arch/powerpc/include/uapi/asm/errno.h
- create mode 100644 tools/arch/sparc/include/uapi/asm/errno.h
- create mode 100644 tools/arch/x86/include/uapi/asm/errno.h
- create mode 100644 tools/include/uapi/asm-generic/errno-base.h
- create mode 100644 tools/include/uapi/asm-generic/errno.h
+ 4 files changed, 114 insertions(+), 2 deletions(-)
  create mode 100644 tools/perf/trace/beauty/arch_errno_names.c
  create mode 100755 tools/perf/trace/beauty/arch_errno_names.sh
 
+diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
+index 9fdefd7..9a9b528 100644
+--- a/tools/perf/Makefile.perf
++++ b/tools/perf/Makefile.perf
+@@ -462,6 +462,13 @@ prctl_option_tbl := $(srctree)/tools/perf/trace/beauty/prctl_option.sh
+ $(prctl_option_array): $(prctl_hdr_dir)/prctl.h $(prctl_option_tbl)
+ 	$(Q)$(SHELL) '$(prctl_option_tbl)' $(prctl_hdr_dir) > $@
+ 
++arch_errno_name_array := $(beauty_outdir)/arch_errno_name_array.c
++arch_errno_hdr_dir := $(srctree)/tools
++arch_errno_tbl := $(srctree)/tools/perf/trace/beauty/arch_errno_names.sh
++
++$(arch_errno_name_array): $(arch_errno_tbl)
++	$(Q)$(SHELL) '$(arch_errno_tbl)' $(CC) $(arch_errno_hdr_dir) > $@
++
+ all: shell_compatibility_test $(ALL_PROGRAMS) $(LANG_BINDINGS) $(OTHER_PROGRAMS)
+ 
+ $(OUTPUT)python/perf.so: $(PYTHON_EXT_SRCS) $(PYTHON_EXT_DEPS) $(LIBTRACEEVENT_DYNAMIC_LIST)
+@@ -565,7 +572,8 @@ prepare: $(OUTPUT)PERF-VERSION-FILE $(OUTPUT)common-cmds.h archheaders $(drm_ioc
+ 	$(vhost_virtio_ioctl_array) \
+ 	$(madvise_behavior_array) \
+ 	$(perf_ioctl_array) \
+-	$(prctl_option_array)
++	$(prctl_option_array) \
++	$(arch_errno_name_array)
+ 
+ $(OUTPUT)%.o: %.c prepare FORCE
+ 	$(Q)$(MAKE) -f $(srctree)/tools/build/Makefile.build dir=$(build-dir) $@
+@@ -847,7 +855,8 @@ clean:: $(LIBTRACEEVENT)-clean $(LIBAPI)-clean $(LIBBPF)-clean $(LIBSUBCMD)-clea
+ 		$(OUTPUT)$(kcmp_type_array) \
+ 		$(OUTPUT)$(vhost_virtio_ioctl_array) \
+ 		$(OUTPUT)$(perf_ioctl_array) \
+-		$(OUTPUT)$(prctl_option_array)
++		$(OUTPUT)$(prctl_option_array) \
++		$(OUTPUT)$(arch_errno_name_array)
+ 	$(QUIET_SUBDIR0)Documentation $(QUIET_SUBDIR1) clean
+ 
+ #
+diff --git a/tools/perf/trace/beauty/arch_errno_names.c b/tools/perf/trace/beauty/arch_errno_names.c
+new file mode 100644
+index 0000000..ede031c
+--- /dev/null
++++ b/tools/perf/trace/beauty/arch_errno_names.c
+@@ -0,0 +1 @@
++#include "trace/beauty/generated/arch_errno_name_array.c"
+diff --git a/tools/perf/trace/beauty/arch_errno_names.sh b/tools/perf/trace/beauty/arch_errno_names.sh
+new file mode 100755
+index 0000000..1c9e37d
+--- /dev/null
++++ b/tools/perf/trace/beauty/arch_errno_names.sh
+@@ -0,0 +1,100 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0
++#
++# Generate C file mapping errno codes to errno names.
++#
++# Copyright IBM Corp. 2018
++# Author(s):  Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
++
++gcc="$1"
++toolsdir="$2"
++include_path="-I$toolsdir/include/uapi"
++
++arch_string()
++{
++	echo "$1" |sed -e 'y/- /__/' |tr '[[:upper:]]' '[[:lower:]]'
++}
++
++asm_errno_file()
++{
++	local arch="$1"
++	local header
++
++	header="$toolsdir/arch/$arch/include/uapi/asm/errno.h"
++	if test -r "$header"; then
++		echo "$header"
++	else
++		echo "$toolsdir/include/uapi/asm-generic/errno.h"
++	fi
++}
++
++create_errno_lookup_func()
++{
++	local arch=$(arch_string "$1")
++	local nr name
++
++	cat <<EoFuncBegin
++static const char *errno_to_name__$arch(int err)
++{
++	switch (err) {
++EoFuncBegin
++
++	while read name nr; do
++		printf '\tcase %d: return "%s";\n' $nr $name
++	done
++
++	cat <<EoFuncEnd
++	default:
++		return "(unknown)";
++	}
++}
++
++EoFuncEnd
++}
++
++process_arch()
++{
++	local arch="$1"
++	local asm_errno=$(asm_errno_file "$arch")
++
++	$gcc $include_path -E -dM -x c $asm_errno \
++		|grep -hE '^#define[[:blank:]]+(E[^[:blank:]]+)[[:blank:]]+([[:digit:]]+).*' \
++		|awk '{ print $2","$3; }' \
++		|sort -t, -k2 -nu \
++		|IFS=, create_errno_lookup_func "$arch"
++}
++
++create_arch_errno_table_func()
++{
++	local archlist="$1"
++	local default="$2"
++	local arch
++
++	printf 'const char *arch_syscalls__strerrno(const char *arch, int err)\n'
++	printf '{\n'
++	for arch in $archlist; do
++		printf '\tif (!strcmp(arch, "%s"))\n' $(arch_string "$arch")
++		printf '\t\treturn errno_to_name__%s(err);\n' $(arch_string "$arch")
++	done
++	printf '\treturn errno_to_name__%s(err);\n' $(arch_string "$default")
++	printf '}'
++}
++
++cat <<EoHEADER
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#include <string.h>
++
++EoHEADER
++
++# Create list of architectures and ignore those that do not appear
++# in tools/perf/arch
++archlist=""
++for arch in $(find $toolsdir/arch -maxdepth 1 -mindepth 1 -type d -printf "%f\n" |sort); do
++	test -d arch/$arch && archlist="$archlist $arch"
++done
++
++for arch in $archlist generic; do
++	process_arch "$arch"
++done
++create_arch_errno_table_func "$archlist" "generic"
+diff --git a/tools/perf/trace/beauty/beauty.h b/tools/perf/trace/beauty/beauty.h
+index a6dfd04..d8f6b2e 100644
+--- a/tools/perf/trace/beauty/beauty.h
++++ b/tools/perf/trace/beauty/beauty.h
+@@ -114,4 +114,6 @@ struct syscall_arg {
+ void syscall_arg__set_ret_scnprintf(struct syscall_arg *arg,
+ 				    size_t (*ret_scnprintf)(char *bf, size_t size, struct syscall_arg *arg));
+ 
++const char *arch_syscalls__strerrno(const char *arch, int err);
++
+ #endif /* _PERF_TRACE_BEAUTY_H */
 -- 
 1.8.3.1
