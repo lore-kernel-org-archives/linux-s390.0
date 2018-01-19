@@ -1,60 +1,61 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v2] KVM: s390: wire up bpb feature
-Date: Thu, 18 Jan 2018 11:09:50 +0100
-Message-ID: <f69c7130-171b-50cf-d295-1b8aca03b92d@de.ibm.com>
-References: <1516182519-10623-6-git-send-email-schwidefsky@de.ibm.com>
- <20180117134434.48676-1-borntraeger@de.ibm.com>
- <20180118105916.68a1586c.cohuck@redhat.com>
+From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
+Subject: Re: [PATCH 3/6] s390: add options to change branch prediction
+ behaviour for the kernel
+Date: Fri, 19 Jan 2018 12:53:40 +0800
+Message-ID: <4f27802d-9cdd-ed59-f892-92803f9a4986@linux.vnet.ibm.com>
+References: <1516182519-10623-1-git-send-email-schwidefsky@de.ibm.com>
+ <1516182519-10623-4-git-send-email-schwidefsky@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="gbk"; format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180118105916.68a1586c.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1516182519-10623-4-git-send-email-schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 01/18/2018 10:59 AM, Cornelia Huck wrote:
-> On Wed, 17 Jan 2018 14:44:34 +0100
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> 
->> The new firmware interfaces for branch prediction behaviour changes
->> are transparently available for the guest. Nevertheless, there is
->> new state attached that should be migrated and properly resetted.
->> Provide a mechanism for handling reset, migration and VSIE.
->>
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->> v1->v2: - review feedback from David
->> 	- rename seb(c) into bpb(c)
->>  arch/s390/include/asm/kvm_host.h |  3 ++-
->>  arch/s390/include/uapi/asm/kvm.h |  5 ++++-
->>  arch/s390/kvm/kvm-s390.c         | 12 ++++++++++++
->>  arch/s390/kvm/vsie.c             | 10 ++++++++++
->>  include/uapi/linux/kvm.h         |  1 +
->>  5 files changed, 29 insertions(+), 2 deletions(-)
-> 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-
-Thanks
-> 
-> But I'd like to see some documentation (a line) for the new cap under
-> Documentation/. However, this can be done as a separate update (we
-> might be missing more).
-
-
-Ok, I will work on a doc update patch.
-Paolo, Radim, can you take this patch for 4.15?
-
-
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+CgrU2iAyMDE4LzEvMTcgMTc6NDgsIE1hcnRpbiBTY2h3aWRlZnNreSDQtLXAOgo+IEFkZCB0aGUg
+UFBBIGluc3RydWN0aW9uIHRvIHRoZSBzeXN0ZW0gZW50cnkgYW5kIGV4aXQgcGF0aCB0byBzd2l0
+Y2gKPiB0aGUga2VybmVsIHRvIGEgZGlmZmVyZW50IGJyYW5jaCBwcmVkaWN0aW9uIGJlaGF2aW91
+ci4gVGhlIGluc3RydWN0aW9ucwo+IGFyZSBhZGRlZCB2aWEgQ1BVIGFsdGVybmF0aXZlcyBhbmQg
+Y2FuIGJlIGRpc2FibGVkIHdpdGggdGhlICJub3NwZWMiCj4gb3IgdGhlICJub2JwPTAiIGtlcm5l
+bCBwYXJhbWV0ZXIuIElmIHRoZSBkZWZhdWx0IGJlaGF2aW91ciBzZWxlY3RlZAo+IHdpdGggQ09O
+RklHX0tFUk5FTF9OT0JQIGlzIHNldCB0byAibiIgdGhlbiB0aGUgIm5vYnA9MSIgcGFyYW1ldGVy
+IGNhbiBiZQo+IHVzZWQgdG8gZW5hYmxlIHRoZSBjaGFuZ2VkIGtlcm5lbCBicmFuY2ggcHJlZGlj
+dGlvbi4KPgo+IEFja2VkLWJ5OiBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgPGJvcm50cmFlZ2VyQGRl
+LmlibS5jb20+Cj4gU2lnbmVkLW9mZi1ieTogTWFydGluIFNjaHdpZGVmc2t5IDxzY2h3aWRlZnNr
+eUBkZS5pYm0uY29tPgo+IC0tLQo+ICAgYXJjaC9zMzkwL0tjb25maWcgICAgICAgICAgICAgICAg
+IHwgMTcgKysrKysrKysrKysrKwo+ICAgYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3Byb2Nlc3Nvci5o
+IHwgIDEgKwo+ICAgYXJjaC9zMzkwL2tlcm5lbC9hbHRlcm5hdGl2ZS5jICAgIHwgMjMgKysrKysr
+KysrKysrKysrKysrCj4gICBhcmNoL3MzOTAva2VybmVsL2Vhcmx5LmMgICAgICAgICAgfCAgMiAr
+Kwo+ICAgYXJjaC9zMzkwL2tlcm5lbC9lbnRyeS5TICAgICAgICAgIHwgNTAgKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKystCj4gICBhcmNoL3MzOTAva2VybmVsL2lwbC5jICAg
+ICAgICAgICAgfCAgMSArCj4gICBhcmNoL3MzOTAva2VybmVsL3NtcC5jICAgICAgICAgICAgfCAg
+MiArKwo+ICAgNyBmaWxlcyBjaGFuZ2VkLCA5NSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0p
+Cj4KPiBkaWZmIC0tZ2l0IGEvYXJjaC9zMzkwL0tjb25maWcgYi9hcmNoL3MzOTAvS2NvbmZpZwo+
+IGluZGV4IDgyOWM2NzkuLmE4MTg2NDQgMTAwNjQ0Cj4gLS0tIGEvYXJjaC9zMzkwL0tjb25maWcK
+PiArKysgYi9hcmNoL3MzOTAvS2NvbmZpZwo+IEBAIC01NDEsNiArNTQxLDIzIEBAIGNvbmZpZyBB
+UkNIX1JBTkRPTQo+Cj4gICAJICBJZiB1bnN1cmUsIHNheSBZLgo+Cj4gK2NvbmZpZyBLRVJORUxf
+Tk9CUApKdXN0IGEgcXVlc3Rpb24gdGhhdCBjYW4gd2UgYWRkIHRoZSBjb250cm9sIGluIHByb2Mg
+c3lzdGVtIHRvIAplbmFibGUvZGlzYWJsZSB0aGUgZmFjaWxpdGllcwpmb3IgdGhlIHdob2xlIHN5
+c3RlbSBieSBkZWZhdWx0PyBFYWNoIHByb2Nlc3MgY2FuIHN0aWxsIG92ZXJ3cml0ZSB0aGUgCmRl
+ZmF1bHQgc2V0dGluZy4KVGhpcyBtYXkgcHJvdmlkZSBtb3JlIGZsZXhpYmlsaXR5IGZvciB0aGUg
+b3BlcmF0b3IgdG8gY2hvb3NlIGFuZCBkZWJ1ZyAKYXMgd2VsbCB3aXRob3V0IHJlYm9vdGluZwp0
+aGUgc3lzdGVtLiBlLmcuIGVjaG8gMCA+IC9zeXMva2VybmVsL2RlYnVnL3MzOTB4L2licGJfZW5h
+YmxlZApSZWY6IGh0dHBzOi8vYWNjZXNzLnJlZGhhdC5jb20vYXJ0aWNsZXMvMzMxMTMwMQo+ICsJ
+ZGVmX2Jvb2wgbgo+ICsJcHJvbXB0ICJFbmFibGUgbW9kaWZpZWQgYnJhbmNoIHByZWRpY3Rpb24g
+Zm9yIHRoZSBrZXJuZWwgYnkgZGVmYXVsdCIKPiArCWhlbHAKPiArICAgICAgICAgIElmIHRoaXMg
+b3B0aW9uIGlzIHNlbGVjdGVkIHRoZSBrZXJuZWwgd2lsbCBzd2l0Y2ggdG8gYSBtb2RpZmllZAo+
+ICsJICBicmFuY2ggcHJlZGljdGlvbiBtb2RlIGlmIHRoZSBmaXJtd2FyZSBpbnRlcmZhY2UgaXMg
+YXZhaWxhYmxlLgo+ICsJICBUaGUgbW9kaWZpZWQgYnJhbmNoIHByZWRpY3Rpb24gbW9kZSBpbXBy
+b3ZlcyB0aGUgYmVoYXZpb3VyIGluCj4gKwkgIHJlZ2FyZCB0byBzcGVjdWxhdGl2ZSBleGVjdXRp
+b24uCj4gKwo+ICsJICBXaXRoIHRoZSBvcHRpb24gZW5hYmxlZCB0aGUga2VybmVsIHBhcmFtZXRl
+ciAibm9icD0wIiBvciAibm9zcGVjIgo+ICsJICBjYW4gYmUgdXNlZCB0byBydW4gdGhlIGtlcm5l
+bCBpbiB0aGUgbm9ybWFsIGJyYW5jaCBwcmVkaWN0aW9uIG1vZGUuCj4gKwo+ICsJICBXaXRoIHRo
+ZSBvcHRpb24gZGlzYWJsZWQgdGhlIG1vZGlmaWVkIGJyYW5jaCBwcmVkaWN0aW9uIG1vZGUgaXMK
+PiArCSAgZW5hYmxlZCB3aXRoIHRoZSAibm9icD0xIiBrZXJuZWwgcGFyYW1ldGVyLgo+ICsKPiAr
+CSAgSWYgdW5zdXJlLCBzYXkgTi4KPiArCj4gICBlbmRtZW51ClsuLi5dCgotLSAKUmVnYXJkcwpR
+aW5nRmVuZyBIYW8K
