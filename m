@@ -1,19 +1,17 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH v2 01/22] s390/mm: make gmap_protect_range more
- modular
-Date: Mon, 22 Jan 2018 14:02:48 +0100
-Message-ID: <f52b5163-3286-1358-098a-183eeb5a0f15@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v2 03/22] s390/mm: add gmap PMD invalidation
+ notification
+Date: Mon, 22 Jan 2018 14:13:37 +0100
+Message-ID: <c154cb64-59be-34fe-44e0-7ee19c6b5440@linux.vnet.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1513169613-13509-2-git-send-email-frankja@linux.vnet.ibm.com>
- <f8fe917b-a95f-406c-fa6b-b12b2dae6e61@redhat.com>
- <2a4094a9-aee5-adad-f543-3bfe1ca9d440@linux.vnet.ibm.com>
- <66bd80bc-841a-39f2-9e51-6961e2da1330@redhat.com>
+ <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
+ <edb33737-5f1d-b74e-6dbf-f5174b790fee@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="qkf0s3Q8MeCvXXVv3TBgwPrBdZnjvyw9V"
+ boundary="ps6cMvpXymYuMMLKaRDxhGe5yFdG6oxSU"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <66bd80bc-841a-39f2-9e51-6961e2da1330@redhat.com>
+In-Reply-To: <edb33737-5f1d-b74e-6dbf-f5174b790fee@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -22,91 +20,85 @@ Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, li
 List-ID: <linux-s390.vger.kernel.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---qkf0s3Q8MeCvXXVv3TBgwPrBdZnjvyw9V
-Content-Type: multipart/mixed; boundary="A69RiptiVeh6y12ifqi4fszd3MV6GHR36";
+--ps6cMvpXymYuMMLKaRDxhGe5yFdG6oxSU
+Content-Type: multipart/mixed; boundary="PPiQ9b9QZnNw5vdsA3Xf2IGy85KjcKySN";
  protected-headers="v1"
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
 To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
  linux-s390@vger.kernel.org
-Message-ID: <f52b5163-3286-1358-098a-183eeb5a0f15@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH v2 01/22] s390/mm: make gmap_protect_range more
- modular
+Message-ID: <c154cb64-59be-34fe-44e0-7ee19c6b5440@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v2 03/22] s390/mm: add gmap PMD invalidation
+ notification
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1513169613-13509-2-git-send-email-frankja@linux.vnet.ibm.com>
- <f8fe917b-a95f-406c-fa6b-b12b2dae6e61@redhat.com>
- <2a4094a9-aee5-adad-f543-3bfe1ca9d440@linux.vnet.ibm.com>
- <66bd80bc-841a-39f2-9e51-6961e2da1330@redhat.com>
-In-Reply-To: <66bd80bc-841a-39f2-9e51-6961e2da1330@redhat.com>
+ <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
+ <edb33737-5f1d-b74e-6dbf-f5174b790fee@redhat.com>
+In-Reply-To: <edb33737-5f1d-b74e-6dbf-f5174b790fee@redhat.com>
 
---A69RiptiVeh6y12ifqi4fszd3MV6GHR36
+--PPiQ9b9QZnNw5vdsA3Xf2IGy85KjcKySN
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 22.01.2018 13:50, David Hildenbrand wrote:
->=20
->>>
->>>> +	if (!pmdp || pmd_none(*pmdp)) {
->>>> +		spin_unlock(&gmap->guest_table_lock);
->>>> +		return NULL;
->>>> +	}
->>>> +	/*
->>>> +	 * For plain 4k guests that do not run under the vsie it
->>>> +	 * suffices to take the pte lock later on. Thus we can unlock
->>>> +	 * the guest_table_lock here.
->>>> +	 */
->>>
->>> As discussed, the gmap_is_shadow() check is not needed. The comment
->>> should be something like
+On 22.01.2018 12:46, David Hildenbrand wrote:
+> On 13.12.2017 13:53, Janosch Frank wrote:
+>> For later migration of huge pages we want to write-protect guest
+>> PMDs. While doing this, we have to make absolutely sure, that the
+>> guest's lowcore is always accessible when the VCPU is running. With
+>> PTEs, this is solved by marking the PGSTEs of the lowcore pages with
+>> the invalidation notification bit and kicking the guest out of the SIE=
+
+>> via a notifier function if we need to invalidate such a page.
 >>
->> IFF we'll never use this function to walk shadow tables, then you are
->> right. We can make it a policy and throw in a BUG_ON.
+>> With PMDs we do not have PGSTEs or some other bits we could use in the=
+
+>> host PMD. Instead we pick one of the free bits in the gmap PMD. Every
+>> time a host pmd will be invalidated, we will check if the respective
+>> gmap PMD has the bit set and in that case fire up the notifier.
+>>
+>> In the first step we only support setting the invalidation bit, but we=
+
+>> do not support restricting access of guest pmds. It will follow
+>> shortly.
 >=20
-> Right. We never protect anything on a shadow gmap. We only mirror the
-> access tights requested by the guest (which are then valid in the host)=
+> I am wondering if we could avoid having invalidation bits on PMDs
+> completely by always splitting up a PMD huge page into PTEs.
+>=20
+> I assume this would make the code easier - as we need split up of PMDs
+> either way when protecting for the shadow gmap.
+>=20
+> This would imply that also our notification handler only has to be
+> called for 4k pages, which also makes that part easier.
+
+Except for 1MB shadowed segments which still need an invalidation handler=
 =2E
 
-For now I'll introduce a comment, a BUG_ON and get rid of the check.
+>=20
+> This would mean, that the 1MB segments where the prefixes live would
+> always be split into 4k pages - but do we care?
+
+Hmm, I currently don't see a medium to huge benefit from it.
 
 >=20
->>
->> [...]
->>>> +static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,=
+> I somehow dislike that somebody registers a notifier for some subregion=
 
->>>> +			    pmd_t *pmdp, int prot, unsigned long bits)
->>>> +{
->>>> +	int rc;
->>>> +	pte_t *ptep;
->>>> +	spinlock_t *ptl =3D NULL;
->>>> +
->>>> +	/* We have no upper segment, let's go back and fix this up. */
->>>> +	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
->>>> +		return -EAGAIN;
->>>
->>> This is essentially pmd_none(*pmdp), which you already verified in
->>> gmap_pmd_op_walk().
->>
->> Well, not really pmd_none is entry =3D=3D ENTRY_EMPTY (only I bit set)=
- not
->> entry & I.
->> Is there a path where we have an I bit on a pmd entry which has a vali=
-d pto?
->>
+> (e.g. 8k) but gets notified about a huge page (1mb).
 >=20
-> Thing idte only sets the invalid bit. But can this check than go into
-> gmap_pmd_op_walk? (replacing pmd_none() ?)
+> Opinions?
 
-I'll have to think about that, but quite possibly yes.
-The problem comes from Martin's wish to properly handle prot_none entries=
-=2E
+Well, if you start bending reality to your will, things get messy.
+
+Having two tables with different depths is a risk, as I can't be sure if
+at some point a common code function will touch a split pte and set a
+problematic value. But then again, we already do that anyhow.
+
+As I'd need to rearrange patches again, I'd either do that after this
+series or leave it be.
 
 
+--PPiQ9b9QZnNw5vdsA3Xf2IGy85KjcKySN--
 
-
---A69RiptiVeh6y12ifqi4fszd3MV6GHR36--
-
---qkf0s3Q8MeCvXXVv3TBgwPrBdZnjvyw9V
+--ps6cMvpXymYuMMLKaRDxhGe5yFdG6oxSU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -114,19 +106,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJaZeD4AAoJEBcO/8Q8ZEV5hg0P/1XdPOgFfH0IRhU+OBC988/B
-Afrz2dHqMbXiM1mV7IerEGWB2ZRuWpVjK+JiQUDXQwyJaut8b35JZTDClbrtiruj
-hOw0DSRK5uKSmFjMZ+Gdgz8uj4Fh5VQGaenVQzRrv28f+uvLHdt1OyN/TVQn9v4c
-lurKAQk3EPgLJHxwMRuhHXq39YIoCXV0gwftSu5MamYI5zudnSKO2PEOmdNWrvd8
-iDbKAW3OIFTcYy3gYNG01/sT3Gg8hozD41A39ihaMeRdCCILvBE8fFGMlrDiMM5M
-xOhov1RunS4JNJACzDs6Rs8iZxmefjBsEY6Uqd15iuU6UjRpMSCSEY9DhtMaoKBY
-2vwvw74x6vioTbzqkCL68GCHr6ZPVtuVhyDFeOgvFvLP9S4EDhU/7upJ+H7Axl7B
-3A/Ynlm9+K7bD6380+FqMysPkDAjHNZvax5rSrXc7yYe7EFetj1wuTafX28mYvFF
-yCv3E672nkvJISljM9Y4eoZlx5skbWncTH9+FYVRaLk5D7PnZvl1Vs0uLm+TaBmx
-jbNdvQ1ZpKCy14pgcXTdCF/JDx32rQU0Oz5sOA+NsYW+4z1ApjSLevaOTkgQcOhg
-7IyfclAlCJB5DIw+CK9Mu0kuoXhTpX1laaztvnMzSs5Q0fbOUZM38X0C0KC3JpBR
-afg4ImgllIQck4R0WktT
-=99yf
+iQIcBAEBCAAGBQJaZeOBAAoJEBcO/8Q8ZEV5N2QQALpKTwsdHGuXUL5bStgtgjTC
+ioRFq66Arpe+Hs8CnoVfuREARNOivalpxRcTZIkoAS5y9ypOSz0zoalfRKJPwNsw
+PNrK7pJL77FpCzXJmcS+YqX7NzNZB6vRJJytP78LCxeJMe9rVHyUA7+BUy+wmX6k
+liXFui/645B+z0SH94mycZ3cWyZNJngnKUoqireC7gW0qC78P0b6uMO2EO+JXO6Z
+XGFXIy3jYv5Krwgt+GgTPX7Ka3+0zTUtACKBQGM0nuFtP1riS0TWC5+a79TDfc43
+GOGUz9viPVl2g5fqaFUUgz9KhyRNxPXKYPfRFPMX7Z93nVwkfBo+9u0wO4RiTp6l
+7fO91MNwJOWHXsHD260/B8lW6cKn8GRFpShzArw36ahbTzAmnbGZch55ppgbeNjC
+v01REU8URzki770NIkKKIiqa9L6wrTXoz9NSulwvvPQkGfZ3D7hri4thtY6B/Cle
+AfTwINJmI0imRZY5zKO7bmbOxNI6q7rhWfknOaFdyodlCXX9mIa1SNta3l7cFvxn
+U7eRp3ihyUE+0eW7dhb/KZUk/00g1nqAt9n0EGL2q48hz/qqR3bscp4YdhAjUsY/
+fG9MebdXAHF4puI15E4VRGThhj6haVYN01wkIIXgcdd1HINV3bu4r65Zqbtx4gcL
+td1m8EysNraUA6qrIJ/+
+=JRHn
 -----END PGP SIGNATURE-----
 
---qkf0s3Q8MeCvXXVv3TBgwPrBdZnjvyw9V--
+--ps6cMvpXymYuMMLKaRDxhGe5yFdG6oxSU--
