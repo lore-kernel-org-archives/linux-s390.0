@@ -1,15 +1,14 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC/PATCH v2 01/22] s390/mm: make gmap_protect_range more
- modular
-Date: Mon, 22 Jan 2018 12:33:00 +0100
-Message-ID: <f8fe917b-a95f-406c-fa6b-b12b2dae6e61@redhat.com>
+Subject: Re: [RFC/PATCH v2 02/22] s390/mm: Abstract gmap notify bit setting
+Date: Mon, 22 Jan 2018 12:34:47 +0100
+Message-ID: <c72a89b2-1451-150e-a0fe-97ac32a237b9@redhat.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1513169613-13509-2-git-send-email-frankja@linux.vnet.ibm.com>
+ <1513169613-13509-3-git-send-email-frankja@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1513169613-13509-2-git-send-email-frankja@linux.vnet.ibm.com>
+In-Reply-To: <1513169613-13509-3-git-send-email-frankja@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,176 +18,100 @@ Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, li
 List-ID: <linux-s390.vger.kernel.org>
 
 On 13.12.2017 13:53, Janosch Frank wrote:
-> This patch reworks the gmap_protect_range logic and extracts the pte
-> handling into an own function. Also we do now walk to the pmd and make
-> it accessible in the function for later use. This way we can add huge
-> page handling logic more easily.
+> Currently we use the software PGSTE bits PGSTE_IN_BIT and PGSTE_VSIE_BIT
+> to notify before an invalidation occurs on a prefix page or a VSIE page
+> respectively. Both bits only work for a PGSTE, which only exists for
+> page tables.
+> 
+> For huge page support we also need such bits for segments (pmds) so
+> let's introduce abstract GMAP_NOTIFY_* bits that will be realized into
+> the respective bits when gmap DAT table entries are protected.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
 > Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 > ---
->  arch/s390/mm/gmap.c | 102 ++++++++++++++++++++++++++++++++++++++++++++++------
->  1 file changed, 92 insertions(+), 10 deletions(-)
+>  arch/s390/include/asm/gmap.h |  4 ++++
+>  arch/s390/mm/gmap.c          | 13 ++++++++-----
+>  2 files changed, 12 insertions(+), 5 deletions(-)
 > 
+> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+> index e07cce8..c1bc563 100644
+> --- a/arch/s390/include/asm/gmap.h
+> +++ b/arch/s390/include/asm/gmap.h
+> @@ -9,6 +9,10 @@
+>  #ifndef _ASM_S390_GMAP_H
+>  #define _ASM_S390_GMAP_H
+>  
+> +/* Generic bits for GMAP notification on DAT table entry changes. */
+> +#define GMAP_NOTIFY_SHADOW	0x2
+> +#define GMAP_NOTIFY_MPROT	0x1
+> +
+>  /**
+>   * struct gmap_struct - guest address space
+>   * @list: list head for the mm->context gmap list
 > diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 05d459b..8de8bf9 100644
+> index 8de8bf9..e7825d2 100644
 > --- a/arch/s390/mm/gmap.c
 > +++ b/arch/s390/mm/gmap.c
-> @@ -874,7 +874,88 @@ static int gmap_pte_op_fixup(struct gmap *gmap, unsigned long gaddr,
->   */
->  static void gmap_pte_op_end(spinlock_t *ptl)
->  {
-> -	spin_unlock(ptl);
-> +	if (ptl)
-> +		spin_unlock(ptl);
-> +}
-> +
-> +/**
-> + * gmap_pmd_op_walk - walk the gmap tables, get the guest table lock
-> + *		      and return the pmd pointer
-> + * @gmap: pointer to guest mapping meta data structure
-> + * @gaddr: virtual address in the guest address space
-> + *
-> + * Returns a pointer to the pmd for a guest address, or NULL
-> + */
-> +static inline pmd_t *gmap_pmd_op_walk(struct gmap *gmap, unsigned long gaddr)
-> +{
-> +	pmd_t *pmdp;
-> +
-> +	spin_lock(&gmap->guest_table_lock);
-> +	pmdp = (pmd_t *) gmap_table_walk(gmap, gaddr, 1);
-> +
-> +	/*
-> +	 * Empty pmds can become large after we give up the
-> +	 * guest_table_lock, so we have to check for pmd_none
-> +	 * here.
-> +	 */
-
-Don't understand that comment. We give up the lock after we're done with
-the pmd either way. So I think this comment can go.
-
-> +	if (!pmdp || pmd_none(*pmdp)) {
-> +		spin_unlock(&gmap->guest_table_lock);
-> +		return NULL;
-> +	}
-> +	/*
-> +	 * For plain 4k guests that do not run under the vsie it
-> +	 * suffices to take the pte lock later on. Thus we can unlock
-> +	 * the guest_table_lock here.
-> +	 */
-
-As discussed, the gmap_is_shadow() check is not needed. The comment
-should be something like
-
-/* 4k page table entries are locked via the pte (pte_alloc_map_lock). */
-
-> +	if (!pmd_large(*pmdp) && !gmap_is_shadow(gmap))
-> +		spin_unlock(&gmap->guest_table_lock);
-> +	return pmdp;
-> +}
-> +
-> +/**
-> + * gmap_pmd_op_end - release the guest_table_lock if needed
-> + * @gmap: pointer to the guest mapping meta data structure
-> + * @pmdp: pointer to the pmd
-> + */
-> +static inline void gmap_pmd_op_end(struct gmap *gmap, pmd_t *pmdp)
-> +{
-> +	if (pmd_large(*pmdp) || gmap_is_shadow(gmap))
-
-As discussed, gmap_is_shadow() can go.
-
-> +		spin_unlock(&gmap->guest_table_lock);
-> +}
-> +
-> +/*
-> + * gmap_protect_pte - remove access rights to memory and set pgste bits
-> + * @gmap: pointer to guest mapping meta data structure
-> + * @gaddr: virtual address in the guest address space
-> + * @pmdp: pointer to the pmd associated with the pte
-> + * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
-> + * @bits: pgste notification bits to set
-> + *
-> + * Returns 0 if successfully protected, -ENOMEM if out of memory and
-> + * -EAGAIN if a fixup is needed.
-> + *
-> + * Expected to be called with sg->mm->mmap_sem in read and
-> + * guest_table_lock held for shadow gmaps.
-> + */
-> +static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
-> +			    pmd_t *pmdp, int prot, unsigned long bits)
-> +{
-> +	int rc;
-> +	pte_t *ptep;
-> +	spinlock_t *ptl = NULL;
-> +
-> +	/* We have no upper segment, let's go back and fix this up. */
-> +	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
-> +		return -EAGAIN;
-
-This is essentially pmd_none(*pmdp), which you already verified in
-gmap_pmd_op_walk().
-
-I suggest requiring for this function that the entry is valid (which is
-always the case) and getting rid of the -EAGAIN return code. Makes this
-function simpler.
-
-> +
-> +	ptep = pte_alloc_map_lock(gmap->mm, pmdp, gaddr, &ptl);
-> +	if (!ptep)
-> +		return -ENOMEM;
-> +
-> +	/* Protect and unlock. */
-> +	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
-> +	gmap_pte_op_end(ptl);
-> +	return rc;
->  }
->  
->  /*
-> @@ -896,16 +977,20 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
->  			      unsigned long len, int prot, unsigned long bits)
->  {
->  	unsigned long vmaddr;
-> -	spinlock_t *ptl;
-> -	pte_t *ptep;
-> +	pmd_t *pmdp;
+> @@ -929,7 +929,7 @@ static inline void gmap_pmd_op_end(struct gmap *gmap, pmd_t *pmdp)
+>   * @gaddr: virtual address in the guest address space
+>   * @pmdp: pointer to the pmd associated with the pte
+>   * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
+> - * @bits: pgste notification bits to set
+> + * @bits: notification bits to set
+>   *
+>   * Returns 0 if successfully protected, -ENOMEM if out of memory and
+>   * -EAGAIN if a fixup is needed.
+> @@ -943,6 +943,7 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
 >  	int rc;
+>  	pte_t *ptep;
+>  	spinlock_t *ptl = NULL;
+> +	unsigned long pbits = 0;
 >  
->  	while (len) {
->  		rc = -EAGAIN;
-> -		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
-> -		if (ptep) {
-> -			rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
-> -			gmap_pte_op_end(ptl);
-> +		pmdp = gmap_pmd_op_walk(gmap, gaddr);
-> +		if (pmdp) {
-> +			rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
-> +					      bits);
-> +			if (!rc) {
-> +				len -= PAGE_SIZE;
-> +				gaddr += PAGE_SIZE;
-> +			}
-> +			gmap_pmd_op_end(gmap, pmdp);
-
-This change looks good to me.
-
->  		}
->  		if (rc) {
->  			vmaddr = __gmap_translate(gmap, gaddr);
-> @@ -914,10 +999,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
->  			rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr, prot);
->  			if (rc)
->  				return rc;
-> -			continue;
->  		}
-> -		gaddr += PAGE_SIZE;
-> -		len -= PAGE_SIZE;
->  	}
->  	return 0;
+>  	/* We have no upper segment, let's go back and fix this up. */
+>  	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
+> @@ -952,8 +953,10 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
+>  	if (!ptep)
+>  		return -ENOMEM;
+>  
+> +	pbits |= (bits & GMAP_NOTIFY_MPROT) ? PGSTE_IN_BIT : 0;
+> +	pbits |= (bits & GMAP_NOTIFY_SHADOW) ? PGSTE_VSIE_BIT : 0;
+>  	/* Protect and unlock. */
+> -	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
+> +	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, pbits);
+>  	gmap_pte_op_end(ptl);
+>  	return rc;
 >  }
+> @@ -1028,7 +1031,7 @@ int gmap_mprotect_notify(struct gmap *gmap, unsigned long gaddr,
+>  	if (!MACHINE_HAS_ESOP && prot == PROT_READ)
+>  		return -EINVAL;
+>  	down_read(&gmap->mm->mmap_sem);
+> -	rc = gmap_protect_range(gmap, gaddr, len, prot, PGSTE_IN_BIT);
+> +	rc = gmap_protect_range(gmap, gaddr, len, prot, GMAP_NOTIFY_MPROT);
+>  	up_read(&gmap->mm->mmap_sem);
+>  	return rc;
+>  }
+> @@ -1150,7 +1153,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
+>  		if (ptep) {
+>  			spin_lock(&sg->guest_table_lock);
+>  			rc = ptep_force_prot(parent->mm, paddr, ptep, prot,
+> -					     PGSTE_VSIE_BIT);
+> +					     GMAP_NOTIFY_SHADOW);
+>  			if (!rc)
+>  				gmap_insert_rmap(sg, vmaddr, rmap);
+>  			spin_unlock(&sg->guest_table_lock);
+> @@ -1616,7 +1619,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
+>  	down_read(&parent->mm->mmap_sem);
+>  	rc = gmap_protect_range(parent, asce & _ASCE_ORIGIN,
+>  				((asce & _ASCE_TABLE_LENGTH) + 1) * PAGE_SIZE,
+> -				PROT_READ, PGSTE_VSIE_BIT);
+> +				PROT_READ, GMAP_NOTIFY_SHADOW);
+>  	up_read(&parent->mm->mmap_sem);
+>  	spin_lock(&parent->shadow_lock);
+>  	new->initialized = true;
 > 
 
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
 -- 
 
