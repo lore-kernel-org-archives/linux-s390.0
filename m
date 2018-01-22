@@ -1,66 +1,84 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC/PATCH v2 03/22] s390/mm: add gmap PMD invalidation
- notification
-Date: Mon, 22 Jan 2018 12:56:07 +0100
-Message-ID: <5a4805ea-7b97-60ca-a4a6-e456fe7475c6@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [RFC/PATCH v2 00/22] KVM/s390: Hugetlbfs enablement
+Date: Mon, 22 Jan 2018 12:56:41 +0100
+Message-ID: <5569e1b6-b2c7-0739-1dbd-c3218ede5d4b@de.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
+ <4b9503c6-86dc-c120-8b25-e196037a7e6b@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
+In-Reply-To: <4b9503c6-86dc-c120-8b25-e196037a7e6b@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 13.12.2017 13:53, Janosch Frank wrote:
-> For later migration of huge pages we want to write-protect guest
-> PMDs. While doing this, we have to make absolutely sure, that the
-> guest's lowcore is always accessible when the VCPU is running. With
-> PTEs, this is solved by marking the PGSTEs of the lowcore pages with
-> the invalidation notification bit and kicking the guest out of the SIE
-> via a notifier function if we need to invalidate such a page.
+On 01/22/2018 12:23 PM, David Hildenbrand wrote:
+> On 13.12.2017 13:53, Janosch Frank wrote:
+>> Since the z10 s390 does support 1M pages, but whereas hugetlbfs
+>> support was added quite fast, KVM always used standard 4k pages for
+>> guest backings.
+>>
+>> This patchset adds full support for 1M huge page backings for s390
+>> KVM guests. I.e. we also support VSIE (nested vms) for these guests
+>> and are therefore able to run all combinations of backings for all
+>> layers of guests.
+>>
+>> When running a VSIE guest in a huge page backed guest, we need to
+>> split some huge pages to be able to set granular protection. This way
+>> we avoid a prot/unprot cycle if prefixes and VSIE pages containing
+>> level 3 gmap DAT tables share the same segment, as the prefix has to
+>> be accessible at all times and the VSIE page has to be write
+>> protected.
+>>
+>> TODO:
+>> * Cleanups & Documentation
+>> * Refactoring to get rid of a lot of indents
+>> * Find a way to reduce or beautify bit checks on table entries
+>> * Storage key support for split pages (will be a separate bugfix)
+>> * Regression testing
+>> * Testing large setups
+>> * Testing multi level VSIE
+>>
+>> V2:
+>> 	* Incorporated changes from David's cleanup
+>> 	* Now flushing with IDTE_NODAT for protection transfers.
+>> 	* Added RRBE huge page handling for g2 -> g3 skey emulation
+>> 	* Added documentation for capability
+>> 	* Renamed GMAP_ENTRY_* constants
+>> 	* Added SEGMENT hardware bits constants
+>> 	* Improved some patch descriptions
+>> 	* General small improvements
+>> 	* Introduced pte_from_pmd function
+>>
+>> Accomplished testing:
+>> l2: KVM guest
+>> l3: nested KVM guest
+>>
+>> * 1m l2 guests
+>> * VSIE (l3) 4k and 1m guests on 1m l2
+>> * 1m l2 -> l2 migration with 4k/1m l3 guests
+>> * l3 -> l2 migration
+>> * postcopy works every second try, seems to be QEMU or my setup
+>>
+>>
+>> The initial prototype was started by Dominik Dingel. I had the
+>> pleasure of adding the VSIE part, the protection transfers and the
+>> optimizations. A huge thanks to Christian and Martin who review(ed)
+>> and helped debugging/designing.
+>>
 > 
-> With PMDs we do not have PGSTEs or some other bits we could use in the
-> host PMD. Instead we pick one of the free bits in the gmap PMD. Every
-> time a host pmd will be invalidated, we will check if the respective
-> gmap PMD has the bit set and in that case fire up the notifier.
-> 
-> In the first step we only support setting the invalidation bit, but we
-> do not support restricting access of guest pmds. It will follow
-> shortly.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> ---
->  arch/s390/include/asm/gmap.h    |  3 ++
->  arch/s390/include/asm/pgtable.h |  7 +++-
->  arch/s390/mm/gmap.c             | 92 ++++++++++++++++++++++++++++++++++++-----
->  arch/s390/mm/pgtable.c          |  4 ++
->  4 files changed, 94 insertions(+), 12 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-> index c1bc563..21bb658 100644
-> --- a/arch/s390/include/asm/gmap.h
-> +++ b/arch/s390/include/asm/gmap.h
-> @@ -13,6 +13,9 @@
->  #define GMAP_NOTIFY_SHADOW	0x2
->  #define GMAP_NOTIFY_MPROT	0x1
->  
-> +/* Status bits in the gmap segment entry. */
-> +#define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
-> +
+> Do you have a branch somewhere? I can't find a branch where this applies
+> cleanly. Thanks
 
-_SEGMENT_ENTRY_READ -> 0x0001
+Pushed to 
 
-Is it even okay to reuse that bit?
+git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git hlp_vsie
 
--- 
+https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=hlp_vsie
 
-Thanks,
-
-David / dhildenb
+Thanks for looking into that.
