@@ -1,13 +1,15 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC/PATCH v2 00/22] KVM/s390: Hugetlbfs enablement
-Date: Mon, 22 Jan 2018 12:23:31 +0100
-Message-ID: <4b9503c6-86dc-c120-8b25-e196037a7e6b@redhat.com>
+Subject: Re: [RFC/PATCH v2 01/22] s390/mm: make gmap_protect_range more
+ modular
+Date: Mon, 22 Jan 2018 12:33:00 +0100
+Message-ID: <f8fe917b-a95f-406c-fa6b-b12b2dae6e61@redhat.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1513169613-13509-2-git-send-email-frankja@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
+In-Reply-To: <1513169613-13509-2-git-send-email-frankja@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -17,61 +19,175 @@ Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, li
 List-ID: <linux-s390.vger.kernel.org>
 
 On 13.12.2017 13:53, Janosch Frank wrote:
-> Since the z10 s390 does support 1M pages, but whereas hugetlbfs
-> support was added quite fast, KVM always used standard 4k pages for
-> guest backings.
+> This patch reworks the gmap_protect_range logic and extracts the pte
+> handling into an own function. Also we do now walk to the pmd and make
+> it accessible in the function for later use. This way we can add huge
+> page handling logic more easily.
 > 
-> This patchset adds full support for 1M huge page backings for s390
-> KVM guests. I.e. we also support VSIE (nested vms) for these guests
-> and are therefore able to run all combinations of backings for all
-> layers of guests.
+> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> ---
+>  arch/s390/mm/gmap.c | 102 ++++++++++++++++++++++++++++++++++++++++++++++------
+>  1 file changed, 92 insertions(+), 10 deletions(-)
 > 
-> When running a VSIE guest in a huge page backed guest, we need to
-> split some huge pages to be able to set granular protection. This way
-> we avoid a prot/unprot cycle if prefixes and VSIE pages containing
-> level 3 gmap DAT tables share the same segment, as the prefix has to
-> be accessible at all times and the VSIE page has to be write
-> protected.
-> 
-> TODO:
-> * Cleanups & Documentation
-> * Refactoring to get rid of a lot of indents
-> * Find a way to reduce or beautify bit checks on table entries
-> * Storage key support for split pages (will be a separate bugfix)
-> * Regression testing
-> * Testing large setups
-> * Testing multi level VSIE
-> 
-> V2:
-> 	* Incorporated changes from David's cleanup
-> 	* Now flushing with IDTE_NODAT for protection transfers.
-> 	* Added RRBE huge page handling for g2 -> g3 skey emulation
-> 	* Added documentation for capability
-> 	* Renamed GMAP_ENTRY_* constants
-> 	* Added SEGMENT hardware bits constants
-> 	* Improved some patch descriptions
-> 	* General small improvements
-> 	* Introduced pte_from_pmd function
-> 
-> Accomplished testing:
-> l2: KVM guest
-> l3: nested KVM guest
-> 
-> * 1m l2 guests
-> * VSIE (l3) 4k and 1m guests on 1m l2
-> * 1m l2 -> l2 migration with 4k/1m l3 guests
-> * l3 -> l2 migration
-> * postcopy works every second try, seems to be QEMU or my setup
-> 
-> 
-> The initial prototype was started by Dominik Dingel. I had the
-> pleasure of adding the VSIE part, the protection transfers and the
-> optimizations. A huge thanks to Christian and Martin who review(ed)
-> and helped debugging/designing.
-> 
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 05d459b..8de8bf9 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -874,7 +874,88 @@ static int gmap_pte_op_fixup(struct gmap *gmap, unsigned long gaddr,
+>   */
+>  static void gmap_pte_op_end(spinlock_t *ptl)
+>  {
+> -	spin_unlock(ptl);
+> +	if (ptl)
+> +		spin_unlock(ptl);
+> +}
+> +
+> +/**
+> + * gmap_pmd_op_walk - walk the gmap tables, get the guest table lock
+> + *		      and return the pmd pointer
+> + * @gmap: pointer to guest mapping meta data structure
+> + * @gaddr: virtual address in the guest address space
+> + *
+> + * Returns a pointer to the pmd for a guest address, or NULL
+> + */
+> +static inline pmd_t *gmap_pmd_op_walk(struct gmap *gmap, unsigned long gaddr)
+> +{
+> +	pmd_t *pmdp;
+> +
+> +	spin_lock(&gmap->guest_table_lock);
+> +	pmdp = (pmd_t *) gmap_table_walk(gmap, gaddr, 1);
+> +
+> +	/*
+> +	 * Empty pmds can become large after we give up the
+> +	 * guest_table_lock, so we have to check for pmd_none
+> +	 * here.
+> +	 */
 
-Do you have a branch somewhere? I can't find a branch where this applies
-cleanly. Thanks
+Don't understand that comment. We give up the lock after we're done with
+the pmd either way. So I think this comment can go.
+
+> +	if (!pmdp || pmd_none(*pmdp)) {
+> +		spin_unlock(&gmap->guest_table_lock);
+> +		return NULL;
+> +	}
+> +	/*
+> +	 * For plain 4k guests that do not run under the vsie it
+> +	 * suffices to take the pte lock later on. Thus we can unlock
+> +	 * the guest_table_lock here.
+> +	 */
+
+As discussed, the gmap_is_shadow() check is not needed. The comment
+should be something like
+
+/* 4k page table entries are locked via the pte (pte_alloc_map_lock). */
+
+> +	if (!pmd_large(*pmdp) && !gmap_is_shadow(gmap))
+> +		spin_unlock(&gmap->guest_table_lock);
+> +	return pmdp;
+> +}
+> +
+> +/**
+> + * gmap_pmd_op_end - release the guest_table_lock if needed
+> + * @gmap: pointer to the guest mapping meta data structure
+> + * @pmdp: pointer to the pmd
+> + */
+> +static inline void gmap_pmd_op_end(struct gmap *gmap, pmd_t *pmdp)
+> +{
+> +	if (pmd_large(*pmdp) || gmap_is_shadow(gmap))
+
+As discussed, gmap_is_shadow() can go.
+
+> +		spin_unlock(&gmap->guest_table_lock);
+> +}
+> +
+> +/*
+> + * gmap_protect_pte - remove access rights to memory and set pgste bits
+> + * @gmap: pointer to guest mapping meta data structure
+> + * @gaddr: virtual address in the guest address space
+> + * @pmdp: pointer to the pmd associated with the pte
+> + * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
+> + * @bits: pgste notification bits to set
+> + *
+> + * Returns 0 if successfully protected, -ENOMEM if out of memory and
+> + * -EAGAIN if a fixup is needed.
+> + *
+> + * Expected to be called with sg->mm->mmap_sem in read and
+> + * guest_table_lock held for shadow gmaps.
+> + */
+> +static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
+> +			    pmd_t *pmdp, int prot, unsigned long bits)
+> +{
+> +	int rc;
+> +	pte_t *ptep;
+> +	spinlock_t *ptl = NULL;
+> +
+> +	/* We have no upper segment, let's go back and fix this up. */
+> +	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
+> +		return -EAGAIN;
+
+This is essentially pmd_none(*pmdp), which you already verified in
+gmap_pmd_op_walk().
+
+I suggest requiring for this function that the entry is valid (which is
+always the case) and getting rid of the -EAGAIN return code. Makes this
+function simpler.
+
+> +
+> +	ptep = pte_alloc_map_lock(gmap->mm, pmdp, gaddr, &ptl);
+> +	if (!ptep)
+> +		return -ENOMEM;
+> +
+> +	/* Protect and unlock. */
+> +	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
+> +	gmap_pte_op_end(ptl);
+> +	return rc;
+>  }
+>  
+>  /*
+> @@ -896,16 +977,20 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+>  			      unsigned long len, int prot, unsigned long bits)
+>  {
+>  	unsigned long vmaddr;
+> -	spinlock_t *ptl;
+> -	pte_t *ptep;
+> +	pmd_t *pmdp;
+>  	int rc;
+>  
+>  	while (len) {
+>  		rc = -EAGAIN;
+> -		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
+> -		if (ptep) {
+> -			rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
+> -			gmap_pte_op_end(ptl);
+> +		pmdp = gmap_pmd_op_walk(gmap, gaddr);
+> +		if (pmdp) {
+> +			rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
+> +					      bits);
+> +			if (!rc) {
+> +				len -= PAGE_SIZE;
+> +				gaddr += PAGE_SIZE;
+> +			}
+> +			gmap_pmd_op_end(gmap, pmdp);
+
+This change looks good to me.
+
+>  		}
+>  		if (rc) {
+>  			vmaddr = __gmap_translate(gmap, gaddr);
+> @@ -914,10 +999,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+>  			rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr, prot);
+>  			if (rc)
+>  				return rc;
+> -			continue;
+>  		}
+> -		gaddr += PAGE_SIZE;
+> -		len -= PAGE_SIZE;
+>  	}
+>  	return 0;
+>  }
+> 
 
 
 -- 
