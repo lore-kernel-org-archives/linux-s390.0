@@ -1,84 +1,121 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [RFC/PATCH v2 00/22] KVM/s390: Hugetlbfs enablement
-Date: Mon, 22 Jan 2018 12:56:41 +0100
-Message-ID: <5569e1b6-b2c7-0739-1dbd-c3218ede5d4b@de.ibm.com>
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v2 03/22] s390/mm: add gmap PMD invalidation
+ notification
+Date: Mon, 22 Jan 2018 13:09:40 +0100
+Message-ID: <e67d12fb-706a-fb01-adc3-cb02a2db8604@linux.vnet.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <4b9503c6-86dc-c120-8b25-e196037a7e6b@redhat.com>
+ <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
+ <5a4805ea-7b97-60ca-a4a6-e456fe7475c6@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="qok7rpjoFRDz9S5jYkRz68HsEnqfdZqfO"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <4b9503c6-86dc-c120-8b25-e196037a7e6b@redhat.com>
-Content-Language: en-US
+In-Reply-To: <5a4805ea-7b97-60ca-a4a6-e456fe7475c6@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/22/2018 12:23 PM, David Hildenbrand wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--qok7rpjoFRDz9S5jYkRz68HsEnqfdZqfO
+Content-Type: multipart/mixed; boundary="wjBPeY5rb11T1GdnEsMWgKfscXYQJ94nt";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
+ linux-s390@vger.kernel.org
+Message-ID: <e67d12fb-706a-fb01-adc3-cb02a2db8604@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v2 03/22] s390/mm: add gmap PMD invalidation
+ notification
+References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1513169613-13509-4-git-send-email-frankja@linux.vnet.ibm.com>
+ <5a4805ea-7b97-60ca-a4a6-e456fe7475c6@redhat.com>
+In-Reply-To: <5a4805ea-7b97-60ca-a4a6-e456fe7475c6@redhat.com>
+
+--wjBPeY5rb11T1GdnEsMWgKfscXYQJ94nt
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 22.01.2018 12:56, David Hildenbrand wrote:
 > On 13.12.2017 13:53, Janosch Frank wrote:
->> Since the z10 s390 does support 1M pages, but whereas hugetlbfs
->> support was added quite fast, KVM always used standard 4k pages for
->> guest backings.
->>
->> This patchset adds full support for 1M huge page backings for s390
->> KVM guests. I.e. we also support VSIE (nested vms) for these guests
->> and are therefore able to run all combinations of backings for all
->> layers of guests.
->>
->> When running a VSIE guest in a huge page backed guest, we need to
->> split some huge pages to be able to set granular protection. This way
->> we avoid a prot/unprot cycle if prefixes and VSIE pages containing
->> level 3 gmap DAT tables share the same segment, as the prefix has to
->> be accessible at all times and the VSIE page has to be write
->> protected.
->>
->> TODO:
->> * Cleanups & Documentation
->> * Refactoring to get rid of a lot of indents
->> * Find a way to reduce or beautify bit checks on table entries
->> * Storage key support for split pages (will be a separate bugfix)
->> * Regression testing
->> * Testing large setups
->> * Testing multi level VSIE
->>
->> V2:
->> 	* Incorporated changes from David's cleanup
->> 	* Now flushing with IDTE_NODAT for protection transfers.
->> 	* Added RRBE huge page handling for g2 -> g3 skey emulation
->> 	* Added documentation for capability
->> 	* Renamed GMAP_ENTRY_* constants
->> 	* Added SEGMENT hardware bits constants
->> 	* Improved some patch descriptions
->> 	* General small improvements
->> 	* Introduced pte_from_pmd function
->>
->> Accomplished testing:
->> l2: KVM guest
->> l3: nested KVM guest
->>
->> * 1m l2 guests
->> * VSIE (l3) 4k and 1m guests on 1m l2
->> * 1m l2 -> l2 migration with 4k/1m l3 guests
->> * l3 -> l2 migration
->> * postcopy works every second try, seems to be QEMU or my setup
->>
->>
->> The initial prototype was started by Dominik Dingel. I had the
->> pleasure of adding the VSIE part, the protection transfers and the
->> optimizations. A huge thanks to Christian and Martin who review(ed)
->> and helped debugging/designing.
->>
-> 
-> Do you have a branch somewhere? I can't find a branch where this applies
-> cleanly. Thanks
+>> For later migration of huge pages we want to write-protect guest
+>> PMDs. While doing this, we have to make absolutely sure, that the
+>> guest's lowcore is always accessible when the VCPU is running. With
+>> PTEs, this is solved by marking the PGSTEs of the lowcore pages with
+>> the invalidation notification bit and kicking the guest out of the SIE=
 
-Pushed to 
+>> via a notifier function if we need to invalidate such a page.
+>>
+>> With PMDs we do not have PGSTEs or some other bits we could use in the=
 
-git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git hlp_vsie
+>> host PMD. Instead we pick one of the free bits in the gmap PMD. Every
+>> time a host pmd will be invalidated, we will check if the respective
+>> gmap PMD has the bit set and in that case fire up the notifier.
+>>
+>> In the first step we only support setting the invalidation bit, but we=
 
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=hlp_vsie
+>> do not support restricting access of guest pmds. It will follow
+>> shortly.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+>> ---
+>>  arch/s390/include/asm/gmap.h    |  3 ++
+>>  arch/s390/include/asm/pgtable.h |  7 +++-
+>>  arch/s390/mm/gmap.c             | 92 ++++++++++++++++++++++++++++++++=
+++++-----
+>>  arch/s390/mm/pgtable.c          |  4 ++
+>>  4 files changed, 94 insertions(+), 12 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap=
+=2Eh
+>> index c1bc563..21bb658 100644
+>> --- a/arch/s390/include/asm/gmap.h
+>> +++ b/arch/s390/include/asm/gmap.h
+>> @@ -13,6 +13,9 @@
+>>  #define GMAP_NOTIFY_SHADOW	0x2
+>>  #define GMAP_NOTIFY_MPROT	0x1
+>> =20
+>> +/* Status bits in the gmap segment entry. */
+>> +#define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
+>> +
+>=20
+> _SEGMENT_ENTRY_READ -> 0x0001
+>=20
+> Is it even okay to reuse that bit?
+>=20
 
-Thanks for looking into that.
+It's in the GMAP segment entry, not in the process' segment entry.
+That's why we throw away all software bits from the process entry when
+linking into the gmap table.
+
+
+--wjBPeY5rb11T1GdnEsMWgKfscXYQJ94nt--
+
+--qok7rpjoFRDz9S5jYkRz68HsEnqfdZqfO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJaZdSLAAoJEBcO/8Q8ZEV5TMIP/2mJbjslYAygIxRf922c/vSx
+2ZXvIdv/yjxRnv2qro3Xlcrq9tyIWpaMOrFthPlGNiGESr0/Bbc4IDgBfln7Ovun
+lIZdESoe7NNkxkKgbLLp/0P9kY8/MSXTnTEMkveIqbmPuI57hSWxaSzUYZq0wvbV
+Eqo2VI1VzQoUtJ586AJoj0A+Pj+otc9PWDXmDrFIFnO1Ml0Kw6Kjgob5d1wwdvJG
+ug4a1yNmNkhv9uNrcaZfBvElHgMuOIhXd+eDKrP001/IqOMqB785T1iwRLo1bW5G
+u6m+SLV2WS/ZNl3sdeFFb3DvYZ0ancr3QS2kptXLeYCF/q5Ir0SoJD+S0fIsowvI
+rb2adKU8S5x2xd46Sc7suk63gsoWhQcu7iJ7966Nj6+7DKHK70sB12K6lCw34crB
+1ZFyv5bUZnUdgWrVUWDF9owVj3HiuzkRKp6X54Xm2SngFVMB7t5cQiOzZKNpawXs
+ES82Mpv9NLIdNVH8fOPji26ezfNptSe4U46IPYASVfdybXbO6AVEH5jr5nu10C4Q
+i84hvrzMwd9z0IIYX4uM8ybRSVixSQlZrfMo836A+I1WmLbqrOAf0zkq82nfUX46
+AeTjv/TEsyj4kChfpiQzv3nRzaFoVv8BSDmvcRaVBxnYKEsrGvTH9k8/J3Q0E55E
+zYGOsvgCUYVgUQCpprWC
+=FvNV
+-----END PGP SIGNATURE-----
+
+--qok7rpjoFRDz9S5jYkRz68HsEnqfdZqfO--
