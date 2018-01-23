@@ -1,7 +1,7 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 3/4] KVM: s390: introduce and use kvm_s390_clear_cpuflags()
-Date: Tue, 23 Jan 2018 18:05:30 +0100
-Message-ID: <20180123170531.13687-4-david@redhat.com>
+Subject: [PATCH v1 4/4] KVM: s390: introduce and use kvm_s390_test_cpuflags()
+Date: Tue, 23 Jan 2018 18:05:31 +0100
+Message-ID: <20180123170531.13687-5-david@redhat.com>
 References: <20180123170531.13687-1-david@redhat.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180123170531.13687-1-david@redhat.com>
@@ -12,139 +12,132 @@ To: KVM <kvm@vger.kernel.org>
 Cc: linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Use it just like kvm_s390_set_cpuflags().
+Use it just like kvm_s390_set_cpuflags() and kvm_s390_clear_cpuflags().
 
-Suggested-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kvm/interrupt.c |  8 ++++----
- arch/s390/kvm/kvm-s390.c  | 11 +++++------
- arch/s390/kvm/kvm-s390.h  |  5 +++++
- arch/s390/kvm/priv.c      |  2 +-
- arch/s390/kvm/vsie.c      |  2 +-
- 5 files changed, 16 insertions(+), 12 deletions(-)
+ arch/s390/kvm/interrupt.c |  2 +-
+ arch/s390/kvm/kvm-s390.c  |  2 +-
+ arch/s390/kvm/kvm-s390.h  |  7 ++++++-
+ arch/s390/kvm/priv.c      |  4 ++--
+ arch/s390/kvm/sigp.c      | 14 +++++---------
+ 5 files changed, 15 insertions(+), 14 deletions(-)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 404a127b1921..8687aed9a268 100644
+index 8687aed9a268..4b483b48436a 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -111,7 +111,7 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- 
- 	if (!kvm_s390_use_sca_entries())
- 		return;
--	atomic_andnot(CPUSTAT_ECALL_PEND, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
- 	read_lock(&vcpu->kvm->arch.sca_lock);
- 	if (vcpu->kvm->arch.use_esca) {
- 		struct esca_block *sca = vcpu->kvm->arch.sca;
-@@ -283,14 +283,14 @@ static void __set_cpu_idle(struct kvm_vcpu *vcpu)
- 
- static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
+@@ -36,7 +36,7 @@ static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
  {
--	atomic_andnot(CPUSTAT_WAIT, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
- 	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
- }
+ 	int c, scn;
  
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
- {
--	atomic_andnot(CPUSTAT_IO_INT | CPUSTAT_EXT_INT | CPUSTAT_STOP_INT,
--		    &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_IO_INT | CPUSTAT_EXT_INT |
-+				      CPUSTAT_STOP_INT);
- 	vcpu->arch.sie_block->lctl = 0x0000;
- 	vcpu->arch.sie_block->ictl &= ~(ICTL_LPSW | ICTL_STCTL | ICTL_PINT);
+-	if (!(atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_ECALL_PEND))
++	if (!kvm_s390_test_cpuflags(vcpu, CPUSTAT_ECALL_PEND))
+ 		return 0;
  
+ 	BUG_ON(!kvm_s390_use_sca_entries());
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5680b12add68..d27a247799f0 100644
+index d27a247799f0..0bd0e284e355 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -2327,7 +2327,7 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- 	vcpu->cpu = -1;
- 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
- 		__stop_cpu_timer_accounting(vcpu);
--	atomic_andnot(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_RUNNING);
- 	vcpu->arch.enabled_gmap = gmap_get_enabled();
- 	gmap_disable(vcpu->arch.enabled_gmap);
+@@ -2905,7 +2905,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
  
-@@ -2845,14 +2845,14 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- 		if (dbg->control & KVM_GUESTDBG_USE_HW_BP)
- 			rc = kvm_s390_import_bp_data(vcpu, dbg);
- 	} else {
--		atomic_andnot(CPUSTAT_P, &vcpu->arch.sie_block->cpuflags);
-+		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_P);
- 		vcpu->arch.guestdbg.last_bp = 0;
- 	}
- 
- 	if (rc) {
- 		vcpu->guest_debug = 0;
- 		kvm_s390_clear_bp_data(vcpu);
--		atomic_andnot(CPUSTAT_P, &vcpu->arch.sie_block->cpuflags);
-+		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_P);
- 	}
- 
- out:
-@@ -2949,8 +2949,7 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- 	if (kvm_check_request(KVM_REQ_DISABLE_IBS, vcpu)) {
- 		if (ibs_enabled(vcpu)) {
- 			trace_kvm_s390_enable_disable_ibs(vcpu->vcpu_id, 0);
--			atomic_andnot(CPUSTAT_IBS,
--					  &vcpu->arch.sie_block->cpuflags);
-+			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_IBS);
- 		}
- 		goto retry;
- 	}
-@@ -3600,7 +3599,7 @@ void kvm_s390_vcpu_start(struct kvm_vcpu *vcpu)
- 		__disable_ibs_on_all_vcpus(vcpu->kvm);
- 	}
- 
--	atomic_andnot(CPUSTAT_STOPPED, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	/*
- 	 * Another VCPU might have used IBS while we were offline.
- 	 * Let's play safe and flush the VCPU at startup.
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index a9f2c8d1833d..f727313a706f 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -52,6 +52,11 @@ static inline void kvm_s390_set_cpuflags(struct kvm_vcpu *vcpu, u32 flags)
- 	atomic_or(flags, &vcpu->arch.sie_block->cpuflags);
+ static bool ibs_enabled(struct kvm_vcpu *vcpu)
+ {
+-	return atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_IBS;
++	return kvm_s390_test_cpuflags(vcpu, CPUSTAT_IBS);
  }
  
-+static inline void kvm_s390_clear_cpuflags(struct kvm_vcpu *vcpu, u32 flags)
+ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index f727313a706f..f110fa96807e 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -57,9 +57,14 @@ static inline void kvm_s390_clear_cpuflags(struct kvm_vcpu *vcpu, u32 flags)
+ 	atomic_andnot(flags, &vcpu->arch.sie_block->cpuflags);
+ }
+ 
++static inline bool kvm_s390_test_cpuflags(struct kvm_vcpu *vcpu, u32 flags)
 +{
-+	atomic_andnot(flags, &vcpu->arch.sie_block->cpuflags);
++	return (atomic_read(&vcpu->arch.sie_block->cpuflags) & flags) == flags;
 +}
 +
  static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
  {
- 	return atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_STOPPED;
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 572496c688cc..de4b13eca3ab 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -210,7 +210,7 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
- 	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
- 	if (!rc) {
- 		if (atomic_read(&sie_block->cpuflags) & CPUSTAT_KSS)
--			atomic_andnot(CPUSTAT_KSS, &sie_block->cpuflags);
-+			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
- 		else
- 			sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE |
- 					     ICTL_RRBE);
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 902b5befb691..35c94b6632db 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -916,7 +916,7 @@ static void register_shadow_scb(struct kvm_vcpu *vcpu,
-  */
- static void unregister_shadow_scb(struct kvm_vcpu *vcpu)
- {
--	atomic_andnot(CPUSTAT_WAIT, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
- 	WRITE_ONCE(vcpu->arch.vsie_block, NULL);
+-	return atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_STOPPED;
++	return kvm_s390_test_cpuflags(vcpu, CPUSTAT_STOPPED);
  }
  
+ static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index de4b13eca3ab..c11528faabf1 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -203,13 +203,13 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
+ 
+ 	trace_kvm_s390_skey_related_inst(vcpu);
+ 	if (!(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
+-	    !(atomic_read(&sie_block->cpuflags) & CPUSTAT_KSS))
++	    !kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
+ 		return rc;
+ 
+ 	rc = s390_enable_skey();
+ 	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
+ 	if (!rc) {
+-		if (atomic_read(&sie_block->cpuflags) & CPUSTAT_KSS)
++		if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
+ 			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
+ 		else
+ 			sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE |
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index 5cafd1e2651b..683036c1c92a 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -20,19 +20,18 @@
+ static int __sigp_sense(struct kvm_vcpu *vcpu, struct kvm_vcpu *dst_vcpu,
+ 			u64 *reg)
+ {
+-	int cpuflags;
++	const bool stopped = kvm_s390_test_cpuflags(dst_vcpu, CPUSTAT_STOPPED);
+ 	int rc;
+ 	int ext_call_pending;
+ 
+-	cpuflags = atomic_read(&dst_vcpu->arch.sie_block->cpuflags);
+ 	ext_call_pending = kvm_s390_ext_call_pending(dst_vcpu);
+-	if (!(cpuflags & CPUSTAT_STOPPED) && !ext_call_pending)
++	if (!stopped && !ext_call_pending)
+ 		rc = SIGP_CC_ORDER_CODE_ACCEPTED;
+ 	else {
+ 		*reg &= 0xffffffff00000000UL;
+ 		if (ext_call_pending)
+ 			*reg |= SIGP_STATUS_EXT_CALL_PENDING;
+-		if (cpuflags & CPUSTAT_STOPPED)
++		if (stopped)
+ 			*reg |= SIGP_STATUS_STOPPED;
+ 		rc = SIGP_CC_STATUS_STORED;
+ 	}
+@@ -205,11 +204,9 @@ static int __sigp_store_status_at_addr(struct kvm_vcpu *vcpu,
+ 				       struct kvm_vcpu *dst_vcpu,
+ 				       u32 addr, u64 *reg)
+ {
+-	int flags;
+ 	int rc;
+ 
+-	flags = atomic_read(&dst_vcpu->arch.sie_block->cpuflags);
+-	if (!(flags & CPUSTAT_STOPPED)) {
++	if (!kvm_s390_test_cpuflags(dst_vcpu, CPUSTAT_STOPPED)) {
+ 		*reg &= 0xffffffff00000000UL;
+ 		*reg |= SIGP_STATUS_INCORRECT_STATE;
+ 		return SIGP_CC_STATUS_STORED;
+@@ -236,8 +233,7 @@ static int __sigp_sense_running(struct kvm_vcpu *vcpu,
+ 		return SIGP_CC_STATUS_STORED;
+ 	}
+ 
+-	if (atomic_read(&dst_vcpu->arch.sie_block->cpuflags) &
+-	    CPUSTAT_RUNNING) {
++	if (kvm_s390_test_cpuflags(dst_vcpu, CPUSTAT_RUNNING)) {
+ 		/* running */
+ 		rc = SIGP_CC_ORDER_CODE_ACCEPTED;
+ 	} else {
 -- 
 2.14.3
