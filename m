@@ -1,105 +1,104 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] KVM: s390: add proper locking for CMMA migration bitmap
-Date: Mon, 8 Jan 2018 14:56:34 +0100
-Message-ID: <20180108145634.1666539f.cohuck@redhat.com>
-References: <20171222112145.80485-1-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v1] s390x/mm: simplify gmap_protect_rmap()
+Date: Tue, 23 Jan 2018 22:26:18 +0100
+Message-ID: <20180123212618.32611-1-david@redhat.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171222112145.80485-1-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 22 Dec 2017 12:21:45 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+We never call it with anything but PROT_READ. This is a left over from
+an old prototype. For creation of shadow page tables, we always only
+have to protect the original table in guest memory from write accesses,
+so we can properly invalidate the shadow on writes. Other protections
+are not needed.
 
-> Some parts of the cmma migration bitmap is already protected
-> with the kvm->lock (e.g. the migration start). On the other
-> hand the read of the cmma bits is not protected against a
-> concurrent free, neither is the emulation of the ESSA instruction.
-> Let's extend the locking to all related ioctls by using
-> the slots lock and wait for the freeing until all unlocked
-> users have finished (those hold kvm->srcu for read).
-> 
-> Reported-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: stable@vger.kernel.org # 4.13+
-> Fixes: 190df4a212a7 (KVM: s390: CMMA tracking, ESSA emulation, migration mode)
-> ---
->  arch/s390/kvm/kvm-s390.c | 14 +++++++++-----
->  1 file changed, 9 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 3373d8dff131..4458d7fe45df 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -837,6 +837,8 @@ static int kvm_s390_vm_stop_migration(struct kvm *kvm)
->  
->  	if (kvm->arch.use_cmma) {
->  		kvm_s390_sync_request_broadcast(kvm, KVM_REQ_STOP_MIGRATION);
-> +		/* We have to wait for the essa emulation to finish */
-> +		synchronize_srcu(&kvm->srcu);
->  		vfree(mgs->pgste_bitmap);
->  	}
->  	kfree(mgs);
-> @@ -846,14 +848,12 @@ static int kvm_s390_vm_stop_migration(struct kvm *kvm)
->  static int kvm_s390_vm_set_migration(struct kvm *kvm,
->  				     struct kvm_device_attr *attr)
->  {
-> -	int idx, res = -ENXIO;
-> +	int res = -ENXIO;
->  
-> -	mutex_lock(&kvm->lock);
-> +	mutex_lock(&kvm->slots_lock);
->  	switch (attr->attr) {
->  	case KVM_S390_VM_MIGRATION_START:
-> -		idx = srcu_read_lock(&kvm->srcu);
->  		res = kvm_s390_vm_start_migration(kvm);
-> -		srcu_read_unlock(&kvm->srcu, idx);
->  		break;
->  	case KVM_S390_VM_MIGRATION_STOP:
->  		res = kvm_s390_vm_stop_migration(kvm);
-> @@ -861,7 +861,7 @@ static int kvm_s390_vm_set_migration(struct kvm *kvm,
->  	default:
->  		break;
->  	}
-> -	mutex_unlock(&kvm->lock);
-> +	mutex_unlock(&kvm->slots_lock);
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ arch/s390/mm/gmap.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-This changes the locking from the one described for
-kvm_s390_vm_{start,stop}_migration() - the comments there should be
-updated.
-
->  
->  	return res;
->  }
-> @@ -1763,7 +1763,9 @@ long kvm_arch_vm_ioctl(struct file *filp,
->  		r = -EFAULT;
->  		if (copy_from_user(&args, argp, sizeof(args)))
->  			break;
-> +		mutex_lock(&kvm->slots_lock);
->  		r = kvm_s390_get_cmma_bits(kvm, &args);
-> +		mutex_unlock(&kvm->slots_lock);
->  		if (!r) {
->  			r = copy_to_user(argp, &args, sizeof(args));
->  			if (r)
-> @@ -1777,7 +1779,9 @@ long kvm_arch_vm_ioctl(struct file *filp,
->  		r = -EFAULT;
->  		if (copy_from_user(&args, argp, sizeof(args)))
->  			break;
-> +		mutex_lock(&kvm->slots_lock);
->  		r = kvm_s390_set_cmma_bits(kvm, &args);
-> +		mutex_unlock(&kvm->slots_lock);
->  		break;
->  	}
->  	default:
-
-Add a comment to kvm_s390_{get,set}_cmma_bits() that they are supposed
-to be called with the slot_lock held and why?
-
-The change in locking seems fine to me.
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 54cfd51a5a27..a7e05c5dea70 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1021,18 +1021,17 @@ static inline void gmap_insert_rmap(struct gmap *sg, unsigned long vmaddr,
+ }
+ 
+ /**
+- * gmap_protect_rmap - modify access rights to memory and create an rmap
++ * gmap_protect_rmap - restrict access rights to memory (RO) and create an rmap
+  * @sg: pointer to the shadow guest address space structure
+  * @raddr: rmap address in the shadow gmap
+  * @paddr: address in the parent guest address space
+  * @len: length of the memory area to protect
+- * @prot: indicates access rights: none, read-only or read-write
+  *
+  * Returns 0 if successfully protected and the rmap was created, -ENOMEM
+  * if out of memory and -EFAULT if paddr is invalid.
+  */
+ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
+-			     unsigned long paddr, unsigned long len, int prot)
++			     unsigned long paddr, unsigned long len)
+ {
+ 	struct gmap *parent;
+ 	struct gmap_rmap *rmap;
+@@ -1060,7 +1059,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
+ 		ptep = gmap_pte_op_walk(parent, paddr, &ptl);
+ 		if (ptep) {
+ 			spin_lock(&sg->guest_table_lock);
+-			rc = ptep_force_prot(parent->mm, paddr, ptep, prot,
++			rc = ptep_force_prot(parent->mm, paddr, ptep, PROT_READ,
+ 					     PGSTE_VSIE_BIT);
+ 			if (!rc)
+ 				gmap_insert_rmap(sg, vmaddr, rmap);
+@@ -1070,7 +1069,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
+ 		radix_tree_preload_end();
+ 		if (rc) {
+ 			kfree(rmap);
+-			rc = gmap_pte_op_fixup(parent, paddr, vmaddr, prot);
++			rc = gmap_pte_op_fixup(parent, paddr, vmaddr, PROT_READ);
+ 			if (rc)
+ 				return rc;
+ 			continue;
+@@ -1609,7 +1608,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
+ 	origin = r2t & _REGION_ENTRY_ORIGIN;
+ 	offset = ((r2t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((r2t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+-	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
++	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
+ 	spin_lock(&sg->guest_table_lock);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 4);
+@@ -1692,7 +1691,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 	origin = r3t & _REGION_ENTRY_ORIGIN;
+ 	offset = ((r3t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((r3t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+-	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
++	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
+ 	spin_lock(&sg->guest_table_lock);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 3);
+@@ -1776,7 +1775,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
+ 	origin = sgt & _REGION_ENTRY_ORIGIN;
+ 	offset = ((sgt & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((sgt & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+-	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
++	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
+ 	spin_lock(&sg->guest_table_lock);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 2);
+@@ -1895,7 +1894,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
+ 	/* Make pgt read-only in parent gmap page table (not the pgste) */
+ 	raddr = (saddr & _SEGMENT_MASK) | _SHADOW_RMAP_SEGMENT;
+ 	origin = pgt & _SEGMENT_ENTRY_ORIGIN & PAGE_MASK;
+-	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE, PROT_READ);
++	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE);
+ 	spin_lock(&sg->guest_table_lock);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 1);
+-- 
+2.14.3
