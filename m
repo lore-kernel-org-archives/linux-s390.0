@@ -1,99 +1,102 @@
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Subject: [PATCH v2 5/5] perf trace: Remove audit-libs dependency if syscall tables are present
-Date: Fri, 19 Jan 2018 09:56:17 +0100
-Message-ID: <1516352177-11106-6-git-send-email-brueckner@linux.vnet.ibm.com>
-References: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
-Return-path: <linux-perf-users-owner@vger.kernel.org>
-In-Reply-To: <1516352177-11106-1-git-send-email-brueckner@linux.vnet.ibm.com>
-Sender: linux-perf-users-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-perf-users/>
-List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Thomas-Mich Richter <tmricht@linux.vnet.ibm.com>, Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH 1/5] prctl: add PR_ISOLATE_BP process control
+Date: Tue, 23 Jan 2018 14:07:01 +0100
+Message-ID: <1516712825-2917-2-git-send-email-schwidefsky@de.ibm.com>
+References: <1516712825-2917-1-git-send-email-schwidefsky@de.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1516712825-2917-1-git-send-email-schwidefsky@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-Change the Makefile and build process to no longer require audit-libs
-interfaces when the architecture provides system call tables.
+Add the PR_ISOLATE_BP operation to prctl. The effect of the process
+control is to make all branch prediction entries created by the execution
+of the user space code of this task not applicable to kernel code or the
+code of any other task.
 
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
+This can be achieved by the architecture specific implementation
+in different ways, e.g. by limiting the branch predicion for the task,
+or by clearing the branch prediction tables on each context switch, or
+by tagging the branch prediction entries in a suitable way.
+
+The architecture code needs to define the ISOLATE_BP macro to implement
+the hardware specific details of the branch prediction isolation.
+
+The control can not be removed from a task once it is activated and it
+is inherited by all children of the task.
+
+The user space wrapper to start a program with the isolated branch
+prediction:
+
+int main(int argc, char *argv[], char *envp[])
+{
+	int rc;
+
+	if (argc < 2) {
+		fprintf(stderr, "Usage: %s <file-to-exec> <arguments>\n",
+			argv[0]);
+		exit(EXIT_FAILURE);
+	}
+
+	rc = prctl(PR_ISOLATE_BP);
+	if (rc) {
+		perror("PR_ISOLATE_BP");
+		exit(EXIT_FAILURE);
+	}
+	execve(argv[1], argv + 1, envp);
+	perror("execve");
+	exit(EXIT_FAILURE);
+}
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- tools/perf/Makefile.config          | 10 ++++++++--
- tools/perf/builtin-help.c           |  2 +-
- tools/perf/perf.c                   |  4 ++--
- tools/perf/util/generate-cmdlist.sh |  2 +-
- 4 files changed, 12 insertions(+), 6 deletions(-)
+ include/uapi/linux/prctl.h | 8 ++++++++
+ kernel/sys.c               | 6 ++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index 12dec6e..f02f370 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -533,8 +533,14 @@ endif
+diff --git a/include/uapi/linux/prctl.h b/include/uapi/linux/prctl.h
+index af5f8c2..e7b84c9 100644
+--- a/include/uapi/linux/prctl.h
++++ b/include/uapi/linux/prctl.h
+@@ -207,4 +207,12 @@ struct prctl_mm_map {
+ # define PR_SVE_VL_LEN_MASK		0xffff
+ # define PR_SVE_VL_INHERIT		(1 << 17) /* inherit across exec */
  
- ifndef NO_LIBAUDIT
-   ifneq ($(feature-libaudit), 1)
--    msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
--    NO_LIBAUDIT := 1
-+    ifeq ($(NO_SYSCALL_TABLE), 1)
-+      msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
-+      NO_LIBAUDIT := 1
-+    else
-+      # With syscall table support, auditlibs are no longer required to build
-+      # the trace tool.
-+      $(call detected,CONFIG_AUDIT)
-+    endif
-   else
-     CFLAGS += -DHAVE_LIBAUDIT_SUPPORT
-     EXTLIBS += -laudit
-diff --git a/tools/perf/builtin-help.c b/tools/perf/builtin-help.c
-index a0f7ed2..4aca13f 100644
---- a/tools/perf/builtin-help.c
-+++ b/tools/perf/builtin-help.c
-@@ -439,7 +439,7 @@ int cmd_help(int argc, const char **argv)
- #ifdef HAVE_LIBELF_SUPPORT
- 		"probe",
++/*
++ * Prevent branch prediction entries created by the execution of
++ * user space code of this task to be used in any other context.
++ * This makes it impossible for malicious user space code to train
++ * a branch in the kernel code or in another task to be mispredicted.
++ */
++#define PR_ISOLATE_BP			52
++
+ #endif /* _LINUX_PRCTL_H */
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 83ffd7d..e41cb2f 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -117,6 +117,9 @@
+ #ifndef SVE_GET_VL
+ # define SVE_GET_VL()		(-EINVAL)
  #endif
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 		"trace",
- #endif
- 	NULL };
-diff --git a/tools/perf/perf.c b/tools/perf/perf.c
-index 62b1351..1b3fc8e 100644
---- a/tools/perf/perf.c
-+++ b/tools/perf/perf.c
-@@ -73,7 +73,7 @@ struct cmd_struct {
- 	{ "lock",	cmd_lock,	0 },
- 	{ "kvm",	cmd_kvm,	0 },
- 	{ "test",	cmd_test,	0 },
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 	{ "trace",	cmd_trace,	0 },
- #endif
- 	{ "inject",	cmd_inject,	0 },
-@@ -485,7 +485,7 @@ int main(int argc, const char **argv)
- 		argv[0] = cmd;
- 	}
- 	if (strstarts(cmd, "trace")) {
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 		setup_path();
- 		argv[0] = "trace";
- 		return cmd_trace(argc, argv);
-diff --git a/tools/perf/util/generate-cmdlist.sh b/tools/perf/util/generate-cmdlist.sh
-index 9bbcec4..ff17920 100755
---- a/tools/perf/util/generate-cmdlist.sh
-+++ b/tools/perf/util/generate-cmdlist.sh
-@@ -38,7 +38,7 @@ do
- done
- echo "#endif /* HAVE_LIBELF_SUPPORT */"
++#ifndef ISOLATE_BP
++# define ISOLATE_BP()		(-EINVAL)
++#endif
  
--echo "#ifdef HAVE_LIBAUDIT_SUPPORT"
-+echo "#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)"
- sed -n -e 's/^perf-\([^ 	]*\)[ 	].* audit*/\1/p' command-list.txt |
- sort |
- while read cmd
+ /*
+  * this is where the system-wide overflow UID and GID are defined, for
+@@ -2398,6 +2401,9 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
+ 	case PR_SVE_GET_VL:
+ 		error = SVE_GET_VL();
+ 		break;
++	case PR_ISOLATE_BP:
++		error = ISOLATE_BP();
++		break;
+ 	default:
+ 		error = -EINVAL;
+ 		break;
 -- 
-1.8.3.1
+2.7.4
