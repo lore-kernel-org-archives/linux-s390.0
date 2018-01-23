@@ -1,51 +1,34 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 2/5] s390/alternative: use a copy of the facility bit
- mask
-Date: Tue, 23 Jan 2018 16:04:35 +0100
-Message-ID: <20180123160435.2900d8c6.cohuck@redhat.com>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: [PATCH 1/5] prctl: add PR_ISOLATE_BP process control
+Date: Tue, 23 Jan 2018 18:07:19 +0100
+Message-ID: <20180123170719.GA4154@isilmar-4.linta.de>
 References: <1516712825-2917-1-git-send-email-schwidefsky@de.ibm.com>
-        <1516712825-2917-3-git-send-email-schwidefsky@de.ibm.com>
-        <20180123145947.72bb1cd2.cohuck@redhat.com>
-        <20180123154006.14fb7ce0@mschwideX1>
+ <1516712825-2917-2-git-send-email-schwidefsky@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180123154006.14fb7ce0@mschwideX1>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1516712825-2917-2-git-send-email-schwidefsky@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>, w@1wt.eu, keescook@chromium.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 23 Jan 2018 15:40:06 +0100
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+On Tue, Jan 23, 2018 at 02:07:01PM +0100, Martin Schwidefsky wrote:
+> Add the PR_ISOLATE_BP operation to prctl. The effect of the process
+> control is to make all branch prediction entries created by the execution
+> of the user space code of this task not applicable to kernel code or the
+> code of any other task.
 
-> On Tue, 23 Jan 2018 14:59:47 +0100
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Tue, 23 Jan 2018 14:07:02 +0100
-> > Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
-> >   
-> > > To be able to switch off specific CPU alternatives with kernel parameters
-> > > make a copy of the facility bit mask provided by STFLE and use the copy
-> > > for the decision to apply an alternative.
-> > > 
-> > > Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> > > ---
-> > >  arch/s390/include/asm/facility.h | 18 ++++++++++++++++++
-> > >  arch/s390/include/asm/lowcore.h  |  3 ++-
-> > >  arch/s390/kernel/alternative.c   |  3 ++-
-> > >  arch/s390/kernel/early.c         |  3 +++
-> > >  arch/s390/kernel/setup.c         |  4 +++-
-> > >  arch/s390/kernel/smp.c           |  4 +++-
-> > >  6 files changed, 31 insertions(+), 4 deletions(-)    
-> > 
-> > You have dropped various r-bs (including mine). Has this patch been
-> > changed? (Doesn't look like it.)  
->  
-> Added your and Davids r-b to patch #2, as well as your a-b to patch #4.
-> 
+What is the rationale for requiring a per-process *opt-in* for this added
+protection?
 
-OK, thx.
+For KPTI on x86, the exact opposite approach is being discussed (see, e.g.
+http://lkml.kernel.org/r/1515612500-14505-1-git-send-email-w@1wt.eu ): By
+default, play it safe, with KPTI enabled. But for "trusted" processes, one
+may opt out using prctrl.
+
+Thanks,
+	Dominik
