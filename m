@@ -1,7 +1,7 @@
 From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH 14/43] perf trace: Remove audit-libs dependency if syscall tables are present
-Date: Tue, 23 Jan 2018 10:12:22 -0300
-Message-ID: <20180123131251.28197-15-acme@kernel.org>
+Subject: [PATCH 13/43] perf trace: Obtain errno strings by using arch_syscalls__strerrno()
+Date: Tue, 23 Jan 2018 10:12:21 -0300
+Message-ID: <20180123131251.28197-14-acme@kernel.org>
 References: <20180123131251.28197-1-acme@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180123131251.28197-1-acme@kernel.org>
@@ -14,19 +14,20 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 
-Change the Makefile and build process to no longer require audit-libs
-interfaces when the architecture provides system call tables.
+Replace the errno_to_name() from the audit-libs with the newly
+introduced arch_syscalls__strerrno() function.
 
-Committer notes:
+With this change:
 
-Its not enough to hook into the NO_LIBAUDIT makefile block, we need to
-define a CONFIG_TRACE that gets selected by both architectures
-generating the syscall tables from the kernel headers and from detecting
-the availability of libaudit.
+1.  With replacing errno_to_name() from audit-libs, perf trace
+    does no longer require audit-lib interfaces.
 
-With that in place we will not link against libaudit even if the
-necessary files are available for that, in fact we will not even try to
-detect its availability, speeding up a bit the feature detection phase.
+2. In addition to 1, the audit-libs dependency can be removed
+   for architectures that support syscall tables in perf.
+   This is achieved in a follow-up commit.
+
+3. With the architecture specific errno number/name mapping,
+   perf trace reports can work across architectures.
 
 Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
@@ -34,130 +35,71 @@ Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Michael Petlan <mpetlan@redhat.com>
 Cc: linux-s390@vger.kernel.org
-LPU-Reference: 1516352177-11106-6-git-send-email-brueckner@linux.vnet.ibm.com
-Link: https://lkml.kernel.org/n/tip-j68lub6ipm8apvy52vd3l4cm@git.kernel.org
+LPU-Reference: 1516352177-11106-5-git-send-email-brueckner@linux.vnet.ibm.com
+Link: https://lkml.kernel.org/n/tip-xjvoqzhwmu4wn4kl9ng11rvs@git.kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- tools/perf/Build                    |  4 ++--
- tools/perf/Makefile.config          | 20 ++++++++++++--------
- tools/perf/builtin-help.c           |  2 +-
- tools/perf/perf.c                   |  4 ++--
- tools/perf/util/Build               |  2 +-
- tools/perf/util/generate-cmdlist.sh |  2 +-
- 6 files changed, 19 insertions(+), 15 deletions(-)
+ tools/perf/builtin-trace.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/Build b/tools/perf/Build
-index b48ca40fccf9..e5232d567611 100644
---- a/tools/perf/Build
-+++ b/tools/perf/Build
-@@ -25,7 +25,7 @@ perf-y += builtin-data.o
- perf-y += builtin-version.o
- perf-y += builtin-c2c.o
+diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
+index 531d43bf57e1..7dece5e0cdbb 100644
+--- a/tools/perf/builtin-trace.c
++++ b/tools/perf/builtin-trace.c
+@@ -21,6 +21,7 @@
+ #include "builtin.h"
+ #include "util/color.h"
+ #include "util/debug.h"
++#include "util/env.h"
+ #include "util/event.h"
+ #include "util/evlist.h"
+ #include <subcmd/exec-cmd.h>
+@@ -45,14 +46,12 @@
  
--perf-$(CONFIG_AUDIT) += builtin-trace.o
-+perf-$(CONFIG_TRACE) += builtin-trace.o
- perf-$(CONFIG_LIBELF) += builtin-probe.o
+ #include <errno.h>
+ #include <inttypes.h>
+-#include <libaudit.h> /* FIXME: Still needed for audit_errno_to_name */
+ #include <poll.h>
+ #include <signal.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <linux/err.h>
+ #include <linux/filter.h>
+-#include <linux/audit.h>
+ #include <linux/kernel.h>
+ #include <linux/random.h>
+ #include <linux/stringify.h>
+@@ -545,6 +544,7 @@ static size_t syscall_arg__scnprintf_getrandom_flags(char *bf, size_t size,
+ 	  { .scnprintf	= SCA_STRARRAY, \
+ 	    .parm	= &strarray__##array, }
  
- perf-y += bench/
-@@ -50,6 +50,6 @@ libperf-y += util/
- libperf-y += arch/
- libperf-y += ui/
- libperf-y += scripts/
--libperf-$(CONFIG_AUDIT) += trace/beauty/
-+libperf-$(CONFIG_TRACE) += trace/beauty/
++#include "trace/beauty/arch_errno_names.c"
+ #include "trace/beauty/eventfd.c"
+ #include "trace/beauty/flock.c"
+ #include "trace/beauty/futex_op.c"
+@@ -1660,6 +1660,14 @@ static int trace__fprintf_callchain(struct trace *trace, struct perf_sample *sam
+ 	return sample__fprintf_callchain(sample, 38, print_opts, &callchain_cursor, trace->output);
+ }
  
- gtk-y += ui/gtk/
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index 92265b32dddd..a042ccca4e93 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -531,14 +531,18 @@ ifndef NO_LIBUNWIND
-   EXTLIBS += $(EXTLIBS_LIBUNWIND)
- endif
++static const char *errno_to_name(struct perf_evsel *evsel, int err)
++{
++	struct perf_env *env = perf_evsel__env(evsel);
++	const char *arch_name = perf_env__arch(env);
++
++	return arch_syscalls__strerrno(arch_name, err);
++}
++
+ static int trace__sys_exit(struct trace *trace, struct perf_evsel *evsel,
+ 			   union perf_event *event __maybe_unused,
+ 			   struct perf_sample *sample)
+@@ -1730,7 +1738,7 @@ static int trace__sys_exit(struct trace *trace, struct perf_evsel *evsel,
+ errno_print: {
+ 		char bf[STRERR_BUFSIZE];
+ 		const char *emsg = str_error_r(-ret, bf, sizeof(bf)),
+-			   *e = audit_errno_to_name(-ret);
++			   *e = errno_to_name(evsel, -ret);
  
--ifndef NO_LIBAUDIT
--  ifneq ($(feature-libaudit), 1)
--    msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
--    NO_LIBAUDIT := 1
--  else
--    CFLAGS += -DHAVE_LIBAUDIT_SUPPORT
--    EXTLIBS += -laudit
--    $(call detected,CONFIG_AUDIT)
-+ifeq ($(NO_SYSCALL_TABLE),0)
-+  $(call detected,CONFIG_TRACE)
-+else
-+  ifndef NO_LIBAUDIT
-+    ifneq ($(feature-libaudit), 1)
-+      msg := $(warning No libaudit.h found, disables 'trace' tool, please install audit-libs-devel or libaudit-dev);
-+      NO_LIBAUDIT := 1
-+    else
-+      CFLAGS += -DHAVE_LIBAUDIT_SUPPORT
-+      EXTLIBS += -laudit
-+      $(call detected,CONFIG_TRACE)
-+    endif
-   endif
- endif
- 
-diff --git a/tools/perf/builtin-help.c b/tools/perf/builtin-help.c
-index a0f7ed2b869b..4aca13f23b9d 100644
---- a/tools/perf/builtin-help.c
-+++ b/tools/perf/builtin-help.c
-@@ -439,7 +439,7 @@ int cmd_help(int argc, const char **argv)
- #ifdef HAVE_LIBELF_SUPPORT
- 		"probe",
- #endif
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 		"trace",
- #endif
- 	NULL };
-diff --git a/tools/perf/perf.c b/tools/perf/perf.c
-index 62b13518bc6e..1b3fc8ec0fa2 100644
---- a/tools/perf/perf.c
-+++ b/tools/perf/perf.c
-@@ -73,7 +73,7 @@ static struct cmd_struct commands[] = {
- 	{ "lock",	cmd_lock,	0 },
- 	{ "kvm",	cmd_kvm,	0 },
- 	{ "test",	cmd_test,	0 },
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 	{ "trace",	cmd_trace,	0 },
- #endif
- 	{ "inject",	cmd_inject,	0 },
-@@ -485,7 +485,7 @@ int main(int argc, const char **argv)
- 		argv[0] = cmd;
+ 		fprintf(trace->output, ") = -1 %s %s", e, emsg);
  	}
- 	if (strstarts(cmd, "trace")) {
--#ifdef HAVE_LIBAUDIT_SUPPORT
-+#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)
- 		setup_path();
- 		argv[0] = "trace";
- 		return cmd_trace(argc, argv);
-diff --git a/tools/perf/util/Build b/tools/perf/util/Build
-index 7c6a8b461e24..4eef0c243306 100644
---- a/tools/perf/util/Build
-+++ b/tools/perf/util/Build
-@@ -44,7 +44,7 @@ libperf-y += machine.o
- libperf-y += map.o
- libperf-y += pstack.o
- libperf-y += session.o
--libperf-$(CONFIG_AUDIT) += syscalltbl.o
-+libperf-$(CONFIG_TRACE) += syscalltbl.o
- libperf-y += ordered-events.o
- libperf-y += namespaces.o
- libperf-y += comm.o
-diff --git a/tools/perf/util/generate-cmdlist.sh b/tools/perf/util/generate-cmdlist.sh
-index 9bbcec4e3365..ff17920a5ebc 100755
---- a/tools/perf/util/generate-cmdlist.sh
-+++ b/tools/perf/util/generate-cmdlist.sh
-@@ -38,7 +38,7 @@ do
- done
- echo "#endif /* HAVE_LIBELF_SUPPORT */"
- 
--echo "#ifdef HAVE_LIBAUDIT_SUPPORT"
-+echo "#if defined(HAVE_LIBAUDIT_SUPPORT) || defined(HAVE_SYSCALL_TABLE)"
- sed -n -e 's/^perf-\([^ 	]*\)[ 	].* audit*/\1/p' command-list.txt |
- sort |
- while read cmd
 -- 
 2.14.3
