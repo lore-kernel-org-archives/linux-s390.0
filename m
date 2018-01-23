@@ -1,8 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 0/3] s390: documentation update
-Date: Tue, 23 Jan 2018 16:02:42 +0100
-Message-Id: <20180123150245.30312-1-cohuck@redhat.com>
+Subject: [PATCH 2/3] s390/docs: reword airq section
+Date: Tue, 23 Jan 2018 16:02:44 +0100
+Message-Id: <20180123150245.30312-3-cohuck@redhat.com>
+In-Reply-To: <20180123150245.30312-1-cohuck@redhat.com>
+References: <20180123150245.30312-1-cohuck@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -10,24 +12,36 @@ To: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 Cc: corbet@lwn.net, sebott@linux.vnet.ibm.com, oberpar@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The first two are updates that I had around for a long time, but
-somehow forgot to send them out.
+Also mention the iv helpers as well.
 
-While looking at the result of make pdfdocs, I found that the output
-for the cmf stuff looked a bit suboptimal, so I added a bonus patch
-for that.
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ Documentation/driver-api/s390-drivers.rst | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-A branch based on the s390 features branch can be found at
-git://git.kernel.org/pub/scm/linux/kernel/git/cohuck/linux.git s390-doc-update
-
-Cornelia Huck (3):
-  s390/docs: mention subchannel types
-  s390/docs: reword airq section
-  s390/cmf: fix kerneldoc
-
- Documentation/driver-api/s390-drivers.rst | 32 +++++++++++++++++++++++++++----
- drivers/s390/cio/cmf.c                    | 15 ++++++++-------
- 2 files changed, 36 insertions(+), 11 deletions(-)
-
+diff --git a/Documentation/driver-api/s390-drivers.rst b/Documentation/driver-api/s390-drivers.rst
+index 42350f21357d..30e6aa7e160b 100644
+--- a/Documentation/driver-api/s390-drivers.rst
++++ b/Documentation/driver-api/s390-drivers.rst
+@@ -121,10 +121,15 @@ ccw group devices
+ Generic interfaces
+ ==================
+ 
+-Some interfaces are available to other drivers that do not necessarily
+-have anything to do with the busses described above, but still are
+-indirectly using basic infrastructure in the common I/O layer. One
+-example is the support for adapter interrupts.
++The following section contains interfaces in use not only by drivers
++dealing with ccw devices, but drivers for various other s390 hardware
++as well.
++
++Adapter interrupts
++------------------
++
++The common I/O layer provides helper functions for dealing with adapter
++interrupts and interrupt vectors.
+ 
+ .. kernel-doc:: drivers/s390/cio/airq.c
+    :export:
 -- 
 2.13.6
