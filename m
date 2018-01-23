@@ -1,10 +1,8 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 1/5] prctl: add PR_ISOLATE_BP process control
-Date: Tue, 23 Jan 2018 14:07:01 +0100
-Message-ID: <1516712825-2917-2-git-send-email-schwidefsky@de.ibm.com>
-References: <1516712825-2917-1-git-send-email-schwidefsky@de.ibm.com>
+Subject: [RFC][PATCH 0/5] s390: improve speculative execution handling v2
+Date: Tue, 23 Jan 2018 14:07:00 +0100
+Message-ID: <1516712825-2917-1-git-send-email-schwidefsky@de.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1516712825-2917-1-git-send-email-schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,91 +10,38 @@ To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.or
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add the PR_ISOLATE_BP operation to prctl. The effect of the process
-control is to make all branch prediction entries created by the execution
-of the user space code of this task not applicable to kernel code or the
-code of any other task.
+Version 2 of the speculative execution mitigation for s390. Changes to v1:
 
-This can be achieved by the architecture specific implementation
-in different ways, e.g. by limiting the branch predicion for the task,
-or by clearing the branch prediction tables on each context switch, or
-by tagging the branch prediction entries in a suitable way.
+* The KVM patch to add the guest bpb feature already went upstream.
+* Dropped the patch to introduce the gmb barrier to defend against spectre
+  variant 1 until the bikeshedding in regard to the naming is done.
+* Switched from a system call to the PR_ISOLATE_BP process control to run
+  user space tasks with branch prediction isolation.
 
-The architecture code needs to define the ISOLATE_BP macro to implement
-the hardware specific details of the branch prediction isolation.
+My main question is if the prctl(PR_ISOLATE_BP) makes sense.
 
-The control can not be removed from a task once it is activated and it
-is inherited by all children of the task.
+Martin Schwidefsky (5):
+  prctl: add PR_ISOLATE_BP process control
+  s390/alternative: use a copy of the facility bit mask
+  s390: add options to change branch prediction behaviour for the kernel
+  s390: define ISOLATE_BP to run tasks with modified branch prediction
+  s390: scrub registers on kernel entry and KVM exit
 
-The user space wrapper to start a program with the isolated branch
-prediction:
+ arch/s390/Kconfig                   |  17 +++++
+ arch/s390/include/asm/facility.h    |  18 +++++
+ arch/s390/include/asm/lowcore.h     |   3 +-
+ arch/s390/include/asm/processor.h   |   4 ++
+ arch/s390/include/asm/thread_info.h |   4 ++
+ arch/s390/kernel/alternative.c      |  26 ++++++-
+ arch/s390/kernel/early.c            |   5 ++
+ arch/s390/kernel/entry.S            | 134 +++++++++++++++++++++++++++++++++++-
+ arch/s390/kernel/ipl.c              |   1 +
+ arch/s390/kernel/processor.c        |   8 +++
+ arch/s390/kernel/setup.c            |   4 +-
+ arch/s390/kernel/smp.c              |   6 +-
+ include/uapi/linux/prctl.h          |   8 +++
+ kernel/sys.c                        |   6 ++
+ 14 files changed, 238 insertions(+), 6 deletions(-)
 
-int main(int argc, char *argv[], char *envp[])
-{
-	int rc;
-
-	if (argc < 2) {
-		fprintf(stderr, "Usage: %s <file-to-exec> <arguments>\n",
-			argv[0]);
-		exit(EXIT_FAILURE);
-	}
-
-	rc = prctl(PR_ISOLATE_BP);
-	if (rc) {
-		perror("PR_ISOLATE_BP");
-		exit(EXIT_FAILURE);
-	}
-	execve(argv[1], argv + 1, envp);
-	perror("execve");
-	exit(EXIT_FAILURE);
-}
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
- include/uapi/linux/prctl.h | 8 ++++++++
- kernel/sys.c               | 6 ++++++
- 2 files changed, 14 insertions(+)
-
-diff --git a/include/uapi/linux/prctl.h b/include/uapi/linux/prctl.h
-index af5f8c2..e7b84c9 100644
---- a/include/uapi/linux/prctl.h
-+++ b/include/uapi/linux/prctl.h
-@@ -207,4 +207,12 @@ struct prctl_mm_map {
- # define PR_SVE_VL_LEN_MASK		0xffff
- # define PR_SVE_VL_INHERIT		(1 << 17) /* inherit across exec */
- 
-+/*
-+ * Prevent branch prediction entries created by the execution of
-+ * user space code of this task to be used in any other context.
-+ * This makes it impossible for malicious user space code to train
-+ * a branch in the kernel code or in another task to be mispredicted.
-+ */
-+#define PR_ISOLATE_BP			52
-+
- #endif /* _LINUX_PRCTL_H */
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 83ffd7d..e41cb2f 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -117,6 +117,9 @@
- #ifndef SVE_GET_VL
- # define SVE_GET_VL()		(-EINVAL)
- #endif
-+#ifndef ISOLATE_BP
-+# define ISOLATE_BP()		(-EINVAL)
-+#endif
- 
- /*
-  * this is where the system-wide overflow UID and GID are defined, for
-@@ -2398,6 +2401,9 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
- 	case PR_SVE_GET_VL:
- 		error = SVE_GET_VL();
- 		break;
-+	case PR_ISOLATE_BP:
-+		error = ISOLATE_BP();
-+		break;
- 	default:
- 		error = -EINVAL;
- 		break;
 -- 
 2.7.4
