@@ -1,112 +1,131 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 5/5] s390: scrub registers on kernel entry and KVM exit
-Date: Tue, 23 Jan 2018 14:07:05 +0100
-Message-ID: <1516712825-2917-6-git-send-email-schwidefsky@de.ibm.com>
+Subject: [PATCH 2/5] s390/alternative: use a copy of the facility bit mask
+Date: Tue, 23 Jan 2018 14:07:02 +0100
+Message-ID: <1516712825-2917-3-git-send-email-schwidefsky@de.ibm.com>
 References: <1516712825-2917-1-git-send-email-schwidefsky@de.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1516712825-2917-1-git-send-email-schwidefsky@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-Clear all user space registers on entry to the kernel and all KVM guest
-registers on KVM guest exit if the register does not contain either a
-parameter or a result value.
+To be able to switch off specific CPU alternatives with kernel parameters
+make a copy of the facility bit mask provided by STFLE and use the copy
+for the decision to apply an alternative.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/kernel/entry.S | 41 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
+ arch/s390/include/asm/facility.h | 18 ++++++++++++++++++
+ arch/s390/include/asm/lowcore.h  |  3 ++-
+ arch/s390/kernel/alternative.c   |  3 ++-
+ arch/s390/kernel/early.c         |  3 +++
+ arch/s390/kernel/setup.c         |  4 +++-
+ arch/s390/kernel/smp.c           |  4 +++-
+ 6 files changed, 31 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 07e4e46..0ee9408 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -322,6 +322,12 @@ ENTRY(sie64a)
- sie_exit:
- 	lg	%r14,__SF_EMPTY+8(%r15)		# load guest register save area
- 	stmg	%r0,%r13,0(%r14)		# save guest gprs 0-13
-+	xgr	%r0,%r0				# clear guest registers
-+	xgr	%r1,%r1
-+	xgr	%r2,%r2
-+	xgr	%r3,%r3
-+	xgr	%r4,%r4
-+	xgr	%r5,%r5
- 	lmg	%r6,%r14,__SF_GPRS(%r15)	# restore kernel registers
- 	lg	%r2,__SF_EMPTY+16(%r15)		# return exit reason code
- 	br	%r14
-@@ -358,6 +364,7 @@ ENTRY(system_call)
- 	UPDATE_VTIME %r8,%r9,__LC_SYNC_ENTER_TIMER
- 	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
- 	stmg	%r0,%r7,__PT_R0(%r11)
-+	xgr	%r0,%r0
- 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_SYNC
- 	mvc	__PT_PSW(16,%r11),__LC_SVC_OLD_PSW
- 	mvc	__PT_INT_CODE(4,%r11),__LC_SVC_ILC
-@@ -640,6 +647,14 @@ ENTRY(pgm_check_handler)
- 4:	lgr	%r13,%r11
- 	la	%r11,STACK_FRAME_OVERHEAD(%r15)
- 	stmg	%r0,%r7,__PT_R0(%r11)
-+	xgr	%r0,%r0			# clear user space registers
-+	xgr	%r1,%r1
-+	xgr	%r2,%r2
-+	xgr	%r3,%r3
-+	xgr	%r4,%r4
-+	xgr	%r5,%r5
-+	xgr	%r6,%r6
-+	xgr	%r7,%r7
- 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_SYNC
- 	stmg	%r8,%r9,__PT_PSW(%r11)
- 	mvc	__PT_INT_CODE(4,%r11),__LC_PGM_ILC
-@@ -706,6 +721,15 @@ ENTRY(io_int_handler)
- 	lmg	%r8,%r9,__LC_IO_OLD_PSW
- 	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
- 	stmg	%r0,%r7,__PT_R0(%r11)
-+	xgr	%r0,%r0			# clear user space registers
-+	xgr	%r1,%r1
-+	xgr	%r2,%r2
-+	xgr	%r3,%r3
-+	xgr	%r4,%r4
-+	xgr	%r5,%r5
-+	xgr	%r6,%r6
-+	xgr	%r7,%r7
-+	xgr	%r10,%r10
- 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_ASYNC
- 	stmg	%r8,%r9,__PT_PSW(%r11)
- 	mvc	__PT_INT_CODE(12,%r11),__LC_SUBCHANNEL_ID
-@@ -924,6 +948,15 @@ ENTRY(ext_int_handler)
- 	lmg	%r8,%r9,__LC_EXT_OLD_PSW
- 	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
- 	stmg	%r0,%r7,__PT_R0(%r11)
-+	xgr	%r0,%r0			# clear user space registers
-+	xgr	%r1,%r1
-+	xgr	%r2,%r2
-+	xgr	%r3,%r3
-+	xgr	%r4,%r4
-+	xgr	%r5,%r5
-+	xgr	%r6,%r6
-+	xgr	%r7,%r7
-+	xgr	%r10,%r10
- 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_ASYNC
- 	stmg	%r8,%r9,__PT_PSW(%r11)
- 	lghi	%r1,__LC_EXT_PARAMS2
-@@ -1133,6 +1166,14 @@ ENTRY(mcck_int_handler)
- .Lmcck_skip:
- 	lghi	%r14,__LC_GPREGS_SAVE_AREA+64
- 	stmg	%r0,%r7,__PT_R0(%r11)
-+	xgr	%r0,%r0			# clear user space registers
-+	xgr	%r2,%r2
-+	xgr	%r3,%r3
-+	xgr	%r4,%r4
-+	xgr	%r5,%r5
-+	xgr	%r6,%r6
-+	xgr	%r7,%r7
-+	xgr	%r10,%r10
- 	mvc	__PT_R8(64,%r11),0(%r14)
- 	stmg	%r8,%r9,__PT_PSW(%r11)
- 	xc	__PT_FLAGS(8,%r11),__PT_FLAGS(%r11)
+diff --git a/arch/s390/include/asm/facility.h b/arch/s390/include/asm/facility.h
+index f040644..2d58478 100644
+--- a/arch/s390/include/asm/facility.h
++++ b/arch/s390/include/asm/facility.h
+@@ -15,6 +15,24 @@
+ 
+ #define MAX_FACILITY_BIT (sizeof(((struct lowcore *)0)->stfle_fac_list) * 8)
+ 
++static inline void __set_facility(unsigned long nr, void *facilities)
++{
++	unsigned char *ptr = (unsigned char *) facilities;
++
++	if (nr >= MAX_FACILITY_BIT)
++		return;
++	ptr[nr >> 3] |= 0x80 >> (nr & 7);
++}
++
++static inline void __clear_facility(unsigned long nr, void *facilities)
++{
++	unsigned char *ptr = (unsigned char *) facilities;
++
++	if (nr >= MAX_FACILITY_BIT)
++		return;
++	ptr[nr >> 3] &= ~(0x80 >> (nr & 7));
++}
++
+ static inline int __test_facility(unsigned long nr, void *facilities)
+ {
+ 	unsigned char *ptr;
+diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
+index ec6592e..c63986a 100644
+--- a/arch/s390/include/asm/lowcore.h
++++ b/arch/s390/include/asm/lowcore.h
+@@ -151,7 +151,8 @@ struct lowcore {
+ 	__u8	pad_0x0e20[0x0f00-0x0e20];	/* 0x0e20 */
+ 
+ 	/* Extended facility list */
+-	__u64	stfle_fac_list[32];		/* 0x0f00 */
++	__u64	stfle_fac_list[16];		/* 0x0f00 */
++	__u64	alt_stfle_fac_list[16];		/* 0x0f80 */
+ 	__u8	pad_0x1000[0x11b0-0x1000];	/* 0x1000 */
+ 
+ 	/* Pointer to the machine check extended save area */
+diff --git a/arch/s390/kernel/alternative.c b/arch/s390/kernel/alternative.c
+index 574e776..1abf4f3 100644
+--- a/arch/s390/kernel/alternative.c
++++ b/arch/s390/kernel/alternative.c
+@@ -75,7 +75,8 @@ static void __init_or_module __apply_alternatives(struct alt_instr *start,
+ 		instr = (u8 *)&a->instr_offset + a->instr_offset;
+ 		replacement = (u8 *)&a->repl_offset + a->repl_offset;
+ 
+-		if (!test_facility(a->facility))
++		if (!__test_facility(a->facility,
++				     S390_lowcore.alt_stfle_fac_list))
+ 			continue;
+ 
+ 		if (unlikely(a->instrlen % 2 || a->replacementlen % 2)) {
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 497a920..510f218 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -193,6 +193,9 @@ static noinline __init void setup_facility_list(void)
+ {
+ 	stfle(S390_lowcore.stfle_fac_list,
+ 	      ARRAY_SIZE(S390_lowcore.stfle_fac_list));
++	memcpy(S390_lowcore.alt_stfle_fac_list,
++	       S390_lowcore.stfle_fac_list,
++	       sizeof(S390_lowcore.alt_stfle_fac_list));
+ }
+ 
+ static __init void detect_diag9c(void)
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 793da97..bcd2a4a 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -340,7 +340,9 @@ static void __init setup_lowcore(void)
+ 	lc->preempt_count = S390_lowcore.preempt_count;
+ 	lc->stfl_fac_list = S390_lowcore.stfl_fac_list;
+ 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
+-	       MAX_FACILITY_BIT/8);
++	       sizeof(lc->stfle_fac_list));
++	memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
++	       sizeof(lc->alt_stfle_fac_list));
+ 	nmi_alloc_boot_cpu(lc);
+ 	vdso_alloc_boot_cpu(lc);
+ 	lc->sync_enter_timer = S390_lowcore.sync_enter_timer;
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index b8c1a85..4ce68ca 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -266,7 +266,9 @@ static void pcpu_prepare_secondary(struct pcpu *pcpu, int cpu)
+ 	__ctl_store(lc->cregs_save_area, 0, 15);
+ 	save_access_regs((unsigned int *) lc->access_regs_save_area);
+ 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
+-	       MAX_FACILITY_BIT/8);
++	       sizeof(lc->stfle_fac_list));
++	memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
++	       sizeof(lc->alt_stfle_fac_list));
+ 	arch_spin_lock_setup(cpu);
+ }
+ 
 -- 
 2.7.4
