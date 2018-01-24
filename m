@@ -1,44 +1,62 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 2/3] MAINTAINERS: add Halil as additional vfio-ccw
- maintainer
-Date: Tue, 30 Jan 2018 19:10:35 +0100
-Message-ID: <42e6f94c-6a7f-c273-47c0-3d1055494067@de.ibm.com>
-References: <20180130152447.29871-1-cohuck@redhat.com>
- <20180130152447.29871-3-cohuck@redhat.com>
+Subject: Re: [PATCH v2] KVM: s390: add vcpu stat counters for many instruction
+Date: Wed, 24 Jan 2018 17:18:46 +0100
+Message-ID: <4d9e1fe2-62e8-3047-d08e-6f3e02138e02@de.ibm.com>
+References: <20180124155054.9477-1-borntraeger@de.ibm.com>
+ <20180124171526.76598068.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180130152447.29871-3-cohuck@redhat.com>
+In-Reply-To: <20180124171526.76598068.cohuck@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, frankja@linux.vnet.ibm.com, david@redhat.com, pasic@linux.vnet.ibm.com
-Cc: bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
-On 01/30/2018 04:24 PM, Cornelia Huck wrote:
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 
-
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
+On 01/24/2018 05:15 PM, Cornelia Huck wrote:
+> On Wed, 24 Jan 2018 16:50:54 +0100
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index cd7a416c516b..990ac01c319d 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -11863,6 +11863,7 @@ F:	drivers/pci/hotplug/s390_pci_hpc.c
->  S390 VFIO-CCW DRIVER
->  M:	Cornelia Huck <cohuck@redhat.com>
->  M:	Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> +M:	Halil Pasic <pasic@linux.vnet.ibm.com>
->  L:	linux-s390@vger.kernel.org
->  L:	kvm@vger.kernel.org
->  S:	Supported
+>> The overall instruction counter is larger than the sum of the
+>> single counters. We should try to catch all instruction handlers
+>> to make this match the summary counter.
+>> Let us add sck,tb,sske,iske,rrbe,tb,tpi,tsch,lpsw,pswe....
+>> and remove other unused ones.
 > 
+> This is rebased on top of the diagnose patch, right?
+
+Yes, I did not wanted to change both patches.
+> 
+>>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Acked-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>  arch/s390/include/asm/kvm_host.h | 21 +++++++++++++++++----
+>>  arch/s390/kvm/diag.c             |  1 +
+>>  arch/s390/kvm/kvm-s390.c         | 21 +++++++++++++++++----
+>>  arch/s390/kvm/priv.c             | 32 ++++++++++++++++++++++++++++++--
+>>  4 files changed, 65 insertions(+), 10 deletions(-)
+>>
+> 
+>> @@ -527,6 +544,7 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
+>>  		if (vcpu->arch.sie_block->ipa == 0xb235)
+>>  			return handle_tsch(vcpu);
+>>  		/* Handle in userspace. */
+>> +		vcpu->stat.instruction_io_other++;
+>>  		return -EOPNOTSUPP;
+>>  	} else {
+>>  		/*
+> 
+> As an aside, we don't count I/O instructions if userspace did not
+> enable css support. But nobody does that with modern kernels anyway :)
+> 
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
+Thanks
