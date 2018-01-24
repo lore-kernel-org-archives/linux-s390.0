@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 2/6] net/smc: simplify function smc_clcsock_accept()
-Date: Wed, 24 Jan 2018 10:28:13 +0100
-Message-ID: <20180124092817.103089-3-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 3/6] net/smc: get rid of tx_pend waits in socket closing
+Date: Wed, 24 Jan 2018 10:28:14 +0100
+Message-ID: <20180124092817.103089-4-ubraun@linux.vnet.ibm.com>
 References: <20180124092817.103089-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180124092817.103089-1-ubraun@linux.vnet.ibm.com>
@@ -12,36 +12,165 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Cleanup to avoid duplicate code in smc_clcsock_accept().
-No functional change.
+There is no need to wait for confirmation of pending tx requests
+for a closing connection, since pending tx slots are dismissed
+when finishing a connection.
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ net/smc/smc_cdc.c   | 11 -----------
+ net/smc/smc_cdc.h   |  1 -
+ net/smc/smc_close.c | 25 -------------------------
+ net/smc/smc_wr.c    | 18 ------------------
+ net/smc/smc_wr.h    |  2 --
+ 5 files changed, 57 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index eccccf743b9f..05cbcd3a6f60 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -599,16 +599,9 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index d4155ff6acde..51805334e001 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -57,9 +57,6 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
+ 			       cdcpend->conn);
+ 	}
+ 	smc_tx_sndbuf_nonfull(smc);
+-	if (smc->sk.sk_state != SMC_ACTIVE)
+-		/* wake up smc_close_wait_tx_pends() */
+-		smc->sk.sk_state_change(&smc->sk);
+ 	bh_unlock_sock(&smc->sk);
+ }
  
- 	rc = kernel_accept(lsmc->clcsock, &new_clcsock, 0);
- 	lock_sock(lsk);
--	if  (rc < 0) {
-+	if  (rc < 0)
- 		lsk->sk_err = -rc;
--		new_sk->sk_state = SMC_CLOSED;
--		sock_set_flag(new_sk, SOCK_DEAD);
--		new_sk->sk_prot->unhash(new_sk);
--		sock_put(new_sk);
--		*new_smc = NULL;
--		goto out;
+@@ -155,14 +152,6 @@ void smc_cdc_tx_dismiss_slots(struct smc_connection *conn)
+ 				(unsigned long)conn);
+ }
+ 
+-bool smc_cdc_tx_has_pending(struct smc_connection *conn)
+-{
+-	struct smc_link *link = &conn->lgr->lnk[SMC_SINGLE_LINK];
+-
+-	return smc_wr_tx_has_pending(link, SMC_CDC_MSG_TYPE,
+-				     smc_cdc_tx_filter, (unsigned long)conn);
+-}
+-
+ /********************************* receive ***********************************/
+ 
+ static inline bool smc_cdc_before(u16 seq1, u16 seq2)
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 149ceda1b088..ab240b37ad11 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -214,7 +214,6 @@ void smc_cdc_tx_dismiss_slots(struct smc_connection *conn);
+ int smc_cdc_msg_send(struct smc_connection *conn, struct smc_wr_buf *wr_buf,
+ 		     struct smc_cdc_tx_pend *pend);
+ int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn);
+-bool smc_cdc_tx_has_pending(struct smc_connection *conn);
+ int smc_cdc_init(void) __init;
+ 
+ #endif /* SMC_CDC_H */
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 11793912f001..bc539ccb8fa0 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -19,8 +19,6 @@
+ #include "smc_cdc.h"
+ #include "smc_close.h"
+ 
+-#define SMC_CLOSE_WAIT_TX_PENDS_TIME		(5 * HZ)
+-
+ static void smc_close_cleanup_listen(struct sock *parent)
+ {
+ 	struct sock *sk;
+@@ -30,26 +28,6 @@ static void smc_close_cleanup_listen(struct sock *parent)
+ 		smc_close_non_accepted(sk);
+ }
+ 
+-static void smc_close_wait_tx_pends(struct smc_sock *smc)
+-{
+-	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+-	struct sock *sk = &smc->sk;
+-	signed long timeout;
+-
+-	timeout = SMC_CLOSE_WAIT_TX_PENDS_TIME;
+-	add_wait_queue(sk_sleep(sk), &wait);
+-	while (!signal_pending(current) && timeout) {
+-		int rc;
+-
+-		rc = sk_wait_event(sk, &timeout,
+-				   !smc_cdc_tx_has_pending(&smc->conn),
+-				   &wait);
+-		if (rc)
+-			break;
 -	}
--	if (lsk->sk_state == SMC_CLOSED) {
-+	if (rc < 0 || lsk->sk_state == SMC_CLOSED) {
- 		if (new_clcsock)
- 			sock_release(new_clcsock);
- 		new_sk->sk_state = SMC_CLOSED;
+-	remove_wait_queue(sk_sleep(sk), &wait);
+-}
+-
+ /* wait for sndbuf data being transmitted */
+ static void smc_close_stream_wait(struct smc_sock *smc, long timeout)
+ {
+@@ -230,7 +208,6 @@ int smc_close_active(struct smc_sock *smc)
+ 			rc = smc_close_final(conn);
+ 		}
+ 		sk->sk_state = SMC_CLOSED;
+-		smc_close_wait_tx_pends(smc);
+ 		break;
+ 	case SMC_APPCLOSEWAIT1:
+ 	case SMC_APPCLOSEWAIT2:
+@@ -251,7 +228,6 @@ int smc_close_active(struct smc_sock *smc)
+ 		else
+ 			/* peer has just issued a shutdown write */
+ 			sk->sk_state = SMC_PEERFINCLOSEWAIT;
+-		smc_close_wait_tx_pends(smc);
+ 		break;
+ 	case SMC_PEERCLOSEWAIT1:
+ 	case SMC_PEERCLOSEWAIT2:
+@@ -271,7 +247,6 @@ int smc_close_active(struct smc_sock *smc)
+ 		lock_sock(sk);
+ 		smc_close_abort(conn);
+ 		sk->sk_state = SMC_CLOSED;
+-		smc_close_wait_tx_pends(smc);
+ 		break;
+ 	case SMC_PEERABORTWAIT:
+ 	case SMC_CLOSED:
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index de4537f66832..a4477b4a9c18 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -319,24 +319,6 @@ void smc_wr_tx_dismiss_slots(struct smc_link *link, u8 wr_rx_hdr_type,
+ 	}
+ }
+ 
+-bool smc_wr_tx_has_pending(struct smc_link *link, u8 wr_rx_hdr_type,
+-			   smc_wr_tx_filter filter, unsigned long data)
+-{
+-	struct smc_wr_tx_pend_priv *tx_pend;
+-	struct smc_wr_rx_hdr *wr_rx;
+-	int i;
+-
+-	for_each_set_bit(i, link->wr_tx_mask, link->wr_tx_cnt) {
+-		wr_rx = (struct smc_wr_rx_hdr *)&link->wr_rx_bufs[i];
+-		if (wr_rx->type != wr_rx_hdr_type)
+-			continue;
+-		tx_pend = &link->wr_tx_pends[i].priv;
+-		if (filter(tx_pend, data))
+-			return true;
+-	}
+-	return false;
+-}
+-
+ /****************************** receive queue ********************************/
+ 
+ int smc_wr_rx_register_handler(struct smc_wr_rx_handler *handler)
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index 2acf12b06063..ef0c3494c9cb 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -93,8 +93,6 @@ int smc_wr_tx_put_slot(struct smc_link *link,
+ int smc_wr_tx_send(struct smc_link *link,
+ 		   struct smc_wr_tx_pend_priv *wr_pend_priv);
+ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context);
+-bool smc_wr_tx_has_pending(struct smc_link *link, u8 wr_rx_hdr_type,
+-			   smc_wr_tx_filter filter, unsigned long data);
+ void smc_wr_tx_dismiss_slots(struct smc_link *lnk, u8 wr_rx_hdr_type,
+ 			     smc_wr_tx_filter filter,
+ 			     smc_wr_tx_dismisser dismisser,
 -- 
 2.13.5
