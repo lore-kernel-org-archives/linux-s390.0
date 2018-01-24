@@ -1,227 +1,290 @@
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH 11/43] tools include asm-generic: Grab errno.h and errno-base.h
-Date: Tue, 23 Jan 2018 10:12:19 -0300
-Message-ID: <20180123131251.28197-12-acme@kernel.org>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [GIT PULL 00/43] perf/core improvements and changes
+Date: Wed, 24 Jan 2018 12:15:19 +0100
+Message-ID: <20180124111519.qvy54qczpdoj7mln@gmail.com>
 References: <20180123131251.28197-1-acme@kernel.org>
-Return-path: <linux-perf-users-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20180123131251.28197-1-acme@kernel.org>
-Sender: linux-perf-users-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-perf-users/>
 List-Post: <mailto:linux-perf-users@vger.kernel.org>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Jiri Olsa <jolsa@redhat.com>, Michael Petlan <mpetlan@redhat.com>, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
+To: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Andi Kleen <ak@linux.intel.com>, David Ahern <dsahern@gmail.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Jiri Olsa <jolsa@redhat.com>, Kim Phillips <kim.phillips@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, Mathieu Poirier <mathieu.poirier@linaro.org>, Michael Petlan <mpetlan@redhat.com>, Mike Leach <mike.leach@arm.com>, Namhyung Kim <namhyung@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Suzuki Poulouse <suzuki.poulose@arm.com>, Thomas Richter <tmricht@linux.vnet.ibm.com>, Tor Jeremiassen <tor@ti.com>, Wang Nan <wangnan0@huawei.com>Wang
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 
-This is a pre-req to generate an architecture specific mapping of errno
-numbers to their names.  This errno mapping can be used by perf trace to
-support cross-architecture trace reports and to get rid of the
-audit-libs dependency.
+* Arnaldo Carvalho de Melo <acme@kernel.org> wrote:
 
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Reviewed-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: linux-s390@vger.kernel.org
-LPU-Reference: 1516352177-11106-3-git-send-email-brueckner@linux.vnet.ibm.com
-Link: https://lkml.kernel.org/n/tip-q13ystrw4sjz4wyvd3654cnm@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
----
- tools/include/uapi/asm-generic/errno-base.h |  40 +++++++++
- tools/include/uapi/asm-generic/errno.h      | 123 ++++++++++++++++++++++++++++
- tools/perf/check-headers.sh                 |   2 +
- 3 files changed, 165 insertions(+)
- create mode 100644 tools/include/uapi/asm-generic/errno-base.h
- create mode 100644 tools/include/uapi/asm-generic/errno.h
+> Hi Ingo,
+> 
+> 	Please consider pulling,
+> 
+> - Arnaldo
+> 
+> Test results at the end of this message, as usual.
+> 
+> The following changes since commit a72594ca5c70ef4a94fab8ad541beda0d0a94139:
+> 
+>   Merge tag 'perf-core-for-mingo-4.16-20180117' of git://git.kernel.org/pub/scm/linux/kernel/git/acme/linux into perf/core (2018-01-17 17:20:24 +0100)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/acme/linux.git tags/perf-core-for-mingo-4.16-20180123
+> 
+> for you to fetch changes up to 0d916ef4ce35ee5ff6255d3f0622faccab696d3f:
+> 
+>   perf trace beauty flock: Move to separate object file (2018-01-23 09:51:52 -0300)
+> 
+> ----------------------------------------------------------------
+> perf/core improvements and fixes:
+> 
+> - Introduce an errno code to string facility to allow tools such as
+>   'perf trace' to support multi-arch perf.data decoding/beautifying,
+>   uses errno header files copied from the kernel, this allows
+>   removing the need for audit-libs in arches generating its syscall
+>   tables from the kernel sources, so far x86 and s/390 (Hendrik Brueckner)
+> 
+> - Intel-PT/BTS sample synthesizing fixes (Adrian Hunter)
+> 
+> - Intel vendor event JSON updates for the Broadwell, BroadwellDE,
+>   BroadwellX, Goldmont, Haswell, HaswellX, IvyBridge, IvyBridge, IvyTown,
+>   IvyTown, Silvermont, Skylake and SkylakeX architectures. (Andi Kleen)
+> 
+> - Use ui__error() to have --field error handling messages not to
+>   disappear due to TUI exit cleanup (Arnaldo Carvalho de Melo)
+> 
+> - Don't warn about unavailability of builtin clang in 'perf trace', just
+>   continue fallbacking to using the external toolchain (Arnaldo Carvalho de Melo)
+> 
+> - Move conditional O_CLOEXEC define to util.h to keep the build
+>   working on older distros where that is not available now that
+>   this define will be used in more source files (Arnaldo Carvalho de Melo)
+> 
+> - Using O_CLOEXEC in do_open() to avoid having too many open files when
+>   using 'perf script' from the 'perf report' TUI scripts browser (Wang YanQing)
+> 
+> - Add 'perf trace --print-sample' to help in debugging the printing
+>   of timestamp calculations, for instance (Arnaldo Carvalho de Melo)
+> 
+> - Do not print from time delta for interrupted syscall lines in 'perf
+>   trace' (those ending with '...') just print the total syscall duration
+>   at raw_syscalls:sys_exit time (Arnaldo Carvalho de Melo)
+> 
+> - Beautify FUTEX_BITSET_MATCH_ANY in the futex syscall in 'perf trace'
+>   (Arnaldo Carvalho de Melo)
+> 
+> - Display EXTRA features for 'make VF=1' build (Jiri Olsa)
+> 
+> - Add support for CoreSight trace decoding by making the perf tools
+>   use the external openCSD (Mathieu Poirier, Tor Jeremiassen)
+> 
+> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+> 
+> ----------------------------------------------------------------
+> Adrian Hunter (3):
+>       perf intel-pt/bts: Do not swap when synthesizing samples
+>       perf evsel: Ensure reserved member of PERF_SAMPLE_CPU is zero in perf_event__synthesize_sample()
+>       perf tools: Get rid of unused 'swapped' parameter from perf_event__synthesize_sample()
+> 
+> Andi Kleen (13):
+>       perf vendor events intel: Update Broadwell events to V22
+>       perf vendor events intel: Update BroadwellX events to V13
+>       perf vendor events intel: Update Goldmont events to V12
+>       perf vendor events intel: Update Haswell events to V27
+>       perf vendor events intel: Update HaswellX events to V19
+>       perf vendor events intel: Update IvyBridge events to V20
+>       perf vendor events intel: Update IvyTown events to V20
+>       perf vendor events intel: Update Silvermont events to V14
+>       perf vendor events intel: Update Skylake events to V36
+>       perf vendor events intel: Update SkylakeX events to V1.06
+>       perf vendor events intel: Update BroadwellDE events to V7
+>       perf vendor events intel: Update IvyBridge files to V20
+>       perf vendor events intel: Update IvyTown files to V20
+> 
+> Arnaldo Carvalho de Melo (9):
+>       perf tools: Use ui__error() for reporting --fields errors
+>       perf bpf: Don't warn about unavailability of builtin clang, just fallback
+>       perf tools: Move conditional O_CLOEXEC to util.h
+>       perf bpf: Remove misplaced __maybe_unused attribute
+>       perf trace: Add --print-sample
+>       perf trace: Do not print from time delta for interrupted syscall lines
+>       perf trace beauty futex: Beautify FUTEX_BITSET_MATCH_ANY
+>       perf evlist: Remove fcntl.h from evlist.h
+>       perf trace beauty flock: Move to separate object file
+> 
+> Hendrik Brueckner (5):
+>       tools include arch: Grab a copy of errno.h for arch's supported by perf
+>       tools include asm-generic: Grab errno.h and errno-base.h
+>       perf util: Introduce architecture specific errno/name mapping
+>       perf trace: Obtain errno strings by using arch_syscalls__strerrno()
+>       perf trace: Remove audit-libs dependency if syscall tables are present
+> 
+> Jiri Olsa (1):
+>       perf build: Display EXTRA features for VF=1 build
+> 
+> Mathieu Poirier (9):
+>       perf report: Fix regression when decoding intel_pt traces
+>       perf tools: Integrating the CoreSight decoding library
+>       perf tools: Add initial entry point for decoder CoreSight traces
+>       perf tools: Add decoder mechanic to support dumping trace data
+>       perf tools: Add support for decoding CoreSight trace data
+>       perf tools: Add functionality to communicate with the openCSD decoder
+>       pert tools: Add queue management functionality
+>       perf tools: Add full support for CoreSight trace decoding
+>       perf tools: Add mechanic to synthesise CoreSight trace packets
+> 
+> Tor Jeremiassen (2):
+>       perf tools: Add processing of coresight metadata
+>       MAINTAINERS: Adding entry for CoreSight trace decoding
+> 
+> Wang YanQing (1):
+>       perf symbols: Using O_CLOEXEC in do_open
+> 
+>  MAINTAINERS                                        |    3 +-
+>  tools/arch/alpha/include/uapi/asm/errno.h          |  128 +
+>  tools/arch/mips/include/asm/errno.h                |   17 +
+>  tools/arch/mips/include/uapi/asm/errno.h           |  130 +
+>  tools/arch/parisc/include/uapi/asm/errno.h         |  128 +
+>  tools/arch/powerpc/include/uapi/asm/errno.h        |   10 +
+>  tools/arch/sparc/include/uapi/asm/errno.h          |  118 +
+>  tools/arch/x86/include/uapi/asm/errno.h            |    1 +
+>  tools/build/Makefile.feature                       |    3 +-
+>  tools/build/feature/Makefile                       |    7 +-
+>  tools/build/feature/test-all.c                     |    5 +
+>  tools/build/feature/test-libopencsd.c              |    8 +
+>  tools/include/uapi/asm-generic/errno-base.h        |   40 +
+>  tools/include/uapi/asm-generic/errno.h             |  123 +
+>  tools/perf/Build                                   |    4 +-
+>  tools/perf/Documentation/perf-trace.txt            |    4 +
+>  tools/perf/Makefile.config                         |   49 +-
+>  tools/perf/Makefile.perf                           |   15 +-
+>  tools/perf/builtin-help.c                          |    2 +-
+>  tools/perf/builtin-inject.c                        |    3 +-
+>  tools/perf/builtin-kvm.c                           |    3 +
+>  tools/perf/builtin-script.c                        |    1 +
+>  tools/perf/builtin-trace.c                         |   57 +-
+>  tools/perf/check-headers.sh                        |    9 +
+>  tools/perf/perf.c                                  |    4 +-
+>  .../perf/pmu-events/arch/x86/broadwell/cache.json  |  555 ++-
+>  .../arch/x86/broadwell/floating-point.json         |  108 +-
+>  .../pmu-events/arch/x86/broadwell/frontend.json    |  138 +-
+>  .../perf/pmu-events/arch/x86/broadwell/memory.json |  210 +-
+>  .../perf/pmu-events/arch/x86/broadwell/other.json  |   20 +-
+>  .../pmu-events/arch/x86/broadwell/pipeline.json    | 1216 +++---
+>  .../arch/x86/broadwell/virtual-memory.json         |  150 +-
+>  .../pmu-events/arch/x86/broadwellde/cache.json     |  389 +-
+>  .../arch/x86/broadwellde/floating-point.json       |  108 +-
+>  .../pmu-events/arch/x86/broadwellde/frontend.json  |  138 +-
+>  .../pmu-events/arch/x86/broadwellde/memory.json    |    9 +-
+>  .../pmu-events/arch/x86/broadwellde/other.json     |   20 +-
+>  .../pmu-events/arch/x86/broadwellde/pipeline.json  | 1214 +++---
+>  .../arch/x86/broadwellde/virtual-memory.json       |  150 +-
+>  .../perf/pmu-events/arch/x86/broadwellx/cache.json |  383 +-
+>  .../arch/x86/broadwellx/floating-point.json        |  108 +-
+>  .../pmu-events/arch/x86/broadwellx/frontend.json   |  138 +-
+>  .../pmu-events/arch/x86/broadwellx/memory.json     |   40 +-
+>  .../perf/pmu-events/arch/x86/broadwellx/other.json |   20 +-
+>  .../pmu-events/arch/x86/broadwellx/pipeline.json   | 1214 +++---
+>  .../arch/x86/broadwellx/virtual-memory.json        |  150 +-
+>  tools/perf/pmu-events/arch/x86/goldmont/cache.json | 1244 +++++-
+>  .../perf/pmu-events/arch/x86/goldmont/memory.json  |  280 +-
+>  tools/perf/pmu-events/arch/x86/goldmont/other.json |   54 +-
+>  .../pmu-events/arch/x86/goldmont/pipeline.json     |  506 +--
+>  .../arch/x86/goldmont/virtual-memory.json          |   60 +-
+>  tools/perf/pmu-events/arch/x86/haswell/cache.json  |  365 +-
+>  .../arch/x86/haswell/floating-point.json           |   20 +-
+>  .../perf/pmu-events/arch/x86/haswell/frontend.json |  132 +-
+>  tools/perf/pmu-events/arch/x86/haswell/memory.json |   21 +
+>  tools/perf/pmu-events/arch/x86/haswell/other.json  |   20 +-
+>  .../perf/pmu-events/arch/x86/haswell/pipeline.json | 1131 ++---
+>  .../arch/x86/haswell/virtual-memory.json           |  212 +-
+>  tools/perf/pmu-events/arch/x86/haswellx/cache.json |  377 +-
+>  .../arch/x86/haswellx/floating-point.json          |   20 +-
+>  .../pmu-events/arch/x86/haswellx/frontend.json     |  132 +-
+>  .../perf/pmu-events/arch/x86/haswellx/memory.json  |   28 +
+>  tools/perf/pmu-events/arch/x86/haswellx/other.json |   20 +-
+>  .../pmu-events/arch/x86/haswellx/pipeline.json     | 1133 ++---
+>  .../arch/x86/haswellx/virtual-memory.json          |  212 +-
+>  .../perf/pmu-events/arch/x86/ivybridge/cache.json  |  243 +-
+>  .../pmu-events/arch/x86/ivybridge/frontend.json    |  122 +-
+>  .../perf/pmu-events/arch/x86/ivybridge/memory.json |   24 +-
+>  .../perf/pmu-events/arch/x86/ivybridge/other.json  |   20 +-
+>  .../pmu-events/arch/x86/ivybridge/pipeline.json    |  822 ++--
+>  .../arch/x86/ivybridge/virtual-memory.json         |   60 +-
+>  tools/perf/pmu-events/arch/x86/ivytown/cache.json  |  236 +-
+>  .../perf/pmu-events/arch/x86/ivytown/frontend.json |  122 +-
+>  tools/perf/pmu-events/arch/x86/ivytown/memory.json |   24 +-
+>  tools/perf/pmu-events/arch/x86/ivytown/other.json  |   20 +-
+>  .../perf/pmu-events/arch/x86/ivytown/pipeline.json |  822 ++--
+>  .../arch/x86/ivytown/virtual-memory.json           |   60 +-
+>  .../perf/pmu-events/arch/x86/silvermont/cache.json |    3 +-
+>  tools/perf/pmu-events/arch/x86/skylake/cache.json  | 4390 +++-----------------
+>  .../arch/x86/skylake/floating-point.json           |    5 +-
+>  .../perf/pmu-events/arch/x86/skylake/frontend.json |  232 +-
+>  tools/perf/pmu-events/arch/x86/skylake/memory.json | 2118 +---------
+>  tools/perf/pmu-events/arch/x86/skylake/other.json  |   40 +-
+>  .../perf/pmu-events/arch/x86/skylake/pipeline.json |  973 ++---
+>  .../arch/x86/skylake/virtual-memory.json           |  262 +-
+>  tools/perf/pmu-events/arch/x86/skylakex/cache.json |  257 +-
+>  .../arch/x86/skylakex/floating-point.json          |    3 +-
+>  .../pmu-events/arch/x86/skylakex/frontend.json     |   48 +-
+>  .../perf/pmu-events/arch/x86/skylakex/memory.json  |  231 +-
+>  tools/perf/pmu-events/arch/x86/skylakex/other.json |   94 +-
+>  .../pmu-events/arch/x86/skylakex/pipeline.json     |   44 +-
+>  .../arch/x86/skylakex/virtual-memory.json          |   42 +-
+>  tools/perf/tests/bpf.c                             |    1 +
+>  tools/perf/tests/openat-syscall-tp-fields.c        |    3 +
+>  tools/perf/tests/sample-parsing.c                  |    2 +-
+>  tools/perf/trace/beauty/Build                      |    1 +
+>  tools/perf/trace/beauty/arch_errno_names.c         |    1 +
+>  tools/perf/trace/beauty/arch_errno_names.sh        |  100 +
+>  tools/perf/trace/beauty/beauty.h                   |    5 +
+>  tools/perf/trace/beauty/flock.c                    |   10 +-
+>  tools/perf/trace/beauty/futex_val3.c               |   18 +
+>  tools/perf/util/Build                              |    8 +-
+>  tools/perf/util/auxtrace.c                         |    2 +
+>  tools/perf/util/bpf-loader.c                       |    4 +-
+>  tools/perf/util/cgroup.c                           |    3 +
+>  tools/perf/util/cs-etm-decoder/Build               |    1 +
+>  tools/perf/util/cs-etm-decoder/cs-etm-decoder.c    |  513 +++
+>  tools/perf/util/cs-etm-decoder/cs-etm-decoder.h    |  105 +
+>  tools/perf/util/cs-etm.c                           | 1023 +++++
+>  tools/perf/util/cs-etm.h                           |   18 +
+>  tools/perf/util/data.c                             |   10 -
+>  tools/perf/util/dso.c                              |    2 +-
+>  tools/perf/util/event.h                            |    3 +-
+>  tools/perf/util/evlist.c                           |    1 +
+>  tools/perf/util/evlist.h                           |    1 -
+>  tools/perf/util/evsel.c                            |   29 +-
+>  tools/perf/util/generate-cmdlist.sh                |    2 +-
+>  tools/perf/util/intel-bts.c                        |    6 +-
+>  tools/perf/util/intel-pt.c                         |   11 +-
+>  tools/perf/util/parse-events.c                     |    3 +
+>  tools/perf/util/session.c                          |    4 +-
+>  tools/perf/util/sort.c                             |    4 +-
+>  tools/perf/util/util.h                             |   10 +
+>  123 files changed, 13093 insertions(+), 13445 deletions(-)
+>  create mode 100644 tools/arch/alpha/include/uapi/asm/errno.h
+>  create mode 100644 tools/arch/mips/include/asm/errno.h
+>  create mode 100644 tools/arch/mips/include/uapi/asm/errno.h
+>  create mode 100644 tools/arch/parisc/include/uapi/asm/errno.h
+>  create mode 100644 tools/arch/powerpc/include/uapi/asm/errno.h
+>  create mode 100644 tools/arch/sparc/include/uapi/asm/errno.h
+>  create mode 100644 tools/arch/x86/include/uapi/asm/errno.h
+>  create mode 100644 tools/build/feature/test-libopencsd.c
+>  create mode 100644 tools/include/uapi/asm-generic/errno-base.h
+>  create mode 100644 tools/include/uapi/asm-generic/errno.h
+>  create mode 100644 tools/perf/trace/beauty/arch_errno_names.c
+>  create mode 100755 tools/perf/trace/beauty/arch_errno_names.sh
+>  create mode 100644 tools/perf/trace/beauty/futex_val3.c
+>  create mode 100644 tools/perf/util/cs-etm-decoder/Build
+>  create mode 100644 tools/perf/util/cs-etm-decoder/cs-etm-decoder.c
+>  create mode 100644 tools/perf/util/cs-etm-decoder/cs-etm-decoder.h
+>  create mode 100644 tools/perf/util/cs-etm.c
 
-diff --git a/tools/include/uapi/asm-generic/errno-base.h b/tools/include/uapi/asm-generic/errno-base.h
-new file mode 100644
-index 000000000000..9653140bff92
---- /dev/null
-+++ b/tools/include/uapi/asm-generic/errno-base.h
-@@ -0,0 +1,40 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-+#ifndef _ASM_GENERIC_ERRNO_BASE_H
-+#define _ASM_GENERIC_ERRNO_BASE_H
-+
-+#define	EPERM		 1	/* Operation not permitted */
-+#define	ENOENT		 2	/* No such file or directory */
-+#define	ESRCH		 3	/* No such process */
-+#define	EINTR		 4	/* Interrupted system call */
-+#define	EIO		 5	/* I/O error */
-+#define	ENXIO		 6	/* No such device or address */
-+#define	E2BIG		 7	/* Argument list too long */
-+#define	ENOEXEC		 8	/* Exec format error */
-+#define	EBADF		 9	/* Bad file number */
-+#define	ECHILD		10	/* No child processes */
-+#define	EAGAIN		11	/* Try again */
-+#define	ENOMEM		12	/* Out of memory */
-+#define	EACCES		13	/* Permission denied */
-+#define	EFAULT		14	/* Bad address */
-+#define	ENOTBLK		15	/* Block device required */
-+#define	EBUSY		16	/* Device or resource busy */
-+#define	EEXIST		17	/* File exists */
-+#define	EXDEV		18	/* Cross-device link */
-+#define	ENODEV		19	/* No such device */
-+#define	ENOTDIR		20	/* Not a directory */
-+#define	EISDIR		21	/* Is a directory */
-+#define	EINVAL		22	/* Invalid argument */
-+#define	ENFILE		23	/* File table overflow */
-+#define	EMFILE		24	/* Too many open files */
-+#define	ENOTTY		25	/* Not a typewriter */
-+#define	ETXTBSY		26	/* Text file busy */
-+#define	EFBIG		27	/* File too large */
-+#define	ENOSPC		28	/* No space left on device */
-+#define	ESPIPE		29	/* Illegal seek */
-+#define	EROFS		30	/* Read-only file system */
-+#define	EMLINK		31	/* Too many links */
-+#define	EPIPE		32	/* Broken pipe */
-+#define	EDOM		33	/* Math argument out of domain of func */
-+#define	ERANGE		34	/* Math result not representable */
-+
-+#endif
-diff --git a/tools/include/uapi/asm-generic/errno.h b/tools/include/uapi/asm-generic/errno.h
-new file mode 100644
-index 000000000000..cf9c51ac49f9
---- /dev/null
-+++ b/tools/include/uapi/asm-generic/errno.h
-@@ -0,0 +1,123 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-+#ifndef _ASM_GENERIC_ERRNO_H
-+#define _ASM_GENERIC_ERRNO_H
-+
-+#include <asm-generic/errno-base.h>
-+
-+#define	EDEADLK		35	/* Resource deadlock would occur */
-+#define	ENAMETOOLONG	36	/* File name too long */
-+#define	ENOLCK		37	/* No record locks available */
-+
-+/*
-+ * This error code is special: arch syscall entry code will return
-+ * -ENOSYS if users try to call a syscall that doesn't exist.  To keep
-+ * failures of syscalls that really do exist distinguishable from
-+ * failures due to attempts to use a nonexistent syscall, syscall
-+ * implementations should refrain from returning -ENOSYS.
-+ */
-+#define	ENOSYS		38	/* Invalid system call number */
-+
-+#define	ENOTEMPTY	39	/* Directory not empty */
-+#define	ELOOP		40	/* Too many symbolic links encountered */
-+#define	EWOULDBLOCK	EAGAIN	/* Operation would block */
-+#define	ENOMSG		42	/* No message of desired type */
-+#define	EIDRM		43	/* Identifier removed */
-+#define	ECHRNG		44	/* Channel number out of range */
-+#define	EL2NSYNC	45	/* Level 2 not synchronized */
-+#define	EL3HLT		46	/* Level 3 halted */
-+#define	EL3RST		47	/* Level 3 reset */
-+#define	ELNRNG		48	/* Link number out of range */
-+#define	EUNATCH		49	/* Protocol driver not attached */
-+#define	ENOCSI		50	/* No CSI structure available */
-+#define	EL2HLT		51	/* Level 2 halted */
-+#define	EBADE		52	/* Invalid exchange */
-+#define	EBADR		53	/* Invalid request descriptor */
-+#define	EXFULL		54	/* Exchange full */
-+#define	ENOANO		55	/* No anode */
-+#define	EBADRQC		56	/* Invalid request code */
-+#define	EBADSLT		57	/* Invalid slot */
-+
-+#define	EDEADLOCK	EDEADLK
-+
-+#define	EBFONT		59	/* Bad font file format */
-+#define	ENOSTR		60	/* Device not a stream */
-+#define	ENODATA		61	/* No data available */
-+#define	ETIME		62	/* Timer expired */
-+#define	ENOSR		63	/* Out of streams resources */
-+#define	ENONET		64	/* Machine is not on the network */
-+#define	ENOPKG		65	/* Package not installed */
-+#define	EREMOTE		66	/* Object is remote */
-+#define	ENOLINK		67	/* Link has been severed */
-+#define	EADV		68	/* Advertise error */
-+#define	ESRMNT		69	/* Srmount error */
-+#define	ECOMM		70	/* Communication error on send */
-+#define	EPROTO		71	/* Protocol error */
-+#define	EMULTIHOP	72	/* Multihop attempted */
-+#define	EDOTDOT		73	/* RFS specific error */
-+#define	EBADMSG		74	/* Not a data message */
-+#define	EOVERFLOW	75	/* Value too large for defined data type */
-+#define	ENOTUNIQ	76	/* Name not unique on network */
-+#define	EBADFD		77	/* File descriptor in bad state */
-+#define	EREMCHG		78	/* Remote address changed */
-+#define	ELIBACC		79	/* Can not access a needed shared library */
-+#define	ELIBBAD		80	/* Accessing a corrupted shared library */
-+#define	ELIBSCN		81	/* .lib section in a.out corrupted */
-+#define	ELIBMAX		82	/* Attempting to link in too many shared libraries */
-+#define	ELIBEXEC	83	/* Cannot exec a shared library directly */
-+#define	EILSEQ		84	/* Illegal byte sequence */
-+#define	ERESTART	85	/* Interrupted system call should be restarted */
-+#define	ESTRPIPE	86	/* Streams pipe error */
-+#define	EUSERS		87	/* Too many users */
-+#define	ENOTSOCK	88	/* Socket operation on non-socket */
-+#define	EDESTADDRREQ	89	/* Destination address required */
-+#define	EMSGSIZE	90	/* Message too long */
-+#define	EPROTOTYPE	91	/* Protocol wrong type for socket */
-+#define	ENOPROTOOPT	92	/* Protocol not available */
-+#define	EPROTONOSUPPORT	93	/* Protocol not supported */
-+#define	ESOCKTNOSUPPORT	94	/* Socket type not supported */
-+#define	EOPNOTSUPP	95	/* Operation not supported on transport endpoint */
-+#define	EPFNOSUPPORT	96	/* Protocol family not supported */
-+#define	EAFNOSUPPORT	97	/* Address family not supported by protocol */
-+#define	EADDRINUSE	98	/* Address already in use */
-+#define	EADDRNOTAVAIL	99	/* Cannot assign requested address */
-+#define	ENETDOWN	100	/* Network is down */
-+#define	ENETUNREACH	101	/* Network is unreachable */
-+#define	ENETRESET	102	/* Network dropped connection because of reset */
-+#define	ECONNABORTED	103	/* Software caused connection abort */
-+#define	ECONNRESET	104	/* Connection reset by peer */
-+#define	ENOBUFS		105	/* No buffer space available */
-+#define	EISCONN		106	/* Transport endpoint is already connected */
-+#define	ENOTCONN	107	/* Transport endpoint is not connected */
-+#define	ESHUTDOWN	108	/* Cannot send after transport endpoint shutdown */
-+#define	ETOOMANYREFS	109	/* Too many references: cannot splice */
-+#define	ETIMEDOUT	110	/* Connection timed out */
-+#define	ECONNREFUSED	111	/* Connection refused */
-+#define	EHOSTDOWN	112	/* Host is down */
-+#define	EHOSTUNREACH	113	/* No route to host */
-+#define	EALREADY	114	/* Operation already in progress */
-+#define	EINPROGRESS	115	/* Operation now in progress */
-+#define	ESTALE		116	/* Stale file handle */
-+#define	EUCLEAN		117	/* Structure needs cleaning */
-+#define	ENOTNAM		118	/* Not a XENIX named type file */
-+#define	ENAVAIL		119	/* No XENIX semaphores available */
-+#define	EISNAM		120	/* Is a named type file */
-+#define	EREMOTEIO	121	/* Remote I/O error */
-+#define	EDQUOT		122	/* Quota exceeded */
-+
-+#define	ENOMEDIUM	123	/* No medium found */
-+#define	EMEDIUMTYPE	124	/* Wrong medium type */
-+#define	ECANCELED	125	/* Operation Canceled */
-+#define	ENOKEY		126	/* Required key not available */
-+#define	EKEYEXPIRED	127	/* Key has expired */
-+#define	EKEYREVOKED	128	/* Key has been revoked */
-+#define	EKEYREJECTED	129	/* Key was rejected by service */
-+
-+/* for robust mutexes */
-+#define	EOWNERDEAD	130	/* Owner died */
-+#define	ENOTRECOVERABLE	131	/* State not recoverable */
-+
-+#define ERFKILL		132	/* Operation not possible due to RF-kill */
-+
-+#define EHWPOISON	133	/* Memory page has hardware error */
-+
-+#endif
-diff --git a/tools/perf/check-headers.sh b/tools/perf/check-headers.sh
-index 83a65d305298..51abdb0a4047 100755
---- a/tools/perf/check-headers.sh
-+++ b/tools/perf/check-headers.sh
-@@ -49,6 +49,8 @@ include/asm-generic/bitops/__fls.h
- include/asm-generic/bitops/fls.h
- include/asm-generic/bitops/fls64.h
- include/linux/coresight-pmu.h
-+include/uapi/asm-generic/errno.h
-+include/uapi/asm-generic/errno-base.h
- include/uapi/asm-generic/ioctls.h
- include/uapi/asm-generic/mman-common.h
- '
--- 
-2.14.3
+Pulled, thanks a lot Arnaldo!
+
+	Ingo
