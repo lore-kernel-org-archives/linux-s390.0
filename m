@@ -1,113 +1,253 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v1] s390x/mm: simplify gmap_protect_rmap()
-Date: Wed, 24 Jan 2018 14:07:29 +0100
-Message-ID: <c78c1415-549d-6581-e340-2901b776e9ee@de.ibm.com>
-References: <20180123212618.32611-1-david@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180123212618.32611-1-david@redhat.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 1/6] net/smc: use local struct sock variables consistently
+Date: Wed, 24 Jan 2018 10:28:12 +0100
+Message-ID: <20180124092817.103089-2-ubraun@linux.vnet.ibm.com>
+References: <20180124092817.103089-1-ubraun@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180124092817.103089-1-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Thanks applied.
-Martin, I will take that via the kvm tree as well.
+Cleanup to consistently exploit the local struct sock definitions.
+No functional change.
 
-On 01/23/2018 10:26 PM, David Hildenbrand wrote:
-> We never call it with anything but PROT_READ. This is a left over from
-> an old prototype. For creation of shadow page tables, we always only
-> have to protect the original table in guest memory from write accesses,
-> so we can properly invalidate the shadow on writes. Other protections
-> are not needed.
-> 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/mm/gmap.c | 17 ++++++++---------
->  1 file changed, 8 insertions(+), 9 deletions(-)
-> 
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 54cfd51a5a27..a7e05c5dea70 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -1021,18 +1021,17 @@ static inline void gmap_insert_rmap(struct gmap *sg, unsigned long vmaddr,
->  }
-> 
->  /**
-> - * gmap_protect_rmap - modify access rights to memory and create an rmap
-> + * gmap_protect_rmap - restrict access rights to memory (RO) and create an rmap
->   * @sg: pointer to the shadow guest address space structure
->   * @raddr: rmap address in the shadow gmap
->   * @paddr: address in the parent guest address space
->   * @len: length of the memory area to protect
-> - * @prot: indicates access rights: none, read-only or read-write
->   *
->   * Returns 0 if successfully protected and the rmap was created, -ENOMEM
->   * if out of memory and -EFAULT if paddr is invalid.
->   */
->  static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
-> -			     unsigned long paddr, unsigned long len, int prot)
-> +			     unsigned long paddr, unsigned long len)
->  {
->  	struct gmap *parent;
->  	struct gmap_rmap *rmap;
-> @@ -1060,7 +1059,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
->  		ptep = gmap_pte_op_walk(parent, paddr, &ptl);
->  		if (ptep) {
->  			spin_lock(&sg->guest_table_lock);
-> -			rc = ptep_force_prot(parent->mm, paddr, ptep, prot,
-> +			rc = ptep_force_prot(parent->mm, paddr, ptep, PROT_READ,
->  					     PGSTE_VSIE_BIT);
->  			if (!rc)
->  				gmap_insert_rmap(sg, vmaddr, rmap);
-> @@ -1070,7 +1069,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
->  		radix_tree_preload_end();
->  		if (rc) {
->  			kfree(rmap);
-> -			rc = gmap_pte_op_fixup(parent, paddr, vmaddr, prot);
-> +			rc = gmap_pte_op_fixup(parent, paddr, vmaddr, PROT_READ);
->  			if (rc)
->  				return rc;
->  			continue;
-> @@ -1609,7 +1608,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
->  	origin = r2t & _REGION_ENTRY_ORIGIN;
->  	offset = ((r2t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
->  	len = ((r2t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
-> -	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
-> +	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
->  	spin_lock(&sg->guest_table_lock);
->  	if (!rc) {
->  		table = gmap_table_walk(sg, saddr, 4);
-> @@ -1692,7 +1691,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
->  	origin = r3t & _REGION_ENTRY_ORIGIN;
->  	offset = ((r3t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
->  	len = ((r3t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
-> -	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
-> +	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
->  	spin_lock(&sg->guest_table_lock);
->  	if (!rc) {
->  		table = gmap_table_walk(sg, saddr, 3);
-> @@ -1776,7 +1775,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
->  	origin = sgt & _REGION_ENTRY_ORIGIN;
->  	offset = ((sgt & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
->  	len = ((sgt & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
-> -	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
-> +	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
->  	spin_lock(&sg->guest_table_lock);
->  	if (!rc) {
->  		table = gmap_table_walk(sg, saddr, 2);
-> @@ -1895,7 +1894,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
->  	/* Make pgt read-only in parent gmap page table (not the pgste) */
->  	raddr = (saddr & _SEGMENT_MASK) | _SHADOW_RMAP_SEGMENT;
->  	origin = pgt & _SEGMENT_ENTRY_ORIGIN & PAGE_MASK;
-> -	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE, PROT_READ);
-> +	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE);
->  	spin_lock(&sg->guest_table_lock);
->  	if (!rc) {
->  		table = gmap_table_walk(sg, saddr, 1);
-> 
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ net/smc/af_smc.c    | 33 +++++++++++++++++----------------
+ net/smc/smc_close.c | 38 ++++++++++++++++++++------------------
+ 2 files changed, 37 insertions(+), 34 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index daf8075f5a4c..eccccf743b9f 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -581,39 +581,39 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+ 
+ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
+ {
+-	struct sock *sk = &lsmc->sk;
+-	struct socket *new_clcsock;
++	struct socket *new_clcsock = NULL;
++	struct sock *lsk = &lsmc->sk;
+ 	struct sock *new_sk;
+ 	int rc;
+ 
+-	release_sock(&lsmc->sk);
+-	new_sk = smc_sock_alloc(sock_net(sk), NULL);
++	release_sock(lsk);
++	new_sk = smc_sock_alloc(sock_net(lsk), NULL);
+ 	if (!new_sk) {
+ 		rc = -ENOMEM;
+-		lsmc->sk.sk_err = ENOMEM;
++		lsk->sk_err = ENOMEM;
+ 		*new_smc = NULL;
+-		lock_sock(&lsmc->sk);
++		lock_sock(lsk);
+ 		goto out;
+ 	}
+ 	*new_smc = smc_sk(new_sk);
+ 
+ 	rc = kernel_accept(lsmc->clcsock, &new_clcsock, 0);
+-	lock_sock(&lsmc->sk);
++	lock_sock(lsk);
+ 	if  (rc < 0) {
+-		lsmc->sk.sk_err = -rc;
++		lsk->sk_err = -rc;
+ 		new_sk->sk_state = SMC_CLOSED;
+ 		sock_set_flag(new_sk, SOCK_DEAD);
+-		sk->sk_prot->unhash(new_sk);
++		new_sk->sk_prot->unhash(new_sk);
+ 		sock_put(new_sk);
+ 		*new_smc = NULL;
+ 		goto out;
+ 	}
+-	if (lsmc->sk.sk_state == SMC_CLOSED) {
++	if (lsk->sk_state == SMC_CLOSED) {
+ 		if (new_clcsock)
+ 			sock_release(new_clcsock);
+ 		new_sk->sk_state = SMC_CLOSED;
+ 		sock_set_flag(new_sk, SOCK_DEAD);
+-		sk->sk_prot->unhash(new_sk);
++		new_sk->sk_prot->unhash(new_sk);
+ 		sock_put(new_sk);
+ 		*new_smc = NULL;
+ 		goto out;
+@@ -936,11 +936,12 @@ static void smc_tcp_listen_work(struct work_struct *work)
+ {
+ 	struct smc_sock *lsmc = container_of(work, struct smc_sock,
+ 					     tcp_listen_work);
++	struct sock *lsk = &lsmc->sk;
+ 	struct smc_sock *new_smc;
+ 	int rc = 0;
+ 
+-	lock_sock(&lsmc->sk);
+-	while (lsmc->sk.sk_state == SMC_LISTEN) {
++	lock_sock(lsk);
++	while (lsk->sk_state == SMC_LISTEN) {
+ 		rc = smc_clcsock_accept(lsmc, &new_smc);
+ 		if (rc)
+ 			goto out;
+@@ -949,15 +950,15 @@ static void smc_tcp_listen_work(struct work_struct *work)
+ 
+ 		new_smc->listen_smc = lsmc;
+ 		new_smc->use_fallback = false; /* assume rdma capability first*/
+-		sock_hold(&lsmc->sk); /* sock_put in smc_listen_work */
++		sock_hold(lsk); /* sock_put in smc_listen_work */
+ 		INIT_WORK(&new_smc->smc_listen_work, smc_listen_work);
+ 		smc_copy_sock_settings_to_smc(new_smc);
+ 		schedule_work(&new_smc->smc_listen_work);
+ 	}
+ 
+ out:
+-	release_sock(&lsmc->sk);
+-	lsmc->sk.sk_data_ready(&lsmc->sk); /* no more listening, wake accept */
++	release_sock(lsk);
++	lsk->sk_data_ready(lsk); /* no more listening, wake accept */
+ }
+ 
+ static int smc_listen(struct socket *sock, int backlog)
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index e194c6cc308a..11793912f001 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -115,36 +115,38 @@ static int smc_close_abort(struct smc_connection *conn)
+  */
+ static void smc_close_active_abort(struct smc_sock *smc)
+ {
++	struct sock *sk = &smc->sk;
++
+ 	struct smc_cdc_conn_state_flags *txflags =
+ 		&smc->conn.local_tx_ctrl.conn_state_flags;
+ 
+-	smc->sk.sk_err = ECONNABORTED;
++	sk->sk_err = ECONNABORTED;
+ 	if (smc->clcsock && smc->clcsock->sk) {
+ 		smc->clcsock->sk->sk_err = ECONNABORTED;
+ 		smc->clcsock->sk->sk_state_change(smc->clcsock->sk);
+ 	}
+-	switch (smc->sk.sk_state) {
++	switch (sk->sk_state) {
+ 	case SMC_INIT:
+ 	case SMC_ACTIVE:
+-		smc->sk.sk_state = SMC_PEERABORTWAIT;
++		sk->sk_state = SMC_PEERABORTWAIT;
+ 		break;
+ 	case SMC_APPCLOSEWAIT1:
+ 	case SMC_APPCLOSEWAIT2:
+ 		txflags->peer_conn_abort = 1;
+ 		sock_release(smc->clcsock);
+ 		if (!smc_cdc_rxed_any_close(&smc->conn))
+-			smc->sk.sk_state = SMC_PEERABORTWAIT;
++			sk->sk_state = SMC_PEERABORTWAIT;
+ 		else
+-			smc->sk.sk_state = SMC_CLOSED;
++			sk->sk_state = SMC_CLOSED;
+ 		break;
+ 	case SMC_PEERCLOSEWAIT1:
+ 	case SMC_PEERCLOSEWAIT2:
+ 		if (!txflags->peer_conn_closed) {
+-			smc->sk.sk_state = SMC_PEERABORTWAIT;
++			sk->sk_state = SMC_PEERABORTWAIT;
+ 			txflags->peer_conn_abort = 1;
+ 			sock_release(smc->clcsock);
+ 		} else {
+-			smc->sk.sk_state = SMC_CLOSED;
++			sk->sk_state = SMC_CLOSED;
+ 		}
+ 		break;
+ 	case SMC_PROCESSABORT:
+@@ -153,7 +155,7 @@ static void smc_close_active_abort(struct smc_sock *smc)
+ 			txflags->peer_conn_abort = 1;
+ 			sock_release(smc->clcsock);
+ 		}
+-		smc->sk.sk_state = SMC_CLOSED;
++		sk->sk_state = SMC_CLOSED;
+ 		break;
+ 	case SMC_PEERFINCLOSEWAIT:
+ 	case SMC_PEERABORTWAIT:
+@@ -161,8 +163,8 @@ static void smc_close_active_abort(struct smc_sock *smc)
+ 		break;
+ 	}
+ 
+-	sock_set_flag(&smc->sk, SOCK_DEAD);
+-	smc->sk.sk_state_change(&smc->sk);
++	sock_set_flag(sk, SOCK_DEAD);
++	sk->sk_state_change(sk);
+ }
+ 
+ static inline bool smc_close_sent_any_close(struct smc_connection *conn)
+@@ -278,7 +280,7 @@ int smc_close_active(struct smc_sock *smc)
+ 	}
+ 
+ 	if (old_state != sk->sk_state)
+-		sk->sk_state_change(&smc->sk);
++		sk->sk_state_change(sk);
+ 	return rc;
+ }
+ 
+@@ -331,7 +333,7 @@ static void smc_close_passive_work(struct work_struct *work)
+ 	struct sock *sk = &smc->sk;
+ 	int old_state;
+ 
+-	lock_sock(&smc->sk);
++	lock_sock(sk);
+ 	old_state = sk->sk_state;
+ 
+ 	if (!conn->alert_token_local) {
+@@ -340,7 +342,7 @@ static void smc_close_passive_work(struct work_struct *work)
+ 		goto wakeup;
+ 	}
+ 
+-	rxflags = &smc->conn.local_rx_ctrl.conn_state_flags;
++	rxflags = &conn->local_rx_ctrl.conn_state_flags;
+ 	if (rxflags->peer_conn_abort) {
+ 		smc_close_passive_abort_received(smc);
+ 		goto wakeup;
+@@ -348,7 +350,7 @@ static void smc_close_passive_work(struct work_struct *work)
+ 
+ 	switch (sk->sk_state) {
+ 	case SMC_INIT:
+-		if (atomic_read(&smc->conn.bytes_to_rcv) ||
++		if (atomic_read(&conn->bytes_to_rcv) ||
+ 		    (rxflags->peer_done_writing &&
+ 		     !smc_cdc_rxed_any_close(conn)))
+ 			sk->sk_state = SMC_APPCLOSEWAIT1;
+@@ -365,7 +367,7 @@ static void smc_close_passive_work(struct work_struct *work)
+ 		/* to check for closing */
+ 	case SMC_PEERCLOSEWAIT2:
+ 	case SMC_PEERFINCLOSEWAIT:
+-		if (!smc_cdc_rxed_any_close(&smc->conn))
++		if (!smc_cdc_rxed_any_close(conn))
+ 			break;
+ 		if (sock_flag(sk, SOCK_DEAD) &&
+ 		    smc_close_sent_any_close(conn)) {
+@@ -394,12 +396,12 @@ static void smc_close_passive_work(struct work_struct *work)
+ 		sk->sk_state_change(sk);
+ 		if ((sk->sk_state == SMC_CLOSED) &&
+ 		    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket)) {
+-			smc_conn_free(&smc->conn);
++			smc_conn_free(conn);
+ 			schedule_delayed_work(&smc->sock_put_work,
+ 					      SMC_CLOSE_SOCK_PUT_DELAY);
+ 		}
+ 	}
+-	release_sock(&smc->sk);
++	release_sock(sk);
+ }
+ 
+ void smc_close_sock_put_work(struct work_struct *work)
+@@ -462,7 +464,7 @@ int smc_close_shutdown_write(struct smc_sock *smc)
+ 	}
+ 
+ 	if (old_state != sk->sk_state)
+-		sk->sk_state_change(&smc->sk);
++		sk->sk_state_change(sk);
+ 	return rc;
+ }
+ 
+-- 
+2.13.5
