@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 09/12] KVM: s390: make kvm_s390_get_io_int() aware of GISA
-Date: Thu, 25 Jan 2018 14:28:45 +0100
-Message-ID: <20180125132848.175942-10-borntraeger@de.ibm.com>
+Subject: [PATCH v2 07/12] KVM: s390: abstract adapter interruption word generation from ISC
+Date: Thu, 25 Jan 2018 14:28:43 +0100
+Message-ID: <20180125132848.175942-8-borntraeger@de.ibm.com>
 References: <20180125132848.175942-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180125132848.175942-1-borntraeger@de.ibm.com>
@@ -14,113 +14,50 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-The function returns a pending I/O interrupt with the highest
-priority defined by its ISC.
-
-Together with AIV activation, pending adapter interrupts are
-managed by the GISA IPM. Thus kvm_s390_get_io_int() needs to
-inspect the IPM as well when the interrupt with the highest
-priority has to be identified.
-
-In case classic and adapter interrupts with the same ISC are
-pending, the classic interrupt will be returned first.
+The function isc_to_int_word() allows the generation of interruption
+words for adapter interrupts.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 71 +++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 65 insertions(+), 6 deletions(-)
+ arch/s390/kvm/interrupt.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 0edf97a..5c48930 100644
+index 263cd10..7731c0d 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -1471,12 +1471,8 @@ static struct kvm_s390_interrupt_info *get_io_int(struct kvm *kvm,
- 	return NULL;
+@@ -198,6 +198,11 @@ static uint64_t isc_to_isc_bits(int isc)
+ 	return (0x80 >> isc) << 24;
  }
  
--/*
-- * Dequeue and return an I/O interrupt matching any of the interruption
-- * subclasses as designated by the isc mask in cr6 and the schid (if != 0).
-- */
--struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
--						    u64 isc_mask, u32 schid)
-+static struct kvm_s390_interrupt_info *get_top_io_int(struct kvm *kvm,
-+						      u64 isc_mask, u32 schid)
++static inline u32 isc_to_int_word(u8 isc)
++{
++	return ((u32)isc << 27) | 0x80000000;
++}
++
+ static inline u8 int_word_to_isc(u32 int_word)
  {
- 	struct kvm_s390_interrupt_info *inti = NULL;
- 	int isc;
-@@ -1488,6 +1484,69 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
- 	return inti;
- }
- 
-+static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
-+{
-+	unsigned long active_mask;
-+	int isc;
-+
-+	if (schid)
-+		goto out;
-+	if (!kvm->arch.gisa)
-+		goto out;
-+
-+	active_mask = (isc_mask & kvm_s390_gisa_get_ipm(kvm->arch.gisa) << 24) << 32;
-+	while (active_mask) {
-+		isc = __flogr(active_mask);
-+		if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, isc))
-+			return isc;
-+		clear_bit_inv(isc, &active_mask);
-+	}
-+out:
-+	return -EINVAL;
-+}
-+
-+/*
-+ * Dequeue and return an I/O interrupt matching any of the interruption
-+ * subclasses as designated by the isc mask in cr6 and the schid (if != 0).
-+ * Take into account the interrupts pending in the interrupt list and in GISA.
-+ */
-+struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
-+						    u64 isc_mask, u32 schid)
-+{
-+	struct kvm_s390_interrupt_info *inti, *tmp_inti;
-+	int isc;
-+
-+	inti = get_top_io_int(kvm, isc_mask, schid);
-+
-+	isc = get_top_gisa_isc(kvm, isc_mask, schid);
-+	if (isc < 0)
-+		/* no AI in GISA */
-+		goto out;
-+
-+	if (!inti)
-+		/* AI in GISA but no classical IO int */
-+		goto gisa_out;
-+
-+	/* both types of interrupts present */
-+	if (int_word_to_isc(inti->io.io_int_word) <= isc) {
-+		/* classical IO int with higher priority */
-+		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
-+		goto out;
-+	}
-+gisa_out:
-+	tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL);
-+	if (tmp_inti) {
-+		tmp_inti->type = KVM_S390_INT_IO(1, 0, 0, 0);
-+		tmp_inti->io.io_int_word = isc_to_int_word(isc);
-+		if (inti)
-+			kvm_s390_reinject_io_int(kvm, inti);
-+		inti = tmp_inti;
-+	} else
-+		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
-+out:
-+	return inti;
-+}
-+
- #define SCCB_MASK 0xFFFFFFF8
- #define SCCB_EVENT_PENDING 0x3
+ 	return (int_word & 0x38000000) >> 27;
+@@ -991,7 +996,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
+ 			 */
+ 			VCPU_EVENT(vcpu, 4, "%s isc %u", "deliver: I/O (AI/gisa)", isc);
+ 			memset(&io, 0, sizeof(io));
+-			io.io_int_word = (isc << 27) | 0x80000000;
++			io.io_int_word = isc_to_int_word(isc);
+ 			vcpu->stat.deliver_io_int++;
+ 			trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 				KVM_S390_INT_IO(1, 0, 0, 0),
+@@ -2302,7 +2307,7 @@ static int kvm_s390_inject_airq(struct kvm *kvm,
+ 	struct kvm_s390_interrupt s390int = {
+ 		.type = KVM_S390_INT_IO(1, 0, 0, 0),
+ 		.parm = 0,
+-		.parm64 = (adapter->isc << 27) | 0x80000000,
++		.parm64 = isc_to_int_word(adapter->isc),
+ 	};
+ 	int ret = 0;
  
 -- 
 2.9.4
