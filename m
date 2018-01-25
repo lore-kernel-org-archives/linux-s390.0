@@ -1,14 +1,14 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 02/12] KVM: s390: define GISA format-0 data structure
-Date: Thu, 25 Jan 2018 15:00:18 +0100
-Message-ID: <63164148-158f-a8de-6ea8-604a921251b7@redhat.com>
+Subject: Re: [PATCH v2 04/12] KVM: s390: implement GISA IPM related primitives
+Date: Thu, 25 Jan 2018 15:06:14 +0100
+Message-ID: <8bf8406b-b7ce-f391-0cbe-bb6983a21003@redhat.com>
 References: <20180125132848.175942-1-borntraeger@de.ibm.com>
- <20180125132848.175942-3-borntraeger@de.ibm.com>
+ <20180125132848.175942-5-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180125132848.175942-3-borntraeger@de.ibm.com>
+In-Reply-To: <20180125132848.175942-5-borntraeger@de.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,18 +20,8 @@ List-ID: <linux-s390.vger.kernel.org>
 On 25.01.2018 14:28, Christian Borntraeger wrote:
 > From: Michael Mueller <mimu@linux.vnet.ibm.com>
 > 
-> In preperation to support pass-through adapter interrupts, the Guest
-> Interruption State Area (GISA) and the Adapter Interruption Virtualization
-> (AIV) features will be introduced here.
-> 
-> This patch introduces format-0 GISA (that is defines the struct describing
-> the GISA, allocates storage for it, and introduces fields for the
-> GISA address in kvm_s390_sie_block and kvm_s390_vsie).
-> 
-> As the GISA requires storage below 2GB, it is put in sie_page2, which is
-> already allocated in ZONE_DMA. In addition, The GISA requires alignment to
-> its integral boundary. This is already naturally aligned via the
-> padding in the sie_page2.
+> The patch implements routines to access the GISA to test and modify
+> its Interruption Pending Mask (IPM) from the host side.
 > 
 > Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 > Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
@@ -39,78 +29,66 @@ On 25.01.2018 14:28, Christian Borntraeger wrote:
 > Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > ---
->  arch/s390/include/asm/kvm_host.h | 23 +++++++++++++++++++----
->  arch/s390/kvm/kvm-s390.c         |  1 +
->  2 files changed, 20 insertions(+), 4 deletions(-)
+>  arch/s390/kvm/interrupt.c | 23 +++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
 > 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 9981721..77acade 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -183,6 +183,7 @@ struct kvm_s390_sie_block {
->  #define ECA_IB		0x40000000
->  #define ECA_SIGPI	0x10000000
->  #define ECA_MVPGI	0x01000000
-> +#define ECA_AIV		0x00200000
->  #define ECA_VX		0x00020000
->  #define ECA_PROTEXCI	0x00002000
->  #define ECA_SII		0x00000001
-> @@ -227,7 +228,8 @@ struct kvm_s390_sie_block {
->  	__u8    epdx;			/* 0x0069 */
->  	__u8    reserved6a[2];		/* 0x006a */
->  	__u32	todpr;			/* 0x006c */
-> -	__u8	reserved70[16];		/* 0x0070 */
-> +	__u32	gd;			/* 0x0070 */
-> +	__u8	reserved74[12];		/* 0x0074 */
->  	__u64	mso;			/* 0x0080 */
->  	__u64	msl;			/* 0x0088 */
->  	psw_t	gpsw;			/* 0x0090 */
-> @@ -703,14 +705,27 @@ struct kvm_s390_crypto_cb {
->  	struct kvm_s390_apcb1 apcb1;		/* 0x0080 */
->  };
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index b7b2865..d559776 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -203,6 +203,28 @@ static inline u8 int_word_to_isc(u32 int_word)
+>  	return (int_word & 0x38000000) >> 27;
+>  }
 >  
-> +struct kvm_s390_gisa {
-> +	u32 next_alert;
-> +	u8 ipm;
-> +	u8 reserved01;
-> +	u8 : 6;
-> +	u8 g : 1;
-> +	u8 c : 1;
-> +	u8 iam;
-> +	u8 reserved02[4];
-> +	u32 airq_count;
-> +};
+
+Can we add a comment like
+
+/*
+ * To use atomic bitmap functions, we have to provide a bitmap address
+ * that is u64 aligned. However, the ipm might be u32 aligned.
+ * Therefore, we logically start the bitmap at the very beginning of the
+ * struct and fixup the bit number.
+ */
+
+> +#define IPM_BIT_OFFSET (offsetof(struct kvm_s390_gisa, ipm) * BITS_PER_BYTE)
 > +
->  /*
-> - * sie_page2 has to be allocated as DMA because fac_list and crycb need
-> - * 31bit addresses in the sie control block.
-> + * sie_page2 has to be allocated as DMA because fac_list, crycb and
-> + * gisa need 31bit addresses in the sie control block.
->   */
->  struct sie_page2 {
->  	__u64 fac_list[S390_ARCH_FAC_LIST_SIZE_U64];	/* 0x0000 */
->  	struct kvm_s390_crypto_cb crycb;		/* 0x0800 */
-> -	u8 reserved900[0x1000 - 0x900];			/* 0x0900 */
-> +	struct kvm_s390_gisa gisa;			/* 0x0900 */
-> +	u8 reserved910[0x1000 - 0x910];			/* 0x0910 */
->  };
+> +static inline void kvm_s390_gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+> +{
+> +	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+> +}
+> +
+> +static inline u8 kvm_s390_gisa_get_ipm(struct kvm_s390_gisa *gisa)
+> +{
+> +	return (u8) READ_ONCE(gisa->ipm);
+
+Is this cast necessary? (ipm is defined as u8)
+
+> +}
+> +
+> +static inline void kvm_s390_gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+
+wonder if an u8 for gisc would be better.
+
+> +{
+> +	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+> +}
+> +
+> +static inline int kvm_s390_gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+> +{
+> +	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+> +}
+> +
+>  static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
+>  {
+>  	return vcpu->kvm->arch.float_int.pending_irqs |
+> @@ -2682,3 +2704,4 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
 >  
->  struct kvm_s390_vsie {
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index de16c22..48f0099 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1915,6 +1915,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->  	if (!kvm->arch.dbf)
->  		goto out_err;
->  
-> +	BUILD_BUG_ON(sizeof(struct sie_page2) != 4096);
->  	kvm->arch.sie_page2 =
->  	     (struct sie_page2 *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
->  	if (!kvm->arch.sie_page2)
+>  	return n;
+>  }
+> +
 > 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Unrelated whitespace change.
 
 -- 
 
