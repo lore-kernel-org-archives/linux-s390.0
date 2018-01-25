@@ -1,15 +1,14 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 01/12] KVM: s390: reverse bit ordering of irqs in
- pending mask
-Date: Thu, 25 Jan 2018 14:59:40 +0100
-Message-ID: <7434b9ff-0246-6b0e-baf7-a767fa1c3b95@redhat.com>
+Subject: Re: [PATCH v2 02/12] KVM: s390: define GISA format-0 data structure
+Date: Thu, 25 Jan 2018 15:00:18 +0100
+Message-ID: <63164148-158f-a8de-6ea8-604a921251b7@redhat.com>
 References: <20180125132848.175942-1-borntraeger@de.ibm.com>
- <20180125132848.175942-2-borntraeger@de.ibm.com>
+ <20180125132848.175942-3-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180125132848.175942-2-borntraeger@de.ibm.com>
+In-Reply-To: <20180125132848.175942-3-borntraeger@de.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -21,139 +20,94 @@ List-ID: <linux-s390.vger.kernel.org>
 On 25.01.2018 14:28, Christian Borntraeger wrote:
 > From: Michael Mueller <mimu@linux.vnet.ibm.com>
 > 
-> This patch prepares a simplification of bit operations between the irq
-> pending mask for emulated interrupts and the Interruption Pending Mask
-> (IPM) which is part of the Guest Interruption State Area (GISA), a feature
-> that allows interrupt delivery to guests by means of the SIE instruction.
+> In preperation to support pass-through adapter interrupts, the Guest
+> Interruption State Area (GISA) and the Adapter Interruption Virtualization
+> (AIV) features will be introduced here.
 > 
-> Without that change, a bit-wise *or* operation on parts of these two masks
-> would either require a look-up table of size 256 bytes to map the IPM
-> to the emulated irq pending mask bit orientation (all bits mirrored at half
-> byte) or a sequence of up to 8 condidional branches to perform tests of
-> single bit positions. Both options are to be rejected either by performance
-> or space utilization reasons.
+> This patch introduces format-0 GISA (that is defines the struct describing
+> the GISA, allocates storage for it, and introduces fields for the
+> GISA address in kvm_s390_sie_block and kvm_s390_vsie).
 > 
-> Beyond that this change will be transparent.
+> As the GISA requires storage below 2GB, it is put in sie_page2, which is
+> already allocated in ZONE_DMA. In addition, The GISA requires alignment to
+> its integral boundary. This is already naturally aligned via the
+> padding in the sie_page2.
 > 
 > Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 > Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 > Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > ---
->  arch/s390/include/asm/kvm_host.h | 54 ++++++++++++++++++++--------------------
->  arch/s390/kvm/interrupt.c        | 12 ++++-----
->  2 files changed, 33 insertions(+), 33 deletions(-)
+>  arch/s390/include/asm/kvm_host.h | 23 +++++++++++++++++++----
+>  arch/s390/kvm/kvm-s390.c         |  1 +
+>  2 files changed, 20 insertions(+), 4 deletions(-)
 > 
 > diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index e16a9f2..9981721 100644
+> index 9981721..77acade 100644
 > --- a/arch/s390/include/asm/kvm_host.h
 > +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -409,35 +409,35 @@ struct kvm_vcpu_stat {
->  #define PGM_PER				0x80
->  #define PGM_CRYPTO_OPERATION		0x119
->  
-> -/* irq types in order of priority */
-> +/* irq types in ascend order of priorities */
->  enum irq_types {
-> -	IRQ_PEND_MCHK_EX = 0,
-> -	IRQ_PEND_SVC,
-> -	IRQ_PEND_PROG,
-> -	IRQ_PEND_MCHK_REP,
-> -	IRQ_PEND_EXT_IRQ_KEY,
-> -	IRQ_PEND_EXT_MALFUNC,
-> -	IRQ_PEND_EXT_EMERGENCY,
-> -	IRQ_PEND_EXT_EXTERNAL,
-> -	IRQ_PEND_EXT_CLOCK_COMP,
-> -	IRQ_PEND_EXT_CPU_TIMER,
-> -	IRQ_PEND_EXT_TIMING,
-> -	IRQ_PEND_EXT_SERVICE,
-> -	IRQ_PEND_EXT_HOST,
-> -	IRQ_PEND_PFAULT_INIT,
-> -	IRQ_PEND_PFAULT_DONE,
-> -	IRQ_PEND_VIRTIO,
-> -	IRQ_PEND_IO_ISC_0,
-> -	IRQ_PEND_IO_ISC_1,
-> -	IRQ_PEND_IO_ISC_2,
-> -	IRQ_PEND_IO_ISC_3,
-> -	IRQ_PEND_IO_ISC_4,
-> -	IRQ_PEND_IO_ISC_5,
-> -	IRQ_PEND_IO_ISC_6,
-> -	IRQ_PEND_IO_ISC_7,
-> -	IRQ_PEND_SIGP_STOP,
-> +	IRQ_PEND_SET_PREFIX = 0,
->  	IRQ_PEND_RESTART,
-> -	IRQ_PEND_SET_PREFIX,
-> +	IRQ_PEND_SIGP_STOP,
-> +	IRQ_PEND_IO_ISC_7,
-> +	IRQ_PEND_IO_ISC_6,
-> +	IRQ_PEND_IO_ISC_5,
-> +	IRQ_PEND_IO_ISC_4,
-> +	IRQ_PEND_IO_ISC_3,
-> +	IRQ_PEND_IO_ISC_2,
-> +	IRQ_PEND_IO_ISC_1,
-> +	IRQ_PEND_IO_ISC_0,
-> +	IRQ_PEND_VIRTIO,
-> +	IRQ_PEND_PFAULT_DONE,
-> +	IRQ_PEND_PFAULT_INIT,
-> +	IRQ_PEND_EXT_HOST,
-> +	IRQ_PEND_EXT_SERVICE,
-> +	IRQ_PEND_EXT_TIMING,
-> +	IRQ_PEND_EXT_CPU_TIMER,
-> +	IRQ_PEND_EXT_CLOCK_COMP,
-> +	IRQ_PEND_EXT_EXTERNAL,
-> +	IRQ_PEND_EXT_EMERGENCY,
-> +	IRQ_PEND_EXT_MALFUNC,
-> +	IRQ_PEND_EXT_IRQ_KEY,
-> +	IRQ_PEND_MCHK_REP,
-> +	IRQ_PEND_PROG,
-> +	IRQ_PEND_SVC,
-> +	IRQ_PEND_MCHK_EX,
->  	IRQ_PEND_COUNT
+> @@ -183,6 +183,7 @@ struct kvm_s390_sie_block {
+>  #define ECA_IB		0x40000000
+>  #define ECA_SIGPI	0x10000000
+>  #define ECA_MVPGI	0x01000000
+> +#define ECA_AIV		0x00200000
+>  #define ECA_VX		0x00020000
+>  #define ECA_PROTEXCI	0x00002000
+>  #define ECA_SII		0x00000001
+> @@ -227,7 +228,8 @@ struct kvm_s390_sie_block {
+>  	__u8    epdx;			/* 0x0069 */
+>  	__u8    reserved6a[2];		/* 0x006a */
+>  	__u32	todpr;			/* 0x006c */
+> -	__u8	reserved70[16];		/* 0x0070 */
+> +	__u32	gd;			/* 0x0070 */
+> +	__u8	reserved74[12];		/* 0x0074 */
+>  	__u64	mso;			/* 0x0080 */
+>  	__u64	msl;			/* 0x0088 */
+>  	psw_t	gpsw;			/* 0x0090 */
+> @@ -703,14 +705,27 @@ struct kvm_s390_crypto_cb {
+>  	struct kvm_s390_apcb1 apcb1;		/* 0x0080 */
 >  };
 >  
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index f8eb2cf..b7b2865 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -189,8 +189,8 @@ static int cpu_timer_irq_pending(struct kvm_vcpu *vcpu)
+> +struct kvm_s390_gisa {
+> +	u32 next_alert;
+> +	u8 ipm;
+> +	u8 reserved01;
+> +	u8 : 6;
+> +	u8 g : 1;
+> +	u8 c : 1;
+> +	u8 iam;
+> +	u8 reserved02[4];
+> +	u32 airq_count;
+> +};
+> +
+>  /*
+> - * sie_page2 has to be allocated as DMA because fac_list and crycb need
+> - * 31bit addresses in the sie control block.
+> + * sie_page2 has to be allocated as DMA because fac_list, crycb and
+> + * gisa need 31bit addresses in the sie control block.
+>   */
+>  struct sie_page2 {
+>  	__u64 fac_list[S390_ARCH_FAC_LIST_SIZE_U64];	/* 0x0000 */
+>  	struct kvm_s390_crypto_cb crycb;		/* 0x0800 */
+> -	u8 reserved900[0x1000 - 0x900];			/* 0x0900 */
+> +	struct kvm_s390_gisa gisa;			/* 0x0900 */
+> +	u8 reserved910[0x1000 - 0x910];			/* 0x0910 */
+>  };
 >  
->  static inline int is_ioirq(unsigned long irq_type)
->  {
-> -	return ((irq_type >= IRQ_PEND_IO_ISC_0) &&
-> -		(irq_type <= IRQ_PEND_IO_ISC_7));
-> +	return ((irq_type >= IRQ_PEND_IO_ISC_7) &&
-> +		(irq_type <= IRQ_PEND_IO_ISC_0));
->  }
+>  struct kvm_s390_vsie {
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index de16c22..48f0099 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1915,6 +1915,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>  	if (!kvm->arch.dbf)
+>  		goto out_err;
 >  
->  static uint64_t isc_to_isc_bits(int isc)
-> @@ -211,12 +211,12 @@ static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
->  
->  static inline int isc_to_irq_type(unsigned long isc)
->  {
-> -	return IRQ_PEND_IO_ISC_0 + isc;
-> +	return IRQ_PEND_IO_ISC_0 - isc;
->  }
->  
->  static inline int irq_type_to_isc(unsigned long irq_type)
->  {
-> -	return irq_type - IRQ_PEND_IO_ISC_0;
-> +	return IRQ_PEND_IO_ISC_0 - irq_type;
->  }
->  
->  static unsigned long disable_iscs(struct kvm_vcpu *vcpu,
-> @@ -1154,8 +1154,8 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
->  		set_bit(IRQ_PEND_EXT_CPU_TIMER, &li->pending_irqs);
->  
->  	while ((irqs = deliverable_irqs(vcpu)) && !rc) {
-> -		/* bits are in the order of interrupt priority */
-> -		irq_type = find_first_bit(&irqs, IRQ_PEND_COUNT);
-> +		/* bits are in the reverse order of interrupt priority */
-> +		irq_type = find_last_bit(&irqs, IRQ_PEND_COUNT);
->  		if (is_ioirq(irq_type)) {
->  			rc = __deliver_io(vcpu, irq_type);
->  		} else {
+> +	BUILD_BUG_ON(sizeof(struct sie_page2) != 4096);
+>  	kvm->arch.sie_page2 =
+>  	     (struct sie_page2 *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+>  	if (!kvm->arch.sie_page2)
 > 
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
