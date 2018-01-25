@@ -1,15 +1,14 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH v2 05/12] s390/css: indicate the availability of the AIV
- facility
-Date: Thu, 25 Jan 2018 14:54:03 +0100
-Message-ID: <20180125145403.5ccb2691@mschwideX1>
+Subject: Re: [PATCH v2 11/12] s390/sclp: expose the GISA format facility
+Date: Thu, 25 Jan 2018 14:54:37 +0100
+Message-ID: <20180125145437.6235af15@mschwideX1>
 References: <20180125132848.175942-1-borntraeger@de.ibm.com>
-        <20180125132848.175942-6-borntraeger@de.ibm.com>
+        <20180125132848.175942-12-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180125132848.175942-6-borntraeger@de.ibm.com>
+In-Reply-To: <20180125132848.175942-12-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,40 +16,59 @@ To: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: Cornelia Huck <cohuck@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 25 Jan 2018 14:28:41 +0100
+On Thu, 25 Jan 2018 14:28:47 +0100
 Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
 > From: Michael Mueller <mimu@linux.vnet.ibm.com>
 > 
-> The patch adds an indication for the presence Adapter Interruption
-> Virtualization facility (AIV) of the general channel subsystem
-> characteristics.
+> The GISA format facility is required by the host to be able to process
+> a format-1 GISA. If not available, the used GISA format will be format-0.
+> All format-1 related extension will not be available in this case.
 > 
 > Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 > Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 > Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Acked-by: Cornelia Huck <cohuck@redhat.com>
+> Acked-by: David Hildenbrand <david@redhat.com>
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> [change wording]
 > ---
->  arch/s390/include/asm/css_chars.h | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  arch/s390/include/asm/sclp.h   | 1 +
+>  drivers/s390/char/sclp_early.c | 3 ++-
+>  2 files changed, 3 insertions(+), 1 deletion(-)
 > 
-> diff --git a/arch/s390/include/asm/css_chars.h b/arch/s390/include/asm/css_chars.h
-> index a478eb6..fb56fa3 100644
-> --- a/arch/s390/include/asm/css_chars.h
-> +++ b/arch/s390/include/asm/css_chars.h
-> @@ -20,7 +20,9 @@ struct css_general_char {
->  	u32 aif_tdd : 1; /* bit 56 */
->  	u32 : 1;
->  	u32 qebsm : 1;	 /* bit 58 */
-> -	u32 : 8;
-> +	u32 : 2;
-> +	u32 aiv : 1;     /* bit 61 */
-> +	u32 : 5;
->  	u32 aif_osa : 1; /* bit 67 */
->  	u32 : 12;
->  	u32 eadm_rf : 1; /* bit 80 */
+> diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+> index d3c1a8a..3cae916 100644
+> --- a/arch/s390/include/asm/sclp.h
+> +++ b/arch/s390/include/asm/sclp.h
+> @@ -77,6 +77,7 @@ struct sclp_info {
+>  	unsigned char has_ibs : 1;
+>  	unsigned char has_skey : 1;
+>  	unsigned char has_kss : 1;
+> +	unsigned char has_gisaf : 1;
+>  	unsigned int ibc;
+>  	unsigned int mtid;
+>  	unsigned int mtid_cp;
+> diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+> index d06bc56..6b18915 100644
+> --- a/drivers/s390/char/sclp_early.c
+> +++ b/drivers/s390/char/sclp_early.c
+> @@ -49,7 +49,7 @@ struct read_info_sccb {
+>  	u8	_pad_112[116 - 112];	/* 112-115 */
+>  	u8	fac116;			/* 116 */
+>  	u8	fac117;			/* 117 */
+> -	u8	_pad_118;		/* 118 */
+> +	u8	fac118;			/* 118 */
+>  	u8	fac119;			/* 119 */
+>  	u16	hcpua;			/* 120-121 */
+>  	u8	_pad_122[124 - 122];	/* 122-123 */
+> @@ -100,6 +100,7 @@ static void __init sclp_early_facilities_detect(struct read_info_sccb *sccb)
+>  	sclp.has_esca = !!(sccb->fac116 & 0x08);
+>  	sclp.has_pfmfi = !!(sccb->fac117 & 0x40);
+>  	sclp.has_ibs = !!(sccb->fac117 & 0x20);
+> +	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
+>  	sclp.has_hvs = !!(sccb->fac119 & 0x80);
+>  	sclp.has_kss = !!(sccb->fac98 & 0x01);
+>  	if (sccb->fac85 & 0x02)
 
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
