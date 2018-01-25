@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 3/6] net/smc: terminate link group for ib_post_send problems
-Date: Thu, 25 Jan 2018 11:15:33 +0100
-Message-ID: <20180125101536.15727-4-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 6/6] net/smc: check for healthy link group resp. connections
+Date: Thu, 25 Jan 2018 11:15:36 +0100
+Message-ID: <20180125101536.15727-7-ubraun@linux.vnet.ibm.com>
 References: <20180125101536.15727-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180125101536.15727-1-ubraun@linux.vnet.ibm.com>
@@ -12,50 +12,145 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-If ib_post_send() fails, terminate all connections of this
-link group.
+If a problem for at least one connection of a link group is detected,
+the whole link group and all its connections are terminated.
+This patch adds a check for healthy link group when trying to reserve
+a work request, and checks for healthy connections before starting
+a tx worker.
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/smc_tx.c | 4 +++-
- net/smc/smc_wr.c | 8 +++++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ net/smc/smc_cdc.c  |  9 +++++++--
+ net/smc/smc_diag.c |  6 ++++--
+ net/smc/smc_tx.c   | 15 ++++++++++++---
+ net/smc/smc_wr.c   | 11 ++++++-----
+ 4 files changed, 29 insertions(+), 12 deletions(-)
 
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 51805334e001..6e8f5fbe0f09 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -65,9 +65,14 @@ int smc_cdc_get_free_slot(struct smc_connection *conn,
+ 			  struct smc_cdc_tx_pend **pend)
+ {
+ 	struct smc_link *link = &conn->lgr->lnk[SMC_SINGLE_LINK];
++	int rc;
+ 
+-	return smc_wr_tx_get_free_slot(link, smc_cdc_tx_handler, wr_buf,
+-				       (struct smc_wr_tx_pend_priv **)pend);
++	rc = smc_wr_tx_get_free_slot(link, smc_cdc_tx_handler, wr_buf,
++				     (struct smc_wr_tx_pend_priv **)pend);
++	if (!conn->alert_token_local)
++		/* abnormal termination */
++		rc = -EPIPE;
++	return rc;
+ }
+ 
+ static inline void smc_cdc_add_pending_send(struct smc_connection *conn,
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index d2d01cf70224..427b91c1c964 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -86,7 +86,8 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 	if (smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
+ 		goto errout;
+ 
+-	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) && smc->conn.lgr) {
++	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
++	    smc->conn.alert_token_local) {
+ 		struct smc_connection *conn = &smc->conn;
+ 		struct smc_diag_conninfo cinfo = {
+ 			.token = conn->alert_token_local,
+@@ -124,7 +125,8 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 			goto errout;
+ 	}
+ 
+-	if ((req->diag_ext & (1 << (SMC_DIAG_LGRINFO - 1))) && smc->conn.lgr) {
++	if ((req->diag_ext & (1 << (SMC_DIAG_LGRINFO - 1))) && smc->conn.lgr &&
++	    !list_empty(&smc->conn.lgr->list)) {
+ 		struct smc_diag_lgrinfo linfo = {
+ 			.role = smc->conn.lgr->role,
+ 			.lnk[0].ibport = smc->conn.lgr->lnk[0].ibport,
 diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index fea6482233a6..71b7d9f079f0 100644
+index 71b7d9f079f0..838bce20c361 100644
 --- a/net/smc/smc_tx.c
 +++ b/net/smc/smc_tx.c
-@@ -248,8 +248,10 @@ static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
- 		peer_rmbe_offset;
- 	rdma_wr.rkey = lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].rkey;
- 	rc = ib_post_send(link->roce_qp, &rdma_wr.wr, &failed_wr);
--	if (rc)
-+	if (rc) {
- 		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
-+		smc_lgr_terminate(lgr);
-+	}
- 	return rc;
+@@ -408,8 +408,9 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 				goto out_unlock;
+ 			}
+ 			rc = 0;
+-			schedule_delayed_work(&conn->tx_work,
+-					      SMC_TX_WORK_DELAY);
++			if (conn->alert_token_local) /* connection healthy */
++				schedule_delayed_work(&conn->tx_work,
++						      SMC_TX_WORK_DELAY);
+ 		}
+ 		goto out_unlock;
+ 	}
+@@ -440,10 +441,17 @@ static void smc_tx_work(struct work_struct *work)
+ 	int rc;
+ 
+ 	lock_sock(&smc->sk);
++	if (smc->sk.sk_err ||
++	    !conn->alert_token_local ||
++	    conn->local_rx_ctrl.conn_state_flags.peer_conn_abort)
++		goto out;
++
+ 	rc = smc_tx_sndbuf_nonempty(conn);
+ 	if (!rc && conn->local_rx_ctrl.prod_flags.write_blocked &&
+ 	    !atomic_read(&conn->bytes_to_rcv))
+ 		conn->local_rx_ctrl.prod_flags.write_blocked = 0;
++
++out:
+ 	release_sock(&smc->sk);
  }
  
+@@ -464,7 +472,8 @@ void smc_tx_consumer_update(struct smc_connection *conn)
+ 	    ((to_confirm > conn->rmbe_update_limit) &&
+ 	     ((to_confirm > (conn->rmbe_size / 2)) ||
+ 	      conn->local_rx_ctrl.prod_flags.write_blocked))) {
+-		if (smc_cdc_get_slot_and_msg_send(conn) < 0) {
++		if ((smc_cdc_get_slot_and_msg_send(conn) < 0) &&
++		    conn->alert_token_local) { /* connection healthy */
+ 			schedule_delayed_work(&conn->tx_work,
+ 					      SMC_TX_WORK_DELAY);
+ 			return;
 diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 5ed94109d1d6..621c65850a18 100644
+index 621c65850a18..1b8af23e6e2b 100644
 --- a/net/smc/smc_wr.c
 +++ b/net/smc/smc_wr.c
-@@ -248,8 +248,14 @@ int smc_wr_tx_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv)
- 	pend = container_of(priv, struct smc_wr_tx_pend, priv);
- 	rc = ib_post_send(link->roce_qp, &link->wr_tx_ibs[pend->idx],
- 			  &failed_wr);
--	if (rc)
-+	if (rc) {
-+		struct smc_link_group *lgr =
-+			container_of(link, struct smc_link_group,
-+				     lnk[SMC_SINGLE_LINK]);
-+
- 		smc_wr_tx_put_slot(link, priv);
-+		smc_lgr_terminate(lgr);
-+	}
- 	return rc;
- }
+@@ -174,9 +174,9 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
+ 			    struct smc_wr_tx_pend_priv **wr_pend_priv)
+ {
+ 	struct smc_wr_tx_pend *wr_pend;
++	u32 idx = link->wr_tx_cnt;
+ 	struct ib_send_wr *wr_ib;
+ 	u64 wr_id;
+-	u32 idx;
+ 	int rc;
  
+ 	*wr_buf = NULL;
+@@ -186,16 +186,17 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
+ 		if (rc)
+ 			return rc;
+ 	} else {
++		struct smc_link_group *lgr;
++
++		lgr = container_of(link, struct smc_link_group,
++				   lnk[SMC_SINGLE_LINK]);
+ 		rc = wait_event_timeout(
+ 			link->wr_tx_wait,
++			list_empty(&lgr->list) || /* lgr terminated */
+ 			(smc_wr_tx_get_free_slot_index(link, &idx) != -EBUSY),
+ 			SMC_WR_TX_WAIT_FREE_SLOT_TIME);
+ 		if (!rc) {
+ 			/* timeout - terminate connections */
+-			struct smc_link_group *lgr;
+-
+-			lgr = container_of(link, struct smc_link_group,
+-					   lnk[SMC_SINGLE_LINK]);
+ 			smc_lgr_terminate(lgr);
+ 			return -EPIPE;
+ 		}
 -- 
 2.13.5
