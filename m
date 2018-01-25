@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 07/12] KVM: s390: abstract adapter interruption word generation from ISC
-Date: Thu, 25 Jan 2018 18:06:07 +0100
-Message-ID: <20180125170608.38276-4-borntraeger@de.ibm.com>
+Subject: [PATCH v3 04/12] KVM: s390: implement GISA IPM related primitives
+Date: Thu, 25 Jan 2018 18:06:05 +0100
+Message-ID: <20180125170608.38276-2-borntraeger@de.ibm.com>
 References: <20180125170608.38276-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180125170608.38276-1-borntraeger@de.ibm.com>
@@ -14,50 +14,56 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-The function isc_to_int_word() allows the generation of interruption
-words for adapter interrupts.
+The patch implements routines to access the GISA to test and modify
+its Interruption Pending Mask (IPM) from the host side.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/s390/kvm/interrupt.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 1391199..16075af 100644
+index b7b2865..ec50d42 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -198,6 +198,11 @@ static uint64_t isc_to_isc_bits(int isc)
- 	return (0x80 >> isc) << 24;
+@@ -203,6 +203,34 @@ static inline u8 int_word_to_isc(u32 int_word)
+ 	return (int_word & 0x38000000) >> 27;
  }
  
-+static inline u32 isc_to_int_word(u8 isc)
++/*
++ * To use atomic bitmap functions, we have to provide a bitmap address
++ * that is u64 aligned. However, the ipm might be u32 aligned.
++ * Therefore, we logically start the bitmap at the very beginning of the
++ * struct and fixup the bit number.
++ */
++#define IPM_BIT_OFFSET (offsetof(struct kvm_s390_gisa, ipm) * BITS_PER_BYTE)
++
++static inline void kvm_s390_gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
 +{
-+	return ((u32)isc << 27) | 0x80000000;
++	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
 +}
 +
- static inline u8 int_word_to_isc(u32 int_word)
++static inline u8 kvm_s390_gisa_get_ipm(struct kvm_s390_gisa *gisa)
++{
++	return READ_ONCE(gisa->ipm);
++}
++
++static inline void kvm_s390_gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
++{
++	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
++}
++
++static inline int kvm_s390_gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
++{
++	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
++}
++
+ static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
  {
- 	return (int_word & 0x38000000) >> 27;
-@@ -997,7 +1002,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
- 		 */
- 		VCPU_EVENT(vcpu, 4, "%s isc %u", "deliver: I/O (AI/gisa)", isc);
- 		memset(&io, 0, sizeof(io));
--		io.io_int_word = (isc << 27) | 0x80000000;
-+		io.io_int_word = isc_to_int_word(isc);
- 		vcpu->stat.deliver_io_int++;
- 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
- 			KVM_S390_INT_IO(1, 0, 0, 0),
-@@ -2304,7 +2309,7 @@ static int kvm_s390_inject_airq(struct kvm *kvm,
- 	struct kvm_s390_interrupt s390int = {
- 		.type = KVM_S390_INT_IO(1, 0, 0, 0),
- 		.parm = 0,
--		.parm64 = (adapter->isc << 27) | 0x80000000,
-+		.parm64 = isc_to_int_word(adapter->isc),
- 	};
- 	int ret = 0;
- 
+ 	return vcpu->kvm->arch.float_int.pending_irqs |
 -- 
 2.9.4
