@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 07/12] KVM: s390: abstract adapter interruption word generation from ISC
-Date: Thu, 25 Jan 2018 14:28:43 +0100
-Message-ID: <20180125132848.175942-8-borntraeger@de.ibm.com>
+Subject: [PATCH v2 05/12] s390/css: indicate the availability of the AIV facility
+Date: Thu, 25 Jan 2018 14:28:41 +0100
+Message-ID: <20180125132848.175942-6-borntraeger@de.ibm.com>
 References: <20180125132848.175942-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180125132848.175942-1-borntraeger@de.ibm.com>
@@ -14,50 +14,34 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-The function isc_to_int_word() allows the generation of interruption
-words for adapter interrupts.
+The patch adds an indication for the presence Adapter Interruption
+Virtualization facility (AIV) of the general channel subsystem
+characteristics.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[change wording]
 ---
- arch/s390/kvm/interrupt.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/css_chars.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 263cd10..7731c0d 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -198,6 +198,11 @@ static uint64_t isc_to_isc_bits(int isc)
- 	return (0x80 >> isc) << 24;
- }
- 
-+static inline u32 isc_to_int_word(u8 isc)
-+{
-+	return ((u32)isc << 27) | 0x80000000;
-+}
-+
- static inline u8 int_word_to_isc(u32 int_word)
- {
- 	return (int_word & 0x38000000) >> 27;
-@@ -991,7 +996,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
- 			 */
- 			VCPU_EVENT(vcpu, 4, "%s isc %u", "deliver: I/O (AI/gisa)", isc);
- 			memset(&io, 0, sizeof(io));
--			io.io_int_word = (isc << 27) | 0x80000000;
-+			io.io_int_word = isc_to_int_word(isc);
- 			vcpu->stat.deliver_io_int++;
- 			trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
- 				KVM_S390_INT_IO(1, 0, 0, 0),
-@@ -2302,7 +2307,7 @@ static int kvm_s390_inject_airq(struct kvm *kvm,
- 	struct kvm_s390_interrupt s390int = {
- 		.type = KVM_S390_INT_IO(1, 0, 0, 0),
- 		.parm = 0,
--		.parm64 = (adapter->isc << 27) | 0x80000000,
-+		.parm64 = isc_to_int_word(adapter->isc),
- 	};
- 	int ret = 0;
- 
+diff --git a/arch/s390/include/asm/css_chars.h b/arch/s390/include/asm/css_chars.h
+index a478eb6..fb56fa3 100644
+--- a/arch/s390/include/asm/css_chars.h
++++ b/arch/s390/include/asm/css_chars.h
+@@ -20,7 +20,9 @@ struct css_general_char {
+ 	u32 aif_tdd : 1; /* bit 56 */
+ 	u32 : 1;
+ 	u32 qebsm : 1;	 /* bit 58 */
+-	u32 : 8;
++	u32 : 2;
++	u32 aiv : 1;     /* bit 61 */
++	u32 : 5;
+ 	u32 aif_osa : 1; /* bit 67 */
+ 	u32 : 12;
+ 	u32 eadm_rf : 1; /* bit 80 */
 -- 
 2.9.4
