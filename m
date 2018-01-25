@@ -1,87 +1,142 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH v2 05/22] s390/mm: hugetlb pages within a gmap can not
- be freed
-Date: Wed, 24 Jan 2018 14:56:28 +0100
-Message-ID: <531908d9-fc7e-c120-46e3-423b2bbb4cf7@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v2 19/22] s390/mm: Split huge pages if granular
+ protection is needed
+Date: Thu, 25 Jan 2018 08:16:05 +0100
+Message-ID: <d886d2af-925b-47ef-300d-99ba9f088df7@linux.vnet.ibm.com>
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1513169613-13509-6-git-send-email-frankja@linux.vnet.ibm.com>
- <07d8227f-ec52-f282-6ecf-d0880f3b74d8@redhat.com>
+ <1513169613-13509-20-git-send-email-frankja@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="j5hRJ8qhRCEf8vDMqpZR6yKFtFWma5qa6"
+ boundary="C8HuKPNTd5m53v6DFmJNrRo3hcolTqlS1"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <07d8227f-ec52-f282-6ecf-d0880f3b74d8@redhat.com>
+In-Reply-To: <1513169613-13509-20-git-send-email-frankja@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---j5hRJ8qhRCEf8vDMqpZR6yKFtFWma5qa6
-Content-Type: multipart/mixed; boundary="RYgvuiAx9diUvidMhvaa7lktVXamSnhOL";
+--C8HuKPNTd5m53v6DFmJNrRo3hcolTqlS1
+Content-Type: multipart/mixed; boundary="p78uivfIIavDiDghSbjAihzIPYVBYIKPr";
  protected-headers="v1"
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
- linux-s390@vger.kernel.org
-Message-ID: <531908d9-fc7e-c120-46e3-423b2bbb4cf7@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH v2 05/22] s390/mm: hugetlb pages within a gmap can not
- be freed
+To: kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com,
+ dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+Message-ID: <d886d2af-925b-47ef-300d-99ba9f088df7@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v2 19/22] s390/mm: Split huge pages if granular
+ protection is needed
 References: <1513169613-13509-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1513169613-13509-6-git-send-email-frankja@linux.vnet.ibm.com>
- <07d8227f-ec52-f282-6ecf-d0880f3b74d8@redhat.com>
-In-Reply-To: <07d8227f-ec52-f282-6ecf-d0880f3b74d8@redhat.com>
+ <1513169613-13509-20-git-send-email-frankja@linux.vnet.ibm.com>
+In-Reply-To: <1513169613-13509-20-git-send-email-frankja@linux.vnet.ibm.com>
 
---RYgvuiAx9diUvidMhvaa7lktVXamSnhOL
+--p78uivfIIavDiDghSbjAihzIPYVBYIKPr
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 24.01.2018 14:45, David Hildenbrand wrote:
-> On 13.12.2017 13:53, Janosch Frank wrote:
->> From: Dominik Dingel <dingel@linux.vnet.ibm.com>
->>
->> Guests backed by huge pages could theoretically free unused pages via
->> the diagnose 10 instruction. We currently don't allow that, so we
->> don't have to refault it once it's needed again.
->>
->> Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
->> Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
->> ---
->>  arch/s390/mm/gmap.c | 3 +++
->>  1 file changed, 3 insertions(+)
->>
->> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
->> index aceaeb5..056acfc 100644
->> --- a/arch/s390/mm/gmap.c
->> +++ b/arch/s390/mm/gmap.c
->> @@ -695,6 +695,9 @@ void gmap_discard(struct gmap *gmap, unsigned long=
- from, unsigned long to)
->>  		vmaddr |=3D gaddr & ~PMD_MASK;
->>  		/* Find vma in the parent mm */
->>  		vma =3D find_vma(gmap->mm, vmaddr);
->> +		/* We do not discard pages that are backed by hugetlbfs */
->> +		if (vma && is_vm_hugetlb_page(vma))
->> +			continue;
->>  		size =3D min(to - gaddr, PMD_SIZE - (gaddr & ~PMD_MASK));
->>  		zap_page_range(vma, vmaddr, size);
->>  	}
->>
+On 13.12.2017 13:53, Janosch Frank wrote:
+> A guest can put DAT tables for a lower level guest in the same huge
+> segment as one of its prefixes or a g3 page. This would make it
+> necessary for the segment to be unprotected (because of the prefix)
+> and protected (because of the shadowing) at the same time. This is not
+> possible in this universe.
 >=20
-> This check does not care about split huge pages, correct? (because we'r=
-e
-> checking the VMA?)
+> Hence we split the affected huge segment, so we can protect on a
+> per-page basis. Such gmap segments are special and get a new software
+> bit, that helps us handling this edge case.
 >=20
+> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+> ---
+>  arch/s390/include/asm/gmap.h    |  13 ++
+>  arch/s390/include/asm/pgtable.h |   7 +-
+>  arch/s390/mm/fault.c            |  10 +-
+>  arch/s390/mm/gmap.c             | 256 ++++++++++++++++++++++++++++++++=
+++++----
+>  arch/s390/mm/pgtable.c          |  51 ++++++++
+>  5 files changed, 313 insertions(+), 24 deletions(-)
 
-Correct
+> @@ -1081,20 +1189,27 @@ static int gmap_protect_range(struct gmap *gmap=
+, unsigned long gaddr,
+>  	spinlock_t *ptl;
+>  	unsigned long vmaddr, dist;
+>  	pmd_t *pmdp, *hpmdp;
+> -	int rc;
+> +	int rc =3D 0;
+>=20
+>  	while (len) {
+>  		rc =3D -EAGAIN;
+>  		vmaddr =3D __gmap_translate(gmap, gaddr);
+>  		hpmdp =3D (pmd_t *)huge_pte_offset(gmap->mm, vmaddr, HPAGE_SIZE);
+> +		if (!hpmdp)
+> +			BUG();
+>  		/* Do we need tests here? */
+>  		ptl =3D pmd_lock(gmap->mm, hpmdp);
+>=20
+>  		pmdp =3D gmap_pmd_op_walk(gmap, gaddr);
+>  		if (pmdp) {
+>  			if (!pmd_large(*pmdp)) {
+> -				rc =3D gmap_protect_pte(gmap, gaddr, pmdp, prot,
+> -						      bits);
+> +				if (gmap_pmd_is_split(pmdp) &&
+> +				    (bits & GMAP_NOTIFY_MPROT)) {
+> +					pmd_val(*pmdp) |=3D _SEGMENT_ENTRY_GMAP_IN;
+> +				}
+
+@David:
+This currently breaks my brain. There *was* a reason why I put this
+there and I was quite insistent that we needed it. Something about
+notification areas on splits, but I absolutely can't remember it. Sigh,
+should've made a comment.
+
+This might be a leftover from earlier versions, but could also keep us
+from doing mprot notification on pte's.
+
+> +
+> +				rc =3D gmap_protect_pte(gmap, gaddr, vmaddr,
+> +						      pmdp, hpmdp, prot, bits);
+>  				if (!rc) {
+>  					len -=3D PAGE_SIZE;
+>  					gaddr +=3D PAGE_SIZE;
+> @@ -1111,7 +1226,9 @@ static int gmap_protect_range(struct gmap *gmap, =
+unsigned long gaddr,
+
+[...]
+
+> @@ -2774,6 +2977,8 @@ void gmap_pmdp_idte_global(struct mm_struct *mm, =
+unsigned long vmaddr)
+>  					    IDTE_GLOBAL);
+>  			else
+>  				__pmdp_csp(pmdp);
+> +
+> +			gmap_pmd_split_free(pmdp);
+>  			*entry =3D _SEGMENT_ENTRY_EMPTY;
+>  		}
+>  		spin_unlock(&gmap->guest_table_lock);
+> @@ -2852,6 +3057,7 @@ void gmap_sync_dirty_log_pmd(struct gmap *gmap, u=
+nsigned long bitmap[4],
+>  	pmd_t *pmdp, *hpmdp;
+>  	spinlock_t *ptl;
+>=20
+> +	/* Protection against gmap_link vsie unprotection. */
+>  	hpmdp =3D (pmd_t *)huge_pte_offset(gmap->mm, vmaddr, HPAGE_SIZE);
+>  	if (!hpmdp)
+>  		return;
+> @@ -2867,9 +3073,17 @@ void gmap_sync_dirty_log_pmd(struct gmap *gmap, =
+unsigned long bitmap[4],
+>  						      gaddr, vmaddr))
+>  			memset(bitmap, 0xFF, 32);
+
+s/0xFF/0xff/
 
 
---RYgvuiAx9diUvidMhvaa7lktVXamSnhOL--
 
---j5hRJ8qhRCEf8vDMqpZR6yKFtFWma5qa6
+--p78uivfIIavDiDghSbjAihzIPYVBYIKPr--
+
+--C8HuKPNTd5m53v6DFmJNrRo3hcolTqlS1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -89,19 +144,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJaaJCMAAoJEBcO/8Q8ZEV5lcEP/38KyzLK8qLI/qgI3DsAjlcT
-h/5UrLHRgSJReLlOmm3vVPTQqSurZ7o4SLxUGyXLFFR4LXpmAKPN75P+2ZcVd9II
-a2LeMKgvp9J/W1+B+nK9Z3sshVlbfns/dHi6cKSR5ed+dUu5yelnbGpB0Cz/E3S0
-qrbaNaVmOxMb3EKgWLSaBRIjwrOvet2lg3fabvUvnd0H0VNU5fSDLy330JhAv/R3
-6/nxHg4pwyVAYDX17n21mJSkWoYKvVJFNgb+wgQQME1MHc4RmZtZVEJz7xmidT2D
-Cl7HVOJTSc4U+tzpBCRGWRBRAlSfPjbmPImplM8cvqyPUPsTO2zIsfgwCsPmUL7C
-C6LftuNYxIe2aN4F3FunzE4l3+c2ydshXS6rSPYAIxOIaexvNfr9REoqCA/zVA2U
-kST+WJRCJLLgx9qkJjO0aO9uAPJu8DhGP9JgLahKfYhaQtwNAOsUMhvOXxipskfS
-JPB+w2einNxL72mgziUi2JR1B7O1PcOvMQxVnyhhjZ8z2dOr5sCdmYcsFyuVpy3h
-ZrNQmJQxn+Z9ap2LC8/RKyE9TZrI1o7Y5piKuWkZBl2l9BAavjtliS7a9jSj2Z//
-0TCaTG0ZLSm/hPeD9JFffI4SL2M/sYdbZ+/+6dO5wFTsBBI4SZysEm1bGiAHppn9
-n0EVi/wXVLkJ9AfwrmYq
-=JZJE
+iQIcBAEBCAAGBQJaaYQ8AAoJEBcO/8Q8ZEV5oTAP/Rjw649LEcihV2w7ddgQK+JZ
+6YdaFztUjBUSflGPwuBG0BhBSePQlVxaYiWpBHS3Gr4LuJIqEY4dKtGgc9qkWFLE
+lJbVWPgOnlrkffrqP1AlefzL/SItop2hegahYBA8lRFi3++qj42udLIb4e4XcDle
+ojDEZx47e1vqz2Wg+CC+k8kJ5OKLpUJEx1FVwGSMqbiIeS2/QigSoqoiDZ0XcdXi
+e+yO4p8hvKD6EjlGAirs4Ma8Kf6GeeRqNayT1vSwMCGVN+NAjmuh7O5WEF2hQEZJ
++T+513pMEewHoz8X+Ifhvh2cnpdkxHvO9QGE6fxWLlhEHzz6fV2qaVe8e8/npclo
+g4AlhylHHs+HQ0oylvAgeeiqAzfj0DfuPwMqvELZ/rxV11p82T8TpF824maRbiq6
+aExPis3FMqjPrxzXLLxUTk6V4Vqh4ypx1dbALinHuk7VdiLbL93US8oE9LsCXI6T
+u9D8NM++hcnvOLvlz6udeyodf4Q8v/BqOhhl24+mhBaJaRUAh/dC096vFNbrGzSk
+GIHGfgAm0LKfc0LYSWo0pft+vTcZVl7QZZ95S0FoHcSMxIugiNRpxG+Ri//XXWJn
+kxi+gTVvgkJ5eDLMRrvybmZeBYf/GvhpuPe0Z70pQ3JeoYi3DFQWjtOn/1ZDqmQ3
+LRXqD77WpSKzPuYoAXk3
+=zEhT
 -----END PGP SIGNATURE-----
 
---j5hRJ8qhRCEf8vDMqpZR6yKFtFWma5qa6--
+--C8HuKPNTd5m53v6DFmJNrRo3hcolTqlS1--
