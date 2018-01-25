@@ -1,62 +1,84 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 02/12] KVM: s390: define GISA format-0 data structure
-Date: Fri, 19 Jan 2018 12:28:26 +0100
-Message-ID: <50c92683-7fb9-333b-81dc-5f38fec034d8@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 05/12] s390/css: expose the AIV facility
+Date: Thu, 25 Jan 2018 12:42:28 +0100
+Message-ID: <13254019-23b0-5bad-27c8-3874400288a1@de.ibm.com>
 References: <20180116200217.211897-1-borntraeger@de.ibm.com>
- <20180116200217.211897-3-borntraeger@de.ibm.com>
- <a81038d6-4b2c-05ab-7159-bf91b1aca164@redhat.com>
- <20180119101241.GB4519@osiris>
- <9f7484d1-6880-4000-ebad-b22611276810@redhat.com>
- <20180119102038.GC4519@osiris> <20180119112924.2612f3ae.cohuck@redhat.com>
+ <20180116200217.211897-6-borntraeger@de.ibm.com>
+ <29f77b94-a5e1-178d-2364-9dcf77dc9096@redhat.com>
+ <dbfae6e1-ceda-880c-3908-b03193c7d714@linux.vnet.ibm.com>
+ <20180118185400.34533a23.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180119112924.2612f3ae.cohuck@redhat.com>
+In-Reply-To: <20180118185400.34533a23.cohuck@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 19.01.2018 11:29, Cornelia Huck wrote:
-> On Fri, 19 Jan 2018 11:20:39 +0100
-> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+
+
+On 01/18/2018 06:54 PM, Cornelia Huck wrote:
+> On Thu, 18 Jan 2018 13:02:45 +0100
+> Michael Mueller <mimu@linux.vnet.ibm.com> wrote:
 > 
->> On Fri, Jan 19, 2018 at 11:17:10AM +0100, David Hildenbrand wrote:
->>> On 19.01.2018 11:12, Heiko Carstens wrote:  
->>>> On Thu, Jan 18, 2018 at 09:47:01PM +0100, David Hildenbrand wrote:  
->>>>> Two minor things
->>>>>  
->>>>>>  
->>>>>> +struct kvm_s390_gisa {
->>>>>> +	u32 next_alert;
->>>>>> +	u8 ipm;
->>>>>> +	u8 reserved01;
->>>>>> +	u8:6;  
->>>>>
->>>>> Mind giving this also a reserved name  
+>> On 17.01.18 16:19, David Hildenbrand wrote:
+>>> On 16.01.2018 21:02, Christian Borntraeger wrote:  
+>>>> From: Michael Mueller <mimu@linux.vnet.ibm.com>
 >>>>
->>>> And then all reserved fields have to be renamed as soon as one bit gets
->>>> used? Please don't...  
+>>>> The patch exposes the Adapter Interruption Virtualization facility (AIV)
+>>>> of the general channel subsystem characteristics.
+>>>>
+>>>> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+>>>> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+>>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> ---
+>>>>   arch/s390/include/asm/css_chars.h | 4 +++-
+>>>>   1 file changed, 3 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/arch/s390/include/asm/css_chars.h b/arch/s390/include/asm/css_chars.h
+>>>> index a478eb61aaf7..fb56fa3283a2 100644
+>>>> --- a/arch/s390/include/asm/css_chars.h
+>>>> +++ b/arch/s390/include/asm/css_chars.h
+>>>> @@ -20,7 +20,9 @@ struct css_general_char {
+>>>>   	u32 aif_tdd : 1; /* bit 56 */
+>>>>   	u32 : 1;
+>>>>   	u32 qebsm : 1;	 /* bit 58 */
+>>>> -	u32 : 8;
+>>>> +	u32 : 2;
+>>>> +	u32 aiv : 1;     /* bit 61 */
+>>>> +	u32 : 5;
+>>>>   	u32 aif_osa : 1; /* bit 67 */
+>>>>   	u32 : 12;
+>>>>   	u32 eadm_rf : 1; /* bit 80 */
+>>>>  
+>>> "Expose" sounds like actually forwarding something / enabling a bit.  
+>> Expose here basically means to make sth. visible what was already available.
+>>> Wonder if this can be squashed with another patch?
 >>>
->>> Only if one keeps the order of the reserved field numbers ...  
->>
->> And that's what people usually do. Therefore having unnamed bitfields is
->> nice, since you don't have to care.
->>
+>>> Or rename to something like "define" ...  
+>> I don't plan to change anything.
 > 
-> +1
-> 
-> They make these kinds of definitions so much nicer...
-> 
+> I'd prefer to simply squash this with the next patch, where the bit is
+> actually checked.
 
-I'm convinced :)
+Its a separate code (not KVM) so I keep it separate.
+What about
 
--- 
 
-Thanks,
+s390/css: indicate the availability of the AIV facility
+  
+The patch adds an indication for the presence Adapter Interruption
+Virtualization facility (AIV) of the general channel subsystem
+characteristics.
 
-David / dhildenb
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[change wording]
