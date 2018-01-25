@@ -1,141 +1,77 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 2/5] net/smc: smc_poll improvements
-Date: Fri, 26 Jan 2018 09:28:47 +0100
-Message-ID: <20180126082850.20655-3-ubraun@linux.vnet.ibm.com>
-References: <20180126082850.20655-1-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180126082850.20655-1-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-rdma/>
-List-Post: <mailto:linux-rdma@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v3 07/12] KVM: s390: abstract adapter interruption word
+ generation from ISC
+Date: Thu, 25 Jan 2018 18:37:19 +0100
+Message-ID: <162bc6f3-b547-5232-d0e4-fff3324dfd55@redhat.com>
+References: <20180125170608.38276-1-borntraeger@de.ibm.com>
+ <20180125170608.38276-4-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20180125170608.38276-4-borntraeger@de.ibm.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Increase the socket refcount during poll wait.
-Take the socket lock before checking socket state.
-For a listening socket return a mask independent of state SMC_ACTIVE and
-cover errors or closed state as well.
-Get rid of the accept_q loop in smc_accept_poll().
+On 25.01.2018 18:06, Christian Borntraeger wrote:
+> From: Michael Mueller <mimu@linux.vnet.ibm.com>
+> 
+> The function isc_to_int_word() allows the generation of interruption
+> words for adapter interrupts.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/interrupt.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 1391199..16075af 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -198,6 +198,11 @@ static uint64_t isc_to_isc_bits(int isc)
+>  	return (0x80 >> isc) << 24;
+>  }
+>  
+> +static inline u32 isc_to_int_word(u8 isc)
+> +{
+> +	return ((u32)isc << 27) | 0x80000000;
+> +}
+> +
+>  static inline u8 int_word_to_isc(u32 int_word)
+>  {
+>  	return (int_word & 0x38000000) >> 27;
+> @@ -997,7 +1002,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
+>  		 */
+>  		VCPU_EVENT(vcpu, 4, "%s isc %u", "deliver: I/O (AI/gisa)", isc);
+>  		memset(&io, 0, sizeof(io));
+> -		io.io_int_word = (isc << 27) | 0x80000000;
+> +		io.io_int_word = isc_to_int_word(isc);
+>  		vcpu->stat.deliver_io_int++;
+>  		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+>  			KVM_S390_INT_IO(1, 0, 0, 0),
+> @@ -2304,7 +2309,7 @@ static int kvm_s390_inject_airq(struct kvm *kvm,
+>  	struct kvm_s390_interrupt s390int = {
+>  		.type = KVM_S390_INT_IO(1, 0, 0, 0),
+>  		.parm = 0,
+> -		.parm64 = (adapter->isc << 27) | 0x80000000,
+> +		.parm64 = isc_to_int_word(adapter->isc),
+>  	};
+>  	int ret = 0;
+>  
+> 
 
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- net/smc/af_smc.c | 74 ++++++++++++++++++++++++++++++--------------------------
- 1 file changed, 40 insertions(+), 34 deletions(-)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index cf0e11978b66..90c22a854f28 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1122,21 +1122,15 @@ static int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 
- static unsigned int smc_accept_poll(struct sock *parent)
- {
--	struct smc_sock *isk;
--	struct sock *sk;
--
--	lock_sock(parent);
--	list_for_each_entry(isk, &smc_sk(parent)->accept_q, accept_q) {
--		sk = (struct sock *)isk;
-+	struct smc_sock *isk = smc_sk(parent);
-+	int mask = 0;
- 
--		if (sk->sk_state == SMC_ACTIVE) {
--			release_sock(parent);
--			return POLLIN | POLLRDNORM;
--		}
--	}
--	release_sock(parent);
-+	spin_lock(&isk->accept_q_lock);
-+	if (!list_empty(&isk->accept_q))
-+		mask = POLLIN | POLLRDNORM;
-+	spin_unlock(&isk->accept_q_lock);
- 
--	return 0;
-+	return mask;
- }
- 
- static unsigned int smc_poll(struct file *file, struct socket *sock,
-@@ -1147,9 +1141,15 @@ static unsigned int smc_poll(struct file *file, struct socket *sock,
- 	struct smc_sock *smc;
- 	int rc;
- 
-+	if (!sk)
-+		return POLLNVAL;
-+
- 	smc = smc_sk(sock->sk);
-+	sock_hold(sk);
-+	lock_sock(sk);
- 	if ((sk->sk_state == SMC_INIT) || smc->use_fallback) {
- 		/* delegate to CLC child sock */
-+		release_sock(sk);
- 		mask = smc->clcsock->ops->poll(file, smc->clcsock, wait);
- 		/* if non-blocking connect finished ... */
- 		lock_sock(sk);
-@@ -1161,37 +1161,43 @@ static unsigned int smc_poll(struct file *file, struct socket *sock,
- 				rc = smc_connect_rdma(smc);
- 				if (rc < 0)
- 					mask |= POLLERR;
--				else
--					/* success cases including fallback */
--					mask |= POLLOUT | POLLWRNORM;
-+				/* success cases including fallback */
-+				mask |= POLLOUT | POLLWRNORM;
- 			}
- 		}
--		release_sock(sk);
- 	} else {
--		sock_poll_wait(file, sk_sleep(sk), wait);
--		if (sk->sk_state == SMC_LISTEN)
--			/* woken up by sk_data_ready in smc_listen_work() */
--			mask |= smc_accept_poll(sk);
-+		if (sk->sk_state != SMC_CLOSED) {
-+			release_sock(sk);
-+			sock_poll_wait(file, sk_sleep(sk), wait);
-+			lock_sock(sk);
-+		}
- 		if (sk->sk_err)
- 			mask |= POLLERR;
--		if (atomic_read(&smc->conn.sndbuf_space) ||
--		    (sk->sk_shutdown & SEND_SHUTDOWN)) {
--			mask |= POLLOUT | POLLWRNORM;
--		} else {
--			sk_set_bit(SOCKWQ_ASYNC_NOSPACE, sk);
--			set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
--		}
--		if (atomic_read(&smc->conn.bytes_to_rcv))
--			mask |= POLLIN | POLLRDNORM;
- 		if ((sk->sk_shutdown == SHUTDOWN_MASK) ||
- 		    (sk->sk_state == SMC_CLOSED))
- 			mask |= POLLHUP;
--		if (sk->sk_shutdown & RCV_SHUTDOWN)
--			mask |= POLLIN | POLLRDNORM | POLLRDHUP;
--		if (sk->sk_state == SMC_APPCLOSEWAIT1)
--			mask |= POLLIN;
-+		if (sk->sk_state == SMC_LISTEN) {
-+			/* woken up by sk_data_ready in smc_listen_work() */
-+			mask = smc_accept_poll(sk);
-+		} else {
-+			if (atomic_read(&smc->conn.sndbuf_space) ||
-+			    sk->sk_shutdown & SEND_SHUTDOWN) {
-+				mask |= POLLOUT | POLLWRNORM;
-+			} else {
-+				sk_set_bit(SOCKWQ_ASYNC_NOSPACE, sk);
-+				set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
-+			}
-+			if (atomic_read(&smc->conn.bytes_to_rcv))
-+				mask |= POLLIN | POLLRDNORM;
-+			if (sk->sk_shutdown & RCV_SHUTDOWN)
-+				mask |= POLLIN | POLLRDNORM | POLLRDHUP;
-+			if (sk->sk_state == SMC_APPCLOSEWAIT1)
-+				mask |= POLLIN;
-+		}
- 
- 	}
-+	release_sock(sk);
-+	sock_put(sk);
- 
- 	return mask;
- }
 -- 
-2.13.5
+
+Thanks,
+
+David / dhildenb
