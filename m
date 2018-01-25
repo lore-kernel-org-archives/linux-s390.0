@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 4/6] net/smc: do not reuse a linkgroup with setup problems
-Date: Thu, 25 Jan 2018 11:15:34 +0100
-Message-ID: <20180125101536.15727-5-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 5/6] net/smc: wake up wr_reg_wait when terminating a link group
+Date: Thu, 25 Jan 2018 11:15:35 +0100
+Message-ID: <20180125101536.15727-6-ubraun@linux.vnet.ibm.com>
 References: <20180125101536.15727-1-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180125101536.15727-1-ubraun@linux.vnet.ibm.com>
@@ -12,93 +12,110 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Once a linkgroup is created successfully, it stays alive for a
-certain time to service more connections potentially created.
-If one of the initialization steps for a new linkgroup fails,
-the linkgroup should not be reused by other connections following.
+If a new connection with a new rmb is added to a link group, its
+memory region is registered. If a link group is terminated, a pending
+registration requires a wake up.
+
+And consolidate setting of tx_flag peer_conn_abort in smc_lgr_terminate().
 
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c   | 17 +++++++++++++++++
- net/smc/smc_core.c |  3 +++
- 2 files changed, 20 insertions(+)
+ net/smc/smc_close.c | 14 ++++++--------
+ net/smc/smc_core.c  |  8 +++++---
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 05cbcd3a6f60..cf0e11978b66 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -377,6 +377,15 @@ static void smc_link_save_peer_info(struct smc_link *link,
- 	link->peer_mtu = clc->qp_mtu;
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 3dc109f5db56..babe05d385e7 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -89,7 +89,7 @@ static int smc_close_abort(struct smc_connection *conn)
  }
  
-+static void smc_lgr_forget(struct smc_link_group *lgr)
-+{
-+	spin_lock_bh(&smc_lgr_list.lock);
-+	/* do not use this link group for new connections */
-+	if (!list_empty(&lgr->list))
-+		list_del_init(&lgr->list);
-+	spin_unlock_bh(&smc_lgr_list.lock);
-+}
-+
- /* setup for RDMA connection of client */
- static int smc_connect_rdma(struct smc_sock *smc)
+ /* terminate smc socket abnormally - active abort
+- * RDMA communication no longer possible
++ * link group is terminated, i.e. RDMA communication no longer possible
+  */
+ static void smc_close_active_abort(struct smc_sock *smc)
  {
-@@ -513,6 +522,8 @@ static int smc_connect_rdma(struct smc_sock *smc)
- 	return rc ? rc : local_contact;
+@@ -113,7 +113,6 @@ static void smc_close_active_abort(struct smc_sock *smc)
+ 		break;
+ 	case SMC_APPCLOSEWAIT1:
+ 	case SMC_APPCLOSEWAIT2:
+-		txflags->peer_conn_abort = 1;
+ 		sock_release(smc->clcsock);
+ 		if (!smc_cdc_rxed_any_close(&smc->conn))
+ 			sk->sk_state = SMC_PEERABORTWAIT;
+@@ -127,7 +126,6 @@ static void smc_close_active_abort(struct smc_sock *smc)
+ 	case SMC_PEERCLOSEWAIT2:
+ 		if (!txflags->peer_conn_closed) {
+ 			sk->sk_state = SMC_PEERABORTWAIT;
+-			txflags->peer_conn_abort = 1;
+ 			sock_release(smc->clcsock);
+ 		} else {
+ 			sk->sk_state = SMC_CLOSED;
+@@ -135,10 +133,8 @@ static void smc_close_active_abort(struct smc_sock *smc)
+ 		break;
+ 	case SMC_PROCESSABORT:
+ 	case SMC_APPFINCLOSEWAIT:
+-		if (!txflags->peer_conn_closed) {
+-			txflags->peer_conn_abort = 1;
++		if (!txflags->peer_conn_closed)
+ 			sock_release(smc->clcsock);
+-		}
+ 		sk->sk_state = SMC_CLOSED;
+ 		break;
+ 	case SMC_PEERFINCLOSEWAIT:
+@@ -303,8 +299,9 @@ static void smc_close_passive_abort_received(struct smc_sock *smc)
+ 	}
+ }
  
- decline_rdma_unlock:
-+	if (local_contact == SMC_FIRST_CONTACT)
-+		smc_lgr_forget(smc->conn.lgr);
- 	mutex_unlock(&smc_create_lgr_pending);
- 	smc_conn_free(&smc->conn);
- decline_rdma:
-@@ -526,6 +537,8 @@ static int smc_connect_rdma(struct smc_sock *smc)
- 	goto out_connected;
+-/* Some kind of closing has been received: peer_conn_closed, peer_conn_abort,
+- * or peer_done_writing.
++/* Either some kind of closing has been received: peer_conn_closed,
++ * peer_conn_abort, or peer_done_writing
++ * or the link group of the connection terminates abnormally.
+  */
+ static void smc_close_passive_work(struct work_struct *work)
+ {
+@@ -327,6 +324,7 @@ static void smc_close_passive_work(struct work_struct *work)
  
- out_err_unlock:
-+	if (local_contact == SMC_FIRST_CONTACT)
-+		smc_lgr_forget(smc->conn.lgr);
- 	mutex_unlock(&smc_create_lgr_pending);
- 	smc_conn_free(&smc->conn);
- out_err:
-@@ -906,6 +919,8 @@ static void smc_listen_work(struct work_struct *work)
- 	return;
- 
- decline_rdma_unlock:
-+	if (local_contact == SMC_FIRST_CONTACT)
-+		smc_lgr_forget(new_smc->conn.lgr);
- 	mutex_unlock(&smc_create_lgr_pending);
- decline_rdma:
- 	/* RDMA setup failed, switch back to TCP */
-@@ -918,6 +933,8 @@ static void smc_listen_work(struct work_struct *work)
- 	goto out_connected;
- 
- out_err_unlock:
-+	if (local_contact == SMC_FIRST_CONTACT)
-+		smc_lgr_forget(new_smc->conn.lgr);
- 	mutex_unlock(&smc_create_lgr_pending);
- out_err:
- 	newsmcsk->sk_state = SMC_CLOSED;
+ 	rxflags = &conn->local_rx_ctrl.conn_state_flags;
+ 	if (rxflags->peer_conn_abort) {
++		/* peer has not received all data */
+ 		smc_close_passive_abort_received(smc);
+ 		release_sock(&smc->sk);
+ 		cancel_delayed_work_sync(&conn->tx_work);
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 94f21116dac5..7406cbb41856 100644
+index 7406cbb41856..ed5b46d1fe41 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -128,6 +128,8 @@ static void smc_lgr_free_work(struct work_struct *work)
- 	bool conns;
- 
- 	spin_lock_bh(&smc_lgr_list.lock);
-+	if (list_empty(&lgr->list))
-+		goto free;
- 	read_lock_bh(&lgr->conns_lock);
- 	conns = RB_EMPTY_ROOT(&lgr->conns_all);
- 	read_unlock_bh(&lgr->conns_lock);
-@@ -136,6 +138,7 @@ static void smc_lgr_free_work(struct work_struct *work)
+@@ -234,9 +234,7 @@ static void smc_buf_unuse(struct smc_connection *conn)
+ /* remove a finished connection from its link group */
+ void smc_conn_free(struct smc_connection *conn)
+ {
+-	struct smc_link_group *lgr = conn->lgr;
+-
+-	if (!lgr)
++	if (!conn->lgr)
  		return;
+ 	smc_cdc_tx_dismiss_slots(conn);
+ 	smc_lgr_unregister_conn(conn);
+@@ -331,12 +329,16 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
+ 		conn = rb_entry(node, struct smc_connection, alert_node);
+ 		smc = container_of(conn, struct smc_sock, conn);
+ 		sock_hold(&smc->sk);
++		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
+ 		__smc_lgr_unregister_conn(conn);
++		write_unlock_bh(&lgr->conns_lock);
+ 		schedule_work(&conn->close_work);
++		write_lock_bh(&lgr->conns_lock);
+ 		sock_put(&smc->sk);
+ 		node = rb_first(&lgr->conns_all);
  	}
- 	list_del_init(&lgr->list); /* remove from smc_lgr_list */
-+free:
- 	spin_unlock_bh(&smc_lgr_list.lock);
- 	smc_lgr_free(lgr);
+ 	write_unlock_bh(&lgr->conns_lock);
++	wake_up(&lgr->lnk[SMC_SINGLE_LINK].wr_reg_wait);
  }
+ 
+ /* Determine vlan of internal TCP socket.
 -- 
 2.13.5
