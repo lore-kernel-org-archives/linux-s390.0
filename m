@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 05/12] s390/css: indicate the availability of the AIV facility
-Date: Thu, 25 Jan 2018 14:28:41 +0100
-Message-ID: <20180125132848.175942-6-borntraeger@de.ibm.com>
+Subject: [PATCH v2 10/12] KVM: s390: activate GISA for emulated interrupts
+Date: Thu, 25 Jan 2018 14:28:46 +0100
+Message-ID: <20180125132848.175942-11-borntraeger@de.ibm.com>
 References: <20180125132848.175942-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180125132848.175942-1-borntraeger@de.ibm.com>
@@ -14,34 +14,29 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-The patch adds an indication for the presence Adapter Interruption
-Virtualization facility (AIV) of the general channel subsystem
-characteristics.
+If the AIV facility is available, a GISA will be used to manage emulated
+adapter interrupts.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[change wording]
 ---
- arch/s390/include/asm/css_chars.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/kvm/interrupt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/css_chars.h b/arch/s390/include/asm/css_chars.h
-index a478eb6..fb56fa3 100644
---- a/arch/s390/include/asm/css_chars.h
-+++ b/arch/s390/include/asm/css_chars.h
-@@ -20,7 +20,9 @@ struct css_general_char {
- 	u32 aif_tdd : 1; /* bit 56 */
- 	u32 : 1;
- 	u32 qebsm : 1;	 /* bit 58 */
--	u32 : 8;
-+	u32 : 2;
-+	u32 aiv : 1;     /* bit 61 */
-+	u32 : 5;
- 	u32 aif_osa : 1; /* bit 67 */
- 	u32 : 12;
- 	u32 eadm_rf : 1; /* bit 80 */
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 5c48930..008019f 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2838,7 +2838,7 @@ void kvm_s390_gisa_clear(struct kvm *kvm)
+ 
+ void kvm_s390_gisa_init(struct kvm *kvm)
+ {
+-	if (1 || !css_general_characteristics.aiv)
++	if (!css_general_characteristics.aiv)
+ 		kvm->arch.gisa = NULL;
+ 	else {
+ 		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
 -- 
 2.9.4
