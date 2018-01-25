@@ -1,71 +1,42 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 30 Jan 2018 13:22:38 +0000
-Subject: Re: [PATCH v1 0/2] Kconfig changes to enable Graphics Support for S390
-Message-Id: <cb4c884b-9334-325c-0c2d-0f93fae9f1cc@de.ibm.com>
+From: Farhan Ali <alifm@linux.vnet.ibm.com>
+Date: Thu, 25 Jan 2018 15:47:31 +0000
+Subject: [PATCH v1 2/2] fbdev: Kconfig: Add HAS_IOMEM dependency for FB_OPENCORES
+Message-Id: <033e4a497792b2fa484c1288b9ed05c068565088.1516892845.git.alifm@linux.vnet.ibm.com>
 References: <cover.1516892845.git.alifm@linux.vnet.ibm.com>
- <CAMuHMdW7jR2Oa6dsameR76FLhSnX+kZ7jXqpfQC+oHy_uaMJaQ@mail.gmail.com>
- <19306e74-7c9b-5644-6f08-bbaef226afd8@linux.vnet.ibm.com>
- <CAMuHMdUFCKtdAHHt6SwBSQXiRgSKvnqFXUvrQ1jFkb8J0nuSMw@mail.gmail.com>
- <85ab024b-6af2-8b58-f9e8-7920d132cefb@linux.vnet.ibm.com>
-In-Reply-To: <85ab024b-6af2-8b58-f9e8-7920d132cefb@linux.vnet.ibm.com>
+In-Reply-To: <cover.1516892845.git.alifm@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 List-Archive: <https://lore.kernel.org/linux-fbdev/>
 List-Post: <mailto:linux-fbdev@vger.kernel.org>
-To: Farhan Ali <alifm@linux.vnet.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux Fbdev development list <linux-fbdev@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Tomi Valkeinen <tomi.valkeinen@ti.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fbdev@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, stefan.kristiansson@saunalahti.fi, tomi.valkeinen@ti.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Yes, merging sounds good.
-Farhan, can you maybe resend t whole series together with your CONFIG_VT rework?
+The Opencores framebuffer device uses I/O memory and with
+CONFIG_HAS_IOMEM disabled will lead to build errors:
 
+ERROR: "devm_ioremap_resource" [drivers/video/fbdev/ocfb.ko] undefined!
 
+Fix this by adding HAS_IOMEM dependency for FB_OPENCORES.
 
-On 01/26/2018 05:26 PM, Farhan Ali wrote:
-> 
-> 
-> On 01/26/2018 10:06 AM, Geert Uytterhoeven wrote:
->>> Hi Geert,
->>>
->>> I wasn't sure what would be the best ordering since we would never hit the
->>> issue if patch 1 didn't exist. But if the preference is to invert the
->>> ordering of patches, then I will change the ordering.
->> Alternatively, you can combine two patches into a single patch, which
->> moves the dependency from the whole subsystem to the driver that needs
->> it (are there more?).
->>
->> Gr{oetje,eeting}s,
->>
->>                          Geert
-> 
-> 
-> I like the idea of combining both patches into one.
-> 
-> There are other fbdev drivers that use iomem (found by grepping for "devm_ioremap_resource"):
-> 
-> CONFIG_FB_S3C (s3c-fb.c)
-> 
-> CONFIG_FB_CLPS711X (clps711x-fb.c)
-> 
-> CONFIG_FB_JZ4740 (jz4740_fb.c)
-> 
-> CONFIG_FB_DA8XX (da8xx-fb.c)
-> 
-> CONFIG_FB_WM8505 (wm8505fb.c)
-> 
-> CONFIG_OMAP2_VRFB (omap2/omapfb/vrfb.c)
-> 
-> CONFIG_FB_OMAP2 (omap2/omapfb/dss/*
-> 
-> CONFIG_FB_MXS (mxsfb.c)
-> 
-> CONFIG_PXA3XX_GCU (pxa3xx-gcu.c)
-> 
-> CONFIG_FB_XILINX (xilinxfb.c)
-> 
-> 
-> All of these are already fenced off by architecture dependencies (which I am assuming enables CONFIG_HAS_IOMEM by default). If we want to be cautious I can add HAS_IOMEM dependency for all of them.
-> 
-> Thanks
-> Farhan
+Signed-off-by: Farhan Ali <alifm@linux.vnet.ibm.com>
+---
+ drivers/video/fbdev/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+index 5e58f5e..8667e5d 100644
+--- a/drivers/video/fbdev/Kconfig
++++ b/drivers/video/fbdev/Kconfig
+@@ -976,7 +976,7 @@ config FB_PVR2
+ 
+ config FB_OPENCORES
+ 	tristate "OpenCores VGA/LCD core 2.0 framebuffer support"
+-	depends on FB && HAS_DMA
++	depends on FB && HAS_DMA && HAS_IOMEM
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
+ 	select FB_CFB_IMAGEBLIT
+-- 
+2.7.4
