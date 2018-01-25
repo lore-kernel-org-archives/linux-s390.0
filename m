@@ -1,57 +1,76 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v2 06/12] KVM: s390: exploit GISA and AIV for emulated
- interrupts
-Date: Thu, 25 Jan 2018 17:50:23 +0100
-Message-ID: <fe7d07ee-1ce2-6293-6b2a-fb2c3659a05f@de.ibm.com>
+Subject: Re: [PATCH v2 12/12] KVM: s390: introduce the format-1 GISA
+Date: Thu, 25 Jan 2018 17:51:24 +0100
+Message-ID: <cbb017f2-f0eb-f147-0bab-c51dc96658bb@de.ibm.com>
 References: <20180125132848.175942-1-borntraeger@de.ibm.com>
- <20180125132848.175942-7-borntraeger@de.ibm.com>
- <040c7c5d-bbbd-89d4-ebcd-5d04ed80a40d@redhat.com>
- <b7fb3580-0eae-ee29-cae6-d58bc8a4e350@de.ibm.com>
- <be0022df-be6d-3b03-f5f5-c61e09c08da7@redhat.com>
+ <20180125132848.175942-13-borntraeger@de.ibm.com>
+ <e1e0ef1e-1311-af08-faff-72b116ce4a9d@redhat.com>
+ <a17b62ac-d4a6-46ab-594a-b31a5bf1e0b0@de.ibm.com>
+ <20180125164751.3034a45d.cohuck@redhat.com>
+ <fe0ef85d-ee9d-a699-c078-d72feb1d1232@de.ibm.com>
+ <20180125171742.484d29d1.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <be0022df-be6d-3b03-f5f5-c61e09c08da7@redhat.com>
+In-Reply-To: <20180125171742.484d29d1.cohuck@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/25/2018 05:47 PM, David Hildenbrand wrote:
-> On 25.01.2018 17:32, Christian Borntraeger wrote:
->>
->>
->> On 01/25/2018 03:20 PM, David Hildenbrand wrote:
->> [...]
->>>> @@ -918,18 +919,38 @@ static int __must_check __deliver_virtio(struct kvm_vcpu *vcpu)
->>>>  	return rc ? -EFAULT : 0;
->>>>  }
+
+
+On 01/25/2018 05:17 PM, Cornelia Huck wrote:
+> On Thu, 25 Jan 2018 17:12:59 +0100
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> On 01/25/2018 04:47 PM, Cornelia Huck wrote:
+>>> On Thu, 25 Jan 2018 16:43:27 +0100
+>>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>>>   
+>>>> On 01/25/2018 04:31 PM, David Hildenbrand wrote:
+>>>> [...]  
+>>>>>>  struct kvm_s390_vsie {
+>>>>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>>>>> index 68d7eef..efde264 100644
+>>>>>> --- a/arch/s390/kvm/kvm-s390.c
+>>>>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>>>>> @@ -2518,6 +2518,8 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+>>>>>>  	vcpu->arch.sie_block->icpua = id;
+>>>>>>  	spin_lock_init(&vcpu->arch.local_int.lock);
+>>>>>>  	vcpu->arch.sie_block->gd = (u32)(u64)kvm->arch.gisa;
+>>>>>> +	if (vcpu->arch.sie_block->gd && sclp.has_gisaf)
+>>>>>> +		vcpu->arch.sie_block->gd |= GISA_FORMAT1;
+>>>>>>  	seqcount_init(&vcpu->arch.cputm_seqcount);
+>>>>>>  
+>>>>>>  	rc = kvm_vcpu_init(vcpu, kvm, id);
+>>>>>>    
+>>>>>
+>>>>> So, what does this bring us? We don't seem to be using any new GISA-1
+>>>>> features.    
+>>>>
+>>>> Preparation for device pass-through interrupt forwarding.
 >>>>  
->>>> +static int __do_deliver_io(struct kvm_vcpu *vcpu, struct kvm_s390_io_info *io)
->>>> +{
->>>> +	int rc;
->>>> +
->>>> +	rc  = put_guest_lc(vcpu, io->subchannel_id, (u16 *)__LC_SUBCHANNEL_ID);
->>>> +	rc |= put_guest_lc(vcpu, io->subchannel_nr, (u16 *)__LC_SUBCHANNEL_NR);
->>>> +	rc |= put_guest_lc(vcpu, io->io_int_parm, (u32 *)__LC_IO_INT_PARM);
->>>> +	rc |= put_guest_lc(vcpu, io->io_int_word, (u32 *)__LC_IO_INT_WORD);
->>>> +	rc |= write_guest_lc(vcpu, __LC_IO_OLD_PSW,
->>>> +			     &vcpu->arch.sie_block->gpsw,
->>>> +			     sizeof(psw_t));
->>>> +	rc |= read_guest_lc(vcpu, __LC_IO_NEW_PSW,
->>>> +			    &vcpu->arch.sie_block->gpsw,
->>>> +			    sizeof(psw_t));
 >>>
->>> These should now it into less lines.
+>>> Should we start out with a dual format-0/format-1 gisa block, then?
+>>> IIUC, you'll switch to gisa-1 if the facility is there and gisa-1 can
+>>> do anything that gisa-0 can do?  
 >>
->> The last two lines are way beyond 80. 
+>> There might be systems that only have gisa-0, so I think having both makes
+>> sense.
 >>
 > 
-> Huh? At least in my world, I can reduce 3 to 2 lines (for both).
+> Yes, that's what I meant. Just do it earlier in the series - this patch
+> feels like an afterthought with no real user.
 
-Yes, but if I have to break the line, then I prefer to have one parameter per line. (all or
-nothing)
+I added 
+
+A format-1 can do everything that format-0 can and we will need it
+for real HW passthrough. As there are systems with only format-0
+we keep both variants.
+
+to the patch description. Maybe its now a bit less odd?
