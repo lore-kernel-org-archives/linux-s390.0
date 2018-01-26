@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 15/22] s390/css: indicate the availability of the AIV facility
-Date: Fri, 26 Jan 2018 16:53:27 +0100
-Message-ID: <20180126155334.52956-16-borntraeger@de.ibm.com>
+Subject: [GIT PULL 12/22] KVM: s390: define GISA format-0 data structure
+Date: Fri, 26 Jan 2018 16:53:24 +0100
+Message-ID: <20180126155334.52956-13-borntraeger@de.ibm.com>
 References: <20180126155334.52956-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180126155334.52956-1-borntraeger@de.ibm.com>
@@ -14,36 +14,95 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-The patch adds an indication for the presence Adapter Interruption
-Virtualization facility (AIV) of the general channel subsystem
-characteristics.
+In preperation to support pass-through adapter interrupts, the Guest
+Interruption State Area (GISA) and the Adapter Interruption Virtualization
+(AIV) features will be introduced here.
+
+This patch introduces format-0 GISA (that is defines the struct describing
+the GISA, allocates storage for it, and introduces fields for the
+GISA address in kvm_s390_sie_block and kvm_s390_vsie).
+
+As the GISA requires storage below 2GB, it is put in sie_page2, which is
+already allocated in ZONE_DMA. In addition, The GISA requires alignment to
+its integral boundary. This is already naturally aligned via the
+padding in the sie_page2.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[change wording]
 ---
- arch/s390/include/asm/css_chars.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/kvm_host.h | 23 +++++++++++++++++++----
+ arch/s390/kvm/kvm-s390.c         |  1 +
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/css_chars.h b/arch/s390/include/asm/css_chars.h
-index a478eb61aaf7f..fb56fa3283a2c 100644
---- a/arch/s390/include/asm/css_chars.h
-+++ b/arch/s390/include/asm/css_chars.h
-@@ -20,7 +20,9 @@ struct css_general_char {
- 	u32 aif_tdd : 1; /* bit 56 */
- 	u32 : 1;
- 	u32 qebsm : 1;	 /* bit 58 */
--	u32 : 8;
-+	u32 : 2;
-+	u32 aiv : 1;     /* bit 61 */
-+	u32 : 5;
- 	u32 aif_osa : 1; /* bit 67 */
- 	u32 : 12;
- 	u32 eadm_rf : 1; /* bit 80 */
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index d2351d63afa3b..4f89b2783512e 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -183,6 +183,7 @@ struct kvm_s390_sie_block {
+ #define ECA_IB		0x40000000
+ #define ECA_SIGPI	0x10000000
+ #define ECA_MVPGI	0x01000000
++#define ECA_AIV		0x00200000
+ #define ECA_VX		0x00020000
+ #define ECA_PROTEXCI	0x00002000
+ #define ECA_SII		0x00000001
+@@ -227,7 +228,8 @@ struct kvm_s390_sie_block {
+ 	__u8    epdx;			/* 0x0069 */
+ 	__u8    reserved6a[2];		/* 0x006a */
+ 	__u32	todpr;			/* 0x006c */
+-	__u8	reserved70[16];		/* 0x0070 */
++	__u32	gd;			/* 0x0070 */
++	__u8	reserved74[12];		/* 0x0074 */
+ 	__u64	mso;			/* 0x0080 */
+ 	__u64	msl;			/* 0x0088 */
+ 	psw_t	gpsw;			/* 0x0090 */
+@@ -716,14 +718,27 @@ struct kvm_s390_crypto_cb {
+ 	struct kvm_s390_apcb1 apcb1;		/* 0x0080 */
+ };
+ 
++struct kvm_s390_gisa {
++	u32 next_alert;
++	u8 ipm;
++	u8 reserved01;
++	u8 : 6;
++	u8 g : 1;
++	u8 c : 1;
++	u8 iam;
++	u8 reserved02[4];
++	u32 airq_count;
++};
++
+ /*
+- * sie_page2 has to be allocated as DMA because fac_list and crycb need
+- * 31bit addresses in the sie control block.
++ * sie_page2 has to be allocated as DMA because fac_list, crycb and
++ * gisa need 31bit addresses in the sie control block.
+  */
+ struct sie_page2 {
+ 	__u64 fac_list[S390_ARCH_FAC_LIST_SIZE_U64];	/* 0x0000 */
+ 	struct kvm_s390_crypto_cb crycb;		/* 0x0800 */
+-	u8 reserved900[0x1000 - 0x900];			/* 0x0900 */
++	struct kvm_s390_gisa gisa;			/* 0x0900 */
++	u8 reserved910[0x1000 - 0x910];			/* 0x0910 */
+ };
+ 
+ struct kvm_s390_vsie {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 3dd209de2e0ca..2fbdb16010894 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1928,6 +1928,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	if (!kvm->arch.dbf)
+ 		goto out_err;
+ 
++	BUILD_BUG_ON(sizeof(struct sie_page2) != 4096);
+ 	kvm->arch.sie_page2 =
+ 	     (struct sie_page2 *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!kvm->arch.sie_page2)
 -- 
 2.13.4
