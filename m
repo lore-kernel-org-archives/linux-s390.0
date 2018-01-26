@@ -1,35 +1,66 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 3/5] KVM: s390: add debug tracing for cpu features of CPU
- model
-Date: Mon, 8 Jan 2018 12:14:05 +0100
-Message-ID: <fff142f5-f6c1-a56d-89e9-0425950202c9@redhat.com>
-References: <20171220155300.102321-1-borntraeger@de.ibm.com>
- <20171220155300.102321-4-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Farhan Ali <alifm@linux.vnet.ibm.com>
+Date: Fri, 26 Jan 2018 14:32:11 +0000
+Subject: Re: [PATCH v1 2/2] fbdev: Kconfig: Add HAS_IOMEM dependency for FB_OPENCORES
+Message-Id: <0f10ed78-3275-6356-8357-a6f499213d52@linux.vnet.ibm.com>
+References: <cover.1516892845.git.alifm@linux.vnet.ibm.com>
+ <033e4a497792b2fa484c1288b9ed05c068565088.1516892845.git.alifm@linux.vnet.ibm.com>
+ <036978d8-0628-9841-4bc1-b09c5231b577@redhat.com>
+ <1fae3814-705e-a221-5e58-cef8da3a2f7d@ti.com>
+In-Reply-To: <1fae3814-705e-a221-5e58-cef8da3a2f7d@ti.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20171220155300.102321-4-borntraeger@de.ibm.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/linux-fbdev/>
+List-Post: <mailto:linux-fbdev@vger.kernel.org>
+To: Tomi Valkeinen <tomi.valkeinen@ti.com>, Thomas Huth <thuth@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fbdev@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, stefan.kristiansson@saunalahti.fi
 List-ID: <linux-s390.vger.kernel.org>
 
-On 20.12.2017 16:52, Christian Borntraeger wrote:
 
-"We already trace ... related to the CPU model. We should ..."
 
-> The cpu model already traces the cpu facilities, the ibc and
-> guest CPU ids. We should do the same for the cpu features (on
-> success only).
+On 01/26/2018 07:38 AM, Tomi Valkeinen wrote:
+> On 26/01/18 14:33, Thomas Huth wrote:
+>> On 25.01.2018 16:47, Farhan Ali wrote:
+>>> The Opencores framebuffer device uses I/O memory and with
+>>> CONFIG_HAS_IOMEM disabled will lead to build errors:
+>>>
+>>> ERROR: "devm_ioremap_resource" [drivers/video/fbdev/ocfb.ko] undefined!
+>>>
+>>> Fix this by adding HAS_IOMEM dependency for FB_OPENCORES.
+>>>
+>>> Signed-off-by: Farhan Ali <alifm@linux.vnet.ibm.com>
+>>> ---
+>>>   drivers/video/fbdev/Kconfig | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+>>> index 5e58f5e..8667e5d 100644
+>>> --- a/drivers/video/fbdev/Kconfig
+>>> +++ b/drivers/video/fbdev/Kconfig
+>>> @@ -976,7 +976,7 @@ config FB_PVR2
+>>>   
+>>>   config FB_OPENCORES
+>>>   	tristate "OpenCores VGA/LCD core 2.0 framebuffer support"
+>>> -	depends on FB && HAS_DMA
+>>> +	depends on FB && HAS_DMA && HAS_IOMEM
+>>>   	select FB_CFB_FILLRECT
+>>>   	select FB_CFB_COPYAREA
+>>>   	select FB_CFB_IMAGEBLIT
+>>
+>> I think it would be better if fbdevs in general would depend on
+>> HAS_IOMEM ... or could there be any frame buffer devices without IOMEM ?
+> 
+> There are some small ones which are updated with, say, i2c
+> (ssd1307fb.c). I think those don't need iomem.
+> 
+>   Tomi
+> 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Most of the other framebuffer devices are fenced of by architecture 
+dependency or PCI dependency. So I am hesitant to introduce a blanket 
+dependency for all fbdevs.
 
--- 
+Thank you guys for reviewing!
 
-Thanks,
-
-David / dhildenb
+Thanks
+Farhan
