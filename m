@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 09/22] KVM: s390: introduce and use kvm_s390_clear_cpuflags()
-Date: Fri, 26 Jan 2018 16:53:21 +0100
-Message-ID: <20180126155334.52956-10-borntraeger@de.ibm.com>
+Subject: [GIT PULL 19/22] KVM: s390: make kvm_s390_get_io_int() aware of GISA
+Date: Fri, 26 Jan 2018 16:53:31 +0100
+Message-ID: <20180126155334.52956-20-borntraeger@de.ibm.com>
 References: <20180126155334.52956-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180126155334.52956-1-borntraeger@de.ibm.com>
@@ -12,145 +12,123 @@ To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <david@redhat.com>
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-Use it just like kvm_s390_set_cpuflags().
+The function returns a pending I/O interrupt with the highest
+priority defined by its ISC.
 
-Suggested-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20180123170531.13687-4-david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Together with AIV activation, pending adapter interrupts are
+managed by the GISA IPM. Thus kvm_s390_get_io_int() needs to
+inspect the IPM as well when the interrupt with the highest
+priority has to be identified.
+
+In case classic and adapter interrupts with the same ISC are
+pending, the classic interrupt will be returned first.
+
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c |  8 ++++----
- arch/s390/kvm/kvm-s390.c  | 11 +++++------
- arch/s390/kvm/kvm-s390.h  |  5 +++++
- arch/s390/kvm/priv.c      |  2 +-
- arch/s390/kvm/vsie.c      |  2 +-
- 5 files changed, 16 insertions(+), 12 deletions(-)
+ arch/s390/kvm/interrupt.c | 78 +++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 72 insertions(+), 6 deletions(-)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 404a127b1921a..8687aed9a268f 100644
+index dd4c50b82a532..f2dc86884ea42 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -111,7 +111,7 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- 
- 	if (!kvm_s390_use_sca_entries())
- 		return;
--	atomic_andnot(CPUSTAT_ECALL_PEND, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
- 	read_lock(&vcpu->kvm->arch.sca_lock);
- 	if (vcpu->kvm->arch.use_esca) {
- 		struct esca_block *sca = vcpu->kvm->arch.sca;
-@@ -283,14 +283,14 @@ static void __set_cpu_idle(struct kvm_vcpu *vcpu)
- 
- static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
- {
--	atomic_andnot(CPUSTAT_WAIT, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
- 	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
+@@ -1471,12 +1471,8 @@ static struct kvm_s390_interrupt_info *get_io_int(struct kvm *kvm,
+ 	return NULL;
  }
  
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
+-/*
+- * Dequeue and return an I/O interrupt matching any of the interruption
+- * subclasses as designated by the isc mask in cr6 and the schid (if != 0).
+- */
+-struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+-						    u64 isc_mask, u32 schid)
++static struct kvm_s390_interrupt_info *get_top_io_int(struct kvm *kvm,
++						      u64 isc_mask, u32 schid)
  {
--	atomic_andnot(CPUSTAT_IO_INT | CPUSTAT_EXT_INT | CPUSTAT_STOP_INT,
--		    &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_IO_INT | CPUSTAT_EXT_INT |
-+				      CPUSTAT_STOP_INT);
- 	vcpu->arch.sie_block->lctl = 0x0000;
- 	vcpu->arch.sie_block->ictl &= ~(ICTL_LPSW | ICTL_STCTL | ICTL_PINT);
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 9dc996acb52cf..3eb97c4212cf6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2340,7 +2340,7 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- 	vcpu->cpu = -1;
- 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
- 		__stop_cpu_timer_accounting(vcpu);
--	atomic_andnot(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_RUNNING);
- 	vcpu->arch.enabled_gmap = gmap_get_enabled();
- 	gmap_disable(vcpu->arch.enabled_gmap);
- 
-@@ -2827,14 +2827,14 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- 		if (dbg->control & KVM_GUESTDBG_USE_HW_BP)
- 			rc = kvm_s390_import_bp_data(vcpu, dbg);
- 	} else {
--		atomic_andnot(CPUSTAT_P, &vcpu->arch.sie_block->cpuflags);
-+		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_P);
- 		vcpu->arch.guestdbg.last_bp = 0;
- 	}
- 
- 	if (rc) {
- 		vcpu->guest_debug = 0;
- 		kvm_s390_clear_bp_data(vcpu);
--		atomic_andnot(CPUSTAT_P, &vcpu->arch.sie_block->cpuflags);
-+		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_P);
- 	}
- 
- 	return rc;
-@@ -2919,8 +2919,7 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- 	if (kvm_check_request(KVM_REQ_DISABLE_IBS, vcpu)) {
- 		if (ibs_enabled(vcpu)) {
- 			trace_kvm_s390_enable_disable_ibs(vcpu->vcpu_id, 0);
--			atomic_andnot(CPUSTAT_IBS,
--					  &vcpu->arch.sie_block->cpuflags);
-+			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_IBS);
- 		}
- 		goto retry;
- 	}
-@@ -3564,7 +3563,7 @@ void kvm_s390_vcpu_start(struct kvm_vcpu *vcpu)
- 		__disable_ibs_on_all_vcpus(vcpu->kvm);
- 	}
- 
--	atomic_andnot(CPUSTAT_STOPPED, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	/*
- 	 * Another VCPU might have used IBS while we were offline.
- 	 * Let's play safe and flush the VCPU at startup.
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index a9f2c8d1833dd..f727313a706f9 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -52,6 +52,11 @@ static inline void kvm_s390_set_cpuflags(struct kvm_vcpu *vcpu, u32 flags)
- 	atomic_or(flags, &vcpu->arch.sie_block->cpuflags);
+ 	struct kvm_s390_interrupt_info *inti = NULL;
+ 	int isc;
+@@ -1488,6 +1484,76 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+ 	return inti;
  }
  
-+static inline void kvm_s390_clear_cpuflags(struct kvm_vcpu *vcpu, u32 flags)
++static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
 +{
-+	atomic_andnot(flags, &vcpu->arch.sie_block->cpuflags);
++	unsigned long active_mask;
++	int isc;
++
++	if (schid)
++		goto out;
++	if (!kvm->arch.gisa)
++		goto out;
++
++	active_mask = (isc_mask & kvm_s390_gisa_get_ipm(kvm->arch.gisa) << 24) << 32;
++	while (active_mask) {
++		isc = __fls(active_mask) ^ (BITS_PER_LONG - 1);
++		if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, isc))
++			return isc;
++		clear_bit_inv(isc, &active_mask);
++	}
++out:
++	return -EINVAL;
 +}
 +
- static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
- {
- 	return atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_STOPPED;
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index dea0217922d6f..8205223f73322 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -216,7 +216,7 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
- 	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
- 	if (!rc) {
- 		if (atomic_read(&sie_block->cpuflags) & CPUSTAT_KSS)
--			atomic_andnot(CPUSTAT_KSS, &sie_block->cpuflags);
-+			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
- 		else
- 			sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE |
- 					     ICTL_RRBE);
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 87b3416390636..6d494ed5907ee 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -935,7 +935,7 @@ static void register_shadow_scb(struct kvm_vcpu *vcpu,
-  */
- static void unregister_shadow_scb(struct kvm_vcpu *vcpu)
- {
--	atomic_andnot(CPUSTAT_WAIT, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
- 	WRITE_ONCE(vcpu->arch.vsie_block, NULL);
- }
++/*
++ * Dequeue and return an I/O interrupt matching any of the interruption
++ * subclasses as designated by the isc mask in cr6 and the schid (if != 0).
++ * Take into account the interrupts pending in the interrupt list and in GISA.
++ *
++ * Note that for a guest that does not enable I/O interrupts
++ * but relies on TPI, a flood of classic interrupts may starve
++ * out adapter interrupts on the same isc. Linux does not do
++ * that, and it is possible to work around the issue by configuring
++ * different iscs for classic and adapter interrupts in the guest,
++ * but we may want to revisit this in the future.
++ */
++struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
++						    u64 isc_mask, u32 schid)
++{
++	struct kvm_s390_interrupt_info *inti, *tmp_inti;
++	int isc;
++
++	inti = get_top_io_int(kvm, isc_mask, schid);
++
++	isc = get_top_gisa_isc(kvm, isc_mask, schid);
++	if (isc < 0)
++		/* no AI in GISA */
++		goto out;
++
++	if (!inti)
++		/* AI in GISA but no classical IO int */
++		goto gisa_out;
++
++	/* both types of interrupts present */
++	if (int_word_to_isc(inti->io.io_int_word) <= isc) {
++		/* classical IO int with higher priority */
++		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
++		goto out;
++	}
++gisa_out:
++	tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL);
++	if (tmp_inti) {
++		tmp_inti->type = KVM_S390_INT_IO(1, 0, 0, 0);
++		tmp_inti->io.io_int_word = isc_to_int_word(isc);
++		if (inti)
++			kvm_s390_reinject_io_int(kvm, inti);
++		inti = tmp_inti;
++	} else
++		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
++out:
++	return inti;
++}
++
+ #define SCCB_MASK 0xFFFFFFF8
+ #define SCCB_EVENT_PENDING 0x3
  
 -- 
 2.13.4
