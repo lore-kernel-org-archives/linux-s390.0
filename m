@@ -1,109 +1,88 @@
-Return-Path: <ming.lei@redhat.com>
-Date: Thu, 11 Jan 2018 17:13:25 +0800
-From: Ming Lei <ming.lei@redhat.com>
-Subject: Re: 4.14: WARNING: CPU: 4 PID: 2895 at block/blk-mq.c:1144 with
- virtio-blk (also 4.12 stable)
-Message-ID: <20180111091318.GA13969@ming.t460p>
-References: <20171123183232.GA2845@lst.de>
- <92ef1aae-90b5-f14f-390e-bfab97899431@de.ibm.com>
- <419d8565-9cbe-16ac-3d5d-5945098694bc@de.ibm.com>
- <20171127155409.GA6937@lst.de>
- <d0f39408-b697-8d1a-2cce-b833cb8fa118@de.ibm.com>
- <20171204162108.GA12482@lst.de>
- <5ab91c56-b117-f4fa-3049-a4f8a5493155@de.ibm.com>
- <20171206232924.GA16584@lst.de>
- <0520e469-563b-486c-9ab8-00d8944ffa9d@linux.vnet.ibm.com>
- <04aff6c6-5c04-a2b5-e886-b747cb51f39e@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-In-Reply-To: <04aff6c6-5c04-a2b5-e886-b747cb51f39e@de.ibm.com>
-List-Archive: <https://lore.kernel.org/linux-block/>
-List-Post: <mailto:linux-block@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Stefan Haberland <sth@linux.vnet.ibm.com>, Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, Bart Van Assche <Bart.VanAssche@wdc.com>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-s390 <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v2 09/12] KVM: s390: make kvm_s390_get_io_int() aware of
+ GISA
+Date: Fri, 26 Jan 2018 14:13:04 +0100
+Message-ID: <065a843b-c25e-720d-5873-f6b880fa1d68@de.ibm.com>
+References: <20180125132848.175942-1-borntraeger@de.ibm.com>
+ <20180125132848.175942-10-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20180125132848.175942-10-borntraeger@de.ibm.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 20, 2017 at 04:47:21PM +0100, Christian Borntraeger wrote:
-> On 12/18/2017 02:56 PM, Stefan Haberland wrote:
-> > On 07.12.2017 00:29, Christoph Hellwig wrote:
-> >> On Wed, Dec 06, 2017 at 01:25:11PM +0100, Christian Borntraeger wrote:
-> >> t > commit 11b2025c3326f7096ceb588c3117c7883850c068=EF=BF=BD=EF=BF=BD=
-=EF=BF=BD -> bad
-> >>> =EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD blk-mq: create a blk_mq_ctx for =
-each possible CPU
-> >>> does not boot on DASD and
-> >>> commit 9c6ae239e01ae9a9f8657f05c55c4372e9fc8bcc=EF=BF=BD=EF=BF=BD=EF=
-=BF=BD -> good
-> >>> =EF=BF=BD=EF=BF=BD=EF=BF=BD genirq/affinity: assign vectors to all po=
-ssible CPUs
-> >>> does boot with DASD disks.
-> >>>
-> >>> Also adding Stefan Haberland if he has an idea why this fails on DASD=
- and adding Martin (for the
-> >>> s390 irq handling code).
-> >> That is interesting as it really isn't related to interrupts at all,
-> >> it just ensures that possible CPUs are set in ->cpumask.
-> >>
-> >> I guess we'd really want:
-> >>
-> >> e005655c389e3d25bf3e43f71611ec12f3012de0
-> >> "blk-mq: only select online CPUs in blk_mq_hctx_next_cpu"
-> >>
-> >> before this commit, but it seems like the whole stack didn't work for
-> >> your either.
-> >>
-> >> I wonder if there is some weird thing about nr_cpu_ids in s390?
-> >> --=20
-> >> To unsubscribe from this list: send the line "unsubscribe linux-s390" =
-in
-> >> the body of a message to majordomo@vger.kernel.org
-> >> More majordomo info at=EF=BF=BD http://vger.kernel.org/majordomo-info.=
-html
-> >>
-> >=20
-> > I tried this on my system and the blk-mq-hotplug-fix branch does not bo=
-ot for me as well.
-> > The disks get up and running and I/O works fine. At least the partition=
- detection and EXT4-fs mount works.
-> >=20
-> > But at some point in time the disk do not get any requests.
-> >=20
-> > I currently have no clue why.
-> > I took a dump and had a look at the disk states and they are fine. No e=
-rror in the logs or in our debug entrys. Just empty DASD devices waiting to=
- be called for I/O requests.
-> >=20
-> > Do you have anything I could have a look at?
->=20
-> Jens, Christoph, so what do we do about this?
-> To summarize:
-> - commit 4b855ad37194f7 ("blk-mq: Create hctx for each present CPU") brok=
-e CPU hotplug.
-> - Jens' quick revert did fix the issue and did not broke DASD support but=
- has some issues
-> with interrupt affinity.
-> - Christoph patch set fixes the hotplug issue for virtio blk but causes I=
-/O hangs on DASDs (even
-> without hotplug).
 
-Hello,
 
-This one is a valid use case for VM, I think we need to fix that.
+On 01/25/2018 02:28 PM, Christian Borntraeger wrote:
+> From: Michael Mueller <mimu@linux.vnet.ibm.com>
+> 
+> The function returns a pending I/O interrupt with the highest
+> priority defined by its ISC.
+> 
+> Together with AIV activation, pending adapter interrupts are
+> managed by the GISA IPM. Thus kvm_s390_get_io_int() needs to
+> inspect the IPM as well when the interrupt with the highest
+> priority has to be identified.
+> 
+> In case classic and adapter interrupts with the same ISC are
+> pending, the classic interrupt will be returned first.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/interrupt.c | 71 +++++++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 65 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 0edf97a..5c48930 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -1471,12 +1471,8 @@ static struct kvm_s390_interrupt_info *get_io_int(struct kvm *kvm,
+>  	return NULL;
+>  }
+> 
+> -/*
+> - * Dequeue and return an I/O interrupt matching any of the interruption
+> - * subclasses as designated by the isc mask in cr6 and the schid (if != 0).
+> - */
+> -struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+> -						    u64 isc_mask, u32 schid)
+> +static struct kvm_s390_interrupt_info *get_top_io_int(struct kvm *kvm,
+> +						      u64 isc_mask, u32 schid)
+>  {
+>  	struct kvm_s390_interrupt_info *inti = NULL;
+>  	int isc;
+> @@ -1488,6 +1484,69 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+>  	return inti;
+>  }
+> 
+> +static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
+> +{
+> +	unsigned long active_mask;
+> +	int isc;
+> +
+> +	if (schid)
+> +		goto out;
+> +	if (!kvm->arch.gisa)
+> +		goto out;
+> +
+> +	active_mask = (isc_mask & kvm_s390_gisa_get_ipm(kvm->arch.gisa) << 24) << 32;
+> +	while (active_mask) {
+> +		isc = __flogr(active_mask);
 
-Looks there is issue on the fouth patch("blk-mq: only select online
-CPUs in blk_mq_hctx_next_cpu"), I fixed it in the following tree, and
-the other 3 patches are same with Christoph's:
+Sebastian Ott noticed that newer binutils will complain about that when
+compiling for z990 or older.
 
-	https://github.com/ming1/linux.git  v4.15-rc-block-for-next-cpuhot-fix
+I will use the equivalent
 
-gitweb:
-	https://github.com/ming1/linux/commits/v4.15-rc-block-for-next-cpuhot-fix
-
-Could you test it and provide the feedback?
-
-BTW, if it can't help this issue, could you boot from a normal disk first
-and dump blk-mq debugfs of DASD later?
-
-Thanks,=20
-Ming
+-               isc = __flogr(active_mask);
++               isc = __fls(active_mask) ^ (BITS_PER_LONG - 1);
