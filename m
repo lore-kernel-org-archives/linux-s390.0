@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 16/22] KVM: s390: exploit GISA and AIV for emulated interrupts
-Date: Fri, 26 Jan 2018 16:53:28 +0100
-Message-ID: <20180126155334.52956-17-borntraeger@de.ibm.com>
+Subject: [GIT PULL 06/22] KVM: s390: add vcpu stat counters for many instruction
+Date: Fri, 26 Jan 2018 16:53:18 +0100
+Message-ID: <20180126155334.52956-7-borntraeger@de.ibm.com>
 References: <20180126155334.52956-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180126155334.52956-1-borntraeger@de.ibm.com>
@@ -12,267 +12,299 @@ To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
+The overall instruction counter is larger than the sum of the
+single counters. We should try to catch all instruction handlers
+to make this match the summary counter.
+Let us add sck,tb,sske,iske,rrbe,tb,tpi,tsch,lpsw,pswe....
+and remove other unused ones.
 
-The adapter interruption virtualization (AIV) facility is an
-optional facility that comes with functionality expected to increase
-the performance of adapter interrupt handling for both emulated and
-passed-through adapter interrupts. With AIV, adapter interrupts can be
-delivered to the guest without exiting SIE.
-
-This patch provides some preparations for using AIV for emulated adapter
-interrupts (including virtio) if it's available. When using AIV, the
-interrupts are delivered at the so called GISA by setting the bit
-corresponding to its Interruption Subclass (ISC) in the Interruption
-Pending Mask (IPM) instead of inserting a node into the floating interrupt
-list.
-
-To keep the change reasonably small, the handling of this new state is
-deferred in get_all_floating_irqs and handle_tpi. This patch concentrates
-on the code handling enqueuement of emulated adapter interrupts, and their
-delivery to the guest.
-
-Note that care is still required for adapter interrupts using AIV,
-because there is no guarantee that AIV is going to deliver the adapter
-interrupts pending at the GISA (consider all vcpus idle). When delivering
-GISA adapter interrupts by the host (usual mechanism) special attention
-is required to honor interrupt priorities.
-
-Empirical results show that the time window between making an interrupt
-pending at the GISA and doing kvm_s390_deliver_pending_interrupts is
-sufficient for a guest with at least moderate cpu activity to get adapter
-interrupts delivered within the SIE, and potentially save some SIE exits
-(if not other deliverable interrupts).
-
-The code will be activated with a follow-up patch.
-
-Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/interrupt.c        | 93 ++++++++++++++++++++++++++++++++--------
- arch/s390/kvm/kvm-s390.c         |  8 ++++
- arch/s390/kvm/kvm-s390.h         |  3 ++
- 4 files changed, 87 insertions(+), 18 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 21 +++++++++++++++++----
+ arch/s390/kvm/diag.c             |  1 +
+ arch/s390/kvm/kvm-s390.c         | 21 +++++++++++++++++----
+ arch/s390/kvm/priv.c             | 32 ++++++++++++++++++++++++++++++--
+ 4 files changed, 65 insertions(+), 10 deletions(-)
 
 diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 4f89b2783512e..76d6f0ef3dbdc 100644
+index e16a9f2a44ad6..029e8144c6ecc 100644
 --- a/arch/s390/include/asm/kvm_host.h
 +++ b/arch/s390/include/asm/kvm_host.h
-@@ -785,6 +785,7 @@ struct kvm_arch{
- 	struct kvm_s390_migration_state *migration_state;
- 	/* subset of available cpu features enabled by user space */
- 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
-+	struct kvm_s390_gisa *gisa;
+@@ -2,7 +2,7 @@
+ /*
+  * definition for kernel virtual machines on s390
+  *
+- * Copyright IBM Corp. 2008, 2009
++ * Copyright IBM Corp. 2008, 2018
+  *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  */
+@@ -316,18 +316,30 @@ struct kvm_vcpu_stat {
+ 	u64 deliver_program_int;
+ 	u64 deliver_io_int;
+ 	u64 exit_wait_state;
++	u64 instruction_epsw;
++	u64 instruction_gs;
++	u64 instruction_io_other;
++	u64 instruction_lpsw;
++	u64 instruction_lpswe;
+ 	u64 instruction_pfmf;
++	u64 instruction_ptff;
++	u64 instruction_sck;
++	u64 instruction_sckpf;
+ 	u64 instruction_stidp;
+ 	u64 instruction_spx;
+ 	u64 instruction_stpx;
+ 	u64 instruction_stap;
+-	u64 instruction_storage_key;
++	u64 instruction_iske;
++	u64 instruction_ri;
++	u64 instruction_rrbe;
++	u64 instruction_sske;
+ 	u64 instruction_ipte_interlock;
+-	u64 instruction_stsch;
+-	u64 instruction_chsc;
+ 	u64 instruction_stsi;
+ 	u64 instruction_stfl;
++	u64 instruction_tb;
++	u64 instruction_tpi;
+ 	u64 instruction_tprot;
++	u64 instruction_tsch;
+ 	u64 instruction_sie;
+ 	u64 instruction_essa;
+ 	u64 instruction_sthyi;
+@@ -353,6 +365,7 @@ struct kvm_vcpu_stat {
+ 	u64 diagnose_258;
+ 	u64 diagnose_308;
+ 	u64 diagnose_500;
++	u64 diagnose_other;
  };
  
- #define KVM_HVA_ERR_BAD		(-1UL)
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 8985ce51f687a..f293c956e6dbb 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -234,7 +234,8 @@ static inline int kvm_s390_gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gis
- static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
- {
- 	return vcpu->kvm->arch.float_int.pending_irqs |
--	       vcpu->arch.local_int.pending_irqs;
-+		vcpu->arch.local_int.pending_irqs |
-+		kvm_s390_gisa_get_ipm(vcpu->kvm->arch.gisa) << IRQ_PEND_IO_ISC_7;
- }
- 
- static inline int isc_to_irq_type(unsigned long isc)
-@@ -919,18 +920,38 @@ static int __must_check __deliver_virtio(struct kvm_vcpu *vcpu)
- 	return rc ? -EFAULT : 0;
- }
- 
-+static int __do_deliver_io(struct kvm_vcpu *vcpu, struct kvm_s390_io_info *io)
-+{
-+	int rc;
-+
-+	rc  = put_guest_lc(vcpu, io->subchannel_id, (u16 *)__LC_SUBCHANNEL_ID);
-+	rc |= put_guest_lc(vcpu, io->subchannel_nr, (u16 *)__LC_SUBCHANNEL_NR);
-+	rc |= put_guest_lc(vcpu, io->io_int_parm, (u32 *)__LC_IO_INT_PARM);
-+	rc |= put_guest_lc(vcpu, io->io_int_word, (u32 *)__LC_IO_INT_WORD);
-+	rc |= write_guest_lc(vcpu, __LC_IO_OLD_PSW,
-+			     &vcpu->arch.sie_block->gpsw,
-+			     sizeof(psw_t));
-+	rc |= read_guest_lc(vcpu, __LC_IO_NEW_PSW,
-+			    &vcpu->arch.sie_block->gpsw,
-+			    sizeof(psw_t));
-+	return rc ? -EFAULT : 0;
-+}
-+
- static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
- 				     unsigned long irq_type)
- {
- 	struct list_head *isc_list;
- 	struct kvm_s390_float_interrupt *fi;
- 	struct kvm_s390_interrupt_info *inti = NULL;
-+	struct kvm_s390_io_info io;
-+	u32 isc;
- 	int rc = 0;
- 
- 	fi = &vcpu->kvm->arch.float_int;
- 
- 	spin_lock(&fi->lock);
--	isc_list = &fi->lists[irq_type_to_isc(irq_type)];
-+	isc = irq_type_to_isc(irq_type);
-+	isc_list = &fi->lists[isc];
- 	inti = list_first_entry_or_null(isc_list,
- 					struct kvm_s390_interrupt_info,
- 					list);
-@@ -958,24 +979,31 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
- 	spin_unlock(&fi->lock);
- 
- 	if (inti) {
--		rc  = put_guest_lc(vcpu, inti->io.subchannel_id,
--				(u16 *)__LC_SUBCHANNEL_ID);
--		rc |= put_guest_lc(vcpu, inti->io.subchannel_nr,
--				(u16 *)__LC_SUBCHANNEL_NR);
--		rc |= put_guest_lc(vcpu, inti->io.io_int_parm,
--				(u32 *)__LC_IO_INT_PARM);
--		rc |= put_guest_lc(vcpu, inti->io.io_int_word,
--				(u32 *)__LC_IO_INT_WORD);
--		rc |= write_guest_lc(vcpu, __LC_IO_OLD_PSW,
--				&vcpu->arch.sie_block->gpsw,
--				sizeof(psw_t));
--		rc |= read_guest_lc(vcpu, __LC_IO_NEW_PSW,
--				&vcpu->arch.sie_block->gpsw,
--				sizeof(psw_t));
-+		rc = __do_deliver_io(vcpu, &(inti->io));
- 		kfree(inti);
-+		goto out;
+ #define PGM_OPERATION			0x01
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index 89aa114a2cbad..45634b3d2e0ae 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -257,6 +257,7 @@ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
+ 	case 0x500:
+ 		return __diag_virtio_hypercall(vcpu);
+ 	default:
++		vcpu->stat.diagnose_other++;
+ 		return -EOPNOTSUPP;
  	}
- 
--	return rc ? -EFAULT : 0;
-+	if (vcpu->kvm->arch.gisa &&
-+	    kvm_s390_gisa_tac_ipm_gisc(vcpu->kvm->arch.gisa, isc)) {
-+		/*
-+		 * in case an adapter interrupt was not delivered
-+		 * in SIE context KVM will handle the delivery
-+		 */
-+		VCPU_EVENT(vcpu, 4, "%s isc %u", "deliver: I/O (AI/gisa)", isc);
-+		memset(&io, 0, sizeof(io));
-+		io.io_int_word = (isc << 27) | 0x80000000;
-+		vcpu->stat.deliver_io_int++;
-+		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
-+			KVM_S390_INT_IO(1, 0, 0, 0),
-+			((__u32)io.subchannel_id << 16) |
-+			io.subchannel_nr,
-+			((__u64)io.io_int_parm << 32) |
-+			io.io_int_word);
-+		rc = __do_deliver_io(vcpu, &io);
-+	}
-+out:
-+	return rc;
  }
- 
- typedef int (*deliver_irq_t)(struct kvm_vcpu *vcpu);
-@@ -1539,6 +1567,15 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	struct list_head *list;
- 	int isc;
- 
-+	isc = int_word_to_isc(inti->io.io_int_word);
-+
-+	if (kvm->arch.gisa && inti->type & KVM_S390_INT_IO_AI_MASK) {
-+		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
-+		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
-+		kfree(inti);
-+		return 0;
-+	}
-+
- 	fi = &kvm->arch.float_int;
- 	spin_lock(&fi->lock);
- 	if (fi->counters[FIRQ_CNTR_IO] >= KVM_S390_MAX_FLOAT_IRQS) {
-@@ -1554,7 +1591,6 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 			inti->io.subchannel_id >> 8,
- 			inti->io.subchannel_id >> 1 & 0x3,
- 			inti->io.subchannel_nr);
--	isc = int_word_to_isc(inti->io.io_int_word);
- 	list = &fi->lists[FIRQ_LIST_IO_ISC_0 + isc];
- 	list_add_tail(&inti->list, list);
- 	set_bit(isc_to_irq_type(isc), &fi->pending_irqs);
-@@ -2705,3 +2741,24 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
- 
- 	return n;
- }
-+
-+void kvm_s390_gisa_clear(struct kvm *kvm)
-+{
-+	if (kvm->arch.gisa) {
-+		memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
-+		kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
-+		VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
-+	}
-+}
-+
-+void kvm_s390_gisa_init(struct kvm *kvm)
-+{
-+	/* not implemented yet */
-+}
-+
-+void kvm_s390_gisa_destroy(struct kvm *kvm)
-+{
-+	if (!kvm->arch.gisa)
-+		return;
-+	kvm->arch.gisa = NULL;
-+}
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2fbdb16010894..2c5e25b394352 100644
+index ce8ea8b94478e..8a3a1d50ef99d 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -1999,6 +1999,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+@@ -2,7 +2,7 @@
+ /*
+  * hosting IBM Z kernel virtual machines (s390x)
+  *
+- * Copyright IBM Corp. 2008, 2017
++ * Copyright IBM Corp. 2008, 2018
+  *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+@@ -87,19 +87,31 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
+ 	{ "deliver_restart_signal", VCPU_STAT(deliver_restart_signal) },
+ 	{ "deliver_program_interruption", VCPU_STAT(deliver_program_int) },
+ 	{ "exit_wait_state", VCPU_STAT(exit_wait_state) },
++	{ "instruction_epsw", VCPU_STAT(instruction_epsw) },
++	{ "instruction_gs", VCPU_STAT(instruction_gs) },
++	{ "instruction_io_other", VCPU_STAT(instruction_io_other) },
++	{ "instruction_lpsw", VCPU_STAT(instruction_lpsw) },
++	{ "instruction_lpswe", VCPU_STAT(instruction_lpswe) },
+ 	{ "instruction_pfmf", VCPU_STAT(instruction_pfmf) },
++	{ "instruction_ptff", VCPU_STAT(instruction_ptff) },
+ 	{ "instruction_stidp", VCPU_STAT(instruction_stidp) },
++	{ "instruction_sck", VCPU_STAT(instruction_sck) },
++	{ "instruction_sckpf", VCPU_STAT(instruction_sckpf) },
+ 	{ "instruction_spx", VCPU_STAT(instruction_spx) },
+ 	{ "instruction_stpx", VCPU_STAT(instruction_stpx) },
+ 	{ "instruction_stap", VCPU_STAT(instruction_stap) },
+-	{ "instruction_storage_key", VCPU_STAT(instruction_storage_key) },
++	{ "instruction_iske", VCPU_STAT(instruction_iske) },
++	{ "instruction_ri", VCPU_STAT(instruction_ri) },
++	{ "instruction_rrbe", VCPU_STAT(instruction_rrbe) },
++	{ "instruction_sske", VCPU_STAT(instruction_sske) },
+ 	{ "instruction_ipte_interlock", VCPU_STAT(instruction_ipte_interlock) },
+-	{ "instruction_stsch", VCPU_STAT(instruction_stsch) },
+-	{ "instruction_chsc", VCPU_STAT(instruction_chsc) },
+ 	{ "instruction_essa", VCPU_STAT(instruction_essa) },
+ 	{ "instruction_stsi", VCPU_STAT(instruction_stsi) },
+ 	{ "instruction_stfl", VCPU_STAT(instruction_stfl) },
++	{ "instruction_tb", VCPU_STAT(instruction_tb) },
++	{ "instruction_tpi", VCPU_STAT(instruction_tpi) },
+ 	{ "instruction_tprot", VCPU_STAT(instruction_tprot) },
++	{ "instruction_tsch", VCPU_STAT(instruction_tsch) },
+ 	{ "instruction_sthyi", VCPU_STAT(instruction_sthyi) },
+ 	{ "instruction_sie", VCPU_STAT(instruction_sie) },
+ 	{ "instruction_sigp_sense", VCPU_STAT(instruction_sigp_sense) },
+@@ -124,6 +136,7 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
+ 	{ "instruction_diag_258", VCPU_STAT(diagnose_258) },
+ 	{ "instruction_diag_308", VCPU_STAT(diagnose_308) },
+ 	{ "instruction_diag_500", VCPU_STAT(diagnose_500) },
++	{ "instruction_diag_other", VCPU_STAT(diagnose_other) },
+ 	{ NULL }
+ };
  
- 	spin_lock_init(&kvm->arch.start_stop_lock);
- 	kvm_s390_vsie_init(kvm);
-+	kvm_s390_gisa_init(kvm);
- 	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 572496c688cc0..dea0217922d6f 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -2,7 +2,7 @@
+ /*
+  * handling privileged instructions
+  *
+- * Copyright IBM Corp. 2008, 2013
++ * Copyright IBM Corp. 2008, 2018
+  *
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+@@ -34,6 +34,8 @@
  
+ static int handle_ri(struct kvm_vcpu *vcpu)
+ {
++	vcpu->stat.instruction_ri++;
++
+ 	if (test_kvm_facility(vcpu->kvm, 64)) {
+ 		VCPU_EVENT(vcpu, 3, "%s", "ENABLE: RI (lazy)");
+ 		vcpu->arch.sie_block->ecb3 |= ECB3_RI;
+@@ -53,6 +55,8 @@ int kvm_s390_handle_aa(struct kvm_vcpu *vcpu)
+ 
+ static int handle_gs(struct kvm_vcpu *vcpu)
+ {
++	vcpu->stat.instruction_gs++;
++
+ 	if (test_kvm_facility(vcpu->kvm, 133)) {
+ 		VCPU_EVENT(vcpu, 3, "%s", "ENABLE: GS (lazy)");
+ 		preempt_disable();
+@@ -85,6 +89,8 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
+ 	u8 ar;
+ 	u64 op2, val;
+ 
++	vcpu->stat.instruction_sck++;
++
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+@@ -222,7 +228,6 @@ static int try_handle_skey(struct kvm_vcpu *vcpu)
+ {
+ 	int rc;
+ 
+-	vcpu->stat.instruction_storage_key++;
+ 	rc = kvm_s390_skey_check_enable(vcpu);
+ 	if (rc)
+ 		return rc;
+@@ -242,6 +247,8 @@ static int handle_iske(struct kvm_vcpu *vcpu)
+ 	int reg1, reg2;
+ 	int rc;
+ 
++	vcpu->stat.instruction_iske++;
++
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+@@ -274,6 +281,8 @@ static int handle_rrbe(struct kvm_vcpu *vcpu)
+ 	int reg1, reg2;
+ 	int rc;
+ 
++	vcpu->stat.instruction_rrbe++;
++
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+@@ -312,6 +321,8 @@ static int handle_sske(struct kvm_vcpu *vcpu)
+ 	int reg1, reg2;
+ 	int rc;
+ 
++	vcpu->stat.instruction_sske++;
++
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+@@ -392,6 +403,8 @@ static int handle_test_block(struct kvm_vcpu *vcpu)
+ 	gpa_t addr;
+ 	int reg2;
+ 
++	vcpu->stat.instruction_tb++;
++
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+@@ -424,6 +437,8 @@ static int handle_tpi(struct kvm_vcpu *vcpu)
+ 	u64 addr;
+ 	u8 ar;
+ 
++	vcpu->stat.instruction_tpi++;
++
+ 	addr = kvm_s390_get_base_disp_s(vcpu, &ar);
+ 	if (addr & 3)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+@@ -484,6 +499,8 @@ static int handle_tsch(struct kvm_vcpu *vcpu)
+ 	struct kvm_s390_interrupt_info *inti = NULL;
+ 	const u64 isc_mask = 0xffUL << 24; /* all iscs set */
+ 
++	vcpu->stat.instruction_tsch++;
++
+ 	/* a valid schid has at least one bit set */
+ 	if (vcpu->run->s.regs.gprs[1])
+ 		inti = kvm_s390_get_io_int(vcpu->kvm, isc_mask,
+@@ -527,6 +544,7 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
+ 		if (vcpu->arch.sie_block->ipa == 0xb235)
+ 			return handle_tsch(vcpu);
+ 		/* Handle in userspace. */
++		vcpu->stat.instruction_io_other++;
+ 		return -EOPNOTSUPP;
+ 	} else {
+ 		/*
+@@ -592,6 +610,8 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
+ 	int rc;
+ 	u8 ar;
+ 
++	vcpu->stat.instruction_lpsw++;
++
+ 	if (gpsw->mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+@@ -619,6 +639,8 @@ static int handle_lpswe(struct kvm_vcpu *vcpu)
+ 	int rc;
+ 	u8 ar;
+ 
++	vcpu->stat.instruction_lpswe++;
++
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+@@ -828,6 +850,8 @@ static int handle_epsw(struct kvm_vcpu *vcpu)
+ {
+ 	int reg1, reg2;
+ 
++	vcpu->stat.instruction_epsw++;
++
+ 	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
+ 
+ 	/* This basically extracts the mask half of the psw. */
+@@ -1332,6 +1356,8 @@ static int handle_sckpf(struct kvm_vcpu *vcpu)
+ {
+ 	u32 value;
+ 
++	vcpu->stat.instruction_sckpf++;
++
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+@@ -1347,6 +1373,8 @@ static int handle_sckpf(struct kvm_vcpu *vcpu)
+ 
+ static int handle_ptff(struct kvm_vcpu *vcpu)
+ {
++	vcpu->stat.instruction_ptff++;
++
+ 	/* we don't emulate any control instructions yet */
+ 	kvm_s390_set_psw_cc(vcpu, 3);
  	return 0;
-@@ -2061,6 +2062,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
- 	kvm_free_vcpus(kvm);
- 	sca_dispose(kvm);
- 	debug_unregister(kvm->arch.dbf);
-+	kvm_s390_gisa_destroy(kvm);
- 	free_page((unsigned long)kvm->arch.sie_page2);
- 	if (!kvm_is_ucontrol(kvm))
- 		gmap_remove(kvm->arch.gmap);
-@@ -2471,6 +2473,11 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 	if (test_kvm_facility(vcpu->kvm, 139))
- 		vcpu->arch.sie_block->ecd |= ECD_MEF;
- 
-+	if (vcpu->arch.sie_block->gd) {
-+		vcpu->arch.sie_block->eca |= ECA_AIV;
-+		VCPU_EVENT(vcpu, 3, "AIV gisa format-%u enabled for cpu %03u",
-+			   vcpu->arch.sie_block->gd & 0x3, vcpu->vcpu_id);
-+	}
- 	vcpu->arch.sie_block->sdnxo = ((unsigned long) &vcpu->run->s.regs.sdnx)
- 					| SDNXC;
- 	vcpu->arch.sie_block->riccbd = (unsigned long) &vcpu->run->s.regs.riccb;
-@@ -2523,6 +2530,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- 
- 	vcpu->arch.sie_block->icpua = id;
- 	spin_lock_init(&vcpu->arch.local_int.lock);
-+	vcpu->arch.sie_block->gd = (u32)(u64)kvm->arch.gisa;
- 	seqcount_init(&vcpu->arch.cputm_seqcount);
- 
- 	rc = kvm_vcpu_init(vcpu, kvm, id);
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index f110fa96807e8..bd31b37b0e6f8 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -382,6 +382,9 @@ int kvm_s390_set_irq_state(struct kvm_vcpu *vcpu,
- 			   void __user *buf, int len);
- int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu,
- 			   __u8 __user *buf, int len);
-+void kvm_s390_gisa_init(struct kvm *kvm);
-+void kvm_s390_gisa_clear(struct kvm *kvm);
-+void kvm_s390_gisa_destroy(struct kvm *kvm);
- 
- /* implemented in guestdbg.c */
- void kvm_s390_backup_guest_per_regs(struct kvm_vcpu *vcpu);
 -- 
 2.13.4
