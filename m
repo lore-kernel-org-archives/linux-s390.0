@@ -1,246 +1,128 @@
-From: David Hildenbrand <david@redhat.com>
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
 Subject: Re: [PATCH 1/2] mm: s390: Only notify on 4k pages
-Date: Thu, 25 Jan 2018 17:04:17 +0100
-Message-ID: <26ef13f7-dfd4-de7d-b448-0084df956d27@redhat.com>
+Date: Fri, 26 Jan 2018 11:31:41 +0100
+Message-ID: <84a83cd2-28dd-98a1-2b50-09044c2d3798@linux.vnet.ibm.com>
 References: <86c5bd00-a552-1737-8db8-3f7b3c21057e@redhat.com>
  <1516894398-12694-1-git-send-email-frankja@linux.vnet.ibm.com>
  <1516894398-12694-2-git-send-email-frankja@linux.vnet.ibm.com>
+ <26ef13f7-dfd4-de7d-b448-0084df956d27@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Hzz44c4DQ9AeN2J7D0WWB4XGs0E87o3nS"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1516894398-12694-2-git-send-email-frankja@linux.vnet.ibm.com>
-Content-Language: en-US
+In-Reply-To: <26ef13f7-dfd4-de7d-b448-0084df956d27@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 25.01.2018 16:33, Janosch Frank wrote:
-> Let's try this
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> ---
->  arch/s390/include/asm/gmap.h |  5 ++-
->  arch/s390/mm/gmap.c          | 72 ++++++++------------------------------------
->  2 files changed, 14 insertions(+), 63 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-> index 6287aca..4120360 100644
-> --- a/arch/s390/include/asm/gmap.h
-> +++ b/arch/s390/include/asm/gmap.h
-> @@ -13,9 +13,8 @@
->  #define GMAP_NOTIFY_SHADOW	0x2
->  #define GMAP_NOTIFY_MPROT	0x1
->  
-> -/* Status bits in huge and non-huge gmap segment entries. */
-> -#define _SEGMENT_ENTRY_GMAP_IN		0x0001	/* invalidation notify bit */
-> -#define _SEGMENT_ENTRY_GMAP_SPLIT	0x0002  /* split huge pmd */
-> +/* Status bit in huge and non-huge gmap segment entries. */
-> +#define _SEGMENT_ENTRY_GMAP_SPLIT	0x0001  /* split huge pmd */
->  /* Status bits only for huge segment entries */
->  #define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
->  #define _SEGMENT_ENTRY_GMAP_VSIE	0x8000	/* vsie bit */
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 10e0690..c47964f 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -998,7 +998,7 @@ static void gmap_pte_transfer_prot(struct mm_struct *mm, unsigned long addr,
->   * and requested access rights are incompatible.
->   */
->  static int gmap_pmdp_force_prot(struct gmap *gmap, unsigned long addr,
-> -				pmd_t *pmdp, int prot, unsigned long bits)
-> +				pmd_t *pmdp, int prot)
->  {
->  	int pmd_i = pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID;
->  	int pmd_p = pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT;
-> @@ -1018,7 +1018,6 @@ static int gmap_pmdp_force_prot(struct gmap *gmap, unsigned long addr,
->  		pmd_val(new) |= _SEGMENT_ENTRY_PROTECT;
->  		gmap_pmdp_xchg(gmap, pmdp, new, addr);
->  	}
-> -	pmd_val(*pmdp) |=  bits;
->  	return 0;
->  }
->  
-> @@ -1136,21 +1135,18 @@ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
->  			    unsigned long vmaddr, pmd_t *pmdp, pmd_t *hpmdp,
->  			    int prot, unsigned long bits)
->  {
-> -	unsigned long sbits = 0;
->  	int ret = 0;
->  
-> -	sbits |= (bits & GMAP_NOTIFY_MPROT) ? _SEGMENT_ENTRY_GMAP_IN : 0;
-> -	sbits |= (bits & GMAP_NOTIFY_SHADOW) ? _SEGMENT_ENTRY_GMAP_VSIE : 0;
-> -
-> -	if (((prot != PROT_WRITE) && (bits & GMAP_NOTIFY_SHADOW))) {
-> +	/* We notify only on the smallest possible frame size, a 4k page. */
-> +	if (bits) {
->  		ret = gmap_pmd_split(gmap, gaddr, pmdp);
->  		if (ret)
->  			return ret;
->  		return -EFAULT;
->  	}
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Hzz44c4DQ9AeN2J7D0WWB4XGs0E87o3nS
+Content-Type: multipart/mixed; boundary="KkZcZNYOVlc2OoFH9ggTlmg5jy2nimgeV";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
+ linux-s390@vger.kernel.org
+Message-ID: <84a83cd2-28dd-98a1-2b50-09044c2d3798@linux.vnet.ibm.com>
+Subject: Re: [PATCH 1/2] mm: s390: Only notify on 4k pages
+References: <86c5bd00-a552-1737-8db8-3f7b3c21057e@redhat.com>
+ <1516894398-12694-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1516894398-12694-2-git-send-email-frankja@linux.vnet.ibm.com>
+ <26ef13f7-dfd4-de7d-b448-0084df956d27@redhat.com>
+In-Reply-To: <26ef13f7-dfd4-de7d-b448-0084df956d27@redhat.com>
 
-See below, I think we should move that to the caller.
+--KkZcZNYOVlc2OoFH9ggTlmg5jy2nimgeV
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Especially, gmap_protect_rmap_pmd() should no longer be needed then. (if
-I am not messing things up)
+On 25.01.2018 17:04, David Hildenbrand wrote:
+> On 25.01.2018 16:33, Janosch Frank wrote:
+>> Let's try this
+>=20
+> Actually we can reduce this code here quite a lot by simply checking fo=
+r
+>=20
+> if (pmd_large(*pmdp)) {
+> 	// splitup
+> 	rc =3D EAGAIN;
+> }
 
->  
-> -	/* Protect gmap pmd */
-> -	ret = gmap_pmdp_force_prot(gmap, gaddr, pmdp, prot, sbits);
-> +	/* Protect gmap pmd for dirty tracking. */
-> +	ret = gmap_pmdp_force_prot(gmap, gaddr, pmdp, prot);
->  	/*
->  	 * Transfer protection back to the host pmd, so userspace has
->  	 * never more access rights than the VM.
-> @@ -1167,7 +1163,7 @@ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
->   * @gaddr: virtual address in the guest address space
->   * @len: size of area
->   * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
-> - * @bits: pgste notification bits to set
-> + * @bits: notification bits to set
->   *
->   * Returns 0 if successfully protected, -ENOMEM if out of memory and
->   * -EFAULT if gaddr is invalid (or mapping for shadows is missing).
-> @@ -1196,11 +1192,6 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
->  		pmdp = gmap_pmd_op_walk(gmap, gaddr);
->  		if (pmdp) {
->  			if (!pmd_large(*pmdp)) {
-> -				if (gmap_pmd_is_split(pmdp) &&
-> -				    (bits & GMAP_NOTIFY_MPROT)) {
-> -					pmd_val(*pmdp) |= _SEGMENT_ENTRY_GMAP_IN;
-> -				}
-> -
+Yes, we can. (and I did)
+It actually looks a lot better now, thanks!
 
-Actually we can reduce this code here quite a lot by simply checking for
+I'm still dreading the rebase to put the changes into the original
+patch, though. :)
 
-if (pmd_large(*pmdp)) {
-	// splitup
-	rc = EAGAIN;
-}
+>> -	/* Remove the page table tree from on specific entry */
+>>  	head =3D radix_tree_delete(&sg->host_to_rmap, (vmaddr & HPAGE_MASK) =
+>> PAGE_SHIFT);
+>>  	gmap_for_each_rmap_safe(rmap, rnext, head) {
+>>  		bits =3D rmap->raddr & _SHADOW_RMAP_MASK;
+>>  		raddr =3D rmap->raddr ^ bits;
+>> -		switch (bits) {
+>> -		case _SHADOW_RMAP_REGION1:
+>> -			gmap_unshadow_r2t(sg, raddr);
+>> -			break;
+>> -		case _SHADOW_RMAP_REGION2:
+>> -			gmap_unshadow_r3t(sg, raddr);
+>> -			break;
+>> -		case _SHADOW_RMAP_REGION3:
+>> -			gmap_unshadow_sgt(sg, raddr);
+>> -			break;
+>> -		case _SHADOW_RMAP_SEGMENT_LP:
+>> +		if (bits =3D=3D  _SHADOW_RMAP_SEGMENT_LP)
+>>  			gmap_unshadow_segment(sg, raddr);
+>> -			break;
+>> -		case _SHADOW_RMAP_SEGMENT:
+>> -			gmap_unshadow_pgt(sg, raddr);
+>> -			break;
+>> -		case _SHADOW_RMAP_PGTABLE:
+>> -			gmap_unshadow_page(sg, raddr);
+>> -			break;
+>> -		}
+>=20
+> Now this looks much better. Do we still need the _SHADOW_RMAP_SEGMENT_L=
+P
+> check in gmap_shadow_notify() ? don't think so
 
-No need to call gmap_protect_pmd().
+Well the l2 big -> l3 little case also needs _SHADOW_RMAP_PGTABLE, so we
+need at least an if/else. I forgot about that case yesterday but just
+fixed it up...
 
-I think it makes sense to move the split handling completely out of
-gmap_protect_pmd() and only call it at places where we need it.
-
-So only gmap_test_and_clear_dirty_segment() should end up calling it.
-
-We can then also get rid of the "bits" parameter here, which is nice.
-
->  				rc = gmap_protect_pte(gmap, gaddr, vmaddr,
->  						      pmdp, hpmdp, prot, bits);
->  				if (!rc) {
-> @@ -2562,53 +2553,20 @@ static void gmap_shadow_notify_pmd(struct gmap *sg, unsigned long vmaddr,
->  				   unsigned long gaddr)
->  {
->  	struct gmap_rmap *rmap, *rnext, *head;
-> -	unsigned long start, end, bits, raddr;
-> +	unsigned long bits, raddr;
->  
->  
->  	BUG_ON(!gmap_is_shadow(sg));
->  
->  	spin_lock_nested(&sg->guest_table_lock, GMAP_LOCK_SHADOW);
-> -	if (sg->removed) {
-> -		spin_unlock(&sg->guest_table_lock);
-> -		return;
-> -	}
-> -	/* Check for top level table */
-> -	start = sg->orig_asce & _ASCE_ORIGIN;
-> -	end = start + ((sg->orig_asce & _ASCE_TABLE_LENGTH) + 1) * 4096;
-> -	if (!(sg->orig_asce & _ASCE_REAL_SPACE) && gaddr >= start &&
-> -	    gaddr < ((end & HPAGE_MASK) + HPAGE_SIZE - 1)) {
-> -		/* The complete shadow table has to go */
-> -		gmap_unshadow(sg);
-> -		spin_unlock(&sg->guest_table_lock);
-> -		list_del(&sg->list);
-> -		gmap_put(sg);
-> -		return;
-> -	}
-> -	/* Remove the page table tree from on specific entry */
->  	head = radix_tree_delete(&sg->host_to_rmap, (vmaddr & HPAGE_MASK) >> PAGE_SHIFT);
->  	gmap_for_each_rmap_safe(rmap, rnext, head) {
->  		bits = rmap->raddr & _SHADOW_RMAP_MASK;
->  		raddr = rmap->raddr ^ bits;
-> -		switch (bits) {
-> -		case _SHADOW_RMAP_REGION1:
-> -			gmap_unshadow_r2t(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_REGION2:
-> -			gmap_unshadow_r3t(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_REGION3:
-> -			gmap_unshadow_sgt(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_SEGMENT_LP:
-> +		if (bits ==  _SHADOW_RMAP_SEGMENT_LP)
->  			gmap_unshadow_segment(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_SEGMENT:
-> -			gmap_unshadow_pgt(sg, raddr);
-> -			break;
-> -		case _SHADOW_RMAP_PGTABLE:
-> -			gmap_unshadow_page(sg, raddr);
-> -			break;
-> -		}
-
-Now this looks much better. Do we still need the _SHADOW_RMAP_SEGMENT_LP
-check in gmap_shadow_notify() ? don't think so
-
-> +		else
-> +			BUG_ON(1);
->  		kfree(rmap);
->  	}
->  	spin_unlock(&sg->guest_table_lock);
-> @@ -2777,9 +2735,8 @@ static void pmdp_notify_gmap(struct gmap *gmap, unsigned long gaddr)
->  	table = gmap_table_walk(gmap, gaddr, 1);
->  	if (!table)
->  		return;
-> -	bits = *table & _SEGMENT_ENTRY_GMAP_IN;
->  	if (pmd_large(__pmd(*table)) && (*table & _SEGMENT_ENTRY_GMAP_VSIE))
-> -		bits |= _SEGMENT_ENTRY_GMAP_VSIE;
-> +		bits = _SEGMENT_ENTRY_GMAP_VSIE;
->  	if (!bits)
->  		return;
->  	*table &= ~bits;
-> @@ -2792,8 +2749,6 @@ static void pmdp_notify_gmap(struct gmap *gmap, unsigned long gaddr)
->  			gmap_shadow_notify_pmd(sg, vmaddr, gaddr);
->  		spin_unlock(&gmap->shadow_lock);
->  	}
-> -	if (bits & _SEGMENT_ENTRY_GMAP_IN)
-> -		gmap_call_notifier(gmap, gaddr, gaddr + HPAGE_SIZE - 1);
->  }
->  
->  static void pmdp_notify_split(struct mm_struct *mm, unsigned long vmaddr,
-> @@ -2841,9 +2796,8 @@ void pmdp_notify(struct mm_struct *mm, unsigned long vmaddr)
->  			continue;
->  		}
->  
-> -		bits = *table & (_SEGMENT_ENTRY_GMAP_IN);
->  		if (pmd_large(__pmd(*table)) && (*table & _SEGMENT_ENTRY_GMAP_VSIE))
-> -			bits |= _SEGMENT_ENTRY_GMAP_VSIE;
-> +			bits = _SEGMENT_ENTRY_GMAP_VSIE;
->  		*table &= ~bits;
->  		gaddr = __gmap_segment_gaddr(table);
->  		spin_unlock(&gmap->guest_table_lock);
-> @@ -2854,8 +2808,6 @@ void pmdp_notify(struct mm_struct *mm, unsigned long vmaddr)
->  				gmap_shadow_notify_pmd(sg, vmaddr, gaddr);
->  			spin_unlock(&gmap->shadow_lock);
->  		}
-> -		if (bits & _SEGMENT_ENTRY_GMAP_IN)
-> -			gmap_call_notifier(gmap, gaddr, gaddr + HPAGE_SIZE - 1);
->  	}
->  	rcu_read_unlock();
->  }
-> 
+Also I'm seeing increased migration time, the 10g l2 takes 1m20s on
+postcopy (1m30 precopy) to migrate, which took 30 - 45s before. However,
+I did not run into any problems yet, so we got that goin' for us, which
+is nice.
 
 
--- 
+--KkZcZNYOVlc2OoFH9ggTlmg5jy2nimgeV--
 
-Thanks,
+--Hzz44c4DQ9AeN2J7D0WWB4XGs0E87o3nS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-David / dhildenb
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJaawOOAAoJEBcO/8Q8ZEV5ozoQAJbmGa5Pf1XZQEZcyVTTvhqv
+BgsDaN/aY3mLTrxJa+7ERXPbCTnjCEF9ASnIajOzB4OgVcb4bb3AE3RVvXV5qb46
+O14Ss58gbrhr1aM5ZdYKs+zHceW8khrEdhuhTSGgc0+Bpr5xK2rU5BnSAT21d0iP
+LgypUtamyjZVHB6Gc4f2SYe+O4mKzZQ9ZZF1Clh8R+YszMBvTPyDWyJqZ9LOtPGb
+6rwVFe0yFcl1/MHBk8/R8z263jKPE1QEoLdbODvILL2ABY4f53HuykiMCCh3/gtk
+oXT9NC0EGgDhyVhiIwZdj9nQFEK1oXm+e722wN1AiXfSG2ScW3F5kIkCeeO/dMm2
+QxW7GjAxeJhvKNTmmrS0c9tzbc90gcSEUmI1jJJGrauxCmLSUFDWVOjoSqY5u7jA
+YrvJq8A+HIhjQDmS+ACM+eLFPAhh7vhO9nfvhe/XShwGH8s4JsKAQNthQfK5HFsV
+RK9L163N6obEcgFg3V7XM+83IeLcLPi5P20gjs8rc3zKGgtDrB31p0LQ1Iu8OnjT
+DTY5U2RJG/YeZQxZhPiCyKt0pJznVMc0Vz7fYOjCGpfs64oDgKhX+TuCBTB/sLQG
+25nXtmU7r4wBOihlHw2F8NZ2oAVGqSZKSA+wSYI9Zq/18gM5846lzndfEDQ1ItKu
+dnNg8ojczLB0xrb4LN9O
+=gVSZ
+-----END PGP SIGNATURE-----
+
+--Hzz44c4DQ9AeN2J7D0WWB4XGs0E87o3nS--
