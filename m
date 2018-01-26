@@ -1,38 +1,40 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v6 00/99] XArray version 6
-Date: Thu, 18 Jan 2018 09:02:11 -0800
-Message-ID: <20180118170211.GB23800@bombadil.infradead.org>
-References: <20180117202203.19756-1-willy@infradead.org>
- <20180118160749.GP13726@twin.jikos.cz>
- <20180118164843.GA23800@bombadil.infradead.org>
- <20180118165612.GS13726@twin.jikos.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <owner-linux-mm@kvack.org>
-Content-Disposition: inline
-In-Reply-To: <20180118165612.GS13726@twin.jikos.cz>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/intel-gfx/>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-To: dsterba@suse.cz, linux-kernel@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-nilfs@vger.kernel.org, linux-btrfs@vger.kernel.org, linux-xfs@vger.kernel.org, linux-usb@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, Stefano Stabellini <sstabellini@kernel.org>, iommu@lists.linux-foundation.org, linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, intel-gfx@lists.freedesktop.org, cgroups@vger.kernel.org, linux-sh@vger.kernel.org, David Howells <dhowells@redhat.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 0/5] net/smc: fixes 2018-01-26
+Date: Fri, 26 Jan 2018 09:28:45 +0100
+Message-ID: <20180126082850.20655-1-ubraun@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jan 18, 2018 at 05:56:12PM +0100, David Sterba wrote:
-> On Thu, Jan 18, 2018 at 08:48:43AM -0800, Matthew Wilcox wrote:
-> > Thank you!  I shall attempt to debug.  Was this with a btrfs root
-> > filesystem?  I'm most suspicious of those patches right now, since they've
-> > received next to no testing.  I'm going to put together a smaller patchset
-> > which just does the page cache conversion and nothing else in the hope
-> > that we can get that merged this year.
-> 
-> No, the root is ext3 and there was no btrfs filesytem mounted at the
-> time.
+Dave,
 
-Found it; I was missing a prerequisite patch.  New (smaller) patch series
-coming soon.
+here are some more smc patches. The first 4 patches take care about
+different aspects of smc socket closing, the 5th patch improves
+coding style.
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Thanks, Ursula
+
+Gustavo A. R. Silva (1):
+  smc: return booleans instead of integers
+
+Ursula Braun (4):
+  net/smc: handle device, port, and QP error events
+  net/smc: smc_poll improvements
+  net/smc: replace sock_put worker by socket refcounting
+  net/smc: release clcsock from tcp_listen_worker
+
+ net/smc/af_smc.c    | 152 ++++++++++++++++++++++++++++++----------------------
+ net/smc/smc.h       |   5 +-
+ net/smc/smc_cdc.c   |  20 +++----
+ net/smc/smc_close.c |  96 +++++++++++++++++++++------------
+ net/smc/smc_close.h |   1 -
+ net/smc/smc_core.c  |   6 +--
+ net/smc/smc_ib.c    |  38 ++++++++-----
+ 7 files changed, 191 insertions(+), 127 deletions(-)
+
+-- 
+2.13.5
