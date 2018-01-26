@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 08/22] KVM: s390: reuse kvm_s390_set_cpuflags()
-Date: Fri, 26 Jan 2018 16:53:20 +0100
-Message-ID: <20180126155334.52956-9-borntraeger@de.ibm.com>
+Subject: [GIT PULL 04/22] s390x/mm: simplify gmap_protect_rmap()
+Date: Fri, 26 Jan 2018 16:53:16 +0100
+Message-ID: <20180126155334.52956-5-borntraeger@de.ibm.com>
 References: <20180126155334.52956-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180126155334.52956-1-borntraeger@de.ibm.com>
@@ -14,124 +14,98 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <david@redhat.com>
 
-Use it in all places where we set cpuflags.
+We never call it with anything but PROT_READ. This is a left over from
+an old prototype. For creation of shadow page tables, we always only
+have to protect the original table in guest memory from write accesses,
+so we can properly invalidate the shadow on writes. Other protections
+are not needed.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20180123170531.13687-3-david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20180123212618.32611-1-david@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c |  4 ++--
- arch/s390/kvm/kvm-s390.c  | 17 ++++++++---------
- arch/s390/kvm/vsie.c      |  2 +-
- 3 files changed, 11 insertions(+), 12 deletions(-)
+ arch/s390/mm/gmap.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 96ea3b80b67a4..404a127b1921a 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -101,7 +101,7 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- 		/* another external call is pending */
- 		return -EBUSY;
- 	}
--	atomic_or(CPUSTAT_ECALL_PEND, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
- 	return 0;
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 4e9d12af95cc9..2c55a2b9d6c65 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1021,18 +1021,17 @@ static inline void gmap_insert_rmap(struct gmap *sg, unsigned long vmaddr,
  }
  
-@@ -277,7 +277,7 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
- 
- static void __set_cpu_idle(struct kvm_vcpu *vcpu)
+ /**
+- * gmap_protect_rmap - modify access rights to memory and create an rmap
++ * gmap_protect_rmap - restrict access rights to memory (RO) and create an rmap
+  * @sg: pointer to the shadow guest address space structure
+  * @raddr: rmap address in the shadow gmap
+  * @paddr: address in the parent guest address space
+  * @len: length of the memory area to protect
+- * @prot: indicates access rights: none, read-only or read-write
+  *
+  * Returns 0 if successfully protected and the rmap was created, -ENOMEM
+  * if out of memory and -EFAULT if paddr is invalid.
+  */
+ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
+-			     unsigned long paddr, unsigned long len, int prot)
++			     unsigned long paddr, unsigned long len)
  {
--	atomic_or(CPUSTAT_WAIT, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
- 	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
- }
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 8a3a1d50ef99d..9dc996acb52cf 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2329,7 +2329,7 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- {
- 
- 	gmap_enable(vcpu->arch.enabled_gmap);
--	atomic_or(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_RUNNING);
- 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
- 		__start_cpu_timer_accounting(vcpu);
- 	vcpu->cpu = cpu;
-@@ -2436,9 +2436,9 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 						    CPUSTAT_STOPPED);
- 
- 	if (test_kvm_facility(vcpu->kvm, 78))
--		atomic_or(CPUSTAT_GED2, &vcpu->arch.sie_block->cpuflags);
-+		kvm_s390_set_cpuflags(vcpu, CPUSTAT_GED2);
- 	else if (test_kvm_facility(vcpu->kvm, 8))
--		atomic_or(CPUSTAT_GED, &vcpu->arch.sie_block->cpuflags);
-+		kvm_s390_set_cpuflags(vcpu, CPUSTAT_GED);
- 
- 	kvm_s390_vcpu_setup_model(vcpu);
- 
-@@ -2475,7 +2475,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 	vcpu->arch.sie_block->riccbd = (unsigned long) &vcpu->run->s.regs.riccb;
- 
- 	if (sclp.has_kss)
--		atomic_or(CPUSTAT_KSS, &vcpu->arch.sie_block->cpuflags);
-+		kvm_s390_set_cpuflags(vcpu, CPUSTAT_KSS);
- 	else
- 		vcpu->arch.sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
- 
-@@ -2578,7 +2578,7 @@ static void kvm_s390_vcpu_request_handled(struct kvm_vcpu *vcpu)
-  * return immediately. */
- void exit_sie(struct kvm_vcpu *vcpu)
- {
--	atomic_or(CPUSTAT_STOP_INT, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOP_INT);
- 	while (vcpu->arch.sie_block->prog0c & PROG_IN_SIE)
- 		cpu_relax();
- }
-@@ -2822,7 +2822,7 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- 	if (dbg->control & KVM_GUESTDBG_ENABLE) {
- 		vcpu->guest_debug = dbg->control;
- 		/* enforce guest PER */
--		atomic_or(CPUSTAT_P, &vcpu->arch.sie_block->cpuflags);
-+		kvm_s390_set_cpuflags(vcpu, CPUSTAT_P);
- 
- 		if (dbg->control & KVM_GUESTDBG_USE_HW_BP)
- 			rc = kvm_s390_import_bp_data(vcpu, dbg);
-@@ -2911,8 +2911,7 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- 	if (kvm_check_request(KVM_REQ_ENABLE_IBS, vcpu)) {
- 		if (!ibs_enabled(vcpu)) {
- 			trace_kvm_s390_enable_disable_ibs(vcpu->vcpu_id, 1);
--			atomic_or(CPUSTAT_IBS,
--					&vcpu->arch.sie_block->cpuflags);
-+			kvm_s390_set_cpuflags(vcpu, CPUSTAT_IBS);
- 		}
- 		goto retry;
- 	}
-@@ -3591,7 +3590,7 @@ void kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu)
- 	/* SIGP STOP and SIGP STOP AND STORE STATUS has been fully processed */
- 	kvm_s390_clear_stop_irq(vcpu);
- 
--	atomic_or(CPUSTAT_STOPPED, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	__disable_ibs_on_vcpu(vcpu);
- 
- 	for (i = 0; i < online_vcpus; i++) {
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 6090f4235cfc0..87b3416390636 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -913,7 +913,7 @@ static void register_shadow_scb(struct kvm_vcpu *vcpu,
- 	 * External calls have to lead to a kick of the vcpu and
- 	 * therefore the vsie -> Simulate Wait state.
- 	 */
--	atomic_or(CPUSTAT_WAIT, &vcpu->arch.sie_block->cpuflags);
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
- 	/*
- 	 * We have to adjust the g3 epoch by the g2 epoch. The epoch will
- 	 * automatically be adjusted on tod clock changes via kvm_sync_clock.
+ 	struct gmap *parent;
+ 	struct gmap_rmap *rmap;
+@@ -1060,7 +1059,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
+ 		ptep = gmap_pte_op_walk(parent, paddr, &ptl);
+ 		if (ptep) {
+ 			spin_lock(&sg->guest_table_lock);
+-			rc = ptep_force_prot(parent->mm, paddr, ptep, prot,
++			rc = ptep_force_prot(parent->mm, paddr, ptep, PROT_READ,
+ 					     PGSTE_VSIE_BIT);
+ 			if (!rc)
+ 				gmap_insert_rmap(sg, vmaddr, rmap);
+@@ -1070,7 +1069,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
+ 		radix_tree_preload_end();
+ 		if (rc) {
+ 			kfree(rmap);
+-			rc = gmap_pte_op_fixup(parent, paddr, vmaddr, prot);
++			rc = gmap_pte_op_fixup(parent, paddr, vmaddr, PROT_READ);
+ 			if (rc)
+ 				return rc;
+ 			continue;
+@@ -1609,7 +1608,7 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
+ 	origin = r2t & _REGION_ENTRY_ORIGIN;
+ 	offset = ((r2t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((r2t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+-	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
++	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
+ 	spin_lock(&sg->guest_table_lock);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 4);
+@@ -1692,7 +1691,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 	origin = r3t & _REGION_ENTRY_ORIGIN;
+ 	offset = ((r3t & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((r3t & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+-	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
++	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
+ 	spin_lock(&sg->guest_table_lock);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 3);
+@@ -1776,7 +1775,7 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
+ 	origin = sgt & _REGION_ENTRY_ORIGIN;
+ 	offset = ((sgt & _REGION_ENTRY_OFFSET) >> 6) * PAGE_SIZE;
+ 	len = ((sgt & _REGION_ENTRY_LENGTH) + 1) * PAGE_SIZE - offset;
+-	rc = gmap_protect_rmap(sg, raddr, origin + offset, len, PROT_READ);
++	rc = gmap_protect_rmap(sg, raddr, origin + offset, len);
+ 	spin_lock(&sg->guest_table_lock);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 2);
+@@ -1895,7 +1894,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
+ 	/* Make pgt read-only in parent gmap page table (not the pgste) */
+ 	raddr = (saddr & _SEGMENT_MASK) | _SHADOW_RMAP_SEGMENT;
+ 	origin = pgt & _SEGMENT_ENTRY_ORIGIN & PAGE_MASK;
+-	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE, PROT_READ);
++	rc = gmap_protect_rmap(sg, raddr, origin, PAGE_SIZE);
+ 	spin_lock(&sg->guest_table_lock);
+ 	if (!rc) {
+ 		table = gmap_table_walk(sg, saddr, 1);
 -- 
 2.13.4
