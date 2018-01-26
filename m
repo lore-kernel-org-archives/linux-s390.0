@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 21/22] s390/sclp: expose the GISA format facility
-Date: Fri, 26 Jan 2018 16:53:33 +0100
-Message-ID: <20180126155334.52956-22-borntraeger@de.ibm.com>
+Subject: [GIT PULL 17/22] KVM: s390: abstract adapter interruption word generation from ISC
+Date: Fri, 26 Jan 2018 16:53:29 +0100
+Message-ID: <20180126155334.52956-18-borntraeger@de.ibm.com>
 References: <20180126155334.52956-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180126155334.52956-1-borntraeger@de.ibm.com>
@@ -14,54 +14,51 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-The GISA format facility is required by the host to be able to process
-a format-1 GISA. If not available, the used GISA format will be format-0.
-All format-1 related extension will not be available in this case.
+The function isc_to_int_word() allows the generation of interruption
+words for adapter interrupts.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/sclp.h   | 1 +
- drivers/s390/char/sclp_early.c | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/kvm/interrupt.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
-index d3c1a8a2e3ad4..3cae9168f63c4 100644
---- a/arch/s390/include/asm/sclp.h
-+++ b/arch/s390/include/asm/sclp.h
-@@ -77,6 +77,7 @@ struct sclp_info {
- 	unsigned char has_ibs : 1;
- 	unsigned char has_skey : 1;
- 	unsigned char has_kss : 1;
-+	unsigned char has_gisaf : 1;
- 	unsigned int ibc;
- 	unsigned int mtid;
- 	unsigned int mtid_cp;
-diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
-index d06bc5674e5f9..6b1891539c840 100644
---- a/drivers/s390/char/sclp_early.c
-+++ b/drivers/s390/char/sclp_early.c
-@@ -49,7 +49,7 @@ struct read_info_sccb {
- 	u8	_pad_112[116 - 112];	/* 112-115 */
- 	u8	fac116;			/* 116 */
- 	u8	fac117;			/* 117 */
--	u8	_pad_118;		/* 118 */
-+	u8	fac118;			/* 118 */
- 	u8	fac119;			/* 119 */
- 	u16	hcpua;			/* 120-121 */
- 	u8	_pad_122[124 - 122];	/* 122-123 */
-@@ -100,6 +100,7 @@ static void __init sclp_early_facilities_detect(struct read_info_sccb *sccb)
- 	sclp.has_esca = !!(sccb->fac116 & 0x08);
- 	sclp.has_pfmfi = !!(sccb->fac117 & 0x40);
- 	sclp.has_ibs = !!(sccb->fac117 & 0x20);
-+	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
- 	sclp.has_hvs = !!(sccb->fac119 & 0x80);
- 	sclp.has_kss = !!(sccb->fac98 & 0x01);
- 	if (sccb->fac85 & 0x02)
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index f293c956e6dbb..a0ded3a23a5e0 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -198,6 +198,11 @@ static uint64_t isc_to_isc_bits(int isc)
+ 	return (0x80 >> isc) << 24;
+ }
+ 
++static inline u32 isc_to_int_word(u8 isc)
++{
++	return ((u32)isc << 27) | 0x80000000;
++}
++
+ static inline u8 int_word_to_isc(u32 int_word)
+ {
+ 	return (int_word & 0x38000000) >> 27;
+@@ -992,7 +997,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
+ 		 */
+ 		VCPU_EVENT(vcpu, 4, "%s isc %u", "deliver: I/O (AI/gisa)", isc);
+ 		memset(&io, 0, sizeof(io));
+-		io.io_int_word = (isc << 27) | 0x80000000;
++		io.io_int_word = isc_to_int_word(isc);
+ 		vcpu->stat.deliver_io_int++;
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 			KVM_S390_INT_IO(1, 0, 0, 0),
+@@ -2299,7 +2304,7 @@ static int kvm_s390_inject_airq(struct kvm *kvm,
+ 	struct kvm_s390_interrupt s390int = {
+ 		.type = KVM_S390_INT_IO(1, 0, 0, 0),
+ 		.parm = 0,
+-		.parm64 = (adapter->isc << 27) | 0x80000000,
++		.parm64 = isc_to_int_word(adapter->isc),
+ 	};
+ 	int ret = 0;
+ 
 -- 
 2.13.4
