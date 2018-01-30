@@ -1,38 +1,30 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 1/3] MAINTAINERS: add David as a reviewer for KVM/s390
-Date: Wed, 31 Jan 2018 09:31:27 +0100
-Message-ID: <cb7112aa-e88e-cce1-1e1b-c095be194be9@redhat.com>
-References: <20180130152447.29871-1-cohuck@redhat.com>
- <20180130152447.29871-2-cohuck@redhat.com>
- <4cef623b-13d2-6336-c45d-da203b14b63c@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH 0/3] KVM: s390: update maintainers
+Date: Tue, 30 Jan 2018 16:24:44 +0100
+Message-ID: <20180130152447.29871-1-cohuck@redhat.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <4cef623b-13d2-6336-c45d-da203b14b63c@de.ibm.com>
-Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, frankja@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com
-Cc: bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: borntraeger@de.ibm.com, frankja@linux.vnet.ibm.com, david@redhat.com, pasic@linux.vnet.ibm.com
+Cc: bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 30.01.2018 19:09, Christian Borntraeger wrote:
-> 
-> On 01/30/2018 04:24 PM, Cornelia Huck wrote:
->> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> 
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> Thanks David for your deep and knowledgable reviews.
+I have currently a bit too much on my plate, so I'd like to cut
+down a bit on areas I maintain and spread the load a bit to other
+folks. But don't cheer too early, you're still stuck with me for
+virtio-ccw and vfio-ccw :)
 
-Thanks Christian. This should help to keep the r-bs coming.
+Thanks to the guys willing to pick up the work! (And looking forward
+to your acks :)
 
-Acked-by: David Hildenbrand <david@redhat.com>
+Cornelia Huck (3):
+  MAINTAINERS: add David as a reviewer for KVM/s390
+  MAINTAINERS: add Halil as additional vfio-ccw maintainer
+  MAINTAINERS: update KVM/s390 maintainers
+
+ MAINTAINERS | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 -- 
-
-Thanks,
-
-David / dhildenb
+2.13.6
