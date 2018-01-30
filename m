@@ -1,53 +1,47 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 3/3] MAINTAINERS: update KVM/s390 maintainers
-Date: Tue, 30 Jan 2018 19:11:57 +0100
-Message-ID: <47454240-b6b7-73af-b130-bcdbdc33e1aa@de.ibm.com>
+From: Halil Pasic <pasic@linux.vnet.ibm.com>
+Subject: Re: [PATCH 2/3] MAINTAINERS: add Halil as additional vfio-ccw
+ maintainer
+Date: Tue, 30 Jan 2018 23:22:23 +0100
+Message-ID: <04a07012-056e-ca79-7c8f-609dc7cf6a97@linux.vnet.ibm.com>
 References: <20180130152447.29871-1-cohuck@redhat.com>
- <20180130152447.29871-4-cohuck@redhat.com>
+ <20180130152447.29871-3-cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180130152447.29871-4-cohuck@redhat.com>
+In-Reply-To: <20180130152447.29871-3-cohuck@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, frankja@linux.vnet.ibm.com, david@redhat.com, pasic@linux.vnet.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>, borntraeger@de.ibm.com, frankja@linux.vnet.ibm.com, david@redhat.com
 Cc: bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
 On 01/30/2018 04:24 PM, Cornelia Huck wrote:
-> As I have neither too much time nor access to the architecture
-> documentation anymore, let's switch my status from maintainer to
-> reviewer. Janosch will step in as second maintainer.
-
-Thank you for all your help in the past and thank you for your QEMU work.
-Glad to have you still as a reviewer.
-
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-> 
 > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+
+Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+
+Thanks for the trust!
+
+
 > ---
->  MAINTAINERS | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  MAINTAINERS | 1 +
+>  1 file changed, 1 insertion(+)
 > 
 > diff --git a/MAINTAINERS b/MAINTAINERS
-> index 990ac01c319d..71781ad422f0 100644
+> index cd7a416c516b..990ac01c319d 100644
 > --- a/MAINTAINERS
 > +++ b/MAINTAINERS
-> @@ -7692,8 +7692,9 @@ F:	arch/powerpc/kernel/kvm*
-> 
->  KERNEL VIRTUAL MACHINE for s390 (KVM/s390)
->  M:	Christian Borntraeger <borntraeger@de.ibm.com>
-> -M:	Cornelia Huck <cohuck@redhat.com>
-> +M:	Janosch Frank <frankja@linux.vnet.ibm.com>
->  R:	David Hildenbrand <david@redhat.com>
-> +R:	Cornelia Huck <cohuck@redhat.com>
+> @@ -11863,6 +11863,7 @@ F:	drivers/pci/hotplug/s390_pci_hpc.c
+>  S390 VFIO-CCW DRIVER
+>  M:	Cornelia Huck <cohuck@redhat.com>
+>  M:	Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> +M:	Halil Pasic <pasic@linux.vnet.ibm.com>
 >  L:	linux-s390@vger.kernel.org
->  W:	http://www.ibm.com/developerworks/linux/linux390/
->  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git
+>  L:	kvm@vger.kernel.org
+>  S:	Supported
 > 
