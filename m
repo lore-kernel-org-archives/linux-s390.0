@@ -1,42 +1,103 @@
-Return-Path: <SRS0=qHK2=EZ=linuxfoundation.org=gregkh@kernel.org>
-Return-Path: <SRS0=qHK2=EZ=linuxfoundation.org=gregkh@kernel.org>
-Date: Tue, 30 Jan 2018 08:13:02 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] PCI: Add SPDX GPL-2.0+ to replace implicit GPL v2 or
- later statement
-Message-ID: <20180130071302.GA19444@kroah.com>
-References: <20180130003559.15416.18047.stgit@bhelgaas-glaptop.roam.corp.google.com>
- <20180130004051.15416.78620.stgit@bhelgaas-glaptop.roam.corp.google.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 31 Jan 2018 07:49:52 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 4.15 merge window
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180130004051.15416.78620.stgit@bhelgaas-glaptop.roam.corp.google.com>
-List-Archive: <https://lore.kernel.org/linux-pci/>
-List-Post: <mailto:linux-pci@vger.kernel.org>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20180131074952.01303090@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 29, 2018 at 06:40:52PM -0600, Bjorn Helgaas wrote:
-> From: Bjorn Helgaas <bhelgaas@google.com>
-> 
-> 7441b0627e22 ("s390/pci: PCI hotplug support via SCLP") added
-> s390_pci_hpc.c, which included this license information:
-> 
->   +MODULE_LICENSE("GPL");
-> 
-> Based on "git show 7441b0627e22:include/linux/module.h", that "GPL" string
-> means "GPL v2 or later":
-> 
->    *      "GPL"                           [GNU Public License v2 or later]
-> 
-> 0729dcf24832 ("s390: hotplug: make pci_hpc explicitly non-modular")
-> subsequently replaced the MODULE_LICENSE() with a "License: GPL" comment.
-> 
-> Add SPDX GPL-2.0+ and remove the "License: GPL" comment, relying on the
-> assertion in b24413180f56 ("License cleanup: add SPDX GPL-2.0 license
-> identifier to files with no license") that the SPDX identifier may be used
-> instead of the full boilerplate text.
-> 
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Hi Linus,
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+please pull from the 'for-linus' branch of
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+
+to receive the following updates:
+
+Bug fixes, small improvements and one notable change:
+
+ * The system call table and the unistd.h header are now generated
+   automatically with a shell script from a text file.
+
+Christophe JAILLET (1):
+      s390/dasd: Simplify code
+
+Eugene Syromiatnikov (1):
+      s390: fix handling of -1 in set{,fs}[gu]id16 syscalls
+
+Heiko Carstens (1):
+      s390: remove bogus system call table entries
+
+Hendrik Brueckner (8):
+      s390/kernel: emit CFI data in .debug_frame and discard .eh_frame sections
+      s390/vdso: revise CFI annotations of vDSO functions
+      s390/disassembler: add generated gen_opcode_table tool to .gitignore
+      s390/syscalls: add system call table
+      s390/syscalls: add syscalltbl script
+      s390/syscalls: add Makefile to generate system call header files
+      s390/syscalls: use generated syscall_table.h and unistd.h header files
+      s390/tools: generate header files in arch/s390/include/generated/
+
+Jan Höppner (1):
+      s390/dasd: Remove dead return code checks
+
+Pravin Shedge (1):
+      s390/kprobes: remove duplicate includes
+
+Vasily Gorbik (5):
+      s390/head: replace hard coded values with constants
+      s390/ipl: avoid usage of __section(.data)
+      s390/sclp: fix .data section specification
+      s390/decompressor: swap .text and .rodata.compressed sections
+      s390/decompressor: discard __ksymtab and .eh_frame sections
+
+ arch/s390/Makefile                      |  14 +-
+ arch/s390/boot/compressed/Makefile      |   1 +
+ arch/s390/boot/compressed/vmlinux.lds.S |  12 +-
+ arch/s390/include/asm/Kbuild            |   5 +
+ arch/s390/include/asm/dis.h             |   2 +-
+ arch/s390/include/asm/dwarf.h           |  37 +++
+ arch/s390/include/asm/facility.h        |   2 +-
+ arch/s390/include/asm/unistd.h          |   1 +
+ arch/s390/include/uapi/asm/Kbuild       |   3 +
+ arch/s390/include/uapi/asm/unistd.h     | 401 +-------------------------------
+ arch/s390/kernel/compat_linux.c         |   8 +-
+ arch/s390/kernel/entry.S                |   4 +-
+ arch/s390/kernel/head.S                 |  10 +-
+ arch/s390/kernel/ipl.c                  |  12 +-
+ arch/s390/kernel/kprobes.c              |   1 -
+ arch/s390/kernel/syscalls.S             | 392 -------------------------------
+ arch/s390/kernel/syscalls/Makefile      |  52 +++++
+ arch/s390/kernel/syscalls/syscall.tbl   | 390 +++++++++++++++++++++++++++++++
+ arch/s390/kernel/syscalls/syscalltbl    | 232 ++++++++++++++++++
+ arch/s390/kernel/vdso32/Makefile        |   3 +
+ arch/s390/kernel/vdso32/clock_getres.S  |   5 +-
+ arch/s390/kernel/vdso32/clock_gettime.S |  17 +-
+ arch/s390/kernel/vdso32/getcpu.S        |   5 +-
+ arch/s390/kernel/vdso32/gettimeofday.S  |   9 +-
+ arch/s390/kernel/vdso64/Makefile        |   3 +
+ arch/s390/kernel/vdso64/clock_getres.S  |   5 +-
+ arch/s390/kernel/vdso64/clock_gettime.S |  21 +-
+ arch/s390/kernel/vdso64/getcpu.S        |   5 +-
+ arch/s390/kernel/vdso64/gettimeofday.S  |   9 +-
+ arch/s390/kernel/vmlinux.lds.S          |   3 +
+ arch/s390/tools/.gitignore              |   1 +
+ arch/s390/tools/Makefile                |  23 +-
+ arch/s390/tools/gen_facilities.c        |   4 +-
+ arch/s390/tools/gen_opcode_table.c      |   4 +-
+ drivers/s390/block/dasd.c               |  12 -
+ drivers/s390/block/dasd_eckd.c          |   7 +-
+ drivers/s390/char/sclp_early_core.c     |   4 +-
+ 37 files changed, 856 insertions(+), 863 deletions(-)
+ create mode 100644 arch/s390/include/asm/dwarf.h
+ delete mode 100644 arch/s390/kernel/syscalls.S
+ create mode 100644 arch/s390/kernel/syscalls/Makefile
+ create mode 100644 arch/s390/kernel/syscalls/syscall.tbl
+ create mode 100755 arch/s390/kernel/syscalls/syscalltbl
