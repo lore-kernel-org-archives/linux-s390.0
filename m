@@ -1,63 +1,73 @@
-Return-Path: <schwidefsky@de.ibm.com>
-Date: Wed, 7 Feb 2018 13:17:19 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 6/6] s390: introduce execute-trampolines for branches
-In-Reply-To: <1518005275.3677.112.camel@infradead.org>
-References: <1517986811-27819-1-git-send-email-schwidefsky@de.ibm.com>
-	<1517986811-27819-7-git-send-email-schwidefsky@de.ibm.com>
-	<20180207100726.GB31392@amd>
-	<1518005275.3677.112.camel@infradead.org>
+Return-Path: <linus971@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <20180207131719.4aeb316e@mschwideX1>
+Sender: linus971@gmail.com
+In-Reply-To: <20180207131719.4aeb316e@mschwideX1>
+References: <1517986811-27819-1-git-send-email-schwidefsky@de.ibm.com>
+ <1517986811-27819-7-git-send-email-schwidefsky@de.ibm.com>
+ <20180207100726.GB31392@amd> <1518005275.3677.112.camel@infradead.org> <20180207131719.4aeb316e@mschwideX1>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Wed, 7 Feb 2018 09:55:47 -0800
+Message-ID: <CA+55aFwVyCxWkcXk-y0WWo653XYWeZCRo-u4cy4rPWY++LMcgg@mail.gmail.com>
+Subject: Re: [PATCH 6/6] s390: introduce execute-trampolines for branches
+Content-Type: text/plain; charset="UTF-8"
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: David Woodhouse <dwmw2@infradead.org>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>, Dominik Brodowski <linux@dominikbrodowski.net>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Pavel Machek <pavel@ucw.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>, Dominik Brodowski <linux@dominikbrodowski.net>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Kees Cook <keescook@chromium.org>, Ulf Magnusson <ulfalizer@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 07 Feb 2018 12:07:55 +0000
-David Woodhouse <dwmw2@infradead.org> wrote:
+On Wed, Feb 7, 2018 at 4:17 AM, Martin Schwidefsky
+<schwidefsky@de.ibm.com> wrote:
+>> That isn't, though. Linus asked us to drop the $(warning) part.
+>>
+>> ... and then spent a week building with a non-retpoline compiler and
+>> not noticing, so he might have changed his mind ;)
+>
+> I found the warning to have some value, it helps for the case where my
+> fingers are faster than my brain and I type "make" instead of "smake"
+> which uses the alternative compiler with the required support.
+>
+> @Linus: do you want a warning or prefer not to have one ?
 
-> On Wed, 2018-02-07 at 11:07 +0100, Pavel Machek wrote:
-> > This is really unfortunate naming of kernel option.
-> >=20
-> > spectre_v2=3Doff sounds like we are turning the "bug" off, but i somehow
-> > suspect you are turning the bug _workaround_ off. =20
->=20
-> That's consistent with what we have on x86.
->=20
-> > > +ifdef CONFIG_EXPOLINE
-> > > +=C2=A0=C2=A0ifeq ($(call cc-option-yn,$(CC_FLAGS_MARCH) -mindirect-b=
-ranch=3Dthunk),y)
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0CC_FLAGS_EXPOLINE :=3D -mindirect-branch=3Dt=
-hunk
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0CC_FLAGS_EXPOLINE +=3D -mfunction-return=3Dt=
-hunk
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0CC_FLAGS_EXPOLINE +=3D -mindirect-branch-tab=
-le
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0export CC_FLAGS_EXPOLINE
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0cflags-y +=3D $(CC_FLAGS_EXPOLINE)
-> > > +=C2=A0=C2=A0else
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0$(warning "Your gcc lacks the -mindirect-bra=
-nch=3D option")
-> > > +=C2=A0=C2=A0endif
-> > > +endif =20
->=20
-> That isn't, though. Linus asked us to drop the $(warning) part.
->=20
-> ... and then spent a week building with a non-retpoline compiler and
-> not noticing, so he might have changed his mind ;)
+Honestly, I think I'd be much happier with the warning as part of the
+"make config" phase.
 
-I found the warning to have some value, it helps for the case where my
-fingers are faster than my brain and I type "make" instead of "smake"
-which uses the alternative compiler with the required support.
+What really annoyed me was that it showed up at every build.
 
-@Linus: do you want a warning or prefer not to have one ?
+What I would really want - and this is entirely unrelated to this
+particular case - is to have those damn compiler option tests as part
+of the config phase in general. We now have about a million of these
+crazy things, where we have config options that simply depend on which
+compiler we have, and we have no sane way to show them at
+configuration time.
 
---=20
-blue skies,
-   Martin.
+Though Andrew's tree I got yet another ugly hack
+(CONFIG_CC_STACKPROTECTOR_AUTO) that handles just _one_ special case
+by turning it into a special magic Kconfig entry in the main Makefile.
+See commit 44c6dc940b19 ("Makefile: introduce
+CONFIG_CC_STACKPROTECTOR_AUTO"). I wasn't sure if I really wanted it,
+and honestly, I'm still thinking of just reverting it, because it's
+_so_ ugly and _so_ wrong.
 
-"Reality continues to ruin my life." - Calvin.
+What we need is an extension to the Kconfig language itself so that we can do
+
+   config CC_HAS_RETPOLINE
+        cc_option "-mindirect-branch=thunk -mindirect-branch-table"
+
+or something. And then we can make sane _conditional_ dependencies at
+Kconfig time, and our makefiles would be much cleaner too when you
+could just do
+
+     cflags-$(USE_RETPOLINE) += -mfunction-return=thunk -mindirect-branch-table
+
+because the validity of the C compiler flag has been tested when configuring.
+
+And then we could add that warning at configure time (or just disable
+the option there thanks to "depends on CC_HAS_xyz" logic).
+
+All our compiler option handling right now is just nasty nasty nasty crud.
+
+Adding more people in the hopes that somebody gets motivated.. I've
+talked about this before, so far we haven't made any progress.
+
+              Linus
