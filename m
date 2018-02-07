@@ -1,83 +1,67 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
-Date: Tue, 13 Feb 2018 09:51:09 -0800
-Message-ID: <1f96a3c7-0bb3-6c06-0b44-ca47e5a5d127@infradead.org>
-References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
- <87zi4ev1d2.fsf@concordia.ellerman.id.au>
- <f119a273-2e86-1b7f-346f-7627ad8b51ed@infradead.org>
- <87fu652oce.fsf@concordia.ellerman.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <87fu652oce.fsf@concordia.ellerman.id.au>
-Content-Language: en-US
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-iommu/>
-List-Post: <mailto:iommu@lists.linux-foundation.org>
-To: Michael Ellerman <mpe@ellerman.id.au>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Dmitry Kasatkin <dmitry.kasatkin@intel.com>
+Return-Path: <schwidefsky@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH 0/6] s390: improve speculative execution handling v3
+Date: Wed,  7 Feb 2018 08:00:05 +0100
+Message-Id: <1517986811-27819-1-git-send-email-schwidefsky@de.ibm.com>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>, Dominik Brodowski <linux@dominikbrodowski.net>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>, David Woodhouse <dwmw2@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/13/2018 02:09 AM, Michael Ellerman wrote:
-> Randy Dunlap <rdunlap@infradead.org> writes:
-> 
->> On 02/12/2018 04:28 AM, Michael Ellerman wrote:
->>> Randy Dunlap <rdunlap@infradead.org> writes:
->>>
->>>> From: Randy Dunlap <rdunlap@infradead.org>
->>>>
->>>> Currently <linux/slab.h> #includes <linux/kmemleak.h> for no obvious
->>>> reason. It looks like it's only a convenience, so remove kmemleak.h
->>>> from slab.h and add <linux/kmemleak.h> to any users of kmemleak_*
->>>> that don't already #include it.
->>>> Also remove <linux/kmemleak.h> from source files that do not use it.
->>>>
->>>> This is tested on i386 allmodconfig and x86_64 allmodconfig. It
->>>> would be good to run it through the 0day bot for other $ARCHes.
->>>> I have neither the horsepower nor the storage space for the other
->>>> $ARCHes.
->>>>
->>>> [slab.h is the second most used header file after module.h; kernel.h
->>>> is right there with slab.h. There could be some minor error in the
->>>> counting due to some #includes having comments after them and I
->>>> didn't combine all of those.]
->>>>
->>>> This is Lingchi patch #1 (death by a thousand cuts, applied to kernel
->>>> header files).
->>>>
->>>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
->>>
->>> I threw it at a random selection of configs and so far the only failures
->>> I'm seeing are:
->>>
->>>   lib/test_firmware.c:134:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]                                                                                                          
->>>   lib/test_firmware.c:620:25: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
->>>   lib/test_firmware.c:620:2: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
->>>   security/integrity/digsig.c:146:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
->>
->> Both of those source files need to #include <linux/vmalloc.h>.
-> 
-> Yep, I added those and rebuilt. I don't see any more failures that look
-> related to your patch.
+Version 3 of the speculative execution improvements for s390.
 
-Great, thanks.
+Changes to v2:
 
-I also sent patches for both of those.
+* Dropped the prctl to introduce the PR_ISOLATE_BP control and simply
+  added two exported functions s390_isolate_bp and s390_isolate_bp_guest.
+  There is currently no caller for these functions, for now an out-of-tree
+  module can be used until an acceptable upstream solution for the user
+  space interface is found.
 
->   http://kisskb.ellerman.id.au/kisskb/head/13399/
-> 
-> 
-> I haven't gone through the defconfigs I have enabled for a while, so
-> it's possible I have some missing but it's still a reasonable cross
-> section.
+* Added an optimized version for the the array_index_mask_nospec
+  function based on subtract with borrow for the spectre v1 defense.
 
+* Introduce "expoline", the s390 version of a retpoline. As s390 does
+  not have a return instruction and the associate return stack we use
+  an execute-type instruction on an indirect branch to get unpredicatable
+  branches. This requires gcc support for -mindirect-branch=thunk /
+  -mfunction-return=thunk.  To be able to disable expolines there is
+  another gcc option -mindirect-branch-table to keep a list of PC relative
+  locations of calls to the execute thunks. With spectre_v2=off the call
+  will be replaced with the original indirect branch and a nop.
+
+Martin Schwidefsky (6):
+  s390: scrub registers on kernel entry and KVM exit
+  s390: add optimized array_index_mask_nospec
+  s390/alternative: use a copy of the facility bit mask
+  s390: add options to change branch prediction behaviour for the kernel
+  s390: run user space and KVM guests with modified branch prediction
+  s390: introduce execute-trampolines for branches
+
+ arch/s390/Kconfig                     |  45 ++++++
+ arch/s390/Makefile                    |  12 ++
+ arch/s390/include/asm/barrier.h       |  24 ++++
+ arch/s390/include/asm/facility.h      |  18 +++
+ arch/s390/include/asm/lowcore.h       |   9 +-
+ arch/s390/include/asm/nospec-branch.h |  18 +++
+ arch/s390/include/asm/processor.h     |   4 +
+ arch/s390/include/asm/thread_info.h   |   4 +
+ arch/s390/kernel/Makefile             |   4 +
+ arch/s390/kernel/alternative.c        |  26 +++-
+ arch/s390/kernel/early.c              |   5 +
+ arch/s390/kernel/entry.S              | 249 ++++++++++++++++++++++++++++++----
+ arch/s390/kernel/ipl.c                |   1 +
+ arch/s390/kernel/module.c             |  62 +++++++--
+ arch/s390/kernel/nospec-branch.c      | 100 ++++++++++++++
+ arch/s390/kernel/processor.c          |  18 +++
+ arch/s390/kernel/setup.c              |   8 +-
+ arch/s390/kernel/smp.c                |   7 +-
+ arch/s390/kernel/vmlinux.lds.S        |  14 ++
+ drivers/s390/char/Makefile            |   2 +
+ 20 files changed, 591 insertions(+), 39 deletions(-)
+ create mode 100644 arch/s390/include/asm/nospec-branch.h
+ create mode 100644 arch/s390/kernel/nospec-branch.c
 
 -- 
-~Randy
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+2.7.4
