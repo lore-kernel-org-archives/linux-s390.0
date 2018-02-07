@@ -1,168 +1,64 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC 2/6] KVM: s390: provide only a single function for setting the tod
-Date: Wed,  7 Feb 2018 12:46:43 +0100
-Message-ID: <20180207114647.6220-3-david@redhat.com>
+Subject: Re: [PATCH RFC 0/6] KVM: s390: Multiple-epoch facility fixes
+Date: Wed, 7 Feb 2018 12:50:29 +0100
+Message-ID: <8f9aa451-08b8-fb52-e1f8-cdefe543f7a3@redhat.com>
 References: <20180207114647.6220-1-david@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180207114647.6220-1-david@redhat.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, "Collin L. Walling" <walling@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Right now, SET CLOCK called in the guest does not properly take care of
-the epoch index, as the call goes via the old kvm_s390_set_tod_clock()
-interface. So the epoch index is neither reset to 0, if required, nor
-properly set to e.g. 0xff on negative values.
+On 07.02.2018 12:46, David Hildenbrand wrote:
+> It think I found various BUGs in the recently added Multiple-epoch facility
+> support in KVM. Along with it, two cleanups.
+> 
+> 1. The clock-comparator sign control is not considered. I sent a patch
+>    with this previously. This now contains fixes and simplifications.
+> 2. SET CLOCK from the guest does not work reliably if the facility is
+>    enabled (epoch index not set).
+> 3. Hotplugged CPUs don't inherit the epoch index.
+> 4. TOD clock syncs don't take care of overflows/underflows in the epoch
+>    value and miss to update the epoch index.
+> 
+> 
+> This is RFC as I have basically no machine to test. Hopefully somebody
+> can jump in and verify that we now handle the epoch index in all
+> scenarios correctly.
+> 
+> Most importantly, with Multiple-epoch facility, the condition
+> 	Guest TOD = Host TOD - 1
+> Is represented by both, epoch and epoch_idx containing 0xff. So it is
+> treated as a 64+8bit signed number - we have to properly take care
+> of over/underflows when modifying the epoch.
+> 
+> 
+> David Hildenbrand (6):
+>   KVM: s390: take care of clock-comparator sign control
+>   KVM: s390: provide only a single function for setting the tod
+>   KVM: s390: consider epoch index on hotplugged CPUs
+>   KVM: s390: consider epoch index on TOD clock syncs
+>   KVM: s390: no need to inititalize kvm->arch members to 0
+>   KVM: s390: generalize kvm_s390_get_tod_clock_ext()
+> 
+>  arch/s390/kvm/interrupt.c |  25 ++++++++---
+>  arch/s390/kvm/kvm-s390.c  | 109 +++++++++++++++++++++++-----------------------
+>  arch/s390/kvm/kvm-s390.h  |   5 +--
+>  arch/s390/kvm/priv.c      |   9 ++--
+>  4 files changed, 80 insertions(+), 68 deletions(-)
+> 
 
-Fix this by providing a single kvm_s390_set_tod_clock() function. Move
-Multiple-epoch facility handling into it.
+CC'ing Collin (sorry missed you)
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/kvm/kvm-s390.c | 46 +++++++++++++++-------------------------------
- arch/s390/kvm/kvm-s390.h |  5 ++---
- arch/s390/kvm/priv.c     |  9 +++++----
- 3 files changed, 22 insertions(+), 38 deletions(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ba4c7092335a..b514ee427077 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -902,12 +902,9 @@ static int kvm_s390_set_tod_ext(struct kvm *kvm, struct kvm_device_attr *attr)
- 	if (copy_from_user(&gtod, (void __user *)attr->addr, sizeof(gtod)))
- 		return -EFAULT;
- 
--	if (test_kvm_facility(kvm, 139))
--		kvm_s390_set_tod_clock_ext(kvm, &gtod);
--	else if (gtod.epoch_idx == 0)
--		kvm_s390_set_tod_clock(kvm, gtod.tod);
--	else
-+	if (!test_kvm_facility(kvm, 139) && gtod.epoch_idx)
- 		return -EINVAL;
-+	kvm_s390_set_tod_clock(kvm, &gtod);
- 
- 	VM_EVENT(kvm, 3, "SET: TOD extension: 0x%x, TOD base: 0x%llx",
- 		gtod.epoch_idx, gtod.tod);
-@@ -932,13 +929,14 @@ static int kvm_s390_set_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
- 
- static int kvm_s390_set_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
- {
--	u64 gtod;
-+	struct kvm_s390_vm_tod_clock gtod = { 0 };
- 
--	if (copy_from_user(&gtod, (void __user *)attr->addr, sizeof(gtod)))
-+	if (copy_from_user(&gtod.tod, (void __user *)attr->addr,
-+			   sizeof(gtod.tod)))
- 		return -EFAULT;
- 
--	kvm_s390_set_tod_clock(kvm, gtod);
--	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx", gtod);
-+	kvm_s390_set_tod_clock(kvm, &gtod);
-+	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx", gtod.tod);
- 	return 0;
- }
- 
-@@ -3021,8 +3019,8 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
--void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
--				 const struct kvm_s390_vm_tod_clock *gtod)
-+void kvm_s390_set_tod_clock(struct kvm *kvm,
-+			    const struct kvm_s390_vm_tod_clock *gtod)
- {
- 	struct kvm_vcpu *vcpu;
- 	struct kvm_s390_tod_clock_ext htod;
-@@ -3034,10 +3032,12 @@ void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
- 	get_tod_clock_ext((char *)&htod);
- 
- 	kvm->arch.epoch = gtod->tod - htod.tod;
--	kvm->arch.epdx = gtod->epoch_idx - htod.epoch_idx;
--
--	if (kvm->arch.epoch > gtod->tod)
--		kvm->arch.epdx -= 1;
-+	kvm->arch.epdx = 0;
-+	if (test_kvm_facility(kvm, 139)) {
-+		kvm->arch.epdx = gtod->epoch_idx - htod.epoch_idx;
-+		if (kvm->arch.epoch > gtod->tod)
-+			kvm->arch.epdx -= 1;
-+	}
- 
- 	kvm_s390_vcpu_block_all(kvm);
- 	kvm_for_each_vcpu(i, vcpu, kvm) {
-@@ -3050,22 +3050,6 @@ void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
- 	mutex_unlock(&kvm->lock);
- }
- 
--void kvm_s390_set_tod_clock(struct kvm *kvm, u64 tod)
--{
--	struct kvm_vcpu *vcpu;
--	int i;
--
--	mutex_lock(&kvm->lock);
--	preempt_disable();
--	kvm->arch.epoch = tod - get_tod_clock();
--	kvm_s390_vcpu_block_all(kvm);
--	kvm_for_each_vcpu(i, vcpu, kvm)
--		vcpu->arch.sie_block->epoch = kvm->arch.epoch;
--	kvm_s390_vcpu_unblock_all(kvm);
--	preempt_enable();
--	mutex_unlock(&kvm->lock);
--}
--
- /**
-  * kvm_arch_fault_in_page - fault-in guest page if necessary
-  * @vcpu: The corresponding virtual cpu
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index bd31b37b0e6f..19d719262765 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -283,9 +283,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
- 
- /* implemented in kvm-s390.c */
--void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
--				 const struct kvm_s390_vm_tod_clock *gtod);
--void kvm_s390_set_tod_clock(struct kvm *kvm, u64 tod);
-+void kvm_s390_set_tod_clock(struct kvm *kvm,
-+			    const struct kvm_s390_vm_tod_clock *gtod);
- long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
- int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
- int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index c4c4e157c036..33505c32c48a 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -85,9 +85,10 @@ int kvm_s390_handle_e3(struct kvm_vcpu *vcpu)
- /* Handle SCK (SET CLOCK) interception */
- static int handle_set_clock(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_s390_vm_tod_clock gtod = { 0 };
- 	int rc;
- 	u8 ar;
--	u64 op2, val;
-+	u64 op2;
- 
- 	vcpu->stat.instruction_sck++;
- 
-@@ -97,12 +98,12 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
- 	op2 = kvm_s390_get_base_disp_s(vcpu, &ar);
- 	if (op2 & 7)	/* Operand must be on a doubleword boundary */
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
--	rc = read_guest(vcpu, op2, ar, &val, sizeof(val));
-+	rc = read_guest(vcpu, op2, ar, &gtod.tod, sizeof(gtod.tod));
- 	if (rc)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
- 
--	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", val);
--	kvm_s390_set_tod_clock(vcpu->kvm, val);
-+	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", gtod.tod);
-+	kvm_s390_set_tod_clock(vcpu->kvm, &gtod);
- 
- 	kvm_s390_set_psw_cc(vcpu, 0);
- 	return 0;
 -- 
-2.14.3
+
+Thanks,
+
+David / dhildenb
