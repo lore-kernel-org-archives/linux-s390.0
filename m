@@ -1,94 +1,226 @@
 Return-Path: <schwidefsky@de.ibm.com>
-Date: Wed, 7 Feb 2018 12:49:35 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 4/6] s390: add options to change branch prediction
- behaviour for the kernel
-In-Reply-To: <20180207100252.GA31392@amd>
+Subject: [PATCH 5/6] s390: run user space and KVM guests with modified branch prediction
+Date: Wed,  7 Feb 2018 08:00:10 +0100
+In-Reply-To: <1517986811-27819-1-git-send-email-schwidefsky@de.ibm.com>
 References: <1517986811-27819-1-git-send-email-schwidefsky@de.ibm.com>
-	<1517986811-27819-5-git-send-email-schwidefsky@de.ibm.com>
-	<20180207100252.GA31392@amd>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20180207124935.46406c60@mschwideX1>
+Message-Id: <1517986811-27819-6-git-send-email-schwidefsky@de.ibm.com>
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>, Dominik Brodowski <linux@dominikbrodowski.net>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jon Masters <jcm@redhat.com>, Marcus Meissner <meissner@suse.de>, Jiri Kosina <jkosina@suse.cz>, Dominik Brodowski <linux@dominikbrodowski.net>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>, David Woodhouse <dwmw2@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 7 Feb 2018 11:02:52 +0100
-Pavel Machek <pavel@ucw.cz> wrote:
+Define TIF_ISOLATE_BP and TIF_ISOLATE_BP_GUEST and add the necessary
+plumbing in entry.S to be able to run user space and KVM guests with
+limited branch prediction.
 
-> On Wed 2018-02-07 08:00:09, Martin Schwidefsky wrote:
-> > Add the PPA instruction to the system entry and exit path to switch
-> > the kernel to a different branch prediction behaviour. The instructions
-> > are added via CPU alternatives and can be disabled with the "nospec"
-> > or the "nobp=0" kernel parameter. If the default behaviour selected
-> > with CONFIG_KERNEL_NOBP is set to "n" then the "nobp=1" parameter can be
-> > used to enable the changed kernel branch prediction.
-> > 
-> > Acked-by: Cornelia Huck <cohuck@redhat.com>
-> > Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> > ---
-> >  arch/s390/Kconfig                 | 17 ++++++++++++++
-> >  arch/s390/include/asm/processor.h |  1 +
-> >  arch/s390/kernel/alternative.c    | 23 +++++++++++++++++++
-> >  arch/s390/kernel/early.c          |  2 ++
-> >  arch/s390/kernel/entry.S          | 48 +++++++++++++++++++++++++++++++++++++++
-> >  arch/s390/kernel/ipl.c            |  1 +
-> >  arch/s390/kernel/smp.c            |  2 ++
-> >  7 files changed, 94 insertions(+)
-> > 
-> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> > index 0105ce2..d514e25 100644
-> > --- a/arch/s390/Kconfig
-> > +++ b/arch/s390/Kconfig
-> > @@ -540,6 +540,23 @@ config ARCH_RANDOM
-> >  
-> >  	  If unsure, say Y.
-> >  
-> > +config KERNEL_NOBP
-> > +	def_bool n
-> > +	prompt "Enable modified branch prediction for the kernel by default"
-> > +	help
-> > +	  If this option is selected the kernel will switch to a modified
-> > +	  branch prediction mode if the firmware interface is available.
-> > +	  The modified branch prediction mode improves the behaviour in
-> > +	  regard to speculative execution.
-> > +
-> > +	  With the option enabled the kernel parameter "nobp=0" or "nospec"
-> > +	  can be used to run the kernel in the normal branch prediction mode.
-> > +
-> > +	  With the option disabled the modified branch prediction mode is
-> > +	  enabled with the "nobp=1" kernel parameter.
-> > +
-> > +	  If unsure, say N.
-> > +  
-> 
-> This could use some improvement.
-> 
-> Afaict the config option only changes the default behaviour? Do we
-> need the option in such case? (CONFIG_CMDLINE_APPEND can be useful to
-> avoid some options).
+To switch a user space process to limited branch prediction the
+s390_isolate_bp() function has to be call, and to run a vCPU of a KVM
+guest associated with the current task with limited branch prediction
+call s390_isolate_bp_guest().
 
-# git grep CMDLINE_APPEND
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+ arch/s390/include/asm/processor.h   |  3 +++
+ arch/s390/include/asm/thread_info.h |  4 +++
+ arch/s390/kernel/entry.S            | 51 +++++++++++++++++++++++++++++++++----
+ arch/s390/kernel/processor.c        | 18 +++++++++++++
+ 4 files changed, 71 insertions(+), 5 deletions(-)
 
-returns nothing. What are you referring to?
-
-The idea of this config option is that a distributor can decide what
-default behaviour the system should have if no command line parameter
-is specified.
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 5f37f9c..7f2953c 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -378,6 +378,9 @@ extern void memcpy_absolute(void *, void *, size_t);
+ 	memcpy_absolute(&(dest), &__tmp, sizeof(__tmp));	\
+ } while (0)
  
-> Plus, it is not clear what "modified branch prediction mode is" and if
-> "improves behaviour" means "faster" or "safer".
-
-Naturally "improves behaviour in regard to speculative execution" is
-indicating that the system is safer. In general that means slower as well
-but as always it depends. What exactly is done is up to the machine.
-
++extern int s390_isolate_bp(void);
++extern int s390_isolate_bp_guest(void);
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* __ASM_S390_PROCESSOR_H */
+diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
+index 25d6ec3..83ba575 100644
+--- a/arch/s390/include/asm/thread_info.h
++++ b/arch/s390/include/asm/thread_info.h
+@@ -58,6 +58,8 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src);
+ #define TIF_GUARDED_STORAGE	4	/* load guarded storage control block */
+ #define TIF_PATCH_PENDING	5	/* pending live patching update */
+ #define TIF_PGSTE		6	/* New mm's will use 4K page tables */
++#define TIF_ISOLATE_BP		8	/* Run process with isolated BP */
++#define TIF_ISOLATE_BP_GUEST	9	/* Run KVM guests with isolated BP */
+ 
+ #define TIF_31BIT		16	/* 32bit process */
+ #define TIF_MEMDIE		17	/* is terminating due to OOM killer */
+@@ -78,6 +80,8 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src);
+ #define _TIF_UPROBE		_BITUL(TIF_UPROBE)
+ #define _TIF_GUARDED_STORAGE	_BITUL(TIF_GUARDED_STORAGE)
+ #define _TIF_PATCH_PENDING	_BITUL(TIF_PATCH_PENDING)
++#define _TIF_ISOLATE_BP		_BITUL(TIF_ISOLATE_BP)
++#define _TIF_ISOLATE_BP_GUEST	_BITUL(TIF_ISOLATE_BP_GUEST)
+ 
+ #define _TIF_31BIT		_BITUL(TIF_31BIT)
+ #define _TIF_SINGLE_STEP	_BITUL(TIF_SINGLE_STEP)
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index e6d7550..53145b5 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -107,6 +107,7 @@ _PIF_WORK	= (_PIF_PER_TRAP | _PIF_SYSCALL_RESTART)
+ 	aghi	%r15,-(STACK_FRAME_OVERHEAD + __PT_SIZE)
+ 	j	3f
+ 1:	UPDATE_VTIME %r14,%r15,\timer
++	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
+ 2:	lg	%r15,__LC_ASYNC_STACK	# load async stack
+ 3:	la	%r11,STACK_FRAME_OVERHEAD(%r15)
+ 	.endm
+@@ -187,6 +188,40 @@ _PIF_WORK	= (_PIF_PER_TRAP | _PIF_SYSCALL_RESTART)
+ 	.popsection
+ 	.endm
+ 
++	.macro BPENTER tif_ptr,tif_mask
++	.pushsection .altinstr_replacement, "ax"
++662:	.word	0xc004, 0x0000, 0x0000	# 6 byte nop
++	.word	0xc004, 0x0000, 0x0000	# 6 byte nop
++	.popsection
++664:	TSTMSK	\tif_ptr,\tif_mask
++	jz	. + 8
++	.long	0xb2e8d000
++	.pushsection .altinstructions, "a"
++	.long 664b - .
++	.long 662b - .
++	.word 82
++	.byte 12
++	.byte 12
++	.popsection
++	.endm
++
++	.macro BPEXIT tif_ptr,tif_mask
++	TSTMSK	\tif_ptr,\tif_mask
++	.pushsection .altinstr_replacement, "ax"
++662:	jnz	. + 8
++	.long	0xb2e8d000
++	.popsection
++664:	jz	. + 8
++	.long	0xb2e8c000
++	.pushsection .altinstructions, "a"
++	.long 664b - .
++	.long 662b - .
++	.word 82
++	.byte 8
++	.byte 8
++	.popsection
++	.endm
++
+ 	.section .kprobes.text, "ax"
+ .Ldummy:
+ 	/*
+@@ -240,9 +275,11 @@ ENTRY(__switch_to)
+  */
+ ENTRY(sie64a)
+ 	stmg	%r6,%r14,__SF_GPRS(%r15)	# save kernel registers
++	lg	%r12,__LC_CURRENT
+ 	stg	%r2,__SF_EMPTY(%r15)		# save control block pointer
+ 	stg	%r3,__SF_EMPTY+8(%r15)		# save guest register save area
+ 	xc	__SF_EMPTY+16(8,%r15),__SF_EMPTY+16(%r15) # reason code = 0
++	mvc	__SF_EMPTY+24(8,%r15),__TI_flags(%r12) # copy thread flags
+ 	TSTMSK	__LC_CPU_FLAGS,_CIF_FPU		# load guest fp/vx registers ?
+ 	jno	.Lsie_load_guest_gprs
+ 	brasl	%r14,load_fpu_regs		# load guest fp/vx regs
+@@ -259,11 +296,12 @@ ENTRY(sie64a)
+ 	jnz	.Lsie_skip
+ 	TSTMSK	__LC_CPU_FLAGS,_CIF_FPU
+ 	jo	.Lsie_skip			# exit if fp/vx regs changed
+-	BPON
++	BPEXIT	__SF_EMPTY+24(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
+ .Lsie_entry:
+ 	sie	0(%r14)
+ .Lsie_exit:
+ 	BPOFF
++	BPENTER	__SF_EMPTY+24(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
+ .Lsie_skip:
+ 	ni	__SIE_PROG0C+3(%r14),0xfe	# no longer in SIE
+ 	lctlg	%c1,%c1,__LC_USER_ASCE		# load primary asce
+@@ -324,6 +362,7 @@ ENTRY(system_call)
+ 	la	%r11,STACK_FRAME_OVERHEAD(%r15)	# pointer to pt_regs
+ .Lsysc_vtime:
+ 	UPDATE_VTIME %r8,%r9,__LC_SYNC_ENTER_TIMER
++	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
+ 	stmg	%r0,%r7,__PT_R0(%r11)
+ 	# clear user controlled register to prevent speculative use
+ 	xgr	%r0,%r0
+@@ -362,7 +401,7 @@ ENTRY(system_call)
+ 	jnz	.Lsysc_work			# check for work
+ 	TSTMSK	__LC_CPU_FLAGS,_CIF_WORK
+ 	jnz	.Lsysc_work
+-	BPON
++	BPEXIT	__TI_flags(%r12),_TIF_ISOLATE_BP
+ .Lsysc_restore:
+ 	lg	%r14,__LC_VDSO_PER_CPU
+ 	lmg	%r0,%r10,__PT_R0(%r11)
+@@ -597,6 +636,7 @@ ENTRY(pgm_check_handler)
+ 	aghi	%r15,-(STACK_FRAME_OVERHEAD + __PT_SIZE)
+ 	j	4f
+ 2:	UPDATE_VTIME %r14,%r15,__LC_SYNC_ENTER_TIMER
++	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
+ 	lg	%r15,__LC_KERNEL_STACK
+ 	lgr	%r14,%r12
+ 	aghi	%r14,__TASK_thread	# pointer to thread_struct
+@@ -729,7 +769,7 @@ ENTRY(io_int_handler)
+ 	mvc	__LC_RETURN_PSW(16),__PT_PSW(%r11)
+ 	tm	__PT_PSW+1(%r11),0x01	# returning to user ?
+ 	jno	.Lio_exit_kernel
+-	BPON
++	BPEXIT	__TI_flags(%r12),_TIF_ISOLATE_BP
+ .Lio_exit_timer:
+ 	stpt	__LC_EXIT_TIMER
+ 	mvc	__VDSO_ECTG_BASE(16,%r14),__LC_EXIT_TIMER
+@@ -1165,7 +1205,7 @@ ENTRY(mcck_int_handler)
+ 	mvc	__LC_RETURN_MCCK_PSW(16),__PT_PSW(%r11) # move return PSW
+ 	tm	__LC_RETURN_MCCK_PSW+1,0x01 # returning to user ?
+ 	jno	0f
+-	BPON
++	BPEXIT	__TI_flags(%r12),_TIF_ISOLATE_BP
+ 	stpt	__LC_EXIT_TIMER
+ 	mvc	__VDSO_ECTG_BASE(16,%r14),__LC_EXIT_TIMER
+ 0:	lmg	%r11,%r15,__PT_R11(%r11)
+@@ -1292,7 +1332,8 @@ cleanup_critical:
+ 	clg     %r9,BASED(.Lsie_crit_mcck_length)
+ 	jh      1f
+ 	oi      __LC_CPU_FLAGS+7, _CIF_MCCK_GUEST
+-1:	lg	%r9,__SF_EMPTY(%r15)		# get control block pointer
++1:	BPENTER __SF_EMPTY+24(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
++	lg	%r9,__SF_EMPTY(%r15)		# get control block pointer
+ 	ni	__SIE_PROG0C+3(%r9),0xfe	# no longer in SIE
+ 	lctlg	%c1,%c1,__LC_USER_ASCE		# load primary asce
+ 	larl	%r9,sie_exit			# skip forward to sie_exit
+diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
+index 5362fd8..6fe2e18 100644
+--- a/arch/s390/kernel/processor.c
++++ b/arch/s390/kernel/processor.c
+@@ -197,3 +197,21 @@ const struct seq_operations cpuinfo_op = {
+ 	.stop	= c_stop,
+ 	.show	= show_cpuinfo,
+ };
++
++int s390_isolate_bp(void)
++{
++	if (!test_facility(82))
++		return -EOPNOTSUPP;
++	set_thread_flag(TIF_ISOLATE_BP);
++	return 0;
++}
++EXPORT_SYMBOL(s390_isolate_bp);
++
++int s390_isolate_bp_guest(void)
++{
++	if (!test_facility(82))
++		return -EOPNOTSUPP;
++	set_thread_flag(TIF_ISOLATE_BP_GUEST);
++	return 0;
++}
++EXPORT_SYMBOL(s390_isolate_bp_guest);
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.7.4
