@@ -1,146 +1,74 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v1] KVM: s390: use switch vs jump table in interrupt.c
-Date: Thu, 8 Feb 2018 11:29:20 +0100
-Message-ID: <addb7278-34b1-eb63-3090-64d56e7aa981@de.ibm.com>
-References: <20180206141743.24497-1-david@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH RFC 1/6] KVM: s390: take care of clock-comparator sign control
+Date: Wed,  7 Feb 2018 12:46:42 +0100
+Message-ID: <20180207114647.6220-2-david@redhat.com>
+References: <20180207114647.6220-1-david@redhat.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180206141743.24497-1-david@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20180207114647.6220-1-david@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/06/2018 03:17 PM, David Hildenbrand wrote:
-> Just like for the interception handlers, let's also use a switch-case
-> in our interrupt delivery code.
-> 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+Missed when enabling the Multiple-epoch facility. If the facility is
+installed and the control is set, a sign based comaprison has to be
+performed.
 
-Thanks applied. 
-> ---
->  arch/s390/kvm/interrupt.c | 84 ++++++++++++++++++++++++++++-------------------
->  1 file changed, 50 insertions(+), 34 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index aabf46f5f883..3ea9cfa31b16 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -187,12 +187,6 @@ static int cpu_timer_irq_pending(struct kvm_vcpu *vcpu)
->  	return kvm_s390_get_cpu_timer(vcpu) >> 63;
->  }
-> 
-> -static inline int is_ioirq(unsigned long irq_type)
-> -{
-> -	return ((irq_type >= IRQ_PEND_IO_ISC_7) &&
-> -		(irq_type <= IRQ_PEND_IO_ISC_0));
-> -}
-> -
->  static uint64_t isc_to_isc_bits(int isc)
->  {
->  	return (0x80 >> isc) << 24;
-> @@ -1011,24 +1005,6 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
->  	return rc;
->  }
-> 
-> -typedef int (*deliver_irq_t)(struct kvm_vcpu *vcpu);
-> -
-> -static const deliver_irq_t deliver_irq_funcs[] = {
-> -	[IRQ_PEND_MCHK_EX]        = __deliver_machine_check,
-> -	[IRQ_PEND_MCHK_REP]       = __deliver_machine_check,
-> -	[IRQ_PEND_PROG]           = __deliver_prog,
-> -	[IRQ_PEND_EXT_EMERGENCY]  = __deliver_emergency_signal,
-> -	[IRQ_PEND_EXT_EXTERNAL]   = __deliver_external_call,
-> -	[IRQ_PEND_EXT_CLOCK_COMP] = __deliver_ckc,
-> -	[IRQ_PEND_EXT_CPU_TIMER]  = __deliver_cpu_timer,
-> -	[IRQ_PEND_RESTART]        = __deliver_restart,
-> -	[IRQ_PEND_SET_PREFIX]     = __deliver_set_prefix,
-> -	[IRQ_PEND_PFAULT_INIT]    = __deliver_pfault_init,
-> -	[IRQ_PEND_EXT_SERVICE]    = __deliver_service,
-> -	[IRQ_PEND_PFAULT_DONE]    = __deliver_pfault_done,
-> -	[IRQ_PEND_VIRTIO]         = __deliver_virtio,
-> -};
-> -
->  /* Check whether an external call is pending (deliverable or not) */
->  int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu)
->  {
-> @@ -1192,7 +1168,6 @@ void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu)
->  int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
->  {
->  	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-> -	deliver_irq_t func;
->  	int rc = 0;
->  	unsigned long irq_type;
->  	unsigned long irqs;
-> @@ -1212,16 +1187,57 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
->  	while ((irqs = deliverable_irqs(vcpu)) && !rc) {
->  		/* bits are in the reverse order of interrupt priority */
->  		irq_type = find_last_bit(&irqs, IRQ_PEND_COUNT);
-> -		if (is_ioirq(irq_type)) {
-> +		switch (irq_type) {
-> +		case IRQ_PEND_IO_ISC_0:
-> +		case IRQ_PEND_IO_ISC_1:
-> +		case IRQ_PEND_IO_ISC_2:
-> +		case IRQ_PEND_IO_ISC_3:
-> +		case IRQ_PEND_IO_ISC_4:
-> +		case IRQ_PEND_IO_ISC_5:
-> +		case IRQ_PEND_IO_ISC_6:
-> +		case IRQ_PEND_IO_ISC_7:
->  			rc = __deliver_io(vcpu, irq_type);
-> -		} else {
-> -			func = deliver_irq_funcs[irq_type];
-> -			if (!func) {
-> -				WARN_ON_ONCE(func == NULL);
-> -				clear_bit(irq_type, &li->pending_irqs);
-> -				continue;
-> -			}
-> -			rc = func(vcpu);
-> +			break;
-> +		case IRQ_PEND_MCHK_EX:
-> +		case IRQ_PEND_MCHK_REP:
-> +			rc = __deliver_machine_check(vcpu);
-> +			break;
-> +		case IRQ_PEND_PROG:
-> +			rc = __deliver_prog(vcpu);
-> +			break;
-> +		case IRQ_PEND_EXT_EMERGENCY:
-> +			rc = __deliver_emergency_signal(vcpu);
-> +			break;
-> +		case IRQ_PEND_EXT_EXTERNAL:
-> +			rc = __deliver_external_call(vcpu);
-> +			break;
-> +		case IRQ_PEND_EXT_CLOCK_COMP:
-> +			rc = __deliver_ckc(vcpu);
-> +			break;
-> +		case IRQ_PEND_EXT_CPU_TIMER:
-> +			rc = __deliver_cpu_timer(vcpu);
-> +			break;
-> +		case IRQ_PEND_RESTART:
-> +			rc = __deliver_restart(vcpu);
-> +			break;
-> +		case IRQ_PEND_SET_PREFIX:
-> +			rc = __deliver_set_prefix(vcpu);
-> +			break;
-> +		case IRQ_PEND_PFAULT_INIT:
-> +			rc = __deliver_pfault_init(vcpu);
-> +			break;
-> +		case IRQ_PEND_EXT_SERVICE:
-> +			rc = __deliver_service(vcpu);
-> +			break;
-> +		case IRQ_PEND_PFAULT_DONE:
-> +			rc = __deliver_pfault_done(vcpu);
-> +			break;
-> +		case IRQ_PEND_VIRTIO:
-> +			rc = __deliver_virtio(vcpu);
-> +			break;
-> +		default:
-> +			WARN_ONCE(1, "Unknown pending irq type %ld", irq_type);
-> +			clear_bit(irq_type, &li->pending_irqs);
->  		}
->  	}
-> 
+Right now we would inject wrong interrupts and ignore interrupt
+conditions. Also the sleep time is calculated in a wrong way.
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ arch/s390/kvm/interrupt.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 3ea9cfa31b16..a616e9b65f91 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -169,8 +169,15 @@ static int ckc_interrupts_enabled(struct kvm_vcpu *vcpu)
+ 
+ static int ckc_irq_pending(struct kvm_vcpu *vcpu)
+ {
+-	if (vcpu->arch.sie_block->ckc >= kvm_s390_get_tod_clock_fast(vcpu->kvm))
++	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
++	const u64 ckc = vcpu->arch.sie_block->ckc;
++
++	if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
++		if ((s64)ckc >= (s64)now)
++			return 0;
++	} else if (ckc >= now) {
+ 		return 0;
++	}
+ 	return ckc_interrupts_enabled(vcpu);
+ }
+ 
+@@ -1042,13 +1049,19 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
+ 
+ static u64 __calculate_sltime(struct kvm_vcpu *vcpu)
+ {
+-	u64 now, cputm, sltime = 0;
++	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
++	const u64 ckc = vcpu->arch.sie_block->ckc;
++	u64 cputm, sltime = 0;
+ 
+ 	if (ckc_interrupts_enabled(vcpu)) {
+-		now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
+-		sltime = tod_to_ns(vcpu->arch.sie_block->ckc - now);
+-		/* already expired or overflow? */
+-		if (!sltime || vcpu->arch.sie_block->ckc <= now)
++		if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
++			if ((s64)now < (s64)ckc)
++				sltime = tod_to_ns((s64)ckc - (s64)now);
++		} else if (now < ckc) {
++			sltime = tod_to_ns(ckc - now);
++		}
++		/* already expired */
++		if (!sltime)
+ 			return 0;
+ 		if (cpu_timer_interrupts_enabled(vcpu)) {
+ 			cputm = kvm_s390_get_cpu_timer(vcpu);
+-- 
+2.14.3
