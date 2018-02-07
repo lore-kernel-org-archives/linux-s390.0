@@ -1,94 +1,101 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH RFC 1/6] KVM: s390: take care of clock-comparator sign
- control
-Date: Wed, 7 Feb 2018 15:06:22 +0100
-Message-ID: <0c26e21b-ceba-b121-82ed-1e939145a859@de.ibm.com>
+From: "Collin L. Walling" <walling@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC 4/6] KVM: s390: consider epoch index on TOD clock
+ syncs
+Date: Wed, 7 Feb 2018 15:08:26 -0500
+Message-ID: <438d8539-44fa-2661-ea04-a0642c48c9fa@linux.vnet.ibm.com>
 References: <20180207114647.6220-1-david@redhat.com>
- <20180207114647.6220-2-david@redhat.com>
- <74cba8e6-e325-1748-ce8c-a7ac2789a3c1@linux.vnet.ibm.com>
- <428cef31-51bf-5223-b016-129e6d9d8c61@redhat.com>
+ <20180207114647.6220-5-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <428cef31-51bf-5223-b016-129e6d9d8c61@redhat.com>
+In-Reply-To: <20180207114647.6220-5-david@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, "Collin L. Walling" <walling@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On 02/07/2018 06:46 AM, David Hildenbrand wrote:
+> For now, we don't take care of over/underflows. Especially underflows
+> are critical:
+>
+> Assume the epoch is currently 0 and we get a sync request for delta=1,
+> meaning the TOD is moved forward by 1 and we have to fix it up by
+> subtracting 1 from the epoch. Right now, this will leave the epoch
+> index untouched, resulting in epoch=-1, epoch_idx=0, which is wrong.
+>
+> We have to take care of over and underflows, also for the VSIE case. So
+> let's factor out calculation into a separate function.
+>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>   arch/s390/kvm/kvm-s390.c | 32 +++++++++++++++++++++++++++++---
+>   1 file changed, 29 insertions(+), 3 deletions(-)
+>
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index d007b737cd4d..c2b62379049e 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -179,6 +179,28 @@ int kvm_arch_hardware_enable(void)
+>   static void kvm_gmap_notifier(struct gmap *gmap, unsigned long start,
+>   			      unsigned long end);
+>
+> +static void kvm_clock_sync_scb(struct kvm_s390_sie_block *scb, u64 delta)
+> +{
+> +	u64 delta_idx = 0;
+> +
+> +	/*
+> +	 * The TOD jumps by delta, we have to compensate this by adding
+> +	 * -delta to the epoch.
+> +	 */
+> +	delta = -delta;
+> +
+> +	/* sign-extension - we're adding to signed values below */
+> +	if ((s64)delta < 0)
+> +		delta_idx = 0xff;
+> +
+> +	scb->epoch += delta;
+> +	if (scb->ecd & ECD_MEF) {
+> +		scb->epdx += delta_idx;
+> +		if (scb->epoch < delta)
+> +			scb->epdx += 1;
+> +	}
+> +}
+> +
 
+Is the sync always a jump forward? Do we need to worry about a borrow 
+from the epdx in case of underflow?
 
-On 02/07/2018 02:58 PM, David Hildenbrand wrote:
-> On 07.02.2018 14:47, Collin L. Walling wrote:
->> On 02/07/2018 06:46 AM, David Hildenbrand wrote:
->>> Missed when enabling the Multiple-epoch facility. If the facility is
->>> installed and the control is set, a sign based comaprison has to be
->>> performed.
->>>
->>> Right now we would inject wrong interrupts and ignore interrupt
->>> conditions. Also the sleep time is calculated in a wrong way.
->>>
->>> Signed-off-by: David Hildenbrand<david@redhat.com>
->>> ---
->>>   arch/s390/kvm/interrupt.c | 25 +++++++++++++++++++------
->>>   1 file changed, 19 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->>> index 3ea9cfa31b16..a616e9b65f91 100644
->>> --- a/arch/s390/kvm/interrupt.c
->>> +++ b/arch/s390/kvm/interrupt.c
->>> @@ -169,8 +169,15 @@ static int ckc_interrupts_enabled(struct kvm_vcpu *vcpu)
->>>
->>>   static int ckc_irq_pending(struct kvm_vcpu *vcpu)
->>>   {
->>> -	if (vcpu->arch.sie_block->ckc >= kvm_s390_get_tod_clock_fast(vcpu->kvm))
->>> +	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
->>> +	const u64 ckc = vcpu->arch.sie_block->ckc;
->>> +
->>> +	if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
->>> +		if ((s64)ckc >= (s64)now)
->>> +			return 0;
->>> +	} else if (ckc >= now) {
->>>   		return 0;
->>> +	}
->>>   	return ckc_interrupts_enabled(vcpu);
->>>   }
->>>
->>> @@ -1042,13 +1049,19 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
->>>
->>>   static u64 __calculate_sltime(struct kvm_vcpu *vcpu)
->>>   {
->>> -	u64 now, cputm, sltime = 0;
->>> +	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
->>> +	const u64 ckc = vcpu->arch.sie_block->ckc;
->>> +	u64 cputm, sltime = 0;
->>>
->>>   	if (ckc_interrupts_enabled(vcpu)) {
->>> -		now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
->>> -		sltime = tod_to_ns(vcpu->arch.sie_block->ckc - now);
->>> -		/* already expired or overflow? */
->>> -		if (!sltime || vcpu->arch.sie_block->ckc <= now)
->>> +		if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
->>> +			if ((s64)now < (s64)ckc)
->>> +				sltime = tod_to_ns((s64)ckc - (s64)now);
->>> +		} else if (now < ckc) {
->>> +			sltime = tod_to_ns(ckc - now);
->>> +		}
->>> +		/* already expired */
->>> +		if (!sltime)
->>>   			return 0;
->>>   		if (cpu_timer_interrupts_enabled(vcpu)) {
->>>   			cputm = kvm_s390_get_cpu_timer(vcpu);
->> I think it would assist with readability if you defined the sign 
->> comparison bit. Seeing
->> something that yells "SIGNED" would make sense as to what's going on here.
-> 
-> If we want that than I suggest introducing defines for all control
-> registers we use in kvm code in a separate patch.
+>   /*
+>    * This callback is executed during stop_machine(). All CPUs are therefore
+>    * temporarily stopped. In order not to change guest behavior, we have to
+> @@ -194,13 +216,17 @@ static int kvm_clock_sync(struct notifier_block *notifier, unsigned long val,
+>   	unsigned long long *delta = v;
+>
+>   	list_for_each_entry(kvm, &vm_list, vm_list) {
+> -		kvm->arch.epoch -= *delta;
+>   		kvm_for_each_vcpu(i, vcpu, kvm) {
+> -			vcpu->arch.sie_block->epoch -= *delta;
+> +			kvm_clock_sync_scb(vcpu->arch.sie_block, *delta);
+> +			if (i == 0) {
+> +				kvm->arch.epoch = vcpu->arch.sie_block->epoch;
+> +				kvm->arch.epdx = vcpu->arch.sie_block->epdx;
 
-We could add those defines to 
-arch/s390/include/asm/ctl_reg.h
+Are we safe by setting the kvm epochs to the sie epochs wrt migration?
+
+> +			}
+>   			if (vcpu->arch.cputm_enabled)
+>   				vcpu->arch.cputm_start += *delta;
+>   			if (vcpu->arch.vsie_block)
+> -				vcpu->arch.vsie_block->epoch -= *delta;
+> +				kvm_clock_sync_scb(vcpu->arch.vsie_block,
+> +						   *delta);
+>   		}
+>   	}
+>   	return NOTIFY_OK;
+
+-- 
+- Collin L Walling
