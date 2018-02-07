@@ -1,15 +1,15 @@
 From: "Collin L. Walling" <walling@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC 4/6] KVM: s390: consider epoch index on TOD clock
- syncs
-Date: Wed, 7 Feb 2018 15:08:26 -0500
-Message-ID: <438d8539-44fa-2661-ea04-a0642c48c9fa@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC 2/6] KVM: s390: provide only a single function for
+ setting the tod
+Date: Wed, 7 Feb 2018 15:13:23 -0500
+Message-ID: <58ec2151-e95d-1286-e2ab-a958e6afcd2d@linux.vnet.ibm.com>
 References: <20180207114647.6220-1-david@redhat.com>
- <20180207114647.6220-5-david@redhat.com>
+ <20180207114647.6220-3-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180207114647.6220-5-david@redhat.com>
+In-Reply-To: <20180207114647.6220-3-david@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,83 +19,166 @@ Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat
 List-ID: <linux-s390.vger.kernel.org>
 
 On 02/07/2018 06:46 AM, David Hildenbrand wrote:
-> For now, we don't take care of over/underflows. Especially underflows
-> are critical:
+> Right now, SET CLOCK called in the guest does not properly take care of
+> the epoch index, as the call goes via the old kvm_s390_set_tod_clock()
+> interface. So the epoch index is neither reset to 0, if required, nor
+> properly set to e.g. 0xff on negative values.
 >
-> Assume the epoch is currently 0 and we get a sync request for delta=1,
-> meaning the TOD is moved forward by 1 and we have to fix it up by
-> subtracting 1 from the epoch. Right now, this will leave the epoch
-> index untouched, resulting in epoch=-1, epoch_idx=0, which is wrong.
+> Fix this by providing a single kvm_s390_set_tod_clock() function. Move
+> Multiple-epoch facility handling into it.
 >
-> We have to take care of over and underflows, also for the VSIE case. So
-> let's factor out calculation into a separate function.
->
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: David Hildenbrand<david@redhat.com>
 > ---
->   arch/s390/kvm/kvm-s390.c | 32 +++++++++++++++++++++++++++++---
->   1 file changed, 29 insertions(+), 3 deletions(-)
+>   arch/s390/kvm/kvm-s390.c | 46 +++++++++++++++-------------------------------
+>   arch/s390/kvm/kvm-s390.h |  5 ++---
+>   arch/s390/kvm/priv.c     |  9 +++++----
+>   3 files changed, 22 insertions(+), 38 deletions(-)
 >
 > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index d007b737cd4d..c2b62379049e 100644
+> index ba4c7092335a..b514ee427077 100644
 > --- a/arch/s390/kvm/kvm-s390.c
 > +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -179,6 +179,28 @@ int kvm_arch_hardware_enable(void)
->   static void kvm_gmap_notifier(struct gmap *gmap, unsigned long start,
->   			      unsigned long end);
+> @@ -902,12 +902,9 @@ static int kvm_s390_set_tod_ext(struct kvm *kvm, struct kvm_device_attr *attr)
+>   	if (copy_from_user(&gtod, (void __user *)attr->addr, sizeof(gtod)))
+>   		return -EFAULT;
 >
-> +static void kvm_clock_sync_scb(struct kvm_s390_sie_block *scb, u64 delta)
-> +{
-> +	u64 delta_idx = 0;
-> +
-> +	/*
-> +	 * The TOD jumps by delta, we have to compensate this by adding
-> +	 * -delta to the epoch.
-> +	 */
-> +	delta = -delta;
-> +
-> +	/* sign-extension - we're adding to signed values below */
-> +	if ((s64)delta < 0)
-> +		delta_idx = 0xff;
-> +
-> +	scb->epoch += delta;
-> +	if (scb->ecd & ECD_MEF) {
-> +		scb->epdx += delta_idx;
-> +		if (scb->epoch < delta)
-> +			scb->epdx += 1;
+> -	if (test_kvm_facility(kvm, 139))
+> -		kvm_s390_set_tod_clock_ext(kvm, &gtod);
+> -	else if (gtod.epoch_idx == 0)
+> -		kvm_s390_set_tod_clock(kvm, gtod.tod);
+> -	else
+> +	if (!test_kvm_facility(kvm, 139) && gtod.epoch_idx)
+>   		return -EINVAL;
+> +	kvm_s390_set_tod_clock(kvm, &gtod);
+>
+>   	VM_EVENT(kvm, 3, "SET: TOD extension: 0x%x, TOD base: 0x%llx",
+>   		gtod.epoch_idx, gtod.tod);
+> @@ -932,13 +929,14 @@ static int kvm_s390_set_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
+>
+>   static int kvm_s390_set_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
+>   {
+> -	u64 gtod;
+> +	struct kvm_s390_vm_tod_clock gtod = { 0 };
+>
+> -	if (copy_from_user(&gtod, (void __user *)attr->addr, sizeof(gtod)))
+> +	if (copy_from_user(&gtod.tod, (void __user *)attr->addr,
+> +			   sizeof(gtod.tod)))
+>   		return -EFAULT;
+>
+> -	kvm_s390_set_tod_clock(kvm, gtod);
+> -	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx", gtod);
+> +	kvm_s390_set_tod_clock(kvm, &gtod);
+> +	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx", gtod.tod);
+>   	return 0;
+>   }
+>
+> @@ -3021,8 +3019,8 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+>   	return 0;
+>   }
+>
+> -void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
+> -				 const struct kvm_s390_vm_tod_clock *gtod)
+> +void kvm_s390_set_tod_clock(struct kvm *kvm,
+> +			    const struct kvm_s390_vm_tod_clock *gtod)
+Nit: off by one space --------^
+
+>   {
+>   	struct kvm_vcpu *vcpu;
+>   	struct kvm_s390_tod_clock_ext htod;
+> @@ -3034,10 +3032,12 @@ void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
+>   	get_tod_clock_ext((char *)&htod);
+>
+>   	kvm->arch.epoch = gtod->tod - htod.tod;
+> -	kvm->arch.epdx = gtod->epoch_idx - htod.epoch_idx;
+> -
+> -	if (kvm->arch.epoch > gtod->tod)
+> -		kvm->arch.epdx -= 1;
+> +	kvm->arch.epdx = 0;
+> +	if (test_kvm_facility(kvm, 139)) {
+> +		kvm->arch.epdx = gtod->epoch_idx - htod.epoch_idx;
+> +		if (kvm->arch.epoch > gtod->tod)
+> +			kvm->arch.epdx -= 1;
 > +	}
-> +}
-> +
-
-Is the sync always a jump forward? Do we need to worry about a borrow 
-from the epdx in case of underflow?
-
->   /*
->    * This callback is executed during stop_machine(). All CPUs are therefore
->    * temporarily stopped. In order not to change guest behavior, we have to
-> @@ -194,13 +216,17 @@ static int kvm_clock_sync(struct notifier_block *notifier, unsigned long val,
->   	unsigned long long *delta = v;
 >
->   	list_for_each_entry(kvm, &vm_list, vm_list) {
-> -		kvm->arch.epoch -= *delta;
->   		kvm_for_each_vcpu(i, vcpu, kvm) {
-> -			vcpu->arch.sie_block->epoch -= *delta;
-> +			kvm_clock_sync_scb(vcpu->arch.sie_block, *delta);
-> +			if (i == 0) {
-> +				kvm->arch.epoch = vcpu->arch.sie_block->epoch;
-> +				kvm->arch.epdx = vcpu->arch.sie_block->epdx;
-
-Are we safe by setting the kvm epochs to the sie epochs wrt migration?
-
-> +			}
->   			if (vcpu->arch.cputm_enabled)
->   				vcpu->arch.cputm_start += *delta;
->   			if (vcpu->arch.vsie_block)
-> -				vcpu->arch.vsie_block->epoch -= *delta;
-> +				kvm_clock_sync_scb(vcpu->arch.vsie_block,
-> +						   *delta);
->   		}
->   	}
->   	return NOTIFY_OK;
+>   	kvm_s390_vcpu_block_all(kvm);
+>   	kvm_for_each_vcpu(i, vcpu, kvm) {
+> @@ -3050,22 +3050,6 @@ void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
+>   	mutex_unlock(&kvm->lock);
+>   }
+>
+> -void kvm_s390_set_tod_clock(struct kvm *kvm, u64 tod)
+> -{
+> -	struct kvm_vcpu *vcpu;
+> -	int i;
+> -
+> -	mutex_lock(&kvm->lock);
+> -	preempt_disable();
+> -	kvm->arch.epoch = tod - get_tod_clock();
+> -	kvm_s390_vcpu_block_all(kvm);
+> -	kvm_for_each_vcpu(i, vcpu, kvm)
+> -		vcpu->arch.sie_block->epoch = kvm->arch.epoch;
+> -	kvm_s390_vcpu_unblock_all(kvm);
+> -	preempt_enable();
+> -	mutex_unlock(&kvm->lock);
+> -}
+> -
+>   /**
+>    * kvm_arch_fault_in_page - fault-in guest page if necessary
+>    * @vcpu: The corresponding virtual cpu
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index bd31b37b0e6f..19d719262765 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -283,9 +283,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
+>   int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
+>
+>   /* implemented in kvm-s390.c */
+> -void kvm_s390_set_tod_clock_ext(struct kvm *kvm,
+> -				 const struct kvm_s390_vm_tod_clock *gtod);
+> -void kvm_s390_set_tod_clock(struct kvm *kvm, u64 tod);
+> +void kvm_s390_set_tod_clock(struct kvm *kvm,
+> +			    const struct kvm_s390_vm_tod_clock *gtod);
+Same nit here.
+>   long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
+>   int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
+>   int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index c4c4e157c036..33505c32c48a 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -85,9 +85,10 @@ int kvm_s390_handle_e3(struct kvm_vcpu *vcpu)
+>   /* Handle SCK (SET CLOCK) interception */
+>   static int handle_set_clock(struct kvm_vcpu *vcpu)
+>   {
+> +	struct kvm_s390_vm_tod_clock gtod = { 0 };
+>   	int rc;
+>   	u8 ar;
+> -	u64 op2, val;
+> +	u64 op2;
+>
+>   	vcpu->stat.instruction_sck++;
+>
+> @@ -97,12 +98,12 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
+>   	op2 = kvm_s390_get_base_disp_s(vcpu, &ar);
+>   	if (op2 & 7)	/* Operand must be on a doubleword boundary */
+>   		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> -	rc = read_guest(vcpu, op2, ar, &val, sizeof(val));
+> +	rc = read_guest(vcpu, op2, ar, &gtod.tod, sizeof(gtod.tod));
+>   	if (rc)
+>   		return kvm_s390_inject_prog_cond(vcpu, rc);
+>
+> -	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", val);
+> -	kvm_s390_set_tod_clock(vcpu->kvm, val);
+> +	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", gtod.tod);
+> +	kvm_s390_set_tod_clock(vcpu->kvm, &gtod);
+>
+>   	kvm_s390_set_psw_cc(vcpu, 0);
+>   	return 0;
+Set clock only concerns the left-most 64 bits of the TOD-Clock, right? 
+(thinking out
+loud) I wonder if we need to also concern ourselves about the epoch 
+extension... but
+perhaps current use cases of set clock do not warrant that?
 
 -- 
 - Collin L Walling
