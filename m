@@ -1,57 +1,102 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
-Date: Thu, 8 Feb 2018 17:43:08 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+MIME-Version: 1.0
+In-Reply-To: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
+References: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 8 Feb 2018 09:19:34 -0800
+Message-ID: <CA+55aFxpxAGkCTvugOAXp+izb8O1C5YD+ExMQ27uYVU3-97P1A@mail.gmail.com>
 Subject: Re: [RFC PATCH 0/7] Kconfig: add new special property shell= to test
  compiler options in Kconfig
-Message-ID: <20180208164308.GE9421@kroah.com>
-References: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
 To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: linux-kbuild@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Ulf Magnusson <ulfalizer@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
+Cc: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Ulf Magnusson <ulfalizer@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Feb 09, 2018 at 01:19:05AM +0900, Masahiro Yamada wrote:
+On Thu, Feb 8, 2018 at 8:19 AM, Masahiro Yamada
+<yamada.masahiro@socionext.com> wrote:
 > This was prompted by the email from Linus today's morning.
-> 
+
+Thanks.
+
 > I implmented this in a rush today, so there are still many TODOs,
 > but I put it here to start discussion.
-> 
+>
 > I think it is working, but as you notice, it is tedious to repeat something
 > like follows:
-> 
+>
 > config CC_HAS_STACKPROTECTOR
 >         bool
 >         option shell="$CC -Werror -fstack-protector -c -x c /dev/null"
-> 
-> One possiblity is to put this ugly code into script like follows,
-> 
-> config CC_STACKPROTECTOR
->           bool
->           option shell="$srctree/scripts/cc-option.sh $CC -fstack-protector"
-> 
-> ... but this is longer.
 
-But it's easier to remember and cut/paste from :)
+Yeah.
+
+I do think we want to have the "shell" thing as a generic escape for
+other things too, but *realistically*, the primary target for this is
+compiler flags, and I think we should target that specifically with a
+shorthand.
+
+Doing some statistics, and looking for
+
+    flag = $(call xyz ...)
+
+patterns in our makefiles (ignoring single uses), it really is
+cc-option that dominates:
+
+      2  name-fix
+      2  try-run
+      3  __cc-option
+      3  grep-libs
+      3  strip-libs
+      4  flags
+      4  get-executable
+      4  ld-option
+      4  logo-cfiles
+      5  as-option
+      5  cc-cross-prefix
+      6  cc-ldoption
+      6  cc-supports
+      7  cc-option-yn
+      7  tune
+      9  cc-ifversion
+     30  as-instr
+     48  cc-disable-warning
+    239  cc-option
+
+so I think that's the one that we want to special-case.
+
+If we then have a _usable_ - but perhaps not wonderful "shell" escape
+to do any random thing (including scripts etc), that will take care of
+the rest, but cc-option is so common that I think it's worth making a
+special Kconfig syntax for them. For all I know, the others aren't
+even worth Kconfig options at all.
 
 > I was thinking of something like follows:
-> 
+>
 > config CC_STACKPROTECTOR
 >           bool
 >           option shell="$(CC_OPTION -fstack-protector)"
 
-Sure, that would be even nicer, if possible.  Is it?
+I think we should go even further, and just make it be
 
-Anyway, very nice work.  I like moving the cache stuff to the .config
-file, that makes a lot of sense and will be even nicer to see in the
-/proc/config.gz output for when we are curious as to what the build
-options really were.
+config CC_STACKPROTECTOR
+          bool
+          option cc_option="-fstack-protector"
 
-thanks,
+and actually have the Kconfig language itself have this special-cased.
 
-greg k-h
+And obviously that "option cc_option" would be *implemented* as just
+"option shell", with just some stupid string substitution. So it
+really would be purely a shorthand for readability.
+
+What do you think?
+
+And btw, the patches look nice. What I like in particular is that they
+don't even seem to add a lot of lines: the new shell option code is
+almost balanced out by the Kconfig script simplifications. And maybe
+it's just that I read C a lot better than I read GNU Makefile magic,
+but I think it's more understandable too.
+
+                  Linus
