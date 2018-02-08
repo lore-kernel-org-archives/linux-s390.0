@@ -1,41 +1,149 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <CAK7LNARSd6QOcr05z-V9UGCspib=yMDSjdBLXB5h1CGXCmwKjw@mail.gmail.com>
-References: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
- <1518106752-29228-6-git-send-email-yamada.masahiro@socionext.com> <CAK7LNARSd6QOcr05z-V9UGCspib=yMDSjdBLXB5h1CGXCmwKjw@mail.gmail.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Thu, 8 Feb 2018 09:45:09 -0800
-Message-ID: <CA+55aFy-gyap4YS3ycgYgMqQJLCjXF9Ua7C-xyvi3J=14Ddqnw@mail.gmail.com>
-Subject: Re: [RFC PATCH 5/7] kconfig: invoke silentoldconfig when compiler is updated
+In-Reply-To: <1518106752-29228-8-git-send-email-yamada.masahiro@socionext.com>
+References: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com> <1518106752-29228-8-git-send-email-yamada.masahiro@socionext.com>
+From: Kees Cook <keescook@chromium.org>
+Date: Fri, 9 Feb 2018 05:30:46 +1100
+Message-ID: <CAGXu5jJ02qRCcqTK_M9sFtekizz+0WoHBCBKF_mh-A870eg6eg@mail.gmail.com>
+Subject: Re: [RFC PATCH 7/7] Test stackprotector options in Kconfig to kill CC_STACKPROTECTOR_AUTO
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
 To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Ulf Magnusson <ulfalizer@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-kbuild <linux-kbuild@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Ulf Magnusson <ulfalizer@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, LKML <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Feb 8, 2018 at 9:19 AM, Masahiro Yamada
+On Fri, Feb 9, 2018 at 3:19 AM, Masahiro Yamada
 <yamada.masahiro@socionext.com> wrote:
+> Add CC_HAS_STACKPROTECTOR(_STRONG) and proper dependency.
 >
-> Should this be checked?
-> Or, is it just "Don't do it" thing?
+> I re-arranged the choice values, _STRONG, _REGULAR, _NONE in this order
+> because the default of choice is the first visible symbol.
+> [...]
+> +# is this necessary?
+> +#ifeq ($(CONFIG_CC_STACKPROTECTOR_NONE),y)
+> +#KBUILD_CFLAGS += -fno-stack-protector
+> +#endif
 
-I think it's probably a "Don't do it".
+Yes, and also in the case of a broken stack protector, because some
+compilers enable stack protector by default, so if we've selected it
+to be NONE or detected it as broken, we need to force it off in the
+compiler.
 
-In fact, maybe we should just make it very explicit that you need to
-re-run "make *config" by hand if you have updated your compiler.
+> +# TODO: run scripts/gcc-$(SRCARCH)_$(BITS)-has-stack-protector.sh from Kconfig
 
-So instead of your "run silentoldconfig" if the compiler version has
-changed, just literally error out and say "compiler has changed,
-re-run configuration".
+FWIW, this is the part that I got stuck on.
+gcc-$(SRCARCH)_$(BITS)-has-stack-protector.sh depends on the KBUILD
+flags that got built up and detected up to this point in the Makefile,
+so I couldn't find a way to run it out of Kconfig since it didn't know
+what the KBUILD flags were yet.
 
-That way there are no subtle silent failures where you might end up -
-by mistake - building just modules with a new compiler and different
-options. Because people would be *aware* of the re-configuration.
+> +
+>  ifeq ($(cc-name),clang)
+>  KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
+>  KBUILD_CFLAGS += $(call cc-disable-warning, unused-variable)
+> diff --git a/arch/Kconfig b/arch/Kconfig
+> index 76c0b54..50723d8 100644
+> --- a/arch/Kconfig
+> +++ b/arch/Kconfig
+> @@ -538,10 +538,20 @@ config HAVE_CC_STACKPROTECTOR
+>           - its compiler supports the -fstack-protector option
+>           - it has implemented a stack canary (e.g. __stack_chk_guard)
+>
+> +config CC_HAS_STACKPROTECTOR
+> +       bool
+> +       option shell="$CC -Werror -fstack-protector -c -x c /dev/null"
+> +
+> +config CC_HAS_STACKPROTECTOR_STRONG
+> +       bool
+> +       option shell="$CC -Werror -fstack-protector-strong -c -x c /dev/null"
 
-Anyway, I suspect this is a tiny detail that we don't have to set in
-stone right now. Maybe worry about it more when/if it actually becomes
-something that people notice?
+I'm nervous we'll get tripped up here, since $CC may not include the
+right $(KBUILD_CPPFLAGS) and $(CC_OPTION_CFLAGS) as in cc-option, both
+of which are calculated during the Makefile run. But maybe it won't be
+a problem in actual use.
 
-              Linus
+> +
+> +config CC_STACKPROTECTOR
+> +       bool
+> +
+>  choice
+>         prompt "Stack Protector buffer overflow detection"
+>         depends on HAVE_CC_STACKPROTECTOR
+> -       default CC_STACKPROTECTOR_AUTO
+>         help
+>           This option turns on the "stack-protector" GCC feature. This
+>           feature puts, at the beginning of functions, a canary value on
+> @@ -551,26 +561,10 @@ choice
+>           overwrite the canary, which gets detected and the attack is then
+>           neutralized via a kernel panic.
+>
+> -config CC_STACKPROTECTOR_NONE
+> -       bool "None"
+> -       help
+> -         Disable "stack-protector" GCC feature.
+> -
+> -config CC_STACKPROTECTOR_REGULAR
+> -       bool "Regular"
+> -       help
+> -         Functions will have the stack-protector canary logic added if they
+> -         have an 8-byte or larger character array on the stack.
+> -
+> -         This feature requires gcc version 4.2 or above, or a distribution
+> -         gcc with the feature backported ("-fstack-protector").
+> -
+> -         On an x86 "defconfig" build, this feature adds canary checks to
+> -         about 3% of all kernel functions, which increases kernel code size
+> -         by about 0.3%.
+> -
+>  config CC_STACKPROTECTOR_STRONG
+>         bool "Strong"
+> +       depends on CC_HAS_STACKPROTECTOR_STRONG
+> +       select CC_STACKPROTECTOR
+>         help
+>           Functions will have the stack-protector canary logic added in any
+>           of the following conditions:
+> @@ -588,11 +582,25 @@ config CC_STACKPROTECTOR_STRONG
+>           about 20% of all kernel functions, which increases the kernel code
+>           size by about 2%.
+>
+> -config CC_STACKPROTECTOR_AUTO
+> -       bool "Automatic"
+> +config CC_STACKPROTECTOR_REGULAR
+> +       bool "Regular"
+> +       depends on CC_HAS_STACKPROTECTOR
+> +       select CC_STACKPROTECTOR
+> +       help
+> +         Functions will have the stack-protector canary logic added if they
+> +         have an 8-byte or larger character array on the stack.
+> +
+> +         This feature requires gcc version 4.2 or above, or a distribution
+> +         gcc with the feature backported ("-fstack-protector").
+> +
+> +         On an x86 "defconfig" build, this feature adds canary checks to
+> +         about 3% of all kernel functions, which increases kernel code size
+> +         by about 0.3%.
+> +
+> +config CC_STACKPROTECTOR_NONE
+> +       bool "None"
+>         help
+> -         If the compiler supports it, the best available stack-protector
+> -         option will be chosen.
+> +         Disable "stack-protector" GCC feature.
+>
+>  endchoice
+
+I continue to love the idea, but we can't know a given ssp option is
+_working_ until we run the test script, which may depend on compiler
+flags. Regardless, I'll give this series a try and see if I can fix
+anything I trip over. I've got a lot of notes on testing after getting
+..._AUTO working. Whatever happens, I hugely prefer having the
+automatic selection possible in the Kconfig! Thanks for working on
+this! :)
+
+-Kees
+
+-- 
+Kees Cook
+Pixel Security
