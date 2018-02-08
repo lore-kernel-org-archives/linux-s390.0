@@ -1,53 +1,72 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
-Date: Thu, 15 Feb 2018 15:38:12 -0800 (PST)
-Subject: Re: [RFC PATCH 4/7] kconfig: support new special property shell
-In-Reply-To: <CA+55aFy4WNC=pmga19CHhrX9QwOJsu1bUvGL0oNxq5EeMW94eg@mail.gmail.com>
-From: Palmer Dabbelt <palmer@sifive.com>
-Message-ID: <mhng-0ca7cce5-5731-4bf4-b116-b719d3aad34b@palmer-si-x1c4>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [RFC PATCH 3/7] kconfig: remove const qualifier from sym_expand_string_value()
+Date: Fri,  9 Feb 2018 01:19:08 +0900
+Message-Id: <1518106752-29228-4-git-send-email-yamada.masahiro@socionext.com>
+In-Reply-To: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
+References: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: keescook@chromium.org, ulfalizer@gmail.com, yamada.masahiro@socionext.com, linux-kbuild@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, akpm@linux-foundation.org, nicolas.pitre@linaro.org, mcgrof@suse.com, rdunlap@infradead.org, sam@ravnborg.org, michal.lkml@markovi.net, schwidefsky@de.ibm.com, pavel@ucw.cz, linux-s390@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org, tj@kernel.org, mingo@kernel.org, arjan.van.de.ven@intel.com, Arnd Bergmann <arnd@arndb.de>
+To: linux-kbuild@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Ulf Magnusson <ulfalizer@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 11 Feb 2018 12:06:35 PST (-0800), Linus Torvalds wrote:
-> On Sun, Feb 11, 2018 at 11:53 AM, Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
->>
->> Well, it's still not a very *big* bump. With modern distros being at
->> 7.3, and people testing pre-releases of gcc-8, something like gcc-4.5
->> is still pretty darn ancient.
->
-> ... it's worth noting that our _documentation_ may claim that gcc-3.2
-> is the minimum supported version, but Arnd pointed out that a few
-> months ago that apparently nothing older than 4.1 has actually worked
-> for a longish while, and gcc-4.3 was needed on several architectures.
->
-> So the _real_ jump in required gcc version would be from 4.1 (4.3 in
-> many cases) to 4.5, not from our documented "3.2 minimum".
->
-> Arnd claimed that some architectures needed even newer-than-4.3, but I
-> assume that's limited to things like RISC-V that simply don't have old
-> gcc support at all.
+This function returns realloc'ed memory, so the returned pointer
+must be passed to free() when done.  Change the return value type
+to save casting.
 
-Just for the record, we'd really like users to use GCC 7.3.0 and binutils 2.30 
-(or newer), as even though we had support earlier versions (back to binutils 
-2.28 and gcc 7.1.0) there's a handful of bugs floating around in our ports 
-there.
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
 
-Of course, I'm not suggesting that as a kernel-wide policy :).  It looks like 
-we're going to end up with distributions shipping 7.3.0 and 2.30 as their first 
-RISC-V versions, so hopefully we're safe here.
+ scripts/kconfig/lkc_proto.h | 2 +-
+ scripts/kconfig/symbol.c    | 2 +-
+ scripts/kconfig/util.c      | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-> That was from a discussion about bug report that only happened with
-> gcc-4.4, and was because gcc-4.4 did insane things, so we were talking
-> about how it wasn't necessarily worth supporting.
->
-> So we really have had a lot of unrelated reasons why just saying
-> "gcc-4.5 or newer"  would be a good thing.
->
->             Linus
+diff --git a/scripts/kconfig/lkc_proto.h b/scripts/kconfig/lkc_proto.h
+index 5d86e2d..9dc8abf 100644
+--- a/scripts/kconfig/lkc_proto.h
++++ b/scripts/kconfig/lkc_proto.h
+@@ -31,7 +31,7 @@ extern struct symbol * symbol_hash[SYMBOL_HASHSIZE];
+ 
+ struct symbol * sym_lookup(const char *name, int flags);
+ struct symbol * sym_find(const char *name);
+-const char * sym_expand_string_value(const char *in);
++char *sym_expand_string_value(const char *in);
+ const char * sym_escape_string_value(const char *in);
+ struct symbol ** sym_re_search(const char *pattern);
+ const char * sym_type_name(enum symbol_type type);
+diff --git a/scripts/kconfig/symbol.c b/scripts/kconfig/symbol.c
+index bc3ec6a..893eae6 100644
+--- a/scripts/kconfig/symbol.c
++++ b/scripts/kconfig/symbol.c
+@@ -901,7 +901,7 @@ struct symbol *sym_find(const char *name)
+  * name to be expanded shall be prefixed by a '$'. Unknown symbol expands to
+  * the empty string.
+  */
+-const char *sym_expand_string_value(const char *in)
++char *sym_expand_string_value(const char *in)
+ {
+ 	const char *src;
+ 	char *res;
+diff --git a/scripts/kconfig/util.c b/scripts/kconfig/util.c
+index 01ead28..befaec9 100644
+--- a/scripts/kconfig/util.c
++++ b/scripts/kconfig/util.c
+@@ -14,11 +14,11 @@
+ struct file *file_lookup(const char *name)
+ {
+ 	struct file *file;
+-	const char *file_name = sym_expand_string_value(name);
++	char *file_name = sym_expand_string_value(name);
+ 
+ 	for (file = file_list; file; file = file->next) {
+ 		if (!strcmp(name, file->name)) {
+-			free((void *)file_name);
++			free(file_name);
+ 			return file;
+ 		}
+ 	}
+-- 
+2.7.4
