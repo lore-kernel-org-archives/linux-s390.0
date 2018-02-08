@@ -1,51 +1,72 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC 0/6] KVM: s390: Multiple-epoch facility fixes
-Date: Wed,  7 Feb 2018 12:46:41 +0100
-Message-ID: <20180207114647.6220-1-david@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 0/2] KVM: s390: avoid jump tables
+Date: Thu, 8 Feb 2018 11:18:54 +0100
+Message-ID: <20180208111854.6b0bef01.cohuck@redhat.com>
+References: <20180206112127.19014-1-borntraeger@de.ibm.com>
+        <7e9bb181-cec9-0781-03c0-b74d5d087c8a@redhat.com>
+        <20180208085819.GC3937@osiris>
+        <04a460fd-7505-b966-d000-fd0e2823bd57@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <04a460fd-7505-b966-d000-fd0e2823bd57@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-It think I found various BUGs in the recently added Multiple-epoch facility
-support in KVM. Along with it, two cleanups.
+On Thu, 8 Feb 2018 11:09:15 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-1. The clock-comparator sign control is not considered. I sent a patch
-   with this previously. This now contains fixes and simplifications.
-2. SET CLOCK from the guest does not work reliably if the facility is
-   enabled (epoch index not set).
-3. Hotplugged CPUs don't inherit the epoch index.
-4. TOD clock syncs don't take care of overflows/underflows in the epoch
-   value and miss to update the epoch index.
+> On 02/08/2018 09:58 AM, Heiko Carstens wrote:
+> 
+> > If you look at the generated code for the first patch: gcc now generates
+> > its own jump table which then jumps (indirectly) to a brasl... So it's two
+> > instead of one branch.
+> > I'm not saying that this patch is not good, but there seem be a wrong
+> > assumptions about the benefit here.  
+> 
+> I will now use the following patch description.
+> 
+> 
+> 
+>     KVM: s390: use switch vs jump table in intercept.c
+>     
+>     Instead of having huge jump tables for function selection,
+>     let's use normal switch/case statements for the instruction
+>     handlers in intercept.c We can now also get rid of
+>     intercept_handler_t.
+>     
+>     This allows the compiler to make the right decision depending
+>     on the situation (e.g. avoid jump-tables for thunks).
+>     
+>     Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>     Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+>     Reviewed-by: David Hildenbrand <david@redhat.com>
+>     Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> 
+> commit cf392b582009f8ee4ef859f935dd9f67f855ccaf
+> Author:     Christian Borntraeger <borntraeger@de.ibm.com>
+> AuthorDate: Fri Apr 8 17:52:39 2016 +0200
+> Commit:     Christian Borntraeger <borntraeger@de.ibm.com>
+> CommitDate: Thu Feb 8 10:07:42 2018 +0000
+> 
+>     KVM: s390: use switch vs jump table in priv.c
+>     
+>     Instead of having huge jump tables for function selection,
+>     let's use normal switch/case statements for the instruction
+>     handlers in priv.c
+>     
+>     This allows the compiler to make the right decision depending
+>     on the situation (e.g. avoid jump-tables for thunks).
+>     
+>     Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>     Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>     Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+>     Reviewed-by: David Hildenbrand <david@redhat.com>
+> 
 
-
-This is RFC as I have basically no machine to test. Hopefully somebody
-can jump in and verify that we now handle the epoch index in all
-scenarios correctly.
-
-Most importantly, with Multiple-epoch facility, the condition
-	Guest TOD = Host TOD - 1
-Is represented by both, epoch and epoch_idx containing 0xff. So it is
-treated as a 64+8bit signed number - we have to properly take care
-of over/underflows when modifying the epoch.
-
-
-David Hildenbrand (6):
-  KVM: s390: take care of clock-comparator sign control
-  KVM: s390: provide only a single function for setting the tod
-  KVM: s390: consider epoch index on hotplugged CPUs
-  KVM: s390: consider epoch index on TOD clock syncs
-  KVM: s390: no need to inititalize kvm->arch members to 0
-  KVM: s390: generalize kvm_s390_get_tod_clock_ext()
-
- arch/s390/kvm/interrupt.c |  25 ++++++++---
- arch/s390/kvm/kvm-s390.c  | 109 +++++++++++++++++++++++-----------------------
- arch/s390/kvm/kvm-s390.h  |   5 +--
- arch/s390/kvm/priv.c      |   9 ++--
- 4 files changed, 80 insertions(+), 68 deletions(-)
-
--- 
-2.14.3
+Fine with me.
