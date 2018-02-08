@@ -1,61 +1,41 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH 22/34] dma-mapping: add an arch_dma_supported hook
-Date: Fri, 2 Feb 2018 09:47:23 -0800
-Message-ID: <5d7dfb29-eeef-2280-13c9-5260e9104f67@infradead.org>
-References: <20180112084232.2857-1-hch@lst.de>
- <20180112084232.2857-23-hch@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180112084232.2857-23-hch@lst.de>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-snps-arc@lists.infradead.org, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Return-Path: <SRS0=wxkp=FC=nexb.com=pombredanne@kernel.org>
+Return-Path: <SRS0=wxkp=FC=nexb.com=pombredanne@kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <20180130003559.15416.18047.stgit@bhelgaas-glaptop.roam.corp.google.com>
+References: <20180130003559.15416.18047.stgit@bhelgaas-glaptop.roam.corp.google.com>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Date: Thu, 8 Feb 2018 15:17:39 +0100
+Message-ID: <CAOFm3uHagzL5r5MYfu1ep5nf9Y6RAj866+uUO74c1mJRYPfeQg@mail.gmail.com>
+Subject: Re: [PATCH] PCI: Add SPDX tag for s390_pci_hpc.c
+Content-Type: text/plain; charset="UTF-8"
+List-Archive: <https://lore.kernel.org/linux-pci/>
+List-Post: <mailto:linux-pci@vger.kernel.org>
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kate Stewart <kstewart@linuxfoundation.org>, linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/12/2018 12:42 AM, Christoph Hellwig wrote:
-> To implement the x86 forbid_dac and iommu_sac_force we want an arch hook
-> so that it can apply the global options across all dma_map_ops
-> implementations.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/x86/include/asm/dma-mapping.h |  3 +++
->  arch/x86/kernel/pci-dma.c          | 19 ++++++++++++-------
->  include/linux/dma-mapping.h        | 11 +++++++++++
->  3 files changed, 26 insertions(+), 7 deletions(-)
+Bjorn,
 
-> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-> index 88bcb1a8211d..d67742dad904 100644
-> --- a/include/linux/dma-mapping.h
-> +++ b/include/linux/dma-mapping.h
-> @@ -576,6 +576,14 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
->  	return 0;
->  }
->  
-> +/*
-> + * This is a hack for the legacy x86 forbid_dac and iommu_sac_force. Please
-> + * don't use this is new code.
+On Tue, Jan 30, 2018 at 1:40 AM, Bjorn Helgaas <helgaas@kernel.org> wrote:
+> I previously posted patches [1] to add SPDX tags to all drivers/pci files
+> except drivers/pci/hotplug/s390_pci_hpc.c.  I omitted that one because it
+> contained only a "License: GPL" comment, which I thought was ambiguous.
+>
+> However, I think it is actually unambiguous because the file was added with
+> a 'MODULE_LICENSE("GPL")', and include/linux/module.h shows that means "GPL
+> v2 or later".
+>
+> So this patch adds the GPL-2.0+ tag to the file.  I plan to include this
+> for v4.16 unless somebody objects.
 
-                     in new code.
+As I as said in a previous email, context matters a lot in these case
+and you made the right choice.
+When there is a MODULE_LICENSE and a super terse "GPL" license notice,
+the two taken together can provide the proper context e.g. here
+GPL-2.0+ rather than a less common GPL-1.0+
 
-> + */
-> +#ifndef arch_dma_supported
-> +#define arch_dma_supported(dev, mask)	(1)
-> +#endif
-
+Thank you for your efforts there!
 
 -- 
-~Randy
+Cordially
+Philippe Ombredanne
