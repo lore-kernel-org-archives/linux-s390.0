@@ -1,102 +1,106 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
-References: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Thu, 8 Feb 2018 09:19:34 -0800
-Message-ID: <CA+55aFxpxAGkCTvugOAXp+izb8O1C5YD+ExMQ27uYVU3-97P1A@mail.gmail.com>
-Subject: Re: [RFC PATCH 0/7] Kconfig: add new special property shell= to test
- compiler options in Kconfig
+In-Reply-To: <1518106752-29228-6-git-send-email-yamada.masahiro@socionext.com>
+References: <1518106752-29228-1-git-send-email-yamada.masahiro@socionext.com> <1518106752-29228-6-git-send-email-yamada.masahiro@socionext.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Fri, 9 Feb 2018 02:19:54 +0900
+Message-ID: <CAK7LNARSd6QOcr05z-V9UGCspib=yMDSjdBLXB5h1CGXCmwKjw@mail.gmail.com>
+Subject: Re: [RFC PATCH 5/7] kconfig: invoke silentoldconfig when compiler is updated
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Ulf Magnusson <ulfalizer@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Ulf Magnusson <ulfalizer@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Masahiro Yamada <yamada.masahiro@socionext.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Feb 8, 2018 at 8:19 AM, Masahiro Yamada
-<yamada.masahiro@socionext.com> wrote:
-> This was prompted by the email from Linus today's morning.
-
-Thanks.
-
-> I implmented this in a rush today, so there are still many TODOs,
-> but I put it here to start discussion.
+2018-02-09 1:19 GMT+09:00 Masahiro Yamada <yamada.masahiro@socionext.com>:
+> Moving compiler option tests to Kconfig means you need to re-run
+> Kconfig when you update your compiler.  All CC_HAS_... symbols
+> and other symbols that depend on them must be re-calculated.
 >
-> I think it is working, but as you notice, it is tedious to repeat something
-> like follows:
+> It will be nice to detect the compiler update and automatically
+> invoke silentoldconfig.
 >
-> config CC_HAS_STACKPROTECTOR
+> This can be done by adding one environment.  With this, silentoldconfig
+> will add something like follows into include/config/auto.conf.cmd:
+>
+> ifneq "$(CC_VERSION_TEXT)" "gcc (Ubuntu 5.4.0-6ubuntu1~16.04.6) 5.4.0 20160609"
+> include/config/auto.conf: FORCE
+> endif
+>
+> CC_VERSION_TEXT contains the first line of "$(CC) --version".  If this text
+> is changed, silentoldconfig will be invoked.
+>
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+
+
+Currently, the updated compiler
+is detected only when building the kernel.
+
+
+External modules should be built by the
+same compiler as used for building the kernel.
+
+If a different compiler is used,
+different options will be specified by
+CONFIG_CC_HAS_... options from the .config
+
+
+Should this be checked?
+Or, is it just "Don't do it" thing?
+
+
+If desired, CONFIG_CC_VERSION_TEXT is cached in .config
+then it will be possible to compare it with $(shell $(CC) --version)
+when building external modules.
+
+
+
+>
+>  Makefile     | 2 ++
+>  init/Kconfig | 9 +++++++++
+>  2 files changed, 11 insertions(+)
+>
+> diff --git a/Makefile b/Makefile
+> index 2ee49c9..9afd617 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -441,6 +441,8 @@ export KBUILD_AFLAGS_MODULE KBUILD_CFLAGS_MODULE KBUILD_LDFLAGS_MODULE
+>  export KBUILD_AFLAGS_KERNEL KBUILD_CFLAGS_KERNEL
+>  export KBUILD_ARFLAGS
+>
+> +export CC_VERSION_TEXT := $(shell $(CC) --version | head -n 1)
+> +
+>  # When compiling out-of-tree modules, put MODVERDIR in the module
+>  # tree rather than in the kernel tree. The kernel tree might
+>  # even be read-only.
+> diff --git a/init/Kconfig b/init/Kconfig
+> index e37f4b2..64f9dd2 100644
+> --- a/init/Kconfig
+> +++ b/init/Kconfig
+> @@ -16,6 +16,15 @@ config DEFCONFIG_LIST
+>         default "$ARCH_DEFCONFIG"
+>         default "arch/$ARCH/defconfig"
+>
+> +# CC_VERSION_TEXT is needed here to invoke Kconfig when compiler is updated
+> +config CC_VERSION_TEXT
+> +       string
+> +       option env="CC_VERSION_TEXT"
+> +       help
+> +         This is used to detect if the compiler is changed. If the version
+> +         text does not match, silentoldconfig will be invoked because we need
+> +         to re-compute compiler capabilities and symbols that depends on them.
+> +
+>  config CONSTRUCTORS
 >         bool
->         option shell="$CC -Werror -fstack-protector -c -x c /dev/null"
-
-Yeah.
-
-I do think we want to have the "shell" thing as a generic escape for
-other things too, but *realistically*, the primary target for this is
-compiler flags, and I think we should target that specifically with a
-shorthand.
-
-Doing some statistics, and looking for
-
-    flag = $(call xyz ...)
-
-patterns in our makefiles (ignoring single uses), it really is
-cc-option that dominates:
-
-      2  name-fix
-      2  try-run
-      3  __cc-option
-      3  grep-libs
-      3  strip-libs
-      4  flags
-      4  get-executable
-      4  ld-option
-      4  logo-cfiles
-      5  as-option
-      5  cc-cross-prefix
-      6  cc-ldoption
-      6  cc-supports
-      7  cc-option-yn
-      7  tune
-      9  cc-ifversion
-     30  as-instr
-     48  cc-disable-warning
-    239  cc-option
-
-so I think that's the one that we want to special-case.
-
-If we then have a _usable_ - but perhaps not wonderful "shell" escape
-to do any random thing (including scripts etc), that will take care of
-the rest, but cc-option is so common that I think it's worth making a
-special Kconfig syntax for them. For all I know, the others aren't
-even worth Kconfig options at all.
-
-> I was thinking of something like follows:
+>         depends on !UML
+> --
+> 2.7.4
 >
-> config CC_STACKPROTECTOR
->           bool
->           option shell="$(CC_OPTION -fstack-protector)"
 
-I think we should go even further, and just make it be
 
-config CC_STACKPROTECTOR
-          bool
-          option cc_option="-fstack-protector"
 
-and actually have the Kconfig language itself have this special-cased.
-
-And obviously that "option cc_option" would be *implemented* as just
-"option shell", with just some stupid string substitution. So it
-really would be purely a shorthand for readability.
-
-What do you think?
-
-And btw, the patches look nice. What I like in particular is that they
-don't even seem to add a lot of lines: the new shell option code is
-almost balanced out by the Kconfig script simplifications. And maybe
-it's just that I read C a lot better than I read GNU Makefile magic,
-but I think it's more understandable too.
-
-                  Linus
+-- 
+Best Regards
+Masahiro Yamada
