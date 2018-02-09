@@ -1,7 +1,7 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [RFC/PATCH v3 02/16] s390/mm: Abstract gmap notify bit setting
-Date: Fri,  9 Feb 2018 10:34:10 +0100
-Message-ID: <1518168864-147803-3-git-send-email-frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH v3 10/16] s390/mm: Add VSIE reverse fake case
+Date: Fri,  9 Feb 2018 10:34:18 +0100
+Message-ID: <1518168864-147803-11-git-send-email-frankja@linux.vnet.ibm.com>
 References: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
@@ -12,95 +12,231 @@ To: kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently we use the software PGSTE bits PGSTE_IN_BIT and PGSTE_VSIE_BIT
-to notify before an invalidation occurs on a prefix page or a VSIE page
-respectively. Both bits only work for a PGSTE, which only exists for
-page tables.
+The fake VSIE case lets us run huge vsie guests on small hosts by
+creating fake page tables. When running a small guest on a huge host,
+we need to create fake tables once again.
 
-For huge page support we also need such bits for segments (pmds) so
-let's introduce abstract GMAP_NOTIFY_* bits that will be realized into
-the respective bits when gmap DAT table entries are protected.
+The fake tables are needed to make sure, that the VSIE guest is only
+able to access the memory that its host mapped for it.
 
 Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/include/asm/gmap.h |  4 ++++
- arch/s390/mm/gmap.c          | 13 ++++++++-----
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/gmap.h |  2 +-
+ arch/s390/kvm/gaccess.c      | 20 +++++++++---
+ arch/s390/mm/gmap.c          | 76 +++++++++++++++++++-------------------------
+ 3 files changed, 50 insertions(+), 48 deletions(-)
 
 diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index e07cce8..c1bc563 100644
+index 8387fdc..1347ff5 100644
 --- a/arch/s390/include/asm/gmap.h
 +++ b/arch/s390/include/asm/gmap.h
-@@ -9,6 +9,10 @@
- #ifndef _ASM_S390_GMAP_H
- #define _ASM_S390_GMAP_H
+@@ -144,7 +144,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
+ 		    int fake);
+ int gmap_shadow_sgt_lookup(struct gmap *sg, unsigned long saddr,
+ 			   unsigned long *pgt, int *dat_protection,
+-			   int *fake);
++			   int *fake, int *lvl);
+ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte);
+ int gmap_shadow_segment(struct gmap *sg, unsigned long saddr, pmd_t pmd);
  
-+/* Generic bits for GMAP notification on DAT table entry changes. */
-+#define GMAP_NOTIFY_SHADOW	0x2
-+#define GMAP_NOTIFY_MPROT	0x1
-+
- /**
-  * struct gmap_struct - guest address space
-  * @list: list head for the mm->context gmap list
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 045d12e..de40d17 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1144,10 +1144,22 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 				*lvl = 1;
+ 				*pgt = ptr;
+ 				return 0;
++			} else {
++				/*
++				 * Reverse fake case.
++				 * We map a huge parent to a small guest, i.e.
++				 * we need fake shadow pagetables.
++				 *
++				 * We need pagetables here, because
++				 * guests not aligned on 1M could
++				 * read/write from/to the parent or
++				 * host.
++				 */
++				*lvl = 0;
+ 			}
+ 		}
+ 		/* Small to small and small to huge case */
+-		if (ste.fc && sg->edat_level >= 1) {
++		if (!fc && ste.fc && sg->edat_level >= 1) {
+ 			*fake = 1;
+ 			ptr = ste.fc1.sfaa * _SEGMENT_SIZE;
+ 			ste.val = ptr;
+@@ -1185,7 +1197,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 	union page_table_entry pte;
+ 	union segment_table_entry ste;
+ 	unsigned long pgt;
+-	int dat_protection, fake, lvl, fc;
++	int dat_protection, fake, lvl = 0, fc;
+ 	int rc;
+ 
+ 	down_read(&sg->mm->mmap_sem);
+@@ -1196,7 +1208,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 	 */
+ 	ipte_lock(vcpu);
+ 
+-	rc = gmap_shadow_sgt_lookup(sg, saddr, &pgt, &dat_protection, &fake);
++	rc = gmap_shadow_sgt_lookup(sg, saddr, &pgt, &dat_protection, &fake, &lvl);
+ 	if (rc)
+ 		rc = kvm_s390_shadow_tables(sg, saddr, &pgt, &dat_protection,
+ 					    &fake, &lvl);
+@@ -1204,7 +1216,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 	vaddr.addr = saddr;
+ 
+ 	/* Shadow stopped at segment level, we map pmd to pmd */
+-	if (lvl) {
++	if (!rc && lvl) {
+ 		if (!rc)
+ 			rc = gmap_read_table(sg->parent, pgt + vaddr.sx * 8,
+ 					     &ste.val, &fc);
 diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 549a55f..4471cb9 100644
+index f805ec9..ae25f76 100644
 --- a/arch/s390/mm/gmap.c
 +++ b/arch/s390/mm/gmap.c
-@@ -922,7 +922,7 @@ static inline void gmap_pmd_op_end(struct gmap *gmap, pmd_t *pmdp)
+@@ -841,38 +841,6 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
+ }
+ 
+ /**
+- * gmap_pte_op_walk - walk the gmap page table, get the page table lock
+- *		      and return the pte pointer
+- * @gmap: pointer to guest mapping meta data structure
+- * @gaddr: virtual address in the guest address space
+- * @ptl: pointer to the spinlock pointer
+- *
+- * Returns a pointer to the locked pte for a guest address, or NULL
+- *
+- * Note: Can also be called for shadow gmaps.
+- */
+-static pte_t *gmap_pte_op_walk(struct gmap *gmap, unsigned long gaddr,
+-			       spinlock_t **ptl)
+-{
+-	unsigned long *table;
+-
+-	if (gmap_is_shadow(gmap))
+-		spin_lock(&gmap->guest_table_lock);
+-	/* Walk the gmap page table, lock and get pte pointer */
+-	table = gmap_table_walk(gmap, gaddr, 1); /* get segment pointer */
+-	if (!table || *table & _SEGMENT_ENTRY_INVALID) {
+-		if (gmap_is_shadow(gmap))
+-			spin_unlock(&gmap->guest_table_lock);
+-		return NULL;
+-	}
+-	if (gmap_is_shadow(gmap)) {
+-		*ptl = &gmap->guest_table_lock;
+-		return pte_offset_map((pmd_t *) table, gaddr);
+-	}
+-	return pte_alloc_map_lock(gmap->mm, (pmd_t *) table, gaddr, ptl);
+-}
+-
+-/**
+  * gmap_pte_op_fixup - force a page in and connect the gmap page table
+  * @gmap: pointer to guest mapping meta data structure
   * @gaddr: virtual address in the guest address space
-  * @pmdp: pointer to the pmd associated with the pte
-  * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
-- * @bits: pgste notification bits to set
-+ * @bits: notification bits to set
-  *
-  * Returns 0 if successfully protected, -ENOMEM if out of memory and
-  * -EAGAIN if a fixup is needed.
-@@ -936,13 +936,16 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
+@@ -1557,7 +1525,7 @@ static void __gmap_unshadow_sgt(struct gmap *sg, unsigned long raddr,
+ 
+ 	BUG_ON(!gmap_is_shadow(sg));
+ 	for (i = 0; i < _CRST_ENTRIES; i++, raddr += _SEGMENT_SIZE) {
+-		if (!(sgt[i] & _SEGMENT_ENTRY_ORIGIN))
++		if (sgt[i] ==  _SEGMENT_ENTRY_EMPTY)
+ 			continue;
+ 
+ 		if (!(sgt[i] & _SEGMENT_ENTRY_LARGE)) {
+@@ -2199,7 +2167,7 @@ EXPORT_SYMBOL_GPL(gmap_shadow_pgt_lookup);
+ 
+ int gmap_shadow_sgt_lookup(struct gmap *sg, unsigned long saddr,
+ 			   unsigned long *pgt, int *dat_protection,
+-			   int *fake)
++			   int *fake, int *lvl)
+ {
+ 	unsigned long *sge, *r3e = NULL;
+ 	struct page *page;
+@@ -2230,9 +2198,11 @@ int gmap_shadow_sgt_lookup(struct gmap *sg, unsigned long saddr,
+ 			*dat_protection = 0;
+ 			*fake = 0;
+ 		}
++		*lvl = 1;
+ 	} else {
+ 		gmap_shadow_pgt_lookup(sg, sge, saddr, pgt,
+ 				       dat_protection, fake);
++		*lvl = 0;
+ 	}
+ out:
+ 	spin_unlock(&sg->guest_table_lock);
+@@ -2421,6 +2391,7 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
+ 	struct gmap_rmap *rmap;
+ 	unsigned long vmaddr, paddr;
+ 	spinlock_t *ptl;
++	pmd_t *spmdp;
+ 	pte_t *sptep, *tptep;
+ 	int prot;
  	int rc;
- 	pte_t *ptep;
- 	spinlock_t *ptl = NULL;
-+	unsigned long pbits = 0;
- 
- 	ptep = pte_alloc_map_lock(gmap->mm, pmdp, gaddr, &ptl);
- 	if (!ptep)
- 		return -ENOMEM;
- 
-+	pbits |= (bits & GMAP_NOTIFY_MPROT) ? PGSTE_IN_BIT : 0;
-+	pbits |= (bits & GMAP_NOTIFY_SHADOW) ? PGSTE_VSIE_BIT : 0;
- 	/* Protect and unlock. */
--	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
-+	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, pbits);
- 	gmap_pte_op_end(ptl);
- 	return rc;
- }
-@@ -1017,7 +1020,7 @@ int gmap_mprotect_notify(struct gmap *gmap, unsigned long gaddr,
- 	if (!MACHINE_HAS_ESOP && prot == PROT_READ)
- 		return -EINVAL;
- 	down_read(&gmap->mm->mmap_sem);
--	rc = gmap_protect_range(gmap, gaddr, len, prot, PGSTE_IN_BIT);
-+	rc = gmap_protect_range(gmap, gaddr, len, prot, GMAP_NOTIFY_MPROT);
- 	up_read(&gmap->mm->mmap_sem);
- 	return rc;
- }
-@@ -1139,7 +1142,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
- 		if (ptep) {
+@@ -2445,26 +2416,42 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
+ 		if (rc)
+ 			break;
+ 		rc = -EAGAIN;
+-		sptep = gmap_pte_op_walk(parent, paddr, &ptl);
+-		if (sptep) {
++		spmdp = gmap_pmd_op_walk(parent, paddr);
++		if (spmdp && !(pmd_val(*spmdp) & _SEGMENT_ENTRY_INVALID)) {
  			spin_lock(&sg->guest_table_lock);
- 			rc = ptep_force_prot(parent->mm, paddr, ptep, prot,
--					     PGSTE_VSIE_BIT);
-+					     GMAP_NOTIFY_SHADOW);
- 			if (!rc)
- 				gmap_insert_rmap(sg, vmaddr, rmap);
+ 			/* Get page table pointer */
+ 			tptep = (pte_t *) gmap_table_walk(sg, saddr, 0);
+ 			if (!tptep) {
+ 				spin_unlock(&sg->guest_table_lock);
+-				gmap_pte_op_end(ptl);
+ 				radix_tree_preload_end();
++				gmap_pmd_op_end(parent, spmdp);
+ 				break;
+ 			}
+-			rc = ptep_shadow_pte(sg->mm, saddr, sptep, tptep, pte);
+-			if (rc > 0) {
+-				/* Success and a new mapping */
+-				gmap_insert_rmap(sg, vmaddr, rmap);
++
++			if (pmd_large(*spmdp)) {
++				*tptep = __pte(((pmd_val(*spmdp) &
++						_SEGMENT_ENTRY_ORIGIN_LARGE)
++					       + (pte_index(paddr) << 12))
++					       | (pte_val(pte) & _PAGE_PROTECT));
++				pmd_val(*spmdp) |= _SEGMENT_ENTRY_GMAP_VSIE;
++				gmap_insert_rmap(sg, vmaddr & HPAGE_MASK, rmap);
+ 				rmap = NULL;
+ 				rc = 0;
++			} else {
++				sptep = gmap_pte_from_pmd(parent, spmdp, paddr, &ptl);
++				if (sptep) {
++					rc = ptep_shadow_pte(sg->mm, saddr, sptep, tptep, pte);
++					if (rc > 0) {
++						/* Success and a new mapping */
++						gmap_insert_rmap(sg, vmaddr, rmap);
++						rmap = NULL;
++						rc = 0;
++					}
++					gmap_pte_op_end(ptl);
++				}
+ 			}
+-			gmap_pte_op_end(ptl);
  			spin_unlock(&sg->guest_table_lock);
-@@ -1605,7 +1608,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
- 	down_read(&parent->mm->mmap_sem);
- 	rc = gmap_protect_range(parent, asce & _ASCE_ORIGIN,
- 				((asce & _ASCE_TABLE_LENGTH) + 1) * PAGE_SIZE,
--				PROT_READ, PGSTE_VSIE_BIT);
-+				PROT_READ, GMAP_NOTIFY_SHADOW);
- 	up_read(&parent->mm->mmap_sem);
- 	spin_lock(&parent->shadow_lock);
- 	new->initialized = true;
++			gmap_pmd_op_end(parent, spmdp);
+ 		}
+ 		radix_tree_preload_end();
+ 		if (!rc)
+@@ -2530,7 +2517,10 @@ static void gmap_shadow_notify_pmd(struct gmap *sg, unsigned long vmaddr,
+ 	gmap_for_each_rmap_safe(rmap, rnext, head) {
+ 		bits = rmap->raddr & _SHADOW_RMAP_MASK;
+ 		raddr = rmap->raddr ^ bits;
+-		gmap_unshadow_segment(sg, raddr);
++		if (bits == _SHADOW_RMAP_SEGMENT_LP)
++			gmap_unshadow_segment(sg, raddr);
++		else
++			gmap_unshadow_page(sg, raddr);
+ 		kfree(rmap);
+ 	}
+ 	spin_unlock(&sg->guest_table_lock);
 -- 
 2.7.4
