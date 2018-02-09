@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 1/2] s390/qeth: fix underestimated count of buffer elements
-Date: Fri,  9 Feb 2018 11:03:49 +0100
-Message-ID: <20180209100350.60572-2-jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 2/2] s390/qeth: fix SETIP command handling
+Date: Fri,  9 Feb 2018 11:03:50 +0100
+Message-ID: <20180209100350.60572-3-jwi@linux.vnet.ibm.com>
 References: <20180209100350.60572-1-jwi@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180209100350.60572-1-jwi@linux.vnet.ibm.com>
@@ -12,37 +12,73 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+send_control_data() applies some special handling to SETIP v4 IPA
+commands. But current code parses *all* command types for the SETIP
+command code. Limit the command code check to IPA commands.
 
-For a memory range/skb where the last byte falls onto a page boundary
-(ie. 'end' is of the form xxx...xxx001), the PFN_UP() part of the
-calculation currently doesn't round up to the next PFN due to an
-off-by-one error.
-Thus qeth believes that the skb occupies one page less than it
-actually does, and may select a IO buffer that doesn't have enough spare
-buffer elements to fit all of the skb's data.
-HW detects this as a malformed buffer descriptor, and raises an
-exception which then triggers device recovery.
-
-Fixes: 2863c61334aa ("qeth: refactor calculation of SBALE count")
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Fixes: 5b54e16f1a54 ("qeth: do not spin for SETIP ip assist command")
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/net/qeth_core.h      |  5 +++++
+ drivers/s390/net/qeth_core_main.c | 14 ++++++++------
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index db42107bf2f5..c33fbc4c2e91 100644
+index c33fbc4c2e91..959c65cf75d9 100644
 --- a/drivers/s390/net/qeth_core.h
 +++ b/drivers/s390/net/qeth_core.h
-@@ -846,7 +846,7 @@ struct qeth_trap_id {
-  */
- static inline int qeth_get_elements_for_range(addr_t start, addr_t end)
- {
--	return PFN_UP(end - 1) - PFN_DOWN(start);
-+	return PFN_UP(end) - PFN_DOWN(start);
- }
+@@ -591,6 +591,11 @@ struct qeth_cmd_buffer {
+ 	void (*callback) (struct qeth_channel *, struct qeth_cmd_buffer *);
+ };
  
- static inline int qeth_get_micros(void)
++static inline struct qeth_ipa_cmd *__ipa_cmd(struct qeth_cmd_buffer *iob)
++{
++	return (struct qeth_ipa_cmd *)(iob->data + IPA_PDU_HEADER_SIZE);
++}
++
+ /**
+  * definition of a qeth channel, used for read and write
+  */
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 6abd3bc285e4..ca72f3311004 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2120,7 +2120,7 @@ int qeth_send_control_data(struct qeth_card *card, int len,
+ 	unsigned long flags;
+ 	struct qeth_reply *reply = NULL;
+ 	unsigned long timeout, event_timeout;
+-	struct qeth_ipa_cmd *cmd;
++	struct qeth_ipa_cmd *cmd = NULL;
+ 
+ 	QETH_CARD_TEXT(card, 2, "sendctl");
+ 
+@@ -2146,10 +2146,13 @@ int qeth_send_control_data(struct qeth_card *card, int len,
+ 	while (atomic_cmpxchg(&card->write.irq_pending, 0, 1)) ;
+ 	qeth_prepare_control_data(card, len, iob);
+ 
+-	if (IS_IPA(iob->data))
++	if (IS_IPA(iob->data)) {
++		cmd = __ipa_cmd(iob);
+ 		event_timeout = QETH_IPA_TIMEOUT;
+-	else
++	} else {
+ 		event_timeout = QETH_TIMEOUT;
++	}
++
+ 	timeout = jiffies + event_timeout;
+ 
+ 	QETH_CARD_TEXT(card, 6, "noirqpnd");
+@@ -2174,9 +2177,8 @@ int qeth_send_control_data(struct qeth_card *card, int len,
+ 
+ 	/* we have only one long running ipassist, since we can ensure
+ 	   process context of this command we can sleep */
+-	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
+-	if ((cmd->hdr.command == IPA_CMD_SETIP) &&
+-	    (cmd->hdr.prot_version == QETH_PROT_IPV4)) {
++	if (cmd && cmd->hdr.command == IPA_CMD_SETIP &&
++	    cmd->hdr.prot_version == QETH_PROT_IPV4) {
+ 		if (!wait_event_timeout(reply->wait_q,
+ 		    atomic_read(&reply->received), event_timeout))
+ 			goto time_err;
 -- 
 2.13.5
