@@ -1,7 +1,7 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [RFC/PATCH v3 04/16] s390/mm: add gmap PMD invalidation notification
-Date: Fri,  9 Feb 2018 10:34:12 +0100
-Message-ID: <1518168864-147803-5-git-send-email-frankja@linux.vnet.ibm.com>
+Subject: [RFC/PATCH v3 06/16] s390/mm: Add huge page dirty sync support
+Date: Fri,  9 Feb 2018 10:34:14 +0100
+Message-ID: <1518168864-147803-7-git-send-email-frankja@linux.vnet.ibm.com>
 References: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
@@ -12,395 +12,420 @@ To: kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-For later migration of huge pages we want to write-protect guest
-PMDs. While doing this, we have to make absolutely sure, that the
-guest's lowcore is always accessible when the VCPU is running. With
-PTEs, this is solved by marking the PGSTEs of the lowcore pages with
-the invalidation notification bit and kicking the guest out of the SIE
-via a notifier function if we need to invalidate such a page.
+To do dirty loging with huge pages, we protect huge pmds in the
+gmap. When they are written to, we unprotect them and mark them dirty.
 
-With PMDs we do not have PGSTEs or some other bits we could use in the
-host PMD. Instead we pick one of the free bits in the gmap PMD. Every
-time a host pmd will be invalidated, we will check if the respective
-gmap PMD has the bit set and in that case fire up the notifier.
-
-In the first step we only support setting the invalidation bit, but we
-do not support restricting access of guest pmds. It will follow
-shortly.
+We introduce the function gmap_test_and_clear_dirty_segment which
+handles dirty sync for huge pages.
 
 Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
 ---
- arch/s390/include/asm/gmap.h    |  15 +++
- arch/s390/include/asm/pgtable.h |   9 +-
- arch/s390/mm/gmap.c             | 197 +++++++++++++++++++++++++++++++++++++---
- arch/s390/mm/pgtable.c          |   4 +
- 4 files changed, 209 insertions(+), 16 deletions(-)
+ arch/s390/include/asm/gmap.h    |   4 +
+ arch/s390/include/asm/pgtable.h |   6 +-
+ arch/s390/kvm/kvm-s390.c        |  18 ++--
+ arch/s390/mm/gmap.c             | 209 +++++++++++++++++++++++++++++++++++++++-
+ arch/s390/mm/pgtable.c          |  57 +++++++++--
+ 5 files changed, 278 insertions(+), 16 deletions(-)
 
 diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index c1bc563..4324b2a 100644
+index 4324b2a..26a31c3 100644
 --- a/arch/s390/include/asm/gmap.h
 +++ b/arch/s390/include/asm/gmap.h
-@@ -13,6 +13,9 @@
- #define GMAP_NOTIFY_SHADOW	0x2
- #define GMAP_NOTIFY_MPROT	0x1
+@@ -15,6 +15,8 @@
  
-+/* Status bits in the gmap segment entry. */
-+#define _SEGMENT_ENTRY_GMAP_SPLIT	0x0001  /* split huge pmd */
-+
+ /* Status bits in the gmap segment entry. */
+ #define _SEGMENT_ENTRY_GMAP_SPLIT	0x0001  /* split huge pmd */
++/* Status bits only for huge segment entries */
++#define _SEGMENT_ENTRY_GMAP_UC		0x4000	/* user dirty (migration) */
+ 
  /**
   * struct gmap_struct - guest address space
-  * @list: list head for the mm->context gmap list
-@@ -52,6 +55,7 @@ struct gmap {
- 	struct radix_tree_root host_to_rmap;
- 	struct list_head children;
- 	struct list_head pt_list;
-+	struct list_head split_list;
- 	spinlock_t shadow_lock;
- 	struct gmap *parent;
- 	unsigned long orig_asce;
-@@ -92,6 +96,17 @@ static inline int gmap_is_shadow(struct gmap *gmap)
- 	return !!gmap->parent;
- }
+@@ -151,4 +153,6 @@ void gmap_pte_notify(struct mm_struct *, unsigned long addr, pte_t *,
+ int gmap_mprotect_notify(struct gmap *, unsigned long start,
+ 			 unsigned long len, int prot);
  
-+/**
-+ * gmap_pmd_is_split - Returns if a huge gmap pmd has been split.
-+ * @pmdp: pointer to the pmd
-+ *
-+ * Returns true if the passed huge gmap pmd has been split.
-+ */
-+static inline bool gmap_pmd_is_split(pmd_t *pmdp)
-+{
-+	return !!(pmd_val(*pmdp) & _SEGMENT_ENTRY_GMAP_SPLIT);
-+}
-+
- struct gmap *gmap_create(struct mm_struct *mm, unsigned long limit);
- void gmap_remove(struct gmap *gmap);
- struct gmap *gmap_get(struct gmap *gmap);
++void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
++			     unsigned long gaddr, unsigned long vmaddr);
+ #endif /* _ASM_S390_GMAP_H */
 diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 2d24d33..e9b56b9 100644
+index 223791b..e8837a2 100644
 --- a/arch/s390/include/asm/pgtable.h
 +++ b/arch/s390/include/asm/pgtable.h
-@@ -269,8 +269,10 @@ static inline int is_module_addr(void *addr)
- #define _REGION_ENTRY_BITS_LARGE 0xffffffff8000fe2fUL
+@@ -1105,8 +1105,12 @@ void ptep_zap_unused(struct mm_struct *mm, unsigned long addr,
+ void ptep_zap_key(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
+ int ptep_shadow_pte(struct mm_struct *mm, unsigned long saddr,
+ 		    pte_t *sptep, pte_t *tptep, pte_t pte);
+-void ptep_unshadow_pte(struct mm_struct *mm, unsigned long saddr, pte_t *ptep);
  
- /* Bits in the segment table entry */
--#define _SEGMENT_ENTRY_BITS	0xfffffffffffffe33UL
--#define _SEGMENT_ENTRY_BITS_LARGE 0xfffffffffff0ff33UL
-+#define _SEGMENT_ENTRY_BITS			0xfffffffffffffe33UL
-+#define _SEGMENT_ENTRY_BITS_LARGE 		0xfffffffffff0ff33UL
-+#define _SEGMENT_ENTRY_HARDWARE_BITS		0xfffffffffffffe30UL
-+#define _SEGMENT_ENTRY_HARDWARE_BITS_LARGE	0xfffffffffff00730UL
- #define _SEGMENT_ENTRY_ORIGIN_LARGE ~0xfffffUL /* large page address	    */
- #define _SEGMENT_ENTRY_ORIGIN	~0x7ffUL/* page table origin		    */
- #define _SEGMENT_ENTRY_PROTECT	0x200	/* segment protection bit	    */
-@@ -1093,6 +1095,9 @@ void ptep_set_pte_at(struct mm_struct *mm, unsigned long addr,
- void ptep_set_notify(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
- void ptep_notify(struct mm_struct *mm, unsigned long addr,
- 		 pte_t *ptep, unsigned long bits);
-+void ptep_notify_gmap(struct mm_struct *mm, unsigned long vmaddr,
-+		      pte_t *pte, unsigned long bits);
-+void pmdp_notify(struct mm_struct *mm, unsigned long addr);
- int ptep_force_prot(struct mm_struct *mm, unsigned long gaddr,
- 		    pte_t *ptep, int prot, unsigned long bit);
- void ptep_zap_unused(struct mm_struct *mm, unsigned long addr,
++void ptep_unshadow_pte(struct mm_struct *mm, unsigned long saddr, pte_t *ptep);
++void ptep_remove_dirty_protection_split(struct mm_struct *mm, pte_t *ptep,
++					unsigned long vmaddr);
++bool test_and_clear_guest_dirty_split(struct mm_struct *mm, pmd_t *pmdp,
++				      unsigned long vmaddr);
+ bool test_and_clear_guest_dirty(struct mm_struct *mm, unsigned long address);
+ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
+ 			  unsigned char key, bool nq);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 1371dff..0862bf0 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -431,19 +431,23 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ }
+ 
+ static void kvm_s390_sync_dirty_log(struct kvm *kvm,
+-					struct kvm_memory_slot *memslot)
++				    struct kvm_memory_slot *memslot)
+ {
+ 	gfn_t cur_gfn, last_gfn;
+-	unsigned long address;
++	unsigned long gaddr, vmaddr;
++	unsigned long *dirty = memslot->dirty_bitmap;
+ 	struct gmap *gmap = kvm->arch.gmap;
+ 
+-	/* Loop over all guest pages */
++	/* Loop over all guest segments */
+ 	last_gfn = memslot->base_gfn + memslot->npages;
+-	for (cur_gfn = memslot->base_gfn; cur_gfn <= last_gfn; cur_gfn++) {
+-		address = gfn_to_hva_memslot(memslot, cur_gfn);
++	for (cur_gfn = memslot->base_gfn; cur_gfn <= last_gfn; cur_gfn += _PAGE_ENTRIES, dirty += 4) {
++		gaddr = gfn_to_gpa(cur_gfn);
++		vmaddr = gfn_to_hva_memslot(memslot, cur_gfn);
++		if (kvm_is_error_hva(vmaddr))
++			continue;
++
++		gmap_sync_dirty_log_pmd(gmap, dirty, gaddr, vmaddr);
+ 
+-		if (test_and_clear_guest_dirty(gmap->mm, address))
+-			mark_page_dirty(kvm, cur_gfn);
+ 		if (fatal_signal_pending(current))
+ 			return;
+ 		cond_resched();
 diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 16c877a9..cb03e66 100644
+index 9046c91..4dafa1e 100644
 --- a/arch/s390/mm/gmap.c
 +++ b/arch/s390/mm/gmap.c
-@@ -63,6 +63,7 @@ static struct gmap *gmap_alloc(unsigned long limit)
- 	INIT_LIST_HEAD(&gmap->crst_list);
- 	INIT_LIST_HEAD(&gmap->children);
- 	INIT_LIST_HEAD(&gmap->pt_list);
-+	INIT_LIST_HEAD(&gmap->split_list);
- 	INIT_RADIX_TREE(&gmap->guest_to_host, GFP_KERNEL);
- 	INIT_RADIX_TREE(&gmap->host_to_guest, GFP_ATOMIC);
- 	INIT_RADIX_TREE(&gmap->host_to_rmap, GFP_ATOMIC);
-@@ -194,6 +195,10 @@ static void gmap_free(struct gmap *gmap)
- 	gmap_radix_tree_free(&gmap->guest_to_host);
- 	gmap_radix_tree_free(&gmap->host_to_guest);
+@@ -15,6 +15,7 @@
+ #include <linux/swapops.h>
+ #include <linux/ksm.h>
+ #include <linux/mman.h>
++#include <linux/hugetlb.h>
  
-+	/* Free split pmd page tables */
-+	list_for_each_entry_safe(page, next, &gmap->split_list, lru)
-+		page_table_free_pgste(page);
-+
- 	/* Free additional data for a shadow gmap */
- 	if (gmap_is_shadow(gmap)) {
- 		/* Free all page tables. */
-@@ -599,10 +604,15 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
- 	if (*table == _SEGMENT_ENTRY_EMPTY) {
- 		rc = radix_tree_insert(&gmap->host_to_guest,
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -549,6 +550,8 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+ 	p4d_t *p4d;
+ 	pud_t *pud;
+ 	pmd_t *pmd;
++	pmd_t unprot;
++	pte_t *ptep;
+ 	int rc;
+ 
+ 	BUG_ON(gmap_is_shadow(gmap));
+@@ -606,12 +609,29 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
  				       vmaddr >> PMD_SHIFT, table);
--		if (!rc)
--			*table = pmd_val(*pmd);
--	} else
--		rc = 0;
-+		if (!rc) {
-+			if (pmd_large(*pmd)) {
-+				*table = pmd_val(*pmd) &
-+					_SEGMENT_ENTRY_HARDWARE_BITS_LARGE;
-+			} else
-+				*table = pmd_val(*pmd) &
-+					_SEGMENT_ENTRY_HARDWARE_BITS;
-+		}
-+	}
+ 		if (!rc) {
+ 			if (pmd_large(*pmd)) {
+-				*table = pmd_val(*pmd) &
+-					_SEGMENT_ENTRY_HARDWARE_BITS_LARGE;
++				*table = (pmd_val(*pmd) &
++					  _SEGMENT_ENTRY_HARDWARE_BITS_LARGE)
++					| _SEGMENT_ENTRY_GMAP_UC;
+ 			} else
+ 				*table = pmd_val(*pmd) &
+ 					_SEGMENT_ENTRY_HARDWARE_BITS;
+ 		}
++	} else if (*table & _SEGMENT_ENTRY_PROTECT &&
++		   !(pmd_val(*pmd) & _SEGMENT_ENTRY_PROTECT)) {
++		unprot = __pmd((*table & (_SEGMENT_ENTRY_HARDWARE_BITS_LARGE
++					  & ~_SEGMENT_ENTRY_PROTECT))
++			       | _SEGMENT_ENTRY_GMAP_UC);
++		gmap_pmdp_xchg(gmap, (pmd_t *)table, unprot, gaddr);
++	} else if (gmap_pmd_is_split((pmd_t *)table)) {
++		/*
++		 * Split pmds are somewhere in-between a normal and a
++		 * large pmd. As we don't share the page table, the
++		 * host does not remove protection on a fault and we
++		 * have to do it ourselves for the guest mapping.
++		 */
++		ptep = pte_offset_map((pmd_t *)table, gaddr);
++		if (pte_val(*ptep) & _PAGE_PROTECT)
++			ptep_remove_dirty_protection_split(mm, ptep, vmaddr);
+ 	}
  	spin_unlock(&gmap->guest_table_lock);
  	spin_unlock(ptl);
- 	radix_tree_preload_end();
-@@ -902,8 +912,11 @@ static inline pmd_t *gmap_pmd_op_walk(struct gmap *gmap, unsigned long gaddr)
- 		return NULL;
- 	}
- 
--	/* 4k page table entries are locked via the pte (pte_alloc_map_lock). */
--	if (!pmd_large(*pmdp))
-+	/*
-+	 * Non-split 4k page table entries are locked via the pte
-+	 * (pte_alloc_map_lock).
-+	 */
-+	if (!gmap_pmd_is_split(pmdp) && !pmd_large(*pmdp))
- 		spin_unlock(&gmap->guest_table_lock);
- 	return pmdp;
- }
-@@ -915,10 +928,77 @@ static inline pmd_t *gmap_pmd_op_walk(struct gmap *gmap, unsigned long gaddr)
-  */
- static inline void gmap_pmd_op_end(struct gmap *gmap, pmd_t *pmdp)
- {
--	if (pmd_large(*pmdp))
-+	if (pmd_large(*pmdp) || gmap_pmd_is_split(pmdp))
- 		spin_unlock(&gmap->guest_table_lock);
+@@ -999,6 +1019,113 @@ static int gmap_pmd_split(struct gmap *gmap, unsigned long gaddr, pmd_t *pmdp)
+ 	return 0;
  }
  
-+static pte_t *gmap_pte_from_pmd(struct gmap *gmap, pmd_t *pmdp,
-+				unsigned long addr, spinlock_t **ptl)
-+{
-+	if (likely(!gmap_pmd_is_split(pmdp)))
-+		return pte_alloc_map_lock(gmap->mm, pmdp, addr, ptl);
-+
-+	*ptl = NULL;
-+	return pte_offset_map(pmdp, addr);
-+}
-+
 +/**
-+ * gmap_pmd_split_free - Free a split pmd's page table
-+ * @pmdp The split pmd that we free of its page table
++ * gmap_pmdp_force_prot - change access rights of a locked pmd
++ * @mm: pointer to the process mm_struct
++ * @addr: virtual address in the guest address space
++ * @pmdp: pointer to the page table entry
++ * @prot: indicates guest access rights: PROT_NONE, PROT_READ or PROT_WRITE
++ * @bits: software bit to set (e.g. for notification)
 + *
-+ * If the userspace pmds are exchanged, we'll remove the gmap pmds as
-+ * well, so we fault on them and link them again. We would leak
-+ * memory, if we didn't free split pmds here.
++ * Returns 0 if the access rights were changed and -EAGAIN if the current
++ * and requested access rights are incompatible.
 + */
-+static inline void gmap_pmd_split_free(pmd_t *pmdp)
++static int gmap_pmdp_force_prot(struct gmap *gmap, unsigned long addr,
++				pmd_t *pmdp, int prot)
 +{
-+	unsigned long pgt = pmd_val(*pmdp) & _SEGMENT_ENTRY_ORIGIN;
-+	struct page *page;
++	int pmd_i = pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID;
++	int pmd_p = pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT;
++	pmd_t new = *pmdp;
 +
-+	if (gmap_pmd_is_split(pmdp)) {
-+		page = pfn_to_page(pgt >> PAGE_SHIFT);
-+		list_del(&page->lru);
-+		page_table_free_pgste(page);
-+	}
-+}
++	/* Fixup needed */
++	if ((pmd_i && (prot != PROT_NONE)) || (pmd_p && (prot == PROT_WRITE)))
++		return -EAGAIN;
 +
-+/**
-+ * gmap_pmd_split - Split a huge gmap pmd and use a page table instead
-+ * @gmap: pointer to guest mapping meta data structure
-+ * @gaddr: virtual address in the guest address space
-+ * @pmdp: pointer to the pmd that will be split
-+ *
-+ * When splitting gmap pmds, we have to make the resulting page table
-+ * look like it's a normal one to be able to use the common pte
-+ * handling functions. Also we need to track these new tables as they
-+ * aren't tracked anywhere else.
-+ */
-+static int gmap_pmd_split(struct gmap *gmap, unsigned long gaddr, pmd_t *pmdp)
-+{
-+	unsigned long *table;
-+	struct page *page;
-+	pmd_t new;
-+	int i;
-+
-+	page = page_table_alloc_pgste(gmap->mm);
-+	if (!page)
-+		return -ENOMEM;
-+	table = (unsigned long *) page_to_phys(page);
-+	for (i = 0; i < 256; i++) {
-+		table[i] = (pmd_val(*pmdp) & HPAGE_MASK) + i * PAGE_SIZE;
-+		/* pmd_large() implies pmd/pte_present() */
-+		table[i] |=  _PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE;
-+		/* ptes are directly marked as dirty */
-+		table[i + PTRS_PER_PTE] |= PGSTE_UC_BIT;
++	if (prot == PROT_NONE && !pmd_i) {
++		pmd_val(new) |= _SEGMENT_ENTRY_INVALID;
++		gmap_pmdp_xchg(gmap, pmdp, new, addr);
 +	}
 +
-+	pmd_val(new) = ((unsigned long)table | _SEGMENT_ENTRY |
-+			(_SEGMENT_ENTRY_GMAP_SPLIT));
-+	list_add(&page->lru, &gmap->split_list);
-+	gmap_pmdp_xchg(gmap, pmdp, new, gaddr);
++	if (prot == PROT_READ && !pmd_p) {
++		pmd_val(new) &= ~_SEGMENT_ENTRY_INVALID;
++		pmd_val(new) |= _SEGMENT_ENTRY_PROTECT;
++		gmap_pmdp_xchg(gmap, pmdp, new, addr);
++	}
 +	return 0;
 +}
++
++/**
++ * gmap_pmdp_transfer_prot - transfer protection of guest pmd to host pmd
++ * @mm: the memory context
++ * @address: the affected host virtual address
++ * @gpmdp: guest pmd ptr
++ * @hpmdp: host pmd ptr
++ *
++ * Transfers the protection from a guest pmd to the associated guest
++ * pmd. This has to be done with a plain idte to circumvent the gmap
++ * invalidation hooks in the standard invalidation functions provided
++ * by pgtable.c.
++ */
++static void gmap_pmdp_transfer_prot(struct mm_struct *mm, unsigned long addr,
++				    pmd_t *gpmdp, pmd_t *hpmdp)
++{
++	const int gpmd_i = pmd_val(*gpmdp) & _SEGMENT_ENTRY_INVALID;
++	const int gpmd_p = pmd_val(*gpmdp) & _SEGMENT_ENTRY_PROTECT;
++	const int hpmd_i = pmd_val(*hpmdp) & _SEGMENT_ENTRY_INVALID;
++	const int hpmd_p = pmd_val(*hpmdp) & _SEGMENT_ENTRY_PROTECT;
++	pmd_t new = *hpmdp;
++
++	/* Fastpath, change not needed. */
++	if (hpmd_i || (hpmd_p && gpmd_p) || (!gpmd_i && !gpmd_p))
++		return;
++
++	if (gpmd_p && !hpmd_p)
++		pmd_val(new) |= _SEGMENT_ENTRY_PROTECT;
++	if (!gpmd_i && !hpmd_i)
++		pmd_val(new) &= ~_SEGMENT_ENTRY_INVALID;
++
++	if (MACHINE_HAS_TLB_GUEST)
++		__pmdp_idte(addr, hpmdp,
++			    IDTE_NODAT | IDTE_GUEST_ASCE,
++			    mm->context.asce, IDTE_GLOBAL);
++	else if (MACHINE_HAS_IDTE)
++		__pmdp_idte(addr, hpmdp, 0, 0,
++			    IDTE_GLOBAL);
++	else
++		__pmdp_csp(hpmdp);
++	*hpmdp = new;
++}
++
++/*
++ * gmap_protect_pmd - set pmd notification bits
++ * @pmdp: pointer to the pmd to be protected
++ * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
++ * @bits: notification bits to set
++ *
++ * Returns 0 if successfully protected, -ENOMEM if out of memory and
++ * -EAGAIN if a fixup is needed.
++ *
++ * Expected to be called with sg->mm->mmap_sem in read and
++ * guest_table_lock held.
++ */
++static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
++			    unsigned long vmaddr, pmd_t *pmdp, pmd_t *hpmdp,
++			    int prot)
++{
++	int ret = 0;
++
++	/* Protect gmap pmd for dirty tracking. */
++	ret = gmap_pmdp_force_prot(gmap, gaddr, pmdp, prot);
++	/*
++	 * Transfer protection back to the host pmd, so userspace has
++	 * never more access rights than the VM.
++	 */
++	if (!ret)
++		gmap_pmdp_transfer_prot(gmap->mm, vmaddr, pmdp, hpmdp);
++	return ret;
++}
++
 +
  /*
   * gmap_protect_pte - remove access rights to memory and set pgste bits
   * @gmap: pointer to guest mapping meta data structure
-@@ -941,7 +1021,7 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
- 	spinlock_t *ptl = NULL;
- 	unsigned long pbits = 0;
- 
--	ptep = pte_alloc_map_lock(gmap->mm, pmdp, gaddr, &ptl);
-+	ptep = gmap_pte_from_pmd(gmap, pmdp, gaddr, &ptl);
- 	if (!ptep)
- 		return -ENOMEM;
- 
-@@ -979,15 +1059,21 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
- 		rc = -EAGAIN;
- 		pmdp = gmap_pmd_op_walk(gmap, gaddr);
- 		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
--			rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
--					      bits);
--			if (!rc) {
--				len -= PAGE_SIZE;
--				gaddr += PAGE_SIZE;
-+			if (!pmd_large(*pmdp)) {
-+				rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
-+						      bits);
-+				if (!rc) {
-+					len -= PAGE_SIZE;
-+					gaddr += PAGE_SIZE;
-+				}
-+			} else {
-+				rc = gmap_pmd_split(gmap, gaddr, pmdp);
-+				if (!rc)
-+					rc = -EFAULT;
- 			}
- 			gmap_pmd_op_end(gmap, pmdp);
- 		}
--		if (rc) {
-+		if (rc && rc != -EFAULT) {
- 			vmaddr = __gmap_translate(gmap, gaddr);
- 			if (IS_ERR_VALUE(vmaddr))
- 				return vmaddr;
-@@ -2133,6 +2219,39 @@ static void gmap_shadow_notify(struct gmap *sg, unsigned long vmaddr,
- 	spin_unlock(&sg->guest_table_lock);
+@@ -2488,6 +2615,84 @@ void gmap_pmdp_idte_global(struct mm_struct *mm, unsigned long vmaddr)
  }
- 
-+/*
-+ * ptep_notify_gmap - call all invalidation callbacks for a specific pte of a gmap
-+ * @mm: pointer to the process mm_struct
-+ * @addr: virtual address in the process address space
-+ * @pte: pointer to the page table entry
-+ * @bits: bits from the pgste that caused the notify call
-+ *
-+ * This function is assumed to be called with the guest_table_lock held.
-+ */
-+void ptep_notify_gmap(struct mm_struct *mm, unsigned long vmaddr,
-+		      pte_t *pte, unsigned long bits)
-+{
-+	unsigned long offset, gaddr = 0;
-+	unsigned long *table;
-+	struct gmap *gmap;
-+
-+	offset = ((unsigned long) pte) & (255 * sizeof(pte_t));
-+	offset = offset * (4096 / sizeof(pte_t));
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
-+		table = radix_tree_lookup(&gmap->host_to_guest,
-+					  vmaddr >> PMD_SHIFT);
-+		if (table)
-+			gaddr = __gmap_segment_gaddr(table) + offset;
-+		else
-+			continue;
-+
-+		if (bits & PGSTE_IN_BIT)
-+			gmap_call_notifier(gmap, gaddr, gaddr + PAGE_SIZE - 1);
-+	}
-+	rcu_read_unlock();
-+}
-+
- /**
-  * ptep_notify - call all invalidation callbacks for a specific pte.
-  * @mm: pointer to the process mm_struct
-@@ -2177,6 +2296,23 @@ void ptep_notify(struct mm_struct *mm, unsigned long vmaddr,
- }
- EXPORT_SYMBOL_GPL(ptep_notify);
- 
-+static void pmdp_notify_split(struct mm_struct *mm, unsigned long vmaddr,
-+			      unsigned long *table)
-+{
-+	int i = 0;
-+	unsigned long bits;
-+	unsigned long *ptep = (unsigned long *)(*table & PAGE_MASK);
-+	unsigned long *pgste = ptep + PTRS_PER_PTE;
-+
-+	for (; i < 256; i++, vmaddr += PAGE_SIZE, ptep++, pgste++) {
-+		bits = *pgste & (PGSTE_IN_BIT | PGSTE_VSIE_BIT);
-+		if (bits) {
-+			*pgste ^= bits;
-+			ptep_notify_gmap(mm, vmaddr, (pte_t *)ptep, bits);
-+		}
-+	}
-+}
-+
- /**
-  * gmap_pmdp_xchg - exchange a gmap pmd with another and notify
-  * @gmap: pointer to the guest address space structure
-@@ -2202,6 +2338,39 @@ static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *pmdp, pmd_t new,
- 	*pmdp = new;
- }
+ EXPORT_SYMBOL_GPL(gmap_pmdp_idte_global);
  
 +/**
-+ * pmdp_notify - call all invalidation callbacks for a specific pmd
-+ * @mm: pointer to the process mm_struct
-+ * @vmaddr: virtual address in the process address space
++ * gmap_test_and_clear_dirty_segment - test and reset segment dirty status
++ * @gmap: pointer to guest address space
++ * @pmdp: pointer to the pmd to be tested
++ * @gaddr: virtual address in the guest address space
 + *
-+ * This function is expected to be called with mmap_sem held in read.
++ * This function is assumed to be called with the guest_table_lock
++ * held.
 + */
-+void pmdp_notify(struct mm_struct *mm, unsigned long vmaddr)
++bool gmap_test_and_clear_dirty_segment(struct gmap *gmap, pmd_t *pmdp,
++				       pmd_t *hpmdp, unsigned long gaddr,
++				       unsigned long vmaddr)
 +{
-+	unsigned long *table, gaddr;
-+	struct gmap *gmap;
++	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
++		return false;
 +
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(gmap, &mm->context.gmap_list, list) {
-+		spin_lock(&gmap->guest_table_lock);
-+		table = radix_tree_lookup(&gmap->host_to_guest,
-+					  vmaddr >> PMD_SHIFT);
-+		if (!table) {
-+			spin_unlock(&gmap->guest_table_lock);
-+			continue;
-+		}
-+		gaddr = __gmap_segment_gaddr(table);
-+		if (gmap_pmd_is_split((pmd_t *)table)) {
-+			pmdp_notify_split(mm, vmaddr, table);
-+			spin_unlock(&gmap->guest_table_lock);
-+			continue;
-+		}
-+		spin_unlock(&gmap->guest_table_lock);
-+	}
-+	rcu_read_unlock();
++	/* Already protected memory, which did not change is clean */
++	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT &&
++	    !(pmd_val(*pmdp) & _SEGMENT_ENTRY_GMAP_UC))
++		return false;
++
++	/* Clear UC indication and reset protection */
++	pmd_val(*pmdp) &= ~_SEGMENT_ENTRY_GMAP_UC;
++	gmap_protect_pmd(gmap, gaddr, vmaddr, pmdp, hpmdp, PROT_READ);
++	return true;
 +}
-+EXPORT_SYMBOL_GPL(pmdp_notify);
++
++/**
++ * gmap_sync_dirty_log_pmd - set bitmap based on dirty status of segment
++ * @gmap: pointer to guest address space
++ * @bitmap: dirty bitmap for this pmd
++ * @gaddr: virtual address in the guest address space
++ * @vmaddr: virtual address in the host address space
++ *
++ * This function is assumed to be called with the guest_table_lock
++ * held.
++ */
++void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long bitmap[4],
++			     unsigned long gaddr, unsigned long vmaddr)
++{
++	int i = 0;
++	pmd_t *pmdp, *hpmdp;
++	spinlock_t *ptl;
++
++	hpmdp = (pmd_t *)huge_pte_offset(gmap->mm, vmaddr, HPAGE_SIZE);
++	if (!hpmdp)
++		return;
++	ptl = pmd_lock(gmap->mm, hpmdp);
++	pmdp = gmap_pmd_op_walk(gmap, gaddr);
++	if (!pmdp) {
++		spin_unlock(ptl);
++		return;
++	}
++
++	if (pmd_large(*pmdp)) {
++		if (gmap_test_and_clear_dirty_segment(gmap, pmdp, hpmdp,
++						      gaddr, vmaddr))
++			memset(bitmap, 0xff, 32);
++	} else {
++		/* We handle this here, as it's of the records from mm. */
++		if (unlikely(gmap_pmd_is_split(pmdp))) {
++			for (; i < _PAGE_ENTRIES; i++, vmaddr += PAGE_SIZE) {
++				if (test_and_clear_guest_dirty_split(gmap->mm, pmdp, vmaddr))
++					set_bit_le(i, bitmap);
++				//TODO: protection transfer
++			}
++		} else {
++			for (; i < _PAGE_ENTRIES; i++, vmaddr += PAGE_SIZE) {
++				if (test_and_clear_guest_dirty(gmap->mm, vmaddr))
++					set_bit_le(i, bitmap);
++			}
++		}
++	}
++	gmap_pmd_op_end(gmap, pmdp);
++	spin_unlock(ptl);
++}
++EXPORT_SYMBOL_GPL(gmap_sync_dirty_log_pmd);
 +
  static inline void thp_split_mm(struct mm_struct *mm)
  {
  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 4f2b65d..a6cc540 100644
+index e690879..497fefe 100644
 --- a/arch/s390/mm/pgtable.c
 +++ b/arch/s390/mm/pgtable.c
-@@ -405,6 +405,8 @@ pmd_t pmdp_xchg_direct(struct mm_struct *mm, unsigned long addr,
- 	pmd_t old;
- 
- 	preempt_disable();
-+	if (mm_has_pgste(mm))
-+		pmdp_notify(mm, addr);
- 	old = pmdp_flush_direct(mm, addr, pmdp);
- 	*pmdp = new;
+@@ -705,6 +705,57 @@ void ptep_zap_key(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
  	preempt_enable();
-@@ -418,6 +420,8 @@ pmd_t pmdp_xchg_lazy(struct mm_struct *mm, unsigned long addr,
- 	pmd_t old;
+ }
  
- 	preempt_disable();
-+	if (mm_has_pgste(mm))
-+		pmdp_notify(mm, addr);
- 	old = pmdp_flush_lazy(mm, addr, pmdp);
- 	*pmdp = new;
- 	preempt_enable();
++void ptep_remove_dirty_protection_split(struct mm_struct *mm,
++					pte_t *ptep, unsigned long vmaddr)
++{
++	pte_t unprot = __pte(pte_val(*ptep) & ~_PAGE_PROTECT);
++	pgste_t pgste;
++	unsigned long bits;
++
++	pgste = pgste_get_lock(ptep);
++	pgste_val(pgste) |= PGSTE_UC_BIT;
++
++	bits = pgste_val(pgste) & (PGSTE_IN_BIT | PGSTE_VSIE_BIT);
++	pgste_val(pgste) ^= bits;
++	ptep_notify_gmap(mm, vmaddr, ptep, bits);
++	ptep_ipte_global(mm, vmaddr, ptep, 0);
++
++	*ptep = unprot;
++	pgste_set_unlock(ptep, pgste);
++}
++EXPORT_SYMBOL_GPL(ptep_remove_dirty_protection_split);
++
++bool test_and_clear_guest_dirty_split(struct mm_struct *mm, pmd_t *pmdp,
++				      unsigned long vmaddr)
++{
++	bool dirty;
++	pte_t *ptep, pte;
++	pgste_t pgste;
++	unsigned long bits;
++
++	ptep = pte_offset_map(pmdp, vmaddr);
++	pgste = pgste_get_lock(ptep);
++	dirty = !!(pgste_val(pgste) & PGSTE_UC_BIT);
++	pgste_val(pgste) &= ~PGSTE_UC_BIT;
++	pte = *ptep;
++	if (dirty) {
++		bits = pgste_val(pgste) & (PGSTE_IN_BIT | PGSTE_VSIE_BIT);
++		if (bits) {
++			pgste_val(pgste) ^= bits;
++			ptep_notify_gmap(mm, vmaddr, ptep, bits);
++		}
++		ptep_ipte_global(mm, vmaddr, ptep, 0);
++		if (MACHINE_HAS_ESOP || !(pte_val(pte) & _PAGE_WRITE))
++			pte_val(pte) |= _PAGE_PROTECT;
++		else
++			pte_val(pte) |= _PAGE_INVALID;
++		*ptep = pte;
++	}
++	pgste_set_unlock(ptep, pgste);
++	return dirty;
++}
++EXPORT_SYMBOL_GPL(test_and_clear_guest_dirty_split);
++
+ /*
+  * Test and reset if a guest page is dirty
+  */
+@@ -731,12 +782,6 @@ bool test_and_clear_guest_dirty(struct mm_struct *mm, unsigned long addr)
+ 	pmd = pmd_alloc(mm, pud, addr);
+ 	if (!pmd)
+ 		return false;
+-	/* We can't run guests backed by huge pages, but userspace can
+-	 * still set them up and then try to migrate them without any
+-	 * migration support.
+-	 */
+-	if (pmd_large(*pmd))
+-		return true;
+ 
+ 	ptep = pte_alloc_map_lock(mm, pmd, addr, &ptl);
+ 	if (unlikely(!ptep))
 -- 
 2.7.4
