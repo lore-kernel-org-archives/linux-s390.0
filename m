@@ -1,66 +1,48 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 0/2] KVM: s390: avoid jump tables
-Date: Thu, 8 Feb 2018 11:09:15 +0100
-Message-ID: <04a460fd-7505-b966-d000-fd0e2823bd57@de.ibm.com>
-References: <20180206112127.19014-1-borntraeger@de.ibm.com>
- <7e9bb181-cec9-0781-03c0-b74d5d087c8a@redhat.com>
- <20180208085819.GC3937@osiris>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180208085819.GC3937@osiris>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, David Hildenbrand <david@redhat.com>
-Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 1/2] s390/qeth: fix underestimated count of buffer elements
+Date: Fri,  9 Feb 2018 11:03:49 +0100
+Message-ID: <20180209100350.60572-2-jwi@linux.vnet.ibm.com>
+References: <20180209100350.60572-1-jwi@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180209100350.60572-1-jwi@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/08/2018 09:58 AM, Heiko Carstens wrote:
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
 
-> If you look at the generated code for the first patch: gcc now generates
-> its own jump table which then jumps (indirectly) to a brasl... So it's two
-> instead of one branch.
-> I'm not saying that this patch is not good, but there seem be a wrong
-> assumptions about the benefit here.
+For a memory range/skb where the last byte falls onto a page boundary
+(ie. 'end' is of the form xxx...xxx001), the PFN_UP() part of the
+calculation currently doesn't round up to the next PFN due to an
+off-by-one error.
+Thus qeth believes that the skb occupies one page less than it
+actually does, and may select a IO buffer that doesn't have enough spare
+buffer elements to fit all of the skb's data.
+HW detects this as a malformed buffer descriptor, and raises an
+exception which then triggers device recovery.
 
-I will now use the following patch description.
+Fixes: 2863c61334aa ("qeth: refactor calculation of SBALE count")
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_core.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-
-    KVM: s390: use switch vs jump table in intercept.c
-    
-    Instead of having huge jump tables for function selection,
-    let's use normal switch/case statements for the instruction
-    handlers in intercept.c We can now also get rid of
-    intercept_handler_t.
-    
-    This allows the compiler to make the right decision depending
-    on the situation (e.g. avoid jump-tables for thunks).
-    
-    Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-    Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-    Reviewed-by: David Hildenbrand <david@redhat.com>
-    Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-
-commit cf392b582009f8ee4ef859f935dd9f67f855ccaf
-Author:     Christian Borntraeger <borntraeger@de.ibm.com>
-AuthorDate: Fri Apr 8 17:52:39 2016 +0200
-Commit:     Christian Borntraeger <borntraeger@de.ibm.com>
-CommitDate: Thu Feb 8 10:07:42 2018 +0000
-
-    KVM: s390: use switch vs jump table in priv.c
-    
-    Instead of having huge jump tables for function selection,
-    let's use normal switch/case statements for the instruction
-    handlers in priv.c
-    
-    This allows the compiler to make the right decision depending
-    on the situation (e.g. avoid jump-tables for thunks).
-    
-    Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-    Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-    Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-    Reviewed-by: David Hildenbrand <david@redhat.com>
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index db42107bf2f5..c33fbc4c2e91 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -846,7 +846,7 @@ struct qeth_trap_id {
+  */
+ static inline int qeth_get_elements_for_range(addr_t start, addr_t end)
+ {
+-	return PFN_UP(end - 1) - PFN_DOWN(start);
++	return PFN_UP(end) - PFN_DOWN(start);
+ }
+ 
+ static inline int qeth_get_micros(void)
+-- 
+2.13.5
