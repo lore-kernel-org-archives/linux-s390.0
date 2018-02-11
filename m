@@ -9,45 +9,36 @@ References: <20180210054843.z3g7wvcmlccvww3h@huvuddator> <CAK7LNARHmAF2SxBcc1aUE
  <CA+55aFxdx3FYE6YGifRR=BSG9QzXwgThj5z7RmV5P5+RpNXSiQ@mail.gmail.com>
  <CA+55aFyPyYyG-riaBQU5cGp_sC=r8mf9Mg6L=DUEH6EyQfWYwA@mail.gmail.com>
  <20180211103432.pf2ot6nd7nbhdhsy@huvuddator> <CAGXu5jLtFcvbazxUvL_=6uT+a8m0JQEB7v0OE41Z-PMoX_fWpA@mail.gmail.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Sun, 11 Feb 2018 10:13:44 -0800
-Message-ID: <CA+55aFz3gUKQMr-X-b=ytLPX0AjGUaXNtLSUQ0_xZwZuDU33RQ@mail.gmail.com>
+From: Ulf Magnusson <ulfalizer@gmail.com>
+Date: Sun, 11 Feb 2018 19:34:34 +0100
+Message-ID: <CAFkk2KRAjA80Y74Nahf2Nk_5yOucoa1y2Xp54F2k-Hv0xgTAFg@mail.gmail.com>
 Subject: Re: [RFC PATCH 4/7] kconfig: support new special property shell=
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
 To: Kees Cook <keescook@chromium.org>
-Cc: Ulf Magnusson <ulfalizer@gmail.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>, Arnd Bergmann <arnd@arndb.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Feb 11, 2018 at 9:56 AM, Kees Cook <keescook@chromium.org> wrote:
->
->>     - How common are those broken compilers?
->
-> I *thought* it was rare (i.e. gcc 4.2) but while working on ..._AUTO I
-> found breakage in akpm's 4.4 gcc, and all of Arnd's gccs due to some
-> very strange misconfiguration between the gcc build environment and
-> other options. So, it turns out this is unfortunately common. The good
-> news is that it does NOT appear to happen with most distro compilers,
-> though I've seen Android's compiler regress the global vs %gs at least
-> once about a year ago.
+On Sun, Feb 11, 2018 at 6:56 PM, Kees Cook <keescook@chromium.org> wrote:
+> Old? That's not the case. The check for -fno-stack-protector will
+> likely be needed forever, as some distro compilers enable
+> stack-protector by default. So when someone wants to explicitly build
+> without stack-protector (or if the compiler's stack-protector is
+> detected as broken), we must force it off for the kernel build.
 
-Hmm. Ok, so it's not *that* common, and won't affect normal people.
+What I meant is whether it makes sense to test if the
+-fno-stack-protector option is supported. Can we reasonably assume
+that passing -fno-stack-protector to the compiler won't cause an
+error?
 
-That actually sounds like we could just
+Is it possible to build GCC with no "no stack protector" support? Do
+we need to support any compilers that would choke on the
+-fno-stack-protector flag itself?
 
- (a) make gcc 4.5 be the minimum required version
+If we can reasonably assume that passing -fno-stack-protector is safe,
+then CC_HAS_STACKPROTECTOR_NONE isn't needed.
 
- (b) actually error out if we find a bad compiler
-
-Upgrading the minimum required gcc version to 4.5 is pretty much going
-to happen _anyway_, because we're starting to rely on "asm goto" for
-avoiding speculation.
-
-End result: maybe we can make the configuration phase just use the
-standard "does gcc support this flag" logic, and then just have a
-separate script that is run to validate that gcc doesn't generate
-garbage, and error out loudly if it does.
-
-               Linus
+Cheers,
+Ulf
