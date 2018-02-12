@@ -1,72 +1,118 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <CAK8P3a3DHkpbRxUTP77OoeAqRHDz-tL-qYxLfq61Wv8NUPmyjA@mail.gmail.com>
-References: <20180210054843.z3g7wvcmlccvww3h@huvuddator> <CAK7LNARHmAF2SxBcc1aUEH5MMzUo_furLevqy7QzGxqNRHYiyQ@mail.gmail.com>
- <20180210074924.3nhxsza5zdbaahxx@huvuddator> <20180210080556.mycqsjhxbaguwhay@huvuddator>
- <20180210085519.737ckf4bcl57h4g2@huvuddator> <CAGXu5jKQgxxC2RQL0dxLKFVED2v-LiWKjtXY3DDpfwAXbnxM4Q@mail.gmail.com>
+Date: Mon, 12 Feb 2018 09:26:35 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [RFC PATCH 4/7] kconfig: support new special property shell=
+Message-ID: <20180212082635.GA25314@hirez.programming.kicks-ass.net>
+References: <20180210080556.mycqsjhxbaguwhay@huvuddator>
+ <20180210085519.737ckf4bcl57h4g2@huvuddator>
+ <CAGXu5jKQgxxC2RQL0dxLKFVED2v-LiWKjtXY3DDpfwAXbnxM4Q@mail.gmail.com>
  <CA+55aFz-SJ970iqDsR8-Ke4z6WvB4n9RXAeen8pG=+YJWubETw@mail.gmail.com>
  <CAGXu5jLo0iuMsH89vj3nr8sv+1YvXfXgoPeBdxHwZm5i=DWoOA@mail.gmail.com>
  <CA+55aFxdx3FYE6YGifRR=BSG9QzXwgThj5z7RmV5P5+RpNXSiQ@mail.gmail.com>
  <CA+55aFyPyYyG-riaBQU5cGp_sC=r8mf9Mg6L=DUEH6EyQfWYwA@mail.gmail.com>
- <20180211103432.pf2ot6nd7nbhdhsy@huvuddator> <CAGXu5jLtFcvbazxUvL_=6uT+a8m0JQEB7v0OE41Z-PMoX_fWpA@mail.gmail.com>
+ <20180211103432.pf2ot6nd7nbhdhsy@huvuddator>
+ <CAGXu5jLtFcvbazxUvL_=6uT+a8m0JQEB7v0OE41Z-PMoX_fWpA@mail.gmail.com>
  <CA+55aFz3gUKQMr-X-b=ytLPX0AjGUaXNtLSUQ0_xZwZuDU33RQ@mail.gmail.com>
- <CAGXu5jLV-i5OAbXMQiJC-idXB+XrxMCC+RigQ+4R6eZWqn4rgg@mail.gmail.com>
- <CA+55aFwWQ4nL2Asmzn0NSsw=w-tX5hAM9bFiOZhxehnhWH+wkw@mail.gmail.com>
- <CA+55aFy4WNC=pmga19CHhrX9QwOJsu1bUvGL0oNxq5EeMW94eg@mail.gmail.com> <CAK8P3a3DHkpbRxUTP77OoeAqRHDz-tL-qYxLfq61Wv8NUPmyjA@mail.gmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Sun, 11 Feb 2018 23:29:29 +0100
-Message-ID: <CAMuHMdWoXH3+bifmHAQb8KYz5Tsfz=zxRqAsVmfsexbucX6w0g@mail.gmail.com>
-Subject: Re: [RFC PATCH 4/7] kconfig: support new special property shell=
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+55aFz3gUKQMr-X-b=ytLPX0AjGUaXNtLSUQ0_xZwZuDU33RQ@mail.gmail.com>
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Ulf Magnusson <ulfalizer@gmail.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Kees Cook <keescook@chromium.org>, Ulf Magnusson <ulfalizer@gmail.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Feb 11, 2018 at 10:10 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Sun, Feb 11, 2018 at 9:06 PM, Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
->> On Sun, Feb 11, 2018 at 11:53 AM, Linus Torvalds
->> <torvalds@linux-foundation.org> wrote:
->>>
->>> Well, it's still not a very *big* bump. With modern distros being at
->>> 7.3, and people testing pre-releases of gcc-8, something like gcc-4.5
->>> is still pretty darn ancient.
->>
->> ... it's worth noting that our _documentation_ may claim that gcc-3.2
->> is the minimum supported version, but Arnd pointed out that a few
->> months ago that apparently nothing older than 4.1 has actually worked
->> for a longish while, and gcc-4.3 was needed on several architectures.
->>
->> So the _real_ jump in required gcc version would be from 4.1 (4.3 in
->> many cases) to 4.5, not from our documented "3.2 minimum".
->>
->> Arnd claimed that some architectures needed even newer-than-4.3, but I
->> assume that's limited to things like RISC-V that simply don't have old
->> gcc support at all.
->
-> Right. Also architecture specific features may need something more recent,
-> and in some cases like the 'initializer for anonymous union needs extra
-> curly braces', a trivial change would make it work, but a lot of architectures
-> have obviously never been built with toolchains old enough to actually
-> run into those cases.
->
-> Geert is the only person I know that actively uses gcc-4.1, and he actually
-> sent some patches that seem to get additional architectures to build on
-> that version, when they were previously on gcc-4.3+.
+On Sun, Feb 11, 2018 at 10:13:44AM -0800, Linus Torvalds wrote:
 
-And as long as gcc-4.1 helps me finding real bugs (which it did for the
-current merge window), I plan to keep on using it.
+> That actually sounds like we could just
+> 
+>  (a) make gcc 4.5 be the minimum required version
+> 
+>  (b) actually error out if we find a bad compiler
 
-Gr{oetje,eeting}s,
+So the unofficial plan was to enforce asm-goto and -fentry support by
+hard failure to build, which would get us at gcc-4.6 and then remove all
+the fallback cruft needed for those features -- for x86. If we want to
+do this tree wide, that's obviously OK with me too ;-)
 
-                        Geert
+The below is the two force-asm-goto and force-fentry patches folded.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+---
+ Makefile          | 17 +++++++++++------
+ arch/x86/Makefile | 25 +++++--------------------
+ 2 files changed, 16 insertions(+), 26 deletions(-)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/Makefile b/Makefile
+index d192dd826cce..1a46f23d0974 100644
+--- a/Makefile
++++ b/Makefile
+@@ -489,6 +489,17 @@ KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
+ KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
+ endif
+ 
++# check for 'asm goto'
++ifeq ($(shell $(srctree)/scripts/gcc-goto.sh $(CC) $(KBUILD_CFLAGS)), y)
++  CC_HAVE_ASM_GOTO := 1
++  KBUILD_CFLAGS += -DCC_HAVE_ASM_GOTO
++  KBUILD_AFLAGS += -DCC_HAVE_ASM_GOTO
++endif
++
++ifeq ($(call cc-option-yn, -mfentry), y)
++  CC_HAVE_FENTRY := 1
++endif
++
+ ifeq ($(config-targets),1)
+ # ===========================================================================
+ # *config targets only - make sure prerequisites are updated, and descend
+@@ -654,12 +665,6 @@ KBUILD_CFLAGS += $(call cc-ifversion, -lt, 0409, \
+ # Tell gcc to never replace conditional load with a non-conditional one
+ KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
+ 
+-# check for 'asm goto'
+-ifeq ($(call shell-cached,$(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC) $(KBUILD_CFLAGS)), y)
+-	KBUILD_CFLAGS += -DCC_HAVE_ASM_GOTO
+-	KBUILD_AFLAGS += -DCC_HAVE_ASM_GOTO
+-endif
+-
+ include scripts/Makefile.kcov
+ include scripts/Makefile.gcc-plugins
+ 
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index fad55160dcb9..35cea458a7be 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -158,27 +158,12 @@ ifdef CONFIG_X86_X32
+ endif
+ export CONFIG_X86_X32_ABI
+ 
+-#
+-# If the function graph tracer is used with mcount instead of fentry,
+-# '-maccumulate-outgoing-args' is needed to prevent a GCC bug
+-# (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42109)
+-#
+-ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-  ifndef CONFIG_HAVE_FENTRY
+-	ACCUMULATE_OUTGOING_ARGS := 1
+-  else
+-    ifeq ($(call cc-option-yn, -mfentry), n)
+-	ACCUMULATE_OUTGOING_ARGS := 1
+-
+-	# GCC ignores '-maccumulate-outgoing-args' when used with '-Os'.
+-	# If '-Os' is enabled, disable it and print a warning.
+-        ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+-          undefine CONFIG_CC_OPTIMIZE_FOR_SIZE
+-          $(warning Disabling CONFIG_CC_OPTIMIZE_FOR_SIZE.  Your compiler does not have -mfentry so you cannot optimize for size with CONFIG_FUNCTION_GRAPH_TRACER.)
+-        endif
++ifndef CC_HAVE_ASM_GOTO
++  $(error Compiler lacks asm-goto support.)
++endif
+ 
+-    endif
+-  endif
++ifndef CC_HAVE_FENTRY
++  $(error Compiler lacks -mfentry support.)
+ endif
+ 
+ #
