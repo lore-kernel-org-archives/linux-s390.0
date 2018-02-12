@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Subject: [PATCH 06/17] kexec_file: Split up __kexec_load_puragory
-Date: Mon, 12 Feb 2018 11:07:43 +0100
+Subject: [PATCH 05/17] kexec_file: Use read-only sections in arch_kexec_apply_relocations*
+Date: Mon, 12 Feb 2018 11:07:42 +0100
 In-Reply-To: <20180212100754.55121-1-prudo@linux.vnet.ibm.com>
 References: <20180212100754.55121-1-prudo@linux.vnet.ibm.com>
-Message-Id: <20180212100754.55121-7-prudo@linux.vnet.ibm.com>
+Message-Id: <20180212100754.55121-6-prudo@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,288 +12,251 @@ To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When inspecting __kexec_load_purgatory you find that it has two tasks
+When the relocations are applied to the purgatory only the section the
+relocations are applied to is writable. The other sections, i.e. the symtab
+and .rel/.rela, are in read-only kexec_purgatory. Highlight this by marking
+the corresponding variables as 'const'.
 
-	1) setting up the kexec_buffer for the new kernel and,
-	2) setting up pi->sechdrs for the final load address.
-
-The two tasks are independent of each other. To improve readability split
-up __kexec_load_purgatory into two functions, one for each task, and call
-them directly from kexec_load_purgatory.
+While at it also change the signatures of arch_kexec_apply_relocations* to
+take section pointers instead of just the index of the relocation section.
+This removes the second lookup and sanity check of the sections in arch
+code.
 
 Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
 ---
- kernel/kexec_file.c | 200 +++++++++++++++++++++++++++-------------------------
- 1 file changed, 103 insertions(+), 97 deletions(-)
+ arch/x86/kernel/machine_kexec_64.c | 56 ++++++++++++---------------------
+ include/linux/kexec.h              | 12 +++++---
+ kernel/kexec_file.c                | 63 +++++++++++++++++++++++++-------------
+ 3 files changed, 70 insertions(+), 61 deletions(-)
 
+diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
+index 1f790cf9d38f..6be04e4d4a7e 100644
+--- a/arch/x86/kernel/machine_kexec_64.c
++++ b/arch/x86/kernel/machine_kexec_64.c
+@@ -422,52 +422,36 @@ int arch_kexec_kernel_verify_sig(struct kimage *image, void *kernel,
+ /*
+  * Apply purgatory relocations.
+  *
+- * ehdr: Pointer to elf headers
+- * sechdrs: Pointer to section headers.
+- * relsec: section index of SHT_RELA section.
++ * @pi:		Purgatory to be relocated.
++ * @section:	Section relocations applying to.
++ * @relsec:	Section containing RELAs.
++ * @symtabsec:	Corresponding symtab.
+  *
+  * TODO: Some of the code belongs to generic code. Move that in kexec.c.
+  */
+-int arch_kexec_apply_relocations_add(const Elf64_Ehdr *ehdr,
+-				     Elf64_Shdr *sechdrs, unsigned int relsec)
++int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
++				     Elf_Shdr *section, const Elf_Shdr *relsec,
++				     const Elf_Shdr *symtabsec)
+ {
+ 	unsigned int i;
+ 	Elf64_Rela *rel;
+ 	Elf64_Sym *sym;
+ 	void *location;
+-	Elf64_Shdr *section, *symtabsec;
+ 	unsigned long address, sec_base, value;
+ 	const char *strtab, *name, *shstrtab;
++	const Elf_Shdr *sechdrs;
+ 
+-	/*
+-	 * ->sh_offset has been modified to keep the pointer to section
+-	 * contents in memory
+-	 */
+-	rel = (void *)sechdrs[relsec].sh_offset;
+-
+-	/* Section to which relocations apply */
+-	section = &sechdrs[sechdrs[relsec].sh_info];
+-
+-	pr_debug("Applying relocate section %u to %u\n", relsec,
+-		 sechdrs[relsec].sh_info);
+-
+-	/* Associated symbol table */
+-	symtabsec = &sechdrs[sechdrs[relsec].sh_link];
+-
+-	/* String table */
+-	if (symtabsec->sh_link >= ehdr->e_shnum) {
+-		/* Invalid strtab section number */
+-		pr_err("Invalid string table section index %d\n",
+-		       symtabsec->sh_link);
+-		return -ENOEXEC;
+-	}
++	/* String & section header string table */
++	sechdrs = (void *)pi->ehdr + pi->ehdr->e_shoff;
++	strtab = (char *)pi->ehdr + sechdrs[symtabsec->sh_link].sh_offset;
++	shstrtab = (char *)pi->ehdr + sechdrs[pi->ehdr->e_shstrndx].sh_offset;
+ 
+-	strtab = (char *)sechdrs[symtabsec->sh_link].sh_offset;
++	rel = (void *)pi->ehdr + relsec->sh_offset;
+ 
+-	/* section header string table */
+-	shstrtab = (char *)sechdrs[ehdr->e_shstrndx].sh_offset;
++	pr_debug("Applying relocate section %s to %u\n",
++		 shstrtab + relsec->sh_name, relsec->sh_info);
+ 
+-	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rel); i++) {
++	for (i = 0; i < relsec->sh_size / sizeof(*rel); i++) {
+ 
+ 		/*
+ 		 * rel[i].r_offset contains byte offset from beginning
+@@ -490,8 +474,8 @@ int arch_kexec_apply_relocations_add(const Elf64_Ehdr *ehdr,
+ 		 * to apply. ELF64_R_SYM() and ELF64_R_TYPE() macros get
+ 		 * these respectively.
+ 		 */
+-		sym = (Elf64_Sym *)symtabsec->sh_offset +
+-				ELF64_R_SYM(rel[i].r_info);
++		sym = (void *)pi->ehdr + symtabsec->sh_offset;
++		sym += ELF64_R_SYM(rel[i].r_info);
+ 
+ 		if (sym->st_name)
+ 			name = strtab + sym->st_name;
+@@ -514,12 +498,12 @@ int arch_kexec_apply_relocations_add(const Elf64_Ehdr *ehdr,
+ 
+ 		if (sym->st_shndx == SHN_ABS)
+ 			sec_base = 0;
+-		else if (sym->st_shndx >= ehdr->e_shnum) {
++		else if (sym->st_shndx >= pi->ehdr->e_shnum) {
+ 			pr_err("Invalid section %d for symbol %s\n",
+ 			       sym->st_shndx, name);
+ 			return -ENOEXEC;
+ 		} else
+-			sec_base = sechdrs[sym->st_shndx].sh_addr;
++			sec_base = pi->sechdrs[sym->st_shndx].sh_addr;
+ 
+ 		value = sym->st_value;
+ 		value += sec_base;
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 10842eece180..f15446be0e25 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -290,10 +290,14 @@ void * __weak arch_kexec_kernel_image_load(struct kimage *image);
+ int __weak arch_kimage_file_post_load_cleanup(struct kimage *image);
+ int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+ 					unsigned long buf_len);
+-int __weak arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
+-					Elf_Shdr *sechdrs, unsigned int relsec);
+-int __weak arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-					unsigned int relsec);
++int __weak arch_kexec_apply_relocations_add(struct purgatory_info *pi,
++					    Elf_Shdr *section,
++					    const Elf_Shdr *relsec,
++					    const Elf_Shdr *symtab);
++int __weak arch_kexec_apply_relocations(struct purgatory_info *pi,
++					Elf_Shdr *section,
++					const Elf_Shdr *relsec,
++					const Elf_Shdr *symtab);
+ void arch_kexec_protect_crashkres(void);
+ void arch_kexec_unprotect_crashkres(void);
+ 
 diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 80c7f658afc0..d1c3ec8dc6b1 100644
+index 2072b288ec53..80c7f658afc0 100644
 --- a/kernel/kexec_file.c
 +++ b/kernel/kexec_file.c
-@@ -649,39 +649,97 @@ static int kexec_calculate_store_digests(struct kimage *image)
- 	return ret;
+@@ -53,19 +53,35 @@ int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
  }
+ #endif
  
--/* Actually load purgatory. Lot of code taken from kexec-tools */
--static int __kexec_load_purgatory(struct kimage *image, unsigned long min,
--				  unsigned long max, int top_down)
+-/* Apply relocations of type RELA */
 +/*
-+ * kexec_purgatory_setup_kbuf - prepare buffer to load purgatory.
-+ * @pi:		Purgatory to be loaded.
-+ * @kbuf:	Buffer to setup.
-+ *
-+ * Allocates the memory needed for the buffer. Caller is responsible to free
-+ * the memory after use.
++ * arch_kexec_apply_relocations_add - apply relocations of type RELA
++ * @pi:		Purgatory to be relocated.
++ * @section:	Section relocations applying to.
++ * @relsec:	Section containing RELAs.
++ * @symtab:	Corresponding symtab.
 + *
 + * Return: 0 on success, negative errno on error.
 + */
-+static int kexec_purgatory_setup_kbuf(struct purgatory_info *pi,
-+				      struct kexec_buf *kbuf)
+ int __weak
+-arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-				 unsigned int relsec)
++arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
++				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
  {
--	struct purgatory_info *pi = &image->purgatory_info;
--	unsigned long align, bss_align, bss_sz, bss_pad;
--	unsigned long entry, load_addr, curr_load_addr, bss_addr, offset;
--	unsigned char *buf_addr, *src;
--	int i, ret = 0, entry_sidx = -1;
--	const Elf_Shdr *sechdrs_c;
--	Elf_Shdr *sechdrs = NULL;
--	struct kexec_buf kbuf = { .image = image, .bufsz = 0, .buf_align = 1,
--				  .buf_min = min, .buf_max = max,
--				  .top_down = top_down };
-+	const Elf_Shdr *sechdrs;
-+	unsigned long bss_align;
-+	unsigned long bss_sz;
-+	unsigned long align;
-+	int i, ret;
+ 	pr_err("RELA relocation unsupported.\n");
+ 	return -ENOEXEC;
+ }
  
--	/*
--	 * sechdrs_c points to section headers in purgatory and are read
--	 * only. No modifications allowed.
--	 */
--	sechdrs_c = (void *)pi->ehdr + pi->ehdr->e_shoff;
-+	sechdrs = (void *)pi->ehdr + pi->ehdr->e_shoff;
-+	bss_align = 1;
-+	bss_sz = 0;
-+
-+	for (i = 0; i < pi->ehdr->e_shnum; i++) {
-+		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
-+			continue;
-+
-+		align = sechdrs[i].sh_addralign;
-+		if (sechdrs[i].sh_type != SHT_NOBITS) {
-+			if (kbuf->buf_align < align)
-+				kbuf->buf_align = align;
-+			kbuf->bufsz = ALIGN(kbuf->bufsz, align);
-+			kbuf->bufsz += sechdrs[i].sh_size;
-+		} else {
-+			if (bss_align < align)
-+				bss_align = align;
-+			bss_sz = ALIGN(bss_sz, align);
-+			bss_sz += sechdrs[i].sh_size;
-+		}
-+	}
-+	kbuf->bufsz = ALIGN(kbuf->bufsz, bss_align);
-+	kbuf->memsz = kbuf->bufsz + bss_sz;
-+	if (kbuf->buf_align < bss_align)
-+		kbuf->buf_align = bss_align;
-+
-+	kbuf->buffer = vzalloc(kbuf->bufsz);
-+	if (!kbuf->buffer)
-+		return -ENOMEM;
-+	pi->purgatory_buf = kbuf->buffer;
-+
-+	ret = kexec_add_buffer(kbuf);
-+	if (ret)
-+		goto out;
-+	pi->purgatory_load_addr = kbuf->mem;
-+
-+	return 0;
-+out:
-+	vfree(pi->purgatory_buf);
-+	pi->purgatory_buf = NULL;
-+	return ret;
-+}
-+
+-/* Apply relocations of type REL */
 +/*
-+ * kexec_purgatory_setup_sechdrs - prepares the pi->sechdrs buffer.
-+ * @pi:		Purgatory to be loaded.
-+ * @kbuf:	Buffer prepared to store purgatory.
-+ *
-+ * Allocates the memory needed for the buffer. Caller is responsible to free
-+ * the memory after use.
++ * arch_kexec_apply_relocations - apply relocations of type REL
++ * @pi:		Purgatory to be relocated.
++ * @section:	Section relocations applying to.
++ * @relsec:	Section containing RELs.
++ * @symtab:	Corresponding symtab.
 + *
 + * Return: 0 on success, negative errno on error.
 + */
-+static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
-+					 struct kexec_buf *kbuf)
-+{
-+	unsigned long curr_load_addr;
-+	unsigned long load_addr;
-+	unsigned long bss_addr;
-+	unsigned long offset;
-+	unsigned char *buf_addr;
-+	unsigned char *src;
-+	Elf_Shdr *sechdrs;
-+	int entry_sidx = -1;
-+	int i;
- 
--	/*
--	 * We can not modify sechdrs_c[] and its fields. It is read only.
--	 * Copy it over to a local copy where one can store some temporary
--	 * data and free it at the end. We need to modify ->sh_addr and
--	 * ->sh_offset fields to keep track of permanent and temporary
--	 * locations of sections.
--	 */
- 	sechdrs = vzalloc(pi->ehdr->e_shnum * sizeof(Elf_Shdr));
- 	if (!sechdrs)
- 		return -ENOMEM;
--
--	memcpy(sechdrs, sechdrs_c, pi->ehdr->e_shnum * sizeof(Elf_Shdr));
-+	memcpy(sechdrs, (void *)pi->ehdr + pi->ehdr->e_shoff,
-+	       pi->ehdr->e_shnum * sizeof(Elf_Shdr));
-+	pi->sechdrs = sechdrs;
- 
- 	/*
- 	 * We seem to have multiple copies of sections. First copy is which
-@@ -709,7 +767,7 @@ static int __kexec_load_purgatory(struct kimage *image, unsigned long min,
- 	 * Identify entry point section and make entry relative to section
- 	 * start.
- 	 */
--	entry = pi->ehdr->e_entry;
-+	kbuf->image->start = pi->ehdr->e_entry;
- 	for (i = 0; i < pi->ehdr->e_shnum; i++) {
- 		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
- 			continue;
-@@ -722,63 +780,19 @@ static int __kexec_load_purgatory(struct kimage *image, unsigned long min,
- 		    ((sechdrs[i].sh_addr + sechdrs[i].sh_size) >
- 		     pi->ehdr->e_entry)) {
- 			entry_sidx = i;
--			entry -= sechdrs[i].sh_addr;
-+			kbuf->image->start -= sechdrs[i].sh_addr;
- 			break;
- 		}
- 	}
- 
--	/* Determine how much memory is needed to load relocatable object. */
--	bss_align = 1;
--	bss_sz = 0;
--
--	for (i = 0; i < pi->ehdr->e_shnum; i++) {
--		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
--			continue;
--
--		align = sechdrs[i].sh_addralign;
--		if (sechdrs[i].sh_type != SHT_NOBITS) {
--			if (kbuf.buf_align < align)
--				kbuf.buf_align = align;
--			kbuf.bufsz = ALIGN(kbuf.bufsz, align);
--			kbuf.bufsz += sechdrs[i].sh_size;
--		} else {
--			/* bss section */
--			if (bss_align < align)
--				bss_align = align;
--			bss_sz = ALIGN(bss_sz, align);
--			bss_sz += sechdrs[i].sh_size;
--		}
--	}
--
--	/* Determine the bss padding required to align bss properly */
--	bss_pad = 0;
--	if (kbuf.bufsz & (bss_align - 1))
--		bss_pad = bss_align - (kbuf.bufsz & (bss_align - 1));
--
--	kbuf.memsz = kbuf.bufsz + bss_pad + bss_sz;
--
--	/* Allocate buffer for purgatory */
--	kbuf.buffer = vzalloc(kbuf.bufsz);
--	if (!kbuf.buffer) {
--		ret = -ENOMEM;
--		goto out;
--	}
--
--	if (kbuf.buf_align < bss_align)
--		kbuf.buf_align = bss_align;
--
--	/* Add buffer to segment list */
--	ret = kexec_add_buffer(&kbuf);
--	if (ret)
--		goto out;
--	pi->purgatory_load_addr = kbuf.mem;
--
- 	/* Load SHF_ALLOC sections */
--	buf_addr = kbuf.buffer;
--	load_addr = curr_load_addr = pi->purgatory_load_addr;
--	bss_addr = load_addr + kbuf.bufsz + bss_pad;
-+	buf_addr = kbuf->buffer;
-+	load_addr = curr_load_addr = kbuf->mem;
-+	bss_addr = load_addr + kbuf->bufsz;
- 
- 	for (i = 0; i < pi->ehdr->e_shnum; i++) {
-+		unsigned long align;
-+
- 		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
- 			continue;
- 
-@@ -810,24 +824,9 @@ static int __kexec_load_purgatory(struct kimage *image, unsigned long min,
- 
- 	/* Update entry point based on load address of text section */
- 	if (entry_sidx >= 0)
--		entry += sechdrs[entry_sidx].sh_addr;
--
--	/* Make kernel jump to purgatory after shutdown */
--	image->start = entry;
--
--	/* Used later to get/set symbol values */
--	pi->sechdrs = sechdrs;
-+		kbuf->image->start += sechdrs[entry_sidx].sh_addr;
- 
--	/*
--	 * Used later to identify which section is purgatory and skip it
--	 * from checksumming.
--	 */
--	pi->purgatory_buf = kbuf.buffer;
--	return ret;
--out:
--	vfree(sechdrs);
--	vfree(kbuf.buffer);
--	return ret;
-+	return 0;
- }
- 
- static int kexec_apply_relocations(struct kimage *image)
-@@ -897,16 +896,23 @@ int kexec_load_purgatory(struct kimage *image, unsigned long min,
+ int __weak
+-arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-			     unsigned int relsec)
++arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
++			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
  {
+ 	pr_err("REL relocation unsupported.\n");
+ 	return -ENOEXEC;
+@@ -818,14 +834,19 @@ static int kexec_apply_relocations(struct kimage *image)
+ {
+ 	int i, ret;
  	struct purgatory_info *pi = &image->purgatory_info;
- 	int ret;
-+	struct kexec_buf kbuf = { .image = image, .bufsz = 0, .buf_align = 1,
-+				  .buf_min = min, .buf_max = max,
-+				  .top_down = top_down };
- 
- 	if (kexec_purgatory_size <= 0)
- 		return -EINVAL;
- 
- 	pi->ehdr = (const Elf_Ehdr *)kexec_purgatory;
- 
--	ret = __kexec_load_purgatory(image, min, max, top_down);
-+	ret = kexec_purgatory_setup_kbuf(pi, &kbuf);
- 	if (ret)
- 		return ret;
- 
-+	ret = kexec_purgatory_setup_sechdrs(pi, &kbuf);
-+	if (ret)
-+		goto out_free_kbuf;
+-	Elf_Shdr *sechdrs = pi->sechdrs;
++	const Elf_Shdr *sechdrs;
 +
- 	ret = kexec_apply_relocations(image);
- 	if (ret)
- 		goto out;
-@@ -916,7 +922,7 @@ int kexec_load_purgatory(struct kimage *image, unsigned long min,
- out:
- 	vfree(pi->sechdrs);
- 	pi->sechdrs = NULL;
--
-+out_free_kbuf:
- 	vfree(pi->purgatory_buf);
- 	pi->purgatory_buf = NULL;
- 	return ret;
++	sechdrs = (void *)pi->ehdr + pi->ehdr->e_shoff;
+ 
+-	/* Apply relocations */
+ 	for (i = 0; i < pi->ehdr->e_shnum; i++) {
+-		Elf_Shdr *section, *symtab;
++		const Elf_Shdr *relsec;
++		const Elf_Shdr *symtab;
++		Elf_Shdr *section;
++
++		relsec = sechdrs + i;
+ 
+-		if (sechdrs[i].sh_type != SHT_RELA &&
+-		    sechdrs[i].sh_type != SHT_REL)
++		if (relsec->sh_type != SHT_RELA &&
++		    relsec->sh_type != SHT_REL)
+ 			continue;
+ 
+ 		/*
+@@ -834,12 +855,12 @@ static int kexec_apply_relocations(struct kimage *image)
+ 		 * symbol table. And ->sh_info contains section header
+ 		 * index of section to which relocations apply.
+ 		 */
+-		if (sechdrs[i].sh_info >= pi->ehdr->e_shnum ||
+-		    sechdrs[i].sh_link >= pi->ehdr->e_shnum)
++		if (relsec->sh_info >= pi->ehdr->e_shnum ||
++		    relsec->sh_link >= pi->ehdr->e_shnum)
+ 			return -ENOEXEC;
+ 
+-		section = &sechdrs[sechdrs[i].sh_info];
+-		symtab = &sechdrs[sechdrs[i].sh_link];
++		section = pi->sechdrs + relsec->sh_info;
++		symtab = sechdrs + relsec->sh_link;
+ 
+ 		if (!(section->sh_flags & SHF_ALLOC))
+ 			continue;
+@@ -856,12 +877,12 @@ static int kexec_apply_relocations(struct kimage *image)
+ 		 * Respective architecture needs to provide support for applying
+ 		 * relocations of type SHT_RELA/SHT_REL.
+ 		 */
+-		if (sechdrs[i].sh_type == SHT_RELA)
+-			ret = arch_kexec_apply_relocations_add(pi->ehdr,
+-							       sechdrs, i);
+-		else if (sechdrs[i].sh_type == SHT_REL)
+-			ret = arch_kexec_apply_relocations(pi->ehdr,
+-							   sechdrs, i);
++		if (relsec->sh_type == SHT_RELA)
++			ret = arch_kexec_apply_relocations_add(pi, section,
++							       relsec, symtab);
++		else if (relsec->sh_type == SHT_REL)
++			ret = arch_kexec_apply_relocations(pi, section,
++							   relsec, symtab);
+ 		if (ret)
+ 			return ret;
+ 	}
 -- 
 2.13.5
