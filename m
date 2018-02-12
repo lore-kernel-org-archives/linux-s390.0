@@ -1,149 +1,215 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <CAK7LNATZZPHMVM+2a_iXwggMT-VF=-nkMom7e4JYzgPpnC0RPg@mail.gmail.com>
-References: <20180210085519.737ckf4bcl57h4g2@huvuddator> <CAGXu5jKQgxxC2RQL0dxLKFVED2v-LiWKjtXY3DDpfwAXbnxM4Q@mail.gmail.com>
+In-Reply-To: <CAGXu5jLtFcvbazxUvL_=6uT+a8m0JQEB7v0OE41Z-PMoX_fWpA@mail.gmail.com>
+References: <20180210054843.z3g7wvcmlccvww3h@huvuddator> <CAK7LNARHmAF2SxBcc1aUEH5MMzUo_furLevqy7QzGxqNRHYiyQ@mail.gmail.com>
+ <20180210074924.3nhxsza5zdbaahxx@huvuddator> <20180210080556.mycqsjhxbaguwhay@huvuddator>
+ <20180210085519.737ckf4bcl57h4g2@huvuddator> <CAGXu5jKQgxxC2RQL0dxLKFVED2v-LiWKjtXY3DDpfwAXbnxM4Q@mail.gmail.com>
  <CA+55aFz-SJ970iqDsR8-Ke4z6WvB4n9RXAeen8pG=+YJWubETw@mail.gmail.com>
  <CAGXu5jLo0iuMsH89vj3nr8sv+1YvXfXgoPeBdxHwZm5i=DWoOA@mail.gmail.com>
  <CA+55aFxdx3FYE6YGifRR=BSG9QzXwgThj5z7RmV5P5+RpNXSiQ@mail.gmail.com>
  <CA+55aFyPyYyG-riaBQU5cGp_sC=r8mf9Mg6L=DUEH6EyQfWYwA@mail.gmail.com>
  <20180211103432.pf2ot6nd7nbhdhsy@huvuddator> <CAGXu5jLtFcvbazxUvL_=6uT+a8m0JQEB7v0OE41Z-PMoX_fWpA@mail.gmail.com>
- <CAFkk2KSk_OpwagN_Ru0fHPyALK5HwtxHOcMhT8OHqeOH3hOP+w@mail.gmail.com>
- <CAFkk2KRm+_NQ2QLUta7fbezngLpD3eZ5NEp57SymBRMUZQZ4wQ@mail.gmail.com>
- <20180212125458.vb4ve3ieejvuvo65@huvuddator> <CAK7LNAQPGht_wBPr_66shL-59mvaXRzDeuSNKicf+zu5Y1CmCA@mail.gmail.com>
- <CAK7LNATZZPHMVM+2a_iXwggMT-VF=-nkMom7e4JYzgPpnC0RPg@mail.gmail.com>
-From: Ulf Magnusson <ulfalizer@gmail.com>
-Date: Mon, 12 Feb 2018 15:32:57 +0100
-Message-ID: <CAFkk2KShorF2FJTQ=tRRAri2bmeRBOBuPYqOaM68Bo=kMzbkiQ@mail.gmail.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Mon, 12 Feb 2018 23:39:29 +0900
+Message-ID: <CAK7LNAQpS6dYBnt_PjL5zrX1=eccSg80khu=WYCjnHNvDiKa3w@mail.gmail.com>
 Subject: Re: [RFC PATCH 4/7] kconfig: support new special property shell=
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Kees Cook <keescook@chromium.org>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>, Arnd Bergmann <arnd@arndb.de>
+To: Kees Cook <keescook@chromium.org>
+Cc: Ulf Magnusson <ulfalizer@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>, Arnd Bergmann <arnd@arndb.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Feb 12, 2018 at 3:23 PM, Masahiro Yamada
-<yamada.masahiro@socionext.com> wrote:
-> 2018-02-12 23:21 GMT+09:00 Masahiro Yamada <yamada.masahiro@socionext.com>:
->> 2018-02-12 21:54 GMT+09:00 Ulf Magnusson <ulfalizer@gmail.com>:
->>> On Sun, Feb 11, 2018 at 09:42:09PM +0100, Ulf Magnusson wrote:
->>>> On Sun, Feb 11, 2018 at 9:29 PM, Ulf Magnusson <ulfalizer@gmail.com> wrote:
->>>> > On Sun, Feb 11, 2018 at 6:56 PM, Kees Cook <keescook@chromium.org> wrote:
->>>> >> Another case I mentioned before that I just want to make sure we don't
->>>> >> reintroduce the problem of getting "stuck" with a bad .config file.
->>>> >> While adding _STRONG support, I discovered the two-phase Kconfig
->>>> >> resolution that happens during the build. If you selected _STRONG with
->>>> >> a strong-capable compiler, everything was fine. If you then tried to
->>>> >> build with an older compiler, you'd get stuck since _STRONG wasn't
->>>> >> support (as detected during the first Kconfig phase) so the
->>>> >> generated/autoconf.h would never get updated with the newly selected
->>>> >> _REGULAR). I moved the Makefile analysis of available stack-protector
->>>> >> options into the second phase (i.e. after all the Kconfig runs), and
->>>> >> that worked to both unstick such configs and provide a clear message
->>>> >> early in the build about what wasn't available.
->>>> >>
->>>> >> If all this detection is getting moved up into Kconfig, I'm worried
->>>> >> we'll end up in this state again. If the answer is "you have to delete
->>>> >> autoconf.h if you change compilers", then that's fine, but it sure
->>>> >> seems unfriendly. :)
->>>> >
->>>> > Did you mean include/config/auto.conf? That's the one that gets
->>>> > included by the Makefiles.
->>>> >
->>>> > If the feature detection is moved into Kconfig, you should only need
->>>> > to rerun the configuration (make menuconfig/oldconfig/olddefconfig) if
->>>> > you change the compiler. That will update .config while taking the new
->>>> > features into account, and then the second phase during 'make' will
->>>> > update include/config/auto.conf from .config.
->>>> >
->>>> > That second Kconfig phase generates include/generated/autoconf.h and
->>>> > include/config/. The include/config/ directory implements dependencies
->>>> > between source files and Kconfig symbols by turning the symbols into
->>>> > (empty) files. When building (during the "second phase"), Kconfig
->>>> > compares .config with include/config/auto.conf to see what changed,
->>>> > and signals the changes to 'make' by touch'ing the files corresponding
->>>> > to the changed symbols. The idea is to avoid having to do a full
->>>> > rebuild whenever the configuration is changed.
->>>> >
->>>> > Check out scripts/basic/fixdep.c as well if you want to understand how it works.
->>>> >
->>>> > Cheers,
->>>> > Ulf
->>>>
->>>> By the way:
->>>>
->>>> That second phase is also a "normal" Kconfig run in the sense that it
->>>> does all the usual dependency checking stuff. Even if .config doesn't
->>>> respect dependencies, include/config/auto.conf will. So I think you
->>>> might not even need to rerun the configuration (though .config will be
->>>> out-of-date until you do).
->>>>
->>>> Cheers,
->>>> Ulf
->>>
->>> Seems you'd have to rerun the configuration, because
->>> include/config/auto.conf is only regenerated if it's older than .config.
->>>
->>> Here's the bit in the root Makefile that does it (KCONFIG_CONFIG is
->>> .config).
->>>
->>>         # If .config is newer than include/config/auto.conf, someone tinkered
->>>         # with it and forgot to run make oldconfig.
->>>         # if auto.conf.cmd is missing then we are probably in a cleaned tree so
->>>         # we execute the config step to be sure to catch updated Kconfig files
->>>         include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
->>>                 $(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
->>>
->>> silentoldconfig is a terrible name. What it actually does is run that
->>> "second phase" stuff.
->>
->> Right.  This is a historical misnomer.
->>
->> My plan is, as already posted below, to rename 'silentoldconfig' to 'synconfig'
->> https://lkml.org/lkml/2018/1/17/1359
->>
->>
->>
->>> Pretty sure that comment lies by the way. 'make oldconfig' doesn't
->>> update include/config/auto.conf. It's probably outdated.
->>
->> Good catch.
->>
->>
->>>
->>> I wonder if it would be simpler to just always run silentoldconfig when
->>> building. It's not that slow on my system:
->>>
->>>         $ export ARCH=x86 SRCARCH=x86 KERNELVERSION=`make kernelversion`
->>>         $ time scripts/kconfig/conf --silentoldconfig Kconfig
->>>
->>>         real    0m0.167s
->>>         user    0m0.162s
->>>         sys     0m0.004s
->>>
->>> That'd both simplify the Makefiles, and make sure that the latest
->>> features are always used if you do feature testing in Kconfig.
->>>
->>> I don't know how strongly people feel about a few tenths of a second
->>> though.
->>
->>
->> No.  NACK.
->>
->> silentoldconfig touches include/generated/autoconf.h
->> so, files that depend on it will be re-compiled, unnecessarily.
+2018-02-12 2:56 GMT+09:00 Kees Cook <keescook@chromium.org>:
+
+> I think it would work to skip KBUILD_CPPFLAGS right up until it
+> didn't. Since we have the arch split, we can already add -m32 to the
+> 32-bit case, etc. However, I worry about interaction with other
+> selected build options. For example, while retpoline doesn't interact
+> stack-protector, it's easy to imagine things that might.
+
+
+One ugly solution could be
+to add one more CC_HAS_ for the combination of the two ?
+
+
+# If two compiler flags interact, the combination should be checked.
+# Hopefully, we do not have many cases like this...
+config CC_HAS_STACKPROTECTOR_WITH_RETPOLINE
+       option cc_option "-fstackprotector  -mindirect-branch=thunk-extern"
+
+
+
+> (And in thinking about this, does Kconfig know the true $CC in use?
+> i.e. the configured cross compiler, etc?)
+
+
+I was thinking of removing CONFIG_CROSS_COMPILE.
+
+A user can dynamically change CROSS_COMPILE from
+"make menuconfig".
+
+If we continue to support this, $CC changes
+according to CONFIG_CROSS_COMPILE.
+Then, compiler flags must be re-evaluated
+every time a user changes a compiler in use.
+It will introduce much more complexity.
+
+The easiest way would be to import $CC from environment
+and fix the compiler capability before loading Kconfig.
+
+
+
+
+
+>>     - How old do you need to go with GCC for -fno-stack-protector to give an
+>>       error (i.e., for not even the option to be recognized)? Is it still
+>>       warranted to test for it?
 >
+> Old? That's not the case. The check for -fno-stack-protector will
+> likely be needed forever, as some distro compilers enable
+> stack-protector by default. So when someone wants to explicitly build
+> without stack-protector (or if the compiler's stack-protector is
+> detected as broken), we must force it off for the kernel build.
 >
-> Sorry, I take back this comment.
-> fixdep takes care of this.
+>> Adding some CCs who worked on the stack protector test scripts.
+>>
+>> And yeah, I was assuming that needing support scripts would be rare, and that
+>> you'd usually just check whether gcc accepts the flag.
 >
-> So, autoconf.h is removed from dependency.
+> That would have been nice, yes. :(
+>
+>> When you Google "gcc broken stack protector", the top hits about are about the
+>> scripts/gcc-x86_64-has-stack-protector.sh script in the kernel throwing a false
+>> positive by the way (fixed in 82031ea29e45 ("scripts/has-stack-protector: add
+>> -fno-PIE")).
+>
+> That's just the most recent case (from the case where some distro
+> compilers enabled PIE by default). And was why I was hoping to drop
+> the scripts entirely.
+>
+>> 2. Whether to hide the Kconfig stack protector alternatives or always show them
+>>
+>> Or equivalently, whether to automatically fall back on other stack protector
+>> alternatives (including no stack protector) if the one specified in the .config
+>> isn't available.
+>>
+>> I'll let you battle this one out. In any case, as a user, I'd want a
+>> super-clear message telling me what to change if the build breaks because of
+>> missing stack protector support.
+>
+> Yes, exactly.
+>
+> The reason I built the _AUTO support was to make this easier for
+> people to not have to think about. I wanted to get rid of explicit
+> support (i.e. _REGULAR or _STRONG) but some people didn't want _STRONG
+> (since it has greater code-size impact than _REGULAR), so we've had to
+> keep that too.
+>
+>> 3. Whether to implement CC_STACKPROTECTOR_AUTO in Kconfig or the Makefiles
+>>
+>> I'd just go with whatever is simplest here. I don't find the Kconfig version
+>> too bad, but I'm already very familiar with Kconfig, so it's harder for me to
+>> tell how it looks to other people.
+>>
+>> I'd add some comments to explain the idea in the final version.
+>>
+>> @Kees:
+>> I was assuming that the Makefiles would error out with a message if none of the
+>> CC_STACKPROTECTOR_* variables are set, in addition to the Kconfig warning.
+>
+> That doesn't happy either before nor after _AUTO. The default value
+> before was _NONE, and the default value after is _AUTO, which will use
+> whatever is available.
+>
+>> You could offload part of that check to Kconfig with something like
+>>
+>>         config CHOSEN_CC_STACKPROTECTOR_AVAILABLE
+>>                 def_bool CC_STACKPROTECTOR_STRONG || \
+>>                          CC_STACKPROTECTOR_REGULAR || \
+>>                          CC_STACKPROTECTOR_NONE
+>>
+>> CHOSEN_STACKPROTECTOR_AVAILABLE could then be checked in the Makefile.
+>> It has the advantage of making the constraint clear in the Kconfig file
+>> at least.
+>>
+>> You could add some kind of assert feature to Kconfig too, but IMO it's not
+>> warranted purely for one-offs like this at least.
+>
+> Agreed; I want to do whatever we can to simplify things. :)
+>
+>> That's details though. I'd want to explain it with a comment in any case if we
+>> go with something like this, since it's slightly kludgy and subtle
+>> (CC_STACKPROTECTOR_{STRONG,REGULAR,NONE} form a kind of choice, only you can't
+>> express it like that directly, since it's derived from other symbols).
+>>
+>>
+>> Here's an overview of the current Kconfig layout by the way, assuming
+>> the old no-fallback behavior and CC_STACKPROTECTOR_AUTO being
+>> implemented in Kconfig:
+>>
+>>         # Feature tests
+>>         CC_HAS_STACKPROTECTOR_STRONG
+>>         CC_HAS_STACKPROTECTOR_REGULAR
+>>         CC_HAS_STACKPROTECTOR_NONE
+>
+> As long as the feature tests include actual compiler output tests,
+> yeah, this seems fine.
+>
+>>         # User request
+>>         WANT_CC_STACKPROTECTOR_AUTO
+>>         WANT_CC_STACKPROTECTOR_STRONG
+>>         WANT_CC_STACKPROTECTOR_REGULAR
+>>         WANT_CC_STACKPROTECTOR_NONE
+>>
+>>         # The actual "output" to the Makefiles
+>>         CC_STACKPROTECTOR_STRONG
+>>         CC_STACKPROTECTOR_REGULAR
+>>         CC_STACKPROTECTOR_NONE
+>
+> This should be fine too (though by this point, I think Kconfig would
+> already know the specific option, so it could just pass it with a
+> single output (CC_OPT_STACKPROTECTOR below?)
+>
+>>         # Some possible output "nicities"
+>>         CHOSEN_CC_STACKPROTECTOR_AVAILABLE
+>>         CC_OPT_STACKPROTECTOR
+>>
+>> Does anyone have objections to the naming or other things? I saw some
+>> references to "Santa's wish list" in messages of commits that dealt with other
+>> variables named WANT_*, though I didn't look into those cases. ;)
+>
+> Another case I mentioned before that I just want to make sure we don't
+> reintroduce the problem of getting "stuck" with a bad .config file.
+> While adding _STRONG support, I discovered the two-phase Kconfig
+> resolution that happens during the build. If you selected _STRONG with
+> a strong-capable compiler, everything was fine. If you then tried to
+> build with an older compiler, you'd get stuck since _STRONG wasn't
+> support (as detected during the first Kconfig phase) so the
+> generated/autoconf.h would never get updated with the newly selected
+> _REGULAR). I moved the Makefile analysis of available stack-protector
+> options into the second phase (i.e. after all the Kconfig runs), and
+> that worked to both unstick such configs and provide a clear message
+> early in the build about what wasn't available.
+>
+> If all this detection is getting moved up into Kconfig, I'm worried
+> we'll end up in this state again. If the answer is "you have to delete
+> autoconf.h if you change compilers", then that's fine, but it sure
+> seems unfriendly. :)
 >
 
-Still something that would need to be looked into, to make sure
-there's nothing depending on stuff generated by silentoldconfig that
-would get rebuilt over and over.
+As Ulf explained, this does not happen.
 
-Cheers,
-Ulf
+include/config/auto.conf and include/generated/autoconf.h
+are the mirror of the .config.
+
+If .config is updated, silentoldconfig is invoked to sync them.
+
+
+
+
+
+-- 
+Best Regards
+Masahiro Yamada
