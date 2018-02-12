@@ -1,62 +1,99 @@
-From: Farhan Ali <alifm@linux.vnet.ibm.com>
-Date: Thu, 01 Feb 2018 18:41:27 +0000
-Subject: [PATCH v2 0/3]Enable CONFIG_VT support for S390
-Message-Id: <cover.1517508744.git.alifm@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PULL v2 1/1] virtio/s390: implement PM operations for virtio_ccw
+Date: Mon, 12 Feb 2018 09:52:00 +0100
+Message-ID: <1e030d8d-0185-ee75-eda4-5551412db096@de.ibm.com>
+References: <20171218162123.963-1-cohuck@redhat.com>
+ <20171218162123.963-2-cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-List-Archive: <https://lore.kernel.org/linux-fbdev/>
-List-Post: <mailto:linux-fbdev@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fbdev@vger.kernel.org
-Cc: geert@linux-m68k.org, borntraeger@de.ibm.com, stefan.kristiansson@saunalahti.fi, tomi.valkeinen@ti.com, schwidefsky@de.ibm.com, alifm@linux.vnet.ibm.com
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20171218162123.963-2-cohuck@redhat.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>, mst@redhat.com
+Cc: jasowang@redhat.com, pasic@linux.vnet.ibm.com, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
-
-This series of patches add support for an additional tty
-and console for a S390 KVM guest using a virtio-gpu device[1].
-
-Patch 1 enables the "Graphics support" menu which is
-needed to enable dummy console, since the VT layer needs it.
-It also fixes a build error for Opencore framebuffer driver. 
-
-Patch 2 fixes few linker issues.
-
-Patch 3 add support for enabling VT layer for S390.
+Michael, Conny,
+it seems that this patch did not make it into 4.16-rc1.
 
 
-ChangeLog
----------
-v1 -> v2
 
-v1 was posted under a different subject and here is a link to it:
-https://www.spinics.net/lists/linux-s390/msg18175.html
-
-   - Combine patch 1 and 2 from v1 into one patch (patch 1).
-   - Additional patches to enable CONFIG_VT for S390.
-
-
-Thanks
-Farhan
-
-
-[1] https://lists.nongnu.org/archive/html/qemu-devel/2017-09/msg04184.html
-
-
-Farhan Ali (3):
-  Kconfig : Remove HAS_IOMEM dependency for Graphics support
-  s390/char : Rename EBCDIC keymap variables
-  s390/setup : enable display support for KVM guest
-
- arch/s390/kernel/setup.c      |  2 ++
- drivers/s390/char/defkeymap.c | 66 ++++++++++++++++++++++---------------------
- drivers/s390/char/keyboard.c  | 32 ++++++++++-----------
- drivers/s390/char/keyboard.h  | 11 ++++++++
- drivers/tty/Kconfig           |  2 +-
- drivers/video/Kconfig         |  1 -
- drivers/video/console/Kconfig |  2 +-
- drivers/video/fbdev/Kconfig   |  2 +-
- 8 files changed, 66 insertions(+), 52 deletions(-)
-
--- 
-2.7.4
+On 12/18/2017 05:21 PM, Cornelia Huck wrote:
+> From: Christian Borntraeger <borntraeger@de.ibm.com>
+> 
+> Suspend/Resume to/from disk currently fails. Let us wire
+> up the necessary callbacks. This is mostly just forwarding
+> the requests to the virtio drivers. The only thing that
+> has to be done in virtio_ccw itself is to re-set the
+> virtio revision.
+> 
+> Suggested-by: Thomas Huth <thuth@redhat.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Message-Id: <20171207141102.70190-2-borntraeger@de.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> [CH: merged <20171218083706.223836-1-borntraeger@de.ibm.com> to fix
+> !CONFIG_PM configs]
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 29 +++++++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+> 
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index b18fe2014cf2..985184ebda45 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -1300,6 +1300,9 @@ static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
+>  		vcdev->device_lost = true;
+>  		rc = NOTIFY_DONE;
+>  		break;
+> +	case CIO_OPER:
+> +		rc = NOTIFY_OK;
+> +		break;
+>  	default:
+>  		rc = NOTIFY_DONE;
+>  		break;
+> @@ -1312,6 +1315,27 @@ static struct ccw_device_id virtio_ids[] = {
+>  	{},
+>  };
+> 
+> +#ifdef CONFIG_PM_SLEEP
+> +static int virtio_ccw_freeze(struct ccw_device *cdev)
+> +{
+> +	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> +
+> +	return virtio_device_freeze(&vcdev->vdev);
+> +}
+> +
+> +static int virtio_ccw_restore(struct ccw_device *cdev)
+> +{
+> +	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> +	int ret;
+> +
+> +	ret = virtio_ccw_set_transport_rev(vcdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return virtio_device_restore(&vcdev->vdev);
+> +}
+> +#endif
+> +
+>  static struct ccw_driver virtio_ccw_driver = {
+>  	.driver = {
+>  		.owner = THIS_MODULE,
+> @@ -1324,6 +1348,11 @@ static struct ccw_driver virtio_ccw_driver = {
+>  	.set_online = virtio_ccw_online,
+>  	.notify = virtio_ccw_cio_notify,
+>  	.int_class = IRQIO_VIR,
+> +#ifdef CONFIG_PM_SLEEP
+> +	.freeze = virtio_ccw_freeze,
+> +	.thaw = virtio_ccw_restore,
+> +	.restore = virtio_ccw_restore,
+> +#endif
+>  };
+> 
+>  static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
+> 
