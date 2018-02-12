@@ -1,211 +1,141 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <CAK7LNAR1tgw0hnjRF=T1tPkqA=_wSwn8x6Ux-LYsNCrqrbEyLg@mail.gmail.com>
-References: <20180210054843.z3g7wvcmlccvww3h@huvuddator> <CAK7LNARHmAF2SxBcc1aUEH5MMzUo_furLevqy7QzGxqNRHYiyQ@mail.gmail.com>
- <20180210074924.3nhxsza5zdbaahxx@huvuddator> <20180210080556.mycqsjhxbaguwhay@huvuddator>
- <20180210085519.737ckf4bcl57h4g2@huvuddator> <CAGXu5jKQgxxC2RQL0dxLKFVED2v-LiWKjtXY3DDpfwAXbnxM4Q@mail.gmail.com>
+In-Reply-To: <20180212125458.vb4ve3ieejvuvo65@huvuddator>
+References: <20180210085519.737ckf4bcl57h4g2@huvuddator> <CAGXu5jKQgxxC2RQL0dxLKFVED2v-LiWKjtXY3DDpfwAXbnxM4Q@mail.gmail.com>
  <CA+55aFz-SJ970iqDsR8-Ke4z6WvB4n9RXAeen8pG=+YJWubETw@mail.gmail.com>
  <CAGXu5jLo0iuMsH89vj3nr8sv+1YvXfXgoPeBdxHwZm5i=DWoOA@mail.gmail.com>
  <CA+55aFxdx3FYE6YGifRR=BSG9QzXwgThj5z7RmV5P5+RpNXSiQ@mail.gmail.com>
  <CA+55aFyPyYyG-riaBQU5cGp_sC=r8mf9Mg6L=DUEH6EyQfWYwA@mail.gmail.com>
- <20180211103432.pf2ot6nd7nbhdhsy@huvuddator> <CAK7LNARdm7UESEEh-2qEP9R8jWSwzZ4d2x=pZZPuj6EVAsXnAA@mail.gmail.com>
- <CAFkk2KQ+ybTQF4U9eHqhi-Hg8ML1Z72DsXij2sM58S5HHg6C-Q@mail.gmail.com> <CAK7LNAR1tgw0hnjRF=T1tPkqA=_wSwn8x6Ux-LYsNCrqrbEyLg@mail.gmail.com>
-From: Ulf Magnusson <ulfalizer@gmail.com>
-Date: Mon, 12 Feb 2018 15:13:52 +0100
-Message-ID: <CAFkk2KRwpNv6ew4iZ9LM3YZU3HgOKZm34gtG3ZqGuP91mNJd4g@mail.gmail.com>
+ <20180211103432.pf2ot6nd7nbhdhsy@huvuddator> <CAGXu5jLtFcvbazxUvL_=6uT+a8m0JQEB7v0OE41Z-PMoX_fWpA@mail.gmail.com>
+ <CAFkk2KSk_OpwagN_Ru0fHPyALK5HwtxHOcMhT8OHqeOH3hOP+w@mail.gmail.com>
+ <CAFkk2KRm+_NQ2QLUta7fbezngLpD3eZ5NEp57SymBRMUZQZ4wQ@mail.gmail.com> <20180212125458.vb4ve3ieejvuvo65@huvuddator>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Mon, 12 Feb 2018 23:21:20 +0900
+Message-ID: <CAK7LNAQPGht_wBPr_66shL-59mvaXRzDeuSNKicf+zu5Y1CmCA@mail.gmail.com>
 Subject: Re: [RFC PATCH 4/7] kconfig: support new special property shell=
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>
+To: Ulf Magnusson <ulfalizer@gmail.com>
+Cc: Kees Cook <keescook@chromium.org>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>, Arnd Bergmann <arnd@arndb.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Feb 12, 2018 at 2:53 PM, Masahiro Yamada
-<yamada.masahiro@socionext.com> wrote:
-> 2018-02-12 20:44 GMT+09:00 Ulf Magnusson <ulfalizer@gmail.com>:
->
->>>
->>> I think Linus's comment was dismissed here.
->>>
->>>
->>> Linus said:
->>>
->>>> But yes, I also reacted to your earlier " It can't silently rewrite it
->>>> to _REGULAR because the compiler support for _STRONG regressed."
->>>> Because it damn well can. If the compiler doesn't support
->>>> -fstack-protector-strong, we can just fall back on -fstack-protector.
->>>> Silently. No extra crazy complex logic for that either.
->>>
->>>
->>> If I understood his comment correctly,
->>> we do not need either WANT_* or _AUTO.
->>>
->>>
->>>
->>>
->>> Kees' comment:
->>>
->>>> In the stack-protector case, this becomes quite important, since the
->>>> goal is to record the user's selection regardless of compiler
->>>> capability. For example, if someone selects _REGULAR, it shouldn't
->>>> "upgrade" to _STRONG. (Similarly for _NONE.)
->>>
->>> No.  Kconfig will not do this silently.
+2018-02-12 21:54 GMT+09:00 Ulf Magnusson <ulfalizer@gmail.com>:
+> On Sun, Feb 11, 2018 at 09:42:09PM +0100, Ulf Magnusson wrote:
+>> On Sun, Feb 11, 2018 at 9:29 PM, Ulf Magnusson <ulfalizer@gmail.com> wrote:
+>> > On Sun, Feb 11, 2018 at 6:56 PM, Kees Cook <keescook@chromium.org> wrote:
+>> >> Another case I mentioned before that I just want to make sure we don't
+>> >> reintroduce the problem of getting "stuck" with a bad .config file.
+>> >> While adding _STRONG support, I discovered the two-phase Kconfig
+>> >> resolution that happens during the build. If you selected _STRONG with
+>> >> a strong-capable compiler, everything was fine. If you then tried to
+>> >> build with an older compiler, you'd get stuck since _STRONG wasn't
+>> >> support (as detected during the first Kconfig phase) so the
+>> >> generated/autoconf.h would never get updated with the newly selected
+>> >> _REGULAR). I moved the Makefile analysis of available stack-protector
+>> >> options into the second phase (i.e. after all the Kconfig runs), and
+>> >> that worked to both unstick such configs and provide a clear message
+>> >> early in the build about what wasn't available.
+>> >>
+>> >> If all this detection is getting moved up into Kconfig, I'm worried
+>> >> we'll end up in this state again. If the answer is "you have to delete
+>> >> autoconf.h if you change compilers", then that's fine, but it sure
+>> >> seems unfriendly. :)
+>> >
+>> > Did you mean include/config/auto.conf? That's the one that gets
+>> > included by the Makefiles.
+>> >
+>> > If the feature detection is moved into Kconfig, you should only need
+>> > to rerun the configuration (make menuconfig/oldconfig/olddefconfig) if
+>> > you change the compiler. That will update .config while taking the new
+>> > features into account, and then the second phase during 'make' will
+>> > update include/config/auto.conf from .config.
+>> >
+>> > That second Kconfig phase generates include/generated/autoconf.h and
+>> > include/config/. The include/config/ directory implements dependencies
+>> > between source files and Kconfig symbols by turning the symbols into
+>> > (empty) files. When building (during the "second phase"), Kconfig
+>> > compares .config with include/config/auto.conf to see what changed,
+>> > and signals the changes to 'make' by touch'ing the files corresponding
+>> > to the changed symbols. The idea is to avoid having to do a full
+>> > rebuild whenever the configuration is changed.
+>> >
+>> > Check out scripts/basic/fixdep.c as well if you want to understand how it works.
+>> >
+>> > Cheers,
+>> > Ulf
 >>
->> (Playing devil's advocate...)
+>> By the way:
 >>
->> If the user selected _STRONG and it becomes unavailable later, it
->> seems to silently fall back on other options, even for oldnoconfig
->> (which just checks if there are any new symbols in the choice).
+>> That second phase is also a "normal" Kconfig run in the sense that it
+>> does all the usual dependency checking stuff. Even if .config doesn't
+>> respect dependencies, include/config/auto.conf will. So I think you
+>> might not even need to rerun the configuration (though .config will be
+>> out-of-date until you do).
 >>
->> It would be possible to also check if the old user selection still
->> applies btw. I do that in Kconfiglib. It's arguable whether that
->> matches the intent of oldnoconfig.
->>
->>>
->>>
->>> "make oldconfig" (or "make silentoldconfig" as well)
->>> always ask users about new symbols.
->>>
->>>
->>> For example, let's say your compiler supports -fstack-protector
->>> but not -fstack-protector-strong.
->>> CC_STACKPROTECTOR_REGULAR is the best you can choose.
->>>
->>> Then, let's say you upgrade your compiler and the new compiler supports
->>> -fstack-protector-strong as well.
->>>
->>> In this case, CC_STACKPROTECTOR_STRONG is a newly visible symbol,
->>> so Kconfig will ask you
->>> "Hey, you were previously using _REGULAR, but your new compiler
->>> also supports _STRONG.  Do you want to use it?"
->>>
->>>
->>> The "make oldconfig" will look like follows:
->>>
->>>
->>> masahiro@grover:~/workspace/linux-kbuild$ make oldconfig
->>>   HOSTCC  scripts/kconfig/conf.o
->>>   HOSTLD  scripts/kconfig/conf
->>> scripts/kconfig/conf  --oldconfig Kconfig
->>> *
->>> * Restart config...
->>> *
->>> *
->>> * Linux Kernel Configuration
->>> *
->>> Stack Protector buffer overflow detection
->>>   1. Strong (CC_STACKPROTECTOR_STRONG) (NEW)
->>>> 2. Regular (CC_STACKPROTECTOR_REGULAR)
->>>   3. None (CC_STACKPROTECTOR_NONE)
->>> choice[1-3?]:
->>>
->>>
->>>
->>> Please notice the Strong is marked as "(NEW)".
->>>
->>> Kconfig handles this really nicely with Linus' suggestion.
->>>
->>> [1] Users can select only features supported by your compiler
->>>     - this makes sense.
->>>
->>> [2] If you upgrade your compiler and it provides more capability,
->>>     "make (silent)oldconfig" will ask you about new choices.
->>>      - this also makes sense.
->>
->> If you switch to a compiler that provides less capability, it'll
->> silently forget the old user preference though.
+>> Cheers,
+>> Ulf
 >
+> Seems you'd have to rerun the configuration, because
+> include/config/auto.conf is only regenerated if it's older than .config.
 >
-> Yes, forget.
+> Here's the bit in the root Makefile that does it (KCONFIG_CONFIG is
+> .config).
 >
-> So, "make oldconfig" will ask user preference again
-> when you switch back to a compiler that provides more capability.
-> This is not rude, right?
+>         # If .config is newer than include/config/auto.conf, someone tinkered
+>         # with it and forgot to run make oldconfig.
+>         # if auto.conf.cmd is missing then we are probably in a cleaned tree so
+>         # we execute the config step to be sure to catch updated Kconfig files
+>         include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+>                 $(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+>
+> silentoldconfig is a terrible name. What it actually does is run that
+> "second phase" stuff.
 
-Nopes, makes perfect sense to me.
+Right.  This is a historical misnomer.
 
-> To remember user preference (for both upgrade/downgrade capability),
-> we need 3 symbols for each feature.
->
-> [1] WANT_FOO
->     A user can enable this option regardless of compiler capability.
->     This will remember your preference forever.
->
-> [2] CC_HAS_FOO
->     Compiler capability.
->
-> [3] FOO
->     logical 'and' of WANT_FOO and CC_HAS_FOO.
->
-> If we do this way, what's the point of
-> moving compiler capability tests to Kconfig?
+My plan is, as already posted below, to rename 'silentoldconfig' to 'synconfig'
+https://lkml.org/lkml/2018/1/17/1359
 
-I think this would only be done for the stack protector stuff, if it's
-really warranted to have an exception there.
 
-For other symbols, you'd just silently turn them off if a feature they
-depend on isn't there, which is the way Kconfig usually works anyway.
+
+> Pretty sure that comment lies by the way. 'make oldconfig' doesn't
+> update include/config/auto.conf. It's probably outdated.
+
+Good catch.
+
 
 >
+> I wonder if it would be simpler to just always run silentoldconfig when
+> building. It's not that slow on my system:
 >
-> [1] is the same as what we do now.
+>         $ export ARCH=x86 SRCARCH=x86 KERNELVERSION=`make kernelversion`
+>         $ time scripts/kconfig/conf --silentoldconfig Kconfig
 >
-> Then, it will be disabled later
-> if it turns out unsupported by your compiler.
+>         real    0m0.167s
+>         user    0m0.162s
+>         sys     0m0.004s
 >
-> The only difference is,
-> whether we calculate [2], [3] in Makefile or Kconfig.
+> That'd both simplify the Makefiles, and make sure that the latest
+> features are always used if you do feature testing in Kconfig.
 >
-> Kconfig is, in the end, inter-symbol dependency/visibility solver.
-> The WANT_ is not using the benefit of Kconfig.
-> We can calculate the logical 'and' by other means.
+> I don't know how strongly people feel about a few tenths of a second
+> though.
 
-Yeah, once you go with the WANT_* stuff, it's probably only about
-whether it's easiest to do it Kconfig or the Makefiles. If it's in
-Kconfig you might have more of the logic in one place at least.
 
-> The problem I see in this approach is 'savedefconfig'.
->
-> 'make defconfig && make savedefconfig'
-> will produce the subset of user preference and compiler capability.
->
-> To make arbitrary set of CONFIG options,
-> we need a full-featured compiler
-> in order to enable all CC_HAS_... options.
->
->
-> Maybe, we can add a new environment to ease this.
->
-> KCONFIG_SHELL_ALWAYS_TRUE
->   If this environment is specified, all 'option shell=...'
->   will be evaluated as true.  So, all symbols that depend on
->   CC_HAS_  will be visible.   This is useful to make
->   arbitrary set of CONFIG options regardless of
->   your compiler capability.
->
->
-> $ KCONFIG_SHELL_ALWAYS_TRUE=1  make  menuconfig
->    -> build up your favorite config setting
->
-> $ KCONFIG_SHELL_ALWAYS_TRUE=1 make savedefconfig
->    ->  write out the minimum set of config
->
->
-> Thought?
+No.  NACK.
 
-I wonder if this could cause problems if people start using 'option
-shell=...' for other things besides feature tests. It assumes that 'y'
-always corresponds to "available" too.
+silentoldconfig touches include/generated/autoconf.h
+so, files that depend on it will be re-compiled, unnecessarily.
 
-If the cc_opt Kconfig helper is added, then maybe it could just turn
-all those 'y'.
 
-Perhaps it wouldn't be so horrible to require people to generate
-defconfigs on systems that have all the features they want in the
-defconfig either.
+silentoldconfig ( 'syncconfig' in a more proper name)
+should be run only when necessary.
 
-Cheers,
-Ulf
+
+
+
+-- 
+Best Regards
+Masahiro Yamada
