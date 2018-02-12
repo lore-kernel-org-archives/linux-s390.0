@@ -1,28 +1,20 @@
 From: Randy Dunlap <rdunlap@infradead.org>
 Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
-Date: Mon, 12 Feb 2018 11:40:56 -0800
-Message-ID: <f119a273-2e86-1b7f-346f-7627ad8b51ed@infradead.org>
+Date: Mon, 12 Feb 2018 13:16:10 -0800
+Message-ID: <2b44ef68-126a-b20a-a50f-48c337fa6d0b@infradead.org>
 References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
-	<87zi4ev1d2.fsf@concordia.ellerman.id.au>
+ <87zi4ev1d2.fsf@concordia.ellerman.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <87zi4ev1d2.fsf@concordia.ellerman.id.au>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-iommu/>
 List-Post: <mailto:iommu@lists.linux-foundation.org>
 To: Michael Ellerman <mpe@ellerman.id.au>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Dmitry Kasatkin <dmitry.kasatkin@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 02/12/2018 04:28 AM, Michael Ellerman wrote:
@@ -59,17 +51,14 @@ On 02/12/2018 04:28 AM, Michael Ellerman wrote:
 >   lib/test_firmware.c:620:2: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
 >   security/integrity/digsig.c:146:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
 > 
-
-Both of those source files need to #include <linux/vmalloc.h>.
-
 > Full results trickling in here, not all the failures there are caused by
 > this patch, ie. some configs are broken in mainline:
 > 
 >   http://kisskb.ellerman.id.au/kisskb/head/13396/
-> 
-> cheers
 
-:)
+That's very useful, thanks.
+
+I'll send a few patches for those.
 
 -- 
 ~Randy
