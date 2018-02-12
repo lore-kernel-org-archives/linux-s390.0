@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 26 Feb 2018 12:16:28 +0100
 From: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Subject: Re: [PATCH 00/17] Add kexec_file_load support to s390
-In-Reply-To: <20180226012100.GA6019@linaro.org>
+Subject: [PATCH 01/17] kexec_file: Silence compile warnings
+Date: Mon, 12 Feb 2018 11:07:38 +0100
+In-Reply-To: <20180212100754.55121-1-prudo@linux.vnet.ibm.com>
 References: <20180212100754.55121-1-prudo@linux.vnet.ibm.com>
-        <20180214073543.GA12328@dhcp-128-65.nay.redhat.com>
-        <20180214105449.1325bfbe@ThinkPad>
-        <20180223083405.GA29498@dhcp-128-65.nay.redhat.com>
-        <20180223110143.1747fb3f@ThinkPad>
-        <20180224015956.GA11191@dhcp-128-65.nay.redhat.com>
-        <20180226012100.GA6019@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20180226121628.5e832adf@ThinkPad>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20180212100754.55121-2-prudo@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Cc: Dave Young <dyoung@redhat.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Eric Biederman <ebiederm@xmission.com>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Vivek Goyal <vgoyal@redhat.com>
+To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave
-Hi AKASHI
+When building the kernel with CONFIG_KEXEC_FILE enabled gcc prints a
+compile warning multiple times.
 
-On Mon, 26 Feb 2018 10:21:02 +0900
-AKASHI Takahiro <takahiro.akashi@linaro.org> wrote:
+In file included from <path>/linux/init/initramfs.c:526:0:
+<path>/include/linux/kexec.h:120:9: warning: ‘struct kimage’ declared inside parameter list [enabled by default]
+         unsigned long cmdline_len);
+         ^
+This is because the typedefs for kexec_file_load uses struct kimage before
+it is declared. Fix this by simply forward declaring struct kimage.
 
-> > 
-> > Arch code need arch maintainer to review, maybe either of you can send
-> > the common part first before the arch code, eg. AKASHI can split the common
-> >  cleanup patches and post them as a separate series, after these prep
-> > series are reviewed then other patches can be refreshed based on it.
-> > 
-> > Seems in AKASHI's series, only patch 2, 3 ,4 ,5 is needed if split out
-> > as a common change series.  
-> 
-> Yeah, all of those are touching kernel/kexec_file.c and in turn
-> they can conflict if being applied with 390 patches, but none of changes
-> that I made on kexec_file.c are overlapped with Phillips', I suppose
-> that merging these two patch sets is rather straightforward.
-> 
-> @Phillips: I hope that your patch#14 and #17 be aligned with my patch#3
-> as it is factoring out arch_kexec_{image_probe, image_load, verify_sig}()
-> and arch_kimage_file_post_load_cleanup().
+Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
+---
+ include/linux/kexec.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Splitting the common code patches from the series is totally fine with me.
-
-On Friday I managed to get my code working with AKASHI's patches. After setting
-ARCH_HAS_PURGATORY and cleaning up the kexec_* functions it worked basically out
-of the box. However there is one problem with older compilers on s390. Please
-see my comment on patch #3 for details.
-
-Thanks
-Philipp
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index f16f6ceb3875..7bae5e87bf0d 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -114,6 +114,8 @@ struct purgatory_info {
+ 	unsigned long purgatory_load_addr;
+ };
+ 
++struct kimage;
++
+ typedef int (kexec_probe_t)(const char *kernel_buf, unsigned long kernel_size);
+ typedef void *(kexec_load_t)(struct kimage *image, char *kernel_buf,
+ 			     unsigned long kernel_len, char *initrd,
+-- 
+2.13.5
