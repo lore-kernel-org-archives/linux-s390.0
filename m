@@ -1,101 +1,95 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC/PATCH v3 03/16] s390/mm: Introduce gmap_pmdp_xchg
-Date: Tue, 13 Feb 2018 15:16:41 +0100
-Message-ID: <74d88194-4fc6-92ec-2fb1-e2c6940c5fe6@redhat.com>
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v3 02/16] s390/mm: Abstract gmap notify bit setting
+Date: Tue, 13 Feb 2018 15:31:27 +0100
+Message-ID: <db905458-fe1c-5a0d-fcf0-387753911a6a@linux.vnet.ibm.com>
 References: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1518168864-147803-4-git-send-email-frankja@linux.vnet.ibm.com>
+ <1518168864-147803-3-git-send-email-frankja@linux.vnet.ibm.com>
+ <316974c5-2cdd-3cac-f424-cc2f728f2175@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="ZUKD1WVPf9Dz4mqY23qzainItog3w816O"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1518168864-147803-4-git-send-email-frankja@linux.vnet.ibm.com>
-Content-Language: en-US
+In-Reply-To: <316974c5-2cdd-3cac-f424-cc2f728f2175@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09.02.2018 10:34, Janosch Frank wrote:
-> When changing guest pmds, we don't need to take care of the
-> corresponding host pmd. This means, we don't need to flush the host
-> TLB entries and we don't need to notify on all gmaps.
-> 
-> Let's introduce a function, that exchanges a pmd and takes care of the
-> necessary flushing and notification.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--ZUKD1WVPf9Dz4mqY23qzainItog3w816O
+Content-Type: multipart/mixed; boundary="xSZ46AwXKoy05ryztZoYdpI51ln29m2Uf";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
+ linux-s390@vger.kernel.org
+Message-ID: <db905458-fe1c-5a0d-fcf0-387753911a6a@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v3 02/16] s390/mm: Abstract gmap notify bit setting
+References: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1518168864-147803-3-git-send-email-frankja@linux.vnet.ibm.com>
+ <316974c5-2cdd-3cac-f424-cc2f728f2175@redhat.com>
+In-Reply-To: <316974c5-2cdd-3cac-f424-cc2f728f2175@redhat.com>
 
-stale comment, notification is handled in a different patch.
+--xSZ46AwXKoy05ryztZoYdpI51ln29m2Uf
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> ---
->  arch/s390/mm/gmap.c | 28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
-> 
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 4471cb9..16c877a9 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -23,6 +23,9 @@
->  
->  #define GMAP_SHADOW_FAKE_TABLE 1ULL
->  
-> +static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *old, pmd_t new,
-> +			   unsigned long gaddr);
-> +
->  /**
->   * gmap_alloc - allocate and initialize a guest address space
->   * @mm: pointer to the parent mm_struct
-> @@ -2174,6 +2177,31 @@ void ptep_notify(struct mm_struct *mm, unsigned long vmaddr,
->  }
->  EXPORT_SYMBOL_GPL(ptep_notify);
->  
-> +/**
-> + * gmap_pmdp_xchg - exchange a gmap pmd with another and notify
+On 13.02.2018 15:10, David Hildenbrand wrote:
+> On 09.02.2018 10:34, Janosch Frank wrote:
+>> Currently we use the software PGSTE bits PGSTE_IN_BIT and PGSTE_VSIE_B=
+IT
+>> to notify before an invalidation occurs on a prefix page or a VSIE pag=
+e
+>> respectively. Both bits only work for a PGSTE, which only exists for
+>> page tables.
+>>
+>> For huge page support we also need such bits for segments (pmds) so
+>> let's introduce abstract GMAP_NOTIFY_* bits that will be realized into=
 
-dito, no notification yet
+>> the respective bits when gmap DAT table entries are protected.
+>=20
+> This comment is stale.
 
-> + * @gmap: pointer to the guest address space structure
-> + * @pmdp: pointer to the pmd entry
-> + * @new: replacement entry
-> + * @gaddr: the affected guest address
-> + *
-> + * This function is assumed to be called with the guest_table_lock
-> + * held.
-> + */
-> +static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *pmdp, pmd_t new,
-> +			   unsigned long gaddr)
-> +{
-> +	if (MACHINE_HAS_TLB_GUEST)
-> +		__pmdp_idte(gaddr, (pmd_t *)pmdp,
-> +			    IDTE_GUEST_ASCE, gmap->asce,
-> +			    IDTE_GLOBAL);
+Yes, I'm currently polishing. This version gives an impression how the
+series looks like after shuffling it.
+Correct comments have not been a priority yet, but I take every hint I ge=
+t.
 
-This fits into two lines
+>=20
+> This patch is no longer needed but also doesn't hurt.
 
-> +	if (MACHINE_HAS_IDTE)
-> +		__pmdp_idte(gaddr, (pmd_t *)pmdp,
-> +			    0, 0, IDTE_GLOBAL);
+I kept this patch, as I disliked the PGSTE constants being used for
+notification requests. I wouldn't have a lot of hard feelings dropping it=
+=2E
 
-This fits into one line
 
-> +	else
-> +		__pmdp_csp(pmdp);
-> +	*pmdp = new;
-> +}
-> +
->  static inline void thp_split_mm(struct mm_struct *mm)
->  {
->  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-> 
+--xSZ46AwXKoy05ryztZoYdpI51ln29m2Uf--
 
-Apart from that, looks good to me. (although very similar to
-gmap_pmdp_idte_global -  can we reuse gmap_pmdp_xchg() in
-gmap_pmdp_idte_global?)
+--ZUKD1WVPf9Dz4mqY23qzainItog3w816O
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
--- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-Thanks,
+iQIcBAEBCAAGBQJagvbXAAoJEBcO/8Q8ZEV5j28P/Atw8v/z/1q6hbJxghdykogY
+TY+rZlQtU2p+cirDB+dhZVvACVTg5a0LaIU4lWDrP6Hc1fvhqBhPNo+NbM4L+rV/
+RQBUr0bMQdBKpga8z6bf8bdqTXCUhwPJ43HgGkOS9Xv/uy3objibvbjqyxJD7zR1
+n81W3A8GcUMvfTHOgOAe0JmHPbv/RcpykHtt9V6ttddhuSm69Xu2XSQWPL76QvUa
+BhEijH/buNMoP74qV9jLPJ1+GVT/uJHN8N+GDsIdhYreFnLLjATM97D/iWVS2fFA
+BG8KJ7/Wkbd9PZYixf6Ni4Ct4w7R1PYDrSFCrQ6ej6FIBXWqnS2fjM/shAyhlafC
+teReFNSo4NhSQDHvf/BxEV/lugjhIM2sZqP5htauXirRazIReA4hBJixPZP0W4nj
+sufWewfjlpTEvP+qamCc4Jxr0MBwv4Ct6abLGSjdggliM2HqCbUBUVkjxPy56y8J
+nBSDnlFEyGMBnhuJkm1OH+BP5hyhdI9HQx/MzRGtbPL3QO16sNfADQ/YBbml6efa
+qP2wVbI6AwQW0xsZMUpbS5hJje42wp9jmQAPG9t1ICzJHpwlizLpobosiXTkMyi7
+NXFbj18OwmEouf7eqYXjzPD9zS760r3UBUGfQotmn81BXnbZysiAtvPFK9OCrjrg
+/16NV+NOHJMDid4OSYbm
+=GwUD
+-----END PGP SIGNATURE-----
 
-David / dhildenb
+--ZUKD1WVPf9Dz4mqY23qzainItog3w816O--
