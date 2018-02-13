@@ -1,105 +1,106 @@
-From: Eugene Syromyatnikov <evgsyr@gmail.com>
-Date: Wed, 31 Jan 2018 09:33:06 +0000
-Subject: Re: [man-pages PATCH 2/5] s390_runtime_instr.2: document the removal of the second argument
-Message-Id: <CACGkJdueeAu9Xj3NqxgUE5Bmhwj1CDcwUWGZcHioy=KitiAv2g@mail.gmail.com>
-In-Reply-To: <CACGkJdu7cLwe5UUtg_Gk5G=UrVxjWvDTOwL-LEn1w1wsUsMhMw@mail.gmail.com>
-References: <CACGkJdu7cLwe5UUtg_Gk5G=UrVxjWvDTOwL-LEn1w1wsUsMhMw@mail.gmail.com>
-To: linux-s390@vger.kernel.org, linux-man@vger.kernel.org
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v3 03/16] s390/mm: Introduce gmap_pmdp_xchg
+Date: Tue, 13 Feb 2018 15:39:31 +0100
+Message-ID: <0080876e-10eb-4971-2d8d-9e096befcc7d@linux.vnet.ibm.com>
+References: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1518168864-147803-4-git-send-email-frankja@linux.vnet.ibm.com>
+ <74d88194-4fc6-92ec-2fb1-e2c6940c5fe6@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="8haUuqGT6hzTaxiSetjm0pmZBkUWjFWKS"
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <74d88194-4fc6-92ec-2fb1-e2c6940c5fe6@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 31, 2018 at 7:20 AM, Heiko Carstens
-<heiko.carstens@de.ibm.com> wrote:
-> On Mon, Jan 22, 2018 at 01:16:25PM +0000, Eugene Syromyatnikov wrote:
->> On Sat, Jan 20, 2018 at 11:41 AM, Heiko Carstens
->> <heiko.carstens@de.ibm.com> wrote:
->> > If you now document the above people will start using the system call with
->> > only one parameter which isn't backwards compatible.
->> >
->> > I'd rather add the second parameter again to the system call so that code
->> > stays backwards compatible.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--8haUuqGT6hzTaxiSetjm0pmZBkUWjFWKS
+Content-Type: multipart/mixed; boundary="QbcZvtbPA6XcwgfSBaojnNgJJO1PSdVJt";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
+ linux-s390@vger.kernel.org
+Message-ID: <0080876e-10eb-4971-2d8d-9e096befcc7d@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v3 03/16] s390/mm: Introduce gmap_pmdp_xchg
+References: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1518168864-147803-4-git-send-email-frankja@linux.vnet.ibm.com>
+ <74d88194-4fc6-92ec-2fb1-e2c6940c5fe6@redhat.com>
+In-Reply-To: <74d88194-4fc6-92ec-2fb1-e2c6940c5fe6@redhat.com>
+
+--QbcZvtbPA6XcwgfSBaojnNgJJO1PSdVJt
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 13.02.2018 15:16, David Hildenbrand wrote:
+> On 09.02.2018 10:34, Janosch Frank wrote:
+>> When changing guest pmds, we don't need to take care of the
+>> corresponding host pmd. This means, we don't need to flush the host
+>> TLB entries and we don't need to notify on all gmaps.
 >>
->> Well, it ought to be documented somehow, especially if the syscall
->> parameter will be added back, as there could be situation where
->> application gets successful return code for the call non-zero value of
->> the second argument and gets no signals as it is the one of the kernel
->> releases where this parameter was removed. I can update the patch to
->> reflect this once the patch that returns the second argument reaches
->> the kernel tree.
->
-> So, I think something like the below should be ok:
->
-> From 6c7e2113c62fbb95662fba03f7fa298f4b737c1f Mon Sep 17 00:00:00 2001
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Date: Wed, 31 Jan 2018 08:15:31 +0100
-> Subject: [PATCH] s390_runtime_instr.2: document signum argument behavior
->  change
->
-> Document that the signum argument is ignored in newer kernels, but
-> that user space should pass a valid real-time signal number for
-> backwards compatibility.
->
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
->  man2/s390_runtime_instr.2 | 24 ++++++++++++++++++------
->  1 file changed, 18 insertions(+), 6 deletions(-)
->
-> diff --git a/man2/s390_runtime_instr.2 b/man2/s390_runtime_instr.2
-> index 18c2c0763eed..d5790e10f222 100644
-> --- a/man2/s390_runtime_instr.2
-> +++ b/man2/s390_runtime_instr.2
-> @@ -47,10 +47,9 @@ argument controls whether run-time instrumentation is started
->  .PP
->  The
->  .IR signum
-> -argument specifies the number of a real-time signal.
-> -The real-time signal is sent to the thread if the run-time instrumentation
-> -buffer is full or if the run-time-instrumentation-halted interrupt
-> -occurred.
-> +argument specifies the number of a real-time signal. This argument has no
-> +effect, since support for signalling was never used and kernel support was
-> +removed.
->  .SH RETURN VALUE
->  On success,
->  .BR s390_runtime_instr ()
-> @@ -67,9 +66,16 @@ is set to one of the error codes listed below.
->  .B EINVAL
->  The value specified in
->  .IR command
-> -is not a valid command or the value specified in
-> +is not a valid command.
-> +.TP
-> +.B EINVAL
-> +The value specified in
->  .IR signum
-> -is not a real-time signal number.
-> +is not a real-time signal number. With Linux 4.4 and newer kernel versions,
-> +the
-> +.IR signum
-> +argument has no effect, so that an invalid signal number will not result in an
-> +error.
->  .TP
->  .B ENOMEM
->  Allocating memory for the run-time instrumentation control block failed.
-> @@ -85,6 +91,12 @@ The run-time instrumentation facility is available beginning with System z EC12.
->  Glibc does not provide a wrapper for this system call, use
->  .BR syscall (2)
->  to call it.
-> +.PP
-> +Support for signalling was removed with Linux 4.4. With Linux 4.4
-> +also the check if
-> +.IR signum
-> +is a valid real-time signal was removed. For backwards compatibility with old
-> +kernels it is recommended to pass a valid real-time signal number.
->  .SH SEE ALSO
->  .BR syscall (2),
->  .BR signal (7)
-> --
-> 2.13.5
->
+>> Let's introduce a function, that exchanges a pmd and takes care of the=
 
-Acked-by: Eugene Syromyatnikov <evgsyr@gmail.com>
+>> necessary flushing and notification.
+>=20
+> stale comment, notification is handled in a different patch.
+>=20
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+>> ---
+[...]
+> This fits into one line
 
--- 
-Eugene Syromyatnikov
-mailto:evgsyr@gmail.com
-xmpp:esyr@jabber.{ru|org}
+Thanks!
+Fixed for all of them.
+
+>=20
+>> +	else
+>> +		__pmdp_csp(pmdp);
+>> +	*pmdp =3D new;
+>> +}
+>> +
+>>  static inline void thp_split_mm(struct mm_struct *mm)
+>>  {
+>>  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>>
+>=20
+> Apart from that, looks good to me. (although very similar to
+> gmap_pmdp_idte_global -  can we reuse gmap_pmdp_xchg() in
+> gmap_pmdp_idte_global?)
+
+Hrm, we'd need to disable notifications and do the split_free only for
+the idte case. I'm not convinced that we gain a lot by doing that.
+
+
+--QbcZvtbPA6XcwgfSBaojnNgJJO1PSdVJt--
+
+--8haUuqGT6hzTaxiSetjm0pmZBkUWjFWKS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJagvijAAoJEBcO/8Q8ZEV5zrMP/1AsnSC0MjRvaCXFU1TwJKrU
+76kN6hsdzCOOIHsPjWvcjpClEUBYyXRjDJ2eOHQmJZdwoaMzD6069R6K5fpr+dRR
+DRUu/ISzDy4aeDkoxmczonaMboxjr3CjykZerm//S14C0aS+5NfVW9q5Ke7bxKps
+GDvRldHWRo5xzTWVlXzQ0IhvKm+BXAjvOziYUaJ8P3T3mIM0cHPPy4Qwu1PRw/Ti
+bCDUGLftChmB3+he9JAuneWHX8IunA1311BgRFkQG1QjIwkreErI0lvWJQC4Tup4
+qo3h4a3FdSt2yJqgpvhbi3RaLFBZkP5o4p4DXGIdWSCLchNj5E6c+LreWrGeVacA
+/B/U509QTsidRT1iA/N0QkkM1o8mjiGL7+ivXcaTpXhQksHHCBuGJvOq6aSVGTxe
+Iq1F4/ir6oWZ4BWYqXzaJTsxFhMiraAMcJ8aLCexI3yeCoVGk60DF0Ls89etUkoD
+EhEJzKlpyCcInj4OLKaK0PTel4213eZKLnTmKW2lM4eGvYvtQKVzflEqUFN1w573
+47d+n/fuRpSNgSjjlZdVDekt67Pg6Hr6Zs1eiuH4QSM52lP1qarLp4ZD4J2g5jWi
+FK0fvyr3sM9y13mNllHnK1QiqmpNftNd7Kur8FTERb1fK7Ta4wISnw44Xb6SpAZ6
++o3qRAlDdKIhfHbBkWha
+=0r7v
+-----END PGP SIGNATURE-----
+
+--8haUuqGT6hzTaxiSetjm0pmZBkUWjFWKS--
