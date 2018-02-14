@@ -1,188 +1,161 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 01/15] KVM: s390: refactor crypto initialization
-Date: Wed, 28 Feb 2018 16:23:29 -0500
-Message-ID: <edab4611-2393-4b82-99af-7d3192b488bc@linux.vnet.ibm.com>
-References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1519741693-17440-2-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180228183741.5276e3d3.cohuck@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
+Date: Tue, 13 Feb 2018 16:48:44 -0800
+Message-ID: <0e4fbe75-7757-6129-b937-1e849ad8946a@infradead.org>
+References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
+ <20180212072727.saupl35jvwex6hbe@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180228183741.5276e3d3.cohuck@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------F0B99163494C332BC7F40931"
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <20180212072727.saupl35jvwex6hbe@gmail.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-iommu/>
+List-Post: <mailto:iommu@lists.linux-foundation.org>
+To: Ingo Molnar <mingo@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-s390 <linux-s390@vger.kernel.org>, sparclinux@vger.kernel.org, X86 ML <x86@kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, John Johansen <john.johansen@canonical.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/28/2018 12:37 PM, Cornelia Huck wrote:
-> On Tue, 27 Feb 2018 09:27:59 -0500
-> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->
->> The crypto control block designation (CRYCBD) is a 32-bit
->> field in the KVM guest's SIE state description. The
->> contents of bits 1-28 of this field, with three zero bits
->> appended on the right, designate the host real 31-bit
->> address of a crypto control block (CRYCB). Bits 30-31
->> specify the format of the CRYCB. In the current
->> implementation, the address of the CRYCB is stored in
->> the CRYCBD only if the Message-Security-Assist extension
->> 3 (MSA3) facility is installed. Virtualization of AP
->> facilities, however, requires that a CRYCB of the
->> appropriate format be made available to SIE regardless
->> of whether MSA3 is installed or not.
+This is a multi-part message in MIME format.
+--------------F0B99163494C332BC7F40931
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+On 02/11/2018 11:27 PM, Ingo Molnar wrote:
+> 
+> * Randy Dunlap <rdunlap@infradead.org> wrote:
+> 
+>> From: Randy Dunlap <rdunlap@infradead.org>
 >>
->> This patch introduces a new compilation unit to provide
->> all interfaces related to configuration of AP facilities.
->> Let's start by moving the function for setting the CRYCB
->> format from arch/s390/kvm/kvm-s390 to this new AP
->> configuration interface.
-> Hm, I would tweak this patch description a bit. First, you talk about
-> what the crycbd is; then, what needs to be done for vfio-ap support;
-> then you simply state that you move some interfaces to a new file. I'd
-> like to see a connection between those parts :)
->
-> [It sounds a bit like you'd just introduce a new file and move some
-> functions, while you do have more changes in there.]
-I'll try to wordsmith the patch description.
->
->> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->> ---
->>   MAINTAINERS                      |   10 ++++++
->>   arch/s390/include/asm/kvm-ap.h   |   16 ++++++++++
->>   arch/s390/include/asm/kvm_host.h |    1 +
->>   arch/s390/kvm/Makefile           |    2 +-
->>   arch/s390/kvm/kvm-ap.c           |   47 ++++++++++++++++++++++++++++
->>   arch/s390/kvm/kvm-s390.c         |   62 +++++---------------------------------
->>   6 files changed, 83 insertions(+), 55 deletions(-)
->>   create mode 100644 arch/s390/include/asm/kvm-ap.h
->>   create mode 100644 arch/s390/kvm/kvm-ap.c
+>> Currently <linux/slab.h> #includes <linux/kmemleak.h> for no obvious
+>> reason. It looks like it's only a convenience, so remove kmemleak.h
+>> from slab.h and add <linux/kmemleak.h> to any users of kmemleak_*
+>> that don't already #include it.
+>> Also remove <linux/kmemleak.h> from source files that do not use it.
 >>
->> diff --git a/MAINTAINERS b/MAINTAINERS
->> index 0ec5881..4acf7c2 100644
->> --- a/MAINTAINERS
->> +++ b/MAINTAINERS
->> @@ -11875,6 +11875,16 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
->>   S:	Supported
->>   F:	drivers/s390/crypto/
->>   
->> +S390 VFIO AP DRIVER
->> +M:	Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->> +M:	Christian BornTraeger <borntraeger@de.ibm.com>
-> Typo.
-Will fix
->
->> +M:	Martin Schwidefsky <schwidefsky@de.ibm.com>
->> +L:	linux-s390@vger.kernel.org
->> +W:	http://www.ibm.com/developerworks/linux/linux390/
->> +S:	Supported
->> +F:	arch/s390/include/asm/kvm/kvm-ap.h
->> +F:	arch/s390/kvm/kvm-ap.c
->> +
->>   S390 ZFCP DRIVER
->>   M:	Steffen Maier <maier@linux.vnet.ibm.com>
->>   M:	Benjamin Block <bblock@linux.vnet.ibm.com>
-> (...)
->
->> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
->> new file mode 100644
->> index 0000000..5305f4c
->> --- /dev/null
->> +++ b/arch/s390/kvm/kvm-ap.c
->> @@ -0,0 +1,47 @@
->> +/*
->> + * Adjunct Processor (AP) configuration management for KVM guests
->> + *
->> + * Copyright IBM Corp. 2017
->> + *
->> + * Author(s): Tony Krowiak <akrowia@linux.vnet.ibm.com>
->> + */
->> +
->> +#include <asm/kvm-ap.h>
->> +#include <asm/ap.h>
->> +
->> +#include "kvm-s390.h"
->> +
->> +static int kvm_ap_apxa_installed(void)
->> +{
->> +	int ret;
->> +	struct ap_config_info config;
->> +
->> +	ret = ap_query_configuration(&config);
-> Doesn't that introduce a dependency on CONFIG_ZCRYPT?
-It does, but AFAIK zcrypt is built into the kernel. Or is that not what 
-you are asking?
->
->> +	if (ret)
->> +		return 0;
->> +
->> +	return (config.apxa == 1);
->> +}
->> +KVM guest's use.
->> +/**
->> + * kvm_ap_set_crycb_format
->> + *
->> + * Set the CRYCB format in the CRYCBD for the KVM guest.
-> Spell out "crypto control block" somewhere?
-Done
->
->> + *
->> + * @kvm:	the KVM guest
->> + * @crycbd:	the CRYCB descriptor
->> + */
->> +void kvm_ap_set_crycb_format(struct kvm *kvm, __u32 *crycbd)
->> +{
->> +	*crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
->> +
->> +	*crycbd &= ~(CRYCB_FORMAT_MASK);
->> +
->> +	/* If the MSAX3 is installed */
-> /* check whether MSAX3 is installed */ ?
-Sure, why not
->
->> +	if (test_kvm_facility(kvm, 76)) {
->> +		if (kvm_ap_apxa_installed())
->> +			*crycbd |= CRYCB_FORMAT2;
->> +		else
->> +			*crycbd |= CRYCB_FORMAT1;
->> +	}
->> +}
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 5f5a4cb..de1e299 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -1913,12 +1866,13 @@ static u64 kvm_s390_get_initial_cpuid(void)
->>   
->>   static void kvm_s390_crypto_init(struct kvm *kvm)
->>   {
->> +	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
->> +	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
->> +	kvm_ap_set_crycb_format(kvm, &kvm->arch.crypto.crycbd);
-> Doesn't kvm_ap_set_crycb_format() already initialize its second
-> parameter?
-Yes it does. I'm going to have to rework this (see comment below)
->
-> Would it make sense to do
->
-> kvm->arch.crypto.crycbd = kvm_ap_build_crycbd(kvm);
->
-> or so instead?
-It would if this was the only place the function gets called. In patch 
-2, this is called
-from VSIE and it wouldn't make sense in that context. I like your idea, 
-let me work on this
-and figure out how best to make it happen.
->
->> +
->>   	if (!test_kvm_facility(kvm, 76))
->>   		return;
->>   
->> -	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
->> -	kvm_s390_set_crycb_format(kvm);
->> -
->>   	/* Enable AES/DEA protected key functions by default */
->>   	kvm->arch.crypto.aes_kw = 1;
->>   	kvm->arch.crypto.dea_kw = 1;
+>> This is tested on i386 allmodconfig and x86_64 allmodconfig. It
+>> would be good to run it through the 0day bot for other $ARCHes.
+>> I have neither the horsepower nor the storage space for the other
+>> $ARCHes.
+>>
+>> [slab.h is the second most used header file after module.h; kernel.h
+>> is right there with slab.h. There could be some minor error in the
+>> counting due to some #includes having comments after them and I
+>> didn't combine all of those.]
+>>
+>> This is Lingchi patch #1 (death by a thousand cuts, applied to kernel
+>> header files).
+>>
+>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> 
+> Nice find:
+> 
+> Reviewed-by: Ingo Molnar <mingo@kernel.org>
+> 
+> I agree that it needs to go through 0-day to find any hidden dependencies we might 
+> have grown due to this.
+
+Andrew,
+
+This patch has mostly survived both 0day and ozlabs multi-arch testing with
+2 build errors being reported by both of them.  I have posted patches for
+those separately. (and are attached here)
+
+other-patch-1:
+lkml.kernel.org/r/5664ced1-a0cd-7e4e-71b6-9c3a97d68927@infradead.org
+"lib/test_firmware: add header file to prevent build errors"
+
+other-patch-2:
+lkml.kernel.org/r/b3b7eebb-0e9f-f175-94a8-379c5ddcaa86@infradead.org
+"integrity/security: fix digsig.c build error"
+
+Will you see that these are merged or do you want me to repost them?
+
+thanks,
+-- 
+~Randy
+
+--------------F0B99163494C332BC7F40931
+Content-Type: text/x-patch;
+ name="integrity_security_digsig_add_header.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="integrity_security_digsig_add_header.patch"
+
+From: Randy Dunlap <rdunlap@infradead.org>
+
+security/integrity/digsig.c has build errors on some $ARCH due to a
+missing header file, so add it.
+
+  security/integrity/digsig.c:146:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
+
+Reported-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Cc: linux-integrity@vger.kernel.org
+Link: http://kisskb.ellerman.id.au/kisskb/head/13396/
+---
+ security/integrity/digsig.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- lnx-416-rc1.orig/security/integrity/digsig.c
++++ lnx-416-rc1/security/integrity/digsig.c
+@@ -18,6 +18,7 @@
+ #include <linux/cred.h>
+ #include <linux/key-type.h>
+ #include <linux/digsig.h>
++#include <linux/vmalloc.h>
+ #include <crypto/public_key.h>
+ #include <keys/system_keyring.h>
+ 
+
+
+
+
+--------------F0B99163494C332BC7F40931
+Content-Type: text/x-patch;
+ name="lib_test_firmware_add_header_file.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="lib_test_firmware_add_header_file.patch"
+
+From: Randy Dunlap <rdunlap@infradead.org>
+
+lib/test_firmware.c has build errors on some $ARCH due to a
+missing header file, so add it.
+
+  lib/test_firmware.c:134:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
+  lib/test_firmware.c:620:25: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
+
+Reported-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: Luis R. Rodriguez <mcgrof@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: http://kisskb.ellerman.id.au/kisskb/head/13396/
+---
+ lib/test_firmware.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- lnx-416-rc1.orig/lib/test_firmware.c
++++ lnx-416-rc1/lib/test_firmware.c
+@@ -21,6 +21,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/delay.h>
+ #include <linux/kthread.h>
++#include <linux/vfree.h>
+ 
+ #define TEST_FIRMWARE_NAME	"test-firmware.bin"
+ #define TEST_FIRMWARE_NUM_REQS	4
+
+
+
+
+--------------F0B99163494C332BC7F40931--
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
