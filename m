@@ -1,8 +1,10 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/6] KVM: s390: Fixes and improvements for 4.16
-Date: Wed, 14 Feb 2018 15:56:30 +0000
-Message-ID: <20180214155636.60405-1-borntraeger@de.ibm.com>
+Subject: [GIT PULL 5/6] KVM: s390: use switch vs jump table in intercept.c
+Date: Wed, 14 Feb 2018 15:56:35 +0000
+Message-ID: <20180214155636.60405-6-borntraeger@de.ibm.com>
+References: <20180214155636.60405-1-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20180214155636.60405-1-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,47 +12,109 @@ To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo, Radim,
+Instead of having huge jump tables for function selection,
+let's use normal switch/case statements for the instruction
+handlers in intercept.c We can now also get rid of
+intercept_handler_t.
 
-some fixes and improvements for 4.16. (via kvm/master).
-Either for features new in 4.16 or to improve the speculative
-execution handling.
+This allows the compiler to make the right decision depending
+on the situation (e.g. avoid jump-tables for thunks).
 
-The following changes since commit 7928b2cbe55b2a410a0f5c1f154610059c57b1b2:
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/intercept.c | 51 +++++++++++++++++++++++++++--------------------
+ arch/s390/kvm/kvm-s390.h  |  2 --
+ 2 files changed, 29 insertions(+), 24 deletions(-)
 
-  Linux 4.16-rc1 (2018-02-11 15:04:29 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.16-1
-
-for you to fetch changes up to baabee67f4135e3de87bc874929ac50637aacb0d:
-
-  KVM: s390: use switch vs jump table in interrupt.c (2018-02-14 13:53:43 +0000)
-
-----------------------------------------------------------------
-KVM: s390: Fixes and improvements for 4.16
-
-- optimization for the exitless interrupt support that was merged
-  in 4.16-rc1
-- improve the branch prediction blocking for nested KVM
-- replace some jump tables with switch statements to improve
-  expoline performance
-
-----------------------------------------------------------------
-Christian Borntraeger (5):
-      KVM: s390: optimize wakeup for exitless interrupts
-      KVM: s390: do not set intervention requests for GISA interrupts
-      KVM: s390: force bp isolation for VSIE
-      KVM: s390: use switch vs jump table in priv.c
-      KVM: s390: use switch vs jump table in intercept.c
-
-David Hildenbrand (1):
-      KVM: s390: use switch vs jump table in interrupt.c
-
- arch/s390/kvm/intercept.c |  51 +++++++------
- arch/s390/kvm/interrupt.c |  98 +++++++++++++++----------
- arch/s390/kvm/kvm-s390.h  |   2 -
- arch/s390/kvm/priv.c      | 183 +++++++++++++++++++++++-----------------------
- arch/s390/kvm/vsie.c      |  20 +++++
- 5 files changed, 200 insertions(+), 154 deletions(-)
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 9c7d70715862..07c6e81163bf 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -22,22 +22,6 @@
+ #include "trace.h"
+ #include "trace-s390.h"
+ 
+-
+-static const intercept_handler_t instruction_handlers[256] = {
+-	[0x01] = kvm_s390_handle_01,
+-	[0x82] = kvm_s390_handle_lpsw,
+-	[0x83] = kvm_s390_handle_diag,
+-	[0xaa] = kvm_s390_handle_aa,
+-	[0xae] = kvm_s390_handle_sigp,
+-	[0xb2] = kvm_s390_handle_b2,
+-	[0xb6] = kvm_s390_handle_stctl,
+-	[0xb7] = kvm_s390_handle_lctl,
+-	[0xb9] = kvm_s390_handle_b9,
+-	[0xe3] = kvm_s390_handle_e3,
+-	[0xe5] = kvm_s390_handle_e5,
+-	[0xeb] = kvm_s390_handle_eb,
+-};
+-
+ u8 kvm_s390_get_ilen(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
+@@ -129,16 +113,39 @@ static int handle_validity(struct kvm_vcpu *vcpu)
+ 
+ static int handle_instruction(struct kvm_vcpu *vcpu)
+ {
+-	intercept_handler_t handler;
+-
+ 	vcpu->stat.exit_instruction++;
+ 	trace_kvm_s390_intercept_instruction(vcpu,
+ 					     vcpu->arch.sie_block->ipa,
+ 					     vcpu->arch.sie_block->ipb);
+-	handler = instruction_handlers[vcpu->arch.sie_block->ipa >> 8];
+-	if (handler)
+-		return handler(vcpu);
+-	return -EOPNOTSUPP;
++
++	switch (vcpu->arch.sie_block->ipa >> 8) {
++	case 0x01:
++		return kvm_s390_handle_01(vcpu);
++	case 0x82:
++		return kvm_s390_handle_lpsw(vcpu);
++	case 0x83:
++		return kvm_s390_handle_diag(vcpu);
++	case 0xaa:
++		return kvm_s390_handle_aa(vcpu);
++	case 0xae:
++		return kvm_s390_handle_sigp(vcpu);
++	case 0xb2:
++		return kvm_s390_handle_b2(vcpu);
++	case 0xb6:
++		return kvm_s390_handle_stctl(vcpu);
++	case 0xb7:
++		return kvm_s390_handle_lctl(vcpu);
++	case 0xb9:
++		return kvm_s390_handle_b9(vcpu);
++	case 0xe3:
++		return kvm_s390_handle_e3(vcpu);
++	case 0xe5:
++		return kvm_s390_handle_e5(vcpu);
++	case 0xeb:
++		return kvm_s390_handle_eb(vcpu);
++	default:
++		return -EOPNOTSUPP;
++	}
+ }
+ 
+ static int inject_prog_on_prog_intercept(struct kvm_vcpu *vcpu)
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index bd31b37b0e6f..3c0a975c2477 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -19,8 +19,6 @@
+ #include <asm/processor.h>
+ #include <asm/sclp.h>
+ 
+-typedef int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
+-
+ /* Transactional Memory Execution related macros */
+ #define IS_TE_ENABLED(vcpu)	((vcpu->arch.sie_block->ecb & ECB_TE))
+ #define TDB_FORMAT1		1
+-- 
+2.14.3
