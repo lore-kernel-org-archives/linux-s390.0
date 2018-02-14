@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 08 Feb 2018 15:30:21 +0000
+Date: Wed, 14 Feb 2018 08:12:12 +0000
 Subject: Re: [PATCH v2 1/3] Kconfig : Remove HAS_IOMEM dependency for Graphics support
-Message-Id: <b93b12b9-bfcc-8ae4-ad74-fd4f262872a8@de.ibm.com>
+Message-Id: <3f34e137-7a34-a48f-0f27-993e28af1705@de.ibm.com>
 References: <cover.1517508744.git.alifm@linux.vnet.ibm.com>
  <CGME20180202080007epcas5p306896fe66e4bbf4bf5f8d91306a5d016@epcas5p3.samsung.com>
  <246f92c9-15dc-223f-59d9-b2f0756cdf5e@de.ibm.com>
@@ -15,6 +15,13 @@ List-Post: <mailto:linux-fbdev@vger.kernel.org>
 To: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Cc: Farhan Ali <alifm@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fbdev@vger.kernel.org, geert@linux-m68k.org, stefan.kristiansson@saunalahti.fi, tomi.valkeinen@ti.com, schwidefsky@de.ibm.com, dri-devel@lists.freedesktop.org, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, user-mode-linux-devel@lists.sourceforge.net
 List-ID: <linux-s390.vger.kernel.org>
+
+I added all three patches to my next tree
+https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=next
+This will hoepfully reveal any fallout.
+
+Would be good to have an ACK from the score, tile and um maintainers in case
+they verified that this change did not break anything.
 
 
 
@@ -43,6 +50,52 @@ On 02/08/2018 02:11 PM, Bartlomiej Zolnierkiewicz wrote:
 > Moreover it seems that after this change "Graphics support" menu will
 > be also enabled (besides s390) for score, tile and um architectures,
 > I assume that this is okay?
-
-I can add this patch to my next tree (after merge window) and check for
-any errors from all the build bots.
+> 
+>>> Signed-off-by: Farhan Ali <alifm@linux.vnet.ibm.com>
+>>> Tested-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+>>
+>> This also enables several PCI based graphic device driver on s390.
+>> This makes no sense but they all compile fine so I guess this is ok.
+>>
+>> I think patch 2 and 3 are clearly for the s390 tree, patch 1 seems trivial
+>> Also ccing Bart. Can we maybe get an ack to carry this patch also via the s390
+>> tree?
+>>
+>>
+>>> ---
+>>>  drivers/video/Kconfig       | 1 -
+>>>  drivers/video/fbdev/Kconfig | 2 +-
+>>>  2 files changed, 1 insertion(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+>>> index 3c20af9..41e7ba9 100644
+>>> --- a/drivers/video/Kconfig
+>>> +++ b/drivers/video/Kconfig
+>>> @@ -3,7 +3,6 @@
+>>>  #
+>>>
+>>>  menu "Graphics support"
+>>> -	depends on HAS_IOMEM
+>>>
+>>>  config HAVE_FB_ATMEL
+>>>  	bool
+>>> diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+>>> index 2f615b7..ec9c9ce 100644
+>>> --- a/drivers/video/fbdev/Kconfig
+>>> +++ b/drivers/video/fbdev/Kconfig
+>>> @@ -966,7 +966,7 @@ config FB_PVR2
+>>>
+>>>  config FB_OPENCORES
+>>>  	tristate "OpenCores VGA/LCD core 2.0 framebuffer support"
+>>> -	depends on FB && HAS_DMA
+>>> +	depends on FB && HAS_DMA && HAS_IOMEM
+>>>  	select FB_CFB_FILLRECT
+>>>  	select FB_CFB_COPYAREA
+>>>  	select FB_CFB_IMAGEBLIT
+> 
+> Best regards,
+> --
+> Bartlomiej Zolnierkiewicz
+> Samsung R&D Institute Poland
+> Samsung Electronics
+> 
