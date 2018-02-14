@@ -1,26 +1,24 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH] KVM: s390: force bp isolation for VSIE
-Date: Wed, 14 Feb 2018 11:20:46 +0100
-Message-ID: <854dab23-fe2b-aace-e773-00cb9eb73819@de.ibm.com>
+Date: Wed, 14 Feb 2018 11:37:30 +0100
+Message-ID: <2fee7e07-d85f-191a-40c1-42a13704efee@redhat.com>
 References: <20180214083422.44175-1-borntraeger@de.ibm.com>
  <16458103-a499-ce6d-4160-682cd9e8f926@redhat.com>
  <d452d4fe-f603-79f4-b83e-24badafb41a6@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <d452d4fe-f603-79f4-b83e-24badafb41a6@de.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 02/14/2018 11:14 AM, Christian Borntraeger wrote:
+On 14.02.2018 11:14, Christian Borntraeger wrote:
 > 
 > 
 > On 02/14/2018 11:06 AM, David Hildenbrand wrote:
@@ -99,6 +97,30 @@ On 02/14/2018 11:14 AM, Christian Borntraeger wrote:
 > 
 > The BPBC is an effective control, so if you enter SIE with bp blocking,
 > then the guest will have bp blocking "forced" on.
+
+The guest can at least disable BPBC logically. (you can enable the
+control in the SCB but the guest can simply turn it off) - that's why we
+sync it back in unshadow_scb().
+
+I now understand it like this:
+
+LPAR (BPBC = on) -> Guest BPBC value ignored
+LPAR (BPBC = off) -> Guest BPBC value used
+LPAR (BPBC = off) -> Guest (BPBC = off) -> Nested guest value used
+
+And you are fixing this case:
+LPAR (BPBC = off) -> Guest (BPBC = on) -> Nested guest ignored
+
+And you do this by setting LPAR (BPBC = on) while running the nested guest.
+
+If so, please add a comment
+
+/*
+ * The guest is running with BPBC, so we have to force it on for our
+ * nested guest. This is done by enabling BPBC globally, so the BPBC
+ * control in the SCB (which the nested guest can modify) is simply
+ * ignored.
+ */
 > 
 >>
 >> However I wonder what the semantics of FPF_BPBC should be. Shouldn't it
@@ -108,9 +130,14 @@ On 02/14/2018 11:14 AM, Christian Borntraeger wrote:
 > the forcing happens by being an effective control. Imagine it like setting
 > the TIF bit will basically turn on FPF_BPBC on the LPAR level before going
 > into SIE and the  effective value for guest3 running via vsie as guest2 
+> will be that this guest3 can do ppa12/13 as it likes, it will always run
+> with bp blocking.
+> 
 
-FWIW, check 
 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/s390/kernel/entry.S?id=6b73044b2b0081ee3dd1cd6eaab7dee552601efb
 
-How the TIF bit will make the host kernel call ppa12 before calling SIE.
+-- 
+
+Thanks,
+
+David / dhildenb
