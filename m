@@ -1,68 +1,75 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [GIT PULL 0/6] KVM: s390: Fixes and improvements for 4.16
-Date: Wed, 14 Feb 2018 17:19:12 +0100
-Message-ID: <b23c7ff2-0458-2505-1076-a37580527f19@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/6] KVM: s390: force bp isolation for VSIE
+Date: Wed, 14 Feb 2018 15:56:33 +0000
+Message-ID: <20180214155636.60405-4-borntraeger@de.ibm.com>
 References: <20180214155636.60405-1-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20180214155636.60405-1-borntraeger@de.ibm.com>
-Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 14/02/2018 16:56, Christian Borntraeger wrote:
-> Paolo, Radim,
-> 
-> some fixes and improvements for 4.16. (via kvm/master).
-> Either for features new in 4.16 or to improve the speculative
-> execution handling.
+If the guest runs with bp isolation when doing a SIE instruction,
+we must also run the nested guest with bp isolation when emulating
+that SIE instruction.
+This is done by activating BPBC in the lpar, which acts as an override
+for lower level guests.
 
-Pulled, thanks.  Should make it into rc2.
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/vsie.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-Paolo
-
-> The following changes since commit 7928b2cbe55b2a410a0f5c1f154610059c57b1b2:
-> 
->   Linux 4.16-rc1 (2018-02-11 15:04:29 -0800)
-> 
-> are available in the Git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.16-1
-> 
-> for you to fetch changes up to baabee67f4135e3de87bc874929ac50637aacb0d:
-> 
->   KVM: s390: use switch vs jump table in interrupt.c (2018-02-14 13:53:43 +0000)
-> 
-> ----------------------------------------------------------------
-> KVM: s390: Fixes and improvements for 4.16
-> 
-> - optimization for the exitless interrupt support that was merged
->   in 4.16-rc1
-> - improve the branch prediction blocking for nested KVM
-> - replace some jump tables with switch statements to improve
->   expoline performance
-> 
-> ----------------------------------------------------------------
-> Christian Borntraeger (5):
->       KVM: s390: optimize wakeup for exitless interrupts
->       KVM: s390: do not set intervention requests for GISA interrupts
->       KVM: s390: force bp isolation for VSIE
->       KVM: s390: use switch vs jump table in priv.c
->       KVM: s390: use switch vs jump table in intercept.c
-> 
-> David Hildenbrand (1):
->       KVM: s390: use switch vs jump table in interrupt.c
-> 
->  arch/s390/kvm/intercept.c |  51 +++++++------
->  arch/s390/kvm/interrupt.c |  98 +++++++++++++++----------
->  arch/s390/kvm/kvm-s390.h  |   2 -
->  arch/s390/kvm/priv.c      | 183 +++++++++++++++++++++++-----------------------
->  arch/s390/kvm/vsie.c      |  20 +++++
->  5 files changed, 200 insertions(+), 154 deletions(-)
-> 
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index ec772700ff96..8961e3970901 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -821,6 +821,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ {
+ 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+ 	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
++	int guest_bp_isolation;
+ 	int rc;
+ 
+ 	handle_last_fault(vcpu, vsie_page);
+@@ -831,6 +832,20 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		s390_handle_mcck();
+ 
+ 	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
++
++	/* save current guest state of bp isolation override */
++	guest_bp_isolation = test_thread_flag(TIF_ISOLATE_BP_GUEST);
++
++	/*
++	 * The guest is running with BPBC, so we have to force it on for our
++	 * nested guest. This is done by enabling BPBC globally, so the BPBC
++	 * control in the SCB (which the nested guest can modify) is simply
++	 * ignored.
++	 */
++	if (test_kvm_facility(vcpu->kvm, 82) &&
++	    vcpu->arch.sie_block->fpf & FPF_BPBC)
++		set_thread_flag(TIF_ISOLATE_BP_GUEST);
++
+ 	local_irq_disable();
+ 	guest_enter_irqoff();
+ 	local_irq_enable();
+@@ -840,6 +855,11 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	local_irq_disable();
+ 	guest_exit_irqoff();
+ 	local_irq_enable();
++
++	/* restore guest state for bp isolation override */
++	if (!guest_bp_isolation)
++		clear_thread_flag(TIF_ISOLATE_BP_GUEST);
++
+ 	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
+ 
+ 	if (rc == -EINTR) {
+-- 
+2.14.3
