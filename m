@@ -1,25 +1,17 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH v3 04/16] s390/mm: add gmap PMD invalidation
- notification
-Date: Wed, 14 Feb 2018 16:24:51 +0100
-Message-ID: <b50dadcf-c114-7c65-e3df-373f1dd399f4@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v3 00/16] KVM/s390: Hugetlbfs enablement
+Date: Wed, 14 Feb 2018 16:33:11 +0100
+Message-ID: <9a8bc606-217c-db26-3a1a-85c8405c9487@linux.vnet.ibm.com>
 References: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1518168864-147803-5-git-send-email-frankja@linux.vnet.ibm.com>
- <38c32f80-9225-8e71-7a8a-aa759cdbbfc7@redhat.com>
- <e9024cdf-7f44-cae3-c839-96eb2e9a6f37@linux.vnet.ibm.com>
- <dd0b270b-cefe-00ad-0020-b7eb125b683f@redhat.com>
- <5fb02c01-bbda-bdd7-eb54-8e8ee525093c@linux.vnet.ibm.com>
- <dbaf7c40-928c-c535-db70-67e7d284a22b@redhat.com>
- <6e6d3053-1526-230c-0fb3-6d57168f47c7@linux.vnet.ibm.com>
- <7009cdd4-bbf1-2802-b9a8-03c238ec8ae2@redhat.com>
- <da99ceda-9ce3-e8b9-f190-83dbdfed6c68@linux.vnet.ibm.com>
- <cd3e5011-ef32-bdc8-6d22-1c128d5c6f40@redhat.com>
+ <16d92e45-97bc-fbbd-55e7-36da8c1a6d73@redhat.com>
+ <70de883f-4120-1b36-fb0f-5b940b05aab4@linux.vnet.ibm.com>
+ <7dadc09b-8ada-a9e4-14c1-aca36ac0afe5@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="gOK9TWsyxmQJvl9a1qhWZWIGMJHhOeSjz"
+ boundary="NoUCsmGN4LuBfu817CmHGGD6tnuDXqNCh"
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <cd3e5011-ef32-bdc8-6d22-1c128d5c6f40@redhat.com>
+In-Reply-To: <7dadc09b-8ada-a9e4-14c1-aca36ac0afe5@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -28,72 +20,101 @@ Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, li
 List-ID: <linux-s390.vger.kernel.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---gOK9TWsyxmQJvl9a1qhWZWIGMJHhOeSjz
-Content-Type: multipart/mixed; boundary="68iDrqvXhzSCmlz01QBZqGZBoTuetnd1y";
+--NoUCsmGN4LuBfu817CmHGGD6tnuDXqNCh
+Content-Type: multipart/mixed; boundary="nFbFmXqVyeeat4xs4UCUTpXpYBI5OtDlz";
  protected-headers="v1"
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
 To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
 Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com,
  linux-s390@vger.kernel.org
-Message-ID: <b50dadcf-c114-7c65-e3df-373f1dd399f4@linux.vnet.ibm.com>
-Subject: Re: [RFC/PATCH v3 04/16] s390/mm: add gmap PMD invalidation
- notification
+Message-ID: <9a8bc606-217c-db26-3a1a-85c8405c9487@linux.vnet.ibm.com>
+Subject: Re: [RFC/PATCH v3 00/16] KVM/s390: Hugetlbfs enablement
 References: <1518168864-147803-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1518168864-147803-5-git-send-email-frankja@linux.vnet.ibm.com>
- <38c32f80-9225-8e71-7a8a-aa759cdbbfc7@redhat.com>
- <e9024cdf-7f44-cae3-c839-96eb2e9a6f37@linux.vnet.ibm.com>
- <dd0b270b-cefe-00ad-0020-b7eb125b683f@redhat.com>
- <5fb02c01-bbda-bdd7-eb54-8e8ee525093c@linux.vnet.ibm.com>
- <dbaf7c40-928c-c535-db70-67e7d284a22b@redhat.com>
- <6e6d3053-1526-230c-0fb3-6d57168f47c7@linux.vnet.ibm.com>
- <7009cdd4-bbf1-2802-b9a8-03c238ec8ae2@redhat.com>
- <da99ceda-9ce3-e8b9-f190-83dbdfed6c68@linux.vnet.ibm.com>
- <cd3e5011-ef32-bdc8-6d22-1c128d5c6f40@redhat.com>
-In-Reply-To: <cd3e5011-ef32-bdc8-6d22-1c128d5c6f40@redhat.com>
+ <16d92e45-97bc-fbbd-55e7-36da8c1a6d73@redhat.com>
+ <70de883f-4120-1b36-fb0f-5b940b05aab4@linux.vnet.ibm.com>
+ <7dadc09b-8ada-a9e4-14c1-aca36ac0afe5@redhat.com>
+In-Reply-To: <7dadc09b-8ada-a9e4-14c1-aca36ac0afe5@redhat.com>
 
---68iDrqvXhzSCmlz01QBZqGZBoTuetnd1y
+--nFbFmXqVyeeat4xs4UCUTpXpYBI5OtDlz
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 14.02.2018 16:15, David Hildenbrand wrote:
->>> So what can happen is (please correct me if I'm wrong)
+On 14.02.2018 16:07, David Hildenbrand wrote:
+> On 14.02.2018 16:01, Janosch Frank wrote:
+>> On 14.02.2018 15:30, David Hildenbrand wrote:
+>>> On 09.02.2018 10:34, Janosch Frank wrote:
+>>>> Since the z10 s390 does support 1M pages, but whereas hugetlbfs
+>>>> support was added quite fast, KVM always used standard 4k pages for
+>>>> guest backings.
+>>>>
+>>>> This patchset adds full support for 1M huge page backings for s390
+>>>> KVM guests. I.e. we also support VSIE (nested vms) for these guests
+>>>> and are therefore able to run all combinations of backings for all
+>>>> layers of guests.
+>>>>
+>>>> When running a VSIE guest in a huge page backed guest, we need to
+>>>> split some huge pages to be able to set granular protection. This wa=
+y
+>>>> we avoid a prot/unprot cycle if prefixes and VSIE pages containing
+>>>> level 3 gmap DAT tables share the same segment, as the prefix has to=
+
+>>>> be accessible at all times and the VSIE page has to be write
+>>>> protected.
+>>>>
+>>>> Branch:
+>>>> git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git hlp_=
+vsie
+>>>> https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/lo=
+g/?h=3Dhlp_vsie
+>>>>
 >>>
->>> a) PMD is split. SSKE writes storage key with _PAGE_CHANGED, ends up =
-in
->>> PGSTE. The real storage key doesn't match the requested storage key.
->>> b) Split PMD is replaced, triggers a removal of the split PMD ->
->>> gmap_pmd_split_free(pmdp). The requested storage key is partially los=
-t
->>> (pgste removed).
->>> c) PMD is mapped in again. If the guest reads the storage key now, th=
-e
->>> value is wrong.
+>>> A general proposal: We will have split PMDs with fake PGSTE. This is
+>>> nasty but needed. I think we should hinder virtualization from making=
+
+>>> use of these. Just like we already do for vSIE.
+>>>
+>>> Should we make the KVM_CAP_S390_HPAGE a configuration option?
+>>>
+>>> Without it being set, don't allow mapping huge pages into the GMAP.
+>>> Everything as usual.
+>>>
+>>> With it being set (by user space when it thinks we need huge pages),
+>>> allow mapping huge pages into the GMAP AND
+>>> - Explicitly disable CMMA. Right now we trust on user space to do the=
+
+>>>   right thing. ecb2 &=3D ~ECB2_CMMA
+>>> - Disable PFMFI -> ecb2 &=3D ~ECB2_PFMFI
+>>> - Disable SKF by setting scb->ictl |=3D ICTL_ISKE | ICTL_SSKE | ICTL_=
+RRBE
+>>>
+>>> So user space has to explicitly indicate and allow huge pages. This w=
+ill
+>>> result in all instructions that touch the PGSTE getting intercepted, =
+so
+>>> we can properly work on the huge PMDs instead.
 >>
->> Yes, we loose GR and GC.
->> Is there a case when the VM is running, where this would happen?
+>> My only concern here is:
+>> Can this coexist with the cpumodels in a coordinated way?
+>>
 >=20
-> It should already happen when migrating storage keys. The fake PGSTE ar=
-e
-> not considered in get_guest_storage_key().
-
-Yes, that should break it reliably :)
-
+> We already have to fake away the CMMA facility in user space. So that
+> shouldn't be a problem. The other instructions
+> - PFMF
+> - ISKE, SSKE ...
 >=20
-> For the other parts, the original user space PMD would have to be
-> changed. A simply mprotect() should achieve that. Or dirty tracking. Bu=
-t
-> not sure how that applies to huge pages at all.
+> Will simply always be interpreted. Should not affect the CPU model.
 
-I've only seen that 'till now when the VM is already dead and the kernel
-cleans up. Anyhow, you already proposed a solution, so there's no sense
-in defending against corner cases.
+Bear with me, it was a long day:
 
+Would it make sense to force user space to configure HPAGE before asking
+for model data, so that we can remove these model bits already from
+kernel side and wouldn't need extensive handling on two points?
 
 
---68iDrqvXhzSCmlz01QBZqGZBoTuetnd1y--
+--nFbFmXqVyeeat4xs4UCUTpXpYBI5OtDlz--
 
---gOK9TWsyxmQJvl9a1qhWZWIGMJHhOeSjz
+--NoUCsmGN4LuBfu817CmHGGD6tnuDXqNCh
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -101,19 +122,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJahFTDAAoJEBcO/8Q8ZEV5nJcQAIJLvMd3bMS7rZDyELIf0G/I
-4ZtUkrLdHZ1syQ9AH69SFc1JGb6W4DGyhTE48YGxKlmWAp4aeKIe8FpQHKhuRtGw
-Nfq4459MbSEmDVUyDhqr0HQ7BYIL0y9EwrZ7kK5UGimeZypQm57P9C0UvI/f7364
-ZaHVlWOI6QFeJ2tCRnOuT5zTYcCkcmgFxbtT/mriuwBTq4ykgTdjyx+0PZoYgXM1
-5ZIn3O1i5p8dL+w0hk54cjquNbPlnooRQIx7q5mHmwM+iu46QeApwWrvNvfkYmkw
-8/o49dd3TFIWn+rlfkTwsAX5h+EcBbWoFm3FID/bBhWJrV/F2LDXeJKXQj15hlkM
-/O+9GQpdEAm1r3C+1DZQ78cpSzob251fLpZw3vEZFGn2TnyOP7WUSMK2ud9a6vXs
-uUMqyVyg4RblFiZ5c6w7WSucp9SoMw9tmErHK/Clr19RSkugwzLMGSGKgcU/64YA
-EXYNwL89PD1AgXTtZURc9zsSJ8Srf6SSVyInXH4rb/FJGjBWieAyyOZmTBb01t6g
-qBH0GcSXuCOVup2q1V15fAV8U4oAcFNSXyqIB3jsAkM6aHPSuHKKv1WLuCSzFz/R
-8IZ+g9UWLKUyrm+i8Ik/eIkXlOyUNSMhd33JCp2oQd0fLf5G/BoDoR+Wc2ibI+OD
-jf3DPVeqeD9QSxOfo2w/
-=uyhW
+iQIcBAEBCAAGBQJahFa3AAoJEBcO/8Q8ZEV5jeIP/2DXqBTOfn4yi3Ww+lt9GQkN
++qhhFQfiTtRTJC0wp+lLIIKqOgEdXowihzvHVvU/ACPFGU+huOuiWsAJz/oxWf3G
+IlBeP5AeUSHjGADUwJZAVpMtlObqZ7HtcraZRg9Tv6Mp82xPPHpHoquGKiIGEdO4
+x/1nsPFMZ4QzNSCEiVAo3kuxebUKlSKLqc6LFZFUud4DOcfGxvZhXb5g/Nh+ZkZ1
+Xl9JyD+F+2mcWQLzbV0kEO7hmZmyOL47EEvyywTlTV+7FUgbX92q3HkiOyUwfkMc
+2KduWNbDo6xCkDU8ip10TQDl9cMtVZaQAJWS6VGmGhI4yriQ+RVzBrIzWlJVmQ94
+bqcAcUX9qn+zXIhiBUQyymw+dZ7F//yH7nklgatX8ql/r09sNzxYjCTtyfdCjtH5
+00lNnCnkF/95Mqe7P7UgplzCzWyMIsdJPESK/WZQN0aofGhs7vuNrXfNfofXv5Iz
+O5DHBdUsJtBrNnzTy5zERA6yMkF/+Qnnec6ziEBAn973gGolAul2j41Zy634kcgq
+VjAxg74n3bDmX9blp9WNDFqgJFvbhQV0RySX58nwvv6WW6i34fgQu5BwVGJdnlBC
+7+LGdD9oreeZzanTKej2Q7ZA3aPDWOgvvFgJeJGBkooz0+QqpVpU9g4JLw+gZX82
+TbeZeHn04DPK4DXwKyJ+
+=wO2U
 -----END PGP SIGNATURE-----
 
---gOK9TWsyxmQJvl9a1qhWZWIGMJHhOeSjz--
+--NoUCsmGN4LuBfu817CmHGGD6tnuDXqNCh--
