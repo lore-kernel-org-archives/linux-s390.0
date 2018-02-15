@@ -1,88 +1,53 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <CAK8P3a1SiejhK+eSx_mYqJratytU+_6FSjjatZE9n171GiA0mg@mail.gmail.com>
-References: <20180210054843.z3g7wvcmlccvww3h@huvuddator> <CAK7LNARHmAF2SxBcc1aUEH5MMzUo_furLevqy7QzGxqNRHYiyQ@mail.gmail.com>
- <20180210074924.3nhxsza5zdbaahxx@huvuddator> <20180210080556.mycqsjhxbaguwhay@huvuddator>
- <20180210085519.737ckf4bcl57h4g2@huvuddator> <CAGXu5jKQgxxC2RQL0dxLKFVED2v-LiWKjtXY3DDpfwAXbnxM4Q@mail.gmail.com>
- <CA+55aFz-SJ970iqDsR8-Ke4z6WvB4n9RXAeen8pG=+YJWubETw@mail.gmail.com>
- <CAGXu5jLo0iuMsH89vj3nr8sv+1YvXfXgoPeBdxHwZm5i=DWoOA@mail.gmail.com>
- <CA+55aFxdx3FYE6YGifRR=BSG9QzXwgThj5z7RmV5P5+RpNXSiQ@mail.gmail.com>
- <CA+55aFyPyYyG-riaBQU5cGp_sC=r8mf9Mg6L=DUEH6EyQfWYwA@mail.gmail.com>
- <20180211103432.pf2ot6nd7nbhdhsy@huvuddator> <CAGXu5jLtFcvbazxUvL_=6uT+a8m0JQEB7v0OE41Z-PMoX_fWpA@mail.gmail.com>
- <CAK7LNAQpS6dYBnt_PjL5zrX1=eccSg80khu=WYCjnHNvDiKa3w@mail.gmail.com>
- <CAGXu5j+7kv=jrg2u7jaxFEXwHoyzDXP_jyKHYA682_BrYuHwQQ@mail.gmail.com>
- <49c196ec-891d-2030-bd6c-7222feb22059@infradead.org> <CAK7LNAREEJ_k9x2QXaT73nBg934pb9YvO9DfzhhU7+_fpDdH8g@mail.gmail.com>
- <b17cc8ff-1bf1-1026-d028-f9552701403d@infradead.org> <CAK8P3a1SiejhK+eSx_mYqJratytU+_6FSjjatZE9n171GiA0mg@mail.gmail.com>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Date: Tue, 13 Feb 2018 17:59:25 +0900
-Message-ID: <CAK7LNARXz-SYZrnyWedh6nxLYS-T18RdEPFsmBxHUW_4jQERPA@mail.gmail.com>
-Subject: Re: [RFC PATCH 4/7] kconfig: support new special property shell=
-Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 15 Feb 2018 15:38:12 -0800 (PST)
+Subject: Re: [RFC PATCH 4/7] kconfig: support new special property shell
+In-Reply-To: <CA+55aFy4WNC=pmga19CHhrX9QwOJsu1bUvGL0oNxq5EeMW94eg@mail.gmail.com>
+From: Palmer Dabbelt <palmer@sifive.com>
+Message-ID: <mhng-0ca7cce5-5731-4bf4-b116-b719d3aad34b@palmer-si-x1c4>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Randy Dunlap <rdunlap@infradead.org>, Kees Cook <keescook@chromium.org>, Ulf Magnusson <ulfalizer@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, "Luis R . Rodriguez" <mcgrof@suse.com>, Sam Ravnborg <sam@ravnborg.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, linux-s390 <linux-s390@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@kernel.org>, "Van De Ven, Arjan" <arjan.van.de.ven@intel.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: keescook@chromium.org, ulfalizer@gmail.com, yamada.masahiro@socionext.com, linux-kbuild@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, akpm@linux-foundation.org, nicolas.pitre@linaro.org, mcgrof@suse.com, rdunlap@infradead.org, sam@ravnborg.org, michal.lkml@markovi.net, schwidefsky@de.ibm.com, pavel@ucw.cz, linux-s390@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org, tj@kernel.org, mingo@kernel.org, arjan.van.de.ven@intel.com, Arnd Bergmann <arnd@arndb.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-2018-02-13 17:35 GMT+09:00 Arnd Bergmann <arnd@arndb.de>:
-> On Tue, Feb 13, 2018 at 2:53 AM, Randy Dunlap <rdunlap@infradead.org> wrote:
->> On 02/12/2018 05:41 PM, Masahiro Yamada wrote:
->>> 2018-02-13 8:48 GMT+09:00 Randy Dunlap <rdunlap@infradead.org>:
->>>> On 02/12/2018 07:24 AM, Kees Cook wrote:
->>>>> On Mon, Feb 12, 2018 at 6:39 AM, Masahiro Yamada
->>>>> <yamada.masahiro@socionext.com> wrote:
->>>>
->>>>>>> (And in thinking about this, does Kconfig know the true $CC in use?
->>>>>>> i.e. the configured cross compiler, etc?)
->>>>>>
->>>>>> I was thinking of removing CONFIG_CROSS_COMPILE.
->>>>>>
->>>>>> A user can dynamically change CROSS_COMPILE from
->>>>>> "make menuconfig".
->>>>>
->>>>> Most builds I've seen implement cross compilers as an environment
->>>>> variable during all "make" invocations.
->>>>
->>>> I agree. I think you would break a bunch of build bots if you remove that.
->>>
->>>
->>> For clarification, I suggested to remove CONFIG_CROSS_COMPILE.
->>>
->>> The following code:
->>> https://github.com/torvalds/linux/blob/v4.16-rc1/Makefile#L315
->>> https://github.com/torvalds/linux/blob/v4.16-rc1/init/Kconfig#L58
->>>
->>> I hope build bots are not using this.
->>>
->>>
->>> Passing CROSS_COMPILE via the command line, environment
->>> is still supported.
+On Sun, 11 Feb 2018 12:06:35 PST (-0800), Linus Torvalds wrote:
+> On Sun, Feb 11, 2018 at 11:53 AM, Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
 >>
->> OK, I misunderstood.  That one can go away IMO.
+>> Well, it's still not a very *big* bump. With modern distros being at
+>> 7.3, and people testing pre-releases of gcc-8, something like gcc-4.5
+>> is still pretty darn ancient.
 >
-> Removing it will break the workflow for some people in a minor way
-> though. Could we have the top-level Makefile try to detect the
-> CROSS_COMPILE? Instead of just using CC=gcc as the default,
-> we could check for ${ARCH}!=`uname -m` and then see if $PATH
-> contains a ${ARCH}-linux-gcc, ${ARCH}-elf-gcc or ${ARCH}-gcc.
+> ... it's worth noting that our _documentation_ may claim that gcc-3.2
+> is the minimum supported version, but Arnd pointed out that a few
+> months ago that apparently nothing older than 4.1 has actually worked
+> for a longish while, and gcc-4.3 was needed on several architectures.
 >
-> it will need slightly more complexity to deal with architectures
-> that have different identifiers in linux and gcc, but I think it would
-> be a nice feature anyway.
+> So the _real_ jump in required gcc version would be from 4.1 (4.3 in
+> many cases) to 4.5, not from our documented "3.2 minimum".
 >
->      Arnd
+> Arnd claimed that some architectures needed even newer-than-4.3, but I
+> assume that's limited to things like RISC-V that simply don't have old
+> gcc support at all.
 
-Some architectures such as m68k, mips, etc.
-do this in their arch/*/Makefile
-by using $(call cc-cross-prefix, ...)
+Just for the record, we'd really like users to use GCC 7.3.0 and binutils 2.30 
+(or newer), as even though we had support earlier versions (back to binutils 
+2.28 and gcc 7.1.0) there's a handful of bugs floating around in our ports 
+there.
 
-But, currently we do not do this globally.
+Of course, I'm not suggesting that as a kernel-wide policy :).  It looks like 
+we're going to end up with distributions shipping 7.3.0 and 2.30 as their first 
+RISC-V versions, so hopefully we're safe here.
 
-It would be possible to do it, but it does not mean
-backward-compatible with CONFIG_CROSS_COMPILE.
-
-
--- 
-Best Regards
-Masahiro Yamada
+> That was from a discussion about bug report that only happened with
+> gcc-4.4, and was because gcc-4.4 did insane things, so we were talking
+> about how it wasn't necessarily worth supporting.
+>
+> So we really have had a lot of unrelated reasons why just saying
+> "gcc-4.5 or newer"  would be a good thing.
+>
+>             Linus
