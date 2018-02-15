@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 14 Feb 2018 08:12:12 +0000
+Date: Thu, 15 Feb 2018 09:40:04 +0000
 Subject: Re: [PATCH v2 1/3] Kconfig : Remove HAS_IOMEM dependency for Graphics support
-Message-Id: <3f34e137-7a34-a48f-0f27-993e28af1705@de.ibm.com>
+Message-Id: <2324e2cc-ff55-4d57-2807-c7f72f9ea0ca@de.ibm.com>
 References: <cover.1517508744.git.alifm@linux.vnet.ibm.com>
  <CGME20180202080007epcas5p306896fe66e4bbf4bf5f8d91306a5d016@epcas5p3.samsung.com>
  <246f92c9-15dc-223f-59d9-b2f0756cdf5e@de.ibm.com>
@@ -13,15 +13,8 @@ Content-Transfer-Encoding: 7bit
 List-Archive: <https://lore.kernel.org/linux-fbdev/>
 List-Post: <mailto:linux-fbdev@vger.kernel.org>
 To: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Cc: Farhan Ali <alifm@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fbdev@vger.kernel.org, geert@linux-m68k.org, stefan.kristiansson@saunalahti.fi, tomi.valkeinen@ti.com, schwidefsky@de.ibm.com, dri-devel@lists.freedesktop.org, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, user-mode-linux-devel@lists.sourceforge.net
+Cc: linux-s390@vger.kernel.org, linux-fbdev@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, Chen Liqin <liqin.linux@gmail.com>, Richard Weinberger <richard@nod.at>, Jeff Dike <jdike@addtoit.com>, Farhan Ali <alifm@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, stefan.kristiansson@saunalahti.fi, tomi.valkeinen@ti.com, geert@linux-m68k.org, schwidefsky@de.ibm.com, Lennox Wu <lennox.wu@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
-
-I added all three patches to my next tree
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=next
-This will hoepfully reveal any fallout.
-
-Would be good to have an ACK from the score, tile and um maintainers in case
-they verified that this change did not break anything.
 
 
 
@@ -50,52 +43,79 @@ On 02/08/2018 02:11 PM, Bartlomiej Zolnierkiewicz wrote:
 > Moreover it seems that after this change "Graphics support" menu will
 > be also enabled (besides s390) for score, tile and um architectures,
 > I assume that this is okay?
-> 
->>> Signed-off-by: Farhan Ali <alifm@linux.vnet.ibm.com>
->>> Tested-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
->>
->> This also enables several PCI based graphic device driver on s390.
->> This makes no sense but they all compile fine so I guess this is ok.
->>
->> I think patch 2 and 3 are clearly for the s390 tree, patch 1 seems trivial
->> Also ccing Bart. Can we maybe get an ack to carry this patch also via the s390
->> tree?
->>
->>
->>> ---
->>>  drivers/video/Kconfig       | 1 -
->>>  drivers/video/fbdev/Kconfig | 2 +-
->>>  2 files changed, 1 insertion(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
->>> index 3c20af9..41e7ba9 100644
->>> --- a/drivers/video/Kconfig
->>> +++ b/drivers/video/Kconfig
->>> @@ -3,7 +3,6 @@
->>>  #
->>>
->>>  menu "Graphics support"
->>> -	depends on HAS_IOMEM
->>>
->>>  config HAVE_FB_ATMEL
->>>  	bool
->>> diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
->>> index 2f615b7..ec9c9ce 100644
->>> --- a/drivers/video/fbdev/Kconfig
->>> +++ b/drivers/video/fbdev/Kconfig
->>> @@ -966,7 +966,7 @@ config FB_PVR2
->>>
->>>  config FB_OPENCORES
->>>  	tristate "OpenCores VGA/LCD core 2.0 framebuffer support"
->>> -	depends on FB && HAS_DMA
->>> +	depends on FB && HAS_DMA && HAS_IOMEM
->>>  	select FB_CFB_FILLRECT
->>>  	select FB_CFB_COPYAREA
->>>  	select FB_CFB_IMAGEBLIT
-> 
-> Best regards,
-> --
-> Bartlomiej Zolnierkiewicz
-> Samsung R&D Institute Poland
-> Samsung Electronics
-> 
+
+
+
+Turns out that patch fails to build with.
+
+So what about the following approach instead:
+
+diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+index 3c20af999893..5ae512fe52ed 100644
+--- a/drivers/video/Kconfig
++++ b/drivers/video/Kconfig
+@@ -47,3 +47,28 @@ endif
+ 
+ 
+ endmenu
++
++config DUMMY_CONSOLE
++       bool
++       depends on VGA_CONSOLE!=y || SGI_NEWPORT_CONSOLE!=y
++       default y
++
++config DUMMY_CONSOLE_COLUMNS
++        int "Initial number of console screen columns"
++        depends on DUMMY_CONSOLE && !ARM
++        default 160 if PARISC
++        default 80
++        help
++          On PA-RISC, the default value is 160, which should fit a 1280x1024
++          monitor.
++          Select 80 if you use a 640x480 resolution by default.
++
++config DUMMY_CONSOLE_ROWS
++        int "Initial number of console screen rows"
++        depends on DUMMY_CONSOLE && !ARM
++        default 64 if PARISC
++        default 25
++        help
++          On PA-RISC, the default value is 64, which should fit a 1280x1024
++          monitor.
++          Select 25 if you use a 640x480 resolution by default.
+diff --git a/drivers/video/console/Kconfig b/drivers/video/console/Kconfig
+index 7f1f1fbcef9e..97ae3c349666 100644
+--- a/drivers/video/console/Kconfig
++++ b/drivers/video/console/Kconfig
+@@ -91,31 +91,6 @@ config SGI_NEWPORT_CONSOLE
+           Say Y here if you want the console on the Newport aka XL graphics
+           card of your Indy.  Most people say Y here.
+ 
+-config DUMMY_CONSOLE
+-       bool
+-       depends on VGA_CONSOLE!=y || SGI_NEWPORT_CONSOLE!=y 
+-       default y
+-
+-config DUMMY_CONSOLE_COLUMNS
+-        int "Initial number of console screen columns"
+-        depends on DUMMY_CONSOLE && !ARM
+-        default 160 if PARISC
+-        default 80
+-        help
+-          On PA-RISC, the default value is 160, which should fit a 1280x1024
+-          monitor.
+-          Select 80 if you use a 640x480 resolution by default.
+-
+-config DUMMY_CONSOLE_ROWS
+-        int "Initial number of console screen rows"
+-        depends on DUMMY_CONSOLE && !ARM
+-        default 64 if PARISC
+-        default 25
+-        help
+-          On PA-RISC, the default value is 64, which should fit a 1280x1024
+-          monitor.
+-          Select 25 if you use a 640x480 resolution by default.
+-
+ config FRAMEBUFFER_CONSOLE
+        bool "Framebuffer Console support"
+        depends on FB && !UML
