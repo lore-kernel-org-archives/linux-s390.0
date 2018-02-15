@@ -1,15 +1,15 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH RFC 3/6] KVM: s390: consider epoch index on hotplugged
- CPUs
-Date: Thu, 15 Feb 2018 14:09:29 +0100
-Message-ID: <20180215140929.025d668e.cohuck@redhat.com>
+Subject: Re: [PATCH RFC 5/6] KVM: s390: no need to inititalize kvm->arch
+ members to 0
+Date: Thu, 15 Feb 2018 14:25:20 +0100
+Message-ID: <20180215142520.63f117ad.cohuck@redhat.com>
 References: <20180207114647.6220-1-david@redhat.com>
-        <20180207114647.6220-4-david@redhat.com>
+        <20180207114647.6220-6-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180207114647.6220-4-david@redhat.com>
+In-Reply-To: <20180207114647.6220-6-david@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,27 +17,16 @@ To: David Hildenbrand <david@redhat.com>
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed,  7 Feb 2018 12:46:44 +0100
+On Wed,  7 Feb 2018 12:46:46 +0100
 David Hildenbrand <david@redhat.com> wrote:
 
-> We must copy both, the epoch and the epoch_idx.
+> KVM is allocated with kzalloc(), so these members are already 0.
 > 
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 > ---
->  arch/s390/kvm/kvm-s390.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index b514ee427077..d007b737cd4d 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2387,6 +2387,7 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
->  	mutex_lock(&vcpu->kvm->lock);
->  	preempt_disable();
->  	vcpu->arch.sie_block->epoch = vcpu->kvm->arch.epoch;
-> +	vcpu->arch.sie_block->epdx = vcpu->kvm->arch.epdx;
->  	preempt_enable();
->  	mutex_unlock(&vcpu->kvm->lock);
->  	if (!kvm_is_ucontrol(vcpu->kvm)) {
+>  arch/s390/kvm/kvm-s390.c | 8 --------
+>  1 file changed, 8 deletions(-)
+
+use_esca is also initialized to 0, but we'd lose the comment.
 
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
