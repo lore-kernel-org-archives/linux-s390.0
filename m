@@ -1,198 +1,199 @@
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Subject: [PATCH 2/2] KVM: s390: Add storage key facility interpretation control
-Date: Fri, 16 Feb 2018 12:16:15 +0100
-Message-ID: <1518779775-256056-3-git-send-email-frankja@linux.vnet.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH 1/2] KVM: s390: Refactor host cmma and pfmfi
+ interpretation controls
+Date: Fri, 16 Feb 2018 15:09:19 +0100
+Message-ID: <aaf345a7-83cd-11f1-4244-a16dc13687f3@redhat.com>
 References: <1518779775-256056-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1518779775-256056-2-git-send-email-frankja@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1518779775-256056-1-git-send-email-frankja@linux.vnet.ibm.com>
+In-Reply-To: <1518779775-256056-2-git-send-email-frankja@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, alifm@linux.vnet.ibm.com, imbrenda@linux.vnet.ibm.com, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, alifm@linux.vnet.ibm.com, imbrenda@linux.vnet.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Up to now we always expected to have the storage key facility
-available for our (non-VSIE) KVM guests. For huge page support, we
-need to be able to disable it, so let's introduce that now.
+On 16.02.2018 12:16, Janosch Frank wrote:
+> use_cmma in kvm_arch means that the vm is allowed to use cmma, whereas
+> use_cmma in the mm context means cmm has been used before. Let's
+> rename the context one to uses_cmm, as the vm does use collaborative
+> memory management but the host uses the cmm assist (interpretation
+> facility).
+> 
+> Also let's introduce use_pfmfi, so we can remove the pfmfi disablement
+> when we activate cmma and rather not activate it in the first place.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+> ---
 
-Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-by: Farhan Ali <alifm@linux.vnet.ibm.com>
----
- arch/s390/include/asm/kvm_host.h    |  1 +
- arch/s390/include/asm/mmu.h         |  2 +-
- arch/s390/include/asm/mmu_context.h |  2 +-
- arch/s390/include/asm/pgtable.h     |  4 ++--
- arch/s390/kvm/kvm-s390.c            |  3 ++-
- arch/s390/kvm/priv.c                | 22 +++++++++++++---------
- arch/s390/mm/gmap.c                 |  6 +++---
- arch/s390/mm/pgtable.c              |  4 ++--
- 8 files changed, 25 insertions(+), 19 deletions(-)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 27918b1..f161ad0 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -793,6 +793,7 @@ struct kvm_arch{
- 	int use_irqchip;
- 	int use_cmma;
- 	int use_pfmfi;
-+	int use_skf;
- 	int user_cpu_state_ctrl;
- 	int user_sigp;
- 	int user_stsi;
-diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
-index c639c95..f5ff9db 100644
---- a/arch/s390/include/asm/mmu.h
-+++ b/arch/s390/include/asm/mmu.h
-@@ -21,7 +21,7 @@ typedef struct {
- 	/* The mmu context uses extended page tables. */
- 	unsigned int has_pgste:1;
- 	/* The mmu context uses storage keys. */
--	unsigned int use_skey:1;
-+	unsigned int uses_skeys:1;
- 	/* The mmu context uses CMM. */
- 	unsigned int uses_cmm:1;
- } mm_context_t;
-diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
-index d3ebfa8..bc9a2a9 100644
---- a/arch/s390/include/asm/mmu_context.h
-+++ b/arch/s390/include/asm/mmu_context.h
-@@ -30,7 +30,7 @@ static inline int init_new_context(struct task_struct *tsk,
- 		test_thread_flag(TIF_PGSTE) ||
- 		(current->mm && current->mm->context.alloc_pgste);
- 	mm->context.has_pgste = 0;
--	mm->context.use_skey = 0;
-+	mm->context.uses_skeys = 0;
- 	mm->context.uses_cmm = 0;
- #endif
- 	switch (mm->context.asce_limit) {
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 9223b4d..4f26425 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -509,10 +509,10 @@ static inline int mm_alloc_pgste(struct mm_struct *mm)
-  * faults should no longer be backed by zero pages
-  */
- #define mm_forbids_zeropage mm_has_pgste
--static inline int mm_use_skey(struct mm_struct *mm)
-+static inline int mm_uses_skeys(struct mm_struct *mm)
- {
- #ifdef CONFIG_PGSTE
--	if (mm->context.use_skey)
-+	if (mm->context.uses_skeys)
- 		return 1;
- #endif
- 	return 0;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 8fb6549..90deb7b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1432,7 +1432,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- 		return -EINVAL;
- 
- 	/* Is this guest using storage keys? */
--	if (!mm_use_skey(current->mm))
-+	if (!mm_uses_skeys(current->mm))
- 		return KVM_S390_GET_SKEYS_NONE;
- 
- 	/* Enforce sane limit on memory allocation */
-@@ -2010,6 +2010,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	kvm->arch.css_support = 0;
- 	kvm->arch.use_irqchip = 0;
- 	kvm->arch.use_pfmfi = sclp.has_pfmfi;
-+	kvm->arch.use_skf = sclp.has_skey;
- 	kvm->arch.epoch = 0;
- 
- 	spin_lock_init(&kvm->arch.start_stop_lock);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 76a2380..d9bd147 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -208,19 +208,23 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
- 	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
- 
- 	trace_kvm_s390_skey_related_inst(vcpu);
--	if (!(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
-+	/* Already enabled? */
-+	if (vcpu->kvm->arch.use_skf &&
-+	    !(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
- 	    !kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
- 		return rc;
- 
- 	rc = s390_enable_skey();
- 	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
--	if (!rc) {
--		if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
--			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
--		else
--			sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE |
--					     ICTL_RRBE);
--	}
-+	if (rc)
-+		return rc;
-+
-+	if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
-+		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
-+	if (!vcpu->kvm->arch.use_skf)
-+		sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
-+	else
-+		sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
- 	return rc;
- }
- 
-@@ -231,7 +235,7 @@ static int try_handle_skey(struct kvm_vcpu *vcpu)
- 	rc = kvm_s390_skey_check_enable(vcpu);
- 	if (rc)
- 		return rc;
--	if (sclp.has_skey) {
-+	if (vcpu->kvm->arch.use_skf) {
- 		/* with storage-key facility, SIE interprets it for us */
- 		kvm_s390_retry_instr(vcpu);
- 		VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 2cafcba..dbdcd25 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -3094,14 +3094,14 @@ int s390_enable_skey(void)
- 	int rc = 0;
- 
- 	down_write(&mm->mmap_sem);
--	if (mm_use_skey(mm))
-+	if (mm_uses_skeys(mm))
- 		goto out_up;
- 
--	mm->context.use_skey = 1;
-+	mm->context.uses_skeys = 1;
- 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
- 		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
- 				MADV_UNMERGEABLE, &vma->vm_flags)) {
--			mm->context.use_skey = 0;
-+			mm->context.uses_skeys = 0;
- 			rc = -ENOMEM;
- 			goto out_up;
- 		}
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 871fc65..158c880 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -158,7 +158,7 @@ static inline pgste_t pgste_update_all(pte_t pte, pgste_t pgste,
- #ifdef CONFIG_PGSTE
- 	unsigned long address, bits, skey;
- 
--	if (!mm_use_skey(mm) || pte_val(pte) & _PAGE_INVALID)
-+	if (!mm_uses_skeys(mm) || pte_val(pte) & _PAGE_INVALID)
- 		return pgste;
- 	address = pte_val(pte) & PAGE_MASK;
- 	skey = (unsigned long) page_get_storage_key(address);
-@@ -180,7 +180,7 @@ static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry,
- 	unsigned long address;
- 	unsigned long nkey;
- 
--	if (!mm_use_skey(mm) || pte_val(entry) & _PAGE_INVALID)
-+	if (!mm_uses_skeys(mm) || pte_val(entry) & _PAGE_INVALID)
- 		return;
- 	VM_BUG_ON(!(pte_val(*ptep) & _PAGE_INVALID));
- 	address = pte_val(entry) & PAGE_MASK;
+>  arch/s390/include/asm/kvm_host.h    |  1 +
+>  arch/s390/include/asm/mmu.h         |  4 ++--
+>  arch/s390/include/asm/mmu_context.h |  2 +-
+>  arch/s390/kvm/kvm-s390.c            | 23 ++++++++++++-----------
+>  arch/s390/kvm/priv.c                |  4 ++--
+>  5 files changed, 18 insertions(+), 16 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index afb0f08..27918b1 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -792,6 +792,7 @@ struct kvm_arch{
+>  	int css_support;
+>  	int use_irqchip;
+>  	int use_cmma;
+> +	int use_pfmfi;
+>  	int user_cpu_state_ctrl;
+>  	int user_sigp;
+>  	int user_stsi;
+> diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
+> index db35c41a..c639c95 100644
+> --- a/arch/s390/include/asm/mmu.h
+> +++ b/arch/s390/include/asm/mmu.h
+> @@ -22,8 +22,8 @@ typedef struct {
+>  	unsigned int has_pgste:1;
+>  	/* The mmu context uses storage keys. */
+>  	unsigned int use_skey:1;
+> -	/* The mmu context uses CMMA. */
+> -	unsigned int use_cmma:1;
+> +	/* The mmu context uses CMM. */
+> +	unsigned int uses_cmm:1;
+>  } mm_context_t;
+>  
+>  #define INIT_MM_CONTEXT(name)						   \
+> diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
+> index 65154ea..d3ebfa8 100644
+> --- a/arch/s390/include/asm/mmu_context.h
+> +++ b/arch/s390/include/asm/mmu_context.h
+> @@ -31,7 +31,7 @@ static inline int init_new_context(struct task_struct *tsk,
+>  		(current->mm && current->mm->context.alloc_pgste);
+>  	mm->context.has_pgste = 0;
+>  	mm->context.use_skey = 0;
+> -	mm->context.use_cmma = 0;
+> +	mm->context.uses_cmm = 0;
+>  #endif
+>  	switch (mm->context.asce_limit) {
+>  	case _REGION2_SIZE:
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 4a2d68c..8fb6549 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -656,6 +656,8 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
+>  		mutex_lock(&kvm->lock);
+>  		if (!kvm->created_vcpus) {
+>  			kvm->arch.use_cmma = 1;
+> +			/* Not compatible with cmma. */
+> +			kvm->arch.use_pfmfi = 0;
+>  			ret = 0;
+>  		}
+>  		mutex_unlock(&kvm->lock);
+> @@ -1562,7 +1564,7 @@ static int kvm_s390_get_cmma_bits(struct kvm *kvm,
+>  		return -EINVAL;
+>  	/* CMMA is disabled or was not used, or the buffer has length zero */
+>  	bufsize = min(args->count, KVM_S390_CMMA_SIZE_MAX);
+> -	if (!bufsize || !kvm->mm->context.use_cmma) {
+> +	if (!bufsize || !kvm->mm->context.uses_cmm) {
+>  		memset(args, 0, sizeof(*args));
+>  		return 0;
+>  	}
+> @@ -1639,7 +1641,7 @@ static int kvm_s390_get_cmma_bits(struct kvm *kvm,
+>  /*
+>   * This function sets the CMMA attributes for the given pages. If the input
+>   * buffer has zero length, no action is taken, otherwise the attributes are
+> - * set and the mm->context.use_cmma flag is set.
+> + * set and the mm->context.uses_cmm flag is set.
+>   */
+>  static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+>  				  const struct kvm_s390_cmma_log *args)
+> @@ -1689,9 +1691,9 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+>  	srcu_read_unlock(&kvm->srcu, srcu_idx);
+>  	up_read(&kvm->mm->mmap_sem);
+>  
+> -	if (!kvm->mm->context.use_cmma) {
+> +	if (!kvm->mm->context.uses_cmm) {
+>  		down_write(&kvm->mm->mmap_sem);
+> -		kvm->mm->context.use_cmma = 1;
+> +		kvm->mm->context.uses_cmm = 1;
+>  		up_write(&kvm->mm->mmap_sem);
+>  	}
+>  out:
+> @@ -2007,6 +2009,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>  
+>  	kvm->arch.css_support = 0;
+>  	kvm->arch.use_irqchip = 0;
+> +	kvm->arch.use_pfmfi = sclp.has_pfmfi;
+>  	kvm->arch.epoch = 0;
+>  
+>  	spin_lock_init(&kvm->arch.start_stop_lock);
+> @@ -2431,8 +2434,6 @@ int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu)
+>  	vcpu->arch.sie_block->cbrlo = get_zeroed_page(GFP_KERNEL);
+>  	if (!vcpu->arch.sie_block->cbrlo)
+>  		return -ENOMEM;
+> -
+> -	vcpu->arch.sie_block->ecb2 &= ~ECB2_PFMFI;
+>  	return 0;
+>  }
+>  
+> @@ -2468,7 +2469,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
+>  	if (test_kvm_facility(vcpu->kvm, 73))
+>  		vcpu->arch.sie_block->ecb |= ECB_TE;
+>  
+> -	if (test_kvm_facility(vcpu->kvm, 8) && sclp.has_pfmfi)
+> +	if (test_kvm_facility(vcpu->kvm, 8) && vcpu->kvm->arch.use_pfmfi)
+>  		vcpu->arch.sie_block->ecb2 |= ECB2_PFMFI;
+>  	if (test_kvm_facility(vcpu->kvm, 130))
+>  		vcpu->arch.sie_block->ecb2 |= ECB2_IEP;
+> @@ -3000,7 +3001,7 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+>  
+>  	if (kvm_check_request(KVM_REQ_START_MIGRATION, vcpu)) {
+>  		/*
+> -		 * Disable CMMA virtualization; we will emulate the ESSA
+> +		 * Disable CMM virtualization; we will emulate the ESSA
+>  		 * instruction manually, in order to provide additional
+>  		 * functionalities needed for live migration.
+>  		 */
+> @@ -3010,11 +3011,11 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+>  
+>  	if (kvm_check_request(KVM_REQ_STOP_MIGRATION, vcpu)) {
+>  		/*
+> -		 * Re-enable CMMA virtualization if CMMA is available and
+> -		 * was used.
+> +		 * Re-enable CMM virtualization if CMMA is available and
+> +		 * CMM has been used.
+>  		 */
+>  		if ((vcpu->kvm->arch.use_cmma) &&
+> -		    (vcpu->kvm->mm->context.use_cmma))
+> +		    (vcpu->kvm->mm->context.uses_cmm))
+>  			vcpu->arch.sie_block->ecb2 |= ECB2_CMMA;
+>  		goto retry;
+>  	}
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index c4c4e15..76a2380 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -1072,9 +1072,9 @@ static int handle_essa(struct kvm_vcpu *vcpu)
+>  		 * value really needs to be written to; if the value is
+>  		 * already correct, we do nothing and avoid the lock.
+>  		 */
+> -		if (vcpu->kvm->mm->context.use_cmma == 0) {
+> +		if (vcpu->kvm->mm->context.uses_cmm == 0) {
+>  			down_write(&vcpu->kvm->mm->mmap_sem);
+> -			vcpu->kvm->mm->context.use_cmma = 1;
+> +			vcpu->kvm->mm->context.uses_cmm = 1;
+>  			up_write(&vcpu->kvm->mm->mmap_sem);
+>  		}
+>  		/*
+> 
+
+
 -- 
-2.7.4
+
+Thanks,
+
+David / dhildenb
