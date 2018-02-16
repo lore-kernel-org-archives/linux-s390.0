@@ -1,64 +1,87 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC 6/6] KVM: s390: generalize
- kvm_s390_get_tod_clock_ext()
-Date: Thu, 15 Feb 2018 15:25:06 +0100
-Message-ID: <895b24fa-f5ce-4f27-fa74-98add017cba4@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH RFC 1/6] KVM: s390: take care of clock-comparator sign
+ control
+Date: Fri, 16 Feb 2018 10:45:14 +0100
+Message-ID: <4aa02acd-b5e0-0c8d-13fb-8516a48e7bc9@de.ibm.com>
 References: <20180207114647.6220-1-david@redhat.com>
- <20180207114647.6220-7-david@redhat.com>
- <20180215150833.56a4ba02.cohuck@redhat.com>
- <5618ed59-a3d9-6d5b-f9b7-855111391abd@redhat.com>
- <20180215151700.1e0c5ef2.cohuck@redhat.com>
+ <20180207114647.6220-2-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180215151700.1e0c5ef2.cohuck@redhat.com>
+In-Reply-To: <20180207114647.6220-2-david@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 15.02.2018 15:17, Cornelia Huck wrote:
-> On Thu, 15 Feb 2018 15:14:37 +0100
-> David Hildenbrand <david@redhat.com> wrote:
-> 
->> On 15.02.2018 15:08, Cornelia Huck wrote:
->>> On Wed,  7 Feb 2018 12:46:47 +0100
->>> David Hildenbrand <david@redhat.com> wrote:
->>>   
->>>> Move the Multiple-epoch facility handling into it and rename it to
->>>> kvm_s390_get_tod_clock().
->>>>
->>>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>>> ---
->>>>  arch/s390/kvm/kvm-s390.c | 22 +++++++++-------------
->>>>  1 file changed, 9 insertions(+), 13 deletions(-)  
->>>
->>> Looks correct, but I'm not sure what this buys us?  
->>
->> That we have functions that can be called without having to care about
->> multiple epoch facility
->>
->> Namely
->>
->> kvm_s390_set_tod_clock()
->> kvm_s390_get_tod_clock()
->> kvm_s390_get_tod_clock_fast()
->>
-> 
-> OK, that makes sense. Maybe add something like that to the patch
-> description?
-> 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> 
 
-Sure, can do! Thanks!
+On 02/07/2018 12:46 PM, David Hildenbrand wrote:
+> Missed when enabling the Multiple-epoch facility. If the facility is
+> installed and the control is set, a sign based comaprison has to be
+> performed.
+> 
+> Right now we would inject wrong interrupts and ignore interrupt
+> conditions. Also the sleep time is calculated in a wrong way.
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
--- 
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Thanks,
+applied. This will need some more testing but it probably deserves a CC stable.
 
-David / dhildenb
+
+> ---
+>  arch/s390/kvm/interrupt.c | 25 +++++++++++++++++++------
+>  1 file changed, 19 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 3ea9cfa31b16..a616e9b65f91 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -169,8 +169,15 @@ static int ckc_interrupts_enabled(struct kvm_vcpu *vcpu)
+> 
+>  static int ckc_irq_pending(struct kvm_vcpu *vcpu)
+>  {
+> -	if (vcpu->arch.sie_block->ckc >= kvm_s390_get_tod_clock_fast(vcpu->kvm))
+> +	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
+> +	const u64 ckc = vcpu->arch.sie_block->ckc;
+> +
+> +	if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
+> +		if ((s64)ckc >= (s64)now)
+> +			return 0;
+> +	} else if (ckc >= now) {
+>  		return 0;
+> +	}
+>  	return ckc_interrupts_enabled(vcpu);
+>  }
+> 
+> @@ -1042,13 +1049,19 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
+> 
+>  static u64 __calculate_sltime(struct kvm_vcpu *vcpu)
+>  {
+> -	u64 now, cputm, sltime = 0;
+> +	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
+> +	const u64 ckc = vcpu->arch.sie_block->ckc;
+> +	u64 cputm, sltime = 0;
+> 
+>  	if (ckc_interrupts_enabled(vcpu)) {
+> -		now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
+> -		sltime = tod_to_ns(vcpu->arch.sie_block->ckc - now);
+> -		/* already expired or overflow? */
+> -		if (!sltime || vcpu->arch.sie_block->ckc <= now)
+> +		if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
+> +			if ((s64)now < (s64)ckc)
+> +				sltime = tod_to_ns((s64)ckc - (s64)now);
+> +		} else if (now < ckc) {
+> +			sltime = tod_to_ns(ckc - now);
+> +		}
+> +		/* already expired */
+> +		if (!sltime)
+>  			return 0;
+>  		if (cpu_timer_interrupts_enabled(vcpu)) {
+>  			cputm = kvm_s390_get_cpu_timer(vcpu);
+> 
