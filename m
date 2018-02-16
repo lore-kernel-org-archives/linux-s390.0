@@ -1,105 +1,91 @@
-From: Farhan Ali <alifm@linux.vnet.ibm.com>
-Subject: Re: [PATCH 2/3] KVM: s390: Add storage key facility interpretation
- control
-Date: Thu, 15 Feb 2018 15:27:54 -0500
-Message-ID: <4e2896a6-3e38-fa0c-a9f2-9aa8faa184ee@linux.vnet.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH 1/3] KVM: s390: Refactor host cmma and pfmfi
+ interpretation controls
+Date: Fri, 16 Feb 2018 10:46:42 +0100
+Message-ID: <533546e5-8f4c-2086-a6dd-49bd7fab0636@redhat.com>
 References: <28551222-18a6-4566-0b7a-acc366c860c3@redhat.com>
  <1518709402-91101-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1518709402-91101-3-git-send-email-frankja@linux.vnet.ibm.com>
+ <1518709402-91101-2-git-send-email-frankja@linux.vnet.ibm.com>
+ <4b1638fd-c5d9-b265-861b-5065a83c0342@redhat.com>
+ <208a30df-f8af-9f73-bffd-71c6f94cf0a0@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1518709402-91101-3-git-send-email-frankja@linux.vnet.ibm.com>
+In-Reply-To: <208a30df-f8af-9f73-bffd-71c6f94cf0a0@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, david@redhat.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, dominik.dingel@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Reviewed-by: Farhan Ali <alifm@linux.vnet.ibm.com>
+On 15.02.2018 17:42, Janosch Frank wrote:
+> On 15.02.2018 17:08, David Hildenbrand wrote:
+>> On 15.02.2018 16:43, Janosch Frank wrote:
+>>> use_cmma in kvm_arch means that the vm is allowed to use cmma, whereas
+>>> use_cmma in the mm context means it has been used before. Let's rename
+>>> the kvm_arch one to has_cmma
+>>
+>> Unfortunately all naming related to CMM(A) is already screwed up.
+>>
+>> If the guest can issue the ESSA instruction, it has the CMM facility. We
+>> used to provide it to him by enabling the CMMA control - the
+>> "interpretation facility". We could right now fully emulate it (which is
+>> what we do when we dirty track changes).
+>>
+>> At least in the CPU model we did it right. (the feature is called "cmm")
+>>
+>> But anyhow, we only provide the CMM facility to the guest right now if
+>> we have CMMA, so keeping the name "cmma" here is not completely wrong.
+>>
+>>>
+>>> Also let's introduce has_pfmfi, so we can remove the pfmfi disablement
+>>
+>> Mixed feelings. has_pfmfi sounds more like "this guest has the PFMFI
+>> feature", which is something related to vSIE. It is really more
+>> "use_pfmfi". Because we provide the PFMF instruction either way (by
+>> emulating it - it belongs to edat1).
+>>
+>> Can we name this "use_cmma" and "use_pfmfi" and "use_skf", because that
+>> is actually what we do?
+> 
+> As long as we have a difference between the arch and the context one and
+> the implementation of the patches are not a problem, sure.
+> 
+> We could also invert them and use emulate_pfmf or intercept_* which is
+> more specific about what we actually (don't) do.
 
-On 02/15/2018 10:43 AM, Janosch Frank wrote:
-> Up to now we always expected to have the storage key facility
-> available for our (non-VSIE) KVM guests. For huge page support, we
-> need to be able to disable it, so let's introduce that now.
+I think "using the interpretation facility" is good enough. Because that
+is exactly what we do, independent of availability of the instruction
+towards the guest.
+
+emulate_pfmf might be misleading, e.g. if the guest doesn't have EDAT1
+and we fake it away - emulate_pfmf is set but we don't emulate it. We
+inject an exception right away.
+
+intercept_* would work, however the would then have to be intercept_essa
+instead of cmma. Not sure if that is easier to read.
+
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_host.h |  1 +
->   arch/s390/kvm/kvm-s390.c         |  1 +
->   arch/s390/kvm/priv.c             | 22 +++++++++++++---------
->   3 files changed, 15 insertions(+), 9 deletions(-)
+>>
+>> The thing in the mm context should rather be renamed to "uses_cmm(a)" or
+>> "used_cmm(a)".
 > 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index b768754..ccbbd12 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -793,6 +793,7 @@ struct kvm_arch{
->   	int use_irqchip;
->   	int has_cmma;
->   	int has_pfmfi;
-> +	int has_skf;
->   	int user_cpu_state_ctrl;
->   	int user_sigp;
->   	int user_stsi;
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 781aaf0..ddf3599 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2010,6 +2010,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->   	kvm->arch.css_support = 0;
->   	kvm->arch.use_irqchip = 0;
->   	kvm->arch.has_pfmfi = sclp.has_pfmfi;
-> +	kvm->arch.has_skf = sclp.has_skey;
->   	kvm->arch.epoch = 0;
+> Yes, I like uses more, the rest of the gang likes used, now feel free to
+> propose something entirely different :)
 > 
->   	spin_lock_init(&kvm->arch.start_stop_lock);
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index 908b579..c74ad22 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -208,19 +208,23 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
->   	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
+> If there's not much that speaks against the first two patches, I'd spin
+> them off to merge them earlier, the use_cmma cleanup has been on my list
+> for a long time. Thoughts?
 > 
->   	trace_kvm_s390_skey_related_inst(vcpu);
-> -	if (!(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
-> +	/* Already enabled? */
-> +	if (vcpu->kvm->arch.has_skf &&
-> +	    !(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
->   	    !kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
->   		return rc;
-> 
->   	rc = s390_enable_skey();
->   	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
-> -	if (!rc) {
-> -		if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
-> -			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
-> -		else
-> -			sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE |
-> -					     ICTL_RRBE);
-> -	}
-> +	if (rc)
-> +		return rc;
-> +
-> +	if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
-> +		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
-> +	if (!vcpu->kvm->arch.has_skf)
-> +		sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
-> +	else
-> +		sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
->   	return rc;
->   }
-> 
-> @@ -231,7 +235,7 @@ static int try_handle_skey(struct kvm_vcpu *vcpu)
->   	rc = kvm_s390_skey_check_enable(vcpu);
->   	if (rc)
->   		return rc;
-> -	if (sclp.has_skey) {
-> +	if (vcpu->kvm->arch.has_skf) {
->   		/* with storage-key facility, SIE interprets it for us */
->   		kvm_s390_retry_instr(vcpu);
->   		VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
-> 
+
+Jup, please resend, they make sense on their own.
+
+
+-- 
+
+Thanks,
+
+David / dhildenb
