@@ -1,15 +1,15 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH RFC 1/6] KVM: s390: take care of clock-comparator sign
- control
-Date: Fri, 16 Feb 2018 10:45:14 +0100
-Message-ID: <4aa02acd-b5e0-0c8d-13fb-8516a48e7bc9@de.ibm.com>
+Subject: Re: [PATCH RFC 3/6] KVM: s390: consider epoch index on hotplugged
+ CPUs
+Date: Fri, 16 Feb 2018 10:50:32 +0100
+Message-ID: <4b5a5ef5-4721-8a2d-1ad2-caba98af9ae8@de.ibm.com>
 References: <20180207114647.6220-1-david@redhat.com>
- <20180207114647.6220-2-david@redhat.com>
+ <20180207114647.6220-4-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180207114647.6220-2-david@redhat.com>
+In-Reply-To: <20180207114647.6220-4-david@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,68 +20,26 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 On 02/07/2018 12:46 PM, David Hildenbrand wrote:
-> Missed when enabling the Multiple-epoch facility. If the facility is
-> installed and the control is set, a sign based comaprison has to be
-> performed.
-> 
-> Right now we would inject wrong interrupts and ignore interrupt
-> conditions. Also the sleep time is calculated in a wrong way.
+> We must copy both, the epoch and the epoch_idx.
 > 
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-applied. This will need some more testing but it probably deserves a CC stable.
-
+Thanks applied. Deserves a cc stable I think.
 
 > ---
->  arch/s390/kvm/interrupt.c | 25 +++++++++++++++++++------
->  1 file changed, 19 insertions(+), 6 deletions(-)
+>  arch/s390/kvm/kvm-s390.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 3ea9cfa31b16..a616e9b65f91 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -169,8 +169,15 @@ static int ckc_interrupts_enabled(struct kvm_vcpu *vcpu)
-> 
->  static int ckc_irq_pending(struct kvm_vcpu *vcpu)
->  {
-> -	if (vcpu->arch.sie_block->ckc >= kvm_s390_get_tod_clock_fast(vcpu->kvm))
-> +	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
-> +	const u64 ckc = vcpu->arch.sie_block->ckc;
-> +
-> +	if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
-> +		if ((s64)ckc >= (s64)now)
-> +			return 0;
-> +	} else if (ckc >= now) {
->  		return 0;
-> +	}
->  	return ckc_interrupts_enabled(vcpu);
->  }
-> 
-> @@ -1042,13 +1049,19 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
-> 
->  static u64 __calculate_sltime(struct kvm_vcpu *vcpu)
->  {
-> -	u64 now, cputm, sltime = 0;
-> +	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
-> +	const u64 ckc = vcpu->arch.sie_block->ckc;
-> +	u64 cputm, sltime = 0;
-> 
->  	if (ckc_interrupts_enabled(vcpu)) {
-> -		now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
-> -		sltime = tod_to_ns(vcpu->arch.sie_block->ckc - now);
-> -		/* already expired or overflow? */
-> -		if (!sltime || vcpu->arch.sie_block->ckc <= now)
-> +		if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
-> +			if ((s64)now < (s64)ckc)
-> +				sltime = tod_to_ns((s64)ckc - (s64)now);
-> +		} else if (now < ckc) {
-> +			sltime = tod_to_ns(ckc - now);
-> +		}
-> +		/* already expired */
-> +		if (!sltime)
->  			return 0;
->  		if (cpu_timer_interrupts_enabled(vcpu)) {
->  			cputm = kvm_s390_get_cpu_timer(vcpu);
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index b514ee427077..d007b737cd4d 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -2387,6 +2387,7 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+>  	mutex_lock(&vcpu->kvm->lock);
+>  	preempt_disable();
+>  	vcpu->arch.sie_block->epoch = vcpu->kvm->arch.epoch;
+> +	vcpu->arch.sie_block->epdx = vcpu->kvm->arch.epdx;
+>  	preempt_enable();
+>  	mutex_unlock(&vcpu->kvm->lock);
+>  	if (!kvm_is_ucontrol(vcpu->kvm)) {
 > 
