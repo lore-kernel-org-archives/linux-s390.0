@@ -1,147 +1,182 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 6/6] KVM: s390: use switch vs jump table in interrupt.c
-Date: Wed, 14 Feb 2018 15:56:36 +0000
-Message-ID: <20180214155636.60405-7-borntraeger@de.ibm.com>
-References: <20180214155636.60405-1-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180214155636.60405-1-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 1/5] net/smc: cleanup smc_llc.h and smc_clc.h headers
+Date: Wed, 21 Feb 2018 12:32:31 +0100
+In-Reply-To: <20180221113235.46702-1-ubraun@linux.vnet.ibm.com>
+References: <20180221113235.46702-1-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180221113235.46702-2-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <david@redhat.com>
+From: Stefan Raspl <stefan.raspl@de.ibm.com>
 
-Just like for the interception handlers, let's also use a switch-case
-in our interrupt delivery code.
+Remove structures used internal only from headers.
+And remove an extra function parameter.
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20180206141743.24497-1-david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 84 ++++++++++++++++++++++++++++-------------------
- 1 file changed, 50 insertions(+), 34 deletions(-)
+ net/smc/af_smc.c  |  8 ++++----
+ net/smc/smc_clc.c |  3 +++
+ net/smc/smc_clc.h |  6 ------
+ net/smc/smc_llc.c | 30 ++++++++++++++++++++++++++++++
+ net/smc/smc_llc.h | 28 ----------------------------
+ 5 files changed, 37 insertions(+), 38 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index e399495001ca..3f2c49b1a393 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -187,12 +187,6 @@ static int cpu_timer_irq_pending(struct kvm_vcpu *vcpu)
- 	return kvm_s390_get_cpu_timer(vcpu) >> 63;
- }
- 
--static inline int is_ioirq(unsigned long irq_type)
--{
--	return ((irq_type >= IRQ_PEND_IO_ISC_7) &&
--		(irq_type <= IRQ_PEND_IO_ISC_0));
--}
--
- static uint64_t isc_to_isc_bits(int isc)
- {
- 	return (0x80 >> isc) << 24;
-@@ -1016,24 +1010,6 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 38ae22b65e77..b1961a789837 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -312,7 +312,7 @@ int smc_netinfo_by_tcpsk(struct socket *clcsock,
  	return rc;
  }
  
--typedef int (*deliver_irq_t)(struct kvm_vcpu *vcpu);
+-static int smc_clnt_conf_first_link(struct smc_sock *smc, union ib_gid *gid)
++static int smc_clnt_conf_first_link(struct smc_sock *smc)
+ {
+ 	struct smc_link_group *lgr = smc->conn.lgr;
+ 	struct smc_link *link;
+@@ -346,7 +346,8 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc, union ib_gid *gid)
+ 	/* send CONFIRM LINK response over RoCE fabric */
+ 	rc = smc_llc_send_confirm_link(link,
+ 				       link->smcibdev->mac[link->ibport - 1],
+-				       gid, SMC_LLC_RESP);
++				       &link->smcibdev->gid[link->ibport - 1],
++				       SMC_LLC_RESP);
+ 	if (rc < 0)
+ 		return SMC_CLC_DECL_TCL;
+ 
+@@ -498,8 +499,7 @@ static int smc_connect_rdma(struct smc_sock *smc)
+ 
+ 	if (local_contact == SMC_FIRST_CONTACT) {
+ 		/* QP confirmation over RoCE fabric */
+-		reason_code = smc_clnt_conf_first_link(
+-			smc, &smcibdev->gid[ibport - 1]);
++		reason_code = smc_clnt_conf_first_link(smc);
+ 		if (reason_code < 0) {
+ 			rc = reason_code;
+ 			goto out_err_unlock;
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 8ac51583a063..dff318a2d5bf 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -22,6 +22,9 @@
+ #include "smc_clc.h"
+ #include "smc_ib.h"
+ 
++/* eye catcher "SMCR" EBCDIC for CLC messages */
++static const char SMC_EYECATCHER[4] = {'\xe2', '\xd4', '\xc3', '\xd9'};
++
+ /* check if received message has a correct header length and contains valid
+  * heading and trailing eyecatchers
+  */
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index c145a0f36a68..aab3aae2a2ce 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -22,9 +22,6 @@
+ #define SMC_CLC_CONFIRM		0x03
+ #define SMC_CLC_DECLINE		0x04
+ 
+-/* eye catcher "SMCR" EBCDIC for CLC messages */
+-static const char SMC_EYECATCHER[4] = {'\xe2', '\xd4', '\xc3', '\xd9'};
 -
--static const deliver_irq_t deliver_irq_funcs[] = {
--	[IRQ_PEND_MCHK_EX]        = __deliver_machine_check,
--	[IRQ_PEND_MCHK_REP]       = __deliver_machine_check,
--	[IRQ_PEND_PROG]           = __deliver_prog,
--	[IRQ_PEND_EXT_EMERGENCY]  = __deliver_emergency_signal,
--	[IRQ_PEND_EXT_EXTERNAL]   = __deliver_external_call,
--	[IRQ_PEND_EXT_CLOCK_COMP] = __deliver_ckc,
--	[IRQ_PEND_EXT_CPU_TIMER]  = __deliver_cpu_timer,
--	[IRQ_PEND_RESTART]        = __deliver_restart,
--	[IRQ_PEND_SET_PREFIX]     = __deliver_set_prefix,
--	[IRQ_PEND_PFAULT_INIT]    = __deliver_pfault_init,
--	[IRQ_PEND_EXT_SERVICE]    = __deliver_service,
--	[IRQ_PEND_PFAULT_DONE]    = __deliver_pfault_done,
--	[IRQ_PEND_VIRTIO]         = __deliver_virtio,
+ #define SMC_CLC_V1		0x1		/* SMC version                */
+ #define CLC_WAIT_TIME		(6 * HZ)	/* max. wait time on clcsock  */
+ #define SMC_CLC_DECL_MEM	0x01010000  /* insufficient memory resources  */
+@@ -124,9 +121,6 @@ smc_clc_proposal_get_prefix(struct smc_clc_msg_proposal *pclc)
+ 	       ((u8 *)pclc + sizeof(*pclc) + ntohs(pclc->iparea_offset));
+ }
+ 
+-struct smc_sock;
+-struct smc_ib_device;
+-
+ int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
+ 		     u8 expected_type);
+ int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info);
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 92fe4cc8c82c..e4502bbff33d 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -21,6 +21,36 @@
+ #include "smc_clc.h"
+ #include "smc_llc.h"
+ 
++#define SMC_LLC_DATA_LEN		40
++
++struct smc_llc_hdr {
++	struct smc_wr_rx_hdr common;
++	u8 length;	/* 44 */
++	u8 reserved;
++	u8 flags;
++};
++
++struct smc_llc_msg_confirm_link {	/* type 0x01 */
++	struct smc_llc_hdr hd;
++	u8 sender_mac[ETH_ALEN];
++	u8 sender_gid[SMC_GID_SIZE];
++	u8 sender_qp_num[3];
++	u8 link_num;
++	u8 link_uid[SMC_LGR_ID_SIZE];
++	u8 max_links;
++	u8 reserved[9];
++};
++
++union smc_llc_msg {
++	struct smc_llc_msg_confirm_link confirm_link;
++	struct {
++		struct smc_llc_hdr hdr;
++		u8 data[SMC_LLC_DATA_LEN];
++	} raw;
++};
++
++#define SMC_LLC_FLAG_RESP		0x80
++
+ /********************************** send *************************************/
+ 
+ struct smc_llc_tx_pend {
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 51b27ce90dbd..a7888607ab53 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -28,34 +28,6 @@ enum smc_llc_msg_type {
+ 	SMC_LLC_CONFIRM_LINK		= 0x01,
+ };
+ 
+-#define SMC_LLC_DATA_LEN		40
+-
+-struct smc_llc_hdr {
+-	struct smc_wr_rx_hdr common;
+-	u8 length;	/* 44 */
+-	u8 reserved;
+-	u8 flags;
 -};
 -
- /* Check whether an external call is pending (deliverable or not) */
- int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu)
- {
-@@ -1197,7 +1173,6 @@ void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu)
- int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
--	deliver_irq_t func;
- 	int rc = 0;
- 	unsigned long irq_type;
- 	unsigned long irqs;
-@@ -1217,16 +1192,57 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
- 	while ((irqs = deliverable_irqs(vcpu)) && !rc) {
- 		/* bits are in the reverse order of interrupt priority */
- 		irq_type = find_last_bit(&irqs, IRQ_PEND_COUNT);
--		if (is_ioirq(irq_type)) {
-+		switch (irq_type) {
-+		case IRQ_PEND_IO_ISC_0:
-+		case IRQ_PEND_IO_ISC_1:
-+		case IRQ_PEND_IO_ISC_2:
-+		case IRQ_PEND_IO_ISC_3:
-+		case IRQ_PEND_IO_ISC_4:
-+		case IRQ_PEND_IO_ISC_5:
-+		case IRQ_PEND_IO_ISC_6:
-+		case IRQ_PEND_IO_ISC_7:
- 			rc = __deliver_io(vcpu, irq_type);
--		} else {
--			func = deliver_irq_funcs[irq_type];
--			if (!func) {
--				WARN_ON_ONCE(func == NULL);
--				clear_bit(irq_type, &li->pending_irqs);
--				continue;
--			}
--			rc = func(vcpu);
-+			break;
-+		case IRQ_PEND_MCHK_EX:
-+		case IRQ_PEND_MCHK_REP:
-+			rc = __deliver_machine_check(vcpu);
-+			break;
-+		case IRQ_PEND_PROG:
-+			rc = __deliver_prog(vcpu);
-+			break;
-+		case IRQ_PEND_EXT_EMERGENCY:
-+			rc = __deliver_emergency_signal(vcpu);
-+			break;
-+		case IRQ_PEND_EXT_EXTERNAL:
-+			rc = __deliver_external_call(vcpu);
-+			break;
-+		case IRQ_PEND_EXT_CLOCK_COMP:
-+			rc = __deliver_ckc(vcpu);
-+			break;
-+		case IRQ_PEND_EXT_CPU_TIMER:
-+			rc = __deliver_cpu_timer(vcpu);
-+			break;
-+		case IRQ_PEND_RESTART:
-+			rc = __deliver_restart(vcpu);
-+			break;
-+		case IRQ_PEND_SET_PREFIX:
-+			rc = __deliver_set_prefix(vcpu);
-+			break;
-+		case IRQ_PEND_PFAULT_INIT:
-+			rc = __deliver_pfault_init(vcpu);
-+			break;
-+		case IRQ_PEND_EXT_SERVICE:
-+			rc = __deliver_service(vcpu);
-+			break;
-+		case IRQ_PEND_PFAULT_DONE:
-+			rc = __deliver_pfault_done(vcpu);
-+			break;
-+		case IRQ_PEND_VIRTIO:
-+			rc = __deliver_virtio(vcpu);
-+			break;
-+		default:
-+			WARN_ONCE(1, "Unknown pending irq type %ld", irq_type);
-+			clear_bit(irq_type, &li->pending_irqs);
- 		}
- 	}
- 
+-struct smc_llc_msg_confirm_link {	/* type 0x01 */
+-	struct smc_llc_hdr hd;
+-	u8 sender_mac[ETH_ALEN];
+-	u8 sender_gid[SMC_GID_SIZE];
+-	u8 sender_qp_num[3];
+-	u8 link_num;
+-	u8 link_uid[SMC_LGR_ID_SIZE];
+-	u8 max_links;
+-	u8 reserved[9];
+-};
+-
+-union smc_llc_msg {
+-	struct smc_llc_msg_confirm_link confirm_link;
+-	struct {
+-		struct smc_llc_hdr hdr;
+-		u8 data[SMC_LLC_DATA_LEN];
+-	} raw;
+-};
+-
+ /* transmit */
+ int smc_llc_send_confirm_link(struct smc_link *lnk, u8 mac[], union ib_gid *gid,
+ 			      enum smc_llc_reqresp reqresp);
 -- 
-2.14.3
+2.13.5
