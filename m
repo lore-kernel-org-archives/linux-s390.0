@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 1/5] net/smc: cleanup smc_llc.h and smc_clc.h headers
-Date: Wed, 21 Feb 2018 12:32:31 +0100
+Subject: [PATCH net-next 5/5] net/smc: use server link_id in confirm link reply
+Date: Wed, 21 Feb 2018 12:32:35 +0100
 In-Reply-To: <20180221113235.46702-1-ubraun@linux.vnet.ibm.com>
 References: <20180221113235.46702-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180221113235.46702-2-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180221113235.46702-6-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,171 +12,42 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, jwi@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Raspl <stefan.raspl@de.ibm.com>
+From: Karsten Graul <kgraul@linux.vnet.ibm.com>
 
-Remove structures used internal only from headers.
-And remove an extra function parameter.
+The CONFIRM LINK reply message must contain the link_id sent by the
+server. And set the link_id explicitly when initializing the link.
 
-Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c  |  8 ++++----
- net/smc/smc_clc.c |  3 +++
- net/smc/smc_clc.h |  6 ------
- net/smc/smc_llc.c | 30 ++++++++++++++++++++++++++++++
- net/smc/smc_llc.h | 28 ----------------------------
- 5 files changed, 37 insertions(+), 38 deletions(-)
+ net/smc/smc_core.c | 1 +
+ net/smc/smc_llc.c  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 38ae22b65e77..b1961a789837 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -312,7 +312,7 @@ int smc_netinfo_by_tcpsk(struct socket *clcsock,
- 	return rc;
- }
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index bc11d06e38ae..b4ff679a12b1 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -176,6 +176,7 @@ static int smc_lgr_create(struct smc_sock *smc,
  
--static int smc_clnt_conf_first_link(struct smc_sock *smc, union ib_gid *gid)
-+static int smc_clnt_conf_first_link(struct smc_sock *smc)
- {
- 	struct smc_link_group *lgr = smc->conn.lgr;
- 	struct smc_link *link;
-@@ -346,7 +346,8 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc, union ib_gid *gid)
- 	/* send CONFIRM LINK response over RoCE fabric */
- 	rc = smc_llc_send_confirm_link(link,
- 				       link->smcibdev->mac[link->ibport - 1],
--				       gid, SMC_LLC_RESP);
-+				       &link->smcibdev->gid[link->ibport - 1],
-+				       SMC_LLC_RESP);
- 	if (rc < 0)
- 		return SMC_CLC_DECL_TCL;
- 
-@@ -498,8 +499,7 @@ static int smc_connect_rdma(struct smc_sock *smc)
- 
- 	if (local_contact == SMC_FIRST_CONTACT) {
- 		/* QP confirmation over RoCE fabric */
--		reason_code = smc_clnt_conf_first_link(
--			smc, &smcibdev->gid[ibport - 1]);
-+		reason_code = smc_clnt_conf_first_link(smc);
- 		if (reason_code < 0) {
- 			rc = reason_code;
- 			goto out_err_unlock;
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 8ac51583a063..dff318a2d5bf 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -22,6 +22,9 @@
- #include "smc_clc.h"
- #include "smc_ib.h"
- 
-+/* eye catcher "SMCR" EBCDIC for CLC messages */
-+static const char SMC_EYECATCHER[4] = {'\xe2', '\xd4', '\xc3', '\xd9'};
-+
- /* check if received message has a correct header length and contains valid
-  * heading and trailing eyecatchers
-  */
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index c145a0f36a68..aab3aae2a2ce 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -22,9 +22,6 @@
- #define SMC_CLC_CONFIRM		0x03
- #define SMC_CLC_DECLINE		0x04
- 
--/* eye catcher "SMCR" EBCDIC for CLC messages */
--static const char SMC_EYECATCHER[4] = {'\xe2', '\xd4', '\xc3', '\xd9'};
--
- #define SMC_CLC_V1		0x1		/* SMC version                */
- #define CLC_WAIT_TIME		(6 * HZ)	/* max. wait time on clcsock  */
- #define SMC_CLC_DECL_MEM	0x01010000  /* insufficient memory resources  */
-@@ -124,9 +121,6 @@ smc_clc_proposal_get_prefix(struct smc_clc_msg_proposal *pclc)
- 	       ((u8 *)pclc + sizeof(*pclc) + ntohs(pclc->iparea_offset));
- }
- 
--struct smc_sock;
--struct smc_ib_device;
--
- int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
- 		     u8 expected_type);
- int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info);
+ 	lnk = &lgr->lnk[SMC_SINGLE_LINK];
+ 	/* initialize link */
++	lnk->link_id = SMC_SINGLE_LINK;
+ 	lnk->smcibdev = smcibdev;
+ 	lnk->ibport = ibport;
+ 	lnk->path_mtu = smcibdev->pattr[ibport - 1].active_mtu;
 diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 92fe4cc8c82c..e4502bbff33d 100644
+index e4502bbff33d..338e2d061d5b 100644
 --- a/net/smc/smc_llc.c
 +++ b/net/smc/smc_llc.c
-@@ -21,6 +21,36 @@
- #include "smc_clc.h"
- #include "smc_llc.h"
- 
-+#define SMC_LLC_DATA_LEN		40
-+
-+struct smc_llc_hdr {
-+	struct smc_wr_rx_hdr common;
-+	u8 length;	/* 44 */
-+	u8 reserved;
-+	u8 flags;
-+};
-+
-+struct smc_llc_msg_confirm_link {	/* type 0x01 */
-+	struct smc_llc_hdr hd;
-+	u8 sender_mac[ETH_ALEN];
-+	u8 sender_gid[SMC_GID_SIZE];
-+	u8 sender_qp_num[3];
-+	u8 link_num;
-+	u8 link_uid[SMC_LGR_ID_SIZE];
-+	u8 max_links;
-+	u8 reserved[9];
-+};
-+
-+union smc_llc_msg {
-+	struct smc_llc_msg_confirm_link confirm_link;
-+	struct {
-+		struct smc_llc_hdr hdr;
-+		u8 data[SMC_LLC_DATA_LEN];
-+	} raw;
-+};
-+
-+#define SMC_LLC_FLAG_RESP		0x80
-+
- /********************************** send *************************************/
- 
- struct smc_llc_tx_pend {
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 51b27ce90dbd..a7888607ab53 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -28,34 +28,6 @@ enum smc_llc_msg_type {
- 	SMC_LLC_CONFIRM_LINK		= 0x01,
- };
- 
--#define SMC_LLC_DATA_LEN		40
--
--struct smc_llc_hdr {
--	struct smc_wr_rx_hdr common;
--	u8 length;	/* 44 */
--	u8 reserved;
--	u8 flags;
--};
--
--struct smc_llc_msg_confirm_link {	/* type 0x01 */
--	struct smc_llc_hdr hd;
--	u8 sender_mac[ETH_ALEN];
--	u8 sender_gid[SMC_GID_SIZE];
--	u8 sender_qp_num[3];
--	u8 link_num;
--	u8 link_uid[SMC_LGR_ID_SIZE];
--	u8 max_links;
--	u8 reserved[9];
--};
--
--union smc_llc_msg {
--	struct smc_llc_msg_confirm_link confirm_link;
--	struct {
--		struct smc_llc_hdr hdr;
--		u8 data[SMC_LLC_DATA_LEN];
--	} raw;
--};
--
- /* transmit */
- int smc_llc_send_confirm_link(struct smc_link *lnk, u8 mac[], union ib_gid *gid,
- 			      enum smc_llc_reqresp reqresp);
+@@ -122,7 +122,7 @@ int smc_llc_send_confirm_link(struct smc_link *link, u8 mac[],
+ 	memcpy(confllc->sender_mac, mac, ETH_ALEN);
+ 	memcpy(confllc->sender_gid, gid, SMC_GID_SIZE);
+ 	hton24(confllc->sender_qp_num, link->roce_qp->qp_num);
+-	/* confllc->link_num = SMC_SINGLE_LINK; already done by memset above */
++	confllc->link_num = link->link_id;
+ 	memcpy(confllc->link_uid, lgr->id, SMC_LGR_ID_SIZE);
+ 	confllc->max_links = SMC_LINKS_PER_LGR_MAX;
+ 	/* send llc message */
 -- 
 2.13.5
