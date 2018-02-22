@@ -1,39 +1,74 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 21 Feb 2018 08:37:33 +0000
-Subject: Re: [PATCH 1/2] KVM: s390: Refactor host cmma and pfmfi interpretation controls
-Message-Id: <5450c61b-9cbe-974e-2f42-61803c5a2ca4@de.ibm.com>
-In-Reply-To: <7ead7a90-2e0b-c2ba-6d76-5e7c27288c08@linux.vnet.ibm.com>
-References: <7ead7a90-2e0b-c2ba-6d76-5e7c27288c08@linux.vnet.ibm.com>
+Date: Thu, 22 Feb 2018 11:15:05 +0000
+Subject: [GIT PULL 1/4] KVM: s390: take care of clock-comparator sign control
+Message-Id: <20180222111508.230489-2-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+From: David Hildenbrand <david@redhat.com>
 
+Missed when enabling the Multiple-epoch facility. If the facility is
+installed and the control is set, a sign based comaprison has to be
+performed.
 
-On 02/20/2018 04:04 PM, Janosch Frank wrote:
-> On 19.02.2018 12:22, Christian Borntraeger wrote:
->> On 02/16/2018 12:16 PM, Janosch Frank wrote:
->>> use_cmma in kvm_arch means that the vm is allowed to use cmma, whereas
->> what about                          ^^^^^ s/vm/KVM hypervisor/
->>
->> ?                     
-> 
-> Yes, that would be more correct, will integrate.
+Right now we would inject wrong interrupts and ignore interrupt
+conditions. Also the sleep time is calculated in a wrong way.
 
-I will just fixup when applying.
-
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20180207114647.6220-2-david@redhat.com>
+Fixes: 8fa1696ea781 ("KVM: s390: Multiple Epoch Facility support")
+Cc: stable@vger.kernel.org
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-> 
->>
->>> use_cmma in the mm context means cmm has been used before. Let's
->>> rename the context one to uses_cmm, as the vm does use collaborative
->>> memory management but the host uses the cmm assist (interpretation
->>> facility).
->>>
->>> Also let's introduce use_pfmfi, so we can remove the pfmfi disablement
->>> when we activate cmma and rather not activate it in the first place.
->>>
->>> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
->>
-> 
-> 
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 3f2c49b1a393..b04616b57a94 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -169,8 +169,15 @@ static int ckc_interrupts_enabled(struct kvm_vcpu *vcpu)
+ 
+ static int ckc_irq_pending(struct kvm_vcpu *vcpu)
+ {
+-	if (vcpu->arch.sie_block->ckc >= kvm_s390_get_tod_clock_fast(vcpu->kvm))
++	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
++	const u64 ckc = vcpu->arch.sie_block->ckc;
++
++	if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
++		if ((s64)ckc >= (s64)now)
++			return 0;
++	} else if (ckc >= now) {
+ 		return 0;
++	}
+ 	return ckc_interrupts_enabled(vcpu);
+ }
+ 
+@@ -1047,13 +1054,19 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
+ 
+ static u64 __calculate_sltime(struct kvm_vcpu *vcpu)
+ {
+-	u64 now, cputm, sltime = 0;
++	const u64 now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
++	const u64 ckc = vcpu->arch.sie_block->ckc;
++	u64 cputm, sltime = 0;
+ 
+ 	if (ckc_interrupts_enabled(vcpu)) {
+-		now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
+-		sltime = tod_to_ns(vcpu->arch.sie_block->ckc - now);
+-		/* already expired or overflow? */
+-		if (!sltime || vcpu->arch.sie_block->ckc <= now)
++		if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul) {
++			if ((s64)now < (s64)ckc)
++				sltime = tod_to_ns((s64)ckc - (s64)now);
++		} else if (now < ckc) {
++			sltime = tod_to_ns(ckc - now);
++		}
++		/* already expired */
++		if (!sltime)
+ 			return 0;
+ 		if (cpu_timer_interrupts_enabled(vcpu)) {
+ 			cputm = kvm_s390_get_cpu_timer(vcpu);
+-- 
+2.14.3
