@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 15 Feb 2018 14:08:22 +0900
-From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 23 Feb 2018 16:34:05 +0800
+From: Dave Young <dyoung@redhat.com>
 Subject: Re: [PATCH 00/17] Add kexec_file_load support to s390
-Message-ID: <20180215050821.GB11463@linaro.org>
+Message-ID: <20180223083405.GA29498@dhcp-128-65.nay.redhat.com>
 References: <20180212100754.55121-1-prudo@linux.vnet.ibm.com>
  <20180214073543.GA12328@dhcp-128-65.nay.redhat.com>
  <20180214105449.1325bfbe@ThinkPad>
@@ -14,12 +14,10 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Cc: Dave Young <dyoung@redhat.com>, kexec@lists.infradead.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Eric Biederman <ebiederm@xmission.com>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Vivek Goyal <vgoyal@redhat.com>
+Cc: kexec@lists.infradead.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Eric Biederman <ebiederm@xmission.com>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Vivek Goyal <vgoyal@redhat.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
-
-On Wed, Feb 14, 2018 at 10:54:49AM +0100, Philipp Rudo wrote:
+On 02/14/18 at 10:54am, Philipp Rudo wrote:
 > Hi Dave,
 > 
 > I just browsed AKASHI's patches (v7). The way I see it the common code changes
@@ -27,25 +25,19 @@ On Wed, Feb 14, 2018 at 10:54:49AM +0100, Philipp Rudo wrote:
 > arch code (s390 and arm64) some function calls might need an update. But I have
 > to take a closer look on the patches first.
 
-Yes, I mainly focus on re-factoring elf-core-header related code.
+I'm tring both in local branch with both series (V8 from AKASHI and this series),
+but there are indeed some conflicts, may because AKASHI factored out some arch
+code from ppc/x86 to common code.
 
+> 
 > @AKASHI: Welcome to the list. While browsing I couldn't find any
 > arch_apply_relocation function for arm64. These require the biggest changes in
 > my patch set. Did I just miss it or does arm64 work differently?
-
-Well, after some discussions with arm64 key developers, we decided not to
-utilize digest hash values in purgatory as they may not be very valuable, and
-this resulted in a simple purgatory, which requires no re-linking/relocations.
-
-In my next version coming soon, as our purgatory was so simple, we will
-completely drop a purgatory from kexec_file_load code.
-(we will still maintain a purgatory for legacy kexec_load as kexec-tools
-has it now.)
-
-Thanks,
--Takahiro AKASHI
-
+> 
 > @Dave: Happy holiday
+
+Thank you!
+
 > 
 > Thanks
 > Philipp
