@@ -1,45 +1,119 @@
-Return-Path: <keescook@google.com>
-MIME-Version: 1.0
-Sender: keescook@google.com
-In-Reply-To: <20180222130738.GG30681@dhcp22.suse.cz>
-References: <20180212133731.GE3443@dhcp22.suse.cz>
- <87r2ppvaeq.fsf@concordia.ellerman.id.au>
- <CAGXu5j+DnkUv9pZn93wxA6_2s+c3Ap_Q34OR0weY7Y9MJ1aP9Q@mail.gmail.com>
- <87d1192nzc.fsf@concordia.ellerman.id.au>
- <20180213103213.GP3443@dhcp22.suse.cz>
- <CAGXu5jJZROQMxzxu+Dp3mVMktSg-oTB6pqk7fUyM_6_2oa9c_A@mail.gmail.com>
- <20180214092045.GZ3443@dhcp22.suse.cz>
- <CAGXu5jJCN_Js9rvM4RMjxDCDd4tVzWDo-jdnFiZs1D9e3cunrw@mail.gmail.com>
- <20180222130738.GG30681@dhcp22.suse.cz>
-From: Kees Cook <keescook@chromium.org>
-Date: Thu, 22 Feb 2018 09:30:35 -0800
-Message-ID: <CAGXu5jLLDOqoSn9usuA-pRLb5X=zK6MYdUVMPEh7x7oMgnU5cQ@mail.gmail.com>
-Subject: Re: samples/seccomp/ broken when cross compiling s390,
- ppc allyesconfig
-Content-Type: text/plain; charset="UTF-8"
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, Will Drewry <wad@chromium.org>, linux-s390 <linux-s390@vger.kernel.org>, PowerPC <linuxppc-dev@lists.ozlabs.org>, LKML <linux-kernel@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Philipp Rudo <prudo@linux.vnet.ibm.com>
+Subject: [PATCH 09/11] kexec_file: Remove mis-use of sh_offset field
+Date: Mon, 26 Feb 2018 16:16:18 +0100
+In-Reply-To: <20180226151620.20970-1-prudo@linux.vnet.ibm.com>
+References: <20180226151620.20970-1-prudo@linux.vnet.ibm.com>
+Message-Id: <20180226151620.20970-10-prudo@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Dave Young <dyoung@redhat.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Feb 22, 2018 at 5:07 AM, Michal Hocko <mhocko@kernel.org> wrote:
-> On Wed 14-02-18 09:14:47, Kees Cook wrote:
-> [...]
->> I can send it through my seccomp tree via James Morris.
->
-> Could you please do it?
+The current code uses the sh_offset field in purgatory_info->sechdrs to
+store a pointer to the current load address of the section. Depending
+whether the section will be loaded or not this is either a pointer into
+purgatory_info->purgatory_buf or kexec_purgatory. This is not only a
+violation of the ELF standard but also makes the code very hard to
+understand as you cannot tell if the memory you are using is read-only or
+not.
 
-Hi! Yes, sorry, this fell through the cracks. Now applied.
+Remove this mis-use and store the offset of the section in
+pugaroty_info->purgatory_buf in sh_offset.
 
--Kees
+Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
+---
+ arch/x86/kernel/machine_kexec_64.c | 10 ++++++----
+ kernel/kexec_file.c                | 33 +++------------------------------
+ 2 files changed, 9 insertions(+), 34 deletions(-)
 
+diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
+index 51667c8b5c9b..41db74bdc88b 100644
+--- a/arch/x86/kernel/machine_kexec_64.c
++++ b/arch/x86/kernel/machine_kexec_64.c
+@@ -457,13 +457,15 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ 		 * rel[i].r_offset contains byte offset from beginning
+ 		 * of section to the storage unit affected.
+ 		 *
+-		 * This is location to update (->sh_offset). This is temporary
+-		 * buffer where section is currently loaded. This will finally
+-		 * be loaded to a different address later, pointed to by
++		 * This is location to update. This is temporary buffer
++		 * where section is currently loaded. This will finally be
++		 * loaded to a different address later, pointed to by
+ 		 * ->sh_addr. kexec takes care of moving it
+ 		 *  (kexec_load_segment()).
+ 		 */
+-		location = (void *)(section->sh_offset + rel[i].r_offset);
++		location = pi->purgatory_buf;
++		location += section->sh_offset;
++		location += rel[i].r_offset;
+ 
+ 		/* Final address of the location */
+ 		address = section->sh_addr + rel[i].r_offset;
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 746b91e46e34..25b44d1a664a 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -736,28 +736,6 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+ 	       pi->ehdr->e_shnum * sizeof(Elf_Shdr));
+ 	pi->sechdrs = sechdrs;
+ 
+-	/*
+-	 * We seem to have multiple copies of sections. First copy is which
+-	 * is embedded in kernel in read only section. Some of these sections
+-	 * will be copied to a temporary buffer and relocated. And these
+-	 * sections will finally be copied to their final destination at
+-	 * segment load time.
+-	 *
+-	 * Use ->sh_offset to reflect section address in memory. It will
+-	 * point to original read only copy if section is not allocatable.
+-	 * Otherwise it will point to temporary copy which will be relocated.
+-	 *
+-	 * Use ->sh_addr to contain final address of the section where it
+-	 * will go during execution time.
+-	 */
+-	for (i = 0; i < pi->ehdr->e_shnum; i++) {
+-		if (sechdrs[i].sh_type == SHT_NOBITS)
+-			continue;
+-
+-		sechdrs[i].sh_offset = (unsigned long)pi->ehdr +
+-						sechdrs[i].sh_offset;
+-	}
+-
+ 	offset = 0;
+ 	bss_addr = kbuf->mem + kbuf->bufsz;
+ 	kbuf->image->start = pi->ehdr->e_entry;
+@@ -786,17 +764,12 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+ 			kbuf->image->start += kbuf->mem + offset;
+ 		}
+ 
+-		src = (void *)sechdrs[i].sh_offset;
++		src = (void *)pi->ehdr + sechdrs[i].sh_offset;
+ 		dst = pi->purgatory_buf + offset;
+ 		memcpy(dst, src, sechdrs[i].sh_size);
+ 
+ 		sechdrs[i].sh_addr = kbuf->mem + offset;
+-
+-		/*
+-		 * This section got copied to temporary buffer. Update
+-		 * ->sh_offset accordingly.
+-		 */
+-		sechdrs[i].sh_offset = (unsigned long)dst;
++		sechdrs[i].sh_offset = offset;
+ 		offset += sechdrs[i].sh_size;
+ 	}
+ 
+@@ -1006,7 +979,7 @@ int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
+ 		return -EINVAL;
+ 	}
+ 
+-	sym_buf = (char *)sec->sh_offset + sym->st_value;
++	sym_buf = (char *)pi->purgatory_buf + sec->sh_offset + sym->st_value;
+ 
+ 	if (get_value)
+ 		memcpy((void *)buf, sym_buf, size);
 -- 
-Kees Cook
-Pixel Security
+2.13.5
