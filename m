@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Subject: [PATCH 04/11] kexec_file: Search symbols in read-only kexec_purgatory
-Date: Mon, 26 Feb 2018 16:16:13 +0100
+Subject: [PATCH 11/11] kexec_file: Move purgatories sha256 to common code
+Date: Mon, 26 Feb 2018 16:16:20 +0100
 In-Reply-To: <20180226151620.20970-1-prudo@linux.vnet.ibm.com>
 References: <20180226151620.20970-1-prudo@linux.vnet.ibm.com>
-Message-Id: <20180226151620.20970-5-prudo@linux.vnet.ibm.com>
+Message-Id: <20180226151620.20970-12-prudo@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,105 +12,92 @@ To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Dave Young <dyoung@redhat.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The stripped purgatory does not contain a symtab. So when looking for
-symbols this is done in read-only kexec_purgatory. Highlight this by
-marking the corresponding variables as 'const'.
+The code to verify the new kernels sha digest are applicable for all
+architectures. Move it to common code.
 
 Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
 ---
- kernel/kexec_file.c | 38 ++++++++++++++++++++++----------------
- 1 file changed, 22 insertions(+), 16 deletions(-)
+ arch/x86/purgatory/Makefile                    |  3 +++
+ arch/x86/purgatory/purgatory.c                 |  2 +-
+ {arch/x86/purgatory => include/linux}/sha256.h | 10 +++++++++-
+ {arch/x86/purgatory => lib}/sha256.c           |  4 ++--
+ 4 files changed, 15 insertions(+), 4 deletions(-)
+ rename {arch/x86/purgatory => include/linux}/sha256.h (63%)
+ rename {arch/x86/purgatory => lib}/sha256.c (99%)
 
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 06fc9fdd2474..2072b288ec53 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -901,20 +901,27 @@ int kexec_load_purgatory(struct kimage *image, unsigned long min,
- 	return ret;
- }
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 2f15a2ac4209..414eed6b5065 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup-x86_$(BITS).o sha256.o entry64.o string
+ targets += $(purgatory-y)
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
  
--static Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
--					    const char *name)
-+/*
-+ * kexec_purgatory_find_symbol - find a symbol in the purgatory
-+ * @pi:		Purgatory to search in.
-+ * @name:	Name of the symbol.
++$(obj)/sha256.o: $(srctree)/lib/sha256.c
++	$(call if_changed_rule,cc_o_c)
++
+ LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
+ targets += purgatory.ro
+ 
+diff --git a/arch/x86/purgatory/purgatory.c b/arch/x86/purgatory/purgatory.c
+index 470edad96bb9..025c34ac0d84 100644
+--- a/arch/x86/purgatory/purgatory.c
++++ b/arch/x86/purgatory/purgatory.c
+@@ -11,9 +11,9 @@
+  */
+ 
+ #include <linux/bug.h>
++#include <linux/sha256.h>
+ #include <asm/purgatory.h>
+ 
+-#include "sha256.h"
+ #include "../boot/string.h"
+ 
+ unsigned long purgatory_backup_dest __section(.kexec-purgatory);
+diff --git a/arch/x86/purgatory/sha256.h b/include/linux/sha256.h
+similarity index 63%
+rename from arch/x86/purgatory/sha256.h
+rename to include/linux/sha256.h
+index 2867d9825a57..43a20ac33688 100644
+--- a/arch/x86/purgatory/sha256.h
++++ b/include/linux/sha256.h
+@@ -13,9 +13,17 @@
+ #include <linux/types.h>
+ #include <crypto/sha.h>
+ 
++/* Stand-alone implementation of the SHA256 algorithm. It is designed to
++ * have as little dependencies as possible so it can be used in the
++ * kexec_file purgatory. In other cases you should use the implementation in
++ * crypto/.
 + *
-+ * Return: pointer to symbol in read-only symtab on success, NULL on error.
++ * For details see lib/sha256.c
 + */
-+static const Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
-+						  const char *name)
++
+ extern int sha256_init(struct sha256_state *sctx);
+ extern int sha256_update(struct sha256_state *sctx, const u8 *input,
+-				unsigned int length);
++			 unsigned int length);
+ extern int sha256_final(struct sha256_state *sctx, u8 *hash);
+ 
+ #endif /* SHA256_H */
+diff --git a/arch/x86/purgatory/sha256.c b/lib/sha256.c
+similarity index 99%
+rename from arch/x86/purgatory/sha256.c
+rename to lib/sha256.c
+index 548ca675a14a..4400c832e2aa 100644
+--- a/arch/x86/purgatory/sha256.c
++++ b/lib/sha256.c
+@@ -16,9 +16,9 @@
+  */
+ 
+ #include <linux/bitops.h>
++#include <linux/sha256.h>
++#include <linux/string.h>
+ #include <asm/byteorder.h>
+-#include "sha256.h"
+-#include "../boot/string.h"
+ 
+ static inline u32 Ch(u32 x, u32 y, u32 z)
  {
-+	const Elf_Shdr *sechdrs;
- 	const Elf_Ehdr *ehdr;
--	Elf_Sym *syms;
--	Elf_Shdr *sechdrs;
--	int i, k;
-+	const Elf_Sym *syms;
- 	const char *strtab;
-+	int i, k;
- 
--	if (!pi->sechdrs || !pi->ehdr)
-+	if (!pi->ehdr)
- 		return NULL;
- 
--	sechdrs = pi->sechdrs;
- 	ehdr = pi->ehdr;
-+	sechdrs = (void *)ehdr + ehdr->e_shoff;
- 
- 	for (i = 0; i < ehdr->e_shnum; i++) {
- 		if (sechdrs[i].sh_type != SHT_SYMTAB)
-@@ -923,8 +930,8 @@ static Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
- 		if (sechdrs[i].sh_link >= ehdr->e_shnum)
- 			/* Invalid strtab section number */
- 			continue;
--		strtab = (char *)sechdrs[sechdrs[i].sh_link].sh_offset;
--		syms = (Elf_Sym *)sechdrs[i].sh_offset;
-+		strtab = (void *)ehdr + sechdrs[sechdrs[i].sh_link].sh_offset;
-+		syms = (void *)ehdr + sechdrs[i].sh_offset;
- 
- 		/* Go through symbols for a match */
- 		for (k = 0; k < sechdrs[i].sh_size/sizeof(Elf_Sym); k++) {
-@@ -952,7 +959,7 @@ static Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
- void *kexec_purgatory_get_symbol_addr(struct kimage *image, const char *name)
- {
- 	struct purgatory_info *pi = &image->purgatory_info;
--	Elf_Sym *sym;
-+	const Elf_Sym *sym;
- 	Elf_Shdr *sechdr;
- 
- 	sym = kexec_purgatory_find_symbol(pi, name);
-@@ -975,9 +982,9 @@ void *kexec_purgatory_get_symbol_addr(struct kimage *image, const char *name)
- int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
- 				   void *buf, unsigned int size, bool get_value)
- {
--	Elf_Sym *sym;
--	Elf_Shdr *sechdrs;
- 	struct purgatory_info *pi = &image->purgatory_info;
-+	const Elf_Sym *sym;
-+	Elf_Shdr *sec;
- 	char *sym_buf;
- 
- 	sym = kexec_purgatory_find_symbol(pi, name);
-@@ -990,16 +997,15 @@ int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
- 		return -EINVAL;
- 	}
- 
--	sechdrs = pi->sechdrs;
-+	sec = pi->sechdrs + sym->st_shndx;
- 
--	if (sechdrs[sym->st_shndx].sh_type == SHT_NOBITS) {
-+	if (sec->sh_type == SHT_NOBITS) {
- 		pr_err("symbol %s is in a bss section. Cannot %s\n", name,
- 		       get_value ? "get" : "set");
- 		return -EINVAL;
- 	}
- 
--	sym_buf = (unsigned char *)sechdrs[sym->st_shndx].sh_offset +
--					sym->st_value;
-+	sym_buf = (char *)sec->sh_offset + sym->st_value;
- 
- 	if (get_value)
- 		memcpy((void *)buf, sym_buf, size);
 -- 
 2.13.5
