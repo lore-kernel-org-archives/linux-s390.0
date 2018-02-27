@@ -1,180 +1,159 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 2/2] KVM: s390: Add storage key facility interpretation
- control
-Date: Fri, 16 Feb 2018 15:46:38 +0100
-Message-ID: <b446ad64-ce28-1519-96f7-ef8c90370298@redhat.com>
-References: <1518779775-256056-1-git-send-email-frankja@linux.vnet.ibm.com>
- <1518779775-256056-3-git-send-email-frankja@linux.vnet.ibm.com>
- <970c03cd-ee21-e1a1-c390-aff4f5fce3f0@redhat.com>
- <6d124087-d507-c253-e4a2-8f35dc006cd6@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <1519734229.2699.6.camel@redhat.com>
+Subject: Re: WARNING in smc_unhash_sk
+From: Davide Caratti <dcaratti@redhat.com>
+In-Reply-To: <001a114fa99028d2a10565e33df4@google.com>
+References: <001a114fa99028d2a10565e33df4@google.com>
+Content-Type: multipart/mixed; boundary="=-UQZW0R4usRki+zH1OxSq"
+Date: Tue, 27 Feb 2018 13:23:49 +0100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <6d124087-d507-c253-e4a2-8f35dc006cd6@linux.vnet.ibm.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>, kvm@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, alifm@linux.vnet.ibm.com, imbrenda@linux.vnet.ibm.com, linux-s390@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: syzbot <syzbot+3a0748c8f2f210c0ef9b@syzkaller.appspotmail.com>, davem@davemloft.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 16.02.2018 15:35, Janosch Frank wrote:
-> On 16.02.2018 15:30, David Hildenbrand wrote:
->> On 16.02.2018 12:16, Janosch Frank wrote:
->>> Up to now we always expected to have the storage key facility
->>> available for our (non-VSIE) KVM guests. For huge page support, we
->>> need to be able to disable it, so let's introduce that now.
->>>
->>> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
->>> Reviewed-by: Farhan Ali <alifm@linux.vnet.ibm.com>
->>> ---
->>>  arch/s390/include/asm/kvm_host.h    |  1 +
->>>  arch/s390/include/asm/mmu.h         |  2 +-
->>>  arch/s390/include/asm/mmu_context.h |  2 +-
->>>  arch/s390/include/asm/pgtable.h     |  4 ++--
->>>  arch/s390/kvm/kvm-s390.c            |  3 ++-
->>>  arch/s390/kvm/priv.c                | 22 +++++++++++++---------
->>>  arch/s390/mm/gmap.c                 |  6 +++---
->>>  arch/s390/mm/pgtable.c              |  4 ++--
->>>  8 files changed, 25 insertions(+), 19 deletions(-)
->>>
->>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->>> index 27918b1..f161ad0 100644
->>> --- a/arch/s390/include/asm/kvm_host.h
->>> +++ b/arch/s390/include/asm/kvm_host.h
->>> @@ -793,6 +793,7 @@ struct kvm_arch{
->>>  	int use_irqchip;
->>>  	int use_cmma;
->>>  	int use_pfmfi;
->>> +	int use_skf;
->>>  	int user_cpu_state_ctrl;
->>>  	int user_sigp;
->>>  	int user_stsi;
->>> diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
->>> index c639c95..f5ff9db 100644
->>> --- a/arch/s390/include/asm/mmu.h
->>> +++ b/arch/s390/include/asm/mmu.h
->>> @@ -21,7 +21,7 @@ typedef struct {
->>>  	/* The mmu context uses extended page tables. */
->>>  	unsigned int has_pgste:1;
->>>  	/* The mmu context uses storage keys. */
->>> -	unsigned int use_skey:1;
->>> +	unsigned int uses_skeys:1;
->>>  	/* The mmu context uses CMM. */
->>>  	unsigned int uses_cmm:1;
->>>  } mm_context_t;
->>> diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
->>> index d3ebfa8..bc9a2a9 100644
->>> --- a/arch/s390/include/asm/mmu_context.h
->>> +++ b/arch/s390/include/asm/mmu_context.h
->>> @@ -30,7 +30,7 @@ static inline int init_new_context(struct task_struct *tsk,
->>>  		test_thread_flag(TIF_PGSTE) ||
->>>  		(current->mm && current->mm->context.alloc_pgste);
->>>  	mm->context.has_pgste = 0;
->>> -	mm->context.use_skey = 0;
->>> +	mm->context.uses_skeys = 0;
->>>  	mm->context.uses_cmm = 0;
->>>  #endif
->>>  	switch (mm->context.asce_limit) {
->>> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
->>> index 9223b4d..4f26425 100644
->>> --- a/arch/s390/include/asm/pgtable.h
->>> +++ b/arch/s390/include/asm/pgtable.h
->>> @@ -509,10 +509,10 @@ static inline int mm_alloc_pgste(struct mm_struct *mm)
->>>   * faults should no longer be backed by zero pages
->>>   */
->>>  #define mm_forbids_zeropage mm_has_pgste
->>> -static inline int mm_use_skey(struct mm_struct *mm)
->>> +static inline int mm_uses_skeys(struct mm_struct *mm)
->>>  {
->>>  #ifdef CONFIG_PGSTE
->>> -	if (mm->context.use_skey)
->>> +	if (mm->context.uses_skeys)
->>>  		return 1;
->>>  #endif
->>>  	return 0;
->>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>> index 8fb6549..90deb7b 100644
->>> --- a/arch/s390/kvm/kvm-s390.c
->>> +++ b/arch/s390/kvm/kvm-s390.c
->>> @@ -1432,7 +1432,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
->>>  		return -EINVAL;
->>>  
->>>  	/* Is this guest using storage keys? */
->>> -	if (!mm_use_skey(current->mm))
->>> +	if (!mm_uses_skeys(current->mm))
->>>  		return KVM_S390_GET_SKEYS_NONE;
->>>  
->>>  	/* Enforce sane limit on memory allocation */
->>> @@ -2010,6 +2010,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->>>  	kvm->arch.css_support = 0;
->>>  	kvm->arch.use_irqchip = 0;
->>>  	kvm->arch.use_pfmfi = sclp.has_pfmfi;
->>> +	kvm->arch.use_skf = sclp.has_skey;
->>>  	kvm->arch.epoch = 0;
->>>  
->>>  	spin_lock_init(&kvm->arch.start_stop_lock);
->>> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
->>> index 76a2380..d9bd147 100644
->>> --- a/arch/s390/kvm/priv.c
->>> +++ b/arch/s390/kvm/priv.c
->>> @@ -208,19 +208,23 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
->>>  	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
->>>  
->>>  	trace_kvm_s390_skey_related_inst(vcpu);
->>> -	if (!(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
->>> +	/* Already enabled? */
->>> +	if (vcpu->kvm->arch.use_skf &&
->>> +	    !(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
->>>  	    !kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
->>>  		return rc;
->>
->> While at it, can you directly "return 0;" here and remove the
->> initialization of rc to 0? Makes the code easier to read
+
+--=-UQZW0R4usRki+zH1OxSq
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+On Fri, 2018-02-23 at 07:59 -0800, syzbot wrote:
+> Hello,
 > 
-> Sure
+> syzbot hit the following crash on upstream commit
+> af3e79d29555b97dd096e2f8e36a0f50213808a8 (Tue Feb 20 18:05:02 2018 +0000)
+> Merge tag 'leds_for-4.16-rc3' of  
+> git://git.kernel.org/pub/scm/linux/kernel/git/j.anaszewski/linux-leds
 > 
->>
->>>  
->>>  	rc = s390_enable_skey();
->>>  	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
->>> -	if (!rc) {
->>> -		if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
->>> -			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
->>> -		else
->>> -			sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE |
->>> -					     ICTL_RRBE);
->>> -	}
->>> +	if (rc)
->>> +		return rc;
->>> +
->>> +	if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
->>> +		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
->>> +	if (!vcpu->kvm->arch.use_skf)
->>> +		sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
->>> +	else
->>> +		sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
->>
->>
->> I wonder why
->>
->> vcpu->arch.sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
->>
->> Is set conditionally (sclp.has_kss) in kvm_arch_vcpu_setup().
->>
->> Can't we simply always set these bits there and only clear them here
->> conditionally?
+> So far this crash happened 27 times on  
+> https://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git/master,  
+> net-next, upstream.
+> C reproducer is attached.
+> syzkaller reproducer is attached.
+> Raw console output is attached.
+> compiler: gcc (GCC) 7.1.1 20170620
+> .config is attached.
 > 
-> Intercept priority... skey intercepts are more important than kss.
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+3a0748c8f2f210c0ef9b@syzkaller.appspotmail.com
+> It will help syzbot understand when the bug is fixed. See footer for  
+> details.
+> If you forward the report, please keep this part and the footer.
 > 
+> WARNING: CPU: 1 PID: 9921 at ./include/net/sock.h:638 sk_del_node_init  
+> include/net/sock.h:638 [inline]
+> WARNING: CPU: 1 PID: 9921 at ./include/net/sock.h:638  
+> smc_unhash_sk+0x335/0x450 net/smc/af_smc.c:90
+> Kernel panic - not syncing: panic_on_warn set ...
+> 
+> CPU: 1 PID: 9921 Comm: syzkaller089677 Not tainted 4.16.0-rc2+ #324
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+> Google 01/01/2011
+> Call Trace:
+>   __dump_stack lib/dump_stack.c:17 [inline]
+>   dump_stack+0x194/0x24d lib/dump_stack.c:53
+>   panic+0x1e4/0x41c kernel/panic.c:183
+>   __warn+0x1dc/0x200 kernel/panic.c:547
+>   report_bug+0x211/0x2d0 lib/bug.c:184
+>   fixup_bug.part.11+0x37/0x80 arch/x86/kernel/traps.c:178
+>   fixup_bug arch/x86/kernel/traps.c:247 [inline]
+>   do_error_trap+0x2d7/0x3e0 arch/x86/kernel/traps.c:296
+>   do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
+>   invalid_op+0x58/0x80 arch/x86/entry/entry_64.S:957
+> RIP: 0010:sk_del_node_init include/net/sock.h:638 [inline]
+> RIP: 0010:smc_unhash_sk+0x335/0x450 net/smc/af_smc.c:90
+> RSP: 0018:ffff8801b639f198 EFLAGS: 00010293
+> RAX: ffff8801b684a340 RBX: 1ffff10036c73e37 RCX: ffffffff85a3f1f5
+> RDX: 0000000000000000 RSI: dffffc0000000000 RDI: 1ffff10036c73e3b
+> RBP: ffff8801b639f280 R08: dffffc0000000000 R09: 0000000000000004
+> R10: ffff8801b639f050 R11: 0000000000000004 R12: ffff8801b639f258
+> R13: ffffffff87669b40 R14: ffff8801c08d57c0 R15: 1ffff10036c73e3b
+>   smc_release+0x321/0x580 net/smc/af_smc.c:148
+>   sock_release+0x8d/0x1e0 net/socket.c:595
+>   sock_close+0x16/0x20 net/socket.c:1149
+>   __fput+0x327/0x7e0 fs/file_table.c:209
+>   ____fput+0x15/0x20 fs/file_table.c:243
+>   task_work_run+0x199/0x270 kernel/task_work.c:113
+>   exit_task_work include/linux/task_work.h:22 [inline]
+>   do_exit+0x9bb/0x1ad0 kernel/exit.c:865
+>   do_group_exit+0x149/0x400 kernel/exit.c:968
+>   get_signal+0x73a/0x16d0 kernel/signal.c:2469
+>   do_signal+0x90/0x1e90 arch/x86/kernel/signal.c:809
+>   exit_to_usermode_loop+0x258/0x2f0 arch/x86/entry/common.c:162
+>   prepare_exit_to_usermode arch/x86/entry/common.c:196 [inline]
+>   syscall_return_slowpath arch/x86/entry/common.c:265 [inline]
+>   do_syscall_64+0x6e5/0x940 arch/x86/entry/common.c:292
+>   entry_SYSCALL_64_after_hwframe+0x42/0xb7
+> RIP: 0033:0x44cad9
+> RSP: 002b:00007fbf24687ce8 EFLAGS: 00000246 ORIG_RAX: 0000000000000007
+> RAX: 0000000000000001 RBX: 0000000000700024 RCX: 000000000044cad9
+> RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000020000080
+> RBP: 0000000000700020 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+> R13: 000000000080ef3f R14: 00007fbf246889c0 R15: 0000000000000005
+> Dumping ftrace buffer:
+>     (ftrace buffer empty)
+> Kernel Offset: disabled
+> Rebooting in 86400 seconds..
+> 
+> 
+> ---
+> This bug is generated by a dumb bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for details.
+> Direct all questions to syzkaller@googlegroups.com.
+> 
+> syzbot will keep track of this bug report.
+> If you forgot to add the Reported-by tag, once the fix for this bug is  
+> merged
+> into any tree, please reply to this email with:
+> #syz fix: exact-commit-title
+> If you want to test a patch for this bug, please reply with:
+> #syz test: git://repo/address.git branch
+> and provide the patch inline or as an attachment.
+> To mark this as a duplicate of another syzbot report, please reply with:
+> #syz dup: exact-subject-of-another-report
+> If it's a one-off invalid bug report, please reply with:
+> #syz invalid
+> Note: if the crash happens again, it will cause creation of a new bug  
+> report.
+> Note: all commands must start from beginning of the line in the email body.
 
-... but does that make any difference here?
+#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git master
+
+--=-UQZW0R4usRki+zH1OxSq
+Content-Disposition: attachment;
+	filename*0=0001-af_smc-fix-NULL-pointer-dereference-on-sock_create_k.pat;
+	filename*1=ch
+Content-Type: text/x-patch;
+	name="0001-af_smc-fix-NULL-pointer-dereference-on-sock_create_k.patch";
+	charset="UTF-8"
+Content-Transfer-Encoding: base64
+
+RnJvbSBjMjU4YmYzYWQwNzk4NWVhZjRlMDdkNzY2N2I3ODgyY2I5YTI2NjFiIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpNZXNzYWdlLUlkOiA8YzI1OGJmM2FkMDc5ODVlYWY0ZTA3ZDc2NjdiNzg4
+MmNiOWEyNjYxYi4xNTE5NzMyNTQ1LmdpdC5kY2FyYXR0aUByZWRoYXQuY29tPgpGcm9tOiBEYXZp
+ZGUgQ2FyYXR0aSA8ZGNhcmF0dGlAcmVkaGF0LmNvbT4KRGF0ZTogVHVlLCAyNyBGZWIgMjAxOCAx
+Mjo0NToxMSArMDEwMApTdWJqZWN0OiBbUEFUQ0ggbmV0XSBhZl9zbWM6IGZpeCBOVUxMIHBvaW50
+ZXIgZGVyZWZlcmVuY2Ugb24KIHNvY2tfY3JlYXRlX2tlcm4oKSBlcnJvciBwYXRoCgp3aGVuIHNv
+Y2tfY3JlYXRlX2tlcm4oLi4uLCBhKSByZXR1cm5zIGFuIGVycm9yLCAnYScgbWlnaHQgbm90IGJl
+IGEgdmFsaWQKcG9pbnRlciwgc28gaXQgc2hvdWxkbid0IGJlIGRlcmVmZXJlbmNlZCB0byByZWFk
+IGEtPnNrLT5za19zbmRidWYgYW5kCmFuZCBhLT5zay0+c2tfcmN2YnVmLgoKRml4ZXM6IGNkNjg1
+MWYzMDM4NiBzbWM6IHJlbW90ZSBtZW1vcnkgYnVmZmVycyAoUk1CcykKUmVwb3J0ZWQtYnk6IHN5
+emJvdCszYTA3NDhjOGYyZjIxMGMwZWY5YkBzeXprYWxsZXIuYXBwc3BvdG1haWwuY29tClNpZ25l
+ZC1vZmYtYnk6IERhdmlkZSBDYXJhdHRpIDxkY2FyYXR0aUByZWRoYXQuY29tPgotLS0KIG5ldC9z
+bWMvYWZfc21jLmMgfCA0ICsrKy0KIDEgZmlsZSBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDEg
+ZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9uZXQvc21jL2FmX3NtYy5jIGIvbmV0L3NtYy9hZl9z
+bWMuYwppbmRleCAzOGFlMjJiNjVlNzcuLjI3ZTdkMGI1OWRhOSAxMDA2NDQKLS0tIGEvbmV0L3Nt
+Yy9hZl9zbWMuYworKysgYi9uZXQvc21jL2FmX3NtYy5jCkBAIC0xNDA1LDggKzE0MDUsMTAgQEAg
+c3RhdGljIGludCBzbWNfY3JlYXRlKHN0cnVjdCBuZXQgKm5ldCwgc3RydWN0IHNvY2tldCAqc29j
+aywgaW50IHByb3RvY29sLAogCXNtYy0+dXNlX2ZhbGxiYWNrID0gZmFsc2U7IC8qIGFzc3VtZSBy
+ZG1hIGNhcGFiaWxpdHkgZmlyc3QgKi8KIAlyYyA9IHNvY2tfY3JlYXRlX2tlcm4obmV0LCBQRl9J
+TkVULCBTT0NLX1NUUkVBTSwKIAkJCSAgICAgIElQUFJPVE9fVENQLCAmc21jLT5jbGNzb2NrKTsK
+LQlpZiAocmMpCisJaWYgKHJjKSB7CiAJCXNrX2NvbW1vbl9yZWxlYXNlKHNrKTsKKwkJZ290byBv
+dXQ7CisJfQogCXNtYy0+c2suc2tfc25kYnVmID0gbWF4KHNtYy0+Y2xjc29jay0+c2stPnNrX3Nu
+ZGJ1ZiwgU01DX0JVRl9NSU5fU0laRSk7CiAJc21jLT5zay5za19yY3ZidWYgPSBtYXgoc21jLT5j
+bGNzb2NrLT5zay0+c2tfcmN2YnVmLCBTTUNfQlVGX01JTl9TSVpFKTsKIAotLSAKMi4xNC4zCgo=
 
 
--- 
-
-Thanks,
-
-David / dhildenb
+--=-UQZW0R4usRki+zH1OxSq--
