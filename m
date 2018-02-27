@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 1/6] s390/qeth: fix overestimated count of buffer elements
-Date: Tue, 27 Feb 2018 18:58:12 +0100
+Subject: [PATCH net 2/6] s390/qeth: fix IP removal on offline cards
+Date: Tue, 27 Feb 2018 18:58:13 +0100
 In-Reply-To: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
 References: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
-Message-Id: <20180227175817.84727-2-jwi@linux.vnet.ibm.com>
+Message-Id: <20180227175817.84727-3-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,71 +12,53 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-qeth_get_elements_for_range() doesn't know how to handle a 0-length
-range (ie. start == end), and returns 1 when it should return 0.
-Such ranges occur on TSO skbs, where the L2/L3/L4 headers (and thus all
-of the skb's linear data) are skipped when mapping the skb into regular
-buffer elements.
+If the HW is not reachable, then none of the IPs in qeth's internal
+table has been registered with the HW yet. So when deleting such an IP,
+there's no need to stage it for deregistration - just drop it from
+the table.
 
-This overestimation may cause several performance-related issues:
-1. sub-optimal IO buffer selection, where the next buffer gets selected
-   even though the skb would actually still fit into the current buffer.
-2. forced linearization, if the element count for a non-linear skb
-   exceeds QETH_MAX_BUFFER_ELEMENTS.
+This fixes the "add-delete-add" scenario on an offline card, where the
+the second "add" merely increments the IP's use count. But as the IP is
+still set to DISP_ADDR_DELETE from the previous "delete" step,
+l3_recover_ip() won't register it with the HW when the card goes online.
 
-Rather than modifying qeth_get_elements_for_range() and adding overhead
-to every caller, fix up those callers that are in risk of passing a
-0-length range.
-
-Fixes: 2863c61334aa ("qeth: refactor calculation of SBALE count")
+Fixes: 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 10 ++++++----
- drivers/s390/net/qeth_l3_main.c   | 11 ++++++-----
- 2 files changed, 12 insertions(+), 9 deletions(-)
+ drivers/s390/net/qeth_l3_main.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index ca72f3311004..30457fca30c5 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3898,10 +3898,12 @@ EXPORT_SYMBOL_GPL(qeth_get_elements_for_frags);
- int qeth_get_elements_no(struct qeth_card *card,
- 		     struct sk_buff *skb, int extra_elems, int data_offset)
- {
--	int elements = qeth_get_elements_for_range(
--				(addr_t)skb->data + data_offset,
--				(addr_t)skb->data + skb_headlen(skb)) +
--			qeth_get_elements_for_frags(skb);
-+	addr_t end = (addr_t)skb->data + skb_headlen(skb);
-+	int elements = qeth_get_elements_for_frags(skb);
-+	addr_t start = (addr_t)skb->data + data_offset;
-+
-+	if (start != end)
-+		elements += qeth_get_elements_for_range(start, end);
- 
- 	if ((elements + extra_elems) > QETH_MAX_BUFFER_ELEMENTS(card)) {
- 		QETH_DBF_MESSAGE(2, "Invalid size of IP packet "
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index b0c888e86cd4..3421893c37a4 100644
+index 3421893c37a4..34481b51029e 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2450,11 +2450,12 @@ static void qeth_tso_fill_header(struct qeth_card *card,
- static int qeth_l3_get_elements_no_tso(struct qeth_card *card,
- 			struct sk_buff *skb, int extra_elems)
- {
--	addr_t tcpdptr = (addr_t)tcp_hdr(skb) + tcp_hdrlen(skb);
--	int elements = qeth_get_elements_for_range(
--				tcpdptr,
--				(addr_t)skb->data + skb_headlen(skb)) +
--				qeth_get_elements_for_frags(skb);
-+	addr_t start = (addr_t)tcp_hdr(skb) + tcp_hdrlen(skb);
-+	addr_t end = (addr_t)skb->data + skb_headlen(skb);
-+	int elements = qeth_get_elements_for_frags(skb);
-+
-+	if (start != end)
-+		elements += qeth_get_elements_for_range(start, end);
+@@ -173,12 +173,8 @@ int qeth_l3_delete_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
+ 	if (addr->in_progress)
+ 		return -EINPROGRESS;
  
- 	if ((elements + extra_elems) > QETH_MAX_BUFFER_ELEMENTS(card)) {
- 		QETH_DBF_MESSAGE(2,
+-	if (!qeth_card_hw_is_reachable(card)) {
+-		addr->disp_flag = QETH_DISP_ADDR_DELETE;
+-		return 0;
+-	}
+-
+-	rc = qeth_l3_deregister_addr_entry(card, addr);
++	if (qeth_card_hw_is_reachable(card))
++		rc = qeth_l3_deregister_addr_entry(card, addr);
+ 
+ 	hash_del(&addr->hnode);
+ 	kfree(addr);
+@@ -321,11 +317,7 @@ static void qeth_l3_recover_ip(struct qeth_card *card)
+ 	spin_lock_bh(&card->ip_lock);
+ 
+ 	hash_for_each_safe(card->ip_htable, i, tmp, addr, hnode) {
+-		if (addr->disp_flag == QETH_DISP_ADDR_DELETE) {
+-			qeth_l3_deregister_addr_entry(card, addr);
+-			hash_del(&addr->hnode);
+-			kfree(addr);
+-		} else if (addr->disp_flag == QETH_DISP_ADDR_ADD) {
++		if (addr->disp_flag == QETH_DISP_ADDR_ADD) {
+ 			if (addr->proto == QETH_PROT_IPV4) {
+ 				addr->in_progress = 1;
+ 				spin_unlock_bh(&card->ip_lock);
 -- 
 2.13.5
