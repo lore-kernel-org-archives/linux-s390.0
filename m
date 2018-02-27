@@ -1,105 +1,73 @@
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-Date: Mon, 26 Feb 2018 08:06:37 +0000
-Subject: Re: [PATCH v2 1/2] KVM: document KVM_CAP_S390_[BPB|PSW|GMAP|COW]
-Message-Id: <7eea1d04-40d4-4557-9344-efbc2e2e1269@linux.vnet.ibm.com>
-In-Reply-To: <26fb7103-737a-7dcf-7243-4de23555098d@redhat.com>
-References: <26fb7103-737a-7dcf-7243-4de23555098d@redhat.com>
+Date: Tue, 27 Feb 2018 12:47:35 +0000
+Subject: Re: [PATCH 2/2] KVM: s390: Add storage key facility interpretation control
+Message-Id: <52697ed8-f1d0-b7e1-3e56-00d89c28f633@linux.vnet.ibm.com>
+In-Reply-To: <36e734a6-77ce-2e91-f15b-00772aaa04cc@redhat.com>
+References: <36e734a6-77ce-2e91-f15b-00772aaa04cc@redhat.com>
 MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--Q5lQsFlNUsqLWF10ZQQcWVOUBxhOD7gi0"
+Content-Type: multipart/mixed; boundary="--9WGouaep2QQHsnPkuBQDAmTxCm8JKiD0m"
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Q5lQsFlNUsqLWF10ZQQcWVOUBxhOD7gi0
-Content-Type: multipart/mixed; boundary="wNQZhch9cnuMLb3x0TgYITrRmVxs1aIeY";
+--9WGouaep2QQHsnPkuBQDAmTxCm8JKiD0m
+Content-Type: multipart/mixed; boundary="YcUYSQ8r0698rGTYZOOtwsyBKf6Ov4Kkj";
  protected-headers="v1"
 From: Janosch Frank <frankja@linux.vnet.ibm.com>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <david@redhat.com>
-Message-ID: <7eea1d04-40d4-4557-9344-efbc2e2e1269@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 1/2] KVM: document KVM_CAP_S390_[BPB|PSW|GMAP|COW]
-References: <20180223111025.130315-1-borntraeger@de.ibm.com>
- <20180223111025.130315-2-borntraeger@de.ibm.com>
-In-Reply-To: <20180223111025.130315-2-borntraeger@de.ibm.com>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, borntraeger@de.ibm.com, alifm@linux.vnet.ibm.com,
+ imbrenda@linux.vnet.ibm.com, linux-s390@vger.kernel.org
+Message-ID: <52697ed8-f1d0-b7e1-3e56-00d89c28f633@linux.vnet.ibm.com>
+Subject: Re: [PATCH 2/2] KVM: s390: Add storage key facility interpretation
+ control
+References: <1518779775-256056-1-git-send-email-frankja@linux.vnet.ibm.com>
+ <1518779775-256056-3-git-send-email-frankja@linux.vnet.ibm.com>
+ <36e734a6-77ce-2e91-f15b-00772aaa04cc@redhat.com>
+In-Reply-To: <36e734a6-77ce-2e91-f15b-00772aaa04cc@redhat.com>
 
---wNQZhch9cnuMLb3x0TgYITrRmVxs1aIeY
+--YcUYSQ8r0698rGTYZOOtwsyBKf6Ov4Kkj
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 23.02.2018 12:10, Christian Borntraeger wrote:
-> commit 35b3fde6203b ("KVM: s390: wire up bpb feature") has no
-> documentation for KVM_CAP_S390_BPB. While adding this let's also add
-> other missing capabilities like KVM_CAP_S390_PSW, KVM_CAP_S390_GMAP and=
-
-> KVM_CAP_S390_COW.
-
-Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-
+On 27.02.2018 10:40, David Hildenbrand wrote:
 >=20
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->  Documentation/virtual/kvm/api.txt | 30 ++++++++++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
+>>  	spin_lock_init(&kvm->arch.start_stop_lock);
+>> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+>> index 76a2380..d9bd147 100644
+>> --- a/arch/s390/kvm/priv.c
+>> +++ b/arch/s390/kvm/priv.c
+>> @@ -208,19 +208,23 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *=
+vcpu)
+>>  	struct kvm_s390_sie_block *sie_block =3D vcpu->arch.sie_block;
+>> =20
+>>  	trace_kvm_s390_skey_related_inst(vcpu);
+>> -	if (!(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
+>> +	/* Already enabled? */
+>> +	if (vcpu->kvm->arch.use_skf &&
+>> +	    !(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
+>>  	    !kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
+>>  		return rc;
 >=20
-> diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/=
-kvm/api.txt
-> index e5f1743e0b3e..e48a91ca24b6 100644
-> --- a/Documentation/virtual/kvm/api.txt
-> +++ b/Documentation/virtual/kvm/api.txt
-> @@ -4419,3 +4419,33 @@ Parameters: none
->  This capability indicates if the flic device will be able to get/set t=
-he
->  AIS states for migration via the KVM_DEV_FLIC_AISM_ALL attribute and a=
-llows
->  to discover this without having to create a flic device.
-> +
-> +8.14 KVM_CAP_S390_PSW
-> +
-> +Architectures: s390
-> +
-> +This capability indicates that the PSW is exposed via the kvm_run stru=
-cture.
-> +
-> +8.15 KVM_CAP_S390_GMAP
-> +
-> +Architectures: s390
-> +
-> +This capability indicates that the user space memory used as guest map=
-ping can
-> +be anywhere in the user memory address space, as long as the memory sl=
-ots are
-> +aligned and sized to a segment (1MB) boundary.
-> +
-> +8.16 KVM_CAP_S390_COW
-> +
-> +Architectures: s390
-> +
-> +This capability indicates that the user space memory used as guest map=
-ping can
-> +use copy-on-write semantics as well as dirty pages tracking via read-o=
-nly page
-> +tables.
-> +
-> +8.17 KVM_CAP_S390_BPB
-> +
-> +Architectures: s390
-> +
-> +This capability indicates that kvm will implement the interfaces to ha=
-ndle
-> +reset, migration and nested KVM for branch prediction blocking. The st=
-fle
-> +facility 82 should not be provided to the guest without this capabilit=
-y.
+> Wonder if it is nicer to simply remember for each CPU if this function
+> has already been called. This way we can avoid calling
+> s390_enable_skey() in all configurations.
 >=20
 
+With the benefit being, that on a per cpu storage we wouldn't have to
+lock the call indication, as we are the thread of this vcpu and only we
+can alter it? Which would speed up hpage and VSIE cases a tad, as the
+down_write is quite heavy. We could also do a down_read, store
+enablement status, up_read, if !enabled -> 390_enable_skey().
+
+I'm also wondering, if we have a clean way after migrating a skey using
+guest to disable interception right away when we get the skeys from
+QEMU. I don't think we do that yet.
 
 
---wNQZhch9cnuMLb3x0TgYITrRmVxs1aIeY--
+--YcUYSQ8r0698rGTYZOOtwsyBKf6Ov4Kkj--
 
---Q5lQsFlNUsqLWF10ZQQcWVOUBxhOD7gi0
+--9WGouaep2QQHsnPkuBQDAmTxCm8JKiD0m
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -107,19 +75,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJak8AVAAoJEBcO/8Q8ZEV5JSoP+wTKA6Q5eYq+bvjq+fECFGmI
-lbWJx5qINIu91DhCEMGpM2QOS/A7hbgWr/znXYfpHB2BYxnh93df2gEvUeooFPsf
-pAOHcqliVUNEMKw/4hqxn+ab5gmypfwN/9/RsHA8hdcJ4Kez/WXOU7X8EqrNMB1E
-KZ8fTnQ+e/6U9Tv0HKSnBWPAQlX8Qfn/zW/Xm+gc5FwK7sZ7v/urBTbISbdnJsoO
-POghlUckZDSrxE4wJyNd16tl1ocrkD7bm3ay42+hK6KkEva6ngtXnpWB3EWOXciu
-YJ2fUmfmqOsX9Pshv362WVAQjdYBoSGKA362adSkzve5AfmML56jieeWLiCVZG3/
-jLIAcjjcUBLlIGzyOfbGwUF5BV7D9XHzVXhcy+poYrEtMtof5bbvYh9AoHzLd9pa
-EZqiCVVBVI2odDYTV1nanTN42mCS6Bk/jZC3tyXwnFRzt3dGX2Evf0Taz6PIHPsT
-N0KFq+UI2RVsiy+qsoJlqkuDttSE+4pt3tg2Jl17sCTr8OGllf36iw1b0wJyCMPM
-ix1ya04RR+VHowYaMBQjA1j7vDig16lGb+M6fhbBu/bvApqDTu9fDwhLlaznwacA
-MTQUdCoke9n/2C0hjSBKHLKdKt9KB9Dm1KsCAIgLHNsmDKAHJbuU6HlhKFoWwxDz
-kS+1wh2pdSA/oFzpbziH
-=fM1A
+iQIcBAEBCAAGBQJalVN4AAoJEBcO/8Q8ZEV5HkQQALmhUssaNJ/mwJilQA8ArIRg
+0xiYhOmTzYQcVPYQa2sRZfgbBnuhM//5JPvkXM4aMrucywqgEj1O1arGhZiH3dH7
+8EGN7+evOyVLB125CjG5N9tmSkROe3ilRbBa3aTPeK9ZwGp/EkzcbF834rDV8dMl
+dLjH7kgD9NgQIZ2SUP45TEPOzhk3VXahlTsJ44SsXBb1G5bNjW+fN7gWEmni4Kas
+dwWcnnbSY4sFuGZFzcc/ls0h3oPo2eGln/ssvct8qjEeL31rljzoXuYYeboLT2hr
+MTowGcaRQvjCZk9t8XtoKoRPmL2os6HCvNbAucjzDqLJetSoBR2PlCsv7gnEVJFC
+X9FcCbYj3G18mxpGgy40tVZbdoY0mGc9NipKdkDvGm8DZPzQnBL3VQOtyo7WI1AI
+90VG/H86zg3VstgbyhZiN/RMzP/e1j+Cv9UlHOxugSPaqgID49gmKhCy+HB0b7Oi
+VU5ImaiSXvH7OFcZ5JKytbpJrFRX90+E3qIS9GPDSQzj4WAstZDDn7pp2G9xy/MF
+u7UuxwfMa0iWAJWnHR8lOu/+B8c2tFAeZMivfsombPbundZzEmDTq0kwVt7jsn4S
+kUWH2eYrl/tAJcOmfiiSUcmWC0jsLcohusS0TWgbvzDILFT0k2aGDTO2Gfv5nX49
+hdtsHtgvNq6GEi3RDKQD
+=RlCV
 -----END PGP SIGNATURE-----
 
---Q5lQsFlNUsqLWF10ZQQcWVOUBxhOD7gi0--
+--9WGouaep2QQHsnPkuBQDAmTxCm8JKiD0m--
