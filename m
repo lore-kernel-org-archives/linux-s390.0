@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 5/6] s390/qeth: fix IP address lookup for L3 devices
-Date: Tue, 27 Feb 2018 18:58:16 +0100
+Subject: [PATCH net 4/6] Revert "s390/qeth: fix using of ref counter for rxip addresses"
+Date: Tue, 27 Feb 2018 18:58:15 +0100
 In-Reply-To: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
 References: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
-Message-Id: <20180227175817.84727-6-jwi@linux.vnet.ibm.com>
+Message-Id: <20180227175817.84727-5-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,252 +12,46 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Current code ("qeth_l3_ip_from_hash()") matches a queried address object
-against objects in the IP table by IP address, Mask/Prefix Length and
-MAC address ("qeth_l3_ipaddrs_is_equal()"). But what callers actually
-require is either
-a) "is this IP address registered" (ie. match by IP address only),
-before adding a new address.
-b) or "is this address object registered" (ie. match all relevant
-   attributes), before deleting an address.
+This reverts commit cb816192d986f7596009dedcf2201fe2e5bc2aa7.
 
-Right now
-1. the ADD path is too strict in its lookup, and eg. doesn't detect
-conflicts between an existing NORMAL address and a new VIPA address
-(because the NORMAL address will have mask != 0, while VIPA has
-a mask == 0),
-2. the DELETE path is not strict enough, and eg. allows del_rxip() to
-delete a VIPA address as long as the IP address matches.
+The issue this attempted to fix never actually occurs.
+l3_add_rxip() checks (via l3_ip_from_hash()) if the requested address
+was previously added to the card. If so, it returns -EEXIST and doesn't
+call l3_add_ip().
+As a result, the "address exists" path in l3_add_ip() is never taken
+for rxip addresses, and this patch had no effect.
 
-Fix all this by adding helpers (_addr_match_ip() and _addr_match_all())
-that do the appropriate checking.
-
-Note that the ADD path for NORMAL addresses is special, as qeth keeps
-track of how many times such an address is in use (and there is no
-immediate way of returning errors to the caller). So when a requested
-NORMAL address _fully_ matches an existing one, it's not considered a
-conflict and we merely increment the refcount.
-
-Fixes: 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
+Fixes: cb816192d986 ("s390/qeth: fix using of ref counter for rxip addresses")
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l3.h      | 34 ++++++++++++++-
- drivers/s390/net/qeth_l3_main.c | 91 +++++++++++++++++++----------------------
- 2 files changed, 74 insertions(+), 51 deletions(-)
+ drivers/s390/net/qeth_l3_main.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
-index bdd45f4dcace..498fe9af2cdb 100644
---- a/drivers/s390/net/qeth_l3.h
-+++ b/drivers/s390/net/qeth_l3.h
-@@ -40,8 +40,40 @@ struct qeth_ipaddr {
- 			unsigned int pfxlen;
- 		} a6;
- 	} u;
--
- };
-+
-+static inline bool qeth_l3_addr_match_ip(struct qeth_ipaddr *a1,
-+					 struct qeth_ipaddr *a2)
-+{
-+	if (a1->proto != a2->proto)
-+		return false;
-+	if (a1->proto == QETH_PROT_IPV6)
-+		return ipv6_addr_equal(&a1->u.a6.addr, &a2->u.a6.addr);
-+	return a1->u.a4.addr == a2->u.a4.addr;
-+}
-+
-+static inline bool qeth_l3_addr_match_all(struct qeth_ipaddr *a1,
-+					  struct qeth_ipaddr *a2)
-+{
-+	/* Assumes that the pair was obtained via qeth_l3_addr_find_by_ip(),
-+	 * so 'proto' and 'addr' match for sure.
-+	 *
-+	 * For ucast:
-+	 * -	'mac' is always 0.
-+	 * -	'mask'/'pfxlen' for RXIP/VIPA is always 0. For NORMAL, matching
-+	 *	values are required to avoid mixups in takeover eligibility.
-+	 *
-+	 * For mcast,
-+	 * -	'mac' is mapped from the IP, and thus always matches.
-+	 * -	'mask'/'pfxlen' is always 0.
-+	 */
-+	if (a1->type != a2->type)
-+		return false;
-+	if (a1->proto == QETH_PROT_IPV6)
-+		return a1->u.a6.pfxlen == a2->u.a6.pfxlen;
-+	return a1->u.a4.mask == a2->u.a4.mask;
-+}
-+
- static inline  u64 qeth_l3_ipaddr_hash(struct qeth_ipaddr *addr)
- {
- 	u64  ret = 0;
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 4d8826fec6f4..962a04b68dd2 100644
+index 77cdb4fc7721..4d8826fec6f4 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -67,6 +67,24 @@ void qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const __u8 *addr,
- 		qeth_l3_ipaddr6_to_string(addr, buf);
- }
- 
-+static struct qeth_ipaddr *qeth_l3_find_addr_by_ip(struct qeth_card *card,
-+						   struct qeth_ipaddr *query)
-+{
-+	u64 key = qeth_l3_ipaddr_hash(query);
-+	struct qeth_ipaddr *addr;
-+
-+	if (query->is_multicast) {
-+		hash_for_each_possible(card->ip_mc_htable, addr, hnode, key)
-+			if (qeth_l3_addr_match_ip(addr, query))
-+				return addr;
-+	} else {
-+		hash_for_each_possible(card->ip_htable,  addr, hnode, key)
-+			if (qeth_l3_addr_match_ip(addr, query))
-+				return addr;
-+	}
-+	return NULL;
-+}
-+
- static void qeth_l3_convert_addr_to_bits(u8 *addr, u8 *bits, int len)
- {
- 	int i, j;
-@@ -120,34 +138,6 @@ static bool qeth_l3_is_addr_covered_by_ipato(struct qeth_card *card,
- 	return rc;
- }
- 
--inline int
--qeth_l3_ipaddrs_is_equal(struct qeth_ipaddr *addr1, struct qeth_ipaddr *addr2)
--{
--	return addr1->proto == addr2->proto &&
--	       !memcmp(&addr1->u, &addr2->u, sizeof(addr1->u)) &&
--	       ether_addr_equal_64bits(addr1->mac, addr2->mac);
--}
--
--static struct qeth_ipaddr *
--qeth_l3_ip_from_hash(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
--{
--	struct qeth_ipaddr *addr;
--
--	if (tmp_addr->is_multicast) {
--		hash_for_each_possible(card->ip_mc_htable,  addr,
--				hnode, qeth_l3_ipaddr_hash(tmp_addr))
--			if (qeth_l3_ipaddrs_is_equal(tmp_addr, addr))
--				return addr;
--	} else {
--		hash_for_each_possible(card->ip_htable,  addr,
--				hnode, qeth_l3_ipaddr_hash(tmp_addr))
--			if (qeth_l3_ipaddrs_is_equal(tmp_addr, addr))
--				return addr;
--	}
--
--	return NULL;
--}
--
- int qeth_l3_delete_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- {
- 	int rc = 0;
-@@ -162,8 +152,8 @@ int qeth_l3_delete_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- 		QETH_CARD_HEX(card, 4, ((char *)&tmp_addr->u.a6.addr) + 8, 8);
- 	}
- 
--	addr = qeth_l3_ip_from_hash(card, tmp_addr);
--	if (!addr)
-+	addr = qeth_l3_find_addr_by_ip(card, tmp_addr);
-+	if (!addr || !qeth_l3_addr_match_all(addr, tmp_addr))
+@@ -167,8 +167,7 @@ int qeth_l3_delete_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
  		return -ENOENT;
  
  	addr->ref_counter--;
-@@ -185,6 +175,7 @@ int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- {
- 	int rc = 0;
- 	struct qeth_ipaddr *addr;
-+	char buf[40];
- 
- 	QETH_CARD_TEXT(card, 4, "addip");
- 
-@@ -195,8 +186,20 @@ int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- 		QETH_CARD_HEX(card, 4, ((char *)&tmp_addr->u.a6.addr) + 8, 8);
- 	}
- 
--	addr = qeth_l3_ip_from_hash(card, tmp_addr);
--	if (!addr) {
-+	addr = qeth_l3_find_addr_by_ip(card, tmp_addr);
-+	if (addr) {
-+		if (tmp_addr->type != QETH_IP_TYPE_NORMAL)
-+			return -EADDRINUSE;
-+		if (qeth_l3_addr_match_all(addr, tmp_addr)) {
-+			addr->ref_counter++;
-+			return 0;
-+		}
-+		qeth_l3_ipaddr_to_string(tmp_addr->proto, (u8 *)&tmp_addr->u,
-+					 buf);
-+		dev_warn(&card->gdev->dev,
-+			 "Registering IP address %s failed\n", buf);
-+		return -EADDRINUSE;
-+	} else {
- 		addr = qeth_l3_get_addr_buffer(tmp_addr->proto);
- 		if (!addr)
- 			return -ENOMEM;
-@@ -244,11 +247,7 @@ int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- 			hash_del(&addr->hnode);
+-	if (addr->ref_counter > 0 && (addr->type == QETH_IP_TYPE_NORMAL ||
+-				      addr->type == QETH_IP_TYPE_RXIP))
++	if (addr->type == QETH_IP_TYPE_NORMAL && addr->ref_counter > 0)
+ 		return rc;
+ 	if (addr->in_progress)
+ 		return -EINPROGRESS;
+@@ -246,9 +245,8 @@ int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
  			kfree(addr);
  		}
--	} else {
--			if (addr->type == QETH_IP_TYPE_NORMAL)
--				addr->ref_counter++;
+ 	} else {
+-		if (addr->type == QETH_IP_TYPE_NORMAL ||
+-		    addr->type == QETH_IP_TYPE_RXIP)
+-			addr->ref_counter++;
++			if (addr->type == QETH_IP_TYPE_NORMAL)
++				addr->ref_counter++;
  	}
--
+ 
  	return rc;
- }
- 
-@@ -634,12 +633,7 @@ int qeth_l3_add_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
- 		return -ENOMEM;
- 
- 	spin_lock_bh(&card->ip_lock);
--
--	if (qeth_l3_ip_from_hash(card, ipaddr))
--		rc = -EEXIST;
--	else
--		rc = qeth_l3_add_ip(card, ipaddr);
--
-+	rc = qeth_l3_add_ip(card, ipaddr);
- 	spin_unlock_bh(&card->ip_lock);
- 
- 	kfree(ipaddr);
-@@ -704,12 +698,7 @@ int qeth_l3_add_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
- 		return -ENOMEM;
- 
- 	spin_lock_bh(&card->ip_lock);
--
--	if (qeth_l3_ip_from_hash(card, ipaddr))
--		rc = -EEXIST;
--	else
--		rc = qeth_l3_add_ip(card, ipaddr);
--
-+	rc = qeth_l3_add_ip(card, ipaddr);
- 	spin_unlock_bh(&card->ip_lock);
- 
- 	kfree(ipaddr);
-@@ -1230,8 +1219,9 @@ qeth_l3_add_mc_to_hash(struct qeth_card *card, struct in_device *in4_dev)
- 		tmp->u.a4.addr = be32_to_cpu(im4->multiaddr);
- 		tmp->is_multicast = 1;
- 
--		ipm = qeth_l3_ip_from_hash(card, tmp);
-+		ipm = qeth_l3_find_addr_by_ip(card, tmp);
- 		if (ipm) {
-+			/* for mcast, by-IP match means full match */
- 			ipm->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
- 		} else {
- 			ipm = qeth_l3_get_addr_buffer(QETH_PROT_IPV4);
-@@ -1310,8 +1300,9 @@ static void qeth_l3_add_mc6_to_hash(struct qeth_card *card,
- 		       sizeof(struct in6_addr));
- 		tmp->is_multicast = 1;
- 
--		ipm = qeth_l3_ip_from_hash(card, tmp);
-+		ipm = qeth_l3_find_addr_by_ip(card, tmp);
- 		if (ipm) {
-+			/* for mcast, by-IP match means full match */
- 			ipm->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
- 			continue;
- 		}
 -- 
 2.13.5
