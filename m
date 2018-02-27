@@ -1,85 +1,82 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 27 Feb 2018 09:23:34 +0000
-Subject: Re: [PATCH v4 3/3] s390/setup : enable display support for KVM guest
-Message-Id: <0b58aec3-7434-e059-386d-2dacebdf39aa@de.ibm.com>
-References: <cover.1519315352.git.alifm@linux.vnet.ibm.com>
- <e23b61f4f599ba23881727a1e8880e9d60cc6a48.1519315352.git.alifm@linux.vnet.ibm.com>
-In-Reply-To: <e23b61f4f599ba23881727a1e8880e9d60cc6a48.1519315352.git.alifm@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-List-Archive: <https://lore.kernel.org/linux-fbdev/>
-List-Post: <mailto:linux-fbdev@vger.kernel.org>
-To: Farhan Ali <alifm@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: thuth@redhat.com, cohuck@redhat.com, tomi.valkeinen@ti.com, b.zolnierkie@samsung.com, geert@linux-m68k.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 1/6] s390/qeth: fix overestimated count of buffer elements
+Date: Tue, 27 Feb 2018 18:58:12 +0100
+In-Reply-To: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
+References: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
+Message-Id: <20180227175817.84727-2-jwi@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Greg FYI, I plan to carry this patch via the s390/kvm tree.
-As it drivers/tty/Kconfig, can you give an ack for this part?
+qeth_get_elements_for_range() doesn't know how to handle a 0-length
+range (ie. start == end), and returns 1 when it should return 0.
+Such ranges occur on TSO skbs, where the L2/L3/L4 headers (and thus all
+of the skb's linear data) are skipped when mapping the skb into regular
+buffer elements.
 
+This overestimation may cause several performance-related issues:
+1. sub-optimal IO buffer selection, where the next buffer gets selected
+   even though the skb would actually still fit into the current buffer.
+2. forced linearization, if the element count for a non-linear skb
+   exceeds QETH_MAX_BUFFER_ELEMENTS.
 
-On 02/22/2018 05:22 PM, Farhan Ali wrote:
-> The S390 architecture does not support any graphics hardware,
-> but with the latest support for Virtio GPU in Linux and Virtio
-> GPU emulation in QEMU, it's possible to enable graphics for
-> S390 using the Virtio GPU device.
-> 
-> To enable display we need to enable the Linux Virtual Terminal (VT)
-> layer for S390. But the VT subsystem initializes quite early
-> at boot so we need a dummy console driver till the Virtio GPU
-> driver is initialized and we can run the framebuffer console.
-> 
-> The framebuffer console over a Virtio GPU device can be run
-> in combination with the serial SCLP console (default on S390).
-> The SCLP console can still be accessed by management applications
-> (eg: via Libvirt's virsh console).
-> 
-> Signed-off-by: Farhan Ali <alifm@linux.vnet.ibm.com>
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> ---
->  arch/s390/kernel/setup.c      | 2 ++
->  drivers/tty/Kconfig           | 2 +-
->  drivers/video/console/Kconfig | 2 +-
->  3 files changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-> index a6a91f0..f98a0f3 100644
-> --- a/arch/s390/kernel/setup.c
-> +++ b/arch/s390/kernel/setup.c
-> @@ -221,6 +221,8 @@ static void __init conmode_default(void)
->  		SET_CONSOLE_SCLP;
->  #endif
->  	}
-> +	if (IS_ENABLED(CONFIG_VT) && IS_ENABLED(CONFIG_DUMMY_CONSOLE))
-> +		conswitchp = &dummy_con;
->  }
-> 
->  #ifdef CONFIG_CRASH_DUMP
-> diff --git a/drivers/tty/Kconfig b/drivers/tty/Kconfig
-> index b811442..5ca53fa 100644
-> --- a/drivers/tty/Kconfig
-> +++ b/drivers/tty/Kconfig
-> @@ -11,7 +11,7 @@ if TTY
-> 
->  config VT
->  	bool "Virtual terminal" if EXPERT
-> -	depends on !S390 && !UML
-> +	depends on !UML
->  	select INPUT
->  	default y
->  	---help---
-> diff --git a/drivers/video/console/Kconfig b/drivers/video/console/Kconfig
-> index 9485857..b9c2c91 100644
-> --- a/drivers/video/console/Kconfig
-> +++ b/drivers/video/console/Kconfig
-> @@ -9,7 +9,7 @@ config VGA_CONSOLE
->  	depends on !4xx && !PPC_8xx && !SPARC && !M68K && !PARISC && !FRV && \
->  		!SUPERH && !BLACKFIN && !AVR32 && !MN10300 && !CRIS && \
->  		(!ARM || ARCH_FOOTBRIDGE || ARCH_INTEGRATOR || ARCH_NETWINDER) && \
-> -		!ARM64 && !ARC && !MICROBLAZE && !OPENRISC && HAS_IOMEM
-> +		!ARM64 && !ARC && !MICROBLAZE && !OPENRISC && HAS_IOMEM && !S390
->  	default y
->  	help
->  	  Saying Y here will allow you to use Linux in text mode through a
-> 
+Rather than modifying qeth_get_elements_for_range() and adding overhead
+to every caller, fix up those callers that are in risk of passing a
+0-length range.
+
+Fixes: 2863c61334aa ("qeth: refactor calculation of SBALE count")
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_core_main.c | 10 ++++++----
+ drivers/s390/net/qeth_l3_main.c   | 11 ++++++-----
+ 2 files changed, 12 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index ca72f3311004..30457fca30c5 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3898,10 +3898,12 @@ EXPORT_SYMBOL_GPL(qeth_get_elements_for_frags);
+ int qeth_get_elements_no(struct qeth_card *card,
+ 		     struct sk_buff *skb, int extra_elems, int data_offset)
+ {
+-	int elements = qeth_get_elements_for_range(
+-				(addr_t)skb->data + data_offset,
+-				(addr_t)skb->data + skb_headlen(skb)) +
+-			qeth_get_elements_for_frags(skb);
++	addr_t end = (addr_t)skb->data + skb_headlen(skb);
++	int elements = qeth_get_elements_for_frags(skb);
++	addr_t start = (addr_t)skb->data + data_offset;
++
++	if (start != end)
++		elements += qeth_get_elements_for_range(start, end);
+ 
+ 	if ((elements + extra_elems) > QETH_MAX_BUFFER_ELEMENTS(card)) {
+ 		QETH_DBF_MESSAGE(2, "Invalid size of IP packet "
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index b0c888e86cd4..3421893c37a4 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2450,11 +2450,12 @@ static void qeth_tso_fill_header(struct qeth_card *card,
+ static int qeth_l3_get_elements_no_tso(struct qeth_card *card,
+ 			struct sk_buff *skb, int extra_elems)
+ {
+-	addr_t tcpdptr = (addr_t)tcp_hdr(skb) + tcp_hdrlen(skb);
+-	int elements = qeth_get_elements_for_range(
+-				tcpdptr,
+-				(addr_t)skb->data + skb_headlen(skb)) +
+-				qeth_get_elements_for_frags(skb);
++	addr_t start = (addr_t)tcp_hdr(skb) + tcp_hdrlen(skb);
++	addr_t end = (addr_t)skb->data + skb_headlen(skb);
++	int elements = qeth_get_elements_for_frags(skb);
++
++	if (start != end)
++		elements += qeth_get_elements_for_range(start, end);
+ 
+ 	if ((elements + extra_elems) > QETH_MAX_BUFFER_ELEMENTS(card)) {
+ 		QETH_DBF_MESSAGE(2,
+-- 
+2.13.5
