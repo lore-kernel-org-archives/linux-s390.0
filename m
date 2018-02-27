@@ -1,29 +1,41 @@
 Return-Path: <netdev-owner@vger.kernel.org>
-Date: Wed, 28 Feb 2018 11:17:40 -0500 (EST)
-Message-Id: <20180228.111740.1893624730140590032.davem@davemloft.net>
-Subject: Re: [PATCH net 0/6] s390/qeth: fixes 2018-02-27 
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
-References: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Subject: [PATCH net 0/6] s390/qeth: fixes 2018-02-27 
+Date: Tue, 27 Feb 2018 18:58:11 +0100
+Message-Id: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jwi@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Date: Tue, 27 Feb 2018 18:58:11 +0100
+Hi Dave,
 
-> please apply some more qeth patches for -net and stable.
-> 
-> One patch fixes a performance bug in the TSO path. Then there's several
-> more fixes for IP management on L3 devices - including a revert, so that
-> the subsequent fix cleanly applies to earlier kernels.
-> The final patch takes care of a race in the control IO code that causes
-> qeth to miss the cmd response, and subsequently trigger device recovery.
+please apply some more qeth patches for -net and stable.
 
-Series applied and queued up for -stable, thanks Julian.
+One patch fixes a performance bug in the TSO path. Then there's several
+more fixes for IP management on L3 devices - including a revert, so that
+the subsequent fix cleanly applies to earlier kernels.
+The final patch takes care of a race in the control IO code that causes
+qeth to miss the cmd response, and subsequently trigger device recovery.
+
+Thanks,
+Julian
+
+
+Julian Wiedmann (6):
+  s390/qeth: fix overestimated count of buffer elements
+  s390/qeth: fix IP removal on offline cards
+  s390/qeth: fix double-free on IP add/remove race
+  Revert "s390/qeth: fix using of ref counter for rxip addresses"
+  s390/qeth: fix IP address lookup for L3 devices
+  s390/qeth: fix IPA command submission race
+
+ drivers/s390/net/qeth_core_main.c |  29 +++++----
+ drivers/s390/net/qeth_l3.h        |  34 ++++++++++-
+ drivers/s390/net/qeth_l3_main.c   | 123 ++++++++++++++++----------------------
+ 3 files changed, 102 insertions(+), 84 deletions(-)
+
+-- 
+2.13.5
