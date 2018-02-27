@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Subject: [PATCH 00/11] kexec_file: Clean up purgatory load
-Date: Mon, 26 Feb 2018 16:16:09 +0100
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Tue, 27 Feb 2018 12:39:16 +0000
+Subject: Re: [PATCH v4 3/3] s390/setup : enable display support for KVM guest
+Message-Id: <20180227123916.GA31888@kroah.com>
+References: <cover.1519315352.git.alifm@linux.vnet.ibm.com>
+ <e23b61f4f599ba23881727a1e8880e9d60cc6a48.1519315352.git.alifm@linux.vnet.ibm.com>
+ <0b58aec3-7434-e059-386d-2dacebdf39aa@de.ibm.com>
+In-Reply-To: <0b58aec3-7434-e059-386d-2dacebdf39aa@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Message-Id: <20180226151620.20970-1-prudo@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Dave Young <dyoung@redhat.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+List-Archive: <https://lore.kernel.org/linux-fbdev/>
+List-Post: <mailto:linux-fbdev@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, cohuck@redhat.com, tomi.valkeinen@ti.com, b.zolnierkie@samsung.com, geert@linux-m68k.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Tue, Feb 27, 2018 at 10:23:34AM +0100, Christian Borntraeger wrote:
+> Greg FYI, I plan to carry this patch via the s390/kvm tree.
+> As it drivers/tty/Kconfig, can you give an ack for this part?
+> 
+> 
+> On 02/22/2018 05:22 PM, Farhan Ali wrote:
+> > The S390 architecture does not support any graphics hardware,
+> > but with the latest support for Virtio GPU in Linux and Virtio
+> > GPU emulation in QEMU, it's possible to enable graphics for
+> > S390 using the Virtio GPU device.
+> > 
+> > To enable display we need to enable the Linux Virtual Terminal (VT)
+> > layer for S390. But the VT subsystem initializes quite early
+> > at boot so we need a dummy console driver till the Virtio GPU
+> > driver is initialized and we can run the framebuffer console.
+> > 
+> > The framebuffer console over a Virtio GPU device can be run
+> > in combination with the serial SCLP console (default on S390).
+> > The SCLP console can still be accessed by management applications
+> > (eg: via Libvirt's virsh console).
+> > 
+> > Signed-off-by: Farhan Ali <alifm@linux.vnet.ibm.com>
+> > Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Reviewed-by: Thomas Huth <thuth@redhat.com>
+> > ---
+> >  arch/s390/kernel/setup.c      | 2 ++
+> >  drivers/tty/Kconfig           | 2 +-
+> >  drivers/video/console/Kconfig | 2 +-
+> >  3 files changed, 4 insertions(+), 2 deletions(-)
 
-Hi everybody
 
-following the discussion with Dave and AKASHI, here are the common code
-patches extracted from my recent patch set (Add kexec_file_load support to
-s390) [1]. The patches were extracted to allow upstream integration together
-with AKASHI's common code patches before the arch code gets adjusted to the
-new base.
-
-The reason for this series is to prepare common code for adding
-kexec_file_load to s390 as well as cleaning up the mis-use of the sh_offset
-field during purgatory load. In detail this series contains:
-
-Patch #1&2: Minor cleanups/fixes.
-
-Patch #3-9: Clean up the purgatory load/relocation code. Especially remove
-the mis-use of the purgatory_info->sechdrs->sh_offset field, currently
-holding a pointer into either kexec_purgatory (ro) or purgatory_buf (rw)
-depending on the section. With these patches the section address will be
-calculated verbosely and sh_offset will contain the offset of the section
-in the stripped purgatory binary (purgatory_buf).
-
-Patch #10: Allows architectures to set the purgatory load address. This
-patch is important for s390 as the kernel and purgatory have to be loaded
-to fixed addresses. In current code this is impossible as the purgatory
-load is opaque to the architecture.
-
-Patch #11: Moves x86 purgatories sha implementation to common lib/
-directory to allow reuse in other architectures.
-
-The patches apply to v4.16-rc3. There are no changes compared to [1] (all
-requested changes only affected s390 code). Please note that I had to touch
-arch code for x86 and power a little. In theory this should not change the
-behavior but I don't have a way to test it. Cross-compiling with
-defconfig [2] works fine for both.
-
-Thanks
-Philipp
-
-[1] http://lists.infradead.org/pipermail/kexec/2018-February/019926.html
-[2] On x86 with the orc unwinder and stack validation turned off. objtool
-    SEGFAULTs on s390...
-
-Philipp Rudo (11):
-  kexec_file: Silence compile warnings
-  kexec_file: Remove checks in kexec_purgatory_load
-  kexec_file: Make purgatory_info->ehdr const
-  kexec_file: Search symbols in read-only kexec_purgatory
-  kexec_file: Use read-only sections in arch_kexec_apply_relocations*
-  kexec_file: Split up __kexec_load_puragory
-  kexec_file: Simplify kexec_purgatory_setup_sechdrs 1
-  kexec_file: Simplify kexec_purgatory_setup_sechdrs 2
-  kexec_file: Remove mis-use of sh_offset field
-  kexec_file: Allow archs to set purgatory load address
-  kexec_file: Move purgatories sha256 to common code
-
- arch/powerpc/kernel/kexec_elf_64.c             |   9 +-
- arch/x86/kernel/kexec-bzimage64.c              |   8 +-
- arch/x86/kernel/machine_kexec_64.c             |  66 ++---
- arch/x86/purgatory/Makefile                    |   3 +
- arch/x86/purgatory/purgatory.c                 |   2 +-
- include/linux/kexec.h                          |  38 +--
- {arch/x86/purgatory => include/linux}/sha256.h |  10 +-
- kernel/kexec_file.c                            | 375 ++++++++++++-------------
- {arch/x86/purgatory => lib}/sha256.c           |   4 +-
- 9 files changed, 244 insertions(+), 271 deletions(-)
- rename {arch/x86/purgatory => include/linux}/sha256.h (63%)
- rename {arch/x86/purgatory => lib}/sha256.c (99%)
-
--- 
-2.13.5
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
