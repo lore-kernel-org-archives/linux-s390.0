@@ -1,122 +1,95 @@
-From: "Collin L. Walling" <walling@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2] KVM: s390: take care of clock-comparator sign control
-Date: Tue, 6 Feb 2018 11:34:49 -0500
-Message-ID: <f3db97d6-4eed-0b60-0573-21f301f87a56@linux.vnet.ibm.com>
-References: <20180205104030.643-1-david@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20180205104030.643-1-david@redhat.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+Subject: Re: [PATCH net] af_smc: fix NULL pointer dereference on
+ sock_create_kern() error path
+References: <3b3151922d3737d9c5a6c9fb7be1c10164e8a06f.1519739283.git.dcaratti@redhat.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Tue, 27 Feb 2018 15:23:17 +0100
+MIME-Version: 1.0
+In-Reply-To: <3b3151922d3737d9c5a6c9fb7be1c10164e8a06f.1519739283.git.dcaratti@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <f5d64db9-bfa7-4886-3897-7dd4f878084e@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: Davide Caratti <dcaratti@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/05/2018 05:40 AM, David Hildenbrand wrote:
-> Missed when enabling the Multiple-epoch facility. If the facility is
-> installed and the control is set, a sign based comaprison has to be
-> performed.
->
-> Right now we would inject wrong interrupts and ignore interrupt
-> conditions. Also the sleep time is calculated in a wrong way.
->
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+
+
+On 02/27/2018 02:49 PM, Davide Caratti wrote:
+> when sock_create_kern(..., a) returns an error, 'a' might not be a valid
+> pointer, so it shouldn't be dereferenced to read a->sk->sk_sndbuf and
+> and a->sk->sk_rcvbuf; not doing that caused the following crash:
+> 
+> general protection fault: 0000 [#1] SMP KASAN
+> Dumping ftrace buffer:
+>     (ftrace buffer empty)
+> Modules linked in:
+> CPU: 0 PID: 4254 Comm: syzkaller919713 Not tainted 4.16.0-rc1+ #18
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+> Google 01/01/2011
+> RIP: 0010:smc_create+0x14e/0x300 net/smc/af_smc.c:1410
+> RSP: 0018:ffff8801b06afbc8 EFLAGS: 00010202
+> RAX: dffffc0000000000 RBX: ffff8801b63457c0 RCX: ffffffff85a3e746
+> RDX: 0000000000000004 RSI: 00000000ffffffff RDI: 0000000000000020
+> RBP: ffff8801b06afbf0 R08: 00000000000007c0 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+> R13: ffff8801b6345c08 R14: 00000000ffffffe9 R15: ffffffff8695ced0
+> FS:  0000000001afb880(0000) GS:ffff8801db200000(0000)
+> knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000000020000040 CR3: 00000001b0721004 CR4: 00000000001606f0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>   __sock_create+0x4d4/0x850 net/socket.c:1285
+>   sock_create net/socket.c:1325 [inline]
+>   SYSC_socketpair net/socket.c:1409 [inline]
+>   SyS_socketpair+0x1c0/0x6f0 net/socket.c:1366
+>   do_syscall_64+0x282/0x940 arch/x86/entry/common.c:287
+>   entry_SYSCALL_64_after_hwframe+0x26/0x9b
+> RIP: 0033:0x4404b9
+> RSP: 002b:00007fff44ab6908 EFLAGS: 00000246 ORIG_RAX: 0000000000000035
+> RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00000000004404b9
+> RDX: 0000000000000000 RSI: 0000000000000001 RDI: 000000000000002b
+> RBP: 00007fff44ab6910 R08: 0000000000000002 R09: 00007fff44003031
+> R10: 0000000020000040 R11: 0000000000000246 R12: ffffffffffffffff
+> R13: 0000000000000006 R14: 0000000000000000 R15: 0000000000000000
+> Code: 48 c1 ea 03 80 3c 02 00 0f 85 b3 01 00 00 4c 8b a3 48 04 00 00 48
+> b8
+> 00 00 00 00 00 fc ff df 49 8d 7c 24 20 48 89 fa 48 c1 ea 03 <80> 3c 02
+> 00
+> 0f 85 82 01 00 00 4d 8b 7c 24 20 48 b8 00 00 00 00
+> RIP: smc_create+0x14e/0x300 net/smc/af_smc.c:1410 RSP: ffff8801b06afbc8
+> 
+> Fixes: cd6851f30386 smc: remote memory buffers (RMBs)
+> Reported-and-tested-by: syzbot+aa0227369be2dcc26ebe@syzkaller.appspotmail.com
+> Signed-off-by: Davide Caratti <dcaratti@redhat.com>
 > ---
->
-> We might be able to drop the checks for "test_kvm_facility(vcpu->kvm, 139)",
-> as the architecture states:
->
-> "When the multiple-epoch facility is not installed in the configuration
-> and the clock-comparator sign control is one, it is unpredictable whether
-> the comparison follows the rules of unsigned or signed binary arithmetic."
+>  net/smc/af_smc.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index da1a5cdefd13..8cc97834d4f6 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -1406,8 +1406,10 @@ static int smc_create(struct net *net, struct socket *sock, int protocol,
+>  	smc->use_fallback = false; /* assume rdma capability first */
+>  	rc = sock_create_kern(net, PF_INET, SOCK_STREAM,
+>  			      IPPROTO_TCP, &smc->clcsock);
+> -	if (rc)
+> +	if (rc) {
+>  		sk_common_release(sk);
+> +		goto out;
+> +	}
+>  	smc->sk.sk_sndbuf = max(smc->clcsock->sk->sk_sndbuf, SMC_BUF_MIN_SIZE);
+>  	smc->sk.sk_rcvbuf = max(smc->clcsock->sk->sk_rcvbuf, SMC_BUF_MIN_SIZE);
+> 
 
-I would drop the MEF check.  We only compare the ckc with the 64-bit 
-TOD-Clock
-regardless if the facility is present or not.
+Thanks Davide, I add your patch to our local repository; it will be part of my next patch set
+to be sent to Dave Miller.
 
-
->
-> Have no machine to test this with :(
->
->   arch/s390/kvm/interrupt.c | 32 ++++++++++++++++++++++++++------
->   1 file changed, 26 insertions(+), 6 deletions(-)
->
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 024ad8bcc516..6566a853c0b8 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -170,7 +170,16 @@ static int ckc_interrupts_enabled(struct kvm_vcpu *vcpu)
->
->   static int ckc_irq_pending(struct kvm_vcpu *vcpu)
->   {
-> -	if (vcpu->arch.sie_block->ckc >= kvm_s390_get_tod_clock_fast(vcpu->kvm))
-> +	int64_t ckc, tod;
-> +
-> +	if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul &&
-> +	    test_kvm_facility(vcpu->kvm, 139)) {
-> +		ckc = vcpu->arch.sie_block->ckc;
-> +		tod = kvm_s390_get_tod_clock_fast(vcpu->kvm);
-> +		if (ckc >= tod)
-> +			return 0;
-> +	} else if (vcpu->arch.sie_block->ckc >=
-> +		   kvm_s390_get_tod_clock_fast(vcpu->kvm))
->   		return 0;
->   	return ckc_interrupts_enabled(vcpu);
->   }
-> @@ -1011,13 +1020,24 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
->
->   static u64 __calculate_sltime(struct kvm_vcpu *vcpu)
->   {
-> -	u64 now, cputm, sltime = 0;
-> +	u64 now, cputm, ckc, sltime = 0;
-> +	int64_t ckc_signed, now_signed;
->
->   	if (ckc_interrupts_enabled(vcpu)) {
-> -		now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
-> -		sltime = tod_to_ns(vcpu->arch.sie_block->ckc - now);
-> -		/* already expired or overflow? */
-> -		if (!sltime || vcpu->arch.sie_block->ckc <= now)
-> +		if (vcpu->arch.sie_block->gcr[0] & 0x0020000000000000ul &&
-> +		    test_kvm_facility(vcpu->kvm, 139)) {
-> +			now = kvm_s390_get_tod_clock_fast(vcpu->kvm);
-> +			ckc = vcpu->arch.sie_block->ckc;
-
-
-Shouldn't you be using now_signed and ckc_signed here?
-
-
-> +			if (ckc < now)
-> +				sltime = tod_to_ns(now - ckc);
-> +		} else {
-> +			now_signed = kvm_s390_get_tod_clock_fast(vcpu->kvm);
-> +			ckc_signed = vcpu->arch.sie_block->ckc;
-
-and the unsigned ones here?
-
-Also you could just compare vcpu->arch.sie_block->ckc and 
-kvm_s390_get_tod_clock_fast(vcpu->kvm)
-
-> +			if (ckc_signed < now_signed)
-> +				sltime = tod_to_ns(now_signed - ckc_signed);
-
-
-Shouldn't we only calculate sleep time if ckc is greater than now (in 
-both cases)?
-
-
-> +		}
-> +		/* already expired */
-> +		if (!sltime)
->   			return 0;
->   		if (cpu_timer_interrupts_enabled(vcpu)) {
->   			cputm = kvm_s390_get_cpu_timer(vcpu);
-
-Other than that, this is a heck of a lot easier to read than what we had 
-before.
-
--- 
-- Collin L Walling
+Regards, Ursula
