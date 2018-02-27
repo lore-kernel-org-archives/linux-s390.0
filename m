@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 2/6] s390/qeth: fix IP removal on offline cards
-Date: Tue, 27 Feb 2018 18:58:13 +0100
+Subject: [PATCH net 6/6] s390/qeth: fix IPA command submission race
+Date: Tue, 27 Feb 2018 18:58:17 +0100
 In-Reply-To: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
 References: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
-Message-Id: <20180227175817.84727-3-jwi@linux.vnet.ibm.com>
+Message-Id: <20180227175817.84727-7-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,53 +12,78 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-If the HW is not reachable, then none of the IPs in qeth's internal
-table has been registered with the HW yet. So when deleting such an IP,
-there's no need to stage it for deregistration - just drop it from
-the table.
+If multiple IPA commands are build & sent out concurrently,
+fill_ipacmd_header() may assign a seqno value to a command that's
+different from what send_control_data() later assigns to this command's
+reply.
+This is due to other commands passing through send_control_data(),
+and incrementing card->seqno.ipa along the way.
 
-This fixes the "add-delete-add" scenario on an offline card, where the
-the second "add" merely increments the IP's use count. But as the IP is
-still set to DISP_ADDR_DELETE from the previous "delete" step,
-l3_recover_ip() won't register it with the HW when the card goes online.
+So one IPA command has no reply that's waiting for its seqno, while some
+other IPA command has multiple reply objects waiting for it.
+Only one of those waiting replies wins, and the other(s) times out and
+triggers a recovery via send_ipa_cmd().
 
-Fixes: 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
+Fix this by making sure that the same seqno value is assigned to
+a command and its reply object.
+Do so immediately before submitting the command & while holding the
+irq_pending "lock", to produce nicely ascending seqnos.
+
+As a side effect, *all* IPA commands now use a reply object that's
+waiting for its actual seqno. Previously, early IPA commands that were
+submitted while the card was still DOWN used the "catch-all" IDX seqno.
+
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 3421893c37a4..34481b51029e 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -173,12 +173,8 @@ int qeth_l3_delete_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- 	if (addr->in_progress)
- 		return -EINPROGRESS;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 30457fca30c5..c8b308cfabf1 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2134,24 +2134,25 @@ int qeth_send_control_data(struct qeth_card *card, int len,
+ 	}
+ 	reply->callback = reply_cb;
+ 	reply->param = reply_param;
+-	if (card->state == CARD_STATE_DOWN)
+-		reply->seqno = QETH_IDX_COMMAND_SEQNO;
+-	else
+-		reply->seqno = card->seqno.ipa++;
++
+ 	init_waitqueue_head(&reply->wait_q);
+-	spin_lock_irqsave(&card->lock, flags);
+-	list_add_tail(&reply->list, &card->cmd_waiter_list);
+-	spin_unlock_irqrestore(&card->lock, flags);
  
--	if (!qeth_card_hw_is_reachable(card)) {
--		addr->disp_flag = QETH_DISP_ADDR_DELETE;
--		return 0;
--	}
--
--	rc = qeth_l3_deregister_addr_entry(card, addr);
-+	if (qeth_card_hw_is_reachable(card))
-+		rc = qeth_l3_deregister_addr_entry(card, addr);
+ 	while (atomic_cmpxchg(&card->write.irq_pending, 0, 1)) ;
+-	qeth_prepare_control_data(card, len, iob);
  
- 	hash_del(&addr->hnode);
- 	kfree(addr);
-@@ -321,11 +317,7 @@ static void qeth_l3_recover_ip(struct qeth_card *card)
- 	spin_lock_bh(&card->ip_lock);
+ 	if (IS_IPA(iob->data)) {
+ 		cmd = __ipa_cmd(iob);
++		cmd->hdr.seqno = card->seqno.ipa++;
++		reply->seqno = cmd->hdr.seqno;
+ 		event_timeout = QETH_IPA_TIMEOUT;
+ 	} else {
++		reply->seqno = QETH_IDX_COMMAND_SEQNO;
+ 		event_timeout = QETH_TIMEOUT;
+ 	}
++	qeth_prepare_control_data(card, len, iob);
++
++	spin_lock_irqsave(&card->lock, flags);
++	list_add_tail(&reply->list, &card->cmd_waiter_list);
++	spin_unlock_irqrestore(&card->lock, flags);
  
- 	hash_for_each_safe(card->ip_htable, i, tmp, addr, hnode) {
--		if (addr->disp_flag == QETH_DISP_ADDR_DELETE) {
--			qeth_l3_deregister_addr_entry(card, addr);
--			hash_del(&addr->hnode);
--			kfree(addr);
--		} else if (addr->disp_flag == QETH_DISP_ADDR_ADD) {
-+		if (addr->disp_flag == QETH_DISP_ADDR_ADD) {
- 			if (addr->proto == QETH_PROT_IPV4) {
- 				addr->in_progress = 1;
- 				spin_unlock_bh(&card->ip_lock);
+ 	timeout = jiffies + event_timeout;
+ 
+@@ -2933,7 +2934,7 @@ static void qeth_fill_ipacmd_header(struct qeth_card *card,
+ 	memset(cmd, 0, sizeof(struct qeth_ipa_cmd));
+ 	cmd->hdr.command = command;
+ 	cmd->hdr.initiator = IPA_CMD_INITIATOR_HOST;
+-	cmd->hdr.seqno = card->seqno.ipa;
++	/* cmd->hdr.seqno is set by qeth_send_control_data() */
+ 	cmd->hdr.adapter_type = qeth_get_ipa_adp_type(card->info.link_type);
+ 	cmd->hdr.rel_adapter_no = (__u8) card->info.portno;
+ 	if (card->options.layer2)
 -- 
 2.13.5
