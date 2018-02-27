@@ -1,177 +1,232 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 15/15] s390: doc: detailed specifications for AP
- virtualization
-Date: Tue, 27 Feb 2018 16:57:02 +0100
-Message-ID: <20180227165702.67b171db.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 00/15] s390: vfio-ap: guest dedicated crypto adapters
+Date: Tue, 27 Feb 2018 10:57:26 -0500
+Message-ID: <24c0265f-146f-887c-be9a-ea7f1dd1194a@linux.vnet.ibm.com>
 References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1519741693-17440-16-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20180227155810.0a4acda9.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1519741693-17440-16-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <20180227155810.0a4acda9.cohuck@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 27 Feb 2018 09:28:13 -0500
-Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-
-> This patch provides documentation describing the AP architecture and
-> design concepts behind the virtualization of AP devices. It also
-> includes an example of how to configure AP devices for exclusive
-> use of KVM guests.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> ---
->  Documentation/s390/vfio-ap.txt |  514 ++++++++++++++++++++++++++++++++++++++++
->  MAINTAINERS                    |    1 +
->  2 files changed, 515 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/s390/vfio-ap.txt
-> 
-> diff --git a/Documentation/s390/vfio-ap.txt b/Documentation/s390/vfio-ap.txt
-> new file mode 100644
-> index 0000000..c599f30
-> --- /dev/null
-> +++ b/Documentation/s390/vfio-ap.txt
-> @@ -0,0 +1,514 @@
-> +Introduction:
-> +============
-> +The Adjunct Processor (AP) facility is an IBM Z cryptographic facility comprised
-> +of three AP instructions and from 1 up to 256 PCIe cryptographic adapter cards.
-> +The AP devices provide cryptographic functions to all CPUs assigned to a
-> +linux system running in an IBM Z system LPAR.
-> +
-> +The AP adapter cards are exposed via the AP bus. The motivation for vfio-ap
-> +is to make AP cards available to KVM guests using the VFIO mediated device
-> +framework.
-
-Maybe drop a sentence in here that this makes heavy usage of the s390
-virtualization facilities, which do the heavy lifting?
-
-> +
-> +AP Architectural Overview:
-> +=========================
-> +To facilitate the comprehension of the design, let's start with some
-> +definitions:
-> +
-> +* AP adapter
-> +
-> +  An AP adapter is an IBM Z adapter card that can perform cryptographic
-> +  functions. There can be from 0 to 256 adapters assigned to an LPAR. Adapters
-> +  assigned to the LPAR in which a linux host is running will be available to
-> +  the linux host. Each adapter is identified by a number from 0 to 255. When
-> +  installed, an AP adapter is accessed by AP instructions executed by any CPU.
-> +
-> +* AP domain
-> +
-> +  An adapter is partitioned into domains. Each domain can be thought of as
-> +  a set of hardware registers for processing AP instructions. An adapter can
-> +  hold up to 256 domains. Each domain is identified by a number from 0 to 255.
-> +  Domains can be further classified into two types:
-> +
-> +    * Usage domains are domains that can be accessed directly to process AP
-> +      commands
-> +
-> +    * Control domains are domains that are accessed indirectly by AP
-> +      commands sent to a usage domain to control or change the domain, for
-> +      example; to set a secure private key for the domain.
-> +
-> +* AP Queue
-> +
-> +  An AP queue is the means by which an AP command-request message is sent to an
-> +  AP usage domain inside a specific AP. An AP queue is identified by a tuple
-> +  comprised of an AP adapter ID (APID) and an AP queue index (APQI). The
-> +  APQI corresponds to a given usage domain number within the adapter. This tuple
-> +  forms an AP Queue Number (APQN) uniquely identifying an AP queue. AP
-> +  instructions include a field containing the APQN to identify the AP queue to
-> +  which the AP command-request message is to be sent for processing.
-> +
-> +* AP Instructions:
-> +
-> +  There are three AP instructions:
-> +
-> +  * NQAP: to enqueue an AP command-request message to a queue
-> +  * DQAP: to dequeue an AP command-reply message from a queue
-> +  * PQAP: to administer the queues
-
-Do you also want to explain how these entities show up on the ap bus in
-Linux? It might make the explanations further down easier to
-understand. (Is there any document for the ap bus you could point to?)
-
-> +
-> +Start Interpretive Execution (SIE) Instruction:
-> +==============================================
-
-Call this "AP and SIE" or so? You're not trying to explain the whole
-SIE architecture :)
-
-
-> +Let's now see how AP instructions are interpreted by the hardware.
-
-(...)
-
-> +Reserve APQNs for exclusive use of KVM guests
-> +---------------------------------------------
-> +The following block diagram illustrates the mechanism by which APQNs are
-> +reserved:
-> +
-> +                              +------------------+
-> +                 remove       |                  |   unbind
-> +         +------------------->+ cex4queue driver +<-----------+
-> +         |                    |                  |            |
-> +         |                    +------------------+            |
-> +         |                                                    |
-> +         |                                                    |
-> +         |                                                    |
-> ++--------+---------+ register +------------------+      +-----+------+
-> +|                  +<---------+                  | bind |            |
-> +|      ap_bus      |          |  vfio_ap driver  +<-----+    admin   |
-> +|                  +--------->+                  |      |            |
-> ++------------------+  probe   +---+--------+-----+      +------------+
-> +                                  |        |
-> +                           create |        | store APQN
-> +                                  |        |
-> +                                  v        v
-> +                              +---+--------+-----+
-> +                              |                  |
-> +                              |  matrix device   |
-> +                              |                  |
-> +                              +------------------+
-> +
-
-Thank you for including diagrams, these are really helpful.
-
-(...)
-
-> +Initialize the CPU model feature for AP
-> +---------------------------------------
-> +This design exploits a feature of the SIE architecture called interpretive
-> +execution (IE). When IE is enabled for a KVM guest, the AP instructions
-> +executed in the guest will be interpreted by the firmware and the commands
-> +contained therein will be passed directly through to an AP device assigned to
-> +the linux host. In order to enable interpretive execution for a KVM guest, SIE
-> +must have access to the AP facilities installed on the linux host. A new CPU
-> +model feature is introduced by this design to indicate that the guest will
-> +directly access the host AP facilities. This feature will be enabled by the
-> +kernel only if the AP facilities are installed on the linux host. This feature
-> +is turned on for the guest via the qemu command line:
-> +
-> +    /usr/bin/qemu-system-s390x ... -cpu xxx,ap=on
-> +
-> +    Where xxx is the CPU model being used.
-> +
-> +If the CPU model feature is not enabled by the kernel, QEMU
-> +will fail and report that the feature is not supported.
-
-The cpu model interface is supposed to be user space agnostic, although
-it is only used by QEMU in practice. Mark this as an example more
-clearly?
-
-(...)
-
-I have not looked at this in detail (will probably come back to this
-later), but this looks like a useful document.
+On 02/27/2018 09:58 AM, Cornelia Huck wrote:
+> On Tue, 27 Feb 2018 09:27:58 -0500
+> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+>
+>> On s390, we have cryptographic coprocessor cards, which are modeled on
+>> Linux as devices on the AP bus. Each card can be partitioned into domains
+>> which can be thought of as a set of hardware registers for processing
+>> crypto commands. Crypto commands are sent to a specific domain within a
+>> card is via a queue which is identified as a (card,domain) tuple. We model
+>> this something like the following (assuming we have access to cards 3 and
+>> 4 and domains 1 and 2):
+>>
+>> AP -> card3 -> queue (3,1)
+>>              -> queue (3,2)
+>>     -> card4 -> queue (4,1)
+>>              -> queue (4,2)
+>>
+>> If we want to virtualize this, we can use a feature provided by the
+>> hardware. We basically attach a satellite control block to our main
+>> hardware virtualization control block and the hardware takes care of
+>> most of the rest.
+>>
+>> For this control block, we don't specify explicit tuples, but a list of
+>> cards and a list of domains. The guest will get access to the cross
+>> product.
+>>
+>> Because of this, we need to take care that the lists provided to
+>> different guests don't overlap; i.e., we need to enforce sane
+>> configurations. Otherwise, one guest may get access to things like
+>> secret keys for another guest.
+>>
+>> The idea of this patch set is to introduce a new device, the matrix
+>> device. This matrix device hangs off a different root and acts as the
+>> parent node for mdev devices.
+>>
+>> If you now want to give the tuples (4,1) and (4,2), you need to do the
+>> following:
+>>
+>> - Unbind the (4,1) and (4,2) tuples from their ap bus driver.
+>> - Bind the (4,1) and (4,2) tuples to the vfio_ap driver.
+>> - Create the mediated device.
+>> - Assign card 4 and domains 1 and 2 to the mediated device
+>>
+>> QEMU will now simply consume the mediated device and things should work.
+>>
+>> For a complete description of the architecture and concepts underlying the
+>> design, see the Documentation/s390/vfio-ap.txt file included with this
+>> patch set.
+>>
+>> v1 => v2 Change log:
+>> ===================
+> Uh, this is very long... It seems most of the changes are not related
+> to the basic approach, but concerned with details? The general
+> structure was fine last time IIRC.
+I'm apologize, I am not well-versed in how much detail is appropriate. This
+also went through several internal reviews before re-posting to the kernel
+lists.
+>
+>> * Added documentation vfio-ap.txt
+>> * Renamed vfio_ap_matrix module and device driver to vfio_ap
+>> * Use device core device list instead of maintaining list of matrix
+>>    devices in driver
+>> * Added VSIE support for AP
+>> * Create matrix device before registering VFIO AP device driver with the
+>>    AP bus
+>> * Renamed the following files in drivers/s390/crypto:
+>>    * vfio_ap_matrix.drv -> vfio_ap_drv
+>>    * vfio_ap_matrix_private.h -> vfio_ap_private.h
+>>    * vfio_ap_matrix_ops.c -> vfio_ap_ops.c
+>> * arch/s390/include/asm/kvm/ap-matrix-config.h
+>>    * Renamed to kvm-ap.h
+>>    * Changed the data type of the bit mask fields for the matrix structure
+>>      to unsigned long and create them with DECLARE_BITMAP
+>>    * Changed #define prefixes from AP_MATRIX to KVM_AP
+>>    * Changed function and structure prefixes from ap_matrix to kvm_ap
+>>    * Added function interface to check if AP Extended Addressing (APXA)
+>>      facility is installedCRYCB_FORMAT_MASK
+>>    * Added function interface to get the maximum ID for AP mask type
+>>    * Added function interface to set the AP execution mode
+>> * arch/s390/kvm/ap-matrix-config.c
+>>    * Renamed to kvm-ap.c
+>>    * Changed function prefixes from ap_matrix to kvm_ap
+>>    * Added function to check if AP Extended Addressing (APXA) facility is
+>>      installed
+>>    * Added function to get the maximum ID for AP mask type
+>>    * Added function to set the AP execution mode
+>>    * Added a boolean parameter to the functions that retrieve the APM, AQM
+>>      and ADM bit mask fields from the CRYCB. If true, then the function
+>>      will clear the bits in the mask before returning a reference to it
+>>    * Added validation to verify that APM, AQM and ADM bits that are set do
+>>      not exceed the maximum ID value allowed
+>>    *
+>> * arch/s390/include/asm/kvm_host.h
+>>    * Changed defined for ECA_AP to ECA_APIE - interpretive execution mode
+>>    * Added a flag to struct kvm_s390_crypto to indicate whether the
+>>      KVM_S390_VM_CPU_FEAT_AP CPU model feature for AP facilities is set
+>>    * Added two CPU facilities features to set STFLE.12 and STFLE.15
+>> * arch/s390/kvm/kvm-s390.c
+>>    * Added initialization for new KVM_S390_VM_CPU_FEAT_AP CPU model feature
+>>    * Removed kvm_s390_apxa_installed() function
+>>    * Changed call to kvm_s390_apxa_installed() which has been removed to a
+>>      call to new kvm_ap_apxa_installed() function.
+>>    * Added code to kvm_s390_vcpu_crypto_setup() to set the new CPU model
+>>      feature flag in the kvm_s390_crypto structure
+>>    * Added CRYCB_FORMAT_MASK to mask CRYCBD
+>> * arch/s390/tools/gen_facilities.c
+>>    * Added STFLE.12 and STFLE.15 to struct facility _def
+>> * drivers/s390/crypto/vfio_ap_matrix_private.h
+>>    * Changed name of file to vfio_ap.private.h
+>>    * Changed #define prefixes from VFIO_AP_MATRIX to VFIO_AP
+>>    * struct ap_matrix: removed list fields and locks
+>>    * struct vfio_ap_queue: removed list field
+>>    * Renamed functions ap_matrix_mdev_register and ap_matrix_mdev_unregister
+>>      to vfio_ap_mdev_register and vfio_ap_mdev_unregister respectively
+>> * drivers/s390/crypto/vfio_ap_matrix_drv.c
+>>    * Renamed file to drivers/s390/crypto/vfio_ap_drv.c
+>>    * Changed all #define, structure and function prefixes to vfio_ap
+>>    * probe function
+>>      * Changed root device name for the matrix device to vfio_ap:
+>>        i.e., /sys/devices/vfio_ap/matrix
+>>      * No longer storing the AP queue device in a list, it is retrievable
+>>        via the device core
+>>      * Removed unnecessary check whether matrix device exists
+>>      * Store the vfio_ap_queue structure in the private field of the
+>>        ap_queue structure rather than using list interface
+>>    * remove function
+>>      * Retrieve vfio_ap_queue structure from the struct ap_queue private
+>>        data rather than from a list
+>>    * Removed unnecessary check
+>> * drivers/s390/crypto/vfio_ap_matrix_ops.c
+>>    * Renamed file to vfio_ap_ops.c
+>>    * Changed #define prefixes from AP_MATRIX to VFIO_AP
+>>    * Changed function name prefixes from ap_matrix to vfio_ap
+>>    * Removed ioctl to configure the CRYCB
+>>    * create function
+>>      * Removed ap_matrix_mdev_find_by_uuid() function - function is provided
+>>        by mdev core
+>>      * Removed available_instances verification, provided by mdev core
+>>      * Removed check to see if mediated device exists, handled by mdev core
+>>    * notifier function
+>>      * Configuring matrix here instead of via ioctl
+>>      * Set interpretive execution mode for all VCPUs
+>>     * Removed R/O attributes to display adapters and domains
+>>     * Added an R/O attribute to display the matrix
+>>    * assign_control_domain mdev attribute:
+>>      * Removed check to see if the domain is installed on the linux host
+>>      * Added check to verify the control domain ID does not exceed the max
+>>        value
+>>    * assign_adapter mdev attribute:
+>>      * Added check to verify the adapter ID does not exceed the max
+>>        value
+>>      * If any APQNs configured for the mediated matrix device that
+>>        have an APID matching the adapter ID being assigned are not
+>>        bound to the vfio_ap device driver then it is assumed that the APQN
+>>        is bound to another driver and assignment will fail
+>>    * assign_domain mdev attribute:
+>>      * Added check to verify the domain ID does not exceed the max
+>>        value
+>>      * If any APQNs configured for the mediated matrix device that
+>>        have an APQI matching the domain ID being assigned are not
+>>        bound to the vfio_ap device driver then it is assumed that the APQN
+>>        is bound to another driver and assignment will fail
+>> * tools/arch/s390/include/uapi/asm/kvm.h
+>>    * removed  KVM_S390_VM_CPU_FEAT_AP feature definition
+>>
+>> Tony Krowiak (15):
+>>    KVM: s390: refactor crypto initialization
+>>    s390: vsie: implement AP support for second level guest
+>>    s390: zcrypt: externalize AP instructions available function
+>>    KVM: s390: CPU model support for AP virtualization
+>>    s390: vfio-ap: base implementation of VFIO AP device driver
+>>    s390: vfio-ap: register matrix device with VFIO mdev framework
+>>    KVM: s390: Interfaces to configure/deconfigure guest's AP matrix
+>>    KVM: s390: interface to enable AP execution mode
+>>    s390: vfio-ap: sysfs interfaces to configure adapters
+>>    s390: vfio-ap: sysfs interfaces to configure domains
+>>    s390: vfio-ap: sysfs interfaces to configure control domains
+>>    s390: vfio-ap: sysfs interface to view matrix mdev matrix
+>>    KVM: s390: Configure the guest's CRYCB
+>>    s390: vfio-ap: implement VFIO_DEVICE_GET_INFO ioctl
+>>    s390: doc: detailed specifications for AP virtualization
+>>
+>>   Documentation/s390/vfio-ap.txt          |  514 ++++++++++++++++++
+>>   MAINTAINERS                             |   14 +
+>>   arch/s390/Kconfig                       |    8 +
+>>   arch/s390/configs/default_defconfig     |    3 +
+>>   arch/s390/configs/gcov_defconfig        |    3 +
+>>   arch/s390/configs/performance_defconfig |    3 +
+>>   arch/s390/defconfig                     |    3 +
+>>   arch/s390/include/asm/ap.h              |    7 +
+>>   arch/s390/include/asm/kvm-ap.h          |   59 +++
+>>   arch/s390/include/asm/kvm_host.h        |    2 +
+>>   arch/s390/include/uapi/asm/kvm.h        |    1 +
+>>   arch/s390/kvm/Makefile                  |    2 +-
+>>   arch/s390/kvm/kvm-ap.c                  |  336 ++++++++++++
+>>   arch/s390/kvm/kvm-s390.c                |   66 +--
+>>   arch/s390/kvm/kvm-s390.h                |    1 +
+>>   arch/s390/kvm/vsie.c                    |   71 +++-
+>>   arch/s390/tools/gen_facilities.c        |    2 +
+>>   drivers/s390/crypto/Makefile            |    4 +
+>>   drivers/s390/crypto/ap_bus.c            |    6 +
+>>   drivers/s390/crypto/vfio_ap_drv.c       |  143 +++++
+>>   drivers/s390/crypto/vfio_ap_ops.c       |  868 +++++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_private.h   |   45 ++
+>>   include/uapi/linux/vfio.h               |    2 +
+>>   23 files changed, 2096 insertions(+), 67 deletions(-)
+>>   create mode 100644 Documentation/s390/vfio-ap.txt
+>>   create mode 100644 arch/s390/include/asm/kvm-ap.h
+>>   create mode 100644 arch/s390/kvm/kvm-ap.c
+>>   create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
+>>   create mode 100644 drivers/s390/crypto/vfio_ap_ops.c
+>>   create mode 100644 drivers/s390/crypto/vfio_ap_private.h
+>>
