@@ -1,54 +1,82 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 2/3] net/smc: use link_id of server in confirm link reply
-Date: Wed, 28 Feb 2018 12:44:08 +0100
-In-Reply-To: <20180228114409.33645-1-ubraun@linux.vnet.ibm.com>
-References: <20180228114409.33645-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180228114409.33645-3-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 28 Feb 2018 13:31:31 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] net: iucv: Free memory obtained by kzalloc
+Message-ID: <20180228133131.0df907ff.cohuck@redhat.com>
+In-Reply-To: <78058d34-7cbb-a3e6-6471-e001b93a0523@gmail.com>
+References: <6fbfc0b8aa75852c4eed4d05e4c165a493304ced.1519811528.git.arvind.yadav.cs@gmail.com>
+        <20180228113042.6a2f5177.cohuck@redhat.com>
+        <e4784c9b-380f-4dad-6883-b6350a9e0614@gmail.com>
+        <20180228125629.3062ac1d.cohuck@redhat.com>
+        <78058d34-7cbb-a3e6-6471-e001b93a0523@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: jwi@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, davem@davemloft.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.vnet.ibm.com>
+On Wed, 28 Feb 2018 17:39:53 +0530
+Arvind Yadav <arvind.yadav.cs@gmail.com> wrote:
 
-The CONFIRM LINK reply message must contain the link_id sent
-by the server. And set the link_id explicitly when
-initializing the link.
+> On Wednesday 28 February 2018 05:26 PM, Cornelia Huck wrote:
+> > On Wed, 28 Feb 2018 17:14:55 +0530
+> > Arvind Yadav <arvind.yadav.cs@gmail.com> wrote:
+> >  
+> >> On Wednesday 28 February 2018 04:00 PM, Cornelia Huck wrote:  
+> >>> On Wed, 28 Feb 2018 15:24:16 +0530
+> >>> Arvind Yadav <arvind.yadav.cs@gmail.com> wrote:
+> >>>     
+> >>>> Free memory, if afiucv_iucv_init is not successful and
+> >>>> removing a IUCV driver.
+> >>>>
+> >>>> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+> >>>> ---
+> >>>>    net/iucv/af_iucv.c | 5 ++++-
+> >>>>    1 file changed, 4 insertions(+), 1 deletion(-)
+> >>>>
+> >>>> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> >>>> index 1e8cc7b..eb0995a 100644
+> >>>> --- a/net/iucv/af_iucv.c
+> >>>> +++ b/net/iucv/af_iucv.c
+> >>>> @@ -2433,9 +2433,11 @@ static int afiucv_iucv_init(void)
+> >>>>    	af_iucv_dev->driver = &af_iucv_driver;
+> >>>>    	err = device_register(af_iucv_dev);
+> >>>>    	if (err)
+> >>>> -		goto out_driver;
+> >>>> +		goto out_iucv_dev;
+> >>>>    	return 0;
+> >>>>    
+> >>>> +out_iucv_dev:
+> >>>> +	kfree(af_iucv_dev);
+> >>>>    out_driver:
+> >>>>    	driver_unregister(&af_iucv_driver);
+> >>>>    out_iucv:
+> >>>> @@ -2496,6 +2498,7 @@ static void __exit afiucv_exit(void)
+> >>>>    {
+> >>>>    	if (pr_iucv) {
+> >>>>    		device_unregister(af_iucv_dev);
+> >>>> +		kfree(af_iucv_dev);
+> >>>>    		driver_unregister(&af_iucv_driver);
+> >>>>    		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
+> >>>>    		symbol_put(iucv_if);  
+> >>> No, you must not use kfree() after you called device_register() (even
+> >>> if it was not successful!) -- see the comment for device_register().  
+> >> Yes, Your are right. First we need to call put_device() then kfree().
+> >> I will send updated patch.  
+> > No, that's not correct, either. device_register() will give up any
+> > reference it obtained, and the caller did not obtain any additional
+> > reference, so a put_device() would be wrong. A kfree() on a refcounted
+> > structure is wrong as well.  
+> If you will see the comment for device_register() (drivers/base/core.c)
+> there is mentioned that
+> 'NOTE: _Never_ directly free @dev after calling this function, even
+> if it returned an error! Always use put_device() to give up the
+> reference initialized in this function instead.'
+> But as per you comment. we should not use.
 
-Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- net/smc/smc_core.c | 1 +
- net/smc/smc_llc.c  | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 053f0e66bec7..645dd226177b 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -177,6 +177,7 @@ static int smc_lgr_create(struct smc_sock *smc, __be32 peer_in_addr,
- 
- 	lnk = &lgr->lnk[SMC_SINGLE_LINK];
- 	/* initialize link */
-+	lnk->link_id = SMC_SINGLE_LINK;
- 	lnk->smcibdev = smcibdev;
- 	lnk->ibport = ibport;
- 	lnk->path_mtu = smcibdev->pattr[ibport - 1].active_mtu;
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 92fe4cc8c82c..b4aa4fcedb96 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -92,7 +92,7 @@ int smc_llc_send_confirm_link(struct smc_link *link, u8 mac[],
- 	memcpy(confllc->sender_mac, mac, ETH_ALEN);
- 	memcpy(confllc->sender_gid, gid, SMC_GID_SIZE);
- 	hton24(confllc->sender_qp_num, link->roce_qp->qp_num);
--	/* confllc->link_num = SMC_SINGLE_LINK; already done by memset above */
-+	confllc->link_num = link->link_id;
- 	memcpy(confllc->link_uid, lgr->id, SMC_LGR_ID_SIZE);
- 	confllc->max_links = SMC_LINKS_PER_LGR_MAX;
- 	/* send llc message */
--- 
-2.13.5
+You don't need to do a put_device() after your device_unregister(),
+that's all managed by the driver core.
