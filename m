@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 3/3] net/smc: fix NULL pointer dereference on sock_create_kern() error path
-Date: Wed, 28 Feb 2018 12:44:09 +0100
+Subject: [PATCH net 2/3] net/smc: use link_id of server in confirm link reply
+Date: Wed, 28 Feb 2018 12:44:08 +0100
 In-Reply-To: <20180228114409.33645-1-ubraun@linux.vnet.ibm.com>
 References: <20180228114409.33645-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180228114409.33645-4-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180228114409.33645-3-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,76 +12,43 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Karsten Graul <kgraul@linux.vnet.ibm.com>
 
-when sock_create_kern(..., a) returns an error, 'a' might not be a valid
-pointer, so it shouldn't be dereferenced to read a->sk->sk_sndbuf and
-and a->sk->sk_rcvbuf; not doing that caused the following crash:
+The CONFIRM LINK reply message must contain the link_id sent
+by the server. And set the link_id explicitly when
+initializing the link.
 
-general protection fault: 0000 [#1] SMP KASAN
-Dumping ftrace buffer:
-    (ftrace buffer empty)
-Modules linked in:
-CPU: 0 PID: 4254 Comm: syzkaller919713 Not tainted 4.16.0-rc1+ #18
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-RIP: 0010:smc_create+0x14e/0x300 net/smc/af_smc.c:1410
-RSP: 0018:ffff8801b06afbc8 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff8801b63457c0 RCX: ffffffff85a3e746
-RDX: 0000000000000004 RSI: 00000000ffffffff RDI: 0000000000000020
-RBP: ffff8801b06afbf0 R08: 00000000000007c0 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff8801b6345c08 R14: 00000000ffffffe9 R15: ffffffff8695ced0
-FS:  0000000001afb880(0000) GS:ffff8801db200000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020000040 CR3: 00000001b0721004 CR4: 00000000001606f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-  __sock_create+0x4d4/0x850 net/socket.c:1285
-  sock_create net/socket.c:1325 [inline]
-  SYSC_socketpair net/socket.c:1409 [inline]
-  SyS_socketpair+0x1c0/0x6f0 net/socket.c:1366
-  do_syscall_64+0x282/0x940 arch/x86/entry/common.c:287
-  entry_SYSCALL_64_after_hwframe+0x26/0x9b
-RIP: 0033:0x4404b9
-RSP: 002b:00007fff44ab6908 EFLAGS: 00000246 ORIG_RAX: 0000000000000035
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00000000004404b9
-RDX: 0000000000000000 RSI: 0000000000000001 RDI: 000000000000002b
-RBP: 00007fff44ab6910 R08: 0000000000000002 R09: 00007fff44003031
-R10: 0000000020000040 R11: 0000000000000246 R12: ffffffffffffffff
-R13: 0000000000000006 R14: 0000000000000000 R15: 0000000000000000
-Code: 48 c1 ea 03 80 3c 02 00 0f 85 b3 01 00 00 4c 8b a3 48 04 00 00 48
-b8
-00 00 00 00 00 fc ff df 49 8d 7c 24 20 48 89 fa 48 c1 ea 03 <80> 3c 02
-00
-0f 85 82 01 00 00 4d 8b 7c 24 20 48 b8 00 00 00 00
-RIP: smc_create+0x14e/0x300 net/smc/af_smc.c:1410 RSP: ffff8801b06afbc8
-
-Fixes: cd6851f30386 smc: remote memory buffers (RMBs)
-Reported-and-tested-by: syzbot+aa0227369be2dcc26ebe@syzkaller.appspotmail.com
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/smc/smc_core.c | 1 +
+ net/smc/smc_llc.c  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index da1a5cdefd13..8cc97834d4f6 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1406,8 +1406,10 @@ static int smc_create(struct net *net, struct socket *sock, int protocol,
- 	smc->use_fallback = false; /* assume rdma capability first */
- 	rc = sock_create_kern(net, PF_INET, SOCK_STREAM,
- 			      IPPROTO_TCP, &smc->clcsock);
--	if (rc)
-+	if (rc) {
- 		sk_common_release(sk);
-+		goto out;
-+	}
- 	smc->sk.sk_sndbuf = max(smc->clcsock->sk->sk_sndbuf, SMC_BUF_MIN_SIZE);
- 	smc->sk.sk_rcvbuf = max(smc->clcsock->sk->sk_rcvbuf, SMC_BUF_MIN_SIZE);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 053f0e66bec7..645dd226177b 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -177,6 +177,7 @@ static int smc_lgr_create(struct smc_sock *smc, __be32 peer_in_addr,
  
+ 	lnk = &lgr->lnk[SMC_SINGLE_LINK];
+ 	/* initialize link */
++	lnk->link_id = SMC_SINGLE_LINK;
+ 	lnk->smcibdev = smcibdev;
+ 	lnk->ibport = ibport;
+ 	lnk->path_mtu = smcibdev->pattr[ibport - 1].active_mtu;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 92fe4cc8c82c..b4aa4fcedb96 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -92,7 +92,7 @@ int smc_llc_send_confirm_link(struct smc_link *link, u8 mac[],
+ 	memcpy(confllc->sender_mac, mac, ETH_ALEN);
+ 	memcpy(confllc->sender_gid, gid, SMC_GID_SIZE);
+ 	hton24(confllc->sender_qp_num, link->roce_qp->qp_num);
+-	/* confllc->link_num = SMC_SINGLE_LINK; already done by memset above */
++	confllc->link_num = link->link_id;
+ 	memcpy(confllc->link_uid, lgr->id, SMC_LGR_ID_SIZE);
+ 	confllc->max_links = SMC_LINKS_PER_LGR_MAX;
+ 	/* send llc message */
 -- 
 2.13.5
