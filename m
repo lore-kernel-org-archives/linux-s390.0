@@ -1,182 +1,210 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 15/15] s390: doc: detailed specifications for AP
- virtualization
-Date: Tue, 27 Feb 2018 13:12:21 -0500
-Message-ID: <d7f95274-5e75-2e82-6294-487e3600d219@linux.vnet.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v2 02/15] s390: vsie: implement AP support for second
+ level guest
+Date: Wed, 28 Feb 2018 10:39:51 +0100
+Message-ID: <0882e962-8ebb-2cea-0180-5cee9a0db1e4@redhat.com>
 References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1519741693-17440-16-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180227165702.67b171db.cohuck@redhat.com>
+ <1519741693-17440-3-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180227165702.67b171db.cohuck@redhat.com>
+In-Reply-To: <1519741693-17440-3-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/27/2018 10:57 AM, Cornelia Huck wrote:
-> On Tue, 27 Feb 2018 09:28:13 -0500
-> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->
->> This patch provides documentation describing the AP architecture and
->> design concepts behind the virtualization of AP devices. It also
->> includes an example of how to configure AP devices for exclusive
->> use of KVM guests.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->> ---
->>   Documentation/s390/vfio-ap.txt |  514 ++++++++++++++++++++++++++++++++++++++++
->>   MAINTAINERS                    |    1 +
->>   2 files changed, 515 insertions(+), 0 deletions(-)
->>   create mode 100644 Documentation/s390/vfio-ap.txt
->>
->> diff --git a/Documentation/s390/vfio-ap.txt b/Documentation/s390/vfio-ap.txt
->> new file mode 100644
->> index 0000000..c599f30
->> --- /dev/null
->> +++ b/Documentation/s390/vfio-ap.txt
->> @@ -0,0 +1,514 @@
->> +Introduction:
->> +============
->> +The Adjunct Processor (AP) facility is an IBM Z cryptographic facility comprised
->> +of three AP instructions and from 1 up to 256 PCIe cryptographic adapter cards.
->> +The AP devices provide cryptographic functions to all CPUs assigned to a
->> +linux system running in an IBM Z system LPAR.
->> +
->> +The AP adapter cards are exposed via the AP bus. The motivation for vfio-ap
->> +is to make AP cards available to KVM guests using the VFIO mediated device
->> +framework.
-> Maybe drop a sentence in here that this makes heavy usage of the s390
-> virtualization facilities, which do the heavy lifting?
-Will do.
->
->> +
->> +AP Architectural Overview:
->> +=========================
->> +To facilitate the comprehension of the design, let's start with some
->> +definitions:
->> +
->> +* AP adapter
->> +
->> +  An AP adapter is an IBM Z adapter card that can perform cryptographic
->> +  functions. There can be from 0 to 256 adapters assigned to an LPAR. Adapters
->> +  assigned to the LPAR in which a linux host is running will be available to
->> +  the linux host. Each adapter is identified by a number from 0 to 255. When
->> +  installed, an AP adapter is accessed by AP instructions executed by any CPU.
->> +
->> +* AP domain
->> +
->> +  An adapter is partitioned into domains. Each domain can be thought of as
->> +  a set of hardware registers for processing AP instructions. An adapter can
->> +  hold up to 256 domains. Each domain is identified by a number from 0 to 255.
->> +  Domains can be further classified into two types:
->> +
->> +    * Usage domains are domains that can be accessed directly to process AP
->> +      commands
->> +
->> +    * Control domains are domains that are accessed indirectly by AP
->> +      commands sent to a usage domain to control or change the domain, for
->> +      example; to set a secure private key for the domain.
->> +
->> +* AP Queue
->> +
->> +  An AP queue is the means by which an AP command-request message is sent to an
->> +  AP usage domain inside a specific AP. An AP queue is identified by a tuple
->> +  comprised of an AP adapter ID (APID) and an AP queue index (APQI). The
->> +  APQI corresponds to a given usage domain number within the adapter. This tuple
->> +  forms an AP Queue Number (APQN) uniquely identifying an AP queue. AP
->> +  instructions include a field containing the APQN to identify the AP queue to
->> +  which the AP command-request message is to be sent for processing.
->> +
->> +* AP Instructions:
->> +
->> +  There are three AP instructions:
->> +
->> +  * NQAP: to enqueue an AP command-request message to a queue
->> +  * DQAP: to dequeue an AP command-reply message from a queue
->> +  * PQAP: to administer the queues
-> Do you also want to explain how these entities show up on the ap bus in
-> Linux? It might make the explanations further down easier to
-> understand. (Is there any document for the ap bus you could point to?)
-I am not aware of any documentation for the AP bus, but I can provide a
-few sentences to explain how AP devices are managed by the AP bus.
->
->> +
->> +Start Interpretive Execution (SIE) Instruction:
->> +==============================================
-> Call this "AP and SIE" or so? You're not trying to explain the whole
-> SIE architecture :)
-Okay
->
->
->> +Let's now see how AP instructions are interpreted by the hardware.
-> (...)
->
->> +Reserve APQNs for exclusive use of KVM guests
->> +---------------------------------------------
->> +The following block diagram illustrates the mechanism by which APQNs are
->> +reserved:
->> +
->> +                              +------------------+
->> +                 remove       |                  |   unbind
->> +         +------------------->+ cex4queue driver +<-----------+
->> +         |                    |                  |            |
->> +         |                    +------------------+            |
->> +         |                                                    |
->> +         |                                                    |
->> +         |                                                    |
->> ++--------+---------+ register +------------------+      +-----+------+
->> +|                  +<---------+                  | bind |            |
->> +|      ap_bus      |          |  vfio_ap driver  +<-----+    admin   |
->> +|                  +--------->+                  |      |            |
->> ++------------------+  probe   +---+--------+-----+      +------------+
->> +                                  |        |
->> +                           create |        | store APQN
->> +                                  |        |
->> +                                  v        v
->> +                              +---+--------+-----+
->> +                              |                  |
->> +                              |  matrix device   |
->> +                              |                  |
->> +                              +------------------+
->> +
-> Thank you for including diagrams, these are really helpful.
-You are welcomed
->
-> (...)
->
->> +Initialize the CPU model feature for AP
->> +---------------------------------------
->> +This design exploits a feature of the SIE architecture called interpretive
->> +execution (IE). When IE is enabled for a KVM guest, the AP instructions
->> +executed in the guest will be interpreted by the firmware and the commands
->> +contained therein will be passed directly through to an AP device assigned to
->> +the linux host. In order to enable interpretive execution for a KVM guest, SIE
->> +must have access to the AP facilities installed on the linux host. A new CPU
->> +model feature is introduced by this design to indicate that the guest will
->> +directly access the host AP facilities. This feature will be enabled by the
->> +kernel only if the AP facilities are installed on the linux host. This feature
->> +must be turned turned on for the guest in order to ac:
->> +
->> +    /usr/bin/qemu-system-s390x ... -cpu xxx,ap=on
->> +
->> +    Where xxx is the CPU model being used.
->> +
->> +If the CPU model feature is not enabled by the kernel, QEMU
->> +will fail and report that the feature is not supported.
-> The cpu model interface is supposed to be user space agnostic, although
-> it is only used by QEMU in practice. Mark this as an example more
-> clearly?
-Will do
->
-> (...)
->
-> I have not looked at this in detail (will probably come back to this
-> later), but this looks like a useful document.
-Excellent, I'm glad to hear that. It took some time to put together.
->
+On 27.02.2018 15:28, Tony Krowiak wrote:
+> Set effective masks and CRYCB format in the shadow copy of the
+> guest level 2 CRYCB.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm-ap.h |    2 +
+>  arch/s390/kvm/kvm-ap.c         |    5 +++
+>  arch/s390/kvm/vsie.c           |   71 +++++++++++++++++++++++++++++++++-------
+>  3 files changed, 66 insertions(+), 12 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm-ap.h b/arch/s390/include/asm/kvm-ap.h
+> index 4e43117..ef749e7 100644
+> --- a/arch/s390/include/asm/kvm-ap.h
+> +++ b/arch/s390/include/asm/kvm-ap.h
+> @@ -13,4 +13,6 @@
+>  
+>  void kvm_ap_set_crycb_format(struct kvm *kvm, __u32 *crycbd);
+>  
+> +int kvm_ap_get_crycb_format(struct kvm *kvm);
+> +
+>  #endif /* _ASM_KVM_AP */
+> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
+> index 5305f4c..bafe63b 100644
+> --- a/arch/s390/kvm/kvm-ap.c
+> +++ b/arch/s390/kvm/kvm-ap.c
+> @@ -11,6 +11,11 @@
+>  
+>  #include "kvm-s390.h"
+>  
+> +int kvm_ap_get_crycb_format(struct kvm *kvm)
+> +{
+> +	return kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK;
+> +}
+
+Why exactly do we need this function? If there are no other users, just
+do it directly in the code below.
+
+> +
+>  static int kvm_ap_apxa_installed(void)
+>  {
+>  	int ret;
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 8961e39..93076ba 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -18,6 +18,7 @@
+>  #include <asm/sclp.h>
+>  #include <asm/nmi.h>
+>  #include <asm/dis.h>
+> +#include <asm/kvm-ap.h>
+>  #include "kvm-s390.h"
+>  #include "gaccess.h"
+>  
+> @@ -137,12 +138,56 @@ static int prepare_cpuflags(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  }
+>  
+>  /*
+> + * Set up the effective masks for the shadow copy of the crycb. The effective
+> + * masks for guest 3 are set by performing a logical bitwise AND of the guest 3
+> + * masks with the guest 2 masks.
+> + */
+> +static void set_crycb_emasks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+> +{
+> +	int fmt = kvm_ap_get_crycb_format(vcpu->kvm);
+> +	unsigned long *mask1, *mask2;
+> +
+> +	switch (fmt) {
+> +	case CRYCB_FORMAT1:
+> +	case CRYCB_FORMAT2:
+
+Assume L2 gave us FORMAT0 and we are using FORMAT2. You would copy wrong
+bits. See below, maybe we need conversion.
+
+> +		mask1 = (unsigned long *)vsie_page->crycb.apcb1.apm;
+> +		mask2 = (unsigned long *)
+> +			vcpu->kvm->arch.crypto.crycb->apcb1.apm;
+> +		bitmap_and(mask1, mask1, mask2, APCB1_MASK_SIZE);
+> +
+> +		mask1 = (unsigned long *)vsie_page->crycb.apcb1.aqm;
+> +		mask2 = (unsigned long *)
+> +			vcpu->kvm->arch.crypto.crycb->apcb1.aqm;
+> +		bitmap_and(mask1, mask1, mask2, APCB1_MASK_SIZE);
+> +
+> +		mask1 = (unsigned long *)vsie_page->crycb.apcb1.adm;
+> +		mask2 = (unsigned long *)
+> +			vcpu->kvm->arch.crypto.crycb->apcb1.adm;
+> +		bitmap_and(mask1, mask1, mask2, APCB1_MASK_SIZE);
+> +		break;
+> +	default:
+> +		mask1 = (unsigned long *)vsie_page->crycb.apcb0.apm;
+> +		mask2 = (unsigned long *)
+> +			vcpu->kvm->arch.crypto.crycb->apcb1.apm;
+> +		bitmap_and(mask1, mask1, mask2, APCB0_MASK_SIZE);
+> +
+> +		mask1 = (unsigned long *)vsie_page->crycb.apcb0.aqm;
+> +		mask2 = (unsigned long *)
+> +			vcpu->kvm->arch.crypto.crycb->apcb1.aqm;
+> +		bitmap_and(mask1, mask1, mask2, APCB0_MASK_SIZE);
+> +
+> +		mask1 = (unsigned long *)vsie_page->crycb.apcb0.adm;
+> +		mask2 = (unsigned long *)
+> +			vcpu->kvm->arch.crypto.crycb->apcb1.adm;
+> +		bitmap_and(mask1, mask1, mask2, APCB0_MASK_SIZE);
+> +		break;
+> +	}
+> +}
+> +
+> +/*
+>   * Create a shadow copy of the crycb block and setup key wrapping, if
+>   * requested for guest 3 and enabled for guest 2.
+>   *
+> - * We only accept format-1 (no AP in g2), but convert it into format-2
+> - * There is nothing to do for format-0.
+> - *
+>   * Returns: - 0 if shadowed or nothing to do
+>   *          - > 0 if control has to be given to guest 2
+>   */
+> @@ -155,9 +200,17 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  	unsigned long *b1, *b2;
+>  	u8 ecb3_flags;
+>  
+> -	scb_s->crycbd = 0;
+> -	if (!(crycbd_o & vcpu->arch.sie_block->crycbd & CRYCB_FORMAT1))
+> -		return 0;
+> +	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb);
+> +	kvm_ap_set_crycb_format(vcpu->kvm, &scb_s->crycbd);
+> +
+> +	/* copy the crycb */
+> +	if (read_guest_real(vcpu, crycb_addr, &vsie_page->crycb,
+> +			    sizeof(vsie_page->crycb)))
+> +		return set_validity_icpt(scb_s, 0x0035U);
+
+This looks wrong. You are always copying from L2, although L2 might not
+even set up a crycb for L3. You removed the important crycbd_o check.
+
+Don't we need the following?
+
+a) Determine the _allowed_ crycb format for L2 -> L3. (How can we tell
+which format L2 is allowed to use for L3)
+b) Determine the target crycb format. This is basically
+vm_ap_set_crycb_format afaics.
+c) Convert the given crycb to the target crycb format.
+
+So importantly, can you clarify (as I don't have access to documentation):
+
+- When is L2 allowed to use format-0? So when will the format not be
+ignored but is actually used?
+
+- When is L2 allowed to use fortma-2? So when will the format not be
+ignored but is actually used?
+
+- When does the SIE start interpreting AP instructions? So how can we
+hinder it from doing so? Empty masks? crycb format?
+
+> +
+> +	/* set up the effective masks */
+> +	set_crycb_emasks(vcpu, vsie_page);
+> +
+>  	/* format-1 is supported with message-security-assist extension 3 */
+>  	if (!test_kvm_facility(vcpu->kvm, 76))
+>  		return 0;
+
+You now already copied the wrapping keys. So they could be !0. Please
+add a comment why we don't care.
+
+/* wrapping keys are ignored without ECB3_AES / ECB3_DEA */
+
+> @@ -172,13 +225,7 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  	else if (!crycb_addr)
+>  		return set_validity_icpt(scb_s, 0x0039U);
+>  
+> -	/* copy only the wrapping keys */
+> -	if (read_guest_real(vcpu, crycb_addr + 72, &vsie_page->crycb, 56))
+> -		return set_validity_icpt(scb_s, 0x0035U);
+> -
+>  	scb_s->ecb3 |= ecb3_flags;
+> -	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | CRYCB_FORMAT1 |
+> -			CRYCB_FORMAT2;
+>  
+>  	/* xor both blocks in one run */
+>  	b1 = (unsigned long *) vsie_page->crycb.dea_wrapping_key_mask;
+> 
+
+
+-- 
+
+Thanks,
+
+David / dhildenb
