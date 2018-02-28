@@ -1,104 +1,110 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 04/15] KVM: s390: CPU model support for AP
- virtualization
-Date: Wed, 28 Feb 2018 10:59:17 -0500
-Message-ID: <06f77e0c-a99f-b8c8-750e-7ba148d374ed@linux.vnet.ibm.com>
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 07/15] KVM: s390: Interfaces to configure/deconfigure
+ guest's AP matrix
+Date: Wed, 28 Feb 2018 17:15:45 +0100
+Message-ID: <c06ad065-9f10-2d0d-f56f-faae813557d9@linux.vnet.ibm.com>
 References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1519741693-17440-5-git-send-email-akrowiak@linux.vnet.ibm.com>
- <38deecae-53b4-c5cb-3dba-24bdfab3d9d0@redhat.com>
- <3a3ff176-4e6b-963c-7831-cdcd10b556eb@de.ibm.com>
- <10cfdb2a-304c-989b-4765-84e19fcd423f@redhat.com>
+ <1519741693-17440-8-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <10cfdb2a-304c-989b-4765-84e19fcd423f@redhat.com>
+In-Reply-To: <1519741693-17440-8-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/28/2018 06:58 AM, David Hildenbrand wrote:
-> On 28.02.2018 12:40, Christian Borntraeger wrote:
->>
->> On 02/28/2018 10:48 AM, David Hildenbrand wrote:
->>> On 27.02.2018 15:28, Tony Krowiak wrote:
->>>> Introduces a new CPU model feature and two CPU model
->>>> facilities to support AP virtualization for KVM guests.
->>>>
->>>> CPU model feature:
->>>>
->>>> The KVM_S390_VM_CPU_FEAT_AP feature indicates that the
->>>> AP facilities are installed on the KVM guest. This
->>>> feature will be enabled by the kernel only if the AP
->>>> facilities are installed on the linux host. This feature
->>>> must be specifically turned on for the KVM guest from
->>>> userspace to allow guest access to AP devices installed
->>>> on the linux host.
->>>>
->>>> CPU model facilities:
->>>>
->>>> 1. AP Query Configuration Information (QCI) facility is installed.
->>>>
->>>>     This is indicated by setting facilities bit 12 for
->>>>     the guest. The kernel will not enable this facility
->>>>     for the guest if it is not set on the host. This facility
->>>>     must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
->>>>     feature is not installed.
->>>>
->>>> 2. AP Facilities Test facility (APFT) is installed.
->>>>
->>>>     This is indicated by setting facilities bit 15 for
->>>>     the guest. The kernel will not enable this facility for
->>>>     the guest if it is not set on the host. This facility
->>>>     must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
->>>>     feature is not installed.
->>>>
->>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>>> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
->>>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>>> ---
->>>>   arch/s390/include/uapi/asm/kvm.h |    1 +
->>>>   arch/s390/kvm/kvm-s390.c         |    4 ++++
->>>>   arch/s390/tools/gen_facilities.c |    2 ++
->>>>   3 files changed, 7 insertions(+), 0 deletions(-)
->>>>
->>>> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
->>>> index 4cdaa55..a580dec 100644
->>>> --- a/arch/s390/include/uapi/asm/kvm.h
->>>> +++ b/arch/s390/include/uapi/asm/kvm.h
->>>> @@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
->>>>   #define KVM_S390_VM_CPU_FEAT_PFMFI	11
->>>>   #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
->>>>   #define KVM_S390_VM_CPU_FEAT_KSS	13
->>>> +#define KVM_S390_VM_CPU_FEAT_AP		14
->>>>   struct kvm_s390_vm_cpu_feat {
->>>>   	__u64 feat[16];
->>>>   };
->>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>>> index de1e299..c68ca86 100644
->>>> --- a/arch/s390/kvm/kvm-s390.c
->>>> +++ b/arch/s390/kvm/kvm-s390.c
->>>> @@ -347,6 +347,10 @@ static void kvm_s390_cpu_feat_init(void)
->>>>   
->>>>   	if (MACHINE_HAS_ESOP)
->>>>   		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
->>>> +
->>>> +	if (ap_instructions_installed()) /* AP instructions installed on host */
->>>> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
->>> Don't we have a SIE specific AP feature? So is it true, that once we
->>> have AP instructions, we are allowed to use them for SIE? Isn't there a
->>> "AP interpretation facility" or anything like that? (that unlocks ECA_APIE)
->> This seems to be coupled to the AP facility and there is no facility or scp bit.
->> AP is too old to have that (predates STFLE)
->>
-> Interesting, so we (I :) ) didn't implement vSIE support back then
-> because we never indicated the AP facility (sensed by executing the
-> instruction) to the guest.
+On 27/02/2018 15:28, Tony Krowiak wrote:
+> Provides interfaces to assign AP adapters, usage domains
+> and control domains to a KVM guest.
 >
-> So ECA_APIE can be used when we sense the AP facility. Thanks!
-All true.
+> A KVM guest is started by executing the Start Interpretive Execution (SIE)
+> instruction. The SIE state description is a control block that contains the
+> state information for a KVM guest and is supplied as input to the SIE
+> instruction. The SIE state description has a satellite structure called the
+> Crypto Control Block (CRYCB). The CRYCB contains three bitmask fields
+> identifying the adapters, queues (domains) and control domains assigned to
+> the KVM guest:
 >
+> * The AP Adapter Mask (APM) field identifies the AP adapters assigned to
+>    the KVM guest
+>
+> * The AP Queue Mask (AQM) field identifies the AP queues assigned to
+>    the KVM guest. Each AP queue is connected to a usage domain within
+>    an AP adapter.
+>
+> * The AP Domain Mask (ADM) field identifies the control domains
+>    assigned to the KVM guest.
+>
+> Each adapter, queue (usage domain) and control domain are identified by
+> a number from 0 to 255. The bits in each mask, from most significant to
+> least significant bit, correspond to the numbers 0-255. When a bit is
+> set, the corresponding adapter, queue (usage domain) or control domain
+> is assigned to the KVM guest.
+
+...snip...
+
+>   static int kvm_ap_apxa_installed(void)
+>   {
+>   	int ret;
+> @@ -50,3 +170,140 @@ void kvm_ap_set_crycb_format(struct kvm *kvm, __u32 *crycbd)
+>   			*crycbd |= CRYCB_FORMAT1;
+>   	}
+>   }
+> +
+> +static int kvm_ap_matrix_apm_create(struct kvm_ap_matrix *ap_matrix, int apxa)
+> +{
+> +	if (apxa)
+> +		ap_matrix->apm_max = 256;
+
+AFAIK the number of possible bits in the masks for a system is not a 
+generic value but is
+returned by the QCI instruction.
+Is there a reason to use a fix value?
+
+> +	else
+> +		ap_matrix->apm_max = 64;
+> +
+> +	ap_matrix->apm = kzalloc(KVM_AP_MASK_BYTES(ap_matrix->apm_max),
+> +				 GFP_KERNEL);
+> +	if (!ap_matrix->apm)
+> +		return -ENOMEM;
+> +
+> +	return 0;
+> +}
+> +
+> +static int kvm_ap_matrix_aqm_create(struct kvm_ap_matrix *ap_matrix, int apxa)
+> +{
+> +	if (apxa)
+> +		ap_matrix->aqm_max = 256;
+
+same here
+
+> +	else
+> +		ap_matrix->aqm_max = 16;
+> +
+> +	ap_matrix->aqm = kzalloc(KVM_AP_MASK_BYTES(ap_matrix->aqm_max),
+> +				 GFP_KERNEL);
+> +	if (!ap_matrix->aqm)
+> +		return -ENOMEM;
+> +
+> +	return 0;
+> +}
+> +
+> +static int kvm_ap_matrix_adm_create(struct kvm_ap_matrix *ap_matrix, int apxa)
+> +{
+> +	if (apxa)
+> +		ap_matrix->adm_max = 256;
+
+and here
+
+
+Pierre
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
