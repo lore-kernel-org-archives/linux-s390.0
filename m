@@ -1,143 +1,118 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 05/15] s390: vfio-ap: base implementation of VFIO AP
- device driver
-Date: Wed, 28 Feb 2018 15:34:32 -0500
-Message-ID: <6ec02d29-a0fb-a60e-0147-8c7c7530c3ae@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 08/15] KVM: s390: interface to enable AP execution mode
+Date: Wed, 28 Feb 2018 15:37:49 -0500
+Message-ID: <47808b6f-9e6d-1f17-c26b-3e03d1f1e2ca@linux.vnet.ibm.com>
 References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1519741693-17440-6-git-send-email-akrowiak@linux.vnet.ibm.com>
- <bdc22d47-afe6-a71a-615d-3beffd4ada3e@linux.vnet.ibm.com>
- <c7ae5d8e-aa40-9da5-afdf-af53487de3c3@linux.vnet.ibm.com>
- <20180228191019.20507888.cohuck@redhat.com>
+ <1519741693-17440-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <a3df4d1b-05a2-38de-b4bb-76bfd3e23818@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180228191019.20507888.cohuck@redhat.com>
+In-Reply-To: <a3df4d1b-05a2-38de-b4bb-76bfd3e23818@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/28/2018 01:10 PM, Cornelia Huck wrote:
-> On Wed, 28 Feb 2018 11:43:37 -0500
-> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->
->> On 02/28/2018 10:33 AM, Pierre Morel wrote:
->>> On 27/02/2018 15:28, Tony Krowiak wrote:
-> (...)
->
->>>> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
->>>> index cbe1d97..9f23caf 100644
->>>> --- a/arch/s390/Kconfig
->>>> +++ b/arch/s390/Kconfig
->>>> @@ -771,6 +771,14 @@ config VFIO_CCW
->>>>          To compile this driver as a module, choose M here: the
->>>>          module will be called vfio_ccw.
->>>>
->>>> +config VFIO_AP
->>>> +    def_tristate m
-> Any reason you default to m instead of n here?
-None in particular, is there a good reason to change this to n?
->
->>>> +    prompt "Support for virtual Adjunct Processor device interface"
->>> The VFIO AP devices are not virtual.
->>> What about
->>>      "VFIO support for AP devices"
->> Sounds good.
-> +1
->
->>>   
->>>> +    depends on ZCRYPT && VFIO_MDEV_DEVICE
->>>> +    help
->>>> +        driver grants access to Adjunct Processor (AP) devices
-> s/driver/This driver/
-Okay, I'll make the change
->
->>>> +        via the VFIO mediated device interface.
-> You also might want to add
->
-> "To compile this driver as a module, choose M here: the
-> module will be called..."
-Will do
->
->>>> +
->>>>    endmenu
-> It's a tad confusing to find this in the I/O submenu, but I don't
-> really have a better idea.
-I wasn't sure either, but couldn't think of a better location. Anybody
-else have any ideas?
->
->>>>    menu "Dump support"
->>>> diff --git a/arch/s390/configs/default_defconfig
->>>> b/arch/s390/configs/default_defconfig
->>>> index 5af8458..40fa3f6 100644
->>>> --- a/arch/s390/configs/default_defconfig
->>>> +++ b/arch/s390/configs/default_defconfig
->>> Not sure that this file belongs to this patch
->> Neither am I, but at the time I inserted this here - well before August
->> of last year - I was using vfio-ccw as a model.
->> If someone can verify this does not belong here, I'd be more than happy
->> to remove it.
-> I don't see any entry for VFIO_CCW in there?
-There isn't now, but there was at the time I first started working on this.
-My first pass was a lot of cut-and-paste followed by modification of the
-vfio_ccw implementation, but that was long ago. This is a remnant of that
-time. Like I said, I'd be happy to remove this.
->
->>>   
->>>> @@ -719,3 +719,6 @@ CONFIG_APPLDATA_BASE=y
->>>>    CONFIG_KVM=m
->>>>    CONFIG_KVM_S390_UCONTROL=y
->>>>    CONFIG_VHOST_NET=m
->>>> +VFIO_MDEV=m
->>>> +VFIO_MDEV_DEVICE=m
->>>> +CONFIG_VFIO_AP=m
->>> What is your goal when modifying this three files?
->>> Could you add a comment in the commit message?
->> As stated above, this was originally based on the vfio-ccw model and has
->> been in the
->> patch series since its inception. I'd be happy to remove it if it is not
->> necessary.
-> I'd vote for removing it.
-Consider them gone.
->
-> (...)
->
->>>> +static int vfio_ap_matrix_dev_create(void)
->>>> +{
->>>> +    int ret;
->>>> +
->>>> +    vfio_ap_root_device = root_device_register(VFIO_AP_ROOT_NAME);
->>>> +
->>>> +    ret = PTR_ERR_OR_ZERO(vfio_ap_root_device);
->>> IS_ERR() is enough, root_device_register() never return NULL.
->> I searched the kernel code to look at other places the
->> root_device_register()
->> function is called to see how the return value is handled. I've seen all
->> of the
->> following used:
->> if (IS_ERR())
->>       ret = PTR_ERR()
->> PTR_ERR()
->> PTR_ERR_OR_ZERO()
+On 02/28/2018 04:42 AM, David Hildenbrand wrote:
+> On 27.02.2018 15:28, Tony Krowiak wrote:
+>> Introduces a new interface to enable AP interpretive
+>> execution (IE) mode for the KVM guest. When running
+>> with IE mode enabled, AP instructions executed on the
+>> KVM guest will be interpreted by the firmware and
+>> passed directly through to an AP device installed on
+>> the system. The CPU model feature for AP must
+>> be enabled for the KVM guest in order to enable
+>> interpretive execution mode.
 >>
->> I'm not sure why this is a concern, but I'll use the first option above
->> since PTR_ERR_OR_ZERO() also embeds the first option.
-> PTR_ERR_OR_ZERO() seems like the best choice for the way the return
-> code is processed here. (It's just unfortunate that its name conjures
-> up connotations of NULL-pointer handling.)
-I changed it to:
-
-     ret = IS_ERR(vfio_ap_root_device);
-     if (ret) {
-         ret = PTR_ERR(vfio_ap_root_device);
-         goto done;
-     }
-
-Hopefully everybody is happy with this.
+>> This interface will be used in a subsequent patch
+>> by the VFIO AP device driver.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm-ap.h   |    2 ++
+>>   arch/s390/include/asm/kvm_host.h |    1 +
+>>   arch/s390/kvm/kvm-ap.c           |   27 +++++++++++++++++++++++++++
+>>   arch/s390/kvm/kvm-s390.h         |    1 +
+>>   4 files changed, 31 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/kvm-ap.h b/arch/s390/include/asm/kvm-ap.h
+>> index 46e7c5b..6bd6bfb 100644
+>> --- a/arch/s390/include/asm/kvm-ap.h
+>> +++ b/arch/s390/include/asm/kvm-ap.h
+>> @@ -51,4 +51,6 @@ struct kvm_ap_matrix {
+>>   
+>>   void kvm_ap_deconfigure_matrix(struct kvm *kvm);
+>>   
+>> +int kvm_ap_enable_ie_mode(struct kvm *kvm);
+>> +
+>>   #endif /* _ASM_KVM_AP */
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>> index a4c77d3..1eebdd6 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -186,6 +186,7 @@ struct kvm_s390_sie_block {
+>>   #define ECA_AIV		0x00200000
+>>   #define ECA_VX		0x00020000
+>>   #define ECA_PROTEXCI	0x00002000
+>> +#define ECA_APIE	0x00000008
+>>   #define ECA_SII		0x00000001
+>>   	__u32	eca;			/* 0x004c */
+>>   #define ICPT_INST	0x04
+>> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
+>> index bb29045..862e54b 100644
+>> --- a/arch/s390/kvm/kvm-ap.c
+>> +++ b/arch/s390/kvm/kvm-ap.c
+>> @@ -307,3 +307,30 @@ void kvm_ap_deconfigure_matrix(struct kvm *kvm)
+>>   	kvm_ap_clear_crycb_masks(kvm);
+>>   }
+>>   EXPORT_SYMBOL(kvm_ap_deconfigure_matrix);
+>> +
+>> +/**
+>> + * kvm_ap_enable_ie_mode
+>> + *
+>> + * Enable interpretrive execution of AP instructions for the guest. When
+>> + * enabled, AP instructions executed on the guest will be interpreted and
+>> + * passed through to an AP installed on the host system.
+>> + *
+>> + * Returns 0 if interpretrive execution is enabled. Returns -EOPNOTSUPP
+>> + * if AP facilities are not installed for the guest.
+>> + *
+>> + * @kvm: the guest's kvm structure
+>> + */
+>> +int kvm_ap_enable_ie_mode(struct kvm *kvm)
+>> +{
+>> +	int i;
+>> +	struct kvm_vcpu *vcpu;
+>> +
+>> +	if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP))
+>> +		return -EOPNOTSUPP;
+>> +
+>> +	kvm_for_each_vcpu(i, vcpu, kvm)
+>> +		vcpu->arch.sie_block->eca |= ECA_APIE;
+>> +
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL(kvm_ap_enable_ie_mode);
+>> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+>> index 1b5621f..3142541 100644
+>> --- a/arch/s390/kvm/kvm-s390.h
+>> +++ b/arch/s390/kvm/kvm-s390.h
+>> @@ -18,6 +18,7 @@
+>>   #include <asm/facility.h>
+>>   #include <asm/processor.h>
+>>   #include <asm/sclp.h>
+>> +#include <asm/ap.h>
+>>   
+>>   /* Transactional Memory Execution related macros */
+>>   #define IS_TE_ENABLED(vcpu)	((vcpu->arch.sie_block->ecb & ECB_TE))
+>>
+> What about VSIE?
+That is a good question. I'm beginning to think introducing AP on second 
+level guests
+ought to be postponed for now. I'm going to look into this further.
 >
->>>> +    if (ret)
->>>> +        goto done;
