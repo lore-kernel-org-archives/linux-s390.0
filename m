@@ -1,53 +1,55 @@
 Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 3/6] s390/qeth: fix double-free on IP add/remove race
-Date: Tue, 27 Feb 2018 18:58:14 +0100
-In-Reply-To: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
-References: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
-Message-Id: <20180227175817.84727-4-jwi@linux.vnet.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net 1/3] net/smc: use a constant for control message length
+Date: Wed, 28 Feb 2018 12:44:07 +0100
+In-Reply-To: <20180228114409.33645-1-ubraun@linux.vnet.ibm.com>
+References: <20180228114409.33645-1-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180228114409.33645-2-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Registering an IPv4 address with the HW takes quite a while, so we
-temporarily drop the ip_htable lock. Any concurrent add/remove of the
-same IP adjusts the IP's use count, and (on remove) is then blocked by
-addr->in_progress.
-After the register call has completed, we check the use count for
-concurrently attempted add/remove calls - and possibly straight-away
-deregister the IP again. This happens via l3_delete_ip(), which
-1) looks up the queried IP in the htable (getting a reference to the
-   *same* queried object),
-2) deregisters the IP from the HW, and
-3) frees the IP object.
+From: Karsten Graul <kgraul@linux.vnet.ibm.com>
 
-The caller in l3_add_ip() then does a second free on the same object.
+The sizeof(struct smc_cdc_msg) evaluates to 48 bytes instead of the
+required 44 bytes. We need to use the constant value of
+SMC_WR_TX_SIZE to set and check the control message length.
 
-For this case, skip all the extra checks and lookups in l3_delete_ip()
-and just deregister & free the IP object ourselves.
-
-Fixes: 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/smc/smc_cdc.c  | 2 +-
+ net/smc/smc_core.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 34481b51029e..77cdb4fc7721 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -237,7 +237,8 @@ int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- 				(rc == IPA_RC_LAN_OFFLINE)) {
- 			addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
- 			if (addr->ref_counter < 1) {
--				qeth_l3_delete_ip(card, addr);
-+				qeth_l3_deregister_addr_entry(card, addr);
-+				hash_del(&addr->hnode);
- 				kfree(addr);
- 			}
- 		} else {
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 3cd086e5bd28..b42395d24cba 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -269,7 +269,7 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
+ 
+ 	if (wc->byte_len < offsetof(struct smc_cdc_msg, reserved))
+ 		return; /* short message */
+-	if (cdc->len != sizeof(*cdc))
++	if (cdc->len != SMC_WR_TX_SIZE)
+ 		return; /* invalid message */
+ 	smc_cdc_msg_recv(cdc, link, wc->wr_id);
+ }
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 2424c7100aaf..053f0e66bec7 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -465,7 +465,7 @@ int smc_conn_create(struct smc_sock *smc, __be32 peer_in_addr,
+ 		rc = smc_link_determine_gid(conn->lgr);
+ 	}
+ 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
+-	conn->local_tx_ctrl.len = sizeof(struct smc_cdc_msg);
++	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
+ #ifndef KERNEL_HAS_ATOMIC64
+ 	spin_lock_init(&conn->acurs_lock);
+ #endif
 -- 
 2.13.5
