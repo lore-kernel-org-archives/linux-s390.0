@@ -1,15 +1,15 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Subject: Re: [PATCH v2 08/15] KVM: s390: interface to enable AP execution mode
-Date: Wed, 28 Feb 2018 15:37:49 -0500
-Message-ID: <47808b6f-9e6d-1f17-c26b-3e03d1f1e2ca@linux.vnet.ibm.com>
+Date: Wed, 28 Feb 2018 15:39:55 -0500
+Message-ID: <ef401e32-4a33-2fe6-8695-f0eff139f9db@linux.vnet.ibm.com>
 References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1519741693-17440-9-git-send-email-akrowiak@linux.vnet.ibm.com>
- <a3df4d1b-05a2-38de-b4bb-76bfd3e23818@redhat.com>
+ <532c0f98-83d0-c687-55d6-a6c5cb263360@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a3df4d1b-05a2-38de-b4bb-76bfd3e23818@redhat.com>
+In-Reply-To: <532c0f98-83d0-c687-55d6-a6c5cb263360@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,7 +18,7 @@ To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, linux-kern
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/28/2018 04:42 AM, David Hildenbrand wrote:
+On 02/28/2018 04:44 AM, David Hildenbrand wrote:
 > On 27.02.2018 15:28, Tony Krowiak wrote:
 >> Introduces a new interface to enable AP interpretive
 >> execution (IE) mode for the KVM guest. When running
@@ -111,8 +111,6 @@ On 02/28/2018 04:42 AM, David Hildenbrand wrote:
 >>   /* Transactional Memory Execution related macros */
 >>   #define IS_TE_ENABLED(vcpu)	((vcpu->arch.sie_block->ecb & ECB_TE))
 >>
-> What about VSIE?
-That is a good question. I'm beginning to think introducing AP on second 
-level guests
-ought to be postponed for now. I'm going to look into this further.
+> And also, what about hot-plugged CPUs?
+I haven't considered that, do you have any suggestions?
 >
