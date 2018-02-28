@@ -1,14 +1,8 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] KVM: surround kvm_arch_vcpu_async_ioctl() with #ifdef
-Date: Wed, 28 Feb 2018 07:53:33 +0100
-Message-ID: <19e68ff8-552e-2e64-c2e4-3c718343bf57@redhat.com>
-References: <1519785099-13808-1-git-send-email-wei.guo.simon@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: wei.guo.simon@gmail.com
+Subject: [PATCH] KVM: surround kvm_arch_vcpu_async_ioctl() with #ifdef
+Date: Wed, 28 Feb 2018 10:31:39 +0800
+Message-ID: <1519785099-13808-1-git-send-email-wei.guo.simon@gmail.com>
 Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <1519785099-13808-1-git-send-email-wei.guo.simon@gmail.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -21,88 +15,84 @@ Sender: "Linuxppc-dev"
  <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: wei.guo.simon@gmail.com, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, linuxppc-dev@lists.ozlabs.org, Simon Guo <wei.guo.simon@gmail.com>, linux-mips@linux-mips.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 28/02/2018 03:31, wei.guo.simon@gmail.com wrote:
-> From: Simon Guo <wei.guo.simon@gmail.com>
-> 
-> Although CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL is usually on, logically
-> kvm_arch_vcpu_async_ioctl() definition should be wrapped with
-> CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL #ifdef.
+From: Simon Guo <wei.guo.simon@gmail.com>
 
-No, the symbol is defined by Kconfig.  It is a bug if it is not #defined.
+Although CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL is usually on, logically
+kvm_arch_vcpu_async_ioctl() definition should be wrapped with
+CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL #ifdef.
 
-Paolo
+This patch adds the #ifdef surround.
 
-> This patch adds the #ifdef surround.
-> 
-> Signed-off-by: Simon Guo <wei.guo.simon@gmail.com>
-> ---
->  arch/mips/kvm/mips.c       | 2 ++
->  arch/powerpc/kvm/powerpc.c | 2 ++
->  arch/s390/kvm/kvm-s390.c   | 2 ++
->  3 files changed, 6 insertions(+)
-> 
-> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-> index 2549fdd..4d593e5 100644
-> --- a/arch/mips/kvm/mips.c
-> +++ b/arch/mips/kvm/mips.c
-> @@ -903,6 +903,7 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
->  	return r;
->  }
->  
-> +#ifdef CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL
->  long kvm_arch_vcpu_async_ioctl(struct file *filp, unsigned int ioctl,
->  			       unsigned long arg)
->  {
-> @@ -922,6 +923,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp, unsigned int ioctl,
->  
->  	return -ENOIOCTLCMD;
->  }
-> +#endif
->  
->  long kvm_arch_vcpu_ioctl(struct file *filp, unsigned int ioctl,
->  			 unsigned long arg)
-> diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-> index 403e642..2adca3c 100644
-> --- a/arch/powerpc/kvm/powerpc.c
-> +++ b/arch/powerpc/kvm/powerpc.c
-> @@ -1757,6 +1757,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
->  	return -EINVAL;
->  }
->  
-> +#ifdef CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL
->  long kvm_arch_vcpu_async_ioctl(struct file *filp,
->  			       unsigned int ioctl, unsigned long arg)
->  {
-> @@ -1771,6 +1772,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
->  	}
->  	return -ENOIOCTLCMD;
->  }
-> +#endif
->  
->  long kvm_arch_vcpu_ioctl(struct file *filp,
->                           unsigned int ioctl, unsigned long arg)
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 77d7818..c499396 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3784,6 +3784,7 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
->  	return r;
->  }
->  
-> +#ifdef CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL
->  long kvm_arch_vcpu_async_ioctl(struct file *filp,
->  			       unsigned int ioctl, unsigned long arg)
->  {
-> @@ -3811,6 +3812,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
->  	}
->  	return -ENOIOCTLCMD;
->  }
-> +#endif
->  
->  long kvm_arch_vcpu_ioctl(struct file *filp,
->  			 unsigned int ioctl, unsigned long arg)
-> 
+Signed-off-by: Simon Guo <wei.guo.simon@gmail.com>
+---
+ arch/mips/kvm/mips.c       | 2 ++
+ arch/powerpc/kvm/powerpc.c | 2 ++
+ arch/s390/kvm/kvm-s390.c   | 2 ++
+ 3 files changed, 6 insertions(+)
+
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index 2549fdd..4d593e5 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -903,6 +903,7 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
+ 	return r;
+ }
+ 
++#ifdef CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL
+ long kvm_arch_vcpu_async_ioctl(struct file *filp, unsigned int ioctl,
+ 			       unsigned long arg)
+ {
+@@ -922,6 +923,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp, unsigned int ioctl,
+ 
+ 	return -ENOIOCTLCMD;
+ }
++#endif
+ 
+ long kvm_arch_vcpu_ioctl(struct file *filp, unsigned int ioctl,
+ 			 unsigned long arg)
+diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+index 403e642..2adca3c 100644
+--- a/arch/powerpc/kvm/powerpc.c
++++ b/arch/powerpc/kvm/powerpc.c
+@@ -1757,6 +1757,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 	return -EINVAL;
+ }
+ 
++#ifdef CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL
+ long kvm_arch_vcpu_async_ioctl(struct file *filp,
+ 			       unsigned int ioctl, unsigned long arg)
+ {
+@@ -1771,6 +1772,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
+ 	}
+ 	return -ENOIOCTLCMD;
+ }
++#endif
+ 
+ long kvm_arch_vcpu_ioctl(struct file *filp,
+                          unsigned int ioctl, unsigned long arg)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 77d7818..c499396 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3784,6 +3784,7 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 	return r;
+ }
+ 
++#ifdef CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL
+ long kvm_arch_vcpu_async_ioctl(struct file *filp,
+ 			       unsigned int ioctl, unsigned long arg)
+ {
+@@ -3811,6 +3812,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
+ 	}
+ 	return -ENOIOCTLCMD;
+ }
++#endif
+ 
+ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 			 unsigned int ioctl, unsigned long arg)
+-- 
+1.8.3.1
