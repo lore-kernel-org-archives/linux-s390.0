@@ -1,89 +1,29 @@
 Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net 6/6] s390/qeth: fix IPA command submission race
-Date: Tue, 27 Feb 2018 18:58:17 +0100
+Date: Wed, 28 Feb 2018 11:17:40 -0500 (EST)
+Message-Id: <20180228.111740.1893624730140590032.davem@davemloft.net>
+Subject: Re: [PATCH net 0/6] s390/qeth: fixes 2018-02-27 
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
 References: <20180227175817.84727-1-jwi@linux.vnet.ibm.com>
-Message-Id: <20180227175817.84727-7-jwi@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+To: jwi@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-If multiple IPA commands are build & sent out concurrently,
-fill_ipacmd_header() may assign a seqno value to a command that's
-different from what send_control_data() later assigns to this command's
-reply.
-This is due to other commands passing through send_control_data(),
-and incrementing card->seqno.ipa along the way.
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Date: Tue, 27 Feb 2018 18:58:11 +0100
 
-So one IPA command has no reply that's waiting for its seqno, while some
-other IPA command has multiple reply objects waiting for it.
-Only one of those waiting replies wins, and the other(s) times out and
-triggers a recovery via send_ipa_cmd().
+> please apply some more qeth patches for -net and stable.
+> 
+> One patch fixes a performance bug in the TSO path. Then there's several
+> more fixes for IP management on L3 devices - including a revert, so that
+> the subsequent fix cleanly applies to earlier kernels.
+> The final patch takes care of a race in the control IO code that causes
+> qeth to miss the cmd response, and subsequently trigger device recovery.
 
-Fix this by making sure that the same seqno value is assigned to
-a command and its reply object.
-Do so immediately before submitting the command & while holding the
-irq_pending "lock", to produce nicely ascending seqnos.
-
-As a side effect, *all* IPA commands now use a reply object that's
-waiting for its actual seqno. Previously, early IPA commands that were
-submitted while the card was still DOWN used the "catch-all" IDX seqno.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 30457fca30c5..c8b308cfabf1 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -2134,24 +2134,25 @@ int qeth_send_control_data(struct qeth_card *card, int len,
- 	}
- 	reply->callback = reply_cb;
- 	reply->param = reply_param;
--	if (card->state == CARD_STATE_DOWN)
--		reply->seqno = QETH_IDX_COMMAND_SEQNO;
--	else
--		reply->seqno = card->seqno.ipa++;
-+
- 	init_waitqueue_head(&reply->wait_q);
--	spin_lock_irqsave(&card->lock, flags);
--	list_add_tail(&reply->list, &card->cmd_waiter_list);
--	spin_unlock_irqrestore(&card->lock, flags);
- 
- 	while (atomic_cmpxchg(&card->write.irq_pending, 0, 1)) ;
--	qeth_prepare_control_data(card, len, iob);
- 
- 	if (IS_IPA(iob->data)) {
- 		cmd = __ipa_cmd(iob);
-+		cmd->hdr.seqno = card->seqno.ipa++;
-+		reply->seqno = cmd->hdr.seqno;
- 		event_timeout = QETH_IPA_TIMEOUT;
- 	} else {
-+		reply->seqno = QETH_IDX_COMMAND_SEQNO;
- 		event_timeout = QETH_TIMEOUT;
- 	}
-+	qeth_prepare_control_data(card, len, iob);
-+
-+	spin_lock_irqsave(&card->lock, flags);
-+	list_add_tail(&reply->list, &card->cmd_waiter_list);
-+	spin_unlock_irqrestore(&card->lock, flags);
- 
- 	timeout = jiffies + event_timeout;
- 
-@@ -2933,7 +2934,7 @@ static void qeth_fill_ipacmd_header(struct qeth_card *card,
- 	memset(cmd, 0, sizeof(struct qeth_ipa_cmd));
- 	cmd->hdr.command = command;
- 	cmd->hdr.initiator = IPA_CMD_INITIATOR_HOST;
--	cmd->hdr.seqno = card->seqno.ipa;
-+	/* cmd->hdr.seqno is set by qeth_send_control_data() */
- 	cmd->hdr.adapter_type = qeth_get_ipa_adp_type(card->info.link_type);
- 	cmd->hdr.rel_adapter_no = (__u8) card->info.portno;
- 	if (card->options.layer2)
--- 
-2.13.5
+Series applied and queued up for -stable, thanks Julian.
