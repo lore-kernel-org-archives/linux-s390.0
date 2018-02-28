@@ -1,55 +1,27 @@
 Return-Path: <netdev-owner@vger.kernel.org>
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 1/3] net/smc: use a constant for control message length
-Date: Wed, 28 Feb 2018 12:44:07 +0100
+Date: Wed, 28 Feb 2018 12:30:43 -0500 (EST)
+Message-Id: <20180228.123043.1302715086977512992.davem@davemloft.net>
+Subject: Re: [PATCH net 0/3] net/smc: fixes 2018-02-28
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20180228114409.33645-1-ubraun@linux.vnet.ibm.com>
 References: <20180228114409.33645-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180228114409.33645-2-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: ubraun@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.vnet.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Wed, 28 Feb 2018 12:44:06 +0100
 
-The sizeof(struct smc_cdc_msg) evaluates to 48 bytes instead of the
-required 44 bytes. We need to use the constant value of
-SMC_WR_TX_SIZE to set and check the control message length.
+> here are 3 smc bug fixes for the net-tree. Karsten's first patch is
+> the reworked version of last week's
+>    "[PATCH net-next 2/5] net/smc: fix structure size"
+> patch, now solved without using __packed, and now targetted for net
+> instead of net-next.
 
-Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- net/smc/smc_cdc.c  | 2 +-
- net/smc/smc_core.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 3cd086e5bd28..b42395d24cba 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -269,7 +269,7 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
- 
- 	if (wc->byte_len < offsetof(struct smc_cdc_msg, reserved))
- 		return; /* short message */
--	if (cdc->len != sizeof(*cdc))
-+	if (cdc->len != SMC_WR_TX_SIZE)
- 		return; /* invalid message */
- 	smc_cdc_msg_recv(cdc, link, wc->wr_id);
- }
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2424c7100aaf..053f0e66bec7 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -465,7 +465,7 @@ int smc_conn_create(struct smc_sock *smc, __be32 peer_in_addr,
- 		rc = smc_link_determine_gid(conn->lgr);
- 	}
- 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
--	conn->local_tx_ctrl.len = sizeof(struct smc_cdc_msg);
-+	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
- #ifndef KERNEL_HAS_ATOMIC64
- 	spin_lock_init(&conn->acurs_lock);
- #endif
--- 
-2.13.5
+Series applied, thank you.
