@@ -1,7 +1,7 @@
 From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH v2 08/15] KVM: s390: interface to enable AP execution mode
-Date: Wed, 28 Feb 2018 10:42:11 +0100
-Message-ID: <a3df4d1b-05a2-38de-b4bb-76bfd3e23818@redhat.com>
+Date: Wed, 28 Feb 2018 10:44:29 +0100
+Message-ID: <532c0f98-83d0-c687-55d6-a6c5cb263360@redhat.com>
 References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1519741693-17440-9-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
@@ -110,7 +110,7 @@ On 27.02.2018 15:28, Tony Krowiak wrote:
 >  #define IS_TE_ENABLED(vcpu)	((vcpu->arch.sie_block->ecb & ECB_TE))
 > 
 
-What about VSIE?
+And also, what about hot-plugged CPUs?
 
 -- 
 
