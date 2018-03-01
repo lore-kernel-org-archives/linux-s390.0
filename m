@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 6/8] net/smc: do not allow eyecatchers in rmbe
-Date: Thu,  1 Mar 2018 13:51:31 +0100
+Subject: [PATCH net-next 3/8] net/smc: remove unused fields from smc structures
+Date: Thu,  1 Mar 2018 13:51:28 +0100
 In-Reply-To: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
 References: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180301125133.12211-7-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180301125133.12211-4-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -14,127 +14,155 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Karsten Graul <kgraul@linux.vnet.ibm.com>
 
-SMC does not support eyecatchers in RMB elements,
-decline peers requesting this support.
+The daddr field holds the destination IPv4 address. The field was set but
+never used and can be removed. The addr field was a left-over from an
+earlier version of non-blocking connects and can be removed.
+The result of the call to kernel_getpeername is not used, the call can be
+removed. Non-blocking connects are working, so remove restriction comment.
 
 Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c   | 11 +++++++++--
- net/smc/smc_clc.h  |  1 +
- net/smc/smc_core.h |  2 ++
- net/smc/smc_llc.c  | 16 +++++++++++++++-
- 4 files changed, 27 insertions(+), 3 deletions(-)
+ net/smc/af_smc.c   | 15 ++++-----------
+ net/smc/smc.h      |  3 +--
+ net/smc/smc_core.c |  7 +++----
+ net/smc/smc_core.h |  1 -
+ 4 files changed, 8 insertions(+), 18 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index cda3d5314e3f..0d491f505608 100644
+index b90cbfdb9916..cda3d5314e3f 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -291,6 +291,9 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
- 		return rc;
+@@ -7,7 +7,6 @@
+  *  applicable with RoCE-cards only
+  *
+  *  Initial restrictions:
+- *    - non-blocking connect postponed
+  *    - IPv6 support postponed
+  *    - support for alternate links postponed
+  *    - partial support for non-blocking sockets only
+@@ -345,7 +344,6 @@ static void smc_lgr_forget(struct smc_link_group *lgr)
+ /* setup for RDMA connection of client */
+ static int smc_connect_rdma(struct smc_sock *smc)
+ {
+-	struct sockaddr_in *inaddr = (struct sockaddr_in *)smc->addr;
+ 	struct smc_clc_msg_accept_confirm aclc;
+ 	int local_contact = SMC_FIRST_CONTACT;
+ 	struct smc_ib_device *smcibdev;
+@@ -399,8 +397,8 @@ static int smc_connect_rdma(struct smc_sock *smc)
+ 
+ 	srv_first_contact = aclc.hdr.flag;
+ 	mutex_lock(&smc_create_lgr_pending);
+-	local_contact = smc_conn_create(smc, inaddr->sin_addr.s_addr, smcibdev,
+-					ibport, &aclc.lcl, srv_first_contact);
++	local_contact = smc_conn_create(smc, smcibdev, ibport, &aclc.lcl,
++					srv_first_contact);
+ 	if (local_contact < 0) {
+ 		rc = local_contact;
+ 		if (rc == -ENOMEM)
+@@ -518,7 +516,6 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+ 		goto out_err;
+ 	if (addr->sa_family != AF_INET)
+ 		goto out_err;
+-	smc->addr = addr;	/* needed for nonblocking connect */
+ 
+ 	lock_sock(sk);
+ 	switch (sk->sk_state) {
+@@ -726,7 +723,6 @@ static void smc_listen_work(struct work_struct *work)
+ 	struct sock *newsmcsk = &new_smc->sk;
+ 	struct smc_clc_msg_proposal *pclc;
+ 	struct smc_ib_device *smcibdev;
+-	struct sockaddr_in peeraddr;
+ 	u8 buf[SMC_CLC_MAX_LEN];
+ 	struct smc_link *link;
+ 	int reason_code = 0;
+@@ -782,13 +778,10 @@ static void smc_listen_work(struct work_struct *work)
+ 		goto decline_rdma;
  	}
  
-+	if (link->llc_confirm_rc)
-+		return SMC_CLC_DECL_RMBE_EC;
-+
- 	rc = smc_ib_modify_qp_rts(link);
- 	if (rc)
- 		return SMC_CLC_DECL_INTERR;
-@@ -310,7 +313,7 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
- 	if (rc < 0)
- 		return SMC_CLC_DECL_TCL;
+-	/* get address of the peer connected to the internal TCP socket */
+-	kernel_getpeername(newclcsock, (struct sockaddr *)&peeraddr);
+-
+ 	/* allocate connection / link group */
+ 	mutex_lock(&smc_create_lgr_pending);
+-	local_contact = smc_conn_create(new_smc, peeraddr.sin_addr.s_addr,
+-					smcibdev, ibport, &pclc->lcl, 0);
++	local_contact = smc_conn_create(new_smc, smcibdev, ibport, &pclc->lcl,
++					0);
+ 	if (local_contact < 0) {
+ 		rc = local_contact;
+ 		if (rc == -ENOMEM)
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 9895c190d146..268cdf11533c 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -172,7 +172,6 @@ struct smc_sock {				/* smc sock container */
+ 	struct sock		sk;
+ 	struct socket		*clcsock;	/* internal tcp socket */
+ 	struct smc_connection	conn;		/* smc connection */
+-	struct sockaddr		*addr;		/* inet connect address */
+ 	struct smc_sock		*listen_smc;	/* listen parent */
+ 	struct work_struct	tcp_listen_work;/* handle tcp socket accepts */
+ 	struct work_struct	smc_listen_work;/* prepare new accept socket */
+@@ -264,7 +263,7 @@ static inline bool using_ipsec(struct smc_sock *smc)
+ struct smc_clc_msg_local;
  
--	return rc;
-+	return 0;
+ void smc_conn_free(struct smc_connection *conn);
+-int smc_conn_create(struct smc_sock *smc, __be32 peer_in_addr,
++int smc_conn_create(struct smc_sock *smc,
+ 		    struct smc_ib_device *smcibdev, u8 ibport,
+ 		    struct smc_clc_msg_local *lcl, int srv_first_contact);
+ struct sock *smc_accept_dequeue(struct sock *parent, struct socket *new_sock);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 2424c7100aaf..bc11d06e38ae 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -144,7 +144,7 @@ static void smc_lgr_free_work(struct work_struct *work)
  }
  
- static void smc_conn_save_peer_info(struct smc_sock *smc,
-@@ -705,9 +708,13 @@ static int smc_serv_conf_first_link(struct smc_sock *smc)
- 
- 		rc = smc_clc_wait_msg(smc, &dclc, sizeof(dclc),
- 				      SMC_CLC_DECLINE);
-+		return rc;
+ /* create a new SMC link group */
+-static int smc_lgr_create(struct smc_sock *smc, __be32 peer_in_addr,
++static int smc_lgr_create(struct smc_sock *smc,
+ 			  struct smc_ib_device *smcibdev, u8 ibport,
+ 			  char *peer_systemid, unsigned short vlan_id)
+ {
+@@ -161,7 +161,6 @@ static int smc_lgr_create(struct smc_sock *smc, __be32 peer_in_addr,
  	}
- 
--	return rc;
-+	if (link->llc_confirm_resp_rc)
-+		return SMC_CLC_DECL_RMBE_EC;
-+
-+	return 0;
+ 	lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
+ 	lgr->sync_err = false;
+-	lgr->daddr = peer_in_addr;
+ 	memcpy(lgr->peer_systemid, peer_systemid, SMC_SYSTEMID_LEN);
+ 	lgr->vlan_id = vlan_id;
+ 	rwlock_init(&lgr->sndbufs_lock);
+@@ -400,7 +399,7 @@ static int smc_link_determine_gid(struct smc_link_group *lgr)
  }
  
- /* setup for RDMA connection of server */
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index a20fc75efb24..20e048beac30 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -33,6 +33,7 @@
- #define SMC_CLC_DECL_INTERR	0x99990000  /* internal error                 */
- #define SMC_CLC_DECL_TCL	0x02040000  /* timeout w4 QP confirm          */
- #define SMC_CLC_DECL_SEND	0x07000000  /* sending problem                */
-+#define SMC_CLC_DECL_RMBE_EC	0x08000000  /* peer has eyecatcher in RMBE    */
+ /* create a new SMC connection (and a new link group if necessary) */
+-int smc_conn_create(struct smc_sock *smc, __be32 peer_in_addr,
++int smc_conn_create(struct smc_sock *smc,
+ 		    struct smc_ib_device *smcibdev, u8 ibport,
+ 		    struct smc_clc_msg_local *lcl, int srv_first_contact)
+ {
+@@ -457,7 +456,7 @@ int smc_conn_create(struct smc_sock *smc, __be32 peer_in_addr,
  
- struct smc_clc_msg_hdr {	/* header1 of clc messages */
- 	u8 eyecatcher[4];	/* eye catcher */
+ create:
+ 	if (local_contact == SMC_FIRST_CONTACT) {
+-		rc = smc_lgr_create(smc, peer_in_addr, smcibdev, ibport,
++		rc = smc_lgr_create(smc, smcibdev, ibport,
+ 				    lcl->id_for_peer, vlan_id);
+ 		if (rc)
+ 			goto out;
 diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 7be693b940a2..2b65b3d7f1f5 100644
+index fe691bf9af91..7852c3fabf12 100644
 --- a/net/smc/smc_core.h
 +++ b/net/smc/smc_core.h
-@@ -89,6 +89,8 @@ struct smc_link {
- 	u8			link_id;	/* unique # within link group */
- 	struct completion	llc_confirm;	/* wait for rx of conf link */
- 	struct completion	llc_confirm_resp; /* wait 4 rx of cnf lnk rsp */
-+	int			llc_confirm_rc; /* rc from confirm link msg */
-+	int			llc_confirm_resp_rc; /* rc from conf_resp msg */
- };
- 
- /* For now we just allow one parallel link per link group. The SMC protocol
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 3e47b94608b5..838a160a3bd9 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -30,6 +30,8 @@ struct smc_llc_hdr {
- 	u8 flags;
- };
- 
-+#define SMC_LLC_FLAG_NO_RMBE_EYEC	0x03
-+
- struct smc_llc_msg_confirm_link {	/* type 0x01 */
- 	struct smc_llc_hdr hd;
- 	u8 sender_mac[ETH_ALEN];
-@@ -166,6 +168,7 @@ int smc_llc_send_confirm_link(struct smc_link *link, u8 mac[],
- 	memset(confllc, 0, sizeof(*confllc));
- 	confllc->hd.common.type = SMC_LLC_CONFIRM_LINK;
- 	confllc->hd.length = sizeof(struct smc_llc_msg_confirm_link);
-+	confllc->hd.flags |= SMC_LLC_FLAG_NO_RMBE_EYEC;
- 	if (reqresp == SMC_LLC_RESP)
- 		confllc->hd.flags |= SMC_LLC_FLAG_RESP;
- 	memcpy(confllc->sender_mac, mac, ETH_ALEN);
-@@ -225,13 +228,24 @@ static void smc_llc_rx_confirm_link(struct smc_link *link,
- 				    struct smc_llc_msg_confirm_link *llc)
- {
- 	struct smc_link_group *lgr;
-+	int conf_rc;
- 
- 	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
-+
-+	/* RMBE eyecatchers are not supported */
-+	if (llc->hd.flags & SMC_LLC_FLAG_NO_RMBE_EYEC)
-+		conf_rc = 0;
-+	else
-+		conf_rc = ENOTSUPP;
-+
- 	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		if (lgr->role == SMC_SERV)
-+		if (lgr->role == SMC_SERV) {
-+			link->llc_confirm_resp_rc = conf_rc;
- 			complete(&link->llc_confirm_resp);
-+		}
- 	} else {
- 		if (lgr->role == SMC_CLNT) {
-+			link->llc_confirm_rc = conf_rc;
- 			link->link_id = llc->link_num;
- 			complete(&link->llc_confirm);
- 		}
+@@ -124,7 +124,6 @@ struct smc_rtoken {				/* address/key of remote RMB */
+ struct smc_link_group {
+ 	struct list_head	list;
+ 	enum smc_lgr_role	role;		/* client or server */
+-	__be32			daddr;		/* destination ip address */
+ 	struct smc_link		lnk[SMC_LINKS_PER_LGR_MAX];	/* smc link */
+ 	char			peer_systemid[SMC_SYSTEMID_LEN];
+ 						/* unique system_id of peer */
 -- 
 2.13.5
