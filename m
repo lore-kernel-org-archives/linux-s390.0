@@ -1,8 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 0/8] net/smc: Link Layer Control enhancements
-Date: Thu,  1 Mar 2018 13:51:25 +0100
-Message-Id: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 4/8] net/smc: respond to test link messages
+Date: Thu,  1 Mar 2018 13:51:29 +0100
+In-Reply-To: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
+References: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180301125133.12211-5-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -10,36 +12,132 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+From: Karsten Graul <kgraul@linux.vnet.ibm.com>
 
-here is a series of smc patches enabling SMC communication with peers
-supporting more than one link per link group.
+Add TEST LINK message responses, which also serves as preparation for
+support of sockopt TCP_KEEPALIVE.
 
-The first three patches are preparing code cleanups.
+Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ net/smc/smc_llc.c | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ net/smc/smc_llc.h |  3 +++
+ 2 files changed, 56 insertions(+), 1 deletion(-)
 
-Thanks, Ursula
-
-Karsten Graul (7):
-  net/smc: move netinfo function to file smc_clc.c
-  net/smc: remove unused fields from smc structures
-  net/smc: respond to test link messages
-  net/smc: process confirm/delete rkey messages
-  net/smc: do not allow eyecatchers in rmbe
-  net/smc: process add/delete link messages
-  net/smc: prevent new connections on link group
-
-Stefan Raspl (1):
-  net/smc: cleanup smc_llc.h and smc_clc.h headers
-
- net/smc/af_smc.c   | 127 ++++++++---------
- net/smc/smc.h      |   5 +-
- net/smc/smc_clc.c  |  47 +++++-
- net/smc/smc_clc.h  |   9 +-
- net/smc/smc_core.c |  77 +++++++---
- net/smc/smc_core.h |  16 ++-
- net/smc/smc_llc.c  | 408 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
- net/smc/smc_llc.h  |  41 ++----
- 8 files changed, 592 insertions(+), 138 deletions(-)
-
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index e4502bbff33d..9e0a556e40c8 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -41,8 +41,15 @@ struct smc_llc_msg_confirm_link {	/* type 0x01 */
+ 	u8 reserved[9];
+ };
+ 
++struct smc_llc_msg_test_link {		/* type 0x07 */
++	struct smc_llc_hdr hd;
++	u8 user_data[16];
++	u8 reserved[24];
++};
++
+ union smc_llc_msg {
+ 	struct smc_llc_msg_confirm_link confirm_link;
++	struct smc_llc_msg_test_link test_link;
+ 	struct {
+ 		struct smc_llc_hdr hdr;
+ 		u8 data[SMC_LLC_DATA_LEN];
+@@ -130,6 +137,30 @@ int smc_llc_send_confirm_link(struct smc_link *link, u8 mac[],
+ 	return rc;
+ }
+ 
++/* send LLC test link request or response */
++int smc_llc_send_test_link(struct smc_link *link, u8 user_data[16],
++			   enum smc_llc_reqresp reqresp)
++{
++	struct smc_llc_msg_test_link *testllc;
++	struct smc_wr_tx_pend_priv *pend;
++	struct smc_wr_buf *wr_buf;
++	int rc;
++
++	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
++	if (rc)
++		return rc;
++	testllc = (struct smc_llc_msg_test_link *)wr_buf;
++	memset(testllc, 0, sizeof(*testllc));
++	testllc->hd.common.type = SMC_LLC_TEST_LINK;
++	testllc->hd.length = sizeof(struct smc_llc_msg_test_link);
++	if (reqresp == SMC_LLC_RESP)
++		testllc->hd.flags |= SMC_LLC_FLAG_RESP;
++	memcpy(testllc->user_data, user_data, sizeof(testllc->user_data));
++	/* send llc message */
++	rc = smc_wr_tx_send(link, pend);
++	return rc;
++}
++
+ /********************************* receive ***********************************/
+ 
+ static void smc_llc_rx_confirm_link(struct smc_link *link,
+@@ -149,6 +180,16 @@ static void smc_llc_rx_confirm_link(struct smc_link *link,
+ 	}
+ }
+ 
++static void smc_llc_rx_test_link(struct smc_link *link,
++				 struct smc_llc_msg_test_link *llc)
++{
++	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
++		/* unused as long as we don't send this type of msg */
++	} else {
++		smc_llc_send_test_link(link, llc->user_data, SMC_LLC_RESP);
++	}
++}
++
+ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ {
+ 	struct smc_link *link = (struct smc_link *)wc->qp->qp_context;
+@@ -158,8 +199,15 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ 		return; /* short message */
+ 	if (llc->raw.hdr.length != sizeof(*llc))
+ 		return; /* invalid message */
+-	if (llc->raw.hdr.common.type == SMC_LLC_CONFIRM_LINK)
++
++	switch (llc->raw.hdr.common.type) {
++	case SMC_LLC_TEST_LINK:
++		smc_llc_rx_test_link(link, &llc->test_link);
++		break;
++	case SMC_LLC_CONFIRM_LINK:
+ 		smc_llc_rx_confirm_link(link, &llc->confirm_link);
++		break;
++	}
+ }
+ 
+ /***************************** init, exit, misc ******************************/
+@@ -170,6 +218,10 @@ static struct smc_wr_rx_handler smc_llc_rx_handlers[] = {
+ 		.type		= SMC_LLC_CONFIRM_LINK
+ 	},
+ 	{
++		.handler	= smc_llc_rx_handler,
++		.type		= SMC_LLC_TEST_LINK
++	},
++	{
+ 		.handler	= NULL,
+ 	}
+ };
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index a7888607ab53..6c8a062db4f3 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -26,11 +26,14 @@ enum smc_llc_reqresp {
+ 
+ enum smc_llc_msg_type {
+ 	SMC_LLC_CONFIRM_LINK		= 0x01,
++	SMC_LLC_TEST_LINK		= 0x07,
+ };
+ 
+ /* transmit */
+ int smc_llc_send_confirm_link(struct smc_link *lnk, u8 mac[], union ib_gid *gid,
+ 			      enum smc_llc_reqresp reqresp);
++int smc_llc_send_test_link(struct smc_link *lnk, u8 user_data[16],
++			   enum smc_llc_reqresp reqresp);
+ int smc_llc_init(void) __init;
+ 
+ #endif /* SMC_LLC_H */
 -- 
 2.13.5
