@@ -1,68 +1,33 @@
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Subject: [PATCH RFC] scsi: devinfo: remove dasd devices from the
-	scsi subsystem
-Date: Fri, 16 Mar 2018 15:57:25 +0100
-Message-ID: <20180316145725.15394-1-xose.vazquez@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <dm-devel-bounces@redhat.com>
-List-Unsubscribe: <https://www.redhat.com/mailman/options/dm-devel>,
-	<mailto:dm-devel-request@redhat.com?subject=unsubscribe>
-List-Archive: <https://www.redhat.com/archives/dm-devel>
-List-Post: <mailto:dm-devel@redhat.com>
-List-Help: <mailto:dm-devel-request@redhat.com?subject=help>
-List-Subscribe: <https://www.redhat.com/mailman/listinfo/dm-devel>,
-	<mailto:dm-devel-request@redhat.com?subject=subscribe>
-Sender: dm-devel-bounces@redhat.com
-Errors-To: dm-devel-bounces@redhat.com
-List-Archive: <https://lore.kernel.org/dm-devel/>
-Cc: s390 ML <linux-s390@vger.kernel.org>, Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>, Xose Vazquez Perez <xose.vazquez@gmail.com>, SCSI ML <linux-scsi@vger.kernel.org>, "Martin K . Petersen" <martin.petersen@oracle.com>, Takahiro Yasui <takahiro.yasui@hitachivantara.com>, device-mapper development <dm-devel@redhat.com>, Mike Christie <mchristi@redhat.com>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, Anthony Cheung <anthony.cheung@hpe.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 01 Mar 2018 11:29:44 +0000
+Subject: Re: [PATCH 1/1] KVM: s390: provide io interrupt kvm_stat
+Message-Id: <e26cb9b4-6707-8ec8-cd3f-2cc4297d799e@de.ibm.com>
+In-Reply-To: <dbb77d85-9b47-fc76-ea36-97cbe77352b9@redhat.com>
+References: <dbb77d85-9b47-fc76-ea36-97cbe77352b9@redhat.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Only present through ccw bus.
+queued. Might be even for kvm/master.
 
-Cc: Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>
-Cc: Takahiro Yasui <takahiro.yasui@hitachivantara.com>
-Cc: Anthony Cheung <anthony.cheung@hpe.com>
-Cc: Mike Christie <mchristi@redhat.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: James E.J. Bottomley <jejb@linux.vnet.ibm.com>
-Cc: s390 ML <linux-s390@vger.kernel.org>
-Cc: SCSI ML <linux-scsi@vger.kernel.org>
-Cc: device-mapper development <dm-devel@redhat.com>
-Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
----
- drivers/scsi/scsi_devinfo.c | 10 ----------
- 1 file changed, 10 deletions(-)
-
-diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
-index b119b5bfb4d3..31985dd3f4b6 100644
---- a/drivers/scsi/scsi_devinfo.c
-+++ b/drivers/scsi/scsi_devinfo.c
-@@ -175,11 +175,6 @@ static struct {
- 	{"HITACHI", "DISK-SUBSYSTEM", "*", BLIST_REPORTLUN2},
- 	{"HITACHI", "HUS1530", "*", BLIST_NO_DIF},
- 	{"HITACHI", "OPEN-", "*", BLIST_REPORTLUN2 | BLIST_TRY_VPD_PAGES},
--	{"HITACHI", "OP-C-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
--	{"HITACHI", "3380-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
--	{"HITACHI", "3390-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
--	{"HITACHI", "6586-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
--	{"HITACHI", "6588-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
- 	{"HP", "A6189A", NULL, BLIST_SPARSELUN | BLIST_LARGELUN},	/* HP VA7400 */
- 	{"HP", "OPEN-", "*", BLIST_REPORTLUN2 | BLIST_TRY_VPD_PAGES}, /* HP XP Arrays */
- 	{"HP", "NetRAID-4M", NULL, BLIST_FORCELUN},
-@@ -187,11 +182,6 @@ static struct {
- 	{"HP", "C1557A", NULL, BLIST_FORCELUN},
- 	{"HP", "C3323-300", "4269", BLIST_NOTQ},
- 	{"HP", "C5713A", NULL, BLIST_NOREPORTLUN},
--	{"HP", "OP-C-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
--	{"HP", "3380-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
--	{"HP", "3390-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
--	{"HP", "6586-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
--	{"HP", "6588-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
- 	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
- 	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
- 	{"IBM", "2105", NULL, BLIST_RETRY_HWERROR},
--- 
-2.14.3
+On 02/28/2018 07:49 PM, Christian Borntraeger wrote:
+> we already count io interrupt, but we forgot to print them.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Fixes: d8346b7d9b ("KVM: s390: Support for I/O interrupts.")
+> ---
+>  arch/s390/kvm/kvm-s390.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 507bacd033cc..91c48967ccda 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -87,6 +87,7 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
+>  	{ "deliver_prefix_signal", VCPU_STAT(deliver_prefix_signal) },
+>  	{ "deliver_restart_signal", VCPU_STAT(deliver_restart_signal) },
+>  	{ "deliver_program_interruption", VCPU_STAT(deliver_program_int) },
+> +	{ "deliver_io_interrupt", VCPU_STAT(deliver_io_int) },
+>  	{ "exit_wait_state", VCPU_STAT(exit_wait_state) },
+>  	{ "instruction_epsw", VCPU_STAT(instruction_epsw) },
+>  	{ "instruction_gs", VCPU_STAT(instruction_gs) },
+> 
