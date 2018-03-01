@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 2/8] net/smc: move netinfo function to file smc_clc.c
-Date: Thu,  1 Mar 2018 13:51:27 +0100
+Subject: [PATCH net-next 7/8] net/smc: process add/delete link messages
+Date: Thu,  1 Mar 2018 13:51:32 +0100
 In-Reply-To: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
 References: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180301125133.12211-3-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180301125133.12211-8-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -14,179 +14,403 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Karsten Graul <kgraul@linux.vnet.ibm.com>
 
-The function smc_netinfo_by_tcpsk() belongs to CLC handling.
-Move it to smc_clc.c and rename to smc_clc_netinfo_by_tcpsk.
+Add initial support for the LLC messages ADD LINK and DELETE LINK.
+Introduce a link state field. Extend the initial LLC handshake with
+ADD LINK processing.
 
 Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c  | 42 +-----------------------------------------
- net/smc/smc.h     |  2 --
- net/smc/smc_clc.c | 44 ++++++++++++++++++++++++++++++++++++++++++--
- net/smc/smc_clc.h |  2 ++
- 4 files changed, 45 insertions(+), 45 deletions(-)
+ net/smc/af_smc.c   |  42 ++++++++++++++
+ net/smc/smc_core.c |   3 +
+ net/smc/smc_core.h |  10 ++++
+ net/smc/smc_llc.c  | 168 ++++++++++++++++++++++++++++++++++++++++++++++++++---
+ net/smc/smc_llc.h  |   7 +++
+ 5 files changed, 223 insertions(+), 7 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index b1961a789837..b90cbfdb9916 100644
+index 0d491f505608..5267ed19b67d 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -24,7 +24,6 @@
+@@ -313,6 +313,27 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
+ 	if (rc < 0)
+ 		return SMC_CLC_DECL_TCL;
  
- #include <linux/module.h>
- #include <linux/socket.h>
--#include <linux/inetdevice.h>
- #include <linux/workqueue.h>
- #include <linux/in.h>
- #include <linux/sched/signal.h>
-@@ -273,45 +272,6 @@ static void smc_copy_sock_settings_to_smc(struct smc_sock *smc)
- 	smc_copy_sock_settings(&smc->sk, smc->clcsock->sk, SK_FLAGS_CLC_TO_SMC);
- }
- 
--/* determine subnet and mask of internal TCP socket */
--int smc_netinfo_by_tcpsk(struct socket *clcsock,
--			 __be32 *subnet, u8 *prefix_len)
--{
--	struct dst_entry *dst = sk_dst_get(clcsock->sk);
--	struct in_device *in_dev;
--	struct sockaddr_in addr;
--	int rc = -ENOENT;
--
--	if (!dst) {
--		rc = -ENOTCONN;
--		goto out;
--	}
--	if (!dst->dev) {
--		rc = -ENODEV;
--		goto out_rel;
--	}
--
--	/* get address to which the internal TCP socket is bound */
--	kernel_getsockname(clcsock, (struct sockaddr *)&addr);
--	/* analyze IPv4 specific data of net_device belonging to TCP socket */
--	rcu_read_lock();
--	in_dev = __in_dev_get_rcu(dst->dev);
--	for_ifa(in_dev) {
--		if (!inet_ifa_match(addr.sin_addr.s_addr, ifa))
--			continue;
--		*prefix_len = inet_mask_len(ifa->ifa_mask);
--		*subnet = ifa->ifa_address & ifa->ifa_mask;
--		rc = 0;
--		break;
--	} endfor_ifa(in_dev);
--	rcu_read_unlock();
--
--out_rel:
--	dst_release(dst);
--out:
--	return rc;
--}
--
- static int smc_clnt_conf_first_link(struct smc_sock *smc)
- {
- 	struct smc_link_group *lgr = smc->conn.lgr;
-@@ -808,7 +768,7 @@ static void smc_listen_work(struct work_struct *work)
- 	}
- 
- 	/* determine subnet and mask from internal TCP socket */
--	rc = smc_netinfo_by_tcpsk(newclcsock, &subnet, &prefix_len);
-+	rc = smc_clc_netinfo_by_tcpsk(newclcsock, &subnet, &prefix_len);
- 	if (rc) {
- 		reason_code = SMC_CLC_DECL_CNFERR; /* configuration error */
- 		goto decline_rdma;
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 9518986c97b1..9895c190d146 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -263,8 +263,6 @@ static inline bool using_ipsec(struct smc_sock *smc)
- 
- struct smc_clc_msg_local;
- 
--int smc_netinfo_by_tcpsk(struct socket *clcsock, __be32 *subnet,
--			 u8 *prefix_len);
- void smc_conn_free(struct smc_connection *conn);
- int smc_conn_create(struct smc_sock *smc, __be32 peer_in_addr,
- 		    struct smc_ib_device *smcibdev, u8 ibport,
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index dff318a2d5bf..874c5a75d6dd 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -11,6 +11,7 @@
-  */
- 
- #include <linux/in.h>
-+#include <linux/inetdevice.h>
- #include <linux/if_ether.h>
- #include <linux/sched/signal.h>
- 
-@@ -73,6 +74,45 @@ static bool smc_clc_msg_hdr_valid(struct smc_clc_msg_hdr *clcm)
- 	return true;
- }
- 
-+/* determine subnet and mask of internal TCP socket */
-+int smc_clc_netinfo_by_tcpsk(struct socket *clcsock,
-+			     __be32 *subnet, u8 *prefix_len)
-+{
-+	struct dst_entry *dst = sk_dst_get(clcsock->sk);
-+	struct in_device *in_dev;
-+	struct sockaddr_in addr;
-+	int rc = -ENOENT;
++	/* receive ADD LINK request from server over RoCE fabric */
++	rest = wait_for_completion_interruptible_timeout(&link->llc_add,
++							 SMC_LLC_WAIT_TIME);
++	if (rest <= 0) {
++		struct smc_clc_msg_decline dclc;
 +
-+	if (!dst) {
-+		rc = -ENOTCONN;
-+		goto out;
-+	}
-+	if (!dst->dev) {
-+		rc = -ENODEV;
-+		goto out_rel;
++		rc = smc_clc_wait_msg(smc, &dclc, sizeof(dclc),
++				      SMC_CLC_DECLINE);
++		return rc;
 +	}
 +
-+	/* get address to which the internal TCP socket is bound */
-+	kernel_getsockname(clcsock, (struct sockaddr *)&addr);
-+	/* analyze IPv4 specific data of net_device belonging to TCP socket */
-+	rcu_read_lock();
-+	in_dev = __in_dev_get_rcu(dst->dev);
-+	for_ifa(in_dev) {
-+		if (!inet_ifa_match(addr.sin_addr.s_addr, ifa))
-+			continue;
-+		*prefix_len = inet_mask_len(ifa->ifa_mask);
-+		*subnet = ifa->ifa_address & ifa->ifa_mask;
-+		rc = 0;
-+		break;
-+	} endfor_ifa(in_dev);
-+	rcu_read_unlock();
++	/* send add link reject message, only one link supported for now */
++	rc = smc_llc_send_add_link(link,
++				   link->smcibdev->mac[link->ibport - 1],
++				   &link->smcibdev->gid[link->ibport - 1],
++				   SMC_LLC_RESP);
++	if (rc < 0)
++		return SMC_CLC_DECL_TCL;
 +
-+out_rel:
-+	dst_release(dst);
-+out:
++	link->state = SMC_LNK_ACTIVE;
++
+ 	return 0;
+ }
+ 
+@@ -714,6 +735,27 @@ static int smc_serv_conf_first_link(struct smc_sock *smc)
+ 	if (link->llc_confirm_resp_rc)
+ 		return SMC_CLC_DECL_RMBE_EC;
+ 
++	/* send ADD LINK request to client over the RoCE fabric */
++	rc = smc_llc_send_add_link(link,
++				   link->smcibdev->mac[link->ibport - 1],
++				   &link->smcibdev->gid[link->ibport - 1],
++				   SMC_LLC_REQ);
++	if (rc < 0)
++		return SMC_CLC_DECL_TCL;
++
++	/* receive ADD LINK response from client over the RoCE fabric */
++	rest = wait_for_completion_interruptible_timeout(&link->llc_add_resp,
++							 SMC_LLC_WAIT_TIME);
++	if (rest <= 0) {
++		struct smc_clc_msg_decline dclc;
++
++		rc = smc_clc_wait_msg(smc, &dclc, sizeof(dclc),
++				      SMC_CLC_DECLINE);
++		return rc;
++	}
++
++	link->state = SMC_LNK_ACTIVE;
++
+ 	return 0;
+ }
+ 
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 31bb2d1dbd77..eb343e15a723 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -176,6 +176,7 @@ static int smc_lgr_create(struct smc_sock *smc,
+ 
+ 	lnk = &lgr->lnk[SMC_SINGLE_LINK];
+ 	/* initialize link */
++	lnk->state = SMC_LNK_ACTIVATING;
+ 	lnk->smcibdev = smcibdev;
+ 	lnk->ibport = ibport;
+ 	lnk->path_mtu = smcibdev->pattr[ibport - 1].active_mtu;
+@@ -197,6 +198,8 @@ static int smc_lgr_create(struct smc_sock *smc,
+ 		goto destroy_qp;
+ 	init_completion(&lnk->llc_confirm);
+ 	init_completion(&lnk->llc_confirm_resp);
++	init_completion(&lnk->llc_add);
++	init_completion(&lnk->llc_add_resp);
+ 
+ 	smc->conn.lgr = lgr;
+ 	rwlock_init(&lgr->conns_lock);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 2b65b3d7f1f5..cead2093c4b4 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -32,6 +32,12 @@ enum smc_lgr_role {		/* possible roles of a link group */
+ 	SMC_SERV	/* server */
+ };
+ 
++enum smc_link_state {			/* possible states of a link */
++	SMC_LNK_INACTIVE,	/* link is inactive */
++	SMC_LNK_ACTIVATING,	/* link is being activated */
++	SMC_LNK_ACTIVE		/* link is active */
++};
++
+ #define SMC_WR_BUF_SIZE		48	/* size of work request buffer */
+ 
+ struct smc_wr_buf {
+@@ -87,10 +93,14 @@ struct smc_link {
+ 	u8			peer_mac[ETH_ALEN];	/* = gid[8:10||13:15] */
+ 	u8			peer_gid[sizeof(union ib_gid)];	/* gid of peer*/
+ 	u8			link_id;	/* unique # within link group */
++
++	enum smc_link_state	state;		/* state of link */
+ 	struct completion	llc_confirm;	/* wait for rx of conf link */
+ 	struct completion	llc_confirm_resp; /* wait 4 rx of cnf lnk rsp */
+ 	int			llc_confirm_rc; /* rc from confirm link msg */
+ 	int			llc_confirm_resp_rc; /* rc from conf_resp msg */
++	struct completion	llc_add;	/* wait for rx of add link */
++	struct completion	llc_add_resp;	/* wait for rx of add link rsp*/
+ };
+ 
+ /* For now we just allow one parallel link per link group. The SMC protocol
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 838a160a3bd9..45b3e0211c39 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -4,9 +4,6 @@
+  *
+  *  Link Layer Control (LLC)
+  *
+- *  For now, we only support the necessary "confirm link" functionality
+- *  which happens for the first RoCE link after successful CLC handshake.
+- *
+  *  Copyright IBM Corp. 2016
+  *
+  *  Author(s):  Klaus Wacker <Klaus.Wacker@de.ibm.com>
+@@ -26,7 +23,13 @@
+ struct smc_llc_hdr {
+ 	struct smc_wr_rx_hdr common;
+ 	u8 length;	/* 44 */
+-	u8 reserved;
++#if defined(__BIG_ENDIAN_BITFIELD)
++	u8 reserved:4,
++	   add_link_rej_rsn:4;
++#elif defined(__LITTLE_ENDIAN_BITFIELD)
++	u8 add_link_rej_rsn:4,
++	   reserved:4;
++#endif
+ 	u8 flags;
+ };
+ 
+@@ -43,6 +46,33 @@ struct smc_llc_msg_confirm_link {	/* type 0x01 */
+ 	u8 reserved[9];
+ };
+ 
++#define SMC_LLC_FLAG_ADD_LNK_REJ	0x40
++#define SMC_LLC_REJ_RSN_NO_ALT_PATH	1
++
++#define SMC_LLC_ADD_LNK_MAX_LINKS	2
++
++struct smc_llc_msg_add_link {		/* type 0x02 */
++	struct smc_llc_hdr hd;
++	u8 sender_mac[ETH_ALEN];
++	u8 reserved2[2];
++	u8 sender_gid[SMC_GID_SIZE];
++	u8 sender_qp_num[3];
++	u8 link_num;
++	u8 flags2;	/* QP mtu */
++	u8 initial_psn[3];
++	u8 reserved[8];
++};
++
++#define SMC_LLC_FLAG_DEL_LINK_ALL	0x40
++#define SMC_LLC_FLAG_DEL_LINK_ORDERLY	0x20
++
++struct smc_llc_msg_del_link {		/* type 0x04 */
++	struct smc_llc_hdr hd;
++	u8 link_num;
++	__be32 reason;
++	u8 reserved[35];
++} __packed;			/* format defined in RFC7609 */
++
+ struct smc_llc_msg_test_link {		/* type 0x07 */
+ 	struct smc_llc_hdr hd;
+ 	u8 user_data[16];
+@@ -88,6 +118,8 @@ struct smc_llc_msg_delete_rkey {	/* type 0x09 */
+ 
+ union smc_llc_msg {
+ 	struct smc_llc_msg_confirm_link confirm_link;
++	struct smc_llc_msg_add_link add_link;
++	struct smc_llc_msg_del_link delete_link;
+ 
+ 	struct smc_llc_msg_confirm_rkey confirm_rkey;
+ 	struct smc_llc_msg_confirm_rkey_cont confirm_rkey_cont;
+@@ -176,7 +208,64 @@ int smc_llc_send_confirm_link(struct smc_link *link, u8 mac[],
+ 	hton24(confllc->sender_qp_num, link->roce_qp->qp_num);
+ 	/* confllc->link_num = SMC_SINGLE_LINK; already done by memset above */
+ 	memcpy(confllc->link_uid, lgr->id, SMC_LGR_ID_SIZE);
+-	confllc->max_links = SMC_LINKS_PER_LGR_MAX;
++	confllc->max_links = SMC_LLC_ADD_LNK_MAX_LINKS; /* enforce peer resp. */
++	/* send llc message */
++	rc = smc_wr_tx_send(link, pend);
 +	return rc;
 +}
 +
- /* Wait for data on the tcp-socket, analyze received data
-  * Returns:
-  * 0 if success and it was not a decline that we received.
-@@ -214,8 +254,8 @@ int smc_clc_send_proposal(struct smc_sock *smc,
++/* send ADD LINK request or response */
++int smc_llc_send_add_link(struct smc_link *link, u8 mac[],
++			  union ib_gid *gid,
++			  enum smc_llc_reqresp reqresp)
++{
++	struct smc_llc_msg_add_link *addllc;
++	struct smc_wr_tx_pend_priv *pend;
++	struct smc_wr_buf *wr_buf;
++	int rc;
++
++	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
++	if (rc)
++		return rc;
++	addllc = (struct smc_llc_msg_add_link *)wr_buf;
++	memset(addllc, 0, sizeof(*addllc));
++	addllc->hd.common.type = SMC_LLC_ADD_LINK;
++	addllc->hd.length = sizeof(struct smc_llc_msg_add_link);
++	if (reqresp == SMC_LLC_RESP) {
++		addllc->hd.flags |= SMC_LLC_FLAG_RESP;
++		/* always reject more links for now */
++		addllc->hd.flags |= SMC_LLC_FLAG_ADD_LNK_REJ;
++		addllc->hd.add_link_rej_rsn = SMC_LLC_REJ_RSN_NO_ALT_PATH;
++	}
++	memcpy(addllc->sender_mac, mac, ETH_ALEN);
++	memcpy(addllc->sender_gid, gid, SMC_GID_SIZE);
++	/* send llc message */
++	rc = smc_wr_tx_send(link, pend);
++	return rc;
++}
++
++/* send DELETE LINK request or response */
++int smc_llc_send_delete_link(struct smc_link *link,
++			     enum smc_llc_reqresp reqresp)
++{
++	struct smc_llc_msg_del_link *delllc;
++	struct smc_wr_tx_pend_priv *pend;
++	struct smc_wr_buf *wr_buf;
++	int rc;
++
++	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
++	if (rc)
++		return rc;
++	delllc = (struct smc_llc_msg_del_link *)wr_buf;
++	memset(delllc, 0, sizeof(*delllc));
++	delllc->hd.common.type = SMC_LLC_DELETE_LINK;
++	delllc->hd.length = sizeof(struct smc_llc_msg_add_link);
++	if (reqresp == SMC_LLC_RESP)
++		delllc->hd.flags |= SMC_LLC_FLAG_RESP;
++	/* DEL_LINK_ALL because only 1 link supported */
++	delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ALL;
++	delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ORDERLY;
++	delllc->link_num = link->link_id;
+ 	/* send llc message */
+ 	rc = smc_wr_tx_send(link, pend);
+ 	return rc;
+@@ -239,12 +328,14 @@ static void smc_llc_rx_confirm_link(struct smc_link *link,
+ 		conf_rc = ENOTSUPP;
  
- 	memset(&pclc_prfx, 0, sizeof(pclc_prfx));
- 	/* determine subnet and mask from internal TCP socket */
--	rc = smc_netinfo_by_tcpsk(smc->clcsock, &pclc_prfx.outgoing_subnet,
--				  &pclc_prfx.prefix_len);
-+	rc = smc_clc_netinfo_by_tcpsk(smc->clcsock, &pclc_prfx.outgoing_subnet,
-+				      &pclc_prfx.prefix_len);
- 	if (rc)
- 		return SMC_CLC_DECL_CNFERR; /* configuration error */
- 	pclc_prfx.ipv6_prefixes_cnt = 0;
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index aab3aae2a2ce..a20fc75efb24 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -121,6 +121,8 @@ smc_clc_proposal_get_prefix(struct smc_clc_msg_proposal *pclc)
- 	       ((u8 *)pclc + sizeof(*pclc) + ntohs(pclc->iparea_offset));
+ 	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		if (lgr->role == SMC_SERV) {
++		if (lgr->role == SMC_SERV &&
++		    link->state == SMC_LNK_ACTIVATING) {
+ 			link->llc_confirm_resp_rc = conf_rc;
+ 			complete(&link->llc_confirm_resp);
+ 		}
+ 	} else {
+-		if (lgr->role == SMC_CLNT) {
++		if (lgr->role == SMC_CLNT &&
++		    link->state == SMC_LNK_ACTIVATING) {
+ 			link->llc_confirm_rc = conf_rc;
+ 			link->link_id = llc->link_num;
+ 			complete(&link->llc_confirm);
+@@ -252,6 +343,55 @@ static void smc_llc_rx_confirm_link(struct smc_link *link,
+ 	}
  }
  
-+int smc_clc_netinfo_by_tcpsk(struct socket *clcsock, __be32 *subnet,
-+			     u8 *prefix_len);
- int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
- 		     u8 expected_type);
- int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info);
++static void smc_llc_rx_add_link(struct smc_link *link,
++				struct smc_llc_msg_add_link *llc)
++{
++	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
++						  lnk[SMC_SINGLE_LINK]);
++
++	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
++		if (link->state == SMC_LNK_ACTIVATING)
++			complete(&link->llc_add_resp);
++	} else {
++		if (link->state == SMC_LNK_ACTIVATING) {
++			complete(&link->llc_add);
++			return;
++		}
++
++		if (lgr->role == SMC_SERV) {
++			smc_llc_send_add_link(link,
++					link->smcibdev->mac[link->ibport - 1],
++					&link->smcibdev->gid[link->ibport - 1],
++					SMC_LLC_REQ);
++
++		} else {
++			smc_llc_send_add_link(link,
++					link->smcibdev->mac[link->ibport - 1],
++					&link->smcibdev->gid[link->ibport - 1],
++					SMC_LLC_RESP);
++		}
++	}
++}
++
++static void smc_llc_rx_delete_link(struct smc_link *link,
++				   struct smc_llc_msg_del_link *llc)
++{
++	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
++						  lnk[SMC_SINGLE_LINK]);
++
++	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
++		if (lgr->role == SMC_SERV)
++			smc_lgr_terminate(lgr);
++	} else {
++		if (lgr->role == SMC_SERV) {
++			smc_llc_send_delete_link(link, SMC_LLC_REQ);
++		} else {
++			smc_llc_send_delete_link(link, SMC_LLC_RESP);
++			smc_lgr_terminate(lgr);
++		}
++	}
++}
++
+ static void smc_llc_rx_test_link(struct smc_link *link,
+ 				 struct smc_llc_msg_test_link *llc)
+ {
+@@ -343,6 +483,12 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ 	case SMC_LLC_CONFIRM_LINK:
+ 		smc_llc_rx_confirm_link(link, &llc->confirm_link);
+ 		break;
++	case SMC_LLC_ADD_LINK:
++		smc_llc_rx_add_link(link, &llc->add_link);
++		break;
++	case SMC_LLC_DELETE_LINK:
++		smc_llc_rx_delete_link(link, &llc->delete_link);
++		break;
+ 	case SMC_LLC_CONFIRM_RKEY:
+ 		smc_llc_rx_confirm_rkey(link, &llc->confirm_rkey);
+ 		break;
+@@ -368,6 +514,14 @@ static struct smc_wr_rx_handler smc_llc_rx_handlers[] = {
+ 	},
+ 	{
+ 		.handler	= smc_llc_rx_handler,
++		.type		= SMC_LLC_ADD_LINK
++	},
++	{
++		.handler	= smc_llc_rx_handler,
++		.type		= SMC_LLC_DELETE_LINK
++	},
++	{
++		.handler	= smc_llc_rx_handler,
+ 		.type		= SMC_LLC_CONFIRM_RKEY
+ 	},
+ 	{
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 5573f0d0578e..e4a7d5e234d5 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -18,6 +18,7 @@
+ #define SMC_LLC_FLAG_RESP		0x80
+ 
+ #define SMC_LLC_WAIT_FIRST_TIME		(5 * HZ)
++#define SMC_LLC_WAIT_TIME		(2 * HZ)
+ 
+ enum smc_llc_reqresp {
+ 	SMC_LLC_REQ,
+@@ -26,6 +27,8 @@ enum smc_llc_reqresp {
+ 
+ enum smc_llc_msg_type {
+ 	SMC_LLC_CONFIRM_LINK		= 0x01,
++	SMC_LLC_ADD_LINK		= 0x02,
++	SMC_LLC_DELETE_LINK		= 0x04,
+ 	SMC_LLC_CONFIRM_RKEY		= 0x06,
+ 	SMC_LLC_TEST_LINK		= 0x07,
+ 	SMC_LLC_CONFIRM_RKEY_CONT	= 0x08,
+@@ -35,6 +38,10 @@ enum smc_llc_msg_type {
+ /* transmit */
+ int smc_llc_send_confirm_link(struct smc_link *lnk, u8 mac[], union ib_gid *gid,
+ 			      enum smc_llc_reqresp reqresp);
++int smc_llc_send_add_link(struct smc_link *link, u8 mac[], union ib_gid *gid,
++			  enum smc_llc_reqresp reqresp);
++int smc_llc_send_delete_link(struct smc_link *link,
++			     enum smc_llc_reqresp reqresp);
+ int smc_llc_send_test_link(struct smc_link *lnk, u8 user_data[16],
+ 			   enum smc_llc_reqresp reqresp);
+ int smc_llc_init(void) __init;
 -- 
 2.13.5
