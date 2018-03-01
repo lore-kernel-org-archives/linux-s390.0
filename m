@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 8/8] net/smc: prevent new connections on link group
-Date: Thu,  1 Mar 2018 13:51:33 +0100
+Subject: [PATCH net-next 5/8] net/smc: process confirm/delete rkey messages
+Date: Thu,  1 Mar 2018 13:51:30 +0100
 In-Reply-To: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
 References: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180301125133.12211-9-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180301125133.12211-6-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -14,99 +14,298 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Karsten Graul <kgraul@linux.vnet.ibm.com>
 
-When the processing of a DELETE LINK message has started,
-new connections should not be added to the link group that
-is about to terminate.
+Process and respond to CONFIRM RKEY and DELETE RKEY messages.
 
 Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c   |  9 ---------
- net/smc/smc_core.c | 19 ++++++++++---------
- net/smc/smc_core.h |  1 +
- net/smc/smc_llc.c  |  1 +
- 4 files changed, 12 insertions(+), 18 deletions(-)
+ net/smc/smc_core.c |  48 ++++++++++++++----
+ net/smc/smc_core.h |   2 +
+ net/smc/smc_llc.c  | 143 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_llc.h  |   3 ++
+ 4 files changed, 186 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 5267ed19b67d..26684e086750 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -356,15 +356,6 @@ static void smc_link_save_peer_info(struct smc_link *link,
- 	link->peer_mtu = clc->qp_mtu;
- }
- 
--static void smc_lgr_forget(struct smc_link_group *lgr)
--{
--	spin_lock_bh(&smc_lgr_list.lock);
--	/* do not use this link group for new connections */
--	if (!list_empty(&lgr->list))
--		list_del_init(&lgr->list);
--	spin_unlock_bh(&smc_lgr_list.lock);
--}
--
- /* setup for RDMA connection of client */
- static int smc_connect_rdma(struct smc_sock *smc)
- {
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index eb343e15a723..702ce5f85e97 100644
+index bc11d06e38ae..31bb2d1dbd77 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -308,6 +308,15 @@ void smc_lgr_free(struct smc_link_group *lgr)
- 	kfree(lgr);
+@@ -697,27 +697,55 @@ static inline int smc_rmb_reserve_rtoken_idx(struct smc_link_group *lgr)
+ 	return -ENOSPC;
  }
  
-+void smc_lgr_forget(struct smc_link_group *lgr)
-+{
-+	spin_lock_bh(&smc_lgr_list.lock);
-+	/* do not use this link group for new connections */
-+	if (!list_empty(&lgr->list))
-+		list_del_init(&lgr->list);
-+	spin_unlock_bh(&smc_lgr_list.lock);
+-/* save rkey and dma_addr received from peer during clc handshake */
+-int smc_rmb_rtoken_handling(struct smc_connection *conn,
+-			    struct smc_clc_msg_accept_confirm *clc)
++/* add a new rtoken from peer */
++int smc_rtoken_add(struct smc_link_group *lgr, __be64 nw_vaddr, __be32 nw_rkey)
+ {
+-	u64 dma_addr = be64_to_cpu(clc->rmb_dma_addr);
+-	struct smc_link_group *lgr = conn->lgr;
+-	u32 rkey = ntohl(clc->rmb_rkey);
++	u64 dma_addr = be64_to_cpu(nw_vaddr);
++	u32 rkey = ntohl(nw_rkey);
+ 	int i;
+ 
+ 	for (i = 0; i < SMC_RMBS_PER_LGR_MAX; i++) {
+ 		if ((lgr->rtokens[i][SMC_SINGLE_LINK].rkey == rkey) &&
+ 		    (lgr->rtokens[i][SMC_SINGLE_LINK].dma_addr == dma_addr) &&
+ 		    test_bit(i, lgr->rtokens_used_mask)) {
+-			conn->rtoken_idx = i;
++			/* already in list */
++			return i;
++		}
++	}
++	i = smc_rmb_reserve_rtoken_idx(lgr);
++	if (i < 0)
++		return i;
++	lgr->rtokens[i][SMC_SINGLE_LINK].rkey = rkey;
++	lgr->rtokens[i][SMC_SINGLE_LINK].dma_addr = dma_addr;
++	return i;
 +}
 +
- /* terminate linkgroup abnormally */
- void smc_lgr_terminate(struct smc_link_group *lgr)
- {
-@@ -315,15 +324,7 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
- 	struct smc_sock *smc;
- 	struct rb_node *node;
- 
--	spin_lock_bh(&smc_lgr_list.lock);
--	if (list_empty(&lgr->list)) {
--		/* termination already triggered */
--		spin_unlock_bh(&smc_lgr_list.lock);
--		return;
--	}
--	/* do not use this link group for new connections */
--	list_del_init(&lgr->list);
--	spin_unlock_bh(&smc_lgr_list.lock);
-+	smc_lgr_forget(lgr);
- 
- 	write_lock_bh(&lgr->conns_lock);
- 	node = rb_first(&lgr->conns_all);
++/* delete an rtoken */
++int smc_rtoken_delete(struct smc_link_group *lgr, __be32 nw_rkey)
++{
++	u32 rkey = ntohl(nw_rkey);
++	int i;
++
++	for (i = 0; i < SMC_RMBS_PER_LGR_MAX; i++) {
++		if (lgr->rtokens[i][SMC_SINGLE_LINK].rkey == rkey &&
++		    test_bit(i, lgr->rtokens_used_mask)) {
++			lgr->rtokens[i][SMC_SINGLE_LINK].rkey = 0;
++			lgr->rtokens[i][SMC_SINGLE_LINK].dma_addr = 0;
++
++			clear_bit(i, lgr->rtokens_used_mask);
+ 			return 0;
+ 		}
+ 	}
+-	conn->rtoken_idx = smc_rmb_reserve_rtoken_idx(lgr);
++	return -ENOENT;
++}
++
++/* save rkey and dma_addr received from peer during clc handshake */
++int smc_rmb_rtoken_handling(struct smc_connection *conn,
++			    struct smc_clc_msg_accept_confirm *clc)
++{
++	conn->rtoken_idx = smc_rtoken_add(conn->lgr, clc->rmb_dma_addr,
++					  clc->rmb_rkey);
+ 	if (conn->rtoken_idx < 0)
+ 		return conn->rtoken_idx;
+-	lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].rkey = rkey;
+-	lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].dma_addr = dma_addr;
+ 	return 0;
+ }
 diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index cead2093c4b4..07e2a393e6d9 100644
+index 7852c3fabf12..7be693b940a2 100644
 --- a/net/smc/smc_core.h
 +++ b/net/smc/smc_core.h
-@@ -197,6 +197,7 @@ struct smc_sock;
- struct smc_clc_msg_accept_confirm;
- 
- void smc_lgr_free(struct smc_link_group *lgr);
-+void smc_lgr_forget(struct smc_link_group *lgr);
- void smc_lgr_terminate(struct smc_link_group *lgr);
+@@ -189,6 +189,8 @@ void smc_lgr_terminate(struct smc_link_group *lgr);
  int smc_buf_create(struct smc_sock *smc);
  int smc_rmb_rtoken_handling(struct smc_connection *conn,
+ 			    struct smc_clc_msg_accept_confirm *clc);
++int smc_rtoken_add(struct smc_link_group *lgr, __be64 nw_vaddr, __be32 nw_rkey);
++int smc_rtoken_delete(struct smc_link_group *lgr, __be32 nw_rkey);
+ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn);
+ void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
+ void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
 diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 45b3e0211c39..54e8d6dc9201 100644
+index 9e0a556e40c8..3e47b94608b5 100644
 --- a/net/smc/smc_llc.c
 +++ b/net/smc/smc_llc.c
-@@ -384,6 +384,7 @@ static void smc_llc_rx_delete_link(struct smc_link *link,
- 			smc_lgr_terminate(lgr);
- 	} else {
- 		if (lgr->role == SMC_SERV) {
-+			smc_lgr_forget(lgr);
- 			smc_llc_send_delete_link(link, SMC_LLC_REQ);
- 		} else {
- 			smc_llc_send_delete_link(link, SMC_LLC_RESP);
+@@ -47,8 +47,50 @@ struct smc_llc_msg_test_link {		/* type 0x07 */
+ 	u8 reserved[24];
+ };
+ 
++struct smc_rmb_rtoken {
++	union {
++		u8 num_rkeys;	/* first rtoken byte of CONFIRM LINK msg */
++				/* is actually the num of rtokens, first */
++				/* rtoken is always for the current link */
++		u8 link_id;	/* link id of the rtoken */
++	};
++	__be32 rmb_key;
++	__be64 rmb_vaddr;
++} __packed;			/* format defined in RFC7609 */
++
++#define SMC_LLC_RKEYS_PER_MSG	3
++
++struct smc_llc_msg_confirm_rkey {	/* type 0x06 */
++	struct smc_llc_hdr hd;
++	struct smc_rmb_rtoken rtoken[SMC_LLC_RKEYS_PER_MSG];
++	u8 reserved;
++};
++
++struct smc_llc_msg_confirm_rkey_cont {	/* type 0x08 */
++	struct smc_llc_hdr hd;
++	u8 num_rkeys;
++	struct smc_rmb_rtoken rtoken[SMC_LLC_RKEYS_PER_MSG];
++};
++
++#define SMC_LLC_DEL_RKEY_MAX	8
++#define SMC_LLC_FLAG_RKEY_NEG	0x20
++
++struct smc_llc_msg_delete_rkey {	/* type 0x09 */
++	struct smc_llc_hdr hd;
++	u8 num_rkeys;
++	u8 err_mask;
++	u8 reserved[2];
++	__be32 rkey[8];
++	u8 reserved2[4];
++};
++
+ union smc_llc_msg {
+ 	struct smc_llc_msg_confirm_link confirm_link;
++
++	struct smc_llc_msg_confirm_rkey confirm_rkey;
++	struct smc_llc_msg_confirm_rkey_cont confirm_rkey_cont;
++	struct smc_llc_msg_delete_rkey delete_rkey;
++
+ 	struct smc_llc_msg_test_link test_link;
+ 	struct {
+ 		struct smc_llc_hdr hdr;
+@@ -161,6 +203,22 @@ int smc_llc_send_test_link(struct smc_link *link, u8 user_data[16],
+ 	return rc;
+ }
+ 
++/* send a prepared message */
++static int smc_llc_send_message(struct smc_link *link, void *llcbuf, int llclen)
++{
++	struct smc_wr_tx_pend_priv *pend;
++	struct smc_wr_buf *wr_buf;
++	int rc;
++
++	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
++	if (rc)
++		return rc;
++	memcpy(wr_buf, llcbuf, llclen);
++	/* send llc message */
++	rc = smc_wr_tx_send(link, pend);
++	return rc;
++}
++
+ /********************************* receive ***********************************/
+ 
+ static void smc_llc_rx_confirm_link(struct smc_link *link,
+@@ -190,6 +248,70 @@ static void smc_llc_rx_test_link(struct smc_link *link,
+ 	}
+ }
+ 
++static void smc_llc_rx_confirm_rkey(struct smc_link *link,
++				    struct smc_llc_msg_confirm_rkey *llc)
++{
++	struct smc_link_group *lgr;
++	int rc;
++
++	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
++
++	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
++		/* unused as long as we don't send this type of msg */
++	} else {
++		rc = smc_rtoken_add(lgr,
++				    llc->rtoken[0].rmb_vaddr,
++				    llc->rtoken[0].rmb_key);
++
++		/* ignore rtokens for other links, we have only one link */
++
++		llc->hd.flags |= SMC_LLC_FLAG_RESP;
++		if (rc < 0)
++			llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
++		smc_llc_send_message(link, (void *)llc, sizeof(*llc));
++	}
++}
++
++static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
++				      struct smc_llc_msg_confirm_rkey_cont *llc)
++{
++	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
++		/* unused as long as we don't send this type of msg */
++	} else {
++		/* ignore rtokens for other links, we have only one link */
++		llc->hd.flags |= SMC_LLC_FLAG_RESP;
++		smc_llc_send_message(link, (void *)llc, sizeof(*llc));
++	}
++}
++
++static void smc_llc_rx_delete_rkey(struct smc_link *link,
++				   struct smc_llc_msg_delete_rkey *llc)
++{
++	struct smc_link_group *lgr;
++	u8 err_mask = 0;
++	int i, max;
++
++	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
++
++	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
++		/* unused as long as we don't send this type of msg */
++	} else {
++		max = min_t(u8, llc->num_rkeys, SMC_LLC_DEL_RKEY_MAX);
++		for (i = 0; i < max; i++) {
++			if (smc_rtoken_delete(lgr, llc->rkey[i]))
++				err_mask |= 1 << (SMC_LLC_DEL_RKEY_MAX - 1 - i);
++		}
++
++		if (err_mask) {
++			llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
++			llc->err_mask = err_mask;
++		}
++
++		llc->hd.flags |= SMC_LLC_FLAG_RESP;
++		smc_llc_send_message(link, (void *)llc, sizeof(*llc));
++	}
++}
++
+ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ {
+ 	struct smc_link *link = (struct smc_link *)wc->qp->qp_context;
+@@ -207,6 +329,15 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ 	case SMC_LLC_CONFIRM_LINK:
+ 		smc_llc_rx_confirm_link(link, &llc->confirm_link);
+ 		break;
++	case SMC_LLC_CONFIRM_RKEY:
++		smc_llc_rx_confirm_rkey(link, &llc->confirm_rkey);
++		break;
++	case SMC_LLC_CONFIRM_RKEY_CONT:
++		smc_llc_rx_confirm_rkey_cont(link, &llc->confirm_rkey_cont);
++		break;
++	case SMC_LLC_DELETE_RKEY:
++		smc_llc_rx_delete_rkey(link, &llc->delete_rkey);
++		break;
+ 	}
+ }
+ 
+@@ -222,6 +353,18 @@ static struct smc_wr_rx_handler smc_llc_rx_handlers[] = {
+ 		.type		= SMC_LLC_TEST_LINK
+ 	},
+ 	{
++		.handler	= smc_llc_rx_handler,
++		.type		= SMC_LLC_CONFIRM_RKEY
++	},
++	{
++		.handler	= smc_llc_rx_handler,
++		.type		= SMC_LLC_CONFIRM_RKEY_CONT
++	},
++	{
++		.handler	= smc_llc_rx_handler,
++		.type		= SMC_LLC_DELETE_RKEY
++	},
++	{
+ 		.handler	= NULL,
+ 	}
+ };
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 6c8a062db4f3..5573f0d0578e 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -26,7 +26,10 @@ enum smc_llc_reqresp {
+ 
+ enum smc_llc_msg_type {
+ 	SMC_LLC_CONFIRM_LINK		= 0x01,
++	SMC_LLC_CONFIRM_RKEY		= 0x06,
+ 	SMC_LLC_TEST_LINK		= 0x07,
++	SMC_LLC_CONFIRM_RKEY_CONT	= 0x08,
++	SMC_LLC_DELETE_RKEY		= 0x09,
+ };
+ 
+ /* transmit */
 -- 
 2.13.5
