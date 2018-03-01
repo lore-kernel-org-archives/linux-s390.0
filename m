@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 1/8] net/smc: cleanup smc_llc.h and smc_clc.h headers
-Date: Thu,  1 Mar 2018 13:51:26 +0100
+Subject: [PATCH net-next 8/8] net/smc: prevent new connections on link group
+Date: Thu,  1 Mar 2018 13:51:33 +0100
 In-Reply-To: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
 References: <20180301125133.12211-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180301125133.12211-2-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180301125133.12211-9-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,171 +12,101 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Raspl <stefan.raspl@de.ibm.com>
+From: Karsten Graul <kgraul@linux.vnet.ibm.com>
 
-Remove structures used internal only from headers.
-And remove an extra function parameter.
+When the processing of a DELETE LINK message has started,
+new connections should not be added to the link group that
+is about to terminate.
 
-Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.vnet.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c  |  8 ++++----
- net/smc/smc_clc.c |  3 +++
- net/smc/smc_clc.h |  6 ------
- net/smc/smc_llc.c | 30 ++++++++++++++++++++++++++++++
- net/smc/smc_llc.h | 28 ----------------------------
- 5 files changed, 37 insertions(+), 38 deletions(-)
+ net/smc/af_smc.c   |  9 ---------
+ net/smc/smc_core.c | 19 ++++++++++---------
+ net/smc/smc_core.h |  1 +
+ net/smc/smc_llc.c  |  1 +
+ 4 files changed, 12 insertions(+), 18 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 38ae22b65e77..b1961a789837 100644
+index 5267ed19b67d..26684e086750 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -312,7 +312,7 @@ int smc_netinfo_by_tcpsk(struct socket *clcsock,
- 	return rc;
+@@ -356,15 +356,6 @@ static void smc_link_save_peer_info(struct smc_link *link,
+ 	link->peer_mtu = clc->qp_mtu;
  }
  
--static int smc_clnt_conf_first_link(struct smc_sock *smc, union ib_gid *gid)
-+static int smc_clnt_conf_first_link(struct smc_sock *smc)
+-static void smc_lgr_forget(struct smc_link_group *lgr)
+-{
+-	spin_lock_bh(&smc_lgr_list.lock);
+-	/* do not use this link group for new connections */
+-	if (!list_empty(&lgr->list))
+-		list_del_init(&lgr->list);
+-	spin_unlock_bh(&smc_lgr_list.lock);
+-}
+-
+ /* setup for RDMA connection of client */
+ static int smc_connect_rdma(struct smc_sock *smc)
  {
- 	struct smc_link_group *lgr = smc->conn.lgr;
- 	struct smc_link *link;
-@@ -346,7 +346,8 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc, union ib_gid *gid)
- 	/* send CONFIRM LINK response over RoCE fabric */
- 	rc = smc_llc_send_confirm_link(link,
- 				       link->smcibdev->mac[link->ibport - 1],
--				       gid, SMC_LLC_RESP);
-+				       &link->smcibdev->gid[link->ibport - 1],
-+				       SMC_LLC_RESP);
- 	if (rc < 0)
- 		return SMC_CLC_DECL_TCL;
- 
-@@ -498,8 +499,7 @@ static int smc_connect_rdma(struct smc_sock *smc)
- 
- 	if (local_contact == SMC_FIRST_CONTACT) {
- 		/* QP confirmation over RoCE fabric */
--		reason_code = smc_clnt_conf_first_link(
--			smc, &smcibdev->gid[ibport - 1]);
-+		reason_code = smc_clnt_conf_first_link(smc);
- 		if (reason_code < 0) {
- 			rc = reason_code;
- 			goto out_err_unlock;
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 8ac51583a063..dff318a2d5bf 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -22,6 +22,9 @@
- #include "smc_clc.h"
- #include "smc_ib.h"
- 
-+/* eye catcher "SMCR" EBCDIC for CLC messages */
-+static const char SMC_EYECATCHER[4] = {'\xe2', '\xd4', '\xc3', '\xd9'};
-+
- /* check if received message has a correct header length and contains valid
-  * heading and trailing eyecatchers
-  */
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index c145a0f36a68..aab3aae2a2ce 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -22,9 +22,6 @@
- #define SMC_CLC_CONFIRM		0x03
- #define SMC_CLC_DECLINE		0x04
- 
--/* eye catcher "SMCR" EBCDIC for CLC messages */
--static const char SMC_EYECATCHER[4] = {'\xe2', '\xd4', '\xc3', '\xd9'};
--
- #define SMC_CLC_V1		0x1		/* SMC version                */
- #define CLC_WAIT_TIME		(6 * HZ)	/* max. wait time on clcsock  */
- #define SMC_CLC_DECL_MEM	0x01010000  /* insufficient memory resources  */
-@@ -124,9 +121,6 @@ smc_clc_proposal_get_prefix(struct smc_clc_msg_proposal *pclc)
- 	       ((u8 *)pclc + sizeof(*pclc) + ntohs(pclc->iparea_offset));
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index eb343e15a723..702ce5f85e97 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -308,6 +308,15 @@ void smc_lgr_free(struct smc_link_group *lgr)
+ 	kfree(lgr);
  }
  
--struct smc_sock;
--struct smc_ib_device;
--
- int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
- 		     u8 expected_type);
- int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info);
++void smc_lgr_forget(struct smc_link_group *lgr)
++{
++	spin_lock_bh(&smc_lgr_list.lock);
++	/* do not use this link group for new connections */
++	if (!list_empty(&lgr->list))
++		list_del_init(&lgr->list);
++	spin_unlock_bh(&smc_lgr_list.lock);
++}
++
+ /* terminate linkgroup abnormally */
+ void smc_lgr_terminate(struct smc_link_group *lgr)
+ {
+@@ -315,15 +324,7 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
+ 	struct smc_sock *smc;
+ 	struct rb_node *node;
+ 
+-	spin_lock_bh(&smc_lgr_list.lock);
+-	if (list_empty(&lgr->list)) {
+-		/* termination already triggered */
+-		spin_unlock_bh(&smc_lgr_list.lock);
+-		return;
+-	}
+-	/* do not use this link group for new connections */
+-	list_del_init(&lgr->list);
+-	spin_unlock_bh(&smc_lgr_list.lock);
++	smc_lgr_forget(lgr);
+ 
+ 	write_lock_bh(&lgr->conns_lock);
+ 	node = rb_first(&lgr->conns_all);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index cead2093c4b4..07e2a393e6d9 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -197,6 +197,7 @@ struct smc_sock;
+ struct smc_clc_msg_accept_confirm;
+ 
+ void smc_lgr_free(struct smc_link_group *lgr);
++void smc_lgr_forget(struct smc_link_group *lgr);
+ void smc_lgr_terminate(struct smc_link_group *lgr);
+ int smc_buf_create(struct smc_sock *smc);
+ int smc_rmb_rtoken_handling(struct smc_connection *conn,
 diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 92fe4cc8c82c..e4502bbff33d 100644
+index 45b3e0211c39..54e8d6dc9201 100644
 --- a/net/smc/smc_llc.c
 +++ b/net/smc/smc_llc.c
-@@ -21,6 +21,36 @@
- #include "smc_clc.h"
- #include "smc_llc.h"
- 
-+#define SMC_LLC_DATA_LEN		40
-+
-+struct smc_llc_hdr {
-+	struct smc_wr_rx_hdr common;
-+	u8 length;	/* 44 */
-+	u8 reserved;
-+	u8 flags;
-+};
-+
-+struct smc_llc_msg_confirm_link {	/* type 0x01 */
-+	struct smc_llc_hdr hd;
-+	u8 sender_mac[ETH_ALEN];
-+	u8 sender_gid[SMC_GID_SIZE];
-+	u8 sender_qp_num[3];
-+	u8 link_num;
-+	u8 link_uid[SMC_LGR_ID_SIZE];
-+	u8 max_links;
-+	u8 reserved[9];
-+};
-+
-+union smc_llc_msg {
-+	struct smc_llc_msg_confirm_link confirm_link;
-+	struct {
-+		struct smc_llc_hdr hdr;
-+		u8 data[SMC_LLC_DATA_LEN];
-+	} raw;
-+};
-+
-+#define SMC_LLC_FLAG_RESP		0x80
-+
- /********************************** send *************************************/
- 
- struct smc_llc_tx_pend {
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 51b27ce90dbd..a7888607ab53 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -28,34 +28,6 @@ enum smc_llc_msg_type {
- 	SMC_LLC_CONFIRM_LINK		= 0x01,
- };
- 
--#define SMC_LLC_DATA_LEN		40
--
--struct smc_llc_hdr {
--	struct smc_wr_rx_hdr common;
--	u8 length;	/* 44 */
--	u8 reserved;
--	u8 flags;
--};
--
--struct smc_llc_msg_confirm_link {	/* type 0x01 */
--	struct smc_llc_hdr hd;
--	u8 sender_mac[ETH_ALEN];
--	u8 sender_gid[SMC_GID_SIZE];
--	u8 sender_qp_num[3];
--	u8 link_num;
--	u8 link_uid[SMC_LGR_ID_SIZE];
--	u8 max_links;
--	u8 reserved[9];
--};
--
--union smc_llc_msg {
--	struct smc_llc_msg_confirm_link confirm_link;
--	struct {
--		struct smc_llc_hdr hdr;
--		u8 data[SMC_LLC_DATA_LEN];
--	} raw;
--};
--
- /* transmit */
- int smc_llc_send_confirm_link(struct smc_link *lnk, u8 mac[], union ib_gid *gid,
- 			      enum smc_llc_reqresp reqresp);
+@@ -384,6 +384,7 @@ static void smc_llc_rx_delete_link(struct smc_link *link,
+ 			smc_lgr_terminate(lgr);
+ 	} else {
+ 		if (lgr->role == SMC_SERV) {
++			smc_lgr_forget(lgr);
+ 			smc_llc_send_delete_link(link, SMC_LLC_REQ);
+ 		} else {
+ 			smc_llc_send_delete_link(link, SMC_LLC_RESP);
 -- 
 2.13.5
