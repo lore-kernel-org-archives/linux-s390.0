@@ -1,269 +1,80 @@
-From: micky387 <mickaelsaibi@free.fr>
-Subject: [PATCH 003/103] sched, treewide: Replace hardcoded nice values with MIN_NICE/MAX_NICE
-Date: Mon,  5 Mar 2018 20:50:55 +0100
-Message-ID: <1520279555-24656-3-git-send-email-mickaelsaibi@free.fr>
-References: <commits for binder>
- <1520279555-24656-1-git-send-email-mickaelsaibi@free.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1520279555-24656-1-git-send-email-mickaelsaibi@free.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: xda@vinschen.de
-Cc: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>, Peter Zijlstra <peterz@infradead.org>, devel@driverdev.osuosl.org, devicetree@vger.kernel.org, fcoe-devel@open-fcoe.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, nbd-general@lists.sourceforge.net, ocfs2-devel@oss.oracle.com, openipmi-developer@lists.sourceforge.net, qla2xxx-upstream@qlogic.com, linux-arch@vger.kernel.org, Ingo Molnar <mingo@kernel.org>
+Date: Fri, 2 Mar 2018 21:57:02 +0000
+From: James Hogan <jhogan@kernel.org>
+Subject: Re: [PATCH v3 02/10] include: Move compat_timespec/ timeval to
+ compat_time.h
+Message-ID: <20180302215702.GD4197@saruman>
+References: <20180116021818.24791-1-deepa.kernel@gmail.com>
+ <20180116021818.24791-3-deepa.kernel@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="jL2BoiuKMElzg3CS"
+Content-Disposition: inline
+In-Reply-To: <20180116021818.24791-3-deepa.kernel@gmail.com>
+Return-Path: <jhogan@kernel.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: tglx@linutronix.de, john.stultz@linaro.org, linux-kernel@vger.kernel.org, arnd@arndb.de, y2038@lists.linaro.org, acme@kernel.org, benh@kernel.crashing.org, borntraeger@de.ibm.com, catalin.marinas@arm.com, cmetcalf@mellanox.com, cohuck@redhat.com, davem@davemloft.net, deller@gmx.de, devel@driverdev.osuosl.org, gerald.schaefer@de.ibm.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, hoeppner@linux.vnet.ibm.com, hpa@zytor.com, jejb@parisc-linux.org, jwi@linux.vnet.ibm.com, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, mark.rutland@arm.com, mingo@redhat.com, mpe@ellerman.id.au, oberpar@linux.vnet.ibm.com, oprofile-list@lists.sf.net, paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org, rostedt@goodmis.org, rric@kernel.org, schwidefsky@de.ibm.com, sebott@linux.vnet.ibm.com, sparclinux@vger.kernel.org, sth@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, will.deacon@arm.com, x86@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
 
-Replace various -20/+19 hardcoded nice values with MIN_NICE/MAX_NICE.
+--jL2BoiuKMElzg3CS
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/ff13819fd09b7a5dba5ab5ae797f2e7019bdfa17.1394532288.git.yangds.fnst@cn.fujitsu.com
-Cc: devel@driverdev.osuosl.org
-Cc: devicetree@vger.kernel.org
-Cc: fcoe-devel@open-fcoe.org
-Cc: linux390@de.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Cc: nbd-general@lists.sourceforge.net
-Cc: ocfs2-devel@oss.oracle.com
-Cc: openipmi-developer@lists.sourceforge.net
-Cc: qla2xxx-upstream@qlogic.com
-Cc: linux-arch@vger.kernel.org
-[ Consolidated the patches, twiddled the changelog. ]
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+On Mon, Jan 15, 2018 at 06:18:10PM -0800, Deepa Dinamani wrote:
+> All the current architecture specific defines for these
+> are the same. Refactor these common defines to a common
+> header file.
+>=20
+> The new common linux/compat_time.h is also useful as it
+> will eventually be used to hold all the defines that
+> are needed for compat time types that support non y2038
+> safe types. New architectures need not have to define these
+> new types as they will only use new y2038 safe syscalls.
+> This file can be deleted after y2038 when we stop supporting
+> non y2038 safe syscalls.
 
-Change-Id: I00a4ccd66fcc206211f462245d98d35a853f8264
----
- drivers/block/loop.c              | 2 +-
- drivers/block/nbd.c               | 2 +-
- drivers/block/pktcdvd.c           | 2 +-
- drivers/char/ipmi/ipmi_si_intf.c  | 2 +-
- drivers/s390/crypto/ap_bus.c      | 2 +-
- drivers/scsi/bnx2fc/bnx2fc_fcoe.c | 4 ++--
- drivers/scsi/bnx2i/bnx2i_hwi.c    | 2 +-
- drivers/scsi/fcoe/fcoe.c          | 2 +-
- drivers/scsi/ibmvscsi/ibmvfc.c    | 2 +-
- drivers/scsi/ibmvscsi/ibmvscsi.c  | 2 +-
- drivers/scsi/lpfc/lpfc_hbadisc.c  | 2 +-
- drivers/scsi/qla2xxx/qla_os.c     | 2 +-
- fs/ocfs2/cluster/heartbeat.c      | 2 +-
- kernel/workqueue.c                | 6 +++---
- mm/huge_memory.c                  | 2 +-
- 15 files changed, 18 insertions(+), 18 deletions(-)
+=2E..
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 333458c..029e43c 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -547,7 +547,7 @@ static int loop_thread(void *data)
- 	struct loop_device *lo = data;
- 	struct bio *bio;
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 
- 	while (!kthread_should_stop() || !bio_list_empty(&lo->lo_bio_list)) {
- 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index d593fa5..f1a2da8 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -533,7 +533,7 @@ static int nbd_thread(void *data)
- 	struct nbd_device *nbd = data;
- 	struct request *req;
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 	while (!kthread_should_stop() || !list_empty(&nbd->waiting_queue)) {
- 		/* wait for something to do */
- 		wait_event_interruptible(nbd->waiting_wq,
-diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
-index caddb5d..14a8075 100644
---- a/drivers/block/pktcdvd.c
-+++ b/drivers/block/pktcdvd.c
-@@ -1471,7 +1471,7 @@ static int kcdrwd(void *foobar)
- 	struct packet_data *pkt;
- 	long min_sleep_time, residue;
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 	set_freezable();
- 
- 	for (;;) {
-diff --git a/drivers/char/ipmi/ipmi_si_intf.c b/drivers/char/ipmi/ipmi_si_intf.c
-index a67ac2a..fc22dec 100644
---- a/drivers/char/ipmi/ipmi_si_intf.c
-+++ b/drivers/char/ipmi/ipmi_si_intf.c
-@@ -992,7 +992,7 @@ static int ipmi_thread(void *data)
- 	struct timespec busy_until;
- 
- 	ipmi_si_set_not_busy(&busy_until);
--	set_user_nice(current, 19);
-+	set_user_nice(current, MAX_NICE);
- 	while (!kthread_should_stop()) {
- 		int busy_wait;
- 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 6f512fa..b30ffb8 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -1755,7 +1755,7 @@ static int ap_poll_thread(void *data)
- 	int requests;
- 	struct ap_device *ap_dev;
- 
--	set_user_nice(current, 19);
-+	set_user_nice(current, MAX_NICE);
- 	while (1) {
- 		if (ap_suspend_flag)
- 			return 0;
-diff --git a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-index aad5535..ff08516 100644
---- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-+++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-@@ -471,7 +471,7 @@ static int bnx2fc_l2_rcv_thread(void *arg)
- 	struct fcoe_percpu_s *bg = arg;
- 	struct sk_buff *skb;
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 	set_current_state(TASK_INTERRUPTIBLE);
- 	while (!kthread_should_stop()) {
- 		schedule();
-@@ -610,7 +610,7 @@ int bnx2fc_percpu_io_thread(void *arg)
- 	struct bnx2fc_work *work, *tmp;
- 	LIST_HEAD(work_list);
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 	set_current_state(TASK_INTERRUPTIBLE);
- 	while (!kthread_should_stop()) {
- 		schedule();
-diff --git a/drivers/scsi/bnx2i/bnx2i_hwi.c b/drivers/scsi/bnx2i/bnx2i_hwi.c
-index a28b03e..a95ea80 100644
---- a/drivers/scsi/bnx2i/bnx2i_hwi.c
-+++ b/drivers/scsi/bnx2i/bnx2i_hwi.c
-@@ -1870,7 +1870,7 @@ int bnx2i_percpu_io_thread(void *arg)
- 	struct bnx2i_work *work, *tmp;
- 	LIST_HEAD(work_list);
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 
- 	while (!kthread_should_stop()) {
- 		spin_lock_bh(&p->p_work_lock);
-diff --git a/drivers/scsi/fcoe/fcoe.c b/drivers/scsi/fcoe/fcoe.c
-index 32ae6c6..7399981 100644
---- a/drivers/scsi/fcoe/fcoe.c
-+++ b/drivers/scsi/fcoe/fcoe.c
-@@ -1861,7 +1861,7 @@ static int fcoe_percpu_receive_thread(void *arg)
- 
- 	skb_queue_head_init(&tmp);
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 
- retry:
- 	while (!kthread_should_stop()) {
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 9206861..ae1d783 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -4503,7 +4503,7 @@ static int ibmvfc_work(void *data)
- 	struct ibmvfc_host *vhost = data;
- 	int rc;
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 
- 	while (1) {
- 		rc = wait_event_interruptible(vhost->work_wait_q,
-diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
-index c62b3e5..67d840f 100644
---- a/drivers/scsi/ibmvscsi/ibmvscsi.c
-+++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
-@@ -2206,7 +2206,7 @@ static int ibmvscsi_work(void *data)
- 	struct ibmvscsi_host_data *hostdata = data;
- 	int rc;
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 
- 	while (1) {
- 		rc = wait_event_interruptible(hostdata->work_wait_q,
-diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
-index 0f6e254..45aafeb 100644
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -733,7 +733,7 @@ lpfc_do_work(void *p)
- 	struct lpfc_hba *phba = p;
- 	int rc;
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 	current->flags |= PF_NOFREEZE;
- 	phba->data_flags = 0;
- 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index c11b82e..8a83cfc 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -4684,7 +4684,7 @@ qla2x00_do_dpc(void *data)
- 	ha = (struct qla_hw_data *)data;
- 	base_vha = pci_get_drvdata(ha->pdev);
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 
- 	set_current_state(TASK_INTERRUPTIBLE);
- 	while (!kthread_should_stop()) {
-diff --git a/fs/ocfs2/cluster/heartbeat.c b/fs/ocfs2/cluster/heartbeat.c
-index 42252bf..3a62a21 100644
---- a/fs/ocfs2/cluster/heartbeat.c
-+++ b/fs/ocfs2/cluster/heartbeat.c
-@@ -1131,7 +1131,7 @@ static int o2hb_thread(void *data)
- 
- 	mlog(ML_HEARTBEAT|ML_KTHREAD, "hb thread running\n");
- 
--	set_user_nice(current, -20);
-+	set_user_nice(current, MIN_NICE);
- 
- 	/* Pin node */
- 	o2nm_depend_this_node();
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 483f5cd..1bc95c8 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -103,10 +103,10 @@ enum {
- 
- 	/*
- 	 * Rescue workers are used only on emergencies and shared by
--	 * all cpus.  Give -20.
-+	 * all cpus.  Give MIN_NICE.
- 	 */
--	RESCUER_NICE_LEVEL	= -20,
--	HIGHPRI_NICE_LEVEL	= -20,
-+	RESCUER_NICE_LEVEL	= MIN_NICE,
-+	HIGHPRI_NICE_LEVEL	= MIN_NICE,
- 
- 	WQ_NAME_LEN		= 24,
- };
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 3877483..2353231 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2698,7 +2698,7 @@ static int khugepaged(void *none)
- 	struct mm_slot *mm_slot;
- 
- 	set_freezable();
--	set_user_nice(current, 19);
-+	set_user_nice(current, MAX_NICE);
- 
- 	while (!kthread_should_stop()) {
- 		khugepaged_do_scan();
--- 
-2.7.4
+>  arch/mips/include/asm/compat.h    | 11 -----------
+>  arch/mips/kernel/signal32.c       |  2 +-
+
+For MIPS:
+Acked-by: James Hogan <jhogan@kernel.org>
+
+Cheers
+James
+
+--jL2BoiuKMElzg3CS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEd80NauSabkiESfLYbAtpk944dnoFAlqZyK0ACgkQbAtpk944
+dnriXA//fiy/M44auOl6H3L/Sttb1xadP44YPlJKIkOi6RRm+XDNJWeIyb2dB28g
+vkHkEqeW5OX0Yz+YmbMULh8EAl6TV42LSMUcRcDNmI3GjkArQIEQ7T1E7BiwukFd
+lclSwy3Fe9HwtZdLeKQuO+C8W4pZ0rUXZeQW+8A0TvNM1zAKInEKaAGXgxS7PcMs
+7pZBbOcIGBg9sTWFPhU4N63bfMn095wDXupegwflrlB1JSTvFktFxc2E6c0JmIwm
+ij9jNw3J/lUtGaMq2ynmbJQWr+/I1EFVe740bkdKYP2Q1ZdTybWR2FnnoP+cC6kF
+hS49c68Enp1mSirYIqRidTc8YLALwUFpdheUUky1VUPSjBWee2BqZ83VrshoMvkx
+DQTuUfxvlFdnCLF6xHl0Ock5g7QTzrne9rpvqGBge3sGp25RZ1RcJYAruNJ36u+C
+9VP1Y284Sz40x76q77yLxC5rT3inAHQYO2c+ob/BnrKoSrMxfDrWYea1X1yh+x80
+6qyZomlmDEu7OREVX2dnpkIG/0j2GvhQBtjYHAHjvTkmHho80Fe/GBZhObkQjnoW
+xgm1BLteveq/IEGK1tY2MEqjNFgUjQn1/r72KrP1b7PMtmwHjkyaXljB/dEv5TI3
+tEttVw3wzqGUWmbvyj7KZcpv/BQUx/Otrqh/zGMnC30U53Lzrzw=
+=PkCk
+-----END PGP SIGNATURE-----
+
+--jL2BoiuKMElzg3CS--
