@@ -1,19 +1,17 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 13/15] KVM: s390: Configure the guest's CRYCB
-Date: Fri, 2 Mar 2018 14:48:50 -0500
-Message-ID: <6e5e25e3-271e-bc19-cc82-75b62ca407f9@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 08/15] KVM: s390: interface to enable AP execution mode
+Date: Fri, 2 Mar 2018 14:54:34 -0500
+Message-ID: <efd62b2f-47bb-99c0-a8dc-ee88582663f0@linux.vnet.ibm.com>
 References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1519741693-17440-14-git-send-email-akrowiak@linux.vnet.ibm.com>
- <99b24fc7-3df9-6620-d1df-917214fbdda2@redhat.com>
- <fdb264da-dd74-f380-78dc-7abc61f1484b@linux.vnet.ibm.com>
- <081eab40-0bbd-5842-76bc-2974f4544529@redhat.com>
- <4763e223-1c78-c9a3-42bc-2d3569a716ff@linux.vnet.ibm.com>
- <56f576ba-4eee-696e-45aa-f4db1e96bd57@redhat.com>
+ <1519741693-17440-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <532c0f98-83d0-c687-55d6-a6c5cb263360@redhat.com>
+ <ef401e32-4a33-2fe6-8695-f0eff139f9db@linux.vnet.ibm.com>
+ <dd63866f-cf54-a11f-8bfd-cc2f9dbae9b7@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <56f576ba-4eee-696e-45aa-f4db1e96bd57@redhat.com>
+In-Reply-To: <dd63866f-cf54-a11f-8bfd-cc2f9dbae9b7@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -22,61 +20,117 @@ To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, linux-kern
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03/02/2018 05:08 AM, David Hildenbrand wrote:
-> On 01.03.2018 21:42, Tony Krowiak wrote:
->> On 03/01/2018 04:37 AM, David Hildenbrand wrote:
->>> On 28.02.2018 21:45, Tony Krowiak wrote:
->>>> On 02/28/2018 04:49 AM, David Hildenbrand wrote:
->>>>>> +static int vfio_ap_mdev_open(struct mdev_device *mdev)
->>>>>> +{
->>>>>> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->>>>>> +	unsigned long events;
->>>>>> +	int ret;
->>>>>> +
->>>>>> +	matrix_mdev->group_notifier.notifier_call = vfio_ap_mdev_group_notifier;
->>>>>> +	events = VFIO_GROUP_NOTIFY_SET_KVM;
->>>>>> +	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
->>>>>> +				     &events, &matrix_mdev->group_notifier);
->>>>>> +
->>>>>> +	ret = kvm_ap_configure_matrix(matrix_mdev->kvm,
->>>>>> +				      matrix_mdev->matrix);
->>>>>> +	if (ret)
->>>>>> +		return ret;
->>>>>> +
->>>>>> +	ret = kvm_ap_enable_ie_mode(matrix_mdev->kvm);
->>>>> Can't this happen while the guest is already running? Or what hinders us
->>>>> from doing that?
->>>> I'm not sure exactly what you're asking here. Are you asking if the
->>>> vfio_ap_mdev_open()
->>>> function can be called multiple times while the guest is running? AFAIK
->>>> this will be
->>>> called only once when the mediated device's file descriptor is opened.
->>>> This happens in
->>>> QEMU when the -device vfio-ap device is realized.
->>> Okay, but from a pure interface point of view, this could happen any
->>> time, even while the guest is already running. Patching in the SCB of a
->>> running VCPU is evil.
->> How can this happen while the guest is running? QEMU opens the fd when the
->> device is realized and AFAIK vfio mdev will not allow any other process to
->> open it until the guest is terminated. What am I missing?
-> It can't happen right now (the way QEMU uses it), but the kernel
-> interface allows it, no?
+On 03/01/2018 04:35 AM, David Hildenbrand wrote:
+> On 28.02.2018 21:39, Tony Krowiak wrote:
+>> On 02/28/2018 04:44 AM, David Hildenbrand wrote:
+>>> On 27.02.2018 15:28, Tony Krowiak wrote:
+>>>> Introduces a new interface to enable AP interpretive
+>>>> execution (IE) mode for the KVM guest. When running
+>>>> with IE mode enabled, AP instructions executed on the
+>>>> KVM guest will be interpreted by the firmware and
+>>>> passed directly through to an AP device installed on
+>>>> the system. The CPU model feature for AP must
+>>>> be enabled for the KVM guest in order to enable
+>>>> interpretive execution mode.
+>>>>
+>>>> This interface will be used in a subsequent patch
+>>>> by the VFIO AP device driver.
+>>>>
+>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>>>> ---
+>>>>    arch/s390/include/asm/kvm-ap.h   |    2 ++
+>>>>    arch/s390/include/asm/kvm_host.h |    1 +
+>>>>    arch/s390/kvm/kvm-ap.c           |   27 +++++++++++++++++++++++++++
+>>>>    arch/s390/kvm/kvm-s390.h         |    1 +
+>>>>    4 files changed, 31 insertions(+), 0 deletions(-)
+>>>>
+>>>> diff --git a/arch/s390/include/asm/kvm-ap.h b/arch/s390/include/asm/kvm-ap.h
+>>>> index 46e7c5b..6bd6bfb 100644
+>>>> --- a/arch/s390/include/asm/kvm-ap.h
+>>>> +++ b/arch/s390/include/asm/kvm-ap.h
+>>>> @@ -51,4 +51,6 @@ struct kvm_ap_matrix {
+>>>>    
+>>>>    void kvm_ap_deconfigure_matrix(struct kvm *kvm);
+>>>>    
+>>>> +int kvm_ap_enable_ie_mode(struct kvm *kvm);
+>>>> +
+>>>>    #endif /* _ASM_KVM_AP */
+>>>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>>>> index a4c77d3..1eebdd6 100644
+>>>> --- a/arch/s390/include/asm/kvm_host.h
+>>>> +++ b/arch/s390/include/asm/kvm_host.h
+>>>> @@ -186,6 +186,7 @@ struct kvm_s390_sie_block {
+>>>>    #define ECA_AIV		0x00200000
+>>>>    #define ECA_VX		0x00020000
+>>>>    #define ECA_PROTEXCI	0x00002000
+>>>> +#define ECA_APIE	0x00000008
+>>>>    #define ECA_SII		0x00000001
+>>>>    	__u32	eca;			/* 0x004c */
+>>>>    #define ICPT_INST	0x04
+>>>> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
+>>>> index bb29045..862e54b 100644
+>>>> --- a/arch/s390/kvm/kvm-ap.c
+>>>> +++ b/arch/s390/kvm/kvm-ap.c
+>>>> @@ -307,3 +307,30 @@ void kvm_ap_deconfigure_matrix(struct kvm *kvm)
+>>>>    	kvm_ap_clear_crycb_masks(kvm);
+>>>>    }
+>>>>    EXPORT_SYMBOL(kvm_ap_deconfigure_matrix);
+>>>> +
+>>>> +/**
+>>>> + * kvm_ap_enable_ie_mode
+>>>> + *
+>>>> + * Enable interpretrive execution of AP instructions for the guest. When
+>>>> + * enabled, AP instructions executed on the guest will be interpreted and
+>>>> + * passed through to an AP installed on the host system.
+>>>> + *
+>>>> + * Returns 0 if interpretrive execution is enabled. Returns -EOPNOTSUPP
+>>>> + * if AP facilities are not installed for the guest.
+>>>> + *
+>>>> + * @kvm: the guest's kvm structure
+>>>> + */
+>>>> +int kvm_ap_enable_ie_mode(struct kvm *kvm)
+>>>> +{
+>>>> +	int i;
+>>>> +	struct kvm_vcpu *vcpu;
+>>>> +
+>>>> +	if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP))
+>>>> +		return -EOPNOTSUPP;
+>>>> +
+>>>> +	kvm_for_each_vcpu(i, vcpu, kvm)
+>>>> +		vcpu->arch.sie_block->eca |= ECA_APIE;
+>>>> +
+>>>> +	return 0;
+>>>> +}
+>>>> +EXPORT_SYMBOL(kvm_ap_enable_ie_mode);
+>>>> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+>>>> index 1b5621f..3142541 100644
+>>>> --- a/arch/s390/kvm/kvm-s390.h
+>>>> +++ b/arch/s390/kvm/kvm-s390.h
+>>>> @@ -18,6 +18,7 @@
+>>>>    #include <asm/facility.h>
+>>>>    #include <asm/processor.h>
+>>>>    #include <asm/sclp.h>
+>>>> +#include <asm/ap.h>
+>>>>    
+>>>>    /* Transactional Memory Execution related macros */
+>>>>    #define IS_TE_ENABLED(vcpu)	((vcpu->arch.sie_block->ecb & ECB_TE))
+>>>>
+>>> And also, what about hot-plugged CPUs?
+>> I haven't considered that, do you have any suggestions?
+> You should handle the KVM_S390_VM_CPU_FEAT_AP feature instead during
+> kvm_arch_vcpu_setup(), independent of any configured AP devices.
 >
-> Anyhow, as discussed this should be handled directly while creating a
-> VCPU. Then also CPU hotplug is properly covered.
-Here is what I think we should do:
-
-* Set ECA.28 in the VCPU setup function based on whether the CPU model 
-feature
-   has been turned on by user space as you suggest.
-
-* Replace the kvm_ap_enable_ie_mode() call in the open() above with a 
-query of
-   the CPU model feature and return an error if it is not turned on.
-
-Does this sound reasonable?
-
-Would it be more appropriate in this case to rename the feature to
-KVM_S390_VM_CPU_FEAT_APIE?
+> This avoids the races I mentioned in regards to this series and also
+> will handle hotplugged CPUs properly.
 >
+> If KVM_S390_VM_CPU_FEAT_AP is configured for a guest -> each CPU sets
+> ECA_APIE during kvm_arch_vcpu_setup().
+We talked about this in a couple of other patches, but I am on
+board with this. To make things clearer, Should we rename
+the feature to KVM_S390_VM_CPU_FEAT_APIE so its purpose is more
+clear?
+>
+>
+> (In the vSIE code, simply allow to set ECA_APIE in the shadow SCB in
+> case KVM_S390_VM_CPU_FEAT_AP is enabled)
 >
