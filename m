@@ -1,65 +1,65 @@
 From: David Hildenbrand <david@redhat.com>
-Date: Mon, 05 Mar 2018 12:52:08 +0000
-Subject: Re: [PATCH 1/2] KVM: s390: fix fallthrough annotation
-Message-Id: <7fdeeb56-a377-f0af-a0f4-1e6957e7bf59@redhat.com>
-In-Reply-To: <20180305122041.21002d1d.cohuck@redhat.com>
-References: <20180305122041.21002d1d.cohuck@redhat.com>
+Date: Mon, 05 Mar 2018 12:56:59 +0000
+Subject: Re: [PATCH 2/2] KVM: add machine check counter kvm_stat
+Message-Id: <f2a49129-1674-eb46-67ac-23a577ef4d31@redhat.com>
+In-Reply-To: <20180305122222.37f2ceb7.cohuck@redhat.com>
+References: <20180305122222.37f2ceb7.cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 05.03.2018 12:16, Christian Borntraeger wrote:
-> From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+> From: QingFeng Hao <haoqf@linux.vnet.ibm.com>
 > 
-> A case statement in kvm_s390_shadow_tables uses fallthrough annotations
-> which are not recognized by gcc because they are hidden within a block.
-> Move these annotations out of the block to fix (W=1) warnings like below:
+> This counter can be used for administration, debug or test purpose.
 > 
-> arch/s390/kvm/gaccess.c: In function 'kvm_s390_shadow_tables':
-> arch/s390/kvm/gaccess.c:1029:26: warning: this statement may fall through [-Wimplicit-fallthrough=]
->   case ASCE_TYPE_REGION1: {
->                           ^
-> 
-> Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+> Suggested-by: Vladislav Mironov <mironov@de.ibm.com>
+> Signed-off-by: QingFeng Hao <haoqf@linux.vnet.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > ---
->  arch/s390/kvm/gaccess.c | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
+>  arch/s390/include/asm/kvm_host.h | 1 +
+>  arch/s390/kvm/interrupt.c        | 1 +
+>  arch/s390/kvm/kvm-s390.c         | 1 +
+>  3 files changed, 3 insertions(+)
 > 
-> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> index c24bfa72baf7..8e2b8647ee12 100644
-> --- a/arch/s390/kvm/gaccess.c
-> +++ b/arch/s390/kvm/gaccess.c
-> @@ -1050,8 +1050,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  		rc = gmap_shadow_r2t(sg, saddr, rfte.val, *fake);
->  		if (rc)
->  			return rc;
-> -		/* fallthrough */
-> -	}
-> +	} /* fallthrough */
->  	case ASCE_TYPE_REGION2: {
->  		union region2_table_entry rste;
->  
-> @@ -1077,8 +1076,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  		rc = gmap_shadow_r3t(sg, saddr, rste.val, *fake);
->  		if (rc)
->  			return rc;
-> -		/* fallthrough */
-> -	}
-> +	} /* fallthrough */
->  	case ASCE_TYPE_REGION3: {
->  		union region3_table_entry rtte;
->  
-> @@ -1113,8 +1111,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  		rc = gmap_shadow_sgt(sg, saddr, rtte.val, *fake);
->  		if (rc)
->  			return rc;
-> -		/* fallthrough */
-> -	}
-> +	} /* fallthrough */
->  	case ASCE_TYPE_SEGMENT: {
->  		union segment_table_entry ste;
->  
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index 22615af0b6e6..77a49de9c511 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -320,6 +320,7 @@ struct kvm_vcpu_stat {
+>  	u64 deliver_restart_signal;
+>  	u64 deliver_program_int;
+>  	u64 deliver_io_int;
+> +	u64 deliver_machine_check;
+>  	u64 exit_wait_state;
+>  	u64 instruction_epsw;
+>  	u64 instruction_gs;
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index b04616b57a94..bde04a6191ca 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -595,6 +595,7 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
+>  		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+>  						 KVM_S390_MCHK,
+>  						 mchk.cr14, mchk.mcic);
+> +		vcpu->stat.deliver_machine_check++;
+>  		rc = __write_machine_check(vcpu, &mchk);
+>  	}
+>  	return rc;
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 6ee1d13a72f9..432277ad2114 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -88,6 +88,7 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
+>  	{ "deliver_restart_signal", VCPU_STAT(deliver_restart_signal) },
+>  	{ "deliver_program_interruption", VCPU_STAT(deliver_program_int) },
+>  	{ "deliver_io_interrupt", VCPU_STAT(deliver_io_int) },
+> +	{ "deliver_machine_check", VCPU_STAT(deliver_machine_check) },
+>  	{ "exit_wait_state", VCPU_STAT(exit_wait_state) },
+>  	{ "instruction_epsw", VCPU_STAT(instruction_epsw) },
+>  	{ "instruction_gs", VCPU_STAT(instruction_gs) },
 > 
+
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
