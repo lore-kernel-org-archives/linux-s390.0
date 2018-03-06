@@ -1,58 +1,59 @@
 From: David Hildenbrand <david@redhat.com>
-Date: Tue, 06 Mar 2018 13:16:19 +0000
-Subject: Re: [PATCH RFC 2/2] KVM: s390: vsie: store guest addresses of satellite blocks in vsie_page
-Message-Id: <1ba0d3ff-2ab1-447c-ac5f-4cad595c2e2e@redhat.com>
-In-Reply-To: <ca50248c-944b-e5de-4633-b5cea593ccd6@de.ibm.com>
-References: <ca50248c-944b-e5de-4633-b5cea593ccd6@de.ibm.com>
+Date: Tue, 06 Mar 2018 13:30:56 +0000
+Subject: Re: [PATCH v1] KVM: s390x: fix memory overwrites when not using SCA entries
+Message-Id: <0f7bd6b5-043b-ac6e-614f-85893fac670f@redhat.com>
+In-Reply-To: <564cc278-404e-5890-1070-7d53ab9fac00@de.ibm.com>
+References: <564cc278-404e-5890-1070-7d53ab9fac00@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06.03.2018 14:14, Christian Borntraeger wrote:
+On 06.03.2018 14:29, Cornelia Huck wrote:
+> On Tue,  6 Mar 2018 14:27:58 +0100
+> David Hildenbrand <david@redhat.com> wrote:
 > 
-> 
-> On 03/06/2018 02:01 PM, David Hildenbrand wrote:
->> On 06.03.2018 12:53, Christian Borntraeger wrote:
->>>
->>>
->>> On 03/06/2018 12:38 PM, Christian Borntraeger wrote:
->>>> On 03/06/2018 12:32 PM, Christian Borntraeger wrote:
->>>>> David, 
->>>>>
->>>>> this seems to have broken VSIE f�r guests with >64vcpus as we only pin
->>>>> the first page of the SCA. Starting guest3 with 240 vcpu triggers
->>>>> quickly guest2 crashes. Can you have a look?
->>>>>
->>>>
->>>> Hmm, or maybe it was always broken and we never supported pinning of
->>>> ESCA properly?
->>>
->>> 4.15.0 is also broken, must be an earlier change.
->>>
+>> Even if we don't have extended SCA support, we can have more than 64 CPUs
+>> if we don't enable any HW features that might use the SCA entries.
 >>
->> Maybe something as simple as this:
+>> Now, this works just fine, but we missed a return, which is why we
+>> would actually store the SCA entries. If we have more than 64 CPUs, this
+>> means writing outside of the basic SCA - bad.
+>>
+>> Let's fix this. This allows > 64 CPUs when running nested (under vSIE)
+>> without random crashes.
+>>
+>> Fixes: a6940674c384 ("KVM: s390: allow 255 VCPUs when sca entries aren't used")
+> 
+> cc: stable?
+
+Think so!
+
+If whoever picks this up can also fix the subject s/s390x/s390/, that
+would be nice.
+
+> 
+>> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>  arch/s390/kvm/kvm-s390.c | 1 +
+>>  1 file changed, 1 insertion(+)
 >>
 >> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
 >> index 77d7818130db..321bfbc67d3d 100644
 >> --- a/arch/s390/kvm/kvm-s390.c
 >> +++ b/arch/s390/kvm/kvm-s390.c
 >> @@ -2146,6 +2146,7 @@ static void sca_add_vcpu(struct kvm_vcpu *vcpu)
->>                 /* we still need the basic sca for the ipte control */
->>                 vcpu->arch.sie_block->scaoh = (__u32)(((__u64)sca) >> 32);
->>                 vcpu->arch.sie_block->scaol = (__u32)(__u64)sca;
->> +               return;
->>         }
->>         read_lock(&vcpu->kvm->arch.sca_lock);
->>         if (vcpu->kvm->arch.use_esca) {
->>
->>
+>>  		/* we still need the basic sca for the ipte control */
+>>  		vcpu->arch.sie_block->scaoh = (__u32)(((__u64)sca) >> 32);
+>>  		vcpu->arch.sie_block->scaol = (__u32)(__u64)sca;
+>> +		return;
+>>  	}
+>>  	read_lock(&vcpu->kvm->arch.sca_lock);
+>>  	if (vcpu->kvm->arch.use_esca) {
 > 
-> 
-> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> can you spin a patch with proper Fixes tags?
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > 
 
-Sure, thanks for reporting!
 
 -- 
 
