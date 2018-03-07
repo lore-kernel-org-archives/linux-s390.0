@@ -1,46 +1,65 @@
 Return-Path: <netdev-owner@vger.kernel.org>
-Date: Thu, 08 Mar 2018 12:43:57 -0500 (EST)
-Message-Id: <20180308.124357.718414383801823111.davem@davemloft.net>
-Subject: Re: [PATCH net 1/1] net/smc: wakeup closing listen socket
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20180307125931.42248-2-ubraun@linux.vnet.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net 1/1] net/smc: wakeup closing listen socket
+Date: Wed,  7 Mar 2018 13:59:31 +0100
+In-Reply-To: <20180307125931.42248-1-ubraun@linux.vnet.ibm.com>
 References: <20180307125931.42248-1-ubraun@linux.vnet.ibm.com>
-        <20180307125931.42248-2-ubraun@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <20180307125931.42248-2-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: ubraun@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Wed,  7 Mar 2018 13:59:31 +0100
+Closing of a listen socket wakes up kernel_accept() of
+smc_tcp_listen_worker(), and then has to wait till smc_tcp_listen_worker()
+gives up the internal clcsock. This wait is non-interruptible, and does
+not fit to the interruptible wakeup in smc_tcp_listen_worker().
+Thus wakeup fails, and waiting for the closed internal clcsock never ends
+before the wait timeout is reached.
+This patch introduces the matching non-interruptible wakeup.
 
-> Closing of a listen socket wakes up kernel_accept() of
-> smc_tcp_listen_worker(), and then has to wait till
-> smc_tcp_listen_worker() gives up the internal clcsock. This wait is
-> non-interruptible, and does not fit to the interruptible wakeup in
-> smc_tcp_listen_worker().
+Fixes: 127f49705823 ("net/smc: release clcsock from tcp_listen_worker")
+Reported-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ net/smc/af_smc.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-I am having a hard time understanding this.
-
-A non-interruptible sleep just means that the sleeper can only be
-woken up by the event itself.  Said another way, signals and other
-unrelated events do not wake up the sleeper.
-
-So as long as the socket close emits the wakeup event, the
-non-interruptible sleeper will wake up.
-
-It is also a huge red flag that you feel that you need custom handling
-in this area and can't use the generic infrastructure and routines for
-this.
-
-Without a better understanding and explanation, there is no way I am
-applying this.  It seems that you guys do a lot of things in custom
-ways that really should follow the methods and mechanisms used by
-other protocol families in the tree.
-
-Thank you.
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 8cc97834d4f6..ad4c43eb7e7f 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -946,6 +946,20 @@ static void smc_listen_work(struct work_struct *work)
+ 	goto enqueue; /* queue new sock with sk_err set */
+ }
+ 
++/* a non-interruptible variant of sock_def_wakeup() for wakeup of
++ * smc_close_wait_listen_clcsock()
++ */
++static void smc_sock_wakeup(struct sock *sk)
++{
++	struct socket_wq *wq;
++
++	rcu_read_lock();
++	wq = rcu_dereference(sk->sk_wq);
++	if (skwq_has_sleeper(wq))
++		wake_up_all(&wq->wait);
++	rcu_read_unlock();
++}
++
+ static void smc_tcp_listen_work(struct work_struct *work)
+ {
+ 	struct smc_sock *lsmc = container_of(work, struct smc_sock,
+@@ -981,7 +995,7 @@ static void smc_tcp_listen_work(struct work_struct *work)
+ 	/* no more listening, wake up smc_close_wait_listen_clcsock and
+ 	 * accept
+ 	 */
+-	lsk->sk_state_change(lsk);
++	smc_sock_wakeup(lsk);
+ 	sock_put(&lsmc->sk); /* sock_hold in smc_listen */
+ }
+ 
+-- 
+2.13.5
