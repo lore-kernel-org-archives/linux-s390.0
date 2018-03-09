@@ -1,15 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 9 Mar 2018 11:02:41 +0100
+Date: Fri, 9 Mar 2018 11:11:34 +0100
 From: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Subject: Re: [PATCH 09/11] kexec_file: Remove mis-use of sh_offset field
-In-Reply-To: <20180309031420.GA3246@dhcp-128-65.nay.redhat.com>
+Subject: Re: [PATCH 11/11] kexec_file: Move purgatories sha256 to common
+ code
+In-Reply-To: <20180309044353.GC3246@dhcp-128-65.nay.redhat.com>
 References: <20180226151620.20970-1-prudo@linux.vnet.ibm.com>
-        <20180226151620.20970-10-prudo@linux.vnet.ibm.com>
-        <20180309031420.GA3246@dhcp-128-65.nay.redhat.com>
+        <20180226151620.20970-12-prudo@linux.vnet.ibm.com>
+        <20180309044353.GC3246@dhcp-128-65.nay.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20180309110241.00b0d3f3@ThinkPad>
+Message-Id: <20180309111134.6854a2a5@ThinkPad>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -20,132 +21,115 @@ List-ID: <linux-s390.vger.kernel.org>
 Hi Dave,
 
 
-On Fri, 9 Mar 2018 11:14:20 +0800
+On Fri, 9 Mar 2018 12:43:53 +0800
 Dave Young <dyoung@redhat.com> wrote:
 
 > On 02/26/18 at 04:16pm, Philipp Rudo wrote:
-> > The current code uses the sh_offset field in purgatory_info->sechdrs to
-> > store a pointer to the current load address of the section. Depending
-> > whether the section will be loaded or not this is either a pointer into
-> > purgatory_info->purgatory_buf or kexec_purgatory. This is not only a
-> > violation of the ELF standard but also makes the code very hard to
-> > understand as you cannot tell if the memory you are using is read-only or
-> > not.
-> > 
-> > Remove this mis-use and store the offset of the section in
-> > pugaroty_info->purgatory_buf in sh_offset.
+> > The code to verify the new kernels sha digest are applicable for all
+> > architectures. Move it to common code.
 > > 
 > > Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
 > > ---
-> >  arch/x86/kernel/machine_kexec_64.c | 10 ++++++----
-> >  kernel/kexec_file.c                | 33 +++------------------------------
-> >  2 files changed, 9 insertions(+), 34 deletions(-)
+> >  arch/x86/purgatory/Makefile                    |  3 +++
+> >  arch/x86/purgatory/purgatory.c                 |  2 +-
+> >  {arch/x86/purgatory => include/linux}/sha256.h | 10 +++++++++-
+> >  {arch/x86/purgatory => lib}/sha256.c           |  4 ++--
+> >  4 files changed, 15 insertions(+), 4 deletions(-)
+> >  rename {arch/x86/purgatory => include/linux}/sha256.h (63%)
+> >  rename {arch/x86/purgatory => lib}/sha256.c (99%)
 > > 
-> > diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
-> > index 51667c8b5c9b..41db74bdc88b 100644
-> > --- a/arch/x86/kernel/machine_kexec_64.c
-> > +++ b/arch/x86/kernel/machine_kexec_64.c
-> > @@ -457,13 +457,15 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-> >  		 * rel[i].r_offset contains byte offset from beginning
-> >  		 * of section to the storage unit affected.
-> >  		 *
-> > -		 * This is location to update (->sh_offset). This is temporary
-> > -		 * buffer where section is currently loaded. This will finally
-> > -		 * be loaded to a different address later, pointed to by
-> > +		 * This is location to update. This is temporary buffer
-> > +		 * where section is currently loaded. This will finally be
-> > +		 * loaded to a different address later, pointed to by
-> >  		 * ->sh_addr. kexec takes care of moving it
-> >  		 *  (kexec_load_segment()).
-> >  		 */
-> > -		location = (void *)(section->sh_offset + rel[i].r_offset);
-> > +		location = pi->purgatory_buf;
-> > +		location += section->sh_offset;
-> > +		location += rel[i].r_offset;
+> > diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+> > index 2f15a2ac4209..414eed6b5065 100644
+> > --- a/arch/x86/purgatory/Makefile
+> > +++ b/arch/x86/purgatory/Makefile
+> > @@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup-x86_$(BITS).o sha256.o entry64.o string
+> >  targets += $(purgatory-y)
+> >  PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
 > >  
-> >  		/* Final address of the location */
-> >  		address = section->sh_addr + rel[i].r_offset;
-> > diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-> > index 746b91e46e34..25b44d1a664a 100644
-> > --- a/kernel/kexec_file.c
-> > +++ b/kernel/kexec_file.c
-> > @@ -736,28 +736,6 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
-> >  	       pi->ehdr->e_shnum * sizeof(Elf_Shdr));
-> >  	pi->sechdrs = sechdrs;
+> > +$(obj)/sha256.o: $(srctree)/lib/sha256.c
+> > +	$(call if_changed_rule,cc_o_c)
+> > +
+> >  LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
+> >  targets += purgatory.ro
 > >  
-> > -	/*
-> > -	 * We seem to have multiple copies of sections. First copy is which
-> > -	 * is embedded in kernel in read only section. Some of these sections
-> > -	 * will be copied to a temporary buffer and relocated. And these
-> > -	 * sections will finally be copied to their final destination at
-> > -	 * segment load time.  
+> > diff --git a/arch/x86/purgatory/purgatory.c b/arch/x86/purgatory/purgatory.c
+> > index 470edad96bb9..025c34ac0d84 100644
+> > --- a/arch/x86/purgatory/purgatory.c
+> > +++ b/arch/x86/purgatory/purgatory.c
+> > @@ -11,9 +11,9 @@
+> >   */
+> >  
+> >  #include <linux/bug.h>
+> > +#include <linux/sha256.h>
+> >  #include <asm/purgatory.h>
+> >  
+> > -#include "sha256.h"
+> >  #include "../boot/string.h"
+> >  
+> >  unsigned long purgatory_backup_dest __section(.kexec-purgatory);
+> > diff --git a/arch/x86/purgatory/sha256.h b/include/linux/sha256.h
+> > similarity index 63%
+> > rename from arch/x86/purgatory/sha256.h
+> > rename to include/linux/sha256.h
+> > index 2867d9825a57..43a20ac33688 100644
+> > --- a/arch/x86/purgatory/sha256.h
+> > +++ b/include/linux/sha256.h
+> > @@ -13,9 +13,17 @@
+> >  #include <linux/types.h>
+> >  #include <crypto/sha.h>
+> >  
+> > +/* Stand-alone implementation of the SHA256 algorithm. It is designed to
+> > + * have as little dependencies as possible so it can be used in the
+> > + * kexec_file purgatory. In other cases you should use the implementation in
+> > + * crypto/.
+> > + *
+> > + * For details see lib/sha256.c
+> > + */  
 > 
-> It would be good to keep above part comment somewhere..
+> should move to use preferred comment format:
+> /*
+>  * Stand-alone ...
+>  * ...
+>  */
 
-there is a comment in include/linux/kexec.h for the purgatory_info->sechdrs
-field saying 
+Fixed it.
+ 
+> > +
+> >  extern int sha256_init(struct sha256_state *sctx);
+> >  extern int sha256_update(struct sha256_state *sctx, const u8 *input,
+> > -				unsigned int length);
+> > +			 unsigned int length);
+> >  extern int sha256_final(struct sha256_state *sctx, u8 *hash);
+> >  
+> >  #endif /* SHA256_H */
+> > diff --git a/arch/x86/purgatory/sha256.c b/lib/sha256.c
+> > similarity index 99%
+> > rename from arch/x86/purgatory/sha256.c
+> > rename to lib/sha256.c
+> > index 548ca675a14a..4400c832e2aa 100644
+> > --- a/arch/x86/purgatory/sha256.c
+> > +++ b/lib/sha256.c
+> > @@ -16,9 +16,9 @@
+> >   */
+> >  
+> >  #include <linux/bitops.h>
+> > +#include <linux/sha256.h>
+> > +#include <linux/string.h>
+> >  #include <asm/byteorder.h>
+> > -#include "sha256.h"
+> > -#include "../boot/string.h"  
+> 
+> Hmm, I'm not sure if moving to linux/string.h will have some side
+> effects..
 
-Temporary, modifiable buffer for sechdrs used for relocation.        
-This memory can be freed post image load
-
-When you think this is not enough i can add a comment here like
-
-The section headers in kexec_purgatory are read-only. In order to have them
-modifiable make a temporary copy.
-
-What do you think.
+Hmm, according to your other mail you are right. I'll have a closer look at it.
 
 Thanks
 Philipp
-
-> > -	 *
-> > -	 * Use ->sh_offset to reflect section address in memory. It will
-> > -	 * point to original read only copy if section is not allocatable.
-> > -	 * Otherwise it will point to temporary copy which will be relocated.
-> > -	 *
-> > -	 * Use ->sh_addr to contain final address of the section where it
-> > -	 * will go during execution time.
-> > -	 */
-> > -	for (i = 0; i < pi->ehdr->e_shnum; i++) {
-> > -		if (sechdrs[i].sh_type == SHT_NOBITS)
-> > -			continue;
-> > -
-> > -		sechdrs[i].sh_offset = (unsigned long)pi->ehdr +
-> > -						sechdrs[i].sh_offset;
-> > -	}
-> > -
-> >  	offset = 0;
-> >  	bss_addr = kbuf->mem + kbuf->bufsz;
-> >  	kbuf->image->start = pi->ehdr->e_entry;
-> > @@ -786,17 +764,12 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
-> >  			kbuf->image->start += kbuf->mem + offset;
-> >  		}
+ 
 > >  
-> > -		src = (void *)sechdrs[i].sh_offset;
-> > +		src = (void *)pi->ehdr + sechdrs[i].sh_offset;
-> >  		dst = pi->purgatory_buf + offset;
-> >  		memcpy(dst, src, sechdrs[i].sh_size);
-> >  
-> >  		sechdrs[i].sh_addr = kbuf->mem + offset;
-> > -
-> > -		/*
-> > -		 * This section got copied to temporary buffer. Update
-> > -		 * ->sh_offset accordingly.
-> > -		 */
-> > -		sechdrs[i].sh_offset = (unsigned long)dst;
-> > +		sechdrs[i].sh_offset = offset;
-> >  		offset += sechdrs[i].sh_size;
-> >  	}
-> >  
-> > @@ -1006,7 +979,7 @@ int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
-> >  		return -EINVAL;
-> >  	}
-> >  
-> > -	sym_buf = (char *)sec->sh_offset + sym->st_value;
-> > +	sym_buf = (char *)pi->purgatory_buf + sec->sh_offset + sym->st_value;
-> >  
-> >  	if (get_value)
-> >  		memcpy((void *)buf, sym_buf, size);
+> >  static inline u32 Ch(u32 x, u32 y, u32 z)
+> >  {
 > > -- 
 > > 2.13.5
 > >   
