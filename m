@@ -1,116 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 9 Mar 2018 13:33:48 +0800
-From: Dave Young <dyoung@redhat.com>
-Subject: Re: [PATCH 00/11] kexec_file: Clean up purgatory load
-Message-ID: <20180309053348.GA2042@dhcp-128-65.nay.redhat.com>
+Date: Fri, 9 Mar 2018 10:54:03 +0100
+From: Philipp Rudo <prudo@linux.vnet.ibm.com>
+Subject: Re: [PATCH 08/11] kexec_file: Simplify
+ kexec_purgatory_setup_sechdrs 2
+In-Reply-To: <20180309031805.GB3246@dhcp-128-65.nay.redhat.com>
 References: <20180226151620.20970-1-prudo@linux.vnet.ibm.com>
- <20180309051913.GA9358@dhcp-128-65.nay.redhat.com>
+        <20180226151620.20970-9-prudo@linux.vnet.ibm.com>
+        <20180309031805.GB3246@dhcp-128-65.nay.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180309051913.GA9358@dhcp-128-65.nay.redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20180309105403.6db66d7c@ThinkPad>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Philipp Rudo <prudo@linux.vnet.ibm.com>
+To: Dave Young <dyoung@redhat.com>
 Cc: kexec@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, AKASHI Takahiro <takahiro.akashi@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03/09/18 at 01:19pm, Dave Young wrote:
-> Hi Philipp,
+Hi Dave,
+
+On Fri, 9 Mar 2018 11:18:05 +0800
+Dave Young <dyoung@redhat.com> wrote:
+
+> Hi,
+> 
 > On 02/26/18 at 04:16pm, Philipp Rudo wrote:
+> > The main loop currently uses quite a lot of variables to update the section
+> > headers. Some of them are unnecessary. So clean them up a little.
+> >   
+> 
+> It looks better to use some patch subject eg below:
+> "Remove unnecessary variables in kexec_purgatory_setup_sechdrs"
+
+ok, done. I also renamed the patch before and after. The subjects now
+are
+
+kexec_file: Remove mis-use of sh_offset field during purgatory load
+kexec_file: Remove unneeded variables in kexec_purgatory_setup_sechdrs 
+kexec_file: Remove unneeded for-loop in kexec_purgatory_setup_sechdrs
+
+Thanks
+Philipp
+
+ 
+> > Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
+> > ---
+> >  kernel/kexec_file.c | 34 ++++++++++++----------------------
+> >  1 file changed, 12 insertions(+), 22 deletions(-)
 > > 
-> > Hi everybody
-> > 
-> > following the discussion with Dave and AKASHI, here are the common code
-> > patches extracted from my recent patch set (Add kexec_file_load support to
-> > s390) [1]. The patches were extracted to allow upstream integration together
-> > with AKASHI's common code patches before the arch code gets adjusted to the
-> > new base.
-> > 
-> > The reason for this series is to prepare common code for adding
-> > kexec_file_load to s390 as well as cleaning up the mis-use of the sh_offset
-> > field during purgatory load. In detail this series contains:
-> > 
-> > Patch #1&2: Minor cleanups/fixes.
-> > 
-> > Patch #3-9: Clean up the purgatory load/relocation code. Especially remove
-> > the mis-use of the purgatory_info->sechdrs->sh_offset field, currently
-> > holding a pointer into either kexec_purgatory (ro) or purgatory_buf (rw)
-> > depending on the section. With these patches the section address will be
-> > calculated verbosely and sh_offset will contain the offset of the section
-> > in the stripped purgatory binary (purgatory_buf).
-> > 
-> > Patch #10: Allows architectures to set the purgatory load address. This
-> > patch is important for s390 as the kernel and purgatory have to be loaded
-> > to fixed addresses. In current code this is impossible as the purgatory
-> > load is opaque to the architecture.
-> > 
-> > Patch #11: Moves x86 purgatories sha implementation to common lib/
-> > directory to allow reuse in other architectures.
-> > 
-> > The patches apply to v4.16-rc3. There are no changes compared to [1] (all
-> > requested changes only affected s390 code). Please note that I had to touch
-> > arch code for x86 and power a little. In theory this should not change the
-> > behavior but I don't have a way to test it. Cross-compiling with
-> > defconfig [2] works fine for both.
-> > 
-> > Thanks
-> > Philipp
-> > 
-> > [1] http://lists.infradead.org/pipermail/kexec/2018-February/019926.html
-> > [2] On x86 with the orc unwinder and stack validation turned off. objtool
-> >     SEGFAULTs on s390...
-> > 
-> > Philipp Rudo (11):
-> >   kexec_file: Silence compile warnings
-> >   kexec_file: Remove checks in kexec_purgatory_load
-> >   kexec_file: Make purgatory_info->ehdr const
-> >   kexec_file: Search symbols in read-only kexec_purgatory
-> >   kexec_file: Use read-only sections in arch_kexec_apply_relocations*
-> >   kexec_file: Split up __kexec_load_puragory
-> >   kexec_file: Simplify kexec_purgatory_setup_sechdrs 1
-> >   kexec_file: Simplify kexec_purgatory_setup_sechdrs 2
-> >   kexec_file: Remove mis-use of sh_offset field
-> >   kexec_file: Allow archs to set purgatory load address
-> >   kexec_file: Move purgatories sha256 to common code
-> > 
-> >  arch/powerpc/kernel/kexec_elf_64.c             |   9 +-
-> >  arch/x86/kernel/kexec-bzimage64.c              |   8 +-
-> >  arch/x86/kernel/machine_kexec_64.c             |  66 ++---
-> >  arch/x86/purgatory/Makefile                    |   3 +
-> >  arch/x86/purgatory/purgatory.c                 |   2 +-
-> >  include/linux/kexec.h                          |  38 +--
-> >  {arch/x86/purgatory => include/linux}/sha256.h |  10 +-
-> >  kernel/kexec_file.c                            | 375 ++++++++++++-------------
-> >  {arch/x86/purgatory => lib}/sha256.c           |   4 +-
-> >  9 files changed, 244 insertions(+), 271 deletions(-)
-> >  rename {arch/x86/purgatory => include/linux}/sha256.h (63%)
-> >  rename {arch/x86/purgatory => lib}/sha256.c (99%)
-> > 
+> > diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+> > index bb31a3b627c2..746b91e46e34 100644
+> > --- a/kernel/kexec_file.c
+> > +++ b/kernel/kexec_file.c
+> > @@ -724,12 +724,8 @@ static int kexec_purgatory_setup_kbuf(struct purgatory_info *pi,
+> >  static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+> >  					 struct kexec_buf *kbuf)
+> >  {
+> > -	unsigned long curr_load_addr;
+> > -	unsigned long load_addr;
+> >  	unsigned long bss_addr;
+> >  	unsigned long offset;
+> > -	unsigned char *buf_addr;
+> > -	unsigned char *src;
+> >  	Elf_Shdr *sechdrs;
+> >  	int i;
+> >  
+> > @@ -762,20 +758,18 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+> >  						sechdrs[i].sh_offset;
+> >  	}
+> >  
+> > -	/* Load SHF_ALLOC sections */
+> > -	buf_addr = kbuf->buffer;
+> > -	load_addr = curr_load_addr = kbuf->mem;
+> > -	bss_addr = load_addr + kbuf->bufsz;
+> > +	offset = 0;
+> > +	bss_addr = kbuf->mem + kbuf->bufsz;
+> >  	kbuf->image->start = pi->ehdr->e_entry;
+> >  
+> >  	for (i = 0; i < pi->ehdr->e_shnum; i++) {
+> >  		unsigned long align;
+> > +		void *src, *dst;
+> >  
+> >  		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
+> >  			continue;
+> >  
+> >  		align = sechdrs[i].sh_addralign;
+> > -
+> >  		if (sechdrs[i].sh_type == SHT_NOBITS) {
+> >  			bss_addr = ALIGN(bss_addr, align);
+> >  			sechdrs[i].sh_addr = bss_addr;
+> > @@ -783,31 +777,27 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+> >  			continue;
+> >  		}
+> >  
+> > -		curr_load_addr = ALIGN(curr_load_addr, align);
+> > -		offset = curr_load_addr - load_addr;
+> > -		/* We already modifed ->sh_offset to keep src addr */
+> > -		src = (char *)sechdrs[i].sh_offset;
+> > -		memcpy(buf_addr + offset, src, sechdrs[i].sh_size);
+> > -
+> > +		offset = ALIGN(offset, align);
+> >  		if (sechdrs[i].sh_flags & SHF_EXECINSTR &&
+> >  		    pi->ehdr->e_entry >= sechdrs[i].sh_addr &&
+> >  		    pi->ehdr->e_entry < (sechdrs[i].sh_addr
+> >  					 + sechdrs[i].sh_size)) {
+> >  			kbuf->image->start -= sechdrs[i].sh_addr;
+> > -			kbuf->image->start += curr_load_addr
+> > +			kbuf->image->start += kbuf->mem + offset;
+> >  		}
+> >  
+> > -		/* Store load address and source address of section */
+> > -		sechdrs[i].sh_addr = curr_load_addr;
+> > +		src = (void *)sechdrs[i].sh_offset;
+> > +		dst = pi->purgatory_buf + offset;
+> > +		memcpy(dst, src, sechdrs[i].sh_size);
+> > +
+> > +		sechdrs[i].sh_addr = kbuf->mem + offset;
+> >  
+> >  		/*
+> >  		 * This section got copied to temporary buffer. Update
+> >  		 * ->sh_offset accordingly.
+> >  		 */
+> > -		sechdrs[i].sh_offset = (unsigned long)(buf_addr + offset);
+> > -
+> > -		/* Advance to the next address */
+> > -		curr_load_addr += sechdrs[i].sh_size;
+> > +		sechdrs[i].sh_offset = (unsigned long)dst;
+> > +		offset += sechdrs[i].sh_size;
+> >  	}
+> >  
+> >  	return 0;
 > > -- 
 > > 2.13.5
-> > 
-> 
-> I did a test on x86, but it failed:
-> [   15.636489] kexec: Undefined symbol: memcpy
-> [   15.636496] kexec-bzImage64: Loading purgatory failed
-> [   33.603356] kexec: Undefined symbol: memcpy
-> [   33.603362] kexec-bzImage64: Loading purgatory failed
-> 
-> I think this relates to the sha256 splitting patch.
-> 
-> After reverting the sha256 patch (the last one), rebuilt a kernel but it still
-> failed to load:
-> 
-> # kexec -d -s -l /home/dyoung/git/linux-x86/sign/bzImage.signed 
-> Try gzip decompression.
-> Try LZMA decompression.
-> lzma_decompress_file: read on /home/dyoung/git/linux-x86/sign/bzImage.signed of 65536 bytes failed
-
-Oops, this lzma error message should be not harmful, actually kernel should
-have been loaded, I will do more tests anyway.
-
+> >   
 > 
 > Thanks
 > Dave
+> 
