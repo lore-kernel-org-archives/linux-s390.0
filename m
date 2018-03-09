@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 07/12] s390/qeth: reduce RX skb setup
-Date: Fri,  9 Mar 2018 18:12:58 +0100
+Subject: [PATCH net-next 10/12] s390/qeth: simplify card look-up on IP notification
+Date: Fri,  9 Mar 2018 18:13:01 +0100
 In-Reply-To: <20180309171303.65736-1-jwi@linux.vnet.ibm.com>
 References: <20180309171303.65736-1-jwi@linux.vnet.ibm.com>
-Message-Id: <20180309171303.65736-8-jwi@linux.vnet.ibm.com>
+Message-Id: <20180309171303.65736-11-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,74 +12,136 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Newly-allocated skbs default to PACKET_HOST, and eth_type_trans() is
-smart enough to determine any other packet type from the frame's
-destination address.
-So except for the IQD sniffer case, there is no need to set up
-skb->pkt_type manually.
+On an IP event, current code tries to determine if the netdev belongs
+to a L3 card by walking all qeth cards in the system, and then all of
+their VLAN devices too. Short-cut the whole thing by identifying a L3
+device through its netdev_ops.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l2_main.c |  1 -
- drivers/s390/net/qeth_l3_main.c | 10 +---------
- 2 files changed, 1 insertion(+), 10 deletions(-)
+ drivers/s390/net/qeth_core.h    |  2 --
+ drivers/s390/net/qeth_l3_main.c | 77 +++++++----------------------------------
+ 2 files changed, 12 insertions(+), 67 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 95bf452fc51b..09768677222b 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -439,7 +439,6 @@ static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
- 		}
- 		switch (hdr->hdr.l2.id) {
- 		case QETH_HEADER_TYPE_LAYER2:
--			skb->pkt_type = PACKET_HOST;
- 			skb->protocol = eth_type_trans(skb, skb->dev);
- 			if ((card->dev->features & NETIF_F_RXCSUM)
- 			   && ((hdr->hdr.l2.flags[1] &
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 959c65cf75d9..459ae3758f30 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -233,8 +233,6 @@ static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
+ #define QETH_IDX_FUNC_LEVEL_OSD		 0x0101
+ #define QETH_IDX_FUNC_LEVEL_IQD		 0x4108
+ 
+-#define QETH_REAL_CARD		1
+-#define QETH_VLAN_CARD		2
+ #define QETH_BUFSIZE		4096
+ 
+ /**
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 283cbdcc5d6b..c302274bab22 100644
+index 2ff8dd6d0a3e..ccf22e749105 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1502,23 +1502,17 @@ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
- 				ipv6_eth_mc_map(&ipv6_hdr(skb)->daddr, tg_addr);
+@@ -1594,69 +1594,6 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
+ 	return work_done;
+ }
  
- 			card->stats.multicast++;
--			skb->pkt_type = PACKET_MULTICAST;
- 			break;
- 		case QETH_CAST_BROADCAST:
- 			ether_addr_copy(tg_addr, card->dev->broadcast);
- 			card->stats.multicast++;
--			skb->pkt_type = PACKET_BROADCAST;
- 			break;
--		case QETH_CAST_UNICAST:
--		case QETH_CAST_ANYCAST:
--		case QETH_CAST_NOCAST:
- 		default:
- 			if (card->options.sniffer)
- 				skb->pkt_type = PACKET_OTHERHOST;
--			else
--				skb->pkt_type = PACKET_HOST;
- 			ether_addr_copy(tg_addr, card->dev->dev_addr);
- 		}
+-static int qeth_l3_verify_vlan_dev(struct net_device *dev,
+-			struct qeth_card *card)
+-{
+-	int rc = 0;
+-	u16 vid;
+-
+-	for_each_set_bit(vid, card->active_vlans, VLAN_N_VID) {
+-		struct net_device *netdev;
+-
+-		rcu_read_lock();
+-		netdev = __vlan_find_dev_deep_rcu(card->dev, htons(ETH_P_8021Q),
+-					      vid);
+-		rcu_read_unlock();
+-		if (netdev == dev) {
+-			rc = QETH_VLAN_CARD;
+-			break;
+-		}
+-	}
+-
+-	if (rc && !(vlan_dev_real_dev(dev)->ml_priv == (void *)card))
+-		return 0;
+-
+-	return rc;
+-}
+-
+-static int qeth_l3_verify_dev(struct net_device *dev)
+-{
+-	struct qeth_card *card;
+-	int rc = 0;
+-	unsigned long flags;
+-
+-	read_lock_irqsave(&qeth_core_card_list.rwlock, flags);
+-	list_for_each_entry(card, &qeth_core_card_list.list, list) {
+-		if (card->dev == dev) {
+-			rc = QETH_REAL_CARD;
+-			break;
+-		}
+-		rc = qeth_l3_verify_vlan_dev(dev, card);
+-		if (rc)
+-			break;
+-	}
+-	read_unlock_irqrestore(&qeth_core_card_list.rwlock, flags);
+-
+-	return rc;
+-}
+-
+-static struct qeth_card *qeth_l3_get_card_from_dev(struct net_device *dev)
+-{
+-	struct qeth_card *card = NULL;
+-	int rc;
+-
+-	rc = qeth_l3_verify_dev(dev);
+-	if (rc == QETH_REAL_CARD)
+-		card = dev->ml_priv;
+-	else if (rc == QETH_VLAN_CARD)
+-		card = vlan_dev_real_dev(dev)->ml_priv;
+-	if (card && card->options.layer2)
+-		card = NULL;
+-	if (card)
+-		QETH_CARD_TEXT_(card, 4, "%d", rc);
+-	return card ;
+-}
+-
+ static void qeth_l3_stop_card(struct qeth_card *card, int recovery_mode)
+ {
+ 	QETH_DBF_TEXT(SETUP, 2, "stopcard");
+@@ -3132,12 +3069,22 @@ static int qeth_l3_handle_ip_event(struct qeth_card *card,
+ 	}
+ }
+ 
++static struct qeth_card *qeth_l3_get_card_from_dev(struct net_device *dev)
++{
++	if (is_vlan_dev(dev))
++		dev = vlan_dev_real_dev(dev);
++	if (dev->netdev_ops == &qeth_l3_osa_netdev_ops ||
++	    dev->netdev_ops == &qeth_l3_netdev_ops)
++		return (struct qeth_card *) dev->ml_priv;
++	return NULL;
++}
 +
- 		if (hdr->hdr.l3.ext_flags & QETH_HDR_EXT_SRC_MAC_ADDR)
- 			card->dev->header_ops->create(skb, card->dev, prot,
- 				tg_addr, &hdr->hdr.l3.next_hop.rx.src_mac,
-@@ -1578,7 +1572,6 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
- 			if ((card->info.type == QETH_CARD_TYPE_IQD) &&
- 			    (magic == ETH_P_AF_IUCV)) {
- 				skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
--				skb->pkt_type = PACKET_HOST;
- 				len = skb->len;
- 				card->dev->header_ops->create(skb, card->dev, 0,
- 					card->dev->dev_addr, "FAKELL", len);
-@@ -1591,7 +1584,6 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
- 			}
- 			break;
- 		case QETH_HEADER_TYPE_LAYER2: /* for HiperSockets sniffer */
--			skb->pkt_type = PACKET_HOST;
- 			skb->protocol = eth_type_trans(skb, skb->dev);
- 			len = skb->len;
- 			netif_receive_skb(skb);
+ static int qeth_l3_ip_event(struct notifier_block *this,
+ 			    unsigned long event, void *ptr)
+ {
+ 
+ 	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
+-	struct net_device *dev = (struct net_device *)ifa->ifa_dev->dev;
++	struct net_device *dev = ifa->ifa_dev->dev;
+ 	struct qeth_ipaddr addr;
+ 	struct qeth_card *card;
+ 
+@@ -3165,7 +3112,7 @@ static int qeth_l3_ip6_event(struct notifier_block *this,
+ 			     unsigned long event, void *ptr)
+ {
+ 	struct inet6_ifaddr *ifa = (struct inet6_ifaddr *)ptr;
+-	struct net_device *dev = (struct net_device *)ifa->idev->dev;
++	struct net_device *dev = ifa->idev->dev;
+ 	struct qeth_ipaddr addr;
+ 	struct qeth_card *card;
+ 
 -- 
 2.13.5
