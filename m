@@ -1,10 +1,10 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 01/12] s390/qeth: use __ipa_cmd() for casting an IPA cmd buffer
-Date: Fri,  9 Mar 2018 18:12:52 +0100
+Subject: [PATCH net-next 09/12] s390/qeth: restructure IP notification handlers
+Date: Fri,  9 Mar 2018 18:13:00 +0100
 In-Reply-To: <20180309171303.65736-1-jwi@linux.vnet.ibm.com>
 References: <20180309171303.65736-1-jwi@linux.vnet.ibm.com>
-Message-Id: <20180309171303.65736-2-jwi@linux.vnet.ibm.com>
+Message-Id: <20180309171303.65736-10-jwi@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,250 +12,194 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-"s390/qeth: fix SETIP command handling" introduced a new helper, apply
-it driver-wide.
+Extract a helper that does the actual work & returns the right NOTIFY_*
+responses, and start putting the temporary ipaddr container objects
+on the stack rather than kmalloc'ing them. They are small, and this
+reduces the confusion of which objects actually get added to qeth's
+IP tables.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 24 +++++++++++-------------
- drivers/s390/net/qeth_l2_main.c   | 14 ++++++--------
- drivers/s390/net/qeth_l3_main.c   | 14 +++++++-------
- 3 files changed, 24 insertions(+), 28 deletions(-)
+ drivers/s390/net/qeth_l3.h      |  10 ++++
+ drivers/s390/net/qeth_l3_main.c | 102 +++++++++++++++-------------------------
+ 2 files changed, 49 insertions(+), 63 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index c8b308cfabf1..d4cb0eea06b6 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -2951,12 +2951,10 @@ struct qeth_cmd_buffer *qeth_get_ipacmd_buffer(struct qeth_card *card,
- 		enum qeth_ipa_cmds ipacmd, enum qeth_prot_versions prot)
+diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
+index 498fe9af2cdb..cf834cdd0d2c 100644
+--- a/drivers/s390/net/qeth_l3.h
++++ b/drivers/s390/net/qeth_l3.h
+@@ -42,6 +42,16 @@ struct qeth_ipaddr {
+ 	} u;
+ };
+ 
++static inline void qeth_l3_init_ipaddr(struct qeth_ipaddr *addr,
++				       enum qeth_ip_types type,
++				       enum qeth_prot_versions proto)
++{
++	memset(addr, 0, sizeof(*addr));
++	addr->type = type;
++	addr->proto = proto;
++	addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
++}
++
+ static inline bool qeth_l3_addr_match_ip(struct qeth_ipaddr *a1,
+ 					 struct qeth_ipaddr *a2)
  {
- 	struct qeth_cmd_buffer *iob;
--	struct qeth_ipa_cmd *cmd;
- 
- 	iob = qeth_get_buffer(&card->write);
- 	if (iob) {
--		cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
--		qeth_fill_ipacmd_header(card, cmd, ipacmd, prot);
-+		qeth_fill_ipacmd_header(card, __ipa_cmd(iob), ipacmd, prot);
- 	} else {
- 		dev_warn(&card->gdev->dev,
- 			 "The qeth driver ran out of channel command buffers\n");
-@@ -3067,7 +3065,7 @@ static struct qeth_cmd_buffer *qeth_get_adapter_cmd(struct qeth_card *card,
- 	iob = qeth_get_ipacmd_buffer(card, IPA_CMD_SETADAPTERPARMS,
- 				     QETH_PROT_IPV4);
- 	if (iob) {
--		cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+		cmd = __ipa_cmd(iob);
- 		cmd->data.setadapterparms.hdr.cmdlength = cmdlen;
- 		cmd->data.setadapterparms.hdr.command_code = command;
- 		cmd->data.setadapterparms.hdr.used_total = 1;
-@@ -3209,7 +3207,7 @@ static int qeth_query_setdiagass(struct qeth_card *card)
- 	iob = qeth_get_ipacmd_buffer(card, IPA_CMD_SET_DIAG_ASS, 0);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.diagass.subcmd_len = 16;
- 	cmd->data.diagass.subcmd = QETH_DIAGS_CMD_QUERY;
- 	return qeth_send_ipa_cmd(card, iob, qeth_query_setdiagass_cb, NULL);
-@@ -3262,7 +3260,7 @@ int qeth_hw_trap(struct qeth_card *card, enum qeth_diags_trap_action action)
- 	iob = qeth_get_ipacmd_buffer(card, IPA_CMD_SET_DIAG_ASS, 0);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.diagass.subcmd_len = 80;
- 	cmd->data.diagass.subcmd = QETH_DIAGS_CMD_TRAP;
- 	cmd->data.diagass.type = 1;
-@@ -4240,7 +4238,7 @@ void qeth_setadp_promisc_mode(struct qeth_card *card)
- 			sizeof(struct qeth_ipacmd_setadpparms_hdr) + 8);
- 	if (!iob)
- 		return;
--	cmd = (struct qeth_ipa_cmd *)(iob->data + IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.setadapterparms.data.mode = mode;
- 	qeth_send_ipa_cmd(card, iob, qeth_setadp_promisc_mode_cb, NULL);
- }
-@@ -4307,7 +4305,7 @@ int qeth_setadpparms_change_macaddr(struct qeth_card *card)
- 				   sizeof(struct qeth_change_addr));
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.setadapterparms.data.change_addr.cmd = CHANGE_ADDR_READ_MAC;
- 	cmd->data.setadapterparms.data.change_addr.addr_size = ETH_ALEN;
- 	ether_addr_copy(cmd->data.setadapterparms.data.change_addr.addr,
-@@ -4422,7 +4420,7 @@ static int qeth_setadpparms_set_access_ctrl(struct qeth_card *card,
- 				   sizeof(struct qeth_set_access_ctrl));
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	access_ctrl_req = &cmd->data.setadapterparms.data.set_access_ctrl;
- 	access_ctrl_req->subcmd_code = isolation;
- 
-@@ -4668,7 +4666,7 @@ static int qeth_snmp_command(struct qeth_card *card, char __user *udata)
- 		rc = -ENOMEM;
- 		goto out;
- 	}
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	memcpy(&cmd->data.setadapterparms.data.snmp, &ureq->cmd, req_len);
- 	rc = qeth_send_ipa_snmp_cmd(card, iob, QETH_SETADP_BASE_LEN + req_len,
- 				    qeth_snmp_command_cb, (void *)&qinfo);
-@@ -4753,7 +4751,7 @@ static int qeth_query_oat_command(struct qeth_card *card, char __user *udata)
- 		rc = -ENOMEM;
- 		goto out_free;
- 	}
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	oat_req = &cmd->data.setadapterparms.data.query_oat;
- 	oat_req->subcmd_code = oat_data.command;
- 
-@@ -5494,7 +5492,7 @@ struct qeth_cmd_buffer *qeth_get_setassparms_cmd(struct qeth_card *card,
- 	iob = qeth_get_ipacmd_buffer(card, IPA_CMD_SETASSPARMS, prot);
- 
- 	if (iob) {
--		cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+		cmd = __ipa_cmd(iob);
- 		cmd->data.setassparms.hdr.assist_no = ipa_func;
- 		cmd->data.setassparms.hdr.length = 8 + len;
- 		cmd->data.setassparms.hdr.command_code = cmd_code;
-@@ -5517,7 +5515,7 @@ int qeth_send_setassparms(struct qeth_card *card,
- 
- 	QETH_CARD_TEXT(card, 4, "sendassp");
- 
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	if (len <= sizeof(__u32))
- 		cmd->data.setassparms.data.flags_32bit = (__u32) data;
- 	else   /* (len > sizeof(__u32)) */
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 7f236440483f..1cd583b69eaa 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -108,7 +108,7 @@ static int qeth_l2_send_setdelmac(struct qeth_card *card, __u8 *mac,
- 	iob = qeth_get_ipacmd_buffer(card, ipacmd, QETH_PROT_IPV4);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.setdelmac.mac_length = ETH_ALEN;
- 	ether_addr_copy(cmd->data.setdelmac.mac, mac);
- 	return qeth_setdelmac_makerc(card, qeth_send_ipa_cmd(card, iob,
-@@ -305,7 +305,7 @@ static int qeth_l2_send_setdelvlan(struct qeth_card *card, __u16 i,
- 	iob = qeth_get_ipacmd_buffer(card, ipacmd, QETH_PROT_IPV4);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.setdelvlan.vlan_id = i;
- 	return qeth_setdelvlan_makerc(card, qeth_send_ipa_cmd(card, iob,
- 					    qeth_l2_send_setdelvlan_cb, NULL));
-@@ -1374,7 +1374,6 @@ int qeth_osn_assist(struct net_device *dev, void *data, int data_len)
- {
- 	struct qeth_cmd_buffer *iob;
- 	struct qeth_card *card;
--	int rc;
- 
- 	if (!dev)
- 		return -ENODEV;
-@@ -1385,9 +1384,8 @@ int qeth_osn_assist(struct net_device *dev, void *data, int data_len)
- 	if (!qeth_card_hw_is_reachable(card))
- 		return -ENODEV;
- 	iob = qeth_wait_for_buffer(&card->write);
--	memcpy(iob->data+IPA_PDU_HEADER_SIZE, data, data_len);
--	rc = qeth_osn_send_ipa_cmd(card, iob, data_len);
--	return rc;
-+	memcpy(__ipa_cmd(iob), data, data_len);
-+	return qeth_osn_send_ipa_cmd(card, iob, data_len);
- }
- EXPORT_SYMBOL(qeth_osn_assist);
- 
-@@ -1764,7 +1762,7 @@ static struct qeth_cmd_buffer *qeth_sbp_build_cmd(struct qeth_card *card,
- 	iob = qeth_get_ipacmd_buffer(card, ipa_cmd, 0);
- 	if (!iob)
- 		return iob;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.sbp.hdr.cmdlength = sizeof(struct qeth_ipacmd_sbp_hdr) +
- 				      cmd_length;
- 	cmd->data.sbp.hdr.command_code = sbp_cmd;
-@@ -2129,7 +2127,7 @@ static int qeth_l2_vnicc_request(struct qeth_card *card,
- 		return -ENOMEM;
- 
- 	/* create header for request */
--	cmd = (struct qeth_ipa_cmd *)(iob->data + IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	req = &cmd->data.vnicc;
- 
- 	/* create sub command header for request */
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 962a04b68dd2..e5f11cd64fec 100644
+index 17daf2047f7b..2ff8dd6d0a3e 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -352,7 +352,7 @@ static int qeth_l3_send_setdelmc(struct qeth_card *card,
- 	iob = qeth_get_ipacmd_buffer(card, ipacmd, addr->proto);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	ether_addr_copy(cmd->data.setdelipm.mac, addr->mac);
- 	if (addr->proto == QETH_PROT_IPV6)
- 		memcpy(cmd->data.setdelipm.ip6, &addr->u.a6.addr,
-@@ -393,7 +393,7 @@ static int qeth_l3_send_setdelip(struct qeth_card *card,
- 	iob = qeth_get_ipacmd_buffer(card, ipacmd, addr->proto);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	if (addr->proto == QETH_PROT_IPV6) {
- 		memcpy(cmd->data.setdelip6.ip_addr, &addr->u.a6.addr,
- 		       sizeof(struct in6_addr));
-@@ -423,7 +423,7 @@ static int qeth_l3_send_setrouting(struct qeth_card *card,
- 	iob = qeth_get_ipacmd_buffer(card, IPA_CMD_SETRTG, prot);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.setrtg.type = (type);
- 	rc = qeth_send_ipa_cmd(card, iob, NULL, NULL);
+@@ -67,6 +67,15 @@ void qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const __u8 *addr,
+ 		qeth_l3_ipaddr6_to_string(addr, buf);
+ }
  
-@@ -1072,7 +1072,7 @@ static int qeth_l3_iqd_read_initial_mac(struct qeth_card *card)
- 				     QETH_PROT_IPV6);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	*((__u16 *) &cmd->data.create_destroy_addr.unique_id[6]) =
- 			card->info.unique_id;
++struct qeth_ipaddr *qeth_l3_get_addr_buffer(enum qeth_prot_versions prot)
++{
++	struct qeth_ipaddr *addr = kmalloc(sizeof(*addr), GFP_ATOMIC);
++
++	if (addr)
++		qeth_l3_init_ipaddr(addr, QETH_IP_TYPE_NORMAL, prot);
++	return addr;
++}
++
+ static struct qeth_ipaddr *qeth_l3_find_addr_by_ip(struct qeth_card *card,
+ 						   struct qeth_ipaddr *query)
+ {
+@@ -251,23 +260,6 @@ int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
+ 	return rc;
+ }
  
-@@ -1117,7 +1117,7 @@ static int qeth_l3_get_unique_id(struct qeth_card *card)
- 				     QETH_PROT_IPV6);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	*((__u16 *) &cmd->data.create_destroy_addr.unique_id[6]) =
- 			card->info.unique_id;
+-
+-struct qeth_ipaddr *qeth_l3_get_addr_buffer(
+-				enum qeth_prot_versions prot)
+-{
+-	struct qeth_ipaddr *addr;
+-
+-	addr = kzalloc(sizeof(struct qeth_ipaddr), GFP_ATOMIC);
+-	if (!addr)
+-		return NULL;
+-
+-	addr->type = QETH_IP_TYPE_NORMAL;
+-	addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
+-	addr->proto = prot;
+-
+-	return addr;
+-}
+-
+ static void qeth_l3_clear_ip_htable(struct qeth_card *card, int recover)
+ {
+ 	struct qeth_ipaddr *addr;
+@@ -3120,13 +3112,33 @@ struct qeth_discipline qeth_l3_discipline = {
+ };
+ EXPORT_SYMBOL_GPL(qeth_l3_discipline);
  
-@@ -1193,7 +1193,7 @@ qeth_diags_trace(struct qeth_card *card, enum qeth_diags_trace_cmds diags_cmd)
- 	iob = qeth_get_ipacmd_buffer(card, IPA_CMD_SET_DIAG_ASS, 0);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.diagass.subcmd_len = 16;
- 	cmd->data.diagass.subcmd = QETH_DIAGS_CMD_TRACE;
- 	cmd->data.diagass.type = QETH_DIAGS_TYPE_HIPERSOCKET;
-@@ -2004,7 +2004,7 @@ static int qeth_l3_query_arp_cache_info(struct qeth_card *card,
- 				       prot);
- 	if (!iob)
- 		return -ENOMEM;
--	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
-+	cmd = __ipa_cmd(iob);
- 	cmd->data.setassparms.data.query_arp.request_bits = 0x000F;
- 	cmd->data.setassparms.data.query_arp.reply_bits = 0;
- 	cmd->data.setassparms.data.query_arp.no_entries = 0;
++static int qeth_l3_handle_ip_event(struct qeth_card *card,
++				   struct qeth_ipaddr *addr,
++				   unsigned long event)
++{
++	switch (event) {
++	case NETDEV_UP:
++		spin_lock_bh(&card->ip_lock);
++		qeth_l3_add_ip(card, addr);
++		spin_unlock_bh(&card->ip_lock);
++		return NOTIFY_OK;
++	case NETDEV_DOWN:
++		spin_lock_bh(&card->ip_lock);
++		qeth_l3_delete_ip(card, addr);
++		spin_unlock_bh(&card->ip_lock);
++		return NOTIFY_OK;
++	default:
++		return NOTIFY_DONE;
++	}
++}
++
+ static int qeth_l3_ip_event(struct notifier_block *this,
+ 			    unsigned long event, void *ptr)
+ {
+ 
+ 	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
+ 	struct net_device *dev = (struct net_device *)ifa->ifa_dev->dev;
+-	struct qeth_ipaddr *addr;
++	struct qeth_ipaddr addr;
+ 	struct qeth_card *card;
+ 
+ 	if (dev_net(dev) != &init_net)
+@@ -3137,29 +3149,11 @@ static int qeth_l3_ip_event(struct notifier_block *this,
+ 		return NOTIFY_DONE;
+ 	QETH_CARD_TEXT(card, 3, "ipevent");
+ 
+-	addr = qeth_l3_get_addr_buffer(QETH_PROT_IPV4);
+-	if (addr) {
+-		addr->u.a4.addr = be32_to_cpu(ifa->ifa_address);
+-		addr->u.a4.mask = be32_to_cpu(ifa->ifa_mask);
+-		addr->type = QETH_IP_TYPE_NORMAL;
+-	} else
+-		return NOTIFY_DONE;
+-
+-	switch (event) {
+-	case NETDEV_UP:
+-		spin_lock_bh(&card->ip_lock);
+-		qeth_l3_add_ip(card, addr);
+-		spin_unlock_bh(&card->ip_lock);
+-		break;
+-	case NETDEV_DOWN:
+-		spin_lock_bh(&card->ip_lock);
+-		qeth_l3_delete_ip(card, addr);
+-		spin_unlock_bh(&card->ip_lock);
+-		break;
+-	}
++	qeth_l3_init_ipaddr(&addr, QETH_IP_TYPE_NORMAL, QETH_PROT_IPV4);
++	addr.u.a4.addr = be32_to_cpu(ifa->ifa_address);
++	addr.u.a4.mask = be32_to_cpu(ifa->ifa_mask);
+ 
+-	kfree(addr);
+-	return NOTIFY_DONE;
++	return qeth_l3_handle_ip_event(card, &addr, event);
+ }
+ 
+ static struct notifier_block qeth_l3_ip_notifier = {
+@@ -3172,7 +3166,7 @@ static int qeth_l3_ip6_event(struct notifier_block *this,
+ {
+ 	struct inet6_ifaddr *ifa = (struct inet6_ifaddr *)ptr;
+ 	struct net_device *dev = (struct net_device *)ifa->idev->dev;
+-	struct qeth_ipaddr *addr;
++	struct qeth_ipaddr addr;
+ 	struct qeth_card *card;
+ 
+ 	card = qeth_l3_get_card_from_dev(dev);
+@@ -3182,29 +3176,11 @@ static int qeth_l3_ip6_event(struct notifier_block *this,
+ 	if (!qeth_is_supported(card, IPA_IPV6))
+ 		return NOTIFY_DONE;
+ 
+-	addr = qeth_l3_get_addr_buffer(QETH_PROT_IPV6);
+-	if (addr) {
+-		memcpy(&addr->u.a6.addr, &ifa->addr, sizeof(struct in6_addr));
+-		addr->u.a6.pfxlen = ifa->prefix_len;
+-		addr->type = QETH_IP_TYPE_NORMAL;
+-	} else
+-		return NOTIFY_DONE;
+-
+-	switch (event) {
+-	case NETDEV_UP:
+-		spin_lock_bh(&card->ip_lock);
+-		qeth_l3_add_ip(card, addr);
+-		spin_unlock_bh(&card->ip_lock);
+-		break;
+-	case NETDEV_DOWN:
+-		spin_lock_bh(&card->ip_lock);
+-		qeth_l3_delete_ip(card, addr);
+-		spin_unlock_bh(&card->ip_lock);
+-		break;
+-	}
++	qeth_l3_init_ipaddr(&addr, QETH_IP_TYPE_NORMAL, QETH_PROT_IPV6);
++	addr.u.a6.addr = ifa->addr;
++	addr.u.a6.pfxlen = ifa->prefix_len;
+ 
+-	kfree(addr);
+-	return NOTIFY_DONE;
++	return qeth_l3_handle_ip_event(card, &addr, event);
+ }
+ 
+ static struct notifier_block qeth_l3_ip6_notifier = {
 -- 
 2.13.5
