@@ -1,89 +1,113 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
-Subject: [PATCH net-next 03/12] s390/qeth: support SG for more device types
-Date: Fri,  9 Mar 2018 18:12:54 +0100
-In-Reply-To: <20180309171303.65736-1-jwi@linux.vnet.ibm.com>
-References: <20180309171303.65736-1-jwi@linux.vnet.ibm.com>
-Message-Id: <20180309171303.65736-4-jwi@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: [RFC PATCH 18/35] syscalls: do not call sys_write() within the kernel
+Date: Sun, 11 Mar 2018 11:55:40 +0100
+Message-Id: <20180311105557.20807-19-linux@dominikbrodowski.net>
+In-Reply-To: <20180311105557.20807-1-linux@dominikbrodowski.net>
+References: <20180311105557.20807-1-linux@dominikbrodowski.net>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, luto@kernel.org, torvalds@linux-foundation.org, mingo@kernel.org, viro@zeniv.linux.org.uk, akpm@linux-foundation.org
+Cc: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-NETIF_F_SG support is currently limited to OSA (and for L2 even OSD)
-devices. Advertise it for some more device types (OSM, L2 OSX, z/VM OSA)
-that share the same code paths. For now, keep it switched off by
-default on these devices.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+CC: Alexander Viro <viro@zeniv.linux.org.uk>
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 ---
- drivers/s390/net/qeth_l2_main.c | 16 +++++++++-------
- drivers/s390/net/qeth_l3_main.c | 14 ++++++++------
- 2 files changed, 17 insertions(+), 13 deletions(-)
+ arch/s390/kernel/compat_linux.c | 2 +-
+ fs/read_write.c                 | 9 +++++++--
+ include/linux/syscalls.h        | 1 +
+ init/do_mounts_rd.c             | 4 ++--
+ init/initramfs.c                | 2 +-
+ 5 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 1cd583b69eaa..ea607e5fb5dc 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -991,9 +991,16 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
- 		card->dev->features |= NETIF_F_VLAN_CHALLENGED;
- 	else
- 		card->dev->features |= NETIF_F_HW_VLAN_CTAG_FILTER;
-+
-+	if (card->info.type != QETH_CARD_TYPE_OSN &&
-+	    card->info.type != QETH_CARD_TYPE_IQD) {
-+		card->dev->priv_flags &= ~IFF_TX_SKB_SHARING;
-+		card->dev->needed_headroom = sizeof(struct qeth_hdr);
-+		card->dev->hw_features |= NETIF_F_SG;
-+		card->dev->vlan_features |= NETIF_F_SG;
-+	}
-+
- 	if (card->info.type == QETH_CARD_TYPE_OSD && !card->info.guestlan) {
--		card->dev->hw_features = NETIF_F_SG;
--		card->dev->vlan_features = NETIF_F_SG;
- 		card->dev->features |= NETIF_F_SG;
- 		/* OSA 3S and earlier has no RX/TX support */
- 		if (qeth_is_supported(card, IPA_OUTBOUND_CHECKSUM)) {
-@@ -1005,11 +1012,6 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
- 			card->dev->vlan_features |= NETIF_F_RXCSUM;
- 		}
- 	}
--	if (card->info.type != QETH_CARD_TYPE_OSN &&
--	    card->info.type != QETH_CARD_TYPE_IQD) {
--		card->dev->priv_flags &= ~IFF_TX_SKB_SHARING;
--		card->dev->needed_headroom = sizeof(struct qeth_hdr);
--	}
+diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
+index 79b7a3438d54..5a9cfde5fc28 100644
+--- a/arch/s390/kernel/compat_linux.c
++++ b/arch/s390/kernel/compat_linux.c
+@@ -468,7 +468,7 @@ COMPAT_SYSCALL_DEFINE3(s390_write, unsigned int, fd, const char __user *, buf, c
+ 	if ((compat_ssize_t) count < 0)
+ 		return -EINVAL; 
  
- 	card->info.broadcast_capable = 1;
- 	qeth_l2_request_initial_mac(card);
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index e5f11cd64fec..e933a273d543 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2785,14 +2785,16 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
- 			if (!(card->info.unique_id & UNIQUE_ID_NOT_BY_CARD))
- 				card->dev->dev_id = card->info.unique_id &
- 							 0xffff;
+-	return sys_write(fd, buf, count);
++	return ksys_write(fd, buf, count);
+ }
+ 
+ /*
+diff --git a/fs/read_write.c b/fs/read_write.c
+index f8547b82dfb3..8e8f0b4f52e2 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -578,8 +578,7 @@ SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
+ 	return ret;
+ }
+ 
+-SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf,
+-		size_t, count)
++ssize_t ksys_write(unsigned int fd, const char __user *buf, size_t count)
+ {
+ 	struct fd f = fdget_pos(fd);
+ 	ssize_t ret = -EBADF;
+@@ -595,6 +594,12 @@ SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf,
+ 	return ret;
+ }
+ 
++SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf,
++		size_t, count)
++{
++	return ksys_write(fd, buf, count);
++}
 +
-+			card->dev->hw_features |= NETIF_F_SG;
-+			card->dev->vlan_features |= NETIF_F_SG;
-+
- 			if (!card->info.guestlan) {
--				card->dev->hw_features = NETIF_F_SG |
--					NETIF_F_RXCSUM | NETIF_F_IP_CSUM |
--					NETIF_F_TSO;
--				card->dev->vlan_features = NETIF_F_SG |
--					NETIF_F_RXCSUM | NETIF_F_IP_CSUM |
--					NETIF_F_TSO;
- 				card->dev->features |= NETIF_F_SG;
-+				card->dev->hw_features |= NETIF_F_TSO |
-+					NETIF_F_RXCSUM | NETIF_F_IP_CSUM;
-+				card->dev->vlan_features |= NETIF_F_TSO |
-+					NETIF_F_RXCSUM | NETIF_F_IP_CSUM;
- 			}
+ SYSCALL_DEFINE4(pread64, unsigned int, fd, char __user *, buf,
+ 			size_t, count, loff_t, pos)
+ {
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index c3416f8e8e29..51dd1e9185e1 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -953,5 +953,6 @@ int ksys_mount(char __user *dev_name, char __user *dir_name, char __user *type,
+ int ksys_umount(char __user *name, int flags);
+ int ksys_dup(unsigned int fildes);
+ int ksys_chroot(const char __user *filename);
++ssize_t ksys_write(unsigned int fd, const char __user *buf, size_t count);
+ 
+ #endif
+diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
+index 99e0b649fc0e..2d365c398ccc 100644
+--- a/init/do_mounts_rd.c
++++ b/init/do_mounts_rd.c
+@@ -270,7 +270,7 @@ int __init rd_load_image(char *from)
+ 			printk("Loading disk #%d... ", disk);
  		}
- 	} else if (card->info.type == QETH_CARD_TYPE_IQD) {
+ 		sys_read(in_fd, buf, BLOCK_SIZE);
+-		sys_write(out_fd, buf, BLOCK_SIZE);
++		ksys_write(out_fd, buf, BLOCK_SIZE);
+ #if !defined(CONFIG_S390)
+ 		if (!(i % 16)) {
+ 			pr_cont("%c\b", rotator[rotate & 0x3]);
+@@ -317,7 +317,7 @@ static long __init compr_fill(void *buf, unsigned long len)
+ 
+ static long __init compr_flush(void *window, unsigned long outcnt)
+ {
+-	long written = sys_write(crd_outfd, window, outcnt);
++	long written = ksys_write(crd_outfd, window, outcnt);
+ 	if (written != outcnt) {
+ 		if (decompress_error == 0)
+ 			printk(KERN_ERR
+diff --git a/init/initramfs.c b/init/initramfs.c
+index 7e99a0038942..6f972df15bf2 100644
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -27,7 +27,7 @@ static ssize_t __init xwrite(int fd, const char *p, size_t count)
+ 
+ 	/* sys_write only can write MAX_RW_COUNT aka 2G-4K bytes at most */
+ 	while (count) {
+-		ssize_t rv = sys_write(fd, p, count);
++		ssize_t rv = ksys_write(fd, p, count);
+ 
+ 		if (rv < 0) {
+ 			if (rv == -EINTR || rv == -EAGAIN)
 -- 
-2.13.5
+2.16.2
