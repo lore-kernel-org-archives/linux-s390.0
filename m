@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v3 08/14] s390: vfio-ap: sysfs interfaces to configure adapters
-Date: Wed, 14 Mar 2018 14:25:48 -0400
-Message-ID: <1521051954-25715-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v3 09/14] s390: vfio-ap: sysfs interfaces to configure domains
+Date: Wed, 14 Mar 2018 14:25:49 -0400
+Message-ID: <1521051954-25715-10-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,16 +12,18 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Provides the sysfs interfaces for assigning AP adapters to
-and unassigning AP adapters from a mediated matrix device.
+Provides the sysfs interfaces for assigning AP domains to
+and unassigning AP domains from a mediated matrix device.
 
-The IDs of the AP adapters assigned to the mediated matrix
-device are stored in an AP mask (APM). The bits in the APM,
-from most significant to least significant bit, correspond to
-AP adapter numbers 0 to 255. When an adapter is assigned, the
-bit corresponding adapter ID will be set in the APM. Likewise,
-when an adapter is unassigned, the bit corresponding to the
-adapter ID will be cleared from the APM.
+An AP domain ID corresponds to an AP queue index (APQI). For
+each domain assigned to the mediated matrix device, its
+corresponging APQI is stored in an AP queue mask (AQM).
+The bits in the AQM, from most significant to least
+significant bit, correspond to AP domain numbers 0 to 255.
+When a domain is assigned, the bit corresponding to its
+APQI will be set in the AQM. Likewise, when a domain is
+unassigned, the bit corresponding to its APQI will be
+cleared from the AQM.
 
 The relevant sysfs structures are:
 
@@ -31,137 +33,107 @@ The relevant sysfs structures are:
 ......... [vfio_ap-passthrough]
 ............ [devices]
 ...............[$uuid]
-.................. assign_adapter
-.................. unassign_adapter
+.................. assign_domain
+.................. unassign_domain
 
-To assign an adapter to the $uuid mediated matrix device's APM,
-write the adapter ID (APID) to the assign_adapter file. To
-unassign an adapter, write the APID to the unassign_adapter
-file. The APID is specified using conventional semantics: If
-it begins with 0x the number will be parsed as a hexadecimal
-(case insensitive) number; otherwise, it will be parsed as a
-decimal number.
+To assign a domain to the $uuid mediated matrix device,
+write the domain's ID to the assign_domain file. To
+unassign a domain, write the domain's ID to the
+unassign_domain file. The ID is specified using
+conventional semantics: If it begins with 0x, the number
+will be parsed as a hexadecimal (case insensitive) number;
+otherwise, it will be parsed as a decimal number.
 
-For example, to assign adapter 173 (0xad) to the mediated matrix
+For example, to assign domain 173 (0xad) to the mediated matrix
 device $uuid:
 
-	echo 173 > assign_adapter
+	echo 173 > assign_domain
 
 	or
 
-	echo 0xad > assign_adapter
+	echo 0xad > assign_domain
 
-To unassign adapter 173 (0xad):
+To unassign domain 173 (0xad):
 
-	echo 173 > unassign_adapter
+	echo 173 > unassign_domain
 
 	or
 
-	echo 0xad > unassign_adapter
+	echo 0xad > unassign_domain
 
 The assignment will be rejected:
 
-* If the APID exceeds the maximum value for an AP adapter:
-  * If the AP Extended Addressing (APXA) facility is
-    installed, the max value is 255
-  * Else the max value is 64
+* If the domain ID exceeds the maximum value for an AP domain:
 
-* If no AP domains have yet been assigned and there are
-  no AP queues bound to the VFIO AP driver that have an APQN
-  with an APID matching that of the AP adapter being assigned.
+  * If the AP Extended Addressing (APXA) facility is installed,
+    the max value is 255
+
+  * Else the max value is 15
+
+* If no AP adapters have yet been assigned and there are
+  no AP queues reserved by the VFIO AP driver that have an APQN
+  with an APQI matching that of the AP domain number being
+  assigned.
 
 * If any of the APQNs that can be derived from the intersection
-  of the APID being assigned and the AP queue index (APQI) of
-  each of the AP domains previously assigned can not be matched
+  of the APQI being assigned and the AP adapter ID (APID) of
+  each of the AP adapters previously assigned can not be matched
   with an APQN of an AP queue device reserved by the VFIO AP
   driver.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- arch/s390/include/asm/kvm-ap.h        |    1 +
- drivers/s390/crypto/vfio_ap_ops.c     |  296 +++++++++++++++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_private.h |    1 +
- 3 files changed, 298 insertions(+), 0 deletions(-)
+ arch/s390/include/asm/kvm-ap.h    |    1 +
+ drivers/s390/crypto/vfio_ap_ops.c |  215 ++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 215 insertions(+), 1 deletions(-)
 
 diff --git a/arch/s390/include/asm/kvm-ap.h b/arch/s390/include/asm/kvm-ap.h
-index 268f3b2..2052329 100644
+index 2052329..8ec42e7 100644
 --- a/arch/s390/include/asm/kvm-ap.h
 +++ b/arch/s390/include/asm/kvm-ap.h
-@@ -15,6 +15,7 @@
- #include <linux/bitops.h>
+@@ -16,6 +16,7 @@
  
  #define KVM_AP_MASK_BYTES(n)	DIV_ROUND_UP(n, BITS_PER_BYTE)
-+#define KVM_AP_MAX_APM_INDEX(matrix)	(matrix->apm_max - 1)
+ #define KVM_AP_MAX_APM_INDEX(matrix)	(matrix->apm_max - 1)
++#define KVM_AP_MAX_AQM_INDEX(matrix)	(matrix->aqm_max - 1)
  
  /**
   * The AP matrix is comprised of three bit masks identifying the adapters,
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 4fda44e..90512a6 100644
+index 90512a6..c448835 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -97,9 +97,305 @@ static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
- 	NULL,
- };
+@@ -377,10 +377,223 @@ static ssize_t unassign_adapter_store(struct device *dev,
+ }
+ DEVICE_ATTR_WO(unassign_adapter);
  
-+struct vfio_apid_reserved {
-+	unsigned long apid;
-+	int reserved;
-+};
-+
-+struct vfio_ap_qid_match {
-+	qid_t qid;
-+	struct device *dev;
-+};
-+
 +/**
-+ * vfio_ap_queue_match
-+ *
-+ * @dev: an AP queue device that has been reserved by the VFIO AP device
-+ *	 driver
-+ * @data: an AP queue identifier
-+ *
-+ * Returns 1 (true) if @data matches the AP queue identifier specified for @dev;
-+ * otherwise, returns 0 (false);
-+ */
-+static int vfio_ap_queue_match(struct device *dev, void *data)
-+{
-+	struct vfio_ap_qid_match *qid_match = data;
-+	struct ap_queue *ap_queue;
-+
-+	ap_queue = to_ap_queue(dev);
-+	if (ap_queue->qid == qid_match->qid)
-+		qid_match->dev = dev;
-+
-+	return 0;
-+}
-+
-+/**
-+ * vfio_ap_validate_queues_for_apid
++ * vfio_ap_validate_queues_for_apqi
 + *
 + * @ap_matrix: the matrix device
 + * @matrix_mdev: the mediated matrix device
-+ * @apid: an AP adapter ID (APID)
++ * @apqi: an AP queue index (APQI) - corresponds to a domain ID
 + *
-+ * Verifies that each APQN that is derived from the intersection of @apid and
-+ * each AP queue index (APQI) corresponding to an AP adapter assigned to the
++ * Verifies that each APQN that is derived from the intersection of @apqi and
++ * each AP adapter ID (APID) corresponding to an AP domain assigned to the
 + * @matrix_mdev matches the APQN of an AP queue reserved by the VFIO AP device
 + * driver.
 + *
 + * Returns 0 if validation succeeds; otherwise, returns an error.
 + */
-+static int vfio_ap_validate_queues_for_apid(struct ap_matrix *ap_matrix,
++static int vfio_ap_validate_queues_for_apqi(struct ap_matrix *ap_matrix,
 +					    struct ap_matrix_mdev *matrix_mdev,
-+					    unsigned long apid)
++					    unsigned long apqi)
 +{
 +	int ret;
 +	struct vfio_ap_qid_match qid_match;
-+	unsigned long apqi;
++	unsigned long apid;
 +	struct device_driver *drv = ap_matrix->device.driver;
 +
 +	/**
-+	 * Examine each APQN with the specified APID
++	 * Examine each APQN with the specified APQI
 +	 */
-+	for_each_set_bit_inv(apqi, matrix_mdev->matrix->aqm,
++	for_each_set_bit_inv(apid, matrix_mdev->matrix->apm,
 +			     matrix_mdev->matrix->apm_max) {
 +		qid_match.qid = AP_MKQID(apid, apqi);
 +		qid_match.dev = NULL;
@@ -179,7 +151,7 @@ index 4fda44e..90512a6 100644
 +			continue;
 +
 +		pr_err("%s: AP queue %02lx.%04lx not reserved by %s driver",
-+		       VFIO_AP_MATRIX_MODULE_NAME, apid, apqi,
++		       VFIO_AP_MATRIX_MODULE_NAME, apqi, apqi,
 +		       VFIO_AP_DRV_NAME);
 +
 +		return -ENXIO;
@@ -188,99 +160,99 @@ index 4fda44e..90512a6 100644
 +	return 0;
 +}
 +
-+struct vfio_ap_apid_reserved {
-+	unsigned long apid;
++struct vfio_ap_apqi_reserved {
++	unsigned long apqi;
 +	bool reserved;
 +};
 +
 +/**
-+ * vfio_ap_queue_id_contains_apid
++ * vfio_ap_queue_id_contains_apqi
 + *
 + * @dev: an AP queue device
-+ * @data: an AP adapter ID (APID)
++ * @data: an AP queue index (APQI)
 + *
-+ * Returns 1 (true) if the APID (@data) is contained in the AP queue's (@data)
++ * Returns 1 (true) if the APQI (@data) is contained in the AP queue's
 + * identifier; otherwise, returns 0;
 + */
-+static int vfio_ap_queue_id_contains_apid(struct device *dev, void *data)
++static int vfio_ap_queue_id_contains_apqi(struct device *dev, void *data)
 +{
-+	struct vfio_ap_apid_reserved *apid_res = data;
++	struct vfio_ap_apqi_reserved *apqi_res = data;
 +	struct ap_queue *ap_queue = to_ap_queue(dev);
 +
-+	if (apid_res->apid == AP_QID_CARD(ap_queue->qid))
-+		apid_res->reserved = true;
++	if (apqi_res->apqi == AP_QID_QUEUE(ap_queue->qid))
++		apqi_res->reserved = true;
 +
 +	return 0;
 +}
 +
 +/**
-+ * vfio_ap_verify_apid_reserved
++ * vfio_ap_verify_apqi_reserved
 + *
 + * @ap_matrix: the AP matrix configured for the mediated matrix device
-+ * @apid: the AP adapter ID
++ * @apqi: the AP queue index (APQI) - corresponds to domain ID
 + *
 + * Verifies that at least one AP queue reserved by the VFIO AP device driver
-+ * has an APQN containing @apid.
++ * has an APQN containing @apqi.
 + *
-+ * Returns 0 if the APID is reserved; otherwise, returns -ENODEV.
++ * Returns 0 if the APQI is reserved; otherwise, returns -ENODEV.
 + */
-+static int vfio_ap_verify_apid_reserved(struct ap_matrix *ap_matrix,
-+					unsigned long apid)
++static int vfio_ap_verify_apqi_reserved(struct ap_matrix *ap_matrix,
++					unsigned long apqi)
 +{
 +	int ret;
-+	struct vfio_ap_apid_reserved apid_res;
++	struct vfio_ap_apqi_reserved apqi_res;
 +
-+	apid_res.apid = apid;
++	apqi_res.apqi = apqi;
 +
 +	ret = driver_for_each_device(ap_matrix->device.driver, NULL,
-+				     &apid_res,
-+				     vfio_ap_queue_id_contains_apid);
++				     &apqi_res,
++				     vfio_ap_queue_id_contains_apqi);
 +	if (ret)
 +		return ret;
 +
-+	if (apid_res.reserved)
++	if (apqi_res.reserved)
 +		return 0;
 +
-+	pr_err("%s: no APQNs with adapter ID %02lx are reserved by %s driver",
-+		VFIO_AP_MATRIX_MODULE_NAME, apid, VFIO_AP_DRV_NAME);
++	pr_err("%s: no APQNs with domain ID %02lx are reserved by %s driver",
++		VFIO_AP_MATRIX_MODULE_NAME, apqi, VFIO_AP_DRV_NAME);
 +
 +	return -ENODEV;
 +}
 +
 +/**
-+ * vfio_ap_validate_apid
++ * vfio_ap_validate_apqi
 + *
-+ * @mdev: the mediated device
 + * @matrix_mdev: the mediated matrix device
-+ * @apid: the APID to validate
++ * @apqi: the APQI (domain ID) to validate
 + *
-+ * Validates the value of @apid:
-+ *	* If there are no AP domains assigned, then there must be at least
++ * Validates the value of @apqi:
++ *	* If there are no AP adapters assigned, then there must be at least
 + *	  one AP queue device reserved by the VFIO AP device driver with an
-+ *	  APQN containing @apid.
++ *	  APQN containing @apqi.
 + *
-+ *	* Else each APQN that can be derived from the intersection of @apid and
-+ *	  the IDs of the AP domains already assigned must identify an AP queue
++ *	* Else each APQN that can be derived from the intersection of @apqi and
++ *	  the IDs of the AP adapters already assigned must identify an AP queue
 + *	  that has been reserved by the VFIO AP device driver.
 + *
-+ * Returns 0 if the value of @apid is valid; otherwise, returns an error.
++ * Returns 0 if the value of @apqi is valid; otherwise, returns an error.
 + */
-+static int vfio_ap_validate_apid(struct mdev_device *mdev,
++static int vfio_ap_validate_apqi(struct mdev_device *mdev,
 +				 struct ap_matrix_mdev *matrix_mdev,
-+				 unsigned long apid)
++				 unsigned long apqi)
 +{
 +	int ret;
 +	struct device *dev = mdev_parent_dev(mdev);
 +	struct ap_matrix *ap_matrix = to_ap_matrix(dev);
-+	unsigned long apqi;
++	unsigned long apid;
 +
-+	apqi = find_first_bit_inv(matrix_mdev->matrix->aqm,
-+				  matrix_mdev->matrix->aqm_max);
-+	if (apqi == matrix_mdev->matrix->aqm_max) {
-+		ret = vfio_ap_verify_apid_reserved(ap_matrix, apid);
++	apid = find_first_bit_inv(matrix_mdev->matrix->apm,
++				  matrix_mdev->matrix->apm_max);
++	/* If there are no adapters assigned */
++	if (apid == matrix_mdev->matrix->apm_max) {
++		ret = vfio_ap_verify_apqi_reserved(ap_matrix, apqi);
 +	} else {
-+		ret = vfio_ap_validate_queues_for_apid(ap_matrix, matrix_mdev,
-+						       apid);
++		ret = vfio_ap_validate_queues_for_apqi(ap_matrix, matrix_mdev,
++						       apqi);
 +	}
 +
 +	if (ret)
@@ -289,133 +261,72 @@ index 4fda44e..90512a6 100644
 +	return 0;
 +}
 +
-+/**
-+ * assign_adapter_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the APID from @buf and assigns it to the mediated matrix device. The
-+ * APID must be a valid value:
-+ *	* The APID value must not exceed the maximum allowable AP adapter ID
-+ *
-+ *	* If there are no AP domains assigned, then there must be at least
-+ *	  one AP queue device reserved by the VFIO AP device driver with an
-+ *	  APQN containing @apid.
-+ *
-+ *	* Else each APQN that can be derived from the intersection of @apid and
-+ *	  the IDs of the AP domains already assigned must identify an AP queue
-+ *	  that has been reserved by the VFIO AP device driver.
-+ *
-+ * Returns the number of bytes processed if the APID is valid; otherwise returns
-+ * an error.
-+ */
-+static ssize_t assign_adapter_store(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
++static ssize_t assign_domain_store(struct device *dev,
++				   struct device_attribute *attr,
++				   const char *buf, size_t count)
 +{
 +	int ret;
-+	unsigned long apid;
++	unsigned long apqi;
 +	struct mdev_device *mdev = mdev_from_dev(dev);
 +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	int maxid = KVM_AP_MAX_APM_INDEX(matrix_mdev->matrix);
++	int maxid = KVM_AP_MAX_AQM_INDEX(matrix_mdev->matrix);
 +
-+	ret = kstrtoul(buf, 0, &apid);
-+	if (ret || (apid > maxid)) {
-+		pr_err("%s: adapter id '%s' not a value from 0 to %02d(%#04x)",
++	ret = kstrtoul(buf, 0, &apqi);
++	if (ret || (apqi > maxid)) {
++		pr_err("%s: domain id '%s' not a value from 0 to %02d(%#04x)",
 +		       VFIO_AP_MATRIX_MODULE_NAME, buf, maxid, maxid);
 +
 +		return ret ? ret : -EINVAL;
 +	}
 +
-+	ret = vfio_ap_validate_apid(mdev, matrix_mdev, apid);
++	ret = vfio_ap_validate_apqi(mdev, matrix_mdev, apqi);
 +	if (ret)
 +		return ret;
 +
-+	/* Set the bit in the AP mask (APM) corresponding to the AP adapter
-+	 * number (APID). The bits in the mask, from most significant to least
-+	 * significant bit, correspond to APIDs 0-255.
++	/* Set the bit in the AQM (bitmask) corresponding to the AP domain
++	 * number (APQI). The bits in the mask, from most significant to least
++	 * significant, correspond to numbers 0-255.
 +	 */
-+	set_bit_inv(apid, matrix_mdev->matrix->apm);
++	set_bit_inv(apqi, matrix_mdev->matrix->aqm);
 +
 +	return count;
 +}
-+static DEVICE_ATTR_WO(assign_adapter);
++DEVICE_ATTR_WO(assign_domain);
 +
-+/**
-+ * unassign_adapter_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the APID from @buf and unassigns it from the mediated matrix device.
-+ * The APID must be a valid value
-+ *
-+ * Returns the number of bytes processed if the APID is valid; otherwise returns
-+ * an error.
-+ */
-+static ssize_t unassign_adapter_store(struct device *dev,
-+				      struct device_attribute *attr,
-+				      const char *buf, size_t count)
++static ssize_t unassign_domain_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
 +{
 +	int ret;
-+	unsigned long apid;
++	unsigned long apqi;
 +	struct mdev_device *mdev = mdev_from_dev(dev);
 +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	int maxid = KVM_AP_MAX_APM_INDEX(matrix_mdev->matrix);
++	int maxid = KVM_AP_MAX_AQM_INDEX(matrix_mdev->matrix);
 +
-+	ret = kstrtoul(buf, 0, &apid);
-+	if (ret || (apid > maxid)) {
-+		pr_err("%s: adapter id '%s' must be a value from 0 to %02d(%#04x)",
++	ret = kstrtoul(buf, 0, &apqi);
++	if (ret || (apqi > maxid)) {
++		pr_err("%s: domain id '%s' not a value from 0 to %02d(%#04x)",
 +		       VFIO_AP_MATRIX_MODULE_NAME, buf, maxid, maxid);
 +
 +		return ret ? ret : -EINVAL;
 +	}
 +
-+	clear_bit_inv((unsigned long)apid,
-+		      (unsigned long *)matrix_mdev->matrix->apm);
++	clear_bit_inv((unsigned long)apqi,
++		      (unsigned long *)matrix_mdev->matrix->aqm);
 +
 +	return count;
 +}
-+DEVICE_ATTR_WO(unassign_adapter);
++DEVICE_ATTR_WO(unassign_domain);
 +
-+static struct attribute *vfio_ap_mdev_attrs[] = {
-+	&dev_attr_assign_adapter.attr,
-+	&dev_attr_unassign_adapter.attr,
-+	NULL
-+};
-+
-+static struct attribute_group vfio_ap_mdev_attr_group = {
-+	.attrs = vfio_ap_mdev_attrs
-+};
-+
-+static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
-+	&vfio_ap_mdev_attr_group,
-+	NULL
-+};
-+
- static const struct mdev_parent_ops vfio_ap_matrix_ops = {
- 	.owner			= THIS_MODULE,
- 	.supported_type_groups	= vfio_ap_mdev_type_groups,
-+	.mdev_attr_groups	= vfio_ap_mdev_attr_groups,
- 	.create			= vfio_ap_mdev_create,
- 	.remove			= vfio_ap_mdev_remove,
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+-	NULL
++	&dev_attr_assign_domain.attr,
++	&dev_attr_unassign_domain.attr,
++	NULL,
  };
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index a388b66..f6e7ed1 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -11,6 +11,7 @@
- #include <linux/types.h>
- #include <linux/device.h>
- #include <linux/mdev.h>
-+#include <asm/kvm-ap.h>
  
- #include "ap_bus.h"
- 
+ static struct attribute_group vfio_ap_mdev_attr_group = {
 -- 
 1.7.1
