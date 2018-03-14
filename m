@@ -1,181 +1,114 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v5 00/10] posix_clocks: Prepare syscalls for 64 bit time_t conversion
-Date: Tue, 13 Mar 2018 21:03:23 -0700
-Message-Id: <20180314040333.3291-1-deepa.kernel@gmail.com>
-Return-Path: <deepa.kernel@gmail.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: arnd@arndb.de, tglx@linutronix.de, john.stultz@linaro.org
-Cc: linux-kernel@vger.kernel.org, y2038@lists.linaro.org, acme@kernel.org, benh@kernel.crashing.org, borntraeger@de.ibm.com, catalin.marinas@arm.com, cmetcalf@mellanox.com, cohuck@redhat.com, davem@davemloft.net, deller@gmx.de, devel@driverdev.osuosl.org, gerald.schaefer@de.ibm.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, hoeppner@linux.vnet.ibm.com, hpa@zytor.com, jejb@parisc-linux.org, jwi@linux.vnet.ibm.com, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, mark.rutland@arm.com, mingo@redhat.com, mpe@ellerman.id.au, oberpar@linux.vnet.ibm.com, oprofile-list@lists.sf.net, paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org, rostedt@goodmis.org, rric@kernel.org, schwidefsky@de.ibm.com, sebott@linux.vnet.ibm.com, sparclinux@vger.kernel.org, sth@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, will.deacon@arm.com, x86@kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 1/3] net/smc: pay attention to MAX_ORDER for CQ entries
+Date: Wed, 14 Mar 2018 11:01:00 +0100
+In-Reply-To: <20180314100102.40474-1-ubraun@linux.vnet.ibm.com>
+References: <20180314100102.40474-1-ubraun@linux.vnet.ibm.com>
+Message-Id: <20180314100102.40474-2-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The series is a preparation series for individual architectures
-to use 64 bit time_t syscalls in compat and 32 bit emulation modes.
+smc allocates a certain number of CQ entries for used RoCE devices. For
+mlx5 devices the chosen constant number results in a large allocation
+causing this warning:
 
-This is a follow up to the series Arnd Bergmann posted:
-https://sourceware.org/ml/libc-alpha/2015-05/msg00070.html [1]
+[13355.124656] WARNING: CPU: 3 PID: 16535 at mm/page_alloc.c:3883 __alloc_pages_nodemask+0x2be/0x10c0
+[13355.124657] Modules linked in: smc_diag(O) smc(O) xt_CHECKSUM iptable_mangle ipt_MASQUERADE nf_nat_masquerade_ipv4 iptable_nat nf_nat_ipv4 nf_nat nf_conntrack_ipv4 nf_defrag_ipv4 xt_conntrack nf_conntrack ipt_REJECT nf_reject_ipv4 xt_tcpudp bridge stp llc ip6table_filter ip6_tables iptable_filter mlx5_ib ib_core sunrpc mlx5_core s390_trng rng_core ghash_s390 prng aes_s390 des_s390 des_generic sha512_s390 sha256_s390 sha1_s390 sha_common ptp pps_core eadm_sch dm_multipath dm_mod vhost_net tun vhost tap sch_fq_codel kvm ip_tables x_tables autofs4 [last unloaded: smc]
+[13355.124672] CPU: 3 PID: 16535 Comm: kworker/3:0 Tainted: G           O    4.14.0uschi #1
+[13355.124673] Hardware name: IBM 3906 M04 704 (LPAR)
+[13355.124675] Workqueue: events smc_listen_work [smc]
+[13355.124677] task: 00000000e2f22100 task.stack: 0000000084720000
+[13355.124678] Krnl PSW : 0704c00180000000 000000000029da76 (__alloc_pages_nodemask+0x2be/0x10c0)
+[13355.124681]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+[13355.124682] Krnl GPRS: 0000000000000000 00550e00014080c0 0000000000000000 0000000000000001
+[13355.124684]            000000000029d8b6 00000000f3bfd710 0000000000000000 00000000014080c0
+[13355.124685]            0000000000000009 00000000ec277a00 0000000000200000 0000000000000000
+[13355.124686]            0000000000000000 00000000000001ff 000000000029d8b6 0000000084723720
+[13355.124708] Krnl Code: 000000000029da6a: a7110200		tmll	%r1,512
+                          000000000029da6e: a774ff29		brc	7,29d8c0
+                         #000000000029da72: a7f40001		brc	15,29da74
+                         >000000000029da76: a7f4ff25		brc	15,29d8c0
+                          000000000029da7a: a7380000		lhi	%r3,0
+                          000000000029da7e: a7f4fef1		brc	15,29d860
+                          000000000029da82: 5820f0c4		l	%r2,196(%r15)
+                          000000000029da86: a53e0048		llilh	%r3,72
+[13355.124720] Call Trace:
+[13355.124722] ([<000000000029d8b6>] __alloc_pages_nodemask+0xfe/0x10c0)
+[13355.124724]  [<000000000013bd1e>] s390_dma_alloc+0x6e/0x148
+[13355.124733]  [<000003ff802eeba6>] mlx5_dma_zalloc_coherent_node+0x8e/0xe0 [mlx5_core]
+[13355.124740]  [<000003ff802eee18>] mlx5_buf_alloc_node+0x70/0x108 [mlx5_core]
+[13355.124744]  [<000003ff804eb410>] mlx5_ib_create_cq+0x558/0x898 [mlx5_ib]
+[13355.124749]  [<000003ff80407d40>] ib_create_cq+0x48/0x88 [ib_core]
+[13355.124751]  [<000003ff80109fba>] smc_ib_setup_per_ibdev+0x52/0x118 [smc]
+[13355.124753]  [<000003ff8010bcb6>] smc_conn_create+0x65e/0x728 [smc]
+[13355.124755]  [<000003ff801081a2>] smc_listen_work+0x2d2/0x540 [smc]
+[13355.124756]  [<0000000000162c66>] process_one_work+0x1be/0x440
+[13355.124758]  [<0000000000162f40>] worker_thread+0x58/0x458
+[13355.124759]  [<0000000000169e7e>] kthread+0x14e/0x168
+[13355.124760]  [<00000000009ce8be>] kernel_thread_starter+0x6/0xc
+[13355.124762]  [<00000000009ce8b8>] kernel_thread_starter+0x0/0xc
+[13355.124762] Last Breaking-Event-Address:
+[13355.124764]  [<000000000029da72>] __alloc_pages_nodemask+0x2ba/0x10c0
+[13355.124764] ---[ end trace 34be38b581c0b585 ]---
 
-Thomas, Arnd, this seems ready to be merged now.
-Can you help get this merged?
+This patch reduces the smc constant for the maximum number of allocated
+completion queue entries SMC_MAX_CQE by 2 to avoid high round up values
+in the mlx5 code, and reduces the number of allocated completion queue
+entries even more, if the final allocation for an mlx5 device hits the
+MAX_ORDER limit.
 
-Big picture is as per the lwn article:
-https://lwn.net/Articles/643234/ [2]
+Reported-by: Ihnken Menssen <menssen@de.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ net/smc/smc_ib.c | 10 +++++++++-
+ net/smc/smc_wr.h |  1 -
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-The series is directed at converting posix clock syscalls:
-clock_gettime, clock_settime, clock_getres and clock_nanosleep
-to use a new data structure __kernel_timespec at syscall boundaries.
-__kernel_timespec maintains 64 bit time_t across all execution modes.
-
-vdso will be handled as part of each architecture when they enable
-support for 64 bit time_t.
-
-The compat syscalls are repurposed to provide backward compatibility
-by using them as native syscalls as well for 32 bit architectures.
-They will continue to use timespec at syscall boundaries.
-
-CONFIG_64_BIT_TIME controls whether the syscalls use __kernel_timespec
-or timespec at syscall boundaries.
-
-The series does the following:
-1. Enable compat syscalls on 32 bit architectures.
-2. Add a new __kernel_timespec type to be used as the data structure
-   for all the new syscalls.
-3. Add new config CONFIG_64BIT_TIME(intead of the CONFIG_COMPAT_TIME in
-   [1] and [2] to switch to new definition of __kernel_timespec. It is
-   the same as struct timespec otherwise.
-4. Add new CONFIG_32BIT_TIME to conditionally compile compat syscalls.
-
-* Changes since v4:
- * Fixed up kbuild errors for arm64 and powerpc non compat configs
-* Changes since v3:
- * Updated include file ordering
-* Changes since v2:
- * Dropped the ARCH_HAS_64BIT_TIME config.
- * Fixed zeroing out of higher order bits of tv_nsec for real.
- * Addressed minor review comments from v1.
-* Changes since v1:
- * Introduce CONFIG_32BIT_TIME
- * Fixed zeroing out of higher order bits of tv_nsec
- * Included Arnd's changes to fix up use of compat headers
-
-I decided against using LEGACY_TIME_SYSCALLS to conditionally compile
-legacy time syscalls such as sys_nanosleep because this will need to
-enclose compat_sys_nanosleep as well. So, defining it as 
-
-config LEGACY_TIME_SYSCALLS
-     def_bool 64BIT || !64BIT_TIME
-
-will not include compat_sys_nanosleep. We will instead need a new config to
-exclusively mark legacy syscalls.
-
-Deepa Dinamani (10):
-  compat: Make compat helpers independent of CONFIG_COMPAT
-  include: Move compat_timespec/ timeval to compat_time.h
-  compat: enable compat_get/put_timespec64 always
-  arch: introduce CONFIG_64BIT_TIME
-  arch: Introduce CONFIG_COMPAT_32BIT_TIME
-  posix-clocks: Make compat syscalls depend on CONFIG_COMPAT_32BIT_TIME
-  include: Add new y2038 safe __kernel_timespec
-  fix get_timespec64() for y2038 safe compat interfaces
-  change time types to new y2038 safe __kernel_* types
-  nanosleep: change time types to safe __kernel_* types
-
- arch/Kconfig                           | 15 +++++++++
- arch/arm64/include/asm/compat.h        | 11 -------
- arch/arm64/include/asm/stat.h          |  1 +
- arch/arm64/kernel/hw_breakpoint.c      |  1 -
- arch/arm64/kernel/perf_regs.c          |  2 +-
- arch/mips/include/asm/compat.h         | 11 -------
- arch/mips/kernel/signal32.c            |  2 +-
- arch/parisc/include/asm/compat.h       | 11 -------
- arch/powerpc/include/asm/compat.h      | 11 -------
- arch/powerpc/kernel/asm-offsets.c      |  2 +-
- arch/powerpc/oprofile/backtrace.c      |  1 +
- arch/s390/hypfs/hypfs_sprp.c           |  1 -
- arch/s390/include/asm/compat.h         | 11 -------
- arch/s390/include/asm/elf.h            |  4 +--
- arch/s390/kvm/priv.c                   |  1 -
- arch/s390/pci/pci_clp.c                |  1 -
- arch/sparc/include/asm/compat.h        | 11 -------
- arch/tile/include/asm/compat.h         | 11 -------
- arch/x86/events/core.c                 |  2 +-
- arch/x86/include/asm/compat.h          | 11 -------
- arch/x86/include/asm/ftrace.h          |  2 +-
- arch/x86/include/asm/sys_ia32.h        |  2 +-
- arch/x86/kernel/sys_x86_64.c           |  2 +-
- drivers/s390/block/dasd_ioctl.c        |  1 -
- drivers/s390/char/fs3270.c             |  1 -
- drivers/s390/char/sclp_ctl.c           |  1 -
- drivers/s390/char/vmcp.c               |  1 -
- drivers/s390/cio/chsc_sch.c            |  1 -
- drivers/s390/net/qeth_core_main.c      |  2 +-
- include/linux/compat.h                 | 11 ++++---
- include/linux/compat_time.h            | 23 ++++++++++++++
- include/linux/restart_block.h          |  7 ++--
- include/linux/syscalls.h               | 12 +++----
- include/linux/time.h                   |  4 +--
- include/linux/time64.h                 | 10 +++++-
- include/uapi/asm-generic/posix_types.h |  1 +
- include/uapi/linux/time.h              |  7 ++++
- kernel/compat.c                        | 52 +++++-------------------------
- kernel/time/hrtimer.c                  | 10 ++++--
- kernel/time/posix-stubs.c              | 12 ++++---
- kernel/time/posix-timers.c             | 24 ++++++++++----
- kernel/time/time.c                     | 58 +++++++++++++++++++++++++++++++---
- 42 files changed, 177 insertions(+), 188 deletions(-)
- create mode 100644 include/linux/compat_time.h
-
-
-base-commit: 61530b14b059d4838dcc2186e9de9d57e195ce55
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 2a8957bd6d38..26df554f7588 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -23,6 +23,8 @@
+ #include "smc_wr.h"
+ #include "smc.h"
+ 
++#define SMC_MAX_CQE 32766	/* max. # of completion queue elements */
++
+ #define SMC_QP_MIN_RNR_TIMER		5
+ #define SMC_QP_TIMEOUT			15 /* 4096 * 2 ** timeout usec */
+ #define SMC_QP_RETRY_CNT			7 /* 7: infinite */
+@@ -438,9 +440,15 @@ int smc_ib_remember_port_attr(struct smc_ib_device *smcibdev, u8 ibport)
+ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
+ {
+ 	struct ib_cq_init_attr cqattr =	{
+-		.cqe = SMC_WR_MAX_CQE, .comp_vector = 0 };
++		.cqe = SMC_MAX_CQE, .comp_vector = 0 };
++	int cqe_size_order, smc_order;
+ 	long rc;
+ 
++	/* the calculated number of cq entries fits to mlx5 cq allocation */
++	cqe_size_order = cache_line_size() == 128 ? 7 : 6;
++	smc_order = MAX_ORDER - cqe_size_order - 1;
++	if (SMC_MAX_CQE + 2 > (0x00000001 << smc_order) * PAGE_SIZE)
++		cqattr.cqe = (0x00000001 << smc_order) * PAGE_SIZE - 2;
+ 	smcibdev->roce_cq_send = ib_create_cq(smcibdev->ibdev,
+ 					      smc_wr_tx_cq_handler, NULL,
+ 					      smcibdev, &cqattr);
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index ef0c3494c9cb..210bec3c3ebe 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -19,7 +19,6 @@
+ #include "smc.h"
+ #include "smc_core.h"
+ 
+-#define SMC_WR_MAX_CQE 32768	/* max. # of completion queue elements */
+ #define SMC_WR_BUF_CNT 16	/* # of ctrl buffers per link */
+ 
+ #define SMC_WR_TX_WAIT_FREE_SLOT_TIME	(10 * HZ)
 -- 
-2.14.1
-
-Cc: acme@kernel.org
-Cc: benh@kernel.crashing.org
-Cc: borntraeger@de.ibm.com
-Cc: catalin.marinas@arm.com
-Cc: cmetcalf@mellanox.com
-Cc: cohuck@redhat.com
-Cc: davem@davemloft.net
-Cc: deller@gmx.de
-Cc: devel@driverdev.osuosl.org
-Cc: gerald.schaefer@de.ibm.com
-Cc: gregkh@linuxfoundation.org
-Cc: heiko.carstens@de.ibm.com
-Cc: hoeppner@linux.vnet.ibm.com
-Cc: hpa@zytor.com
-Cc: jejb@parisc-linux.org
-Cc: jwi@linux.vnet.ibm.com
-Cc: linux-api@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: mark.rutland@arm.com
-Cc: mingo@redhat.com
-Cc: mpe@ellerman.id.au
-Cc: oberpar@linux.vnet.ibm.com
-Cc: oprofile-list@lists.sf.net
-Cc: paulus@samba.org
-Cc: peterz@infradead.org
-Cc: ralf@linux-mips.org
-Cc: rostedt@goodmis.org
-Cc: rric@kernel.org
-Cc: schwidefsky@de.ibm.com
-Cc: sebott@linux.vnet.ibm.com
-Cc: sparclinux@vger.kernel.org
-Cc: sth@linux.vnet.ibm.com
-Cc: ubraun@linux.vnet.ibm.com
-Cc: will.deacon@arm.com
-Cc: x86@kernel.org
+2.13.5
