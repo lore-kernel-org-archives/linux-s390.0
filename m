@@ -1,62 +1,84 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 14 Mar 2018 19:28:53 +0000
-Subject: [GIT PULL 05/10] KVM: s390: fix fallthrough annotation
-Message-Id: <20180314192858.172855-6-borntraeger@de.ibm.com>
+Date: Wed, 14 Mar 2018 19:28:54 +0000
+Subject: [GIT PULL 06/10] Kconfig: Remove HAS_IOMEM dependency for Graphics support
+Message-Id: <20180314192858.172855-7-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+From: Farhan Ali <alifm@linux.vnet.ibm.com>
 
-A case statement in kvm_s390_shadow_tables uses fallthrough annotations
-which are not recognized by gcc because they are hidden within a block.
-Move these annotations out of the block to fix (W=1) warnings like below:
+The 'commit e25df1205f37 ("[S390] Kconfig: menus with depends on HAS_IOMEM.")'
+added the HAS_IOMEM dependecy for "Graphics support". This disabled the
+"Graphics support" menu for S390. But if we enable VT layer for S390,
+we would also need to enable the dummy console. So let's remove the
+HAS_IOMEM dependency.
 
-arch/s390/kvm/gaccess.c: In function 'kvm_s390_shadow_tables':
-arch/s390/kvm/gaccess.c:1029:26: warning: this statement may fall through [-Wimplicit-fallthrough=]
-  case ASCE_TYPE_REGION1: {
-                          ^
+Move this dependency to sub menu items and console drivers that use
+io memory.
 
-Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Farhan Ali <alifm@linux.vnet.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Message-Id: <6e8ef238162df5be4462126be155975c722e9863.1519315352.git.alifm@linux.vnet.ibm.com>
+Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/video/Kconfig         | 5 ++++-
+ drivers/video/console/Kconfig | 6 +++---
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index c24bfa72baf7..8e2b8647ee12 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1050,8 +1050,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_r2t(sg, saddr, rfte.val, *fake);
- 		if (rc)
- 			return rc;
--		/* fallthrough */
--	}
-+	} /* fallthrough */
- 	case ASCE_TYPE_REGION2: {
- 		union region2_table_entry rste;
+diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+index 3c20af999893..4f950c686055 100644
+--- a/drivers/video/Kconfig
++++ b/drivers/video/Kconfig
+@@ -3,7 +3,8 @@
+ #
  
-@@ -1077,8 +1076,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_r3t(sg, saddr, rste.val, *fake);
- 		if (rc)
- 			return rc;
--		/* fallthrough */
--	}
-+	} /* fallthrough */
- 	case ASCE_TYPE_REGION3: {
- 		union region3_table_entry rtte;
+ menu "Graphics support"
+-	depends on HAS_IOMEM
++
++if HAS_IOMEM
  
-@@ -1113,8 +1111,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_sgt(sg, saddr, rtte.val, *fake);
- 		if (rc)
- 			return rc;
--		/* fallthrough */
--	}
-+	} /* fallthrough */
- 	case ASCE_TYPE_SEGMENT: {
- 		union segment_table_entry ste;
+ config HAVE_FB_ATMEL
+ 	bool
+@@ -36,6 +37,8 @@ config VIDEOMODE_HELPERS
+ config HDMI
+ 	bool
  
++endif # HAS_IOMEM
++
+ if VT
+ 	source "drivers/video/console/Kconfig"
+ endif
+diff --git a/drivers/video/console/Kconfig b/drivers/video/console/Kconfig
+index 7f1f1fbcef9e..9485857228ea 100644
+--- a/drivers/video/console/Kconfig
++++ b/drivers/video/console/Kconfig
+@@ -9,7 +9,7 @@ config VGA_CONSOLE
+ 	depends on !4xx && !PPC_8xx && !SPARC && !M68K && !PARISC && !FRV && \
+ 		!SUPERH && !BLACKFIN && !AVR32 && !MN10300 && !CRIS && \
+ 		(!ARM || ARCH_FOOTBRIDGE || ARCH_INTEGRATOR || ARCH_NETWINDER) && \
+-		!ARM64 && !ARC && !MICROBLAZE && !OPENRISC
++		!ARM64 && !ARC && !MICROBLAZE && !OPENRISC && HAS_IOMEM
+ 	default y
+ 	help
+ 	  Saying Y here will allow you to use Linux in text mode through a
+@@ -85,7 +85,7 @@ config MDA_CONSOLE
+ 
+ config SGI_NEWPORT_CONSOLE
+         tristate "SGI Newport Console support"
+-        depends on SGI_IP22 
++        depends on SGI_IP22 && HAS_IOMEM
+         select FONT_SUPPORT
+         help
+           Say Y here if you want the console on the Newport aka XL graphics
+@@ -153,7 +153,7 @@ config FRAMEBUFFER_CONSOLE_ROTATION
+ 
+ config STI_CONSOLE
+         bool "STI text console"
+-        depends on PARISC
++        depends on PARISC && HAS_IOMEM
+         select FONT_SUPPORT
+         default y
+         help
 -- 
 2.14.3
