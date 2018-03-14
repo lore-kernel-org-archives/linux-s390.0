@@ -1,51 +1,25 @@
 Return-Path: <netdev-owner@vger.kernel.org>
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 2/3] net/smc: free link group without pending free_work only
-Date: Wed, 14 Mar 2018 11:01:01 +0100
+Date: Wed, 14 Mar 2018 13:41:19 -0400 (EDT)
+Message-Id: <20180314.134119.2084723925445165145.davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/3] net/smc: fixes 2018-03-14
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20180314100102.40474-1-ubraun@linux.vnet.ibm.com>
 References: <20180314100102.40474-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180314100102.40474-3-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: ubraun@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Make sure there is no pending or running free_work worker for the link
-group when freeing the link group.
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Wed, 14 Mar 2018 11:00:59 +0100
 
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
- net/smc/af_smc.c   | 1 +
- net/smc/smc_core.c | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+> here are smc changes for the net-next tree.
+> The first patch enables SMC to work with mlx5-RoCE-devices.
+> Patches 2 and 3 deal with link group freeing.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 2c6f4e0a9f3d..649489f825a5 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1477,6 +1477,7 @@ static void __exit smc_exit(void)
- 	spin_unlock_bh(&smc_lgr_list.lock);
- 	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
- 		list_del_init(&lgr->list);
-+		cancel_delayed_work_sync(&lgr->free_work);
- 		smc_lgr_free(lgr); /* free link group */
- 	}
- 	static_branch_disable(&tcp_have_smc);
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index f76f60e463cb..ec6189fe2a48 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -140,7 +140,8 @@ static void smc_lgr_free_work(struct work_struct *work)
- 	list_del_init(&lgr->list); /* remove from smc_lgr_list */
- free:
- 	spin_unlock_bh(&smc_lgr_list.lock);
--	smc_lgr_free(lgr);
-+	if (!delayed_work_pending(&lgr->free_work))
-+		smc_lgr_free(lgr);
- }
- 
- /* create a new SMC link group */
--- 
-2.13.5
+Series applied, thank you.
