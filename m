@@ -1,60 +1,81 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 14 Mar 2018 19:28:51 +0000
-Subject: [GIT PULL 03/10] KVM: document KVM_CAP_S390_[BPB|PSW|GMAP|COW]
-Message-Id: <20180314192858.172855-4-borntraeger@de.ibm.com>
+Date: Wed, 14 Mar 2018 19:28:52 +0000
+Subject: [GIT PULL 04/10] KVM: s390: add exit io request stats and simplify code
+Message-Id: <20180314192858.172855-5-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-commit 35b3fde6203b ("KVM: s390: wire up bpb feature") has no
-documentation for KVM_CAP_S390_BPB. While adding this let's also add
-other missing capabilities like KVM_CAP_S390_PSW, KVM_CAP_S390_GMAP and
-KVM_CAP_S390_COW.
+We want to count IO exit requests in kvm_stat. At the same time
+we can get rid of the handle_noop function.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ arch/s390/include/asm/kvm_host.h |  1 +
+ arch/s390/kvm/intercept.c        | 17 ++++-------------
+ arch/s390/kvm/kvm-s390.c         |  1 +
+ 3 files changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index 792fa8717d13..e2e9ce67ba31 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -4467,3 +4467,33 @@ Parameters: none
- This capability indicates if the flic device will be able to get/set the
- AIS states for migration via the KVM_DEV_FLIC_AISM_ALL attribute and allows
- to discover this without having to create a flic device.
-+
-+8.14 KVM_CAP_S390_PSW
-+
-+Architectures: s390
-+
-+This capability indicates that the PSW is exposed via the kvm_run structure.
-+
-+8.15 KVM_CAP_S390_GMAP
-+
-+Architectures: s390
-+
-+This capability indicates that the user space memory used as guest mapping can
-+be anywhere in the user memory address space, as long as the memory slots are
-+aligned and sized to a segment (1MB) boundary.
-+
-+8.16 KVM_CAP_S390_COW
-+
-+Architectures: s390
-+
-+This capability indicates that the user space memory used as guest mapping can
-+use copy-on-write semantics as well as dirty pages tracking via read-only page
-+tables.
-+
-+8.17 KVM_CAP_S390_BPB
-+
-+Architectures: s390
-+
-+This capability indicates that kvm will implement the interfaces to handle
-+reset, migration and nested KVM for branch prediction blocking. The stfle
-+facility 82 should not be provided to the guest without this capability.
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 27918b15a8ba..22615af0b6e6 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -294,6 +294,7 @@ struct kvm_vcpu_stat {
+ 	u64 exit_userspace;
+ 	u64 exit_null;
+ 	u64 exit_external_request;
++	u64 exit_io_request;
+ 	u64 exit_external_interrupt;
+ 	u64 exit_stop_request;
+ 	u64 exit_validity;
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 07c6e81163bf..a389fa85cca2 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -50,18 +50,6 @@ u8 kvm_s390_get_ilen(struct kvm_vcpu *vcpu)
+ 	return ilen;
+ }
+ 
+-static int handle_noop(struct kvm_vcpu *vcpu)
+-{
+-	switch (vcpu->arch.sie_block->icptcode) {
+-	case 0x10:
+-		vcpu->stat.exit_external_request++;
+-		break;
+-	default:
+-		break; /* nothing */
+-	}
+-	return 0;
+-}
+-
+ static int handle_stop(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+@@ -465,8 +453,11 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ 
+ 	switch (vcpu->arch.sie_block->icptcode) {
+ 	case ICPT_EXTREQ:
++		vcpu->stat.exit_external_request++;
++		return 0;
+ 	case ICPT_IOREQ:
+-		return handle_noop(vcpu);
++		vcpu->stat.exit_io_request++;
++		return 0;
+ 	case ICPT_INST:
+ 		rc = handle_instruction(vcpu);
+ 		break;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 957be1c51a4b..41adcfe169a9 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -64,6 +64,7 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
+ 	{ "exit_validity", VCPU_STAT(exit_validity) },
+ 	{ "exit_stop_request", VCPU_STAT(exit_stop_request) },
+ 	{ "exit_external_request", VCPU_STAT(exit_external_request) },
++	{ "exit_io_request", VCPU_STAT(exit_io_request) },
+ 	{ "exit_external_interrupt", VCPU_STAT(exit_external_interrupt) },
+ 	{ "exit_instruction", VCPU_STAT(exit_instruction) },
+ 	{ "exit_pei", VCPU_STAT(exit_pei) },
 -- 
 2.14.3
