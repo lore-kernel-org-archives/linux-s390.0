@@ -1,140 +1,116 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 08/15] KVM: s390: interface to enable AP execution mode
-Date: Wed, 14 Mar 2018 12:29:30 -0400
-Message-ID: <fb6b288f-b8c4-3b06-fe4d-6439148523f1@linux.vnet.ibm.com>
-References: <1519741693-17440-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1519741693-17440-9-git-send-email-akrowiak@linux.vnet.ibm.com>
- <532c0f98-83d0-c687-55d6-a6c5cb263360@redhat.com>
- <ef401e32-4a33-2fe6-8695-f0eff139f9db@linux.vnet.ibm.com>
- <dd63866f-cf54-a11f-8bfd-cc2f9dbae9b7@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v3 00/14] s390: vfio-ap: guest dedicated crypto adapters
+Date: Wed, 14 Mar 2018 14:25:40 -0400
+Message-ID: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <dd63866f-cf54-a11f-8bfd-cc2f9dbae9b7@redhat.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03/01/2018 04:35 AM, David Hildenbrand wrote:
-> On 28.02.2018 21:39, Tony Krowiak wrote:
->> On 02/28/2018 04:44 AM, David Hildenbrand wrote:
->>> On 27.02.2018 15:28, Tony Krowiak wrote:
->>>> Introduces a new interface to enable AP interpretive
->>>> execution (IE) mode for the KVM guest. When running
->>>> with IE mode enabled, AP instructions executed on the
->>>> KVM guest will be interpreted by the firmware and
->>>> passed directly through to an AP device installed on
->>>> the system. The CPU model feature for AP must
->>>> be enabled for the KVM guest in order to enable
->>>> interpretive execution mode.
->>>>
->>>> This interface will be used in a subsequent patch
->>>> by the VFIO AP device driver.
->>>>
->>>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>>> ---
->>>>    arch/s390/include/asm/kvm-ap.h   |    2 ++
->>>>    arch/s390/include/asm/kvm_host.h |    1 +
->>>>    arch/s390/kvm/kvm-ap.c           |   27 +++++++++++++++++++++++++++
->>>>    arch/s390/kvm/kvm-s390.h         |    1 +
->>>>    4 files changed, 31 insertions(+), 0 deletions(-)
->>>>
->>>> diff --git a/arch/s390/include/asm/kvm-ap.h b/arch/s390/include/asm/kvm-ap.h
->>>> index 46e7c5b..6bd6bfb 100644
->>>> --- a/arch/s390/include/asm/kvm-ap.h
->>>> +++ b/arch/s390/include/asm/kvm-ap.h
->>>> @@ -51,4 +51,6 @@ struct kvm_ap_matrix {
->>>>    
->>>>    void kvm_ap_deconfigure_matrix(struct kvm *kvm);
->>>>    
->>>> +int kvm_ap_enable_ie_mode(struct kvm *kvm);
->>>> +
->>>>    #endif /* _ASM_KVM_AP */
->>>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->>>> index a4c77d3..1eebdd6 100644
->>>> --- a/arch/s390/include/asm/kvm_host.h
->>>> +++ b/arch/s390/include/asm/kvm_host.h
->>>> @@ -186,6 +186,7 @@ struct kvm_s390_sie_block {
->>>>    #define ECA_AIV		0x00200000
->>>>    #define ECA_VX		0x00020000
->>>>    #define ECA_PROTEXCI	0x00002000
->>>> +#define ECA_APIE	0x00000008
->>>>    #define ECA_SII		0x00000001
->>>>    	__u32	eca;			/* 0x004c */
->>>>    #define ICPT_INST	0x04
->>>> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
->>>> index bb29045..862e54b 100644
->>>> --- a/arch/s390/kvm/kvm-ap.c
->>>> +++ b/arch/s390/kvm/kvm-ap.c
->>>> @@ -307,3 +307,30 @@ void kvm_ap_deconfigure_matrix(struct kvm *kvm)
->>>>    	kvm_ap_clear_crycb_masks(kvm);
->>>>    }
->>>>    EXPORT_SYMBOL(kvm_ap_deconfigure_matrix);
->>>> +
->>>> +/**
->>>> + * kvm_ap_enable_ie_mode
->>>> + *
->>>> + * Enable interpretrive execution of AP instructions for the guest. When
->>>> + * enabled, AP instructions executed on the guest will be interpreted and
->>>> + * passed through to an AP installed on the host system.
->>>> + *
->>>> + * Returns 0 if interpretrive execution is enabled. Returns -EOPNOTSUPP
->>>> + * if AP facilities are not installed for the guest.
->>>> + *
->>>> + * @kvm: the guest's kvm structure
->>>> + */
->>>> +int kvm_ap_enable_ie_mode(struct kvm *kvm)
->>>> +{
->>>> +	int i;
->>>> +	struct kvm_vcpu *vcpu;
->>>> +
->>>> +	if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP))
->>>> +		return -EOPNOTSUPP;
->>>> +
->>>> +	kvm_for_each_vcpu(i, vcpu, kvm)
->>>> +		vcpu->arch.sie_block->eca |= ECA_APIE;
->>>> +
->>>> +	return 0;
->>>> +}
->>>> +EXPORT_SYMBOL(kvm_ap_enable_ie_mode);
->>>> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
->>>> index 1b5621f..3142541 100644
->>>> --- a/arch/s390/kvm/kvm-s390.h
->>>> +++ b/arch/s390/kvm/kvm-s390.h
->>>> @@ -18,6 +18,7 @@
->>>>    #include <asm/facility.h>
->>>>    #include <asm/processor.h>
->>>>    #include <asm/sclp.h>
->>>> +#include <asm/ap.h>
->>>>    
->>>>    /* Transactional Memory Execution related macros */
->>>>    #define IS_TE_ENABLED(vcpu)	((vcpu->arch.sie_block->ecb & ECB_TE))
->>>>
->>> And also, what about hot-plugged CPUs?
->> I haven't considered that, do you have any suggestions?
-> You should handle the KVM_S390_VM_CPU_FEAT_AP feature instead during
-> kvm_arch_vcpu_setup(), independent of any configured AP devices.
->
-> This avoids the races I mentioned in regards to this series and also
-> will handle hotplugged CPUs properly.
->
-> If KVM_S390_VM_CPU_FEAT_AP is configured for a guest -> each CPU sets
-> ECA_APIE during kvm_arch_vcpu_setup().
->
->
-> (In the vSIE code, simply allow to set ECA_APIE in the shadow SCB in
-> case KVM_S390_VM_CPU_FEAT_AP is enabled)
-Patch series v3 will be posted very shortly, but I thought I'd give you a
-heads up concerning what is forthcoming with regard to ECA_APIE. I'm
-adding a device attribute to the KVM_S390_VM_CRYPTO group for setting a
-flag via the KVM_SET_DEVICE_ATTR ioctl. The flag indicates whether
-ECA_APIE should be set or not. The flag will be checked in the
-test_kvm_cpu_feat() function and set or clear ECA_APIE accordingly.
+On s390, we have cryptographic coprocessor cards, which are modeled on
+Linux as devices on the AP bus. Each card can be partitioned into domains
+which can be thought of as a set of hardware registers for processing 
+crypto commands. Crypto commands are sent to a specific domain within a
+card is via a queue which is identified as a (card,domain) tuple. We model 
+this something like the following (assuming we have access to cards 3 and 
+4 and domains 1 and 2):
 
-You can comment on this in the v3 patch.
->
+AP -> card3 -> queue (3,1)
+            -> queue (3,2)
+   -> card4 -> queue (4,1)
+            -> queue (4,2)
+
+If we want to virtualize this, we can use a feature provided by the
+hardware. We basically attach a satellite control block to our main
+hardware virtualization control block and the hardware takes care of
+most of the rest.
+
+For this control block, we don't specify explicit tuples, but a list of
+cards and a list of domains. The guest will get access to the cross
+product.
+
+Because of this, we need to take care that the lists provided to
+different guests don't overlap; i.e., we need to enforce sane
+configurations. Otherwise, one guest may get access to things like
+secret keys for another guest.
+
+The idea of this patch set is to introduce a new device, the matrix
+device. This matrix device hangs off a different root and acts as the
+parent node for mdev devices.
+
+If you now want to give the tuples (4,1) and (4,2), you need to do the
+following:
+
+- Unbind the (4,1) and (4,2) tuples from their ap bus driver.
+- Bind the (4,1) and (4,2) tuples to the vfio_ap driver.
+- Create the mediated device.
+- Assign card 4 and domains 1 and 2 to the mediated device
+
+QEMU will now simply consume the mediated device and things should work.
+
+For a complete description of the architecture and concepts underlying the 
+design, see the Documentation/s390/vfio-ap.txt file included with this
+patch set.
+
+v2 => v3 Change log:
+===================
+* Set APIE in VCPU setup function
+* Renamed patch 13/15:
+    KVM: s390: Configure the guest's CRYCB
+    KVM: s390: Configure the guest's AP devices
+* Fixed problem with building arch/s390/kvm/kvm-ap.c when CONFIG_ZCRYPT
+  not selected 
+* Removed patch introducing VSIE support for AP pending further 
+  investigation
+* Initialized AP maximum mask sizes - i.e., APM, AQM and ADM - from info
+  returned from PQAP(QCI) function
+* Introduced a new device attribute to the KVM_S390_VM_CRYPTO attribute
+  group for setting a flag via the KVM_SET_DEVICE_ATTR ioctl to indicate
+  whether ECA_APIE should be set or not. The flag is used in the 
+  kvm_s390_vcpu_crypto_setup() function to set ECA_APIE in the SIE block.
+* Misc. formatting etc.
+
+Tony Krowiak (14):
+  KVM: s390: refactor crypto initialization
+  s390: zcrypt: externalize AP instructions available function
+  KVM: s390: CPU model support for AP virtualization
+  KVM: s390: device attribute to set AP interpretive execution
+  s390: vfio-ap: base implementation of VFIO AP device driver
+  s390: vfio-ap: register matrix device with VFIO mdev framework
+  KVM: s390: interfaces to configure/deconfigure guest's AP matrix
+  s390: vfio-ap: sysfs interfaces to configure adapters
+  s390: vfio-ap: sysfs interfaces to configure domains
+  s390: vfio-ap: sysfs interfaces to configure control domains
+  s390: vfio-ap: sysfs interface to view matrix mdev matrix
+  KVM: s390: configure the guest's AP devices
+  s390: vfio-ap: implement VFIO_DEVICE_GET_INFO ioctl
+  s390: doc: detailed specifications for AP virtualization
+
+ Documentation/s390/vfio-ap.txt        |  560 +++++++++++++++++++++
+ MAINTAINERS                           |   14 +
+ arch/s390/Kconfig                     |   11 +
+ arch/s390/include/asm/ap.h            |    7 +
+ arch/s390/include/asm/kvm-ap.h        |   57 +++
+ arch/s390/include/asm/kvm_host.h      |    3 +
+ arch/s390/include/uapi/asm/kvm.h      |    2 +
+ arch/s390/kvm/Kconfig                 |    1 +
+ arch/s390/kvm/Makefile                |    2 +-
+ arch/s390/kvm/kvm-ap.c                |  330 +++++++++++++
+ arch/s390/kvm/kvm-s390.c              |   84 ++--
+ arch/s390/tools/gen_facilities.c      |    2 +
+ drivers/s390/crypto/Makefile          |    4 +
+ drivers/s390/crypto/ap_bus.c          |    6 +
+ drivers/s390/crypto/vfio_ap_drv.c     |  144 ++++++
+ drivers/s390/crypto/vfio_ap_ops.c     |  872 +++++++++++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |   47 ++
+ include/uapi/linux/vfio.h             |    2 +
+ 18 files changed, 2093 insertions(+), 55 deletions(-)
+ create mode 100644 Documentation/s390/vfio-ap.txt
+ create mode 100644 arch/s390/include/asm/kvm-ap.h
+ create mode 100644 arch/s390/kvm/kvm-ap.c
+ create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
+ create mode 100644 drivers/s390/crypto/vfio_ap_ops.c
+ create mode 100644 drivers/s390/crypto/vfio_ap_private.h
