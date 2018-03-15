@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 14 Mar 2018 10:51:32 +0100
-From: Philipp Rudo <prudo@linux.vnet.ibm.com>
+Date: Thu, 15 Mar 2018 15:34:22 +0800
+From: Dave Young <dyoung@redhat.com>
 Subject: Re: [PATCH 00/11] kexec_file: Clean up purgatory load
-In-Reply-To: <20180312074016.GA1854@dhcp-128-65.nay.redhat.com>
+Message-ID: <20180315073422.GA1876@dhcp-128-65.nay.redhat.com>
 References: <20180226151620.20970-1-prudo@linux.vnet.ibm.com>
-        <20180309051913.GA9358@dhcp-128-65.nay.redhat.com>
-        <20180309152556.0ccf3cb1@ThinkPad>
-        <20180312074016.GA1854@dhcp-128-65.nay.redhat.com>
+ <20180309051913.GA9358@dhcp-128-65.nay.redhat.com>
+ <20180309152556.0ccf3cb1@ThinkPad>
+ <20180312074016.GA1854@dhcp-128-65.nay.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20180314105132.3d828b01@ThinkPad>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180312074016.GA1854@dhcp-128-65.nay.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Dave Young <dyoung@redhat.com>
+To: Philipp Rudo <prudo@linux.vnet.ibm.com>
 Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Eric Biederman <ebiederm@xmission.com>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Vivek Goyal <vgoyal@redhat.com>, Ingo Molnar <mingo@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Ingo,
-
-do you have an idea about this? This problem is currently holding me back to
-send a v2 of the patch set.
-
-Thanks
-Philipp
-
-On Mon, 12 Mar 2018 15:40:16 +0800
-Dave Young <dyoung@redhat.com> wrote:
-
+On 03/12/18 at 03:40pm, Dave Young wrote:
 > Hi Philipp,
 > On 03/09/18 at 03:25pm, Philipp Rudo wrote:
 > > Hi Dave,
 > > 
 > > On Fri, 9 Mar 2018 13:19:40 +0800
 > > Dave Young <dyoung@redhat.com> wrote:
-> >   
+> > 
 > > > Hi Philipp,
-> > > On 02/26/18 at 04:16pm, Philipp Rudo wrote:  
+> > > On 02/26/18 at 04:16pm, Philipp Rudo wrote:
 > > > > 
 > > > > Hi everybody
 > > > > 
@@ -109,7 +99,7 @@ Dave Young <dyoung@redhat.com> wrote:
 > > > > 
 > > > > -- 
 > > > > 2.13.5
-> > > >     
+> > > >   
 > > > 
 > > > I did a test on x86, but it failed:
 > > > [   15.636489] kexec: Undefined symbol: memcpy
@@ -117,7 +107,7 @@ Dave Young <dyoung@redhat.com> wrote:
 > > > [   33.603356] kexec: Undefined symbol: memcpy
 > > > [   33.603362] kexec-bzImage64: Loading purgatory failed
 > > > 
-> > > I think this relates to the sha256 splitting patch.  
+> > > I think this relates to the sha256 splitting patch.
 > > 
 > > I looked into this a little closer and i think i understood what happens. 
 > > 
@@ -142,10 +132,40 @@ Dave Young <dyoung@redhat.com> wrote:
 > > dependencies and does not compile in the purgatory. On the other hand having
 > > arch dependent includes isn't that nice either ...
 > > 
-> > What's your opinion on this?  
+> > What's your opinion on this?
 > 
 > Looks like it is a mess, maybe the 1st one is better although it is also
 > ugly.  Ccing Ingo see if he has some idea about this. 
+
+Maybe something like below is better if no other idea:
+
+diff --git a/arch/x86/boot/string_builtin.c b/arch/x86/boot/string_builtin.c
+new file mode 100644
+index 000000000000..9099f949fb41
+--- /dev/null
++++ b/arch/x86/boot/string_builtin.c
+@@ -0,0 +1,11 @@
++#include <linux/types.h>
++
++void *memcpy(void *dst, const void *src, size_t len)
++{
++	return __builtin_memcpy(dst, src, len);
++}
++
++void *memset(void *dst, int c, size_t len)
++{
++	return __builtin_memset(dst, c, len);
++}
+diff --git a/arch/x86/purgatory/string.c b/arch/x86/purgatory/string.c
+index d886b1fa36f0..e12c78fcd59f 100644
+--- a/arch/x86/purgatory/string.c
++++ b/arch/x86/purgatory/string.c
+@@ -11,3 +11,4 @@
+  */
+ 
+ #include "../boot/string.c"
++#include "../boot/string_builtin.c"
+
 > 
 > > 
 > > Thanks
@@ -204,8 +224,7 @@ Dave Young <dyoung@redhat.com> wrote:
 > >  LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
 > >  targets += purgatory.ro
 > >  
-> >   
+> > 
 > 
 > Thanks
 > Dave
-> 
