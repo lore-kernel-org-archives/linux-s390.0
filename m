@@ -1,114 +1,112 @@
 From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 04/14] KVM: s390: device attribute to set AP
- interpretive execution
-Date: Thu, 15 Mar 2018 14:00:26 +0100
-Message-ID: <21bd029b-3500-3461-ce98-68ad3ae9b647@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 05/14] s390: vfio-ap: base implementation of VFIO AP
+ device driver
+Date: Thu, 15 Mar 2018 14:25:29 +0100
+Message-ID: <1d5a5e18-1886-dd73-a17e-9bec617507ba@linux.vnet.ibm.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1521051954-25715-5-git-send-email-akrowiak@linux.vnet.ibm.com>
- <d86ad01e-1c79-c14c-b4da-09d9a31572bd@linux.vnet.ibm.com>
+ <1521051954-25715-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d86ad01e-1c79-c14c-b4da-09d9a31572bd@linux.vnet.ibm.com>
+In-Reply-To: <1521051954-25715-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.vnet.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 14/03/2018 22:57, Halil Pasic wrote:
+On 14/03/2018 19:25, Tony Krowiak wrote:
+> Introduces a new AP device driver. This device driver
+> is built on the VFIO mediated device framework. The framework
+> provides sysfs interfaces that facilitate passthrough
+> access by guests to devices installed on the linux host.
 >
-> On 03/14/2018 07:25 PM, Tony Krowiak wrote:
->> The VFIO AP device model exploits interpretive execution of AP
->> instructions (APIE) to provide guests passthrough access to AP
->> devices. This patch introduces a new device attribute in the
->> KVM_S390_VM_CRYPTO device attribute group to set APIE from
->> the VFIO AP device defined on the guest.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->> ---
-> [..]
+> The VFIO AP device driver will serve two purposes:
 >
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index a60c45b..bc46b67 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -815,6 +815,19 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
->>   			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
->>   		VM_EVENT(kvm, 3, "%s", "DISABLE: DEA keywrapping support");
->>   		break;
->> +	case KVM_S390_VM_CRYPTO_INTERPRET_AP:
->> +		if (attr->addr) {
->> +			if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP))
-> Unlock mutex before returning?
+> 1. Provide the interfaces to reserve AP devices for exclusive
+>     use by KVM guests. This is accomplished by unbinding the
+>     devices to be reserved for guest usage from the default AP
+>     device driver and binding them to the VFIO AP device driver.
 >
-> Maybe flip conditions (don't allow manipulating apie if feature not there).
-> Clearing the anyways clear apie if feature not there ain't too bad, but
-> rejecting the operation appears nicer to me.
+> 2. Implements the functions, callbacks and sysfs attribute
+>     interfaces required to create one or more VFIO mediated
+>     devices each of which will be used to configure the AP
+>     matrix for a guest and serve as a file descriptor
+>     for facilitating communication between QEMU and the
+>     VFIO AP device driver.
 >
->> +				return -EOPNOTSUPP;
->> +			kvm->arch.crypto.apie = 1;
->> +			VM_EVENT(kvm, 3, "%s",
->> +				 "ENABLE: AP interpretive execution");
->> +		} else {
->> +			kvm->arch.crypto.apie = 0;
->> +			VM_EVENT(kvm, 3, "%s",
->> +				 "DISABLE: AP interpretive execution");
->> +		}
->> +		break;
->>   	default:
->>   		mutex_unlock(&kvm->lock);
->>   		return -ENXIO;
-> I wonder how the loop after this switch works for KVM_S390_VM_CRYPTO_INTERPRET_AP:
+> When the VFIO AP device driver is initialized:
 >
->          kvm_for_each_vcpu(i, vcpu, kvm) {
->                  kvm_s390_vcpu_crypto_setup(vcpu);
->                  exit_sie(vcpu);
->          }
+> * It registers with the AP bus for control of type 10 (CEX4
+>    and newer) AP queue devices. The probe and remove callbacks
+>    will be provided to support the binding/unbinding of
+>    AP queue devices to/from the VFIO AP device driver.
 >
->  From not doing something like for KVM_S390_VM_CRYPTO_INTERPRET_AP
+> * Creates a /sys/devices/vfio-ap/matrix device to hold
+>    the APQNs of the AP devices bound to the VFIO
+>    AP device driver and serves as the parent of the
+>    mediated devices created for each guest.
 >
->          if (kvm->created_vcpus) {
->                  mutex_unlock(&kvm->lock);
->                  return -EBUSY;
-> and from the aforementioned loop I guess ECA.28 can be changed
-> for a running guest.
+> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> ---
+>   MAINTAINERS                           |    2 +
+>   arch/s390/Kconfig                     |   11 +++
+>   drivers/s390/crypto/Makefile          |    4 +
+>   drivers/s390/crypto/vfio_ap_drv.c     |  135 +++++++++++++++++++++++++++++++++
+>   drivers/s390/crypto/vfio_ap_private.h |   22 ++++++
+>   include/uapi/linux/vfio.h             |    2 +
+>   6 files changed, 176 insertions(+), 0 deletions(-)
+>   create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
+>   create mode 100644 drivers/s390/crypto/vfio_ap_private.h
 >
-> If there are running vcpus when KVM_S390_VM_CRYPTO_INTERPRET_AP is
-> changed (set) these will be taken out of SIE by exit_sie().  Then for the
-> corresponding threads the control probably goes to QEMU (the emulator in
-> the userspace). And it puts that vcpu back into the SIE, and then that
-> cpu starts acting according to the new ECA.28 value.  While other vcpus
-> may still work with the old value of ECA.28.
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 72742d5..f129253 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -11884,6 +11884,8 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
+>   S:	Supported
+>   F:	arch/s390/include/asm/kvm/kvm-ap.h
+>   F:	arch/s390/kvm/kvm-ap.c
+> +F:	drivers/s390/crypto/vfio_ap_drv.c
+> +F:	drivers/s390/crypto/vfio_ap_private.h
 >
-> I'm not saying what I describe above is necessarily something broken.
-> But I would like to have it explained, why is it OK -- provided I did not
-> make any errors in my reasoning (assumptions included).
+>   S390 ZFCP DRIVER
+>   M:	Steffen Maier <maier@linux.vnet.ibm.com>
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index cbe1d97..58509db 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -771,6 +771,17 @@ config VFIO_CCW
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called vfio_ccw.
 >
-> Can you help me understand this code?
->
-> Regards,
-> Halil
->
-> [..]
->
+> +config VFIO_AP
+> +	def_tristate m
+not sure it must be module by default.
+I would not set it by default.
+> +	prompt "VFIO support for AP devices"
+> +	depends on ZCRYPT && VFIO_MDEV_DEVICE
 
-I have the same concerns as Halil.
+VFIO_MDEV_DEVICE is a general feature *needed* by VFIO_AP
+and has no use case by its own. If it is set it is obviously because some
+mediated device drivers needs it.
+while ZCRYPT is a Z feature which may be set without VFIO_AP.
 
-We do not need to change the virtulization type
-(hardware/software) on the fly for the current use case.
+So you need:
 
-Couldn't we delay this until we have one and in between only make the 
-vCPU hotplug clean?
+config VFIO_AP
+     def_tristate n
+     prompt "VFIO support for AP devices"
+     depends on ZCRYPT
+     select VFIO_MDEV
+     select VFIO_MDEV_DEVICE
+...
 
-We only need to let the door open for the day we have such a use case.
 
 Pierre
-
-
 
 -- 
 Pierre Morel
