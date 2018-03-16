@@ -1,15 +1,12 @@
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH RFC] scsi: devinfo: remove dasd devices from
-	the scsi subsystem
-Date: Mon, 19 Mar 2018 23:42:23 -0400
-Message-ID: <yq1h8pbza3k.fsf@oracle.com>
-References: <20180316145725.15394-1-xose.vazquez@gmail.com>
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Subject: [PATCH RFC] scsi: devinfo: remove dasd devices from the
+	scsi subsystem
+Date: Fri, 16 Mar 2018 15:57:25 +0100
+Message-ID: <20180316145725.15394-1-xose.vazquez@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <dm-devel-bounces@redhat.com>
-In-Reply-To: <20180316145725.15394-1-xose.vazquez@gmail.com> (Xose Vazquez
-	Perez's message of "Fri, 16 Mar 2018 15:57:25 +0100")
 List-Unsubscribe: <https://www.redhat.com/mailman/options/dm-devel>,
 	<mailto:dm-devel-request@redhat.com?subject=unsubscribe>
 List-Archive: <https://www.redhat.com/archives/dm-devel>
@@ -20,16 +17,52 @@ List-Subscribe: <https://www.redhat.com/mailman/listinfo/dm-devel>,
 Sender: dm-devel-bounces@redhat.com
 Errors-To: dm-devel-bounces@redhat.com
 List-Archive: <https://lore.kernel.org/dm-devel/>
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Cc: s390 ML <linux-s390@vger.kernel.org>, Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, SCSI ML <linux-scsi@vger.kernel.org>, "Martin K . Petersen" <martin.petersen@oracle.com>, Takahiro Yasui <takahiro.yasui@hitachivantara.com>, device-mapper development <dm-devel@redhat.com>, Mike Christie <mchristi@redhat.com>, Anthony Cheung <anthony.cheung@hpe.com>
+Cc: s390 ML <linux-s390@vger.kernel.org>, Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>, Xose Vazquez Perez <xose.vazquez@gmail.com>, SCSI ML <linux-scsi@vger.kernel.org>, "Martin K . Petersen" <martin.petersen@oracle.com>, Takahiro Yasui <takahiro.yasui@hitachivantara.com>, device-mapper development <dm-devel@redhat.com>, Mike Christie <mchristi@redhat.com>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, Anthony Cheung <anthony.cheung@hpe.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+Only present through ccw bus.
 
-Xose,
+Cc: Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>
+Cc: Takahiro Yasui <takahiro.yasui@hitachivantara.com>
+Cc: Anthony Cheung <anthony.cheung@hpe.com>
+Cc: Mike Christie <mchristi@redhat.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: James E.J. Bottomley <jejb@linux.vnet.ibm.com>
+Cc: s390 ML <linux-s390@vger.kernel.org>
+Cc: SCSI ML <linux-scsi@vger.kernel.org>
+Cc: device-mapper development <dm-devel@redhat.com>
+Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
+---
+ drivers/scsi/scsi_devinfo.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-> Only present through ccw bus.
-
-Applied to 4.17/scsi-queue.
-
+diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
+index b119b5bfb4d3..31985dd3f4b6 100644
+--- a/drivers/scsi/scsi_devinfo.c
++++ b/drivers/scsi/scsi_devinfo.c
+@@ -175,11 +175,6 @@ static struct {
+ 	{"HITACHI", "DISK-SUBSYSTEM", "*", BLIST_REPORTLUN2},
+ 	{"HITACHI", "HUS1530", "*", BLIST_NO_DIF},
+ 	{"HITACHI", "OPEN-", "*", BLIST_REPORTLUN2 | BLIST_TRY_VPD_PAGES},
+-	{"HITACHI", "OP-C-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+-	{"HITACHI", "3380-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+-	{"HITACHI", "3390-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+-	{"HITACHI", "6586-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+-	{"HITACHI", "6588-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+ 	{"HP", "A6189A", NULL, BLIST_SPARSELUN | BLIST_LARGELUN},	/* HP VA7400 */
+ 	{"HP", "OPEN-", "*", BLIST_REPORTLUN2 | BLIST_TRY_VPD_PAGES}, /* HP XP Arrays */
+ 	{"HP", "NetRAID-4M", NULL, BLIST_FORCELUN},
+@@ -187,11 +182,6 @@ static struct {
+ 	{"HP", "C1557A", NULL, BLIST_FORCELUN},
+ 	{"HP", "C3323-300", "4269", BLIST_NOTQ},
+ 	{"HP", "C5713A", NULL, BLIST_NOREPORTLUN},
+-	{"HP", "OP-C-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+-	{"HP", "3380-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+-	{"HP", "3390-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+-	{"HP", "6586-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+-	{"HP", "6588-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+ 	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
+ 	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+ 	{"IBM", "2105", NULL, BLIST_RETRY_HWERROR},
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.14.3
