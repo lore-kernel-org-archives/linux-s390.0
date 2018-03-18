@@ -1,78 +1,67 @@
-From: Al Viro <viro@ZenIV.linux.org.uk>
-Subject: Re: [RFC PATCH 4/6] mm: provide generic compat_sys_readahead()
- implementation
-Date: Sun, 18 Mar 2018 18:18:48 +0000
-Message-ID: <20180318181848.GU30522@ZenIV.linux.org.uk>
-References: <20180318161056.5377-1-linux@dominikbrodowski.net>
- <20180318161056.5377-5-linux@dominikbrodowski.net>
- <20180318174014.GR30522@ZenIV.linux.org.uk>
- <CA+55aFwuZCpAZRpsTGiUmG065ZHHpj+03_NeWiy-OGkMGw7e3g@mail.gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [RFC PATCH 2/6] fs: provide a generic compat_sys_truncate64() implementation
+Date: Sun, 18 Mar 2018 11:21:26 -0700
+Message-ID: <CA+55aFz+WARfpwuWmr+-F1tDVzoyWpN9naZJfTq25Q2WT=9CyQ@mail.gmail.com>
+References: <20180318161056.5377-1-linux@dominikbrodowski.net> <20180318161056.5377-3-linux@dominikbrodowski.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CA+55aFwuZCpAZRpsTGiUmG065ZHHpj+03_NeWiy-OGkMGw7e3g@mail.gmail.com>
+In-Reply-To: <20180318161056.5377-3-linux@dominikbrodowski.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch <linux-arch@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>, linux-mips <linux-mips@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Jiri Slaby <jslaby@suse.com>, the arch/x86 maintainers <x86@kernel.org>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Al Viro <viro@zeniv.linux.org.uk>, linux-arch <linux-arch@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>, linux-mips <linux-mips@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Jiri Slaby <jslaby@suse.com>, the arch/x86 maintainers <x86@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Mar 18, 2018 at 11:06:42AM -0700, Linus Torvalds wrote:
+On Sun, Mar 18, 2018 at 9:10 AM, Dominik Brodowski
+<linux@dominikbrodowski.net> wrote:
+> +#ifdef __ARCH_WANT_COMPAT_SYS_TRUNCATE64
+> +#if defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
+> +       defined(__ARCH_WANT_LE_COMPAT_SYS)
+> +COMPAT_SYSCALL_DEFINE4(truncate64, const char __user *, filename, u32 padding,
+> +                      unsigned int, offset_low, unsigned int, offset_high)
+> +#elif defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
+> +       !defined(__ARCH_WANT_LE_COMPAT_SYS)
+> +COMPAT_SYSCALL_DEFINE4(truncate64, const char __user *, filename, u32 padding,
+> +                      unsigned int, offset_high, unsigned int, offset_low)
+> +#elif !defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
+> +       defined(__ARCH_WANT_LE_COMPAT_SYS)
+> +COMPAT_SYSCALL_DEFINE3(truncate64, const char __user *, filename,
+> +                      unsigned int, offset_low, unsigned int, offset_high)
+> +#else /* no padding, big endian */
+> +COMPAT_SYSCALL_DEFINE3(truncate64, const char __user *, filename,
+> +                      unsigned int, offset_high, unsigned int, offset_low)
+> +#endif
+> +{
+> +#ifdef CONFIG_SPARC
+> +       if ((int) offset_high < 0)
+> +               return -EINVAL;
+> +#endif
+> +       return do_sys_truncate(filename,
+> +                              ((loff_t) offset_high << 32) | offset_low);
+> +}
+> +#endif /* __ARCH_WANT_COMPAT_SYS_TRUNCATE64 */
 
-> and then we can do
-> 
->   COMPAT_SYSCALL_DEFINE5(readahead, int, fd,
-> COMPAT_ARG_64BIT_ODD(off), compat_size_t, count)
->   {
->       return do_readahead(fd, off_lo + ((u64)off_hi << 64), count);
->   }
-> 
-> which at least looks reasonably legible, and has *zero* ifdef's anywhere.
+This really screams out for a sparc-specific wrapper, or maybe that
+#ifdef CONFIG_SPARC should just happen for everybody.
 
-It's a bit more complicated, but...
+But regardless, code like the above is completely unacceptable.
 
-> I do *not* want to see those disgusting __ARCH_WANT_LE_COMPAT_SYS
-> things and crazy #ifdef's in code.
+And yes, it also shows that my suggested alternative doesn't really
+work, because of the way the padding changes the number of arguments,
+giving that whole COMPAT_SYSCALL_DEFINE 3-vs-4 argument version.
 
-Absolutely.  Those piles of ifdefs are unreadable garbage.
+So I think just making it be arch-specific is the right thing.
 
-> So either let the architectures do their own trivial wrappers
-> entirely, or do something clean like the above. Do *not* do
-> #ifdef'fery at the system call declaration time.
-> 
-> Also note that the "ODD" arguments may not be the ones that need
-> padding. I could easily see a system call argument numbering scheme
-> like
-> 
->    r0 - system call number
->    r1 - first argument
->    r2 - second argument
->    ...
-> 
-> and then it's the *EVEN* 64-bit arguments that would need the padding
-> (because they are actually odd in the register numbers). The above
-> COMPAT_ARG_64BIT[_ODD]() model allows for that too.
-> 
-> Of course, if some architecture then has some other arbitrary rules (I
-> could see register pairing rules that aren't the usual "even register"
-> ones), then such an architecture would really have to have its own
-> wrapper, but the above at least would handle the simple cases, and
-> doesn't look disgusting to use.
+Alternatively, the COMPAT_SYSCALL_DEFINE() macro could be made smarter
+and do self-counting. There are generally tricks to count macro
+arguments, particularly when you know that they are limited. Things
+like
 
-I'd done some digging in that area, will find the notes and post.
-Basically, we can even avoid the odd/even annotations and have
-COMPAT_SYSCALL_DEFINE... sort it out.  It's a bit more hairy than
-I would like at this stage in the cycle, though.  I'll see if it can
-be done without too much PITA.
+    #define NARG(...) __NARG(__VA_ARGS__##, 6,5,4,3,2,1)
+    #define _NARG(a,b,c,d,e,f,...) f
 
-However, there still are genuinely speci^Wfucked in head cases - see
-e.g. this sad story:
-commit ab8a261ba5e2dd9206da640de5870cc31d568a7c
-Author: Helge Deller <deller@gmx.de>
-Date:   Thu Jul 10 18:07:17 2014 +0200
+or something (I may have screwed that up, you get the idea).
 
-    parisc: fix fanotify_mark() syscall on 32bit compat kernel
-
-Those certainly ought to stay in arch/*
+                Linus
