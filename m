@@ -1,7 +1,7 @@
 From: Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: [RFC PATCH 1/6] fs: provide a generic compat_sys_fallocate() implementation
-Date: Sun, 18 Mar 2018 17:10:51 +0100
-Message-ID: <20180318161056.5377-2-linux@dominikbrodowski.net>
+Subject: [RFC PATCH 3/6] fs: provide generic compat_sys_p{read,write}64() implementations
+Date: Sun, 18 Mar 2018 17:10:53 +0100
+Message-ID: <20180318161056.5377-4-linux@dominikbrodowski.net>
 References: <20180318161056.5377-1-linux@dominikbrodowski.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180318161056.5377-1-linux@dominikbrodowski.net>
@@ -12,16 +12,17 @@ To: linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, arnd@arndb.de, 
 Cc: linux-arch@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Jiri Slaby <jslaby@suse.com>, x86@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The compat_sys_fallocate() implementations in mips, powerpc, s390, sparc
-and x86 only differed based on the endianness of the u64 being passed as
-parameters (3, 4) and (5, 6).
+The compat_sys_{read,write}64() implementations in mips, powerpc, s390,
+sparc and x86 only differed based on whether the u64 parameter needed
+padding and on their endianness.
 
-In addition, do not call sys_fallocate() from compat_sys_fallocate(), but
-use a common do_fallocate() helper instead.
+Oh, and some defined the parameters as u64 or "unsigned long" which
+expanded to u64, though it only expected u32 in these parameters.
 
 This patch is part of a series which tries to remove in-kernel calls to
 syscalls. On this basis, the syscall entry path can be streamlined.
 
+Suggested-by: Al Viro <viro@ZenIV.linux.org.uk>
 Cc: Ralf Baechle <ralf@linux-mips.org>
 Cc: James Hogan <jhogan@kernel.org>
 Cc: linux-mips@linux-mips.org
@@ -40,304 +41,449 @@ Cc: x86@kernel.org
 Cc: Al Viro <viro@ZenIV.linux.org.uk>
 Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 ---
- arch/mips/include/asm/unistd.h         |  4 ++++
- arch/mips/kernel/linux32.c             |  7 -------
- arch/mips/kernel/scall64-o32.S         |  2 +-
+ arch/mips/include/asm/unistd.h         |  1 +
+ arch/mips/kernel/linux32.c             | 16 --------
+ arch/mips/kernel/scall64-o32.S         |  4 +-
  arch/powerpc/include/asm/unistd.h      |  1 +
- arch/powerpc/kernel/sys_ppc32.c        |  7 -------
+ arch/powerpc/kernel/sys_ppc32.c        | 12 ------
  arch/s390/include/asm/unistd.h         |  1 +
- arch/s390/kernel/compat_linux.c        |  7 -------
- arch/s390/kernel/compat_linux.h        |  1 -
- arch/s390/kernel/syscalls/syscall.tbl  |  2 +-
+ arch/s390/kernel/compat_linux.c        | 16 --------
+ arch/s390/kernel/compat_linux.h        |  2 -
+ arch/s390/kernel/syscalls/syscall.tbl  |  4 +-
  arch/sparc/include/asm/unistd.h        |  1 +
- arch/sparc/kernel/sys_sparc32.c        |  7 -------
- arch/sparc/kernel/systbls.h            |  2 --
- arch/x86/entry/syscalls/syscall_32.tbl |  2 +-
- arch/x86/ia32/sys_ia32.c               |  8 --------
- arch/x86/include/asm/sys_ia32.h        |  2 --
- arch/x86/include/asm/unistd.h          |  2 ++
- fs/open.c                              | 24 +++++++++++++++++++++++-
- include/linux/compat.h                 |  6 ++++++
- 18 files changed, 41 insertions(+), 45 deletions(-)
+ arch/sparc/kernel/sys_sparc32.c        | 18 ---------
+ arch/sparc/kernel/systbls.h            | 10 -----
+ arch/sparc/kernel/systbls_64.S         |  2 +-
+ arch/x86/entry/syscalls/syscall_32.tbl |  4 +-
+ arch/x86/ia32/sys_ia32.c               | 16 --------
+ arch/x86/include/asm/sys_ia32.h        |  5 ---
+ arch/x86/include/asm/unistd.h          |  1 +
+ fs/read_write.c                        | 74 ++++++++++++++++++++++++++++++++--
+ include/linux/compat.h                 | 15 +++++++
+ 19 files changed, 97 insertions(+), 106 deletions(-)
 
 diff --git a/arch/mips/include/asm/unistd.h b/arch/mips/include/asm/unistd.h
-index 3c09450908aa..bec9c6f55956 100644
+index 8aa5b7a19133..3ddc271ad77b 100644
 --- a/arch/mips/include/asm/unistd.h
 +++ b/arch/mips/include/asm/unistd.h
-@@ -45,6 +45,10 @@
- # endif
- # ifdef CONFIG_MIPS32_O32
+@@ -48,6 +48,7 @@
  #  define __ARCH_WANT_COMPAT_SYS_TIME
-+#  define __ARCH_WANT_COMPAT_SYS_FALLOCATE
-+#  ifdef __MIPSEL__
-+#    define __ARCH_WANT_LE_COMPAT_SYS
-+#  endif
- # endif
- #define __ARCH_WANT_SYS_FORK
- #define __ARCH_WANT_SYS_CLONE
+ #  define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+ #  define __ARCH_WANT_COMPAT_SYS_TRUNCATE64
++#  define __ARCH_WANT_COMPAT_SYS_PREADWRITE64
+ #  ifdef __MIPSEL__
+ #    define __ARCH_WANT_LE_COMPAT_SYS
+ #  endif
 diff --git a/arch/mips/kernel/linux32.c b/arch/mips/kernel/linux32.c
-index b332f6fc1e72..f6e6cb41c01f 100644
+index f3aad4ca5560..871cda53a915 100644
 --- a/arch/mips/kernel/linux32.c
 +++ b/arch/mips/kernel/linux32.c
-@@ -153,10 +153,3 @@ asmlinkage long sys32_fadvise64_64(int fd, int __pad,
- 			merge_64(a2, a3), merge_64(a4, a5),
- 			flags);
+@@ -92,22 +92,6 @@ SYSCALL_DEFINE5(32_llseek, unsigned int, fd, unsigned int, offset_high,
+ 	return sys_llseek(fd, offset_high, offset_low, result, origin);
  }
+ 
+-/* From the Single Unix Spec: pread & pwrite act like lseek to pos + op +
+-   lseek back to original location.  They fail just like lseek does on
+-   non-seekable files.	*/
 -
--asmlinkage long sys32_fallocate(int fd, int mode, unsigned offset_a2,
--	unsigned offset_a3, unsigned len_a4, unsigned len_a5)
+-SYSCALL_DEFINE6(32_pread, unsigned long, fd, char __user *, buf, size_t, count,
+-	unsigned long, unused, unsigned long, a4, unsigned long, a5)
 -{
--	return sys_fallocate(fd, mode, merge_64(offset_a2, offset_a3),
--			     merge_64(len_a4, len_a5));
+-	return sys_pread64(fd, buf, count, merge_64(a4, a5));
 -}
+-
+-SYSCALL_DEFINE6(32_pwrite, unsigned int, fd, const char __user *, buf,
+-	size_t, count, u32, unused, u64, a4, u64, a5)
+-{
+-	return sys_pwrite64(fd, buf, count, merge_64(a4, a5));
+-}
+-
+ SYSCALL_DEFINE1(32_personality, unsigned long, personality)
+ {
+ 	unsigned int p = personality & 0xffffffff;
 diff --git a/arch/mips/kernel/scall64-o32.S b/arch/mips/kernel/scall64-o32.S
-index 9ebe3e2403b1..da8babc2c1f5 100644
+index 216450516b44..fbc463b234a1 100644
 --- a/arch/mips/kernel/scall64-o32.S
 +++ b/arch/mips/kernel/scall64-o32.S
-@@ -536,7 +536,7 @@ EXPORT(sys32_call_table)
- 	PTR	compat_sys_signalfd
- 	PTR	sys_ni_syscall			/* was timerfd */
- 	PTR	sys_eventfd
--	PTR	sys32_fallocate			/* 4320 */
-+	PTR	compat_sys_fallocate		/* 4320 */
- 	PTR	sys_timerfd_create
- 	PTR	compat_sys_timerfd_gettime
- 	PTR	compat_sys_timerfd_settime
+@@ -416,8 +416,8 @@ EXPORT(sys32_call_table)
+ 	PTR	compat_sys_rt_sigtimedwait
+ 	PTR	compat_sys_rt_sigqueueinfo
+ 	PTR	compat_sys_rt_sigsuspend
+-	PTR	sys_32_pread			/* 4200 */
+-	PTR	sys_32_pwrite
++	PTR	compat_sys_pread64		/* 4200 */
++	PTR	compat_sys_pwrite64
+ 	PTR	sys_chown
+ 	PTR	sys_getcwd
+ 	PTR	sys_capget
 diff --git a/arch/powerpc/include/asm/unistd.h b/arch/powerpc/include/asm/unistd.h
-index daf1ba97a00c..46890687fb1d 100644
+index dca76157f27e..704f2413ac30 100644
 --- a/arch/powerpc/include/asm/unistd.h
 +++ b/arch/powerpc/include/asm/unistd.h
-@@ -49,6 +49,7 @@
- #define __ARCH_WANT_COMPAT_SYS_TIME
- #define __ARCH_WANT_SYS_NEWFSTATAT
+@@ -52,6 +52,7 @@
  #define __ARCH_WANT_COMPAT_SYS_SENDFILE
-+#define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+ #define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+ #define __ARCH_WANT_COMPAT_SYS_TRUNCATE64
++#define __ARCH_WANT_COMPAT_SYS_PREADWRITE64
  #endif
  #define __ARCH_WANT_SYS_FORK
  #define __ARCH_WANT_SYS_VFORK
 diff --git a/arch/powerpc/kernel/sys_ppc32.c b/arch/powerpc/kernel/sys_ppc32.c
-index 15f216d022e2..7c6da6273367 100644
+index dab9eece7731..ec896c8df968 100644
 --- a/arch/powerpc/kernel/sys_ppc32.c
 +++ b/arch/powerpc/kernel/sys_ppc32.c
-@@ -97,13 +97,6 @@ asmlinkage int compat_sys_truncate64(const char __user * path, u32 reg4,
- 	return sys_truncate(path, (high << 32) | low);
- }
+@@ -74,18 +74,6 @@ unsigned long compat_sys_mmap2(unsigned long addr, size_t len,
+  * The 32 bit ABI passes long longs in an odd even register pair.
+  */
  
--asmlinkage long compat_sys_fallocate(int fd, int mode, u32 offhi, u32 offlo,
--				     u32 lenhi, u32 lenlo)
+-compat_ssize_t compat_sys_pread64(unsigned int fd, char __user *ubuf, compat_size_t count,
+-			     u32 reg6, u32 poshi, u32 poslo)
 -{
--	return sys_fallocate(fd, mode, ((loff_t)offhi << 32) | offlo,
--			     ((loff_t)lenhi << 32) | lenlo);
+-	return sys_pread64(fd, ubuf, count, ((loff_t)poshi << 32) | poslo);
 -}
 -
- asmlinkage int compat_sys_ftruncate64(unsigned int fd, u32 reg4, unsigned long high,
- 				 unsigned long low)
+-compat_ssize_t compat_sys_pwrite64(unsigned int fd, const char __user *ubuf, compat_size_t count,
+-			      u32 reg6, u32 poshi, u32 poslo)
+-{
+-	return sys_pwrite64(fd, ubuf, count, ((loff_t)poshi << 32) | poslo);
+-}
+-
+ compat_ssize_t compat_sys_readahead(int fd, u32 r4, u32 offhi, u32 offlo, u32 count)
  {
+ 	return sys_readahead(fd, ((loff_t)offhi << 32) | offlo, count);
 diff --git a/arch/s390/include/asm/unistd.h b/arch/s390/include/asm/unistd.h
-index fd79c0d35dc4..5e919c11c11f 100644
+index 7667a2d0b1e1..71e6f7d65762 100644
 --- a/arch/s390/include/asm/unistd.h
 +++ b/arch/s390/include/asm/unistd.h
-@@ -34,6 +34,7 @@
- #define __ARCH_WANT_SYS_SIGPROCMASK
- # ifdef CONFIG_COMPAT
+@@ -36,6 +36,7 @@
  #   define __ARCH_WANT_COMPAT_SYS_TIME
-+#   define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+ #   define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+ #   define __ARCH_WANT_COMPAT_SYS_TRUNCATE64
++#   define __ARCH_WANT_COMPAT_SYS_PREADWRITE64
  # endif
  #define __ARCH_WANT_SYS_FORK
  #define __ARCH_WANT_SYS_VFORK
 diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
-index 79b7a3438d54..3052f8e5ba42 100644
+index 469addfe7a85..8dd12a9d99a3 100644
 --- a/arch/s390/kernel/compat_linux.c
 +++ b/arch/s390/kernel/compat_linux.c
-@@ -512,10 +512,3 @@ COMPAT_SYSCALL_DEFINE6(s390_sync_file_range, int, fd, u32, offhigh, u32, offlow,
- 	return sys_sync_file_range(fd, ((loff_t)offhigh << 32) + offlow,
- 				   ((u64)nhigh << 32) + nlow, flags);
+@@ -305,22 +305,6 @@ COMPAT_SYSCALL_DEFINE3(s390_ftruncate64, unsigned int, fd, u32, high, u32, low)
+ 	return sys_ftruncate(fd, (unsigned long)high << 32 | low);
  }
--
--COMPAT_SYSCALL_DEFINE6(s390_fallocate, int, fd, int, mode, u32, offhigh, u32, offlow,
--		       u32, lenhigh, u32, lenlow)
+ 
+-COMPAT_SYSCALL_DEFINE5(s390_pread64, unsigned int, fd, char __user *, ubuf,
+-		       compat_size_t, count, u32, high, u32, low)
 -{
--	return sys_fallocate(fd, mode, ((loff_t)offhigh << 32) + offlow,
--			     ((u64)lenhigh << 32) + lenlow);
+-	if ((compat_ssize_t) count < 0)
+-		return -EINVAL;
+-	return sys_pread64(fd, ubuf, count, (unsigned long)high << 32 | low);
 -}
+-
+-COMPAT_SYSCALL_DEFINE5(s390_pwrite64, unsigned int, fd, const char __user *, ubuf,
+-		       compat_size_t, count, u32, high, u32, low)
+-{
+-	if ((compat_ssize_t) count < 0)
+-		return -EINVAL;
+-	return sys_pwrite64(fd, ubuf, count, (unsigned long)high << 32 | low);
+-}
+-
+ COMPAT_SYSCALL_DEFINE4(s390_readahead, int, fd, u32, high, u32, low, s32, count)
+ {
+ 	return sys_readahead(fd, (unsigned long)high << 32 | low, count);
 diff --git a/arch/s390/kernel/compat_linux.h b/arch/s390/kernel/compat_linux.h
-index 64509e7dbd3b..cfc3d42603a8 100644
+index 17db19a91e63..35fe45225185 100644
 --- a/arch/s390/kernel/compat_linux.h
 +++ b/arch/s390/kernel/compat_linux.h
-@@ -123,7 +123,6 @@ long compat_sys_s390_write(unsigned int fd, const char __user * buf, compat_size
- long compat_sys_s390_fadvise64(int fd, u32 high, u32 low, compat_size_t len, int advise);
- long compat_sys_s390_fadvise64_64(struct fadvise64_64_args __user *args);
- long compat_sys_s390_sync_file_range(int fd, u32 offhigh, u32 offlow, u32 nhigh, u32 nlow, unsigned int flags);
--long compat_sys_s390_fallocate(int fd, int mode, u32 offhigh, u32 offlow, u32 lenhigh, u32 lenlow);
- long compat_sys_sigreturn(void);
- long compat_sys_rt_sigreturn(void);
- 
+@@ -108,8 +108,6 @@ long compat_sys_s390_geteuid16(void);
+ long compat_sys_s390_getgid16(void);
+ long compat_sys_s390_getegid16(void);
+ long compat_sys_s390_ftruncate64(unsigned int fd, u32 high, u32 low);
+-long compat_sys_s390_pread64(unsigned int fd, char __user *ubuf, compat_size_t count, u32 high, u32 low);
+-long compat_sys_s390_pwrite64(unsigned int fd, const char __user *ubuf, compat_size_t count, u32 high, u32 low);
+ long compat_sys_s390_readahead(int fd, u32 high, u32 low, s32 count);
+ long compat_sys_s390_stat64(const char __user *filename, struct stat64_emu31 __user *statbuf);
+ long compat_sys_s390_lstat64(const char __user *filename, struct stat64_emu31 __user *statbuf);
 diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
-index b38d48464368..652863bb7fcb 100644
+index d8dec7c9d2a5..ceaf5ab6ac47 100644
 --- a/arch/s390/kernel/syscalls/syscall.tbl
 +++ b/arch/s390/kernel/syscalls/syscall.tbl
-@@ -321,7 +321,7 @@
- 311  common	getcpu			sys_getcpu			compat_sys_getcpu
- 312  common	epoll_pwait		sys_epoll_pwait			compat_sys_epoll_pwait
- 313  common	utimes			sys_utimes			compat_sys_utimes
--314  common	fallocate		sys_fallocate			compat_sys_s390_fallocate
-+314  common	fallocate		sys_fallocate			compat_sys_fallocate
- 315  common	utimensat		sys_utimensat			compat_sys_utimensat
- 316  common	signalfd		sys_signalfd			compat_sys_signalfd
- 317  common	timerfd			-				-
+@@ -168,8 +168,8 @@
+ 177  common	rt_sigtimedwait		sys_rt_sigtimedwait		compat_sys_rt_sigtimedwait
+ 178  common	rt_sigqueueinfo		sys_rt_sigqueueinfo		compat_sys_rt_sigqueueinfo
+ 179  common	rt_sigsuspend		sys_rt_sigsuspend		compat_sys_rt_sigsuspend
+-180  common	pread64			sys_pread64			compat_sys_s390_pread64
+-181  common	pwrite64		sys_pwrite64			compat_sys_s390_pwrite64
++180  common	pread64			sys_pread64			compat_sys_pread64
++181  common	pwrite64		sys_pwrite64			compat_sys_pwrite64
+ 182  32		chown			-				compat_sys_s390_chown16
+ 183  common	getcwd			sys_getcwd			compat_sys_getcwd
+ 184  common	capget			sys_capget			compat_sys_capget
 diff --git a/arch/sparc/include/asm/unistd.h b/arch/sparc/include/asm/unistd.h
-index b2a6a955113e..0c875169a77b 100644
+index 0398d9be05a5..e04452be8db4 100644
 --- a/arch/sparc/include/asm/unistd.h
 +++ b/arch/sparc/include/asm/unistd.h
-@@ -43,6 +43,7 @@
- #else
- #define __ARCH_WANT_COMPAT_SYS_TIME
+@@ -45,6 +45,7 @@
  #define __ARCH_WANT_COMPAT_SYS_SENDFILE
-+#define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+ #define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+ #define __ARCH_WANT_COMPAT_SYS_TRUNCATE64
++#define __ARCH_WANT_COMPAT_SYS_PREADWRITE64
  #endif
  
  #endif /* _SPARC_UNISTD_H */
 diff --git a/arch/sparc/kernel/sys_sparc32.c b/arch/sparc/kernel/sys_sparc32.c
-index 6d964bdefbaa..6c266582328b 100644
+index 39f8a5845285..8a4f5accf6be 100644
 --- a/arch/sparc/kernel/sys_sparc32.c
 +++ b/arch/sparc/kernel/sys_sparc32.c
-@@ -246,10 +246,3 @@ long sys32_sync_file_range(unsigned int fd, unsigned long off_high, unsigned lon
- 				   (nb_high << 32) | nb_low,
- 				   flags);
+@@ -186,24 +186,6 @@ COMPAT_SYSCALL_DEFINE5(rt_sigaction, int, sig,
+         return ret;
  }
--
--asmlinkage long compat_sys_fallocate(int fd, int mode, u32 offhi, u32 offlo,
--				     u32 lenhi, u32 lenlo)
+ 
+-asmlinkage compat_ssize_t sys32_pread64(unsigned int fd,
+-					char __user *ubuf,
+-					compat_size_t count,
+-					unsigned long poshi,
+-					unsigned long poslo)
 -{
--	return sys_fallocate(fd, mode, ((loff_t)offhi << 32) | offlo,
--			     ((loff_t)lenhi << 32) | lenlo);
+-	return sys_pread64(fd, ubuf, count, (poshi << 32) | poslo);
 -}
+-
+-asmlinkage compat_ssize_t sys32_pwrite64(unsigned int fd,
+-					 char __user *ubuf,
+-					 compat_size_t count,
+-					 unsigned long poshi,
+-					 unsigned long poslo)
+-{
+-	return sys_pwrite64(fd, ubuf, count, (poshi << 32) | poslo);
+-}
+-
+ asmlinkage long compat_sys_readahead(int fd,
+ 				     unsigned long offhi,
+ 				     unsigned long offlo,
 diff --git a/arch/sparc/kernel/systbls.h b/arch/sparc/kernel/systbls.h
-index 5a01cfe19a0e..ec8b097be3fe 100644
+index 92659147ca76..6b5fd12e821d 100644
 --- a/arch/sparc/kernel/systbls.h
 +++ b/arch/sparc/kernel/systbls.h
-@@ -92,8 +92,6 @@ long sys32_sync_file_range(unsigned int fd,
- 			   unsigned long off_high, unsigned long off_low,
- 			   unsigned long nb_high, unsigned long nb_low,
- 			   unsigned int flags);
--asmlinkage long compat_sys_fallocate(int fd, int mode, u32 offhi, u32 offlo,
--				     u32 lenhi, u32 lenlo);
- asmlinkage long compat_sys_fstat64(unsigned int fd,
- 				   struct compat_stat64 __user * statbuf);
+@@ -63,16 +63,6 @@ asmlinkage long compat_sys_fstat64(unsigned int fd,
  asmlinkage long compat_sys_fstatat64(unsigned int dfd,
+ 				     const char __user *filename,
+ 				     struct compat_stat64 __user * statbuf, int flag);
+-asmlinkage compat_ssize_t sys32_pread64(unsigned int fd,
+-					char __user *ubuf,
+-					compat_size_t count,
+-					unsigned long poshi,
+-					unsigned long poslo);
+-asmlinkage compat_ssize_t sys32_pwrite64(unsigned int fd,
+-					 char __user *ubuf,
+-					 compat_size_t count,
+-					 unsigned long poshi,
+-					 unsigned long poslo);
+ asmlinkage long compat_sys_readahead(int fd,
+ 				     unsigned long offhi,
+ 				     unsigned long offlo,
+diff --git a/arch/sparc/kernel/systbls_64.S b/arch/sparc/kernel/systbls_64.S
+index 9d718a9ec52d..33731b4e8819 100644
+--- a/arch/sparc/kernel/systbls_64.S
++++ b/arch/sparc/kernel/systbls_64.S
+@@ -32,7 +32,7 @@ sys_call_table32:
+ /*50*/	.word sys_getegid16, sys_acct, sys_nis_syscall, sys_getgid, compat_sys_ioctl
+ 	.word sys_reboot, sys32_mmap2, sys_symlink, sys_readlink, sys32_execve
+ /*60*/	.word sys_umask, sys_chroot, compat_sys_newfstat, compat_sys_fstat64, sys_getpagesize
+-	.word sys_msync, sys_vfork, sys32_pread64, sys32_pwrite64, sys_geteuid
++	.word sys_msync, sys_vfork, compat_sys_pread64, compat_sys_pwrite64, sys_geteuid
+ /*70*/	.word sys_getegid, sys_mmap, sys_setreuid, sys_munmap, sys_mprotect
+ 	.word sys_madvise, sys_vhangup, compat_sys_truncate64, sys_mincore, sys_getgroups16
+ /*80*/	.word sys_setgroups16, sys_getpgrp, sys_setgroups, compat_sys_setitimer, sys32_ftruncate64
 diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
-index 2a5e99cff859..0d2a8239f63f 100644
+index c60caeac57f9..2f39235785d8 100644
 --- a/arch/x86/entry/syscalls/syscall_32.tbl
 +++ b/arch/x86/entry/syscalls/syscall_32.tbl
-@@ -330,7 +330,7 @@
- 321	i386	signalfd		sys_signalfd			compat_sys_signalfd
- 322	i386	timerfd_create		sys_timerfd_create
- 323	i386	eventfd			sys_eventfd
--324	i386	fallocate		sys_fallocate			compat_sys_x86_fallocate
-+324	i386	fallocate		sys_fallocate			compat_sys_fallocate
- 325	i386	timerfd_settime		sys_timerfd_settime		compat_sys_timerfd_settime
- 326	i386	timerfd_gettime		sys_timerfd_gettime		compat_sys_timerfd_gettime
- 327	i386	signalfd4		sys_signalfd4			compat_sys_signalfd4
+@@ -186,8 +186,8 @@
+ 177	i386	rt_sigtimedwait		sys_rt_sigtimedwait		compat_sys_rt_sigtimedwait
+ 178	i386	rt_sigqueueinfo		sys_rt_sigqueueinfo		compat_sys_rt_sigqueueinfo
+ 179	i386	rt_sigsuspend		sys_rt_sigsuspend
+-180	i386	pread64			sys_pread64			compat_sys_x86_pread
+-181	i386	pwrite64		sys_pwrite64			compat_sys_x86_pwrite
++180	i386	pread64			sys_pread64			compat_sys_pread64
++181	i386	pwrite64		sys_pwrite64			compat_sys_pwrite64
+ 182	i386	chown			sys_chown16
+ 183	i386	getcwd			sys_getcwd
+ 184	i386	capget			sys_capget
 diff --git a/arch/x86/ia32/sys_ia32.c b/arch/x86/ia32/sys_ia32.c
-index 6512498bbef6..3cc430b999a8 100644
+index 56e2e605892c..eae207229a93 100644
 --- a/arch/x86/ia32/sys_ia32.c
 +++ b/arch/x86/ia32/sys_ia32.c
-@@ -226,14 +226,6 @@ COMPAT_SYSCALL_DEFINE5(x86_fadvise64, int, fd, unsigned int, offset_lo,
- 				len, advice);
+@@ -167,22 +167,6 @@ COMPAT_SYSCALL_DEFINE3(x86_waitpid, compat_pid_t, pid, unsigned int __user *,
+ 	return compat_sys_wait4(pid, stat_addr, options, NULL);
  }
  
--COMPAT_SYSCALL_DEFINE6(x86_fallocate, int, fd, int, mode,
--		       unsigned int, offset_lo, unsigned int, offset_hi,
--		       unsigned int, len_lo, unsigned int, len_hi)
+-/* warning: next two assume little endian */
+-COMPAT_SYSCALL_DEFINE5(x86_pread, unsigned int, fd, char __user *, ubuf,
+-		       u32, count, u32, poslo, u32, poshi)
 -{
--	return sys_fallocate(fd, mode, ((u64)offset_hi << 32) | offset_lo,
--			     ((u64)len_hi << 32) | len_lo);
+-	return sys_pread64(fd, ubuf, count,
+-			 ((loff_t)AA(poshi) << 32) | AA(poslo));
 -}
 -
+-COMPAT_SYSCALL_DEFINE5(x86_pwrite, unsigned int, fd, const char __user *, ubuf,
+-		       u32, count, u32, poslo, u32, poshi)
+-{
+-	return sys_pwrite64(fd, ubuf, count,
+-			  ((loff_t)AA(poshi) << 32) | AA(poslo));
+-}
+-
+-
  /*
-  * The 32-bit clone ABI is CONFIG_CLONE_BACKWARDS
-  */
+  * Some system calls that need sign extended arguments. This could be
+  * done by a generic wrapper.
 diff --git a/arch/x86/include/asm/sys_ia32.h b/arch/x86/include/asm/sys_ia32.h
-index 906794aa034e..e0e375b04506 100644
+index 9d928ec5b78a..ded631bb33de 100644
 --- a/arch/x86/include/asm/sys_ia32.h
 +++ b/arch/x86/include/asm/sys_ia32.h
-@@ -53,8 +53,6 @@ asmlinkage long compat_sys_x86_sync_file_range(int, unsigned int, unsigned int,
- 					       int);
- asmlinkage long compat_sys_x86_fadvise64(int, unsigned int, unsigned int,
- 					 size_t, int);
--asmlinkage long compat_sys_x86_fallocate(int, int, unsigned int, unsigned int,
--					 unsigned int, unsigned int);
- asmlinkage long compat_sys_x86_clone(unsigned long, unsigned long, int __user *,
- 				     unsigned long, int __user *);
+@@ -36,11 +36,6 @@ asmlinkage long compat_sys_x86_mmap(struct mmap_arg_struct32 __user *);
+ asmlinkage long compat_sys_x86_waitpid(compat_pid_t, unsigned int __user *,
+ 				       int);
+ 
+-asmlinkage long compat_sys_x86_pread(unsigned int, char __user *, u32, u32,
+-				     u32);
+-asmlinkage long compat_sys_x86_pwrite(unsigned int, const char __user *, u32,
+-				      u32, u32);
+-
+ asmlinkage long compat_sys_x86_fadvise64_64(int, __u32, __u32, __u32, __u32,
+ 					    int);
  
 diff --git a/arch/x86/include/asm/unistd.h b/arch/x86/include/asm/unistd.h
-index 51c4eee00732..baf24bf65d4a 100644
+index 382b1e5272db..be8f52494ee3 100644
 --- a/arch/x86/include/asm/unistd.h
 +++ b/arch/x86/include/asm/unistd.h
-@@ -28,6 +28,8 @@
- #  define __ARCH_WANT_COMPAT_SYS_PWRITEV64
- #  define __ARCH_WANT_COMPAT_SYS_PREADV64V2
- #  define __ARCH_WANT_COMPAT_SYS_PWRITEV64V2
-+#  define __ARCH_WANT_LE_COMPAT_SYS
-+#  define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+@@ -31,6 +31,7 @@
+ #  define __ARCH_WANT_LE_COMPAT_SYS
+ #  define __ARCH_WANT_COMPAT_SYS_FALLOCATE
+ #  define __ARCH_WANT_COMPAT_SYS_TRUNCATE64
++#  define __ARCH_WANT_COMPAT_SYS_PREADWRITE64
  
  # endif
  
-diff --git a/fs/open.c b/fs/open.c
-index 7ea118471dce..4fcf95ef8baa 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -333,7 +333,7 @@ int vfs_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
+diff --git a/fs/read_write.c b/fs/read_write.c
+index f8547b82dfb3..071197e856fc 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -595,8 +595,8 @@ SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf,
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(vfs_fallocate);
  
--SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
-+static int do_fallocate(int fd, int mode, loff_t offset, loff_t len)
+-SYSCALL_DEFINE4(pread64, unsigned int, fd, char __user *, buf,
+-			size_t, count, loff_t, pos)
++static ssize_t do_pread64(unsigned int fd, char __user *buf,
++			  size_t count, loff_t pos)
  {
- 	struct fd f = fdget(fd);
- 	int error = -EBADF;
-@@ -345,6 +345,28 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
- 	return error;
+ 	struct fd f;
+ 	ssize_t ret = -EBADF;
+@@ -615,8 +615,8 @@ SYSCALL_DEFINE4(pread64, unsigned int, fd, char __user *, buf,
+ 	return ret;
  }
  
-+SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
+-SYSCALL_DEFINE4(pwrite64, unsigned int, fd, const char __user *, buf,
+-			 size_t, count, loff_t, pos)
++static ssize_t do_pwrite64(unsigned int fd, const char __user *buf,
++			   size_t count, loff_t pos)
+ {
+ 	struct fd f;
+ 	ssize_t ret = -EBADF;
+@@ -635,6 +635,72 @@ SYSCALL_DEFINE4(pwrite64, unsigned int, fd, const char __user *, buf,
+ 	return ret;
+ }
+ 
++SYSCALL_DEFINE4(pread64, unsigned int, fd, char __user *, buf,
++			size_t, count, loff_t, pos)
 +{
-+	return do_fallocate(fd, mode, offset, len);
++	return do_pread64(fd, buf, count, pos);
 +}
 +
-+#ifdef __ARCH_WANT_COMPAT_SYS_FALLOCATE
-+#ifdef __ARCH_WANT_LE_COMPAT_SYS
-+COMPAT_SYSCALL_DEFINE6(fallocate, int, fd, int, mode,
-+		       unsigned int, offset_lo, unsigned int, offset_hi,
-+		       unsigned int, len_lo, unsigned int, len_hi)
-+#else /* __ARCH_WANT_LE_COMPAT_SYS */
-+COMPAT_SYSCALL_DEFINE6(fallocate, int, fd, int, mode,
-+		       unsigned int, offset_hi, unsigned int, offset_lo,
-+		       unsigned int, len_hi, unsigned int, len_lo)
-+#endif /* __ARCH_WANT_LE_COMPAT_SYS */
++SYSCALL_DEFINE4(pwrite64, unsigned int, fd, const char __user *, buf,
++			 size_t, count, loff_t, pos)
 +{
-+	return do_fallocate(fd, mode, ((loff_t) offset_hi << 32) | offset_lo,
-+			      ((loff_t) len_hi << 32) | len_lo);
++	return do_pwrite64(fd, buf, count, pos);
 +}
-+#endif /* __ARCH_WANT_COMPAT_SYS_FALLOCATE */
 +
++#ifdef __ARCH_WANT_COMPAT_SYS_PREADWRITE64
++#if defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
++	defined(__ARCH_WANT_LE_COMPAT_SYS)
++COMPAT_SYSCALL_DEFINE6(pread64, unsigned int, fd, char __user *, ubuf,
++		       u32, count, u32, padding, u32, poslo, u32, poshi)
++#elif defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
++	!defined(__ARCH_WANT_LE_COMPAT_SYS)
++COMPAT_SYSCALL_DEFINE6(pread64, unsigned int, fd, char __user *, ubuf,
++		       u32, count, u32, padding, u32, poshi, u32, poslo)
++#elif !defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
++	defined(__ARCH_WANT_LE_COMPAT_SYS)
++COMPAT_SYSCALL_DEFINE5(pread64, unsigned int, fd, char __user *, ubuf,
++		       u32, count, u32, poslo, u32, poshi)
++#else /* no padding, big endian */
++COMPAT_SYSCALL_DEFINE5(pread64, unsigned int, fd, char __user *, ubuf,
++		       u32, count, u32, poshi, u32, poslo)
++#endif
++{
++#ifdef CONFIG_S390
++	if ((compat_ssize_t) count < 0)
++		return -EINVAL;
++#endif /* CONFIG_S390 */
++	return do_pread64(fd, ubuf, count,
++			  ((loff_t) (unsigned long) (poshi) << 32) |
++				(unsigned long) (poslo));
++}
 +
- /*
-  * access() needs to use the real uid/gid, not the effective uid/gid.
-  * We do this by temporarily clearing all FS-related capabilities and
++#if defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
++	defined(__ARCH_WANT_LE_COMPAT_SYS)
++COMPAT_SYSCALL_DEFINE6(pwrite64, unsigned int, fd, const char __user *, ubuf,
++		       u32, count, u32, padding, u32, poslo, u32, poshi)
++#elif defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
++	!defined(__ARCH_WANT_LE_COMPAT_SYS)
++COMPAT_SYSCALL_DEFINE6(pwrite64, unsigned int, fd, const char __user *, ubuf,
++		       u32, count, u32, padding, u32, poshi, u32, poslo)
++#elif !defined(__ARCH_WANT_COMPAT_SYS_WITH_PADDING) && \
++	defined(__ARCH_WANT_LE_COMPAT_SYS)
++COMPAT_SYSCALL_DEFINE5(pwrite64, unsigned int, fd, const char __user *, ubuf,
++		       u32, count, u32, poslo, u32, poshi)
++#else /* no padding, big endian */
++COMPAT_SYSCALL_DEFINE5(pwrite64, unsigned int, fd, const char __user *, ubuf,
++		       u32, count, u32, poshi, u32, poslo)
++#endif
++{
++#ifdef CONFIG_S390
++	if ((compat_ssize_t) count < 0)
++		return -EINVAL;
++#endif /* CONFIG_S390 */
++	return do_pwrite64(fd, ubuf, count,
++			   ((loff_t) (unsigned long) (poshi) << 32) |
++				(unsigned long) (poslo));
++}
++#endif /* __ARCH_WANT_COMPAT_SYS_PREADWRITE64 */
++
+ static ssize_t do_iter_readv_writev(struct file *filp, struct iov_iter *iter,
+ 		loff_t *ppos, int type, rwf_t flags)
+ {
 diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 16c3027074a2..978011c03075 100644
+index 454ccad57d84..95301d1a6793 100644
 --- a/include/linux/compat.h
 +++ b/include/linux/compat.h
-@@ -840,6 +840,12 @@ asmlinkage long compat_sys_sigprocmask(int how, compat_old_sigset_t __user *nset
- 				       compat_old_sigset_t __user *oset);
- #endif
+@@ -857,6 +857,21 @@ asmlinkage long compat_sys_truncate64(const char __user *,
+ #endif /* __ARCH_WANT_COMPAT_SYS_WITH_PADDING */
+ #endif /* __ARCH_WANT_COMPAT_SYS_TRUNCATE64 */
  
-+#ifdef __ARCH_WANT_COMPAT_SYS_FALLOCATE
++#ifdef __ARCH_WANT_COMPAT_SYS_PREADWRITE64
 +/* __ARCH_WANT_LE_COMPAT_SYS determines order of lo and hi */
-+asmlinkage long compat_sys_fallocate(int, int, unsigned int, unsigned int,
-+				     unsigned int, unsigned int);
-+#endif
++#ifdef __ARCH_WANT_COMPAT_SYS_WITH_PADDING
++asmlinkage long compat_sys_pwrite64(unsigned int, const char __user *, u32,
++				    u32, u32, u32);
++asmlinkage long compat_sys_pread64(unsigned int, char __user *, u32,
++				    u32, u32, u32);
++#else /* __ARCH_WANT_COMPAT_SYS_WITH_PADDING */
++asmlinkage long compat_sys_pwrite64(unsigned int, const char __user *,
++				    u32, u32, u32);
++asmlinkage long compat_sys_pread64(unsigned int, char __user *,
++				    u32, u32, u32);
++#endif /* __ARCH_WANT_COMPAT_SYS_WITH_PADDING */
++#endif /* __ARCH_WANT_COMPAT_SYS_PREADWRITE64 */
 +
  int compat_restore_altstack(const compat_stack_t __user *uss);
  int __compat_save_altstack(compat_stack_t __user *, unsigned long);
