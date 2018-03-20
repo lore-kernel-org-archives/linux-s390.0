@@ -1,8 +1,8 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Subject: Re: [PATCH v3 04/14] KVM: s390: device attribute to set AP
  interpretive execution
-Date: Fri, 16 Mar 2018 12:09:39 -0400
-Message-ID: <c2af69b7-2d62-fbc6-e281-905490b3157e@linux.vnet.ibm.com>
+Date: Tue, 20 Mar 2018 13:58:18 -0400
+Message-ID: <1347ed2e-7bdb-e455-971a-cf60899e3c19@linux.vnet.ibm.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1521051954-25715-5-git-send-email-akrowiak@linux.vnet.ibm.com>
  <d86ad01e-1c79-c14c-b4da-09d9a31572bd@linux.vnet.ibm.com>
@@ -152,7 +152,46 @@ On 03/16/2018 03:51 AM, Pierre Morel wrote:
 >
 > That is why I think you should not change the ECA field from the 
 > crypto ioctl but only during the vcpu initialization phase.
-By what means do you suggest we do that?
+I spoke with Christian this morning and he made a suggestion which I 
+think would provide the best solution here.
+This is my proposal:
+1. Get rid of the KVM_S390_VM_CRYPTO_INTERPRET_AP device attribute and 
+return to setting ECA.28 from the
+    mdev device open callback.
+2. Since there may be vcpus online at the time the mdev device open is 
+called, we must first take all running vcpus out of
+    SIE and block them. Christian suggested the 
+kvm_s390_vcpu_block_all(struct kvm *kvm) function will do the trick. So I
+    propose introducing a function like the following to be called 
+during mdev open:
+
+     int kvm_ap_set_interpretive_exec(struct kvm *kvm, bool enable)
+     {
+         int i;
+         struct kvm_vcpu *vcpu;
+
+         if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP))
+             return -EOPNOTSUPP;
+
+         mutex_lock(&kvm->lock);
+
+         kvm_s390_vcpu_block_all(kvm);
+
+         kvm_for_each_vcpu(i, vcpu, kvm) {
+             if (enable)
+                 vcpu->arch.sie_block->eca |= ECA_APIE;
+             else
+                 vcpu->arch.sie_block->eca &= ~ECA_APIE;
+         }
+
+         kvm_s390_vcpu_unblock_all(kvm);
+
+         mutex_unlock(&kvm->lock);
+
+         return 0;
+     }
+
+    This interface allows us to set ECA.28 even if vcpus are running.
 >
 >
 >>>
