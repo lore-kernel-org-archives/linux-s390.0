@@ -1,8 +1,8 @@
-From: Dominik Brodowski <linux@dominikbrodowski.net>
+From: Ingo Molnar <mingo@kernel.org>
 Subject: Re: [RFC PATCH 4/6] mm: provide generic compat_sys_readahead()
  implementation
-Date: Tue, 20 Mar 2018 09:56:32 +0100
-Message-ID: <20180320085632.GB30383@light.dominikbrodowski.net>
+Date: Tue, 20 Mar 2018 09:59:32 +0100
+Message-ID: <20180320085932.xnwkpiz5gpegnw5d@gmail.com>
 References: <20180318161056.5377-1-linux@dominikbrodowski.net>
  <20180318161056.5377-5-linux@dominikbrodowski.net>
  <20180318174014.GR30522@ZenIV.linux.org.uk>
@@ -20,77 +20,57 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Al Viro <viro@ZenIV.linux.org.uk>
-Cc: Ingo Molnar <mingo@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch <linux-arch@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>, linux-mips <linux-mips@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Jiri Slaby <jslaby@suse.com>, the
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch <linux-arch@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>, linux-mips <linux-mips@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Jiri Slaby <jslaby@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 19, 2018 at 11:23:42PM +0000, Al Viro wrote:
-> static inline long C_S_moron(int, loff_t, size_t);
-> long compat_SyS_moron(long a0, long a1, long a2, long a3, long a4, long a5, long a6)
-> {
-> 	return C_S_moron((__force int)a0,
-> 		  (__force loff_t)(((u64)a2 << 32)|a1),
-> 		  (__force size_t)a3);
-> }
-> static inline long C_S_moron(int fd, loff_t offset, size_t count)
-> {
-> 	whatever body you had for it
-> }
+
+* Al Viro <viro@ZenIV.linux.org.uk> wrote:
+
+> > For example this attempt at creating a new system call:
+> > 
+> >   SYSCALL_DEFINE3(moron, int, fd, loff_t, offset, size_t, count)
+> > 
+> > ... would translate into something like:
+> > 
+> > 	.name = "moron", .pattern = "WWW", .type = "int",    .size = 4,
+> > 	.name = NULL,                      .type = "loff_t", .size = 8,
+> > 	.name = NULL,                      .type = "size_t", .size = 4,
+> > 	.name = NULL,                      .type = NULL,     .size = 0,     /* end of parameter list */
+> > 
+> > i.e. "WDW". The build-time constraint checker could then warn about:
+> > 
+> >   # error: System call "moron" uses invalid 'WWW' argument mapping for a 'WDW' sequence
+> >   #        please avoid long-long arguments or use 'SYSCALL_DEFINE3_WDW()' instead
 > 
-> That - from
-> COMPAT_SYSCALL_DEFINE3(moron, int, fd, loff_t, offset, size_t, count)
-> {
-> 	whatever body you had for it
-> }
-> 
-> We can use similar machinery for SYSCALL_DEFINE itself, so that
-> SyS_moron() would be defined with (long, long, long, long, long, long)
-> as arguments and not (long, long long, long) as we have now.
+> ... if you do 32bit build.
 
-That would be great, as it would allow to use a struct pt_regs * based
-syscall calling convention on i386 as well, and not only on x86-64, right?
+Yeah - but the checking tool could do a 32-bit sizing of the types and thus the 
+checks would work on all arches and on all bitness settings.
 
-> It's not impossible to do.  It won't be pretty, but that use of local
-> enums allows to avoid unbearably long expansions.
-> 
-> Benefits:
-> 	* all SyS... wrappers (i.e. the thing that really ought to
-> go into syscall tables) have the same type.
-> 	* we could have SYSCALL_DEFINE produce a trivial compat
-> wrapper, have explicit COMPAT_SYSCALL_DEFINE discard that thing
-> and populate the compat syscall table *entirely* with compat_SyS_...,
-> letting the linker sort it out.  That way we don't need to keep
-> track of what can use native and what needs compat in each compat
-> table on biarch.
-> 	* s390 compat wrappers would disappear with that approach.
-> 	* we could even stop generating sys_... aliases - if
-> syscall table is generated by slapping SyS_... or compat_SyS_...
-> on the name given there, we don't need to _have_ those sys_...
-> things at all.  All SyS_... would have the same type, so the pile
-> in syscalls.h would not be needed - we could generate the externs
-> at the same time we generate the syscall table.
-> 
-> And yes, it's a high-squick approach.  I know and I'm not saying
-> it's a good idea.  OTOH, to quote the motto of philosophers and
-> shell game operators, "there's something in it"...
+I don't think doing part of this in CPP is a good idea:
 
-... and getting rid of all in-kernel calls to sys_*() is needed as
-groundwork for that. So I'll continue to do that "mindless" conversion
-first. On top of that, three things (which are mostly orthogonal to each
-other) can be done:
+ - It won't be able to do the full range of checks
 
-1) ptregs system call conversion for x86-64
+ - Wrappers should IMHO be trivial and open coded as much as possible - not hidden
+   inside several layers of macros.
 
-   Original implementation by Linus exists; needs a bit of tweaking
-   but should be doable soon. Need to double-check it does the right
-   thing for IA32_EMULATION, though.
+ - There should be a penalty for newly introduced, badly designed system call
+   ABIs, while most CPP variants I can think of will just make bad but solvable 
+   decisions palatable, AFAICS.
 
-2) re-work initramfs etc. code to not use in-kernel equivalents of
-   syscalls, but operate on the VFS level instead.
+I.e. I think the way out of this would be two steps:
 
-3) re-work SYSCALL_DEFINEx() / COMPAT_SYSCALL_DEFINEx() based on
-   your suggestions.
+ 1) for new system calls: hard-enforce the highest quality at the development
+    stage and hard-reject crap. No new 6-parameter system calls or badly ordered
+    arguments. The tool would also check new extensions to existing system calls, 
+    i.e. no more "add a crappy 4th argument to an existing system call that works 
+    on x86 but hurts MIPS".
 
-Does that sound sensible?
+ 2) for old legacies: cleanly open code all our existing legacies and weird
+    wrappers. No new muck will be added to it so the line count does not matter.
+
+... is there anything I'm missing?
 
 Thanks,
-	Dominik
+
+	Ingo
