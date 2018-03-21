@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Subject: [PATCH v2 05/11] kexec_file: Use read-only sections in arch_kexec_apply_relocations*
-Date: Wed, 21 Mar 2018 12:27:45 +0100
+Subject: [PATCH v2 11/11] kexec_file: Move purgatories sha256 to common code
+Date: Wed, 21 Mar 2018 12:27:51 +0100
 In-Reply-To: <20180321112751.22196-1-prudo@linux.vnet.ibm.com>
 References: <20180321112751.22196-1-prudo@linux.vnet.ibm.com>
-Message-Id: <20180321112751.22196-6-prudo@linux.vnet.ibm.com>
+Message-Id: <20180321112751.22196-12-prudo@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,259 +12,121 @@ To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Dave Young <dyoung@redhat.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Ingo Molnar <mingo@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-When the relocations are applied to the purgatory only the section the
-relocations are applied to is writable. The other sections, i.e. the symtab
-and .rel/.rela, are in read-only kexec_purgatory. Highlight this by marking
-the corresponding variables as 'const'.
+The code to verify the new kernels sha digest is applicable for all
+architectures. Move it to common code.
 
-While at it also change the signatures of arch_kexec_apply_relocations* to
-take section pointers instead of just the index of the relocation section.
-This removes the second lookup and sanity check of the sections in arch
-code.
+One problem is the string.c implementation on x86. Currently sha256
+includes x86/boot/string.h which defines memcpy and memset to be gcc
+builtins. By moving the sha256 implementation to common code and changing
+the include to linux/string.h both functions are no longer defined. Thus
+definitions have to be provided in x86/purgatory/string.c
 
 Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
 ---
- arch/x86/kernel/machine_kexec_64.c | 56 ++++++++++++---------------------
- include/linux/kexec.h              | 13 +++++---
- kernel/kexec_file.c                | 63 +++++++++++++++++++++++++-------------
- 3 files changed, 71 insertions(+), 61 deletions(-)
+ arch/x86/purgatory/Makefile                    |  3 +++
+ arch/x86/purgatory/purgatory.c                 |  2 +-
+ arch/x86/purgatory/string.c                    | 12 ++++++++++++
+ {arch/x86/purgatory => include/linux}/sha256.h | 11 ++++++++++-
+ {arch/x86/purgatory => lib}/sha256.c           |  4 ++--
+ 5 files changed, 28 insertions(+), 4 deletions(-)
+ rename {arch/x86/purgatory => include/linux}/sha256.h (62%)
+ rename {arch/x86/purgatory => lib}/sha256.c (99%)
 
-diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
-index 3b7427aa7d85..51667c8b5c9b 100644
---- a/arch/x86/kernel/machine_kexec_64.c
-+++ b/arch/x86/kernel/machine_kexec_64.c
-@@ -422,52 +422,36 @@ int arch_kexec_kernel_verify_sig(struct kimage *image, void *kernel,
- /*
-  * Apply purgatory relocations.
-  *
-- * ehdr: Pointer to elf headers
-- * sechdrs: Pointer to section headers.
-- * relsec: section index of SHT_RELA section.
-+ * @pi:		Purgatory to be relocated.
-+ * @section:	Section relocations applying to.
-+ * @relsec:	Section containing RELAs.
-+ * @symtabsec:	Corresponding symtab.
-  *
-  * TODO: Some of the code belongs to generic code. Move that in kexec.c.
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 2f15a2ac4209..414eed6b5065 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup-x86_$(BITS).o sha256.o entry64.o string
+ targets += $(purgatory-y)
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+ 
++$(obj)/sha256.o: $(srctree)/lib/sha256.c
++	$(call if_changed_rule,cc_o_c)
++
+ LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
+ targets += purgatory.ro
+ 
+diff --git a/arch/x86/purgatory/purgatory.c b/arch/x86/purgatory/purgatory.c
+index 470edad96bb9..025c34ac0d84 100644
+--- a/arch/x86/purgatory/purgatory.c
++++ b/arch/x86/purgatory/purgatory.c
+@@ -11,9 +11,9 @@
   */
--int arch_kexec_apply_relocations_add(const Elf64_Ehdr *ehdr,
--				     Elf64_Shdr *sechdrs, unsigned int relsec)
-+int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-+				     Elf_Shdr *section, const Elf_Shdr *relsec,
-+				     const Elf_Shdr *symtabsec)
- {
- 	unsigned int i;
- 	Elf64_Rela *rel;
- 	Elf64_Sym *sym;
- 	void *location;
--	Elf64_Shdr *section, *symtabsec;
- 	unsigned long address, sec_base, value;
- 	const char *strtab, *name, *shstrtab;
-+	const Elf_Shdr *sechdrs;
  
--	/*
--	 * ->sh_offset has been modified to keep the pointer to section
--	 * contents in memory
--	 */
--	rel = (void *)sechdrs[relsec].sh_offset;
--
--	/* Section to which relocations apply */
--	section = &sechdrs[sechdrs[relsec].sh_info];
--
--	pr_debug("Applying relocate section %u to %u\n", relsec,
--		 sechdrs[relsec].sh_info);
--
--	/* Associated symbol table */
--	symtabsec = &sechdrs[sechdrs[relsec].sh_link];
--
--	/* String table */
--	if (symtabsec->sh_link >= ehdr->e_shnum) {
--		/* Invalid strtab section number */
--		pr_err("Invalid string table section index %d\n",
--		       symtabsec->sh_link);
--		return -ENOEXEC;
--	}
-+	/* String & section header string table */
-+	sechdrs = (void *)pi->ehdr + pi->ehdr->e_shoff;
-+	strtab = (char *)pi->ehdr + sechdrs[symtabsec->sh_link].sh_offset;
-+	shstrtab = (char *)pi->ehdr + sechdrs[pi->ehdr->e_shstrndx].sh_offset;
+ #include <linux/bug.h>
++#include <linux/sha256.h>
+ #include <asm/purgatory.h>
  
--	strtab = (char *)sechdrs[symtabsec->sh_link].sh_offset;
-+	rel = (void *)pi->ehdr + relsec->sh_offset;
+-#include "sha256.h"
+ #include "../boot/string.h"
  
--	/* section header string table */
--	shstrtab = (char *)sechdrs[ehdr->e_shstrndx].sh_offset;
-+	pr_debug("Applying relocate section %s to %u\n",
-+		 shstrtab + relsec->sh_name, relsec->sh_info);
+ unsigned long purgatory_backup_dest __section(.kexec-purgatory);
+diff --git a/arch/x86/purgatory/string.c b/arch/x86/purgatory/string.c
+index d886b1fa36f0..795ca4f2cb3c 100644
+--- a/arch/x86/purgatory/string.c
++++ b/arch/x86/purgatory/string.c
+@@ -10,4 +10,16 @@
+  * Version 2.  See the file COPYING for more details.
+  */
  
--	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rel); i++) {
-+	for (i = 0; i < relsec->sh_size / sizeof(*rel); i++) {
- 
- 		/*
- 		 * rel[i].r_offset contains byte offset from beginning
-@@ -490,8 +474,8 @@ int arch_kexec_apply_relocations_add(const Elf64_Ehdr *ehdr,
- 		 * to apply. ELF64_R_SYM() and ELF64_R_TYPE() macros get
- 		 * these respectively.
- 		 */
--		sym = (Elf64_Sym *)symtabsec->sh_offset +
--				ELF64_R_SYM(rel[i].r_info);
-+		sym = (void *)pi->ehdr + symtabsec->sh_offset;
-+		sym += ELF64_R_SYM(rel[i].r_info);
- 
- 		if (sym->st_name)
- 			name = strtab + sym->st_name;
-@@ -514,12 +498,12 @@ int arch_kexec_apply_relocations_add(const Elf64_Ehdr *ehdr,
- 
- 		if (sym->st_shndx == SHN_ABS)
- 			sec_base = 0;
--		else if (sym->st_shndx >= ehdr->e_shnum) {
-+		else if (sym->st_shndx >= pi->ehdr->e_shnum) {
- 			pr_err("Invalid section %d for symbol %s\n",
- 			       sym->st_shndx, name);
- 			return -ENOEXEC;
- 		} else
--			sec_base = sechdrs[sym->st_shndx].sh_addr;
-+			sec_base = pi->sechdrs[sym->st_shndx].sh_addr;
- 
- 		value = sym->st_value;
- 		value += sec_base;
-diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-index 10842eece180..a757ec37775f 100644
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -166,6 +166,15 @@ struct kexec_buf {
- 	bool top_down;
- };
- 
-+int __weak arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-+					    Elf_Shdr *section,
-+					    const Elf_Shdr *relsec,
-+					    const Elf_Shdr *symtab);
-+int __weak arch_kexec_apply_relocations(struct purgatory_info *pi,
-+					Elf_Shdr *section,
-+					const Elf_Shdr *relsec,
-+					const Elf_Shdr *symtab);
++#include <linux/types.h>
 +
- int __weak arch_kexec_walk_mem(struct kexec_buf *kbuf,
- 			       int (*func)(struct resource *, void *));
- extern int kexec_add_buffer(struct kexec_buf *kbuf);
-@@ -290,10 +299,6 @@ void * __weak arch_kexec_kernel_image_load(struct kimage *image);
- int __weak arch_kimage_file_post_load_cleanup(struct kimage *image);
- int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
- 					unsigned long buf_len);
--int __weak arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
--					Elf_Shdr *sechdrs, unsigned int relsec);
--int __weak arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
--					unsigned int relsec);
- void arch_kexec_protect_crashkres(void);
- void arch_kexec_unprotect_crashkres(void);
+ #include "../boot/string.c"
++
++void *memcpy(void *dst, const void *src, size_t len)
++{
++	return __builtin_memcpy(dst, src, len);
++}
++
++void *memset(void *dst, int c, size_t len)
++{
++	return __builtin_memset(dst, c, len);
++}
+diff --git a/arch/x86/purgatory/sha256.h b/include/linux/sha256.h
+similarity index 62%
+rename from arch/x86/purgatory/sha256.h
+rename to include/linux/sha256.h
+index 2867d9825a57..244fe01a65fb 100644
+--- a/arch/x86/purgatory/sha256.h
++++ b/include/linux/sha256.h
+@@ -13,9 +13,18 @@
+ #include <linux/types.h>
+ #include <crypto/sha.h>
  
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 2072b288ec53..80c7f658afc0 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -53,19 +53,35 @@ int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
- }
- #endif
- 
--/* Apply relocations of type RELA */
 +/*
-+ * arch_kexec_apply_relocations_add - apply relocations of type RELA
-+ * @pi:		Purgatory to be relocated.
-+ * @section:	Section relocations applying to.
-+ * @relsec:	Section containing RELAs.
-+ * @symtab:	Corresponding symtab.
++ * Stand-alone implementation of the SHA256 algorithm. It is designed to
++ * have as little dependencies as possible so it can be used in the
++ * kexec_file purgatory. In other cases you should use the implementation in
++ * crypto/.
 + *
-+ * Return: 0 on success, negative errno on error.
++ * For details see lib/sha256.c
 + */
- int __weak
--arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
--				 unsigned int relsec)
-+arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
-+				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
- {
- 	pr_err("RELA relocation unsupported.\n");
- 	return -ENOEXEC;
- }
- 
--/* Apply relocations of type REL */
-+/*
-+ * arch_kexec_apply_relocations - apply relocations of type REL
-+ * @pi:		Purgatory to be relocated.
-+ * @section:	Section relocations applying to.
-+ * @relsec:	Section containing RELs.
-+ * @symtab:	Corresponding symtab.
-+ *
-+ * Return: 0 on success, negative errno on error.
-+ */
- int __weak
--arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
--			     unsigned int relsec)
-+arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
-+			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
- {
- 	pr_err("REL relocation unsupported.\n");
- 	return -ENOEXEC;
-@@ -818,14 +834,19 @@ static int kexec_apply_relocations(struct kimage *image)
- {
- 	int i, ret;
- 	struct purgatory_info *pi = &image->purgatory_info;
--	Elf_Shdr *sechdrs = pi->sechdrs;
-+	const Elf_Shdr *sechdrs;
 +
-+	sechdrs = (void *)pi->ehdr + pi->ehdr->e_shoff;
+ extern int sha256_init(struct sha256_state *sctx);
+ extern int sha256_update(struct sha256_state *sctx, const u8 *input,
+-				unsigned int length);
++			 unsigned int length);
+ extern int sha256_final(struct sha256_state *sctx, u8 *hash);
  
--	/* Apply relocations */
- 	for (i = 0; i < pi->ehdr->e_shnum; i++) {
--		Elf_Shdr *section, *symtab;
-+		const Elf_Shdr *relsec;
-+		const Elf_Shdr *symtab;
-+		Elf_Shdr *section;
-+
-+		relsec = sechdrs + i;
+ #endif /* SHA256_H */
+diff --git a/arch/x86/purgatory/sha256.c b/lib/sha256.c
+similarity index 99%
+rename from arch/x86/purgatory/sha256.c
+rename to lib/sha256.c
+index 548ca675a14a..4400c832e2aa 100644
+--- a/arch/x86/purgatory/sha256.c
++++ b/lib/sha256.c
+@@ -16,9 +16,9 @@
+  */
  
--		if (sechdrs[i].sh_type != SHT_RELA &&
--		    sechdrs[i].sh_type != SHT_REL)
-+		if (relsec->sh_type != SHT_RELA &&
-+		    relsec->sh_type != SHT_REL)
- 			continue;
+ #include <linux/bitops.h>
++#include <linux/sha256.h>
++#include <linux/string.h>
+ #include <asm/byteorder.h>
+-#include "sha256.h"
+-#include "../boot/string.h"
  
- 		/*
-@@ -834,12 +855,12 @@ static int kexec_apply_relocations(struct kimage *image)
- 		 * symbol table. And ->sh_info contains section header
- 		 * index of section to which relocations apply.
- 		 */
--		if (sechdrs[i].sh_info >= pi->ehdr->e_shnum ||
--		    sechdrs[i].sh_link >= pi->ehdr->e_shnum)
-+		if (relsec->sh_info >= pi->ehdr->e_shnum ||
-+		    relsec->sh_link >= pi->ehdr->e_shnum)
- 			return -ENOEXEC;
- 
--		section = &sechdrs[sechdrs[i].sh_info];
--		symtab = &sechdrs[sechdrs[i].sh_link];
-+		section = pi->sechdrs + relsec->sh_info;
-+		symtab = sechdrs + relsec->sh_link;
- 
- 		if (!(section->sh_flags & SHF_ALLOC))
- 			continue;
-@@ -856,12 +877,12 @@ static int kexec_apply_relocations(struct kimage *image)
- 		 * Respective architecture needs to provide support for applying
- 		 * relocations of type SHT_RELA/SHT_REL.
- 		 */
--		if (sechdrs[i].sh_type == SHT_RELA)
--			ret = arch_kexec_apply_relocations_add(pi->ehdr,
--							       sechdrs, i);
--		else if (sechdrs[i].sh_type == SHT_REL)
--			ret = arch_kexec_apply_relocations(pi->ehdr,
--							   sechdrs, i);
-+		if (relsec->sh_type == SHT_RELA)
-+			ret = arch_kexec_apply_relocations_add(pi, section,
-+							       relsec, symtab);
-+		else if (relsec->sh_type == SHT_REL)
-+			ret = arch_kexec_apply_relocations(pi, section,
-+							   relsec, symtab);
- 		if (ret)
- 			return ret;
- 	}
+ static inline u32 Ch(u32 x, u32 y, u32 z)
+ {
 -- 
 2.13.5
