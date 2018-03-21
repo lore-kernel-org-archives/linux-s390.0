@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Subject: [PATCH v2 03/11] kexec_file: Make purgatory_info->ehdr const
-Date: Wed, 21 Mar 2018 12:27:43 +0100
+Subject: [PATCH v2 04/11] kexec_file: Search symbols in read-only kexec_purgatory
+Date: Wed, 21 Mar 2018 12:27:44 +0100
 In-Reply-To: <20180321112751.22196-1-prudo@linux.vnet.ibm.com>
 References: <20180321112751.22196-1-prudo@linux.vnet.ibm.com>
-Message-Id: <20180321112751.22196-4-prudo@linux.vnet.ibm.com>
+Message-Id: <20180321112751.22196-5-prudo@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,69 +12,105 @@ To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Dave Young <dyoung@redhat.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Ingo Molnar <mingo@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The kexec_purgatory buffer is read-only. Thus all pointers into
-kexec_purgatory are read-only, too. Point this out by explicitly marking
-purgatory_info->ehdr as 'const' and update the comments in purgatory_info.
+The stripped purgatory does not contain a symtab. So when looking for
+symbols this is done in read-only kexec_purgatory. Highlight this by
+marking the corresponding variables as 'const'.
 
 Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
 ---
- include/linux/kexec.h | 17 +++++++++++------
- kernel/kexec_file.c   |  4 ++--
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ kernel/kexec_file.c | 38 ++++++++++++++++++++++----------------
+ 1 file changed, 22 insertions(+), 16 deletions(-)
 
-diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-index 7bae5e87bf0d..10842eece180 100644
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -99,14 +99,19 @@ struct compat_kexec_segment {
- 
- #ifdef CONFIG_KEXEC_FILE
- struct purgatory_info {
--	/* Pointer to elf header of read only purgatory */
--	Elf_Ehdr *ehdr;
--
--	/* Pointer to purgatory sechdrs which are modifiable */
-+	/*
-+	 * Pointer to elf header at the beginning of kexec_purgatory.
-+	 * Note: kexec_purgatory is read only
-+	 */
-+	const Elf_Ehdr *ehdr;
-+	/*
-+	 * Temporary, modifiable buffer for sechdrs used for relocation.
-+	 * This memory can be freed post image load.
-+	 */
- 	Elf_Shdr *sechdrs;
- 	/*
--	 * Temporary buffer location where purgatory is loaded and relocated
--	 * This memory can be freed post image load
-+	 * Temporary, modifiable buffer for stripped purgatory used for
-+	 * relocation. This memory can be freed post image load.
- 	 */
- 	void *purgatory_buf;
- 
 diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 0f044457b40c..06fc9fdd2474 100644
+index 06fc9fdd2474..2072b288ec53 100644
 --- a/kernel/kexec_file.c
 +++ b/kernel/kexec_file.c
-@@ -880,7 +880,7 @@ int kexec_load_purgatory(struct kimage *image, unsigned long min,
- 	if (kexec_purgatory_size <= 0)
- 		return -EINVAL;
+@@ -901,20 +901,27 @@ int kexec_load_purgatory(struct kimage *image, unsigned long min,
+ 	return ret;
+ }
  
--	pi->ehdr = (Elf_Ehdr *)kexec_purgatory;
-+	pi->ehdr = (const Elf_Ehdr *)kexec_purgatory;
- 
- 	ret = __kexec_load_purgatory(image, min, max, top_down);
- 	if (ret)
-@@ -904,9 +904,9 @@ int kexec_load_purgatory(struct kimage *image, unsigned long min,
- static Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
- 					    const char *name)
+-static Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
+-					    const char *name)
++/*
++ * kexec_purgatory_find_symbol - find a symbol in the purgatory
++ * @pi:		Purgatory to search in.
++ * @name:	Name of the symbol.
++ *
++ * Return: pointer to symbol in read-only symtab on success, NULL on error.
++ */
++static const Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
++						  const char *name)
  {
-+	const Elf_Ehdr *ehdr;
- 	Elf_Sym *syms;
- 	Elf_Shdr *sechdrs;
--	Elf_Ehdr *ehdr;
- 	int i, k;
++	const Elf_Shdr *sechdrs;
+ 	const Elf_Ehdr *ehdr;
+-	Elf_Sym *syms;
+-	Elf_Shdr *sechdrs;
+-	int i, k;
++	const Elf_Sym *syms;
  	const char *strtab;
++	int i, k;
  
+-	if (!pi->sechdrs || !pi->ehdr)
++	if (!pi->ehdr)
+ 		return NULL;
+ 
+-	sechdrs = pi->sechdrs;
+ 	ehdr = pi->ehdr;
++	sechdrs = (void *)ehdr + ehdr->e_shoff;
+ 
+ 	for (i = 0; i < ehdr->e_shnum; i++) {
+ 		if (sechdrs[i].sh_type != SHT_SYMTAB)
+@@ -923,8 +930,8 @@ static Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
+ 		if (sechdrs[i].sh_link >= ehdr->e_shnum)
+ 			/* Invalid strtab section number */
+ 			continue;
+-		strtab = (char *)sechdrs[sechdrs[i].sh_link].sh_offset;
+-		syms = (Elf_Sym *)sechdrs[i].sh_offset;
++		strtab = (void *)ehdr + sechdrs[sechdrs[i].sh_link].sh_offset;
++		syms = (void *)ehdr + sechdrs[i].sh_offset;
+ 
+ 		/* Go through symbols for a match */
+ 		for (k = 0; k < sechdrs[i].sh_size/sizeof(Elf_Sym); k++) {
+@@ -952,7 +959,7 @@ static Elf_Sym *kexec_purgatory_find_symbol(struct purgatory_info *pi,
+ void *kexec_purgatory_get_symbol_addr(struct kimage *image, const char *name)
+ {
+ 	struct purgatory_info *pi = &image->purgatory_info;
+-	Elf_Sym *sym;
++	const Elf_Sym *sym;
+ 	Elf_Shdr *sechdr;
+ 
+ 	sym = kexec_purgatory_find_symbol(pi, name);
+@@ -975,9 +982,9 @@ void *kexec_purgatory_get_symbol_addr(struct kimage *image, const char *name)
+ int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
+ 				   void *buf, unsigned int size, bool get_value)
+ {
+-	Elf_Sym *sym;
+-	Elf_Shdr *sechdrs;
+ 	struct purgatory_info *pi = &image->purgatory_info;
++	const Elf_Sym *sym;
++	Elf_Shdr *sec;
+ 	char *sym_buf;
+ 
+ 	sym = kexec_purgatory_find_symbol(pi, name);
+@@ -990,16 +997,15 @@ int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
+ 		return -EINVAL;
+ 	}
+ 
+-	sechdrs = pi->sechdrs;
++	sec = pi->sechdrs + sym->st_shndx;
+ 
+-	if (sechdrs[sym->st_shndx].sh_type == SHT_NOBITS) {
++	if (sec->sh_type == SHT_NOBITS) {
+ 		pr_err("symbol %s is in a bss section. Cannot %s\n", name,
+ 		       get_value ? "get" : "set");
+ 		return -EINVAL;
+ 	}
+ 
+-	sym_buf = (unsigned char *)sechdrs[sym->st_shndx].sh_offset +
+-					sym->st_value;
++	sym_buf = (char *)sec->sh_offset + sym->st_value;
+ 
+ 	if (get_value)
+ 		memcpy((void *)buf, sym_buf, size);
 -- 
 2.13.5
