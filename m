@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Philipp Rudo <prudo@linux.vnet.ibm.com>
-Subject: [PATCH v2 09/11] kexec_file: Remove mis-use of sh_offset field during purgatory load
-Date: Wed, 21 Mar 2018 12:27:49 +0100
+Subject: [PATCH v2 10/11] kexec_file: Allow archs to set purgatory load address
+Date: Wed, 21 Mar 2018 12:27:50 +0100
 In-Reply-To: <20180321112751.22196-1-prudo@linux.vnet.ibm.com>
 References: <20180321112751.22196-1-prudo@linux.vnet.ibm.com>
-Message-Id: <20180321112751.22196-10-prudo@linux.vnet.ibm.com>
+Message-Id: <20180321112751.22196-11-prudo@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,119 +12,226 @@ To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Dave Young <dyoung@redhat.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Ingo Molnar <mingo@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The current code uses the sh_offset field in purgatory_info->sechdrs to
-store a pointer to the current load address of the section. Depending
-whether the section will be loaded or not this is either a pointer into
-purgatory_info->purgatory_buf or kexec_purgatory. This is not only a
-violation of the ELF standard but also makes the code very hard to
-understand as you cannot tell if the memory you are using is read-only or
-not.
+For s390 new kernels are loaded to fixed addresses in memory before they
+are booted. With the current code this is a problem as it assumes the
+kernel will be loaded to an 'arbitrary' address. In particular,
+kexec_locate_mem_hole searches for a large enough memory region and sets
+the load address (kexec_bufer->mem) to it.
 
-Remove this mis-use and store the offset of the section in
-pugaroty_info->purgatory_buf in sh_offset.
+Luckily there is a simple workaround for this problem. By returning 1 in
+arch_kexec_walk_mem, kexec_locate_mem_hole is turned off. This allows the
+architecture to set kbuf->mem by hand. While the trick works fine for the
+kernel it does not for the purgatory as here the architectures don't have
+access to its kexec_buffer.
+
+Give architectures access to the purgatories kexec_buffer by changing
+kexec_load_purgatory to take a pointer to it. With this change
+architectures have access to the buffer and can edit it as they need.
+
+A nice side effect of this change is that we can get rid of the
+purgatory_info->purgatory_load_address field. As now the information stored
+there can directly be accessed from kbuf->mem.
 
 Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/x86/kernel/machine_kexec_64.c | 10 ++++++----
- kernel/kexec_file.c                | 37 +++++++------------------------------
- 2 files changed, 13 insertions(+), 34 deletions(-)
+ arch/powerpc/kernel/kexec_elf_64.c |  9 +++++----
+ arch/x86/kernel/kexec-bzimage64.c  |  8 ++++----
+ include/linux/kexec.h              | 17 ++++++-----------
+ kernel/kexec_file.c                | 29 ++++++++++++++++-------------
+ 4 files changed, 31 insertions(+), 32 deletions(-)
 
-diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
-index 51667c8b5c9b..41db74bdc88b 100644
---- a/arch/x86/kernel/machine_kexec_64.c
-+++ b/arch/x86/kernel/machine_kexec_64.c
-@@ -457,13 +457,15 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
- 		 * rel[i].r_offset contains byte offset from beginning
- 		 * of section to the storage unit affected.
- 		 *
--		 * This is location to update (->sh_offset). This is temporary
--		 * buffer where section is currently loaded. This will finally
--		 * be loaded to a different address later, pointed to by
-+		 * This is location to update. This is temporary buffer
-+		 * where section is currently loaded. This will finally be
-+		 * loaded to a different address later, pointed to by
- 		 * ->sh_addr. kexec takes care of moving it
- 		 *  (kexec_load_segment()).
- 		 */
--		location = (void *)(section->sh_offset + rel[i].r_offset);
-+		location = pi->purgatory_buf;
-+		location += section->sh_offset;
-+		location += rel[i].r_offset;
+diff --git a/arch/powerpc/kernel/kexec_elf_64.c b/arch/powerpc/kernel/kexec_elf_64.c
+index 9a42309b091a..82448c03502d 100644
+--- a/arch/powerpc/kernel/kexec_elf_64.c
++++ b/arch/powerpc/kernel/kexec_elf_64.c
+@@ -572,7 +572,7 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
+ {
+ 	int ret;
+ 	unsigned int fdt_size;
+-	unsigned long kernel_load_addr, purgatory_load_addr;
++	unsigned long kernel_load_addr;
+ 	unsigned long initrd_load_addr = 0, fdt_load_addr;
+ 	void *fdt;
+ 	const void *slave_code;
+@@ -580,6 +580,8 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
+ 	struct elf_info elf_info;
+ 	struct kexec_buf kbuf = { .image = image, .buf_min = 0,
+ 				  .buf_max = ppc64_rma_size };
++	struct kexec_buf pbuf = { .image = image, .buf_min = 0,
++				  .buf_max = ppc64_rma_size, .top_down = true };
  
- 		/* Final address of the location */
- 		address = section->sh_addr + rel[i].r_offset;
+ 	ret = build_elf_exec_info(kernel_buf, kernel_len, &ehdr, &elf_info);
+ 	if (ret)
+@@ -591,14 +593,13 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
+ 
+ 	pr_debug("Loaded the kernel at 0x%lx\n", kernel_load_addr);
+ 
+-	ret = kexec_load_purgatory(image, 0, ppc64_rma_size, true,
+-				   &purgatory_load_addr);
++	ret = kexec_load_purgatory(image, &pbuf);
+ 	if (ret) {
+ 		pr_err("Loading purgatory failed.\n");
+ 		goto out;
+ 	}
+ 
+-	pr_debug("Loaded purgatory at 0x%lx\n", purgatory_load_addr);
++	pr_debug("Loaded purgatory at 0x%lx\n", pbuf.mem);
+ 
+ 	if (initrd != NULL) {
+ 		kbuf.buffer = initrd;
+diff --git a/arch/x86/kernel/kexec-bzimage64.c b/arch/x86/kernel/kexec-bzimage64.c
+index fb095ba0c02f..df183585928f 100644
+--- a/arch/x86/kernel/kexec-bzimage64.c
++++ b/arch/x86/kernel/kexec-bzimage64.c
+@@ -334,7 +334,6 @@ static void *bzImage64_load(struct kimage *image, char *kernel,
+ 	unsigned long setup_header_size, params_cmdline_sz;
+ 	struct boot_params *params;
+ 	unsigned long bootparam_load_addr, kernel_load_addr, initrd_load_addr;
+-	unsigned long purgatory_load_addr;
+ 	struct bzimage64_data *ldata;
+ 	struct kexec_entry64_regs regs64;
+ 	void *stack;
+@@ -342,6 +341,8 @@ static void *bzImage64_load(struct kimage *image, char *kernel,
+ 	unsigned int efi_map_offset, efi_map_sz, efi_setup_data_offset;
+ 	struct kexec_buf kbuf = { .image = image, .buf_max = ULONG_MAX,
+ 				  .top_down = true };
++	struct kexec_buf pbuf = { .image = image, .buf_min = MIN_PURGATORY_ADDR,
++				  .buf_max = ULONG_MAX, .top_down = true };
+ 
+ 	header = (struct setup_header *)(kernel + setup_hdr_offset);
+ 	setup_sects = header->setup_sects;
+@@ -379,14 +380,13 @@ static void *bzImage64_load(struct kimage *image, char *kernel,
+ 	 * Load purgatory. For 64bit entry point, purgatory  code can be
+ 	 * anywhere.
+ 	 */
+-	ret = kexec_load_purgatory(image, MIN_PURGATORY_ADDR, ULONG_MAX, 1,
+-				   &purgatory_load_addr);
++	ret = kexec_load_purgatory(image, &pbuf);
+ 	if (ret) {
+ 		pr_err("Loading purgatory failed\n");
+ 		return ERR_PTR(ret);
+ 	}
+ 
+-	pr_debug("Loaded purgatory at 0x%lx\n", purgatory_load_addr);
++	pr_debug("Loaded purgatory at 0x%lx\n", pbuf.mem);
+ 
+ 
+ 	/*
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index a757ec37775f..381362eb0f61 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -114,9 +114,6 @@ struct purgatory_info {
+ 	 * relocation. This memory can be freed post image load.
+ 	 */
+ 	void *purgatory_buf;
+-
+-	/* Address where purgatory is finally loaded and is executed from */
+-	unsigned long purgatory_load_addr;
+ };
+ 
+ struct kimage;
+@@ -166,6 +163,12 @@ struct kexec_buf {
+ 	bool top_down;
+ };
+ 
++int kexec_load_purgatory(struct kimage *image, struct kexec_buf *kbuf);
++int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
++				   void *buf, unsigned int size,
++				   bool get_value);
++void *kexec_purgatory_get_symbol_addr(struct kimage *image, const char *name);
++
+ int __weak arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ 					    Elf_Shdr *section,
+ 					    const Elf_Shdr *relsec,
+@@ -246,14 +249,6 @@ extern asmlinkage long sys_kexec_load(unsigned long entry,
+ extern int kernel_kexec(void);
+ extern struct page *kimage_alloc_control_pages(struct kimage *image,
+ 						unsigned int order);
+-extern int kexec_load_purgatory(struct kimage *image, unsigned long min,
+-				unsigned long max, int top_down,
+-				unsigned long *load_addr);
+-extern int kexec_purgatory_get_set_symbol(struct kimage *image,
+-					  const char *name, void *buf,
+-					  unsigned int size, bool get_value);
+-extern void *kexec_purgatory_get_symbol_addr(struct kimage *image,
+-					     const char *name);
+ extern void __crash_kexec(struct pt_regs *);
+ extern void crash_kexec(struct pt_regs *);
+ int kexec_should_crash(struct task_struct *);
 diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 746b91e46e34..1478766c7754 100644
+index 1478766c7754..97d5c946fa36 100644
 --- a/kernel/kexec_file.c
 +++ b/kernel/kexec_file.c
-@@ -729,6 +729,10 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
- 	Elf_Shdr *sechdrs;
- 	int i;
+@@ -669,8 +669,8 @@ static int kexec_purgatory_setup_kbuf(struct purgatory_info *pi,
+ 	int i, ret;
  
-+	/*
-+	 * The section headers in kexec_purgatory are read-only. In order to
-+	 * have them modifiable make a temporary copy.
-+	 */
- 	sechdrs = vzalloc(pi->ehdr->e_shnum * sizeof(Elf_Shdr));
- 	if (!sechdrs)
- 		return -ENOMEM;
-@@ -736,28 +740,6 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
- 	       pi->ehdr->e_shnum * sizeof(Elf_Shdr));
- 	pi->sechdrs = sechdrs;
+ 	sechdrs = (void *)pi->ehdr + pi->ehdr->e_shoff;
+-	bss_align = 1;
+-	bss_sz = 0;
++	kbuf->buf_align = bss_align = 1;
++	kbuf->bufsz = bss_sz = 0;
  
--	/*
--	 * We seem to have multiple copies of sections. First copy is which
--	 * is embedded in kernel in read only section. Some of these sections
--	 * will be copied to a temporary buffer and relocated. And these
--	 * sections will finally be copied to their final destination at
--	 * segment load time.
--	 *
--	 * Use ->sh_offset to reflect section address in memory. It will
--	 * point to original read only copy if section is not allocatable.
--	 * Otherwise it will point to temporary copy which will be relocated.
--	 *
--	 * Use ->sh_addr to contain final address of the section where it
--	 * will go during execution time.
--	 */
--	for (i = 0; i < pi->ehdr->e_shnum; i++) {
--		if (sechdrs[i].sh_type == SHT_NOBITS)
--			continue;
--
--		sechdrs[i].sh_offset = (unsigned long)pi->ehdr +
--						sechdrs[i].sh_offset;
--	}
--
- 	offset = 0;
- 	bss_addr = kbuf->mem + kbuf->bufsz;
- 	kbuf->image->start = pi->ehdr->e_entry;
-@@ -786,17 +768,12 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
- 			kbuf->image->start += kbuf->mem + offset;
- 		}
+ 	for (i = 0; i < pi->ehdr->e_shnum; i++) {
+ 		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
+@@ -702,7 +702,6 @@ static int kexec_purgatory_setup_kbuf(struct purgatory_info *pi,
+ 	ret = kexec_add_buffer(kbuf);
+ 	if (ret)
+ 		goto out;
+-	pi->purgatory_load_addr = kbuf->mem;
  
--		src = (void *)sechdrs[i].sh_offset;
-+		src = (void *)pi->ehdr + sechdrs[i].sh_offset;
- 		dst = pi->purgatory_buf + offset;
- 		memcpy(dst, src, sechdrs[i].sh_size);
+ 	return 0;
+ out:
+@@ -840,27 +839,32 @@ static int kexec_apply_relocations(struct kimage *image)
+ 	return 0;
+ }
  
- 		sechdrs[i].sh_addr = kbuf->mem + offset;
--
--		/*
--		 * This section got copied to temporary buffer. Update
--		 * ->sh_offset accordingly.
--		 */
--		sechdrs[i].sh_offset = (unsigned long)dst;
-+		sechdrs[i].sh_offset = offset;
- 		offset += sechdrs[i].sh_size;
- 	}
+-/* Load relocatable purgatory object and relocate it appropriately */
+-int kexec_load_purgatory(struct kimage *image, unsigned long min,
+-			 unsigned long max, int top_down,
+-			 unsigned long *load_addr)
++/*
++ * kexec_load_purgatory - Load and relocate the purgatory object.
++ * @image:	Image to add the purgatory to.
++ * @kbuf:	Memory parameters to use.
++ *
++ * Allocates the memory needed for image->purgatory_info.sechdrs and
++ * image->purgatory_info.purgatory_buf/kbuf->buffer. Caller is responsible
++ * to free the memory after use.
++ *
++ * Return: 0 on success, negative errno on error.
++ */
++int kexec_load_purgatory(struct kimage *image, struct kexec_buf *kbuf)
+ {
+ 	struct purgatory_info *pi = &image->purgatory_info;
+ 	int ret;
+-	struct kexec_buf kbuf = { .image = image, .bufsz = 0, .buf_align = 1,
+-				  .buf_min = min, .buf_max = max,
+-				  .top_down = top_down };
  
-@@ -1006,7 +983,7 @@ int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
+ 	if (kexec_purgatory_size <= 0)
  		return -EINVAL;
- 	}
  
--	sym_buf = (char *)sec->sh_offset + sym->st_value;
-+	sym_buf = (char *)pi->purgatory_buf + sec->sh_offset + sym->st_value;
+ 	pi->ehdr = (const Elf_Ehdr *)kexec_purgatory;
  
- 	if (get_value)
- 		memcpy((void *)buf, sym_buf, size);
+-	ret = kexec_purgatory_setup_kbuf(pi, &kbuf);
++	ret = kexec_purgatory_setup_kbuf(pi, kbuf);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = kexec_purgatory_setup_sechdrs(pi, &kbuf);
++	ret = kexec_purgatory_setup_sechdrs(pi, kbuf);
+ 	if (ret)
+ 		goto out_free_kbuf;
+ 
+@@ -868,7 +872,6 @@ int kexec_load_purgatory(struct kimage *image, unsigned long min,
+ 	if (ret)
+ 		goto out;
+ 
+-	*load_addr = pi->purgatory_load_addr;
+ 	return 0;
+ out:
+ 	vfree(pi->sechdrs);
 -- 
 2.13.5
