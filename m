@@ -1,45 +1,130 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 1/1] net/ipv4: disable SMC TCP option with SYN Cookies
-Date: Tue, 20 Mar 2018 16:53:40 +0100
-In-Reply-To: <20180320155340.18017-1-ubraun@linux.vnet.ibm.com>
-References: <20180320155340.18017-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180320155340.18017-2-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Philipp Rudo <prudo@linux.vnet.ibm.com>
+Subject: [PATCH v2 09/11] kexec_file: Remove mis-use of sh_offset field during purgatory load
+Date: Wed, 21 Mar 2018 12:27:49 +0100
+In-Reply-To: <20180321112751.22196-1-prudo@linux.vnet.ibm.com>
+References: <20180321112751.22196-1-prudo@linux.vnet.ibm.com>
+Message-Id: <20180321112751.22196-10-prudo@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: kexec@lists.infradead.org, linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Dave Young <dyoung@redhat.com>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Ingo Molnar <mingo@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.vnet.ibm.com>
+The current code uses the sh_offset field in purgatory_info->sechdrs to
+store a pointer to the current load address of the section. Depending
+whether the section will be loaded or not this is either a pointer into
+purgatory_info->purgatory_buf or kexec_purgatory. This is not only a
+violation of the ELF standard but also makes the code very hard to
+understand as you cannot tell if the memory you are using is read-only or
+not.
 
-Currently, the SMC experimental TCP option in a SYN packet is lost on
-the server side when SYN Cookies are active. However, the corresponding
-SYNACK sent back to the client contains the SMC option. This causes an
-inconsistent view of the SMC capabilities on the client and server.
+Remove this mis-use and store the offset of the section in
+pugaroty_info->purgatory_buf in sh_offset.
 
-This patch disables the SMC option in the SYNACK when SYN Cookies are
-active to avoid this issue.
-
-Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Signed-off-by: Philipp Rudo <prudo@linux.vnet.ibm.com>
 ---
- net/ipv4/tcp_output.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/machine_kexec_64.c | 10 ++++++----
+ kernel/kexec_file.c                | 37 +++++++------------------------------
+ 2 files changed, 13 insertions(+), 34 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 383cac0ff0ec..22894514feae 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -3199,6 +3199,8 @@ struct sk_buff *tcp_make_synack(const struct sock *sk, struct dst_entry *dst,
- 		/* Under synflood, we do not attach skb to a socket,
- 		 * to avoid false sharing.
+diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
+index 51667c8b5c9b..41db74bdc88b 100644
+--- a/arch/x86/kernel/machine_kexec_64.c
++++ b/arch/x86/kernel/machine_kexec_64.c
+@@ -457,13 +457,15 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ 		 * rel[i].r_offset contains byte offset from beginning
+ 		 * of section to the storage unit affected.
+ 		 *
+-		 * This is location to update (->sh_offset). This is temporary
+-		 * buffer where section is currently loaded. This will finally
+-		 * be loaded to a different address later, pointed to by
++		 * This is location to update. This is temporary buffer
++		 * where section is currently loaded. This will finally be
++		 * loaded to a different address later, pointed to by
+ 		 * ->sh_addr. kexec takes care of moving it
+ 		 *  (kexec_load_segment()).
  		 */
-+		if (IS_ENABLED(CONFIG_SMC))
-+			ireq->smc_ok = 0;
- 		break;
- 	case TCP_SYNACK_FASTOPEN:
- 		/* sk is a const pointer, because we want to express multiple
+-		location = (void *)(section->sh_offset + rel[i].r_offset);
++		location = pi->purgatory_buf;
++		location += section->sh_offset;
++		location += rel[i].r_offset;
+ 
+ 		/* Final address of the location */
+ 		address = section->sh_addr + rel[i].r_offset;
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 746b91e46e34..1478766c7754 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -729,6 +729,10 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+ 	Elf_Shdr *sechdrs;
+ 	int i;
+ 
++	/*
++	 * The section headers in kexec_purgatory are read-only. In order to
++	 * have them modifiable make a temporary copy.
++	 */
+ 	sechdrs = vzalloc(pi->ehdr->e_shnum * sizeof(Elf_Shdr));
+ 	if (!sechdrs)
+ 		return -ENOMEM;
+@@ -736,28 +740,6 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+ 	       pi->ehdr->e_shnum * sizeof(Elf_Shdr));
+ 	pi->sechdrs = sechdrs;
+ 
+-	/*
+-	 * We seem to have multiple copies of sections. First copy is which
+-	 * is embedded in kernel in read only section. Some of these sections
+-	 * will be copied to a temporary buffer and relocated. And these
+-	 * sections will finally be copied to their final destination at
+-	 * segment load time.
+-	 *
+-	 * Use ->sh_offset to reflect section address in memory. It will
+-	 * point to original read only copy if section is not allocatable.
+-	 * Otherwise it will point to temporary copy which will be relocated.
+-	 *
+-	 * Use ->sh_addr to contain final address of the section where it
+-	 * will go during execution time.
+-	 */
+-	for (i = 0; i < pi->ehdr->e_shnum; i++) {
+-		if (sechdrs[i].sh_type == SHT_NOBITS)
+-			continue;
+-
+-		sechdrs[i].sh_offset = (unsigned long)pi->ehdr +
+-						sechdrs[i].sh_offset;
+-	}
+-
+ 	offset = 0;
+ 	bss_addr = kbuf->mem + kbuf->bufsz;
+ 	kbuf->image->start = pi->ehdr->e_entry;
+@@ -786,17 +768,12 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+ 			kbuf->image->start += kbuf->mem + offset;
+ 		}
+ 
+-		src = (void *)sechdrs[i].sh_offset;
++		src = (void *)pi->ehdr + sechdrs[i].sh_offset;
+ 		dst = pi->purgatory_buf + offset;
+ 		memcpy(dst, src, sechdrs[i].sh_size);
+ 
+ 		sechdrs[i].sh_addr = kbuf->mem + offset;
+-
+-		/*
+-		 * This section got copied to temporary buffer. Update
+-		 * ->sh_offset accordingly.
+-		 */
+-		sechdrs[i].sh_offset = (unsigned long)dst;
++		sechdrs[i].sh_offset = offset;
+ 		offset += sechdrs[i].sh_size;
+ 	}
+ 
+@@ -1006,7 +983,7 @@ int kexec_purgatory_get_set_symbol(struct kimage *image, const char *name,
+ 		return -EINVAL;
+ 	}
+ 
+-	sym_buf = (char *)sec->sh_offset + sym->st_value;
++	sym_buf = (char *)pi->purgatory_buf + sec->sh_offset + sym->st_value;
+ 
+ 	if (get_value)
+ 		memcpy((void *)buf, sym_buf, size);
 -- 
 2.13.5
