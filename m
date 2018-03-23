@@ -1,10 +1,8 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH V2 net 1/1] net/ipv4: disable SMC TCP option with SYN Cookies
-Date: Fri, 23 Mar 2018 11:05:45 +0100
-In-Reply-To: <20180323100545.78607-1-ubraun@linux.vnet.ibm.com>
-References: <20180323100545.78607-1-ubraun@linux.vnet.ibm.com>
-Message-Id: <20180323100545.78607-2-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH V2 net 0/1] net/ipv4: SMC and SYN Cookies
+Date: Fri, 23 Mar 2018 11:05:44 +0100
+Message-Id: <20180323100545.78607-1-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,64 +10,23 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com, hwippel@linux.vnet.ibm.com, eric.dumazet@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.vnet.ibm.com>
+Dave,
 
-Currently, the SMC experimental TCP option in a SYN packet is lost on
-the server side when SYN Cookies are active. However, the corresponding
-SYNACK sent back to the client contains the SMC option. This causes an
-inconsistent view of the SMC capabilities on the client and server.
+net/smc code is based on the SMC TCP experimental option.
+Please apply Hans' patch to fix an inconsistency when SYN cookies
+are active.
 
-This patch disables the SMC option in the SYNACK when SYN Cookies are
-active to avoid this issue.
+V2 includes the changes proposed by Eric Dumazet.
 
-Fixes: 60e2a7780793b ("tcp: TCP experimental option for SMC")
-Signed-off-by: Hans Wippel <hwippel@linux.vnet.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
----
+Thanks, Ursula
+
+Hans Wippel (1):
+  net/ipv4: disable SMC TCP option with SYN Cookies
+
  net/ipv4/syncookies.c | 2 ++
  net/ipv4/tcp_input.c  | 3 +++
  net/ipv6/syncookies.c | 2 ++
  3 files changed, 7 insertions(+)
 
-diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
-index fda37f2862c9..c3387dfd725b 100644
---- a/net/ipv4/syncookies.c
-+++ b/net/ipv4/syncookies.c
-@@ -349,6 +349,8 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
- 	req->ts_recent		= tcp_opt.saw_tstamp ? tcp_opt.rcv_tsval : 0;
- 	treq->snt_synack	= 0;
- 	treq->tfo_listener	= false;
-+	if (IS_ENABLED(CONFIG_SMC))
-+		ireq->smc_ok = 0;
- 
- 	ireq->ir_iif = inet_request_bound_dev_if(sk, skb);
- 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 9a1b3c1c1c14..ff6cd98ce8d5 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -6256,6 +6256,9 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
- 	if (want_cookie && !tmp_opt.saw_tstamp)
- 		tcp_clear_options(&tmp_opt);
- 
-+	if (IS_ENABLED(CONFIG_SMC) && want_cookie)
-+		tmp_opt.smc_ok = 0;
-+
- 	tmp_opt.tstamp_ok = tmp_opt.saw_tstamp;
- 	tcp_openreq_init(req, &tmp_opt, skb, sk);
- 	inet_rsk(req)->no_srccheck = inet_sk(sk)->transparent;
-diff --git a/net/ipv6/syncookies.c b/net/ipv6/syncookies.c
-index e7a3a6b6cf56..e997141aed8c 100644
---- a/net/ipv6/syncookies.c
-+++ b/net/ipv6/syncookies.c
-@@ -217,6 +217,8 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
- 	treq->snt_isn = cookie;
- 	treq->ts_off = 0;
- 	treq->txhash = net_tx_rndhash();
-+	if (IS_ENABLED(CONFIG_SMC))
-+		ireq->smc_ok = 0;
- 
- 	/*
- 	 * We need to lookup the dst_entry to get the correct window size.
 -- 
 2.13.5
