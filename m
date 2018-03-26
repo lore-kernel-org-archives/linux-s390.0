@@ -1,131 +1,94 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 1/4] vfio: ccw: fix cleanup if cp_prefetch fails
-Date: Mon, 26 Mar 2018 14:28:39 +0200
-Message-ID: <20180326142839.23bfc4f6.cohuck@redhat.com>
+Subject: Re: [PATCH 2/4] vfio: ccw: refactor and improve
+ pfn_array_alloc_pin()
+Date: Mon, 26 Mar 2018 15:28:46 +0200
+Message-ID: <20180326152846.2ef1ae07.cohuck@redhat.com>
 References: <20180321020822.86255-1-bjsdjshi@linux.vnet.ibm.com>
-        <20180321020822.86255-2-bjsdjshi@linux.vnet.ibm.com>
-        <682d8b1c-5aca-7015-043b-a3f1446bf378@linux.vnet.ibm.com>
-        <20180322022248.GB12194@bjsdjshi@linux.vnet.ibm.com>
-        <54fd02cd-bd0b-889b-c40f-f9a32aa25d77@linux.vnet.ibm.com>
+        <20180321020822.86255-3-bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54fd02cd-bd0b-889b-c40f-f9a32aa25d77@linux.vnet.ibm.com>
+In-Reply-To: <20180321020822.86255-3-bjsdjshi@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, borntraeger@de.ibm.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, borntraeger@de.ibm.com, pasic@linux.vnet.ibm.com, pmorel@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 22 Mar 2018 10:37:36 +0100
-Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+On Wed, 21 Mar 2018 03:08:20 +0100
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-> On 22/03/2018 03:22, Dong Jia Shi wrote:
-> > * Halil Pasic <pasic@linux.vnet.ibm.com> [2018-03-21 13:49:54 +0100]:
-> >  
-> >>
-> >> On 03/21/2018 03:08 AM, Dong Jia Shi wrote:  
-> >>> From: Halil Pasic <pasic@linux.vnet.ibm.com>
-> >>>
-> >>> If the translation of a channel program fails, we may end up attempting
-> >>> to clean up (free, unpin) stuff that never got translated (and allocated,
-> >>> pinned) in the first place.
-> >>>
-> >>> By adjusting the lengths of the chains accordingly (so the element that
-> >>> failed, and all subsequent elements are excluded) cleanup activities
-> >>> based on false assumptions can be avoided.
-> >>>
-> >>> Let's make sure cp_free works properly after cp_prefetch returns with an
-> >>> error by setting ch_len to 0 for the ccw chains those are not prefetched.  
-> >> This sentence used to be:
-> >>
-> >> Let's make sure cp_free works properly after cp_prefetch returns with an
-> >> error.
-> >>
-> >> @Dong Jia
-> >> I find the 'by setting ch_len to 0 for the ccw chains those are not prefetched'
-> >> you added for clarification (I guess) somewhat problematic.
-> >> The chain in which the translation failure occurred
-> >> +	chain->ch_len = idx;  
-> > I made a mistake. When rewording the message, I missed this part...
-> > Sorry for the problem!
-> >  
-> >> is shortened so that only the translated elements (ccws) are going to
-> >> get cleaned up (on a per element basis) by cp_free. This may or may
-> >> not be the first ccw. Subsequent chains are shortened to 0 as there
-> >> no translation took place.
-> >>
-> >> So as a result of this change only properly translated ccws are going
-> >> to get (re)visited by cp_free as only those may have resources bound
-> >> to them which need to be released.
-> >>
-> >> I'm not against improving the commit message. But this ain't
-> >> an improvement to me.  
-> > You are right. How about:
-> > Let's make sure cp_free works properly after cp_prefetch returns with an
-> > error by setting ch_len of a ccw chain to the number of the translated
-> > ccws on that chain.  
+> This refactors pfn_array_alloc_pin() and also improves it by adding
+> defensive code in error handling so that calling pfn_array_unpin_free()
+> after error return won't lead to problem. This mains does:
+> 1. Merge pfn_array_pin() into pfn_array_alloc_pin(), since there is no
+>    other user of pfn_array_pin(). As a result, also remove kernel-doc
+>    for pfn_array_pin() and add kernel-doc for pfn_array_alloc_pin().
+> 2. For a vfio_pin_pages() failure, set pa->pa_nr to zero to indicate
+>    zero pages were pinned.
+> 3. Set pa->pa_iova_pfn to NULL right after it was freed.
 > 
-> By the way, since you will propose a new version,
-> you have a long description of the cp_prefetch function in the code.
-> I think you should modify it according to the changes and describe how and
-> why the ch_len field of each chain is used and changed by this function.
+> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c | 84 ++++++++++++++++++------------------------
+>  1 file changed, 36 insertions(+), 48 deletions(-)
 > 
-> Something like:
-> 
-> "
-> For each chain composing the channel program:
-> On entry ch_len hold the count of CCW to be translated.
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index 2be114db02f9..3abc9770910a 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -46,65 +46,32 @@ struct ccwchain {
+>  };
+>  
+>  /*
+> - * pfn_array_pin() - pin user pages in memory
+> + * pfn_array_alloc_pin() - alloc memory for PFNs, then pin user pages in memory
+>   * @pa: pfn_array on which to perform the operation
+>   * @mdev: the mediated device to perform pin/unpin operations
+> + * @iova: target guest physical address
+> + * @len: number of bytes that should be pinned from @iova
+>   *
+> - * Attempt to pin user pages in memory.
+> + * Attempt to allocate memory for PFNs, and pin user pages in memory.
+>   *
+>   * Usage of pfn_array:
+> - * @pa->pa_iova     starting guest physical I/O address. Assigned by caller.
+> + * @pa->pa_iova     starting guest physical I/O address. Assigned by callee.
+>   * @pa->pa_iova_pfn array that stores PFNs of the pages need to pin. Allocated
+> - *                  by caller.
+> + *                  by callee.
+>   * @pa->pa_pfn      array that receives PFNs of the pages pinned. Allocated by
+> - *                  caller.
+> - * @pa->pa_nr       number of pages from @pa->pa_iova to pin. Assigned by
+> - *                  caller.
+> - *                  number of pages pinned. Assigned by callee.
+> + *                  callee.
+> + * @pa->pa_nr       initiated as 0 by caller.
 
-s/hold/holds/ ?
+s/initiated/initialized/
 
-> On exit ch_len is adjusted to the count of successfully translated CCW.
-> 
-> This allows cp_free to find in ch_len the count of CCW to free in a chain.
-> "
-> 
-> Could also be inside the commit message.
-> 
-> Pierre
-> 
-> 
-> >  
-> >>> Acked-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-> >>> Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> >>> Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-> >>> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-> >>> ---
-> >>>   drivers/s390/cio/vfio_ccw_cp.c | 9 ++++++++-
-> >>>   1 file changed, 8 insertions(+), 1 deletion(-)
-> >>>
-> >>> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-> >>> index d9a2fffd034b..2be114db02f9 100644
-> >>> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> >>> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> >>> @@ -749,11 +749,18 @@ int cp_prefetch(struct channel_program *cp)
-> >>>   		for (idx = 0; idx < len; idx++) {
-> >>>   			ret = ccwchain_fetch_one(chain, idx, cp);
-> >>>   			if (ret)
-> >>> -				return ret;
-> >>> +				goto out_err;
-> >>>   		}
-> >>>   	}
-> >>>
-> >>>   	return 0;
-> >>> +out_err:
-> >>> +	/* Only cleanup the chain elements that where actually translated. */
+but see below
 
-s/where/were/
+> + *                  number of pages pinned from @pa->pa_iova. Assigned by callee.
 
-> >>> +	chain->ch_len = idx;
-> >>> +	list_for_each_entry_continue(chain, &cp->ccwchain_list, next) {
-> >>> +		chain->ch_len = 0;
-> >>> +	}
-> >>> +	return ret;
-> >>>   }
-> >>>
-> >>>   /**
-> >>>  
-> 
+So, basically everything is filled by pfn_array_alloc_pin()? Should we
+expect a clean struct pfn_array handed in by the caller, then (not just
+pa_nr == 0)?
+
+Would it make sense to describe the contents of the struct pfn_array
+fields at the struct's definition instead? You could then shorten the
+description here to "we expect pa_nr == 0, any field in this structure
+will be filled in by this function".
+
+
+>   *
+>   * Returns:
+>   *   Number of pages pinned on success.
+> - *   If @pa->pa_nr is 0 or negative, returns 0.
+> + *   If @pa->pa_nr is not 0 initially, returns -EINVAL.
+>   *   If no pages were pinned, returns -errno.
+>   */
+
+The change itself looks good to me.
