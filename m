@@ -1,93 +1,62 @@
-From: Halil Pasic <pasic@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 04/14] KVM: s390: device attribute to set AP
- interpretive execution
-Date: Tue, 20 Mar 2018 23:48:32 +0100
-Message-ID: <6c42b3e2-0f32-b84b-ea73-4e99157720d3@linux.vnet.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 01/14] KVM: s390: refactor crypto initialization
+Date: Mon, 26 Mar 2018 10:44:55 +0200
+Message-ID: <20180326104455.7773be7b.cohuck@redhat.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1521051954-25715-5-git-send-email-akrowiak@linux.vnet.ibm.com>
- <d86ad01e-1c79-c14c-b4da-09d9a31572bd@linux.vnet.ibm.com>
- <21bd029b-3500-3461-ce98-68ad3ae9b647@linux.vnet.ibm.com>
- <46a7e838-2be2-9587-6eb2-3bba95485609@linux.vnet.ibm.com>
- <5ed8017b-0168-9a50-234b-cfe9258eab72@linux.vnet.ibm.com>
- <17683324-f6e4-4328-54c1-1fce572faecd@linux.vnet.ibm.com>
- <8e10f1cb-3722-d231-2603-b7867420ac0a@linux.vnet.ibm.com>
- <5dd1bcd3-5d17-37c1-1184-7f75a1fd32bc@linux.vnet.ibm.com>
- <68e9e3ea-f99a-da88-5e56-21e38b438b4f@linux.vnet.ibm.com>
- <1347ed2e-7bdb-e455-971a-cf60899e3c19@linux.vnet.ibm.com>
+        <1521051954-25715-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <f87a6adb-8982-c194-7925-0c88060ebef2@linux.vnet.ibm.com>
+        <d0b44d6e-8b98-f8ca-7cf5-dfcdf38c79f6@linux.vnet.ibm.com>
+        <3227b02e-4a16-295d-9a01-043702cf149d@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1347ed2e-7bdb-e455-971a-cf60899e3c19@linux.vnet.ibm.com>
-Content-Language: en-US
+In-Reply-To: <3227b02e-4a16-295d-9a01-043702cf149d@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
+On Thu, 15 Mar 2018 15:55:39 +0100
+Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
 
+> On 15/03/2018 15:48, Tony Krowiak wrote:
+> > On 03/15/2018 08:26 AM, Pierre Morel wrote:  
+> >> On 14/03/2018 19:25, Tony Krowiak wrote:  
 
-On 03/20/2018 06:58 PM, Tony Krowiak wrote:
-> I spoke with Christian this morning and he made a suggestion which I think would provide the best solution here.
-> This is my proposal:
-> 1. Get rid of the KVM_S390_VM_CRYPTO_INTERPRET_AP device attribute and return to setting ECA.28 from the
->    mdev device open callback.
-> 2. Since there may be vcpus online at the time the mdev device open is called, we must first take all running vcpus out of
->    SIE and block them. Christian suggested the kvm_s390_vcpu_block_all(struct kvm *kvm) function will do the trick. So I
->    propose introducing a function like the following to be called during mdev open:
-
-There is one thing you missed, otherwise I'm *very* satisfied with this
-proposal.
-
-What you have missed IMHO is vcpu hottplug. So IMHO you should keep
-kvm->arch.crypto.apie, and update it accordingly ...
-
-
+> >>> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+> >>> index a3dbd45..4ca9077 100644
+> >>> --- a/arch/s390/kvm/Kconfig
+> >>> +++ b/arch/s390/kvm/Kconfig
+> >>> @@ -33,6 +33,7 @@ config KVM
+> >>>       select HAVE_KVM_INVALID_WAKEUPS
+> >>>       select SRCU
+> >>>       select KVM_VFIO
+> >>> +    select ZCRYPT  
+> >>
+> >> I do not think it is a good solution to *always* enable ZCRYPT
+> >> when we have KVM.  
+> > If CONFIG_ZCRYPT is not selected, then the kvm_ap_apxa_installed() 
+> > function will not compile
+> > because it calls a zcrypt interface. How would you suggest we make 
+> > sure zcrypt interfaces
+> > used in KVM are built if CONFIG_ZCRYPT is not selected?  
 > 
->     int kvm_ap_set_interpretive_exec(struct kvm *kvm, bool enable)
->     {
->         int i;
->         struct kvm_vcpu *vcpu;
+> if zcrypt is not configured, I suppose that the KVM code initializaing CRYCB
+> has no use but the function will be called from KVM.
+> So I would do something like:
 > 
->         if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP))
->             return -EOPNOTSUPP;
-> 
->         mutex_lock(&kvm->lock);
-> 
->         kvm_s390_vcpu_block_all(kvm);
+> #ifdef ZCRYPT
+> external definitions.
+> #else
+> stubs returning error -ENOZCRYPT (or whatever)
+> #endif
 
-... let's say here.
+The kvm code used some kind of detection for crycb before (IIRC it was
+for the key-wrapping stuff). I assume that usage is independent of
+zcrypt driver usage in the host?
 
-> 
->         kvm_for_each_vcpu(i, vcpu, kvm) {
-
-And here you can call kvm_s390_vcpu_crypto_setup(vcpu) (the changes to
-this function will be required for hotplug) if you like
-
->             if (enable)
->                 vcpu->arch.sie_block->eca |= ECA_APIE;
->             else
->                 vcpu->arch.sie_block->eca &= ~ECA_APIE;
-
-or keep this stuff, it does not really matter to me.
-
->         }
-> 
->         kvm_s390_vcpu_unblock_all(kvm);
-> 
->         mutex_unlock(&kvm->lock);
-> 
->         return 0;
->     }
-> 
->    This interface allows us to set ECA.28 even if vcpus are running
-
-I tend to agree. I will give it a proper review when this gets more
-formal (e.g. v4 (preferably) or patches to be fixed up to this series).
-
-Please don't forget to revisit the discussion on kvm_s390_vm_set_crypto:
-if the mechanism there isn't right for ECA.28 I think you should tell
-us why it's OK for the other attributes if it's OK. If it is not then
-I guess you will want to do a stand alone patch for that.
+So, I think that apxa detection function should be used to s390
+architecture base code and not be conditional on anything.
