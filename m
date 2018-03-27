@@ -1,62 +1,92 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 01/14] KVM: s390: refactor crypto initialization
-Date: Mon, 26 Mar 2018 10:44:55 +0200
-Message-ID: <20180326104455.7773be7b.cohuck@redhat.com>
+Subject: Re: [PATCH v3 03/14] KVM: s390: CPU model support for AP
+ virtualization
+Date: Tue, 27 Mar 2018 12:59:11 +0200
+Message-ID: <20180327125911.5c7ecf34.cohuck@redhat.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1521051954-25715-2-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <f87a6adb-8982-c194-7925-0c88060ebef2@linux.vnet.ibm.com>
-        <d0b44d6e-8b98-f8ca-7cf5-dfcdf38c79f6@linux.vnet.ibm.com>
-        <3227b02e-4a16-295d-9a01-043702cf149d@linux.vnet.ibm.com>
+        <1521051954-25715-4-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3227b02e-4a16-295d-9a01-043702cf149d@linux.vnet.ibm.com>
+In-Reply-To: <1521051954-25715-4-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 15 Mar 2018 15:55:39 +0100
-Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+On Wed, 14 Mar 2018 14:25:43 -0400
+Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-> On 15/03/2018 15:48, Tony Krowiak wrote:
-> > On 03/15/2018 08:26 AM, Pierre Morel wrote:  
-> >> On 14/03/2018 19:25, Tony Krowiak wrote:  
-
-> >>> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
-> >>> index a3dbd45..4ca9077 100644
-> >>> --- a/arch/s390/kvm/Kconfig
-> >>> +++ b/arch/s390/kvm/Kconfig
-> >>> @@ -33,6 +33,7 @@ config KVM
-> >>>       select HAVE_KVM_INVALID_WAKEUPS
-> >>>       select SRCU
-> >>>       select KVM_VFIO
-> >>> +    select ZCRYPT  
-> >>
-> >> I do not think it is a good solution to *always* enable ZCRYPT
-> >> when we have KVM.  
-> > If CONFIG_ZCRYPT is not selected, then the kvm_ap_apxa_installed() 
-> > function will not compile
-> > because it calls a zcrypt interface. How would you suggest we make 
-> > sure zcrypt interfaces
-> > used in KVM are built if CONFIG_ZCRYPT is not selected?  
+> Introduces a new CPU model feature and two CPU model
+> facilities to support AP virtualization for KVM guests.
 > 
-> if zcrypt is not configured, I suppose that the KVM code initializaing CRYCB
-> has no use but the function will be called from KVM.
-> So I would do something like:
+> CPU model feature:
 > 
-> #ifdef ZCRYPT
-> external definitions.
-> #else
-> stubs returning error -ENOZCRYPT (or whatever)
-> #endif
+> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
+> AP instructions are available on the guest. This
+> feature will be enabled by the kernel only if the AP
+> instructions are installed on the linux host. This feature
+> must be specifically turned on for the KVM guest from
+> userspace to use the VFIO AP device driver for guest
+> access to AP devices.
+> 
+> CPU model facilities:
+> 
+> 1. AP Query Configuration Information (QCI) facility is installed.
+> 
+>    This is indicated by setting facilities bit 12 for
+>    the guest. The kernel will not enable this facility
+>    for the guest if it is not set on the host. This facility
+>    must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
+>    feature is not installed.
+> 
+> 2. AP Facilities Test facility (APFT) is installed.
+> 
+>    This is indicated by setting facilities bit 15 for
+>    the guest. The kernel will not enable this facility for
+>    the guest if it is not set on the host. This facility
+>    must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
+>    feature is not installed.
+> 
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_host.h |    1 +
+>  arch/s390/include/uapi/asm/kvm.h |    1 +
+>  arch/s390/kvm/kvm-s390.c         |    4 ++++
+>  arch/s390/tools/gen_facilities.c |    2 ++
+>  4 files changed, 8 insertions(+), 0 deletions(-)
+> 
 
-The kvm code used some kind of detection for crycb before (IIRC it was
-for the key-wrapping stuff). I assume that usage is independent of
-zcrypt driver usage in the host?
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index c47731d..a60c45b 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -350,6 +350,10 @@ static void kvm_s390_cpu_feat_init(void)
+>  
+>  	if (MACHINE_HAS_ESOP)
+>  		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
+> +
+> +	if (ap_instructions_installed()) /* AP instructions installed on host */
+> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
 
-So, I think that apxa detection function should be used to s390
-architecture base code and not be conditional on anything.
+That's another dependency of the base kvm-s390 module on zcrypt, which
+I don't like at all.
+
+There are two possibilities here:
+- Exposing the features makes sense even if no zcrypt driver is active
+  in the host. Then, ap_instructions_installed() needs to be moved into
+  always-built code (see my comments for the interface in patch 1).
+- Exposing the features makes sense only if we actually want to make
+  vfio-ap available. Then we should provide the proper check in the
+  vfio-ap parts (which depends on zcrypt) and stub it out if vfio-ap is
+  not configured.
+
+> +
+>  	/*
+>  	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
+>  	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
