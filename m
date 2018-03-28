@@ -1,21 +1,17 @@
-Date: Tue, 27 Mar 2018 20:00:25 -0400
-From: Rich Felker <dalias@libc.org>
 Subject: Re: [RFC PATCH v2 0/2] Randomization of address chosen by mmap.
-Message-ID: <20180328000025.GM1436@brightrain.aerifal.cx>
 References: <1521736598-12812-1-git-send-email-blackzert@gmail.com>
  <20180323124806.GA5624@bombadil.infradead.org>
- <651E0DB6-4507-4DA1-AD46-9C26ED9792A8@gmail.com>
- <20180326084650.GC5652@dhcp22.suse.cz>
- <01A133F4-27DF-4AE2-80D6-B0368BF758CD@gmail.com>
- <20180327072432.GY5652@dhcp22.suse.cz>
- <0549F29C-12FC-4401-9E85-A430BC11DA78@gmail.com>
- <CAGXu5j+XXufprMaJ9GbHxD3mZ7iqUuu60-tTMC6wo2x1puYzMQ@mail.gmail.com>
- <20180327234904.GA27734@bombadil.infradead.org>
+ <20180323180024.GB1436@brightrain.aerifal.cx>
+ <20180323190618.GA23763@bombadil.infradead.org>
+From: Rob Landley <rob@landley.net>
+Message-ID: <7e41ef7a-0bac-02fe-21fd-a1ed86c22230@landley.net>
+Date: Tue, 27 Mar 2018 23:50:02 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180327234904.GA27734@bombadil.infradead.org>
-Return-Path: <dalias@aerifal.cx>
+In-Reply-To: <20180323190618.GA23763@bombadil.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Return-Path: <rob@landley.net>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -27,28 +23,32 @@ List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Matthew Wilcox <willy@infradead.org>
-Cc: Kees Cook <keescook@chromium.org>, Ilya Smith <blackzert@gmail.com>, Michal Hocko <mhocko@kernel.org>, Richard Henderson <rth@twiddle.net>, ink@jurassic.park.msu.ru, mattst88@gmail.com, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, X86 ML <x86@kernel.org>, nyc@holomorphy.com, Al Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg KH <gregkh@linuxfoundation.org>, Deepa Dinamani <deepa.kernel@gmail.com>, Hugh Dickins <hughd@google.com>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Andrew Morton <akpm@linux-foundation.org>, Steve Capper <steve.capper@arm.com>, Punit Agrawal <punit.agrawal@arm.com>, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Nick Piggin <npiggin@gmail.com>, Bhupesh Sharma <bhsharma@redhat.com>, Rik van Riel <riel@redhat.com>, nitin.m.gupta@oracle.com, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Jan Kara <jack@suse.cz>, Ross Zwisler <ross.zwisler@linux.intel.com>, Jerome Glisse <jglisse@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Oleg Nesterov <oleg@redhat.com>, linux-alpha@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-snps-arc@lists.infradead.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, Linux MIPS Mailing List <linux-mips@linux-mips.org>, linux-parisc <linux-parisc@vger.kernel.org>, PowerPC <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>
+To: Matthew Wilcox <willy@infradead.org>, Rich Felker <dalias@libc.org>
+Cc: Ilya Smith <blackzert@gmail.com>, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@synopsys.com, linux@armlinux.org.uk, tony.luck@intel.com, fenghua.yu@intel.com, jhogan@kernel.org, ralf@linux-mips.org, jejb@parisc-linux.org, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ysato@users.sourceforge.jp, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, nyc@holomorphy.com, viro@zeniv.linux.org.uk, arnd@arndb.de, gregkh@linuxfoundation.org, deepa.kernel@gmail.com, mhocko@suse.com, hughd@google.com, kstewart@linuxfoundation.org, pombredanne@nexb.com, akpm@linux-foundation.org, steve.capper@arm.com, punit.agrawal@arm.com, paul.burton@mips.com, aneesh.kumar@linux.vnet.ibm.com, npiggin@gmail.com, keescook@chromium.org, bhsharma@redhat.com, riel@redhat.com, nitin.m.gupta@oracle.com, kirill.shutemov@linux.intel.com, dan.j.williams@intel.com, jack@suse.cz, ross.zwisler@linux.intel.com, jglisse@redhat.com, aarcange@redhat.com, oleg@redhat.com, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Mar 27, 2018 at 04:49:04PM -0700, Matthew Wilcox wrote:
-> On Tue, Mar 27, 2018 at 03:53:53PM -0700, Kees Cook wrote:
-> > I agree: pushing this off to libc leaves a lot of things unprotected.
-> > I think this should live in the kernel. The question I have is about
-> > making it maintainable/readable/etc.
-> > 
-> > The state-of-the-art for ASLR is moving to finer granularity (over
-> > just base-address offset), so I'd really like to see this supported in
-> > the kernel. We'll be getting there for other things in the future, and
-> > I'd like to have a working production example for researchers to
-> > study, etc.
+On 03/23/2018 02:06 PM, Matthew Wilcox wrote:
+> On Fri, Mar 23, 2018 at 02:00:24PM -0400, Rich Felker wrote:
+>> On Fri, Mar 23, 2018 at 05:48:06AM -0700, Matthew Wilcox wrote:
+>>> On Thu, Mar 22, 2018 at 07:36:36PM +0300, Ilya Smith wrote:
+>>>> Current implementation doesn't randomize address returned by mmap.
+>>>> All the entropy ends with choosing mmap_base_addr at the process
+>>>> creation. After that mmap build very predictable layout of address
+>>>> space. It allows to bypass ASLR in many cases. This patch make
+>>>> randomization of address on any mmap call.
+>>>
+>>> Why should this be done in the kernel rather than libc?  libc is perfectly
+>>> capable of specifying random numbers in the first argument of mmap.
+>>
+>> Generally libc does not have a view of the current vm maps, and thus
+>> in passing "random numbers", they would have to be uniform across the
+>> whole vm space and thus non-uniform once the kernel rounds up to avoid
+>> existing mappings.
 > 
-> One thing we need is to limit the fragmentation of this approach.
-> Even on 64-bit systems, we can easily get into a situation where there isn't
-> space to map a contiguous terabyte.
+> I'm aware that you're the musl author, but glibc somehow manages to
+> provide etext, edata and end, demonstrating that it does know where at
+> least some of the memory map lies.
 
-The default limit of only 65536 VMAs will also quickly come into play
-if consecutive anon mmaps don't get merged. Of course this can be
-raised, but it has significant resource and performance (fork) costs.
+You can parse /proc/self/maps, but it's really expensive and disgusting.
 
-Rich
+Rob
