@@ -1,86 +1,69 @@
-From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 05/14] s390: vfio-ap: base implementation of VFIO AP
- device driver
-Date: Tue, 27 Mar 2018 16:45:02 +0200
-Message-ID: <29443c81-19b4-5811-798c-e324b34c083a@linux.vnet.ibm.com>
+From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 01/14] KVM: s390: refactor crypto initialization
+Date: Thu, 29 Mar 2018 14:57:22 -0400
+Message-ID: <5c659a5e-1933-366b-65fc-6e9eabe504d5@linux.vnet.ibm.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1521051954-25715-6-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1d5a5e18-1886-dd73-a17e-9bec617507ba@linux.vnet.ibm.com>
- <e4d7621c-a09c-bdfd-ffe2-35c5ea3acdc7@linux.vnet.ibm.com>
- <20180327131705.46fded40.cohuck@redhat.com>
+ <1521051954-25715-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <f87a6adb-8982-c194-7925-0c88060ebef2@linux.vnet.ibm.com>
+ <d0b44d6e-8b98-f8ca-7cf5-dfcdf38c79f6@linux.vnet.ibm.com>
+ <3227b02e-4a16-295d-9a01-043702cf149d@linux.vnet.ibm.com>
+ <20180326104455.7773be7b.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180327131705.46fded40.cohuck@redhat.com>
+In-Reply-To: <20180326104455.7773be7b.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.vnet.ibm.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 27/03/2018 13:17, Cornelia Huck wrote:
-> On Thu, 15 Mar 2018 13:25:25 -0400
-> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+On 03/26/2018 04:44 AM, Cornelia Huck wrote:
+> On Thu, 15 Mar 2018 15:55:39 +0100
+> Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
 >
->> On 03/15/2018 09:25 AM, Pierre Morel wrote:
->>> On 14/03/2018 19:25, Tony Krowiak wrote:
->>>> +config VFIO_AP
->>>> +    def_tristate m
->>> not sure it must be module by default.
->>> I would not set it by default.
->> Connie also asked about this in the last review, so I will go ahead
->> and change it.
->>>   
->>>> +    prompt "VFIO support for AP devices"
->>>> +    depends on ZCRYPT && VFIO_MDEV_DEVICE
->>> VFIO_MDEV_DEVICE is a general feature *needed* by VFIO_AP
->>> and has no use case by its own. If it is set it is obviously because some
->>> mediated device drivers needs it.
->>> while ZCRYPT is a Z feature which may be set without VFIO_AP.
->>>
->>> So you need:
->>>
->>> config VFIO_AP
->>>      def_tristate n
->>>      prompt "VFIO support for AP devices"
->>>      depends on ZCRYPT
->>>      select VFIO_MDEV
->>>      select VFIO_MDEV_DEVICE
->>> ...
->> I was thinking the same just yesterday and I agree, this makes sense.
-> OTOH, nobody else seems to do a select on these symbols so far.
+>> On 15/03/2018 15:48, Tony Krowiak wrote:
+>>> On 03/15/2018 08:26 AM, Pierre Morel wrote:
+>>>> On 14/03/2018 19:25, Tony Krowiak wrote:
+>>>>> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+>>>>> index a3dbd45..4ca9077 100644
+>>>>> --- a/arch/s390/kvm/Kconfig
+>>>>> +++ b/arch/s390/kvm/Kconfig
+>>>>> @@ -33,6 +33,7 @@ config KVM
+>>>>>        select HAVE_KVM_INVALID_WAKEUPS
+>>>>>        select SRCU
+>>>>>        select KVM_VFIO
+>>>>> +    select ZCRYPT
+>>>> I do not think it is a good solution to *always* enable ZCRYPT
+>>>> when we have KVM.
+>>> If CONFIG_ZCRYPT is not selected, then the kvm_ap_apxa_installed()
+>>> function will not compile
+>>> because it calls a zcrypt interface. How would you suggest we make
+>>> sure zcrypt interfaces
+>>> used in KVM are built if CONFIG_ZCRYPT is not selected?
+>> if zcrypt is not configured, I suppose that the KVM code initializaing CRYCB
+>> has no use but the function will be called from KVM.
+>> So I would do something like:
+>>
+>> #ifdef ZCRYPT
+>> external definitions.
+>> #else
+>> stubs returning error -ENOZCRYPT (or whatever)
+>> #endif
+> The kvm code used some kind of detection for crycb before (IIRC it was
+> for the key-wrapping stuff). I assume that usage is independent of
+> zcrypt driver usage in the host?
+A function in kvm-s390.c was replaced with a call to the function in
+ap_bus.c that was externalized in patch 2/14. This was done to remove
+duplicate code. Since zcrypt is built into the kernel, I didn't think
+it would be a problem, but apparently because of the way zcrypt is
+configured, it is still possible to remove it from the kernel build.
 >
-> If you decide to go that route, you'll also need to depend on VFIO
-
-I think a select is better (again).
-
-> (otherwise you could end up selecting symbols with unmet dependencies).
-> All in all, I prefer the 'depends' approach.
+> So, I think that apxa detection function should be used to s390
+> architecture base code and not be conditional on anything.
+I am convinced that the original function from kvm_s390.c should be
+restored.
 >
-Why do you prefer this approach?
-
-
-I can tell you why I prefer a mixed approach:
-
-We have two tools, depends and select.
-
-It seems to me that depends should be used for things we can not choose 
-to be there or not, but things that just are there, like hardware 
-dependencies. For example MMU, CPU type, CRYPTO hardware...
-
-Select on the other hand is useful to choose things that we need like 
-libraries, VFIO, VIRTIO, crypto libraries etc.
-
-Using this policy is clear and makes easy to choose functionalities and 
-get the utilities automatically.
-
-On the other hand, only using depends makes things to hide the 
-functionalities behind the utilities.
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
