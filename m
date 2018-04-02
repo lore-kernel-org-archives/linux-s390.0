@@ -1,101 +1,94 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 01/14] KVM: s390: refactor crypto initialization
-Date: Thu, 5 Apr 2018 09:16:51 -0400
-Message-ID: <12626080-d7ee-5cd9-c4fc-ce6702d69738@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 04/14] KVM: s390: device attribute to set AP
+ interpretive execution
+Date: Mon, 2 Apr 2018 14:55:46 -0400
+Message-ID: <b781deb9-5fdc-1809-8e3c-3858e10aa944@linux.vnet.ibm.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1521051954-25715-2-git-send-email-akrowiak@linux.vnet.ibm.com>
- <49eaa40e-12d7-7ba9-d48f-e72c06e74c8f@de.ibm.com>
- <0b9915e1-ba1e-2fec-dcc9-93bfdf6e65cf@de.ibm.com>
+ <1521051954-25715-5-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <d86ad01e-1c79-c14c-b4da-09d9a31572bd@linux.vnet.ibm.com>
+ <21bd029b-3500-3461-ce98-68ad3ae9b647@linux.vnet.ibm.com>
+ <46a7e838-2be2-9587-6eb2-3bba95485609@linux.vnet.ibm.com>
+ <5ed8017b-0168-9a50-234b-cfe9258eab72@linux.vnet.ibm.com>
+ <17683324-f6e4-4328-54c1-1fce572faecd@linux.vnet.ibm.com>
+ <8e10f1cb-3722-d231-2603-b7867420ac0a@linux.vnet.ibm.com>
+ <5dd1bcd3-5d17-37c1-1184-7f75a1fd32bc@linux.vnet.ibm.com>
+ <68e9e3ea-f99a-da88-5e56-21e38b438b4f@linux.vnet.ibm.com>
+ <1347ed2e-7bdb-e455-971a-cf60899e3c19@linux.vnet.ibm.com>
+ <6c42b3e2-0f32-b84b-ea73-4e99157720d3@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0b9915e1-ba1e-2fec-dcc9-93bfdf6e65cf@de.ibm.com>
+In-Reply-To: <6c42b3e2-0f32-b84b-ea73-4e99157720d3@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Halil Pasic <pasic@linux.vnet.ibm.com>, Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 04/05/2018 06:45 AM, Christian Borntraeger wrote:
+On 03/20/2018 06:48 PM, Halil Pasic wrote:
 >
-> On 04/05/2018 12:42 PM, Christian Borntraeger wrote:
+> On 03/20/2018 06:58 PM, Tony Krowiak wrote:
+>> I spoke with Christian this morning and he made a suggestion which I think would provide the best solution here.
+>> This is my proposal:
+>> 1. Get rid of the KVM_S390_VM_CRYPTO_INTERPRET_AP device attribute and return to setting ECA.28 from the
+>>     mdev device open callback.
+>> 2. Since there may be vcpus online at the time the mdev device open is called, we must first take all running vcpus out of
+>>     SIE and block them. Christian suggested the kvm_s390_vcpu_block_all(struct kvm *kvm) function will do the trick. So I
+>>     propose introducing a function like the following to be called during mdev open:
+> There is one thing you missed, otherwise I'm *very* satisfied with this
+> proposal.
+>
+> What you have missed IMHO is vcpu hottplug. So IMHO you should keep
+> kvm->arch.crypto.apie, and update it accordingly ...
+I agree, I will fix it.
+>
+>
+>>      int kvm_ap_set_interpretive_exec(struct kvm *kvm, bool enable)
+>>      {
+>>          int i;
+>>          struct kvm_vcpu *vcpu;
 >>
->> On 03/14/2018 07:25 PM, Tony Krowiak wrote:
->>> This patch refactors the code that initializes the crypto
->>> configuration for a guest. The crypto configuration is contained in
->>> a crypto control block (CRYCB) which is a satellite control block to
->>> our main hardware virtualization control block. The CRYCB is
->>> attached to the main virtualization control block via a CRYCB
->>> designation (CRYCBD) designation field containing the address of
->>> the CRYCB as well as its format.
->>>
->>> Prior to the introduction of AP device virtualization, there was
->>> no need to provide access to or specify the format of the CRYCB for
->>> a guest unless the MSA extension 3 (MSAX3) facility was installed
->>> on the host system. With the introduction of AP device virtualization,
->>> the CRYCB and its format must be made accessible to the guest
->>> regardless of the presence of the MSAX3 facility.
->>>
->>> The crypto initialization code is restructured as follows:
->>>
->>> * A new compilation unit is introduced to contain all interfaces
->>>    and data structures related to configuring a guest's CRYCB for
->>>    both the refactoring of crypto initialization as well as all
->>>    subsequent patches introducing AP virtualization support.
->>>
->>> * Currently, the asm code for querying the AP configuration is
->>>    duplicated in the AP bus as well as in KVM. Since the KVM
->>>    code was introduced, the AP bus has externalized the interface
->>>    for querying the AP configuration. The KVM interface will be
->>>    replaced with a call to the AP bus interface. Of course, this
->>>    will be moved to the new compilation unit mentioned above.
->>>
->>> * An interface to format the CRYCBD field will be provided via
->>>    the new compilation unit and called from the KVM vm
->>>    initialization.
->>>
->>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>> ---
->>>   MAINTAINERS                      |   10 ++++++
->>>   arch/s390/include/asm/kvm-ap.h   |   16 ++++++++++
->>>   arch/s390/include/asm/kvm_host.h |    1 +
->>>   arch/s390/kvm/Kconfig            |    1 +
->>>   arch/s390/kvm/Makefile           |    2 +-
->>>   arch/s390/kvm/kvm-ap.c           |   48 +++++++++++++++++++++++++++++
->>>   arch/s390/kvm/kvm-s390.c         |   61 ++++---------------------------------
->>>   7 files changed, 84 insertions(+), 55 deletions(-)
->>>   create mode 100644 arch/s390/include/asm/kvm-ap.h
->>>   create mode 100644 arch/s390/kvm/kvm-ap.c
->>>
->>> diff --git a/MAINTAINERS b/MAINTAINERS
->>> index 0ec5881..72742d5 100644
->>> --- a/MAINTAINERS
->>> +++ b/MAINTAINERS
->>> @@ -11875,6 +11875,16 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
->>>   S:	Supported
->>>   F:	drivers/s390/crypto/
->>>
->>> +S390 VFIO AP DRIVER
->>> +M:	Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>> +M:	Christian Borntraeger <borntraeger@de.ibm.com>
->>> +M:	Martin Schwidefsky <schwidefsky@de.ibm.com>
->>> +L:	linux-s390@vger.kernel.org
->>> +W:	http://www.ibm.com/developerworks/linux/linux390/
->>> +S:	Supported
->>> +F:	arch/s390/include/asm/kvm/kvm-ap.h
->>> +F:	arch/s390/kvm/kvm-ap.c
->>> +
->>>   S390 ZFCP DRIVER
->>>   M:	Steffen Maier <maier@linux.vnet.ibm.com>
->>>   M:	Benjamin Block <bblock@linux.vnet.ibm.com>
+>>          if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP))
+>>              return -EOPNOTSUPP;
 >>
->> The Maintainers update belongs into a different patch (e.g. when you introduce
->> drivers/s390/crypto/vfio_ap_drv.c )
-> To put it differently. I think kvm-ap code in here is more related to kvm than to
-> vfio-ap.
-Okay, I'll remove this from here. It looks like it is already covered under
-KERNEL VIRTUAL MACHINE for s390 (KVM/s390).
->   
+>>          mutex_lock(&kvm->lock);
+>>
+>>          kvm_s390_vcpu_block_all(kvm);
+> ... let's say here.
+Yep
+>
+>>          kvm_for_each_vcpu(i, vcpu, kvm) {
+> And here you can call kvm_s390_vcpu_crypto_setup(vcpu) (the changes to
+> this function will be required for hotplug) if you like
+Sounds good to me.
+>
+>>              if (enable)
+>>                  vcpu->arch.sie_block->eca |= ECA_APIE;
+>>              else
+>>                  vcpu->arch.sie_block->eca &= ~ECA_APIE;
+> or keep this stuff, it does not really matter to me.
+I'll call the kvm_s390_vcpu_crypto_setup(vcpu) to set ECA_APIE.
+>
+>>          }
+>>
+>>          kvm_s390_vcpu_unblock_all(kvm);
+>>
+>>          mutex_unlock(&kvm->lock);
+>>
+>>          return 0;
+>>      }
+>>
+>>     This interface allows us to set ECA.28 even if vcpus are running
+> I tend to agree. I will give it a proper review when this gets more
+> formal (e.g. v4 (preferably) or patches to be fixed up to this series).
+>
+> Please don't forget to revisit the discussion on kvm_s390_vm_set_crypto:
+> if the mechanism there isn't right for ECA.28 I think you should tell
+> us why it's OK for the other attributes if it's OK. If it is not then
+> I guess you will want to do a stand alone patch for that.
+That will no longer be a part of this patch series. We can revisit that as
+a separate issue at a future time.
+>
