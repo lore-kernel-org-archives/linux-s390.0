@@ -1,98 +1,186 @@
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v3 05/14] s390: vfio-ap: base implementation of VFIO AP
  device driver
-Date: Tue, 3 Apr 2018 11:56:08 +0200
-Message-ID: <20180403115608.34eabb46.cohuck@redhat.com>
+Date: Tue, 3 Apr 2018 12:57:37 +0200
+Message-ID: <20180403125737.15cb55fb.cohuck@redhat.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
         <1521051954-25715-6-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1d5a5e18-1886-dd73-a17e-9bec617507ba@linux.vnet.ibm.com>
-        <e4d7621c-a09c-bdfd-ffe2-35c5ea3acdc7@linux.vnet.ibm.com>
-        <20180327131705.46fded40.cohuck@redhat.com>
-        <29443c81-19b4-5811-798c-e324b34c083a@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <29443c81-19b4-5811-798c-e324b34c083a@linux.vnet.ibm.com>
+In-Reply-To: <1521051954-25715-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 27 Mar 2018 16:45:02 +0200
-Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+On Wed, 14 Mar 2018 14:25:45 -0400
+Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-> On 27/03/2018 13:17, Cornelia Huck wrote:
-> > On Thu, 15 Mar 2018 13:25:25 -0400
-> > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-> >  
-> >> On 03/15/2018 09:25 AM, Pierre Morel wrote:  
-> >>> On 14/03/2018 19:25, Tony Krowiak wrote:  
-> >>>> +config VFIO_AP
-> >>>> +    def_tristate m  
-> >>> not sure it must be module by default.
-> >>> I would not set it by default.  
-> >> Connie also asked about this in the last review, so I will go ahead
-> >> and change it.  
-> >>>     
-> >>>> +    prompt "VFIO support for AP devices"
-> >>>> +    depends on ZCRYPT && VFIO_MDEV_DEVICE  
-> >>> VFIO_MDEV_DEVICE is a general feature *needed* by VFIO_AP
-> >>> and has no use case by its own. If it is set it is obviously because some
-> >>> mediated device drivers needs it.
-> >>> while ZCRYPT is a Z feature which may be set without VFIO_AP.
-> >>>
-> >>> So you need:
-> >>>
-> >>> config VFIO_AP
-> >>>      def_tristate n
-> >>>      prompt "VFIO support for AP devices"
-> >>>      depends on ZCRYPT
-> >>>      select VFIO_MDEV
-> >>>      select VFIO_MDEV_DEVICE
-> >>> ...  
-> >> I was thinking the same just yesterday and I agree, this makes sense.  
-> > OTOH, nobody else seems to do a select on these symbols so far.
-> >
-> > If you decide to go that route, you'll also need to depend on VFIO  
+> Introduces a new AP device driver. This device driver
+> is built on the VFIO mediated device framework. The framework
+> provides sysfs interfaces that facilitate passthrough
+> access by guests to devices installed on the linux host.
 > 
-> I think a select is better (again).
+> The VFIO AP device driver will serve two purposes:
 > 
-> > (otherwise you could end up selecting symbols with unmet dependencies).
-> > All in all, I prefer the 'depends' approach.
-> >  
-> Why do you prefer this approach?
+> 1. Provide the interfaces to reserve AP devices for exclusive
+>    use by KVM guests. This is accomplished by unbinding the
+>    devices to be reserved for guest usage from the default AP
+>    device driver and binding them to the VFIO AP device driver.
+> 
+> 2. Implements the functions, callbacks and sysfs attribute
+>    interfaces required to create one or more VFIO mediated
+>    devices each of which will be used to configure the AP
+>    matrix for a guest and serve as a file descriptor
+>    for facilitating communication between QEMU and the
+>    VFIO AP device driver.
+> 
+> When the VFIO AP device driver is initialized:
+> 
+> * It registers with the AP bus for control of type 10 (CEX4
+>   and newer) AP queue devices. The probe and remove callbacks
+>   will be provided to support the binding/unbinding of
+>   AP queue devices to/from the VFIO AP device driver.
+> 
+> * Creates a /sys/devices/vfio-ap/matrix device to hold
+>   the APQNs of the AP devices bound to the VFIO
+>   AP device driver and serves as the parent of the
+>   mediated devices created for each guest.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> ---
+>  MAINTAINERS                           |    2 +
+>  arch/s390/Kconfig                     |   11 +++
+>  drivers/s390/crypto/Makefile          |    4 +
+>  drivers/s390/crypto/vfio_ap_drv.c     |  135 +++++++++++++++++++++++++++++++++
+>  drivers/s390/crypto/vfio_ap_private.h |   22 ++++++
+>  include/uapi/linux/vfio.h             |    2 +
+>  6 files changed, 176 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
+>  create mode 100644 drivers/s390/crypto/vfio_ap_private.h
+> 
 
-Hm, I thought I had already written a mail, but apparently I didn't....
- 
-> I can tell you why I prefer a mixed approach:
-> 
-> We have two tools, depends and select.
-> 
-> It seems to me that depends should be used for things we can not choose 
-> to be there or not, but things that just are there, like hardware 
-> dependencies. For example MMU, CPU type, CRYPTO hardware...
-> 
-> Select on the other hand is useful to choose things that we need like 
-> libraries, VFIO, VIRTIO, crypto libraries etc.
-> 
-> Using this policy is clear and makes easy to choose functionalities and 
-> get the utilities automatically.
-> 
-> On the other hand, only using depends makes things to hide the 
-> functionalities behind the utilities.
+> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+> new file mode 100644
+> index 0000000..459e595
+> --- /dev/null
+> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+> @@ -0,0 +1,135 @@
+> +/*
+> + * VFIO based AP device driver
+> + *
+> + * Copyright IBM Corp. 2017
 
-My view is the following:
-- select is useful for library functionality or for enabling
-  architecture-specific optimizations (the HAVE_xxx symbols),
-  especially things you don't want the user to deal with. If you select
-  something, you need to take care of any dependencies yourself.
-- depends is useful for more complex dependencies, and especially
-  things you don't want automagically enabled. [In modern menuconfig,
-  it is easy to figure out any missing dependencies for a config option
-  anyway.]
+Update to 2018?
 
-The mdev infrastructure is too complex to be considered a simple
-library IMO (cf. the missing VFIO dependency).
+> + *
+> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/mod_devicetable.h>
+> +#include <linux/slab.h>
+> +
+> +#include "vfio_ap_private.h"
+> +
+> +#define VFIO_AP_ROOT_NAME "vfio_ap"
+> +#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
+> +#define VFIO_AP_DEV_NAME "matrix"
+> +
+> +MODULE_AUTHOR("IBM Corporation");
+> +MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2017");
+> +MODULE_LICENSE("GPL v2");
+> +
+> +static struct device *vfio_ap_root_device;
+> +
+> +static struct ap_driver vfio_ap_drv;
+> +
+> +static struct ap_matrix *ap_matrix;
+> +
+> +static struct device_type vfio_ap_dev_type = {
+> +	.name = VFIO_AP_DEV_TYPE_NAME,
+> +};
+> +
+> +/* Only type 10 adapters (CEX4 and later) are supported
+> + * by the AP matrix device driver
+> + */
+> +static struct ap_device_id ap_queue_ids[] = {
+> +	{ .dev_type = AP_DEVICE_TYPE_CEX4,
+> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+> +	{ .dev_type = AP_DEVICE_TYPE_CEX5,
+> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+> +	{ .dev_type = AP_DEVICE_TYPE_CEX6,
+> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+> +	{ /* end of sibling */ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+> +
+> +static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+> +{
+> +	return 0;
+> +}
+> +
+> +static void vfio_ap_matrix_dev_release(struct device *dev)
+> +{
+> +	struct ap_matrix *ap_matrix = dev_get_drvdata(dev);
+> +
+> +	kfree(ap_matrix);
+> +}
+> +
+> +static int vfio_ap_matrix_dev_create(void)
+> +{
+> +	int ret;
+> +
+> +	vfio_ap_root_device = root_device_register(VFIO_AP_ROOT_NAME);
+> +
+> +	ret = IS_ERR(vfio_ap_root_device);
+> +	if (ret) {
+
+Minor nit: I'd contract that to
+
+if (IS_ERR(vfio_ap_root_device)) {
+
+(you're writing ret in any case)
+
+> +		ret = PTR_ERR(vfio_ap_root_device);
+> +		goto done;
+> +	}
+> +
+> +	ap_matrix = kzalloc(sizeof(*ap_matrix), GFP_KERNEL);
+> +	if (!ap_matrix) {
+> +		ret = -ENOMEM;
+> +		goto matrix_alloc_err;
+> +	}
+> +
+> +	ap_matrix->device.type = &vfio_ap_dev_type;
+> +	dev_set_name(&ap_matrix->device, "%s", VFIO_AP_DEV_NAME);
+> +	ap_matrix->device.parent = vfio_ap_root_device;
+> +	ap_matrix->device.release = vfio_ap_matrix_dev_release;
+> +	ap_matrix->device.driver = &vfio_ap_drv.driver;
+> +
+> +	ret = device_register(&ap_matrix->device);
+> +	if (ret)
+> +		goto matrix_reg_err;
+> +
+> +	goto done;
+> +
+> +matrix_reg_err:
+> +	put_device(&ap_matrix->device);
+> +	kfree(ap_matrix);
+
+The kfree() is wrong: If you called device_register for the embedded
+struct device, this needs to be handled via the ->release callback
+exclusively (IOW, the put_device() is enough and the kfree needs to go).
+
+> +
+> +matrix_alloc_err:
+> +	root_device_unregister(vfio_ap_root_device);
+> +
+> +done:
+> +	return ret;
+> +}
