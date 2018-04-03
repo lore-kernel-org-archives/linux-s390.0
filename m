@@ -1,78 +1,188 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 01/14] KVM: s390: refactor crypto initialization
-Date: Tue, 3 Apr 2018 13:26:02 +0200
-Message-ID: <20180403132602.34972959.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 05/14] s390: vfio-ap: base implementation of VFIO AP
+ device driver
+Date: Tue, 3 Apr 2018 09:02:24 -0400
+Message-ID: <fa399df2-de08-2700-9cb5-6a7248a62896@linux.vnet.ibm.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1521051954-25715-2-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <f87a6adb-8982-c194-7925-0c88060ebef2@linux.vnet.ibm.com>
-        <d0b44d6e-8b98-f8ca-7cf5-dfcdf38c79f6@linux.vnet.ibm.com>
-        <3227b02e-4a16-295d-9a01-043702cf149d@linux.vnet.ibm.com>
-        <20180326104455.7773be7b.cohuck@redhat.com>
-        <5c659a5e-1933-366b-65fc-6e9eabe504d5@linux.vnet.ibm.com>
+ <1521051954-25715-6-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20180403125737.15cb55fb.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5c659a5e-1933-366b-65fc-6e9eabe504d5@linux.vnet.ibm.com>
+In-Reply-To: <20180403125737.15cb55fb.cohuck@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 29 Mar 2018 14:57:22 -0400
-Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-
-> On 03/26/2018 04:44 AM, Cornelia Huck wrote:
-> > On Thu, 15 Mar 2018 15:55:39 +0100
-> > Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
-> >  
-> >> On 15/03/2018 15:48, Tony Krowiak wrote:  
-> >>> On 03/15/2018 08:26 AM, Pierre Morel wrote:  
-> >>>> On 14/03/2018 19:25, Tony Krowiak wrote:  
-> >>>>> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
-> >>>>> index a3dbd45..4ca9077 100644
-> >>>>> --- a/arch/s390/kvm/Kconfig
-> >>>>> +++ b/arch/s390/kvm/Kconfig
-> >>>>> @@ -33,6 +33,7 @@ config KVM
-> >>>>>        select HAVE_KVM_INVALID_WAKEUPS
-> >>>>>        select SRCU
-> >>>>>        select KVM_VFIO
-> >>>>> +    select ZCRYPT  
-> >>>> I do not think it is a good solution to *always* enable ZCRYPT
-> >>>> when we have KVM.  
-> >>> If CONFIG_ZCRYPT is not selected, then the kvm_ap_apxa_installed()
-> >>> function will not compile
-> >>> because it calls a zcrypt interface. How would you suggest we make
-> >>> sure zcrypt interfaces
-> >>> used in KVM are built if CONFIG_ZCRYPT is not selected?  
-> >> if zcrypt is not configured, I suppose that the KVM code initializaing CRYCB
-> >> has no use but the function will be called from KVM.
-> >> So I would do something like:
-> >>
-> >> #ifdef ZCRYPT
-> >> external definitions.
-> >> #else
-> >> stubs returning error -ENOZCRYPT (or whatever)
-> >> #endif  
-> > The kvm code used some kind of detection for crycb before (IIRC it was
-> > for the key-wrapping stuff). I assume that usage is independent of
-> > zcrypt driver usage in the host?  
-> A function in kvm-s390.c was replaced with a call to the function in
-> ap_bus.c that was externalized in patch 2/14. This was done to remove
-> duplicate code. Since zcrypt is built into the kernel, I didn't think
-> it would be a problem, but apparently because of the way zcrypt is
-> configured, it is still possible to remove it from the kernel build.
-
-Yes.
-
-> >
-> > So, I think that apxa detection function should be used to s390
-> > architecture base code and not be conditional on anything.  
-> I am convinced that the original function from kvm_s390.c should be
-> restored.
-
-That would work as well, but removing the code duplication via moving
-to s390 architecture code should not be that bad, either. Leaving the
-decision to the respective maintainers.
+On 04/03/2018 06:57 AM, Cornelia Huck wrote:
+> On Wed, 14 Mar 2018 14:25:45 -0400
+> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+>
+>> Introduces a new AP device driver. This device driver
+>> is built on the VFIO mediated device framework. The framework
+>> provides sysfs interfaces that facilitate passthrough
+>> access by guests to devices installed on the linux host.
+>>
+>> The VFIO AP device driver will serve two purposes:
+>>
+>> 1. Provide the interfaces to reserve AP devices for exclusive
+>>     use by KVM guests. This is accomplished by unbinding the
+>>     devices to be reserved for guest usage from the default AP
+>>     device driver and binding them to the VFIO AP device driver.
+>>
+>> 2. Implements the functions, callbacks and sysfs attribute
+>>     interfaces required to create one or more VFIO mediated
+>>     devices each of which will be used to configure the AP
+>>     matrix for a guest and serve as a file descriptor
+>>     for facilitating communication between QEMU and the
+>>     VFIO AP device driver.
+>>
+>> When the VFIO AP device driver is initialized:
+>>
+>> * It registers with the AP bus for control of type 10 (CEX4
+>>    and newer) AP queue devices. The probe and remove callbacks
+>>    will be provided to support the binding/unbinding of
+>>    AP queue devices to/from the VFIO AP device driver.
+>>
+>> * Creates a /sys/devices/vfio-ap/matrix device to hold
+>>    the APQNs of the AP devices bound to the VFIO
+>>    AP device driver and serves as the parent of the
+>>    mediated devices created for each guest.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>> ---
+>>   MAINTAINERS                           |    2 +
+>>   arch/s390/Kconfig                     |   11 +++
+>>   drivers/s390/crypto/Makefile          |    4 +
+>>   drivers/s390/crypto/vfio_ap_drv.c     |  135 +++++++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_private.h |   22 ++++++
+>>   include/uapi/linux/vfio.h             |    2 +
+>>   6 files changed, 176 insertions(+), 0 deletions(-)
+>>   create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
+>>   create mode 100644 drivers/s390/crypto/vfio_ap_private.h
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+>> new file mode 100644
+>> index 0000000..459e595
+>> --- /dev/null
+>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+>> @@ -0,0 +1,135 @@
+>> +/*
+>> + * VFIO based AP device driver
+>> + *
+>> + * Copyright IBM Corp. 2017
+> Update to 2018?
+Okay, will do.
+>
+>> + *
+>> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>> + */
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/mod_devicetable.h>
+>> +#include <linux/slab.h>
+>> +
+>> +#include "vfio_ap_private.h"
+>> +
+>> +#define VFIO_AP_ROOT_NAME "vfio_ap"
+>> +#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
+>> +#define VFIO_AP_DEV_NAME "matrix"
+>> +
+>> +MODULE_AUTHOR("IBM Corporation");
+>> +MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2017");
+>> +MODULE_LICENSE("GPL v2");
+>> +
+>> +static struct device *vfio_ap_root_device;
+>> +
+>> +static struct ap_driver vfio_ap_drv;
+>> +
+>> +static struct ap_matrix *ap_matrix;
+>> +
+>> +static struct device_type vfio_ap_dev_type = {
+>> +	.name = VFIO_AP_DEV_TYPE_NAME,
+>> +};
+>> +
+>> +/* Only type 10 adapters (CEX4 and later) are supported
+>> + * by the AP matrix device driver
+>> + */
+>> +static struct ap_device_id ap_queue_ids[] = {
+>> +	{ .dev_type = AP_DEVICE_TYPE_CEX4,
+>> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+>> +	{ .dev_type = AP_DEVICE_TYPE_CEX5,
+>> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+>> +	{ .dev_type = AP_DEVICE_TYPE_CEX6,
+>> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+>> +	{ /* end of sibling */ },
+>> +};
+>> +
+>> +MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+>> +
+>> +static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+>> +{
+>> +	return 0;
+>> +}
+>> +
+>> +static void vfio_ap_matrix_dev_release(struct device *dev)
+>> +{
+>> +	struct ap_matrix *ap_matrix = dev_get_drvdata(dev);
+>> +
+>> +	kfree(ap_matrix);
+>> +}
+>> +
+>> +static int vfio_ap_matrix_dev_create(void)
+>> +{
+>> +	int ret;
+>> +
+>> +	vfio_ap_root_device = root_device_register(VFIO_AP_ROOT_NAME);
+>> +
+>> +	ret = IS_ERR(vfio_ap_root_device);
+>> +	if (ret) {
+> Minor nit: I'd contract that to
+>
+> if (IS_ERR(vfio_ap_root_device)) {
+>
+> (you're writing ret in any case)
+Okay, will do.
+>
+>> +		ret = PTR_ERR(vfio_ap_root_device);
+>> +		goto done;
+>> +	}
+>> +
+>> +	ap_matrix = kzalloc(sizeof(*ap_matrix), GFP_KERNEL);
+>> +	if (!ap_matrix) {
+>> +		ret = -ENOMEM;
+>> +		goto matrix_alloc_err;
+>> +	}
+>> +
+>> +	ap_matrix->device.type = &vfio_ap_dev_type;
+>> +	dev_set_name(&ap_matrix->device, "%s", VFIO_AP_DEV_NAME);
+>> +	ap_matrix->device.parent = vfio_ap_root_device;
+>> +	ap_matrix->device.release = vfio_ap_matrix_dev_release;
+>> +	ap_matrix->device.driver = &vfio_ap_drv.driver;
+>> +
+>> +	ret = device_register(&ap_matrix->device);
+>> +	if (ret)
+>> +		goto matrix_reg_err;
+>> +
+>> +	goto done;
+>> +
+>> +matrix_reg_err:
+>> +	put_device(&ap_matrix->device);
+>> +	kfree(ap_matrix);
+> The kfree() is wrong: If you called device_register for the embedded
+> struct device, this needs to be handled via the ->release callback
+> exclusively (IOW, the put_device() is enough and the kfree needs to go).
+Ah yes, I see that. I will fix it.
+>
+>> +
+>> +matrix_alloc_err:
+>> +	root_device_unregister(vfio_ap_root_device);
+>> +
+>> +done:
+>> +	return ret;
+>> +}
