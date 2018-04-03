@@ -1,188 +1,131 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 05/14] s390: vfio-ap: base implementation of VFIO AP
- device driver
-Date: Tue, 3 Apr 2018 09:02:24 -0400
-Message-ID: <fa399df2-de08-2700-9cb5-6a7248a62896@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 07/14] KVM: s390: interfaces to configure/deconfigure
+ guest's AP matrix
+Date: Tue, 3 Apr 2018 09:17:59 -0400
+Message-ID: <474b7d18-69ea-631f-214c-f9345119e537@linux.vnet.ibm.com>
 References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1521051954-25715-6-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180403125737.15cb55fb.cohuck@redhat.com>
+ <1521051954-25715-8-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20180403130758.43851026.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180403125737.15cb55fb.cohuck@redhat.com>
+In-Reply-To: <20180403130758.43851026.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 04/03/2018 06:57 AM, Cornelia Huck wrote:
-> On Wed, 14 Mar 2018 14:25:45 -0400
+On 04/03/2018 07:07 AM, Cornelia Huck wrote:
+> On Wed, 14 Mar 2018 14:25:47 -0400
 > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 >
->> Introduces a new AP device driver. This device driver
->> is built on the VFIO mediated device framework. The framework
->> provides sysfs interfaces that facilitate passthrough
->> access by guests to devices installed on the linux host.
+>> Provides interfaces to assign AP adapters, usage domains
+>> and control domains to a KVM guest.
 >>
->> The VFIO AP device driver will serve two purposes:
+>> A KVM guest is started by executing the Start Interpretive Execution (SIE)
+>> instruction. The SIE state description is a control block that contains the
+>> state information for a KVM guest and is supplied as input to the SIE
+>> instruction. The SIE state description has a satellite structure called the
+>> Crypto Control Block (CRYCB). The CRYCB contains three bitmask fields
+>> identifying the adapters, queues (domains) and control domains assigned to
+>> the KVM guest:
 >>
->> 1. Provide the interfaces to reserve AP devices for exclusive
->>     use by KVM guests. This is accomplished by unbinding the
->>     devices to be reserved for guest usage from the default AP
->>     device driver and binding them to the VFIO AP device driver.
+>> * The AP Adapter Mask (APM) field identifies the AP adapters assigned to
+>>    the KVM guest
 >>
->> 2. Implements the functions, callbacks and sysfs attribute
->>     interfaces required to create one or more VFIO mediated
->>     devices each of which will be used to configure the AP
->>     matrix for a guest and serve as a file descriptor
->>     for facilitating communication between QEMU and the
->>     VFIO AP device driver.
+>> * The AP Queue Mask (AQM) field identifies the AP queues assigned to
+>>    the KVM guest. Each AP queue is connected to a usage domain within
+>>    an AP adapter.
 >>
->> When the VFIO AP device driver is initialized:
+>> * The AP Domain Mask (ADM) field identifies the control domains
+>>    assigned to the KVM guest.
 >>
->> * It registers with the AP bus for control of type 10 (CEX4
->>    and newer) AP queue devices. The probe and remove callbacks
->>    will be provided to support the binding/unbinding of
->>    AP queue devices to/from the VFIO AP device driver.
+>> Each adapter, queue (usage domain) and control domain are identified by
+>> a number from 0 to 255. The bits in each mask, from most significant to
+>> least significant bit, correspond to the numbers 0-255. When a bit is
+>> set, the corresponding adapter, queue (usage domain) or control domain
+>> is assigned to the KVM guest.
 >>
->> * Creates a /sys/devices/vfio-ap/matrix device to hold
->>    the APQNs of the AP devices bound to the VFIO
->>    AP device driver and serves as the parent of the
->>    mediated devices created for each guest.
+>> This patch will set the bits in the APM, AQM and ADM fields of the
+>> CRYCB referenced by the KVM guest's SIE state description. The process
+>> used is:
+>>
+>> 1. Verify that the bits to be set do not exceed the maximum bit
+>>     number for the given mask.
+>>
+>> 2. Verify that the APQNs that can be derived from the intersection
+>>     of the bits set in the APM and AQM fields of the KVM guest's CRYCB
+>>     are not assigned to any other KVM guest running on the same linux
+>>     host.
+>>
+>> 3. Set the APM, AQM and ADM in the CRYCB according to the matrix
+>>     configured for the mediated matrix device via its sysfs
+>>     adapter, domain and control domain attribute files respectively.
 >>
 >> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 >> ---
->>   MAINTAINERS                           |    2 +
->>   arch/s390/Kconfig                     |   11 +++
->>   drivers/s390/crypto/Makefile          |    4 +
->>   drivers/s390/crypto/vfio_ap_drv.c     |  135 +++++++++++++++++++++++++++++++++
->>   drivers/s390/crypto/vfio_ap_private.h |   22 ++++++
->>   include/uapi/linux/vfio.h             |    2 +
->>   6 files changed, 176 insertions(+), 0 deletions(-)
->>   create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
->>   create mode 100644 drivers/s390/crypto/vfio_ap_private.h
+>>   arch/s390/include/asm/kvm-ap.h        |   36 +++++
+>>   arch/s390/kvm/kvm-ap.c                |  268 +++++++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_ops.c     |   19 +++
+>>   drivers/s390/crypto/vfio_ap_private.h |    4 +
+>>   4 files changed, 327 insertions(+), 0 deletions(-)
 >>
->> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
->> new file mode 100644
->> index 0000000..459e595
->> --- /dev/null
->> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->> @@ -0,0 +1,135 @@
->> +/*
->> + * VFIO based AP device driver
->> + *
->> + * Copyright IBM Corp. 2017
-> Update to 2018?
-Okay, will do.
->
->> + *
->> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->> + */
->> +
->> +#include <linux/module.h>
->> +#include <linux/mod_devicetable.h>
->> +#include <linux/slab.h>
->> +
->> +#include "vfio_ap_private.h"
->> +
->> +#define VFIO_AP_ROOT_NAME "vfio_ap"
->> +#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
->> +#define VFIO_AP_DEV_NAME "matrix"
->> +
->> +MODULE_AUTHOR("IBM Corporation");
->> +MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2017");
->> +MODULE_LICENSE("GPL v2");
->> +
->> +static struct device *vfio_ap_root_device;
->> +
->> +static struct ap_driver vfio_ap_drv;
->> +
->> +static struct ap_matrix *ap_matrix;
->> +
->> +static struct device_type vfio_ap_dev_type = {
->> +	.name = VFIO_AP_DEV_TYPE_NAME,
->> +};
->> +
->> +/* Only type 10 adapters (CEX4 and later) are supported
->> + * by the AP matrix device driver
->> + */
->> +static struct ap_device_id ap_queue_ids[] = {
->> +	{ .dev_type = AP_DEVICE_TYPE_CEX4,
->> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
->> +	{ .dev_type = AP_DEVICE_TYPE_CEX5,
->> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
->> +	{ .dev_type = AP_DEVICE_TYPE_CEX6,
->> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
->> +	{ /* end of sibling */ },
->> +};
->> +
->> +MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->> +
->> +static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+>> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
+>> index a2c6ad2..eb365e2 100644
+>> --- a/arch/s390/kvm/kvm-ap.c
+>> +++ b/arch/s390/kvm/kvm-ap.c
+>> @@ -8,9 +8,129 @@
+>>   
+>>   #include <asm/kvm-ap.h>
+>>   #include <asm/ap.h>
+>> +#include <linux/bitops.h>
+>>   
+>>   #include "kvm-s390.h"
+>>   
+>> +static inline void kvm_ap_clear_crycb_masks(struct kvm *kvm)
 >> +{
->> +	return 0;
+>> +	int crycb_fmt = kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK;
+>> +
+>> +	if (crycb_fmt == CRYCB_FORMAT2)
+>> +		memset(&kvm->arch.crypto.crycb->apcb1, 0,
+>> +		       sizeof(kvm->arch.crypto.crycb->apcb1));
+>> +	else
+>> +		memset(&kvm->arch.crypto.crycb->apcb0, 0,
+>> +		       sizeof(kvm->arch.crypto.crycb->apcb0));
 >> +}
->> +
->> +static void vfio_ap_matrix_dev_release(struct device *dev)
+> Should that rather be a switch/case? If there's a CRYCB_FORMAT3 in the
+> future, I'd think that it's more likely that it uses apcb1 and not
+> apcb0. Can't comment further without the architecture, obviously.
+Maybe we should just clear both structures without regard to the CRYCB 
+format.
+>
+> (...)
+>
+>> +static void kvm_ap_set_crycb_masks(struct kvm *kvm,
+>> +				   struct kvm_ap_matrix *matrix)
 >> +{
->> +	struct ap_matrix *ap_matrix = dev_get_drvdata(dev);
+>> +	unsigned long *apm = kvm_ap_get_crycb_apm(kvm);
+>> +	unsigned long *aqm = kvm_ap_get_crycb_aqm(kvm);
+>> +	unsigned long *adm = kvm_ap_get_crycb_adm(kvm);
 >> +
->> +	kfree(ap_matrix);
->> +}
+>> +	kvm_ap_clear_crycb_masks(kvm);
+>> +	memcpy(apm, matrix->apm, KVM_AP_MASK_BYTES(matrix->apm_max));
+>> +	memcpy(aqm, matrix->aqm, KVM_AP_MASK_BYTES(matrix->aqm_max));
 >> +
->> +static int vfio_ap_matrix_dev_create(void)
->> +{
->> +	int ret;
->> +
->> +	vfio_ap_root_device = root_device_register(VFIO_AP_ROOT_NAME);
->> +
->> +	ret = IS_ERR(vfio_ap_root_device);
->> +	if (ret) {
-> Minor nit: I'd contract that to
+>> +	/*
+>> +	 * Merge the AQM and ADM since the ADM is a superset of the
+>> +	 * AQM by architectural convention.
+> Is this 'architectural convention' in the sense of 'there's a statement
+> in the architecture that it always is like that', or in the sense of
+> 'all real-life systems are like that'?
+> [From my sketchy memory, this convention makes sense but is not
+> enshrined; but I might misremember.]
+The documentation states it is an agreed upon convention.
 >
-> if (IS_ERR(vfio_ap_root_device)) {
->
-> (you're writing ret in any case)
-Okay, will do.
->
->> +		ret = PTR_ERR(vfio_ap_root_device);
->> +		goto done;
->> +	}
->> +
->> +	ap_matrix = kzalloc(sizeof(*ap_matrix), GFP_KERNEL);
->> +	if (!ap_matrix) {
->> +		ret = -ENOMEM;
->> +		goto matrix_alloc_err;
->> +	}
->> +
->> +	ap_matrix->device.type = &vfio_ap_dev_type;
->> +	dev_set_name(&ap_matrix->device, "%s", VFIO_AP_DEV_NAME);
->> +	ap_matrix->device.parent = vfio_ap_root_device;
->> +	ap_matrix->device.release = vfio_ap_matrix_dev_release;
->> +	ap_matrix->device.driver = &vfio_ap_drv.driver;
->> +
->> +	ret = device_register(&ap_matrix->device);
->> +	if (ret)
->> +		goto matrix_reg_err;
->> +
->> +	goto done;
->> +
->> +matrix_reg_err:
->> +	put_device(&ap_matrix->device);
->> +	kfree(ap_matrix);
-> The kfree() is wrong: If you called device_register for the embedded
-> struct device, this needs to be handled via the ->release callback
-> exclusively (IOW, the put_device() is enough and the kfree needs to go).
-Ah yes, I see that. I will fix it.
->
->> +
->> +matrix_alloc_err:
->> +	root_device_unregister(vfio_ap_root_device);
->> +
->> +done:
->> +	return ret;
+>> +	 */
+>> +	bitmap_or(adm, adm, aqm, matrix->adm_max);
 >> +}
