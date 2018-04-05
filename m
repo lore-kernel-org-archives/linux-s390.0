@@ -1,58 +1,101 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 03/15] KVM: s390: refactor crypto initialization
-Date: Tue, 24 Apr 2018 15:13:17 +0200
-Message-ID: <20180424151317.60513959.cohuck@redhat.com>
-References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1523827345-11600-4-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <4fb50a31-1893-5cfb-0f35-fb2501c2afa8@linux.vnet.ibm.com>
-        <OFE3FE11B1.8E1BDDEF-ON00258272.002AEDB1-C1258272.002B06EF@notes.na.collabserv.com>
-        <20180417121044.5c8f2182.cohuck@redhat.com>
-        <2ac8b862-e2dc-843e-a0b8-906fa32b42f4@linux.vnet.ibm.com>
-        <20180417172139.0a2b148b.cohuck@redhat.com>
-        <7276785e-2183-3204-ec80-99fba1546364@linux.vnet.ibm.com>
-        <20180418094949.0403dcaf.cohuck@redhat.com>
-        <470d8af7-b9f6-0ab7-9bfa-351fbeaa079c@linux.vnet.ibm.com>
-        <20180423090337.1b8b465a.cohuck@redhat.com>
-        <192888a1-afc8-8502-5c6f-dbb16625bda2@linux.vnet.ibm.com>
+From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 01/14] KVM: s390: refactor crypto initialization
+Date: Thu, 5 Apr 2018 09:16:51 -0400
+Message-ID: <12626080-d7ee-5cd9-c4fc-ce6702d69738@linux.vnet.ibm.com>
+References: <1521051954-25715-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1521051954-25715-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <49eaa40e-12d7-7ba9-d48f-e72c06e74c8f@de.ibm.com>
+ <0b9915e1-ba1e-2fec-dcc9-93bfdf6e65cf@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <192888a1-afc8-8502-5c6f-dbb16625bda2@linux.vnet.ibm.com>
+In-Reply-To: <0b9915e1-ba1e-2fec-dcc9-93bfdf6e65cf@de.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: Harald Freudenberger <FREUDE@de.ibm.com>, Pierre Morel <pmorel@linux.vnet.ibm.com>, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, berrange@redhat.com, bjsdjshi@linux.vnet.ibm.com, borntrae@linux.ibm.com, fiuczy@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, kvm@vger.kernel.org, kwankhede@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, mjrosato@linux.vnet.ibm.com, mschwid2@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, pbonzini@redhat.com, Reinhard Buendgen <BUENDGEN@de.ibm.com>, thuth@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 24 Apr 2018 09:01:12 -0400
-Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-
-> On 04/23/2018 03:03 AM, Cornelia Huck wrote:
-> > On Sun, 22 Apr 2018 10:52:55 -0400
-> > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-> >  
-> >>>>>>> (Not providing a crycb if APXA is not available would be loss of
-> >>>>>>> functionality, I guess? Deciding not to provide vfio-ap if APXA is not
-> >>>>>>> available is a different game, of course.)  
-> >>>>>> This would require a change to enabling the CPU model feature for
-> >>>>>> AP.  
-> >>>>> But would it actually make sense to tie vfio-ap to APXA? This needs to
-> >>>>> be answered by folks with access to the architecture :)  
-> >>>> I don't see any reason to do that from an architectural perspective.
-> >>>> One can access AP devices whether APXA is installed or not, it just limits
-> >>>> the range of devices that can be addressed  
-> >>> So I guess we should not introduce a tie-in then (unless it radically
-> >>> simplifies the code...)  
-> >> I'm not clear about what you mean by introducing a tie-in. Can you
-> >> clarify that?  
-> > Making vfio-ap depend on APXA.  
-> 
-> I don't think vfio-ap should be dependent upon APXA for the reasons I 
-> stated above.
-> 
-> >  
-> 
-
-It seems we are in violent agreement :)
+On 04/05/2018 06:45 AM, Christian Borntraeger wrote:
+>
+> On 04/05/2018 12:42 PM, Christian Borntraeger wrote:
+>>
+>> On 03/14/2018 07:25 PM, Tony Krowiak wrote:
+>>> This patch refactors the code that initializes the crypto
+>>> configuration for a guest. The crypto configuration is contained in
+>>> a crypto control block (CRYCB) which is a satellite control block to
+>>> our main hardware virtualization control block. The CRYCB is
+>>> attached to the main virtualization control block via a CRYCB
+>>> designation (CRYCBD) designation field containing the address of
+>>> the CRYCB as well as its format.
+>>>
+>>> Prior to the introduction of AP device virtualization, there was
+>>> no need to provide access to or specify the format of the CRYCB for
+>>> a guest unless the MSA extension 3 (MSAX3) facility was installed
+>>> on the host system. With the introduction of AP device virtualization,
+>>> the CRYCB and its format must be made accessible to the guest
+>>> regardless of the presence of the MSAX3 facility.
+>>>
+>>> The crypto initialization code is restructured as follows:
+>>>
+>>> * A new compilation unit is introduced to contain all interfaces
+>>>    and data structures related to configuring a guest's CRYCB for
+>>>    both the refactoring of crypto initialization as well as all
+>>>    subsequent patches introducing AP virtualization support.
+>>>
+>>> * Currently, the asm code for querying the AP configuration is
+>>>    duplicated in the AP bus as well as in KVM. Since the KVM
+>>>    code was introduced, the AP bus has externalized the interface
+>>>    for querying the AP configuration. The KVM interface will be
+>>>    replaced with a call to the AP bus interface. Of course, this
+>>>    will be moved to the new compilation unit mentioned above.
+>>>
+>>> * An interface to format the CRYCBD field will be provided via
+>>>    the new compilation unit and called from the KVM vm
+>>>    initialization.
+>>>
+>>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>>> ---
+>>>   MAINTAINERS                      |   10 ++++++
+>>>   arch/s390/include/asm/kvm-ap.h   |   16 ++++++++++
+>>>   arch/s390/include/asm/kvm_host.h |    1 +
+>>>   arch/s390/kvm/Kconfig            |    1 +
+>>>   arch/s390/kvm/Makefile           |    2 +-
+>>>   arch/s390/kvm/kvm-ap.c           |   48 +++++++++++++++++++++++++++++
+>>>   arch/s390/kvm/kvm-s390.c         |   61 ++++---------------------------------
+>>>   7 files changed, 84 insertions(+), 55 deletions(-)
+>>>   create mode 100644 arch/s390/include/asm/kvm-ap.h
+>>>   create mode 100644 arch/s390/kvm/kvm-ap.c
+>>>
+>>> diff --git a/MAINTAINERS b/MAINTAINERS
+>>> index 0ec5881..72742d5 100644
+>>> --- a/MAINTAINERS
+>>> +++ b/MAINTAINERS
+>>> @@ -11875,6 +11875,16 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
+>>>   S:	Supported
+>>>   F:	drivers/s390/crypto/
+>>>
+>>> +S390 VFIO AP DRIVER
+>>> +M:	Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>>> +M:	Christian Borntraeger <borntraeger@de.ibm.com>
+>>> +M:	Martin Schwidefsky <schwidefsky@de.ibm.com>
+>>> +L:	linux-s390@vger.kernel.org
+>>> +W:	http://www.ibm.com/developerworks/linux/linux390/
+>>> +S:	Supported
+>>> +F:	arch/s390/include/asm/kvm/kvm-ap.h
+>>> +F:	arch/s390/kvm/kvm-ap.c
+>>> +
+>>>   S390 ZFCP DRIVER
+>>>   M:	Steffen Maier <maier@linux.vnet.ibm.com>
+>>>   M:	Benjamin Block <bblock@linux.vnet.ibm.com>
+>>
+>> The Maintainers update belongs into a different patch (e.g. when you introduce
+>> drivers/s390/crypto/vfio_ap_drv.c )
+> To put it differently. I think kvm-ap code in here is more related to kvm than to
+> vfio-ap.
+Okay, I'll remove this from here. It looks like it is already covered under
+KERNEL VIRTUAL MACHINE for s390 (KVM/s390).
+>   
