@@ -1,96 +1,44 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v2] KVM: s390: reset crypto attributes for all vcpus
-Date: Sun, 22 Apr 2018 11:37:03 -0400
-Message-ID: <1524411423-18607-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [GIT PULL] asm-generic fixes for v4.17-rc1
+Date: Thu, 12 Apr 2018 09:16:30 +0200
+Message-ID: <CAK8P3a2brHyWJx=WwXgxr3Gkouu5DAgqBvBQiz0rcPvZ18xO8g@mail.gmail.com>
+References: <CAK8P3a081_hkr5d0FRWpTaT-AsJoqznsS1=_WF4JVLTUOupUgg@mail.gmail.com>
+ <CA+55aFx4_gaBeffy9roFRnkB30fnRa=nhh5qR=o=CgrWmgphiw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CA+55aFx4_gaBeffy9roFRnkB30fnRa=nhh5qR=o=CgrWmgphiw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: rkrcmar@redhat.com, frankja@linux.ibm.com, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, pbonzini@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, akrowiak@linux.vnet.ibm.com
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Sinan Kaya <okaya@codeaurora.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-rdma <linux-rdma@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ley Foon Tan <lftan@altera.com>, "moderated list:NIOS2 ARCHITECTURE" <nios2-dev@lists.rocketboards.org>, Michal Simek <monstr@monstr.eu>, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>, Yoshinori Sato <ysato@users.sourceforge.jp>, sparclinux <sparclinux@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, Guan
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduces a new function to reset the crypto attributes for all
-vcpus whether they are running or not. Each vcpu in KVM will
-be removed from SIE prior to resetting the crypto attributes in its
-SIE state description. After all vcpus have had their crypto attributes
-reset the vcpus will be restored to SIE.
+On Thu, Apr 12, 2018 at 1:16 AM, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Wed, Apr 11, 2018 at 8:40 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+>>
+>> are available in the git repository at:
+>>
+>>   git+ssh://gitolite@ra.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git
+>> tags/asm-generic
+>
+> Yeah, no they aren't available there at all.
+>
+> That tag is some old tag from two years ago that just contains your
+> ancient "asm-generic: use compat version for preadv2 and pwritev2".
+>
+> Forgot to push out? Or forgot to use "-f" to overwrite the old tag?
 
-This function is incorporated into the kvm_s390_vm_set_crypto(kvm)
-function to fix a reported issue whereby the crypto key wrapping
-attributes could potentially get out of synch for running vcpus.
+Yes, something like that, I first tagged the local branch in the wrong
+tree which had an old branch of the same name, noticed my mistake
+as I pushed it, but then screwed up again when I tried to correct it:
+I force-pushed the correct branch again, but not the tag.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reported-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
----
-v2 Changes:
-Fixed compile error, kvm_s390_vcpu_crypto_setup before declaration
+Pushed the right tag now, please pull from
 
- arch/s390/kvm/kvm-s390.c |   17 ++++++++++++-----
- arch/s390/kvm/kvm-s390.h |   13 +++++++++++++
- 2 files changed, 25 insertions(+), 5 deletions(-)
+git://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git
+tags/asm-generic
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index fa355a6..e629ae1 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -791,11 +791,21 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
- 
- static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu);
- 
--static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
-+void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm)
- {
- 	struct kvm_vcpu *vcpu;
- 	int i;
- 
-+	kvm_s390_vcpu_block_all(kvm);
-+
-+	kvm_for_each_vcpu(i, vcpu, kvm)
-+		kvm_s390_vcpu_crypto_setup(vcpu);
-+
-+	kvm_s390_vcpu_unblock_all(kvm);
-+}
-+
-+static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
- 	if (!test_kvm_facility(kvm, 76))
- 		return -EINVAL;
- 
-@@ -832,10 +842,7 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
- 		return -ENXIO;
- 	}
- 
--	kvm_for_each_vcpu(i, vcpu, kvm) {
--		kvm_s390_vcpu_crypto_setup(vcpu);
--		exit_sie(vcpu);
--	}
-+	kvm_s390_vcpu_crypto_reset_all(kvm);
- 	mutex_unlock(&kvm->lock);
- 	return 0;
- }
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 1b5621f..981e3ba 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -410,4 +410,17 @@ static inline int kvm_s390_use_sca_entries(void)
- }
- void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
- 				     struct mcck_volatile_info *mcck_info);
-+
-+/**
-+ * kvm_s390_vcpu_crypto_reset_all
-+ *
-+ * Reset the crypto attributes for each vcpu. This can be done while the vcpus
-+ * are running as each vcpu will be removed from SIE before resetting the crypt
-+ * attributes and restored to SIE afterward.
-+ *
-+ * Note: The kvm->lock must be held while calling this function
-+ *
-+ * @kvm: the KVM guest
-+ */
-+void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm);
- #endif
--- 
-1.7.1
+        Arnd
