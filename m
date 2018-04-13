@@ -1,162 +1,98 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 00/13] y2038: convert IPC syscalls
-Date: Thu, 12 Apr 2018 16:20:11 +0200
-Message-ID: <20180412142024.853892-1-arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 13 Apr 2018 15:19:48 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 4.17 merge window #2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20180413151948.6dd1e894@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: y2038@lists.linaro.org, linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, libc-alpha@sourceware.org, tglx@linutronix.de, deepa.kernel@gmail.com, viro@zeniv.linux.org.uk, ebiederm@xmission.com, albert.aribaud@3adev.fr, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, x86@kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-mips@linux-mips.org, jhogan@kernel.org, ralf@linux-mips.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This is an update of a series I posted a long time ago [1], updating
-the IPC subsystem to pass down 64-bit time stamps to user space.
+Hi Linus,
 
-In particular, for sys_msgctl, sys_semctl and sys_shmctl, I do not
-introduce a completely new set of replacement system calls, but instead
-extend the existing ones to return data in the reserved fields of the
-normal data structure.
+please pull from the 'for-linus' branch of
 
-This should be completely transparent to any existing user space, and
-only after the 32-bit time_t wraps, it will make a difference in the
-returned data.
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-libc implementations will consequently have to provide their own data
-structures when they move to 64-bit time_t, and convert the structures
-in user space from the ones returned by the kernel.
+to receive the following updates:
 
-There are three cases here:
+Three notable larger changes next to the usual bug fixing:
 
-- little-endian architectures (except powerpc and mips) can use
-  the normal layout and just cast the data structure to the user space
-  type that contains 64-bit numbers.
+* Update the email addresses in MAINTAINERS for the s390 folks to use
+  the simpler linux.ibm.com domain instead of the old linux.vnet.ibm.com
 
-- parisc and sparc can do the same thing with big-endian user space
+* An update for the zcrypt device driver that removes some old and
+  obsolete interfaces and add support for up to 256 crypto adapters
 
-- little-endian powerpc and most big-endian architectures have
-  to flip the upper and lower 32-bit halves of the time_t value in memory,
-  but can otherwise keep using the normal layout
+* A rework of the IPL aka boot code
 
-- mips and big-endian xtensa need to be more careful because
-  they are not consistent in their definitions, and they have to provide
-  custom libc implementations for the system calls to use 64-bit time_t.
+Harald Freudenberger (6):
+      s390/crypto: Adjust s390 aes and paes cipher priorities
+      s390/zcrypt: remove unused functions and declarations
+      s390/zcrypt: Make ap init functions static.
+      s390/zcrypt: Remove deprecated ioctls.
+      s390/zcrypt: Remove deprecated zcrypt proc interface.
+      s390/zcrypt: Support up to 256 crypto adapters.
 
-Changes to the previous version include
+Heiko Carstens (2):
+      s390/compat: fix setup_frame32
+      MAINTAINERS: update s390 maintainers email addresses
 
-- Rebased to the latest kernel (4.17-rc)
+Julian Wiedmann (3):
+      s390/ccwgroup: require at least one ccw device
+      s390/qdio: clear intparm during shutdown
+      s390/qdio: lock device while installing IRQ handler
 
-- Dropped changes for removed architectures
+Martin Schwidefsky (1):
+      s390: correct nospec auto detection init order
 
-- Simplified the IPC code changes, based on prior work from
-  both Deepa and Eric
+Vasily Gorbik (11):
+      s390/ipl: ensure loadparm valid flag is set
+      s390/ipl: unite diag308 and scsi boot ipl blocks
+      s390/ipl: get rid of ipl_ssid and ipl_devno
+      s390/ipl: move ipl_flags to ipl.c
+      s390/ipl: rely on diag308 store to get ipl info
+      s390/ipl: correct ipl parmblock valid checks
+      s390/ipl: avoid adding scpdata to cmdline during ftp/dvd boot
+      s390: assume diag308 set always works
+      s390/ipl: remove non-existing functions declaration
+      s390/ipl: correct kdump reipl block checksum calculation
+      s390/ipl: remove reipl_method and dump_method
 
-- Fixed a few bugs that I found during rebasing, in parcular the
-  sparc version was incorrect.
-
-If everyone agrees with the series, I'd like to have it merged through
-the tip tree once Deepa's earlier syscall series in there (I have both
-in my y2038 tree [2]).
-
-    Arnd
-
-[1] https://lkml.org/lkml/2015/5/20/605
-[2] git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git y2038-next
-
-Arnd Bergmann (13):
-  y2038: asm-generic: extend sysvipc data structures
-  y2038: alpha: remove unneeded ipc uapi header files
-  y2038: ia64: remove unneeded ipc uapi header files
-  y2038: s390: remove unneeded ipc uapi header files
-  y2038: arm64: extend sysvipc compat data structures
-  y2038: mips: extend sysvipc data structures
-  y2038: x86: extend sysvipc data structures
-  y2038: parisc: extend sysvipc data structures
-  y2038: sparc: extend sysvipc data structures
-  y2038: powerpc: extend sysvipc data structures
-  y2038: xtensa: extend sysvipc data structures
-  y2038: ipc: use ktime_get_real_seconds consistently
-  y2038: ipc: report long times to user space
-
-Cc: linux-api@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: libc-alpha@sourceware.org
-Cc: tglx@linutronix.de
-Cc: deepa.kernel@gmail.com
-Cc: viro@zeniv.linux.org.uk
-Cc: ebiederm@xmission.com
-Cc: albert.aribaud@3adev.fr
-Cc: linux-s390@vger.kernel.org
-Cc: schwidefsky@de.ibm.com
-Cc: x86@kernel.org
-Cc: catalin.marinas@arm.com
-Cc: will.deacon@arm.com
-Cc: linux-mips@linux-mips.org
-Cc: jhogan@kernel.org
-Cc: ralf@linux-mips.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: sparclinux@vger.kernel.org
-
- arch/alpha/include/asm/Kbuild          |  4 +++
- arch/alpha/include/uapi/asm/ipcbuf.h   |  2 --
- arch/alpha/include/uapi/asm/msgbuf.h   | 28 -----------------
- arch/alpha/include/uapi/asm/sembuf.h   | 23 --------------
- arch/alpha/include/uapi/asm/shmbuf.h   | 39 -----------------------
- arch/arm64/include/asm/compat.h        | 32 +++++++++----------
- arch/ia64/include/asm/Kbuild           |  4 +++
- arch/ia64/include/uapi/asm/ipcbuf.h    |  2 --
- arch/ia64/include/uapi/asm/msgbuf.h    | 28 -----------------
- arch/ia64/include/uapi/asm/sembuf.h    | 23 --------------
- arch/ia64/include/uapi/asm/shmbuf.h    | 39 -----------------------
- arch/mips/include/asm/compat.h         | 38 ++++++++++++-----------
- arch/mips/include/uapi/asm/msgbuf.h    | 57 ++++++++++++++++++++++------------
- arch/mips/include/uapi/asm/sembuf.h    | 15 +++++++--
- arch/mips/include/uapi/asm/shmbuf.h    | 23 ++++++++++++--
- arch/parisc/include/asm/compat.h       | 32 +++++++++----------
- arch/parisc/include/uapi/asm/msgbuf.h  | 33 ++++++++++----------
- arch/parisc/include/uapi/asm/sembuf.h  | 16 +++++-----
- arch/parisc/include/uapi/asm/shmbuf.h  | 19 +++++-------
- arch/powerpc/include/asm/compat.h      | 32 +++++++++----------
- arch/powerpc/include/uapi/asm/msgbuf.h | 18 +++++------
- arch/powerpc/include/uapi/asm/sembuf.h | 14 ++++-----
- arch/powerpc/include/uapi/asm/shmbuf.h | 19 +++++-------
- arch/s390/include/asm/Kbuild           |  3 ++
- arch/s390/include/asm/compat.h         | 32 +++++++++----------
- arch/s390/include/uapi/asm/msgbuf.h    | 38 -----------------------
- arch/s390/include/uapi/asm/sembuf.h    | 30 ------------------
- arch/s390/include/uapi/asm/shmbuf.h    | 49 -----------------------------
- arch/sparc/include/asm/compat.h        | 32 +++++++++----------
- arch/sparc/include/uapi/asm/msgbuf.h   | 22 ++++++-------
- arch/sparc/include/uapi/asm/sembuf.h   | 16 +++++-----
- arch/sparc/include/uapi/asm/shmbuf.h   | 21 ++++++-------
- arch/x86/include/asm/compat.h          | 32 +++++++++----------
- arch/x86/include/uapi/asm/Kbuild       |  5 ++-
- arch/x86/include/uapi/asm/msgbuf.h     |  1 -
- arch/x86/include/uapi/asm/sembuf.h     | 11 ++++++-
- arch/x86/include/uapi/asm/shmbuf.h     |  1 -
- arch/xtensa/include/uapi/asm/msgbuf.h  | 25 +++++++--------
- arch/xtensa/include/uapi/asm/sembuf.h  | 17 +++++-----
- arch/xtensa/include/uapi/asm/shmbuf.h  | 37 +++++-----------------
- include/uapi/asm-generic/msgbuf.h      | 17 +++++-----
- include/uapi/asm-generic/sembuf.h      | 26 ++++++++++------
- include/uapi/asm-generic/shmbuf.h      | 17 +++++-----
- ipc/msg.c                              | 20 ++++++++----
- ipc/sem.c                              | 20 ++++++++----
- ipc/shm.c                              | 14 +++++++--
- 46 files changed, 393 insertions(+), 633 deletions(-)
- delete mode 100644 arch/alpha/include/uapi/asm/ipcbuf.h
- delete mode 100644 arch/alpha/include/uapi/asm/msgbuf.h
- delete mode 100644 arch/alpha/include/uapi/asm/sembuf.h
- delete mode 100644 arch/alpha/include/uapi/asm/shmbuf.h
- delete mode 100644 arch/ia64/include/uapi/asm/ipcbuf.h
- delete mode 100644 arch/ia64/include/uapi/asm/msgbuf.h
- delete mode 100644 arch/ia64/include/uapi/asm/sembuf.h
- delete mode 100644 arch/ia64/include/uapi/asm/shmbuf.h
- delete mode 100644 arch/s390/include/uapi/asm/msgbuf.h
- delete mode 100644 arch/s390/include/uapi/asm/sembuf.h
- delete mode 100644 arch/s390/include/uapi/asm/shmbuf.h
- delete mode 100644 arch/x86/include/uapi/asm/msgbuf.h
- delete mode 100644 arch/x86/include/uapi/asm/shmbuf.h
-
--- 
-2.9.0
+ MAINTAINERS                           |  34 +--
+ arch/s390/boot/compressed/misc.c      |  23 --
+ arch/s390/crypto/aes_s390.c           |   8 +-
+ arch/s390/crypto/paes_s390.c          |   8 +-
+ arch/s390/include/asm/ap.h            |   6 +-
+ arch/s390/include/asm/cio.h           |  10 -
+ arch/s390/include/asm/ipl.h           |  25 +-
+ arch/s390/include/asm/nospec-branch.h |   1 +
+ arch/s390/include/asm/reset.h         |  20 --
+ arch/s390/include/uapi/asm/zcrypt.h   | 163 ++++++------
+ arch/s390/kernel/compat_signal.c      |   2 +-
+ arch/s390/kernel/early.c              |  14 +-
+ arch/s390/kernel/ipl.c                | 376 +++++----------------------
+ arch/s390/kernel/machine_kexec.c      |   2 +-
+ arch/s390/kernel/nospec-branch.c      |   8 +-
+ arch/s390/kernel/reipl.S              |  87 -------
+ arch/s390/kernel/relocate_kernel.S    |  54 +---
+ arch/s390/kernel/setup.c              |   3 +
+ drivers/s390/cio/ccwgroup.c           |   5 +-
+ drivers/s390/cio/cio.c                | 257 -------------------
+ drivers/s390/cio/ioasm.c              |  24 --
+ drivers/s390/cio/ioasm.h              |   1 -
+ drivers/s390/cio/qdio_main.c          |   4 +-
+ drivers/s390/cio/qdio_setup.c         |   2 +
+ drivers/s390/crypto/ap_bus.c          |  32 +--
+ drivers/s390/crypto/ap_bus.h          |   5 +-
+ drivers/s390/crypto/ap_debug.h        |   3 -
+ drivers/s390/crypto/pkey_api.c        |  41 +--
+ drivers/s390/crypto/zcrypt_api.c      | 471 ++++++++++------------------------
+ drivers/s390/crypto/zcrypt_api.h      |  26 +-
+ 30 files changed, 357 insertions(+), 1358 deletions(-)
+ delete mode 100644 arch/s390/include/asm/reset.h
