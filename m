@@ -1,50 +1,173 @@
 From: Eugene Syromyatnikov <evgsyr@gmail.com>
-Date: Sat, 14 Apr 2018 16:43:46 +0000
-Subject: [man-pages PATCH v2 3/4] s390_sthyi.2: some minor additions
-Message-Id: <20180414164346.GA15273@asgard.redhat.com>
+Date: Sat, 14 Apr 2018 16:43:51 +0000
+Subject: [man-pages PATCH v2 4/4] man2: describe s390_guarded_storage s390-specific system call
+Message-Id: <20180414164351.GA15369@asgard.redhat.com>
 To: linux-s390@vger.kernel.org, linux-man@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-* man2/s390_sthyi.2 (.SH DESCRIPTION): Document the size of the
-resp_buffer when function_code is 0.
-(.SH NOTES): Document various aspects of the current implementation (the
-lifted requirement for the response buffer alignment, the presence of in-kernel
-cache), add description for the documentation URL.
+* man2/s390_guarded_storage.2: New file.
 
-Co-Authored-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Eugene Syromyatnikov <evgsyr@gmail.com>
 ---
- man2/s390_sthyi.2 | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ man2/s390_guarded_storage.2 | 150 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 150 insertions(+)
+ create mode 100644 man2/s390_guarded_storage.2
 
-diff --git a/man2/s390_sthyi.2 b/man2/s390_sthyi.2
-index fb77195..d13aace 100644
---- a/man2/s390_sthyi.2
-+++ b/man2/s390_sthyi.2
-@@ -53,6 +53,9 @@ capacity information.
- The
- .I resp_buffer
- argument specifies the address of a response buffer.
-+When the
-+.I function_code
-+is 0, it has to be one page (4K) in size.
- If the system call returns 0,
- the response buffer will be filled with CPU capacity information.
- Otherwise, the response buffer's content is unchanged.
-@@ -126,6 +129,14 @@ to call it.
- .PP
- For details of the STHYI instruction, see
- .UR https://www.ibm.com\:/support\:/knowledgecenter\:/SSB27U_6.3.0\:/com.ibm.zvm.v630.hcpb4\:/hcpb4sth.htm
-+the documentation page
- .UE .
+diff --git a/man2/s390_guarded_storage.2 b/man2/s390_guarded_storage.2
+new file mode 100644
+index 0000000..563e011
+--- /dev/null
++++ b/man2/s390_guarded_storage.2
+@@ -0,0 +1,150 @@
++.TH S390_GUARDED_STORAGE 2 2018-01-14 "Linux Programmer's Manual"
++.SH NAME
++s390_guarded_storage \- operations with z/Architecture guarded storage facility
++.SH SYNOPSIS
++.nf
++.B #include <asm/guarded_storage.h>
 +.PP
-+When the system call interface is used, the response buffer doesn't
-+have to fulfill alignment requirements described in the STHYI
-+instruction definition.
++.BI "int s390_guarded_storage(int " command ", stuct gs_cb *" gs_cb ");"
++.fi
++.SH DESCRIPTION
++The
++.BR s390_guarded_storage ()
++system call enables the use of the Guarded Storage Facility
++(a z/Architecture-specific feature) for user space processes.
 +.PP
-+The kernel caches the response (for up to one second, as of Linux 4.16).
-+Subsequent system call invocations may return the cached response.
- .SH SEE ALSO
- .BR syscall (2)
++.\" The description is based on
++.\" http://www-05.ibm.com/de/linux-on-z-ws-us/agenda/pdfs/8_-_Linux_Whats_New_-_Stefan_Raspl.pdf
++.\" and "z/Architecture Principles of Operation" obtained from
++.\" http://publibfi.boulder.ibm.com/epubs/pdf/dz9zr011.pdf
++The guarded storage facility is a hardware feature that allows marking up to
++64 memory regions (as of z14) as guarded;
++reading a pointer with a newly introduced "Load Guarded" (LGG) or "Load Logical
++and Shift Guarded" (LLGFSG) instructions will cause a range check on the loaded
++value and invoke a (previously set up) user space handler if one of the guarded
++regions is affected.
++.PP
++The
++.\" The command description is copied from v4.12-rc1~139^2~56^2 commit message
++.I command
++argument indicates which function to perform.
++The following commands are supported:
++.TP
++.B GS_ENABLE
++Enable the guarded storage facility for the current task.
++The initial content of the guarded storage control block will be all zeros.
++After the enablement, user space code can use the "Load Guarded Storage
++Controls" (LGSC) instruction (or the
++.BR load_gs_cb ()
++function wrapper provided in the
++.B asm/guarded_storage.h
++header) to load an arbitrary control block.
++While a task is enabled, the kernel will save and restore the current content
++of the guarded storage registers on context switch.
++.TP
++.B GS_DISABLE
++Disables the use of the guarded storage facility for the current task.
++The kernel will cease to save and restore the content of the guarded storage
++registers, the task-specific content of these registers is lost.
++.TP
++.B GS_SET_BC_CB
++Set a broadcast guarded storage control block to the one provided in the
++.I gs_cb
++argument.
++This is called per thread and associates a specific guarded storage control
++block with the current task.
++This control block will be used in the broadcast command
++.BR GS_BROADCAST .
++.TP
++.B GS_CLEAR_BC_CB
++Clears the broadcast guarded storage control block.
++The guarded storage control block will no longer have the association
++established by the
++.B GS_SET_BC_CB
++command.
++.TP
++.B GS_BROADCAST
++Sends a broadcast to all thread siblings of the current task.
++Every sibling that has established a broadcast guarded storage control block
++will load this control block and will be enabled for guarded storage.
++The broadcast guarded storage control block is used up, a second broadcast
++without a refresh of the stored control block with
++.B GS_SET_BC_CB
++will not have any effect.
++.PP
++The
++.I gs_cb
++argument specifies the address of a guarded storage control block structure and
++is currently used only by the
++.B GS_SET_BC_CB
++command; all other aforementioned commands ignore this argument.
++.SH RETURN VALUE
++On success, the return value of
++.BR s390_guarded_storage ()
++is 0.
++.PP
++On error, \-1 is returned, and
++.IR errno
++is set appropriately.
++.SH ERRORS
++.TP
++.B EFAULT
++.I command
++was
++.BR GS_SET_BC_CB
++and the copying of the guarded storage control block structure pointed by the
++.I gs_cb
++argument has failed.
++.TP
++.B EINVAL
++The value provided in the
++.I command
++argument was not a valid command.
++.TP
++.B ENOMEM
++.I command
++was one of
++.BR GS_ENABLE " or " GS_SET_BC_CB ,
++and the allocation of a new guarded storage control block has failed.
++.TP
++.B EOPNOTSUPP
++The guarded storage is not supported by the hardware.
++.SH VERSIONS
++.\" 916cda1aa1b412d7cf2991c3af7479544942d121, v4.12-rc1~139^2~56^2
++This system call is available since Linux 4.12.
++.SH CONFORMING TO
++This Linux-specific system call is available only on the s390 architecture.
++.PP
++The guarded storage facility is available beginning with System z14.
++.SH NOTES
++Glibc does not provide a wrapper for this system call, use
++.BR syscall (2)
++to call it.
++.PP
++The description of the guarded storage facility along with related instructions
++and Guarded Storage Control Block and Guarded Storage Event Parameter List
++structure layouts is available in "z/Architecture Principles of Operations"
++beginning from the twelfth edition.
++.PP
++The
++.B gs_cb
++structure has a field
++.B gsepla
++(Guarded Storage Event Parameter List Address), which is a user space pointer
++to a Guarded Storage Event Parameter List structure (that contains the address
++of the aforementioned event handler in the
++.B gseha
++field), and its layout is available as a
++.B gs_epl
++structure type definition in the
++.B asm/guarded_storage.h
++header.
++.\" .PP
++.\" For the example of using the guarded storage facility, see
++.\" .UR https://developer.ibm.com/javasdk/2017/09/25/concurrent-scavenge-using-guarded-storage-facility-works/
++.\" the article with the description of its usage in the Java Garbage Collection
++.\" .UE
++.PP
++.PP
++.SH SEE ALSO
++.BR syscall (2)
 -- 
 2.1.4
