@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v4 14/15] s390: vfio-ap: implement VFIO_DEVICE_GET_INFO ioctl
-Date: Sun, 15 Apr 2018 17:22:24 -0400
-Message-ID: <1523827345-11600-15-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v4 12/15] s390: vfio-ap: sysfs interface to view matrix mdev matrix
+Date: Sun, 15 Apr 2018 17:22:22 -0400
+Message-ID: <1523827345-11600-13-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,77 +12,73 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduces ioctl access to the VFIO AP Matrix device driver
-by implementing the VFIO_DEVICE_GET_INFO ioctl. This ioctl
-provides the VFIO AP Matrix device driver information to the
-guest machine.
+Provides a sysfs interface to view the AP matrix configured for the
+mediated matrix device.
 
-Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+The relevant sysfs structures are:
+
+/sys/devices/vfio_ap
+... [matrix]
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ [devices]
+...............[$uuid]
+.................. matrix
+
+To view the matrix configured for the mediated matrix device,
+print the matrix file:
+
+	cat matrix
+
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c |   43 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+), 0 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c |   27 +++++++++++++++++++++++++++
+ 1 files changed, 27 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e3ff5ab..00179cd 100644
+index 413ecbb..bc2b05e 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -101,6 +101,48 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 				 &matrix_mdev->group_notifier);
+@@ -701,6 +701,32 @@ static ssize_t control_domains_show(struct device *dev,
  }
+ DEVICE_ATTR_RO(control_domains);
  
-+static int vfio_ap_mdev_get_device_info(unsigned long arg)
++static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
++			   char *buf)
 +{
-+	unsigned long minsz;
-+	struct vfio_device_info info;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	char *bufpos = buf;
++	unsigned long apid;
++	unsigned long apqi;
++	int nchars = 0;
++	int n;
 +
-+	minsz = offsetofend(struct vfio_device_info, num_irqs);
-+
-+	if (copy_from_user(&info, (void __user *)arg, minsz))
-+		return -EFAULT;
-+
-+	if (info.argsz < minsz) {
-+		pr_err("%s: Argument size %u less than min size %li",
-+		       VFIO_AP_MODULE_NAME, info.argsz, minsz);
-+		return -EINVAL;
++	for_each_set_bit_inv(apid, matrix_mdev->matrix->apm,
++			     matrix_mdev->matrix->apm_max) {
++		for_each_set_bit_inv(apqi, matrix_mdev->matrix->aqm,
++				     matrix_mdev->matrix->aqm_max) {
++			n = sprintf(bufpos, "%02lx.%04lx\n", apid, apqi);
++			bufpos += n;
++			nchars += n;
++		}
 +	}
 +
-+	info.flags = VFIO_DEVICE_FLAGS_AP;
-+	info.num_regions = 0;
-+	info.num_irqs = 0;
-+
-+	return copy_to_user((void __user *)arg, &info, minsz);
++	return nchars;
 +}
++DEVICE_ATTR_RO(matrix);
 +
-+static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
-+				    unsigned int cmd, unsigned long arg)
-+{
-+	int ret;
 +
-+	switch (cmd) {
-+	case VFIO_DEVICE_GET_INFO:
-+		ret = vfio_ap_mdev_get_device_info(arg);
-+		break;
-+	default:
-+		pr_err("%s: ioctl command %d is not a supported command",
-+		       VFIO_AP_MODULE_NAME, cmd);
-+		ret = -EOPNOTSUPP;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
- static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
- {
- 	return sprintf(buf, "%s\n", VFIO_AP_MDEV_NAME_HWVIRT);
-@@ -804,6 +846,7 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
- 	.remove			= vfio_ap_mdev_remove,
- 	.open			= vfio_ap_mdev_open,
- 	.release		= vfio_ap_mdev_release,
-+	.ioctl			= vfio_ap_mdev_ioctl,
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+@@ -709,6 +735,7 @@ static ssize_t control_domains_show(struct device *dev,
+ 	&dev_attr_assign_control_domain.attr,
+ 	&dev_attr_unassign_control_domain.attr,
+ 	&dev_attr_control_domains.attr,
++	&dev_attr_matrix.attr,
+ 	NULL,
  };
  
- int vfio_ap_mdev_register(struct ap_matrix *ap_matrix)
 -- 
 1.7.1
