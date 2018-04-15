@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v4 02/15] KVM: s390: reset crypto attributes for all vcpus
-Date: Sun, 15 Apr 2018 17:22:12 -0400
-Message-ID: <1523827345-11600-3-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v4 07/15] s390: vfio-ap: register matrix device with VFIO mdev framework
+Date: Sun, 15 Apr 2018 17:22:17 -0400
+Message-ID: <1523827345-11600-8-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,87 +12,241 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduces a new function to reset the crypto attributes for all
-vcpus whether they are running or not. Each vcpu in KVM will
-be removed from SIE prior to resetting the crypto attributes in its
-SIE state description. After all vcpus have had their crypto attributes
-reset the vcpus will be restored to SIE.
+Registers the matrix device created by the VFIO AP device
+driver with the VFIO mediated device framework.
+Registering the matrix device will create the sysfs
+structures needed to create mediated matrix devices
+each of which will be used to configure the AP matrix
+for a guest and connect it to the VFIO AP device driver.
 
-This function will be used in a later patch to set the ECA.28
-bit in the SIE state description to enable interpretive execution of
-AP instructions. It will also be incorporated into the
-kvm_s390_vm_set_crypto(kvm) function to fix an issue whereby the crypto
-key wrapping attributes could potentially get out of synch for running
-vcpus.
+Registering the matrix device with the VFIO mediated device
+framework will create the following sysfs structures:
+
+/sys/devices/vfio_ap
+... [matrix]
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ create
+
+To create a mediated device for the AP matrix device, write a UUID
+to the create file:
+
+	uuidgen > create
+
+A symbolic link to the mediated device's directory will be created in the
+devices subdirectory named after the generated $uuid:
+
+/sys/devices/vfio_ap
+... [matrix]
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ [devices]
+............... [$uuid]
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c |   19 +++++++++++++------
- arch/s390/kvm/kvm-s390.h |   14 ++++++++++++++
- 2 files changed, 27 insertions(+), 6 deletions(-)
+ MAINTAINERS                           |    1 +
+ drivers/s390/crypto/Makefile          |    2 +-
+ drivers/s390/crypto/vfio_ap_drv.c     |    9 +++
+ drivers/s390/crypto/vfio_ap_ops.c     |  105 +++++++++++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |   17 +++++
+ 5 files changed, 133 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/s390/crypto/vfio_ap_ops.c
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 64c9862..d0c3518 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -791,11 +791,21 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 1124c4c..6eb8d8a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -12226,6 +12226,7 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
+ S:	Supported
+ F:	drivers/s390/crypto/vfio_ap_drv.c
+ F:	drivers/s390/crypto/vfio_ap_private.h
++F:	drivers/s390/crypto/vfio_ap_ops.c
  
- static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu);
+ S390 ZFCP DRIVER
+ M:	Steffen Maier <maier@linux.ibm.com>
+diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
+index 48e466e..8d36b05 100644
+--- a/drivers/s390/crypto/Makefile
++++ b/drivers/s390/crypto/Makefile
+@@ -17,5 +17,5 @@ pkey-objs := pkey_api.o
+ obj-$(CONFIG_PKEY) += pkey.o
  
--static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
-+void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm)
- {
--	struct kvm_vcpu *vcpu;
- 	int i;
-+	struct kvm_vcpu *vcpu;
-+
-+	kvm_s390_vcpu_block_all(kvm);
-+
-+	kvm_for_each_vcpu(i, vcpu, kvm)
-+		kvm_s390_vcpu_crypto_setup(vcpu);
- 
-+	kvm_s390_vcpu_unblock_all(kvm);
-+}
-+
-+static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
- 	if (!test_kvm_facility(kvm, 76))
- 		return -EINVAL;
- 
-@@ -832,10 +842,7 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
- 		return -ENXIO;
+ # adjunct processor matrix
+-vfio_ap-objs := vfio_ap_drv.o
++vfio_ap-objs := vfio_ap_drv.o vfio_ap_ops.o
+ obj-$(CONFIG_VFIO_AP) += vfio_ap.o
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 014d70f..cc7fbd7 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -121,11 +121,20 @@ int __init vfio_ap_init(void)
+ 		return ret;
  	}
  
--	kvm_for_each_vcpu(i, vcpu, kvm) {
--		kvm_s390_vcpu_crypto_setup(vcpu);
--		exit_sie(vcpu);
--	}
-+	kvm_s390_vcpu_crypto_reset_all(kvm);
- 	mutex_unlock(&kvm->lock);
++	ret = vfio_ap_mdev_register(ap_matrix);
++	if (ret) {
++		ap_driver_unregister(&vfio_ap_drv);
++		vfio_ap_matrix_dev_destroy(ap_matrix);
++
++		return ret;
++	}
++
  	return 0;
  }
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 1b5621f..76324b7 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -410,4 +410,18 @@ static inline int kvm_s390_use_sca_entries(void)
+ 
+ void __exit vfio_ap_exit(void)
+ {
++	vfio_ap_mdev_unregister(ap_matrix);
+ 	ap_driver_unregister(&vfio_ap_drv);
+ 	vfio_ap_matrix_dev_destroy(ap_matrix);
  }
- void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
- 				     struct mcck_volatile_info *mcck_info);
-+
-+/**
-+ * kvm_s390_vcpu_crypto_reset_all
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+new file mode 100644
+index 0000000..d41b0b8
+--- /dev/null
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -0,0 +1,105 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Adjunct processor matrix VFIO device driver callbacks.
 + *
-+ * Reset the crypto attributes for each vcpu. This can be done while the vcpus
-+ * are running as each vcpu will be removed from SIE before resetting the crypto
-+ * attributes and restored to SIE afterward.
-+ *
-+ * Note: The kvm->lock mutex must be locked prior to calling this function and
-+ *	 unlocked after it returns.
-+ *
-+ * @kvm: the KVM guest
++ * Copyright IBM Corp. 2018
++ * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 + */
-+void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm);
- #endif
++#include <linux/string.h>
++#include <linux/vfio.h>
++#include <linux/device.h>
++#include <linux/list.h>
++#include <linux/ctype.h>
++
++#include "vfio_ap_private.h"
++
++#define VFOP_AP_MDEV_TYPE_HWVIRT "passthrough"
++#define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
++
++static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
++{
++	struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
++
++	ap_matrix->available_instances--;
++
++	return 0;
++}
++
++static int vfio_ap_mdev_remove(struct mdev_device *mdev)
++{
++	struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
++
++	ap_matrix->available_instances++;
++
++	return 0;
++}
++
++static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
++{
++	return sprintf(buf, "%s\n", VFIO_AP_MDEV_NAME_HWVIRT);
++}
++
++MDEV_TYPE_ATTR_RO(name);
++
++static ssize_t available_instances_show(struct kobject *kobj,
++					struct device *dev, char *buf)
++{
++	struct ap_matrix *ap_matrix;
++
++	ap_matrix = to_ap_matrix(dev);
++
++	return sprintf(buf, "%d\n", ap_matrix->available_instances);
++}
++
++MDEV_TYPE_ATTR_RO(available_instances);
++
++static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
++			       char *buf)
++{
++	return sprintf(buf, "%s\n", VFIO_DEVICE_API_AP_STRING);
++}
++
++MDEV_TYPE_ATTR_RO(device_api);
++
++static struct attribute *vfio_ap_mdev_type_attrs[] = {
++	&mdev_type_attr_name.attr,
++	&mdev_type_attr_device_api.attr,
++	&mdev_type_attr_available_instances.attr,
++	NULL,
++};
++
++static struct attribute_group vfio_ap_mdev_hwvirt_type_group = {
++	.name = VFOP_AP_MDEV_TYPE_HWVIRT,
++	.attrs = vfio_ap_mdev_type_attrs,
++};
++
++static struct attribute_group *vfio_ap_mdev_type_groups[] = {
++	&vfio_ap_mdev_hwvirt_type_group,
++	NULL,
++};
++
++static const struct mdev_parent_ops vfio_ap_matrix_ops = {
++	.owner			= THIS_MODULE,
++	.supported_type_groups	= vfio_ap_mdev_type_groups,
++	.create			= vfio_ap_mdev_create,
++	.remove			= vfio_ap_mdev_remove,
++};
++
++int vfio_ap_mdev_register(struct ap_matrix *ap_matrix)
++{
++	int ret;
++
++	ret = mdev_register_device(&ap_matrix->device, &vfio_ap_matrix_ops);
++	if (ret)
++		return ret;
++
++	ap_matrix->available_instances = AP_MATRIX_MAX_AVAILABLE_INSTANCES;
++
++	return 0;
++}
++
++void vfio_ap_mdev_unregister(struct ap_matrix *ap_matrix)
++{
++	ap_matrix->available_instances--;
++	mdev_unregister_device(&ap_matrix->device);
++}
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index 15ed458..c47aeec 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -10,14 +10,31 @@
+ #define _VFIO_AP_PRIVATE_H_
+ 
+ #include <linux/types.h>
++#include <linux/device.h>
++#include <linux/mdev.h>
+ 
+ #include "ap_bus.h"
+ 
+ #define VFIO_AP_MODULE_NAME "vfio_ap"
+ #define VFIO_AP_DRV_NAME "vfio_ap"
++/**
++ * There must be one mediated matrix device per guest. If every APQN is assigned
++ * to a guest, then the maximum number of guests with a unique APQN assigned
++ * would be 255 adapters x 255 domains = 72351 guests.
++ */
++#define AP_MATRIX_MAX_AVAILABLE_INSTANCES 72351
+ 
+ struct ap_matrix {
+ 	struct device device;
++	int available_instances;
+ };
+ 
++static inline struct ap_matrix *to_ap_matrix(struct device *dev)
++{
++	return container_of(dev, struct ap_matrix, device);
++}
++
++extern int vfio_ap_mdev_register(struct ap_matrix *ap_matrix);
++extern void vfio_ap_mdev_unregister(struct ap_matrix *ap_matrix);
++
+ #endif /* _VFIO_AP_PRIVATE_H_ */
 -- 
 1.7.1
