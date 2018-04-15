@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v4 09/15] s390: vfio-ap: sysfs interfaces to configure adapters
-Date: Sun, 15 Apr 2018 17:22:19 -0400
-Message-ID: <1523827345-11600-10-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v4 08/15] KVM: s390: interfaces to (de)configure guest's AP matrix
+Date: Sun, 15 Apr 2018 17:22:18 -0400
+Message-ID: <1523827345-11600-9-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,400 +12,487 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Provides the sysfs interfaces for assigning AP adapters to
-and unassigning AP adapters from a mediated matrix device.
+Provides interfaces to assign AP adapters, usage domains
+and control domains to a KVM guest.
 
-The IDs of the AP adapters assigned to the mediated matrix
-device are stored in an AP mask (APM). The bits in the APM,
-from most significant to least significant bit, correspond to
-AP adapter numbers 0 to 255. When an adapter is assigned, the
-bit corresponding adapter ID will be set in the APM. Likewise,
-when an adapter is unassigned, the bit corresponding to the
-adapter ID will be cleared from the APM.
+A KVM guest is started by executing the Start Interpretive Execution (SIE)
+instruction. The SIE state description is a control block that contains the
+state information for a KVM guest and is supplied as input to the SIE
+instruction. The SIE state description has a satellite structure called the
+Crypto Control Block (CRYCB). The CRYCB contains three bitmask fields
+identifying the adapters, queues (domains) and control domains assigned to
+the KVM guest:
 
-The relevant sysfs structures are:
+* The AP Adapter Mask (APM) field identifies the AP adapters assigned to
+  the KVM guest
 
-/sys/devices/vfio_ap
-... [matrix]
-...... [mdev_supported_types]
-......... [vfio_ap-passthrough]
-............ [devices]
-...............[$uuid]
-.................. assign_adapter
-.................. unassign_adapter
+* The AP Queue Mask (AQM) field identifies the AP queues assigned to
+  the KVM guest. Each AP queue is connected to a usage domain within
+  an AP adapter.
 
-To assign an adapter to the $uuid mediated matrix device's APM,
-write the adapter ID (APID) to the assign_adapter file. To
-unassign an adapter, write the APID to the unassign_adapter
-file. The APID is specified using conventional semantics: If
-it begins with 0x the number will be parsed as a hexadecimal
-(case insensitive) number; otherwise, it will be parsed as a
-decimal number.
+* The AP Domain Mask (ADM) field identifies the control domains
+  assigned to the KVM guest.
 
-For example, to assign adapter 173 (0xad) to the mediated matrix
-device $uuid:
+Each adapter, queue (usage domain) and control domain are identified by
+a number from 0 to 255. The bits in each mask, from most significant to
+least significant bit, correspond to the numbers 0-255. When a bit is
+set, the corresponding adapter, queue (usage domain) or control domain
+is assigned to the KVM guest.
 
-	echo 173 > assign_adapter
+This patch will set the bits in the APM, AQM and ADM fields of the
+CRYCB referenced by the KVM guest's SIE state description. The process
+used is:
 
-	or
+1. Verify that the bits to be set do not exceed the maximum bit
+   number for the given mask.
 
-	echo 0xad > assign_adapter
+2. Verify that the APQNs that can be derived from the intersection
+   of the bits set in the APM and AQM fields of the KVM guest's CRYCB
+   are not assigned to any other KVM guest running on the same linux
+   host.
 
-To unassign adapter 173 (0xad):
-
-	echo 173 > unassign_adapter
-
-	or
-
-	echo 0xad > unassign_adapter
-
-The assignment will be rejected:
-
-* If the APID exceeds the maximum value for an AP adapter:
-  * If the AP Extended Addressing (APXA) facility is
-    installed, the max value is 255
-  * Else the max value is 64
-
-* If no AP domains have yet been assigned and there are
-  no AP queues bound to the VFIO AP driver that have an APQN
-  with an APID matching that of the AP adapter being assigned.
-
-* If any of the APQNs that can be derived from the intersection
-  of the APID being assigned and the AP queue index (APQI) of
-  each of the AP domains previously assigned can not be matched
-  with an APQN of an AP queue device reserved by the VFIO AP
-  driver.
+3. Set the APM, AQM and ADM in the CRYCB according to the matrix
+   configured for the mediated matrix device via its sysfs
+   adapter, domain and control domain attribute files respectively.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- arch/s390/include/asm/kvm-ap.h    |    1 +
- drivers/s390/crypto/vfio_ap_ops.c |  299 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 300 insertions(+), 0 deletions(-)
+ arch/s390/include/asm/kvm-ap.h        |   79 ++++++++++
+ arch/s390/kvm/kvm-ap.c                |  259 +++++++++++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_ops.c     |   19 +++
+ drivers/s390/crypto/vfio_ap_private.h |    4 +
+ 4 files changed, 361 insertions(+), 0 deletions(-)
 
 diff --git a/arch/s390/include/asm/kvm-ap.h b/arch/s390/include/asm/kvm-ap.h
-index a068244..5ebb171 100644
+index a6c092e..a068244 100644
 --- a/arch/s390/include/asm/kvm-ap.h
 +++ b/arch/s390/include/asm/kvm-ap.h
-@@ -17,6 +17,7 @@
- #include <linux/bitops.h>
+@@ -12,6 +12,34 @@
  
- #define KVM_AP_MASK_BYTES(n)	DIV_ROUND_UP(n, BITS_PER_BYTE)
-+#define KVM_AP_MAX_APM_INDEX(matrix)	(matrix->apm_max - 1)
+ #include <linux/types.h>
+ #include <linux/kvm_host.h>
++#include <linux/types.h>
++#include <linux/kvm_host.h>
++#include <linux/bitops.h>
++
++#define KVM_AP_MASK_BYTES(n)	DIV_ROUND_UP(n, BITS_PER_BYTE)
++
++/**
++ * The AP matrix is comprised of three bit masks identifying the adapters,
++ * queues (domains) and control domains that belong to an AP matrix. The bits in
++ * each mask, from least significant to most significant bit, correspond to IDs
++ * 0 to the maximum ID allowed for a given mask. When a bit is set, the
++ * corresponding ID belongs to the matrix.
++ *
++ * @apm_max: max number of bits in @apm
++ * @apm identifies the AP adapters in the matrix
++ * @aqm_max: max number of bits in @aqm
++ * @aqm identifies the AP queues (domains) in the matrix
++ * @adm_max: max number of bits in @adm
++ * @adm identifies the AP control domains in the matrix
++ */
++struct kvm_ap_matrix {
++	int apm_max;
++	unsigned long *apm;
++	int aqm_max;
++	unsigned long *aqm;
++	int adm_max;
++	unsigned long *adm;
++};
  
  /**
-  * The AP matrix is comprised of three bit masks identifying the adapters,
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 647ea24..6d32adb 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -97,9 +97,308 @@ static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
- 	NULL,
- };
+  * kvm_ap_instructions_installed()
+@@ -51,4 +79,55 @@
+  */
+ int kvm_ap_interpret_instructions(struct kvm *kvm, bool enable);
  
-+struct vfio_apid_reserved {
-+	unsigned long apid;
-+	int reserved;
-+};
-+
-+struct vfio_ap_qid_match {
-+	qid_t qid;
-+	struct device *dev;
-+};
++/**
++ * kvm_ap_matrix_create
++ *
++ * Create an AP matrix to hold a configuration of AP adapters, domains and
++ * control domains.
++ *
++ * @ap_matrix: holds the matrix that is created
++ *
++ * Returns 0 if the matrix is successfully created. Returns an error if an APQN
++ * derived from the cross product of the AP adapter IDs and AP queue indexes
++ * comprising the AP matrix is configured for another guest.
++ */
++int kvm_ap_matrix_create(struct kvm_ap_matrix **ap_matrix);
 +
 +/**
-+ * vfio_ap_queue_match
++ * kvm_ap_matrix_destroy
 + *
-+ * @dev: an AP queue device that has been reserved by the VFIO AP device
-+ *	 driver
-+ * @data: an AP queue identifier
++ * Destroy an AP matrix by de-allocating all storage allocated by the
++ * kvm_ap_matrix_create function.
 + *
-+ * Returns 1 (true) if @data matches the AP queue identifier specified for @dev;
-+ * otherwise, returns 0 (false);
++ * @ap_matrix: the matrix to destroy
 + */
-+static int vfio_ap_queue_match(struct device *dev, void *data)
++void kvm_ap_matrix_destroy(struct kvm_ap_matrix *ap_matrix);
++
++/**
++ * kvm_ap_configure_matrix
++ *
++ * Configure the AP matrix for a KVM guest.
++ *
++ * @kvm:		 the KVM guest
++ * @matrix:		 the matrix configuration information
++ *
++ * Returns 0 if:
++ *	1. The AP instructions are installed on the guest
++ *	2. The APQNs derived from the intersection of the set of adapter
++ *	   IDs (APM) and queue indexes (AQM) in @matrix are not configured for
++ *	   any other KVM guest running on the same linux host.
++ * Otherwise returns an error code.
++ */
++int kvm_ap_configure_matrix(struct kvm *kvm, struct kvm_ap_matrix *matrix);
++
++/**
++ * kvm_ap_deconfigure_matrix
++ *
++ * Deconfigure the AP matrix for a KVM guest. Clears all of the bits in the
++ * APM, AQM and ADM in the guest's CRYCB.
++ *
++ * @kvm: the KVM guest
++ */
++void kvm_ap_deconfigure_matrix(struct kvm *kvm);
++
+ #endif /* _ASM_KVM_AP */
+diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
+index 55d11b5..f7226d8 100644
+--- a/arch/s390/kvm/kvm-ap.c
++++ b/arch/s390/kvm/kvm-ap.c
+@@ -9,6 +9,7 @@
+ #include <linux/kernel.h>
+ #include <asm/kvm-ap.h>
+ #include <asm/ap.h>
++#include <linux/bitops.h>
+ 
+ #include "kvm-s390.h"
+ 
+@@ -78,3 +79,261 @@ int kvm_ap_interpret_instructions(struct kvm *kvm, bool enable)
+ 	return ret;
+ }
+ EXPORT_SYMBOL(kvm_ap_interpret_instructions);
++
++static inline void kvm_ap_clear_crycb_masks(struct kvm *kvm)
 +{
-+	struct vfio_ap_qid_match *qid_match = data;
-+	struct ap_queue *ap_queue;
++	memset(&kvm->arch.crypto.crycb->apcb0, 0,
++	       sizeof(kvm->arch.crypto.crycb->apcb0));
++	memset(&kvm->arch.crypto.crycb->apcb1, 0,
++	       sizeof(kvm->arch.crypto.crycb->apcb1));
++}
 +
-+	ap_queue = to_ap_queue(dev);
-+	if (ap_queue->qid == qid_match->qid)
-+		qid_match->dev = dev;
++static inline unsigned long *kvm_ap_get_crycb_apm(struct kvm *kvm)
++{
++	unsigned long *apm;
 +
-+	return 0;
++	switch (kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
++	case CRYCB_FORMAT1:
++		apm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.apm;
++		break;
++	case CRYCB_FORMAT2:
++		apm = (unsigned long *)kvm->arch.crypto.crycb->apcb1.apm;
++		break;
++	default:
++		apm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.apm;
++		break;
++	}
++
++	return apm;
++}
++
++static inline unsigned long *kvm_ap_get_crycb_aqm(struct kvm *kvm)
++{
++	unsigned long *aqm;
++
++	switch (kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
++	case CRYCB_FORMAT1:
++		aqm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.aqm;
++		break;
++	case CRYCB_FORMAT2:
++		aqm = (unsigned long *)kvm->arch.crypto.crycb->apcb1.aqm;
++		break;
++	default:
++		aqm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.aqm;
++		break;
++	}
++
++	return aqm;
++}
++
++static inline unsigned long *kvm_ap_get_crycb_adm(struct kvm *kvm)
++{
++	unsigned long *adm;
++
++	switch (kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
++	case CRYCB_FORMAT1:
++		adm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.adm;
++		break;
++	case CRYCB_FORMAT2:
++		adm = (unsigned long *)kvm->arch.crypto.crycb->apcb1.adm;
++		break;
++	default:
++		adm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.adm;
++		break;
++	}
++
++	return adm;
++}
++
++static void kvm_ap_set_crycb_masks(struct kvm *kvm,
++				   struct kvm_ap_matrix *matrix)
++{
++	unsigned long *apm = kvm_ap_get_crycb_apm(kvm);
++	unsigned long *aqm = kvm_ap_get_crycb_aqm(kvm);
++	unsigned long *adm = kvm_ap_get_crycb_adm(kvm);
++
++	kvm_ap_clear_crycb_masks(kvm);
++	memcpy(apm, matrix->apm, KVM_AP_MASK_BYTES(matrix->apm_max));
++	memcpy(aqm, matrix->aqm, KVM_AP_MASK_BYTES(matrix->aqm_max));
++
++	/*
++	 * Merge the AQM and ADM since the ADM is a superset of the
++	 * AQM by agreed-upon convention.
++	 */
++	bitmap_or(adm, adm, aqm, matrix->adm_max);
++}
++
++static void kvm_ap_log_sharing_err(struct kvm *kvm, unsigned long apid,
++				   unsigned long apqi)
++{
++	pr_err("%s: AP queue %02lx.%04lx is registered to guest %s", __func__,
++	       apid, apqi, kvm->arch.dbf->name);
 +}
 +
 +/**
-+ * vfio_ap_validate_queues_for_apid
++ * kvm_ap_validate_queue_sharing
 + *
-+ * @ap_matrix: the matrix device
-+ * @matrix_mdev: the mediated matrix device
-+ * @apid: an AP adapter ID (APID)
++ * Verifies that the APQNs derived from the cross product of the AP adapter IDs
++ * and AP queue indexes comprising the AP matrix are not configured for
++ * another guest. AP queue sharing is not allowed.
 + *
-+ * Verifies that each APQN that is derived from the intersection of @apid and
-+ * each AP queue index (APQI) corresponding to an AP adapter assigned to the
-+ * @matrix_mdev matches the APQN of an AP queue reserved by the VFIO AP device
-+ * driver.
++ * @kvm: the KVM guest
++ * @matrix: the AP matrix
 + *
-+ * Returns 0 if validation succeeds; otherwise, returns an error.
++ * Returns 0 if the APQNs are valid, otherwise; returns -EBUSY.
 + */
-+static int vfio_ap_validate_queues_for_apid(struct ap_matrix *ap_matrix,
-+					    struct ap_matrix_mdev *matrix_mdev,
-+					    unsigned long apid)
++static int kvm_ap_validate_queue_sharing(struct kvm *kvm,
++					 struct kvm_ap_matrix *matrix)
 +{
-+	int ret;
-+	struct vfio_ap_qid_match qid_match;
-+	unsigned long apqi;
-+	struct device_driver *drv = ap_matrix->device.driver;
++	struct kvm *vm;
++	unsigned long *apm, *aqm;
++	unsigned long apid, apqi;
 +
-+	/**
-+	 * Examine each APQN with the specified APID
-+	 */
-+	for_each_set_bit_inv(apqi, matrix_mdev->matrix->aqm,
-+			     matrix_mdev->matrix->apm_max) {
-+		qid_match.qid = AP_MKQID(apid, apqi);
-+		qid_match.dev = NULL;
 +
-+		ret = driver_for_each_device(drv, NULL, &qid_match,
-+					     vfio_ap_queue_match);
-+		if (ret) {
-+			pr_err("%s: Error %d validating AP queue %02lx.%04lx reservation",
-+			       VFIO_AP_MODULE_NAME, ret, apid, apqi);
-+			return ret;
-+		}
-+
-+		/*
-+		 * If the APQN identifies an AP queue that is reserved by the
-+		 * VFIO AP device driver, continue processing.
-+		 */
-+		if (qid_match.dev)
++	/* No other VM may share an AP Queue with the input VM */
++	list_for_each_entry(vm, &vm_list, vm_list) {
++		if (kvm == vm)
 +			continue;
 +
-+		pr_err("%s: AP queue %02lx.%04lx not reserved by %s driver",
-+		       VFIO_AP_MODULE_NAME, apid, apqi,
-+		       VFIO_AP_DRV_NAME);
++		apm = kvm_ap_get_crycb_apm(vm);
++		if (!bitmap_and(apm, apm, matrix->apm, matrix->apm_max))
++			continue;
 +
-+		return -ENXIO;
++		aqm = kvm_ap_get_crycb_aqm(vm);
++		if (!bitmap_and(aqm, aqm, matrix->aqm, matrix->aqm_max))
++			continue;
++
++		for_each_set_bit_inv(apid, apm, matrix->apm_max)
++			for_each_set_bit_inv(apqi, aqm, matrix->aqm_max)
++				kvm_ap_log_sharing_err(kvm, apid, apqi);
++
++		return -EBUSY;
 +	}
 +
 +	return 0;
 +}
 +
-+struct vfio_ap_apid_reserved {
-+	unsigned long apid;
-+	bool reserved;
-+};
-+
-+/**
-+ * vfio_ap_queue_id_contains_apid
-+ *
-+ * @dev: an AP queue device
-+ * @data: an AP adapter ID (APID)
-+ *
-+ * Returns 1 (true) if the APID (@data) is contained in the AP queue's (@data)
-+ * identifier; otherwise, returns 0;
-+ */
-+static int vfio_ap_queue_id_contains_apid(struct device *dev, void *data)
++static int kvm_ap_matrix_apm_create(struct kvm_ap_matrix *ap_matrix,
++				    struct ap_config_info *config)
 +{
-+	struct vfio_ap_apid_reserved *apid_res = data;
-+	struct ap_queue *ap_queue = to_ap_queue(dev);
++	int apm_max = (config && config->apxa) ? config->Na + 1 : 16;
 +
-+	if (apid_res->apid == AP_QID_CARD(ap_queue->qid))
-+		apid_res->reserved = true;
++	ap_matrix->apm = kzalloc(KVM_AP_MASK_BYTES(apm_max), GFP_KERNEL);
++	if (!ap_matrix->apm)
++		return -ENOMEM;
++
++	ap_matrix->apm_max = apm_max;
 +
 +	return 0;
 +}
 +
-+/**
-+ * vfio_ap_verify_apid_reserved
-+ *
-+ * @ap_matrix: the AP matrix configured for the mediated matrix device
-+ * @apid: the AP adapter ID
-+ *
-+ * Verifies that at least one AP queue reserved by the VFIO AP device driver
-+ * has an APQN containing @apid.
-+ *
-+ * Returns 0 if the APID is reserved; otherwise, returns -ENODEV.
-+ */
-+static int vfio_ap_verify_apid_reserved(struct ap_matrix *ap_matrix,
-+					unsigned long apid)
++static int kvm_ap_matrix_aqm_create(struct kvm_ap_matrix *ap_matrix,
++				    struct ap_config_info *config)
 +{
-+	int ret;
-+	struct vfio_ap_apid_reserved apid_res;
++	int aqm_max = (config && config->apxa) ? config->Nd + 1 : 16;
 +
-+	apid_res.apid = apid;
++	ap_matrix->aqm = kzalloc(KVM_AP_MASK_BYTES(aqm_max), GFP_KERNEL);
++	if (!ap_matrix->aqm)
++		return -ENOMEM;
 +
-+	ret = driver_for_each_device(ap_matrix->device.driver, NULL,
-+				     &apid_res,
-+				     vfio_ap_queue_id_contains_apid);
-+	if (ret)
-+		return ret;
++	ap_matrix->aqm_max = aqm_max;
 +
-+	if (apid_res.reserved)
-+		return 0;
-+
-+	pr_err("%s: no APQNs with adapter ID %02lx are reserved by %s driver",
-+		VFIO_AP_MODULE_NAME, apid, VFIO_AP_DRV_NAME);
-+
-+	return -ENODEV;
++	return 0;
 +}
 +
-+/**
-+ * vfio_ap_validate_apid
-+ *
-+ * @mdev: the mediated device
-+ * @matrix_mdev: the mediated matrix device
-+ * @apid: the APID to validate
-+ *
-+ * Validates the value of @apid:
-+ *	* If there are no AP domains assigned, then there must be at least
-+ *	  one AP queue device reserved by the VFIO AP device driver with an
-+ *	  APQN containing @apid.
-+ *
-+ *	* Else each APQN that can be derived from the intersection of @apid and
-+ *	  the IDs of the AP domains already assigned must identify an AP queue
-+ *	  that has been reserved by the VFIO AP device driver.
-+ *
-+ * Returns 0 if the value of @apid is valid; otherwise, returns an error.
-+ */
-+static int vfio_ap_validate_apid(struct mdev_device *mdev,
-+				 struct ap_matrix_mdev *matrix_mdev,
-+				 unsigned long apid)
++static int kvm_ap_matrix_adm_create(struct kvm_ap_matrix *ap_matrix,
++				    struct ap_config_info *config)
++{
++	int adm_max = (config && config->apxa) ? config->Nd + 1 : 16;
++
++	ap_matrix->adm = kzalloc(KVM_AP_MASK_BYTES(adm_max), GFP_KERNEL);
++	if (!ap_matrix->adm)
++		return -ENOMEM;
++
++	ap_matrix->adm_max = adm_max;
++
++	return 0;
++}
++
++static void kvm_ap_matrix_masks_destroy(struct kvm_ap_matrix *ap_matrix)
++{
++	kfree(ap_matrix->apm);
++	kfree(ap_matrix->aqm);
++	kfree(ap_matrix->adm);
++}
++
++int kvm_ap_matrix_create(struct kvm_ap_matrix **ap_matrix)
 +{
 +	int ret;
-+	struct device *dev = mdev_parent_dev(mdev);
-+	struct ap_matrix *ap_matrix = to_ap_matrix(dev);
-+	unsigned long apqi;
++	struct kvm_ap_matrix *matrix;
++	struct ap_config_info config;
++	struct ap_config_info *config_info = NULL;
 +
-+	apqi = find_first_bit_inv(matrix_mdev->matrix->aqm,
-+				  matrix_mdev->matrix->aqm_max);
-+	if (apqi == matrix_mdev->matrix->aqm_max) {
-+		ret = vfio_ap_verify_apid_reserved(ap_matrix, apid);
++	memset(&config, 0, sizeof(config));
++
++	ret = ap_query_configuration(&config);
++	if (ret) {
++		if (ret != -EOPNOTSUPP)
++			return ret;
 +	} else {
-+		ret = vfio_ap_validate_queues_for_apid(ap_matrix, matrix_mdev,
-+						       apid);
++		config_info = &config;
 +	}
 +
++	matrix = kzalloc(sizeof(*matrix), GFP_KERNEL);
++	if (!matrix)
++		return -ENOMEM;
++
++	ret = kvm_ap_matrix_apm_create(matrix, config_info);
 +	if (ret)
-+		return ret;
++		goto mask_create_err;
++
++	ret = kvm_ap_matrix_aqm_create(matrix, config_info);
++	if (ret)
++		goto mask_create_err;
++
++	ret = kvm_ap_matrix_adm_create(matrix, config_info);
++	if (ret)
++		goto mask_create_err;
++
++	*ap_matrix = matrix;
 +
 +	return 0;
++
++mask_create_err:
++	kvm_ap_matrix_masks_destroy(matrix);
++	kfree(matrix);
++	return ret;
 +}
++EXPORT_SYMBOL(kvm_ap_matrix_create);
 +
-+/**
-+ * assign_adapter_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the APID from @buf and assigns it to the mediated matrix device. The
-+ * APID must be a valid value:
-+ *	* The APID value must not exceed the maximum allowable AP adapter ID
-+ *
-+ *	* If there are no AP domains assigned, then there must be at least
-+ *	  one AP queue device reserved by the VFIO AP device driver with an
-+ *	  APQN containing @apid.
-+ *
-+ *	* Else each APQN that can be derived from the intersection of @apid and
-+ *	  the IDs of the AP domains already assigned must identify an AP queue
-+ *	  that has been reserved by the VFIO AP device driver.
-+ *
-+ * Returns the number of bytes processed if the APID is valid; otherwise returns
-+ * an error.
-+ */
-+static ssize_t assign_adapter_store(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
++void kvm_ap_matrix_destroy(struct kvm_ap_matrix *ap_matrix)
 +{
++	kvm_ap_matrix_masks_destroy(ap_matrix);
++	kfree(ap_matrix);
++}
++EXPORT_SYMBOL(kvm_ap_matrix_destroy);
++
++int kvm_ap_configure_matrix(struct kvm *kvm, struct kvm_ap_matrix *matrix)
++{
++	int ret = 0;
++
++	mutex_lock(&kvm->lock);
++
++	ret = kvm_ap_validate_queue_sharing(kvm, matrix);
++	if (ret)
++		goto done;
++
++	kvm_ap_set_crycb_masks(kvm, matrix);
++
++done:
++	mutex_unlock(&kvm->lock);
++
++	return ret;
++}
++EXPORT_SYMBOL(kvm_ap_configure_matrix);
++
++void kvm_ap_deconfigure_matrix(struct kvm *kvm)
++{
++	kvm_ap_clear_crycb_masks(kvm);
++}
++EXPORT_SYMBOL(kvm_ap_deconfigure_matrix);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index d41b0b8..647ea24 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -10,6 +10,7 @@
+ #include <linux/device.h>
+ #include <linux/list.h>
+ #include <linux/ctype.h>
++#include <asm/kvm-ap.h>
+ 
+ #include "vfio_ap_private.h"
+ 
+@@ -18,8 +19,23 @@
+ 
+ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+ {
 +	int ret;
-+	unsigned long apid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	int maxid = KVM_AP_MAX_APM_INDEX(matrix_mdev->matrix);
++	struct ap_matrix_mdev *matrix_mdev;
+ 	struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
++	struct kvm_ap_matrix *matrix;
 +
-+	ret = kstrtoul(buf, 0, &apid);
-+	if (ret || (apid > maxid)) {
-+		pr_err("%s: adapter id '%s' not a value from 0 to %02d(%#04x)",
-+		       VFIO_AP_MODULE_NAME, buf, maxid, maxid);
-+
-+		return ret ? ret : -EINVAL;
-+	}
-+
-+	ret = vfio_ap_validate_apid(mdev, matrix_mdev, apid);
++	ret = kvm_ap_matrix_create(&matrix);
 +	if (ret)
 +		return ret;
 +
-+	/* Set the bit in the AP mask (APM) corresponding to the AP adapter
-+	 * number (APID). The bits in the mask, from most significant to least
-+	 * significant bit, correspond to APIDs 0-255.
-+	 */
-+	set_bit_inv(apid, matrix_mdev->matrix->apm);
-+
-+	return count;
-+}
-+static DEVICE_ATTR_WO(assign_adapter);
-+
-+/**
-+ * unassign_adapter_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the APID from @buf and unassigns it from the mediated matrix device.
-+ * The APID must be a valid value
-+ *
-+ * Returns the number of bytes processed if the APID is valid; otherwise returns
-+ * an error.
-+ */
-+static ssize_t unassign_adapter_store(struct device *dev,
-+				      struct device_attribute *attr,
-+				      const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long apid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	int maxid = KVM_AP_MAX_APM_INDEX(matrix_mdev->matrix);
-+
-+	ret = kstrtoul(buf, 0, &apid);
-+	if (ret || (apid > maxid)) {
-+		pr_err("%s: adapter id '%s' must be a value from 0 to %02d(%#04x)",
-+		       VFIO_AP_MODULE_NAME, buf, maxid, maxid);
-+
-+		return ret ? ret : -EINVAL;
++	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
++	if (!matrix_mdev) {
++		kvm_ap_matrix_destroy(matrix);
++		return -ENOMEM;
 +	}
-+
-+	clear_bit_inv((unsigned long)apid,
-+		      (unsigned long *)matrix_mdev->matrix->apm);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(unassign_adapter);
-+
-+static struct attribute *vfio_ap_mdev_attrs[] = {
-+	&dev_attr_assign_adapter.attr,
-+	&dev_attr_unassign_adapter.attr,
-+	NULL
-+};
-+
-+static struct attribute_group vfio_ap_mdev_attr_group = {
-+	.attrs = vfio_ap_mdev_attrs
-+};
-+
-+static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
-+	&vfio_ap_mdev_attr_group,
-+	NULL
-+};
-+
- static const struct mdev_parent_ops vfio_ap_matrix_ops = {
- 	.owner			= THIS_MODULE,
- 	.supported_type_groups	= vfio_ap_mdev_type_groups,
-+	.mdev_attr_groups	= vfio_ap_mdev_attr_groups,
- 	.create			= vfio_ap_mdev_create,
- 	.remove			= vfio_ap_mdev_remove,
+ 
++	matrix_mdev->matrix = matrix;
++	mdev_set_drvdata(mdev, matrix_mdev);
+ 	ap_matrix->available_instances--;
+ 
+ 	return 0;
+@@ -28,7 +44,10 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+ {
+ 	struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
++	kvm_ap_matrix_destroy(matrix_mdev->matrix);
++	kfree(matrix_mdev);
+ 	ap_matrix->available_instances++;
+ 
+ 	return 0;
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index c47aeec..f248faf 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -29,6 +29,10 @@ struct ap_matrix {
+ 	int available_instances;
  };
+ 
++struct ap_matrix_mdev {
++	struct kvm_ap_matrix *matrix;
++};
++
+ static inline struct ap_matrix *to_ap_matrix(struct device *dev)
+ {
+ 	return container_of(dev, struct ap_matrix, device);
 -- 
 1.7.1
