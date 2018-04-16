@@ -1,104 +1,175 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 01/15] s390: zcrypt: externalize AP instructions
- available function
-Date: Mon, 16 Apr 2018 14:11:36 +0200
-Message-ID: <20180416141136.04be5558.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: Re: [PATCH v4 13/15] KVM: s390: configure the guest's AP devices
+Date: Mon, 16 Apr 2018 15:05:58 +0200
+Message-ID: <2e7387b9-ceb4-cdca-56ac-f5344084e10a@linux.vnet.ibm.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1523827345-11600-2-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <77bbd4ca-8412-e59d-e1ca-9a114cf495a6@linux.vnet.ibm.com>
+ <1523827345-11600-14-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <77bbd4ca-8412-e59d-e1ca-9a114cf495a6@linux.vnet.ibm.com>
+In-Reply-To: <1523827345-11600-14-git-send-email-akrowiak@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 16 Apr 2018 10:44:53 +0200
-Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+On 15/04/2018 23:22, Tony Krowiak wrote:
+> Registers a group notifier during the open of the mediated
+> matrix device to get information on KVM presence through the
+> VFIO_GROUP_NOTIFY_SET_KVM event. When notified, the pointer
+> to the kvm structure is saved inside the mediated matrix
+> device. Once the VFIO AP device driver has access to KVM,
+> access to the APs can be configured for the guest.
+>
+> Access to APs is configured when the file descriptor for the
+> mediated matrix device is opened by userspace. The items to be
+> configured are:
+>
+> 1. The ECA.28 bit in the SIE state description determines whether
+>     AP instructions are interpreted by the hardware or intercepted.
+>     The VFIO AP device driver relies interpretive execution of
+>     AP instructions so the ECA.28 bit will be set
+>
+> 2. Guest access to AP adapters, usage domains and control domains
+>     is controlled by three bit masks referenced from the
+>     Crypto Control Block (CRYCB) referenced from the guest's SIE state
+>     description:
+>
+>     * The AP Mask (APM) controls access to the AP adapters. Each bit
+>       in the APM represents an adapter number - from most significant
+>       to least significant bit - from 0 to 255. The bits in the APM
+>       are set according to the adapter numbers assigned to the mediated
+>       matrix device via its 'assign_adapter' sysfs attribute file.
+>
+>     * The AP Queue (AQM) controls access to the AP queues. Each bit
+>       in the AQM represents an AP queue index - from most significant
+>       to least significant bit - from 0 to 255. A queue index references
+>       a specific domain and is synonymous with the domian number. The
+>       bits in the AQM are set according to the domain numbers assigned
+>       to the mediated matrix device via its 'assign_domain' sysfs
+>       attribute file.
+>
+>     * The AP Domain Mask (ADM) controls access to the AP control domains.
+>       Each bit in the ADM represents a control domain - from most
+>       significant to least significant bit - from 0-255. The
+>       bits in the ADM are set according to the domain numbers assigned
+>       to the mediated matrix device via its 'assign_control_domain'
+>       sysfs attribute file.
+>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c     |   50 +++++++++++++++++++++++++++++++++
+>   drivers/s390/crypto/vfio_ap_private.h |    2 +
+>   2 files changed, 52 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index bc2b05e..e3ff5ab 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -53,6 +53,54 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>   	return 0;
+>   }
+>
+> +static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+> +				       unsigned long action, void *data)
+> +{
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +
+> +	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
+> +		matrix_mdev = container_of(nb, struct ap_matrix_mdev,
+> +					   group_notifier);
+> +		matrix_mdev->kvm = data;
+> +	}
+> +
+> +	return NOTIFY_OK;
+> +}
+> +
+> +static int vfio_ap_mdev_open(struct mdev_device *mdev)
+> +{
+> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +	unsigned long events;
+> +	int ret;
+> +
+> +	matrix_mdev->group_notifier.notifier_call = vfio_ap_mdev_group_notifier;
+> +	events = VFIO_GROUP_NOTIFY_SET_KVM;
+> +
+> +	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+> +				     &events, &matrix_mdev->group_notifier);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = kvm_ap_interpret_instructions(matrix_mdev->kvm, true);
 
-> On 15/04/2018 23:22, Tony Krowiak wrote:
-> > If the AP instructions are not available on the linux host, then
-> > AP devices can not be interpreted by the SIE. The AP bus has a
-> > function it uses to determine if the AP instructions are
-> > available. This patch provides a new function that wraps the
-> > AP bus's function to externalize it for use by KVM.
-> >
-> > Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> > Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-> > Reviewed-by: Harald Freudenberger <freude@linux.vnet.ibm.com>
-> > ---
-> >   arch/s390/include/asm/ap.h     |    7 +++++++
-> >   arch/s390/include/asm/kvm-ap.h |   23 +++++++++++++++++++++++
-> >   arch/s390/kvm/Makefile         |    2 +-
-> >   arch/s390/kvm/kvm-ap.c         |   21 +++++++++++++++++++++
-> >   drivers/s390/crypto/ap_bus.c   |    6 ++++++
-> >   5 files changed, 58 insertions(+), 1 deletions(-)
-> >   create mode 100644 arch/s390/include/asm/kvm-ap.h
-> >   create mode 100644 arch/s390/kvm/kvm-ap.c
+Do you need this call ?
+apie is always enabled in KVM if AP instructions are available.
 
-> > diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
-> > new file mode 100644
-> > index 0000000..1267588
-> > --- /dev/null
-> > +++ b/arch/s390/kvm/kvm-ap.c
-> > @@ -0,0 +1,21 @@
-> > +// SPDX-License-Identifier: GPL-2.0+
-> > +/*
-> > + * Adjunct Processor (AP) configuration management for KVM guests
-> > + *
-> > + * Copyright IBM Corp. 2018
-> > + *
-> > + * Author(s): Tony Krowiak <akrowia@linux.vnet.ibm.com>
-> > + */
-> > +#include <linux/kernel.h>
-> > +#include <asm/kvm-ap.h>
-> > +#include <asm/ap.h>
-> > +
-> > +int kvm_ap_instructions_installed(void)
-> > +{
-> > +#ifdef CONFIG_ZCRYPT  
-> 
-> I did not give my R-B for this.
-> please change it or suppress my R-B
-> 
-> I think you should review the way you wrap functions
-> calling the AP interface.
-> Having all of them together would simplify code and review.
+Setting or not the interpretation is done for the VM in a all.
+It is not the right place to do it here since open is device dependent.
 
-I don't like the ifdeffery either (especially as there's more later).
+Or we only have one device in the VM at a time.
+In this case, shouldn't we make it official by returning -EEXIST for the 
+second call?
 
-Consolidating all functions for querying basic ap capabilities sounds
-like a good idea. What about collecting them in a ap-util file and
-either always building it or selecting it from both zcrypt and kvm?
 
-> 
-> > +	return ap_instructions_installed();
-> > +#else
-> > +	return 0;
-> > +#endif
-> > +}
-> > +EXPORT_SYMBOL(kvm_ap_instructions_installed);
-> > diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-> > index 35a0c2b..9d108b6 100644
-> > --- a/drivers/s390/crypto/ap_bus.c
-> > +++ b/drivers/s390/crypto/ap_bus.c
-> > @@ -210,6 +210,12 @@ int ap_query_configuration(struct ap_config_info *info)
-> >   }
-> >   EXPORT_SYMBOL(ap_query_configuration);
-> >
-> > +int ap_instructions_installed(void)
-> > +{
-> > +	return (ap_instructions_available() == 0);
-> > +}
-> > +EXPORT_SYMBOL(ap_instructions_installed);
-> > +
-> >   /**
-> >    * ap_init_configuration(): Allocate and query configuration array.
-> >    */  
-> 
-> 
+
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = kvm_ap_configure_matrix(matrix_mdev->kvm,
+> +				      matrix_mdev->matrix);
+> +
+> +	return ret;
+> +}
+> +
+> +static void vfio_ap_mdev_release(struct mdev_device *mdev)
+> +{
+> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +
+> +	kvm_ap_deconfigure_matrix(matrix_mdev->kvm);
+> +	kvm_ap_interpret_instructions(matrix_mdev->kvm, false);
+
+This call clears the apie in KVM.
+This is only OK if we have a single device present until the end of the VM,
+otherwise AP instructions in the guest will fail after the release until 
+the end of the VM
+or until a new device is plugged.
+
+
+> +	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+> +				 &matrix_mdev->group_notifier);
+> +}
+> +
+>   static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
+>   {
+>   	return sprintf(buf, "%s\n", VFIO_AP_MDEV_NAME_HWVIRT);
+> @@ -754,6 +802,8 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+>   	.mdev_attr_groups	= vfio_ap_mdev_attr_groups,
+>   	.create			= vfio_ap_mdev_create,
+>   	.remove			= vfio_ap_mdev_remove,
+> +	.open			= vfio_ap_mdev_open,
+> +	.release		= vfio_ap_mdev_release,
+>   };
+>
+>   int vfio_ap_mdev_register(struct ap_matrix *ap_matrix)
+> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> index f248faf..48e2806 100644
+> --- a/drivers/s390/crypto/vfio_ap_private.h
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -31,6 +31,8 @@ struct ap_matrix {
+>
+>   struct ap_matrix_mdev {
+>   	struct kvm_ap_matrix *matrix;
+> +	struct notifier_block group_notifier;
+> +	struct kvm *kvm;
+>   };
+>
+>   static inline struct ap_matrix *to_ap_matrix(struct device *dev)
+
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
