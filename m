@@ -1,182 +1,154 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v4 08/15] KVM: s390: interfaces to (de)configure guest's
- AP matrix
-Date: Mon, 16 Apr 2018 13:04:37 +0800
-Message-ID: <201804161106.qPLXhoL5%fengguang.wu@intel.com>
-References: <1523827345-11600-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: Re: [PATCH v4 01/15] s390: zcrypt: externalize AP instructions
+ available function
+Date: Mon, 16 Apr 2018 10:44:53 +0200
+Message-ID: <77bbd4ca-8412-e59d-e1ca-9a114cf495a6@linux.vnet.ibm.com>
+References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1523827345-11600-2-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="u3/rZRmxL6MmkK24"
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1523827345-11600-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <1523827345-11600-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-Cc: kbuild-all@01.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
+On 15/04/2018 23:22, Tony Krowiak wrote:
+> If the AP instructions are not available on the linux host, then
+> AP devices can not be interpreted by the SIE. The AP bus has a
+> function it uses to determine if the AP instructions are
+> available. This patch provides a new function that wraps the
+> AP bus's function to externalize it for use by KVM.
+>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+> Reviewed-by: Harald Freudenberger <freude@linux.vnet.ibm.com>
+> ---
+>   arch/s390/include/asm/ap.h     |    7 +++++++
+>   arch/s390/include/asm/kvm-ap.h |   23 +++++++++++++++++++++++
+>   arch/s390/kvm/Makefile         |    2 +-
+>   arch/s390/kvm/kvm-ap.c         |   21 +++++++++++++++++++++
+>   drivers/s390/crypto/ap_bus.c   |    6 ++++++
+>   5 files changed, 58 insertions(+), 1 deletions(-)
+>   create mode 100644 arch/s390/include/asm/kvm-ap.h
+>   create mode 100644 arch/s390/kvm/kvm-ap.c
+>
+> diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+> index c1bedb4..7773bfd 100644
+> --- a/arch/s390/include/asm/ap.h
+> +++ b/arch/s390/include/asm/ap.h
+> @@ -120,4 +120,11 @@ struct ap_queue_status ap_queue_irq_ctrl(ap_qid_t qid,
+>   					 struct ap_qirq_ctrl qirqctrl,
+>   					 void *ind);
+>
+> +/**
+> + * ap_instructions_installed() - Tests whether AP instructions are installed
+> + *
+> + * Returns 1 if the AP instructions are installed, otherwise; returns 0
+> + */
+> +int ap_instructions_installed(void);
+> +
+>   #endif /* _ASM_S390_AP_H_ */
+> diff --git a/arch/s390/include/asm/kvm-ap.h b/arch/s390/include/asm/kvm-ap.h
+> new file mode 100644
+> index 0000000..84412a9
+> --- /dev/null
+> +++ b/arch/s390/include/asm/kvm-ap.h
+> @@ -0,0 +1,23 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * Adjunct Processor (AP) configuration management for KVM guests
+> + *
+> + * Copyright IBM Corp. 2018
+> + *
+> + * Author(s): Tony Krowiak <akrowia@linux.vnet.ibm.com>
+> + */
+> +
+> +#ifndef _ASM_KVM_AP
+> +#define _ASM_KVM_AP
+> +
+> +/**
+> + * kvm_ap_instructions_installed()
+> + *
+> + * Tests whether AP instructions are installed on the linux host
+> + *
+> + * Returns 1 if the AP instructions are installed on the host, otherwise;
+> + * returns 0
+> + */
+> +int kvm_ap_instructions_installed(void);
+> +
+> +#endif /* _ASM_KVM_AP */
+> diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+> index 05ee90a..1876bfe 100644
+> --- a/arch/s390/kvm/Makefile
+> +++ b/arch/s390/kvm/Makefile
+> @@ -9,6 +9,6 @@ common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqch
+>   ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+>
+>   kvm-objs := $(common-objs) kvm-s390.o intercept.o interrupt.o priv.o sigp.o
+> -kvm-objs += diag.o gaccess.o guestdbg.o vsie.o
+> +kvm-objs += diag.o gaccess.o guestdbg.o vsie.o kvm-ap.o
+>
+>   obj-$(CONFIG_KVM) += kvm.o
+> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
+> new file mode 100644
+> index 0000000..1267588
+> --- /dev/null
+> +++ b/arch/s390/kvm/kvm-ap.c
+> @@ -0,0 +1,21 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * Adjunct Processor (AP) configuration management for KVM guests
+> + *
+> + * Copyright IBM Corp. 2018
+> + *
+> + * Author(s): Tony Krowiak <akrowia@linux.vnet.ibm.com>
+> + */
+> +#include <linux/kernel.h>
+> +#include <asm/kvm-ap.h>
+> +#include <asm/ap.h>
+> +
+> +int kvm_ap_instructions_installed(void)
+> +{
+> +#ifdef CONFIG_ZCRYPT
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I did not give my R-B for this.
+please change it or suppress my R-B
 
-Hi Tony,
+I think you should review the way you wrap functions
+calling the AP interface.
+Having all of them together would simplify code and review.
 
-I love your patch! Yet something to improve:
+> +	return ap_instructions_installed();
+> +#else
+> +	return 0;
+> +#endif
+> +}
+> +EXPORT_SYMBOL(kvm_ap_instructions_installed);
+> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+> index 35a0c2b..9d108b6 100644
+> --- a/drivers/s390/crypto/ap_bus.c
+> +++ b/drivers/s390/crypto/ap_bus.c
+> @@ -210,6 +210,12 @@ int ap_query_configuration(struct ap_config_info *info)
+>   }
+>   EXPORT_SYMBOL(ap_query_configuration);
+>
+> +int ap_instructions_installed(void)
+> +{
+> +	return (ap_instructions_available() == 0);
+> +}
+> +EXPORT_SYMBOL(ap_instructions_installed);
+> +
+>   /**
+>    * ap_init_configuration(): Allocate and query configuration array.
+>    */
 
-[auto build test ERROR on s390/features]
-[also build test ERROR on v4.17-rc1 next-20180413]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 
-url:    https://github.com/0day-ci/linux/commits/Tony-Krowiak/s390-vfio-ap-guest-dedicated-crypto-adapters/20180416-052759
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-config: s390-alldefconfig (attached as .config)
-compiler: s390x-linux-gnu-gcc (Debian 7.2.0-11) 7.2.0
-reproduce:
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # save the attached .config to linux build tree
-        make.cross ARCH=s390 
-
-All errors (new ones prefixed by >>):
-
-   arch/s390/kvm/kvm-ap.o: In function `kvm_ap_matrix_create':
->> kvm-ap.c:(.text+0x176): undefined reference to `ap_query_configuration'
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
-
---u3/rZRmxL6MmkK24
-Content-Type: application/gzip
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
-
-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
-umZuWhPY/QdsGbUzF2IAAA==
-
---u3/rZRmxL6MmkK24--
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
