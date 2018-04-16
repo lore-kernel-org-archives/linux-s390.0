@@ -1,81 +1,70 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH] vfio-ccw: process ssch with interrupts disabled
-Date: Fri, 13 Apr 2018 16:05:09 +0200
-Message-ID: <20180413140509.9042-1-cohuck@redhat.com>
+Subject: Re: [PATCH] vfio-ccw: process ssch with interrupts disabled
+Date: Mon, 16 Apr 2018 11:35:57 +0200
+Message-ID: <20180416113557.25d4fbbb.cohuck@redhat.com>
+References: <20180413140509.9042-1-cohuck@redhat.com>
+        <20180416021312.GO12194@bjsdjshi@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180416021312.GO12194@bjsdjshi@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When we call ssch, an interrupt might already be pending once we
-return from the START SUBCHANNEL instruction. Therefore we need to
-make sure interrupts are disabled until after we're done with our
-processing.
+On Mon, 16 Apr 2018 10:13:12 +0800
+Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
 
-Note that the subchannel lock is the same as the ccwdevice lock that
-is mentioned in the documentation for ccw_device_start() and friends.
+> * Cornelia Huck <cohuck@redhat.com> [2018-04-13 16:05:09 +0200]:
+> 
+> > When we call ssch, an interrupt might already be pending once we
+> > return from the START SUBCHANNEL instruction. Therefore we need to
+> > make sure interrupts are disabled until after we're done with our
+> > processing.  
+> Sounds right.
+> 
+> > 
+> > Note that the subchannel lock is the same as the ccwdevice lock that
+> > is mentioned in the documentation for ccw_device_start() and friends.  
+> I think this is helpful hint for me to understand the correct way of
+> using sch->lock in our context, but not sure if the word "same" brings
+> confusion to the others. There are many difference between them,
+> considering the fact that sch->lock exists in the CSS driver for a long
+> time already, and it is not external interface like ccw_dev->lock, and
+> its usage is different with ccw_dev->lock in the existing code.
+> It's because vfio-ccw are offering interface to the external world based
+> directly on the css driver level, it makes the purpose of protecting
+> what should be protected with it becomes the same.
+> 
+> Not a problem for me, but better with a better rewording?
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_fsm.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+Huh, my intention was to clarify things, not to make them more
+confusing :)
 
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index ff6963ad6e39..3c800642134e 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -20,12 +20,12 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
- 	int ccode;
- 	__u8 lpm;
- 	unsigned long flags;
-+	int ret;
- 
- 	sch = private->sch;
- 
- 	spin_lock_irqsave(sch->lock, flags);
- 	private->state = VFIO_CCW_STATE_BUSY;
--	spin_unlock_irqrestore(sch->lock, flags);
- 
- 	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
- 
-@@ -38,10 +38,12 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
- 		 * Initialize device status information
- 		 */
- 		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
--		return 0;
-+		ret = 0;
-+		break;
- 	case 1:		/* Status pending */
- 	case 2:		/* Busy */
--		return -EBUSY;
-+		ret = -EBUSY;
-+		break;
- 	case 3:		/* Device/path not operational */
- 	{
- 		lpm = orb->cmd.lpm;
-@@ -51,13 +53,16 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
- 			sch->lpm = 0;
- 
- 		if (cio_update_schib(sch))
--			return -ENODEV;
--
--		return sch->lpm ? -EACCES : -ENODEV;
-+			ret = -ENODEV;
-+		else
-+			ret = sch->lpm ? -EACCES : -ENODEV;
-+		break;
- 	}
- 	default:
--		return ccode;
-+		ret = ccode;
- 	}
-+	spin_unlock_irqrestore(sch->lock, flags);
-+	return ret;
- }
- 
- static void fsm_notoper(struct vfio_ccw_private *private,
--- 
-2.14.3
+The documentation for ccw_device_start() and friends seems to be the
+only place where we explicitly state locking requirements, so that's
+where I came from. Maybe simply reword the first paragraph to mention
+the lock?
+
+"When we call ssch, an interrupt might already be pending once we
+return from the START SUBCHANNEL instruction. Therefore we need to make
+sure interrupts are disabled while holding the subchannel lock until
+after we're done with our processing."
+
+Or maybe things are already clear enough from the code?
+> 
+> > 
+> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> > ---
+> >  drivers/s390/cio/vfio_ccw_fsm.c | 19 ++++++++++++-------
+> >  1 file changed, 12 insertions(+), 7 deletions(-)
+
+> LGTM:
+> Reviewed-by: Dong Jia Shi <bjsdjshi@linux.ibm.com>
+> 
+
+Thanks!
