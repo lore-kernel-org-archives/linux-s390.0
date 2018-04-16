@@ -1,14 +1,15 @@
 From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 03/15] KVM: s390: refactor crypto initialization
-Date: Mon, 16 Apr 2018 10:56:52 +0200
-Message-ID: <4fb50a31-1893-5cfb-0f35-fb2501c2afa8@linux.vnet.ibm.com>
+Subject: Re: [PATCH v4 05/15] KVM: s390: enable/disable AP interpretive
+ execution
+Date: Mon, 16 Apr 2018 12:51:46 +0200
+Message-ID: <15b60572-40d6-0f03-11f9-c50cb7eb00e8@linux.vnet.ibm.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1523827345-11600-4-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1523827345-11600-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1523827345-11600-4-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <1523827345-11600-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,257 +19,122 @@ Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntr
 List-ID: <linux-s390.vger.kernel.org>
 
 On 15/04/2018 23:22, Tony Krowiak wrote:
-> This patch refactors the code that initializes the crypto
-> configuration for a guest. The crypto configuration is contained in
-> a crypto control block (CRYCB) which is a satellite control block to
-> our main hardware virtualization control block. The CRYCB is
-> attached to the main virtualization control block via a CRYCB
-> designation (CRYCBD) designation field containing the address of
-> the CRYCB as well as its format.
->
-> Prior to the introduction of AP device virtualization, there was
-> no need to provide access to or specify the format of the CRYCB for
-> a guest unless the MSA extension 3 (MSAX3) facility was installed
-> on the host system. With the introduction of AP device virtualization,
-> the CRYCB and its format must be made accessible to the guest
-> regardless of the presence of the MSAX3 facility.
->
-> The crypto initialization code is restructured as follows:
->
-> * A new compilation unit is introduced to contain all interfaces
->    and data structures related to configuring a guest's CRYCB for
->    both the refactoring of crypto initialization as well as all
->    subsequent patches introducing AP virtualization support.
->
-> * Currently, the asm code for querying the AP configuration is
->    duplicated in the AP bus as well as in KVM. Since the KVM
->    code was introduced, the AP bus has externalized the interface
->    for querying the AP configuration. The KVM interface will be
->    replaced with a call to the AP bus interface. Of course, this
->    will be moved to the new compilation unit mentioned above.
->
-> * An interface to format the CRYCBD field will be provided via
->    the new compilation unit and called from the KVM vm
->    initialization.
+> The VFIO AP device model exploits interpretive execution of AP
+> instructions (APIE) to provide guests passthrough access to AP
+> devices. This patch introduces a new interface to enable and
+> disable APIE.
 >
 > Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 > ---
->   arch/s390/include/asm/kvm-ap.h   |   15 +++++++++
+>   arch/s390/include/asm/kvm-ap.h   |   16 ++++++++++++++++
 >   arch/s390/include/asm/kvm_host.h |    1 +
->   arch/s390/kvm/kvm-ap.c           |   39 ++++++++++++++++++++++++
->   arch/s390/kvm/kvm-s390.c         |   60 ++++----------------------------------
->   4 files changed, 61 insertions(+), 54 deletions(-)
+>   arch/s390/kvm/kvm-ap.c           |   20 ++++++++++++++++++++
+>   arch/s390/kvm/kvm-s390.c         |    9 +++++++++
+>   4 files changed, 46 insertions(+), 0 deletions(-)
 >
 > diff --git a/arch/s390/include/asm/kvm-ap.h b/arch/s390/include/asm/kvm-ap.h
-> index 84412a9..736e93e 100644
+> index 736e93e..a6c092e 100644
 > --- a/arch/s390/include/asm/kvm-ap.h
 > +++ b/arch/s390/include/asm/kvm-ap.h
-> @@ -10,6 +10,9 @@
->   #ifndef _ASM_KVM_AP
->   #define _ASM_KVM_AP
->
-> +#include <linux/types.h>
-> +#include <linux/kvm_host.h>
-> +
->   /**
->    * kvm_ap_instructions_installed()
->    *
-> @@ -20,4 +23,16 @@
+> @@ -35,4 +35,20 @@
 >    */
->   int kvm_ap_instructions_installed(void);
+>   void kvm_ap_build_crycbd(struct kvm *kvm);
 >
 > +/**
-> + * kvm_ap_build_crycbd
+> + * kvm_ap_interpret_instructions
 > + *
-> + * The crypto control block designation (CRYCBD) is a 32-bit field that
-> + * designates both the host real address and format of the CRYCB. This function
-> + * builds the CRYCBD field for use by the KVM guest.
+> + * Indicate whether AP instructions shall be interpreted. If they are not
+> + * interpreted, all AP instructions will be intercepted and routed back to
+> + * userspace.
 > + *
-> + * @kvm:	the KVM guest
-> + * @crycbd:	reference to the CRYCBD
+> + * @kvm: the virtual machine attributes
+> + * @enable: indicates whether AP instructions are to be interpreted (true) or
+> + *	    or not (false).
+> + *
+> + * Returns 0 if completed successfully; otherwise, returns -EOPNOTSUPP
+> + * indicating that AP instructions are not installed on the guest.
 > + */
-> +void kvm_ap_build_crycbd(struct kvm *kvm);
+> +int kvm_ap_interpret_instructions(struct kvm *kvm, bool enable);
 > +
 >   #endif /* _ASM_KVM_AP */
 > diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 81cdb6b..c990a1d 100644
+> index 3162783..5470685 100644
 > --- a/arch/s390/include/asm/kvm_host.h
 > +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -257,6 +257,7 @@ struct kvm_s390_sie_block {
->   	__u8	reservedf0[12];		/* 0x00f0 */
->   #define CRYCB_FORMAT1 0x00000001
->   #define CRYCB_FORMAT2 0x00000003
-> +#define CRYCB_FORMAT_MASK 0x00000003
->   	__u32	crycbd;			/* 0x00fc */
->   	__u64	gcr[16];		/* 0x0100 */
->   	__u64	gbea;			/* 0x0180 */
+> @@ -715,6 +715,7 @@ struct kvm_s390_crypto {
+>   	__u32 crycbd;
+>   	__u8 aes_kw;
+>   	__u8 dea_kw;
+> +	__u8 apie;
+>   };
+>
+>   #define APCB0_MASK_SIZE 1
 > diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
-> index 1267588..991bae4 100644
+> index 991bae4..55d11b5 100644
 > --- a/arch/s390/kvm/kvm-ap.c
 > +++ b/arch/s390/kvm/kvm-ap.c
-> @@ -10,6 +10,8 @@
->   #include <asm/kvm-ap.h>
->   #include <asm/ap.h>
->
-> +#include "kvm-s390.h"
-> +
->   int kvm_ap_instructions_installed(void)
->   {
->   #ifdef CONFIG_ZCRYPT
-> @@ -19,3 +21,40 @@ int kvm_ap_instructions_installed(void)
->   #endif
+> @@ -58,3 +58,23 @@ void kvm_ap_build_crycbd(struct kvm *kvm)
+>   	}
 >   }
->   EXPORT_SYMBOL(kvm_ap_instructions_installed);
+>   EXPORT_SYMBOL(kvm_ap_build_crycbd);
 > +
-> +static inline int kvm_ap_query_config(struct ap_config_info *config)
+> +int kvm_ap_interpret_instructions(struct kvm *kvm, bool enable)
 > +{
-> +	memset(config, 0, sizeof(*config));
+> +	int ret = 0;
 > +
-> +#ifdef CONFIG_ZCRYPT
+> +	mutex_lock(&kvm->lock);
+> +
+> +	if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP)) {
 
-I would prefer that you define the interface in an include file
-with stubs for the case ZCRYPT is not set.
+Do we really need to test CPU_FEAT_AP?
 
-> +	if (kvm_ap_instructions_installed())
-> +		return ap_query_configuration(config);
-> +#endif
-> +
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int kvm_ap_apxa_installed(void)
-> +{
-> +	struct ap_config_info config;
-> +
-> +	if (kvm_ap_query_config(&config) == 0)
-> +		return (config.apxa == 1);
-> +
-> +	return 0;
-> +}
-> +
-> +void kvm_ap_build_crycbd(struct kvm *kvm)
-> +{
-> +	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
-> +	kvm->arch.crypto.crycbd &= ~(CRYCB_FORMAT_MASK);
-> +
-> +	/* check whether MSAX3 is installed */
+I understand that KVM_S390_VM_CPU_FEAT_AP means AP instructions are 
+interpreted.
+shouldn't we add this information in the name?
+like KVM_S390_VM_CPU_FEAT_APIE
 
-It means we do not support AP virtualization without MSA3.
-It follows we do not support CRYCB_FORMAT0
-
-It is different from what you explain in the comment.
-
-> +	if (kvm_ap_instructions_installed() && test_kvm_facility(kvm, 76)) {
-> +		if (kvm_ap_apxa_installed())
-> +			kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
-> +		else
-> +			kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
+> +		ret = -EOPNOTSUPP;
+> +		goto done;
 > +	}
+> +
+> +	kvm->arch.crypto.apie = enable;
+> +	kvm_s390_vcpu_crypto_reset_all(kvm);
+> +
+> +done:
+> +	mutex_unlock(&kvm->lock);
+> +	return ret;
 > +}
-> +EXPORT_SYMBOL(kvm_ap_build_crycbd);
+> +EXPORT_SYMBOL(kvm_ap_interpret_instructions);
 > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index d0c3518..b47ff11 100644
+> index 55cd897..1dc8566 100644
 > --- a/arch/s390/kvm/kvm-s390.c
 > +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -40,6 +40,7 @@
->   #include <asm/sclp.h>
->   #include <asm/cpacf.h>
->   #include <asm/timex.h>
-> +#include <asm/kvm-ap.h>
->   #include "kvm-s390.h"
->   #include "gaccess.h"
+> @@ -1901,6 +1901,9 @@ static void kvm_s390_crypto_init(struct kvm *kvm)
+>   	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
+>   	kvm_ap_build_crycbd(kvm);
 >
-> @@ -1881,55 +1882,6 @@ long kvm_arch_vm_ioctl(struct file *filp,
->   	return r;
->   }
->
-> -static int kvm_s390_query_ap_config(u8 *config)
-> -{
-> -	u32 fcn_code = 0x04000000UL;
-> -	u32 cc = 0;
-> -
-> -	memset(config, 0, 128);
-> -	asm volatile(
-> -		"lgr 0,%1\n"
-> -		"lgr 2,%2\n"
-> -		".long 0xb2af0000\n"		/* PQAP(QCI) */
-> -		"0: ipm %0\n"
-> -		"srl %0,28\n"
-> -		"1:\n"
-> -		EX_TABLE(0b, 1b)
-> -		: "+r" (cc)
-> -		: "r" (fcn_code), "r" (config)
-> -		: "cc", "0", "2", "memory"
-> -	);
-> -
-> -	return cc;
-> -}
-> -
-> -static int kvm_s390_apxa_installed(void)
-> -{
-> -	u8 config[128];
-> -	int cc;
-> -
-> -	if (test_facility(12)) {
-> -		cc = kvm_s390_query_ap_config(config);
-> -
-> -		if (cc)
-> -			pr_err("PQAP(QCI) failed with cc=%d", cc);
-> -		else
-> -			return config[0] & 0x40;
-> -	}
-> -
-> -	return 0;
-> -}
-> -
-> -static void kvm_s390_set_crycb_format(struct kvm *kvm)
-> -{
-> -	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
-> -
-> -	if (kvm_s390_apxa_installed())
-> -		kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
-> -	else
-> -		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
-> -}
-> -
->   static u64 kvm_s390_get_initial_cpuid(void)
->   {
->   	struct cpuid cpuid;
-> @@ -1941,12 +1893,12 @@ static u64 kvm_s390_get_initial_cpuid(void)
->
->   static void kvm_s390_crypto_init(struct kvm *kvm)
->   {
-> +	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
-> +	kvm_ap_build_crycbd(kvm);
+> +	/* Default setting indicating SIE shall interpret AP instructions */
+> +	kvm->arch.crypto.apie = 1;
 > +
 >   	if (!test_kvm_facility(kvm, 76))
 >   		return;
 >
-> -	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
-> -	kvm_s390_set_crycb_format(kvm);
-> -
->   	/* Enable AES/DEA protected key functions by default */
->   	kvm->arch.crypto.aes_kw = 1;
->   	kvm->arch.crypto.dea_kw = 1;
-> @@ -2475,6 +2427,8 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
->
->   static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+> @@ -2434,6 +2437,12 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
 >   {
-> +	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
+>   	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
+>
+> +	vcpu->arch.sie_block->eca &= ~ECA_APIE;
+> +	if (vcpu->kvm->arch.crypto.apie &&
+> +	    test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
+
+Do we call xxx_crypto_setup() if KVM does not support AP interpretation?
+
+> +		vcpu->arch.sie_block->eca |= ECA_APIE;
+> +
 > +
 >   	if (!test_kvm_facility(vcpu->kvm, 76))
 >   		return;
 >
-> @@ -2484,8 +2438,6 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
->   		vcpu->arch.sie_block->ecb3 |= ECB3_AES;
->   	if (vcpu->kvm->arch.crypto.dea_kw)
->   		vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
-> -
-> -	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
->   }
->
->   void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
-
 
 -- 
 Pierre Morel
