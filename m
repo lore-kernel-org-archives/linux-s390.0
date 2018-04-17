@@ -1,211 +1,60 @@
-From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 05/15] KVM: s390: enable/disable AP interpretive
- execution
-Date: Tue, 17 Apr 2018 18:55:08 +0200
-Message-ID: <f01eb8fa-8a63-92f2-c15f-2c9a4e198f65@linux.vnet.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 01/15] s390: zcrypt: externalize AP instructions
+ available function
+Date: Tue, 17 Apr 2018 18:56:46 +0200
+Message-ID: <20180417185646.5b43c911.cohuck@redhat.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1523827345-11600-6-git-send-email-akrowiak@linux.vnet.ibm.com>
- <15b60572-40d6-0f03-11f9-c50cb7eb00e8@linux.vnet.ibm.com>
- <cf928702-db64-93c7-9b89-bf1c66a33cfa@linux.vnet.ibm.com>
- <6cba35df-b0de-8000-bb39-c4cec8622c57@linux.vnet.ibm.com>
- <2b053349-071e-17ed-6ebd-a37bcfd2f330@linux.vnet.ibm.com>
+        <1523827345-11600-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <77bbd4ca-8412-e59d-e1ca-9a114cf495a6@linux.vnet.ibm.com>
+        <20180416141136.04be5558.cohuck@redhat.com>
+        <e2738909-bc81-4299-a25a-cb4b3cfad69c@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2b053349-071e-17ed-6ebd-a37bcfd2f330@linux.vnet.ibm.com>
-Content-Language: en-US
+In-Reply-To: <e2738909-bc81-4299-a25a-cb4b3cfad69c@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, buendgen@de.ibm.com
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, freude@de.ibm.com, buendgen@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 17/04/2018 18:22, Tony Krowiak wrote:
-> On 04/17/2018 12:13 PM, Pierre Morel wrote:
->> On 17/04/2018 17:02, Tony Krowiak wrote:
->>> On 04/16/2018 06:51 AM, Pierre Morel wrote:
->>>> On 15/04/2018 23:22, Tony Krowiak wrote:
->>>>> The VFIO AP device model exploits interpretive execution of AP
->>>>> instructions (APIE) to provide guests passthrough access to AP
->>>>> devices. This patch introduces a new interface to enable and
->>>>> disable APIE.
->>>>>
->>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>>>> ---
->>>>>   arch/s390/include/asm/kvm-ap.h   |   16 ++++++++++++++++
->>>>>   arch/s390/include/asm/kvm_host.h |    1 +
->>>>>   arch/s390/kvm/kvm-ap.c           |   20 ++++++++++++++++++++
->>>>>   arch/s390/kvm/kvm-s390.c         |    9 +++++++++
->>>>>   4 files changed, 46 insertions(+), 0 deletions(-)
->>>>>
->>>>> diff --git a/arch/s390/include/asm/kvm-ap.h 
->>>>> b/arch/s390/include/asm/kvm-ap.h
->>>>> index 736e93e..a6c092e 100644
->>>>> --- a/arch/s390/include/asm/kvm-ap.h
->>>>> +++ b/arch/s390/include/asm/kvm-ap.h
->>>>> @@ -35,4 +35,20 @@
->>>>>    */
->>>>>   void kvm_ap_build_crycbd(struct kvm *kvm);
->>>>>
->>>>> +/**
->>>>> + * kvm_ap_interpret_instructions
->>>>> + *
->>>>> + * Indicate whether AP instructions shall be interpreted. If they 
->>>>> are not
->>>>> + * interpreted, all AP instructions will be intercepted and 
->>>>> routed back to
->>>>> + * userspace.
->>>>> + *
->>>>> + * @kvm: the virtual machine attributes
->>>>> + * @enable: indicates whether AP instructions are to be 
->>>>> interpreted (true) or
->>>>> + *        or not (false).
->>>>> + *
->>>>> + * Returns 0 if completed successfully; otherwise, returns 
->>>>> -EOPNOTSUPP
->>>>> + * indicating that AP instructions are not installed on the guest.
->>>>> + */
->>>>> +int kvm_ap_interpret_instructions(struct kvm *kvm, bool enable);
->>>>> +
->>>>>   #endif /* _ASM_KVM_AP */
->>>>> diff --git a/arch/s390/include/asm/kvm_host.h 
->>>>> b/arch/s390/include/asm/kvm_host.h
->>>>> index 3162783..5470685 100644
->>>>> --- a/arch/s390/include/asm/kvm_host.h
->>>>> +++ b/arch/s390/include/asm/kvm_host.h
->>>>> @@ -715,6 +715,7 @@ struct kvm_s390_crypto {
->>>>>       __u32 crycbd;
->>>>>       __u8 aes_kw;
->>>>>       __u8 dea_kw;
->>>>> +    __u8 apie;
->>>>>   };
->>>>>
->>>>>   #define APCB0_MASK_SIZE 1
->>>>> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
->>>>> index 991bae4..55d11b5 100644
->>>>> --- a/arch/s390/kvm/kvm-ap.c
->>>>> +++ b/arch/s390/kvm/kvm-ap.c
->>>>> @@ -58,3 +58,23 @@ void kvm_ap_build_crycbd(struct kvm *kvm)
->>>>>       }
->>>>>   }
->>>>>   EXPORT_SYMBOL(kvm_ap_build_crycbd);
->>>>> +
->>>>> +int kvm_ap_interpret_instructions(struct kvm *kvm, bool enable)
->>>>> +{
->>>>> +    int ret = 0;
->>>>> +
->>>>> +    mutex_lock(&kvm->lock);
->>>>> +
->>>>> +    if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_AP)) {
->>>>
->>>> Do we really need to test CPU_FEAT_AP?
->>>
->>> Yes we do.
->>
->> really? why?
->
-> The KVM_S390_VM_CPU_FEAT_AP will not be enabled by KVM if the AP
-> instructions are not installed on the host. I assume - but have
-> no way of verifying - that if the AP instructions are not installed
-> on the host, that interpretation would fail. Do you know what would
-> happen if AP instructions are interpreted when not installed on
-> the host?
+On Tue, 17 Apr 2018 09:31:00 -0400
+Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-If the host has no AP instructions (his ECA.28=0) but it set ECA.28 for 
-a guest,
-there will be no AP instructions available in the guest.
+> My preference would be one of the following:
+> 
+> 1. All of the interfaces defined in arch/s390/include/asm/ap.h
+>     are implemented in a file that is built whether ZCRYPT is
+>     built or not.
+> 
+> 2. The drivers/s390/crypto/ap_asm.h file containing the functions
+>     that execute the AP instructions are made available outside of
+>     the AP bus, for example; arch/s390/include/asm
+> 
+> I requested this from the maintainer but was told we don't want to
+> have any crypto adapter support when the host AP functionality is
+> disabled (CONFIG_ZCRYPT=n). This makes sense, however; I think it is
+> a bit confusing to have a header file (arch/s390/include/asm/ap.h)
+> with interfaces that are conditionally built.
+> 
+> This is why I chose the ifdeffery (as you call it) approach. The
+> only other solution I can conjure is to duplicate the asm code for
+> the AP instructions needed in KVM and bypass using the AP bus
+> interfaces.
 
->
->>
->>
->>>
->>>>
->>>>
->>>> I understand that KVM_S390_VM_CPU_FEAT_AP means AP instructions are 
->>>> interpreted.
->>>> shouldn't we add this information in the name?
->>>> like KVM_S390_VM_CPU_FEAT_APIE
->>>
->>> KVM_S390_VM_CPU_FEAT_AP does NOT mean AP instructions are 
->>> interpreted, it means
->>> AP instructions are installed.
->>
->> Right same error I made all along this review.
->> But AFAIK it means AP instructions are provided to the guest.
->> Then should this function be called if the guest has no AP 
->> instructions ?
->>
->>
->>>
->>>>
->>>>> +        ret = -EOPNOTSUPP;
->>>>> +        goto done;
->>>>> +    }
->>>>> +
->>>>> +    kvm->arch.crypto.apie = enable;
->>>>> +    kvm_s390_vcpu_crypto_reset_all(kvm);
->>>>> +
->>>>> +done:
->>>>> +    mutex_unlock(&kvm->lock);
->>>>> +    return ret;
->>>>> +}
->>>>> +EXPORT_SYMBOL(kvm_ap_interpret_instructions);
->>>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>>>> index 55cd897..1dc8566 100644
->>>>> --- a/arch/s390/kvm/kvm-s390.c
->>>>> +++ b/arch/s390/kvm/kvm-s390.c
->>>>> @@ -1901,6 +1901,9 @@ static void kvm_s390_crypto_init(struct kvm 
->>>>> *kvm)
->>>>>       kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
->>>>>       kvm_ap_build_crycbd(kvm);
->>>>>
->>>>> +    /* Default setting indicating SIE shall interpret AP 
->>>>> instructions */
->>>>> +    kvm->arch.crypto.apie = 1;
->>>>> +
->>>>>       if (!test_kvm_facility(kvm, 76))
->>>>>           return;
->>>>>
->>>>> @@ -2434,6 +2437,12 @@ static void 
->>>>> kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
->>>>>   {
->>>>>       vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
->>>>>
->>>>> +    vcpu->arch.sie_block->eca &= ~ECA_APIE;
->>>>> +    if (vcpu->kvm->arch.crypto.apie &&
->>>>> +        test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
->>>>
->>>> Do we call xxx_crypto_setup() if KVM does not support AP 
->>>> interpretation?
->>>
->>> Yes, kvm_s390_vcpu_crypto_setup(vcpu) is called by 
->>> kvm_arch_vcpu_setup(vcpu)
->>> as well as from kvm_s390_vcpu_crypto_reset_all(kvm). Calling it has 
->>> nothing
->>> to do with whether AP interpretation is supported or not as it does 
->>> much
->>> more than that, including setting up of wrapping keys and the CRYCBD.
->>
->> Sorry, still the same error I made about CPU_FEAT_AP meaning AP 
->> instructions in the guest
->> and not AP interpretation available.
->> Could apie be set if AP instruction are not supported?
->>
->>>
->>>>
->>>>> + vcpu->arch.sie_block->eca |= ECA_APIE;
->>>>> +
->>>>> +
->>>>>       if (!test_kvm_facility(vcpu->kvm, 76))
->>>>>           return;
->>>>>
->>>>
->>>
->>
->
+I think at the root of this is an unfortunate mixup in the
+architecture: The format of the crycb changes depending on some ap
+feature being installed. Providing the crycb does not have anything to
+do with ap device usage in the host, but we need to issue an ap
+instruction to get this right. [Correct me if I'm wrong; but that's
+what I get without being able to consult the actual architecture.]
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+So, exporting *all* of the interfaces is probably not needed anyway. I
+think it boils down to either "export the interfaces where a mixup
+happened, and keep the rest to zcrypt only", or "duplicate the
+instructions for kvm usage".
+
+I hope we can find a solution here, as this seems to be one of the main
+discussion points :/ (FWIW, I think the basic driver interface is sane.)
