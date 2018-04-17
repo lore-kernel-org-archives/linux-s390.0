@@ -1,42 +1,44 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 0/4] net/smc: fixes 2018-04-17
-Date: Tue, 17 Apr 2018 17:18:11 +0200
-Message-ID: <20180417151815.77191-1-ubraun@linux.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 2/4] net/smc: handle sockopt TCP_NODELAY
+Date: Tue, 17 Apr 2018 15:23:08 -0400 (EDT)
+Message-ID: <20180417.152308.2158598560471437905.davem@davemloft.net>
+References: <20180417151815.77191-1-ubraun@linux.ibm.com>
+        <20180417151815.77191-3-ubraun@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180417151815.77191-3-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
+To: ubraun@linux.ibm.com
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@linux.vnet.ibm.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Tue, 17 Apr 2018 17:18:13 +0200
 
-Dave,
+> From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+> 
+> TCP sockopts must not interfere with the CLC handshake on the
+> CLC socket. Therefore, we defer some of them till the CLC
+> handshake has completed, like resetting TCP_NODELAY.
+> 
+> While touching setsockopt, the TCP_FASTOPEN sockopts are
+> ignored, since SMC-connection setup is based on the TCP
+> three-way-handshake.
+> 
+> Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
 
-here are smc changes for the net-next tree.
-The first patch assures the size of struct smc_cdc_msg is 44 bytes.
-Patches 2 to 4 implement sockopts that require special handling in SMC.
+Especially with fast-open, if you don't support the socket option
+you should signal an error.
 
-Thanks, Ursula
+Also, the deferral mechanism means you'll never properly propagate
+any errors back to the user.  The kernel_setsockopt() return value
+isn't validated at all.
 
-Karsten Graul (1):
-  net/smc: fix structure size
+Color me not impressed at all with this change.
 
-Ursula Braun (3):
-  net/smc: handle sockopt TCP_NODELAY
-  net/smc: handle sockopt TCP_CORK
-  net/smc: handle sockopt TCP_DEFER_ACCEPT
-
- net/smc/af_smc.c  | 177 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
- net/smc/smc.h     |  12 ++++
- net/smc/smc_cdc.c |   2 +-
- net/smc/smc_cdc.h |   2 +-
- net/smc/smc_rx.c  |   2 +-
- net/smc/smc_rx.h  |   1 +
- net/smc/smc_tx.c  |  16 ++++-
- net/smc/smc_tx.h  |   8 +++
- 8 files changed, 211 insertions(+), 9 deletions(-)
-
--- 
-2.13.5
+These kind of things have to have clear and proper semantics, plus
+full error processing with proper propagation back to the user.
