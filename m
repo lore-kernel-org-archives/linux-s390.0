@@ -1,63 +1,45 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 03/15] KVM: s390: refactor crypto initialization
-Date: Tue, 17 Apr 2018 10:26:57 -0400
-Message-ID: <2ac8b862-e2dc-843e-a0b8-906fa32b42f4@linux.vnet.ibm.com>
+From: Halil Pasic <pasic@linux.vnet.ibm.com>
+Subject: Re: [PATCH v4 02/15] KVM: s390: reset crypto attributes for all vcpus
+Date: Tue, 17 Apr 2018 16:29:40 +0200
+Message-ID: <41496d07-54b3-5cc6-8803-a935f6d821ee@linux.vnet.ibm.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1523827345-11600-4-git-send-email-akrowiak@linux.vnet.ibm.com>
- <4fb50a31-1893-5cfb-0f35-fb2501c2afa8@linux.vnet.ibm.com>
- <OFE3FE11B1.8E1BDDEF-ON00258272.002AEDB1-C1258272.002B06EF@notes.na.collabserv.com>
- <20180417121044.5c8f2182.cohuck@redhat.com>
+ <1523827345-11600-3-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180417121044.5c8f2182.cohuck@redhat.com>
+In-Reply-To: <1523827345-11600-3-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Harald Freudenberger <FREUDE@de.ibm.com>
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, berrange@redhat.com, bjsdjshi@linux.vnet.ibm.com, borntrae@linux.ibm.com, fiuczy@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, kvm@vger.kernel.org, kwankhede@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, mjrosato@linux.vnet.ibm.com, mschwid2@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, pbonzini@redhat.com, Reinhard Buendgen <BUENDGEN@de.ibm.com>, thuth@redhat.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 04/17/2018 06:10 AM, Cornelia Huck wrote:
-> On Tue, 17 Apr 2018 09:49:58 +0200
-> "Harald Freudenberger" <FREUDE@de.ibm.com> wrote:
->
->> Didn't we say that when APXA is not available there is no Crypto support
->> for KVM ?
-> [Going by the code, as I don't have access to the architecture]
->
-> Current status seems to be:
-> - setup crycb if facility 76 is available (that's MSAX3, I guess?)
 
-The crycb is set up regardless of whether STFLE.76 (MSAX3) is
-installed or not.
 
-> - use format 2 if APXA is available, else use format 1
+On 04/15/2018 11:22 PM, Tony Krowiak wrote:
+> Introduces a new function to reset the crypto attributes for all
+> vcpus whether they are running or not. Each vcpu in KVM will
+> be removed from SIE prior to resetting the crypto attributes in its
+> SIE state description. After all vcpus have had their crypto attributes
+> reset the vcpus will be restored to SIE.
+> 
+> This function will be used in a later patch to set the ECA.28
+> bit in the SIE state description to enable interpretive execution of
+> AP instructions. It will also be incorporated into the
+> kvm_s390_vm_set_crypto(kvm) function to fix an issue whereby the crypto
+> key wrapping attributes could potentially get out of synch for running
+> vcpus.
+> 
 
-Use format 0 if MSAX3 is not available
-Use format 1 if MSAX3 is available but APXA is not
-Use format 2 if MSAX3 and APXA is available
+Wasn't this 'issue' reported by me by any chance?
 
->
->  From Tony's patch description, the goal seems to be:
-> - setup crycb even if MSAX3 is not available
+I agree with Connnie, we don't need the forward reference to
+ECA.28.
 
-Yes, that is true
+Regards,
+Halil
 
->
-> So my understanding is that we use APXA only to decide on the format of
-> the crycb, but provide it in any case?
-
-Yes, that is true
-
->
-> (Not providing a crycb if APXA is not available would be loss of
-> functionality, I guess? Deciding not to provide vfio-ap if APXA is not
-> available is a different game, of course.)
-
-This would require a change to enabling the CPU model feature for
-AP.
-
->
+> Signed-off-by: Tony Krowiak<akrowiak@linux.vnet.ibm.com>
