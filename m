@@ -1,8 +1,10 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 0/6] s390/qeth: fixes 2018-04-19
-Date: Thu, 19 Apr 2018 12:52:05 +0200
-Message-ID: <20180419105211.83935-1-jwi@linux.ibm.com>
+Subject: [PATCH net 2/6] s390/qeth: avoid control IO completion stalls
+Date: Thu, 19 Apr 2018 12:52:07 +0200
+Message-ID: <20180419105211.83935-3-jwi@linux.ibm.com>
+References: <20180419105211.83935-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180419105211.83935-1-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -10,32 +12,122 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 
-new mail address, same old me.
+For control IO, qeth currently tracks the index of the buffer that it
+expects to complete the next IO on each qeth_channel. If the channel
+presents an IRQ while this buffer has not yet completed, no completion
+processing for _any_ completed buffer takes place.
+So if the 'next buffer' is skipped for any sort of reason* (eg. when it
+is released due to error conditions, before the IO is started), the
+buffer obviously won't switch to PROCESSED until it is eventually
+allocated for a _different_ IO and completes.
+Until this happens, all completion processing on that channel stalls
+and pending requests possibly time out.
 
-Please apply the following qeth fixes for 4.17. The common theme
-seems to be error handling improvements in various areas of cmd IO.
+As a fix, remove the whole 'next buffer' logic and simply process any
+IO buffer right when it completes. A channel will never have more than
+one IO pending, so there's no risk of processing out-of-sequence.
 
-Patches 1-3 should also go back to stable.
+*Note: currently just one location in the code really handles this problem,
+       by advancing the 'next' index manually.
 
-Thank you,
-Julian
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      |  2 --
+ drivers/s390/net/qeth_core_main.c | 22 +++++-----------------
+ 2 files changed, 5 insertions(+), 19 deletions(-)
 
-
-Julian Wiedmann (6):
-  s390/qeth: fix error handling in adapter command callbacks
-  s390/qeth: avoid control IO completion stalls
-  s390/qeth: handle failure on workqueue creation
-  s390/qeth: fix MAC address update sequence
-  s390/qeth: fix request-side race during cmd IO timeout
-  s390/qeth: use Read device to query hypervisor for MAC
-
- drivers/s390/net/qeth_core.h      |   2 -
- drivers/s390/net/qeth_core_main.c | 158 +++++++++++++++++---------------------
- drivers/s390/net/qeth_core_mpc.h  |  12 +++
- drivers/s390/net/qeth_l2_main.c   |  59 +++++++-------
- 4 files changed, 116 insertions(+), 115 deletions(-)
-
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 4326715dc13e..78b98b3e7efa 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -557,7 +557,6 @@ enum qeth_prot_versions {
+ enum qeth_cmd_buffer_state {
+ 	BUF_STATE_FREE,
+ 	BUF_STATE_LOCKED,
+-	BUF_STATE_PROCESSED,
+ };
+ 
+ enum qeth_cq {
+@@ -601,7 +600,6 @@ struct qeth_channel {
+ 	struct qeth_cmd_buffer iob[QETH_CMD_BUFFER_NO];
+ 	atomic_t irq_pending;
+ 	int io_buf_no;
+-	int buf_no;
+ };
+ 
+ /**
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 36bc94088de1..5ec47c6ebaa6 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -818,7 +818,6 @@ void qeth_clear_cmd_buffers(struct qeth_channel *channel)
+ 
+ 	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++)
+ 		qeth_release_buffer(channel, &channel->iob[cnt]);
+-	channel->buf_no = 0;
+ 	channel->io_buf_no = 0;
+ }
+ EXPORT_SYMBOL_GPL(qeth_clear_cmd_buffers);
+@@ -924,7 +923,6 @@ static int qeth_setup_channel(struct qeth_channel *channel)
+ 			kfree(channel->iob[cnt].data);
+ 		return -ENOMEM;
+ 	}
+-	channel->buf_no = 0;
+ 	channel->io_buf_no = 0;
+ 	atomic_set(&channel->irq_pending, 0);
+ 	spin_lock_init(&channel->iob_lock);
+@@ -1100,11 +1098,9 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ {
+ 	int rc;
+ 	int cstat, dstat;
+-	struct qeth_cmd_buffer *buffer;
+ 	struct qeth_channel *channel;
+ 	struct qeth_card *card;
+ 	struct qeth_cmd_buffer *iob;
+-	__u8 index;
+ 
+ 	if (__qeth_check_irb_error(cdev, intparm, irb))
+ 		return;
+@@ -1182,25 +1178,18 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 		channel->state = CH_STATE_RCD_DONE;
+ 		goto out;
+ 	}
+-	if (intparm) {
+-		buffer = (struct qeth_cmd_buffer *) __va((addr_t)intparm);
+-		buffer->state = BUF_STATE_PROCESSED;
+-	}
+ 	if (channel == &card->data)
+ 		return;
+ 	if (channel == &card->read &&
+ 	    channel->state == CH_STATE_UP)
+ 		__qeth_issue_next_read(card);
+ 
+-	iob = channel->iob;
+-	index = channel->buf_no;
+-	while (iob[index].state == BUF_STATE_PROCESSED) {
+-		if (iob[index].callback != NULL)
+-			iob[index].callback(channel, iob + index);
+-
+-		index = (index + 1) % QETH_CMD_BUFFER_NO;
++	if (intparm) {
++		iob = (struct qeth_cmd_buffer *) __va((addr_t)intparm);
++		if (iob->callback)
++			iob->callback(iob->channel, iob);
+ 	}
+-	channel->buf_no = index;
++
+ out:
+ 	wake_up(&card->wait_q);
+ 	return;
+@@ -2214,7 +2203,6 @@ int qeth_send_control_data(struct qeth_card *card, int len,
+ error:
+ 	atomic_set(&card->write.irq_pending, 0);
+ 	qeth_release_buffer(iob->channel, iob);
+-	card->write.buf_no = (card->write.buf_no + 1) % QETH_CMD_BUFFER_NO;
+ 	rc = reply->rc;
+ 	qeth_put_reply(reply);
+ 	return rc;
 -- 
 2.13.5
