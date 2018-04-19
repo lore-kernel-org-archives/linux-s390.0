@@ -1,7 +1,7 @@
 From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: [PATCH 06/10] vfio: ccw: Make FSM functions atomic
-Date: Thu, 19 Apr 2018 16:48:09 +0200
-Message-ID: <1524149293-12658-7-git-send-email-pmorel@linux.vnet.ibm.com>
+Subject: [PATCH 05/10] vfio: ccw: Suppress unused event parameter
+Date: Thu, 19 Apr 2018 16:48:08 +0200
+Message-ID: <1524149293-12658-6-git-send-email-pmorel@linux.vnet.ibm.com>
 References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
@@ -12,86 +12,137 @@ To: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, cohuck@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-We use mutex around the FSM function call to make the FSM
-event handling and state change atomic.
+The fsm_func_t function type definition does not need the event
+parameter since all functions are in a state/event table.
 
 Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c     | 3 +--
- drivers/s390/cio/vfio_ccw_fsm.c     | 2 --
- drivers/s390/cio/vfio_ccw_ops.c     | 4 +---
- drivers/s390/cio/vfio_ccw_private.h | 3 +++
- 4 files changed, 5 insertions(+), 7 deletions(-)
+ drivers/s390/cio/vfio_ccw_fsm.c     | 34 +++++++++++-----------------------
+ drivers/s390/cio/vfio_ccw_private.h |  5 ++---
+ 2 files changed, 13 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 8a91eee..1c9422a 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -73,8 +73,6 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 
- 	private = container_of(work, struct vfio_ccw_private, io_work);
- 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
--	if (private->mdev)
--		private->state = VFIO_CCW_STATE_IDLE;
- }
- 
- static void vfio_ccw_sch_event_todo(struct work_struct *work)
-@@ -120,6 +118,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 		return -ENOMEM;
- 	private->sch = sch;
- 	dev_set_drvdata(&sch->dev, private);
-+	mutex_init(&private->state_mutex);
- 
- 	spin_lock_irq(sch->lock);
- 	private->state = VFIO_CCW_STATE_NOT_OPER;
 diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index f8ded70..d85bcfc 100644
+index f9855cd..f8ded70 100644
 --- a/drivers/s390/cio/vfio_ccw_fsm.c
 +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -109,8 +109,6 @@ static int fsm_io_request(struct vfio_ccw_private *private)
- 	union orb *orb = (union orb *)io_region->orb_area;
+@@ -55,8 +55,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 	}
+ }
+ 
+-static int fsm_notoper(struct vfio_ccw_private *private,
+-			enum vfio_ccw_event event)
++static int fsm_notoper(struct vfio_ccw_private *private)
+ {
+ 	struct subchannel *sch = private->sch;
+ 
+@@ -65,36 +64,31 @@ static int fsm_notoper(struct vfio_ccw_private *private,
+ 	 * Probably we should send the machine check to the guest.
+ 	 */
+ 	css_sched_sch_todo(sch, SCH_TODO_UNREG);
+-	private->state = VFIO_CCW_STATE_NOT_OPER;
+-	return private->state;
++	return VFIO_CCW_STATE_NOT_OPER;
+ }
+ 
+ /*
+  * No operation action.
+  */
+-static int fsm_nop(struct vfio_ccw_private *private,
+-		    enum vfio_ccw_event event)
++static int fsm_nop(struct vfio_ccw_private *private)
+ {
+ 	return private->state;
+ }
+ 
+-static int fsm_io_error(struct vfio_ccw_private *private,
+-			 enum vfio_ccw_event event)
++static int fsm_io_error(struct vfio_ccw_private *private)
+ {
+ 	pr_err("vfio-ccw: FSM: I/O request from state:%d\n", private->state);
+ 	private->io_region.ret_code = -EIO;
+ 	return private->state;
+ }
+ 
+-static int fsm_io_busy(struct vfio_ccw_private *private,
+-			enum vfio_ccw_event event)
++static int fsm_io_busy(struct vfio_ccw_private *private)
+ {
+ 	private->io_region.ret_code = -EBUSY;
+ 	return private->state;
+ }
+ 
+-static int fsm_disabled_irq(struct vfio_ccw_private *private,
+-			     enum vfio_ccw_event event)
++static int fsm_disabled_irq(struct vfio_ccw_private *private)
+ {
+ 	struct subchannel *sch = private->sch;
+ 
+@@ -109,17 +103,14 @@ static int fsm_disabled_irq(struct vfio_ccw_private *private,
+ /*
+  * Deal with the ccw command request from the userspace.
+  */
+-static int fsm_io_request(struct vfio_ccw_private *private,
+-			   enum vfio_ccw_event event)
++static int fsm_io_request(struct vfio_ccw_private *private)
+ {
+-	union orb *orb;
+ 	struct ccw_io_region *io_region = &private->io_region;
++	union orb *orb = (union orb *)io_region->orb_area;
  	struct mdev_device *mdev = private->mdev;
  
--	private->state = VFIO_CCW_STATE_BOXED;
+ 	private->state = VFIO_CCW_STATE_BOXED;
+ 
+-	orb = (union orb *)io_region->orb_area;
 -
  	io_region->ret_code = cp_init(&private->cp, mdev_dev(mdev), orb);
  	if (io_region->ret_code)
  		goto err_out;
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 4da7b61..dac8ce4 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -204,10 +204,8 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
- 		return -EINVAL;
+@@ -139,15 +130,13 @@ static int fsm_io_request(struct vfio_ccw_private *private,
+ 	return VFIO_CCW_STATE_BUSY;
  
- 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_SSCH_REQ);
--	if (region->ret_code != 0) {
--		private->state = VFIO_CCW_STATE_IDLE;
-+	if (region->ret_code != 0)
- 		return region->ret_code;
--	}
- 
- 	return count;
+ err_out:
+-	private->state = VFIO_CCW_STATE_IDLE;
+-	return private->state;
++	return VFIO_CCW_STATE_IDLE;
  }
+ 
+ /*
+  * Got an interrupt for a normal io (state busy).
+  */
+-static int fsm_irq(struct vfio_ccw_private *private,
+-		    enum vfio_ccw_event event)
++static int fsm_irq(struct vfio_ccw_private *private)
+ {
+ 	struct irb *irb = &private->irb;
+ 
+@@ -166,8 +155,7 @@ static int fsm_irq(struct vfio_ccw_private *private,
+ /*
+  * Got a sub-channel event .
+  */
+-static int fsm_sch_event(struct vfio_ccw_private *private,
+-			 enum vfio_ccw_event event)
++static int fsm_sch_event(struct vfio_ccw_private *private)
+ {
+ 	unsigned long flags;
+ 	int ret = private->state;
 diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 823e46c..cf197cf 100644
+index 93aab87..823e46c 100644
 --- a/drivers/s390/cio/vfio_ccw_private.h
 +++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -51,6 +51,7 @@ struct vfio_ccw_private {
- 	struct eventfd_ctx	*io_trigger;
- 	struct work_struct	io_work;
- 	struct work_struct	event_work;
-+	struct mutex		state_mutex;
- } __aligned(8);
+@@ -86,14 +86,13 @@ enum vfio_ccw_event {
+ /*
+  * Action called through jumptable.
+  */
+-typedef int (fsm_func_t)(struct vfio_ccw_private *, enum vfio_ccw_event);
++typedef int (fsm_func_t)(struct vfio_ccw_private *);
+ extern fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS];
  
- extern int vfio_ccw_mdev_reg(struct subchannel *sch);
-@@ -92,7 +93,9 @@ extern fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS];
  static inline void vfio_ccw_fsm_event(struct vfio_ccw_private *private,
  				     int event)
  {
-+	mutex_lock(&private->state_mutex);
- 	private->state = vfio_ccw_jumptable[private->state][event](private);
-+	mutex_unlock(&private->state_mutex);
+-	private->state = vfio_ccw_jumptable[private->state][event](private,
+-								   event);
++	private->state = vfio_ccw_jumptable[private->state][event](private);
  }
  
  extern struct workqueue_struct *vfio_ccw_work_q;
