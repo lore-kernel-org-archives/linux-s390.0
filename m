@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 3/6] s390/qeth: handle failure on workqueue creation
-Date: Thu, 19 Apr 2018 12:52:08 +0200
-Message-ID: <20180419105211.83935-4-jwi@linux.ibm.com>
+Subject: [PATCH net 4/6] s390/qeth: fix MAC address update sequence
+Date: Thu, 19 Apr 2018 12:52:09 +0200
+Message-ID: <20180419105211.83935-5-jwi@linux.ibm.com>
 References: <20180419105211.83935-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180419105211.83935-1-jwi@linux.ibm.com>
@@ -12,43 +12,121 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Creating the global workqueue during driver init may fail, deal with it.
-Also, destroy the created workqueue on any subsequent error.
+From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 
-Fixes: 0f54761d167f ("qeth: Support VEPA mode")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+When changing the MAC address on a L2 qeth device, current code first
+unregisters the old address, then registers the new one.
+If HW rejects the new address (or the IO fails), the device ends up with
+no operable address at all.
+
+Re-order the code flow so that the old address only gets dropped if the
+new address was registered successfully. While at it, add logic to catch
+some corner-cases.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_l2_main.c | 55 +++++++++++++++++++++++------------------
+ 1 file changed, 31 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 5ec47c6ebaa6..9a08b545d018 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6540,10 +6540,14 @@ static int __init qeth_core_init(void)
- 	mutex_init(&qeth_mod_mutex);
- 
- 	qeth_wq = create_singlethread_workqueue("qeth_wq");
-+	if (!qeth_wq) {
-+		rc = -ENOMEM;
-+		goto out_err;
-+	}
- 
- 	rc = qeth_register_dbf_views();
- 	if (rc)
--		goto out_err;
-+		goto dbf_err;
- 	qeth_core_root_dev = root_device_register("qeth");
- 	rc = PTR_ERR_OR_ZERO(qeth_core_root_dev);
- 	if (rc)
-@@ -6580,6 +6584,8 @@ static int __init qeth_core_init(void)
- 	root_device_unregister(qeth_core_root_dev);
- register_err:
- 	qeth_unregister_dbf_views();
-+dbf_err:
-+	destroy_workqueue(qeth_wq);
- out_err:
- 	pr_err("Initializing the qeth device driver failed\n");
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 50a313806dde..830ca56a62e5 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -122,13 +122,10 @@ static int qeth_l2_send_setmac(struct qeth_card *card, __u8 *mac)
+ 	QETH_CARD_TEXT(card, 2, "L2Setmac");
+ 	rc = qeth_l2_send_setdelmac(card, mac, IPA_CMD_SETVMAC);
+ 	if (rc == 0) {
+-		card->info.mac_bits |= QETH_LAYER2_MAC_REGISTERED;
+-		ether_addr_copy(card->dev->dev_addr, mac);
+ 		dev_info(&card->gdev->dev,
+-			"MAC address %pM successfully registered on device %s\n",
+-			card->dev->dev_addr, card->dev->name);
++			 "MAC address %pM successfully registered on device %s\n",
++			 mac, card->dev->name);
+ 	} else {
+-		card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
+ 		switch (rc) {
+ 		case -EEXIST:
+ 			dev_warn(&card->gdev->dev,
+@@ -143,19 +140,6 @@ static int qeth_l2_send_setmac(struct qeth_card *card, __u8 *mac)
  	return rc;
+ }
+ 
+-static int qeth_l2_send_delmac(struct qeth_card *card, __u8 *mac)
+-{
+-	int rc;
+-
+-	QETH_CARD_TEXT(card, 2, "L2Delmac");
+-	if (!(card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED))
+-		return 0;
+-	rc = qeth_l2_send_setdelmac(card, mac, IPA_CMD_DELVMAC);
+-	if (rc == 0)
+-		card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
+-	return rc;
+-}
+-
+ static int qeth_l2_write_mac(struct qeth_card *card, u8 *mac)
+ {
+ 	enum qeth_ipa_cmds cmd = is_multicast_ether_addr_64bits(mac) ?
+@@ -520,6 +504,7 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
+ {
+ 	struct sockaddr *addr = p;
+ 	struct qeth_card *card = dev->ml_priv;
++	u8 old_addr[ETH_ALEN];
+ 	int rc = 0;
+ 
+ 	QETH_CARD_TEXT(card, 3, "setmac");
+@@ -531,14 +516,35 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
+ 		return -EOPNOTSUPP;
+ 	}
+ 	QETH_CARD_HEX(card, 3, addr->sa_data, ETH_ALEN);
++	if (!is_valid_ether_addr(addr->sa_data))
++		return -EADDRNOTAVAIL;
++
+ 	if (qeth_wait_for_threads(card, QETH_RECOVER_THREAD)) {
+ 		QETH_CARD_TEXT(card, 3, "setmcREC");
+ 		return -ERESTARTSYS;
+ 	}
+-	rc = qeth_l2_send_delmac(card, &card->dev->dev_addr[0]);
+-	if (!rc || (rc == -ENOENT))
+-		rc = qeth_l2_send_setmac(card, addr->sa_data);
+-	return rc ? -EINVAL : 0;
++
++	if (!qeth_card_hw_is_reachable(card)) {
++		ether_addr_copy(dev->dev_addr, addr->sa_data);
++		return 0;
++	}
++
++	/* don't register the same address twice */
++	if (ether_addr_equal_64bits(dev->dev_addr, addr->sa_data) &&
++	    (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED))
++		return 0;
++
++	/* add the new address, switch over, drop the old */
++	rc = qeth_l2_send_setmac(card, addr->sa_data);
++	if (rc)
++		return rc;
++	ether_addr_copy(old_addr, dev->dev_addr);
++	ether_addr_copy(dev->dev_addr, addr->sa_data);
++
++	if (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED)
++		qeth_l2_remove_mac(card, old_addr);
++	card->info.mac_bits |= QETH_LAYER2_MAC_REGISTERED;
++	return 0;
+ }
+ 
+ static void qeth_promisc_to_bridge(struct qeth_card *card)
+@@ -1068,8 +1074,9 @@ static int __qeth_l2_set_online(struct ccwgroup_device *gdev, int recovery_mode)
+ 		goto out_remove;
+ 	}
+ 
+-	if (card->info.type != QETH_CARD_TYPE_OSN)
+-		qeth_l2_send_setmac(card, &card->dev->dev_addr[0]);
++	if (card->info.type != QETH_CARD_TYPE_OSN &&
++	    !qeth_l2_send_setmac(card, card->dev->dev_addr))
++		card->info.mac_bits |= QETH_LAYER2_MAC_REGISTERED;
+ 
+ 	if (qeth_is_diagass_supported(card, QETH_DIAGS_CMD_TRAP)) {
+ 		if (card->info.hwtrap &&
 -- 
 2.13.5
