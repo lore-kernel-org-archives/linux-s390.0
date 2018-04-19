@@ -1,75 +1,176 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-Date: Fri, 20 Apr 2018 23:40:01 -0700
-In-Reply-To: <94eb2c030cc4d2be530566a62109@google.com>
-Message-ID: <000000000000fbb72c056a5612fc@google.com>
-Subject: Re: general protection fault in smc_getsockopt
-From: syzbot <syzbot+28a2c86cf19c81d871fa@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: [PATCH 03/10] vfio: ccw: new SCH_EVENT event
+Date: Thu, 19 Apr 2018 16:48:06 +0200
+Message-ID: <1524149293-12658-4-git-send-email-pmorel@linux.vnet.ibm.com>
+References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: davem@davemloft.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com, ubraun@linux.vnet.ibm.com
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, cohuck@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-syzbot has found reproducer for the following crash on upstream commit
-83beed7b2b26f232d782127792dd0cd4362fdc41 (Fri Apr 20 17:56:32 2018 +0000)
-Merge branch 'fixes' of  
-git://git.kernel.org/pub/scm/linux/kernel/git/evalenti/linux-soc-thermal
-syzbot dashboard link:  
-https://syzkaller.appspot.com/bug?extid=28a2c86cf19c81d871fa
+The Sub channel event callback is threaded using workqueues.
+The work uses the FSM introducing the VFIO_CCW_EVENT_SCH_EVENT
+event.
+The update of the SCHIB is now done inside the FSM function.
 
-So far this crash happened 59 times on net-next, upstream.
-C reproducer: https://syzkaller.appspot.com/x/repro.c?id=6375334488309760
-syzkaller reproducer:  
-https://syzkaller.appspot.com/x/repro.syz?id=6112997885870080
-Raw console output:  
-https://syzkaller.appspot.com/x/log.txt?id=5942131738804224
-Kernel config:  
-https://syzkaller.appspot.com/x/.config?id=1808800213120130118
-compiler: gcc (GCC) 8.0.1 20180413 (experimental)
+Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_drv.c     | 33 +++++++++++++--------------------
+ drivers/s390/cio/vfio_ccw_fsm.c     | 23 +++++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_private.h |  3 +++
+ 3 files changed, 39 insertions(+), 20 deletions(-)
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+28a2c86cf19c81d871fa@syzkaller.appspotmail.com
-It will help syzbot understand when the bug is fixed.
-
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN
-Dumping ftrace buffer:
-    (ftrace buffer empty)
-Modules linked in:
-CPU: 0 PID: 4492 Comm: syzkaller771634 Not tainted 4.17.0-rc1+ #10
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-RIP: 0010:smc_getsockopt+0x8b/0x120 net/smc/af_smc.c:1298
-RSP: 0018:ffff8801d90b7cc0 EFLAGS: 00010206
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000020000000
-RDX: 0000000000000005 RSI: ffffffff873e3d16 RDI: 0000000000000028
-RBP: ffff8801d90b7cf0 R08: 0000000020000040 R09: ffffed0036a05800
-R10: ffffed0036a05800 R11: ffff8801b502c003 R12: ffff8801d90b7d40
-R13: 0000000000000000 R14: 0000000000000008 R15: 0000000020000000
-FS:  0000000002017880(0000) GS:ffff8801dae00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020000040 CR3: 00000001ac552000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-  __sys_getsockopt+0x1a5/0x370 net/socket.c:1940
-  __do_sys_getsockopt net/socket.c:1951 [inline]
-  __se_sys_getsockopt net/socket.c:1948 [inline]
-  __x64_sys_getsockopt+0xbe/0x150 net/socket.c:1948
-  do_syscall_64+0x1b1/0x800 arch/x86/entry/common.c:287
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x43fcf9
-RSP: 002b:00007ffcb16b9c58 EFLAGS: 00000217 ORIG_RAX: 0000000000000037
-RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 000000000043fcf9
-RDX: 0000000000000008 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: 00000000006ca018 R08: 0000000020000040 R09: 00000000004002c8
-R10: 0000000020000000 R11: 0000000000000217 R12: 0000000000401620
-R13: 00000000004016b0 R14: 0000000000000000 R15: 0000000000000000
-Code: fa 48 c1 ea 03 80 3c 02 00 0f 85 93 00 00 00 48 8b 9b 50 04 00 00 48  
-b8 00 00 00 00 00 fc ff df 48 8d 7b 28 48 89 fa 48 c1 ea 03 <80> 3c 02 00  
-75 62 48 b8 00 00 00 00 00 fc ff df 4c 8b 63 28 49
-RIP: smc_getsockopt+0x8b/0x120 net/smc/af_smc.c:1298 RSP: ffff8801d90b7cc0
----[ end trace 7e67761582d7c7ee ]---
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index f1b158c..8a91eee 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -77,6 +77,15 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 		private->state = VFIO_CCW_STATE_IDLE;
+ }
+ 
++static void vfio_ccw_sch_event_todo(struct work_struct *work)
++{
++	struct vfio_ccw_private *private;
++
++	private = container_of(work, struct vfio_ccw_private, event_work);
++	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_SCH_EVENT);
++}
++
++
+ /*
+  * Css driver callbacks
+  */
+@@ -125,6 +134,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 		goto out_disable;
+ 
+ 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
++	INIT_WORK(&private->event_work, vfio_ccw_sch_event_todo);
+ 	atomic_set(&private->avail, 1);
+ 	private->state = VFIO_CCW_STATE_STANDBY;
+ 
+@@ -171,28 +181,11 @@ static void vfio_ccw_sch_shutdown(struct subchannel *sch)
+ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+ {
+ 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(sch->lock, flags);
+ 	if (!device_is_registered(&sch->dev))
+-		goto out_unlock;
+-
+-	if (work_pending(&sch->todo_work))
+-		goto out_unlock;
+-
+-	if (cio_update_schib(sch)) {
+-		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
+-		goto out_unlock;
+-	}
+-
+-	private = dev_get_drvdata(&sch->dev);
+-	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
+-		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
+-				 VFIO_CCW_STATE_STANDBY;
+-	}
+-
+-out_unlock:
+-	spin_unlock_irqrestore(sch->lock, flags);
++		return -1;
++	WARN_ON(work_pending(&private->event_work));
++	queue_work(vfio_ccw_work_q, &private->event_work);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index 2f3108d..13751b4 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -183,6 +183,24 @@ static int fsm_irq(struct vfio_ccw_private *private,
+ }
+ 
+ /*
++ * Got a sub-channel event .
++ */
++static int fsm_sch_event(struct vfio_ccw_private *private,
++			 enum vfio_ccw_event event)
++{
++	unsigned long flags;
++	int ret = private->state;
++	struct subchannel *sch = private->sch;
++
++	spin_lock_irqsave(sch->lock, flags);
++	if (cio_update_schib(sch))
++		ret = VFIO_CCW_STATE_NOT_OPER;
++	spin_unlock_irqrestore(sch->lock, flags);
++
++	return ret;
++}
++
++/*
+  * Device statemachine
+  */
+ fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
+@@ -190,25 +208,30 @@ fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
+ 		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_nop,
+ 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_error,
+ 		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_disabled_irq,
++		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_nop,
+ 	},
+ 	[VFIO_CCW_STATE_STANDBY] = {
+ 		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+ 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_error,
+ 		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
++		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_sch_event,
+ 	},
+ 	[VFIO_CCW_STATE_IDLE] = {
+ 		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+ 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_request,
+ 		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
++		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_sch_event,
+ 	},
+ 	[VFIO_CCW_STATE_BOXED] = {
+ 		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+ 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
+ 		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
++		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_sch_event,
+ 	},
+ 	[VFIO_CCW_STATE_BUSY] = {
+ 		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+ 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
+ 		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
++		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_sch_event,
+ 	},
+ };
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index f526b18..3284e64 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -33,6 +33,7 @@
+  * @scsw: scsw info
+  * @io_trigger: eventfd ctx for signaling userspace I/O results
+  * @io_work: work for deferral process of I/O handling
++ * @event_work: work for deferral process of sub-channel event
+  */
+ struct vfio_ccw_private {
+ 	struct subchannel	*sch;
+@@ -49,6 +50,7 @@ struct vfio_ccw_private {
+ 
+ 	struct eventfd_ctx	*io_trigger;
+ 	struct work_struct	io_work;
++	struct work_struct	event_work;
+ } __aligned(8);
+ 
+ extern int vfio_ccw_mdev_reg(struct subchannel *sch);
+@@ -76,6 +78,7 @@ enum vfio_ccw_event {
+ 	VFIO_CCW_EVENT_NOT_OPER,
+ 	VFIO_CCW_EVENT_IO_REQ,
+ 	VFIO_CCW_EVENT_INTERRUPT,
++	VFIO_CCW_EVENT_SCH_EVENT,
+ 	/* last element! */
+ 	NR_VFIO_CCW_EVENTS
+ };
+-- 
+2.7.4
