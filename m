@@ -1,74 +1,102 @@
 From: Halil Pasic <pasic@linux.vnet.ibm.com>
-Subject: Re: [PATCH 4/4] vfio: ccw: add traceponits for interesting error
- paths
-Date: Tue, 10 Apr 2018 12:48:12 +0200
-Message-ID: <578ce588-b738-4df5-f2d9-7db98a2c0b41@linux.vnet.ibm.com>
+Subject: Re: [PATCH 1/4] vfio: ccw: fix cleanup if cp_prefetch fails
+Date: Fri, 20 Apr 2018 12:54:26 +0200
+Message-ID: <59687ed1-befb-a861-7b91-40859ac00bb7@linux.vnet.ibm.com>
 References: <20180321020822.86255-1-bjsdjshi@linux.vnet.ibm.com>
- <20180321020822.86255-5-bjsdjshi@linux.vnet.ibm.com>
- <20180326155902.12bed785.cohuck@redhat.com>
- <20180327075114.GK12194@bjsdjshi@linux.vnet.ibm.com>
- <20180327120723.192f7577.cohuck@redhat.com>
- <20180410021639.GN5428@bjsdjshi@linux.vnet.ibm.com>
- <20180410105540.310ea82a.cohuck@redhat.com>
+ <20180321020822.86255-2-bjsdjshi@linux.vnet.ibm.com>
+ <682d8b1c-5aca-7015-043b-a3f1446bf378@linux.vnet.ibm.com>
+ <20180322022248.GB12194@bjsdjshi@linux.vnet.ibm.com>
+ <54fd02cd-bd0b-889b-c40f-f9a32aa25d77@linux.vnet.ibm.com>
+ <20180326142839.23bfc4f6.cohuck@redhat.com>
+ <20180327014200.GH12194@bjsdjshi@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180410105540.310ea82a.cohuck@redhat.com>
+In-Reply-To: <20180327014200.GH12194@bjsdjshi@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, borntraeger@de.ibm.com, pmorel@linux.vnet.ibm.com
+To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, borntraeger@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 04/10/2018 10:55 AM, Cornelia Huck wrote:
-> On Tue, 10 Apr 2018 10:16:39 +0800
-> Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+ping
+
+I think get this fixed. Better sooner than later.
+
+On 03/27/2018 03:42 AM, Dong Jia Shi wrote:
+> * Cornelia Huck <cohuck@redhat.com> [2018-03-26 14:28:39 +0200]:
 > 
->>   Does the following effect make sense?
+> [...]
+> 
+>>> By the way, since you will propose a new version,
+>>> you have a long description of the cp_prefetch function in the code.
+>>> I think you should modify it according to the changes and describe how and
+>>> why the ch_len field of each chain is used and changed by this function.
+>>>
+>>> Something like:
+>>>
+>>> "
+>>> For each chain composing the channel program:
+>>> On entry ch_len hold the count of CCW to be translated.
 >>
->> # tracer: nop
->> #
->> #                              _-----=> irqs-off
->> #                             / _----=> need-resched
->> #                            | / _---=> hardirq/softirq
->> #                            || / _--=> preempt-depth
->> #                            ||| /     delay
->> #           TASK-PID   CPU#  ||||    TIMESTAMP  FUNCTION
->> #              | |       |   ||||       |         |
->>  qemu-system-s39-4252  [006] ....   231.457214: vfio_ccw_cp_prefetch: schid=0.0.013f errno=0
->>  qemu-system-s39-4252  [006] ....   231.457222: vfio_ccw_fsm_io_helper: schid=0.0.013f errno=0
->>  qemu-system-s39-4252  [006] ....   231.457223: vfio_ccw_io_fctl: schid=0.0.013f fctl=4 errno=0
->>   ... ...
+>> s/hold/holds/ ?
+>>
+> Sure.
 > 
-> I would likely find this useful for following a code path and making
-> sure the right things are called.
+>>> On exit ch_len is adjusted to the count of successfully translated CCW.
+>>>
+>>> This allows cp_free to find in ch_len the count of CCW to free in a chain.
+>>> "
+>>>
+>>> Could also be inside the commit message.
+>>>
+>>> Pierre
+>>>
+>>>
+>>>>   
+>>>>>> Acked-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+>>>>>> Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+>>>>>> Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+>>>>>> Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+>>>>>> ---
+>>>>>>    drivers/s390/cio/vfio_ccw_cp.c | 9 ++++++++-
+>>>>>>    1 file changed, 8 insertions(+), 1 deletion(-)
+>>>>>>
+>>>>>> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+>>>>>> index d9a2fffd034b..2be114db02f9 100644
+>>>>>> --- a/drivers/s390/cio/vfio_ccw_cp.c
+>>>>>> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+>>>>>> @@ -749,11 +749,18 @@ int cp_prefetch(struct channel_program *cp)
+>>>>>>    		for (idx = 0; idx < len; idx++) {
+>>>>>>    			ret = ccwchain_fetch_one(chain, idx, cp);
+>>>>>>    			if (ret)
+>>>>>> -				return ret;
+>>>>>> +				goto out_err;
+>>>>>>    		}
+>>>>>>    	}
+>>>>>>
+>>>>>>    	return 0;
+>>>>>> +out_err:
+>>>>>> +	/* Only cleanup the chain elements that where actually translated. */
+>>
+>> s/where/were/
+> Ok.
 > 
-> We certainly want error conditions traced as well (although the code
-> has been working too well for me to trigger that easily :)
+>>
+>>>>>> +	chain->ch_len = idx;
+>>>>>> +	list_for_each_entry_continue(chain, &cp->ccwchain_list, next) {
+>>>>>> +		chain->ch_len = 0;
+>>>>>> +	}
+>>>>>> +	return ret;
+>>>>>>    }
+>>>>>>
+>>>>>>    /**
+>>>>>>   
+>>>
+>>
 > 
-
-Looks interesting. The approach is to trace (all) exits from selected
-functions, or?
-
-It is an interesting approach. Function entry could probably be traced
-with the function tracer (if we should ever need that, although relating
-the two unambiguously may not be possible -- I don't know).
-
-I'm still not completely in clear how do we want to do error reporting.
-Using traces as means of error reporting smells like abuse to me. @Dong
-Jia: could you help me get an overview? I'm thinking of something like
-a matrix of type:
-error | handler | action (propagate as / report / try recover / discard silently)
-I'm mostly interested in what gets reported and if there is stuff that
-should be reported.
-
-Other than that I'm in favor. And having traces for tracking error
-condition is clearly better than having nothing.
-
-Regards,
-Halil
