@@ -1,101 +1,131 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v3 01/17] y2038: asm-generic: Extend sysvipc data structures
-Date: Fri, 20 Apr 2018 10:54:25 +0200
-Message-ID: <CAK8P3a3qAoR1afmTTK1CAp1L81dzwtBL+SKj=QMqD=dBr_8oRQ@mail.gmail.com>
-References: <20180419143737.606138-1-arnd@arndb.de> <20180419143737.606138-2-arnd@arndb.de>
- <87efjbnswr.fsf@xmission.com> <CAK8P3a196QYoM1egagMuZw4WhiwRiO83Qpj0CxoCeVQBEaj-gw@mail.gmail.com>
- <CAK8P3a2KR+0ZE5jHSmO6pSuiRPH83p75KetuQuHL1atChcTJGA@mail.gmail.com> <87k1t2n8v5.fsf@xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87k1t2n8v5.fsf@xmission.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH] x86: ipc: fix x32 version of shmid64_ds and msqid64_ds
+Date: Fri, 20 Apr 2018 15:03:29 +0200
+Message-ID: <20180420130346.3178914-1-arnd@arndb.de>
+References: <CAK8P3a3qAoR1afmTTK1CAp1L81dzwtBL+SKj=QMqD=dBr_8oRQ@mail.gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <CAK8P3a3qAoR1afmTTK1CAp1L81dzwtBL+SKj=QMqD=dBr_8oRQ@mail.gmail.com>
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: y2038 Mailman List <y2038@lists.linaro.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, GNU C Library <libc-alpha@sourceware.org>, Thomas Gleixner <tglx@linutronix.de>, Deepa Dinamani <deepa.kernel@gmail.com>, Al Viro <viro@zeniv.linux.org.uk>, Albert ARIBAUD <albert.aribaud@3adev.fr>, linux-s390 <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, the arch/x86 maintainers <x86@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "open list:RALINK MIPS ARCHITECTURE" <linux-mips@linux-mips.org>, James Hogan <jhogan@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, linuxppc-dev <linuxppc-dev@lists.o>
+To: x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>
+Cc: ebiederm@xmission.com, y2038 Mailman List <y2038@lists.linaro.org>, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, libc-alpha@sourceware.org, Deepa Dinamani <deepa.kernel@gmail.com>, Al Viro <viro@zeniv.linux.org.uk>, Albert ARIBAUD <albert.aribaud@3adev.fr>, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, Catalin Marinas <catalin.marinas@arm.com>, will.deacon@arm.com, linux-mips@linux-mips.org, jhogan@kernel.org, Ralf Baechle <ralf@linux-mips.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>, Jeffrey Walton <noloader@gmail.com>, Daniel Schepler <dschepler@gmail.com>, "H . J . Lu" <hjl.tools@gmail.com>, Adam Borowski <kilobyte@angband.pl>, tg@mirbsd.de, John
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Apr 20, 2018 at 12:12 AM, Eric W. Biederman
-<ebiederm@xmission.com> wrote:
-> Arnd Bergmann <arnd@arndb.de> writes:
->
->> On Thu, Apr 19, 2018 at 5:20 PM, Arnd Bergmann <arnd@arndb.de> wrote:
->>> On Thu, Apr 19, 2018 at 4:59 PM, Eric W. Biederman <ebiederm@xmission.com> wrote:
->>>> I suspect you want to use __kernel_ulong_t here instead of a raw
->>>> unsigned long.  If nothing else it seems inconsistent to use typedefs
->>>> in one half of the structure and no typedefs in the other half.
->>>
->>> Good catch, there is definitely something wrong here, but I think using
->>> __kernel_ulong_t for all members would also be wrong, as that
->>> still changes the layout on x32, which effectively is
->>>
->>> struct msqid64_ds {
->>>      ipc64_perm msg_perm;
->>>      u64 msg_stime;
->>>      u32 __unused1;
->>>      /* 32 bit implict padding */
->>>      u64 msg_rtime;
->>>      u32 __unused2;
->>>      /* 32 bit implict padding */
->>>      u64 msg_ctime;
->>>      u32 __unused3;
->>>      /* 32 bit implict padding */
->>>      __kernel_pid_t          shm_cpid;       /* pid of creator */
->>>      __kernel_pid_t          shm_lpid;       /* pid of last operator */
->>>      ....
->>> };
->>>
->>> The choices here would be to either use a mix of
->>> __kernel_ulong_t and unsigned long, or taking the x32
->>> version back into arch/x86/include/uapi/asm/ so the
->>> generic version at least makes some sense.
->>>
->>> I can't use __kernel_time_t for the lower half on 32-bit
->>> since it really should be unsigned.
->>
->> After thinking about it some more, I conclude that the structure is simply
->> incorrect on x32: The __kernel_ulong_t usage was introduced in 2013
->> in commit b9cd5ca22d67 ("uapi: Use __kernel_ulong_t in struct
->> msqid64_ds") and apparently was correct initially as __BITS_PER_LONG
->> evaluated to 64, but it broke with commit f4b4aae18288 ("x86/headers/uapi:
->> Fix __BITS_PER_LONG value for x32 builds") that changed the value
->> of __BITS_PER_LONG and introduced the extra padding in 2015.
->>
->> The same change apparently also broke a lot of other definitions, e.g.
->>
->> $ echo "#include <linux/types.h>" | gcc -mx32 -E -xc - | grep -A3
->> __kernel_size_t
->> typedef unsigned int __kernel_size_t;
->> typedef int __kernel_ssize_t;
->> typedef int __kernel_ptrdiff_t;
->>
->> Those used to be defined as 'unsigned long long' and 'long long'
->> respectively, so now all kernel interfaces using those on x32
->> became incompatible!
->
-> Is this just for the uapi header as seen by userspace?  I expect we are
-> using the a normal kernel interface with 64bit longs and 64bit pointers
-> when we build the kernel.
+A bugfix broke the x32 shmid64_ds and msqid64_ds data structure layout
+(as seen from user space)  a few years ago: Originally, __BITS_PER_LONG
+was defined as 64 on x32, so we did not have padding after the 64-bit
+__kernel_time_t fields, After __BITS_PER_LONG got changed to 32,
+applications would observe extra padding.
 
-Yes, that patch shouldn't have changed anything in the kernel, which
-continues to be built with __BITS_PER_LONG=64. I haven't
-checked the vdso, which is the only bit of the kernel that gets built
-with -mx32, but I assume it's fine as well.
+In other parts of the uapi headers we seem to have a mix of those
+expecting either 32 or 64 on x32 applications, so we can't easily revert
+the path that broke these two structures.
 
-> If this is just a header as seen from userspace mess it seems
-> unfortunate but fixable.
+Instead, this patch decouples x32 from the other architectures and moves
+it back into arch specific headers, partially reverting the even older
+commit 73a2d096fdf2 ("x86: remove all now-duplicate header files").
 
-Right. I'll fix the IPC stuff for this series to make it work with
-any value of __BITS_PER_LONG on x32, but I don't plan to
-do anything about the rest of x32. The patch that caused the
-problem was intended as a bugfix, so we can't just revert it
-without first understanding how to properly fix the original bug,
-and which other interfaces have now come to rely on
-__BITS_PER_LONG=32 for x32.
+It's not clear whether this ever made any difference, since at least
+glibc carries its own (correct) copy of both of these header files,
+so possibly no application has ever observed the definitions here.
 
-Adding a few other folks that have been involved in the x32
-kernel support or the Debian port in the past. Maybe one of
-them is motivated to figure out how to fix this properly.
+There are other UAPI interfaces that depend on __BITS_PER_LONG and
+that might suffer from the same problem on x32, but I have not tried to
+analyse them in enough detail to be sure. If anyone still cares about x32,
+that may be a useful thing to do.
 
-       Arnd
+Fixes: f4b4aae18288 ("x86/headers/uapi: Fix __BITS_PER_LONG value for x32 builds")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+This came out of the y2038 ipc syscall series but can be applied
+and backported independently.
+---
+ arch/x86/include/uapi/asm/msgbuf.h | 29 +++++++++++++++++++++++++++
+ arch/x86/include/uapi/asm/shmbuf.h | 40 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 69 insertions(+)
+
+diff --git a/arch/x86/include/uapi/asm/msgbuf.h b/arch/x86/include/uapi/asm/msgbuf.h
+index 809134c644a6..5f1604961e6d 100644
+--- a/arch/x86/include/uapi/asm/msgbuf.h
++++ b/arch/x86/include/uapi/asm/msgbuf.h
+@@ -1 +1,30 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
++#ifndef __ASM_X64_MSGBUF_H
++#define __ASM_X64_MSGBUF_H
++
++#if !defined(__x86_64__) || !defined(__ilp32__)
+ #include <asm-generic/msgbuf.h>
++#else
++/*
++ * The msqid64_ds structure for x86 architecture with x32 ABI.
++ *
++ * On x86-32 and x86-64 we can just use the generic definition, but
++ * x32 uses the same binary layout as x86_64, which is differnet
++ * from other 32-bit architectures.
++ */
++
++struct msqid64_ds {
++	struct ipc64_perm msg_perm;
++	__kernel_time_t msg_stime;	/* last msgsnd time */
++	__kernel_time_t msg_rtime;	/* last msgrcv time */
++	__kernel_time_t msg_ctime;	/* last change time */
++	__kernel_ulong_t msg_cbytes;	/* current number of bytes on queue */
++	__kernel_ulong_t msg_qnum;	/* number of messages in queue */
++	__kernel_ulong_t msg_qbytes;	/* max number of bytes on queue */
++	__kernel_pid_t msg_lspid;	/* pid of last msgsnd */
++	__kernel_pid_t msg_lrpid;	/* last receive pid */
++	__kernel_ulong_t __unused4;
++	__kernel_ulong_t __unused5;
++};
++
++#endif /* __ASM_GENERIC_MSGBUF_H */
+diff --git a/arch/x86/include/uapi/asm/shmbuf.h b/arch/x86/include/uapi/asm/shmbuf.h
+index 83c05fc2de38..cdd7eec878fa 100644
+--- a/arch/x86/include/uapi/asm/shmbuf.h
++++ b/arch/x86/include/uapi/asm/shmbuf.h
+@@ -1 +1,41 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
++#ifndef __ASM_X86_SHMBUF_H
++#define __ASM_X86_SHMBUF_H
++
++#if !defined(__x86_64__) || !defined(__ilp32__)
+ #include <asm-generic/shmbuf.h>
++#else
++/*
++ * The shmid64_ds structure for x86 architecture with x32 ABI.
++ *
++ * On x86-32 and x86-64 we can just use the generic definition, but
++ * x32 uses the same binary layout as x86_64, which is differnet
++ * from other 32-bit architectures.
++ */
++
++struct shmid64_ds {
++	struct ipc64_perm	shm_perm;	/* operation perms */
++	size_t			shm_segsz;	/* size of segment (bytes) */
++	__kernel_time_t		shm_atime;	/* last attach time */
++	__kernel_time_t		shm_dtime;	/* last detach time */
++	__kernel_time_t		shm_ctime;	/* last change time */
++	__kernel_pid_t		shm_cpid;	/* pid of creator */
++	__kernel_pid_t		shm_lpid;	/* pid of last operator */
++	__kernel_ulong_t	shm_nattch;	/* no. of current attaches */
++	__kernel_ulong_t	__unused4;
++	__kernel_ulong_t	__unused5;
++};
++
++struct shminfo64 {
++	__kernel_ulong_t	shmmax;
++	__kernel_ulong_t	shmmin;
++	__kernel_ulong_t	shmmni;
++	__kernel_ulong_t	shmseg;
++	__kernel_ulong_t	shmall;
++	__kernel_ulong_t	__unused1;
++	__kernel_ulong_t	__unused2;
++	__kernel_ulong_t	__unused3;
++	__kernel_ulong_t	__unused4;
++};
++
++#endif /* __ASM_X86_SHMBUF_H */
+-- 
+2.9.0
