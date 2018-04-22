@@ -1,93 +1,172 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 03/15] KVM: s390: refactor crypto initialization
-Date: Sun, 22 Apr 2018 10:52:55 -0400
-Message-ID: <470d8af7-b9f6-0ab7-9bfa-351fbeaa079c@linux.vnet.ibm.com>
+Subject: Re: [PATCH v4 13/15] KVM: s390: configure the guest's AP devices
+Date: Sun, 22 Apr 2018 10:54:04 -0400
+Message-ID: <933d29fd-748e-5782-57fc-19e60fbebdd1@linux.vnet.ibm.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1523827345-11600-4-git-send-email-akrowiak@linux.vnet.ibm.com>
- <4fb50a31-1893-5cfb-0f35-fb2501c2afa8@linux.vnet.ibm.com>
- <OFE3FE11B1.8E1BDDEF-ON00258272.002AEDB1-C1258272.002B06EF@notes.na.collabserv.com>
- <20180417121044.5c8f2182.cohuck@redhat.com>
- <2ac8b862-e2dc-843e-a0b8-906fa32b42f4@linux.vnet.ibm.com>
- <20180417172139.0a2b148b.cohuck@redhat.com>
- <7276785e-2183-3204-ec80-99fba1546364@linux.vnet.ibm.com>
- <20180418094949.0403dcaf.cohuck@redhat.com>
+ <1523827345-11600-14-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <ff5c43bc-f000-8911-2273-a15c3533657c@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180418094949.0403dcaf.cohuck@redhat.com>
+In-Reply-To: <ff5c43bc-f000-8911-2273-a15c3533657c@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Harald Freudenberger <FREUDE@de.ibm.com>, Pierre Morel <pmorel@linux.vnet.ibm.com>, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, berrange@redhat.com, bjsdjshi@linux.vnet.ibm.com, borntrae@linux.ibm.com, fiuczy@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, kvm@vger.kernel.org, kwankhede@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, mjrosato@linux.vnet.ibm.com, mschwid2@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, pbonzini@redhat.com, Reinhard Buendgen <BUENDGEN@de.ibm.com>, thuth@redhat.com
+To: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 04/18/2018 03:49 AM, Cornelia Huck wrote:
-> On Tue, 17 Apr 2018 14:08:59 -0400
-> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+On 04/18/2018 07:56 AM, Pierre Morel wrote:
+> On 15/04/2018 23:22, Tony Krowiak wrote:
+>> Registers a group notifier during the open of the mediated
+>> matrix device to get information on KVM presence through the
+>> VFIO_GROUP_NOTIFY_SET_KVM event. When notified, the pointer
+>> to the kvm structure is saved inside the mediated matrix
+>> device. Once the VFIO AP device driver has access to KVM,
+>> access to the APs can be configured for the guest.
+>>
+>> Access to APs is configured when the file descriptor for the
+>> mediated matrix device is opened by userspace. The items to be
+>> configured are:
+>>
+>> 1. The ECA.28 bit in the SIE state description determines whether
+>>     AP instructions are interpreted by the hardware or intercepted.
+>>     The VFIO AP device driver relies interpretive execution of
+>>     AP instructions so the ECA.28 bit will be set
+>>
+>> 2. Guest access to AP adapters, usage domains and control domains
+>>     is controlled by three bit masks referenced from the
+>>     Crypto Control Block (CRYCB) referenced from the guest's SIE state
+>>     description:
+>>
+>>     * The AP Mask (APM) controls access to the AP adapters. Each bit
+>>       in the APM represents an adapter number - from most significant
+>>       to least significant bit - from 0 to 255. The bits in the APM
+>>       are set according to the adapter numbers assigned to the mediated
+>>       matrix device via its 'assign_adapter' sysfs attribute file.
+>>
+>>     * The AP Queue (AQM) controls access to the AP queues. Each bit
+>>       in the AQM represents an AP queue index - from most significant
+>>       to least significant bit - from 0 to 255. A queue index references
+>>       a specific domain and is synonymous with the domian number. The
+>>       bits in the AQM are set according to the domain numbers assigned
+>>       to the mediated matrix device via its 'assign_domain' sysfs
+>>       attribute file.
+>>
+>>     * The AP Domain Mask (ADM) controls access to the AP control 
+>> domains.
+>>       Each bit in the ADM represents a control domain - from most
+>>       significant to least significant bit - from 0-255. The
+>>       bits in the ADM are set according to the domain numbers assigned
+>>       to the mediated matrix device via its 'assign_control_domain'
+>>       sysfs attribute file.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c     |   50 
+>> +++++++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_private.h |    2 +
+>>   2 files changed, 52 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
+>> b/drivers/s390/crypto/vfio_ap_ops.c
+>> index bc2b05e..e3ff5ab 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -53,6 +53,54 @@ static int vfio_ap_mdev_remove(struct mdev_device 
+>> *mdev)
+>>       return 0;
+>>   }
+>>
+>> +static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+>> +                       unsigned long action, void *data)
+>> +{
+>> +    struct ap_matrix_mdev *matrix_mdev;
+>> +
+>> +    if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
+>> +        matrix_mdev = container_of(nb, struct ap_matrix_mdev,
+>> +                       group_notifier);
+>> +        matrix_mdev->kvm = data;
+>> +    }
+>> +
+>> +    return NOTIFY_OK;
+>> +}
+>> +
+>> +static int vfio_ap_mdev_open(struct mdev_device *mdev)
+>> +{
+>> +    struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>> +    unsigned long events;
+>> +    int ret;
+>> +
+>> +    matrix_mdev->group_notifier.notifier_call = 
+>> vfio_ap_mdev_group_notifier;
+>> +    events = VFIO_GROUP_NOTIFY_SET_KVM;
+>> +
+>> +    ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+>> +                     &events, &matrix_mdev->group_notifier);
+>> +    if (ret)
+>> +        return ret;
+>> +
+>> +    ret = kvm_ap_interpret_instructions(matrix_mdev->kvm, true);
+>> +    if (ret)
+>> +        return ret;
+>> +
+>> +    ret = kvm_ap_configure_matrix(matrix_mdev->kvm,
+>> +                      matrix_mdev->matrix);
 >
->> On 04/17/2018 11:21 AM, Cornelia Huck wrote:
->>> On Tue, 17 Apr 2018 10:26:57 -0400
->>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->>>   
->>>> On 04/17/2018 06:10 AM, Cornelia Huck wrote:
->>>>> On Tue, 17 Apr 2018 09:49:58 +0200
->>>>> "Harald Freudenberger" <FREUDE@de.ibm.com> wrote:
->>>>>      
->>>>>> Didn't we say that when APXA is not available there is no Crypto support
->>>>>> for KVM ?
->>>>> [Going by the code, as I don't have access to the architecture]
->>>>>
->>>>> Current status seems to be:
->>>>> - setup crycb if facility 76 is available (that's MSAX3, I guess?)
->>>> The crycb is set up regardless of whether STFLE.76 (MSAX3) is
->>>> installed or not.
->>> Hm, the current code does a quick exit if bit 76 is not set, doesn't
->>> it?
->> I guess that depends upon what you mean by current code. If you are talking
->> about the code as it is distributed today - i.e., before my patch series -
->> then you are correct. This patch changes that; it initializes the
->> kvm->arch.crypto.crycbd to point to the CRYCB, then clears the format bits
->> (kvm->arch.crypto.crycbd &= ~(CRYCB_FORMAT_MASK)) which is the same as
->> setting the CRYCB format to format 0. It is only after this that the
->> check is done to determine whether STFLE.76 is set.
-> Ah yes, with "current" I referred to current upstream.
+> If all went OK, you may want to increase the module reference count
+> to avoid removing the module while in use by QEMU.
+Sounds reasonable.
 >
->>>   
->>>>> - use format 2 if APXA is available, else use format 1
->>>> Use format 0 if MSAX3 is not available
->>>> Use format 1 if MSAX3 is available but APXA is not
->>>> Use format 2 if MSAX3 and APXA is available
->>>>   
->>>>>    From Tony's patch description, the goal seems to be:
->>>>> - setup crycb even if MSAX3 is not available
->>>> Yes, that is true
->>>>   
->>>>> So my understanding is that we use APXA only to decide on the format of
->>>>> the crycb, but provide it in any case?
->>>> Yes, that is true
->>> With the format selection you outlined above, I guess. Makes sense from
->>> my point of view (just looking at the source code).
->> It also implements what is stated in the architecture doc.
-> OK, great.
 >
->>>   
->>>>> (Not providing a crycb if APXA is not available would be loss of
->>>>> functionality, I guess? Deciding not to provide vfio-ap if APXA is not
->>>>> available is a different game, of course.)
->>>> This would require a change to enabling the CPU model feature for
->>>> AP.
->>> But would it actually make sense to tie vfio-ap to APXA? This needs to
->>> be answered by folks with access to the architecture :)
->> I don't see any reason to do that from an architectural perspective.
->> One can access AP devices whether APXA is installed or not, it just limits
->> the range of devices that can be addressed
-> So I guess we should not introduce a tie-in then (unless it radically
-> simplifies the code...)
-
-I'm not clear about what you mean by introducing a tie-in. Can you 
-clarify that?
-
+>> +
+>> +    return ret;
+>> +}
+>> +
+>> +static void vfio_ap_mdev_release(struct mdev_device *mdev)
+>> +{
+>> +    struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>> +
+>> +    kvm_ap_deconfigure_matrix(matrix_mdev->kvm);
+>> +    kvm_ap_interpret_instructions(matrix_mdev->kvm, false);
+>> +    vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+>> +                 &matrix_mdev->group_notifier);
+>
+> ... and also decrease the reference count.
+Ditto.
+>
+>
+>> +}
+>> +
+>>   static ssize_t name_show(struct kobject *kobj, struct device *dev, 
+>> char *buf)
+>>   {
+>>       return sprintf(buf, "%s\n", VFIO_AP_MDEV_NAME_HWVIRT);
+>> @@ -754,6 +802,8 @@ static ssize_t matrix_show(struct device *dev, 
+>> struct device_attribute *attr,
+>>       .mdev_attr_groups    = vfio_ap_mdev_attr_groups,
+>>       .create            = vfio_ap_mdev_create,
+>>       .remove            = vfio_ap_mdev_remove,
+>> +    .open            = vfio_ap_mdev_open,
+>> +    .release        = vfio_ap_mdev_release,
+>>   };
+>>
+>>   int vfio_ap_mdev_register(struct ap_matrix *ap_matrix)
+>> diff --git a/drivers/s390/crypto/vfio_ap_private.h 
+>> b/drivers/s390/crypto/vfio_ap_private.h
+>> index f248faf..48e2806 100644
+>> --- a/drivers/s390/crypto/vfio_ap_private.h
+>> +++ b/drivers/s390/crypto/vfio_ap_private.h
+>> @@ -31,6 +31,8 @@ struct ap_matrix {
+>>
+>>   struct ap_matrix_mdev {
+>>       struct kvm_ap_matrix *matrix;
+>> +    struct notifier_block group_notifier;
+>> +    struct kvm *kvm;
+>>   };
+>>
+>>   static inline struct ap_matrix *to_ap_matrix(struct device *dev)
+>
 >
