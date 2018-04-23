@@ -1,146 +1,73 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Fri, 20 Apr 2018 09:38:04 -0500
-Message-ID: <20180420143811.9994-15-ebiederm@xmission.com>
-In-Reply-To: <87604mhrnb.fsf@xmission.com>
-References: <87604mhrnb.fsf@xmission.com>
-Subject: [REVIEW][PATCH 15/22] signal/s390: Use force_sig_fault where appropriate
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180420143804.MWF9PdU4sZyYgBpecQjW1HBbinUl5ZWqBUKJtgmFHqk@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Subject: [PATCH v2 1/5] vfio: ccw: fix cleanup if cp_prefetch fails
+Date: Mon, 23 Apr 2018 13:01:09 +0200
+Message-ID: <20180423110113.59385-2-bjsdjshi@linux.vnet.ibm.com>
+References: <20180423110113.59385-1-bjsdjshi@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180423110113.59385-1-bjsdjshi@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: cohuck@redhat.com, borntraeger@de.ibm.com, bjsdjshi@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com, Halil Pasic <pasic@linux.vnet.ibm.com>, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Filling in struct siginfo before calling force_sig_info a tedious and
-error prone process, where once in a great while the wrong fields
-are filled out, and siginfo has been inconsistently cleared.
+From: Halil Pasic <pasic@linux.vnet.ibm.com>
 
-Simplify this process by using the helper force_sig_fault.  Which
-takes as a parameters all of the information it needs, ensures
-all of the fiddly bits of filling in struct siginfo are done properly
-and then calls force_sig_info.
+If the translation of a channel program fails, we may end up attempting
+to clean up (free, unpin) stuff that never got translated (and allocated,
+pinned) in the first place.
 
-In short about a 5 line reduction in code for every time force_sig_info
-is called, which makes the calling function clearer.
+By adjusting the lengths of the chains accordingly (so the element that
+failed, and all subsequent elements are excluded) cleanup activities
+based on false assumptions can be avoided.
 
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Let's make sure cp_free works properly after cp_prefetch returns with an
+error by setting ch_len of a ccw chain to the number of the translated
+CCWs on that chain.
+
+Acked-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
+Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 ---
- arch/s390/kernel/traps.c | 32 ++++++--------------------------
- arch/s390/mm/fault.c     | 23 ++++++-----------------
- 2 files changed, 12 insertions(+), 43 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 3ba649d8aa5a..8003b38c1688 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -44,15 +44,8 @@ int is_valid_bugaddr(unsigned long addr)
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 2c7550797ec2..62d66e195304 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -715,6 +715,10 @@ void cp_free(struct channel_program *cp)
+  * and stores the result to ccwchain list. @cp must have been
+  * initialized by a previous call with cp_init(). Otherwise, undefined
+  * behavior occurs.
++ * For each chain composing the channel program:
++ * - On entry ch_len holds the count of CCW to be translated.
++ * - On exit ch_len is adjusted to the count of successfully translated CCW.
++ * This allows cp_free to find in ch_len the count of CCW to free in a chain.
+  *
+  * The S/390 CCW Translation APIS (prefixed by 'cp_') are introduced
+  * as helpers to do ccw chain translation inside the kernel. Basically
+@@ -749,11 +753,18 @@ int cp_prefetch(struct channel_program *cp)
+ 		for (idx = 0; idx < len; idx++) {
+ 			ret = ccwchain_fetch_one(chain, idx, cp);
+ 			if (ret)
+-				return ret;
++				goto out_err;
+ 		}
+ 	}
  
- void do_report_trap(struct pt_regs *regs, int si_signo, int si_code, char *str)
- {
--	siginfo_t info;
--
- 	if (user_mode(regs)) {
--		clear_siginfo(&info);
--		info.si_signo = si_signo;
--		info.si_errno = 0;
--		info.si_code = si_code;
--		info.si_addr = get_trap_ip(regs);
--		force_sig_info(si_signo, &info, current);
-+		force_sig_fault(si_signo, si_code, get_trap_ip(regs), current);
- 		report_user_fault(regs, si_signo, 0);
-         } else {
-                 const struct exception_table_entry *fixup;
-@@ -81,19 +74,12 @@ NOKPROBE_SYMBOL(do_trap);
- 
- void do_per_trap(struct pt_regs *regs)
- {
--	siginfo_t info;
--
- 	if (notify_die(DIE_SSTEP, "sstep", regs, 0, 0, SIGTRAP) == NOTIFY_STOP)
- 		return;
- 	if (!current->ptrace)
- 		return;
--	clear_siginfo(&info);
--	info.si_signo = SIGTRAP;
--	info.si_errno = 0;
--	info.si_code = TRAP_HWBKPT;
--	info.si_addr =
--		(void __force __user *) current->thread.per_event.address;
--	force_sig_info(SIGTRAP, &info, current);
-+	force_sig_fault(SIGTRAP, TRAP_HWBKPT,
-+		(void __force __user *) current->thread.per_event.address, current);
- }
- NOKPROBE_SYMBOL(do_per_trap);
- 
-@@ -178,15 +164,9 @@ void illegal_op(struct pt_regs *regs)
- 		if (get_user(*((__u16 *) opcode), (__u16 __user *) location))
- 			return;
- 		if (*((__u16 *) opcode) == S390_BREAKPOINT_U16) {
--			if (current->ptrace) {
--				siginfo_t info;
--				clear_siginfo(&info);
--				info.si_signo = SIGTRAP;
--				info.si_errno = 0;
--				info.si_code = TRAP_BRKPT;
--				info.si_addr = location;
--				force_sig_info(SIGTRAP, &info, current);
--			} else
-+			if (current->ptrace)
-+				force_sig_fault(SIGTRAP, TRAP_BRKPT, location, current);
-+			else
- 				signal = SIGILL;
- #ifdef CONFIG_UPROBES
- 		} else if (*((__u16 *) opcode) == UPROBE_SWBP_INSN) {
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index b3ff0e8e5860..e074480d3598 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -265,15 +265,10 @@ void report_user_fault(struct pt_regs *regs, long signr, int is_mm_fault)
-  */
- static noinline void do_sigsegv(struct pt_regs *regs, int si_code)
- {
--	struct siginfo si;
--
- 	report_user_fault(regs, SIGSEGV, 1);
--	clear_siginfo(&si);
--	si.si_signo = SIGSEGV;
--	si.si_errno = 0;
--	si.si_code = si_code;
--	si.si_addr = (void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK);
--	force_sig_info(SIGSEGV, &si, current);
-+	force_sig_fault(SIGSEGV, si_code,
-+			(void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK),
-+			current);
+ 	return 0;
++out_err:
++	/* Only cleanup the chain elements that were actually translated. */
++	chain->ch_len = idx;
++	list_for_each_entry_continue(chain, &cp->ccwchain_list, next) {
++		chain->ch_len = 0;
++	}
++	return ret;
  }
  
- static noinline void do_no_context(struct pt_regs *regs)
-@@ -317,19 +312,13 @@ static noinline void do_low_address(struct pt_regs *regs)
- 
- static noinline void do_sigbus(struct pt_regs *regs)
- {
--	struct task_struct *tsk = current;
--	struct siginfo si;
--
- 	/*
- 	 * Send a sigbus, regardless of whether we were in kernel
- 	 * or user mode.
- 	 */
--	clear_siginfo(&si);
--	si.si_signo = SIGBUS;
--	si.si_errno = 0;
--	si.si_code = BUS_ADRERR;
--	si.si_addr = (void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK);
--	force_sig_info(SIGBUS, &si, tsk);
-+	force_sig_fault(SIGBUS, BUS_ADRERR,
-+			(void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK),
-+			current);
- }
- 
- static noinline int signal_return(struct pt_regs *regs)
+ /**
 -- 
-2.14.1
+2.13.5
