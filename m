@@ -1,84 +1,51 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/1] vfio: ccw: process ssch with interrupts disabled
-Date: Fri, 20 Apr 2018 10:24:04 +0200
-Message-ID: <20180420082404.13949-2-cohuck@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PULL 0/1] vfio-ccw: bug fix
+Date: Mon, 23 Apr 2018 09:32:09 +0200
+Message-ID: <20180423093209.77edeed4@mschwideX1>
 References: <20180420082404.13949-1-cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180420082404.13949-1-cohuck@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, stable@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When we call ssch, an interrupt might already be pending once we
-return from the START SUBCHANNEL instruction. Therefore we need to
-make sure interrupts are disabled while holding the subchannel lock
-until after we're done with our processing.
+On Fri, 20 Apr 2018 10:24:03 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Cc: stable@vger.kernel.org #v4.12+
-Reviewed-by: Dong Jia Shi <bjsdjshi@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-Acked-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_fsm.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+> The following changes since commit fae764912153065ea55eda47f834e0764a54df94:
+> 
+>   s390/signal: cleanup uapi struct sigaction (2018-04-17 10:36:12 +0200)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20180420
+> 
+> for you to fetch changes up to c25e3c8e91318ddc17261c7dff053e00a213f176:
+> 
+>   vfio: ccw: process ssch with interrupts disabled (2018-04-19 17:29:31 +0200)
+> 
+> ----------------------------------------------------------------
+> A vfio-ccw bug fix (call ssch with interrupts disabled).
+> 
+> ----------------------------------------------------------------
+> 
+> Cornelia Huck (1):
+>   vfio: ccw: process ssch with interrupts disabled
+> 
+>  drivers/s390/cio/vfio_ccw_fsm.c | 19 ++++++++++++-------
+>  1 file changed, 12 insertions(+), 7 deletions(-)
+> 
 
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index ff6963ad6e39..3c800642134e 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -20,12 +20,12 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
- 	int ccode;
- 	__u8 lpm;
- 	unsigned long flags;
-+	int ret;
- 
- 	sch = private->sch;
- 
- 	spin_lock_irqsave(sch->lock, flags);
- 	private->state = VFIO_CCW_STATE_BUSY;
--	spin_unlock_irqrestore(sch->lock, flags);
- 
- 	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
- 
-@@ -38,10 +38,12 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
- 		 * Initialize device status information
- 		 */
- 		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
--		return 0;
-+		ret = 0;
-+		break;
- 	case 1:		/* Status pending */
- 	case 2:		/* Busy */
--		return -EBUSY;
-+		ret = -EBUSY;
-+		break;
- 	case 3:		/* Device/path not operational */
- 	{
- 		lpm = orb->cmd.lpm;
-@@ -51,13 +53,16 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
- 			sch->lpm = 0;
- 
- 		if (cio_update_schib(sch))
--			return -ENODEV;
--
--		return sch->lpm ? -EACCES : -ENODEV;
-+			ret = -ENODEV;
-+		else
-+			ret = sch->lpm ? -EACCES : -ENODEV;
-+		break;
- 	}
- 	default:
--		return ccode;
-+		ret = ccode;
- 	}
-+	spin_unlock_irqrestore(sch->lock, flags);
-+	return ret;
- }
- 
- static void fsm_notoper(struct vfio_ccw_private *private,
+This is now queued in s390/linux:fixes for the next please-pull.
+
 -- 
-2.14.3
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
