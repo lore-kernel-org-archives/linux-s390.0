@@ -1,37 +1,53 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 0/1] vfio-ccw: bug fix
-Date: Fri, 20 Apr 2018 10:24:03 +0200
-Message-ID: <20180420082404.13949-1-cohuck@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [REVIEW][PATCH 15/22] signal/s390: Use force_sig_fault where
+ appropriate
+Date: Mon, 23 Apr 2018 07:44:37 +0200
+Message-ID: <20180423074437.1203f39f@mschwideX1>
+References: <87604mhrnb.fsf@xmission.com>
+        <20180420143811.9994-15-ebiederm@xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180420143811.9994-15-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The following changes since commit fae764912153065ea55eda47f834e0764a54df94:
+On Fri, 20 Apr 2018 09:38:04 -0500
+"Eric W. Biederman" <ebiederm@xmission.com> wrote:
 
-  s390/signal: cleanup uapi struct sigaction (2018-04-17 10:36:12 +0200)
+> Filling in struct siginfo before calling force_sig_info a tedious and
+> error prone process, where once in a great while the wrong fields
+> are filled out, and siginfo has been inconsistently cleared.
+> 
+> Simplify this process by using the helper force_sig_fault.  Which
+> takes as a parameters all of the information it needs, ensures
+> all of the fiddly bits of filling in struct siginfo are done properly
+> and then calls force_sig_info.
+> 
+> In short about a 5 line reduction in code for every time force_sig_info
+> is called, which makes the calling function clearer.
+> 
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> ---
+>  arch/s390/kernel/traps.c | 32 ++++++--------------------------
+>  arch/s390/mm/fault.c     | 23 ++++++-----------------
+>  2 files changed, 12 insertions(+), 43 deletions(-)
+ 
+Compiles & boots. Comparing old vs. new the same values are
+set in siginfo. Looks good.
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20180420
-
-for you to fetch changes up to c25e3c8e91318ddc17261c7dff053e00a213f176:
-
-  vfio: ccw: process ssch with interrupts disabled (2018-04-19 17:29:31 +0200)
-
-----------------------------------------------------------------
-A vfio-ccw bug fix (call ssch with interrupts disabled).
-
-----------------------------------------------------------------
-
-Cornelia Huck (1):
-  vfio: ccw: process ssch with interrupts disabled
-
- drivers/s390/cio/vfio_ccw_fsm.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+Acked-by: Martin Schwidefsky >schwidefsky@de.ibm.com>
 
 -- 
-2.14.3
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
