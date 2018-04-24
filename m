@@ -1,165 +1,77 @@
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Subject: [PATCH v2 3/5] vfio: ccw: refactor and improve pfn_array_alloc_pin()
-Date: Mon, 23 Apr 2018 13:01:11 +0200
-Message-ID: <20180423110113.59385-4-bjsdjshi@linux.vnet.ibm.com>
-References: <20180423110113.59385-1-bjsdjshi@linux.vnet.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 1/1] vfio: ccw: fix cleanup if cp_prefetch fails
+Date: Tue, 24 Apr 2018 13:26:56 +0200
+Message-ID: <20180424112656.10243-2-cohuck@redhat.com>
+References: <20180424112656.10243-1-cohuck@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180423110113.59385-1-bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <20180424112656.10243-1-cohuck@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: cohuck@redhat.com, borntraeger@de.ibm.com, bjsdjshi@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Halil Pasic <pasic@linux.vnet.ibm.com>, stable@vger.kernel.org, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This refactors pfn_array_alloc_pin() and also improves it by adding
-defensive code in error handling so that calling pfn_array_unpin_free()
-after error return won't lead to problem. This mainly does:
-1. Merge pfn_array_pin() into pfn_array_alloc_pin(), since there is no
-   other user of pfn_array_pin(). As a result, also remove kernel-doc
-   for pfn_array_pin() and add/update kernel-doc for pfn_array_alloc_pin()
-   and struct pfn_array.
-2. For a vfio_pin_pages() failure, set pa->pa_nr to zero to indicate
-   zero pages were pinned.
-3. Set pa->pa_iova_pfn to NULL right after it was freed.
+From: Halil Pasic <pasic@linux.vnet.ibm.com>
 
-Suggested-by: Pierre Morel <pmorel@linux.vnet.ibm.com>,
+If the translation of a channel program fails, we may end up attempting
+to clean up (free, unpin) stuff that never got translated (and allocated,
+pinned) in the first place.
+
+By adjusting the lengths of the chains accordingly (so the element that
+failed, and all subsequent elements are excluded) cleanup activities
+based on false assumptions can be avoided.
+
+Let's make sure cp_free works properly after cp_prefetch returns with an
+error by setting ch_len of a ccw chain to the number of the translated
+CCWs on that chain.
+
+Cc: stable@vger.kernel.org #v4.12+
+Acked-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Reviewed-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Signed-off-by: Halil Pasic <pasic@linux.vnet.ibm.com>
 Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Message-Id: <20180423110113.59385-2-bjsdjshi@linux.vnet.ibm.com>
+[CH: fixed typos]
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 82 +++++++++++++++++++-----------------------
- 1 file changed, 36 insertions(+), 46 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index e8fe7450702e..340804b45f6a 100644
+index 2c7550797ec2..dce92b2a895d 100644
 --- a/drivers/s390/cio/vfio_ccw_cp.c
 +++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -29,7 +29,7 @@ struct pfn_array {
- 	unsigned long		*pa_iova_pfn;
- 	/* Array that receives PFNs of the pages pinned. */
- 	unsigned long		*pa_pfn;
--	/* Number of pages to pin/pinned from @pa_iova. */
-+	/* Number of pages pinned from @pa_iova. */
- 	int			pa_nr;
- };
- 
-@@ -50,64 +50,33 @@ struct ccwchain {
- };
- 
- /*
-- * pfn_array_pin() - pin user pages in memory
-+ * pfn_array_alloc_pin() - alloc memory for PFNs, then pin user pages in memory
-  * @pa: pfn_array on which to perform the operation
-  * @mdev: the mediated device to perform pin/unpin operations
-+ * @iova: target guest physical address
-+ * @len: number of bytes that should be pinned from @iova
+@@ -715,6 +715,10 @@ void cp_free(struct channel_program *cp)
+  * and stores the result to ccwchain list. @cp must have been
+  * initialized by a previous call with cp_init(). Otherwise, undefined
+  * behavior occurs.
++ * For each chain composing the channel program:
++ * - On entry ch_len holds the count of CCWs to be translated.
++ * - On exit ch_len is adjusted to the count of successfully translated CCWs.
++ * This allows cp_free to find in ch_len the count of CCWs to free in a chain.
   *
-- * Attempt to pin user pages in memory.
-+ * Attempt to allocate memory for PFNs, and pin user pages in memory.
-  *
-  * Usage of pfn_array:
-- * Any field in this structure should be initialized by caller.
-- * We expect @pa->pa_nr > 0, and its value will be assigned by callee.
-+ * We expect (pa_nr == 0) and (pa_iova_pfn == NULL), any field in
-+ * this structure will be filled in by this function.
-  *
-  * Returns:
-  *   Number of pages pinned on success.
-- *   If @pa->pa_nr is 0 or negative, returns 0.
-+ *   If @pa->pa_nr is not 0, or @pa->pa_iova_pfn is not NULL initially,
-+ *   returns -EINVAL.
-  *   If no pages were pinned, returns -errno.
-  */
--static int pfn_array_pin(struct pfn_array *pa, struct device *mdev)
--{
--	int i, ret;
--
--	if (pa->pa_nr <= 0) {
--		pa->pa_nr = 0;
--		return 0;
--	}
--
--	pa->pa_iova_pfn[0] = pa->pa_iova >> PAGE_SHIFT;
--	for (i = 1; i < pa->pa_nr; i++)
--		pa->pa_iova_pfn[i] = pa->pa_iova_pfn[i - 1] + 1;
--
--	ret = vfio_pin_pages(mdev, pa->pa_iova_pfn, pa->pa_nr,
--			     IOMMU_READ | IOMMU_WRITE, pa->pa_pfn);
--
--	if (ret > 0 && ret != pa->pa_nr) {
--		vfio_unpin_pages(mdev, pa->pa_iova_pfn, ret);
--		pa->pa_nr = 0;
--		return 0;
--	}
--
--	return ret;
--}
--
--/* Unpin the pages before releasing the memory. */
--static void pfn_array_unpin_free(struct pfn_array *pa, struct device *mdev)
--{
--	vfio_unpin_pages(mdev, pa->pa_iova_pfn, pa->pa_nr);
--	pa->pa_nr = 0;
--	kfree(pa->pa_iova_pfn);
--}
--
--/* Alloc memory for PFNs, then pin pages with them. */
- static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
- 			       u64 iova, unsigned int len)
- {
--	int ret = 0;
-+	int i, ret = 0;
+  * The S/390 CCW Translation APIS (prefixed by 'cp_') are introduced
+  * as helpers to do ccw chain translation inside the kernel. Basically
+@@ -749,11 +753,18 @@ int cp_prefetch(struct channel_program *cp)
+ 		for (idx = 0; idx < len; idx++) {
+ 			ret = ccwchain_fetch_one(chain, idx, cp);
+ 			if (ret)
+-				return ret;
++				goto out_err;
+ 		}
+ 	}
  
- 	if (!len)
- 		return 0;
- 
--	if (pa->pa_nr)
-+	if (pa->pa_nr || pa->pa_iova_pfn)
- 		return -EINVAL;
- 
- 	pa->pa_iova = iova;
-@@ -124,18 +93,39 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
- 		return -ENOMEM;
- 	pa->pa_pfn = pa->pa_iova_pfn + pa->pa_nr;
- 
--	ret = pfn_array_pin(pa, mdev);
-+	pa->pa_iova_pfn[0] = pa->pa_iova >> PAGE_SHIFT;
-+	for (i = 1; i < pa->pa_nr; i++)
-+		pa->pa_iova_pfn[i] = pa->pa_iova_pfn[i - 1] + 1;
-+
-+	ret = vfio_pin_pages(mdev, pa->pa_iova_pfn, pa->pa_nr,
-+			     IOMMU_READ | IOMMU_WRITE, pa->pa_pfn);
- 
--	if (ret > 0)
--		return ret;
--	else if (!ret)
-+	if (ret < 0) {
-+		goto err_out;
-+	} else if (ret > 0 && ret != pa->pa_nr) {
-+		vfio_unpin_pages(mdev, pa->pa_iova_pfn, ret);
- 		ret = -EINVAL;
-+		goto err_out;
+ 	return 0;
++out_err:
++	/* Only cleanup the chain elements that were actually translated. */
++	chain->ch_len = idx;
++	list_for_each_entry_continue(chain, &cp->ccwchain_list, next) {
++		chain->ch_len = 0;
 +	}
-+
 +	return ret;
- 
-+err_out:
-+	pa->pa_nr = 0;
- 	kfree(pa->pa_iova_pfn);
-+	pa->pa_iova_pfn = NULL;
- 
- 	return ret;
  }
  
-+/* Unpin the pages before releasing the memory. */
-+static void pfn_array_unpin_free(struct pfn_array *pa, struct device *mdev)
-+{
-+	vfio_unpin_pages(mdev, pa->pa_iova_pfn, pa->pa_nr);
-+	pa->pa_nr = 0;
-+	kfree(pa->pa_iova_pfn);
-+}
-+
- static int pfn_array_table_init(struct pfn_array_table *pat, int nr)
- {
- 	pat->pat_pa = kcalloc(nr, sizeof(*pat->pat_pa), GFP_KERNEL);
+ /**
 -- 
-2.13.5
+2.14.3
