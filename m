@@ -1,35 +1,36 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 19 Apr 2018 08:08:21 +0000
-Subject: Re: [-next] "y2038: s390: remove unneeded ipc uapi header files" causes build failure
-Message-Id: <CAK8P3a3oUn1CVVRvourPk908OHGhDTrvpr=DgnBu5n1ikfSTvw@mail.gmail.com>
-In-Reply-To: <20180419074030.GA6317@osiris>
-References: <20180419074030.GA6317@osiris>
-To: linux-s390@vger.kernel.org, linux-next@vger.kernel.org
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Date: Tue, 24 Apr 2018 14:04:11 +0000
+Subject: Re: [PATCH] perf tests: let 'perf test list' display subtests
+Message-Id: <20180424140411.GC3788@kernel.org>
+In-Reply-To: <20180424102112.GB19043@krava>
+References: <20180424102112.GB19043@krava>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 19, 2018 at 9:40 AM, Heiko Carstens
-<heiko.carstens@de.ibm.com> wrote:
-> Hi Arnd,
->
-> your patch "y2038: s390: remove unneeded ipc uapi header files" causes
-> "make headers_install" to fail on s390:
->
-> scripts/Makefile.headersinst:63: *** Some mandatory headers (msgbuf.h sembuf.h shmbuf.h) are missing in arch/s390/include/uapi/asm.  Stop.
->
-> Apparently you added the three new "generic-y" entries to
-> the wrong Kbuild file:
->
-> arch/s390/include/asm/Kbuild
->
-> instead of
->
-> arch/s390/include/uapi/asm/Kbuild.
->
-> Please apply/merge the patch below. Thanks!
+Em Tue, Apr 24, 2018 at 12:21:12PM +0200, Jiri Olsa escreveu:
+> On Fri, Apr 13, 2018 at 09:42:23AM +0200, Hendrik Brueckner wrote:
+> > The output of perf test and perf test list differ because perf test list
+> > does not display subtests.  Correct this behavior and also let perf test
+> > list report subtests.
+> > 
+> > For example:
+> > 
+> > 	$ ./perf test 2>&1 |wc -l
+> > 	65
+> > 
+> > Without this commit:
+> > 	$ ./perf test list 2>&1 |wc -l
+> > 	57
+> > 
+> > With this commit:
+> > 	$ ./perf test list 2>&1 |wc -l
+> > 	65
+> > 
+> > Reviewed-by: Thomas Richter <tmricht@linux.ibm.com>
+> > Signed-off-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+> 
+> Acked-by: Jiri Olsa <jolsa@kernel.org>
 
-Thanks a lot for the report. I found that I made the same mistake in
-two additonal
-architectures. Fixed all three in place now, will upload the fixed branch after
-some more testing.
+Thanks, applied.
 
-       Arnd
+- Arnaldo
