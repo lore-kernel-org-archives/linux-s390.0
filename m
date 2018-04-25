@@ -1,46 +1,52 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 01/10] vfio: ccw: Moving state change out of IRQ context
-Date: Wed, 25 Apr 2018 13:06:31 +0200
-Message-ID: <bf8256f2-17a4-e1ec-ec35-a10bde734b65@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: Re: [PATCH 03/10] vfio: ccw: new SCH_EVENT event
+Date: Wed, 25 Apr 2018 15:54:21 +0200
+Message-ID: <c9dee10d-e189-6b3a-46b3-acb4baab9043@linux.vnet.ibm.com>
 References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
- <1524149293-12658-2-git-send-email-pmorel@linux.vnet.ibm.com>
- <20180424065442.GV12194@bjsdjshi@linux.vnet.ibm.com>
- <ac4b7441-2d17-922b-695e-98c01d87cd42@linux.vnet.ibm.com>
- <20180424115929.5b5e1ff0.cohuck@redhat.com>
- <245ee547-75bc-95f5-5acb-bfa96f91afd2@linux.ibm.com>
- <20180425085726.3a8a97a5.cohuck@redhat.com>
+ <1524149293-12658-4-git-send-email-pmorel@linux.vnet.ibm.com>
+ <20180425102519.16e6195b.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180425085726.3a8a97a5.cohuck@redhat.com>
+In-Reply-To: <20180425102519.16e6195b.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, pasic@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On 25/04/2018 10:25, Cornelia Huck wrote:
+> On Thu, 19 Apr 2018 16:48:06 +0200
+> Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+>
+>> The Sub channel event callback is threaded using workqueues.
+>> The work uses the FSM introducing the VFIO_CCW_EVENT_SCH_EVENT
+>> event.
+> I don't think this is a good name; after all, all of the events are
+> events for the subchannel :)
+>
+> This seems to be more of a "we need to update the schib" event...
+> VFIO_CCW_EVENT_SCHIB_CHANGED? _SCH_CHANGED? _UPDATE_NEEDED?
+>
+> Tbh, I'm not quite sure this makes sense for me yet... will continue
+> reading, but this probably needs a 'why'.
+
+SCHIB_CHANGED or something like this sounds better indeed. :)
+
+>
+>> The update of the SCHIB is now done inside the FSM function.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+>> ---
+>>   drivers/s390/cio/vfio_ccw_drv.c     | 33 +++++++++++++--------------------
+>>   drivers/s390/cio/vfio_ccw_fsm.c     | 23 +++++++++++++++++++++++
+>>   drivers/s390/cio/vfio_ccw_private.h |  3 +++
+>>   3 files changed, 39 insertions(+), 20 deletions(-)
 
 
-On 04/25/2018 08:57 AM, Cornelia Huck wrote:
->> AFAIU this will be the problem of the person implementing the clear
->> and the halt for vfio-ccw. I.e. it's a non-problem right now.
-> Well, that person is me:)  I will post some RFC Real Soon Now if I stop
-> getting sidetracked...
-> 
-
-Makes sense. It should be fine either way AFAIU.
-
-CSCH, more precisely the clear function is supposed to clear the
-interruption request(s) too. But I guess there is no way of the CP to
-identify an I/O interrupt that should have been cleared -- that is catch
-us disrespecting the architecture. I can't think of a way to establish
-must happen before relationship...
-
-But discarding the first interrupt and delivering just one for the CSCH
-is fine too for the same reason.
-
-Regards,
-Halil
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
