@@ -1,51 +1,612 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 09/10] vfio: ccw: Suppressing the BOXED state
-Date: Mon, 30 Apr 2018 17:47:18 +0200
-Message-ID: <20180430174718.7b1e5651.cohuck@redhat.com>
-References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
-        <1524149293-12658-10-git-send-email-pmorel@linux.vnet.ibm.com>
-        <20180425104429.582618f8.cohuck@redhat.com>
-        <32efd6b2-78b0-ae44-3a64-a092f9d412fe@linux.vnet.ibm.com>
+From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Subject: Re: [PATCH v4 08/15] KVM: s390: interfaces to (de)configure guest's
+ AP matrix
+Date: Wed, 25 Apr 2018 12:21:00 -0400
+Message-ID: <0f47c442-47b8-ee57-d014-5200c59125d7@linux.vnet.ibm.com>
+References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1523827345-11600-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <99f4752a-1358-61e4-bf9e-5672b2d4036f@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <32efd6b2-78b0-ae44-3a64-a092f9d412fe@linux.vnet.ibm.com>
+In-Reply-To: <99f4752a-1358-61e4-bf9e-5672b2d4036f@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 25 Apr 2018 15:55:51 +0200
-Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+On 04/23/2018 09:46 AM, Pierre Morel wrote:
+> On 15/04/2018 23:22, Tony Krowiak wrote:
+>> Provides interfaces to assign AP adapters, usage domains
+>> and control domains to a KVM guest.
+>>
+>> A KVM guest is started by executing the Start Interpretive Execution 
+>> (SIE)
+>> instruction. The SIE state description is a control block that 
+>> contains the
+>> state information for a KVM guest and is supplied as input to the SIE
+>> instruction. The SIE state description has a satellite structure 
+>> called the
+>> Crypto Control Block (CRYCB). The CRYCB contains three bitmask fields
+>> identifying the adapters, queues (domains) and control domains 
+>> assigned to
+>> the KVM guest:
+>>
+>> * The AP Adapter Mask (APM) field identifies the AP adapters assigned to
+>>    the KVM guest
+>>
+>> * The AP Queue Mask (AQM) field identifies the AP queues assigned to
+>>    the KVM guest. Each AP queue is connected to a usage domain within
+>>    an AP adapter.
+>>
+>> * The AP Domain Mask (ADM) field identifies the control domains
+>>    assigned to the KVM guest.
+>> - as well as the
+>> allocation of bitmaps -
+>> Each adapter, queue (usage domain) and control domain are identified by
+>> a number from 0 to 255. The bits in each mask, from most significant to
+>> least significant bit, correspond to the numbers 0-255. When a bit is
+>> set, the corresponding adapter, queue (usage domain) or control domain
+>> is assigned to the KVM guest.
+>>
+>> This patch will set the bits in the APM, AQM and ADM fields of the
+>> CRYCB referenced by the KVM guest's SIE state description. The process
+>> used is:
+>>
+>> 1. Verify that the bits to be set do not exceed the maximum bit
+>>     number for the given mask.
+>>
+>> 2. Verify that the APQNs that can be derived from the intersection
+>>     of the bits set in the APM and AQM fields of the KVM guest's CRYCB
+>>     are not assigned to any other KVM guest running on the same linux
+>>     host.
+>>
+>> 3. Set the APM, AQM and ADM in the CRYCB according to the matrix
+>>     configured for the mediated matrix device via its sysfs
+>>     adapter, domain and control domain attribute files respectively.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm-ap.h        |   79 ++++++++++
+>>   arch/s390/kvm/kvm-ap.c                |  259 
+>> +++++++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_ops.c     |   19 +++
+>>   drivers/s390/crypto/vfio_ap_private.h |    4 +
+>>   4 files changed, 361 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/kvm-ap.h 
+>> b/arch/s390/include/asm/kvm-ap.h
+>> index a6c092e..a068244 100644
+>> --- a/arch/s390/include/asm/kvm-ap.h
+>> +++ b/arch/s390/include/asm/kvm-ap.h
+>> @@ -12,6 +12,34 @@
+>>
+>>   #include <linux/types.h>
+>>   #include <linux/kvm_host.h>
+>> +#include <linux/types.h>
+>> +#include <linux/kvm_host.h>
+>> +#include <linux/bitops.h>
+>> +
+>> +#define KVM_AP_MASK_BYTES(n)    DIV_ROUND_UP(n, BITS_PER_BYTE)
+>> +
+>> +/**
+>> + * The AP matrix is comprised of three bit masks identifying the 
+>> adapters,
+>> + * queues (domains) and control domains that belong to an AP matrix. 
+>> The bits in
+>> + * each mask, from least significant to most significant bit, 
+>> correspond to IDs
+>> + * 0 to the maximum ID allowed for a given mask. When a bit is set, the
+>> + * corresponding ID belongs to the matrix.
+>> + *
+>> + * @apm_max: max number of bits in @apm
+>> + * @apm identifies the AP adapters in the matrix
+>> + * @aqm_max: max number of bits in @aqm
+>> + * @aqm identifies the AP queues (domains) in the matrix
+>> + * @adm_max: max number of bits in @adm
+>> + * @adm identifies the AP control domains in the matrix
+>> + */
+>> +struct kvm_ap_matrix {
+>> +    int apm_max;
+>> +    unsigned long *apm;
+>> +    int aqm_max;
+>> +    unsigned long *aqm;
+>> +    int adm_max;
+>> +    unsigned long *adm;
+>> +};
+>>
+>>   /**
+>>    * kvm_ap_instructions_installed()
+>> @@ -51,4 +79,55 @@
+>>    */
+>>   int kvm_ap_interpret_instructions(struct kvm *kvm, bool enable);
+>>
+>> +/**
+>> + * kvm_ap_matrix_create
+>> + *
+>> + * Create an AP matrix to hold a configuration of AP adapters, 
+>> domains and
+>> + * control domains.
+>> + *
+>> + * @ap_matrix: holds the matrix that is created
+>> + *
+>> + * Returns 0 if the matrix is successfully created. Returns an error 
+>> if an APQN
+>> + * derived from the cross product of the AP adapter IDs and AP queue 
+>> indexes
+>> + * comprising the AP matrix is configured for another guest.
+>> + */
+>> +int kvm_ap_matrix_create(struct kvm_ap_matrix **ap_matrix);
+>
+> why not simply return the pointer?
 
-> On 25/04/2018 10:44, Cornelia Huck wrote:
-> > On Thu, 19 Apr 2018 16:48:12 +0200
-> > Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
-> >  
-> >> VFIO_CCW_STATE_BOXED and VFIO_CCW_STATE_BUSY are the same
-> >> states.
-> >> Let's only keep one: VFIO_CCW_STATE_BUSY
-> >>
-> >> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-> >> ---
-> >>   drivers/s390/cio/vfio_ccw_fsm.c     | 9 ---------
-> >>   drivers/s390/cio/vfio_ccw_private.h | 1 -
-> >>   2 files changed, 10 deletions(-)  
-> > I think they were initially supposed to cover two different things:
-> > - BUSY: we're currently dealing with an I/O request
-> > - BOXED: the device currently won't talk to us or we won't talk to it
-> >
-> > It seems we never really did anything useful with BOXED; but should we?
-> >  
-> I do not know what.
+The function returns a value indicating the reason a matrix could not be 
+created.
+Returning a NULL pointer provides no clue as to why the call failed.
 
-The BUSY state is something we know that we'll get out of soon-ish
-(when the I/O request has finished). We could conceivably use a timeout
-and drop to the BOXED state if we don't get an answer.
+>
+>
+>> +
+>> +/**
+>> + * kvm_ap_matrix_destroy
+>> + *
+>> + * Destroy an AP matrix by de-allocating all storage allocated by the
+>> + * kvm_ap_matrix_create function.
+>> + *
+>> + * @ap_matrix: the matrix to destroy
+>> + */
+>> +void kvm_ap_matrix_destroy(struct kvm_ap_matrix *ap_matrix);
+>> + - as well as the
+>> allocation of bitmaps -
+>> +/**
+>> + * kvm_ap_configure_matrix
+>> + *
+>> + * Configure the AP matrix for a KVM guest.
+>> + *
+>> + * @kvm:         the KVM guest
+>> + * @matrix:         the matrix configuration information
+>> + *
+>> + * Returns 0 if:
+>> + *    1. The AP instructions are installed on the guest
+>> + *    2. The APQNs derived from the intersection of the set of adapter
+>> + *       IDs (APM) and queue indexes (AQM) in @matrix are not 
+>> configured for
+>> + *       any other KVM guest running on the same linux host.
+>> + * Otherwise returns an error code.
+>> + */
+>> +int kvm_ap_configure_matrix(struct kvm *kvm, struct kvm_ap_matrix 
+>> *matrix);
+>> +
+>> +/**
+>> + * kvm_ap_deconfigure_matrix
+>> + *
+>> + * Deconfigure the AP matrix for a KVM guest. Clears all of the bits 
+>> in the
+>> + * APM, AQM and ADM in the guest's CRYCB.
+>> + *
+>> + * @kvm: the KVM guest
+>> + */
+>> +void kvm_ap_deconfigure_matrix(struct kvm *kvm);
+>> +
+>>   #endif /* _ASM_KVM_AP */
+>> diff --git a/arch/s390/kvm/kvm-ap.c b/arch/s390/kvm/kvm-ap.c
+>> index 55d11b5..f7226d8 100644
+>> --- a/arch/s390/kvm/kvm-ap.c
+>> +++ b/arch/s390/kvm/kvm-ap.c
+>> @@ -9,6 +9,7 @@
+>>   #include <linux/kernel.h>
+>>   #include <asm/kvm-ap.h>
+>>   #include <asm/ap.h>
+>> +#include <linux/bitops.h>
+>>
+>>   #include "kvm-s390.h"
+>>
+>> @@ -78,3 +79,261 @@ int kvm_ap_interpret_instructions(struct kvm 
+>> *kvm, bool enable)
+>>       return ret;
+>>   }
+>>   EXPORT_SYMBOL(kvm_ap_interpret_instructions);
+>> +
+>> +static inline void kvm_ap_clear_crycb_masks(struct kvm *kvm)
+>> +{
+>> +    memset(&kvm->arch.crypto.crycb->apcb0, 0,
+>> +           sizeof(kvm->arch.crypto.crycb->apcb0));
+>> +    memset(&kvm->arch.crypto.crycb->apcb1, 0,
+>> +           sizeof(kvm->arch.crypto.crycb->apcb1));
+>> +}
+>> +
+>> +static inline unsigned long *kvm_ap_get_crycb_apm(struct kvm *kvm)
+>> +{
+>> +    unsigned long *apm;
+>> +
+>> +    switch (kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
+>> +    case CRYCB_FORMAT1:
+>> +        apm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.apm;
+>> +        break;
+>> +    case CRYCB_FORMAT2:
+>> +        apm = (unsigned long *)kvm->arch.crypto.crycb->apcb1.apm;
+>> +        break;
+>> +    default:
+>> +        apm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.apm;
+>> +        break;
+>> +    }
+>> +
+>> +    return apm;
+>> +}
+>> +
+>> +static inline unsigned long *kvm_ap_get_crycb_aqm(struct kvm *kvm)
+>> +{
+>> +    unsigned long *aqm;
+>> +
+>> +    switch (kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
+>> +    case CRYCB_FORMAT1:
+>> +        aqm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.aqm;
+>> +        break;
+>> +    case CRYCB_FORMAT2:
+>> +        aqm = (unsigned long *)kvm->arch.crypto.crycb->apcb1.aqm;
+>> +        break;
+>> +    default:
+>> +        aqm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.aqm;
+>> +        break;
+>> +    }
+>> +
+>> +    return aqm;
+>> +}
+>> +
+>> +static inline unsigned long *kvm_ap_get_crycb_adm(struct kvm *kvm)
+>> +{
+>> +    unsigned long *adm;
+>> +
+>> +    switch (kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
+>> +    case CRYCB_FORMAT1:
+>> +        adm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.adm;
+>> +        break;
+>> +    case CRYCB_FORMAT2:
+>> +        adm = (unsigned long *)kvm->arch.crypto.crycb->apcb1.adm;
+>> +        break;
+>> +    default:
+>> +        adm = (unsigned long *)kvm->arch.crypto.crycb->apcb0.adm;
+>> +        break;
+>> +    }
+>> +
+>> +    return adm;
+>> +}
+>> +
+>> +static void kvm_ap_set_crycb_masks(struct kvm *kvm,
+>> +                   struct kvm_ap_matrix *matrix)
+>> +{
+>> +    unsigned long *apm = kvm_ap_get_crycb_apm(kvm);
+>> +    unsigned long *aqm = kvm_ap_get_crycb_aqm(kvm);
+>> +    unsigned long *adm = kvm_ap_get_crycb_adm(kvm);
+>> +
+>> +    kvm_ap_clear_crycb_masks(kvm);
+>> +    memcpy(apm, matrix->apm, KVM_AP_MASK_BYTES(matrix->apm_max));
+>> +    memcpy(aqm, matrix->aqm, KVM_AP_MASK_BYTES(matrix->aqm_max));
+>> +
+>> +    /*
+>> +     * Merge the AQM and ADM since the ADM is a superset of the
+>> +     * AQM by agreed-upon convention.
+>> +     */
+>> +    bitmap_or(adm, adm, aqm, matrix->adm_max);
+>> +}
+>> +
+>> +static void kvm_ap_log_sharing_err(struct kvm *kvm, unsigned long apid,
+>> +                   unsigned long apqi)
+>> +{
+>> +    pr_err("%s: AP queue %02lx.%04lx is registered to guest %s", 
+>> __func__,
+>> +           apid, apqi, kvm->arch.dbf->name);
+>> +}
+>> +
+>> +/**
+>> + * kvm_ap_validate_queue_sharing
+>> + *
+>> + * Verifies that the APQNs derived from the cross product of the AP 
+>> adapter IDs
+>> + * and AP queue indexes comprising the AP matrix are not configured for
+>> + * another guest. AP queue sharing is not allowed.
+>> + *
+>> + * @kvm: the KVM guest
+>> + * @matrix: the AP matrix
+>> + *
+>> + * Returns 0 if the APQNs are valid, otherwise; returns -EBUSY.
+>> + */
+>> +static int kvm_ap_validate_queue_sharing(struct kvm *kvm,
+>> +                     struct kvm_ap_matrix *matrix)
+>> +{
+>> +    struct kvm *vm;
+>> +    unsigned long *apm, *aqm;
+>> +    unsigned long apid, apqi;
+>> +
+>> +
+>> +    /* No other VM may share an AP Queue with the input VM */
+>
+> I wonder if these functions and structures should really belong to KVM.
+> The only have sense with the VFIO driver.
+> My opinion is that they belong there, in the VFIO driver code.
 
-I think this plays also into the reserve/release and path handling
-questions. One of the more common reasons for devices to become boxed
-I've seen is another system doing a reserve on a dasd.
+I disagree for two reasons:
+
+1. The vfio_ap driver should not have to know how to configure the KVM
+    guest's matrix nor anything else about KVM for that matter.
+
+2. The interfaces and structures defined in kvm-ap.h and implemented
+in kvm-ap.c don't have anything to do with VFIO and can stand alone
+    to be used by any client code to configure a guest's matrix.
+
+>
+>
+> This will also make it easier to handle cases where AP code is not 
+> present
+> but KVM is.
+
+That issue is being resolved by making the required zcrypt interfaces 
+static.
+
+>
+>
+>> +    list_for_each_entry(vm, &vm_list, vm_list) {
+>> +        if (kvm == vm)
+>> +            continue;
+>> +
+>> +        apm = kvm_ap_get_crycb_apm(vm);
+>> +        if (!bitmap_and(apm, apm, matrix->apm, matrix->apm_max))
+>> +            continue;
+>> +
+>> +        aqm = kvm_ap_get_crycb_aqm(vm);
+>> +        if (!bitmap_and(aqm, aqm, matrix->aqm, matrix->aqm_max))
+>> +            continue;
+>> +
+>> +        for_each_set_bit_inv(apid, apm, matrix->apm_max)
+>> +            for_each_set_bit_inv(apqi, aqm, matrix->aqm_max)
+>> +                kvm_ap_log_sharing_err(kvm, apid, apqi);
+>> +
+>> +        return -EBUSY;
+>> +    }
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int kvm_ap_matrix_apm_create(struct kvm_ap_matrix *ap_matrix,
+>> +                    struct ap_config_info *config)
+>> +{
+>> +    int apm_max = (config && config->apxa) ? config->Na + 1 : 16;
+>
+> At this moment you already know the format of the crycb.
+
+How?
+
+> Why don't you just use a virtual CRYCB instead of allocating bitmaps.
+> It would be much easier to handle and compare.
+
+What do you mean by a virtual CRYCB?
+
+After thinking about this more, I think allocating bitmaps is a bit of
+overkill. I think I can get rid of this function entirely to simplify
+things a great deal.
+
+>
+>
+>
+>> +
+>> +    ap_matrix->apm = kzalloc(KVM_AP_MASK_BYTES(apm_max), GFP_KERNEL);
+>> +    if (!ap_matrix->apm)
+>> +        return -ENOMEM;
+>> +
+>> +    ap_matrix->apm_max = apm_max;
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int kvm_ap_matrix_aqm_create(struct kvm_ap_matrix *ap_matrix,
+>> +                    struct ap_config_info *config)
+>> +{
+>> +    int aqm_max = (config && config->apxa) ? config->Nd + 1 : 16;
+>> +
+>> +    ap_matrix->aqm = kzalloc(KVM_AP_MASK_BYTES(aqm_max), GFP_KERNEL);
+>> +    if (!ap_matrix->aqm)
+>> +        return -ENOMEM;
+>> +
+>> +    ap_matrix->aqm_max = aqm_max;
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int kvm_ap_matrix_adm_create(struct kvm_ap_matrix *ap_matrix,
+>> +                    struct ap_config_info *config)
+>> +{
+>> +    int adm_max = (config && config->apxa) ? config->Nd + 1 : 16;
+>> +
+>> +    ap_matrix->adm = kzalloc(KVM_AP_MASK_BYTES(adm_max), GFP_KERNEL);
+>> +    if (!ap_matrix->adm)
+>> +        return -ENOMEM;
+>> +
+>> +    ap_matrix->adm_max = adm_max;
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static void kvm_ap_matrix_masks_destroy(struct kvm_ap_matrix 
+>> *ap_matrix)
+>> +{
+>> +    kfree(ap_matrix->apm);
+>> +    kfree(ap_matrix->aqm);
+>> +    kfree(ap_matrix->adm);
+>> +}
+>> +
+>> +int kvm_ap_matrix_create(struct kvm_ap_matrix **ap_matrix)
+>> +{
+>
+> It seems much easier to me to return a pointer to the allocated 
+> kvm_ap_matrix
+> than to provide the address of the pointer to update.
+
+See my reasons above. The point may be moot, because I think I'm going 
+to get
+rid of the create and destroy functions.
+
+>
+>
+>> +    int ret;
+>> +    struct kvm_ap_matrix *matrix;
+>> +    struct ap_config_info config;
+>> +    struct ap_config_info *config_info = NULL;
+>> +
+>> +    memset(&config, 0, sizeof(config));
+>> +
+>> +    ret = ap_query_configuration(&config);
+>> +    if (ret) {
+>> +        if (ret != -EOPNOTSUPP)
+>> +            return ret;
+>> +    } else {
+>> +        config_info = &config;
+>> +    }
+> since you give a non NULL argument you can make this test easier as
+> if (ret)
+>     return ret;
+
+Not true .... the query function can return an error due to an exception
+in which case we want to simply return the error.  It can also return 
+-EOPNOTSUPP
+because STFLE.12 is not set in which case we want to continue.
+
+>
+>
+> I do not think that you really need both config and config_info.
+
+True.
+
+>
+>
+>> +
+>> +    matrix = kzalloc(sizeof(*matrix), GFP_KERNEL);
+>> +    if (!matrix)
+>> +        return -ENOMEM;
+>> +
+>> +    ret = kvm_ap_matrix_apm_create(matrix, config_info);
+>> +    if (ret)
+>> +        goto mask_create_err;
+>> +
+>> +    ret = kvm_ap_matrix_aqm_create(matrix, config_info);
+>> +    if (ret)
+>> +        goto mask_create_err;
+>> +
+>> +    ret = kvm_ap_matrix_adm_create(matrix, config_info);
+>> +    if (ret)
+>> +        goto mask_create_err;
+>> +
+>> +    *ap_matrix = matrix;
+>> +
+>> +    return 0;
+>> +
+>> +mask_create_err:
+>> +    kvm_ap_matrix_masks_destroy(matrix);
+>> +    kfree(matrix);
+>> +    return ret;
+>> +}
+>> +EXPORT_SYMBOL(kvm_ap_matrix_create);
+>> +
+>> +void kvm_ap_matrix_destroy(struct kvm_ap_matrix *ap_matrix)
+>> +{
+>> +    kvm_ap_matrix_masks_destroy(ap_matrix);
+>> +    kfree(ap_matrix);
+>> +}
+>> +EXPORT_SYMBOL(kvm_ap_matrix_destroy);
+>> +
+>> +int kvm_ap_configure_matrix(struct kvm *kvm, struct kvm_ap_matrix 
+>> *matrix)
+>> +{
+>> +    int ret = 0;
+>> +
+>> +    mutex_lock(&kvm->lock);
+>> +
+>> +    ret = kvm_ap_validate_queue_sharing(kvm, matrix);
+>> +    if (ret)
+>> +        goto done;
+>> +
+>> +    kvm_ap_set_crycb_masks(kvm, matrix);
+>> +
+>> +done:
+>> +    mutex_unlock(&kvm->lock);
+>> +
+>> +    return ret;
+>> +}
+>> +EXPORT_SYMBOL(kvm_ap_configure_matrix);
+>> +
+>> +void kvm_ap_deconfigure_matrix(struct kvm *kvm)
+>> +{
+>> +    kvm_ap_clear_crycb_masks(kvm);
+>> +}
+>> +EXPORT_SYMBOL(kvm_ap_deconfigure_matrix);
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
+>> b/drivers/s390/crypto/vfio_ap_ops.c
+>> index d41b0b8..647ea24 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -10,6 +10,7 @@
+>>   #include <linux/device.h>
+>>   #include <linux/list.h>
+>>   #include <linux/ctype.h>
+>> +#include <asm/kvm-ap.h>
+>>
+>>   #include "vfio_ap_private.h"
+>>
+>> @@ -18,8 +19,23 @@
+>>
+>>   static int vfio_ap_mdev_create(struct kobject *kobj, struct 
+>> mdev_device *mdev)
+>>   {
+>> +    int ret;
+>> +    struct ap_matrix_mdev *matrix_mdev;
+>>       struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
+>> +    struct kvm_ap_matrix *matrix;
+>> +
+>> +    ret = kvm_ap_matrix_create(&matrix);
+>> +    if (ret)
+>> +        return ret;
+>> +
+>> +    matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
+>> +    if (!matrix_mdev) {
+>> +        kvm_ap_matrix_destroy(matrix);
+>> +        return -ENOMEM;
+>> +    }
+>>
+>> +    matrix_mdev->matrix = matrix;
+>> +    mdev_set_drvdata(mdev, matrix_mdev);
+>>       ap_matrix->available_instances--;
+>>
+>>       return 0;
+>> @@ -28,7 +44,10 @@ static int vfio_ap_mdev_create(struct kobject 
+>> *kobj, struct mdev_device *mdev)
+>>   static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>>   {
+>>       struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
+>> +    struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>>
+>> +    kvm_ap_matrix_destroy(matrix_mdev->matrix);
+>> +    kfree(matrix_mdev);
+>>       ap_matrix->available_instances++;
+>>
+>>       return 0;
+>> diff --git a/drivers/s390/crypto/vfio_ap_private.h 
+>> b/drivers/s390/crypto/vfio_ap_private.h
+>> index c47aeec..f248faf 100644
+>> --- a/drivers/s390/crypto/vfio_ap_private.h
+>> +++ b/drivers/s390/crypto/vfio_ap_private.h
+>> @@ -29,6 +29,10 @@ struct ap_matrix {
+>>       int available_instances;
+>>   };
+>>
+>> +struct ap_matrix_mdev {
+>> +    struct kvm_ap_matrix *matrix;
+>> +};
+>> +
+>>   static inline struct ap_matrix *to_ap_matrix(struct device *dev)
+>>   {
+>>       return container_of(dev, struct ap_matrix, device);
+>
+>
