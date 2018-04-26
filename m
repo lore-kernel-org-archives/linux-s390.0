@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 07/13] s390/qeth: disregard IPv4 header for RX csum offload
-Date: Thu, 26 Apr 2018 09:42:18 +0200
-Message-ID: <20180426074224.100432-8-jwi@linux.ibm.com>
+Subject: [PATCH net-next 13/13] s390/qeth: improve fallback to random MAC address
+Date: Thu, 26 Apr 2018 09:42:24 +0200
+Message-ID: <20180426074224.100432-14-jwi@linux.ibm.com>
 References: <20180426074224.100432-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180426074224.100432-1-jwi@linux.ibm.com>
@@ -14,25 +14,61 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 
-The kernel does its own validation of the IPv4 header checksum,
-drivers/HW are not required to handle this.
+If READ MAC fails to fetch a valid MAC address, allow some more device
+types (IQD and z/VM OSD) to fall back to a random address.
+Also use eth_hw_addr_random(), for indicating to userspace that the
+address type is NET_ADDR_RANDOM.
+
+Note that while z/VM has various protection schemes to prohibit
+custom addresses on its NICs, they are all optional. So we should at
+least give it a try.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_core.h | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/s390/net/qeth_l2_main.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index a8114758075f..2cfeae485a08 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -868,7 +868,6 @@ static inline void qeth_rx_csum(struct qeth_card *card, struct sk_buff *skb,
- 				u8 flags)
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 810d69bd9991..a7cb37da6a21 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -439,7 +439,6 @@ static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
+ static int qeth_l2_request_initial_mac(struct qeth_card *card)
  {
- 	if ((card->dev->features & NETIF_F_RXCSUM) &&
--	    (flags & QETH_HDR_EXT_CSUM_HDR_REQ) &&
- 	    (flags & QETH_HDR_EXT_CSUM_TRANSP_REQ))
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
- 	else
+ 	int rc = 0;
+-	char vendor_pre[] = {0x02, 0x00, 0x00};
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "l2reqmac");
+ 	QETH_DBF_TEXT_(SETUP, 2, "doL2%s", CARD_BUS_ID(card));
+@@ -459,16 +458,20 @@ static int qeth_l2_request_initial_mac(struct qeth_card *card)
+ 	    card->info.type == QETH_CARD_TYPE_OSX ||
+ 	    card->info.guestlan) {
+ 		rc = qeth_setadpparms_change_macaddr(card);
+-		if (rc) {
+-			QETH_DBF_MESSAGE(2, "couldn't get MAC address on "
+-				"device %s: x%x\n", CARD_BUS_ID(card), rc);
+-			QETH_DBF_TEXT_(SETUP, 2, "1err%04x", rc);
+-			return rc;
+-		}
+-	} else {
+-		eth_random_addr(card->dev->dev_addr);
+-		memcpy(card->dev->dev_addr, vendor_pre, 3);
++		if (!rc)
++			goto out;
++		QETH_DBF_MESSAGE(2, "READ_MAC Assist failed on device %s: x%x\n",
++				 CARD_BUS_ID(card), rc);
++		QETH_DBF_TEXT_(SETUP, 2, "1err%04x", rc);
++		/* fall back once more: */
+ 	}
++
++	/* some devices don't support a custom MAC address: */
++	if (card->info.type == QETH_CARD_TYPE_OSM ||
++	    card->info.type == QETH_CARD_TYPE_OSX)
++		return (rc) ? rc : -EADDRNOTAVAIL;
++	eth_hw_addr_random(card->dev);
++
+ out:
+ 	QETH_DBF_HEX(SETUP, 2, card->dev->dev_addr, card->dev->addr_len);
+ 	return 0;
 -- 
 2.13.5
