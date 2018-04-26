@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next v3 4/4] net/smc: handle sockopt TCP_DEFER_ACCEPT
-Date: Thu, 26 Apr 2018 17:18:23 +0200
-Message-ID: <20180426151823.78967-5-ubraun@linux.ibm.com>
+Subject: [PATCH net-next v3 3/4] net/smc: sockopts TCP_NODELAY and TCP_CORK
+Date: Thu, 26 Apr 2018 17:18:22 +0200
+Message-ID: <20180426151823.78967-4-ubraun@linux.ibm.com>
 References: <20180426151823.78967-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180426151823.78967-1-ubraun@linux.ibm.com>
@@ -14,108 +14,125 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <ubraun@linux.ibm.com>
 
-If sockopt TCP_DEFER_ACCEPT is set, the accept is delayed till
-data is available.
+Setting sockopt TCP_NODELAY or resetting sockopt TCP_CORK
+triggers data transfer.
+
+For a corked SMC socket RDMA writes are deferred, if there is
+still sufficient send buffer space available.
 
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/af_smc.c | 26 +++++++++++++++++++++++++-
- net/smc/smc.h    |  4 ++++
- net/smc/smc_rx.c |  2 +-
- net/smc/smc_rx.h |  1 +
- 4 files changed, 31 insertions(+), 2 deletions(-)
+ net/smc/af_smc.c | 20 +++++++++++++++++++-
+ net/smc/smc_tx.c | 24 +++++++++++++++++++++---
+ 2 files changed, 40 insertions(+), 4 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 9d8b381281e3..20aa4175b9f8 100644
+index d274be7265ea..9d8b381281e3 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -1044,6 +1044,7 @@ static int smc_accept(struct socket *sock, struct socket *new_sock,
+@@ -1291,7 +1291,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct smc_sock *smc;
+-	int rc;
++	int val, rc;
  
- 	if (lsmc->sk.sk_state != SMC_LISTEN) {
- 		rc = -EINVAL;
-+		release_sock(sk);
- 		goto out;
- 	}
+ 	smc = smc_sk(sk);
  
-@@ -1071,9 +1072,29 @@ static int smc_accept(struct socket *sock, struct socket *new_sock,
+@@ -1307,6 +1307,10 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 	if (rc)
+ 		return rc;
  
- 	if (!rc)
- 		rc = sock_error(nsk);
-+	release_sock(sk);
-+	if (rc)
-+		goto out;
++	if (optlen < sizeof(int))
++		return rc;
++	get_user(val, (int __user *)optval);
 +
-+	if (lsmc->sockopt_defer_accept && !(flags & O_NONBLOCK)) {
-+		/* wait till data arrives on the socket */
-+		timeo = msecs_to_jiffies(lsmc->sockopt_defer_accept *
-+								MSEC_PER_SEC);
-+		if (smc_sk(nsk)->use_fallback) {
-+			struct sock *clcsk = smc_sk(nsk)->clcsock->sk;
-+
-+			lock_sock(clcsk);
-+			if (skb_queue_empty(&clcsk->sk_receive_queue))
-+				sk_wait_data(clcsk, &timeo, NULL);
-+			release_sock(clcsk);
-+		} else if (!atomic_read(&smc_sk(nsk)->conn.bytes_to_rcv)) {
-+			lock_sock(nsk);
-+			smc_rx_wait_data(smc_sk(nsk), &timeo);
-+			release_sock(nsk);
-+		}
-+	}
- 
- out:
--	release_sock(sk);
- 	sock_put(sk); /* sock_hold above */
- 	return rc;
- }
-@@ -1340,6 +1361,9 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 						 0);
+ 	lock_sock(sk);
+ 	switch (optname) {
+ 	case TCP_ULP:
+@@ -1322,6 +1326,20 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 				rc = -EINVAL;
  		}
  		break;
-+	case TCP_DEFER_ACCEPT:
-+		smc->sockopt_defer_accept = val;
++	case TCP_NODELAY:
++		if (sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) {
++			if (val)
++				mod_delayed_work(system_wq, &smc->conn.tx_work,
++						 0);
++		}
++		break;
++	case TCP_CORK:
++		if (sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) {
++			if (!val)
++				mod_delayed_work(system_wq, &smc->conn.tx_work,
++						 0);
++		}
 +		break;
  	default:
  		break;
  	}
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index e4829a2f46ba..2405e889b93d 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -180,6 +180,10 @@ struct smc_sock {				/* smc sock container */
- 	struct list_head	accept_q;	/* sockets to be accepted */
- 	spinlock_t		accept_q_lock;	/* protects accept_q */
- 	bool			use_fallback;	/* fallback to tcp */
-+	int			sockopt_defer_accept;
-+						/* sockopt TCP_DEFER_ACCEPT
-+						 * value
-+						 */
- 	u8			wait_close_tx_prepared : 1;
- 						/* shutdown wr or close
- 						 * started, waiting for unsent
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index eff4e0d0bb31..af851d8df1f8 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -51,7 +51,7 @@ static void smc_rx_data_ready(struct sock *sk)
-  * 1 if at least 1 byte available in rcvbuf or if socket error/shutdown.
-  * 0 otherwise (nothing in rcvbuf nor timeout, e.g. interrupted).
-  */
--static int smc_rx_wait_data(struct smc_sock *smc, long *timeo)
-+int smc_rx_wait_data(struct smc_sock *smc, long *timeo)
- {
- 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	struct smc_connection *conn = &smc->conn;
-diff --git a/net/smc/smc_rx.h b/net/smc/smc_rx.h
-index 3a32b59bf06c..0b75a6b470e6 100644
---- a/net/smc/smc_rx.h
-+++ b/net/smc/smc_rx.h
-@@ -20,5 +20,6 @@
- void smc_rx_init(struct smc_sock *smc);
- int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg, size_t len,
- 		   int flags);
-+int smc_rx_wait_data(struct smc_sock *smc, long *timeo);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 72f004c9c9b1..58dfe0bd9d60 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -19,6 +19,7 @@
+ #include <linux/sched/signal.h>
  
- #endif /* SMC_RX_H */
+ #include <net/sock.h>
++#include <net/tcp.h>
+ 
+ #include "smc.h"
+ #include "smc_wr.h"
+@@ -26,6 +27,7 @@
+ #include "smc_tx.h"
+ 
+ #define SMC_TX_WORK_DELAY	HZ
++#define SMC_TX_CORK_DELAY	(HZ >> 2)	/* 250 ms */
+ 
+ /***************************** sndbuf producer *******************************/
+ 
+@@ -115,6 +117,13 @@ static int smc_tx_wait_memory(struct smc_sock *smc, int flags)
+ 	return rc;
+ }
+ 
++static bool smc_tx_is_corked(struct smc_sock *smc)
++{
++	struct tcp_sock *tp = tcp_sk(smc->clcsock->sk);
++
++	return (tp->nonagle & TCP_NAGLE_CORK) ? true : false;
++}
++
+ /* sndbuf producer: main API called by socket layer.
+  * called under sock lock.
+  */
+@@ -209,7 +218,16 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 		/* since we just produced more new data into sndbuf,
+ 		 * trigger sndbuf consumer: RDMA write into peer RMBE and CDC
+ 		 */
+-		smc_tx_sndbuf_nonempty(conn);
++		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc)) &&
++		    (atomic_read(&conn->sndbuf_space) >
++						(conn->sndbuf_size >> 1)))
++			/* for a corked socket defer the RDMA writes if there
++			 * is still sufficient sndbuf_space available
++			 */
++			schedule_delayed_work(&conn->tx_work,
++					      SMC_TX_CORK_DELAY);
++		else
++			smc_tx_sndbuf_nonempty(conn);
+ 	} /* while (msg_data_left(msg)) */
+ 
+ 	return send_done;
+@@ -409,8 +427,8 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 			}
+ 			rc = 0;
+ 			if (conn->alert_token_local) /* connection healthy */
+-				schedule_delayed_work(&conn->tx_work,
+-						      SMC_TX_WORK_DELAY);
++				mod_delayed_work(system_wq, &conn->tx_work,
++						 SMC_TX_WORK_DELAY);
+ 		}
+ 		goto out_unlock;
+ 	}
 -- 
 2.13.5
