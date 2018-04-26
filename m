@@ -1,8 +1,10 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 00/13] s390/net: updates 2018-04-26
-Date: Thu, 26 Apr 2018 09:42:11 +0200
-Message-ID: <20180426074224.100432-1-jwi@linux.ibm.com>
+Subject: [PATCH net-next 08/13] s390/qeth: add stats counter for RX csum offload
+Date: Thu, 26 Apr 2018 09:42:19 +0200
+Message-ID: <20180426074224.100432-9-jwi@linux.ibm.com>
+References: <20180426074224.100432-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180426074224.100432-1-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -10,43 +12,66 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+From: Kittipon Meesompop <kmeesomp@linux.vnet.ibm.com>
 
-please apply the following patches to net-next. There's the usual
-cleanups & small improvements, and Kittipon adds HW offload support
-for IPv6 checksumming.
+This matches the statistics we gather for the TX offload path.
 
-Thanks,
-Julian
+Signed-off-by: Kittipon Meesompop <kmeesomp@linux.vnet.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      | 8 ++++++--
+ drivers/s390/net/qeth_core_main.c | 4 +++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-
-Julian Wiedmann (6):
-  s390/qeth: skip QDIO queue handler indirection
-  s390/qeth: convert vlan spinlock to mutex
-  s390/qeth: don't worry about IPs on VLAN removal
-  s390/qeth: extract csum offload helpers
-  s390/qeth: disregard IPv4 header for RX csum offload
-  s390/qeth: improve fallback to random MAC address
-
-Kittipon Meesompop (6):
-  s390/qeth: de-indent else after return
-  s390/qeth: add stats counter for RX csum offload
-  s390/qeth: query IPv6 assists during hardsetup
-  s390/qeth: extend Checksum Offload Assists for IPv6
-  s390/qeth: add IPv6 TX checksum offload support
-  s390/qeth: add IPv6 RX checksum offload support
-
-Ursula Braun (1):
-  s390/net: set HW port number in netdevice
-
- drivers/s390/net/lcs.c            |   3 +
- drivers/s390/net/qeth_core.h      |  61 ++++++++---
- drivers/s390/net/qeth_core_main.c | 148 +++++++++++++++++----------
- drivers/s390/net/qeth_core_mpc.h  |   2 +
- drivers/s390/net/qeth_core_sys.c  |   2 +
- drivers/s390/net/qeth_l2_main.c   |  98 ++++++++----------
- drivers/s390/net/qeth_l3_main.c   | 207 +++++++-------------------------------
- 7 files changed, 229 insertions(+), 292 deletions(-)
-
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 2cfeae485a08..e8108f6891b2 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -148,6 +148,7 @@ struct qeth_perf_stats {
+ 	unsigned int tx_csum;
+ 	unsigned int tx_lin;
+ 	unsigned int tx_linfail;
++	unsigned int rx_csum;
+ };
+ 
+ /* Routing stuff */
+@@ -868,10 +869,13 @@ static inline void qeth_rx_csum(struct qeth_card *card, struct sk_buff *skb,
+ 				u8 flags)
+ {
+ 	if ((card->dev->features & NETIF_F_RXCSUM) &&
+-	    (flags & QETH_HDR_EXT_CSUM_TRANSP_REQ))
++	    (flags & QETH_HDR_EXT_CSUM_TRANSP_REQ)) {
+ 		skb->ip_summed = CHECKSUM_UNNECESSARY;
+-	else
++		if (card->options.performance_stats)
++			card->perf_stats.rx_csum++;
++	} else {
+ 		skb->ip_summed = CHECKSUM_NONE;
++	}
+ }
+ 
+ static inline void qeth_tx_csum(struct sk_buff *skb, u8 *flags)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 7feb50ac0a8b..b90f38d78ad9 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -6005,7 +6005,8 @@ static struct {
+ 	{"tx lin"},
+ 	{"tx linfail"},
+ 	{"cq handler count"},
+-	{"cq handler time"}
++	{"cq handler time"},
++	{"rx csum"}
+ };
+ 
+ int qeth_core_get_sset_count(struct net_device *dev, int stringset)
+@@ -6067,6 +6068,7 @@ void qeth_core_get_ethtool_stats(struct net_device *dev,
+ 	data[35] = card->perf_stats.tx_linfail;
+ 	data[36] = card->perf_stats.cq_cnt;
+ 	data[37] = card->perf_stats.cq_time;
++	data[38] = card->perf_stats.rx_csum;
+ }
+ EXPORT_SYMBOL_GPL(qeth_core_get_ethtool_stats);
+ 
 -- 
 2.13.5
