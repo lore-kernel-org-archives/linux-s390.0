@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 03/13] s390/qeth: don't worry about IPs on VLAN removal
-Date: Thu, 26 Apr 2018 09:42:14 +0200
-Message-ID: <20180426074224.100432-4-jwi@linux.ibm.com>
+Subject: [PATCH net-next 02/13] s390/qeth: convert vlan spinlock to mutex
+Date: Thu, 26 Apr 2018 09:42:13 +0200
+Message-ID: <20180426074224.100432-3-jwi@linux.ibm.com>
 References: <20180426074224.100432-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180426074224.100432-1-jwi@linux.ibm.com>
@@ -14,121 +14,108 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 
-When removing a VLAN ID on a L3 device, the driver currently attempts to
-walk and unregister the VLAN device's IP addresses.
-This can be safely removed - before qeth_l3_vlan_rx_kill_vid() even gets
-called, we receive an inet[6]addr event for each IP on the device and
-qeth_l3_handle_ip_event() unregisters the address accordingly.
+As the vid_list is only accessed from process context, there's no need to
+protect it with a spinlock.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 87 -----------------------------------------
- 1 file changed, 87 deletions(-)
+ drivers/s390/net/qeth_core.h      |  2 +-
+ drivers/s390/net/qeth_core_main.c |  2 +-
+ drivers/s390/net/qeth_l2_main.c   | 15 ++++++++-------
+ 3 files changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index f33df82f1237..53c5470be7d5 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1293,91 +1293,6 @@ static void qeth_l3_add_multicast_ipv6(struct qeth_card *card)
- 	in6_dev_put(in6_dev);
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 8469446df62c..6d7a72da71dd 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -777,9 +777,9 @@ struct qeth_card {
+ 	struct qeth_card_options options;
+ 
+ 	wait_queue_head_t wait_q;
+-	spinlock_t vlanlock;
+ 	spinlock_t mclock;
+ 	unsigned long active_vlans[BITS_TO_LONGS(VLAN_N_VID)];
++	struct mutex vid_list_mutex;		/* vid_list */
+ 	struct list_head vid_list;
+ 	DECLARE_HASHTABLE(mac_htable, 4);
+ 	DECLARE_HASHTABLE(ip_htable, 4);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 5323c675e57c..7feb50ac0a8b 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1467,13 +1467,13 @@ static int qeth_setup_card(struct qeth_card *card)
+ 	card->lan_online = 0;
+ 	card->read_or_write_problem = 0;
+ 	card->dev = NULL;
+-	spin_lock_init(&card->vlanlock);
+ 	spin_lock_init(&card->mclock);
+ 	spin_lock_init(&card->lock);
+ 	spin_lock_init(&card->ip_lock);
+ 	spin_lock_init(&card->thread_mask_lock);
+ 	mutex_init(&card->conf_mutex);
+ 	mutex_init(&card->discipline_mutex);
++	mutex_init(&card->vid_list_mutex);
+ 	card->thread_start_mask = 0;
+ 	card->thread_allowed_mask = 0;
+ 	card->thread_running_mask = 0;
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index dc9976064181..896c919e7658 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -297,12 +297,13 @@ static int qeth_l2_send_setdelvlan(struct qeth_card *card, __u16 i,
+ static void qeth_l2_process_vlans(struct qeth_card *card)
+ {
+ 	struct qeth_vlan_vid *id;
++
+ 	QETH_CARD_TEXT(card, 3, "L2prcvln");
+-	spin_lock_bh(&card->vlanlock);
++	mutex_lock(&card->vid_list_mutex);
+ 	list_for_each_entry(id, &card->vid_list, list) {
+ 		qeth_l2_send_setdelvlan(card, id->vid, IPA_CMD_SETVLAN);
+ 	}
+-	spin_unlock_bh(&card->vlanlock);
++	mutex_unlock(&card->vid_list_mutex);
  }
  
--static void qeth_l3_free_vlan_addresses4(struct qeth_card *card,
--			unsigned short vid)
--{
--	struct in_device *in_dev;
--	struct in_ifaddr *ifa;
--	struct qeth_ipaddr *addr;
--	struct net_device *netdev;
--
--	QETH_CARD_TEXT(card, 4, "frvaddr4");
--
--	netdev = __vlan_find_dev_deep_rcu(card->dev, htons(ETH_P_8021Q), vid);
--	if (!netdev)
--		return;
--	in_dev = in_dev_get(netdev);
--	if (!in_dev)
--		return;
--
--	addr = qeth_l3_get_addr_buffer(QETH_PROT_IPV4);
--	if (!addr)
--		goto out;
--
--	spin_lock_bh(&card->ip_lock);
--
--	for (ifa = in_dev->ifa_list; ifa; ifa = ifa->ifa_next) {
--		addr->u.a4.addr = be32_to_cpu(ifa->ifa_address);
--		addr->u.a4.mask = be32_to_cpu(ifa->ifa_mask);
--		addr->type = QETH_IP_TYPE_NORMAL;
--		qeth_l3_delete_ip(card, addr);
--	}
--
--	spin_unlock_bh(&card->ip_lock);
--
--	kfree(addr);
--out:
--	in_dev_put(in_dev);
--}
--
--static void qeth_l3_free_vlan_addresses6(struct qeth_card *card,
--					 unsigned short vid)
--{
--	struct inet6_dev *in6_dev;
--	struct inet6_ifaddr *ifa;
--	struct qeth_ipaddr *addr;
--	struct net_device *netdev;
--
--	QETH_CARD_TEXT(card, 4, "frvaddr6");
--
--	netdev = __vlan_find_dev_deep_rcu(card->dev, htons(ETH_P_8021Q), vid);
--	if (!netdev)
--		return;
--
--	in6_dev = in6_dev_get(netdev);
--	if (!in6_dev)
--		return;
--
--	addr = qeth_l3_get_addr_buffer(QETH_PROT_IPV6);
--	if (!addr)
--		goto out;
--
--	spin_lock_bh(&card->ip_lock);
--
--	list_for_each_entry(ifa, &in6_dev->addr_list, if_list) {
--		memcpy(&addr->u.a6.addr, &ifa->addr,
--		       sizeof(struct in6_addr));
--		addr->u.a6.pfxlen = ifa->prefix_len;
--		addr->type = QETH_IP_TYPE_NORMAL;
--		qeth_l3_delete_ip(card, addr);
--	}
--
--	spin_unlock_bh(&card->ip_lock);
--
--	kfree(addr);
--out:
--	in6_dev_put(in6_dev);
--}
--
--static void qeth_l3_free_vlan_addresses(struct qeth_card *card,
--			unsigned short vid)
--{
--	rcu_read_lock();
--	qeth_l3_free_vlan_addresses4(card, vid);
--	qeth_l3_free_vlan_addresses6(card, vid);
--	rcu_read_unlock();
--}
--
- static int qeth_l3_vlan_rx_add_vid(struct net_device *dev,
- 				   __be16 proto, u16 vid)
- {
-@@ -1398,8 +1313,6 @@ static int qeth_l3_vlan_rx_kill_vid(struct net_device *dev,
+ static int qeth_l2_vlan_rx_add_vid(struct net_device *dev,
+@@ -319,7 +320,7 @@ static int qeth_l2_vlan_rx_add_vid(struct net_device *dev,
+ 		QETH_CARD_TEXT(card, 3, "aidREC");
+ 		return 0;
+ 	}
+-	id = kmalloc(sizeof(struct qeth_vlan_vid), GFP_ATOMIC);
++	id = kmalloc(sizeof(*id), GFP_KERNEL);
+ 	if (id) {
+ 		id->vid = vid;
+ 		rc = qeth_l2_send_setdelvlan(card, vid, IPA_CMD_SETVLAN);
+@@ -327,9 +328,9 @@ static int qeth_l2_vlan_rx_add_vid(struct net_device *dev,
+ 			kfree(id);
+ 			return rc;
+ 		}
+-		spin_lock_bh(&card->vlanlock);
++		mutex_lock(&card->vid_list_mutex);
+ 		list_add_tail(&id->list, &card->vid_list);
+-		spin_unlock_bh(&card->vlanlock);
++		mutex_unlock(&card->vid_list_mutex);
+ 	} else {
+ 		return -ENOMEM;
+ 	}
+@@ -348,7 +349,7 @@ static int qeth_l2_vlan_rx_kill_vid(struct net_device *dev,
  		QETH_CARD_TEXT(card, 3, "kidREC");
  		return 0;
  	}
--	/* unregister IP addresses of vlan device */
--	qeth_l3_free_vlan_addresses(card, vid);
- 	clear_bit(vid, card->active_vlans);
- 	qeth_l3_set_rx_mode(dev);
- 	return 0;
+-	spin_lock_bh(&card->vlanlock);
++	mutex_lock(&card->vid_list_mutex);
+ 	list_for_each_entry(id, &card->vid_list, list) {
+ 		if (id->vid == vid) {
+ 			list_del(&id->list);
+@@ -356,7 +357,7 @@ static int qeth_l2_vlan_rx_kill_vid(struct net_device *dev,
+ 			break;
+ 		}
+ 	}
+-	spin_unlock_bh(&card->vlanlock);
++	mutex_unlock(&card->vid_list_mutex);
+ 	if (tmpid) {
+ 		rc = qeth_l2_send_setdelvlan(card, vid, IPA_CMD_DELVLAN);
+ 		kfree(tmpid);
 -- 
 2.13.5
