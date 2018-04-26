@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next v3 2/4] net/smc: handle sockopts forcing fallback
-Date: Thu, 26 Apr 2018 17:18:21 +0200
-Message-ID: <20180426151823.78967-3-ubraun@linux.ibm.com>
+Subject: [PATCH net-next v3 4/4] net/smc: handle sockopt TCP_DEFER_ACCEPT
+Date: Thu, 26 Apr 2018 17:18:23 +0200
+Message-ID: <20180426151823.78967-5-ubraun@linux.ibm.com>
 References: <20180426151823.78967-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180426151823.78967-1-ubraun@linux.ibm.com>
@@ -14,122 +14,108 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <ubraun@linux.ibm.com>
 
-Several TCP sockopts do not work for SMC. One example are the
-TCP_FASTOPEN sockopts, since SMC-connection setup is based on the TCP
-three-way-handshake.
-If the SMC socket is still in state SMC_INIT, such sockopts trigger
-fallback to TCP. Otherwise an error is returned.
+If sockopt TCP_DEFER_ACCEPT is set, the accept is delayed till
+data is available.
 
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/af_smc.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 50 insertions(+), 4 deletions(-)
+ net/smc/af_smc.c | 26 +++++++++++++++++++++++++-
+ net/smc/smc.h    |  4 ++++
+ net/smc/smc_rx.c |  2 +-
+ net/smc/smc_rx.h |  1 +
+ 4 files changed, 31 insertions(+), 2 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 4470501374bf..d274be7265ea 100644
+index 9d8b381281e3..20aa4175b9f8 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -391,6 +391,9 @@ static int smc_connect_rdma(struct smc_sock *smc)
+@@ -1044,6 +1044,7 @@ static int smc_accept(struct socket *sock, struct socket *new_sock,
  
- 	sock_hold(&smc->sk); /* sock put in passive closing */
- 
-+	if (smc->use_fallback)
-+		goto out_connected;
-+
- 	if (!tcp_sk(smc->clcsock->sk)->syn_smc) {
- 		/* peer has not signalled SMC-capability */
- 		smc->use_fallback = true;
-@@ -790,6 +793,9 @@ static void smc_listen_work(struct work_struct *work)
- 	int rc = 0;
- 	u8 ibport;
- 
-+	if (new_smc->use_fallback)
-+		goto out_connected;
-+
- 	/* check if peer is smc capable */
- 	if (!tcp_sk(newclcsock->sk)->syn_smc) {
- 		new_smc->use_fallback = true;
-@@ -968,7 +974,7 @@ static void smc_tcp_listen_work(struct work_struct *work)
- 			continue;
- 
- 		new_smc->listen_smc = lsmc;
--		new_smc->use_fallback = false; /* assume rdma capability first*/
-+		new_smc->use_fallback = lsmc->use_fallback;
- 		sock_hold(lsk); /* sock_put in smc_listen_work */
- 		INIT_WORK(&new_smc->smc_listen_work, smc_listen_work);
- 		smc_copy_sock_settings_to_smc(new_smc);
-@@ -1004,7 +1010,8 @@ static int smc_listen(struct socket *sock, int backlog)
- 	 * them to the clc socket -- copy smc socket options to clc socket
- 	 */
- 	smc_copy_sock_settings_to_clc(smc);
--	tcp_sk(smc->clcsock->sk)->syn_smc = 1;
-+	if (!smc->use_fallback)
-+		tcp_sk(smc->clcsock->sk)->syn_smc = 1;
- 
- 	rc = kernel_listen(smc->clcsock, backlog);
- 	if (rc)
-@@ -1097,6 +1104,16 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
- 	    (sk->sk_state != SMC_INIT))
+ 	if (lsmc->sk.sk_state != SMC_LISTEN) {
+ 		rc = -EINVAL;
++		release_sock(sk);
  		goto out;
-+
-+	if (msg->msg_flags & MSG_FASTOPEN) {
-+		if (sk->sk_state == SMC_INIT) {
-+			smc->use_fallback = true;
-+		} else {
-+			rc = -EINVAL;
-+			goto out;
-+		}
-+	}
-+
- 	if (smc->use_fallback)
- 		rc = smc->clcsock->ops->sendmsg(smc->clcsock, msg, len);
- 	else
-@@ -1274,14 +1291,43 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
-+	int rc;
+ 	}
  
- 	smc = smc_sk(sk);
+@@ -1071,9 +1072,29 @@ static int smc_accept(struct socket *sock, struct socket *new_sock,
  
- 	/* generic setsockopts reaching us here always apply to the
- 	 * CLC socket
- 	 */
--	return smc->clcsock->ops->setsockopt(smc->clcsock, level, optname,
--					     optval, optlen);
-+	rc = smc->clcsock->ops->setsockopt(smc->clcsock, level, optname,
-+					   optval, optlen);
-+	if (smc->clcsock->sk->sk_err) {
-+		sk->sk_err = smc->clcsock->sk->sk_err;
-+		sk->sk_error_report(sk);
-+	}
-+	if (rc)
-+		return rc;
-+
-+	lock_sock(sk);
-+	switch (optname) {
-+	case TCP_ULP:
-+	case TCP_FASTOPEN:
-+	case TCP_FASTOPEN_CONNECT:
-+	case TCP_FASTOPEN_KEY:
-+	case TCP_FASTOPEN_NO_COOKIE:
-+		/* option not supported by SMC */
-+		if (sk->sk_state == SMC_INIT) {
-+			smc->use_fallback = true;
-+		} else {
-+			if (!smc->use_fallback)
-+				rc = -EINVAL;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
+ 	if (!rc)
+ 		rc = sock_error(nsk);
 +	release_sock(sk);
++	if (rc)
++		goto out;
 +
-+	return rc;
- }
++	if (lsmc->sockopt_defer_accept && !(flags & O_NONBLOCK)) {
++		/* wait till data arrives on the socket */
++		timeo = msecs_to_jiffies(lsmc->sockopt_defer_accept *
++								MSEC_PER_SEC);
++		if (smc_sk(nsk)->use_fallback) {
++			struct sock *clcsk = smc_sk(nsk)->clcsock->sk;
++
++			lock_sock(clcsk);
++			if (skb_queue_empty(&clcsk->sk_receive_queue))
++				sk_wait_data(clcsk, &timeo, NULL);
++			release_sock(clcsk);
++		} else if (!atomic_read(&smc_sk(nsk)->conn.bytes_to_rcv)) {
++			lock_sock(nsk);
++			smc_rx_wait_data(smc_sk(nsk), &timeo);
++			release_sock(nsk);
++		}
++	}
  
- static int smc_getsockopt(struct socket *sock, int level, int optname,
+ out:
+-	release_sock(sk);
+ 	sock_put(sk); /* sock_hold above */
+ 	return rc;
+ }
+@@ -1340,6 +1361,9 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 						 0);
+ 		}
+ 		break;
++	case TCP_DEFER_ACCEPT:
++		smc->sockopt_defer_accept = val;
++		break;
+ 	default:
+ 		break;
+ 	}
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index e4829a2f46ba..2405e889b93d 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -180,6 +180,10 @@ struct smc_sock {				/* smc sock container */
+ 	struct list_head	accept_q;	/* sockets to be accepted */
+ 	spinlock_t		accept_q_lock;	/* protects accept_q */
+ 	bool			use_fallback;	/* fallback to tcp */
++	int			sockopt_defer_accept;
++						/* sockopt TCP_DEFER_ACCEPT
++						 * value
++						 */
+ 	u8			wait_close_tx_prepared : 1;
+ 						/* shutdown wr or close
+ 						 * started, waiting for unsent
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index eff4e0d0bb31..af851d8df1f8 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -51,7 +51,7 @@ static void smc_rx_data_ready(struct sock *sk)
+  * 1 if at least 1 byte available in rcvbuf or if socket error/shutdown.
+  * 0 otherwise (nothing in rcvbuf nor timeout, e.g. interrupted).
+  */
+-static int smc_rx_wait_data(struct smc_sock *smc, long *timeo)
++int smc_rx_wait_data(struct smc_sock *smc, long *timeo)
+ {
+ 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	struct smc_connection *conn = &smc->conn;
+diff --git a/net/smc/smc_rx.h b/net/smc/smc_rx.h
+index 3a32b59bf06c..0b75a6b470e6 100644
+--- a/net/smc/smc_rx.h
++++ b/net/smc/smc_rx.h
+@@ -20,5 +20,6 @@
+ void smc_rx_init(struct smc_sock *smc);
+ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg, size_t len,
+ 		   int flags);
++int smc_rx_wait_data(struct smc_sock *smc, long *timeo);
+ 
+ #endif /* SMC_RX_H */
 -- 
 2.13.5
