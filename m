@@ -1,53 +1,63 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 1/1] net/smc: keep clcsock reference in smc_tcp_listen_work()
-Date: Wed, 25 Apr 2018 12:48:58 +0200
-Message-ID: <20180425104858.48953-1-ubraun@linux.ibm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 09/13] s390/qeth: query IPv6 assists during hardsetup
+Date: Thu, 26 Apr 2018 09:42:20 +0200
+Message-ID: <20180426074224.100432-10-jwi@linux.ibm.com>
+References: <20180426074224.100432-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180426074224.100432-1-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.vnet.ibm.com, ubraun@linux.vnet.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The internal CLC socket should exist till the SMC-socket is released.
-Function tcp_listen_worker() releases the internal CLC socket of a
-listen socket, if an smc_close_active() is called. This function
-is called for the final release(), but it is called for shutdown
-SHUT_RDWR as well. This opens a door for protection faults, if
-socket calls using the internal CLC socket are called for a
-shutdown listen socket.
+From: Kittipon Meesompop <kmeesomp@linux.vnet.ibm.com>
 
-With the changes of
-commit 3d502067599f ("net/smc: simplify wait when closing listen socket")
-there is no need anymore to release the internal CLC socket in
-function tcp_listen_worker((). It is sufficient to release it in
-smc_release().
+For new functionality, the L2 subdriver will start using IPv6 assists.
+So move the query from the L3 subdriver into the common setup path.
 
-Fixes: 127f49705823 ("net/smc: release clcsock from tcp_listen_worker")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Reported-by: syzbot+9045fc589fcd196ef522@syzkaller.appspotmail.com
-Reported-by: syzbot+28a2c86cf19c81d871fa@syzkaller.appspotmail.com
-Reported-by: syzbot+9605e6cace1b5efd4a0a@syzkaller.appspotmail.com
-Reported-by: syzbot+cf9012c597c8379d535c@syzkaller.appspotmail.com
+Signed-off-by: Kittipon Meesompop <kmeesomp@linux.vnet.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.vnet.ibm.com>
 ---
- net/smc/af_smc.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 5 +++++
+ drivers/s390/net/qeth_l3_main.c   | 8 --------
+ 2 files changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index f5d4b69dbabc..4470501374bf 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -978,10 +978,6 @@ static void smc_tcp_listen_work(struct work_struct *work)
- 	}
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index b90f38d78ad9..9ec1bb7f8b84 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5201,6 +5201,11 @@ int qeth_core_hardsetup_card(struct qeth_card *card)
+ 	rc = qeth_query_ipassists(card, QETH_PROT_IPV4);
+ 	if (rc == -ENOMEM)
+ 		goto out;
++	if (qeth_is_supported(card, IPA_IPV6)) {
++		rc = qeth_query_ipassists(card, QETH_PROT_IPV6);
++		if (rc == -ENOMEM)
++			goto out;
++	}
+ 	if (qeth_is_supported(card, IPA_SETADAPTERPARMS)) {
+ 		rc = qeth_query_setadapterparms(card);
+ 		if (rc < 0) {
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index bc359e322ae7..9d9c743e7433 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -851,14 +851,6 @@ static int qeth_l3_softsetup_ipv6(struct qeth_card *card)
  
- out:
--	if (lsmc->clcsock) {
--		sock_release(lsmc->clcsock);
--		lsmc->clcsock = NULL;
+ 	QETH_CARD_TEXT(card, 3, "softipv6");
+ 
+-	rc = qeth_query_ipassists(card, QETH_PROT_IPV6);
+-	if (rc) {
+-		dev_err(&card->gdev->dev,
+-			"Activating IPv6 support for %s failed\n",
+-			QETH_CARD_IFNAME(card));
+-		return rc;
 -	}
- 	release_sock(lsk);
- 	sock_put(&lsmc->sk); /* sock_hold in smc_listen */
- }
+-
+ 	if (card->info.type == QETH_CARD_TYPE_IQD)
+ 		goto out;
+ 
 -- 
 2.13.5
