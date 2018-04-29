@@ -1,211 +1,114 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Mon, 26 Mar 2018 08:15:14 +0000
-Subject: Re: [PATCH v2] KVM: s390: Add storage key facility interpretation control
-Message-Id: <2741993a-6ee4-af1b-99db-7abbf5e229fc@de.ibm.com>
-In-Reply-To: <8e02be86-4a03-14f4-11a3-636ac7ce7dfb@redhat.com>
-References: <8e02be86-4a03-14f4-11a3-636ac7ce7dfb@redhat.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+Date: Sun, 29 Apr 2018 09:10:02 -0700
+Message-ID: <00000000000035dab5056afef8d6@google.com>
+Subject: WARNING: ODEBUG bug in del_timer
+From: syzbot <syzbot+03faa2dc16b8b64be396@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: davem@davemloft.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03/20/2018 12:29 PM, Janosch Frank wrote:
-> Up to now we always expected to have the storage key facility
-> available for our (non-VSIE) KVM guests. For huge page support, we
-> need to be able to disable it, so let's introduce that now.
+Hello,
+
+syzbot hit the following crash on net-next commit
+af201bab50a89aa6cf4df952b2c3bf55895c8eee (Fri Apr 27 15:12:10 2018 +0000)
+udp: remove stray export symbol
+syzbot dashboard link:  
+https://syzkaller.appspot.com/bug?extid=03faa2dc16b8b64be396
+
+So far this crash happened 26 times on net-next.
+C reproducer: https://syzkaller.appspot.com/x/repro.c?id=5925539139289088
+syzkaller reproducer:  
+https://syzkaller.appspot.com/x/repro.syz?id=4983245594689536
+Raw console output:  
+https://syzkaller.appspot.com/x/log.txt?id=5476181675606016
+Kernel config:  
+https://syzkaller.appspot.com/x/.config?id=4410550353033654931
+compiler: gcc (GCC) 8.0.1 20180413 (experimental)
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+03faa2dc16b8b64be396@syzkaller.appspotmail.com
+It will help syzbot understand when the bug is fixed. See footer for  
+details.
+If you forward the report, please keep this part and the footer.
+
+random: sshd: uninitialized urandom read (32 bytes read)
+random: sshd: uninitialized urandom read (32 bytes read)
+random: sshd: uninitialized urandom read (32 bytes read)
+------------[ cut here ]------------
+ODEBUG: assert_init not available (active state 0) object type: timer_list  
+hint:           (null)
+WARNING: CPU: 1 PID: 4490 at lib/debugobjects.c:329  
+debug_print_object+0x16a/0x210 lib/debugobjects.c:326
+Kernel panic - not syncing: panic_on_warn set ...
+
+CPU: 1 PID: 4490 Comm: syz-executor609 Not tainted 4.17.0-rc2+ #23
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1b9/0x294 lib/dump_stack.c:113
+  panic+0x22f/0x4de kernel/panic.c:184
+  __warn.cold.8+0x163/0x1b3 kernel/panic.c:536
+  report_bug+0x252/0x2d0 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:178 [inline]
+  do_error_trap+0x1de/0x490 arch/x86/kernel/traps.c:296
+  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
+  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:992
+RIP: 0010:debug_print_object+0x16a/0x210 lib/debugobjects.c:326
+RSP: 0018:ffff8801af1e7880 EFLAGS: 00010086
+RAX: 0000000000000061 RBX: 0000000000000005 RCX: ffffffff818433e8
+RDX: 0000000000000000 RSI: ffffffff8160f561 RDI: 0000000000000001
+RBP: ffff8801af1e78c0 R08: ffff8801afa62100 R09: ffffed003b5e3eb2
+R10: ffffed003b5e3eb2 R11: ffff8801daf1f597 R12: 0000000000000001
+R13: ffffffff88d96cc0 R14: ffffffff87fa34e0 R15: ffffffff81666d30
+  debug_object_assert_init+0x309/0x500 lib/debugobjects.c:692
+  debug_timer_assert_init kernel/time/timer.c:724 [inline]
+  debug_assert_init kernel/time/timer.c:776 [inline]
+  del_timer+0x74/0x140 kernel/time/timer.c:1198
+  try_to_grab_pending+0x439/0x9a0 kernel/workqueue.c:1223
+  mod_delayed_work_on+0x91/0x250 kernel/workqueue.c:1592
+  mod_delayed_work include/linux/workqueue.h:541 [inline]
+  smc_setsockopt+0x33d/0x630 net/smc/af_smc.c:1353
+  __sys_setsockopt+0x1bd/0x390 net/socket.c:1903
+  __do_sys_setsockopt net/socket.c:1914 [inline]
+  __se_sys_setsockopt net/socket.c:1911 [inline]
+  __x64_sys_setsockopt+0xbe/0x150 net/socket.c:1911
+  do_syscall_64+0x1b1/0x800 arch/x86/entry/common.c:287
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x43fd09
+RSP: 002b:00007ffe1f251c58 EFLAGS: 00000207 ORIG_RAX: 0000000000000036
+RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 000000000043fd09
+RDX: 0000000000000001 RSI: 0000000000000006 RDI: 0000000000000003
+RBP: 00000000006ca018 R08: 0000000000000004 R09: 00000000004002c8
+R10: 0000000020000180 R11: 0000000000000207 R12: 0000000000401630
+R13: 00000000004016c0 R14: 0000000000000000 R15: 0000000000000000
+Dumping ftrace buffer:
+    (ftrace buffer empty)
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
 
 
-Can you add some text that tells that you have renames use_skey (and why)
+---
+This bug is generated by a dumb bot. It may contain errors.
+See https://goo.gl/tpsmEJ for details.
+Direct all questions to syzkaller@googlegroups.com.
 
-with that
-
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-(please queue yorself :-) )
-
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-> Reviewed-by: Farhan Ali <alifm@linux.vnet.ibm.com>
-> ---
->  arch/s390/include/asm/kvm_host.h    |  1 +
->  arch/s390/include/asm/mmu.h         |  2 +-
->  arch/s390/include/asm/mmu_context.h |  2 +-
->  arch/s390/include/asm/pgtable.h     |  4 ++--
->  arch/s390/kvm/kvm-s390.c            |  3 ++-
->  arch/s390/kvm/priv.c                | 28 ++++++++++++++++------------
->  arch/s390/mm/gmap.c                 |  6 +++---
->  arch/s390/mm/pgtable.c              |  4 ++--
->  8 files changed, 28 insertions(+), 22 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 27918b1..f161ad0 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -793,6 +793,7 @@ struct kvm_arch{
->  	int use_irqchip;
->  	int use_cmma;
->  	int use_pfmfi;
-> +	int use_skf;
->  	int user_cpu_state_ctrl;
->  	int user_sigp;
->  	int user_stsi;
-> diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
-> index c639c95..f5ff9db 100644
-> --- a/arch/s390/include/asm/mmu.h
-> +++ b/arch/s390/include/asm/mmu.h
-> @@ -21,7 +21,7 @@ typedef struct {
->  	/* The mmu context uses extended page tables. */
->  	unsigned int has_pgste:1;
->  	/* The mmu context uses storage keys. */
-> -	unsigned int use_skey:1;
-> +	unsigned int uses_skeys:1;
->  	/* The mmu context uses CMM. */
->  	unsigned int uses_cmm:1;
->  } mm_context_t;
-> diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
-> index 324f6f4..d16bc79 100644
-> --- a/arch/s390/include/asm/mmu_context.h
-> +++ b/arch/s390/include/asm/mmu_context.h
-> @@ -30,7 +30,7 @@ static inline int init_new_context(struct task_struct *tsk,
->  		test_thread_flag(TIF_PGSTE) ||
->  		(current->mm && current->mm->context.alloc_pgste);
->  	mm->context.has_pgste = 0;
-> -	mm->context.use_skey = 0;
-> +	mm->context.uses_skeys = 0;
->  	mm->context.uses_cmm = 0;
->  #endif
->  	switch (mm->context.asce_limit) {
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> index 9223b4d..4f26425 100644
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-> @@ -509,10 +509,10 @@ static inline int mm_alloc_pgste(struct mm_struct *mm)
->   * faults should no longer be backed by zero pages
->   */
->  #define mm_forbids_zeropage mm_has_pgste
-> -static inline int mm_use_skey(struct mm_struct *mm)
-> +static inline int mm_uses_skeys(struct mm_struct *mm)
->  {
->  #ifdef CONFIG_PGSTE
-> -	if (mm->context.use_skey)
-> +	if (mm->context.uses_skeys)
->  		return 1;
->  #endif
->  	return 0;
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 959ffe6..2b1ee8b 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1457,7 +1457,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
->  		return -EINVAL;
-> 
->  	/* Is this guest using storage keys? */
-> -	if (!mm_use_skey(current->mm))
-> +	if (!mm_uses_skeys(current->mm))
->  		return KVM_S390_GET_SKEYS_NONE;
-> 
->  	/* Enforce sane limit on memory allocation */
-> @@ -2035,6 +2035,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->  	kvm->arch.css_support = 0;
->  	kvm->arch.use_irqchip = 0;
->  	kvm->arch.use_pfmfi = sclp.has_pfmfi;
-> +	kvm->arch.use_skf = sclp.has_skey;
->  	kvm->arch.epoch = 0;
-> 
->  	spin_lock_init(&kvm->arch.start_stop_lock);
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index ebfa044..e8c6270 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -205,24 +205,28 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
-> 
->  int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
->  {
-> -	int rc = 0;
-> +	int rc;
->  	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
-> 
->  	trace_kvm_s390_skey_related_inst(vcpu);
-> -	if (!(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
-> +	/* Already enabled? */
-> +	if (vcpu->kvm->arch.use_skf &&
-> +	    !(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
->  	    !kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
-> -		return rc;
-> +		return 0;
-> 
->  	rc = s390_enable_skey();
->  	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
-> -	if (!rc) {
-> -		if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
-> -			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
-> -		else
-> -			sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE |
-> -					     ICTL_RRBE);
-> -	}
-> -	return rc;
-> +	if (rc)
-> +		return rc;
-> +
-> +	if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
-> +		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
-> +	if (!vcpu->kvm->arch.use_skf)
-> +		sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
-> +	else
-> +		sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
-> +	return 0;
->  }
-> 
->  static int try_handle_skey(struct kvm_vcpu *vcpu)
-> @@ -232,7 +236,7 @@ static int try_handle_skey(struct kvm_vcpu *vcpu)
->  	rc = kvm_s390_skey_check_enable(vcpu);
->  	if (rc)
->  		return rc;
-> -	if (sclp.has_skey) {
-> +	if (vcpu->kvm->arch.use_skf) {
->  		/* with storage-key facility, SIE interprets it for us */
->  		kvm_s390_retry_instr(vcpu);
->  		VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index fa5246b..eca8fd9 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -3095,14 +3095,14 @@ int s390_enable_skey(void)
->  	int rc = 0;
-> 
->  	down_write(&mm->mmap_sem);
-> -	if (mm_use_skey(mm))
-> +	if (mm_uses_skeys(mm))
->  		goto out_up;
-> 
-> -	mm->context.use_skey = 1;
-> +	mm->context.uses_skeys = 1;
->  	for (vma = mm->mmap; vma; vma = vma->vm_next) {
->  		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
->  				MADV_UNMERGEABLE, &vma->vm_flags)) {
-> -			mm->context.use_skey = 0;
-> +			mm->context.uses_skeys = 0;
->  			rc = -ENOMEM;
->  			goto out_up;
->  		}
-> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-> index 871fc65..158c880 100644
-> --- a/arch/s390/mm/pgtable.c
-> +++ b/arch/s390/mm/pgtable.c
-> @@ -158,7 +158,7 @@ static inline pgste_t pgste_update_all(pte_t pte, pgste_t pgste,
->  #ifdef CONFIG_PGSTE
->  	unsigned long address, bits, skey;
-> 
-> -	if (!mm_use_skey(mm) || pte_val(pte) & _PAGE_INVALID)
-> +	if (!mm_uses_skeys(mm) || pte_val(pte) & _PAGE_INVALID)
->  		return pgste;
->  	address = pte_val(pte) & PAGE_MASK;
->  	skey = (unsigned long) page_get_storage_key(address);
-> @@ -180,7 +180,7 @@ static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry,
->  	unsigned long address;
->  	unsigned long nkey;
-> 
-> -	if (!mm_use_skey(mm) || pte_val(entry) & _PAGE_INVALID)
-> +	if (!mm_uses_skeys(mm) || pte_val(entry) & _PAGE_INVALID)
->  		return;
->  	VM_BUG_ON(!(pte_val(*ptep) & _PAGE_INVALID));
->  	address = pte_val(entry) & PAGE_MASK;
-> 
+syzbot will keep track of this bug report.
+If you forgot to add the Reported-by tag, once the fix for this bug is  
+merged
+into any tree, please reply to this email with:
+#syz fix: exact-commit-title
+If you want to test a patch for this bug, please reply with:
+#syz test: git://repo/address.git branch
+and provide the patch inline or as an attachment.
+To mark this as a duplicate of another syzbot report, please reply with:
+#syz dup: exact-subject-of-another-report
+If it's a one-off invalid bug report, please reply with:
+#syz invalid
+Note: if the crash happens again, it will cause creation of a new bug  
+report.
+Note: all commands must start from beginning of the line in the email body.
