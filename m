@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 1/4] net/smc: periodic testlink support
-Date: Mon, 30 Apr 2018 16:51:16 +0200
-Message-ID: <20180430145119.72479-2-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 4/4] net/smc: determine vlan_id of stacked net_device
+Date: Mon, 30 Apr 2018 16:51:19 +0200
+Message-ID: <20180430145119.72479-5-ubraun@linux.ibm.com>
 References: <20180430145119.72479-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180430145119.72479-1-ubraun@linux.ibm.com>
@@ -12,208 +12,59 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+An SMC link group is bound to a specific vlan_id. Its link uses
+the RoCE-GIDs established for the specific vlan_id. This patch makes
+sure the appropriate vlan_id is determined for stacked scenarios like
+for instance a master bonding device with vlan devices enslaved.
 
-Add periodic LLC testlink support to ensure the link is still active.
-The interval time is initialized using the value of
-sysctl_tcp_keepalive_time.
-
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/af_smc.c   |  6 ++++--
- net/smc/smc_core.c |  2 ++
- net/smc/smc_core.h |  4 ++++
- net/smc/smc_llc.c  | 62 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
- net/smc/smc_llc.h  |  3 +++
- net/smc/smc_wr.c   |  1 +
- 6 files changed, 75 insertions(+), 3 deletions(-)
+ net/smc/smc_core.c | 26 +++++++++++++++++++++++---
+ 1 file changed, 23 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 20aa4175b9f8..961b8eff9553 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -294,6 +294,7 @@ static void smc_copy_sock_settings_to_smc(struct smc_sock *smc)
- 
- static int smc_clnt_conf_first_link(struct smc_sock *smc)
- {
-+	struct net *net = sock_net(smc->clcsock->sk);
- 	struct smc_link_group *lgr = smc->conn.lgr;
- 	struct smc_link *link;
- 	int rest;
-@@ -353,7 +354,7 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
- 	if (rc < 0)
- 		return SMC_CLC_DECL_TCL;
- 
--	link->state = SMC_LNK_ACTIVE;
-+	smc_llc_link_active(link, net->ipv4.sysctl_tcp_keepalive_time);
- 
- 	return 0;
- }
-@@ -715,6 +716,7 @@ void smc_close_non_accepted(struct sock *sk)
- 
- static int smc_serv_conf_first_link(struct smc_sock *smc)
- {
-+	struct net *net = sock_net(smc->clcsock->sk);
- 	struct smc_link_group *lgr = smc->conn.lgr;
- 	struct smc_link *link;
- 	int rest;
-@@ -769,7 +771,7 @@ static int smc_serv_conf_first_link(struct smc_sock *smc)
- 		return rc;
- 	}
- 
--	link->state = SMC_LNK_ACTIVE;
-+	smc_llc_link_active(link, net->ipv4.sysctl_tcp_keepalive_time);
- 
- 	return 0;
- }
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index f44f6803f7ff..d9247765aff3 100644
+index d9247765aff3..1f3ea62fac5c 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -310,6 +310,7 @@ static void smc_lgr_free_bufs(struct smc_link_group *lgr)
- /* remove a link group */
- void smc_lgr_free(struct smc_link_group *lgr)
+@@ -360,7 +360,8 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
+ static int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
  {
-+	smc_llc_link_flush(&lgr->lnk[SMC_SINGLE_LINK]);
- 	smc_lgr_free_bufs(lgr);
- 	smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
- 	kfree(lgr);
-@@ -332,6 +333,7 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
- 	struct rb_node *node;
+ 	struct dst_entry *dst = sk_dst_get(clcsock->sk);
+-	int rc = 0;
++	struct net_device *ndev;
++	int i, nest_lvl, rc = 0;
  
- 	smc_lgr_forget(lgr);
-+	smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
- 
- 	write_lock_bh(&lgr->conns_lock);
- 	node = rb_first(&lgr->conns_all);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 07e2a393e6d9..97339f03ba79 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -79,6 +79,7 @@ struct smc_link {
- 	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
- 	u64			wr_rx_id;	/* seq # of last recv WR */
- 	u32			wr_rx_cnt;	/* number of WR recv buffers */
-+	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
- 
- 	struct ib_reg_wr	wr_reg;		/* WR register memory region */
- 	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
-@@ -101,6 +102,9 @@ struct smc_link {
- 	int			llc_confirm_resp_rc; /* rc from conf_resp msg */
- 	struct completion	llc_add;	/* wait for rx of add link */
- 	struct completion	llc_add_resp;	/* wait for rx of add link rsp*/
-+	struct delayed_work	llc_testlink_wrk; /* testlink worker */
-+	struct completion	llc_testlink_resp; /* wait for rx of testlink */
-+	int			llc_testlink_time; /* testlink interval */
- };
- 
- /* For now we just allow one parallel link per link group. The SMC protocol
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index ea4b21981b4b..33b4d856f4c6 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -397,7 +397,8 @@ static void smc_llc_rx_test_link(struct smc_link *link,
- 				 struct smc_llc_msg_test_link *llc)
- {
- 	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		/* unused as long as we don't send this type of msg */
-+		if (link->state == SMC_LNK_ACTIVE)
-+			complete(&link->llc_testlink_resp);
- 	} else {
- 		smc_llc_send_test_link(link, llc->user_data, SMC_LLC_RESP);
+ 	*vlan_id = 0;
+ 	if (!dst) {
+@@ -372,8 +373,27 @@ static int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
+ 		goto out_rel;
  	}
-@@ -502,6 +503,65 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
- 	}
- }
  
-+/***************************** worker ****************************************/
-+
-+static void smc_llc_testlink_work(struct work_struct *work)
-+{
-+	struct smc_link *link = container_of(to_delayed_work(work),
-+					     struct smc_link, llc_testlink_wrk);
-+	unsigned long next_interval;
-+	struct smc_link_group *lgr;
-+	unsigned long expire_time;
-+	u8 user_data[16] = { 0 };
-+	int rc;
-+
-+	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
-+	if (link->state != SMC_LNK_ACTIVE)
-+		return;		/* don't reschedule worker */
-+	expire_time = link->wr_rx_tstamp + link->llc_testlink_time;
-+	if (time_is_after_jiffies(expire_time)) {
-+		next_interval = expire_time - jiffies;
-+		goto out;
+-	if (is_vlan_dev(dst->dev))
+-		*vlan_id = vlan_dev_vlan_id(dst->dev);
++	ndev = dst->dev;
++	if (is_vlan_dev(ndev)) {
++		*vlan_id = vlan_dev_vlan_id(ndev);
++		goto out_rel;
 +	}
-+	reinit_completion(&link->llc_testlink_resp);
-+	smc_llc_send_test_link(link, user_data, SMC_LLC_REQ);
-+	/* receive TEST LINK response over RoCE fabric */
-+	rc = wait_for_completion_interruptible_timeout(&link->llc_testlink_resp,
-+						       SMC_LLC_WAIT_TIME);
-+	if (rc <= 0) {
-+		smc_lgr_terminate(lgr);
-+		return;
++
++	rtnl_lock();
++	nest_lvl = dev_get_nest_level(ndev);
++	for (i = 0; i < nest_lvl; i++) {
++		struct list_head *lower = &ndev->adj_list.lower;
++
++		if (list_empty(lower))
++			break;
++		lower = lower->next;
++		ndev = (struct net_device *)netdev_lower_get_next(ndev, &lower);
++		if (is_vlan_dev(ndev)) {
++			*vlan_id = vlan_dev_vlan_id(ndev);
++			break;
++		}
 +	}
-+	next_interval = link->llc_testlink_time;
-+out:
-+	schedule_delayed_work(&link->llc_testlink_wrk, next_interval);
-+}
-+
-+void smc_llc_link_active(struct smc_link *link, int testlink_time)
-+{
-+	init_completion(&link->llc_testlink_resp);
-+	INIT_DELAYED_WORK(&link->llc_testlink_wrk, smc_llc_testlink_work);
-+	link->state = SMC_LNK_ACTIVE;
-+	if (testlink_time) {
-+		link->llc_testlink_time = testlink_time * HZ;
-+		schedule_delayed_work(&link->llc_testlink_wrk,
-+				      link->llc_testlink_time);
-+	}
-+}
-+
-+/* called in tasklet context */
-+void smc_llc_link_inactive(struct smc_link *link)
-+{
-+	link->state = SMC_LNK_INACTIVE;
-+	cancel_delayed_work(&link->llc_testlink_wrk);
-+}
-+
-+/* called in worker context */
-+void smc_llc_link_flush(struct smc_link *link)
-+{
-+	cancel_delayed_work_sync(&link->llc_testlink_wrk);
-+}
-+
- /***************************** init, exit, misc ******************************/
++	rtnl_unlock();
  
- static struct smc_wr_rx_handler smc_llc_rx_handlers[] = {
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index e4a7d5e234d5..d6e42116485e 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -44,6 +44,9 @@ int smc_llc_send_delete_link(struct smc_link *link,
- 			     enum smc_llc_reqresp reqresp);
- int smc_llc_send_test_link(struct smc_link *lnk, u8 user_data[16],
- 			   enum smc_llc_reqresp reqresp);
-+void smc_llc_link_active(struct smc_link *link, int testlink_time);
-+void smc_llc_link_inactive(struct smc_link *link);
-+void smc_llc_link_flush(struct smc_link *link);
- int smc_llc_init(void) __init;
- 
- #endif /* SMC_LLC_H */
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 1b8af23e6e2b..cc7c1bb60fe8 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -376,6 +376,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
- 	for (i = 0; i < num; i++) {
- 		link = wc[i].qp->qp_context;
- 		if (wc[i].status == IB_WC_SUCCESS) {
-+			link->wr_rx_tstamp = jiffies;
- 			smc_wr_rx_demultiplex(&wc[i]);
- 			smc_wr_rx_post(link); /* refill WR RX */
- 		} else {
+ out_rel:
+ 	dst_release(dst);
 -- 
 2.13.5
