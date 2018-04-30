@@ -1,89 +1,57 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 03/10] vfio: ccw: new SCH_EVENT event
-Date: Mon, 30 Apr 2018 17:28:51 +0200
-Message-ID: <20180430172851.2cb3d550.cohuck@redhat.com>
+Subject: Re: [PATCH 04/10] vfio: ccw: replace IO_REQ event with SSCH_REQ
+ event
+Date: Mon, 30 Apr 2018 17:30:28 +0200
+Message-ID: <20180430173028.0dca976c.cohuck@redhat.com>
 References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
-        <1524149293-12658-4-git-send-email-pmorel@linux.vnet.ibm.com>
-        <20180426065954.GP5428@bjsdjshi@linux.vnet.ibm.com>
+        <1524149293-12658-5-git-send-email-pmorel@linux.vnet.ibm.com>
+        <20180425104138.1337aff5.cohuck@redhat.com>
+        <24f638e4-2f7e-00e1-1efb-ff3fe524bca0@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180426065954.GP5428@bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <24f638e4-2f7e-00e1-1efb-ff3fe524bca0@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, pasic@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Cc: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 26 Apr 2018 14:59:54 +0800
-Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+On Wed, 25 Apr 2018 15:52:19 +0200
+Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
 
-> * Pierre Morel <pmorel@linux.vnet.ibm.com> [2018-04-19 16:48:06 +0200]:
+> On 25/04/2018 10:41, Cornelia Huck wrote:
+> > On Thu, 19 Apr 2018 16:48:07 +0200
+> > Pierre Morel<pmorel@linux.vnet.ibm.com>  wrote:
+
+> >> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+> >> index 3284e64..93aab87 100644
+> >> --- a/drivers/s390/cio/vfio_ccw_private.h
+> >> +++ b/drivers/s390/cio/vfio_ccw_private.h
+> >> @@ -76,7 +76,7 @@ enum vfio_ccw_state {
+> >>    */
+> >>   enum vfio_ccw_event {
+> >>   	VFIO_CCW_EVENT_NOT_OPER,
+> >> -	VFIO_CCW_EVENT_IO_REQ,
+> >> +	VFIO_CCW_EVENT_SSCH_REQ,
+> >>   	VFIO_CCW_EVENT_INTERRUPT,
+> >>   	VFIO_CCW_EVENT_SCH_EVENT,
+> >>   	/* last element! */  
+> > I don't think we should separate the ssch handling. The major 
+> > difference to halt/clear is that it needs channel program translation. 
+> > Everything else (issuing the instruction and processing the interrupt) 
+> > are basically the same. If we just throw everything at the hardware 
+> > and let the host's channel subsystem figure it out, we already should 
+> > be fine with regard to most of the races.  
 > 
-> > The Sub channel event callback is threaded using workqueues.
-> > The work uses the FSM introducing the VFIO_CCW_EVENT_SCH_EVENT
-> > event.
-> > The update of the SCHIB is now done inside the FSM function.
-> > 
-> > Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-> > ---
-> >  drivers/s390/cio/vfio_ccw_drv.c     | 33 +++++++++++++--------------------
-> >  drivers/s390/cio/vfio_ccw_fsm.c     | 23 +++++++++++++++++++++++
-> >  drivers/s390/cio/vfio_ccw_private.h |  3 +++
-> >  3 files changed, 39 insertions(+), 20 deletions(-)
-> > 
-
-> > @@ -171,28 +181,11 @@ static void vfio_ccw_sch_shutdown(struct subchannel *sch)
-> >  static int vfio_ccw_sch_event(struct subchannel *sch, int process)
-> >  {
-> >  	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-> > -	unsigned long flags;
-> > 
-> > -	spin_lock_irqsave(sch->lock, flags);
-> >  	if (!device_is_registered(&sch->dev))
-> > -		goto out_unlock;
-> > -
-> > -	if (work_pending(&sch->todo_work))
-> > -		goto out_unlock;  
-> Just realized that this has a bug in the orignal implementation. For
-> error out this should return -EAGAIN. We'd need a separated fix on
-> this.
-
-Indeed. Will you send a patch, or should I hack something up?
-
+> We must test at a moment or another the kind of request we do,
+> cancel, halt and clear only need the subchannel id in register 1 and as 
+> you said are much more direct to implement.
 > 
-> > -
-> > -	if (cio_update_schib(sch)) {
-> > -		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-> > -		goto out_unlock;
-> > -	}
-> > -
-> > -	private = dev_get_drvdata(&sch->dev);
-> > -	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
-> > -		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
-> > -				 VFIO_CCW_STATE_STANDBY;
-> > -	}  
-> This hunk was toatally removed, and this is fine because?
-> 
-> > -
-> > -out_unlock:
-> > -	spin_unlock_irqrestore(sch->lock, flags);
-> > +		return -1;  
-> -1 is not a valid code.
+> If we do not separate them here, we need a switch in the "do_io_request" 
+> function.
+> Is it what you mean?
 
--ENODEV looks more fitting, if we decide to go with this rework.
-
-> 
-> > +	WARN_ON(work_pending(&private->event_work));
-> > +	queue_work(vfio_ccw_work_q, &private->event_work);
-> > 
-> >  	return 0;
-> >  }
-
-I'm wondering why this should always be done via a workqueue. It seems
-the other subchannel types try to do as much as possible immediately?
-
-(And returning -EAGAIN already triggers the css code to schedule
-another call later.)
+Yes. Most of the handling should be the same for any function.
