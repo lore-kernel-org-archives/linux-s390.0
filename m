@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next v2 3/4] net/smc: handle ioctls SIOCINQ, SIOCOUTQ, and SIOCOUTQNSD
-Date: Wed,  2 May 2018 16:56:46 +0200
-Message-ID: <20180502145647.36147-4-ubraun@linux.ibm.com>
+Subject: [PATCH net-next v2 4/4] net/smc: determine vlan_id of stacked net_device
+Date: Wed,  2 May 2018 16:56:47 +0200
+Message-ID: <20180502145647.36147-5-ubraun@linux.ibm.com>
 References: <20180502145647.36147-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180502145647.36147-1-ubraun@linux.ibm.com>
@@ -12,70 +12,59 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-SIOCINQ returns the amount of unread data in the RMB.
-SIOCOUTQ returns the amount of unsent or unacked sent data in the send
-buffer.
-SIOCOUTQNSD returns the amount of data prepared for sending, but
-not yet sent.
+An SMC link group is bound to a specific vlan_id. Its link uses
+the RoCE-GIDs established for the specific vlan_id. This patch makes
+sure the appropriate vlan_id is determined for stacked scenarios like
+for instance a master bonding device with vlan devices enslaved.
 
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/af_smc.c | 33 ++++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
+ net/smc/smc_core.c | 26 +++++++++++++++++++++++---
+ 1 file changed, 23 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 961b8eff9553..823ea3371575 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -29,6 +29,7 @@
- #include <net/sock.h>
- #include <net/tcp.h>
- #include <net/smc.h>
-+#include <asm/ioctls.h>
- 
- #include "smc.h"
- #include "smc_clc.h"
-@@ -1389,12 +1390,38 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
- 		     unsigned long arg)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index d9247765aff3..1f3ea62fac5c 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -360,7 +360,8 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
+ static int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
  {
- 	struct smc_sock *smc;
-+	int answ;
+ 	struct dst_entry *dst = sk_dst_get(clcsock->sk);
+-	int rc = 0;
++	struct net_device *ndev;
++	int i, nest_lvl, rc = 0;
  
- 	smc = smc_sk(sock->sk);
--	if (smc->use_fallback)
-+	if (smc->use_fallback) {
-+		if (!smc->clcsock)
-+			return -EBADF;
- 		return smc->clcsock->ops->ioctl(smc->clcsock, cmd, arg);
--	else
--		return sock_no_ioctl(sock, cmd, arg);
-+	}
-+	switch (cmd) {
-+	case SIOCINQ: /* same as FIONREAD */
-+		if (smc->sk.sk_state == SMC_LISTEN)
-+			return -EINVAL;
-+		answ = atomic_read(&smc->conn.bytes_to_rcv);
-+		break;
-+	case SIOCOUTQ:
-+		/* output queue size (not send + not acked) */
-+		if (smc->sk.sk_state == SMC_LISTEN)
-+			return -EINVAL;
-+		answ = smc->conn.sndbuf_size -
-+					atomic_read(&smc->conn.sndbuf_space);
-+		break;
-+	case SIOCOUTQNSD:
-+		/* output queue size (not send only) */
-+		if (smc->sk.sk_state == SMC_LISTEN)
-+			return -EINVAL;
-+		answ = smc_tx_prepared_sends(&smc->conn);
-+		break;
-+	default:
-+		return -ENOIOCTLCMD;
+ 	*vlan_id = 0;
+ 	if (!dst) {
+@@ -372,8 +373,27 @@ static int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
+ 		goto out_rel;
+ 	}
+ 
+-	if (is_vlan_dev(dst->dev))
+-		*vlan_id = vlan_dev_vlan_id(dst->dev);
++	ndev = dst->dev;
++	if (is_vlan_dev(ndev)) {
++		*vlan_id = vlan_dev_vlan_id(ndev);
++		goto out_rel;
 +	}
 +
-+	return put_user(answ, (int __user *)arg);
- }
++	rtnl_lock();
++	nest_lvl = dev_get_nest_level(ndev);
++	for (i = 0; i < nest_lvl; i++) {
++		struct list_head *lower = &ndev->adj_list.lower;
++
++		if (list_empty(lower))
++			break;
++		lower = lower->next;
++		ndev = (struct net_device *)netdev_lower_get_next(ndev, &lower);
++		if (is_vlan_dev(ndev)) {
++			*vlan_id = vlan_dev_vlan_id(ndev);
++			break;
++		}
++	}
++	rtnl_unlock();
  
- static ssize_t smc_sendpage(struct socket *sock, struct page *page,
+ out_rel:
+ 	dst_release(dst);
 -- 
 2.13.5
