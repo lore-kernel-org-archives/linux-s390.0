@@ -1,49 +1,38 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 1/1] vfio: ccw: fix error return in vfio_ccw_sch_event
-Date: Wed, 16 May 2018 18:17:10 +0200
-Message-ID: <20180516181710.1765484f.cohuck@redhat.com>
-References: <20180502072559.50691-1-bjsdjshi@linux.vnet.ibm.com>
-        <20180502164251.577e2af8.cohuck@redhat.com>
-        <20180503020640.GW5428@bjsdjshi@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 1/1] net/smc: restrict non-blocking connect finish
+Date: Wed, 02 May 2018 13:28:17 -0400 (EDT)
+Message-ID: <20180502.132817.1973402419020011208.davem@davemloft.net>
+References: <20180502145356.32913-1-ubraun@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180503020640.GW5428@bjsdjshi@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, borntraeger@de.ibm.com, bjsdjshi@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180502145356.32913-1-ubraun@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 3 May 2018 10:06:40 +0800
-Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Wed,  2 May 2018 16:53:56 +0200
 
-> * Cornelia Huck <cohuck@redhat.com> [2018-05-02 16:42:51 +0200]:
+> The smc_poll code tries to finish connect() if the socket is in
+> state SMC_INIT and polling of the internal CLC-socket returns with
+> EPOLLOUT. This makes sense for a select/poll call following a connect
+> call, but not without preceding connect().
+> With this patch smc_poll starts connect logic only, if the CLC-socket
+> is no longer in its initial state TCP_CLOSE.
 > 
-> > On Wed,  2 May 2018 09:25:59 +0200
-> > Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
-> >   
-> > > If device has not been registered, or there is a pending work,  
-> > 
-> > s/a pending work/work pending/
-
-Also, s/device/the device/
-
-> >   
-> > > we should reschedule a sch_event call again.
-> > > 
-> > > Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>  
-
-(...)
-
-> > 
-> > I guess I should pick this for 4.17?
-> >   
-> I think there is no pressure for this one. So please feel free to decide
-> as your convenience.
+> In addition, a poll error on the internal CLC-socket is always
+> propagated to the SMC socket.
 > 
+> With this patch the code path mentioned by syzbot
+> https://syzkaller.appspot.com/bug?extid=03faa2dc16b8b64be396
+> is no longer possible.
+> 
+> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+> Reported-by: syzbot+03faa2dc16b8b64be396@syzkaller.appspotmail.com
 
-OK, I've queued this for the next release. Will wait for more patches
-(e.g. the ida check pushdown) before I send a pull request.
+Applied and queued up for -stable, thanks.
