@@ -1,59 +1,109 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 04/10] vfio: ccw: replace IO_REQ event with SSCH_REQ
- event
-Date: Wed, 2 May 2018 10:22:17 +0200
-Message-ID: <20180502102217.702870af.cohuck@redhat.com>
-References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
-        <1524149293-12658-5-git-send-email-pmorel@linux.vnet.ibm.com>
-        <20180426073053.GZ12194@bjsdjshi@linux.vnet.ibm.com>
-        <20180426074806.GB12194@bjsdjshi@linux.vnet.ibm.com>
-        <20180430173305.632faa80.cohuck@redhat.com>
-        <20180502074622.GV5428@bjsdjshi@linux.vnet.ibm.com>
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: Re: [PATCH v4 08/15] KVM: s390: interfaces to (de)configure guest's
+ AP matrix
+Date: Wed, 2 May 2018 16:57:44 +0200
+Message-ID: <54e4c3ef-0750-981b-7b0e-6b18d1a77c3c@linux.vnet.ibm.com>
+References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1523827345-11600-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <99f4752a-1358-61e4-bf9e-5672b2d4036f@linux.vnet.ibm.com>
+ <0f47c442-47b8-ee57-d014-5200c59125d7@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180502074622.GV5428@bjsdjshi@linux.vnet.ibm.com>
+In-Reply-To: <0f47c442-47b8-ee57-d014-5200c59125d7@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, pasic@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2 May 2018 15:46:22 +0800
-Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+On 25/04/2018 18:21, Tony Krowiak wrote:
+> On 04/23/2018 09:46 AM, Pierre Morel wrote:
+>> On 15/04/2018 23:22, Tony Krowiak wrote:
+>>> Provides interfaces to assign AP adapters, usage domains
+>>> and control domains to a KVM guest.
+>>>
+...
+>>> +/**
+>>> + * kvm_ap_matrix_create
+>>> + *
+>>> + * Create an AP matrix to hold a configuration of AP adapters, 
+>>> domains and
+>>> + * control domains.
+>>> + *
+>>> + * @ap_matrix: holds the matrix that is created
+>>> + *
+>>> + * Returns 0 if the matrix is successfully created. Returns an 
+>>> error if an APQN
+>>> + * derived from the cross product of the AP adapter IDs and AP 
+>>> queue indexes
+>>> + * comprising the AP matrix is configured for another guest.
+>>> + */
+>>> +int kvm_ap_matrix_create(struct kvm_ap_matrix **ap_matrix);
+>>
+>> why not simply return the pointer?
+>
+> The function returns a value indicating the reason a matrix could not 
+> be created.
+> Returning a NULL pointer provides no clue as to why the call failed.
 
-> * Cornelia Huck <cohuck@redhat.com> [2018-04-30 17:33:05 +0200]:
-> 
-> > On Thu, 26 Apr 2018 15:48:06 +0800
-> > Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
-> >   
-> > > * Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> [2018-04-26 15:30:54 +0800]:
-> > > 
-> > > [...]
-> > >   
-> > > > > @@ -179,7 +160,7 @@ static int fsm_irq(struct vfio_ccw_private *private,
-> > > > >  	if (private->io_trigger)
-> > > > >  		eventfd_signal(private->io_trigger, 1);
-> > > > > 
-> > > > > -	return private->state;
-> > > > > +	return VFIO_CCW_STATE_IDLE;    
-> > > > This is not right. For example, if we are in STANDBY state (subch driver
-> > > > is probed, but mdev device is not created), we can not jump to IDLE
-> > > > state.
-> > > >     
-> > > I see my problem, for STANDBY state, we should introduce another event
-> > > callback for VFIO_CCW_EVENT_INTERRUPT. It doesn't make sense to call
-> > > fsm_irq() which tries to signal userspace with interrupt notification
-> > > when mdev is not created yet... So we'd need a separated fix for this
-> > > issue too.  
-> > 
-> > But how do we even get into that situation when we don't have an mdev
-> > yet?
-> >   
-> We cann't... So let's assign fsm_nop() as the interrupt callback for
-> STANDBY state?
+That is why the ERR_PTR exist :)
 
-Either that, or have a special fsm_should_not_happen() function that
-can pop out a trace message and then continue to do nothing.
+
+...
+>>> + * Returns 0 if the APQNs are valid, otherwise; returns -EBUSY.
+>>> + */
+>>> +static int kvm_ap_validate_queue_sharing(struct kvm *kvm,
+>>> +                     struct kvm_ap_matrix *matrix)
+>>> +{
+>>> +    struct kvm *vm;
+>>> +    unsigned long *apm, *aqm;
+>>> +    unsigned long apid, apqi;
+>>> +
+>>> +
+>>> +    /* No other VM may share an AP Queue with the input VM */
+>>
+>> I wonder if these functions and structures should really belong to KVM.
+>> The only have sense with the VFIO driver.
+>> My opinion is that they belong there, in the VFIO driver code.
+>
+> I disagree for two reasons:
+>
+> 1. The vfio_ap driver should not have to know how to configure the KVM
+>    guest's matrix nor anything else about KVM for that matter.
+>
+> 2. The interfaces and structures defined in kvm-ap.h and implemented
+> in kvm-ap.c don't have anything to do with VFIO and can stand alone
+>    to be used by any client code to configure a guest's matrix.
+
+Doing this you will have to change KVM if the AP VFIO matrix protocol to 
+access the queues change.
+i.e. suppose some day the queues may be shared between guests.
+...
+>>> +static int kvm_ap_matrix_apm_create(struct kvm_ap_matrix *ap_matrix,
+>>> +                    struct ap_config_info *config)
+>>> +{
+>>> +    int apm_max = (config && config->apxa) ? config->Na + 1 : 16;
+>>
+>> At this moment you already know the format of the crycb.
+>
+> How?
+
+you calculated this in kvm_ap_build_crycbd() which is called from 
+kvm_s390_crypto_init()
+itself called from kvm_arch_init_vm().
+It is when starting the VM.
+
+kvm_ap_matrix_apm_create() is called much later when realizing the device
+
+
+...
+
+
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
