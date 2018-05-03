@@ -1,91 +1,62 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v5 05/13] s390: vfio-ap: register matrix device with
- VFIO mdev framework
-Date: Tue, 22 May 2018 10:19:40 +0200
-Message-ID: <20180522101940.166445f8.cohuck@redhat.com>
-References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1525705912-12815-6-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <5471b194-d7ca-c9c6-132e-fa9539fe44f0@linux.ibm.com>
-        <4688078d-3e13-5201-582f-52576b25defa@linux.vnet.ibm.com>
-        <20180517094454.6afae7ba.cohuck@redhat.com>
-        <b45ba36a-0451-56b8-c038-410441bb8bd4@linux.vnet.ibm.com>
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: Re: [PATCH 09/10] vfio: ccw: Suppressing the BOXED state
+Date: Thu, 3 May 2018 11:02:33 +0200
+Message-ID: <0d95b955-1567-cead-35d2-9d784b74ffa0@linux.vnet.ibm.com>
+References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
+ <1524149293-12658-10-git-send-email-pmorel@linux.vnet.ibm.com>
+ <20180425104429.582618f8.cohuck@redhat.com>
+ <32efd6b2-78b0-ae44-3a64-a092f9d412fe@linux.vnet.ibm.com>
+ <20180430174718.7b1e5651.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <b45ba36a-0451-56b8-c038-410441bb8bd4@linux.vnet.ibm.com>
+In-Reply-To: <20180430174718.7b1e5651.cohuck@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 21 May 2018 11:13:58 -0400
-Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+On 30/04/2018 17:47, Cornelia Huck wrote:
+> On Wed, 25 Apr 2018 15:55:51 +0200
+> Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+>
+>> On 25/04/2018 10:44, Cornelia Huck wrote:
+>>> On Thu, 19 Apr 2018 16:48:12 +0200
+>>> Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+>>>   
+>>>> VFIO_CCW_STATE_BOXED and VFIO_CCW_STATE_BUSY are the same
+>>>> states.
+>>>> Let's only keep one: VFIO_CCW_STATE_BUSY
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+>>>> ---
+>>>>    drivers/s390/cio/vfio_ccw_fsm.c     | 9 ---------
+>>>>    drivers/s390/cio/vfio_ccw_private.h | 1 -
+>>>>    2 files changed, 10 deletions(-)
+>>> I think they were initially supposed to cover two different things:
+>>> - BUSY: we're currently dealing with an I/O request
+>>> - BOXED: the device currently won't talk to us or we won't talk to it
+>>>
+>>> It seems we never really did anything useful with BOXED; but should we?
+>>>   
+>> I do not know what.
+> The BUSY state is something we know that we'll get out of soon-ish
+> (when the I/O request has finished). We could conceivably use a timeout
+> and drop to the BOXED state if we don't get an answer.
 
-> On 05/17/2018 03:44 AM, Cornelia Huck wrote:
-> > On Mon, 14 May 2018 15:42:18 -0400
-> > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-> >  
-> >> On 05/11/2018 01:18 PM, Halil Pasic wrote:  
-> >>>
-> >>> On 05/07/2018 05:11 PM, Tony Krowiak wrote:  
-> >>>> Registers the matrix device created by the VFIO AP device
-> >>>> driver with the VFIO mediated device framework.
-> >>>> Registering the matrix device will create the sysfs
-> >>>> structures needed to create mediated matrix devices
-> >>>> each of which will be used to configure the AP matrix
-> >>>> for a guest and connect it to the VFIO AP device driver.
-> >>>> +static int vfio_ap_mdev_create(struct kobject *kobj, struct
-> >>>> mdev_device *mdev)
-> >>>> +{
-> >>>> +    struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
-> >>>> +
-> >>>> +    ap_matrix->available_instances--;
-> >>>> +
-> >>>> +    return 0;
-> >>>> +}
-> >>>> +
-> >>>> +static int vfio_ap_mdev_remove(struct mdev_device *mdev)
-> >>>> +{
-> >>>> +    struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
-> >>>> +
-> >>>> +    ap_matrix->available_instances++;
-> >>>> +
-> >>>> +    return 0;
-> >>>> +}
-> >>>> +  
-> >>> The above functions seem to be called with the lock of this
-> >>> auto-generated
-> >>> mdev parent device held. That's why we don't have to care about
-> >>> synchronization
-> >>> ourselves, right?  
-> >> I would assume as much. The comments for the 'struct mdev_parent_ops' in
-> >> include/linux/mdev.h do not mention anything about synchronization, nor
-> >> did I
-> >> see any locking or synchronization in the vfio_ccw implementation after
-> >> which
-> >> I modeled my code, so frankly it is something I did not consider.
-> >>  
-> >>>
-> >>> A small comment in the code could be helpful for mdev non-experts.
-> >>> Hell, I would
-> >>> even consider documenting it for all mdev -- took me some time to
-> >>> figure out.  
-> >> You may want to bring this up with the VFIO mdev maintainers, but I'd be
-> >> happy to
-> >> include a comment in the functions in question if you think it important.  
-> > Important note: There's currently a patch on list that removes the mdev
-> > parent mutex, and it seems there was never intended to be any
-> > serialization in that place by the mdev core. (Look for "vfio/mdev:
-> > Check globally for duplicate devices".)  
-> 
-> The patch on the list holds the mdev_list_lock during create and remove
-> of an mdev device, so it looks like no synchronization is necessary on the
-> part of the vendor code in the create/remove callbacks; does that sound
-> about right?
+Absolutely, timeout on requests is something I wanted to do in a second 
+series.
 
-v1/v2 did that; v3/v4 hold the list lock only while the device is added
-to the mdev list. v4 also adds a note regarding locking to the
-documentation.
+>
+> I think this plays also into the reserve/release and path handling
+> questions. One of the more common reasons for devices to become boxed
+> I've seen is another system doing a reserve on a dasd.
+>
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
