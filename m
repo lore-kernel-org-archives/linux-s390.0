@@ -1,17 +1,15 @@
 From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: Re: [PATCH 09/10] vfio: ccw: Suppressing the BOXED state
-Date: Thu, 3 May 2018 11:02:33 +0200
-Message-ID: <0d95b955-1567-cead-35d2-9d784b74ffa0@linux.vnet.ibm.com>
+Subject: Re: [PATCH 07/10] vfio: ccw: Introduce the INIT event
+Date: Thu, 3 May 2018 12:31:41 +0200
+Message-ID: <70fdc9d5-2cdb-3721-8c9b-5d5fead72739@linux.vnet.ibm.com>
 References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
- <1524149293-12658-10-git-send-email-pmorel@linux.vnet.ibm.com>
- <20180425104429.582618f8.cohuck@redhat.com>
- <32efd6b2-78b0-ae44-3a64-a092f9d412fe@linux.vnet.ibm.com>
- <20180430174718.7b1e5651.cohuck@redhat.com>
+ <1524149293-12658-8-git-send-email-pmorel@linux.vnet.ibm.com>
+ <20180430173910.31f13a3a.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180430174718.7b1e5651.cohuck@redhat.com>
+In-Reply-To: <20180430173910.31f13a3a.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,42 +18,70 @@ To: Cornelia Huck <cohuck@redhat.com>
 Cc: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 30/04/2018 17:47, Cornelia Huck wrote:
-> On Wed, 25 Apr 2018 15:55:51 +0200
+On 30/04/2018 17:39, Cornelia Huck wrote:
+> On Thu, 19 Apr 2018 16:48:10 +0200
 > Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
 >
->> On 25/04/2018 10:44, Cornelia Huck wrote:
->>> On Thu, 19 Apr 2018 16:48:12 +0200
->>> Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
->>>   
->>>> VFIO_CCW_STATE_BOXED and VFIO_CCW_STATE_BUSY are the same
->>>> states.
->>>> Let's only keep one: VFIO_CCW_STATE_BUSY
->>>>
->>>> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
->>>> ---
->>>>    drivers/s390/cio/vfio_ccw_fsm.c     | 9 ---------
->>>>    drivers/s390/cio/vfio_ccw_private.h | 1 -
->>>>    2 files changed, 10 deletions(-)
->>> I think they were initially supposed to cover two different things:
->>> - BUSY: we're currently dealing with an I/O request
->>> - BOXED: the device currently won't talk to us or we won't talk to it
->>>
->>> It seems we never really did anything useful with BOXED; but should we?
->>>   
->> I do not know what.
-> The BUSY state is something we know that we'll get out of soon-ish
-> (when the I/O request has finished). We could conceivably use a timeout
-> and drop to the BOXED state if we don't get an answer.
-
-Absolutely, timeout on requests is something I wanted to do in a second 
-series.
-
+>> The VFIO_CCW_EVENT_INIT event allows to export the initial state
+>> into the FSM.
+> I don't know, that feels a bit unintuitive to me. I would naively
+> expect initialization to be done _before_ we activate processing via
+> the state machine.
 >
-> I think this plays also into the reserve/release and path handling
-> questions. One of the more common reasons for devices to become boxed
-> I've seen is another system doing a reserve on a dasd.
+>> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+>> ---
+>>   drivers/s390/cio/vfio_ccw_drv.c     | 26 +++++++++++---------------
+>>   drivers/s390/cio/vfio_ccw_fsm.c     | 21 +++++++++++++++++++++
+>>   drivers/s390/cio/vfio_ccw_ops.c     | 11 -----------
+>>   drivers/s390/cio/vfio_ccw_private.h |  1 +
+>>   4 files changed, 33 insertions(+), 26 deletions(-)
+>>   /*
+>>    * Device statemachine
+>>    */
+>>   fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
+>>   	[VFIO_CCW_STATE_NOT_OPER] = {
+>> +		[VFIO_CCW_EVENT_INIT]		= fsm_init,
+>>   		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_nop,
+>>   		[VFIO_CCW_EVENT_SSCH_REQ]	= fsm_io_error,
+>>   		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_disabled_irq,
+>>   		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_nop,
+>>   	},
+>>   	[VFIO_CCW_STATE_STANDBY] = {
+>> +		[VFIO_CCW_EVENT_INIT]		= fsm_nop,
+>>   		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+>>   		[VFIO_CCW_EVENT_SSCH_REQ]	= fsm_io_error,
+>>   		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
+>>   		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_sch_event,
+>>   	},
+>>   	[VFIO_CCW_STATE_IDLE] = {
+>> +		[VFIO_CCW_EVENT_INIT]		= fsm_nop,
+>>   		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+>>   		[VFIO_CCW_EVENT_SSCH_REQ]	= fsm_io_request,
+>>   		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
+>>   		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_sch_event,
+>>   	},
+>>   	[VFIO_CCW_STATE_BOXED] = {
+>> +		[VFIO_CCW_EVENT_INIT]		= fsm_nop,
+>>   		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+>>   		[VFIO_CCW_EVENT_SSCH_REQ]	= fsm_io_busy,
+>>   		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
+>>   		[VFIO_CCW_EVENT_SCH_EVENT]	= fsm_sch_event,
+>>   	},
+>>   	[VFIO_CCW_STATE_BUSY] = {
+>> +		[VFIO_CCW_EVENT_INIT]		= fsm_nop,
+>>   		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+>>   		[VFIO_CCW_EVENT_SSCH_REQ]	= fsm_io_busy,
+>>   		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
+> ...especially as you only call it if in the NOT_OPER state. Why should
+> this event be generated in any case but in the very beginning?
 >
+It is the only way to go out of the NOT_OPER state.
+
+The idea is to introduce recoverycode in a later version.
+
+However, no problem to suppress this state until we get there so I will 
+remove it in V2.
+
 
 -- 
 Pierre Morel
