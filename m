@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 2/3] net/smc: handle unregistered buffers
-Date: Thu,  3 May 2018 17:57:38 +0200
-Message-ID: <20180503155739.55616-3-ubraun@linux.ibm.com>
+Subject: [PATCH net 3/3] smc: fix sendpage() call
+Date: Thu,  3 May 2018 17:57:39 +0200
+Message-ID: <20180503155739.55616-4-ubraun@linux.ibm.com>
 References: <20180503155739.55616-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180503155739.55616-1-ubraun@linux.ibm.com>
@@ -12,88 +12,41 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+From: Stefan Raspl <stefan.raspl@linux.ibm.com>
 
-When smc_wr_reg_send() fails then tag (regerr) the affected buffer and
-free it in smc_buf_unuse().
+The sendpage() call grabs the sock lock before calling the default
+implementation - which tries to grab it once again.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com><
 ---
- net/smc/af_smc.c   |  4 +++-
- net/smc/smc_core.c | 22 +++++++++++++++++++---
- net/smc/smc_core.h |  3 ++-
- 3 files changed, 24 insertions(+), 5 deletions(-)
+ net/smc/af_smc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index fdb2976117bd..d03b8d29ffc0 100644
+index d03b8d29ffc0..544bab42f925 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -296,8 +296,10 @@ static void smc_copy_sock_settings_to_smc(struct smc_sock *smc)
- static int smc_reg_rmb(struct smc_link *link, struct smc_buf_desc *rmb_desc)
- {
- 	/* register memory region for new rmb */
--	if (smc_wr_reg_send(link, rmb_desc->mr_rx[SMC_SINGLE_LINK]))
-+	if (smc_wr_reg_send(link, rmb_desc->mr_rx[SMC_SINGLE_LINK])) {
-+		rmb_desc->regerr = 1;
- 		return -EFAULT;
+@@ -1315,8 +1315,11 @@ static ssize_t smc_sendpage(struct socket *sock, struct page *page,
+ 
+ 	smc = smc_sk(sk);
+ 	lock_sock(sk);
+-	if (sk->sk_state != SMC_ACTIVE)
++	if (sk->sk_state != SMC_ACTIVE) {
++		release_sock(sk);
+ 		goto out;
 +	}
- 	return 0;
++	release_sock(sk);
+ 	if (smc->use_fallback)
+ 		rc = kernel_sendpage(smc->clcsock, page, offset,
+ 				     size, flags);
+@@ -1324,7 +1327,6 @@ static ssize_t smc_sendpage(struct socket *sock, struct page *page,
+ 		rc = sock_no_sendpage(sock, page, offset, size, flags);
+ 
+ out:
+-	release_sock(sk);
+ 	return rc;
  }
  
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index f44f6803f7ff..d4bd01bb44e1 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -32,6 +32,9 @@
- 
- static u32 smc_lgr_num;			/* unique link group number */
- 
-+static void smc_buf_free(struct smc_buf_desc *buf_desc, struct smc_link *lnk,
-+			 bool is_rmb);
-+
- static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
- {
- 	/* client link group creation always follows the server link group
-@@ -234,9 +237,22 @@ static void smc_buf_unuse(struct smc_connection *conn)
- 		conn->sndbuf_size = 0;
- 	}
- 	if (conn->rmb_desc) {
--		conn->rmb_desc->reused = true;
--		conn->rmb_desc->used = 0;
--		conn->rmbe_size = 0;
-+		if (!conn->rmb_desc->regerr) {
-+			conn->rmb_desc->reused = 1;
-+			conn->rmb_desc->used = 0;
-+			conn->rmbe_size = 0;
-+		} else {
-+			/* buf registration failed, reuse not possible */
-+			struct smc_link_group *lgr = conn->lgr;
-+			struct smc_link *lnk;
-+
-+			write_lock_bh(&lgr->rmbs_lock);
-+			list_del(&conn->rmb_desc->list);
-+			write_unlock_bh(&lgr->rmbs_lock);
-+
-+			lnk = &lgr->lnk[SMC_SINGLE_LINK];
-+			smc_buf_free(conn->rmb_desc, lnk, true);
-+		}
- 	}
- }
- 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 07e2a393e6d9..5dfcb15d529f 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -123,7 +123,8 @@ struct smc_buf_desc {
- 						 */
- 	u32			order;		/* allocation order */
- 	u32			used;		/* currently used / unused */
--	bool			reused;		/* new created / reused */
-+	u8			reused	: 1;	/* new created / reused */
-+	u8			regerr	: 1;	/* err during registration */
- };
- 
- struct smc_rtoken {				/* address/key of remote RMB */
 -- 
 2.13.5
