@@ -1,111 +1,88 @@
 From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: Re: [PATCH 03/10] vfio: ccw: new SCH_EVENT event
-Date: Fri, 4 May 2018 10:25:46 +0200
-Message-ID: <eab19daf-adfb-fa71-d7d6-79439c6763a7@linux.vnet.ibm.com>
+Subject: Re: [PATCH 04/10] vfio: ccw: replace IO_REQ event with SSCH_REQ event
+Date: Fri, 4 May 2018 13:02:36 +0200
+Message-ID: <8c75acd1-c00b-4d7f-ea4b-d32e9b05989b@linux.vnet.ibm.com>
 References: <1524149293-12658-1-git-send-email-pmorel@linux.vnet.ibm.com>
- <1524149293-12658-4-git-send-email-pmorel@linux.vnet.ibm.com>
- <20180426065954.GP5428@bjsdjshi@linux.vnet.ibm.com>
- <20180430172851.2cb3d550.cohuck@redhat.com>
+ <1524149293-12658-5-git-send-email-pmorel@linux.vnet.ibm.com>
+ <20180426073053.GZ12194@bjsdjshi@linux.vnet.ibm.com>
+ <20180426074806.GB12194@bjsdjshi@linux.vnet.ibm.com>
+ <20180430173305.632faa80.cohuck@redhat.com>
+ <20180502074622.GV5428@bjsdjshi@linux.vnet.ibm.com>
+ <5816643d-5406-06b9-0727-fdcd771aba63@linux.vnet.ibm.com>
+ <20180504011916.GA26081@bjsdjshi@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180430172851.2cb3d550.cohuck@redhat.com>
+In-Reply-To: <20180504011916.GA26081@bjsdjshi@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Cc: pasic@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: Dong Jia Shi <bjsdjshi@linux.ibm.com>
+Cc: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>, pasic@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 30/04/2018 17:28, Cornelia Huck wrote:
-> On Thu, 26 Apr 2018 14:59:54 +0800
-> Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+On 04/05/2018 03:19, Dong Jia Shi wrote:
+> * Pierre Morel <pmorel@linux.vnet.ibm.com> [2018-05-03 16:26:29 +0200]:
 >
->> * Pierre Morel <pmorel@linux.vnet.ibm.com> [2018-04-19 16:48:06 +0200]:
->>
->>> The Sub channel event callback is threaded using workqueues.
->>> The work uses the FSM introducing the VFIO_CCW_EVENT_SCH_EVENT
->>> event.
->>> The update of the SCHIB is now done inside the FSM function.
+>> On 02/05/2018 09:46, Dong Jia Shi wrote:
+>>> * Cornelia Huck <cohuck@redhat.com> [2018-04-30 17:33:05 +0200]:
 >>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
->>> ---
->>>   drivers/s390/cio/vfio_ccw_drv.c     | 33 +++++++++++++--------------------
->>>   drivers/s390/cio/vfio_ccw_fsm.c     | 23 +++++++++++++++++++++++
->>>   drivers/s390/cio/vfio_ccw_private.h |  3 +++
->>>   3 files changed, 39 insertions(+), 20 deletions(-)
+>>>> On Thu, 26 Apr 2018 15:48:06 +0800
+>>>> Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> wrote:
+>>>>
+>>>>> * Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com> [2018-04-26 15:30:54 +0800]:
+>>>>>
+>>>>> [...]
+>>>>>
+>>>>>>> @@ -179,7 +160,7 @@ static int fsm_irq(struct vfio_ccw_private *private,
+>>>>>>>   	if (private->io_trigger)
+>>>>>>>   		eventfd_signal(private->io_trigger, 1);
+>>>>>>>
+>>>>>>> -	return private->state;
+>>>>>>> +	return VFIO_CCW_STATE_IDLE;
+>>>>>> This is not right. For example, if we are in STANDBY state (subch driver
+>>>>>> is probed, but mdev device is not created), we can not jump to IDLE
+>>>>>> state.
+>>>>> I see my problem, for STANDBY state, we should introduce another event
+>>>>> callback for VFIO_CCW_EVENT_INTERRUPT. It doesn't make sense to call
+>>>>> fsm_irq() which tries to signal userspace with interrupt notification
+>>>>> when mdev is not created yet... So we'd need a separated fix for this
+>>>>> issue too.
+>>>> But how do we even get into that situation when we don't have an mdev
+>>>> yet?
+>>>>
+>>> We cann't... So let's assign fsm_nop() as the interrupt callback for
+>>> STANDBY state?
 >>>
->>> @@ -171,28 +181,11 @@ static void vfio_ccw_sch_shutdown(struct subchannel *sch)
->>>   static int vfio_ccw_sch_event(struct subchannel *sch, int process)
->>>   {
->>>   	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
->>> -	unsigned long flags;
->>>
->>> -	spin_lock_irqsave(sch->lock, flags);
->>>   	if (!device_is_registered(&sch->dev))
->>> -		goto out_unlock;
->>> -
->>> -	if (work_pending(&sch->todo_work))
->>> -		goto out_unlock;
->> Just realized that this has a bug in the orignal implementation. For
->> error out this should return -EAGAIN. We'd need a separated fix on
->> this.
-> Indeed. Will you send a patch, or should I hack something up?
+>> :) Isn't it exactly what my patch series handle?
+> As far as I see, that's not true. ;)
 >
->>> -
->>> -	if (cio_update_schib(sch)) {
->>> -		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
->>> -		goto out_unlock;
->>> -	}
->>> -
->>> -	private = dev_get_drvdata(&sch->dev);
->>> -	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
->>> -		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
->>> -				 VFIO_CCW_STATE_STANDBY;
->>> -	}
->> This hunk was toatally removed, and this is fine because?
-The first part is moved to fsm_sch_event()
-The second part disapear per design as state changes are done inside the 
-FSM.
-
->>
->>> -
->>> -out_unlock:
->>> -	spin_unlock_irqrestore(sch->lock, flags);
->>> +		return -1;
->> -1 is not a valid code.
-> -ENODEV looks more fitting, if we decide to go with this rework.
-:) yes, forgot the -1 from the first tests.
-
+> After this series applied,
+> vfio_ccw_jumptable[VFIO_CCW_STATE_STANDBY][VFIO_CCW_EVENT_INTERRUPT] is
+> still fsm_irq().
 >
->>> +	WARN_ON(work_pending(&private->event_work));
->>> +	queue_work(vfio_ccw_work_q, &private->event_work);
->>>
->>>   	return 0;
->>>   }
-> I'm wondering why this should always be done via a workqueue. It seems
-> the other subchannel types try to do as much as possible immediately?
 
-Doing things inside the top half is not very friendly with the system.
-The goal of the patch is to build a clean atomic state machine.
-Allowing the use of mutexes insures atomicity.
 
-I notice that I forgot to point this out in the cover letter although it is
-one of the design key.
-I will update the cover letter.
+What I mean is, this code tries to handle design problems
+without changing too much of the original code at first.
 
-> (And returning -EAGAIN already triggers the css code to schedule
-> another call later.)
+The problem here is not that the fsm_irq function is called on interrupt,
+if we have an interrupt it must be signaled to user land.
+The problem is that this state is entered at the wrong moment.
 
-Yes, if(work_pending()) return -EAGAIN
+STANDBY should be entered, during the mdev_open when we realize the QEMU 
+device,
+and not during the probe, in which we should stay in NOT_OPER until we 
+get the QEMU device.
 
-Thanks for the review
+The probe() and mdev_open() function should be modified, not the state 
+table.
+
+Regards,
 
 Pierre
-
->
 
 -- 
 Pierre Morel
