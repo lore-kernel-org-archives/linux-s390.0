@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v5 12/13] s390: vfio-ap: implement VFIO_DEVICE_GET_INFO ioctl
-Date: Mon,  7 May 2018 11:11:51 -0400
-Message-ID: <1525705912-12815-13-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v5 02/13] KVM: s390: refactor crypto initialization
+Date: Mon,  7 May 2018 11:11:41 -0400
+Message-ID: <1525705912-12815-3-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,77 +12,141 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduces ioctl access to the VFIO AP Matrix device driver
-by implementing the VFIO_DEVICE_GET_INFO ioctl. This ioctl
-provides the VFIO AP Matrix device driver information to the
-guest machine.
+This patch refactors the code that initializes the crypto
+configuration for a guest. The crypto configuration is contained in
+a crypto control block (CRYCB) which is a satellite control block to
+our main hardware virtualization control block. The CRYCB is
+attached to the main virtualization control block via a CRYCB
+designation (CRYCBD) designation field containing the address of
+the CRYCB as well as its format.
 
-Reviewed-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Prior to the introduction of AP device virtualization, there was
+no need to provide access to or specify the format of the CRYCB for
+a guest unless the MSA extension 3 (MSAX3) facility was installed
+on the host system. With the introduction of AP device virtualization,
+the CRYCB and its format must be made accessible to the guest
+regardless of the presence of the MSAX3 facility as long as the
+AP instructions are installed on the host.
+
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c |   43 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+), 0 deletions(-)
+ arch/s390/include/asm/kvm_host.h |    1 +
+ arch/s390/kvm/kvm-s390.c         |   64 ++++++++++++++++++++++++++-----------
+ 2 files changed, 46 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 8866b0e..01a036f 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -113,6 +113,48 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 	module_put(THIS_MODULE);
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 81cdb6b..5393c4d 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -255,6 +255,7 @@ struct kvm_s390_sie_block {
+ 	__u8	reservede4[4];		/* 0x00e4 */
+ 	__u64	tecmc;			/* 0x00e8 */
+ 	__u8	reservedf0[12];		/* 0x00f0 */
++#define CRYCB_FORMAT_MASK 0x00000003
+ #define CRYCB_FORMAT1 0x00000001
+ #define CRYCB_FORMAT2 0x00000003
+ 	__u32	crycbd;			/* 0x00fc */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 1f50de7..99779a6 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1875,14 +1875,35 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 	return r;
  }
  
-+static int vfio_ap_mdev_get_device_info(unsigned long arg)
-+{
-+	unsigned long minsz;
-+	struct vfio_device_info info;
-+
-+	minsz = offsetofend(struct vfio_device_info, num_irqs);
-+
-+	if (copy_from_user(&info, (void __user *)arg, minsz))
-+		return -EFAULT;
-+
-+	if (info.argsz < minsz) {
-+		pr_err("%s: Argument size %u less than min size %li",
-+		       VFIO_AP_MODULE_NAME, info.argsz, minsz);
-+		return -EINVAL;
-+	}
-+
-+	info.flags = VFIO_DEVICE_FLAGS_AP;
-+	info.num_regions = 0;
-+	info.num_irqs = 0;
-+
-+	return copy_to_user((void __user *)arg, &info, minsz);
-+}
-+
-+static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
-+				    unsigned int cmd, unsigned long arg)
-+{
-+	int ret;
-+
-+	switch (cmd) {
-+	case VFIO_DEVICE_GET_INFO:
-+		ret = vfio_ap_mdev_get_device_info(arg);
-+		break;
-+	default:
-+		pr_err("%s: ioctl command %d is not a supported command",
-+		       VFIO_AP_MODULE_NAME, cmd);
-+		ret = -EOPNOTSUPP;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
- static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
+-static void kvm_s390_set_crycb_format(struct kvm *kvm)
++/*
++ * The format of the crypto control block (CRYCB) is specified in the 3 low
++ * order bits of the CRYCB designation (CRYCBD) field as follows:
++ * Format 0: Neither the message security assist extension 3 (MSAX3) nor the
++ *			 AP extended addressing (APXA) facility are installed.
++ * Format 1: The APXA facility is not installed but the MSAX3 facility is.
++ * Format 2: Both the APXA and MSAX3 facilities are installed
++ */
++static void kvm_s390_format_crycb(struct kvm *kvm)
  {
- 	return sprintf(buf, "%s\n", VFIO_AP_MDEV_NAME_HWVIRT);
-@@ -841,6 +883,7 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
- 	.remove			= vfio_ap_mdev_remove,
- 	.open			= vfio_ap_mdev_open,
- 	.release		= vfio_ap_mdev_release,
-+	.ioctl			= vfio_ap_mdev_ioctl,
- };
+-	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
++	/* Clear the CRYCB format bits - i.e., set format 0 by default */
++	kvm->arch.crypto.crycbd &= ~(CRYCB_FORMAT_MASK);
++
++	/* Check whether MSAX3 is installed */
++	if (!test_kvm_facility(kvm, 76))
++		return;
  
- int vfio_ap_mdev_register(struct ap_matrix *ap_matrix)
+ 	if (kvm_ap_apxa_installed())
+ 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
+ 	else
+ 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
++
++	/* Enable AES/DEA protected key functions by default */
++	kvm->arch.crypto.aes_kw = 1;
++	kvm->arch.crypto.dea_kw = 1;
++	get_random_bytes(kvm->arch.crypto.crycb->aes_wrapping_key_mask,
++			 sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
++	get_random_bytes(kvm->arch.crypto.crycb->dea_wrapping_key_mask,
++			 sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
+ }
+ 
+ static u64 kvm_s390_get_initial_cpuid(void)
+@@ -1896,19 +1917,17 @@ static u64 kvm_s390_get_initial_cpuid(void)
+ 
+ static void kvm_s390_crypto_init(struct kvm *kvm)
+ {
+-	if (!test_kvm_facility(kvm, 76))
++	/*
++	 * If neither the AP instructions nor the message security assist
++	 * extension 3 (MSAX3) are installed, there is no need to initialize a
++	 * crypto control block (CRYCB) for the guest.
++	 */
++	if (!kvm_ap_instructions_available() && !test_kvm_facility(kvm, 76))
+ 		return;
+ 
+ 	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
+-	kvm_s390_set_crycb_format(kvm);
+-
+-	/* Enable AES/DEA protected key functions by default */
+-	kvm->arch.crypto.aes_kw = 1;
+-	kvm->arch.crypto.dea_kw = 1;
+-	get_random_bytes(kvm->arch.crypto.crycb->aes_wrapping_key_mask,
+-			 sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
+-	get_random_bytes(kvm->arch.crypto.crycb->dea_wrapping_key_mask,
+-			 sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
++	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
++	kvm_s390_format_crycb(kvm);
+ }
+ 
+ static void sca_dispose(struct kvm *kvm)
+@@ -2430,17 +2449,24 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+ 
+ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+ {
+-	if (!test_kvm_facility(vcpu->kvm, 76))
++	/*
++	 * If a crypto control block designation (CRYCBD) has not been
++	 * initialized
++	 */
++	if (vcpu->kvm->arch.crypto.crycbd == 0)
+ 		return;
+ 
+-	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
++	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
+ 
+-	if (vcpu->kvm->arch.crypto.aes_kw)
+-		vcpu->arch.sie_block->ecb3 |= ECB3_AES;
+-	if (vcpu->kvm->arch.crypto.dea_kw)
+-		vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
++	/* If MSAX3 is installed, set up protected key support */
++	if (test_kvm_facility(vcpu->kvm, 76)) {
++		vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
+ 
+-	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
++		if (vcpu->kvm->arch.crypto.aes_kw)
++			vcpu->arch.sie_block->ecb3 |= ECB3_AES;
++		if (vcpu->kvm->arch.crypto.dea_kw)
++			vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
++	}
+ }
+ 
+ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
 -- 
 1.7.1
