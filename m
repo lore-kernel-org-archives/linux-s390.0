@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v5 07/13] s390: vfio-ap: sysfs interfaces to configure adapters
-Date: Mon,  7 May 2018 11:11:46 -0400
-Message-ID: <1525705912-12815-8-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v5 04/13] s390: vfio-ap: base implementation of VFIO AP device driver
+Date: Mon,  7 May 2018 11:11:43 -0400
+Message-ID: <1525705912-12815-5-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,488 +12,303 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Provides the sysfs interfaces for assigning AP adapters to
-and unassigning AP adapters from a mediated matrix device.
+Introduces a new AP device driver. This device driver
+is built on the VFIO mediated device framework. The framework
+provides sysfs interfaces that facilitate passthrough
+access by guests to devices installed on the linux host.
 
-The IDs of the AP adapters assigned to the mediated matrix
-device are stored in an AP mask (APM). The bits in the APM,
-from most significant to least significant bit, correspond to
-AP adapter ID (APID) 0 to 255. When an adapter is assigned, the
-bit corresponding the APID will be set in the APM.
-Likewise, when an adapter is unassigned, the bit corresponding
-to the APID will be cleared from the APM.
+The VFIO AP device driver will serve two purposes:
 
-The relevant sysfs structures are:
+1. Provide the interfaces to reserve AP devices for exclusive
+   use by KVM guests. This is accomplished by unbinding the
+   devices to be reserved for guest usage from the default AP
+   device driver and binding them to the VFIO AP device driver.
 
-/sys/devices/vfio_ap
-... [matrix]
-...... [mdev_supported_types]
-......... [vfio_ap-passthrough]
-............ [devices]
-...............[$uuid]
-.................. assign_adapter
-.................. unassign_adapter
+2. Implements the functions, callbacks and sysfs attribute
+   interfaces required to create one or more VFIO mediated
+   devices each of which will be used to configure the AP
+   matrix for a guest and serve as a file descriptor
+   for facilitating communication between QEMU and the
+   VFIO AP device driver.
 
-To assign an adapter to the $uuid mediated matrix device's APM,
-write the APID to the assign_adapter file. To unassign an adapter,
-write the APID to the unassign_adapter file. The APID is specified
-using conventional semantics: If it begins with 0x the number will
-be parsed as a hexadecimal number; if it begins with a 0 the number
-will be parsed as an octal number; otherwise, it will be parsed as a
-decimal number.
+When the VFIO AP device driver is initialized:
 
-For example, to assign adapter 173 (0xad) to the mediated matrix
-device $uuid:
+* It registers with the AP bus for control of type 10 (CEX4
+  and newer) AP queue devices. This limitation was imposed
+  due to:
 
-	echo 173 > assign_adapter
+  1. A lack of access to older systems needed to test the
+     older AP device models;
 
-	or
+  2. A desire to keep the code as simple as possible;
 
-	echo 0xad > assign_adapter
+  3. Some older models are no longer supported by the kernel
+     and others are getting close to end of service.
 
-	or
+  The probe and remove callbacks will be provided to support
+  the binding/unbinding of AP queue devices to/from the VFIO
+  AP device driver.
 
-	echo 0255 > assign_adapter
-
-To unassign adapter 173 (0xad):
-
-	echo 173 > unassign_adapter
-
-	or
-
-	echo 0xad > unassign_adapter
-
-	or
-
-	echo 0255 > unassign_adapter
-
-The assignment will be rejected:
-
-* If the APID exceeds the maximum value for an AP adapter:
-  * If the AP Extended Addressing (APXA) facility is
-    installed, the max value is 255
-  * Else the max value is 64
-
-* If no AP domains have yet been assigned and there are
-  no AP queues bound to the VFIO AP driver that have an APQN
-  with an APID matching that of the AP adapter being assigned.
-
-* If any of the APQNs that can be derived from the cross product
-  of the APID being assigned and the AP queue index (APQI) of
-  each of the AP domains previously assigned can not be matched
-  with an APQN of an AP queue device reserved by the VFIO AP
-  driver.
+* Creates a /sys/devices/vfio-ap/matrix device to hold
+  the APQNs of the AP devices bound to the VFIO
+  AP device driver and serves as the parent of the
+  mediated devices created for each guest.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     |  318 +++++++++++++++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_private.h |   34 ++++
- 2 files changed, 352 insertions(+), 0 deletions(-)
+ MAINTAINERS                           |   10 +++
+ arch/s390/Kconfig                     |   11 +++
+ drivers/s390/crypto/Makefile          |    4 +
+ drivers/s390/crypto/vfio_ap_drv.c     |  134 +++++++++++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |   23 ++++++
+ include/uapi/linux/vfio.h             |    2 +
+ 6 files changed, 184 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
+ create mode 100644 drivers/s390/crypto/vfio_ap_private.h
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index d7d36fb..914274d 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -20,7 +20,16 @@
- static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- {
- 	struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
-+	struct ap_matrix_mdev *matrix_mdev;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 224e97b..2792c81 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -12237,6 +12237,16 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
+ S:	Supported
+ F:	drivers/s390/crypto/
  
-+	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
-+	if (!matrix_mdev)
-+		return -ENOMEM;
++S390 VFIO AP DRIVER
++M:	Tony Krowiak <akrowiak@linux.vnet.ibm.com>
++M:	Christian Borntraeger <borntraeger@de.ibm.com>
++M:	Martin Schwidefsky <schwidefsky@de.ibm.com>
++L:	linux-s390@vger.kernel.org
++W:	http://www.ibm.com/developerworks/linux/linux390/
++S:	Supported
++F:	drivers/s390/crypto/vfio_ap_drv.c
++F:	drivers/s390/crypto/vfio_ap_private.h
 +
-+	matrix_mdev->matrix.apm_max = vfio_ap_max_adapter_id();
-+	matrix_mdev->matrix.aqm_max = vfio_ap_max_domain_id();
-+	matrix_mdev->matrix.adm_max =  matrix_mdev->matrix.aqm_max;
-+	mdev_set_drvdata(mdev, matrix_mdev);
- 	ap_matrix->available_instances--;
+ S390 ZFCP DRIVER
+ M:	Steffen Maier <maier@linux.ibm.com>
+ M:	Benjamin Block <bblock@linux.ibm.com>
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 199ac3e..8d833be 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -786,6 +786,17 @@ config VFIO_CCW
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called vfio_ccw.
  
- 	return 0;
-@@ -29,7 +38,10 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- static int vfio_ap_mdev_remove(struct mdev_device *mdev)
- {
- 	struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
-+	kfree(matrix_mdev);
-+	mdev_set_drvdata(mdev, NULL);
- 	ap_matrix->available_instances++;
- 
- 	return 0;
-@@ -79,9 +91,315 @@ static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
- 	NULL,
- };
- 
-+struct vfio_apid_reserved {
-+	unsigned long apid;
-+	int reserved;
-+};
++config VFIO_AP
++	def_tristate n
++	prompt "VFIO support for AP devices"
++	depends on ZCRYPT && VFIO_MDEV_DEVICE && KVM
++	help
++		This driver grants access to Adjunct Processor (AP) devices
++		via the VFIO mediated device interface.
 +
-+struct vfio_ap_qid_match {
-+	qid_t qid;
-+	struct device *dev;
-+};
++		To compile this driver as a module, choose M here: the module
++		will be called vfio_ap.
 +
-+/**
-+ * vfio_ap_queue_match
+ endmenu
+ 
+ menu "Dump support"
+diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
+index b59af54..48e466e 100644
+--- a/drivers/s390/crypto/Makefile
++++ b/drivers/s390/crypto/Makefile
+@@ -15,3 +15,7 @@ obj-$(CONFIG_ZCRYPT) += zcrypt_pcixcc.o zcrypt_cex2a.o zcrypt_cex4.o
+ # pkey kernel module
+ pkey-objs := pkey_api.o
+ obj-$(CONFIG_PKEY) += pkey.o
++
++# adjunct processor matrix
++vfio_ap-objs := vfio_ap_drv.o
++obj-$(CONFIG_VFIO_AP) += vfio_ap.o
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+new file mode 100644
+index 0000000..014d70f
+--- /dev/null
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -0,0 +1,134 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * VFIO based AP device driver
 + *
-+ * @dev: an AP queue device that has been reserved by the VFIO AP device
-+ *	 driver
-+ * @data: an AP queue identifier
++ * Copyright IBM Corp. 2018
 + *
-+ * Returns 1 (true) if @data matches the AP queue identifier specified for @dev;
-+ * otherwise, returns 0 (false);
++ * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 + */
-+static int vfio_ap_queue_match(struct device *dev, void *data)
++
++#include <linux/module.h>
++#include <linux/mod_devicetable.h>
++#include <linux/slab.h>
++
++#include "vfio_ap_private.h"
++
++#define VFIO_AP_ROOT_NAME "vfio_ap"
++#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
++#define VFIO_AP_DEV_NAME "matrix"
++
++MODULE_AUTHOR("IBM Corporation");
++MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2017");
++MODULE_LICENSE("GPL v2");
++
++static struct device *vfio_ap_root_device;
++
++static struct ap_driver vfio_ap_drv;
++
++static struct ap_matrix *ap_matrix;
++
++static struct device_type vfio_ap_dev_type = {
++	.name = VFIO_AP_DEV_TYPE_NAME,
++};
++
++/* Only type 10 adapters (CEX4 and later) are supported
++ * by the AP matrix device driver
++ */
++static struct ap_device_id ap_queue_ids[] = {
++	{ .dev_type = AP_DEVICE_TYPE_CEX4,
++	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
++	{ .dev_type = AP_DEVICE_TYPE_CEX5,
++	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
++	{ .dev_type = AP_DEVICE_TYPE_CEX6,
++	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
++	{ /* end of sibling */ },
++};
++
++MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
++
++static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
 +{
-+	struct vfio_ap_qid_match *qid_match = data;
-+	struct ap_queue *ap_queue;
-+
-+	ap_queue = to_ap_queue(dev);
-+
-+	if (ap_queue->qid == qid_match->qid)
-+		qid_match->dev = dev;
-+
 +	return 0;
 +}
 +
-+/**
-+ * vfio_ap_validate_queues_for_apid
-+ *
-+ * @ap_matrix: the matrix device
-+ * @matrix_mdev: the mediated matrix device
-+ * @apid: an AP adapter ID (APID)
-+ *
-+ * Verifies that each APQN that is derived from the intersection of @apid and
-+ * each AP queue index (APQI) corresponding to an AP adapter assigned to the
-+ * @matrix_mdev matches the APQN of an AP queue reserved by the VFIO AP device
-+ * driver.
-+ *
-+ * Returns 0 if validation succeeds; otherwise, returns an error.
-+ */
-+static int vfio_ap_validate_queues_for_apid(struct ap_matrix *ap_matrix,
-+					    struct ap_matrix_mdev *matrix_mdev,
-+					    unsigned long apid)
++static void vfio_ap_matrix_dev_release(struct device *dev)
++{
++	struct ap_matrix *ap_matrix = dev_get_drvdata(dev);
++
++	kfree(ap_matrix);
++}
++
++static int vfio_ap_matrix_dev_create(void)
 +{
 +	int ret;
-+	struct vfio_ap_qid_match qid_match;
-+	unsigned long apqi;
-+	unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
-+	struct device_driver *drv = ap_matrix->device.driver;
 +
-+	/**
-+	 * Examine each APQN with the specified APID
-+	 */
-+	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
-+		qid_match.qid = AP_MKQID(apid, apqi);
-+		qid_match.dev = NULL;
++	vfio_ap_root_device = root_device_register(VFIO_AP_ROOT_NAME);
 +
-+		ret = driver_for_each_device(drv, NULL, &qid_match,
-+					     vfio_ap_queue_match);
-+		if (ret) {
-+			pr_err("%s: %s: Error %d validating AP queue %02lx.%04lx reservation",
-+			       VFIO_AP_MODULE_NAME, __func__, ret, apid, apqi);
-+			return ret;
-+		}
-+
-+		/*
-+		 * If the APQN identifies an AP queue that is reserved by the
-+		 * VFIO AP device driver, continue processing.
-+		 */
-+		if (qid_match.dev)
-+			continue;
-+
-+		pr_err("%s: %s: AP queue %02lx.%04lx not reserved by %s driver",
-+		       VFIO_AP_MODULE_NAME, __func__, apid, apqi,
-+		       VFIO_AP_DRV_NAME);
-+
-+		return -ENXIO;
++	if (IS_ERR(vfio_ap_root_device)) {
++		ret = PTR_ERR(vfio_ap_root_device);
++		goto done;
 +	}
 +
-+	return 0;
++	ap_matrix = kzalloc(sizeof(*ap_matrix), GFP_KERNEL);
++	if (!ap_matrix) {
++		ret = -ENOMEM;
++		goto matrix_alloc_err;
++	}
++
++	ap_matrix->device.type = &vfio_ap_dev_type;
++	dev_set_name(&ap_matrix->device, "%s", VFIO_AP_DEV_NAME);
++	ap_matrix->device.parent = vfio_ap_root_device;
++	ap_matrix->device.release = vfio_ap_matrix_dev_release;
++	ap_matrix->device.driver = &vfio_ap_drv.driver;
++
++	ret = device_register(&ap_matrix->device);
++	if (ret)
++		goto matrix_reg_err;
++
++	goto done;
++
++matrix_reg_err:
++	put_device(&ap_matrix->device);
++
++matrix_alloc_err:
++	root_device_unregister(vfio_ap_root_device);
++
++done:
++	return ret;
 +}
 +
-+struct vfio_ap_apid_reserved {
-+	unsigned long apid;
-+	bool reserved;
-+};
-+
-+/**
-+ * vfio_ap_queue_id_contains_apid
-+ *
-+ * @dev: an AP queue device
-+ * @data: an AP adapter ID (APID)
-+ *
-+ * Returns 1 (true) if the APID (@data) is contained in the AP queue's (@data)
-+ * identifier; otherwise, returns 0;
-+ */
-+static int vfio_ap_queue_id_contains_apid(struct device *dev, void *data)
++static void vfio_ap_matrix_dev_destroy(struct ap_matrix *ap_matrix)
 +{
-+	struct vfio_ap_apid_reserved *apid_res = data;
-+	struct ap_queue *ap_queue = to_ap_queue(dev);
-+
-+	if (apid_res->apid == AP_QID_CARD(ap_queue->qid))
-+		apid_res->reserved = true;
-+
-+	return 0;
++	device_unregister(&ap_matrix->device);
++	root_device_unregister(vfio_ap_root_device);
 +}
 +
-+/**
-+ * vfio_ap_verify_apid_reserved
-+ *
-+ * @ap_matrix: the AP matrix configured for the mediated matrix device
-+ * @apid: the AP adapter ID
-+ *
-+ * Verifies that at least one AP queue reserved by the VFIO AP device driver
-+ * has an APQN containing @apid.
-+ *
-+ * Returns 0 if the APID is reserved; otherwise, returns -ENODEV.
-+ */
-+static int vfio_ap_verify_apid_reserved(struct ap_matrix *ap_matrix,
-+					unsigned long apid)
++int __init vfio_ap_init(void)
 +{
 +	int ret;
-+	struct vfio_ap_apid_reserved apid_res;
 +
-+	apid_res.apid = apid;
-+	apid_res.reserved = false;
-+
-+	ret = driver_for_each_device(ap_matrix->device.driver, NULL, &apid_res,
-+				     vfio_ap_queue_id_contains_apid);
++	ret = vfio_ap_matrix_dev_create();
 +	if (ret)
 +		return ret;
 +
-+	if (apid_res.reserved)
-+		return 0;
++	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
++	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
++	vfio_ap_drv.ids = ap_queue_ids;
 +
-+	pr_err("%s: %s: no APQNs with adapter ID %02lx are reserved by %s driver",
-+		VFIO_AP_MODULE_NAME, __func__, apid, VFIO_AP_DRV_NAME);
-+
-+	return -ENODEV;
-+}
-+
-+/**
-+ * vfio_ap_validate_apid
-+ *
-+ * @mdev: the mediated device
-+ * @matrix_mdev: the mediated matrix device
-+ * @apid: the APID to validate
-+ *
-+ * Validates the value of @apid:
-+ *	* If there are no AP domains assigned, then there must be at least
-+ *	  one AP queue device reserved by the VFIO AP device driver with an
-+ *	  APQN containing @apid.
-+ *
-+ *	* Else each APQN that can be derived from the intersection of @apid and
-+ *	  the IDs of the AP domains already assigned must identify an AP queue
-+ *	  that has been reserved by the VFIO AP device driver.
-+ *
-+ * Returns 0 if the value of @apid is valid; otherwise, returns an error.
-+ */
-+static int vfio_ap_validate_apid(struct mdev_device *mdev,
-+				 struct ap_matrix_mdev *matrix_mdev,
-+				 unsigned long apid)
-+{
-+	int ret;
-+	struct device *dev = mdev_parent_dev(mdev);
-+	struct ap_matrix *ap_matrix = to_ap_matrix(dev);
-+	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
-+	unsigned long apqi;
-+
-+	apqi = find_first_bit_inv(matrix_mdev->matrix.aqm, max_apqi + 1);
-+	if (apqi > max_apqi) {
-+		ret = vfio_ap_verify_apid_reserved(ap_matrix, apid);
-+	} else {
-+		ret = vfio_ap_validate_queues_for_apid(ap_matrix, matrix_mdev,
-+						       apid);
-+	}
-+
-+	if (ret)
++	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
++	if (ret) {
++		vfio_ap_matrix_dev_destroy(ap_matrix);
 +		return ret;
++	}
 +
 +	return 0;
 +}
 +
-+/**
-+ * assign_adapter_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the APID from @buf and assigns it to the mediated matrix device. The
-+ * APID must be a valid value:
-+ *	* The APID value must not exceed the maximum allowable AP adapter ID
-+ *
-+ *	* If there are no AP domains assigned, then there must be at least
-+ *	  one AP queue device reserved by the VFIO AP device driver with an
-+ *	  APQN containing @apid.
-+ *
-+ *	* Else each APQN that can be derived from the intersection of @apid and
-+ *	  the IDs of the AP domains already assigned must identify an AP queue
-+ *	  that has been reserved by the VFIO AP device driver.
-+ *
-+ * Returns the number of bytes processed if the APID is valid; otherwise returns
-+ * an error.
-+ */
-+static ssize_t assign_adapter_store(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
++void __exit vfio_ap_exit(void)
 +{
-+	int ret;
-+	unsigned long apid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_apid = matrix_mdev->matrix.apm_max;
-+
-+	ret = kstrtoul(buf, 0, &apid);
-+	if (ret || (apid > max_apid)) {
-+		pr_err("%s: %s: adapter id '%s' not a value from 0 to %02lu(%#04lx)",
-+		       VFIO_AP_MODULE_NAME, __func__, buf, max_apid, max_apid);
-+
-+		return ret ? ret : -EINVAL;
-+	}
-+
-+	ret = vfio_ap_validate_apid(mdev, matrix_mdev, apid);
-+	if (ret)
-+		return ret;
-+
-+	/* Set the bit in the AP mask (APM) corresponding to the AP adapter
-+	 * number (APID). The bits in the mask, from most significant to least
-+	 * significant bit, correspond to APIDs 0-255.
-+	 */
-+	set_bit_inv(apid, matrix_mdev->matrix.apm);
-+
-+	return count;
++	ap_driver_unregister(&vfio_ap_drv);
++	vfio_ap_matrix_dev_destroy(ap_matrix);
 +}
-+static DEVICE_ATTR_WO(assign_adapter);
 +
-+/**
-+ * unassign_adapter_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the APID from @buf and unassigns it from the mediated matrix device.
-+ * The APID must be a valid value
-+ *
-+ * Returns the number of bytes processed if the APID is valid; otherwise returns
-+ * an error.
-+ */
-+static ssize_t unassign_adapter_store(struct device *dev,
-+				      struct device_attribute *attr,
-+				      const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long apid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_apid = matrix_mdev->matrix.apm_max;
-+
-+	ret = kstrtoul(buf, 0, &apid);
-+	if (ret || (apid > max_apid)) {
-+		pr_err("%s: %s: adapter id '%s' must be a value from 0 to %02lu(%#04lx)",
-+		       VFIO_AP_MODULE_NAME, __func__, buf, max_apid, max_apid);
-+
-+		return ret ? ret : -EINVAL;
-+	}
-+
-+	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
-+		pr_err("%s: %s: adapter id %02lu(%#04lx) not assigned",
-+		       VFIO_AP_MODULE_NAME, __func__, apid, apid);
-+
-+		return -ENODEV;
-+	}
-+
-+	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(unassign_adapter);
-+
-+static struct attribute *vfio_ap_mdev_attrs[] = {
-+	&dev_attr_assign_adapter.attr,
-+	&dev_attr_unassign_adapter.attr,
-+	NULL
-+};
-+
-+static struct attribute_group vfio_ap_mdev_attr_group = {
-+	.attrs = vfio_ap_mdev_attrs
-+};
-+
-+static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
-+	&vfio_ap_mdev_attr_group,
-+	NULL
-+};
-+
- static const struct mdev_parent_ops vfio_ap_matrix_ops = {
- 	.owner			= THIS_MODULE,
- 	.supported_type_groups	= vfio_ap_mdev_type_groups,
-+	.mdev_attr_groups	= vfio_ap_mdev_attr_groups,
- 	.create			= vfio_ap_mdev_create,
- 	.remove			= vfio_ap_mdev_remove,
- };
++module_init(vfio_ap_init);
++module_exit(vfio_ap_exit);
 diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index afd8dbc..8b6ad66 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
+new file mode 100644
+index 0000000..cf23675
+--- /dev/null
 +++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -12,6 +12,7 @@
- #include <linux/types.h>
- #include <linux/device.h>
- #include <linux/mdev.h>
-+#include <asm/kvm-ap.h>
- 
- #include "ap_bus.h"
- 
-@@ -29,11 +30,44 @@ struct ap_matrix {
- 	int available_instances;
- };
- 
-+struct ap_matrix_mdev {
-+	struct kvm_ap_matrix matrix;
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Private data and functions for adjunct processor VFIO matrix driver.
++ *
++ * Copyright IBM Corp. 2017
++ * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
++ */
++
++#ifndef _VFIO_AP_PRIVATE_H_
++#define _VFIO_AP_PRIVATE_H_
++
++#include <linux/types.h>
++
++#include "ap_bus.h"
++
++#define VFIO_AP_MODULE_NAME "vfio_ap"
++#define VFIO_AP_DRV_NAME "vfio_ap"
++
++struct ap_matrix {
++	struct device device;
 +};
 +
- static inline struct ap_matrix *to_ap_matrix(struct device *dev)
- {
- 	return container_of(dev, struct ap_matrix, device);
- }
++#endif /* _VFIO_AP_PRIVATE_H_ */
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 1aa7b82..f378b98 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -200,6 +200,7 @@ struct vfio_device_info {
+ #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+ #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+ #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
++#define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
+ 	__u32	num_regions;	/* Max region index + 1 */
+ 	__u32	num_irqs;	/* Max IRQ index + 1 */
+ };
+@@ -215,6 +216,7 @@ struct vfio_device_info {
+ #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
+ #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
+ #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
++#define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
  
-+static inline unsigned long vfio_ap_max_adapter_id(void)
-+{
-+	struct ap_config_info info;
-+	/*
-+	 * TODO:
-+	 * Replace with call to ap_query_configuration() when that function is
-+	 * made static in the AP bus code.
-+	 */
-+	if (kvm_ap_query_configuration(&info))
-+		return 15;
-+
-+	return info.apxa ? info.Na : 63;
-+}
-+
-+static inline unsigned long vfio_ap_max_domain_id(void)
-+{
-+	struct ap_config_info info;
-+
-+	/*
-+	 * TODO:
-+	 * Replace with call to ap_query_configuration() when that function is
-+	 * made static in the AP bus code.
-+	 */
-+	if (kvm_ap_query_configuration(&info))
-+		return 15;
-+
-+	return info.apxa ? info.Nd : 15;
-+}
-+
- extern int vfio_ap_mdev_register(struct ap_matrix *ap_matrix);
- extern void vfio_ap_mdev_unregister(struct ap_matrix *ap_matrix);
- 
+ /**
+  * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
 -- 
 1.7.1
