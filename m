@@ -1,104 +1,75 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 08/15] KVM: s390: interfaces to (de)configure guest's
- AP matrix
-Date: Mon, 7 May 2018 10:14:48 -0400
-Message-ID: <9baa91c4-bb06-a16e-5f7c-c6dacef6e157@linux.vnet.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v4 01/15] s390: zcrypt: externalize AP instructions
+ available function
+Date: Mon, 7 May 2018 16:55:20 +0200
+Message-ID: <88fadaf1-595a-ac72-279a-6706f149be9b@redhat.com>
 References: <1523827345-11600-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1523827345-11600-9-git-send-email-akrowiak@linux.vnet.ibm.com>
- <99f4752a-1358-61e4-bf9e-5672b2d4036f@linux.vnet.ibm.com>
- <0f47c442-47b8-ee57-d014-5200c59125d7@linux.vnet.ibm.com>
- <54e4c3ef-0750-981b-7b0e-6b18d1a77c3c@linux.vnet.ibm.com>
- <7a733e41-3956-6828-9efa-899c9a954c20@linux.vnet.ibm.com>
- <829b70c7-1648-f1c3-f656-3dca56bb3d8e@linux.vnet.ibm.com>
+ <1523827345-11600-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <7e537cfc-5d67-c188-2890-191608cb7b4f@redhat.com>
+ <6ece398b-49eb-c048-64c7-85acf3801103@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <829b70c7-1648-f1c3-f656-3dca56bb3d8e@linux.vnet.ibm.com>
+In-Reply-To: <6ece398b-49eb-c048-64c7-85acf3801103@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/03/2018 12:01 PM, Pierre Morel wrote:
-> On 03/05/2018 16:41, Tony Krowiak wrote:
->> On 05/02/2018 10:57 AM, Pierre Morel wrote:
->>> On 25/04/2018 18:21, Tony Krowiak wrote:
->>>> On 04/23/2018 09:46 AM, Pierre Morel wrote:
->>>>> On 15/04/2018 23:22, Tony Krowiak wrote:
->>>>>> Provides interfaces to assign AP adapters, usage domains
->>>>>> and control domains to a KVM guest.
-> ...
->> The kvm_ap_configure_matrix(kvm, matrix) interface configures the 
->> APM, AQM and ADM in the
->> guest's CRYCB which implies AP instructions are being interpreted. 
->> There is nothing in SIE
->> precluding the sharing of AP queues between guests using SIE to 
->> interpret AP instructions,
->> it is my opinion - along with several others - that this is not 
->> advisable given the
->> results are not predictable, not to mention the security concerns. If 
->> the protocol to access
->> queues changes, then we create a different interface. The other 
->> option is to include a flag
->> on the kvm_ap_configure_matrix(kvm, matrix) interface to indicate 
->> whether sharing is
->> allowed. I don't like this, because we have no way of knowing if the 
->> caller has taken the
->> proper care to ensure the VM sharing the queue should be allowed 
->> access. Besides, when
->> queue sharing is implemented, it is my opinion that we will intercept 
->> the AP instructions
->> and the matrix will not be configured in the CRYCB. I stick by my 
->> response above.
->
-> I mean, validating the queue sharing is a mater of the VFIO driver.
-> This code is not needed if the VFIO driver is not used.
-> But it is not very important.
-
-Yes, this check could have been implemented in the VFIO driver, but as I 
-stated above, that
-would require the driver to "know" the internals of KVM. I think the KVM 
-logic should
-be encapsulated in KVM. If we want to allow sharing of interpreted AP 
-devices, then we
-can always add a flag to the interface.
-
->
->
+On 07.05.2018 16:02, Tony Krowiak wrote:
+> On 05/04/2018 03:19 AM, David Hildenbrand wrote:
+>> On 15.04.2018 23:22, Tony Krowiak wrote:
+>>> If the AP instructions are not available on the linux host, then
+>>> AP devices can not be interpreted by the SIE. The AP bus has a
+>> This statement is wrong. The instructions can be interpreted by SIE e.g.
+>> if there are no devices assigned to a guest. This is e.g. the case for
+>> !CONFIG_ZCRYPT.
+> 
+> While the statement is admittedly poorly worded, it is not wrong.
+> Without going into architectural details, If the AP instructions
+> are not available, they will not be interpreted for guest
+> level 1 - i.e., the linux host. If AP instructions are not interpreted
+> for guest level 1, then they will not be interpreted for guest
+> level 2 regardless of whether ECA_APIE is set for guest level 2 or
+> not. I don't see how CONFIG_ZCRYPT has anything to do with this.
+> 
+> 
 >>
->>>
->>>>>> +static int kvm_ap_matrix_apm_create(struct kvm_ap_matrix 
->>>>>> *ap_matrix,
->>>>>> +                    struct ap_config_info *config)
->>>>>> +{
->>>>>> +    int apm_max = (config && config->apxa) ? config->Na + 1 : 16;
->>>>>
->>>>> At this moment you already know the format of the crycb.
->>>>
->>>> How?
->>>
->>> you calculated this in kvm_ap_build_crycbd() which is called from 
->>> kvm_s390_crypto_init()
->>> itself called from kvm_arch_init_vm().
->>> It is when starting the VM.
->>
->> This structure is used by the vfio_ap driver to store the mediated 
->> matrix device's matrix
->> configuration as well as to configure the CRYCB. The mediated 
->> device's matrix is
->> configured before the guest is started ... it is the means for 
->> configuring the guest's
->> matrix after all. The bottom line is, this function will be called 
->> long before the
->> kvm_ap_build_crycbd() function is called.
->
-> you are right, I was thinking about open, should have take more 
-> attention.
-> Sorry.
->
-> Pierre
->
+>> Also, doesn't this directly imply that the other execution control
+>> should also not be used ("intercept AP instuctions"). This would be bad.
+>> Just because !CONFIG_ZCRYPT does not imply that you can't emulate AP
+>> devices for a guest.
+> 
+> Setting CONFIG_ZCRYPT=n simply means that the AP bus will not be built
+> and therefore the AP bus interfaces will not be available to KVM.
+> As far as ECA_APIE goes, there are only two choices: Set the bit to
+> enable SIE interpretation of AP instructions; Clear the bit to use
+
+I thought somebody once mentioned once in one of these threads that
+there are actually 2 different bits. One to control interpretation and
+one to control interception.
+
+> interception. We are only supporting SIE interpretation of AP
+> instructions at this time, so we need a sure-fire way to determine
+> if the AP instructions are installed, which is the point of this patch.
+> Since there are no intercept handlers at this time, when the AP bus
+> module on the guest is initialized, the init function will fail and
+> the bus will not come up. There are protections built into userspace
+> (QEMU in this case) to ensure that a guest is not started if the CPU
+> model feature for AP instructions is not turned on for the guest. The
+> CPU model feature will be enabled by the KVM only if the AP instructions
+> are installed on the linux host. Again, that is reason for this
+> patch.
+> 
+
+
+
+-- 
+
+Thanks,
+
+David / dhildenb
