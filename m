@@ -1,8 +1,10 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH RFC 0/2] vfio-ccw: support for {halt,clear} subchannel
-Date: Wed,  9 May 2018 17:48:20 +0200
-Message-ID: <20180509154822.23510-1-cohuck@redhat.com>
+Subject: [PATCH RFC 2/2] vfio-ccw: support for halt/clear subchannel
+Date: Wed,  9 May 2018 17:48:22 +0200
+Message-ID: <20180509154822.23510-3-cohuck@redhat.com>
+References: <20180509154822.23510-1-cohuck@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180509154822.23510-1-cohuck@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,33 +12,171 @@ To: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Pi
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x@nongnu.org, qemu-devel@nongnu.org, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Currently, vfio-ccw only relays start subchannel requests to the real
+hardware, which is enough in many cases but falls short e.g. during
+error recovery.
 
-this (RFC) is an initial stab at passing the halt and clear subchannel
-operations to the host device. Today, host userspace is emulating
-those two operations, but we really want to execute them on the host
-device (e.g. for error recovery situations).
+Fortunately, it is easy to add support for halt and clear subchannel
+requests to the existing infrastructure. User space can detect
+support for halt/clear subchannel easily, as we always returned
+-EOPNOTSUPP before and therefore we do not need any capability to
+make this support discoverable.
 
-The nice thing about this approach is that is independent from userspace
-changes: Unless userspace forwards halt/clear requests, we behave as
-before. Conversely, userspace can simply try to submit halt/clear, and
-old kernels will simply indicate that it is not supported.
-
-This survives triggering clear subchannel in the guest (hacked in by
-myself) together with an update QEMU (to be posted in a moment).
-
-Obviously, this needs some more work. Better support for async handling
-comes to mind. We probably also want to support other channel I/O
-instructions.
-
-Cornelia Huck (2):
-  s390/cio: export hsch to modules
-  vfio-ccw: support for halt/clear subchannel
-
- drivers/s390/cio/ioasm.c        |  1 +
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
  drivers/s390/cio/vfio_ccw_drv.c | 10 ++++-
  drivers/s390/cio/vfio_ccw_fsm.c | 94 ++++++++++++++++++++++++++++++++++++-----
- 3 files changed, 93 insertions(+), 12 deletions(-)
+ 2 files changed, 92 insertions(+), 12 deletions(-)
 
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index ea6a2d0b2894..6212d577117f 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -76,8 +76,14 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 	irb = &private->irb;
+ 
+ 	if (scsw_is_solicited(&irb->scsw)) {
+-		cp_update_scsw(&private->cp, &irb->scsw);
+-		cp_free(&private->cp);
++		/*
++		 * For the start function, we need to update based on the
++		 * channel program. Nothing needs to be done for halt/clear.
++		 */
++		if (scsw_fctl(&irb->scsw) & SCSW_FCTL_START_FUNC) {
++			cp_update_scsw(&private->cp, &irb->scsw);
++			cp_free(&private->cp);
++		}
+ 	}
+ 	memcpy(private->io_region.irb_area, irb, sizeof(*irb));
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index 3c800642134e..94cae2984c35 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -3,8 +3,10 @@
+  * Finite state machine for vfio-ccw device handling
+  *
+  * Copyright IBM Corp. 2017
++ * Copyright Red Hat, Inc. 2018
+  *
+  * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
++ *            Cornelia Huck <cohuck@redhat.com>
+  */
+ 
+ #include <linux/vfio.h>
+@@ -65,6 +67,70 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 	return ret;
+ }
+ 
++static int fsm_halt_helper(struct vfio_ccw_private *private)
++{
++	struct subchannel *sch;
++	int ccode;
++	unsigned long flags;
++	int ret;
++
++	sch = private->sch;
++
++	spin_lock_irqsave(sch->lock, flags);
++	private->state = VFIO_CCW_STATE_BUSY;
++
++	/* Issue "Halt Subchannel" */
++	ccode = hsch(sch->schid);
++
++	switch (ccode) {
++	case 0:
++		/*
++		 * Initialize device status information
++		 */
++		sch->schib.scsw.cmd.actl |= SCSW_ACTL_HALT_PEND;
++		ret = 0;
++		break;
++	case 1:		/* Status pending */
++	case 2:		/* Busy */
++		ret = -EBUSY;
++		break;
++	default:	/* Device not operational */
++		ret = -ENODEV;
++	}
++	spin_unlock_irqrestore(sch->lock, flags);
++	return ret;
++}
++
++static int fsm_clear_helper(struct vfio_ccw_private *private)
++{
++	struct subchannel *sch;
++	int ccode;
++	unsigned long flags;
++	int ret;
++
++	sch = private->sch;
++
++	spin_lock_irqsave(sch->lock, flags);
++	private->state = VFIO_CCW_STATE_BUSY;
++
++	/* Issue "Clear Subchannel" */
++	ccode = csch(sch->schid);
++
++	switch (ccode) {
++	case 0:
++		/*
++		 * Initialize device status information
++		 */
++		sch->schib.scsw.cmd.actl |= SCSW_ACTL_CLEAR_PEND;
++		ret = 0;
++		break;
++	default:	/* Device not operational */
++		ret = -ENODEV;
++	}
++	spin_unlock_irqrestore(sch->lock, flags);
++	return ret;
++}
++
+ static void fsm_notoper(struct vfio_ccw_private *private,
+ 			enum vfio_ccw_event event)
+ {
+@@ -126,7 +192,24 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+ 
+ 	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
+ 
+-	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
++	/*
++	 * Start processing with the clear function, then halt, then start.
++	 * We may still be start pending when the caller wants to clean
++	 * up things via halt/clear.
++	 */
++	if (scsw->cmd.fctl & SCSW_FCTL_CLEAR_FUNC) {
++		/* issue clear and wait for interupt */
++		io_region->ret_code = fsm_clear_helper(private);
++		if (io_region->ret_code)
++			goto err_out;
++		return;
++	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
++		/* issue halt and wait for interrupt */
++		io_region->ret_code = fsm_halt_helper(private);
++		if (io_region->ret_code)
++			goto err_out;
++		return;
++	} else if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
+ 		orb = (union orb *)io_region->orb_area;
+ 
+ 		/* Don't try to build a cp if transport mode is specified. */
+@@ -152,16 +235,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+ 			goto err_out;
+ 		}
+ 		return;
+-	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
+-		/* XXX: Handle halt. */
+-		io_region->ret_code = -EOPNOTSUPP;
+-		goto err_out;
+-	} else if (scsw->cmd.fctl & SCSW_FCTL_CLEAR_FUNC) {
+-		/* XXX: Handle clear. */
+-		io_region->ret_code = -EOPNOTSUPP;
+-		goto err_out;
+ 	}
+-
+ err_out:
+ 	private->state = VFIO_CCW_STATE_IDLE;
+ }
 -- 
 2.14.3
