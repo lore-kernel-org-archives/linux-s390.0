@@ -1,15 +1,15 @@
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v5 06/13] KVM: s390: interfaces to manage guest's AP
- matrix
-Date: Fri, 11 May 2018 18:08:02 +0200
-Message-ID: <be2e8810-2a03-c67c-b1aa-41cf7c82980e@linux.ibm.com>
+Subject: Re: [PATCH v5 05/13] s390: vfio-ap: register matrix device with VFIO
+ mdev framework
+Date: Fri, 11 May 2018 19:18:38 +0200
+Message-ID: <5471b194-d7ca-c9c6-132e-fa9539fe44f0@linux.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1525705912-12815-7-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1525705912-12815-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1525705912-12815-7-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <1525705912-12815-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -21,104 +21,89 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 On 05/07/2018 05:11 PM, Tony Krowiak wrote:
-> Provides interfaces to manage the AP adapters, usage domains
-> and control domains assigned to a KVM guest.
+> Registers the matrix device created by the VFIO AP device
+> driver with the VFIO mediated device framework.
+> Registering the matrix device will create the sysfs
+> structures needed to create mediated matrix devices
+> each of which will be used to configure the AP matrix
+> for a guest and connect it to the VFIO AP device driver.
 > 
-> The guest's SIE state description has a satellite structure called the
-> Crypto Control Block (CRYCB) containing three bitmask fields
-> identifying the adapters, queues (domains) and control domains
-> assigned to the KVM guest:
-
 [..]
-
-> index 00bcfb0..98b53c7 100644
-> --- a/arch/s390/kvm/kvm-ap.c
-> +++ b/arch/s390/kvm/kvm-ap.c
-> @@ -7,6 +7,7 @@
-
-[..]
-
-> +
-> +/**
-> + * kvm_ap_validate_queue_sharing
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> new file mode 100644
+> index 0000000..d7d36fb
+> --- /dev/null
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -0,0 +1,106 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * Adjunct processor matrix VFIO device driver callbacks.
 > + *
-> + * Verifies that the APQNs derived from the cross product of the AP adapter IDs
-> + * and AP queue indexes comprising the AP matrix are not configured for
-> + * another guest. AP queue sharing is not allowed.
+> + * Copyright IBM Corp. 2017
+> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 > + *
-> + * @kvm: the KVM guest
-> + * @matrix: the AP matrix
-> + *
-> + * Returns 0 if the APQNs are valid, otherwise; returns -EBUSY.
 > + */
-> +static int kvm_ap_validate_queue_sharing(struct kvm *kvm,
-> +					 struct kvm_ap_matrix *matrix)
+> +#include <linux/string.h>
+> +#include <linux/vfio.h>
+> +#include <linux/device.h>
+> +#include <linux/list.h>
+> +#include <linux/ctype.h>
+> +
+> +#include "vfio_ap_private.h"
+> +
+> +#define VFOP_AP_MDEV_TYPE_HWVIRT "passthrough"
+> +#define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
+> +
+> +static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
 > +{
-> +	struct kvm *vm;
-> +	unsigned long *apm, *aqm;
-> +	unsigned long apid, apqi;
+> +	struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
 > +
-> +
-> +	/* No other VM may share an AP Queue with the input VM */
-> +	list_for_each_entry(vm, &vm_list, vm_list) {
-> +		if (kvm == vm)
-> +			continue;
-> +
-> +		apm = kvm_ap_get_crycb_apm(vm);
-> +		if (!bitmap_and(apm, apm, matrix->apm, matrix->apm_max + 1))
-> +			continue;
-> +
-> +		aqm = kvm_ap_get_crycb_aqm(vm);
-> +		if (!bitmap_and(aqm, aqm, matrix->aqm, matrix->aqm_max + 1))
-> +			continue;
-> +
-> +		for_each_set_bit_inv(apid, apm, matrix->apm_max + 1)
-> +			for_each_set_bit_inv(apqi, aqm, matrix->aqm_max + 1)
-> +				kvm_ap_log_sharing_err(vm, apid, apqi);
-> +
-> +		return -EBUSY;
-> +	}
+> +	ap_matrix->available_instances--;
 > +
 > +	return 0;
 > +}
 > +
-> +int kvm_ap_configure_matrix(struct kvm *kvm, struct kvm_ap_matrix *matrix)
+> +static int vfio_ap_mdev_remove(struct mdev_device *mdev)
 > +{
-> +	int ret = 0;
+> +	struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
 > +
-> +	mutex_lock(&kvm->lock);
+> +	ap_matrix->available_instances++;
+> +
+> +	return 0;
+> +}
+> +
 
-You seem to take only kvm->lock, vm_list however (used in
-kvm_ap_validate_queue_sharing()) seems to be protected by
-kvm_lock.
+The above functions seem to be called with the lock of this auto-generated
+mdev parent device held. That's why we don't have to care about synchronization
+ourselves, right?
 
-Can you tell me why is this supposed to be safe?
+A small comment in the code could be helpful for mdev non-experts. Hell, I would
+even consider documenting it for all mdev -- took me some time to figure out.
 
-What is supposed to prevent an execution like
-vm1: call kvm_ap_configure_matrix(m1)
-vm2: call kvm_ap_configure_matrix(m2)
-vm1: call kvm_ap_validate_queue_sharing(m1)
-vm2: call kvm_ap_validate_queue_sharing(m2)
-vm1: call kvm_ap_set_crycb_masks(m1)
-vm2: call kvm_ap_set_crycb_masks(m2)
+[..]
 
-where, let's say, m1 and m2 are equal in the sense that the
-mask values are the same?
+
+> +int vfio_ap_mdev_register(struct ap_matrix *ap_matrix)
+> +{
+> +	int ret;
+> +
+> +	ret = mdev_register_device(&ap_matrix->device, &vfio_ap_matrix_ops);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ap_matrix->available_instances = AP_MATRIX_MAX_AVAILABLE_INSTANCES;
+> +
+> +	return 0;
+> +}
+> +
+> +void vfio_ap_mdev_unregister(struct ap_matrix *ap_matrix)
+> +{
+> +	ap_matrix->available_instances--;
+
+What is this for? I don't understand.
 
 Regards,
 Halil
 
-> +
-> +	ret = kvm_ap_validate_queue_sharing(kvm, matrix);
-> +	if (ret)
-> +		goto done;
-> +
-> +	kvm_ap_set_crycb_masks(kvm, matrix);
-> +
-> +done:
-> +	mutex_unlock(&kvm->lock);
-> +
-> +	return ret;
+> +	mdev_unregister_device(&ap_matrix->device);
 > +}
-> +EXPORT_SYMBOL(kvm_ap_configure_matrix);
-> +
