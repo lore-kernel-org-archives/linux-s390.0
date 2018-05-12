@@ -1,46 +1,59 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH RFC 1/2] vfio-ccw: forward halt/clear to device if
- supported
-Date: Wed, 16 May 2018 17:52:43 +0200
-Message-ID: <20180516175243.2ec79883.cohuck@redhat.com>
-References: <20180509154910.23578-1-cohuck@redhat.com>
-        <20180509154910.23578-2-cohuck@redhat.com>
-        <d2030a0c-6ab6-a470-f7d7-0926a7ff2b28@linux.ibm.com>
-        <20180515180104.646cba0c.cohuck@redhat.com>
-        <57a7b9b1-130a-3c78-6e29-226f544c69c9@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <57a7b9b1-130a-3c78-6e29-226f544c69c9@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x@nongnu.org, qemu-devel@nongnu.org
+Return-Path: <linux-doc-owner@vger.kernel.org>
+From: Daniel Scheller <d.scheller.oss@gmail.com>
+Subject: [PATCH v3 1/3] Documentation: ioctl-number: add ddbridge IOCTLs
+Date: Sat, 12 May 2018 13:24:30 +0200
+Message-Id: <20180512112432.30887-2-d.scheller.oss@gmail.com>
+In-Reply-To: <20180512112432.30887-1-d.scheller.oss@gmail.com>
+References: <20180512112432.30887-1-d.scheller.oss@gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-doc/>
+List-Post: <mailto:linux-doc@vger.kernel.org>
+To: linux-media@vger.kernel.org, mchehab@kernel.org, mchehab@s-opensource.com, mchehab+samsung@kernel.org
+Cc: linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 16 May 2018 15:53:48 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+From: Daniel Scheller <d.scheller@gmx.net>
 
-> On 15/05/2018 18:01, Cornelia Huck wrote:
-> > On Fri, 11 May 2018 11:53:52 +0200
-> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+drivers/media/pci/ddbridge exposes a few IOCTLs which are used by userspace
+utilities to ie. update PCIe card's FPGA firmware.
 
-> >> Couldn't we introduce ABI versioning ?  
-> > Can you elaborate what you're referring to?
-> >
-> > If you mean checking capabilities of the kernel or so: If we can avoid
-> > that and just try (and stop if it does not work), I'd prefer that (no
-> > dependencies).  
-> 
-> VFIO_CHECK_EXTENSION is already used in different drivers
-> for this kind of interface extension.
-> We could use it to setup appropriate callbacks for scsh/csch/xsch/hsch
-> depending on the extension argument.
+The IOCTLs chosen are in the range 0xDD/0xE0 up to 0xDD/0xFF, with 0xDD as
+sort of gimmick for "Digital Devices". To not conflict with the zfpc driver
+the upper range (0xE0-0xFF) is used. It is not clear if and which IOCTL
+numbers the zfpc driver really uses, from reading the sources at
+drivers/s390/scsi/ I couldn't really determine if IOCTLs are in use at all.
+Maybe the S390 maintainers can double-check or comment, thus Cc linux-s390.
 
-Hm, this might be useful for things like xsch that aren't really well
-served by the current interface. Or we could try using the
-device-specific capability interface.
+The upstream dddvb driver currently exposes 12 IOCTLs from which we're
+going to handle two at the moment (DDB_FLASHIO and DDB_ID), which is all
+that's required to perform the FPGA update on this hardware. The
+"reservation" of 32 IDs may seem way too much in this regard, however,
+we'd like to be able to stay compatible with the upstream out-of-tree
+driver as much as possible, so should any of the remaining 10 IOCTLs be
+required at any time (or even more, should upstream add more in the
+future), we can just add them into this range without any hassles or
+without creating conflicts anywhere.
 
-Let me think and play with this a bit.
+Cc: linux-doc@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Daniel Scheller <d.scheller@gmx.net>
+---
+ Documentation/ioctl/ioctl-number.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/ioctl/ioctl-number.txt b/Documentation/ioctl/ioctl-number.txt
+index 84bb74dcae12..feac1b56900b 100644
+--- a/Documentation/ioctl/ioctl-number.txt
++++ b/Documentation/ioctl/ioctl-number.txt
+@@ -334,6 +334,7 @@ Code  Seq#(hex)	Include File		Comments
+ 0xDB	00-0F	drivers/char/mwave/mwavepub.h
+ 0xDD	00-3F	ZFCP device driver	see drivers/s390/scsi/
+ 					<mailto:aherrman@de.ibm.com>
++0xDD	E0-FF	linux/ddbridge-ioctl.h
+ 0xE5	00-3F	linux/fuse.h
+ 0xEC	00-01	drivers/platform/chrome/cros_ec_dev.h	ChromeOS EC driver
+ 0xF3	00-3F	drivers/usb/misc/sisusbvga/sisusb.h	sisfb (in development)
+-- 
+2.16.1
+
