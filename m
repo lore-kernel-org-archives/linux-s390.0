@@ -1,84 +1,116 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 1/1] s390: vfio-ccw: push down unsupported IDA check
-Date: Wed,  9 May 2018 19:36:47 +0200
-Message-ID: <20180509173647.61367-1-pasic@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/1] s390: vfio-ccw: push down unsupported IDA check
+Date: Mon, 14 May 2018 13:55:54 +0200
+Message-ID: <20180514135554.29569999.cohuck@redhat.com>
+References: <20180509173647.61367-1-pasic@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180509173647.61367-1-pasic@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Dong Jia Shi <bjsdjshi@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-There is at least one relevant control program (CP) that don't set the
-IDA flags in the ORB as we would like them, but never uses any IDA. So
-instead of saying -EOPNOTSUPP when observing an ORB such that a channel
-program specified by it could be a not supported one, let us say
--EOPNOTSUPP only if the channel program is a not supported one.
+On Wed,  9 May 2018 19:36:47 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Of course, the real solution would be doing proper translation for all
-IDA. This is possible, but given the current code not straight forward.
+> There is at least one relevant control program (CP) that don't set the
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Jason J. Herne <jjherne@linux.ibm.com>
----
+I'd prefer not to talk about 'control program' here, as it is not a
+term commonly used in Linux. Call it 'guest'?
 
-QEMU counterpart comming soon.
----
- drivers/s390/cio/vfio_ccw_cp.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+Also, s/don't/doesn't/
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 2c7550797ec2..adfff492dc83 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -365,6 +365,9 @@ static void cp_unpin_free(struct channel_program *cp)
-  * This is the chain length not considering any TICs.
-  * You need to do a new round for each TIC target.
-  *
-+ * The program is also validated for absence of not yet supported
-+ * indirect data addressing scenarios.
-+ *
-  * Returns: the length of the ccw chain or -errno.
-  */
- static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
-@@ -391,6 +394,14 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
- 	do {
- 		cnt++;
- 
-+		/*
-+		 * 2k byte block IDAWs (fmt1 or fmt2) are not yet supported.
-+		 * There are however CPs that don't use IDA at all, and can
-+		 * benefit from not failing until failure is eminent.
-+		 */
-+		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
-+			return -EOPNOTSUPP;
-+
- 		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
- 			break;
- 
-@@ -656,10 +667,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 	/*
- 	 * XXX:
- 	 * Only support prefetch enable mode now.
--	 * Only support 64bit addressing idal.
--	 * Only support 4k IDAW.
- 	 */
--	if (!orb->cmd.pfch || !orb->cmd.c64 || orb->cmd.i2k)
-+	if (!orb->cmd.pfch)
- 		return -EOPNOTSUPP;
- 
- 	INIT_LIST_HEAD(&cp->ccwchain_list);
-@@ -688,6 +697,10 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 	ret = ccwchain_loop_tic(chain, cp);
- 	if (ret)
- 		cp_unpin_free(cp);
-+	/* It is safe to force: if not set but idals used
-+	 * ccwchain_calc_length returns an error.
-+	 */
-+	cp->orb.cmd.c64 = 1;
- 
- 	return ret;
- }
--- 
-2.16.3
+
+> IDA flags in the ORB as we would like them, but never uses any IDA. So
+> instead of saying -EOPNOTSUPP when observing an ORB such that a channel
+> program specified by it could be a not supported one, let us say
+> -EOPNOTSUPP only if the channel program is a not supported one.
+> 
+> Of course, the real solution would be doing proper translation for all
+> IDA. This is possible, but given the current code not straight forward.
+
+I agree, this seems useful for now, but we really need to support the
+different ida flags to be fully architecture compliant.
+
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Tested-by: Jason J. Herne <jjherne@linux.ibm.com>
+> ---
+> 
+> QEMU counterpart comming soon.
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c | 19 ++++++++++++++++---
+>  1 file changed, 16 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index 2c7550797ec2..adfff492dc83 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -365,6 +365,9 @@ static void cp_unpin_free(struct channel_program *cp)
+>   * This is the chain length not considering any TICs.
+>   * You need to do a new round for each TIC target.
+>   *
+> + * The program is also validated for absence of not yet supported
+> + * indirect data addressing scenarios.
+> + *
+>   * Returns: the length of the ccw chain or -errno.
+>   */
+>  static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+> @@ -391,6 +394,14 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+>  	do {
+>  		cnt++;
+>  
+> +		/*
+> +		 * 2k byte block IDAWs (fmt1 or fmt2) are not yet supported.
+> +		 * There are however CPs that don't use IDA at all, and can
+> +		 * benefit from not failing until failure is eminent.
+
+The second sentence is confusing (What is 'CP' referring to here?
+'Control program' or struct channel_program?)
+
+What about:
+
+"As we don't want to fail direct addressing even if the orb specified
+one of the unsupported formats, we defer checking for IDAWs in
+unsupported formats to here."
+
+> +		 */
+> +		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
+> +			return -EOPNOTSUPP;
+> +
+>  		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
+>  			break;
+>  
+> @@ -656,10 +667,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+>  	/*
+>  	 * XXX:
+>  	 * Only support prefetch enable mode now.
+> -	 * Only support 64bit addressing idal.
+> -	 * Only support 4k IDAW.
+>  	 */
+> -	if (!orb->cmd.pfch || !orb->cmd.c64 || orb->cmd.i2k)
+> +	if (!orb->cmd.pfch)
+>  		return -EOPNOTSUPP;
+>  
+>  	INIT_LIST_HEAD(&cp->ccwchain_list);
+> @@ -688,6 +697,10 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+>  	ret = ccwchain_loop_tic(chain, cp);
+>  	if (ret)
+>  		cp_unpin_free(cp);
+> +	/* It is safe to force: if not set but idals used
+> +	 * ccwchain_calc_length returns an error.
+
+s/returns/already returned/ ?
+
+> +	 */
+> +	cp->orb.cmd.c64 = 1;
+>  
+>  	return ret;
+>  }
+
+The patch looks sane, I have only issues with the description/comments.
