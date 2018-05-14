@@ -1,89 +1,141 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-Date: Fri, 18 May 2018 16:25:03 -0700
-Message-ID: <000000000000f4f194056c8342d1@google.com>
-Subject: general protection fault in smc_ioctl
-From: syzbot <syzbot+e6714328fda813fc670f@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+From: Eric Biggers <ebiggers3@gmail.com>
+Subject: [PATCH] net/smc: check for missing nlattrs in SMC_PNETID messages
+Date: Sun, 13 May 2018 17:01:30 -0700
+Message-Id: <20180514000130.13780-1-ebiggers3@gmail.com>
+In-Reply-To: <001a113f9bb83e4d560568457853@google.com>
+References: <001a113f9bb83e4d560568457853@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: davem@davemloft.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com
+To: Ursula Braun <ubraun@linux.ibm.com>, Thomas Richter <tmricht@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, Eric Biggers <ebiggers@google.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello,
+From: Eric Biggers <ebiggers@google.com>
 
-syzbot found the following crash on:
+It's possible to crash the kernel in several different ways by sending
+messages to the SMC_PNETID generic netlink family that are missing the
+expected attributes:
 
-HEAD commit:    1f7455c3912d tcp: tcp_rack_reo_wnd() can be static
-git tree:       net-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=171a1337800000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=b632d8e2c2ab2c1
-dashboard link: https://syzkaller.appspot.com/bug?extid=e6714328fda813fc670f
-compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
-syzkaller repro:https://syzkaller.appspot.com/x/repro.syz?x=15782d57800000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=108711a7800000
+- Missing SMC_PNETID_NAME => null pointer dereference when comparing
+  names.
+- Missing SMC_PNETID_ETHNAME => null pointer dereference accessing
+  smc_pnetentry::ndev.
+- Missing SMC_PNETID_IBNAME => null pointer dereference accessing
+  smc_pnetentry::smcibdev.
+- Missing SMC_PNETID_IBPORT => out of bounds array access to
+  smc_ib_device::pattr[-1].
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+e6714328fda813fc670f@syzkaller.appspotmail.com
+Fix it by validating that all expected attributes are present and that
+SMC_PNETID_IBPORT is nonzero.
 
-random: sshd: uninitialized urandom read (32 bytes read)
-random: sshd: uninitialized urandom read (32 bytes read)
-random: sshd: uninitialized urandom read (32 bytes read)
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN
-Dumping ftrace buffer:
-    (ftrace buffer empty)
-Modules linked in:
-CPU: 1 PID: 4559 Comm: syz-executor292 Not tainted 4.17.0-rc4+ #50
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-RIP: 0010:smc_ioctl+0x3dc/0x9f0 net/smc/af_smc.c:1499
-RSP: 0018:ffff8801ad22f770 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff8801ad0df7c0 RCX: ffffffff8741188f
-RDX: 0000000000000004 RSI: ffffffff8741189e RDI: 0000000000000020
-RBP: ffff8801ad22f9d0 R08: ffff8801ae87e6c0 R09: ffffed00363e1818
-R10: ffffed00363e1818 R11: ffff8801b1f0c0c3 R12: 1ffff10035a45ef1
-R13: 0000000020000080 R14: 0000000000000000 R15: 0000000000000000
-FS:  00000000017b7880(0000) GS:ffff8801daf00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd1f18f038 CR3: 00000001ad044000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-  sock_do_ioctl+0xe4/0x3e0 net/socket.c:957
-  sock_ioctl+0x30d/0x680 net/socket.c:1081
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:500 [inline]
-  do_vfs_ioctl+0x1cf/0x16a0 fs/ioctl.c:684
-  ksys_ioctl+0xa9/0xd0 fs/ioctl.c:701
-  __do_sys_ioctl fs/ioctl.c:708 [inline]
-  __se_sys_ioctl fs/ioctl.c:706 [inline]
-  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:706
-  do_syscall_64+0x1b1/0x800 arch/x86/entry/common.c:287
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x43fca9
-RSP: 002b:00007ffd1f073588 EFLAGS: 00000213 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 000000000043fca9
-RDX: 0000000020000080 RSI: 0000000000005411 RDI: 0000000000000003
-RBP: 00000000006ca018 R08: 00000000004002c8 R09: 00000000004002c8
-R10: 00000000004002c8 R11: 0000000000000213 R12: 00000000004015d0
-R13: 0000000000401660 R14: 0000000000000000 R15: 0000000000000000
-Code: fa 48 c1 ea 03 80 3c 02 00 0f 85 7d 05 00 00 4c 8b b3 90 04 00 00 48  
-b8 00 00 00 00 00 fc ff df 49 8d 7e 20 48 89 fa 48 c1 ea 03 <0f> b6 04 02  
-84 c0 74 08 3c 03 0f 8e 47 05 00 00 45 8b 7e 20 4c
-RIP: smc_ioctl+0x3dc/0x9f0 net/smc/af_smc.c:1499 RSP: ffff8801ad22f770
----[ end trace b586e1eb098f7714 ]---
-
-
+Reported-by: syzbot+5cd61039dc9b8bfa6e47@syzkaller.appspotmail.com
+Fixes: 6812baabf24d ("smc: establish pnet table management")
+Cc: <stable@vger.kernel.org> # v4.11+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ net/smc/smc_pnet.c | 71 ++++++++++++++++++++++++++--------------------
+ 1 file changed, 40 insertions(+), 31 deletions(-)
 
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
-syzbot.
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 74568cdbca708..d7b88b2d1b224 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -245,40 +245,45 @@ static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
+ static int smc_pnet_fill_entry(struct net *net, struct smc_pnetentry *pnetelem,
+ 			       struct nlattr *tb[])
+ {
+-	char *string, *ibname = NULL;
+-	int rc = 0;
++	char *string, *ibname;
++	int rc;
+ 
+ 	memset(pnetelem, 0, sizeof(*pnetelem));
+ 	INIT_LIST_HEAD(&pnetelem->list);
+-	if (tb[SMC_PNETID_NAME]) {
+-		string = (char *)nla_data(tb[SMC_PNETID_NAME]);
+-		if (!smc_pnetid_valid(string, pnetelem->pnet_name)) {
+-			rc = -EINVAL;
+-			goto error;
+-		}
+-	}
+-	if (tb[SMC_PNETID_ETHNAME]) {
+-		string = (char *)nla_data(tb[SMC_PNETID_ETHNAME]);
+-		pnetelem->ndev = dev_get_by_name(net, string);
+-		if (!pnetelem->ndev)
+-			return -ENOENT;
+-	}
+-	if (tb[SMC_PNETID_IBNAME]) {
+-		ibname = (char *)nla_data(tb[SMC_PNETID_IBNAME]);
+-		ibname = strim(ibname);
+-		pnetelem->smcibdev = smc_pnet_find_ib(ibname);
+-		if (!pnetelem->smcibdev) {
+-			rc = -ENOENT;
+-			goto error;
+-		}
+-	}
+-	if (tb[SMC_PNETID_IBPORT]) {
+-		pnetelem->ib_port = nla_get_u8(tb[SMC_PNETID_IBPORT]);
+-		if (pnetelem->ib_port > SMC_MAX_PORTS) {
+-			rc = -EINVAL;
+-			goto error;
+-		}
+-	}
++
++	rc = -EINVAL;
++	if (!tb[SMC_PNETID_NAME])
++		goto error;
++	string = (char *)nla_data(tb[SMC_PNETID_NAME]);
++	if (!smc_pnetid_valid(string, pnetelem->pnet_name))
++		goto error;
++
++	rc = -EINVAL;
++	if (!tb[SMC_PNETID_ETHNAME])
++		goto error;
++	rc = -ENOENT;
++	string = (char *)nla_data(tb[SMC_PNETID_ETHNAME]);
++	pnetelem->ndev = dev_get_by_name(net, string);
++	if (!pnetelem->ndev)
++		goto error;
++
++	rc = -EINVAL;
++	if (!tb[SMC_PNETID_IBNAME])
++		goto error;
++	rc = -ENOENT;
++	ibname = (char *)nla_data(tb[SMC_PNETID_IBNAME]);
++	ibname = strim(ibname);
++	pnetelem->smcibdev = smc_pnet_find_ib(ibname);
++	if (!pnetelem->smcibdev)
++		goto error;
++
++	rc = -EINVAL;
++	if (!tb[SMC_PNETID_IBPORT])
++		goto error;
++	pnetelem->ib_port = nla_get_u8(tb[SMC_PNETID_IBPORT]);
++	if (pnetelem->ib_port < 1 || pnetelem->ib_port > SMC_MAX_PORTS)
++		goto error;
++
+ 	return 0;
+ 
+ error:
+@@ -307,6 +312,8 @@ static int smc_pnet_get(struct sk_buff *skb, struct genl_info *info)
+ 	void *hdr;
+ 	int rc;
+ 
++	if (!info->attrs[SMC_PNETID_NAME])
++		return -EINVAL;
+ 	pnetelem = smc_pnet_find_pnetid(
+ 				(char *)nla_data(info->attrs[SMC_PNETID_NAME]));
+ 	if (!pnetelem)
+@@ -359,6 +366,8 @@ static int smc_pnet_add(struct sk_buff *skb, struct genl_info *info)
+ 
+ static int smc_pnet_del(struct sk_buff *skb, struct genl_info *info)
+ {
++	if (!info->attrs[SMC_PNETID_NAME])
++		return -EINVAL;
+ 	return smc_pnet_remove_by_pnetid(
+ 				(char *)nla_data(info->attrs[SMC_PNETID_NAME]));
+ }
+-- 
+2.17.0
