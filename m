@@ -1,8 +1,10 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 00/10] net/smc: enhancements 2018/05/15
-Date: Tue, 15 May 2018 17:04:53 +0200
-Message-ID: <20180515150503.47265-1-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 01/10] net/smc: no tx work trigger for fallback sockets
+Date: Tue, 15 May 2018 17:04:54 +0200
+Message-ID: <20180515150503.47265-2-ubraun@linux.ibm.com>
+References: <20180515150503.47265-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180515150503.47265-1-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -10,39 +12,36 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+If TCP_NODELAY is set or TCP_CORK is reset, setsockopt triggers the
+tx worker. This does not make sense, if the SMC socket switched to
+the TCP fallback when the connection is created. This patch adds
+the additional check for the fallback case.
 
-Dave,
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/af_smc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-here are smc patches for net-next. The first one is a fix for net-next
-commit 01d2f7e2cdd3 "net/smc: sockopts TCP_NODELAY and TCP_CORK".
-Patch 7 improves Connection Layer Control error handling, patch 10
-improves abnormal termination of link groups. The remaining patches
-from Karsten improve Link Layer Control code.
-
-Thanks, Ursula
-
-Karsten Graul (9):
-  net/smc: register new rmbs with the peer
-  net/smc: remove unnecessary cast
-  net/smc: simplify test_link function usage
-  net/smc: move link llc initialization to llc layer
-  net/smc: use a workqueue to defer llc send
-  net/smc: handle all error codes from smc_conn_create()
-  net/smc: set link inactive before calling smc_lgr_free()
-  net/smc: drop messages when link state is inactive
-  net/smc: check for pending termination
-
-Ursula Braun (1):
-  net/smc: no tx work trigger for fallback sockets
-
- net/smc/af_smc.c   |  27 +++++---
- net/smc/smc_clc.c  |   2 +-
- net/smc/smc_core.c |  23 ++++---
- net/smc/smc_core.h |   6 +-
- net/smc/smc_llc.c  | 196 +++++++++++++++++++++++++++++++++++++++++------------
- net/smc/smc_llc.h  |   7 +-
- 6 files changed, 196 insertions(+), 65 deletions(-)
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 17688a02035b..83403be46a4a 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1353,14 +1353,14 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 		break;
+ 	case TCP_NODELAY:
+ 		if (sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) {
+-			if (val)
++			if (val && !smc->use_fallback)
+ 				mod_delayed_work(system_wq, &smc->conn.tx_work,
+ 						 0);
+ 		}
+ 		break;
+ 	case TCP_CORK:
+ 		if (sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) {
+-			if (!val)
++			if (!val && !smc->use_fallback)
+ 				mod_delayed_work(system_wq, &smc->conn.tx_work,
+ 						 0);
+ 		}
 -- 
 2.16.3
