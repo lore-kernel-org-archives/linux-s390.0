@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 04/10] net/smc: simplify test_link function usage
-Date: Tue, 15 May 2018 17:04:57 +0200
-Message-ID: <20180515150503.47265-5-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 02/10] net/smc: register new rmbs with the peer
+Date: Tue, 15 May 2018 17:04:55 +0200
+Message-ID: <20180515150503.47265-3-ubraun@linux.ibm.com>
 References: <20180515150503.47265-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180515150503.47265-1-ubraun@linux.ibm.com>
@@ -14,75 +14,200 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Karsten Graul <kgraul@linux.ibm.com>
 
-Make smc_llc_send_test_link() static and remove it from the header file.
-And to send a test_link response set the response flag and send the
-message back as-is, without using smc_llc_send_test_link(). And because
-smc_llc_send_test_link() must no longer send responses, remove the
-response flag handling from the function.
+Register new rmb buffers with the remote peer by exchanging a
+confirm_rkey llc message.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_llc.c | 12 +++++-------
- net/smc/smc_llc.h |  2 --
- 2 files changed, 5 insertions(+), 9 deletions(-)
+ net/smc/af_smc.c   | 20 ++++++++++++++------
+ net/smc/smc_core.c |  1 +
+ net/smc/smc_core.h |  2 ++
+ net/smc/smc_llc.c  | 47 +++++++++++++++++++++++++++++++++++++++++++++--
+ net/smc/smc_llc.h  |  2 ++
+ 5 files changed, 64 insertions(+), 8 deletions(-)
 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 83403be46a4a..397ba2182453 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -293,14 +293,22 @@ static void smc_copy_sock_settings_to_smc(struct smc_sock *smc)
+ 	smc_copy_sock_settings(&smc->sk, smc->clcsock->sk, SK_FLAGS_CLC_TO_SMC);
+ }
+ 
+-/* register a new rmb */
+-static int smc_reg_rmb(struct smc_link *link, struct smc_buf_desc *rmb_desc)
++/* register a new rmb, optionally send confirm_rkey msg to register with peer */
++static int smc_reg_rmb(struct smc_link *link, struct smc_buf_desc *rmb_desc,
++		       bool conf_rkey)
+ {
+ 	/* register memory region for new rmb */
+ 	if (smc_wr_reg_send(link, rmb_desc->mr_rx[SMC_SINGLE_LINK])) {
+ 		rmb_desc->regerr = 1;
+ 		return -EFAULT;
+ 	}
++	if (!conf_rkey)
++		return 0;
++	/* exchange confirm_rkey msg with peer */
++	if (smc_llc_do_confirm_rkey(link, rmb_desc)) {
++		rmb_desc->regerr = 1;
++		return -EFAULT;
++	}
+ 	return 0;
+ }
+ 
+@@ -334,7 +342,7 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
+ 
+ 	smc_wr_remember_qp_attr(link);
+ 
+-	if (smc_reg_rmb(link, smc->conn.rmb_desc))
++	if (smc_reg_rmb(link, smc->conn.rmb_desc, false))
+ 		return SMC_CLC_DECL_INTERR;
+ 
+ 	/* send CONFIRM LINK response over RoCE fabric */
+@@ -488,7 +496,7 @@ static int smc_connect_rdma(struct smc_sock *smc)
+ 		}
+ 	} else {
+ 		if (!smc->conn.rmb_desc->reused) {
+-			if (smc_reg_rmb(link, smc->conn.rmb_desc)) {
++			if (smc_reg_rmb(link, smc->conn.rmb_desc, true)) {
+ 				reason_code = SMC_CLC_DECL_INTERR;
+ 				goto decline_rdma_unlock;
+ 			}
+@@ -729,7 +737,7 @@ static int smc_serv_conf_first_link(struct smc_sock *smc)
+ 
+ 	link = &lgr->lnk[SMC_SINGLE_LINK];
+ 
+-	if (smc_reg_rmb(link, smc->conn.rmb_desc))
++	if (smc_reg_rmb(link, smc->conn.rmb_desc, false))
+ 		return SMC_CLC_DECL_INTERR;
+ 
+ 	/* send CONFIRM LINK request to client over the RoCE fabric */
+@@ -866,7 +874,7 @@ static void smc_listen_work(struct work_struct *work)
+ 
+ 	if (local_contact != SMC_FIRST_CONTACT) {
+ 		if (!new_smc->conn.rmb_desc->reused) {
+-			if (smc_reg_rmb(link, new_smc->conn.rmb_desc)) {
++			if (smc_reg_rmb(link, new_smc->conn.rmb_desc, true)) {
+ 				reason_code = SMC_CLC_DECL_INTERR;
+ 				goto decline_rdma_unlock;
+ 			}
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 9c74844e2008..29ae077b0ec9 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -210,6 +210,7 @@ static int smc_lgr_create(struct smc_sock *smc,
+ 	init_completion(&lnk->llc_confirm_resp);
+ 	init_completion(&lnk->llc_add);
+ 	init_completion(&lnk->llc_add_resp);
++	init_completion(&lnk->llc_confirm_rkey);
+ 
+ 	smc->conn.lgr = lgr;
+ 	rwlock_init(&lgr->conns_lock);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index fca8624e5e71..9398e235d74b 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -105,6 +105,8 @@ struct smc_link {
+ 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
+ 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+ 	int			llc_testlink_time; /* testlink interval */
++	struct completion	llc_confirm_rkey; /* wait 4 rx of cnf rkey */
++	int			llc_confirm_rkey_rc; /* rc from cnf rkey msg */
+ };
+ 
+ /* For now we just allow one parallel link per link group. The SMC protocol
 diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 29f59b47b559..229e967c7940 100644
+index 33b4d856f4c6..b118f80b9c41 100644
 --- a/net/smc/smc_llc.c
 +++ b/net/smc/smc_llc.c
-@@ -296,9 +296,8 @@ int smc_llc_send_delete_link(struct smc_link *link,
+@@ -214,6 +214,31 @@ int smc_llc_send_confirm_link(struct smc_link *link, u8 mac[],
  	return rc;
  }
  
--/* send LLC test link request or response */
--int smc_llc_send_test_link(struct smc_link *link, u8 user_data[16],
--			   enum smc_llc_reqresp reqresp)
-+/* send LLC test link request */
-+static int smc_llc_send_test_link(struct smc_link *link, u8 user_data[16])
- {
- 	struct smc_llc_msg_test_link *testllc;
- 	struct smc_wr_tx_pend_priv *pend;
-@@ -312,8 +311,6 @@ int smc_llc_send_test_link(struct smc_link *link, u8 user_data[16],
- 	memset(testllc, 0, sizeof(*testllc));
- 	testllc->hd.common.type = SMC_LLC_TEST_LINK;
- 	testllc->hd.length = sizeof(struct smc_llc_msg_test_link);
--	if (reqresp == SMC_LLC_RESP)
--		testllc->hd.flags |= SMC_LLC_FLAG_RESP;
- 	memcpy(testllc->user_data, user_data, sizeof(testllc->user_data));
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
-@@ -425,7 +422,8 @@ static void smc_llc_rx_test_link(struct smc_link *link,
- 		if (link->state == SMC_LNK_ACTIVE)
- 			complete(&link->llc_testlink_resp);
++/* send LLC confirm rkey request */
++static int smc_llc_send_confirm_rkey(struct smc_link *link,
++				     struct smc_buf_desc *rmb_desc)
++{
++	struct smc_llc_msg_confirm_rkey *rkeyllc;
++	struct smc_wr_tx_pend_priv *pend;
++	struct smc_wr_buf *wr_buf;
++	int rc;
++
++	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
++	if (rc)
++		return rc;
++	rkeyllc = (struct smc_llc_msg_confirm_rkey *)wr_buf;
++	memset(rkeyllc, 0, sizeof(*rkeyllc));
++	rkeyllc->hd.common.type = SMC_LLC_CONFIRM_RKEY;
++	rkeyllc->hd.length = sizeof(struct smc_llc_msg_confirm_rkey);
++	rkeyllc->rtoken[0].rmb_key =
++		htonl(rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
++	rkeyllc->rtoken[0].rmb_vaddr = cpu_to_be64(
++		(u64)sg_dma_address(rmb_desc->sgt[SMC_SINGLE_LINK].sgl));
++	/* send llc message */
++	rc = smc_wr_tx_send(link, pend);
++	return rc;
++}
++
+ /* send ADD LINK request or response */
+ int smc_llc_send_add_link(struct smc_link *link, u8 mac[],
+ 			  union ib_gid *gid,
+@@ -413,7 +438,9 @@ static void smc_llc_rx_confirm_rkey(struct smc_link *link,
+ 	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
+ 
+ 	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		/* unused as long as we don't send this type of msg */
++		link->llc_confirm_rkey_rc = llc->hd.flags &
++					    SMC_LLC_FLAG_RKEY_NEG;
++		complete(&link->llc_confirm_rkey);
  	} else {
--		smc_llc_send_test_link(link, llc->user_data, SMC_LLC_RESP);
-+		llc->hd.flags |= SMC_LLC_FLAG_RESP;
-+		smc_llc_send_message(link, llc, sizeof(*llc));
+ 		rc = smc_rtoken_add(lgr,
+ 				    llc->rtoken[0].rmb_vaddr,
+@@ -503,7 +530,7 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
  	}
  }
  
-@@ -551,7 +549,7 @@ static void smc_llc_testlink_work(struct work_struct *work)
- 		goto out;
- 	}
- 	reinit_completion(&link->llc_testlink_resp);
--	smc_llc_send_test_link(link, user_data, SMC_LLC_REQ);
-+	smc_llc_send_test_link(link, user_data);
- 	/* receive TEST LINK response over RoCE fabric */
- 	rc = wait_for_completion_interruptible_timeout(&link->llc_testlink_resp,
- 						       SMC_LLC_WAIT_TIME);
+-/***************************** worker ****************************************/
++/***************************** worker, utils *********************************/
+ 
+ static void smc_llc_testlink_work(struct work_struct *work)
+ {
+@@ -562,6 +589,22 @@ void smc_llc_link_flush(struct smc_link *link)
+ 	cancel_delayed_work_sync(&link->llc_testlink_wrk);
+ }
+ 
++/* register a new rtoken at the remote peer */
++int smc_llc_do_confirm_rkey(struct smc_link *link,
++			    struct smc_buf_desc *rmb_desc)
++{
++	int rc;
++
++	reinit_completion(&link->llc_confirm_rkey);
++	smc_llc_send_confirm_rkey(link, rmb_desc);
++	/* receive CONFIRM RKEY response from server over RoCE fabric */
++	rc = wait_for_completion_interruptible_timeout(&link->llc_confirm_rkey,
++						       SMC_LLC_WAIT_TIME);
++	if (rc <= 0 || link->llc_confirm_rkey_rc)
++		return -EFAULT;
++	return 0;
++}
++
+ /***************************** init, exit, misc ******************************/
+ 
+ static struct smc_wr_rx_handler smc_llc_rx_handlers[] = {
 diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 728823dd8ae5..fb137f24aa6b 100644
+index d6e42116485e..728823dd8ae5 100644
 --- a/net/smc/smc_llc.h
 +++ b/net/smc/smc_llc.h
-@@ -42,8 +42,6 @@ int smc_llc_send_add_link(struct smc_link *link, u8 mac[], union ib_gid *gid,
- 			  enum smc_llc_reqresp reqresp);
- int smc_llc_send_delete_link(struct smc_link *link,
- 			     enum smc_llc_reqresp reqresp);
--int smc_llc_send_test_link(struct smc_link *lnk, u8 user_data[16],
--			   enum smc_llc_reqresp reqresp);
+@@ -47,6 +47,8 @@ int smc_llc_send_test_link(struct smc_link *lnk, u8 user_data[16],
  void smc_llc_link_active(struct smc_link *link, int testlink_time);
  void smc_llc_link_inactive(struct smc_link *link);
  void smc_llc_link_flush(struct smc_link *link);
++int smc_llc_do_confirm_rkey(struct smc_link *link,
++			    struct smc_buf_desc *rmb_desc);
+ int smc_llc_init(void) __init;
+ 
+ #endif /* SMC_LLC_H */
 -- 
 2.16.3
