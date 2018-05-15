@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 10/10] net/smc: check for pending termination
-Date: Tue, 15 May 2018 17:05:03 +0200
-Message-ID: <20180515150503.47265-11-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 08/10] net/smc: set link inactive before calling smc_lgr_free()
+Date: Tue, 15 May 2018 17:05:01 +0200
+Message-ID: <20180515150503.47265-9-ubraun@linux.ibm.com>
 References: <20180515150503.47265-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180515150503.47265-1-ubraun@linux.ibm.com>
@@ -14,66 +14,44 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Karsten Graul <kgraul@linux.ibm.com>
 
-Avoid to run the processing in smc_lgr_terminate() more than once,
-remember when the link group termination is triggered.
+Before smc_lgr_free() is called the link must be set inactive by calling
+smc_llc_link_inactive().
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_clc.c  | 2 +-
+ net/smc/af_smc.c   | 1 +
  net/smc/smc_core.c | 5 ++++-
- net/smc/smc_core.h | 3 ++-
- 3 files changed, 7 insertions(+), 3 deletions(-)
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 3a988c22f627..236cb3f12c71 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -316,7 +316,7 @@ int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
- 	if (clcm->type == SMC_CLC_DECLINE) {
- 		reason_code = SMC_CLC_DECL_REPLY;
- 		if (((struct smc_clc_msg_decline *)buf)->hdr.flag) {
--			smc->conn.lgr->sync_err = true;
-+			smc->conn.lgr->sync_err = 1;
- 			smc_lgr_terminate(smc->conn.lgr);
- 		}
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index ecf9ba68501b..d15762b057c0 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1644,6 +1644,7 @@ static void __exit smc_exit(void)
+ 	spin_unlock_bh(&smc_lgr_list.lock);
+ 	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
+ 		list_del_init(&lgr->list);
++		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
+ 		cancel_delayed_work_sync(&lgr->free_work);
+ 		smc_lgr_free(lgr); /* free link group */
  	}
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index a48ee00b65ff..08c05cd0bbae 100644
+index 4523bbad8a15..a48ee00b65ff 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -172,7 +172,7 @@ static int smc_lgr_create(struct smc_sock *smc,
- 		goto out;
- 	}
- 	lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
--	lgr->sync_err = false;
-+	lgr->sync_err = 0;
- 	memcpy(lgr->peer_systemid, peer_systemid, SMC_SYSTEMID_LEN);
- 	lgr->vlan_id = vlan_id;
- 	rwlock_init(&lgr->sndbufs_lock);
-@@ -352,6 +352,9 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
- 	struct smc_sock *smc;
- 	struct rb_node *node;
+@@ -148,8 +148,11 @@ static void smc_lgr_free_work(struct work_struct *work)
+ 	list_del_init(&lgr->list); /* remove from smc_lgr_list */
+ free:
+ 	spin_unlock_bh(&smc_lgr_list.lock);
+-	if (!delayed_work_pending(&lgr->free_work))
++	if (!delayed_work_pending(&lgr->free_work)) {
++		if (lgr->lnk[SMC_SINGLE_LINK].state != SMC_LNK_INACTIVE)
++			smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
+ 		smc_lgr_free(lgr);
++	}
+ }
  
-+	if (lgr->terminating)
-+		return;	/* lgr already terminating */
-+	lgr->terminating = 1;
- 	smc_lgr_forget(lgr);
- 	smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
- 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index d1753850684b..845dc073de13 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -166,7 +166,8 @@ struct smc_link_group {
- 
- 	u8			id[SMC_LGR_ID_SIZE];	/* unique lgr id */
- 	struct delayed_work	free_work;	/* delayed freeing of an lgr */
--	bool			sync_err;	/* lgr no longer fits to peer */
-+	u8			sync_err : 1;	/* lgr no longer fits to peer */
-+	u8			terminating : 1;/* lgr is terminating */
- };
- 
- /* Find the connection associated with the given alert token in the link group.
+ /* create a new SMC link group */
 -- 
 2.16.3
