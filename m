@@ -1,136 +1,139 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Subject: Re: [PATCH v5 06/13] KVM: s390: interfaces to manage guest's AP
  matrix
-Date: Wed, 16 May 2018 09:48:58 -0400
-Message-ID: <a02a8fa0-9b05-41cf-4507-d4540b279247@linux.vnet.ibm.com>
+Date: Wed, 16 May 2018 10:29:10 -0400
+Message-ID: <bf6191a9-ca0f-238c-d078-d6f0d6be1616@linux.vnet.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1525705912-12815-7-git-send-email-akrowiak@linux.vnet.ibm.com>
- <f2646170-1aaf-8447-4c02-0679909d754f@linux.ibm.com>
- <a9206728-2673-c8de-851b-323027a398fa@linux.vnet.ibm.com>
- <f8c88504-55dc-99a8-90a1-2ddf63a20091@linux.ibm.com>
- <13331f80-8821-6de3-ca29-7a3ea869e4f1@linux.vnet.ibm.com>
- <1891f565-284f-ab30-ebc7-8fef85b5fba7@linux.ibm.com>
+ <be2e8810-2a03-c67c-b1aa-41cf7c82980e@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1891f565-284f-ab30-ebc7-8fef85b5fba7@linux.ibm.com>
+In-Reply-To: <be2e8810-2a03-c67c-b1aa-41cf7c82980e@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: pmorel@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/16/2018 09:15 AM, Pierre Morel wrote:
-> On 16/05/2018 15:12, Tony Krowiak wrote:
->> On 05/16/2018 03:48 AM, Pierre Morel wrote:
->>> On 15/05/2018 18:07, Tony Krowiak wrote:
->>>> On 05/15/2018 10:55 AM, Pierre Morel wrote:
->>>>> On 07/05/2018 17:11, Tony Krowiak wrote:
->>>>>> Provides interfaces to manage the AP adapters, usage domains
->>>>>> and control domains assigned to a KVM guest.
->>>>>>
->>>>>> The guest's SIE state description has a satellite structure 
->>>>>> called the
->>>>>> Crypto Control Block (CRYCB) containing three bitmask fields
->>>>>> identifying the adapters, queues (domains) and control domains
->>>>>> assigned to the KVM guest:
->>>>>>
->>> ...snip...
->>>>>> +}
->>>>>
->>>>> This function (ap_validate_queue_sharing) only verifies that VM 
->>>>> don't share queues.
->>>>> What about the queues used by a host application?
->>>>
->>>> How can that be verified from this function? I suppose I could put 
->>>> a check in here to
->>>> verify that the queues are reserved by the vfio_ap device driver, 
->>>> but that would
->>>> be redundant because an AP queue can not be assigned to a mediated 
->>>> matrix device
->>>> via its sysfs attributes unless it is reserved by the vfio_ap 
->>>> device driver (see
->>>> patches 7, 8 and 9).
->>>>
->>>>>
->>>>>
->>>>> I understand that you want to implement  these checks within KVM 
->>>>> but this is
->>>>> related to which queue devices are bound to the matrix and which 
->>>>> one are not.
->>>>
->>>> See my comments above and below about AP queue assignment to the 
->>>> mediated matrix
->>>> device. The one verification we can't do when the devices are 
->>>> assigned is whether
->>>> another guest is using the queue because assignment occurs before 
->>>> the guest using
->>>> the queue is started in which case we have no access to KVM. It 
->>>> makes no sense to
->>>> do so at assignment time anyway because it doesn't matter until the 
->>>> guest using
->>>> the mediated matrix device is started, so that check is done in KVM.
->>>>
->>>>>
->>>>>
->>>>> I think that this should be related somehow to the bounded queue 
->>>>> devices and
->>>>> therefor implemented inside the matrix driver.
->>>>
->>>> As I stated above, when an AP queue is assigned to the mediated 
->>>> matrix device via
->>>> its sysfs attributes, a check is done to verify that it is bound to 
->>>> the vfio_ap
->>>> device driver (see patches 7, 8 and 9). If not, then assignment 
->>>> will be rejected;
->>>> therefore, it will not be possible to configure a CRYCB with AP 
->>>> queues that are
->>>> not bound to the device driver.
->>>
->>> This patch and te followed patches take care that the queues are 
->>> bound to the
->>> matrix driver when they are assigned to the matrix using the sysfs 
->>> entries.
->>>
->>> But they do not take care that the queue can not be unbound before 
->>> you start
->>> the guest, and they are not in the path if the admin decide to 
->>> unbind a queue
->>> at some later time.
->>
->> That is a good point. I need to put a check in the device driver at 
->> the time
->> the mediated device fd is opened to verify that the queues being 
->> configured in
->> the guest's CRYCB are bound to the driver.
+On 05/11/2018 12:08 PM, Halil Pasic wrote:
 >
-> not only, you also need to avoid the possibility of unbinding the device.
-> For this you need to use the remove callback from the driver.
+>
+> On 05/07/2018 05:11 PM, Tony Krowiak wrote:
+>> Provides interfaces to manage the AP adapters, usage domains
+>> and control domains assigned to a KVM guest.
+>>
+>> The guest's SIE state description has a satellite structure called the
+>> Crypto Control Block (CRYCB) containing three bitmask fields
+>> identifying the adapters, queues (domains) and control domains
+>> assigned to the KVM guest:
+>
+> [..]
+>
+>> index 00bcfb0..98b53c7 100644
+>> --- a/arch/s390/kvm/kvm-ap.c
+>> +++ b/arch/s390/kvm/kvm-ap.c
+>> @@ -7,6 +7,7 @@
+>
+> [..]
+>
+>> +
+>> +/**
+>> + * kvm_ap_validate_queue_sharing
+>> + *
+>> + * Verifies that the APQNs derived from the cross product of the AP 
+>> adapter IDs
+>> + * and AP queue indexes comprising the AP matrix are not configured for
+>> + * another guest. AP queue sharing is not allowed.
+>> + *
+>> + * @kvm: the KVM guest
+>> + * @matrix: the AP matrix
+>> + *
+>> + * Returns 0 if the APQNs are valid, otherwise; returns -EBUSY.
+>> + */
+>> +static int kvm_ap_validate_queue_sharing(struct kvm *kvm,
+>> +                     struct kvm_ap_matrix *matrix)
+>> +{
+>> +    struct kvm *vm;
+>> +    unsigned long *apm, *aqm;
+>> +    unsigned long apid, apqi;
+>> +
+>> +
+>> +    /* No other VM may share an AP Queue with the input VM */
+>> +    list_for_each_entry(vm, &vm_list, vm_list) {
+>> +        if (kvm == vm)
+>> +            continue;
+>> +
+>> +        apm = kvm_ap_get_crycb_apm(vm);
+>> +        if (!bitmap_and(apm, apm, matrix->apm, matrix->apm_max + 1))
+>> +            continue;
+>> +
+>> +        aqm = kvm_ap_get_crycb_aqm(vm);
+>> +        if (!bitmap_and(aqm, aqm, matrix->aqm, matrix->aqm_max + 1))
+>> +            continue;
+>> +
+>> +        for_each_set_bit_inv(apid, apm, matrix->apm_max + 1)
+>> +            for_each_set_bit_inv(apqi, aqm, matrix->aqm_max + 1)
+>> +                kvm_ap_log_sharing_err(vm, apid, apqi);
+>> +
+>> +        return -EBUSY;
+>> +    }
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +int kvm_ap_configure_matrix(struct kvm *kvm, struct kvm_ap_matrix 
+>> *matrix)
+>> +{
+>> +    int ret = 0;
+>> +
+>> +    mutex_lock(&kvm->lock);
+>
+> You seem to take only kvm->lock, vm_list however (used in
+> kvm_ap_validate_queue_sharing()) seems to be protected by
+> kvm_lock.
+>
+> Can you tell me why is this supposed to be safe?
+>
+> What is supposed to prevent an execution like
+> vm1: call kvm_ap_configure_matrix(m1)
+> vm2: call kvm_ap_configure_matrix(m2)
+> vm1: call kvm_ap_validate_queue_sharing(m1)
+> vm2: call kvm_ap_validate_queue_sharing(m2)
+> vm1: call kvm_ap_set_crycb_masks(m1)
+> vm2: call kvm_ap_set_crycb_masks(m2)
+>
+> where, let's say, m1 and m2 are equal in the sense that the
+> mask values are the same?
 
-I thought I addressed this already. The definition of the remove 
-callback does
-not specify a return value, so there is currently no way to prevent the 
-AP bus
-from removing the queue device on unbind. I sent an email to Harald to 
-discuss
-adding a return value to the callback.
+vm1 will get the kvm->lock first in your scenario when
+kvm_ap_configure_matrix(m1) is invoked. Since the other
+functions - i.e., kvm_ap_validate_queue_sharing(m1) and
+kvm_ap_set_crycb_masks(m1) - are static and only called
+from the kvm_ap_configure_matrix(m1), your scenario
+can never happen because vm2 will not get the lock until
+kvm_ap_configure_matrix(m1) has completed. I see your
+point, however, and maybe I should also acquire the kvm_lock.
 
 >
 >
->>
->>>
->>>
->>>>
->>>>>
->>>>>
->>>>> Regards,
->>>>>
->>>>> Pierre
->>>>>
->>>>
->>>
->>
+> Regards,
+> Halil
 >
+>> +
+>> +    ret = kvm_ap_validate_queue_sharing(kvm, matrix);
+>> +    if (ret)
+>> +        goto done;
+>> +
+>> +    kvm_ap_set_crycb_masks(kvm, matrix);
+>> +
+>> +done:
+>> +    mutex_unlock(&kvm->lock);
+>> +
+>> +    return ret;
+>> +}
+>> +EXPORT_SYMBOL(kvm_ap_configure_matrix);
+>> +
