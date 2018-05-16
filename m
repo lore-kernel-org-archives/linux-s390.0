@@ -1,8 +1,8 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Subject: Re: [PATCH v5 05/13] s390: vfio-ap: register matrix device with VFIO
  mdev framework
-Date: Wed, 16 May 2018 08:48:57 -0400
-Message-ID: <e66a3d32-953d-2082-83f1-be84d8a5422a@linux.vnet.ibm.com>
+Date: Wed, 16 May 2018 08:58:15 -0400
+Message-ID: <33882a07-fe32-14c6-dfa0-c73d9bb8f796@linux.vnet.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1525705912-12815-6-git-send-email-akrowiak@linux.vnet.ibm.com>
  <20180516124240.42dcd426.cohuck@redhat.com>
@@ -77,10 +77,6 @@ On 05/16/2018 06:42 AM, Cornelia Huck wrote:
 >> + * Copyright IBM Corp. 2017
 > Should be '2018' (also in some other files in this series; please
 > double check.)
-
-Gee, I thought I got all of these fixed. I must have a gremlin in my
-laptop.
-
 >
 >> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 >> + *
@@ -103,20 +99,8 @@ laptop.
 >> +	ap_matrix->available_instances--;
 > Shouldn't the code check whether available_instances is actually > 0?
 
-It is my understanding that once the available_instances hits zero, the 
-mdev
-framework will not allow any more mediated devices to be created, so the
-value should always be greater than zero when this function is invoked.
-
-I did an experiment to verify my understanding. I initialized the 
-available_instances
-to 1. I was able to create 2 mediated devices. It seems that the 
-framework refuses to
-create a mediated device only after the available_instances sysfs 
-attribute is a negative
-number, so I have two choices: Initialize available_instances to one 
-less than desires;
-add the check you suggested. I think I'll go with the latter.
+Disregard my last response to this, I'm an idiot; it is the return of a
+negative number from this function that causes the create to fail.
 
 >
 >> +
@@ -146,6 +130,9 @@ add the check you suggested. I think I'll go with the latter.
 >> +
 >> +	ap_matrix = to_ap_matrix(dev);
 > Move this with the declaration?
+
+Okay, will do.
+
 >
 >> +
 >> +	return sprintf(buf, "%d\n", ap_matrix->available_instances);
@@ -221,6 +208,10 @@ add the check you suggested. I think I'll go with the latter.
 >> +/**
 >> + * There must be one mediated matrix device per guest. If every APQN is assigned
 > One, or at most one? Or one for every guest using ap devices?
+
+'One mediated matrix device for every guest using AP devices' is most 
+accurate. I'll make the change.
+
 >
 >> + * to a guest, then the maximum number of guests with a unique APQN assigned
 >> + * would be 255 adapters x 255 domains = 72351 guests.
