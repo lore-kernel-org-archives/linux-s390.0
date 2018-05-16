@@ -1,336 +1,51 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 06/10] net/smc: use a workqueue to defer llc send
-Date: Tue, 15 May 2018 17:04:59 +0200
-Message-ID: <20180515150503.47265-7-ubraun@linux.ibm.com>
-References: <20180515150503.47265-1-ubraun@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180515150503.47265-1-ubraun@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 09/14] ubifs: separate errno from VM_FAULT_* values
+Date: Wed, 16 May 2018 07:43:43 +0200
+Message-ID: <20180516054348.15950-10-hch@lst.de>
+References: <20180516054348.15950-1-hch@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180516054348.15950-1-hch@lst.de>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+List-Archive: <https://lore.kernel.org/ceph-devel/>
+List-Post: <mailto:ceph-devel@vger.kernel.org>
+To: Souptick Joarder <jrdr.linux@gmail.com>, Matthew Wilcox <willy@infradead.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mm@kvack.org, ocfs2-devel@oss.oracle.com, devel@lists.orangefs.org, linux-fsdevel@vger.kernel.org, linux-mtd@lists.infradead.org, ceph-devel@vger.kernel.org, linux-ext4@vger.kernel.org, linux-btrfs@vger.kernel.org, lustre-devel@lists.lustre.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
-
-SMC handles deferred work in tasklets. As tasklets cannot sleep this
-can result in rare EBUSY conditions, so defer this work in a work queue.
-The high level api functions do not defer work because they can sleep
-until the llc send is actually completed.
-
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_core.c |  10 ++--
- net/smc/smc_core.h |   1 +
- net/smc/smc_llc.c  | 132 ++++++++++++++++++++++++++++++++++++++---------------
- net/smc/smc_llc.h  |   4 +-
- 4 files changed, 104 insertions(+), 43 deletions(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index ba7dae819ac8..4523bbad8a15 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -194,10 +194,12 @@ static int smc_lgr_create(struct smc_sock *smc,
- 		smc_ib_setup_per_ibdev(smcibdev);
- 	get_random_bytes(rndvec, sizeof(rndvec));
- 	lnk->psn_initial = rndvec[0] + (rndvec[1] << 8) + (rndvec[2] << 16);
--	smc_llc_link_init(lnk);
--	rc = smc_wr_alloc_link_mem(lnk);
-+	rc = smc_llc_link_init(lnk);
- 	if (rc)
- 		goto free_lgr;
-+	rc = smc_wr_alloc_link_mem(lnk);
-+	if (rc)
-+		goto clear_llc_lnk;
- 	rc = smc_ib_create_protection_domain(lnk);
- 	if (rc)
- 		goto free_link_mem;
-@@ -221,6 +223,8 @@ static int smc_lgr_create(struct smc_sock *smc,
- 	smc_ib_dealloc_protection_domain(lnk);
- free_link_mem:
- 	smc_wr_free_link_mem(lnk);
-+clear_llc_lnk:
-+	smc_llc_link_clear(lnk);
- free_lgr:
- 	kfree(lgr);
- out:
-@@ -266,6 +270,7 @@ void smc_conn_free(struct smc_connection *conn)
- static void smc_link_clear(struct smc_link *lnk)
- {
- 	lnk->peer_qpn = 0;
-+	smc_llc_link_clear(lnk);
- 	smc_ib_modify_qp_reset(lnk);
- 	smc_wr_free_link(lnk);
- 	smc_ib_destroy_queue_pair(lnk);
-@@ -323,7 +328,6 @@ static void smc_lgr_free_bufs(struct smc_link_group *lgr)
- /* remove a link group */
- void smc_lgr_free(struct smc_link_group *lgr)
- {
--	smc_llc_link_flush(&lgr->lnk[SMC_SINGLE_LINK]);
- 	smc_lgr_free_bufs(lgr);
- 	smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
- 	kfree(lgr);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 9398e235d74b..d1753850684b 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -96,6 +96,7 @@ struct smc_link {
- 	u8			link_id;	/* unique # within link group */
- 
- 	enum smc_link_state	state;		/* state of link */
-+	struct workqueue_struct *llc_wq;	/* single thread work queue */
- 	struct completion	llc_confirm;	/* wait for rx of conf link */
- 	struct completion	llc_confirm_resp; /* wait 4 rx of cnf lnk rsp */
- 	int			llc_confirm_rc; /* rc from confirm link msg */
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 5dbeced6cea5..5d7926cc472c 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -239,6 +239,25 @@ static int smc_llc_send_confirm_rkey(struct smc_link *link,
- 	return rc;
- }
- 
-+/* prepare an add link message */
-+static void smc_llc_prep_add_link(struct smc_llc_msg_add_link *addllc,
-+				  struct smc_link *link, u8 mac[],
-+				  union ib_gid *gid,
-+				  enum smc_llc_reqresp reqresp)
-+{
-+	memset(addllc, 0, sizeof(*addllc));
-+	addllc->hd.common.type = SMC_LLC_ADD_LINK;
-+	addllc->hd.length = sizeof(struct smc_llc_msg_add_link);
-+	if (reqresp == SMC_LLC_RESP) {
-+		addllc->hd.flags |= SMC_LLC_FLAG_RESP;
-+		/* always reject more links for now */
-+		addllc->hd.flags |= SMC_LLC_FLAG_ADD_LNK_REJ;
-+		addllc->hd.add_link_rej_rsn = SMC_LLC_REJ_RSN_NO_ALT_PATH;
-+	}
-+	memcpy(addllc->sender_mac, mac, ETH_ALEN);
-+	memcpy(addllc->sender_gid, gid, SMC_GID_SIZE);
-+}
-+
- /* send ADD LINK request or response */
- int smc_llc_send_add_link(struct smc_link *link, u8 mac[],
- 			  union ib_gid *gid,
-@@ -253,22 +272,28 @@ int smc_llc_send_add_link(struct smc_link *link, u8 mac[],
- 	if (rc)
- 		return rc;
- 	addllc = (struct smc_llc_msg_add_link *)wr_buf;
--	memset(addllc, 0, sizeof(*addllc));
--	addllc->hd.common.type = SMC_LLC_ADD_LINK;
--	addllc->hd.length = sizeof(struct smc_llc_msg_add_link);
--	if (reqresp == SMC_LLC_RESP) {
--		addllc->hd.flags |= SMC_LLC_FLAG_RESP;
--		/* always reject more links for now */
--		addllc->hd.flags |= SMC_LLC_FLAG_ADD_LNK_REJ;
--		addllc->hd.add_link_rej_rsn = SMC_LLC_REJ_RSN_NO_ALT_PATH;
--	}
--	memcpy(addllc->sender_mac, mac, ETH_ALEN);
--	memcpy(addllc->sender_gid, gid, SMC_GID_SIZE);
-+	smc_llc_prep_add_link(addllc, link, mac, gid, reqresp);
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
- 	return rc;
- }
- 
-+/* prepare a delete link message */
-+static void smc_llc_prep_delete_link(struct smc_llc_msg_del_link *delllc,
-+				     struct smc_link *link,
-+				     enum smc_llc_reqresp reqresp)
-+{
-+	memset(delllc, 0, sizeof(*delllc));
-+	delllc->hd.common.type = SMC_LLC_DELETE_LINK;
-+	delllc->hd.length = sizeof(struct smc_llc_msg_add_link);
-+	if (reqresp == SMC_LLC_RESP)
-+		delllc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	/* DEL_LINK_ALL because only 1 link supported */
-+	delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ALL;
-+	delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ORDERLY;
-+	delllc->link_num = link->link_id;
-+}
-+
- /* send DELETE LINK request or response */
- int smc_llc_send_delete_link(struct smc_link *link,
- 			     enum smc_llc_reqresp reqresp)
-@@ -282,15 +307,7 @@ int smc_llc_send_delete_link(struct smc_link *link,
- 	if (rc)
- 		return rc;
- 	delllc = (struct smc_llc_msg_del_link *)wr_buf;
--	memset(delllc, 0, sizeof(*delllc));
--	delllc->hd.common.type = SMC_LLC_DELETE_LINK;
--	delllc->hd.length = sizeof(struct smc_llc_msg_add_link);
--	if (reqresp == SMC_LLC_RESP)
--		delllc->hd.flags |= SMC_LLC_FLAG_RESP;
--	/* DEL_LINK_ALL because only 1 link supported */
--	delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ALL;
--	delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ORDERLY;
--	delllc->link_num = link->link_id;
-+	smc_llc_prep_delete_link(delllc, link, reqresp);
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
- 	return rc;
-@@ -317,20 +334,46 @@ static int smc_llc_send_test_link(struct smc_link *link, u8 user_data[16])
- 	return rc;
- }
- 
--/* send a prepared message */
--static int smc_llc_send_message(struct smc_link *link, void *llcbuf, int llclen)
-+struct smc_llc_send_work {
-+	struct work_struct work;
-+	struct smc_link *link;
-+	int llclen;
-+	union smc_llc_msg llcbuf;
-+};
-+
-+/* worker that sends a prepared message */
-+static void smc_llc_send_message_work(struct work_struct *work)
- {
-+	struct smc_llc_send_work *llcwrk = container_of(work,
-+						struct smc_llc_send_work, work);
- 	struct smc_wr_tx_pend_priv *pend;
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
--	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
-+	if (llcwrk->link->state == SMC_LNK_INACTIVE)
-+		goto out;
-+	rc = smc_llc_add_pending_send(llcwrk->link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
--	memcpy(wr_buf, llcbuf, llclen);
--	/* send llc message */
--	rc = smc_wr_tx_send(link, pend);
--	return rc;
-+		goto out;
-+	memcpy(wr_buf, &llcwrk->llcbuf, llcwrk->llclen);
-+	smc_wr_tx_send(llcwrk->link, pend);
-+out:
-+	kfree(llcwrk);
-+}
-+
-+/* copy llcbuf and schedule an llc send on link */
-+static int smc_llc_send_message(struct smc_link *link, void *llcbuf, int llclen)
-+{
-+	struct smc_llc_send_work *wrk = kmalloc(sizeof(*wrk), GFP_ATOMIC);
-+
-+	if (!wrk)
-+		return -ENOMEM;
-+	INIT_WORK(&wrk->work, smc_llc_send_message_work);
-+	wrk->link = link;
-+	wrk->llclen = llclen;
-+	memcpy(&wrk->llcbuf, llcbuf, llclen);
-+	queue_work(link->llc_wq, &wrk->work);
-+	return 0;
- }
- 
- /********************************* receive ***********************************/
-@@ -381,17 +424,18 @@ static void smc_llc_rx_add_link(struct smc_link *link,
- 		}
- 
- 		if (lgr->role == SMC_SERV) {
--			smc_llc_send_add_link(link,
-+			smc_llc_prep_add_link(llc, link,
- 					link->smcibdev->mac[link->ibport - 1],
- 					&link->smcibdev->gid[link->ibport - 1],
- 					SMC_LLC_REQ);
- 
- 		} else {
--			smc_llc_send_add_link(link,
-+			smc_llc_prep_add_link(llc, link,
- 					link->smcibdev->mac[link->ibport - 1],
- 					&link->smcibdev->gid[link->ibport - 1],
- 					SMC_LLC_RESP);
- 		}
-+		smc_llc_send_message(link, llc, sizeof(*llc));
- 	}
- }
- 
-@@ -407,9 +451,11 @@ static void smc_llc_rx_delete_link(struct smc_link *link,
- 	} else {
- 		if (lgr->role == SMC_SERV) {
- 			smc_lgr_forget(lgr);
--			smc_llc_send_delete_link(link, SMC_LLC_REQ);
-+			smc_llc_prep_delete_link(llc, link, SMC_LLC_REQ);
-+			smc_llc_send_message(link, llc, sizeof(*llc));
- 		} else {
--			smc_llc_send_delete_link(link, SMC_LLC_RESP);
-+			smc_llc_prep_delete_link(llc, link, SMC_LLC_RESP);
-+			smc_llc_send_message(link, llc, sizeof(*llc));
- 			smc_lgr_terminate(lgr);
- 		}
- 	}
-@@ -559,11 +605,19 @@ static void smc_llc_testlink_work(struct work_struct *work)
- 	}
- 	next_interval = link->llc_testlink_time;
- out:
--	schedule_delayed_work(&link->llc_testlink_wrk, next_interval);
-+	queue_delayed_work(link->llc_wq, &link->llc_testlink_wrk,
-+			   next_interval);
- }
- 
--void smc_llc_link_init(struct smc_link *link)
-+int smc_llc_link_init(struct smc_link *link)
- {
-+	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
-+						  lnk[SMC_SINGLE_LINK]);
-+	link->llc_wq = alloc_ordered_workqueue("llc_wq-%x:%x)", WQ_MEM_RECLAIM,
-+					       *((u32 *)lgr->id),
-+					       link->link_id);
-+	if (!link->llc_wq)
-+		return -ENOMEM;
- 	init_completion(&link->llc_confirm);
- 	init_completion(&link->llc_confirm_resp);
- 	init_completion(&link->llc_add);
-@@ -571,6 +625,7 @@ void smc_llc_link_init(struct smc_link *link)
- 	init_completion(&link->llc_confirm_rkey);
- 	init_completion(&link->llc_testlink_resp);
- 	INIT_DELAYED_WORK(&link->llc_testlink_wrk, smc_llc_testlink_work);
-+	return 0;
- }
- 
- void smc_llc_link_active(struct smc_link *link, int testlink_time)
-@@ -578,8 +633,8 @@ void smc_llc_link_active(struct smc_link *link, int testlink_time)
- 	link->state = SMC_LNK_ACTIVE;
- 	if (testlink_time) {
- 		link->llc_testlink_time = testlink_time * HZ;
--		schedule_delayed_work(&link->llc_testlink_wrk,
--				      link->llc_testlink_time);
-+		queue_delayed_work(link->llc_wq, &link->llc_testlink_wrk,
-+				   link->llc_testlink_time);
- 	}
- }
- 
-@@ -591,9 +646,10 @@ void smc_llc_link_inactive(struct smc_link *link)
- }
- 
- /* called in worker context */
--void smc_llc_link_flush(struct smc_link *link)
-+void smc_llc_link_clear(struct smc_link *link)
- {
--	cancel_delayed_work_sync(&link->llc_testlink_wrk);
-+	flush_workqueue(link->llc_wq);
-+	destroy_workqueue(link->llc_wq);
- }
- 
- /* register a new rtoken at the remote peer */
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index d7f52a60c8d6..65c8645e96a1 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -42,10 +42,10 @@ int smc_llc_send_add_link(struct smc_link *link, u8 mac[], union ib_gid *gid,
- 			  enum smc_llc_reqresp reqresp);
- int smc_llc_send_delete_link(struct smc_link *link,
- 			     enum smc_llc_reqresp reqresp);
--void smc_llc_link_init(struct smc_link *link);
-+int smc_llc_link_init(struct smc_link *link);
- void smc_llc_link_active(struct smc_link *link, int testlink_time);
- void smc_llc_link_inactive(struct smc_link *link);
--void smc_llc_link_flush(struct smc_link *link);
-+void smc_llc_link_clear(struct smc_link *link);
- int smc_llc_do_confirm_rkey(struct smc_link *link,
- 			    struct smc_buf_desc *rmb_desc);
- int smc_llc_init(void) __init;
--- 
-2.16.3
+U2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3aWcgPGhjaEBsc3QuZGU+Ci0tLQogZnMvdWJp
+ZnMvZmlsZS5jIHwgNyArKysrLS0tCiAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAz
+IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2ZzL3ViaWZzL2ZpbGUuYyBiL2ZzL3ViaWZzL2Zp
+bGUuYwppbmRleCAxYWNiMmZmNTA1ZTYuLjdjMWEyZTFjM2RlNSAxMDA2NDQKLS0tIGEvZnMvdWJp
+ZnMvZmlsZS5jCisrKyBiL2ZzL3ViaWZzL2ZpbGUuYwpAQCAtMTUxMyw3ICsxNTEzLDcgQEAgc3Rh
+dGljIGludCB1Ymlmc19yZWxlYXNlcGFnZShzdHJ1Y3QgcGFnZSAqcGFnZSwgZ2ZwX3QgdW51c2Vk
+X2dmcF9mbGFncykKICAqIG1tYXAoKWQgZmlsZSBoYXMgdGFrZW4gd3JpdGUgcHJvdGVjdGlvbiBm
+YXVsdCBhbmQgaXMgYmVpbmcgbWFkZSB3cml0YWJsZS4KICAqIFVCSUZTIG11c3QgZW5zdXJlIHBh
+Z2UgaXMgYnVkZ2V0ZWQgZm9yLgogICovCi1zdGF0aWMgaW50IHViaWZzX3ZtX3BhZ2VfbWt3cml0
+ZShzdHJ1Y3Qgdm1fZmF1bHQgKnZtZikKK3N0YXRpYyB2bV9mYXVsdF90IHViaWZzX3ZtX3BhZ2Vf
+bWt3cml0ZShzdHJ1Y3Qgdm1fZmF1bHQgKnZtZikKIHsKIAlzdHJ1Y3QgcGFnZSAqcGFnZSA9IHZt
+Zi0+cGFnZTsKIAlzdHJ1Y3QgaW5vZGUgKmlub2RlID0gZmlsZV9pbm9kZSh2bWYtPnZtYS0+dm1f
+ZmlsZSk7CkBAIC0xNTIxLDYgKzE1MjEsNyBAQCBzdGF0aWMgaW50IHViaWZzX3ZtX3BhZ2VfbWt3
+cml0ZShzdHJ1Y3Qgdm1fZmF1bHQgKnZtZikKIAlzdHJ1Y3QgdGltZXNwZWMgbm93ID0gY3VycmVu
+dF90aW1lKGlub2RlKTsKIAlzdHJ1Y3QgdWJpZnNfYnVkZ2V0X3JlcSByZXEgPSB7IC5uZXdfcGFn
+ZSA9IDEgfTsKIAlpbnQgZXJyLCB1cGRhdGVfdGltZTsKKwl2bV9mYXVsdF90IHJldCA9IDA7CiAK
+IAlkYmdfZ2VuKCJpbm8gJWx1LCBwZyAlbHUsIGlfc2l6ZSAlbGxkIiwJaW5vZGUtPmlfaW5vLCBw
+YWdlLT5pbmRleCwKIAkJaV9zaXplX3JlYWQoaW5vZGUpKTsKQEAgLTE2MDEsOCArMTYwMiw4IEBA
+IHN0YXRpYyBpbnQgdWJpZnNfdm1fcGFnZV9ta3dyaXRlKHN0cnVjdCB2bV9mYXVsdCAqdm1mKQog
+CXVubG9ja19wYWdlKHBhZ2UpOwogCXViaWZzX3JlbGVhc2VfYnVkZ2V0KGMsICZyZXEpOwogCWlm
+IChlcnIpCi0JCWVyciA9IFZNX0ZBVUxUX1NJR0JVUzsKLQlyZXR1cm4gZXJyOworCQlyZXQgPSBW
+TV9GQVVMVF9TSUdCVVM7CisJcmV0dXJuIHJldDsKIH0KIAogc3RhdGljIGNvbnN0IHN0cnVjdCB2
+bV9vcGVyYXRpb25zX3N0cnVjdCB1Ymlmc19maWxlX3ZtX29wcyA9IHsKLS0gCjIuMTcuMAoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1h
+aWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMu
+ZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
