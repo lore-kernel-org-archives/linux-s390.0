@@ -1,128 +1,82 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 07/14] ext4: separate errno from VM_FAULT_* values
-Date: Wed, 16 May 2018 07:43:41 +0200
-Message-ID: <20180516054348.15950-8-hch@lst.de>
-References: <20180516054348.15950-1-hch@lst.de>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: [PATCH v2 1/1] s390: vfio-ccw: push down unsupported IDA check
+Date: Wed, 16 May 2018 19:33:42 +0200
+Message-ID: <20180516173342.15174-1-pasic@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180516054348.15950-1-hch@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/ceph-devel/>
-List-Post: <mailto:ceph-devel@vger.kernel.org>
-To: Souptick Joarder <jrdr.linux@gmail.com>, Matthew Wilcox <willy@infradead.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, devel@lists.orangefs.org, ceph-devel@vger.kernel.org, linux-btrfs@vger.kernel.org, linux-ext4@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-mtd@lists.infradead.org, dri-devel@lists.freedesktop.org, lustre-devel@lists.lustre.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>, Dong Jia Shi <bjsdjshi@linux.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/ext4/ext4.h  |  4 ++--
- fs/ext4/inode.c | 30 +++++++++++++++---------------
- 2 files changed, 17 insertions(+), 17 deletions(-)
+There is at least one relevant guest OS that doesn't set the IDA flags in
+the ORB as we would like them, but never uses any IDA. So instead of
+saying -EOPNOTSUPP when observing an ORB, such that a channel program
+specified by it could be a not supported one, let us say -EOPNOTSUPP only
+if the channel program is a not supported one.
 
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index fa52b7dd4542..48592d0edf3e 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2463,8 +2463,8 @@ extern int ext4_writepage_trans_blocks(struct inode *);
- extern int ext4_chunk_trans_blocks(struct inode *, int nrblocks);
- extern int ext4_zero_partial_blocks(handle_t *handle, struct inode *inode,
- 			     loff_t lstart, loff_t lend);
--extern int ext4_page_mkwrite(struct vm_fault *vmf);
--extern int ext4_filemap_fault(struct vm_fault *vmf);
-+extern vm_fault_t ext4_page_mkwrite(struct vm_fault *vmf);
-+extern vm_fault_t ext4_filemap_fault(struct vm_fault *vmf);
- extern qsize_t *ext4_get_reserved_space(struct inode *inode);
- extern int ext4_get_projid(struct inode *inode, kprojid_t *projid);
- extern void ext4_da_update_reserve_space(struct inode *inode,
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 95bc48f5c88b..fe49045a2832 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -6106,27 +6106,27 @@ static int ext4_bh_unmapped(handle_t *handle, struct buffer_head *bh)
- 	return !buffer_mapped(bh);
- }
+Of course, the real solution would be doing proper translation for all
+IDA. This is possible, but given the current code not straight forward.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Tested-by: Jason J. Herne <jjherne@linux.ibm.com>
+---
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 2c7550797ec2..cb4bf0dfbacc 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -365,6 +365,9 @@ static void cp_unpin_free(struct channel_program *cp)
+  * This is the chain length not considering any TICs.
+  * You need to do a new round for each TIC target.
+  *
++ * The program is also validated for absence of not yet supported
++ * indirect data addressing scenarios.
++ *
+  * Returns: the length of the ccw chain or -errno.
+  */
+ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+@@ -391,6 +394,14 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+ 	do {
+ 		cnt++;
  
--int ext4_page_mkwrite(struct vm_fault *vmf)
-+vm_fault_t ext4_page_mkwrite(struct vm_fault *vmf)
- {
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct page *page = vmf->page;
- 	loff_t size;
- 	unsigned long len;
--	int ret;
-+	vm_fault_t ret;
- 	struct file *file = vma->vm_file;
- 	struct inode *inode = file_inode(file);
- 	struct address_space *mapping = inode->i_mapping;
- 	handle_t *handle;
- 	get_block_t *get_block;
--	int retries = 0;
-+	int retries = 0, err;
++		/*
++		 * As we don't want to fail direct addressing even if the
++		 * orb specified one of the unsupported formats, we defer
++		 * checking for IDAWs in unsupported formats to here.
++		 */
++		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
++			return -EOPNOTSUPP;
++
+ 		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
+ 			break;
  
- 	sb_start_pagefault(inode->i_sb);
- 	file_update_time(vma->vm_file);
+@@ -656,10 +667,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	/*
+ 	 * XXX:
+ 	 * Only support prefetch enable mode now.
+-	 * Only support 64bit addressing idal.
+-	 * Only support 4k IDAW.
+ 	 */
+-	if (!orb->cmd.pfch || !orb->cmd.c64 || orb->cmd.i2k)
++	if (!orb->cmd.pfch)
+ 		return -EOPNOTSUPP;
  
- 	down_read(&EXT4_I(inode)->i_mmap_sem);
+ 	INIT_LIST_HEAD(&cp->ccwchain_list);
+@@ -688,6 +697,10 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	ret = ccwchain_loop_tic(chain, cp);
+ 	if (ret)
+ 		cp_unpin_free(cp);
++	/* It is safe to force: if not set but idals used
++	 * ccwchain_calc_length returns an error.
++	 */
++	cp->orb.cmd.c64 = 1;
  
--	ret = ext4_convert_inline_data(inode);
--	if (ret)
-+	err = ext4_convert_inline_data(inode);
-+	if (err)
- 		goto out_ret;
- 
- 	/* Delalloc case is easy... */
-@@ -6134,9 +6134,9 @@ int ext4_page_mkwrite(struct vm_fault *vmf)
- 	    !ext4_should_journal_data(inode) &&
- 	    !ext4_nonda_switch(inode->i_sb)) {
- 		do {
--			ret = block_page_mkwrite(vma, vmf,
-+			err = block_page_mkwrite(vma, vmf,
- 						   ext4_da_get_block_prep);
--		} while (ret == -ENOSPC &&
-+		} while (err == -ENOSPC &&
- 		       ext4_should_retry_alloc(inode->i_sb, &retries));
- 		goto out_ret;
- 	}
-@@ -6181,8 +6181,8 @@ int ext4_page_mkwrite(struct vm_fault *vmf)
- 		ret = VM_FAULT_SIGBUS;
- 		goto out;
- 	}
--	ret = block_page_mkwrite(vma, vmf, get_block);
--	if (!ret && ext4_should_journal_data(inode)) {
-+	err = block_page_mkwrite(vma, vmf, get_block);
-+	if (!err && ext4_should_journal_data(inode)) {
- 		if (ext4_walk_page_buffers(handle, page_buffers(page), 0,
- 			  PAGE_SIZE, NULL, do_journal_get_write_access)) {
- 			unlock_page(page);
-@@ -6193,24 +6193,24 @@ int ext4_page_mkwrite(struct vm_fault *vmf)
- 		ext4_set_inode_state(inode, EXT4_STATE_JDATA);
- 	}
- 	ext4_journal_stop(handle);
--	if (ret == -ENOSPC && ext4_should_retry_alloc(inode->i_sb, &retries))
-+	if (err == -ENOSPC && ext4_should_retry_alloc(inode->i_sb, &retries))
- 		goto retry_alloc;
- out_ret:
--	ret = block_page_mkwrite_return(ret);
-+	ret = block_page_mkwrite_return(err);
- out:
- 	up_read(&EXT4_I(inode)->i_mmap_sem);
- 	sb_end_pagefault(inode->i_sb);
  	return ret;
  }
- 
--int ext4_filemap_fault(struct vm_fault *vmf)
-+vm_fault_t ext4_filemap_fault(struct vm_fault *vmf)
- {
- 	struct inode *inode = file_inode(vmf->vma->vm_file);
--	int err;
-+	vm_fault_t ret;
- 
- 	down_read(&EXT4_I(inode)->i_mmap_sem);
--	err = filemap_fault(vmf);
-+	ret = filemap_fault(vmf);
- 	up_read(&EXT4_I(inode)->i_mmap_sem);
- 
--	return err;
-+	return ret;
- }
 -- 
-2.17.0
+2.16.3
