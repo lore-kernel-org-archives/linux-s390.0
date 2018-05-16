@@ -1,211 +1,108 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 05/13] s390: vfio-ap: register matrix device with VFIO
- mdev framework
-Date: Tue, 15 May 2018 12:11:22 -0400
-Message-ID: <9eabe7c2-4380-c57f-effe-e6d8e194466a@linux.vnet.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v5 06/13] KVM: s390: interfaces to manage guest's AP
+ matrix
+Date: Wed, 16 May 2018 09:48:51 +0200
+Message-ID: <f8c88504-55dc-99a8-90a1-2ddf63a20091@linux.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1525705912-12815-6-git-send-email-akrowiak@linux.vnet.ibm.com>
- <5471b194-d7ca-c9c6-132e-fa9539fe44f0@linux.ibm.com>
- <4688078d-3e13-5201-582f-52576b25defa@linux.vnet.ibm.com>
- <1f9117bd-ed14-bde4-fdbd-cb3733c8c633@linux.ibm.com>
- <afd54b28-e61c-a81e-41a3-6142d7277400@linux.vnet.ibm.com>
- <1fb8d1ab-02d5-c170-08e8-a77526fbb7c4@linux.ibm.com>
+ <1525705912-12815-7-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <f2646170-1aaf-8447-4c02-0679909d754f@linux.ibm.com>
+ <a9206728-2673-c8de-851b-323027a398fa@linux.vnet.ibm.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1fb8d1ab-02d5-c170-08e8-a77526fbb7c4@linux.ibm.com>
+In-Reply-To: <a9206728-2673-c8de-851b-323027a398fa@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/15/2018 11:48 AM, Halil Pasic wrote:
->
->
-> On 05/15/2018 05:16 PM, Tony Krowiak wrote:
->> On 05/15/2018 10:17 AM, Pierre Morel wrote:
->>> On 14/05/2018 21:42, Tony Krowiak wrote:
->>>> On 05/11/2018 01:18 PM, Halil Pasic wrote:
->>>>>
->>>>>
->>>>> On 05/07/2018 05:11 PM, Tony Krowiak wrote:
->>>>>> Registers the matrix device created by the VFIO AP device
->>>>>> driver with the VFIO mediated device framework.
->>>>>> Registering the matrix device will create the sysfs
->>>>>> structures needed to create mediated matrix devices
->>>>>> each of which will be used to configure the AP matrix
->>>>>> for a guest and connect it to the VFIO AP device driver.
->>>>>>
->>>>> [..]
->>>>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
->>>>>> b/drivers/s390/crypto/vfio_ap_ops.c
->>>>>> new file mode 100644
->>>>>> index 0000000..d7d36fb
->>>>>> --- /dev/null
->>>>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->>>>>> @@ -0,0 +1,106 @@
->>>>>> +// SPDX-License-Identifier: GPL-2.0+
->>>>>> +/*
->>>>>> + * Adjunct processor matrix VFIO device driver callbacks.
->>>>>> + *
->>>>>> + * Copyright IBM Corp. 2017
->>>>>> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>>>>> + *
->>>>>> + */
->>>>>> +#include <linux/string.h>
->>>>>> +#include <linux/vfio.h>
->>>>>> +#include <linux/device.h>
->>>>>> +#include <linux/list.h>
->>>>>> +#include <linux/ctype.h>
->>>>>> +
->>>>>> +#include "vfio_ap_private.h"
->>>>>> +
->>>>>> +#define VFOP_AP_MDEV_TYPE_HWVIRT "passthrough"
->>>>>> +#define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
->>>>>> +
->>>>>> +static int vfio_ap_mdev_create(struct kobject *kobj, struct 
->>>>>> mdev_device *mdev)
->>>>>> +{
->>>>>> +    struct ap_matrix *ap_matrix = 
->>>>>> to_ap_matrix(mdev_parent_dev(mdev));
->>>>>> +
->>>>>> +    ap_matrix->available_instances--;
->>>>>> +
->>>>>> +    return 0;
->>>>>> +}
->>>>>> +
->>>>>> +static int vfio_ap_mdev_remove(struct mdev_device *mdev)
->>>>>> +{
->>>>>> +    struct ap_matrix *ap_matrix = 
->>>>>> to_ap_matrix(mdev_parent_dev(mdev));
->>>>>> +
->>>>>> +    ap_matrix->available_instances++;
->>>>>> +
->>>>>> +    return 0;
->>>>>> +}
->>>>>> +
->>>>>
->>>>> The above functions seem to be called with the lock of this 
->>>>> auto-generated
->>>>> mdev parent device held. That's why we don't have to care about 
->>>>> synchronization
->>>>> ourselves, right?
->>>>
->>>> I would assume as much. The comments for the 'struct 
->>>> mdev_parent_ops' in
->>>> include/linux/mdev.h do not mention anything about synchronization, 
->>>> nor did I
->>>> see any locking or synchronization in the vfio_ccw implementation 
->>>> after which
->>>> I modeled my code, so frankly it is something I did not consider.
->>>>
->>>>>
->>>>>
->>>>> A small comment in the code could be helpful for mdev non-experts. 
->>>>> Hell, I would
->>>>> even consider documenting it for all mdev -- took me some time to 
->>>>> figure out.
->>>>
->>>> You may want to bring this up with the VFIO mdev maintainers, but 
->>>> I'd be happy to
->>>> include a comment in the functions in question if you think it 
->>>> important.
->>>>
->>>>>
->>>>>
->>>>> [..]
->>>>>
->>>>>
->>>>>> +int vfio_ap_mdev_register(struct ap_matrix *ap_matrix)
->>>>>> +{
->>>>>> +    int ret;
->>>>>> +
->>>>>> +    ret = mdev_register_device(&ap_matrix->device, 
->>>>>> &vfio_ap_matrix_ops);
->>>>>> +    if (ret)
->>>>>> +        return ret;
->>>>>> +
->>>>>> +    ap_matrix->available_instances = 
->>>>>> AP_MATRIX_MAX_AVAILABLE_INSTANCES;
->>>>>> +
->>>>>> +    return 0;
->>>>>> +}
->>>>>> +
->>>>>> +void vfio_ap_mdev_unregister(struct ap_matrix *ap_matrix)
->>>>>> +{
->>>>>> +    ap_matrix->available_instances--;
->>>>>
->>>>> What is this for? I don't understand.
->>>>
->>>> To control the number of mediated devices one can create for the 
->>>> matrix device.
->>>> Once the max is reached, the mdev framework will not allow creation 
->>>> of another
->>>> mediated device until one is removed. This counter keeps track of 
->>>> the number
->>>> of instances that can be created. This is documented with the mediated
->>>> framework. You may want to take a look at:
->>>>
->>>> Documentation/vfio-mediated-device.txt
->>>> Documentation/vfio.txt
->>>> Documentation/virtual/kvm/devices/vfio.txt
+On 15/05/2018 18:07, Tony Krowiak wrote:
+> On 05/15/2018 10:55 AM, Pierre Morel wrote:
+>> On 07/05/2018 17:11, Tony Krowiak wrote:
+>>> Provides interfaces to manage the AP adapters, usage domains
+>>> and control domains assigned to a KVM guest.
 >>>
->>> This is what you do in create/remove.
->>> But here in unregister I agree with Halil, it does not seem to be 
->>> usefull.
+>>> The guest's SIE state description has a satellite structure called the
+>>> Crypto Control Block (CRYCB) containing three bitmask fields
+>>> identifying the adapters, queues (domains) and control domains
+>>> assigned to the KVM guest:
+>>>
+...snip...
+>>> +}
 >>
->> If that is in fact what Halil was asking, then I misinterpreted his 
->> question; I
->> thought he was asking what the available_instances was used for. You are
->> correct, this does not belong here although it makes little 
->> difference given
->> this is called only when the driver, which creates the matrix device, 
->> is unloaded.
->> It is necessary in the register function to initialize its value, but 
->> I'll
->> remove it from here.
+>> This function (ap_validate_queue_sharing) only verifies that VM don't 
+>> share queues.
+>> What about the queues used by a host application?
+>
+> How can that be verified from this function? I suppose I could put a 
+> check in here to
+> verify that the queues are reserved by the vfio_ap device driver, but 
+> that would
+> be redundant because an AP queue can not be assigned to a mediated 
+> matrix device
+> via its sysfs attributes unless it is reserved by the vfio_ap device 
+> driver (see
+> patches 7, 8 and 9).
+>
+>>
+>>
+>> I understand that you want to implement  these checks within KVM but 
+>> this is
+>> related to which queue devices are bound to the matrix and which one 
+>> are not.
+>
+> See my comments above and below about AP queue assignment to the 
+> mediated matrix
+> device. The one verification we can't do when the devices are assigned 
+> is whether
+> another guest is using the queue because assignment occurs before the 
+> guest using
+> the queue is started in which case we have no access to KVM. It makes 
+> no sense to
+> do so at assignment time anyway because it doesn't matter until the 
+> guest using
+> the mediated matrix device is started, so that check is done in KVM.
+>
+>>
+>>
+>> I think that this should be related somehow to the bounded queue 
+>> devices and
+>> therefor implemented inside the matrix driver.
+>
+> As I stated above, when an AP queue is assigned to the mediated matrix 
+> device via
+> its sysfs attributes, a check is done to verify that it is bound to 
+> the vfio_ap
+> device driver (see patches 7, 8 and 9). If not, then assignment will 
+> be rejected;
+> therefore, it will not be possible to configure a CRYCB with AP queues 
+> that are
+> not bound to the device driver.
+
+This patch and te followed patches take care that the queues are bound 
+to the
+matrix driver when they are assigned to the matrix using the sysfs entries.
+
+But they do not take care that the queue can not be unbound before you 
+start
+the guest, and they are not in the path if the admin decide to unbind a 
+queue
+at some later time.
+
+>
+>>
+>>
+>> Regards,
+>>
+>> Pierre
 >>
 >
-> I questioned the dubious usage of ap_matrix->available_instances 
-> rather than
-> asking what is the variable for.
 
-I said I'd remove it.
-
->
->
-> If I've had this deemed damaging I would have asked if it's damaging 
-> in a way
-> I think it is. For example take my comment on 'KVM: s390: interfaces 
-> to manage
-> guest's AP matrix'.
-
-I apologize for not being able to read your mind. While this is not 
-necessarily
-necessary, it is not damaging because this is called only when the 
-driver is being
-unloaded. The point is moot, however, because I am removing it.
-
->
->
-> Regards,
-> Halil
->
->>>
->>>
->>>>
->>>>>
->>>>>
->>>>> Regards,
->>>>> Halil
->>>>>
->>>>>> + mdev_unregister_device(&ap_matrix->device);
->>>>>> +}
->>>>
->>>>
->>>
->>
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
