@@ -1,88 +1,66 @@
 From: Steffen Maier <maier@linux.ibm.com>
-Date: Thu, 17 May 2018 17:14:52 +0000
-Subject: [PATCH 10/25] zfcp: split FCP_CMND IU setup between SCSI I/O and TMF again
-Message-Id: <20180517171507.18237-11-maier@linux.ibm.com>
+Date: Thu, 17 May 2018 17:14:53 +0000
+Subject: [PATCH 11/25] zfcp: decouple FSF request setup of TMF from scsi_cmnd
+Message-Id: <20180517171507.18237-12-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This reverts commit 2443c8b23aea ("[SCSI] zfcp: Merge FCP task management
-setup with regular FCP command setup"), because this introduced a
-dependency on the unsuitable SCSI command for scsi_eh / TMF.
+In zfcp_fsf_fcp_task_mgmt() resolve the still old argument scsi_cmnd
+into scsi_device very early and only depend on scsi_device and derived
+objects in the function body.
+
+This prepares to later change the function signature replacing the
+scsi_cmnd argument with scsi_device.
 
 Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
 Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fc.h  | 22 ++++++++++++++--------
- drivers/s390/scsi/zfcp_fsf.c |  4 ++--
- 2 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fc.h b/drivers/s390/scsi/zfcp_fc.h
-index 6a397ddaadf0..3cd74729cfb9 100644
---- a/drivers/s390/scsi/zfcp_fc.h
-+++ b/drivers/s390/scsi/zfcp_fc.h
-@@ -207,21 +207,14 @@ struct zfcp_fc_wka_ports {
-  * zfcp_fc_scsi_to_fcp - setup FCP command with data from scsi_cmnd
-  * @fcp: fcp_cmnd to setup
-  * @scsi: scsi_cmnd where to get LUN, task attributes/flags and CDB
-- * @tm: task management flags to setup task management command
-  */
- static inline
--void zfcp_fc_scsi_to_fcp(struct fcp_cmnd *fcp, struct scsi_cmnd *scsi,
--			 u8 tm_flags)
-+void zfcp_fc_scsi_to_fcp(struct fcp_cmnd *fcp, struct scsi_cmnd *scsi)
- {
- 	u32 datalen;
- 
- 	int_to_scsilun(scsi->device->lun, (struct scsi_lun *) &fcp->fc_lun);
- 
--	if (unlikely(tm_flags)) {
--		fcp->fc_tm_flags = tm_flags;
--		return;
--	}
--
- 	fcp->fc_pri_ta = FCP_PTA_SIMPLE;
- 
- 	if (scsi->sc_data_direction == DMA_FROM_DEVICE)
-@@ -240,6 +233,19 @@ void zfcp_fc_scsi_to_fcp(struct fcp_cmnd *fcp, struct scsi_cmnd *scsi,
- 	}
- }
- 
-+/**
-+ * zfcp_fc_fcp_tm() - Setup FCP command as task management command.
-+ * @fcp: Pointer to FCP_CMND IU to set up.
-+ * @dev: Pointer to SCSI_device where to send the task management command.
-+ * @tm_flags: Task management flags to setup tm command.
-+ */
-+static inline
-+void zfcp_fc_fcp_tm(struct fcp_cmnd *fcp, struct scsi_device *dev, u8 tm_flags)
-+{
-+	int_to_scsilun(dev->lun, (struct scsi_lun *) &fcp->fc_lun);
-+	fcp->fc_tm_flags = tm_flags;
-+}
-+
- /**
-  * zfcp_fc_evap_fcp_rsp - evaluate FCP RSP IU and update scsi_cmnd accordingly
-  * @fcp_rsp: FCP RSP IU to evaluate
+Notes:
+    Changes since RFC:
+    
+    Since the FCP channel always requires a valid LUN handle,
+    we now use scsi_device as context data with any TMF instead of either
+    scsi_device for FCP_TMF_LUN_RESET or zfcp_port for FCP_TMF_TGT_RESET.
+    
+    Thus, zfcp_fc_fcp_tm() no longer needs a change.
+    
+    This also fixes a kernel panic due to the unconditional dereference with
+    sdev_to_zfcp(sdev) where sdev could have been NULL later in the patch set.
+
+ drivers/s390/scsi/zfcp_fsf.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
 diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index a95070c7cad8..8bc768a01ef5 100644
+index 8bc768a01ef5..5bc84eaa6948 100644
 --- a/drivers/s390/scsi/zfcp_fsf.c
 +++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -2260,7 +2260,7 @@ int zfcp_fsf_fcp_cmnd(struct scsi_cmnd *scsi_cmnd)
+@@ -2324,7 +2324,8 @@ struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_cmnd *scmnd,
+ {
+ 	struct zfcp_fsf_req *req = NULL;
+ 	struct fcp_cmnd *fcp_cmnd;
+-	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(scmnd->device);
++	struct scsi_device *sdev = scmnd->device;
++	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
+ 	struct zfcp_qdio *qdio = zfcp_sdev->port->adapter->qdio;
  
- 	BUILD_BUG_ON(sizeof(struct fcp_cmnd) > FSF_FCP_CMND_SIZE);
- 	fcp_cmnd = &req->qtcb->bottom.io.fcp_cmnd.iu;
--	zfcp_fc_scsi_to_fcp(fcp_cmnd, scsi_cmnd, 0);
-+	zfcp_fc_scsi_to_fcp(fcp_cmnd, scsi_cmnd);
+ 	if (unlikely(!(atomic_read(&zfcp_sdev->status) &
+@@ -2344,7 +2345,8 @@ struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_cmnd *scmnd,
+ 		goto out;
+ 	}
  
- 	if ((scsi_get_prot_op(scsi_cmnd) != SCSI_PROT_NORMAL) &&
- 	    scsi_prot_sg_count(scsi_cmnd)) {
-@@ -2355,7 +2355,7 @@ struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_cmnd *scmnd,
+-	req->data = scmnd->device;
++	req->data = sdev;
++
+ 	req->handler = zfcp_fsf_fcp_task_mgmt_handler;
+ 	req->qtcb->header.lun_handle = zfcp_sdev->lun_handle;
+ 	req->qtcb->header.port_handle = zfcp_sdev->port->handle;
+@@ -2355,7 +2357,7 @@ struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_cmnd *scmnd,
  	zfcp_qdio_set_sbale_last(qdio, &req->qdio_req);
  
  	fcp_cmnd = &req->qtcb->bottom.io.fcp_cmnd.iu;
--	zfcp_fc_scsi_to_fcp(fcp_cmnd, scmnd, tm_flags);
-+	zfcp_fc_fcp_tm(fcp_cmnd, scmnd->device, tm_flags);
+-	zfcp_fc_fcp_tm(fcp_cmnd, scmnd->device, tm_flags);
++	zfcp_fc_fcp_tm(fcp_cmnd, sdev, tm_flags);
  
  	zfcp_fsf_start_timer(req, ZFCP_SCSI_ER_TIMEOUT);
  	if (!zfcp_fsf_req_send(req))
