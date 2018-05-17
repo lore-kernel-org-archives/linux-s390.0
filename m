@@ -1,56 +1,71 @@
 From: Steffen Maier <maier@linux.ibm.com>
-Date: Thu, 17 May 2018 17:14:59 +0000
-Subject: [PATCH 17/25] zfcp: remove unused ERP enum values
-Message-Id: <20180517171507.18237-18-maier@linux.ibm.com>
+Date: Thu, 17 May 2018 17:15:00 +0000
+Subject: [PATCH 18/25] zfcp: zfcp_erp_action_exists() does only check for running
+Message-Id: <20180517171507.18237-19-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-All constant defines were introduced with v2.6.0 history commit
-ea127f975424 ("[PATCH] s390 (7/7): zfcp host adapter.") and refactored into
-enums with commit 287ac01acf22 ("[SCSI] zfcp: Cleanup code in zfcp_erp.c").
-
-ZFCP_STATUS_ERP_DISMISSING and ZFCP_ERP_STEP_FSF_XCONFIG were never used.
-
-v2.6.27 commit 287ac01acf22 ("[SCSI] zfcp: Cleanup code in zfcp_erp.c")
-removed the use of ZFCP_ERP_ACTION_READY on refactoring
-zfcp_erp_action_exists() to now only check adapter->erp_running_head
-but no longer adapter->erp_ready_head. The same commit could have
-changed the function return type from int to "enum zfcp_erp_act_state".
-ZFCP_ERP_ACTION_READY was never used outside of zfcp_erp_action_exists().
+Simplify its signature to return boolean and rename it to
+zfcp_erp_action_is_running() to indicate its actual unmodified semantics.
+It has always been used like this since v2.6.0 history commit ea127f975424
+("[PATCH] s390 (7/7): zfcp host adapter.").
 
 Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_erp.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/s390/scsi/zfcp_erp.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index 9be629607dc0..b5ca484d5d5f 100644
+index b5ca484d5d5f..245621769c26 100644
 --- a/drivers/s390/scsi/zfcp_erp.c
 +++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -19,7 +19,6 @@
- enum zfcp_erp_act_flags {
- 	ZFCP_STATUS_ERP_TIMEDOUT	= 0x10000000,
- 	ZFCP_STATUS_ERP_CLOSE_ONLY	= 0x01000000,
--	ZFCP_STATUS_ERP_DISMISSING	= 0x00100000,
- 	ZFCP_STATUS_ERP_DISMISSED	= 0x00200000,
- 	ZFCP_STATUS_ERP_LOWMEM		= 0x00400000,
- 	ZFCP_STATUS_ERP_NO_REF		= 0x00800000,
-@@ -27,7 +26,6 @@ enum zfcp_erp_act_flags {
- 
- enum zfcp_erp_steps {
- 	ZFCP_ERP_STEP_UNINITIALIZED	= 0x0000,
--	ZFCP_ERP_STEP_FSF_XCONFIG	= 0x0001,
- 	ZFCP_ERP_STEP_PHYS_PORT_CLOSING	= 0x0010,
- 	ZFCP_ERP_STEP_PORT_CLOSING	= 0x0100,
- 	ZFCP_ERP_STEP_PORT_OPENING	= 0x0800,
-@@ -61,7 +59,6 @@ enum zfcp_erp_act_type {
- 
- enum zfcp_erp_act_state {
- 	ZFCP_ERP_ACTION_RUNNING = 1,
--	ZFCP_ERP_ACTION_READY   = 2,
+@@ -57,10 +57,6 @@ enum zfcp_erp_act_type {
+ 	ZFCP_ERP_ACTION_FAILED		   = 0xe0,
  };
  
+-enum zfcp_erp_act_state {
+-	ZFCP_ERP_ACTION_RUNNING = 1,
+-};
+-
  enum zfcp_erp_act_result {
+ 	ZFCP_ERP_SUCCEEDED = 0,
+ 	ZFCP_ERP_FAILED    = 1,
+@@ -76,14 +72,14 @@ static void zfcp_erp_adapter_block(struct zfcp_adapter *adapter, int mask)
+ 				       ZFCP_STATUS_COMMON_UNBLOCKED | mask);
+ }
+ 
+-static int zfcp_erp_action_exists(struct zfcp_erp_action *act)
++static bool zfcp_erp_action_is_running(struct zfcp_erp_action *act)
+ {
+ 	struct zfcp_erp_action *curr_act;
+ 
+ 	list_for_each_entry(curr_act, &act->adapter->erp_running_head, list)
+ 		if (act == curr_act)
+-			return ZFCP_ERP_ACTION_RUNNING;
+-	return 0;
++			return true;
++	return false;
+ }
+ 
+ static void zfcp_erp_action_ready(struct zfcp_erp_action *act)
+@@ -99,7 +95,7 @@ static void zfcp_erp_action_ready(struct zfcp_erp_action *act)
+ static void zfcp_erp_action_dismiss(struct zfcp_erp_action *act)
+ {
+ 	act->status |= ZFCP_STATUS_ERP_DISMISSED;
+-	if (zfcp_erp_action_exists(act) == ZFCP_ERP_ACTION_RUNNING)
++	if (zfcp_erp_action_is_running(act))
+ 		zfcp_erp_action_ready(act);
+ }
+ 
+@@ -622,7 +618,7 @@ void zfcp_erp_notify(struct zfcp_erp_action *erp_action, unsigned long set_mask)
+ 	unsigned long flags;
+ 
+ 	write_lock_irqsave(&adapter->erp_lock, flags);
+-	if (zfcp_erp_action_exists(erp_action) == ZFCP_ERP_ACTION_RUNNING) {
++	if (zfcp_erp_action_is_running(erp_action)) {
+ 		erp_action->status |= set_mask;
+ 		zfcp_erp_action_ready(erp_action);
+ 	}
 -- 
 2.16.3
