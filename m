@@ -1,94 +1,149 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: Re: [PATCH net-next] net/smc: init conn.tx_work & conn.send_lock
- sooner
-Date: Thu, 17 May 2018 18:30:38 +0200
-Message-ID: <d574e3fe-42c2-ba55-724e-a4519b58b1a4@linux.ibm.com>
-References: <20180517105421.182397-1-edumazet@google.com>
- <63bf1ebb-4a6f-43b8-1ee3-ced650e1dfdf@linux.ibm.com>
- <CANn89iJ7hMTjbz_-MbLt2TwsxYARKaov1MoiVMzx4jofsJrewA@mail.gmail.com>
- <c265fa3e-1359-1805-4735-d5ab0ca6b6e4@linux.ibm.com>
- <CANn89iJCjp++D=awHqPicuBqdF8dcvj9=-NF3=YUVSdxh7VgGQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CANn89iJCjp++D=awHqPicuBqdF8dcvj9=-NF3=YUVSdxh7VgGQ@mail.gmail.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Eric Dumazet <edumazet@google.com>
-Cc: David Miller <davem@davemloft.net>, netdev <netdev@vger.kernel.org>, Eric Dumazet <eric.dumazet@gmail.com>, linux-s390@vger.kernel.org
+From: Steffen Maier <maier@linux.ibm.com>
+Subject: [PATCH 01/25] zfcp: fix missing SCSI trace for result of eh_host_reset_handler
+Date: Thu, 17 May 2018 19:14:43 +0200
+Message-ID: <20180517171507.18237-2-maier@linux.ibm.com>
+References: <20180517171507.18237-1-maier@linux.ibm.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180517171507.18237-1-maier@linux.ibm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+For problem determination we need to see whether and why we were
+successful or not. This allows deduction of scsi_eh escalation.
 
+Example trace record formatted with zfcpdbf from s390-tools:
 
-On 05/17/2018 05:28 PM, Eric Dumazet wrote:
-> On Thu, May 17, 2018 at 6:58 AM Ursula Braun <ubraun@linux.ibm.com> wrote:
-> 
-> 
-> 
->> On 05/17/2018 02:20 PM, Eric Dumazet wrote:
->>> On Thu, May 17, 2018 at 5:13 AM Ursula Braun <ubraun@linux.ibm.com>
-> wrote:
->>>
->>>> This problem should no longer show up with yesterday's net-next commit
->>>> 569bc6436568 ("net/smc: no tx work trigger for fallback sockets").
->>>
->>> It definitely triggers on latest net-next, which includes 569bc6436568
->>>
->>> Thanks.
->>>
-> 
->> Sorry, my fault.
-> 
->> Your proposed patch solves the problem. On the other hand the purpose of
->> smc_tx_init() has been to cover tx-related socket initializations needed
-> for
->> connection sockets only. tx_work is something that should be scheduled
-> only
->> for active connection sockets in non-fallback mode.
->> Thus I prefer this alternate patch to solve the problem:
-> 
->> ---
->>   net/smc/af_smc.c |    8 ++++++--
->>   1 file changed, 6 insertions(+), 2 deletions(-)
-> 
->> --- a/net/smc/af_smc.c
->> +++ b/net/smc/af_smc.c
->> @@ -1362,14 +1362,18 @@ static int smc_setsockopt(struct socket
->>                  }
->>                  break;
->>          case TCP_NODELAY:
->> -               if (sk->sk_state != SMC_INIT && sk->sk_state !=
-> SMC_LISTEN) {
->> +               if (sk->sk_state != SMC_INIT &&
->> +                   sk->sk_state != SMC_LISTEN &&
->> +                   sk->sk_state != SMC_CLOSED) {
->>                          if (val && !smc->use_fallback)
->>                                  mod_delayed_work(system_wq,
-> &smc->conn.tx_work,
->>                                                   0);
->>                  }
->>                  break;
->>          case TCP_CORK:
->> -               if (sk->sk_state != SMC_INIT && sk->sk_state !=
-> SMC_LISTEN) {
->> +               if (sk->sk_state != SMC_INIT &&
->> +                   sk->sk_state != SMC_LISTEN &&
->> +                   sk->sk_state != SMC_CLOSED) {
->>                          if (!val && !smc->use_fallback)
->>                                  mod_delayed_work(system_wq,
-> &smc->conn.tx_work,
->>                                                   0);
-> 
->> What do you think?
-> 
-> I think my patch is cleaner.
-> 
-> Deferring spinlock and workqueues setup is a recipe for disaster.
-> 
+Timestamp      : ...
+Area           : SCSI
+Subarea        : 00
+Level          : 1
+Exception      : -
+CPU ID         : ..
+Caller         : 0x...
+Record ID      : 1
+Tag            : schrh_r        SCSI host reset handler result
+Request ID     : 0x0000000000000000                     none (invalid)
+SCSI ID        : 0xffffffff                             none (invalid)
+SCSI LUN       : 0xffffffff                             none (invalid)
+SCSI LUN high  : 0xffffffff                             none (invalid)
+SCSI result    : 0x00002002     field re-used for midlayer value: SUCCESS
+                                or in other cases: 0x2009 == FAST_IO_FAIL
+SCSI retries   : 0xff                                   none (invalid)
+SCSI allowed   : 0xff                                   none (invalid)
+SCSI scribble  : 0xffffffffffffffff                     none (invalid)
+SCSI opcode    : ffffffff ffffffff ffffffff ffffffff    none (invalid)
+FCP rsp inf cod: 0xff                                   none (invalid)
+FCP rsp IU     : 00000000 00000000 00000000 00000000    none (invalid)
+                 00000000 00000000
 
-If your solution is preferred, I agree. In this case my today's net/smc patch
-   net/smc: initialize tx_work before llc initial handshake
-for the net-tree is obsolete.
+v2.6.35 commit a1dbfddd02d2 ("[SCSI] zfcp: Pass return code from
+fc_block_scsi_eh to scsi eh") introduced the first return with something
+other than the previously hardcoded single SUCCESS return path.
+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: a1dbfddd02d2 ("[SCSI] zfcp: Pass return code from fc_block_scsi_eh to scsi eh")
+Cc: <stable@vger.kernel.org> #2.6.38+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+---
+ drivers/s390/scsi/zfcp_dbf.c  | 40 ++++++++++++++++++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_ext.h  |  2 ++
+ drivers/s390/scsi/zfcp_scsi.c | 11 ++++++-----
+ 3 files changed, 48 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+index a8b831000b2d..1e5ea5e4992b 100644
+--- a/drivers/s390/scsi/zfcp_dbf.c
++++ b/drivers/s390/scsi/zfcp_dbf.c
+@@ -643,6 +643,46 @@ void zfcp_dbf_scsi(char *tag, int level, struct scsi_cmnd *sc,
+ 	spin_unlock_irqrestore(&dbf->scsi_lock, flags);
+ }
+ 
++/**
++ * zfcp_dbf_scsi_eh() - Trace event for special cases of scsi_eh callbacks.
++ * @tag: Identifier for event.
++ * @adapter: Pointer to zfcp adapter as context for this event.
++ * @scsi_id: SCSI ID/target to indicate scope of task management function (TMF).
++ * @ret: Return value of calling function.
++ *
++ * This SCSI trace variant does not depend on any of:
++ * scsi_cmnd, zfcp_fsf_req, scsi_device.
++ */
++void zfcp_dbf_scsi_eh(char *tag, struct zfcp_adapter *adapter,
++		      unsigned int scsi_id, int ret)
++{
++	struct zfcp_dbf *dbf = adapter->dbf;
++	struct zfcp_dbf_scsi *rec = &dbf->scsi_buf;
++	unsigned long flags;
++	static int const level = 1;
++
++	if (unlikely(!debug_level_enabled(adapter->dbf->scsi, level)))
++		return;
++
++	spin_lock_irqsave(&dbf->scsi_lock, flags);
++	memset(rec, 0, sizeof(*rec));
++
++	memcpy(rec->tag, tag, ZFCP_DBF_TAG_LEN);
++	rec->id = ZFCP_DBF_SCSI_CMND;
++	rec->scsi_result = ret; /* re-use field, int is 4 bytes and fits */
++	rec->scsi_retries = ~0;
++	rec->scsi_allowed = ~0;
++	rec->fcp_rsp_info = ~0;
++	rec->scsi_id = scsi_id;
++	rec->scsi_lun = (u32)ZFCP_DBF_INVALID_LUN;
++	rec->scsi_lun_64_hi = (u32)(ZFCP_DBF_INVALID_LUN >> 32);
++	rec->host_scribble = ~0;
++	memset(rec->scsi_opcode, 0xff, ZFCP_DBF_SCSI_OPCODE);
++
++	debug_event(dbf->scsi, level, rec, sizeof(*rec));
++	spin_unlock_irqrestore(&dbf->scsi_lock, flags);
++}
++
+ static debug_info_t *zfcp_dbf_reg(const char *name, int size, int rec_size)
+ {
+ 	struct debug_info *d;
+diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
+index bf8ea4df2bb8..e55f42ce1168 100644
+--- a/drivers/s390/scsi/zfcp_ext.h
++++ b/drivers/s390/scsi/zfcp_ext.h
+@@ -49,6 +49,8 @@ extern void zfcp_dbf_san_res(char *, struct zfcp_fsf_req *);
+ extern void zfcp_dbf_san_in_els(char *, struct zfcp_fsf_req *);
+ extern void zfcp_dbf_scsi(char *, int, struct scsi_cmnd *,
+ 			  struct zfcp_fsf_req *);
++extern void zfcp_dbf_scsi_eh(char *tag, struct zfcp_adapter *adapter,
++			     unsigned int scsi_id, int ret);
+ 
+ /* zfcp_erp.c */
+ extern void zfcp_erp_set_adapter_status(struct zfcp_adapter *, u32);
+diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
+index 4d2ba5682493..a62357f5e8b4 100644
+--- a/drivers/s390/scsi/zfcp_scsi.c
++++ b/drivers/s390/scsi/zfcp_scsi.c
+@@ -323,15 +323,16 @@ static int zfcp_scsi_eh_host_reset_handler(struct scsi_cmnd *scpnt)
+ {
+ 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(scpnt->device);
+ 	struct zfcp_adapter *adapter = zfcp_sdev->port->adapter;
+-	int ret;
++	int ret = SUCCESS, fc_ret;
+ 
+ 	zfcp_erp_adapter_reopen(adapter, 0, "schrh_1");
+ 	zfcp_erp_wait(adapter);
+-	ret = fc_block_scsi_eh(scpnt);
+-	if (ret)
+-		return ret;
++	fc_ret = fc_block_scsi_eh(scpnt);
++	if (fc_ret)
++		ret = fc_ret;
+ 
+-	return SUCCESS;
++	zfcp_dbf_scsi_eh("schrh_r", adapter, ~0, ret);
++	return ret;
+ }
+ 
+ struct scsi_transport_template *zfcp_scsi_transport_template;
+-- 
+2.16.3
