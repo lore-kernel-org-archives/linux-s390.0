@@ -1,61 +1,61 @@
 From: Steffen Maier <maier@linux.ibm.com>
-Date: Thu, 17 May 2018 17:15:06 +0000
-Subject: [PATCH 24/25] zfcp: add port speed capabilities
-Message-Id: <20180517171507.18237-25-maier@linux.ibm.com>
+Date: Thu, 17 May 2018 17:15:07 +0000
+Subject: [PATCH 25/25] zfcp: enhance comments on fc_link_speed and supported_speed
+Message-Id: <20180517171507.18237-26-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Jens Remus <jremus@linux.ibm.com>
 
-Add port speed capabilities as defined in FC-LS RPSC ELS that have a
-counterpart FC_PORTSPEED_* defined in scsi/scsi_transport_fc.h.
+The comment on fsf_qtcb_bottom_port.supported_speed did read as if the
+field can only assume one of two possible values (i.e. 0x1 for 1 GBit/s or
+0x2 for 2 GBit/s). This is not true for two reasons: first it is a flag
+field and can thus assume any combination and second there are meanwhile
+more speeds.
 
-Suggested-by: Steffen Maier <maier@linux.ibm.com>
+Clarify comment on fsf_qtcb_bottom_port.supported_speed and add a comment
+to fsf_qtcb_bottom_config.fc_link_speed.
+
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 Reviewed-by: Steffen Maier <maier@linux.ibm.com>
 Reviewed-by: Fedor Loshakov <loshakov@linux.ibm.com>
-Acked-by: Hendrik Brueckner <brueckner@linux.ibm.com>
 Acked-by: Benjamin Block <bblock@linux.ibm.com>
+Acked-by: Hendrik Brueckner <brueckner@linux.ibm.com>
 Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_fsf.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 049fdd968130..3c86e27f094d 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
+diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
+index 4baca67aba6d..535628b92f0a 100644
+--- a/drivers/s390/scsi/zfcp_fsf.h
++++ b/drivers/s390/scsi/zfcp_fsf.h
 @@ -4,7 +4,7 @@
   *
-  * Implementation of FSF commands.
+  * Interface to the FSF support functions.
   *
 - * Copyright IBM Corp. 2002, 2017
 + * Copyright IBM Corp. 2002, 2018
   */
  
- #define KMSG_COMPONENT "zfcp"
-@@ -437,6 +437,9 @@ void zfcp_fsf_req_dismiss_all(struct zfcp_adapter *adapter)
- #define ZFCP_FSF_PORTSPEED_10GBIT	(1 <<  3)
- #define ZFCP_FSF_PORTSPEED_8GBIT	(1 <<  4)
- #define ZFCP_FSF_PORTSPEED_16GBIT	(1 <<  5)
-+#define ZFCP_FSF_PORTSPEED_32GBIT	(1 <<  6)
-+#define ZFCP_FSF_PORTSPEED_64GBIT	(1 <<  7)
-+#define ZFCP_FSF_PORTSPEED_128GBIT	(1 <<  8)
- #define ZFCP_FSF_PORTSPEED_NOT_NEGOTIATED (1 << 15)
- 
- static u32 zfcp_fsf_convert_portspeed(u32 fsf_speed)
-@@ -454,6 +457,12 @@ static u32 zfcp_fsf_convert_portspeed(u32 fsf_speed)
- 		fdmi_speed |= FC_PORTSPEED_8GBIT;
- 	if (fsf_speed & ZFCP_FSF_PORTSPEED_16GBIT)
- 		fdmi_speed |= FC_PORTSPEED_16GBIT;
-+	if (fsf_speed & ZFCP_FSF_PORTSPEED_32GBIT)
-+		fdmi_speed |= FC_PORTSPEED_32GBIT;
-+	if (fsf_speed & ZFCP_FSF_PORTSPEED_64GBIT)
-+		fdmi_speed |= FC_PORTSPEED_64GBIT;
-+	if (fsf_speed & ZFCP_FSF_PORTSPEED_128GBIT)
-+		fdmi_speed |= FC_PORTSPEED_128GBIT;
- 	if (fsf_speed & ZFCP_FSF_PORTSPEED_NOT_NEGOTIATED)
- 		fdmi_speed |= FC_PORTSPEED_NOT_NEGOTIATED;
- 	return fdmi_speed;
+ #ifndef FSF_H
+@@ -356,7 +356,7 @@ struct fsf_qtcb_bottom_config {
+ 	u32 adapter_features;
+ 	u32 connection_features;
+ 	u32 fc_topology;
+-	u32 fc_link_speed;
++	u32 fc_link_speed;	/* one of ZFCP_FSF_PORTSPEED_* */
+ 	u32 adapter_type;
+ 	u8 res0;
+ 	u8 peer_d_id[3];
+@@ -382,7 +382,7 @@ struct fsf_qtcb_bottom_port {
+ 	u32 class_of_service;	/* should be 0x00000006 for class 2 and 3 */
+ 	u8 supported_fc4_types[32]; /* should be 0x00000100 for scsi fcp */
+ 	u8 active_fc4_types[32];
+-	u32 supported_speed;	/* 0x0001 for 1 GBit/s or 0x0002 for 2 GBit/s */
++	u32 supported_speed;	/* any combination of ZFCP_FSF_PORTSPEED_* */
+ 	u32 maximum_frame_size;	/* fixed value of 2112 */
+ 	u64 seconds_since_last_reset;
+ 	u64 tx_frames;
 -- 
 2.16.3
