@@ -1,16 +1,44 @@
 From: Steffen Maier <maier@linux.ibm.com>
-Date: Thu, 17 May 2018 17:14:54 +0000
-Subject: [PATCH 12/25] zfcp: decouple SCSI setup of TMF from scsi_cmnd
-Message-Id: <20180517171507.18237-13-maier@linux.ibm.com>
+Date: Thu, 17 May 2018 17:14:55 +0000
+Subject: [PATCH 13/25] zfcp: decouple TMFs from scsi_cmnd by using fc_block_rport
+Message-Id: <20180517171507.18237-14-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Actually change the signature of zfcp_fsf_fcp_task_mgmt().
-Since it was prepared in the previous patch, we only need to delete
-a local auto variable which is now the intended argument.
+Intentionally retrieve the rport by walking SCSI common code objects
+rather than zfcp_sdev->port->rport.
 
-Prepare zfcp_fsf_fcp_task_mgmt's caller zfcp_task_mgmt_function()
-to have its function body only depend on a scsi_device and derived objects.
+The latter is used for pairing the calls to fc_remote_port_add() and
+fc_remote_port_delete(). [see v2.6.31 commit 379d6bf6573e ("[SCSI] zfcp:
+Add port only once to FC transport class")]
+
+zfcp_scsi_rport_register() sets zfcp_port.rport to what
+fc_remote_port_add() returned.
+zfcp_scsi_rport_block() sets zfcp_port.rport = NULL after having called
+fc_remote_port_delete().
+
+Hence, while an rport is blocked (or in any subsequent state due to
+scsi_transport_fc timeouts such as fast_io_fail_tmo or dev_loss_tmo),
+zfcp_port.rport is NULL and cannot serve as argument to fc_block_rport().
+
+During zfcp recovery, a just recovered zfcp_port can have the UNBLOCKED
+status flag, but an async rport unblocking has only started via
+zfcp_scsi_schedule_rport_register() in zfcp_erp_try_rport_unblock()
+[see v4.10 commit 6f2ce1c6af37 ("scsi: zfcp: fix rport unblock race with
+LUN recovery")] in zfcp_erp_action_cleanup(). Now zfcp_erp_wait() can
+return. This would be sufficient to successfully send a TMF.
+But the rport can still be blocked and zfcp_port.rport can still be NULL
+until zfcp_port.rport_work was scheduled and has actually called
+fc_remote_port_add() and assigned its return value to zfcp_port.rport.
+We need an unblocked rport for a successful scsi_eh TUR.
+
+Similarly, for a zfcp_port which has just lost its UNBLOCKED status flag,
+the return of zfcp_erp_wait() can race with zfcp_port.rport_work queued
+by zfcp_scsi_schedule_rport_block(). Therefore we cannot reliably access
+zfcp_port.rport. However, we'd like to get fc_rport_block()'s opinion on
+when fast_io_fail_tmo triggered. While we might use
+flush_work(&port->rport_work) to sync with the work item, we can simply use
+the other way to get an rport pointer.
 
 Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
@@ -19,74 +47,46 @@ Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 Notes:
     Changes since RFC:
     
-    Since the FCP channel always requires a valid LUN handle,
-    we now use scsi_device as context data with any TMF instead of
-    zfcp_port for FCP_TMF_TGT_RESET and an optional scsi_device for
-    FCP_TMF_LUN_RESET.
+    For consistency renamed from "zfcp: use fc_block_rport for TMFs and
+    host reset to decouple from scsi_cmnd".
     
-    Thus, zfcp_scsi_forget_cmnds() does not need a change anymore and
-    zfcp_task_mgmt_function() needs less changes because the tracing
-    with a mandatory scsi_device is simpler.
+    zfcp_scsi_eh_host_reset_handler() will be converted in a later patch.
+    Therefore, this patch here does not touch the host reset case any more.
+    
+    Since the previous "[RFC 6/9] scsi: fc: start decoupling fc_block_scsi_eh
+    from scsi_cmnd" was queued for 4.14 already, I dropped it from this new
+    patch set version and simply depend on it.
+    
+    Intentionally retrieve the rport by walking SCSI common code objects
+    rather than zfcp_sdev->port->rport.
+    
+    This also fixes the problem that we could not synchronize if port->rport
+    is NULL but still continued as if the TMF was successful as Hannes
+    correctly pointed out.
 
- drivers/s390/scsi/zfcp_ext.h  |  3 ++-
- drivers/s390/scsi/zfcp_fsf.c  | 12 ++++++------
- drivers/s390/scsi/zfcp_scsi.c |  2 +-
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/s390/scsi/zfcp_scsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
-index 78bcd80d0509..e317c4b513c9 100644
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -123,7 +123,8 @@ extern int zfcp_fsf_send_els(struct zfcp_adapter *, u32,
- 			     struct zfcp_fsf_ct_els *, unsigned int);
- extern int zfcp_fsf_fcp_cmnd(struct scsi_cmnd *);
- extern void zfcp_fsf_req_free(struct zfcp_fsf_req *);
--extern struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_cmnd *, u8);
-+extern struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_device *sdev,
-+						   u8 tm_flags);
- extern struct zfcp_fsf_req *zfcp_fsf_abort_fcp_cmnd(struct scsi_cmnd *);
- extern void zfcp_fsf_reqid_check(struct zfcp_qdio *, int);
- 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 5bc84eaa6948..d86c3bf71664 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -2314,17 +2314,17 @@ static void zfcp_fsf_fcp_task_mgmt_handler(struct zfcp_fsf_req *req)
- }
- 
- /**
-- * zfcp_fsf_fcp_task_mgmt - send SCSI task management command
-- * @scmnd: SCSI command to send the task management command for
-- * @tm_flags: unsigned byte for task management flags
-- * Returns: on success pointer to struct fsf_req, NULL otherwise
-+ * zfcp_fsf_fcp_task_mgmt() - Send SCSI task management command (TMF).
-+ * @sdev: Pointer to SCSI device to send the task management command to.
-+ * @tm_flags: Unsigned byte for task management flags.
-+ *
-+ * Return: On success pointer to struct zfcp_fsf_req, %NULL otherwise.
-  */
--struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_cmnd *scmnd,
-+struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_device *sdev,
- 					    u8 tm_flags)
- {
- 	struct zfcp_fsf_req *req = NULL;
- 	struct fcp_cmnd *fcp_cmnd;
--	struct scsi_device *sdev = scmnd->device;
- 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
- 	struct zfcp_qdio *qdio = zfcp_sdev->port->adapter->qdio;
- 
 diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
-index 0afc546b71df..e77e43a0630a 100644
+index e77e43a0630a..e0c5735cf3db 100644
 --- a/drivers/s390/scsi/zfcp_scsi.c
 +++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -275,7 +275,7 @@ static int zfcp_task_mgmt_function(struct scsi_cmnd *scpnt, u8 tm_flags)
+@@ -270,6 +270,7 @@ static int zfcp_task_mgmt_function(struct scsi_cmnd *scpnt, u8 tm_flags)
+ 	struct scsi_device *sdev = scpnt->device;
+ 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
+ 	struct zfcp_adapter *adapter = zfcp_sdev->port->adapter;
++	struct fc_rport *rport = starget_to_rport(scsi_target(sdev));
+ 	struct zfcp_fsf_req *fsf_req = NULL;
+ 	int retval = SUCCESS, ret;
  	int retry = 3;
+@@ -281,7 +282,7 @@ static int zfcp_task_mgmt_function(struct scsi_cmnd *scpnt, u8 tm_flags)
  
- 	while (retry--) {
--		fsf_req = zfcp_fsf_fcp_task_mgmt(scpnt, tm_flags);
-+		fsf_req = zfcp_fsf_fcp_task_mgmt(sdev, tm_flags);
- 		if (fsf_req)
- 			break;
- 
+ 		zfcp_dbf_scsi_devreset("wait", sdev, tm_flags, NULL);
+ 		zfcp_erp_wait(adapter);
+-		ret = fc_block_scsi_eh(scpnt);
++		ret = fc_block_rport(rport);
+ 		if (ret) {
+ 			zfcp_dbf_scsi_devreset("fiof", sdev, tm_flags, NULL);
+ 			return ret;
 -- 
 2.16.3
