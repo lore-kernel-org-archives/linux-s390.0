@@ -1,124 +1,137 @@
-From: Eric Dumazet <edumazet@google.com>
-Subject: [PATCH net-next] net/smc: init conn.tx_work & conn.send_lock sooner
-Date: Thu, 17 May 2018 03:54:21 -0700
-Message-ID: <20180517105421.182397-1-edumazet@google.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Subject: Re: [PATCH net-next] net/smc: init conn.tx_work & conn.send_lock
+ sooner
+Date: Thu, 17 May 2018 14:13:48 +0200
+Message-ID: <63bf1ebb-4a6f-43b8-1ee3-ced650e1dfdf@linux.ibm.com>
+References: <20180517105421.182397-1-edumazet@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180517105421.182397-1-edumazet@google.com>
+Content-Language: en-US
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: "David S . Miller" <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, Eric Dumazet <edumazet@google.com>, Eric Dumazet <eric.dumazet@gmail.com>, Ursula Braun <ubraun@linux.ibm.com>, linux-s390@vger.kernel.org
+To: Eric Dumazet <edumazet@google.com>, "David S . Miller" <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, Eric Dumazet <eric.dumazet@gmail.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-syzkaller found that following program crashes the host :
 
-{
-  int fd = socket(AF_SMC, SOCK_STREAM, 0);
-  int val = 1;
 
-  listen(fd, 0);
-  shutdown(fd, SHUT_RDWR);
-  setsockopt(fd, 6, TCP_NODELAY, &val, 4);
-}
+On 05/17/2018 12:54 PM, Eric Dumazet wrote:
+> syzkaller found that following program crashes the host :
+> 
+> {
+>   int fd = socket(AF_SMC, SOCK_STREAM, 0);
+>   int val = 1;
+> 
+>   listen(fd, 0);
+>   shutdown(fd, SHUT_RDWR);
+>   setsockopt(fd, 6, TCP_NODELAY, &val, 4);
+> }
+> 
+> Simply initialize conn.tx_work & conn.send_lock at socket creation,
+> rather than deeper in the stack.
+> 
+> ODEBUG: assert_init not available (active state 0) object type: timer_list hint:           (null)
+> WARNING: CPU: 1 PID: 13988 at lib/debugobjects.c:329 debug_print_object+0x16a/0x210 lib/debugobjects.c:326
+> Kernel panic - not syncing: panic_on_warn set ...
+> 
+> CPU: 1 PID: 13988 Comm: syz-executor0 Not tainted 4.17.0-rc4+ #46
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+> Call Trace:
+>  __dump_stack lib/dump_stack.c:77 [inline]
+>  dump_stack+0x1b9/0x294 lib/dump_stack.c:113
+>  panic+0x22f/0x4de kernel/panic.c:184
+>  __warn.cold.8+0x163/0x1b3 kernel/panic.c:536
+>  report_bug+0x252/0x2d0 lib/bug.c:186
+>  fixup_bug arch/x86/kernel/traps.c:178 [inline]
+>  do_error_trap+0x1de/0x490 arch/x86/kernel/traps.c:296
+>  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
+>  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:992
+> RIP: 0010:debug_print_object+0x16a/0x210 lib/debugobjects.c:326
+> RSP: 0018:ffff880197a37880 EFLAGS: 00010086
+> RAX: 0000000000000061 RBX: 0000000000000005 RCX: ffffc90001ed0000
+> RDX: 0000000000004aaf RSI: ffffffff8160f6f1 RDI: 0000000000000001
+> RBP: ffff880197a378c0 R08: ffff8801aa7a0080 R09: ffffed003b5e3eb2
+> R10: ffffed003b5e3eb2 R11: ffff8801daf1f597 R12: 0000000000000001
+> R13: ffffffff88d96980 R14: ffffffff87fa19a0 R15: ffffffff81666ec0
+>  debug_object_assert_init+0x309/0x500 lib/debugobjects.c:692
+>  debug_timer_assert_init kernel/time/timer.c:724 [inline]
+>  debug_assert_init kernel/time/timer.c:776 [inline]
+>  del_timer+0x74/0x140 kernel/time/timer.c:1198
+>  try_to_grab_pending+0x439/0x9a0 kernel/workqueue.c:1223
+>  mod_delayed_work_on+0x91/0x250 kernel/workqueue.c:1592
+>  mod_delayed_work include/linux/workqueue.h:541 [inline]
+>  smc_setsockopt+0x387/0x6d0 net/smc/af_smc.c:1367
+>  __sys_setsockopt+0x1bd/0x390 net/socket.c:1903
+>  __do_sys_setsockopt net/socket.c:1914 [inline]
+>  __se_sys_setsockopt net/socket.c:1911 [inline]
+>  __x64_sys_setsockopt+0xbe/0x150 net/socket.c:1911
+>  do_syscall_64+0x1b1/0x800 arch/x86/entry/common.c:287
+>  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+>
 
-Simply initialize conn.tx_work & conn.send_lock at socket creation,
-rather than deeper in the stack.
-
-ODEBUG: assert_init not available (active state 0) object type: timer_list hint:           (null)
-WARNING: CPU: 1 PID: 13988 at lib/debugobjects.c:329 debug_print_object+0x16a/0x210 lib/debugobjects.c:326
-Kernel panic - not syncing: panic_on_warn set ...
-
-CPU: 1 PID: 13988 Comm: syz-executor0 Not tainted 4.17.0-rc4+ #46
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1b9/0x294 lib/dump_stack.c:113
- panic+0x22f/0x4de kernel/panic.c:184
- __warn.cold.8+0x163/0x1b3 kernel/panic.c:536
- report_bug+0x252/0x2d0 lib/bug.c:186
- fixup_bug arch/x86/kernel/traps.c:178 [inline]
- do_error_trap+0x1de/0x490 arch/x86/kernel/traps.c:296
- do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
- invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:992
-RIP: 0010:debug_print_object+0x16a/0x210 lib/debugobjects.c:326
-RSP: 0018:ffff880197a37880 EFLAGS: 00010086
-RAX: 0000000000000061 RBX: 0000000000000005 RCX: ffffc90001ed0000
-RDX: 0000000000004aaf RSI: ffffffff8160f6f1 RDI: 0000000000000001
-RBP: ffff880197a378c0 R08: ffff8801aa7a0080 R09: ffffed003b5e3eb2
-R10: ffffed003b5e3eb2 R11: ffff8801daf1f597 R12: 0000000000000001
-R13: ffffffff88d96980 R14: ffffffff87fa19a0 R15: ffffffff81666ec0
- debug_object_assert_init+0x309/0x500 lib/debugobjects.c:692
- debug_timer_assert_init kernel/time/timer.c:724 [inline]
- debug_assert_init kernel/time/timer.c:776 [inline]
- del_timer+0x74/0x140 kernel/time/timer.c:1198
- try_to_grab_pending+0x439/0x9a0 kernel/workqueue.c:1223
- mod_delayed_work_on+0x91/0x250 kernel/workqueue.c:1592
- mod_delayed_work include/linux/workqueue.h:541 [inline]
- smc_setsockopt+0x387/0x6d0 net/smc/af_smc.c:1367
- __sys_setsockopt+0x1bd/0x390 net/socket.c:1903
- __do_sys_setsockopt net/socket.c:1914 [inline]
- __se_sys_setsockopt net/socket.c:1911 [inline]
- __x64_sys_setsockopt+0xbe/0x150 net/socket.c:1911
- do_syscall_64+0x1b1/0x800 arch/x86/entry/common.c:287
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: 01d2f7e2cdd3 ("net/smc: sockopts TCP_NODELAY and TCP_CORK")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Ursula Braun <ubraun@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Reported-by: syzbot <syzkaller@googlegroups.com>
----
- net/smc/af_smc.c | 2 ++
- net/smc/smc_tx.c | 4 +---
- net/smc/smc_tx.h | 1 +
- 3 files changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index d15762b057c0d8d4167feca9a4c41f0408604c37..6ad4f6c771c3fa63d3ae714dbe65879910963a21 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -193,8 +193,10 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
- 	sk->sk_protocol = protocol;
- 	smc = smc_sk(sk);
- 	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
-+	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
- 	INIT_LIST_HEAD(&smc->accept_q);
- 	spin_lock_init(&smc->accept_q_lock);
-+	spin_lock_init(&smc->conn.send_lock);
- 	sk->sk_prot->hash(sk);
- 	sk_refcnt_debug_inc(sk);
+This problem should no longer show up with yesterday's net-next commit
+569bc6436568 ("net/smc: no tx work trigger for fallback sockets").
  
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 58dfe0bd9d6075b5d3db97c659999b364b97da73..08a7de98bb031b5d2256e3238236108749e7ae39 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -450,7 +450,7 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
- /* Wakeup sndbuf consumers from process context
-  * since there is more data to transmit
-  */
--static void smc_tx_work(struct work_struct *work)
-+void smc_tx_work(struct work_struct *work)
- {
- 	struct smc_connection *conn = container_of(to_delayed_work(work),
- 						   struct smc_connection,
-@@ -512,6 +512,4 @@ void smc_tx_consumer_update(struct smc_connection *conn)
- void smc_tx_init(struct smc_sock *smc)
- {
- 	smc->sk.sk_write_space = smc_tx_write_space;
--	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
--	spin_lock_init(&smc->conn.send_lock);
- }
-diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
-index 78255964fa4dc1c69f96548e035e74a167999a62..8f64b12bf03c1b52c599b1239784a404efe65dae 100644
---- a/net/smc/smc_tx.h
-+++ b/net/smc/smc_tx.h
-@@ -27,6 +27,7 @@ static inline int smc_tx_prepared_sends(struct smc_connection *conn)
- 	return smc_curs_diff(conn->sndbuf_size, &sent, &prep);
- }
- 
-+void smc_tx_work(struct work_struct *work);
- void smc_tx_init(struct smc_sock *smc);
- int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
- int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
--- 
-2.17.0.441.gb46fe60e1d-goog
+> Fixes: 01d2f7e2cdd3 ("net/smc: sockopts TCP_NODELAY and TCP_CORK")
+> Signed-off-by: Eric Dumazet <edumazet@google.com>
+> Cc: Ursula Braun <ubraun@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Reported-by: syzbot <syzkaller@googlegroups.com>
+> ---
+>  net/smc/af_smc.c | 2 ++
+>  net/smc/smc_tx.c | 4 +---
+>  net/smc/smc_tx.h | 1 +
+>  3 files changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index d15762b057c0d8d4167feca9a4c41f0408604c37..6ad4f6c771c3fa63d3ae714dbe65879910963a21 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -193,8 +193,10 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
+>  	sk->sk_protocol = protocol;
+>  	smc = smc_sk(sk);
+>  	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
+> +	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
+>  	INIT_LIST_HEAD(&smc->accept_q);
+>  	spin_lock_init(&smc->accept_q_lock);
+> +	spin_lock_init(&smc->conn.send_lock);
+>  	sk->sk_prot->hash(sk);
+>  	sk_refcnt_debug_inc(sk);
+>  
+> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+> index 58dfe0bd9d6075b5d3db97c659999b364b97da73..08a7de98bb031b5d2256e3238236108749e7ae39 100644
+> --- a/net/smc/smc_tx.c
+> +++ b/net/smc/smc_tx.c
+> @@ -450,7 +450,7 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+>  /* Wakeup sndbuf consumers from process context
+>   * since there is more data to transmit
+>   */
+> -static void smc_tx_work(struct work_struct *work)
+> +void smc_tx_work(struct work_struct *work)
+>  {
+>  	struct smc_connection *conn = container_of(to_delayed_work(work),
+>  						   struct smc_connection,
+> @@ -512,6 +512,4 @@ void smc_tx_consumer_update(struct smc_connection *conn)
+>  void smc_tx_init(struct smc_sock *smc)
+>  {
+>  	smc->sk.sk_write_space = smc_tx_write_space;
+> -	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
+> -	spin_lock_init(&smc->conn.send_lock);
+>  }
+> diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
+> index 78255964fa4dc1c69f96548e035e74a167999a62..8f64b12bf03c1b52c599b1239784a404efe65dae 100644
+> --- a/net/smc/smc_tx.h
+> +++ b/net/smc/smc_tx.h
+> @@ -27,6 +27,7 @@ static inline int smc_tx_prepared_sends(struct smc_connection *conn)
+>  	return smc_curs_diff(conn->sndbuf_size, &sent, &prep);
+>  }
+>  
+> +void smc_tx_work(struct work_struct *work);
+>  void smc_tx_init(struct smc_sock *smc);
+>  int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
+>  int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
+> 
