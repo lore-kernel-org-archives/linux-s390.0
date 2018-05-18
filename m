@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 4/9] net/smc: calculate write offset in RMB only once per connection
-Date: Fri, 18 May 2018 09:34:13 +0200
-Message-ID: <20180518073418.91878-5-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 6/9] net/smc: restructure CDC message reception
+Date: Fri, 18 May 2018 09:34:15 +0200
+Message-ID: <20180518073418.91878-7-ubraun@linux.ibm.com>
 References: <20180518073418.91878-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180518073418.91878-1-ubraun@linux.ibm.com>
@@ -14,61 +14,101 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hans Wippel <hwippel@linux.ibm.com>
 
-Currently, the write offset within the RMB is calculated on each write
-operation although it is fixed for each connection. With this patch, the
-offset is calculated once and stored in a connection specific variable.
+This patch moves a CDC sanity check from smc_cdc_msg_recv_action() to
+the other sanity checks in smc_cdc_rx_handler(). While doing this, it
+simplifies smc_cdc_msg_recv() and removes unneeded function parameters.
 
 Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/af_smc.c | 5 ++++-
- net/smc/smc.h    | 1 +
- net/smc/smc_tx.c | 2 +-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ net/smc/smc_cdc.c | 47 ++++++++++++++++++++++-------------------------
+ 1 file changed, 22 insertions(+), 25 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bd67430f3730..9871604ebb53 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -377,10 +377,13 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
- static void smc_conn_save_peer_info(struct smc_sock *smc,
- 				    struct smc_clc_msg_accept_confirm *clc)
- {
-+	int bufsize = smc_uncompress_bufsize(clc->rmbe_size);
-+
- 	smc->conn.peer_rmbe_idx = clc->rmbe_idx;
- 	smc->conn.local_tx_ctrl.token = ntohl(clc->rmbe_alert_token);
--	smc->conn.peer_rmbe_size = smc_uncompress_bufsize(clc->rmbe_size);
-+	smc->conn.peer_rmbe_size = bufsize;
- 	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
-+	smc->conn.tx_off = bufsize * (smc->conn.peer_rmbe_idx - 1);
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 2809f9902446..8d2c079c87b0 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -165,19 +165,12 @@ static inline bool smc_cdc_before(u16 seq1, u16 seq2)
  }
  
- static void smc_link_save_peer_info(struct smc_link *link,
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index fb8dec8bc17f..9bc37645e7d5 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -151,6 +151,7 @@ struct smc_connection {
- 	u16			tx_cdc_seq;	/* sequence # for CDC send */
- 	spinlock_t		send_lock;	/* protect wr_sends */
- 	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
-+	u32			tx_off;		/* base offset in peer rmb */
+ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+-				    struct smc_link *link,
+ 				    struct smc_cdc_msg *cdc)
+ {
+ 	union smc_host_cursor cons_old, prod_old;
+ 	struct smc_connection *conn = &smc->conn;
+ 	int diff_cons, diff_prod;
  
- 	struct smc_host_cdc_msg	local_rx_ctrl;	/* filled during event_handl.
- 						 * .prod cf. TCP rcv_nxt
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 58a56c992b26..1f4a38b857f0 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -261,7 +261,7 @@ static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
- 	rdma_wr.remote_addr =
- 		lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].dma_addr +
- 		/* RMBE within RMB */
--		((conn->peer_rmbe_idx - 1) * conn->peer_rmbe_size) +
-+		conn->tx_off +
- 		/* offset within RMBE */
- 		peer_rmbe_offset;
- 	rdma_wr.rkey = lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].rkey;
+-	if (!cdc->prod_flags.failover_validation) {
+-		if (smc_cdc_before(ntohs(cdc->seqno),
+-				   conn->local_rx_ctrl.seqno))
+-			/* received seqno is old */
+-			return;
+-	}
+ 	smc_curs_write(&prod_old,
+ 		       smc_curs_read(&conn->local_rx_ctrl.prod, conn),
+ 		       conn);
+@@ -236,26 +229,11 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ }
+ 
+ /* called under tasklet context */
+-static inline void smc_cdc_msg_recv(struct smc_cdc_msg *cdc,
+-				    struct smc_link *link, u64 wr_id)
++static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
+ {
+-	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
+-						  lnk[SMC_SINGLE_LINK]);
+-	struct smc_connection *connection;
+-	struct smc_sock *smc;
+-
+-	/* lookup connection */
+-	read_lock_bh(&lgr->conns_lock);
+-	connection = smc_lgr_find_conn(ntohl(cdc->token), lgr);
+-	if (!connection) {
+-		read_unlock_bh(&lgr->conns_lock);
+-		return;
+-	}
+-	smc = container_of(connection, struct smc_sock, conn);
+ 	sock_hold(&smc->sk);
+-	read_unlock_bh(&lgr->conns_lock);
+ 	bh_lock_sock(&smc->sk);
+-	smc_cdc_msg_recv_action(smc, link, cdc);
++	smc_cdc_msg_recv_action(smc, cdc);
+ 	bh_unlock_sock(&smc->sk);
+ 	sock_put(&smc->sk); /* no free sk in softirq-context */
+ }
+@@ -266,12 +244,31 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
+ {
+ 	struct smc_link *link = (struct smc_link *)wc->qp->qp_context;
+ 	struct smc_cdc_msg *cdc = buf;
++	struct smc_connection *conn;
++	struct smc_link_group *lgr;
++	struct smc_sock *smc;
+ 
+ 	if (wc->byte_len < offsetof(struct smc_cdc_msg, reserved))
+ 		return; /* short message */
+ 	if (cdc->len != SMC_WR_TX_SIZE)
+ 		return; /* invalid message */
+-	smc_cdc_msg_recv(cdc, link, wc->wr_id);
++
++	/* lookup connection */
++	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
++	read_lock_bh(&lgr->conns_lock);
++	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
++	read_unlock_bh(&lgr->conns_lock);
++	if (!conn)
++		return;
++	smc = container_of(conn, struct smc_sock, conn);
++
++	if (!cdc->prod_flags.failover_validation) {
++		if (smc_cdc_before(ntohs(cdc->seqno),
++				   conn->local_rx_ctrl.seqno))
++			/* received seqno is old */
++			return;
++	}
++	smc_cdc_msg_recv(smc, cdc);
+ }
+ 
+ static struct smc_wr_rx_handler smc_cdc_rx_handlers[] = {
 -- 
 2.16.3
