@@ -1,105 +1,24 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 3/9] net/smc: rename connection index to RMBE index
-Date: Fri, 18 May 2018 09:34:12 +0200
-Message-ID: <20180518073418.91878-4-ubraun@linux.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/9] net/smc: cleanups 2018-05-18
+Date: Fri, 18 May 2018 13:18:05 -0400 (EDT)
+Message-ID: <20180518.131805.90097783264507313.davem@davemloft.net>
 References: <20180518073418.91878-1-ubraun@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180518073418.91878-1-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.ibm.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Fri, 18 May 2018 09:34:09 +0200
 
-The connection index is actually a RMBE index. So, this patch changes
-the name accordingly.
+> here are SMC patches for net-next providing restructuring and cleanup
+> in different areas.
 
-Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/af_smc.c  | 2 +-
- net/smc/smc.h     | 2 +-
- net/smc/smc_clc.c | 4 ++--
- net/smc/smc_clc.h | 2 +-
- net/smc/smc_tx.c  | 2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 4bb320ae11a9..bd67430f3730 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -377,7 +377,7 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
- static void smc_conn_save_peer_info(struct smc_sock *smc,
- 				    struct smc_clc_msg_accept_confirm *clc)
- {
--	smc->conn.peer_conn_idx = clc->conn_idx;
-+	smc->conn.peer_rmbe_idx = clc->rmbe_idx;
- 	smc->conn.local_tx_ctrl.token = ntohl(clc->rmbe_alert_token);
- 	smc->conn.peer_rmbe_size = smc_uncompress_bufsize(clc->rmbe_size);
- 	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index ad6694f516dd..fb8dec8bc17f 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -118,7 +118,7 @@ struct smc_connection {
- 	struct rb_node		alert_node;
- 	struct smc_link_group	*lgr;		/* link group of connection */
- 	u32			alert_token_local; /* unique conn. id */
--	u8			peer_conn_idx;	/* from tcp handshake */
-+	u8			peer_rmbe_idx;	/* from tcp handshake */
- 	int			peer_rmbe_size;	/* size of peer rx buffer */
- 	atomic_t		peer_rmbe_space;/* remaining free bytes in peer
- 						 * rmbe
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 236cb3f12c71..717449b1da0b 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -442,7 +442,7 @@ int smc_clc_send_confirm(struct smc_sock *smc)
- 	hton24(cclc.qpn, link->roce_qp->qp_num);
- 	cclc.rmb_rkey =
- 		htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
--	cclc.conn_idx = 1; /* for now: 1 RMB = 1 RMBE */
-+	cclc.rmbe_idx = 1; /* for now: 1 RMB = 1 RMBE */
- 	cclc.rmbe_alert_token = htonl(conn->alert_token_local);
- 	cclc.qp_mtu = min(link->path_mtu, link->peer_mtu);
- 	cclc.rmbe_size = conn->rmbe_size_short;
-@@ -494,7 +494,7 @@ int smc_clc_send_accept(struct smc_sock *new_smc, int srv_first_contact)
- 	hton24(aclc.qpn, link->roce_qp->qp_num);
- 	aclc.rmb_rkey =
- 		htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
--	aclc.conn_idx = 1;			/* as long as 1 RMB = 1 RMBE */
-+	aclc.rmbe_idx = 1;			/* as long as 1 RMB = 1 RMBE */
- 	aclc.rmbe_alert_token = htonl(conn->alert_token_local);
- 	aclc.qp_mtu = link->path_mtu;
- 	aclc.rmbe_size = conn->rmbe_size_short,
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 63bf1dc2c1f9..41ff9ea96139 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -97,7 +97,7 @@ struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
- 	struct smc_clc_msg_local lcl;
- 	u8 qpn[3];		/* QP number */
- 	__be32 rmb_rkey;	/* RMB rkey */
--	u8 conn_idx;		/* Connection index, which RMBE in RMB */
-+	u8 rmbe_idx;		/* Index of RMBE in RMB */
- 	__be32 rmbe_alert_token;/* unique connection id */
- #if defined(__BIG_ENDIAN_BITFIELD)
- 	u8 rmbe_size : 4,	/* RMBE buf size (compressed notation) */
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 58bc7ca3101a..58a56c992b26 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -261,7 +261,7 @@ static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
- 	rdma_wr.remote_addr =
- 		lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].dma_addr +
- 		/* RMBE within RMB */
--		((conn->peer_conn_idx - 1) * conn->peer_rmbe_size) +
-+		((conn->peer_rmbe_idx - 1) * conn->peer_rmbe_size) +
- 		/* offset within RMBE */
- 		peer_rmbe_offset;
- 	rdma_wr.rkey = lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].rkey;
--- 
-2.16.3
+Series applied, thanks Ursula.
