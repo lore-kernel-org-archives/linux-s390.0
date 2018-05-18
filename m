@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 6/9] net/smc: restructure CDC message reception
-Date: Fri, 18 May 2018 09:34:15 +0200
-Message-ID: <20180518073418.91878-7-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 7/9] net/smc: do a few smc_core.c cleanups
+Date: Fri, 18 May 2018 09:34:16 +0200
+Message-ID: <20180518073418.91878-8-ubraun@linux.ibm.com>
 References: <20180518073418.91878-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180518073418.91878-1-ubraun@linux.ibm.com>
@@ -14,101 +14,65 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hans Wippel <hwippel@linux.ibm.com>
 
-This patch moves a CDC sanity check from smc_cdc_msg_recv_action() to
-the other sanity checks in smc_cdc_rx_handler(). While doing this, it
-simplifies smc_cdc_msg_recv() and removes unneeded function parameters.
+This patch consists of Christmas tree fixes and removal of an unneeded
+function parameter.
 
 Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_cdc.c | 47 ++++++++++++++++++++++-------------------------
- 1 file changed, 22 insertions(+), 25 deletions(-)
+ net/smc/smc_core.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 2809f9902446..8d2c079c87b0 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -165,19 +165,12 @@ static inline bool smc_cdc_before(u16 seq1, u16 seq2)
- }
- 
- static void smc_cdc_msg_recv_action(struct smc_sock *smc,
--				    struct smc_link *link,
- 				    struct smc_cdc_msg *cdc)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 66afa086ae72..c63cf7b07ccc 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -474,10 +474,10 @@ int smc_conn_create(struct smc_sock *smc,
+ 		    struct smc_clc_msg_local *lcl, int srv_first_contact)
  {
- 	union smc_host_cursor cons_old, prod_old;
  	struct smc_connection *conn = &smc->conn;
- 	int diff_cons, diff_prod;
++	int local_contact = SMC_FIRST_CONTACT;
+ 	struct smc_link_group *lgr;
+ 	unsigned short vlan_id;
+ 	enum smc_lgr_role role;
+-	int local_contact = SMC_FIRST_CONTACT;
+ 	int rc = 0;
  
--	if (!cdc->prod_flags.failover_validation) {
--		if (smc_cdc_before(ntohs(cdc->seqno),
--				   conn->local_rx_ctrl.seqno))
--			/* received seqno is old */
--			return;
--	}
- 	smc_curs_write(&prod_old,
- 		       smc_curs_read(&conn->local_rx_ctrl.prod, conn),
- 		       conn);
-@@ -236,26 +229,11 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- }
- 
- /* called under tasklet context */
--static inline void smc_cdc_msg_recv(struct smc_cdc_msg *cdc,
--				    struct smc_link *link, u64 wr_id)
-+static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
+ 	role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
+@@ -573,11 +573,9 @@ int smc_uncompress_bufsize(u8 compressed)
+ /* try to reuse a sndbuf or rmb description slot for a certain
+  * buffer size; if not available, return NULL
+  */
+-static inline
+-struct smc_buf_desc *smc_buf_get_slot(struct smc_link_group *lgr,
+-				      int compressed_bufsize,
+-				      rwlock_t *lock,
+-				      struct list_head *buf_list)
++static struct smc_buf_desc *smc_buf_get_slot(int compressed_bufsize,
++					     rwlock_t *lock,
++					     struct list_head *buf_list)
  {
--	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
--						  lnk[SMC_SINGLE_LINK]);
--	struct smc_connection *connection;
--	struct smc_sock *smc;
--
--	/* lookup connection */
--	read_lock_bh(&lgr->conns_lock);
--	connection = smc_lgr_find_conn(ntohl(cdc->token), lgr);
--	if (!connection) {
--		read_unlock_bh(&lgr->conns_lock);
--		return;
--	}
--	smc = container_of(connection, struct smc_sock, conn);
- 	sock_hold(&smc->sk);
--	read_unlock_bh(&lgr->conns_lock);
- 	bh_lock_sock(&smc->sk);
--	smc_cdc_msg_recv_action(smc, link, cdc);
-+	smc_cdc_msg_recv_action(smc, cdc);
- 	bh_unlock_sock(&smc->sk);
- 	sock_put(&smc->sk); /* no free sk in softirq-context */
- }
-@@ -266,12 +244,31 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
+ 	struct smc_buf_desc *buf_slot;
+ 
+@@ -662,9 +660,9 @@ static struct smc_buf_desc *smc_new_buf_create(struct smc_link_group *lgr,
+ 
+ static int __smc_buf_create(struct smc_sock *smc, bool is_rmb)
  {
- 	struct smc_link *link = (struct smc_link *)wc->qp->qp_context;
- 	struct smc_cdc_msg *cdc = buf;
-+	struct smc_connection *conn;
-+	struct smc_link_group *lgr;
-+	struct smc_sock *smc;
++	struct smc_buf_desc *buf_desc = ERR_PTR(-ENOMEM);
+ 	struct smc_connection *conn = &smc->conn;
+ 	struct smc_link_group *lgr = conn->lgr;
+-	struct smc_buf_desc *buf_desc = ERR_PTR(-ENOMEM);
+ 	struct list_head *buf_list;
+ 	int bufsize, bufsize_short;
+ 	int sk_buf_size;
+@@ -692,7 +690,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_rmb)
+ 			continue;
  
- 	if (wc->byte_len < offsetof(struct smc_cdc_msg, reserved))
- 		return; /* short message */
- 	if (cdc->len != SMC_WR_TX_SIZE)
- 		return; /* invalid message */
--	smc_cdc_msg_recv(cdc, link, wc->wr_id);
-+
-+	/* lookup connection */
-+	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
-+	read_lock_bh(&lgr->conns_lock);
-+	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
-+	read_unlock_bh(&lgr->conns_lock);
-+	if (!conn)
-+		return;
-+	smc = container_of(conn, struct smc_sock, conn);
-+
-+	if (!cdc->prod_flags.failover_validation) {
-+		if (smc_cdc_before(ntohs(cdc->seqno),
-+				   conn->local_rx_ctrl.seqno))
-+			/* received seqno is old */
-+			return;
-+	}
-+	smc_cdc_msg_recv(smc, cdc);
- }
- 
- static struct smc_wr_rx_handler smc_cdc_rx_handlers[] = {
+ 		/* check for reusable slot in the link group */
+-		buf_desc = smc_buf_get_slot(lgr, bufsize_short, lock, buf_list);
++		buf_desc = smc_buf_get_slot(bufsize_short, lock, buf_list);
+ 		if (buf_desc) {
+ 			memset(buf_desc->cpu_addr, 0, bufsize);
+ 			break; /* found reusable slot */
 -- 
 2.16.3
