@@ -1,196 +1,715 @@
-Return-Path: <linux-pci-owner@vger.kernel.org>
-Date: Thu, 17 May 2018 17:16:39 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-Subject: Re: [PATCH v17 0/9] Address error and recovery for AER and DPC
-Message-ID: <20180517221639.GE19955@bhelgaas-glaptop.roam.corp.google.com>
-References: <1526542991-5291-1-git-send-email-poza@codeaurora.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1526542991-5291-1-git-send-email-poza@codeaurora.org>
-Sender: linux-pci-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-pci/>
-List-Post: <mailto:linux-pci@vger.kernel.org>
-To: Oza Pawandeep <poza@codeaurora.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kate Stewart <kstewart@linuxfoundation.org>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Dongdong Liu <liudongdong3@huawei.com>, Keith Busch <keith.busch@intel.com>, Wei Zhang <wzhang@fb.com>, Sinan Kaya <okaya@codeaurora.org>, Timur Tabi <timur@codeaurora.org>, Russell Currey <ruscur@russell.cc>, Sam Bobroff <sam.bobroff@au1.ibm.com>, "Bryant G. Ly" <bryantly@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
+From: Ursula Braun <ubraun@linux.ibm.com>
+Subject: [PATCH net-next 9/9] net/smc: restructure client and server code in af_smc
+Date: Fri, 18 May 2018 09:34:18 +0200
+Message-ID: <20180518073418.91878-10-ubraun@linux.ibm.com>
+References: <20180518073418.91878-1-ubraun@linux.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180518073418.91878-1-ubraun@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-[+cc Russell, Sam, Bryant, linuxppc-dev, Sebastian, linux-s390]
+From: Hans Wippel <hwippel@linux.ibm.com>
 
-Sorry, I should have pulled in these new CC's earlier because ppc and
-s390 both have PCI error handling similar to what Oza is changing
-here.
+This patch splits up the functions smc_connect_rdma and smc_listen_work
+into smaller functions.
 
-The basic issue is that the new PCIe DPC (Downstream Port Containment,
-see PCIe r4.0, sec 6.2.10) feature doesn't fit very well in the
-framework of the pci_error_handlers callbacks.
+Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/af_smc.c | 559 +++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 318 insertions(+), 241 deletions(-)
 
-When DPC is enabled, a Downstream Port (either a Root Port or a Switch
-Downstream Port) that receives an ERR_FATAL message automatically
-disables its Link.  IIUC, this is also intended for use in hot-unplug
-scenarios.
-
-When the DPC hardware takes the Link down, it resets all the
-downstream devices, and there's not much point in calling the
-pci_error_handlers callbacks because the devices are unreachable.
-Even after the Link comes back up, we can't be certain the same device
-is there because of the hotplug possibility.
-
-The software side of DPC recovery basically consists of detaching the
-drivers of the downstream devices (calling their .remove() methods),
-bringing the link back up, re-enumerating the downstream devices, and
-re-attaching the drivers (calling their .probe() methods).
-
-The existing AER code also responds to ERR_FATAL messages, but it does
-call the pci_error_handlers callbacks and also resets the link.
-
-This is a bit of a mess because things look a lot different to the
-driver depending on whether the platform supports AER or DPC.
-
-Since we can't change the way DPC works, the idea of this series is
-basically to make AER handle ERR_FATAL more like DPC does, i.e., by
-resetting the link, detaching, and re-attaching the drivers.
-
-This series is currently on my pci/aer branch
-(https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git/log/?h=pci/aer)
-and is headed for v4.18 unless somebody raises major objections.
-
-On Thu, May 17, 2018 at 03:43:02AM -0400, Oza Pawandeep wrote:
-> This patch set brings in error handling support for DPC
-> 
-> The current implementation of AER and error message broadcasting to the
-> EP driver is tightly coupled and limited to AER service driver.
-> It is important to factor out broadcasting and other link handling
-> callbacks. So that not only when AER gets triggered, but also when DPC get
-> triggered (for e.g. ERR_FATAL), callbacks are handled appropriately.
-> 
-> The goal of the patch-set is:
-> DPC should handle the error handling and recovery similar to AER, because 
-> finally both are attempting recovery in some or the other way,
-> and for that error handling and recovery framework has to be loosely
-> coupled.
-> 
-> It achieves uniformity and transparency to the error handling agents such
-> as AER, DPC, with respect to recovery and error handling.
-> 
-> So, this patch-set tries to unify lot of things between error agents and
-> make them behave in a well defined way. (be it error (FATAL, NON_FATAL)
-> handling or recovery).
-> 
-> The FATAL error handling is handled with remove/reset_link/re-enumerate
-> sequence while the NON_FATAL follows the default path.
-> Documentation/PCI/pci-error-recovery.txt talks more on that.
-
-I applied this series with a trivial change to remove an unused variable to
-pci/aer for v4.18, thanks!
-
-> Changes since v16:
->     Bjorn's comments addressed
->     > remove call pci_walk_bus(dev->subordinate, report_resume, &result_data)
->     > pci_cleanup_aer_uncorrect_error_status(dev); happens only if service is AER
->     > aer_error_resume does not handle ERR_FATAL clearing anymore
-> Changes since v15:
->     Bjorn's comments addressed
->     > minor comments fixed
->     > made FATAL sequence aligned to existing one, as far as clearing status are concerned.
->     > pcie_do_fatal_recovery and pcie_do_nonfatal_recovery functions made to modularize
->     > pcie_do_fatal_recovery now takes service as an argument
-> Changes since v14:
->     Bjorn's comments addressed
->     > simplified the patch set, and moved AER_FATAL handling in the beginning.
->     > rebase the code to 4.17-rc1.
-> Changes since v13:
->     Bjorn's comments addressed
->     > handke FATAL errors with remove devices followed by re-enumeration.
->     > changes in AER and DPC along with required Documentation.
-> Changes since v12:
->     Bjorn's and Keith's Comments addressed.
->     > Made DPC and AER error handling identical <aligned err.c>
->     > hanldled cases for hotplug enabled system differently.
-> Changes since v11:
->     Bjorn's comments addressed.
->     > rename pcie-err.c to err.c
->     > removed EXPORT_SYMBOL
->     > made generic find_serivce function in port driver.
->     > removed mutex patch as no need to have mutex in pcie_do_recovery
->     > brough in DPC_FATAL in aer.h
->     > so now all the error codes (AER and DPC) are unified in aer.h
-> Changes since v10:
->     Christoph Hellwig's, David Laight's and Randy Dunlap's
->     comments addressed.
->         > renamed pci_do_recovery to pcie_do_recovery
->         > removed inner braces in conditional statements.
->         > restrctured the code in pci_wait_for_link
->         > EXPORT_SYMBOL_GPL
-> Changes since v9:
->     Sinan's comments addressed.
->         > bool active = true; unnecessary variable removed.
-> Changes since v8:
->     Fixed Kbuild errors.
-> Changes since v7:
->     Rebased the code on pci master
->         > https://kernel.googlesource.com/pub/scm/linux/kernel/git/helgaas/pci
-> Changes since v6:
->     Sinan's and Stefan's comments implemented.
->         > reordered patch 6 and 7
->         > cleaned up
-> Changes since v5:
->     Sinan's and Keith's comments incorporated.
->         > made separate patch for mutex
->         > unified error repotting codes into driver/pci/pci.h
->         > got rid of wait link active/inactive and
->           made generic function in driver/pci/pci.c
-> Changes since v4:
->     Bjorn's comments incorporated.
->         > Renamed only do_recovery.
->         > moved the things more locally to drivers/pci/pci.h
-> Changes since v3:
->     Bjorn's comments incorporated.
->         > Made separate patch renaming generic pci_err.c
->         > Introduce pci_err.h to contain all the error types and recovery
->         > removed all the dependencies on pci.h
-> Changes since v2:
->     Based on feedback from Keith:
->     "
->     When DPC is triggered due to receipt of an uncorrectable error Message,
->     the Requester ID from the Message is recorded in the DPC Error
->     Source ID register and that Message is discarded and not forwarded Upstream.
->     "
->     Removed the patch where AER checks if DPC service is active
-> Changes since v1:
->     Kbuild errors fixed:
->         > pci_find_dpc_dev made static
->         > ras_event.h updated
->         > pci_find_aer_service call with CONFIG check
->         > pci_find_dpc_service call with CONFIG check
-> 
-> Oza Pawandeep (9):
->   PCI: Unify wait for link active into generic PCI
->   pci-error-recovery: Add AER_FATAL handling
->   PCI/AER: Handle ERRR_FATAL with removal and re-enumeration of devices
->   PCI/AER: Rename error recovery to generic PCI naming
->   PCI/AER: Factor out error reporting from AER
->   PCI/PORTDRV: Implement generic find service
->   PCI/PORTDRV: Implement generic find device
->   PCI/DPC: Unify and plumb error handling into DPC
->   PCI/DPC: Disable ERR_NONFATAL and enable ERR_FATAL for DPC
-> 
->  Documentation/PCI/pci-error-recovery.txt |  35 ++-
->  drivers/pci/hotplug/pciehp_hpc.c         |  20 +-
->  drivers/pci/pci.c                        |  29 +++
->  drivers/pci/pci.h                        |   4 +
->  drivers/pci/pcie/Makefile                |   2 +-
->  drivers/pci/pcie/aer/aerdrv.c            |   2 +
->  drivers/pci/pcie/aer/aerdrv.h            |  30 ---
->  drivers/pci/pcie/aer/aerdrv_core.c       | 317 +-------------------------
->  drivers/pci/pcie/dpc.c                   |  58 +++--
->  drivers/pci/pcie/err.c                   | 374 +++++++++++++++++++++++++++++++
->  drivers/pci/pcie/portdrv.h               |   4 +
->  drivers/pci/pcie/portdrv_core.c          |  67 ++++++
->  include/linux/aer.h                      |   1 +
->  include/uapi/linux/pci_regs.h            |   1 +
->  14 files changed, 540 insertions(+), 404 deletions(-)
->  create mode 100644 drivers/pci/pcie/err.c
-> 
-> -- 
-> 2.7.4
-> 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 9871604ebb53..48530dab5c94 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -396,165 +396,186 @@ static void smc_link_save_peer_info(struct smc_link *link,
+ 	link->peer_mtu = clc->qp_mtu;
+ }
+ 
+-/* setup for RDMA connection of client */
+-static int smc_connect_rdma(struct smc_sock *smc)
++/* fall back during connect */
++static int smc_connect_fallback(struct smc_sock *smc)
+ {
+-	struct smc_clc_msg_accept_confirm aclc;
+-	int local_contact = SMC_FIRST_CONTACT;
+-	struct smc_ib_device *smcibdev;
+-	struct smc_link *link;
+-	u8 srv_first_contact;
+-	int reason_code = 0;
+-	int rc = 0;
+-	u8 ibport;
+-
+-	sock_hold(&smc->sk); /* sock put in passive closing */
++	smc->use_fallback = true;
++	smc_copy_sock_settings_to_clc(smc);
++	if (smc->sk.sk_state == SMC_INIT)
++		smc->sk.sk_state = SMC_ACTIVE;
++	return 0;
++}
+ 
+-	if (smc->use_fallback)
+-		goto out_connected;
++/* decline and fall back during connect */
++static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code)
++{
++	int rc;
+ 
+-	if (!tcp_sk(smc->clcsock->sk)->syn_smc) {
+-		/* peer has not signalled SMC-capability */
+-		smc->use_fallback = true;
+-		goto out_connected;
++	if (reason_code < 0) /* error, fallback is not possible */
++		return reason_code;
++	if (reason_code != SMC_CLC_DECL_REPLY) {
++		rc = smc_clc_send_decline(smc, reason_code);
++		if (rc < 0)
++			return rc;
+ 	}
++	return smc_connect_fallback(smc);
++}
+ 
+-	/* IPSec connections opt out of SMC-R optimizations */
+-	if (using_ipsec(smc)) {
+-		reason_code = SMC_CLC_DECL_IPSEC;
+-		goto decline_rdma;
+-	}
++/* abort connecting */
++static int smc_connect_abort(struct smc_sock *smc, int reason_code,
++			     int local_contact)
++{
++	if (local_contact == SMC_FIRST_CONTACT)
++		smc_lgr_forget(smc->conn.lgr);
++	mutex_unlock(&smc_create_lgr_pending);
++	smc_conn_free(&smc->conn);
++	if (reason_code < 0 && smc->sk.sk_state == SMC_INIT)
++		sock_put(&smc->sk); /* passive closing */
++	return reason_code;
++}
++
++/* check if there is a rdma device available for this connection. */
++/* called for connect and listen */
++static int smc_check_rdma(struct smc_sock *smc, struct smc_ib_device **ibdev,
++			  u8 *ibport)
++{
++	int reason_code = 0;
+ 
+ 	/* PNET table look up: search active ib_device and port
+ 	 * within same PNETID that also contains the ethernet device
+ 	 * used for the internal TCP socket
+ 	 */
+-	smc_pnet_find_roce_resource(smc->clcsock->sk, &smcibdev, &ibport);
+-	if (!smcibdev) {
++	smc_pnet_find_roce_resource(smc->clcsock->sk, ibdev, ibport);
++	if (!(*ibdev))
+ 		reason_code = SMC_CLC_DECL_CNFERR; /* configuration error */
+-		goto decline_rdma;
+-	}
++
++	return reason_code;
++}
++
++/* CLC handshake during connect */
++static int smc_connect_clc(struct smc_sock *smc,
++			   struct smc_clc_msg_accept_confirm *aclc,
++			   struct smc_ib_device *ibdev, u8 ibport)
++{
++	int rc = 0;
+ 
+ 	/* do inband token exchange */
+-	reason_code = smc_clc_send_proposal(smc, smcibdev, ibport);
+-	if (reason_code < 0) {
+-		rc = reason_code;
+-		goto out_err;
+-	}
+-	if (reason_code > 0) /* configuration error */
+-		goto decline_rdma;
++	rc = smc_clc_send_proposal(smc, ibdev, ibport);
++	if (rc)
++		return rc;
+ 	/* receive SMC Accept CLC message */
+-	reason_code = smc_clc_wait_msg(smc, &aclc, sizeof(aclc),
+-				       SMC_CLC_ACCEPT);
+-	if (reason_code < 0) {
+-		rc = reason_code;
+-		goto out_err;
+-	}
+-	if (reason_code > 0)
+-		goto decline_rdma;
++	return smc_clc_wait_msg(smc, aclc, sizeof(*aclc), SMC_CLC_ACCEPT);
++}
++
++/* setup for RDMA connection of client */
++static int smc_connect_rdma(struct smc_sock *smc,
++			    struct smc_clc_msg_accept_confirm *aclc,
++			    struct smc_ib_device *ibdev, u8 ibport)
++{
++	int local_contact = SMC_FIRST_CONTACT;
++	struct smc_link *link;
++	int reason_code = 0;
+ 
+-	srv_first_contact = aclc.hdr.flag;
+ 	mutex_lock(&smc_create_lgr_pending);
+-	local_contact = smc_conn_create(smc, smcibdev, ibport, &aclc.lcl,
+-					srv_first_contact);
++	local_contact = smc_conn_create(smc, ibdev, ibport, &aclc->lcl,
++					aclc->hdr.flag);
+ 	if (local_contact < 0) {
+-		rc = local_contact;
+-		if (rc == -ENOMEM)
++		if (local_contact == -ENOMEM)
+ 			reason_code = SMC_CLC_DECL_MEM;/* insufficient memory*/
+-		else if (rc == -ENOLINK)
++		else if (local_contact == -ENOLINK)
+ 			reason_code = SMC_CLC_DECL_SYNCERR; /* synchr. error */
+ 		else
+ 			reason_code = SMC_CLC_DECL_INTERR; /* other error */
+-		goto decline_rdma_unlock;
++		return smc_connect_abort(smc, reason_code, 0);
+ 	}
+ 	link = &smc->conn.lgr->lnk[SMC_SINGLE_LINK];
+ 
+-	smc_conn_save_peer_info(smc, &aclc);
++	smc_conn_save_peer_info(smc, aclc);
+ 
+ 	/* create send buffer and rmb */
+-	rc = smc_buf_create(smc);
+-	if (rc) {
+-		reason_code = SMC_CLC_DECL_MEM;
+-		goto decline_rdma_unlock;
+-	}
++	if (smc_buf_create(smc))
++		return smc_connect_abort(smc, SMC_CLC_DECL_MEM, local_contact);
+ 
+ 	if (local_contact == SMC_FIRST_CONTACT)
+-		smc_link_save_peer_info(link, &aclc);
++		smc_link_save_peer_info(link, aclc);
+ 
+-	rc = smc_rmb_rtoken_handling(&smc->conn, &aclc);
+-	if (rc) {
+-		reason_code = SMC_CLC_DECL_INTERR;
+-		goto decline_rdma_unlock;
+-	}
++	if (smc_rmb_rtoken_handling(&smc->conn, aclc))
++		return smc_connect_abort(smc, SMC_CLC_DECL_INTERR,
++					 local_contact);
+ 
+ 	smc_close_init(smc);
+ 	smc_rx_init(smc);
+ 
+ 	if (local_contact == SMC_FIRST_CONTACT) {
+-		rc = smc_ib_ready_link(link);
+-		if (rc) {
+-			reason_code = SMC_CLC_DECL_INTERR;
+-			goto decline_rdma_unlock;
+-		}
++		if (smc_ib_ready_link(link))
++			return smc_connect_abort(smc, SMC_CLC_DECL_INTERR,
++						 local_contact);
+ 	} else {
+-		if (!smc->conn.rmb_desc->reused) {
+-			if (smc_reg_rmb(link, smc->conn.rmb_desc, true)) {
+-				reason_code = SMC_CLC_DECL_INTERR;
+-				goto decline_rdma_unlock;
+-			}
+-		}
++		if (!smc->conn.rmb_desc->reused &&
++		    smc_reg_rmb(link, smc->conn.rmb_desc, true))
++			return smc_connect_abort(smc, SMC_CLC_DECL_INTERR,
++						 local_contact);
+ 	}
+ 	smc_rmb_sync_sg_for_device(&smc->conn);
+ 
+-	rc = smc_clc_send_confirm(smc);
+-	if (rc)
+-		goto out_err_unlock;
++	reason_code = smc_clc_send_confirm(smc);
++	if (reason_code)
++		return smc_connect_abort(smc, reason_code, local_contact);
++
++	smc_tx_init(smc);
+ 
+ 	if (local_contact == SMC_FIRST_CONTACT) {
+ 		/* QP confirmation over RoCE fabric */
+ 		reason_code = smc_clnt_conf_first_link(smc);
+-		if (reason_code < 0) {
+-			rc = reason_code;
+-			goto out_err_unlock;
+-		}
+-		if (reason_code > 0)
+-			goto decline_rdma_unlock;
++		if (reason_code)
++			return smc_connect_abort(smc, reason_code,
++						 local_contact);
+ 	}
+-
+ 	mutex_unlock(&smc_create_lgr_pending);
+-	smc_tx_init(smc);
+ 
+-out_connected:
+ 	smc_copy_sock_settings_to_clc(smc);
+ 	if (smc->sk.sk_state == SMC_INIT)
+ 		smc->sk.sk_state = SMC_ACTIVE;
+ 
+-	return rc ? rc : local_contact;
++	return 0;
++}
+ 
+-decline_rdma_unlock:
+-	if (local_contact == SMC_FIRST_CONTACT)
+-		smc_lgr_forget(smc->conn.lgr);
+-	mutex_unlock(&smc_create_lgr_pending);
+-	smc_conn_free(&smc->conn);
+-decline_rdma:
+-	/* RDMA setup failed, switch back to TCP */
+-	smc->use_fallback = true;
+-	if (reason_code && (reason_code != SMC_CLC_DECL_REPLY)) {
+-		rc = smc_clc_send_decline(smc, reason_code);
+-		if (rc < 0)
+-			goto out_err;
+-	}
+-	goto out_connected;
++/* perform steps before actually connecting */
++static int __smc_connect(struct smc_sock *smc)
++{
++	struct smc_clc_msg_accept_confirm aclc;
++	struct smc_ib_device *ibdev;
++	int rc = 0;
++	u8 ibport;
+ 
+-out_err_unlock:
+-	if (local_contact == SMC_FIRST_CONTACT)
+-		smc_lgr_forget(smc->conn.lgr);
+-	mutex_unlock(&smc_create_lgr_pending);
+-	smc_conn_free(&smc->conn);
+-out_err:
+-	if (smc->sk.sk_state == SMC_INIT)
+-		sock_put(&smc->sk); /* passive closing */
+-	return rc;
++	sock_hold(&smc->sk); /* sock put in passive closing */
++
++	if (smc->use_fallback)
++		return smc_connect_fallback(smc);
++
++	/* if peer has not signalled SMC-capability, fall back */
++	if (!tcp_sk(smc->clcsock->sk)->syn_smc)
++		return smc_connect_fallback(smc);
++
++	/* IPSec connections opt out of SMC-R optimizations */
++	if (using_ipsec(smc))
++		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_IPSEC);
++
++	/* check if a RDMA device is available; if not, fall back */
++	if (smc_check_rdma(smc, &ibdev, &ibport))
++		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_CNFERR);
++
++	/* perform CLC handshake */
++	rc = smc_connect_clc(smc, &aclc, ibdev, ibport);
++	if (rc)
++		return smc_connect_decline_fallback(smc, rc);
++
++	/* connect using rdma */
++	rc = smc_connect_rdma(smc, &aclc, ibdev, ibport);
++	if (rc)
++		return smc_connect_decline_fallback(smc, rc);
++
++	return 0;
+ }
+ 
+ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+@@ -590,8 +611,7 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+ 	if (rc)
+ 		goto out;
+ 
+-	/* setup RDMA connection */
+-	rc = smc_connect_rdma(smc);
++	rc = __smc_connect(smc);
+ 	if (rc < 0)
+ 		goto out;
+ 	else
+@@ -789,182 +809,239 @@ static int smc_serv_conf_first_link(struct smc_sock *smc)
+ 	return 0;
+ }
+ 
+-/* setup for RDMA connection of server */
+-static void smc_listen_work(struct work_struct *work)
++/* listen worker: finish */
++static void smc_listen_out(struct smc_sock *new_smc)
+ {
+-	struct smc_sock *new_smc = container_of(work, struct smc_sock,
+-						smc_listen_work);
+-	struct smc_clc_msg_proposal_prefix *pclc_prfx;
+-	struct socket *newclcsock = new_smc->clcsock;
+ 	struct smc_sock *lsmc = new_smc->listen_smc;
+-	struct smc_clc_msg_accept_confirm cclc;
+-	int local_contact = SMC_REUSE_CONTACT;
+ 	struct sock *newsmcsk = &new_smc->sk;
+-	struct smc_clc_msg_proposal *pclc;
+-	struct smc_ib_device *smcibdev;
+-	u8 buf[SMC_CLC_MAX_LEN];
+-	struct smc_link *link;
+-	int reason_code = 0;
+-	int rc = 0;
+-	u8 ibport;
+ 
+-	if (new_smc->use_fallback)
+-		goto out_connected;
+-
+-	/* check if peer is smc capable */
+-	if (!tcp_sk(newclcsock->sk)->syn_smc) {
+-		new_smc->use_fallback = true;
+-		goto out_connected;
++	lock_sock_nested(&lsmc->sk, SINGLE_DEPTH_NESTING);
++	if (lsmc->sk.sk_state == SMC_LISTEN) {
++		smc_accept_enqueue(&lsmc->sk, newsmcsk);
++	} else { /* no longer listening */
++		smc_close_non_accepted(newsmcsk);
+ 	}
++	release_sock(&lsmc->sk);
+ 
+-	/* do inband token exchange -
+-	 *wait for and receive SMC Proposal CLC message
+-	 */
+-	reason_code = smc_clc_wait_msg(new_smc, &buf, sizeof(buf),
+-				       SMC_CLC_PROPOSAL);
+-	if (reason_code < 0)
+-		goto out_err;
+-	if (reason_code > 0)
+-		goto decline_rdma;
++	/* Wake up accept */
++	lsmc->sk.sk_data_ready(&lsmc->sk);
++	sock_put(&lsmc->sk); /* sock_hold in smc_tcp_listen_work */
++}
+ 
+-	/* IPSec connections opt out of SMC-R optimizations */
+-	if (using_ipsec(new_smc)) {
+-		reason_code = SMC_CLC_DECL_IPSEC;
+-		goto decline_rdma;
+-	}
++/* listen worker: finish in state connected */
++static void smc_listen_out_connected(struct smc_sock *new_smc)
++{
++	struct sock *newsmcsk = &new_smc->sk;
+ 
+-	/* PNET table look up: search active ib_device and port
+-	 * within same PNETID that also contains the ethernet device
+-	 * used for the internal TCP socket
+-	 */
+-	smc_pnet_find_roce_resource(newclcsock->sk, &smcibdev, &ibport);
+-	if (!smcibdev) {
+-		reason_code = SMC_CLC_DECL_CNFERR; /* configuration error */
+-		goto decline_rdma;
++	sk_refcnt_debug_inc(newsmcsk);
++	if (newsmcsk->sk_state == SMC_INIT)
++		newsmcsk->sk_state = SMC_ACTIVE;
++
++	smc_listen_out(new_smc);
++}
++
++/* listen worker: finish in error state */
++static void smc_listen_out_err(struct smc_sock *new_smc)
++{
++	struct sock *newsmcsk = &new_smc->sk;
++
++	if (newsmcsk->sk_state == SMC_INIT)
++		sock_put(&new_smc->sk); /* passive closing */
++	newsmcsk->sk_state = SMC_CLOSED;
++	smc_conn_free(&new_smc->conn);
++
++	smc_listen_out(new_smc);
++}
++
++/* listen worker: decline and fall back if possible */
++static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
++			       int local_contact)
++{
++	/* RDMA setup failed, switch back to TCP */
++	if (local_contact == SMC_FIRST_CONTACT)
++		smc_lgr_forget(new_smc->conn.lgr);
++	if (reason_code < 0) { /* error, no fallback possible */
++		smc_listen_out_err(new_smc);
++		return;
++	}
++	smc_conn_free(&new_smc->conn);
++	new_smc->use_fallback = true;
++	if (reason_code && reason_code != SMC_CLC_DECL_REPLY) {
++		if (smc_clc_send_decline(new_smc, reason_code) < 0) {
++			smc_listen_out_err(new_smc);
++			return;
++		}
+ 	}
++	smc_listen_out_connected(new_smc);
++}
++
++/* listen worker: check prefixes */
++static int smc_listen_rdma_check(struct smc_sock *new_smc,
++				 struct smc_clc_msg_proposal *pclc)
++{
++	struct smc_clc_msg_proposal_prefix *pclc_prfx;
++	struct socket *newclcsock = new_smc->clcsock;
+ 
+-	pclc = (struct smc_clc_msg_proposal *)&buf;
+ 	pclc_prfx = smc_clc_proposal_get_prefix(pclc);
++	if (smc_clc_prfx_match(newclcsock, pclc_prfx))
++		return SMC_CLC_DECL_CNFERR;
+ 
+-	rc = smc_clc_prfx_match(newclcsock, pclc_prfx);
+-	if (rc) {
+-		reason_code = SMC_CLC_DECL_CNFERR; /* configuration error */
+-		goto decline_rdma;
+-	}
++	return 0;
++}
+ 
++/* listen worker: initialize connection and buffers */
++static int smc_listen_rdma_init(struct smc_sock *new_smc,
++				struct smc_clc_msg_proposal *pclc,
++				struct smc_ib_device *ibdev, u8 ibport,
++				int *local_contact)
++{
+ 	/* allocate connection / link group */
+-	mutex_lock(&smc_create_lgr_pending);
+-	local_contact = smc_conn_create(new_smc, smcibdev, ibport, &pclc->lcl,
+-					0);
+-	if (local_contact < 0) {
+-		rc = local_contact;
+-		if (rc == -ENOMEM)
+-			reason_code = SMC_CLC_DECL_MEM;/* insufficient memory*/
+-		goto decline_rdma_unlock;
++	*local_contact = smc_conn_create(new_smc, ibdev, ibport, &pclc->lcl, 0);
++	if (*local_contact < 0) {
++		if (*local_contact == -ENOMEM)
++			return SMC_CLC_DECL_MEM;/* insufficient memory*/
++		return SMC_CLC_DECL_INTERR; /* other error */
+ 	}
+-	link = &new_smc->conn.lgr->lnk[SMC_SINGLE_LINK];
+ 
+ 	/* create send buffer and rmb */
+-	rc = smc_buf_create(new_smc);
+-	if (rc) {
+-		reason_code = SMC_CLC_DECL_MEM;
+-		goto decline_rdma_unlock;
+-	}
++	if (smc_buf_create(new_smc))
++		return SMC_CLC_DECL_MEM;
+ 
+-	smc_close_init(new_smc);
+-	smc_rx_init(new_smc);
++	return 0;
++}
++
++/* listen worker: register buffers */
++static int smc_listen_rdma_reg(struct smc_sock *new_smc, int local_contact)
++{
++	struct smc_link *link = &new_smc->conn.lgr->lnk[SMC_SINGLE_LINK];
+ 
+ 	if (local_contact != SMC_FIRST_CONTACT) {
+ 		if (!new_smc->conn.rmb_desc->reused) {
+-			if (smc_reg_rmb(link, new_smc->conn.rmb_desc, true)) {
+-				reason_code = SMC_CLC_DECL_INTERR;
+-				goto decline_rdma_unlock;
+-			}
++			if (smc_reg_rmb(link, new_smc->conn.rmb_desc, true))
++				return SMC_CLC_DECL_INTERR;
+ 		}
+ 	}
+ 	smc_rmb_sync_sg_for_device(&new_smc->conn);
+ 
+-	rc = smc_clc_send_accept(new_smc, local_contact);
+-	if (rc)
+-		goto out_err_unlock;
++	return 0;
++}
++
++/* listen worker: finish RDMA setup */
++static void smc_listen_rdma_finish(struct smc_sock *new_smc,
++				   struct smc_clc_msg_accept_confirm *cclc,
++				   int local_contact)
++{
++	struct smc_link *link = &new_smc->conn.lgr->lnk[SMC_SINGLE_LINK];
++	int reason_code = 0;
+ 
+-	/* receive SMC Confirm CLC message */
+-	reason_code = smc_clc_wait_msg(new_smc, &cclc, sizeof(cclc),
+-				       SMC_CLC_CONFIRM);
+-	if (reason_code < 0)
+-		goto out_err_unlock;
+-	if (reason_code > 0)
+-		goto decline_rdma_unlock;
+-	smc_conn_save_peer_info(new_smc, &cclc);
+ 	if (local_contact == SMC_FIRST_CONTACT)
+-		smc_link_save_peer_info(link, &cclc);
++		smc_link_save_peer_info(link, cclc);
+ 
+-	rc = smc_rmb_rtoken_handling(&new_smc->conn, &cclc);
+-	if (rc) {
++	if (smc_rmb_rtoken_handling(&new_smc->conn, cclc)) {
+ 		reason_code = SMC_CLC_DECL_INTERR;
+-		goto decline_rdma_unlock;
++		goto decline;
+ 	}
+ 
+ 	if (local_contact == SMC_FIRST_CONTACT) {
+-		rc = smc_ib_ready_link(link);
+-		if (rc) {
++		if (smc_ib_ready_link(link)) {
+ 			reason_code = SMC_CLC_DECL_INTERR;
+-			goto decline_rdma_unlock;
++			goto decline;
+ 		}
+ 		/* QP confirmation over RoCE fabric */
+ 		reason_code = smc_serv_conf_first_link(new_smc);
+-		if (reason_code < 0)
+-			/* peer is not aware of a problem */
+-			goto out_err_unlock;
+-		if (reason_code > 0)
+-			goto decline_rdma_unlock;
++		if (reason_code)
++			goto decline;
+ 	}
++	return;
+ 
+-	smc_tx_init(new_smc);
++decline:
+ 	mutex_unlock(&smc_create_lgr_pending);
++	smc_listen_decline(new_smc, reason_code, local_contact);
++}
+ 
+-out_connected:
+-	sk_refcnt_debug_inc(newsmcsk);
+-	if (newsmcsk->sk_state == SMC_INIT)
+-		newsmcsk->sk_state = SMC_ACTIVE;
+-enqueue:
+-	lock_sock_nested(&lsmc->sk, SINGLE_DEPTH_NESTING);
+-	if (lsmc->sk.sk_state == SMC_LISTEN) {
+-		smc_accept_enqueue(&lsmc->sk, newsmcsk);
+-	} else { /* no longer listening */
+-		smc_close_non_accepted(newsmcsk);
++/* setup for RDMA connection of server */
++static void smc_listen_work(struct work_struct *work)
++{
++	struct smc_sock *new_smc = container_of(work, struct smc_sock,
++						smc_listen_work);
++	struct socket *newclcsock = new_smc->clcsock;
++	struct smc_clc_msg_accept_confirm cclc;
++	struct smc_clc_msg_proposal *pclc;
++	struct smc_ib_device *ibdev;
++	u8 buf[SMC_CLC_MAX_LEN];
++	int local_contact = 0;
++	int reason_code = 0;
++	int rc = 0;
++	u8 ibport;
++
++	if (new_smc->use_fallback) {
++		smc_listen_out_connected(new_smc);
++		return;
+ 	}
+-	release_sock(&lsmc->sk);
+ 
+-	/* Wake up accept */
+-	lsmc->sk.sk_data_ready(&lsmc->sk);
+-	sock_put(&lsmc->sk); /* sock_hold in smc_tcp_listen_work */
+-	return;
++	/* check if peer is smc capable */
++	if (!tcp_sk(newclcsock->sk)->syn_smc) {
++		new_smc->use_fallback = true;
++		smc_listen_out_connected(new_smc);
++		return;
++	}
+ 
+-decline_rdma_unlock:
+-	if (local_contact == SMC_FIRST_CONTACT)
+-		smc_lgr_forget(new_smc->conn.lgr);
+-	mutex_unlock(&smc_create_lgr_pending);
+-decline_rdma:
+-	/* RDMA setup failed, switch back to TCP */
+-	smc_conn_free(&new_smc->conn);
+-	new_smc->use_fallback = true;
+-	if (reason_code && (reason_code != SMC_CLC_DECL_REPLY)) {
+-		if (smc_clc_send_decline(new_smc, reason_code) < 0)
+-			goto out_err;
++	/* do inband token exchange -
++	 * wait for and receive SMC Proposal CLC message
++	 */
++	pclc = (struct smc_clc_msg_proposal *)&buf;
++	reason_code = smc_clc_wait_msg(new_smc, pclc, SMC_CLC_MAX_LEN,
++				       SMC_CLC_PROPOSAL);
++	if (reason_code) {
++		smc_listen_decline(new_smc, reason_code, 0);
++		return;
+ 	}
+-	goto out_connected;
+ 
+-out_err_unlock:
+-	if (local_contact == SMC_FIRST_CONTACT)
+-		smc_lgr_forget(new_smc->conn.lgr);
++	/* IPSec connections opt out of SMC-R optimizations */
++	if (using_ipsec(new_smc)) {
++		smc_listen_decline(new_smc, SMC_CLC_DECL_IPSEC, 0);
++		return;
++	}
++
++	mutex_lock(&smc_create_lgr_pending);
++	smc_close_init(new_smc);
++	smc_rx_init(new_smc);
++	smc_tx_init(new_smc);
++
++	/* check if RDMA is available */
++	if (smc_check_rdma(new_smc, &ibdev, &ibport) ||
++	    smc_listen_rdma_check(new_smc, pclc) ||
++	    smc_listen_rdma_init(new_smc, pclc, ibdev, ibport,
++				 &local_contact) ||
++	    smc_listen_rdma_reg(new_smc, local_contact)) {
++		/* SMC not supported, decline */
++		mutex_unlock(&smc_create_lgr_pending);
++		smc_listen_decline(new_smc, SMC_CLC_DECL_CNFERR, local_contact);
++		return;
++	}
++
++	/* send SMC Accept CLC message */
++	rc = smc_clc_send_accept(new_smc, local_contact);
++	if (rc) {
++		mutex_unlock(&smc_create_lgr_pending);
++		smc_listen_decline(new_smc, rc, local_contact);
++		return;
++	}
++
++	/* receive SMC Confirm CLC message */
++	reason_code = smc_clc_wait_msg(new_smc, &cclc, sizeof(cclc),
++				       SMC_CLC_CONFIRM);
++	if (reason_code) {
++		mutex_unlock(&smc_create_lgr_pending);
++		smc_listen_decline(new_smc, reason_code, local_contact);
++		return;
++	}
++
++	/* finish worker */
++	smc_listen_rdma_finish(new_smc, &cclc, local_contact);
++	smc_conn_save_peer_info(new_smc, &cclc);
+ 	mutex_unlock(&smc_create_lgr_pending);
+-out_err:
+-	if (newsmcsk->sk_state == SMC_INIT)
+-		sock_put(&new_smc->sk); /* passive closing */
+-	newsmcsk->sk_state = SMC_CLOSED;
+-	smc_conn_free(&new_smc->conn);
+-	goto enqueue; /* queue new sock with sk_err set */
++	smc_listen_out_connected(new_smc);
+ }
+ 
+ static void smc_tcp_listen_work(struct work_struct *work)
+@@ -1225,7 +1302,7 @@ static __poll_t smc_poll(struct file *file, struct socket *sock,
+ 			if (sk->sk_state == SMC_INIT &&
+ 			    mask & EPOLLOUT &&
+ 			    smc->clcsock->sk->sk_state != TCP_CLOSE) {
+-				rc = smc_connect_rdma(smc);
++				rc = __smc_connect(smc);
+ 				if (rc < 0)
+ 					mask |= EPOLLERR;
+ 				/* success cases including fallback */
+-- 
+2.16.3
