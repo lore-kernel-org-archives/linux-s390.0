@@ -1,127 +1,54 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 8/9] net/smc: change smc_buf_free function parameters
-Date: Fri, 18 May 2018 09:34:17 +0200
-Message-ID: <20180518073418.91878-9-ubraun@linux.ibm.com>
-References: <20180518073418.91878-1-ubraun@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180518073418.91878-1-ubraun@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 4.9 27/33] futex: Remove duplicated code and fix
+ undefined behaviour
+Date: Fri, 18 May 2018 11:01:41 +0200
+Message-ID: <20180518090141.GA10227@kroah.com>
+References: <20180518081535.096308218@linuxfoundation.org>
+ <20180518081536.166573281@linuxfoundation.org>
+ <e8dc5f94-3b52-dcf0-3b5e-b442bde7d803@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <e8dc5f94-3b52-dcf0-3b5e-b442bde7d803@suse.cz>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Russell King <rmk+kernel@armlinux.org.uk>, "Darren Hart (VMware)" <dvhart@infradead.org>, linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, peterz@infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Catalin Marinas <catalin.marinas@arm.com>, Matt Turner <matt>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.ibm.com>
+On Fri, May 18, 2018 at 10:30:24AM +0200, Jiri Slaby wrote:
+> On 05/18/2018, 10:16 AM, Greg Kroah-Hartman wrote:
+> > 4.9-stable review patch.  If anyone has any objections, please let me know.
+> > 
+> > ------------------
+> > 
+> > From: Jiri Slaby <jslaby@suse.cz>
+> > 
+> > commit 30d6e0a4190d37740e9447e4e4815f06992dd8c3 upstream.
+> ...
+> > --- a/kernel/futex.c
+> > +++ b/kernel/futex.c
+> > @@ -1458,6 +1458,45 @@ out:
+> >  	return ret;
+> >  }
+> >  
+> > +static int futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
+> > +{
+> > +	unsigned int op =	  (encoded_op & 0x70000000) >> 28;
+> > +	unsigned int cmp =	  (encoded_op & 0x0f000000) >> 24;
+> > +	int oparg = sign_extend32((encoded_op & 0x00fff000) >> 12, 12);
+> > +	int cmparg = sign_extend32(encoded_op & 0x00000fff, 12);
+> 
+> 12 is wrong here – wherever you apply this, you need also a follow-up fix:
+> commit d70ef22892ed6c066e51e118b225923c9b74af34
+> Author: Jiri Slaby <jslaby@suse.cz>
+> Date:   Thu Nov 30 15:35:44 2017 +0100
+> 
+>     futex: futex_wake_op, fix sign_extend32 sign bits
 
-This patch changes the function smc_buf_free to use the SMC link group
-instead of the link as function parameter. Also, it changes the order of
-the other two parameters.
+Thanks for letting me know, I've now queued it up to the needed trees.
 
-Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_core.c | 26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index c63cf7b07ccc..1e5c0e90a706 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -36,8 +36,8 @@ static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
- 	.num = 0,
- };
- 
--static void smc_buf_free(struct smc_buf_desc *buf_desc, struct smc_link *lnk,
--			 bool is_rmb);
-+static void smc_buf_free(struct smc_link_group *lgr, bool is_rmb,
-+			 struct smc_buf_desc *buf_desc);
- 
- static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
- {
-@@ -249,14 +249,12 @@ static void smc_buf_unuse(struct smc_connection *conn)
- 		} else {
- 			/* buf registration failed, reuse not possible */
- 			struct smc_link_group *lgr = conn->lgr;
--			struct smc_link *lnk;
- 
- 			write_lock_bh(&lgr->rmbs_lock);
- 			list_del(&conn->rmb_desc->list);
- 			write_unlock_bh(&lgr->rmbs_lock);
- 
--			lnk = &lgr->lnk[SMC_SINGLE_LINK];
--			smc_buf_free(conn->rmb_desc, lnk, true);
-+			smc_buf_free(lgr, true, conn->rmb_desc);
- 		}
- 	}
- }
-@@ -282,9 +280,11 @@ static void smc_link_clear(struct smc_link *lnk)
- 	smc_wr_free_link_mem(lnk);
- }
- 
--static void smc_buf_free(struct smc_buf_desc *buf_desc, struct smc_link *lnk,
--			 bool is_rmb)
-+static void smc_buf_free(struct smc_link_group *lgr, bool is_rmb,
-+			 struct smc_buf_desc *buf_desc)
- {
-+	struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
-+
- 	if (is_rmb) {
- 		if (buf_desc->mr_rx[SMC_SINGLE_LINK])
- 			smc_ib_put_memory_region(
-@@ -303,7 +303,6 @@ static void smc_buf_free(struct smc_buf_desc *buf_desc, struct smc_link *lnk,
- 
- static void __smc_lgr_free_bufs(struct smc_link_group *lgr, bool is_rmb)
- {
--	struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
- 	struct smc_buf_desc *buf_desc, *bf_desc;
- 	struct list_head *buf_list;
- 	int i;
-@@ -316,7 +315,7 @@ static void __smc_lgr_free_bufs(struct smc_link_group *lgr, bool is_rmb)
- 		list_for_each_entry_safe(buf_desc, bf_desc, buf_list,
- 					 list) {
- 			list_del(&buf_desc->list);
--			smc_buf_free(buf_desc, lnk, is_rmb);
-+			smc_buf_free(lgr, is_rmb, buf_desc);
- 		}
- 	}
- }
-@@ -627,7 +626,7 @@ static struct smc_buf_desc *smc_new_buf_create(struct smc_link_group *lgr,
- 	rc = sg_alloc_table(&buf_desc->sgt[SMC_SINGLE_LINK], 1,
- 			    GFP_KERNEL);
- 	if (rc) {
--		smc_buf_free(buf_desc, lnk, is_rmb);
-+		smc_buf_free(lgr, is_rmb, buf_desc);
- 		return ERR_PTR(rc);
- 	}
- 	sg_set_buf(buf_desc->sgt[SMC_SINGLE_LINK].sgl,
-@@ -638,7 +637,7 @@ static struct smc_buf_desc *smc_new_buf_create(struct smc_link_group *lgr,
- 			       is_rmb ? DMA_FROM_DEVICE : DMA_TO_DEVICE);
- 	/* SMC protocol depends on mapping to one DMA address only */
- 	if (rc != 1)  {
--		smc_buf_free(buf_desc, lnk, is_rmb);
-+		smc_buf_free(lgr, is_rmb, buf_desc);
- 		return ERR_PTR(-EAGAIN);
- 	}
- 
-@@ -649,7 +648,7 @@ static struct smc_buf_desc *smc_new_buf_create(struct smc_link_group *lgr,
- 					      IB_ACCESS_LOCAL_WRITE,
- 					      buf_desc);
- 		if (rc) {
--			smc_buf_free(buf_desc, lnk, is_rmb);
-+			smc_buf_free(lgr, is_rmb, buf_desc);
- 			return ERR_PTR(rc);
- 		}
- 	}
-@@ -775,8 +774,7 @@ int smc_buf_create(struct smc_sock *smc)
- 	/* create rmb */
- 	rc = __smc_buf_create(smc, true);
- 	if (rc)
--		smc_buf_free(smc->conn.sndbuf_desc,
--			     &smc->conn.lgr->lnk[SMC_SINGLE_LINK], false);
-+		smc_buf_free(smc->conn.lgr, false, smc->conn.sndbuf_desc);
- 	return rc;
- }
- 
--- 
-2.16.3
+greg k-h
