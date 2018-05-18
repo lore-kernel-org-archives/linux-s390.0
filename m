@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 2/9] net/smc: move link group list to smc_core
-Date: Fri, 18 May 2018 09:34:11 +0200
-Message-ID: <20180518073418.91878-3-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 3/9] net/smc: rename connection index to RMBE index
+Date: Fri, 18 May 2018 09:34:12 +0200
+Message-ID: <20180518073418.91878-4-ubraun@linux.ibm.com>
 References: <20180518073418.91878-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180518073418.91878-1-ubraun@linux.ibm.com>
@@ -14,188 +14,92 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hans Wippel <hwippel@linux.ibm.com>
 
-This patch moves the global link group list to smc_core where the link
-group functions are. To make this work, it moves code in af_smc and
-smc_ib that operates on the link group list to smc_core as well.
-
-While at it, the link group counter is integrated into the list
-structure and initialized to zero.
+The connection index is actually a RMBE index. So, this patch changes
+the name accordingly.
 
 Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/af_smc.c   | 19 +------------------
- net/smc/smc_core.c | 40 +++++++++++++++++++++++++++++++++++++---
- net/smc/smc_core.h |  5 +++--
- net/smc/smc_ib.c   | 13 +------------
- 4 files changed, 42 insertions(+), 35 deletions(-)
+ net/smc/af_smc.c  | 2 +-
+ net/smc/smc.h     | 2 +-
+ net/smc/smc_clc.c | 4 ++--
+ net/smc/smc_clc.h | 2 +-
+ net/smc/smc_tx.c  | 2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 409b1367970c..4bb320ae11a9 100644
+index 4bb320ae11a9..bd67430f3730 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -46,11 +46,6 @@ static DEFINE_MUTEX(smc_create_lgr_pending);	/* serialize link group
- 						 * creation
- 						 */
- 
--struct smc_lgr_list smc_lgr_list = {		/* established link groups */
--	.lock = __SPIN_LOCK_UNLOCKED(smc_lgr_list.lock),
--	.list = LIST_HEAD_INIT(smc_lgr_list.list),
--};
--
- static void smc_tcp_listen_work(struct work_struct *);
- 
- static void smc_set_keepalive(struct sock *sk, int val)
-@@ -1637,19 +1632,7 @@ static int __init smc_init(void)
- 
- static void __exit smc_exit(void)
+@@ -377,7 +377,7 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
+ static void smc_conn_save_peer_info(struct smc_sock *smc,
+ 				    struct smc_clc_msg_accept_confirm *clc)
  {
--	struct smc_link_group *lgr, *lg;
--	LIST_HEAD(lgr_freeing_list);
--
--	spin_lock_bh(&smc_lgr_list.lock);
--	if (!list_empty(&smc_lgr_list.list))
--		list_splice_init(&smc_lgr_list.list, &lgr_freeing_list);
--	spin_unlock_bh(&smc_lgr_list.lock);
--	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
--		list_del_init(&lgr->list);
--		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
--		cancel_delayed_work_sync(&lgr->free_work);
--		smc_lgr_free(lgr); /* free link group */
--	}
-+	smc_core_exit();
- 	static_branch_disable(&tcp_have_smc);
- 	smc_ib_unregister_client();
- 	sock_unregister(PF_SMC);
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 6396426080f9..70ab2f716f83 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -30,7 +30,11 @@
- #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
- #define SMC_LGR_FREE_DELAY_CLNT		(SMC_LGR_FREE_DELAY_SERV + 10)
- 
--static u32 smc_lgr_num;			/* unique link group number */
-+static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
-+	.lock = __SPIN_LOCK_UNLOCKED(smc_lgr_list.lock),
-+	.list = LIST_HEAD_INIT(smc_lgr_list.list),
-+	.num = 0,
-+};
- 
- static void smc_buf_free(struct smc_buf_desc *buf_desc, struct smc_link *lnk,
- 			 bool is_rmb);
-@@ -181,8 +185,8 @@ static int smc_lgr_create(struct smc_sock *smc,
- 		INIT_LIST_HEAD(&lgr->sndbufs[i]);
- 		INIT_LIST_HEAD(&lgr->rmbs[i]);
- 	}
--	smc_lgr_num += SMC_LGR_NUM_INCR;
--	memcpy(&lgr->id, (u8 *)&smc_lgr_num, SMC_LGR_ID_SIZE);
-+	smc_lgr_list.num += SMC_LGR_NUM_INCR;
-+	memcpy(&lgr->id, (u8 *)&smc_lgr_list.num, SMC_LGR_ID_SIZE);
- 	INIT_DELAYED_WORK(&lgr->free_work, smc_lgr_free_work);
- 	lgr->conns_all = RB_ROOT;
- 
-@@ -374,6 +378,18 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
- 	smc_lgr_schedule_free_work(lgr);
- }
- 
-+/* Called when IB port is terminated */
-+void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
-+{
-+	struct smc_link_group *lgr, *l;
-+
-+	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
-+		if (lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
-+		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport)
-+			smc_lgr_terminate(lgr);
-+	}
-+}
-+
- /* Determine vlan of internal TCP socket.
-  * @vlan_id: address to store the determined vlan id into
-  */
-@@ -802,3 +818,21 @@ int smc_rmb_rtoken_handling(struct smc_connection *conn,
- 		return conn->rtoken_idx;
- 	return 0;
- }
-+
-+/* Called (from smc_exit) when module is removed */
-+void smc_core_exit(void)
-+{
-+	struct smc_link_group *lgr, *lg;
-+	LIST_HEAD(lgr_freeing_list);
-+
-+	spin_lock_bh(&smc_lgr_list.lock);
-+	if (!list_empty(&smc_lgr_list.list))
-+		list_splice_init(&smc_lgr_list.list, &lgr_freeing_list);
-+	spin_unlock_bh(&smc_lgr_list.lock);
-+	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
-+		list_del_init(&lgr->list);
-+		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
-+		cancel_delayed_work_sync(&lgr->free_work);
-+		smc_lgr_free(lgr); /* free link group */
-+	}
-+}
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 4885a7efa84f..3d4bd7011ab3 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -23,10 +23,9 @@
- struct smc_lgr_list {			/* list of link group definition */
- 	struct list_head	list;
- 	spinlock_t		lock;	/* protects list of link groups */
-+	u32			num;	/* unique link group number */
- };
- 
--extern struct smc_lgr_list	smc_lgr_list; /* list of link groups */
--
- enum smc_lgr_role {		/* possible roles of a link group */
- 	SMC_CLNT,	/* client */
- 	SMC_SERV	/* server */
-@@ -210,6 +209,7 @@ struct smc_clc_msg_accept_confirm;
- void smc_lgr_free(struct smc_link_group *lgr);
- void smc_lgr_forget(struct smc_link_group *lgr);
- void smc_lgr_terminate(struct smc_link_group *lgr);
-+void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport);
- int smc_buf_create(struct smc_sock *smc);
- int smc_rmb_rtoken_handling(struct smc_connection *conn,
- 			    struct smc_clc_msg_accept_confirm *clc);
-@@ -219,4 +219,5 @@ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn);
- void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
- void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
- void smc_rmb_sync_sg_for_device(struct smc_connection *conn);
-+void smc_core_exit(void);
- #endif
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 26df554f7588..0eed7ab9f28b 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -143,17 +143,6 @@ int smc_ib_ready_link(struct smc_link *lnk)
- 	return rc;
- }
- 
--static void smc_ib_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
--{
--	struct smc_link_group *lgr, *l;
--
--	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
--		if (lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
--		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport)
--			smc_lgr_terminate(lgr);
--	}
--}
--
- /* process context wrapper for might_sleep smc_ib_remember_port_attr */
- static void smc_ib_port_event_work(struct work_struct *work)
- {
-@@ -165,7 +154,7 @@ static void smc_ib_port_event_work(struct work_struct *work)
- 		smc_ib_remember_port_attr(smcibdev, port_idx + 1);
- 		clear_bit(port_idx, &smcibdev->port_event_mask);
- 		if (!smc_ib_port_active(smcibdev, port_idx + 1))
--			smc_ib_port_terminate(smcibdev, port_idx + 1);
-+			smc_port_terminate(smcibdev, port_idx + 1);
- 	}
- }
- 
+-	smc->conn.peer_conn_idx = clc->conn_idx;
++	smc->conn.peer_rmbe_idx = clc->rmbe_idx;
+ 	smc->conn.local_tx_ctrl.token = ntohl(clc->rmbe_alert_token);
+ 	smc->conn.peer_rmbe_size = smc_uncompress_bufsize(clc->rmbe_size);
+ 	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index ad6694f516dd..fb8dec8bc17f 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -118,7 +118,7 @@ struct smc_connection {
+ 	struct rb_node		alert_node;
+ 	struct smc_link_group	*lgr;		/* link group of connection */
+ 	u32			alert_token_local; /* unique conn. id */
+-	u8			peer_conn_idx;	/* from tcp handshake */
++	u8			peer_rmbe_idx;	/* from tcp handshake */
+ 	int			peer_rmbe_size;	/* size of peer rx buffer */
+ 	atomic_t		peer_rmbe_space;/* remaining free bytes in peer
+ 						 * rmbe
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 236cb3f12c71..717449b1da0b 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -442,7 +442,7 @@ int smc_clc_send_confirm(struct smc_sock *smc)
+ 	hton24(cclc.qpn, link->roce_qp->qp_num);
+ 	cclc.rmb_rkey =
+ 		htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
+-	cclc.conn_idx = 1; /* for now: 1 RMB = 1 RMBE */
++	cclc.rmbe_idx = 1; /* for now: 1 RMB = 1 RMBE */
+ 	cclc.rmbe_alert_token = htonl(conn->alert_token_local);
+ 	cclc.qp_mtu = min(link->path_mtu, link->peer_mtu);
+ 	cclc.rmbe_size = conn->rmbe_size_short;
+@@ -494,7 +494,7 @@ int smc_clc_send_accept(struct smc_sock *new_smc, int srv_first_contact)
+ 	hton24(aclc.qpn, link->roce_qp->qp_num);
+ 	aclc.rmb_rkey =
+ 		htonl(conn->rmb_desc->mr_rx[SMC_SINGLE_LINK]->rkey);
+-	aclc.conn_idx = 1;			/* as long as 1 RMB = 1 RMBE */
++	aclc.rmbe_idx = 1;			/* as long as 1 RMB = 1 RMBE */
+ 	aclc.rmbe_alert_token = htonl(conn->alert_token_local);
+ 	aclc.qp_mtu = link->path_mtu;
+ 	aclc.rmbe_size = conn->rmbe_size_short,
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 63bf1dc2c1f9..41ff9ea96139 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -97,7 +97,7 @@ struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
+ 	struct smc_clc_msg_local lcl;
+ 	u8 qpn[3];		/* QP number */
+ 	__be32 rmb_rkey;	/* RMB rkey */
+-	u8 conn_idx;		/* Connection index, which RMBE in RMB */
++	u8 rmbe_idx;		/* Index of RMBE in RMB */
+ 	__be32 rmbe_alert_token;/* unique connection id */
+ #if defined(__BIG_ENDIAN_BITFIELD)
+ 	u8 rmbe_size : 4,	/* RMBE buf size (compressed notation) */
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 58bc7ca3101a..58a56c992b26 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -261,7 +261,7 @@ static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
+ 	rdma_wr.remote_addr =
+ 		lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].dma_addr +
+ 		/* RMBE within RMB */
+-		((conn->peer_conn_idx - 1) * conn->peer_rmbe_size) +
++		((conn->peer_rmbe_idx - 1) * conn->peer_rmbe_size) +
+ 		/* offset within RMBE */
+ 		peer_rmbe_offset;
+ 	rdma_wr.rkey = lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].rkey;
 -- 
 2.16.3
