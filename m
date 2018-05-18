@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 5/9] net/smc: move smc_core specific code from smc.h to smc_core
-Date: Fri, 18 May 2018 09:34:14 +0200
-Message-ID: <20180518073418.91878-6-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 2/9] net/smc: move link group list to smc_core
+Date: Fri, 18 May 2018 09:34:11 +0200
+Message-ID: <20180518073418.91878-3-ubraun@linux.ibm.com>
 References: <20180518073418.91878-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180518073418.91878-1-ubraun@linux.ibm.com>
@@ -14,155 +14,188 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hans Wippel <hwippel@linux.ibm.com>
 
-SMC connection and buffer handling belong to smc_core. So, this patch
-moves this code from smc.h to smc_core.
+This patch moves the global link group list to smc_core where the link
+group functions are. To make this work, it moves code in af_smc and
+smc_ib that operates on the link group list to smc_core as well.
+
+While at it, the link group counter is integrated into the list
+structure and initialized to zero.
 
 Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc.h      | 41 -----------------------------------------
- net/smc/smc_core.c | 27 +++++++++++++++++++++++++++
- net/smc/smc_core.h | 12 ++++++++++++
- 3 files changed, 39 insertions(+), 41 deletions(-)
+ net/smc/af_smc.c   | 19 +------------------
+ net/smc/smc_core.c | 40 +++++++++++++++++++++++++++++++++++++---
+ net/smc/smc_core.h |  5 +++--
+ net/smc/smc_ib.c   | 13 +------------
+ 4 files changed, 42 insertions(+), 35 deletions(-)
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 9bc37645e7d5..a1467e411645 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -220,41 +220,6 @@ static inline u32 ntoh24(u8 *net)
- 	return be32_to_cpu(t);
- }
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 409b1367970c..4bb320ae11a9 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -46,11 +46,6 @@ static DEFINE_MUTEX(smc_create_lgr_pending);	/* serialize link group
+ 						 * creation
+ 						 */
  
--#define SMC_BUF_MIN_SIZE 16384		/* minimum size of an RMB */
+-struct smc_lgr_list smc_lgr_list = {		/* established link groups */
+-	.lock = __SPIN_LOCK_UNLOCKED(smc_lgr_list.lock),
+-	.list = LIST_HEAD_INIT(smc_lgr_list.list),
+-};
 -
--#define SMC_RMBE_SIZES	16	/* number of distinct sizes for an RMBE */
--/* theoretically, the RFC states that largest size would be 512K,
-- * i.e. compressed 5 and thus 6 sizes (0..5), despite
-- * struct smc_clc_msg_accept_confirm.rmbe_size being a 4 bit value (0..15)
-- */
--
--/* convert the RMB size into the compressed notation - minimum 16K.
-- * In contrast to plain ilog2, this rounds towards the next power of 2,
-- * so the socket application gets at least its desired sndbuf / rcvbuf size.
-- */
--static inline u8 smc_compress_bufsize(int size)
--{
--	u8 compressed;
--
--	if (size <= SMC_BUF_MIN_SIZE)
--		return 0;
--
--	size = (size - 1) >> 14;
--	compressed = ilog2(size) + 1;
--	if (compressed >= SMC_RMBE_SIZES)
--		compressed = SMC_RMBE_SIZES - 1;
--	return compressed;
--}
--
--/* convert the RMB size from compressed notation into integer */
--static inline int smc_uncompress_bufsize(u8 compressed)
--{
--	u32 size;
--
--	size = 0x00000001 << (((int)compressed) + 14);
--	return (int)size;
--}
--
- #ifdef CONFIG_XFRM
- static inline bool using_ipsec(struct smc_sock *smc)
+ static void smc_tcp_listen_work(struct work_struct *);
+ 
+ static void smc_set_keepalive(struct sock *sk, int val)
+@@ -1637,19 +1632,7 @@ static int __init smc_init(void)
+ 
+ static void __exit smc_exit(void)
  {
-@@ -268,12 +233,6 @@ static inline bool using_ipsec(struct smc_sock *smc)
- }
- #endif
- 
--struct smc_clc_msg_local;
+-	struct smc_link_group *lgr, *lg;
+-	LIST_HEAD(lgr_freeing_list);
 -
--void smc_conn_free(struct smc_connection *conn);
--int smc_conn_create(struct smc_sock *smc,
--		    struct smc_ib_device *smcibdev, u8 ibport,
--		    struct smc_clc_msg_local *lcl, int srv_first_contact);
- struct sock *smc_accept_dequeue(struct sock *parent, struct socket *new_sock);
- void smc_close_non_accepted(struct sock *sk);
- 
+-	spin_lock_bh(&smc_lgr_list.lock);
+-	if (!list_empty(&smc_lgr_list.list))
+-		list_splice_init(&smc_lgr_list.list, &lgr_freeing_list);
+-	spin_unlock_bh(&smc_lgr_list.lock);
+-	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
+-		list_del_init(&lgr->list);
+-		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
+-		cancel_delayed_work_sync(&lgr->free_work);
+-		smc_lgr_free(lgr); /* free link group */
+-	}
++	smc_core_exit();
+ 	static_branch_disable(&tcp_have_smc);
+ 	smc_ib_unregister_client();
+ 	sock_unregister(PF_SMC);
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 70ab2f716f83..66afa086ae72 100644
+index 6396426080f9..70ab2f716f83 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -543,6 +543,33 @@ int smc_conn_create(struct smc_sock *smc,
- 	return rc ? rc : local_contact;
+@@ -30,7 +30,11 @@
+ #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
+ #define SMC_LGR_FREE_DELAY_CLNT		(SMC_LGR_FREE_DELAY_SERV + 10)
+ 
+-static u32 smc_lgr_num;			/* unique link group number */
++static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
++	.lock = __SPIN_LOCK_UNLOCKED(smc_lgr_list.lock),
++	.list = LIST_HEAD_INIT(smc_lgr_list.list),
++	.num = 0,
++};
+ 
+ static void smc_buf_free(struct smc_buf_desc *buf_desc, struct smc_link *lnk,
+ 			 bool is_rmb);
+@@ -181,8 +185,8 @@ static int smc_lgr_create(struct smc_sock *smc,
+ 		INIT_LIST_HEAD(&lgr->sndbufs[i]);
+ 		INIT_LIST_HEAD(&lgr->rmbs[i]);
+ 	}
+-	smc_lgr_num += SMC_LGR_NUM_INCR;
+-	memcpy(&lgr->id, (u8 *)&smc_lgr_num, SMC_LGR_ID_SIZE);
++	smc_lgr_list.num += SMC_LGR_NUM_INCR;
++	memcpy(&lgr->id, (u8 *)&smc_lgr_list.num, SMC_LGR_ID_SIZE);
+ 	INIT_DELAYED_WORK(&lgr->free_work, smc_lgr_free_work);
+ 	lgr->conns_all = RB_ROOT;
+ 
+@@ -374,6 +378,18 @@ void smc_lgr_terminate(struct smc_link_group *lgr)
+ 	smc_lgr_schedule_free_work(lgr);
  }
  
-+/* convert the RMB size into the compressed notation - minimum 16K.
-+ * In contrast to plain ilog2, this rounds towards the next power of 2,
-+ * so the socket application gets at least its desired sndbuf / rcvbuf size.
-+ */
-+static u8 smc_compress_bufsize(int size)
++/* Called when IB port is terminated */
++void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
 +{
-+	u8 compressed;
++	struct smc_link_group *lgr, *l;
 +
-+	if (size <= SMC_BUF_MIN_SIZE)
-+		return 0;
-+
-+	size = (size - 1) >> 14;
-+	compressed = ilog2(size) + 1;
-+	if (compressed >= SMC_RMBE_SIZES)
-+		compressed = SMC_RMBE_SIZES - 1;
-+	return compressed;
++	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
++		if (lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
++		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport)
++			smc_lgr_terminate(lgr);
++	}
 +}
 +
-+/* convert the RMB size from compressed notation into integer */
-+int smc_uncompress_bufsize(u8 compressed)
-+{
-+	u32 size;
-+
-+	size = 0x00000001 << (((int)compressed) + 14);
-+	return (int)size;
-+}
-+
- /* try to reuse a sndbuf or rmb description slot for a certain
-  * buffer size; if not available, return NULL
+ /* Determine vlan of internal TCP socket.
+  * @vlan_id: address to store the determined vlan id into
   */
+@@ -802,3 +818,21 @@ int smc_rmb_rtoken_handling(struct smc_connection *conn,
+ 		return conn->rtoken_idx;
+ 	return 0;
+ }
++
++/* Called (from smc_exit) when module is removed */
++void smc_core_exit(void)
++{
++	struct smc_link_group *lgr, *lg;
++	LIST_HEAD(lgr_freeing_list);
++
++	spin_lock_bh(&smc_lgr_list.lock);
++	if (!list_empty(&smc_lgr_list.list))
++		list_splice_init(&smc_lgr_list.list, &lgr_freeing_list);
++	spin_unlock_bh(&smc_lgr_list.lock);
++	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
++		list_del_init(&lgr->list);
++		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
++		cancel_delayed_work_sync(&lgr->free_work);
++		smc_lgr_free(lgr); /* free link group */
++	}
++}
 diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 3d4bd7011ab3..93cb3523bf50 100644
+index 4885a7efa84f..3d4bd7011ab3 100644
 --- a/net/smc/smc_core.h
 +++ b/net/smc/smc_core.h
-@@ -141,6 +141,12 @@ struct smc_rtoken {				/* address/key of remote RMB */
+@@ -23,10 +23,9 @@
+ struct smc_lgr_list {			/* list of link group definition */
+ 	struct list_head	list;
+ 	spinlock_t		lock;	/* protects list of link groups */
++	u32			num;	/* unique link group number */
  };
  
- #define SMC_LGR_ID_SIZE		4
-+#define SMC_BUF_MIN_SIZE	16384	/* minimum size of an RMB */
-+#define SMC_RMBE_SIZES		16	/* number of distinct RMBE sizes */
-+/* theoretically, the RFC states that largest size would be 512K,
-+ * i.e. compressed 5 and thus 6 sizes (0..5), despite
-+ * struct smc_clc_msg_accept_confirm.rmbe_size being a 4 bit value (0..15)
-+ */
- 
- struct smc_link_group {
- 	struct list_head	list;
-@@ -205,12 +211,14 @@ static inline struct smc_connection *smc_lgr_find_conn(
- 
- struct smc_sock;
- struct smc_clc_msg_accept_confirm;
-+struct smc_clc_msg_local;
- 
+-extern struct smc_lgr_list	smc_lgr_list; /* list of link groups */
+-
+ enum smc_lgr_role {		/* possible roles of a link group */
+ 	SMC_CLNT,	/* client */
+ 	SMC_SERV	/* server */
+@@ -210,6 +209,7 @@ struct smc_clc_msg_accept_confirm;
  void smc_lgr_free(struct smc_link_group *lgr);
  void smc_lgr_forget(struct smc_link_group *lgr);
  void smc_lgr_terminate(struct smc_link_group *lgr);
- void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport);
++void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport);
  int smc_buf_create(struct smc_sock *smc);
-+int smc_uncompress_bufsize(u8 compressed);
  int smc_rmb_rtoken_handling(struct smc_connection *conn,
  			    struct smc_clc_msg_accept_confirm *clc);
- int smc_rtoken_add(struct smc_link_group *lgr, __be64 nw_vaddr, __be32 nw_rkey);
-@@ -219,5 +227,9 @@ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn);
+@@ -219,4 +219,5 @@ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn);
  void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
  void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
  void smc_rmb_sync_sg_for_device(struct smc_connection *conn);
-+void smc_conn_free(struct smc_connection *conn);
-+int smc_conn_create(struct smc_sock *smc,
-+		    struct smc_ib_device *smcibdev, u8 ibport,
-+		    struct smc_clc_msg_local *lcl, int srv_first_contact);
- void smc_core_exit(void);
++void smc_core_exit(void);
  #endif
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 26df554f7588..0eed7ab9f28b 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -143,17 +143,6 @@ int smc_ib_ready_link(struct smc_link *lnk)
+ 	return rc;
+ }
+ 
+-static void smc_ib_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
+-{
+-	struct smc_link_group *lgr, *l;
+-
+-	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
+-		if (lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
+-		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport)
+-			smc_lgr_terminate(lgr);
+-	}
+-}
+-
+ /* process context wrapper for might_sleep smc_ib_remember_port_attr */
+ static void smc_ib_port_event_work(struct work_struct *work)
+ {
+@@ -165,7 +154,7 @@ static void smc_ib_port_event_work(struct work_struct *work)
+ 		smc_ib_remember_port_attr(smcibdev, port_idx + 1);
+ 		clear_bit(port_idx, &smcibdev->port_event_mask);
+ 		if (!smc_ib_port_active(smcibdev, port_idx + 1))
+-			smc_ib_port_terminate(smcibdev, port_idx + 1);
++			smc_port_terminate(smcibdev, port_idx + 1);
+ 	}
+ }
+ 
 -- 
 2.16.3
