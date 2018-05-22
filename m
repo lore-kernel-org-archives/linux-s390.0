@@ -1,86 +1,94 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH v2 10/10] vfio: ccw: Let user wait when busy on IO
-Date: Fri, 25 May 2018 16:04:18 +0200
-Message-ID: <20180525140418.GA17131@osiris>
-References: <1527243678-3140-1-git-send-email-pmorel@linux.vnet.ibm.com>
- <1527243678-3140-11-git-send-email-pmorel@linux.vnet.ibm.com>
+From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Subject: Re: [PATCH v5 05/13] s390: vfio-ap: register matrix device with VFIO
+ mdev framework
+Date: Tue, 22 May 2018 17:41:19 -0400
+Message-ID: <0ccac0ff-82d0-4adc-26a5-c64caf0f7a80@linux.vnet.ibm.com>
+References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1525705912-12815-6-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <5471b194-d7ca-c9c6-132e-fa9539fe44f0@linux.ibm.com>
+ <4688078d-3e13-5201-582f-52576b25defa@linux.vnet.ibm.com>
+ <20180517094454.6afae7ba.cohuck@redhat.com>
+ <b45ba36a-0451-56b8-c038-410441bb8bd4@linux.vnet.ibm.com>
+ <20180522101940.166445f8.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1527243678-3140-11-git-send-email-pmorel@linux.vnet.ibm.com>
-Content-Disposition: inline
+In-Reply-To: <20180522101940.166445f8.cohuck@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, cohuck@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: akrowiak@linux.vnet.ibm.com, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, May 25, 2018 at 12:21:18PM +0200, Pierre Morel wrote:
-> In the current implementation, we do not want to start a new SSCH
-> command before the last one ends.
-> 
-> Currently the user needs to poll on the -EBUSY error to
-> wait before sending a new request.
-> 
-> Let's be friendly with global warming and let the user sleep
-> until he may send a new request.
-> 
-> Let's make the caller wait until the last SSCH ends.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-> ---
->  drivers/s390/cio/vfio_ccw_fsm.c     | 4 ++++
->  drivers/s390/cio/vfio_ccw_ops.c     | 6 ++++++
->  drivers/s390/cio/vfio_ccw_private.h | 1 +
->  3 files changed, 11 insertions(+)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-> index c37052d..97b74a1 100644
-> --- a/drivers/s390/cio/vfio_ccw_fsm.c
-> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-> @@ -200,6 +200,10 @@ static int fsm_irq(struct vfio_ccw_private *private)
->  
->  	if (private->io_trigger)
->  		eventfd_signal(private->io_trigger, 1);
-> +
-> +	if (private->io_completion)
-> +		complete(private->io_completion);
-> +
->  	return VFIO_CCW_STATE_IDLE;
->  }
->  
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index b202e73..39beb6e 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -183,6 +183,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
->  	struct vfio_ccw_private *private;
->  	struct ccw_io_region *region;
->  	union scsw *scsw;
-> +	DECLARE_COMPLETION_ONSTACK(completion);
->  
->  	if (*ppos + count > sizeof(*region))
->  		return -EINVAL;
-> @@ -196,6 +197,11 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
->  	scsw = (union scsw *) &region->scsw_area;
->  	switch (scsw->cmd.fctl) {
->  	case SCSW_FCTL_START_FUNC:
-> +		if (private->state == VFIO_CCW_STATE_BUSY) {
-> +			private->io_completion = &completion;
-> +			if (wait_for_completion_interruptible(&completion))
-> +				return -EINTR;
-> +		}
+On 05/22/2018 04:19 AM, Cornelia Huck wrote:
+> On Mon, 21 May 2018 11:13:58 -0400
+> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+>
+>> On 05/17/2018 03:44 AM, Cornelia Huck wrote:
+>>> On Mon, 14 May 2018 15:42:18 -0400
+>>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+>>>   
+>>>> On 05/11/2018 01:18 PM, Halil Pasic wrote:
+>>>>> On 05/07/2018 05:11 PM, Tony Krowiak wrote:
+>>>>>> Registers the matrix device created by the VFIO AP device
+>>>>>> driver with the VFIO mediated device framework.
+>>>>>> Registering the matrix device will create the sysfs
+>>>>>> structures needed to create mediated matrix devices
+>>>>>> each of which will be used to configure the AP matrix
+>>>>>> for a guest and connect it to the VFIO AP device driver.
+>>>>>> +static int vfio_ap_mdev_create(struct kobject *kobj, struct
+>>>>>> mdev_device *mdev)
+>>>>>> +{
+>>>>>> +    struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
+>>>>>> +
+>>>>>> +    ap_matrix->available_instances--;
+>>>>>> +
+>>>>>> +    return 0;
+>>>>>> +}
+>>>>>> +
+>>>>>> +static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>>>>>> +{
+>>>>>> +    struct ap_matrix *ap_matrix = to_ap_matrix(mdev_parent_dev(mdev));
+>>>>>> +
+>>>>>> +    ap_matrix->available_instances++;
+>>>>>> +
+>>>>>> +    return 0;
+>>>>>> +}
+>>>>>> +
+>>>>> The above functions seem to be called with the lock of this
+>>>>> auto-generated
+>>>>> mdev parent device held. That's why we don't have to care about
+>>>>> synchronization
+>>>>> ourselves, right?
+>>>> I would assume as much. The comments for the 'struct mdev_parent_ops' in
+>>>> include/linux/mdev.h do not mention anything about synchronization, nor
+>>>> did I
+>>>> see any locking or synchronization in the vfio_ccw implementation after
+>>>> which
+>>>> I modeled my code, so frankly it is something I did not consider.
+>>>>   
+>>>>> A small comment in the code could be helpful for mdev non-experts.
+>>>>> Hell, I would
+>>>>> even consider documenting it for all mdev -- took me some time to
+>>>>> figure out.
+>>>> You may want to bring this up with the VFIO mdev maintainers, but I'd be
+>>>> happy to
+>>>> include a comment in the functions in question if you think it important.
+>>> Important note: There's currently a patch on list that removes the mdev
+>>> parent mutex, and it seems there was never intended to be any
+>>> serialization in that place by the mdev core. (Look for "vfio/mdev:
+>>> Check globally for duplicate devices".)
+>> The patch on the list holds the mdev_list_lock during create and remove
+>> of an mdev device, so it looks like no synchronization is necessary on the
+>> part of the vendor code in the create/remove callbacks; does that sound
+>> about right?
+> v1/v2 did that; v3/v4 hold the list lock only while the device is added
+> to the mdev list. v4 also adds a note regarding locking to the
+> documentation.
 
-What prevents a state change between checking the state and before
-private->io_completion is set? If that happens you would end with an
-endless wait.
+I'll add some synchronization to the read/update of available instances.
 
-Similarly, you would have memory corruption if the task would be
-interrupted and if the function would be left, ending up with a stale
-private->io_completion completion pointer.
-The complete(private->io_completion) call will then write to a memory
-location that might already be reused.
-
-Just my 0.02 after having a very very short look ;)
+>
