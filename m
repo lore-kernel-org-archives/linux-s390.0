@@ -1,47 +1,59 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 4/4] net/smc: longer delay when freeing client link groups
-Date: Wed, 23 May 2018 16:38:12 +0200
-Message-ID: <20180523143812.25824-5-ubraun@linux.ibm.com>
-References: <20180523143812.25824-1-ubraun@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180523143812.25824-1-ubraun@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+Return-Path: <owner-linux-mm@kvack.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH RFCv2 2/4] s390: mm: support removal of memory
+Date: Wed, 23 May 2018 20:24:02 +0200
+Message-Id: <20180523182404.11433-3-david@redhat.com>
+In-Reply-To: <20180523182404.11433-1-david@redhat.com>
+References: <20180523182404.11433-1-david@redhat.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, David Hildenbrand <david@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Michal Hocko <mhocko@suse.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Client link group creation always follows the server linkgroup creation.
-If peer creates a new server link group, client has to create a new
-client link group. If peer reuses a server link group for a new
-connection, client has to reuse its client link group as well. To
-avoid out-of-sync conditions for link groups a longer delay for
-for client link group removal is defined to make sure this link group
-still exists, once the peer decides to reuse a server link group.
+With virtio-mem, we actually want to remove memory again.
 
-Currently the client link group delay time is just 10 jiffies larger
-than the server link group delay time. This patch increases the delay
-difference to 10 seconds to have a better protection against
-out-of-sync link groups.
-
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- net/smc/smc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/mm/init.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2bf138e7d3ec..add82b0266f3 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -28,7 +28,7 @@
- 
- #define SMC_LGR_NUM_INCR		256
- #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
--#define SMC_LGR_FREE_DELAY_CLNT		(SMC_LGR_FREE_DELAY_SERV + 10)
-+#define SMC_LGR_FREE_DELAY_CLNT		(SMC_LGR_FREE_DELAY_SERV + 10 * HZ)
- 
- static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
- 	.lock = __SPIN_LOCK_UNLOCKED(smc_lgr_list.lock),
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 3fa3e5323612..7202344d0eae 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -242,12 +242,18 @@ int arch_add_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap,
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+ int arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
+ {
+-	/*
+-	 * There is no hardware or firmware interface which could trigger a
+-	 * hot memory remove on s390. So there is nothing that needs to be
+-	 * implemented.
+-	 */
+-	return -EBUSY;
++	const unsigned long start_pfn = start >> PAGE_SHIFT;
++	const unsigned long nr_pages = size >> PAGE_SHIFT;
++	struct page *page = pfn_to_page(start_pfn);
++	struct zone *zone;
++	int ret;
++
++	zone = page_zone(page);
++	ret = __remove_pages(zone, start_pfn, nr_pages, altmap);
++	WARN_ON_ONCE(ret);
++	vmem_remove_mapping(start, size);
++
++	return ret;
+ }
+ #endif
+ #endif /* CONFIG_MEMORY_HOTPLUG */
 -- 
-2.16.3
+2.17.0
