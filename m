@@ -1,22 +1,16 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 06/13] KVM: s390: interfaces to manage guest's AP
- matrix
-Date: Wed, 23 May 2018 10:29:11 -0400
-Message-ID: <3e9035ce-0b41-f01e-526e-3ae3d3aba6b5@linux.vnet.ibm.com>
+Subject: Re: [PATCH v5 10/13] s390: vfio-ap: sysfs interface to view matrix
+ mdev matrix
+Date: Wed, 23 May 2018 10:38:30 -0400
+Message-ID: <53275110-45fb-d50f-c97e-93141378f094@linux.vnet.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1525705912-12815-7-git-send-email-akrowiak@linux.vnet.ibm.com>
- <f2646170-1aaf-8447-4c02-0679909d754f@linux.ibm.com>
- <a9206728-2673-c8de-851b-323027a398fa@linux.vnet.ibm.com>
- <f8c88504-55dc-99a8-90a1-2ddf63a20091@linux.ibm.com>
- <13331f80-8821-6de3-ca29-7a3ea869e4f1@linux.vnet.ibm.com>
- <1891f565-284f-ab30-ebc7-8fef85b5fba7@linux.ibm.com>
- <a02a8fa0-9b05-41cf-4507-d4540b279247@linux.vnet.ibm.com>
- <2ae0b04a-f091-6c06-dc07-b6fa265b484a@linux.ibm.com>
+ <1525705912-12815-11-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <a6bba129-8a3c-a848-65aa-b67816bf2d25@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2ae0b04a-f091-6c06-dc07-b6fa265b484a@linux.ibm.com>
+In-Reply-To: <a6bba129-8a3c-a848-65aa-b67816bf2d25@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -25,133 +19,98 @@ To: pmorel@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.o
 Cc: akrowiak@linux.vnet.ibm.com, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/18/2018 04:55 AM, Pierre Morel wrote:
-> On 16/05/2018 15:48, Tony Krowiak wrote:
->> On 05/16/2018 09:15 AM, Pierre Morel wrote:
->>> On 16/05/2018 15:12, Tony Krowiak wrote:
->>>> On 05/16/2018 03:48 AM, Pierre Morel wrote:
->>>>> On 15/05/2018 18:07, Tony Krowiak wrote:
->>>>>> On 05/15/2018 10:55 AM, Pierre Morel wrote:
->>>>>>> On 07/05/2018 17:11, Tony Krowiak wrote:
->>>>>>>> Provides interfaces to manage the AP adapters, usage domains
->>>>>>>> and control domains assigned to a KVM guest.
->>>>>>>>
->>>>>>>> The guest's SIE state description has a satellite structure 
->>>>>>>> called the
->>>>>>>> Crypto Control Block (CRYCB) containing three bitmask fields
->>>>>>>> identifying the adapters, queues (domains) and control domains
->>>>>>>> assigned to the KVM guest:
->>>>>>>>
->>>>> ...snip...
->>>>>>>> +}
->>>>>>>
->>>>>>> This function (ap_validate_queue_sharing) only verifies that VM 
->>>>>>> don't share queues.
->>>>>>> What about the queues used by a host application?
->>>>>>
->>>>>> How can that be verified from this function? I suppose I could 
->>>>>> put a check in here to
->>>>>> verify that the queues are reserved by the vfio_ap device driver, 
->>>>>> but that would
->>>>>> be redundant because an AP queue can not be assigned to a 
->>>>>> mediated matrix device
->>>>>> via its sysfs attributes unless it is reserved by the vfio_ap 
->>>>>> device driver (see
->>>>>> patches 7, 8 and 9).
->>>>>>
->>>>>>>
->>>>>>>
->>>>>>> I understand that you want to implement  these checks within KVM 
->>>>>>> but this is
->>>>>>> related to which queue devices are bound to the matrix and which 
->>>>>>> one are not.
->>>>>>
->>>>>> See my comments above and below about AP queue assignment to the 
->>>>>> mediated matrix
->>>>>> device. The one verification we can't do when the devices are 
->>>>>> assigned is whether
->>>>>> another guest is using the queue because assignment occurs before 
->>>>>> the guest using
->>>>>> the queue is started in which case we have no access to KVM. It 
->>>>>> makes no sense to
->>>>>> do so at assignment time anyway because it doesn't matter until 
->>>>>> the guest using
->>>>>> the mediated matrix device is started, so that check is done in KVM.
->>>>>>
->>>>>>>
->>>>>>>
->>>>>>> I think that this should be related somehow to the bounded queue 
->>>>>>> devices and
->>>>>>> therefor implemented inside the matrix driver.
->>>>>>
->>>>>> As I stated above, when an AP queue is assigned to the mediated 
->>>>>> matrix device via
->>>>>> its sysfs attributes, a check is done to verify that it is bound 
->>>>>> to the vfio_ap
->>>>>> device driver (see patches 7, 8 and 9). If not, then assignment 
->>>>>> will be rejected;
->>>>>> therefore, it will not be possible to configure a CRYCB with AP 
->>>>>> queues that are
->>>>>> not bound to the device driver.
->>>>>
->>>>> This patch and te followed patches take care that the queues are 
->>>>> bound to the
->>>>> matrix driver when they are assigned to the matrix using the sysfs 
->>>>> entries.
->>>>>
->>>>> But they do not take care that the queue can not be unbound before 
->>>>> you start
->>>>> the guest, and they are not in the path if the admin decide to 
->>>>> unbind a queue
->>>>> at some later time.
->>>>
->>>> That is a good point. I need to put a check in the device driver at 
->>>> the time
->>>> the mediated device fd is opened to verify that the queues being 
->>>> configured in
->>>> the guest's CRYCB are bound to the driver.
->>>
->>> not only, you also need to avoid the possibility of unbinding the 
->>> device.
->>> For this you need to use the remove callback from the driver.
+On 05/16/2018 03:55 AM, Pierre Morel wrote:
+> On 07/05/2018 17:11, Tony Krowiak wrote:
+>> Provides a sysfs interface to view the AP matrix configured for the
+>> mediated matrix device.
 >>
->> I thought I addressed this already. The definition of the remove 
->> callback does
->> not specify a return value, so there is currently no way to prevent 
->> the AP bus
->> from removing the queue device on unbind. I sent an email to Harald 
->> to discuss
->> adding a return value to the callback.
+>> The relevant sysfs structures are:
+>>
+>> /sys/devices/vfio_ap
+>> ... [matrix]
+>> ...... [mdev_supported_types]
+>> ......... [vfio_ap-passthrough]
+>> ............ [devices]
+>> ...............[$uuid]
+>> .................. matrix
+>>
+>> To view the matrix configured for the mediated matrix device,
+>> print the matrix file:
 >
-> If you can not prevent the unbinding you must remove
-> the according bits in the matrix.
+> This is the configured matrix, not the one used by the guest.
+> Nothing in the patches protect against binding a queue and assigning
+> a new AP when the guest runs.
+> The card and queue will be showed by this entry.
 
-In which matrix? The bits in the matrix configured via the mediated 
-matrix device's
-sysfs attributes files? The bits in the guest's CRYCB? If the latter, 
-then what happens
-to in-process crypto transactions on the guest? Wouldn't this 
-essentially be like a hot
-unplug of the device from the guest?
+Of course, as stated above, this is the matrix configured for the
+mediated matrix device. Are you suggesting here that the driver
+should prevent assigning a new adapter or domain while a guest is
+running? Couldn't this be a step in the process for hot (un)plugging
+AP queues?
 
 >
 >
+>
 >>
->>>
->>>
->>>>
->>>>>
->>>>>
->>>>>>
->>>>>>>
->>>>>>>
->>>>>>> Regards,
->>>>>>>
->>>>>>> Pierre
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
+>>     cat matrix
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c |   31 
+>> +++++++++++++++++++++++++++++++
+>>   1 files changed, 31 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
+>> b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 755be1d..81e03b8 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -716,6 +716,36 @@ static ssize_t control_domains_show(struct 
+>> device *dev,
+>>   }
+>>   DEVICE_ATTR_RO(control_domains);
+>>
+>> +static ssize_t matrix_show(struct device *dev, struct 
+>> device_attribute *attr,
+>> +               char *buf)
+>> +{
+>> +    struct mdev_device *mdev = mdev_from_dev(dev);
+>> +    struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>> +    char *bufpos = buf;
+>> +    unsigned long apid;
+>> +    unsigned long apqi;
+>> +    unsigned long napm = matrix_mdev->matrix.apm_max + 1;
+>> +    unsigned long naqm = matrix_mdev->matrix.aqm_max + 1;
+>> +    int nchars = 0;
+>> +    int n;
+>> +
+>> +    for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm) {
+>> +        n = sprintf(bufpos, "%02lx\n", apid);
+>> +        bufpos += n;
+>> +        nchars += n;
+>> +
+>> +        for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, naqm) {
+>> +            n = sprintf(bufpos, "%02lx.%04lx\n", apid, apqi);
+>> +            bufpos += n;
+>> +            nchars += n;
+>> +        }
+>> +    }
+>> +
+>> +    return nchars;
+>> +}
+>> +DEVICE_ATTR_RO(matrix);
+>> +
+>> +
+>>   static struct attribute *vfio_ap_mdev_attrs[] = {
+>>       &dev_attr_assign_adapter.attr,
+>>       &dev_attr_unassign_adapter.attr,
+>> @@ -724,6 +754,7 @@ static ssize_t control_domains_show(struct device 
+>> *dev,
+>>       &dev_attr_assign_control_domain.attr,
+>>       &dev_attr_unassign_control_domain.attr,
+>>       &dev_attr_control_domains.attr,
+>> +    &dev_attr_matrix.attr,
+>>       NULL,
+>>   };
 >>
 >
