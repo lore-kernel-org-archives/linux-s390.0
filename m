@@ -1,54 +1,52 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: Re: [PATCH 4.9 27/33] futex: Remove duplicated code and fix undefined
- behaviour
-References: <20180518081535.096308218@linuxfoundation.org>
- <20180518081536.166573281@linuxfoundation.org>
-From: Jiri Slaby <jslaby@suse.cz>
-Message-ID: <e8dc5f94-3b52-dcf0-3b5e-b442bde7d803@suse.cz>
-Date: Fri, 18 May 2018 10:30:24 +0200
-MIME-Version: 1.0
-In-Reply-To: <20180518081536.166573281@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180518083024.Ov1c6qAQkfDQ-FtaTEtLOnIWLq8om7wWpGN9g5Gt8a8@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Russell King <rmk+kernel@armlinux.org.uk>, "Darren Hart (VMware)" <dvhart@infradead.org>, linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, peterz@infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Catalin Marinas <catalin.marinas@arm.com>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-xtensa@linux-xtensa.org, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, openrisc@lists.librecores.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Stafford Horne <shorne@gmail.com>, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Chris Zankel <chris@zankel.net>, Michal Simek <monstr@monstr.eu>, Tony Luck <tony.luck@intel.com>, linux-parisc@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>, Ralf Baechle <ralf@linux-mips.org>, Richard Kuo <rkuo@codeaurora.org>, linux-alpha@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>, Ben Hutchings <ben.hutchings@codethink.co.uk>
+From: Dong Jia Shi <bjsdjshi@linux.ibm.com>
+Subject: [PATCH v3 0/4] vfio: ccw: error handling fixes and improvements
+Date: Wed, 23 May 2018 04:44:58 +0200
+Message-ID: <20180523024502.94244-1-bjsdjshi@linux.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: cohuck@redhat.com, borntraeger@de.ibm.com, bjsdjshi@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/18/2018, 10:16 AM, Greg Kroah-Hartman wrote:
-> 4.9-stable review patch.  If anyone has any objections, please let me know.
-> 
-> ------------------
-> 
-> From: Jiri Slaby <jslaby@suse.cz>
-> 
-> commit 30d6e0a4190d37740e9447e4e4815f06992dd8c3 upstream.
-...
-> --- a/kernel/futex.c
-> +++ b/kernel/futex.c
-> @@ -1458,6 +1458,45 @@ out:
->  	return ret;
->  }
->  
-> +static int futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
-> +{
-> +	unsigned int op =	  (encoded_op & 0x70000000) >> 28;
-> +	unsigned int cmp =	  (encoded_op & 0x0f000000) >> 24;
-> +	int oparg = sign_extend32((encoded_op & 0x00fff000) >> 12, 12);
-> +	int cmparg = sign_extend32(encoded_op & 0x00000fff, 12);
+Dear Reviewers,
 
-12 is wrong here – wherever you apply this, you need also a follow-up fix:
-commit d70ef22892ed6c066e51e118b225923c9b74af34
-Author: Jiri Slaby <jslaby@suse.cz>
-Date:   Thu Nov 30 15:35:44 2017 +0100
+Here is a new version for this patch series.
 
-    futex: futex_wake_op, fix sign_extend32 sign bits
+We didn't get agreement on patch #4 (#5 in v2) in the former cycle though,
+I made it based on my understanding. We can continue discussing on it.
 
-thanks,
+Changelog:
+v2->v3:
+ - #2. Reworded comment message.
+ - #4. Trace failure only, trace all error path, and a common knob for all
+       failure paths.
+
+v1->v2:
+ - #1. Reworded commit message and comment, plus some typo fixes.
+ - #2. New patch.
+ - #3. Added the missing suggested-by Pierre.
+       Fixed typos.
+       Added sanity check on pa->pa_iova_pfn and updated comments accordingly.
+ - #4. Removed unused idaw_nr.
+ - #5. Replaced leading white spaces with TABs.
+       Traced the function in anycase.
+
+Dong Jia Shi (3):
+  vfio: ccw: shorten kernel doc description for pfn_array_pin()
+  vfio: ccw: refactor and improve pfn_array_alloc_pin()
+  vfio: ccw: set ccw->cda to NULL defensively
+
+Halil Pasic (1):
+  vfio: ccw: add traceponits for interesting error paths
+
+ drivers/s390/cio/Makefile         |   1 +
+ drivers/s390/cio/vfio_ccw_cp.c    | 121 +++++++++++++++++++-------------------
+ drivers/s390/cio/vfio_ccw_fsm.c   |  17 +++++-
+ drivers/s390/cio/vfio_ccw_trace.h |  54 +++++++++++++++++
+ 4 files changed, 130 insertions(+), 63 deletions(-)
+ create mode 100644 drivers/s390/cio/vfio_ccw_trace.h
+
 -- 
-js
-suse labs
+2.16.3
