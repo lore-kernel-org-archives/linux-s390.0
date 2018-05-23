@@ -1,55 +1,68 @@
-From: Dong Jia Shi <bjsdjshi@linux.ibm.com>
-Subject: [PATCH v4 0/4] vfio: ccw: error handling fixes and improvements
-Date: Wed, 23 May 2018 04:56:41 +0200
-Message-ID: <20180523025645.8978-1-bjsdjshi@linux.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: cohuck@redhat.com, borntraeger@de.ibm.com, bjsdjshi@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com
+From: Ursula Braun <ubraun@linux.ibm.com>
+Subject: [PATCH net-next 1/4] net/smc: return 0 for ioctl calls in states INIT and CLOSED
+Date: Wed, 23 May 2018 16:38:09 +0200
+Message-ID: <20180523143812.25824-2-ubraun@linux.ibm.com>
+References: <20180523143812.25824-1-ubraun@linux.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180523143812.25824-1-ubraun@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Dear Reviewers,
+A connected SMC-socket contains addresses of descriptors for the
+send buffer and the rmb (receive buffer). Fields of these descriptors
+are used to determine the answer for certain ioctl requests.
+Add extra handling for unconnected SMC socket states without valid
+buffer descriptor addresses.
 
-Here is a new version for this patch series.
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Reported-by: syzbot+e6714328fda813fc670f@syzkaller.appspotmail.com
+---
+ net/smc/af_smc.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-We didn't get agreement on patch #4 (#5 in v2) in the former cycle though,
-I made it based on my understanding. We can continue discussing on it.
-
-Changelog:
-v3->v4:
- - Change mail address from @linux.vnet.ibm.com to @linux.ibm.com
-
-v2->v3:
- - #2. Reworded comment message.
- - #4. Trace failure only, trace all error path, and a common knob for all
-       failure paths.
-
-v1->v2:
- - #1. Reworded commit message and comment, plus some typo fixes.
- - #2. New patch.
- - #3. Added the missing suggested-by Pierre.
-       Fixed typos.
-       Added sanity check on pa->pa_iova_pfn and updated comments accordingly.
- - #4. Removed unused idaw_nr.
- - #5. Replaced leading white spaces with TABs.
-       Traced the function in anycase.
-
-Dong Jia Shi (3):
-  vfio: ccw: shorten kernel doc description for pfn_array_pin()
-  vfio: ccw: refactor and improve pfn_array_alloc_pin()
-  vfio: ccw: set ccw->cda to NULL defensively
-
-Halil Pasic (1):
-  vfio: ccw: add traceponits for interesting error paths
-
- drivers/s390/cio/Makefile         |   1 +
- drivers/s390/cio/vfio_ccw_cp.c    | 121 +++++++++++++++++++-------------------
- drivers/s390/cio/vfio_ccw_fsm.c   |  17 +++++-
- drivers/s390/cio/vfio_ccw_trace.h |  54 +++++++++++++++++
- 4 files changed, 130 insertions(+), 63 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_trace.h
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 48530dab5c94..f2d925921d81 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1490,20 +1490,32 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 	case SIOCINQ: /* same as FIONREAD */
+ 		if (smc->sk.sk_state == SMC_LISTEN)
+ 			return -EINVAL;
+-		answ = atomic_read(&smc->conn.bytes_to_rcv);
++		if (smc->sk.sk_state == SMC_INIT ||
++		    smc->sk.sk_state == SMC_CLOSED)
++			answ = 0;
++		else
++			answ = atomic_read(&smc->conn.bytes_to_rcv);
+ 		break;
+ 	case SIOCOUTQ:
+ 		/* output queue size (not send + not acked) */
+ 		if (smc->sk.sk_state == SMC_LISTEN)
+ 			return -EINVAL;
+-		answ = smc->conn.sndbuf_desc->len -
++		if (smc->sk.sk_state == SMC_INIT ||
++		    smc->sk.sk_state == SMC_CLOSED)
++			answ = 0;
++		else
++			answ = smc->conn.sndbuf_desc->len -
+ 					atomic_read(&smc->conn.sndbuf_space);
+ 		break;
+ 	case SIOCOUTQNSD:
+ 		/* output queue size (not send only) */
+ 		if (smc->sk.sk_state == SMC_LISTEN)
+ 			return -EINVAL;
+-		answ = smc_tx_prepared_sends(&smc->conn);
++		if (smc->sk.sk_state == SMC_INIT ||
++		    smc->sk.sk_state == SMC_CLOSED)
++			answ = 0;
++		else
++			answ = smc_tx_prepared_sends(&smc->conn);
+ 		break;
+ 	default:
+ 		return -ENOIOCTLCMD;
 -- 
 2.16.3
