@@ -1,24 +1,18 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v5 06/13] KVM: s390: interfaces to manage guest's AP
- matrix
-Date: Thu, 24 May 2018 09:46:58 +0200
-Message-ID: <948007c6-c5bd-c828-c7d8-7c9c6ceb286b@linux.ibm.com>
+Subject: Re: [PATCH v5 11/13] KVM: s390: implement mediated device open
+ callback
+Date: Thu, 24 May 2018 11:08:23 +0200
+Message-ID: <93cd0f46-a410-51c8-00b9-810c1b3d3ae2@linux.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1525705912-12815-7-git-send-email-akrowiak@linux.vnet.ibm.com>
- <f2646170-1aaf-8447-4c02-0679909d754f@linux.ibm.com>
- <a9206728-2673-c8de-851b-323027a398fa@linux.vnet.ibm.com>
- <f8c88504-55dc-99a8-90a1-2ddf63a20091@linux.ibm.com>
- <13331f80-8821-6de3-ca29-7a3ea869e4f1@linux.vnet.ibm.com>
- <1891f565-284f-ab30-ebc7-8fef85b5fba7@linux.ibm.com>
- <a02a8fa0-9b05-41cf-4507-d4540b279247@linux.vnet.ibm.com>
- <2ae0b04a-f091-6c06-dc07-b6fa265b484a@linux.ibm.com>
- <3e9035ce-0b41-f01e-526e-3ae3d3aba6b5@linux.vnet.ibm.com>
+ <1525705912-12815-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <98ea7ce2-2539-e2ff-4bb4-297e784d87bd@linux.ibm.com>
+ <7bb480ac-5723-83ff-c797-53c1ab0458c1@linux.vnet.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3e9035ce-0b41-f01e-526e-3ae3d3aba6b5@linux.vnet.ibm.com>
+In-Reply-To: <7bb480ac-5723-83ff-c797-53c1ab0458c1@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -27,143 +21,57 @@ To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linu
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 23/05/2018 16:29, Tony Krowiak wrote:
-> On 05/18/2018 04:55 AM, Pierre Morel wrote:
->> On 16/05/2018 15:48, Tony Krowiak wrote:
->>> On 05/16/2018 09:15 AM, Pierre Morel wrote:
->>>> On 16/05/2018 15:12, Tony Krowiak wrote:
->>>>> On 05/16/2018 03:48 AM, Pierre Morel wrote:
->>>>>> On 15/05/2018 18:07, Tony Krowiak wrote:
->>>>>>> On 05/15/2018 10:55 AM, Pierre Morel wrote:
->>>>>>>> On 07/05/2018 17:11, Tony Krowiak wrote:
->>>>>>>>> Provides interfaces to manage the AP adapters, usage domains
->>>>>>>>> and control domains assigned to a KVM guest.
->>>>>>>>>
->>>>>>>>> The guest's SIE state description has a satellite structure 
->>>>>>>>> called the
->>>>>>>>> Crypto Control Block (CRYCB) containing three bitmask fields
->>>>>>>>> identifying the adapters, queues (domains) and control domains
->>>>>>>>> assigned to the KVM guest:
->>>>>>>>>
->>>>>> ...snip...
->>>>>>>>> +}
->>>>>>>>
->>>>>>>> This function (ap_validate_queue_sharing) only verifies that VM 
->>>>>>>> don't share queues.
->>>>>>>> What about the queues used by a host application?
->>>>>>>
->>>>>>> How can that be verified from this function? I suppose I could 
->>>>>>> put a check in here to
->>>>>>> verify that the queues are reserved by the vfio_ap device 
->>>>>>> driver, but that would
->>>>>>> be redundant because an AP queue can not be assigned to a 
->>>>>>> mediated matrix device
->>>>>>> via its sysfs attributes unless it is reserved by the vfio_ap 
->>>>>>> device driver (see
->>>>>>> patches 7, 8 and 9).
->>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> I understand that you want to implement  these checks within 
->>>>>>>> KVM but this is
->>>>>>>> related to which queue devices are bound to the matrix and 
->>>>>>>> which one are not.
->>>>>>>
->>>>>>> See my comments above and below about AP queue assignment to the 
->>>>>>> mediated matrix
->>>>>>> device. The one verification we can't do when the devices are 
->>>>>>> assigned is whether
->>>>>>> another guest is using the queue because assignment occurs 
->>>>>>> before the guest using
->>>>>>> the queue is started in which case we have no access to KVM. It 
->>>>>>> makes no sense to
->>>>>>> do so at assignment time anyway because it doesn't matter until 
->>>>>>> the guest using
->>>>>>> the mediated matrix device is started, so that check is done in 
->>>>>>> KVM.
->>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> I think that this should be related somehow to the bounded 
->>>>>>>> queue devices and
->>>>>>>> therefor implemented inside the matrix driver.
->>>>>>>
->>>>>>> As I stated above, when an AP queue is assigned to the mediated 
->>>>>>> matrix device via
->>>>>>> its sysfs attributes, a check is done to verify that it is bound 
->>>>>>> to the vfio_ap
->>>>>>> device driver (see patches 7, 8 and 9). If not, then assignment 
->>>>>>> will be rejected;
->>>>>>> therefore, it will not be possible to configure a CRYCB with AP 
->>>>>>> queues that are
->>>>>>> not bound to the device driver.
->>>>>>
->>>>>> This patch and te followed patches take care that the queues are 
->>>>>> bound to the
->>>>>> matrix driver when they are assigned to the matrix using the 
->>>>>> sysfs entries.
->>>>>>
->>>>>> But they do not take care that the queue can not be unbound 
->>>>>> before you start
->>>>>> the guest, and they are not in the path if the admin decide to 
->>>>>> unbind a queue
->>>>>> at some later time.
->>>>>
->>>>> That is a good point. I need to put a check in the device driver 
->>>>> at the time
->>>>> the mediated device fd is opened to verify that the queues being 
->>>>> configured in
->>>>> the guest's CRYCB are bound to the driver.
->>>>
->>>> not only, you also need to avoid the possibility of unbinding the 
->>>> device.
->>>> For this you need to use the remove callback from the driver.
+On 23/05/2018 16:45, Tony Krowiak wrote:
+> On 05/16/2018 04:03 AM, Pierre Morel wrote:
+>> On 07/05/2018 17:11, Tony Krowiak wrote:
+>>> Implements the open callback on the mediated matrix device.
+>>> The function registers a group notifier to receive notification
+>>> of the VFIO_GROUP_NOTIFY_SET_KVM event. When notified,
+>>> the vfio_ap device driver will get access to the guest's
+>>> kvm structure. With access to this structure the driver will:
 >>>
->>> I thought I addressed this already. The definition of the remove 
->>> callback does
->>> not specify a return value, so there is currently no way to prevent 
->>> the AP bus
->>> from removing the queue device on unbind. I sent an email to Harald 
->>> to discuss
->>> adding a return value to the callback.
->>
->> If you can not prevent the unbinding you must remove
->> the according bits in the matrix.
->
-> In which matrix? The bits in the matrix configured via the mediated 
-> matrix device's
-> sysfs attributes files? The bits in the guest's CRYCB? If the latter, 
-> then what happens
-> to in-process crypto transactions on the guest? Wouldn't this 
-> essentially be like a hot
-> unplug of the device from the guest?
+>>> 1. Ensure that only one mediated device is opened for the guest
 
-Obviously from the CRYCB so that the guest do not access to the AP queues
-belonging to the AP card anymore.
+You should explain why.
 
->
->>
->>
 >>>
->>>>
->>>>
->>>>>
->>>>>>
->>>>>>
->>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> Regards,
->>>>>>>>
->>>>>>>> Pierre
->>>>>>>>
->>>>>>>
->>>>>>
->>>>>
->>>>
+>>> 2. Configure access to the AP devices for the guest.
 >>>
+...snip...
+>>> +void kvm_ap_refcount_inc(struct kvm *kvm)
+>>> +{
+>>> +    atomic_inc(&kvm->arch.crypto.aprefs);
+>>> +}
+>>> +EXPORT_SYMBOL(kvm_ap_refcount_inc);
+>>> +
+>>> +void kvm_ap_refcount_dec(struct kvm *kvm)
+>>> +{
+>>> +    atomic_dec(&kvm->arch.crypto.aprefs);
+>>> +}
+>>> +EXPORT_SYMBOL(kvm_ap_refcount_dec);
 >>
+>> Why are these functions inside kvm-ap ?
+>> Will anyone use this outer of vfio-ap ?
 >
+> As I've stated before, I made the choice to contain all interfaces that
+> access KVM in kvm-ap because I don't think it is appropriate for the 
+> device
+> driver to have to have "knowledge" of the inner workings of KVM. Why does
+> it matter whether any entity outside of the vfio_ap device driver calls
+> these functions? I could ask a similar question if the interfaces were
+> contained in vfio-ap; what if another device driver needs access to these
+> interfaces?
+
+This is very driver specific and only used during initialization.
+It is not a common property of the cryptographic interface.
+
+I really think you should handle this inside the driver.
+
+Pierre
+
+
+...snip...
+
 
 -- 
 Pierre Morel
