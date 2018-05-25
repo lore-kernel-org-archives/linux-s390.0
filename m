@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 14 May 2018 16:41:17 -0400 (EDT)
-Message-Id: <20180514.164117.792209096555574754.davem@davemloft.net>
-Subject: Re: [PATCH] net/smc: check for missing nlattrs in SMC_PNETID
- messages
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20180514000130.13780-1-ebiggers3@gmail.com>
-References: <001a113f9bb83e4d560568457853@google.com>
-        <20180514000130.13780-1-ebiggers3@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: [PATCH v2 00/10] vfio: ccw: Refactoring the VFIO CCW state machine
+Date: Fri, 25 May 2018 12:21:08 +0200
+Message-ID: <1527243678-3140-1-git-send-email-pmorel@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: ebiggers3@gmail.com
-Cc: ubraun@linux.ibm.com, tmricht@linux.vnet.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, ebiggers@google.com
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, cohuck@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Eric Biggers <ebiggers3@gmail.com>
-Date: Sun, 13 May 2018 17:01:30 -0700
+The goal of the patch serie is to enhance the state machine by:
+- centralizing all state changes inside the state machine wrapper
+- make the state change atomic using mutexes
+- change user busy waiting for a passive wait on completion
+- refactoring the initialization to avoid using a subchannel without a guest
 
-> From: Eric Biggers <ebiggers@google.com>
-> 
-> It's possible to crash the kernel in several different ways by sending
-> messages to the SMC_PNETID generic netlink family that are missing the
-> expected attributes:
-> 
-> - Missing SMC_PNETID_NAME => null pointer dereference when comparing
->   names.
-> - Missing SMC_PNETID_ETHNAME => null pointer dereference accessing
->   smc_pnetentry::ndev.
-> - Missing SMC_PNETID_IBNAME => null pointer dereference accessing
->   smc_pnetentry::smcibdev.
-> - Missing SMC_PNETID_IBPORT => out of bounds array access to
->   smc_ib_device::pattr[-1].
-> 
-> Fix it by validating that all expected attributes are present and that
-> SMC_PNETID_IBPORT is nonzero.
-> 
-> Reported-by: syzbot+5cd61039dc9b8bfa6e47@syzkaller.appspotmail.com
-> Fixes: 6812baabf24d ("smc: establish pnet table management")
-> Cc: <stable@vger.kernel.org> # v4.11+
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
 
-Applied and queued up for -stable, thanks.
+This series introduces new states and events and suppressed
+others.
+- VFIO_CCW_STATE_NOT_OPER : when the Sub-Channel is KO
+- VFIO_CCW_STATE_STANDBY  : when it is offline
+- VFIO_CCW_STATE_IDLE     : when it is ready for I/O
+- VFIO_CCW_STATE_BUSY     : when it is busy doing I/O
+- VFIO_CCW_STATE_QUIESCING: when it is busy going offline
+
+- VFIO_CCW_EVENT_INIT     : the channel setup (admin)
+- VFIO_CCW_EVENT_NOT_OPER : something really wrong happened
+- VFIO_CCW_EVENT_SSCH_REQ : Starting an I/O request (UAPI)
+- VFIO_CCW_EVENT_INTERRUPT: Receiving an interrupt (callback)
+- VFIO_CCW_EVENT_SCHIB_CHANGED: Receiving a channel event (callback)
+- VFIO_CCW_EVENT_ONLINE   : Channel is set online (admin)
+- VFIO_CCW_EVENT_OFFLINE  : Channel is set offline (admin)
+
+The ABI did not change a lot beside letting the user sleep
+when the driver is busy doing a SSCH, so a standard QEMU
+devel branch can be used.
+
+
+Pierre Morel (10):
+  vfio: ccw: Moving state change out of IRQ context
+  vfio: ccw: Transform FSM functions to return state
+  vfio: ccw: new SCH_EVENT event
+  vfio: ccw: replace IO_REQ event with SSCH_REQ event
+  vfio: ccw: Suppress unused event parameter
+  vfio: ccw: Make FSM functions atomic
+  vfio: ccw: FSM and mediated device initialization
+  vfio: ccw: Handling reset and shutdown with states
+  vfio: ccw: Suppressing the BOXED state
+  vfio: ccw: Let user wait when busy on IO
+
+ drivers/s390/cio/vfio_ccw_drv.c     | 112 +++++-------------
+ drivers/s390/cio/vfio_ccw_fsm.c     | 218 ++++++++++++++++++++++++------------
+ drivers/s390/cio/vfio_ccw_ops.c     |  62 +++++-----
+ drivers/s390/cio/vfio_ccw_private.h |  18 ++-
+ 4 files changed, 219 insertions(+), 191 deletions(-)
+
+-- 
+2.7.4
+
+Changelog:
+- rebased on current Linux branch
+- change the name of VFIO_CCW_EVENT_SCH_EVENT to
+  VFIO_CCW_EVENT_SCHIB_CHANGED
+- refactoring the initialization (mdev create/open
+  and driver probe)
+- return -EAGAIN to let the low level retry the
+  sending of events
+- make wait_for_completion interruptible
