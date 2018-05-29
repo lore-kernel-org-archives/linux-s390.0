@@ -1,7 +1,7 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 2/6] vfio: ccw: push down unsupported IDA check
-Date: Tue, 29 May 2018 14:35:08 +0200
-Message-ID: <20180529123512.14393-3-cohuck@redhat.com>
+Subject: [PULL 1/6] vfio: ccw: fix error return in vfio_ccw_sch_event
+Date: Tue, 29 May 2018 14:35:07 +0200
+Message-ID: <20180529123512.14393-2-cohuck@redhat.com>
 References: <20180529123512.14393-1-cohuck@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180529123512.14393-1-cohuck@redhat.com>
@@ -9,80 +9,55 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
 
-There is at least one relevant guest OS that doesn't set the IDA flags in
-the ORB as we would like them, but never uses any IDA. So instead of
-saying -EOPNOTSUPP when observing an ORB, such that a channel program
-specified by it could be a not supported one, let us say -EOPNOTSUPP only
-if the channel program is a not supported one.
+If the device has not been registered, or there is work pending,
+we should reschedule a sch_event call again.
 
-Of course, the real solution would be doing proper translation for all
-IDA. This is possible, but given the current code not straight forward.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Jason J. Herne <jjherne@linux.ibm.com>
-Message-Id: <20180516173342.15174-1-pasic@linux.ibm.com>
-Reviewed-by: Dong Jia Shi <bjsdjshi@linux.ibm.com>
+Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+Message-Id: <20180502072559.50691-1-bjsdjshi@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index dce92b2a895d..9a2a39df1056 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -365,6 +365,9 @@ static void cp_unpin_free(struct channel_program *cp)
-  * This is the chain length not considering any TICs.
-  * You need to do a new round for each TIC target.
-  *
-+ * The program is also validated for absence of not yet supported
-+ * indirect data addressing scenarios.
-+ *
-  * Returns: the length of the ccw chain or -errno.
-  */
- static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
-@@ -391,6 +394,14 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
- 	do {
- 		cnt++;
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index ea6a2d0b2894..770fa9cfc310 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -177,6 +177,7 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+ {
+ 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
+ 	unsigned long flags;
++	int rc = -EAGAIN;
  
-+		/*
-+		 * As we don't want to fail direct addressing even if the
-+		 * orb specified one of the unsupported formats, we defer
-+		 * checking for IDAWs in unsupported formats to here.
-+		 */
-+		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
-+			return -EOPNOTSUPP;
-+
- 		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
- 			break;
+ 	spin_lock_irqsave(sch->lock, flags);
+ 	if (!device_is_registered(&sch->dev))
+@@ -187,6 +188,7 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
  
-@@ -656,10 +667,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 	/*
- 	 * XXX:
- 	 * Only support prefetch enable mode now.
--	 * Only support 64bit addressing idal.
--	 * Only support 4k IDAW.
- 	 */
--	if (!orb->cmd.pfch || !orb->cmd.c64 || orb->cmd.i2k)
-+	if (!orb->cmd.pfch)
- 		return -EOPNOTSUPP;
+ 	if (cio_update_schib(sch)) {
+ 		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
++		rc = 0;
+ 		goto out_unlock;
+ 	}
  
- 	INIT_LIST_HEAD(&cp->ccwchain_list);
-@@ -688,6 +697,10 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 	ret = ccwchain_loop_tic(chain, cp);
- 	if (ret)
- 		cp_unpin_free(cp);
-+	/* It is safe to force: if not set but idals used
-+	 * ccwchain_calc_length returns an error.
-+	 */
-+	cp->orb.cmd.c64 = 1;
+@@ -195,11 +197,12 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+ 		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
+ 				 VFIO_CCW_STATE_STANDBY;
+ 	}
++	rc = 0;
  
- 	return ret;
+ out_unlock:
+ 	spin_unlock_irqrestore(sch->lock, flags);
+ 
+-	return 0;
++	return rc;
  }
+ 
+ static struct css_device_id vfio_ccw_sch_ids[] = {
 -- 
 2.14.3
