@@ -1,98 +1,50 @@
-Return-Path: <linux-kbuild-owner@vger.kernel.org>
-Subject: Re: [PATCH] kbuild: add endianness flag to CHEKCFLAGS
-References: <20180528170048.16595-1-luc.vanoostenryck@gmail.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <7ce087bc-dd52-bae8-96f2-fad91f5a345e@infradead.org>
-Date: Mon, 28 May 2018 10:31:58 -0700
-MIME-Version: 1.0
-In-Reply-To: <20180528170048.16595-1-luc.vanoostenryck@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-kbuild-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-kbuild/>
-List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E . J . Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Michal Marek <michal.lkml@markovi.net>, linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 0/6] vfio-ccw updates for 4.18
+Date: Tue, 29 May 2018 14:35:06 +0200
+Message-ID: <20180529123512.14393-1-cohuck@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/28/2018 10:00 AM, Luc Van Oostenryck wrote:
-> The kernel depends on macros like __BYTE_ORDER__,
-> __BIG_ENDIAN__ or __LITTLE_ENDIAN__.
-> 
-> OTOH, sparse doesn't know about the endianness of the kernel and
-> by default uses the same as the machine on which sparse was built.
-> 
-> Ensure that sparse can predefine the macros corresponding to
-> how the kernel was configured by adding -m{big,little}-endian
-> to CHECKFLAGS in the main Makefile (and so for all archs).
-> Also, remove the equivalent done in arch specific Makefiles.
-> 
-> Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-> ---
->  Makefile               | 3 +++
->  arch/openrisc/Makefile | 1 -
->  arch/parisc/Makefile   | 2 +-
->  arch/s390/Makefile     | 2 +-
->  4 files changed, 5 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Makefile b/Makefile
-> index 56ba070df..057a278d2 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -878,6 +878,9 @@ ifeq ($(CONFIG_STRIP_ASM_SYMS),y)
->  LDFLAGS_vmlinux	+= $(call ld-option, -X,)
->  endif
->  
-> +# insure the checker run with the right endianness
-> +CHECKFLAGS += $(if $(CONFIG_CPU_BIG_ENDIAN),-mbig,-mlittle)
+The following changes since commit 3376d98021e915196f4894d835325a884e635a04:
 
-Does this need to be                           -mbig-endian,-mlittle-endian)
+  s390/archrandom: Rework arch random implementation. (2018-05-25 08:12:58 +0200)
 
-> +
->  # Default kernel image to build when no specific target is given.
->  # KBUILD_IMAGE may be overruled on the command line or
->  # set in the environment
-> diff --git a/arch/openrisc/Makefile b/arch/openrisc/Makefile
-> index cf8802962..89076a66e 100644
-> --- a/arch/openrisc/Makefile
-> +++ b/arch/openrisc/Makefile
-> @@ -25,7 +25,6 @@ LDFLAGS_vmlinux :=
->  LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
->  
->  KBUILD_CFLAGS	+= -pipe -ffixed-r10 -D__linux__
-> -CHECKFLAGS	+= -mbig-endian
->  
->  ifeq ($(CONFIG_OPENRISC_HAVE_INST_MUL),y)
->  	KBUILD_CFLAGS += $(call cc-option,-mhard-mul)
-> diff --git a/arch/parisc/Makefile b/arch/parisc/Makefile
-> index 34ac503e2..348ae4779 100644
-> --- a/arch/parisc/Makefile
-> +++ b/arch/parisc/Makefile
-> @@ -22,7 +22,7 @@ KBUILD_IMAGE := vmlinuz
->  KBUILD_DEFCONFIG := default_defconfig
->  
->  NM		= sh $(srctree)/arch/parisc/nm
-> -CHECKFLAGS	+= -D__hppa__=1 -mbig-endian
-> +CHECKFLAGS	+= -D__hppa__=1
->  LIBGCC		= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
->  export LIBGCC
->  
-> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-> index c79936d02..68a690442 100644
-> --- a/arch/s390/Makefile
-> +++ b/arch/s390/Makefile
-> @@ -18,7 +18,7 @@ KBUILD_CFLAGS	+= -m64
->  KBUILD_AFLAGS	+= -m64
->  UTS_MACHINE	:= s390x
->  STACK_SIZE	:= 16384
-> -CHECKFLAGS	+= -D__s390__ -D__s390x__ -mbig-endian
-> +CHECKFLAGS	+= -D__s390__ -D__s390x__
->  
->  export LD_BFD
->  
-> 
+are available in the Git repository at:
 
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20180529
+
+for you to fetch changes up to 3cd90214b70f7f971496bffc3c34d23b2141feb3:
+
+  vfio: ccw: add tracepoints for interesting error paths (2018-05-29 09:27:42 +0200)
+
+----------------------------------------------------------------
+Various fixes and improvements in vfio-ccw, including a first stab
+at adding tracepoints.
+
+----------------------------------------------------------------
+
+Dong Jia Shi (4):
+  vfio: ccw: fix error return in vfio_ccw_sch_event
+  vfio: ccw: shorten kernel doc description for pfn_array_pin()
+  vfio: ccw: refactor and improve pfn_array_alloc_pin()
+  vfio: ccw: set ccw->cda to NULL defensively
+
+Halil Pasic (2):
+  vfio: ccw: push down unsupported IDA check
+  vfio: ccw: add tracepoints for interesting error paths
+
+ drivers/s390/cio/Makefile         |   1 +
+ drivers/s390/cio/vfio_ccw_cp.c    | 140 ++++++++++++++++++++------------------
+ drivers/s390/cio/vfio_ccw_drv.c   |   5 +-
+ drivers/s390/cio/vfio_ccw_fsm.c   |  17 ++++-
+ drivers/s390/cio/vfio_ccw_trace.h |  54 +++++++++++++++
+ 5 files changed, 150 insertions(+), 67 deletions(-)
+ create mode 100644 drivers/s390/cio/vfio_ccw_trace.h
 
 -- 
-~Randy
+2.14.3
