@@ -1,7 +1,7 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 5/6] vfio: ccw: set ccw->cda to NULL defensively
-Date: Tue, 29 May 2018 14:35:11 +0200
-Message-ID: <20180529123512.14393-6-cohuck@redhat.com>
+Subject: [PULL 2/6] vfio: ccw: push down unsupported IDA check
+Date: Tue, 29 May 2018 14:35:08 +0200
+Message-ID: <20180529123512.14393-3-cohuck@redhat.com>
 References: <20180529123512.14393-1-cohuck@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180529123512.14393-1-cohuck@redhat.com>
@@ -12,91 +12,77 @@ To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@
 Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dong Jia Shi <bjsdjshi@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-Let's avoid free on ccw->cda that points to a guest address
-or an already freed memory area by setting it to NULL if memory
-allocation didn't happen or failed.
+There is at least one relevant guest OS that doesn't set the IDA flags in
+the ORB as we would like them, but never uses any IDA. So instead of
+saying -EOPNOTSUPP when observing an ORB, such that a channel program
+specified by it could be a not supported one, let us say -EOPNOTSUPP only
+if the channel program is a not supported one.
 
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.ibm.com>
-Message-Id: <20180523025645.8978-4-bjsdjshi@linux.ibm.com>
+Of course, the real solution would be doing proper translation for all
+IDA. This is possible, but given the current code not straight forward.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Tested-by: Jason J. Herne <jjherne@linux.ibm.com>
+Message-Id: <20180516173342.15174-1-pasic@linux.ibm.com>
+Reviewed-by: Dong Jia Shi <bjsdjshi@linux.ibm.com>
 Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index b0f20230fc72..dbe7c7ac9ac8 100644
+index dce92b2a895d..9a2a39df1056 100644
 --- a/drivers/s390/cio/vfio_ccw_cp.c
 +++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -502,7 +502,7 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 	struct ccw1 *ccw;
- 	struct pfn_array_table *pat;
- 	unsigned long *idaws;
--	int idaw_nr;
-+	int ret;
+@@ -365,6 +365,9 @@ static void cp_unpin_free(struct channel_program *cp)
+  * This is the chain length not considering any TICs.
+  * You need to do a new round for each TIC target.
+  *
++ * The program is also validated for absence of not yet supported
++ * indirect data addressing scenarios.
++ *
+  * Returns: the length of the ccw chain or -errno.
+  */
+ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+@@ -391,6 +394,14 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+ 	do {
+ 		cnt++;
  
- 	ccw = chain->ch_ccw + idx;
++		/*
++		 * As we don't want to fail direct addressing even if the
++		 * orb specified one of the unsupported formats, we defer
++		 * checking for IDAWs in unsupported formats to here.
++		 */
++		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
++			return -EOPNOTSUPP;
++
+ 		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
+ 			break;
  
-@@ -522,18 +522,19 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 	 * needed when translating a direct ccw to a idal ccw.
+@@ -656,10 +667,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	/*
+ 	 * XXX:
+ 	 * Only support prefetch enable mode now.
+-	 * Only support 64bit addressing idal.
+-	 * Only support 4k IDAW.
  	 */
- 	pat = chain->ch_pat + idx;
--	if (pfn_array_table_init(pat, 1))
--		return -ENOMEM;
--	idaw_nr = pfn_array_alloc_pin(pat->pat_pa, cp->mdev,
--				      ccw->cda, ccw->count);
--	if (idaw_nr < 0)
--		return idaw_nr;
-+	ret = pfn_array_table_init(pat, 1);
-+	if (ret)
-+		goto out_init;
-+
-+	ret = pfn_array_alloc_pin(pat->pat_pa, cp->mdev, ccw->cda, ccw->count);
-+	if (ret < 0)
-+		goto out_init;
+-	if (!orb->cmd.pfch || !orb->cmd.c64 || orb->cmd.i2k)
++	if (!orb->cmd.pfch)
+ 		return -EOPNOTSUPP;
  
- 	/* Translate this direct ccw to a idal ccw. */
--	idaws = kcalloc(idaw_nr, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
-+	idaws = kcalloc(ret, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
- 	if (!idaws) {
--		pfn_array_table_unpin_free(pat, cp->mdev);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto out_unpin;
- 	}
- 	ccw->cda = (__u32) virt_to_phys(idaws);
- 	ccw->flags |= CCW_FLAG_IDA;
-@@ -541,6 +542,12 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 	pfn_array_table_idal_create_words(pat, idaws);
- 
- 	return 0;
-+
-+out_unpin:
-+	pfn_array_table_unpin_free(pat, cp->mdev);
-+out_init:
-+	ccw->cda = 0;
-+	return ret;
- }
- 
- static int ccwchain_fetch_idal(struct ccwchain *chain,
-@@ -570,7 +577,7 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
- 	pat = chain->ch_pat + idx;
- 	ret = pfn_array_table_init(pat, idaw_nr);
+ 	INIT_LIST_HEAD(&cp->ccwchain_list);
+@@ -688,6 +697,10 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	ret = ccwchain_loop_tic(chain, cp);
  	if (ret)
--		return ret;
-+		goto out_init;
+ 		cp_unpin_free(cp);
++	/* It is safe to force: if not set but idals used
++	 * ccwchain_calc_length returns an error.
++	 */
++	cp->orb.cmd.c64 = 1;
  
- 	/* Translate idal ccw to use new allocated idaws. */
- 	idaws = kzalloc(idaw_len, GFP_DMA | GFP_KERNEL);
-@@ -602,6 +609,8 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
- 	kfree(idaws);
- out_unpin:
- 	pfn_array_table_unpin_free(pat, cp->mdev);
-+out_init:
-+	ccw->cda = 0;
  	return ret;
  }
- 
 -- 
 2.14.3
