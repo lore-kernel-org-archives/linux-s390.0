@@ -1,18 +1,18 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 10/13] s390: vfio-ap: sysfs interface to view matrix
- mdev matrix
-Date: Wed, 30 May 2018 10:28:56 -0400
-Message-ID: <6f67a282-773d-3fca-5b36-cc23ad49ba5b@linux.vnet.ibm.com>
+Subject: Re: [PATCH v5 11/13] KVM: s390: implement mediated device open
+ callback
+Date: Wed, 30 May 2018 10:33:13 -0400
+Message-ID: <0f37dc39-7355-19e5-40c9-a02a1ea58c2d@linux.vnet.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1525705912-12815-11-git-send-email-akrowiak@linux.vnet.ibm.com>
- <a6bba129-8a3c-a848-65aa-b67816bf2d25@linux.ibm.com>
- <53275110-45fb-d50f-c97e-93141378f094@linux.vnet.ibm.com>
- <89bda651-d465-af50-a737-1900a54b01c8@linux.ibm.com>
+ <1525705912-12815-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <98ea7ce2-2539-e2ff-4bb4-297e784d87bd@linux.ibm.com>
+ <7bb480ac-5723-83ff-c797-53c1ab0458c1@linux.vnet.ibm.com>
+ <93cd0f46-a410-51c8-00b9-810c1b3d3ae2@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <89bda651-d465-af50-a737-1900a54b01c8@linux.ibm.com>
+In-Reply-To: <93cd0f46-a410-51c8-00b9-810c1b3d3ae2@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -21,114 +21,62 @@ To: pmorel@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.o
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/24/2018 05:10 AM, Pierre Morel wrote:
-> On 23/05/2018 16:38, Tony Krowiak wrote:
->> On 05/16/2018 03:55 AM, Pierre Morel wrote:
+On 05/24/2018 05:08 AM, Pierre Morel wrote:
+> On 23/05/2018 16:45, Tony Krowiak wrote:
+>> On 05/16/2018 04:03 AM, Pierre Morel wrote:
 >>> On 07/05/2018 17:11, Tony Krowiak wrote:
->>>> Provides a sysfs interface to view the AP matrix configured for the
->>>> mediated matrix device.
+>>>> Implements the open callback on the mediated matrix device.
+>>>> The function registers a group notifier to receive notification
+>>>> of the VFIO_GROUP_NOTIFY_SET_KVM event. When notified,
+>>>> the vfio_ap device driver will get access to the guest's
+>>>> kvm structure. With access to this structure the driver will:
 >>>>
->>>> The relevant sysfs structures are:
->>>>
->>>> /sys/devices/vfio_ap
->>>> ... [matrix]
->>>> ...... [mdev_supported_types]
->>>> ......... [vfio_ap-passthrough]
->>>> ............ [devices]
->>>> ...............[$uuid]
->>>> .................. matrix
->>>>
->>>> To view the matrix configured for the mediated matrix device,
->>>> print the matrix file:
->>>
->>> This is the configured matrix, not the one used by the guest.
->>> Nothing in the patches protect against binding a queue and assigning
->>> a new AP when the guest runs.
->>> The card and queue will be showed by this entry.
->>
->> Of course, as stated above, this is the matrix configured for the
->> mediated matrix device. Are you suggesting here that the driver
->> should prevent assigning a new adapter or domain while a guest is
->> running? Couldn't this be a step in the process for hot (un)plugging
->> AP queues?
+>>>> 1. Ensure that only one mediated device is opened for the guest
 >
-> No, I mean what is the point to show this?
-> It is not what the guest sees.
-> Has it any use case?
-
-The point is to display the matrix so one can view the AP queues that
-have been assigned to the mediated matrix device. This is the only way
-to view the matrix. Do you not find value in being able to see what
-has been assigned to the mediated matrix device?
-
+> You should explain why.
 >
->
->>
->>>
->>>
->>>
 >>>>
->>>>     cat matrix
+>>>> 2. Configure access to the AP devices for the guest.
 >>>>
->>>> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
->>>> ---
->>>>   drivers/s390/crypto/vfio_ap_ops.c |   31 
->>>> +++++++++++++++++++++++++++++++
->>>>   1 files changed, 31 insertions(+), 0 deletions(-)
->>>>
->>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
->>>> b/drivers/s390/crypto/vfio_ap_ops.c
->>>> index 755be1d..81e03b8 100644
->>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
->>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->>>> @@ -716,6 +716,36 @@ static ssize_t control_domains_show(struct 
->>>> device *dev,
->>>>   }
->>>>   DEVICE_ATTR_RO(control_domains);
->>>>
->>>> +static ssize_t matrix_show(struct device *dev, struct 
->>>> device_attribute *attr,
->>>> +               char *buf)
+> ...snip...
+>>>> +void kvm_ap_refcount_inc(struct kvm *kvm)
 >>>> +{
->>>> +    struct mdev_device *mdev = mdev_from_dev(dev);
->>>> +    struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->>>> +    char *bufpos = buf;
->>>> +    unsigned long apid;
->>>> +    unsigned long apqi;
->>>> +    unsigned long napm = matrix_mdev->matrix.apm_max + 1;
->>>> +    unsigned long naqm = matrix_mdev->matrix.aqm_max + 1;
->>>> +    int nchars = 0;
->>>> +    int n;
->>>> +
->>>> +    for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm) {
->>>> +        n = sprintf(bufpos, "%02lx\n", apid);
->>>> +        bufpos += n;
->>>> +        nchars += n;
->>>> +
->>>> +        for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, naqm) {
->>>> +            n = sprintf(bufpos, "%02lx.%04lx\n", apid, apqi);
->>>> +            bufpos += n;
->>>> +            nchars += n;
->>>> +        }
->>>> +    }
->>>> +
->>>> +    return nchars;
+>>>> +    atomic_inc(&kvm->arch.crypto.aprefs);
 >>>> +}
->>>> +DEVICE_ATTR_RO(matrix);
+>>>> +EXPORT_SYMBOL(kvm_ap_refcount_inc);
 >>>> +
->>>> +
->>>>   static struct attribute *vfio_ap_mdev_attrs[] = {
->>>>       &dev_attr_assign_adapter.attr,
->>>>       &dev_attr_unassign_adapter.attr,
->>>> @@ -724,6 +754,7 @@ static ssize_t control_domains_show(struct 
->>>> device *dev,
->>>>       &dev_attr_assign_control_domain.attr,
->>>>       &dev_attr_unassign_control_domain.attr,
->>>>       &dev_attr_control_domains.attr,
->>>> +    &dev_attr_matrix.attr,
->>>>       NULL,
->>>>   };
->>>>
+>>>> +void kvm_ap_refcount_dec(struct kvm *kvm)
+>>>> +{
+>>>> +    atomic_dec(&kvm->arch.crypto.aprefs);
+>>>> +}
+>>>> +EXPORT_SYMBOL(kvm_ap_refcount_dec);
 >>>
+>>> Why are these functions inside kvm-ap ?
+>>> Will anyone use this outer of vfio-ap ?
 >>
+>> As I've stated before, I made the choice to contain all interfaces that
+>> access KVM in kvm-ap because I don't think it is appropriate for the 
+>> device
+>> driver to have to have "knowledge" of the inner workings of KVM. Why 
+>> does
+>> it matter whether any entity outside of the vfio_ap device driver calls
+>> these functions? I could ask a similar question if the interfaces were
+>> contained in vfio-ap; what if another device driver needs access to 
+>> these
+>> interfaces?
+>
+> This is very driver specific and only used during initialization.
+> It is not a common property of the cryptographic interface.
+>
+> I really think you should handle this inside the driver.
+
+We are going to have to agree to disagree on this one. Is it not possible
+that future drivers - e.g., when full virtualization is implemented - will
+require access to KVM?
+>
+> Pierre
+>
+>
+> ...snip...
+>
 >
