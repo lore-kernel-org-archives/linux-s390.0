@@ -1,31 +1,63 @@
-From: Philipp Rudo <prudo@linux.ibm.com>
-Date: Mon, 28 May 2018 11:09:37 +0000
-Subject: Re: [PATCH] kexec/s390: Add support for kexec_file_load
-Message-Id: <20180528130937.76e32ce0@ThinkPad>
-In-Reply-To: <20180522081104.calxgxzxel4fqh6j@verge.net.au>
-References: <20180522081104.calxgxzxel4fqh6j@verge.net.au>
-To: linux-s390@vger.kernel.org, kexec@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 31 May 2018 21:07:53 +0000
+Subject: [GIT PULL 0/7] KVM: s390: Cleanups for 4.18
+Message-Id: <20180531210800.137347-1-borntraeger@de.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 22 May 2018 10:11:04 +0200
-Simon Horman <horms@verge.net.au> wrote:
+Paolo, Radim,
 
-> On Mon, May 21, 2018 at 02:24:40PM +0800, Dave Young wrote:
-> > On 05/16/18 at 02:27pm, Philipp Rudo wrote:  
-> > > Since kernel 4.17-rc2 s390 supports the kexec_file_load system call. Add
-> > > the new system call to kexec-tools and provide the -s (--kexec-file-syscall)
-> > > option for s390 to support this new feature.
-> > > 
-> > > Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>  
-> 
-> ...
-> 
-> > Acked-by: Dave Young <dyoung@redhat.com>  
-> 
-> Thanks, applied.
-> 
+only a small set of patches for KVM on s390. Neither crypto (AP), nor
+large page support is "ready enough" right now.
+This also contains a merge of the "kvm-s390-master-4.17-1" tag to
+prevent a merge conflict.
 
-Sorry for the late answer, I had the last week off.
-Nevertheless thanks to both of you.
+The following changes since commit 75bc37fefc4471e718ba8e651aa74673d4e0a9eb:
 
-Philipp
+  Linux 4.17-rc4 (2018-05-06 16:57:38 -1000)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.18-1
+
+for you to fetch changes up to 2c8180e885c1b2844a24dcaf4a675972b8ce8edc:
+
+  KVM: s390: vsie: simplify < 8k address checks (2018-05-17 13:34:21 +0200)
+
+----------------------------------------------------------------
+KVM: s390: Cleanups for 4.18
+
+- cleanups for nested, clock handling, crypto, storage keys and
+control register bits
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      Merge tag 'kvm-s390-master-4.17-1'
+
+David Hildenbrand (5):
+      KVM: s390: introduce defines for control registers
+      KVM: s390: no need to inititalize kvm->arch members to 0
+      KVM: s390: generalize kvm_s390_get_tod_clock_ext()
+      KVM: s390: vsie: fix < 8k check for the itdba
+      KVM: s390: vsie: simplify < 8k address checks
+
+Janosch Frank (1):
+      KVM: s390: Add storage key facility interpretation control
+
+Tony Krowiak (1):
+      KVM: s390: reset crypto attributes for all vcpus
+
+ arch/s390/include/asm/ctl_reg.h     | 12 ++++++++
+ arch/s390/include/asm/kvm_host.h    |  1 +
+ arch/s390/include/asm/mmu.h         |  2 +-
+ arch/s390/include/asm/mmu_context.h |  2 +-
+ arch/s390/include/asm/pgtable.h     |  4 +--
+ arch/s390/kvm/guestdbg.c            |  2 +-
+ arch/s390/kvm/interrupt.c           | 20 ++++++-------
+ arch/s390/kvm/kvm-s390.c            | 59 +++++++++++++++++++------------------
+ arch/s390/kvm/kvm-s390.h            | 13 ++++++++
+ arch/s390/kvm/priv.c                | 28 ++++++++++--------
+ arch/s390/kvm/vsie.c                | 10 +++----
+ arch/s390/mm/gmap.c                 |  6 ++--
+ arch/s390/mm/pgtable.c              |  4 +--
+ 13 files changed, 98 insertions(+), 65 deletions(-)
