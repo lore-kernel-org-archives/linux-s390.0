@@ -1,63 +1,209 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 31 May 2018 21:07:53 +0000
-Subject: [GIT PULL 0/7] KVM: s390: Cleanups for 4.18
-Message-Id: <20180531210800.137347-1-borntraeger@de.ibm.com>
+Date: Thu, 31 May 2018 21:07:54 +0000
+Subject: [GIT PULL 1/7] KVM: s390: Add storage key facility interpretation control
+Message-Id: <20180531210800.137347-2-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo, Radim,
+From: Janosch Frank <frankja@linux.vnet.ibm.com>
 
-only a small set of patches for KVM on s390. Neither crypto (AP), nor
-large page support is "ready enough" right now.
-This also contains a merge of the "kvm-s390-master-4.17-1" tag to
-prevent a merge conflict.
+Up to now we always expected to have the storage key facility
+available for our (non-VSIE) KVM guests. For huge page support, we
+need to be able to disable it, so let's introduce that now.
 
-The following changes since commit 75bc37fefc4471e718ba8e651aa74673d4e0a9eb:
+We add the use_skf variable to manage KVM storage key facility
+usage. Also we rename use_skey in the mm context struct to uses_skeys
+to make it more clear that it is an indication that the vm actively
+uses storage keys.
 
-  Linux 4.17-rc4 (2018-05-06 16:57:38 -1000)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.18-1
-
-for you to fetch changes up to 2c8180e885c1b2844a24dcaf4a675972b8ce8edc:
-
-  KVM: s390: vsie: simplify < 8k address checks (2018-05-17 13:34:21 +0200)
-
-----------------------------------------------------------------
-KVM: s390: Cleanups for 4.18
-
-- cleanups for nested, clock handling, crypto, storage keys and
-control register bits
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      Merge tag 'kvm-s390-master-4.17-1'
-
-David Hildenbrand (5):
-      KVM: s390: introduce defines for control registers
-      KVM: s390: no need to inititalize kvm->arch members to 0
-      KVM: s390: generalize kvm_s390_get_tod_clock_ext()
-      KVM: s390: vsie: fix < 8k check for the itdba
-      KVM: s390: vsie: simplify < 8k address checks
-
-Janosch Frank (1):
-      KVM: s390: Add storage key facility interpretation control
-
-Tony Krowiak (1):
-      KVM: s390: reset crypto attributes for all vcpus
-
- arch/s390/include/asm/ctl_reg.h     | 12 ++++++++
+Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Reviewed-by: Farhan Ali <alifm@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
  arch/s390/include/asm/kvm_host.h    |  1 +
  arch/s390/include/asm/mmu.h         |  2 +-
  arch/s390/include/asm/mmu_context.h |  2 +-
- arch/s390/include/asm/pgtable.h     |  4 +--
- arch/s390/kvm/guestdbg.c            |  2 +-
- arch/s390/kvm/interrupt.c           | 20 ++++++-------
- arch/s390/kvm/kvm-s390.c            | 59 +++++++++++++++++++------------------
- arch/s390/kvm/kvm-s390.h            | 13 ++++++++
- arch/s390/kvm/priv.c                | 28 ++++++++++--------
- arch/s390/kvm/vsie.c                | 10 +++----
- arch/s390/mm/gmap.c                 |  6 ++--
- arch/s390/mm/pgtable.c              |  4 +--
- 13 files changed, 98 insertions(+), 65 deletions(-)
+ arch/s390/include/asm/pgtable.h     |  4 ++--
+ arch/s390/kvm/kvm-s390.c            |  3 ++-
+ arch/s390/kvm/priv.c                | 28 ++++++++++++++++------------
+ arch/s390/mm/gmap.c                 |  6 +++---
+ arch/s390/mm/pgtable.c              |  4 ++--
+ 8 files changed, 28 insertions(+), 22 deletions(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 81cdb6b55118..a2188e309bd6 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -812,6 +812,7 @@ struct kvm_arch{
+ 	int use_irqchip;
+ 	int use_cmma;
+ 	int use_pfmfi;
++	int use_skf;
+ 	int user_cpu_state_ctrl;
+ 	int user_sigp;
+ 	int user_stsi;
+diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
+index c639c95850e4..f5ff9dbad8ac 100644
+--- a/arch/s390/include/asm/mmu.h
++++ b/arch/s390/include/asm/mmu.h
+@@ -21,7 +21,7 @@ typedef struct {
+ 	/* The mmu context uses extended page tables. */
+ 	unsigned int has_pgste:1;
+ 	/* The mmu context uses storage keys. */
+-	unsigned int use_skey:1;
++	unsigned int uses_skeys:1;
+ 	/* The mmu context uses CMM. */
+ 	unsigned int uses_cmm:1;
+ } mm_context_t;
+diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
+index 324f6f452982..d16bc79c30bb 100644
+--- a/arch/s390/include/asm/mmu_context.h
++++ b/arch/s390/include/asm/mmu_context.h
+@@ -30,7 +30,7 @@ static inline int init_new_context(struct task_struct *tsk,
+ 		test_thread_flag(TIF_PGSTE) ||
+ 		(current->mm && current->mm->context.alloc_pgste);
+ 	mm->context.has_pgste = 0;
+-	mm->context.use_skey = 0;
++	mm->context.uses_skeys = 0;
+ 	mm->context.uses_cmm = 0;
+ #endif
+ 	switch (mm->context.asce_limit) {
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 2d24d33bf188..c9f155b67660 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -507,10 +507,10 @@ static inline int mm_alloc_pgste(struct mm_struct *mm)
+  * faults should no longer be backed by zero pages
+  */
+ #define mm_forbids_zeropage mm_has_pgste
+-static inline int mm_use_skey(struct mm_struct *mm)
++static inline int mm_uses_skeys(struct mm_struct *mm)
+ {
+ #ifdef CONFIG_PGSTE
+-	if (mm->context.use_skey)
++	if (mm->context.uses_skeys)
+ 		return 1;
+ #endif
+ 	return 0;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 64c986243018..007db8faafa5 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1493,7 +1493,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+ 		return -EINVAL;
+ 
+ 	/* Is this guest using storage keys? */
+-	if (!mm_use_skey(current->mm))
++	if (!mm_uses_skeys(current->mm))
+ 		return KVM_S390_GET_SKEYS_NONE;
+ 
+ 	/* Enforce sane limit on memory allocation */
+@@ -2066,6 +2066,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	kvm->arch.css_support = 0;
+ 	kvm->arch.use_irqchip = 0;
+ 	kvm->arch.use_pfmfi = sclp.has_pfmfi;
++	kvm->arch.use_skf = sclp.has_skey;
+ 	kvm->arch.epoch = 0;
+ 
+ 	spin_lock_init(&kvm->arch.start_stop_lock);
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index ebfa0442e569..e8c62703c764 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -205,24 +205,28 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
+ 
+ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
+ {
+-	int rc = 0;
++	int rc;
+ 	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
+ 
+ 	trace_kvm_s390_skey_related_inst(vcpu);
+-	if (!(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
++	/* Already enabled? */
++	if (vcpu->kvm->arch.use_skf &&
++	    !(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
+ 	    !kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
+-		return rc;
++		return 0;
+ 
+ 	rc = s390_enable_skey();
+ 	VCPU_EVENT(vcpu, 3, "enabling storage keys for guest: %d", rc);
+-	if (!rc) {
+-		if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
+-			kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
+-		else
+-			sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE |
+-					     ICTL_RRBE);
+-	}
+-	return rc;
++	if (rc)
++		return rc;
++
++	if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
++		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
++	if (!vcpu->kvm->arch.use_skf)
++		sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
++	else
++		sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
++	return 0;
+ }
+ 
+ static int try_handle_skey(struct kvm_vcpu *vcpu)
+@@ -232,7 +236,7 @@ static int try_handle_skey(struct kvm_vcpu *vcpu)
+ 	rc = kvm_s390_skey_check_enable(vcpu);
+ 	if (rc)
+ 		return rc;
+-	if (sclp.has_skey) {
++	if (vcpu->kvm->arch.use_skf) {
+ 		/* with storage-key facility, SIE interprets it for us */
+ 		kvm_s390_retry_instr(vcpu);
+ 		VCPU_EVENT(vcpu, 4, "%s", "retrying storage key operation");
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 2c55a2b9d6c6..bc56ec8abcf7 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2184,14 +2184,14 @@ int s390_enable_skey(void)
+ 	int rc = 0;
+ 
+ 	down_write(&mm->mmap_sem);
+-	if (mm_use_skey(mm))
++	if (mm_uses_skeys(mm))
+ 		goto out_up;
+ 
+-	mm->context.use_skey = 1;
++	mm->context.uses_skeys = 1;
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
+ 				MADV_UNMERGEABLE, &vma->vm_flags)) {
+-			mm->context.use_skey = 0;
++			mm->context.uses_skeys = 0;
+ 			rc = -ENOMEM;
+ 			goto out_up;
+ 		}
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 4f2b65d01a70..301e466e4263 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -158,7 +158,7 @@ static inline pgste_t pgste_update_all(pte_t pte, pgste_t pgste,
+ #ifdef CONFIG_PGSTE
+ 	unsigned long address, bits, skey;
+ 
+-	if (!mm_use_skey(mm) || pte_val(pte) & _PAGE_INVALID)
++	if (!mm_uses_skeys(mm) || pte_val(pte) & _PAGE_INVALID)
+ 		return pgste;
+ 	address = pte_val(pte) & PAGE_MASK;
+ 	skey = (unsigned long) page_get_storage_key(address);
+@@ -180,7 +180,7 @@ static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry,
+ 	unsigned long address;
+ 	unsigned long nkey;
+ 
+-	if (!mm_use_skey(mm) || pte_val(entry) & _PAGE_INVALID)
++	if (!mm_uses_skeys(mm) || pte_val(entry) & _PAGE_INVALID)
+ 		return;
+ 	VM_BUG_ON(!(pte_val(*ptep) & _PAGE_INVALID));
+ 	address = pte_val(entry) & PAGE_MASK;
+-- 
+2.14.2
