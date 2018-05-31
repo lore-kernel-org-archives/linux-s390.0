@@ -1,63 +1,45 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/6] vfio: ccw: fix error return in vfio_ccw_sch_event
-Date: Tue, 29 May 2018 14:35:07 +0200
-Message-ID: <20180529123512.14393-2-cohuck@redhat.com>
-References: <20180529123512.14393-1-cohuck@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180529123512.14393-1-cohuck@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 31 May 2018 09:14:00 -0700
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [GIT PULL] two more s390 bug fixes for 4.17
+Message-ID: <20180531161400.GB10203@infradead.org>
+References: <20180530075920.1f73275a@mschwideX1>
+ <20180530074130.GA6927@infradead.org>
+ <20180530111140.40c791bd@mschwideX1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180530111140.40c791bd@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+On Wed, May 30, 2018 at 11:11:40AM +0200, Martin Schwidefsky wrote:
+> On Wed, 30 May 2018 00:41:30 -0700
+> Christoph Hellwig <hch@infradead.org> wrote:
+> 
+> > > -	req->completion_data = cqr;
+> > > +	*((struct dasd_ccw_req **) blk_mq_rq_to_pdu(req)) = cqr;
+> > > +  
+> > 
+> > Please don't play such tricks.  In general your driver structure
+> > should have struct request embedded.  If for some reason
+> > struct dasd_ccw_req has a different life time please create a new
+> > structure instead of these hacks.
+> 
+> Why do you consider this to be a 'trick'? The blk_mq_rq_to_pdu is
+> meant to be used to access a block of data that is is associated
+> with a request, no? With the change we store a single value, the
+> pointer to a struct dasd_ccw_req. The struct request comes first,
+> later do_dasd_request creates the struct dasd_ccw_req with the
+> CCW chain for the request. And for the blk timeout handler we need
+> a way to find the dasd_ccw_req again.
 
-If the device has not been registered, or there is work pending,
-we should reschedule a sch_event call again.
-
-Signed-off-by: Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-Message-Id: <20180502072559.50691-1-bjsdjshi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index ea6a2d0b2894..770fa9cfc310 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -177,6 +177,7 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- {
- 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
- 	unsigned long flags;
-+	int rc = -EAGAIN;
- 
- 	spin_lock_irqsave(sch->lock, flags);
- 	if (!device_is_registered(&sch->dev))
-@@ -187,6 +188,7 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 
- 	if (cio_update_schib(sch)) {
- 		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-+		rc = 0;
- 		goto out_unlock;
- 	}
- 
-@@ -195,11 +197,12 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
- 				 VFIO_CCW_STATE_STANDBY;
- 	}
-+	rc = 0;
- 
- out_unlock:
- 	spin_unlock_irqrestore(sch->lock, flags);
- 
--	return 0;
-+	return rc;
- }
- 
- static struct css_device_id vfio_ccw_sch_ids[] = {
--- 
-2.14.3
+We'll we try really hard to have a structure that we can use
+container_of on.  At least a minimal container with just the pointer
+for a quick fix, but in general it seems like you should be able
+to allocate the whole dasd_ccw_req with the request and just initialize
+it later.
