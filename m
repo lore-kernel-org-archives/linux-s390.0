@@ -1,76 +1,46 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 31 May 2018 21:07:58 +0000
-Subject: [GIT PULL 5/7] KVM: s390: generalize kvm_s390_get_tod_clock_ext()
-Message-Id: <20180531210800.137347-6-borntraeger@de.ibm.com>
+Date: Thu, 31 May 2018 21:07:59 +0000
+Subject: [GIT PULL 6/7] KVM: s390: vsie: fix < 8k check for the itdba
+Message-Id: <20180531210800.137347-7-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <david@redhat.com>
 
-Move the Multiple-epoch facility handling into it and rename it to
-kvm_s390_get_tod_clock().
+By missing an "L", we might detect some addresses to be <8k,
+although they are not.
 
-This leaves us with:
-- kvm_s390_set_tod_clock()
-- kvm_s390_get_tod_clock()
-- kvm_s390_get_tod_clock_fast()
+e.g. for itdba = 100001fff
+!(gpa & ~0x1fffU) -> 1
+!(gpa & ~0x1fffUL) -> 0
 
-So all Multiple-epoch facility is hidden in these functions.
+So we would report a SIE validity intercept although everything is fine.
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Collin Walling <walling@linux.ibm.com>
+Fixes: 166ecb3 ("KVM: s390: vsie: support transactional execution")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: stable@vger.kernel.org # v4.8+
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ arch/s390/kvm/vsie.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index fd7ce3ab45eb..e521f7699032 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1040,8 +1040,8 @@ static int kvm_s390_set_tod(struct kvm *kvm, struct kvm_device_attr *attr)
- 	return ret;
- }
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 8961e3970901..969882b54266 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -578,7 +578,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
  
--static void kvm_s390_get_tod_clock_ext(struct kvm *kvm,
--					struct kvm_s390_vm_tod_clock *gtod)
-+static void kvm_s390_get_tod_clock(struct kvm *kvm,
-+				   struct kvm_s390_vm_tod_clock *gtod)
- {
- 	struct kvm_s390_tod_clock_ext htod;
- 
-@@ -1050,10 +1050,12 @@ static void kvm_s390_get_tod_clock_ext(struct kvm *kvm,
- 	get_tod_clock_ext((char *)&htod);
- 
- 	gtod->tod = htod.tod + kvm->arch.epoch;
--	gtod->epoch_idx = htod.epoch_idx + kvm->arch.epdx;
--
--	if (gtod->tod < htod.tod)
--		gtod->epoch_idx += 1;
-+	gtod->epoch_idx = 0;
-+	if (test_kvm_facility(kvm, 139)) {
-+		gtod->epoch_idx = htod.epoch_idx + kvm->arch.epdx;
-+		if (gtod->tod < htod.tod)
-+			gtod->epoch_idx += 1;
-+	}
- 
- 	preempt_enable();
- }
-@@ -1063,12 +1065,7 @@ static int kvm_s390_get_tod_ext(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_s390_vm_tod_clock gtod;
- 
- 	memset(&gtod, 0, sizeof(gtod));
--
--	if (test_kvm_facility(kvm, 139))
--		kvm_s390_get_tod_clock_ext(kvm, &gtod);
--	else
--		gtod.tod = kvm_s390_get_tod_clock_fast(kvm);
--
-+	kvm_s390_get_tod_clock(kvm, &gtod);
- 	if (copy_to_user((void __user *)attr->addr, &gtod, sizeof(gtod)))
- 		return -EFAULT;
- 
+ 	gpa = READ_ONCE(scb_o->itdba) & ~0xffUL;
+ 	if (gpa && (scb_s->ecb & ECB_TE)) {
+-		if (!(gpa & ~0x1fffU)) {
++		if (!(gpa & ~0x1fffUL)) {
+ 			rc = set_validity_icpt(scb_s, 0x0080U);
+ 			goto unpin;
+ 		}
 -- 
 2.14.2
