@@ -1,99 +1,71 @@
-From: Song Liu <liu.song.a23@gmail.com>
-Subject: Re: [PATCH] test_bpf: flag tests that cannot be jited on s390
-Date: Thu, 28 Jun 2018 10:31:07 -0700
-Message-ID: <CAPhsuW5hbF9K9U0G6oT2OYZVXsUiT=Xg+jUEFwhJn7sPx49Smw@mail.gmail.com>
-References: <20180627151921.15018-1-kleber.souza@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180627151921.15018-1-kleber.souza@canonical.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Kleber Sacilotto de Souza <kleber.souza@canonical.com>
-Cc: linux-s390@vger.kernel.org, Networking <netdev@vger.kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 01 Jun 2018 17:18:16 +0000
+Subject: Re: [GIT PULL 0/7] KVM: s390: Cleanups for 4.18
+Message-Id: <4eaaa143-8689-6670-fe05-ed0e9ca477b3@redhat.com>
+In-Reply-To: <20180531210800.137347-1-borntraeger@de.ibm.com>
+References: <20180531210800.137347-1-borntraeger@de.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jun 27, 2018 at 8:19 AM, Kleber Sacilotto de Souza
-<kleber.souza@canonical.com> wrote:
-> Flag with FLAG_EXPECTED_FAIL the BPF_MAXINSNS tests that cannot be jited
-> on s390 because they exceed BPF_SIZE_MAX and fail when
-> CONFIG_BPF_JIT_ALWAYS_ON is set. Also set .expected_errcode to -ENOTSUPP
-> so the tests pass in that case.
->
-> Signed-off-by: Kleber Sacilotto de Souza <kleber.souza@canonical.com>
+On 31/05/2018 23:07, Christian Borntraeger wrote:
+> Paolo, Radim,
+> 
+> only a small set of patches for KVM on s390. Neither crypto (AP), nor
+> large page support is "ready enough" right now.
+> This also contains a merge of the "kvm-s390-master-4.17-1" tag to
+> prevent a merge conflict.
+> 
+> The following changes since commit 75bc37fefc4471e718ba8e651aa74673d4e0a9eb:
+> 
+>   Linux 4.17-rc4 (2018-05-06 16:57:38 -1000)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.18-1
+> 
+> for you to fetch changes up to 2c8180e885c1b2844a24dcaf4a675972b8ce8edc:
+> 
+>   KVM: s390: vsie: simplify < 8k address checks (2018-05-17 13:34:21 +0200)
 
-Acked-by: Song Liu <songliubraving@fb.com>
+Pulled, thanks.
 
-> ---
->  lib/test_bpf.c | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
->
-> diff --git a/lib/test_bpf.c b/lib/test_bpf.c
-> index 60aedc879361..08d3d59dca17 100644
-> --- a/lib/test_bpf.c
-> +++ b/lib/test_bpf.c
-> @@ -5282,21 +5282,31 @@ static struct bpf_test tests[] = {
->         {       /* Mainly checking JIT here. */
->                 "BPF_MAXINSNS: Ctx heavy transformations",
->                 { },
-> +#if defined(CONFIG_BPF_JIT_ALWAYS_ON) && defined(CONFIG_S390)
-> +               CLASSIC | FLAG_EXPECTED_FAIL,
-> +#else
->                 CLASSIC,
-> +#endif
->                 { },
->                 {
->                         {  1, !!(SKB_VLAN_TCI & VLAN_TAG_PRESENT) },
->                         { 10, !!(SKB_VLAN_TCI & VLAN_TAG_PRESENT) }
->                 },
->                 .fill_helper = bpf_fill_maxinsns6,
-> +               .expected_errcode = -ENOTSUPP,
->         },
->         {       /* Mainly checking JIT here. */
->                 "BPF_MAXINSNS: Call heavy transformations",
->                 { },
-> +#if defined(CONFIG_BPF_JIT_ALWAYS_ON) && defined(CONFIG_S390)
-> +               CLASSIC | FLAG_NO_DATA | FLAG_EXPECTED_FAIL,
-> +#else
->                 CLASSIC | FLAG_NO_DATA,
-> +#endif
->                 { },
->                 { { 1, 0 }, { 10, 0 } },
->                 .fill_helper = bpf_fill_maxinsns7,
-> +               .expected_errcode = -ENOTSUPP,
->         },
->         {       /* Mainly checking JIT here. */
->                 "BPF_MAXINSNS: Jump heavy test",
-> @@ -5347,18 +5357,28 @@ static struct bpf_test tests[] = {
->         {
->                 "BPF_MAXINSNS: exec all MSH",
->                 { },
-> +#if defined(CONFIG_BPF_JIT_ALWAYS_ON) && defined(CONFIG_S390)
-> +               CLASSIC | FLAG_EXPECTED_FAIL,
-> +#else
->                 CLASSIC,
-> +#endif
->                 { 0xfa, 0xfb, 0xfc, 0xfd, },
->                 { { 4, 0xababab83 } },
->                 .fill_helper = bpf_fill_maxinsns13,
-> +               .expected_errcode = -ENOTSUPP,
->         },
->         {
->                 "BPF_MAXINSNS: ld_abs+get_processor_id",
->                 { },
-> +#if defined(CONFIG_BPF_JIT_ALWAYS_ON) && defined(CONFIG_S390)
-> +               CLASSIC | FLAG_EXPECTED_FAIL,
-> +#else
->                 CLASSIC,
-> +#endif
->                 { },
->                 { { 1, 0xbee } },
->                 .fill_helper = bpf_fill_ld_abs_get_processor_id,
-> +               .expected_errcode = -ENOTSUPP,
->         },
->         /*
->          * LD_IND / LD_ABS on fragmented SKBs
-> --
-> 2.17.1
->
+Paolo
+
+> ----------------------------------------------------------------
+> KVM: s390: Cleanups for 4.18
+> 
+> - cleanups for nested, clock handling, crypto, storage keys and
+> control register bits
+> 
+> ----------------------------------------------------------------
+> Christian Borntraeger (1):
+>       Merge tag 'kvm-s390-master-4.17-1'
+> 
+> David Hildenbrand (5):
+>       KVM: s390: introduce defines for control registers
+>       KVM: s390: no need to inititalize kvm->arch members to 0
+>       KVM: s390: generalize kvm_s390_get_tod_clock_ext()
+>       KVM: s390: vsie: fix < 8k check for the itdba
+>       KVM: s390: vsie: simplify < 8k address checks
+> 
+> Janosch Frank (1):
+>       KVM: s390: Add storage key facility interpretation control
+> 
+> Tony Krowiak (1):
+>       KVM: s390: reset crypto attributes for all vcpus
+> 
+>  arch/s390/include/asm/ctl_reg.h     | 12 ++++++++
+>  arch/s390/include/asm/kvm_host.h    |  1 +
+>  arch/s390/include/asm/mmu.h         |  2 +-
+>  arch/s390/include/asm/mmu_context.h |  2 +-
+>  arch/s390/include/asm/pgtable.h     |  4 +--
+>  arch/s390/kvm/guestdbg.c            |  2 +-
+>  arch/s390/kvm/interrupt.c           | 20 ++++++-------
+>  arch/s390/kvm/kvm-s390.c            | 59 +++++++++++++++++++------------------
+>  arch/s390/kvm/kvm-s390.h            | 13 ++++++++
+>  arch/s390/kvm/priv.c                | 28 ++++++++++--------
+>  arch/s390/kvm/vsie.c                | 10 +++----
+>  arch/s390/mm/gmap.c                 |  6 ++--
+>  arch/s390/mm/pgtable.c              |  4 +--
+>  13 files changed, 98 insertions(+), 65 deletions(-)
+> 
