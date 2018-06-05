@@ -1,79 +1,99 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-Date: Wed, 06 Jun 2018 06:32:02 -0700
-Message-ID: <00000000000026a9d3056df931ea@google.com>
-Subject: WARNING: refcount bug in smc_tcp_listen_work
-From: syzbot <syzbot+9e60d2428a42049a592a@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v2 10/10] vfio: ccw: Let user wait when busy on IO
+Date: Tue, 5 Jun 2018 15:02:06 +0200
+Message-ID: <05ae3528-d4e9-3f0f-4585-8e209f9d9e22@linux.ibm.com>
+References: <1527243678-3140-1-git-send-email-pmorel@linux.vnet.ibm.com>
+ <1527243678-3140-11-git-send-email-pmorel@linux.vnet.ibm.com>
+ <20180525140418.GA17131@osiris>
+Reply-To: pmorel@linux.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180525140418.GA17131@osiris>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: davem@davemloft.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Pierre Morel <pmorel@linux.vnet.ibm.com>
+Cc: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, cohuck@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello,
+On 25/05/2018 16:04, Heiko Carstens wrote:
+> On Fri, May 25, 2018 at 12:21:18PM +0200, Pierre Morel wrote:
+>> In the current implementation, we do not want to start a new SSCH
+>> command before the last one ends.
+>>
+>> Currently the user needs to poll on the -EBUSY error to
+>> wait before sending a new request.
+>>
+>> Let's be friendly with global warming and let the user sleep
+>> until he may send a new request.
+>>
+>> Let's make the caller wait until the last SSCH ends.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+>> ---
+>>   drivers/s390/cio/vfio_ccw_fsm.c     | 4 ++++
+>>   drivers/s390/cio/vfio_ccw_ops.c     | 6 ++++++
+>>   drivers/s390/cio/vfio_ccw_private.h | 1 +
+>>   3 files changed, 11 insertions(+)
+>>
+>> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+>> index c37052d..97b74a1 100644
+>> --- a/drivers/s390/cio/vfio_ccw_fsm.c
+>> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
+>> @@ -200,6 +200,10 @@ static int fsm_irq(struct vfio_ccw_private *private)
+>>   
+>>   	if (private->io_trigger)
+>>   		eventfd_signal(private->io_trigger, 1);
+>> +
+>> +	if (private->io_completion)
+>> +		complete(private->io_completion);
+>> +
+>>   	return VFIO_CCW_STATE_IDLE;
+>>   }
+>>   
+>> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+>> index b202e73..39beb6e 100644
+>> --- a/drivers/s390/cio/vfio_ccw_ops.c
+>> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+>> @@ -183,6 +183,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+>>   	struct vfio_ccw_private *private;
+>>   	struct ccw_io_region *region;
+>>   	union scsw *scsw;
+>> +	DECLARE_COMPLETION_ONSTACK(completion);
+>>   
+>>   	if (*ppos + count > sizeof(*region))
+>>   		return -EINVAL;
+>> @@ -196,6 +197,11 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+>>   	scsw = (union scsw *) &region->scsw_area;
+>>   	switch (scsw->cmd.fctl) {
+>>   	case SCSW_FCTL_START_FUNC:
+>> +		if (private->state == VFIO_CCW_STATE_BUSY) {
+>> +			private->io_completion = &completion;
+>> +			if (wait_for_completion_interruptible(&completion))
+>> +				return -EINTR;
+>> +		}
+> What prevents a state change between checking the state and before
+> private->io_completion is set? If that happens you would end with an
+> endless wait.
+>
+> Similarly, you would have memory corruption if the task would be
+> interrupted and if the function would be left, ending up with a stale
+> private->io_completion completion pointer.
+> The complete(private->io_completion) call will then write to a memory
+> location that might already be reused.
+>
+> Just my 0.02 after having a very very short look ;)
 
-syzbot found the following crash on:
+Right, completely false, I should pay a little more (at least) attention.
 
-HEAD commit:    75d4e704fa8d netdev-FAQ: clarify DaveM's position for stab..
-git tree:       net-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=1632a6f7800000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=7b76ec81cd4aad4b
-dashboard link: https://syzkaller.appspot.com/bug?extid=9e60d2428a42049a592a
-compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+Thanks to have had a very very short (but sharp)look.
 
-Unfortunately, I don't have any reproducer for this crash yet.
-
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+9e60d2428a42049a592a@syzkaller.appspotmail.com
-
-A link change request failed with some changes committed already. Interface  
-bridge0 may have been left with an inconsistent configuration, please check.
-------------[ cut here ]------------
-refcount_t: underflow; use-after-free.
-WARNING: CPU: 0 PID: 23870 at lib/refcount.c:187  
-refcount_sub_and_test+0x2d3/0x330 lib/refcount.c:187
-Kernel panic - not syncing: panic_on_warn set ...
-
-CPU: 0 PID: 23870 Comm: kworker/0:4 Not tainted 4.17.0-rc7+ #79
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Workqueue: events smc_tcp_listen_work
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x1b9/0x294 lib/dump_stack.c:113
-  panic+0x22f/0x4de kernel/panic.c:184
-  __warn.cold.8+0x163/0x1b3 kernel/panic.c:536
-  report_bug+0x252/0x2d0 lib/bug.c:186
-  fixup_bug arch/x86/kernel/traps.c:178 [inline]
-  do_error_trap+0x1de/0x490 arch/x86/kernel/traps.c:296
-  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:315
-  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:992
-RIP: 0010:refcount_sub_and_test+0x2d3/0x330 lib/refcount.c:187
-RSP: 0018:ffff880194aaf4f8 EFLAGS: 00010286
-RAX: 0000000000000026 RBX: 0000000000000000 RCX: ffffffff8160b8ad
-RDX: 0000000000000000 RSI: ffffffff81610561 RDI: ffff880194aaf058
-RBP: ffff880194aaf5e0 R08: ffff88014148e500 R09: 0000000000000006
-R10: ffff88014148e500 R11: 0000000000000000 R12: 00000000ffffffff
-R13: ffff880194aaf5b8 R14: 0000000000000001 R15: ffff880194aaf728
-  refcount_dec_and_test+0x1a/0x20 lib/refcount.c:212
-  sock_put include/net/sock.h:1668 [inline]
-  smc_tcp_listen_work+0xb94/0xec0 net/smc/af_smc.c:1073
-  process_one_work+0xc1e/0x1b50 kernel/workqueue.c:2145
-  worker_thread+0x1cc/0x1440 kernel/workqueue.c:2279
-  kthread+0x345/0x410 kernel/kthread.c:240
-  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
-Dumping ftrace buffer:
-    (ftrace buffer empty)
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
+Pierre
 
 
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
-syzbot.
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
