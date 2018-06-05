@@ -1,160 +1,114 @@
-Return-Path: <linux-kbuild-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH] kbuild: move bin2c back to scripts/ from scripts/basic/
-Date: Tue, 26 Jun 2018 01:40:23 +0900
-Message-Id: <1529944823-22228-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kbuild-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-kbuild/>
-List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: linux-kbuild@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-s390@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Kentaro Takeda <takedakn@nttdata.co.jp>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Michal Marek <michal.lkml@markovi.net>, Paul Mackerras <paulus@samba.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, "Serge E. Hallyn" <serge@hallyn.com>, James Morris <jmorris@namei.org>, Ingo Molnar <mingo@redhat.com>, linuxppc-dev@lists.ozlabs.org, linux-security-module@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH RFC 2/2] vfio-ccw: support for halt/clear subchannel
+Date: Tue, 5 Jun 2018 15:14:49 +0200
+Message-ID: <20180605151449.22aafbfc.cohuck@redhat.com>
+References: <20180509154822.23510-1-cohuck@redhat.com>
+        <20180509154822.23510-3-cohuck@redhat.com>
+        <c18f9b9f-da00-1a0b-8ef0-7ac223c73d1a@linux.ibm.com>
+        <20180515181006.0cb1dfc2.cohuck@redhat.com>
+        <a5d08fb7-d9c1-b230-fe0c-acebbda2ba65@linux.ibm.com>
+        <20180522145208.310143ea.cohuck@redhat.com>
+        <4e4001cc-540e-0f2b-bbd1-1f82ca594bb3@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4e4001cc-540e-0f2b-bbd1-1f82ca594bb3@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x@nongnu.org, qemu-devel@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit 8370edea81e3 ("bin2c: move bin2c in scripts/basic") moved bin2c
-to the scripts/basic/ directory, incorrectly stating "Kexec wants to
-use bin2c and it wants to use it really early in the build process.
-See arch/x86/purgatory/ code in later patches."
+On Tue, 22 May 2018 17:10:44 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Commit bdab125c9301 ("Revert "kexec/purgatory: Add clean-up for
-purgatory directory"") and commit d6605b6bbee8 ("x86/build: Remove
-unnecessary preparation for purgatory") removed the redundant
-purgatory build magic entirely.
+> On 22/05/2018 14:52, Cornelia Huck wrote:
+> > On Wed, 16 May 2018 15:32:48 +0200
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> >  
+> >> On 15/05/2018 18:10, Cornelia Huck wrote:  
+> >>> On Fri, 11 May 2018 11:33:35 +0200
+> >>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> >>>     
+> >>>> On 09/05/2018 17:48, Cornelia Huck wrote:  
+> >>>>> @@ -126,7 +192,24 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+> >>>>>     
+> >>>>>     	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
+> >>>>>     
+> >>>>> -	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
+> >>>>> +	/*
+> >>>>> +	 * Start processing with the clear function, then halt, then start.
+> >>>>> +	 * We may still be start pending when the caller wants to clean
+> >>>>> +	 * up things via halt/clear.
+> >>>>> +	 */  
+> >>>> hum. The scsw here does not reflect the hardware state but the
+> >>>> command passed from the user interface.
+> >>>> Can we and should we authorize multiple commands in one call?
+> >>>>
+> >>>> If not, the comment is not appropriate and a switch on cmd.fctl
+> >>>> would be a clearer.  
+> >>> There may be multiple functions specified, but we need to process them
+> >>> in precedence order (and clear wins over the others, so to speak).
+> >>> Would adding a sentence like "we always process just one function" help?  
+> >> Why should we allow multiple commands in a single call ?
+> >> It brings no added value.
+> >> Is there a use case?
+> >> Currently QEMU does not do this and since we only have the SCSH there
+> >> is no difference having the bit set alone or not alone.  
+> > I found this to be a very easy way to implement halt/clear. This still
+> > holds true if we switch to some kind of capabilities for this (did not
+> > have time to look at this further, though).
+> >
+> > As we have the fctl field anyway, I'm in favour of processing this all
+> > in one function.
+> >  
 
-That means that the move of bin2c was unnecessary in the first place.
+[starting to look at this again]
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+> 
+> Sorry, I do not understand if we agree or not.
+> 
+> I agree we have the fctl field and we must continue to use it
+> for backward compatibility.
 
- arch/powerpc/purgatory/Makefile | 3 +--
- arch/s390/purgatory/Makefile    | 3 +--
- arch/x86/purgatory/Makefile     | 3 +--
- kernel/Makefile                 | 2 +-
- scripts/.gitignore              | 1 +
- scripts/Makefile                | 1 +
- scripts/basic/.gitignore        | 1 -
- scripts/basic/Makefile          | 1 -
- scripts/{basic => }/bin2c.c     | 0
- security/tomoyo/Makefile        | 2 +-
- 10 files changed, 7 insertions(+), 10 deletions(-)
- rename scripts/{basic => }/bin2c.c (100%)
+It also mirrors the hardware, no?
 
-diff --git a/arch/powerpc/purgatory/Makefile b/arch/powerpc/purgatory/Makefile
-index 30e05de..4314ba5 100644
---- a/arch/powerpc/purgatory/Makefile
-+++ b/arch/powerpc/purgatory/Makefile
-@@ -6,9 +6,8 @@ LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined
- $(obj)/purgatory.ro: $(obj)/trampoline.o FORCE
- 		$(call if_changed,ld)
- 
--CMD_BIN2C = $(objtree)/scripts/basic/bin2c
- quiet_cmd_bin2c = BIN2C   $@
--      cmd_bin2c = $(CMD_BIN2C) kexec_purgatory < $< > $@
-+      cmd_bin2c = $(objtree)/scripts/bin2c kexec_purgatory < $< > $@
- 
- $(obj)/kexec-purgatory.c: $(obj)/purgatory.ro FORCE
- 	$(call if_changed,bin2c)
-diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index 1ace023..445c460 100644
---- a/arch/s390/purgatory/Makefile
-+++ b/arch/s390/purgatory/Makefile
-@@ -27,9 +27,8 @@ KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
- 
--CMD_BIN2C = $(objtree)/scripts/basic/bin2c
- quiet_cmd_bin2c = BIN2C   $@
--      cmd_bin2c = $(CMD_BIN2C) kexec_purgatory < $< > $@
-+      cmd_bin2c = $(objtree)/scripts/bin2c kexec_purgatory < $< > $@
- 
- $(obj)/kexec-purgatory.c: $(obj)/purgatory.ro FORCE
- 	$(call if_changed,bin2c)
-diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index 2e9ee02..d6ac098 100644
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -28,9 +28,8 @@ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 
- targets += kexec-purgatory.c
- 
--CMD_BIN2C = $(objtree)/scripts/basic/bin2c
- quiet_cmd_bin2c = BIN2C   $@
--      cmd_bin2c = $(CMD_BIN2C) kexec_purgatory < $< > $@
-+      cmd_bin2c = $(objtree)/scripts/bin2c kexec_purgatory < $< > $@
- 
- $(obj)/kexec-purgatory.c: $(obj)/purgatory.ro FORCE
- 	$(call if_changed,bin2c)
-diff --git a/kernel/Makefile b/kernel/Makefile
-index 04bc07c..7a63d56 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -123,7 +123,7 @@ targets += config_data.gz
- $(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
- 	$(call if_changed,gzip)
- 
--      filechk_ikconfiggz = (echo "static const char kernel_config_data[] __used = MAGIC_START"; cat $< | scripts/basic/bin2c; echo "MAGIC_END;")
-+      filechk_ikconfiggz = (echo "static const char kernel_config_data[] __used = MAGIC_START"; cat $< | scripts/bin2c; echo "MAGIC_END;")
- targets += config_data.h
- $(obj)/config_data.h: $(obj)/config_data.gz FORCE
- 	$(call filechk,ikconfiggz)
-diff --git a/scripts/.gitignore b/scripts/.gitignore
-index 0442c06..12d302d 100644
---- a/scripts/.gitignore
-+++ b/scripts/.gitignore
-@@ -1,6 +1,7 @@
- #
- # Generated files
- #
-+bin2c
- conmakehash
- kallsyms
- pnmtologo
-diff --git a/scripts/Makefile b/scripts/Makefile
-index 25ab143..59c21ec 100644
---- a/scripts/Makefile
-+++ b/scripts/Makefile
-@@ -10,6 +10,7 @@
- 
- HOST_EXTRACFLAGS += -I$(srctree)/tools/include
- 
-+hostprogs-$(CONFIG_BUILD_BIN2C)  += bin2c
- hostprogs-$(CONFIG_KALLSYMS)     += kallsyms
- hostprogs-$(CONFIG_LOGO)         += pnmtologo
- hostprogs-$(CONFIG_VT)           += conmakehash
-diff --git a/scripts/basic/.gitignore b/scripts/basic/.gitignore
-index 9528ec9..a776371 100644
---- a/scripts/basic/.gitignore
-+++ b/scripts/basic/.gitignore
-@@ -1,2 +1 @@
- fixdep
--bin2c
-diff --git a/scripts/basic/Makefile b/scripts/basic/Makefile
-index 0372b33..af49b44 100644
---- a/scripts/basic/Makefile
-+++ b/scripts/basic/Makefile
-@@ -9,7 +9,6 @@
- # fixdep: 	 Used to generate dependency information during build process
- 
- hostprogs-y	:= fixdep
--hostprogs-$(CONFIG_BUILD_BIN2C)     += bin2c
- always		:= $(hostprogs-y)
- 
- # fixdep is needed to compile other host programs
-diff --git a/scripts/basic/bin2c.c b/scripts/bin2c.c
-similarity index 100%
-rename from scripts/basic/bin2c.c
-rename to scripts/bin2c.c
-diff --git a/security/tomoyo/Makefile b/security/tomoyo/Makefile
-index b7c6a7f..cca5a30 100644
---- a/security/tomoyo/Makefile
-+++ b/security/tomoyo/Makefile
-@@ -4,7 +4,7 @@ obj-y = audit.o common.o condition.o domain.o environ.o file.o gc.o group.o load
- targets += builtin-policy.h
- define do_policy
- echo "static char tomoyo_builtin_$(1)[] __initdata ="; \
--$(objtree)/scripts/basic/bin2c <$(firstword $(wildcard $(obj)/policy/$(1).conf $(srctree)/$(src)/policy/$(1).conf.default) /dev/null); \
-+$(objtree)/scripts/bin2c <$(firstword $(wildcard $(obj)/policy/$(1).conf $(srctree)/$(src)/policy/$(1).conf.default) /dev/null); \
- echo ";"
- endef
- quiet_cmd_policy  = POLICY  $@
--- 
-2.7.4
+> 
+> I do not understand the "processing all in one function".
+> 
+> Since yo already have 3 function to process these three instructions.
+> 
+> Do you mean the if .. else if .. else if ?
+
+Yes. There is a lot of common handling for each of these.
+
+> 
+> Then I come back to what you said earlier on the precedence of the clear 
+> instruction:
+> 
+> 1) do we have a use case to have more than one bit set in the fctl field?
+> 
+> - if no, there is no need for precedence
+
+It mirrors what the hardware does: you just set an additional bit if
+processing has not yet finished.
+
+> 
+> - if yes, why should clear have precedence ?
+
+Because it does on the hardware?
+
+>    How do QEMU set more than one bit in fctl?
+>    why should we alter the order of the instructions given by the guest?
+>    How can we know this order if there are multiple instructions at once?
+
+In the future, we should return after we fired off the start etc.
+request even if we did not receive an interrupt yet, so that the guest
+might do a halt or clear before the start has finished. IOW, make this
+as asynchronous as the hardware. That's why I'd like to simply
+accumulate the things. The architecture already specified what happens
+in the response.
+
+Do you think that is feasible?
