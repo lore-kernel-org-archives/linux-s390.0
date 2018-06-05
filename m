@@ -1,135 +1,86 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v6 02/21] s390/zcrypt: Review inline assembler constraints.
-Date: Fri, 29 Jun 2018 17:11:04 -0400
-Message-ID: <1530306683-7270-3-git-send-email-akrowiak@linux.vnet.ibm.com>
-References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v5 11/13] KVM: s390: implement mediated device open
+ callback
+Date: Tue, 5 Jun 2018 14:19:53 +0200
+Message-ID: <736a1346-f81a-7f71-7d13-38729ff78e4f@linux.ibm.com>
+References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1525705912-12815-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <98ea7ce2-2539-e2ff-4bb4-297e784d87bd@linux.ibm.com>
+ <7bb480ac-5723-83ff-c797-53c1ab0458c1@linux.vnet.ibm.com>
+ <93cd0f46-a410-51c8-00b9-810c1b3d3ae2@linux.ibm.com>
+ <0f37dc39-7355-19e5-40c9-a02a1ea58c2d@linux.vnet.ibm.com>
+Reply-To: pmorel@linux.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <0f37dc39-7355-19e5-40c9-a02a1ea58c2d@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Harald Freudenberger <freude@de.ibm.com>
+On 30/05/2018 16:33, Tony Krowiak wrote:
+> On 05/24/2018 05:08 AM, Pierre Morel wrote:
+>> On 23/05/2018 16:45, Tony Krowiak wrote:
+>>> On 05/16/2018 04:03 AM, Pierre Morel wrote:
+>>>> On 07/05/2018 17:11, Tony Krowiak wrote:
+>>>>> Implements the open callback on the mediated matrix device.
+>>>>> The function registers a group notifier to receive notification
+>>>>> of the VFIO_GROUP_NOTIFY_SET_KVM event. When notified,
+>>>>> the vfio_ap device driver will get access to the guest's
+>>>>> kvm structure. With access to this structure the driver will:
+>>>>>
+>>>>> 1. Ensure that only one mediated device is opened for the guest
+>>
+>> You should explain why.
+>>
+>>>>>
+>>>>> 2. Configure access to the AP devices for the guest.
+>>>>>
+>> ...snip...
+>>>>> +void kvm_ap_refcount_inc(struct kvm *kvm)
+>>>>> +{
+>>>>> +    atomic_inc(&kvm->arch.crypto.aprefs);
+>>>>> +}
+>>>>> +EXPORT_SYMBOL(kvm_ap_refcount_inc);
+>>>>> +
+>>>>> +void kvm_ap_refcount_dec(struct kvm *kvm)
+>>>>> +{
+>>>>> +    atomic_dec(&kvm->arch.crypto.aprefs);
+>>>>> +}
+>>>>> +EXPORT_SYMBOL(kvm_ap_refcount_dec);
+>>>>
+>>>> Why are these functions inside kvm-ap ?
+>>>> Will anyone use this outer of vfio-ap ?
+>>>
+>>> As I've stated before, I made the choice to contain all interfaces that
+>>> access KVM in kvm-ap because I don't think it is appropriate for the 
+>>> device
+>>> driver to have to have "knowledge" of the inner workings of KVM. Why 
+>>> does
+>>> it matter whether any entity outside of the vfio_ap device driver calls
+>>> these functions? I could ask a similar question if the interfaces were
+>>> contained in vfio-ap; what if another device driver needs access to 
+>>> these
+>>> interfaces?
+>>
+>> This is very driver specific and only used during initialization.
+>> It is not a common property of the cryptographic interface.
+>>
+>> I really think you should handle this inside the driver.
+>
+> We are going to have to agree to disagree on this one. Is it not possible
+> that future drivers - e.g., when full virtualization is implemented - 
+> will
+> require access to KVM?
 
-Reviewed and adapted the register use and asm constraints
-of the C inline assembler functions in accordance to the
-the AP instructions specifications.
+I do not think that an access to KVM is required for full virtualization.
 
-Signed-off-by: Harald Freudenberger <freude@de.ibm.com>
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/ap_asm.h |   40 +++++++++++++++++++++++-----------------
- 1 files changed, 23 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_asm.h b/drivers/s390/crypto/ap_asm.h
-index b22d30a..e22ee12 100644
---- a/drivers/s390/crypto/ap_asm.h
-+++ b/drivers/s390/crypto/ap_asm.h
-@@ -20,14 +20,16 @@ static inline int ap_instructions_available(void)
- {
- 	register unsigned long reg0 asm ("0") = AP_MKQID(0, 0);
- 	register unsigned long reg1 asm ("1") = -ENODEV;
--	register unsigned long reg2 asm ("2") = 0UL;
-+	register unsigned long reg2 asm ("2");
- 
- 	asm volatile(
- 		"   .long 0xb2af0000\n"		/* PQAP(TAPQ) */
--		"0: la    %1,0\n"
-+		"0: la    %0,0\n"
- 		"1:\n"
- 		EX_TABLE(0b, 1b)
--		: "+d" (reg0), "+d" (reg1), "+d" (reg2) : : "cc");
-+		: "+d" (reg1), "=d" (reg2)
-+		: "d" (reg0)
-+		: "cc");
- 	return reg1;
- }
- 
-@@ -42,10 +44,12 @@ static inline struct ap_queue_status ap_tapq(ap_qid_t qid, unsigned long *info)
- {
- 	register unsigned long reg0 asm ("0") = qid;
- 	register struct ap_queue_status reg1 asm ("1");
--	register unsigned long reg2 asm ("2") = 0UL;
-+	register unsigned long reg2 asm ("2");
- 
- 	asm volatile(".long 0xb2af0000"		/* PQAP(TAPQ) */
--		     : "+d" (reg0), "=d" (reg1), "+d" (reg2) : : "cc");
-+		     : "=d" (reg1), "=d" (reg2)
-+		     : "d" (reg0)
-+		     : "cc");
- 	if (info)
- 		*info = reg2;
- 	return reg1;
-@@ -59,13 +63,14 @@ static inline struct ap_queue_status ap_tapq(ap_qid_t qid, unsigned long *info)
-  */
- static inline struct ap_queue_status ap_rapq(ap_qid_t qid)
- {
--	register unsigned long reg0 asm ("0") = qid | 0x01000000UL;
-+	register unsigned long reg0 asm ("0") = qid | (1UL << 24);
- 	register struct ap_queue_status reg1 asm ("1");
--	register unsigned long reg2 asm ("2") = 0UL;
- 
- 	asm volatile(
- 		".long 0xb2af0000"		/* PQAP(RAPQ) */
--		: "+d" (reg0), "=d" (reg1), "+d" (reg2) : : "cc");
-+		: "=d" (reg1)
-+		: "d" (reg0)
-+		: "cc");
- 	return reg1;
- }
- 
-@@ -107,8 +112,8 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
- 
- 	asm volatile(
- 		".long 0xb2af0000"		/* PQAP(AQIC) */
--		: "+d" (reg0), "+d" (reg1_in), "=d" (reg1_out), "+d" (reg2)
--		:
-+		: "=d" (reg1_out)
-+		: "d" (reg0), "d" (reg1_in), "d" (reg2)
- 		: "cc");
- 	return reg1_out;
- }
-@@ -120,17 +125,17 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
-  */
- static inline int ap_qci(void *config)
- {
--	register unsigned long reg0 asm ("0") = 0x04000000UL;
-+	register unsigned long reg0 asm ("0") = 4UL << 24;
- 	register unsigned long reg1 asm ("1") = -EINVAL;
- 	register void *reg2 asm ("2") = (void *) config;
- 
- 	asm volatile(
- 		".long 0xb2af0000\n"		/* PQAP(QCI) */
--		"0: la    %1,0\n"
-+		"0: la    %0,0\n"
- 		"1:\n"
- 		EX_TABLE(0b, 1b)
--		: "+d" (reg0), "+d" (reg1), "+d" (reg2)
--		:
-+		: "+d" (reg1)
-+		: "d" (reg0), "d" (reg2)
- 		: "cc", "memory");
- 
- 	return reg1;
-@@ -169,12 +174,13 @@ static inline struct ap_queue_status ap_qact(ap_qid_t qid, int ifbit,
- 		| ((ifbit & 0x01) << 22);
- 	register unsigned long reg1_in asm ("1") = apinfo->val;
- 	register struct ap_queue_status reg1_out asm ("1");
--	register unsigned long reg2 asm ("2") = 0;
-+	register unsigned long reg2 asm ("2");
- 
- 	asm volatile(
- 		".long 0xb2af0000"		/* PQAP(QACT) */
--		: "+d" (reg0), "+d" (reg1_in), "=d" (reg1_out), "+d" (reg2)
--		: : "cc");
-+		: "+d" (reg1_in), "=d" (reg1_out), "=d" (reg2)
-+		: "d" (reg0)
-+		: "cc");
- 	apinfo->val = reg2;
- 	return reg1_out;
- }
 -- 
-1.7.1
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
