@@ -1,22 +1,22 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v5 10/13] s390: vfio-ap: sysfs interface to view matrix
- mdev matrix
-Date: Wed, 6 Jun 2018 17:10:31 +0200
-Message-ID: <4f42fa11-e9cc-20a9-3068-b103a8ead644@linux.ibm.com>
+Subject: Re: [PATCH v5 11/13] KVM: s390: implement mediated device open
+ callback
+Date: Wed, 6 Jun 2018 18:08:38 +0200
+Message-ID: <9e30c9b0-a04c-0c4e-9d3d-37e7a53a7f72@linux.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1525705912-12815-11-git-send-email-akrowiak@linux.vnet.ibm.com>
- <a6bba129-8a3c-a848-65aa-b67816bf2d25@linux.ibm.com>
- <53275110-45fb-d50f-c97e-93141378f094@linux.vnet.ibm.com>
- <89bda651-d465-af50-a737-1900a54b01c8@linux.ibm.com>
- <6f67a282-773d-3fca-5b36-cc23ad49ba5b@linux.vnet.ibm.com>
- <32340d2a-bea6-bdb1-38a6-76afe3d54672@linux.ibm.com>
- <624dcbbf-5f40-6f27-b173-a4c533dd7781@linux.vnet.ibm.com>
+ <1525705912-12815-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <98ea7ce2-2539-e2ff-4bb4-297e784d87bd@linux.ibm.com>
+ <7bb480ac-5723-83ff-c797-53c1ab0458c1@linux.vnet.ibm.com>
+ <93cd0f46-a410-51c8-00b9-810c1b3d3ae2@linux.ibm.com>
+ <0f37dc39-7355-19e5-40c9-a02a1ea58c2d@linux.vnet.ibm.com>
+ <736a1346-f81a-7f71-7d13-38729ff78e4f@linux.ibm.com>
+ <8f68183d-8385-8025-1898-23cad604ae94@linux.vnet.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <624dcbbf-5f40-6f27-b173-a4c533dd7781@linux.vnet.ibm.com>
+In-Reply-To: <8f68183d-8385-8025-1898-23cad604ae94@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -25,118 +25,94 @@ To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linu
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/06/2018 16:24, Tony Krowiak wrote:
-> On 06/05/2018 08:40 AM, Pierre Morel wrote:
->> On 30/05/2018 16:28, Tony Krowiak wrote:
->>> On 05/24/2018 05:10 AM, Pierre Morel wrote:
->>>> On 23/05/2018 16:38, Tony Krowiak wrote:
->>>>> On 05/16/2018 03:55 AM, Pierre Morel wrote:
+On 06/06/2018 16:28, Tony Krowiak wrote:
+> On 06/05/2018 08:19 AM, Pierre Morel wrote:
+>> On 30/05/2018 16:33, Tony Krowiak wrote:
+>>> On 05/24/2018 05:08 AM, Pierre Morel wrote:
+>>>> On 23/05/2018 16:45, Tony Krowiak wrote:
+>>>>> On 05/16/2018 04:03 AM, Pierre Morel wrote:
 >>>>>> On 07/05/2018 17:11, Tony Krowiak wrote:
->>>>>>> Provides a sysfs interface to view the AP matrix configured for the
->>>>>>> mediated matrix device.
+>>>>>>> Implements the open callback on the mediated matrix device.
+>>>>>>> The function registers a group notifier to receive notification
+>>>>>>> of the VFIO_GROUP_NOTIFY_SET_KVM event. When notified,
+>>>>>>> the vfio_ap device driver will get access to the guest's
+>>>>>>> kvm structure. With access to this structure the driver will:
 >>>>>>>
->>>>>>> The relevant sysfs structures are:
->>>>>>>
->>>>>>> /sys/devices/vfio_ap
->>>>>>> ... [matrix]
->>>>>>> ...... [mdev_supported_types]
->>>>>>> ......... [vfio_ap-passthrough]
->>>>>>> ............ [devices]
->>>>>>> ...............[$uuid]
->>>>>>> .................. matrix
->>>>>>>
->>>>>>> To view the matrix configured for the mediated matrix device,
->>>>>>> print the matrix file:
->>>>>>
->>>>>> This is the configured matrix, not the one used by the guest.
->>>>>> Nothing in the patches protect against binding a queue and assigning
->>>>>> a new AP when the guest runs.
->>>>>> The card and queue will be showed by this entry.
->>>>>
->>>>> Of course, as stated above, this is the matrix configured for the
->>>>> mediated matrix device. Are you suggesting here that the driver
->>>>> should prevent assigning a new adapter or domain while a guest is
->>>>> running? Couldn't this be a step in the process for hot (un)plugging
->>>>> AP queues?
+>>>>>>> 1. Ensure that only one mediated device is opened for the guest
 >>>>
->>>> No, I mean what is the point to show this?
->>>> It is not what the guest sees.
->>>> Has it any use case?
+>>>> You should explain why.
+>>>>
+>>>>>>>
+>>>>>>> 2. Configure access to the AP devices for the guest.
+>>>>>>>
+>>>> ...snip...
+>>>>>>> +void kvm_ap_refcount_inc(struct kvm *kvm)
+>>>>>>> +{
+>>>>>>> +    atomic_inc(&kvm->arch.crypto.aprefs);
+>>>>>>> +}
+>>>>>>> +EXPORT_SYMBOL(kvm_ap_refcount_inc);
+>>>>>>> +
+>>>>>>> +void kvm_ap_refcount_dec(struct kvm *kvm)
+>>>>>>> +{
+>>>>>>> +    atomic_dec(&kvm->arch.crypto.aprefs);
+>>>>>>> +}
+>>>>>>> +EXPORT_SYMBOL(kvm_ap_refcount_dec);
+>>>>>>
+>>>>>> Why are these functions inside kvm-ap ?
+>>>>>> Will anyone use this outer of vfio-ap ?
+>>>>>
+>>>>> As I've stated before, I made the choice to contain all interfaces 
+>>>>> that
+>>>>> access KVM in kvm-ap because I don't think it is appropriate for 
+>>>>> the device
+>>>>> driver to have to have "knowledge" of the inner workings of KVM. 
+>>>>> Why does
+>>>>> it matter whether any entity outside of the vfio_ap device driver 
+>>>>> calls
+>>>>> these functions? I could ask a similar question if the interfaces 
+>>>>> were
+>>>>> contained in vfio-ap; what if another device driver needs access 
+>>>>> to these
+>>>>> interfaces?
+>>>>
+>>>> This is very driver specific and only used during initialization.
+>>>> It is not a common property of the cryptographic interface.
+>>>>
+>>>> I really think you should handle this inside the driver.
 >>>
->>> The point is to display the matrix so one can view the AP queues that
->>> have been assigned to the mediated matrix device. This is the only way
->>> to view the matrix. Do you not find value in being able to see what
->>> has been assigned to the mediated matrix device?
+>>> We are going to have to agree to disagree on this one. Is it not 
+>>> possible
+>>> that future drivers - e.g., when full virtualization is implemented 
+>>> - will
+>>> require access to KVM?
 >>
->> Two things:
->> 1) I think it is better to retrieve the individual masks
+>> I do not think that an access to KVM is required for full 
+>> virtualization.
 >
-> I am not certain what you mean by this. Are you suggesting we display the
-> actual mask? For example, the APM:
->
-> 08000000000000001000000000000c0000000030000000000800000000000001
->
-> If that is the case, I completely disagree as that would be worthless 
-> from
-> a user perspective. Trying to figure out which APs are configured 
-> would be
-> ridiculously complicated.
+> You may be right, but at this point, there is no guarantee. I stand by my
+> design on this one.
 
-- It is compatible with what the AP BUS shows
-- a cut and past is easy
-- you can use a userland script to translate to another format
+I really regret that we abandoned the initial design with the matrix bus 
+and one
+single parent matrix device per guest.
+We would not have the problem of these KVM dependencies.
 
->
-> Or, are you suggesting something like this:
->
-> 4,67,116,117,154,155,255
+It had the advantage of taking care of having only one device per guest
+(available_instance = 1), could take care of provisioning as you have
+sysfs entries available for a matrix without having a guest and a mediated
+device.
 
-- this is not compatible with what the AP BUS shows
-- as in the first case this is easy to parse
+it also had advantage for virtualization to keep host side and guest 
+side matrix
+separate inside parent (host side) and mediated device (guest side).
 
-Both propositions look better to me.
+Shouldn't we treat this problem with a design using standard interfaces
+Instead of adding new dedicated interfaces?
 
->
-> Personally, I found viewing the queues to be much more valuable when
-> configuring the mediated device's matrix. I originally displayed the
-> individual adapter and domain attributes and found it cumbersome to
-> mentally configure what the matrix looked like. If you think of the
-> lszcrypt command, it outputs the adapters and queues which is the model
-> I used for this.
+Regards,
 
-what is the point of seeing what the matrix looks like ?
-It is interesting for the developer not for the administrator.
-What the administrator needs is:
-- To assign AP and to see what has been assigned
-- To assign domains and to see what has been assigned
+Pierre
 
->
->> 2) As I said above, what you show is not the effective mask used by 
->> the guest
->
-> Why would a sysfs attribute for the mediated matrix device show the 
-> effective
-> mask used by the guest?
-
-OK, bad word, "effective", replace with "really".
-
-We do not implement any kind of provisioning nor do we implement update
-of the CRYCB at any point after the first mediated device open.
-
-Binding a queue and updating the mask can be done at any time (may be we 
-should change this ?)
-
-What is the point of showing a matrix which will never be used by the guest?
-
-
-
->
->>
->>
->>
->>
->>
->
 
 -- 
 Pierre Morel
