@@ -1,331 +1,172 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v5 04/13] s390: vfio-ap: base implementation of VFIO AP
- device driver
-Date: Thu, 7 Jun 2018 10:57:41 +0200
-Message-ID: <ea42e912-918a-13a0-4461-db117c455868@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Subject: Re: [PATCH v5 10/13] s390: vfio-ap: sysfs interface to view matrix
+ mdev matrix
+Date: Thu, 7 Jun 2018 08:53:20 -0400
+Message-ID: <525163cf-d656-b146-05b6-2efbbd2f5a9d@linux.vnet.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1525705912-12815-5-git-send-email-akrowiak@linux.vnet.ibm.com>
-Reply-To: pmorel@linux.ibm.com
+ <1525705912-12815-11-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <a6bba129-8a3c-a848-65aa-b67816bf2d25@linux.ibm.com>
+ <53275110-45fb-d50f-c97e-93141378f094@linux.vnet.ibm.com>
+ <89bda651-d465-af50-a737-1900a54b01c8@linux.ibm.com>
+ <6f67a282-773d-3fca-5b36-cc23ad49ba5b@linux.vnet.ibm.com>
+ <32340d2a-bea6-bdb1-38a6-76afe3d54672@linux.ibm.com>
+ <624dcbbf-5f40-6f27-b173-a4c533dd7781@linux.vnet.ibm.com>
+ <4f42fa11-e9cc-20a9-3068-b103a8ead644@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1525705912-12815-5-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <4f42fa11-e9cc-20a9-3068-b103a8ead644@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: pmorel@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/05/2018 17:11, Tony Krowiak wrote:
-> Introduces a new AP device driver. This device driver
-> is built on the VFIO mediated device framework. The framework
-> provides sysfs interfaces that facilitate passthrough
-> access by guests to devices installed on the linux host.
+On 06/06/2018 11:10 AM, Pierre Morel wrote:
+> On 06/06/2018 16:24, Tony Krowiak wrote:
+>> On 06/05/2018 08:40 AM, Pierre Morel wrote:
+>>> On 30/05/2018 16:28, Tony Krowiak wrote:
+>>>> On 05/24/2018 05:10 AM, Pierre Morel wrote:
+>>>>> On 23/05/2018 16:38, Tony Krowiak wrote:
+>>>>>> On 05/16/2018 03:55 AM, Pierre Morel wrote:
+>>>>>>> On 07/05/2018 17:11, Tony Krowiak wrote:
+>>>>>>>> Provides a sysfs interface to view the AP matrix configured for 
+>>>>>>>> the
+>>>>>>>> mediated matrix device.
+>>>>>>>>
+>>>>>>>> The relevant sysfs structures are:
+>>>>>>>>
+>>>>>>>> /sys/devices/vfio_ap
+>>>>>>>> ... [matrix]
+>>>>>>>> ...... [mdev_supported_types]
+>>>>>>>> ......... [vfio_ap-passthrough]
+>>>>>>>> ............ [devices]
+>>>>>>>> ...............[$uuid]
+>>>>>>>> .................. matrix
+>>>>>>>>
+>>>>>>>> To view the matrix configured for the mediated matrix device,
+>>>>>>>> print the matrix file:
+>>>>>>>
+>>>>>>> This is the configured matrix, not the one used by the guest.
+>>>>>>> Nothing in the patches protect against binding a queue and 
+>>>>>>> assigning
+>>>>>>> a new AP when the guest runs.
+>>>>>>> The card and queue will be showed by this entry.
+>>>>>>
+>>>>>> Of course, as stated above, this is the matrix configured for the
+>>>>>> mediated matrix device. Are you suggesting here that the driver
+>>>>>> should prevent assigning a new adapter or domain while a guest is
+>>>>>> running? Couldn't this be a step in the process for hot (un)plugging
+>>>>>> AP queues?
+>>>>>
+>>>>> No, I mean what is the point to show this?
+>>>>> It is not what the guest sees.
+>>>>> Has it any use case?
+>>>>
+>>>> The point is to display the matrix so one can view the AP queues that
+>>>> have been assigned to the mediated matrix device. This is the only way
+>>>> to view the matrix. Do you not find value in being able to see what
+>>>> has been assigned to the mediated matrix device?
+>>>
+>>> Two things:
+>>> 1) I think it is better to retrieve the individual masks
+>>
+>> I am not certain what you mean by this. Are you suggesting we display 
+>> the
+>> actual mask? For example, the APM:
+>>
+>> 08000000000000001000000000000c0000000030000000000800000000000001
+>>
+>> If that is the case, I completely disagree as that would be worthless 
+>> from
+>> a user perspective. Trying to figure out which APs are configured 
+>> would be
+>> ridiculously complicated.
 >
-> The VFIO AP device driver will serve two purposes:
+> - It is compatible with what the AP BUS shows
+> - a cut and past is easy
+> - you can use a userland script to translate to another format
 >
-> 1. Provide the interfaces to reserve AP devices for exclusive
->     use by KVM guests. This is accomplished by unbinding the
->     devices to be reserved for guest usage from the default AP
->     device driver and binding them to the VFIO AP device driver.
+>>
+>> Or, are you suggesting something like this:
+>>
+>> 4,67,116,117,154,155,255
 >
-> 2. Implements the functions, callbacks and sysfs attribute
->     interfaces required to create one or more VFIO mediated
->     devices each of which will be used to configure the AP
->     matrix for a guest and serve as a file descriptor
->     for facilitating communication between QEMU and the
->     VFIO AP device driver.
+> - this is not compatible with what the AP BUS shows
+> - as in the first case this is easy to parse
 >
-> When the VFIO AP device driver is initialized:
+> Both propositions look better to me.
 >
-> * It registers with the AP bus for control of type 10 (CEX4
->    and newer) AP queue devices. This limitation was imposed
->    due to:
+>>
+>> Personally, I found viewing the queues to be much more valuable when
+>> configuring the mediated device's matrix. I originally displayed the
+>> individual adapter and domain attributes and found it cumbersome to
+>> mentally configure what the matrix looked like. If you think of the
+>> lszcrypt command, it outputs the adapters and queues which is the model
+>> I used for this.
 >
->    1. A lack of access to older systems needed to test the
->       older AP device models;
+> what is the point of seeing what the matrix looks like ?
+> It is interesting for the developer not for the administrator.
+> What the administrator needs is:
+> - To assign AP and to see what has been assigned
+> - To assign domains and to see what has been assigned
 >
->    2. A desire to keep the code as simple as possible;
+>>
+>>> 2) As I said above, what you show is not the effective mask used by 
+>>> the guest
+>>
+>> Why would a sysfs attribute for the mediated matrix device show the 
+>> effective
+>> mask used by the guest?
 >
->    3. Some older models are no longer supported by the kernel
->       and others are getting close to end of service.
+> OK, bad word, "effective", replace with "really".
 >
->    The probe and remove callbacks will be provided to support
->    the binding/unbinding of AP queue devices to/from the VFIO
->    AP device driver.
->
-> * Creates a /sys/devices/vfio-ap/matrix device to hold
->    the APQNs of the AP devices bound to the VFIO
->    AP device driver and serves as the parent of the
->    mediated devices created for each guest.
->
-> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> ---
->   MAINTAINERS                           |   10 +++
->   arch/s390/Kconfig                     |   11 +++
->   drivers/s390/crypto/Makefile          |    4 +
->   drivers/s390/crypto/vfio_ap_drv.c     |  134 +++++++++++++++++++++++++++++++++
->   drivers/s390/crypto/vfio_ap_private.h |   23 ++++++
->   include/uapi/linux/vfio.h             |    2 +
->   6 files changed, 184 insertions(+), 0 deletions(-)
->   create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
->   create mode 100644 drivers/s390/crypto/vfio_ap_private.h
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 224e97b..2792c81 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -12237,6 +12237,16 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
->   S:	Supported
->   F:	drivers/s390/crypto/
->
-> +S390 VFIO AP DRIVER
-> +M:	Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> +M:	Christian Borntraeger <borntraeger@de.ibm.com>
-> +M:	Martin Schwidefsky <schwidefsky@de.ibm.com>
-> +L:	linux-s390@vger.kernel.org
-> +W:	http://www.ibm.com/developerworks/linux/linux390/
-> +S:	Supported
-> +F:	drivers/s390/crypto/vfio_ap_drv.c
-> +F:	drivers/s390/crypto/vfio_ap_private.h
-> +
->   S390 ZFCP DRIVER
->   M:	Steffen Maier <maier@linux.ibm.com>
->   M:	Benjamin Block <bblock@linux.ibm.com>
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 199ac3e..8d833be 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -786,6 +786,17 @@ config VFIO_CCW
->   	  To compile this driver as a module, choose M here: the
->   	  module will be called vfio_ccw.
->
-> +config VFIO_AP
-> +	def_tristate n
-> +	prompt "VFIO support for AP devices"
-> +	depends on ZCRYPT && VFIO_MDEV_DEVICE && KVM
-> +	help
-> +		This driver grants access to Adjunct Processor (AP) devices
-> +		via the VFIO mediated device interface.
-> +
-> +		To compile this driver as a module, choose M here: the module
-> +		will be called vfio_ap.
-> +
->   endmenu
->
->   menu "Dump support"
-> diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
-> index b59af54..48e466e 100644
-> --- a/drivers/s390/crypto/Makefile
-> +++ b/drivers/s390/crypto/Makefile
-> @@ -15,3 +15,7 @@ obj-$(CONFIG_ZCRYPT) += zcrypt_pcixcc.o zcrypt_cex2a.o zcrypt_cex4.o
->   # pkey kernel module
->   pkey-objs := pkey_api.o
->   obj-$(CONFIG_PKEY) += pkey.o
-> +
-> +# adjunct processor matrix
-> +vfio_ap-objs := vfio_ap_drv.o
-> +obj-$(CONFIG_VFIO_AP) += vfio_ap.o
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> new file mode 100644
-> index 0000000..014d70f
-> --- /dev/null
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -0,0 +1,134 @@
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + * VFIO based AP device driver
-> + *
-> + * Copyright IBM Corp. 2018
-> + *
-> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/mod_devicetable.h>
-> +#include <linux/slab.h>
-> +
-> +#include "vfio_ap_private.h"
-> +
-> +#define VFIO_AP_ROOT_NAME "vfio_ap"
-> +#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
-> +#define VFIO_AP_DEV_NAME "matrix"
-> +
-> +MODULE_AUTHOR("IBM Corporation");
-> +MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2017");
-> +MODULE_LICENSE("GPL v2");
-> +
-> +static struct device *vfio_ap_root_device;
-> +
-> +static struct ap_driver vfio_ap_drv;
-> +
-> +static struct ap_matrix *ap_matrix;
-> +
-> +static struct device_type vfio_ap_dev_type = {
-> +	.name = VFIO_AP_DEV_TYPE_NAME,
-> +};
-> +
-> +/* Only type 10 adapters (CEX4 and later) are supported
-> + * by the AP matrix device driver
-> + */
-> +static struct ap_device_id ap_queue_ids[] = {
-> +	{ .dev_type = AP_DEVICE_TYPE_CEX4,
-> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-> +	{ .dev_type = AP_DEVICE_TYPE_CEX5,
-> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-> +	{ .dev_type = AP_DEVICE_TYPE_CEX6,
-> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-> +	{ /* end of sibling */ },
-> +};
-> +
-> +MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
-> +
-> +static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
-> +{
-> +	return 0;
-> +}
-> +
-> +static void vfio_ap_matrix_dev_release(struct device *dev)
-> +{
-> +	struct ap_matrix *ap_matrix = dev_get_drvdata(dev);
-> +
-> +	kfree(ap_matrix);
-> +}
-> +
-> +static int vfio_ap_matrix_dev_create(void)
-> +{
-> +	int ret;
-> +
-> +	vfio_ap_root_device = root_device_register(VFIO_AP_ROOT_NAME);
-> +
-> +	if (IS_ERR(vfio_ap_root_device)) {
-> +		ret = PTR_ERR(vfio_ap_root_device);
-> +		goto done;
-> +	}
-> +
-> +	ap_matrix = kzalloc(sizeof(*ap_matrix), GFP_KERNEL);
+> We do not implement any kind of provisioning nor do we implement update
+> of the CRYCB at any point after the first mediated device open.
 
-Since you always need this, why not a static structure ?
+I think this is a way we might be able to hot plug/unplug devices.
 
-> +	if (!ap_matrix) {
-> +		ret = -ENOMEM;
-> +		goto matrix_alloc_err;
-> +	}
-> +
-> +	ap_matrix->device.type = &vfio_ap_dev_type;
-> +	dev_set_name(&ap_matrix->device, "%s", VFIO_AP_DEV_NAME);
-> +	ap_matrix->device.parent = vfio_ap_root_device;
-> +	ap_matrix->device.release = vfio_ap_matrix_dev_release;
-> +	ap_matrix->device.driver = &vfio_ap_drv.driver;
-> +
-> +	ret = device_register(&ap_matrix->device);
-> +	if (ret)
-> +		goto matrix_reg_err;
-> +
-> +	goto done;
-> +
-> +matrix_reg_err:
-> +	put_device(&ap_matrix->device);
-> +
-> +matrix_alloc_err:
-> +	root_device_unregister(vfio_ap_root_device);
-> +
-> +done:
-> +	return ret;
-> +}
-> +
-> +static void vfio_ap_matrix_dev_destroy(struct ap_matrix *ap_matrix)
-> +{
-> +	device_unregister(&ap_matrix->device);
-> +	root_device_unregister(vfio_ap_root_device);
-> +}
-> +
-> +int __init vfio_ap_init(void)
-> +{
-> +	int ret;
-> +
-> +	ret = vfio_ap_matrix_dev_create();
-> +	if (ret)
-> +		return ret;
-> +
-> +	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
-
-your structure is static, no need to initialize to 0.
-
-> +	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
-> +	vfio_ap_drv.ids = ap_queue_ids;
-> +
-> +	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-> +	if (ret) {
-> +		vfio_ap_matrix_dev_destroy(ap_matrix);
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +void __exit vfio_ap_exit(void)
-> +{
-> +	ap_driver_unregister(&vfio_ap_drv);
-> +	vfio_ap_matrix_dev_destroy(ap_matrix);
-> +}
-> +
-> +module_init(vfio_ap_init);
-> +module_exit(vfio_ap_exit);
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> new file mode 100644
-> index 0000000..cf23675
-> --- /dev/null
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -0,0 +1,23 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Private data and functions for adjunct processor VFIO matrix driver.
-> + *
-> + * Copyright IBM Corp. 2017
-> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-> + */
-> +
-> +#ifndef _VFIO_AP_PRIVATE_H_
-> +#define _VFIO_AP_PRIVATE_H_
-> +
-> +#include <linux/types.h>
-> +
-> +#include "ap_bus.h"
-> +
-> +#define VFIO_AP_MODULE_NAME "vfio_ap"
-> +#define VFIO_AP_DRV_NAME "vfio_ap"
-> +
-> +struct ap_matrix {
-> +	struct device device;
-> +};
-> +
-> +#endif /* _VFIO_AP_PRIVATE_H_ */
-> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index 1aa7b82..f378b98 100644
-> --- a/include/uapi/linux/vfio.h
-> +++ b/include/uapi/linux/vfio.h
-> @@ -200,6 +200,7 @@ struct vfio_device_info {
->   #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
->   #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
->   #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
-> +#define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
->   	__u32	num_regions;	/* Max region index + 1 */
->   	__u32	num_irqs;	/* Max IRQ index + 1 */
->   };
-> @@ -215,6 +216,7 @@ struct vfio_device_info {
->   #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
->   #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
->   #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
-> +#define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
 >
->   /**
->    * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
+>
+> Binding a queue and updating the mask can be done at any time (may be 
+> we should change this ?)
 
+As I said above, I think we can utilize this as a means of hot 
+plugging/unplugging AP
+adapters and domains. If the guest is running when an adapter or domain 
+is assigned,
+we can update the guest's CRYCB at that time.
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+>
+>
+> What is the point of showing a matrix which will never be used by the 
+> guest?
+
+That is simply not true. The matrix WILL be used by a guest the next time a
+guest is configured with a vfio-ap device referencing the path to the
+mediated matrix device - i.e., -device vfio-ap,sysfsdev=$PATH. The point
+is to show the matrix assigned to the mediated matrix device. In my 
+mind, the
+mediated matrix device is a separate object from the guest. Sure it is used
+to configure a guest's matrix when the guest is started, but it could be 
+used
+to configure the matrix for any guest; it has no direct connection to a
+particular guest until a guest using the device is started. IMHO the sysfs
+attributes for the mediated matrix device reflect only the attributes of
+the device, not the attributes of a guest.
+
+>
+>
+>
+>
+>>
+>>>
+>>>
+>>>
+>>>
+>>>
+>>
+>
