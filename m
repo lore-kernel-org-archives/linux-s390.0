@@ -1,23 +1,16 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v5 11/13] KVM: s390: implement mediated device open
- callback
-Date: Wed, 6 Jun 2018 19:40:30 +0200
-Message-ID: <d6455b0b-804f-b58e-41bc-83731979911a@linux.ibm.com>
+Subject: Re: [PATCH v5 04/13] s390: vfio-ap: base implementation of VFIO AP
+ device driver
+Date: Thu, 7 Jun 2018 10:57:41 +0200
+Message-ID: <ea42e912-918a-13a0-4461-db117c455868@linux.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1525705912-12815-12-git-send-email-akrowiak@linux.vnet.ibm.com>
- <98ea7ce2-2539-e2ff-4bb4-297e784d87bd@linux.ibm.com>
- <7bb480ac-5723-83ff-c797-53c1ab0458c1@linux.vnet.ibm.com>
- <93cd0f46-a410-51c8-00b9-810c1b3d3ae2@linux.ibm.com>
- <0f37dc39-7355-19e5-40c9-a02a1ea58c2d@linux.vnet.ibm.com>
- <736a1346-f81a-7f71-7d13-38729ff78e4f@linux.ibm.com>
- <8f68183d-8385-8025-1898-23cad604ae94@linux.vnet.ibm.com>
- <9e30c9b0-a04c-0c4e-9d3d-37e7a53a7f72@linux.ibm.com>
+ <1525705912-12815-5-git-send-email-akrowiak@linux.vnet.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9e30c9b0-a04c-0c4e-9d3d-37e7a53a7f72@linux.ibm.com>
+In-Reply-To: <1525705912-12815-5-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -26,109 +19,311 @@ To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linu
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/06/2018 18:08, Pierre Morel wrote:
-> On 06/06/2018 16:28, Tony Krowiak wrote:
->> On 06/05/2018 08:19 AM, Pierre Morel wrote:
->>> On 30/05/2018 16:33, Tony Krowiak wrote:
->>>> On 05/24/2018 05:08 AM, Pierre Morel wrote:
->>>>> On 23/05/2018 16:45, Tony Krowiak wrote:
->>>>>> On 05/16/2018 04:03 AM, Pierre Morel wrote:
->>>>>>> On 07/05/2018 17:11, Tony Krowiak wrote:
->>>>>>>> Implements the open callback on the mediated matrix device.
->>>>>>>> The function registers a group notifier to receive notification
->>>>>>>> of the VFIO_GROUP_NOTIFY_SET_KVM event. When notified,
->>>>>>>> the vfio_ap device driver will get access to the guest's
->>>>>>>> kvm structure. With access to this structure the driver will:
->>>>>>>>
->>>>>>>> 1. Ensure that only one mediated device is opened for the guest
->>>>>
->>>>> You should explain why.
->>>>>
->>>>>>>>
->>>>>>>> 2. Configure access to the AP devices for the guest.
->>>>>>>>
->>>>> ...snip...
->>>>>>>> +void kvm_ap_refcount_inc(struct kvm *kvm)
->>>>>>>> +{
->>>>>>>> +    atomic_inc(&kvm->arch.crypto.aprefs);
->>>>>>>> +}
->>>>>>>> +EXPORT_SYMBOL(kvm_ap_refcount_inc);
->>>>>>>> +
->>>>>>>> +void kvm_ap_refcount_dec(struct kvm *kvm)
->>>>>>>> +{
->>>>>>>> +    atomic_dec(&kvm->arch.crypto.aprefs);
->>>>>>>> +}
->>>>>>>> +EXPORT_SYMBOL(kvm_ap_refcount_dec);
->>>>>>>
->>>>>>> Why are these functions inside kvm-ap ?
->>>>>>> Will anyone use this outer of vfio-ap ?
->>>>>>
->>>>>> As I've stated before, I made the choice to contain all 
->>>>>> interfaces that
->>>>>> access KVM in kvm-ap because I don't think it is appropriate for 
->>>>>> the device
->>>>>> driver to have to have "knowledge" of the inner workings of KVM. 
->>>>>> Why does
->>>>>> it matter whether any entity outside of the vfio_ap device driver 
->>>>>> calls
->>>>>> these functions? I could ask a similar question if the interfaces 
->>>>>> were
->>>>>> contained in vfio-ap; what if another device driver needs access 
->>>>>> to these
->>>>>> interfaces?
->>>>>
->>>>> This is very driver specific and only used during initialization.
->>>>> It is not a common property of the cryptographic interface.
->>>>>
->>>>> I really think you should handle this inside the driver.
->>>>
->>>> We are going to have to agree to disagree on this one. Is it not 
->>>> possible
->>>> that future drivers - e.g., when full virtualization is implemented 
->>>> - will
->>>> require access to KVM?
->>>
->>> I do not think that an access to KVM is required for full 
->>> virtualization.
->>
->> You may be right, but at this point, there is no guarantee. I stand 
->> by my
->> design on this one.
+On 07/05/2018 17:11, Tony Krowiak wrote:
+> Introduces a new AP device driver. This device driver
+> is built on the VFIO mediated device framework. The framework
+> provides sysfs interfaces that facilitate passthrough
+> access by guests to devices installed on the linux host.
 >
-> I really regret that we abandoned the initial design with the matrix 
-> bus and one
-> single parent matrix device per guest.
-> We would not have the problem of these KVM dependencies.
+> The VFIO AP device driver will serve two purposes:
 >
-> It had the advantage of taking care of having only one device per guest
-> (available_instance = 1), could take care of provisioning as you have
-> sysfs entries available for a matrix without having a guest and a 
-> mediated
-> device.
+> 1. Provide the interfaces to reserve AP devices for exclusive
+>     use by KVM guests. This is accomplished by unbinding the
+>     devices to be reserved for guest usage from the default AP
+>     device driver and binding them to the VFIO AP device driver.
 >
-> it also had advantage for virtualization to keep host side and guest 
-> side matrix
-> separate inside parent (host side) and mediated device (guest side).
+> 2. Implements the functions, callbacks and sysfs attribute
+>     interfaces required to create one or more VFIO mediated
+>     devices each of which will be used to configure the AP
+>     matrix for a guest and serve as a file descriptor
+>     for facilitating communication between QEMU and the
+>     VFIO AP device driver.
 >
-> Shouldn't we treat this problem with a design using standard interfaces
-> Instead of adding new dedicated interfaces?
+> When the VFIO AP device driver is initialized:
 >
-> Regards,
+> * It registers with the AP bus for control of type 10 (CEX4
+>    and newer) AP queue devices. This limitation was imposed
+>    due to:
 >
-> Pierre
+>    1. A lack of access to older systems needed to test the
+>       older AP device models;
 >
+>    2. A desire to keep the code as simple as possible;
 >
+>    3. Some older models are no longer supported by the kernel
+>       and others are getting close to end of service.
+>
+>    The probe and remove callbacks will be provided to support
+>    the binding/unbinding of AP queue devices to/from the VFIO
+>    AP device driver.
+>
+> * Creates a /sys/devices/vfio-ap/matrix device to hold
+>    the APQNs of the AP devices bound to the VFIO
+>    AP device driver and serves as the parent of the
+>    mediated devices created for each guest.
+>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> ---
+>   MAINTAINERS                           |   10 +++
+>   arch/s390/Kconfig                     |   11 +++
+>   drivers/s390/crypto/Makefile          |    4 +
+>   drivers/s390/crypto/vfio_ap_drv.c     |  134 +++++++++++++++++++++++++++++++++
+>   drivers/s390/crypto/vfio_ap_private.h |   23 ++++++
+>   include/uapi/linux/vfio.h             |    2 +
+>   6 files changed, 184 insertions(+), 0 deletions(-)
+>   create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
+>   create mode 100644 drivers/s390/crypto/vfio_ap_private.h
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 224e97b..2792c81 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -12237,6 +12237,16 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
+>   S:	Supported
+>   F:	drivers/s390/crypto/
+>
+> +S390 VFIO AP DRIVER
+> +M:	Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> +M:	Christian Borntraeger <borntraeger@de.ibm.com>
+> +M:	Martin Schwidefsky <schwidefsky@de.ibm.com>
+> +L:	linux-s390@vger.kernel.org
+> +W:	http://www.ibm.com/developerworks/linux/linux390/
+> +S:	Supported
+> +F:	drivers/s390/crypto/vfio_ap_drv.c
+> +F:	drivers/s390/crypto/vfio_ap_private.h
+> +
+>   S390 ZFCP DRIVER
+>   M:	Steffen Maier <maier@linux.ibm.com>
+>   M:	Benjamin Block <bblock@linux.ibm.com>
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 199ac3e..8d833be 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -786,6 +786,17 @@ config VFIO_CCW
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called vfio_ccw.
+>
+> +config VFIO_AP
+> +	def_tristate n
+> +	prompt "VFIO support for AP devices"
+> +	depends on ZCRYPT && VFIO_MDEV_DEVICE && KVM
+> +	help
+> +		This driver grants access to Adjunct Processor (AP) devices
+> +		via the VFIO mediated device interface.
+> +
+> +		To compile this driver as a module, choose M here: the module
+> +		will be called vfio_ap.
+> +
+>   endmenu
+>
+>   menu "Dump support"
+> diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
+> index b59af54..48e466e 100644
+> --- a/drivers/s390/crypto/Makefile
+> +++ b/drivers/s390/crypto/Makefile
+> @@ -15,3 +15,7 @@ obj-$(CONFIG_ZCRYPT) += zcrypt_pcixcc.o zcrypt_cex2a.o zcrypt_cex4.o
+>   # pkey kernel module
+>   pkey-objs := pkey_api.o
+>   obj-$(CONFIG_PKEY) += pkey.o
+> +
+> +# adjunct processor matrix
+> +vfio_ap-objs := vfio_ap_drv.o
+> +obj-$(CONFIG_VFIO_AP) += vfio_ap.o
+> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+> new file mode 100644
+> index 0000000..014d70f
+> --- /dev/null
+> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+> @@ -0,0 +1,134 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * VFIO based AP device driver
+> + *
+> + * Copyright IBM Corp. 2018
+> + *
+> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/mod_devicetable.h>
+> +#include <linux/slab.h>
+> +
+> +#include "vfio_ap_private.h"
+> +
+> +#define VFIO_AP_ROOT_NAME "vfio_ap"
+> +#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
+> +#define VFIO_AP_DEV_NAME "matrix"
+> +
+> +MODULE_AUTHOR("IBM Corporation");
+> +MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2017");
+> +MODULE_LICENSE("GPL v2");
+> +
+> +static struct device *vfio_ap_root_device;
+> +
+> +static struct ap_driver vfio_ap_drv;
+> +
+> +static struct ap_matrix *ap_matrix;
+> +
+> +static struct device_type vfio_ap_dev_type = {
+> +	.name = VFIO_AP_DEV_TYPE_NAME,
+> +};
+> +
+> +/* Only type 10 adapters (CEX4 and later) are supported
+> + * by the AP matrix device driver
+> + */
+> +static struct ap_device_id ap_queue_ids[] = {
+> +	{ .dev_type = AP_DEVICE_TYPE_CEX4,
+> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+> +	{ .dev_type = AP_DEVICE_TYPE_CEX5,
+> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+> +	{ .dev_type = AP_DEVICE_TYPE_CEX6,
+> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+> +	{ /* end of sibling */ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+> +
+> +static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+> +{
+> +	return 0;
+> +}
+> +
+> +static void vfio_ap_matrix_dev_release(struct device *dev)
+> +{
+> +	struct ap_matrix *ap_matrix = dev_get_drvdata(dev);
+> +
+> +	kfree(ap_matrix);
+> +}
+> +
+> +static int vfio_ap_matrix_dev_create(void)
+> +{
+> +	int ret;
+> +
+> +	vfio_ap_root_device = root_device_register(VFIO_AP_ROOT_NAME);
+> +
+> +	if (IS_ERR(vfio_ap_root_device)) {
+> +		ret = PTR_ERR(vfio_ap_root_device);
+> +		goto done;
+> +	}
+> +
+> +	ap_matrix = kzalloc(sizeof(*ap_matrix), GFP_KERNEL);
 
-Forget it.
+Since you always need this, why not a static structure ?
 
-I am not happy with the design but the design I was speaking of may not 
-be the solution either.
+> +	if (!ap_matrix) {
+> +		ret = -ENOMEM;
+> +		goto matrix_alloc_err;
+> +	}
+> +
+> +	ap_matrix->device.type = &vfio_ap_dev_type;
+> +	dev_set_name(&ap_matrix->device, "%s", VFIO_AP_DEV_NAME);
+> +	ap_matrix->device.parent = vfio_ap_root_device;
+> +	ap_matrix->device.release = vfio_ap_matrix_dev_release;
+> +	ap_matrix->device.driver = &vfio_ap_drv.driver;
+> +
+> +	ret = device_register(&ap_matrix->device);
+> +	if (ret)
+> +		goto matrix_reg_err;
+> +
+> +	goto done;
+> +
+> +matrix_reg_err:
+> +	put_device(&ap_matrix->device);
+> +
+> +matrix_alloc_err:
+> +	root_device_unregister(vfio_ap_root_device);
+> +
+> +done:
+> +	return ret;
+> +}
+> +
+> +static void vfio_ap_matrix_dev_destroy(struct ap_matrix *ap_matrix)
+> +{
+> +	device_unregister(&ap_matrix->device);
+> +	root_device_unregister(vfio_ap_root_device);
+> +}
+> +
+> +int __init vfio_ap_init(void)
+> +{
+> +	int ret;
+> +
+> +	ret = vfio_ap_matrix_dev_create();
+> +	if (ret)
+> +		return ret;
+> +
+> +	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
 
-Sorry for the noise.
+your structure is static, no need to initialize to 0.
 
-Regards,
-
-Pierre
+> +	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
+> +	vfio_ap_drv.ids = ap_queue_ids;
+> +
+> +	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
+> +	if (ret) {
+> +		vfio_ap_matrix_dev_destroy(ap_matrix);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +void __exit vfio_ap_exit(void)
+> +{
+> +	ap_driver_unregister(&vfio_ap_drv);
+> +	vfio_ap_matrix_dev_destroy(ap_matrix);
+> +}
+> +
+> +module_init(vfio_ap_init);
+> +module_exit(vfio_ap_exit);
+> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> new file mode 100644
+> index 0000000..cf23675
+> --- /dev/null
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -0,0 +1,23 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Private data and functions for adjunct processor VFIO matrix driver.
+> + *
+> + * Copyright IBM Corp. 2017
+> + * Author(s): Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+> + */
+> +
+> +#ifndef _VFIO_AP_PRIVATE_H_
+> +#define _VFIO_AP_PRIVATE_H_
+> +
+> +#include <linux/types.h>
+> +
+> +#include "ap_bus.h"
+> +
+> +#define VFIO_AP_MODULE_NAME "vfio_ap"
+> +#define VFIO_AP_DRV_NAME "vfio_ap"
+> +
+> +struct ap_matrix {
+> +	struct device device;
+> +};
+> +
+> +#endif /* _VFIO_AP_PRIVATE_H_ */
+> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> index 1aa7b82..f378b98 100644
+> --- a/include/uapi/linux/vfio.h
+> +++ b/include/uapi/linux/vfio.h
+> @@ -200,6 +200,7 @@ struct vfio_device_info {
+>   #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+>   #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+>   #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
+> +#define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
+>   	__u32	num_regions;	/* Max region index + 1 */
+>   	__u32	num_irqs;	/* Max IRQ index + 1 */
+>   };
+> @@ -215,6 +216,7 @@ struct vfio_device_info {
+>   #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
+>   #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
+>   #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
+> +#define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
+>
+>   /**
+>    * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
 
 
 -- 
