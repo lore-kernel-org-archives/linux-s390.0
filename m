@@ -1,7 +1,8 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH RFC 2/2] vfio-ccw: support for halt/clear subchannel
-Date: Fri, 8 Jun 2018 17:51:27 +0200
-Message-ID: <99ca65a2-ee33-6353-b6b7-aa4c07a34e2a@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [qemu-s390x] [PATCH RFC 2/2] vfio-ccw: support for halt/clear
+ subchannel
+Date: Fri, 8 Jun 2018 22:40:39 +0200
+Message-ID: <0c1e1b26-0c6a-fdc2-0c1a-2e2d58c2cb73@linux.ibm.com>
 References: <20180509154822.23510-1-cohuck@redhat.com>
  <20180509154822.23510-3-cohuck@redhat.com>
  <c18f9b9f-da00-1a0b-8ef0-7ac223c73d1a@linux.ibm.com>
@@ -14,110 +15,121 @@ References: <20180509154822.23510-1-cohuck@redhat.com>
  <20180606142131.74ea2eb7.cohuck@redhat.com>
  <5b77ec9c-41b8-2e32-ce79-d9005b93fdd0@linux.ibm.com>
  <20180607115442.6a779ed9.cohuck@redhat.com>
- <86d57698-3ea7-a390-2217-07c6d41ca9ed@linux.ibm.com>
- <20180608142022.7dd6a658.cohuck@redhat.com>
- <d68340a2-bb1b-cef9-e394-f0d55983c0bb@linux.ibm.com>
- <20180608164514.2e8248f4.cohuck@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+ <10c8a0ac-fe61-d7c7-c7bb-0fffc6909cb3@linux.ibm.com>
+ <20180607183407.1ea5ab89.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180608164514.2e8248f4.cohuck@redhat.com>
+In-Reply-To: <20180607183407.1ea5ab89.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Dong Jia Shi <bjsdjshi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x@nongnu.org, qemu-devel@nongnu.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, Dong Jia Shi <bjsdjshi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/06/2018 16:45, Cornelia Huck wrote:
-> On Fri, 8 Jun 2018 15:13:28 +0200
+
+
+On 06/07/2018 06:34 PM, Cornelia Huck wrote:
+> On Thu, 7 Jun 2018 18:17:57 +0200
 > Halil Pasic <pasic@linux.ibm.com> wrote:
->
->> On 06/08/2018 02:20 PM, Cornelia Huck wrote:
->>>>> My proposal is to do the same
->>>>> copying to scsw(r) again, which would mean we get a request with both
->>>>> the halt and the start bit set. The vfio code now needs to do a hsch
->>>>> (instead of a ssch). The real channel subsystem should figure this out,
->>>>> as we can't reliably check whether the start function has concluded
->>>>> already (there's always a race window).
->>>> This I do not agree scsw(r) is part of the driver.
->>>> The interface here is not a device interface anymore but a driver
->>>> interface.
->>>> SCSW is a status, it is at its place in QEMU device interface with the
->>>> guest
->>>> but here pwrite() sends a command.
->>> Hm, I rather consider that "we write a status, and the backend figures
->>> out what to do based on that status".
->>>    
->> The status of what? Kind of a target status?
+> 
+>> On 06/07/2018 11:54 AM, Cornelia Huck wrote:
+>>> Hm, I think we need to be more precise as to what scsw we're talking
+>>> about. Bad ascii art time:
+>>>
+>>> --------------
+>>> |   scsw(g)  |  ssch
+>>> --------------   |
+>>>                    |                                       guest
+[..]
+
+>> (5) AFAIK this is how the current implementation works. We don't wait
+>> for the I/O interrupt on the host to present a cc to the guest for it's
+>> ssch.
+> 
+> But the vfio code does wait, no? We just signal the interrupt via
+> eventfd as well.
+> 
+
+We have sorted this out in the other thread.
+
 >>
->> I think this approach is the source of lots of complications. For instance
->> take xsch. How are we supposed to react to a guest xsch (in QEMU and
->> in the kernel module)? My guess is that the right thing to do is to issue
->> an xsch in the vfio-ccw kernel module on the passed through subchannel.
->> But there is no bit in fctl for cancel.
+>>>
+>>> If the guest now does a hsch, it would trap in the same way as the ssch
+>>> before. When qemu gets control, it adds the halt bit in scsw(q) (which
+>>> is in accordance with the architecture).
 >>
->> Bottom line is: I'm not happy with the current design but I'm not sure
->> if it's practical to do something about it (i.e. change it radically).
-> It might make sense to keep this for ssch, maybe reuse it for hsch/csch,
+>> (7) Again it's when is fctl set according to the architecture...
+> 
+> Same comment as above. If we do a hsch for a subchannel with the start
+> function set, we'll set cc 0.
+> 
+>>
+>>> My proposal is to do the same
+>>> copying to scsw(r) again, which would mean we get a request with both
+>>> the halt and the start bit set.
+>>
+>> (8) IMHO when receiving the 'request' we are and should be in instruction
+>> context -- opposed to basic io function context. So we should not set fctl
+>> before we know what will our guest cc be. But since scsw(r) is not a real
+>> scsw it is just strange.
+> 
+> I think what we are doing is really 'performing the start function' -
+> it's just not asynchronous in the current implementation. 
 
-I do not think we need to change the interface radically but
-I also do not thing we should extend it by using multiple commands
-in a single syscall.
+The code is written as if, especially in QEMU. But this was in my current
+understanding a bad decision. The why is the following. It makes reasoning
+both about architectural correctness and the code a lot trickier compared
+to the interpretation of the guest instruction finishes after the host
+instruction finishes (unless we can prove we don't need any) approach.
 
-Currently:
-   - only SSCH bit is used
-   - only the SSCH instruction is implemented
-   - all other bits, CSCH,HSCH produce an error when used alone
-     or are ignored in conjonction with SSCH
-    - there is no implementation using the other bits
-    - It is not specified in the documentation that multiple commands
-      can be used.
 
-Looking at these, I think there is no trouble to modify the way
-the Kernel interface is implemented without impact on current QEMU.
+> So we already know that ssch will return with cc 0.
+> 
 
-But if we begin to allow ssch/hsch/csch in a single command
-in a new implementation we will be stuck with it.
+I will use your example, and another example to explain what I mean
+by tricky.
 
-> and think about something else for other things we want to handle
+One can probably argue that setting cc 0 even if the host device
+responds to the host ssch with cc 3 because the device is not any more
+on the given subchannel or simply just disabled. It is probably true
+that the guest would not have any means to prove that we were 'lying'
+to it.
 
-Yes we will need to have another interface, ioctl, or new region,
-all possible, but really more complex.
+But AFAIR this is not how the current implementation works. The pwrite
+in qemu basically depends on the cc of the host ssch. So if the host
+ssch completes with cc 3 the vfio-ccw kernel module map ist to pwrite
+reporting -ENODEV and vfio_ccw_handle_request makes sure that the
+guest instruction completes with cc 3 by mapping it to return code
+IOINST_CC_NOT_OPERATIONAL.
 
-> (xsch, channel monitoring, the path handling stuff for which we already
+I mentioned xsch in the other thread. I don't think we can tell if
+cc 0 or cc 2. In my reading xsch in simple words xsch completes with
+cc 2 and does nothing else if the channel subsystem already started talking
+to the cu/device. If in time it makes sure we don't start talking to the
+device, and clear away stuff. So if we don't consider cc of the xsch
+to be issued by the host the only safe bet seems to be cc 2. But that's
+effectively getting around implementing the desired functionality of
+xsch and still staying architecturally correct. Which however might
+be good enough for vfio-ccw. But I think I demonstrated it's kinda
+tricky business.
 
-We can use another region for getting up information on path handling
-or monitoring, as does the patch IIRC.
-This is not a problem.
+I prefer to avoid tricky if there is no good reason not to.
 
-> had a prototype etc.) It's probably not practical to do radical surgery
-> on the existing code.
+[..]
 
-There is no need for radical surgery, no change is required to older or
-current QEMU code.
-My concern is to avoid a future implementation merging multiple commands
-in a single syscall.
-It is not only a problem of beauty of the interface,
-using a status is for the up-stream, from device to program.
-Using the same construct, same name and same location, to produce commands
-for the down stream is misleading and source of incoherence.
+> 
+> Thanks for reading!
+> 
 
-Sorry to have insisted so much but it seems so obvious to me.
-May be I missed something.
-
+Your welcome. The discussion is kind of taking place all over the
+place. I'm actively trying to find the best place to answer, and avoid
+overtalking topics -- but it does not seem to work. Please bear with me.
 
 Regards,
-Pierre
-
->
-> [Speaking of which: Is there any current effort on the path handling
-> things?]
->
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+Halil
+  
+[..]
