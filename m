@@ -1,8 +1,8 @@
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [qemu-s390x] [PATCH RFC 2/2] vfio-ccw: support for halt/clear
  subchannel
-Date: Mon, 11 Jun 2018 13:12:41 +0200
-Message-ID: <20180611131241.06100c12.cohuck@redhat.com>
+Date: Mon, 11 Jun 2018 18:00:50 +0200
+Message-ID: <20180611180050.792fa5ef.cohuck@redhat.com>
 References: <20180509154822.23510-1-cohuck@redhat.com>
         <20180509154822.23510-3-cohuck@redhat.com>
         <c18f9b9f-da00-1a0b-8ef0-7ac223c73d1a@linux.ibm.com>
@@ -33,11 +33,44 @@ List-ID: <linux-s390.vger.kernel.org>
 On Fri, 8 Jun 2018 22:40:39 +0200
 Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> Your welcome. The discussion is kind of taking place all over the
-> place. I'm actively trying to find the best place to answer, and avoid
-> overtalking topics -- but it does not seem to work. Please bear with me.
+[I'm trying to not make the discussion branch out too much. Just
+replying one more time here (and I'll add something to the wiki).]
 
-To help with this discussion (and with vfio-ccw design and development
-in general), I've created
-https://wiki.qemu.org/ToDo/Channel_I/O_Passthrough to collect some
-things. Let me know if any of you folks still needs a wiki account.
+> One can probably argue that setting cc 0 even if the host device
+> responds to the host ssch with cc 3 because the device is not any more
+> on the given subchannel or simply just disabled. It is probably true
+> that the guest would not have any means to prove that we were 'lying'
+> to it.
+
+I would not frame this as 'lying'. We have an additional layer
+inbetween, adding additional complications. As long as we reflect
+something to the guest that (a) is covered by the architecture, and (b)
+enables the guest to make reasonable decisions, we're fine.
+
+> 
+> But AFAIR this is not how the current implementation works. The pwrite
+> in qemu basically depends on the cc of the host ssch. So if the host
+> ssch completes with cc 3 the vfio-ccw kernel module map ist to pwrite
+> reporting -ENODEV and vfio_ccw_handle_request makes sure that the
+> guest instruction completes with cc 3 by mapping it to return code
+> IOINST_CC_NOT_OPERATIONAL.
+
+Will need to review the code again. But this behaviour is fine as well
+by my reasoning above :)
+
+> 
+> I mentioned xsch in the other thread. I don't think we can tell if
+> cc 0 or cc 2. In my reading xsch in simple words xsch completes with
+> cc 2 and does nothing else if the channel subsystem already started talking
+> to the cu/device. If in time it makes sure we don't start talking to the
+> device, and clear away stuff. So if we don't consider cc of the xsch
+> to be issued by the host the only safe bet seems to be cc 2. But that's
+> effectively getting around implementing the desired functionality of
+> xsch and still staying architecturally correct. Which however might
+> be good enough for vfio-ccw. But I think I demonstrated it's kinda
+> tricky business.
+
+I'm wondering if we should simply give the guest a cc 2 in any case as
+well.
+> 
+> I prefer to avoid tricky if there is no good reason not to.
