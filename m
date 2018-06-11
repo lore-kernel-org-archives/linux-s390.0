@@ -1,8 +1,8 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v5 11/13] KVM: s390: implement mediated device open
  callback
-Date: Mon, 11 Jun 2018 08:50:49 -0400
-Message-ID: <4f5f17f1-48ab-6f1e-6ef2-3741fc39e5f4@linux.ibm.com>
+Date: Mon, 11 Jun 2018 08:56:02 -0400
+Message-ID: <5362ed8b-10bf-c5a1-3e8f-7f1a8f1bcccb@linux.ibm.com>
 References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1525705912-12815-12-git-send-email-akrowiak@linux.vnet.ibm.com>
  <98ea7ce2-2539-e2ff-4bb4-297e784d87bd@linux.ibm.com>
@@ -19,99 +19,88 @@ References: <1525705912-12815-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <b7215f0e-6ceb-2738-4584-1af7c30bd595@linux.ibm.com>
  <f1cc0d71-d2ff-6461-c450-07cc73a2973c@linux.ibm.com>
  <010679ed-bd80-42f8-3f6f-e4dee10e82f5@linux.ibm.com>
- <a5a72aad-303b-8bc9-f48b-e44aba2af27e@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a5a72aad-303b-8bc9-f48b-e44aba2af27e@linux.ibm.com>
+In-Reply-To: <010679ed-bd80-42f8-3f6f-e4dee10e82f5@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: pmorel@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/11/2018 07:32 AM, Halil Pasic wrote:
->
->
-> On 06/11/2018 11:23 AM, Pierre Morel wrote:
->> On 08/06/2018 23:59, Tony Krowiak wrote:
->>> On 06/07/2018 01:15 PM, Pierre Morel wrote:
->>>>
->>
->> ...snip...
->>
->>>>>>
->>>>>>>
->>>>>>> Why maintain a list of kvm_ap_matrix structures if we don't have 
->>>>>>> to; it is stored
->>>>>>> with the mediated matrix device which is passed in to all of the 
->>>>>>> vfio_ap driver
->>>>>>> callbacks.
->>>>>>
->>>>>> Because using the vm_list which is a static in kvm makes you 
->>>>>> stick inside the kvm code.
+On 06/11/2018 05:23 AM, Pierre Morel wrote:
+> On 08/06/2018 23:59, Tony Krowiak wrote:
+>> On 06/07/2018 01:15 PM, Pierre Morel wrote:
 >>>
->>> I understand your point here, but even if we did maintain a list of 
->>> kvm_ap_matrix structures,
->>> we still need the kvm code to configure the guest's CRYCB and 
->>> eventually ECA.28. There is
->>> also code in kvm-ap.c that is called from KVM.
+>
+> ...snip...
+>
+>>>>>
+>>>>>>
+>>>>>> Why maintain a list of kvm_ap_matrix structures if we don't have 
+>>>>>> to; it is stored
+>>>>>> with the mediated matrix device which is passed in to all of the 
+>>>>>> vfio_ap driver
+>>>>>> callbacks.
+>>>>>
+>>>>> Because using the vm_list which is a static in kvm makes you stick 
+>>>>> inside the kvm code.
 >>
->> The only code from kvm-ap which is called from KVM is temporary code
->> waiting for Harald to offer the clean interface to AP instructions.
->>
->>> The idea behind kvm-ap.c is that all code
->>> related to configuration of AP structures in KVM is in this one spot.
->>
->> This I understand, but the code can be in one spot inside VFIO_AP 
->> instead
->> of inside KVM.
->> Putting the code inside KVM induce dependencies between KVM and AP
->> while the kvm/vfio interface allows to avoid this dependency.
->>
->> The purpose of VFIO_AP is to handle the CRYCB, all get/clear/set 
->> crycb masks
->> functions should be in VFIO AP.
->>
->> If we use wrappers in KVM, since the CRYCB is an a SIE extension,
->> it is legitimate, the KVM interface to the CRYCB should only
->> handle bitmaps and be unaware of the vfio_ap internal structures.
->>
->>
->> Another concern, the kvm_ap_validate_queue_sharing() should not be
->> inside KVM because it is a decision of current VFIO_AP driver
->> to not share the queues between guest of level 2.
->>
->> The Z architecture does not allow to share AP queues between
->> guests of level 1 but we could re-engineer the AP bus and the '
->> VFIO AP to offer queue sharing for guest level 2.
->>
->> This would be a new VFIO_AP driver (and an AP bus extension).
->> We should not have to change KVM for this.
->>
+>> I understand your point here, but even if we did maintain a list of 
+>> kvm_ap_matrix structures,
+>> we still need the kvm code to configure the guest's CRYCB and 
+>> eventually ECA.28. There is
+>> also code in kvm-ap.c that is called from KVM.
+>
+> The only code from kvm-ap which is called from KVM is temporary code
+> waiting for Harald to offer the clean interface to AP instructions.
+>
+>> The idea behind kvm-ap.c is that all code
+>> related to configuration of AP structures in KVM is in this one spot.
+>
+> This I understand, but the code can be in one spot inside VFIO_AP instead
+> of inside KVM.
+> Putting the code inside KVM induce dependencies between KVM and AP
+> while the kvm/vfio interface allows to avoid this dependency.
 >
 >
-> Pierre's proposal makes a lot of sense to me. We would not need to take
-> the kvm_lock (which we need to traverse the vm_list safely) for the
-> validation, and we could have immediate validation (which is in my 
-> opinion
-> better).
+> The purpose of VFIO_AP is to handle the CRYCB, all get/clear/set crycb 
+> masks
+> functions should be in VFIO AP.
 >
-> Also your refcount (which is not a refcout) could go away. You simply
-> traverse your list and check for duplicates when hooking up the mdev
-> with KVM.
+> If we use wrappers in KVM, since the CRYCB is an a SIE extension,
+> it is legitimate, the KVM interface to the CRYCB should only
+> handle bitmaps and be unaware of the vfio_ap internal structures.
 >
-> And my opinion is if we don't have to add code to the kvm module we
-> better not.
 >
-> @Janosch: Does core KVM share my opinion?
+> Another concern, the kvm_ap_validate_queue_sharing() should not be
+> inside KVM because it is a decision of current VFIO_AP driver
+> to not share the queues between guest of level 2.
+>
+> The Z architecture does not allow to share AP queues between
+> guests of level 1 but we could re-engineer the AP bus and the '
+> VFIO AP to offer queue sharing for guest level 2.
+>
+> This would be a new VFIO_AP driver (and an AP bus extension).
+> We should not have to change KVM for this.
 
-Okay, I'll make the change.
+Based on your, Halil's and Janosch's comments, I will make the changes.
 
+>
 >
 >
 > Regards,
-> Halil
+>
+> Pierre
+>
+>
+>>
+>>>
+>>>
+>>>
+>>
+>
