@@ -1,63 +1,139 @@
-From: Daniel Borkmann <daniel@iogearbox.net>
-Subject: Re: s390x BPF JIT failures with test_bpf
-Date: Wed, 27 Jun 2018 12:36:23 +0200
-Message-ID: <0511ac38-beec-131f-5643-04eee3357cc4@iogearbox.net>
-References: <6a515d91-e831-e240-1ae6-ff0d6ead6cf2@canonical.com>
- <33983d2e-905b-e05b-67e3-11eb9bc6f030@iogearbox.net>
- <908de5ba-3a65-dfa1-3d5e-de25b4e984a2@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Return-Path: <owner-linux-mm@kvack.org>
+Subject: Re: [PATCH v1] mm: relax deferred struct page requirements
+References: <20171117014601.31606-1-pasha.tatashin@oracle.com>
+ <20171121072416.v77vu4osm2s4o5sq@dhcp22.suse.cz>
+From: Jiri Slaby <jslaby@suse.cz>
+Message-ID: <b16029f0-ada0-df25-071b-cd5dba0ab756@suse.cz>
+Date: Sat, 16 Jun 2018 10:04:21 +0200
+MIME-Version: 1.0
+In-Reply-To: <20171121072416.v77vu4osm2s4o5sq@dhcp22.suse.cz>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Language: en-GB
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <908de5ba-3a65-dfa1-3d5e-de25b4e984a2@canonical.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Kleber Souza <kleber.souza@canonical.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Cc: Alexei Starovoitov <ast@kernel.org>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Michal Hocko <mhocko@kernel.org>, Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, benh@kernel.crashing.org, paulus@samba.org, akpm@linux-foundation.org, kirill.shutemov@linux.intel.com, arbab@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, x86@kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, linuxppc-dev@lists.ozlabs.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, mgorman@techsingularity.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/27/2018 12:13 PM, Kleber Souza wrote:
-> On 06/27/18 12:01, Daniel Borkmann wrote:
->> On 06/27/2018 11:40 AM, Kleber Souza wrote:
->> [...]
->>> When I load the test_bpf module from mainline (v4.18-rc2) with
->>> CONFIG_BPF_JIT_ALWAYS_ON=y on a s390x system I get the following errors:
->>>
->>> test_bpf: #289 BPF_MAXINSNS: Ctx heavy transformations FAIL to
->>> prog_create err=-524 len=4096
->>> test_bpf: #290 BPF_MAXINSNS: Call heavy transformations FAIL to
->>> prog_create err=-524 len=4096
->>> [...]
->>> test_bpf: #296 BPF_MAXINSNS: exec all MSH FAIL to prog_create err=-524
->>> len=4096
->>> test_bpf: #297 BPF_MAXINSNS: ld_abs+get_processor_id FAIL to prog_create
->>> err=-524 len=4096
->>>
->>> From a quick look at the code it seems that
->>> arch/s390/net/bpf_jit_comp.c:bpf_int_jit_compile() is failing to JIT
->>> compile the test code.
->>>
->>> Are those failures expected and could be flagged with FLAG_EXPECTED_FAIL
->>> on lib/test_bpf.c or are those caused by some issue with the s390x JIT
->>> compiler that needs to be fixed?
+On 11/21/2017, 08:24 AM, Michal Hocko wrote:
+> On Thu 16-11-17 20:46:01, Pavel Tatashin wrote:
+>> There is no need to have ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT,
+>> as all the page initialization code is in common code.
 >>
->> JIT doesn't guarantee in general to map really all programs to native insns,
->> so some, mostly crafted corner cases could fail. E.g. x86-64 JIT doesn't converge
->> on some programs in test_bpf.c and thus falls back to interpreter or simply
->> rejects the program in case of CONFIG_BPF_JIT_ALWAYS_ON=y. Above would seem
->> likely that it's hitting the BPF_SIZE_MAX that s390 would do. I think it might
->> make sense to either have the FLAG_EXPECTED_FAIL in lib/test_bpf.c more fine
->> grained as a flag per arch, so we could say it's expected to fail on e.g. s390
->> but not on x86 and the like, or just denote it as 'could potentially fail but
->> doesn't have to be the case everywhere'.
+>> Also, there is no need to depend on MEMORY_HOTPLUG, as initialization code
+>> does not really use hotplug memory functionality. So, we can remove this
+>> requirement as well.
+>>
+>> This patch allows to use deferred struct page initialization on all
+>> platforms with memblock allocator.
+>>
+>> Tested on x86, arm64, and sparc. Also, verified that code compiles on
+>> PPC with CONFIG_MEMORY_HOTPLUG disabled.
 > 
-> Thank you for your reply. I will run some more tests to make sure we are
-> hitting BPF_SIZE_MAX or what exactly is failing and send a patch to flag
-> it conditionally for s390x.
+> There is slight risk that we will encounter corner cases on some
+> architectures with weird memory layout/topology
 
-Sounds good, thanks! In any case, please let us know your findings.
+Which x86_32-pae seems to be. Many bad page state errors are emitted
+during boot when this patch is applied:
+BUG: Bad page state in process swapper  pfn:3c01c
+page:f566c3f0 count:0 mapcount:1 mapping:00000000 index:0x0
+flags: 0x0()
+raw: 00000000 00000000 00000000 00000000 00000000 00000100 00000200 00000000
+raw: 00000000
+page dumped because: nonzero mapcount
+Modules linked in:
+CPU: 0 PID: 0 Comm: swapper Tainted: G    B
+4.17.1-4.gdf028bb-pae #1 openSUSE Tumbleweed (unreleased)
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.0.0-prebuilt.qemu-project.org 04/01/2014
+Call Trace:
+ dump_stack+0x7d/0xbd
+ bad_page.cold.111+0x90/0xc7
+ free_pages_check_bad+0x52/0x70
+ free_pcppages_bulk+0x37d/0x570
+ free_unref_page_commit+0x9a/0xc0
+ free_unref_page+0x6a/0xa0
+ __free_pages+0x17/0x30
+ free_highmem_page+0x1e/0x50
+ add_highpages_with_active_regions+0xd6/0x113
+ set_highmem_pages_init+0x67/0x7d
+ mem_init+0x23/0x1d9
+ start_kernel+0x1c2/0x437
+ i386_start_kernel+0x98/0x9c
+ startup_32_smp+0x164/0x168
 
-Best,
-Daniel
+free_pages_check_bad expects mapcount == -1, but it is 1 with this patch.
+
+Reverting the patch makes the BUGs go away -- the config diff is then:
+@@ -617,7 +617,7 @@
+ # CONFIG_PGTABLE_MAPPING is not set
+ # CONFIG_ZSMALLOC_STAT is not set
+ CONFIG_GENERIC_EARLY_IOREMAP=y
+-CONFIG_DEFERRED_STRUCT_PAGE_INIT=y
++CONFIG_ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT=y
+ # CONFIG_IDLE_PAGE_TRACKING is not set
+ CONFIG_FRAME_VECTOR=y
+ # CONFIG_PERCPU_STATS is not set
+
+>> --- a/arch/powerpc/Kconfig
+>> +++ b/arch/powerpc/Kconfig
+>> @@ -148,7 +148,6 @@ config PPC
+>>  	select ARCH_MIGHT_HAVE_PC_PARPORT
+>>  	select ARCH_MIGHT_HAVE_PC_SERIO
+>>  	select ARCH_SUPPORTS_ATOMIC_RMW
+>> -	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+>>  	select ARCH_USE_BUILTIN_BSWAP
+>>  	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
+>>  	select ARCH_WANT_IPC_PARSE_VERSION
+>> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+>> index 863a62a6de3c..525c2e3df6f5 100644
+>> --- a/arch/s390/Kconfig
+>> +++ b/arch/s390/Kconfig
+>> @@ -108,7 +108,6 @@ config S390
+>>  	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
+>>  	select ARCH_SAVE_PAGE_KEYS if HIBERNATION
+>>  	select ARCH_SUPPORTS_ATOMIC_RMW
+>> -	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+>>  	select ARCH_SUPPORTS_NUMA_BALANCING
+>>  	select ARCH_USE_BUILTIN_BSWAP
+>>  	select ARCH_USE_CMPXCHG_LOCKREF
+>> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+>> index df3276d6bfe3..00a5446de394 100644
+>> --- a/arch/x86/Kconfig
+>> +++ b/arch/x86/Kconfig
+>> @@ -69,7 +69,6 @@ config X86
+>>  	select ARCH_MIGHT_HAVE_PC_PARPORT
+>>  	select ARCH_MIGHT_HAVE_PC_SERIO
+>>  	select ARCH_SUPPORTS_ATOMIC_RMW
+>> -	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+>>  	select ARCH_SUPPORTS_NUMA_BALANCING	if X86_64
+>>  	select ARCH_USE_BUILTIN_BSWAP
+>>  	select ARCH_USE_QUEUED_RWLOCKS
+>> diff --git a/mm/Kconfig b/mm/Kconfig
+>> index 9c4bdddd80c2..c6bd0309ce7a 100644
+>> --- a/mm/Kconfig
+>> +++ b/mm/Kconfig
+>> @@ -639,15 +639,10 @@ config MAX_STACK_SIZE_MB
+>>  
+>>  	  A sane initial value is 80 MB.
+>>  
+>> -# For architectures that support deferred memory initialisation
+>> -config ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+>> -	bool
+>> -
+>>  config DEFERRED_STRUCT_PAGE_INIT
+>>  	bool "Defer initialisation of struct pages to kthreads"
+>>  	default n
+>> -	depends on ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+>> -	depends on NO_BOOTMEM && MEMORY_HOTPLUG
+>> +	depends on NO_BOOTMEM
+>>  	depends on !FLATMEM
+>>  	help
+>>  	  Ordinarily all struct pages are initialised during early boot in a
+
+thanks,
+-- 
+js
+suse labs
