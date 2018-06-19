@@ -1,74 +1,120 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v3 0/8] vfio: ccw: Refactoring the VFIO CCW state machine
-Date: Tue, 12 Jun 2018 09:56:42 +0200
-Message-ID: <1528790210-19535-1-git-send-email-pmorel@linux.ibm.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [PATCH -tip v6 10/27] s390/kprobes: Remove jprobe implementation
+Date: Wed, 20 Jun 2018 01:08:59 +0900
+Message-ID: <152942453967.15209.8535227381029256754.stgit@devbox>
+References: <152942424698.15209.15245996287444292393.stgit@devbox>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <152942424698.15209.15245996287444292393.stgit@devbox>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, cohuck@redhat.com
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Steven Rostedt <rostedt@goodmis.org>, linux-arch@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The goal of the patch serie is to secure the state machine by:
-- centralizing all state changes inside the state machine wrapper
-- make the state change atomic using mutexes
-- refactor the initialization to avoid using a subchannel without a guest
+Remove arch dependent setjump/longjump functions
+and unused fields in kprobe_ctlblk for jprobes
+from arch/s390.
 
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/include/asm/kprobes.h |    2 -
+ arch/s390/kernel/kprobes.c      |   59 +--------------------------------------
+ 2 files changed, 2 insertions(+), 59 deletions(-)
 
-This series introduces new states and events and suppressed
-others.
-Here the list of states and events used in this serie:
-- VFIO_CCW_STATE_NOT_OPER    : when the Sub-Channel is KO
-- VFIO_CCW_STATE_STANDBY     : when it is offline
-- VFIO_CCW_STATE_IDLE        : when it is ready for I/O
-- VFIO_CCW_STATE_BUSY        : when it is busy doing I/O
-- VFIO_CCW_STATE_QUIESCING(N): when it is busy going offline
-
-- VFIO_CCW_EVENT_INIT            : the channel setup (admin)
-- VFIO_CCW_EVENT_NOT_OPER        : something really wrong happened
-- VFIO_CCW_EVENT_IO_REQ          : Starting a SSCH request (UAPI)
-- VFIO_CCW_EVENT_INTERRUPT(N)    : Receiving an interrupt (callback)
-- VFIO_CCW_EVENT_SCHIB_CHANGED(N): Receiving a channel event (callback)
-
-The user's ABI do not change.
-
-
-
-Pierre Morel (8):
-  vfio: ccw: Moving state change out of IRQ context
-  vfio: ccw: Transform FSM functions to return state
-  vfio: ccw: new VFIO_CCW_EVENT_SCHIB_CHANGED event
-  vfio: ccw: Only accept SSCH as an IO request
-  vfio: ccw: Suppress unused event parameter
-  vfio: ccw: Make FSM functions atomic
-  vfio: ccw: Introduce the INIT event
-  vfio: ccw: Suppressing the BOXED state
-
- drivers/s390/cio/vfio_ccw_drv.c     |  71 ++++++-----------
- drivers/s390/cio/vfio_ccw_fsm.c     | 147 +++++++++++++++++++++---------------
- drivers/s390/cio/vfio_ccw_ops.c     |  41 +++++-----
- drivers/s390/cio/vfio_ccw_private.h |  12 ++-
- 4 files changed, 137 insertions(+), 134 deletions(-)
-
--- 
-2.7.4
-
-Changelog:
-
-From v2 to v3:
-- Concentrate more on securing the FSM:
- - abandonned ONLINE/OFFLINE events
- - abandonned make user wait on busy
- - abandonned switch case on command to keep old
-   way of testing the START_SSCH bit in write syscall
-
-From v1 to v2:
-- rebased on current Linux branch
-- change the name of VFIO_CCW_EVENT_SCH_EVENT to
-  VFIO_CCW_EVENT_SCHIB_CHANGED
-- refactoring the initialization (mdev create/open
-  and driver probe)
-- return -EAGAIN to let the low level retry the
-  sending of events
-- make wait_for_completion interruptible
+diff --git a/arch/s390/include/asm/kprobes.h b/arch/s390/include/asm/kprobes.h
+index 13de80cf741c..b106aa29bf55 100644
+--- a/arch/s390/include/asm/kprobes.h
++++ b/arch/s390/include/asm/kprobes.h
+@@ -68,8 +68,6 @@ struct kprobe_ctlblk {
+ 	unsigned long kprobe_saved_imask;
+ 	unsigned long kprobe_saved_ctl[3];
+ 	struct prev_kprobe prev_kprobe;
+-	struct pt_regs jprobe_saved_regs;
+-	kprobe_opcode_t jprobes_stack[MAX_STACK_SIZE];
+ };
+ 
+ void arch_remove_kprobe(struct kprobe *p);
+diff --git a/arch/s390/kernel/kprobes.c b/arch/s390/kernel/kprobes.c
+index 60f60afa645c..0967de19f53d 100644
+--- a/arch/s390/kernel/kprobes.c
++++ b/arch/s390/kernel/kprobes.c
+@@ -321,9 +321,8 @@ static int kprobe_handler(struct pt_regs *regs)
+ 			 * If we have no pre-handler or it returned 0, we
+ 			 * continue with single stepping. If we have a
+ 			 * pre-handler and it returned non-zero, it prepped
+-			 * for calling the break_handler below on re-entry
+-			 * for jprobe processing, so get out doing nothing
+-			 * more here.
++			 * for changing execution path, so get out doing
++			 * nothing more here.
+ 			 */
+ 			push_kprobe(kcb, p);
+ 			kcb->kprobe_status = KPROBE_HIT_ACTIVE;
+@@ -661,60 +660,6 @@ int kprobe_exceptions_notify(struct notifier_block *self,
+ }
+ NOKPROBE_SYMBOL(kprobe_exceptions_notify);
+ 
+-int setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
+-{
+-	struct jprobe *jp = container_of(p, struct jprobe, kp);
+-	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
+-	unsigned long stack;
+-
+-	memcpy(&kcb->jprobe_saved_regs, regs, sizeof(struct pt_regs));
+-
+-	/* setup return addr to the jprobe handler routine */
+-	regs->psw.addr = (unsigned long) jp->entry;
+-	regs->psw.mask &= ~(PSW_MASK_IO | PSW_MASK_EXT);
+-
+-	/* r15 is the stack pointer */
+-	stack = (unsigned long) regs->gprs[15];
+-
+-	memcpy(kcb->jprobes_stack, (void *) stack, MIN_STACK_SIZE(stack));
+-
+-	/*
+-	 * jprobes use jprobe_return() which skips the normal return
+-	 * path of the function, and this messes up the accounting of the
+-	 * function graph tracer to get messed up.
+-	 *
+-	 * Pause function graph tracing while performing the jprobe function.
+-	 */
+-	pause_graph_tracing();
+-	return 1;
+-}
+-NOKPROBE_SYMBOL(setjmp_pre_handler);
+-
+-void jprobe_return(void)
+-{
+-	asm volatile(".word 0x0002");
+-}
+-NOKPROBE_SYMBOL(jprobe_return);
+-
+-int longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
+-{
+-	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
+-	unsigned long stack;
+-
+-	/* It's OK to start function graph tracing again */
+-	unpause_graph_tracing();
+-
+-	stack = (unsigned long) kcb->jprobe_saved_regs.gprs[15];
+-
+-	/* Put the regs back */
+-	memcpy(regs, &kcb->jprobe_saved_regs, sizeof(struct pt_regs));
+-	/* put the stack back */
+-	memcpy((void *) stack, kcb->jprobes_stack, MIN_STACK_SIZE(stack));
+-	preempt_enable_no_resched();
+-	return 1;
+-}
+-NOKPROBE_SYMBOL(longjmp_break_handler);
+-
+ static struct kprobe trampoline = {
+ 	.addr = (kprobe_opcode_t *) &kretprobe_trampoline,
+ 	.pre_handler = trampoline_probe_handler
