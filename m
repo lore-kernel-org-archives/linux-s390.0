@@ -1,8 +1,8 @@
 Return-Path: <SRS0=bmN+=JH=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v12 05/11] s390/time: add read_persistent_wall_and_boot_offset()
-Date: Thu, 21 Jun 2018 17:25:12 -0400
-Message-Id: <20180621212518.19914-6-pasha.tatashin@oracle.com>
+Subject: [PATCH v12 10/11] sched: early boot clock
+Date: Thu, 21 Jun 2018 17:25:17 -0400
+Message-Id: <20180621212518.19914-11-pasha.tatashin@oracle.com>
 In-Reply-To: <20180621212518.19914-1-pasha.tatashin@oracle.com>
 References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -11,45 +11,42 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-read_persistent_wall_and_boot_offset() will replace read_boot_clock64()
-because on some architectures it is more convenient to read both sources
-as one may depend on the other. For s390, implementation is the same
-as read_boot_clock64() but also calling and returning value of
-read_persistent_clock64()
+Allow sched_clock() to be used before schec_clock_init() and
+sched_clock_init_late() are called. This provides us with a way to get
+early boot timestamps on machines with unstable clocks.
 
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
 ---
- arch/s390/kernel/time.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ kernel/sched/clock.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index cf561160ea88..d1f5447d5687 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -221,6 +221,24 @@ void read_persistent_clock64(struct timespec64 *ts)
- 	ext_to_timespec64(clk, ts);
- }
- 
-+void __init read_persistent_wall_and_boot_offset(struct timespec64 *wall_time,
-+						 struct timespec64 *boot_offset)
-+{
-+	unsigned char clk[STORE_CLOCK_EXT_SIZE];
-+	struct timespec64 boot_time;
-+	__u64 delta;
-+
-+	delta = initial_leap_seconds + TOD_UNIX_EPOCH;
-+	memcpy(clk, tod_clock_base, STORE_CLOCK_EXT_SIZE);
-+	*(__u64 *)&clk[1] -= delta;
-+	if (*(__u64 *)&clk[1] > delta)
-+		clk[0]--;
-+	ext_to_timespec64(clk, &boot_time);
-+
-+	read_persistent_clock64(wall_time);
-+	*boot_offset = timespec64_sub(*wall_time, boot_time);
-+}
-+
- void read_boot_clock64(struct timespec64 *ts)
+diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
+index 10c83e73837a..f034392b0f6c 100644
+--- a/kernel/sched/clock.c
++++ b/kernel/sched/clock.c
+@@ -205,6 +205,11 @@ void clear_sched_clock_stable(void)
+  */
+ static int __init sched_clock_init_late(void)
  {
- 	unsigned char clk[STORE_CLOCK_EXT_SIZE];
++	/* Transition to unstable clock from early clock */
++	local_irq_disable();
++	__gtod_offset = sched_clock() + __sched_clock_offset - ktime_get_ns();
++	local_irq_enable();
++
+ 	sched_clock_running = 2;
+ 	/*
+ 	 * Ensure that it is impossible to not do a static_key update.
+@@ -350,8 +355,9 @@ u64 sched_clock_cpu(int cpu)
+ 	if (sched_clock_stable())
+ 		return sched_clock() + __sched_clock_offset;
+ 
+-	if (unlikely(!sched_clock_running))
+-		return 0ull;
++	/* Use early clock until sched_clock_init_late() */
++	if (unlikely(sched_clock_running < 2))
++		return sched_clock() + __sched_clock_offset;
+ 
+ 	preempt_disable_notrace();
+ 	scd = cpu_sdc(cpu);
 -- 
 2.17.1
