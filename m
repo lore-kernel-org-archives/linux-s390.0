@@ -1,8 +1,8 @@
 Return-Path: <SRS0=bmN+=JH=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v12 03/11] x86/tsc: redefine notsc to behave as tsc=unstable
-Date: Thu, 21 Jun 2018 17:25:10 -0400
-Message-Id: <20180621212518.19914-4-pasha.tatashin@oracle.com>
+Subject: [PATCH v12 02/11] x86: initialize static branching early
+Date: Thu, 21 Jun 2018 17:25:09 -0400
+Message-Id: <20180621212518.19914-3-pasha.tatashin@oracle.com>
 In-Reply-To: <20180621212518.19914-1-pasha.tatashin@oracle.com>
 References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -11,115 +11,151 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, notsc kernel parameter disables the use of tsc register by
-sched_clock(). However, this parameter does not prevent linux from
-accessing tsc in other places in kernel.
+static branching is useful to hot-patch branches that are used in hot
+path, but are infrequently changed.
 
-The only rational to boot with notsc is to avoid timing discrepancies on
-multi-socket systems where different tsc frequencies may present, and thus
-fallback to jiffies for clock source.
+x86 clock framework is one example that uses static branches to setup
+the best clock during boot and never change it again.
 
-However, there is another method to solve the above problem, it is to boot
-with tsc=unstable parameter. This parameter allows sched_clock() to use tsc
-but in case tsc is outside of expected interval it is corrected back to a
-sane value.
+Since we plan to enable clock early, we need static branching
+functionality early as well.
 
-This is why there is no reason to keep notsc, and it can be removed. But,
-for compatibility reasons we will keep this parameter but change its
-definition to be the same as tsc=unstable.
+static branching requires patching nop instructions, thus, we need
+arch_init_ideal_nops() to be called prior to jump_label_init()
+
+Here we do all the necessary steps to call arch_init_ideal_nops
+after early_cpu_init().
 
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-Reviewed-by: Dou Liyang <douly.fnst@cn.fujitsu.com>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
 ---
- .../admin-guide/kernel-parameters.txt          |  2 --
- Documentation/x86/x86_64/boot-options.txt      |  4 +---
- arch/x86/kernel/tsc.c                          | 18 +++---------------
- 3 files changed, 4 insertions(+), 20 deletions(-)
+ arch/x86/kernel/cpu/amd.c    | 13 +++++++-----
+ arch/x86/kernel/cpu/common.c | 38 +++++++++++++++++++-----------------
+ arch/x86/kernel/setup.c      |  4 ++--
+ 3 files changed, 30 insertions(+), 25 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index efc7aa7a0670..f7123d28f318 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -2835,8 +2835,6 @@
- 
- 	nosync		[HW,M68K] Disables sync negotiation for all devices.
- 
--	notsc		[BUGS=X86-32] Disable Time Stamp Counter
--
- 	nowatchdog	[KNL] Disable both lockup detectors, i.e.
- 			soft-lockup and NMI watchdog (hard-lockup).
- 
-diff --git a/Documentation/x86/x86_64/boot-options.txt b/Documentation/x86/x86_64/boot-options.txt
-index 8d109ef67ab6..66114ab4f9fe 100644
---- a/Documentation/x86/x86_64/boot-options.txt
-+++ b/Documentation/x86/x86_64/boot-options.txt
-@@ -92,9 +92,7 @@ APICs
- Timing
- 
-   notsc
--  Don't use the CPU time stamp counter to read the wall time.
--  This can be used to work around timing problems on multiprocessor systems
--  with not properly synchronized CPUs.
-+  Deprecated, use tsc=unstable instead.
- 
-   nohpet
-   Don't use the HPET timer.
-diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-index 74392d9d51e0..186395041725 100644
---- a/arch/x86/kernel/tsc.c
-+++ b/arch/x86/kernel/tsc.c
-@@ -38,11 +38,6 @@ EXPORT_SYMBOL(tsc_khz);
-  */
- static int __read_mostly tsc_unstable;
- 
--/* native_sched_clock() is called before tsc_init(), so
--   we must start with the TSC soft disabled to prevent
--   erroneous rdtsc usage on !boot_cpu_has(X86_FEATURE_TSC) processors */
--static int __read_mostly tsc_disabled = -1;
--
- static DEFINE_STATIC_KEY_FALSE(__use_tsc);
- 
- int tsc_clocksource_reliable;
-@@ -248,8 +243,7 @@ EXPORT_SYMBOL_GPL(check_tsc_unstable);
- #ifdef CONFIG_X86_TSC
- int __init notsc_setup(char *str)
- {
--	pr_warn("Kernel compiled with CONFIG_X86_TSC, cannot disable TSC completely\n");
--	tsc_disabled = 1;
-+	mark_tsc_unstable("boot parameter notsc");
- 	return 1;
- }
- #else
-@@ -1307,7 +1301,7 @@ static void tsc_refine_calibration_work(struct work_struct *work)
- 
- static int __init init_tsc_clocksource(void)
- {
--	if (!boot_cpu_has(X86_FEATURE_TSC) || tsc_disabled > 0 || !tsc_khz)
-+	if (!boot_cpu_has(X86_FEATURE_TSC) || !tsc_khz)
- 		return 0;
- 
- 	if (tsc_unstable)
-@@ -1414,12 +1408,6 @@ void __init tsc_init(void)
- 		set_cyc2ns_scale(tsc_khz, cpu, cyc);
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index 082d7875cef8..355105aebc4e 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -232,8 +232,6 @@ static void init_amd_k7(struct cpuinfo_x86 *c)
+ 		}
  	}
  
--	if (tsc_disabled > 0)
--		return;
+-	set_cpu_cap(c, X86_FEATURE_K7);
 -
--	/* now allow native_sched_clock() to use rdtsc */
+ 	/* calling is from identify_secondary_cpu() ? */
+ 	if (!c->cpu_index)
+ 		return;
+@@ -615,6 +613,14 @@ static void early_init_amd(struct cpuinfo_x86 *c)
+ 
+ 	early_init_amd_mc(c);
+ 
++#ifdef CONFIG_X86_32
++	if (c->x86 == 6)
++		set_cpu_cap(c, X86_FEATURE_K7);
++#endif
++
++	if (c->x86 >= 0xf)
++		set_cpu_cap(c, X86_FEATURE_K8);
++
+ 	rdmsr_safe(MSR_AMD64_PATCH_LEVEL, &c->microcode, &dummy);
+ 
+ 	/*
+@@ -861,9 +867,6 @@ static void init_amd(struct cpuinfo_x86 *c)
+ 
+ 	init_amd_cacheinfo(c);
+ 
+-	if (c->x86 >= 0xf)
+-		set_cpu_cap(c, X86_FEATURE_K8);
 -
--	tsc_disabled = 0;
- 	static_branch_enable(&__use_tsc);
+ 	if (cpu_has(c, X86_FEATURE_XMM2)) {
+ 		unsigned long long val;
+ 		int ret;
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index 0df7151cfef4..952d31f75821 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1012,6 +1012,24 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
+ }
  
- 	if (!no_sched_irq_time)
-@@ -1455,7 +1443,7 @@ unsigned long calibrate_delay_is_known(void)
- 	int constant_tsc = cpu_has(&cpu_data(cpu), X86_FEATURE_CONSTANT_TSC);
- 	const struct cpumask *mask = topology_core_cpumask(cpu);
++/*
++ * The NOPL instruction is supposed to exist on all CPUs of family >= 6;
++ * unfortunately, that's not true in practice because of early VIA
++ * chips and (more importantly) broken virtualizers that are not easy
++ * to detect. In the latter case it doesn't even *fail* reliably, so
++ * probing for it doesn't even work. Disable it completely on 32-bit
++ * unless we can find a reliable way to detect all the broken cases.
++ * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
++ */
++static void detect_nopl(struct cpuinfo_x86 *c)
++{
++#ifdef CONFIG_X86_32
++	clear_cpu_cap(c, X86_FEATURE_NOPL);
++#else
++	set_cpu_cap(c, X86_FEATURE_NOPL);
++#endif
++}
++
+ /*
+  * Do minimum CPU detection early.
+  * Fields really needed: vendor, cpuid_level, family, model, mask,
+@@ -1086,6 +1104,8 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
+ 	 */
+ 	if (!pgtable_l5_enabled())
+ 		setup_clear_cpu_cap(X86_FEATURE_LA57);
++
++	detect_nopl(c);
+ }
  
--	if (tsc_disabled || !constant_tsc || !mask)
-+	if (!constant_tsc || !mask)
- 		return 0;
+ void __init early_cpu_init(void)
+@@ -1121,24 +1141,6 @@ void __init early_cpu_init(void)
+ 	early_identify_cpu(&boot_cpu_data);
+ }
  
- 	sibling = cpumask_any_but(mask, cpu);
+-/*
+- * The NOPL instruction is supposed to exist on all CPUs of family >= 6;
+- * unfortunately, that's not true in practice because of early VIA
+- * chips and (more importantly) broken virtualizers that are not easy
+- * to detect. In the latter case it doesn't even *fail* reliably, so
+- * probing for it doesn't even work. Disable it completely on 32-bit
+- * unless we can find a reliable way to detect all the broken cases.
+- * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
+- */
+-static void detect_nopl(struct cpuinfo_x86 *c)
+-{
+-#ifdef CONFIG_X86_32
+-	clear_cpu_cap(c, X86_FEATURE_NOPL);
+-#else
+-	set_cpu_cap(c, X86_FEATURE_NOPL);
+-#endif
+-}
+-
+ static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
+ {
+ #ifdef CONFIG_X86_64
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 2f86d883dd95..403b2d2c31d2 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -866,6 +866,8 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	idt_setup_early_traps();
+ 	early_cpu_init();
++	arch_init_ideal_nops();
++	jump_label_init();
+ 	early_ioremap_init();
+ 
+ 	setup_olpc_ofw_pgd();
+@@ -1272,8 +1274,6 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	mcheck_init();
+ 
+-	arch_init_ideal_nops();
+-
+ 	register_refined_jiffies(CLOCK_TICK_RATE);
+ 
+ #ifdef CONFIG_EFI
 -- 
 2.17.1
