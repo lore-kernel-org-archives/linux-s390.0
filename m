@@ -1,161 +1,165 @@
 Return-Path: <SRS0=bmN+=JH=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v12 02/11] x86: initialize static branching early
-Date: Thu, 21 Jun 2018 17:25:09 -0400
-Message-Id: <20180621212518.19914-3-pasha.tatashin@oracle.com>
-In-Reply-To: <20180621212518.19914-1-pasha.tatashin@oracle.com>
-References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
+Subject: [PATCH v12 00/11] Early boot time stamps for x86
+Date: Thu, 21 Jun 2018 17:25:07 -0400
+Message-Id: <20180621212518.19914-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-static branching is useful to hot-patch branches that are used in hot
-path, but are infrequently changed.
+changelog
+---------
+v12 - v11
+	- splitted time: replace read_boot_clock64() with
+	  read_persistent_wall_and_boot_offset() into four patches
+	- Added two patches one fixes an existing bug with text_poke()
+	  another one enables static branches early. Note, because I found
+	  and fixed the text_poke() bug, enabling static branching became
+	  super easy, as no changes to jump_label* is needed.
+	- Modified x86/tsc: use tsc early to use static branches early, and
+	  thus native_sched_clock() is not changed at all.
+v11 - v10
+	- Addressed all the comments from Thomas Gleixner.
+	- I added one more patch:
+	  "x86/tsc: prepare for early sched_clock" which fixes a problem
+	  that I discovered while testing. I am not particularly happy with
+	  the fix, as it adds a new argument that is used only in one
+	  place, but if you have a suggestion for a different approach on
+	  how to address this problem please let me know.
 
-x86 clock framework is one example that uses static branches to setup
-the best clock during boot and never change it again.
+v10 - v9
+	- Added another patch to this series that removes dependency
+	  between KVM clock, and memblock allocator. The benefit is that
+	  all clocks can now be initialized even earlier.
+v9 - v8
+	- Addressed more comments from Dou Liyang
 
-Since we plan to enable clock early, we need static branching
-functionality early as well.
+v8 - v7
+	- Addressed comments from Dou Liyang:
+	- Moved tsc_early_init() and tsc_early_fini() to be all inside
+	  tsc.c, and changed them to be static.
+	- Removed warning when notsc parameter is used.
+	- Merged with:
+	  https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git
 
-static branching requires patching nop instructions, thus, we need
-arch_init_ideal_nops() to be called prior to jump_label_init()
+v7 - v6
+	- Removed tsc_disabled flag, now notsc is equivalent of
+	  tsc=unstable
+	- Simplified changes to sched/clock.c, by removing the
+	  sched_clock_early() and friends as requested by Peter Zijlstra.
+	  We know always use sched_clock()
+	- Modified x86 sched_clock() to return either early boot time or
+	  regular.
+	- Added another example why ealry boot time is important
 
-Here we do all the necessary steps to call arch_init_ideal_nops
-after early_cpu_init().
+v5 - v6
+	- Added a new patch:
+		time: sync read_boot_clock64() with persistent clock
+	  Which fixes missing __init macro, and enabled time discrepancy
+	  fix that was noted by Thomas Gleixner
+	- Split "x86/time: read_boot_clock64() implementation" into a
+	  separate patch
 
-Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
----
- arch/x86/kernel/cpu/amd.c    | 13 +++++++-----
- arch/x86/kernel/cpu/common.c | 38 +++++++++++++++++++-----------------
- arch/x86/kernel/setup.c      |  4 ++--
- 3 files changed, 30 insertions(+), 25 deletions(-)
+v4 - v5
+	- Fix compiler warnings on systems with stable clocks.
 
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 082d7875cef8..355105aebc4e 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -232,8 +232,6 @@ static void init_amd_k7(struct cpuinfo_x86 *c)
- 		}
- 	}
- 
--	set_cpu_cap(c, X86_FEATURE_K7);
--
- 	/* calling is from identify_secondary_cpu() ? */
- 	if (!c->cpu_index)
- 		return;
-@@ -615,6 +613,14 @@ static void early_init_amd(struct cpuinfo_x86 *c)
- 
- 	early_init_amd_mc(c);
- 
-+#ifdef CONFIG_X86_32
-+	if (c->x86 == 6)
-+		set_cpu_cap(c, X86_FEATURE_K7);
-+#endif
-+
-+	if (c->x86 >= 0xf)
-+		set_cpu_cap(c, X86_FEATURE_K8);
-+
- 	rdmsr_safe(MSR_AMD64_PATCH_LEVEL, &c->microcode, &dummy);
- 
- 	/*
-@@ -861,9 +867,6 @@ static void init_amd(struct cpuinfo_x86 *c)
- 
- 	init_amd_cacheinfo(c);
- 
--	if (c->x86 >= 0xf)
--		set_cpu_cap(c, X86_FEATURE_K8);
--
- 	if (cpu_has(c, X86_FEATURE_XMM2)) {
- 		unsigned long long val;
- 		int ret;
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 0df7151cfef4..952d31f75821 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1012,6 +1012,24 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
- 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
- }
- 
-+/*
-+ * The NOPL instruction is supposed to exist on all CPUs of family >= 6;
-+ * unfortunately, that's not true in practice because of early VIA
-+ * chips and (more importantly) broken virtualizers that are not easy
-+ * to detect. In the latter case it doesn't even *fail* reliably, so
-+ * probing for it doesn't even work. Disable it completely on 32-bit
-+ * unless we can find a reliable way to detect all the broken cases.
-+ * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
-+ */
-+static void detect_nopl(struct cpuinfo_x86 *c)
-+{
-+#ifdef CONFIG_X86_32
-+	clear_cpu_cap(c, X86_FEATURE_NOPL);
-+#else
-+	set_cpu_cap(c, X86_FEATURE_NOPL);
-+#endif
-+}
-+
- /*
-  * Do minimum CPU detection early.
-  * Fields really needed: vendor, cpuid_level, family, model, mask,
-@@ -1086,6 +1104,8 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
- 	 */
- 	if (!pgtable_l5_enabled())
- 		setup_clear_cpu_cap(X86_FEATURE_LA57);
-+
-+	detect_nopl(c);
- }
- 
- void __init early_cpu_init(void)
-@@ -1121,24 +1141,6 @@ void __init early_cpu_init(void)
- 	early_identify_cpu(&boot_cpu_data);
- }
- 
--/*
-- * The NOPL instruction is supposed to exist on all CPUs of family >= 6;
-- * unfortunately, that's not true in practice because of early VIA
-- * chips and (more importantly) broken virtualizers that are not easy
-- * to detect. In the latter case it doesn't even *fail* reliably, so
-- * probing for it doesn't even work. Disable it completely on 32-bit
-- * unless we can find a reliable way to detect all the broken cases.
-- * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
-- */
--static void detect_nopl(struct cpuinfo_x86 *c)
--{
--#ifdef CONFIG_X86_32
--	clear_cpu_cap(c, X86_FEATURE_NOPL);
--#else
--	set_cpu_cap(c, X86_FEATURE_NOPL);
--#endif
--}
--
- static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
- {
- #ifdef CONFIG_X86_64
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 2f86d883dd95..403b2d2c31d2 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -866,6 +866,8 @@ void __init setup_arch(char **cmdline_p)
- 
- 	idt_setup_early_traps();
- 	early_cpu_init();
-+	arch_init_ideal_nops();
-+	jump_label_init();
- 	early_ioremap_init();
- 
- 	setup_olpc_ofw_pgd();
-@@ -1272,8 +1274,6 @@ void __init setup_arch(char **cmdline_p)
- 
- 	mcheck_init();
- 
--	arch_init_ideal_nops();
--
- 	register_refined_jiffies(CLOCK_TICK_RATE);
- 
- #ifdef CONFIG_EFI
+v3 - v4
+	- Fixed tsc_early_fini() call to be in the 2nd patch as reported
+	  by Dou Liyang
+	- Improved comment before __use_sched_clock_early to explain why
+	  we need both booleans.
+	- Simplified valid_clock logic in read_boot_clock64().
+
+v2 - v3
+	- Addressed comment from Thomas Gleixner
+	- Timestamps are available a little later in boot but still much
+	  earlier than in mainline. This significantly simplified this
+	  work.
+
+v1 - v2
+	In patch "x86/tsc: tsc early":
+	- added tsc_adjusted_early()
+	- fixed 32-bit compile error use do_div()
+
+The early boot time stamps were discussed recently in these threads:
+http://lkml.kernel.org/r/1527672059-6225-1-git-send-email-feng.tang@intel.com
+http://lkml.kernel.org/r/1527672059-6225-2-git-send-email-feng.tang@intel.com
+
+I updated my series to the latest mainline and sending it again.
+
+Peter mentioned he did not like patch 6,7, and we can discuss for a better
+way to do that, but I think patches 1-5 can be accepted separetly, since
+they already enable early timestamps on platforms where sched_clock() is
+available early. Such as KVM.
+
+Adding early boot time stamps support for x86 machines.
+SPARC patches for early boot time stamps are already integrated into
+mainline linux.
+
+Sample output
+-------------
+Before:
+https://paste.ubuntu.com/26133428/
+
+After:
+https://paste.ubuntu.com/26133523/
+
+For exaples how early time stamps are used, see this work:
+Example 1:
+https://lwn.net/Articles/734374/
+- Without early boot time stamps we would not know about the extra time
+  that is spent zeroing struct pages early in boot even when deferred
+  page initialization.
+
+Example 2:
+https://patchwork.kernel.org/patch/10021247/
+- If early boot timestamps were available, the engineer who introduced
+  this bug would have noticed the extra time that is spent early in boot.
+Pavel Tatashin (7):
+  x86/tsc: remove tsc_disabled flag
+  time: sync read_boot_clock64() with persistent clock
+  x86/time: read_boot_clock64() implementation
+  sched: early boot clock
+  kvm/x86: remove kvm memblock dependency
+  x86/paravirt: add active_sched_clock to pv_time_ops
+  x86/tsc: use tsc early
+
+Example 3:
+http://lkml.kernel.org/r/20180615155733.1175-1-pasha.tatashin@oracle.com
+- Needed early time stamps to show improvement
+
+Pavel Tatashin (11):
+  x86: text_poke() may access uninitialized struct pages
+  x86: initialize static branching early
+  x86/tsc: redefine notsc to behave as tsc=unstable
+  kvm/x86: remove kvm memblock dependency
+  s390/time: add read_persistent_wall_and_boot_offset()
+  time: replace read_boot_clock64() with
+    read_persistent_wall_and_boot_offset()
+  s390/time: remove read_boot_clock64()
+  ARM/time: remove read_boot_clock64()
+  x86/tsc: prepare for early sched_clock
+  sched: early boot clock
+  x86/tsc: use tsc early
+
+ .../admin-guide/kernel-parameters.txt         |  2 -
+ Documentation/x86/x86_64/boot-options.txt     |  4 +-
+ arch/arm/kernel/time.c                        | 12 +---
+ arch/s390/kernel/time.c                       | 15 +++--
+ arch/x86/include/asm/text-patching.h          |  1 +
+ arch/x86/kernel/alternative.c                 | 10 ++-
+ arch/x86/kernel/cpu/amd.c                     | 13 ++--
+ arch/x86/kernel/cpu/common.c                  | 38 ++++++-----
+ arch/x86/kernel/kvm.c                         |  1 +
+ arch/x86/kernel/kvmclock.c                    | 64 +++---------------
+ arch/x86/kernel/setup.c                       | 11 ++--
+ arch/x86/kernel/tsc.c                         | 65 ++++++++++---------
+ include/linux/timekeeping.h                   |  3 +-
+ kernel/sched/clock.c                          | 10 ++-
+ kernel/time/timekeeping.c                     | 61 ++++++++---------
+ 15 files changed, 140 insertions(+), 170 deletions(-)
+
 -- 
 2.17.1
