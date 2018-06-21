@@ -1,161 +1,134 @@
 Return-Path: <SRS0=bmN+=JH=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v12 06/11] time: replace read_boot_clock64() with read_persistent_wall_and_boot_offset()
-Date: Thu, 21 Jun 2018 17:25:13 -0400
-Message-Id: <20180621212518.19914-7-pasha.tatashin@oracle.com>
-In-Reply-To: <20180621212518.19914-1-pasha.tatashin@oracle.com>
+Subject: Re: [PATCH v12 01/11] x86: text_poke() may access uninitialized
+ struct pages
 References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
+ <20180621212518.19914-2-pasha.tatashin@oracle.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <b7a0cdc8-5924-3ed4-07e2-41c212ccdb0a@infradead.org>
+Date: Thu, 21 Jun 2018 14:37:42 -0700
+MIME-Version: 1.0
+In-Reply-To: <20180621212518.19914-2-pasha.tatashin@oracle.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
+To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-If architecture does not support exact boot time, it is challenging to
-estimate boot time without having a reference to the current persistent
-clock value. Yet, we cannot read the persistent clock time again, because
-this may lead to math discrepancies with the caller of read_boot_clock64()
-who have read the persistent clock at a different time.
+On 06/21/2018 02:25 PM, Pavel Tatashin wrote:
+> It supposed to be safe to modify static branches after jump_label_init().
+> But, because static key modifying code eventually calls text_poke() we
+> may end up with accessing struct page that have not been initialized.
+> 
+> Here is how to quickly reproduce the problem. Insert code like this
+> into init/main.c:
+> 
+> | +static DEFINE_STATIC_KEY_FALSE(__test);
+> | asmlinkage __visible void __init start_kernel(void)
+> | {
+> |        char *command_line;
+> |@@ -587,6 +609,10 @@ asmlinkage __visible void __init start_kernel(void)
+> |        vfs_caches_init_early();
+> |        sort_main_extable();
+> |        trap_init();
+> |+       {
+> |+       static_branch_enable(&__test);
+> |+       WARN_ON(!static_branch_likely(&__test));
+> |+       }
+> |        mm_init();
+> 
+> The following warnings show-up:
+> WARNING: CPU: 0 PID: 0 at arch/x86/kernel/alternative.c:701 text_poke+0x20d/0x230
+> Modules linked in:
+> CPU: 0 PID: 0 Comm: swapper Not tainted 4.18.0-rc1_pt_t1 #30
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+> 1.11.0-20171110_100015-anatol 04/01/2014
+> RIP: 0010:text_poke+0x20d/0x230
+> Code: 0f 0b 4c 89 e2 4c 89 ee 4c 89 f7 e8 7d 4b 9b 00 31 d2 31 f6 bf 86 02
+> 00 00 48 8b 05 95 8e 24 01 e8 78 18 d8 00 e9 55 ff ff ff <0f> 0b e9 54 fe
+> ff ff 48 8b 05 75 a8 38 01 e9 64 fe ff ff 48 8b 1d
+> RSP: 0000:ffffffff94e03e30 EFLAGS: 00010046
+> RAX: 0100000000000000 RBX: fffff7b2c011f300 RCX: ffffffff94fcccf4
+> RDX: 0000000000000001 RSI: ffffffff94e03e77 RDI: ffffffff94fcccef
+> RBP: ffffffff94fcccef R08: 00000000fffffe00 R09: 00000000000000a0
+> R10: 0000000000000000 R11: 0000000000000040 R12: 0000000000000001
+> R13: ffffffff94e03e77 R14: ffffffff94fcdcef R15: fffff7b2c0000000
+> FS:  0000000000000000(0000) GS:ffff9adc87c00000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: ffff9adc8499d000 CR3: 000000000460a001 CR4: 00000000000606b0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  ? start_kernel+0x23e/0x4c8
+>  ? start_kernel+0x23f/0x4c8
+>  ? text_poke_bp+0x50/0xda
+>  ? arch_jump_label_transform+0x89/0xe0
+>  ? __jump_label_update+0x78/0xb0
+>  ? static_key_enable_cpuslocked+0x4d/0x80
+>  ? static_key_enable+0x11/0x20
+>  ? start_kernel+0x23e/0x4c8
+>  ? secondary_startup_64+0xa5/0xb0
+> ---[ end trace abdc99c031b8a90a ]---
+> 
+> If the code above is moved after mm_init(), no warning is shown, as struct
+> pages are initialized during handover from memblock.
+> 
+> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+> ---
+>  arch/x86/include/asm/text-patching.h |  1 +
+>  arch/x86/kernel/alternative.c        | 10 +++++++++-
+>  2 files changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
+> index 2ecd34e2d46c..e85ff65c43c3 100644
+> --- a/arch/x86/include/asm/text-patching.h
+> +++ b/arch/x86/include/asm/text-patching.h
+> @@ -37,5 +37,6 @@ extern void *text_poke_early(void *addr, const void *opcode, size_t len);
+>  extern void *text_poke(void *addr, const void *opcode, size_t len);
+>  extern int poke_int3_handler(struct pt_regs *regs);
+>  extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
+> +extern int after_bootmem;
+>  
+>  #endif /* _ASM_X86_TEXT_PATCHING_H */
+> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+> index a481763a3776..0230dbc3c599 100644
+> --- a/arch/x86/kernel/alternative.c
+> +++ b/arch/x86/kernel/alternative.c
+> @@ -686,13 +686,21 @@ void *__init_or_module text_poke_early(void *addr, const void *opcode,
+>   *
+>   * Note: Must be called under text_mutex.
+>   */
+> -void *text_poke(void *addr, const void *opcode, size_t len)
+> +void __ref *text_poke(void *addr, const void *opcode, size_t len)
+>  {
+>  	unsigned long flags;
+>  	char *vaddr;
+>  	struct page *pages[2];
+>  	int i;
+>  
+> +	/* While boot memory allocator is runnig we cannot use struct
 
-This is why it is better to provide two values simultaneously: the
-persistent clock value, and the boot time.
+coding style:
+	/*
+	 * While boot memory ....
 
-Thus, we replace read_boot_clock64() with:
-read_persistent_wall_and_boot_offset(wall_time, boot_offset)
+But more importantly, does this patch need to be backported for stable?
 
-Where wall_time is returned by read_persistent_clock()
-And boot_offset is wall_time - boot time
 
-We calculate boot_offset using the current value of local_clock() so
-architectures, that do not have a dedicated boot_clock but have early
-sched_clock(), such as SPARCv9, x86, and possibly more will benefit from
-this change by getting a better and more consistent estimate of the boot
-time without need for an arch specific implementation.
+> +	 * pages as they are not yet initialized. However, we also know
+> +	 * that this is early in boot, and it is safe to fallback to
+> +	 * text_poke_early.
+> +	 */
+> +	if (unlikely(!after_bootmem))
+> +		return text_poke_early(addr, opcode, len);
+> +
+>  	if (!core_kernel_text((unsigned long)addr)) {
+>  		pages[0] = vmalloc_to_page(addr);
+>  		pages[1] = vmalloc_to_page(addr + PAGE_SIZE);
+> 
 
-Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
----
- include/linux/timekeeping.h |  3 +-
- kernel/time/timekeeping.c   | 61 +++++++++++++++++++------------------
- 2 files changed, 34 insertions(+), 30 deletions(-)
-
-diff --git a/include/linux/timekeeping.h b/include/linux/timekeeping.h
-index 86bc2026efce..686bc27acef0 100644
---- a/include/linux/timekeeping.h
-+++ b/include/linux/timekeeping.h
-@@ -243,7 +243,8 @@ extern void ktime_get_snapshot(struct system_time_snapshot *systime_snapshot);
- extern int persistent_clock_is_local;
- 
- extern void read_persistent_clock64(struct timespec64 *ts);
--extern void read_boot_clock64(struct timespec64 *ts);
-+void read_persistent_clock_and_boot_offset(struct timespec64 *wall_clock,
-+					   struct timespec64 *boot_offset);
- extern int update_persistent_clock64(struct timespec64 now);
- 
- /*
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index 4786df904c22..aface5c13e7d 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -17,6 +17,7 @@
- #include <linux/nmi.h>
- #include <linux/sched.h>
- #include <linux/sched/loadavg.h>
-+#include <linux/sched/clock.h>
- #include <linux/syscore_ops.h>
- #include <linux/clocksource.h>
- #include <linux/jiffies.h>
-@@ -1496,18 +1497,23 @@ void __weak read_persistent_clock64(struct timespec64 *ts64)
- }
- 
- /**
-- * read_boot_clock64 -  Return time of the system start.
-+ * read_persistent_wall_and_boot_offset - Read persistent clock, and also offset
-+ *                                        from the boot.
-  *
-  * Weak dummy function for arches that do not yet support it.
-- * Function to read the exact time the system has been started.
-- * Returns a timespec64 with tv_sec=0 and tv_nsec=0 if unsupported.
-- *
-- *  XXX - Do be sure to remove it once all arches implement it.
-+ * wall_time	- current time as returned by persistent clock
-+ * boot_offset	- offset that is defined as wall_time - boot_time
-+ * The default function calculates offset based on the current value of
-+ * local_clock(). This way architectures that support sched_clock() but don't
-+ * support dedicated boot time clock will provide the best estimate of the
-+ * boot time.
-  */
--void __weak read_boot_clock64(struct timespec64 *ts)
-+void __weak __init
-+read_persistent_wall_and_boot_offset(struct timespec64 *wall_time,
-+				     struct timespec64 *boot_offset)
- {
--	ts->tv_sec = 0;
--	ts->tv_nsec = 0;
-+	read_persistent_clock64(wall_time);
-+	*boot_offset = ns_to_timespec64(local_clock());
- }
- 
- /* Flag for if timekeeping_resume() has injected sleeptime */
-@@ -1521,28 +1527,28 @@ static bool persistent_clock_exists;
-  */
- void __init timekeeping_init(void)
- {
-+	struct timespec64 wall_time, boot_offset, wall_to_mono;
- 	struct timekeeper *tk = &tk_core.timekeeper;
- 	struct clocksource *clock;
- 	unsigned long flags;
--	struct timespec64 now, boot, tmp;
--
--	read_persistent_clock64(&now);
--	if (!timespec64_valid_strict(&now)) {
--		pr_warn("WARNING: Persistent clock returned invalid value!\n"
--			"         Check your CMOS/BIOS settings.\n");
--		now.tv_sec = 0;
--		now.tv_nsec = 0;
--	} else if (now.tv_sec || now.tv_nsec)
--		persistent_clock_exists = true;
- 
--	read_boot_clock64(&boot);
--	if (!timespec64_valid_strict(&boot)) {
--		pr_warn("WARNING: Boot clock returned invalid value!\n"
--			"         Check your CMOS/BIOS settings.\n");
--		boot.tv_sec = 0;
--		boot.tv_nsec = 0;
-+	read_persistent_wall_and_boot_offset(&wall_time, &boot_offset);
-+	if (timespec64_valid_strict(&wall_time) &&
-+	    timespec64_to_ns(&wall_time)) {
-+		persistent_clock_exists = true;
-+	} else {
-+		pr_warn("Persistent clock returned invalid value");
-+		wall_time = (struct timespec64){0};
- 	}
- 
-+	if (timespec64_compare(&wall_time, &boot_offset) < 0)
-+		boot_offset = (struct timespec64){0};
-+
-+	/* We want set wall_to_mono, so the following is true:
-+	 * wall time + wall_to_mono = boot time
-+	 */
-+	wall_to_mono = timespec64_sub(boot_offset, wall_time);
-+
- 	raw_spin_lock_irqsave(&timekeeper_lock, flags);
- 	write_seqcount_begin(&tk_core.seq);
- 	ntp_init();
-@@ -1552,13 +1558,10 @@ void __init timekeeping_init(void)
- 		clock->enable(clock);
- 	tk_setup_internals(tk, clock);
- 
--	tk_set_xtime(tk, &now);
-+	tk_set_xtime(tk, &wall_time);
- 	tk->raw_sec = 0;
--	if (boot.tv_sec == 0 && boot.tv_nsec == 0)
--		boot = tk_xtime(tk);
- 
--	set_normalized_timespec64(&tmp, -boot.tv_sec, -boot.tv_nsec);
--	tk_set_wall_to_mono(tk, tmp);
-+	tk_set_wall_to_mono(tk, wall_to_mono);
- 
- 	timekeeping_update(tk, TK_MIRROR | TK_CLOCK_WAS_SET);
- 
+thanks,
 -- 
-2.17.1
+~Randy
