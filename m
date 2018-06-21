@@ -1,47 +1,118 @@
-Return-Path: <SRS0=sqHT=JP=vger.kernel.org=linux-kernel-owner@kernel.org>
-Message-ID: <24734cab3a622e17a4f6408b63ad8ecdc7b496e6.camel@linux.intel.com>
-Subject: Re: [PATCH v12 09/11] x86/tsc: prepare for early sched_clock
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Fri, 29 Jun 2018 20:50:09 +0300
-In-Reply-To: <3ae524498e6833abd5bb225987de97580262c4de.camel@linux.intel.com>
-References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
-         <20180621212518.19914-10-pasha.tatashin@oracle.com>
-         <alpine.DEB.2.21.1806231815060.8650@nanos.tec.linutronix.de>
-         <alpine.DEB.2.21.1806232210110.8650@nanos.tec.linutronix.de>
-         <CAGM2reYQx769omkWVweEcTMy8WNrKOiuUVo4OFWNh4zW-rc4pg@mail.gmail.com>
-         <alpine.DEB.2.21.1806232347540.8650@nanos.tec.linutronix.de>
-         <alpine.DEB.2.21.1806261725510.1587@nanos.tec.linutronix.de>
-         <CAGM2reYQ23XhQHAOO0Oo8MGvgrjpNZPZkwp+wwsU8Fb+jfANyA@mail.gmail.com>
-         <alpine.DEB.2.21.1806270947410.1587@nanos.tec.linutronix.de>
-         <alpine.DEB.2.21.1806281159590.1778@nanos.tec.linutronix.de>
-         <3ae524498e6833abd5bb225987de97580262c4de.camel@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH net 1/1] net/smc: coordinate wait queues for nonblocking
+ connect
+Date: Fri, 22 Jun 2018 00:26:51 +0800
+Message-ID: <201806220025.hvV6K991%fengguang.wu@intel.com>
+References: <20180620080737.50323-1-ubraun@linux.ibm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>, Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: Steven Sistare <steven.sistare@oracle.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, "H. Peter Anvin" <hpa@zytor.com>, douly.fnst@cn.fujitsu.com, Peter Zijlstra <peterz@infradead.org>, Prarit Bhargava <prarit@redhat.com>, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180620080737.50323-1-ubraun@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+Cc: kbuild-all@01.org, davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com, xiyou.wangcong@gmail.com, hch@lst.de
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 2018-06-29 at 17:30 +0300, Andy Shevchenko wrote:
-> On Thu, 2018-06-28 at 12:43 +0200, Thomas Gleixner wrote:
-> > On Thu, 28 Jun 2018, Thomas Gleixner wrote:
-> > > 
+Hi Ursula,
 
-> Taking above into consideration, I think we may just remove the legacy
-> code from mfld.c and mrfld.c and see what happen.
-> 
-> If you can tell me points to test, I can prepare patches to remove and
-> test on both Medfiled and Merrifield platforms (Penwell and Tangier
-> SoCs
-> respectively).
+I love your patch! Perhaps something to improve:
 
-I'm almost have a patch series. Tested for now for Intel Merrifield
-(Tangier SoC).
+[auto build test WARNING on net/master]
+
+url:    https://github.com/0day-ci/linux/commits/Ursula-Braun/net-smc-coordinate-wait-queues-for-nonblocking-connect/20180620-180901
+reproduce:
+        # apt-get install sparse
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF=-D__CHECK_ENDIAN__
 
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+sparse warnings: (new ones prefixed by >>)
+
+>> net/smc/af_smc.c:1301:49: sparse: incorrect type in assignment (different address spaces) @@    expected struct socket_wq [noderef] <asn:4>*sk_wq @@    got [noderef] <asn:4>*sk_wq @@
+   net/smc/af_smc.c:1301:49:    expected struct socket_wq [noderef] <asn:4>*sk_wq
+   net/smc/af_smc.c:1301:49:    got struct socket_wq *smcwq
+   net/smc/smc_cdc.h:143:24: sparse: expression using sizeof(void)
+   net/smc/smc_cdc.h:146:16: sparse: expression using sizeof(void)
+   net/smc/smc_cdc.h:143:24: sparse: expression using sizeof(void)
+   net/smc/smc_cdc.h:146:16: sparse: expression using sizeof(void)
+>> net/smc/af_smc.c:1667:20: sparse: incorrect type in assignment (different address spaces) @@    expected struct socket_wq *smcwq @@    got struct socket_wq struct socket_wq *smcwq @@
+   net/smc/af_smc.c:1667:20:    expected struct socket_wq *smcwq
+   net/smc/af_smc.c:1667:20:    got struct socket_wq [noderef] <asn:4>*sk_wq
+   net/smc/af_smc.c:1668:29: sparse: expression using sizeof(void)
+   net/smc/af_smc.c:1669:29: sparse: expression using sizeof(void)
+
+vim +1301 net/smc/af_smc.c
+
+  1277	
+  1278	static __poll_t smc_poll_mask(struct socket *sock, __poll_t events)
+  1279	{
+  1280		struct sock *sk = sock->sk;
+  1281		__poll_t mask = 0;
+  1282		struct smc_sock *smc;
+  1283		int rc;
+  1284	
+  1285		if (!sk)
+  1286			return EPOLLNVAL;
+  1287	
+  1288		smc = smc_sk(sock->sk);
+  1289		sock_hold(sk);
+  1290		if ((sk->sk_state == SMC_INIT) || smc->use_fallback) {
+  1291			/* delegate to CLC child sock */
+  1292			mask = smc->clcsock->ops->poll_mask(smc->clcsock, events);
+  1293			sk->sk_err = smc->clcsock->sk->sk_err;
+  1294			if (sk->sk_err) {
+  1295				mask |= EPOLLERR;
+  1296			} else {
+  1297				/* if non-blocking connect finished ... */
+  1298				if (sk->sk_state == SMC_INIT &&
+  1299				    mask & EPOLLOUT &&
+  1300				    smc->clcsock->sk->sk_state != TCP_CLOSE) {
+> 1301					sock->sk->sk_wq = smc->smcwq;
+  1302					lock_sock(sk);
+  1303					rc = __smc_connect(smc);
+  1304					release_sock(sk);
+  1305					if (rc < 0)
+  1306						mask |= EPOLLERR;
+  1307					/* success cases including fallback */
+  1308					mask |= EPOLLOUT | EPOLLWRNORM;
+  1309				}
+  1310			}
+  1311		} else {
+  1312			if (sk->sk_err)
+  1313				mask |= EPOLLERR;
+  1314			if ((sk->sk_shutdown == SHUTDOWN_MASK) ||
+  1315			    (sk->sk_state == SMC_CLOSED))
+  1316				mask |= EPOLLHUP;
+  1317			if (sk->sk_state == SMC_LISTEN) {
+  1318				/* woken up by sk_data_ready in smc_listen_work() */
+  1319				mask = smc_accept_poll(sk);
+  1320			} else {
+  1321				if (atomic_read(&smc->conn.sndbuf_space) ||
+  1322				    sk->sk_shutdown & SEND_SHUTDOWN) {
+  1323					mask |= EPOLLOUT | EPOLLWRNORM;
+  1324				} else {
+  1325					sk_set_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+  1326					set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+  1327				}
+  1328				if (atomic_read(&smc->conn.bytes_to_rcv))
+  1329					mask |= EPOLLIN | EPOLLRDNORM;
+  1330				if (sk->sk_shutdown & RCV_SHUTDOWN)
+  1331					mask |= EPOLLIN | EPOLLRDNORM | EPOLLRDHUP;
+  1332				if (sk->sk_state == SMC_APPCLOSEWAIT1)
+  1333					mask |= EPOLLIN;
+  1334			}
+  1335			if (smc->conn.urg_state == SMC_URG_VALID)
+  1336				mask |= EPOLLPRI;
+  1337	
+  1338		}
+  1339		sock_put(sk);
+  1340	
+  1341		return mask;
+  1342	}
+  1343	
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
