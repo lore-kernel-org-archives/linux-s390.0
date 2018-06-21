@@ -1,59 +1,55 @@
-Return-Path: <SRS0=Clcj=JE=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] s390: hypfs: use ktime_get_seconds() instead of get_seconds()
-Date: Mon, 18 Jun 2018 12:05:00 +0200
-Message-Id: <20180618100534.1857997-1-arnd@arndb.de>
+Return-Path: <SRS0=bmN+=JH=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Pavel Tatashin <pasha.tatashin@oracle.com>
+Subject: [PATCH v12 05/11] s390/time: add read_persistent_wall_and_boot_offset()
+Date: Thu, 21 Jun 2018 17:25:12 -0400
+Message-Id: <20180621212518.19914-6-pasha.tatashin@oracle.com>
+In-Reply-To: <20180621212518.19914-1-pasha.tatashin@oracle.com>
+References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: y2038@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-time_t and get_seconds() are deprecated because they will overflow on
-32-bit architectures in the future. This is not a problem on 64-bit s390,
-but we should use proper interfaces anyway.
+read_persistent_wall_and_boot_offset() will replace read_boot_clock64()
+because on some architectures it is more convenient to read both sources
+as one may depend on the other. For s390, implementation is the same
+as read_boot_clock64() but also calling and returning value of
+read_persistent_clock64()
 
-Besides moving to the time64_t based interface, the CLOCK_MONOTONIC
-based ktime_get_seconds() is preferred for kernel internal timekeeping
-because it does not behave in unexpected ways during leap second changes
-or settimeofday() calls.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
 ---
- arch/s390/hypfs/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/kernel/time.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index 06b513d192b9..c681329fdeec 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -36,7 +36,7 @@ struct hypfs_sb_info {
- 	kuid_t uid;			/* uid used for files and dirs */
- 	kgid_t gid;			/* gid used for files and dirs */
- 	struct dentry *update_file;	/* file to trigger update */
--	time_t last_update;		/* last update time in secs since 1970 */
-+	time64_t last_update;		/* last update, CLOCK_MONOTONIC time */
- 	struct mutex lock;		/* lock to protect update process */
- };
- 
-@@ -52,7 +52,7 @@ static void hypfs_update_update(struct super_block *sb)
- 	struct hypfs_sb_info *sb_info = sb->s_fs_info;
- 	struct inode *inode = d_inode(sb_info->update_file);
- 
--	sb_info->last_update = get_seconds();
-+	sb_info->last_update = ktime_get_seconds();
- 	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index cf561160ea88..d1f5447d5687 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -221,6 +221,24 @@ void read_persistent_clock64(struct timespec64 *ts)
+ 	ext_to_timespec64(clk, ts);
  }
  
-@@ -179,7 +179,7 @@ static ssize_t hypfs_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	 *    to restart data collection in this case.
- 	 */
- 	mutex_lock(&fs_info->lock);
--	if (fs_info->last_update == get_seconds()) {
-+	if (fs_info->last_update == ktime_get_seconds()) {
- 		rc = -EBUSY;
- 		goto out;
- 	}
++void __init read_persistent_wall_and_boot_offset(struct timespec64 *wall_time,
++						 struct timespec64 *boot_offset)
++{
++	unsigned char clk[STORE_CLOCK_EXT_SIZE];
++	struct timespec64 boot_time;
++	__u64 delta;
++
++	delta = initial_leap_seconds + TOD_UNIX_EPOCH;
++	memcpy(clk, tod_clock_base, STORE_CLOCK_EXT_SIZE);
++	*(__u64 *)&clk[1] -= delta;
++	if (*(__u64 *)&clk[1] > delta)
++		clk[0]--;
++	ext_to_timespec64(clk, &boot_time);
++
++	read_persistent_clock64(wall_time);
++	*boot_offset = timespec64_sub(*wall_time, boot_time);
++}
++
+ void read_boot_clock64(struct timespec64 *ts)
+ {
+ 	unsigned char clk[STORE_CLOCK_EXT_SIZE];
 -- 
-2.9.0
+2.17.1
