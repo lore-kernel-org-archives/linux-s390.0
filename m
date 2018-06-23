@@ -1,44 +1,45 @@
 Return-Path: <SRS0=hmx+=JJ=vger.kernel.org=linux-kernel-owner@kernel.org>
-MIME-Version: 1.0
+Subject: Re: [PATCH v12 11/11] x86/tsc: use tsc early
 References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
- <20180621212518.19914-10-pasha.tatashin@oracle.com> <alpine.DEB.2.21.1806231815060.8650@nanos.tec.linutronix.de>
- <alpine.DEB.2.21.1806232210110.8650@nanos.tec.linutronix.de>
-In-Reply-To: <alpine.DEB.2.21.1806232210110.8650@nanos.tec.linutronix.de>
+ <20180621212518.19914-12-pasha.tatashin@oracle.com>
+ <alpine.DEB.2.21.1806231850430.8650@nanos.tec.linutronix.de>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Date: Sat, 23 Jun 2018 17:29:35 -0400
-Message-ID: <CAGM2reYQx769omkWVweEcTMy8WNrKOiuUVo4OFWNh4zW-rc4pg@mail.gmail.com>
-Subject: Re: [PATCH v12 09/11] x86/tsc: prepare for early sched_clock
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <640e2de9-22e3-24bd-4987-5b02344aa727@oracle.com>
+Date: Sat, 23 Jun 2018 17:38:45 -0400
+MIME-Version: 1.0
+In-Reply-To: <alpine.DEB.2.21.1806231850430.8650@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: tglx@linutronix.de
-Cc: Steven Sistare <steven.sistare@oracle.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, schwidefsky@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-> So you forgot to answer this question. I did not find a system yet, which
-> actually exposes this behaviour on mainline.
->
-> Is this an artifact of your early sched clock thing?
->
+On 06/23/2018 12:56 PM, Thomas Gleixner wrote:
+> On Thu, 21 Jun 2018, Pavel Tatashin wrote:
+>>  /*
+>>   * Scheduler clock - returns current time in nanosec units.
+>>   */
+>> @@ -1354,6 +1364,7 @@ void __init tsc_early_delay_calibrate(void)
+>>  	lpj = tsc_khz * 1000;
+>>  	do_div(lpj, HZ);
+>>  	loops_per_jiffy = lpj;
+>> +	sched_clock_early_init(tsc_khz);
+>>  }
+>>  
+>>  void __init tsc_init(void)
+>> @@ -1382,6 +1393,7 @@ void __init tsc_init(void)
+>>  	if (!tsc_khz) {
+>>  		mark_tsc_unstable("could not calculate TSC khz");
+>>  		setup_clear_cpu_cap(X86_FEATURE_TSC_DEADLINE_TIMER);
+>> +		static_branch_disable(&__use_tsc);
+> 
+> This wants a proper comment.
 
-Yes, it is. Let me explain how it happens.
+Yes, I will add a comment. Basically, this change is for a rare scenario where early in boot we were able to get TSC frequency but failed to do so later in boot when we tried to calculate it more precisely. Though, I am not sure if this is actually possible. However, if this is indeed possible, we will get into the same continuity problem as the one that is solved in "x86/tsc: prepare for early sched_clock". So, I guess we would have to modify either "jiffies_64" or  __sched_clock_offset if we want to take care of this corner case.
 
-So, the problem is introduced in patch "sched: early boot clock" by this change:
-
--       if (unlikely(!sched_clock_running))
--               return 0ull;
-+       /* Use early clock until sched_clock_init_late() */
-+       if (unlikely(sched_clock_running < 2))
-+               return sched_clock() + __sched_clock_offset;
-
-As soon as sched_clock() starts output non-zero values, we start
-output time without correcting the output as it is done in
-sched_clock_local() where unstable TSC and backward motion are
-detected. But, since early in boot interrupts are disabled, we cannot
-really correct invalid time, and therefore must rely on sched_clock()
-to provide us with a contiguous and sane time. In earlier versions of
-this project, I was solving this problem by adjusting
-__sched_clock_offset every time sched_clock()'s continuity was changed
-by using a callback function into sched/clock.c. But, Peter was
-against that approach.
+Thank you,
+Pavel
