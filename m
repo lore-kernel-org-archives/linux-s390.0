@@ -1,134 +1,114 @@
-Return-Path: <SRS0=bmN+=JH=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH v12 01/11] x86: text_poke() may access uninitialized
- struct pages
+Return-Path: <SRS0=hmx+=JJ=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Sat, 23 Jun 2018 11:16:48 +0200
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v12 02/11] x86: initialize static branching early
+Message-ID: <20180623091648.GA29468@zn.tnic>
 References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
- <20180621212518.19914-2-pasha.tatashin@oracle.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <b7a0cdc8-5924-3ed4-07e2-41c212ccdb0a@infradead.org>
-Date: Thu, 21 Jun 2018 14:37:42 -0700
+ <20180621212518.19914-3-pasha.tatashin@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20180621212518.19914-2-pasha.tatashin@oracle.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20180621212518.19914-3-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
+To: Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/21/2018 02:25 PM, Pavel Tatashin wrote:
-> It supposed to be safe to modify static branches after jump_label_init().
-> But, because static key modifying code eventually calls text_poke() we
-> may end up with accessing struct page that have not been initialized.
+On Thu, Jun 21, 2018 at 05:25:09PM -0400, Pavel Tatashin wrote:
+> static branching is useful to hot-patch branches that are used in hot
+> path, but are infrequently changed.
 > 
-> Here is how to quickly reproduce the problem. Insert code like this
-> into init/main.c:
+> x86 clock framework is one example that uses static branches to setup
+> the best clock during boot and never change it again.
 > 
-> | +static DEFINE_STATIC_KEY_FALSE(__test);
-> | asmlinkage __visible void __init start_kernel(void)
-> | {
-> |        char *command_line;
-> |@@ -587,6 +609,10 @@ asmlinkage __visible void __init start_kernel(void)
-> |        vfs_caches_init_early();
-> |        sort_main_extable();
-> |        trap_init();
-> |+       {
-> |+       static_branch_enable(&__test);
-> |+       WARN_ON(!static_branch_likely(&__test));
-> |+       }
-> |        mm_init();
+> Since we plan to enable clock early, we need static branching
+> functionality early as well.
 > 
-> The following warnings show-up:
-> WARNING: CPU: 0 PID: 0 at arch/x86/kernel/alternative.c:701 text_poke+0x20d/0x230
-> Modules linked in:
-> CPU: 0 PID: 0 Comm: swapper Not tainted 4.18.0-rc1_pt_t1 #30
-> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-> 1.11.0-20171110_100015-anatol 04/01/2014
-> RIP: 0010:text_poke+0x20d/0x230
-> Code: 0f 0b 4c 89 e2 4c 89 ee 4c 89 f7 e8 7d 4b 9b 00 31 d2 31 f6 bf 86 02
-> 00 00 48 8b 05 95 8e 24 01 e8 78 18 d8 00 e9 55 ff ff ff <0f> 0b e9 54 fe
-> ff ff 48 8b 05 75 a8 38 01 e9 64 fe ff ff 48 8b 1d
-> RSP: 0000:ffffffff94e03e30 EFLAGS: 00010046
-> RAX: 0100000000000000 RBX: fffff7b2c011f300 RCX: ffffffff94fcccf4
-> RDX: 0000000000000001 RSI: ffffffff94e03e77 RDI: ffffffff94fcccef
-> RBP: ffffffff94fcccef R08: 00000000fffffe00 R09: 00000000000000a0
-> R10: 0000000000000000 R11: 0000000000000040 R12: 0000000000000001
-> R13: ffffffff94e03e77 R14: ffffffff94fcdcef R15: fffff7b2c0000000
-> FS:  0000000000000000(0000) GS:ffff9adc87c00000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: ffff9adc8499d000 CR3: 000000000460a001 CR4: 00000000000606b0
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Call Trace:
->  ? start_kernel+0x23e/0x4c8
->  ? start_kernel+0x23f/0x4c8
->  ? text_poke_bp+0x50/0xda
->  ? arch_jump_label_transform+0x89/0xe0
->  ? __jump_label_update+0x78/0xb0
->  ? static_key_enable_cpuslocked+0x4d/0x80
->  ? static_key_enable+0x11/0x20
->  ? start_kernel+0x23e/0x4c8
->  ? secondary_startup_64+0xa5/0xb0
-> ---[ end trace abdc99c031b8a90a ]---
+> static branching requires patching nop instructions, thus, we need
+> arch_init_ideal_nops() to be called prior to jump_label_init()
 > 
-> If the code above is moved after mm_init(), no warning is shown, as struct
-> pages are initialized during handover from memblock.
+> Here we do all the necessary steps to call arch_init_ideal_nops
+> after early_cpu_init().
 > 
 > Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+> Suggested-by: Peter Zijlstra <peterz@infradead.org>
 > ---
->  arch/x86/include/asm/text-patching.h |  1 +
->  arch/x86/kernel/alternative.c        | 10 +++++++++-
->  2 files changed, 10 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
-> index 2ecd34e2d46c..e85ff65c43c3 100644
-> --- a/arch/x86/include/asm/text-patching.h
-> +++ b/arch/x86/include/asm/text-patching.h
-> @@ -37,5 +37,6 @@ extern void *text_poke_early(void *addr, const void *opcode, size_t len);
->  extern void *text_poke(void *addr, const void *opcode, size_t len);
->  extern int poke_int3_handler(struct pt_regs *regs);
->  extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
-> +extern int after_bootmem;
->  
->  #endif /* _ASM_X86_TEXT_PATCHING_H */
-> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-> index a481763a3776..0230dbc3c599 100644
-> --- a/arch/x86/kernel/alternative.c
-> +++ b/arch/x86/kernel/alternative.c
-> @@ -686,13 +686,21 @@ void *__init_or_module text_poke_early(void *addr, const void *opcode,
->   *
->   * Note: Must be called under text_mutex.
->   */
-> -void *text_poke(void *addr, const void *opcode, size_t len)
-> +void __ref *text_poke(void *addr, const void *opcode, size_t len)
->  {
->  	unsigned long flags;
->  	char *vaddr;
->  	struct page *pages[2];
->  	int i;
->  
-> +	/* While boot memory allocator is runnig we cannot use struct
+>  arch/x86/kernel/cpu/amd.c    | 13 +++++++-----
+>  arch/x86/kernel/cpu/common.c | 38 +++++++++++++++++++-----------------
+>  arch/x86/kernel/setup.c      |  4 ++--
+>  3 files changed, 30 insertions(+), 25 deletions(-)
 
-coding style:
-	/*
-	 * While boot memory ....
+Looks ok to me.
 
-But more importantly, does this patch need to be backported for stable?
+Reviewed-by: Borislav Petkov <bp@suse.de>
 
+Also, please take the patch below into your queue and keep it a separate
+patch in case we have to revert it later. It should help in keeping the
+mess manageable and not let it go completely out of control before we've
+done the cleanup.
 
-> +	 * pages as they are not yet initialized. However, we also know
-> +	 * that this is early in boot, and it is safe to fallback to
-> +	 * text_poke_early.
-> +	 */
-> +	if (unlikely(!after_bootmem))
-> +		return text_poke_early(addr, opcode, len);
-> +
->  	if (!core_kernel_text((unsigned long)addr)) {
->  		pages[0] = vmalloc_to_page(addr);
->  		pages[1] = vmalloc_to_page(addr + PAGE_SIZE);
-> 
+Thx.
 
-thanks,
+---
+From: Borislav Petkov <bp@suse.de>
+Date: Sat, 23 Jun 2018 11:04:47 +0200
+Subject: [PATCH] x86/CPU: Call detect_nopl() only on the BSP
+
+Make it use the setup_* variants and have it be called only on the BSP
+and drop the call in generic_identify() - X86_FEATURE_NOPL will be
+replicated to the APs through the forced caps. Helps keep the mess at a
+manageable level.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+---
+ arch/x86/kernel/cpu/common.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index 952d31f75821..1b5edbd8f6db 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1021,12 +1021,12 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+  * unless we can find a reliable way to detect all the broken cases.
+  * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
+  */
+-static void detect_nopl(struct cpuinfo_x86 *c)
++static void detect_nopl(void)
+ {
+ #ifdef CONFIG_X86_32
+-	clear_cpu_cap(c, X86_FEATURE_NOPL);
++	setup_clear_cpu_cap(X86_FEATURE_NOPL);
+ #else
+-	set_cpu_cap(c, X86_FEATURE_NOPL);
++	setup_force_cpu_cap(X86_FEATURE_NOPL);
+ #endif
+ }
+ 
+@@ -1105,7 +1105,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
+ 	if (!pgtable_l5_enabled())
+ 		setup_clear_cpu_cap(X86_FEATURE_LA57);
+ 
+-	detect_nopl(c);
++	detect_nopl();
+ }
+ 
+ void __init early_cpu_init(void)
+@@ -1203,8 +1203,6 @@ static void generic_identify(struct cpuinfo_x86 *c)
+ 
+ 	get_model_name(c); /* Default name */
+ 
+-	detect_nopl(c);
+-
+ 	detect_null_seg_behavior(c);
+ 
+ 	/*
 -- 
-~Randy
+2.17.0.582.gccdcbd54c
+
+-- 
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
