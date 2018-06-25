@@ -1,34 +1,36 @@
 Return-Path: <SRS0=Q/hc=JL=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [qemu-s390x] s390 qemu boot failure in -next
+Subject: Re: s390 qemu boot failure in -next
 References: <20180622194736.GA5794@roeck-us.net>
  <126ac556-0602-b927-58f5-cb5f65a5e0ec@de.ibm.com>
  <88d9afed-f91d-c320-13c8-9a93fc52b700@de.ibm.com>
- <947bbba3-dcd0-7f5b-1d92-b41be764c2f5@de.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <7416298e-8f8a-fa1a-759f-da6526eab6ca@redhat.com>
-Date: Mon, 25 Jun 2018 10:27:26 +0200
+ <20180625100548.64222dad.cohuck@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 25 Jun 2018 10:29:46 +0200
 MIME-Version: 1.0
-In-Reply-To: <947bbba3-dcd0-7f5b-1d92-b41be764c2f5@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20180625100548.64222dad.cohuck@redhat.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Message-Id: <d56829a3-fecf-b812-d002-8ee22ae08da2@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Guenter Roeck <linux@roeck-us.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, qemu-devel <qemu-devel@nongnu.org>, qemu-s390x <qemu-s390x@nongnu.org>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x <qemu-s390x@nongnu.org>, qemu-devel <qemu-devel@nongnu.org>, Thomas Huth <thuth@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 25.06.2018 10:02, Christian Borntraeger wrote:
+
+
+On 06/25/2018 10:05 AM, Cornelia Huck wrote:
+> On Mon, 25 Jun 2018 09:27:59 +0200
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > 
-> 
-> On 06/25/2018 09:27 AM, Christian Borntraeger wrote:
 >> Also adding QEMU.
 >>
 >> On 06/25/2018 09:10 AM, Christian Borntraeger wrote:
 >>>
 >>>
->>> On 06/22/2018 09:47 PM, Guenter Roeck wrote:
+>>> On 06/22/2018 09:47 PM, Guenter Roeck wrote:  
 >>>> Hi,
 >>>>
 >>>> starting with commit 's390/boot: make head.S and als.c be part of the
@@ -38,7 +40,7 @@ On 25.06.2018 10:02, Christian Borntraeger wrote:
 >>>> root file system can not be mounted.
 >>>>
 >>>> Was this change made on purpose ? If so, is there a way to get qemu
->>>> back to working ?
+>>>> back to working ?  
 >>>
 >>> Certainly not on purpose.
 >>>
@@ -53,8 +55,16 @@ On 25.06.2018 10:02, Christian Borntraeger wrote:
 >>> This seems to be an unfortunate side effect of QEMUs ways to "guess" its Linux (checking for start
 >>> address 0x10000, which is no longer true for the vmlinux file). With the pure vmlinux elf file
 >>> the load address is 0x100000 as there is no unpacker.
+> 
+> Do we consider these locations to be an exported interface, or is it
+> just QEMU guessing?
+
+It is using  what zipl has hardcoded. This works fine for the final image (with the 
+unpacker), but being able to boot the elf file was just a very nice feature of QEMU.
+
+> 
 >>>
->>> Guenter, can you check if arch/s390/boot/bzImage works for you as a workaround?
+>>> Guenter, can you check if arch/s390/boot/bzImage works for you as a workaround?  
 >>
 >> Something like this in QEMU 
 >>
@@ -74,12 +84,25 @@ On 25.06.2018 10:02, Christian Borntraeger wrote:
 >> +       if (ipl->cmdline) {
 >> +            /* If there is a command line, put it in the right place */
 >> +            strcpy(rom_ptr(KERN_PARM_AREA), ipl->cmdline);
+>> +       }
+> 
+> Check for the magic Linux string (like in the non-elf case) first?
 
-You definitely need to check for rom_ptr() != NULL first before calling
-strcpy. Otherwise QEMU segfaults in case the user tried to load a kernel
-to a different location.
+Even that does not exists in vmlinux but only in bzImage with the latest patchset
+(in next, but not upstream yet)
+> 
+>>  
+>>          if (ipl->initrd) {
+>>              ram_addr_t initrd_offset;
+>>
+>> would put the command line in no matter what the start address is.
+> 
+> I'm for putting that one in (and backporting it to qemu-stable). It's a
+> bit worrying, though, that our ipl code is so fragile...
 
-See also:
-https://lists.gnu.org/archive/html/qemu-devel/2018-06/msg04227.html
+We actually have to combine this with Thomas fix (to check for rom_ptr returning
+something sane). It seems that ipl->commandline is always there, so we have to
+check for strlen!=0 it seems..
 
- Thomas
+I mean if somebody ask for "-append something" we can certainly always write something
+if there is rom/ram.
