@@ -1,72 +1,79 @@
 Return-Path: <SRS0=Q/hc=JL=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Mon, 25 Jun 2018 09:07:41 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH v12 05/11] s390/time: add
- read_persistent_wall_and_boot_offset()
-In-Reply-To: <20180621212518.19914-6-pasha.tatashin@oracle.com>
+Date: Mon, 25 Jun 2018 10:14:29 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v12 01/11] x86: text_poke() may access uninitialized
+ struct pages
+Message-ID: <20180625081429.GS2494@hirez.programming.kicks-ass.net>
 References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
-        <20180621212518.19914-6-pasha.tatashin@oracle.com>
+ <20180621212518.19914-2-pasha.tatashin@oracle.com>
 MIME-Version: 1.0
-Message-Id: <20180625090741.776c8914@mschwideX1>
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180621212518.19914-2-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
+Cc: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 21 Jun 2018 17:25:12 -0400
-Pavel Tatashin <pasha.tatashin@oracle.com> wrote:
-
-> read_persistent_wall_and_boot_offset() will replace read_boot_clock64()
-> because on some architectures it is more convenient to read both sources
-> as one may depend on the other. For s390, implementation is the same
-> as read_boot_clock64() but also calling and returning value of
-> read_persistent_clock64()
-> 
-> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+On Thu, Jun 21, 2018 at 05:25:08PM -0400, Pavel Tatashin wrote:
 > ---
->  arch/s390/kernel/time.c | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
+>  arch/x86/include/asm/text-patching.h |  1 +
+>  arch/x86/kernel/alternative.c        | 10 +++++++++-
+>  2 files changed, 10 insertions(+), 1 deletion(-)
 > 
-> diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-> index cf561160ea88..d1f5447d5687 100644
-> --- a/arch/s390/kernel/time.c
-> +++ b/arch/s390/kernel/time.c
-> @@ -221,6 +221,24 @@ void read_persistent_clock64(struct timespec64 *ts)
->  	ext_to_timespec64(clk, ts);
->  }
-> 
-> +void __init read_persistent_wall_and_boot_offset(struct timespec64 *wall_time,
-> +						 struct timespec64 *boot_offset)
-> +{
-> +	unsigned char clk[STORE_CLOCK_EXT_SIZE];
-> +	struct timespec64 boot_time;
-> +	__u64 delta;
-> +
-> +	delta = initial_leap_seconds + TOD_UNIX_EPOCH;
-> +	memcpy(clk, tod_clock_base, STORE_CLOCK_EXT_SIZE);
-> +	*(__u64 *)&clk[1] -= delta;
-> +	if (*(__u64 *)&clk[1] > delta)
-> +		clk[0]--;
-> +	ext_to_timespec64(clk, &boot_time);
-> +
-> +	read_persistent_clock64(wall_time);
-> +	*boot_offset = timespec64_sub(*wall_time, boot_time);
-> +}
-> +
->  void read_boot_clock64(struct timespec64 *ts)
+> diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
+> index 2ecd34e2d46c..e85ff65c43c3 100644
+> --- a/arch/x86/include/asm/text-patching.h
+> +++ b/arch/x86/include/asm/text-patching.h
+> @@ -37,5 +37,6 @@ extern void *text_poke_early(void *addr, const void *opcode, size_t len);
+>  extern void *text_poke(void *addr, const void *opcode, size_t len);
+>  extern int poke_int3_handler(struct pt_regs *regs);
+>  extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
+> +extern int after_bootmem;
+>  
+>  #endif /* _ASM_X86_TEXT_PATCHING_H */
+> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+> index a481763a3776..0230dbc3c599 100644
+> --- a/arch/x86/kernel/alternative.c
+> +++ b/arch/x86/kernel/alternative.c
+> @@ -686,13 +686,21 @@ void *__init_or_module text_poke_early(void *addr, const void *opcode,
+>   *
+>   * Note: Must be called under text_mutex.
+>   */
+> -void *text_poke(void *addr, const void *opcode, size_t len)
+> +void __ref *text_poke(void *addr, const void *opcode, size_t len)
 >  {
->  	unsigned char clk[STORE_CLOCK_EXT_SIZE];
+>  	unsigned long flags;
+>  	char *vaddr;
+>  	struct page *pages[2];
+>  	int i;
+>  
+> +	/* While boot memory allocator is runnig we cannot use struct
 
-From a s390 standpoint this looks reasonable.
+Broken comment style..
 
-Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> +	 * pages as they are not yet initialized. However, we also know
+> +	 * that this is early in boot, and it is safe to fallback to
+> +	 * text_poke_early.
+> +	 */
+> +	if (unlikely(!after_bootmem))
+> +		return text_poke_early(addr, opcode, len);
 
--- 
-blue skies,
-   Martin.
+I'm not entirely sure this is right.. Because not only do we need the
+whole fixmap stuff working, we also need #DB and the IPI handlers set-up
+and working.
 
-"Reality continues to ruin my life." - Calvin.
+Also, why do this here and not override @poker in
+__jump_label_transform() ?
+
+And I added a sync_core() in text_poke_early(), which I think we need
+for this.
+
+>  	if (!core_kernel_text((unsigned long)addr)) {
+>  		pages[0] = vmalloc_to_page(addr);
+>  		pages[1] = vmalloc_to_page(addr + PAGE_SIZE);
+> -- 
+> 2.17.1
+> 
