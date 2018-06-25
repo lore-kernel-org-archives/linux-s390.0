@@ -1,85 +1,98 @@
 Return-Path: <SRS0=Q/hc=JL=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: s390 qemu boot failure in -next
-References: <20180622194736.GA5794@roeck-us.net>
- <126ac556-0602-b927-58f5-cb5f65a5e0ec@de.ibm.com>
- <88d9afed-f91d-c320-13c8-9a93fc52b700@de.ibm.com>
- <20180625100548.64222dad.cohuck@redhat.com>
- <your-ad-here.call-01529915788-ext-6027@work.hours>
- <20180625104928.6c4cb239.cohuck@redhat.com>
- <76740f8f-ef4c-9d11-dae1-192beebff4d8@de.ibm.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <64bcba64-b88f-3594-da6e-7c2118482c20@roeck-us.net>
-Date: Mon, 25 Jun 2018 06:35:30 -0700
+Date: Mon, 25 Jun 2018 17:09:19 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH] s390/boot: block uncompressed vmlinux booting attempts
+References: <64bcba64-b88f-3594-da6e-7c2118482c20@roeck-us.net>
+ <cover.thread-8b0da3.your-ad-here.call-01529937119-ext-3705@work.hours>
 MIME-Version: 1.0
-In-Reply-To: <76740f8f-ef4c-9d11-dae1-192beebff4d8@de.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.thread-8b0da3.your-ad-here.call-01529937119-ext-3705@work.hours>
+Message-Id: <patch-1.thread-8b0da3.git-8b0da335b2d3.your-ad-here.call-01529937119-ext-3705@work.hours>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x <qemu-s390x@nongnu.org>, qemu-devel <qemu-devel@nongnu.org>, Thomas Huth <thuth@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Guenter Roeck <linux@roeck-us.net>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x <qemu-s390x@nongnu.org>, qemu-devel <qemu-devel@nongnu.org>, Thomas Huth <thuth@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/25/2018 05:26 AM, Christian Borntraeger wrote:
-> 
-> 
-> On 06/25/2018 10:49 AM, Cornelia Huck wrote:
->> On Mon, 25 Jun 2018 10:36:33 +0200
->> Vasily Gorbik <gor@linux.ibm.com> wrote:
->>
->>> This change has been done on purpose. Uncompressed image is not going
->>> to be bootable any more. In future the decompressor phase would get
->>> more function (early memory detection as an example) and there is no
->>> chance to duplicate that code in uncompressed image as well (to keep it
->>> bootable on its own). The patch series commit messages contain more
->>> technical details.
->>>
->>> For qemu either bzImage or arch/s390/boot/compressed/vmlinux should be
->>> used, which are bootable images.
->>>
->>> But that's really confusing that uncompressed vmlinux is still kind
->>> of booting. May be we should discuss how to avoid this confusion
->>> (may be change uncompressed image enty point to a function doing
->>> disabled wait with badb007 or smth) and how to encourage people to use
->>> arch/s390/boot/compressed/vmlinux instead.
->>
->> So, the intention is that you can't boot the uncompressed image
->> anywhere? (Was it possible before, e.g. when punching the image under
->> z/VM?)
-> 
-> The uncompressed image (the vmlinux file) was never bootable in LPAR or z/VM.
-> It was just a "nice hack" that QEMU was able to do so. (even qemu on x86 can not
-> boot the pure vmlinux file as far as I know).
-> 
+Since uncompressed kernel image "vmlinux" elf file is not bootable under
+qemu anymore, add a check which would report that.
 
-"even" is relative. vmlinux boots on some arm platforms, metag, mips64, nios2,
-parisc, ppc/ppc64, and riscv.
+Qemu users are encouraged to use bzImage or
+arch/s390/boot/compressed/vmlinux instead.
 
-If an image is not expected to be bootable, a message such as "This image does
-not boot. Please use <correct image>" would be nice. Unfortunately, which image
-to boot under qemu is pretty much undocumented, and it is guesswork for each
-architecture/platform.
+The check relies on s390 linux entry point ABI definition, which is only
+present in bzImage and arch/s390/boot/compressed/vmlinux.
 
-Guenter
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+---
+ arch/s390/boot/head.S         |  4 ++--
+ arch/s390/include/asm/setup.h |  3 ++-
+ arch/s390/kernel/early.c      | 12 ++++++++++++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
-> I talked to Vasily and the vmlinux file in the linux source path is just an
-> intermediate file. Future changes will happen that will make that ELF file
-> unsuitable for direct boot anyway (e.g. think about potential ASLR or Kasan
-> changes).
-> 
->   If yes, it would make sense to explicitly fence it. But I'm
->> worried that it would break previously working setups (did we document
->> the purpose of the images anywhere?
->>
-> 
-> 
-> I think by referring to arch/s390/boot/compressed/vmlinux things are probably
-> good enough. That will still load from 0x10000.
-> 
-> We might still "change" the way that we add the parameters (e.g.
-> make that not depend on the load address), but looking forward this might
-> become less important for the "intermediate vmlnux file".
-> 
-> 
+diff --git a/arch/s390/boot/head.S b/arch/s390/boot/head.S
+index f09e792df495..f721913b73f1 100644
+--- a/arch/s390/boot/head.S
++++ b/arch/s390/boot/head.S
+@@ -272,14 +272,14 @@ iplstart:
+ 	.org	0x10000
+ ENTRY(startup)
+ 	j	.Lep_startup_normal
+-	.org	0x10008
++	.org	EP_OFFSET
+ #
+ # This is a list of s390 kernel entry points. At address 0x1000f the number of
+ # valid entry points is stored.
+ #
+ # IMPORTANT: Do not change this table, it is s390 kernel ABI!
+ #
+-	.ascii	"S390EP"
++	.ascii	EP_STRING
+ 	.byte	0x00,0x01
+ #
+ # kdump startup-code at 0x10010, running in 64 bit absolute addressing mode
+diff --git a/arch/s390/include/asm/setup.h b/arch/s390/include/asm/setup.h
+index be02f0558048..1d66016f4170 100644
+--- a/arch/s390/include/asm/setup.h
++++ b/arch/s390/include/asm/setup.h
+@@ -9,7 +9,8 @@
+ #include <linux/const.h>
+ #include <uapi/asm/setup.h>
+ 
+-
++#define EP_OFFSET		0x10008
++#define EP_STRING		"S390EP"
+ #define PARMAREA		0x10400
+ #define PARMAREA_END		0x11000
+ 
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 827699eb48fa..45c5be3d8777 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -331,8 +331,20 @@ static void __init setup_boot_command_line(void)
+ 	append_to_cmdline(append_ipl_scpdata);
+ }
+ 
++static void __init check_image_bootable(void)
++{
++	if (!memcmp(EP_STRING, (void *)EP_OFFSET, strlen(EP_STRING)))
++		return;
++
++	sclp_early_printk("The linux kernel boot failure: the image is corrupted or not bootable.\n");
++	sclp_early_printk("Please check that you are using bootable kernel image \"bzImage\".\n");
++	sclp_early_printk("(or alternatively \"arch/s390/boot/compressed/vmlinux\" image for qemu)\n");
++	disabled_wait(0xbadb007);
++}
++
+ void __init startup_init(void)
+ {
++	check_image_bootable();
+ 	time_early_init();
+ 	init_kernel_storage_key();
+ 	lockdep_off();
+-- 
+⣔⢻⣟⢢ 2.18.0.rc2.13.g4da9a5d
+⣿⢿⡿⣿ pacman edition
