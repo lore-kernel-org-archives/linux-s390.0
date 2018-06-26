@@ -1,52 +1,54 @@
-From: Cong Wang <xiyou.wangcong@gmail.com>
-Subject: Re: [PATCH net 1/1] net/smc: coordinate wait queues for nonblocking connect
-Date: Wed, 20 Jun 2018 15:56:27 -0700
-Message-ID: <CAM_iQpV=3wmEBm2OjJ9HSvP=XE_CEs7einMKO3sgTEwvt+8wag@mail.gmail.com>
-References: <20180620080737.50323-1-ubraun@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180620080737.50323-1-ubraun@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Ursula Braun <ubraun@linux.ibm.com>
-Cc: David Miller <davem@davemloft.net>, Linux Kernel Network Developers <netdev@vger.kernel.org>, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, raspl@linux.ibm.com, Christoph Hellwig <hch@lst.de>
+Return-Path: <SRS0=cv1S=JM=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Tue, 26 Jun 2018 10:24:49 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] s390/boot: block uncompressed vmlinux booting attempts
+Message-ID: <20180626102449.50b65335.cohuck@redhat.com>
+In-Reply-To: <7cb526fc-9da4-248b-d5c4-cb463a2c2bac@de.ibm.com>
+References: <64bcba64-b88f-3594-da6e-7c2118482c20@roeck-us.net>
+        <cover.thread-8b0da3.your-ad-here.call-01529937119-ext-3705@work.hours>
+        <patch-1.thread-8b0da3.git-8b0da335b2d3.your-ad-here.call-01529937119-ext-3705@work.hours>
+        <7cb526fc-9da4-248b-d5c4-cb463a2c2bac@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Guenter Roeck <linux@roeck-us.net>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x <qemu-s390x@nongnu.org>, qemu-devel <qemu-devel@nongnu.org>, Thomas Huth <thuth@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jun 20, 2018 at 1:07 AM, Ursula Braun <ubraun@linux.ibm.com> wrote:
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index da7f02edcd37..21c84b924ffb 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -605,6 +605,8 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
->
->         smc_copy_sock_settings_to_clc(smc);
->         tcp_sk(smc->clcsock->sk)->syn_smc = 1;
-> +       if (flags & O_NONBLOCK)
-> +               sock->sk->sk_wq = smc->clcsock->sk->sk_wq;
->         rc = kernel_connect(smc->clcsock, addr, alen, flags);
->         if (rc)
->                 goto out;
-> @@ -1285,12 +1287,9 @@ static __poll_t smc_poll_mask(struct socket *sock, __poll_t events)
->
->         smc = smc_sk(sock->sk);
->         sock_hold(sk);
-> -       lock_sock(sk);
->         if ((sk->sk_state == SMC_INIT) || smc->use_fallback) {
->                 /* delegate to CLC child sock */
-> -               release_sock(sk);
->                 mask = smc->clcsock->ops->poll_mask(smc->clcsock, events);
-> -               lock_sock(sk);
->                 sk->sk_err = smc->clcsock->sk->sk_err;
->                 if (sk->sk_err) {
->                         mask |= EPOLLERR;
-> @@ -1299,7 +1298,10 @@ static __poll_t smc_poll_mask(struct socket *sock, __poll_t events)
->                         if (sk->sk_state == SMC_INIT &&
->                             mask & EPOLLOUT &&
->                             smc->clcsock->sk->sk_state != TCP_CLOSE) {
-> +                               sock->sk->sk_wq = smc->smcwq;
-> +                               lock_sock(sk);
+On Tue, 26 Jun 2018 09:30:19 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-I think you need to use proper RCU API to protect these
-assignment of sk->sk_wq.
+> On 06/25/2018 05:09 PM, Vasily Gorbik wrote:
+> > Since uncompressed kernel image "vmlinux" elf file is not bootable under
+> > qemu anymore, add a check which would report that.
+> > 
+> > Qemu users are encouraged to use bzImage or
+> > arch/s390/boot/compressed/vmlinux instead.
+> > 
+> > The check relies on s390 linux entry point ABI definition, which is only
+> > present in bzImage and arch/s390/boot/compressed/vmlinux.
+> > 
+> > Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>  
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> 
+> some proposals regarding the wording below..
+> 
+> [...]
+> > +
+> > +	sclp_early_printk("The linux kernel boot failure: the image is corrupted or not bootable.\n");
+> > +	sclp_early_printk("Please check that you are using bootable kernel image \"bzImage\".\n");
+> > +	sclp_early_printk("(or alternatively \"arch/s390/boot/compressed/vmlinux\" image for qemu)\n");  
+> 
+> What about making this explain things a bit more, e.g. something like
+> 
+> Linux kernel boot failure: The boot image does not contain all necessary
+> components (like the entry point and decompressor). The plain vmlinux ELF
+> file no longer carries all necessary parts for starting up. Please use
+> bzImage or arch/s390/boot/compressed/vmlinux.
+
+Yes, that sounds good. With the changed message,
+
+Acked-by: Cornelia Huck <cohuck@redhat.com>
