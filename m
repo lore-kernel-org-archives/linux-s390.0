@@ -1,27 +1,49 @@
 Return-Path: <SRS0=cv1S=JM=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Tue, 26 Jun 2018 08:32:46 +0300
-From: Georgi Guninski <guninski@guninski.com>
-Subject: Re: s390 qemu boot failure in -next
-Message-ID: <20180626053246.6kyvrj7jbuhgdkgv@sivokote.iziade.m$>
-References: <20180622194736.GA5794@roeck-us.net>
- <126ac556-0602-b927-58f5-cb5f65a5e0ec@de.ibm.com>
- <88d9afed-f91d-c320-13c8-9a93fc52b700@de.ibm.com>
+Subject: Re: [PATCH] s390/boot: block uncompressed vmlinux booting attempts
+References: <64bcba64-b88f-3594-da6e-7c2118482c20@roeck-us.net>
+ <cover.thread-8b0da3.your-ad-here.call-01529937119-ext-3705@work.hours>
+ <patch-1.thread-8b0da3.git-8b0da335b2d3.your-ad-here.call-01529937119-ext-3705@work.hours>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Tue, 26 Jun 2018 09:30:19 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88d9afed-f91d-c320-13c8-9a93fc52b700@de.ibm.com>
+In-Reply-To: <patch-1.thread-8b0da3.git-8b0da335b2d3.your-ad-here.call-01529937119-ext-3705@work.hours>
+Content-Language: en-US
+Message-Id: <7cb526fc-9da4-248b-d5c4-cb463a2c2bac@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x <qemu-s390x@nongnu.org>, qemu-devel <qemu-devel@nongnu.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>
+To: Vasily Gorbik <gor@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Guenter Roeck <linux@roeck-us.net>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x <qemu-s390x@nongnu.org>, qemu-devel <qemu-devel@nongnu.org>, Thomas Huth <thuth@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jun 25, 2018 at 09:27:59AM +0200, Christian Borntraeger wrote:
-> -            /* Overwrite parameters in the kernel image, which are "rom" */
-> -            strcpy(rom_ptr(KERN_PARM_AREA), ipl->cmdline);
 
-> +            strcpy(rom_ptr(KERN_PARM_AREA), ipl->cmdline);
 
-Why not replace strcpy() with strncpy() or snprintf()?
-strcpy() may overflow.
+On 06/25/2018 05:09 PM, Vasily Gorbik wrote:
+> Since uncompressed kernel image "vmlinux" elf file is not bootable under
+> qemu anymore, add a check which would report that.
+> 
+> Qemu users are encouraged to use bzImage or
+> arch/s390/boot/compressed/vmlinux instead.
+> 
+> The check relies on s390 linux entry point ABI definition, which is only
+> present in bzImage and arch/s390/boot/compressed/vmlinux.
+> 
+> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+some proposals regarding the wording below..
+
+[...]
+> +
+> +	sclp_early_printk("The linux kernel boot failure: the image is corrupted or not bootable.\n");
+> +	sclp_early_printk("Please check that you are using bootable kernel image \"bzImage\".\n");
+> +	sclp_early_printk("(or alternatively \"arch/s390/boot/compressed/vmlinux\" image for qemu)\n");
+
+What about making this explain things a bit more, e.g. something like
+
+Linux kernel boot failure: The boot image does not contain all necessary
+components (like the entry point and decompressor). The plain vmlinux ELF
+file no longer carries all necessary parts for starting up. Please use
+bzImage or arch/s390/boot/compressed/vmlinux.
