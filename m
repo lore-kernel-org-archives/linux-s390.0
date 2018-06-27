@@ -1,72 +1,73 @@
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 3/5] s390/qeth: avoid using is_multicast_ether_addr_64bits on (u8 *)[6]
-Date: Fri, 29 Jun 2018 19:45:52 +0200
-Message-ID: <20180629174554.53718-4-jwi@linux.ibm.com>
-References: <20180629174554.53718-1-jwi@linux.ibm.com>
+From: Kleber Souza <kleber.souza@canonical.com>
+Subject: Re: s390x BPF JIT failures with test_bpf
+Date: Wed, 27 Jun 2018 14:30:38 +0200
+Message-ID: <26969c7b-f1d2-fd88-fc64-d58a2bb002ca@canonical.com>
+References: <6a515d91-e831-e240-1ae6-ff0d6ead6cf2@canonical.com>
+ <33983d2e-905b-e05b-67e3-11eb9bc6f030@iogearbox.net>
+ <908de5ba-3a65-dfa1-3d5e-de25b4e984a2@canonical.com>
+ <0511ac38-beec-131f-5643-04eee3357cc4@iogearbox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180629174554.53718-1-jwi@linux.ibm.com>
+In-Reply-To: <0511ac38-beec-131f-5643-04eee3357cc4@iogearbox.net>
+Content-Language: en-US
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Daniel Borkmann <daniel@iogearbox.net>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Cc: Alexei Starovoitov <ast@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+On 06/27/18 12:36, Daniel Borkmann wrote:
+> On 06/27/2018 12:13 PM, Kleber Souza wrote:
+>> On 06/27/18 12:01, Daniel Borkmann wrote:
+>>> On 06/27/2018 11:40 AM, Kleber Souza wrote:
+>>> [...]
+>>>> When I load the test_bpf module from mainline (v4.18-rc2) with
+>>>> CONFIG_BPF_JIT_ALWAYS_ON=y on a s390x system I get the following errors:
+>>>>
+>>>> test_bpf: #289 BPF_MAXINSNS: Ctx heavy transformations FAIL to
+>>>> prog_create err=-524 len=4096
+>>>> test_bpf: #290 BPF_MAXINSNS: Call heavy transformations FAIL to
+>>>> prog_create err=-524 len=4096
+>>>> [...]
+>>>> test_bpf: #296 BPF_MAXINSNS: exec all MSH FAIL to prog_create err=-524
+>>>> len=4096
+>>>> test_bpf: #297 BPF_MAXINSNS: ld_abs+get_processor_id FAIL to prog_create
+>>>> err=-524 len=4096
+>>>>
+>>>> From a quick look at the code it seems that
+>>>> arch/s390/net/bpf_jit_comp.c:bpf_int_jit_compile() is failing to JIT
+>>>> compile the test code.
+>>>>
+>>>> Are those failures expected and could be flagged with FLAG_EXPECTED_FAIL
+>>>> on lib/test_bpf.c or are those caused by some issue with the s390x JIT
+>>>> compiler that needs to be fixed?
+>>>
+>>> JIT doesn't guarantee in general to map really all programs to native insns,
+>>> so some, mostly crafted corner cases could fail. E.g. x86-64 JIT doesn't converge
+>>> on some programs in test_bpf.c and thus falls back to interpreter or simply
+>>> rejects the program in case of CONFIG_BPF_JIT_ALWAYS_ON=y. Above would seem
+>>> likely that it's hitting the BPF_SIZE_MAX that s390 would do. I think it might
+>>> make sense to either have the FLAG_EXPECTED_FAIL in lib/test_bpf.c more fine
+>>> grained as a flag per arch, so we could say it's expected to fail on e.g. s390
+>>> but not on x86 and the like, or just denote it as 'could potentially fail but
+>>> doesn't have to be the case everywhere'.
+>>
+>> Thank you for your reply. I will run some more tests to make sure we are
+>> hitting BPF_SIZE_MAX or what exactly is failing and send a patch to flag
+>> it conditionally for s390x.
+> 
+> Sounds good, thanks! In any case, please let us know your findings.
+> 
+> Best,
+> Daniel
+> 
+Hi Daniel,
 
-*ether_addr*_64bits functions have been introduced to optimize
-performance critical paths, which access 6-byte ethernet address as u64
-value to get "nice" assembly. A harmless hack works nicely on ethernet
-addresses shoved into a structure or a larger buffer, until busted by
-Kasan on smth like plain (u8 *)[6].
+Your presumption was correct, all four tests are failing because they
+exceed BPF_SIZE_MAX. I'll send a patch shortly.
 
-qeth_l2_set_mac_address calls qeth_l2_remove_mac passing
-u8 old_addr[ETH_ALEN] as an argument.
-
-Adding/removing macs for an ethernet adapter is not that performance
-critical. Moreover is_multicast_ether_addr_64bits itself on s390 is not
-faster than is_multicast_ether_addr:
-
-is_multicast_ether_addr(%r2) -> %r2
-llc	%r2,0(%r2)
-risbg	%r2,%r2,63,191,0
-
-is_multicast_ether_addr_64bits(%r2) -> %r2
-llgc	%r2,0(%r2)
-risbg	%r2,%r2,63,191,0
-
-So, let's just use is_multicast_ether_addr instead of
-is_multicast_ether_addr_64bits.
-
-Fixes: bcacfcbc82b4 ("s390/qeth: fix MAC address update sequence")
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_l2_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 7daf125dae76..5464515b71f1 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -140,7 +140,7 @@ static int qeth_l2_send_setmac(struct qeth_card *card, __u8 *mac)
- 
- static int qeth_l2_write_mac(struct qeth_card *card, u8 *mac)
- {
--	enum qeth_ipa_cmds cmd = is_multicast_ether_addr_64bits(mac) ?
-+	enum qeth_ipa_cmds cmd = is_multicast_ether_addr(mac) ?
- 					IPA_CMD_SETGMAC : IPA_CMD_SETVMAC;
- 	int rc;
- 
-@@ -157,7 +157,7 @@ static int qeth_l2_write_mac(struct qeth_card *card, u8 *mac)
- 
- static int qeth_l2_remove_mac(struct qeth_card *card, u8 *mac)
- {
--	enum qeth_ipa_cmds cmd = is_multicast_ether_addr_64bits(mac) ?
-+	enum qeth_ipa_cmds cmd = is_multicast_ether_addr(mac) ?
- 					IPA_CMD_DELGMAC : IPA_CMD_DELVMAC;
- 	int rc;
- 
--- 
-2.16.4
+Thanks!
+Kleber
