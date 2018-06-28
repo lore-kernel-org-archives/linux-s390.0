@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 08/10] net/smc: add SMC-D support in af_smc
-Date: Thu, 28 Jun 2018 19:05:11 +0200
-Message-ID: <20180628170513.5089-9-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 10/10] s390/ism: add device driver for internal shared memory
+Date: Thu, 28 Jun 2018 19:05:13 +0200
+Message-ID: <20180628170513.5089-11-ubraun@linux.ibm.com>
 References: <20180628170513.5089-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180628170513.5089-1-ubraun@linux.ibm.com>
@@ -12,363 +12,907 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, hwippel@linux.ibm.com, sebott@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.ibm.com>
+From: Sebastian Ott <sebott@linux.ibm.com>
 
-This patch ties together the previous SMC-D patches. It adds support for
-SMC-D to the listen and connect functions and, thus, enables SMC-D
-support in the SMC code. If a connection supports both SMC-R and SMC-D,
-SMC-D is preferred.
+Add support for the Internal Shared Memory vPCI Adapter.
+This driver implements the interfaces of the SMC-D protocol.
 
-Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
 ---
- net/smc/af_smc.c   | 216 ++++++++++++++++++++++++++++++++++++++++++++++++-----
- net/smc/smc_core.c |   2 +-
- net/smc/smc_core.h |   1 +
- 3 files changed, 200 insertions(+), 19 deletions(-)
+ drivers/s390/net/Kconfig   |  10 +
+ drivers/s390/net/Makefile  |   3 +
+ drivers/s390/net/ism.h     | 221 ++++++++++++++++
+ drivers/s390/net/ism_drv.c | 623 +++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 857 insertions(+)
+ create mode 100644 drivers/s390/net/ism.h
+ create mode 100644 drivers/s390/net/ism_drv.c
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 20afa94be8bb..cbbb947dbfcf 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -23,6 +23,7 @@
- #include <linux/workqueue.h>
- #include <linux/in.h>
- #include <linux/sched/signal.h>
-+#include <linux/if_vlan.h>
+diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+index c7e484f70654..7c5a25ddf832 100644
+--- a/drivers/s390/net/Kconfig
++++ b/drivers/s390/net/Kconfig
+@@ -95,4 +95,14 @@ config CCWGROUP
+ 	tristate
+ 	default (LCS || CTCM || QETH)
  
- #include <net/sock.h>
- #include <net/tcp.h>
-@@ -35,6 +36,7 @@
- #include "smc_cdc.h"
- #include "smc_core.h"
- #include "smc_ib.h"
-+#include "smc_ism.h"
- #include "smc_pnet.h"
- #include "smc_tx.h"
- #include "smc_rx.h"
-@@ -372,8 +374,8 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
- 	return 0;
- }
- 
--static void smc_conn_save_peer_info(struct smc_sock *smc,
--				    struct smc_clc_msg_accept_confirm *clc)
-+static void smcr_conn_save_peer_info(struct smc_sock *smc,
-+				     struct smc_clc_msg_accept_confirm *clc)
- {
- 	int bufsize = smc_uncompress_bufsize(clc->rmbe_size);
- 
-@@ -384,6 +386,28 @@ static void smc_conn_save_peer_info(struct smc_sock *smc,
- 	smc->conn.tx_off = bufsize * (smc->conn.peer_rmbe_idx - 1);
- }
- 
-+static void smcd_conn_save_peer_info(struct smc_sock *smc,
-+				     struct smc_clc_msg_accept_confirm *clc)
-+{
-+	int bufsize = smc_uncompress_bufsize(clc->dmbe_size);
++config ISM
++	tristate "Support for ISM vPCI Adapter"
++	depends on PCI && SMC
++	default n
++	help
++	  Select this option if you want to use the Internal Shared Memory
++	  vPCI Adapter.
 +
-+	smc->conn.peer_rmbe_idx = clc->dmbe_idx;
-+	smc->conn.peer_token = clc->token;
-+	/* msg header takes up space in the buffer */
-+	smc->conn.peer_rmbe_size = bufsize - sizeof(struct smcd_cdc_msg);
-+	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
-+	smc->conn.tx_off = bufsize * smc->conn.peer_rmbe_idx;
-+}
++	  To compile as a module choose M. The module name is ism.
++	  If unsure, choose N.
+ endmenu
+diff --git a/drivers/s390/net/Makefile b/drivers/s390/net/Makefile
+index 513b7ae64980..f2d6bbe57a6f 100644
+--- a/drivers/s390/net/Makefile
++++ b/drivers/s390/net/Makefile
+@@ -15,3 +15,6 @@ qeth_l2-y += qeth_l2_main.o qeth_l2_sys.o
+ obj-$(CONFIG_QETH_L2) += qeth_l2.o
+ qeth_l3-y += qeth_l3_main.o qeth_l3_sys.o
+ obj-$(CONFIG_QETH_L3) += qeth_l3.o
 +
-+static void smc_conn_save_peer_info(struct smc_sock *smc,
-+				    struct smc_clc_msg_accept_confirm *clc)
-+{
-+	if (smc->conn.lgr->is_smcd)
-+		smcd_conn_save_peer_info(smc, clc);
-+	else
-+		smcr_conn_save_peer_info(smc, clc);
-+}
++ism-y := ism_drv.o
++obj-$(CONFIG_ISM) += ism.o
+diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
+new file mode 100644
+index 000000000000..0aab90817326
+--- /dev/null
++++ b/drivers/s390/net/ism.h
+@@ -0,0 +1,221 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef S390_ISM_H
++#define S390_ISM_H
 +
- static void smc_link_save_peer_info(struct smc_link *link,
- 				    struct smc_clc_msg_accept_confirm *clc)
- {
-@@ -450,15 +474,51 @@ static int smc_check_rdma(struct smc_sock *smc, struct smc_ib_device **ibdev,
- 	return reason_code;
- }
- 
-+/* check if there is an ISM device available for this connection. */
-+/* called for connect and listen */
-+static int smc_check_ism(struct smc_sock *smc, struct smcd_dev **ismdev)
-+{
-+	/* Find ISM device with same PNETID as connecting interface  */
-+	smc_pnet_find_ism_resource(smc->clcsock->sk, ismdev);
-+	if (!(*ismdev))
-+		return SMC_CLC_DECL_CNFERR; /* configuration error */
-+	return 0;
-+}
++#include <linux/spinlock.h>
++#include <linux/types.h>
++#include <linux/pci.h>
++#include <net/smc.h>
 +
-+/* Check for VLAN ID and register it on ISM device just for CLC handshake */
-+static int smc_connect_ism_vlan_setup(struct smc_sock *smc,
-+				      struct smcd_dev *ismdev,
-+				      unsigned short vlan_id)
-+{
-+	if (vlan_id && smc_ism_get_vlan(ismdev, vlan_id))
-+		return SMC_CLC_DECL_CNFERR;
-+	return 0;
-+}
++#define UTIL_STR_LEN	16
 +
-+/* cleanup temporary VLAN ID registration used for CLC handshake. If ISM is
-+ * used, the VLAN ID will be registered again during the connection setup.
++/*
++ * Do not use the first word of the DMB bits to ensure 8 byte aligned access.
 + */
-+static int smc_connect_ism_vlan_cleanup(struct smc_sock *smc, bool is_smcd,
-+					struct smcd_dev *ismdev,
-+					unsigned short vlan_id)
++#define ISM_DMB_WORD_OFFSET	1
++#define ISM_DMB_BIT_OFFSET	(ISM_DMB_WORD_OFFSET * 32)
++#define ISM_NR_DMBS		1920
++
++#define ISM_REG_SBA	0x1
++#define ISM_REG_IEQ	0x2
++#define ISM_READ_GID	0x3
++#define ISM_ADD_VLAN_ID	0x4
++#define ISM_DEL_VLAN_ID	0x5
++#define ISM_SET_VLAN	0x6
++#define ISM_RESET_VLAN	0x7
++#define ISM_QUERY_INFO	0x8
++#define ISM_QUERY_RGID	0x9
++#define ISM_REG_DMB	0xA
++#define ISM_UNREG_DMB	0xB
++#define ISM_SIGNAL_IEQ	0xE
++#define ISM_UNREG_SBA	0x11
++#define ISM_UNREG_IEQ	0x12
++
++#define ISM_ERROR	0xFFFF
++
++struct ism_req_hdr {
++	u32 cmd;
++	u16 : 16;
++	u16 len;
++};
++
++struct ism_resp_hdr {
++	u32 cmd;
++	u16 ret;
++	u16 len;
++};
++
++union ism_reg_sba {
++	struct {
++		struct ism_req_hdr hdr;
++		u64 sba;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++	} response;
++} __aligned(16);
++
++union ism_reg_ieq {
++	struct {
++		struct ism_req_hdr hdr;
++		u64 ieq;
++		u64 len;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++	} response;
++} __aligned(16);
++
++union ism_read_gid {
++	struct {
++		struct ism_req_hdr hdr;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++		u64 gid;
++	} response;
++} __aligned(16);
++
++union ism_qi {
++	struct {
++		struct ism_req_hdr hdr;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++		u32 version;
++		u32 max_len;
++		u64 ism_state;
++		u64 my_gid;
++		u64 sba;
++		u64 ieq;
++		u32 ieq_len;
++		u32 : 32;
++		u32 dmbs_owned;
++		u32 dmbs_used;
++		u32 vlan_required;
++		u32 vlan_nr_ids;
++		u16 vlan_id[64];
++	} response;
++} __aligned(64);
++
++union ism_query_rgid {
++	struct {
++		struct ism_req_hdr hdr;
++		u64 rgid;
++		u32 vlan_valid;
++		u32 vlan_id;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++	} response;
++} __aligned(16);
++
++union ism_reg_dmb {
++	struct {
++		struct ism_req_hdr hdr;
++		u64 dmb;
++		u32 dmb_len;
++		u32 sba_idx;
++		u32 vlan_valid;
++		u32 vlan_id;
++		u64 rgid;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++		u64 dmb_tok;
++	} response;
++} __aligned(32);
++
++union ism_sig_ieq {
++	struct {
++		struct ism_req_hdr hdr;
++		u64 rgid;
++		u32 trigger_irq;
++		u32 event_code;
++		u64 info;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++	} response;
++} __aligned(32);
++
++union ism_unreg_dmb {
++	struct {
++		struct ism_req_hdr hdr;
++		u64 dmb_tok;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++	} response;
++} __aligned(16);
++
++union ism_cmd_simple {
++	struct {
++		struct ism_req_hdr hdr;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++	} response;
++} __aligned(8);
++
++union ism_set_vlan_id {
++	struct {
++		struct ism_req_hdr hdr;
++		u64 vlan_id;
++	} request;
++	struct {
++		struct ism_resp_hdr hdr;
++	} response;
++} __aligned(16);
++
++struct ism_eq_header {
++	u64 idx;
++	u64 ieq_len;
++	u64 entry_len;
++	u64 : 64;
++};
++
++struct ism_eq {
++	struct ism_eq_header header;
++	struct smcd_event entry[15];
++};
++
++struct ism_sba {
++	u32 s : 1;	/* summary bit */
++	u32 e : 1;	/* event bit */
++	u32 : 30;
++	u32 dmb_bits[ISM_NR_DMBS / 32];
++	u32 reserved[3];
++	u16 dmbe_mask[ISM_NR_DMBS];
++};
++
++struct ism_dev {
++	spinlock_t lock;
++	struct pci_dev *pdev;
++	struct smcd_dev *smcd;
++
++	void __iomem *ctl;
++
++	struct ism_sba *sba;
++	dma_addr_t sba_dma_addr;
++	DECLARE_BITMAP(sba_bitmap, ISM_NR_DMBS);
++
++	struct ism_eq *ieq;
++	dma_addr_t ieq_dma_addr;
++
++	int ieq_idx;
++};
++
++#define ISM_CREATE_REQ(dmb, idx, sf, offset)		\
++	((dmb) | (idx) << 24 | (sf) << 23 | (offset))
++
++static inline int __ism_move(struct ism_dev *ism, u64 dmb_req, void *data,
++			     unsigned int size)
 +{
-+	if (!is_smcd)
++	struct zpci_dev *zdev = to_zpci(ism->pdev);
++	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, size);
++
++	return zpci_write_block(req, data, dmb_req);
++}
++
++#endif /* S390_ISM_H */
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+new file mode 100644
+index 000000000000..c0631895154e
+--- /dev/null
++++ b/drivers/s390/net/ism_drv.c
+@@ -0,0 +1,623 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * ISM driver for s390.
++ *
++ * Copyright IBM Corp. 2018
++ */
++#define KMSG_COMPONENT "ism"
++#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
++
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/interrupt.h>
++#include <linux/device.h>
++#include <linux/pci.h>
++#include <linux/err.h>
++#include <net/smc.h>
++
++#include <asm/debug.h>
++
++#include "ism.h"
++
++MODULE_DESCRIPTION("ISM driver for s390");
++MODULE_LICENSE("GPL");
++
++#define PCI_DEVICE_ID_IBM_ISM 0x04ED
++#define DRV_NAME "ism"
++
++static const struct pci_device_id ism_device_table[] = {
++	{ PCI_VDEVICE(IBM, PCI_DEVICE_ID_IBM_ISM), 0 },
++	{ 0, }
++};
++MODULE_DEVICE_TABLE(pci, ism_device_table);
++
++static debug_info_t *ism_debug_info;
++
++static int ism_cmd(struct ism_dev *ism, void *cmd)
++{
++	struct ism_req_hdr *req = cmd;
++	struct ism_resp_hdr *resp = cmd;
++
++	memcpy_toio(ism->ctl + sizeof(*req), req + 1, req->len - sizeof(*req));
++	memcpy_toio(ism->ctl, req, sizeof(*req));
++
++	WRITE_ONCE(resp->ret, ISM_ERROR);
++
++	memcpy_fromio(resp, ism->ctl, sizeof(*resp));
++	if (resp->ret) {
++		debug_text_event(ism_debug_info, 0, "cmd failure");
++		debug_event(ism_debug_info, 0, resp, sizeof(*resp));
++		goto out;
++	}
++	memcpy_fromio(resp + 1, ism->ctl + sizeof(*resp),
++		      resp->len - sizeof(*resp));
++out:
++	return resp->ret;
++}
++
++static int ism_cmd_simple(struct ism_dev *ism, u32 cmd_code)
++{
++	union ism_cmd_simple cmd;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = cmd_code;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	return ism_cmd(ism, &cmd);
++}
++
++static int query_info(struct ism_dev *ism)
++{
++	union ism_qi cmd;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_QUERY_INFO;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	if (ism_cmd(ism, &cmd))
++		goto out;
++
++	debug_text_event(ism_debug_info, 3, "query info");
++	debug_event(ism_debug_info, 3, &cmd.response, sizeof(cmd.response));
++out:
++	return 0;
++}
++
++static int register_sba(struct ism_dev *ism)
++{
++	union ism_reg_sba cmd;
++	dma_addr_t dma_handle;
++	struct ism_sba *sba;
++
++	sba = dma_zalloc_coherent(&ism->pdev->dev, PAGE_SIZE,
++				  &dma_handle, GFP_KERNEL);
++	if (!sba)
++		return -ENOMEM;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_REG_SBA;
++	cmd.request.hdr.len = sizeof(cmd.request);
++	cmd.request.sba = dma_handle;
++
++	if (ism_cmd(ism, &cmd)) {
++		dma_free_coherent(&ism->pdev->dev, PAGE_SIZE, sba, dma_handle);
++		return -EIO;
++	}
++
++	ism->sba = sba;
++	ism->sba_dma_addr = dma_handle;
++
++	return 0;
++}
++
++static int register_ieq(struct ism_dev *ism)
++{
++	union ism_reg_ieq cmd;
++	dma_addr_t dma_handle;
++	struct ism_eq *ieq;
++
++	ieq = dma_zalloc_coherent(&ism->pdev->dev, PAGE_SIZE,
++				  &dma_handle, GFP_KERNEL);
++	if (!ieq)
++		return -ENOMEM;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_REG_IEQ;
++	cmd.request.hdr.len = sizeof(cmd.request);
++	cmd.request.ieq = dma_handle;
++	cmd.request.len = sizeof(*ieq);
++
++	if (ism_cmd(ism, &cmd)) {
++		dma_free_coherent(&ism->pdev->dev, PAGE_SIZE, ieq, dma_handle);
++		return -EIO;
++	}
++
++	ism->ieq = ieq;
++	ism->ieq_idx = -1;
++	ism->ieq_dma_addr = dma_handle;
++
++	return 0;
++}
++
++static int unregister_sba(struct ism_dev *ism)
++{
++	if (!ism->sba)
 +		return 0;
-+	if (vlan_id && smc_ism_put_vlan(ismdev, vlan_id))
-+		return SMC_CLC_DECL_CNFERR;
++
++	if (ism_cmd_simple(ism, ISM_UNREG_SBA))
++		return -EIO;
++
++	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
++			  ism->sba, ism->sba_dma_addr);
++
++	ism->sba = NULL;
++	ism->sba_dma_addr = 0;
++
 +	return 0;
 +}
 +
- /* CLC handshake during connect */
- static int smc_connect_clc(struct smc_sock *smc, int smc_type,
- 			   struct smc_clc_msg_accept_confirm *aclc,
--			   struct smc_ib_device *ibdev, u8 ibport)
-+			   struct smc_ib_device *ibdev, u8 ibport,
-+			   struct smcd_dev *ismdev)
- {
- 	int rc = 0;
- 
- 	/* do inband token exchange */
--	rc = smc_clc_send_proposal(smc, smc_type, ibdev, ibport, NULL);
-+	rc = smc_clc_send_proposal(smc, smc_type, ibdev, ibport, ismdev);
- 	if (rc)
- 		return rc;
- 	/* receive SMC Accept CLC message */
-@@ -538,11 +598,50 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 	return 0;
- }
- 
-+/* setup for ISM connection of client */
-+static int smc_connect_ism(struct smc_sock *smc,
-+			   struct smc_clc_msg_accept_confirm *aclc,
-+			   struct smcd_dev *ismdev)
++static int unregister_ieq(struct ism_dev *ism)
 +{
-+	int local_contact = SMC_FIRST_CONTACT;
-+	int rc = 0;
++	if (!ism->ieq)
++		return 0;
 +
-+	mutex_lock(&smc_create_lgr_pending);
-+	local_contact = smc_conn_create(smc, true, aclc->hdr.flag, NULL, 0,
-+					NULL, ismdev, aclc->gid);
-+	if (local_contact < 0)
-+		return smc_connect_abort(smc, SMC_CLC_DECL_MEM, 0);
++	if (ism_cmd_simple(ism, ISM_UNREG_IEQ))
++		return -EIO;
 +
-+	/* Create send and receive buffers */
-+	if (smc_buf_create(smc, true))
-+		return smc_connect_abort(smc, SMC_CLC_DECL_MEM, local_contact);
++	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
++			  ism->ieq, ism->ieq_dma_addr);
 +
-+	smc_conn_save_peer_info(smc, aclc);
-+	smc_close_init(smc);
-+	smc_rx_init(smc);
-+	smc_tx_init(smc);
-+
-+	rc = smc_clc_send_confirm(smc);
-+	if (rc)
-+		return smc_connect_abort(smc, rc, local_contact);
-+	mutex_unlock(&smc_create_lgr_pending);
-+
-+	smc_copy_sock_settings_to_clc(smc);
-+	if (smc->sk.sk_state == SMC_INIT)
-+		smc->sk.sk_state = SMC_ACTIVE;
++	ism->ieq = NULL;
++	ism->ieq_dma_addr = 0;
 +
 +	return 0;
 +}
 +
- /* perform steps before actually connecting */
- static int __smc_connect(struct smc_sock *smc)
- {
-+	bool ism_supported = false, rdma_supported = false;
- 	struct smc_clc_msg_accept_confirm aclc;
- 	struct smc_ib_device *ibdev;
-+	struct smcd_dev *ismdev;
-+	unsigned short vlan;
-+	int smc_type;
- 	int rc = 0;
- 	u8 ibport;
- 
-@@ -559,20 +658,52 @@ static int __smc_connect(struct smc_sock *smc)
- 	if (using_ipsec(smc))
- 		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_IPSEC);
- 
--	/* check if a RDMA device is available; if not, fall back */
--	if (smc_check_rdma(smc, &ibdev, &ibport))
-+	/* check for VLAN ID */
-+	if (smc_vlan_by_tcpsk(smc->clcsock, &vlan))
-+		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_CNFERR);
-+
-+	/* check if there is an ism device available */
-+	if (!smc_check_ism(smc, &ismdev) &&
-+	    !smc_connect_ism_vlan_setup(smc, ismdev, vlan)) {
-+		/* ISM is supported for this connection */
-+		ism_supported = true;
-+		smc_type = SMC_TYPE_D;
-+	}
-+
-+	/* check if there is a rdma device available */
-+	if (!smc_check_rdma(smc, &ibdev, &ibport)) {
-+		/* RDMA is supported for this connection */
-+		rdma_supported = true;
-+		if (ism_supported)
-+			smc_type = SMC_TYPE_B; /* both */
-+		else
-+			smc_type = SMC_TYPE_R; /* only RDMA */
-+	}
-+
-+	/* if neither ISM nor RDMA are supported, fallback */
-+	if (!rdma_supported && !ism_supported)
- 		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_CNFERR);
- 
- 	/* perform CLC handshake */
--	rc = smc_connect_clc(smc, SMC_TYPE_R, &aclc, ibdev, ibport);
--	if (rc)
-+	rc = smc_connect_clc(smc, smc_type, &aclc, ibdev, ibport, ismdev);
-+	if (rc) {
-+		smc_connect_ism_vlan_cleanup(smc, ism_supported, ismdev, vlan);
- 		return smc_connect_decline_fallback(smc, rc);
-+	}
- 
--	/* connect using rdma */
--	rc = smc_connect_rdma(smc, &aclc, ibdev, ibport);
--	if (rc)
-+	/* depending on previous steps, connect using rdma or ism */
-+	if (rdma_supported && aclc.hdr.path == SMC_TYPE_R)
-+		rc = smc_connect_rdma(smc, &aclc, ibdev, ibport);
-+	else if (ism_supported && aclc.hdr.path == SMC_TYPE_D)
-+		rc = smc_connect_ism(smc, &aclc, ismdev);
-+	else
-+		rc = SMC_CLC_DECL_CNFERR;
-+	if (rc) {
-+		smc_connect_ism_vlan_cleanup(smc, ism_supported, ismdev, vlan);
- 		return smc_connect_decline_fallback(smc, rc);
-+	}
- 
-+	smc_connect_ism_vlan_cleanup(smc, ism_supported, ismdev, vlan);
- 	return 0;
- }
- 
-@@ -909,6 +1040,44 @@ static int smc_listen_rdma_init(struct smc_sock *new_smc,
- 	return 0;
- }
- 
-+/* listen worker: initialize connection and buffers for SMC-D */
-+static int smc_listen_ism_init(struct smc_sock *new_smc,
-+			       struct smc_clc_msg_proposal *pclc,
-+			       struct smcd_dev *ismdev,
-+			       int *local_contact)
++static int ism_read_local_gid(struct ism_dev *ism)
 +{
-+	struct smc_clc_msg_smcd *pclc_smcd;
++	union ism_read_gid cmd;
++	int ret;
 +
-+	pclc_smcd = smc_get_clc_msg_smcd(pclc);
-+	*local_contact = smc_conn_create(new_smc, true, 0, NULL, 0, NULL,
-+					 ismdev, pclc_smcd->gid);
-+	if (*local_contact < 0) {
-+		if (*local_contact == -ENOMEM)
-+			return SMC_CLC_DECL_MEM;/* insufficient memory*/
-+		return SMC_CLC_DECL_INTERR; /* other error */
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_READ_GID;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	ret = ism_cmd(ism, &cmd);
++	if (ret)
++		goto out;
++
++	ism->smcd->local_gid = cmd.response.gid;
++out:
++	return ret;
++}
++
++static int ism_query_rgid(struct smcd_dev *smcd, u64 rgid, u32 vid_valid,
++			  u32 vid)
++{
++	struct ism_dev *ism = smcd->priv;
++	union ism_query_rgid cmd;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_QUERY_RGID;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	cmd.request.rgid = rgid;
++	cmd.request.vlan_valid = vid_valid;
++	cmd.request.vlan_id = vid;
++
++	return ism_cmd(ism, &cmd);
++}
++
++static void ism_free_dmb(struct ism_dev *ism, struct smcd_dmb *dmb)
++{
++	clear_bit(dmb->sba_idx, ism->sba_bitmap);
++	dma_free_coherent(&ism->pdev->dev, dmb->dmb_len,
++			  dmb->cpu_addr, dmb->dma_addr);
++}
++
++static int ism_alloc_dmb(struct ism_dev *ism, struct smcd_dmb *dmb)
++{
++	unsigned long bit;
++
++	if (PAGE_ALIGN(dmb->dmb_len) > dma_get_max_seg_size(&ism->pdev->dev))
++		return -EINVAL;
++
++	if (!dmb->sba_idx) {
++		bit = find_next_zero_bit(ism->sba_bitmap, ISM_NR_DMBS,
++					 ISM_DMB_BIT_OFFSET);
++		if (bit == ISM_NR_DMBS)
++			return -ENOMEM;
++
++		dmb->sba_idx = bit;
 +	}
++	if (dmb->sba_idx < ISM_DMB_BIT_OFFSET ||
++	    test_and_set_bit(dmb->sba_idx, ism->sba_bitmap))
++		return -EINVAL;
 +
-+	/* Check if peer can be reached via ISM device */
-+	if (smc_ism_cantalk(new_smc->conn.lgr->peer_gid,
-+			    new_smc->conn.lgr->vlan_id,
-+			    new_smc->conn.lgr->smcd)) {
-+		if (*local_contact == SMC_FIRST_CONTACT)
-+			smc_lgr_forget(new_smc->conn.lgr);
-+		smc_conn_free(&new_smc->conn);
-+		return SMC_CLC_DECL_CNFERR;
++	dmb->cpu_addr = dma_zalloc_coherent(&ism->pdev->dev, dmb->dmb_len,
++					    &dmb->dma_addr, GFP_KERNEL |
++					    __GFP_NOWARN | __GFP_NOMEMALLOC |
++					    __GFP_COMP | __GFP_NORETRY);
++	if (!dmb->cpu_addr)
++		clear_bit(dmb->sba_idx, ism->sba_bitmap);
++
++	return dmb->cpu_addr ? 0 : -ENOMEM;
++}
++
++static int ism_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
++{
++	struct ism_dev *ism = smcd->priv;
++	union ism_reg_dmb cmd;
++	int ret;
++
++	ret = ism_alloc_dmb(ism, dmb);
++	if (ret)
++		goto out;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_REG_DMB;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	cmd.request.dmb = dmb->dma_addr;
++	cmd.request.dmb_len = dmb->dmb_len;
++	cmd.request.sba_idx = dmb->sba_idx;
++	cmd.request.vlan_valid = dmb->vlan_valid;
++	cmd.request.vlan_id = dmb->vlan_id;
++	cmd.request.rgid = dmb->rgid;
++
++	ret = ism_cmd(ism, &cmd);
++	if (ret) {
++		ism_free_dmb(ism, dmb);
++		goto out;
 +	}
++	dmb->dmb_tok = cmd.response.dmb_tok;
++out:
++	return ret;
++}
 +
-+	/* Create send and receive buffers */
-+	if (smc_buf_create(new_smc, true)) {
-+		if (*local_contact == SMC_FIRST_CONTACT)
-+			smc_lgr_forget(new_smc->conn.lgr);
-+		smc_conn_free(&new_smc->conn);
-+		return SMC_CLC_DECL_MEM;
++static int ism_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
++{
++	struct ism_dev *ism = smcd->priv;
++	union ism_unreg_dmb cmd;
++	int ret;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_UNREG_DMB;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	cmd.request.dmb_tok = dmb->dmb_tok;
++
++	ret = ism_cmd(ism, &cmd);
++	if (ret)
++		goto out;
++
++	ism_free_dmb(ism, dmb);
++out:
++	return ret;
++}
++
++static int ism_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
++{
++	struct ism_dev *ism = smcd->priv;
++	union ism_set_vlan_id cmd;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_ADD_VLAN_ID;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	cmd.request.vlan_id = vlan_id;
++
++	return ism_cmd(ism, &cmd);
++}
++
++static int ism_del_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
++{
++	struct ism_dev *ism = smcd->priv;
++	union ism_set_vlan_id cmd;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_DEL_VLAN_ID;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	cmd.request.vlan_id = vlan_id;
++
++	return ism_cmd(ism, &cmd);
++}
++
++static int ism_set_vlan_required(struct smcd_dev *smcd)
++{
++	return ism_cmd_simple(smcd->priv, ISM_SET_VLAN);
++}
++
++static int ism_reset_vlan_required(struct smcd_dev *smcd)
++{
++	return ism_cmd_simple(smcd->priv, ISM_RESET_VLAN);
++}
++
++static int ism_signal_ieq(struct smcd_dev *smcd, u64 rgid, u32 trigger_irq,
++			  u32 event_code, u64 info)
++{
++	struct ism_dev *ism = smcd->priv;
++	union ism_sig_ieq cmd;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.request.hdr.cmd = ISM_SIGNAL_IEQ;
++	cmd.request.hdr.len = sizeof(cmd.request);
++
++	cmd.request.rgid = rgid;
++	cmd.request.trigger_irq = trigger_irq;
++	cmd.request.event_code = event_code;
++	cmd.request.info = info;
++
++	return ism_cmd(ism, &cmd);
++}
++
++static unsigned int max_bytes(unsigned int start, unsigned int len,
++			      unsigned int boundary)
++{
++	return min(boundary - (start & (boundary - 1)), len);
++}
++
++static int ism_move(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx,
++		    bool sf, unsigned int offset, void *data, unsigned int size)
++{
++	struct ism_dev *ism = smcd->priv;
++	unsigned int bytes;
++	u64 dmb_req;
++	int ret;
++
++	while (size) {
++		bytes = max_bytes(offset, size, PAGE_SIZE);
++		dmb_req = ISM_CREATE_REQ(dmb_tok, idx, size == bytes ? sf : 0,
++					 offset);
++
++		ret = __ism_move(ism, dmb_req, data, bytes);
++		if (ret)
++			return ret;
++
++		size -= bytes;
++		data += bytes;
++		offset += bytes;
 +	}
 +
 +	return 0;
 +}
 +
- /* listen worker: register buffers */
- static int smc_listen_rdma_reg(struct smc_sock *new_smc, int local_contact)
- {
-@@ -967,6 +1136,8 @@ static void smc_listen_work(struct work_struct *work)
- 	struct smc_clc_msg_accept_confirm cclc;
- 	struct smc_clc_msg_proposal *pclc;
- 	struct smc_ib_device *ibdev;
-+	bool ism_supported = false;
-+	struct smcd_dev *ismdev;
- 	u8 buf[SMC_CLC_MAX_LEN];
- 	int local_contact = 0;
- 	int reason_code = 0;
-@@ -1007,13 +1178,21 @@ static void smc_listen_work(struct work_struct *work)
- 	smc_rx_init(new_smc);
- 	smc_tx_init(new_smc);
- 
-+	/* check if ISM is available */
-+	if ((pclc->hdr.path == SMC_TYPE_D || pclc->hdr.path == SMC_TYPE_B) &&
-+	    !smc_check_ism(new_smc, &ismdev) &&
-+	    !smc_listen_ism_init(new_smc, pclc, ismdev, &local_contact)) {
-+		ism_supported = true;
++static void ism_handle_event(struct ism_dev *ism)
++{
++	struct smcd_event *entry;
++
++	while ((ism->ieq_idx + 1) != READ_ONCE(ism->ieq->header.idx)) {
++		if (++(ism->ieq_idx) == ARRAY_SIZE(ism->ieq->entry))
++			ism->ieq_idx = 0;
++
++		entry = &ism->ieq->entry[ism->ieq_idx];
++		debug_event(ism_debug_info, 2, entry, sizeof(*entry));
++		smcd_handle_event(ism->smcd, entry);
++	}
++}
++
++static irqreturn_t ism_handle_irq(int irq, void *data)
++{
++	struct ism_dev *ism = data;
++	unsigned long bit, end;
++	unsigned long *bv;
++
++	bv = (void *) &ism->sba->dmb_bits[ISM_DMB_WORD_OFFSET];
++	end = sizeof(ism->sba->dmb_bits) * BITS_PER_BYTE - ISM_DMB_BIT_OFFSET;
++
++	spin_lock(&ism->lock);
++	ism->sba->s = 0;
++	barrier();
++	for (bit = 0;;) {
++		bit = find_next_bit_inv(bv, end, bit);
++		if (bit >= end)
++			break;
++
++		clear_bit_inv(bit, bv);
++		barrier();
++		smcd_handle_irq(ism->smcd, bit + ISM_DMB_BIT_OFFSET);
++		ism->sba->dmbe_mask[bit + ISM_DMB_BIT_OFFSET] = 0;
 +	}
 +
- 	/* check if RDMA is available */
--	if ((pclc->hdr.path != SMC_TYPE_R && pclc->hdr.path != SMC_TYPE_B) ||
--	    smc_check_rdma(new_smc, &ibdev, &ibport) ||
--	    smc_listen_rdma_check(new_smc, pclc) ||
--	    smc_listen_rdma_init(new_smc, pclc, ibdev, ibport,
--				 &local_contact) ||
--	    smc_listen_rdma_reg(new_smc, local_contact)) {
-+	if (!ism_supported &&
-+	    ((pclc->hdr.path != SMC_TYPE_R && pclc->hdr.path != SMC_TYPE_B) ||
-+	     smc_check_rdma(new_smc, &ibdev, &ibport) ||
-+	     smc_listen_rdma_check(new_smc, pclc) ||
-+	     smc_listen_rdma_init(new_smc, pclc, ibdev, ibport,
-+				  &local_contact) ||
-+	     smc_listen_rdma_reg(new_smc, local_contact))) {
- 		/* SMC not supported, decline */
- 		mutex_unlock(&smc_create_lgr_pending);
- 		smc_listen_decline(new_smc, SMC_CLC_DECL_CNFERR, local_contact);
-@@ -1038,7 +1217,8 @@ static void smc_listen_work(struct work_struct *work)
- 	}
- 
- 	/* finish worker */
--	smc_listen_rdma_finish(new_smc, &cclc, local_contact);
-+	if (!ism_supported)
-+		smc_listen_rdma_finish(new_smc, &cclc, local_contact);
- 	smc_conn_save_peer_info(new_smc, &cclc);
- 	mutex_unlock(&smc_create_lgr_pending);
- 	smc_listen_out_connected(new_smc);
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 434c028162a4..66741e61a3b0 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -478,7 +478,7 @@ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid)
- /* Determine vlan of internal TCP socket.
-  * @vlan_id: address to store the determined vlan id into
-  */
--static int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
-+int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
- {
- 	struct dst_entry *dst = sk_dst_get(clcsock->sk);
- 	struct net_device *ndev;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index cd9268a9570e..8b47e0168fc3 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -257,6 +257,7 @@ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn);
- void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
- void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
- void smc_rmb_sync_sg_for_device(struct smc_connection *conn);
-+int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id);
- 
- void smc_conn_free(struct smc_connection *conn);
- int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
++	if (ism->sba->e) {
++		ism->sba->e = 0;
++		barrier();
++		ism_handle_event(ism);
++	}
++	spin_unlock(&ism->lock);
++	return IRQ_HANDLED;
++}
++
++static const struct smcd_ops ism_ops = {
++	.query_remote_gid = ism_query_rgid,
++	.register_dmb = ism_register_dmb,
++	.unregister_dmb = ism_unregister_dmb,
++	.add_vlan_id = ism_add_vlan_id,
++	.del_vlan_id = ism_del_vlan_id,
++	.set_vlan_required = ism_set_vlan_required,
++	.reset_vlan_required = ism_reset_vlan_required,
++	.signal_event = ism_signal_ieq,
++	.move_data = ism_move,
++};
++
++static int ism_dev_init(struct ism_dev *ism)
++{
++	struct pci_dev *pdev = ism->pdev;
++	int ret;
++
++	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSI);
++	if (ret <= 0)
++		goto out;
++
++	ret = request_irq(pci_irq_vector(pdev, 0), ism_handle_irq, 0,
++			  pci_name(pdev), ism);
++	if (ret)
++		goto free_vectors;
++
++	ret = register_sba(ism);
++	if (ret)
++		goto free_irq;
++
++	ret = register_ieq(ism);
++	if (ret)
++		goto unreg_sba;
++
++	ret = ism_read_local_gid(ism);
++	if (ret)
++		goto unreg_ieq;
++
++	ret = smcd_register_dev(ism->smcd);
++	if (ret)
++		goto unreg_ieq;
++
++	query_info(ism);
++	return 0;
++
++unreg_ieq:
++	unregister_ieq(ism);
++unreg_sba:
++	unregister_sba(ism);
++free_irq:
++	free_irq(pci_irq_vector(pdev, 0), ism);
++free_vectors:
++	pci_free_irq_vectors(pdev);
++out:
++	return ret;
++}
++
++static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
++{
++	struct ism_dev *ism;
++	int ret;
++
++	ism = kzalloc(sizeof(*ism), GFP_KERNEL);
++	if (!ism)
++		return -ENOMEM;
++
++	spin_lock_init(&ism->lock);
++	dev_set_drvdata(&pdev->dev, ism);
++	ism->pdev = pdev;
++
++	ret = pci_enable_device_mem(pdev);
++	if (ret)
++		goto err;
++
++	ret = pci_request_mem_regions(pdev, DRV_NAME);
++	if (ret)
++		goto err_disable;
++
++	ism->ctl = pci_iomap(pdev, 2, 0);
++	if (!ism->ctl)
++		goto err_resource;
++
++	ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
++	if (ret)
++		goto err_unmap;
++
++	pci_set_dma_seg_boundary(pdev, SZ_1M - 1);
++	pci_set_dma_max_seg_size(pdev, SZ_1M);
++	pci_set_master(pdev);
++
++	ism->smcd = smcd_alloc_dev(&pdev->dev, dev_name(&pdev->dev), &ism_ops,
++				   ISM_NR_DMBS);
++	if (!ism->smcd)
++		goto err_unmap;
++
++	ism->smcd->priv = ism;
++	ret = ism_dev_init(ism);
++	if (ret)
++		goto err_free;
++
++	return 0;
++
++err_free:
++	smcd_free_dev(ism->smcd);
++err_unmap:
++	pci_iounmap(pdev, ism->ctl);
++err_resource:
++	pci_release_mem_regions(pdev);
++err_disable:
++	pci_disable_device(pdev);
++err:
++	kfree(ism);
++	dev_set_drvdata(&pdev->dev, NULL);
++	return ret;
++}
++
++static void ism_dev_exit(struct ism_dev *ism)
++{
++	struct pci_dev *pdev = ism->pdev;
++
++	smcd_unregister_dev(ism->smcd);
++	unregister_ieq(ism);
++	unregister_sba(ism);
++	free_irq(pci_irq_vector(pdev, 0), ism);
++	pci_free_irq_vectors(pdev);
++}
++
++static void ism_remove(struct pci_dev *pdev)
++{
++	struct ism_dev *ism = dev_get_drvdata(&pdev->dev);
++
++	ism_dev_exit(ism);
++
++	smcd_free_dev(ism->smcd);
++	pci_iounmap(pdev, ism->ctl);
++	pci_release_mem_regions(pdev);
++	pci_disable_device(pdev);
++	dev_set_drvdata(&pdev->dev, NULL);
++	kfree(ism);
++}
++
++static int ism_suspend(struct device *dev)
++{
++	struct ism_dev *ism = dev_get_drvdata(dev);
++
++	ism_dev_exit(ism);
++	return 0;
++}
++
++static int ism_resume(struct device *dev)
++{
++	struct ism_dev *ism = dev_get_drvdata(dev);
++
++	return ism_dev_init(ism);
++}
++
++static SIMPLE_DEV_PM_OPS(ism_pm_ops, ism_suspend, ism_resume);
++
++static struct pci_driver ism_driver = {
++	.name	  = DRV_NAME,
++	.id_table = ism_device_table,
++	.probe	  = ism_probe,
++	.remove	  = ism_remove,
++	.driver	  = {
++		.pm = &ism_pm_ops,
++	},
++};
++
++static int __init ism_init(void)
++{
++	int ret;
++
++	ism_debug_info = debug_register("ism", 2, 1, 16);
++	if (!ism_debug_info)
++		return -ENODEV;
++
++	debug_register_view(ism_debug_info, &debug_hex_ascii_view);
++	ret = pci_register_driver(&ism_driver);
++	if (ret)
++		debug_unregister(ism_debug_info);
++
++	return ret;
++}
++
++static void __exit ism_exit(void)
++{
++	pci_unregister_driver(&ism_driver);
++	debug_unregister(ism_debug_info);
++}
++
++module_init(ism_init);
++module_exit(ism_exit);
 -- 
 2.16.4
