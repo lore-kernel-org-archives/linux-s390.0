@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 09/10] net/smc: add SMC-D diag support
-Date: Thu, 28 Jun 2018 19:05:12 +0200
-Message-ID: <20180628170513.5089-10-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 03/10] net/smc: optimize consumer cursor updates
+Date: Thu, 28 Jun 2018 19:05:06 +0200
+Message-ID: <20180628170513.5089-4-ubraun@linux.ibm.com>
 References: <20180628170513.5089-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180628170513.5089-1-ubraun@linux.ibm.com>
@@ -12,69 +12,58 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, hwippel@linux.ibm.com, sebott@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-This patch adds diag support for SMC-D.
+The SMC protocol requires to send a separate consumer cursor update,
+if it cannot be piggybacked to updates of the producer cursor.
+Currently the decision to send a separate consumer cursor update
+just considers the amount of data already received by the socket
+program. It does not consider the amount of data already arrived, but
+not yet consumed by the receiver. Basing the decision on the
+difference between already confirmed and already arrived data
+(instead of difference between already confirmed and already consumed
+data), may lead to a somewhat earlier consumer cursor update send in
+fast unidirectional traffic scenarios, and thus to better throughput.
 
-Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
 ---
- include/uapi/linux/smc_diag.h | 10 ++++++++++
- net/smc/smc_diag.c            | 15 +++++++++++++++
- 2 files changed, 25 insertions(+)
+ net/smc/smc_tx.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
-index 0ae5d4685ba3..92be255e534c 100644
---- a/include/uapi/linux/smc_diag.h
-+++ b/include/uapi/linux/smc_diag.h
-@@ -35,6 +35,7 @@ enum {
- 	SMC_DIAG_CONNINFO,
- 	SMC_DIAG_LGRINFO,
- 	SMC_DIAG_SHUTDOWN,
-+	SMC_DIAG_DMBINFO,
- 	__SMC_DIAG_MAX,
- };
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index cee666400752..f82886b7d1d8 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -495,7 +495,8 @@ void smc_tx_work(struct work_struct *work)
  
-@@ -83,4 +84,13 @@ struct smc_diag_lgrinfo {
- 	struct smc_diag_linkinfo	lnk[1];
- 	__u8				role;
- };
-+
-+struct smcd_diag_dmbinfo {		/* SMC-D Socket internals */
-+	__u32 linkid;			/* Link identifier */
-+	__u64 peer_gid;			/* Peer GID */
-+	__u64 my_gid;			/* My GID */
-+	__u64 token;			/* Token of DMB */
-+	__u64 peer_token;		/* Token of remote DMBE */
-+};
-+
- #endif /* _UAPI_SMC_DIAG_H_ */
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index 64ce107c24d9..6d83eef1b743 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -156,6 +156,21 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
- 			goto errout;
- 	}
-+	if (smc->conn.lgr && smc->conn.lgr->is_smcd &&
-+	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
-+	    !list_empty(&smc->conn.lgr->list)) {
-+		struct smc_connection *conn = &smc->conn;
-+		struct smcd_diag_dmbinfo dinfo = {
-+			.linkid = *((u32 *)conn->lgr->id),
-+			.peer_gid = conn->lgr->peer_gid,
-+			.my_gid = conn->lgr->smcd->local_gid,
-+			.token = conn->rmb_desc->token,
-+			.peer_token = conn->peer_token
-+		};
-+
-+		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
-+			goto errout;
+ void smc_tx_consumer_update(struct smc_connection *conn, bool force)
+ {
+-	union smc_host_cursor cfed, cons;
++	union smc_host_cursor cfed, cons, prod;
++	int sender_free = conn->rmb_desc->len;
+ 	int to_confirm;
+ 
+ 	smc_curs_write(&cons,
+@@ -505,11 +506,18 @@ void smc_tx_consumer_update(struct smc_connection *conn, bool force)
+ 		       smc_curs_read(&conn->rx_curs_confirmed, conn),
+ 		       conn);
+ 	to_confirm = smc_curs_diff(conn->rmb_desc->len, &cfed, &cons);
++	if (to_confirm > conn->rmbe_update_limit) {
++		smc_curs_write(&prod,
++			       smc_curs_read(&conn->local_rx_ctrl.prod, conn),
++			       conn);
++		sender_free = conn->rmb_desc->len -
++			      smc_curs_diff(conn->rmb_desc->len, &prod, &cfed);
 +	}
  
- 	nlmsg_end(skb, nlh);
- 	return 0;
+ 	if (conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
+ 	    force ||
+ 	    ((to_confirm > conn->rmbe_update_limit) &&
+-	     ((to_confirm > (conn->rmb_desc->len / 2)) ||
++	     ((sender_free <= (conn->rmb_desc->len / 2)) ||
+ 	      conn->local_rx_ctrl.prod_flags.write_blocked))) {
+ 		if ((smc_cdc_get_slot_and_msg_send(conn) < 0) &&
+ 		    conn->alert_token_local) { /* connection healthy */
 -- 
 2.16.4
