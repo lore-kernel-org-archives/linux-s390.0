@@ -1,66 +1,23 @@
-Return-Path: <SRS0=cv1S=JM=vger.kernel.org=linux-kernel-owner@kernel.org>
-MIME-Version: 1.0
-References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
- <20180621212518.19914-10-pasha.tatashin@oracle.com> <alpine.DEB.2.21.1806231815060.8650@nanos.tec.linutronix.de>
- <alpine.DEB.2.21.1806232210110.8650@nanos.tec.linutronix.de>
- <CAGM2reYQx769omkWVweEcTMy8WNrKOiuUVo4OFWNh4zW-rc4pg@mail.gmail.com>
- <alpine.DEB.2.21.1806232347540.8650@nanos.tec.linutronix.de>
- <alpine.DEB.2.21.1806261725510.1587@nanos.tec.linutronix.de> <CAGM2reYQ23XhQHAOO0Oo8MGvgrjpNZPZkwp+wwsU8Fb+jfANyA@mail.gmail.com>
-In-Reply-To: <CAGM2reYQ23XhQHAOO0Oo8MGvgrjpNZPZkwp+wwsU8Fb+jfANyA@mail.gmail.com>
-From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Date: Tue, 26 Jun 2018 15:47:51 -0400
-Message-ID: <CAGM2rebiy7fMssEvnxj9DLNN-SGzgULh7iuMfe4=dgF89H5DFQ@mail.gmail.com>
+Return-Path: <SRS0=VxZE=JO=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Thu, 28 Jun 2018 09:31:41 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [PATCH v12 09/11] x86/tsc: prepare for early sched_clock
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAGM2reYQ23XhQHAOO0Oo8MGvgrjpNZPZkwp+wwsU8Fb+jfANyA@mail.gmail.com>
+Message-ID: <alpine.DEB.2.21.1806270947410.1587@nanos.tec.linutronix.de>
+References: <20180621212518.19914-1-pasha.tatashin@oracle.com> <20180621212518.19914-10-pasha.tatashin@oracle.com> <alpine.DEB.2.21.1806231815060.8650@nanos.tec.linutronix.de> <alpine.DEB.2.21.1806232210110.8650@nanos.tec.linutronix.de>
+ <CAGM2reYQx769omkWVweEcTMy8WNrKOiuUVo4OFWNh4zW-rc4pg@mail.gmail.com> <alpine.DEB.2.21.1806232347540.8650@nanos.tec.linutronix.de> <alpine.DEB.2.21.1806261725510.1587@nanos.tec.linutronix.de>
+ <CAGM2reYQ23XhQHAOO0Oo8MGvgrjpNZPZkwp+wwsU8Fb+jfANyA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: tglx@linutronix.de
+To: Pavel Tatashin <pasha.tatashin@oracle.com>
 Cc: Steven Sistare <steven.sistare@oracle.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, schwidefsky@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 26, 2018 at 2:42 PM Pavel Tatashin
-<pasha.tatashin@oracle.com> wrote:
->
-> Hi Thomas,
->
+On Tue, 26 Jun 2018, Pavel Tatashin wrote:
 > On Tue, Jun 26, 2018 at 11:44 AM Thomas Gleixner <tglx@linutronix.de> wrote:
-> >
-> > Pavel,
-> >
-> > first of all, sorry for my last outburst. I just was in a lousy mood after
-> > staring into too much half baken stuff and failed to make myself stay away
-> > from the computer.
->
-> Thank you.
->
-> >
-> > On Sun, 24 Jun 2018, Thomas Gleixner wrote:
-> > > On Sat, 23 Jun 2018, Pavel Tatashin wrote:
-> > > And this early init sequence also needs to pull over the tsc adjust
-> > > magic. So tsc_early_delay_calibrate() which should btw. be renamed to
-> > > tsc_early_init() should have:
-> > >
-> > > {
-> > >       cpu_khz = x86_platform.calibrate_cpu();
-> > >         tsc_khz = x86_platform.calibrate_tsc();
-> > >
-> > >         tsc_khz = tsc_khz ? : cpu_khz;
-> > >         if (!tsc_khz)
-> > >                 return;
-> > >
-> > >         /* Sanitize TSC ADJUST before cyc2ns gets initialized */
-> > >         tsc_store_and_check_tsc_adjust(true);
-> > >
-> > >       calc_lpj(tsc_khz);
-> > >
-> > >       tsc_sched_clock_init();
-> > > }
-> >
-> > Peter made me look deeper into this and there are a few issues, which I
-> > missed, depending on when some of the resources become available. So we
-> > probably cannot hook all of this into tsc_early_delay_calibrate().
-> >
 > > I have an idea how to distangle it and we'll end up in a staged approach,
 > > which looks like this:
 > >
@@ -83,7 +40,7 @@ On Tue, Jun 26, 2018 at 2:42 PM Pavel Tatashin
 > >
 > > Once tsc_khz is known, no further attempts of calibration are made. I'll
 > > look into that later tonight.
->
+> 
 > I think, there are no reasons to try staged attempts. It usually gets
 > harder to maintain overtime. In my opinion it is best if do it in two
 > tries, as right now, but just cleaner. The first attempt we get a
@@ -94,29 +51,32 @@ On Tue, Jun 26, 2018 at 2:42 PM Pavel Tatashin
 > could not get tsc early, it is not a problem, we still will probably
 > determine it later during tsc_init call.
 
-Actually, nevermind, I looked through the code again, it seems that if
-we get early tsc frequency we can keep it, but otherwise just try it
-again at later time when in tsc_init(). So, no need for
-cyc2ns_reinit_boot(). I still think no need for staged attempts, but
-try in two different places: in tsc_init_early() -> works? use that
-tsc frequency later, does not try again in tsc_init(), and use the new
-one.
+I still want to document the unholy mess of what is initialized and
+available when. We have 5 hypervisors and 3 different points in early boot
+where the calibrate_* callbacks are overwritten. The XEN PV one is actually
+post tsc_init_early() for whatever reason.
 
-In tsc_init we can have something like this:
-void __init tsc_init(void)
-{
-        if (!boot_cpu_has(X86_FEATURE_TSC))
-                return;
+That's all completely obscure and any attempt of moving tsc_early_init()
+earlier than where it is now is just lottery.
 
-        /* See if we were not able to determine tsc frequency early,
-but can now */
-        if (!tsc_khz && determine_cpu_tsc_frequncies()) {
-              /* Sanitize TSC ADJUST before cyc2ns gets initialized */
-              tsc_store_and_check_tsc_adjust(true);
-               cyc2ns_init_boot_cpu();
-        }
-        ....
+The other issue is that double calibration, e.g. doing the PIT thing twice
+is just consuming boot time for no value.
 
-}
+All of that has been duct taped over time and we really don't want yet
+another thing glued to it just because we can.
 
-Pavel
+> I have re-wrote tsc_early_init()/tsc_init(), they are much simpler now:
+> 
+> void __init tsc_early_init(void)
+> {
+>         if (!boot_cpu_has(X86_FEATURE_TSC))
+>                 return;
+> 
+>         if (!determine_cpu_tsc_frequncies())
+>                 return;
+
+That still wants to do the TSC_ADJUST call here.
+
+Thanks,
+
+	tglx
