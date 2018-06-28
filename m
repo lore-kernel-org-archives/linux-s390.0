@@ -1,70 +1,80 @@
-Return-Path: <SRS0=Q/hc=JL=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: s390 qemu boot failure in -next
-References: <20180622194736.GA5794@roeck-us.net>
- <126ac556-0602-b927-58f5-cb5f65a5e0ec@de.ibm.com>
- <88d9afed-f91d-c320-13c8-9a93fc52b700@de.ibm.com>
- <20180625100548.64222dad.cohuck@redhat.com>
- <your-ad-here.call-01529915788-ext-6027@work.hours>
- <20180625104928.6c4cb239.cohuck@redhat.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Mon, 25 Jun 2018 14:26:45 +0200
-MIME-Version: 1.0
-In-Reply-To: <20180625104928.6c4cb239.cohuck@redhat.com>
-Content-Language: en-US
-Message-Id: <76740f8f-ef4c-9d11-dae1-192beebff4d8@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-s390x <qemu-s390x@nongnu.org>, qemu-devel <qemu-devel@nongnu.org>, Thomas Huth <thuth@redhat.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Subject: [PATCH net-next 09/10] net/smc: add SMC-D diag support
+Date: Thu, 28 Jun 2018 19:05:12 +0200
+Message-ID: <20180628170513.5089-10-ubraun@linux.ibm.com>
+References: <20180628170513.5089-1-ubraun@linux.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180628170513.5089-1-ubraun@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, hwippel@linux.ibm.com, sebott@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Hans Wippel <hwippel@linux.ibm.com>
 
+This patch adds diag support for SMC-D.
 
-On 06/25/2018 10:49 AM, Cornelia Huck wrote:
-> On Mon, 25 Jun 2018 10:36:33 +0200
-> Vasily Gorbik <gor@linux.ibm.com> wrote:
-> 
->> This change has been done on purpose. Uncompressed image is not going
->> to be bootable any more. In future the decompressor phase would get
->> more function (early memory detection as an example) and there is no
->> chance to duplicate that code in uncompressed image as well (to keep it
->> bootable on its own). The patch series commit messages contain more
->> technical details.
->>
->> For qemu either bzImage or arch/s390/boot/compressed/vmlinux should be
->> used, which are bootable images.
->>
->> But that's really confusing that uncompressed vmlinux is still kind
->> of booting. May be we should discuss how to avoid this confusion
->> (may be change uncompressed image enty point to a function doing
->> disabled wait with badb007 or smth) and how to encourage people to use
->> arch/s390/boot/compressed/vmlinux instead.
-> 
-> So, the intention is that you can't boot the uncompressed image
-> anywhere? (Was it possible before, e.g. when punching the image under
-> z/VM?)
+Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
+---
+ include/uapi/linux/smc_diag.h | 10 ++++++++++
+ net/smc/smc_diag.c            | 15 +++++++++++++++
+ 2 files changed, 25 insertions(+)
 
-The uncompressed image (the vmlinux file) was never bootable in LPAR or z/VM.
-It was just a "nice hack" that QEMU was able to do so. (even qemu on x86 can not
-boot the pure vmlinux file as far as I know).
-
-I talked to Vasily and the vmlinux file in the linux source path is just an 
-intermediate file. Future changes will happen that will make that ELF file
-unsuitable for direct boot anyway (e.g. think about potential ASLR or Kasan
-changes).
-
- If yes, it would make sense to explicitly fence it. But I'm
-> worried that it would break previously working setups (did we document
-> the purpose of the images anywhere?)
-> 
-
-
-I think by referring to arch/s390/boot/compressed/vmlinux things are probably
-good enough. That will still load from 0x10000.
-
-We might still "change" the way that we add the parameters (e.g.
-make that not depend on the load address), but looking forward this might
-become less important for the "intermediate vmlnux file".
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index 0ae5d4685ba3..92be255e534c 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -35,6 +35,7 @@ enum {
+ 	SMC_DIAG_CONNINFO,
+ 	SMC_DIAG_LGRINFO,
+ 	SMC_DIAG_SHUTDOWN,
++	SMC_DIAG_DMBINFO,
+ 	__SMC_DIAG_MAX,
+ };
+ 
+@@ -83,4 +84,13 @@ struct smc_diag_lgrinfo {
+ 	struct smc_diag_linkinfo	lnk[1];
+ 	__u8				role;
+ };
++
++struct smcd_diag_dmbinfo {		/* SMC-D Socket internals */
++	__u32 linkid;			/* Link identifier */
++	__u64 peer_gid;			/* Peer GID */
++	__u64 my_gid;			/* My GID */
++	__u64 token;			/* Token of DMB */
++	__u64 peer_token;		/* Token of remote DMBE */
++};
++
+ #endif /* _UAPI_SMC_DIAG_H_ */
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 64ce107c24d9..6d83eef1b743 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -156,6 +156,21 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
+ 			goto errout;
+ 	}
++	if (smc->conn.lgr && smc->conn.lgr->is_smcd &&
++	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
++	    !list_empty(&smc->conn.lgr->list)) {
++		struct smc_connection *conn = &smc->conn;
++		struct smcd_diag_dmbinfo dinfo = {
++			.linkid = *((u32 *)conn->lgr->id),
++			.peer_gid = conn->lgr->peer_gid,
++			.my_gid = conn->lgr->smcd->local_gid,
++			.token = conn->rmb_desc->token,
++			.peer_token = conn->peer_token
++		};
++
++		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
++			goto errout;
++	}
+ 
+ 	nlmsg_end(skb, nlh);
+ 	return 0;
+-- 
+2.16.4
