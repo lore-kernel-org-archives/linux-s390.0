@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 02/10] net/smc: add pnetid support
-Date: Thu, 28 Jun 2018 19:05:05 +0200
-Message-ID: <20180628170513.5089-3-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 01/10] net/smc: determine port attributes independent from pnet table
+Date: Thu, 28 Jun 2018 19:05:04 +0200
+Message-ID: <20180628170513.5089-2-ubraun@linux.ibm.com>
 References: <20180628170513.5089-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180628170513.5089-1-ubraun@linux.ibm.com>
@@ -12,262 +12,260 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, hwippel@linux.ibm.com, sebott@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-s390 hardware supports the definition of a so-call Physical NETwork
-IDentifier (short PNETID) per network device port. These PNETIDS
-can be used to identify network devices that are attached to the same
-physical network (broadcast domain).
+For SMC it is important to know the current port state of RoCE devices.
+Monitoring port states has been triggered, when a RoCE device was added
+to the pnet table. To support future alternatives to the pnet table the
+monitoring of ports is made independent of the existence of a pnet table.
+It starts once the smc_ib_device is established.
 
-On s390 try to use the PNETID of the ethernet device port used for
-initial connecting, and derive the IB device port used for SMC RDMA
-traffic.
+Due to this change smc_ib_remember_port_attr() is now a local function
+and shuffling its location and the location of its used functions
+makes any forward references obsolete.
 
-On platforms without PNETID support fall back to the existing
-solution of a configured pnet table.
+And the duplicate SMC_MAX_PORTS definition is removed.
 
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- include/net/smc.h  |   2 +
- net/smc/smc_ib.c   |   6 ++-
- net/smc/smc_ib.h   |   3 ++
- net/smc/smc_pnet.c | 109 +++++++++++++++++++++++++++++++++++++++++++----------
- net/smc/smc_pnet.h |  14 +++++++
- 5 files changed, 114 insertions(+), 20 deletions(-)
+ net/smc/smc.h      |   2 -
+ net/smc/smc_ib.c   | 130 ++++++++++++++++++++++++++++-------------------------
+ net/smc/smc_ib.h   |   1 -
+ net/smc/smc_pnet.c |   7 +--
+ 4 files changed, 72 insertions(+), 68 deletions(-)
 
-diff --git a/include/net/smc.h b/include/net/smc.h
-index 8381d163fefa..2173932fab9d 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -11,6 +11,8 @@
- #ifndef _SMC_H
- #define _SMC_H
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 51ae1f10d81a..7c86f716a92e 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -21,8 +21,6 @@
+ #define SMCPROTO_SMC		0	/* SMC protocol, IPv4 */
+ #define SMCPROTO_SMC6		1	/* SMC protocol, IPv6 */
  
-+#define SMC_MAX_PNETID_LEN	16	/* Max. length of PNET id */
-+
- struct smc_hashinfo {
- 	rwlock_t lock;
- 	struct hlist_head ht;
+-#define SMC_MAX_PORTS		2	/* Max # of ports */
+-
+ extern struct proto smc_proto;
+ extern struct proto smc_proto6;
+ 
 diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index f8b159ced032..36de2fd76170 100644
+index 0eed7ab9f28b..f8b159ced032 100644
 --- a/net/smc/smc_ib.c
 +++ b/net/smc/smc_ib.c
-@@ -504,8 +504,12 @@ static void smc_ib_add_dev(struct ib_device *ibdev)
- 	port_cnt = smcibdev->ibdev->phys_port_cnt;
- 	for (i = 0;
- 	     i < min_t(size_t, port_cnt, SMC_MAX_PORTS);
--	     i++)
-+	     i++) {
- 		set_bit(i, &smcibdev->port_event_mask);
-+		/* determine pnetids of the port */
-+		smc_pnetid_by_dev_port(ibdev->dev.parent, i,
-+				       smcibdev->pnetid[i]);
-+	}
- 	schedule_work(&smcibdev->port_event_work);
+@@ -143,6 +143,62 @@ int smc_ib_ready_link(struct smc_link *lnk)
+ 	return rc;
+ }
+ 
++static int smc_ib_fill_gid_and_mac(struct smc_ib_device *smcibdev, u8 ibport)
++{
++	struct ib_gid_attr gattr;
++	int rc;
++
++	rc = ib_query_gid(smcibdev->ibdev, ibport, 0,
++			  &smcibdev->gid[ibport - 1], &gattr);
++	if (rc || !gattr.ndev)
++		return -ENODEV;
++
++	memcpy(smcibdev->mac[ibport - 1], gattr.ndev->dev_addr, ETH_ALEN);
++	dev_put(gattr.ndev);
++	return 0;
++}
++
++/* Create an identifier unique for this instance of SMC-R.
++ * The MAC-address of the first active registered IB device
++ * plus a random 2-byte number is used to create this identifier.
++ * This name is delivered to the peer during connection initialization.
++ */
++static inline void smc_ib_define_local_systemid(struct smc_ib_device *smcibdev,
++						u8 ibport)
++{
++	memcpy(&local_systemid[2], &smcibdev->mac[ibport - 1],
++	       sizeof(smcibdev->mac[ibport - 1]));
++	get_random_bytes(&local_systemid[0], 2);
++}
++
++bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
++{
++	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
++}
++
++static int smc_ib_remember_port_attr(struct smc_ib_device *smcibdev, u8 ibport)
++{
++	int rc;
++
++	memset(&smcibdev->pattr[ibport - 1], 0,
++	       sizeof(smcibdev->pattr[ibport - 1]));
++	rc = ib_query_port(smcibdev->ibdev, ibport,
++			   &smcibdev->pattr[ibport - 1]);
++	if (rc)
++		goto out;
++	/* the SMC protocol requires specification of the RoCE MAC address */
++	rc = smc_ib_fill_gid_and_mac(smcibdev, ibport);
++	if (rc)
++		goto out;
++	if (!strncmp(local_systemid, SMC_LOCAL_SYSTEMID_RESET,
++		     sizeof(local_systemid)) &&
++	    smc_ib_port_active(smcibdev, ibport))
++		/* create unique system identifier */
++		smc_ib_define_local_systemid(smcibdev, ibport);
++out:
++	return rc;
++}
++
+ /* process context wrapper for might_sleep smc_ib_remember_port_attr */
+ static void smc_ib_port_event_work(struct work_struct *work)
+ {
+@@ -370,62 +426,6 @@ void smc_ib_buf_unmap_sg(struct smc_ib_device *smcibdev,
+ 	buf_slot->sgt[SMC_SINGLE_LINK].sgl->dma_address = 0;
+ }
+ 
+-static int smc_ib_fill_gid_and_mac(struct smc_ib_device *smcibdev, u8 ibport)
+-{
+-	struct ib_gid_attr gattr;
+-	int rc;
+-
+-	rc = ib_query_gid(smcibdev->ibdev, ibport, 0,
+-			  &smcibdev->gid[ibport - 1], &gattr);
+-	if (rc || !gattr.ndev)
+-		return -ENODEV;
+-
+-	memcpy(smcibdev->mac[ibport - 1], gattr.ndev->dev_addr, ETH_ALEN);
+-	dev_put(gattr.ndev);
+-	return 0;
+-}
+-
+-/* Create an identifier unique for this instance of SMC-R.
+- * The MAC-address of the first active registered IB device
+- * plus a random 2-byte number is used to create this identifier.
+- * This name is delivered to the peer during connection initialization.
+- */
+-static inline void smc_ib_define_local_systemid(struct smc_ib_device *smcibdev,
+-						u8 ibport)
+-{
+-	memcpy(&local_systemid[2], &smcibdev->mac[ibport - 1],
+-	       sizeof(smcibdev->mac[ibport - 1]));
+-	get_random_bytes(&local_systemid[0], 2);
+-}
+-
+-bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
+-{
+-	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+-}
+-
+-int smc_ib_remember_port_attr(struct smc_ib_device *smcibdev, u8 ibport)
+-{
+-	int rc;
+-
+-	memset(&smcibdev->pattr[ibport - 1], 0,
+-	       sizeof(smcibdev->pattr[ibport - 1]));
+-	rc = ib_query_port(smcibdev->ibdev, ibport,
+-			   &smcibdev->pattr[ibport - 1]);
+-	if (rc)
+-		goto out;
+-	/* the SMC protocol requires specification of the RoCE MAC address */
+-	rc = smc_ib_fill_gid_and_mac(smcibdev, ibport);
+-	if (rc)
+-		goto out;
+-	if (!strncmp(local_systemid, SMC_LOCAL_SYSTEMID_RESET,
+-		     sizeof(local_systemid)) &&
+-	    smc_ib_port_active(smcibdev, ibport))
+-		/* create unique system identifier */
+-		smc_ib_define_local_systemid(smcibdev, ibport);
+-out:
+-	return rc;
+-}
+-
+ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
+ {
+ 	struct ib_cq_init_attr cqattr =	{
+@@ -454,9 +454,6 @@ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
+ 		smcibdev->roce_cq_recv = NULL;
+ 		goto err;
+ 	}
+-	INIT_IB_EVENT_HANDLER(&smcibdev->event_handler, smcibdev->ibdev,
+-			      smc_ib_global_event_handler);
+-	ib_register_event_handler(&smcibdev->event_handler);
+ 	smc_wr_add_dev(smcibdev);
+ 	smcibdev->initialized = 1;
+ 	return rc;
+@@ -472,7 +469,6 @@ static void smc_ib_cleanup_per_ibdev(struct smc_ib_device *smcibdev)
+ 		return;
+ 	smcibdev->initialized = 0;
+ 	smc_wr_remove_dev(smcibdev);
+-	ib_unregister_event_handler(&smcibdev->event_handler);
+ 	ib_destroy_cq(smcibdev->roce_cq_recv);
+ 	ib_destroy_cq(smcibdev->roce_cq_send);
+ }
+@@ -483,6 +479,8 @@ static struct ib_client smc_ib_client;
+ static void smc_ib_add_dev(struct ib_device *ibdev)
+ {
+ 	struct smc_ib_device *smcibdev;
++	u8 port_cnt;
++	int i;
+ 
+ 	if (ibdev->node_type != RDMA_NODE_IB_CA)
+ 		return;
+@@ -498,6 +496,17 @@ static void smc_ib_add_dev(struct ib_device *ibdev)
+ 	list_add_tail(&smcibdev->list, &smc_ib_devices.list);
+ 	spin_unlock(&smc_ib_devices.lock);
+ 	ib_set_client_data(ibdev, &smc_ib_client, smcibdev);
++	INIT_IB_EVENT_HANDLER(&smcibdev->event_handler, smcibdev->ibdev,
++			      smc_ib_global_event_handler);
++	ib_register_event_handler(&smcibdev->event_handler);
++
++	/* trigger reading of the port attributes */
++	port_cnt = smcibdev->ibdev->phys_port_cnt;
++	for (i = 0;
++	     i < min_t(size_t, port_cnt, SMC_MAX_PORTS);
++	     i++)
++		set_bit(i, &smcibdev->port_event_mask);
++	schedule_work(&smcibdev->port_event_work);
+ }
+ 
+ /* callback function for ib_register_client() */
+@@ -512,6 +521,7 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
+ 	spin_unlock(&smc_ib_devices.lock);
+ 	smc_pnet_remove_by_ibdev(smcibdev);
+ 	smc_ib_cleanup_per_ibdev(smcibdev);
++	ib_unregister_event_handler(&smcibdev->event_handler);
+ 	kfree(smcibdev);
  }
  
 diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index 2c480b352928..7c1223c91229 100644
+index e90630dadf8e..2c480b352928 100644
 --- a/net/smc/smc_ib.h
 +++ b/net/smc/smc_ib.h
-@@ -15,6 +15,7 @@
- #include <linux/interrupt.h>
- #include <linux/if_ether.h>
- #include <rdma/ib_verbs.h>
-+#include <net/smc.h>
- 
- #define SMC_MAX_PORTS			2	/* Max # of ports */
- #define SMC_GID_SIZE			sizeof(union ib_gid)
-@@ -40,6 +41,8 @@ struct smc_ib_device {				/* ib-device infos for smc */
- 	char			mac[SMC_MAX_PORTS][ETH_ALEN];
- 						/* mac address per port*/
- 	union ib_gid		gid[SMC_MAX_PORTS]; /* gid per port */
-+	u8			pnetid[SMC_MAX_PORTS][SMC_MAX_PNETID_LEN];
-+						/* pnetid per port */
- 	u8			initialized : 1; /* ib dev CQ, evthdl done */
- 	struct work_struct	port_event_work;
- 	unsigned long		port_event_mask;
+@@ -51,7 +51,6 @@ struct smc_link;
+ int smc_ib_register_client(void) __init;
+ void smc_ib_unregister_client(void);
+ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport);
+-int smc_ib_remember_port_attr(struct smc_ib_device *smcibdev, u8 ibport);
+ int smc_ib_buf_map_sg(struct smc_ib_device *smcibdev,
+ 		      struct smc_buf_desc *buf_slot,
+ 		      enum dma_data_direction data_direction);
 diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index a82a5cad0282..cdc6e23b6ce1 100644
+index d7b88b2d1b22..a82a5cad0282 100644
 --- a/net/smc/smc_pnet.c
 +++ b/net/smc/smc_pnet.c
-@@ -23,12 +23,10 @@
- #include "smc_pnet.h"
- #include "smc_ib.h"
- 
--#define SMC_MAX_PNET_ID_LEN	16	/* Max. length of PNET id */
--
- static struct nla_policy smc_pnet_policy[SMC_PNETID_MAX + 1] = {
- 	[SMC_PNETID_NAME] = {
- 		.type = NLA_NUL_STRING,
--		.len = SMC_MAX_PNET_ID_LEN - 1
-+		.len = SMC_MAX_PNETID_LEN - 1
- 	},
- 	[SMC_PNETID_ETHNAME] = {
- 		.type = NLA_NUL_STRING,
-@@ -65,7 +63,7 @@ static struct smc_pnettable {
-  */
- struct smc_pnetentry {
- 	struct list_head list;
--	char pnet_name[SMC_MAX_PNET_ID_LEN + 1];
-+	char pnet_name[SMC_MAX_PNETID_LEN + 1];
- 	struct net_device *ndev;
- 	struct smc_ib_device *smcibdev;
- 	u8 ib_port;
-@@ -209,7 +207,7 @@ static bool smc_pnetid_valid(const char *pnet_name, char *pnetid)
- 		return false;
- 	while (--end >= bf && isspace(*end))
- 		;
--	if (end - bf >= SMC_MAX_PNET_ID_LEN)
-+	if (end - bf >= SMC_MAX_PNETID_LEN)
- 		return false;
- 	while (bf <= end) {
- 		if (!isalnum(*bf))
-@@ -512,26 +510,70 @@ void smc_pnet_exit(void)
- 	genl_unregister_family(&smc_pnet_nl_family);
- }
- 
--/* PNET table analysis for a given sock:
-- * determine ib_device and port belonging to used internal TCP socket
-- * ethernet interface.
-+/* Determine one base device for stacked net devices.
-+ * If the lower device level contains more than one devices
-+ * (for instance with bonding slaves), just the first device
-+ * is used to reach a base device.
-  */
--void smc_pnet_find_roce_resource(struct sock *sk,
--				 struct smc_ib_device **smcibdev, u8 *ibport)
-+static struct net_device *pnet_find_base_ndev(struct net_device *ndev)
- {
--	struct dst_entry *dst = sk_dst_get(sk);
--	struct smc_pnetentry *pnetelem;
-+	int i, nest_lvl;
- 
--	*smcibdev = NULL;
--	*ibport = 0;
-+	rtnl_lock();
-+	nest_lvl = dev_get_nest_level(ndev);
-+	for (i = 0; i < nest_lvl; i++) {
-+		struct list_head *lower = &ndev->adj_list.lower;
-+
-+		if (list_empty(lower))
-+			break;
-+		lower = lower->next;
-+		ndev = netdev_lower_get_next(ndev, &lower);
-+	}
-+	rtnl_unlock();
-+	return ndev;
-+}
-+
-+/* Determine the corresponding IB device port based on the hardware PNETID.
-+ * Searching stops at the first matching active IB device port.
-+ */
-+static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
-+					 struct smc_ib_device **smcibdev,
-+					 u8 *ibport)
-+{
-+	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
-+	struct smc_ib_device *ibdev;
-+	int i;
-+
-+	ndev = pnet_find_base_ndev(ndev);
-+	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
-+				   ndev_pnetid))
-+		return; /* pnetid could not be determined */
-+
-+	spin_lock(&smc_ib_devices.lock);
-+	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
-+		for (i = 1; i <= SMC_MAX_PORTS; i++) {
-+			if (!memcmp(ibdev->pnetid[i - 1], ndev_pnetid,
-+				    SMC_MAX_PNETID_LEN) &&
-+			    smc_ib_port_active(ibdev, i)) {
-+				*smcibdev = ibdev;
-+				*ibport = i;
-+				break;
-+			}
-+		}
-+	}
-+	spin_unlock(&smc_ib_devices.lock);
-+}
-+
-+/* Lookup of coupled ib_device via SMC pnet table */
-+static void smc_pnet_find_roce_by_table(struct net_device *netdev,
-+					struct smc_ib_device **smcibdev,
-+					u8 *ibport)
-+{
-+	struct smc_pnetentry *pnetelem;
- 
--	if (!dst)
--		return;
--	if (!dst->dev)
--		goto out_rel;
- 	read_lock(&smc_pnettable.lock);
- 	list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
--		if (dst->dev == pnetelem->ndev) {
-+		if (netdev == pnetelem->ndev) {
- 			if (smc_ib_port_active(pnetelem->smcibdev,
- 					       pnetelem->ib_port)) {
- 				*smcibdev = pnetelem->smcibdev;
-@@ -541,6 +583,35 @@ void smc_pnet_find_roce_resource(struct sock *sk,
- 		}
+@@ -358,9 +358,6 @@ static int smc_pnet_add(struct sk_buff *skb, struct genl_info *info)
+ 		kfree(pnetelem);
+ 		return rc;
  	}
- 	read_unlock(&smc_pnettable.lock);
-+}
-+
-+/* PNET table analysis for a given sock:
-+ * determine ib_device and port belonging to used internal TCP socket
-+ * ethernet interface.
-+ */
-+void smc_pnet_find_roce_resource(struct sock *sk,
-+				 struct smc_ib_device **smcibdev, u8 *ibport)
-+{
-+	struct dst_entry *dst = sk_dst_get(sk);
-+
-+	*smcibdev = NULL;
-+	*ibport = 0;
-+
-+	if (!dst)
-+		goto out;
-+	if (!dst->dev)
-+		goto out_rel;
-+
-+	/* if possible, lookup via hardware-defined pnetid */
-+	smc_pnet_find_roce_by_pnetid(dst->dev, smcibdev, ibport);
-+	if (*smcibdev)
-+		goto out_rel;
-+
-+	/* lookup via SMC PNET table */
-+	smc_pnet_find_roce_by_table(dst->dev, smcibdev, ibport);
-+
- out_rel:
- 	dst_release(dst);
-+out:
-+	return;
+-	rc = smc_ib_remember_port_attr(pnetelem->smcibdev, pnetelem->ib_port);
+-	if (rc)
+-		smc_pnet_remove_by_pnetid(pnetelem->pnet_name);
+ 	return rc;
  }
-diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
-index 5a29519db976..ad4455cde9e7 100644
---- a/net/smc/smc_pnet.h
-+++ b/net/smc/smc_pnet.h
-@@ -12,8 +12,22 @@
- #ifndef _SMC_PNET_H
- #define _SMC_PNET_H
  
-+#if IS_ENABLED(CONFIG_HAVE_PNETID)
-+#include <asm/pnet.h>
-+#endif
-+
- struct smc_ib_device;
+@@ -485,10 +482,10 @@ static int smc_pnet_netdev_event(struct notifier_block *this,
+ 	case NETDEV_REBOOT:
+ 	case NETDEV_UNREGISTER:
+ 		smc_pnet_remove_by_ndev(event_dev);
++		return NOTIFY_OK;
+ 	default:
+-		break;
++		return NOTIFY_DONE;
+ 	}
+-	return NOTIFY_DONE;
+ }
  
-+static inline int smc_pnetid_by_dev_port(struct device *dev,
-+					 unsigned short port, u8 *pnetid)
-+{
-+#if IS_ENABLED(CONFIG_HAVE_PNETID)
-+	return pnet_id_by_dev_port(dev, port, pnetid);
-+#else
-+	return -ENOENT;
-+#endif
-+}
-+
- int smc_pnet_init(void) __init;
- void smc_pnet_exit(void);
- int smc_pnet_remove_by_ibdev(struct smc_ib_device *ibdev);
+ static struct notifier_block smc_netdev_notifier = {
 -- 
 2.16.4
