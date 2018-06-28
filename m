@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 04/10] net/smc: add base infrastructure for SMC-D and ISM
-Date: Thu, 28 Jun 2018 19:05:07 +0200
-Message-ID: <20180628170513.5089-5-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 05/10] net/smc: add pnetid support for SMC-D and ISM
+Date: Thu, 28 Jun 2018 19:05:08 +0200
+Message-ID: <20180628170513.5089-6-ubraun@linux.ibm.com>
 References: <20180628170513.5089-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180628170513.5089-1-ubraun@linux.ibm.com>
@@ -14,1155 +14,133 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hans Wippel <hwippel@linux.ibm.com>
 
-SMC supports two variants: SMC-R and SMC-D. For data transport, SMC-R
-uses RDMA devices, SMC-D uses so-called Internal Shared Memory (ISM)
-devices. An ISM device only allows shared memory communication between
-SMC instances on the same machine. For example, this allows virtual
-machines on the same host to communicate via SMC without RDMA devices.
-
-This patch adds the base infrastructure for SMC-D and ISM devices to
-the existing SMC code. It contains the following:
-
-* ISM driver interface:
-  This interface allows an ISM driver to register ISM devices in SMC. In
-  the process, the driver provides a set of device ops for each device.
-  SMC uses these ops to execute SMC specific operations on or transfer
-  data over the device.
-
-* Core SMC-D link group, connection, and buffer support:
-  Link groups, SMC connections and SMC buffers (in smc_core) are
-  extended to support SMC-D.
-
-* SMC type checks:
-  Some type checks are added to prevent using SMC-R specific code for
-  SMC-D and vice versa.
-
-To actually use SMC-D, additional changes to pnetid, CLC, CDC, etc. are
-required. These are added in follow-up patches.
+SMC-D relies on PNETIDs to find usable SMC-D/ISM devices for a SMC
+connection. This patch adds SMC-D/ISM support to the current PNETID
+implementation.
 
 Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
 ---
- include/net/smc.h  |  62 +++++++++++
- net/smc/Makefile   |   2 +-
- net/smc/af_smc.c   |  11 +-
- net/smc/smc_core.c | 270 +++++++++++++++++++++++++++++++++++------------
- net/smc/smc_core.h |  71 +++++++++----
- net/smc/smc_diag.c |   3 +-
- net/smc/smc_ism.c  | 304 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_ism.h  |  48 +++++++++
- 8 files changed, 679 insertions(+), 92 deletions(-)
- create mode 100644 net/smc/smc_ism.c
- create mode 100644 net/smc/smc_ism.h
+ include/net/smc.h  |  1 +
+ net/smc/smc_ism.c  |  2 ++
+ net/smc/smc_pnet.c | 41 +++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_pnet.h |  2 ++
+ 4 files changed, 46 insertions(+)
 
 diff --git a/include/net/smc.h b/include/net/smc.h
-index 2173932fab9d..824a7af8d654 100644
+index 824a7af8d654..9ef49f8b1002 100644
 --- a/include/net/smc.h
 +++ b/include/net/smc.h
-@@ -20,4 +20,66 @@ struct smc_hashinfo {
- 
- int smc_hash_sk(struct sock *sk);
- void smc_unhash_sk(struct sock *sk);
-+
-+/* SMCD/ISM device driver interface */
-+struct smcd_dmb {
-+	u64 dmb_tok;
-+	u64 rgid;
-+	u32 dmb_len;
-+	u32 sba_idx;
-+	u32 vlan_valid;
-+	u32 vlan_id;
-+	void *cpu_addr;
-+	dma_addr_t dma_addr;
-+};
-+
-+#define ISM_EVENT_DMB	0
-+#define ISM_EVENT_GID	1
-+#define ISM_EVENT_SWR	2
-+
-+struct smcd_event {
-+	u32 type;
-+	u32 code;
-+	u64 tok;
-+	u64 time;
-+	u64 info;
-+};
-+
-+struct smcd_dev;
-+
-+struct smcd_ops {
-+	int (*query_remote_gid)(struct smcd_dev *dev, u64 rgid, u32 vid_valid,
-+				u32 vid);
-+	int (*register_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb);
-+	int (*unregister_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb);
-+	int (*add_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
-+	int (*del_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
-+	int (*set_vlan_required)(struct smcd_dev *dev);
-+	int (*reset_vlan_required)(struct smcd_dev *dev);
-+	int (*signal_event)(struct smcd_dev *dev, u64 rgid, u32 trigger_irq,
-+			    u32 event_code, u64 info);
-+	int (*move_data)(struct smcd_dev *dev, u64 dmb_tok, unsigned int idx,
-+			 bool sf, unsigned int offset, void *data,
-+			 unsigned int size);
-+};
-+
-+struct smcd_dev {
-+	const struct smcd_ops *ops;
-+	struct device dev;
-+	void *priv;
-+	u64 local_gid;
-+	struct list_head list;
-+	spinlock_t lock;
-+	struct smc_connection **conn;
-+	struct list_head vlan;
-+	struct workqueue_struct *event_wq;
-+};
-+
-+struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
-+				const struct smcd_ops *ops, int max_dmbs);
-+int smcd_register_dev(struct smcd_dev *smcd);
-+void smcd_unregister_dev(struct smcd_dev *smcd);
-+void smcd_free_dev(struct smcd_dev *smcd);
-+void smcd_handle_event(struct smcd_dev *dev, struct smcd_event *event);
-+void smcd_handle_irq(struct smcd_dev *dev, unsigned int bit);
- #endif	/* _SMC_H */
-diff --git a/net/smc/Makefile b/net/smc/Makefile
-index 188104654b54..4df96b4b8130 100644
---- a/net/smc/Makefile
-+++ b/net/smc/Makefile
-@@ -1,4 +1,4 @@
- obj-$(CONFIG_SMC)	+= smc.o
- obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
- smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
--smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o
-+smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index da7f02edcd37..8ce48799cf68 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -475,8 +475,8 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 	int reason_code = 0;
- 
- 	mutex_lock(&smc_create_lgr_pending);
--	local_contact = smc_conn_create(smc, ibdev, ibport, &aclc->lcl,
--					aclc->hdr.flag);
-+	local_contact = smc_conn_create(smc, false, aclc->hdr.flag, ibdev,
-+					ibport, &aclc->lcl, NULL, 0);
- 	if (local_contact < 0) {
- 		if (local_contact == -ENOMEM)
- 			reason_code = SMC_CLC_DECL_MEM;/* insufficient memory*/
-@@ -491,7 +491,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 	smc_conn_save_peer_info(smc, aclc);
- 
- 	/* create send buffer and rmb */
--	if (smc_buf_create(smc))
-+	if (smc_buf_create(smc, false))
- 		return smc_connect_abort(smc, SMC_CLC_DECL_MEM, local_contact);
- 
- 	if (local_contact == SMC_FIRST_CONTACT)
-@@ -894,7 +894,8 @@ static int smc_listen_rdma_init(struct smc_sock *new_smc,
- 				int *local_contact)
- {
- 	/* allocate connection / link group */
--	*local_contact = smc_conn_create(new_smc, ibdev, ibport, &pclc->lcl, 0);
-+	*local_contact = smc_conn_create(new_smc, false, 0, ibdev, ibport,
-+					 &pclc->lcl, NULL, 0);
- 	if (*local_contact < 0) {
- 		if (*local_contact == -ENOMEM)
- 			return SMC_CLC_DECL_MEM;/* insufficient memory*/
-@@ -902,7 +903,7 @@ static int smc_listen_rdma_init(struct smc_sock *new_smc,
- 	}
- 
- 	/* create send buffer and rmb */
--	if (smc_buf_create(new_smc))
-+	if (smc_buf_create(new_smc, false))
- 		return SMC_CLC_DECL_MEM;
- 
- 	return 0;
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index add82b0266f3..daa88db1841a 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -25,6 +25,7 @@
- #include "smc_llc.h"
- #include "smc_cdc.h"
- #include "smc_close.h"
-+#include "smc_ism.h"
- 
- #define SMC_LGR_NUM_INCR		256
- #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
-@@ -46,8 +47,8 @@ static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
- 	 * otherwise there is a risk of out-of-sync link groups.
- 	 */
- 	mod_delayed_work(system_wq, &lgr->free_work,
--			 lgr->role == SMC_CLNT ? SMC_LGR_FREE_DELAY_CLNT :
--						 SMC_LGR_FREE_DELAY_SERV);
-+			 (!lgr->is_smcd && lgr->role == SMC_CLNT) ?
-+			 SMC_LGR_FREE_DELAY_CLNT : SMC_LGR_FREE_DELAY_SERV);
- }
- 
- /* Register connection's alert token in our lookup structure.
-@@ -153,16 +154,18 @@ static void smc_lgr_free_work(struct work_struct *work)
- free:
- 	spin_unlock_bh(&smc_lgr_list.lock);
- 	if (!delayed_work_pending(&lgr->free_work)) {
--		if (lgr->lnk[SMC_SINGLE_LINK].state != SMC_LNK_INACTIVE)
-+		if (!lgr->is_smcd &&
-+		    lgr->lnk[SMC_SINGLE_LINK].state != SMC_LNK_INACTIVE)
- 			smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
- 		smc_lgr_free(lgr);
- 	}
- }
- 
- /* create a new SMC link group */
--static int smc_lgr_create(struct smc_sock *smc,
-+static int smc_lgr_create(struct smc_sock *smc, bool is_smcd,
- 			  struct smc_ib_device *smcibdev, u8 ibport,
--			  char *peer_systemid, unsigned short vlan_id)
-+			  char *peer_systemid, unsigned short vlan_id,
-+			  struct smcd_dev *smcismdev, u64 peer_gid)
- {
- 	struct smc_link_group *lgr;
- 	struct smc_link *lnk;
-@@ -170,17 +173,23 @@ static int smc_lgr_create(struct smc_sock *smc,
- 	int rc = 0;
- 	int i;
- 
-+	if (is_smcd && vlan_id) {
-+		rc = smc_ism_get_vlan(smcismdev, vlan_id);
-+		if (rc)
-+			goto out;
-+	}
-+
- 	lgr = kzalloc(sizeof(*lgr), GFP_KERNEL);
- 	if (!lgr) {
- 		rc = -ENOMEM;
- 		goto out;
- 	}
--	lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
-+	lgr->is_smcd = is_smcd;
- 	lgr->sync_err = 0;
--	memcpy(lgr->peer_systemid, peer_systemid, SMC_SYSTEMID_LEN);
- 	lgr->vlan_id = vlan_id;
- 	rwlock_init(&lgr->sndbufs_lock);
- 	rwlock_init(&lgr->rmbs_lock);
-+	rwlock_init(&lgr->conns_lock);
- 	for (i = 0; i < SMC_RMBE_SIZES; i++) {
- 		INIT_LIST_HEAD(&lgr->sndbufs[i]);
- 		INIT_LIST_HEAD(&lgr->rmbs[i]);
-@@ -189,36 +198,44 @@ static int smc_lgr_create(struct smc_sock *smc,
- 	memcpy(&lgr->id, (u8 *)&smc_lgr_list.num, SMC_LGR_ID_SIZE);
- 	INIT_DELAYED_WORK(&lgr->free_work, smc_lgr_free_work);
- 	lgr->conns_all = RB_ROOT;
--
--	lnk = &lgr->lnk[SMC_SINGLE_LINK];
--	/* initialize link */
--	lnk->state = SMC_LNK_ACTIVATING;
--	lnk->link_id = SMC_SINGLE_LINK;
--	lnk->smcibdev = smcibdev;
--	lnk->ibport = ibport;
--	lnk->path_mtu = smcibdev->pattr[ibport - 1].active_mtu;
--	if (!smcibdev->initialized)
--		smc_ib_setup_per_ibdev(smcibdev);
--	get_random_bytes(rndvec, sizeof(rndvec));
--	lnk->psn_initial = rndvec[0] + (rndvec[1] << 8) + (rndvec[2] << 16);
--	rc = smc_llc_link_init(lnk);
--	if (rc)
--		goto free_lgr;
--	rc = smc_wr_alloc_link_mem(lnk);
--	if (rc)
--		goto clear_llc_lnk;
--	rc = smc_ib_create_protection_domain(lnk);
--	if (rc)
--		goto free_link_mem;
--	rc = smc_ib_create_queue_pair(lnk);
--	if (rc)
--		goto dealloc_pd;
--	rc = smc_wr_create_link(lnk);
--	if (rc)
--		goto destroy_qp;
--
-+	if (is_smcd) {
-+		/* SMC-D specific settings */
-+		lgr->peer_gid = peer_gid;
-+		lgr->smcd = smcismdev;
-+	} else {
-+		/* SMC-R specific settings */
-+		lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
-+		memcpy(lgr->peer_systemid, peer_systemid, SMC_SYSTEMID_LEN);
-+
-+		lnk = &lgr->lnk[SMC_SINGLE_LINK];
-+		/* initialize link */
-+		lnk->state = SMC_LNK_ACTIVATING;
-+		lnk->link_id = SMC_SINGLE_LINK;
-+		lnk->smcibdev = smcibdev;
-+		lnk->ibport = ibport;
-+		lnk->path_mtu = smcibdev->pattr[ibport - 1].active_mtu;
-+		if (!smcibdev->initialized)
-+			smc_ib_setup_per_ibdev(smcibdev);
-+		get_random_bytes(rndvec, sizeof(rndvec));
-+		lnk->psn_initial = rndvec[0] + (rndvec[1] << 8) +
-+			(rndvec[2] << 16);
-+		rc = smc_llc_link_init(lnk);
-+		if (rc)
-+			goto free_lgr;
-+		rc = smc_wr_alloc_link_mem(lnk);
-+		if (rc)
-+			goto clear_llc_lnk;
-+		rc = smc_ib_create_protection_domain(lnk);
-+		if (rc)
-+			goto free_link_mem;
-+		rc = smc_ib_create_queue_pair(lnk);
-+		if (rc)
-+			goto dealloc_pd;
-+		rc = smc_wr_create_link(lnk);
-+		if (rc)
-+			goto destroy_qp;
-+	}
- 	smc->conn.lgr = lgr;
--	rwlock_init(&lgr->conns_lock);
- 	spin_lock_bh(&smc_lgr_list.lock);
- 	list_add(&lgr->list, &smc_lgr_list.list);
- 	spin_unlock_bh(&smc_lgr_list.lock);
-@@ -264,7 +281,10 @@ void smc_conn_free(struct smc_connection *conn)
- {
- 	if (!conn->lgr)
- 		return;
--	smc_cdc_tx_dismiss_slots(conn);
-+	if (conn->lgr->is_smcd)
-+		smc_ism_unset_conn(conn);
-+	else
-+		smc_cdc_tx_dismiss_slots(conn);
- 	smc_lgr_unregister_conn(conn);
- 	smc_buf_unuse(conn);
- }
-@@ -280,8 +300,8 @@ static void smc_link_clear(struct smc_link *lnk)
- 	smc_wr_free_link_mem(lnk);
- }
- 
--static void smc_buf_free(struct smc_link_group *lgr, bool is_rmb,
--			 struct smc_buf_desc *buf_desc)
-+static void smcr_buf_free(struct smc_link_group *lgr, bool is_rmb,
-+			  struct smc_buf_desc *buf_desc)
- {
- 	struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
- 
-@@ -301,6 +321,25 @@ static void smc_buf_free(struct smc_link_group *lgr, bool is_rmb,
- 	kfree(buf_desc);
- }
- 
-+static void smcd_buf_free(struct smc_link_group *lgr, bool is_dmb,
-+			  struct smc_buf_desc *buf_desc)
-+{
-+	if (is_dmb)
-+		smc_ism_unregister_dmb(lgr->smcd, buf_desc);
-+	else
-+		kfree(buf_desc->cpu_addr);
-+	kfree(buf_desc);
-+}
-+
-+static void smc_buf_free(struct smc_link_group *lgr, bool is_rmb,
-+			 struct smc_buf_desc *buf_desc)
-+{
-+	if (lgr->is_smcd)
-+		smcd_buf_free(lgr, is_rmb, buf_desc);
-+	else
-+		smcr_buf_free(lgr, is_rmb, buf_desc);
-+}
-+
- static void __smc_lgr_free_bufs(struct smc_link_group *lgr, bool is_rmb)
- {
- 	struct smc_buf_desc *buf_desc, *bf_desc;
-@@ -332,7 +371,10 @@ static void smc_lgr_free_bufs(struct smc_link_group *lgr)
- void smc_lgr_free(struct smc_link_group *lgr)
- {
- 	smc_lgr_free_bufs(lgr);
--	smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
-+	if (lgr->is_smcd)
-+		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
-+	else
-+		smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
- 	kfree(lgr);
- }
- 
-@@ -357,7 +399,8 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
- 	lgr->terminating = 1;
- 	if (!list_empty(&lgr->list)) /* forget lgr */
- 		list_del_init(&lgr->list);
--	smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
-+	if (!lgr->is_smcd)
-+		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
- 
- 	write_lock_bh(&lgr->conns_lock);
- 	node = rb_first(&lgr->conns_all);
-@@ -374,7 +417,8 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
- 		node = rb_first(&lgr->conns_all);
- 	}
- 	write_unlock_bh(&lgr->conns_lock);
--	wake_up(&lgr->lnk[SMC_SINGLE_LINK].wr_reg_wait);
-+	if (!lgr->is_smcd)
-+		wake_up(&lgr->lnk[SMC_SINGLE_LINK].wr_reg_wait);
- 	smc_lgr_schedule_free_work(lgr);
- }
- 
-@@ -392,13 +436,40 @@ void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
- 
- 	spin_lock_bh(&smc_lgr_list.lock);
- 	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
--		if (lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
-+		if (!lgr->is_smcd &&
-+		    lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
- 		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport)
- 			__smc_lgr_terminate(lgr);
- 	}
- 	spin_unlock_bh(&smc_lgr_list.lock);
- }
- 
-+/* Called when SMC-D device is terminated or peer is lost */
-+void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid)
-+{
-+	struct smc_link_group *lgr, *l;
-+	LIST_HEAD(lgr_free_list);
-+
-+	/* run common cleanup function and build free list */
-+	spin_lock_bh(&smc_lgr_list.lock);
-+	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
-+		if (lgr->is_smcd && lgr->smcd == dev &&
-+		    (!peer_gid || lgr->peer_gid == peer_gid) &&
-+		    !list_empty(&lgr->list)) {
-+			__smc_lgr_terminate(lgr);
-+			list_move(&lgr->list, &lgr_free_list);
-+		}
-+	}
-+	spin_unlock_bh(&smc_lgr_list.lock);
-+
-+	/* cancel the regular free workers and actually free lgrs */
-+	list_for_each_entry_safe(lgr, l, &lgr_free_list, list) {
-+		list_del_init(&lgr->list);
-+		cancel_delayed_work_sync(&lgr->free_work);
-+		smc_lgr_free(lgr);
-+	}
-+}
-+
- /* Determine vlan of internal TCP socket.
-  * @vlan_id: address to store the determined vlan id into
-  */
-@@ -477,10 +548,30 @@ static int smc_link_determine_gid(struct smc_link_group *lgr)
- 	return -ENODEV;
- }
- 
-+static bool smcr_lgr_match(struct smc_link_group *lgr,
-+			   struct smc_clc_msg_local *lcl,
-+			   enum smc_lgr_role role)
-+{
-+	return !memcmp(lgr->peer_systemid, lcl->id_for_peer,
-+		       SMC_SYSTEMID_LEN) &&
-+		!memcmp(lgr->lnk[SMC_SINGLE_LINK].peer_gid, &lcl->gid,
-+			SMC_GID_SIZE) &&
-+		!memcmp(lgr->lnk[SMC_SINGLE_LINK].peer_mac, lcl->mac,
-+			sizeof(lcl->mac)) &&
-+		lgr->role == role;
-+}
-+
-+static bool smcd_lgr_match(struct smc_link_group *lgr,
-+			   struct smcd_dev *smcismdev, u64 peer_gid)
-+{
-+	return lgr->peer_gid == peer_gid && lgr->smcd == smcismdev;
-+}
-+
- /* create a new SMC connection (and a new link group if necessary) */
--int smc_conn_create(struct smc_sock *smc,
-+int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
- 		    struct smc_ib_device *smcibdev, u8 ibport,
--		    struct smc_clc_msg_local *lcl, int srv_first_contact)
-+		    struct smc_clc_msg_local *lcl, struct smcd_dev *smcd,
-+		    u64 peer_gid)
- {
- 	struct smc_connection *conn = &smc->conn;
- 	int local_contact = SMC_FIRST_CONTACT;
-@@ -502,17 +593,12 @@ int smc_conn_create(struct smc_sock *smc,
- 	spin_lock_bh(&smc_lgr_list.lock);
- 	list_for_each_entry(lgr, &smc_lgr_list.list, list) {
- 		write_lock_bh(&lgr->conns_lock);
--		if (!memcmp(lgr->peer_systemid, lcl->id_for_peer,
--			    SMC_SYSTEMID_LEN) &&
--		    !memcmp(lgr->lnk[SMC_SINGLE_LINK].peer_gid, &lcl->gid,
--			    SMC_GID_SIZE) &&
--		    !memcmp(lgr->lnk[SMC_SINGLE_LINK].peer_mac, lcl->mac,
--			    sizeof(lcl->mac)) &&
-+		if ((is_smcd ? smcd_lgr_match(lgr, smcd, peer_gid) :
-+		     smcr_lgr_match(lgr, lcl, role)) &&
- 		    !lgr->sync_err &&
--		    (lgr->role == role) &&
--		    (lgr->vlan_id == vlan_id) &&
--		    ((role == SMC_CLNT) ||
--		     (lgr->conns_num < SMC_RMBS_PER_LGR_MAX))) {
-+		    lgr->vlan_id == vlan_id &&
-+		    (role == SMC_CLNT ||
-+		     lgr->conns_num < SMC_RMBS_PER_LGR_MAX)) {
- 			/* link group found */
- 			local_contact = SMC_REUSE_CONTACT;
- 			conn->lgr = lgr;
-@@ -535,12 +621,13 @@ int smc_conn_create(struct smc_sock *smc,
- 
- create:
- 	if (local_contact == SMC_FIRST_CONTACT) {
--		rc = smc_lgr_create(smc, smcibdev, ibport,
--				    lcl->id_for_peer, vlan_id);
-+		rc = smc_lgr_create(smc, is_smcd, smcibdev, ibport,
-+				    lcl->id_for_peer, vlan_id, smcd, peer_gid);
- 		if (rc)
- 			goto out;
- 		smc_lgr_register_conn(conn); /* add smc conn to lgr */
--		rc = smc_link_determine_gid(conn->lgr);
-+		if (!is_smcd)
-+			rc = smc_link_determine_gid(conn->lgr);
- 	}
- 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
- 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
-@@ -609,8 +696,8 @@ static inline int smc_rmb_wnd_update_limit(int rmbe_size)
- 	return min_t(int, rmbe_size / 10, SOCK_MIN_SNDBUF / 2);
- }
- 
--static struct smc_buf_desc *smc_new_buf_create(struct smc_link_group *lgr,
--					       bool is_rmb, int bufsize)
-+static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
-+						bool is_rmb, int bufsize)
- {
- 	struct smc_buf_desc *buf_desc;
- 	struct smc_link *lnk;
-@@ -668,7 +755,43 @@ static struct smc_buf_desc *smc_new_buf_create(struct smc_link_group *lgr,
- 	return buf_desc;
- }
- 
--static int __smc_buf_create(struct smc_sock *smc, bool is_rmb)
-+#define SMCD_DMBE_SIZES		7 /* 0 -> 16KB, 1 -> 32KB, .. 6 -> 1MB */
-+
-+static struct smc_buf_desc *smcd_new_buf_create(struct smc_link_group *lgr,
-+						bool is_dmb, int bufsize)
-+{
-+	struct smc_buf_desc *buf_desc;
-+	int rc;
-+
-+	if (smc_compress_bufsize(bufsize) > SMCD_DMBE_SIZES)
-+		return ERR_PTR(-EAGAIN);
-+
-+	/* try to alloc a new DMB */
-+	buf_desc = kzalloc(sizeof(*buf_desc), GFP_KERNEL);
-+	if (!buf_desc)
-+		return ERR_PTR(-ENOMEM);
-+	if (is_dmb) {
-+		rc = smc_ism_register_dmb(lgr, bufsize, buf_desc);
-+		if (rc) {
-+			kfree(buf_desc);
-+			return ERR_PTR(-EAGAIN);
-+		}
-+		memset(buf_desc->cpu_addr, 0, bufsize);
-+		buf_desc->len = bufsize;
-+	} else {
-+		buf_desc->cpu_addr = kzalloc(bufsize, GFP_KERNEL |
-+					     __GFP_NOWARN | __GFP_NORETRY |
-+					     __GFP_NOMEMALLOC);
-+		if (!buf_desc->cpu_addr) {
-+			kfree(buf_desc);
-+			return ERR_PTR(-EAGAIN);
-+		}
-+		buf_desc->len = bufsize;
-+	}
-+	return buf_desc;
-+}
-+
-+static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- {
- 	struct smc_buf_desc *buf_desc = ERR_PTR(-ENOMEM);
- 	struct smc_connection *conn = &smc->conn;
-@@ -706,7 +829,11 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_rmb)
- 			break; /* found reusable slot */
- 		}
- 
--		buf_desc = smc_new_buf_create(lgr, is_rmb, bufsize);
-+		if (is_smcd)
-+			buf_desc = smcd_new_buf_create(lgr, is_rmb, bufsize);
-+		else
-+			buf_desc = smcr_new_buf_create(lgr, is_rmb, bufsize);
-+
- 		if (PTR_ERR(buf_desc) == -ENOMEM)
- 			break;
- 		if (IS_ERR(buf_desc))
-@@ -728,6 +855,8 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_rmb)
- 		smc->sk.sk_rcvbuf = bufsize * 2;
- 		atomic_set(&conn->bytes_to_rcv, 0);
- 		conn->rmbe_update_limit = smc_rmb_wnd_update_limit(bufsize);
-+		if (is_smcd)
-+			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
- 	} else {
- 		conn->sndbuf_desc = buf_desc;
- 		smc->sk.sk_sndbuf = bufsize * 2;
-@@ -740,6 +869,8 @@ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn)
- {
- 	struct smc_link_group *lgr = conn->lgr;
- 
-+	if (!conn->lgr || conn->lgr->is_smcd)
-+		return;
- 	smc_ib_sync_sg_for_cpu(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
- 			       conn->sndbuf_desc, DMA_TO_DEVICE);
- }
-@@ -748,6 +879,8 @@ void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn)
- {
- 	struct smc_link_group *lgr = conn->lgr;
- 
-+	if (!conn->lgr || conn->lgr->is_smcd)
-+		return;
- 	smc_ib_sync_sg_for_device(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
- 				  conn->sndbuf_desc, DMA_TO_DEVICE);
- }
-@@ -756,6 +889,8 @@ void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn)
- {
- 	struct smc_link_group *lgr = conn->lgr;
- 
-+	if (!conn->lgr || conn->lgr->is_smcd)
-+		return;
- 	smc_ib_sync_sg_for_cpu(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
- 			       conn->rmb_desc, DMA_FROM_DEVICE);
- }
-@@ -764,6 +899,8 @@ void smc_rmb_sync_sg_for_device(struct smc_connection *conn)
- {
- 	struct smc_link_group *lgr = conn->lgr;
- 
-+	if (!conn->lgr || conn->lgr->is_smcd)
-+		return;
- 	smc_ib_sync_sg_for_device(lgr->lnk[SMC_SINGLE_LINK].smcibdev,
- 				  conn->rmb_desc, DMA_FROM_DEVICE);
- }
-@@ -774,16 +911,16 @@ void smc_rmb_sync_sg_for_device(struct smc_connection *conn)
-  * the Linux implementation uses just one RMB-element per RMB, i.e. uses an
-  * extra RMB for every connection in a link group
-  */
--int smc_buf_create(struct smc_sock *smc)
-+int smc_buf_create(struct smc_sock *smc, bool is_smcd)
- {
- 	int rc;
- 
- 	/* create send buffer */
--	rc = __smc_buf_create(smc, false);
-+	rc = __smc_buf_create(smc, is_smcd, false);
- 	if (rc)
- 		return rc;
- 	/* create rmb */
--	rc = __smc_buf_create(smc, true);
-+	rc = __smc_buf_create(smc, is_smcd, true);
- 	if (rc)
- 		smc_buf_free(smc->conn.lgr, false, smc->conn.sndbuf_desc);
- 	return rc;
-@@ -865,7 +1002,8 @@ void smc_core_exit(void)
- 	spin_unlock_bh(&smc_lgr_list.lock);
- 	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
- 		list_del_init(&lgr->list);
--		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
-+		if (!lgr->is_smcd)
-+			smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
- 		cancel_delayed_work_sync(&lgr->free_work);
- 		smc_lgr_free(lgr); /* free link group */
- 	}
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 93cb3523bf50..cd9268a9570e 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -124,15 +124,28 @@ struct smc_buf_desc {
- 	void			*cpu_addr;	/* virtual address of buffer */
- 	struct page		*pages;
- 	int			len;		/* length of buffer */
--	struct sg_table		sgt[SMC_LINKS_PER_LGR_MAX];/* virtual buffer */
--	struct ib_mr		*mr_rx[SMC_LINKS_PER_LGR_MAX];
--						/* for rmb only: memory region
--						 * incl. rkey provided to peer
--						 */
--	u32			order;		/* allocation order */
- 	u32			used;		/* currently used / unused */
- 	u8			reused	: 1;	/* new created / reused */
- 	u8			regerr	: 1;	/* err during registration */
-+	union {
-+		struct { /* SMC-R */
-+			struct sg_table		sgt[SMC_LINKS_PER_LGR_MAX];
-+						/* virtual buffer */
-+			struct ib_mr		*mr_rx[SMC_LINKS_PER_LGR_MAX];
-+						/* for rmb only: memory region
-+						 * incl. rkey provided to peer
-+						 */
-+			u32			order;	/* allocation order */
-+		};
-+		struct { /* SMC-D */
-+			unsigned short		sba_idx;
-+						/* SBA index number */
-+			u64			token;
-+						/* DMB token number */
-+			dma_addr_t		dma_addr;
-+						/* DMA address */
-+		};
-+	};
+@@ -73,6 +73,7 @@ struct smcd_dev {
+ 	struct smc_connection **conn;
+ 	struct list_head vlan;
+ 	struct workqueue_struct *event_wq;
++	u8 pnetid[SMC_MAX_PNETID_LEN];
  };
  
- struct smc_rtoken {				/* address/key of remote RMB */
-@@ -148,12 +161,10 @@ struct smc_rtoken {				/* address/key of remote RMB */
-  * struct smc_clc_msg_accept_confirm.rmbe_size being a 4 bit value (0..15)
-  */
- 
-+struct smcd_dev;
-+
- struct smc_link_group {
- 	struct list_head	list;
--	enum smc_lgr_role	role;		/* client or server */
--	struct smc_link		lnk[SMC_LINKS_PER_LGR_MAX];	/* smc link */
--	char			peer_systemid[SMC_SYSTEMID_LEN];
--						/* unique system_id of peer */
- 	struct rb_root		conns_all;	/* connection tree */
- 	rwlock_t		conns_lock;	/* protects conns_all */
- 	unsigned int		conns_num;	/* current # of connections */
-@@ -163,17 +174,35 @@ struct smc_link_group {
- 	rwlock_t		sndbufs_lock;	/* protects tx buffers */
- 	struct list_head	rmbs[SMC_RMBE_SIZES];	/* rx buffers */
- 	rwlock_t		rmbs_lock;	/* protects rx buffers */
--	struct smc_rtoken	rtokens[SMC_RMBS_PER_LGR_MAX]
--				       [SMC_LINKS_PER_LGR_MAX];
--						/* remote addr/key pairs */
--	unsigned long		rtokens_used_mask[BITS_TO_LONGS(
--							SMC_RMBS_PER_LGR_MAX)];
--						/* used rtoken elements */
- 
- 	u8			id[SMC_LGR_ID_SIZE];	/* unique lgr id */
- 	struct delayed_work	free_work;	/* delayed freeing of an lgr */
- 	u8			sync_err : 1;	/* lgr no longer fits to peer */
- 	u8			terminating : 1;/* lgr is terminating */
-+
-+	bool			is_smcd;	/* SMC-R or SMC-D */
-+	union {
-+		struct { /* SMC-R */
-+			enum smc_lgr_role	role;
-+						/* client or server */
-+			struct smc_link		lnk[SMC_LINKS_PER_LGR_MAX];
-+						/* smc link */
-+			char			peer_systemid[SMC_SYSTEMID_LEN];
-+						/* unique system_id of peer */
-+			struct smc_rtoken	rtokens[SMC_RMBS_PER_LGR_MAX]
-+						[SMC_LINKS_PER_LGR_MAX];
-+						/* remote addr/key pairs */
-+			unsigned long		rtokens_used_mask[BITS_TO_LONGS
-+							(SMC_RMBS_PER_LGR_MAX)];
-+						/* used rtoken elements */
-+		};
-+		struct { /* SMC-D */
-+			u64			peer_gid;
-+						/* Peer GID (remote) */
-+			struct smcd_dev		*smcd;
-+						/* ISM device for VLAN reg. */
-+		};
-+	};
- };
- 
- /* Find the connection associated with the given alert token in the link group.
-@@ -217,7 +246,8 @@ void smc_lgr_free(struct smc_link_group *lgr);
- void smc_lgr_forget(struct smc_link_group *lgr);
- void smc_lgr_terminate(struct smc_link_group *lgr);
- void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport);
--int smc_buf_create(struct smc_sock *smc);
-+void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid);
-+int smc_buf_create(struct smc_sock *smc, bool is_smcd);
- int smc_uncompress_bufsize(u8 compressed);
- int smc_rmb_rtoken_handling(struct smc_connection *conn,
- 			    struct smc_clc_msg_accept_confirm *clc);
-@@ -227,9 +257,12 @@ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn);
- void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
- void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
- void smc_rmb_sync_sg_for_device(struct smc_connection *conn);
-+
- void smc_conn_free(struct smc_connection *conn);
--int smc_conn_create(struct smc_sock *smc,
-+int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
- 		    struct smc_ib_device *smcibdev, u8 ibport,
--		    struct smc_clc_msg_local *lcl, int srv_first_contact);
-+		    struct smc_clc_msg_local *lcl, struct smcd_dev *smcd,
-+		    u64 peer_gid);
-+void smcd_conn_free(struct smc_connection *conn);
- void smc_core_exit(void);
- #endif
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index 839354402215..64ce107c24d9 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -136,7 +136,8 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 			goto errout;
- 	}
- 
--	if ((req->diag_ext & (1 << (SMC_DIAG_LGRINFO - 1))) && smc->conn.lgr &&
-+	if (smc->conn.lgr && !smc->conn.lgr->is_smcd &&
-+	    (req->diag_ext & (1 << (SMC_DIAG_LGRINFO - 1))) &&
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_diag_lgrinfo linfo = {
- 			.role = smc->conn.lgr->role,
+ struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
 diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-new file mode 100644
-index 000000000000..ca1ce42fd49f
---- /dev/null
+index ca1ce42fd49f..f44e4dff244a 100644
+--- a/net/smc/smc_ism.c
 +++ b/net/smc/smc_ism.c
-@@ -0,0 +1,304 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Shared Memory Communications Direct over ISM devices (SMC-D)
-+ *
-+ * Functions for ISM device.
-+ *
-+ * Copyright IBM Corp. 2018
-+ */
-+
-+#include <linux/spinlock.h>
-+#include <linux/slab.h>
-+#include <asm/page.h>
-+
-+#include "smc.h"
-+#include "smc_core.h"
+@@ -13,6 +13,7 @@
+ #include "smc.h"
+ #include "smc_core.h"
+ #include "smc_ism.h"
++#include "smc_pnet.h"
+ 
+ struct smcd_dev_list smcd_dev_list = {
+ 	.list = LIST_HEAD_INIT(smcd_dev_list.list),
+@@ -227,6 +228,7 @@ struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
+ 	device_initialize(&smcd->dev);
+ 	dev_set_name(&smcd->dev, name);
+ 	smcd->ops = ops;
++	smc_pnetid_by_dev_port(parent, 0, smcd->pnetid);
+ 
+ 	spin_lock_init(&smcd->lock);
+ 	INIT_LIST_HEAD(&smcd->vlan);
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index cdc6e23b6ce1..1b6c066d3495 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -22,6 +22,7 @@
+ 
+ #include "smc_pnet.h"
+ #include "smc_ib.h"
 +#include "smc_ism.h"
-+
-+struct smcd_dev_list smcd_dev_list = {
-+	.list = LIST_HEAD_INIT(smcd_dev_list.list),
-+	.lock = __SPIN_LOCK_UNLOCKED(smcd_dev_list.lock)
-+};
-+
-+/* Test if an ISM communication is possible. */
-+int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *smcd)
+ 
+ static struct nla_policy smc_pnet_policy[SMC_PNETID_MAX + 1] = {
+ 	[SMC_PNETID_NAME] = {
+@@ -564,6 +565,27 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
+ 	spin_unlock(&smc_ib_devices.lock);
+ }
+ 
++static void smc_pnet_find_ism_by_pnetid(struct net_device *ndev,
++					struct smcd_dev **smcismdev)
 +{
-+	return smcd->ops->query_remote_gid(smcd, peer_gid, vlan_id ? 1 : 0,
-+					   vlan_id);
-+}
++	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
++	struct smcd_dev *ismdev;
 +
-+int smc_ism_write(struct smcd_dev *smcd, const struct smc_ism_position *pos,
-+		  void *data, size_t len)
-+{
-+	int rc;
++	ndev = pnet_find_base_ndev(ndev);
++	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
++				   ndev_pnetid))
++		return; /* pnetid could not be determined */
 +
-+	rc = smcd->ops->move_data(smcd, pos->token, pos->index, pos->signal,
-+				  pos->offset, data, len);
-+
-+	return rc < 0 ? rc : 0;
-+}
-+
-+/* Set a connection using this DMBE. */
-+void smc_ism_set_conn(struct smc_connection *conn)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&conn->lgr->smcd->lock, flags);
-+	conn->lgr->smcd->conn[conn->rmb_desc->sba_idx] = conn;
-+	spin_unlock_irqrestore(&conn->lgr->smcd->lock, flags);
-+}
-+
-+/* Unset a connection using this DMBE. */
-+void smc_ism_unset_conn(struct smc_connection *conn)
-+{
-+	unsigned long flags;
-+
-+	if (!conn->rmb_desc)
-+		return;
-+
-+	spin_lock_irqsave(&conn->lgr->smcd->lock, flags);
-+	conn->lgr->smcd->conn[conn->rmb_desc->sba_idx] = NULL;
-+	spin_unlock_irqrestore(&conn->lgr->smcd->lock, flags);
-+}
-+
-+/* Register a VLAN identifier with the ISM device. Use a reference count
-+ * and add a VLAN identifier only when the first DMB using this VLAN is
-+ * registered.
-+ */
-+int smc_ism_get_vlan(struct smcd_dev *smcd, unsigned short vlanid)
-+{
-+	struct smc_ism_vlanid *new_vlan, *vlan;
-+	unsigned long flags;
-+	int rc = 0;
-+
-+	if (!vlanid)			/* No valid vlan id */
-+		return -EINVAL;
-+
-+	/* create new vlan entry, in case we need it */
-+	new_vlan = kzalloc(sizeof(*new_vlan), GFP_KERNEL);
-+	if (!new_vlan)
-+		return -ENOMEM;
-+	new_vlan->vlanid = vlanid;
-+	refcount_set(&new_vlan->refcnt, 1);
-+
-+	/* if there is an existing entry, increase count and return */
-+	spin_lock_irqsave(&smcd->lock, flags);
-+	list_for_each_entry(vlan, &smcd->vlan, list) {
-+		if (vlan->vlanid == vlanid) {
-+			refcount_inc(&vlan->refcnt);
-+			kfree(new_vlan);
-+			goto out;
-+		}
-+	}
-+
-+	/* no existing entry found.
-+	 * add new entry to device; might fail, e.g., if HW limit reached
-+	 */
-+	if (smcd->ops->add_vlan_id(smcd, vlanid)) {
-+		kfree(new_vlan);
-+		rc = -EIO;
-+		goto out;
-+	}
-+	list_add_tail(&new_vlan->list, &smcd->vlan);
-+out:
-+	spin_unlock_irqrestore(&smcd->lock, flags);
-+	return rc;
-+}
-+
-+/* Unregister a VLAN identifier with the ISM device. Use a reference count
-+ * and remove a VLAN identifier only when the last DMB using this VLAN is
-+ * unregistered.
-+ */
-+int smc_ism_put_vlan(struct smcd_dev *smcd, unsigned short vlanid)
-+{
-+	struct smc_ism_vlanid *vlan;
-+	unsigned long flags;
-+	bool found = false;
-+	int rc = 0;
-+
-+	if (!vlanid)			/* No valid vlan id */
-+		return -EINVAL;
-+
-+	spin_lock_irqsave(&smcd->lock, flags);
-+	list_for_each_entry(vlan, &smcd->vlan, list) {
-+		if (vlan->vlanid == vlanid) {
-+			if (!refcount_dec_and_test(&vlan->refcnt))
-+				goto out;
-+			found = true;
++	spin_lock(&smcd_dev_list.lock);
++	list_for_each_entry(ismdev, &smcd_dev_list.list, list) {
++		if (!memcmp(ismdev->pnetid, ndev_pnetid, SMC_MAX_PNETID_LEN)) {
++			*smcismdev = ismdev;
 +			break;
 +		}
 +	}
-+	if (!found) {
-+		rc = -ENOENT;
-+		goto out;		/* VLAN id not in table */
-+	}
++	spin_unlock(&smcd_dev_list.lock);
++}
 +
-+	/* Found and the last reference just gone */
-+	if (smcd->ops->del_vlan_id(smcd, vlanid))
-+		rc = -EIO;
-+	list_del(&vlan->list);
-+	kfree(vlan);
+ /* Lookup of coupled ib_device via SMC pnet table */
+ static void smc_pnet_find_roce_by_table(struct net_device *netdev,
+ 					struct smc_ib_device **smcibdev,
+@@ -615,3 +637,22 @@ void smc_pnet_find_roce_resource(struct sock *sk,
+ out:
+ 	return;
+ }
++
++void smc_pnet_find_ism_resource(struct sock *sk, struct smcd_dev **smcismdev)
++{
++	struct dst_entry *dst = sk_dst_get(sk);
++
++	*smcismdev = NULL;
++	if (!dst)
++		goto out;
++	if (!dst->dev)
++		goto out_rel;
++
++	/* if possible, lookup via hardware-defined pnetid */
++	smc_pnet_find_ism_by_pnetid(dst->dev, smcismdev);
++
++out_rel:
++	dst_release(dst);
 +out:
-+	spin_unlock_irqrestore(&smcd->lock, flags);
-+	return rc;
++	return;
 +}
-+
-+int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
-+{
-+	struct smcd_dmb dmb;
-+
-+	memset(&dmb, 0, sizeof(dmb));
-+	dmb.dmb_tok = dmb_desc->token;
-+	dmb.sba_idx = dmb_desc->sba_idx;
-+	dmb.cpu_addr = dmb_desc->cpu_addr;
-+	dmb.dma_addr = dmb_desc->dma_addr;
-+	dmb.dmb_len = dmb_desc->len;
-+	return smcd->ops->unregister_dmb(smcd, &dmb);
-+}
-+
-+int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
-+			 struct smc_buf_desc *dmb_desc)
-+{
-+	struct smcd_dmb dmb;
-+	int rc;
-+
-+	memset(&dmb, 0, sizeof(dmb));
-+	dmb.dmb_len = dmb_len;
-+	dmb.sba_idx = dmb_desc->sba_idx;
-+	dmb.vlan_id = lgr->vlan_id;
-+	dmb.rgid = lgr->peer_gid;
-+	rc = lgr->smcd->ops->register_dmb(lgr->smcd, &dmb);
-+	if (!rc) {
-+		dmb_desc->sba_idx = dmb.sba_idx;
-+		dmb_desc->token = dmb.dmb_tok;
-+		dmb_desc->cpu_addr = dmb.cpu_addr;
-+		dmb_desc->dma_addr = dmb.dma_addr;
-+		dmb_desc->len = dmb.dmb_len;
-+	}
-+	return rc;
-+}
-+
-+struct smc_ism_event_work {
-+	struct work_struct work;
-+	struct smcd_dev *smcd;
-+	struct smcd_event event;
-+};
-+
-+/* worker for SMC-D events */
-+static void smc_ism_event_work(struct work_struct *work)
-+{
-+	struct smc_ism_event_work *wrk =
-+		container_of(work, struct smc_ism_event_work, work);
-+
-+	switch (wrk->event.type) {
-+	case ISM_EVENT_GID:	/* GID event, token is peer GID */
-+		smc_smcd_terminate(wrk->smcd, wrk->event.tok);
-+		break;
-+	case ISM_EVENT_DMB:
-+		break;
-+	}
-+	kfree(wrk);
-+}
-+
-+static void smcd_release(struct device *dev)
-+{
-+	struct smcd_dev *smcd = container_of(dev, struct smcd_dev, dev);
-+
-+	kfree(smcd->conn);
-+	kfree(smcd);
-+}
-+
-+struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
-+				const struct smcd_ops *ops, int max_dmbs)
-+{
-+	struct smcd_dev *smcd;
-+
-+	smcd = kzalloc(sizeof(*smcd), GFP_KERNEL);
-+	if (!smcd)
-+		return NULL;
-+	smcd->conn = kcalloc(max_dmbs, sizeof(struct smc_connection *),
-+			     GFP_KERNEL);
-+	if (!smcd->conn) {
-+		kfree(smcd);
-+		return NULL;
-+	}
-+
-+	smcd->dev.parent = parent;
-+	smcd->dev.release = smcd_release;
-+	device_initialize(&smcd->dev);
-+	dev_set_name(&smcd->dev, name);
-+	smcd->ops = ops;
-+
-+	spin_lock_init(&smcd->lock);
-+	INIT_LIST_HEAD(&smcd->vlan);
-+	smcd->event_wq = alloc_ordered_workqueue("ism_evt_wq-%s)",
-+						 WQ_MEM_RECLAIM, name);
-+	return smcd;
-+}
-+EXPORT_SYMBOL_GPL(smcd_alloc_dev);
-+
-+int smcd_register_dev(struct smcd_dev *smcd)
-+{
-+	spin_lock(&smcd_dev_list.lock);
-+	list_add_tail(&smcd->list, &smcd_dev_list.list);
-+	spin_unlock(&smcd_dev_list.lock);
-+
-+	return device_add(&smcd->dev);
-+}
-+EXPORT_SYMBOL_GPL(smcd_register_dev);
-+
-+void smcd_unregister_dev(struct smcd_dev *smcd)
-+{
-+	spin_lock(&smcd_dev_list.lock);
-+	list_del(&smcd->list);
-+	spin_unlock(&smcd_dev_list.lock);
-+	flush_workqueue(smcd->event_wq);
-+	destroy_workqueue(smcd->event_wq);
-+	smc_smcd_terminate(smcd, 0);
-+
-+	device_del(&smcd->dev);
-+}
-+EXPORT_SYMBOL_GPL(smcd_unregister_dev);
-+
-+void smcd_free_dev(struct smcd_dev *smcd)
-+{
-+	put_device(&smcd->dev);
-+}
-+EXPORT_SYMBOL_GPL(smcd_free_dev);
-+
-+/* SMCD Device event handler. Called from ISM device interrupt handler.
-+ * Parameters are smcd device pointer,
-+ * - event->type (0 --> DMB, 1 --> GID),
-+ * - event->code (event code),
-+ * - event->tok (either DMB token when event type 0, or GID when event type 1)
-+ * - event->time (time of day)
-+ * - event->info (debug info).
-+ *
-+ * Context:
-+ * - Function called in IRQ context from ISM device driver event handler.
-+ */
-+void smcd_handle_event(struct smcd_dev *smcd, struct smcd_event *event)
-+{
-+	struct smc_ism_event_work *wrk;
-+
-+	/* copy event to event work queue, and let it be handled there */
-+	wrk = kmalloc(sizeof(*wrk), GFP_ATOMIC);
-+	if (!wrk)
-+		return;
-+	INIT_WORK(&wrk->work, smc_ism_event_work);
-+	wrk->smcd = smcd;
-+	wrk->event = *event;
-+	queue_work(smcd->event_wq, &wrk->work);
-+}
-+EXPORT_SYMBOL_GPL(smcd_handle_event);
-+
-+/* SMCD Device interrupt handler. Called from ISM device interrupt handler.
-+ * Parameters are smcd device pointer and DMB number. Find the connection and
-+ * schedule the tasklet for this connection.
-+ *
-+ * Context:
-+ * - Function called in IRQ context from ISM device driver IRQ handler.
-+ */
-+void smcd_handle_irq(struct smcd_dev *smcd, unsigned int dmbno)
-+{
-+}
-+EXPORT_SYMBOL_GPL(smcd_handle_irq);
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-new file mode 100644
-index 000000000000..aee45b860b79
---- /dev/null
-+++ b/net/smc/smc_ism.h
-@@ -0,0 +1,48 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/* Shared Memory Communications Direct over ISM devices (SMC-D)
-+ *
-+ * SMC-D ISM device structure definitions.
-+ *
-+ * Copyright IBM Corp. 2018
-+ */
-+
-+#ifndef SMCD_ISM_H
-+#define SMCD_ISM_H
-+
-+#include <linux/uio.h>
-+
-+#include "smc.h"
-+
-+struct smcd_dev_list {	/* List of SMCD devices */
-+	struct list_head list;
-+	spinlock_t lock;	/* Protects list of devices */
-+};
-+
-+extern struct smcd_dev_list	smcd_dev_list; /* list of smcd devices */
-+
-+struct smc_ism_vlanid {			/* VLAN id set on ISM device */
-+	struct list_head list;
-+	unsigned short vlanid;		/* Vlan id */
-+	refcount_t refcnt;		/* Reference count */
-+};
-+
-+struct smc_ism_position {	/* ISM device position to write to */
-+	u64 token;		/* Token of DMB */
-+	u32 offset;		/* Offset into DMBE */
-+	u8 index;		/* Index of DMBE */
-+	u8 signal;		/* Generate interrupt on owner side */
-+};
-+
+diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
+index ad4455cde9e7..1e94fd4df7bc 100644
+--- a/net/smc/smc_pnet.h
++++ b/net/smc/smc_pnet.h
+@@ -17,6 +17,7 @@
+ #endif
+ 
+ struct smc_ib_device;
 +struct smcd_dev;
-+
-+int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *dev);
-+void smc_ism_set_conn(struct smc_connection *conn);
-+void smc_ism_unset_conn(struct smc_connection *conn);
-+int smc_ism_get_vlan(struct smcd_dev *dev, unsigned short vlan_id);
-+int smc_ism_put_vlan(struct smcd_dev *dev, unsigned short vlan_id);
-+int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
-+			 struct smc_buf_desc *dmb_desc);
-+int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
-+int smc_ism_write(struct smcd_dev *dev, const struct smc_ism_position *pos,
-+		  void *data, size_t len);
-+#endif
+ 
+ static inline int smc_pnetid_by_dev_port(struct device *dev,
+ 					 unsigned short port, u8 *pnetid)
+@@ -33,5 +34,6 @@ void smc_pnet_exit(void);
+ int smc_pnet_remove_by_ibdev(struct smc_ib_device *ibdev);
+ void smc_pnet_find_roce_resource(struct sock *sk,
+ 				 struct smc_ib_device **smcibdev, u8 *ibport);
++void smc_pnet_find_ism_resource(struct sock *sk, struct smcd_dev **smcismdev);
+ 
+ #endif
 -- 
 2.16.4
