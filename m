@@ -1,8 +1,10 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 00/10] pnetid and SMC-D support
-Date: Thu, 28 Jun 2018 19:05:03 +0200
-Message-ID: <20180628170513.5089-1-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 02/10] net/smc: add pnetid support
+Date: Thu, 28 Jun 2018 19:05:05 +0200
+Message-ID: <20180628170513.5089-3-ubraun@linux.ibm.com>
+References: <20180628170513.5089-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180628170513.5089-1-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -10,67 +12,262 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, hwippel@linux.ibm.com, sebott@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+s390 hardware supports the definition of a so-call Physical NETwork
+IDentifier (short PNETID) per network device port. These PNETIDS
+can be used to identify network devices that are attached to the same
+physical network (broadcast domain).
 
-SMC requires a configured pnet table to map Ethernet interfaces to
-RoCE adapter ports. For s390 there exists hardware support to group
-such devices. The first three patches cover the s390 pnetid support,
-enabling SMC-R usage on s390 without configuring an extra pnet table.
+On s390 try to use the PNETID of the ethernet device port used for
+initial connecting, and derive the IB device port used for SMC RDMA
+traffic.
 
-SMC currently requires RoCE adapters, and uses RDMA-techniques
-implemented with IB-verbs. But s390 offers another method for
-intra-CEC Shared Memory communication. The following seven patches
-implement a solution to run SMC traffic based on intra-CEC DMA,
-called SMC-D.
+On platforms without PNETID support fall back to the existing
+solution of a configured pnet table.
 
-Thanks, Ursula
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ include/net/smc.h  |   2 +
+ net/smc/smc_ib.c   |   6 ++-
+ net/smc/smc_ib.h   |   3 ++
+ net/smc/smc_pnet.c | 109 +++++++++++++++++++++++++++++++++++++++++++----------
+ net/smc/smc_pnet.h |  14 +++++++
+ 5 files changed, 114 insertions(+), 20 deletions(-)
 
-Hans Wippel (6):
-  net/smc: add base infrastructure for SMC-D and ISM
-  net/smc: add pnetid support for SMC-D and ISM
-  net/smc: add SMC-D support in CLC messages
-  net/smc: add SMC-D support in data transfer
-  net/smc: add SMC-D support in af_smc
-  net/smc: add SMC-D diag support
-
-Sebastian Ott (1):
-  s390/ism: add device driver for internal shared memory
-
-Ursula Braun (3):
-  net/smc: determine port attributes independent from pnet table
-  net/smc: add pnetid support
-  net/smc: optimize consumer cursor updates
-
- drivers/s390/net/Kconfig      |  10 +
- drivers/s390/net/Makefile     |   3 +
- drivers/s390/net/ism.h        | 221 +++++++++++++++
- drivers/s390/net/ism_drv.c    | 623 ++++++++++++++++++++++++++++++++++++++++++
- include/net/smc.h             |  65 +++++
- include/uapi/linux/smc_diag.h |  10 +
- net/smc/Makefile              |   2 +-
- net/smc/af_smc.c              | 228 ++++++++++++++--
- net/smc/smc.h                 |   7 +-
- net/smc/smc_cdc.c             |  86 +++++-
- net/smc/smc_cdc.h             |  43 ++-
- net/smc/smc_clc.c             | 193 +++++++++----
- net/smc/smc_clc.h             |  81 ++++--
- net/smc/smc_core.c            | 285 ++++++++++++++-----
- net/smc/smc_core.h            |  72 +++--
- net/smc/smc_diag.c            |  18 +-
- net/smc/smc_ib.c              | 134 +++++----
- net/smc/smc_ib.h              |   4 +-
- net/smc/smc_ism.c             | 314 +++++++++++++++++++++
- net/smc/smc_ism.h             |  48 ++++
- net/smc/smc_pnet.c            | 157 +++++++++--
- net/smc/smc_pnet.h            |  16 ++
- net/smc/smc_rx.c              |   2 +-
- net/smc/smc_tx.c              | 205 +++++++++++---
- net/smc/smc_tx.h              |   2 +
- 25 files changed, 2505 insertions(+), 324 deletions(-)
- create mode 100644 drivers/s390/net/ism.h
- create mode 100644 drivers/s390/net/ism_drv.c
- create mode 100644 net/smc/smc_ism.c
- create mode 100644 net/smc/smc_ism.h
-
+diff --git a/include/net/smc.h b/include/net/smc.h
+index 8381d163fefa..2173932fab9d 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -11,6 +11,8 @@
+ #ifndef _SMC_H
+ #define _SMC_H
+ 
++#define SMC_MAX_PNETID_LEN	16	/* Max. length of PNET id */
++
+ struct smc_hashinfo {
+ 	rwlock_t lock;
+ 	struct hlist_head ht;
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index f8b159ced032..36de2fd76170 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -504,8 +504,12 @@ static void smc_ib_add_dev(struct ib_device *ibdev)
+ 	port_cnt = smcibdev->ibdev->phys_port_cnt;
+ 	for (i = 0;
+ 	     i < min_t(size_t, port_cnt, SMC_MAX_PORTS);
+-	     i++)
++	     i++) {
+ 		set_bit(i, &smcibdev->port_event_mask);
++		/* determine pnetids of the port */
++		smc_pnetid_by_dev_port(ibdev->dev.parent, i,
++				       smcibdev->pnetid[i]);
++	}
+ 	schedule_work(&smcibdev->port_event_work);
+ }
+ 
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 2c480b352928..7c1223c91229 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -15,6 +15,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/if_ether.h>
+ #include <rdma/ib_verbs.h>
++#include <net/smc.h>
+ 
+ #define SMC_MAX_PORTS			2	/* Max # of ports */
+ #define SMC_GID_SIZE			sizeof(union ib_gid)
+@@ -40,6 +41,8 @@ struct smc_ib_device {				/* ib-device infos for smc */
+ 	char			mac[SMC_MAX_PORTS][ETH_ALEN];
+ 						/* mac address per port*/
+ 	union ib_gid		gid[SMC_MAX_PORTS]; /* gid per port */
++	u8			pnetid[SMC_MAX_PORTS][SMC_MAX_PNETID_LEN];
++						/* pnetid per port */
+ 	u8			initialized : 1; /* ib dev CQ, evthdl done */
+ 	struct work_struct	port_event_work;
+ 	unsigned long		port_event_mask;
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index a82a5cad0282..cdc6e23b6ce1 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -23,12 +23,10 @@
+ #include "smc_pnet.h"
+ #include "smc_ib.h"
+ 
+-#define SMC_MAX_PNET_ID_LEN	16	/* Max. length of PNET id */
+-
+ static struct nla_policy smc_pnet_policy[SMC_PNETID_MAX + 1] = {
+ 	[SMC_PNETID_NAME] = {
+ 		.type = NLA_NUL_STRING,
+-		.len = SMC_MAX_PNET_ID_LEN - 1
++		.len = SMC_MAX_PNETID_LEN - 1
+ 	},
+ 	[SMC_PNETID_ETHNAME] = {
+ 		.type = NLA_NUL_STRING,
+@@ -65,7 +63,7 @@ static struct smc_pnettable {
+  */
+ struct smc_pnetentry {
+ 	struct list_head list;
+-	char pnet_name[SMC_MAX_PNET_ID_LEN + 1];
++	char pnet_name[SMC_MAX_PNETID_LEN + 1];
+ 	struct net_device *ndev;
+ 	struct smc_ib_device *smcibdev;
+ 	u8 ib_port;
+@@ -209,7 +207,7 @@ static bool smc_pnetid_valid(const char *pnet_name, char *pnetid)
+ 		return false;
+ 	while (--end >= bf && isspace(*end))
+ 		;
+-	if (end - bf >= SMC_MAX_PNET_ID_LEN)
++	if (end - bf >= SMC_MAX_PNETID_LEN)
+ 		return false;
+ 	while (bf <= end) {
+ 		if (!isalnum(*bf))
+@@ -512,26 +510,70 @@ void smc_pnet_exit(void)
+ 	genl_unregister_family(&smc_pnet_nl_family);
+ }
+ 
+-/* PNET table analysis for a given sock:
+- * determine ib_device and port belonging to used internal TCP socket
+- * ethernet interface.
++/* Determine one base device for stacked net devices.
++ * If the lower device level contains more than one devices
++ * (for instance with bonding slaves), just the first device
++ * is used to reach a base device.
+  */
+-void smc_pnet_find_roce_resource(struct sock *sk,
+-				 struct smc_ib_device **smcibdev, u8 *ibport)
++static struct net_device *pnet_find_base_ndev(struct net_device *ndev)
+ {
+-	struct dst_entry *dst = sk_dst_get(sk);
+-	struct smc_pnetentry *pnetelem;
++	int i, nest_lvl;
+ 
+-	*smcibdev = NULL;
+-	*ibport = 0;
++	rtnl_lock();
++	nest_lvl = dev_get_nest_level(ndev);
++	for (i = 0; i < nest_lvl; i++) {
++		struct list_head *lower = &ndev->adj_list.lower;
++
++		if (list_empty(lower))
++			break;
++		lower = lower->next;
++		ndev = netdev_lower_get_next(ndev, &lower);
++	}
++	rtnl_unlock();
++	return ndev;
++}
++
++/* Determine the corresponding IB device port based on the hardware PNETID.
++ * Searching stops at the first matching active IB device port.
++ */
++static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
++					 struct smc_ib_device **smcibdev,
++					 u8 *ibport)
++{
++	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
++	struct smc_ib_device *ibdev;
++	int i;
++
++	ndev = pnet_find_base_ndev(ndev);
++	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
++				   ndev_pnetid))
++		return; /* pnetid could not be determined */
++
++	spin_lock(&smc_ib_devices.lock);
++	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
++		for (i = 1; i <= SMC_MAX_PORTS; i++) {
++			if (!memcmp(ibdev->pnetid[i - 1], ndev_pnetid,
++				    SMC_MAX_PNETID_LEN) &&
++			    smc_ib_port_active(ibdev, i)) {
++				*smcibdev = ibdev;
++				*ibport = i;
++				break;
++			}
++		}
++	}
++	spin_unlock(&smc_ib_devices.lock);
++}
++
++/* Lookup of coupled ib_device via SMC pnet table */
++static void smc_pnet_find_roce_by_table(struct net_device *netdev,
++					struct smc_ib_device **smcibdev,
++					u8 *ibport)
++{
++	struct smc_pnetentry *pnetelem;
+ 
+-	if (!dst)
+-		return;
+-	if (!dst->dev)
+-		goto out_rel;
+ 	read_lock(&smc_pnettable.lock);
+ 	list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
+-		if (dst->dev == pnetelem->ndev) {
++		if (netdev == pnetelem->ndev) {
+ 			if (smc_ib_port_active(pnetelem->smcibdev,
+ 					       pnetelem->ib_port)) {
+ 				*smcibdev = pnetelem->smcibdev;
+@@ -541,6 +583,35 @@ void smc_pnet_find_roce_resource(struct sock *sk,
+ 		}
+ 	}
+ 	read_unlock(&smc_pnettable.lock);
++}
++
++/* PNET table analysis for a given sock:
++ * determine ib_device and port belonging to used internal TCP socket
++ * ethernet interface.
++ */
++void smc_pnet_find_roce_resource(struct sock *sk,
++				 struct smc_ib_device **smcibdev, u8 *ibport)
++{
++	struct dst_entry *dst = sk_dst_get(sk);
++
++	*smcibdev = NULL;
++	*ibport = 0;
++
++	if (!dst)
++		goto out;
++	if (!dst->dev)
++		goto out_rel;
++
++	/* if possible, lookup via hardware-defined pnetid */
++	smc_pnet_find_roce_by_pnetid(dst->dev, smcibdev, ibport);
++	if (*smcibdev)
++		goto out_rel;
++
++	/* lookup via SMC PNET table */
++	smc_pnet_find_roce_by_table(dst->dev, smcibdev, ibport);
++
+ out_rel:
+ 	dst_release(dst);
++out:
++	return;
+ }
+diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
+index 5a29519db976..ad4455cde9e7 100644
+--- a/net/smc/smc_pnet.h
++++ b/net/smc/smc_pnet.h
+@@ -12,8 +12,22 @@
+ #ifndef _SMC_PNET_H
+ #define _SMC_PNET_H
+ 
++#if IS_ENABLED(CONFIG_HAVE_PNETID)
++#include <asm/pnet.h>
++#endif
++
+ struct smc_ib_device;
+ 
++static inline int smc_pnetid_by_dev_port(struct device *dev,
++					 unsigned short port, u8 *pnetid)
++{
++#if IS_ENABLED(CONFIG_HAVE_PNETID)
++	return pnet_id_by_dev_port(dev, port, pnetid);
++#else
++	return -ENOENT;
++#endif
++}
++
+ int smc_pnet_init(void) __init;
+ void smc_pnet_exit(void);
+ int smc_pnet_remove_by_ibdev(struct smc_ib_device *ibdev);
 -- 
 2.16.4
