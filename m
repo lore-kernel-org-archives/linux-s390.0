@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 07/10] net/smc: add SMC-D support in data transfer
-Date: Thu, 28 Jun 2018 19:05:10 +0200
-Message-ID: <20180628170513.5089-8-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 08/10] net/smc: add SMC-D support in af_smc
+Date: Thu, 28 Jun 2018 19:05:11 +0200
+Message-ID: <20180628170513.5089-9-ubraun@linux.ibm.com>
 References: <20180628170513.5089-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180628170513.5089-1-ubraun@linux.ibm.com>
@@ -14,619 +14,361 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hans Wippel <hwippel@linux.ibm.com>
 
-The data transfer and CDC message headers differ in SMC-R and SMC-D.
-This patch adds support for the SMC-D data transfer to the existing SMC
-code. It consists of the following:
-
-* SMC-D CDC support
-* SMC-D tx support
-* SMC-D rx support
-
-The CDC header is stored at the beginning of the receive buffer. Thus, a
-rx_offset variable is added for the CDC header offset within the buffer
-(0 for SMC-R).
+This patch ties together the previous SMC-D patches. It adds support for
+SMC-D to the listen and connect functions and, thus, enables SMC-D
+support in the SMC code. If a connection supports both SMC-R and SMC-D,
+SMC-D is preferred.
 
 Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
 ---
- net/smc/smc.h      |   5 ++
- net/smc/smc_cdc.c  |  86 +++++++++++++++++++++++-
- net/smc/smc_cdc.h  |  43 +++++++++++-
- net/smc/smc_core.c |  25 +++++--
- net/smc/smc_ism.c  |   8 +++
- net/smc/smc_rx.c   |   2 +-
- net/smc/smc_tx.c   | 193 +++++++++++++++++++++++++++++++++++++++++------------
- net/smc/smc_tx.h   |   2 +
- 8 files changed, 308 insertions(+), 56 deletions(-)
+ net/smc/af_smc.c   | 216 ++++++++++++++++++++++++++++++++++++++++++++++++-----
+ net/smc/smc_core.c |   2 +-
+ net/smc/smc_core.h |   1 +
+ 3 files changed, 200 insertions(+), 19 deletions(-)
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 7c86f716a92e..8c6231011779 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -183,6 +183,11 @@ struct smc_connection {
- 	spinlock_t		acurs_lock;	/* protect cursors */
- #endif
- 	struct work_struct	close_work;	/* peer sent some closing */
-+	struct tasklet_struct	rx_tsklet;	/* Receiver tasklet for SMC-D */
-+	u8			rx_off;		/* receive offset:
-+						 * 0 for SMC-R, 32 for SMC-D
-+						 */
-+	u64			peer_token;	/* SMC-D token of peer */
- };
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 20afa94be8bb..cbbb947dbfcf 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -23,6 +23,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/in.h>
+ #include <linux/sched/signal.h>
++#include <linux/if_vlan.h>
  
- struct smc_sock {				/* smc sock container */
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index a7e8d63fc8ae..621d8cca570b 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -117,7 +117,7 @@ int smc_cdc_msg_send(struct smc_connection *conn,
- 	return rc;
- }
- 
--int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
-+static int smcr_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- {
- 	struct smc_cdc_tx_pend *pend;
- 	struct smc_wr_buf *wr_buf;
-@@ -130,6 +130,21 @@ int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- 	return smc_cdc_msg_send(conn, wr_buf, pend);
- }
- 
-+int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
-+{
-+	int rc;
-+
-+	if (conn->lgr->is_smcd) {
-+		spin_lock_bh(&conn->send_lock);
-+		rc = smcd_cdc_msg_send(conn);
-+		spin_unlock_bh(&conn->send_lock);
-+	} else {
-+		rc = smcr_cdc_get_slot_and_msg_send(conn);
-+	}
-+
-+	return rc;
-+}
-+
- static bool smc_cdc_tx_filter(struct smc_wr_tx_pend_priv *tx_pend,
- 			      unsigned long data)
- {
-@@ -157,6 +172,45 @@ void smc_cdc_tx_dismiss_slots(struct smc_connection *conn)
- 				(unsigned long)conn);
- }
- 
-+/* Send a SMC-D CDC header.
-+ * This increments the free space available in our send buffer.
-+ * Also update the confirmed receive buffer with what was sent to the peer.
-+ */
-+int smcd_cdc_msg_send(struct smc_connection *conn)
-+{
-+	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
-+	struct smcd_cdc_msg cdc;
-+	int rc, diff;
-+
-+	memset(&cdc, 0, sizeof(cdc));
-+	cdc.common.type = SMC_CDC_MSG_TYPE;
-+	cdc.prod_wrap = conn->local_tx_ctrl.prod.wrap;
-+	cdc.prod_count = conn->local_tx_ctrl.prod.count;
-+
-+	cdc.cons_wrap = conn->local_tx_ctrl.cons.wrap;
-+	cdc.cons_count = conn->local_tx_ctrl.cons.count;
-+	cdc.prod_flags = conn->local_tx_ctrl.prod_flags;
-+	cdc.conn_state_flags = conn->local_tx_ctrl.conn_state_flags;
-+	rc = smcd_tx_ism_write(conn, &cdc, sizeof(cdc), 0, 1);
-+	if (rc)
-+		return rc;
-+	smc_curs_write(&conn->rx_curs_confirmed,
-+		       smc_curs_read(&conn->local_tx_ctrl.cons, conn), conn);
-+	/* Calculate transmitted data and increment free send buffer space */
-+	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
-+			     &conn->tx_curs_sent);
-+	/* increased by confirmed number of bytes */
-+	smp_mb__before_atomic();
-+	atomic_add(diff, &conn->sndbuf_space);
-+	/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-+	smp_mb__after_atomic();
-+	smc_curs_write(&conn->tx_curs_fin,
-+		       smc_curs_read(&conn->tx_curs_sent, conn), conn);
-+
-+	smc_tx_sndbuf_nonfull(smc);
-+	return rc;
-+}
-+
- /********************************* receive ***********************************/
- 
- static inline bool smc_cdc_before(u16 seq1, u16 seq2)
-@@ -178,7 +232,7 @@ static void smc_cdc_handle_urg_data_arrival(struct smc_sock *smc,
- 	if (!sock_flag(&smc->sk, SOCK_URGINLINE))
- 		/* we'll skip the urgent byte, so don't account for it */
- 		(*diff_prod)--;
--	base = (char *)conn->rmb_desc->cpu_addr;
-+	base = (char *)conn->rmb_desc->cpu_addr + conn->rx_off;
- 	if (conn->urg_curs.count)
- 		conn->urg_rx_byte = *(base + conn->urg_curs.count - 1);
- 	else
-@@ -276,6 +330,34 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
- 	sock_put(&smc->sk); /* no free sk in softirq-context */
- }
- 
-+/* Schedule a tasklet for this connection. Triggered from the ISM device IRQ
-+ * handler to indicate update in the DMBE.
-+ *
-+ * Context:
-+ * - tasklet context
-+ */
-+static void smcd_cdc_rx_tsklet(unsigned long data)
-+{
-+	struct smc_connection *conn = (struct smc_connection *)data;
-+	struct smcd_cdc_msg cdc;
-+	struct smc_sock *smc;
-+
-+	if (!conn)
-+		return;
-+
-+	memcpy(&cdc, conn->rmb_desc->cpu_addr, sizeof(cdc));
-+	smc = container_of(conn, struct smc_sock, conn);
-+	smc_cdc_msg_recv(smc, (struct smc_cdc_msg *)&cdc);
-+}
-+
-+/* Initialize receive tasklet. Called from ISM device IRQ handler to start
-+ * receiver side.
-+ */
-+void smcd_cdc_rx_init(struct smc_connection *conn)
-+{
-+	tasklet_init(&conn->rx_tsklet, smcd_cdc_rx_tsklet, (unsigned long)conn);
-+}
-+
- /***************************** init, exit, misc ******************************/
- 
- static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
-diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-index f60082fee5b8..8fbce4fee3e4 100644
---- a/net/smc/smc_cdc.h
-+++ b/net/smc/smc_cdc.h
-@@ -50,6 +50,20 @@ struct smc_cdc_msg {
- 	u8				reserved[18];
- } __packed;					/* format defined in RFC7609 */
- 
-+/* CDC message for SMC-D */
-+struct smcd_cdc_msg {
-+	struct smc_wr_rx_hdr common;	/* Type = 0xFE */
-+	u8 res1[7];
-+	u16 prod_wrap;
-+	u32 prod_count;
-+	u8 res2[2];
-+	u16 cons_wrap;
-+	u32 cons_count;
-+	struct smc_cdc_producer_flags	prod_flags;
-+	struct smc_cdc_conn_state_flags conn_state_flags;
-+	u8 res3[8];
-+} __packed;
-+
- static inline bool smc_cdc_rxed_any_close(struct smc_connection *conn)
- {
- 	return conn->local_rx_ctrl.conn_state_flags.peer_conn_abort ||
-@@ -204,9 +218,9 @@ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
- 	smc_curs_write(local, smc_curs_read(&temp, conn), conn);
- }
- 
--static inline void smc_cdc_msg_to_host(struct smc_host_cdc_msg *local,
--				       struct smc_cdc_msg *peer,
--				       struct smc_connection *conn)
-+static inline void smcr_cdc_msg_to_host(struct smc_host_cdc_msg *local,
-+					struct smc_cdc_msg *peer,
-+					struct smc_connection *conn)
- {
- 	local->common.type = peer->common.type;
- 	local->len = peer->len;
-@@ -218,6 +232,27 @@ static inline void smc_cdc_msg_to_host(struct smc_host_cdc_msg *local,
- 	local->conn_state_flags = peer->conn_state_flags;
- }
- 
-+static inline void smcd_cdc_msg_to_host(struct smc_host_cdc_msg *local,
-+					struct smcd_cdc_msg *peer)
-+{
-+	local->prod.wrap = peer->prod_wrap;
-+	local->prod.count = peer->prod_count;
-+	local->cons.wrap = peer->cons_wrap;
-+	local->cons.count = peer->cons_count;
-+	local->prod_flags = peer->prod_flags;
-+	local->conn_state_flags = peer->conn_state_flags;
-+}
-+
-+static inline void smc_cdc_msg_to_host(struct smc_host_cdc_msg *local,
-+				       struct smc_cdc_msg *peer,
-+				       struct smc_connection *conn)
-+{
-+	if (conn->lgr->is_smcd)
-+		smcd_cdc_msg_to_host(local, (struct smcd_cdc_msg *)peer);
-+	else
-+		smcr_cdc_msg_to_host(local, peer, conn);
-+}
-+
- struct smc_cdc_tx_pend;
- 
- int smc_cdc_get_free_slot(struct smc_connection *conn,
-@@ -227,6 +262,8 @@ void smc_cdc_tx_dismiss_slots(struct smc_connection *conn);
- int smc_cdc_msg_send(struct smc_connection *conn, struct smc_wr_buf *wr_buf,
- 		     struct smc_cdc_tx_pend *pend);
- int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn);
-+int smcd_cdc_msg_send(struct smc_connection *conn);
- int smc_cdc_init(void) __init;
-+void smcd_cdc_rx_init(struct smc_connection *conn);
- 
- #endif /* SMC_CDC_H */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index daa88db1841a..434c028162a4 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -281,10 +281,12 @@ void smc_conn_free(struct smc_connection *conn)
- {
- 	if (!conn->lgr)
- 		return;
--	if (conn->lgr->is_smcd)
-+	if (conn->lgr->is_smcd) {
- 		smc_ism_unset_conn(conn);
--	else
-+		tasklet_kill(&conn->rx_tsklet);
-+	} else {
- 		smc_cdc_tx_dismiss_slots(conn);
-+	}
- 	smc_lgr_unregister_conn(conn);
- 	smc_buf_unuse(conn);
- }
-@@ -324,10 +326,13 @@ static void smcr_buf_free(struct smc_link_group *lgr, bool is_rmb,
- static void smcd_buf_free(struct smc_link_group *lgr, bool is_dmb,
- 			  struct smc_buf_desc *buf_desc)
- {
--	if (is_dmb)
-+	if (is_dmb) {
-+		/* restore original buf len */
-+		buf_desc->len += sizeof(struct smcd_cdc_msg);
- 		smc_ism_unregister_dmb(lgr->smcd, buf_desc);
--	else
-+	} else {
- 		kfree(buf_desc->cpu_addr);
-+	}
- 	kfree(buf_desc);
- }
- 
-@@ -632,6 +637,10 @@ int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
- 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
- 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
- 	conn->urg_state = SMC_URG_READ;
-+	if (is_smcd) {
-+		conn->rx_off = sizeof(struct smcd_cdc_msg);
-+		smcd_cdc_rx_init(conn); /* init tasklet for this conn */
-+	}
- #ifndef KERNEL_HAS_ATOMIC64
- 	spin_lock_init(&conn->acurs_lock);
- #endif
-@@ -776,8 +785,9 @@ static struct smc_buf_desc *smcd_new_buf_create(struct smc_link_group *lgr,
- 			kfree(buf_desc);
- 			return ERR_PTR(-EAGAIN);
- 		}
--		memset(buf_desc->cpu_addr, 0, bufsize);
--		buf_desc->len = bufsize;
-+		buf_desc->pages = virt_to_page(buf_desc->cpu_addr);
-+		/* CDC header stored in buf. So, pretend it was smaller */
-+		buf_desc->len = bufsize - sizeof(struct smcd_cdc_msg);
- 	} else {
- 		buf_desc->cpu_addr = kzalloc(bufsize, GFP_KERNEL |
- 					     __GFP_NOWARN | __GFP_NORETRY |
-@@ -854,7 +864,8 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 		conn->rmbe_size_short = bufsize_short;
- 		smc->sk.sk_rcvbuf = bufsize * 2;
- 		atomic_set(&conn->bytes_to_rcv, 0);
--		conn->rmbe_update_limit = smc_rmb_wnd_update_limit(bufsize);
-+		conn->rmbe_update_limit =
-+			smc_rmb_wnd_update_limit(buf_desc->len);
- 		if (is_smcd)
- 			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
- 	} else {
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index f44e4dff244a..cfade7fdcc6d 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -302,5 +302,13 @@ EXPORT_SYMBOL_GPL(smcd_handle_event);
-  */
- void smcd_handle_irq(struct smcd_dev *smcd, unsigned int dmbno)
- {
-+	struct smc_connection *conn = NULL;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&smcd->lock, flags);
-+	conn = smcd->conn[dmbno];
-+	if (conn)
-+		tasklet_schedule(&conn->rx_tsklet);
-+	spin_unlock_irqrestore(&smcd->lock, flags);
- }
- EXPORT_SYMBOL_GPL(smcd_handle_irq);
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index 3d77b383cccd..b329803c8339 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -305,7 +305,7 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
- 	target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
- 
- 	/* we currently use 1 RMBE per RMB, so RMBE == RMB base addr */
--	rcvbuf_base = conn->rmb_desc->cpu_addr;
-+	rcvbuf_base = conn->rx_off + conn->rmb_desc->cpu_addr;
- 
- 	do { /* while (read_remaining) */
- 		if (read_done >= target || (pipe && read_done))
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index f82886b7d1d8..142bcb134dd6 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -24,6 +24,7 @@
- #include "smc.h"
- #include "smc_wr.h"
+ #include <net/sock.h>
+ #include <net/tcp.h>
+@@ -35,6 +36,7 @@
  #include "smc_cdc.h"
+ #include "smc_core.h"
+ #include "smc_ib.h"
 +#include "smc_ism.h"
+ #include "smc_pnet.h"
  #include "smc_tx.h"
- 
- #define SMC_TX_WORK_DELAY	HZ
-@@ -250,6 +251,24 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
- 
- /***************************** sndbuf consumer *******************************/
- 
-+/* sndbuf consumer: actual data transfer of one target chunk with ISM write */
-+int smcd_tx_ism_write(struct smc_connection *conn, void *data, size_t len,
-+		      u32 offset, int signal)
-+{
-+	struct smc_ism_position pos;
-+	int rc;
-+
-+	memset(&pos, 0, sizeof(pos));
-+	pos.token = conn->peer_token;
-+	pos.index = conn->peer_rmbe_idx;
-+	pos.offset = conn->tx_off + offset;
-+	pos.signal = signal;
-+	rc = smc_ism_write(conn->lgr->smcd, &pos, data, len);
-+	if (rc)
-+		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
-+	return rc;
-+}
-+
- /* sndbuf consumer: actual data transfer of one target chunk with RDMA write */
- static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
- 			     int num_sges, struct ib_sge sges[])
-@@ -297,21 +316,104 @@ static inline void smc_tx_advance_cursors(struct smc_connection *conn,
- 	smc_curs_add(conn->sndbuf_desc->len, sent, len);
+ #include "smc_rx.h"
+@@ -372,8 +374,8 @@ static int smc_clnt_conf_first_link(struct smc_sock *smc)
+ 	return 0;
  }
  
-+/* SMC-R helper for smc_tx_rdma_writes() */
-+static int smcr_tx_rdma_writes(struct smc_connection *conn, size_t len,
-+			       size_t src_off, size_t src_len,
-+			       size_t dst_off, size_t dst_len)
-+{
-+	dma_addr_t dma_addr =
-+		sg_dma_address(conn->sndbuf_desc->sgt[SMC_SINGLE_LINK].sgl);
-+	struct smc_link *link = &conn->lgr->lnk[SMC_SINGLE_LINK];
-+	int src_len_sum = src_len, dst_len_sum = dst_len;
-+	struct ib_sge sges[SMC_IB_MAX_SEND_SGE];
-+	int sent_count = src_off;
-+	int srcchunk, dstchunk;
-+	int num_sges;
-+	int rc;
-+
-+	for (dstchunk = 0; dstchunk < 2; dstchunk++) {
-+		num_sges = 0;
-+		for (srcchunk = 0; srcchunk < 2; srcchunk++) {
-+			sges[srcchunk].addr = dma_addr + src_off;
-+			sges[srcchunk].length = src_len;
-+			sges[srcchunk].lkey = link->roce_pd->local_dma_lkey;
-+			num_sges++;
-+
-+			src_off += src_len;
-+			if (src_off >= conn->sndbuf_desc->len)
-+				src_off -= conn->sndbuf_desc->len;
-+						/* modulo in send ring */
-+			if (src_len_sum == dst_len)
-+				break; /* either on 1st or 2nd iteration */
-+			/* prepare next (== 2nd) iteration */
-+			src_len = dst_len - src_len; /* remainder */
-+			src_len_sum += src_len;
-+		}
-+		rc = smc_tx_rdma_write(conn, dst_off, num_sges, sges);
-+		if (rc)
-+			return rc;
-+		if (dst_len_sum == len)
-+			break; /* either on 1st or 2nd iteration */
-+		/* prepare next (== 2nd) iteration */
-+		dst_off = 0; /* modulo offset in RMBE ring buffer */
-+		dst_len = len - dst_len; /* remainder */
-+		dst_len_sum += dst_len;
-+		src_len = min_t(int, dst_len, conn->sndbuf_desc->len -
-+				sent_count);
-+		src_len_sum = src_len;
-+	}
-+	return 0;
-+}
-+
-+/* SMC-D helper for smc_tx_rdma_writes() */
-+static int smcd_tx_rdma_writes(struct smc_connection *conn, size_t len,
-+			       size_t src_off, size_t src_len,
-+			       size_t dst_off, size_t dst_len)
-+{
-+	int src_len_sum = src_len, dst_len_sum = dst_len;
-+	int srcchunk, dstchunk;
-+	int rc;
-+
-+	for (dstchunk = 0; dstchunk < 2; dstchunk++) {
-+		for (srcchunk = 0; srcchunk < 2; srcchunk++) {
-+			void *data = conn->sndbuf_desc->cpu_addr + src_off;
-+
-+			rc = smcd_tx_ism_write(conn, data, src_len, dst_off +
-+					       sizeof(struct smcd_cdc_msg), 0);
-+			if (rc)
-+				return rc;
-+			dst_off += src_len;
-+			src_off += src_len;
-+			if (src_off >= conn->sndbuf_desc->len)
-+				src_off -= conn->sndbuf_desc->len;
-+						/* modulo in send ring */
-+			if (src_len_sum == dst_len)
-+				break; /* either on 1st or 2nd iteration */
-+			/* prepare next (== 2nd) iteration */
-+			src_len = dst_len - src_len; /* remainder */
-+			src_len_sum += src_len;
-+		}
-+		if (dst_len_sum == len)
-+			break; /* either on 1st or 2nd iteration */
-+		/* prepare next (== 2nd) iteration */
-+		dst_off = 0; /* modulo offset in RMBE ring buffer */
-+		dst_len = len - dst_len; /* remainder */
-+		dst_len_sum += dst_len;
-+		src_len = min_t(int, dst_len, conn->sndbuf_desc->len - src_off);
-+		src_len_sum = src_len;
-+	}
-+	return 0;
-+}
-+
- /* sndbuf consumer: prepare all necessary (src&dst) chunks of data transmit;
-  * usable snd_wnd as max transmit
-  */
- static int smc_tx_rdma_writes(struct smc_connection *conn)
+-static void smc_conn_save_peer_info(struct smc_sock *smc,
+-				    struct smc_clc_msg_accept_confirm *clc)
++static void smcr_conn_save_peer_info(struct smc_sock *smc,
++				     struct smc_clc_msg_accept_confirm *clc)
  {
--	size_t src_off, src_len, dst_off, dst_len; /* current chunk values */
--	size_t len, dst_len_sum, src_len_sum, dstchunk, srcchunk;
-+	size_t len, src_len, dst_off, dst_len; /* current chunk values */
- 	union smc_host_cursor sent, prep, prod, cons;
--	struct ib_sge sges[SMC_IB_MAX_SEND_SGE];
--	struct smc_link_group *lgr = conn->lgr;
- 	struct smc_cdc_producer_flags *pflags;
- 	int to_send, rmbespace;
--	struct smc_link *link;
--	dma_addr_t dma_addr;
--	int num_sges;
- 	int rc;
+ 	int bufsize = smc_uncompress_bufsize(clc->rmbe_size);
  
- 	/* source: sndbuf */
-@@ -341,7 +443,6 @@ static int smc_tx_rdma_writes(struct smc_connection *conn)
- 	len = min(to_send, rmbespace);
+@@ -384,6 +386,28 @@ static void smc_conn_save_peer_info(struct smc_sock *smc,
+ 	smc->conn.tx_off = bufsize * (smc->conn.peer_rmbe_idx - 1);
+ }
  
- 	/* initialize variables for first iteration of subsequent nested loop */
--	link = &lgr->lnk[SMC_SINGLE_LINK];
- 	dst_off = prod.count;
- 	if (prod.wrap == cons.wrap) {
- 		/* the filled destination area is unwrapped,
-@@ -358,8 +459,6 @@ static int smc_tx_rdma_writes(struct smc_connection *conn)
- 		 */
- 		dst_len = len;
- 	}
--	dst_len_sum = dst_len;
--	src_off = sent.count;
- 	/* dst_len determines the maximum src_len */
- 	if (sent.count + dst_len <= conn->sndbuf_desc->len) {
- 		/* unwrapped src case: single chunk of entire dst_len */
-@@ -368,38 +467,15 @@ static int smc_tx_rdma_writes(struct smc_connection *conn)
- 		/* wrapped src case: 2 chunks of sum dst_len; start with 1st: */
- 		src_len = conn->sndbuf_desc->len - sent.count;
- 	}
--	src_len_sum = src_len;
--	dma_addr = sg_dma_address(conn->sndbuf_desc->sgt[SMC_SINGLE_LINK].sgl);
--	for (dstchunk = 0; dstchunk < 2; dstchunk++) {
--		num_sges = 0;
--		for (srcchunk = 0; srcchunk < 2; srcchunk++) {
--			sges[srcchunk].addr = dma_addr + src_off;
--			sges[srcchunk].length = src_len;
--			sges[srcchunk].lkey = link->roce_pd->local_dma_lkey;
--			num_sges++;
--			src_off += src_len;
--			if (src_off >= conn->sndbuf_desc->len)
--				src_off -= conn->sndbuf_desc->len;
--						/* modulo in send ring */
--			if (src_len_sum == dst_len)
--				break; /* either on 1st or 2nd iteration */
--			/* prepare next (== 2nd) iteration */
--			src_len = dst_len - src_len; /* remainder */
--			src_len_sum += src_len;
--		}
--		rc = smc_tx_rdma_write(conn, dst_off, num_sges, sges);
--		if (rc)
--			return rc;
--		if (dst_len_sum == len)
--			break; /* either on 1st or 2nd iteration */
--		/* prepare next (== 2nd) iteration */
--		dst_off = 0; /* modulo offset in RMBE ring buffer */
--		dst_len = len - dst_len; /* remainder */
--		dst_len_sum += dst_len;
--		src_len = min_t(int,
--				dst_len, conn->sndbuf_desc->len - sent.count);
--		src_len_sum = src_len;
--	}
++static void smcd_conn_save_peer_info(struct smc_sock *smc,
++				     struct smc_clc_msg_accept_confirm *clc)
++{
++	int bufsize = smc_uncompress_bufsize(clc->dmbe_size);
 +
-+	if (conn->lgr->is_smcd)
-+		rc = smcd_tx_rdma_writes(conn, len, sent.count, src_len,
-+					 dst_off, dst_len);
++	smc->conn.peer_rmbe_idx = clc->dmbe_idx;
++	smc->conn.peer_token = clc->token;
++	/* msg header takes up space in the buffer */
++	smc->conn.peer_rmbe_size = bufsize - sizeof(struct smcd_cdc_msg);
++	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
++	smc->conn.tx_off = bufsize * smc->conn.peer_rmbe_idx;
++}
++
++static void smc_conn_save_peer_info(struct smc_sock *smc,
++				    struct smc_clc_msg_accept_confirm *clc)
++{
++	if (smc->conn.lgr->is_smcd)
++		smcd_conn_save_peer_info(smc, clc);
 +	else
-+		rc = smcr_tx_rdma_writes(conn, len, sent.count, src_len,
-+					 dst_off, dst_len);
-+	if (rc)
-+		return rc;
- 
- 	if (conn->urg_tx_pend && len == to_send)
- 		pflags->urg_data_present = 1;
-@@ -420,7 +496,7 @@ static int smc_tx_rdma_writes(struct smc_connection *conn)
- /* Wakeup sndbuf consumers from any context (IRQ or process)
-  * since there is more data to transmit; usable snd_wnd as max transmit
-  */
--int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
-+static int smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
++		smcr_conn_save_peer_info(smc, clc);
++}
++
+ static void smc_link_save_peer_info(struct smc_link *link,
+ 				    struct smc_clc_msg_accept_confirm *clc)
  {
- 	struct smc_cdc_producer_flags *pflags;
- 	struct smc_cdc_tx_pend *pend;
-@@ -467,6 +543,37 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
- 	return rc;
+@@ -450,15 +474,51 @@ static int smc_check_rdma(struct smc_sock *smc, struct smc_ib_device **ibdev,
+ 	return reason_code;
  }
  
-+static int smcd_tx_sndbuf_nonempty(struct smc_connection *conn)
++/* check if there is an ISM device available for this connection. */
++/* called for connect and listen */
++static int smc_check_ism(struct smc_sock *smc, struct smcd_dev **ismdev)
 +{
-+	struct smc_cdc_producer_flags *pflags = &conn->local_tx_ctrl.prod_flags;
++	/* Find ISM device with same PNETID as connecting interface  */
++	smc_pnet_find_ism_resource(smc->clcsock->sk, ismdev);
++	if (!(*ismdev))
++		return SMC_CLC_DECL_CNFERR; /* configuration error */
++	return 0;
++}
++
++/* Check for VLAN ID and register it on ISM device just for CLC handshake */
++static int smc_connect_ism_vlan_setup(struct smc_sock *smc,
++				      struct smcd_dev *ismdev,
++				      unsigned short vlan_id)
++{
++	if (vlan_id && smc_ism_get_vlan(ismdev, vlan_id))
++		return SMC_CLC_DECL_CNFERR;
++	return 0;
++}
++
++/* cleanup temporary VLAN ID registration used for CLC handshake. If ISM is
++ * used, the VLAN ID will be registered again during the connection setup.
++ */
++static int smc_connect_ism_vlan_cleanup(struct smc_sock *smc, bool is_smcd,
++					struct smcd_dev *ismdev,
++					unsigned short vlan_id)
++{
++	if (!is_smcd)
++		return 0;
++	if (vlan_id && smc_ism_put_vlan(ismdev, vlan_id))
++		return SMC_CLC_DECL_CNFERR;
++	return 0;
++}
++
+ /* CLC handshake during connect */
+ static int smc_connect_clc(struct smc_sock *smc, int smc_type,
+ 			   struct smc_clc_msg_accept_confirm *aclc,
+-			   struct smc_ib_device *ibdev, u8 ibport)
++			   struct smc_ib_device *ibdev, u8 ibport,
++			   struct smcd_dev *ismdev)
+ {
+ 	int rc = 0;
+ 
+ 	/* do inband token exchange */
+-	rc = smc_clc_send_proposal(smc, smc_type, ibdev, ibport, NULL);
++	rc = smc_clc_send_proposal(smc, smc_type, ibdev, ibport, ismdev);
+ 	if (rc)
+ 		return rc;
+ 	/* receive SMC Accept CLC message */
+@@ -538,11 +598,50 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 	return 0;
+ }
+ 
++/* setup for ISM connection of client */
++static int smc_connect_ism(struct smc_sock *smc,
++			   struct smc_clc_msg_accept_confirm *aclc,
++			   struct smcd_dev *ismdev)
++{
++	int local_contact = SMC_FIRST_CONTACT;
 +	int rc = 0;
 +
-+	spin_lock_bh(&conn->send_lock);
-+	if (!pflags->urg_data_present)
-+		rc = smc_tx_rdma_writes(conn);
-+	if (!rc)
-+		rc = smcd_cdc_msg_send(conn);
++	mutex_lock(&smc_create_lgr_pending);
++	local_contact = smc_conn_create(smc, true, aclc->hdr.flag, NULL, 0,
++					NULL, ismdev, aclc->gid);
++	if (local_contact < 0)
++		return smc_connect_abort(smc, SMC_CLC_DECL_MEM, 0);
 +
-+	if (!rc && pflags->urg_data_present) {
-+		pflags->urg_data_pending = 0;
-+		pflags->urg_data_present = 0;
-+	}
-+	spin_unlock_bh(&conn->send_lock);
-+	return rc;
++	/* Create send and receive buffers */
++	if (smc_buf_create(smc, true))
++		return smc_connect_abort(smc, SMC_CLC_DECL_MEM, local_contact);
++
++	smc_conn_save_peer_info(smc, aclc);
++	smc_close_init(smc);
++	smc_rx_init(smc);
++	smc_tx_init(smc);
++
++	rc = smc_clc_send_confirm(smc);
++	if (rc)
++		return smc_connect_abort(smc, rc, local_contact);
++	mutex_unlock(&smc_create_lgr_pending);
++
++	smc_copy_sock_settings_to_clc(smc);
++	if (smc->sk.sk_state == SMC_INIT)
++		smc->sk.sk_state = SMC_ACTIVE;
++
++	return 0;
 +}
 +
-+int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
-+{
-+	int rc;
-+
-+	if (conn->lgr->is_smcd)
-+		rc = smcd_tx_sndbuf_nonempty(conn);
-+	else
-+		rc = smcr_tx_sndbuf_nonempty(conn);
-+
-+	return rc;
-+}
-+
- /* Wakeup sndbuf consumers from process context
-  * since there is more data to transmit
-  */
-diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
-index 9d2238909fa0..b22bdc5694c4 100644
---- a/net/smc/smc_tx.h
-+++ b/net/smc/smc_tx.h
-@@ -33,5 +33,7 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
- int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
- void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
- void smc_tx_consumer_update(struct smc_connection *conn, bool force);
-+int smcd_tx_ism_write(struct smc_connection *conn, void *data, size_t len,
-+		      u32 offset, int signal);
+ /* perform steps before actually connecting */
+ static int __smc_connect(struct smc_sock *smc)
+ {
++	bool ism_supported = false, rdma_supported = false;
+ 	struct smc_clc_msg_accept_confirm aclc;
+ 	struct smc_ib_device *ibdev;
++	struct smcd_dev *ismdev;
++	unsigned short vlan;
++	int smc_type;
+ 	int rc = 0;
+ 	u8 ibport;
  
- #endif /* SMC_TX_H */
+@@ -559,20 +658,52 @@ static int __smc_connect(struct smc_sock *smc)
+ 	if (using_ipsec(smc))
+ 		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_IPSEC);
+ 
+-	/* check if a RDMA device is available; if not, fall back */
+-	if (smc_check_rdma(smc, &ibdev, &ibport))
++	/* check for VLAN ID */
++	if (smc_vlan_by_tcpsk(smc->clcsock, &vlan))
++		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_CNFERR);
++
++	/* check if there is an ism device available */
++	if (!smc_check_ism(smc, &ismdev) &&
++	    !smc_connect_ism_vlan_setup(smc, ismdev, vlan)) {
++		/* ISM is supported for this connection */
++		ism_supported = true;
++		smc_type = SMC_TYPE_D;
++	}
++
++	/* check if there is a rdma device available */
++	if (!smc_check_rdma(smc, &ibdev, &ibport)) {
++		/* RDMA is supported for this connection */
++		rdma_supported = true;
++		if (ism_supported)
++			smc_type = SMC_TYPE_B; /* both */
++		else
++			smc_type = SMC_TYPE_R; /* only RDMA */
++	}
++
++	/* if neither ISM nor RDMA are supported, fallback */
++	if (!rdma_supported && !ism_supported)
+ 		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_CNFERR);
+ 
+ 	/* perform CLC handshake */
+-	rc = smc_connect_clc(smc, SMC_TYPE_R, &aclc, ibdev, ibport);
+-	if (rc)
++	rc = smc_connect_clc(smc, smc_type, &aclc, ibdev, ibport, ismdev);
++	if (rc) {
++		smc_connect_ism_vlan_cleanup(smc, ism_supported, ismdev, vlan);
+ 		return smc_connect_decline_fallback(smc, rc);
++	}
+ 
+-	/* connect using rdma */
+-	rc = smc_connect_rdma(smc, &aclc, ibdev, ibport);
+-	if (rc)
++	/* depending on previous steps, connect using rdma or ism */
++	if (rdma_supported && aclc.hdr.path == SMC_TYPE_R)
++		rc = smc_connect_rdma(smc, &aclc, ibdev, ibport);
++	else if (ism_supported && aclc.hdr.path == SMC_TYPE_D)
++		rc = smc_connect_ism(smc, &aclc, ismdev);
++	else
++		rc = SMC_CLC_DECL_CNFERR;
++	if (rc) {
++		smc_connect_ism_vlan_cleanup(smc, ism_supported, ismdev, vlan);
+ 		return smc_connect_decline_fallback(smc, rc);
++	}
+ 
++	smc_connect_ism_vlan_cleanup(smc, ism_supported, ismdev, vlan);
+ 	return 0;
+ }
+ 
+@@ -909,6 +1040,44 @@ static int smc_listen_rdma_init(struct smc_sock *new_smc,
+ 	return 0;
+ }
+ 
++/* listen worker: initialize connection and buffers for SMC-D */
++static int smc_listen_ism_init(struct smc_sock *new_smc,
++			       struct smc_clc_msg_proposal *pclc,
++			       struct smcd_dev *ismdev,
++			       int *local_contact)
++{
++	struct smc_clc_msg_smcd *pclc_smcd;
++
++	pclc_smcd = smc_get_clc_msg_smcd(pclc);
++	*local_contact = smc_conn_create(new_smc, true, 0, NULL, 0, NULL,
++					 ismdev, pclc_smcd->gid);
++	if (*local_contact < 0) {
++		if (*local_contact == -ENOMEM)
++			return SMC_CLC_DECL_MEM;/* insufficient memory*/
++		return SMC_CLC_DECL_INTERR; /* other error */
++	}
++
++	/* Check if peer can be reached via ISM device */
++	if (smc_ism_cantalk(new_smc->conn.lgr->peer_gid,
++			    new_smc->conn.lgr->vlan_id,
++			    new_smc->conn.lgr->smcd)) {
++		if (*local_contact == SMC_FIRST_CONTACT)
++			smc_lgr_forget(new_smc->conn.lgr);
++		smc_conn_free(&new_smc->conn);
++		return SMC_CLC_DECL_CNFERR;
++	}
++
++	/* Create send and receive buffers */
++	if (smc_buf_create(new_smc, true)) {
++		if (*local_contact == SMC_FIRST_CONTACT)
++			smc_lgr_forget(new_smc->conn.lgr);
++		smc_conn_free(&new_smc->conn);
++		return SMC_CLC_DECL_MEM;
++	}
++
++	return 0;
++}
++
+ /* listen worker: register buffers */
+ static int smc_listen_rdma_reg(struct smc_sock *new_smc, int local_contact)
+ {
+@@ -967,6 +1136,8 @@ static void smc_listen_work(struct work_struct *work)
+ 	struct smc_clc_msg_accept_confirm cclc;
+ 	struct smc_clc_msg_proposal *pclc;
+ 	struct smc_ib_device *ibdev;
++	bool ism_supported = false;
++	struct smcd_dev *ismdev;
+ 	u8 buf[SMC_CLC_MAX_LEN];
+ 	int local_contact = 0;
+ 	int reason_code = 0;
+@@ -1007,13 +1178,21 @@ static void smc_listen_work(struct work_struct *work)
+ 	smc_rx_init(new_smc);
+ 	smc_tx_init(new_smc);
+ 
++	/* check if ISM is available */
++	if ((pclc->hdr.path == SMC_TYPE_D || pclc->hdr.path == SMC_TYPE_B) &&
++	    !smc_check_ism(new_smc, &ismdev) &&
++	    !smc_listen_ism_init(new_smc, pclc, ismdev, &local_contact)) {
++		ism_supported = true;
++	}
++
+ 	/* check if RDMA is available */
+-	if ((pclc->hdr.path != SMC_TYPE_R && pclc->hdr.path != SMC_TYPE_B) ||
+-	    smc_check_rdma(new_smc, &ibdev, &ibport) ||
+-	    smc_listen_rdma_check(new_smc, pclc) ||
+-	    smc_listen_rdma_init(new_smc, pclc, ibdev, ibport,
+-				 &local_contact) ||
+-	    smc_listen_rdma_reg(new_smc, local_contact)) {
++	if (!ism_supported &&
++	    ((pclc->hdr.path != SMC_TYPE_R && pclc->hdr.path != SMC_TYPE_B) ||
++	     smc_check_rdma(new_smc, &ibdev, &ibport) ||
++	     smc_listen_rdma_check(new_smc, pclc) ||
++	     smc_listen_rdma_init(new_smc, pclc, ibdev, ibport,
++				  &local_contact) ||
++	     smc_listen_rdma_reg(new_smc, local_contact))) {
+ 		/* SMC not supported, decline */
+ 		mutex_unlock(&smc_create_lgr_pending);
+ 		smc_listen_decline(new_smc, SMC_CLC_DECL_CNFERR, local_contact);
+@@ -1038,7 +1217,8 @@ static void smc_listen_work(struct work_struct *work)
+ 	}
+ 
+ 	/* finish worker */
+-	smc_listen_rdma_finish(new_smc, &cclc, local_contact);
++	if (!ism_supported)
++		smc_listen_rdma_finish(new_smc, &cclc, local_contact);
+ 	smc_conn_save_peer_info(new_smc, &cclc);
+ 	mutex_unlock(&smc_create_lgr_pending);
+ 	smc_listen_out_connected(new_smc);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 434c028162a4..66741e61a3b0 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -478,7 +478,7 @@ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid)
+ /* Determine vlan of internal TCP socket.
+  * @vlan_id: address to store the determined vlan id into
+  */
+-static int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
++int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
+ {
+ 	struct dst_entry *dst = sk_dst_get(clcsock->sk);
+ 	struct net_device *ndev;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index cd9268a9570e..8b47e0168fc3 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -257,6 +257,7 @@ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn);
+ void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
+ void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
+ void smc_rmb_sync_sg_for_device(struct smc_connection *conn);
++int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id);
+ 
+ void smc_conn_free(struct smc_connection *conn);
+ int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
 -- 
 2.16.4
