@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 4/5] s390/qeth: don't clobber buffer on async TX completion
-Date: Fri, 29 Jun 2018 19:45:53 +0200
-Message-ID: <20180629174554.53718-5-jwi@linux.ibm.com>
+Subject: [PATCH net 3/5] s390/qeth: avoid using is_multicast_ether_addr_64bits on (u8 *)[6]
+Date: Fri, 29 Jun 2018 19:45:52 +0200
+Message-ID: <20180629174554.53718-4-jwi@linux.ibm.com>
 References: <20180629174554.53718-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180629174554.53718-1-jwi@linux.ibm.com>
@@ -9,113 +9,64 @@ Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-If qeth_qdio_output_handler() detects that a transmit requires async
-completion, it replaces the pending buffer's metadata object
-(qeth_qdio_out_buffer) so that this queue buffer can be re-used while
-the data is pending completion.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Later when the CQ indicates async completion of such a metadata object,
-qeth_qdio_cq_handler() tries to free any data associated with this
-object (since HW has now completed the transfer). By calling
-qeth_clear_output_buffer(), it erronously operates on the queue buffer
-that _previously_ belonged to this transfer ... but which has been
-potentially re-used several times by now.
-This results in double-free's of the buffer's data, and failing
-transmits as the buffer descriptor is scrubbed in mid-air.
+*ether_addr*_64bits functions have been introduced to optimize
+performance critical paths, which access 6-byte ethernet address as u64
+value to get "nice" assembly. A harmless hack works nicely on ethernet
+addresses shoved into a structure or a larger buffer, until busted by
+Kasan on smth like plain (u8 *)[6].
 
-The correct way of handling this situation is to
-1. scrub the queue buffer when it is prepared for re-use, and
-2. later obtain the data addresses from the async-completion notifier
-   (ie. the AOB), instead of the queue buffer.
+qeth_l2_set_mac_address calls qeth_l2_remove_mac passing
+u8 old_addr[ETH_ALEN] as an argument.
 
-All this only affects qeth devices used for af_iucv HiperTransport.
+Adding/removing macs for an ethernet adapter is not that performance
+critical. Moreover is_multicast_ether_addr_64bits itself on s390 is not
+faster than is_multicast_ether_addr:
 
-Fixes: 0da9581ddb0f ("qeth: exploit asynchronous delivery of storage blocks")
+is_multicast_ether_addr(%r2) -> %r2
+llc	%r2,0(%r2)
+risbg	%r2,%r2,63,191,0
+
+is_multicast_ether_addr_64bits(%r2) -> %r2
+llgc	%r2,0(%r2)
+risbg	%r2,%r2,63,191,0
+
+So, let's just use is_multicast_ether_addr instead of
+is_multicast_ether_addr_64bits.
+
+Fixes: bcacfcbc82b4 ("s390/qeth: fix MAC address update sequence")
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      | 11 +++++++++++
- drivers/s390/net/qeth_core_main.c | 22 ++++++++++++++++------
- 2 files changed, 27 insertions(+), 6 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 2a5fec55bf60..940fd7b558d3 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -829,6 +829,17 @@ struct qeth_trap_id {
- /*some helper functions*/
- #define QETH_CARD_IFNAME(card) (((card)->dev)? (card)->dev->name : "")
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 7daf125dae76..5464515b71f1 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -140,7 +140,7 @@ static int qeth_l2_send_setmac(struct qeth_card *card, __u8 *mac)
  
-+static inline void qeth_scrub_qdio_buffer(struct qdio_buffer *buf,
-+					  unsigned int elements)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < elements; i++)
-+		memset(&buf->element[i], 0, sizeof(struct qdio_buffer_element));
-+	buf->element[14].sflags = 0;
-+	buf->element[15].sflags = 0;
-+}
-+
- /**
-  * qeth_get_elements_for_range() -	find number of SBALEs to cover range.
-  * @start:				Start of the address range.
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 9d9182ed8ac4..d20a69a3bc40 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -73,9 +73,6 @@ static void qeth_notify_skbs(struct qeth_qdio_out_q *queue,
- 		struct qeth_qdio_out_buffer *buf,
- 		enum iucv_tx_notify notification);
- static void qeth_release_skbs(struct qeth_qdio_out_buffer *buf);
--static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
--		struct qeth_qdio_out_buffer *buf,
--		enum qeth_qdio_buffer_states newbufstate);
- static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *, int);
+ static int qeth_l2_write_mac(struct qeth_card *card, u8 *mac)
+ {
+-	enum qeth_ipa_cmds cmd = is_multicast_ether_addr_64bits(mac) ?
++	enum qeth_ipa_cmds cmd = is_multicast_ether_addr(mac) ?
+ 					IPA_CMD_SETGMAC : IPA_CMD_SETVMAC;
+ 	int rc;
  
- struct workqueue_struct *qeth_wq;
-@@ -489,6 +486,7 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
- 	struct qaob *aob;
- 	struct qeth_qdio_out_buffer *buffer;
- 	enum iucv_tx_notify notification;
-+	unsigned int i;
+@@ -157,7 +157,7 @@ static int qeth_l2_write_mac(struct qeth_card *card, u8 *mac)
  
- 	aob = (struct qaob *) phys_to_virt(phys_aob_addr);
- 	QETH_CARD_TEXT(card, 5, "haob");
-@@ -513,10 +511,18 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
- 	qeth_notify_skbs(buffer->q, buffer, notification);
+ static int qeth_l2_remove_mac(struct qeth_card *card, u8 *mac)
+ {
+-	enum qeth_ipa_cmds cmd = is_multicast_ether_addr_64bits(mac) ?
++	enum qeth_ipa_cmds cmd = is_multicast_ether_addr(mac) ?
+ 					IPA_CMD_DELGMAC : IPA_CMD_DELVMAC;
+ 	int rc;
  
- 	buffer->aob = NULL;
--	qeth_clear_output_buffer(buffer->q, buffer,
--				 QETH_QDIO_BUF_HANDLED_DELAYED);
-+	/* Free dangling allocations. The attached skbs are handled by
-+	 * qeth_cleanup_handled_pending().
-+	 */
-+	for (i = 0;
-+	     i < aob->sb_count && i < QETH_MAX_BUFFER_ELEMENTS(card);
-+	     i++) {
-+		if (aob->sba[i] && buffer->is_header[i])
-+			kmem_cache_free(qeth_core_header_cache,
-+					(void *) aob->sba[i]);
-+	}
-+	atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
- 
--	/* from here on: do not touch buffer anymore */
- 	qdio_release_aob(aob);
- }
- 
-@@ -3759,6 +3765,10 @@ static void qeth_qdio_output_handler(struct ccw_device *ccwdev,
- 			QETH_CARD_TEXT(queue->card, 5, "aob");
- 			QETH_CARD_TEXT_(queue->card, 5, "%lx",
- 					virt_to_phys(buffer->aob));
-+
-+			/* prepare the queue slot for re-use: */
-+			qeth_scrub_qdio_buffer(buffer->buffer,
-+					       QETH_MAX_BUFFER_ELEMENTS(card));
- 			if (qeth_init_qdio_out_buf(queue, bidx)) {
- 				QETH_CARD_TEXT(card, 2, "outofbuf");
- 				qeth_schedule_recovery(card);
 -- 
 2.16.4
