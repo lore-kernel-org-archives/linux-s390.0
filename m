@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v6 18/21] s390: vfio-ap: zeroize the AP queues.
-Date: Fri, 29 Jun 2018 17:11:20 -0400
-Message-ID: <1530306683-7270-19-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v6 12/21] s390: vfio-ap: sysfs interfaces to configure control domains
+Date: Fri, 29 Jun 2018 17:11:14 -0400
+Message-ID: <1530306683-7270-13-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,139 +12,202 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Let's call PAPQ(ZAPQ) to zeroize a queue:
+Provides the sysfs interfaces for assigning AP control domains
+to and unassigning AP control domains from a mediated matrix device.
 
-* For each queue configured for a mediated matrix device
-  when it is released.
+The IDs of the AP control domains assigned to the mediated matrix
+device are stored in an AP domain mask (ADM). The bits in the ADM,
+from most significant to least significant bit, correspond to
+AP domain numbers 0 to 255. When a control domain is assigned,
+the bit corresponding its domain ID will be set in the ADM.
+Likewise, when a domain is unassigned, the bit corresponding
+to its domain ID will be cleared in the ADM.
 
-* When an AP queue is unbound from the VFIO AP device driver.
+The relevant sysfs structures are:
 
-Zeroizing a queue resets the queue, clears all pending
-messages for the queue entries and disables adapter interruptions
-associated with the queue.
+/sys/devices/vfio_ap
+... [matrix]
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ [devices]
+...............[$uuid]
+.................. assign_control_domain
+.................. unassign_control_domain
+
+To assign a control domain to the $uuid mediated matrix device's
+ADM, write its domain number to the assign_control_domain file.
+To unassign a domain, write its domain number to the
+unassign_control_domain file. The domain number is specified
+using conventional semantics: If it begins with 0x the number
+will be parsed as a hexadecimal (case insensitive) number;
+if it begins with 0, it is parsed as an octal number;
+otherwise, it will be parsed as a decimal number.
+
+For example, to assign control domain 173 (0xad) to the mediated
+matrix device $uuid:
+
+	echo 173 > assign_control_domain
+
+	or
+
+	echo 0255 > assign_control_domain
+
+	or
+
+	echo 0xad > assign_control_domain
+
+To unassign control domain 173 (0xad):
+
+	echo 173 > unassign_control_domain
+
+	or
+
+	echo 0255 > unassign_control_domain
+
+	or
+
+	echo 0xad > unassign_control_domain
+
+The assignment will be rejected if the APQI exceeds the maximum
+value for an AP domain:
+  * If the AP Extended Addressing (APXA) facility is installed,
+    the max value is 255
+  * Else the max value is 15
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |   12 +++++++++++-
- drivers/s390/crypto/vfio_ap_ops.c     |   33 ++++++++++++++++++++++++++++++++-
- drivers/s390/crypto/vfio_ap_private.h |   26 ++++++++++++++++++++++++++
- 3 files changed, 69 insertions(+), 2 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c |  114 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 114 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index b6ff7a4..d09ffdc 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -53,7 +53,17 @@ static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
- 
- static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
- {
--	/* Nothing to do yet */
-+	struct ap_queue *ap_queue = to_ap_queue(&apdev->device);
-+
-+	vfio_ap_reset_queue(AP_QID_CARD(ap_queue->qid),
-+			    AP_QID_QUEUE(ap_queue->qid));
-+
-+	/*
-+	 * TODO: Ensure that no guest is using the queue and handle it
-+	 * accordingly. The domain or possibly the adapter may have to
-+	 * be removed from the guest's configuration which would require
-+	 * hot unplug support which is forthcoming.
-+	 */
- }
- 
- static void vfio_ap_matrix_dev_release(struct device *dev)
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 79ac0d4..e247491 100644
+index a5b06e7..c8f31f3 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1054,6 +1054,37 @@ static int vfio_ap_mdev_open_once(struct ap_matrix_mdev *matrix_mdev)
- 	return ret;
+@@ -586,11 +586,125 @@ static ssize_t unassign_domain_store(struct device *dev,
  }
+ DEVICE_ATTR_WO(unassign_domain);
  
-+static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev, bool force)
++
++/**
++ * assign_control_domain_store
++ *
++ * @dev: the matrix device
++ * @attr: a mediated matrix device attribute
++ * @buf: a buffer containing the adapter ID (APID) to be assigned
++ * @count: the number of bytes in @buf
++ *
++ * Parses the domain ID from @buf and assigns it to the mediated matrix device.
++ *
++ * Returns the number of bytes processed if the domain ID is valid; otherwise
++ * returns an error.
++ */
++static ssize_t assign_control_domain_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
 +{
 +	int ret;
-+	int rc = 0;
-+	unsigned long apid, apqi;
++	unsigned long id;
++	struct mdev_device *mdev = mdev_from_dev(dev);
 +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_dev *matrix_dev =
-+		to_ap_matrix_dev(mdev_parent_dev(mdev));
++	unsigned long maxid = matrix_mdev->matrix.adm_max;
 +
-+	ret = vfio_ap_verify_queues_reserved(matrix_dev, matrix_mdev->name,
-+					     &matrix_mdev->matrix);
-+	if (ret)
-+		return ret;
++	ret = kstrtoul(buf, 0, &id);
++	if (ret || (id > maxid)) {
++		pr_err("%s: %s: control domain id '%s' not a value from 0 to %02lu(%#04lx)",
++		       VFIO_AP_MODULE_NAME, __func__, buf, maxid, maxid);
 +
-+	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
-+			     matrix_mdev->matrix.apm_max + 1) {
-+		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-+				     matrix_mdev->matrix.aqm_max + 1) {
-+			ret = vfio_ap_reset_queue(apid, apqi);
-+			if (ret) {
-+				if (force)
-+					rc = ret;
-+				else
-+					return ret;
-+			}
-+		}
++		return ret ? ret : -EINVAL;
 +	}
 +
-+	return rc;
-+}
++	/* Set the bit in the ADM (bitmask) corresponding to the AP control
++	 * domain number (id). The bits in the mask, from most significant to
++	 * least significant, correspond to IDs 0 up to the one less than the
++	 * number of control domains that can be assigned.
++	 */
++	set_bit_inv(id, matrix_mdev->matrix.adm);
 +
- static int vfio_ap_mdev_open(struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-@@ -1107,7 +1138,7 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
- 	kvm_ap_deconfigure_matrix(matrix_mdev);
--
-+	vfio_ap_mdev_reset_queues(mdev, true);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
- 	matrix_mdev->kvm = NULL;
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 7792b45..97d80f3 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -12,6 +12,7 @@
- #include <linux/types.h>
- #include <linux/device.h>
- #include <linux/mdev.h>
-+#include <linux/delay.h>
- 
- #include "ap_bus.h"
- 
-@@ -68,4 +69,29 @@ struct ap_matrix_mdev {
- extern int vfio_ap_mdev_register(struct ap_matrix_dev *matrix_dev);
- extern void vfio_ap_mdev_unregister(struct ap_matrix_dev *matrix_dev);
- 
-+static inline int vfio_ap_reset_queue(unsigned long apid, unsigned long apqi)
++	return count;
++}
++DEVICE_ATTR_WO(assign_control_domain);
++
++/**
++ * unassign_control_domain_store
++ *
++ * @dev: the matrix device
++ * @attr: a mediated matrix device attribute
++ * @buf: a buffer containing the adapter ID (APID) to be assigned
++ * @count: the number of bytes in @buf
++ *
++ * Parses the domain ID from @buf and unassigns it from the mediated matrix
++ * device.
++ *
++ * Returns the number of bytes processed if the domain ID is valid; otherwise
++ * returns an error.
++ */
++static ssize_t unassign_control_domain_store(struct device *dev,
++					     struct device_attribute *attr,
++					     const char *buf, size_t count)
 +{
-+	int count = 50;
-+	struct ap_queue_status status;
++	int ret;
++	unsigned long domid;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
 +
-+	while (count--) {
-+		status = ap_zapq(AP_MKQID(apid, apqi));
-+		switch (status.response_code) {
-+		case AP_RESPONSE_NORMAL:
-+			return 0;
-+		case AP_RESPONSE_RESET_IN_PROGRESS:
-+		case AP_RESPONSE_BUSY:
-+			msleep(20);
-+			break;
-+		default:
-+			pr_err("%s: error zeroizing %02lx.%04lx: response code %d ",
-+			       VFIO_AP_MODULE_NAME, apid, apqi,
-+			       status.response_code);
-+			return -EIO;
-+		}
-+	};
++	ret = kstrtoul(buf, 0, &domid);
++	if (ret || (domid > max_domid)) {
++		pr_err("%s: %s: control domain id '%s' not a value from 0 to %02lu(%#04lx)",
++		       VFIO_AP_MODULE_NAME, __func__, buf,
++		       max_domid, max_domid);
 +
-+	return -EBUSY;
++		return ret ? ret : -EINVAL;
++	}
++
++	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
++		pr_err("%s: %s: control domain id %02lu(%#04lx) is not assigned",
++		       VFIO_AP_MODULE_NAME, __func__, domid, domid);
++
++		return -ENODEV;
++	}
++
++	clear_bit_inv(domid, matrix_mdev->matrix.adm);
++
++	return count;
 +}
++DEVICE_ATTR_WO(unassign_control_domain);
 +
- #endif /* _VFIO_AP_PRIVATE_H_ */
++static ssize_t control_domains_show(struct device *dev,
++				    struct device_attribute *dev_attr,
++				    char *buf)
++{
++	unsigned long id;
++	int nchars = 0;
++	int n;
++	char *bufpos = buf;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long max_apqi = matrix_mdev->matrix.apm_max;
++
++	for_each_set_bit_inv(id, matrix_mdev->matrix.adm, max_apqi + 1) {
++		n = sprintf(bufpos, "%04lx\n", id);
++		bufpos += n;
++		nchars += n;
++	}
++
++	return nchars;
++}
++DEVICE_ATTR_RO(control_domains);
++
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+ 	&dev_attr_assign_domain.attr,
+ 	&dev_attr_unassign_domain.attr,
++	&dev_attr_assign_control_domain.attr,
++	&dev_attr_unassign_control_domain.attr,
++	&dev_attr_control_domains.attr,
+ 	NULL,
+ };
+ 
 -- 
 1.7.1
