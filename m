@@ -1,95 +1,130 @@
 Return-Path: <SRS0=sqHT=JP=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 29 Jun 2018 04:57:52 -0400
-From: Pavel Tatashin <pasha.tatashin@oracle.com>
+Message-ID: <3ae524498e6833abd5bb225987de97580262c4de.camel@linux.intel.com>
 Subject: Re: [PATCH v12 09/11] x86/tsc: prepare for early sched_clock
-Message-ID: <20180629085752.zkbxlwc2rzlm63lk@xakep.localdomain>
-References: <alpine.DEB.2.21.1806231815060.8650@nanos.tec.linutronix.de>
- <alpine.DEB.2.21.1806232210110.8650@nanos.tec.linutronix.de>
- <CAGM2reYQx769omkWVweEcTMy8WNrKOiuUVo4OFWNh4zW-rc4pg@mail.gmail.com>
- <alpine.DEB.2.21.1806232347540.8650@nanos.tec.linutronix.de>
- <alpine.DEB.2.21.1806261725510.1587@nanos.tec.linutronix.de>
- <CAGM2reYQ23XhQHAOO0Oo8MGvgrjpNZPZkwp+wwsU8Fb+jfANyA@mail.gmail.com>
- <alpine.DEB.2.21.1806270947410.1587@nanos.tec.linutronix.de>
- <alpine.DEB.2.21.1806281159590.1778@nanos.tec.linutronix.de>
- <CAGM2read-NcUjssuUPHaf=qhdidT8f7cRNOs_GjdPnuOVvi-Lw@mail.gmail.com>
- <alpine.DEB.2.21.1806290925340.1578@nanos.tec.linutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.21.1806290925340.1578@nanos.tec.linutronix.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Fri, 29 Jun 2018 17:30:25 +0300
+In-Reply-To: <alpine.DEB.2.21.1806281159590.1778@nanos.tec.linutronix.de>
+References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
+         <20180621212518.19914-10-pasha.tatashin@oracle.com>
+         <alpine.DEB.2.21.1806231815060.8650@nanos.tec.linutronix.de>
+         <alpine.DEB.2.21.1806232210110.8650@nanos.tec.linutronix.de>
+         <CAGM2reYQx769omkWVweEcTMy8WNrKOiuUVo4OFWNh4zW-rc4pg@mail.gmail.com>
+         <alpine.DEB.2.21.1806232347540.8650@nanos.tec.linutronix.de>
+         <alpine.DEB.2.21.1806261725510.1587@nanos.tec.linutronix.de>
+         <CAGM2reYQ23XhQHAOO0Oo8MGvgrjpNZPZkwp+wwsU8Fb+jfANyA@mail.gmail.com>
+         <alpine.DEB.2.21.1806270947410.1587@nanos.tec.linutronix.de>
+         <alpine.DEB.2.21.1806281159590.1778@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Steven Sistare <steven.sistare@oracle.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, "H. Peter Anvin" <hpa@zytor.com>, douly.fnst@cn.fujitsu.com, Peter Zijlstra <peterz@infradead.org>, Prarit Bhargava <prarit@redhat.com>, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, andriy.shevchenko@linux.intel.com, boris.ostrovsky@oracle.com, pbonzini@redhat.com
+To: Thomas Gleixner <tglx@linutronix.de>, Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: Steven Sistare <steven.sistare@oracle.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, "H. Peter Anvin" <hpa@zytor.com>, douly.fnst@cn.fujitsu.com, Peter Zijlstra <peterz@infradead.org>, Prarit Bhargava <prarit@redhat.com>, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 18-06-29 09:30:10, Thomas Gleixner wrote:
-> On Thu, 28 Jun 2018, Pavel Tatashin wrote:
-> > On Thu, Jun 28, 2018 at 11:23 AM Thomas Gleixner <tglx@linutronix.de> wrote:
-> > Hi Thomas,
+On Thu, 2018-06-28 at 12:43 +0200, Thomas Gleixner wrote:
+> On Thu, 28 Jun 2018, Thomas Gleixner wrote:
+> > I still want to document the unholy mess of what is initialized and
+> > available when. We have 5 hypervisors and 3 different points in
+> > early boot
+> > where the calibrate_* callbacks are overwritten. The XEN PV one is
+> > actually
+> > post tsc_init_early() for whatever reason.
 > > 
-> > In addition to above, we have xen hvm:
+> > That's all completely obscure and any attempt of moving
+> > tsc_early_init()
+> > earlier than where it is now is just lottery.
 > > 
-> > setup_arch()
-> >     ...
-> >     init_hypervisor_platform();
-> >         x86_init.hyper.init_platform();
-> >             xen_hvm_guest_init()
-> >                 xen_hvm_init_time_ops();
+> > The other issue is that double calibration, e.g. doing the PIT thing
+> > twice
+> > is just consuming boot time for no value.
+> > 
+> > All of that has been duct taped over time and we really don't want
+> > yet
+> > another thing glued to it just because we can.
+
+Hmm... Good question about Intel MID, I would try to put my
+understanding here.
+
+> Boot sequence:
 > 
-> Duh. Missed that completely.
+>   start_kernel()
 > 
-> >     ...
-> >     tsc_early_delay_calibrate();
-> >         tsc_khz = x86_platform.calibrate_tsc(); == xen_tsc_khz()
-> >     ...
-> > 
-> > Which works early.
-> > 
-> > So, what should we do with xen, which seems to be the only platform
-> > that would provide different tsc frequency early and late, because of
-> > different calibration method?
+> 	INTEL_MID:
+> 		x86_intel_mid_early_setup()
+> 	   	calibrate_tsc = intel_mid_calibrate_tsc
 > 
-> Fix it? I have no idea why XEN has two variants of the scheme and I neither
-> have a clue why the KVM clock stuff is late.
+> 	   	intel_mid_calibrate_tsc() { return 0; }
 
-kvm clock  I have fixed in my series.
-http://lkml.kernel.org/r/20180621212518.19914-5-pasha.tatashin@oracle.com
+This sounds like a stub against very old calibration code since Intel
+MID has no PIT, HPET, PMTIMER to calibrate from.
 
-It was late because, it depended on memblock, which is initialized later,
-after e820 ranges are read.
+> 
+>   setup_arch()
+> 
+> 	x86_init.oem.arch_setup();
+> 	  INTEL_MID:
+> 		intel_mid_arch_setup()
+> 
+> 		PENWELL:
+> 		   x86_platform.calibrate_tsc = mfld_calibrate_tsc;
+> 
+> 		   MSR based magic. Value would be available right away.
+> 		   
+> 		TANGIER:
+> 		   x86_platform.calibrate_tsc = tangier_calibrate_tsc;
+> 	
+> 		   Different MSR based magic. Value would be available
+> 		   right away.		
 
-So, after my series kvm clock will work right after
-init_hypervisor_platform, the same as with most other hypervisors.
+This stuff is how we can read TSC frequency on those platforms.
 
-With xen, it is a little more challenging: I do not have a hardware
-configured to run xen to test it.
+The commit 7da7c1561366 ("x86, tsc: Add static (MSR) TSC calibration on
+Intel Atom SoCs") introduced a common way for all those chips to get TSC
+frequency, while forgetting remove old code.
 
-On the other hand, most likely that tsc_early_delay_calibrate() now
-fails to calibrate tsc on xen, and calibrates correctly later in
-tsc_init().  I doubt, that we can use CPUID method to determine tsc
-frequency on xen cpu. Anyways, that would be accidental behavior.
+Surprisingly, the same guy even amended legacy code in the commit
+f3a02ecebed7 ("x86/tsc: Set TSC_KNOWN_FREQ and TSC_RELIABLE flags on
+Intel Atom SoCs").
 
-To make xen clock available early, we need HYPERVISOR_shared_info. So, at
-least that part of xen_setup_shared_info() must be called/available from
-init_hypervisor_platform():
 
-void xen_setup_shared_info(void)
-{
-	set_fixmap(FIX_PARAVIRT_BOOTMAP, xen_start_info->shared_info);
 
-	HYPERVISOR_shared_info =
-		(struct shared_info *)fix_to_virt(FIX_PARAVIRT_BOOTMAP);
+> INTEL_MID	intel_mid_calibrate_tsc()	intel_mid_calibrate_
+> tsc()
+> Generic		native_calibrate_cpu()		native_ca
+> librate_cpu()
+> 
+> INTEL_MID	mfld_calibrate_tsc()		mfld_calibrate_ts
+> c()
+> PENWELL		native_calibrate_cpu()		native_ca
+> librate_cpu()
+> 
+> INTEL_MID	tangier_calibrate_tsc()		tangier_calibr
+> ate_tsc()
+> TANGIER		native_calibrate_cpu()		native_ca
+> librate_cpu()
+> 
 
-	xen_setup_mfn_list_list();
-	...
 
-Which, I have no idea if it is possible, or safe to do.
+Taking above into consideration, I think we may just remove the legacy
+code from mfld.c and mrfld.c and see what happen.
 
-For now, in my series, I would like check in tsc_early_init() if we are
-running xen, and set tsc_khz to 0 if so. Later in tsc_init() we will get
-a proper calibration. The question is how to make this check least
-intrusive.
+If you can tell me points to test, I can prepare patches to remove and
+test on both Medfiled and Merrifield platforms (Penwell and Tangier SoCs
+respectively).
 
-Pavel
+> The INTEL MID stuff is wierd and not really obvious. AFAIR those
+> systems
+> don't have PIT or such, so they need to rely on the MSR/CPUID
+> mechanisms to
+> work, but that's just working because and not for obvious reasons.
+> Andy,
+> can you shed some light on that stuff?
+
+Hope above makes sense.
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
