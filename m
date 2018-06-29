@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v6 07/21] s390: vfio-ap: base implementation of VFIO AP device driver
-Date: Fri, 29 Jun 2018 17:11:09 -0400
-Message-ID: <1530306683-7270-8-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v6 04/21] s390/zcrypt: Integrate ap_asm.h into include/asm/ap.h.
+Date: Fri, 29 Jun 2018 17:11:06 -0400
+Message-ID: <1530306683-7270-5-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,389 +12,703 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduces a new AP device driver. This device driver
-is built on the VFIO mediated device framework. The framework
-provides sysfs interfaces that facilitate passthrough
-access by guests to devices installed on the linux host.
+From: Harald Freudenberger <freude@de.ibm.com>
 
-The VFIO AP device driver will serve two purposes:
+Move all the inline functions from the ap bus header
+file ap_asm.h into the in-kernel api header file
+arch/s390/include/asm/ap.h so that KVM can make use
+of all the low level AP functions.
 
-1. Provide the interfaces to reserve AP devices for exclusive
-   use by KVM guests. This is accomplished by unbinding the
-   devices to be reserved for guest usage from the default AP
-   device driver and binding them to the VFIO AP device driver.
-
-2. Implements the functions, callbacks and sysfs attribute
-   interfaces required to create one or more VFIO mediated
-   devices each of which will be used to configure the AP
-   matrix for a guest and serve as a file descriptor
-   for facilitating communication between QEMU and the
-   VFIO AP device driver.
-
-When the VFIO AP device driver is initialized:
-
-* It registers with the AP bus for control of type 10 (CEX4
-  and newer) AP queue devices. This limitation was imposed
-  due to:
-
-  1. A lack of access to older systems needed to test the
-     older AP device models;
-
-  2. A desire to keep the code as simple as possible;
-
-  3. Some older models are no longer supported by the kernel
-     and others are getting close to end of service.
-
-  The probe and remove callbacks will be provided to support
-  the binding/unbinding of AP queue devices to/from the VFIO
-  AP device driver.
-
-* Creates a /sys/devices/vfio-ap/matrix device to hold
-  the APQNs of the AP devices bound to the VFIO
-  AP device driver and serves as the parent of the
-  mediated devices created for each guest.
-
+Signed-off-by: Harald Freudenberger <freude@de.ibm.com>
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- MAINTAINERS                           |   10 +++
- arch/s390/Kconfig                     |   11 +++
- drivers/s390/crypto/Makefile          |    4 +
- drivers/s390/crypto/vfio_ap_drv.c     |  140 +++++++++++++++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_private.h |   29 +++++++
- include/uapi/linux/vfio.h             |    2 +
- samples/bpf/bpf_load.c                |   62 +++++++++++++++
- 7 files changed, 258 insertions(+), 0 deletions(-)
- create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
- create mode 100644 drivers/s390/crypto/vfio_ap_private.h
+ arch/s390/include/asm/ap.h     |  284 ++++++++++++++++++++++++++++++++++++----
+ drivers/s390/crypto/ap_asm.h   |  261 ------------------------------------
+ drivers/s390/crypto/ap_bus.c   |   21 +---
+ drivers/s390/crypto/ap_bus.h   |    1 +
+ drivers/s390/crypto/ap_card.c  |    1 -
+ drivers/s390/crypto/ap_queue.c |    1 -
+ 6 files changed, 259 insertions(+), 310 deletions(-)
+ delete mode 100644 drivers/s390/crypto/ap_asm.h
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e19ec6d..0515dae 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12401,6 +12401,16 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
- S:	Supported
- F:	drivers/s390/crypto/
- 
-+S390 VFIO AP DRIVER
-+M:	Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-+M:	Christian Borntraeger <borntraeger@de.ibm.com>
-+M:	Martin Schwidefsky <schwidefsky@de.ibm.com>
-+L:	linux-s390@vger.kernel.org
-+W:	http://www.ibm.com/developerworks/linux/linux390/
-+S:	Supported
-+F:	drivers/s390/crypto/vfio_ap_drv.c
-+F:	drivers/s390/crypto/vfio_ap_private.h
-+
- S390 ZFCP DRIVER
- M:	Steffen Maier <maier@linux.ibm.com>
- M:	Benjamin Block <bblock@linux.ibm.com>
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index baed397..1a534c6 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -778,6 +778,17 @@ config VFIO_CCW
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called vfio_ccw.
- 
-+config VFIO_AP
-+	def_tristate n
-+	prompt "VFIO support for AP devices"
-+	depends on ZCRYPT && VFIO_MDEV_DEVICE && KVM
-+	help
-+		This driver grants access to Adjunct Processor (AP) devices
-+		via the VFIO mediated device interface.
-+
-+		To compile this driver as a module, choose M here: the module
-+		will be called vfio_ap.
-+
- endmenu
- 
- menu "Dump support"
-diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
-index b59af54..48e466e 100644
---- a/drivers/s390/crypto/Makefile
-+++ b/drivers/s390/crypto/Makefile
-@@ -15,3 +15,7 @@ obj-$(CONFIG_ZCRYPT) += zcrypt_pcixcc.o zcrypt_cex2a.o zcrypt_cex4.o
- # pkey kernel module
- pkey-objs := pkey_api.o
- obj-$(CONFIG_PKEY) += pkey.o
-+
-+# adjunct processor matrix
-+vfio_ap-objs := vfio_ap_drv.o
-+obj-$(CONFIG_VFIO_AP) += vfio_ap.o
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-new file mode 100644
-index 0000000..93db312
---- /dev/null
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -0,0 +1,140 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * VFIO based AP device driver
-+ *
-+ * Copyright IBM Corp. 2018
-+ *
-+ * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/slab.h>
-+#include <linux/string.h>
-+#include "vfio_ap_private.h"
-+
-+#define VFIO_AP_ROOT_NAME "vfio_ap"
-+#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
-+#define VFIO_AP_DEV_NAME "matrix"
-+
-+MODULE_AUTHOR("IBM Corporation");
-+MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2017");
-+MODULE_LICENSE("GPL v2");
-+
-+static struct device *vfio_ap_root_device;
-+
-+static struct ap_driver vfio_ap_drv;
-+
-+static struct ap_matrix_dev *matrix_dev;
-+
-+static struct device_type vfio_ap_dev_type = {
-+	.name = VFIO_AP_DEV_TYPE_NAME,
-+};
-+
-+/* Only type 10 adapters (CEX4 and later) are supported
-+ * by the AP matrix device driver
-+ */
-+static struct ap_device_id ap_queue_ids[] = {
-+	{ .dev_type = AP_DEVICE_TYPE_CEX4,
-+	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-+	{ .dev_type = AP_DEVICE_TYPE_CEX5,
-+	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-+	{ .dev_type = AP_DEVICE_TYPE_CEX6,
-+	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-+	{ /* end of sibling */ },
-+};
-+
-+MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
-+
-+static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
-+{
-+	return 0;
-+}
-+
-+static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
-+{
-+	/* Nothing to do yet */
-+}
-+
-+static void vfio_ap_matrix_dev_release(struct device *dev)
-+{
-+	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
-+
-+	kfree(matrix_dev);
-+}
-+
-+static int vfio_ap_matrix_dev_create(void)
-+{
-+	int ret;
-+
-+	vfio_ap_root_device = root_device_register(VFIO_AP_ROOT_NAME);
-+
-+	if (IS_ERR(vfio_ap_root_device)) {
-+		ret = PTR_ERR(vfio_ap_root_device);
-+		goto done;
-+	}
-+
-+	matrix_dev = kzalloc(sizeof(*matrix_dev), GFP_KERNEL);
-+	if (!matrix_dev) {
-+		ret = -ENOMEM;
-+		goto matrix_alloc_err;
-+	}
-+
-+	matrix_dev->device.type = &vfio_ap_dev_type;
-+	dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME);
-+	matrix_dev->device.parent = vfio_ap_root_device;
-+	matrix_dev->device.release = vfio_ap_matrix_dev_release;
-+	matrix_dev->device.driver = &vfio_ap_drv.driver;
-+
-+	ret = device_register(&matrix_dev->device);
-+	if (ret)
-+		goto matrix_reg_err;
-+
-+	goto done;
-+
-+matrix_reg_err:
-+	put_device(&matrix_dev->device);
-+
-+matrix_alloc_err:
-+	root_device_unregister(vfio_ap_root_device);
-+
-+done:
-+	return ret;
-+}
-+
-+static void vfio_ap_matrix_dev_destroy(struct ap_matrix_dev *matrix_dev)
-+{
-+	device_unregister(&matrix_dev->device);
-+	root_device_unregister(vfio_ap_root_device);
-+}
-+
-+int __init vfio_ap_init(void)
-+{
-+	int ret;
-+
-+	ret = vfio_ap_matrix_dev_create();
-+	if (ret)
-+		return ret;
-+
-+	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
-+	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
-+	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-+	vfio_ap_drv.ids = ap_queue_ids;
-+
-+	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-+	if (ret) {
-+		vfio_ap_matrix_dev_destroy(matrix_dev);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+void __exit vfio_ap_exit(void)
-+{
-+	ap_driver_unregister(&vfio_ap_drv);
-+	vfio_ap_matrix_dev_destroy(matrix_dev);
-+}
-+
-+module_init(vfio_ap_init);
-+module_exit(vfio_ap_exit);
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-new file mode 100644
-index 0000000..19c0b60
---- /dev/null
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -0,0 +1,29 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Private data and functions for adjunct processor VFIO matrix driver.
-+ *
-+ * Copyright IBM Corp. 2018
-+ * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-+ */
-+
-+#ifndef _VFIO_AP_PRIVATE_H_
-+#define _VFIO_AP_PRIVATE_H_
-+
-+#include <linux/types.h>
-+
-+#include "ap_bus.h"
-+
-+#define VFIO_AP_MODULE_NAME "vfio_ap"
-+#define VFIO_AP_DRV_NAME "vfio_ap"
-+
-+struct ap_matrix_dev {
-+	struct device device;
-+};
-+
-+static inline struct ap_matrix_dev
-+*to_ap_matrix_parent_dev(struct device *dev)
-+{
-+	return container_of(dev, struct ap_matrix_dev, device.parent);
-+}
-+
-+#endif /* _VFIO_AP_PRIVATE_H_ */
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 1aa7b82..f378b98 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -200,6 +200,7 @@ struct vfio_device_info {
- #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
- #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
- #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
-+#define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
- 	__u32	num_regions;	/* Max region index + 1 */
- 	__u32	num_irqs;	/* Max IRQ index + 1 */
+diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+index c1bedb4..046e044 100644
+--- a/arch/s390/include/asm/ap.h
++++ b/arch/s390/include/asm/ap.h
+@@ -47,6 +47,50 @@ struct ap_queue_status {
  };
-@@ -215,6 +216,7 @@ struct vfio_device_info {
- #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
- #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
- #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
-+#define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
  
  /**
-  * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
-diff --git a/samples/bpf/bpf_load.c b/samples/bpf/bpf_load.c
-index 89161c9..2a3fd39 100644
---- a/samples/bpf/bpf_load.c
-+++ b/samples/bpf/bpf_load.c
-@@ -243,6 +243,68 @@ static int load_and_attach(const char *event, struct bpf_insn *prog, int size)
++ * ap_intructions_available() - Test if AP instructions are available.
++ *
++ * Returns 0 if the AP instructions are installed.
++ */
++static inline int ap_instructions_available(void)
++{
++	register unsigned long reg0 asm ("0") = AP_MKQID(0, 0);
++	register unsigned long reg1 asm ("1") = -ENODEV;
++	register unsigned long reg2 asm ("2");
++
++	asm volatile(
++		"   .long 0xb2af0000\n"		/* PQAP(TAPQ) */
++		"0: la    %0,0\n"
++		"1:\n"
++		EX_TABLE(0b, 1b)
++		: "+d" (reg1), "=d" (reg2)
++		: "d" (reg0)
++		: "cc");
++	return reg1;
++}
++
++/**
++ * ap_tapq(): Test adjunct processor queue.
++ * @qid: The AP queue number
++ * @info: Pointer to queue descriptor
++ *
++ * Returns AP queue status structure.
++ */
++static inline struct ap_queue_status ap_tapq(ap_qid_t qid, unsigned long *info)
++{
++	register unsigned long reg0 asm ("0") = qid;
++	register struct ap_queue_status reg1 asm ("1");
++	register unsigned long reg2 asm ("2");
++
++	asm volatile(".long 0xb2af0000"		/* PQAP(TAPQ) */
++		     : "=d" (reg1), "=d" (reg2)
++		     : "d" (reg0)
++		     : "cc");
++	if (info)
++		*info = reg2;
++	return reg1;
++}
++
++/**
+  * ap_test_queue(): Test adjunct processor queue.
+  * @qid: The AP queue number
+  * @tbit: Test facilities bit
+@@ -54,10 +98,57 @@ struct ap_queue_status {
+  *
+  * Returns AP queue status structure.
+  */
+-struct ap_queue_status ap_test_queue(ap_qid_t qid,
+-				     int tbit,
+-				     unsigned long *info);
++static inline struct ap_queue_status ap_test_queue(ap_qid_t qid,
++						   int tbit,
++						   unsigned long *info)
++{
++	if (tbit)
++		qid |= 1UL << 23; /* set T bit*/
++	return ap_tapq(qid, info);
++}
+ 
++/**
++ * ap_pqap_rapq(): Reset adjunct processor queue.
++ * @qid: The AP queue number
++ *
++ * Returns AP queue status structure.
++ */
++static inline struct ap_queue_status ap_rapq(ap_qid_t qid)
++{
++	register unsigned long reg0 asm ("0") = qid | (1UL << 24);
++	register struct ap_queue_status reg1 asm ("1");
++
++	asm volatile(
++		".long 0xb2af0000"		/* PQAP(RAPQ) */
++		: "=d" (reg1)
++		: "d" (reg0)
++		: "cc");
++	return reg1;
++}
++
++/**
++ * ap_pqap_zapq(): Reset and zeroize adjunct processor queue.
++ * @qid: The AP queue number
++ *
++ * Returns AP queue status structure.
++ */
++static inline struct ap_queue_status ap_zapq(ap_qid_t qid)
++{
++	register unsigned long reg0 asm ("0") = qid | (2UL << 24);
++	register struct ap_queue_status reg1 asm ("1");
++
++	asm volatile(
++		".long 0xb2af0000"		/* PQAP(ZAPQ) */
++		: "=d" (reg1)
++		: "d" (reg0)
++		: "cc");
++	return reg1;
++}
++
++/**
++ * struct ap_config_info - convenience struct for AP crypto
++ * config info as returned by the ap_qci() function.
++ */
+ struct ap_config_info {
+ 	unsigned int apsc	 : 1;	/* S bit */
+ 	unsigned int apxa	 : 1;	/* N bit */
+@@ -74,50 +165,189 @@ struct ap_config_info {
+ 	unsigned char _reserved4[16];
+ } __aligned(8);
+ 
+-/*
+- * ap_query_configuration(): Fetch cryptographic config info
++/**
++ * ap_qci(): Get AP configuration data
+  *
+- * Returns the ap configuration info fetched via PQAP(QCI).
+- * On success 0 is returned, on failure a negative errno
+- * is returned, e.g. if the PQAP(QCI) instruction is not
+- * available, the return value will be -EOPNOTSUPP.
++ * Returns 0 on success, or -EOPNOTSUPP.
+  */
+-int ap_query_configuration(struct ap_config_info *info);
++static inline int ap_qci(struct ap_config_info *config)
++{
++	register unsigned long reg0 asm ("0") = 4UL << 24;
++	register unsigned long reg1 asm ("1") = -EOPNOTSUPP;
++	register struct ap_config_info *reg2 asm ("2") = config;
++
++	asm volatile(
++		".long 0xb2af0000\n"		/* PQAP(QCI) */
++		"0: la    %0,0\n"
++		"1:\n"
++		EX_TABLE(0b, 1b)
++		: "+d" (reg1)
++		: "d" (reg0), "d" (reg2)
++		: "cc", "memory");
++
++	return reg1;
++}
+ 
+ /*
+  * struct ap_qirq_ctrl - convenient struct for easy invocation
+- * of the ap_queue_irq_ctrl() function. This struct is passed
+- * as GR1 parameter to the PQAP(AQIC) instruction. For details
+- * please see the AR documentation.
++ * of the ap_aqic() function. This struct is passed as GR1
++ * parameter to the PQAP(AQIC) instruction. For details please
++ * see the AR documentation.
+  */
+ struct ap_qirq_ctrl {
+ 	unsigned int _res1 : 8;
+-	unsigned int zone  : 8;  /* zone info */
+-	unsigned int ir    : 1;  /* ir flag: enable (1) or disable (0) irq */
++	unsigned int zone  : 8;	/* zone info */
++	unsigned int ir    : 1;	/* ir flag: enable (1) or disable (0) irq */
+ 	unsigned int _res2 : 4;
+-	unsigned int gisc  : 3;  /* guest isc field */
++	unsigned int gisc  : 3;	/* guest isc field */
+ 	unsigned int _res3 : 6;
+-	unsigned int gf    : 2;  /* gisa format */
++	unsigned int gf    : 2;	/* gisa format */
+ 	unsigned int _res4 : 1;
+-	unsigned int gisa  : 27; /* gisa origin */
++	unsigned int gisa  : 27;	/* gisa origin */
+ 	unsigned int _res5 : 1;
+-	unsigned int isc   : 3;  /* irq sub class */
++	unsigned int isc   : 3;	/* irq sub class */
+ };
+ 
+ /**
+- * ap_queue_irq_ctrl(): Control interruption on a AP queue.
++ * ap_aqic(): Control interruption for a specific AP.
+  * @qid: The AP queue number
+- * @qirqctrl: struct ap_qirq_ctrl, see above
++ * @qirqctrl: struct ap_qirq_ctrl (64 bit value)
+  * @ind: The notification indicator byte
+  *
+  * Returns AP queue status.
++ */
++static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
++					     struct ap_qirq_ctrl qirqctrl,
++					     void *ind)
++{
++	register unsigned long reg0 asm ("0") = qid | (3UL << 24);
++	register struct ap_qirq_ctrl reg1_in asm ("1") = qirqctrl;
++	register struct ap_queue_status reg1_out asm ("1");
++	register void *reg2 asm ("2") = ind;
++
++	asm volatile(
++		".long 0xb2af0000"		/* PQAP(AQIC) */
++		: "=d" (reg1_out)
++		: "d" (reg0), "d" (reg1_in), "d" (reg2)
++		: "cc");
++	return reg1_out;
++}
++
++/*
++ * union ap_qact_ap_info - used together with the
++ * ap_aqic() function to provide a convenient way
++ * to handle the ap info needed by the qact function.
++ */
++union ap_qact_ap_info {
++	unsigned long val;
++	struct {
++		unsigned int	  : 3;
++		unsigned int mode : 3;
++		unsigned int	  : 26;
++		unsigned int cat  : 8;
++		unsigned int	  : 8;
++		unsigned char ver[2];
++	};
++};
++
++/**
++ * ap_qact(): Query AP combatibility type.
++ * @qid: The AP queue number
++ * @apinfo: On input the info about the AP queue. On output the
++ *	    alternate AP queue info provided by the qact function
++ *	    in GR2 is stored in.
+  *
+- * Control interruption on the given AP queue.
+- * Just a simple wrapper function for the low level PQAP(AQIC)
+- * instruction available for other kernel modules.
++ * Returns AP queue status. Check response_code field for failures.
+  */
+-struct ap_queue_status ap_queue_irq_ctrl(ap_qid_t qid,
+-					 struct ap_qirq_ctrl qirqctrl,
+-					 void *ind);
++static inline struct ap_queue_status ap_qact(ap_qid_t qid, int ifbit,
++					     union ap_qact_ap_info *apinfo)
++{
++	register unsigned long reg0 asm ("0") = qid | (5UL << 24)
++		| ((ifbit & 0x01) << 22);
++	register unsigned long reg1_in asm ("1") = apinfo->val;
++	register struct ap_queue_status reg1_out asm ("1");
++	register unsigned long reg2 asm ("2");
++
++	asm volatile(
++		".long 0xb2af0000"		/* PQAP(QACT) */
++		: "+d" (reg1_in), "=d" (reg1_out), "=d" (reg2)
++		: "d" (reg0)
++		: "cc");
++	apinfo->val = reg2;
++	return reg1_out;
++}
++
++/**
++ * ap_nqap(): Send message to adjunct processor queue.
++ * @qid: The AP queue number
++ * @psmid: The program supplied message identifier
++ * @msg: The message text
++ * @length: The message length
++ *
++ * Returns AP queue status structure.
++ * Condition code 1 on NQAP can't happen because the L bit is 1.
++ * Condition code 2 on NQAP also means the send is incomplete,
++ * because a segment boundary was reached. The NQAP is repeated.
++ */
++static inline struct ap_queue_status ap_nqap(ap_qid_t qid,
++					     unsigned long long psmid,
++					     void *msg, size_t length)
++{
++	register unsigned long reg0 asm ("0") = qid | 0x40000000UL;
++	register struct ap_queue_status reg1 asm ("1");
++	register unsigned long reg2 asm ("2") = (unsigned long) msg;
++	register unsigned long reg3 asm ("3") = (unsigned long) length;
++	register unsigned long reg4 asm ("4") = (unsigned int) (psmid >> 32);
++	register unsigned long reg5 asm ("5") = psmid & 0xffffffff;
++
++	asm volatile (
++		"0: .long 0xb2ad0042\n"		/* NQAP */
++		"   brc   2,0b"
++		: "+d" (reg0), "=d" (reg1), "+d" (reg2), "+d" (reg3)
++		: "d" (reg4), "d" (reg5)
++		: "cc", "memory");
++	return reg1;
++}
++
++/**
++ * ap_dqap(): Receive message from adjunct processor queue.
++ * @qid: The AP queue number
++ * @psmid: Pointer to program supplied message identifier
++ * @msg: The message text
++ * @length: The message length
++ *
++ * Returns AP queue status structure.
++ * Condition code 1 on DQAP means the receive has taken place
++ * but only partially.	The response is incomplete, hence the
++ * DQAP is repeated.
++ * Condition code 2 on DQAP also means the receive is incomplete,
++ * this time because a segment boundary was reached. Again, the
++ * DQAP is repeated.
++ * Note that gpr2 is used by the DQAP instruction to keep track of
++ * any 'residual' length, in case the instruction gets interrupted.
++ * Hence it gets zeroed before the instruction.
++ */
++static inline struct ap_queue_status ap_dqap(ap_qid_t qid,
++					     unsigned long long *psmid,
++					     void *msg, size_t length)
++{
++	register unsigned long reg0 asm("0") = qid | 0x80000000UL;
++	register struct ap_queue_status reg1 asm ("1");
++	register unsigned long reg2 asm("2") = 0UL;
++	register unsigned long reg4 asm("4") = (unsigned long) msg;
++	register unsigned long reg5 asm("5") = (unsigned long) length;
++	register unsigned long reg6 asm("6") = 0UL;
++	register unsigned long reg7 asm("7") = 0UL;
++
++
++	asm volatile(
++		"0: .long 0xb2ae0064\n"		/* DQAP */
++		"   brc   6,0b\n"
++		: "+d" (reg0), "=d" (reg1), "+d" (reg2),
++		  "+d" (reg4), "+d" (reg5), "+d" (reg6), "+d" (reg7)
++		: : "cc", "memory");
++	*psmid = (((unsigned long long) reg6) << 32) + reg7;
++	return reg1;
++}
+ 
+ #endif /* _ASM_S390_AP_H_ */
+diff --git a/drivers/s390/crypto/ap_asm.h b/drivers/s390/crypto/ap_asm.h
+deleted file mode 100644
+index e22ee12..0000000
+--- a/drivers/s390/crypto/ap_asm.h
++++ /dev/null
+@@ -1,261 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-/*
+- * Copyright IBM Corp. 2016
+- * Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
+- *
+- * Adjunct processor bus inline assemblies.
+- */
+-
+-#ifndef _AP_ASM_H_
+-#define _AP_ASM_H_
+-
+-#include <asm/isc.h>
+-
+-/**
+- * ap_intructions_available() - Test if AP instructions are available.
+- *
+- * Returns 0 if the AP instructions are installed.
+- */
+-static inline int ap_instructions_available(void)
+-{
+-	register unsigned long reg0 asm ("0") = AP_MKQID(0, 0);
+-	register unsigned long reg1 asm ("1") = -ENODEV;
+-	register unsigned long reg2 asm ("2");
+-
+-	asm volatile(
+-		"   .long 0xb2af0000\n"		/* PQAP(TAPQ) */
+-		"0: la    %0,0\n"
+-		"1:\n"
+-		EX_TABLE(0b, 1b)
+-		: "+d" (reg1), "=d" (reg2)
+-		: "d" (reg0)
+-		: "cc");
+-	return reg1;
+-}
+-
+-/**
+- * ap_tapq(): Test adjunct processor queue.
+- * @qid: The AP queue number
+- * @info: Pointer to queue descriptor
+- *
+- * Returns AP queue status structure.
+- */
+-static inline struct ap_queue_status ap_tapq(ap_qid_t qid, unsigned long *info)
+-{
+-	register unsigned long reg0 asm ("0") = qid;
+-	register struct ap_queue_status reg1 asm ("1");
+-	register unsigned long reg2 asm ("2");
+-
+-	asm volatile(".long 0xb2af0000"		/* PQAP(TAPQ) */
+-		     : "=d" (reg1), "=d" (reg2)
+-		     : "d" (reg0)
+-		     : "cc");
+-	if (info)
+-		*info = reg2;
+-	return reg1;
+-}
+-
+-/**
+- * ap_pqap_rapq(): Reset adjunct processor queue.
+- * @qid: The AP queue number
+- *
+- * Returns AP queue status structure.
+- */
+-static inline struct ap_queue_status ap_rapq(ap_qid_t qid)
+-{
+-	register unsigned long reg0 asm ("0") = qid | (1UL << 24);
+-	register struct ap_queue_status reg1 asm ("1");
+-
+-	asm volatile(
+-		".long 0xb2af0000"		/* PQAP(RAPQ) */
+-		: "=d" (reg1)
+-		: "d" (reg0)
+-		: "cc");
+-	return reg1;
+-}
+-
+-/**
+- * ap_pqap_zapq(): Reset and zeroize adjunct processor queue.
+- * @qid: The AP queue number
+- *
+- * Returns AP queue status structure.
+- */
+-static inline struct ap_queue_status ap_zapq(ap_qid_t qid)
+-{
+-	register unsigned long reg0 asm ("0") = qid | (2UL << 24);
+-	register struct ap_queue_status reg1 asm ("1");
+-
+-	asm volatile(
+-		".long 0xb2af0000"		/* PQAP(ZAPQ) */
+-		: "=d" (reg1)
+-		: "d" (reg0)
+-		: "cc");
+-	return reg1;
+-}
+-
+-/**
+- * ap_aqic(): Control interruption for a specific AP.
+- * @qid: The AP queue number
+- * @qirqctrl: struct ap_qirq_ctrl (64 bit value)
+- * @ind: The notification indicator byte
+- *
+- * Returns AP queue status.
+- */
+-static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
+-					     struct ap_qirq_ctrl qirqctrl,
+-					     void *ind)
+-{
+-	register unsigned long reg0 asm ("0") = qid | (3UL << 24);
+-	register struct ap_qirq_ctrl reg1_in asm ("1") = qirqctrl;
+-	register struct ap_queue_status reg1_out asm ("1");
+-	register void *reg2 asm ("2") = ind;
+-
+-	asm volatile(
+-		".long 0xb2af0000"		/* PQAP(AQIC) */
+-		: "=d" (reg1_out)
+-		: "d" (reg0), "d" (reg1_in), "d" (reg2)
+-		: "cc");
+-	return reg1_out;
+-}
+-
+-/**
+- * ap_qci(): Get AP configuration data
+- *
+- * Returns 0 on success, or -EOPNOTSUPP.
+- */
+-static inline int ap_qci(void *config)
+-{
+-	register unsigned long reg0 asm ("0") = 4UL << 24;
+-	register unsigned long reg1 asm ("1") = -EINVAL;
+-	register void *reg2 asm ("2") = (void *) config;
+-
+-	asm volatile(
+-		".long 0xb2af0000\n"		/* PQAP(QCI) */
+-		"0: la    %0,0\n"
+-		"1:\n"
+-		EX_TABLE(0b, 1b)
+-		: "+d" (reg1)
+-		: "d" (reg0), "d" (reg2)
+-		: "cc", "memory");
+-
+-	return reg1;
+-}
+-
+-/*
+- * union ap_qact_ap_info - used together with the
+- * ap_aqic() function to provide a convenient way
+- * to handle the ap info needed by the qact function.
+- */
+-union ap_qact_ap_info {
+-	unsigned long val;
+-	struct {
+-		unsigned int	  : 3;
+-		unsigned int mode : 3;
+-		unsigned int	  : 26;
+-		unsigned int cat  : 8;
+-		unsigned int	  : 8;
+-		unsigned char ver[2];
+-	};
+-};
+-
+-/**
+- * ap_qact(): Query AP combatibility type.
+- * @qid: The AP queue number
+- * @apinfo: On input the info about the AP queue. On output the
+- *	    alternate AP queue info provided by the qact function
+- *	    in GR2 is stored in.
+- *
+- * Returns AP queue status. Check response_code field for failures.
+- */
+-static inline struct ap_queue_status ap_qact(ap_qid_t qid, int ifbit,
+-					     union ap_qact_ap_info *apinfo)
+-{
+-	register unsigned long reg0 asm ("0") = qid | (5UL << 24)
+-		| ((ifbit & 0x01) << 22);
+-	register unsigned long reg1_in asm ("1") = apinfo->val;
+-	register struct ap_queue_status reg1_out asm ("1");
+-	register unsigned long reg2 asm ("2");
+-
+-	asm volatile(
+-		".long 0xb2af0000"		/* PQAP(QACT) */
+-		: "+d" (reg1_in), "=d" (reg1_out), "=d" (reg2)
+-		: "d" (reg0)
+-		: "cc");
+-	apinfo->val = reg2;
+-	return reg1_out;
+-}
+-
+-/**
+- * ap_nqap(): Send message to adjunct processor queue.
+- * @qid: The AP queue number
+- * @psmid: The program supplied message identifier
+- * @msg: The message text
+- * @length: The message length
+- *
+- * Returns AP queue status structure.
+- * Condition code 1 on NQAP can't happen because the L bit is 1.
+- * Condition code 2 on NQAP also means the send is incomplete,
+- * because a segment boundary was reached. The NQAP is repeated.
+- */
+-static inline struct ap_queue_status ap_nqap(ap_qid_t qid,
+-					     unsigned long long psmid,
+-					     void *msg, size_t length)
+-{
+-	register unsigned long reg0 asm ("0") = qid | 0x40000000UL;
+-	register struct ap_queue_status reg1 asm ("1");
+-	register unsigned long reg2 asm ("2") = (unsigned long) msg;
+-	register unsigned long reg3 asm ("3") = (unsigned long) length;
+-	register unsigned long reg4 asm ("4") = (unsigned int) (psmid >> 32);
+-	register unsigned long reg5 asm ("5") = psmid & 0xffffffff;
+-
+-	asm volatile (
+-		"0: .long 0xb2ad0042\n"		/* NQAP */
+-		"   brc   2,0b"
+-		: "+d" (reg0), "=d" (reg1), "+d" (reg2), "+d" (reg3)
+-		: "d" (reg4), "d" (reg5)
+-		: "cc", "memory");
+-	return reg1;
+-}
+-
+-/**
+- * ap_dqap(): Receive message from adjunct processor queue.
+- * @qid: The AP queue number
+- * @psmid: Pointer to program supplied message identifier
+- * @msg: The message text
+- * @length: The message length
+- *
+- * Returns AP queue status structure.
+- * Condition code 1 on DQAP means the receive has taken place
+- * but only partially.	The response is incomplete, hence the
+- * DQAP is repeated.
+- * Condition code 2 on DQAP also means the receive is incomplete,
+- * this time because a segment boundary was reached. Again, the
+- * DQAP is repeated.
+- * Note that gpr2 is used by the DQAP instruction to keep track of
+- * any 'residual' length, in case the instruction gets interrupted.
+- * Hence it gets zeroed before the instruction.
+- */
+-static inline struct ap_queue_status ap_dqap(ap_qid_t qid,
+-					     unsigned long long *psmid,
+-					     void *msg, size_t length)
+-{
+-	register unsigned long reg0 asm("0") = qid | 0x80000000UL;
+-	register struct ap_queue_status reg1 asm ("1");
+-	register unsigned long reg2 asm("2") = 0UL;
+-	register unsigned long reg4 asm("4") = (unsigned long) msg;
+-	register unsigned long reg5 asm("5") = (unsigned long) length;
+-	register unsigned long reg6 asm("6") = 0UL;
+-	register unsigned long reg7 asm("7") = 0UL;
+-
+-
+-	asm volatile(
+-		"0: .long 0xb2ae0064\n"		/* DQAP */
+-		"   brc   6,0b\n"
+-		: "+d" (reg0), "=d" (reg1), "+d" (reg2),
+-		  "+d" (reg4), "+d" (reg5), "+d" (reg6), "+d" (reg7)
+-		: : "cc", "memory");
+-	*psmid = (((unsigned long long) reg6) << 32) + reg7;
+-	return reg1;
+-}
+-
+-#endif /* _AP_ASM_H_ */
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 35a0c2b..c0a6723 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -36,7 +36,6 @@
+ #include <linux/debugfs.h>
+ 
+ #include "ap_bus.h"
+-#include "ap_asm.h"
+ #include "ap_debug.h"
+ 
+ /*
+@@ -174,24 +173,6 @@ static inline int ap_qact_available(void)
  	return 0;
  }
  
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
- static int load_maps(struct bpf_map_data *maps, int nr_maps,
- 		     fixup_map_cb fixup_map)
+-/**
+- * ap_test_queue(): Test adjunct processor queue.
+- * @qid: The AP queue number
+- * @tbit: Test facilities bit
+- * @info: Pointer to queue descriptor
+- *
+- * Returns AP queue status structure.
+- */
+-struct ap_queue_status ap_test_queue(ap_qid_t qid,
+-				     int tbit,
+-				     unsigned long *info)
+-{
+-	if (tbit)
+-		qid |= 1UL << 23; /* set T bit*/
+-	return ap_tapq(qid, info);
+-}
+-EXPORT_SYMBOL(ap_test_queue);
+-
+ /*
+  * ap_query_configuration(): Fetch cryptographic config info
+  *
+@@ -200,7 +181,7 @@ struct ap_queue_status ap_test_queue(ap_qid_t qid,
+  * is returned, e.g. if the PQAP(QCI) instruction is not
+  * available, the return value will be -EOPNOTSUPP.
+  */
+-int ap_query_configuration(struct ap_config_info *info)
++static inline int ap_query_configuration(struct ap_config_info *info)
  {
+ 	if (!ap_configuration_available())
+ 		return -EOPNOTSUPP;
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 6a273c5..9365419 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -15,6 +15,7 @@
+ 
+ #include <linux/device.h>
+ #include <linux/types.h>
++#include <asm/isc.h>
+ #include <asm/ap.h>
+ 
+ #define AP_DEVICES 256		/* Number of AP devices. */
+diff --git a/drivers/s390/crypto/ap_card.c b/drivers/s390/crypto/ap_card.c
+index 2c726df..c13e432 100644
+--- a/drivers/s390/crypto/ap_card.c
++++ b/drivers/s390/crypto/ap_card.c
+@@ -14,7 +14,6 @@
+ #include <asm/facility.h>
+ 
+ #include "ap_bus.h"
+-#include "ap_asm.h"
+ 
+ /*
+  * AP card related attributes.
+diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
+index ba3a2e1..d83c1fa 100644
+--- a/drivers/s390/crypto/ap_queue.c
++++ b/drivers/s390/crypto/ap_queue.c
+@@ -14,7 +14,6 @@
+ #include <asm/facility.h>
+ 
+ #include "ap_bus.h"
+-#include "ap_asm.h"
+ 
+ /**
+  * ap_queue_irq_ctrl(): Control interruption on a AP queue.
 -- 
 1.7.1
