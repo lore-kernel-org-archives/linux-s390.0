@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v6 01/21] s390/zcrypt: Add ZAPQ inline function.
-Date: Fri, 29 Jun 2018 17:11:03 -0400
-Message-ID: <1530306683-7270-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v6 02/21] s390/zcrypt: Review inline assembler constraints.
+Date: Fri, 29 Jun 2018 17:11:04 -0400
+Message-ID: <1530306683-7270-3-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,45 +14,122 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Harald Freudenberger <freude@de.ibm.com>
 
-Added new inline function ap_pqap_zapq()
-which is a C inline function wrapper for
-the AP PQAP(ZAPQ) instruction.
+Reviewed and adapted the register use and asm constraints
+of the C inline assembler functions in accordance to the
+the AP instructions specifications.
 
 Signed-off-by: Harald Freudenberger <freude@de.ibm.com>
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/ap_asm.h |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+), 0 deletions(-)
+ drivers/s390/crypto/ap_asm.h |   40 +++++++++++++++++++++++-----------------
+ 1 files changed, 23 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/s390/crypto/ap_asm.h b/drivers/s390/crypto/ap_asm.h
-index 16b59ce..b22d30a 100644
+index b22d30a..e22ee12 100644
 --- a/drivers/s390/crypto/ap_asm.h
 +++ b/drivers/s390/crypto/ap_asm.h
-@@ -70,6 +70,25 @@ static inline struct ap_queue_status ap_rapq(ap_qid_t qid)
+@@ -20,14 +20,16 @@ static inline int ap_instructions_available(void)
+ {
+ 	register unsigned long reg0 asm ("0") = AP_MKQID(0, 0);
+ 	register unsigned long reg1 asm ("1") = -ENODEV;
+-	register unsigned long reg2 asm ("2") = 0UL;
++	register unsigned long reg2 asm ("2");
+ 
+ 	asm volatile(
+ 		"   .long 0xb2af0000\n"		/* PQAP(TAPQ) */
+-		"0: la    %1,0\n"
++		"0: la    %0,0\n"
+ 		"1:\n"
+ 		EX_TABLE(0b, 1b)
+-		: "+d" (reg0), "+d" (reg1), "+d" (reg2) : : "cc");
++		: "+d" (reg1), "=d" (reg2)
++		: "d" (reg0)
++		: "cc");
+ 	return reg1;
  }
  
- /**
-+ * ap_pqap_zapq(): Reset and zeroize adjunct processor queue.
-+ * @qid: The AP queue number
-+ *
-+ * Returns AP queue status structure.
-+ */
-+static inline struct ap_queue_status ap_zapq(ap_qid_t qid)
-+{
-+	register unsigned long reg0 asm ("0") = qid | (2UL << 24);
-+	register struct ap_queue_status reg1 asm ("1");
-+
-+	asm volatile(
-+		".long 0xb2af0000"		/* PQAP(ZAPQ) */
+@@ -42,10 +44,12 @@ static inline struct ap_queue_status ap_tapq(ap_qid_t qid, unsigned long *info)
+ {
+ 	register unsigned long reg0 asm ("0") = qid;
+ 	register struct ap_queue_status reg1 asm ("1");
+-	register unsigned long reg2 asm ("2") = 0UL;
++	register unsigned long reg2 asm ("2");
+ 
+ 	asm volatile(".long 0xb2af0000"		/* PQAP(TAPQ) */
+-		     : "+d" (reg0), "=d" (reg1), "+d" (reg2) : : "cc");
++		     : "=d" (reg1), "=d" (reg2)
++		     : "d" (reg0)
++		     : "cc");
+ 	if (info)
+ 		*info = reg2;
+ 	return reg1;
+@@ -59,13 +63,14 @@ static inline struct ap_queue_status ap_tapq(ap_qid_t qid, unsigned long *info)
+  */
+ static inline struct ap_queue_status ap_rapq(ap_qid_t qid)
+ {
+-	register unsigned long reg0 asm ("0") = qid | 0x01000000UL;
++	register unsigned long reg0 asm ("0") = qid | (1UL << 24);
+ 	register struct ap_queue_status reg1 asm ("1");
+-	register unsigned long reg2 asm ("2") = 0UL;
+ 
+ 	asm volatile(
+ 		".long 0xb2af0000"		/* PQAP(RAPQ) */
+-		: "+d" (reg0), "=d" (reg1), "+d" (reg2) : : "cc");
 +		: "=d" (reg1)
 +		: "d" (reg0)
 +		: "cc");
-+	return reg1;
-+}
-+
-+/**
-  * ap_aqic(): Control interruption for a specific AP.
-  * @qid: The AP queue number
-  * @qirqctrl: struct ap_qirq_ctrl (64 bit value)
+ 	return reg1;
+ }
+ 
+@@ -107,8 +112,8 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
+ 
+ 	asm volatile(
+ 		".long 0xb2af0000"		/* PQAP(AQIC) */
+-		: "+d" (reg0), "+d" (reg1_in), "=d" (reg1_out), "+d" (reg2)
+-		:
++		: "=d" (reg1_out)
++		: "d" (reg0), "d" (reg1_in), "d" (reg2)
+ 		: "cc");
+ 	return reg1_out;
+ }
+@@ -120,17 +125,17 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
+  */
+ static inline int ap_qci(void *config)
+ {
+-	register unsigned long reg0 asm ("0") = 0x04000000UL;
++	register unsigned long reg0 asm ("0") = 4UL << 24;
+ 	register unsigned long reg1 asm ("1") = -EINVAL;
+ 	register void *reg2 asm ("2") = (void *) config;
+ 
+ 	asm volatile(
+ 		".long 0xb2af0000\n"		/* PQAP(QCI) */
+-		"0: la    %1,0\n"
++		"0: la    %0,0\n"
+ 		"1:\n"
+ 		EX_TABLE(0b, 1b)
+-		: "+d" (reg0), "+d" (reg1), "+d" (reg2)
+-		:
++		: "+d" (reg1)
++		: "d" (reg0), "d" (reg2)
+ 		: "cc", "memory");
+ 
+ 	return reg1;
+@@ -169,12 +174,13 @@ static inline struct ap_queue_status ap_qact(ap_qid_t qid, int ifbit,
+ 		| ((ifbit & 0x01) << 22);
+ 	register unsigned long reg1_in asm ("1") = apinfo->val;
+ 	register struct ap_queue_status reg1_out asm ("1");
+-	register unsigned long reg2 asm ("2") = 0;
++	register unsigned long reg2 asm ("2");
+ 
+ 	asm volatile(
+ 		".long 0xb2af0000"		/* PQAP(QACT) */
+-		: "+d" (reg0), "+d" (reg1_in), "=d" (reg1_out), "+d" (reg2)
+-		: : "cc");
++		: "+d" (reg1_in), "=d" (reg1_out), "=d" (reg2)
++		: "d" (reg0)
++		: "cc");
+ 	apinfo->val = reg2;
+ 	return reg1_out;
+ }
 -- 
 1.7.1
