@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v6 10/21] s390: vfio-ap: sysfs interfaces to configure adapters
-Date: Fri, 29 Jun 2018 17:11:12 -0400
-Message-ID: <1530306683-7270-11-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v6 06/21] KVM: s390: refactor crypto initialization
+Date: Fri, 29 Jun 2018 17:11:08 -0400
+Message-ID: <1530306683-7270-7-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,420 +12,187 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Provides the sysfs interfaces for assigning AP adapters to
-and unassigning AP adapters from a mediated matrix device.
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-The IDs of the AP adapters assigned to the mediated matrix
-device are stored in an AP mask (APM). The bits in the APM,
-from most significant to least significant bit, correspond to
-AP adapter ID (APID) 0 to 255. When an adapter is assigned, the
-bit corresponding the APID will be set in the APM.
-Likewise, when an adapter is unassigned, the bit corresponding
-to the APID will be cleared from the APM.
+This patch refactors the code that initializes and sets up the
+crypto configuration for a guest. The following changes are
+implemented via this patch:
 
-The relevant sysfs structures are:
+1. Prior to the introduction of AP device virtualization, it
+   was not necessary to provide guest access to the CRYCB
+   unless the MSA extension 3 (MSAX3) facility was installed
+   on the host system. With the introduction of AP device
+   virtualization, the CRYCB must be made accessible to the
+   guest as long as the AP instructions are installed on the
+   host.
 
-/sys/devices/vfio_ap
-... [matrix]
-...... [mdev_supported_types]
-......... [vfio_ap-passthrough]
-............ [devices]
-...............[$uuid]
-.................. assign_adapter
-.................. unassign_adapter
-
-To assign an adapter to the $uuid mediated matrix device's APM,
-write the APID to the assign_adapter file. To unassign an adapter,
-write the APID to the unassign_adapter file. The APID is specified
-using conventional semantics: If it begins with 0x the number will
-be parsed as a hexadecimal number; if it begins with a 0 the number
-will be parsed as an octal number; otherwise, it will be parsed as a
-decimal number.
-
-For example, to assign adapter 173 (0xad) to the mediated matrix
-device $uuid:
-
-	echo 173 > assign_adapter
-
-	or
-
-	echo 0xad > assign_adapter
-
-	or
-
-	echo 0255 > assign_adapter
-
-To unassign adapter 173 (0xad):
-
-	echo 173 > unassign_adapter
-
-	or
-
-	echo 0xad > unassign_adapter
-
-	or
-
-	echo 0255 > unassign_adapter
-
-The assignment will be rejected:
-
-* If the APID exceeds the maximum value for an AP adapter:
-  * If the AP Extended Addressing (APXA) facility is
-    installed, the max value is 255
-  * Else the max value is 64
-
-* If no AP domains have yet been assigned and there are
-  no AP queues bound to the VFIO AP driver that have an APQN
-  with an APID matching that of the AP adapter being assigned.
-
-* If any of the APQNs that can be derived from the cross product
-  of the APID being assigned and the AP queue index (APQI) of
-  each of the AP domains previously assigned can not be matched
-  with an APQN of an AP queue device reserved by the VFIO AP
-  driver.
+2. Introduces a flag indicating AP instructions executed on
+   the guest shall be interpreted by the firmware. It is
+   initialized to indicate AP instructions are to be
+   to be interpreted and is used to set the SIE bit for
+   each vcpu during vcpu setup.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c |  317 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 317 insertions(+), 0 deletions(-)
+ arch/s390/include/asm/kvm_host.h |    3 +
+ arch/s390/kvm/kvm-s390.c         |   85 +++++++++++++++++++------------------
+ 2 files changed, 47 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index bf7ed9f..a4351bd 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -16,6 +16,7 @@
- 
- #define VFOP_AP_MDEV_TYPE_HWVIRT "passthrough"
- #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
-+#define KVM_AP_MASK_BYTES(n) DIV_ROUND_UP(n, BITS_PER_BYTE)
- 
- DEFINE_SPINLOCK(mdev_list_lock);
- LIST_HEAD(mdev_list);
-@@ -116,9 +117,325 @@ static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
- 	NULL,
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index a2188e3..d44e0d5 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -186,6 +186,7 @@ struct kvm_s390_sie_block {
+ #define ECA_AIV		0x00200000
+ #define ECA_VX		0x00020000
+ #define ECA_PROTEXCI	0x00002000
++#define ECA_APIE	0x00000008
+ #define ECA_SII		0x00000001
+ 	__u32	eca;			/* 0x004c */
+ #define ICPT_INST	0x04
+@@ -255,6 +256,7 @@ struct kvm_s390_sie_block {
+ 	__u8	reservede4[4];		/* 0x00e4 */
+ 	__u64	tecmc;			/* 0x00e8 */
+ 	__u8	reservedf0[12];		/* 0x00f0 */
++#define CRYCB_FORMAT_MASK 0x00000003
+ #define CRYCB_FORMAT1 0x00000001
+ #define CRYCB_FORMAT2 0x00000003
+ 	__u32	crycbd;			/* 0x00fc */
+@@ -713,6 +715,7 @@ struct kvm_s390_crypto {
+ 	__u32 crycbd;
+ 	__u8 aes_kw;
+ 	__u8 dea_kw;
++	__u8 apie;
  };
  
-+struct vfio_ap_qid_reserved {
-+	ap_qid_t qid;
-+	bool reserved;
-+};
-+
-+struct vfio_id_reserved {
-+	unsigned long id;
-+	bool reserved;
-+};
-+
-+/**
-+ * vfio_ap_qid_reserved
-+ *
-+ * @dev: an AP queue device
-+ * @data: a queue ID
-+ *
-+ * Flags whether any AP queue device has a particular qid
-+ *
-+ * Returns 0 to indicate the function succeeded
+ #define APCB0_MASK_SIZE 1
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d2208d4..3aa16df 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1886,49 +1886,37 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 	return r;
+ }
+ 
+-static int kvm_s390_query_ap_config(u8 *config)
+-{
+-	u32 fcn_code = 0x04000000UL;
+-	u32 cc = 0;
+-
+-	memset(config, 0, 128);
+-	asm volatile(
+-		"lgr 0,%1\n"
+-		"lgr 2,%2\n"
+-		".long 0xb2af0000\n"		/* PQAP(QCI) */
+-		"0: ipm %0\n"
+-		"srl %0,28\n"
+-		"1:\n"
+-		EX_TABLE(0b, 1b)
+-		: "+r" (cc)
+-		: "r" (fcn_code), "r" (config)
+-		: "cc", "0", "2", "memory"
+-	);
+-
+-	return cc;
+-}
+-
+ static int kvm_s390_apxa_installed(void)
+ {
+-	u8 config[128];
+-	int cc;
++	struct ap_config_info info;
+ 
+-	if (test_facility(12)) {
+-		cc = kvm_s390_query_ap_config(config);
+-
+-		if (cc)
+-			pr_err("PQAP(QCI) failed with cc=%d", cc);
+-		else
+-			return config[0] & 0x40;
++	if (ap_instructions_available() == 0) {
++		if (ap_qci(&info) == 0)
++			return info.apxa;
+ 	}
+ 
+ 	return 0;
+ }
+ 
++/*
++ * The format of the crypto control block (CRYCB) is specified in the 3 low
++ * order bits of the CRYCB designation (CRYCBD) field as follows:
++ * Format 0: Neither the message security assist extension 3 (MSAX3) nor the
++ *	     AP extended addressing (APXA) facility are installed.
++ * Format 1: The APXA facility is not installed but the MSAX3 facility is.
++ * Format 2: Both the APXA and MSAX3 facilities are installed
 + */
-+static int vfio_ap_queue_has_qid(struct device *dev, void *data)
-+{
-+	struct vfio_ap_qid_reserved *qid_res = data;
-+	struct ap_queue *ap_queue = to_ap_queue(dev);
+ static void kvm_s390_set_crycb_format(struct kvm *kvm)
+ {
+ 	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
+ 
++	/* Clear the CRYCB format bits - i.e., set format 0 by default */
++	kvm->arch.crypto.crycbd &= ~(CRYCB_FORMAT_MASK);
 +
-+	if (qid_res->qid == ap_queue->qid)
-+		qid_res->reserved = true;
++	/* Check whether MSAX3 is installed */
++	if (!test_kvm_facility(kvm, 76))
++		return;
 +
-+	return 0;
-+}
+ 	if (kvm_s390_apxa_installed())
+ 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
+ 	else
+@@ -1946,11 +1934,13 @@ static u64 kvm_s390_get_initial_cpuid(void)
+ 
+ static void kvm_s390_crypto_init(struct kvm *kvm)
+ {
+-	if (!test_kvm_facility(kvm, 76))
+-		return;
+-
+ 	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
+ 	kvm_s390_set_crycb_format(kvm);
++	/* Default setting indicating SIE shall interpret AP instructions */
++	kvm->arch.crypto.apie = 1;
 +
-+/**
-+ * vfio_ap_queue_has_apid
-+ *
-+ * @dev: an AP queue device
-+ * @data: an AP adapter ID
-+ *
-+ * Flags whether any AP queue device has a particular AP adapter ID
-+ *
-+ * Returns 0 to indicate the function succeeded
-+ */
-+static int vfio_ap_queue_has_apid(struct device *dev, void *data)
-+{
-+	struct vfio_id_reserved *id_res = data;
-+	struct ap_queue *ap_queue = to_ap_queue(dev);
-+
-+	if (id_res->id == AP_QID_CARD(ap_queue->qid))
-+		id_res->reserved = true;
-+
-+	return 0;
-+}
-+
-+/**
-+ * vfio_ap_verify_qid_reserved
-+ *
-+ * @matrix_dev: a mediated matrix device
-+ * @qid: a qid (i.e., APQN)
-+ *
-+ * Verifies that the AP queue with @qid is reserved by the VFIO AP device
-+ * driver.
-+ *
-+ * Returns 0 if the AP queue with @qid is reserved; otherwise, returns -ENODEV.
-+ */
-+static int vfio_ap_verify_qid_reserved(struct ap_matrix_dev *matrix_dev,
-+				       ap_qid_t qid)
-+{
-+	int ret;
-+	struct vfio_ap_qid_reserved qid_res;
-+
-+	qid_res.qid = qid;
-+	qid_res.reserved = false;
-+
-+	ret = driver_for_each_device(matrix_dev->device.driver, NULL, &qid_res,
-+				     vfio_ap_queue_has_qid);
-+	if (ret)
-+		return ret;
-+
-+	if (qid_res.reserved)
-+		return 0;
-+
-+	return -EPERM;
-+}
-+
-+/**
-+ * vfio_ap_verify_apid_reserved
-+ *
-+ * @matrix_dev: a mediated matrix device
-+ * @apid: an AP adapter ID
-+ *
-+ * Verifies that an AP queue with @apid is reserved by the VFIO AP device
-+ * driver.
-+ *
-+ * Returns 0 if an AP queue with @apid is reserved; otherwise, returns -ENODEV.
-+ */
-+static int vfio_ap_verify_apid_reserved(struct ap_matrix_dev *matrix_dev,
-+					const char *mdev_name,
-+					unsigned long apid)
-+{
-+	int ret;
-+	struct vfio_id_reserved id_res;
-+
-+	id_res.id = apid;
-+	id_res.reserved = false;
-+
-+	ret = driver_for_each_device(matrix_dev->device.driver, NULL, &id_res,
-+				     vfio_ap_queue_has_apid);
-+	if (ret)
-+		return ret;
-+
-+	if (id_res.reserved)
-+		return 0;
-+
-+	pr_err("%s: mdev %s using adapter %02lx not reserved by %s driver",
-+					VFIO_AP_MODULE_NAME, mdev_name, apid,
-+					VFIO_AP_DRV_NAME);
-+
-+	return -EPERM;
-+}
-+
-+static int vfio_ap_verify_queues_reserved(struct ap_matrix_dev *matrix_dev,
-+					  const char *mdev_name,
-+					  struct ap_matrix *matrix)
-+{
-+	unsigned long apid, apqi;
-+	int ret;
-+	int rc = 0;
-+
-+	for_each_set_bit_inv(apid, matrix->apm, matrix->apm_max + 1) {
-+		for_each_set_bit_inv(apqi, matrix->aqm, matrix->aqm_max + 1) {
-+			ret = vfio_ap_verify_qid_reserved(matrix_dev,
-+							  AP_MKQID(apid, apqi));
-+			if (ret == 0)
-+				continue;
-+
-+			/*
-+			 * We want to log every APQN that is not reserved by
-+			 * the driver, so record the return code, log a message
-+			 * and allow the loop to continue
-+			 */
-+			rc = ret;
-+			pr_err("%s: mdev %s using queue %02lx.%04lx not reserved by %s driver",
-+				VFIO_AP_MODULE_NAME, mdev_name, apid,
-+				apqi, VFIO_AP_DRV_NAME);
-+		}
-+	}
-+
-+	return rc;
-+}
-+
-+/**
-+ * vfio_ap_validate_apid
-+ *
-+ * @mdev: the mediated device
-+ * @matrix_mdev: the mediated matrix device
-+ * @apid: the APID to validate
-+ *
-+ * Validates the value of @apid:
-+ *	* If there are no AP domains assigned, then there must be at least
-+ *	  one AP queue device reserved by the VFIO AP device driver with an
-+ *	  APQN containing @apid.
-+ *
-+ *	* Else each APQN that can be derived from the intersection of @apid and
-+ *	  the IDs of the AP domains already assigned must identify an AP queue
-+ *	  that has been reserved by the VFIO AP device driver.
-+ *
-+ * Returns 0 if the value of @apid is valid; otherwise, returns an error.
-+ */
-+static int vfio_ap_validate_apid(struct mdev_device *mdev,
-+				 struct ap_matrix_mdev *matrix_mdev,
-+				 unsigned long apid)
-+{
-+	int ret;
-+	unsigned long aqmsz = matrix_mdev->matrix.aqm_max + 1;
-+	struct device *dev = mdev_parent_dev(mdev);
-+	struct ap_matrix_dev *matrix_dev = to_ap_matrix_dev(dev);
-+	struct ap_matrix matrix = matrix_mdev->matrix;
-+
-+	/* If there are any queues assigned to the mediated device */
-+	if (find_first_bit_inv(matrix.aqm, aqmsz) < aqmsz) {
-+		matrix.apm_max = matrix_mdev->matrix.apm_max;
-+		memset(matrix.apm, 0,
-+		       ARRAY_SIZE(matrix.apm) * sizeof(matrix.apm[0]));
-+		set_bit_inv(apid, matrix.apm);
-+		matrix.aqm_max = matrix_mdev->matrix.aqm_max;
-+		memcpy(matrix.aqm, matrix_mdev->matrix.aqm,
-+		       ARRAY_SIZE(matrix.aqm) * sizeof(matrix.aqm[0]));
-+		ret = vfio_ap_verify_queues_reserved(matrix_dev,
-+						     matrix_mdev->name,
-+						     &matrix);
-+	} else {
-+		ret = vfio_ap_verify_apid_reserved(matrix_dev,
-+						   matrix_mdev->name, apid);
-+	}
-+
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+/**
-+ * assign_adapter_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the APID from @buf and assigns it to the mediated matrix device. The
-+ * APID must be a valid value:
-+ *	* The APID value must not exceed the maximum allowable AP adapter ID
-+ *
-+ *	* If there are no AP domains assigned, then there must be at least
-+ *	  one AP queue device reserved by the VFIO AP device driver with an
-+ *	  APQN containing @apid.
-+ *
-+ *	* Else each APQN that can be derived from the intersection of @apid and
-+ *	  the IDs of the AP domains already assigned must identify an AP queue
-+ *	  that has been reserved by the VFIO AP device driver.
-+ *
-+ * Returns the number of bytes processed if the APID is valid; otherwise returns
-+ * an error.
-+ */
-+static ssize_t assign_adapter_store(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long apid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_apid = matrix_mdev->matrix.apm_max;
-+
-+	ret = kstrtoul(buf, 0, &apid);
-+	if (ret || (apid > max_apid)) {
-+		pr_err("%s: %s: adapter id '%s' not a value from 0 to %02lu(%#04lx)",
-+		       VFIO_AP_MODULE_NAME, __func__, buf, max_apid, max_apid);
-+
-+		return ret ? ret : -EINVAL;
-+	}
-+
-+	ret = vfio_ap_validate_apid(mdev, matrix_mdev, apid);
-+	if (ret)
-+		return ret;
-+
-+	/* Set the bit in the AP mask (APM) corresponding to the AP adapter
-+	 * number (APID). The bits in the mask, from most significant to least
-+	 * significant bit, correspond to APIDs 0-255.
++	if (!test_kvm_facility(kvm, 76))
++		return;
+ 
+ 	/* Enable AES/DEA protected key functions by default */
+ 	kvm->arch.crypto.aes_kw = 1;
+@@ -2479,17 +2469,30 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+ 
+ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+ {
+-	if (!test_kvm_facility(vcpu->kvm, 76))
++	/*
++	 * If neither the AP instructions nor the MSAX3 facility are installed
++	 * on the host, then there is no need for a CRYCB in SIE because the
++	 * they will not be installed on the guest either.
 +	 */
-+	set_bit_inv(apid, matrix_mdev->matrix.apm);
++	if (ap_instructions_available() && !test_facility(76))
+ 		return;
+ 
+-	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
++	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
 +
-+	return count;
-+}
-+static DEVICE_ATTR_WO(assign_adapter);
-+
-+/**
-+ * unassign_adapter_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the APID from @buf and unassigns it from the mediated matrix device.
-+ * The APID must be a valid value
-+ *
-+ * Returns the number of bytes processed if the APID is valid; otherwise returns
-+ * an error.
-+ */
-+static ssize_t unassign_adapter_store(struct device *dev,
-+				      struct device_attribute *attr,
-+				      const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long apid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_apid = matrix_mdev->matrix.apm_max;
-+
-+	ret = kstrtoul(buf, 0, &apid);
-+	if (ret || (apid > max_apid)) {
-+		pr_err("%s: %s: adapter id '%s' must be a value from 0 to %02lu(%#04lx)",
-+		       VFIO_AP_MODULE_NAME, __func__, buf, max_apid, max_apid);
-+
-+		return ret ? ret : -EINVAL;
++	vcpu->arch.sie_block->eca &= ~ECA_APIE;
++	if (vcpu->kvm->arch.crypto.apie &&
++	    test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
++		vcpu->arch.sie_block->eca |= ECA_APIE;
+ 
+-	if (vcpu->kvm->arch.crypto.aes_kw)
+-		vcpu->arch.sie_block->ecb3 |= ECB3_AES;
+-	if (vcpu->kvm->arch.crypto.dea_kw)
+-		vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
++	/* If MSAX3 is installed on the guest, set up protected key support */
++	if (test_kvm_facility(vcpu->kvm, 76)) {
++		vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
+ 
+-	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
++		if (vcpu->kvm->arch.crypto.aes_kw)
++			vcpu->arch.sie_block->ecb3 |= ECB3_AES;
++		if (vcpu->kvm->arch.crypto.dea_kw)
++			vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
 +	}
-+
-+	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
-+		pr_err("%s: %s: adapter id %02lu(%#04lx) not assigned",
-+		       VFIO_AP_MODULE_NAME, __func__, apid, apid);
-+
-+		return -ENODEV;
-+	}
-+
-+	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(unassign_adapter);
-+
-+static struct attribute *vfio_ap_mdev_attrs[] = {
-+	&dev_attr_assign_adapter.attr,
-+	&dev_attr_unassign_adapter.attr,
-+	NULL
-+};
-+
-+static struct attribute_group vfio_ap_mdev_attr_group = {
-+	.attrs = vfio_ap_mdev_attrs
-+};
-+
-+static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
-+	&vfio_ap_mdev_attr_group,
-+	NULL
-+};
-+
- static const struct mdev_parent_ops vfio_ap_matrix_ops = {
- 	.owner			= THIS_MODULE,
- 	.supported_type_groups	= vfio_ap_mdev_type_groups,
-+	.mdev_attr_groups	= vfio_ap_mdev_attr_groups,
- 	.create			= vfio_ap_mdev_create,
- 	.remove			= vfio_ap_mdev_remove,
- };
+ }
+ 
+ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
 -- 
 1.7.1
