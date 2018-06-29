@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v6 12/21] s390: vfio-ap: sysfs interfaces to configure control domains
-Date: Fri, 29 Jun 2018 17:11:14 -0400
-Message-ID: <1530306683-7270-13-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v6 14/21] s390: vfio-ap: implement mediated device open callback
+Date: Fri, 29 Jun 2018 17:11:16 -0400
+Message-ID: <1530306683-7270-15-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -12,202 +12,183 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Provides the sysfs interfaces for assigning AP control domains
-to and unassigning AP control domains from a mediated matrix device.
-
-The IDs of the AP control domains assigned to the mediated matrix
-device are stored in an AP domain mask (ADM). The bits in the ADM,
-from most significant to least significant bit, correspond to
-AP domain numbers 0 to 255. When a control domain is assigned,
-the bit corresponding its domain ID will be set in the ADM.
-Likewise, when a domain is unassigned, the bit corresponding
-to its domain ID will be cleared in the ADM.
-
-The relevant sysfs structures are:
-
-/sys/devices/vfio_ap
-... [matrix]
-...... [mdev_supported_types]
-......... [vfio_ap-passthrough]
-............ [devices]
-...............[$uuid]
-.................. assign_control_domain
-.................. unassign_control_domain
-
-To assign a control domain to the $uuid mediated matrix device's
-ADM, write its domain number to the assign_control_domain file.
-To unassign a domain, write its domain number to the
-unassign_control_domain file. The domain number is specified
-using conventional semantics: If it begins with 0x the number
-will be parsed as a hexadecimal (case insensitive) number;
-if it begins with 0, it is parsed as an octal number;
-otherwise, it will be parsed as a decimal number.
-
-For example, to assign control domain 173 (0xad) to the mediated
-matrix device $uuid:
-
-	echo 173 > assign_control_domain
-
-	or
-
-	echo 0255 > assign_control_domain
-
-	or
-
-	echo 0xad > assign_control_domain
-
-To unassign control domain 173 (0xad):
-
-	echo 173 > unassign_control_domain
-
-	or
-
-	echo 0255 > unassign_control_domain
-
-	or
-
-	echo 0xad > unassign_control_domain
-
-The assignment will be rejected if the APQI exceeds the maximum
-value for an AP domain:
-  * If the AP Extended Addressing (APXA) facility is installed,
-    the max value is 255
-  * Else the max value is 15
+Implements the open callback on the mediated matrix device.
+The function registers a group notifier to receive notification
+of the VFIO_GROUP_NOTIFY_SET_KVM event. When notified,
+the vfio_ap device driver will get access to the guest's
+kvm structure. The open callback must ensure that only one
+mediated device shall be opened per guest.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c |  114 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 114 insertions(+), 0 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c     |  128 +++++++++++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |    2 +
+ 2 files changed, 130 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index a5b06e7..c8f31f3 100644
+index bc7398d..58be495 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -586,11 +586,125 @@ static ssize_t unassign_domain_store(struct device *dev,
- }
- DEVICE_ATTR_WO(unassign_domain);
+@@ -11,6 +11,10 @@
+ #include <linux/device.h>
+ #include <linux/list.h>
+ #include <linux/ctype.h>
++#include <linux/bitops.h>
++#include <linux/kvm_host.h>
++#include <linux/module.h>
++#include <asm/kvm.h>
  
-+
-+/**
-+ * assign_control_domain_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the domain ID from @buf and assigns it to the mediated matrix device.
-+ *
-+ * Returns the number of bytes processed if the domain ID is valid; otherwise
-+ * returns an error.
-+ */
-+static ssize_t assign_control_domain_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long id;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long maxid = matrix_mdev->matrix.adm_max;
-+
-+	ret = kstrtoul(buf, 0, &id);
-+	if (ret || (id > maxid)) {
-+		pr_err("%s: %s: control domain id '%s' not a value from 0 to %02lu(%#04lx)",
-+		       VFIO_AP_MODULE_NAME, __func__, buf, maxid, maxid);
-+
-+		return ret ? ret : -EINVAL;
-+	}
-+
-+	/* Set the bit in the ADM (bitmask) corresponding to the AP control
-+	 * domain number (id). The bits in the mask, from most significant to
-+	 * least significant, correspond to IDs 0 up to the one less than the
-+	 * number of control domains that can be assigned.
-+	 */
-+	set_bit_inv(id, matrix_mdev->matrix.adm);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(assign_control_domain);
-+
-+/**
-+ * unassign_control_domain_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: a mediated matrix device attribute
-+ * @buf: a buffer containing the adapter ID (APID) to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the domain ID from @buf and unassigns it from the mediated matrix
-+ * device.
-+ *
-+ * Returns the number of bytes processed if the domain ID is valid; otherwise
-+ * returns an error.
-+ */
-+static ssize_t unassign_control_domain_store(struct device *dev,
-+					     struct device_attribute *attr,
-+					     const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long domid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
-+
-+	ret = kstrtoul(buf, 0, &domid);
-+	if (ret || (domid > max_domid)) {
-+		pr_err("%s: %s: control domain id '%s' not a value from 0 to %02lu(%#04lx)",
-+		       VFIO_AP_MODULE_NAME, __func__, buf,
-+		       max_domid, max_domid);
-+
-+		return ret ? ret : -EINVAL;
-+	}
-+
-+	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
-+		pr_err("%s: %s: control domain id %02lu(%#04lx) is not assigned",
-+		       VFIO_AP_MODULE_NAME, __func__, domid, domid);
-+
-+		return -ENODEV;
-+	}
-+
-+	clear_bit_inv(domid, matrix_mdev->matrix.adm);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(unassign_control_domain);
-+
-+static ssize_t control_domains_show(struct device *dev,
-+				    struct device_attribute *dev_attr,
-+				    char *buf)
-+{
-+	unsigned long id;
-+	int nchars = 0;
-+	int n;
-+	char *bufpos = buf;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_apqi = matrix_mdev->matrix.apm_max;
-+
-+	for_each_set_bit_inv(id, matrix_mdev->matrix.adm, max_apqi + 1) {
-+		n = sprintf(bufpos, "%04lx\n", id);
-+		bufpos += n;
-+		nchars += n;
-+	}
-+
-+	return nchars;
-+}
-+DEVICE_ATTR_RO(control_domains);
-+
- static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_assign_adapter.attr,
- 	&dev_attr_unassign_adapter.attr,
- 	&dev_attr_assign_domain.attr,
- 	&dev_attr_unassign_domain.attr,
-+	&dev_attr_assign_control_domain.attr,
-+	&dev_attr_unassign_control_domain.attr,
-+	&dev_attr_control_domains.attr,
- 	NULL,
+ #include "vfio_ap_private.h"
+ 
+@@ -748,12 +752,136 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+ 	NULL
  };
  
++/**
++ * Verify that the AP instructions are available on the guest and are to be
++ * interpreted by the firmware. The former is indicated via the
++ * KVM_S390_VM_CPU_FEAT_AP CPU model feature and the latter by apie crypto
++ * flag.
++ */
++static int kvm_ap_validate_crypto_setup(struct kvm *kvm)
++{
++	if (test_bit_inv(KVM_S390_VM_CPU_FEAT_AP, kvm->arch.cpu_feat) &&
++	    kvm->arch.crypto.apie)
++		return 0;
++
++	pr_err("%s: interpretation of AP instructions not available",
++	       VFIO_AP_MODULE_NAME);
++
++	return -EOPNOTSUPP;
++}
++
++static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
++				       unsigned long action, void *data)
++{
++	struct ap_matrix_mdev *matrix_mdev;
++
++	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
++		matrix_mdev = container_of(nb, struct ap_matrix_mdev,
++					   group_notifier);
++		matrix_mdev->kvm = data;
++	}
++
++	return NOTIFY_OK;
++}
++
++/**
++ * vfio_ap_mdev_open_once
++ *
++ * @matrix_mdev: a mediated matrix device
++ *
++ * Return 0 if no other mediated matrix device has been opened for the
++ * KVM guest assigned to @matrix_mdev; otherwise, returns an error.
++ */
++static int vfio_ap_mdev_open_once(struct ap_matrix_mdev *matrix_mdev)
++{
++	int ret = 0;
++	struct ap_matrix_mdev *lstdev;
++
++	spin_lock_bh(&mdev_list_lock);
++
++	list_for_each_entry(lstdev, &mdev_list, list) {
++		if ((lstdev->kvm == matrix_mdev->kvm) &&
++		    (lstdev != matrix_mdev)) {
++			ret = -EPERM;
++			break;
++		}
++	}
++
++	if (ret) {
++		pr_err("%s: mdev %s open failed for guest %s",
++		       VFIO_AP_MODULE_NAME, matrix_mdev->name,
++		       matrix_mdev->kvm->arch.dbf->name);
++		pr_err("%s: mdev %s already opened for guest %s",
++		       VFIO_AP_MODULE_NAME, lstdev->name,
++		       lstdev->kvm->arch.dbf->name);
++	}
++
++	spin_unlock_bh(&mdev_list_lock);
++	return ret;
++}
++
++static int vfio_ap_mdev_open(struct mdev_device *mdev)
++{
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	struct ap_matrix_dev *matrix_dev =
++		to_ap_matrix_dev(mdev_parent_dev(mdev));
++	unsigned long events;
++	int ret;
++
++	if (!try_module_get(THIS_MODULE))
++		return -ENODEV;
++
++	ret = vfio_ap_verify_queues_reserved(matrix_dev, matrix_mdev->name,
++					     &matrix_mdev->matrix);
++	if (ret)
++		goto out_err;
++
++	matrix_mdev->group_notifier.notifier_call = vfio_ap_mdev_group_notifier;
++	events = VFIO_GROUP_NOTIFY_SET_KVM;
++
++	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
++				     &events, &matrix_mdev->group_notifier);
++	if (ret)
++		goto out_err;
++
++	ret = kvm_ap_validate_crypto_setup(matrix_mdev->kvm);
++	if (ret)
++		goto out_kvm_err;
++
++	ret = vfio_ap_mdev_open_once(matrix_mdev);
++	if (ret)
++		goto out_kvm_err;
++
++	return 0;
++
++out_kvm_err:
++	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
++				 &matrix_mdev->group_notifier);
++	matrix_mdev->kvm = NULL;
++out_err:
++	module_put(THIS_MODULE);
++
++	return ret;
++}
++
++static void vfio_ap_mdev_release(struct mdev_device *mdev)
++{
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++
++	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
++				 &matrix_mdev->group_notifier);
++	matrix_mdev->kvm = NULL;
++	module_put(THIS_MODULE);
++}
++
+ static const struct mdev_parent_ops vfio_ap_matrix_ops = {
+ 	.owner			= THIS_MODULE,
+ 	.supported_type_groups	= vfio_ap_mdev_type_groups,
+ 	.mdev_attr_groups	= vfio_ap_mdev_attr_groups,
+ 	.create			= vfio_ap_mdev_create,
+ 	.remove			= vfio_ap_mdev_remove,
++	.open			= vfio_ap_mdev_open,
++	.release		= vfio_ap_mdev_release,
+ };
+ 
+ int vfio_ap_mdev_register(struct ap_matrix_dev *matrix_dev)
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index ae771f5..7792b45 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -56,6 +56,8 @@ struct ap_matrix_mdev {
+ 	const char *name;
+ 	struct list_head list;
+ 	struct ap_matrix matrix;
++	struct notifier_block group_notifier;
++	struct kvm *kvm;
+ };
+ 
+ static struct ap_matrix_dev *to_ap_matrix_dev(struct device *dev)
 -- 
 1.7.1
