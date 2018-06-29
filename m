@@ -1,30 +1,82 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net 0/5] s390/qeth: fixes 2018-06-29
-Date: Sat, 30 Jun 2018 21:20:47 +0900 (KST)
-Message-ID: <20180630.212047.1245813575108390306.davem@davemloft.net>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 2/5] s390/qeth: fix race when setting MAC address
+Date: Fri, 29 Jun 2018 19:45:51 +0200
+Message-ID: <20180629174554.53718-3-jwi@linux.ibm.com>
 References: <20180629174554.53718-1-jwi@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180629174554.53718-1-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jwi@linux.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Date: Fri, 29 Jun 2018 19:45:49 +0200
+When qeth_l2_set_mac_address() finds the card in a non-reachable state,
+it merely copies the new MAC address into dev->dev_addr so that
+__qeth_l2_set_online() can later register it with the HW.
 
-> please apply a few qeth fixes for -net and your 4.17 stable queue.
-> 
-> Patches 1-3 fix several issues wrt to MAC address management that were
-> introduced during the 4.17 cycle.
-> Patch 4 tackles a long-standing issue with busy multi-connection workloads
-> on devices in af_iucv mode.
-> Patch 5 makes sure to re-enable all active HW offloads, after a card was
-> previously set offline and thus lost its HW context.
+But __qeth_l2_set_online() may very well be running concurrently, so we
+can't trust the card state without appropriate locking:
+If the online sequence is past the point where it registers
+dev->dev_addr (but not yet in SOFTSETUP state), any address change needs
+to be properly programmed into the HW. Otherwise the netdevice ends up
+with a different MAC address than what's set in the HW, and inbound
+traffic is not forwarded as expected.
 
-Series applied and queued up for -stable.
+This is most likely to occur for OSD in LPAR, where
+commit 21b1702af12e ("s390/qeth: improve fallback to random MAC address")
+now triggers eg. systemd to immediately change the MAC when the netdevice
+is registered with a NET_ADDR_RANDOM address.
+
+Fixes: bcacfcbc82b4 ("s390/qeth: fix MAC address update sequence")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_l2_main.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index a7cb37da6a21..7daf125dae76 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -501,27 +501,34 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
+ 		return -ERESTARTSYS;
+ 	}
+ 
++	/* avoid racing against concurrent state change: */
++	if (!mutex_trylock(&card->conf_mutex))
++		return -EAGAIN;
++
+ 	if (!qeth_card_hw_is_reachable(card)) {
+ 		ether_addr_copy(dev->dev_addr, addr->sa_data);
+-		return 0;
++		goto out_unlock;
+ 	}
+ 
+ 	/* don't register the same address twice */
+ 	if (ether_addr_equal_64bits(dev->dev_addr, addr->sa_data) &&
+ 	    (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED))
+-		return 0;
++		goto out_unlock;
+ 
+ 	/* add the new address, switch over, drop the old */
+ 	rc = qeth_l2_send_setmac(card, addr->sa_data);
+ 	if (rc)
+-		return rc;
++		goto out_unlock;
+ 	ether_addr_copy(old_addr, dev->dev_addr);
+ 	ether_addr_copy(dev->dev_addr, addr->sa_data);
+ 
+ 	if (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED)
+ 		qeth_l2_remove_mac(card, old_addr);
+ 	card->info.mac_bits |= QETH_LAYER2_MAC_REGISTERED;
+-	return 0;
++
++out_unlock:
++	mutex_unlock(&card->conf_mutex);
++	return rc;
+ }
+ 
+ static void qeth_promisc_to_bridge(struct qeth_card *card)
+-- 
+2.16.4
