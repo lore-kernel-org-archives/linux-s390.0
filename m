@@ -1,146 +1,32 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 05/10] net/smc: add pnetid support for SMC-D and ISM
-Date: Thu, 28 Jun 2018 19:05:08 +0200
-Message-ID: <20180628170513.5089-6-ubraun@linux.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 00/10] pnetid and SMC-D support
+Date: Sat, 30 Jun 2018 20:46:13 +0900 (KST)
+Message-ID: <20180630.204613.1236220486650210183.davem@davemloft.net>
 References: <20180628170513.5089-1-ubraun@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180628170513.5089-1-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, hwippel@linux.ibm.com, sebott@linux.ibm.com, ubraun@linux.ibm.com
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, hwippel@linux.ibm.com, sebott@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.ibm.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Thu, 28 Jun 2018 19:05:03 +0200
 
-SMC-D relies on PNETIDs to find usable SMC-D/ISM devices for a SMC
-connection. This patch adds SMC-D/ISM support to the current PNETID
-implementation.
+> SMC requires a configured pnet table to map Ethernet interfaces to
+> RoCE adapter ports. For s390 there exists hardware support to group
+> such devices. The first three patches cover the s390 pnetid support,
+> enabling SMC-R usage on s390 without configuring an extra pnet table.
+> 
+> SMC currently requires RoCE adapters, and uses RDMA-techniques
+> implemented with IB-verbs. But s390 offers another method for
+> intra-CEC Shared Memory communication. The following seven patches
+> implement a solution to run SMC traffic based on intra-CEC DMA,
+> called SMC-D.
 
-Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
----
- include/net/smc.h  |  1 +
- net/smc/smc_ism.c  |  2 ++
- net/smc/smc_pnet.c | 41 +++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_pnet.h |  2 ++
- 4 files changed, 46 insertions(+)
-
-diff --git a/include/net/smc.h b/include/net/smc.h
-index 824a7af8d654..9ef49f8b1002 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -73,6 +73,7 @@ struct smcd_dev {
- 	struct smc_connection **conn;
- 	struct list_head vlan;
- 	struct workqueue_struct *event_wq;
-+	u8 pnetid[SMC_MAX_PNETID_LEN];
- };
- 
- struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index ca1ce42fd49f..f44e4dff244a 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -13,6 +13,7 @@
- #include "smc.h"
- #include "smc_core.h"
- #include "smc_ism.h"
-+#include "smc_pnet.h"
- 
- struct smcd_dev_list smcd_dev_list = {
- 	.list = LIST_HEAD_INIT(smcd_dev_list.list),
-@@ -227,6 +228,7 @@ struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
- 	device_initialize(&smcd->dev);
- 	dev_set_name(&smcd->dev, name);
- 	smcd->ops = ops;
-+	smc_pnetid_by_dev_port(parent, 0, smcd->pnetid);
- 
- 	spin_lock_init(&smcd->lock);
- 	INIT_LIST_HEAD(&smcd->vlan);
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index cdc6e23b6ce1..1b6c066d3495 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -22,6 +22,7 @@
- 
- #include "smc_pnet.h"
- #include "smc_ib.h"
-+#include "smc_ism.h"
- 
- static struct nla_policy smc_pnet_policy[SMC_PNETID_MAX + 1] = {
- 	[SMC_PNETID_NAME] = {
-@@ -564,6 +565,27 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
- 	spin_unlock(&smc_ib_devices.lock);
- }
- 
-+static void smc_pnet_find_ism_by_pnetid(struct net_device *ndev,
-+					struct smcd_dev **smcismdev)
-+{
-+	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
-+	struct smcd_dev *ismdev;
-+
-+	ndev = pnet_find_base_ndev(ndev);
-+	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
-+				   ndev_pnetid))
-+		return; /* pnetid could not be determined */
-+
-+	spin_lock(&smcd_dev_list.lock);
-+	list_for_each_entry(ismdev, &smcd_dev_list.list, list) {
-+		if (!memcmp(ismdev->pnetid, ndev_pnetid, SMC_MAX_PNETID_LEN)) {
-+			*smcismdev = ismdev;
-+			break;
-+		}
-+	}
-+	spin_unlock(&smcd_dev_list.lock);
-+}
-+
- /* Lookup of coupled ib_device via SMC pnet table */
- static void smc_pnet_find_roce_by_table(struct net_device *netdev,
- 					struct smc_ib_device **smcibdev,
-@@ -615,3 +637,22 @@ void smc_pnet_find_roce_resource(struct sock *sk,
- out:
- 	return;
- }
-+
-+void smc_pnet_find_ism_resource(struct sock *sk, struct smcd_dev **smcismdev)
-+{
-+	struct dst_entry *dst = sk_dst_get(sk);
-+
-+	*smcismdev = NULL;
-+	if (!dst)
-+		goto out;
-+	if (!dst->dev)
-+		goto out_rel;
-+
-+	/* if possible, lookup via hardware-defined pnetid */
-+	smc_pnet_find_ism_by_pnetid(dst->dev, smcismdev);
-+
-+out_rel:
-+	dst_release(dst);
-+out:
-+	return;
-+}
-diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
-index ad4455cde9e7..1e94fd4df7bc 100644
---- a/net/smc/smc_pnet.h
-+++ b/net/smc/smc_pnet.h
-@@ -17,6 +17,7 @@
- #endif
- 
- struct smc_ib_device;
-+struct smcd_dev;
- 
- static inline int smc_pnetid_by_dev_port(struct device *dev,
- 					 unsigned short port, u8 *pnetid)
-@@ -33,5 +34,6 @@ void smc_pnet_exit(void);
- int smc_pnet_remove_by_ibdev(struct smc_ib_device *ibdev);
- void smc_pnet_find_roce_resource(struct sock *sk,
- 				 struct smc_ib_device **smcibdev, u8 *ibport);
-+void smc_pnet_find_ism_resource(struct sock *sk, struct smcd_dev **smcismdev);
- 
- #endif
--- 
-2.16.4
+Series applied.
