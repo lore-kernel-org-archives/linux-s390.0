@@ -1,186 +1,104 @@
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH v2 0/8] add support for relative references in jump tables
-Date: Wed, 4 Jul 2018 10:50:02 +0200
-Message-ID: <CAKv+Gu-O3mMJHH2P7L9anXeKZtEQYcN8Am4-3xkzAQSFWUN+=w@mail.gmail.com>
-References: <20180702181145.4799-1-ard.biesheuvel@linaro.org> <20180704075923.GF3701@osiris>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180704075923.GF3701@osiris>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v2 4/8] x86: add support for 64-bit place relative relocations
+Date: Mon,  2 Jul 2018 20:11:41 +0200
+Message-ID: <20180702181145.4799-5-ard.biesheuvel@linaro.org>
+In-Reply-To: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
+References: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20180702181141.F3W4o8na7sHXn8dZa868peMdKWk7AG8oTvaJG7oOpSI@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 4 July 2018 at 09:59, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-> On Mon, Jul 02, 2018 at 08:11:37PM +0200, Ard Biesheuvel wrote:
->> This series implements support for emitting the data structures associated
->> with jump tables as 32-bit relative references instead of absolute
->> references, which take up more space on builds that target 64-bit
->> architectures, or implement self relocation [or both].
->>
->> This series enables it for arm64 and x86, although other architectures
->> might benefit as well.
->
-> Hello Ard,
->
-> feel free to add the patch below which adds support for s390 to your series.
->
+Add support for R_X86_64_PC64 relocations, which operate on 64-bit
+quantities holding a relative symbol reference. This allows jump
+table entries to be emitted in a way that makes them invariant under
+runtime relocation, which means that no metadata needs to be emitted
+into the kernel image to describe such data structures, resulting in
+a size reduction.
 
-Thanks, I will incorporate it into v3 and beyond.
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ arch/x86/include/asm/elf.h         |  1 +
+ arch/x86/kernel/machine_kexec_64.c |  4 ++++
+ arch/x86/kernel/module.c           |  6 ++++++
+ arch/x86/tools/relocs.c            | 10 ++++++++++
+ 4 files changed, 21 insertions(+)
 
->> Changes since v1:
->> - change the relative reference to the static key to a 64-bit wide one on 64
->>   bit architectures; this is necessary on arm64, which allows modules to
->>   reside anywhere within a 4 GB window covering the core kernel text, which
->>   means a 32-bit signed quantity with its +/- 2 GB range is insufficient.
->>   Note that x86_64 changes are in preparation that widen the relocation
->>   range as well (using the PIE linker), so I assumed that the same change
->>   is appropriate for x86 as well.
->
-> FWIW, kernel modules on s390 are since ages more than 2GB away from the
-> core kernel text. So this is required for s390 as well.
->
-
-OK, good to know.
-
+diff --git a/arch/x86/include/asm/elf.h b/arch/x86/include/asm/elf.h
+index 0d157d2a1e2a..d3925d684296 100644
+--- a/arch/x86/include/asm/elf.h
++++ b/arch/x86/include/asm/elf.h
+@@ -62,6 +62,7 @@ typedef struct user_fxsr_struct elf_fpxregset_t;
+ #define R_X86_64_PC16		13	/* 16 bit sign extended pc relative */
+ #define R_X86_64_8		14	/* Direct 8 bit sign extended  */
+ #define R_X86_64_PC8		15	/* 8 bit sign extended pc relative */
++#define R_X86_64_PC64		24	/* Place relative 64-bit signed */
+ 
+ #define R_X86_64_NUM		16
+ 
+diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
+index 4c8acdfdc5a7..6638d1edb2be 100644
+--- a/arch/x86/kernel/machine_kexec_64.c
++++ b/arch/x86/kernel/machine_kexec_64.c
+@@ -496,6 +496,10 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ 			value -= (u64)address;
+ 			*(u32 *)location = value;
+ 			break;
++		case R_X86_64_PC64:
++			value -= (u64)address;
++			*(u64 *)location = value;
++			break;
+ 		default:
+ 			pr_err("Unknown rela relocation: %llu\n",
+ 			       ELF64_R_TYPE(rel[i].r_info));
+diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
+index f58336af095c..b052e883dd8c 100644
+--- a/arch/x86/kernel/module.c
++++ b/arch/x86/kernel/module.c
+@@ -201,6 +201,12 @@ int apply_relocate_add(Elf64_Shdr *sechdrs,
+ 				goto overflow;
+ #endif
+ 			break;
++		case R_X86_64_PC64:
++			if (*(u64 *)loc != 0)
++				goto invalid_relocation;
++			val -= (u64)loc;
++			*(u64 *)loc = val;
++			break;
+ 		default:
+ 			pr_err("%s: Unknown rela relocation: %llu\n",
+ 			       me->name, ELF64_R_TYPE(rel[i].r_info));
+diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
+index 220e97841e49..a4075bc37e8f 100644
+--- a/arch/x86/tools/relocs.c
++++ b/arch/x86/tools/relocs.c
+@@ -195,6 +195,7 @@ static const char *rel_type(unsigned type)
+ #if ELF_BITS == 64
+ 		REL_TYPE(R_X86_64_NONE),
+ 		REL_TYPE(R_X86_64_64),
++		REL_TYPE(R_X86_64_PC64),
+ 		REL_TYPE(R_X86_64_PC32),
+ 		REL_TYPE(R_X86_64_GOT32),
+ 		REL_TYPE(R_X86_64_PLT32),
+@@ -781,6 +782,15 @@ static int do_reloc64(struct section *sec, Elf_Rel *rel, ElfW(Sym) *sym,
+ 			add_reloc(&relocs32neg, offset);
+ 		break;
+ 
++	case R_X86_64_PC64:
++		/*
++		 * Only used by jump labels
++		 */
++		if (is_percpu_sym(sym, symname))
++			die("Invalid R_X86_64_PC64 relocation against per-CPU symbol %s\n",
++			    symname);
++		break;
++
+ 	case R_X86_64_32:
+ 	case R_X86_64_32S:
+ 	case R_X86_64_64:
 -- 
-Ard.
-
-
-> From 77d87236f3d5474f33c25534d8ba2c7c54c88c55 Mon Sep 17 00:00:00 2001
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Date: Wed, 4 Jul 2018 09:13:37 +0200
-> Subject: [PATCH] s390/jump_label: switch to relative references
->
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
->  arch/s390/Kconfig                  |  1 +
->  arch/s390/include/asm/jump_label.h | 40 +++++++++++++++-----------------------
->  arch/s390/kernel/jump_label.c      | 11 ++++++-----
->  3 files changed, 23 insertions(+), 29 deletions(-)
->
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index baed39772c84..0349fb06a2ec 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -121,6 +121,7 @@ config S390
->         select HAVE_ALIGNED_STRUCT_PAGE if SLUB
->         select HAVE_ARCH_AUDITSYSCALL
->         select HAVE_ARCH_JUMP_LABEL
-> +       select HAVE_ARCH_JUMP_LABEL_RELATIVE
->         select CPU_NO_EFFICIENT_FFS if !HAVE_MARCH_Z9_109_FEATURES
->         select HAVE_ARCH_SECCOMP_FILTER
->         select HAVE_ARCH_SOFT_DIRTY
-> diff --git a/arch/s390/include/asm/jump_label.h b/arch/s390/include/asm/jump_label.h
-> index 40f651292aa7..e2d3e6c43395 100644
-> --- a/arch/s390/include/asm/jump_label.h
-> +++ b/arch/s390/include/asm/jump_label.h
-> @@ -14,41 +14,33 @@
->   * We use a brcl 0,2 instruction for jump labels at compile time so it
->   * can be easily distinguished from a hotpatch generated instruction.
->   */
-> -static __always_inline bool arch_static_branch(struct static_key *key, bool branch)
-> +static inline bool arch_static_branch(struct static_key *key, bool branch)
->  {
-> -       asm_volatile_goto("0:   brcl 0,"__stringify(JUMP_LABEL_NOP_OFFSET)"\n"
-> -               ".pushsection __jump_table, \"aw\"\n"
-> -               ".balign 8\n"
-> -               ".quad 0b, %l[label], %0\n"
-> -               ".popsection\n"
-> -               : : "X" (&((char *)key)[branch]) : : label);
-> -
-> +       asm_volatile_goto("0:   brcl    0,"__stringify(JUMP_LABEL_NOP_OFFSET)"\n"
-> +                         ".pushsection __jump_table,\"aw\"\n"
-> +                         ".balign      8\n"
-> +                         ".long        0b-.,%l[label]-.\n"
-> +                         ".quad        %0-.\n"
-> +                         ".popsection\n"
-> +                         : : "X" (&((char *)key)[branch]) : : label);
->         return false;
->  label:
->         return true;
->  }
->
-> -static __always_inline bool arch_static_branch_jump(struct static_key *key, bool branch)
-> +static inline bool arch_static_branch_jump(struct static_key *key, bool branch)
->  {
-> -       asm_volatile_goto("0:   brcl 15, %l[label]\n"
-> -               ".pushsection __jump_table, \"aw\"\n"
-> -               ".balign 8\n"
-> -               ".quad 0b, %l[label], %0\n"
-> -               ".popsection\n"
-> -               : : "X" (&((char *)key)[branch]) : : label);
-> -
-> +       asm_volatile_goto("0:   brcl 15,%l[label]\n"
-> +                         ".pushsection __jump_table,\"aw\"\n"
-> +                         ".balign      8\n"
-> +                         ".long        0b-.,%l[label]-.\n"
-> +                         ".quad        %0-.\n"
-> +                         ".popsection\n"
-> +                         : : "X" (&((char *)key)[branch]) : : label);
->         return false;
->  label:
->         return true;
->  }
->
-> -typedef unsigned long jump_label_t;
-> -
-> -struct jump_entry {
-> -       jump_label_t code;
-> -       jump_label_t target;
-> -       jump_label_t key;
-> -};
-> -
->  #endif  /* __ASSEMBLY__ */
->  #endif
-> diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
-> index 43f8430fb67d..50a1798604a8 100644
-> --- a/arch/s390/kernel/jump_label.c
-> +++ b/arch/s390/kernel/jump_label.c
-> @@ -33,13 +33,13 @@ static void jump_label_make_branch(struct jump_entry *entry, struct insn *insn)
->  {
->         /* brcl 15,offset */
->         insn->opcode = 0xc0f4;
-> -       insn->offset = (entry->target - entry->code) >> 1;
-> +       insn->offset = (jump_entry_target(entry) - jump_entry_code(entry)) >> 1;
->  }
->
->  static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
->                            struct insn *new)
->  {
-> -       unsigned char *ipc = (unsigned char *)entry->code;
-> +       unsigned char *ipc = (unsigned char *)jump_entry_code(entry);
->         unsigned char *ipe = (unsigned char *)expected;
->         unsigned char *ipn = (unsigned char *)new;
->
-> @@ -59,6 +59,7 @@ static void __jump_label_transform(struct jump_entry *entry,
->                                    enum jump_label_type type,
->                                    int init)
->  {
-> +       void *code = (void *)jump_entry_code(entry);
->         struct insn old, new;
->
->         if (type == JUMP_LABEL_JMP) {
-> @@ -69,13 +70,13 @@ static void __jump_label_transform(struct jump_entry *entry,
->                 jump_label_make_nop(entry, &new);
->         }
->         if (init) {
-> -               if (memcmp((void *)entry->code, &orignop, sizeof(orignop)))
-> +               if (memcmp(code, &orignop, sizeof(orignop)))
->                         jump_label_bug(entry, &orignop, &new);
->         } else {
-> -               if (memcmp((void *)entry->code, &old, sizeof(old)))
-> +               if (memcmp(code, &old, sizeof(old)))
->                         jump_label_bug(entry, &old, &new);
->         }
-> -       s390_kernel_write((void *)entry->code, &new, sizeof(new));
-> +       s390_kernel_write(code, &new, sizeof(new));
->  }
->
->  static int __sm_arch_jump_label_transform(void *data)
-> --
-> 2.16.4
->
+2.17.1
