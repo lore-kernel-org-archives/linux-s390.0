@@ -1,115 +1,125 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v2 8/8] jump_table: move entries into ro_after_init region
-Date: Mon,  2 Jul 2018 20:11:45 +0200
-Message-ID: <20180702181145.4799-9-ard.biesheuvel@linaro.org>
+Subject: [PATCH v2 5/8] x86: jump_label: switch to jump_entry accessors
+Date: Mon,  2 Jul 2018 20:11:42 +0200
+Message-ID: <20180702181145.4799-6-ard.biesheuvel@linaro.org>
 In-Reply-To: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
 References: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180702181145.JBob5scF1LledMX2BLMQsQyig8cbsYXlR770jK7IvRs@z>
+Message-ID: <20180702181142.LKGuaZVVXnZeMY2UKwskXpQeMFx-BE1e0fDHsbEyK2I@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
 Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The __jump_table sections emitted into the core kernel and into
-each module consist of statically initialized references into
-other parts of the code, and with the exception of entries that
-point into init code, which are defused at post-init time, these
-data structures are never modified.
+In preparation of switching x86 to use place-relative references for
+the code, target and key members of struct jump_entry, replace direct
+references to the struct members with invocations of the new accessors.
+This will allow us to make the switch by modifying the accessors only.
 
-So let's move them into the ro_after_init section, to prevent them
-from being corrupted inadvertently by buggy code, or deliberately
-by an attacker.
+This incorporates a cleanup of __jump_label_transform() proposed by
+Peter.
 
+Cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- arch/arm/kernel/vmlinux-xip.lds.S |  1 +
- arch/s390/kernel/vmlinux.lds.S    |  1 +
- include/asm-generic/vmlinux.lds.h | 11 +++++++----
- kernel/module.c                   |  9 +++++++++
- 4 files changed, 18 insertions(+), 4 deletions(-)
+ arch/x86/kernel/jump_label.c | 62 ++++++++------------
+ 1 file changed, 25 insertions(+), 37 deletions(-)
 
-diff --git a/arch/arm/kernel/vmlinux-xip.lds.S b/arch/arm/kernel/vmlinux-xip.lds.S
-index 3593d5c1acd2..763c41068ecc 100644
---- a/arch/arm/kernel/vmlinux-xip.lds.S
-+++ b/arch/arm/kernel/vmlinux-xip.lds.S
-@@ -118,6 +118,7 @@ SECTIONS
- 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	.data.ro_after_init : AT(ADDR(.data.ro_after_init) - LOAD_OFFSET) {
- 		*(.data..ro_after_init)
-+		JUMP_TABLE_DATA
- 	}
- 	_edata = .;
- 
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index f0414f52817b..a7cf61e46f88 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -67,6 +67,7 @@ SECTIONS
- 	__start_ro_after_init = .;
- 	.data..ro_after_init : {
- 		 *(.data..ro_after_init)
-+		JUMP_TABLE_DATA
- 	}
- 	EXCEPTION_TABLE(16)
- 	. = ALIGN(PAGE_SIZE);
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index e373e2e10f6a..ed6befa4c47b 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -256,10 +256,6 @@
- 	STRUCT_ALIGN();							\
- 	*(__tracepoints)						\
- 	/* implement dynamic printk debug */				\
--	. = ALIGN(8);                                                   \
--	__start___jump_table = .;					\
--	KEEP(*(__jump_table))                                           \
--	__stop___jump_table = .;					\
- 	. = ALIGN(8);							\
- 	__start___verbose = .;						\
- 	KEEP(*(__verbose))                                              \
-@@ -303,6 +299,12 @@
- 	. = __start_init_task + THREAD_SIZE;				\
- 	__end_init_task = .;
- 
-+#define JUMP_TABLE_DATA							\
-+	. = ALIGN(8);							\
-+	__start___jump_table = .;					\
-+	KEEP(*(__jump_table))						\
-+	__stop___jump_table = .;
+diff --git a/arch/x86/kernel/jump_label.c b/arch/x86/kernel/jump_label.c
+index e56c95be2808..023768222a94 100644
+--- a/arch/x86/kernel/jump_label.c
++++ b/arch/x86/kernel/jump_label.c
+@@ -42,52 +42,37 @@ static void __jump_label_transform(struct jump_entry *entry,
+ 				   void *(*poker)(void *, const void *, size_t),
+ 				   int init)
+ {
+-	union jump_code_union code;
++	union jump_code_union jmp;
+ 	const unsigned char default_nop[] = { STATIC_KEY_INIT_NOP };
+ 	const unsigned char *ideal_nop = ideal_nops[NOP_ATOMIC5];
++	const void *expect, *code;
++	int line;
 +
- /*
-  * Allow architectures to handle ro_after_init data on their
-  * own by defining an empty RO_AFTER_INIT_DATA.
-@@ -311,6 +313,7 @@
- #define RO_AFTER_INIT_DATA						\
- 	__start_ro_after_init = .;					\
- 	*(.data..ro_after_init)						\
-+	JUMP_TABLE_DATA							\
- 	__end_ro_after_init = .;
- #endif
++	jmp.jump = 0xe9;
++	jmp.offset = jump_entry_target(entry) -
++		     (jump_entry_code(entry) + JUMP_LABEL_NOP_SIZE);
  
-diff --git a/kernel/module.c b/kernel/module.c
-index 7cb82e0fcac0..0d4e320e41cd 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3349,6 +3349,15 @@ static struct module *layout_and_allocate(struct load_info *info, int flags)
- 	 * Note: ro_after_init sections also have SHF_{WRITE,ALLOC} set.
+ 	if (type == JUMP_LABEL_JMP) {
+ 		if (init) {
+-			/*
+-			 * Jump label is enabled for the first time.
+-			 * So we expect a default_nop...
+-			 */
+-			if (unlikely(memcmp((void *)entry->code, default_nop, 5)
+-				     != 0))
+-				bug_at((void *)entry->code, __LINE__);
++			expect = default_nop; line = __LINE__;
+ 		} else {
+-			/*
+-			 * ...otherwise expect an ideal_nop. Otherwise
+-			 * something went horribly wrong.
+-			 */
+-			if (unlikely(memcmp((void *)entry->code, ideal_nop, 5)
+-				     != 0))
+-				bug_at((void *)entry->code, __LINE__);
++			expect = ideal_nop; line = __LINE__;
+ 		}
+ 
+-		code.jump = 0xe9;
+-		code.offset = entry->target -
+-				(entry->code + JUMP_LABEL_NOP_SIZE);
++		code = &jmp.code;
+ 	} else {
+-		/*
+-		 * We are disabling this jump label. If it is not what
+-		 * we think it is, then something must have gone wrong.
+-		 * If this is the first initialization call, then we
+-		 * are converting the default nop to the ideal nop.
+-		 */
+ 		if (init) {
+-			if (unlikely(memcmp((void *)entry->code, default_nop, 5) != 0))
+-				bug_at((void *)entry->code, __LINE__);
++			expect = default_nop; line = __LINE__;
+ 		} else {
+-			code.jump = 0xe9;
+-			code.offset = entry->target -
+-				(entry->code + JUMP_LABEL_NOP_SIZE);
+-			if (unlikely(memcmp((void *)entry->code, &code, 5) != 0))
+-				bug_at((void *)entry->code, __LINE__);
++			expect = &jmp.code; line = __LINE__;
+ 		}
+-		memcpy(&code, ideal_nops[NOP_ATOMIC5], JUMP_LABEL_NOP_SIZE);
++
++		code = ideal_nop;
+ 	}
+ 
++	if (memcmp((void *)jump_entry_code(entry), expect, JUMP_LABEL_NOP_SIZE))
++		bug_at((void *)jump_entry_code(entry), line);
++
+ 	/*
+ 	 * Make text_poke_bp() a default fallback poker.
+ 	 *
+@@ -96,11 +81,14 @@ static void __jump_label_transform(struct jump_entry *entry,
+ 	 * always nop being the 'currently valid' instruction
+ 	 *
  	 */
- 	ndx = find_sec(info, ".data..ro_after_init");
-+	if (ndx)
-+		info->sechdrs[ndx].sh_flags |= SHF_RO_AFTER_INIT;
-+	/*
-+	 * Mark the __jump_table section as ro_after_init as well: these data
-+	 * structures are never modified, with the exception of entries that
-+	 * refer to code in the __init section, which are annotated as such
-+	 * at module load time.
-+	 */
-+	ndx = find_sec(info, "__jump_table");
- 	if (ndx)
- 		info->sechdrs[ndx].sh_flags |= SHF_RO_AFTER_INIT;
+-	if (poker)
+-		(*poker)((void *)entry->code, &code, JUMP_LABEL_NOP_SIZE);
+-	else
+-		text_poke_bp((void *)entry->code, &code, JUMP_LABEL_NOP_SIZE,
+-			     (void *)entry->code + JUMP_LABEL_NOP_SIZE);
++	if (poker) {
++		(*poker)((void *)jump_entry_code(entry), code,
++			 JUMP_LABEL_NOP_SIZE);
++		return;
++	}
++
++	text_poke_bp((void *)jump_entry_code(entry), code, JUMP_LABEL_NOP_SIZE,
++		     (void *)jump_entry_code(entry) + JUMP_LABEL_NOP_SIZE);
+ }
  
+ void arch_jump_label_transform(struct jump_entry *entry,
 -- 
 2.17.1
