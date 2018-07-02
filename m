@@ -1,79 +1,128 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v6 07/21] s390: vfio-ap: base implementation of VFIO AP
- device driver
-Date: Mon, 2 Jul 2018 15:53:30 +0200
-Message-ID: <f4fdea7d-1c4d-bb6e-1dd2-27e441dc9837@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v6 05/21] KVM: s390: CPU model support for AP
+ virtualization
+Date: Mon, 2 Jul 2018 16:38:42 +0200
+Message-ID: <ceb1d797-9bb3-cb6e-c510-657fc61a7f82@de.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1530306683-7270-8-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1530306683-7270-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1530306683-7270-8-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <1530306683-7270-6-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
 On 06/29/2018 11:11 PM, Tony Krowiak wrote:
-> Introduces a new AP device driver. This device driver
-> is built on the VFIO mediated device framework. The framework
-> provides sysfs interfaces that facilitate passthrough
-> access by guests to devices installed on the linux host.
+> Introduces a new CPU model feature and two CPU model
+> facilities to support AP virtualization for KVM guests.
 > 
-> The VFIO AP device driver will serve two purposes:
+> CPU model feature:
 > 
-> 1. Provide the interfaces to reserve AP devices for exclusive
->     use by KVM guests. This is accomplished by unbinding the
->     devices to be reserved for guest usage from the default AP
->     device driver and binding them to the VFIO AP device driver.
+> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
+> AP instructions are available on the guest. This
+> feature will be enabled by the kernel only if the AP
+> instructions are installed on the linux host. This feature
+> must be specifically turned on for the KVM guest from
+> userspace to use the VFIO AP device driver for guest
+> access to AP devices.
 > 
-> 2. Implements the functions, callbacks and sysfs attribute
->     interfaces required to create one or more VFIO mediated
->     devices each of which will be used to configure the AP
->     matrix for a guest and serve as a file descriptor
->     for facilitating communication between QEMU and the
->     VFIO AP device driver.
+> CPU model facilities:
 > 
-> When the VFIO AP device driver is initialized:
+> 1. AP Query Configuration Information (QCI) facility is installed.
 > 
-> * It registers with the AP bus for control of type 10 (CEX4
->    and newer) AP queue devices. This limitation was imposed
->    due to:
+>    This is indicated by setting facilities bit 12 for
+>    the guest. The kernel will not enable this facility
+>    for the guest if it is not set on the host. This facility
+>    must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
+>    feature is not installed.
 > 
->    1. A lack of access to older systems needed to test the
->       older AP device models;
+>    If this facility is not set for the KVM guest, then only
+>    APQNs with an APQI less than 16 will be available to the
+>    guest regardless of the guest's matrix configuration. This
+>    is a limitation of the AP bus running on the guest.
 > 
->    2. A desire to keep the code as simple as possible;
+> 2. AP Facilities Test facility (APFT) is installed.
 > 
->    3. Some older models are no longer supported by the kernel
->       and others are getting close to end of service.
+>    This is indicated by setting facilities bit 15 for
+>    the guest. The kernel will not enable this facility for
+>    the guest if it is not set on the host. This facility
+>    must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
+>    feature is not installed.
 > 
->    The probe and remove callbacks will be provided to support
->    the binding/unbinding of AP queue devices to/from the VFIO
->    AP device driver.
+>    If this facility is not set for the KVM guest, then no
+>    AP devices will be available to the guest regardless of
+>    the guest's matrix configuration. This is a limitation
+>    of the AP bus running under the guest.
 > 
-> * Creates a /sys/devices/vfio-ap/matrix device to hold
->    the APQNs of the AP devices bound to the VFIO
->    AP device driver and serves as the parent of the
->    mediated devices created for each guest.
-> 
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 > Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+
+I think it probably should be at the end of the series, other than that its good. 
+
+
 > ---
->   MAINTAINERS                           |   10 +++
->   arch/s390/Kconfig                     |   11 +++
->   drivers/s390/crypto/Makefile          |    4 +
->   drivers/s390/crypto/vfio_ap_drv.c     |  140 +++++++++++++++++++++++++++++++++
->   drivers/s390/crypto/vfio_ap_private.h |   29 +++++++
->   include/uapi/linux/vfio.h             |    2 +
->   samples/bpf/bpf_load.c                |   62 +++++++++++++++
-
-You have probably touched the last one by accident.
-
-Regards,
-Halil
+>  arch/s390/include/uapi/asm/kvm.h |    1 +
+>  arch/s390/kvm/kvm-s390.c         |    8 ++++++++
+>  arch/s390/tools/gen_facilities.c |    3 +++
+>  3 files changed, 12 insertions(+), 0 deletions(-)
+> 
+> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+> index 4cdaa55..a580dec 100644
+> --- a/arch/s390/include/uapi/asm/kvm.h
+> +++ b/arch/s390/include/uapi/asm/kvm.h
+> @@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
+>  #define KVM_S390_VM_CPU_FEAT_PFMFI	11
+>  #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
+>  #define KVM_S390_VM_CPU_FEAT_KSS	13
+> +#define KVM_S390_VM_CPU_FEAT_AP		14
+>  struct kvm_s390_vm_cpu_feat {
+>  	__u64 feat[16];
+>  };
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 3b7a515..d2208d4 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -40,6 +40,7 @@
+>  #include <asm/sclp.h>
+>  #include <asm/cpacf.h>
+>  #include <asm/timex.h>
+> +#include <asm/ap.h>
+>  #include "kvm-s390.h"
+>  #include "gaccess.h"
+>  
+> @@ -366,6 +367,13 @@ static void kvm_s390_cpu_feat_init(void)
+>  
+>  	if (MACHINE_HAS_ESOP)
+>  		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
+> +
+> +	/*
+> +	 * Check if AP instructions installed on host
+> +	 */
+> +	if (ap_instructions_available() == 0)
+> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
+> +
+>  	/*
+>  	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
+>  	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
+> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+> index 90a8c9e..e0e2c19 100644
+> --- a/arch/s390/tools/gen_facilities.c
+> +++ b/arch/s390/tools/gen_facilities.c
+> @@ -106,6 +106,9 @@ struct facility_def {
+>  
+>  		.name = "FACILITIES_KVM_CPUMODEL",
+>  		.bits = (int[]){
+> +			12, /* AP Query Configuration Information */
+> +			15, /* AP Facilities Test */
+>  			-1  /* END */
+>  		}
+>  	},
