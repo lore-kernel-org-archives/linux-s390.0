@@ -1,125 +1,133 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v2 5/8] x86: jump_label: switch to jump_entry accessors
-Date: Mon,  2 Jul 2018 20:11:42 +0200
-Message-ID: <20180702181145.4799-6-ard.biesheuvel@linaro.org>
+Subject: [PATCH v2 2/8] kernel/jump_label: implement generic support for relative references
+Date: Mon,  2 Jul 2018 20:11:39 +0200
+Message-ID: <20180702181145.4799-3-ard.biesheuvel@linaro.org>
 In-Reply-To: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
 References: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180702181142.LKGuaZVVXnZeMY2UKwskXpQeMFx-BE1e0fDHsbEyK2I@z>
+Message-ID: <20180702181139.xkALONs6o-rvpEAzWS3-w6wMZ-ZfkS2x0kD06aJOxWY@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
 Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-In preparation of switching x86 to use place-relative references for
-the code, target and key members of struct jump_entry, replace direct
-references to the struct members with invocations of the new accessors.
-This will allow us to make the switch by modifying the accessors only.
+To reduce the size taken up by absolute references in jump label
+entries themselves and the associated relocation records in the
+.init segment, add support for emitting them as relative references
+instead.
 
-This incorporates a cleanup of __jump_label_transform() proposed by
-Peter.
+Note that this requires some extra care in the sorting routine, given
+that the offsets change when entries are moved around in the jump_entry
+table.
 
-Cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- arch/x86/kernel/jump_label.c | 62 ++++++++------------
- 1 file changed, 25 insertions(+), 37 deletions(-)
+ arch/Kconfig               |  3 +++
+ include/linux/jump_label.h | 28 ++++++++++++++++++++
+ kernel/jump_label.c        | 22 ++++++++++++++-
+ 3 files changed, 52 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/jump_label.c b/arch/x86/kernel/jump_label.c
-index e56c95be2808..023768222a94 100644
---- a/arch/x86/kernel/jump_label.c
-+++ b/arch/x86/kernel/jump_label.c
-@@ -42,52 +42,37 @@ static void __jump_label_transform(struct jump_entry *entry,
- 				   void *(*poker)(void *, const void *, size_t),
- 				   int init)
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 2b8b70820002..22fa3792626e 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -348,6 +348,9 @@ config HAVE_PERF_USER_STACK_DUMP
+ config HAVE_ARCH_JUMP_LABEL
+ 	bool
+ 
++config HAVE_ARCH_JUMP_LABEL_RELATIVE
++	bool
++
+ config HAVE_RCU_TABLE_FREE
+ 	bool
+ 
+diff --git a/include/linux/jump_label.h b/include/linux/jump_label.h
+index 4603a1c88e48..871826fd0c3b 100644
+--- a/include/linux/jump_label.h
++++ b/include/linux/jump_label.h
+@@ -121,6 +121,32 @@ struct static_key {
+ #include <asm/jump_label.h>
+ 
+ #ifndef __ASSEMBLY__
++#ifdef CONFIG_HAVE_ARCH_JUMP_LABEL_RELATIVE
++
++struct jump_entry {
++	s32 code;
++	s32 target;
++	long key;	// key may be far away from the core kernel under KASLR
++};
++
++static inline unsigned long jump_entry_code(const struct jump_entry *entry)
++{
++	return (unsigned long)&entry->code + entry->code;
++}
++
++static inline unsigned long jump_entry_target(const struct jump_entry *entry)
++{
++	return (unsigned long)&entry->target + entry->target;
++}
++
++static inline struct static_key *jump_entry_key(const struct jump_entry *entry)
++{
++	long offset = entry->key & ~1L;
++
++	return (struct static_key *)((unsigned long)&entry->key + offset);
++}
++
++#else
+ 
+ static inline unsigned long jump_entry_code(const struct jump_entry *entry)
  {
--	union jump_code_union code;
-+	union jump_code_union jmp;
- 	const unsigned char default_nop[] = { STATIC_KEY_INIT_NOP };
- 	const unsigned char *ideal_nop = ideal_nops[NOP_ATOMIC5];
-+	const void *expect, *code;
-+	int line;
-+
-+	jmp.jump = 0xe9;
-+	jmp.offset = jump_entry_target(entry) -
-+		     (jump_entry_code(entry) + JUMP_LABEL_NOP_SIZE);
- 
- 	if (type == JUMP_LABEL_JMP) {
- 		if (init) {
--			/*
--			 * Jump label is enabled for the first time.
--			 * So we expect a default_nop...
--			 */
--			if (unlikely(memcmp((void *)entry->code, default_nop, 5)
--				     != 0))
--				bug_at((void *)entry->code, __LINE__);
-+			expect = default_nop; line = __LINE__;
- 		} else {
--			/*
--			 * ...otherwise expect an ideal_nop. Otherwise
--			 * something went horribly wrong.
--			 */
--			if (unlikely(memcmp((void *)entry->code, ideal_nop, 5)
--				     != 0))
--				bug_at((void *)entry->code, __LINE__);
-+			expect = ideal_nop; line = __LINE__;
- 		}
- 
--		code.jump = 0xe9;
--		code.offset = entry->target -
--				(entry->code + JUMP_LABEL_NOP_SIZE);
-+		code = &jmp.code;
- 	} else {
--		/*
--		 * We are disabling this jump label. If it is not what
--		 * we think it is, then something must have gone wrong.
--		 * If this is the first initialization call, then we
--		 * are converting the default nop to the ideal nop.
--		 */
- 		if (init) {
--			if (unlikely(memcmp((void *)entry->code, default_nop, 5) != 0))
--				bug_at((void *)entry->code, __LINE__);
-+			expect = default_nop; line = __LINE__;
- 		} else {
--			code.jump = 0xe9;
--			code.offset = entry->target -
--				(entry->code + JUMP_LABEL_NOP_SIZE);
--			if (unlikely(memcmp((void *)entry->code, &code, 5) != 0))
--				bug_at((void *)entry->code, __LINE__);
-+			expect = &jmp.code; line = __LINE__;
- 		}
--		memcpy(&code, ideal_nops[NOP_ATOMIC5], JUMP_LABEL_NOP_SIZE);
-+
-+		code = ideal_nop;
- 	}
- 
-+	if (memcmp((void *)jump_entry_code(entry), expect, JUMP_LABEL_NOP_SIZE))
-+		bug_at((void *)jump_entry_code(entry), line);
-+
- 	/*
- 	 * Make text_poke_bp() a default fallback poker.
- 	 *
-@@ -96,11 +81,14 @@ static void __jump_label_transform(struct jump_entry *entry,
- 	 * always nop being the 'currently valid' instruction
- 	 *
- 	 */
--	if (poker)
--		(*poker)((void *)entry->code, &code, JUMP_LABEL_NOP_SIZE);
--	else
--		text_poke_bp((void *)entry->code, &code, JUMP_LABEL_NOP_SIZE,
--			     (void *)entry->code + JUMP_LABEL_NOP_SIZE);
-+	if (poker) {
-+		(*poker)((void *)jump_entry_code(entry), code,
-+			 JUMP_LABEL_NOP_SIZE);
-+		return;
-+	}
-+
-+	text_poke_bp((void *)jump_entry_code(entry), code, JUMP_LABEL_NOP_SIZE,
-+		     (void *)jump_entry_code(entry) + JUMP_LABEL_NOP_SIZE);
+@@ -137,6 +163,8 @@ static inline struct static_key *jump_entry_key(const struct jump_entry *entry)
+ 	return (struct static_key *)((unsigned long)entry->key & ~1UL);
  }
  
- void arch_jump_label_transform(struct jump_entry *entry,
++#endif
++
+ static inline bool jump_entry_is_branch(const struct jump_entry *entry)
+ {
+ 	return (unsigned long)entry->key & 1UL;
+diff --git a/kernel/jump_label.c b/kernel/jump_label.c
+index 8a3ac4f5f490..d424e1d22d63 100644
+--- a/kernel/jump_label.c
++++ b/kernel/jump_label.c
+@@ -47,14 +47,34 @@ static int jump_label_cmp(const void *a, const void *b)
+ 	return 0;
+ }
+ 
++static void jump_label_swap(void *a, void *b, int size)
++{
++	long delta = (unsigned long)a - (unsigned long)b;
++	struct jump_entry *jea = a;
++	struct jump_entry *jeb = b;
++	struct jump_entry tmp = *jea;
++
++	jea->code	= jeb->code - delta;
++	jea->target	= jeb->target - delta;
++	jea->key	= jeb->key - delta;
++
++	jeb->code	= tmp.code + delta;
++	jeb->target	= tmp.target + delta;
++	jeb->key	= tmp.key + delta;
++}
++
+ static void
+ jump_label_sort_entries(struct jump_entry *start, struct jump_entry *stop)
+ {
+ 	unsigned long size;
++	void *swapfn = NULL;
++
++	if (IS_ENABLED(CONFIG_HAVE_ARCH_JUMP_LABEL_RELATIVE))
++		swapfn = jump_label_swap;
+ 
+ 	size = (((unsigned long)stop - (unsigned long)start)
+ 					/ sizeof(struct jump_entry));
+-	sort(start, size, sizeof(struct jump_entry), jump_label_cmp, NULL);
++	sort(start, size, sizeof(struct jump_entry), jump_label_cmp, swapfn);
+ }
+ 
+ static void jump_label_update(struct static_key *key);
 -- 
 2.17.1
