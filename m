@@ -1,227 +1,123 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v2 7/8] jump_label: annotate entries that operate on __init code earlier
-Date: Mon,  2 Jul 2018 20:11:44 +0200
-Message-ID: <20180702181145.4799-8-ard.biesheuvel@linaro.org>
+Subject: [PATCH v2 6/8] x86/kernel: jump_table: use relative references
+Date: Mon,  2 Jul 2018 20:11:43 +0200
+Message-ID: <20180702181145.4799-7-ard.biesheuvel@linaro.org>
 In-Reply-To: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
 References: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180702181144._WhmHnC4jd_MNr6RJtis5jAAGN6bZgnjMHA5q94rhyE@z>
+Message-ID: <20180702181143.3iyD-3LXWV3Yn4LiwAdEj4uZLpyiq_cpKZW4RCZ03t4@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
 Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Jump table entries are mostly read-only, with the exception of the
-init and module loader code that defuses entries that point into init
-code when the code being referred to is freed.
-
-For robustness, it would be better to move these entries into the
-ro_after_init section, but clearing the 'code' member of each jump
-table entry referring to init code at module load time races with the
-module_enable_ro() call that remaps the ro_after_init section read
-only, so we'd like to do it earlier.
-
-So given that whether such an entry refers to init code can be decided
-much earlier, we can pull this check forward. Since we may still need
-the code entry at this point, let's switch to setting a low bit in the
-'key' member just like we do to annotate the default state of a jump
-table entry.
+Similar to the arm64 case, 64-bit x86 can benefit from using relative
+references rather than absolute ones when emitting struct jump_entry
+instances. Not only does this reduce the memory footprint of the entries
+themselves by 33%, it also removes the need for carrying relocation
+metadata on relocatable builds (i.e., for KASLR) which saves a fair
+chunk of .init space as well (although the savings are not as dramatic
+as on arm64)
 
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- include/linux/jump_label.h | 11 ++---
- init/main.c                |  1 -
- kernel/jump_label.c        | 48 ++++++--------------
- 3 files changed, 18 insertions(+), 42 deletions(-)
+ arch/x86/Kconfig                  |  1 +
+ arch/x86/include/asm/jump_label.h | 24 +++++++-------------
+ tools/objtool/special.c           |  4 ++--
+ 3 files changed, 11 insertions(+), 18 deletions(-)
 
-diff --git a/include/linux/jump_label.h b/include/linux/jump_label.h
-index 871826fd0c3b..feee8abc96be 100644
---- a/include/linux/jump_label.h
-+++ b/include/linux/jump_label.h
-@@ -141,7 +141,7 @@ static inline unsigned long jump_entry_target(const struct jump_entry *entry)
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index e10a3542db7e..dd71258ec1cc 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -118,6 +118,7 @@ config X86
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select HAVE_ARCH_HUGE_VMAP		if X86_64 || X86_PAE
+ 	select HAVE_ARCH_JUMP_LABEL
++	select HAVE_ARCH_JUMP_LABEL_RELATIVE
+ 	select HAVE_ARCH_KASAN			if X86_64
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_MMAP_RND_BITS		if MMU
+diff --git a/arch/x86/include/asm/jump_label.h b/arch/x86/include/asm/jump_label.h
+index 8c0de4282659..21efc9d07ed9 100644
+--- a/arch/x86/include/asm/jump_label.h
++++ b/arch/x86/include/asm/jump_label.h
+@@ -37,7 +37,8 @@ static __always_inline bool arch_static_branch(struct static_key *key, bool bran
+ 		".byte " __stringify(STATIC_KEY_INIT_NOP) "\n\t"
+ 		".pushsection __jump_table,  \"aw\" \n\t"
+ 		_ASM_ALIGN "\n\t"
+-		_ASM_PTR "1b, %l[l_yes], %c0 + %c1 \n\t"
++		".long 1b - ., %l[l_yes] - . \n\t"
++		_ASM_PTR "%c0 + %c1 - .\n\t"
+ 		".popsection \n\t"
+ 		: :  "i" (key), "i" (branch) : : l_yes);
  
- static inline struct static_key *jump_entry_key(const struct jump_entry *entry)
- {
--	long offset = entry->key & ~1L;
-+	long offset = entry->key & ~3L;
+@@ -53,7 +54,8 @@ static __always_inline bool arch_static_branch_jump(struct static_key *key, bool
+ 		"2:\n\t"
+ 		".pushsection __jump_table,  \"aw\" \n\t"
+ 		_ASM_ALIGN "\n\t"
+-		_ASM_PTR "1b, %l[l_yes], %c0 + %c1 \n\t"
++		".long 1b - ., %l[l_yes] - . \n\t"
++		_ASM_PTR "%c0 + %c1 - .\n\t"
+ 		".popsection \n\t"
+ 		: :  "i" (key), "i" (branch) : : l_yes);
  
- 	return (struct static_key *)((unsigned long)&entry->key + offset);
- }
-@@ -160,7 +160,7 @@ static inline unsigned long jump_entry_target(const struct jump_entry *entry)
- 
- static inline struct static_key *jump_entry_key(const struct jump_entry *entry)
- {
--	return (struct static_key *)((unsigned long)entry->key & ~1UL);
-+	return (struct static_key *)((unsigned long)entry->key & ~3UL);
- }
- 
- #endif
-@@ -172,12 +172,12 @@ static inline bool jump_entry_is_branch(const struct jump_entry *entry)
- 
- static inline bool jump_entry_is_init(const struct jump_entry *entry)
- {
--	return entry->code == 0;
-+	return (unsigned long)entry->key & 2UL;
- }
- 
- static inline void jump_entry_set_init(struct jump_entry *entry)
- {
--	entry->code = 0;
-+	entry->key |= 2;
- }
- 
- #endif
-@@ -213,7 +213,6 @@ extern struct jump_entry __start___jump_table[];
- extern struct jump_entry __stop___jump_table[];
- 
- extern void jump_label_init(void);
--extern void jump_label_invalidate_initmem(void);
- extern void jump_label_lock(void);
- extern void jump_label_unlock(void);
- extern void arch_jump_label_transform(struct jump_entry *entry,
-@@ -261,8 +260,6 @@ static __always_inline void jump_label_init(void)
- 	static_key_initialized = true;
+@@ -62,18 +64,6 @@ static __always_inline bool arch_static_branch_jump(struct static_key *key, bool
+ 	return true;
  }
  
--static inline void jump_label_invalidate_initmem(void) {}
+-#ifdef CONFIG_X86_64
+-typedef u64 jump_label_t;
+-#else
+-typedef u32 jump_label_t;
+-#endif
 -
- static __always_inline bool static_key_false(struct static_key *key)
- {
- 	if (unlikely(static_key_count(key) > 0))
-diff --git a/init/main.c b/init/main.c
-index e59a01f163d6..d1a6b8a896e5 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1062,7 +1062,6 @@ static int __ref kernel_init(void *unused)
- 	/* need to finish all async __init code before freeing the memory */
- 	async_synchronize_full();
- 	ftrace_free_init_mem();
--	jump_label_invalidate_initmem();
- 	free_initmem();
- 	mark_readonly();
- 	system_state = SYSTEM_RUNNING;
-diff --git a/kernel/jump_label.c b/kernel/jump_label.c
-index d424e1d22d63..7cdd49aeaf6a 100644
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -373,14 +373,15 @@ static enum jump_label_type jump_label_type(struct jump_entry *entry)
- 
- static void __jump_label_update(struct static_key *key,
- 				struct jump_entry *entry,
--				struct jump_entry *stop)
-+				struct jump_entry *stop,
-+				bool init)
- {
- 	for (; (entry < stop) && (jump_entry_key(entry) == key); entry++) {
- 		/*
- 		 * An entry->code of 0 indicates an entry which has been
- 		 * disabled because it was in an init text area.
- 		 */
--		if (!jump_entry_is_init(entry)) {
-+		if (init || !jump_entry_is_init(entry)) {
- 			if (kernel_text_address(jump_entry_code(entry)))
- 				arch_jump_label_transform(entry, jump_label_type(entry));
- 			else
-@@ -420,6 +421,9 @@ void __init jump_label_init(void)
- 		if (jump_label_type(iter) == JUMP_LABEL_NOP)
- 			arch_jump_label_transform_static(iter, JUMP_LABEL_NOP);
- 
-+		if (init_section_contains((void *)jump_entry_code(iter), 1))
-+			jump_entry_set_init(iter);
-+
- 		iterk = jump_entry_key(iter);
- 		if (iterk == key)
- 			continue;
-@@ -432,19 +436,6 @@ void __init jump_label_init(void)
- 	cpus_read_unlock();
- }
- 
--/* Disable any jump label entries in __init/__exit code */
--void __init jump_label_invalidate_initmem(void)
--{
--	struct jump_entry *iter_start = __start___jump_table;
--	struct jump_entry *iter_stop = __stop___jump_table;
--	struct jump_entry *iter;
+-struct jump_entry {
+-	jump_label_t code;
+-	jump_label_t target;
+-	jump_label_t key;
+-};
 -
--	for (iter = iter_start; iter < iter_stop; iter++) {
--		if (init_section_contains((void *)jump_entry_code(iter), 1))
--			jump_entry_set_init(iter);
--	}
--}
--
- #ifdef CONFIG_MODULES
+ #else	/* __ASSEMBLY__ */
  
- static enum jump_label_type jump_label_init_type(struct jump_entry *entry)
-@@ -524,7 +515,8 @@ static void __jump_label_mod_update(struct static_key *key)
- 			stop = __stop___jump_table;
- 		else
- 			stop = m->jump_entries + m->num_jump_entries;
--		__jump_label_update(key, mod->entries, stop);
-+		__jump_label_update(key, mod->entries, stop,
-+				    m->state == MODULE_STATE_COMING);
- 	}
- }
+ .macro STATIC_JUMP_IF_TRUE target, key, def
+@@ -88,7 +78,8 @@ struct jump_entry {
+ 	.endif
+ 	.pushsection __jump_table, "aw"
+ 	_ASM_ALIGN
+-	_ASM_PTR	.Lstatic_jump_\@, \target, \key
++	.long		.Lstatic_jump_\@ - ., \target - .
++	_ASM_PTR	\key - .
+ 	.popsection
+ .endm
  
-@@ -570,6 +562,9 @@ static int jump_label_add_module(struct module *mod)
- 	for (iter = iter_start; iter < iter_stop; iter++) {
- 		struct static_key *iterk;
+@@ -104,7 +95,8 @@ struct jump_entry {
+ 	.endif
+ 	.pushsection __jump_table, "aw"
+ 	_ASM_ALIGN
+-	_ASM_PTR	.Lstatic_jump_\@, \target, \key + 1
++	.long		.Lstatic_jump_\@ - ., \target - .
++	_ASM_PTR	\key + 1 - .
+ 	.popsection
+ .endm
  
-+		if (within_module_init(jump_entry_code(iter), mod))
-+			jump_entry_set_init(iter);
-+
- 		iterk = jump_entry_key(iter);
- 		if (iterk == key)
- 			continue;
-@@ -605,7 +600,7 @@ static int jump_label_add_module(struct module *mod)
+diff --git a/tools/objtool/special.c b/tools/objtool/special.c
+index 84f001d52322..50af4e1274b3 100644
+--- a/tools/objtool/special.c
++++ b/tools/objtool/special.c
+@@ -30,9 +30,9 @@
+ #define EX_ORIG_OFFSET		0
+ #define EX_NEW_OFFSET		4
  
- 		/* Only update if we've changed from our initial state */
- 		if (jump_label_type(iter) != jump_label_init_type(iter))
--			__jump_label_update(key, iter, iter_stop);
-+			__jump_label_update(key, iter, iter_stop, true);
- 	}
+-#define JUMP_ENTRY_SIZE		24
++#define JUMP_ENTRY_SIZE		16
+ #define JUMP_ORIG_OFFSET	0
+-#define JUMP_NEW_OFFSET		8
++#define JUMP_NEW_OFFSET		4
  
- 	return 0;
-@@ -661,19 +656,6 @@ static void jump_label_del_module(struct module *mod)
- 	}
- }
- 
--/* Disable any jump label entries in module init code */
--static void jump_label_invalidate_module_init(struct module *mod)
--{
--	struct jump_entry *iter_start = mod->jump_entries;
--	struct jump_entry *iter_stop = iter_start + mod->num_jump_entries;
--	struct jump_entry *iter;
--
--	for (iter = iter_start; iter < iter_stop; iter++) {
--		if (within_module_init(jump_entry_code(iter), mod))
--			jump_entry_set_init(iter);
--	}
--}
--
- static int
- jump_label_module_notify(struct notifier_block *self, unsigned long val,
- 			 void *data)
-@@ -695,9 +677,6 @@ jump_label_module_notify(struct notifier_block *self, unsigned long val,
- 	case MODULE_STATE_GOING:
- 		jump_label_del_module(mod);
- 		break;
--	case MODULE_STATE_LIVE:
--		jump_label_invalidate_module_init(mod);
--		break;
- 	}
- 
- 	jump_label_unlock();
-@@ -767,7 +746,8 @@ static void jump_label_update(struct static_key *key)
- 	entry = static_key_entries(key);
- 	/* if there are no users, entry can be NULL */
- 	if (entry)
--		__jump_label_update(key, entry, stop);
-+		__jump_label_update(key, entry, stop,
-+				    system_state < SYSTEM_RUNNING);
- }
- 
- #ifdef CONFIG_STATIC_KEYS_SELFTEST
+ #define ALT_ENTRY_SIZE		13
+ #define ALT_ORIG_OFFSET		0
 -- 
 2.17.1
