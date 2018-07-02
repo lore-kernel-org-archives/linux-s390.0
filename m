@@ -1,128 +1,105 @@
-From: Tony Krowiak <akrowiak@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v6 05/21] KVM: s390: CPU model support for AP
  virtualization
-Date: Mon, 2 Jul 2018 11:56:03 -0400
-Message-ID: <e83a1433-649f-5540-016b-aa2c96f66d02@linux.ibm.com>
+Date: Mon, 2 Jul 2018 18:04:07 +0200
+Message-ID: <9da385ec-2de6-17bd-3653-6feb9641fcb2@linux.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1530306683-7270-6-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <ceb1d797-9bb3-cb6e-c510-657fc61a7f82@de.ibm.com>
+ <276b5ae7-7f27-faae-1e5a-0d4c084139e9@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1530306683-7270-6-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <276b5ae7-7f27-faae-1e5a-0d4c084139e9@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Tony Krowiak <akrowiak@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/29/2018 05:11 PM, Tony Krowiak wrote:
-> Introduces a new CPU model feature and two CPU model
-> facilities to support AP virtualization for KVM guests.
->
-> CPU model feature:
->
-> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
-> AP instructions are available on the guest. This
-> feature will be enabled by the kernel only if the AP
-> instructions are installed on the linux host. This feature
-> must be specifically turned on for the KVM guest from
-> userspace to use the VFIO AP device driver for guest
-> access to AP devices.
->
-> CPU model facilities:
->
-> 1. AP Query Configuration Information (QCI) facility is installed.
->
->     This is indicated by setting facilities bit 12 for
->     the guest. The kernel will not enable this facility
->     for the guest if it is not set on the host. This facility
->     must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
->     feature is not installed.
->
->     If this facility is not set for the KVM guest, then only
->     APQNs with an APQI less than 16 will be available to the
->     guest regardless of the guest's matrix configuration. This
->     is a limitation of the AP bus running on the guest.
->
-> 2. AP Facilities Test facility (APFT) is installed.
->
->     This is indicated by setting facilities bit 15 for
->     the guest. The kernel will not enable this facility for
->     the guest if it is not set on the host. This facility
->     must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
->     feature is not installed.
->
->     If this facility is not set for the KVM guest, then no
->     AP devices will be available to the guest regardless of
->     the guest's matrix configuration. This is a limitation
->     of the AP bus running under the guest.
->
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->   arch/s390/include/uapi/asm/kvm.h |    1 +
->   arch/s390/kvm/kvm-s390.c         |    8 ++++++++
->   arch/s390/tools/gen_facilities.c |    3 +++
->   3 files changed, 12 insertions(+), 0 deletions(-)
->
-> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-> index 4cdaa55..a580dec 100644
-> --- a/arch/s390/include/uapi/asm/kvm.h
-> +++ b/arch/s390/include/uapi/asm/kvm.h
-> @@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
->   #define KVM_S390_VM_CPU_FEAT_PFMFI	11
->   #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
->   #define KVM_S390_VM_CPU_FEAT_KSS	13
-> +#define KVM_S390_VM_CPU_FEAT_AP		14
->   struct kvm_s390_vm_cpu_feat {
->   	__u64 feat[16];
->   };
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 3b7a515..d2208d4 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -40,6 +40,7 @@
->   #include <asm/sclp.h>
->   #include <asm/cpacf.h>
->   #include <asm/timex.h>
-> +#include <asm/ap.h>
->   #include "kvm-s390.h"
->   #include "gaccess.h"
->   
-> @@ -366,6 +367,13 @@ static void kvm_s390_cpu_feat_init(void)
->   
->   	if (MACHINE_HAS_ESOP)
->   		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
-> +
-> +	/*
-> +	 * Check if AP instructions installed on host
-> +	 */
-> +	if (ap_instructions_available() == 0)
-> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
-> +
->   	/*
->   	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
->   	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
-> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
-> index 90a8c9e..e0e2c19 100644
-> --- a/arch/s390/tools/gen_facilities.c
-> +++ b/arch/s390/tools/gen_facilities.c
-> @@ -106,6 +106,9 @@ struct facility_def {
->   
->   		.name = "FACILITIES_KVM_CPUMODEL",
->   		.bits = (int[]){
-> +			12, /* AP Query Configuration Information */
-> +			15, /* AP Facilities Test */
-> +			156, /* Execution Token facility */
 
-Oops. This last one is an error, the result of a faulty merge with the 
-latest
-code base.
 
->   			-1  /* END */
->   		}
->   	},
+On 07/02/2018 05:37 PM, Tony Krowiak wrote:
+> On 07/02/2018 10:38 AM, Christian Borntraeger wrote:
+>>
+>> On 06/29/2018 11:11 PM, Tony Krowiak wrote:
+>>> Introduces a new CPU model feature and two CPU model
+>>> facilities to support AP virtualization for KVM guests.
+>>>
+>>> CPU model feature:
+>>>
+>>> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
+>>> AP instructions are available on the guest. This
+>>> feature will be enabled by the kernel only if the AP
+>>> instructions are installed on the linux host. This feature
+>>> must be specifically turned on for the KVM guest from
+>>> userspace to use the VFIO AP device driver for guest
+>>> access to AP devices.
+>>>
+>>> CPU model facilities:
+>>>
+>>> 1. AP Query Configuration Information (QCI) facility is installed.
+>>>
+>>>     This is indicated by setting facilities bit 12 for
+>>>     the guest. The kernel will not enable this facility
+>>>     for the guest if it is not set on the host. This facility
+>>>     must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
+>>>     feature is not installed.
+>>>
+>>>     If this facility is not set for the KVM guest, then only
+>>>     APQNs with an APQI less than 16 will be available to the
+>>>     guest regardless of the guest's matrix configuration. This
+>>>     is a limitation of the AP bus running on the guest.
+>>>
+>>> 2. AP Facilities Test facility (APFT) is installed.
+>>>
+>>>     This is indicated by setting facilities bit 15 for
+>>>     the guest. The kernel will not enable this facility for
+>>>     the guest if it is not set on the host. This facility
+>>>     must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
+>>>     feature is not installed.
+>>>
+>>>     If this facility is not set for the KVM guest, then no
+>>>     AP devices will be available to the guest regardless of
+>>>     the guest's matrix configuration. This is a limitation
+>>>     of the AP bus running under the guest.
+>>>
+>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> I think it probably should be at the end of the series, other than that its good.
+> 
+> If I move this to the end of the series, the very next patch checks the
+> 
+> KVM_S390_VM_CPU_FEAT_AP feature?
+> 
+
+The point is the following: never expose a feature *before* it
+is actually provided. And this is exactly what you are doing here.
+
+AFAIU the userspace can happily negotiate KVM_S390_VM_CPU_FEAT_AP,
+do it's part of the job and still not have AP instructions in the guest
+if patches [0..5] are applied but [6..21] not. This is wrong.
+
+AFAIR I requested this one being squashed with the next one for exact
+this reason. That would be OK as starting with patch 6 applied we
+do satisfy what the features require. It's only that the interfaces
+required to set up the resources are not there yet and thus the features
+can't really be used meaningfully.
+
+Usually we expose the features at the end of a series, as such a series
+often just implements support for the given feature(s).
+
+In this special IMHO case we can get away with not doing so, but not
+exposing the feature until the end of the series could still have some
+merit.
+
+Anyway we should avoid exposing half-assed stuff. In that sense the
+resource cleanup (zapq) logic must not be introduced after
+resources can be acquired and utilized.
+
+Regards,
+Halil
