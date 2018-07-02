@@ -1,143 +1,95 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v2 3/8] arm64/kernel: jump_label: switch to relative references
-Date: Mon,  2 Jul 2018 20:11:40 +0200
-Message-ID: <20180702181145.4799-4-ard.biesheuvel@linaro.org>
-In-Reply-To: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
-References: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
+Subject: [PATCH v2 0/8] add support for relative references in jump tables
+Date: Mon,  2 Jul 2018 20:11:37 +0200
+Message-ID: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180702181140.cLz3bTobosw0Bt-483rsqBZ52EGi0U4OGyNXwXguUHE@z>
+Message-ID: <20180702181137.1GNoTtyhYKV0FTlGx-R-wzdvJ04xFkCq8SjWoCjJCE0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
 Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On a randomly chosen distro kernel build for arm64, vmlinux.o shows the
-following sections, containing jump label entries, and the associated
-RELA relocation records, respectively:
+This series implements support for emitting the data structures associated
+with jump tables as 32-bit relative references instead of absolute
+references, which take up more space on builds that target 64-bit
+architectures, or implement self relocation [or both].
 
-  ...
-  [38088] __jump_table      PROGBITS         0000000000000000  00e19f30
-       000000000002ea10  0000000000000000  WA       0     0     8
-  [38089] .rela__jump_table RELA             0000000000000000  01fd8bb0
-       000000000008be30  0000000000000018   I      38178   38088     8
-  ...
+This series enables it for arm64 and x86, although other architectures
+might benefit as well.
 
-In other words, we have 190 KB worth of 'struct jump_entry' instances,
-and 573 KB worth of RELA entries to relocate each entry's code, target
-and key members. This means the RELA section occupies 10% of the .init
-segment, and the two sections combined represent 5% of vmlinux's entire
-memory footprint.
+Patch #1 does some preparatory refactoring before patch #2 introduces the
+generic pieces required for using relative references.
 
-So let's switch from 64-bit absolute references to 32-bit relative
-references for the code and target field, and a 64-bit relative
-reference for the 'key' field (which may reside in another module or the
-core kernel, which may be more than 4 GB way on arm64 when running with
-KASLR enable): this reduces the size of the __jump_table by 33%, and
-gets rid of the RELA section entirely.
+Patch #3 wires everything up for arm64.
 
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
----
- arch/arm64/Kconfig                  |  1 +
- arch/arm64/include/asm/jump_label.h | 36 +++++++++-----------
- arch/arm64/kernel/jump_label.c      |  6 ++--
- 3 files changed, 20 insertions(+), 23 deletions(-)
+Patch #4 introduces support for handling 64-bit place relative relocations
+on x86_64 (see 'Changes since v1' below)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 1940c6405d04..d17aa9614e69 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -91,6 +91,7 @@ config ARM64
- 	select HAVE_ARCH_BITREVERSE
- 	select HAVE_ARCH_HUGE_VMAP
- 	select HAVE_ARCH_JUMP_LABEL
-+	select HAVE_ARCH_JUMP_LABEL_RELATIVE
- 	select HAVE_ARCH_KASAN if !(ARM64_16K_PAGES && ARM64_VA_BITS_48)
- 	select HAVE_ARCH_KGDB
- 	select HAVE_ARCH_MMAP_RND_BITS
-diff --git a/arch/arm64/include/asm/jump_label.h b/arch/arm64/include/asm/jump_label.h
-index 1b5e0e843c3a..bb6d15b34668 100644
---- a/arch/arm64/include/asm/jump_label.h
-+++ b/arch/arm64/include/asm/jump_label.h
-@@ -26,13 +26,15 @@
- 
- #define JUMP_LABEL_NOP_SIZE		AARCH64_INSN_SIZE
- 
--static __always_inline bool arch_static_branch(struct static_key *key, bool branch)
-+static __always_inline bool arch_static_branch(struct static_key *key,
-+					       bool branch)
- {
--	asm goto("1: nop\n\t"
--		 ".pushsection __jump_table,  \"aw\"\n\t"
--		 ".align 3\n\t"
--		 ".quad 1b, %l[l_yes], %c0\n\t"
--		 ".popsection\n\t"
-+	asm goto("1:	nop					\n\t"
-+		 "	.pushsection	__jump_table, \"aw\"	\n\t"
-+		 "	.align		3			\n\t"
-+		 "	.long		1b - ., %l[l_yes] - .	\n\t"
-+		 "	.quad		%c0 - .			\n\t"
-+		 "	.popsection				\n\t"
- 		 :  :  "i"(&((char *)key)[branch]) :  : l_yes);
- 
- 	return false;
-@@ -40,13 +42,15 @@ static __always_inline bool arch_static_branch(struct static_key *key, bool bran
- 	return true;
- }
- 
--static __always_inline bool arch_static_branch_jump(struct static_key *key, bool branch)
-+static __always_inline bool arch_static_branch_jump(struct static_key *key,
-+						    bool branch)
- {
--	asm goto("1: b %l[l_yes]\n\t"
--		 ".pushsection __jump_table,  \"aw\"\n\t"
--		 ".align 3\n\t"
--		 ".quad 1b, %l[l_yes], %c0\n\t"
--		 ".popsection\n\t"
-+	asm goto("1:	b		%l[l_yes]		\n\t"
-+		 "	.pushsection	__jump_table, \"aw\"	\n\t"
-+		 "	.align		3			\n\t"
-+		 "	.long		1b - ., %l[l_yes] - .	\n\t"
-+		 "	.quad		%c0 - .			\n\t"
-+		 "	.popsection				\n\t"
- 		 :  :  "i"(&((char *)key)[branch]) :  : l_yes);
- 
- 	return false;
-@@ -54,13 +58,5 @@ static __always_inline bool arch_static_branch_jump(struct static_key *key, bool
- 	return true;
- }
- 
--typedef u64 jump_label_t;
--
--struct jump_entry {
--	jump_label_t code;
--	jump_label_t target;
--	jump_label_t key;
--};
--
- #endif  /* __ASSEMBLY__ */
- #endif	/* __ASM_JUMP_LABEL_H */
-diff --git a/arch/arm64/kernel/jump_label.c b/arch/arm64/kernel/jump_label.c
-index c2dd1ad3e648..903d17023d77 100644
---- a/arch/arm64/kernel/jump_label.c
-+++ b/arch/arm64/kernel/jump_label.c
-@@ -25,12 +25,12 @@
- void arch_jump_label_transform(struct jump_entry *entry,
- 			       enum jump_label_type type)
- {
--	void *addr = (void *)entry->code;
-+	void *addr = (void *)jump_entry_code(entry);
- 	u32 insn;
- 
- 	if (type == JUMP_LABEL_JMP) {
--		insn = aarch64_insn_gen_branch_imm(entry->code,
--						   entry->target,
-+		insn = aarch64_insn_gen_branch_imm(jump_entry_code(entry),
-+						   jump_entry_target(entry),
- 						   AARCH64_INSN_BRANCH_NOLINK);
- 	} else {
- 		insn = aarch64_insn_gen_nop();
+For x86, patch #5 applies some preparatory changes for the arch specific
+jump label C code, which is a lot more involved than on arm64, which is
+why it is split off in this case. Patch #6 wires it up for x86 as well.
+
+Patch #7 and #8 implement the changes so that the jump_entry arrays reside
+in ro_after_init memory rather than remain fully writable all of the time.
+
+Changes since v1:
+- change the relative reference to the static key to a 64-bit wide one on 64
+  bit architectures; this is necessary on arm64, which allows modules to
+  reside anywhere within a 4 GB window covering the core kernel text, which
+  means a 32-bit signed quantity with its +/- 2 GB range is insufficient.
+  Note that x86_64 changes are in preparation that widen the relocation
+  range as well (using the PIE linker), so I assumed that the same change
+  is appropriate for x86 as well.
+- add patch #4 to handle the relocations emitted by the compiler as a result
+  of the change above
+- added patches to move the jump_entry arrays to ro_after_init memory, so
+  that they are not as easily corrupted or manipulated.
+- add Will's ack to patch #3
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Ingo Molnar <mingo@redhat.com> 
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Jessica Yu <jeyu@kernel.org> 
+Cc: Peter Zijlstra <peterz@infradead.org>
+
+Ard Biesheuvel (8):
+  kernel/jump_label: abstract jump_entry member accessors
+  kernel/jump_label: implement generic support for relative references
+  arm64/kernel: jump_label: switch to relative references
+  x86: add support for 64-bit place relative relocations
+  x86: jump_label: switch to jump_entry accessors
+  x86/kernel: jump_table: use relative references
+  jump_label: annotate entries that operate on __init code earlier
+  jump_table: move entries into ro_after_init region
+
+ arch/Kconfig                        |   3 +
+ arch/arm/kernel/vmlinux-xip.lds.S   |   1 +
+ arch/arm64/Kconfig                  |   1 +
+ arch/arm64/include/asm/jump_label.h |  36 ++++---
+ arch/arm64/kernel/jump_label.c      |   6 +-
+ arch/s390/kernel/vmlinux.lds.S      |   1 +
+ arch/x86/Kconfig                    |   1 +
+ arch/x86/include/asm/elf.h          |   1 +
+ arch/x86/include/asm/jump_label.h   |  24 ++---
+ arch/x86/kernel/jump_label.c        |  62 +++++-------
+ arch/x86/kernel/machine_kexec_64.c  |   4 +
+ arch/x86/kernel/module.c            |   6 ++
+ arch/x86/tools/relocs.c             |  10 ++
+ include/asm-generic/vmlinux.lds.h   |  11 ++-
+ include/linux/jump_label.h          |  65 ++++++++++++-
+ init/main.c                         |   1 -
+ kernel/jump_label.c                 | 100 +++++++++-----------
+ kernel/module.c                     |   9 ++
+ tools/objtool/special.c             |   4 +-
+ 19 files changed, 205 insertions(+), 141 deletions(-)
+
 -- 
 2.17.1
