@@ -1,95 +1,72 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v2 0/8] add support for relative references in jump tables
-Date: Mon,  2 Jul 2018 20:11:37 +0200
-Message-ID: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20180702181137.1GNoTtyhYKV0FTlGx-R-wzdvJ04xFkCq8SjWoCjJCE0@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v3] mm: do not drop unused pages when userfaultd is running
+Date: Tue,  3 Jul 2018 19:18:54 +0200
+Message-ID: <20180703171854.63981-1-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: linux-mm@kvack.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This series implements support for emitting the data structures associated
-with jump tables as 32-bit relative references instead of absolute
-references, which take up more space on builds that target 64-bit
-architectures, or implement self relocation [or both].
+KVM guests on s390 can notify the host of unused pages. This can result
+in pte_unused callbacks to be true for KVM guest memory.
 
-This series enables it for arm64 and x86, although other architectures
-might benefit as well.
+If a page is unused (checked with pte_unused) we might drop this page
+instead of paging it. This can have side-effects on userfaultd, when the
+page in question was already migrated:
 
-Patch #1 does some preparatory refactoring before patch #2 introduces the
-generic pieces required for using relative references.
+The next access of that page will trigger a fault and a user fault
+instead of faulting in a new and empty zero page. As QEMU does not
+expect a userfault on an already migrated page this migration will fail.
 
-Patch #3 wires everything up for arm64.
+The most straightforward solution is to ignore the pte_unused hint if a
+userfault context is active for this VMA.
 
-Patch #4 introduces support for handling 64-bit place relative relocations
-on x86_64 (see 'Changes since v1' below)
-
-For x86, patch #5 applies some preparatory changes for the arch specific
-jump label C code, which is a lot more involved than on arm64, which is
-why it is split off in this case. Patch #6 wires it up for x86 as well.
-
-Patch #7 and #8 implement the changes so that the jump_entry arrays reside
-in ro_after_init memory rather than remain fully writable all of the time.
-
-Changes since v1:
-- change the relative reference to the static key to a 64-bit wide one on 64
-  bit architectures; this is necessary on arm64, which allows modules to
-  reside anywhere within a 4 GB window covering the core kernel text, which
-  means a 32-bit signed quantity with its +/- 2 GB range is insufficient.
-  Note that x86_64 changes are in preparation that widen the relocation
-  range as well (using the PIE linker), so I assumed that the same change
-  is appropriate for x86 as well.
-- add patch #4 to handle the relocations emitted by the compiler as a result
-  of the change above
-- added patches to move the jump_entry arrays to ro_after_init memory, so
-  that they are not as easily corrupted or manipulated.
-- add Will's ack to patch #3
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Ingo Molnar <mingo@redhat.com> 
-Cc: Steven Rostedt <rostedt@goodmis.org>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Jessica Yu <jeyu@kernel.org> 
-Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+v2->v3 : improve comment
+RFC->v2: user userfaultfd_active
+ mm/rmap.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Ard Biesheuvel (8):
-  kernel/jump_label: abstract jump_entry member accessors
-  kernel/jump_label: implement generic support for relative references
-  arm64/kernel: jump_label: switch to relative references
-  x86: add support for 64-bit place relative relocations
-  x86: jump_label: switch to jump_entry accessors
-  x86/kernel: jump_table: use relative references
-  jump_label: annotate entries that operate on __init code earlier
-  jump_table: move entries into ro_after_init region
-
- arch/Kconfig                        |   3 +
- arch/arm/kernel/vmlinux-xip.lds.S   |   1 +
- arch/arm64/Kconfig                  |   1 +
- arch/arm64/include/asm/jump_label.h |  36 ++++---
- arch/arm64/kernel/jump_label.c      |   6 +-
- arch/s390/kernel/vmlinux.lds.S      |   1 +
- arch/x86/Kconfig                    |   1 +
- arch/x86/include/asm/elf.h          |   1 +
- arch/x86/include/asm/jump_label.h   |  24 ++---
- arch/x86/kernel/jump_label.c        |  62 +++++-------
- arch/x86/kernel/machine_kexec_64.c  |   4 +
- arch/x86/kernel/module.c            |   6 ++
- arch/x86/tools/relocs.c             |  10 ++
- include/asm-generic/vmlinux.lds.h   |  11 ++-
- include/linux/jump_label.h          |  65 ++++++++++++-
- init/main.c                         |   1 -
- kernel/jump_label.c                 | 100 +++++++++-----------
- kernel/module.c                     |   9 ++
- tools/objtool/special.c             |   4 +-
- 19 files changed, 205 insertions(+), 141 deletions(-)
-
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 6db729dc4c50..eb477809a5c0 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -64,6 +64,7 @@
+ #include <linux/backing-dev.h>
+ #include <linux/page_idle.h>
+ #include <linux/memremap.h>
++#include <linux/userfaultfd_k.h>
+ 
+ #include <asm/tlbflush.h>
+ 
+@@ -1481,11 +1482,16 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
+ 				set_pte_at(mm, address, pvmw.pte, pteval);
+ 			}
+ 
+-		} else if (pte_unused(pteval)) {
++		} else if (pte_unused(pteval) && !userfaultfd_armed(vma)) {
+ 			/*
+ 			 * The guest indicated that the page content is of no
+ 			 * interest anymore. Simply discard the pte, vmscan
+ 			 * will take care of the rest.
++			 * A future reference will then fault in a new zero
++			 * page. When userfaultfd is active, we must not drop
++			 * this page though, as its main user (postcopy
++			 * migration) will not expect userfaults on already
++			 * copied pages.
+ 			 */
+ 			dec_mm_counter(mm, mm_counter(page));
+ 			/* We have to invalidate as we cleared the pte */
 -- 
-2.17.1
+2.17.0
