@@ -1,200 +1,172 @@
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v6 21/21] s390: doc: detailed specifications for AP
  virtualization
-Date: Tue, 3 Jul 2018 18:14:30 +0200
-Message-ID: <92821259-3a0a-ac29-805c-af7b1a1a1eba@linux.ibm.com>
+Date: Tue, 3 Jul 2018 12:36:39 -0400
+Message-ID: <0f082b9e-a28c-4354-65eb-3e52304c711e@linux.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1530306683-7270-22-git-send-email-akrowiak@linux.vnet.ibm.com>
- <49b11ac2-2230-ad74-1583-c6a57f8b31e3@linux.ibm.com>
- <6a330cae-2fe2-54df-edce-c3360117cf3c@linux.ibm.com>
- <13998e79-9bae-5c55-b83d-85e6db8d3b99@linux.ibm.com>
- <20180703135205.2ebb107f.cohuck@redhat.com>
- <18532145-abeb-1251-926e-edbc6fa0bcb0@linux.ibm.com>
- <20180703152557.08d10223.cohuck@redhat.com>
- <99aabca1-76ba-1a9e-256d-0e234a3ac28f@linux.ibm.com>
- <20180703163027.538d3d12.cohuck@redhat.com>
+ <753c5e17-c241-580d-6e3a-a3c3159d44a8@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180703163027.538d3d12.cohuck@redhat.com>
+In-Reply-To: <753c5e17-c241-580d-6e3a-a3c3159d44a8@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 07/03/2018 04:30 PM, Cornelia Huck wrote:
-> On Tue, 3 Jul 2018 15:58:37 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
->> On 07/03/2018 03:25 PM, Cornelia Huck wrote:
->>> On Tue, 3 Jul 2018 14:20:11 +0200
->>> Halil Pasic <pasic@linux.ibm.com> wrote:
->>>    
->>>> On 07/03/2018 01:52 PM, Cornelia Huck wrote:
->>>>> On Tue, 3 Jul 2018 11:22:10 +0200
->>>>> Halil Pasic <pasic@linux.ibm.com> wrote:
->>>>>       
->>>> [..]
->>>>>>
->>>>>> Let me try to invoke the DASD analogy. If one for some reason wants to detach
->>>>>> a DASD the procedure to follow seems to be (see
->>>>>> https://www.ibm.com/support/knowledgecenter/en/linuxonibm/com.ibm.linux.z.lgdd/lgdd_t_dasd_online.html)
->>>>>> the following:
->>>>>> 1) Unmount.
->>>>>> 2) Offline possibly using safe_offline.
->>>>>> 3) Detach.
->>>>>>
->>>>>> Detaching a disk that is currently doing I/O asks for trouble, so the admin is encouraged
->>>>>> to make sure there is no pending I/O.
->>>>>
->>>>> I don't think we can use dasd (block devices) as a good analogy for
->>>>> every kind of device (for starters, consider network devices).
->>>>>       
->>>>
->>>> I did not use it for every kind of device. I used it for AP. I'm
->>>> under the impression you find the analogy inappropriate. If, could
->>>> you please explain why?
->>>
->>> I don't think block devices (which are designed to be more or less
->>> permanently accessed, e.g. by mounting a file system) have the same
->>> semantics as ap devices (which exist as a backend for crypto requests).
->>> Not everything that makes sense for a block device makes sense for
->>> other devices as well, and I don't think it makes sense here.
->>>    
+On 07/02/2018 07:10 PM, Halil Pasic wrote:
+>
+>
+> On 06/29/2018 11:11 PM, Tony Krowiak wrote:
+>> This patch provides documentation describing the AP architecture and
+>> design concepts behind the virtualization of AP devices. It also
+>> includes an example of how to configure AP devices for exclusive
+>> use of KVM guests.
 >>
->> I'm still confused. If it's about frequency of access (as hinted
->> by block devices accessed more or less permanently) I'm not sure
->> there is a substantial difference. I guess there are scenarios where
->> the AP domain is used very seldom (e.g. protected keys --> most of
->> the crypto ops done by CPACF but AP unwraps at the beginning), but
->> there are such scenarios for block too.
->>
->> If it's about (persistent) state, I guess it again depends on the
->> scenario and on the type of the card. But I may be wrong.
-> 
-> So, let's turn this around: Why do you think that dasd (and not qeth or
-> whatever) is a good model for ap device unbinding? Because I really
-> fail to get it... maybe the ap driver maintainers can chime in.
-> 
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>
+> I don't like the design of external interfaces except for:
+> * cpu model features, and
+> * reset handling.
+>
+> In particular:
+>
+> 1) The architecture is such that authorizing access (via APM, AQM and 
+> ADM)
+> to an AP queue that is currently not configured (e.g. the card not 
+> physically
+> plugged, or just configured off). That seems to be a perfectly normal use
+> case.
+>
+> Your assign operations however enforce that the resource is bound to your
+> driver, and thus the existence of the resource in the host.
+>
+> It is clear: we need to avoid passing trough resources to guests that 
+> are not
+> dedicated for this purpose (e.g. a queue utilized by zcrypt). But IMHO
+> we need a different mechanism.
 
-Let's do it! But let me clarify one thing first I never stated that
-dasd is the only good model.
+Interesting that you wait until v6 to bring this up. I agree, this is a 
+normal
+use case, but there is currently no mechanism in the AP bus for drivers to
+reserve devices that are not yet configured. There is proposed solution 
+in the
+works, but until such time that is available the only choice is to disallow
+assignment of AP queues to a guest that are not bound to the vfio_ap 
+device driver.
 
-What speaks for dasd as a model for unbinding:
-* DASD is currently the only device we have vfio-mdev passthrough
-   for on s390x.
-* DASD is comparatively simple and familiar. I'm not less confident
-to talk about qeth or whatever else than to talk about DASD.
-* DASD has persistent state. A NIC is much more stateless.
-* DASD has offline and safe_offline. This kind of demonstrates that
-   the stock operation may trade 'safety' for stuff (e.g. guarantee to
-   terminate). Since the queue reset implemented by Tony has a limited
-  wait built in this seemed relevant.
-* DASD can be seen as request-response with some local-ish stuff
-   as opposed to sending and receiving packets in a probably largish
-   network. The idea of outstanding operations is easy to gasp.
-* From expectations of the upper layer entities a block device seems to
-   be a better fit than a network interface. Fault recovery is less of
-   a concern for an application that writes to a file, than for an
-   application that tires to talk to an other application over the net.
-   In my experience connections break more often that disks or I suppose
-   AP domains.
+>
+>
+> 2) I see no benefit in deferring the exclusivity check to 
+> vfio_ap_mdev_open().
+> The downside is however pretty obvious: management software is 
+> notified about
+> a 'bad configuration' only at an attempted guest start-up. And your 
+> current QEMU
+> patches are not very helpful in conveying this piece of information.
 
-What is so wrong about asking the question: Is really unbind all
-the admin has to do?
+It only becomes a 'bad configuration' if the two guests are started 
+concurrently.
+Is there value in being able to configure two mediated devices with the same
+queue if the intent is to never run two guests using those mediated devices
+simultaneously? If so, then the only time the exclusivity check can be done
+is when the guest opens the mediated device. If not, then we can certainly
+prevent multiple mediated devices from being assigned the same queue.
 
->>
->>>>   
->>>>>> In case of AP you can interpret my 'in use' as the queue is not empty. In my understanding
->>>>>> unbind is supposed to be hard (I used the word radical). That's why I compared it to pulling
->>>>>> a cable. So that's why I ask is there stuff the admin is supposed to do before doing the
->>>>>> unbind.
->>>>>
->>>>> Are you asking for a kind of 'quiescing' operation? I would hope that
->>>>> the crypto drivers already can deal with that via flushing the queue,
->>>>> not allowing new requests, or whatever. This is not the block device
->>>>> case.
->>>>>       
->>>>
->>>> The current implementation of vfio-ap which is a crypto driver too certainly
->>>> can not deal 'with that'. Whether the rest of the drivers can, I don't
->>>> know. Maybe Tony can tell.
->>>
->>> If the current implementation of vfio-ap cannot deal with it (by
->>> cleaning up, blocking, etc.), it needs at the very least be documented
->>> so that it can be implemented later. I do not know what the SIE will or
->>> won't do to assist here (e.g., if you're removing it from some masks,
->>> the device will already be inaccessible to the guest). But the part you
->>> were referring to was talking about the existing host driver anyway,
->>> wasn't it?
->>>    
->>
->> I was thinking about both directions. Re-classifying a device form
->> pass-through to normal should also be possible. But the document only
->> talks about one direction.
-> 
-> Presumably because it (rightfully) focuses on setting up vfio-ap?
-> 
+In my view, while a mediated device is used by a guest, it is not a 
+guest and
+can be configured any way an administrator prefers. If we get concurrence
+that doing an exclusivity check when an adapter or domain is assigned to
+the mediated device, I'll make that change.
 
-I'm afraid we have a misunderstanding here. I did not propose to include
-the other direction. Again I'm reasoning about the solution.
+>
+>
+> I've talked with Boris, and AFAIR he said this is not acceptable to 
+> him (@Boris
+> can you confirm).
 
->>
->> I'm not familiar with the existing host drivers. If we can say 'Hey,
->> unbind is perfectly safe at any time: no per-cautions need to be considered!'
->> I'm very happy with that. Although I would find it a bit surprising.
->>
->> I just wanted to make sure this is not something we forget.
->>
->>>>
->>>> I'm aware of the fact that AP adapters are not block devices. But
->>>> as stated above I don't understand what is the big difference regarding
->>>> the unbind operation.
->>>>   
->>>>> Anyway, this is an administrative issue. If you don't have a clear
->>>>> concept which devices are for host usage and which for guest usage, you
->>>>> already have problems.
->>>>
->>>> I'm trying to understand the whole solution. I agree, this is an administrative
->>>> issue. But the document is trying to address such administrative issues.
->>>
->>> I'd assume "know which devices are for the host and which devices are
->>> for the guests" to be a given, no?
->>>    
->>
->> My other email scratches this topic. AFAIK we don't have a solution for
->> that yet. Nor we have a good understanding of how and to what extent
->> is statically given what is given. E.g. if one wants to re-partition my AP
->> resources (and at some point one will have to at least do the initial
->> re-partitioning) do I need a reboot for the changes to take effect? Or
->> is this 'known' variable during the uptime of an OS.
-> 
-> I think that is really out of scope for this file, which I'd expect to
-> explain how vfio-ap basically works and which incantations I need to
-> give crypto devices to a guest. It should NOT focus on administrative
-> tasks; this should either be delegated to the likes of libvirt or
-> documented in a "how to use crypto cards with kvm" kind of technical
-> writeup. If there's a limitation (e.g. you can't easily unbind again),
-> write a line here.
+Then I suggest Boris participate in the review and explain why.
 
-Again the misunderstanding. I'm not trying to understand the design and
-not to put stuff in this document. I'm not aware of the existence of this
-"how to use crypto cards with kvm" nor I've seen the likes of libvirt
-patches that take care of the stuff. The stated purpose of this patch
-is "provides documentation describing the AP architecture and
-design concepts behind the virtualization of AP devices". This was the
-best place I could find to ask my question. My intended question was
-motivated by my understanding of unbind as a *not inherently safe*
-operation, and by not knowing what happens if.
+>
+>
+> 3) We indicate the reason for failure due to a configuration problem 
+> (exclusivity
+> or resource allocation) via pr_err() that is  via kernel messages. I 
+> don't think
+> this is very tooling/management software friendly, and I hope we don't 
+> expect admins
+> to work with the sysfs interface long term. I mean the effects of the 
+> admin actions
+> are not very persistent. Thus if the interface is a painful one, we 
+> are talking
+> about potentially frequent pain.
 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+We have multiple layers of software, each with its own logging 
+facilities. Figuring
+out what went wrong when a guest fails to start is always a painful 
+process IMHO.
+Typically, one has to view the log for each component in the stack to 
+figure out
+what went wrong and often times, still can't figure it out. Of course, 
+we can help
+out here by having QEMU put out a better message when this problem 
+occurs. But the
+bottom line is, does the community think that allowing an administrator 
+to configure
+multiple mediated devices with the same queues have value? In other 
+words, are
+there potential use cases that would required this?
+
+>
+>
+> 4) If I were to act out the role of the administrator, I would prefer 
+> to think of
+> specifying or changing the access controls of a guest in respect to AP 
+> (that is
+> setting the AP matrix) as a single atomic operation -- which either 
+> succeeds or fails.
+
+I don't understand what you are describing here. How would this be done? 
+Are you
+suggesting the admin somehow provides the masks en masse?
+
+>
+>
+> The operation should succeed for any valid configuration, and fail for 
+> any invalid
+> on.
+>
+> The current piecemeal approach seems even less fitting if we consider 
+> changing the
+> access controls of a running guest. AFAIK changing access controls for 
+> a running
+> guest is possible, and I don't see a reason why should we artificially 
+> prohibit this.
+
+Setting and clearing bits in the APM/AQM/ADM of a guest's CRYCB is 
+certainly possible,
+but there is a lot more to it than merely setting and clearing bits. 
+What you seem
+to be describing here is hot plug/unplug which I stated in the cover 
+letter is
+forthcoming. It is currently prohibited for good reason.
+
+>
+>
+> I think the current sysfs interface for manipulating the matrix is 
+> good for
+> manual playing around, but I would prefer having an interface that is 
+> better
+> suited for programs (e.g. ioctl).
+
+That wouldn't be a problem, but do we have a use case for it?
+
+>
+>
+> Regards,
+> Halil
