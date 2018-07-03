@@ -1,41 +1,79 @@
-Return-Path: <SRS0=+3MX=KA=gmail.com=andy.shevchenko@kernel.org>
-Return-Path: <SRS0=+3MX=KA=gmail.com=andy.shevchenko@kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20180716124637.GK28466@bhelgaas-glaptop.roam.corp.google.com>
-References: <cover.1529173804.git.lukas@wunner.de> <6ef59b1fd3aa05f9989d29d0988152f18e3b824e.1529173804.git.lukas@wunner.de>
- <CAHp75Vf9ZETYLuMEA0B_0qkbAWUHqEw0LVzqrjTmry7GjvE1gw@mail.gmail.com> <20180716124637.GK28466@bhelgaas-glaptop.roam.corp.google.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Mon, 16 Jul 2018 17:14:17 +0300
-Message-ID: <CAHp75Vc0K34HybHL+VZioy19_EJNzjvZF4_4cTiKuiFKQiZmGQ@mail.gmail.com>
-Subject: Re: [PATCH 14/32] PCI: hotplug: Demidlayer registration with the core
-Content-Type: text/plain; charset="UTF-8"
-List-Archive: <https://lore.kernel.org/linux-pci/>
-List-Post: <mailto:linux-pci@vger.kernel.org>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: Lukas Wunner <lukas@wunner.de>, Bjorn Helgaas <bhelgaas@google.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, ashok.raj@intel.com, Keith Busch <keith.busch@intel.com>, Yinghai Lu <yinghai@kernel.org>, okaya@kernel.org, linux-pci@vger.kernel.org, Len Brown <lenb@kernel.org>, scott@spiteful.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, gwshan@linux.vnet.ibm.com, Sebastian Ott <sebott@linux.vnet.ibm.com>, gerald.schaefer@de.ibm.com, Corentin Chary <corentin.chary@gmail.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-s390@vger.kernel.org, Platform Driver <platform-driver-x86@vger.kernel.org>, acpi4asus-user <acpi4asus-user@lists.sourceforge.net>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCHi v2] mm: do not drop unused pages when userfaultd is
+ running
+Date: Tue, 3 Jul 2018 07:23:12 +0200
+Message-ID: <f40c57df-d8ea-d317-891b-89959ebf6353@de.ibm.com>
+References: <20180702075049.9157-1-borntraeger@de.ibm.com>
+ <20180702140638.eb3edfaa611ba9fa018f92eb@linux-foundation.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180702140638.eb3edfaa611ba9fa018f92eb@linux-foundation.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jul 16, 2018 at 3:46 PM, Bjorn Helgaas <helgaas@kernel.org> wrote:
-> On Sun, Jun 17, 2018 at 07:44:03PM +0300, Andy Shevchenko wrote:
->> On Sat, Jun 16, 2018 at 10:37 PM Lukas Wunner <lukas@wunner.de> wrote:
 
->> Thus,
+
+On 07/02/2018 11:06 PM, Andrew Morton wrote:
+> On Mon,  2 Jul 2018 09:50:49 +0200 Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> KVM guests on s390 can notify the host of unused pages. This can result
+>> in pte_unused callbacks to be true for KVM guest memory.
 >>
->> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+>> If a page is unused (checked with pte_unused) we might drop this page
+>> instead of paging it. This can have side-effects on userfaultd, when the
+>> page in question was already migrated:
 >>
->> for PDx86 bits only.
->
-> Hi Andy, I'm not sure what you intend by "PDx86".  I'm happy to add a note
-> so your ack looks like
->
-> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>  # drivers/platform/x86
->
-> or something similar.  Is that what you have in mind?
+>> The next access of that page will trigger a fault and a user fault
+>> instead of faulting in a new and empty zero page. As QEMU does not
+>> expect a userfault on an already migrated page this migration will fail.
+>>
+>> The most straightforward solution is to ignore the pte_unused hint if a
+>> userfault context is active for this VMA.
+>>
+>> ...
+>>
+>> --- a/mm/rmap.c
+>> +++ b/mm/rmap.c
+>> @@ -64,6 +64,7 @@
+>>  #include <linux/backing-dev.h>
+>>  #include <linux/page_idle.h>
+>>  #include <linux/memremap.h>
+>> +#include <linux/userfaultfd_k.h>
+>>  
+>>  #include <asm/tlbflush.h>
+>>  
+>> @@ -1481,7 +1482,7 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
+>>  				set_pte_at(mm, address, pvmw.pte, pteval);
+>>  			}
+>>  
+>> -		} else if (pte_unused(pteval)) {
+>> +		} else if (pte_unused(pteval) && !userfaultfd_armed(vma)) {
 
-Ah, sorry, not everyone gets that abbreviation. It stands for Platform
-Drivers x86.
-What you crafted above is quite good fit to what I meant. Thanks!
 
--- 
-With Best Regards,
-Andy Shevchenko
+>>  			/*
+>>  			 * The guest indicated that the page content is of no
+>>  			 * interest anymore. Simply discard the pte, vmscan
+> 
+> A reader of this code will wonder why we're checking
+> userfaultfd_armed().  So the writer of this code should add a comment
+> which explains this to them ;)  Please.
+> 
+Something like:                    /*
+                         * The guest indicated that the page content is of no
+                         * interest anymore. Simply discard the pte, vmscan
+                         * will take care of the rest.
+			 * A future reference will then fault in a new zero
+			 * page. When userfaultfd is active, we must not drop
+			 * this page though, as its main user (postcopy
+			 * migration) will not expect userfaults on already
+			 * copied pages.
+                         */
+
+?
