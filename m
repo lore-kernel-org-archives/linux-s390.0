@@ -1,8 +1,8 @@
-From: Tony Krowiak <akrowiak@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v6 21/21] s390: doc: detailed specifications for AP
  virtualization
-Date: Tue, 3 Jul 2018 11:25:16 -0400
-Message-ID: <99a7ea9a-ef42-2f1a-a0c4-b6aa864d4152@linux.ibm.com>
+Date: Tue, 3 Jul 2018 18:14:30 +0200
+Message-ID: <92821259-3a0a-ac29-805c-af7b1a1a1eba@linux.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1530306683-7270-22-git-send-email-akrowiak@linux.vnet.ibm.com>
  <49b11ac2-2230-ad74-1583-c6a57f8b31e3@linux.ibm.com>
@@ -22,14 +22,16 @@ Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/03/2018 10:30 AM, Cornelia Huck wrote:
+
+
+On 07/03/2018 04:30 PM, Cornelia Huck wrote:
 > On Tue, 3 Jul 2018 15:58:37 +0200
 > Halil Pasic <pasic@linux.ibm.com> wrote:
->
+> 
 >> On 07/03/2018 03:25 PM, Cornelia Huck wrote:
 >>> On Tue, 3 Jul 2018 14:20:11 +0200
 >>> Halil Pasic <pasic@linux.ibm.com> wrote:
@@ -39,6 +41,7 @@ On 07/03/2018 10:30 AM, Cornelia Huck wrote:
 >>>>> Halil Pasic <pasic@linux.ibm.com> wrote:
 >>>>>       
 >>>> [..]
+>>>>>>
 >>>>>> Let me try to invoke the DASD analogy. If one for some reason wants to detach
 >>>>>> a DASD the procedure to follow seems to be (see
 >>>>>> https://www.ibm.com/support/knowledgecenter/en/linuxonibm/com.ibm.linux.z.lgdd/lgdd_t_dasd_online.html)
@@ -49,18 +52,22 @@ On 07/03/2018 10:30 AM, Cornelia Huck wrote:
 >>>>>>
 >>>>>> Detaching a disk that is currently doing I/O asks for trouble, so the admin is encouraged
 >>>>>> to make sure there is no pending I/O.
+>>>>>
 >>>>> I don't think we can use dasd (block devices) as a good analogy for
 >>>>> every kind of device (for starters, consider network devices).
 >>>>>       
+>>>>
 >>>> I did not use it for every kind of device. I used it for AP. I'm
 >>>> under the impression you find the analogy inappropriate. If, could
 >>>> you please explain why?
+>>>
 >>> I don't think block devices (which are designed to be more or less
 >>> permanently accessed, e.g. by mounting a file system) have the same
 >>> semantics as ap devices (which exist as a backend for crypto requests).
 >>> Not everything that makes sense for a block device makes sense for
 >>> other devices as well, and I don't think it makes sense here.
 >>>    
+>>
 >> I'm still confused. If it's about frequency of access (as hinted
 >> by block devices accessed more or less permanently) I'm not sure
 >> there is a substantial difference. I guess there are scenarios where
@@ -70,23 +77,55 @@ On 07/03/2018 10:30 AM, Cornelia Huck wrote:
 >>
 >> If it's about (persistent) state, I guess it again depends on the
 >> scenario and on the type of the card. But I may be wrong.
+> 
 > So, let's turn this around: Why do you think that dasd (and not qeth or
 > whatever) is a good model for ap device unbinding? Because I really
 > fail to get it... maybe the ap driver maintainers can chime in.
->
+> 
+
+Let's do it! But let me clarify one thing first I never stated that
+dasd is the only good model.
+
+What speaks for dasd as a model for unbinding:
+* DASD is currently the only device we have vfio-mdev passthrough
+   for on s390x.
+* DASD is comparatively simple and familiar. I'm not less confident
+to talk about qeth or whatever else than to talk about DASD.
+* DASD has persistent state. A NIC is much more stateless.
+* DASD has offline and safe_offline. This kind of demonstrates that
+   the stock operation may trade 'safety' for stuff (e.g. guarantee to
+   terminate). Since the queue reset implemented by Tony has a limited
+  wait built in this seemed relevant.
+* DASD can be seen as request-response with some local-ish stuff
+   as opposed to sending and receiving packets in a probably largish
+   network. The idea of outstanding operations is easy to gasp.
+* From expectations of the upper layer entities a block device seems to
+   be a better fit than a network interface. Fault recovery is less of
+   a concern for an application that writes to a file, than for an
+   application that tires to talk to an other application over the net.
+   In my experience connections break more often that disks or I suppose
+   AP domains.
+
+What is so wrong about asking the question: Is really unbind all
+the admin has to do?
+
+>>
 >>>>   
 >>>>>> In case of AP you can interpret my 'in use' as the queue is not empty. In my understanding
 >>>>>> unbind is supposed to be hard (I used the word radical). That's why I compared it to pulling
 >>>>>> a cable. So that's why I ask is there stuff the admin is supposed to do before doing the
 >>>>>> unbind.
+>>>>>
 >>>>> Are you asking for a kind of 'quiescing' operation? I would hope that
 >>>>> the crypto drivers already can deal with that via flushing the queue,
 >>>>> not allowing new requests, or whatever. This is not the block device
 >>>>> case.
 >>>>>       
+>>>>
 >>>> The current implementation of vfio-ap which is a crypto driver too certainly
 >>>> can not deal 'with that'. Whether the rest of the drivers can, I don't
 >>>> know. Maybe Tony can tell.
+>>>
 >>> If the current implementation of vfio-ap cannot deal with it (by
 >>> cleaning up, blocking, etc.), it needs at the very least be documented
 >>> so that it can be implemented later. I do not know what the SIE will or
@@ -95,23 +134,25 @@ On 07/03/2018 10:30 AM, Cornelia Huck wrote:
 >>> were referring to was talking about the existing host driver anyway,
 >>> wasn't it?
 >>>    
+>>
 >> I was thinking about both directions. Re-classifying a device form
 >> pass-through to normal should also be possible. But the document only
 >> talks about one direction.
+> 
 > Presumably because it (rightfully) focuses on setting up vfio-ap?
+> 
 
-This is a true statement. The doc is not intended to be a comprehensive
-administration guide, it is intended to be more of a design spec. The
-goal here is to show the relationship between the objects involved in
-AP queue pass-through.
+I'm afraid we have a misunderstanding here. I did not propose to include
+the other direction. Again I'm reasoning about the solution.
 
->
+>>
 >> I'm not familiar with the existing host drivers. If we can say 'Hey,
 >> unbind is perfectly safe at any time: no per-cautions need to be considered!'
 >> I'm very happy with that. Although I would find it a bit surprising.
 >>
 >> I just wanted to make sure this is not something we forget.
 >>
+>>>>
 >>>> I'm aware of the fact that AP adapters are not block devices. But
 >>>> as stated above I don't understand what is the big difference regarding
 >>>> the unbind operation.
@@ -119,17 +160,21 @@ AP queue pass-through.
 >>>>> Anyway, this is an administrative issue. If you don't have a clear
 >>>>> concept which devices are for host usage and which for guest usage, you
 >>>>> already have problems.
+>>>>
 >>>> I'm trying to understand the whole solution. I agree, this is an administrative
 >>>> issue. But the document is trying to address such administrative issues.
+>>>
 >>> I'd assume "know which devices are for the host and which devices are
 >>> for the guests" to be a given, no?
 >>>    
+>>
 >> My other email scratches this topic. AFAIK we don't have a solution for
 >> that yet. Nor we have a good understanding of how and to what extent
 >> is statically given what is given. E.g. if one wants to re-partition my AP
 >> resources (and at some point one will have to at least do the initial
 >> re-partitioning) do I need a reboot for the changes to take effect? Or
 >> is this 'known' variable during the uptime of an OS.
+> 
 > I think that is really out of scope for this file, which I'd expect to
 > explain how vfio-ap basically works and which incantations I need to
 > give crypto devices to a guest. It should NOT focus on administrative
@@ -138,6 +183,18 @@ AP queue pass-through.
 > writeup. If there's a limitation (e.g. you can't easily unbind again),
 > write a line here.
 
-On this we can agree.
+Again the misunderstanding. I'm not trying to understand the design and
+not to put stuff in this document. I'm not aware of the existence of this
+"how to use crypto cards with kvm" nor I've seen the likes of libvirt
+patches that take care of the stuff. The stated purpose of this patch
+is "provides documentation describing the AP architecture and
+design concepts behind the virtualization of AP devices". This was the
+best place I could find to ask my question. My intended question was
+motivated by my understanding of unbind as a *not inherently safe*
+operation, and by not knowing what happens if.
 
->
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
