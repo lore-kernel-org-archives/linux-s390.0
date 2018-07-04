@@ -1,25 +1,24 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-fsdevel-owner@vger.kernel.org>
 From: Huaisheng Ye <yehs2007@zoho.com>
-Subject: [PATCH 1/3] nvdimm/pmem: check the validity of the pointer pfn
-Date: Wed,  4 Jul 2018 14:40:56 +0800
-Message-Id: <20180704064058.1344-1-yehs2007@zoho.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v2 1/4] nvdimm/pmem: check the validity of the pointer pfn
+Date: Thu,  5 Jul 2018 00:38:20 +0800
+Message-Id: <20180704163823.9980-2-yehs2007@zoho.com>
+In-Reply-To: <20180704163823.9980-1-yehs2007@zoho.com>
+References: <20180704163823.9980-1-yehs2007@zoho.com>
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-fsdevel/>
 List-Post: <mailto:linux-fsdevel@vger.kernel.org>
-To: linux-nvdimm@lists.01.org
-Cc: dan.j.williams@intel.com, ross.zwisler@linux.intel.com, mawilcox@microsoft.com, vishal.l.verma@intel.com, dave.jiang@intel.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, viro@zeniv.linux.org.uk, martin.petersen@oracle.com, axboe@kernel.dk, gregkh@linuxfoundation.org, bart.vanassche@wdc.com, jack@suse.com, chengnt@lenovo.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, Huaisheng Ye <yehs1@lenovo.com>
+To: linux-nvdimm@lists.01.org, dan.j.williams@intel.com
+Cc: ross.zwisler@linux.intel.com, willy@infradead.org, vishal.l.verma@intel.com, dave.jiang@intel.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, viro@zeniv.linux.org.uk, martin.petersen@oracle.com, axboe@kernel.dk, gregkh@linuxfoundation.org, bart.vanassche@wdc.com, jack@suse.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, colyli@suse.de, chengnt@lenovo.com, Huaisheng Ye <yehs1@lenovo.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Huaisheng Ye <yehs1@lenovo.com>
 
-Some functions within fs/dax don't need to get gfn from direct_access.
-Assigning NULL to gfn of dax_direct_access is more intuitive and simple
-than offering a useless local variable.
-
-So direct_access needs to check validity of the pointer pfn For NULL
-assignment.
+direct_access needs to check the validity of pointer pfn for NULL
+assignment. If pfn equals to NULL, it doesn't need to calculate the value.
 
 Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 ---
  drivers/nvdimm/pmem.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
