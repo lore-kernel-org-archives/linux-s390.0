@@ -1,8 +1,8 @@
 Return-Path: <linux-fsdevel-owner@vger.kernel.org>
 From: Huaisheng Ye <yehs2007@zoho.com>
-Subject: [PATCH v2 2/4] nvdimm/pmem-dax: check the validity of the pointer pfn
-Date: Thu,  5 Jul 2018 00:38:21 +0800
-Message-Id: <20180704163823.9980-3-yehs2007@zoho.com>
+Subject: [PATCH v2 4/4] fs/dax: Assign NULL to gfn of dax_direct_access if useless
+Date: Thu,  5 Jul 2018 00:38:23 +0800
+Message-Id: <20180704163823.9980-5-yehs2007@zoho.com>
 In-Reply-To: <20180704163823.9980-1-yehs2007@zoho.com>
 References: <20180704163823.9980-1-yehs2007@zoho.com>
 Sender: linux-fsdevel-owner@vger.kernel.org
@@ -14,39 +14,70 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Huaisheng Ye <yehs1@lenovo.com>
 
-direct_access needs to check the validity of pointer pfn for NULL
-assignment. If pfn equals to NULL, it doesn't need to calculate the value.
+Some functions within fs/dax don't need to get gfn from direct_access.
+Assigning NULL to gfn of dax_direct_access is more intuitive and simple
+than offering a useless local variable.
 
-Suggested-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
 ---
- tools/testing/nvdimm/pmem-dax.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/dax.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/nvdimm/pmem-dax.c b/tools/testing/nvdimm/pmem-dax.c
-index b53596a..d4cb528 100644
---- a/tools/testing/nvdimm/pmem-dax.c
-+++ b/tools/testing/nvdimm/pmem-dax.c
-@@ -33,7 +33,8 @@ long __pmem_direct_access(struct pmem_device *pmem, pgoff_t pgoff,
+diff --git a/fs/dax.c b/fs/dax.c
+index aaec72de..aa75dfd 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -550,7 +550,6 @@ static int copy_user_dax(struct block_device *bdev, struct dax_device *dax_dev,
+ {
+ 	void *vto, *kaddr;
+ 	pgoff_t pgoff;
+-	pfn_t pfn;
+ 	long rc;
+ 	int id;
  
- 		*kaddr = pmem->virt_addr + offset;
- 		page = vmalloc_to_page(pmem->virt_addr + offset);
--		*pfn = page_to_pfn_t(page);
-+		if (pfn)
-+			*pfn = page_to_pfn_t(page);
- 		pr_debug_ratelimited("%s: pmem: %p pgoff: %#lx pfn: %#lx\n",
- 				__func__, pmem, pgoff, page_to_pfn(page));
+@@ -559,7 +558,7 @@ static int copy_user_dax(struct block_device *bdev, struct dax_device *dax_dev,
+ 		return rc;
  
-@@ -41,7 +42,8 @@ long __pmem_direct_access(struct pmem_device *pmem, pgoff_t pgoff,
- 	}
+ 	id = dax_read_lock();
+-	rc = dax_direct_access(dax_dev, pgoff, PHYS_PFN(size), &kaddr, &pfn);
++	rc = dax_direct_access(dax_dev, pgoff, PHYS_PFN(size), &kaddr, NULL);
+ 	if (rc < 0) {
+ 		dax_read_unlock(id);
+ 		return rc;
+@@ -961,7 +960,6 @@ int __dax_zero_page_range(struct block_device *bdev,
+ 		pgoff_t pgoff;
+ 		long rc, id;
+ 		void *kaddr;
+-		pfn_t pfn;
  
- 	*kaddr = pmem->virt_addr + offset;
--	*pfn = phys_to_pfn_t(pmem->phys_addr + offset, pmem->pfn_flags);
-+	if (pfn)
-+		*pfn = phys_to_pfn_t(pmem->phys_addr + offset, pmem->pfn_flags);
+ 		rc = bdev_dax_pgoff(bdev, sector, PAGE_SIZE, &pgoff);
+ 		if (rc)
+@@ -969,7 +967,7 @@ int __dax_zero_page_range(struct block_device *bdev,
  
- 	/*
- 	 * If badblocks are present, limit known good range to the
+ 		id = dax_read_lock();
+ 		rc = dax_direct_access(dax_dev, pgoff, 1, &kaddr,
+-				&pfn);
++				NULL);
+ 		if (rc < 0) {
+ 			dax_read_unlock(id);
+ 			return rc;
+@@ -1024,7 +1022,6 @@ int __dax_zero_page_range(struct block_device *bdev,
+ 		ssize_t map_len;
+ 		pgoff_t pgoff;
+ 		void *kaddr;
+-		pfn_t pfn;
+ 
+ 		if (fatal_signal_pending(current)) {
+ 			ret = -EINTR;
+@@ -1036,7 +1033,7 @@ int __dax_zero_page_range(struct block_device *bdev,
+ 			break;
+ 
+ 		map_len = dax_direct_access(dax_dev, pgoff, PHYS_PFN(size),
+-				&kaddr, &pfn);
++				&kaddr, NULL);
+ 		if (map_len < 0) {
+ 			ret = map_len;
+ 			break;
 -- 
 1.8.3.1
