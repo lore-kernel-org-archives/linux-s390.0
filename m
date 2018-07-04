@@ -1,8 +1,10 @@
 Return-Path: <linux-fsdevel-owner@vger.kernel.org>
 From: Huaisheng Ye <yehs2007@zoho.com>
-Subject: [PATCH v2 0/4] Assigning NULL to gfn of dax_direct_access if useless
-Date: Thu,  5 Jul 2018 00:38:19 +0800
-Message-Id: <20180704163823.9980-1-yehs2007@zoho.com>
+Subject: [PATCH v2 3/4] s390/block/dcssblk: check the validity of the pointer pfn
+Date: Thu,  5 Jul 2018 00:38:22 +0800
+Message-Id: <20180704163823.9980-4-yehs2007@zoho.com>
+In-Reply-To: <20180704163823.9980-1-yehs2007@zoho.com>
+References: <20180704163823.9980-1-yehs2007@zoho.com>
 Sender: linux-fsdevel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-fsdevel/>
 List-Post: <mailto:linux-fsdevel@vger.kernel.org>
@@ -12,35 +14,28 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Huaisheng Ye <yehs1@lenovo.com>
 
-Changes since v1 [1]:
-* Collect Jan's reviewed-by.
-* According to Dan's suggestion, update the unit test infrastructure
-  tools/testing/nvdimm/pmem-dax.c for checking the validity of gfn.
+direct_access needs to check the validity of pointer pfn for NULL
+assignment. If pfn equals to NULL, it doesn't need to calculate the value.
 
-[1]: https://lkml.org/lkml/2018/7/4/81
-
+Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 ---
+ drivers/s390/block/dcssblk.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Some functions within fs/dax don't need to get gfn from direct_access.
-Assigning NULL to gfn of dax_direct_access is more intuitive and simple
-than offering a useless local variable.
-
-So all direct_access need to check the validity of pointer pfn for NULL
-assignment. If pfn equals to NULL, it doesn't need to calculate its value.
-
----
-
-Huaisheng Ye (4):
-  nvdimm/pmem: check the validity of the pointer pfn
-  nvdimm/pmem-dax: check the validity of the pointer pfn
-  s390/block/dcssblk: check the validity of the pointer pfn
-  fs/dax: Assign NULL to gfn of dax_direct_access if useless
-
- drivers/nvdimm/pmem.c           | 3 ++-
- drivers/s390/block/dcssblk.c    | 3 ++-
- fs/dax.c                        | 9 +++------
- tools/testing/nvdimm/pmem-dax.c | 6 ++++--
- 4 files changed, 11 insertions(+), 10 deletions(-)
-
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 0a312e4..5cdfa02 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -916,7 +916,8 @@ static DEVICE_ATTR(save, S_IWUSR | S_IRUSR, dcssblk_save_show,
+ 
+ 	dev_sz = dev_info->end - dev_info->start + 1;
+ 	*kaddr = (void *) dev_info->start + offset;
+-	*pfn = __pfn_to_pfn_t(PFN_DOWN(dev_info->start + offset),
++	if (pfn)
++		*pfn = __pfn_to_pfn_t(PFN_DOWN(dev_info->start + offset),
+ 			PFN_DEV|PFN_SPECIAL);
+ 
+ 	return (dev_sz - offset) / PAGE_SIZE;
 -- 
 1.8.3.1
