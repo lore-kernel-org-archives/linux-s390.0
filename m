@@ -1,452 +1,214 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v6 10/21] s390: vfio-ap: sysfs interfaces to configure
- adapters
-Date: Mon, 9 Jul 2018 14:11:19 +0200
-Message-ID: <3ec78f60-e1b3-79fc-5592-c53520703bc7@linux.ibm.com>
-References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1530306683-7270-11-git-send-email-akrowiak@linux.vnet.ibm.com>
-Reply-To: pmorel@linux.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1530306683-7270-11-git-send-email-akrowiak@linux.vnet.ibm.com>
-Content-Language: en-US
+Return-Path: <SRS0=cgxA=JU=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Wed, 4 Jul 2018 13:01:39 -0700
+From: Eric Biggers <ebiggers3@gmail.com>
+Subject: Re: WARNING in smc_unhash_sk
+Message-ID: <20180704200139.GB725@sol.localdomain>
+References: <001a114fa99028d2a10565e33df4@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001a114fa99028d2a10565e33df4@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Ursula Braun <ubraun@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: syzbot <syzbot+3a0748c8f2f210c0ef9b@syzkaller.appspotmail.com>, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 29/06/2018 23:11, Tony Krowiak wrote:
-> Provides the sysfs interfaces for assigning AP adapters to
-> and unassigning AP adapters from a mediated matrix device.
->
-> The IDs of the AP adapters assigned to the mediated matrix
-> device are stored in an AP mask (APM). The bits in the APM,
-> from most significant to least significant bit, correspond to
-> AP adapter ID (APID) 0 to 255. When an adapter is assigned, the
-> bit corresponding the APID will be set in the APM.
-> Likewise, when an adapter is unassigned, the bit corresponding
-> to the APID will be cleared from the APM.
->
-> The relevant sysfs structures are:
->
-> /sys/devices/vfio_ap
-> ... [matrix]
-> ...... [mdev_supported_types]
-> ......... [vfio_ap-passthrough]
-> ............ [devices]
-> ...............[$uuid]
-> .................. assign_adapter
-> .................. unassign_adapter
->
-> To assign an adapter to the $uuid mediated matrix device's APM,
-> write the APID to the assign_adapter file. To unassign an adapter,
-> write the APID to the unassign_adapter file. The APID is specified
-> using conventional semantics: If it begins with 0x the number will
-> be parsed as a hexadecimal number; if it begins with a 0 the number
-> will be parsed as an octal number; otherwise, it will be parsed as a
-> decimal number.
->
-> For example, to assign adapter 173 (0xad) to the mediated matrix
-> device $uuid:
->
-> 	echo 173 > assign_adapter
->
-> 	or
->
-> 	echo 0xad > assign_adapter
->
-> 	or
->
-> 	echo 0255 > assign_adapter
->
-> To unassign adapter 173 (0xad):
->
-> 	echo 173 > unassign_adapter
->
-> 	or
->
-> 	echo 0xad > unassign_adapter
->
-> 	or
->
-> 	echo 0255 > unassign_adapter
->
-> The assignment will be rejected:
->
-> * If the APID exceeds the maximum value for an AP adapter:
->    * If the AP Extended Addressing (APXA) facility is
->      installed, the max value is 255
->    * Else the max value is 64
->
-> * If no AP domains have yet been assigned and there are
->    no AP queues bound to the VFIO AP driver that have an APQN
->    with an APID matching that of the AP adapter being assigned.
->
-> * If any of the APQNs that can be derived from the cross product
->    of the APID being assigned and the AP queue index (APQI) of
->    each of the AP domains previously assigned can not be matched
->    with an APQN of an AP queue device reserved by the VFIO AP
->    driver.
->
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c |  317 +++++++++++++++++++++++++++++++++++++
->   1 files changed, 317 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index bf7ed9f..a4351bd 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -16,6 +16,7 @@
->
->   #define VFOP_AP_MDEV_TYPE_HWVIRT "passthrough"
->   #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
-> +#define KVM_AP_MASK_BYTES(n) DIV_ROUND_UP(n, BITS_PER_BYTE)
->
->   DEFINE_SPINLOCK(mdev_list_lock);
->   LIST_HEAD(mdev_list);
-> @@ -116,9 +117,325 @@ static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
->   	NULL,
->   };
->
-> +struct vfio_ap_qid_reserved {
-> +	ap_qid_t qid;
-> +	bool reserved;
-> +};
-> +
-> +struct vfio_id_reserved {
-> +	unsigned long id;
-> +	bool reserved;
-> +};
-> +
-> +/**
-> + * vfio_ap_qid_reserved
-> + *
-> + * @dev: an AP queue device
-> + * @data: a queue ID
-> + *
-> + * Flags whether any AP queue device has a particular qid
-> + *
-> + * Returns 0 to indicate the function succeeded
-> + */
-> +static int vfio_ap_queue_has_qid(struct device *dev, void *data)
-> +{
-> +	struct vfio_ap_qid_reserved *qid_res = data;
-> +	struct ap_queue *ap_queue = to_ap_queue(dev);
-> +
-> +	if (qid_res->qid == ap_queue->qid)
-> +		qid_res->reserved = true;
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * vfio_ap_queue_has_apid
-> + *
-> + * @dev: an AP queue device
-> + * @data: an AP adapter ID
-> + *
-> + * Flags whether any AP queue device has a particular AP adapter ID
-> + *
-> + * Returns 0 to indicate the function succeeded
-> + */
-> +static int vfio_ap_queue_has_apid(struct device *dev, void *data)
-> +{
-> +	struct vfio_id_reserved *id_res = data;
-> +	struct ap_queue *ap_queue = to_ap_queue(dev);
-> +
-> +	if (id_res->id == AP_QID_CARD(ap_queue->qid))
-> +		id_res->reserved = true;
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * vfio_ap_verify_qid_reserved
-> + *
-> + * @matrix_dev: a mediated matrix device
-> + * @qid: a qid (i.e., APQN)
-> + *
-> + * Verifies that the AP queue with @qid is reserved by the VFIO AP device
-> + * driver.
-> + *
-> + * Returns 0 if the AP queue with @qid is reserved; otherwise, returns -ENODEV.
-> + */
-> +static int vfio_ap_verify_qid_reserved(struct ap_matrix_dev *matrix_dev,
-> +				       ap_qid_t qid)
-> +{
-> +	int ret;
-> +	struct vfio_ap_qid_reserved qid_res;
-> +
-> +	qid_res.qid = qid;
-> +	qid_res.reserved = false;
-> +
-> +	ret = driver_for_each_device(matrix_dev->device.driver, NULL, &qid_res,
-> +				     vfio_ap_queue_has_qid);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (qid_res.reserved)
-> +		return 0;
-> +
-> +	return -EPERM;
-> +}
-> +
-> +/**
-> + * vfio_ap_verify_apid_reserved
-> + *
-> + * @matrix_dev: a mediated matrix device
-> + * @apid: an AP adapter ID
-> + *
-> + * Verifies that an AP queue with @apid is reserved by the VFIO AP device
-> + * driver.
-> + *
-> + * Returns 0 if an AP queue with @apid is reserved; otherwise, returns -ENODEV.
-> + */
-> +static int vfio_ap_verify_apid_reserved(struct ap_matrix_dev *matrix_dev,
-> +					const char *mdev_name,
-> +					unsigned long apid)
-> +{
-> +	int ret;
-> +	struct vfio_id_reserved id_res;
-> +
-> +	id_res.id = apid;
-> +	id_res.reserved = false;
-> +
-> +	ret = driver_for_each_device(matrix_dev->device.driver, NULL, &id_res,
-> +				     vfio_ap_queue_has_apid);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (id_res.reserved)
-> +		return 0;
-> +
-> +	pr_err("%s: mdev %s using adapter %02lx not reserved by %s driver",
-> +					VFIO_AP_MODULE_NAME, mdev_name, apid,
-> +					VFIO_AP_DRV_NAME);
-> +
-> +	return -EPERM;
-> +}
-> +
-> +static int vfio_ap_verify_queues_reserved(struct ap_matrix_dev *matrix_dev,
-> +					  const char *mdev_name,
-> +					  struct ap_matrix *matrix)
-> +{
-> +	unsigned long apid, apqi;
-> +	int ret;
-> +	int rc = 0;
-> +
-> +	for_each_set_bit_inv(apid, matrix->apm, matrix->apm_max + 1) {
-> +		for_each_set_bit_inv(apqi, matrix->aqm, matrix->aqm_max + 1) {
-> +			ret = vfio_ap_verify_qid_reserved(matrix_dev,
-> +							  AP_MKQID(apid, apqi));
-> +			if (ret == 0)
-> +				continue;
-> +
-> +			/*
-> +			 * We want to log every APQN that is not reserved by
-> +			 * the driver, so record the return code, log a message
-> +			 * and allow the loop to continue
-> +			 */
-> +			rc = ret;
-> +			pr_err("%s: mdev %s using queue %02lx.%04lx not reserved by %s driver",
-> +				VFIO_AP_MODULE_NAME, mdev_name, apid,
-> +				apqi, VFIO_AP_DRV_NAME);
-> +		}
-> +	}
-> +
-> +	return rc;
-> +}
-> +
-> +/**
-> + * vfio_ap_validate_apid
-> + *
-> + * @mdev: the mediated device
-> + * @matrix_mdev: the mediated matrix device
-> + * @apid: the APID to validate
-> + *
-> + * Validates the value of @apid:
-> + *	* If there are no AP domains assigned, then there must be at least
-> + *	  one AP queue device reserved by the VFIO AP device driver with an
-> + *	  APQN containing @apid.
-> + *
-> + *	* Else each APQN that can be derived from the intersection of @apid and
-> + *	  the IDs of the AP domains already assigned must identify an AP queue
-> + *	  that has been reserved by the VFIO AP device driver.
-> + *
-> + * Returns 0 if the value of @apid is valid; otherwise, returns an error.
-> + */
-> +static int vfio_ap_validate_apid(struct mdev_device *mdev,
-> +				 struct ap_matrix_mdev *matrix_mdev,
-> +				 unsigned long apid)
-> +{
-> +	int ret;
-> +	unsigned long aqmsz = matrix_mdev->matrix.aqm_max + 1;
-> +	struct device *dev = mdev_parent_dev(mdev);
-> +	struct ap_matrix_dev *matrix_dev = to_ap_matrix_dev(dev);
-> +	struct ap_matrix matrix = matrix_mdev->matrix;
-> +
-> +	/* If there are any queues assigned to the mediated device */
-> +	if (find_first_bit_inv(matrix.aqm, aqmsz) < aqmsz) {
-> +		matrix.apm_max = matrix_mdev->matrix.apm_max;
-> +		memset(matrix.apm, 0,
-> +		       ARRAY_SIZE(matrix.apm) * sizeof(matrix.apm[0]));
-> +		set_bit_inv(apid, matrix.apm);
-> +		matrix.aqm_max = matrix_mdev->matrix.aqm_max;
-> +		memcpy(matrix.aqm, matrix_mdev->matrix.aqm,
-> +		       ARRAY_SIZE(matrix.aqm) * sizeof(matrix.aqm[0]));
-> +		ret = vfio_ap_verify_queues_reserved(matrix_dev,
-> +						     matrix_mdev->name,
-> +						     &matrix);
-> +	} else {
-> +		ret = vfio_ap_verify_apid_reserved(matrix_dev,
-> +						   matrix_mdev->name, apid);
-> +	}
-> +
-> +	if (ret)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * assign_adapter_store
-> + *
-> + * @dev: the matrix device
-> + * @attr: a mediated matrix device attribute
-> + * @buf: a buffer containing the adapter ID (APID) to be assigned
-> + * @count: the number of bytes in @buf
-> + *
-> + * Parses the APID from @buf and assigns it to the mediated matrix device. The
-> + * APID must be a valid value:
-> + *	* The APID value must not exceed the maximum allowable AP adapter ID
-> + *
-> + *	* If there are no AP domains assigned, then there must be at least
-> + *	  one AP queue device reserved by the VFIO AP device driver with an
-> + *	  APQN containing @apid.
+Hi Ursula,
 
-I do not understand the reason here.
-Can you develop?
+On Fri, Feb 23, 2018 at 07:59:01AM -0800, syzbot wrote:
+> Hello,
+> 
+> syzbot hit the following crash on upstream commit
+> af3e79d29555b97dd096e2f8e36a0f50213808a8 (Tue Feb 20 18:05:02 2018 +0000)
+> Merge tag 'leds_for-4.16-rc3' of
+> git://git.kernel.org/pub/scm/linux/kernel/git/j.anaszewski/linux-leds
+> 
+> So far this crash happened 27 times on
+> https://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git/master,
+> net-next, upstream.
+> C reproducer is attached.
+> syzkaller reproducer is attached.
+> Raw console output is attached.
+> compiler: gcc (GCC) 7.1.1 20170620
+> .config is attached.
+> 
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+3a0748c8f2f210c0ef9b@syzkaller.appspotmail.com
+> It will help syzbot understand when the bug is fixed. See footer for
+> details.
+> If you forward the report, please keep this part and the footer.
+> 
+> WARNING: CPU: 1 PID: 9921 at ./include/net/sock.h:638 sk_del_node_init
+> include/net/sock.h:638 [inline]
+> WARNING: CPU: 1 PID: 9921 at ./include/net/sock.h:638
+> smc_unhash_sk+0x335/0x450 net/smc/af_smc.c:90
+> Kernel panic - not syncing: panic_on_warn set ...
 
-I suppose that by reserved you mean bound. (then use bound)
-But I still can not understand the reason why.
+This is still happening and it can be easily reproduced with:
 
-Beside if I understand correctly what you do it forbid the automatic
-assignment of a new card plugged into the host.
+	#include <sys/socket.h>
 
-> + *
-> + *	* Else each APQN that can be derived from the intersection of @apid and
-> + *	  the IDs of the AP domains already assigned must identify an AP queue
-> + *	  that has been reserved by the VFIO AP device driver.
-> + *
-> + * Returns the number of bytes processed if the APID is valid; otherwise returns
-> + * an error.
-> + */
-> +static ssize_t assign_adapter_store(struct device *dev,
-> +				    struct device_attribute *attr,
-> +				    const char *buf, size_t count)
-> +{
-> +	int ret;
-> +	unsigned long apid;
-> +	struct mdev_device *mdev = mdev_from_dev(dev);
-> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> +	unsigned long max_apid = matrix_mdev->matrix.apm_max;
-> +
-> +	ret = kstrtoul(buf, 0, &apid);
-> +	if (ret || (apid > max_apid)) {
-> +		pr_err("%s: %s: adapter id '%s' not a value from 0 to %02lu(%#04lx)",
-> +		       VFIO_AP_MODULE_NAME, __func__, buf, max_apid, max_apid);
-> +
-> +		return ret ? ret : -EINVAL;
-> +	}
-> +
-> +	ret = vfio_ap_validate_apid(mdev, matrix_mdev, apid);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Set the bit in the AP mask (APM) corresponding to the AP adapter
-> +	 * number (APID). The bits in the mask, from most significant to least
-> +	 * significant bit, correspond to APIDs 0-255.
-> +	 */
-> +	set_bit_inv(apid, matrix_mdev->matrix.apm);
-> +
-> +	return count;
-> +}
-> +static DEVICE_ATTR_WO(assign_adapter);
-> +
-> +/**
-> + * unassign_adapter_store
-> + *
-> + * @dev: the matrix device
-> + * @attr: a mediated matrix device attribute
-> + * @buf: a buffer containing the adapter ID (APID) to be assigned
-> + * @count: the number of bytes in @buf
-> + *
-> + * Parses the APID from @buf and unassigns it from the mediated matrix device.
-> + * The APID must be a valid value
-> + *
-> + * Returns the number of bytes processed if the APID is valid; otherwise returns
-> + * an error.
-> + */
-> +static ssize_t unassign_adapter_store(struct device *dev,
-> +				      struct device_attribute *attr,
-> +				      const char *buf, size_t count)
-> +{
-> +	int ret;
-> +	unsigned long apid;
-> +	struct mdev_device *mdev = mdev_from_dev(dev);
-> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> +	unsigned long max_apid = matrix_mdev->matrix.apm_max;
-> +
-> +	ret = kstrtoul(buf, 0, &apid);
-> +	if (ret || (apid > max_apid)) {
-> +		pr_err("%s: %s: adapter id '%s' must be a value from 0 to %02lu(%#04lx)",
-> +		       VFIO_AP_MODULE_NAME, __func__, buf, max_apid, max_apid);
-> +
-> +		return ret ? ret : -EINVAL;
-> +	}
-> +
-> +	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
-> +		pr_err("%s: %s: adapter id %02lu(%#04lx) not assigned",
-> +		       VFIO_AP_MODULE_NAME, __func__, apid, apid);
-> +
-> +		return -ENODEV;
-> +	}
-> +
-> +	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
-> +
-> +	return count;
-> +}
-> +DEVICE_ATTR_WO(unassign_adapter);
-> +
-> +static struct attribute *vfio_ap_mdev_attrs[] = {
-> +	&dev_attr_assign_adapter.attr,
-> +	&dev_attr_unassign_adapter.attr,
-> +	NULL
-> +};
-> +
-> +static struct attribute_group vfio_ap_mdev_attr_group = {
-> +	.attrs = vfio_ap_mdev_attrs
-> +};
-> +
-> +static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
-> +	&vfio_ap_mdev_attr_group,
-> +	NULL
-> +};
-> +
->   static const struct mdev_parent_ops vfio_ap_matrix_ops = {
->   	.owner			= THIS_MODULE,
->   	.supported_type_groups	= vfio_ap_mdev_type_groups,
-> +	.mdev_attr_groups	= vfio_ap_mdev_attr_groups,
->   	.create			= vfio_ap_mdev_create,
->   	.remove			= vfio_ap_mdev_remove,
->   };
+	int main()
+	{
+		char buf[64] = { 0 };
+		struct iovec iov  = { .iov_base = buf, .iov_len = sizeof(buf) };
+		struct msghdr msg = { .msg_iov = &iov, .msg_iovlen = 1 };
+		int fd;
 
+		fd = socket(AF_SMC, SOCK_STREAM, 0);
+		sendmsg(fd, &msg, MSG_FASTOPEN);
+	}
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+It seems the following sock_put() in smc_release() is done without any previous
+sock_hold(), causing a use-after-free:
+
+        if (smc->use_fallback) {
+                sock_put(sk); /* passive closing */
+                sk->sk_state = SMC_CLOSED;
+                sk->sk_state_change(sk);
+        }
+
+This is the output on latest Linus tree (commit fc36def997cfd6cb):
+
+	WARNING: CPU: 2 PID: 216 at include/net/sock.h:644 smc_unhash_sk+0x74/0x80 net/smc/af_smc.c:89
+	CPU: 2 PID: 216 Comm: syz_smc_unhash Not tainted 4.18.0-rc3-00113-gfc36def997cfd #20
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-20171110_100015-anatol 04/01/2014
+	RIP: 0010:smc_unhash_sk+0x74/0x80 net/smc/af_smc.c:89
+	Code: 8d bb 80 00 00 00 e8 9b 4a bc ff 48 8b 73 28 ba ff ff ff ff 48 8b 7b 30 e8 d9 a6 d4 ff 4c 89 e7 e8 e1 5b 02 00 5b 41 5c 5d c3 <0f> 0b eb d1 0f 1f 84 00 00 00 00 00 55 48 89 e5 41 57 49 89 cf 41 
+	RSP: 0018:ffffc900007cfd58 EFLAGS: 00010246
+	RAX: 0000000000000001 RBX: ffff8800792df7c0 RCX: 0000000000000000
+	RDX: 0000000000000000 RSI: ffffffff8270dda0 RDI: ffffffff81e92da0
+	RBP: ffffc900007cfd68 R08: ffffffff8270dda0 R09: 0000000000000001
+	R10: ffff88007933cbb8 R11: 0000000000000002 R12: ffffffff81e92da0
+	R13: 0000000000000000 R14: ffff8800792dfb20 R15: ffff8800792df840
+	FS:  00007ff24690e740(0000) GS:ffff88007fd00000(0000) knlGS:0000000000000000
+	CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	CR2: 00007ff245fe3eb0 CR3: 0000000001e0f000 CR4: 00000000003406e0
+	Call Trace:
+	 smc_release+0x10a/0x1c0 net/smc/af_smc.c:162
+	 __sock_release+0x31/0x80 net/socket.c:599
+	 sock_close+0x10/0x20 net/socket.c:1150
+	 __fput+0xb4/0x1f0 fs/file_table.c:209
+	 ____fput+0x9/0x10 fs/file_table.c:243
+	 task_work_run+0x86/0xc0 kernel/task_work.c:113
+	 exit_task_work include/linux/task_work.h:22 [inline]
+	 do_exit+0x27a/0xa30 kernel/exit.c:865
+	 do_group_exit+0x3c/0xc0 kernel/exit.c:968
+	 __do_sys_exit_group kernel/exit.c:979 [inline]
+	 __se_sys_exit_group kernel/exit.c:977 [inline]
+	 __x64_sys_exit_group+0x13/0x20 kernel/exit.c:977
+	 do_syscall_64+0x4a/0x180 arch/x86/entry/common.c:290
+	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
+	RIP: 0033:0x7ff245fe3ee8
+	Code: Bad RIP value.
+	RSP: 002b:00007ffcd2bdcae8 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+	RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ff245fe3ee8
+	RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
+	RBP: 00007ff2462cd6d8 R08: 00000000000000e7 R09: ffffffffffffff80
+	R10: 00007ff2464da100 R11: 0000000000000246 R12: 00007ff2462cd6d8
+	R13: 00007ff2462d2be0 R14: 0000000000000000 R15: 0000000000000000
+	irq event stamp: 1821
+	hardirqs last  enabled at (1819): [<ffffffff81053a5a>] __local_bh_enable_ip+0x7a/0xd0 kernel/softirq.c:190
+	hardirqs last disabled at (1821): [<ffffffff81800f23>] error_entry+0x73/0xc0 arch/x86/entry/entry_64.S:1262
+	softirqs last  enabled at (1818): [<ffffffff8144f8ad>] spin_unlock_bh include/linux/spinlock.h:355 [inline]
+	softirqs last  enabled at (1818): [<ffffffff8144f8ad>] release_sock+0x7d/0xb0 net/core/sock.c:2862
+	softirqs last disabled at (1820): [<ffffffff81706e0d>] smc_unhash_sk+0x1d/0x80 net/smc/af_smc.c:85
+	---[ end trace f41d8ae31daf1115 ]---
+	------------[ cut here ]------------
+	refcount_t: decrement hit 0; leaking memory.
+	WARNING: CPU: 2 PID: 216 at lib/refcount.c:228 refcount_dec+0x33/0x40 lib/refcount.c:228
+	CPU: 2 PID: 216 Comm: syz_smc_unhash Tainted: G        W         4.18.0-rc3-00113-gfc36def997cfd #20
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-20171110_100015-anatol 04/01/2014
+	RIP: 0010:refcount_dec+0x33/0x40 lib/refcount.c:228
+	Code: 48 89 e5 e8 6f ff ff ff 84 c0 75 02 5d c3 80 3d 85 94 bc 00 00 75 f5 48 c7 c7 40 43 d8 81 c6 05 75 94 bc 00 01 e8 d3 3f d8 ff <0f> 0b 5d c3 66 0f 1f 84 00 00 00 00 00 55 b8 01 00 00 00 31 d2 48 
+	RSP: 0018:ffffc900007cfd48 EFLAGS: 00010286
+	RAX: 0000000000000000 RBX: ffff8800792df7c0 RCX: 0000000000000006
+	RDX: 0000000000000007 RSI: ffff88007933cbe0 RDI: ffff88007fd15410
+	RBP: ffffc900007cfd48 R08: 0000000000000001 R09: 0000000000000000
+	R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff81e92da0
+	R13: 0000000000000000 R14: ffff8800792dfb20 R15: ffff8800792df840
+	FS:  00007ff24690e740(0000) GS:ffff88007fd00000(0000) knlGS:0000000000000000
+	CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	CR2: 00007ff245fe3ebe CR3: 0000000001e0f000 CR4: 00000000003406e0
+	Call Trace:
+	 __sock_put include/net/sock.h:635 [inline]
+	 sk_del_node_init include/net/sock.h:645 [inline]
+	 smc_unhash_sk+0x55/0x80 net/smc/af_smc.c:86
+	 smc_release+0x10a/0x1c0 net/smc/af_smc.c:162
+	 __sock_release+0x31/0x80 net/socket.c:599
+	 sock_close+0x10/0x20 net/socket.c:1150
+	 __fput+0xb4/0x1f0 fs/file_table.c:209
+	 ____fput+0x9/0x10 fs/file_table.c:243
+	 task_work_run+0x86/0xc0 kernel/task_work.c:113
+	 exit_task_work include/linux/task_work.h:22 [inline]
+	 do_exit+0x27a/0xa30 kernel/exit.c:865
+	 do_group_exit+0x3c/0xc0 kernel/exit.c:968
+	 __do_sys_exit_group kernel/exit.c:979 [inline]
+	 __se_sys_exit_group kernel/exit.c:977 [inline]
+	 __x64_sys_exit_group+0x13/0x20 kernel/exit.c:977
+	 do_syscall_64+0x4a/0x180 arch/x86/entry/common.c:290
+	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
+	RIP: 0033:0x7ff245fe3ee8
+	Code: Bad RIP value.
+	RSP: 002b:00007ffcd2bdcae8 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+	RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ff245fe3ee8
+	RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
+	RBP: 00007ff2462cd6d8 R08: 00000000000000e7 R09: ffffffffffffff80
+	R10: 00007ff2464da100 R11: 0000000000000246 R12: 00007ff2462cd6d8
+	R13: 00007ff2462d2be0 R14: 0000000000000000 R15: 0000000000000000
+	irq event stamp: 1841
+	hardirqs last  enabled at (1840): [<ffffffff810a4297>] console_unlock+0x407/0x520 kernel/printk/printk.c:2422
+	hardirqs last disabled at (1841): [<ffffffff81800f23>] error_entry+0x73/0xc0 arch/x86/entry/entry_64.S:1262
+	softirqs last  enabled at (1818): [<ffffffff8144f8ad>] spin_unlock_bh include/linux/spinlock.h:355 [inline]
+	softirqs last  enabled at (1818): [<ffffffff8144f8ad>] release_sock+0x7d/0xb0 net/core/sock.c:2862
+	softirqs last disabled at (1820): [<ffffffff81706e0d>] smc_unhash_sk+0x1d/0x80 net/smc/af_smc.c:85
+	---[ end trace f41d8ae31daf1116 ]---
+	------------[ cut here ]------------
+	refcount_t: underflow; use-after-free.
+	WARNING: CPU: 2 PID: 216 at lib/refcount.c:187 refcount_sub_and_test+0x4c/0x60 lib/refcount.c:187
+	CPU: 2 PID: 216 Comm: syz_smc_unhash Tainted: G        W         4.18.0-rc3-00113-gfc36def997cfd #20
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-20171110_100015-anatol 04/01/2014
+	RIP: 0010:refcount_sub_and_test+0x4c/0x60 lib/refcount.c:187
+	Code: 5d 0f 94 c0 c3 83 f8 ff 75 df 31 c0 5d c3 80 3d ed 94 bc 00 00 75 f3 48 c7 c7 18 43 d8 81 c6 05 dd 94 bc 00 01 e8 3a 40 d8 ff <0f> 0b 31 c0 eb dc 31 c0 c3 90 66 2e 0f 1f 84 00 00 00 00 00 55 48 
+	RSP: 0018:ffffc900007cfd58 EFLAGS: 00010282
+	RAX: 0000000000000000 RBX: ffff8800792df7c0 RCX: 0000000000000006
+	RDX: 0000000000000007 RSI: ffff88007933cbb8 RDI: ffff88007fd15410
+	RBP: ffffc900007cfd58 R08: 0000000000000001 R09: 0000000000000000
+	R10: 0000000000000000 R11: 0000000000000000 R12: ffff88007cf16b80
+	R13: 0000000000000000 R14: ffff8800792dfb20 R15: ffff8800792df840
+	FS:  00007ff24690e740(0000) GS:ffff88007fd00000(0000) knlGS:0000000000000000
+	CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	CR2: 00007ff245fe3ebe CR3: 0000000001e0f000 CR4: 00000000003406e0
+	Call Trace:
+	 refcount_dec_and_test+0x11/0x20 lib/refcount.c:212
+	 sock_put include/net/sock.h:1666 [inline]
+	 smc_release+0x112/0x1c0 net/smc/af_smc.c:163
+	 __sock_release+0x31/0x80 net/socket.c:599
+	 sock_close+0x10/0x20 net/socket.c:1150
+	 __fput+0xb4/0x1f0 fs/file_table.c:209
+	 ____fput+0x9/0x10 fs/file_table.c:243
+	 task_work_run+0x86/0xc0 kernel/task_work.c:113
+	 exit_task_work include/linux/task_work.h:22 [inline]
+	 do_exit+0x27a/0xa30 kernel/exit.c:865
+	 do_group_exit+0x3c/0xc0 kernel/exit.c:968
+	 __do_sys_exit_group kernel/exit.c:979 [inline]
+	 __se_sys_exit_group kernel/exit.c:977 [inline]
+	 __x64_sys_exit_group+0x13/0x20 kernel/exit.c:977
+	 do_syscall_64+0x4a/0x180 arch/x86/entry/common.c:290
+	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
+	RIP: 0033:0x7ff245fe3ee8
+	Code: Bad RIP value.
+	RSP: 002b:00007ffcd2bdcae8 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+	RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ff245fe3ee8
+	RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
+	RBP: 00007ff2462cd6d8 R08: 00000000000000e7 R09: ffffffffffffff80
+	R10: 00007ff2464da100 R11: 0000000000000246 R12: 00007ff2462cd6d8
+	R13: 00007ff2462d2be0 R14: 0000000000000000 R15: 0000000000000000
+	irq event stamp: 1880
+	hardirqs last  enabled at (1879): [<ffffffff810a4297>] console_unlock+0x407/0x520 kernel/printk/printk.c:2422
+	hardirqs last disabled at (1880): [<ffffffff81800f23>] error_entry+0x73/0xc0 arch/x86/entry/entry_64.S:1262
+	softirqs last  enabled at (1862): [<ffffffff81a001b2>] __do_softirq+0x1b2/0x23f kernel/softirq.c:314
+	softirqs last disabled at (1847): [<ffffffff81800caa>] do_softirq_own_stack+0x2a/0x40 arch/x86/entry/entry_64.S:1046
+	---[ end trace f41d8ae31daf1117 ]---
