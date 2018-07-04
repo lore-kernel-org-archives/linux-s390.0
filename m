@@ -1,72 +1,45 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3] mm: do not drop unused pages when userfaultd is running
-Date: Tue,  3 Jul 2018 19:18:54 +0200
-Message-ID: <20180703171854.63981-1-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Huaisheng Ye <yehs2007@zoho.com>
+Subject: [PATCH 2/3] drivers/s390/block/dcssblk: check the validity of the pointer pfn
+Date: Wed,  4 Jul 2018 14:40:57 +0800
+Message-Id: <20180704064058.1344-2-yehs2007@zoho.com>
+In-Reply-To: <20180704064058.1344-1-yehs2007@zoho.com>
+References: <20180704064058.1344-1-yehs2007@zoho.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-mm@kvack.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
-Cc: kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>
+List-Archive: <https://lore.kernel.org/linux-fsdevel/>
+List-Post: <mailto:linux-fsdevel@vger.kernel.org>
+To: linux-nvdimm@lists.01.org
+Cc: dan.j.williams@intel.com, ross.zwisler@linux.intel.com, mawilcox@microsoft.com, vishal.l.verma@intel.com, dave.jiang@intel.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, viro@zeniv.linux.org.uk, martin.petersen@oracle.com, axboe@kernel.dk, gregkh@linuxfoundation.org, bart.vanassche@wdc.com, jack@suse.com, chengnt@lenovo.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, Huaisheng Ye <yehs1@lenovo.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-KVM guests on s390 can notify the host of unused pages. This can result
-in pte_unused callbacks to be true for KVM guest memory.
+From: Huaisheng Ye <yehs1@lenovo.com>
 
-If a page is unused (checked with pte_unused) we might drop this page
-instead of paging it. This can have side-effects on userfaultd, when the
-page in question was already migrated:
+Some functions within fs/dax don't need to get gfn from direct_access.
+Assigning NULL to gfn of dax_direct_access is more intuitive and simple
+than offering a useless local variable.
 
-The next access of that page will trigger a fault and a user fault
-instead of faulting in a new and empty zero page. As QEMU does not
-expect a userfault on an already migrated page this migration will fail.
+So direct_access needs to check validity of the pointer pfn For NULL
+assignment. If pfn equals to NULL, it doesn't need to calculate its
+value.
 
-The most straightforward solution is to ignore the pte_unused hint if a
-userfault context is active for this VMA.
-
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
 ---
-v2->v3 : improve comment
-RFC->v2: user userfaultfd_active
- mm/rmap.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/s390/block/dcssblk.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index 6db729dc4c50..eb477809a5c0 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -64,6 +64,7 @@
- #include <linux/backing-dev.h>
- #include <linux/page_idle.h>
- #include <linux/memremap.h>
-+#include <linux/userfaultfd_k.h>
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 0a312e4..5cdfa02 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -916,7 +916,8 @@ static DEVICE_ATTR(save, S_IWUSR | S_IRUSR, dcssblk_save_show,
  
- #include <asm/tlbflush.h>
+ 	dev_sz = dev_info->end - dev_info->start + 1;
+ 	*kaddr = (void *) dev_info->start + offset;
+-	*pfn = __pfn_to_pfn_t(PFN_DOWN(dev_info->start + offset),
++	if (pfn)
++		*pfn = __pfn_to_pfn_t(PFN_DOWN(dev_info->start + offset),
+ 			PFN_DEV|PFN_SPECIAL);
  
-@@ -1481,11 +1482,16 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
- 				set_pte_at(mm, address, pvmw.pte, pteval);
- 			}
- 
--		} else if (pte_unused(pteval)) {
-+		} else if (pte_unused(pteval) && !userfaultfd_armed(vma)) {
- 			/*
- 			 * The guest indicated that the page content is of no
- 			 * interest anymore. Simply discard the pte, vmscan
- 			 * will take care of the rest.
-+			 * A future reference will then fault in a new zero
-+			 * page. When userfaultfd is active, we must not drop
-+			 * this page though, as its main user (postcopy
-+			 * migration) will not expect userfaults on already
-+			 * copied pages.
- 			 */
- 			dec_mm_counter(mm, mm_counter(page));
- 			/* We have to invalidate as we cleared the pte */
+ 	return (dev_sz - offset) / PAGE_SIZE;
 -- 
-2.17.0
+1.8.3.1
