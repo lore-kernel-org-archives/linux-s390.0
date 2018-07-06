@@ -1,199 +1,56 @@
-Return-Path: <SRS0=71UW=JV=vger.kernel.org=linux-kernel-owner@kernel.org>
+Return-Path: <SRS0=VV0n=JW=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Fri, 6 Jul 2018 11:24:25 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [PATCH v12 04/11] kvm/x86: remove kvm memblock dependency
-References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
- <20180621212518.19914-5-pasha.tatashin@oracle.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <fc67276e-643d-8a78-29e3-273c6dc79275@redhat.com>
-Date: Thu, 5 Jul 2018 18:12:03 +0200
+In-Reply-To: <fc67276e-643d-8a78-29e3-273c6dc79275@redhat.com>
+Message-ID: <alpine.DEB.2.21.1807061101040.1664@nanos.tec.linutronix.de>
+References: <20180621212518.19914-1-pasha.tatashin@oracle.com> <20180621212518.19914-5-pasha.tatashin@oracle.com> <fc67276e-643d-8a78-29e3-273c6dc79275@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20180621212518.19914-5-pasha.tatashin@oracle.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 21/06/2018 23:25, Pavel Tatashin wrote:
-> KVM clock is initialized later compared to other hypervisor because it has
-> dependency on memblock allocator.
+On Thu, 5 Jul 2018, Paolo Bonzini wrote:
+> On 21/06/2018 23:25, Pavel Tatashin wrote:
+> > KVM clock is initialized later compared to other hypervisor because it has
+> > dependency on memblock allocator.
+> > 
+> > Lets bring it inline with other hypervisors by removing this dependency by
+> > using memory from BSS instead of allocating it.
+> > 
+> > The benefits:
+> > - remove ifdef from common code
+> > - earlier availability of TSC.
+> > - remove dependency on memblock, and reduce code
+> > - earlier kvm sched_clock()
+> > 
+> > Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
 > 
-> Lets bring it inline with other hypervisors by removing this dependency by
-> using memory from BSS instead of allocating it.
-> 
-> The benefits:
-> - remove ifdef from common code
-> - earlier availability of TSC.
-> - remove dependency on memblock, and reduce code
-> - earlier kvm sched_clock()
-> 
-> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+> The reason for this is to avoid wasting a lot of BSS memory when KVM is
+> not in use.  Thomas is going to send his take on this!
 
-The reason for this is to avoid wasting a lot of BSS memory when KVM is
-not in use.  Thomas is going to send his take on this!
+Got it working with per cpu variables, but there is a different subtle
+issue with that.
 
-Paolo
+The pvclock data is mapped into the VDSO as well, i.e. as a full page.
 
-> ---
->  arch/x86/kernel/kvm.c      |  1 +
->  arch/x86/kernel/kvmclock.c | 64 ++++++--------------------------------
->  arch/x86/kernel/setup.c    |  7 ++---
->  3 files changed, 12 insertions(+), 60 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-> index 5b2300b818af..c65c232d3ddd 100644
-> --- a/arch/x86/kernel/kvm.c
-> +++ b/arch/x86/kernel/kvm.c
-> @@ -628,6 +628,7 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
->  	.name			= "KVM",
->  	.detect			= kvm_detect,
->  	.type			= X86_HYPER_KVM,
-> +	.init.init_platform	= kvmclock_init,
->  	.init.guest_late_init	= kvm_guest_init,
->  	.init.x2apic_available	= kvm_para_available,
->  };
-> diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-> index bf8d1eb7fca3..01558d41ec2c 100644
-> --- a/arch/x86/kernel/kvmclock.c
-> +++ b/arch/x86/kernel/kvmclock.c
-> @@ -23,9 +23,9 @@
->  #include <asm/apic.h>
->  #include <linux/percpu.h>
->  #include <linux/hardirq.h>
-> -#include <linux/memblock.h>
->  #include <linux/sched.h>
->  #include <linux/sched/clock.h>
-> +#include <linux/mm.h>
->  
->  #include <asm/mem_encrypt.h>
->  #include <asm/x86_init.h>
-> @@ -44,6 +44,11 @@ static int parse_no_kvmclock(char *arg)
->  }
->  early_param("no-kvmclock", parse_no_kvmclock);
->  
-> +/* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
-> +#define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
-> +#define WALL_CLOCK_SIZE	(sizeof(struct pvclock_wall_clock))
-> +static u8 hv_clock_mem[PAGE_ALIGN(HV_CLOCK_SIZE)] __aligned(PAGE_SIZE);
-> +static u8 wall_clock_mem[PAGE_ALIGN(WALL_CLOCK_SIZE)] __aligned(PAGE_SIZE);
->  /* The hypervisor will put information about time periodically here */
->  static struct pvclock_vsyscall_time_info *hv_clock;
->  static struct pvclock_wall_clock *wall_clock;
-> @@ -244,43 +249,12 @@ static void kvm_shutdown(void)
->  	native_machine_shutdown();
->  }
->  
-> -static phys_addr_t __init kvm_memblock_alloc(phys_addr_t size,
-> -					     phys_addr_t align)
-> -{
-> -	phys_addr_t mem;
-> -
-> -	mem = memblock_alloc(size, align);
-> -	if (!mem)
-> -		return 0;
-> -
-> -	if (sev_active()) {
-> -		if (early_set_memory_decrypted((unsigned long)__va(mem), size))
-> -			goto e_free;
-> -	}
-> -
-> -	return mem;
-> -e_free:
-> -	memblock_free(mem, size);
-> -	return 0;
-> -}
-> -
-> -static void __init kvm_memblock_free(phys_addr_t addr, phys_addr_t size)
-> -{
-> -	if (sev_active())
-> -		early_set_memory_encrypted((unsigned long)__va(addr), size);
-> -
-> -	memblock_free(addr, size);
-> -}
-> -
->  void __init kvmclock_init(void)
->  {
->  	struct pvclock_vcpu_time_info *vcpu_time;
-> -	unsigned long mem, mem_wall_clock;
-> -	int size, cpu, wall_clock_size;
-> +	int cpu;
->  	u8 flags;
->  
-> -	size = PAGE_ALIGN(sizeof(struct pvclock_vsyscall_time_info)*NR_CPUS);
-> -
->  	if (!kvm_para_available())
->  		return;
->  
-> @@ -290,28 +264,11 @@ void __init kvmclock_init(void)
->  	} else if (!(kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)))
->  		return;
->  
-> -	wall_clock_size = PAGE_ALIGN(sizeof(struct pvclock_wall_clock));
-> -	mem_wall_clock = kvm_memblock_alloc(wall_clock_size, PAGE_SIZE);
-> -	if (!mem_wall_clock)
-> -		return;
-> -
-> -	wall_clock = __va(mem_wall_clock);
-> -	memset(wall_clock, 0, wall_clock_size);
-> -
-> -	mem = kvm_memblock_alloc(size, PAGE_SIZE);
-> -	if (!mem) {
-> -		kvm_memblock_free(mem_wall_clock, wall_clock_size);
-> -		wall_clock = NULL;
-> -		return;
-> -	}
-> -
-> -	hv_clock = __va(mem);
-> -	memset(hv_clock, 0, size);
-> +	wall_clock = (struct pvclock_wall_clock *)wall_clock_mem;
-> +	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
->  
->  	if (kvm_register_clock("primary cpu clock")) {
->  		hv_clock = NULL;
-> -		kvm_memblock_free(mem, size);
-> -		kvm_memblock_free(mem_wall_clock, wall_clock_size);
->  		wall_clock = NULL;
->  		return;
->  	}
-> @@ -354,13 +311,10 @@ int __init kvm_setup_vsyscall_timeinfo(void)
->  	int cpu;
->  	u8 flags;
->  	struct pvclock_vcpu_time_info *vcpu_time;
-> -	unsigned int size;
->  
->  	if (!hv_clock)
->  		return 0;
->  
-> -	size = PAGE_ALIGN(sizeof(struct pvclock_vsyscall_time_info)*NR_CPUS);
-> -
->  	cpu = get_cpu();
->  
->  	vcpu_time = &hv_clock[cpu].pvti;
-> diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-> index 403b2d2c31d2..01fcc8bf7c8f 100644
-> --- a/arch/x86/kernel/setup.c
-> +++ b/arch/x86/kernel/setup.c
-> @@ -1014,6 +1014,8 @@ void __init setup_arch(char **cmdline_p)
->  	 */
->  	init_hypervisor_platform();
->  
-> +	tsc_early_delay_calibrate();
-> +
->  	x86_init.resources.probe_roms();
->  
->  	/* after parse_early_param, so could debug it */
-> @@ -1199,11 +1201,6 @@ void __init setup_arch(char **cmdline_p)
->  
->  	memblock_find_dma_reserve();
->  
-> -#ifdef CONFIG_KVM_GUEST
-> -	kvmclock_init();
-> -#endif
-> -
-> -	tsc_early_delay_calibrate();
->  	if (!early_xdbc_setup_hardware())
->  		early_xdbc_register_console();
->  
-> 
+Right now with the linear array, which is forced to be page sized at least
+this only maps pvclock data or zeroed data (after the last CPU) into the
+VDSO.
+
+With PER CPU variables this would map arbitraty other per cpu data which
+happens to be in the same page into the VDSO. Not really what we want.
+
+That means to utilize PER CPU data this requires to allocate page sized
+pvclock data space for each CPU to prevent leaking arbitrary stuff.
+
+As this data is allocated on demand, i.e. only if kvmclock is used, this
+might be tolerable, but I'm not so sure.
+
+Thanks,
+
+	tglx
