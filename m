@@ -1,83 +1,44 @@
-Return-Path: <linux-fsdevel-owner@vger.kernel.org>
-From: Huaisheng Ye <yehs2007@zoho.com>
-Subject: [PATCH v2 4/4] fs/dax: Assign NULL to gfn of dax_direct_access if useless
-Date: Thu,  5 Jul 2018 00:38:23 +0800
-Message-Id: <20180704163823.9980-5-yehs2007@zoho.com>
-In-Reply-To: <20180704163823.9980-1-yehs2007@zoho.com>
-References: <20180704163823.9980-1-yehs2007@zoho.com>
-Sender: linux-fsdevel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-fsdevel/>
-List-Post: <mailto:linux-fsdevel@vger.kernel.org>
-To: linux-nvdimm@lists.01.org, dan.j.williams@intel.com
-Cc: ross.zwisler@linux.intel.com, willy@infradead.org, vishal.l.verma@intel.com, dave.jiang@intel.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, viro@zeniv.linux.org.uk, martin.petersen@oracle.com, axboe@kernel.dk, gregkh@linuxfoundation.org, bart.vanassche@wdc.com, jack@suse.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, colyli@suse.de, chengnt@lenovo.com, Huaisheng Ye <yehs1@lenovo.com>
+From: Dong Jia Shi <bjsdjshi@linux.ibm.com>
+Subject: [PATCH 1/1] MAINTAINERS: Remove myself as maintainer
+Date: Fri,  6 Jul 2018 03:57:43 +0200
+Message-ID: <20180706015743.41810-1-bjsdjshi@linux.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: cohuck@redhat.com, borntraeger@de.ibm.com, legumen@foxmail.com, pasic@linux.ibm.com, pmorel@linux.ibm.com, Dong Jia Shi <bjsdjshi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Huaisheng Ye <yehs1@lenovo.com>
+I am leaving IBM and will move on to other working area,
+so remove myself as a vfio-ccw maintainer.
 
-Some functions within fs/dax don't need to get gfn from direct_access.
-Assigning NULL to gfn of dax_direct_access is more intuitive and simple
-than offering a useless local variable.
+Signed-off-by: Dong Jia Shi <bjsdjshi@linux.ibm.com>
 
-Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
 ---
- fs/dax.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+I've enjoyed working with you guys. Hope to meet you in future,
+until then, thank you for all your coach and help, please take
+care, and farewell.
 
-diff --git a/fs/dax.c b/fs/dax.c
-index aaec72de..aa75dfd 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -550,7 +550,6 @@ static int copy_user_dax(struct block_device *bdev, struct dax_device *dax_dev,
- {
- 	void *vto, *kaddr;
- 	pgoff_t pgoff;
--	pfn_t pfn;
- 	long rc;
- 	int id;
+[I've send you my private contact data. :]
+
+--
+Dong Jia
+---
+ MAINTAINERS | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 07d1576fc766..e52eb9312f2d 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -12398,7 +12398,6 @@ F:	drivers/pci/hotplug/s390_pci_hpc.c
  
-@@ -559,7 +558,7 @@ static int copy_user_dax(struct block_device *bdev, struct dax_device *dax_dev,
- 		return rc;
- 
- 	id = dax_read_lock();
--	rc = dax_direct_access(dax_dev, pgoff, PHYS_PFN(size), &kaddr, &pfn);
-+	rc = dax_direct_access(dax_dev, pgoff, PHYS_PFN(size), &kaddr, NULL);
- 	if (rc < 0) {
- 		dax_read_unlock(id);
- 		return rc;
-@@ -961,7 +960,6 @@ int __dax_zero_page_range(struct block_device *bdev,
- 		pgoff_t pgoff;
- 		long rc, id;
- 		void *kaddr;
--		pfn_t pfn;
- 
- 		rc = bdev_dax_pgoff(bdev, sector, PAGE_SIZE, &pgoff);
- 		if (rc)
-@@ -969,7 +967,7 @@ int __dax_zero_page_range(struct block_device *bdev,
- 
- 		id = dax_read_lock();
- 		rc = dax_direct_access(dax_dev, pgoff, 1, &kaddr,
--				&pfn);
-+				NULL);
- 		if (rc < 0) {
- 			dax_read_unlock(id);
- 			return rc;
-@@ -1024,7 +1022,6 @@ int __dax_zero_page_range(struct block_device *bdev,
- 		ssize_t map_len;
- 		pgoff_t pgoff;
- 		void *kaddr;
--		pfn_t pfn;
- 
- 		if (fatal_signal_pending(current)) {
- 			ret = -EINTR;
-@@ -1036,7 +1033,7 @@ int __dax_zero_page_range(struct block_device *bdev,
- 			break;
- 
- 		map_len = dax_direct_access(dax_dev, pgoff, PHYS_PFN(size),
--				&kaddr, &pfn);
-+				&kaddr, NULL);
- 		if (map_len < 0) {
- 			ret = map_len;
- 			break;
+ S390 VFIO-CCW DRIVER
+ M:	Cornelia Huck <cohuck@redhat.com>
+-M:	Dong Jia Shi <bjsdjshi@linux.ibm.com>
+ M:	Halil Pasic <pasic@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ L:	kvm@vger.kernel.org
 -- 
-1.8.3.1
+2.16.4
