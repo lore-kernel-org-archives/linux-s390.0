@@ -1,86 +1,203 @@
-Return-Path: <SRS0=RpQd=J3=vger.kernel.org=linux-kernel-owner@kernel.org>
-MIME-Version: 1.0
-Date: Wed, 11 Jul 2018 08:18:02 -0700
-In-Reply-To: <000000000000b15fb3056b9f94e7@google.com>
-Message-ID: <000000000000b1e6c40570bac075@google.com>
-Subject: Re: INFO: task hung in flush_work
-From: syzbot <syzbot+2e7b6af5956e05e5cff7@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v6 11/21] s390: vfio-ap: sysfs interfaces to configure
+ domains
+Date: Mon, 9 Jul 2018 14:13:52 +0200
+Message-ID: <0b29176d-7222-6111-6fea-d8bde66fa670@linux.ibm.com>
+References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1530306683-7270-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+Reply-To: pmorel@linux.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1530306683-7270-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: davem@davemloft.net, ericvh@gmail.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, lucho@ionkov.net, netdev@vger.kernel.org, rminnich@sandia.gov, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com, v9fs-developer@lists.sourceforge.net
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-syzbot has found a reproducer for the following crash on:
+On 29/06/2018 23:11, Tony Krowiak wrote:
+> Provides the sysfs interfaces for assigning AP domains to
+> and unassigning AP domains from a mediated matrix device.
+>
+> An AP domain ID corresponds to an AP queue index (APQI). For
+> each domain assigned to the mediated matrix device, its
+> corresponging APQI is stored in an AP queue mask (AQM).
+> The bits in the AQM, from most significant to least
+> significant bit, correspond to AP domain numbers 0 to 255.
+> When a domain is assigned, the bit corresponding to its
+> APQI will be set in the AQM. Likewise, when a domain is
+> unassigned, the bit corresponding to its APQI will be
+> cleared from the AQM.
+>
+> The relevant sysfs structures are:
+>
+> /sys/devices/vfio_ap
+> ... [matrix]
+> ...... [mdev_supported_types]
+> ......... [vfio_ap-passthrough]
+> ............ [devices]
+> ...............[$uuid]
+> .................. assign_domain
+> .................. unassign_domain
+>
+> To assign a domain to the $uuid mediated matrix device,
+> write the domain's ID to the assign_domain file. To
+> unassign a domain, write the domain's ID to the
+> unassign_domain file. The ID is specified using
+> conventional semantics: If it begins with 0x, the number
+> will be parsed as a hexadecimal (case insensitive) number;
+> if it begins with 0, it will be parsed as an octal number;
+> otherwise, it will be parsed as a decimal number.
+>
+> For example, to assign domain 173 (0xad) to the mediated matrix
+> device $uuid:
+>
+> 	echo 173 > assign_domain
+>
+> 	or
+>
+> 	echo 0255 > assign_domain
+>
+> 	or
+>
+> 	echo 0xad > assign_domain
+>
+> To unassign domain 173 (0xad):
+>
+> 	echo 173 > unassign_domain
+>
+> 	or
+>
+> 	echo 0255 > unassign_domain
+>
+> 	or
+>
+> 	echo 0xad > unassign_domain
+>
+> The assignment will be rejected:
+>
+> * If the domain ID exceeds the maximum value for an AP domain:
+>
+>    * If the AP Extended Addressing (APXA) facility is installed,
+>      the max value is 255
+>
+>    * Else the max value is 15
+>
+> * If no AP adapters have yet been assigned and there are
+>    no AP queues reserved by the VFIO AP driver that have an APQN
+>    with an APQI matching that of the AP domain number being
+>    assigned.
+>
+> * If any of the APQNs that can be derived from the intersection
+>    of the APQI being assigned and the AP adapter ID (APID) of
+>    each of the AP adapters previously assigned can not be matched
+>    with an APQN of an AP queue device reserved by the VFIO AP
+>    driver.
+>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c |  173 ++++++++++++++++++++++++++++++++++++-
+>   1 files changed, 172 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index a4351bd..a5b06e7 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -170,6 +170,27 @@ static int vfio_ap_queue_has_apid(struct device *dev, void *data)
+>   }
+>
+>   /**
+> + * vfio_ap_queue_has_apqi
+> + *
+> + * @dev: an AP queue device
+> + * @data: an AP queue index
+> + *
+> + * Flags whether any AP queue device has a particular AP queue index
+> + *
+> + * Returns 0 to indicate the function succeeded
+> + */
+> +static int vfio_ap_queue_has_apqi(struct device *dev, void *data)
+> +{
+> +	struct vfio_id_reserved *id_res = data;
+> +	struct ap_queue *ap_queue = to_ap_queue(dev);
+> +
+> +	if (id_res->id == AP_QID_QUEUE(ap_queue->qid))
+> +		id_res->reserved = true;
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+>    * vfio_ap_verify_qid_reserved
+>    *
+>    * @matrix_dev: a mediated matrix device
+> @@ -236,6 +257,42 @@ static int vfio_ap_verify_apid_reserved(struct ap_matrix_dev *matrix_dev,
+>   	return -EPERM;
+>   }
+>
+> +/**
+> + * vfio_ap_verify_apqi_reserved
+> + *
+> + * @matrix_dev: a mediated matrix device
+> + * @apqi: an AP queue index
+> + *
+> + * Verifies that an AP queue with @apqi is reserved by the VFIO AP device
+> + * driver.
+> + *
+> + * Returns 0 if an AP queue with @apqi is reserved; otherwise, returns -ENODEV.
+> + */
+> +static int vfio_ap_verify_apqi_reserved(struct ap_matrix_dev *matrix_dev,
+> +					const char *mdev_name,
+> +					unsigned long apqi)
+> +{
+> +	int ret;
+> +	struct vfio_id_reserved id_res;
+> +
+> +	id_res.id = apqi;
+> +	id_res.reserved = false;
+> +
+> +	ret = driver_for_each_device(matrix_dev->device.driver, NULL, &id_res,
+> +				     vfio_ap_queue_has_apqi);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (id_res.reserved)
+> +		return 0;
+> +
+> +	pr_err("%s: mdev %s using queue %04lx not reserved by %s driver",
+> +					VFIO_AP_MODULE_NAME, mdev_name, apqi,
+> +					VFIO_AP_DRV_NAME);
+> +
+> +	return -EPERM;
+> +}
+> +
+>   static int vfio_ap_verify_queues_reserved(struct ap_matrix_dev *matrix_dev,
+>   					  const char *mdev_name,
+>   					  struct ap_matrix *matrix)
+> @@ -417,10 +474,124 @@ static ssize_t unassign_adapter_store(struct device *dev,
+>   }
+>   DEVICE_ATTR_WO(unassign_adapter);
+>
+> +/**
+> + * vfio_ap_validate_apqi
+> + *
+> + * @matrix_mdev: the mediated matrix device
+> + * @apqi: the APQI (domain ID) to validate
+> + *
+> + * Validates the value of @apqi:
+> + *	* If there are no AP adapters assigned, then there must be at least
+> + *	  one AP queue device reserved by the VFIO AP device driver with an
+> + *	  APQN containing @apqi.
 
-HEAD commit:    98be45067040 Add linux-next specific files for 20180711
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=102f1d0c400000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=3f3b3673fec35d01
-dashboard link: https://syzkaller.appspot.com/bug?extid=2e7b6af5956e05e5cff7
-compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
-syzkaller repro:https://syzkaller.appspot.com/x/repro.syz?x=11bed2e0400000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=117415b2400000
+Same as in preceding patch, I do not understand why you need this.
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+2e7b6af5956e05e5cff7@syzkaller.appspotmail.com
+Pierre
 
-INFO: task syz-executor810:4676 blocked for more than 140 seconds.
-       Not tainted 4.18.0-rc4-next-20180711+ #4
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-syz-executor810 D23936  4676   4481 0x00000004
-Call Trace:
-  context_switch kernel/sched/core.c:2853 [inline]
-  __schedule+0x87c/0x1ed0 kernel/sched/core.c:3501
-  schedule+0xfb/0x450 kernel/sched/core.c:3545
-  schedule_timeout+0x1cc/0x260 kernel/time/timer.c:1777
-  do_wait_for_common kernel/sched/completion.c:83 [inline]
-  __wait_for_common kernel/sched/completion.c:104 [inline]
-  wait_for_common kernel/sched/completion.c:115 [inline]
-  wait_for_completion+0x430/0x8d0 kernel/sched/completion.c:136
-  flush_work+0x531/0x900 kernel/workqueue.c:2918
-  __cancel_work_timer+0x4bd/0x830 kernel/workqueue.c:2989
-  cancel_work_sync+0x17/0x20 kernel/workqueue.c:3025
-  p9_conn_destroy net/9p/trans_fd.c:860 [inline]
-  p9_fd_close+0x36a/0x5b0 net/9p/trans_fd.c:886
-  p9_client_create+0xa9a/0x1770 net/9p/client.c:1077
-  v9fs_session_init+0x21a/0x1a80 fs/9p/v9fs.c:400
-  v9fs_mount+0x7c/0x900 fs/9p/vfs_super.c:135
-  legacy_get_tree+0x118/0x440 fs/fs_context.c:659
-  vfs_get_tree+0x1cb/0x5c0 fs/super.c:1743
-  do_new_mount fs/namespace.c:2567 [inline]
-  do_mount+0x6c1/0x1fb0 fs/namespace.c:2889
-  ksys_mount+0x12d/0x140 fs/namespace.c:3105
-  __do_sys_mount fs/namespace.c:3119 [inline]
-  __se_sys_mount fs/namespace.c:3116 [inline]
-  __x64_sys_mount+0xbe/0x150 fs/namespace.c:3116
-  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x445e89
-Code: Bad RIP value.
-RSP: 002b:00007fd68625eda8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-RAX: ffffffffffffffda RBX: 00000000006dbc3c RCX: 0000000000445e89
-RDX: 0000000020000340 RSI: 00000000200000c0 RDI: 0000000000000000
-RBP: 0000000000000000 R08: 00000000200001c0 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000202 R12: 00000000006dbc38
-R13: 0030656c69662f2e R14: 64663d736e617274 R15: 0000000000000005
-INFO: lockdep is turned off.
-NMI backtrace for cpu 1
-CPU: 1 PID: 901 Comm: khungtaskd Not tainted 4.18.0-rc4-next-20180711+ #4
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x1c9/0x2b4 lib/dump_stack.c:113
-  nmi_cpu_backtrace.cold.3+0x48/0x88 lib/nmi_backtrace.c:101
-  nmi_trigger_cpumask_backtrace+0x151/0x192 lib/nmi_backtrace.c:62
-  arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
-  trigger_all_cpu_backtrace include/linux/nmi.h:144 [inline]
-  check_hung_uninterruptible_tasks kernel/hung_task.c:231 [inline]
-  watchdog+0xb81/0x10f0 kernel/hung_task.c:292
-  kthread+0x345/0x410 kernel/kthread.c:246
-  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:415
-Sending NMI from CPU 1 to CPUs 0:
-NMI backtrace for cpu 0 skipped: idling at native_safe_halt+0x6/0x10  
-arch/x86/include/asm/irqflags.h:54
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
