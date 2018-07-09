@@ -1,37 +1,43 @@
-Return-Path: <SRS0=VV0n=JW=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH v12 04/11] kvm/x86: remove kvm memblock dependency
+Return-Path: <SRS0=qUjc=JZ=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: [PATCH v12 09/11] x86/tsc: prepare for early sched_clock
 References: <20180621212518.19914-1-pasha.tatashin@oracle.com>
- <20180621212518.19914-5-pasha.tatashin@oracle.com>
- <fc67276e-643d-8a78-29e3-273c6dc79275@redhat.com>
- <alpine.DEB.2.21.1807061101040.1664@nanos.tec.linutronix.de>
- <52117b6e-cbdc-8583-494b-5e8e5d6d4265@redhat.com>
- <alpine.DEB.2.21.1807061142320.1664@nanos.tec.linutronix.de>
- <585b3646-5515-240a-db57-406d6c311a43@redhat.com>
- <alpine.DEB.2.21.1807061243400.1664@nanos.tec.linutronix.de>
- <alpine.DEB.2.21.1807061248410.1664@nanos.tec.linutronix.de>
- <CAGM2reZ1fkvzECyy4Eo+O9ZE-ddJvE3hFtPGUAv=QJ9Cv_hJvw@mail.gmail.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <9529e874-6fd3-81d8-0a50-bf2efea6c113@redhat.com>
-Date: Fri, 6 Jul 2018 17:09:55 +0200
+ <20180621212518.19914-10-pasha.tatashin@oracle.com>
+ <alpine.DEB.2.21.1806231815060.8650@nanos.tec.linutronix.de>
+ <alpine.DEB.2.21.1806232210110.8650@nanos.tec.linutronix.de>
+ <CAGM2reYQx769omkWVweEcTMy8WNrKOiuUVo4OFWNh4zW-rc4pg@mail.gmail.com>
+ <alpine.DEB.2.21.1806232347540.8650@nanos.tec.linutronix.de>
+ <alpine.DEB.2.21.1806261725510.1587@nanos.tec.linutronix.de>
+ <CAGM2reYQ23XhQHAOO0Oo8MGvgrjpNZPZkwp+wwsU8Fb+jfANyA@mail.gmail.com>
+ <alpine.DEB.2.21.1806270947410.1587@nanos.tec.linutronix.de>
+ <alpine.DEB.2.21.1806281159590.1778@nanos.tec.linutronix.de>
+From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Message-ID: <e256129f-eed8-bd02-a462-d97db68c5de6@oracle.com>
+Date: Mon, 9 Jul 2018 19:16:00 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAGM2reZ1fkvzECyy4Eo+O9ZE-ddJvE3hFtPGUAv=QJ9Cv_hJvw@mail.gmail.com>
+In-Reply-To: <alpine.DEB.2.21.1806281159590.1778@nanos.tec.linutronix.de>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Pavel Tatashin <pasha.tatashin@oracle.com>, tglx@linutronix.de
-Cc: Steven Sistare <steven.sistare@oracle.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, schwidefsky@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>, Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: Steven Sistare <steven.sistare@oracle.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, "H. Peter Anvin" <hpa@zytor.com>, douly.fnst@cn.fujitsu.com, Peter Zijlstra <peterz@infradead.org>, Prarit Bhargava <prarit@redhat.com>, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/07/2018 17:03, Pavel Tatashin wrote:
-> I think using __initdata during init_hypervisor_platform()  +
-> allocating during x86_init.hyper.guest_late_init() is a good approach.
-> My only concern, it would mean we need to init/uinit/init clock for
-> boot cpu. Does it mean the clock continuity is preserved during the
-> transition? I believe so, but needs to be verified.
+On 06/28/2018 06:43 AM, Thomas Gleixner wrote:
+>
+> For enhanced fun the early calibration stuff was moved from right after
+> init_hypervisor_platform() to the place where it is now in commit
+> ccb64941f375a6 ("x86/timers: Move simple_udelay_calibration() past
+> kvmclock_init()") to speed up KVM boot time by avoiding the PIT
+> calibration. I have no idea why it wasn't just moved past the XEN
+> initialization a few lines further down, especially as the change was done
+> by a XEN maintainer :) Boris?
 
-Yes, it's the same as any other pvclock update.
+(Sorry for late response, I was out)
 
-Paolo
+
+No good reason for that. I don't know what (whether?) I was thinking.
+
+-boris
