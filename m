@@ -1,16 +1,16 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v6 11/21] s390: vfio-ap: sysfs interfaces to configure
- domains
-Date: Mon, 9 Jul 2018 14:13:52 +0200
-Message-ID: <0b29176d-7222-6111-6fea-d8bde66fa670@linux.ibm.com>
+Subject: Re: [PATCH v6 13/21] s390: vfio-ap: sysfs interface to view matrix
+ mdev matrix
+Date: Mon, 9 Jul 2018 14:20:36 +0200
+Message-ID: <ef3d480b-29b3-d184-4fb2-14f88961d97d@linux.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1530306683-7270-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1530306683-7270-14-git-send-email-akrowiak@linux.vnet.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1530306683-7270-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <1530306683-7270-14-git-send-email-akrowiak@linux.vnet.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,18 +20,8 @@ Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntr
 List-ID: <linux-s390.vger.kernel.org>
 
 On 29/06/2018 23:11, Tony Krowiak wrote:
-> Provides the sysfs interfaces for assigning AP domains to
-> and unassigning AP domains from a mediated matrix device.
->
-> An AP domain ID corresponds to an AP queue index (APQI). For
-> each domain assigned to the mediated matrix device, its
-> corresponging APQI is stored in an AP queue mask (AQM).
-> The bits in the AQM, from most significant to least
-> significant bit, correspond to AP domain numbers 0 to 255.
-> When a domain is assigned, the bit corresponding to its
-> APQI will be set in the AQM. Likewise, when a domain is
-> unassigned, the bit corresponding to its APQI will be
-> cleared from the AQM.
+> Provides a sysfs interface to view the AP matrix configured for the
+> mediated matrix device.
 >
 > The relevant sysfs structures are:
 >
@@ -41,161 +31,72 @@ On 29/06/2018 23:11, Tony Krowiak wrote:
 > ......... [vfio_ap-passthrough]
 > ............ [devices]
 > ...............[$uuid]
-> .................. assign_domain
-> .................. unassign_domain
+> .................. matrix
 >
-> To assign a domain to the $uuid mediated matrix device,
-> write the domain's ID to the assign_domain file. To
-> unassign a domain, write the domain's ID to the
-> unassign_domain file. The ID is specified using
-> conventional semantics: If it begins with 0x, the number
-> will be parsed as a hexadecimal (case insensitive) number;
-> if it begins with 0, it will be parsed as an octal number;
-> otherwise, it will be parsed as a decimal number.
+> To view the matrix configured for the mediated matrix device,
+> print the matrix file:
 >
-> For example, to assign domain 173 (0xad) to the mediated matrix
-> device $uuid:
->
-> 	echo 173 > assign_domain
->
-> 	or
->
-> 	echo 0255 > assign_domain
->
-> 	or
->
-> 	echo 0xad > assign_domain
->
-> To unassign domain 173 (0xad):
->
-> 	echo 173 > unassign_domain
->
-> 	or
->
-> 	echo 0255 > unassign_domain
->
-> 	or
->
-> 	echo 0xad > unassign_domain
->
-> The assignment will be rejected:
->
-> * If the domain ID exceeds the maximum value for an AP domain:
->
->    * If the AP Extended Addressing (APXA) facility is installed,
->      the max value is 255
->
->    * Else the max value is 15
->
-> * If no AP adapters have yet been assigned and there are
->    no AP queues reserved by the VFIO AP driver that have an APQN
->    with an APQI matching that of the AP domain number being
->    assigned.
->
-> * If any of the APQNs that can be derived from the intersection
->    of the APQI being assigned and the AP adapter ID (APID) of
->    each of the AP adapters previously assigned can not be matched
->    with an APQN of an AP queue device reserved by the VFIO AP
->    driver.
+> 	cat matrix
 >
 > Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 > ---
->   drivers/s390/crypto/vfio_ap_ops.c |  173 ++++++++++++++++++++++++++++++++++++-
->   1 files changed, 172 insertions(+), 1 deletions(-)
+>   drivers/s390/crypto/vfio_ap_ops.c |   31 +++++++++++++++++++++++++++++++
+>   1 files changed, 31 insertions(+), 0 deletions(-)
 >
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index a4351bd..a5b06e7 100644
+> index c8f31f3..bc7398d 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -170,6 +170,27 @@ static int vfio_ap_queue_has_apid(struct device *dev, void *data)
+> @@ -697,6 +697,36 @@ static ssize_t control_domains_show(struct device *dev,
 >   }
+>   DEVICE_ATTR_RO(control_domains);
 >
->   /**
-> + * vfio_ap_queue_has_apqi
-> + *
-> + * @dev: an AP queue device
-> + * @data: an AP queue index
-> + *
-> + * Flags whether any AP queue device has a particular AP queue index
-> + *
-> + * Returns 0 to indicate the function succeeded
-> + */
-> +static int vfio_ap_queue_has_apqi(struct device *dev, void *data)
+> +static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+> +			   char *buf)
 > +{
-> +	struct vfio_id_reserved *id_res = data;
-> +	struct ap_queue *ap_queue = to_ap_queue(dev);
+> +	struct mdev_device *mdev = mdev_from_dev(dev);
+> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +	char *bufpos = buf;
+> +	unsigned long apid;
+> +	unsigned long apqi;
+> +	unsigned long napm = matrix_mdev->matrix.apm_max + 1;
+> +	unsigned long naqm = matrix_mdev->matrix.aqm_max + 1;
+> +	int nchars = 0;
+> +	int n;
 > +
-> +	if (id_res->id == AP_QID_QUEUE(ap_queue->qid))
-> +		id_res->reserved = true;
+> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm) {
+> +		n = sprintf(bufpos, "%02lx\n", apid);
+> +		bufpos += n;
+> +		nchars += n;
 > +
-> +	return 0;
+> +		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, naqm) {
+> +			n = sprintf(bufpos, "%02lx.%04lx\n", apid, apqi);
+> +			bufpos += n;
+> +			nchars += n;
+> +		}
+> +	}
+> +
+> +	return nchars;
 > +}
+> +DEVICE_ATTR_RO(matrix);
 > +
-> +/**
->    * vfio_ap_verify_qid_reserved
->    *
->    * @matrix_dev: a mediated matrix device
-> @@ -236,6 +257,42 @@ static int vfio_ap_verify_apid_reserved(struct ap_matrix_dev *matrix_dev,
->   	return -EPERM;
->   }
+> +
+>   static struct attribute *vfio_ap_mdev_attrs[] = {
+>   	&dev_attr_assign_adapter.attr,
+>   	&dev_attr_unassign_adapter.attr,
+> @@ -705,6 +735,7 @@ static ssize_t control_domains_show(struct device *dev,
+>   	&dev_attr_assign_control_domain.attr,
+>   	&dev_attr_unassign_control_domain.attr,
+>   	&dev_attr_control_domains.attr,
+> +	&dev_attr_matrix.attr,
+>   	NULL,
+>   };
 >
-> +/**
-> + * vfio_ap_verify_apqi_reserved
-> + *
-> + * @matrix_dev: a mediated matrix device
-> + * @apqi: an AP queue index
-> + *
-> + * Verifies that an AP queue with @apqi is reserved by the VFIO AP device
-> + * driver.
-> + *
-> + * Returns 0 if an AP queue with @apqi is reserved; otherwise, returns -ENODEV.
-> + */
-> +static int vfio_ap_verify_apqi_reserved(struct ap_matrix_dev *matrix_dev,
-> +					const char *mdev_name,
-> +					unsigned long apqi)
-> +{
-> +	int ret;
-> +	struct vfio_id_reserved id_res;
-> +
-> +	id_res.id = apqi;
-> +	id_res.reserved = false;
-> +
-> +	ret = driver_for_each_device(matrix_dev->device.driver, NULL, &id_res,
-> +				     vfio_ap_queue_has_apqi);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (id_res.reserved)
-> +		return 0;
-> +
-> +	pr_err("%s: mdev %s using queue %04lx not reserved by %s driver",
-> +					VFIO_AP_MODULE_NAME, mdev_name, apqi,
-> +					VFIO_AP_DRV_NAME);
-> +
-> +	return -EPERM;
-> +}
-> +
->   static int vfio_ap_verify_queues_reserved(struct ap_matrix_dev *matrix_dev,
->   					  const char *mdev_name,
->   					  struct ap_matrix *matrix)
-> @@ -417,10 +474,124 @@ static ssize_t unassign_adapter_store(struct device *dev,
->   }
->   DEVICE_ATTR_WO(unassign_adapter);
->
-> +/**
-> + * vfio_ap_validate_apqi
-> + *
-> + * @matrix_mdev: the mediated matrix device
-> + * @apqi: the APQI (domain ID) to validate
-> + *
-> + * Validates the value of @apqi:
-> + *	* If there are no AP adapters assigned, then there must be at least
-> + *	  one AP queue device reserved by the VFIO AP device driver with an
-> + *	  APQN containing @apqi.
 
-Same as in preceding patch, I do not understand why you need this.
-
-Pierre
+I have still the same remark: what you show here is not what is currently
+used by the SIE.
+It is not irrelevant but what the guest really use may be more interesting
+for the admin.
 
 
 -- 
