@@ -1,106 +1,108 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v6 09/21] s390: vfio-ap: structure for storing mdev matrix
-Date: Fri, 6 Jul 2018 16:26:23 +0200
-Message-ID: <8a708a2e-3961-bd0c-9354-705070ada83d@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v6 21/21] s390: doc: detailed specifications for AP
+ virtualization
+Date: Mon, 9 Jul 2018 11:02:48 +0200
+Message-ID: <9e84e47e-1022-0b87-7567-24b562086abb@linux.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1530306683-7270-10-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1530306683-7270-22-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <f3bba295-f854-fc9e-c4eb-47846178df12@linux.ibm.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1530306683-7270-10-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <f3bba295-f854-fc9e-c4eb-47846178df12@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: Harald Freudenberger <freude@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 06/29/2018 11:11 PM, Tony Krowiak wrote:
-> From: Tony Krowiak <akrowiak@linux.ibm.com>
-> 
-> Introduces a new structure for storing the AP matrix configured
-> for the mediated matrix device via its sysfs attributes files.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c     |   12 ++++++++++++
->   drivers/s390/crypto/vfio_ap_private.h |   24 ++++++++++++++++++++++++
->   2 files changed, 36 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 4e61e33..bf7ed9f 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -20,6 +20,17 @@
->   DEFINE_SPINLOCK(mdev_list_lock);
->   LIST_HEAD(mdev_list);
-> 
-> +static void vfio_ap_matrix_init(struct ap_matrix *matrix)
-> +{
-> +	/* Test if PQAP(QCI) instruction is available */
-> +	if (test_facility(12))
-> +		ap_qci(&matrix->info);
+On 03/07/2018 10:10, Harald Freudenberger wrote:
+> On 29.06.2018 23:11, Tony Krowiak wrote:
+...snip...
+> +The process for reserving an AP queue for use by a KVM guest is:
 > +
-> +	matrix->apm_max = matrix->info.apxa ? matrix->info.Na : 63;
-> +	matrix->aqm_max = matrix->info.apxa ? matrix->info.Nd : 15;
-> +	matrix->adm_max = matrix->info.apxa ? matrix->info.Nd : 15;
-> +}
-> +
->   static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
->   {
->   	struct ap_matrix_dev *matrix_dev =
-> @@ -31,6 +42,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
->   		return -ENOMEM;
-> 
->   	matrix_mdev->name = dev_name(mdev_dev(mdev));
-> +	vfio_ap_matrix_init(&matrix_mdev->matrix);
->   	mdev_set_drvdata(mdev, matrix_mdev);
-> 
->   	if (atomic_dec_if_positive(&matrix_dev->available_instances) < 0) {
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 3de1275..ae771f5 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -29,9 +29,33 @@ struct ap_matrix_dev {
->   	atomic_t available_instances;
->   };
-> 
-> +/**
-> + * The AP matrix is comprised of three bit masks identifying the adapters,
-> + * queues (domains) and control domains that belong to an AP matrix. The bits i
-> + * each mask, from least significant to most significant bit, correspond to IDs
-> + * 0 to 255. When a bit is set, the corresponding ID belongs to the matrix.
-> + *
-> + * @apm identifies the AP adapters in the matrix
-> + * @apm_max: max adapter number in @apm
-> + * @aqm identifies the AP queues (domains) in the matrix
-> + * @aqm_max: max domain number in @aqm
-> + * @adm identifies the AP control domains in the matrix
-> + * @adm_max: max domain number in @adm
-> + */
-> +struct ap_matrix {
-> +	unsigned long apm_max;
-> +	DECLARE_BITMAP(apm, 256);
-> +	unsigned long aqm_max;
-> +	DECLARE_BITMAP(aqm, 256);
-> +	unsigned long adm_max;
-> +	DECLARE_BITMAP(adm, 256);
-> +	struct ap_config_info info;
+> +* The vfio-ap driver during its initialization will perform the following:
+> +  * Create the 'vfio_ap' root device - /sys/devices/vfio_ap
+> +  * Create the 'matrix' device in the 'vfio_ap' root
+> +  * Register the matrix device with the device core
+> +* Register with the ap_bus for AP queue devices of type 10 devices (CEX4 and
+> +  newer) and to provide the vfio_ap driver's probe and remove callback
+> +  interfaces. The reason why older devices are not supported is because there
+> +  are no systems available on which to test.
+> This is simple not true. The reason is this is a design decision. The older
+> cards are simple somewhat more complicated and we don't want to
+> add even more complexity to the ap virtualization implementation.
+> We also said several times that APXA is a requirement not a feature.
 
-Why do we maintain (and populate by doing a QCI) the info member on a
-per mdev device basis?
+I understand your point of view as maintainer of the cryptographic driver
+but I do not see the point concerning virtualization.
+The SIE allows to work fine without APXA.
+Is there any reason to add a restrictions here?
 
-> +};
-> +
->   struct ap_matrix_mdev {
->   	const char *name;
->   	struct list_head list;
-> +	struct ap_matrix matrix;
->   };
-> 
->   static struct ap_matrix_dev *to_ap_matrix_dev(struct device *dev)
-> 
+If there is a good reason then  the problem should be treated when 
+detecting the presence
+of APXA. AFAIR we do not do this.
+
+>> +* The admin unbinds queue cc.qqqq from the cex4queue device driver. This results
+>> +  in the ap_bus calling the the device driver's remove interface which
+>> +  unbinds the cc.qqqq queue device from the driver.
+>> +* The admin binds the cc.qqqq queue to the vfio_ap device driver. This results
+>> +  in the ap_bus calling the device vfio_ap driver's probe interface to bind
+>> +  queue cc.qqqq to the driver. The vfio_ap device driver will store the APQN for
+>> +  the queue in the matrix device
+...snip...
+>> +
+>> +Guest2
+>> +------
+>> +CARD.DOMAIN TYPE  MODE
+>> +------------------------------
+>> +05          CEX5A Accelerator
+>> +05.0047     CEX5A Accelerator
+>> +05.00ff     CEX5A Accelerator
+> Btw: this is an excellent example about thinking beyond the current design.
+> We don't want to dedicate Accelerators to guests. Accelerators should be
+> shared, CCA and EP11 Coprocessors should be dedicated. So maybe
+> change the example to use EP11 and CCA Coprocessors .... and think
+> about how shared Accelerators could be handled.
+
+Shouldn't this problematic be let to the administrator?
+Using the SIE for virtualization is independent of the kind of
+card.
+Why, again, see above, should we take the type of card into account
+at this level?
+
+>> +
+>> +These are the steps:
+...snip...
+
+>> +   echo 1 > remove
+>> +
+>> +   This will remove all of the mdev matrix device's sysfs structures. To
+>> +   recreate and reconfigure the mdev matrix device, all of the steps starting
+>> +   with step 4 will have to be performed again.
+>> +
+>> +   It is not necessary to remove an mdev matrix device, but one may want to
+>> +   remove it if no guest will use it during the lifetime of the linux host. If
+>> +   the mdev matrix device is removed, one may want to unbind the AP queues the
+>> +   guest was using from the vfio_ap device driver and bind them back to the
+>> +   default driver. Alternatively, the AP queues can be configured for another
+> Please note: you can't just 'bind them back to the default driver'. You need
+> to unbind and then call dev_reprobe() which triggers the default way of
+> assigning a driver to a device and give the ap bus a chance to handle this.
+
+Are you saying that the administrator can not unbind a AP device
+and bind it to another AP driver?
+I am surprised. can you explain?
+
+Best regards,
+
+Pierre
+
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
