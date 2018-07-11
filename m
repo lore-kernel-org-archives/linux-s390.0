@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 02/10] s390/qeth: remove unused buffer->aob pointer
-Date: Wed, 11 Jul 2018 17:42:39 +0200
-Message-ID: <20180711154247.5523-3-jwi@linux.ibm.com>
+Subject: [PATCH net-next 03/10] s390/qeth: fine-tune RX modesetting
+Date: Wed, 11 Jul 2018 17:42:40 +0200
+Message-ID: <20180711154247.5523-4-jwi@linux.ibm.com>
 References: <20180711154247.5523-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180711154247.5523-1-jwi@linux.ibm.com>
@@ -12,72 +12,74 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Except for tracing, the pointer is not used.
+Changing a device's address lists (or its promisc mode) already triggers
+an RX modeset, there's no need to do it manually from the L2 driver's
+ndo_vlan_rx_kill_vid() hook.
 
-At the same time, accessing it from qeth_qdio_output_handler() is racy:
-whenever qeth_qdio_cq_handler() gets control, its call to
-qeth_qdio_handle_aob() frees the AOB.
-
-So the AOB pointer that qeth_qdio_output_handler() stores into 'buffer'
-can go stale at any time, and trigger a use-after-free.
+Also when setting a device online, dev_open() already calls
+dev_set_rx_mode(). So a manual modeset is only necessary from the
+recovery path.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      | 1 -
- drivers/s390/net/qeth_core_main.c | 7 -------
- 2 files changed, 8 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 5 +----
+ drivers/s390/net/qeth_l3_main.c | 7 ++++---
+ 2 files changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index a246a618f9a4..0ca6ea319d88 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -465,7 +465,6 @@ struct qeth_qdio_out_buffer {
- 	struct sk_buff_head skb_list;
- 	int is_header[QDIO_MAX_ELEMENTS_PER_BUFFER];
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 2487f0aeb165..730ab51fbac5 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -26,7 +26,6 @@
  
--	struct qaob *aob;
- 	struct qeth_qdio_out_q *q;
- 	struct qeth_qdio_out_buffer *next_pending;
- };
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 916c17d93ddb..cfe68e3bfe7a 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -473,7 +473,6 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
- 	if (forced_cleanup && (atomic_read(&(q->bufs[bidx]->state)) ==
- 					QETH_QDIO_BUF_HANDLED_DELAYED)) {
- 		/* for recovery situations */
--		q->bufs[bidx]->aob = q->bufstates[bidx].aob;
- 		qeth_init_qdio_out_buf(q, bidx);
- 		QETH_CARD_TEXT(q->card, 2, "clprecov");
+ static int qeth_l2_set_offline(struct ccwgroup_device *);
+ static int qeth_l2_stop(struct net_device *);
+-static void qeth_l2_set_rx_mode(struct net_device *);
+ static void qeth_bridgeport_query_support(struct qeth_card *card);
+ static void qeth_bridge_state_change(struct qeth_card *card,
+ 					struct qeth_ipa_cmd *cmd);
+@@ -344,7 +343,6 @@ static int qeth_l2_vlan_rx_kill_vid(struct net_device *dev,
+ 		rc = qeth_l2_send_setdelvlan(card, vid, IPA_CMD_DELVLAN);
+ 		kfree(tmpid);
  	}
-@@ -510,7 +509,6 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+-	qeth_l2_set_rx_mode(card->dev);
+ 	return rc;
+ }
+ 
+@@ -1125,13 +1123,12 @@ static int __qeth_l2_set_online(struct ccwgroup_device *gdev, int recovery_mode)
+ 		if (recovery_mode &&
+ 		    card->info.type != QETH_CARD_TYPE_OSN) {
+ 			__qeth_l2_open(card->dev);
++			qeth_l2_set_rx_mode(card->dev);
+ 		} else {
+ 			rtnl_lock();
+ 			dev_open(card->dev);
+ 			rtnl_unlock();
+ 		}
+-		/* this also sets saved unicast addresses */
+-		qeth_l2_set_rx_mode(card->dev);
  	}
- 	qeth_notify_skbs(buffer->q, buffer, notification);
- 
--	buffer->aob = NULL;
- 	/* Free dangling allocations. The attached skbs are handled by
- 	 * qeth_cleanup_handled_pending().
- 	 */
-@@ -2478,7 +2476,6 @@ static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *q, int bidx)
- 	skb_queue_head_init(&newbuf->skb_list);
- 	lockdep_set_class(&newbuf->skb_list.lock, &qdio_out_skb_queue_key);
- 	newbuf->q = q;
--	newbuf->aob = NULL;
- 	newbuf->next_pending = q->bufs[bidx];
- 	atomic_set(&newbuf->state, QETH_QDIO_BUF_EMPTY);
- 	q->bufs[bidx] = newbuf;
-@@ -3735,11 +3732,7 @@ static void qeth_qdio_output_handler(struct ccw_device *ccwdev,
- 				qeth_notify_skbs(queue, buffer,
- 						 TX_NOTIFY_PENDING);
- 			}
--			buffer->aob = queue->bufstates[bidx].aob;
- 			QETH_CARD_TEXT_(queue->card, 5, "pel%d", bidx);
--			QETH_CARD_TEXT(queue->card, 5, "aob");
--			QETH_CARD_TEXT_(queue->card, 5, "%lx",
--					virt_to_phys(buffer->aob));
- 
- 			/* prepare the queue slot for re-use: */
- 			qeth_scrub_qdio_buffer(buffer->buffer,
+ 	/* let user_space know that device is online */
+ 	kobject_uevent(&gdev->dev.kobj, KOBJ_CHANGE);
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 5905dc63e256..a54881cdda82 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2666,11 +2666,12 @@ static int __qeth_l3_set_online(struct ccwgroup_device *gdev, int recovery_mode)
+ 	qeth_enable_hw_features(card->dev);
+ 	if (recover_flag == CARD_STATE_RECOVER) {
+ 		rtnl_lock();
+-		if (recovery_mode)
++		if (recovery_mode) {
+ 			__qeth_l3_open(card->dev);
+-		else
++			qeth_l3_set_rx_mode(card->dev);
++		} else {
+ 			dev_open(card->dev);
+-		qeth_l3_set_rx_mode(card->dev);
++		}
+ 		rtnl_unlock();
+ 	}
+ 	qeth_trace_features(card);
 -- 
 2.16.4
