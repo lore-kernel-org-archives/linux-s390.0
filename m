@@ -1,59 +1,59 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCHi v2] mm: do not drop unused pages when userfaultd is
- running
-Date: Mon, 2 Jul 2018 14:06:38 -0700
-Message-ID: <20180702140638.eb3edfaa611ba9fa018f92eb@linux-foundation.org>
-References: <20180702075049.9157-1-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180702075049.9157-1-borntraeger@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Wed, 11 Jul 2018 08:14:46 +0000
+Subject: Re: [PATCH v5 0/2] KVM: s390: fix storage attributes migration
+Message-Id: <bf9b0c21-737e-4f9d-3d2a-66a527b680ed@de.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon,  2 Jul 2018 09:50:49 +0200 Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+Thanks, both Tested and applied.
 
-> KVM guests on s390 can notify the host of unused pages. This can result
-> in pte_unused callbacks to be true for KVM guest memory.
+On 04/30/2018 06:33 PM, Claudio Imbrenda wrote:
+> This patchset fixes the migration of storage attributes.
 > 
-> If a page is unused (checked with pte_unused) we might drop this page
-> instead of paging it. This can have side-effects on userfaultd, when the
-> page in question was already migrated:
+> Each memory slot has a bitmap, with 2 bits per page, used to keep track
+> of dirty pages during migration. We only use one bit, the other would be
+> wasted. With this patch, the second bit is now used to keep track of
+> dirty storage attributes. This means that we do not need anymore to
+> allocate and manage the additional bitmap, and no extra work is needed
+> to keep track of memory slots. The code does get a little bit more
+> complicated when accounting for the memory slots, but overall it should
+> be more robust.
 > 
-> The next access of that page will trigger a fault and a user fault
-> instead of faulting in a new and empty zero page. As QEMU does not
-> expect a userfault on an already migrated page this migration will fail.
+> The first patch simply introduces two auxiliary functions, while the
+> second patch does the actual job.
 > 
-> The most straightforward solution is to ignore the pte_unused hint if a
-> userfault context is active for this VMA.
+> v4 -> v5
+> * rebased on v4.17-rc3
 > 
-> ...
->
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -64,6 +64,7 @@
->  #include <linux/backing-dev.h>
->  #include <linux/page_idle.h>
->  #include <linux/memremap.h>
-> +#include <linux/userfaultfd_k.h>
->  
->  #include <asm/tlbflush.h>
->  
-> @@ -1481,7 +1482,7 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
->  				set_pte_at(mm, address, pvmw.pte, pteval);
->  			}
->  
-> -		} else if (pte_unused(pteval)) {
-> +		} else if (pte_unused(pteval) && !userfaultfd_armed(vma)) {
->  			/*
->  			 * The guest indicated that the page content is of no
->  			 * interest anymore. Simply discard the pte, vmscan
-
-A reader of this code will wonder why we're checking
-userfaultfd_armed().  So the writer of this code should add a comment
-which explains this to them ;)  Please.
+> v3 -> v4 
+> * move gfn_to_memslot_approx to the second patch
+> * rename kvm_shadow_dirty_bitmap to kvm_second_dirty_bitmap
+> * removed useless (un)likely()
+> * fixed and improved some comments
+> * replaced break with return in kvm_s390_get_cmma
+> * pass *slots instead of *kvm in a few functions
+> 
+> v2 -> v3
+> * rebased on master
+> * fix comment for gfn_to_memslot_approx
+> * cmma_bitmap renamed to kvm_shadow_dirty_bitmap and easier to read
+> * kvm->arch.migration_mode is not atomic any longer
+> * renamed some local variables for more consistency
+> 
+> v1 -> v2
+> * renamed _cmma_bitmap to cmma_bitmap and moved it to kvm-s390.h
+> * renamed and/or removed some variables to improve readability
+> * added some comments inline
+> * simplified the code flow to improve readability
+> 
+> Claudio Imbrenda (2):
+>   KVM: s390: a utility function for migration
+>   KVM: s390: Fix storage attributes migration with memory slots
+> 
+>  arch/s390/include/asm/kvm_host.h |   9 +-
+>  arch/s390/kvm/kvm-s390.c         | 293 +++++++++++++++++++++++----------------
+>  arch/s390/kvm/priv.c             |  28 ++--
+>  include/linux/kvm_host.h         |   7 +
+>  virt/kvm/kvm_main.c              |   2 +-
+>  5 files changed, 203 insertions(+), 136 deletions(-)
+> 
