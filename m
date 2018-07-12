@@ -1,15 +1,15 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v6 15/21] s390: vfio-ap: configure the guest's AP matrix
-Date: Thu, 12 Jul 2018 16:36:15 +0200
-Message-ID: <1338f713-946e-9b3f-28fe-309739321dfd@linux.ibm.com>
+Date: Thu, 12 Jul 2018 16:37:11 +0200
+Message-ID: <f937b6c6-e655-cf8a-c00b-22bdc2b98093@linux.ibm.com>
 References: <1530306683-7270-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1530306683-7270-16-git-send-email-akrowiak@linux.vnet.ibm.com>
- <74beb5b9-1a49-ca42-4ffe-3bf042718ed0@linux.ibm.com>
+ <fb3480f2-2cdb-d8fb-c92e-4af49e74327d@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <74beb5b9-1a49-ca42-4ffe-3bf042718ed0@linux.ibm.com>
+In-Reply-To: <fb3480f2-2cdb-d8fb-c92e-4af49e74327d@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,17 +18,24 @@ To: Halil Pasic <pasic@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/12/2018 01:22 AM, Halil Pasic wrote:
+On 07/12/2018 03:28 PM, Halil Pasic wrote:
 >
 >
 > On 06/29/2018 11:11 PM, Tony Krowiak wrote:
 >> From: Tony Krowiak <akrowiak@linux.ibm.com>
 >>
 >> Configures the AP adapters, usage domains and control domains for the
->> KVM guest from the matrix configured via the mediated matrix device's
->> sysfs attribute files.
->>
+>
 > [..]
+>
+>> +static inline void kvm_ap_clear_crycb_masks(struct ap_matrix_mdev 
+>> *matrix_mdev)
+>> +{
+>> + memset(&matrix_mdev->kvm->arch.crypto.crycb->apcb0, 0,
+>> + sizeof(matrix_mdev->kvm->arch.crypto.crycb->apcb0));
+>> + memset(&matrix_mdev->kvm->arch.crypto.crycb->apcb1, 0,
+>> + sizeof(matrix_mdev->kvm->arch.crypto.crycb->apcb1));
+>> +}
 >> +
 >> +static void kvm_ap_set_crycb_masks(struct ap_matrix_mdev *matrix_mdev)
 >> +{
@@ -53,13 +60,49 @@ On 07/12/2018 01:22 AM, Halil Pasic wrote:
 >> +     */
 >> +    bitmap_or(adm, matrix_mdev->matrix.adm, matrix_mdev->matrix.aqm,
 >> +          matrix_mdev->matrix.adm_max + 1);
->
-> Are you sure this or works as expected? E.g. if adm_max == 15 the bitmaps
-> include the least significant 2 bytes but you want the other two.
-
-Since test system has only 15 domains defined this has never been a
-problem. I'll write a function rather than using the bitmap_or().
-
->
->
 >> +}
+>> +
+>
+> [..]
+>
+>> +
+>> +static int kvm_ap_configure_matrix(struct ap_matrix_mdev *matrix_mdev)
+>> +{
+>> +    int ret = 0;
+>> +
+>> +    mutex_lock(&matrix_mdev->kvm->lock);
+>> +
+>> +    ret = kvm_ap_validate_queue_sharing(matrix_mdev);
+>> +    if (ret)
+>> +        goto done;
+>> +
+>> +    kvm_ap_set_crycb_masks(matrix_mdev);
+>> +
+>> +done:
+>> +    mutex_unlock(&matrix_mdev->kvm->lock);
+>> +
+>> +    return ret;
+>> +}
+>> +
+>> +void kvm_ap_deconfigure_matrix(struct ap_matrix_mdev *matrix_mdev)
+>> +{
+>> +    mutex_lock(&matrix_mdev->kvm->lock);
+>> +    kvm_ap_clear_crycb_masks(matrix_mdev);
+>
+> The guest may be running at this point of time, or?
+>
+> I think you need our safe update operation that we used to use for the
+> initial set too, but then somebody was like it ain't necessary because
+> we don't support hotplug (yet).
+
+I agree.
+
+>
+>
+>
+> Regards,
+> Halil
+>
+>> + mutex_unlock(&matrix_mdev->kvm->lock);
+>> +}
+>> +
