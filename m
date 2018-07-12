@@ -1,8 +1,8 @@
 Return-Path: <SRS0=HMm1=J4=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v13 02/18] x86: initialize static branching early
-Date: Wed, 11 Jul 2018 20:04:03 -0400
-Message-Id: <20180712000419.5165-3-pasha.tatashin@oracle.com>
+Subject: [PATCH v13 05/18] kvm/x86: remove kvm memblock dependency
+Date: Wed, 11 Jul 2018 20:04:06 -0400
+Message-Id: <20180712000419.5165-6-pasha.tatashin@oracle.com>
 In-Reply-To: <20180712000419.5165-1-pasha.tatashin@oracle.com>
 References: <20180712000419.5165-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -11,152 +11,194 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, pasha.tatashin@oracle.com, boris.ostrovsky@oracle.com, jgross@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
-static branching is useful to hot-patch branches that are used in hot
-path, but are infrequently changed.
+KVM clock is initialized later compared to other hypervisor because it has
+dependency on memblock allocator.
 
-x86 clock framework is one example that uses static branches to setup
-the best clock during boot and never change it again.
+Lets bring it inline with other hypervisors by removing this dependency by
+using memory from BSS instead of allocating it.
 
-Since we plan to enable clock early, we need static branching
-functionality early as well.
-
-static branching requires patching nop instructions, thus, we need
-arch_init_ideal_nops() to be called prior to jump_label_init()
-
-Here we do all the necessary steps to call arch_init_ideal_nops
-after early_cpu_init().
+The benefits:
+- remove ifdef from common code
+- earlier availability of TSC.
+- remove dependency on memblock, and reduce code
+- earlier kvm sched_clock()
 
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/kernel/cpu/amd.c    | 13 +++++++-----
- arch/x86/kernel/cpu/common.c | 38 +++++++++++++++++++-----------------
- arch/x86/kernel/setup.c      |  4 ++--
- 3 files changed, 30 insertions(+), 25 deletions(-)
+ arch/x86/include/asm/kvm_para.h |  2 +-
+ arch/x86/kernel/kvm.c           |  1 +
+ arch/x86/kernel/kvmclock.c      | 66 +++++----------------------------
+ arch/x86/kernel/setup.c         |  7 +---
+ 4 files changed, 14 insertions(+), 62 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 38915fbfae73..b732438c1a1e 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -232,8 +232,6 @@ static void init_amd_k7(struct cpuinfo_x86 *c)
- 		}
- 	}
+diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
+index 3aea2658323a..62872a862914 100644
+--- a/arch/x86/include/asm/kvm_para.h
++++ b/arch/x86/include/asm/kvm_para.h
+@@ -6,7 +6,7 @@
+ #include <asm/alternative.h>
+ #include <uapi/asm/kvm_para.h>
  
--	set_cpu_cap(c, X86_FEATURE_K7);
--
- 	/* calling is from identify_secondary_cpu() ? */
- 	if (!c->cpu_index)
- 		return;
-@@ -617,6 +615,14 @@ static void early_init_amd(struct cpuinfo_x86 *c)
+-extern void kvmclock_init(void);
++extern void kvm_platform_init(void);
+ extern int kvm_register_clock(char *txt);
  
- 	early_init_amd_mc(c);
+ #ifdef CONFIG_KVM_GUEST
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 5b2300b818af..874c53dd8ba2 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -628,6 +628,7 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
+ 	.name			= "KVM",
+ 	.detect			= kvm_detect,
+ 	.type			= X86_HYPER_KVM,
++	.init.init_platform	= kvm_platform_init,
+ 	.init.guest_late_init	= kvm_guest_init,
+ 	.init.x2apic_available	= kvm_para_available,
+ };
+diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+index bf8d1eb7fca3..d2af1b1f060e 100644
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -23,9 +23,9 @@
+ #include <asm/apic.h>
+ #include <linux/percpu.h>
+ #include <linux/hardirq.h>
+-#include <linux/memblock.h>
+ #include <linux/sched.h>
+ #include <linux/sched/clock.h>
++#include <linux/mm.h>
  
-+#ifdef CONFIG_X86_32
-+	if (c->x86 == 6)
-+		set_cpu_cap(c, X86_FEATURE_K7);
-+#endif
-+
-+	if (c->x86 >= 0xf)
-+		set_cpu_cap(c, X86_FEATURE_K8);
-+
- 	rdmsr_safe(MSR_AMD64_PATCH_LEVEL, &c->microcode, &dummy);
+ #include <asm/mem_encrypt.h>
+ #include <asm/x86_init.h>
+@@ -44,6 +44,11 @@ static int parse_no_kvmclock(char *arg)
+ }
+ early_param("no-kvmclock", parse_no_kvmclock);
  
- 	/*
-@@ -863,9 +869,6 @@ static void init_amd(struct cpuinfo_x86 *c)
- 
- 	init_amd_cacheinfo(c);
- 
--	if (c->x86 >= 0xf)
--		set_cpu_cap(c, X86_FEATURE_K8);
--
- 	if (cpu_has(c, X86_FEATURE_XMM2)) {
- 		unsigned long long val;
- 		int ret;
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index eb4cb3efd20e..71281ac43b15 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1015,6 +1015,24 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
- 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
++/* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
++#define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
++#define WALL_CLOCK_SIZE	(sizeof(struct pvclock_wall_clock))
++static u8 hv_clock_mem[PAGE_ALIGN(HV_CLOCK_SIZE)] __aligned(PAGE_SIZE);
++static u8 wall_clock_mem[PAGE_ALIGN(WALL_CLOCK_SIZE)] __aligned(PAGE_SIZE);
+ /* The hypervisor will put information about time periodically here */
+ static struct pvclock_vsyscall_time_info *hv_clock;
+ static struct pvclock_wall_clock *wall_clock;
+@@ -244,43 +249,12 @@ static void kvm_shutdown(void)
+ 	native_machine_shutdown();
  }
  
-+/*
-+ * The NOPL instruction is supposed to exist on all CPUs of family >= 6;
-+ * unfortunately, that's not true in practice because of early VIA
-+ * chips and (more importantly) broken virtualizers that are not easy
-+ * to detect. In the latter case it doesn't even *fail* reliably, so
-+ * probing for it doesn't even work. Disable it completely on 32-bit
-+ * unless we can find a reliable way to detect all the broken cases.
-+ * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
-+ */
-+static void detect_nopl(struct cpuinfo_x86 *c)
-+{
-+#ifdef CONFIG_X86_32
-+	clear_cpu_cap(c, X86_FEATURE_NOPL);
-+#else
-+	set_cpu_cap(c, X86_FEATURE_NOPL);
-+#endif
-+}
-+
- /*
-  * Do minimum CPU detection early.
-  * Fields really needed: vendor, cpuid_level, family, model, mask,
-@@ -1089,6 +1107,8 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
- 	 */
- 	if (!pgtable_l5_enabled())
- 		setup_clear_cpu_cap(X86_FEATURE_LA57);
-+
-+	detect_nopl(c);
- }
- 
- void __init early_cpu_init(void)
-@@ -1124,24 +1144,6 @@ void __init early_cpu_init(void)
- 	early_identify_cpu(&boot_cpu_data);
- }
- 
--/*
-- * The NOPL instruction is supposed to exist on all CPUs of family >= 6;
-- * unfortunately, that's not true in practice because of early VIA
-- * chips and (more importantly) broken virtualizers that are not easy
-- * to detect. In the latter case it doesn't even *fail* reliably, so
-- * probing for it doesn't even work. Disable it completely on 32-bit
-- * unless we can find a reliable way to detect all the broken cases.
-- * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
-- */
--static void detect_nopl(struct cpuinfo_x86 *c)
+-static phys_addr_t __init kvm_memblock_alloc(phys_addr_t size,
+-					     phys_addr_t align)
 -{
--#ifdef CONFIG_X86_32
--	clear_cpu_cap(c, X86_FEATURE_NOPL);
--#else
--	set_cpu_cap(c, X86_FEATURE_NOPL);
--#endif
+-	phys_addr_t mem;
+-
+-	mem = memblock_alloc(size, align);
+-	if (!mem)
+-		return 0;
+-
+-	if (sev_active()) {
+-		if (early_set_memory_decrypted((unsigned long)__va(mem), size))
+-			goto e_free;
+-	}
+-
+-	return mem;
+-e_free:
+-	memblock_free(mem, size);
+-	return 0;
 -}
 -
- static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
+-static void __init kvm_memblock_free(phys_addr_t addr, phys_addr_t size)
+-{
+-	if (sev_active())
+-		early_set_memory_encrypted((unsigned long)__va(addr), size);
+-
+-	memblock_free(addr, size);
+-}
+-
+-void __init kvmclock_init(void)
++void __init kvm_platform_init(void)
  {
- #ifdef CONFIG_X86_64
+ 	struct pvclock_vcpu_time_info *vcpu_time;
+-	unsigned long mem, mem_wall_clock;
+-	int size, cpu, wall_clock_size;
++	int cpu;
+ 	u8 flags;
+ 
+-	size = PAGE_ALIGN(sizeof(struct pvclock_vsyscall_time_info)*NR_CPUS);
+-
+ 	if (!kvm_para_available())
+ 		return;
+ 
+@@ -290,28 +264,11 @@ void __init kvmclock_init(void)
+ 	} else if (!(kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)))
+ 		return;
+ 
+-	wall_clock_size = PAGE_ALIGN(sizeof(struct pvclock_wall_clock));
+-	mem_wall_clock = kvm_memblock_alloc(wall_clock_size, PAGE_SIZE);
+-	if (!mem_wall_clock)
+-		return;
+-
+-	wall_clock = __va(mem_wall_clock);
+-	memset(wall_clock, 0, wall_clock_size);
+-
+-	mem = kvm_memblock_alloc(size, PAGE_SIZE);
+-	if (!mem) {
+-		kvm_memblock_free(mem_wall_clock, wall_clock_size);
+-		wall_clock = NULL;
+-		return;
+-	}
+-
+-	hv_clock = __va(mem);
+-	memset(hv_clock, 0, size);
++	wall_clock = (struct pvclock_wall_clock *)wall_clock_mem;
++	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
+ 
+ 	if (kvm_register_clock("primary cpu clock")) {
+ 		hv_clock = NULL;
+-		kvm_memblock_free(mem, size);
+-		kvm_memblock_free(mem_wall_clock, wall_clock_size);
+ 		wall_clock = NULL;
+ 		return;
+ 	}
+@@ -354,13 +311,10 @@ int __init kvm_setup_vsyscall_timeinfo(void)
+ 	int cpu;
+ 	u8 flags;
+ 	struct pvclock_vcpu_time_info *vcpu_time;
+-	unsigned int size;
+ 
+ 	if (!hv_clock)
+ 		return 0;
+ 
+-	size = PAGE_ALIGN(sizeof(struct pvclock_vsyscall_time_info)*NR_CPUS);
+-
+ 	cpu = get_cpu();
+ 
+ 	vcpu_time = &hv_clock[cpu].pvti;
 diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 2f86d883dd95..403b2d2c31d2 100644
+index 403b2d2c31d2..01fcc8bf7c8f 100644
 --- a/arch/x86/kernel/setup.c
 +++ b/arch/x86/kernel/setup.c
-@@ -866,6 +866,8 @@ void __init setup_arch(char **cmdline_p)
+@@ -1014,6 +1014,8 @@ void __init setup_arch(char **cmdline_p)
+ 	 */
+ 	init_hypervisor_platform();
  
- 	idt_setup_early_traps();
- 	early_cpu_init();
-+	arch_init_ideal_nops();
-+	jump_label_init();
- 	early_ioremap_init();
++	tsc_early_delay_calibrate();
++
+ 	x86_init.resources.probe_roms();
  
- 	setup_olpc_ofw_pgd();
-@@ -1272,8 +1274,6 @@ void __init setup_arch(char **cmdline_p)
+ 	/* after parse_early_param, so could debug it */
+@@ -1199,11 +1201,6 @@ void __init setup_arch(char **cmdline_p)
  
- 	mcheck_init();
+ 	memblock_find_dma_reserve();
  
--	arch_init_ideal_nops();
+-#ifdef CONFIG_KVM_GUEST
+-	kvmclock_init();
+-#endif
 -
- 	register_refined_jiffies(CLOCK_TICK_RATE);
+-	tsc_early_delay_calibrate();
+ 	if (!early_xdbc_setup_hardware())
+ 		early_xdbc_register_console();
  
- #ifdef CONFIG_EFI
 -- 
 2.18.0
