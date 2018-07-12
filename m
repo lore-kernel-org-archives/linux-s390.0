@@ -1,8 +1,8 @@
 Return-Path: <SRS0=HMm1=J4=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v13 05/18] kvm/x86: remove kvm memblock dependency
-Date: Wed, 11 Jul 2018 20:04:06 -0400
-Message-Id: <20180712000419.5165-6-pasha.tatashin@oracle.com>
+Subject: [PATCH v13 01/18] x86: text_poke() may access uninitialized struct pages
+Date: Wed, 11 Jul 2018 20:04:02 -0400
+Message-Id: <20180712000419.5165-2-pasha.tatashin@oracle.com>
 In-Reply-To: <20180712000419.5165-1-pasha.tatashin@oracle.com>
 References: <20180712000419.5165-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -11,194 +11,137 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, pasha.tatashin@oracle.com, boris.ostrovsky@oracle.com, jgross@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
-KVM clock is initialized later compared to other hypervisor because it has
-dependency on memblock allocator.
+It supposed to be safe to modify static branches after jump_label_init().
+But, because static key modifying code eventually calls text_poke() we
+may end up with accessing struct page that have not been initialized.
 
-Lets bring it inline with other hypervisors by removing this dependency by
-using memory from BSS instead of allocating it.
+Here is how to quickly reproduce the problem. Insert code like this
+into init/main.c:
 
-The benefits:
-- remove ifdef from common code
-- earlier availability of TSC.
-- remove dependency on memblock, and reduce code
-- earlier kvm sched_clock()
+| +static DEFINE_STATIC_KEY_FALSE(__test);
+| asmlinkage __visible void __init start_kernel(void)
+| {
+|        char *command_line;
+|@@ -587,6 +609,10 @@ asmlinkage __visible void __init start_kernel(void)
+|        vfs_caches_init_early();
+|        sort_main_extable();
+|        trap_init();
+|+       {
+|+       static_branch_enable(&__test);
+|+       WARN_ON(!static_branch_likely(&__test));
+|+       }
+|        mm_init();
+
+The following warnings show-up:
+WARNING: CPU: 0 PID: 0 at arch/x86/kernel/alternative.c:701 text_poke+0x20d/0x230
+Modules linked in:
+CPU: 0 PID: 0 Comm: swapper Not tainted 4.18.0-rc1_pt_t1 #30
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.11.0-20171110_100015-anatol 04/01/2014
+RIP: 0010:text_poke+0x20d/0x230
+Code: 0f 0b 4c 89 e2 4c 89 ee 4c 89 f7 e8 7d 4b 9b 00 31 d2 31 f6 bf 86 02
+00 00 48 8b 05 95 8e 24 01 e8 78 18 d8 00 e9 55 ff ff ff <0f> 0b e9 54 fe
+ff ff 48 8b 05 75 a8 38 01 e9 64 fe ff ff 48 8b 1d
+RSP: 0000:ffffffff94e03e30 EFLAGS: 00010046
+RAX: 0100000000000000 RBX: fffff7b2c011f300 RCX: ffffffff94fcccf4
+RDX: 0000000000000001 RSI: ffffffff94e03e77 RDI: ffffffff94fcccef
+RBP: ffffffff94fcccef R08: 00000000fffffe00 R09: 00000000000000a0
+R10: 0000000000000000 R11: 0000000000000040 R12: 0000000000000001
+R13: ffffffff94e03e77 R14: ffffffff94fcdcef R15: fffff7b2c0000000
+FS:  0000000000000000(0000) GS:ffff9adc87c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffff9adc8499d000 CR3: 000000000460a001 CR4: 00000000000606b0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ ? start_kernel+0x23e/0x4c8
+ ? start_kernel+0x23f/0x4c8
+ ? text_poke_bp+0x50/0xda
+ ? arch_jump_label_transform+0x89/0xe0
+ ? __jump_label_update+0x78/0xb0
+ ? static_key_enable_cpuslocked+0x4d/0x80
+ ? static_key_enable+0x11/0x20
+ ? start_kernel+0x23e/0x4c8
+ ? secondary_startup_64+0xa5/0xb0
+---[ end trace abdc99c031b8a90a ]---
+
+If the code above is moved after mm_init(), no warning is shown, as struct
+pages are initialized during handover from memblock.
+
+Use text_poke_early() in static branching until early boot IRQs are
+enabled, at which time switch to text_poke. Also, ensure text_poke() is
+never invoked when unitialized memory access may happen by using:
+BUG_ON(!after_bootmem); assertion.
 
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/include/asm/kvm_para.h |  2 +-
- arch/x86/kernel/kvm.c           |  1 +
- arch/x86/kernel/kvmclock.c      | 66 +++++----------------------------
- arch/x86/kernel/setup.c         |  7 +---
- 4 files changed, 14 insertions(+), 62 deletions(-)
+ arch/x86/include/asm/text-patching.h |  1 +
+ arch/x86/kernel/alternative.c        |  7 +++++++
+ arch/x86/kernel/jump_label.c         | 11 +++++++----
+ 3 files changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
-index 3aea2658323a..62872a862914 100644
---- a/arch/x86/include/asm/kvm_para.h
-+++ b/arch/x86/include/asm/kvm_para.h
-@@ -6,7 +6,7 @@
- #include <asm/alternative.h>
- #include <uapi/asm/kvm_para.h>
+diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
+index 2ecd34e2d46c..e85ff65c43c3 100644
+--- a/arch/x86/include/asm/text-patching.h
++++ b/arch/x86/include/asm/text-patching.h
+@@ -37,5 +37,6 @@ extern void *text_poke_early(void *addr, const void *opcode, size_t len);
+ extern void *text_poke(void *addr, const void *opcode, size_t len);
+ extern int poke_int3_handler(struct pt_regs *regs);
+ extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
++extern int after_bootmem;
  
--extern void kvmclock_init(void);
-+extern void kvm_platform_init(void);
- extern int kvm_register_clock(char *txt);
+ #endif /* _ASM_X86_TEXT_PATCHING_H */
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index a481763a3776..014f214da581 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -668,6 +668,7 @@ void *__init_or_module text_poke_early(void *addr, const void *opcode,
+ 	local_irq_save(flags);
+ 	memcpy(addr, opcode, len);
+ 	local_irq_restore(flags);
++	sync_core();
+ 	/* Could also do a CLFLUSH here to speed up CPU recovery; but
+ 	   that causes hangs on some VIA CPUs. */
+ 	return addr;
+@@ -693,6 +694,12 @@ void *text_poke(void *addr, const void *opcode, size_t len)
+ 	struct page *pages[2];
+ 	int i;
  
- #ifdef CONFIG_KVM_GUEST
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 5b2300b818af..874c53dd8ba2 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -628,6 +628,7 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
- 	.name			= "KVM",
- 	.detect			= kvm_detect,
- 	.type			= X86_HYPER_KVM,
-+	.init.init_platform	= kvm_platform_init,
- 	.init.guest_late_init	= kvm_guest_init,
- 	.init.x2apic_available	= kvm_para_available,
- };
-diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-index bf8d1eb7fca3..d2af1b1f060e 100644
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -23,9 +23,9 @@
- #include <asm/apic.h>
- #include <linux/percpu.h>
- #include <linux/hardirq.h>
--#include <linux/memblock.h>
- #include <linux/sched.h>
- #include <linux/sched/clock.h>
-+#include <linux/mm.h>
- 
- #include <asm/mem_encrypt.h>
- #include <asm/x86_init.h>
-@@ -44,6 +44,11 @@ static int parse_no_kvmclock(char *arg)
- }
- early_param("no-kvmclock", parse_no_kvmclock);
- 
-+/* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
-+#define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
-+#define WALL_CLOCK_SIZE	(sizeof(struct pvclock_wall_clock))
-+static u8 hv_clock_mem[PAGE_ALIGN(HV_CLOCK_SIZE)] __aligned(PAGE_SIZE);
-+static u8 wall_clock_mem[PAGE_ALIGN(WALL_CLOCK_SIZE)] __aligned(PAGE_SIZE);
- /* The hypervisor will put information about time periodically here */
- static struct pvclock_vsyscall_time_info *hv_clock;
- static struct pvclock_wall_clock *wall_clock;
-@@ -244,43 +249,12 @@ static void kvm_shutdown(void)
- 	native_machine_shutdown();
- }
- 
--static phys_addr_t __init kvm_memblock_alloc(phys_addr_t size,
--					     phys_addr_t align)
--{
--	phys_addr_t mem;
--
--	mem = memblock_alloc(size, align);
--	if (!mem)
--		return 0;
--
--	if (sev_active()) {
--		if (early_set_memory_decrypted((unsigned long)__va(mem), size))
--			goto e_free;
--	}
--
--	return mem;
--e_free:
--	memblock_free(mem, size);
--	return 0;
--}
--
--static void __init kvm_memblock_free(phys_addr_t addr, phys_addr_t size)
--{
--	if (sev_active())
--		early_set_memory_encrypted((unsigned long)__va(addr), size);
--
--	memblock_free(addr, size);
--}
--
--void __init kvmclock_init(void)
-+void __init kvm_platform_init(void)
- {
- 	struct pvclock_vcpu_time_info *vcpu_time;
--	unsigned long mem, mem_wall_clock;
--	int size, cpu, wall_clock_size;
-+	int cpu;
- 	u8 flags;
- 
--	size = PAGE_ALIGN(sizeof(struct pvclock_vsyscall_time_info)*NR_CPUS);
--
- 	if (!kvm_para_available())
- 		return;
- 
-@@ -290,28 +264,11 @@ void __init kvmclock_init(void)
- 	} else if (!(kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)))
- 		return;
- 
--	wall_clock_size = PAGE_ALIGN(sizeof(struct pvclock_wall_clock));
--	mem_wall_clock = kvm_memblock_alloc(wall_clock_size, PAGE_SIZE);
--	if (!mem_wall_clock)
--		return;
--
--	wall_clock = __va(mem_wall_clock);
--	memset(wall_clock, 0, wall_clock_size);
--
--	mem = kvm_memblock_alloc(size, PAGE_SIZE);
--	if (!mem) {
--		kvm_memblock_free(mem_wall_clock, wall_clock_size);
--		wall_clock = NULL;
--		return;
--	}
--
--	hv_clock = __va(mem);
--	memset(hv_clock, 0, size);
-+	wall_clock = (struct pvclock_wall_clock *)wall_clock_mem;
-+	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
- 
- 	if (kvm_register_clock("primary cpu clock")) {
- 		hv_clock = NULL;
--		kvm_memblock_free(mem, size);
--		kvm_memblock_free(mem_wall_clock, wall_clock_size);
- 		wall_clock = NULL;
- 		return;
- 	}
-@@ -354,13 +311,10 @@ int __init kvm_setup_vsyscall_timeinfo(void)
- 	int cpu;
- 	u8 flags;
- 	struct pvclock_vcpu_time_info *vcpu_time;
--	unsigned int size;
- 
- 	if (!hv_clock)
- 		return 0;
- 
--	size = PAGE_ALIGN(sizeof(struct pvclock_vsyscall_time_info)*NR_CPUS);
--
- 	cpu = get_cpu();
- 
- 	vcpu_time = &hv_clock[cpu].pvti;
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 403b2d2c31d2..01fcc8bf7c8f 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -1014,6 +1014,8 @@ void __init setup_arch(char **cmdline_p)
- 	 */
- 	init_hypervisor_platform();
- 
-+	tsc_early_delay_calibrate();
++	/*
++	 * While boot memory allocator is runnig we cannot use struct
++	 * pages as they are not yet initialized.
++	 */
++	BUG_ON(!after_bootmem);
 +
- 	x86_init.resources.probe_roms();
+ 	if (!core_kernel_text((unsigned long)addr)) {
+ 		pages[0] = vmalloc_to_page(addr);
+ 		pages[1] = vmalloc_to_page(addr + PAGE_SIZE);
+diff --git a/arch/x86/kernel/jump_label.c b/arch/x86/kernel/jump_label.c
+index e56c95be2808..eeea935e9bb5 100644
+--- a/arch/x86/kernel/jump_label.c
++++ b/arch/x86/kernel/jump_label.c
+@@ -37,15 +37,18 @@ static void bug_at(unsigned char *ip, int line)
+ 	BUG();
+ }
  
- 	/* after parse_early_param, so could debug it */
-@@ -1199,11 +1201,6 @@ void __init setup_arch(char **cmdline_p)
+-static void __jump_label_transform(struct jump_entry *entry,
+-				   enum jump_label_type type,
+-				   void *(*poker)(void *, const void *, size_t),
+-				   int init)
++static void __ref __jump_label_transform(struct jump_entry *entry,
++					 enum jump_label_type type,
++					 void *(*poker)(void *, const void *, size_t),
++					 int init)
+ {
+ 	union jump_code_union code;
+ 	const unsigned char default_nop[] = { STATIC_KEY_INIT_NOP };
+ 	const unsigned char *ideal_nop = ideal_nops[NOP_ATOMIC5];
  
- 	memblock_find_dma_reserve();
- 
--#ifdef CONFIG_KVM_GUEST
--	kvmclock_init();
--#endif
--
--	tsc_early_delay_calibrate();
- 	if (!early_xdbc_setup_hardware())
- 		early_xdbc_register_console();
- 
++	if (early_boot_irqs_disabled)
++		poker = text_poke_early;
++
+ 	if (type == JUMP_LABEL_JMP) {
+ 		if (init) {
+ 			/*
 -- 
 2.18.0
