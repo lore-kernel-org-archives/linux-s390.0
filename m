@@ -1,79 +1,258 @@
-Return-Path: <SRS0=71UW=JV=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: WARNING in smc_unhash_sk
-References: <001a114fa99028d2a10565e33df4@google.com>
- <20180704200139.GB725@sol.localdomain>
-From: Ursula Braun <ubraun@linux.ibm.com>
-Date: Thu, 5 Jul 2018 16:17:37 +0200
-MIME-Version: 1.0
-In-Reply-To: <20180704200139.GB725@sol.localdomain>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <ee68e1f0-b177-8c84-cb6e-ccfbe1ef9a04@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 0/8] vfio: ccw: Refactoring the VFIO CCW state
+ machine
+Date: Thu, 12 Jul 2018 17:22:36 +0200
+Message-ID: <20180712172236.2e038b8c.cohuck@redhat.com>
+References: <1528790210-19535-1-git-send-email-pmorel@linux.ibm.com>
+        <20180613165151.056ecaec.cohuck@redhat.com>
+        <bd5fb44e-3395-63bc-23a5-b9b6a8a8f1ef@linux.ibm.com>
+        <20180619160045.13caf12e.cohuck@redhat.com>
+        <63d1948a-3844-26e3-fc4f-0e7da7b4f515@linux.ibm.com>
+        <20180626180052.7412ee79.cohuck@redhat.com>
+        <3406a24b-1e3a-ac23-c5d0-87c9a3b5515c@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3406a24b-1e3a-ac23-c5d0-87c9a3b5515c@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Eric Biggers <ebiggers3@gmail.com>, linux-s390@vger.kernel.org
-Cc: syzbot <syzbot+3a0748c8f2f210c0ef9b@syzkaller.appspotmail.com>, davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: pasic@linux.vnet.ibm.com, bjsdjshi@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Wed, 27 Jun 2018 12:00:41 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
+Apologies for the late answer, this topic had dropped off my radar.
 
-On 07/04/2018 10:01 PM, Eric Biggers wrote:
-> Hi Ursula,
+> On 26/06/2018 18:00, Cornelia Huck wrote:
+> > On Tue, 26 Jun 2018 13:04:12 +0200
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> >  
+> >> On 19/06/2018 16:00, Cornelia Huck wrote:  
+> >>> On Thu, 14 Jun 2018 10:06:31 +0200
+> >>> Pierre Morel<pmorel@linux.ibm.com>  wrote:
+> >>>     
+> ...snip...
+> >> The goal of the state machine is to describe the device driver state.
+> >> Not the device state which is hold by the CIO level.  
+> > I don't think there really is such a thing as "device driver state" (or
+> > maybe I don't understand what you mean by it). The state is attached to
+> > the individual device, isn't it?  
+> Yes but it is related to the software handling the device and not to the 
+> device.
+> This is a difference between QEMU, Linux VFIO driver and Hardware.
 > 
-> On Fri, Feb 23, 2018 at 07:59:01AM -0800, syzbot wrote:
->> Hello,
->>
->> syzbot hit the following crash on upstream commit
->> af3e79d29555b97dd096e2f8e36a0f50213808a8 (Tue Feb 20 18:05:02 2018 +0000)
->> Merge tag 'leds_for-4.16-rc3' of
->> git://git.kernel.org/pub/scm/linux/kernel/git/j.anaszewski/linux-leds
->>
->> So far this crash happened 27 times on
->> https://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git/master,
->> net-next, upstream.
->> C reproducer is attached.
->> syzkaller reproducer is attached.
->> Raw console output is attached.
->> compiler: gcc (GCC) 7.1.1 20170620
->> .config is attached.
->>
->> IMPORTANT: if you fix the bug, please add the following tag to the commit:
->> Reported-by: syzbot+3a0748c8f2f210c0ef9b@syzkaller.appspotmail.com
->> It will help syzbot understand when the bug is fixed. See footer for
->> details.
->> If you forward the report, please keep this part and the footer.
->>
->> WARNING: CPU: 1 PID: 9921 at ./include/net/sock.h:638 sk_del_node_init
->> include/net/sock.h:638 [inline]
->> WARNING: CPU: 1 PID: 9921 at ./include/net/sock.h:638
->> smc_unhash_sk+0x335/0x450 net/smc/af_smc.c:90
->> Kernel panic - not syncing: panic_on_warn set ...
+> In my point of view:
 > 
-> This is still happening and it can be easily reproduced with:
-> 
-> 	#include <sys/socket.h>
-> 
-> 	int main()
-> 	{
-> 		char buf[64] = { 0 };
-> 		struct iovec iov  = { .iov_base = buf, .iov_len = sizeof(buf) };
-> 		struct msghdr msg = { .msg_iov = &iov, .msg_iovlen = 1 };
-> 		int fd;
-> 
-> 		fd = socket(AF_SMC, SOCK_STREAM, 0);
-> 		sendmsg(fd, &msg, MSG_FASTOPEN);
-> 	}
-> 
-> It seems the following sock_put() in smc_release() is done without any previous
-> sock_hold(), causing a use-after-free:
-> 
->         if (smc->use_fallback) {
->                 sock_put(sk); /* passive closing */
->                 sk->sk_state = SMC_CLOSED;
->                 sk->sk_state_change(sk);
->         }
-> 
+> QEMU                  : Emulates a device, internal state is state of 
+> the device
+> Linux VFIO driver: Handle the device, internal state is driver state
+> Hardware            : obviously get the device state
 
-Sorry for the delay. Now patch is submitted for the net-tree.
+OK, I understand where you're coming from, but I find your terminology
+a bit confusing :)
+
+Maybe call the state that is tracked by the vfio driver "vfio device
+state"?
+
+> >>>> ------------------------------------------------------------
+> >>>> | STANDBY          | A guest is associated but not started |  
+> >>> This is basically "device is bound to driver, but no mdev has been set
+> >>> up".  
+> >> When the device is bound to the driver, the device driver
+> >> is still in NOT_OPERATIONAL state.
+> >>
+> >> The transition to STANDBY is done when the virtual machine starts and
+> >> opens the mediated device.
+> >> Note that the device is still not usable until it is reseted.  
+> > Hm, isn't that transition happening when the mdev is created?  
+> No, when the mdev is created the VM is not started.
+> The STANDBY state is entered when the mdev_open is called,
+> this is when the VFIO framework is initialized as QEMU starts.
+> 
+> When the mdev is created the mdev_create is called but do not
+> induce any state change.
+
+Ah, now I understand where the disconnect here came from: Your patch 7
+changed this :)
+
+I have to think further about this (still undecided).
+
+> ...snip...
+> >> Now you are talking about the driver :) This should probably be done  
+> >>> for the other states as well.  
+> >> Ill update the description to make clear that the state is the
+> >> driver state (device driver) and not the device state.
+> >> The device state is handled by the firmware.  
+> > Now you have managed to confuse me completely... isn't the firmware
+> > only handling the (real) subchannel state?  
+> 
+> Yes and QEMU the virtual one.
+> But the driver does not need to handle the device state
+> but the driver state. Which is quite different.
+
+That's again the terminology confusion from above.
+
+> >>> Isn't that rather "an mdev is created"?  
+> >> No, ONLINE is triggered by VFIO_RESET, after the mdev has been created
+> >> and when the VM is started or restarted by QEMU.
+> >>
+> >> I see that I did not do a good job describing what triggers the events.
+> >> I will try again in a dedicated document.  
+> > It might be good to combine the two.  
+> 
+> When mdev is created the VM does not exist, it is created by the admin.
+> 
+> The mdev_open() is called once when the VM starts.
+> VFIO_RESET is called on start and every time the VM is reseted.
+
+And this was again /me looking at the current code.
+
+> 
+> These are three different events occuring in the life of the driver.
+> mdev creation do not influence the way the driver works.
+
+I'm wondering if it should. Having an mdev is a prereq for any setup.
+So a device in not oper state without mdev is a different thing from a
+device in not oper state with an mdev that received e.g. some path
+failures.
+
+> mdev open does, and issues the INIT event
+> VFIO_RESET does and issues the ONLINE event
+
+The last one is possibly a bit unintuitive (might be a naming issue).
+
+> >>>> |                  | triggered by: vfio_reset              |
+> >>>> |                  | action: enable SC                     |
+> >>>> |                  | state on success: IDLE                |
+> >>>> |                  | state on error  : STANDBY             |  
+> >>> What happens if the subchannel is not operational when we try to get it
+> >>> ready? Can it go to NOT_OPERATIONAL in that case?  
+> >> I think we have a confusion between the sub-channel being non operational
+> >> and the device driver being non operational.
+> >> Here, the device driver is operational, even the device may not.  
+> > How can something be operational if the device is not? It could be in a
+> > state like the ccw device's disconnected state, but it's certainly not
+> > ready for requests.  
+> 
+> The driver may be operational even the device is not.
+> Depending on the protocol between device and driver it allows
+> the driver to reset the device.
+> We have two drivers here speaking with the device, the one in the guest
+> and the VFIO driver.
+> The VFIO driver works is to handle the virtualization infrastructure,
+> not to handle the device. Handling the device is done by the guest
+> driver.
+
+Hm, let's assume the hardware device is not operational (cc 3 on ssch
+or whatever).
+
+What I'd assume to happen would be:
+- The vfio driver notices that the subchannel is not operational, and
+  switches state or flips an indication somewhere.
+- The vfio driver is probably also notified by the common I/O layer
+  (because of machine check on the hardware). It has two choices: give
+  up on the device (the common I/O layer will deregister the device),
+  or keep it (which would mean something similar to the disconnected
+  state for ccw devices; I guess that is what you meant with 'the
+  driver is operational'?).
+- If the (subchannel) device is gone, the child mdev should be gone as
+  well.
+
+What would be the best way to interact with the guest? On real
+hardware, I'd expect both cc 3 and crws. Regardless whether we
+unregister or do something like the disconnected state, we should relay
+the cc 3 to the guest *and* inject a machine check to kick the guest's
+handling.
+
+If we use the disconnected state approach, what should the guest get if
+it tries to interact with the device anyway? We could answer with cc 3
+immediately, or let the hardware give us the cc 3 that we relay back to
+the guest. (We should get a notification from the common I/O layer when
+it is informed via a machine check that the device is alive again.)
+
+What do you think?
+
+> >> For the VM perspective, if the device is not operational we send a RESET.
+> >>
+> >> For the guest perspective we can do what ever instruction we needs to
+> >> get the device operational, therefor we need the driver to be operational
+> >> to process the instruction.  
+> > Ah, do you mean 'subchannel enabled'? I was thinking about 'device
+> > dead, we get cc 3 or somesuch'.  
+> 
+> What can we do on the host level that the guest can not do?
+> If we have a way to retrieve a dead device in the host, shouldn't
+> we give the guest this possibility?
+
+See above... we can get the machine checks, but the guest can't.
+
+> Speaking about sub-channel enabled:
+> 
+> We currently have very restricted possibilities for the guest
+> to manage the sub-channel or even to get real information
+> on the sub-channel.
+> Dong-Jia began working in this direction with his last patch series
+> and I think it is a way to follow.
+
+Is anyone at IBM picking up this work?
+
+> My point of view is that we should not do too much in the VFIO
+> driver but only take care of the virtualization of the SCHIB.
+> But this is beyond the scope of this patch .
+
+The main thing missing is probably machine check handling. But probably
+msch passthrough as well.
+
+> >>> This is the common I/O layer's sch_event callback. That can mean
+> >>> different things:
+> >>> - Something regarding the paths to the device changed. We can translate
+> >>>     that to "schib updated".
+> >>> - Device is gone. This is a different situation; we may either try to
+> >>>     implement the disconnected state, or we may give up the device.
+> >>>
+> >>> Also, can't we get this event in QUIESCING or STANDBY as well?  
+> >> I think it should be ignored in STANDBY as we did not even
+> >> start to use the sub-channel we have no information on it
+> >> at that moment.  
+> > As long as we do update it some time before we need the information, ok.  
+> 
+> AFAIK we currently never forward this information to the guest,
+> when we do it we will need to virtualize this information.
+
+Agreed.
+  
+> >>>> | |                                       |
+> >>>> |                  | triggered by: sch_event               |
+> >>>> |                  | action: Store the SCHIB in IO region  |
+> >>>> |                  | state on success: no change           |  
+> >>> As said, we may want some different handling for "device gone"
+> >>> situations.
+> >>>
+> >>> Also, what happens if we get that event in BUSY? Is the I/O still
+> >>> running?  
+> >> AFAIK yes, it is an asynchronous event.
+> >> It can happen during BUSY.
+> >> However AFAIU we still get an IRQ even we get the device gone
+> >> during I/O operation.  
+> > It depends. We either get a deferred cc 3, or a machine check (but no
+> > interrupt).  
+> 
+> I understood from current code that all kind of CRW do not
+> imply that the sub-channel is gone.
+> I must investigate a little more.
+
+Path handling is sometimes a bit odd...
+
+> 
+> Anyway, the CRW should be handled and forwarded to the guest
+> but I would prefer not to change too much in this series,
+> shouldn't this changes be part of a next series?
+
+Yes, that should be a different series, as it will probably be quite
+complex and needs thought. Anyway, I've updated
+https://wiki.qemu.org/ToDo/Channel_I/O_Passthrough with some machine
+check considerations.
