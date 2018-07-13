@@ -1,59 +1,68 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 11 Jul 2018 08:14:46 +0000
-Subject: Re: [PATCH v5 0/2] KVM: s390: fix storage attributes migration
-Message-Id: <bf9b0c21-737e-4f9d-3d2a-66a527b680ed@de.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Joe Lawrence <joe.lawrence@redhat.com>
+Date: Fri, 13 Jul 2018 15:15:06 +0000
+Subject: Livepatch consistency model, objtool, and s390x arch
+Message-Id: <a4bc4c46-0a0e-1ac1-c2f6-6f6903ac992d@redhat.com>
+To: linux-s390@vger.kernel.org, live-patching@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Thanks, both Tested and applied.
+Hi folks,
 
-On 04/30/2018 06:33 PM, Claudio Imbrenda wrote:
-> This patchset fixes the migration of storage attributes.
-> 
-> Each memory slot has a bitmap, with 2 bits per page, used to keep track
-> of dirty pages during migration. We only use one bit, the other would be
-> wasted. With this patch, the second bit is now used to keep track of
-> dirty storage attributes. This means that we do not need anymore to
-> allocate and manage the additional bitmap, and no extra work is needed
-> to keep track of memory slots. The code does get a little bit more
-> complicated when accounting for the memory slots, but overall it should
-> be more robust.
-> 
-> The first patch simply introduces two auxiliary functions, while the
-> second patch does the actual job.
-> 
-> v4 -> v5
-> * rebased on v4.17-rc3
-> 
-> v3 -> v4 
-> * move gfn_to_memslot_approx to the second patch
-> * rename kvm_shadow_dirty_bitmap to kvm_second_dirty_bitmap
-> * removed useless (un)likely()
-> * fixed and improved some comments
-> * replaced break with return in kvm_s390_get_cmma
-> * pass *slots instead of *kvm in a few functions
-> 
-> v2 -> v3
-> * rebased on master
-> * fix comment for gfn_to_memslot_approx
-> * cmma_bitmap renamed to kvm_shadow_dirty_bitmap and easier to read
-> * kvm->arch.migration_mode is not atomic any longer
-> * renamed some local variables for more consistency
-> 
-> v1 -> v2
-> * renamed _cmma_bitmap to cmma_bitmap and moved it to kvm-s390.h
-> * renamed and/or removed some variables to improve readability
-> * added some comments inline
-> * simplified the code flow to improve readability
-> 
-> Claudio Imbrenda (2):
->   KVM: s390: a utility function for migration
->   KVM: s390: Fix storage attributes migration with memory slots
-> 
->  arch/s390/include/asm/kvm_host.h |   9 +-
->  arch/s390/kvm/kvm-s390.c         | 293 +++++++++++++++++++++++----------------
->  arch/s390/kvm/priv.c             |  28 ++--
->  include/linux/kvm_host.h         |   7 +
->  virt/kvm/kvm_main.c              |   2 +-
->  5 files changed, 203 insertions(+), 136 deletions(-)
-> 
+With Josh's input, I've been looking at the s390x architecture with
+respect to the livepatch consistency model and whether we will need to
+port objtool to ensure stack frame correctness.
+
+Background on livepatch's consistency model can be found in
+Documentation/livepatch/livepatch.txt and objtool's compile-time stack
+metadata validation in tools/objtool/Documentation/stack-validation.txt
+
+Using the following s390x references:
+
+  zSeries ELF Application Binary Interface Supplement
+  http://refspecs.linuxfoundation.org/ELF/zSeries/lzsabi0_zSeries.pdf
+
+  Enterprise Systems Architecture/390: Principles of Operation
+  http://publibfp.dhe.ibm.com/cgi-bin/bookmgr/download/DZ9AR008.pdf
+
+I wrote a tool using objdump and awk [1] that matches various s390x
+stack usage patterns across an entire v4.16 'allyesconfig' and
+CONFIG_COMPILE_TEST kernel build.  The tool runs a simple heuristic
+that reports functions that branch without having allocating stack or
+copy/pushed a backchain pointer beforehand.
+
+After scanning ~250000 functions, the objdump+awk tool reported only 23
+"interesting" functions (see the 'report' file in the github[1] page).
+I've attempted to filter out as many irrelevant functions/object files
+as possible (see the 'loop' script), but I suspect that the remaining
+23 functions may be false-positives.  Pattern matching improvements or
+assembly explanations welcome :)
+
+While the zSeries ELF Application Binary Interface Supplement talks
+about setting up stack frames:
+
+  The stack frame
+
+  A function will be passed a frame on the runtime stack by the
+  function which called it, and may allocate a new stack frame. A new
+  stack frame is required if the called function will in turn call
+  further functions (which must be passed the address of the new frame).
+
+I didn't see anything inherent to the architecture that enforces this
+convention.  In other words, unlike say x86, I don't think s390x's
+calling/return instructions imply anything about the stack. That would
+mean it should be possible to craft strange s390x assembly code that
+brasl's its way functions deep without setting a backpointer (perhaps
+using registers to remember the call chain).
+
+That said, according to the objdump+awk report, it doesn't look like
+there is much non-standard s390 stack usage present in the kernel tree,
+even in the hand-coded assembly files.
+
+My take is that existing code is generally compliant in setting up
+stack frames, but one /could/ bend over backwards to avoid them.
+However, I'm not an s390x expert, so I figured I would share these
+thoughts and the objdump+awk tool results with those far more
+knowledgeable about the architecture and problem space.
+
+[1] https://github.com/joe-lawrence/s390x-objtool
+
+-- Joe
