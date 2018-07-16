@@ -1,32 +1,94 @@
 Return-Path: <SRS0=eGoB=KA=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Mon, 16 Jul 2018 14:45:49 -0700 (PDT)
-Message-Id: <20180716.144549.1700210071419801130.davem@davemloft.net>
-Subject: Re: [PATCH net V2 1/1] net/smc: take sock lock in smc_ioctl()
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20180716115652.72331-1-ubraun@linux.ibm.com>
-References: <20180716115652.72331-1-ubraun@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Ursula Braun <ubraun@linux.ibm.com>
+Subject: [PATCH net V2 1/1] net/smc: take sock lock in smc_ioctl()
+Date: Mon, 16 Jul 2018 13:56:52 +0200
+Message-Id: <20180716115652.72331-1-ubraun@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: ubraun@linux.ibm.com
+To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, linux-kernel@vger.kernel.org, eric.dumazet@gmail.com, lifeasageek@gmail.com, sbrivio@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.ibm.com>
-Date: Mon, 16 Jul 2018 13:56:52 +0200
+From: Ursula Braun <ursula.braun@linux.ibm.com>
 
-> From: Ursula Braun <ursula.braun@linux.ibm.com>
-> 
-> SMC ioctl processing requires the sock lock to work properly in
-> all thinkable scenarios.
-> Problem has been found with RaceFuzzer and fixes:
->    KASAN: null-ptr-deref Read in smc_ioctl
-> 
-> Reported-by: Byoungyoung Lee <lifeasageek@gmail.com>
-> Reported-by: syzbot+35b2c5aa76fd398b9fd4@syzkaller.appspotmail.com
-> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+SMC ioctl processing requires the sock lock to work properly in
+all thinkable scenarios.
+Problem has been found with RaceFuzzer and fixes:
+   KASAN: null-ptr-deref Read in smc_ioctl
 
-Applied and queued up for -stable.
+Reported-by: Byoungyoung Lee <lifeasageek@gmail.com>
+Reported-by: syzbot+35b2c5aa76fd398b9fd4@syzkaller.appspotmail.com
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/af_smc.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 5334157f5065..c12a7fc18f56 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1524,10 +1524,13 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 			return -EBADF;
+ 		return smc->clcsock->ops->ioctl(smc->clcsock, cmd, arg);
+ 	}
++	lock_sock(&smc->sk);
+ 	switch (cmd) {
+ 	case SIOCINQ: /* same as FIONREAD */
+-		if (smc->sk.sk_state == SMC_LISTEN)
++		if (smc->sk.sk_state == SMC_LISTEN) {
++			release_sock(&smc->sk);
+ 			return -EINVAL;
++		}
+ 		if (smc->sk.sk_state == SMC_INIT ||
+ 		    smc->sk.sk_state == SMC_CLOSED)
+ 			answ = 0;
+@@ -1536,8 +1539,10 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 		break;
+ 	case SIOCOUTQ:
+ 		/* output queue size (not send + not acked) */
+-		if (smc->sk.sk_state == SMC_LISTEN)
++		if (smc->sk.sk_state == SMC_LISTEN) {
++			release_sock(&smc->sk);
+ 			return -EINVAL;
++		}
+ 		if (smc->sk.sk_state == SMC_INIT ||
+ 		    smc->sk.sk_state == SMC_CLOSED)
+ 			answ = 0;
+@@ -1547,8 +1552,10 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 		break;
+ 	case SIOCOUTQNSD:
+ 		/* output queue size (not send only) */
+-		if (smc->sk.sk_state == SMC_LISTEN)
++		if (smc->sk.sk_state == SMC_LISTEN) {
++			release_sock(&smc->sk);
+ 			return -EINVAL;
++		}
+ 		if (smc->sk.sk_state == SMC_INIT ||
+ 		    smc->sk.sk_state == SMC_CLOSED)
+ 			answ = 0;
+@@ -1556,8 +1563,10 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 			answ = smc_tx_prepared_sends(&smc->conn);
+ 		break;
+ 	case SIOCATMARK:
+-		if (smc->sk.sk_state == SMC_LISTEN)
++		if (smc->sk.sk_state == SMC_LISTEN) {
++			release_sock(&smc->sk);
+ 			return -EINVAL;
++		}
+ 		if (smc->sk.sk_state == SMC_INIT ||
+ 		    smc->sk.sk_state == SMC_CLOSED) {
+ 			answ = 0;
+@@ -1573,8 +1582,10 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 		}
+ 		break;
+ 	default:
++		release_sock(&smc->sk);
+ 		return -ENOIOCTLCMD;
+ 	}
++	release_sock(&smc->sk);
+ 
+ 	return put_user(answ, (int __user *)arg);
+ }
+-- 
+2.16.4
