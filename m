@@ -1,13 +1,13 @@
 Return-Path: <SRS0=QM4b=KB=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH v13 06/18] x86/xen/time: initialize pv xen time in
- init_hypervisor_platform
+Subject: Re: [PATCH v13 07/18] x86/xen/time: output xen sched_clock time from
+ 0
 References: <20180712000419.5165-1-pasha.tatashin@oracle.com>
- <20180712000419.5165-7-pasha.tatashin@oracle.com>
+ <20180712000419.5165-8-pasha.tatashin@oracle.com>
 From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <cf7ef6d0-8650-3e8a-0e15-5150b58d1b50@oracle.com>
-Date: Tue, 17 Jul 2018 11:28:51 -0400
+Message-ID: <93178b98-8464-ae36-3536-0baa639b3467@oracle.com>
+Date: Tue, 17 Jul 2018 11:43:51 -0400
 MIME-Version: 1.0
-In-Reply-To: <20180712000419.5165-7-pasha.tatashin@oracle.com>
+In-Reply-To: <20180712000419.5165-8-pasha.tatashin@oracle.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Content-Language: en-US
@@ -18,102 +18,62 @@ To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, danie
 List-ID: <linux-s390.vger.kernel.org>
 
 On 07/11/2018 08:04 PM, Pavel Tatashin wrote:
-> In every hypervisor except for xen pv time ops are initialized in
-> init_hypervisor_platform().
->
-> Xen PV domains initialize time ops in x86_init.paging.pagetable_init(),
-> by calling xen_setup_shared_info() which is a poor design, as time is
-> needed prior to memory allocator.
->
-> xen_setup_shared_info() is called from two places: during boot, and
-> after suspend. Split the content of xen_setup_shared_info() into
-> three places:
->
-> 1. add the clock relavent data into new xen pv init_platform vector, and
->    set clock ops in there.
->
-> 2. move xen_setup_vcpu_info_placement() to new xen_pv_guest_late_init()
->    call.
->
-> 3. Re-initializing parts of shared info copy to xen_pv_post_suspend() to
->    be symmetric to xen_pv_pre_suspend
->
-> Also, remove code duplications by calling xen_init_time_ops() from
-> xen_hvm_init_time_ops().
+> It is expected for sched_clock() to output data from 0, when system boots.
+> Add an offset xen_sched_clock_offset (similarly how it is done in other
+> hypervisors i.e. kvm_sched_clock_offset) to count sched_clock() from 0,
+> when time is first initialized.
 >
 > Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
 > ---
->  arch/x86/xen/enlighten_pv.c | 51 +++++++++++++++++--------------------
->  arch/x86/xen/mmu_pv.c       |  6 ++---
->  arch/x86/xen/suspend_pv.c   |  5 ++--
->  arch/x86/xen/time.c         | 14 +++-------
->  arch/x86/xen/xen-ops.h      |  6 ++---
->  5 files changed, 35 insertions(+), 47 deletions(-)
+>  arch/x86/xen/time.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
 >
-> diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-> index 8d4e2e1ae60b..615ad0f16848 100644
-> --- a/arch/x86/xen/enlighten_pv.c
-> +++ b/arch/x86/xen/enlighten_pv.c
-> @@ -119,6 +119,27 @@ static void __init xen_banner(void)
->  	       version >> 16, version & 0xffff, extra.extraversion,
->  	       xen_feature(XENFEAT_mmu_pt_update_preserve_ad) ? " (preserve-AD)" : "");
->  }
-> +
-> +static void __init xen_pv_init_platform(void)
-> +{
-> +	set_fixmap(FIX_PARAVIRT_BOOTMAP, xen_start_info->shared_info);
-> +	HYPERVISOR_shared_info = (void *)fix_to_virt(FIX_PARAVIRT_BOOTMAP);
-> +
-> +	/* xen clock uses per-cpu vcpu_info, need to init it for boot cpu */
-> +	xen_vcpu_info_reset(0);
-
-
-I don't believe this is necessary, it has been done in
-xen_start_kernel() for PV guests.
-
-
-> +
-> +	/* pvclock is in shared info area */
-> +	xen_init_time_ops();
-> +}
-> +
-
-
-
->  }
+> diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
+> index 2ad61bf896d6..3c6f3d603373 100644
+> --- a/arch/x86/xen/time.c
+> +++ b/arch/x86/xen/time.c
+> @@ -31,6 +31,8 @@
+>  /* Xen may fire a timer up to this many ns early */
+>  #define TIMER_SLOP	100000
 >  
-> -void __ref xen_init_time_ops(void)
-> +void __init xen_init_time_ops(void)
+> +static u64 xen_sched_clock_offset __read_mostly;
+> +
+>  /* Get the TSC speed from Xen */
+>  static unsigned long xen_tsc_khz(void)
 >  {
->  	pv_time_ops = xen_time_ops;
+> @@ -57,6 +59,11 @@ static u64 xen_clocksource_get_cycles(struct clocksource *cs)
+>  	return xen_clocksource_read();
+>  }
 >  
-> @@ -542,17 +542,11 @@ void __init xen_hvm_init_time_ops(void)
->  		return;
->  
->  	if (!xen_feature(XENFEAT_hvm_safe_pvclock)) {
-> -		printk(KERN_INFO "Xen doesn't support pvclock on HVM,"
-> -				"disable pv timer\n");
-> +		pr_info("Xen doesn't support pvclock on HVM, disable pv timer");
->  		return;
->  	}
-> -
-> -	pv_time_ops = xen_time_ops;
-> +	xen_init_time_ops();
+> +static u64 xen_sched_clock(void)
+> +{
+> +	return xen_clocksource_read() - xen_sched_clock_offset;
+> +}
 
 
-As we discussed elsewhere, now that HVM guests call this routine as well
-we need to make sure that x86_init.timers.timer_init is not updated
-there for HVM since those guests expect a "real" timer to be connected
-to IO-APIC.
+Should other invocations of xen_clocksource_read() also be offset?
 
 -boris
 
->  	x86_init.timers.setup_percpu_clockev = xen_time_init;
->  	x86_cpuinit.setup_percpu_clockev = xen_hvm_setup_cpu_clockevents;
-> -
-> -	x86_platform.calibrate_tsc = xen_tsc_khz;
-> -	x86_platform.get_wallclock = xen_get_wallclock;
-> -	x86_platform.set_wallclock = xen_set_wallclock;
+
+> +
+>  static void xen_read_wallclock(struct timespec64 *ts)
+>  {
+>  	struct shared_info *s = HYPERVISOR_shared_info;
+> @@ -367,7 +374,7 @@ void xen_timer_resume(void)
 >  }
->  #endif
->
+>  
+>  static const struct pv_time_ops xen_time_ops __initconst = {
+> -	.sched_clock = xen_clocksource_read,
+> +	.sched_clock = xen_sched_clock,
+>  	.steal_clock = xen_steal_clock,
+>  };
+>  
+> @@ -505,6 +512,7 @@ static void __init xen_time_init(void)
+>  
+>  void __init xen_init_time_ops(void)
+>  {
+> +	xen_sched_clock_offset = xen_clocksource_read();
+>  	pv_time_ops = xen_time_ops;
+>  
+>  	x86_init.timers.timer_init = xen_time_init;
