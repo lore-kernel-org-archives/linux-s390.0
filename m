@@ -1,8 +1,8 @@
 Return-Path: <SRS0=35zj=KC=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v14 08/25] x86/kvmclock: Avoid TSC recalibration
-Date: Tue, 17 Jul 2018 22:21:54 -0400
-Message-Id: <20180718022211.6259-9-pasha.tatashin@oracle.com>
+Subject: [PATCH v14 15/25] s390/time: add read_persistent_wall_and_boot_offset()
+Date: Tue, 17 Jul 2018 22:22:01 -0400
+Message-Id: <20180718022211.6259-16-pasha.tatashin@oracle.com>
 In-Reply-To: <20180718022211.6259-1-pasha.tatashin@oracle.com>
 References: <20180718022211.6259-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -11,38 +11,46 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, pasha.tatashin@oracle.com, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Zijlstra <peterz@infradead.org>
+read_persistent_wall_and_boot_offset() will replace read_boot_clock64()
+because on some architectures it is more convenient to read both sources
+as one may depend on the other. For s390, implementation is the same
+as read_boot_clock64() but also calling and returning value of
+read_persistent_clock64()
 
-If the host gives us a TSC rate, assume it is good and don't try and
-recalibrate things against virtual timer hardware.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/x86/kernel/kvmclock.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/s390/kernel/time.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-index ed170171fe49..da0ede8ac8f6 100644
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -141,7 +141,16 @@ static inline void kvm_sched_clock_init(bool stable)
-  */
- static unsigned long kvm_get_tsc_khz(void)
- {
--	return pvclock_tsc_khz(this_cpu_pvti());
-+	unsigned long tsc_khz = pvclock_tsc_khz(this_cpu_pvti());
-+
-+	/*
-+	 * TSC frequency is reported by the host; calibration against (virtual)
-+	 * HPET/PM-timer in a guest is dodgy and pointless since the host
-+	 * already did it for us where required.
-+	 */
-+	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
-+
-+	return tsc_khz;
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index cf561160ea88..d1f5447d5687 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -221,6 +221,24 @@ void read_persistent_clock64(struct timespec64 *ts)
+ 	ext_to_timespec64(clk, ts);
  }
  
- static void kvm_get_preset_lpj(void)
++void __init read_persistent_wall_and_boot_offset(struct timespec64 *wall_time,
++						 struct timespec64 *boot_offset)
++{
++	unsigned char clk[STORE_CLOCK_EXT_SIZE];
++	struct timespec64 boot_time;
++	__u64 delta;
++
++	delta = initial_leap_seconds + TOD_UNIX_EPOCH;
++	memcpy(clk, tod_clock_base, STORE_CLOCK_EXT_SIZE);
++	*(__u64 *)&clk[1] -= delta;
++	if (*(__u64 *)&clk[1] > delta)
++		clk[0]--;
++	ext_to_timespec64(clk, &boot_time);
++
++	read_persistent_clock64(wall_time);
++	*boot_offset = timespec64_sub(*wall_time, boot_time);
++}
++
+ void read_boot_clock64(struct timespec64 *ts)
+ {
+ 	unsigned char clk[STORE_CLOCK_EXT_SIZE];
 -- 
 2.18.0
