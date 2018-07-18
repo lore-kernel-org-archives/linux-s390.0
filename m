@@ -1,162 +1,57 @@
 Return-Path: <SRS0=35zj=KC=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v14 10/25] x86: initialize static branching early
-Date: Tue, 17 Jul 2018 22:21:56 -0400
-Message-Id: <20180718022211.6259-11-pasha.tatashin@oracle.com>
-In-Reply-To: <20180718022211.6259-1-pasha.tatashin@oracle.com>
+Subject: Re: [PATCH v14 08/25] x86/kvmclock: Avoid TSC recalibration
 References: <20180718022211.6259-1-pasha.tatashin@oracle.com>
+ <20180718022211.6259-9-pasha.tatashin@oracle.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <ddda16df-cca6-8b9d-6f66-6ff5ecc21a03@redhat.com>
+Date: Wed, 18 Jul 2018 13:14:02 +0200
+MIME-Version: 1.0
+In-Reply-To: <20180718022211.6259-9-pasha.tatashin@oracle.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, pasha.tatashin@oracle.com, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
+To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com
 List-ID: <linux-s390.vger.kernel.org>
 
-static branching is useful to hot-patch branches that are used in hot
-path, but are infrequently changed.
+On 18/07/2018 04:21, Pavel Tatashin wrote:
+> From: Peter Zijlstra <peterz@infradead.org>
+> 
+> If the host gives us a TSC rate, assume it is good and don't try and
+> recalibrate things against virtual timer hardware.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+> ---
+>  arch/x86/kernel/kvmclock.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+> index ed170171fe49..da0ede8ac8f6 100644
+> --- a/arch/x86/kernel/kvmclock.c
+> +++ b/arch/x86/kernel/kvmclock.c
+> @@ -141,7 +141,16 @@ static inline void kvm_sched_clock_init(bool stable)
+>   */
+>  static unsigned long kvm_get_tsc_khz(void)
+>  {
+> -	return pvclock_tsc_khz(this_cpu_pvti());
+> +	unsigned long tsc_khz = pvclock_tsc_khz(this_cpu_pvti());
+> +
+> +	/*
+> +	 * TSC frequency is reported by the host; calibration against (virtual)
+> +	 * HPET/PM-timer in a guest is dodgy and pointless since the host
+> +	 * already did it for us where required.
+> +	 */
+> +	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
+> +
+> +	return tsc_khz;
+>  }
+>  
+>  static void kvm_get_preset_lpj(void)
+> 
 
-x86 clock framework is one example that uses static branches to setup
-the best clock during boot and never change it again.
+This patch (really a similar one) has just been sent to Linus.
 
-Since we plan to enable clock early, we need static branching
-functionality early as well.
-
-static branching requires patching nop instructions, thus, we need
-arch_init_ideal_nops() to be called prior to jump_label_init()
-
-Here we do all the necessary steps to call arch_init_ideal_nops
-after early_cpu_init().
-
-Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
----
- arch/x86/kernel/cpu/amd.c    | 13 +++++++-----
- arch/x86/kernel/cpu/common.c | 38 +++++++++++++++++++-----------------
- arch/x86/kernel/setup.c      |  4 ++--
- 3 files changed, 30 insertions(+), 25 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 38915fbfae73..b732438c1a1e 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -232,8 +232,6 @@ static void init_amd_k7(struct cpuinfo_x86 *c)
- 		}
- 	}
- 
--	set_cpu_cap(c, X86_FEATURE_K7);
--
- 	/* calling is from identify_secondary_cpu() ? */
- 	if (!c->cpu_index)
- 		return;
-@@ -617,6 +615,14 @@ static void early_init_amd(struct cpuinfo_x86 *c)
- 
- 	early_init_amd_mc(c);
- 
-+#ifdef CONFIG_X86_32
-+	if (c->x86 == 6)
-+		set_cpu_cap(c, X86_FEATURE_K7);
-+#endif
-+
-+	if (c->x86 >= 0xf)
-+		set_cpu_cap(c, X86_FEATURE_K8);
-+
- 	rdmsr_safe(MSR_AMD64_PATCH_LEVEL, &c->microcode, &dummy);
- 
- 	/*
-@@ -863,9 +869,6 @@ static void init_amd(struct cpuinfo_x86 *c)
- 
- 	init_amd_cacheinfo(c);
- 
--	if (c->x86 >= 0xf)
--		set_cpu_cap(c, X86_FEATURE_K8);
--
- 	if (cpu_has(c, X86_FEATURE_XMM2)) {
- 		unsigned long long val;
- 		int ret;
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index eb4cb3efd20e..71281ac43b15 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1015,6 +1015,24 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
- 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
- }
- 
-+/*
-+ * The NOPL instruction is supposed to exist on all CPUs of family >= 6;
-+ * unfortunately, that's not true in practice because of early VIA
-+ * chips and (more importantly) broken virtualizers that are not easy
-+ * to detect. In the latter case it doesn't even *fail* reliably, so
-+ * probing for it doesn't even work. Disable it completely on 32-bit
-+ * unless we can find a reliable way to detect all the broken cases.
-+ * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
-+ */
-+static void detect_nopl(struct cpuinfo_x86 *c)
-+{
-+#ifdef CONFIG_X86_32
-+	clear_cpu_cap(c, X86_FEATURE_NOPL);
-+#else
-+	set_cpu_cap(c, X86_FEATURE_NOPL);
-+#endif
-+}
-+
- /*
-  * Do minimum CPU detection early.
-  * Fields really needed: vendor, cpuid_level, family, model, mask,
-@@ -1089,6 +1107,8 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
- 	 */
- 	if (!pgtable_l5_enabled())
- 		setup_clear_cpu_cap(X86_FEATURE_LA57);
-+
-+	detect_nopl(c);
- }
- 
- void __init early_cpu_init(void)
-@@ -1124,24 +1144,6 @@ void __init early_cpu_init(void)
- 	early_identify_cpu(&boot_cpu_data);
- }
- 
--/*
-- * The NOPL instruction is supposed to exist on all CPUs of family >= 6;
-- * unfortunately, that's not true in practice because of early VIA
-- * chips and (more importantly) broken virtualizers that are not easy
-- * to detect. In the latter case it doesn't even *fail* reliably, so
-- * probing for it doesn't even work. Disable it completely on 32-bit
-- * unless we can find a reliable way to detect all the broken cases.
-- * Enable it explicitly on 64-bit for non-constant inputs of cpu_has().
-- */
--static void detect_nopl(struct cpuinfo_x86 *c)
--{
--#ifdef CONFIG_X86_32
--	clear_cpu_cap(c, X86_FEATURE_NOPL);
--#else
--	set_cpu_cap(c, X86_FEATURE_NOPL);
--#endif
--}
--
- static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
- {
- #ifdef CONFIG_X86_64
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index da1dbd99cb6e..7490de925a81 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -866,6 +866,8 @@ void __init setup_arch(char **cmdline_p)
- 
- 	idt_setup_early_traps();
- 	early_cpu_init();
-+	arch_init_ideal_nops();
-+	jump_label_init();
- 	early_ioremap_init();
- 
- 	setup_olpc_ofw_pgd();
-@@ -1268,8 +1270,6 @@ void __init setup_arch(char **cmdline_p)
- 
- 	mcheck_init();
- 
--	arch_init_ideal_nops();
--
- 	register_refined_jiffies(CLOCK_TICK_RATE);
- 
- #ifdef CONFIG_EFI
--- 
-2.18.0
+Paolo
