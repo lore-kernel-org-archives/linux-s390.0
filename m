@@ -1,10 +1,10 @@
 Return-Path: <SRS0=35zj=KC=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 1/3] net/smc: optimize consumer cursor updates
-Date: Wed, 18 Jul 2018 15:22:49 +0200
+Subject: [PATCH net 2/3] net/smc: add error handling for get_user()
+Date: Wed, 18 Jul 2018 15:22:50 +0200
 In-Reply-To: <20180718132251.7222-1-ubraun@linux.ibm.com>
 References: <20180718132251.7222-1-ubraun@linux.ibm.com>
-Message-Id: <20180718132251.7222-2-ubraun@linux.ibm.com>
+Message-Id: <20180718132251.7222-3-ubraun@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,56 +14,29 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <ursula.braun@linux.ibm.com>
 
-The SMC protocol requires to send a separate consumer cursor update,
-if it cannot be piggybacked to updates of the producer cursor.
-Currently the decision to send a separate consumer cursor update
-just considers the amount of data already received by the socket
-program. It does not consider the amount of data already arrived, but
-not yet consumed by the receiver. Basing the decision on the
-difference between already confirmed and already arrived data
-(instead of difference between already confirmed and already consumed
-data), may lead to a somewhat earlier consumer cursor update send in
-fast unidirectional traffic scenarios, and thus to better throughput.
+For security reasons the return code of get_user() should always be
+checked.
 
+Fixes: 01d2f7e2cdd31 ("net/smc: sockopts TCP_NODELAY and TCP_CORK")
+Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
 ---
- net/smc/smc_tx.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ net/smc/af_smc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index cee666400752..f82886b7d1d8 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -495,7 +495,8 @@ void smc_tx_work(struct work_struct *work)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index c12a7fc18f56..6e5479067db0 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1456,7 +1456,8 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
  
- void smc_tx_consumer_update(struct smc_connection *conn, bool force)
- {
--	union smc_host_cursor cfed, cons;
-+	union smc_host_cursor cfed, cons, prod;
-+	int sender_free = conn->rmb_desc->len;
- 	int to_confirm;
+ 	if (optlen < sizeof(int))
+ 		return -EINVAL;
+-	get_user(val, (int __user *)optval);
++	if (get_user(val, (int __user *)optval))
++		return -EFAULT;
  
- 	smc_curs_write(&cons,
-@@ -505,11 +506,18 @@ void smc_tx_consumer_update(struct smc_connection *conn, bool force)
- 		       smc_curs_read(&conn->rx_curs_confirmed, conn),
- 		       conn);
- 	to_confirm = smc_curs_diff(conn->rmb_desc->len, &cfed, &cons);
-+	if (to_confirm > conn->rmbe_update_limit) {
-+		smc_curs_write(&prod,
-+			       smc_curs_read(&conn->local_rx_ctrl.prod, conn),
-+			       conn);
-+		sender_free = conn->rmb_desc->len -
-+			      smc_curs_diff(conn->rmb_desc->len, &prod, &cfed);
-+	}
- 
- 	if (conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
- 	    force ||
- 	    ((to_confirm > conn->rmbe_update_limit) &&
--	     ((to_confirm > (conn->rmb_desc->len / 2)) ||
-+	     ((sender_free <= (conn->rmb_desc->len / 2)) ||
- 	      conn->local_rx_ctrl.prod_flags.write_blocked))) {
- 		if ((smc_cdc_get_slot_and_msg_send(conn) < 0) &&
- 		    conn->alert_token_local) { /* connection healthy */
+ 	lock_sock(sk);
+ 	switch (optname) {
 -- 
 2.16.4
