@@ -1,8 +1,8 @@
 Return-Path: <SRS0=35zj=KC=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v14 14/25] x86/xen/time: output xen sched_clock time from 0
-Date: Tue, 17 Jul 2018 22:22:00 -0400
-Message-Id: <20180718022211.6259-15-pasha.tatashin@oracle.com>
+Subject: [PATCH v14 12/25] x86/tsc: redefine notsc to behave as tsc=unstable
+Date: Tue, 17 Jul 2018 22:21:58 -0400
+Message-Id: <20180718022211.6259-13-pasha.tatashin@oracle.com>
 In-Reply-To: <20180718022211.6259-1-pasha.tatashin@oracle.com>
 References: <20180718022211.6259-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -11,57 +11,116 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, pasha.tatashin@oracle.com, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-It is expected for sched_clock() to output data from 0, when system boots.
-Add an offset xen_sched_clock_offset (similarly how it is done in other
-hypervisors i.e. kvm_sched_clock_offset) to count sched_clock() from 0,
-when time is first initialized.
+Currently, notsc kernel parameter disables the use of tsc register by
+sched_clock(). However, this parameter does not prevent linux from
+accessing tsc in other places in kernel.
+
+The only rational to boot with notsc is to avoid timing discrepancies on
+multi-socket systems where different tsc frequencies may present, and thus
+fallback to jiffies for clock source.
+
+However, there is another method to solve the above problem, it is to boot
+with tsc=unstable parameter. This parameter allows sched_clock() to use tsc
+but in case tsc is outside of expected interval it is corrected back to a
+sane value.
+
+This is why there is no reason to keep notsc, and it can be removed. But,
+for compatibility reasons we will keep this parameter but change its
+definition to be the same as tsc=unstable.
 
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+Reviewed-by: Dou Liyang <douly.fnst@cn.fujitsu.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/xen/time.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ .../admin-guide/kernel-parameters.txt          |  2 --
+ Documentation/x86/x86_64/boot-options.txt      |  4 +---
+ arch/x86/kernel/tsc.c                          | 18 +++---------------
+ 3 files changed, 4 insertions(+), 20 deletions(-)
 
-diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
-index 53bb7a8d10b5..25a780d89b7a 100644
---- a/arch/x86/xen/time.c
-+++ b/arch/x86/xen/time.c
-@@ -31,6 +31,8 @@
- /* Xen may fire a timer up to this many ns early */
- #define TIMER_SLOP	100000
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 533ff5c68970..5aed30cd0350 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -2835,8 +2835,6 @@
  
-+static u64 xen_sched_clock_offset __read_mostly;
-+
- /* Get the TSC speed from Xen */
- static unsigned long xen_tsc_khz(void)
+ 	nosync		[HW,M68K] Disables sync negotiation for all devices.
+ 
+-	notsc		[BUGS=X86-32] Disable Time Stamp Counter
+-
+ 	nowatchdog	[KNL] Disable both lockup detectors, i.e.
+ 			soft-lockup and NMI watchdog (hard-lockup).
+ 
+diff --git a/Documentation/x86/x86_64/boot-options.txt b/Documentation/x86/x86_64/boot-options.txt
+index 8d109ef67ab6..66114ab4f9fe 100644
+--- a/Documentation/x86/x86_64/boot-options.txt
++++ b/Documentation/x86/x86_64/boot-options.txt
+@@ -92,9 +92,7 @@ APICs
+ Timing
+ 
+   notsc
+-  Don't use the CPU time stamp counter to read the wall time.
+-  This can be used to work around timing problems on multiprocessor systems
+-  with not properly synchronized CPUs.
++  Deprecated, use tsc=unstable instead.
+ 
+   nohpet
+   Don't use the HPET timer.
+diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
+index 74392d9d51e0..186395041725 100644
+--- a/arch/x86/kernel/tsc.c
++++ b/arch/x86/kernel/tsc.c
+@@ -38,11 +38,6 @@ EXPORT_SYMBOL(tsc_khz);
+  */
+ static int __read_mostly tsc_unstable;
+ 
+-/* native_sched_clock() is called before tsc_init(), so
+-   we must start with the TSC soft disabled to prevent
+-   erroneous rdtsc usage on !boot_cpu_has(X86_FEATURE_TSC) processors */
+-static int __read_mostly tsc_disabled = -1;
+-
+ static DEFINE_STATIC_KEY_FALSE(__use_tsc);
+ 
+ int tsc_clocksource_reliable;
+@@ -248,8 +243,7 @@ EXPORT_SYMBOL_GPL(check_tsc_unstable);
+ #ifdef CONFIG_X86_TSC
+ int __init notsc_setup(char *str)
  {
-@@ -57,6 +59,11 @@ static u64 xen_clocksource_get_cycles(struct clocksource *cs)
- 	return xen_clocksource_read();
+-	pr_warn("Kernel compiled with CONFIG_X86_TSC, cannot disable TSC completely\n");
+-	tsc_disabled = 1;
++	mark_tsc_unstable("boot parameter notsc");
+ 	return 1;
  }
+ #else
+@@ -1307,7 +1301,7 @@ static void tsc_refine_calibration_work(struct work_struct *work)
  
-+static u64 xen_sched_clock(void)
-+{
-+	return xen_clocksource_read() - xen_sched_clock_offset;
-+}
-+
- static void xen_read_wallclock(struct timespec64 *ts)
+ static int __init init_tsc_clocksource(void)
  {
- 	struct shared_info *s = HYPERVISOR_shared_info;
-@@ -367,7 +374,7 @@ void xen_timer_resume(void)
- }
+-	if (!boot_cpu_has(X86_FEATURE_TSC) || tsc_disabled > 0 || !tsc_khz)
++	if (!boot_cpu_has(X86_FEATURE_TSC) || !tsc_khz)
+ 		return 0;
  
- static const struct pv_time_ops xen_time_ops __initconst = {
--	.sched_clock = xen_clocksource_read,
-+	.sched_clock = xen_sched_clock,
- 	.steal_clock = xen_steal_clock,
- };
+ 	if (tsc_unstable)
+@@ -1414,12 +1408,6 @@ void __init tsc_init(void)
+ 		set_cyc2ns_scale(tsc_khz, cpu, cyc);
+ 	}
  
-@@ -505,6 +512,7 @@ static void __init xen_time_init(void)
+-	if (tsc_disabled > 0)
+-		return;
+-
+-	/* now allow native_sched_clock() to use rdtsc */
+-
+-	tsc_disabled = 0;
+ 	static_branch_enable(&__use_tsc);
  
- void __init xen_init_time_ops(void)
- {
-+	xen_sched_clock_offset = xen_clocksource_read();
- 	pv_time_ops = xen_time_ops;
+ 	if (!no_sched_irq_time)
+@@ -1455,7 +1443,7 @@ unsigned long calibrate_delay_is_known(void)
+ 	int constant_tsc = cpu_has(&cpu_data(cpu), X86_FEATURE_CONSTANT_TSC);
+ 	const struct cpumask *mask = topology_core_cpumask(cpu);
  
- 	x86_init.timers.timer_init = xen_time_init;
+-	if (tsc_disabled || !constant_tsc || !mask)
++	if (!constant_tsc || !mask)
+ 		return 0;
+ 
+ 	sibling = cpumask_any_but(mask, cpu);
 -- 
 2.18.0
