@@ -1,79 +1,223 @@
 Return-Path: <SRS0=35zj=KC=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v14 02/25] x86/kvmclock: Remove page size requirement from wall_clock
-Date: Tue, 17 Jul 2018 22:21:48 -0400
-Message-Id: <20180718022211.6259-3-pasha.tatashin@oracle.com>
-In-Reply-To: <20180718022211.6259-1-pasha.tatashin@oracle.com>
-References: <20180718022211.6259-1-pasha.tatashin@oracle.com>
+Subject: [PATCH v14 00/25] Early boot time stamps
+Date: Tue, 17 Jul 2018 22:21:46 -0400
+Message-Id: <20180718022211.6259-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, pasha.tatashin@oracle.com, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Gleixner <tglx@linutronix.de>
+changelog
+---------
+v14 - v13
+	- Included Thomas' KVM clock series, addressed comments from
+	  reviewers.
+	http://lkml.kernel.org/r/20180706161307.733337643@linutronix.de
+	- Fixed xen hvm panic reported by Boris
+	- Fixed build issue on microblaze
 
-There is no requirement for wall_clock data to be page aligned or page
-sized.
+v13 - v12
+	- Addressed comments from Thomas Gleixner.
+	- Addressed comments from Peter Zijlstra.
+	- Added a patch from Borislav Petkov
+	- Added a new patch: sched: use static key for sched_clock_running
+	- Added xen pv fixes, so clock is initialized when other
+	  hypervisors initialize their clocks.
+	Note: I am including kvm/x86: remove kvm memblock dependency, which
+	is part of this series:
+	http://lkml.kernel.org/r/20180706161307.733337643@linutronix.de
+	Because without this patch it is not possible to test this series on
+	KVM.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kernel/kvmclock.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+v12 - v11
+	- split time: replace read_boot_clock64() with
+	  read_persistent_wall_and_boot_offset() into four patches
+	- Added two patches one fixes an existing bug with text_poke()
+	  another one enables static branches early. Note, because I found
+	  and fixed the text_poke() bug, enabling static branching became
+	  super easy, as no changes to jump_label* is needed.
+	- Modified x86/tsc: use tsc early to use static branches early, and
+	  thus native_sched_clock() is not changed at all.
+v11 - v10
+	- Addressed all the comments from Thomas Gleixner.
+	- I added one more patch:
+	  "x86/tsc: prepare for early sched_clock" which fixes a problem
+	  that I discovered while testing. I am not particularly happy with
+	  the fix, as it adds a new argument that is used only in one
+	  place, but if you have a suggestion for a different approach on
+	  how to address this problem please let me know.
 
-diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-index 890e9e58e4bf..e9863639312c 100644
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -46,14 +46,12 @@ early_param("no-kvmclock", parse_no_kvmclock);
- 
- /* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
- #define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
--#define WALL_CLOCK_SIZE	(sizeof(struct pvclock_wall_clock))
- 
- static u8 hv_clock_mem[PAGE_ALIGN(HV_CLOCK_SIZE)] __aligned(PAGE_SIZE);
--static u8 wall_clock_mem[PAGE_ALIGN(WALL_CLOCK_SIZE)] __aligned(PAGE_SIZE);
- 
- /* The hypervisor will put information about time periodically here */
- static struct pvclock_vsyscall_time_info *hv_clock;
--static struct pvclock_wall_clock *wall_clock;
-+static struct pvclock_wall_clock wall_clock;
- 
- /*
-  * The wallclock is the time of day when we booted. Since then, some time may
-@@ -66,15 +64,15 @@ static void kvm_get_wallclock(struct timespec64 *now)
- 	int low, high;
- 	int cpu;
- 
--	low = (int)slow_virt_to_phys(wall_clock);
--	high = ((u64)slow_virt_to_phys(wall_clock) >> 32);
-+	low = (int)slow_virt_to_phys(&wall_clock);
-+	high = ((u64)slow_virt_to_phys(&wall_clock) >> 32);
- 
- 	native_write_msr(msr_kvm_wall_clock, low, high);
- 
- 	cpu = get_cpu();
- 
- 	vcpu_time = &hv_clock[cpu].pvti;
--	pvclock_read_wallclock(wall_clock, vcpu_time, now);
-+	pvclock_read_wallclock(&wall_clock, vcpu_time, now);
- 
- 	put_cpu();
- }
-@@ -266,12 +264,10 @@ void __init kvmclock_init(void)
- 	} else if (!(kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)))
- 		return;
- 
--	wall_clock = (struct pvclock_wall_clock *)wall_clock_mem;
- 	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
- 
- 	if (kvm_register_clock("primary cpu clock")) {
- 		hv_clock = NULL;
--		wall_clock = NULL;
- 		return;
- 	}
- 
+v10 - v9
+	- Added another patch to this series that removes dependency
+	  between KVM clock, and memblock allocator. The benefit is that
+	  all clocks can now be initialized even earlier.
+v9 - v8
+	- Addressed more comments from Dou Liyang
+
+v8 - v7
+	- Addressed comments from Dou Liyang:
+	- Moved tsc_early_init() and tsc_early_fini() to be all inside
+	  tsc.c, and changed them to be static.
+	- Removed warning when notsc parameter is used.
+	- Merged with:
+	  https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git
+
+v7 - v6
+	- Removed tsc_disabled flag, now notsc is equivalent of
+	  tsc=unstable
+	- Simplified changes to sched/clock.c, by removing the
+	  sched_clock_early() and friends as requested by Peter Zijlstra.
+	  We know always use sched_clock()
+	- Modified x86 sched_clock() to return either early boot time or
+	  regular.
+	- Added another example why ealry boot time is important
+
+v5 - v6
+	- Added a new patch:
+		time: sync read_boot_clock64() with persistent clock
+	  Which fixes missing __init macro, and enabled time discrepancy
+	  fix that was noted by Thomas Gleixner
+	- Split "x86/time: read_boot_clock64() implementation" into a
+	  separate patch
+
+v4 - v5
+	- Fix compiler warnings on systems with stable clocks.
+
+v3 - v4
+	- Fixed tsc_early_fini() call to be in the 2nd patch as reported
+	  by Dou Liyang
+	- Improved comment before __use_sched_clock_early to explain why
+	  we need both booleans.
+	- Simplified valid_clock logic in read_boot_clock64().
+
+v2 - v3
+	- Addressed comment from Thomas Gleixner
+	- Timestamps are available a little later in boot but still much
+	  earlier than in mainline. This significantly simplified this
+	  work.
+
+v1 - v2
+	In patch "x86/tsc: tsc early":
+	- added tsc_adjusted_early()
+	- fixed 32-bit compile error use do_div()
+
+The early boot time stamps were discussed recently in these threads:
+http://lkml.kernel.org/r/1527672059-6225-1-git-send-email-feng.tang@intel.com
+http://lkml.kernel.org/r/1527672059-6225-2-git-send-email-feng.tang@intel.com
+
+I updated my series to the latest mainline and sending it again.
+
+Peter mentioned he did not like patch 6,7, and we can discuss for a better
+way to do that, but I think patches 1-5 can be accepted separetly, since
+they already enable early timestamps on platforms where sched_clock() is
+available early. Such as KVM.
+
+Adding early boot time stamps support for x86 machines.
+SPARC patches for early boot time stamps are already integrated into
+mainline linux.
+
+Sample output
+-------------
+Before:
+https://paste.ubuntu.com/26133428/
+
+After:
+https://paste.ubuntu.com/26133523/
+
+For exaples how early time stamps are used, see this work:
+Example 1:
+https://lwn.net/Articles/734374/
+- Without early boot time stamps we would not know about the extra time
+  that is spent zeroing struct pages early in boot even when deferred
+  page initialization.
+
+Example 2:
+https://patchwork.kernel.org/patch/10021247/
+- If early boot timestamps were available, the engineer who introduced
+  this bug would have noticed the extra time that is spent early in boot.
+Pavel Tatashin (7):
+  x86/tsc: remove tsc_disabled flag
+  time: sync read_boot_clock64() with persistent clock
+  x86/time: read_boot_clock64() implementation
+  sched: early boot clock
+  kvm/x86: remove kvm memblock dependency
+  x86/paravirt: add active_sched_clock to pv_time_ops
+  x86/tsc: use tsc early
+
+Example 3:
+http://lkml.kernel.org/r/20180615155733.1175-1-pasha.tatashin@oracle.com
+- Needed early time stamps to show improvement
+
+Borislav Petkov (1):
+  x86/CPU: Call detect_nopl() only on the BSP
+
+Pavel Tatashin (17):
+  x86/kvmclock: Remove memblock dependency
+  x86: text_poke() may access uninitialized struct pages
+  x86: initialize static branching early
+  x86/tsc: redefine notsc to behave as tsc=unstable
+  x86/xen/time: initialize pv xen time in init_hypervisor_platform
+  x86/xen/time: output xen sched_clock time from 0
+  s390/time: add read_persistent_wall_and_boot_offset()
+  time: replace read_boot_clock64() with
+    read_persistent_wall_and_boot_offset()
+  time: default boot time offset to local_clock()
+  s390/time: remove read_boot_clock64()
+  ARM/time: remove read_boot_clock64()
+  x86/tsc: calibrate tsc only once
+  x86/tsc: initialize cyc2ns when tsc freq. is determined
+  x86/tsc: use tsc early
+  sched: move sched clock initialization and merge with generic clock
+  sched: early boot clock
+  sched: use static key for sched_clock_running
+
+Peter Zijlstra (1):
+  x86/kvmclock: Avoid TSC recalibration
+
+Thomas Gleixner (6):
+  x86/kvmclock: Remove page size requirement from wall_clock
+  x86/kvmclock: Decrapify kvm_register_clock()
+  x86/kvmclock: Cleanup the code
+  x86/kvmclock: Mark variables __initdata and __ro_after_init
+  x86/kvmclock: Move kvmclock vsyscall param and init to kvmclock
+  x86/kvmclock: Switch kvmclock data to a PER_CPU variable
+
+ .../admin-guide/kernel-parameters.txt         |   2 -
+ Documentation/x86/x86_64/boot-options.txt     |   4 +-
+ arch/arm/include/asm/mach/time.h              |   3 +-
+ arch/arm/kernel/time.c                        |  15 +-
+ arch/arm/plat-omap/counter_32k.c              |   2 +-
+ arch/s390/kernel/time.c                       |  15 +-
+ arch/x86/include/asm/kvm_guest.h              |   7 -
+ arch/x86/include/asm/kvm_para.h               |   1 -
+ arch/x86/include/asm/text-patching.h          |   1 +
+ arch/x86/include/asm/tsc.h                    |   2 +-
+ arch/x86/kernel/alternative.c                 |   7 +
+ arch/x86/kernel/cpu/amd.c                     |  13 +-
+ arch/x86/kernel/cpu/common.c                  |  40 +--
+ arch/x86/kernel/jump_label.c                  |  11 +-
+ arch/x86/kernel/kvm.c                         |  14 +-
+ arch/x86/kernel/kvmclock.c                    | 266 ++++++++----------
+ arch/x86/kernel/setup.c                       |  10 +-
+ arch/x86/kernel/tsc.c                         | 187 ++++++------
+ arch/x86/xen/enlighten_pv.c                   |  51 ++--
+ arch/x86/xen/mmu_pv.c                         |   6 +-
+ arch/x86/xen/suspend_pv.c                     |   5 +-
+ arch/x86/xen/time.c                           |  17 +-
+ arch/x86/xen/xen-ops.h                        |   6 +-
+ drivers/clocksource/tegra20_timer.c           |   2 +-
+ include/linux/sched_clock.h                   |   5 +-
+ include/linux/timekeeping.h                   |   3 +-
+ init/main.c                                   |   4 +-
+ kernel/sched/clock.c                          |  49 ++--
+ kernel/sched/core.c                           |   1 -
+ kernel/sched/debug.c                          |   2 -
+ kernel/time/sched_clock.c                     |   2 +-
+ kernel/time/timekeeping.c                     |  62 ++--
+ 32 files changed, 386 insertions(+), 429 deletions(-)
+ delete mode 100644 arch/x86/include/asm/kvm_guest.h
+
 -- 
 2.18.0
