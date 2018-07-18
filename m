@@ -1,8 +1,8 @@
 Return-Path: <SRS0=35zj=KC=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v14 03/25] x86/kvmclock: Decrapify kvm_register_clock()
-Date: Tue, 17 Jul 2018 22:21:49 -0400
-Message-Id: <20180718022211.6259-4-pasha.tatashin@oracle.com>
+Subject: [PATCH v14 02/25] x86/kvmclock: Remove page size requirement from wall_clock
+Date: Tue, 17 Jul 2018 22:21:48 -0400
+Message-Id: <20180718022211.6259-3-pasha.tatashin@oracle.com>
 In-Reply-To: <20180718022211.6259-1-pasha.tatashin@oracle.com>
 References: <20180718022211.6259-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -13,98 +13,67 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-The return value is pointless because the wrmsr cannot fail if
-KVM_FEATURE_CLOCKSOURCE or KVM_FEATURE_CLOCKSOURCE2 are set.
-
-kvm_register_clock() is only called locally so wants to be static.
+There is no requirement for wall_clock data to be page aligned or page
+sized.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
 Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- arch/x86/include/asm/kvm_para.h |  1 -
- arch/x86/kernel/kvmclock.c      | 34 +++++++++++----------------------
- 2 files changed, 11 insertions(+), 24 deletions(-)
+ arch/x86/kernel/kvmclock.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
-index 3aea2658323a..4c723632c036 100644
---- a/arch/x86/include/asm/kvm_para.h
-+++ b/arch/x86/include/asm/kvm_para.h
-@@ -7,7 +7,6 @@
- #include <uapi/asm/kvm_para.h>
- 
- extern void kvmclock_init(void);
--extern int kvm_register_clock(char *txt);
- 
- #ifdef CONFIG_KVM_GUEST
- bool kvm_check_and_clear_guest_paused(void);
 diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-index e9863639312c..cbf0a6b9217b 100644
+index 890e9e58e4bf..e9863639312c 100644
 --- a/arch/x86/kernel/kvmclock.c
 +++ b/arch/x86/kernel/kvmclock.c
-@@ -186,23 +186,19 @@ struct clocksource kvm_clock = {
- };
- EXPORT_SYMBOL_GPL(kvm_clock);
+@@ -46,14 +46,12 @@ early_param("no-kvmclock", parse_no_kvmclock);
  
--int kvm_register_clock(char *txt)
-+static void kvm_register_clock(char *txt)
- {
--	int cpu = smp_processor_id();
--	int low, high, ret;
- 	struct pvclock_vcpu_time_info *src;
-+	int cpu = smp_processor_id();
-+	u64 pa;
+ /* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
+ #define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
+-#define WALL_CLOCK_SIZE	(sizeof(struct pvclock_wall_clock))
  
- 	if (!hv_clock)
--		return 0;
-+		return;
+ static u8 hv_clock_mem[PAGE_ALIGN(HV_CLOCK_SIZE)] __aligned(PAGE_SIZE);
+-static u8 wall_clock_mem[PAGE_ALIGN(WALL_CLOCK_SIZE)] __aligned(PAGE_SIZE);
  
- 	src = &hv_clock[cpu].pvti;
--	low = (int)slow_virt_to_phys(src) | 1;
--	high = ((u64)slow_virt_to_phys(src) >> 32);
--	ret = native_write_msr_safe(msr_kvm_system_time, low, high);
--	printk(KERN_INFO "kvm-clock: cpu %d, msr %x:%x, %s\n",
--	       cpu, high, low, txt);
--
--	return ret;
-+	pa = slow_virt_to_phys(src) | 0x01ULL;
-+	wrmsrl(msr_kvm_system_time, pa);
-+	pr_info("kvm-clock: cpu %d, msr %llx, %s\n", cpu, pa, txt);
+ /* The hypervisor will put information about time periodically here */
+ static struct pvclock_vsyscall_time_info *hv_clock;
+-static struct pvclock_wall_clock *wall_clock;
++static struct pvclock_wall_clock wall_clock;
+ 
+ /*
+  * The wallclock is the time of day when we booted. Since then, some time may
+@@ -66,15 +64,15 @@ static void kvm_get_wallclock(struct timespec64 *now)
+ 	int low, high;
+ 	int cpu;
+ 
+-	low = (int)slow_virt_to_phys(wall_clock);
+-	high = ((u64)slow_virt_to_phys(wall_clock) >> 32);
++	low = (int)slow_virt_to_phys(&wall_clock);
++	high = ((u64)slow_virt_to_phys(&wall_clock) >> 32);
+ 
+ 	native_write_msr(msr_kvm_wall_clock, low, high);
+ 
+ 	cpu = get_cpu();
+ 
+ 	vcpu_time = &hv_clock[cpu].pvti;
+-	pvclock_read_wallclock(wall_clock, vcpu_time, now);
++	pvclock_read_wallclock(&wall_clock, vcpu_time, now);
+ 
+ 	put_cpu();
  }
- 
- static void kvm_save_sched_clock_state(void)
-@@ -217,11 +213,7 @@ static void kvm_restore_sched_clock_state(void)
- #ifdef CONFIG_X86_LOCAL_APIC
- static void kvm_setup_secondary_clock(void)
- {
--	/*
--	 * Now that the first cpu already had this clocksource initialized,
--	 * we shouldn't fail.
--	 */
--	WARN_ON(kvm_register_clock("secondary cpu clock"));
-+	kvm_register_clock("secondary cpu clock");
- }
- #endif
- 
-@@ -264,16 +256,12 @@ void __init kvmclock_init(void)
+@@ -266,12 +264,10 @@ void __init kvmclock_init(void)
  	} else if (!(kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)))
  		return;
  
--	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
--
--	if (kvm_register_clock("primary cpu clock")) {
--		hv_clock = NULL;
--		return;
--	}
--
- 	printk(KERN_INFO "kvm-clock: Using msrs %x and %x",
- 		msr_kvm_system_time, msr_kvm_wall_clock);
+-	wall_clock = (struct pvclock_wall_clock *)wall_clock_mem;
+ 	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
  
-+	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
-+	kvm_register_clock("primary cpu clock");
-+
- 	if (kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE_STABLE_BIT))
- 		pvclock_set_flags(PVCLOCK_TSC_STABLE_BIT);
+ 	if (kvm_register_clock("primary cpu clock")) {
+ 		hv_clock = NULL;
+-		wall_clock = NULL;
+ 		return;
+ 	}
  
 -- 
 2.18.0
