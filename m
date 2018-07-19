@@ -1,8 +1,8 @@
 Return-Path: <SRS0=/F/O=KD=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v15 06/26] x86/kvmclock: Move kvmclock vsyscall param and init to kvmclock
-Date: Thu, 19 Jul 2018 16:55:25 -0400
-Message-Id: <20180719205545.16512-7-pasha.tatashin@oracle.com>
+Subject: [PATCH v15 03/26] x86/kvmclock: Decrapify kvm_register_clock()
+Date: Thu, 19 Jul 2018 16:55:22 -0400
+Message-Id: <20180719205545.16512-4-pasha.tatashin@oracle.com>
 In-Reply-To: <20180719205545.16512-1-pasha.tatashin@oracle.com>
 References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -13,149 +13,97 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-There is no point to have this in the kvm code itself and call it from
-there. This can be called from an initcall and the parameter is cleared
-when the hypervisor is not KVM.
+The return value is pointless because the wrmsr cannot fail if
+KVM_FEATURE_CLOCKSOURCE or KVM_FEATURE_CLOCKSOURCE2 are set.
+
+kvm_register_clock() is only called locally so wants to be static.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
 Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- arch/x86/include/asm/kvm_guest.h |  7 -----
- arch/x86/kernel/kvm.c            | 13 ----------
- arch/x86/kernel/kvmclock.c       | 44 ++++++++++++++++++++------------
- 3 files changed, 27 insertions(+), 37 deletions(-)
- delete mode 100644 arch/x86/include/asm/kvm_guest.h
+ arch/x86/include/asm/kvm_para.h |  1 -
+ arch/x86/kernel/kvmclock.c      | 33 ++++++++++-----------------------
+ 2 files changed, 10 insertions(+), 24 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_guest.h b/arch/x86/include/asm/kvm_guest.h
-deleted file mode 100644
-index 46185263d9c2..000000000000
---- a/arch/x86/include/asm/kvm_guest.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _ASM_X86_KVM_GUEST_H
--#define _ASM_X86_KVM_GUEST_H
--
--int kvm_setup_vsyscall_timeinfo(void);
--
--#endif /* _ASM_X86_KVM_GUEST_H */
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index c65c232d3ddd..a560750cc76f 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -45,7 +45,6 @@
- #include <asm/apic.h>
- #include <asm/apicdef.h>
- #include <asm/hypervisor.h>
--#include <asm/kvm_guest.h>
+diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
+index 3aea2658323a..4c723632c036 100644
+--- a/arch/x86/include/asm/kvm_para.h
++++ b/arch/x86/include/asm/kvm_para.h
+@@ -7,7 +7,6 @@
+ #include <uapi/asm/kvm_para.h>
  
- static int kvmapf = 1;
+ extern void kvmclock_init(void);
+-extern int kvm_register_clock(char *txt);
  
-@@ -66,15 +65,6 @@ static int __init parse_no_stealacc(char *arg)
- 
- early_param("no-steal-acc", parse_no_stealacc);
- 
--static int kvmclock_vsyscall = 1;
--static int __init parse_no_kvmclock_vsyscall(char *arg)
--{
--        kvmclock_vsyscall = 0;
--        return 0;
--}
--
--early_param("no-kvmclock-vsyscall", parse_no_kvmclock_vsyscall);
--
- static DEFINE_PER_CPU_DECRYPTED(struct kvm_vcpu_pv_apf_data, apf_reason) __aligned(64);
- static DEFINE_PER_CPU_DECRYPTED(struct kvm_steal_time, steal_time) __aligned(64);
- static int has_steal_clock = 0;
-@@ -560,9 +550,6 @@ static void __init kvm_guest_init(void)
- 	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
- 		apic_set_eoi_write(kvm_guest_apic_eoi_write);
- 
--	if (kvmclock_vsyscall)
--		kvm_setup_vsyscall_timeinfo();
--
- #ifdef CONFIG_SMP
- 	smp_ops.smp_prepare_cpus = kvm_smp_prepare_cpus;
- 	smp_ops.smp_prepare_boot_cpu = kvm_smp_prepare_boot_cpu;
+ #ifdef CONFIG_KVM_GUEST
+ bool kvm_check_and_clear_guest_paused(void);
 diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-index 78aec160f5e0..7d690d2238f8 100644
+index a995d7d7164c..f0a0aef5e9fa 100644
 --- a/arch/x86/kernel/kvmclock.c
 +++ b/arch/x86/kernel/kvmclock.c
-@@ -27,12 +27,14 @@
- #include <linux/sched/clock.h>
- #include <linux/mm.h>
+@@ -187,23 +187,19 @@ struct clocksource kvm_clock = {
+ };
+ EXPORT_SYMBOL_GPL(kvm_clock);
  
-+#include <asm/hypervisor.h>
- #include <asm/mem_encrypt.h>
- #include <asm/x86_init.h>
- #include <asm/reboot.h>
- #include <asm/kvmclock.h>
- 
- static int kvmclock __initdata = 1;
-+static int kvmclock_vsyscall __initdata = 1;
- static int msr_kvm_system_time __ro_after_init = MSR_KVM_SYSTEM_TIME;
- static int msr_kvm_wall_clock __ro_after_init = MSR_KVM_WALL_CLOCK;
- static u64 kvm_sched_clock_offset __ro_after_init;
-@@ -44,6 +46,13 @@ static int __init parse_no_kvmclock(char *arg)
- }
- early_param("no-kvmclock", parse_no_kvmclock);
- 
-+static int __init parse_no_kvmclock_vsyscall(char *arg)
-+{
-+	kvmclock_vsyscall = 0;
-+	return 0;
-+}
-+early_param("no-kvmclock-vsyscall", parse_no_kvmclock_vsyscall);
-+
- /* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
- #define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
- 
-@@ -228,6 +237,24 @@ static void kvm_shutdown(void)
- 	native_machine_shutdown();
- }
- 
-+static int __init kvm_setup_vsyscall_timeinfo(void)
-+{
-+#ifdef CONFIG_X86_64
-+	u8 flags;
-+
-+	if (!hv_clock || !kvmclock_vsyscall)
-+		return 0;
-+
-+	flags = pvclock_read_flags(&hv_clock[0].pvti);
-+	if (!(flags & PVCLOCK_TSC_STABLE_BIT))
-+		return 1;
-+
-+	kvm_clock.archdata.vclock_mode = VCLOCK_PVCLOCK;
-+#endif
-+	return 0;
-+}
-+early_initcall(kvm_setup_vsyscall_timeinfo);
-+
- void __init kvmclock_init(void)
+-int kvm_register_clock(char *txt)
++static void kvm_register_clock(char *txt)
  {
- 	u8 flags;
-@@ -272,20 +299,3 @@ void __init kvmclock_init(void)
- 	clocksource_register_hz(&kvm_clock, NSEC_PER_SEC);
- 	pv_info.name = "KVM";
- }
--
--int __init kvm_setup_vsyscall_timeinfo(void)
--{
--#ifdef CONFIG_X86_64
--	u8 flags;
--
--	if (!hv_clock)
+-	int cpu = smp_processor_id();
+-	int low, high, ret;
+ 	struct pvclock_vcpu_time_info *src;
++	int cpu = smp_processor_id();
++	u64 pa;
+ 
+ 	if (!hv_clock)
 -		return 0;
++		return;
+ 
+ 	src = &hv_clock[cpu].pvti;
+-	low = (int)slow_virt_to_phys(src) | 1;
+-	high = ((u64)slow_virt_to_phys(src) >> 32);
+-	ret = native_write_msr_safe(msr_kvm_system_time, low, high);
+-	printk(KERN_INFO "kvm-clock: cpu %d, msr %x:%x, %s\n",
+-	       cpu, high, low, txt);
 -
--	flags = pvclock_read_flags(&hv_clock[0].pvti);
--	if (!(flags & PVCLOCK_TSC_STABLE_BIT))
--		return 1;
+-	return ret;
++	pa = slow_virt_to_phys(src) | 0x01ULL;
++	wrmsrl(msr_kvm_system_time, pa);
++	pr_info("kvm-clock: cpu %d, msr %llx, %s\n", cpu, pa, txt);
+ }
+ 
+ static void kvm_save_sched_clock_state(void)
+@@ -218,11 +214,7 @@ static void kvm_restore_sched_clock_state(void)
+ #ifdef CONFIG_X86_LOCAL_APIC
+ static void kvm_setup_secondary_clock(void)
+ {
+-	/*
+-	 * Now that the first cpu already had this clocksource initialized,
+-	 * we shouldn't fail.
+-	 */
+-	WARN_ON(kvm_register_clock("secondary cpu clock"));
++	kvm_register_clock("secondary cpu clock");
+ }
+ #endif
+ 
+@@ -265,16 +257,11 @@ void __init kvmclock_init(void)
+ 	} else if (!(kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)))
+ 		return;
+ 
+-	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
 -
--	kvm_clock.archdata.vclock_mode = VCLOCK_PVCLOCK;
--#endif
--	return 0;
--}
+-	if (kvm_register_clock("primary cpu clock")) {
+-		hv_clock = NULL;
+-		return;
+-	}
+-
+ 	printk(KERN_INFO "kvm-clock: Using msrs %x and %x",
+ 		msr_kvm_system_time, msr_kvm_wall_clock);
+ 
++	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
++	kvm_register_clock("primary cpu clock");
+ 	pvclock_set_pvti_cpu0_va(hv_clock);
+ 
+ 	if (kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE_STABLE_BIT))
 -- 
 2.18.0
