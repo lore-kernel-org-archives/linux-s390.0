@@ -1,119 +1,189 @@
-Return-Path: <SRS0=cuzA=KE=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 20 Jul 2018 10:09:11 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v15 23/26] sched: early boot clock
-Message-ID: <20180720080911.GM2494@hirez.programming.kicks-ass.net>
+Return-Path: <SRS0=/F/O=KD=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Pavel Tatashin <pasha.tatashin@oracle.com>
+Subject: [PATCH v15 01/26] x86/kvmclock: Remove memblock dependency
+Date: Thu, 19 Jul 2018 16:55:20 -0400
+Message-Id: <20180719205545.16512-2-pasha.tatashin@oracle.com>
+In-Reply-To: <20180719205545.16512-1-pasha.tatashin@oracle.com>
 References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
- <20180719205545.16512-24-pasha.tatashin@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180719205545.16512-24-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
+To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, pasha.tatashin@oracle.com, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jul 19, 2018 at 04:55:42PM -0400, Pavel Tatashin wrote:
-> diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
-> index 0e9dbb2d9aea..422cd63f8f17 100644
-> --- a/kernel/sched/clock.c
-> +++ b/kernel/sched/clock.c
-> @@ -202,7 +202,25 @@ static void __sched_clock_gtod_offset(void)
->  
->  void __init sched_clock_init(void)
->  {
-> +	unsigned long flags;
-> +
-> +	/*
-> +	 * Set __gtod_offset such that once we mark sched_clock_running,
-> +	 * sched_clock_tick() continues where sched_clock() left off.
-> +	 *
-> +	 * Even if TSC is buggered, we're still UP at this point so it
-> +	 * can't really be out of sync.
-> +	 */
-> +	local_irq_save(flags);
-> +	__sched_clock_gtod_offset();
-> +	local_irq_restore(flags);
-> +
->  	sched_clock_running = 1;
-> +
-> +	/* Now that sched_clock_running is set adjust scd */
-> +	local_irq_save(flags);
-> +	sched_clock_tick();
-> +	local_irq_restore(flags);
->  }
+KVM clock is initialized later compared to other hypervisor clocks because
+it has a dependency on the memblock allocator.
 
-Sorry, that's still wrong. Because the moment you enable
-sched_clock_running we need to have everything set-up for it to run.
+Bring it in line with other hypervisors by using memory from the BSS
+instead of allocating it.
 
-The above looks double weird because you could've just done that =1
-under the same IRQ-disable section and it would've mostly been OK
-(except for NMIs). But the reason it's weird like that is because you're
-going to change it into a static key later on.
+The benefits:
 
-The below cures things.
+  - Remove ifdef from common code
+  - Earlier availability of the clock
+  - Remove dependency on memblock, and reduce code
 
+The downside:
+
+  - Static allocation of the per cpu data structures sized NR_CPUS * 64byte
+    Will be addressed in follow up patches.
+
+[ tglx: Split out from larger series ]
+
+Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
-Subject: sched/clock: Close a hole in sched_clock_init()
+ arch/x86/kernel/kvm.c      |  1 +
+ arch/x86/kernel/kvmclock.c | 66 +++++++-------------------------------
+ arch/x86/kernel/setup.c    |  4 ---
+ 3 files changed, 12 insertions(+), 59 deletions(-)
 
-All data required for the 'unstable' sched_clock must be set-up _before_
-enabling it -- setting sched_clock_running. This includes the
-__gtod_offset but also a recent scd stamp.
-
-Make the gtod-offset update also set the csd stamp -- it requires the
-same two clock reads _anyway_. This doesn't hurt in the
-sched_clock_tick_stable() case and ensures sched_clock_init() gets
-everything set-up before use.
-
-Also switch to unconditional IRQ-disable/enable because the static key
-stuff already requires this is not ran with IRQs disabled.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- kernel/sched/clock.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
-
-diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
-index c5c47ad3f386..811a39aca1ce 100644
---- a/kernel/sched/clock.c
-+++ b/kernel/sched/clock.c
-@@ -197,13 +197,14 @@ void clear_sched_clock_stable(void)
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 5b2300b818af..c65c232d3ddd 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -628,6 +628,7 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
+ 	.name			= "KVM",
+ 	.detect			= kvm_detect,
+ 	.type			= X86_HYPER_KVM,
++	.init.init_platform	= kvmclock_init,
+ 	.init.guest_late_init	= kvm_guest_init,
+ 	.init.x2apic_available	= kvm_para_available,
+ };
+diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+index 3b8e7c13c614..1f6ac5aaa904 100644
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -23,9 +23,9 @@
+ #include <asm/apic.h>
+ #include <linux/percpu.h>
+ #include <linux/hardirq.h>
+-#include <linux/memblock.h>
+ #include <linux/sched.h>
+ #include <linux/sched/clock.h>
++#include <linux/mm.h>
  
- static void __sched_clock_gtod_offset(void)
- {
--	__gtod_offset = (sched_clock() + __sched_clock_offset) - ktime_get_ns();
-+	struct sched_clock_data *scd = this_scd();
+ #include <asm/mem_encrypt.h>
+ #include <asm/x86_init.h>
+@@ -44,6 +44,13 @@ static int parse_no_kvmclock(char *arg)
+ }
+ early_param("no-kvmclock", parse_no_kvmclock);
+ 
++/* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
++#define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
++#define WALL_CLOCK_SIZE	(sizeof(struct pvclock_wall_clock))
 +
-+	__scd_stamp(scd);
-+	__gtod_offset = (scd->tick_raw + __sched_clock_offset) - scd->tick_gtod;
++static u8 hv_clock_mem[PAGE_ALIGN(HV_CLOCK_SIZE)] __aligned(PAGE_SIZE);
++static u8 wall_clock_mem[PAGE_ALIGN(WALL_CLOCK_SIZE)] __aligned(PAGE_SIZE);
++
+ /* The hypervisor will put information about time periodically here */
+ static struct pvclock_vsyscall_time_info *hv_clock;
+ static struct pvclock_wall_clock *wall_clock;
+@@ -245,43 +252,12 @@ static void kvm_shutdown(void)
+ 	native_machine_shutdown();
  }
  
- void __init sched_clock_init(void)
+-static phys_addr_t __init kvm_memblock_alloc(phys_addr_t size,
+-					     phys_addr_t align)
+-{
+-	phys_addr_t mem;
+-
+-	mem = memblock_alloc(size, align);
+-	if (!mem)
+-		return 0;
+-
+-	if (sev_active()) {
+-		if (early_set_memory_decrypted((unsigned long)__va(mem), size))
+-			goto e_free;
+-	}
+-
+-	return mem;
+-e_free:
+-	memblock_free(mem, size);
+-	return 0;
+-}
+-
+-static void __init kvm_memblock_free(phys_addr_t addr, phys_addr_t size)
+-{
+-	if (sev_active())
+-		early_set_memory_encrypted((unsigned long)__va(addr), size);
+-
+-	memblock_free(addr, size);
+-}
+-
+ void __init kvmclock_init(void)
  {
--	unsigned long flags;
--
- 	/*
- 	 * Set __gtod_offset such that once we mark sched_clock_running,
- 	 * sched_clock_tick() continues where sched_clock() left off.
-@@ -211,16 +212,11 @@ void __init sched_clock_init(void)
- 	 * Even if TSC is buggered, we're still UP at this point so it
- 	 * can't really be out of sync.
- 	 */
--	local_irq_save(flags);
-+	local_irq_disable();
- 	__sched_clock_gtod_offset();
--	local_irq_restore(flags);
-+	local_irq_enable();
+ 	struct pvclock_vcpu_time_info *vcpu_time;
+-	unsigned long mem, mem_wall_clock;
+-	int size, cpu, wall_clock_size;
++	int cpu;
+ 	u8 flags;
  
- 	static_branch_inc(&sched_clock_running);
+-	size = PAGE_ALIGN(sizeof(struct pvclock_vsyscall_time_info)*NR_CPUS);
 -
--	/* Now that sched_clock_running is set adjust scd */
--	local_irq_save(flags);
--	sched_clock_tick();
--	local_irq_restore(flags);
- }
- /*
-  * We run this as late_initcall() such that it runs after all built-in drivers,
+ 	if (!kvm_para_available())
+ 		return;
+ 
+@@ -291,28 +267,11 @@ void __init kvmclock_init(void)
+ 	} else if (!(kvmclock && kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE)))
+ 		return;
+ 
+-	wall_clock_size = PAGE_ALIGN(sizeof(struct pvclock_wall_clock));
+-	mem_wall_clock = kvm_memblock_alloc(wall_clock_size, PAGE_SIZE);
+-	if (!mem_wall_clock)
+-		return;
+-
+-	wall_clock = __va(mem_wall_clock);
+-	memset(wall_clock, 0, wall_clock_size);
+-
+-	mem = kvm_memblock_alloc(size, PAGE_SIZE);
+-	if (!mem) {
+-		kvm_memblock_free(mem_wall_clock, wall_clock_size);
+-		wall_clock = NULL;
+-		return;
+-	}
+-
+-	hv_clock = __va(mem);
+-	memset(hv_clock, 0, size);
++	wall_clock = (struct pvclock_wall_clock *)wall_clock_mem;
++	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
+ 
+ 	if (kvm_register_clock("primary cpu clock")) {
+ 		hv_clock = NULL;
+-		kvm_memblock_free(mem, size);
+-		kvm_memblock_free(mem_wall_clock, wall_clock_size);
+ 		wall_clock = NULL;
+ 		return;
+ 	}
+@@ -357,13 +316,10 @@ int __init kvm_setup_vsyscall_timeinfo(void)
+ 	int cpu;
+ 	u8 flags;
+ 	struct pvclock_vcpu_time_info *vcpu_time;
+-	unsigned int size;
+ 
+ 	if (!hv_clock)
+ 		return 0;
+ 
+-	size = PAGE_ALIGN(sizeof(struct pvclock_vsyscall_time_info)*NR_CPUS);
+-
+ 	cpu = get_cpu();
+ 
+ 	vcpu_time = &hv_clock[cpu].pvti;
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 2f86d883dd95..da1dbd99cb6e 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -1197,10 +1197,6 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	memblock_find_dma_reserve();
+ 
+-#ifdef CONFIG_KVM_GUEST
+-	kvmclock_init();
+-#endif
+-
+ 	tsc_early_delay_calibrate();
+ 	if (!early_xdbc_setup_hardware())
+ 		early_xdbc_register_console();
+-- 
+2.18.0
