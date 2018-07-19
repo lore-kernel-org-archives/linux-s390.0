@@ -1,8 +1,8 @@
 Return-Path: <SRS0=/F/O=KD=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH v15 07/26] x86/kvmclock: Switch kvmclock data to a PER_CPU variable
-Date: Thu, 19 Jul 2018 16:55:26 -0400
-Message-Id: <20180719205545.16512-8-pasha.tatashin@oracle.com>
+Subject: [PATCH v15 11/26] x86/tsc: redefine notsc to behave as tsc=unstable
+Date: Thu, 19 Jul 2018 16:55:30 -0400
+Message-Id: <20180719205545.16512-12-pasha.tatashin@oracle.com>
 In-Reply-To: <20180719205545.16512-1-pasha.tatashin@oracle.com>
 References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -11,235 +11,116 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, pasha.tatashin@oracle.com, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Gleixner <tglx@linutronix.de>
+Currently, notsc kernel parameter disables the use of tsc register by
+sched_clock(). However, this parameter does not prevent linux from
+accessing tsc in other places in kernel.
 
-The previous removal of the memblock dependency from kvmclock introduced a
-static data array sized 64bytes * CONFIG_NR_CPUS. That's wasteful on large
-systems when kvmclock is not used.
+The only rational to boot with notsc is to avoid timing discrepancies on
+multi-socket systems where different tsc frequencies may present, and thus
+fallback to jiffies for clock source.
 
-Replace it with:
+However, there is another method to solve the above problem, it is to boot
+with tsc=unstable parameter. This parameter allows sched_clock() to use tsc
+but in case tsc is outside of expected interval it is corrected back to a
+sane value.
 
- - A static page sized array of pvclock data. It's page sized because the
-   pvclock data of the boot cpu is mapped into the VDSO so otherwise random
-   other data would be exposed to the vDSO
+This is why there is no reason to keep notsc, and it can be removed. But,
+for compatibility reasons we will keep this parameter but change its
+definition to be the same as tsc=unstable.
 
- - A PER_CPU variable of pvclock data pointers. This is used to access the
-   pcvlock data storage on each CPU.
-
-The setup is done in two stages:
-
- - Early boot stores the pointer to the static page for the boot CPU in
-   the per cpu data.
-
- - In the preparatory stage of CPU hotplug assign either an element of
-   the static array (when the CPU number is in that range) or allocate
-   memory and initialize the per cpu pointer.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Dou Liyang <douly.fnst@cn.fujitsu.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/kernel/kvmclock.c | 99 ++++++++++++++++++++++++--------------
- 1 file changed, 62 insertions(+), 37 deletions(-)
+ .../admin-guide/kernel-parameters.txt          |  2 --
+ Documentation/x86/x86_64/boot-options.txt      |  4 +---
+ arch/x86/kernel/tsc.c                          | 18 +++---------------
+ 3 files changed, 4 insertions(+), 20 deletions(-)
 
-diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
-index 7d690d2238f8..91b94c0ae4e3 100644
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -23,6 +23,7 @@
- #include <asm/apic.h>
- #include <linux/percpu.h>
- #include <linux/hardirq.h>
-+#include <linux/cpuhotplug.h>
- #include <linux/sched.h>
- #include <linux/sched/clock.h>
- #include <linux/mm.h>
-@@ -55,12 +56,23 @@ early_param("no-kvmclock-vsyscall", parse_no_kvmclock_vsyscall);
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 533ff5c68970..5aed30cd0350 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -2835,8 +2835,6 @@
  
- /* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
- #define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
-+#define HVC_BOOT_ARRAY_SIZE \
-+	(PAGE_SIZE / sizeof(struct pvclock_vsyscall_time_info))
+ 	nosync		[HW,M68K] Disables sync negotiation for all devices.
  
--static u8 hv_clock_mem[PAGE_ALIGN(HV_CLOCK_SIZE)] __aligned(PAGE_SIZE);
+-	notsc		[BUGS=X86-32] Disable Time Stamp Counter
 -
--/* The hypervisor will put information about time periodically here */
--static struct pvclock_vsyscall_time_info *hv_clock __ro_after_init;
-+static struct pvclock_vsyscall_time_info
-+			hv_clock_boot[HVC_BOOT_ARRAY_SIZE] __aligned(PAGE_SIZE);
- static struct pvclock_wall_clock wall_clock;
-+static DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
-+
-+static inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
-+{
-+	return &this_cpu_read(hv_clock_per_cpu)->pvti;
-+}
-+
-+static inline struct pvclock_vsyscall_time_info *this_cpu_hvclock(void)
-+{
-+	return this_cpu_read(hv_clock_per_cpu);
-+}
+ 	nowatchdog	[KNL] Disable both lockup detectors, i.e.
+ 			soft-lockup and NMI watchdog (hard-lockup).
  
- /*
-  * The wallclock is the time of day when we booted. Since then, some time may
-@@ -69,17 +81,10 @@ static struct pvclock_wall_clock wall_clock;
+diff --git a/Documentation/x86/x86_64/boot-options.txt b/Documentation/x86/x86_64/boot-options.txt
+index 8d109ef67ab6..66114ab4f9fe 100644
+--- a/Documentation/x86/x86_64/boot-options.txt
++++ b/Documentation/x86/x86_64/boot-options.txt
+@@ -92,9 +92,7 @@ APICs
+ Timing
+ 
+   notsc
+-  Don't use the CPU time stamp counter to read the wall time.
+-  This can be used to work around timing problems on multiprocessor systems
+-  with not properly synchronized CPUs.
++  Deprecated, use tsc=unstable instead.
+ 
+   nohpet
+   Don't use the HPET timer.
+diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
+index 74392d9d51e0..186395041725 100644
+--- a/arch/x86/kernel/tsc.c
++++ b/arch/x86/kernel/tsc.c
+@@ -38,11 +38,6 @@ EXPORT_SYMBOL(tsc_khz);
   */
- static void kvm_get_wallclock(struct timespec64 *now)
- {
--	struct pvclock_vcpu_time_info *vcpu_time;
--	int cpu;
+ static int __read_mostly tsc_unstable;
+ 
+-/* native_sched_clock() is called before tsc_init(), so
+-   we must start with the TSC soft disabled to prevent
+-   erroneous rdtsc usage on !boot_cpu_has(X86_FEATURE_TSC) processors */
+-static int __read_mostly tsc_disabled = -1;
 -
- 	wrmsrl(msr_kvm_wall_clock, slow_virt_to_phys(&wall_clock));
--
--	cpu = get_cpu();
--
--	vcpu_time = &hv_clock[cpu].pvti;
--	pvclock_read_wallclock(&wall_clock, vcpu_time, now);
--
--	put_cpu();
-+	preempt_disable();
-+	pvclock_read_wallclock(&wall_clock, this_cpu_pvti(), now);
-+	preempt_enable();
- }
+ static DEFINE_STATIC_KEY_FALSE(__use_tsc);
  
- static int kvm_set_wallclock(const struct timespec64 *now)
-@@ -89,14 +94,10 @@ static int kvm_set_wallclock(const struct timespec64 *now)
- 
- static u64 kvm_clock_read(void)
+ int tsc_clocksource_reliable;
+@@ -248,8 +243,7 @@ EXPORT_SYMBOL_GPL(check_tsc_unstable);
+ #ifdef CONFIG_X86_TSC
+ int __init notsc_setup(char *str)
  {
--	struct pvclock_vcpu_time_info *src;
- 	u64 ret;
--	int cpu;
- 
- 	preempt_disable_notrace();
--	cpu = smp_processor_id();
--	src = &hv_clock[cpu].pvti;
--	ret = pvclock_clocksource_read(src);
-+	ret = pvclock_clocksource_read(this_cpu_pvti());
- 	preempt_enable_notrace();
- 	return ret;
+-	pr_warn("Kernel compiled with CONFIG_X86_TSC, cannot disable TSC completely\n");
+-	tsc_disabled = 1;
++	mark_tsc_unstable("boot parameter notsc");
+ 	return 1;
  }
-@@ -141,7 +142,7 @@ static inline void kvm_sched_clock_init(bool stable)
- static unsigned long kvm_get_tsc_khz(void)
+ #else
+@@ -1307,7 +1301,7 @@ static void tsc_refine_calibration_work(struct work_struct *work)
+ 
+ static int __init init_tsc_clocksource(void)
  {
- 	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
--	return pvclock_tsc_khz(&hv_clock[0].pvti);
-+	return pvclock_tsc_khz(this_cpu_pvti());
- }
- 
- static void kvm_get_preset_lpj(void)
-@@ -158,15 +159,14 @@ static void kvm_get_preset_lpj(void)
- 
- bool kvm_check_and_clear_guest_paused(void)
- {
--	struct pvclock_vcpu_time_info *src;
-+	struct pvclock_vsyscall_time_info *src = this_cpu_hvclock();
- 	bool ret = false;
- 
--	if (!hv_clock)
-+	if (!src)
- 		return ret;
- 
--	src = &hv_clock[smp_processor_id()].pvti;
--	if ((src->flags & PVCLOCK_GUEST_STOPPED) != 0) {
--		src->flags &= ~PVCLOCK_GUEST_STOPPED;
-+	if ((src->pvti.flags & PVCLOCK_GUEST_STOPPED) != 0) {
-+		src->pvti.flags &= ~PVCLOCK_GUEST_STOPPED;
- 		pvclock_touch_watchdogs();
- 		ret = true;
- 	}
-@@ -184,17 +184,15 @@ EXPORT_SYMBOL_GPL(kvm_clock);
- 
- static void kvm_register_clock(char *txt)
- {
--	struct pvclock_vcpu_time_info *src;
--	int cpu = smp_processor_id();
-+	struct pvclock_vsyscall_time_info *src = this_cpu_hvclock();
- 	u64 pa;
- 
--	if (!hv_clock)
-+	if (!src)
- 		return;
- 
--	src = &hv_clock[cpu].pvti;
--	pa = slow_virt_to_phys(src) | 0x01ULL;
-+	pa = slow_virt_to_phys(&src->pvti) | 0x01ULL;
- 	wrmsrl(msr_kvm_system_time, pa);
--	pr_info("kvm-clock: cpu %d, msr %llx, %s", cpu, pa, txt);
-+	pr_info("kvm-clock: cpu %d, msr %llx, %s", smp_processor_id(), pa, txt);
- }
- 
- static void kvm_save_sched_clock_state(void)
-@@ -242,12 +240,12 @@ static int __init kvm_setup_vsyscall_timeinfo(void)
- #ifdef CONFIG_X86_64
- 	u8 flags;
- 
--	if (!hv_clock || !kvmclock_vsyscall)
-+	if (!per_cpu(hv_clock_per_cpu, 0) || !kvmclock_vsyscall)
+-	if (!boot_cpu_has(X86_FEATURE_TSC) || tsc_disabled > 0 || !tsc_khz)
++	if (!boot_cpu_has(X86_FEATURE_TSC) || !tsc_khz)
  		return 0;
  
--	flags = pvclock_read_flags(&hv_clock[0].pvti);
-+	flags = pvclock_read_flags(&hv_clock_boot[0].pvti);
- 	if (!(flags & PVCLOCK_TSC_STABLE_BIT))
--		return 1;
-+		return 0;
- 
- 	kvm_clock.archdata.vclock_mode = VCLOCK_PVCLOCK;
- #endif
-@@ -255,6 +253,28 @@ static int __init kvm_setup_vsyscall_timeinfo(void)
- }
- early_initcall(kvm_setup_vsyscall_timeinfo);
- 
-+static int kvmclock_setup_percpu(unsigned int cpu)
-+{
-+	struct pvclock_vsyscall_time_info *p = per_cpu(hv_clock_per_cpu, cpu);
-+
-+	/*
-+	 * The per cpu area setup replicates CPU0 data to all cpu
-+	 * pointers. So carefully check. CPU0 has been set up in init
-+	 * already.
-+	 */
-+	if (!cpu || (p && p != per_cpu(hv_clock_per_cpu, 0)))
-+		return 0;
-+
-+	/* Use the static page for the first CPUs, allocate otherwise */
-+	if (cpu < HVC_BOOT_ARRAY_SIZE)
-+		p = &hv_clock_boot[cpu];
-+	else
-+		p = kzalloc(sizeof(*p), GFP_KERNEL);
-+
-+	per_cpu(hv_clock_per_cpu, cpu) = p;
-+	return p ? 0 : -ENOMEM;
-+}
-+
- void __init kvmclock_init(void)
- {
- 	u8 flags;
-@@ -269,17 +289,22 @@ void __init kvmclock_init(void)
- 		return;
+ 	if (tsc_unstable)
+@@ -1414,12 +1408,6 @@ void __init tsc_init(void)
+ 		set_cyc2ns_scale(tsc_khz, cpu, cyc);
  	}
  
-+	if (cpuhp_setup_state(CPUHP_BP_PREPARE_DYN, "kvmclock:setup_percpu",
-+			      kvmclock_setup_percpu, NULL) < 0) {
-+		return;
-+	}
-+
- 	pr_info("kvm-clock: Using msrs %x and %x",
- 		msr_kvm_system_time, msr_kvm_wall_clock);
+-	if (tsc_disabled > 0)
+-		return;
+-
+-	/* now allow native_sched_clock() to use rdtsc */
+-
+-	tsc_disabled = 0;
+ 	static_branch_enable(&__use_tsc);
  
--	hv_clock = (struct pvclock_vsyscall_time_info *)hv_clock_mem;
-+	this_cpu_write(hv_clock_per_cpu, &hv_clock_boot[0]);
- 	kvm_register_clock("primary cpu clock");
--	pvclock_set_pvti_cpu0_va(hv_clock);
-+	pvclock_set_pvti_cpu0_va(hv_clock_boot);
+ 	if (!no_sched_irq_time)
+@@ -1455,7 +1443,7 @@ unsigned long calibrate_delay_is_known(void)
+ 	int constant_tsc = cpu_has(&cpu_data(cpu), X86_FEATURE_CONSTANT_TSC);
+ 	const struct cpumask *mask = topology_core_cpumask(cpu);
  
- 	if (kvm_para_has_feature(KVM_FEATURE_CLOCKSOURCE_STABLE_BIT))
- 		pvclock_set_flags(PVCLOCK_TSC_STABLE_BIT);
+-	if (tsc_disabled || !constant_tsc || !mask)
++	if (!constant_tsc || !mask)
+ 		return 0;
  
--	flags = pvclock_read_flags(&hv_clock[0].pvti);
-+	flags = pvclock_read_flags(&hv_clock_boot[0].pvti);
- 	kvm_sched_clock_init(flags & PVCLOCK_TSC_STABLE_BIT);
- 
- 	x86_platform.calibrate_tsc = kvm_get_tsc_khz;
+ 	sibling = cpumask_any_but(mask, cpu);
 -- 
 2.18.0
