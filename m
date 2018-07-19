@@ -1,47 +1,57 @@
 Return-Path: <SRS0=/F/O=KD=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 19 Jul 2018 13:01:22 +0200 (CEST)
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v14 20/25] x86/tsc: calibrate tsc only once
-In-Reply-To: <20180719103340.GA2494@hirez.programming.kicks-ass.net>
-Message-ID: <alpine.DEB.2.21.1807191300150.1602@nanos.tec.linutronix.de>
-References: <20180718022211.6259-1-pasha.tatashin@oracle.com> <20180718022211.6259-21-pasha.tatashin@oracle.com> <20180719103340.GA2494@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20180718022211.6259-1-pasha.tatashin@oracle.com>
+ <20180718022211.6259-25-pasha.tatashin@oracle.com> <20180719103903.GB2494@hirez.programming.kicks-ass.net>
+In-Reply-To: <20180719103903.GB2494@hirez.programming.kicks-ass.net>
+From: Pavel Tatashin <pasha.tatashin@oracle.com>
+Date: Thu, 19 Jul 2018 10:16:34 -0400
+Message-ID: <CAGM2rebsqJUBSVhN3Ug=wYA+uYzKF06P4afDqEApaWk0bK8-zQ@mail.gmail.com>
+Subject: Re: [PATCH v14 24/25] sched: early boot clock
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, hpa@zytor.com, douly.fnst@cn.fujitsu.com, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
+To: peterz@infradead.org
+Cc: Steven Sistare <steven.sistare@oracle.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, schwidefsky@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, prarit@redhat.com, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 19 Jul 2018, Peter Zijlstra wrote:
-> On Tue, Jul 17, 2018 at 10:22:06PM -0400, Pavel Tatashin wrote:
-> > During boot tsc is calibrated twice: once in tsc_early_delay_calibrate(),
-> > and the second time in tsc_init().
-> > 
-> > Rename tsc_early_delay_calibrate() to tsc_early_init(), and rework it so
-> > the calibration is done only early, and make tsc_init() to use the values
-> > already determined in tsc_early_init().
-> > 
-> > Sometimes it is not possible to determine tsc early, as the subsystem that
-> > is required is not yet initialized, in such case try again later in
-> > tsc_init().
-> 
-> It might be nice to preserve some of the information tglx dug out during
-> review of all this. Like the various methods of calibrate_*() and their
-> dependencies.
-> 
-> And I note that this patch relies on the magic of native_calibrate_cpu()
-> working really early and not exploding in the quick calibration run.
-> This either wants fixing or documenting.
-> 
-> I think the initial idea was to only do the fast_calibrate (cpuid, msr
-> and possibly the quick_pit) things early and delay the HPET/PMTIMER
-> magic until later.
+On Thu, Jul 19, 2018 at 6:40 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> On Tue, Jul 17, 2018 at 10:22:10PM -0400, Pavel Tatashin wrote:
+>
+> > diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
+> > index 0e9dbb2d9aea..7a8a63b940ee 100644
+> > --- a/kernel/sched/clock.c
+> > +++ b/kernel/sched/clock.c
+> > @@ -202,7 +202,15 @@ static void __sched_clock_gtod_offset(void)
+> >
+> >  void __init sched_clock_init(void)
+> >  {
+> > +     unsigned long flags;
+> > +
+> >       sched_clock_running = 1;
+> > +
+> > +     /* Adjust __gtod_offset for contigious transition from early clock */
+> > +     local_irq_save(flags);
+> > +     sched_clock_tick();
+> > +     local_irq_restore(flags);
+> > +     __sched_clock_gtod_offset();
+>
+> I think we want to keep __sched_clock_gtod_offset() inside the IRQ
+> disabled region.
 
-Yes. I really would prefer to have this as an explicit expressed mechanism
-rather than relying on magic variables not being initialized.
+Fixed.
 
-Thanks
+>
+> And I just looked at my patch:
+>
+>   https://lkml.kernel.org/r/20180626090003.GA2458@hirez.programming.kicks-ass.net
+>
+> and that had a comment about how we wanted to set the gtod offset
+> _before_ setting sched_clock_running, yet here you do it the other way
+> around. Hmm?
 
-	tglx
+Fixed, and added your comment.
+
+Thank you,
+Pavel
