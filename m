@@ -1,36 +1,37 @@
-Return-Path: <SRS0=ZsYk=KH=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Mon, 23 Jul 2018 08:07:38 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] arch/s390: Use new return type vm_fault_t
-In-Reply-To: <20180722152248.GB12125@bombadil.infradead.org>
-References: <20180722134109.GA31840@jordon-HP-15-Notebook-PC>
-        <20180722152248.GB12125@bombadil.infradead.org>
+Return-Path: <SRS0=OrLK=KG=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Sun, 22 Jul 2018 19:11:09 +0530
+From: Souptick Joarder <jrdr.linux@gmail.com>
+Subject: [PATCH] arch/s390: Use new return type vm_fault_t
+Message-ID: <20180722134109.GA31840@jordon-HP-15-Notebook-PC>
 MIME-Version: 1.0
-Message-Id: <20180723080738.4189e957@mschwideX1>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Matthew Wilcox <willy@infradead.org>
-Cc: Souptick Joarder <jrdr.linux@gmail.com>, heiko.carstens@de.ibm.com, gregkh@linuxfoundation.org, keescook@chromium.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, brajeswar.linux@gmail.com, sabyasachi.linux@gmail.com
+To: willy@infradead.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, gregkh@linuxfoundation.org, keescook@chromium.org
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, brajeswar.linux@gmail.com, sabyasachi.linux@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 22 Jul 2018 08:22:48 -0700
-Matthew Wilcox <willy@infradead.org> wrote:
+use new return type vm_fault_t for fault handler vdso_fault.
 
-> On Sun, Jul 22, 2018 at 07:11:09PM +0530, Souptick Joarder wrote:
-> > use new return type vm_fault_t for fault handler vdso_fault.
-> > 
-> > Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>  
-> 
-> Reviewed-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+---
+ arch/s390/kernel/vdso.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I modified the patch description a bit and then added the patch
-to my tree. Thanks.
-
+diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
+index 09abae4..3031cc6 100644
+--- a/arch/s390/kernel/vdso.c
++++ b/arch/s390/kernel/vdso.c
+@@ -47,7 +47,7 @@
+  */
+ unsigned int __read_mostly vdso_enabled = 1;
+ 
+-static int vdso_fault(const struct vm_special_mapping *sm,
++static vm_fault_t vdso_fault(const struct vm_special_mapping *sm,
+ 		      struct vm_area_struct *vma, struct vm_fault *vmf)
+ {
+ 	struct page **vdso_pagelist;
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+1.9.1
