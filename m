@@ -1,23 +1,26 @@
-Return-Path: <SRS0=OrLK=KG=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Sun, 22 Jul 2018 08:22:48 -0700
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH] arch/s390: Use new return type vm_fault_t
-Message-ID: <20180722152248.GB12125@bombadil.infradead.org>
-References: <20180722134109.GA31840@jordon-HP-15-Notebook-PC>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20180722134109.GA31840@jordon-HP-15-Notebook-PC>
+Return-Path: <SRS0=ZsYk=KH=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Mon, 23 Jul 2018 10:57:33 -0700 (PDT)
+Message-Id: <20180723.105733.2002812639453903002.davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/5] net/smc: patches 2018-07-23
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20180723115312.54694-1-ubraun@linux.ibm.com>
+References: <20180723115312.54694-1-ubraun@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, gregkh@linuxfoundation.org, keescook@chromium.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, brajeswar.linux@gmail.com, sabyasachi.linux@gmail.com
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Jul 22, 2018 at 07:11:09PM +0530, Souptick Joarder wrote:
-> use new return type vm_fault_t for fault handler vdso_fault.
-> 
-> Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Mon, 23 Jul 2018 13:53:07 +0200
 
-Reviewed-by: Matthew Wilcox <willy@infradead.org>
+> here are some small patches for SMC: Just the first patch contains a
+> functional change. It allows to differ between the modes SMCR and SMCD
+> on s390 when monitoring SMC sockets. The remaining patches are cleanups
+> without functional changes.
+
+Series applied, thank you.
