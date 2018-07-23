@@ -1,10 +1,10 @@
 Return-Path: <SRS0=ZsYk=KH=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 2/5] net/smc: eliminate cursor read and write calls
-Date: Mon, 23 Jul 2018 13:53:09 +0200
+Subject: [PATCH net-next 3/5] net/smc: add function to get link group from link
+Date: Mon, 23 Jul 2018 13:53:10 +0200
 In-Reply-To: <20180723115312.54694-1-ubraun@linux.ibm.com>
 References: <20180723115312.54694-1-ubraun@linux.ibm.com>
-Message-Id: <20180723115312.54694-3-ubraun@linux.ibm.com>
+Message-Id: <20180723115312.54694-4-ubraun@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,386 +14,259 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Stefan Raspl <raspl@linux.ibm.com>
 
-The functions to read and write cursors are exclusively used to copy
-cursors. Therefore switch to a respective function instead.
+Replace a frequently used construct with a more readable variant,
+reducing the code. Also might come handy when we start to support
+more than a single per link group.
 
 Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/af_smc.c  |  8 ++------
- net/smc/smc_cdc.c | 33 ++++++++++++---------------------
- net/smc/smc_cdc.h | 43 +++++++++++++++----------------------------
- net/smc/smc_rx.c  | 15 ++++-----------
- net/smc/smc_tx.c  | 46 +++++++++++++---------------------------------
- net/smc/smc_tx.h  |  4 ++--
- 6 files changed, 48 insertions(+), 101 deletions(-)
+ net/smc/smc_cdc.c  |  2 +-
+ net/smc/smc_core.h |  5 +++++
+ net/smc/smc_ib.c   |  3 +--
+ net/smc/smc_llc.c  | 30 ++++++++----------------------
+ net/smc/smc_wr.c   | 27 +++++----------------------
+ 5 files changed, 20 insertions(+), 47 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 143b2220c0c8..7fc810ec31c5 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1755,12 +1755,8 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
- 		    smc->sk.sk_state == SMC_CLOSED) {
- 			answ = 0;
- 		} else {
--			smc_curs_write(&cons,
--			       smc_curs_read(&conn->local_tx_ctrl.cons, conn),
--				       conn);
--			smc_curs_write(&urg,
--				       smc_curs_read(&conn->urg_curs, conn),
--				       conn);
-+			smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
-+			smc_curs_copy(&urg, &conn->urg_curs, conn);
- 			answ = smc_curs_diff(conn->rmb_desc->len,
- 					     &cons, &urg) == 1;
- 		}
 diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 621d8cca570b..f3a1497953ee 100644
+index f3a1497953ee..a7af2289cdff 100644
 --- a/net/smc/smc_cdc.c
 +++ b/net/smc/smc_cdc.c
-@@ -34,14 +34,15 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
- 			       enum ib_wc_status wc_status)
- {
- 	struct smc_cdc_tx_pend *cdcpend = (struct smc_cdc_tx_pend *)pnd_snd;
-+	struct smc_connection *conn = cdcpend->conn;
- 	struct smc_sock *smc;
- 	int diff;
+@@ -365,7 +365,7 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
+ 		return; /* invalid message */
  
--	if (!cdcpend->conn)
-+	if (!conn)
- 		/* already dismissed */
- 		return;
- 
--	smc = container_of(cdcpend->conn, struct smc_sock, conn);
-+	smc = container_of(conn, struct smc_sock, conn);
- 	bh_lock_sock(&smc->sk);
- 	if (!wc_status) {
- 		diff = smc_curs_diff(cdcpend->conn->sndbuf_desc->len,
-@@ -52,9 +53,7 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
- 		atomic_add(diff, &cdcpend->conn->sndbuf_space);
- 		/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
- 		smp_mb__after_atomic();
--		smc_curs_write(&cdcpend->conn->tx_curs_fin,
--			       smc_curs_read(&cdcpend->cursor, cdcpend->conn),
--			       cdcpend->conn);
-+		smc_curs_copy(&conn->tx_curs_fin, &cdcpend->cursor, conn);
- 	}
- 	smc_tx_sndbuf_nonfull(smc);
- 	bh_unlock_sock(&smc->sk);
-@@ -110,9 +109,8 @@ int smc_cdc_msg_send(struct smc_connection *conn,
- 			    &conn->local_tx_ctrl, conn);
- 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
- 	if (!rc)
--		smc_curs_write(&conn->rx_curs_confirmed,
--			       smc_curs_read(&conn->local_tx_ctrl.cons, conn),
--			       conn);
-+		smc_curs_copy(&conn->rx_curs_confirmed,
-+			      &conn->local_tx_ctrl.cons, conn);
- 
- 	return rc;
- }
-@@ -194,8 +192,8 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
- 	rc = smcd_tx_ism_write(conn, &cdc, sizeof(cdc), 0, 1);
- 	if (rc)
- 		return rc;
--	smc_curs_write(&conn->rx_curs_confirmed,
--		       smc_curs_read(&conn->local_tx_ctrl.cons, conn), conn);
-+	smc_curs_copy(&conn->rx_curs_confirmed, &conn->local_tx_ctrl.cons,
-+		      conn);
- 	/* Calculate transmitted data and increment free send buffer space */
- 	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
- 			     &conn->tx_curs_sent);
-@@ -204,8 +202,7 @@ int smcd_cdc_msg_send(struct smc_connection *conn)
- 	atomic_add(diff, &conn->sndbuf_space);
- 	/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
- 	smp_mb__after_atomic();
--	smc_curs_write(&conn->tx_curs_fin,
--		       smc_curs_read(&conn->tx_curs_sent, conn), conn);
-+	smc_curs_copy(&conn->tx_curs_fin, &conn->tx_curs_sent, conn);
- 
- 	smc_tx_sndbuf_nonfull(smc);
- 	return rc;
-@@ -225,9 +222,7 @@ static void smc_cdc_handle_urg_data_arrival(struct smc_sock *smc,
- 	char *base;
- 
- 	/* new data included urgent business */
--	smc_curs_write(&conn->urg_curs,
--		       smc_curs_read(&conn->local_rx_ctrl.prod, conn),
--		       conn);
-+	smc_curs_copy(&conn->urg_curs, &conn->local_rx_ctrl.prod, conn);
- 	conn->urg_state = SMC_URG_VALID;
- 	if (!sock_flag(&smc->sk, SOCK_URGINLINE))
- 		/* we'll skip the urgent byte, so don't account for it */
-@@ -247,12 +242,8 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 	struct smc_connection *conn = &smc->conn;
- 	int diff_cons, diff_prod;
- 
--	smc_curs_write(&prod_old,
--		       smc_curs_read(&conn->local_rx_ctrl.prod, conn),
--		       conn);
--	smc_curs_write(&cons_old,
--		       smc_curs_read(&conn->local_rx_ctrl.cons, conn),
--		       conn);
-+	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
-+	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
- 	smc_cdc_msg_to_host(&conn->local_rx_ctrl, cdc, conn);
- 
- 	diff_cons = smc_curs_diff(conn->peer_rmbe_size, &cons_old,
-diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-index 8fbce4fee3e4..934df4473a7c 100644
---- a/net/smc/smc_cdc.h
-+++ b/net/smc/smc_cdc.h
-@@ -104,47 +104,34 @@ static inline u64 smc_curs_read(union smc_host_cursor *curs,
+ 	/* lookup connection */
+-	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
++	lgr = smc_get_lgr(link);
+ 	read_lock_bh(&lgr->conns_lock);
+ 	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
+ 	read_unlock_bh(&lgr->conns_lock);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 8b47e0168fc3..8807865483bb 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -266,4 +266,9 @@ int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
+ 		    u64 peer_gid);
+ void smcd_conn_free(struct smc_connection *conn);
+ void smc_core_exit(void);
++
++static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
++{
++	return container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
++}
  #endif
- }
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 36de2fd76170..4706ab7092a9 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -112,8 +112,7 @@ int smc_ib_modify_qp_reset(struct smc_link *lnk)
  
--static inline u64 smc_curs_read_net(union smc_cdc_cursor *curs,
--				    struct smc_connection *conn)
--{
--#ifndef KERNEL_HAS_ATOMIC64
--	unsigned long flags;
--	u64 ret;
+ int smc_ib_ready_link(struct smc_link *lnk)
+ {
+-	struct smc_link_group *lgr =
+-		container_of(lnk, struct smc_link_group, lnk[0]);
++	struct smc_link_group *lgr = smc_get_lgr(lnk);
+ 	int rc = 0;
+ 
+ 	rc = smc_ib_modify_qp_init(lnk);
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 5800a6b43d83..b7944aa1ffc3 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -186,8 +186,7 @@ int smc_llc_send_confirm_link(struct smc_link *link, u8 mac[],
+ 			      union ib_gid *gid,
+ 			      enum smc_llc_reqresp reqresp)
+ {
+-	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
+-						  lnk[SMC_SINGLE_LINK]);
++	struct smc_link_group *lgr = smc_get_lgr(link);
+ 	struct smc_llc_msg_confirm_link *confllc;
+ 	struct smc_wr_tx_pend_priv *pend;
+ 	struct smc_wr_buf *wr_buf;
+@@ -381,11 +380,9 @@ static int smc_llc_send_message(struct smc_link *link, void *llcbuf, int llclen)
+ static void smc_llc_rx_confirm_link(struct smc_link *link,
+ 				    struct smc_llc_msg_confirm_link *llc)
+ {
+-	struct smc_link_group *lgr;
++	struct smc_link_group *lgr = smc_get_lgr(link);
+ 	int conf_rc;
+ 
+-	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
 -
--	spin_lock_irqsave(&conn->acurs_lock, flags);
--	ret = curs->acurs;
--	spin_unlock_irqrestore(&conn->acurs_lock, flags);
--	return ret;
--#else
--	return atomic64_read(&curs->acurs);
--#endif
--}
--
--static inline void smc_curs_write(union smc_host_cursor *curs, u64 val,
--				  struct smc_connection *conn)
-+/* Copy cursor src into tgt */
-+static inline void smc_curs_copy(union smc_host_cursor *tgt,
-+				 union smc_host_cursor *src,
-+				 struct smc_connection *conn)
+ 	/* RMBE eyecatchers are not supported */
+ 	if (llc->hd.flags & SMC_LLC_FLAG_NO_RMBE_EYEC)
+ 		conf_rc = 0;
+@@ -411,8 +408,7 @@ static void smc_llc_rx_confirm_link(struct smc_link *link,
+ static void smc_llc_rx_add_link(struct smc_link *link,
+ 				struct smc_llc_msg_add_link *llc)
  {
- #ifndef KERNEL_HAS_ATOMIC64
- 	unsigned long flags;
+-	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
+-						  lnk[SMC_SINGLE_LINK]);
++	struct smc_link_group *lgr = smc_get_lgr(link);
  
- 	spin_lock_irqsave(&conn->acurs_lock, flags);
--	curs->acurs = val;
-+	tgt->acurs = src->acurs;
- 	spin_unlock_irqrestore(&conn->acurs_lock, flags);
- #else
--	atomic64_set(&curs->acurs, val);
-+	atomic64_set(&tgt->acurs, atomic64_read(&src->acurs));
- #endif
- }
- 
--static inline void smc_curs_write_net(union smc_cdc_cursor *curs, u64 val,
--				      struct smc_connection *conn)
-+static inline void smc_curs_copy_net(union smc_cdc_cursor *tgt,
-+				     union smc_cdc_cursor *src,
-+				     struct smc_connection *conn)
+ 	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+ 		if (link->state == SMC_LNK_ACTIVATING)
+@@ -442,8 +438,7 @@ static void smc_llc_rx_add_link(struct smc_link *link,
+ static void smc_llc_rx_delete_link(struct smc_link *link,
+ 				   struct smc_llc_msg_del_link *llc)
  {
- #ifndef KERNEL_HAS_ATOMIC64
- 	unsigned long flags;
+-	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
+-						  lnk[SMC_SINGLE_LINK]);
++	struct smc_link_group *lgr = smc_get_lgr(link);
  
- 	spin_lock_irqsave(&conn->acurs_lock, flags);
--	curs->acurs = val;
-+	tgt->acurs = src->acurs;
- 	spin_unlock_irqrestore(&conn->acurs_lock, flags);
- #else
--	atomic64_set(&curs->acurs, val);
-+	atomic64_set(&tgt->acurs, atomic64_read(&src->acurs));
- #endif
- }
- 
-@@ -179,7 +166,7 @@ static inline void smc_host_cursor_to_cdc(union smc_cdc_cursor *peer,
+ 	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+ 		if (lgr->role == SMC_SERV)
+@@ -476,17 +471,14 @@ static void smc_llc_rx_test_link(struct smc_link *link,
+ static void smc_llc_rx_confirm_rkey(struct smc_link *link,
+ 				    struct smc_llc_msg_confirm_rkey *llc)
  {
- 	union smc_host_cursor temp;
- 
--	smc_curs_write(&temp, smc_curs_read(local, conn), conn);
-+	smc_curs_copy(&temp, local, conn);
- 	peer->count = htonl(temp.count);
- 	peer->wrap = htons(temp.wrap);
- 	/* peer->reserved = htons(0); must be ensured by caller */
-@@ -206,8 +193,8 @@ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
- 	union smc_host_cursor temp, old;
- 	union smc_cdc_cursor net;
- 
--	smc_curs_write(&old, smc_curs_read(local, conn), conn);
--	smc_curs_write_net(&net, smc_curs_read_net(peer, conn), conn);
-+	smc_curs_copy(&old, local, conn);
-+	smc_curs_copy_net(&net, peer, conn);
- 	temp.count = ntohl(net.count);
- 	temp.wrap = ntohs(net.wrap);
- 	if ((old.wrap > temp.wrap) && temp.wrap)
-@@ -215,7 +202,7 @@ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
- 	if ((old.wrap == temp.wrap) &&
- 	    (old.count > temp.count))
- 		return;
--	smc_curs_write(local, smc_curs_read(&temp, conn), conn);
-+	smc_curs_copy(local, &temp, conn);
- }
- 
- static inline void smcr_cdc_msg_to_host(struct smc_host_cdc_msg *local,
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index b329803c8339..c99c987097b1 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -82,8 +82,7 @@ static int smc_rx_update_consumer(struct smc_sock *smc,
- 		}
- 	}
- 
--	smc_curs_write(&conn->local_tx_ctrl.cons, smc_curs_read(&cons, conn),
--		       conn);
-+	smc_curs_copy(&conn->local_tx_ctrl.cons, &cons, conn);
- 
- 	/* send consumer cursor update if required */
- 	/* similar to advertising new TCP rcv_wnd if required */
-@@ -97,8 +96,7 @@ static void smc_rx_update_cons(struct smc_sock *smc, size_t len)
- 	struct smc_connection *conn = &smc->conn;
- 	union smc_host_cursor cons;
- 
--	smc_curs_write(&cons, smc_curs_read(&conn->local_tx_ctrl.cons, conn),
--		       conn);
-+	smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
- 	smc_rx_update_consumer(smc, cons, len);
- }
- 
-@@ -245,10 +243,7 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
- 			if (!(flags & MSG_TRUNC))
- 				rc = memcpy_to_msg(msg, &conn->urg_rx_byte, 1);
- 			len = 1;
--			smc_curs_write(&cons,
--				       smc_curs_read(&conn->local_tx_ctrl.cons,
--						     conn),
--				       conn);
-+			smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
- 			if (smc_curs_diff(conn->rmb_desc->len, &cons,
- 					  &conn->urg_curs) > 1)
- 				conn->urg_rx_skip_pend = true;
-@@ -370,9 +365,7 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
- 			continue;
- 		}
- 
--		smc_curs_write(&cons,
--			       smc_curs_read(&conn->local_tx_ctrl.cons, conn),
--			       conn);
-+		smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
- 		/* subsequent splice() calls pick up where previous left */
- 		if (splbytes)
- 			smc_curs_add(conn->rmb_desc->len, &cons, splbytes);
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 142bcb134dd6..2f5e324e54b9 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -181,9 +181,7 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
- 		copylen = min_t(size_t, send_remaining, writespace);
- 		/* determine start of sndbuf */
- 		sndbuf_base = conn->sndbuf_desc->cpu_addr;
--		smc_curs_write(&prep,
--			       smc_curs_read(&conn->tx_curs_prep, conn),
--			       conn);
-+		smc_curs_copy(&prep, &conn->tx_curs_prep, conn);
- 		tx_cnt_prep = prep.count;
- 		/* determine chunks where to write into sndbuf */
- 		/* either unwrapped case, or 1st chunk of wrapped case */
-@@ -214,9 +212,7 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
- 		smc_sndbuf_sync_sg_for_device(conn);
- 		/* update cursors */
- 		smc_curs_add(conn->sndbuf_desc->len, &prep, copylen);
--		smc_curs_write(&conn->tx_curs_prep,
--			       smc_curs_read(&prep, conn),
--			       conn);
-+		smc_curs_copy(&conn->tx_curs_prep, &prep, conn);
- 		/* increased in send tasklet smc_cdc_tx_handler() */
- 		smp_mb__before_atomic();
- 		atomic_sub(copylen, &conn->sndbuf_space);
-@@ -417,8 +413,8 @@ static int smc_tx_rdma_writes(struct smc_connection *conn)
+-	struct smc_link_group *lgr;
  	int rc;
  
- 	/* source: sndbuf */
--	smc_curs_write(&sent, smc_curs_read(&conn->tx_curs_sent, conn), conn);
--	smc_curs_write(&prep, smc_curs_read(&conn->tx_curs_prep, conn), conn);
-+	smc_curs_copy(&sent, &conn->tx_curs_sent, conn);
-+	smc_curs_copy(&prep, &conn->tx_curs_prep, conn);
- 	/* cf. wmem_alloc - (snd_max - snd_una) */
- 	to_send = smc_curs_diff(conn->sndbuf_desc->len, &sent, &prep);
- 	if (to_send <= 0)
-@@ -429,12 +425,8 @@ static int smc_tx_rdma_writes(struct smc_connection *conn)
- 	rmbespace = atomic_read(&conn->peer_rmbe_space);
- 	if (rmbespace <= 0)
- 		return 0;
--	smc_curs_write(&prod,
--		       smc_curs_read(&conn->local_tx_ctrl.prod, conn),
--		       conn);
--	smc_curs_write(&cons,
--		       smc_curs_read(&conn->local_rx_ctrl.cons, conn),
--		       conn);
-+	smc_curs_copy(&prod, &conn->local_tx_ctrl.prod, conn);
-+	smc_curs_copy(&cons, &conn->local_rx_ctrl.cons, conn);
+-	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
+-
+ 	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+ 		link->llc_confirm_rkey_rc = llc->hd.flags &
+ 					    SMC_LLC_FLAG_RKEY_NEG;
+ 		complete(&link->llc_confirm_rkey);
+ 	} else {
+-		rc = smc_rtoken_add(lgr,
++		rc = smc_rtoken_add(smc_get_lgr(link),
+ 				    llc->rtoken[0].rmb_vaddr,
+ 				    llc->rtoken[0].rmb_key);
  
- 	/* if usable snd_wnd closes ask peer to advertise once it opens again */
- 	pflags = &conn->local_tx_ctrl.prod_flags;
-@@ -481,14 +473,9 @@ static int smc_tx_rdma_writes(struct smc_connection *conn)
- 		pflags->urg_data_present = 1;
- 	smc_tx_advance_cursors(conn, &prod, &sent, len);
- 	/* update connection's cursors with advanced local cursors */
--	smc_curs_write(&conn->local_tx_ctrl.prod,
--		       smc_curs_read(&prod, conn),
--		       conn);
-+	smc_curs_copy(&conn->local_tx_ctrl.prod, &prod, conn);
- 							/* dst: peer RMBE */
--	smc_curs_write(&conn->tx_curs_sent,
--		       smc_curs_read(&sent, conn),
--		       conn);
--							/* src: local sndbuf */
-+	smc_curs_copy(&conn->tx_curs_sent, &sent, conn);/* src: local sndbuf */
- 
- 	return 0;
- }
-@@ -606,17 +593,11 @@ void smc_tx_consumer_update(struct smc_connection *conn, bool force)
- 	int sender_free = conn->rmb_desc->len;
- 	int to_confirm;
- 
--	smc_curs_write(&cons,
--		       smc_curs_read(&conn->local_tx_ctrl.cons, conn),
--		       conn);
--	smc_curs_write(&cfed,
--		       smc_curs_read(&conn->rx_curs_confirmed, conn),
--		       conn);
-+	smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
-+	smc_curs_copy(&cfed, &conn->rx_curs_confirmed, conn);
- 	to_confirm = smc_curs_diff(conn->rmb_desc->len, &cfed, &cons);
- 	if (to_confirm > conn->rmbe_update_limit) {
--		smc_curs_write(&prod,
--			       smc_curs_read(&conn->local_rx_ctrl.prod, conn),
--			       conn);
-+		smc_curs_copy(&prod, &conn->local_rx_ctrl.prod, conn);
- 		sender_free = conn->rmb_desc->len -
- 			      smc_curs_diff(conn->rmb_desc->len, &prod, &cfed);
- 	}
-@@ -632,9 +613,8 @@ void smc_tx_consumer_update(struct smc_connection *conn, bool force)
- 					      SMC_TX_WORK_DELAY);
- 			return;
- 		}
--		smc_curs_write(&conn->rx_curs_confirmed,
--			       smc_curs_read(&conn->local_tx_ctrl.cons, conn),
--			       conn);
-+		smc_curs_copy(&conn->rx_curs_confirmed,
-+			      &conn->local_tx_ctrl.cons, conn);
- 		conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
- 	}
- 	if (conn->local_rx_ctrl.prod_flags.write_blocked &&
-diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
-index b22bdc5694c4..07e6ad76224a 100644
---- a/net/smc/smc_tx.h
-+++ b/net/smc/smc_tx.h
-@@ -22,8 +22,8 @@ static inline int smc_tx_prepared_sends(struct smc_connection *conn)
+@@ -514,18 +506,15 @@ static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
+ static void smc_llc_rx_delete_rkey(struct smc_link *link,
+ 				   struct smc_llc_msg_delete_rkey *llc)
  {
- 	union smc_host_cursor sent, prep;
+-	struct smc_link_group *lgr;
+ 	u8 err_mask = 0;
+ 	int i, max;
  
--	smc_curs_write(&sent, smc_curs_read(&conn->tx_curs_sent, conn), conn);
--	smc_curs_write(&prep, smc_curs_read(&conn->tx_curs_prep, conn), conn);
-+	smc_curs_copy(&sent, &conn->tx_curs_sent, conn);
-+	smc_curs_copy(&prep, &conn->tx_curs_prep, conn);
- 	return smc_curs_diff(conn->sndbuf_desc->len, &sent, &prep);
+-	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
+-
+ 	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+ 		/* unused as long as we don't send this type of msg */
+ 	} else {
+ 		max = min_t(u8, llc->num_rkeys, SMC_LLC_DEL_RKEY_MAX);
+ 		for (i = 0; i < max; i++) {
+-			if (smc_rtoken_delete(lgr, llc->rkey[i]))
++			if (smc_rtoken_delete(smc_get_lgr(link), llc->rkey[i]))
+ 				err_mask |= 1 << (SMC_LLC_DEL_RKEY_MAX - 1 - i);
+ 		}
+ 
+@@ -583,12 +572,10 @@ static void smc_llc_testlink_work(struct work_struct *work)
+ 	struct smc_link *link = container_of(to_delayed_work(work),
+ 					     struct smc_link, llc_testlink_wrk);
+ 	unsigned long next_interval;
+-	struct smc_link_group *lgr;
+ 	unsigned long expire_time;
+ 	u8 user_data[16] = { 0 };
+ 	int rc;
+ 
+-	lgr = container_of(link, struct smc_link_group, lnk[SMC_SINGLE_LINK]);
+ 	if (link->state != SMC_LNK_ACTIVE)
+ 		return;		/* don't reschedule worker */
+ 	expire_time = link->wr_rx_tstamp + link->llc_testlink_time;
+@@ -602,7 +589,7 @@ static void smc_llc_testlink_work(struct work_struct *work)
+ 	rc = wait_for_completion_interruptible_timeout(&link->llc_testlink_resp,
+ 						       SMC_LLC_WAIT_TIME);
+ 	if (rc <= 0) {
+-		smc_lgr_terminate(lgr);
++		smc_lgr_terminate(smc_get_lgr(link));
+ 		return;
+ 	}
+ 	next_interval = link->llc_testlink_time;
+@@ -613,8 +600,7 @@ static void smc_llc_testlink_work(struct work_struct *work)
+ 
+ int smc_llc_link_init(struct smc_link *link)
+ {
+-	struct smc_link_group *lgr = container_of(link, struct smc_link_group,
+-						  lnk[SMC_SINGLE_LINK]);
++	struct smc_link_group *lgr = smc_get_lgr(link);
+ 	link->llc_wq = alloc_ordered_workqueue("llc_wq-%x:%x)", WQ_MEM_RECLAIM,
+ 					       *((u32 *)lgr->id),
+ 					       link->link_id);
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index dbd2605d1962..b6df69756bef 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -92,8 +92,6 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
+ 	if (!test_and_clear_bit(pnd_snd_idx, link->wr_tx_mask))
+ 		return;
+ 	if (wc->status) {
+-		struct smc_link_group *lgr;
+-
+ 		for_each_set_bit(i, link->wr_tx_mask, link->wr_tx_cnt) {
+ 			/* clear full struct smc_wr_tx_pend including .priv */
+ 			memset(&link->wr_tx_pends[i], 0,
+@@ -103,9 +101,7 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
+ 			clear_bit(i, link->wr_tx_mask);
+ 		}
+ 		/* terminate connections of this link group abnormally */
+-		lgr = container_of(link, struct smc_link_group,
+-				   lnk[SMC_SINGLE_LINK]);
+-		smc_lgr_terminate(lgr);
++		smc_lgr_terminate(smc_get_lgr(link));
+ 	}
+ 	if (pnd_snd.handler)
+ 		pnd_snd.handler(&pnd_snd.priv, link, wc->status);
+@@ -188,8 +184,7 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
+ 	} else {
+ 		struct smc_link_group *lgr;
+ 
+-		lgr = container_of(link, struct smc_link_group,
+-				   lnk[SMC_SINGLE_LINK]);
++		lgr = smc_get_lgr(link);
+ 		rc = wait_event_timeout(
+ 			link->wr_tx_wait,
+ 			list_empty(&lgr->list) || /* lgr terminated */
+@@ -250,12 +245,8 @@ int smc_wr_tx_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv)
+ 	rc = ib_post_send(link->roce_qp, &link->wr_tx_ibs[pend->idx],
+ 			  &failed_wr);
+ 	if (rc) {
+-		struct smc_link_group *lgr =
+-			container_of(link, struct smc_link_group,
+-				     lnk[SMC_SINGLE_LINK]);
+-
+ 		smc_wr_tx_put_slot(link, priv);
+-		smc_lgr_terminate(lgr);
++		smc_lgr_terminate(smc_get_lgr(link));
+ 	}
+ 	return rc;
  }
- 
+@@ -283,11 +274,7 @@ int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
+ 					      SMC_WR_REG_MR_WAIT_TIME);
+ 	if (!rc) {
+ 		/* timeout - terminate connections */
+-		struct smc_link_group *lgr;
+-
+-		lgr = container_of(link, struct smc_link_group,
+-				   lnk[SMC_SINGLE_LINK]);
+-		smc_lgr_terminate(lgr);
++		smc_lgr_terminate(smc_get_lgr(link));
+ 		return -EPIPE;
+ 	}
+ 	if (rc == -ERESTARTSYS)
+@@ -380,8 +367,6 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+ 			smc_wr_rx_demultiplex(&wc[i]);
+ 			smc_wr_rx_post(link); /* refill WR RX */
+ 		} else {
+-			struct smc_link_group *lgr;
+-
+ 			/* handle status errors */
+ 			switch (wc[i].status) {
+ 			case IB_WC_RETRY_EXC_ERR:
+@@ -390,9 +375,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+ 				/* terminate connections of this link group
+ 				 * abnormally
+ 				 */
+-				lgr = container_of(link, struct smc_link_group,
+-						   lnk[SMC_SINGLE_LINK]);
+-				smc_lgr_terminate(lgr);
++				smc_lgr_terminate(smc_get_lgr(link));
+ 				break;
+ 			default:
+ 				smc_wr_rx_post(link); /* refill WR RX */
 -- 
 2.16.4
