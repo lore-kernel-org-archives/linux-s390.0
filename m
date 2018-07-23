@@ -1,8 +1,10 @@
 Return-Path: <SRS0=ZsYk=KH=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 0/5] net/smc: patches 2018-07-23
-Date: Mon, 23 Jul 2018 13:53:07 +0200
-Message-Id: <20180723115312.54694-1-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 1/5] net/smc: provide smc mode in smc_diag.c
+Date: Mon, 23 Jul 2018 13:53:08 +0200
+In-Reply-To: <20180723115312.54694-1-ubraun@linux.ibm.com>
+References: <20180723115312.54694-1-ubraun@linux.ibm.com>
+Message-Id: <20180723115312.54694-2-ubraun@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -10,39 +12,62 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-here are some small patches for SMC: Just the first patch contains a
-functional change. It allows to differ between the modes SMCR and SMCD
-on s390 when monitoring SMC sockets. The remaining patches are cleanups
-without functional changes.
+Rename field diag_fallback into diag_mode and set the smc mode of a
+connection explicitly.
 
-Thanks, Ursula
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ include/uapi/linux/smc_diag.h | 9 ++++++++-
+ net/smc/smc_diag.c            | 7 ++++++-
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
-Karsten Graul (1):
-  net/smc: provide smc mode in smc_diag.c
-
-Stefan Raspl (2):
-  net/smc: eliminate cursor read and write calls
-  net/smc: add function to get link group from link
-
-Ursula Braun (2):
-  net/smc: use DECLARE_BITMAP for rtokens_used_mask
-  net/smc: remove local variable page in smc_rx_splice()
-
- include/uapi/linux/smc_diag.h |  9 ++++++++-
- net/smc/af_smc.c              |  8 ++------
- net/smc/smc_cdc.c             | 35 ++++++++++++--------------------
- net/smc/smc_cdc.h             | 43 ++++++++++++++--------------------------
- net/smc/smc_core.h            |  8 ++++++--
- net/smc/smc_diag.c            |  7 ++++++-
- net/smc/smc_ib.c              |  3 +--
- net/smc/smc_llc.c             | 30 ++++++++--------------------
- net/smc/smc_rx.c              | 19 +++++-------------
- net/smc/smc_tx.c              | 46 ++++++++++++-------------------------------
- net/smc/smc_tx.h              |  4 ++--
- net/smc/smc_wr.c              | 27 +++++--------------------
- 12 files changed, 84 insertions(+), 155 deletions(-)
-
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index 92be255e534c..48ae3ee22b2d 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -20,7 +20,7 @@ struct smc_diag_req {
+ struct smc_diag_msg {
+ 	__u8	diag_family;
+ 	__u8	diag_state;
+-	__u8	diag_fallback;
++	__u8	diag_mode;
+ 	__u8	diag_shutdown;
+ 	struct inet_diag_sockid id;
+ 
+@@ -28,6 +28,13 @@ struct smc_diag_msg {
+ 	__u64	diag_inode;
+ };
+ 
++/* Mode of a connection */
++enum {
++	SMC_DIAG_MODE_SMCR,
++	SMC_DIAG_MODE_FALLBACK_TCP,
++	SMC_DIAG_MODE_SMCD,
++};
++
+ /* Extensions */
+ 
+ enum {
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 6d83eef1b743..d772cd10297e 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -91,7 +91,12 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 	r = nlmsg_data(nlh);
+ 	smc_diag_msg_common_fill(r, sk);
+ 	r->diag_state = sk->sk_state;
+-	r->diag_fallback = smc->use_fallback;
++	if (smc->use_fallback)
++		r->diag_mode = SMC_DIAG_MODE_FALLBACK_TCP;
++	else if (smc->conn.lgr && smc->conn.lgr->is_smcd)
++		r->diag_mode = SMC_DIAG_MODE_SMCD;
++	else
++		r->diag_mode = SMC_DIAG_MODE_SMCR;
+ 	user_ns = sk_user_ns(NETLINK_CB(cb->skb).sk);
+ 	if (smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
+ 		goto errout;
 -- 
 2.16.4
