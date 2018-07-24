@@ -1,11 +1,11 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-fsdevel-owner@vger.kernel.org>
 From: Huaisheng Ye <yehs2007@zoho.com>
-Subject: [PATCH 4/5] filesystem-dax: Do not request a pointer kaddr when not required
-Date: Tue, 24 Jul 2018 16:45:09 +0800
-Message-Id: <20180724084510.6104-5-yehs2007@zoho.com>
+Subject: [PATCH 1/5] libnvdimm, pmem: Allow a NULL-kaddr to ->direct_access()
+Date: Tue, 24 Jul 2018 16:45:06 +0800
+Message-Id: <20180724084510.6104-2-yehs2007@zoho.com>
 In-Reply-To: <20180724084510.6104-1-yehs2007@zoho.com>
 References: <20180724084510.6104-1-yehs2007@zoho.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-fsdevel/>
 List-Post: <mailto:linux-fsdevel@vger.kernel.org>
 To: linux-nvdimm@lists.01.org, dan.j.williams@intel.com
@@ -14,35 +14,29 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Huaisheng Ye <yehs1@lenovo.com>
 
-Some functions within fs/dax don't need to get pointer kaddr from
-direct_access. In support of allowing memmap initialization to run
-in the background elide requests for pointer kaddr when not required.
+pmem_direct_access() needs to check the validity of second rank
+pointer kaddr for NULL assignment. If kaddr equals to NULL, it
+doesn't need to calculate the value.
 
 Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
 ---
- fs/dax.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/nvdimm/pmem.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index aaec72de..abdb9e2 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -870,7 +870,6 @@ static int dax_iomap_pfn(struct iomap *iomap, loff_t pos, size_t size,
- {
- 	const sector_t sector = dax_iomap_sector(iomap, pos);
- 	pgoff_t pgoff;
--	void *kaddr;
- 	int id, rc;
- 	long length;
+diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+index 9d71492..b1d121a 100644
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -232,7 +232,9 @@ __weak long __pmem_direct_access(struct pmem_device *pmem, pgoff_t pgoff,
+ 	if (unlikely(is_bad_pmem(&pmem->bb, PFN_PHYS(pgoff) / 512,
+ 					PFN_PHYS(nr_pages))))
+ 		return -EIO;
+-	*kaddr = pmem->virt_addr + offset;
++
++	if (kaddr)
++		*kaddr = pmem->virt_addr + offset;
+ 	*pfn = phys_to_pfn_t(pmem->phys_addr + offset, pmem->pfn_flags);
  
-@@ -879,7 +878,7 @@ static int dax_iomap_pfn(struct iomap *iomap, loff_t pos, size_t size,
- 		return rc;
- 	id = dax_read_lock();
- 	length = dax_direct_access(iomap->dax_dev, pgoff, PHYS_PFN(size),
--				   &kaddr, pfnp);
-+				   NULL, pfnp);
- 	if (length < 0) {
- 		rc = length;
- 		goto out;
+ 	/*
 -- 
 1.8.3.1
