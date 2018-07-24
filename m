@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH PATCH net-next 11/18] atm: remove blank lines at EOF
-Date: Tue, 24 Jul 2018 12:29:11 -0700
-Message-ID: <20180724192918.31165-12-sthemmin@microsoft.com>
+Subject: [PATCH PATCH net-next 13/18] x25: remove blank lines at EOF
+Date: Tue, 24 Jul 2018 12:29:13 -0700
+Message-ID: <20180724192918.31165-14-sthemmin@microsoft.com>
 References: <20180724192918.31165-1-sthemmin@microsoft.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180724192918.31165-1-sthemmin@microsoft.com>
@@ -14,22 +14,28 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
 ---
- net/atm/mpoa_proc.c | 6 ------
- 1 file changed, 6 deletions(-)
+ net/x25/Kconfig    | 2 --
+ net/x25/x25_subr.c | 1 -
+ 2 files changed, 3 deletions(-)
 
-diff --git a/net/atm/mpoa_proc.c b/net/atm/mpoa_proc.c
-index b93cc0f18292..46d6cd9a36ae 100644
---- a/net/atm/mpoa_proc.c
-+++ b/net/atm/mpoa_proc.c
-@@ -307,9 +307,3 @@ void mpc_proc_clean(void)
- }
+diff --git a/net/x25/Kconfig b/net/x25/Kconfig
+index e2fa133f9fba..59fcb41fc5e6 100644
+--- a/net/x25/Kconfig
++++ b/net/x25/Kconfig
+@@ -31,5 +31,3 @@ config X25
  
- #endif /* CONFIG_PROC_FS */
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called x25. If unsure, say N.
 -
 -
--
--
--
+diff --git a/net/x25/x25_subr.c b/net/x25/x25_subr.c
+index 9c214ec681ac..743103786652 100644
+--- a/net/x25/x25_subr.c
++++ b/net/x25/x25_subr.c
+@@ -381,4 +381,3 @@ void x25_check_rbuf(struct sock *sk)
+ 		x25_stop_timer(sk);
+ 	}
+ }
 -
 -- 
 2.18.0
