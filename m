@@ -1,109 +1,39 @@
-Return-Path: <linux-kbuild-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 2/2] kbuild: do not redirect the first prerequisite for filechk
-Date: Wed, 25 Jul 2018 14:16:11 +0900
-Message-Id: <1532495771-10255-2-git-send-email-yamada.masahiro@socionext.com>
-In-Reply-To: <1532495771-10255-1-git-send-email-yamada.masahiro@socionext.com>
-References: <1532495771-10255-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kbuild-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-kbuild/>
-List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: linux-kbuild@vger.kernel.org
-Cc: Sam Ravnborg <sam@ravnborg.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, Michal Marek <michal.lkml@markovi.net>, Richard Weinberger <richard@nod.at>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jeff Dike <jdike@addtoit.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Return-Path: <linux-fsdevel-owner@vger.kernel.org>
+From: Huaisheng HS1 Ye <yehs1@lenovo.com>
+Subject: RE: [External] Re: [PATCH 3/5] s390, dcssblk: Allow a NULL-kaddr to
+ ->direct_access()
+Date: Tue, 24 Jul 2018 14:28:23 +0000
+Message-ID: <TY2PR03MB3343CC5CD32DBD527DABFDE592550@TY2PR03MB3343.apcprd03.prod.outlook.com>
+References: <20180724084510.6104-1-yehs2007@zoho.com>
+ <20180724084510.6104-4-yehs2007@zoho.com>
+ <192a9dac-921f-e222-3a7d-32d43679cd12@de.ibm.com>
+ <TY2PR03MB3343901A038D3E3D836C438992550@TY2PR03MB3343.apcprd03.prod.outlook.com>
+ <814b615b-fc5d-627a-a11e-c54796b1b08d@de.ibm.com>
+In-Reply-To: <814b615b-fc5d-627a-a11e-c54796b1b08d@de.ibm.com>
+Content-Language: zh-CN
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: linux-fsdevel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-fsdevel/>
+List-Post: <mailto:linux-fsdevel@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "ross.zwisler@linux.intel.com" <ross.zwisler@linux.intel.com>, "willy@infradead.org" <willy@infradead.org>, "vishal.l.verma@intel.com" <vishal.l.verma@intel.com>, "dave.jiang@intel.com" <dave.jiang@intel.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>, "martin.petersen@oracle.com" <martin.petersen@oracle.com>, "axboe@kernel.dk" <axboe@kernel.dk>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "bart.vanassche@wdc.com" <bart.vanassche@wdc.com>, "jack@suse.cz" <jack@suse.cz>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, NingTing Cheng <chengnt@lenovo.com>, Huaisheng Ye <yehs2007@zoho.com>, "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>, "dan.j.williams@intel.com" <dan.j.williams@intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, filechk unconditionally opens the first prerequisite and
-redirects it as the stdin of a filechk_* rule.  Hence, every target
-using $(call filechk,...) must list something as the first prerequisite
-even if it is unneeded.
-
-'< $<' is actually unneeded in most cases.  Each rule can explicitly
-adds it if necessary.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
-
- Makefile                           | 2 +-
- arch/s390/kernel/syscalls/Makefile | 6 +++---
- arch/um/Makefile                   | 2 +-
- scripts/Kbuild.include             | 2 +-
- scripts/Makefile.lib               | 2 +-
- 5 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/Makefile b/Makefile
-index 67d9d20..af863f1 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1116,7 +1116,7 @@ define filechk_version.h
- 	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
- endef
- 
--$(version_h): $(srctree)/Makefile FORCE
-+$(version_h): FORCE
- 	$(call filechk,version.h)
- 	$(Q)rm -f $(old_version_h)
- 
-diff --git a/arch/s390/kernel/syscalls/Makefile b/arch/s390/kernel/syscalls/Makefile
-index 8ff96c0..4d929ed 100644
---- a/arch/s390/kernel/syscalls/Makefile
-+++ b/arch/s390/kernel/syscalls/Makefile
-@@ -25,15 +25,15 @@ _dummy := $(shell [ -d '$(uapi)' ] || mkdir -p '$(uapi)') \
- 	  $(shell [ -d '$(kapi)' ] || mkdir -p '$(kapi)')
- 
- define filechk_syshdr
--	$(CONFIG_SHELL) '$(systbl)' -H -a $(syshdr_abi_$(basetarget)) -f "$2"
-+	$(CONFIG_SHELL) '$(systbl)' -H -a $(syshdr_abi_$(basetarget)) -f "$2" < $<
- endef
- 
- define filechk_sysnr
--	$(CONFIG_SHELL) '$(systbl)' -N -a $(sysnr_abi_$(basetarget))
-+	$(CONFIG_SHELL) '$(systbl)' -N -a $(sysnr_abi_$(basetarget)) < $<
- endef
- 
- define filechk_syscalls
--	$(CONFIG_SHELL) '$(systbl)' -S
-+	$(CONFIG_SHELL) '$(systbl)' -S < $<
- endef
- 
- syshdr_abi_unistd_32 := common,32
-diff --git a/arch/um/Makefile b/arch/um/Makefile
-index e54dda8..8c35261 100644
---- a/arch/um/Makefile
-+++ b/arch/um/Makefile
-@@ -169,7 +169,7 @@ define filechk_gen-asm-offsets
-          echo " *"; \
-          echo " */"; \
-          echo ""; \
--         sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; \
-+         sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}" < $<; \
-          echo ""; )
- endef
- 
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index 86321f0..0bee89c 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -56,7 +56,7 @@ kecho := $($(quiet)kecho)
- define filechk
- 	$(Q)set -e;				\
- 	mkdir -p $(dir $@);			\
--	$(filechk_$(1)) < $< > $@.tmp;		\
-+	$(filechk_$(1)) > $@.tmp;		\
- 	if [ -r $@ ] && cmp -s $@ $@.tmp; then	\
- 		rm -f $@.tmp;			\
- 	else					\
-diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
-index 1bb594f..4b2f89f 100644
---- a/scripts/Makefile.lib
-+++ b/scripts/Makefile.lib
-@@ -416,7 +416,7 @@ define filechk_offsets
- 	 echo " * This file was generated by Kbuild"; \
- 	 echo " */"; \
- 	 echo ""; \
--	 sed -ne $(sed-offsets); \
-+	 sed -ne $(sed-offsets) < $<; \
- 	 echo ""; \
- 	 echo "#endif" )
- endef
--- 
-2.7.4
+RnJvbTogQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIDxib3JudHJhZWdlckBkZS5pYm0uY29tPg0KU2Vu
+dDogVHVlc2RheSwgSnVseSAyNCwgMjAxOCA3OjE2IFBNDQo+ID4+IFNvIHlvdSBhcmUgdHJhZGlu
+ZyBvZiBhIGxvYWQgKyBhZGQgKGRldl9pbmZvLT5zdGFydCBzaG91bGQgYmUgY2FjaGUgaG90KSBh
+Z2FpbnN0IGENCj4gPj4gY29tcGFyZSticmFuY2ggLiBOb3Qgc3VyZSB0aGF0IHRoaXMgaXMgYWx3
+YXlzIGEgd2luLg0KPiA+DQo+ID4gSG1tLi4udGhlIGNhbGN1bGF0aW9uIHByb2Nlc3Mgb2YgcGZu
+IGlzIG1vcmUgY29tcGxpY2F0ZWQgdGhhbiBrYWRkci4gSSB0aGluayB5b3UgYWdyZWUgdG8NCj4g
+Y2hlY2sgcGZuIGJ1dCBub3Qgc3VyZSBrYWRkciwgcmlnaHQ/DQo+ID4gRnJvbSB0aGUgbG9naWNh
+bCBjb25zaXN0ZW5jeSBvZiBjb2RlLCBJIHRoaW5rIGl0IHNoYWxsIGJlIGJldHRlciB0byBnaXZl
+IHBmbiBhbmQga2FkZHIgc2ltaWxhcg0KPiB0cmVhdG1lbnQuDQo+IA0KPiBSZWFkaW5nIGl0IGFn
+YWluLCBpdHMgbW9yZSB0aGF0IEkgZG8gbm90IGxpa2UgdGhlIHBhdGNoIGRlc2NyaXB0aW9uLiBJ
+dCByZWFkcw0KPiBsaWtlIGFuIG9wdGltaXphdGlvbiwgKGFuZCBJIHRoaW5rIGl0IGlzIG5vdCkg
+YnV0IGl0IHNob3VsZCByYXRoZXIgcmVhZCBtb3JlDQo+IGxpa2UgIndpdGggYW4gdXBjb21pbmcg
+Y2hhbmdlIGthZGRyIGNhbiBiZSBOVUxMIiBvciBzby4NCg0KVGhhbmtzIGZvciBzdWdnZXN0aW9u
+LCBJIHdpbGwgcmV3b3JkIHRoZSBwYXRjaCBkZXNjcmlwdGlvbiBkdXJpbmcgbmV4dCBzdWJtaXNz
+aW9uLg0KRG9lcyB0aGUgcGF0Y2ggaXRzZWxmIG5lZWQgdG8gYmUgbW9kaWZpZWQ/IElmIGhhcywg
+YW55IHN1Z2dlc3Rpb24gaXMgd2VsY29tZS4NCg0KQ2hlZXJzLA0KSHVhaXNoZW5nIFllDQo=
