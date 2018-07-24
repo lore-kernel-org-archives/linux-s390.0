@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH PATCH net-next 15/18] sunrpc: whitespace fixes
-Date: Tue, 24 Jul 2018 12:29:15 -0700
-Message-ID: <20180724192918.31165-16-sthemmin@microsoft.com>
+Subject: [PATCH PATCH net-next 07/18] ceph: fix whitespace
+Date: Tue, 24 Jul 2018 12:29:07 -0700
+Message-ID: <20180724192918.31165-8-sthemmin@microsoft.com>
 References: <20180724192918.31165-1-sthemmin@microsoft.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180724192918.31165-1-sthemmin@microsoft.com>
@@ -12,181 +12,96 @@ To: davem@davemloft.net, ericvh@gmail.com, rminnich@sandia.gov, lucho@ionkov.net
 Cc: netdev@vger.kernel.org, v9fs-developer@lists.sourceforge.net, linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, linux-wireless@vger.kernel.org, linux-rdma@vger.kernel.org, linux-sctp@vger.kernel.org, linux-nfs@vger.kernel.org, linux-x25@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, Stephen Hemminger <stephen@networkplumber.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Remove trailing whitespace and blank line at EOF
+Remove blank lines at end of file and trailing whitespace.
 
 Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
 ---
- net/sunrpc/auth_gss/auth_gss.c          | 2 +-
- net/sunrpc/auth_gss/gss_generic_token.c | 1 -
- net/sunrpc/auth_gss/gss_krb5_crypto.c   | 1 -
- net/sunrpc/auth_gss/gss_krb5_keys.c     | 1 -
- net/sunrpc/auth_gss/gss_krb5_seal.c     | 1 -
- net/sunrpc/auth_gss/gss_krb5_unseal.c   | 1 -
- net/sunrpc/auth_gss/gss_krb5_wrap.c     | 1 -
- net/sunrpc/auth_gss/svcauth_gss.c       | 2 +-
- net/sunrpc/backchannel_rqst.c           | 1 -
- net/sunrpc/clnt.c                       | 2 +-
- net/sunrpc/rpcb_clnt.c                  | 2 +-
- net/sunrpc/stats.c                      | 1 -
- net/sunrpc/sunrpc.h                     | 1 -
- net/sunrpc/xprt.c                       | 2 +-
- net/sunrpc/xprtsock.c                   | 1 -
- 15 files changed, 5 insertions(+), 15 deletions(-)
+ net/ceph/Kconfig      | 1 -
+ net/ceph/Makefile     | 1 -
+ net/ceph/auth_none.c  | 1 -
+ net/ceph/auth_none.h  | 1 -
+ net/ceph/auth_x.c     | 2 --
+ net/ceph/auth_x.h     | 1 -
+ net/ceph/mon_client.c | 2 +-
+ net/ceph/pagevec.c    | 1 -
+ 8 files changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
-index be8f103d22fd..b67ad98a36a6 100644
---- a/net/sunrpc/auth_gss/auth_gss.c
-+++ b/net/sunrpc/auth_gss/auth_gss.c
-@@ -1571,7 +1571,7 @@ static int gss_cred_is_negative_entry(struct rpc_cred *cred)
- 	if (test_bit(RPCAUTH_CRED_NEGATIVE, &cred->cr_flags)) {
- 		unsigned long now = jiffies;
- 		unsigned long begin, expire;
--		struct gss_cred *gss_cred; 
-+		struct gss_cred *gss_cred;
+diff --git a/net/ceph/Kconfig b/net/ceph/Kconfig
+index f8cceb99e732..cd2d5b9301a1 100644
+--- a/net/ceph/Kconfig
++++ b/net/ceph/Kconfig
+@@ -41,4 +41,3 @@ config CEPH_LIB_USE_DNS_RESOLVER
+ 	  Documentation/networking/dns_resolver.txt
  
- 		gss_cred = container_of(cred, struct gss_cred, gc_base);
- 		begin = gss_cred->gc_upcall_timestamp;
-diff --git a/net/sunrpc/auth_gss/gss_generic_token.c b/net/sunrpc/auth_gss/gss_generic_token.c
-index 254defe446a7..fe97f3106536 100644
---- a/net/sunrpc/auth_gss/gss_generic_token.c
-+++ b/net/sunrpc/auth_gss/gss_generic_token.c
-@@ -231,4 +231,3 @@ g_verify_token_header(struct xdr_netobj *mech, int *body_size,
- }
- 
- EXPORT_SYMBOL_GPL(g_verify_token_header);
+ 	  If unsure, say N.
 -
-diff --git a/net/sunrpc/auth_gss/gss_krb5_crypto.c b/net/sunrpc/auth_gss/gss_krb5_crypto.c
-index 8654494b4d0a..a1acee106faa 100644
---- a/net/sunrpc/auth_gss/gss_krb5_crypto.c
-+++ b/net/sunrpc/auth_gss/gss_krb5_crypto.c
-@@ -1077,4 +1077,3 @@ krb5_rc4_setup_enc_key(struct krb5_ctx *kctx, struct crypto_skcipher *cipher,
- 	dprintk("%s: returning %d\n", __func__, err);
- 	return err;
+diff --git a/net/ceph/Makefile b/net/ceph/Makefile
+index 12bf49772d24..db09defe27d0 100644
+--- a/net/ceph/Makefile
++++ b/net/ceph/Makefile
+@@ -15,4 +15,3 @@ libceph-y := ceph_common.o messenger.o msgpool.o buffer.o pagelist.o \
+ 	auth_x.o \
+ 	ceph_fs.o ceph_strings.o ceph_hash.o \
+ 	pagevec.o snapshot.o string_table.o
+-
+diff --git a/net/ceph/auth_none.c b/net/ceph/auth_none.c
+index 41d2a0c72236..edb7042479ed 100644
+--- a/net/ceph/auth_none.c
++++ b/net/ceph/auth_none.c
+@@ -142,4 +142,3 @@ int ceph_auth_none_init(struct ceph_auth_client *ac)
+ 	ac->ops = &ceph_auth_none_ops;
+ 	return 0;
  }
 -
-diff --git a/net/sunrpc/auth_gss/gss_krb5_keys.c b/net/sunrpc/auth_gss/gss_krb5_keys.c
-index 870133146026..f7fe2d2b851f 100644
---- a/net/sunrpc/auth_gss/gss_krb5_keys.c
-+++ b/net/sunrpc/auth_gss/gss_krb5_keys.c
-@@ -324,4 +324,3 @@ u32 gss_krb5_aes_make_key(const struct gss_krb5_enctype *gk5e,
- err_out:
+diff --git a/net/ceph/auth_none.h b/net/ceph/auth_none.h
+index 860ed9875791..4158f064302e 100644
+--- a/net/ceph/auth_none.h
++++ b/net/ceph/auth_none.h
+@@ -26,4 +26,3 @@ struct ceph_auth_none_info {
+ int ceph_auth_none_init(struct ceph_auth_client *ac);
+ 
+ #endif
+-
+diff --git a/net/ceph/auth_x.c b/net/ceph/auth_x.c
+index 2f4a1baf5f52..32c7f5c4b1a6 100644
+--- a/net/ceph/auth_x.c
++++ b/net/ceph/auth_x.c
+@@ -823,5 +823,3 @@ int ceph_x_init(struct ceph_auth_client *ac)
+ out:
  	return ret;
  }
 -
-diff --git a/net/sunrpc/auth_gss/gss_krb5_seal.c b/net/sunrpc/auth_gss/gss_krb5_seal.c
-index 94a2b3f082a8..eaad9bc7a0bd 100644
---- a/net/sunrpc/auth_gss/gss_krb5_seal.c
-+++ b/net/sunrpc/auth_gss/gss_krb5_seal.c
-@@ -229,4 +229,3 @@ gss_get_mic_kerberos(struct gss_ctx *gss_ctx, struct xdr_buf *text,
- 		return gss_get_mic_v2(ctx, text, token);
- 	}
- }
 -
-diff --git a/net/sunrpc/auth_gss/gss_krb5_unseal.c b/net/sunrpc/auth_gss/gss_krb5_unseal.c
-index b601a73cc9db..ef2b25b86d2f 100644
---- a/net/sunrpc/auth_gss/gss_krb5_unseal.c
-+++ b/net/sunrpc/auth_gss/gss_krb5_unseal.c
-@@ -225,4 +225,3 @@ gss_verify_mic_kerberos(struct gss_ctx *gss_ctx,
- 		return gss_verify_mic_v2(ctx, message_buffer, read_token);
- 	}
- }
--
-diff --git a/net/sunrpc/auth_gss/gss_krb5_wrap.c b/net/sunrpc/auth_gss/gss_krb5_wrap.c
-index a737c2da0837..286fd22404f2 100644
---- a/net/sunrpc/auth_gss/gss_krb5_wrap.c
-+++ b/net/sunrpc/auth_gss/gss_krb5_wrap.c
-@@ -623,4 +623,3 @@ gss_unwrap_kerberos(struct gss_ctx *gctx, int offset, struct xdr_buf *buf)
- 		return gss_unwrap_kerberos_v2(kctx, offset, buf);
- 	}
- }
--
-diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
-index 5089dbb96d58..860f2a1bbb67 100644
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1389,7 +1389,7 @@ static void destroy_use_gss_proxy_proc_entry(struct net *net)
- 	struct sunrpc_net *sn = net_generic(net, sunrpc_net_id);
+diff --git a/net/ceph/auth_x.h b/net/ceph/auth_x.h
+index 454cb54568af..a71c4c282b57 100644
+--- a/net/ceph/auth_x.h
++++ b/net/ceph/auth_x.h
+@@ -52,4 +52,3 @@ struct ceph_x_info {
+ int ceph_x_init(struct ceph_auth_client *ac);
  
- 	if (sn->use_gssp_proc) {
--		remove_proc_entry("use-gss-proxy", sn->proc_net_rpc); 
-+		remove_proc_entry("use-gss-proxy", sn->proc_net_rpc);
- 		clear_gssp_clnt(sn);
+ #endif
+-
+diff --git a/net/ceph/mon_client.c b/net/ceph/mon_client.c
+index d7a7a2330ef7..18deb3d889c4 100644
+--- a/net/ceph/mon_client.c
++++ b/net/ceph/mon_client.c
+@@ -1249,7 +1249,7 @@ static void dispatch(struct ceph_connection *con, struct ceph_msg *msg)
+ 		if (monc->client->extra_mon_dispatch &&
+ 		    monc->client->extra_mon_dispatch(monc->client, msg) == 0)
+ 			break;
+-			
++
+ 		pr_err("received unknown message type %d %s\n", type,
+ 		       ceph_msg_type_name(type));
+ 	}
+diff --git a/net/ceph/pagevec.c b/net/ceph/pagevec.c
+index e560d3975f41..d3736f5bffec 100644
+--- a/net/ceph/pagevec.c
++++ b/net/ceph/pagevec.c
+@@ -197,4 +197,3 @@ void ceph_zero_page_vector_range(int off, int len, struct page **pages)
  	}
  }
-diff --git a/net/sunrpc/backchannel_rqst.c b/net/sunrpc/backchannel_rqst.c
-index c2c68a15b59d..3c15a99b9700 100644
---- a/net/sunrpc/backchannel_rqst.c
-+++ b/net/sunrpc/backchannel_rqst.c
-@@ -362,4 +362,3 @@ void xprt_complete_bc_request(struct rpc_rqst *req, uint32_t copied)
- 	wake_up(&bc_serv->sv_cb_waitq);
- 	spin_unlock(&bc_serv->sv_cb_lock);
- }
--
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index d839c33ae7d9..3818e4d55c66 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -892,7 +892,7 @@ rpc_free_client(struct rpc_clnt *clnt)
- /*
-  * Free an RPC client
-  */
--static struct rpc_clnt * 
-+static struct rpc_clnt *
- rpc_free_auth(struct rpc_clnt *clnt)
- {
- 	if (clnt->cl_auth == NULL)
-diff --git a/net/sunrpc/rpcb_clnt.c b/net/sunrpc/rpcb_clnt.c
-index c526f8fb37c9..c7872bc13860 100644
---- a/net/sunrpc/rpcb_clnt.c
-+++ b/net/sunrpc/rpcb_clnt.c
-@@ -213,7 +213,7 @@ static void rpcb_set_local(struct net *net, struct rpc_clnt *clnt,
- 	sn->rpcb_local_clnt = clnt;
- 	sn->rpcb_local_clnt4 = clnt4;
- 	sn->rpcb_is_af_local = is_af_local ? 1 : 0;
--	smp_wmb(); 
-+	smp_wmb();
- 	sn->rpcb_users = 1;
- 	dprintk("RPC:       created new rpcb local clients (rpcb_local_clnt: "
- 		"%p, rpcb_local_clnt4: %p) for net %x%s\n",
-diff --git a/net/sunrpc/stats.c b/net/sunrpc/stats.c
-index f68aa46c9dd7..86f316503c7c 100644
---- a/net/sunrpc/stats.c
-+++ b/net/sunrpc/stats.c
-@@ -310,4 +310,3 @@ void rpc_proc_exit(struct net *net)
- 	dprintk("RPC:       unregistering /proc/net/rpc\n");
- 	remove_proc_entry("rpc", net->proc_net);
- }
--
-diff --git a/net/sunrpc/sunrpc.h b/net/sunrpc/sunrpc.h
-index 09a0315ea77b..c9bacb3c930f 100644
---- a/net/sunrpc/sunrpc.h
-+++ b/net/sunrpc/sunrpc.h
-@@ -57,4 +57,3 @@ int svc_send_common(struct socket *sock, struct xdr_buf *xdr,
- int rpc_clients_notifier_register(void);
- void rpc_clients_notifier_unregister(void);
- #endif /* _NET_SUNRPC_SUNRPC_H */
--
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 3fabf9f6a0f9..a8db2e3f8904 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -880,7 +880,7 @@ static void xprt_wait_on_pinned_rqst(struct rpc_rqst *req)
- __must_hold(&req->rq_xprt->recv_lock)
- {
- 	struct rpc_task *task = req->rq_task;
--	
-+
- 	if (task && test_bit(RPC_TASK_MSG_RECV, &task->tk_runstate)) {
- 		spin_unlock(&req->rq_xprt->recv_lock);
- 		set_bit(RPC_TASK_MSG_RECV_WAIT, &task->tk_runstate);
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 9e1c5024aba9..6b7539c0466e 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -3375,4 +3375,3 @@ module_param_named(tcp_max_slot_table_entries, xprt_max_tcp_slot_table_entries,
- 		   max_slot_table_size, 0644);
- module_param_named(udp_slot_table_entries, xprt_udp_slot_table_entries,
- 		   slot_table_size, 0644);
+ EXPORT_SYMBOL(ceph_zero_page_vector_range);
 -
 -- 
 2.18.0
