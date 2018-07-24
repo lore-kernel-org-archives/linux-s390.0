@@ -1,90 +1,127 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH PATCH net-next 03/18] rds: remove trailing whitespace and blank lines
-Date: Tue, 24 Jul 2018 12:29:03 -0700
-Message-ID: <20180724192918.31165-4-sthemmin@microsoft.com>
-References: <20180724192918.31165-1-sthemmin@microsoft.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180724192918.31165-1-sthemmin@microsoft.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/ceph-devel/>
-List-Post: <mailto:ceph-devel@vger.kernel.org>
-To: davem@davemloft.net, ericvh@gmail.com, rminnich@sandia.gov, lucho@ionkov.net, ralf@linux-mips.org, jreuter@yaina.de, pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de, alex.aring@gmail.com, stefan@datenfreihafen.org, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, johannes@sipsolutions.net, jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us, vyasevich@gmail.com, nhorman@tuxdriver.com, marcelo.leitner@gmail.com, trond.myklebust@hammerspace.com, anna.schumaker@netapp.com, steffen.klassert@secunet.com, herbert@gondor.apana.org.au
-Cc: netdev@vger.kernel.org, v9fs-developer@lists.sourceforge.net, linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, linux-wireless@vger.kernel.org, linux-rdma@vger.kernel.org, linux-sctp@vger.kernel.org, linux-nfs@vger.kernel.org, linux-x25@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, Stephen Hemminger <stephen@networkplumber.org>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH 4/7] x86,tlb: make lazy TLB mode lazier
+Date: Tue, 24 Jul 2018 17:33:30 +0100
+Message-ID: <20180724163330.GC25888@arm.com>
+References: <20180716190337.26133-1-riel@surriel.com>
+ <20180716190337.26133-5-riel@surriel.com>
+ <CALCETrUMntRe_LYX5wj9YD4xZ+84QExK+ZNb3yxEBDEKa7nePQ@mail.gmail.com>
+ <B6566AA4-2E8A-43BD-A224-0F6D4747B8FB@surriel.com>
+ <F93A3335-4830-4E36-9179-D0FA5D640C8A@amacapital.net>
+ <B976CC13-D014-433A-83DE-F8DF9AB4F421@surriel.com>
+ <CALCETrWDiMhgiR3f8n0jdWcW31EDJ+Waq0wh5sMDutfigANGnA@mail.gmail.com>
+ <CALCETrXLMsSBChDvrms-omwYV4LHT30GenDjbnD-+LTg55yPow@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CALCETrXLMsSBChDvrms-omwYV4LHT30GenDjbnD-+LTg55yPow@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Andy Lutomirski <luto@kernel.org>
+Cc: Rik van Riel <riel@surriel.com>, Peter Zijlstra <peterz@infradead.org>, Vitaly Kuznetsov <vkuznets@redhat.com>, Juergen Gross <jgross@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-arch <linux-arch@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, linux-s390@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>, Mike Galbraith <efault@gmx.de>, kernel-team <kernel-team@fb.com>, Ingo Molnar <mingo@kernel.org>, Dave Hansen <dave.hansen@intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
----
- net/rds/Kconfig          | 1 -
- net/rds/Makefile         | 1 -
- net/rds/ib.c             | 1 -
- net/rds/message.c        | 1 -
- net/rds/rdma_transport.c | 1 -
- net/rds/tcp.c            | 1 -
- net/rds/transport.c      | 1 -
- 7 files changed, 7 deletions(-)
+Hi Andy,
 
-diff --git a/net/rds/Kconfig b/net/rds/Kconfig
-index bffde4b46c5d..41f75563b54b 100644
---- a/net/rds/Kconfig
-+++ b/net/rds/Kconfig
-@@ -24,4 +24,3 @@ config RDS_DEBUG
-         bool "RDS debugging messages"
- 	depends on RDS
-         default n
--
-diff --git a/net/rds/Makefile b/net/rds/Makefile
-index b5d568bd479c..e647f9de104a 100644
---- a/net/rds/Makefile
-+++ b/net/rds/Makefile
-@@ -15,4 +15,3 @@ rds_tcp-y :=		tcp.o tcp_connect.o tcp_listen.o tcp_recv.o \
- 			tcp_send.o tcp_stats.o
- 
- ccflags-$(CONFIG_RDS_DEBUG)	:=	-DRDS_DEBUG
--
-diff --git a/net/rds/ib.c b/net/rds/ib.c
-index 63d95ea7cdff..a4245c42d43b 100644
---- a/net/rds/ib.c
-+++ b/net/rds/ib.c
-@@ -568,4 +568,3 @@ int rds_ib_init(void)
- }
- 
- MODULE_LICENSE("GPL");
--
-diff --git a/net/rds/message.c b/net/rds/message.c
-index a35f76971984..4b00b1152a5f 100644
---- a/net/rds/message.c
-+++ b/net/rds/message.c
-@@ -514,4 +514,3 @@ void rds_message_unmapped(struct rds_message *rm)
- 	wake_up_interruptible(&rm->m_flush_wait);
- }
- EXPORT_SYMBOL_GPL(rds_message_unmapped);
--
-diff --git a/net/rds/rdma_transport.c b/net/rds/rdma_transport.c
-index bd67e55354f4..ad78929036ef 100644
---- a/net/rds/rdma_transport.c
-+++ b/net/rds/rdma_transport.c
-@@ -281,4 +281,3 @@ module_exit(rds_rdma_exit);
- MODULE_AUTHOR("Oracle Corporation <rds-devel@oss.oracle.com>");
- MODULE_DESCRIPTION("RDS: IB transport");
- MODULE_LICENSE("Dual BSD/GPL");
--
-diff --git a/net/rds/tcp.c b/net/rds/tcp.c
-index 7028d6e51947..f23925af0b8d 100644
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -717,4 +717,3 @@ module_init(rds_tcp_init);
- MODULE_AUTHOR("Oracle Corporation <rds-devel@oss.oracle.com>");
- MODULE_DESCRIPTION("RDS: TCP transport");
- MODULE_LICENSE("Dual BSD/GPL");
--
-diff --git a/net/rds/transport.c b/net/rds/transport.c
-index c9788dbce441..46f709a4b577 100644
---- a/net/rds/transport.c
-+++ b/net/rds/transport.c
-@@ -159,4 +159,3 @@ unsigned int rds_trans_stats_info_copy(struct rds_info_iterator *iter,
- 
- 	return total;
- }
--
--- 
-2.18.0
+Sorry, I missed the arm64 question at the end of this...
+
+On Thu, Jul 19, 2018 at 10:04:09AM -0700, Andy Lutomirski wrote:
+> On Thu, Jul 19, 2018 at 9:45 AM, Andy Lutomirski <luto@amacapital.net> wrote:
+> > [I added PeterZ and Vitaly -- can you see any way in which this would
+> > break something obscure?  I don't.]
+> >
+> > On Thu, Jul 19, 2018 at 7:14 AM, Rik van Riel <riel@surriel.com> wrote:
+> >> I guess we can skip both switch_ldt and load_mm_cr4 if real_prev equals
+> >> next?
+> >
+> > Yes, AFAICS.
+> >
+> >>
+> >> On to the lazy TLB mm_struct refcounting stuff :)
+> >>
+> >>>
+> >>> Which refcount?  mm_users shouldn’t be hot, so I assume you’re talking about
+> >>> mm_count. My suggestion is to get rid of mm_count instead of trying to
+> >>> optimize it.
+> >>
+> >>
+> >> Do you have any suggestions on how? :)
+> >>
+> >> The TLB shootdown sent at __exit_mm time does not get rid of the
+> >> kernelthread->active_mm
+> >> pointer pointing at the mm that is exiting.
+> >>
+> >
+> > Ah, but that's conceptually very easy to fix.  Add a #define like
+> > ARCH_NO_TASK_ACTIVE_MM.  Then just get rid of active_mm if that
+> > #define is set.  After some grepping, there are very few users.  The
+> > only nontrivial ones are the ones in kernel/ and mm/mmu_context.c that
+> > are involved in the rather complicated dance of refcounting active_mm.
+> > If that field goes away, it doesn't need to be refcounted.  Instead, I
+> > think the refcounting can get replaced with something like:
+> >
+> > /*
+> >  * Release any arch-internal references to mm.  Only called when
+> > mm_users is zero
+> >  * and all tasks using mm have either been switch_mm()'d away or have had
+> >  * enter_lazy_tlb() called.
+> >  */
+> > extern void arch_shoot_down_dead_mm(struct mm_struct *mm);
+> >
+> > which the kernel calls in __mmput() after tearing down all the page
+> > tables.  The body can be something like:
+> >
+> > if (WARN_ON(cpumask_any_but(mm_cpumask(...), ...)) {
+> >   /* send an IPI.  Maybe just call tlb_flush_remove_tables() */
+> > }
+> >
+> > (You'll also have to fix up the highly questionable users in
+> > arch/x86/platform/efi/efi_64.c, but that's easy.)
+> >
+> > Does all that make sense?  Basically, as I understand it, the
+> > expensive atomic ops you're seeing are all pointless because they're
+> > enabling an optimization that hasn't actually worked for a long time,
+> > if ever.
+> 
+> Hmm.  Xen PV has a big hack in xen_exit_mmap(), which is called from
+> arch_exit_mmap(), I think.  It's a heavier weight version of more or
+> less the same thing that arch_shoot_down_dead_mm() would be, except
+> that it happens before exit_mmap().  But maybe Xen actually has the
+> right idea.  In other words, rather doing the big pagetable free in
+> exit_mmap() while there may still be other CPUs pointing at the page
+> tables, the other order might make more sense.  So maybe, if
+> ARCH_NO_TASK_ACTIVE_MM is set, arch_exit_mmap() should be responsible
+> for getting rid of all secret arch references to the mm.
+> 
+> Hmm.  ARCH_FREE_UNUSED_MM_IMMEDIATELY might be a better name.
+> 
+> I added some more arch maintainers.  The idea here is that, on x86 at
+> least, task->active_mm and all its refcounting is pure overhead.  When
+> a process exits, __mmput() gets called, but the core kernel has a
+> longstanding "optimization" in which other tasks (kernel threads and
+> idle tasks) may have ->active_mm pointing at this mm.  This is nasty,
+> complicated, and hurts performance on large systems, since it requires
+> extra atomic operations whenever a CPU switches between real users
+> threads and idle/kernel threads.
+> 
+> It's also almost completely worthless on x86 at least, since __mmput()
+> frees pagetables, and that operation *already* forces a remote TLB
+> flush, so we might as well zap all the active_mm references at the
+> same time.
+> 
+> But arm64 has real HW remote flushes.  Does arm64 actually benefit
+> from the active_mm optimization?  What happens on arm64 when a process
+> exits?  How about s390?  I suspect that x390 has rather larger systems
+> than arm64, where the cost of the reference counting can be much
+> higher.
+
+IIRC, the TLB invalidation on task exit has the fullmm field set in the
+mmu_gather structure, so we don't actually do any TLB invalidation at all.
+Instead, we just don't re-allocate the ASID and invalidate the whole TLB
+when we run out of ASIDs (they're 16-bit on most Armv8 CPUs).
+
+Does that answer your question?
+
+Will
