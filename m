@@ -1,218 +1,228 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 26 Jul 2018 19:54:14 +0000
-Subject: [PATCH v7 07/22] KVM: s390: refactor crypto initialization
-Message-Id: <20180726195429.31960-8-borntraeger@de.ibm.com>
+Date: Thu, 26 Jul 2018 19:54:19 +0000
+Subject: [PATCH v7 12/22] s390: vfio-ap: sysfs interfaces to configure control domains
+Message-Id: <20180726195429.31960-13-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-This patch refactors the code that initializes and sets up the
-crypto configuration for a guest. The following changes are
-implemented via this patch:
+Provides the sysfs interfaces for assigning AP control domains
+to and unassigning AP control domains from a mediated matrix device.
 
-1. Prior to the introduction of AP device virtualization, it
-   was not necessary to provide guest access to the CRYCB
-   unless the MSA extension 3 (MSAX3) facility was installed
-   on the host system. With the introduction of AP device
-   virtualization, the CRYCB must be made accessible to the
-   guest as long as the AP instructions are installed on the
-   host.
+The IDs of the AP control domains assigned to the mediated matrix
+device are stored in an AP domain mask (ADM). The bits in the ADM,
+from most significant to least significant bit, correspond to
+AP domain numbers 0 to 255. When a control domain is assigned,
+the bit corresponding its domain ID will be set in the ADM.
+Likewise, when a domain is unassigned, the bit corresponding
+to its domain ID will be cleared in the ADM.
 
-2. Introduces a flag indicating AP instructions executed on
-   the guest shall be interpreted by the firmware. It is
-   initialized to indicate AP instructions are to be
-   to be interpreted and is used to set the SIE bit for
-   each vcpu during vcpu setup.
+The relevant sysfs structures are:
+
+/sys/devices/vfio_ap
+... [matrix]
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ [devices]
+...............[$uuid]
+.................. assign_control_domain
+.................. unassign_control_domain
+
+To assign a control domain to the $uuid mediated matrix device's
+ADM, write its domain number to the assign_control_domain file.
+To unassign a domain, write its domain number to the
+unassign_control_domain file. The domain number is specified
+using conventional semantics: If it begins with 0x the number
+will be parsed as a hexadecimal (case insensitive) number;
+if it begins with 0, it is parsed as an octal number;
+otherwise, it will be parsed as a decimal number.
+
+For example, to assign control domain 173 (0xad) to the mediated
+matrix device $uuid:
+
+	echo 173 > assign_control_domain
+
+	or
+
+	echo 0255 > assign_control_domain
+
+	or
+
+	echo 0xad > assign_control_domain
+
+To unassign control domain 173 (0xad):
+
+	echo 173 > unassign_control_domain
+
+	or
+
+	echo 0255 > unassign_control_domain
+
+	or
+
+	echo 0xad > unassign_control_domain
+
+The assignment will be rejected if the APQI exceeds the maximum
+value for an AP domain:
+  * If the AP Extended Addressing (APXA) facility is installed,
+    the max value is 255
+  * Else the max value is 15
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
+Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  3 ++
- arch/s390/include/uapi/asm/kvm.h |  1 +
- arch/s390/kvm/kvm-s390.c         | 88 +++++++++++++++++---------------
- 3 files changed, 50 insertions(+), 42 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 129 ++++++++++++++++++++++++++++++
+ 1 file changed, 129 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index a2188e309bd6..d44e0d57e96a 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -186,6 +186,7 @@ struct kvm_s390_sie_block {
- #define ECA_AIV		0x00200000
- #define ECA_VX		0x00020000
- #define ECA_PROTEXCI	0x00002000
-+#define ECA_APIE	0x00000008
- #define ECA_SII		0x00000001
- 	__u32	eca;			/* 0x004c */
- #define ICPT_INST	0x04
-@@ -255,6 +256,7 @@ struct kvm_s390_sie_block {
- 	__u8	reservede4[4];		/* 0x00e4 */
- 	__u64	tecmc;			/* 0x00e8 */
- 	__u8	reservedf0[12];		/* 0x00f0 */
-+#define CRYCB_FORMAT_MASK 0x00000003
- #define CRYCB_FORMAT1 0x00000001
- #define CRYCB_FORMAT2 0x00000003
- 	__u32	crycbd;			/* 0x00fc */
-@@ -713,6 +715,7 @@ struct kvm_s390_crypto {
- 	__u32 crycbd;
- 	__u8 aes_kw;
- 	__u8 dea_kw;
-+	__u8 apie;
- };
- 
- #define APCB0_MASK_SIZE 1
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 4cdaa55fabfe..a580decc3a48 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
- #define KVM_S390_VM_CPU_FEAT_PFMFI	11
- #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
- #define KVM_S390_VM_CPU_FEAT_KSS	13
-+#define KVM_S390_VM_CPU_FEAT_AP		14
- struct kvm_s390_vm_cpu_feat {
- 	__u64 feat[16];
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3b7a5151b6a5..ef0db58f5ca8 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -40,6 +40,7 @@
- #include <asm/sclp.h>
- #include <asm/cpacf.h>
- #include <asm/timex.h>
-+#include <asm/ap.h>
- #include "kvm-s390.h"
- #include "gaccess.h"
- 
-@@ -1878,49 +1879,37 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 	return r;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 049256d785e2..fafe6ec7fec7 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -277,11 +277,140 @@ static ssize_t unassign_domain_store(struct device *dev,
  }
+ DEVICE_ATTR_WO(unassign_domain);
  
--static int kvm_s390_query_ap_config(u8 *config)
--{
--	u32 fcn_code = 0x04000000UL;
--	u32 cc = 0;
--
--	memset(config, 0, 128);
--	asm volatile(
--		"lgr 0,%1\n"
--		"lgr 2,%2\n"
--		".long 0xb2af0000\n"		/* PQAP(QCI) */
--		"0: ipm %0\n"
--		"srl %0,28\n"
--		"1:\n"
--		EX_TABLE(0b, 1b)
--		: "+r" (cc)
--		: "r" (fcn_code), "r" (config)
--		: "cc", "0", "2", "memory"
--	);
--
--	return cc;
--}
--
- static int kvm_s390_apxa_installed(void)
- {
--	u8 config[128];
--	int cc;
-+	struct ap_config_info info;
- 
--	if (test_facility(12)) {
--		cc = kvm_s390_query_ap_config(config);
--
--		if (cc)
--			pr_err("PQAP(QCI) failed with cc=%d", cc);
--		else
--			return config[0] & 0x40;
-+	if (ap_instructions_available() == 0) {
-+		if (ap_qci(&info) == 0)
-+			return info.apxa;
- 	}
- 
- 	return 0;
- }
- 
-+/*
-+ * The format of the crypto control block (CRYCB) is specified in the 3 low
-+ * order bits of the CRYCB designation (CRYCBD) field as follows:
-+ * Format 0: Neither the message security assist extension 3 (MSAX3) nor the
-+ *	     AP extended addressing (APXA) facility are installed.
-+ * Format 1: The APXA facility is not installed but the MSAX3 facility is.
-+ * Format 2: Both the APXA and MSAX3 facilities are installed
++
++/**
++ * assign_control_domain_store
++ *
++ * @dev: the matrix device
++ * @attr: a mediated matrix device attribute
++ * @buf: a buffer containing the adapter ID (APID) to be assigned
++ * @count: the number of bytes in @buf
++ *
++ * Parses the domain ID from @buf and assigns it to the mediated matrix device.
++ *
++ * Returns the number of bytes processed if the domain ID is valid; otherwise
++ * returns an error.
 + */
- static void kvm_s390_set_crycb_format(struct kvm *kvm)
- {
- 	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
- 
-+	/* Clear the CRYCB format bits - i.e., set format 0 by default */
-+	kvm->arch.crypto.crycbd &= ~(CRYCB_FORMAT_MASK);
++static ssize_t assign_control_domain_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	int ret;
++	unsigned long id;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long maxid = matrix_mdev->matrix.adm_max;
 +
-+	/* Check whether MSAX3 is installed */
-+	if (!test_kvm_facility(kvm, 76))
-+		return;
++	ret = kstrtoul(buf, 0, &id);
++	if (ret || (id > maxid)) {
++		pr_warn("%s: %s: control domain id '%s' not a value from 0 to %02lu(%#04lx)\n",
++		       VFIO_AP_MODULE_NAME, __func__, buf, maxid, maxid);
 +
- 	if (kvm_s390_apxa_installed())
- 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
- 	else
-@@ -1938,11 +1927,13 @@ static u64 kvm_s390_get_initial_cpuid(void)
- 
- static void kvm_s390_crypto_init(struct kvm *kvm)
- {
--	if (!test_kvm_facility(kvm, 76))
--		return;
--
- 	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
- 	kvm_s390_set_crycb_format(kvm);
-+	/* Default setting indicating SIE shall interpret AP instructions */
-+	kvm->arch.crypto.apie = 1;
++		if (!ret)
++			ret = -EINVAL;
 +
-+	if (!test_kvm_facility(kvm, 76))
-+		return;
- 
- 	/* Enable AES/DEA protected key functions by default */
- 	kvm->arch.crypto.aes_kw = 1;
-@@ -2471,17 +2462,30 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- 
- static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
- {
--	if (!test_kvm_facility(vcpu->kvm, 76))
-+	/*
-+	 * If neither the AP instructions nor the MSAX3 facility are installed
-+	 * on the host, then there is no need for a CRYCB in SIE because the
-+	 * they will not be installed on the guest either.
-+	 */
-+	if (ap_instructions_available() && !test_facility(76))
- 		return;
- 
--	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
--
--	if (vcpu->kvm->arch.crypto.aes_kw)
--		vcpu->arch.sie_block->ecb3 |= ECB3_AES;
--	if (vcpu->kvm->arch.crypto.dea_kw)
--		vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
--
- 	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
-+
-+	vcpu->arch.sie_block->eca &= ~ECA_APIE;
-+	if (vcpu->kvm->arch.crypto.apie &&
-+	    test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
-+		vcpu->arch.sie_block->eca |= ECA_APIE;
-+
-+	/* If MSAX3 is installed on the guest, set up protected key support */
-+	if (test_kvm_facility(vcpu->kvm, 76)) {
-+		vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
-+
-+		if (vcpu->kvm->arch.crypto.aes_kw)
-+			vcpu->arch.sie_block->ecb3 |= ECB3_AES;
-+		if (vcpu->kvm->arch.crypto.dea_kw)
-+			vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
++		return ret;
 +	}
- }
++
++	/* Set the bit in the ADM (bitmask) corresponding to the AP control
++	 * domain number (id). The bits in the mask, from most significant to
++	 * least significant, correspond to IDs 0 up to the one less than the
++	 * number of control domains that can be assigned.
++	 */
++	mutex_lock(&matrix_dev.lock);
++	set_bit_inv(id, matrix_mdev->matrix.adm);
++	ret = count;
++
++	mutex_unlock(&matrix_dev.lock);
++
++	return ret;
++}
++DEVICE_ATTR_WO(assign_control_domain);
++
++/**
++ * unassign_control_domain_store
++ *
++ * @dev: the matrix device
++ * @attr: a mediated matrix device attribute
++ * @buf: a buffer containing the adapter ID (APID) to be assigned
++ * @count: the number of bytes in @buf
++ *
++ * Parses the domain ID from @buf and unassigns it from the mediated matrix
++ * device.
++ *
++ * Returns the number of bytes processed if the domain ID is valid; otherwise
++ * returns an error.
++ */
++static ssize_t unassign_control_domain_store(struct device *dev,
++					     struct device_attribute *attr,
++					     const char *buf, size_t count)
++{
++	int ret;
++	unsigned long domid;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
++
++	ret = kstrtoul(buf, 0, &domid);
++	if (ret || (domid > max_domid)) {
++		pr_warn("%s: %s: control domain id '%s' not a value from 0 to %02lu(%#04lx)\n",
++		       VFIO_AP_MODULE_NAME, __func__, buf,
++		       max_domid, max_domid);
++		ret = -EINVAL;
++		return ret;
++	}
++
++	mutex_lock(&matrix_dev.lock);
++	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
++		pr_warn("%s: %s: control domain id %02lu(%#04lx) is not assigned\n",
++		       VFIO_AP_MODULE_NAME, __func__, domid, domid);
++
++		ret = -ENODEV;
++		goto done;
++	}
++
++	clear_bit_inv(domid, matrix_mdev->matrix.adm);
++	ret = count;
++
++done:
++	mutex_unlock(&matrix_dev.lock);
++
++	return ret;
++}
++DEVICE_ATTR_WO(unassign_control_domain);
++
++static ssize_t control_domains_show(struct device *dev,
++				    struct device_attribute *dev_attr,
++				    char *buf)
++{
++	unsigned long id;
++	int nchars = 0;
++	int n;
++	char *bufpos = buf;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long max_domid = matrix_mdev->matrix.adm_max;
++
++	mutex_lock(&matrix_dev.lock);
++	for_each_set_bit_inv(id, matrix_mdev->matrix.adm, max_domid + 1) {
++		n = sprintf(bufpos, "%04lx\n", id);
++		bufpos += n;
++		nchars += n;
++	}
++	mutex_unlock(&matrix_dev.lock);
++
++	return nchars;
++}
++DEVICE_ATTR_RO(control_domains);
++
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+ 	&dev_attr_assign_domain.attr,
+ 	&dev_attr_unassign_domain.attr,
++	&dev_attr_assign_control_domain.attr,
++	&dev_attr_unassign_control_domain.attr,
++	&dev_attr_control_domains.attr,
+ 	NULL,
+ };
  
- void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
 -- 
 2.17.0
