@@ -1,69 +1,101 @@
-From: Janosch Frank <frankja@linux.ibm.com>
-Date: Fri, 27 Jul 2018 11:53:13 +0000
-Subject: Re: [PATCH] s390: mm: Introduce pmd_map_alloc
-Message-Id: <96d080ff-74bc-5c02-95a4-0cddba7fd854@linux.ibm.com>
-In-Reply-To: <036a3afc-6342-24ed-f5b7-31ce111f34b2@redhat.com>
-References: <036a3afc-6342-24ed-f5b7-31ce111f34b2@redhat.com>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--ptzXfQAJX4IY3IvX6UjPnJAWJ46nkmWJM"
-To: linux-s390@vger.kernel.org
+From: Halil Pasic <pasic@linux.ibm.com>
+Date: Fri, 27 Jul 2018 13:37:26 +0000
+Subject: Re: [PATCH v7 08/22] s390: vfio-ap: base implementation of VFIO AP device driver
+Message-Id: <d95a386c-9c47-64ac-41d4-933240e95a05@linux.ibm.com>
+In-Reply-To: <20180727112101.47e41c1d.cohuck@redhat.com>
+References: <20180727112101.47e41c1d.cohuck@redhat.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ptzXfQAJX4IY3IvX6UjPnJAWJ46nkmWJM
-Content-Type: multipart/mixed; boundary="XELgl7iKGqstyCO0fhTUDjaDzoLgxIa7j";
- protected-headers="v1"
-From: Janosch Frank <frankja@linux.ibm.com>
-To: schwidefsky@de.ibm.com
-Cc: borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com
-Message-ID: <96d080ff-74bc-5c02-95a4-0cddba7fd854@linux.ibm.com>
-Subject: Re: [PATCH] s390: mm: Introduce pmd_map_alloc
-References: <20180727105551.72804e05@mschwideX1>
- <20180727093737.136714-1-frankja@linux.ibm.com>
-In-Reply-To: <20180727093737.136714-1-frankja@linux.ibm.com>
-
---XELgl7iKGqstyCO0fhTUDjaDzoLgxIa7j
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-On 27.07.2018 11:37, Janosch Frank wrote:
-> I'd squash this into the emulation patch.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-And I just removed the mm/hugetlb.h includes from pgtable.c (with v2 of
-this patch) and gmap.c (from the dirty sync patch).
-
-I just pushed hlp_vsie on korg, not gonna resend.
-
-@Martin: Getting a rev/ack-by for the skey emulation and faulting would
-be nice. I'd push this to devel mid of next week.
 
 
---XELgl7iKGqstyCO0fhTUDjaDzoLgxIa7j--
+On 07/27/2018 11:21 AM, Cornelia Huck wrote:
+> On Thu, 26 Jul 2018 21:54:15 +0200
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> From: Tony Krowiak <akrowiak@linux.ibm.com>
+>>
+>> Introduces a new AP device driver. This device driver
+>> is built on the VFIO mediated device framework. The framework
+>> provides sysfs interfaces that facilitate passthrough
+>> access by guests to devices installed on the linux host.
+>>
+>> The VFIO AP device driver will serve two purposes:
+>>
+>> 1. Provide the interfaces to reserve AP devices for exclusive
+>>     use by KVM guests. This is accomplished by unbinding the
+>>     devices to be reserved for guest usage from the default AP
+>>     device driver and binding them to the VFIO AP device driver.
+>>
+>> 2. Implements the functions, callbacks and sysfs attribute
+>>     interfaces required to create one or more VFIO mediated
+>>     devices each of which will be used to configure the AP
+>>     matrix for a guest and serve as a file descriptor
+>>     for facilitating communication between QEMU and the
+>>     VFIO AP device driver.
+>>
+>> When the VFIO AP device driver is initialized:
+>>
+>> * It registers with the AP bus for control of type 10 (CEX4
+>>    and newer) AP queue devices. This limitation was imposed
+>>    due to:
+>>
+>>    1. A desire to keep the code as simple as possible;
+>>
+>>    2. Some older models are no longer supported by the kernel
+>>       and others are getting close to end of service.
+>>
+>>    The probe and remove callbacks will be provided to support
+>>    the binding/unbinding of AP queue devices to/from the VFIO
+>>    AP device driver.
+>>
+>> * Creates a virtual misc device, /sys/devices/virtual/misc/vfio_ap,
+>>    device to serve as the parent of the mediated devices created, one
+>>    for each guest, and to hold the APQNs of the AP devices bound to
+>>    the VFIO AP device driver.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>> Tested-by: Michael Mueller <mimu@linux.ibm.com>
+>> Tested-by: Farhan Ali <alifm@linux.ibm.com>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>   MAINTAINERS                           |  10 +++
+>>   arch/s390/Kconfig                     |  11 +++
+>>   drivers/s390/crypto/Makefile          |   4 +
+>>   drivers/s390/crypto/vfio_ap_drv.c     | 112 ++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_private.h |  30 +++++++
+>>   include/uapi/linux/vfio.h             |   2 +
+>>   6 files changed, 169 insertions(+)
+>>   create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
+>>   create mode 100644 drivers/s390/crypto/vfio_ap_private.h
+>>
+> 
+>> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+>> index 1aa7b82e8169..f378b9802d8b 100644
+>> --- a/include/uapi/linux/vfio.h
+>> +++ b/include/uapi/linux/vfio.h
+>> @@ -200,6 +200,7 @@ struct vfio_device_info {
+>>   #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+>>   #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+>>   #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
+>> +#define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
 
---ptzXfQAJX4IY3IvX6UjPnJAWJ46nkmWJM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+And this one is also unused for now I guess.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+>>   	__u32	num_regions;	/* Max region index + 1 */
+>>   	__u32	num_irqs;	/* Max IRQ index + 1 */
+>>   };
+>> @@ -215,6 +216,7 @@ struct vfio_device_info {
+>>   #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
+>>   #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
+>>   #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
+>> +#define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
+>>   
+>>   /**
+>>    * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
+> 
+> Should this hunk go into the next patch?
+> 
 
-iQIcBAEBCAAGBQJbWwewAAoJEBcO/8Q8ZEV50sMP/3RnsB8A7ai8BUHeu94QabyN
-sQO2HIyxkdqBkgVNDWlc6Xo7YpH2tQ5hgY6Ahgdmt3xFw0BMJBss4Q4y+ybnepnY
-s43CYKUNfMqpmIAB3/4hW1HLnY9/rCn03sVR1Bd0L+2LFWgqq7Q/Szg/3ofS6EYj
-jn0qz2ILKrSro02ayjWQ9jqnLCXuvPMfTDv54n99D3NmHlYbqlICg4rN9khwobUw
-Gi66ufDTN5kvbUmry1O0DS47Zciu1XoqF0Jni3a04m5UfSATbQRYi8z15ulFRQV+
-JHV9C2Fo2f4hTzhG0ZQ+XCKNC1ejyxm7e3WnBfIey3EuXaBTSDr8+TPnD+3SKm2W
-JtvKyRQNAVqa6eMY6ilfnjqn8ZleU6lDd0POr9IOXZCiznApywpIqKLefH0U7yXf
-OQqeHrYJTuYuhjoT1Qfp3qOx8whvS3WQtt0uieQjR7WWtyIPfZQ4pRr3DI06M7/E
-Kb0QRis/t/vJrCOA/Cig9ZvZMJBKvLGBRw3+MpKgWaPxFpfkdX+/rqgmIplAyN17
-evfJ2rO7hKFpZkHwE+QOuTjcgTDOjw/MraMHfyNICoYcxacJsg27qXi0HRdnQqG8
-57GqP9XQJGZgCwaHQ1RxEn5ynTQdJAQbE0HhCCshrsneIMRaJo4HXM1f8x46ogbb
-d+ESCH2BY3r997xz0KCf
-=sqJY
------END PGP SIGNATURE-----
-
---ptzXfQAJX4IY3IvX6UjPnJAWJ46nkmWJM--
+Yes.
