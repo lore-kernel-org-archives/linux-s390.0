@@ -1,101 +1,103 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Date: Fri, 27 Jul 2018 13:37:26 +0000
-Subject: Re: [PATCH v7 08/22] s390: vfio-ap: base implementation of VFIO AP device driver
-Message-Id: <d95a386c-9c47-64ac-41d4-933240e95a05@linux.ibm.com>
-In-Reply-To: <20180727112101.47e41c1d.cohuck@redhat.com>
-References: <20180727112101.47e41c1d.cohuck@redhat.com>
+From: Thomas Huth <thuth@redhat.com>
+Date: Fri, 27 Jul 2018 15:23:22 +0000
+Subject: Re: [PATCH v7 16/22] s390: vfio-ap: implement mediated device open callback
+Message-Id: <c54b9ab8-720e-e277-aee1-7d73df07c08a@redhat.com>
+In-Reply-To: <20180726195429.31960-17-borntraeger@de.ibm.com>
+References: <20180726195429.31960-17-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On 07/26/2018 09:54 PM, Christian Borntraeger wrote:
+[...]
+> +static void kvm_ap_merge_bitmasks(unsigned long *dst, unsigned long *mask1,
+> +				  unsigned long *mask2, unsigned long nbits)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < BITS_TO_LONGS(nbits); i++)
+> +		dst[i] = mask1[i] | mask2[i];
+> +}
+
+Could you use the standard bitmap_or() function instead of implementing
+your own version?
+
+> +static void vfio_ap_mdev_copy_masks(struct ap_matrix_mdev *matrix_mdev,
+> +				    struct kvm_s390_crypto_cb *crycb)
+> +{
+> +	int nbytes;
+> +	unsigned long *apm, *aqm, *adm;
+> +
+> +	switch (matrix_mdev->kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
+> +	case CRYCB_FORMAT2:
+> +		apm = (unsigned long *)crycb->apcb1.apm;
+> +		aqm = (unsigned long *)crycb->apcb1.aqm;
+> +		adm = (unsigned long *)crycb->apcb1.adm;
+> +		break;
+> +	case CRYCB_FORMAT1:
+> +	case CRYCB_FORMAT0:
+> +	default:
+> +		apm = (unsigned long *)crycb->apcb0.apm;
+> +		aqm = (unsigned long *)crycb->apcb0.aqm;
+> +		adm = (unsigned long *)crycb->apcb0.adm;
+> +		break;
+> +	}
+> +
+> +	nbytes = DIV_ROUND_UP(matrix_mdev->matrix.apm_max + 1, BITS_PER_BYTE);
+> +	memcpy(apm, matrix_mdev->matrix.apm, nbytes);
+> +	nbytes = DIV_ROUND_UP(matrix_mdev->matrix.aqm_max + 1, BITS_PER_BYTE);
+> +	memcpy(aqm, matrix_mdev->matrix.aqm, nbytes);
+> +	kvm_ap_merge_bitmasks(adm, aqm, adm, matrix_mdev->matrix.adm_max + 1);
+> +}
+> +
+> +static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+> +				       unsigned long action, void *data)
+> +{
+> +	int ret;
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +	struct kvm_s390_crypto_cb *crycb;
+> +
+> +	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
+> +		matrix_mdev = container_of(nb, struct ap_matrix_mdev,
+> +					   group_notifier);
+> +		matrix_mdev->kvm = data;
+> +		crycb  = matrix_mdev->kvm->arch.crypto.crycb;
+> +
+> +		ret = kvm_ap_validate_crypto_setup(matrix_mdev->kvm);
+> +		if (ret)
+> +			return ret;
+> +
+> +		/* NOTE: Happens before any vcpu is running (no hotplug). */
+> +		vfio_ap_mdev_copy_masks(matrix_mdev, crycb);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	return NOTIFY_OK;
+> +}
+> +
+> +/**
+> + * vfio_ap_mdev_open_once
+> + *
+> + * @matrix_mdev: a mediated matrix device
+> + *
+> + * Return 0 if no other mediated matrix device has been opened for the
+> + * KVM guest assigned to @matrix_mdev; otherwise, returns an error.
+> + */
+> +static int vfio_ap_mdev_open_once(struct ap_matrix_mdev *matrix_mdev)
+> +{
+> +	int ret = 0;
+> +	struct ap_matrix_mdev *lstdev;
+> +
+> +	list_for_each_entry(lstdev, &matrix_dev.mdev_list, list) {
+> +		if ((lstdev->kvm == matrix_mdev->kvm) &&
+> +		    (lstdev != matrix_mdev)) {
+
+Too much parentheses again for my taste ;-)
+
+> +			ret = -EPERM;
+> +			break;
+> +		}
+> +	}
 
 
-On 07/27/2018 11:21 AM, Cornelia Huck wrote:
-> On Thu, 26 Jul 2018 21:54:15 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> 
->> From: Tony Krowiak <akrowiak@linux.ibm.com>
->>
->> Introduces a new AP device driver. This device driver
->> is built on the VFIO mediated device framework. The framework
->> provides sysfs interfaces that facilitate passthrough
->> access by guests to devices installed on the linux host.
->>
->> The VFIO AP device driver will serve two purposes:
->>
->> 1. Provide the interfaces to reserve AP devices for exclusive
->>     use by KVM guests. This is accomplished by unbinding the
->>     devices to be reserved for guest usage from the default AP
->>     device driver and binding them to the VFIO AP device driver.
->>
->> 2. Implements the functions, callbacks and sysfs attribute
->>     interfaces required to create one or more VFIO mediated
->>     devices each of which will be used to configure the AP
->>     matrix for a guest and serve as a file descriptor
->>     for facilitating communication between QEMU and the
->>     VFIO AP device driver.
->>
->> When the VFIO AP device driver is initialized:
->>
->> * It registers with the AP bus for control of type 10 (CEX4
->>    and newer) AP queue devices. This limitation was imposed
->>    due to:
->>
->>    1. A desire to keep the code as simple as possible;
->>
->>    2. Some older models are no longer supported by the kernel
->>       and others are getting close to end of service.
->>
->>    The probe and remove callbacks will be provided to support
->>    the binding/unbinding of AP queue devices to/from the VFIO
->>    AP device driver.
->>
->> * Creates a virtual misc device, /sys/devices/virtual/misc/vfio_ap,
->>    device to serve as the parent of the mediated devices created, one
->>    for each guest, and to hold the APQNs of the AP devices bound to
->>    the VFIO AP device driver.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
->> Tested-by: Michael Mueller <mimu@linux.ibm.com>
->> Tested-by: Farhan Ali <alifm@linux.ibm.com>
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->>   MAINTAINERS                           |  10 +++
->>   arch/s390/Kconfig                     |  11 +++
->>   drivers/s390/crypto/Makefile          |   4 +
->>   drivers/s390/crypto/vfio_ap_drv.c     | 112 ++++++++++++++++++++++++++
->>   drivers/s390/crypto/vfio_ap_private.h |  30 +++++++
->>   include/uapi/linux/vfio.h             |   2 +
->>   6 files changed, 169 insertions(+)
->>   create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
->>   create mode 100644 drivers/s390/crypto/vfio_ap_private.h
->>
-> 
->> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
->> index 1aa7b82e8169..f378b9802d8b 100644
->> --- a/include/uapi/linux/vfio.h
->> +++ b/include/uapi/linux/vfio.h
->> @@ -200,6 +200,7 @@ struct vfio_device_info {
->>   #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
->>   #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
->>   #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
->> +#define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
-
-And this one is also unused for now I guess.
-
->>   	__u32	num_regions;	/* Max region index + 1 */
->>   	__u32	num_irqs;	/* Max IRQ index + 1 */
->>   };
->> @@ -215,6 +216,7 @@ struct vfio_device_info {
->>   #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
->>   #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
->>   #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
->> +#define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
->>   
->>   /**
->>    * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
-> 
-> Should this hunk go into the next patch?
-> 
-
-Yes.
+ Thomas
