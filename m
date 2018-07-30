@@ -1,50 +1,36 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Date: Mon, 30 Jul 2018 12:01:15 +0000
-Subject: Re: [PATCH v7 05/22] s390/zcrypt: AP bus support for alternate driver(s)
-Message-Id: <20180730140115.47306702.cohuck@redhat.com>
-In-Reply-To: <20180727095344.5f2049ca.cohuck@redhat.com>
-References: <20180727095344.5f2049ca.cohuck@redhat.com>
+Date: Mon, 30 Jul 2018 12:46:23 +0000
+Subject: Re: [PATCH v7 06/22] s390/zcrypt: Support for apmask and aqmask change on live system
+Message-Id: <20180730144623.254a076e.cohuck@redhat.com>
+In-Reply-To: <20180726195429.31960-7-borntraeger@de.ibm.com>
+References: <20180726195429.31960-7-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 27 Jul 2018 09:53:44 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+On Thu, 26 Jul 2018 21:54:13 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> On Thu, 26 Jul 2018 21:54:12 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
-> > For the first shot the two masks located in sysfs at
-> > /sys/bus/ap/apmask and /sys/bus/ap/aqmask are read-only and by default
-> > all APQNs belong to the ap bus and the default drivers:
-> > 
-> >   cat /sys/bus/ap/apmask
-> >   0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-> >   cat /sys/bus/ap/aqmask
-> >   0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-> > 
-> > The only way to change these masks is currently via kernel command
-> > line, for example like:
-> > 
-> >   ... ap.apmask=0xffff ap.aqmask=0x40
-> > 
-> > would give these two pools:
-> > 
-> >   default drivers pool:    adapter 0 - 15, domain 1
-> >   alternate drivers pool:  adapter 0 - 15, all but domain 1
-> > 			   adapter 16-255, all domains  
+> From: Harald Freudenberger <freude@linux.ibm.com>
 > 
-> This looks a bit non-intuitive to me. Is there an easy way to determine
-> the masks if all I know is the list of apqns I want to have in the
-> default respectively alternate drivers pool?
+> This patch enables modifications of the apmask and aqmask on a live
+> system. Until now these both masks are read-only on a live system. The
+> only way to change these masks was via kernel command line parameter.
+> 
+> This patch makes the sysfs attributes /sys/bus/ap/apmask and
+> /sys/bus/ap/aqmask writeable by root. With changing the mask(s) a
+> revision of the existing queue to driver bindings is done. So all
+> APQNs which are bound to the 'wrong' driver are reprobed via kernel
+> function device_reprobe() and thus the new correct driver will be
+> assigned with respect of the changed apmask and aqmask bits.
 
-What about an interface based on ranges and exclusion (like e.g.
-cio_ignore) instead?
+The expected input for those attributes needs to be documented.
 
-ap.apmask=0x0-0xf ap.aqmask=0x1 for the example above
+IIRC the vfio-ap driver does not support device removal in the first
+shot. So, what happens if an APQN is added to the reserved set? BUG()?
 
-and you could do something like ap.apmask=all,!0xf to specify all
-adapters but adapter 15.
-
-For the output, we can rely on tooling to get something that is easily
-readable, but requiring users to fiddle with bitmasks is error-prone,
-even if it is a good representation internally.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  drivers/s390/crypto/ap_bus.c | 153 ++++++++++++++++++++++++++++++++---
+>  1 file changed, 143 insertions(+), 10 deletions(-)
