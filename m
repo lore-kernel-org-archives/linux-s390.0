@@ -1,51 +1,59 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Mon, 30 Jul 2018 13:19:37 +0000
-Subject: Re: [PATCH v7 11/22] s390: vfio-ap: sysfs interfaces to configure domains
-Message-Id: <20180730151937.56e7c3f5.cohuck@redhat.com>
-In-Reply-To: <20180726195429.31960-12-borntraeger@de.ibm.com>
-References: <20180726195429.31960-12-borntraeger@de.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Date: Mon, 30 Jul 2018 14:18:21 +0000
+Subject: Re: [PATCH v7 09/22] s390: vfio-ap: register matrix device with VFIO mdev framework
+Message-Id: <f4d4e55c-5594-bc61-040c-bbe584df6e01@linux.ibm.com>
+In-Reply-To: <6a31797f-c8be-bb3d-c515-029ec52a56bf@linux.ibm.com>
+References: <6a31797f-c8be-bb3d-c515-029ec52a56bf@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 26 Jul 2018 21:54:18 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
 
-> +static ssize_t assign_domain_store(struct device *dev,
-> +				   struct device_attribute *attr,
-> +				   const char *buf, size_t count)
-> +{
-> +	int ret;
-> +	unsigned long apqi;
-> +	struct mdev_device *mdev = mdev_from_dev(dev);
-> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> +	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
-> +
-> +	ret = kstrtoul(buf, 0, &apqi);
-> +	if (ret || (apqi > max_apqi)) {
-> +		pr_warn("%s: %s: domain id '%s' not a value from 0 to %02lu(%#04lx)\n",
-> +		       VFIO_AP_MODULE_NAME, __func__, buf, max_apqi, max_apqi);
+On 07/30/2018 01:28 PM, Cornelia Huck wrote:
+> On Mon, 30 Jul 2018 13:24:24 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> On 30/07/2018 11:49, Cornelia Huck wrote:
+>>> On Fri, 27 Jul 2018 16:17:47 +0200
+>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>   
+>>>> On 07/26/2018 09:54 PM, Christian Borntraeger wrote:
+>>>>> @@ -65,6 +66,21 @@ static int vfio_ap_matrix_dev_create(void)
+>>>>>     {
+>>>>>     	int ret;
+>>>>>     
+>>>>> +	mutex_init(&matrix_dev.lock);
+>>>>> +	INIT_LIST_HEAD(&matrix_dev.mdev_list);
+>>>>> +
+>>>>> +	/* Test if PQAP(QCI) instruction is available */
+>>>>> +	if (test_facility(12)) {
+>>>>> +		ret = ap_qci(&matrix_dev.info);
+>>>>> +		if (ret && (ret != -EOPNOTSUPP)) {
+>>>> After Connie's curiosity was piqued I gave this another look. If
+>>>> I read the ap_qci() documentation and code correctly, it can return
+>>>> either 0 or -EOPNOTSUPP, but nothing else. So basically this
+>>>> is a dead branch.
+>>> Can it return -EOPNOTSUPP if facility 12 is present?
+>>
+>> I do not think it is reasonable to continue if
+>> we stated that facility 12 is present but the ap_qci function failed.
+>>
+>> So I propose that we return an error and break the insmod.
+> 
+> So, would that be a bug? If yes, returning an error makes sense.
+> 
+> (I can't check the documentation to find out about the interaction
+> between facility 12 and PQAP(QCI)...)
 
-I have the same comments regarding messages and checking as for the
-previous patch.
+If we are in z architectural mode and  facility 12 is indicated and
+ap_qci() returns an error code, it's because of an exception while
+executing the PQAP instruction. The reason can be a bad input pointer
+or other stuff. It is likely a bug. I'm not sure how this interacts
+with machine checks though. I think we should report the problem
+and give up.  
 
-> +
-> +		if (!ret)
-> +			ret = -EINVAL;
-> +
-> +		return ret;
-> +	}
-> +
-> +	/* Set the bit in the AQM (bitmask) corresponding to the AP domain
-> +	 * number (APQI). The bits in the mask, from most significant to least
-> +	 * significant, correspond to numbers 0-255.
-> +	 */
-> +	mutex_lock(&matrix_dev.lock);
-> +	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
-> +	ret = count;
-> +
-> +	mutex_unlock(&matrix_dev.lock);
-> +
-> +	return ret;
-> +}
-> +DEVICE_ATTR_WO(assign_domain);
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
