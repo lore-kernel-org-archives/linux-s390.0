@@ -1,160 +1,119 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 31 Jul 2018 08:44:05 +0000
-Subject: [GIT PULL 19/19] KVM: s390: Add huge page enablement control
-Message-Id: <20180731084405.28953-20-borntraeger@de.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Tue, 31 Jul 2018 11:48:51 +0000
+Subject: Re: [PATCH v7 21/22] KVM: s390: CPU model support for AP virtualization
+Message-Id: <20180731134851.6955ce27.cohuck@redhat.com>
+In-Reply-To: <20180726195429.31960-22-borntraeger@de.ibm.com>
+References: <20180726195429.31960-22-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On Thu, 26 Jul 2018 21:54:28 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-General KVM huge page support on s390 has to be enabled via the
-kvm.hpage module parameter. Either nested or hpage can be enabled, as
-we currently do not support vSIE for huge backed guests. Once the vSIE
-support is added we will either drop the parameter or enable it as
-default.
+> From: Tony Krowiak <akrowiak@linux.ibm.com>
+> 
+> Introduces a new CPU model feature and two CPU model
+> facilities to support AP virtualization for KVM guests.
+> 
+> CPU model feature:
+> 
+> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
+> AP instructions are available on the guest. This
+> feature will be enabled by the kernel only if the AP
+> instructions are installed on the linux host. This feature
+> must be specifically turned on for the KVM guest from
+> userspace to use the VFIO AP device driver for guest
+> access to AP devices.
+> 
+> CPU model facilities:
+> 
+> 1. AP Query Configuration Information (QCI) facility is installed.
+> 
+>    This is indicated by setting facilities bit 12 for
+>    the guest. The kernel will not enable this facility
+>    for the guest if it is not set on the host. This facility
+>    must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
+>    feature is not installed.
+> 
+>    If this facility is not set for the KVM guest, then only
+>    APQNs with an APQI less than 16 will be available to the
+>    guest regardless of the guest's matrix configuration. This
+>    is a limitation of the AP bus running on the guest.
 
-For a guest the feature has to be enabled through the new
-KVM_CAP_S390_HPAGE_1M capability and the hpage module
-parameter. Enabling it means that cmm can't be enabled for the vm and
-disables pfmf and storage key interpretation.
+What is "the AP bus running on the guest"? The AP bus is a Linux
+construct, and while we only care about Linux guests right now for AP,
+I would not word it that way.
 
-This is due to the fact that in some cases, in upcoming patches, we
-have to split huge pages in the guest mapping to be able to set more
-granular memory protection on 4k pages. These split pages have fake
-page tables that are not visible to the Linux memory management which
-subsequently will not manage its PGSTEs, while the SIE will. Disabling
-these features lets us manage PGSTE data in a consistent matter and
-solve that problem.
+"If this facility is not set for the KVM guest, then only
+APQNs with an APQI less than 16 will be used by a Linux
+guest regardless of the matrix configuration for the virtual
+machine. This is a limitation of the Linux AP bus."
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
----
- Documentation/virtual/kvm/api.txt | 16 ++++++++++++
- arch/s390/kvm/kvm-s390.c          | 42 +++++++++++++++++++++++++++++--
- include/uapi/linux/kvm.h          |  1 +
- 3 files changed, 57 insertions(+), 2 deletions(-)
+?
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index d10944e619d3..cb8db4f9d097 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -4391,6 +4391,22 @@ all such vmexits.
- 
- Do not enable KVM_FEATURE_PV_UNHALT if you disable HLT exits.
- 
-+7.14 KVM_CAP_S390_HPAGE_1M
-+
-+Architectures: s390
-+Parameters: none
-+Returns: 0 on success, -EINVAL if hpage module parameter was not set
-+	 or cmma is enabled
-+
-+With this capability the KVM support for memory backing with 1m pages
-+through hugetlbfs can be enabled for a VM. After the capability is
-+enabled, cmma can't be enabled anymore and pfmfi and the storage key
-+interpretation are disabled. If cmma has already been enabled or the
-+hpage module parameter is not set to 1, -EINVAL is returned.
-+
-+While it is generally possible to create a huge page backed VM without
-+this capability, the VM will not be able to run.
-+
- 8. Other capabilities.
- ----------------------
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 662f4d8046db..f9d90337e64a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -172,6 +172,10 @@ static int nested;
- module_param(nested, int, S_IRUGO);
- MODULE_PARM_DESC(nested, "Nested virtualization support");
- 
-+/* allow 1m huge page guest backing, if !nested */
-+static int hpage;
-+module_param(hpage, int, 0444);
-+MODULE_PARM_DESC(hpage, "1m huge page backing support");
- 
- /*
-  * For now we handle at most 16 double words as this is what the s390 base
-@@ -475,6 +479,11 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_AIS_MIGRATION:
- 		r = 1;
- 		break;
-+	case KVM_CAP_S390_HPAGE_1M:
-+		r = 0;
-+		if (hpage)
-+			r = 1;
-+		break;
- 	case KVM_CAP_S390_MEM_OP:
- 		r = MEM_OP_MAX_SIZE;
- 		break;
-@@ -678,6 +687,27 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 		VM_EVENT(kvm, 3, "ENABLE: CAP_S390_GS %s",
- 			 r ? "(not available)" : "(success)");
- 		break;
-+	case KVM_CAP_S390_HPAGE_1M:
-+		mutex_lock(&kvm->lock);
-+		if (kvm->created_vcpus)
-+			r = -EBUSY;
-+		else if (!hpage || kvm->arch.use_cmma)
-+			r = -EINVAL;
-+		else {
-+			r = 0;
-+			kvm->mm->context.allow_gmap_hpage_1m = 1;
-+			/*
-+			 * We might have to create fake 4k page
-+			 * tables. To avoid that the hardware works on
-+			 * stale PGSTEs, we emulate these instructions.
-+			 */
-+			kvm->arch.use_skf = 0;
-+			kvm->arch.use_pfmfi = 0;
-+		}
-+		mutex_unlock(&kvm->lock);
-+		VM_EVENT(kvm, 3, "ENABLE: CAP_S390_HPAGE %s",
-+			 r ? "(not available)" : "(success)");
-+		break;
- 	case KVM_CAP_S390_USER_STSI:
- 		VM_EVENT(kvm, 3, "%s", "ENABLE: CAP_S390_USER_STSI");
- 		kvm->arch.user_stsi = 1;
-@@ -725,10 +755,13 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
- 		if (!sclp.has_cmma)
- 			break;
- 
--		ret = -EBUSY;
- 		VM_EVENT(kvm, 3, "%s", "ENABLE: CMMA support");
- 		mutex_lock(&kvm->lock);
--		if (!kvm->created_vcpus) {
-+		if (kvm->created_vcpus)
-+			ret = -EBUSY;
-+		else if (kvm->mm->context.allow_gmap_hpage_1m)
-+			ret = -EINVAL;
-+		else {
- 			kvm->arch.use_cmma = 1;
- 			/* Not compatible with cmma. */
- 			kvm->arch.use_pfmfi = 0;
-@@ -4102,6 +4135,11 @@ static int __init kvm_s390_init(void)
- 		return -ENODEV;
- 	}
- 
-+	if (nested && hpage) {
-+		pr_info("nested (vSIE) and hpage (huge page backing) can currently not be activated concurrently");
-+		return -EINVAL;
-+	}
-+
- 	for (i = 0; i < 16; i++)
- 		kvm_s390_fac_base[i] |=
- 			S390_lowcore.stfle_fac_list[i] & nonhyp_mask(i);
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index b6270a3b38e9..b955b986b341 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -949,6 +949,7 @@ struct kvm_ppc_resize_hpt {
- #define KVM_CAP_GET_MSR_FEATURES 153
- #define KVM_CAP_HYPERV_EVENTFD 154
- #define KVM_CAP_HYPERV_TLBFLUSH 155
-+#define KVM_CAP_S390_HPAGE_1M 156
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
--- 
-2.17.0
+> 
+> 2. AP Facilities Test facility (APFT) is installed.
+> 
+>    This is indicated by setting facilities bit 15 for
+>    the guest. The kernel will not enable this facility for
+>    the guest if it is not set on the host. This facility
+>    must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
+>    feature is not installed.
+> 
+>    If this facility is not set for the KVM guest, then no
+>    AP devices will be available to the guest regardless of
+>    the guest's matrix configuration. This is a limitation
+>    of the AP bus running under the guest.
+
+Same here.
+
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> Tested-by: Michael Mueller <mimu@linux.ibm.com>
+> Tested-by: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c         | 7 +++++++
+>  arch/s390/tools/gen_facilities.c | 2 ++
+>  2 files changed, 9 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 738b090fcf54..0eecc9ddb364 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -367,6 +367,13 @@ static void kvm_s390_cpu_feat_init(void)
+>  
+>  	if (MACHINE_HAS_ESOP)
+>  		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
+> +
+> +	/*
+> +	 * Check if AP instructions installed on host
+
+/* check whether AP instructions are installed on host */
+
+?
+
+> +	 */
+> +	if (ap_instructions_available() == 0)
+> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
+> +
+>  	/*
+>  	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
+>  	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
+> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+> index 90a8c9e84ca6..a52290bb8ad5 100644
+> --- a/arch/s390/tools/gen_facilities.c
+> +++ b/arch/s390/tools/gen_facilities.c
+> @@ -106,6 +106,8 @@ static struct facility_def facility_defs[] = {
+>  
+>  		.name = "FACILITIES_KVM_CPUMODEL",
+>  		.bits = (int[]){
+> +			12, /* AP Query Configuration Information */
+> +			15, /* AP Facilities Test */
+>  			-1  /* END */
+>  		}
+>  	},
+
+Other than the nits above, patch looks good to me.
