@@ -1,116 +1,119 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Tue, 31 Jul 2018 12:37:42 +0000
-Subject: Re: [PATCH v7 15/22] KVM: s390: interfaces to clear CRYCB masks
-Message-Id: <15000473-ffd3-b295-bda2-14e9775f0c4f@linux.ibm.com>
-In-Reply-To: <187b1530-540f-79f8-54e1-e73776e1fd7d@linux.ibm.com>
-References: <187b1530-540f-79f8-54e1-e73776e1fd7d@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Date: Tue, 31 Jul 2018 15:49:33 +0000
+Subject: Re: [PATCH v7 18/22] s390: vfio-ap: zeroize the AP queues.
+Message-Id: <ab6c98e9-a109-d4d4-59cd-c6606d2849ac@linux.ibm.com>
+In-Reply-To: <74727f11-9b1a-8bd6-16bd-c0164d4b5ee7@linux.ibm.com>
+References: <74727f11-9b1a-8bd6-16bd-c0164d4b5ee7@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 31/07/2018 14:10, Christian Borntraeger wrote:
->
-> On 07/31/2018 01:04 PM, David Hildenbrand wrote:
->> On 31.07.2018 10:56, Pierre Morel wrote:
->>> On 31/07/2018 10:36, David Hildenbrand wrote:
->>>> On 31.07.2018 10:34, Pierre Morel wrote:
->>>>> On 30/07/2018 16:40, Halil Pasic wrote:
->>>>>> On 07/30/2018 01:15 PM, Pierre Morel wrote:
->>>>>>> On 30/07/2018 11:24, David Hildenbrand wrote:
->>>>>>>> On 26.07.2018 21:54, Christian Borntraeger wrote:
->>>>>>>>> From: Tony Krowiak <akrowiak@linux.ibm.com>
->>>>>>>>>
->>>>>>>>> Introduces two new KVM interface to lear the APM, AQM and ADM masks in
->>>>>>>>> the guest's CRYCB.� The VCPUs are taken out of SIE to ensure the
->>>>>>>>> VCPUs do
->>>>>>>>> not get out of synch.
->>>>>>>> s/synch/sync/
->>>>>>>>
->>>>>>>> When will this be called and why?
->>>>>>>>
->>>>>>>> If I read correctly, this can happen while other VCPUs are running
->>>>>>>> (currently in the SIE). Please note that
->>>>>>>> kvm_s390_vcpu_block_all/kvm_s390_vcpu_unblock_all will not care about
->>>>>>>> vSIE. So a CPU inside the vSIE loop will not be hindered of executing
->>>>>>>> the SIE. (because so far, all VCPU requests we handle don't rely on
->>>>>>>> that)
->>>>>>>>
->>>>>>>> So it could happen here, that after this call a vSIE CPU still can
->>>>>>>> access some adapters if we allowed to forward some of them to the
->>>>>>>> nested
->>>>>>>> guest.
->>>>>>> You are right for the principle.
->>>>>>>
->>>>>>> However this function is only called when the mediated device is release
->>>>>>> which is, as we do not support hotplug, when the vfio-device is closed
->>>>>>> and the guest already disappeared.
->>>>>>>
->>>>>>> So I do not think it is useful the way it is currently used.
->>>>>>>
->>>>>>> What about just letting this call and function fall and take more
->>>>>>> time on this problem when we introduce hotplug?
->>>>>>>
->>>>>> The point is, I don't think we can prohibit userspace to close the
->>>>>> vfio device before the VM is teared down (hot-unplug). The idea
->>>>>> was, do the best we can to give up the resources. I was not aware
->>>>>> of the problems with the VSIE.
->>>>>>
->>>>>> QEMU however does make sure there is no hot-unplug. So no user
->>>>>> can observe the problem.
->>>>>>
->>>>>> Halil
->>>>> David,
->>>>> what about if I extend this function to handle
->>>>> the SIE when I introduce the SIE� in patch 20
->>>>> by calling kvm_s390_vsie_kick() ?
->>>>>
->>>> SIE kick is not enough. The semantics of that are simply "please exit
->>>> the SIE to check for any events". It can immediately enter it again
->>>> reusing the old created crycb block. There would have to be some
->>>> additional check. But such stuff is usually prone to races.
->>> I intended to use it in extension of the vcpu_block() so that
->>> when the vsie() is exited the vcpu falls in the SIE which will be blocked.
+
+
+On 07/31/2018 04:48 PM, Cornelia Huck wrote:
+> On Tue, 31 Jul 2018 16:18:03 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+>> On 07/31/2018 03:40 PM, Cornelia Huck wrote:
+>>> On Tue, 31 Jul 2018 15:12:59 +0200
+>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>    
+>>>> On 07/31/2018 02:24 PM, Cornelia Huck wrote:
+>>>>>> +static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev, bool force)
+>>>>>> +{
+>>>>>> +	int ret;
+>>>>>> +	int rc = 0;
+>>>>>> +	unsigned long apid, apqi;
+>>>>>> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>>>>>> +
+>>>>>> +	if (!matrix_mdev->activated) {
+>>>>>> +		pr_err("%s: reset failed for mdev %s, not activated",
+>>>>>> +		       VFIO_AP_MODULE_NAME, matrix_mdev->name);
+>>>>>> +
+>>>>>> +		return -EPERM;
+>>>>>> +	}
+>>>>> Hm... if we stick with the activation approach, what happens if we:
+>>>>> - open the mdev
+>>>>> - activate the matrix
+>>>>> - deactivate the matrix
+>>>>
+>>>> I guess this step will fail and the matrix remains activated.
+>>>>
+>>>> Have a look at vfio_ap_mdev_deactivate()
 >>>
->>>
->>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>> index 0eecc9d..4937299 100644
->>> --- a/arch/s390/kvm/kvm-s390.c
->>> +++ b/arch/s390/kvm/kvm-s390.c
->>> @@ -1925,9 +1925,13 @@ static void kvm_s390_set_crycb_format(struct kvm
->>> *kvm)
->>>
->>>   �void kvm_arch_crypto_clear_masks(struct kvm *kvm)
->>>   �{
->>> -��� mutex_lock(&kvm->lock);
->>> -��� kvm_s390_vcpu_block_all(kvm);
->>> +��� int i;
->>>
->>> +��� mutex_lock(&kvm->lock);
->>> +��� kvm_for_each_vcpu(i, vcpu, kvm) {
->>> +��� ��� kvm_s390_vcpu_block(vcpu);
->>> +��� ��� kvm_s390_vsie_kick(vcpu);
->>> +��� }
->> No that does not work. The VSIE can be immediately reentered afther the
->> kick with the old crycb block.
-> Hmm, shall we change that so that kvm_s390_vcpu_block will also block
-> vsie from entering?
->
->
+>>> Hm, I don't see it...
+>>>    
+>> static int vfio_ap_mdev_deactivate(struct ap_matrix_mdev *matrix_mdev)
+>> {
+>>           int ret = 0;
+>>                                                                                   
+>>           if (!matrix_mdev->activated)
+>>                   return 0;
+>>                                                                                   
+>>           if (matrix_mdev->kvm) {
+>>                   pr_warn("%s: %s: deactivate failed, mdev %s is in use by guest %s\n",
+>>                           VFIO_AP_MODULE_NAME, __func__, matrix_mdev->name,
+>>                           matrix_mdev->kvm->arch.dbf->name);
+>>                   return -EBUSY;       <===================================== Return -EBUSY and don't deactivate.
+> 
+> Yes, but what forces ->kvm to be !NULL? I did not see this in the code,
+> and I'm not sure what I'm missing. (If ->kvm is guaranteed to be !NULL,
+> why do we check for it during open?)
+
+The ->kvm should become !NULL as a part of the open. If there is a guest (kvm),
+and we strongly hope that vfio_register_notifier() will give us a pointer
+to kvm via the callback. The vfio_register_notifier() is written in such
+way, that if we can have a pointer to the kvm representing the VM immediately
+after the call to it we will. We used to depend on this in v6. If the
+vfio_ap_mdev_group_notifier() callback is called substantially later we
+still have a problem, as we don't re-check for sharing conflicts before
+we do the copy into the crycb in vfio_ap_mdev_group_notifier(). And
+we could not prevent the guest from starting but it would end up with
+a dysfunctional vfio_ap mdev that looks good.
+
+> 
+>>                                                     
+>>           }
+>>                                                                                   
+>>           matrix_mdev->activated = false;
+>>                                                                                   
+>>           return ret;
+>> }
 >>
->>>   ���� memset(&kvm->arch.crypto.crycb->apcb0, 0,
->>>   ���� ������ sizeof(kvm->arch.crypto.crycb->apcb0));
->>>   ���� memset(&kvm->arch.crypto.crycb->apcb1, 0,
-> I am asking myself if if would be valid to first memset the crycb and then do a kick.
-> On reentry sie will then use the new value. I will double check.
+>>
+>>>>   
+>>>>> - release the mdev, triggering this function
+>>>>>
+>>>>> It seems we won't call PAPQ(ZAPQ) in that case -- is that how it is
+>>>>> supposed to work?
+>>>>>       
+>>>>
+>>>> So basically the device remains active until the mdev release is
+>>>> called if I'm correct.
+>>>
+>>> So, why do we need the activate/deactivate approach, then? Why can't we
+>>> do the verification etc. during open?
+>>>    
+>>
+>> We ca do the verification during open. If there was no activate before
+>> the open we actually try to do one.
+>>
+>> With activate however the admin can claim the resources before the
+>> open (that is the guest start). We have a mechanism for both 'let's
+>> overcommit and fail when we hit the wall' and 'let's make sure everything
+>> is reserved before we give it to the guest'. The admin is free to
+>> decide on his policy.
+> 
+> OK, let's discuss that in the other thread, then. I am not sure that
+> departing from the general mdev model is worth it.
+> 
+> (I have not yet gotten to replying there.)
+> 
 
-The first solution, blocking VSIE, and wait for the vcpu to exit the SCB 
-(that I did not do)
-(and if it is OK) seems better to me.
-The function is called rarely so we may use a dedicated function and let 
-the xxx_vcpu_block()
-have a short path.
+Let's continue the discussion there. I'm hoping Daniel will chime in.
+In my understanding, we are inherently different than the rest of the
+mdev devices. And I don't think we depart regarding the common stuff
+regulated by mdev (e.g. the max instances). But we wanted to discuss
+such stuff there...
 
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in B�blingen - Germany
+Regards,
+Halil
