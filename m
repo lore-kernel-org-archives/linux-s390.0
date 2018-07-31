@@ -1,71 +1,40 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 31 Jul 2018 08:44:02 +0000
-Subject: [GIT PULL 16/19] KVM: s390: Beautify skey enable check
-Message-Id: <20180731084405.28953-17-borntraeger@de.ibm.com>
+Date: Tue, 31 Jul 2018 08:44:03 +0000
+Subject: [GIT PULL 17/19] s390/mm: hugetlb pages within a gmap can not be freed
+Message-Id: <20180731084405.28953-18-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-Let's introduce an explicit check if skeys have already been enabled
-for the vcpu, so we don't have to check the mm context if we don't have
-the storage key facility.
+Guests backed by huge pages could theoretically free unused pages via
+the diagnose 10 instruction. We currently don't allow that, so we
+don't have to refault it once it's needed again.
 
-This lets us check for enablement without having to take the mm
-semaphore and thus speedup skey emulation.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/priv.c             | 10 ++++------
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ arch/s390/mm/gmap.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 1a7b6834797e..29c940bf8506 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -656,6 +656,7 @@ struct kvm_vcpu_arch {
- 	seqcount_t cputm_seqcount;
- 	__u64 cputm_start;
- 	bool gs_enabled;
-+	bool skey_enabled;
- };
- 
- struct kvm_vm_stat {
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index c623b6f1dd4e..63285b14ff31 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -205,13 +205,10 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
- int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
- {
- 	int rc;
--	struct kvm_s390_sie_block *sie_block = vcpu->arch.sie_block;
- 
- 	trace_kvm_s390_skey_related_inst(vcpu);
- 	/* Already enabled? */
--	if (vcpu->kvm->arch.use_skf &&
--	    !(sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)) &&
--	    !kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
-+	if (vcpu->arch.skey_enabled)
- 		return 0;
- 
- 	rc = s390_enable_skey();
-@@ -222,9 +219,10 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
- 	if (kvm_s390_test_cpuflags(vcpu, CPUSTAT_KSS))
- 		kvm_s390_clear_cpuflags(vcpu, CPUSTAT_KSS);
- 	if (!vcpu->kvm->arch.use_skf)
--		sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
-+		vcpu->arch.sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
- 	else
--		sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
-+		vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
-+	vcpu->arch.skey_enabled = true;
- 	return 0;
- }
- 
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index a6738c0c4499..736ed32a83c5 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -706,6 +706,12 @@ void gmap_discard(struct gmap *gmap, unsigned long from, unsigned long to)
+ 		vmaddr |= gaddr & ~PMD_MASK;
+ 		/* Find vma in the parent mm */
+ 		vma = find_vma(gmap->mm, vmaddr);
++		/*
++		 * We do not discard pages that are backed by
++		 * hugetlbfs, so we don't have to refault them.
++		 */
++		if (vma && is_vm_hugetlb_page(vma))
++			continue;
+ 		size = min(to - gaddr, PMD_SIZE - (gaddr & ~PMD_MASK));
+ 		zap_page_range(vma, vmaddr, size);
+ 	}
 -- 
 2.17.0
