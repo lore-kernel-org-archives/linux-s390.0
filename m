@@ -1,65 +1,86 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Date: Mon, 30 Jul 2018 16:10:11 +0000
-Subject: Re: [PATCH v7 00/22] vfio-ap: guest dedicated crypto adapters
-Message-Id: <20180730101011.5a429b07@t450s.home>
-In-Reply-To: <ad81821d-d1ab-fdc3-ebc5-af64ad99f049@de.ibm.com>
-References: <ad81821d-d1ab-fdc3-ebc5-af64ad99f049@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Tue, 31 Jul 2018 08:43:46 +0000
+Subject: [GIT PULL 00/19] KVM: s390: Features for 4.19
+Message-Id: <20180731084405.28953-1-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 30 Jul 2018 08:05:32 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+Paolo, Radim,
 
-> On 07/27/2018 06:53 PM, Alex Williamson wrote:
-> > On Fri, 27 Jul 2018 12:59:50 +0200
-> > Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> >   
-> >> On 07/27/2018 10:38 AM, Cornelia Huck wrote:  
-> >>> On Thu, 26 Jul 2018 21:54:07 +0200
-> >>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> >>>      
-> >>>> * The mediated device gained an 'activate' attribute. Sharing conflicts are
-> >>>>   checked on activation now. If the device was not activated, the mdev
-> >>>>   open still implies activation. An active ap_matrix_mdev device claims
-> >>>>   it's resources -- an inactive does not.    
-> >>>
-> >>> This means we have a 'commit' workflow?    
-> >>
-> >> Yes. We want to be able to "overcommit" definitions. For example when you
-> >> have 2 guests that you never start at the same time. Then you can give both
-> >> guests the same disks. If you start at the same time, libvirt will complain.
-> >> Now: you want to do the same for matrixes. Allocation at definition time
-> >> would limit that flexibility. When we check at "commit" this allows overcommit.  
-> > 
-> > I raised an eyebrow to this 'activate' attribute as well and I think we
-> > struggled through the same sort of thing when defining mdev initially
-> > with NVIDIA.  IIRC there was a proposal that mdev devices could
-> > effectively be overcommitted on the parent and only when they were
-> > opened, would the allocation count against the available instances.
-> > The trouble is then that libvirt has no guarantee that a given mdev
-> > device is usable.  I believe we decided that the creation of the mdev
-> > device is the point at which we want to reserve resources because it
-> > provides a better synchronization point.  I don't really see what
-> > advantage we have by having these matrices on 'standby', shouldn't
-> > userspace be able to manipulate these dynamically and on-demand of
-> > starting a VM?  Thanks,  
-> 
-> We had this discussion as well and there is a case where not-predefining
-> things might complicate matters:
-> Daniel, please correct me if this is not so:
-> As far as I understand the libvirt folks want to have host devices and guest
-> instances decoupled. So a guest startup will not trigger a define of the mdev
-> instance. (instead it has to be a separate step). This might work with virsh
-> (but it now requires two steps as you can not predefine instances) but it
-> might break things like virt-manager.
+here are the s390 updates for KVM for 4.19. Most important change is
+the initial support for host large pages. As this touches KVM and
+s390/mm in an intermingled way we have created a topic branch that
+is merged here and in Martins tree. In this way all merge conflicts
+are nicely handled and avoided.
 
-If this is a libvirt requirement, then it's creating a different model
-for AP mdev devices since existing mdev devices do not allow
-overcommit.  libvirt currently does no mdev lifecycle management, it's
-entirely left to the user to decide on a static configuration or
-dynamic creation.  Dynamic creation can be done via qemu hooks  until
-libvirt decides how/if they'll take on creation.  So I don't think it
-makes sense to make AP mdev devices behave different from others in
-this respect.  Thanks,
 
-Alex
+The following changes since commit 6f0d349d922ba44e4348a17a78ea51b7135965b1:
+
+  Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net (2018-06-25 15:58:17 +0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.19-1
+
+for you to fetch changes up to 2375846193663a1282c0ef7093640ed3210dc09f:
+
+  Merge tag 'hlp_stage1' of git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux into kvms390/next (2018-07-30 23:20:48 +0200)
+
+----------------------------------------------------------------
+KVM: s390: Features for 4.19
+
+- initial version for host large page support. Must be enabled with
+  module parameter hpage=1 and will conflict with the nested=1
+  parameter.
+- enable etoken facility for guests
+- Fixes
+
+----------------------------------------------------------------
+Christian Borntraeger (2):
+      KVM: s390/vsie: avoid sparse warning
+      KVM: s390: add etoken support for guests
+
+Claudio Imbrenda (2):
+      KVM: s390: a utility function for migration
+      KVM: s390: Fix storage attributes migration with memory slots
+
+Dominik Dingel (2):
+      s390/mm: Clear huge page storage keys on enable_skey
+      s390/mm: hugetlb pages within a gmap can not be freed
+
+Janosch Frank (14):
+      KVM: s390: Replace clear_user with kvm_clear_guest
+      s390/mm: Make gmap_protect_range more modular
+      s390/mm: Abstract gmap notify bit setting
+      s390/mm: Add gmap pmd linking
+      s390/mm: Add gmap pmd notification bit setting
+      s390/mm: Add gmap pmd invalidation and clearing
+      s390/mm: Add huge page dirty sync support
+      s390/mm: Clear skeys for newly mapped huge guest pmds
+      s390/mm: Add huge pmd storage key handling
+      KVM: s390: Add skey emulation fault handling
+      KVM: s390: Beautify skey enable check
+      s390/mm: Add huge page gmap linking support
+      KVM: s390: Add huge page enablement control
+      Merge tag 'hlp_stage1' of git://git.kernel.org/.../kvms390/linux into kvms390/next
+
+ Documentation/virtual/kvm/api.txt   |  16 ++
+ arch/s390/include/asm/gmap.h        |  10 +
+ arch/s390/include/asm/hugetlb.h     |   5 +-
+ arch/s390/include/asm/kvm_host.h    |  11 +-
+ arch/s390/include/asm/mmu.h         |   2 +
+ arch/s390/include/asm/mmu_context.h |   1 +
+ arch/s390/include/asm/pgtable.h     |  13 +-
+ arch/s390/include/uapi/asm/kvm.h    |   5 +-
+ arch/s390/kvm/kvm-s390.c            | 387 +++++++++++++++++++-----------
+ arch/s390/kvm/priv.c                | 143 ++++++++----
+ arch/s390/kvm/vsie.c                |  11 +-
+ arch/s390/mm/gmap.c                 | 454 ++++++++++++++++++++++++++++++++++--
+ arch/s390/mm/hugetlbpage.c          |  24 ++
+ arch/s390/mm/pageattr.c             |   6 +-
+ arch/s390/mm/pgtable.c              | 159 +++++++++----
+ arch/s390/tools/gen_facilities.c    |   3 +-
+ include/linux/kvm_host.h            |   7 +
+ include/uapi/linux/kvm.h            |   1 +
+ virt/kvm/kvm_main.c                 |   2 +-
+ 19 files changed, 989 insertions(+), 271 deletions(-)
