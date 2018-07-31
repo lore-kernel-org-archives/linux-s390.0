@@ -1,64 +1,71 @@
-From: Dave Jiang <dave.jiang@intel.com>
-Subject: Re: [PATCH v3 0/6] kaddr and pfn can be NULL to ->direct_access()
-Date: Tue, 31 Jul 2018 08:35:58 -0700
-Message-ID: <d39a623d-5071-731b-87ae-9f9bd11024c6@intel.com>
-References: <20180730071548.9172-1-yehs2007@zoho.com>
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Subject: SLAB_TYPESAFE_BY_RCU without constructors (was Re:
+ [PATCH v4 13/17] khwasan: add hooks implementation)
+Date: Tue, 31 Jul 2018 20:01:30 +0300
+Message-ID: <e3b48104-3efb-1896-0d46-792419f49a75@virtuozzo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180730071548.9172-1-yehs2007@zoho.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/dm-devel/>
-List-Post: <mailto:dm-devel@redhat.com>
-To: Huaisheng Ye <yehs2007@zoho.com>, linux-nvdimm@lists.01.org, dan.j.williams@intel.com
-Cc: ross.zwisler@linux.intel.com, willy@infradead.org, vishal.l.verma@intel.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, viro@zeniv.linux.org.uk, martin.petersen@oracle.com, axboe@kernel.dk, gregkh@linuxfoundation.org, bart.vanassche@wdc.com, jack@suse.cz, agk@redhat.com, snitzer@redhat.com, keescook@chromium.org, dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, colyli@suse.de, chengnt@lenovo.com, Huaisheng Ye <yehs1@lenovo.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+List-Archive: <https://lore.kernel.org/dri-devel/>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+To: Theodore Ts'o <tytso@mit.edu>, Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>, Florian Westphal <fw@strlen.de>, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, netdev@vger.kernel.org, Gerrit Renker <gerrit@erg.abdn.ac.uk>, dccp@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Eric Dumazet <edumazet@google.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Ursula Braun <ubraun@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.or
 List-ID: <linux-s390.vger.kernel.org>
 
-On 7/30/2018 12:15 AM, Huaisheng Ye wrote:
-
-Applied
-> From: Huaisheng Ye <yehs1@lenovo.com>
->
-> Changes since v2 [2]:
-> * Collect Martin and Mike's acks for dcssblk and dm-writecache;
-> * Rebase the series of patch to v4.18-rc7.
->
-> Changes since v1 [1]:
-> * Involve the previous patches for pfn can be NULL.
-> * Reword the patch descriptions according to Christian's comment.
-> * According to Ross's suggestion, replace local pointer dummy_addr
->    with NULL within md/dm-writecache for direct_access.
->
-> [1]: https://lkml.org/lkml/2018/7/24/199
-> [2]: https://lkml.org/lkml/2018/7/25/581
->
-> Some functions within fs/dax, dax/super and md/dm-writecache don't
-> need to get local pointer kaddr or variable pfn from direct_access.
-> Assigning NULL to kaddr or pfn with ->direct_access() is more
-> straightforward and simple than offering a useless local pointer or
-> variable.
->
-> So all ->direct_access() need to check the validity of pointer kaddr
-> and pfn for NULL assignment. If either of them is equal to NULL, that
-> is to say callers may have no need for kaddr or pfn, so this series of
-> patch are prepared for allowing them to pass in NULL instead of having
-> to pass in a local pointer or variable that they then just throw away.
->
-> Huaisheng Ye (6):
->    libnvdimm, pmem: kaddr and pfn can be NULL to ->direct_access()
->    s390, dcssblk: kaddr and pfn can be NULL to ->direct_access()
->    tools/testing/nvdimm: kaddr and pfn can be NULL to ->direct_access()
->    dax/super: Do not request a pointer kaddr when not required
->    md/dm-writecache: Don't request pointer dummy_addr when not required
->    filesystem-dax: Do not request kaddr and pfn when not required
->
->   drivers/dax/super.c             |  3 +--
->   drivers/md/dm-writecache.c      |  3 +--
->   drivers/nvdimm/pmem.c           |  7 +++++--
->   drivers/s390/block/dcssblk.c    |  8 +++++---
->   fs/dax.c                        | 13 ++++---------
->   tools/testing/nvdimm/pmem-dax.c | 12 ++++++++----
->   6 files changed, 24 insertions(+), 22 deletions(-)
->
+Ck9uIDA3LzMxLzIwMTggMDc6MDQgUE0sIEFuZHJleSBSeWFiaW5pbiB3cm90ZToKPj4gU29tZXdo
+YXQgb2ZmdG9waWMsIGJ1dCBJIGNhbid0IHVuZGVyc3RhbmQgaG93IFNMQUJfVFlQRVNBRkVfQllf
+UkNVCj4+IHNsYWJzIGNhbiBiZSB1c2VmdWwgd2l0aG91dCBjdG9ycyBvciBhdCBsZWFzdCBtZW1z
+ZXQoMCkuIE9iamVjdHMgaW4KPj4gc3VjaCBzbGFicyBuZWVkIHRvIGJlIHR5cGUtc3RhYmxlLCBi
+dXQgSSBjYW4ndCB1bmRlcnN0YW5kIGhvdyBpdCdzCj4+IHBvc3NpYmxlIHRvIGVzdGFibGlzaCB0
+eXBlIHN0YWJpbGl0eSB3aXRob3V0IGEgY3Rvci4uLiBBcmUgdGhlc2UgYnVncz8KPiAKPiBZZWFo
+LCBJIHB1enpsZWQgYnkgdGhpcyB0b28uIEhvd2V2ZXIsIEkgdGhpbmsgaXQncyBoYXJkIGJ1dCBw
+b3NzaWJsZSB0byBtYWtlIGl0IHdvcmssIGF0IGxlYXN0IGluIHRoZW9yeS4KPiBUaGVyZSBtdXN0
+IGJlIGFuIGluaXRpYWxpemVyLCB3aGljaCBjb25zaXN0cyBvZiB0d28gcGFydHM6Cj4gYSkgaW5p
+dGlsaXplIG9iamVjdHMgZmllbGRzCj4gYikgZXhwb3NlIG9iamVjdCB0byB0aGUgd29ybGQgKGFk
+ZCBpdCB0byBsaXN0IG9yIHNvbWV0aGluZyBsaWtlIHRoYXQpCj4gCj4gKGEpIHBhcnQgbXVzdCBz
+b21laG93IHRvIGJlIG9rIHRvIHJhY2Ugd2l0aCBhbm90aGVyIGNwdSB3aGljaCBtaWdodCBhbHJl
+YWR5IHVzZSB0aGUgb2JqZWN0Lgo+IChiKSBwYXJ0IG11c3QgbXVzdCB1c2UgZS5nLiBiYXJyaWVy
+cyB0byBtYWtlIHN1cmUgdGhhdCByYWN5IHVzZXJzIHdpbGwgc2VlIHByZXZpb3VzbHkgaW5pbGl6
+ZWQgZmllbGRzLgo+IFJhY3kgdXNlcnMgbXVzdCBoYXZlIHBhcnJpbmcgYmFycmllciBvZiBjb3Vy
+c2UuCj4gCj4gQnV0IGl0IHNvdW5kIGZpc2h5LCBhbmQgdmVyeSBlYXN5IHRvIGZ1Y2sgdXAuIEkg
+d29uJ3QgYmUgc3VycHJpc2VkIGlmIGV2ZXJ5IHNpbmdsZSBvbmUgU0xBQl9UWVBFU0FGRV9CWV9S
+Q1UgdXNlcgo+IHdpdGhvdXQgLT5jdG9yIGlzIGJvZ3VzLiBJdCBjZXJ0YWlubHkgd291bGQgYmUg
+YmV0dGVyIHRvIGNvbnZlcnQgdGhvc2UgdG8gdXNlIC0+Y3Rvci4KPiAKPiBTdWNoIGNhY2hlcyBz
+ZWVtcyB1c2VkIGJ5IG5ldHdvcmtpbmcgc3Vic3lzdGVtIGluIHByb3RvX3JlZ2lzdGVyKCk6Cj4g
+Cj4gCQlwcm90LT5zbGFiID0ga21lbV9jYWNoZV9jcmVhdGVfdXNlcmNvcHkocHJvdC0+bmFtZSwK
+PiAJCQkJCXByb3QtPm9ial9zaXplLCAwLAo+IAkJCQkJU0xBQl9IV0NBQ0hFX0FMSUdOIHwgU0xB
+Ql9BQ0NPVU5UIHwKPiAJCQkJCXByb3QtPnNsYWJfZmxhZ3MsCj4gCQkJCQlwcm90LT51c2Vyb2Zm
+c2V0LCBwcm90LT51c2Vyc2l6ZSwKPiAJCQkJCU5VTEwpOwo+IAo+IEFuZCBjZXJ0YWluIHByb3Rv
+Y29scyBzcGVjaWZ5IFNMQUJfVFlQRVNBRkVfQllfUkNVIGluIC0+c2xhYl9mbGFncywgc3VjaCBh
+czoKPiBsbGNfcHJvdG8sIHNtY19wcm90bywgc21jX3Byb3RvNiwgdGNwX3Byb3QsIHRjcHY2X3By
+b3QsIGRjY3BfdjZfcHJvdCwgZGNjcF92NF9wcm90Lgo+IAo+IAo+IEFsc28gbmZfY29ubnRyYWNr
+X2NhY2hlcCwga2VybmZzX25vZGVfY2FjaGUsIGpiZDJfam91cm5hbF9oZWFkX2NhY2hlIGFuZCBp
+OTE1X3JlcXVlc3QgY2FjaGUuCj4gCgoKWytDQyBtYWludGFpbmVyIG9mIHRoZSByZWxldmFudCBj
+b2RlLl0KCkd1eXMsIGl0IHNlZW1zIHRoYXQgd2UgaGF2ZSBhIGxvdCBvZiBjb2RlIHVzaW5nIFNM
+QUJfVFlQRVNBRkVfQllfUkNVIGNhY2hlIHdpdGhvdXQgY29uc3RydWN0b3IuCkkgdGhpbmsgaXQn
+cyBuZWFybHkgaW1wb3NzaWJsZSB0byB1c2UgdGhhdCBjb21iaW5hdGlvbiB3aXRob3V0IGhhdmlu
+ZyBidWdzLgpJdCdzIGVpdGhlciB5b3UgZG9uJ3QgcmVhbGx5IG5lZWQgdGhlIFNMQUJfVFlQRVNB
+RkVfQllfUkNVLCBvciB5b3UgbmVlZCB0byBoYXZlIGEgY29uc3RydWN0b3IgaW4ga21lbV9jYWNo
+ZS4KCkNvdWxkIHlvdSBndXlzLCBwbGVhc2UsIHZlcmlmeSB5b3VyIGNvZGUgaWYgaXQncyByZWFs
+bHkgbmVlZCBTTEFCX1RZUFNBRkUgb3IgY29uc3RydWN0b3I/CgpFLmcuIHRoZSBuZXRsaW5rIGNv
+ZGUgbG9vayBleHRyZW1lbHkgc3VzcGljaW91czoKCgkvKgoJICogRG8gbm90IHVzZSBrbWVtX2Nh
+Y2hlX3phbGxvYygpLCBhcyB0aGlzIGNhY2hlIHVzZXMKCSAqIFNMQUJfVFlQRVNBRkVfQllfUkNV
+LgoJICovCgljdCA9IGttZW1fY2FjaGVfYWxsb2MobmZfY29ubnRyYWNrX2NhY2hlcCwgZ2ZwKTsK
+CWlmIChjdCA9PSBOVUxMKQoJCWdvdG8gb3V0OwoKCXNwaW5fbG9ja19pbml0KCZjdC0+bG9jayk7
+CgpJZiBuZl9jb25udHJhY2tfY2FjaGVwIG9iamVjdHMgcmVhbGx5IHVzZWQgaW4gcmN1IHR5cGVz
+YWZlIG1hbm5lciwgdGhhbiAnY3QnIHJldHVybmVkIGJ5IGttZW1fY2FjaGVfYWxsb2MgbWlnaHQg
+c3RpbGwgYmUKaW4gdXNlIGJ5IGFub3RoZXIgY3B1LiBTbyB3ZSBqdXN0IHJlaW5pdGlhbGl6ZSBz
+cGluX2xvY2sgdXNlZCBieSBzb21lb25lIGVsc2U/CgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBs
+aXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1h
+bi9saXN0aW5mby9pbnRlbC1nZngK
