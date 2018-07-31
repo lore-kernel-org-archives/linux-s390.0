@@ -1,113 +1,104 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 31 Jul 2018 08:43:58 +0000
-Subject: [GIT PULL 12/19] s390/mm: Clear huge page storage keys on enable_skey
-Message-Id: <20180731084405.28953-13-borntraeger@de.ibm.com>
+Date: Tue, 31 Jul 2018 08:43:59 +0000
+Subject: [GIT PULL 13/19] s390/mm: Clear skeys for newly mapped huge guest pmds
+Message-Id: <20180731084405.28953-14-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-When a guest starts using storage keys, we trap and set a default one
-for its whole valid address space. With this patch we are now able to
-do that for large pages.
+Similarly to the pte skey handling, where we set the storage key to
+the default key for each newly mapped pte, we have to also do that for
+huge pmds.
 
-To speed up the storage key insertion, we use
-__storage_key_init_range, which in-turn will use sske_frame to set
-multiple storage keys with one instruction. As it has been previously
-used for debuging we have to get rid of the default key check and make
-it quiescing.
+With the PG_arch_1 flag we keep track if the area has already been
+cleared of its skeys.
 
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-[replaced page_set_storage_key loop with __storage_key_init_range]
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/mm/gmap.c     | 32 +++++++++++++++++++++++++++++---
- arch/s390/mm/pageattr.c |  6 ++----
- 2 files changed, 31 insertions(+), 7 deletions(-)
+ arch/s390/include/asm/hugetlb.h |  5 ++++-
+ arch/s390/mm/gmap.c             |  2 ++
+ arch/s390/mm/hugetlbpage.c      | 24 ++++++++++++++++++++++++
+ 3 files changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 3807de25a706..a8e32e60226b 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2539,17 +2539,43 @@ EXPORT_SYMBOL_GPL(s390_enable_sie);
-  * Enable storage key handling from now on and initialize the storage
-  * keys with the default key.
-  */
--static int __s390_enable_skey(pte_t *pte, unsigned long addr,
--			      unsigned long next, struct mm_walk *walk)
-+static int __s390_enable_skey_pte(pte_t *pte, unsigned long addr,
-+				  unsigned long next, struct mm_walk *walk)
- {
- 	/* Clear storage key */
- 	ptep_zap_key(walk->mm, addr, pte);
+diff --git a/arch/s390/include/asm/hugetlb.h b/arch/s390/include/asm/hugetlb.h
+index 9c5fc50204dd..2d1afa58a4b6 100644
+--- a/arch/s390/include/asm/hugetlb.h
++++ b/arch/s390/include/asm/hugetlb.h
+@@ -37,7 +37,10 @@ static inline int prepare_hugepage_range(struct file *file,
  	return 0;
  }
  
-+static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
-+				      unsigned long hmask, unsigned long next,
-+				      struct mm_walk *walk)
+-#define arch_clear_hugepage_flags(page)		do { } while (0)
++static inline void arch_clear_hugepage_flags(struct page *page)
 +{
-+	pmd_t *pmd = (pmd_t *)pte;
-+	unsigned long start, end;
++	clear_bit(PG_arch_1, &page->flags);
++}
+ 
+ static inline void huge_pte_clear(struct mm_struct *mm, unsigned long addr,
+ 				  pte_t *ptep, unsigned long sz)
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index a8e32e60226b..a6738c0c4499 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2553,6 +2553,7 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ {
+ 	pmd_t *pmd = (pmd_t *)pte;
+ 	unsigned long start, end;
++	struct page *page = pmd_page(*pmd);
+ 
+ 	/*
+ 	 * The write check makes sure we do not set a key on shared
+@@ -2567,6 +2568,7 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 	start = pmd_val(*pmd) & HPAGE_MASK;
+ 	end = start + HPAGE_SIZE - 1;
+ 	__storage_key_init_range(start, end);
++	set_bit(PG_arch_1, &page->flags);
+ 	return 0;
+ }
+ 
+diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
+index e804090f4470..b0246c705a19 100644
+--- a/arch/s390/mm/hugetlbpage.c
++++ b/arch/s390/mm/hugetlbpage.c
+@@ -123,6 +123,29 @@ static inline pte_t __rste_to_pte(unsigned long rste)
+ 	return pte;
+ }
+ 
++static void clear_huge_pte_skeys(struct mm_struct *mm, unsigned long rste)
++{
++	struct page *page;
++	unsigned long size, paddr;
 +
-+	/*
-+	 * The write check makes sure we do not set a key on shared
-+	 * memory. This is needed as the walker does not differentiate
-+	 * between actual guest memory and the process executable or
-+	 * shared libraries.
-+	 */
-+	if (pmd_val(*pmd) & _SEGMENT_ENTRY_INVALID ||
-+	    !(pmd_val(*pmd) & _SEGMENT_ENTRY_WRITE))
-+		return 0;
++	if (!mm_uses_skeys(mm) ||
++	    rste & _SEGMENT_ENTRY_INVALID)
++		return;
 +
-+	start = pmd_val(*pmd) & HPAGE_MASK;
-+	end = start + HPAGE_SIZE - 1;
-+	__storage_key_init_range(start, end);
-+	return 0;
++	if ((rste & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3) {
++		page = pud_page(__pud(rste));
++		size = PUD_SIZE;
++		paddr = rste & PUD_MASK;
++	} else {
++		page = pmd_page(__pmd(rste));
++		size = PMD_SIZE;
++		paddr = rste & PMD_MASK;
++	}
++
++	if (!test_and_set_bit(PG_arch_1, &page->flags))
++		__storage_key_init_range(paddr, paddr + size - 1);
 +}
 +
- int s390_enable_skey(void)
+ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
+ 		     pte_t *ptep, pte_t pte)
  {
--	struct mm_walk walk = { .pte_entry = __s390_enable_skey };
-+	struct mm_walk walk = {
-+		.hugetlb_entry = __s390_enable_skey_hugetlb,
-+		.pte_entry = __s390_enable_skey_pte,
-+	};
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	int rc = 0;
-diff --git a/arch/s390/mm/pageattr.c b/arch/s390/mm/pageattr.c
-index c44171588d08..f8c6faab41f4 100644
---- a/arch/s390/mm/pageattr.c
-+++ b/arch/s390/mm/pageattr.c
-@@ -14,7 +14,7 @@
- 
- static inline unsigned long sske_frame(unsigned long addr, unsigned char skey)
- {
--	asm volatile(".insn rrf,0xb22b0000,%[skey],%[addr],9,0"
-+	asm volatile(".insn rrf,0xb22b0000,%[skey],%[addr],1,0"
- 		     : [addr] "+a" (addr) : [skey] "d" (skey));
- 	return addr;
+@@ -137,6 +160,7 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
+ 		rste |= _REGION_ENTRY_TYPE_R3 | _REGION3_ENTRY_LARGE;
+ 	else
+ 		rste |= _SEGMENT_ENTRY_LARGE;
++	clear_huge_pte_skeys(mm, rste);
+ 	pte_val(*ptep) = rste;
  }
-@@ -23,8 +23,6 @@ void __storage_key_init_range(unsigned long start, unsigned long end)
- {
- 	unsigned long boundary, size;
  
--	if (!PAGE_DEFAULT_KEY)
--		return;
- 	while (start < end) {
- 		if (MACHINE_HAS_EDAT1) {
- 			/* set storage keys for a 1MB frame */
-@@ -37,7 +35,7 @@ void __storage_key_init_range(unsigned long start, unsigned long end)
- 				continue;
- 			}
- 		}
--		page_set_storage_key(start, PAGE_DEFAULT_KEY, 0);
-+		page_set_storage_key(start, PAGE_DEFAULT_KEY, 1);
- 		start += PAGE_SIZE;
- 	}
- }
 -- 
 2.17.0
