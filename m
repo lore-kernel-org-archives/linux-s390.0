@@ -1,35 +1,54 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 31 Jul 2018 08:43:47 +0000
-Subject: [GIT PULL 01/19] KVM: s390: Replace clear_user with kvm_clear_guest
-Message-Id: <20180731084405.28953-2-borntraeger@de.ibm.com>
+Date: Tue, 31 Jul 2018 08:43:48 +0000
+Subject: [GIT PULL 02/19] KVM: s390: a utility function for migration
+Message-Id: <20180731084405.28953-3-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
 
-kvm_clear_guest also does the dirty tracking for us, which we want to
-have.
+Introduce a utility function that will be used later on for storage
+attributes migration, and use it in kvm_main.c to replace existing code
+that does the same thing.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Message-Id: <1525106005-13931-2-git-send-email-imbrenda@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/priv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/kvm_host.h | 7 +++++++
+ virt/kvm/kvm_main.c      | 2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index eb0eb60c7be6..c4da375553e8 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -956,7 +956,7 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
- 			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 4ee7bc548a83..5f138b40e433 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -309,6 +309,13 @@ static inline unsigned long kvm_dirty_bitmap_bytes(struct kvm_memory_slot *memsl
+ 	return ALIGN(memslot->npages, BITS_PER_LONG) / 8;
+ }
  
- 		if (vcpu->run->s.regs.gprs[reg1] & PFMF_CF) {
--			if (clear_user((void __user *)useraddr, PAGE_SIZE))
-+			if (kvm_clear_guest(vcpu->kvm, start, PAGE_SIZE))
- 				return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
- 		}
++static inline unsigned long *kvm_second_dirty_bitmap(struct kvm_memory_slot *memslot)
++{
++	unsigned long len = kvm_dirty_bitmap_bytes(memslot);
++
++	return memslot->dirty_bitmap + len / sizeof(*memslot->dirty_bitmap);
++}
++
+ struct kvm_s390_adapter_int {
+ 	u64 ind_addr;
+ 	u64 summary_addr;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 8b47507faab5..f519eb8d06b1 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1169,7 +1169,7 @@ int kvm_get_dirty_log_protect(struct kvm *kvm,
  
+ 	n = kvm_dirty_bitmap_bytes(memslot);
+ 
+-	dirty_bitmap_buffer = dirty_bitmap + n / sizeof(long);
++	dirty_bitmap_buffer = kvm_second_dirty_bitmap(memslot);
+ 	memset(dirty_bitmap_buffer, 0, n);
+ 
+ 	spin_lock(&kvm->mmu_lock);
 -- 
 2.17.0
