@@ -1,55 +1,64 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 31 Jul 2018 12:00:47 +0000
-Subject: Re: [PATCH v7 10/22] s390: vfio-ap: sysfs interfaces to configure adapters
-Message-Id: <15f9fdcd-7cb9-cb22-59f7-a3d7078e5a51@de.ibm.com>
-In-Reply-To: <20180730151809.2bb50fb3.cohuck@redhat.com>
-References: <20180730151809.2bb50fb3.cohuck@redhat.com>
+Date: Tue, 31 Jul 2018 12:19:23 +0000
+Subject: Re: [PATCH v7 14/22] s390: vfio-ap: sysfs interface to activate mdev matrix
+Message-Id: <b2c28520-25e2-36b9-707f-68f4d65294f7@de.ibm.com>
+In-Reply-To: <e0c40c36-a212-f806-a765-3c440a7c9347@linux.ibm.com>
+References: <e0c40c36-a212-f806-a765-3c440a7c9347@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 07/30/2018 03:18 PM, Cornelia Huck wrote:
-> On Thu, 26 Jul 2018 21:54:17 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On 07/31/2018 11:14 AM, Halil Pasic wrote:
 > 
->> +/**
->> + * assign_adapter_store
->> + *
->> + * @dev: the matrix device
->> + * @attr: a mediated matrix device attribute
->> + * @buf: a buffer containing the adapter ID (APID) to be assigned
->> + * @count: the number of bytes in @buf
->> + *
->> + * Parses the APID from @buf and assigns it to the mediated matrix device.
->> + *
->> + * Returns the number of bytes processed if the APID is valid; otherwise returns
->> + * an error.
->> + */
->> +static ssize_t assign_adapter_store(struct device *dev,
->> +				    struct device_attribute *attr,
->> +				    const char *buf, size_t count)
->> +{
->> +	int ret;
->> +	unsigned long apid;
->> +	struct mdev_device *mdev = mdev_from_dev(dev);
->> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->> +	unsigned long max_apid = matrix_mdev->matrix.apm_max;
->> +
->> +	ret = kstrtoul(buf, 0, &apid);
->> +	if (ret || (apid > max_apid)) {
->> +		pr_warn("%s: %s: adapter id '%s' not a value from 0 to %02lu(%#04lx)\n",
->> +		       VFIO_AP_MODULE_NAME, __func__, buf, max_apid, max_apid);
 > 
-> I'm not sure how helpful a message to the syslog is if you are writing
-> to sysfs attributes. If you decide to drop the message, you could do
+> On 07/31/2018 10:38 AM, Cornelia Huck wrote:
+>> On Thu, 26 Jul 2018 21:54:21 +0200
+>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>>
+>> Regardless whether the activation approach is a good idea...
+>>
+>>> +static int vfio_ap_verify_queues_reserved(struct ap_matrix_mdev *matrix_mdev)
+>>> +{
+>>> +��� unsigned long apid, apqi;
+>>> +��� int ret = 0;
+>>> +
+>>> +��� for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
+>>> +���������������� matrix_mdev->matrix.apm_max + 1) {
+>>> +������� for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+>>> +�������������������� matrix_mdev->matrix.aqm_max + 1) {
+>>> +����������� if (!ap_owned_by_def_drv((int)apid, (int)apqi))
+>>> +��������������� continue;
+>>> +
+>>> +����������� /*
+>>> +������������ * We want to log every APQN that is not reserved by
+>>> +������������ * the driver, so record the return code, log a message
+>>> +������������ * and allow the loop to continue
+>>> +������������ */
+>>> +����������� ret = -EPERM;
+>>> +����������� pr_warn("%s: activate for %s failed: queue %02lx.%04lx owned by default driver\n",
+>>> +��������������� VFIO_AP_MODULE_NAME, matrix_mdev->name, apid,
+>>> +��������������� apqi);
+>>
+>> ...I do not think that the syslog is a good place to log those errors.
+>> AFAICS these are setup/administration errors, and the admin may want to
+>> inspect the data to find out what went wrong. Maybe better to log
+>> attempts to assign APQNs reserved to the default drivers into a
+>> dedicated dbf or somesuch, and log it in a format that can also be
+>> digested by scripts?
+>>
 > 
-> if (apid > max_apid)
-> 	ret = -EINVAL;
+> I agree, the error reporting is suboptimal. My preferred solution is an
+> API with proper error reporting though. Even with dbf the problem, that
+> one has to read some log and figure out what error corresponds to what
+> request persist. Optimally the user should get feedback via the same
+> interface an interactive action was triggered.
 > 
-> if (ret)
-> 	return ret;
-> 
-> which looks more straightforward to me.
+> In fact, I had a proof of concept implementation but it would need some
+> rebasing. Another IMHO desirable property of this interface is that it
+> changes (or rejects change to) the matrix (masks) in one atomic operation.
+> So there is no 'dirty' state and no transaction involved in specifying
+> or changing the matrix.
 
-Yes, makes sense. pr_* usage should be reduced in this patch series
+lets just drop the printks for the time being. Its the normal way of kernel
+things to return with -EINVAL and NOT telling why.
