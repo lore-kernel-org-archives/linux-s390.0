@@ -1,162 +1,147 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 31 Jul 2018 08:43:51 +0000
-Subject: [GIT PULL 05/19] KVM: s390: add etoken support for guests
-Message-Id: <20180731084405.28953-6-borntraeger@de.ibm.com>
+Date: Tue, 31 Jul 2018 08:43:52 +0000
+Subject: [GIT PULL 06/19] s390/mm: Make gmap_protect_range more modular
+Message-Id: <20180731084405.28953-7-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-We want to provide facility 156 (etoken facility) to our
-guests. This includes migration support (via sync regs) and
-VSIE changes. The tokens are being reset on clear reset. This
-has to be implemented by userspace (via sync regs).
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+This patch reworks the gmap_protect_range logic and extracts the pte
+handling into an own function. Also we do now walk to the pmd and make
+it accessible in the function for later use. This way we can add huge
+page handling logic more easily.
+
+Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 1 +
- arch/s390/include/uapi/asm/kvm.h | 5 ++++-
- arch/s390/kvm/kvm-s390.c         | 8 ++++++--
- arch/s390/kvm/vsie.c             | 9 +++++++--
- arch/s390/tools/gen_facilities.c | 3 ++-
- 5 files changed, 20 insertions(+), 6 deletions(-)
+ arch/s390/mm/gmap.c | 93 ++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 83 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 44b09b366782..1a7b6834797e 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -269,6 +269,7 @@ struct kvm_s390_sie_block {
- 	__u8	reserved1c0[8];		/* 0x01c0 */
- #define ECD_HOSTREGMGMT	0x20000000
- #define ECD_MEF		0x08000000
-+#define ECD_ETOKENF	0x02000000
- 	__u32	ecd;			/* 0x01c8 */
- 	__u8	reserved1cc[18];	/* 0x01cc */
- 	__u64	pp;			/* 0x01de */
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 4cdaa55fabfe..9a50f02b9894 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -4,7 +4,7 @@
- /*
-  * KVM s390 specific structures and definitions
-  *
-- * Copyright IBM Corp. 2008
-+ * Copyright IBM Corp. 2008, 2018
-  *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *               Christian Borntraeger <borntraeger@de.ibm.com>
-@@ -225,6 +225,7 @@ struct kvm_guest_debug_arch {
- #define KVM_SYNC_FPRS   (1UL << 8)
- #define KVM_SYNC_GSCB   (1UL << 9)
- #define KVM_SYNC_BPBC   (1UL << 10)
-+#define KVM_SYNC_ETOKEN (1UL << 11)
- /* length and alignment of the sdnx as a power of two */
- #define SDNXC 8
- #define SDNXL (1UL << SDNXC)
-@@ -258,6 +259,8 @@ struct kvm_sync_regs {
- 		struct {
- 			__u64 reserved1[2];
- 			__u64 gscb[4];
-+			__u64 etoken;
-+			__u64 etoken_extension;
- 		};
- 	};
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b350ec14d882..0cc8a48fc732 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2355,6 +2355,8 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_BPBC;
- 	if (test_kvm_facility(vcpu->kvm, 133))
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_GSCB;
-+	if (test_kvm_facility(vcpu->kvm, 156))
-+		vcpu->run->kvm_valid_regs |= KVM_SYNC_ETOKEN;
- 	/* fprs can be synchronized via vrs, even if the guest has no vx. With
- 	 * MACHINE_HAS_VX, (load|store)_fpu_regs() will work with vrs format.
- 	 */
-@@ -2604,7 +2606,8 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 	}
- 	if (test_kvm_facility(vcpu->kvm, 139))
- 		vcpu->arch.sie_block->ecd |= ECD_MEF;
--
-+	if (test_kvm_facility(vcpu->kvm, 156))
-+		vcpu->arch.sie_block->ecd |= ECD_ETOKENF;
- 	if (vcpu->arch.sie_block->gd) {
- 		vcpu->arch.sie_block->eca |= ECA_AIV;
- 		VCPU_EVENT(vcpu, 3, "AIV gisa format-%u enabled for cpu %03u",
-@@ -3522,6 +3525,7 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 		}
- 		preempt_enable();
- 	}
-+	/* SIE will load etoken directly from SDNX and therefore kvm_run */
- 
- 	kvm_run->kvm_dirty_regs = 0;
- }
-@@ -3561,7 +3565,7 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 			__ctl_clear_bit(2, 4);
- 		vcpu->arch.host_gscb = NULL;
- 	}
--
-+	/* SIE will save etoken directly into SDNX and therefore kvm_run */
- }
- 
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 5539df037f91..63844b95c22c 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -2,7 +2,7 @@
- /*
-  * kvm nested virtualization support for s390x
-  *
-- * Copyright IBM Corp. 2016
-+ * Copyright IBM Corp. 2016, 2018
-  *
-  *    Author(s): David Hildenbrand <dahi@linux.vnet.ibm.com>
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index bc56ec8abcf7..71b0e9ca0137 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -864,7 +864,79 @@ static int gmap_pte_op_fixup(struct gmap *gmap, unsigned long gaddr,
   */
-@@ -378,6 +378,10 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	if (test_kvm_facility(vcpu->kvm, 139))
- 		scb_s->ecd |= scb_o->ecd & ECD_MEF;
- 
-+	/* etoken */
-+	if (test_kvm_facility(vcpu->kvm, 156))
-+		scb_s->ecd |= scb_o->ecd & ECD_ETOKENF;
+ static void gmap_pte_op_end(spinlock_t *ptl)
+ {
+-	spin_unlock(ptl);
++	if (ptl)
++		spin_unlock(ptl);
++}
 +
- 	prepare_ibc(vcpu, vsie_page);
- 	rc = shadow_crycb(vcpu, vsie_page);
- out:
-@@ -627,7 +631,8 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		vsie_page->riccbd_gpa = gpa;
- 		scb_s->riccbd = hpa;
- 	}
--	if ((scb_s->ecb & ECB_GS) && !(scb_s->ecd & ECD_HOSTREGMGMT)) {
-+	if (((scb_s->ecb & ECB_GS) && !(scb_s->ecd & ECD_HOSTREGMGMT)) ||
-+	    (scb_s->ecd & ECD_ETOKENF)) {
- 		unsigned long sdnxc;
++/**
++ * gmap_pmd_op_walk - walk the gmap tables, get the guest table lock
++ *		      and return the pmd pointer
++ * @gmap: pointer to guest mapping meta data structure
++ * @gaddr: virtual address in the guest address space
++ *
++ * Returns a pointer to the pmd for a guest address, or NULL
++ */
++static inline pmd_t *gmap_pmd_op_walk(struct gmap *gmap, unsigned long gaddr)
++{
++	pmd_t *pmdp;
++
++	BUG_ON(gmap_is_shadow(gmap));
++	spin_lock(&gmap->guest_table_lock);
++	pmdp = (pmd_t *) gmap_table_walk(gmap, gaddr, 1);
++
++	if (!pmdp || pmd_none(*pmdp)) {
++		spin_unlock(&gmap->guest_table_lock);
++		return NULL;
++	}
++
++	/* 4k page table entries are locked via the pte (pte_alloc_map_lock). */
++	if (!pmd_large(*pmdp))
++		spin_unlock(&gmap->guest_table_lock);
++	return pmdp;
++}
++
++/**
++ * gmap_pmd_op_end - release the guest_table_lock if needed
++ * @gmap: pointer to the guest mapping meta data structure
++ * @pmdp: pointer to the pmd
++ */
++static inline void gmap_pmd_op_end(struct gmap *gmap, pmd_t *pmdp)
++{
++	if (pmd_large(*pmdp))
++		spin_unlock(&gmap->guest_table_lock);
++}
++
++/*
++ * gmap_protect_pte - remove access rights to memory and set pgste bits
++ * @gmap: pointer to guest mapping meta data structure
++ * @gaddr: virtual address in the guest address space
++ * @pmdp: pointer to the pmd associated with the pte
++ * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
++ * @bits: pgste notification bits to set
++ *
++ * Returns 0 if successfully protected, -ENOMEM if out of memory and
++ * -EAGAIN if a fixup is needed.
++ *
++ * Expected to be called with sg->mm->mmap_sem in read
++ */
++static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
++			    pmd_t *pmdp, int prot, unsigned long bits)
++{
++	int rc;
++	pte_t *ptep;
++	spinlock_t *ptl = NULL;
++
++	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
++		return -EAGAIN;
++
++	ptep = pte_alloc_map_lock(gmap->mm, pmdp, gaddr, &ptl);
++	if (!ptep)
++		return -ENOMEM;
++
++	/* Protect and unlock. */
++	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
++	gmap_pte_op_end(ptl);
++	return rc;
+ }
  
- 		gpa = READ_ONCE(scb_o->sdnxo) & ~0xfUL;
-diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
-index 90a8c9e84ca6..0c85aedcf9b3 100644
---- a/arch/s390/tools/gen_facilities.c
-+++ b/arch/s390/tools/gen_facilities.c
-@@ -4,7 +4,7 @@
-  * numbering scheme from the Princples of Operations: most significant bit
-  * has bit number 0.
-  *
-- *    Copyright IBM Corp. 2015
-+ *    Copyright IBM Corp. 2015, 2018
-  *
-  */
+ /*
+@@ -884,17 +956,21 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 			      unsigned long len, int prot, unsigned long bits)
+ {
+ 	unsigned long vmaddr;
+-	spinlock_t *ptl;
+-	pte_t *ptep;
++	pmd_t *pmdp;
+ 	int rc;
  
-@@ -106,6 +106,7 @@ static struct facility_def facility_defs[] = {
- 
- 		.name = "FACILITIES_KVM_CPUMODEL",
- 		.bits = (int[]){
-+			156, /* etoken facility */
- 			-1  /* END */
+ 	BUG_ON(gmap_is_shadow(gmap));
+ 	while (len) {
+ 		rc = -EAGAIN;
+-		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
+-		if (ptep) {
+-			rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, bits);
+-			gmap_pte_op_end(ptl);
++		pmdp = gmap_pmd_op_walk(gmap, gaddr);
++		if (pmdp) {
++			rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
++					      bits);
++			if (!rc) {
++				len -= PAGE_SIZE;
++				gaddr += PAGE_SIZE;
++			}
++			gmap_pmd_op_end(gmap, pmdp);
  		}
- 	},
+ 		if (rc) {
+ 			vmaddr = __gmap_translate(gmap, gaddr);
+@@ -903,10 +979,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 			rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr, prot);
+ 			if (rc)
+ 				return rc;
+-			continue;
+ 		}
+-		gaddr += PAGE_SIZE;
+-		len -= PAGE_SIZE;
+ 	}
+ 	return 0;
+ }
 -- 
 2.17.0
