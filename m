@@ -1,62 +1,54 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Thu, 02 Aug 2018 11:18:53 +0000
-Subject: Re: [PATCH v7 09/22] s390: vfio-ap: register matrix device with VFIO mdev framework
-Message-Id: <20180802131853.2f2290c7.cohuck@redhat.com>
-In-Reply-To: <46d292dd-7578-1ba6-4561-d42a6441debf@linux.ibm.com>
-References: <46d292dd-7578-1ba6-4561-d42a6441debf@linux.ibm.com>
+From: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+Date: Thu, 02 Aug 2018 11:38:19 +0000
+Subject: Re: [PATCH] KVM: s390: Make huge pages unavailable in ucontrol vms
+Message-Id: <20180802133819.55db0006@p-imbrenda.boeblingen.de.ibm.com>
+In-Reply-To: <c5536333-1e09-cabc-a282-df95f48ed068@linux.ibm.com>
+References: <c5536333-1e09-cabc-a282-df95f48ed068@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 1 Aug 2018 17:34:26 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Wed,  1 Aug 2018 12:25:08 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-> On 07/27/2018 07:26 AM, Halil Pasic wrote:
-> >
-> >
-> > On 07/27/2018 01:17 PM, Cornelia Huck wrote:  
-> >> On Fri, 27 Jul 2018 13:13:40 +0200
-> >> Halil Pasic <pasic@linux.ibm.com> wrote:
-> >>  
-> >>>>> @@ -65,6 +66,21 @@ static int vfio_ap_matrix_dev_create(void)
-> >>>>>    {
-> >>>>>        int ret;
-> >>>>>    +    mutex_init(&matrix_dev.lock);
-> >>>>> +    INIT_LIST_HEAD(&matrix_dev.mdev_list);
-> >>>>> +
-> >>>>> +    /* Test if PQAP(QCI) instruction is available */
-> >>>>> +    if (test_facility(12)) {
-> >>>>> +        ret = ap_qci(&matrix_dev.info);
-> >>>>> +        if (ret && (ret != -EOPNOTSUPP)) {  
-> >>>>
-> >>>> So, is facility 12 a pre-req for PQAP(QCI)? Can the code work if
-> >>>> matrix_dev.info is not populated?  
-> >>>
-> >>> Yes and yes. It's basically only used in vfio_ap_matrix_init() and it
-> >>> has fallbacks.  
-> >>
-> >> Ok. So facility 12 is required but not sufficient for PQAP(QCI) to be
-> >> available? (Just asking as I cannot check the doc; if it works with
-> >> fallbacks I'm fine.)  
+> We currently do not notify all gmaps when using gmap_pmdp_xchg(), due
+> to locking constraints. This makes ucontrol vms, which is the only vm
+> type that creates multiple gmaps, incompatible with huge pages.
 > 
-> I took a look at the ap_qci() function. It returns:
-> 
->      0:           success
->      -EOPNOTSUPP: returned when an exception occurs executing the
->                   PQAP(QCI) instruction
-> 
-> I conclude that if STFLE.12 is set, then the PQAP(QCI) instruction
-> should work. If -ENOPNOTSUPP is returned, then this would be a
-> serious error and I think we should return an error from this function.
+> ucontrol vms are rather exotic and creating a new locking concept is
+> no easy task. Hence we return EINVAL when trying to active
+> KVM_CAP_S390_HPAGE_1M and report it as being not available when
+> checking for it.
 
-Sounds reasonable to me.
+makes sense
+ 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index f9d90337e64a..549f38d1baa1 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -481,7 +481,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm,
+> long ext) break;
+>  	case KVM_CAP_S390_HPAGE_1M:
+>  		r = 0;
+> -		if (hpage)
+> +		if (hpage && !kvm_is_ucontrol(kvm))
+>  			r = 1;
+>  		break;
+>  	case KVM_CAP_S390_MEM_OP:
+> @@ -691,7 +691,7 @@ static int kvm_vm_ioctl_enable_cap(struct kvm
+> *kvm, struct kvm_enable_cap *cap) mutex_lock(&kvm->lock);
+>  		if (kvm->created_vcpus)
+>  			r = -EBUSY;
+> -		else if (!hpage || kvm->arch.use_cmma)
+> +		else if (!hpage || kvm->arch.use_cmma ||
+> kvm_is_ucontrol(kvm)) r = -EINVAL;
+>  		else {
+>  			r = 0;
 
-> 
-> >>  
-> >
-> > AFAIR it should be sufficient in our case. My guess is that the non 0
-> > return code stands for program exceptions that are not related to the
-> > availability of QCI.  
-> 
-> 
-> 
-> 
+the patch is rather straightforward
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
