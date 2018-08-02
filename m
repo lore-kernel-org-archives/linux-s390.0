@@ -1,53 +1,43 @@
 From: Hendrik Brueckner <brueckner@linux.ibm.com>
-Date: Thu, 02 Aug 2018 09:57:26 +0000
-Subject: Re: [PATCH 4/5] zipl: Move macro definition to Makefile
-Message-Id: <20180802095726.GD5361@linux.ibm.com>
-In-Reply-To: <31847bcc-32d6-b656-c285-bfb1fe87da23@redhat.com>
-References: <31847bcc-32d6-b656-c285-bfb1fe87da23@redhat.com>
+Date: Thu, 02 Aug 2018 10:00:24 +0000
+Subject: Re: [PATCH 5/5] zfcpdump: Add install script for zfcpdump
+Message-Id: <20180802100024.GE5361@linux.ibm.com>
+In-Reply-To: <fd6898dc-3016-fd1e-1e4c-31cec7b21a7c@redhat.com>
+References: <fd6898dc-3016-fd1e-1e4c-31cec7b21a7c@redhat.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jul 25, 2018 at 01:36:14PM +0200, Philipp Rudo wrote:
-> In the zipl Makefile macros are defined with the sole purpose to define
-> other macros in zipl.h. Remove this unnecessary indirection.
+On Wed, Jul 25, 2018 at 01:36:15PM +0200, Philipp Rudo wrote:
+> Since version 198 (Feb 2013) systemd contains kernel-install, a script
+> managing kernel installs. This script allows execution of drop-in scripts
+> for customization. Add such a drop-in script to s390-tools to handle the
+> installation of zfcpdump kernels and simplify interactions between zfcpdump
+> and zipl.
+> 
+> The script supports two installation modes. One recommended by the
+> BootLoaderSpecs [1] to /boot/<machine-id>/<kernel-version> directories and
+> one directly to /boot. In the second case files are renamed during
+> installation to <original-name>-<kernel-version> to guarantee unique names.
+> 
+> Because the zfcpdump kernel is so special make the script stand-alone and
+> prevent any other script from being executed (exit 77) when a zfcpdump is
+> installed. Especially avoid functionality like creating an initrd (already
+> provided by s390-tools) or creating a boot entry (the zfcpdump kernel
+> should not be used for any other purpose than dumping).
+> 
+> The script requires systemd >= 203.
+> 
+> [1] https://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/
 > 
 > Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
 > ---
->  zipl/include/zipl.h | 5 -----
->  zipl/src/Makefile   | 5 ++---
->  2 files changed, 2 insertions(+), 8 deletions(-)
-> 
-> diff --git a/zipl/include/zipl.h b/zipl/include/zipl.h
-> index fb68ae88..770801e5 100644
-> --- a/zipl/include/zipl.h
-> +++ b/zipl/include/zipl.h
-> @@ -48,11 +48,6 @@
->  #define MENU_DEFAULT_PROMPT		0
->  #define MENU_DEFAULT_TIMEOUT		0
->  
-> -#define ZFCPDUMP_IMAGE		STRINGIFY(ZFCPDUMP_DIR) "/" \
-> -					STRINGIFY(ZFCPDUMP_PART_IMAGE)
-> -#define ZFCPDUMP_INITRD		STRINGIFY(ZFCPDUMP_DIR) "/" \
-> -					STRINGIFY(ZFCPDUMP_PART_RD)
-> -
->  #define MAX_DUMP_VOLUMES		32
->  
->  /* Internal component load address type */
-> diff --git a/zipl/src/Makefile b/zipl/src/Makefile
-> index b9018b4b..be14fce5 100644
-> --- a/zipl/src/Makefile
-> +++ b/zipl/src/Makefile
-> @@ -2,9 +2,8 @@
->  include ../../common.mak
->  
->  ALL_CPPFLAGS += -I../include -I../boot \
-> -	    -DZFCPDUMP_DIR=$(ZFCPDUMP_DIR) \
-> -	    -DZFCPDUMP_PART_IMAGE=$(ZFCPDUMP_IMAGE) \
-> -	    -DZFCPDUMP_PART_RD=$(ZFCPDUMP_INITRD) \
-> +	    -DZFCPDUMP_IMAGE="STRINGIFY($(ZFCPDUMP_DIR)/$(ZFCPDUMP_IMAGE))" \
-> +	    -DZFCPDUMP_INITRD="STRINGIFY($(ZFCPDUMP_DIR)/$(ZFCPDUMP_INITRD))" \
->  	    -D_FILE_OFFSET_BITS=64 $(NO_PIE_CFLAGS)
->  ALL_LDFLAGS += -Wl,-z,noexecstack $(NO_PIE_LDFLAGS)
->
+>  .gitignore                      |   1 +
+>  common.mak                      |   3 +-
+>  zfcpdump/10-zfcpdump.install.in | 114 ++++++++++++++++++++++++++++++++++++++++
+>  zfcpdump/Makefile               |  16 ++++--
+>  4 files changed, 130 insertions(+), 4 deletions(-)
+>  create mode 100755 zfcpdump/10-zfcpdump.install.in
+
+Looks good to me :)
 
 Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
