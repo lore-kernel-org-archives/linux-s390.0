@@ -1,43 +1,62 @@
-From: Hendrik Brueckner <brueckner@linux.ibm.com>
-Date: Thu, 02 Aug 2018 10:00:24 +0000
-Subject: Re: [PATCH 5/5] zfcpdump: Add install script for zfcpdump
-Message-Id: <20180802100024.GE5361@linux.ibm.com>
-In-Reply-To: <fd6898dc-3016-fd1e-1e4c-31cec7b21a7c@redhat.com>
-References: <fd6898dc-3016-fd1e-1e4c-31cec7b21a7c@redhat.com>
-To: linux-s390@vger.kernel.org
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Thu, 02 Aug 2018 11:18:53 +0000
+Subject: Re: [PATCH v7 09/22] s390: vfio-ap: register matrix device with VFIO mdev framework
+Message-Id: <20180802131853.2f2290c7.cohuck@redhat.com>
+In-Reply-To: <46d292dd-7578-1ba6-4561-d42a6441debf@linux.ibm.com>
+References: <46d292dd-7578-1ba6-4561-d42a6441debf@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jul 25, 2018 at 01:36:15PM +0200, Philipp Rudo wrote:
-> Since version 198 (Feb 2013) systemd contains kernel-install, a script
-> managing kernel installs. This script allows execution of drop-in scripts
-> for customization. Add such a drop-in script to s390-tools to handle the
-> installation of zfcpdump kernels and simplify interactions between zfcpdump
-> and zipl.
-> 
-> The script supports two installation modes. One recommended by the
-> BootLoaderSpecs [1] to /boot/<machine-id>/<kernel-version> directories and
-> one directly to /boot. In the second case files are renamed during
-> installation to <original-name>-<kernel-version> to guarantee unique names.
-> 
-> Because the zfcpdump kernel is so special make the script stand-alone and
-> prevent any other script from being executed (exit 77) when a zfcpdump is
-> installed. Especially avoid functionality like creating an initrd (already
-> provided by s390-tools) or creating a boot entry (the zfcpdump kernel
-> should not be used for any other purpose than dumping).
-> 
-> The script requires systemd >= 203.
-> 
-> [1] https://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/
-> 
-> Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-> ---
->  .gitignore                      |   1 +
->  common.mak                      |   3 +-
->  zfcpdump/10-zfcpdump.install.in | 114 ++++++++++++++++++++++++++++++++++++++++
->  zfcpdump/Makefile               |  16 ++++--
->  4 files changed, 130 insertions(+), 4 deletions(-)
->  create mode 100755 zfcpdump/10-zfcpdump.install.in
+On Wed, 1 Aug 2018 17:34:26 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-Looks good to me :)
+> On 07/27/2018 07:26 AM, Halil Pasic wrote:
+> >
+> >
+> > On 07/27/2018 01:17 PM, Cornelia Huck wrote:  
+> >> On Fri, 27 Jul 2018 13:13:40 +0200
+> >> Halil Pasic <pasic@linux.ibm.com> wrote:
+> >>  
+> >>>>> @@ -65,6 +66,21 @@ static int vfio_ap_matrix_dev_create(void)
+> >>>>>    {
+> >>>>>        int ret;
+> >>>>>    +    mutex_init(&matrix_dev.lock);
+> >>>>> +    INIT_LIST_HEAD(&matrix_dev.mdev_list);
+> >>>>> +
+> >>>>> +    /* Test if PQAP(QCI) instruction is available */
+> >>>>> +    if (test_facility(12)) {
+> >>>>> +        ret = ap_qci(&matrix_dev.info);
+> >>>>> +        if (ret && (ret != -EOPNOTSUPP)) {  
+> >>>>
+> >>>> So, is facility 12 a pre-req for PQAP(QCI)? Can the code work if
+> >>>> matrix_dev.info is not populated?  
+> >>>
+> >>> Yes and yes. It's basically only used in vfio_ap_matrix_init() and it
+> >>> has fallbacks.  
+> >>
+> >> Ok. So facility 12 is required but not sufficient for PQAP(QCI) to be
+> >> available? (Just asking as I cannot check the doc; if it works with
+> >> fallbacks I'm fine.)  
+> 
+> I took a look at the ap_qci() function. It returns:
+> 
+>      0:           success
+>      -EOPNOTSUPP: returned when an exception occurs executing the
+>                   PQAP(QCI) instruction
+> 
+> I conclude that if STFLE.12 is set, then the PQAP(QCI) instruction
+> should work. If -ENOPNOTSUPP is returned, then this would be a
+> serious error and I think we should return an error from this function.
 
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Sounds reasonable to me.
+
+> 
+> >>  
+> >
+> > AFAIR it should be sufficient in our case. My guess is that the non 0
+> > return code stands for program exceptions that are not related to the
+> > availability of QCI.  
+> 
+> 
+> 
+> 
