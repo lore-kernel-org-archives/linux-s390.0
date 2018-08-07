@@ -1,64 +1,45 @@
 From: Philipp Rudo <prudo@linux.ibm.com>
-Date: Tue, 07 Aug 2018 13:33:01 +0000
-Subject: [PATCH v2 0/5]  s390-tools: Add install script for zfcpdump
-Message-Id: <20180807133306.46056-1-prudo@linux.ibm.com>
+Date: Tue, 07 Aug 2018 13:33:02 +0000
+Subject: [PATCH v2 1/5] zfcpdump: Remove unused macros
+Message-Id: <20180807133306.46056-2-prudo@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi everybody
+There are no more users for these macros. Remove them.
 
-here is v2 of the series.
+Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+---
+ zipl/include/zipl.h | 2 --
+ zipl/src/Makefile   | 2 --
+ 2 files changed, 4 deletions(-)
 
-changes v1 -> v2:
-
-	- In description of patch 5 mention that zipl expects to find the
-	  zfcpdump kernel at ZFCPDUMP_IMAGE.
-
-	- Add Reviewed-Bys
-
-When there are no more comments I will push the commits at the end of the
-week.
-
-Thanks
-Philipp
-
-----
-
-Hi everybody
-
-currently every distro handles the zfcpdump kernel differently. However,
-with systemd (>= 203) there is a general script (kernel-install) available
-for kernel installs. This script allows the execution of drop-in scripts to
-deal with specific aspects of the kernel installation.  Add such a drop-in
-script to s390-tools to allow unifying zfcpdump kernel handling among the
-distros and simplifying the interaction between zipl and zfcpdump.
-
-At the moment the script is only generated but not installed to allow
-distros to decide if/where they want to install it.
-
-Before the script is added some minor cleanups are made regarding zfcpdump
-related macros. The goal here is to reduce unnecessary macro definitions and
-to unify the naming in zfcpdump and zipl.
-
-Thanks
-Philipp
-
-Philipp Rudo (5):
-  zfcpdump: Remove unused macros
-  zipl: Rename FSDUMP_PART_* macros
-  Makefile: Rename ZFCPDUMP_PART_* macros
-  zipl: Move macro definition to Makefile
-  zfcpdump: Add install script for zfcpdump
-
- .gitignore                      |   3 +-
- common.mak                      |   7 +--
- zfcpdump/10-zfcpdump.install.in | 114 ++++++++++++++++++++++++++++++++++++++++
- zfcpdump/Makefile               |  22 +++++---
- zipl/include/zipl.h             |   7 ---
- zipl/src/Makefile               |   7 +--
- zipl/src/job.c                  |  10 ++--
- 7 files changed, 143 insertions(+), 27 deletions(-)
- create mode 100755 zfcpdump/10-zfcpdump.install.in
-
+diff --git a/zipl/include/zipl.h b/zipl/include/zipl.h
+index 2aed54fb..7670a0f9 100644
+--- a/zipl/include/zipl.h
++++ b/zipl/include/zipl.h
+@@ -48,8 +48,6 @@
+ #define MENU_DEFAULT_PROMPT		0
+ #define MENU_DEFAULT_TIMEOUT		0
+ 
+-#define FSDUMP_IMAGE	STRINGIFY(ZFCPDUMP_DIR) "/" STRINGIFY(ZFCPDUMP_FS_IMAGE)
+-#define FSDUMP_RAMDISK	STRINGIFY(ZFCPDUMP_DIR) "/" STRINGIFY(ZFCPDUMP_FS_RD)
+ #define FSDUMP_PART_IMAGE	STRINGIFY(ZFCPDUMP_DIR) "/" \
+ 					STRINGIFY(ZFCPDUMP_PART_IMAGE)
+ #define FSDUMP_PART_RAMDISK	STRINGIFY(ZFCPDUMP_DIR) "/" \
+diff --git a/zipl/src/Makefile b/zipl/src/Makefile
+index 1634c0d5..f8c36dc2 100644
+--- a/zipl/src/Makefile
++++ b/zipl/src/Makefile
+@@ -3,8 +3,6 @@ include ../../common.mak
+ 
+ ALL_CPPFLAGS += -I../include -I../boot \
+ 	    -DZFCPDUMP_DIR=$(ZFCPDUMP_DIR) \
+-	    -DZFCPDUMP_FS_IMAGE=$(ZFCPDUMP_FS_IMAGE) \
+-	    -DZFCPDUMP_FS_RD=$(ZFCPDUMP_FS_RD) \
+ 	    -DZFCPDUMP_PART_IMAGE=$(ZFCPDUMP_PART_IMAGE) \
+ 	    -DZFCPDUMP_PART_RD=$(ZFCPDUMP_PART_RD) \
+ 	    -D_FILE_OFFSET_BITS=64 $(NO_PIE_CFLAGS)
 -- 
 2.16.4
