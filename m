@@ -1,16 +1,15 @@
 Return-Path: <SRS0=n5k7=KW=vger.kernel.org=linux-kernel-owner@kernel.org>
 Reply-To: pmorel@linux.ibm.com
-Subject: Re: [PATCH RFC 2/2] KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
+Subject: Re: [PATCH RFC 0/2] KVM: s390: vsie: support VCPU requests
 References: <20180807125131.3606-1-david@redhat.com>
- <20180807125131.3606-3-david@redhat.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Tue, 7 Aug 2018 19:06:26 +0200
+Date: Tue, 7 Aug 2018 19:15:02 +0200
 MIME-Version: 1.0
-In-Reply-To: <20180807125131.3606-3-david@redhat.com>
+In-Reply-To: <20180807125131.3606-1-david@redhat.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Message-Id: <fd4bfc34-d001-26b6-17c0-03eb1df59454@linux.ibm.com>
+Message-Id: <65aefa0e-275f-1a30-2237-904aa4c6d63b@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,66 +18,39 @@ Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Mart
 List-ID: <linux-s390.vger.kernel.org>
 
 On 07/08/2018 14:51, David Hildenbrand wrote:
-> When we change the crycb (or execution controls), we also have to make sure
-> that the vSIE shadow datastructures properly consider the changed
-> values before rerunning the vSIE. We can achieve that by simply using a
-> VCPU request now.
+> While discussing AP changes, we discovered that we will have to force
+> a CPU using the vSIE to regenerate/reload shadow data structures. For now,
+> we have no mechanism for that.
 >
-> This has to be a synchronous request (== handled before entering the
-> (v)SIE again).
+> E.g. when clearing AP masks later, we could still have a vSIE CPU making
+> use of AP adapters as the masks might not be considered yet in the vSIE
+> data structures. We need a way to block entering the vSIE and regenerate
+> all shadow data structures once done.
 >
-> The request will make sure that the vSIE handler is left, and that the
-> request will be processed (NOP), therefore forcing a reload of all
-> vSIE data (including rebuilding the crycb) when re-entering the vSIE
-> interception handler the next time.
+> Looks like we can achieve that by simply simulating an ordinary SIE
+> entry/exit in the VCPU sie control block (while entering the vSIE loop).
 >
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->   arch/s390/include/asm/kvm_host.h | 1 +
->   arch/s390/kvm/kvm-s390.c         | 7 ++++++-
->   2 files changed, 7 insertions(+), 1 deletion(-)
+> This way, we can support blocking and also synchronous CPU requests.
 >
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 29c940bf8506..75d39628f21d 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -44,6 +44,7 @@
->   #define KVM_REQ_ICPT_OPEREXC	KVM_ARCH_REQ(2)
->   #define KVM_REQ_START_MIGRATION KVM_ARCH_REQ(3)
->   #define KVM_REQ_STOP_MIGRATION  KVM_ARCH_REQ(4)
-> +#define KVM_REQ_VSIE_RESTART	KVM_ARCH_REQ(5)
->   
->   #define SIGP_CTRL_C		0x80
->   #define SIGP_CTRL_SCN_MASK	0x3f
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index c87734a31fdb..2fdc017d91f0 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -842,8 +842,11 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm)
->   
->   	kvm_s390_vcpu_block_all(kvm);
->   
-> -	kvm_for_each_vcpu(i, vcpu, kvm)
-> +	kvm_for_each_vcpu(i, vcpu, kvm) {
->   		kvm_s390_vcpu_crypto_setup(vcpu);
-> +		/* recreate the shadow crycb by leaving the VSIE handler */
-> +		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
-> +	}
->   
->   	kvm_s390_vcpu_unblock_all(kvm);
->   }
-> @@ -3201,6 +3204,8 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
->   
->   	/* nothing to do, just clear the request */
->   	kvm_clear_request(KVM_REQ_UNHALT, vcpu);
-> +	/* we left the vsie handler, nothing to do, just clear the request */
-> +	kvm_clear_request(KVM_REQ_VSIE_RESTART, vcpu);
->   
->   	return 0;
->   }
+> Only compile tested.
+>
+> David Hildenbrand (2):
+>    KVM: s390: vsie: simulate VCPU SIE entry/exit
+>    KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
+>
+>   arch/s390/include/asm/kvm_host.h |  1 +
+>   arch/s390/kvm/kvm-s390.c         | 16 ++++++++++++++--
+>   arch/s390/kvm/kvm-s390.h         |  1 +
+>   arch/s390/kvm/vsie.c             | 20 ++++++++++++++++++--
+>   4 files changed, 34 insertions(+), 4 deletions(-)
+>
+Thanks David for your patches.
 
-Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
-Tested-by: Pierre Morel<pmorel@linux.ibm.com>
+Following my tests, they work fine for our AP use case.
+
+Best regards,
+
+Pierre
 
 
 -- 
