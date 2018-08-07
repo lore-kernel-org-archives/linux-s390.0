@@ -1,187 +1,70 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH] KVM: s390: vsie: Consolidate CRYCB validation
-Date: Wed, 22 Aug 2018 14:25:50 +0200
-Message-ID: <8afefad7-d4a5-7e02-d5ea-9a355cbed332@linux.ibm.com>
-References: <1534925337-18380-1-git-send-email-pmorel@linux.ibm.com>
- <c410ab24-1f83-21f3-1996-7328aeb3f408@redhat.com>
- <7de5e991-764e-dec8-648b-6acc42c141e6@linux.ibm.com>
- <f5261c1a-58f6-68f2-1736-eb13dce863b6@redhat.com>
- <0032fc9b-4328-1a09-66f5-65f485a8a42f@linux.ibm.com>
- <a6a2aec1-33cf-6299-8219-ed5043ba07be@redhat.com>
-Reply-To: pmorel@linux.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a6a2aec1-33cf-6299-8219-ed5043ba07be@redhat.com>
+Return-Path: <SRS0=n5k7=KW=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: [PATCH RFC 0/2] KVM: s390: vsie: support VCPU requests
+References: <20180807125131.3606-1-david@redhat.com>
+ <65aefa0e-275f-1a30-2237-904aa4c6d63b@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <837b990a-f034-5199-458d-bfbc9efaecbb@redhat.com>
+Date: Tue, 7 Aug 2018 19:35:56 +0200
+MIME-Version: 1.0
+In-Reply-To: <65aefa0e-275f-1a30-2237-904aa4c6d63b@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: pmorel@linux.ibm.com, linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 22/08/2018 13:09, David Hildenbrand wrote:
-> On 22.08.2018 12:42, Pierre Morel wrote:
->> On 22/08/2018 10:44, David Hildenbrand wrote:
->>> On 22.08.2018 10:41, Pierre Morel wrote:
->>>> On 22/08/2018 10:25, David Hildenbrand wrote:
->>>>> On 22.08.2018 10:08, Pierre Morel wrote:
->>>>>> Currently when shadowing the CRYCB on SIE entrance, the validation
->>>>>> tests the following:
->>>>>> - accept only FORMAT1 or FORMAT2
->>>>>> - test if MSAext facility (76) is installed
->>>>>> - accept the CRYCB if no keys are used
->>>>>> - verifies that the CRYCB format1 is inside a page
->>>>>> - verifies that the CRYCB origin is not 0
->>>>>>
->>>>>> This is not following the architecture.
->>>>> I have to trust you on that :)
->>>>>
->>>>>> On SIE entrance, the CRYCB must be validated before accepting
->>>>>> any of its entries.
->>>>>>
->>>>>> Let's do the validation in the right order and also verify
->>>>>> correctly the FORMAT2 CRYCB.
->>>>> With which facility was FORMAT2 introduced?
->>>> With APXA.
->>>> KVM initialization setup CRYCB format according to the presence
->>>> of APXA for FORMAT2 or FORMAT1
->>> As our guest does not see APXA, why should it be allowed to make use of
->>> FORMAT2 here already?
->>>
->>> In my opinion, the size check you are adding is in the current state not
->>> correct.
->> The point is that the documentation states that bit 30 is ignored
->> if the APXA facility is not installed in the **host** configuration.
+On 07.08.2018 19:15, Pierre Morel wrote:
+> On 07/08/2018 14:51, David Hildenbrand wrote:
+>> While discussing AP changes, we discovered that we will have to force
+>> a CPU using the vSIE to regenerate/reload shadow data structures. For now,
+>> we have no mechanism for that.
 >>
-> host here most probably means "we as a hypervisor that probe for APXA".
-> This is to differentiate it from "APXA installed in the guest
-> configuration" - e.g. via AP execution control. No AP, no APXA, no
-> FORMAT 2 accepted. -> Bit ignored.
->
-> Don't confuse it with "machine configuration". (mixing that in makes
-> things way too complicated)
-OK
->
->> Which I understand as FORMAT2 may not be ignored if APXA is installed
->> in the host configuration.
+>> E.g. when clearing AP masks later, we could still have a vSIE CPU making
+>> use of AP adapters as the masks might not be considered yet in the vSIE
+>> data structures. We need a way to block entering the vSIE and regenerate
+>> all shadow data structures once done.
 >>
-> "host" is used to differentiate from "guest". If we are at G1 level and
-> there is no APXA, the FORMAT2 bit is to be ignored.
-OK
-
->
->>  From the host, we control the guest1 and we start it without AP
->> by not setting ECA.28.
->> So that the guest1 can not know if APXA is installed or not since to know
->> this it must use a AP instruction :)
-> No AP implies no APXA. On that logical level "host".
-
-hum.
-No seen, usable nor used APXA  on that level: yes.
-
->
->> Now the guest1 is an hypervizor and wants to start a guest2.
->> It can set ECA.28 to allow the guest2 AP instructions , just because it can,
->> (even guest2 will not see any as it will be masked by the guest1 ECA.28
->> that we did not set)
-> ECA.28 has no effect as G1 sees no AP facility. That is the real reason.
-
-Not exactly, the ECA.28 field used for G2 is an effective field
-calculated from G1.ECA.28 & G2.ECA.28
-
-G1 not having AP instructions is the consequence of G1.ECA.28=0
-
-There is no AP Facility in the sense of STFL bits.
-
->
->> It can also set the FORMAT2 just because it can do it.
->> The documentation explicitly says that FORMAT2 may be used
->> without APXA and that in this case it will be handled as a FORMAT1
+>> Looks like we can achieve that by simply simulating an ordinary SIE
+>> entry/exit in the VCPU sie control block (while entering the vSIE loop).
 >>
+>> This way, we can support blocking and also synchronous CPU requests.
 >>
->> The question is do we want to forbid this?
->> It is not an error.
->> Suppose that an hypervizor always set FORMAT2 to be able to not restart
->> its guest if the host set ECA.28 a posteriori.
+>> Only compile tested.
 >>
->> Anyway we have the choice:
->> - we verify the CRYCB for FORMAT2
->> or
->> - we forbid FORMAT2
+>> David Hildenbrand (2):
+>>    KVM: s390: vsie: simulate VCPU SIE entry/exit
+>>    KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
 >>
->> Since we will soon (I hope) be able to use AP instructions in AP
->> but we are not able to do it today, we could forbid FORMAT2
->> however in the current behavior we authorize FORMAT2...
+>>   arch/s390/include/asm/kvm_host.h |  1 +
+>>   arch/s390/kvm/kvm-s390.c         | 16 ++++++++++++++--
+>>   arch/s390/kvm/kvm-s390.h         |  1 +
+>>   arch/s390/kvm/vsie.c             | 20 ++++++++++++++++++--
+>>   4 files changed, 34 insertions(+), 4 deletions(-)
 >>
->> What ever the choice is we must change the current implementation.
->>
->> I prefer to keep the current interface but make sure that the
->> host do not crash when scheduling a FORMAT2 SIE crossing
->> a page boundary.
->>
->>
->> What do you think we should do?
-> Keep it simple. Don't mix in machine configuration. Try to make each
-> layer look consistent.
->
-> If there is no AP/APXA on a level ("host"), FORMAT2 is ignored in SIE.
-> If there is no AP/APXA on a level ("host"), ECA.28 is ignored in SIE.
-> If there is no MSA3 on a level ("host"), ECB3_AES | ECB3_DEA is ignored
-> in SIE.
->
-> If there is no AP/APXA/MSA3 on a level ("host"), crycbd is completely
-> ignored in SIE. (that means, no validity intercepts to be injected).
-> Please double check that in the documentation.
->
-> If there is is AP/MSA3 and either ECA.28 | ECB3_AES | ECB3_DEA, what
-> should happen? (please verify in the documentation)
->
-> FORMAT2 should really only be allowed if there is APXA. As we cannot
-> fake abscence for guests (as of now), guest availability always matches
-> host availability if AP is enabled for a guest.
+> Thanks David for your patches.
+> 
+> Following my tests, they work fine for our AP use case.
 
-I am not sure we can KIS.
+Perfect, let's wait for some more comments. You can carry them along in
+the AP series for now, maybe Christian/Janosch will decide to pick them
+up earlier.
 
-For the SIE firmware a guest G1 or G2 or not distinguishable.
+If there is some more work to be done due to review comments, I'll jump in.
 
-Using VSIE we let the G2 run inside a SIE Control Block installed by the 
-host.
-So if the host has AP/APXA and even if G1 has not AP/APXA
-then, if we take your first assumption, FORMAT2 is not ignored in the SIE.
-
-Since the test is done on SIE entry
-no need to run an instruction to get a validity interception,
-which is for me explained by the documentation stating that:
-
-The check of APCB/CRYCB and APCB/CRYCB origin is performed
-only if any of the following is true:
-(a) ECA.28 is one
-(b) CRYCB format field (F) is one
-or
-(c) the AXPA facility is installed and the F field is three
-
-If not having the AP instruction would be enough to avoid
-a validity interception, then there would be no need to
-have the point (c).
-
-
-Conclusion for me 2 solutions:
-- forbid format 2 in G2
-- check FORMAT2 before letting it go in the shadow SCB
-
-
-What did I missed?
-What is your point of view?
-
-Thanks for your patience.
-
-Regards,
-Pierre
+> 
+> Best regards,
+> 
+> Pierre
+> 
+> 
 
 
 -- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+
+Thanks,
+
+David / dhildenb
