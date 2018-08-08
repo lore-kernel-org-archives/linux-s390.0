@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v8 14/22] KVM: s390: interfaces to clear CRYCB masks
-Date: Wed,  8 Aug 2018 10:44:24 -0400
-Message-ID: <1533739472-7172-15-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v8 11/22] s390: vfio-ap: sysfs interfaces to configure domains
+Date: Wed,  8 Aug 2018 10:44:21 -0400
+Message-ID: <1533739472-7172-12-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,67 +14,196 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Introduces two new KVM interface to clear the APM, AQM and ADM masks in
-the guest's CRYCB.  The VCPUs are taken out of SIE to ensure the VCPUs do
-not get out of sync.
+Introduces two new sysfs attributes for the VFIO mediated
+matrix device for assigning AP domains to and unassigning
+AP domains from a mediated matrix device. The IDs of the
+AP domains assigned to the mediated matrix device will be
+stored in an AP queue mask (AQM).
+
+The bits in the AQM, from most significant to least
+significant bit, correspond to AP queue index (APQI) 0 to
+255 (note that an APQI is synonymous with with a domain ID).
+On some systems, the maximum allowable domain number may be
+less than 255 - depending upon the host's AP configuration -
+and assignment may be rejected if the input domain ID exceeds
+the limit.
+
+When a domain is assigned, the bit corresponding to the APQI
+will be set in the AQM. Likewise, when a domain is unassigned,
+the bit corresponding to the APQI will be cleared from the AQM.
+
+In order to successfully assign a domain, the APQNs derived from
+the domain ID being assigned and the adapter numbers of all
+adapters previously assigned:
+
+1. Must be bound to the vfio_ap device driver.
+
+2. Must not be assigned to any other mediated matrix device.
+
+If there are no adapters assigned to the mdev, then there must
+be an AP queue bound to the vfio_ap device driver with an
+APQN containing the domain ID (i.e., APQI), otherwise all
+adapters subsequently assigned will fail because there will be no
+AP queues bound with an APQN containing the APQI.
+
+Assigning or un-assigning an AP domain will also be rejected if
+a guest using the mediated matrix device is running.
+
+The relevant sysfs structures are:
+
+/sys/devices/virtual/misc/vfio_ap/
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ [devices]
+...............[$uuid]
+.................. assign_domain
+.................. unassign_domain
+
+To assign a domain to the $uuid mediated matrix device,
+write the domain's ID to the assign_domain file. To
+unassign a domain, write the domain's ID to the
+unassign_domain file. The ID is specified using
+conventional semantics: If it begins with 0x, the number
+will be parsed as a hexadecimal (case insensitive) number;
+if it begins with 0, it will be parsed as an octal number;
+otherwise, it will be parsed as a decimal number.
+
+For example, to assign domain 173 (0xad) to the mediated matrix
+device $uuid:
+
+	echo 173 > assign_domain
+
+	or
+
+	echo 0255 > assign_domain
+
+	or
+
+	echo 0xad > assign_domain
+
+To unassign domain 173 (0xad):
+
+	echo 173 > unassign_domain
+
+	or
+
+	echo 0255 > unassign_domain
+
+	or
+
+	echo 0xad > unassign_domain
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
 Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |    3 +++
- arch/s390/kvm/kvm-s390.c         |   15 +++++++++++++++
- 2 files changed, 18 insertions(+), 0 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c |   88 ++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 87 insertions(+), 1 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 0c13f61..d7e19e1 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -258,6 +258,7 @@ struct kvm_s390_sie_block {
- 	__u64	tecmc;			/* 0x00e8 */
- 	__u8	reservedf0[12];		/* 0x00f0 */
- #define CRYCB_FORMAT_MASK 0x00000003
-+#define CRYCB_FORMAT0 0x00000000
- #define CRYCB_FORMAT1 0x00000001
- #define CRYCB_FORMAT2 0x00000003
- 	__u32	crycbd;			/* 0x00fc */
-@@ -862,6 +863,8 @@ void kvm_arch_async_page_not_present(struct kvm_vcpu *vcpu,
- void kvm_arch_async_page_present(struct kvm_vcpu *vcpu,
- 				 struct kvm_async_pf *work);
- 
-+void kvm_arch_crypto_clear_masks(struct kvm *kvm);
-+
- extern int sie64a(struct kvm_s390_sie_block *, u64 *);
- extern char sie_exit;
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f96a443..0d03249 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1919,6 +1919,21 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
- 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 0a9f61f..36b8f47 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -363,10 +363,96 @@ static ssize_t unassign_adapter_store(struct device *dev,
  }
+ DEVICE_ATTR_WO(unassign_adapter);
  
-+void kvm_arch_crypto_clear_masks(struct kvm *kvm)
++static int
++vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
++					     unsigned long apqi)
 +{
-+	mutex_lock(&kvm->lock);
-+	kvm_s390_vcpu_block_all(kvm);
++	int ret;
++	unsigned long apid;
++	unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
 +
-+	memset(&kvm->arch.crypto.crycb->apcb0, 0,
-+	       sizeof(kvm->arch.crypto.crycb->apcb0));
-+	memset(&kvm->arch.crypto.crycb->apcb1, 0,
-+	       sizeof(kvm->arch.crypto.crycb->apcb1));
++	if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
++		return vfio_ap_verify_queue_reserved(NULL, &apqi);
 +
-+	kvm_s390_vcpu_unblock_all(kvm);
-+	mutex_unlock(&kvm->lock);
++	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
++		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
 +}
-+EXPORT_SYMBOL(kvm_arch_crypto_clear_masks);
 +
- static u64 kvm_s390_get_initial_cpuid(void)
- {
- 	struct cpuid cpuid;
++static ssize_t assign_domain_store(struct device *dev,
++				   struct device_attribute *attr,
++				   const char *buf, size_t count)
++{
++	int ret;
++	unsigned long apqi;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
++
++	ret = kstrtoul(buf, 0, &apqi);
++	if (ret)
++		return ret;
++	if (apqi > max_apqi)
++		return -EINVAL;
++
++	mutex_lock(&matrix_dev.lock);
++
++	ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
++	if (ret)
++		goto done;
++
++	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
++
++	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
++	if (ret)
++		goto share_err;
++
++	ret = count;
++	goto done;
++
++share_err:
++	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
++done:
++	mutex_unlock(&matrix_dev.lock);
++
++	return ret;
++}
++DEVICE_ATTR_WO(assign_domain);
++
++static ssize_t unassign_domain_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	int ret;
++	unsigned long apqi;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++
++	ret = kstrtoul(buf, 0, &apqi);
++	if (ret)
++		return ret;
++
++	if (apqi > matrix_mdev->matrix.aqm_max)
++		return -EINVAL;
++
++	mutex_lock(&matrix_dev.lock);
++	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
++	mutex_unlock(&matrix_dev.lock);
++
++	return count;
++}
++DEVICE_ATTR_WO(unassign_domain);
++
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+-	NULL
++	&dev_attr_assign_domain.attr,
++	&dev_attr_unassign_domain.attr,
++	NULL,
+ };
+ 
+ static struct attribute_group vfio_ap_mdev_attr_group = {
 -- 
 1.7.1
