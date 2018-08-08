@@ -1,8 +1,10 @@
 Return-Path: <SRS0=X6pY=KX=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 0/3] net/smc: fixes 2018-08-08
-Date: Wed,  8 Aug 2018 14:13:18 +0200
-Message-Id: <20180808121321.516-1-ubraun@linux.ibm.com>
+Subject: [PATCH net 3/3] net/smc: move sock lock in smc_ioctl()
+Date: Wed,  8 Aug 2018 14:13:21 +0200
+In-Reply-To: <20180808121321.516-1-ubraun@linux.ibm.com>
+References: <20180808121321.516-1-ubraun@linux.ibm.com>
+Message-Id: <20180808121321.516-4-ubraun@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -10,24 +12,41 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+When an SMC socket is connecting it is decided whether fallback to
+TCP is needed. To avoid races between connect and ioctl move the
+sock lock before the use_fallback check.
 
-here are small fixes for SMC: The first patch makes sure, shutdown code
-is not executed for sockets in state SMC_LISTEN. The second patch resets
-send and receive buffer values for accepted sockets, since TCP buffer size
-optimizations for the internal CLC socket should not be forwarded to the
-outer SMC socket. The third patch solves a race between connect and ioctl
-reported by syzbot.
+Reported-by: syzbot+5b2cece1a8ecb2ca77d8@syzkaller.appspotmail.com
+Reported-by: syzbot+19557374321ca3710990@syzkaller.appspotmail.com
+Fixes: 1992d99882af ("net/smc: take sock lock in smc_ioctl()")
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/af_smc.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-Kind regards, Ursula
-
-Ursula Braun (3):
-  net/smc: no shutdown in state SMC_LISTEN
-  net/smc: allow sysctl rmem and wmem defaults for servers
-  net/smc: move sock lock in smc_ioctl()
-
- net/smc/af_smc.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 0ee7721afbe5..e7de5f282722 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1522,12 +1522,16 @@ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 
+ 	smc = smc_sk(sock->sk);
+ 	conn = &smc->conn;
++	lock_sock(&smc->sk);
+ 	if (smc->use_fallback) {
+-		if (!smc->clcsock)
++		if (!smc->clcsock) {
++			release_sock(&smc->sk);
+ 			return -EBADF;
+-		return smc->clcsock->ops->ioctl(smc->clcsock, cmd, arg);
++		}
++		answ = smc->clcsock->ops->ioctl(smc->clcsock, cmd, arg);
++		release_sock(&smc->sk);
++		return answ;
+ 	}
+-	lock_sock(&smc->sk);
+ 	switch (cmd) {
+ 	case SIOCINQ: /* same as FIONREAD */
+ 		if (smc->sk.sk_state == SMC_LISTEN) {
 -- 
 2.16.4
