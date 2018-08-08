@@ -1,78 +1,88 @@
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v8 00/22] vfio-ap: guest dedicated crypto adapters
-Date: Wed, 8 Aug 2018 17:06:59 +0200
-Message-ID: <5c4c8a0e-85b0-b5de-e9a2-7498c64557bd@linux.ibm.com>
+Date: Wed, 8 Aug 2018 18:25:13 +0200
+Message-ID: <20180808182513.557b09cb.cohuck@redhat.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="sCi5QhxMEQraj6sayyLdi69pY509KrRXy"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---sCi5QhxMEQraj6sayyLdi69pY509KrRXy
-Content-Type: multipart/mixed; boundary="jskYqaGEvjEJpS2vJ3CXWzfEholTiTmiN";
- protected-headers="v1"
-From: Janosch Frank <frankja@linux.ibm.com>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com,
- borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
- bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com,
- alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com,
- alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com,
- jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com,
- berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com,
- Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <5c4c8a0e-85b0-b5de-e9a2-7498c64557bd@linux.ibm.com>
-Subject: Re: [PATCH v8 00/22] vfio-ap: guest dedicated crypto adapters
-References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-In-Reply-To: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+On Wed,  8 Aug 2018 10:44:10 -0400
+Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
---jskYqaGEvjEJpS2vJ3CXWzfEholTiTmiN
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-On 08.08.2018 16:44, Tony Krowiak wrote:
 > From: Tony Krowiak <akrowiak@linux.ibm.com>
+> 
+> Several major objections were raised to design changes introduced in the v7
+> patch series, so in order to avoid an extended discussion around these 
+> objections and to expedite acceptance of the series, the following changes
+> have been made for v8:
+> 
+> 1. Removed the AP bus's ability to designate queues as 'used by host' or as 
+>    'used by alternate driver(s)'. The bind/unbind sysfs interfaces will be
+>    used for managing the connection of AP queue devices to a zcrypt driver
+>    or the VFIO AP driver.
 
-The patches are also available on git.kernel.org:
+I don't think the idea of pools is bad per se; I mainly did not like
+the sysfs interface and the dynamic interactions.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=3D=
-ap
+We can probably reintroduce something like that later on, if it is
+still useful.
 
+> 
+> 2. Removed the 'activate' sysfs interfaces which allowed for over 
+>    provisioning of the mediated device as well as creation of mdevs with
+>    overlapping matrixes. It was pointed out that both of these enhancements
+>    break the mdev model. Consistency checking of the mdev matrix has
+>    therefore been returned to the mediated matrix device's sysfs interfaces
+>    for assigning adapters and domains:
+> 
+>    * Verify that APQNs assigned to the mediated device are bound to the 
+>      VFIO AP device driver
+> 
+>    * Verify that no APQN assigned to the mediated matrix device is assigned
+>      to any other mediated matrix device.
 
---jskYqaGEvjEJpS2vJ3CXWzfEholTiTmiN--
+Ok, that makes sense.
 
---sCi5QhxMEQraj6sayyLdi69pY509KrRXy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Where's point 3? :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+> 
+> 4. Reworked the handling of the CRYCB in vSIE based upon patches introduced
+>    by David in the mainline.
 
-iQIcBAEBCAAGBQJbawccAAoJEBcO/8Q8ZEV50uoP/2eTjOm5qMYRorHVKG4G0bC5
-1/9PU89CdXCUiARDiGTy1RoLpR1nyVKxzvf8P8ymJ5ilmyB84gDwV7EOsLZEWPHm
-zugvAB0S6DkNNCPjnEiWgeDW4zYycjqDdWza+QOG5L+ri1wiqS7bX7LFutp9oUcy
-GZ7g7xqGhMt3EvzmNRqQPeKeD3h6K9ZMnZjICtWDn29LgK9yqpvcHE55tWJ/bPQP
-pmV5Zg5Gupba2Ba5Nehuo0a/UkGh9sBP/Mh8pDjPf9A78G38cQpqef292pwjVjH8
-tHiZ/yLhHqGJzaTU9vfNSxAcfepv0XiIITKiQSkR0e8rSxl38GjYdwABJ20OmT++
-KVsHYH7yyt8a9n/p8BeLL1n7bvyPm18rIPpAzAGBlMVltZA81RYgLGzeuBCkk5IL
-XeGgUhEF6dEUWuiCplzOJfX77Fls4CEBC3fFr1/8rTNSiXhXuYj2rDeMe3dWWfGb
-0t3um30jlV4mdMIGIPXGZt9/b1tRriKrdLrWh2i36f8jvaIN6zVzX+hUzCf8yXxR
-G1eLfEABYUGUHoLFWvmzkdW+RAoBxZYPmrn3UkAgAF659NXPmQRPKt6qA/iY42T+
-ctDMBoBCs9PDkxJVjIJ4K68ANhzaFoiOPI8SrOwJL6o39xMrJMGU2YdS084ST//w
-AhpnhIxbS1pIr67v3DPk
-=OTg1
------END PGP SIGNATURE-----
+I had reviewed David's patches and they looked good to me.
 
---sCi5QhxMEQraj6sayyLdi69pY509KrRXy--
+> 
+> Notes:
+> =====
+> 
+> Patches 1-4 (by Harald) posted with this series are forthcoming via
+> Martins tree and are based on changes in the ap driver/bus that we use as a
+> foundation. They have been included here because some of the functions
+> in this patch series are dependent upon them.
+
+I don't remember anything contentious in these.
+
+> 
+> Patches 5-6 (by David) are posted with this series because they are not
+> currently in our master branch. Patches 19 and 20 of this series are
+> dependent upon them. I believe David's patches are available in the 
+> mainline now.
+
+I don't see them queued yet, but as said, they looked fine to me.
+
+> 
+> This patch series works with the v6 QEMU patches. There is no new QEMU
+> patchset version yet because there have been no review comments worthy of
+> creating a new series; only a couple of extremely minor nits.
+
+Once the kernel part is merged, I'd need a respin anyway due to the
+kernel headers updates.
