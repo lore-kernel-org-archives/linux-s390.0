@@ -1,70 +1,45 @@
-Return-Path: <SRS0=n5k7=KW=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH RFC 0/2] KVM: s390: vsie: support VCPU requests
+Return-Path: <SRS0=X6pY=KX=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Wed, 8 Aug 2018 14:44:14 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH RFC 1/2] KVM: s390: vsie: simulate VCPU SIE entry/exit
+Message-ID: <20180808144414.75369a40.cohuck@redhat.com>
+In-Reply-To: <20180807125131.3606-2-david@redhat.com>
 References: <20180807125131.3606-1-david@redhat.com>
- <65aefa0e-275f-1a30-2237-904aa4c6d63b@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <837b990a-f034-5199-458d-bfbc9efaecbb@redhat.com>
-Date: Tue, 7 Aug 2018 19:35:56 +0200
+        <20180807125131.3606-2-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <65aefa0e-275f-1a30-2237-904aa4c6d63b@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: pmorel@linux.ibm.com, linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07.08.2018 19:15, Pierre Morel wrote:
-> On 07/08/2018 14:51, David Hildenbrand wrote:
->> While discussing AP changes, we discovered that we will have to force
->> a CPU using the vSIE to regenerate/reload shadow data structures. For now,
->> we have no mechanism for that.
->>
->> E.g. when clearing AP masks later, we could still have a vSIE CPU making
->> use of AP adapters as the masks might not be considered yet in the vSIE
->> data structures. We need a way to block entering the vSIE and regenerate
->> all shadow data structures once done.
->>
->> Looks like we can achieve that by simply simulating an ordinary SIE
->> entry/exit in the VCPU sie control block (while entering the vSIE loop).
->>
->> This way, we can support blocking and also synchronous CPU requests.
->>
->> Only compile tested.
->>
->> David Hildenbrand (2):
->>    KVM: s390: vsie: simulate VCPU SIE entry/exit
->>    KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
->>
->>   arch/s390/include/asm/kvm_host.h |  1 +
->>   arch/s390/kvm/kvm-s390.c         | 16 ++++++++++++++--
->>   arch/s390/kvm/kvm-s390.h         |  1 +
->>   arch/s390/kvm/vsie.c             | 20 ++++++++++++++++++--
->>   4 files changed, 34 insertions(+), 4 deletions(-)
->>
-> Thanks David for your patches.
+On Tue,  7 Aug 2018 14:51:30 +0200
+David Hildenbrand <david@redhat.com> wrote:
+
+> VCPU requests and VCPU blocking right now don't take care of the vSIE
+> (as it was not necessary until now). But we want to have VCPU requests
+> that will also be handled before running the vSIE again.
 > 
-> Following my tests, they work fine for our AP use case.
-
-Perfect, let's wait for some more comments. You can carry them along in
-the AP series for now, maybe Christian/Janosch will decide to pick them
-up earlier.
-
-If there is some more work to be done due to review comments, I'll jump in.
-
+> So let's simulate a SIE entry when entering the vSIE loop and check
+> for PROG_ flags. The existing infrastructure (e.g. exit_sie()) will then
+> detect that the SIE (in form of the vSIE execution loop) is running and
+> properly kick the vSIE CPU, resulting in it leaving the vSIE loop and
+> therefore the vSIE interception handler, allowing it to handle VCPU
+> requests.
 > 
-> Best regards,
+> E.g. if we want to modify the crycb of the VCPU and make sure that any
+> masks also get applied to the VSIE crycb shadow (which uses masks from the
+> VCPU crycb), we will need a way to hinder the vSIE from running and make
+> sure to process the updated crycb before reentering the vSIE again.
 > 
-> Pierre
-> 
-> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c |  9 ++++++++-
+>  arch/s390/kvm/kvm-s390.h |  1 +
+>  arch/s390/kvm/vsie.c     | 20 ++++++++++++++++++--
+>  3 files changed, 27 insertions(+), 3 deletions(-)
 
-
--- 
-
-Thanks,
-
-David / dhildenb
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
