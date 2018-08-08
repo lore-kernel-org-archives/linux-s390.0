@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v8 19/22] KVM: s390: Clear Crypto Control Block when using vSIE
-Date: Wed,  8 Aug 2018 10:44:29 -0400
-Message-ID: <1533739472-7172-20-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v8 16/22] s390: vfio-ap: implement VFIO_DEVICE_GET_INFO ioctl
+Date: Wed,  8 Aug 2018 10:44:26 -0400
+Message-ID: <1533739472-7172-17-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -9,48 +9,95 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, frankja@linux.ibm.com, Pierre Morel <pmorel@linux.ibm.com>
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Pierre Morel <pmorel@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-When we clear the Crypto Control Block (CRYCB) used by a guest
-level 2, the vSIE shadow CRYCB for guest level 3 must be updated
-before the guest uses it.
+Introduces ioctl access to the VFIO AP Matrix device driver
+by implementing the VFIO_DEVICE_GET_INFO ioctl. This ioctl
+provides the VFIO AP Matrix device driver information to the
+guest machine.
 
-We achieve this by using the KVM_REQ_VSIE_RESTART synchronous
-request for each vCPU belonging to the guest to force the reload
-of the shadow CRYCB before rerunning the guest level 3.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Tested-by: Michael Mueller <mimu@linux.ibm.com>
+Tested-by: Farhan Ali <alifm@linux.ibm.com>
+Tested-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c |   38 +++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/vfio.h         |    1 +
+ 2 files changed, 39 insertions(+), 0 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0d03249..9203f0b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1921,6 +1921,9 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
- 
- void kvm_arch_crypto_clear_masks(struct kvm *kvm)
- {
-+	int i;
-+	struct kvm_vcpu *vcpu;
-+
- 	mutex_lock(&kvm->lock);
- 	kvm_s390_vcpu_block_all(kvm);
- 
-@@ -1929,6 +1932,10 @@ void kvm_arch_crypto_clear_masks(struct kvm *kvm)
- 	memset(&kvm->arch.crypto.crycb->apcb1, 0,
- 	       sizeof(kvm->arch.crypto.crycb->apcb1));
- 
-+	/* recreate the shadow crycb for each vcpu */
-+	kvm_for_each_vcpu(i, vcpu, kvm)
-+		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
-+
- 	kvm_s390_vcpu_unblock_all(kvm);
- 	mutex_unlock(&kvm->lock);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index ea96b95..31e0dbe 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -795,6 +795,43 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+ 	module_put(THIS_MODULE);
  }
+ 
++static int vfio_ap_mdev_get_device_info(unsigned long arg)
++{
++	unsigned long minsz;
++	struct vfio_device_info info;
++
++	minsz = offsetofend(struct vfio_device_info, num_irqs);
++
++	if (copy_from_user(&info, (void __user *)arg, minsz))
++		return -EFAULT;
++
++	if (info.argsz < minsz)
++		return -EINVAL;
++
++	info.flags = VFIO_DEVICE_FLAGS_AP;
++	info.num_regions = 0;
++	info.num_irqs = 0;
++
++	return copy_to_user((void __user *)arg, &info, minsz);
++}
++
++static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
++				    unsigned int cmd, unsigned long arg)
++{
++	int ret;
++
++	switch (cmd) {
++	case VFIO_DEVICE_GET_INFO:
++		ret = vfio_ap_mdev_get_device_info(arg);
++		break;
++	default:
++		ret = -EOPNOTSUPP;
++		break;
++	}
++
++	return ret;
++}
++
+ static const struct mdev_parent_ops vfio_ap_matrix_ops = {
+ 	.owner			= THIS_MODULE,
+ 	.supported_type_groups	= vfio_ap_mdev_type_groups,
+@@ -803,6 +840,7 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+ 	.remove			= vfio_ap_mdev_remove,
+ 	.open			= vfio_ap_mdev_open,
+ 	.release		= vfio_ap_mdev_release,
++	.ioctl			= vfio_ap_mdev_ioctl,
+ };
+ 
+ int vfio_ap_mdev_register(void)
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index bfbe2be..f378b98 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -200,6 +200,7 @@ struct vfio_device_info {
+ #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+ #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+ #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
++#define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
+ 	__u32	num_regions;	/* Max region index + 1 */
+ 	__u32	num_irqs;	/* Max IRQ index + 1 */
+ };
 -- 
 1.7.1
