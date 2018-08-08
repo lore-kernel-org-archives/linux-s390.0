@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v8 08/22] s390: vfio-ap: base implementation of VFIO AP device driver
-Date: Wed,  8 Aug 2018 10:44:18 -0400
-Message-ID: <1533739472-7172-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v8 07/22] KVM: s390: refactor crypto initialization
+Date: Wed,  8 Aug 2018 10:44:17 -0400
+Message-ID: <1533739472-7172-8-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,271 +14,211 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Introduces a new AP device driver. This device driver
-is built on the VFIO mediated device framework. The framework
-provides sysfs interfaces that facilitate passthrough
-access by guests to devices installed on the linux host.
+This patch refactors the code that initializes and sets up the
+crypto configuration for a guest. The following changes are
+implemented via this patch:
 
-The VFIO AP device driver will serve two purposes:
+1. Prior to the introduction of AP device virtualization, it
+   was not necessary to provide guest access to the CRYCB
+   unless the MSA extension 3 (MSAX3) facility was installed
+   on the host system. With the introduction of AP device
+   virtualization, the CRYCB must be made accessible to the
+   guest if the AP instructions are installed on the host
+   and are to be provided to the guest.
 
-1. Provide the interfaces to reserve AP devices for exclusive
-   use by KVM guests. This is accomplished by unbinding the
-   devices to be reserved for guest usage from the zcrypt
-   device driver and binding them to the VFIO AP device driver.
-
-2. Implements the functions, callbacks and sysfs attribute
-   interfaces required to create one or more VFIO mediated
-   devices each of which will be used to configure the AP
-   matrix for a guest and serve as a file descriptor
-   for facilitating communication between QEMU and the
-   VFIO AP device driver.
-
-When the VFIO AP device driver is initialized:
-
-* It registers with the AP bus for control of type 10 (CEX4
-  and newer) AP queue devices. This limitation was imposed
-  due to:
-
-  1. A desire to keep the code as simple as possible;
-
-  2. Some older models are no longer supported by the kernel
-     and others are getting close to end of service.
-
-  The probe and remove callbacks will be provided to support
-  the binding/unbinding of AP queue devices to/from the VFIO
-  AP device driver.
-
-* Creates a virtual misc device, /sys/devices/virtual/misc/vfio_ap,
-  device to serve as the parent of the mediated devices created, one
-  for each guest, and to hold the APQNs of the AP devices bound to
-  the VFIO AP device driver.
+2. Introduces a flag indicating AP instructions executed on
+   the guest shall be interpreted by the firmware. It is
+   initialized to indicate AP instructions are to be
+   to be interpreted and is used to set the SIE bit for
+   each vcpu during vcpu setup.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- MAINTAINERS                           |   10 +++
- arch/s390/Kconfig                     |   11 +++
- drivers/s390/crypto/Makefile          |    4 +
- drivers/s390/crypto/vfio_ap_drv.c     |  115 +++++++++++++++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_private.h |   30 +++++++++
- 5 files changed, 170 insertions(+), 0 deletions(-)
- create mode 100644 drivers/s390/crypto/vfio_ap_drv.c
- create mode 100644 drivers/s390/crypto/vfio_ap_private.h
+ arch/s390/include/asm/kvm_host.h |    3 +
+ arch/s390/include/uapi/asm/kvm.h |    1 +
+ arch/s390/kvm/kvm-s390.c         |   86 ++++++++++++++++++++------------------
+ 3 files changed, 49 insertions(+), 41 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 7cebd5b..0e0792a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12418,6 +12418,16 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
- S:	Supported
- F:	drivers/s390/crypto/
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index af39561..0c13f61 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -187,6 +187,7 @@ struct kvm_s390_sie_block {
+ #define ECA_AIV		0x00200000
+ #define ECA_VX		0x00020000
+ #define ECA_PROTEXCI	0x00002000
++#define ECA_APIE	0x00000008
+ #define ECA_SII		0x00000001
+ 	__u32	eca;			/* 0x004c */
+ #define ICPT_INST	0x04
+@@ -256,6 +257,7 @@ struct kvm_s390_sie_block {
+ 	__u8	reservede4[4];		/* 0x00e4 */
+ 	__u64	tecmc;			/* 0x00e8 */
+ 	__u8	reservedf0[12];		/* 0x00f0 */
++#define CRYCB_FORMAT_MASK 0x00000003
+ #define CRYCB_FORMAT1 0x00000001
+ #define CRYCB_FORMAT2 0x00000003
+ 	__u32	crycbd;			/* 0x00fc */
+@@ -714,6 +716,7 @@ struct kvm_s390_crypto {
+ 	__u32 crycbd;
+ 	__u8 aes_kw;
+ 	__u8 dea_kw;
++	__u8 apie;
+ };
  
-+S390 VFIO AP DRIVER
-+M:	Tony Krowiak <akrowiak@linux.ibm.com>
-+M:	Pierre Morel <pmorel@linux.ibm.com>
-+M:	Halil Pasic <pasic@linux.ibm.com>
-+L:	linux-s390@vger.kernel.org
-+W:	http://www.ibm.com/developerworks/linux/linux390/
-+S:	Supported
-+F:	drivers/s390/crypto/vfio_ap_drv.c
-+F:	drivers/s390/crypto/vfio_ap_private.h
-+
- S390 ZFCP DRIVER
- M:	Steffen Maier <maier@linux.ibm.com>
- M:	Benjamin Block <bblock@linux.ibm.com>
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 8a1863d..35e9640 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -779,6 +779,17 @@ config VFIO_CCW
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called vfio_ccw.
+ #define APCB0_MASK_SIZE 1
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 4cdaa55..a580dec 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
+ #define KVM_S390_VM_CPU_FEAT_PFMFI	11
+ #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
+ #define KVM_S390_VM_CPU_FEAT_KSS	13
++#define KVM_S390_VM_CPU_FEAT_AP		14
+ struct kvm_s390_vm_cpu_feat {
+ 	__u64 feat[16];
+ };
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 19f4f44..f96a443 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -40,6 +40,7 @@
+ #include <asm/sclp.h>
+ #include <asm/cpacf.h>
+ #include <asm/timex.h>
++#include <asm/ap.h>
+ #include "kvm-s390.h"
+ #include "gaccess.h"
  
-+config VFIO_AP
-+	def_tristate n
-+	prompt "VFIO support for AP devices"
-+	depends on ZCRYPT && VFIO_MDEV_DEVICE && KVM
-+	help
-+		This driver grants access to Adjunct Processor (AP) devices
-+		via the VFIO mediated device interface.
-+
-+		To compile this driver as a module, choose M here: the module
-+		will be called vfio_ap.
-+
- endmenu
+@@ -1881,49 +1882,37 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 	return r;
+ }
  
- menu "Dump support"
-diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
-index b59af54..48e466e 100644
---- a/drivers/s390/crypto/Makefile
-+++ b/drivers/s390/crypto/Makefile
-@@ -15,3 +15,7 @@ obj-$(CONFIG_ZCRYPT) += zcrypt_pcixcc.o zcrypt_cex2a.o zcrypt_cex4.o
- # pkey kernel module
- pkey-objs := pkey_api.o
- obj-$(CONFIG_PKEY) += pkey.o
-+
-+# adjunct processor matrix
-+vfio_ap-objs := vfio_ap_drv.o
-+obj-$(CONFIG_VFIO_AP) += vfio_ap.o
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-new file mode 100644
-index 0000000..d7e39ad
---- /dev/null
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -0,0 +1,115 @@
-+// SPDX-License-Identifier: GPL-2.0+
+-static int kvm_s390_query_ap_config(u8 *config)
+-{
+-	u32 fcn_code = 0x04000000UL;
+-	u32 cc = 0;
+-
+-	memset(config, 0, 128);
+-	asm volatile(
+-		"lgr 0,%1\n"
+-		"lgr 2,%2\n"
+-		".long 0xb2af0000\n"		/* PQAP(QCI) */
+-		"0: ipm %0\n"
+-		"srl %0,28\n"
+-		"1:\n"
+-		EX_TABLE(0b, 1b)
+-		: "+r" (cc)
+-		: "r" (fcn_code), "r" (config)
+-		: "cc", "0", "2", "memory"
+-	);
+-
+-	return cc;
+-}
+-
+ static int kvm_s390_apxa_installed(void)
+ {
+-	u8 config[128];
+-	int cc;
++	struct ap_config_info info;
+ 
+-	if (test_facility(12)) {
+-		cc = kvm_s390_query_ap_config(config);
+-
+-		if (cc)
+-			pr_err("PQAP(QCI) failed with cc=%d", cc);
+-		else
+-			return config[0] & 0x40;
++	if (ap_instructions_available() == 0) {
++		if (ap_qci(&info) == 0)
++			return info.apxa;
+ 	}
+ 
+ 	return 0;
+ }
+ 
 +/*
-+ * VFIO based AP device driver
-+ *
-+ * Copyright IBM Corp. 2018
-+ *
-+ * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-+ *	      Halil Pasic <pasic@linux.ibm.com>
++ * The format of the crypto control block (CRYCB) is specified in the 3 low
++ * order bits of the CRYCB designation (CRYCBD) field as follows:
++ * Format 0: Neither the message security assist extension 3 (MSAX3) nor the
++ *	     AP extended addressing (APXA) facility are installed.
++ * Format 1: The APXA facility is not installed but the MSAX3 facility is.
++ * Format 2: Both the APXA and MSAX3 facilities are installed
 + */
+ static void kvm_s390_set_crycb_format(struct kvm *kvm)
+ {
+ 	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
+ 
++	/* Clear the CRYCB format bits - i.e., set format 0 by default */
++	kvm->arch.crypto.crycbd &= ~(CRYCB_FORMAT_MASK);
 +
-+#include <linux/module.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/slab.h>
-+#include <linux/string.h>
-+#include "vfio_ap_private.h"
++	/* Check whether MSAX3 is installed */
++	if (!test_kvm_facility(kvm, 76))
++		return;
 +
-+#define VFIO_AP_ROOT_NAME "vfio_ap"
-+#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
-+#define VFIO_AP_DEV_NAME "vfio_ap"
+ 	if (kvm_s390_apxa_installed())
+ 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
+ 	else
+@@ -1941,11 +1930,13 @@ static u64 kvm_s390_get_initial_cpuid(void)
+ 
+ static void kvm_s390_crypto_init(struct kvm *kvm)
+ {
+-	if (!test_kvm_facility(kvm, 76))
+-		return;
+-
+ 	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
+ 	kvm_s390_set_crycb_format(kvm);
++	/* Default setting indicating SIE shall interpret AP instructions */
++	kvm->arch.crypto.apie = 1;
 +
-+MODULE_AUTHOR("IBM Corporation");
-+MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2018");
-+MODULE_LICENSE("GPL v2");
-+
-+static struct ap_driver vfio_ap_drv;
-+
-+static struct device_type vfio_ap_dev_type = {
-+	.name = VFIO_AP_DEV_TYPE_NAME,
-+};
-+
-+struct ap_matrix_dev matrix_dev = {
++	if (!test_kvm_facility(kvm, 76))
++		return;
+ 
+ 	/* Enable AES/DEA protected key functions by default */
+ 	kvm->arch.crypto.aes_kw = 1;
+@@ -2474,17 +2465,30 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+ 
+ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+ {
+-	if (!test_kvm_facility(vcpu->kvm, 76))
 +	/*
-+	 * We may add some fops later to implement a more program friendly
-+	 * management interface for vfio_ap_mdev devices.
++	 * If neither the AP instructions nor the MSAX3 facility are installed
++	 * on the host, then there is no need for a CRYCB in SIE because the
++	 * they will not be installed on the guest either.
 +	 */
-+	.misc_dev = {
-+		MISC_DYNAMIC_MINOR,
-+		VFIO_AP_DEV_NAME,
++	if (ap_instructions_available() && !test_facility(76))
+ 		return;
+ 
+-	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
++	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
++
++	vcpu->arch.sie_block->eca &= ~ECA_APIE;
++	if (vcpu->kvm->arch.crypto.apie &&
++	    test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
++		vcpu->arch.sie_block->eca |= ECA_APIE;
+ 
+-	if (vcpu->kvm->arch.crypto.aes_kw)
+-		vcpu->arch.sie_block->ecb3 |= ECB3_AES;
+-	if (vcpu->kvm->arch.crypto.dea_kw)
+-		vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
++	/* If MSAX3 is installed on the guest, set up protected key support */
++	if (test_kvm_facility(vcpu->kvm, 76)) {
++		vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
+ 
+-	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
++		if (vcpu->kvm->arch.crypto.aes_kw)
++			vcpu->arch.sie_block->ecb3 |= ECB3_AES;
++		if (vcpu->kvm->arch.crypto.dea_kw)
++			vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
 +	}
-+};
-+
-+/* Only type 10 adapters (CEX4 and later) are supported
-+ * by the AP matrix device driver
-+ */
-+static struct ap_device_id ap_queue_ids[] = {
-+	{ .dev_type = AP_DEVICE_TYPE_CEX4,
-+	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-+	{ .dev_type = AP_DEVICE_TYPE_CEX5,
-+	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-+	{ .dev_type = AP_DEVICE_TYPE_CEX6,
-+	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
-+	{ /* end of sibling */ },
-+};
-+
-+MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
-+
-+static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
-+{
-+	return 0;
-+}
-+
-+static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
-+{
-+	/* Nothing to do yet */
-+}
-+
-+static int vfio_ap_matrix_dev_create(void)
-+{
-+	int ret;
-+
-+	ret = misc_register(&matrix_dev.misc_dev);
-+	if (ret)
-+		return ret;
-+
-+	to_device(&matrix_dev)->type = &vfio_ap_dev_type;
-+	to_device(&matrix_dev)->driver = &vfio_ap_drv.driver;
-+
-+	return ret;
-+}
-+
-+static void vfio_ap_matrix_dev_destroy(void)
-+{
-+	misc_deregister(&matrix_dev.misc_dev);
-+}
-+
-+int __init vfio_ap_init(void)
-+{
-+	int ret;
-+
-+	ret = vfio_ap_matrix_dev_create();
-+	if (ret)
-+		return ret;
-+
-+	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
-+	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
-+	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-+	vfio_ap_drv.ids = ap_queue_ids;
-+
-+	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-+	if (ret) {
-+		vfio_ap_matrix_dev_destroy();
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+void __exit vfio_ap_exit(void)
-+{
-+	ap_driver_unregister(&vfio_ap_drv);
-+	vfio_ap_matrix_dev_destroy();
-+}
-+
-+module_init(vfio_ap_init);
-+module_exit(vfio_ap_exit);
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-new file mode 100644
-index 0000000..02c878c
---- /dev/null
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -0,0 +1,30 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Private data and functions for adjunct processor VFIO matrix driver.
-+ *
-+ * Copyright IBM Corp. 2018
-+ */
-+
-+#ifndef _VFIO_AP_PRIVATE_H_
-+#define _VFIO_AP_PRIVATE_H_
-+
-+#include <linux/types.h>
-+#include <linux/miscdevice.h>
-+
-+#include "ap_bus.h"
-+
-+#define VFIO_AP_MODULE_NAME "vfio_ap"
-+#define VFIO_AP_DRV_NAME "vfio_ap"
-+
-+struct ap_matrix_dev {
-+	struct miscdevice misc_dev;
-+};
-+
-+extern struct ap_matrix_dev matrix_dev;
-+
-+static inline struct device *to_device(struct ap_matrix_dev *matrix_dev)
-+{
-+	return matrix_dev->misc_dev.this_device;
-+}
-+
-+#endif /* _VFIO_AP_PRIVATE_H_ */
+ }
+ 
+ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
 -- 
 1.7.1
