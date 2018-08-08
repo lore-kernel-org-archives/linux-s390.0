@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v8 17/22] s390: vfio-ap: zeroize the AP queues.
-Date: Wed,  8 Aug 2018 10:44:27 -0400
-Message-ID: <1533739472-7172-18-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v8 18/22] s390: vfio-ap: implement VFIO_DEVICE_RESET ioctl
+Date: Wed,  8 Aug 2018 10:44:28 -0400
+Message-ID: <1533739472-7172-19-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,105 +14,42 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Let's call PAPQ(ZAPQ) to zeroize a queue:
-
-* For each queue configured for a mediated matrix device
-  when it is released.
-
-Zeroizing a queue resets the queue, clears all pending
-messages for the queue entries and disables adapter interruptions
-associated with the queue.
+Implements the VFIO_DEVICE_RESET ioctl. This ioctl zeroizes
+all of the AP queues assigned to the guest.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     |   29 ++++++++++++++++++++++++++++-
- drivers/s390/crypto/vfio_ap_private.h |   25 +++++++++++++++++++++++++
- 2 files changed, 53 insertions(+), 1 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 31e0dbe..e5c6dc1 100644
+index e5c6dc1..d25193a 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -761,6 +761,30 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	return NOTIFY_OK;
- }
+@@ -835,7 +835,7 @@ static int vfio_ap_mdev_get_device_info(unsigned long arg)
+ 	if (info.argsz < minsz)
+ 		return -EINVAL;
  
-+static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev, bool force)
-+{
-+	int ret;
-+	int rc = 0;
-+	unsigned long apid, apqi;
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+
-+	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
-+			     matrix_mdev->matrix.apm_max + 1) {
-+		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-+				     matrix_mdev->matrix.aqm_max + 1) {
-+			ret = vfio_ap_reset_queue(apid, apqi, 1);
-+			if (ret) {
-+				if (force)
-+					rc = ret;
-+				else
-+					return ret;
-+			}
-+		}
-+	}
-+
-+	return rc;
-+}
-+
- static int vfio_ap_mdev_open(struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-@@ -788,7 +812,10 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+-	info.flags = VFIO_DEVICE_FLAGS_AP;
++	info.flags = VFIO_DEVICE_FLAGS_AP | VFIO_DEVICE_FLAGS_RESET;
+ 	info.num_regions = 0;
+ 	info.num_irqs = 0;
  
--	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-+	if (matrix_mdev->kvm)
-+		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-+
-+	vfio_ap_mdev_reset_queues(mdev, true);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
- 	matrix_mdev->kvm = NULL;
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 6fa77cf..087e21a 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -78,4 +78,29 @@ struct ap_matrix_mdev {
- extern int vfio_ap_mdev_register(void);
- extern void vfio_ap_mdev_unregister(void);
- 
-+static inline int vfio_ap_reset_queue(unsigned int apid, unsigned int apqi,
-+				      unsigned int retry)
-+{
-+	struct ap_queue_status status;
-+
-+	do {
-+		status = ap_zapq(AP_MKQID(apid, apqi));
-+		switch (status.response_code) {
-+		case AP_RESPONSE_NORMAL:
-+			return 0;
-+		case AP_RESPONSE_RESET_IN_PROGRESS:
-+		case AP_RESPONSE_BUSY:
-+			msleep(20);
-+			break;
-+		default:
-+			pr_warn("%s: error zeroizing %02x.%04x: response code %d\n",
-+				VFIO_AP_MODULE_NAME, apid, apqi,
-+				status.response_code);
-+			return -EIO;
-+		}
-+	} while (retry--);
-+
-+	return -EBUSY;
-+}
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
+@@ -851,6 +851,9 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
+ 	case VFIO_DEVICE_GET_INFO:
+ 		ret = vfio_ap_mdev_get_device_info(arg);
+ 		break;
++	case VFIO_DEVICE_RESET:
++		ret = vfio_ap_mdev_reset_queues(mdev, true);
++		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+ 		break;
 -- 
 1.7.1
