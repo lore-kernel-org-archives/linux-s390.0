@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 5/7] s390/qeth: clean up card initialization
-Date: Thu,  9 Aug 2018 14:48:02 +0200
-Message-ID: <20180809124804.20056-6-jwi@linux.ibm.com>
+Subject: [PATCH net-next 3/7] s390/qeth: use qeth_setup_ccw() to set up all CCWs
+Date: Thu,  9 Aug 2018 14:48:00 +0200
+Message-ID: <20180809124804.20056-4-jwi@linux.ibm.com>
 References: <20180809124804.20056-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180809124804.20056-1-jwi@linux.ibm.com>
@@ -12,120 +12,168 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The qeth_card struct is kzalloc-ed, so remove all the redundant
-0-initializations. While at it, split up what's left of
-qeth_determine_card_type().
+Re-work the helper a little bit, so that it can be used for all CCWs
+that qeth issues.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 44 +++++++++------------------------------
- 1 file changed, 10 insertions(+), 34 deletions(-)
+ drivers/s390/net/qeth_core.h      |  2 ++
+ drivers/s390/net/qeth_core_main.c | 42 +++++++++++++--------------------------
+ drivers/s390/net/qeth_core_mpc.c  | 11 ----------
+ drivers/s390/net/qeth_core_mpc.h  |  4 ----
+ 4 files changed, 16 insertions(+), 43 deletions(-)
 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 24e4f31a0f36..9a700a618b3d 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -235,6 +235,8 @@ static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
+ #define QETH_IDX_FUNC_LEVEL_IQD		 0x4108
+ 
+ #define QETH_BUFSIZE		4096
++#define CCW_CMD_WRITE		0x01
++#define CCW_CMD_READ		0x02
+ 
+ /**
+  * some more defs
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index eab8c4a182b0..99ba0f067eea 100644
+index e459894e1926..714c71e30b7f 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -1392,6 +1392,10 @@ static void qeth_init_qdio_info(struct qeth_card *card)
- {
- 	QETH_DBF_TEXT(SETUP, 4, "intqdinf");
- 	atomic_set(&card->qdio.state, QETH_QDIO_UNINITIALIZED);
-+	card->qdio.do_prio_queueing = QETH_PRIOQ_DEFAULT;
-+	card->qdio.default_out_queue = QETH_DEFAULT_QUEUE;
-+	card->qdio.no_out_queues = QETH_MAX_QUEUES;
+@@ -65,7 +65,6 @@ static struct mutex qeth_mod_mutex;
+ static void qeth_send_control_data_cb(struct qeth_channel *,
+ 			struct qeth_cmd_buffer *);
+ static struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *);
+-static void qeth_setup_ccw(struct qeth_channel *, unsigned char *, __u32);
+ static void qeth_free_buffer_pool(struct qeth_card *);
+ static int qeth_qdio_establish(struct qeth_card *);
+ static void qeth_free_qdio_buffers(struct qeth_card *);
+@@ -532,6 +531,14 @@ static inline int qeth_is_cq(struct qeth_card *card, unsigned int queue)
+ 	    queue == card->qdio.no_in_queues - 1;
+ }
+ 
++static void qeth_setup_ccw(struct ccw1 *ccw, u8 cmd_code, u32 len, void *data)
++{
++	ccw->cmd_code = cmd_code;
++	ccw->flags = CCW_FLAG_SLI;
++	ccw->count = len;
++	ccw->cda = (__u32) __pa(data);
++}
 +
- 	/* inbound */
- 	card->qdio.no_in_queues = 1;
- 	card->qdio.in_buf_size = QETH_IN_BUF_SIZE_DEFAULT;
-@@ -1404,12 +1408,10 @@ static void qeth_init_qdio_info(struct qeth_card *card)
- 	INIT_LIST_HEAD(&card->qdio.init_pool.entry_list);
- }
- 
--static void qeth_set_intial_options(struct qeth_card *card)
-+static void qeth_set_initial_options(struct qeth_card *card)
+ static int __qeth_issue_next_read(struct qeth_card *card)
  {
- 	card->options.route4.type = NO_ROUTER;
- 	card->options.route6.type = NO_ROUTER;
--	card->options.fake_broadcast = 0;
--	card->options.performance_stats = 0;
- 	card->options.rx_sg_cb = QETH_RX_SG_CB;
- 	card->options.isolation = ISOLATION_MODE_NONE;
- 	card->options.cq = QETH_CQ_DISABLED;
-@@ -1452,15 +1454,13 @@ static void qeth_start_kernel_thread(struct work_struct *work)
+ 	struct qeth_channel *channel = &card->read;
+@@ -549,7 +556,7 @@ static int __qeth_issue_next_read(struct qeth_card *card)
+ 			"available\n", dev_name(&card->gdev->dev));
+ 		return -ENOMEM;
+ 	}
+-	qeth_setup_ccw(channel, iob->data, QETH_BUFSIZE);
++	qeth_setup_ccw(&channel->ccw, CCW_CMD_READ, QETH_BUFSIZE, iob->data);
+ 	QETH_CARD_TEXT(card, 6, "noirqpnd");
+ 	rc = ccw_device_start(channel->ccwdev, &channel->ccw,
+ 			      (addr_t) iob, 0, 0);
+@@ -745,21 +752,6 @@ static struct qeth_card *CARD_FROM_CDEV(struct ccw_device *cdev)
+ 	return card;
  }
  
- static void qeth_buffer_reclaim_work(struct work_struct *);
--static int qeth_setup_card(struct qeth_card *card)
-+static void qeth_setup_card(struct qeth_card *card)
- {
- 	QETH_DBF_TEXT(SETUP, 2, "setupcrd");
- 	QETH_DBF_HEX(SETUP, 2, &card, sizeof(void *));
- 
-+	card->info.type = CARD_RDEV(card)->id.driver_info;
- 	card->state = CARD_STATE_DOWN;
--	card->lan_online = 0;
--	card->read_or_write_problem = 0;
--	card->dev = NULL;
- 	spin_lock_init(&card->mclock);
- 	spin_lock_init(&card->lock);
- 	spin_lock_init(&card->ip_lock);
-@@ -1468,24 +1468,15 @@ static int qeth_setup_card(struct qeth_card *card)
- 	mutex_init(&card->conf_mutex);
- 	mutex_init(&card->discipline_mutex);
- 	mutex_init(&card->vid_list_mutex);
--	card->thread_start_mask = 0;
--	card->thread_allowed_mask = 0;
--	card->thread_running_mask = 0;
- 	INIT_WORK(&card->kernel_thread_starter, qeth_start_kernel_thread);
- 	INIT_LIST_HEAD(&card->cmd_waiter_list);
- 	init_waitqueue_head(&card->wait_q);
--	/* initial options */
--	qeth_set_intial_options(card);
-+	qeth_set_initial_options(card);
- 	/* IP address takeover */
- 	INIT_LIST_HEAD(&card->ipato.entries);
--	card->ipato.enabled = false;
--	card->ipato.invert4 = false;
--	card->ipato.invert6 = false;
--	/* init QDIO stuff */
- 	qeth_init_qdio_info(card);
- 	INIT_DELAYED_WORK(&card->buffer_reclaim_work, qeth_buffer_reclaim_work);
- 	INIT_WORK(&card->close_dev_work, qeth_close_dev_handler);
--	return 0;
- }
- 
- static void qeth_core_sl_print(struct seq_file *m, struct service_level *slr)
-@@ -1527,17 +1518,6 @@ static struct qeth_card *qeth_alloc_card(void)
- 	return NULL;
- }
- 
--static void qeth_determine_card_type(struct qeth_card *card)
+-static void qeth_setup_ccw(struct qeth_channel *channel, unsigned char *iob,
+-		__u32 len)
 -{
--	QETH_DBF_TEXT(SETUP, 2, "detcdtyp");
+-	struct qeth_card *card;
 -
--	card->qdio.do_prio_queueing = QETH_PRIOQ_DEFAULT;
--	card->qdio.default_out_queue = QETH_DEFAULT_QUEUE;
--	card->info.type = CARD_RDEV(card)->id.driver_info;
--	card->qdio.no_out_queues = QETH_MAX_QUEUES;
--	qeth_update_from_chp_desc(card);
+-	card = CARD_FROM_CDEV(channel->ccwdev);
+-	QETH_CARD_TEXT(card, 4, "setupccw");
+-	if (channel == &card->read)
+-		memcpy(&channel->ccw, READ_CCW, sizeof(struct ccw1));
+-	else
+-		memcpy(&channel->ccw, WRITE_CCW, sizeof(struct ccw1));
+-	channel->ccw.count = len;
+-	channel->ccw.cda = (__u32) __pa(iob);
 -}
 -
- static int qeth_clear_channel(struct qeth_channel *channel)
+ static struct qeth_cmd_buffer *__qeth_get_buffer(struct qeth_channel *channel)
  {
- 	unsigned long flags;
-@@ -5779,12 +5759,8 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
- 	gdev->cdev[1]->handler = qeth_irq;
- 	gdev->cdev[2]->handler = qeth_irq;
+ 	__u8 index;
+@@ -1680,10 +1672,7 @@ static int qeth_read_conf_data(struct qeth_card *card, void **buffer,
+ 	if (!rcd_buf)
+ 		return -ENOMEM;
  
--	qeth_determine_card_type(card);
--	rc = qeth_setup_card(card);
--	if (rc) {
--		QETH_DBF_TEXT_(SETUP, 2, "2err%d", rc);
--		goto err_card;
--	}
-+	qeth_setup_card(card);
-+	qeth_update_from_chp_desc(card);
+-	channel->ccw.cmd_code = ciw->cmd;
+-	channel->ccw.cda = (__u32) __pa(rcd_buf);
+-	channel->ccw.count = ciw->count;
+-	channel->ccw.flags = CCW_FLAG_SLI;
++	qeth_setup_ccw(&channel->ccw, ciw->cmd, ciw->count, rcd_buf);
+ 	channel->state = CH_STATE_RCD;
+ 	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
+ 	ret = ccw_device_start_timeout(channel->ccwdev, &channel->ccw,
+@@ -1857,9 +1846,7 @@ static int qeth_idx_activate_get_answer(struct qeth_channel *channel,
+ 	if (!iob)
+ 		return -ENOMEM;
+ 	iob->callback = idx_reply_cb;
+-	memcpy(&channel->ccw, READ_CCW, sizeof(struct ccw1));
+-	channel->ccw.count = QETH_BUFSIZE;
+-	channel->ccw.cda = (__u32) __pa(iob->data);
++	qeth_setup_ccw(&channel->ccw, CCW_CMD_READ, QETH_BUFSIZE, iob->data);
  
- 	card->dev = qeth_alloc_netdev(card);
- 	if (!card->dev)
+ 	wait_event(card->wait_q,
+ 		   atomic_cmpxchg(&channel->irq_pending, 0, 1) == 0);
+@@ -1908,9 +1895,8 @@ static int qeth_idx_activate_channel(struct qeth_channel *channel,
+ 	if (!iob)
+ 		return -ENOMEM;
+ 	iob->callback = idx_reply_cb;
+-	memcpy(&channel->ccw, WRITE_CCW, sizeof(struct ccw1));
+-	channel->ccw.count = IDX_ACTIVATE_SIZE;
+-	channel->ccw.cda = (__u32) __pa(iob->data);
++	qeth_setup_ccw(&channel->ccw, CCW_CMD_WRITE, IDX_ACTIVATE_SIZE,
++		       iob->data);
+ 	if (channel == &card->write) {
+ 		memcpy(iob->data, IDX_ACTIVATE_WRITE, IDX_ACTIVATE_SIZE);
+ 		memcpy(QETH_TRANSPORT_HEADER_SEQ_NO(iob->data),
+@@ -2070,7 +2056,7 @@ static void qeth_idx_read_cb(struct qeth_channel *channel,
+ void qeth_prepare_control_data(struct qeth_card *card, int len,
+ 		struct qeth_cmd_buffer *iob)
+ {
+-	qeth_setup_ccw(iob->channel, iob->data, len);
++	qeth_setup_ccw(&iob->channel->ccw, CCW_CMD_WRITE, len, iob->data);
+ 	iob->callback = qeth_release_buffer;
+ 
+ 	memcpy(QETH_TRANSPORT_HEADER_SEQ_NO(iob->data),
+diff --git a/drivers/s390/net/qeth_core_mpc.c b/drivers/s390/net/qeth_core_mpc.c
+index 22428b769f9b..5bcb8dafc3ee 100644
+--- a/drivers/s390/net/qeth_core_mpc.c
++++ b/drivers/s390/net/qeth_core_mpc.c
+@@ -146,17 +146,6 @@ unsigned char IPA_PDU_HEADER[] = {
+ };
+ EXPORT_SYMBOL_GPL(IPA_PDU_HEADER);
+ 
+-unsigned char WRITE_CCW[] = {
+-	0x01, CCW_FLAG_SLI, 0, 0,
+-	0, 0, 0, 0
+-};
+-
+-unsigned char READ_CCW[] = {
+-	0x02, CCW_FLAG_SLI, 0, 0,
+-	0, 0, 0, 0
+-};
+-
+-
+ struct ipa_rc_msg {
+ 	enum qeth_ipa_return_codes rc;
+ 	char *msg;
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index cf5ad94e960a..aa8b9196b089 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -818,10 +818,6 @@ extern char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd);
+ /* END OF   IP Assist related definitions                                    */
+ /*****************************************************************************/
+ 
+-
+-extern unsigned char WRITE_CCW[];
+-extern unsigned char READ_CCW[];
+-
+ extern unsigned char CM_ENABLE[];
+ #define CM_ENABLE_SIZE 0x63
+ #define QETH_CM_ENABLE_ISSUER_RM_TOKEN(buffer) (buffer + 0x2c)
 -- 
 2.16.4
