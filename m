@@ -1,67 +1,97 @@
-Return-Path: <SRS0=X6pY=KX=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH RFC 2/2] KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
+Return-Path: <SRS0=+sa6=KY=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: [PATCH RFC 1/2] KVM: s390: vsie: simulate VCPU SIE entry/exit
 References: <20180807125131.3606-1-david@redhat.com>
- <20180807125131.3606-3-david@redhat.com>
- <20180808144733.507ba955.cohuck@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <f5d7528d-66f5-af47-a1e8-880eef9f4081@redhat.com>
-Date: Wed, 8 Aug 2018 14:53:38 +0200
+ <20180807125131.3606-2-david@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Thu, 9 Aug 2018 07:38:09 +0200
 MIME-Version: 1.0
-In-Reply-To: <20180808144733.507ba955.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20180807125131.3606-2-david@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Kcz2sLgfm4jIbtJq1XcrqZtzPQdGv4GvC"
+Message-Id: <baab41cb-46fe-9335-9481-5fdb35b6f7e3@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08.08.2018 14:47, Cornelia Huck wrote:
-> On Tue,  7 Aug 2018 14:51:31 +0200
-> David Hildenbrand <david@redhat.com> wrote:
-> 
->> When we change the crycb (or execution controls), we also have to make sure
->> that the vSIE shadow datastructures properly consider the changed
->> values before rerunning the vSIE. We can achieve that by simply using a
->> VCPU request now.
-> 
-> Is this actually a concrete problem right now, or does this only become
-> a real concern with vfio-ap?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Kcz2sLgfm4jIbtJq1XcrqZtzPQdGv4GvC
+Content-Type: multipart/mixed; boundary="EQ9E38gnVc3AMZClXlVXFj4VlAsXZ7lnv";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
+ Martin Schwidefsky <schwidefsky@de.ibm.com>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <baab41cb-46fe-9335-9481-5fdb35b6f7e3@linux.ibm.com>
+Subject: Re: [PATCH RFC 1/2] KVM: s390: vsie: simulate VCPU SIE entry/exit
+References: <20180807125131.3606-1-david@redhat.com>
+ <20180807125131.3606-2-david@redhat.com>
+In-Reply-To: <20180807125131.3606-2-david@redhat.com>
 
-The use case I implemented is not a real problem right now, at least not
-in practice.
+--EQ9E38gnVc3AMZClXlVXFj4VlAsXZ7lnv
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-In QEMU, s390_crypto_reset() triggers this code, but it is only called
-when all VCPUs are stopped (== no one in vSIE).
+On 07.08.2018 14:51, David Hildenbrand wrote:
+> VCPU requests and VCPU blocking right now don't take care of the vSIE
+> (as it was not necessary until now). But we want to have VCPU requests
+> that will also be handled before running the vSIE again.
+>=20
+> So let's simulate a SIE entry when entering the vSIE loop and check
+> for PROG_ flags. The existing infrastructure (e.g. exit_sie()) will the=
+n
+> detect that the SIE (in form of the vSIE execution loop) is running and=
 
-So this change is the right thing to do ("who knows what user space
-does"), but not critical (we're only dealing with wrapping masks right
-now). It is a problem once we allow to access adapters (vfio-ap).
+> properly kick the vSIE CPU, resulting in it leaving the vSIE loop and
+> therefore the vSIE interception handler, allowing it to handle VCPU
+> requests.
+>=20
+> E.g. if we want to modify the crycb of the VCPU and make sure that any
+> masks also get applied to the VSIE crycb shadow (which uses masks from =
+the
+> VCPU crycb), we will need a way to hinder the vSIE from running and mak=
+e
+> sure to process the updated crycb before reentering the vSIE again.
+>=20
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
-> 
->>
->> This has to be a synchronous request (== handled before entering the
->> (v)SIE again).
->>
->> The request will make sure that the vSIE handler is left, and that the
->> request will be processed (NOP), therefore forcing a reload of all
->> vSIE data (including rebuilding the crycb) when re-entering the vSIE
->> interception handler the next time.
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>  arch/s390/include/asm/kvm_host.h | 1 +
->>  arch/s390/kvm/kvm-s390.c         | 7 ++++++-
->>  2 files changed, 7 insertions(+), 1 deletion(-)
-> 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> 
+Finally found some time:
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+
+As the first user will be AP, I guess the patches will be queued with
+them. Thanks for helping out :)
 
 
--- 
+--EQ9E38gnVc3AMZClXlVXFj4VlAsXZ7lnv--
 
-Thanks,
+--Kcz2sLgfm4jIbtJq1XcrqZtzPQdGv4GvC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-David / dhildenb
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJba9NXAAoJEBcO/8Q8ZEV5I2gP/AhhzDUWI/0AXCS3GQUH24q5
+Vr2UDGO30f++Of4ZGbCNzyJ5mAKRGRf3QVJsGbC8oqHjyi2D7k3DpoKjI9l8wUIY
+X7p0+wWJhOEAOP0pPBpCbNqUkWQegmHSsYucbVt/rNnMzMkGxlT17CY7xtL9pKC1
+YPLqwNiEtqcMbSq6/qvMo4EAGUVIdnhsx+8XtYXQzYtvnHKy8ue5V3H04gn7YaRW
+zMfBVg51S5khCfQdxsae81r1QYVxlWwwtN+ujfnSS9YtEfY9P+zP1zieOB1LAgc6
+qYqYtnbF3gEqdIt80ojMtCPvCYcgIy9fflHlvqf23IsPMjADcjzxfGJeqc7IVUaF
+/FTv0JZ7PIWPy0eSjLY5IokWwSPeWlv1Gkjl0Ram+kRgJ3XHJ6xXwMg9YlO5C9IH
+d+AN2u/L8/7a4keF49jwa/0L8kK2/I8hk7pIsgNav9Ebsv/xV40CVejTywH1Hqsl
+Zcvi0oEOVd/IpfEbD9VqGyRO8HIWE2NPmEcoCi8hNX3VT3t2QihbYnQBq5cAkIN1
+UKj5z4HRhWUgFdBfVWlAT4DIYkSQezwnJye3ELrOIRvvRHUwOIKllvMg8upHiEFB
+ykP4usICgHFBZRnxpjzVmgGqwrhX/cAUwZbrs/bjKe9rGxcAUgJVKC+11tUK4KGq
+MCVU0DzVSaOSi8X/w256
+=C6OM
+-----END PGP SIGNATURE-----
+
+--Kcz2sLgfm4jIbtJq1XcrqZtzPQdGv4GvC--
