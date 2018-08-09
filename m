@@ -1,8 +1,8 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
 Subject: Re: [PATCH v8 19/22] KVM: s390: Clear Crypto Control Block when using
  vSIE
-Date: Thu, 9 Aug 2018 10:50:35 +0200
-Message-ID: <8696bba1-af93-07a6-060b-e722165416b8@linux.ibm.com>
+Date: Thu, 9 Aug 2018 10:57:20 +0200
+Message-ID: <ddb86d5e-35ef-daf2-c6b2-ad0869692c9a@linux.ibm.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1533739472-7172-20-git-send-email-akrowiak@linux.vnet.ibm.com>
  <9a7353fa-143f-9048-936a-59f446411e0a@redhat.com>
@@ -60,8 +60,10 @@ On 09/08/2018 10:10, David Hildenbrand wrote:
 >> +		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
 > We have kvm_s390_sync_request_broadcast(), which should boil down to a
 > one-liner
-right, thanks
 
+do you think I should squash this patch with the next one?
+
+>
 >> +
 >>   	kvm_s390_vcpu_unblock_all(kvm);
 >>   	mutex_unlock(&kvm->lock);
