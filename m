@@ -1,76 +1,83 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v8 19/22] KVM: s390: Clear Crypto Control Block when using
- vSIE
-Date: Thu, 9 Aug 2018 10:57:20 +0200
-Message-ID: <ddb86d5e-35ef-daf2-c6b2-ad0869692c9a@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v8 04/22] s390/zcrypt: Integrate ap_asm.h into
+ include/asm/ap.h.
+Date: Thu, 9 Aug 2018 11:06:45 +0200
+Message-ID: <20180809110645.33b20c1f.cohuck@redhat.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1533739472-7172-20-git-send-email-akrowiak@linux.vnet.ibm.com>
- <9a7353fa-143f-9048-936a-59f446411e0a@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+        <1533739472-7172-5-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9a7353fa-143f-9048-936a-59f446411e0a@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1533739472-7172-5-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/08/2018 10:10, David Hildenbrand wrote:
-> On 08.08.2018 16:44, Tony Krowiak wrote:
->> From: Pierre Morel <pmorel@linux.ibm.com>
->>
->> When we clear the Crypto Control Block (CRYCB) used by a guest
->> level 2, the vSIE shadow CRYCB for guest level 3 must be updated
->> before the guest uses it.
->>
->> We achieve this by using the KVM_REQ_VSIE_RESTART synchronous
->> request for each vCPU belonging to the guest to force the reload
->> of the shadow CRYCB before rerunning the guest level 3.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   arch/s390/kvm/kvm-s390.c |    7 +++++++
->>   1 files changed, 7 insertions(+), 0 deletions(-)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 0d03249..9203f0b 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -1921,6 +1921,9 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
->>   
->>   void kvm_arch_crypto_clear_masks(struct kvm *kvm)
->>   {
->> +	int i;
->> +	struct kvm_vcpu *vcpu;
->> +
->>   	mutex_lock(&kvm->lock);
->>   	kvm_s390_vcpu_block_all(kvm);
->>   
->> @@ -1929,6 +1932,10 @@ void kvm_arch_crypto_clear_masks(struct kvm *kvm)
->>   	memset(&kvm->arch.crypto.crycb->apcb1, 0,
->>   	       sizeof(kvm->arch.crypto.crycb->apcb1));
->>   
->> +	/* recreate the shadow crycb for each vcpu */
->> +	kvm_for_each_vcpu(i, vcpu, kvm)
->> +		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
-> We have kvm_s390_sync_request_broadcast(), which should boil down to a
-> one-liner
+On Wed,  8 Aug 2018 10:44:14 -0400
+Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-do you think I should squash this patch with the next one?
+> From: Harald Freudenberger <freude@de.ibm.com>
+> 
+> Move all the inline functions from the ap bus header
+> file ap_asm.h into the in-kernel api header file
+> arch/s390/include/asm/ap.h so that KVM can make use
+> of all the low level AP functions.
+> 
+> Signed-off-by: Harald Freudenberger <freude@de.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
->
->> +
->>   	kvm_s390_vcpu_unblock_all(kvm);
->>   	mutex_unlock(&kvm->lock);
->>   }
->>
->
+You should add your own s-o-b if you are sending on patches written by
+others (even if it does not matter in the end, when they are merged
+through a different path anyway.)
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+> ---
+>  arch/s390/include/asm/ap.h     |  284 ++++++++++++++++++++++++++++++++++++----
+>  drivers/s390/crypto/ap_asm.h   |  261 ------------------------------------
+>  drivers/s390/crypto/ap_bus.c   |   21 +---
+>  drivers/s390/crypto/ap_bus.h   |    1 +
+>  drivers/s390/crypto/ap_card.c  |    1 -
+>  drivers/s390/crypto/ap_queue.c |    1 -
+>  6 files changed, 259 insertions(+), 310 deletions(-)
+>  delete mode 100644 drivers/s390/crypto/ap_asm.h
+> 
+> diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+> index c1bedb4..046e044 100644
+> --- a/arch/s390/include/asm/ap.h
+> +++ b/arch/s390/include/asm/ap.h
+> @@ -47,6 +47,50 @@ struct ap_queue_status {
+>  };
+>  
+>  /**
+> + * ap_intructions_available() - Test if AP instructions are available.
+> + *
+> + * Returns 0 if the AP instructions are installed.
+
+Stumbled over this when I was looking at the usage in patch 7: if I see
+a function called '_available' return 0, I'd assume that whatever the
+function tests for is *not* available.
+
+Rather call this function ap_instructions_check_availability() (and
+keep the return code convention), or switch this to return 0 if not
+available and !0 if available?
+
+> + */
+> +static inline int ap_instructions_available(void)
+> +{
+> +	register unsigned long reg0 asm ("0") = AP_MKQID(0, 0);
+> +	register unsigned long reg1 asm ("1") = -ENODEV;
+> +	register unsigned long reg2 asm ("2");
+> +
+> +	asm volatile(
+> +		"   .long 0xb2af0000\n"		/* PQAP(TAPQ) */
+> +		"0: la    %0,0\n"
+> +		"1:\n"
+> +		EX_TABLE(0b, 1b)
+> +		: "+d" (reg1), "=d" (reg2)
+> +		: "d" (reg0)
+> +		: "cc");
+> +	return reg1;
+> +}
