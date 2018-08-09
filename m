@@ -1,89 +1,50 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v8 09/22] s390: vfio-ap: register matrix device with VFIO
- mdev framework
-Date: Thu, 9 Aug 2018 18:27:16 +0200
-Message-ID: <e52ee356-bb7b-f672-1c9c-5b1b84775a2d@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: Re: [PATCH v8 04/22] s390/zcrypt: Integrate ap_asm.h into
+ include/asm/ap.h.
+Date: Thu, 9 Aug 2018 12:55:07 -0400
+Message-ID: <74375e1e-b5c2-705c-e618-9b89889f61cf@linux.ibm.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1533739472-7172-10-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180809130607.32781b72.cohuck@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+ <1533739472-7172-5-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20180809110645.33b20c1f.cohuck@redhat.com>
+ <10a23890-5ad4-38bd-aece-def5940fec89@linux.ibm.com>
+ <20180809154336.GB4302@osiris>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180809130607.32781b72.cohuck@redhat.com>
+In-Reply-To: <20180809154336.GB4302@osiris>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/08/2018 13:06, Cornelia Huck wrote:
-> On Wed,  8 Aug 2018 10:44:19 -0400
-> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+On 08/09/2018 11:43 AM, Heiko Carstens wrote:
+> On Thu, Aug 09, 2018 at 11:18:05AM -0400, Tony Krowiak wrote:
+>> On 08/09/2018 05:06 AM, Cornelia Huck wrote:
+>>> On Wed,  8 Aug 2018 10:44:14 -0400
+>>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+>>>
+>>>> From: Harald Freudenberger <freude@de.ibm.com>
+>>>>
+>>>> Move all the inline functions from the ap bus header
+>>>> file ap_asm.h into the in-kernel api header file
+>>>> arch/s390/include/asm/ap.h so that KVM can make use
+>>>> of all the low level AP functions.
+>>>>
+>>>> Signed-off-by: Harald Freudenberger <freude@de.ibm.com>
+>>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>> You should add your own s-o-b if you are sending on patches written by
+>>> others (even if it does not matter in the end, when they are merged
+>>> through a different path anyway.)
+>> That's rather ironic given I was told in an internal review that I should
+>> not sign off on patches I did not write.
+> Please point the one who said that to
+> Documentation/process/submitting-patches.rst / Developer's Certificate of Origin
 >
->> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
->> index d7e39ad..6a827f3 100644
->> --- a/drivers/s390/crypto/vfio_ap_drv.c
->> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->> @@ -12,6 +12,7 @@
->>   #include <linux/mod_devicetable.h>
->>   #include <linux/slab.h>
->>   #include <linux/string.h>
->> +#include <asm/zcrypt.h>
->>   #include "vfio_ap_private.h"
->>   
->>   #define VFIO_AP_ROOT_NAME "vfio_ap"
->> @@ -68,6 +69,18 @@ static int vfio_ap_matrix_dev_create(void)
->>   {
->>   	int ret;
->>   
->> +	mutex_init(&matrix_dev.lock);
->> +	INIT_LIST_HEAD(&matrix_dev.mdev_list);
->> +
->> +	/* Test if PQAP(QCI) instruction is available */
->> +	if (test_facility(12)) {
->> +		ret = ap_qci(&matrix_dev.info);
->> +		if (ret)
->> +			return ret;
->> +	}
->> +
->> +	atomic_set(&matrix_dev.available_instances, MAX_ZDEV_ENTRIES_EXT);
->> +
->>   	ret = misc_register(&matrix_dev.misc_dev);
-> OK, you are adding more stuff other than the miscdevice after all...
-> still, I don't think that this is a good idea.
->
-> I think I had already asked this for a previous version: Why has this
-> been turned into a miscdevice? (I think my reaction to the answer was
-> 'meh'... but I think more and more that we should not do that.)
+> You really should sign off patches you forward, even if you did not write
+> them on your own.
 
-Following our off-line conversation...
-
-I understand your concern, about the misc device and dynamically
-updating the misc device structure.
-
-For it is your main point of contention and we do not currently have
-a use case for the misc device I propose we just let it go and
-rebase on the device design we had in V6 and did not seem to
-make any trouble to any one.
-
-We will propose a v9 with the integration of all comment done
-so far soon as possible.
-
-
-Best regards,
-
-Pierre
-
-
->
->>   	if (ret)
->>   		return ret;
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+Duly noted and I will do so on future posts. Thanks for the reference.
