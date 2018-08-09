@@ -1,15 +1,15 @@
 Return-Path: <SRS0=+sa6=KY=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH RFC 1/2] KVM: s390: vsie: simulate VCPU SIE entry/exit
+Subject: Re: [PATCH RFC 2/2] KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
 References: <20180807125131.3606-1-david@redhat.com>
- <20180807125131.3606-2-david@redhat.com>
+ <20180807125131.3606-3-david@redhat.com>
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Thu, 9 Aug 2018 07:38:09 +0200
+Date: Thu, 9 Aug 2018 07:39:17 +0200
 MIME-Version: 1.0
-In-Reply-To: <20180807125131.3606-2-david@redhat.com>
+In-Reply-To: <20180807125131.3606-3-david@redhat.com>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="Kcz2sLgfm4jIbtJq1XcrqZtzPQdGv4GvC"
-Message-Id: <baab41cb-46fe-9335-9481-5fdb35b6f7e3@linux.ibm.com>
+ boundary="LI2TuzwusZUfbWhWtfdlLoJD2Q4qAdZ4v"
+Message-Id: <c45051e1-7079-d401-25c7-5abe018b3473@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -18,8 +18,8 @@ Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Mart
 List-ID: <linux-s390.vger.kernel.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Kcz2sLgfm4jIbtJq1XcrqZtzPQdGv4GvC
-Content-Type: multipart/mixed; boundary="EQ9E38gnVc3AMZClXlVXFj4VlAsXZ7lnv";
+--LI2TuzwusZUfbWhWtfdlLoJD2Q4qAdZ4v
+Content-Type: multipart/mixed; boundary="UcYEAsPsCSOLKUeJ8YlGsRIxrVibcp0Mu";
  protected-headers="v1"
 From: Janosch Frank <frankja@linux.ibm.com>
 To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
@@ -28,50 +28,42 @@ Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
  Cornelia Huck <cohuck@redhat.com>,
  Christian Borntraeger <borntraeger@de.ibm.com>,
  Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <baab41cb-46fe-9335-9481-5fdb35b6f7e3@linux.ibm.com>
-Subject: Re: [PATCH RFC 1/2] KVM: s390: vsie: simulate VCPU SIE entry/exit
+Message-ID: <c45051e1-7079-d401-25c7-5abe018b3473@linux.ibm.com>
+Subject: Re: [PATCH RFC 2/2] KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
 References: <20180807125131.3606-1-david@redhat.com>
- <20180807125131.3606-2-david@redhat.com>
-In-Reply-To: <20180807125131.3606-2-david@redhat.com>
+ <20180807125131.3606-3-david@redhat.com>
+In-Reply-To: <20180807125131.3606-3-david@redhat.com>
 
---EQ9E38gnVc3AMZClXlVXFj4VlAsXZ7lnv
+--UcYEAsPsCSOLKUeJ8YlGsRIxrVibcp0Mu
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
 On 07.08.2018 14:51, David Hildenbrand wrote:
-> VCPU requests and VCPU blocking right now don't take care of the vSIE
-> (as it was not necessary until now). But we want to have VCPU requests
-> that will also be handled before running the vSIE again.
->=20
-> So let's simulate a SIE entry when entering the vSIE loop and check
-> for PROG_ flags. The existing infrastructure (e.g. exit_sie()) will the=
-n
-> detect that the SIE (in form of the vSIE execution loop) is running and=
+> When we change the crycb (or execution controls), we also have to make =
+sure
+> that the vSIE shadow datastructures properly consider the changed
+> values before rerunning the vSIE. We can achieve that by simply using a=
 
-> properly kick the vSIE CPU, resulting in it leaving the vSIE loop and
-> therefore the vSIE interception handler, allowing it to handle VCPU
-> requests.
+> VCPU request now.
 >=20
-> E.g. if we want to modify the crycb of the VCPU and make sure that any
-> masks also get applied to the VSIE crycb shadow (which uses masks from =
-the
-> VCPU crycb), we will need a way to hinder the vSIE from running and mak=
+> This has to be a synchronous request (=3D=3D handled before entering th=
 e
-> sure to process the updated crycb before reentering the vSIE again.
+> (v)SIE again).
+>=20
+> The request will make sure that the vSIE handler is left, and that the
+> request will be processed (NOP), therefore forcing a reload of all
+> vSIE data (including rebuilding the crycb) when re-entering the vSIE
+> interception handler the next time.
 >=20
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
-Finally found some time:
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-As the first user will be AP, I guess the patches will be queued with
-them. Thanks for helping out :)
 
+--UcYEAsPsCSOLKUeJ8YlGsRIxrVibcp0Mu--
 
---EQ9E38gnVc3AMZClXlVXFj4VlAsXZ7lnv--
-
---Kcz2sLgfm4jIbtJq1XcrqZtzPQdGv4GvC
+--LI2TuzwusZUfbWhWtfdlLoJD2Q4qAdZ4v
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -79,19 +71,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJba9NXAAoJEBcO/8Q8ZEV5I2gP/AhhzDUWI/0AXCS3GQUH24q5
-Vr2UDGO30f++Of4ZGbCNzyJ5mAKRGRf3QVJsGbC8oqHjyi2D7k3DpoKjI9l8wUIY
-X7p0+wWJhOEAOP0pPBpCbNqUkWQegmHSsYucbVt/rNnMzMkGxlT17CY7xtL9pKC1
-YPLqwNiEtqcMbSq6/qvMo4EAGUVIdnhsx+8XtYXQzYtvnHKy8ue5V3H04gn7YaRW
-zMfBVg51S5khCfQdxsae81r1QYVxlWwwtN+ujfnSS9YtEfY9P+zP1zieOB1LAgc6
-qYqYtnbF3gEqdIt80ojMtCPvCYcgIy9fflHlvqf23IsPMjADcjzxfGJeqc7IVUaF
-/FTv0JZ7PIWPy0eSjLY5IokWwSPeWlv1Gkjl0Ram+kRgJ3XHJ6xXwMg9YlO5C9IH
-d+AN2u/L8/7a4keF49jwa/0L8kK2/I8hk7pIsgNav9Ebsv/xV40CVejTywH1Hqsl
-Zcvi0oEOVd/IpfEbD9VqGyRO8HIWE2NPmEcoCi8hNX3VT3t2QihbYnQBq5cAkIN1
-UKj5z4HRhWUgFdBfVWlAT4DIYkSQezwnJye3ELrOIRvvRHUwOIKllvMg8upHiEFB
-ykP4usICgHFBZRnxpjzVmgGqwrhX/cAUwZbrs/bjKe9rGxcAUgJVKC+11tUK4KGq
-MCVU0DzVSaOSi8X/w256
-=C6OM
+iQIcBAEBCAAGBQJba9OFAAoJEBcO/8Q8ZEV5r64QAKbsDqYeCxoubtvgqJt0xjfJ
+vDzBt3E7/8+P3UoLFQnerBwWpWuWT6XsIr9ET4cR6Lrc5kfhsPAt5izSJvX86UB8
+XX1vKOHfToChMmsFzDtX70N1UEEGTwqMsOJK/X2dIg0dca8VL3hcM3/KIGTHSUbb
++wnc+Xu+YP88gfox/YYIH6mam/frqvv7nlQ+iLSzPDrs4gnOep2K2hrIou9klufW
++NSszVGnXO1IN/g33LtL39Q1YdrxRamUnEXn9d5vAOYYbkttpkPMjQVSpWe8KxGe
++NNoPACCuIw72TvDfmY/0LaD9CeGuoJXC21jUmWwm5pT4K0YvKQWspiN5gcXhW3T
+ZGqYQPGz+rFrTALpAldUSD6SCQ8fD0Etn5Zx84hZJtPfy7PezpCOYRojIiDsE7Jh
+nt3PNxJFascSBiKUxSdq2xOVxQ736fQcfSAltNFHLjZUXeM7OrHLsS60le/OOesq
++u65cR43aSH0498S7nbyfy6z4ZXNoDxHUMrUmN4kMxOMrNWM8B+aRi4XqMWD1Obb
+L7Y52S8Lvw6QJ6clPB3/nwJzcv7tADST30rjiK0gwxrN0Y+CkjRazVfJr/SwCGpq
+BXv1JG2r3FbwpZ7pxEc/1oFSdMnbzszftijPHX9Qk1FtgVv2wHRmRkD85HsloA7/
+OyyoBBogqlMiP+XXvLX7
+=vxzf
 -----END PGP SIGNATURE-----
 
---Kcz2sLgfm4jIbtJq1XcrqZtzPQdGv4GvC--
+--LI2TuzwusZUfbWhWtfdlLoJD2Q4qAdZ4v--
