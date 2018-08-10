@@ -1,128 +1,106 @@
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v8 21/22] KVM: s390: CPU model support for AP
- virtualization
-Date: Thu, 9 Aug 2018 16:27:38 -0400
-Message-ID: <b1094c57-18dd-f4fd-b528-f1682b8fc078@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v8 04/22] s390/zcrypt: Integrate ap_asm.h into
+ include/asm/ap.h.
+Date: Fri, 10 Aug 2018 10:49:29 +0200
+Message-ID: <20180810104929.6d40edef.cohuck@redhat.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1533739472-7172-22-git-send-email-akrowiak@linux.vnet.ibm.com>
- <58eed530-31b3-49fe-cbd7-4d101b94daa0@redhat.com>
+        <1533739472-7172-5-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <20180809110645.33b20c1f.cohuck@redhat.com>
+        <aec0af21-270f-c4c5-3aea-f6854ca2fb07@linux.ibm.com>
+        <323af125-f078-919c-3117-f9022f5529ae@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <58eed530-31b3-49fe-cbd7-4d101b94daa0@redhat.com>
-Content-Language: en-US
+In-Reply-To: <323af125-f078-919c-3117-f9022f5529ae@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/09/2018 04:17 AM, David Hildenbrand wrote:
-> On 08.08.2018 16:44, Tony Krowiak wrote:
->> From: Tony Krowiak <akrowiak@linux.ibm.com>
->>
->> Introduces a new CPU model feature and two CPU model
->> facilities to support AP virtualization for KVM guests.
->>
->> CPU model feature:
->>
->> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
->> AP instructions are available on the guest. This
->> feature will be enabled by the kernel only if the AP
->> instructions are installed on the linux host. This feature
->> must be specifically turned on for the KVM guest from
->> userspace to use the VFIO AP device driver for guest
->> access to AP devices.
->>
->> CPU model facilities:
->>
->> 1. AP Query Configuration Information (QCI) facility is installed.
->>
->>     This is indicated by setting facilities bit 12 for
->>     the guest. The kernel will not enable this facility
->>     for the guest if it is not set on the host. This facility
->>     must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
->>     feature is not installed.
-> Could it happen on real HW (not frankenstein CPU models), that
->
-> !AP, but STFL 12 or 15  are indicated?
+On Thu, 9 Aug 2018 12:06:56 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-I suspect that if AP instructions are not installed, then neither
-STFLE.12 nor STFLE.15 would be set in the real hardware. This
-comment, however, is talking about an administrator setting the
-facility for a guest, not real hardware. Having said that and after
-thinking about it a little more, I am going to remove that last sentence
-because the CPU model configuration (e.g., as specified on the qemu
-command line) will fail if the QCI or APFT facility is enabled when the
-CPU model feature KVM_S390_VM_CPU_FEAT_AP is not.
+> On 08/09/2018 05:17 AM, Harald Freudenberger wrote:
+> > On 09.08.2018 11:06, Cornelia Huck wrote:  
+> >> On Wed,  8 Aug 2018 10:44:14 -0400
+> >> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+> >>  
+> >>> From: Harald Freudenberger <freude@de.ibm.com>
+> >>>
+> >>> Move all the inline functions from the ap bus header
+> >>> file ap_asm.h into the in-kernel api header file
+> >>> arch/s390/include/asm/ap.h so that KVM can make use
+> >>> of all the low level AP functions.
+> >>>
+> >>> Signed-off-by: Harald Freudenberger <freude@de.ibm.com>
+> >>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>  
+> >> You should add your own s-o-b if you are sending on patches written by
+> >> others (even if it does not matter in the end, when they are merged
+> >> through a different path anyway.)
+> >>  
+> >>> ---
+> >>>   arch/s390/include/asm/ap.h     |  284 ++++++++++++++++++++++++++++++++++++----
+> >>>   drivers/s390/crypto/ap_asm.h   |  261 ------------------------------------
+> >>>   drivers/s390/crypto/ap_bus.c   |   21 +---
+> >>>   drivers/s390/crypto/ap_bus.h   |    1 +
+> >>>   drivers/s390/crypto/ap_card.c  |    1 -
+> >>>   drivers/s390/crypto/ap_queue.c |    1 -
+> >>>   6 files changed, 259 insertions(+), 310 deletions(-)
+> >>>   delete mode 100644 drivers/s390/crypto/ap_asm.h
+> >>>
+> >>> diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+> >>> index c1bedb4..046e044 100644
+> >>> --- a/arch/s390/include/asm/ap.h
+> >>> +++ b/arch/s390/include/asm/ap.h
+> >>> @@ -47,6 +47,50 @@ struct ap_queue_status {
+> >>>   };
+> >>>   
+> >>>   /**
+> >>> + * ap_intructions_available() - Test if AP instructions are available.
+> >>> + *
+> >>> + * Returns 0 if the AP instructions are installed.  
+> >> Stumbled over this when I was looking at the usage in patch 7: if I see
+> >> a function called '_available' return 0, I'd assume that whatever the
+> >> function tests for is *not* available.
+> >>
+> >> Rather call this function ap_instructions_check_availability() (and
+> >> keep the return code convention), or switch this to return 0 if not
+> >> available and !0 if available?  
+> > Good catch, Cony you are right. I'll fix this to return 1 if AP instructions
+> > are available and 0 if not. However, this patch will come via Martin's pipe
+> > to the Linus Torwald kernel sources.  
+> 
+> Is your intent to simply indicate whether the AP instructions are 
+> available or
+> not; or is the intention to indicate whether the AP instructions are 
+> available
+> and if not, they why? In the former, then I agree that a boolean should be
+> returned; however, if the case is the latter, then what you have is fine but
+> maybe the function name should be changed as Connie suggests.
 
->
->>     If this facility is not set for the KVM guest, then only
->>     APQNs with an APQI less than 16 will be used by a Linux
->>     guest regardless of the matrix configuration for the virtual
->>     machine. This is a limitation of the Linux AP bus.
->>
->> 2. AP Facilities Test facility (APFT) is installed.
->>
->>     This is indicated by setting facilities bit 15 for
->>     the guest. The kernel will not enable this facility for
->>     the guest if it is not set on the host. This facility
->>     must not be set by userspace if the KVM_S390_VM_CPU_FEAT_AP
->>     feature is not installed.
->>
->>     If this facility is not set for the KVM guest, then no
->>     AP devices will be available to the guest regardless of
->>     the guest's matrix configuration for the virtual
->>     machine. This is a limitation of the Linux AP bus.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
->> Tested-by: Michael Mueller <mimu@linux.ibm.com>
->> Tested-by: Farhan Ali <alifm@linux.ibm.com>
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->>   arch/s390/kvm/kvm-s390.c         |    7 +++++++
->>   arch/s390/tools/gen_facilities.c |    2 ++
->>   2 files changed, 9 insertions(+), 0 deletions(-)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 9203f0b..7d4fe9b 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -367,6 +367,13 @@ static void kvm_s390_cpu_feat_init(void)
->>   
->>   	if (MACHINE_HAS_ESOP)
->>   		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
->> +
->> +	/*
->> +	 * Check if AP instructions installed on host
->> +	 */
-> Make this a one-line comment, please.
+So, can this actually fail for any reason other than "instructions not
+installed"? Even if it did, the end result is that the instructions are
+not usable -- I don't think the "why" would be interesting at that
+point.
 
-Will do
-
->
->> +	if (ap_instructions_available() == 0)
->> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
->> +
->>   	/*
->>   	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
->>   	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
->> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
->> index 90a8c9e..a52290b 100644
->> --- a/arch/s390/tools/gen_facilities.c
->> +++ b/arch/s390/tools/gen_facilities.c
->> @@ -106,6 +106,8 @@ struct facility_def {
->>   
->>   		.name = "FACILITIES_KVM_CPUMODEL",
->>   		.bits = (int[]){
->> +			12, /* AP Query Configuration Information */
->> +			15, /* AP Facilities Test */
->>   			-1  /* END */
->>   		}
->>   	},
->>
->
+> 
+> >>> + */
+> >>> +static inline int ap_instructions_available(void)
+> >>> +{
+> >>> +	register unsigned long reg0 asm ("0") = AP_MKQID(0, 0);
+> >>> +	register unsigned long reg1 asm ("1") = -ENODEV;
+> >>> +	register unsigned long reg2 asm ("2");
+> >>> +
+> >>> +	asm volatile(
+> >>> +		"   .long 0xb2af0000\n"		/* PQAP(TAPQ) */
+> >>> +		"0: la    %0,0\n"
+> >>> +		"1:\n"
+> >>> +		EX_TABLE(0b, 1b)
+> >>> +		: "+d" (reg1), "=d" (reg2)
+> >>> +		: "d" (reg0)
+> >>> +		: "cc");
+> >>> +	return reg1;
+> >>> +}  
