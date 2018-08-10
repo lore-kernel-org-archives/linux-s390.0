@@ -1,78 +1,58 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v8 09/22] s390: vfio-ap: register matrix device with
- VFIO mdev framework
-Date: Fri, 10 Aug 2018 10:59:33 +0200
-Message-ID: <20180810105933.2431b6a0.cohuck@redhat.com>
+Subject: Re: [PATCH v8 17/22] s390: vfio-ap: zeroize the AP queues.
+Date: Fri, 10 Aug 2018 11:14:45 +0200
+Message-ID: <20180810111445.015fcf2a.cohuck@redhat.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1533739472-7172-10-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <20180809130607.32781b72.cohuck@redhat.com>
-        <e52ee356-bb7b-f672-1c9c-5b1b84775a2d@linux.ibm.com>
+        <1533739472-7172-18-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e52ee356-bb7b-f672-1c9c-5b1b84775a2d@linux.ibm.com>
+In-Reply-To: <1533739472-7172-18-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 9 Aug 2018 18:27:16 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Wed,  8 Aug 2018 10:44:27 -0400
+Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-> On 09/08/2018 13:06, Cornelia Huck wrote:
-> > On Wed,  8 Aug 2018 10:44:19 -0400
-> > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-> >  
-> >> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> >> index d7e39ad..6a827f3 100644
-> >> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> >> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> >> @@ -12,6 +12,7 @@
-> >>   #include <linux/mod_devicetable.h>
-> >>   #include <linux/slab.h>
-> >>   #include <linux/string.h>
-> >> +#include <asm/zcrypt.h>
-> >>   #include "vfio_ap_private.h"
-> >>   
-> >>   #define VFIO_AP_ROOT_NAME "vfio_ap"
-> >> @@ -68,6 +69,18 @@ static int vfio_ap_matrix_dev_create(void)
-> >>   {
-> >>   	int ret;
-> >>   
-> >> +	mutex_init(&matrix_dev.lock);
-> >> +	INIT_LIST_HEAD(&matrix_dev.mdev_list);
-> >> +
-> >> +	/* Test if PQAP(QCI) instruction is available */
-> >> +	if (test_facility(12)) {
-> >> +		ret = ap_qci(&matrix_dev.info);
-> >> +		if (ret)
-> >> +			return ret;
-> >> +	}
-> >> +
-> >> +	atomic_set(&matrix_dev.available_instances, MAX_ZDEV_ENTRIES_EXT);
-> >> +
-> >>   	ret = misc_register(&matrix_dev.misc_dev);  
-> > OK, you are adding more stuff other than the miscdevice after all...
-> > still, I don't think that this is a good idea.
-> >
-> > I think I had already asked this for a previous version: Why has this
-> > been turned into a miscdevice? (I think my reaction to the answer was
-> > 'meh'... but I think more and more that we should not do that.)  
+> From: Tony Krowiak <akrowiak@linux.ibm.com>
 > 
-> Following our off-line conversation...
+> Let's call PAPQ(ZAPQ) to zeroize a queue:
 > 
-> I understand your concern, about the misc device and dynamically
-> updating the misc device structure.
+> * For each queue configured for a mediated matrix device
+>   when it is released.
 > 
-> For it is your main point of contention and we do not currently have
-> a use case for the misc device I propose we just let it go and
-> rebase on the device design we had in V6 and did not seem to
-> make any trouble to any one.
+> Zeroizing a queue resets the queue, clears all pending
+> messages for the queue entries and disables adapter interruptions
+> associated with the queue.
 > 
-> We will propose a v9 with the integration of all comment done
-> so far soon as possible.
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> Tested-by: Michael Mueller <mimu@linux.ibm.com>
+> Tested-by: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c     |   29 ++++++++++++++++++++++++++++-
+>  drivers/s390/crypto/vfio_ap_private.h |   25 +++++++++++++++++++++++++
+>  2 files changed, 53 insertions(+), 1 deletions(-)
+> 
 
-Sounds good to me!
+> @@ -788,7 +812,10 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+>  {
+>  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>  
+> -	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> +	if (matrix_mdev->kvm)
+> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+
+Confused. Why is the check for matrix_mdev->kvm added here?
+
+> +
+> +	vfio_ap_mdev_reset_queues(mdev, true);
+>  	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+>  				 &matrix_mdev->group_notifier);
+>  	matrix_mdev->kvm = NULL;
