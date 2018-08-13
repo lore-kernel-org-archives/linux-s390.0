@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v9 14/22] KVM: s390: interfaces to clear CRYCB masks
-Date: Mon, 13 Aug 2018 17:48:11 -0400
-Message-ID: <1534196899-16987-15-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v9 16/22] s390: vfio-ap: implement VFIO_DEVICE_GET_INFO ioctl
+Date: Mon, 13 Aug 2018 17:48:13 -0400
+Message-ID: <1534196899-16987-17-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,67 +14,90 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Introduces two new KVM interface to clear the APM, AQM and ADM masks in
-the guest's CRYCB.  The VCPUs are taken out of SIE to ensure the VCPUs do
-not get out of sync.
+Introduces ioctl access to the VFIO AP Matrix device driver
+by implementing the VFIO_DEVICE_GET_INFO ioctl. This ioctl
+provides the VFIO AP Matrix device driver information to the
+guest machine.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Acked-by: Halil Pasic <pasic@linux.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
 Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |    3 +++
- arch/s390/kvm/kvm-s390.c         |   15 +++++++++++++++
- 2 files changed, 18 insertions(+), 0 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c |   38 +++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/vfio.h         |    1 +
+ 2 files changed, 39 insertions(+), 0 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 4a739d4..07e58d8 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -258,6 +258,7 @@ struct kvm_s390_sie_block {
- 	__u64	tecmc;			/* 0x00e8 */
- 	__u8	reservedf0[12];		/* 0x00f0 */
- #define CRYCB_FORMAT_MASK 0x00000003
-+#define CRYCB_FORMAT0 0x00000000
- #define CRYCB_FORMAT1 0x00000001
- #define CRYCB_FORMAT2 0x00000003
- 	__u32	crycbd;			/* 0x00fc */
-@@ -861,6 +862,8 @@ void kvm_arch_async_page_not_present(struct kvm_vcpu *vcpu,
- void kvm_arch_async_page_present(struct kvm_vcpu *vcpu,
- 				 struct kvm_async_pf *work);
- 
-+void kvm_arch_crypto_clear_masks(struct kvm *kvm);
-+
- extern int sie64a(struct kvm_s390_sie_block *, u64 *);
- extern char sie_exit;
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f7de123..8d8a65a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1919,6 +1919,21 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
- 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 280bd17..368b559 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -794,6 +794,43 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+ 	module_put(THIS_MODULE);
  }
  
-+void kvm_arch_crypto_clear_masks(struct kvm *kvm)
++static int vfio_ap_mdev_get_device_info(unsigned long arg)
 +{
-+	mutex_lock(&kvm->lock);
-+	kvm_s390_vcpu_block_all(kvm);
++	unsigned long minsz;
++	struct vfio_device_info info;
 +
-+	memset(&kvm->arch.crypto.crycb->apcb0, 0,
-+	       sizeof(kvm->arch.crypto.crycb->apcb0));
-+	memset(&kvm->arch.crypto.crycb->apcb1, 0,
-+	       sizeof(kvm->arch.crypto.crycb->apcb1));
++	minsz = offsetofend(struct vfio_device_info, num_irqs);
 +
-+	kvm_s390_vcpu_unblock_all(kvm);
-+	mutex_unlock(&kvm->lock);
++	if (copy_from_user(&info, (void __user *)arg, minsz))
++		return -EFAULT;
++
++	if (info.argsz < minsz)
++		return -EINVAL;
++
++	info.flags = VFIO_DEVICE_FLAGS_AP;
++	info.num_regions = 0;
++	info.num_irqs = 0;
++
++	return copy_to_user((void __user *)arg, &info, minsz);
 +}
-+EXPORT_SYMBOL(kvm_arch_crypto_clear_masks);
 +
- static u64 kvm_s390_get_initial_cpuid(void)
- {
- 	struct cpuid cpuid;
++static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
++				    unsigned int cmd, unsigned long arg)
++{
++	int ret;
++
++	switch (cmd) {
++	case VFIO_DEVICE_GET_INFO:
++		ret = vfio_ap_mdev_get_device_info(arg);
++		break;
++	default:
++		ret = -EOPNOTSUPP;
++		break;
++	}
++
++	return ret;
++}
++
+ static const struct mdev_parent_ops vfio_ap_matrix_ops = {
+ 	.owner			= THIS_MODULE,
+ 	.supported_type_groups	= vfio_ap_mdev_type_groups,
+@@ -802,6 +839,7 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+ 	.remove			= vfio_ap_mdev_remove,
+ 	.open			= vfio_ap_mdev_open,
+ 	.release		= vfio_ap_mdev_release,
++	.ioctl			= vfio_ap_mdev_ioctl,
+ };
+ 
+ int vfio_ap_mdev_register(void)
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index bfbe2be..f378b98 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -200,6 +200,7 @@ struct vfio_device_info {
+ #define VFIO_DEVICE_FLAGS_PLATFORM (1 << 2)	/* vfio-platform device */
+ #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+ #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
++#define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
+ 	__u32	num_regions;	/* Max region index + 1 */
+ 	__u32	num_irqs;	/* Max IRQ index + 1 */
+ };
 -- 
 1.7.1
