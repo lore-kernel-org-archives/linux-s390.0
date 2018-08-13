@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v9 02/22] s390/zcrypt: Review inline assembler constraints.
-Date: Mon, 13 Aug 2018 17:47:59 -0400
-Message-ID: <1534196899-16987-3-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v9 06/22] KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
+Date: Mon, 13 Aug 2018 17:48:03 -0400
+Message-ID: <1534196899-16987-7-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -9,128 +9,69 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, frankja@linux.ibm.com, David Hildenbrand <david@redhat.com>, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Harald Freudenberger <freude@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
 
-Reviewed and adapted the register use and asm constraints
-of the C inline assembler functions in accordance to the
-the AP instructions specifications.
+When we change the crycb (or execution controls), we also have to make sure
+that the vSIE shadow datastructures properly consider the changed
+values before rerunning the vSIE. We can achieve that by simply using a
+VCPU request now.
 
-Signed-off-by: Harald Freudenberger <freude@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+This has to be a synchronous request (== handled before entering the
+(v)SIE again).
+
+The request will make sure that the vSIE handler is left, and that the
+request will be processed (NOP), therefore forcing a reload of all
+vSIE data (including rebuilding the crycb) when re-entering the vSIE
+interception handler the next time.
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/crypto/ap_asm.h |   40 +++++++++++++++++++++++-----------------
- 1 files changed, 23 insertions(+), 17 deletions(-)
+ arch/s390/include/asm/kvm_host.h |    1 +
+ arch/s390/kvm/kvm-s390.c         |    7 ++++++-
+ 2 files changed, 7 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_asm.h b/drivers/s390/crypto/ap_asm.h
-index b22d30a..e22ee12 100644
---- a/drivers/s390/crypto/ap_asm.h
-+++ b/drivers/s390/crypto/ap_asm.h
-@@ -20,14 +20,16 @@ static inline int ap_instructions_available(void)
- {
- 	register unsigned long reg0 asm ("0") = AP_MKQID(0, 0);
- 	register unsigned long reg1 asm ("1") = -ENODEV;
--	register unsigned long reg2 asm ("2") = 0UL;
-+	register unsigned long reg2 asm ("2");
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index a2188e3..af39561 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -44,6 +44,7 @@
+ #define KVM_REQ_ICPT_OPEREXC	KVM_ARCH_REQ(2)
+ #define KVM_REQ_START_MIGRATION KVM_ARCH_REQ(3)
+ #define KVM_REQ_STOP_MIGRATION  KVM_ARCH_REQ(4)
++#define KVM_REQ_VSIE_RESTART	KVM_ARCH_REQ(5)
  
- 	asm volatile(
- 		"   .long 0xb2af0000\n"		/* PQAP(TAPQ) */
--		"0: la    %1,0\n"
-+		"0: la    %0,0\n"
- 		"1:\n"
- 		EX_TABLE(0b, 1b)
--		: "+d" (reg0), "+d" (reg1), "+d" (reg2) : : "cc");
-+		: "+d" (reg1), "=d" (reg2)
-+		: "d" (reg0)
-+		: "cc");
- 	return reg1;
+ #define SIGP_CTRL_C		0x80
+ #define SIGP_CTRL_SCN_MASK	0x3f
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 6df2d12..19f4f44 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -798,8 +798,11 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm)
+ 
+ 	kvm_s390_vcpu_block_all(kvm);
+ 
+-	kvm_for_each_vcpu(i, vcpu, kvm)
++	kvm_for_each_vcpu(i, vcpu, kvm) {
+ 		kvm_s390_vcpu_crypto_setup(vcpu);
++		/* recreate the shadow crycb by leaving the VSIE handler */
++		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
++	}
+ 
+ 	kvm_s390_vcpu_unblock_all(kvm);
  }
+@@ -3090,6 +3093,8 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
  
-@@ -42,10 +44,12 @@ static inline struct ap_queue_status ap_tapq(ap_qid_t qid, unsigned long *info)
- {
- 	register unsigned long reg0 asm ("0") = qid;
- 	register struct ap_queue_status reg1 asm ("1");
--	register unsigned long reg2 asm ("2") = 0UL;
-+	register unsigned long reg2 asm ("2");
+ 	/* nothing to do, just clear the request */
+ 	kvm_clear_request(KVM_REQ_UNHALT, vcpu);
++	/* we left the vsie handler, nothing to do, just clear the request */
++	kvm_clear_request(KVM_REQ_VSIE_RESTART, vcpu);
  
- 	asm volatile(".long 0xb2af0000"		/* PQAP(TAPQ) */
--		     : "+d" (reg0), "=d" (reg1), "+d" (reg2) : : "cc");
-+		     : "=d" (reg1), "=d" (reg2)
-+		     : "d" (reg0)
-+		     : "cc");
- 	if (info)
- 		*info = reg2;
- 	return reg1;
-@@ -59,13 +63,14 @@ static inline struct ap_queue_status ap_tapq(ap_qid_t qid, unsigned long *info)
-  */
- static inline struct ap_queue_status ap_rapq(ap_qid_t qid)
- {
--	register unsigned long reg0 asm ("0") = qid | 0x01000000UL;
-+	register unsigned long reg0 asm ("0") = qid | (1UL << 24);
- 	register struct ap_queue_status reg1 asm ("1");
--	register unsigned long reg2 asm ("2") = 0UL;
- 
- 	asm volatile(
- 		".long 0xb2af0000"		/* PQAP(RAPQ) */
--		: "+d" (reg0), "=d" (reg1), "+d" (reg2) : : "cc");
-+		: "=d" (reg1)
-+		: "d" (reg0)
-+		: "cc");
- 	return reg1;
- }
- 
-@@ -107,8 +112,8 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
- 
- 	asm volatile(
- 		".long 0xb2af0000"		/* PQAP(AQIC) */
--		: "+d" (reg0), "+d" (reg1_in), "=d" (reg1_out), "+d" (reg2)
--		:
-+		: "=d" (reg1_out)
-+		: "d" (reg0), "d" (reg1_in), "d" (reg2)
- 		: "cc");
- 	return reg1_out;
- }
-@@ -120,17 +125,17 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
-  */
- static inline int ap_qci(void *config)
- {
--	register unsigned long reg0 asm ("0") = 0x04000000UL;
-+	register unsigned long reg0 asm ("0") = 4UL << 24;
- 	register unsigned long reg1 asm ("1") = -EINVAL;
- 	register void *reg2 asm ("2") = (void *) config;
- 
- 	asm volatile(
- 		".long 0xb2af0000\n"		/* PQAP(QCI) */
--		"0: la    %1,0\n"
-+		"0: la    %0,0\n"
- 		"1:\n"
- 		EX_TABLE(0b, 1b)
--		: "+d" (reg0), "+d" (reg1), "+d" (reg2)
--		:
-+		: "+d" (reg1)
-+		: "d" (reg0), "d" (reg2)
- 		: "cc", "memory");
- 
- 	return reg1;
-@@ -169,12 +174,13 @@ static inline struct ap_queue_status ap_qact(ap_qid_t qid, int ifbit,
- 		| ((ifbit & 0x01) << 22);
- 	register unsigned long reg1_in asm ("1") = apinfo->val;
- 	register struct ap_queue_status reg1_out asm ("1");
--	register unsigned long reg2 asm ("2") = 0;
-+	register unsigned long reg2 asm ("2");
- 
- 	asm volatile(
- 		".long 0xb2af0000"		/* PQAP(QACT) */
--		: "+d" (reg0), "+d" (reg1_in), "=d" (reg1_out), "+d" (reg2)
--		: : "cc");
-+		: "+d" (reg1_in), "=d" (reg1_out), "=d" (reg2)
-+		: "d" (reg0)
-+		: "cc");
- 	apinfo->val = reg2;
- 	return reg1_out;
+ 	return 0;
  }
 -- 
 1.7.1
