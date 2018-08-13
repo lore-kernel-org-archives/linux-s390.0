@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v9 09/22] s390: vfio-ap: register matrix device with VFIO mdev framework
-Date: Mon, 13 Aug 2018 17:48:06 -0400
-Message-ID: <1534196899-16987-10-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v9 12/22] s390: vfio-ap: sysfs interfaces to configure control domains
+Date: Mon, 13 Aug 2018 17:48:09 -0400
+Message-ID: <1534196899-16987-13-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,337 +14,210 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Registers the matrix device created by the VFIO AP device
-driver with the VFIO mediated device framework.
-Registering the matrix device will create the sysfs
-structures needed to create mediated matrix devices
-each of which will be used to configure the AP matrix
-for a guest and connect it to the VFIO AP device driver.
+Provides the sysfs interfaces for:
 
-Registering the matrix device with the VFIO mediated device
-framework will create the following sysfs structures:
+1. Assigning AP control domains to the mediated matrix device
 
-/sys/devices/vfio_ap/matrix/
-...... [mdev_supported_types]
-......... [vfio_ap-passthrough]
-............ create
+2. Unassigning AP control domains from a mediated matrix device
 
-To create a mediated device for the AP matrix device, write a UUID
-to the create file:
+3. Displaying the control domains assigned to a mediated matrix
+   device
 
-	uuidgen > create
+The IDs of the AP control domains assigned to the mediated matrix
+device are stored in an AP domain mask (ADM). The bits in the ADM,
+from most significant to least significant bit, correspond to
+AP domain numbers 0 to 255. On some systems, the maximum allowable
+domain number may be less than 255 - depending upon the host's
+AP configuration - and assignment may be rejected if the input
+domain ID exceeds the limit.
 
-A symbolic link to the mediated device's directory will be created in the
-devices subdirectory named after the generated $uuid:
+When a control domain is assigned, the bit corresponding its domain
+ID will be set in the ADM. Likewise, when a domain is unassigned,
+the bit corresponding to its domain ID will be cleared in the ADM.
+
+The relevant sysfs structures are:
 
 /sys/devices/vfio_ap/matrix/
 ...... [mdev_supported_types]
 ......... [vfio_ap-passthrough]
 ............ [devices]
-............... [$uuid]
+...............[$uuid]
+.................. assign_control_domain
+.................. unassign_control_domain
 
-A symbolic link to the mediated device will also be created
-in the vfio_ap matrix's directory:
+To assign a control domain to the $uuid mediated matrix device's
+ADM, write its domain number to the assign_control_domain file.
+To unassign a domain, write its domain number to the
+unassign_control_domain file. The domain number is specified
+using conventional semantics: If it begins with 0x the number
+will be parsed as a hexadecimal (case insensitive) number;
+if it begins with 0, it is parsed as an octal number;
+otherwise, it will be parsed as a decimal number.
 
-/sys/devices/vfio_ap/matrix/[$uuid]
+For example, to assign control domain 173 (0xad) to the mediated
+matrix device $uuid:
+
+	echo 173 > assign_control_domain
+
+	or
+
+	echo 0255 > assign_control_domain
+
+	or
+
+	echo 0xad > assign_control_domain
+
+To unassign control domain 173 (0xad):
+
+	echo 173 > unassign_control_domain
+
+	or
+
+	echo 0255 > unassign_control_domain
+
+	or
+
+	echo 0xad > unassign_control_domain
+
+The assignment will be rejected if the APQI exceeds the maximum
+value for an AP domain:
+  * If the AP Extended Addressing (APXA) facility is installed,
+    the max value is 255
+  * Else the max value is 15
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
+Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- MAINTAINERS                           |    1 +
- drivers/s390/crypto/Makefile          |    2 +-
- drivers/s390/crypto/vfio_ap_drv.c     |   23 ++++++
- drivers/s390/crypto/vfio_ap_ops.c     |  124 +++++++++++++++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_private.h |   45 ++++++++++++
- include/uapi/linux/vfio.h             |    1 +
- 6 files changed, 195 insertions(+), 1 deletions(-)
- create mode 100644 drivers/s390/crypto/vfio_ap_ops.c
+ drivers/s390/crypto/vfio_ap_ops.c |  108 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 108 insertions(+), 0 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e84c559..f60dd56 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12427,6 +12427,7 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
- S:	Supported
- F:	drivers/s390/crypto/vfio_ap_drv.c
- F:	drivers/s390/crypto/vfio_ap_private.h
-+F:	drivers/s390/crypto/vfio_ap_ops.c
- 
- S390 ZFCP DRIVER
- M:	Steffen Maier <maier@linux.ibm.com>
-diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
-index 48e466e..8d36b05 100644
---- a/drivers/s390/crypto/Makefile
-+++ b/drivers/s390/crypto/Makefile
-@@ -17,5 +17,5 @@ pkey-objs := pkey_api.o
- obj-$(CONFIG_PKEY) += pkey.o
- 
- # adjunct processor matrix
--vfio_ap-objs := vfio_ap_drv.o
-+vfio_ap-objs := vfio_ap_drv.o vfio_ap_ops.o
- obj-$(CONFIG_VFIO_AP) += vfio_ap.o
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 5069580..fa04c5a 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -11,6 +11,7 @@
- #include <linux/mod_devicetable.h>
- #include <linux/slab.h>
- #include <linux/string.h>
-+#include <asm/zcrypt.h>
- #include "vfio_ap_private.h"
- 
- #define VFIO_AP_ROOT_NAME "vfio_ap"
-@@ -65,6 +66,19 @@ static int vfio_ap_matrix_dev_init(void)
- 		return ret;
- 	}
- 
-+	mutex_init(&matrix_dev.lock);
-+	INIT_LIST_HEAD(&matrix_dev.mdev_list);
-+
-+	/* Test if PQAP(QCI) instruction is available */
-+	if (test_facility(12)) {
-+		ret = ap_qci(&matrix_dev.info);
-+		if (ret) {
-+			root_device_unregister(root_device);
-+			return ret;
-+		}
-+	}
-+
-+	atomic_set(&matrix_dev.available_instances, MAX_ZDEV_ENTRIES_EXT);
- 	matrix_dev.device.type = &vfio_ap_dev_type;
- 	dev_set_name(&matrix_dev.device, "%s", VFIO_AP_DEV_NAME);
- 	matrix_dev.device.type = &vfio_ap_dev_type;
-@@ -105,11 +119,20 @@ int __init vfio_ap_init(void)
- 		return ret;
- 	}
- 
-+	ret = vfio_ap_mdev_register();
-+	if (ret) {
-+		ap_driver_unregister(&vfio_ap_drv);
-+		vfio_ap_matrix_dev_destroy();
-+
-+		return ret;
-+	}
-+
- 	return 0;
- }
- 
- void __exit vfio_ap_exit(void)
- {
-+	vfio_ap_mdev_unregister();
- 	ap_driver_unregister(&vfio_ap_drv);
- 	vfio_ap_matrix_dev_destroy();
- }
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-new file mode 100644
-index 0000000..8018c2d
---- /dev/null
+index c4d7504..f732177 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -0,0 +1,124 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Adjunct processor matrix VFIO device driver callbacks.
+@@ -447,11 +447,119 @@ static ssize_t unassign_domain_store(struct device *dev,
+ }
+ DEVICE_ATTR_WO(unassign_domain);
+ 
++/**
++ * assign_control_domain_store
 + *
-+ * Copyright IBM Corp. 2018
++ * @dev: the matrix device
++ * @attr: the mediated matrix device's assign_control_domain attribute
++ * @buf: a buffer containing the domain ID to be assigned
++ * @count: the number of bytes in @buf
 + *
-+ * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-+ *	      Halil Pasic <pasic@linux.ibm.com>
-+ *	      Pierre Morel <pmorel@linux.ibm.com>
++ * Parses the domain ID from @buf and assigns it to the mediated matrix device.
++ *
++ * Returns the number of bytes processed if the domain ID is valid; otherwise
++ * returns an error.
 + */
-+#include <linux/string.h>
-+#include <linux/vfio.h>
-+#include <linux/device.h>
-+#include <linux/list.h>
-+#include <linux/ctype.h>
-+
-+#include "vfio_ap_private.h"
-+
-+#define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
-+#define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
-+
-+static void vfio_ap_matrix_init(struct ap_config_info *info,
-+				struct ap_matrix *matrix)
++static ssize_t assign_control_domain_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
 +{
-+	matrix->apm_max = info->apxa ? info->Na : 63;
-+	matrix->aqm_max = info->apxa ? info->Nd : 15;
-+	matrix->adm_max = info->apxa ? info->Nd : 15;
-+}
-+
-+static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
-+{
-+	struct ap_matrix_mdev *matrix_mdev;
-+
-+	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
-+	if (!matrix_mdev)
-+		return -ENOMEM;
-+
-+	matrix_mdev->name = dev_name(mdev_dev(mdev));
-+	vfio_ap_matrix_init(&matrix_dev.info, &matrix_mdev->matrix);
-+	mdev_set_drvdata(mdev, matrix_mdev);
-+
-+	if (atomic_dec_if_positive(&matrix_dev.available_instances) < 0) {
-+		kfree(matrix_mdev);
-+		return -EPERM;
-+	}
-+
-+	mutex_lock(&matrix_dev.lock);
-+	list_add(&matrix_mdev->list, &matrix_dev.mdev_list);
-+	mutex_unlock(&matrix_dev.lock);
-+
-+	return 0;
-+}
-+
-+static int vfio_ap_mdev_remove(struct mdev_device *mdev)
-+{
++	int ret;
++	unsigned long id;
++	struct mdev_device *mdev = mdev_from_dev(dev);
 +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long maxid = matrix_mdev->matrix.adm_max;
++
++	ret = kstrtoul(buf, 0, &id);
++	if (ret)
++		return ret;
++
++	if (id > maxid)
++		ret = -EINVAL;
++
++	/* Set the bit in the ADM (bitmask) corresponding to the AP control
++	 * domain number (id). The bits in the mask, from most significant to
++	 * least significant, correspond to IDs 0 up to the one less than the
++	 * number of control domains that can be assigned.
++	 */
++	mutex_lock(&matrix_dev.lock);
++	set_bit_inv(id, matrix_mdev->matrix.adm);
++	mutex_unlock(&matrix_dev.lock);
++
++	return count;
++}
++DEVICE_ATTR_WO(assign_control_domain);
++
++/**
++ * unassign_control_domain_store
++ *
++ * @dev: the matrix device
++ * @attr: the mediated matrix device's unassign_control_domain attribute
++ * @buf: a buffer containing the domain ID to be assigned
++ * @count: the number of bytes in @buf
++ *
++ * Parses the domain ID from @buf and unassigns it from the mediated matrix
++ * device.
++ *
++ * Returns the number of bytes processed if the domain ID is valid; otherwise
++ * returns an error.
++ */
++static ssize_t unassign_control_domain_store(struct device *dev,
++					     struct device_attribute *attr,
++					     const char *buf, size_t count)
++{
++	int ret;
++	unsigned long domid;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
++
++	ret = kstrtoul(buf, 0, &domid);
++	if (ret)
++		return ret;
++	if (domid > max_domid)
++		return -EINVAL;
 +
 +	mutex_lock(&matrix_dev.lock);
-+	list_del(&matrix_mdev->list);
++	clear_bit_inv(domid, matrix_mdev->matrix.adm);
 +	mutex_unlock(&matrix_dev.lock);
-+	kfree(matrix_mdev);
-+	mdev_set_drvdata(mdev, NULL);
-+	atomic_inc(&matrix_dev.available_instances);
 +
-+	return 0;
++	return count;
 +}
++DEVICE_ATTR_WO(unassign_control_domain);
 +
-+static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
++static ssize_t control_domains_show(struct device *dev,
++				    struct device_attribute *dev_attr,
++				    char *buf)
 +{
-+	return sprintf(buf, "%s\n", VFIO_AP_MDEV_NAME_HWVIRT);
++	unsigned long id;
++	int nchars = 0;
++	int n;
++	char *bufpos = buf;
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	unsigned long max_domid = matrix_mdev->matrix.adm_max;
++
++	mutex_lock(&matrix_dev.lock);
++	for_each_set_bit_inv(id, matrix_mdev->matrix.adm, max_domid + 1) {
++		n = sprintf(bufpos, "%04lx\n", id);
++		bufpos += n;
++		nchars += n;
++	}
++	mutex_unlock(&matrix_dev.lock);
++
++	return nchars;
 +}
++DEVICE_ATTR_RO(control_domains);
 +
-+MDEV_TYPE_ATTR_RO(name);
-+
-+static ssize_t available_instances_show(struct kobject *kobj,
-+					struct device *dev, char *buf)
-+{
-+	return sprintf(buf, "%d\n",
-+		       atomic_read(&matrix_dev.available_instances));
-+}
-+
-+MDEV_TYPE_ATTR_RO(available_instances);
-+
-+static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
-+			       char *buf)
-+{
-+	return sprintf(buf, "%s\n", VFIO_DEVICE_API_AP_STRING);
-+}
-+
-+MDEV_TYPE_ATTR_RO(device_api);
-+
-+static struct attribute *vfio_ap_mdev_type_attrs[] = {
-+	&mdev_type_attr_name.attr,
-+	&mdev_type_attr_device_api.attr,
-+	&mdev_type_attr_available_instances.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group vfio_ap_mdev_hwvirt_type_group = {
-+	.name = VFIO_AP_MDEV_TYPE_HWVIRT,
-+	.attrs = vfio_ap_mdev_type_attrs,
-+};
-+
-+static struct attribute_group *vfio_ap_mdev_type_groups[] = {
-+	&vfio_ap_mdev_hwvirt_type_group,
-+	NULL,
-+};
-+
-+static const struct mdev_parent_ops vfio_ap_matrix_ops = {
-+	.owner			= THIS_MODULE,
-+	.supported_type_groups	= vfio_ap_mdev_type_groups,
-+	.create			= vfio_ap_mdev_create,
-+	.remove			= vfio_ap_mdev_remove,
-+};
-+
-+int vfio_ap_mdev_register(void)
-+{
-+	return mdev_register_device(&matrix_dev.device, &vfio_ap_matrix_ops);
-+}
-+
-+void vfio_ap_mdev_unregister(void)
-+{
-+	mdev_unregister_device(&matrix_dev.device);
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 30c3e33..aa0d195 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -5,6 +5,9 @@
-  * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-  *
-  * Copyright IBM Corp. 2018
-+ *
-+ * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-+ *	      Halil Pasic <pasic@linux.ibm.com>
-  */
- 
- #ifndef _VFIO_AP_PRIVATE_H_
-@@ -23,8 +26,50 @@
- 
- struct ap_matrix_dev {
- 	struct device device;
-+	atomic_t available_instances;
-+	struct ap_config_info info;
-+	struct list_head mdev_list;
-+	struct mutex lock;
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+ 	&dev_attr_assign_domain.attr,
+ 	&dev_attr_unassign_domain.attr,
++	&dev_attr_assign_control_domain.attr,
++	&dev_attr_unassign_control_domain.attr,
++	&dev_attr_control_domains.attr,
+ 	NULL,
  };
  
-+/**
-+ * Locking strategy: take the matrix_dev.lock mutex each time we fiddle
-+ * with state managed by the vfio_ap driver (be it using the
-+ * mdev_list or be it reading or writing the state of a single
-+ * ap_matrix_mdev device). It's quite coarse but we don't expect
-+ * much contention.
-+ */
- extern struct ap_matrix_dev matrix_dev;
- 
-+/**
-+ * The AP matrix is comprised of three bit masks identifying the adapters,
-+ * queues (domains) and control domains that belong to an AP matrix. The bits in
-+ * each mask, from least significant to most significant bit, correspond to IDs
-+ * 0 to 255. When a bit is set, the corresponding ID belongs to the matrix.
-+ *
-+ * @apm_max: max adapter number in @apm
-+ * @apm identifies the AP adapters in the matrix
-+ * @aqm_max: max domain number in @aqm
-+ * @aqm identifies the AP queues (domains) in the matrix
-+ * @adm_max: max domain number in @adm
-+ * @adm identifies the AP control domains in the matrix
-+ */
-+struct ap_matrix {
-+	unsigned long apm_max;
-+	DECLARE_BITMAP(apm, 256);
-+	unsigned long aqm_max;
-+	DECLARE_BITMAP(aqm, 256);
-+	unsigned long adm_max;
-+	DECLARE_BITMAP(adm, 256);
-+};
-+
-+struct ap_matrix_mdev {
-+	const char *name;
-+	struct list_head list;
-+	struct ap_matrix matrix;
-+};
-+
-+extern int vfio_ap_mdev_register(void);
-+extern void vfio_ap_mdev_unregister(void);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 1aa7b82..bfbe2be 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -215,6 +215,7 @@ struct vfio_device_info {
- #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
- #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
- #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
-+#define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
- 
- /**
-  * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
 -- 
 1.7.1
