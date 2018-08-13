@@ -1,93 +1,93 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v8 17/22] s390: vfio-ap: zeroize the AP queues.
-Date: Mon, 13 Aug 2018 08:57:55 +0200
-Message-ID: <20180813085755.6ad962fb.cohuck@redhat.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
+Subject: Re: [PATCH v8 04/22] s390/zcrypt: Integrate ap_asm.h into
+ include/asm/ap.h.
+Date: Mon, 13 Aug 2018 11:24:48 +0200
+Message-ID: <36670270-13f7-f044-7419-57f444317fd9@linux.ibm.com>
 References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1533739472-7172-18-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <20180810111445.015fcf2a.cohuck@redhat.com>
-        <fa85257e-fda1-8f1d-aa7c-c98e74196d37@linux.ibm.com>
-        <20180810131648.4fab1d7a.cohuck@redhat.com>
-        <14983b58-f53b-8bd9-179e-29b9a69c21d8@linux.ibm.com>
+ <1533739472-7172-5-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20180809110645.33b20c1f.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <14983b58-f53b-8bd9-179e-29b9a69c21d8@linux.ibm.com>
+In-Reply-To: <20180809110645.33b20c1f.cohuck@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 10 Aug 2018 12:24:47 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+Here is now the add-on patch which changes the returncode for the
+ap_instructions_available() function.
 
-> On 08/10/2018 07:16 AM, Cornelia Huck wrote:
-> > On Fri, 10 Aug 2018 12:49:08 +0200
-> > Pierre Morel <pmorel@linux.ibm.com> wrote:
-> >  
-> >> On 10/08/2018 11:14, Cornelia Huck wrote:  
-> >>> On Wed,  8 Aug 2018 10:44:27 -0400
-> >>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-> >>>     
-> >>>> From: Tony Krowiak <akrowiak@linux.ibm.com>
-> >>>>
-> >>>> Let's call PAPQ(ZAPQ) to zeroize a queue:
-> >>>>
-> >>>> * For each queue configured for a mediated matrix device
-> >>>>     when it is released.
-> >>>>
-> >>>> Zeroizing a queue resets the queue, clears all pending
-> >>>> messages for the queue entries and disables adapter interruptions
-> >>>> associated with the queue.
-> >>>>
-> >>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> >>>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> >>>> Tested-by: Michael Mueller <mimu@linux.ibm.com>
-> >>>> Tested-by: Farhan Ali <alifm@linux.ibm.com>
-> >>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> >>>> ---
-> >>>>    drivers/s390/crypto/vfio_ap_ops.c     |   29 ++++++++++++++++++++++++++++-
-> >>>>    drivers/s390/crypto/vfio_ap_private.h |   25 +++++++++++++++++++++++++
-> >>>>    2 files changed, 53 insertions(+), 1 deletions(-)
-> >>>>
-> >>>> @@ -788,7 +812,10 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
-> >>>>    {
-> >>>>    	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> >>>>    
-> >>>> -	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-> >>>> +	if (matrix_mdev->kvm)
-> >>>> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);  
-> >>> Confused. Why is the check for matrix_mdev->kvm added here?  
-> >> When using the KVM notifier we can get two notifications:  
-> >> -> KVM is here / is comming
-> >> -> KVM is not here / disappearing  
-> >>
-> >> In the first case we initialize matrix_mdev->kvm with a pointer to KVM
-> >> In the second case we nullify the pointer.
-> >>
-> >> During the open of the mediated device, the guest should have been started
-> >> or we refuse to start.
-> >>
-> >> During the close of the mediated device, the guest should be there, but
-> >> we have no certitude that the guest did not disappear before the VFIO
-> >> file being closed.
-> >> Since we do not allow multiple guests using the same mediated device
-> >> this case should not happen with QEMU. But I am not sure that
-> >> a rogue user program could not stop KVM before closing the VFIO
-> >> mediated device.  
-> > I'm not sure why the check is introduced in this patch, though. But
-> > maybe I just need weekend :)  
-> 
-> Good catch, it belongs in patch 15 where the function is introduced.
-> Is that the only reason for your objection?
+I talked with Heiko Carstens and this patch will go into the next pull
+request for the 4.19 kernel.
 
-Yes, this is what confused me. Moving this to patch 15 sounds like a
-good idea :)
+-----------------------------------------------------------------------------------------
+From 9e050f843f3281da1f65292422e30f2dd1fd6d98 Mon Sep 17 00:00:00 2001
+From: Harald Freudenberger <freude@linux.ibm.com>
+Date: Thu, 9 Aug 2018 11:59:34 +0200
+Subject: [PATCH] s390/zcrypt: fix ap_instructions_available() returncodes
 
-> 
-> >  
-> >> Maybe Alex can confirm this point, if not we can remove the test.  
-> 
-> 
+During review of KVM patches it was complained that the
+ap_instructions_available() function returns 0 if AP
+instructions are available and -ENODEV if not. The function
+acts like a boolean function to check for AP instructions
+available and thus should return 0 on failure and != 0 on
+success. Changed to the suggested behaviour and adapted
+the one and only caller of this function which is the ap
+bus core code.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+---
+ arch/s390/include/asm/ap.h   | 10 +++++-----
+ drivers/s390/crypto/ap_bus.c |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+index 046e044a48d0..887494aa164f 100644
+--- a/arch/s390/include/asm/ap.h
++++ b/arch/s390/include/asm/ap.h
+@@ -49,20 +49,20 @@ struct ap_queue_status {
+ /**
+  * ap_intructions_available() - Test if AP instructions are available.
+  *
+- * Returns 0 if the AP instructions are installed.
++ * Returns 1 if the AP instructions are installed, otherwise 0.
+  */
+ static inline int ap_instructions_available(void)
+ {
+     register unsigned long reg0 asm ("0") = AP_MKQID(0, 0);
+-    register unsigned long reg1 asm ("1") = -ENODEV;
+-    register unsigned long reg2 asm ("2");
++    register unsigned long reg1 asm ("1") = 0;
++    register unsigned long reg2 asm ("2") = 0;
+ 
+     asm volatile(
+         "   .long 0xb2af0000\n"        /* PQAP(TAPQ) */
+-        "0: la    %0,0\n"
++        "0: la    %0,1\n"
+         "1:\n"
+         EX_TABLE(0b, 1b)
+-        : "+d" (reg1), "=d" (reg2)
++        : "+d" (reg1), "+d" (reg2)
+         : "d" (reg0)
+         : "cc");
+     return reg1;
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index b023e35786ec..b1b73945d746 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1475,7 +1475,7 @@ static int __init ap_module_init(void)
+     if (rc)
+         return rc;
+ 
+-    if (ap_instructions_available() != 0) {
++    if (!ap_instructions_available()) {
+         pr_warn("The hardware system does not support AP instructions\n");
+         return -ENODEV;
+     }
+-- 
+2.17.1
