@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v9 17/22] s390: vfio-ap: zeroize the AP queues.
-Date: Mon, 13 Aug 2018 17:48:14 -0400
-Message-ID: <1534196899-16987-18-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v9 14/22] KVM: s390: interfaces to clear CRYCB masks
+Date: Mon, 13 Aug 2018 17:48:11 -0400
+Message-ID: <1534196899-16987-15-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,101 +14,67 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Let's call PAPQ(ZAPQ) to zeroize a queue:
-
-* For each queue configured for a mediated matrix device
-  when it is released.
-
-Zeroizing a queue resets the queue, clears all pending
-messages for the queue entries and disables adapter interruptions
-associated with the queue.
+Introduces two new KVM interface to clear the APM, AQM and ADM masks in
+the guest's CRYCB.  The VCPUs are taken out of SIE to ensure the VCPUs do
+not get out of sync.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
+Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     |   25 +++++++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_private.h |   25 +++++++++++++++++++++++++
- 2 files changed, 50 insertions(+), 0 deletions(-)
+ arch/s390/include/asm/kvm_host.h |    3 +++
+ arch/s390/kvm/kvm-s390.c         |   15 +++++++++++++++
+ 2 files changed, 18 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 368b559..cc90323 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -758,6 +758,30 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	return NOTIFY_OK;
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 4a739d4..07e58d8 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -258,6 +258,7 @@ struct kvm_s390_sie_block {
+ 	__u64	tecmc;			/* 0x00e8 */
+ 	__u8	reservedf0[12];		/* 0x00f0 */
+ #define CRYCB_FORMAT_MASK 0x00000003
++#define CRYCB_FORMAT0 0x00000000
+ #define CRYCB_FORMAT1 0x00000001
+ #define CRYCB_FORMAT2 0x00000003
+ 	__u32	crycbd;			/* 0x00fc */
+@@ -861,6 +862,8 @@ void kvm_arch_async_page_not_present(struct kvm_vcpu *vcpu,
+ void kvm_arch_async_page_present(struct kvm_vcpu *vcpu,
+ 				 struct kvm_async_pf *work);
+ 
++void kvm_arch_crypto_clear_masks(struct kvm *kvm);
++
+ extern int sie64a(struct kvm_s390_sie_block *, u64 *);
+ extern char sie_exit;
+ 
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index f7de123..8d8a65a 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1919,6 +1919,21 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
+ 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
  }
  
-+static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev, bool force)
++void kvm_arch_crypto_clear_masks(struct kvm *kvm)
 +{
-+	int ret;
-+	int rc = 0;
-+	unsigned long apid, apqi;
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	mutex_lock(&kvm->lock);
++	kvm_s390_vcpu_block_all(kvm);
 +
-+	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
-+			     matrix_mdev->matrix.apm_max + 1) {
-+		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-+				     matrix_mdev->matrix.aqm_max + 1) {
-+			ret = vfio_ap_reset_queue(apid, apqi, 1);
-+			if (ret) {
-+				if (force)
-+					rc = ret;
-+				else
-+					return ret;
-+			}
-+		}
-+	}
++	memset(&kvm->arch.crypto.crycb->apcb0, 0,
++	       sizeof(kvm->arch.crypto.crycb->apcb0));
++	memset(&kvm->arch.crypto.crycb->apcb1, 0,
++	       sizeof(kvm->arch.crypto.crycb->apcb1));
 +
-+	return rc;
++	kvm_s390_vcpu_unblock_all(kvm);
++	mutex_unlock(&kvm->lock);
 +}
++EXPORT_SYMBOL(kvm_arch_crypto_clear_masks);
 +
- static int vfio_ap_mdev_open(struct mdev_device *mdev)
+ static u64 kvm_s390_get_initial_cpuid(void)
  {
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-@@ -788,6 +812,7 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 	if (matrix_mdev->kvm)
- 		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
- 
-+	vfio_ap_mdev_reset_queues(mdev, true);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
- 	matrix_mdev->kvm = NULL;
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 3e8534b..34f982a 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -74,4 +74,29 @@ struct ap_matrix_mdev {
- extern int vfio_ap_mdev_register(void);
- extern void vfio_ap_mdev_unregister(void);
- 
-+static inline int vfio_ap_reset_queue(unsigned int apid, unsigned int apqi,
-+				      unsigned int retry)
-+{
-+	struct ap_queue_status status;
-+
-+	do {
-+		status = ap_zapq(AP_MKQID(apid, apqi));
-+		switch (status.response_code) {
-+		case AP_RESPONSE_NORMAL:
-+			return 0;
-+		case AP_RESPONSE_RESET_IN_PROGRESS:
-+		case AP_RESPONSE_BUSY:
-+			msleep(20);
-+			break;
-+		default:
-+			pr_warn("%s: error zeroizing %02x.%04x: response code %d\n",
-+				VFIO_AP_MODULE_NAME, apid, apqi,
-+				status.response_code);
-+			return -EIO;
-+		}
-+	} while (retry--);
-+
-+	return -EBUSY;
-+}
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
+ 	struct cpuid cpuid;
 -- 
 1.7.1
