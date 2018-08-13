@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v9 07/22] KVM: s390: refactor crypto initialization
-Date: Mon, 13 Aug 2018 17:48:04 -0400
-Message-ID: <1534196899-16987-8-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v9 09/22] s390: vfio-ap: register matrix device with VFIO mdev framework
+Date: Mon, 13 Aug 2018 17:48:06 -0400
+Message-ID: <1534196899-16987-10-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,201 +14,337 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-This patch refactors the code that initializes and sets up the
-crypto configuration for a guest. The following changes are
-implemented via this patch:
+Registers the matrix device created by the VFIO AP device
+driver with the VFIO mediated device framework.
+Registering the matrix device will create the sysfs
+structures needed to create mediated matrix devices
+each of which will be used to configure the AP matrix
+for a guest and connect it to the VFIO AP device driver.
 
-1. Prior to the introduction of AP device virtualization, it
-   was not necessary to provide guest access to the CRYCB
-   unless the MSA extension 3 (MSAX3) facility was installed
-   on the host system. With the introduction of AP device
-   virtualization, the CRYCB must be made accessible to the
-   guest if the AP instructions are installed on the host
-   and are to be provided to the guest.
+Registering the matrix device with the VFIO mediated device
+framework will create the following sysfs structures:
 
-2. Introduces a flag indicating AP instructions executed on
-   the guest shall be interpreted by the firmware. It is
-   initialized to indicate AP instructions are to be
-   to be interpreted and is used to set the SIE bit for
-   each vcpu during vcpu setup.
+/sys/devices/vfio_ap/matrix/
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ create
+
+To create a mediated device for the AP matrix device, write a UUID
+to the create file:
+
+	uuidgen > create
+
+A symbolic link to the mediated device's directory will be created in the
+devices subdirectory named after the generated $uuid:
+
+/sys/devices/vfio_ap/matrix/
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ [devices]
+............... [$uuid]
+
+A symbolic link to the mediated device will also be created
+in the vfio_ap matrix's directory:
+
+/sys/devices/vfio_ap/matrix/[$uuid]
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |    2 +
- arch/s390/include/uapi/asm/kvm.h |    1 +
- arch/s390/kvm/kvm-s390.c         |   81 +++++++++++++++++++-------------------
- 3 files changed, 44 insertions(+), 40 deletions(-)
+ MAINTAINERS                           |    1 +
+ drivers/s390/crypto/Makefile          |    2 +-
+ drivers/s390/crypto/vfio_ap_drv.c     |   23 ++++++
+ drivers/s390/crypto/vfio_ap_ops.c     |  124 +++++++++++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |   45 ++++++++++++
+ include/uapi/linux/vfio.h             |    1 +
+ 6 files changed, 195 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/s390/crypto/vfio_ap_ops.c
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index af39561..4a739d4 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -187,6 +187,7 @@ struct kvm_s390_sie_block {
- #define ECA_AIV		0x00200000
- #define ECA_VX		0x00020000
- #define ECA_PROTEXCI	0x00002000
-+#define ECA_APIE	0x00000008
- #define ECA_SII		0x00000001
- 	__u32	eca;			/* 0x004c */
- #define ICPT_INST	0x04
-@@ -256,6 +257,7 @@ struct kvm_s390_sie_block {
- 	__u8	reservede4[4];		/* 0x00e4 */
- 	__u64	tecmc;			/* 0x00e8 */
- 	__u8	reservedf0[12];		/* 0x00f0 */
-+#define CRYCB_FORMAT_MASK 0x00000003
- #define CRYCB_FORMAT1 0x00000001
- #define CRYCB_FORMAT2 0x00000003
- 	__u32	crycbd;			/* 0x00fc */
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 4cdaa55..a580dec 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
- #define KVM_S390_VM_CPU_FEAT_PFMFI	11
- #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
- #define KVM_S390_VM_CPU_FEAT_KSS	13
-+#define KVM_S390_VM_CPU_FEAT_AP		14
- struct kvm_s390_vm_cpu_feat {
- 	__u64 feat[16];
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 19f4f44..f7de123 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -40,6 +40,7 @@
- #include <asm/sclp.h>
- #include <asm/cpacf.h>
- #include <asm/timex.h>
-+#include <asm/ap.h>
- #include "kvm-s390.h"
- #include "gaccess.h"
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e84c559..f60dd56 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -12427,6 +12427,7 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
+ S:	Supported
+ F:	drivers/s390/crypto/vfio_ap_drv.c
+ F:	drivers/s390/crypto/vfio_ap_private.h
++F:	drivers/s390/crypto/vfio_ap_ops.c
  
-@@ -1881,49 +1882,37 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 	return r;
- }
+ S390 ZFCP DRIVER
+ M:	Steffen Maier <maier@linux.ibm.com>
+diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
+index 48e466e..8d36b05 100644
+--- a/drivers/s390/crypto/Makefile
++++ b/drivers/s390/crypto/Makefile
+@@ -17,5 +17,5 @@ pkey-objs := pkey_api.o
+ obj-$(CONFIG_PKEY) += pkey.o
  
--static int kvm_s390_query_ap_config(u8 *config)
--{
--	u32 fcn_code = 0x04000000UL;
--	u32 cc = 0;
--
--	memset(config, 0, 128);
--	asm volatile(
--		"lgr 0,%1\n"
--		"lgr 2,%2\n"
--		".long 0xb2af0000\n"		/* PQAP(QCI) */
--		"0: ipm %0\n"
--		"srl %0,28\n"
--		"1:\n"
--		EX_TABLE(0b, 1b)
--		: "+r" (cc)
--		: "r" (fcn_code), "r" (config)
--		: "cc", "0", "2", "memory"
--	);
--
--	return cc;
--}
--
- static int kvm_s390_apxa_installed(void)
- {
--	u8 config[128];
--	int cc;
-+	struct ap_config_info info;
+ # adjunct processor matrix
+-vfio_ap-objs := vfio_ap_drv.o
++vfio_ap-objs := vfio_ap_drv.o vfio_ap_ops.o
+ obj-$(CONFIG_VFIO_AP) += vfio_ap.o
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 5069580..fa04c5a 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -11,6 +11,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
++#include <asm/zcrypt.h>
+ #include "vfio_ap_private.h"
  
--	if (test_facility(12)) {
--		cc = kvm_s390_query_ap_config(config);
--
--		if (cc)
--			pr_err("PQAP(QCI) failed with cc=%d", cc);
--		else
--			return config[0] & 0x40;
-+	if (ap_instructions_available()) {
-+		if (ap_qci(&info) == 0)
-+			return info.apxa;
+ #define VFIO_AP_ROOT_NAME "vfio_ap"
+@@ -65,6 +66,19 @@ static int vfio_ap_matrix_dev_init(void)
+ 		return ret;
  	}
  
++	mutex_init(&matrix_dev.lock);
++	INIT_LIST_HEAD(&matrix_dev.mdev_list);
++
++	/* Test if PQAP(QCI) instruction is available */
++	if (test_facility(12)) {
++		ret = ap_qci(&matrix_dev.info);
++		if (ret) {
++			root_device_unregister(root_device);
++			return ret;
++		}
++	}
++
++	atomic_set(&matrix_dev.available_instances, MAX_ZDEV_ENTRIES_EXT);
+ 	matrix_dev.device.type = &vfio_ap_dev_type;
+ 	dev_set_name(&matrix_dev.device, "%s", VFIO_AP_DEV_NAME);
+ 	matrix_dev.device.type = &vfio_ap_dev_type;
+@@ -105,11 +119,20 @@ int __init vfio_ap_init(void)
+ 		return ret;
+ 	}
+ 
++	ret = vfio_ap_mdev_register();
++	if (ret) {
++		ap_driver_unregister(&vfio_ap_drv);
++		vfio_ap_matrix_dev_destroy();
++
++		return ret;
++	}
++
  	return 0;
  }
  
-+/*
-+ * The format of the crypto control block (CRYCB) is specified in the 3 low
-+ * order bits of the CRYCB designation (CRYCBD) field as follows:
-+ * Format 0: Neither the message security assist extension 3 (MSAX3) nor the
-+ *	     AP extended addressing (APXA) facility are installed.
-+ * Format 1: The APXA facility is not installed but the MSAX3 facility is.
-+ * Format 2: Both the APXA and MSAX3 facilities are installed
-+ */
- static void kvm_s390_set_crycb_format(struct kvm *kvm)
+ void __exit vfio_ap_exit(void)
  {
- 	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
- 
-+	/* Clear the CRYCB format bits - i.e., set format 0 by default */
-+	kvm->arch.crypto.crycbd &= ~(CRYCB_FORMAT_MASK);
-+
-+	/* Check whether MSAX3 is installed */
-+	if (!test_kvm_facility(kvm, 76))
-+		return;
-+
- 	if (kvm_s390_apxa_installed())
- 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
- 	else
-@@ -1941,12 +1930,12 @@ static u64 kvm_s390_get_initial_cpuid(void)
- 
- static void kvm_s390_crypto_init(struct kvm *kvm)
- {
--	if (!test_kvm_facility(kvm, 76))
--		return;
--
- 	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
- 	kvm_s390_set_crycb_format(kvm);
- 
-+	if (!test_kvm_facility(kvm, 76))
-+		return;
-+
- 	/* Enable AES/DEA protected key functions by default */
- 	kvm->arch.crypto.aes_kw = 1;
- 	kvm->arch.crypto.dea_kw = 1;
-@@ -2474,17 +2463,29 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- 
- static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
- {
--	if (!test_kvm_facility(vcpu->kvm, 76))
-+	/*
-+	 * If neither the AP instructions nor the MSAX3 facility are installed
-+	 * on the host, then there is no need for a CRYCB in SIE because they
-+	 * will not be installed on the guest either.
-+	 */
-+	if (!test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP) &&
-+	    !test_facility(76))
- 		return;
- 
-+	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
- 	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
- 
--	if (vcpu->kvm->arch.crypto.aes_kw)
--		vcpu->arch.sie_block->ecb3 |= ECB3_AES;
--	if (vcpu->kvm->arch.crypto.dea_kw)
--		vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
-+	vcpu->arch.sie_block->eca &= ~ECA_APIE;
-+	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
-+		vcpu->arch.sie_block->eca |= ECA_APIE;
- 
--	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
-+	/* If MSAX3 is installed on the guest, set up protected key support */
-+	if (test_kvm_facility(vcpu->kvm, 76)) {
-+		if (vcpu->kvm->arch.crypto.aes_kw)
-+			vcpu->arch.sie_block->ecb3 |= ECB3_AES;
-+		if (vcpu->kvm->arch.crypto.dea_kw)
-+			vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
-+	}
++	vfio_ap_mdev_unregister();
+ 	ap_driver_unregister(&vfio_ap_drv);
+ 	vfio_ap_matrix_dev_destroy();
  }
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+new file mode 100644
+index 0000000..8018c2d
+--- /dev/null
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -0,0 +1,124 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Adjunct processor matrix VFIO device driver callbacks.
++ *
++ * Copyright IBM Corp. 2018
++ *
++ * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
++ *	      Halil Pasic <pasic@linux.ibm.com>
++ *	      Pierre Morel <pmorel@linux.ibm.com>
++ */
++#include <linux/string.h>
++#include <linux/vfio.h>
++#include <linux/device.h>
++#include <linux/list.h>
++#include <linux/ctype.h>
++
++#include "vfio_ap_private.h"
++
++#define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
++#define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
++
++static void vfio_ap_matrix_init(struct ap_config_info *info,
++				struct ap_matrix *matrix)
++{
++	matrix->apm_max = info->apxa ? info->Na : 63;
++	matrix->aqm_max = info->apxa ? info->Nd : 15;
++	matrix->adm_max = info->apxa ? info->Nd : 15;
++}
++
++static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
++{
++	struct ap_matrix_mdev *matrix_mdev;
++
++	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
++	if (!matrix_mdev)
++		return -ENOMEM;
++
++	matrix_mdev->name = dev_name(mdev_dev(mdev));
++	vfio_ap_matrix_init(&matrix_dev.info, &matrix_mdev->matrix);
++	mdev_set_drvdata(mdev, matrix_mdev);
++
++	if (atomic_dec_if_positive(&matrix_dev.available_instances) < 0) {
++		kfree(matrix_mdev);
++		return -EPERM;
++	}
++
++	mutex_lock(&matrix_dev.lock);
++	list_add(&matrix_mdev->list, &matrix_dev.mdev_list);
++	mutex_unlock(&matrix_dev.lock);
++
++	return 0;
++}
++
++static int vfio_ap_mdev_remove(struct mdev_device *mdev)
++{
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++
++	mutex_lock(&matrix_dev.lock);
++	list_del(&matrix_mdev->list);
++	mutex_unlock(&matrix_dev.lock);
++	kfree(matrix_mdev);
++	mdev_set_drvdata(mdev, NULL);
++	atomic_inc(&matrix_dev.available_instances);
++
++	return 0;
++}
++
++static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
++{
++	return sprintf(buf, "%s\n", VFIO_AP_MDEV_NAME_HWVIRT);
++}
++
++MDEV_TYPE_ATTR_RO(name);
++
++static ssize_t available_instances_show(struct kobject *kobj,
++					struct device *dev, char *buf)
++{
++	return sprintf(buf, "%d\n",
++		       atomic_read(&matrix_dev.available_instances));
++}
++
++MDEV_TYPE_ATTR_RO(available_instances);
++
++static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
++			       char *buf)
++{
++	return sprintf(buf, "%s\n", VFIO_DEVICE_API_AP_STRING);
++}
++
++MDEV_TYPE_ATTR_RO(device_api);
++
++static struct attribute *vfio_ap_mdev_type_attrs[] = {
++	&mdev_type_attr_name.attr,
++	&mdev_type_attr_device_api.attr,
++	&mdev_type_attr_available_instances.attr,
++	NULL,
++};
++
++static struct attribute_group vfio_ap_mdev_hwvirt_type_group = {
++	.name = VFIO_AP_MDEV_TYPE_HWVIRT,
++	.attrs = vfio_ap_mdev_type_attrs,
++};
++
++static struct attribute_group *vfio_ap_mdev_type_groups[] = {
++	&vfio_ap_mdev_hwvirt_type_group,
++	NULL,
++};
++
++static const struct mdev_parent_ops vfio_ap_matrix_ops = {
++	.owner			= THIS_MODULE,
++	.supported_type_groups	= vfio_ap_mdev_type_groups,
++	.create			= vfio_ap_mdev_create,
++	.remove			= vfio_ap_mdev_remove,
++};
++
++int vfio_ap_mdev_register(void)
++{
++	return mdev_register_device(&matrix_dev.device, &vfio_ap_matrix_ops);
++}
++
++void vfio_ap_mdev_unregister(void)
++{
++	mdev_unregister_device(&matrix_dev.device);
++}
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index 30c3e33..aa0d195 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -5,6 +5,9 @@
+  * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
+  *
+  * Copyright IBM Corp. 2018
++ *
++ * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
++ *	      Halil Pasic <pasic@linux.ibm.com>
+  */
  
- void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
+ #ifndef _VFIO_AP_PRIVATE_H_
+@@ -23,8 +26,50 @@
+ 
+ struct ap_matrix_dev {
+ 	struct device device;
++	atomic_t available_instances;
++	struct ap_config_info info;
++	struct list_head mdev_list;
++	struct mutex lock;
+ };
+ 
++/**
++ * Locking strategy: take the matrix_dev.lock mutex each time we fiddle
++ * with state managed by the vfio_ap driver (be it using the
++ * mdev_list or be it reading or writing the state of a single
++ * ap_matrix_mdev device). It's quite coarse but we don't expect
++ * much contention.
++ */
+ extern struct ap_matrix_dev matrix_dev;
+ 
++/**
++ * The AP matrix is comprised of three bit masks identifying the adapters,
++ * queues (domains) and control domains that belong to an AP matrix. The bits in
++ * each mask, from least significant to most significant bit, correspond to IDs
++ * 0 to 255. When a bit is set, the corresponding ID belongs to the matrix.
++ *
++ * @apm_max: max adapter number in @apm
++ * @apm identifies the AP adapters in the matrix
++ * @aqm_max: max domain number in @aqm
++ * @aqm identifies the AP queues (domains) in the matrix
++ * @adm_max: max domain number in @adm
++ * @adm identifies the AP control domains in the matrix
++ */
++struct ap_matrix {
++	unsigned long apm_max;
++	DECLARE_BITMAP(apm, 256);
++	unsigned long aqm_max;
++	DECLARE_BITMAP(aqm, 256);
++	unsigned long adm_max;
++	DECLARE_BITMAP(adm, 256);
++};
++
++struct ap_matrix_mdev {
++	const char *name;
++	struct list_head list;
++	struct ap_matrix matrix;
++};
++
++extern int vfio_ap_mdev_register(void);
++extern void vfio_ap_mdev_unregister(void);
++
+ #endif /* _VFIO_AP_PRIVATE_H_ */
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 1aa7b82..bfbe2be 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -215,6 +215,7 @@ struct vfio_device_info {
+ #define VFIO_DEVICE_API_PLATFORM_STRING		"vfio-platform"
+ #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
+ #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
++#define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
+ 
+ /**
+  * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
 -- 
 1.7.1
