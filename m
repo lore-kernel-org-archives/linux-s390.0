@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v9 18/22] s390: vfio-ap: implement VFIO_DEVICE_RESET ioctl
-Date: Mon, 13 Aug 2018 17:48:15 -0400
-Message-ID: <1534196899-16987-19-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v9 13/22] s390: vfio-ap: sysfs interface to view matrix mdev matrix
+Date: Mon, 13 Aug 2018 17:48:10 -0400
+Message-ID: <1534196899-16987-14-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,42 +14,131 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Implements the VFIO_DEVICE_RESET ioctl. This ioctl zeroizes
-all of the AP queues assigned to the guest.
+Provides a sysfs interface to view the AP matrix configured for the
+mediated matrix device.
+
+The relevant sysfs structures are:
+
+/sys/devices/vfio_ap/matrix/
+...... [mdev_supported_types]
+......... [vfio_ap-passthrough]
+............ [devices]
+...............[$uuid]
+.................. matrix
+
+To view the matrix configured for the mediated matrix device,
+print the matrix file:
+
+	cat matrix
+
+Below are examples of the output from the above command:
+
+Example 1: Adapters and domains assigned
+	Assignments:
+		Adapters 5 and 6
+		Domains 4 and 71 (0x47)
+
+	Output
+		05.0004
+		05.0047
+		06.0004
+	06.0047
+
+Examples 2: Only adapters assigned
+	Assignments:
+		Adapters 5 and 6
+
+	Output:
+		05.
+		06.
+
+Examples 3: Only domains assigned
+	Assignments:
+		Domains 4 and 71 (0x47)
+
+	Output:
+		.0004
+		.0047
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c |   52 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 52 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index cc90323..d4a065b 100644
+index f732177..af3b55f 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -832,7 +832,7 @@ static int vfio_ap_mdev_get_device_info(unsigned long arg)
- 	if (info.argsz < minsz)
- 		return -EINVAL;
+@@ -552,6 +552,57 @@ static ssize_t control_domains_show(struct device *dev,
+ }
+ DEVICE_ATTR_RO(control_domains);
  
--	info.flags = VFIO_DEVICE_FLAGS_AP;
-+	info.flags = VFIO_DEVICE_FLAGS_AP | VFIO_DEVICE_FLAGS_RESET;
- 	info.num_regions = 0;
- 	info.num_irqs = 0;
++static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
++			   char *buf)
++{
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	char *bufpos = buf;
++	unsigned long apid;
++	unsigned long apqi;
++	unsigned long apid1;
++	unsigned long apqi1;
++	unsigned long napm_bits = matrix_mdev->matrix.apm_max + 1;
++	unsigned long naqm_bits = matrix_mdev->matrix.aqm_max + 1;
++	int nchars = 0;
++	int n;
++
++	apid1 = find_first_bit_inv(matrix_mdev->matrix.apm, napm_bits);
++	apqi1 = find_first_bit_inv(matrix_mdev->matrix.aqm, naqm_bits);
++
++	mutex_lock(&matrix_dev.lock);
++
++	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
++		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
++			for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
++					     naqm_bits) {
++				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
++					    apqi);
++				bufpos += n;
++				nchars += n;
++			}
++		}
++	} else if (apid1 < napm_bits) {
++		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
++			n = sprintf(bufpos, "%02lx.\n", apid);
++			bufpos += n;
++			nchars += n;
++		}
++	} else if (apqi1 < naqm_bits) {
++		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, naqm_bits) {
++			n = sprintf(bufpos, ".%04lx\n", apqi);
++			bufpos += n;
++			nchars += n;
++		}
++	}
++
++	mutex_unlock(&matrix_dev.lock);
++
++	return nchars;
++}
++DEVICE_ATTR_RO(matrix);
++
++
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+@@ -560,6 +611,7 @@ static ssize_t control_domains_show(struct device *dev,
+ 	&dev_attr_assign_control_domain.attr,
+ 	&dev_attr_unassign_control_domain.attr,
+ 	&dev_attr_control_domains.attr,
++	&dev_attr_matrix.attr,
+ 	NULL,
+ };
  
-@@ -848,6 +848,9 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
- 	case VFIO_DEVICE_GET_INFO:
- 		ret = vfio_ap_mdev_get_device_info(arg);
- 		break;
-+	case VFIO_DEVICE_RESET:
-+		ret = vfio_ap_mdev_reset_queues(mdev, true);
-+		break;
- 	default:
- 		ret = -EOPNOTSUPP;
- 		break;
 -- 
 1.7.1
