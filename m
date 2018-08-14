@@ -1,57 +1,141 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v9 05/22] KVM: s390: vsie: simulate VCPU SIE entry/exit
-Date: Tue, 14 Aug 2018 08:46:40 -0400
-Message-ID: <1e8e107e-7880-ff38-4724-6bf185a68584@linux.ibm.com>
+Subject: Re: [PATCH v9 08/22] s390: vfio-ap: base implementation of VFIO AP
+ device driver
+Date: Tue, 14 Aug 2018 19:30:41 -0400
+Message-ID: <9537c702-d51c-aa26-3cb1-6aa0526e6fd2@linux.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1534196899-16987-6-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180814105003.290cf5f1.cohuck@redhat.com>
+ <1534196899-16987-9-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20180814124220.355f2ffa.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180814105003.290cf5f1.cohuck@redhat.com>
+In-Reply-To: <20180814124220.355f2ffa.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, David Hildenbrand <david@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/14/2018 04:50 AM, Cornelia Huck wrote:
-> On Mon, 13 Aug 2018 17:48:02 -0400
+On 08/14/2018 06:42 AM, Cornelia Huck wrote:
+> On Mon, 13 Aug 2018 17:48:05 -0400
 > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 >
->> From: David Hildenbrand <david@redhat.com>
->>
->> VCPU requests and VCPU blocking right now don't take care of the vSIE
->> (as it was not necessary until now). But we want to have VCPU requests
->> that will also be handled before running the vSIE again.
->>
->> So let's simulate a SIE entry when entering the vSIE loop and check
->> for PROG_ flags. The existing infrastructure (e.g. exit_sie()) will then
->> detect that the SIE (in form of the vSIE execution loop) is running and
->> properly kick the vSIE CPU, resulting in it leaving the vSIE loop and
->> therefore the vSIE interception handler, allowing it to handle VCPU
->> requests.
->>
->> E.g. if we want to modify the crycb of the VCPU and make sure that any
->> masks also get applied to the VSIE crycb shadow (which uses masks from the
->> VCPU crycb), we will need a way to hinder the vSIE from running and make
->> sure to process the updated crycb before reentering the vSIE again.
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   arch/s390/kvm/kvm-s390.c |    9 ++++++++-
->>   arch/s390/kvm/kvm-s390.h |    1 +
->>   arch/s390/kvm/vsie.c     |   20 ++++++++++++++++++--
->>   3 files changed, 27 insertions(+), 3 deletions(-)
-> I think that is the RFC version of David's patch, not the v1? Again,
-> not really relevant for reviewing, but I hope that you test the final
-> version.
+>
+>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+>> new file mode 100644
+>> index 0000000..5069580
+>> --- /dev/null
+>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+>> @@ -0,0 +1,118 @@
+>> +// SPDX-License-Identifier: GPL-2.0+
+>> +/*
+>> + * VFIO based AP device driver
+>> + *
+>> + * Copyright IBM Corp. 2018
+>> + *
+>> + * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
+>> + */
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/mod_devicetable.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/string.h>
+>> +#include "vfio_ap_private.h"
+>> +
+>> +#define VFIO_AP_ROOT_NAME "vfio_ap"
+>> +#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
+>> +#define VFIO_AP_DEV_NAME "matrix"
+>> +
+>> +MODULE_AUTHOR("IBM Corporation");
+>> +MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2018");
+>> +MODULE_LICENSE("GPL v2");
+>> +
+>> +static struct ap_driver vfio_ap_drv;
+>> +
+>> +static struct device_type vfio_ap_dev_type = {
+>> +	.name = VFIO_AP_DEV_TYPE_NAME,
+>> +};
+>> +
+>> +struct ap_matrix_dev matrix_dev;
+> Please don't add new statically allocated devices, but allocate it
+> dynamically (see the comment in device_add()).
+
+Okay, I'll dynamically allocate it.
+
+>
+>> +
+>> +/* Only type 10 adapters (CEX4 and later) are supported
+>> + * by the AP matrix device driver
+>> + */
+>> +static struct ap_device_id ap_queue_ids[] = {
+>> +	{ .dev_type = AP_DEVICE_TYPE_CEX4,
+>> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+>> +	{ .dev_type = AP_DEVICE_TYPE_CEX5,
+>> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+>> +	{ .dev_type = AP_DEVICE_TYPE_CEX6,
+>> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
+>> +	{ /* end of sibling */ },
+>> +};
+>> +
+>> +MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+>> +
+>> +static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+>> +{
+>> +	return 0;
+>> +}
+>> +
+>> +static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
+>> +{
+>> +	/* Nothing to do yet */
+>> +}
+> You need a release callback as well.
 
 Will do.
 
 >
+>> +
+>> +static int vfio_ap_matrix_dev_init(void)
+>> +{
+>> +	int ret;
+>> +	struct device *root_device;
+>> +
+>> +	root_device = root_device_register(VFIO_AP_ROOT_NAME);
+>> +	if (IS_ERR(root_device)) {
+>> +		ret = PTR_ERR(root_device);
+>> +		return ret;
+>> +	}
+>> +
+>> +	matrix_dev.device.type = &vfio_ap_dev_type;
+>> +	dev_set_name(&matrix_dev.device, "%s", VFIO_AP_DEV_NAME);
+>> +	matrix_dev.device.type = &vfio_ap_dev_type;
+>> +	matrix_dev.device.parent = root_device;
+>> +	matrix_dev.device.driver = &vfio_ap_drv.driver;
+>> +
+>> +	ret = device_register(&matrix_dev.device);
+>> +	if (ret) {
+>> +		root_device_unregister(root_device);
+> And this needs a put_device() for the matrix device. (It is getting
+> ugly with a statically allocated device.)
+
+Will do.
+
+>
+>> +		return ret;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static void vfio_ap_matrix_dev_destroy(void)
+>> +{
+>> +	device_unregister(&matrix_dev.device);
+> This one already does a put_device(). Didn't the driver core complain?
+
+The driver core did not complain.
+
+>
+>> +	root_device_unregister(matrix_dev.device.parent);
+>> +}
