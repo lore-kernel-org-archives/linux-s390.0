@@ -1,141 +1,129 @@
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v9 08/22] s390: vfio-ap: base implementation of VFIO AP
- device driver
-Date: Tue, 14 Aug 2018 19:30:41 -0400
-Message-ID: <9537c702-d51c-aa26-3cb1-6aa0526e6fd2@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v9 10/22] s390: vfio-ap: sysfs interfaces to configure
+ adapters
+Date: Wed, 15 Aug 2018 11:52:42 +0200
+Message-ID: <20180815115242.35a2a1ce.cohuck@redhat.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1534196899-16987-9-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180814124220.355f2ffa.cohuck@redhat.com>
+        <1534196899-16987-11-git-send-email-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180814124220.355f2ffa.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1534196899-16987-11-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/14/2018 06:42 AM, Cornelia Huck wrote:
-> On Mon, 13 Aug 2018 17:48:05 -0400
-> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->
->
->> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
->> new file mode 100644
->> index 0000000..5069580
->> --- /dev/null
->> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->> @@ -0,0 +1,118 @@
->> +// SPDX-License-Identifier: GPL-2.0+
->> +/*
->> + * VFIO based AP device driver
->> + *
->> + * Copyright IBM Corp. 2018
->> + *
->> + * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
->> + */
->> +
->> +#include <linux/module.h>
->> +#include <linux/mod_devicetable.h>
->> +#include <linux/slab.h>
->> +#include <linux/string.h>
->> +#include "vfio_ap_private.h"
->> +
->> +#define VFIO_AP_ROOT_NAME "vfio_ap"
->> +#define VFIO_AP_DEV_TYPE_NAME "ap_matrix"
->> +#define VFIO_AP_DEV_NAME "matrix"
->> +
->> +MODULE_AUTHOR("IBM Corporation");
->> +MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2018");
->> +MODULE_LICENSE("GPL v2");
->> +
->> +static struct ap_driver vfio_ap_drv;
->> +
->> +static struct device_type vfio_ap_dev_type = {
->> +	.name = VFIO_AP_DEV_TYPE_NAME,
->> +};
->> +
->> +struct ap_matrix_dev matrix_dev;
-> Please don't add new statically allocated devices, but allocate it
-> dynamically (see the comment in device_add()).
+On Mon, 13 Aug 2018 17:48:07 -0400
+Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-Okay, I'll dynamically allocate it.
+> +/**
+> + * assign_adapter_store
+> + *
+> + * @dev: the matrix device
+> + * @attr: a mediated matrix device attribute
+> + * @buf: a buffer containing the adapter ID (APID) to be assigned
+> + * @count: the number of bytes in @buf
+> + *
+> + * Parses the APID from @buf and assigns it to the mediated matrix device.
+> + *
+> + * Returns the number of bytes processed if the APID is valid; otherwise returns
+> + * an error.
+> + */
+> +static ssize_t assign_adapter_store(struct device *dev,
+> +				    struct device_attribute *attr,
+> +				    const char *buf, size_t count)
+> +{
+> +	int ret = 0;
 
->
->> +
->> +/* Only type 10 adapters (CEX4 and later) are supported
->> + * by the AP matrix device driver
->> + */
->> +static struct ap_device_id ap_queue_ids[] = {
->> +	{ .dev_type = AP_DEVICE_TYPE_CEX4,
->> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
->> +	{ .dev_type = AP_DEVICE_TYPE_CEX5,
->> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
->> +	{ .dev_type = AP_DEVICE_TYPE_CEX6,
->> +	  .match_flags = AP_DEVICE_ID_MATCH_QUEUE_TYPE },
->> +	{ /* end of sibling */ },
->> +};
->> +
->> +MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->> +
->> +static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
->> +{
->> +	return 0;
->> +}
->> +
->> +static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
->> +{
->> +	/* Nothing to do yet */
->> +}
-> You need a release callback as well.
+You don't need to initialize this to 0, as kstrtoul will set it in any
+case.
 
-Will do.
+> +	unsigned long apid;
+> +	struct mdev_device *mdev = mdev_from_dev(dev);
+> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +	unsigned long max_apid = matrix_mdev->matrix.apm_max;
+> +
+> +	ret = kstrtoul(buf, 0, &apid);
+> +	if (ret)
+> +		return ret;
+> +	if (apid > max_apid)
+> +		return -EINVAL;
+> +
+> +	/* Set the bit in the AP mask (APM) corresponding to the AP adapter
+> +	 * number (APID). The bits in the mask, from most significant to least
+> +	 * significant bit, correspond to APIDs 0-255.
+> +	 */
+> +	mutex_lock(&matrix_dev.lock);
+> +
+> +	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
 
->
->> +
->> +static int vfio_ap_matrix_dev_init(void)
->> +{
->> +	int ret;
->> +	struct device *root_device;
->> +
->> +	root_device = root_device_register(VFIO_AP_ROOT_NAME);
->> +	if (IS_ERR(root_device)) {
->> +		ret = PTR_ERR(root_device);
->> +		return ret;
->> +	}
->> +
->> +	matrix_dev.device.type = &vfio_ap_dev_type;
->> +	dev_set_name(&matrix_dev.device, "%s", VFIO_AP_DEV_NAME);
->> +	matrix_dev.device.type = &vfio_ap_dev_type;
->> +	matrix_dev.device.parent = root_device;
->> +	matrix_dev.device.driver = &vfio_ap_drv.driver;
->> +
->> +	ret = device_register(&matrix_dev.device);
->> +	if (ret) {
->> +		root_device_unregister(root_device);
-> And this needs a put_device() for the matrix device. (It is getting
-> ugly with a statically allocated device.)
+That function name really is a mouthful :) I don't have any better
+suggestions, though.
 
-Will do.
+> +	if (ret)
+> +		goto done;
+> +
+> +	set_bit_inv(apid, matrix_mdev->matrix.apm);
+> +
+> +	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
+> +	if (ret)
+> +		goto share_err;
+> +
+> +	ret = count;
+> +	goto done;
+> +
+> +share_err:
+> +	clear_bit_inv(apid, matrix_mdev->matrix.apm);
+> +done:
+> +	mutex_unlock(&matrix_dev.lock);
+> +
+> +	return ret;
+> +}
+> +static DEVICE_ATTR_WO(assign_adapter);
+> +
+> +/**
+> + * unassign_adapter_store
+> + *
+> + * @dev: the matrix device
+> + * @attr: a mediated matrix device attribute
+> + * @buf: a buffer containing the adapter ID (APID) to be assigned
+> + * @count: the number of bytes in @buf
+> + *
+> + * Parses the APID from @buf and unassigns it from the mediated matrix device.
+> + * The APID must be a valid value
 
->
->> +		return ret;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static void vfio_ap_matrix_dev_destroy(void)
->> +{
->> +	device_unregister(&matrix_dev.device);
-> This one already does a put_device(). Didn't the driver core complain?
+A valid value, but not necessarily assigned, right?
 
-The driver core did not complain.
+> + *
+> + * Returns the number of bytes processed if the APID is valid; otherwise returns
+> + * an error.
+> + */
+> +static ssize_t unassign_adapter_store(struct device *dev,
+> +				      struct device_attribute *attr,
+> +				      const char *buf, size_t count)
+> +{
+> +	int ret;
+> +	unsigned long apid;
+> +	struct mdev_device *mdev = mdev_from_dev(dev);
+> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +
+> +	ret = kstrtoul(buf, 0, &apid);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (apid > matrix_mdev->matrix.apm_max)
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&matrix_dev.lock);
+> +	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
+> +	mutex_unlock(&matrix_dev.lock);
+> +
+> +	return count;
+> +}
+> +DEVICE_ATTR_WO(unassign_adapter);
 
->
->> +	root_device_unregister(matrix_dev.device.parent);
->> +}
+In general, looks good to me.
