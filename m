@@ -1,15 +1,15 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v9 17/22] s390: vfio-ap: zeroize the AP queues.
-Date: Wed, 15 Aug 2018 16:36:32 -0400
-Message-ID: <59fddbc0-49f5-c83b-144f-7390b80dfc9f@linux.ibm.com>
+Subject: Re: [PATCH v9 18/22] s390: vfio-ap: implement VFIO_DEVICE_RESET ioctl
+Date: Wed, 15 Aug 2018 17:05:48 -0400
+Message-ID: <4bcf1214-1978-aa11-ca22-7ab4352dacfb@linux.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1534196899-16987-18-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180815182401.4cfa0a78.cohuck@redhat.com>
+ <1534196899-16987-19-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20180815183835.66470bc6.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180815182401.4cfa0a78.cohuck@redhat.com>
+In-Reply-To: <20180815183835.66470bc6.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,79 +18,54 @@ To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/15/2018 12:24 PM, Cornelia Huck wrote:
-> On Mon, 13 Aug 2018 17:48:14 -0400
+On 08/15/2018 12:38 PM, Cornelia Huck wrote:
+> On Mon, 13 Aug 2018 17:48:15 -0400
 > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->
-> Nit: please drop the leading period in the subject.
-
-I assume you mean the ending period?
-
 >
 >> From: Tony Krowiak <akrowiak@linux.ibm.com>
 >>
->> Let's call PAPQ(ZAPQ) to zeroize a queue:
->>
->> * For each queue configured for a mediated matrix device
->>    when it is released.
->>
->> Zeroizing a queue resets the queue, clears all pending
->> messages for the queue entries and disables adapter interruptions
->> associated with the queue.
+>> Implements the VFIO_DEVICE_RESET ioctl. This ioctl zeroizes
+>> all of the AP queues assigned to the guest.
 >>
 >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 >> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 >> Tested-by: Michael Mueller <mimu@linux.ibm.com>
 >> Tested-by: Farhan Ali <alifm@linux.ibm.com>
+>> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 >> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 >> ---
->>   drivers/s390/crypto/vfio_ap_ops.c     |   25 +++++++++++++++++++++++++
->>   drivers/s390/crypto/vfio_ap_private.h |   25 +++++++++++++++++++++++++
->>   2 files changed, 50 insertions(+), 0 deletions(-)
+>>   drivers/s390/crypto/vfio_ap_ops.c |    5 ++++-
+>>   1 files changed, 4 insertions(+), 1 deletions(-)
 >>
->> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
->> index 3e8534b..34f982a 100644
->> --- a/drivers/s390/crypto/vfio_ap_private.h
->> +++ b/drivers/s390/crypto/vfio_ap_private.h
->> @@ -74,4 +74,29 @@ struct ap_matrix_mdev {
->>   extern int vfio_ap_mdev_register(void);
->>   extern void vfio_ap_mdev_unregister(void);
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index cc90323..d4a065b 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -832,7 +832,7 @@ static int vfio_ap_mdev_get_device_info(unsigned long arg)
+>>   	if (info.argsz < minsz)
+>>   		return -EINVAL;
 >>   
->> +static inline int vfio_ap_reset_queue(unsigned int apid, unsigned int apqi,
->> +				      unsigned int retry)
->> +{
->> +	struct ap_queue_status status;
->> +
->> +	do {
->> +		status = ap_zapq(AP_MKQID(apid, apqi));
->> +		switch (status.response_code) {
->> +		case AP_RESPONSE_NORMAL:
->> +			return 0;
->> +		case AP_RESPONSE_RESET_IN_PROGRESS:
->> +		case AP_RESPONSE_BUSY:
->> +			msleep(20);
->> +			break;
->> +		default:
->> +			pr_warn("%s: error zeroizing %02x.%04x: response code %d\n",
->> +				VFIO_AP_MODULE_NAME, apid, apqi,
->> +				status.response_code);
-> How can we end up here? Does this mean that we just don't know what to
-> do with this response, or is this something that should never happen?
-> (How much sense does it make to print an error?)
+>> -	info.flags = VFIO_DEVICE_FLAGS_AP;
+>> +	info.flags = VFIO_DEVICE_FLAGS_AP | VFIO_DEVICE_FLAGS_RESET;
+>>   	info.num_regions = 0;
+>>   	info.num_irqs = 0;
+>>   
+>> @@ -848,6 +848,9 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
+>>   	case VFIO_DEVICE_GET_INFO:
+>>   		ret = vfio_ap_mdev_get_device_info(arg);
+>>   		break;
+>> +	case VFIO_DEVICE_RESET:
+>> +		ret = vfio_ap_mdev_reset_queues(mdev, true);
+> If I see it correctly, you call this function only ever with force ==
+> true (here and in the previous patch). Is that what you intended?
 
-There are additional response codes that could be returned; for example,
-in the case of a catastrophic failure such as: The function can not be
-performed because the AP was somehow deconfigured or the functiona
-cannot be performed due to a machine check failure that caused the AP
-path to be removed. It shouldn't happen, but all are possibilities.
-I can get rid of the message and just return -EIO if you prefer.
+That does seem to be the case now; however, I think at one time there were
+additional calls to this function. For some reason of which I am not aware,
+those were removed, so there is probably no need for it now.
 
 >
->> +			return -EIO;
->> +		}
->> +	} while (retry--);
->> +
->> +	return -EBUSY;
->> +}
->> +
->>   #endif /* _VFIO_AP_PRIVATE_H_ */
+>> +		break;
+>>   	default:
+>>   		ret = -EOPNOTSUPP;
+>>   		break;
