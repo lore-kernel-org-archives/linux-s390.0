@@ -1,17 +1,16 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v9 09/22] s390: vfio-ap: register matrix device with
- VFIO mdev framework
-Date: Fri, 17 Aug 2018 10:43:31 +0200
-Message-ID: <20180817104331.378fa130.cohuck@redhat.com>
+Subject: Re: [PATCH v9 17/22] s390: vfio-ap: zeroize the AP queues.
+Date: Fri, 17 Aug 2018 11:34:52 +0200
+Message-ID: <20180817113452.5cee98e2.cohuck@redhat.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1534196899-16987-10-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <20180814131929.37d4b530.cohuck@redhat.com>
-        <5b77a5e9-6d91-c7a3-5ada-d888735f0488@linux.ibm.com>
+        <1534196899-16987-18-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <20180815182401.4cfa0a78.cohuck@redhat.com>
+        <59fddbc0-49f5-c83b-144f-7390b80dfc9f@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5b77a5e9-6d91-c7a3-5ada-d888735f0488@linux.ibm.com>
+In-Reply-To: <59fddbc0-49f5-c83b-144f-7390b80dfc9f@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -19,60 +18,95 @@ To: Tony Krowiak <akrowiak@linux.ibm.com>
 Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 16 Aug 2018 12:24:16 -0400
+On Wed, 15 Aug 2018 16:36:32 -0400
 Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-> On 08/14/2018 07:19 AM, Cornelia Huck wrote:
-> > On Mon, 13 Aug 2018 17:48:06 -0400
+> On 08/15/2018 12:24 PM, Cornelia Huck wrote:
+> > On Mon, 13 Aug 2018 17:48:14 -0400
 > > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
+> >
+> > Nit: please drop the leading period in the subject.  
+> 
+> I assume you mean the ending period?
 
-> >> +static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
-> >> +{
-> >> +	struct ap_matrix_mdev *matrix_mdev;
-> >> +
-> >> +	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
-> >> +	if (!matrix_mdev)
-> >> +		return -ENOMEM;
-> >> +
-> >> +	matrix_mdev->name = dev_name(mdev_dev(mdev));
-> >> +	vfio_ap_matrix_init(&matrix_dev.info, &matrix_mdev->matrix);
-> >> +	mdev_set_drvdata(mdev, matrix_mdev);
-> >> +
-> >> +	if (atomic_dec_if_positive(&matrix_dev.available_instances) < 0) {
-> >> +		kfree(matrix_mdev);
-> >> +		return -EPERM;
-> >> +	}  
-> > Maybe move this check to the top of the function?  
-> 
-> Please ignore my previous response to your comment. I can't move the call to
-> atomic_dec_if_positive() to the top of the function because it 
-> decrements the
-> available_instances and if the kzalloc() of matrix_mdev fails, then the 
-> value
-> would have to then be incremented to remain valid. What I can do is this:
-> 
-> 1. Check the value of available_instances using atomic_read() at the top of
->     the function and if it is zero, return an error.
-> 
-> 2. Replace the call to atomic_dec_if_positive() with a call to atomic_dec()
->     to decrement the available_instances.
-> 
-> I agree that it makes sense to return before attempting to allocate the
-> matrix_mdev if available_instances is zero.
-
-Wouldn't that be racy, though?
-
-I don't think re-incrementing the counter is too bad, and it's
-certainly better than going through allocation/freeing of structures.
+Err, of course.
 
 > 
 > >  
+> >> From: Tony Krowiak <akrowiak@linux.ibm.com>
+> >>
+> >> Let's call PAPQ(ZAPQ) to zeroize a queue:
+> >>
+> >> * For each queue configured for a mediated matrix device
+> >>    when it is released.
+> >>
+> >> Zeroizing a queue resets the queue, clears all pending
+> >> messages for the queue entries and disables adapter interruptions
+> >> associated with the queue.
+> >>
+> >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> >> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> >> Tested-by: Michael Mueller <mimu@linux.ibm.com>
+> >> Tested-by: Farhan Ali <alifm@linux.ibm.com>
+> >> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >> ---
+> >>   drivers/s390/crypto/vfio_ap_ops.c     |   25 +++++++++++++++++++++++++
+> >>   drivers/s390/crypto/vfio_ap_private.h |   25 +++++++++++++++++++++++++
+> >>   2 files changed, 50 insertions(+), 0 deletions(-)
+> >>
+> >> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> >> index 3e8534b..34f982a 100644
+> >> --- a/drivers/s390/crypto/vfio_ap_private.h
+> >> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> >> @@ -74,4 +74,29 @@ struct ap_matrix_mdev {
+> >>   extern int vfio_ap_mdev_register(void);
+> >>   extern void vfio_ap_mdev_unregister(void);
+> >>   
+> >> +static inline int vfio_ap_reset_queue(unsigned int apid, unsigned int apqi,
+> >> +				      unsigned int retry)
+> >> +{
+> >> +	struct ap_queue_status status;
 > >> +
-> >> +	mutex_lock(&matrix_dev.lock);
-> >> +	list_add(&matrix_mdev->list, &matrix_dev.mdev_list);
-> >> +	mutex_unlock(&matrix_dev.lock);
+> >> +	do {
+> >> +		status = ap_zapq(AP_MKQID(apid, apqi));
+> >> +		switch (status.response_code) {
+> >> +		case AP_RESPONSE_NORMAL:
+> >> +			return 0;
+> >> +		case AP_RESPONSE_RESET_IN_PROGRESS:
+> >> +		case AP_RESPONSE_BUSY:
+> >> +			msleep(20);
+> >> +			break;
+> >> +		default:
+> >> +			pr_warn("%s: error zeroizing %02x.%04x: response code %d\n",
+> >> +				VFIO_AP_MODULE_NAME, apid, apqi,
+> >> +				status.response_code);  
+> > How can we end up here? Does this mean that we just don't know what to
+> > do with this response, or is this something that should never happen?
+> > (How much sense does it make to print an error?)  
+> 
+> There are additional response codes that could be returned; for example,
+> in the case of a catastrophic failure such as: The function can not be
+> performed because the AP was somehow deconfigured or the functiona
+> cannot be performed due to a machine check failure that caused the AP
+> path to be removed. It shouldn't happen, but all are possibilities.
+> I can get rid of the message and just return -EIO if you prefer.
+
+These sound like "ugh, we're broken anyway". Not sure if an additional
+message would help here much; I'd expect other code to just handle the
+failure (especially things like machine checks). I would not oppose
+removing the message :)
+
+Maybe add a comment /* things are really broken, give up */ instead?
+
+> 
+> >  
+> >> +			return -EIO;
+> >> +		}
+> >> +	} while (retry--);
 > >> +
-> >> +	return 0;
-> >> +}  
+> >> +	return -EBUSY;
+> >> +}
+> >> +
+> >>   #endif /* _VFIO_AP_PRIVATE_H_ */  
 > 
 > 
