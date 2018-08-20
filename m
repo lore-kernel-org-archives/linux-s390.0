@@ -1,8 +1,8 @@
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v9 12/22] s390: vfio-ap: sysfs interfaces to configure
  control domains
-Date: Mon, 20 Aug 2018 18:43:33 +0200
-Message-ID: <6a7aa016-d116-b0d8-9cce-71245cad2f16@linux.ibm.com>
+Date: Mon, 20 Aug 2018 13:41:32 -0400
+Message-ID: <660de00a-c403-28c1-4df4-82a973ab3ad5@linux.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1534196899-16987-13-git-send-email-akrowiak@linux.vnet.ibm.com>
  <20180820162317.08bd7d23.cohuck@redhat.com>
@@ -16,15 +16,13 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 08/20/2018 04:23 PM, Cornelia Huck wrote:
+On 08/20/2018 10:23 AM, Cornelia Huck wrote:
 > On Mon, 13 Aug 2018 17:48:09 -0400
 > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-> 
+>
 >> From: Tony Krowiak <akrowiak@linux.ibm.com>
 >>
 >> Provides the sysfs interfaces for:
@@ -43,37 +41,31 @@ On 08/20/2018 04:23 PM, Cornelia Huck wrote:
 >> domain number may be less than 255 - depending upon the host's
 >> AP configuration - and assignment may be rejected if the input
 >> domain ID exceeds the limit.
-> 
 > Please remind me of the relationship between control domains and usage
 > domains... IIRC, usage domains allow both requests and configuration,
 > while control domains allow only configuration, and are by convention a
 > superset of usage domains.
-> 
 
-The whole terminology with control and usage domains is IMHO a bit
-confusing. With the HMC one can assign a domain either as a 'Control'
-or as a 'Control and Usage' domain.
+A usage domain is a domain to which an AP command-request message can be
+submitted for processing. A control domain is a domain that can
+be changed by an AP command request message submitted to a usage domain.
+AP command request messages to configure a domain will contain the domain
+number of the domain to be modified. The AP firmware will check the
+control domain mask (ADM) and will allow the request to proceed only if
+the corresponding bit in the ADM is set.
 
-Regarding the masks in the CRYCB, the AQM controls 'using' the domain
-(e.g. if AQM bit is zero NQAP will refuse to enqueue on that queue)
-while ADM tells if the guest is allowed to 'change' the given domain.
-Whether a command-request is of type 'using' or 'changing' is a property
-of the command request.
-
-You can think of 'using' a domain like signing stuff with a key residing
-within the domain, and of 'changing' a domain like issuing a command to
-generate a new key for the given domain.
-
-
+>
 > Is there a hard requirement somewhere in there, or can the admin
 > cheerfully use different masks for usage domains and control domains
 > without the SIE choking on it?
-> 
 
-It is a convention. AFAIR it ain't architecture. SIE won't choke on it
-I've tried it out. I was arguing along the lines that the kernel should
-not enforce this convention -- tooling can still do that if we want this
-enforced.
+There is no hard requirement that control domains must be a superset of
+the usage domains, it is merely an architectural convention. AFAIK,
+SIE doesn't enforce this and will not break if the convention is not
+enforced externally. Having said that, you should note that the AQM
+and ADM masks configured for the mediated matrix device will be logically
+OR'd together to create the ADM stored in the CRYCB referenced from the
+guest's SIE state description. In other words, we are enforcing the
+convention in our software.
 
-Regards,
-Halil
+>
