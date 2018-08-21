@@ -1,24 +1,31 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH] KVM: s390: vsie: BUG correction by shadow_crycb
-Date: Tue, 21 Aug 2018 16:33:48 +0200
-Message-ID: <20180821163348.327ce02d.cohuck@redhat.com>
+Date: Tue, 21 Aug 2018 16:35:02 +0200
+Message-ID: <a7054733-ebd7-477b-0f42-2857db7cb0d3@redhat.com>
 References: <1534861178-30372-1-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1534861178-30372-1-git-send-email-pmorel@linux.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: david@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 21 Aug 2018 16:19:38 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
-
+On 21.08.2018 16:19, Pierre Morel wrote:
 > Copy the key mask to the right offset inside the shadow CRYCB
+
+"KVM: s390: vsie: copy wrapping keys to right place"
+
+Indeed, we're writing it into the apcb0 mask (which is ignored).
+Luckily, the xor-ing with the g2 keys seems to work.
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > ---
@@ -36,9 +43,14 @@ Pierre Morel <pmorel@linux.ibm.com> wrote:
 > -	if (read_guest_real(vcpu, crycb_addr + 72, &vsie_page->crycb, 56))
 > +	if (read_guest_real(vcpu, crycb_addr + 72,
 > +			    vsie_page->crycb.dea_wrapping_key_mask, 56))
-
-Don't you need the address here?
-
 >  		return set_validity_icpt(scb_s, 0x0035U);
 >  
 >  	scb_s->ecb3 |= ecb3_flags;
+> 
+
+
+-- 
+
+Thanks,
+
+David / dhildenb
