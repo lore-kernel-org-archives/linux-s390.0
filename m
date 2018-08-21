@@ -1,101 +1,80 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 8/9] PCI: hotplug: Embed hotplug_slot
-Date: Mon, 20 Aug 2018 10:17:17 +0200
-Message-ID: <CAJZ5v0g-fNj7ESGMDOiotiGM9ztngCRgpKLfQaXmH+cgObi+iQ@mail.gmail.com>
-References: <cover.1534686484.git.lukas@wunner.de>
- <9918fbca94bcfc03d1560b191d138d3e6664cc86.1534686485.git.lukas@wunner.de>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] KVM: s390: vsie: BUG correction by shadow_crycb
+Date: Tue, 21 Aug 2018 16:58:03 +0200
+Message-ID: <afe5eb8d-359b-60b7-bd4c-6d0ddda1b65b@redhat.com>
+References: <1534861178-30372-1-git-send-email-pmorel@linux.ibm.com>
+ <929b67bc-44aa-a9ff-0ac2-9a35c2b456ef@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <9918fbca94bcfc03d1560b191d138d3e6664cc86.1534686485.git.lukas@wunner.de>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Lukas Wunner <lukas@wunner.de>
-Cc: Linux PCI <linux-pci@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Paul Mackerras <paulus@samba.org>, scott@spiteful.org, sebott@linux.vnet.ibm.com, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Bjorn Helgaas <helgaas@kernel.org>, Darren Hart <dvhart@infradead.org>, Len Brown <lenb@kernel.org>, linux-s390@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, gwshan@linux.vnet.ibm.com, okaya@kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, gerald.schaefer@de.ibm.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Corentin Chary <corentin.chary@gmail.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Andy Shevchenko <andy@infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <929b67bc-44aa-a9ff-0ac2-9a35c2b456ef@linux.ibm.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Janosch Frank <frankja@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, cornelia.huck@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Aug 19, 2018 at 4:46 PM Lukas Wunner <lukas@wunner.de> wrote:
->
-> When the PCI hotplug core and its first user, cpqphp, were introduced in
-> February 2002 with historic commit a8a2069f432c, cpqphp allocated a slot
-> struct for its internal use plus a hotplug_slot struct to be registered
-> with the hotplug core and linked the two with pointers:
-> https://git.kernel.org/tglx/history/c/a8a2069f432c
->
-> Nowadays, the predominant pattern in the tree is to embed ("subclass")
-> such structures in one another and cast to the containing struct with
-> container_of().  But it wasn't until July 2002 that container_of() was
-> introduced with historic commit ec4f214232cf:
-> https://git.kernel.org/tglx/history/c/ec4f214232cf
->
-> pnv_php, introduced in 2016, did the right thing and embedded struct
-> hotplug_slot in its internal struct pnv_php_slot, but all other drivers
-> cargo-culted cpqphp's design and linked separate structs with pointers.
->
-> Embedding structs is preferrable to linking them with pointers because
-> it requires fewer allocations, thereby reducing overhead and simplifying
-> error paths.  Casting an embedded struct to the containing struct
-> becomes a cheap subtraction rather than a dereference.  And having fewer
-> pointers reduces the risk of them pointing nowhere either accidentally
-> or due to an attack.
->
-> Convert all drivers to embed struct hotplug_slot in their internal slot
-> struct.  The "private" pointer in struct hotplug_slot thereby becomes
-> unused, so drop it.
->
-> Signed-off-by: Lukas Wunner <lukas@wunner.de>
-> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-> Cc: Len Brown <lenb@kernel.org>
-> Cc: Scott Murray <scott@spiteful.org>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Gavin Shan <gwshan@linux.vnet.ibm.com>
-> Cc: Sebastian Ott <sebott@linux.vnet.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-> Cc: Corentin Chary <corentin.chary@gmail.com>
-> Cc: Darren Hart <dvhart@infradead.org>
-> Cc: Andy Shevchenko <andy@infradead.org>
-> ---
->  drivers/pci/hotplug/acpiphp.h           |  9 ++-
->  drivers/pci/hotplug/acpiphp_core.c      | 28 +++-----
->  drivers/pci/hotplug/acpiphp_ibm.c       |  2 +-
->  drivers/pci/hotplug/cpci_hotplug.h      |  9 ++-
->  drivers/pci/hotplug/cpci_hotplug_core.c | 37 ++++------
->  drivers/pci/hotplug/cpci_hotplug_pci.c  |  6 +-
->  drivers/pci/hotplug/cpqphp.h            |  9 ++-
->  drivers/pci/hotplug/cpqphp_core.c       | 37 ++++------
->  drivers/pci/hotplug/cpqphp_ctrl.c       |  2 -
->  drivers/pci/hotplug/ibmphp.h            |  7 +-
->  drivers/pci/hotplug/ibmphp_core.c       | 92 +++++++++++--------------
->  drivers/pci/hotplug/ibmphp_ebda.c       | 37 +++-------
->  drivers/pci/hotplug/pciehp.h            | 11 ++-
->  drivers/pci/hotplug/pciehp_core.c       | 37 ++++------
->  drivers/pci/hotplug/pciehp_ctrl.c       |  4 +-
->  drivers/pci/hotplug/pciehp_hpc.c        |  8 +--
->  drivers/pci/hotplug/pnv_php.c           |  9 ++-
->  drivers/pci/hotplug/rpaphp.h            |  7 +-
->  drivers/pci/hotplug/rpaphp_core.c       | 14 ++--
->  drivers/pci/hotplug/rpaphp_slot.c       | 15 ++--
->  drivers/pci/hotplug/s390_pci_hpc.c      | 30 ++++----
->  drivers/pci/hotplug/sgi_hotplug.c       | 52 ++++++--------
->  drivers/pci/hotplug/shpchp.h            |  6 +-
->  drivers/pci/hotplug/shpchp_core.c       | 17 ++---
->  drivers/platform/x86/asus-wmi.c         | 26 +++----
->  drivers/platform/x86/eeepc-laptop.c     | 30 ++++----
->  include/linux/pci_hotplug.h             |  3 -
->  27 files changed, 223 insertions(+), 321 deletions(-)
+On 21.08.2018 16:43, Janosch Frank wrote:
+> On 21.08.2018 16:19, Pierre Morel wrote:
+>> Copy the key mask to the right offset inside the shadow CRYCB
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>  arch/s390/kvm/vsie.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>> index 63844b9..a2b28cd 100644
+>> --- a/arch/s390/kvm/vsie.c
+>> +++ b/arch/s390/kvm/vsie.c
+>> @@ -173,7 +173,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>  		return set_validity_icpt(scb_s, 0x0039U);
+>>  
+>>  	/* copy only the wrapping keys */
+>> -	if (read_guest_real(vcpu, crycb_addr + 72, &vsie_page->crycb, 56))
+>> +	if (read_guest_real(vcpu, crycb_addr + 72,
+>> +			    vsie_page->crycb.dea_wrapping_key_mask, 56))
+>>  		return set_validity_icpt(scb_s, 0x0035U);
+>>  
+>>  	scb_s->ecb3 |= ecb3_flags;
+>>
+> 
+> Are we able to use offsetof and sizeof here? I'd rather have a few more
+> characters than magic offsets.
+> What about CC stable?
 
-Good cleanup.
+Thought about both things, too.
 
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+1. offsetof and sizeof will most likely make sense (although will most
+likely make this very ugly due to the long names involved)
+
+2. I am not sure about wrapping keys. We never had migration problems,
+so I assume this does not break migration (maybe it will break once we
+fix it on one side :) ). As we xor with the g2 keys, we will never match
+the g2 keys. HW will xor with our keys either way, so it cannot match
+our keys.
+
+But two g3 guests will now have the same wrapping keys, I assume that's bad?
+
+I guess we'll have to wait for Christian, I remember he was one of the
+people that understood what wrapping keys are actually good for (and the
+real key used in HW can simply, silently change, e.g. when migrating to
+another system - due to the xoring).
+
+Not having understood/looked into the details, I guess this should be
+stable material.
+
+> 
+> 
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+
+
+-- 
+
+Thanks,
+
+David / dhildenb
