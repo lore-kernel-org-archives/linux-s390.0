@@ -1,58 +1,60 @@
-Return-Path: <SRS0=n5k7=KW=vger.kernel.org=linux-kernel-owner@kernel.org>
-Reply-To: pmorel@linux.ibm.com
-Subject: Re: [PATCH RFC 0/2] KVM: s390: vsie: support VCPU requests
-References: <20180807125131.3606-1-david@redhat.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Tue, 7 Aug 2018 19:15:02 +0200
-MIME-Version: 1.0
-In-Reply-To: <20180807125131.3606-1-david@redhat.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+From: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+Subject: Re: [PATCH 6/9] PCI: hotplug: Constify hotplug_slot_ops
+Date: Mon, 20 Aug 2018 17:38:06 -0700
+Message-ID: <92f4ee2a-39b8-daa6-ea36-4214e4a438bd@linux.vnet.ibm.com>
+References: <cover.1534686484.git.lukas@wunner.de>
+ <40b17d029c4fbf099535f989b1d6dd013f708a73.1534686485.git.lukas@wunner.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <40b17d029c4fbf099535f989b1d6dd013f708a73.1534686485.git.lukas@wunner.de>
 Content-Language: en-US
-Message-Id: <65aefa0e-275f-1a30-2237-904aa4c6d63b@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+List-Archive: <https://lore.kernel.org/linux-acpi/>
+List-Post: <mailto:linux-acpi@vger.kernel.org>
+To: Lukas Wunner <lukas@wunner.de>, Bjorn Helgaas <helgaas@kernel.org>, linux-pci@vger.kernel.org, Sinan Kaya <okaya@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Scott Murray <scott@spiteful.org>, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, acpi4asus-user@lists.sourceforge.net, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Gavin Shan <gwshan@linux.vnet.ibm.com>, platform-driver-x86@vger.kernel.org, linux-acpi@vger.kernel.org, Paul Mackerras <paulus@samba.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Corentin Chary <corentin.chary@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Darren Hart <dvhart@infradead.org>, linuxppc-dev@lists.ozlabs.org, Andy Shevchenko <andy@infradead.org>, Len Brown <lenb@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/08/2018 14:51, David Hildenbrand wrote:
-> While discussing AP changes, we discovered that we will have to force
-> a CPU using the vSIE to regenerate/reload shadow data structures. For now,
-> we have no mechanism for that.
->
-> E.g. when clearing AP masks later, we could still have a vSIE CPU making
-> use of AP adapters as the masks might not be considered yet in the vSIE
-> data structures. We need a way to block entering the vSIE and regenerate
-> all shadow data structures once done.
->
-> Looks like we can achieve that by simply simulating an ordinary SIE
-> entry/exit in the VCPU sie control block (while entering the vSIE loop).
->
-> This way, we can support blocking and also synchronous CPU requests.
->
-> Only compile tested.
->
-> David Hildenbrand (2):
->    KVM: s390: vsie: simulate VCPU SIE entry/exit
->    KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
->
->   arch/s390/include/asm/kvm_host.h |  1 +
->   arch/s390/kvm/kvm-s390.c         | 16 ++++++++++++++--
->   arch/s390/kvm/kvm-s390.h         |  1 +
->   arch/s390/kvm/vsie.c             | 20 ++++++++++++++++++--
->   4 files changed, 34 insertions(+), 4 deletions(-)
->
-Thanks David for your patches.
+On 08/19/2018 07:29 AM, Lukas Wunner wrote:
+> Hotplug drivers cannot declare their hotplug_slot_ops const, making them
+> attractive targets for attackers, because upon registration of a hotplug
+> slot, __pci_hp_initialize() writes to the "owner" and "mod_name" members
+> in that struct.
+> 
+> Fix by moving these members to struct hotplug_slot and constify every
+> driver's hotplug_slot_ops except for pciehp.
+> 
+> pciehp constructs its hotplug_slot_ops at runtime based on the PCIe
+> port's capabilities, hence cannot declare them const.  It can be
+> converted to __write_rarely once that's mainlined:
+> http://www.openwall.com/lists/kernel-hardening/2016/11/16/3
+> 
+> Signed-off-by: Lukas Wunner <lukas@wunner.de>
+> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
+> Cc: Len Brown <lenb@kernel.org>
+> Cc: Scott Murray <scott@spiteful.org>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Gavin Shan <gwshan@linux.vnet.ibm.com>
+> Cc: Sebastian Ott <sebott@linux.vnet.ibm.com>
+> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> Cc: Corentin Chary <corentin.chary@gmail.com>
+> Cc: Darren Hart <dvhart@infradead.org>
+> Cc: Andy Shevchenko <andy@infradead.org>
+> ---
 
-Following my tests, they work fine for our AP use case.
+With regards to drivers/pci/hotplug/rpa*
 
-Best regards,
-
-Pierre
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+Acked-by: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
