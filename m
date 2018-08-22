@@ -1,7 +1,7 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v2 5/5] KVM: s390: vsie: Do the CRYCB validation first
-Date: Wed, 22 Aug 2018 18:51:57 +0200
-Message-ID: <1534956717-14087-6-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v2 3/5] KVM: s390: vsie: Allow support for a host without AP
+Date: Wed, 22 Aug 2018 18:51:55 +0200
+Message-ID: <1534956717-14087-4-git-send-email-pmorel@linux.ibm.com>
 References: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
@@ -12,42 +12,41 @@ To: david@redhat.com
 Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-When entering the SIE the CRYCB validation better
-be done independently of the instruction's
-availability.
+Currently the CRYCB format used in the host for the
+shadowed CRYCB is FORMAT2 while no check is done if
+AP instructions are supported in the host.
+
+We better use the format the host calculated for the
+guest 1 as the host already tested it against its
+facility set.
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/s390/kvm/vsie.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 7ee4329..fca25aa 100644
+index 56a9d47..0b12916 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -164,17 +164,18 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	/* format-1 is supported with message-security-assist extension 3 */
- 	if (!test_kvm_facility(vcpu->kvm, 76))
- 		return 0;
--	/* we may only allow it if enabled for guest 2 */
--	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
--		     (ECB3_AES | ECB3_DEA);
--	if (!ecb3_flags)
--		return 0;
+@@ -154,6 +154,7 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	const u32 crycb_addr = crycbd_o & 0x7ffffff8U;
+ 	unsigned long *b1, *b2;
+ 	u8 ecb3_flags;
++	unsigned long g1_fmt;
  
- 	if ((crycb_addr & PAGE_MASK) != ((crycb_addr + 128) & PAGE_MASK))
- 		return set_validity_icpt(scb_s, 0x003CU);
- 	if (!crycb_addr)
- 		return set_validity_icpt(scb_s, 0x0039U);
+ 	scb_s->crycbd = 0;
+ 	if (!(crycbd_o == CRYCB_FORMAT1))
+@@ -180,8 +181,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		return set_validity_icpt(scb_s, 0x0035U);
  
-+	/* we may only allow it if enabled for guest 2 */
-+	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
-+		     (ECB3_AES | ECB3_DEA);
-+	if (!ecb3_flags)
-+		return 0;
-+
- 	/* copy only the wrapping keys */
- 	if (read_guest_real(vcpu, crycb_addr + 72,
- 			    vsie_page->crycb.dea_wrapping_key_mask, 56))
+ 	scb_s->ecb3 |= ecb3_flags;
+-	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | CRYCB_FORMAT1 |
+-			CRYCB_FORMAT2;
++	g1_fmt = vcpu->arch.sie_block->crycbd & 0x03;
++	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | g1_fmt;
+ 
+ 	/* xor both blocks in one run */
+ 	b1 = (unsigned long *) vsie_page->crycb.dea_wrapping_key_mask;
 -- 
 2.7.4
