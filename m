@@ -1,14 +1,14 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 4/5] KVM: s390: vsie: Always test the crycbd for NULL
-Date: Wed, 22 Aug 2018 19:07:41 +0200
-Message-ID: <c4894cbd-4e4f-74a1-6fe0-6f3c264f297e@redhat.com>
+Subject: Re: [PATCH v2 5/5] KVM: s390: vsie: Do the CRYCB validation first
+Date: Wed, 22 Aug 2018 19:15:49 +0200
+Message-ID: <e985a036-1b19-0feb-e50c-d55dec3dc9e7@redhat.com>
 References: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
- <1534956717-14087-5-git-send-email-pmorel@linux.ibm.com>
+ <1534956717-14087-6-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1534956717-14087-5-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1534956717-14087-6-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,35 +18,50 @@ Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org,
 List-ID: <linux-s390.vger.kernel.org>
 
 On 22.08.2018 18:51, Pierre Morel wrote:
-> BUG: the crycbd must be tested for null even if
-> not crossing a page boundary (which will never
-> occur in this case anyway).
-
-I don't see the BUG. Can you elaborate? (maybe it is too late for me)
-
-Either we return or we check for !crycb_addr
-
+> When entering the SIE the CRYCB validation better
+> be done independently of the instruction's
+> availability.
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > ---
->  arch/s390/kvm/vsie.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  arch/s390/kvm/vsie.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
 > 
 > diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 0b12916..7ee4329 100644
+> index 7ee4329..fca25aa 100644
 > --- a/arch/s390/kvm/vsie.c
 > +++ b/arch/s390/kvm/vsie.c
-> @@ -172,7 +172,7 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+> @@ -164,17 +164,18 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  	/* format-1 is supported with message-security-assist extension 3 */
+>  	if (!test_kvm_facility(vcpu->kvm, 76))
+>  		return 0;
+> -	/* we may only allow it if enabled for guest 2 */
+> -	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
+> -		     (ECB3_AES | ECB3_DEA);
+> -	if (!ecb3_flags)
+> -		return 0;
 >  
 >  	if ((crycb_addr & PAGE_MASK) != ((crycb_addr + 128) & PAGE_MASK))
 >  		return set_validity_icpt(scb_s, 0x003CU);
-> -	else if (!crycb_addr)
-> +	if (!crycb_addr)
+>  	if (!crycb_addr)
 >  		return set_validity_icpt(scb_s, 0x0039U);
 >  
+> +	/* we may only allow it if enabled for guest 2 */
+> +	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
+> +		     (ECB3_AES | ECB3_DEA);
+> +	if (!ecb3_flags)
+> +		return 0;
+> +
 >  	/* copy only the wrapping keys */
+>  	if (read_guest_real(vcpu, crycb_addr + 72,
+>  			    vsie_page->crycb.dea_wrapping_key_mask, 56))
 > 
 
+That makes sense, especially if ECB3_AES is used but effectively turned
+off by us.
+
+What is the expected behavior if ECB3_AES | ECB3_DEA are not set by g2
+for g3?
 
 -- 
 
