@@ -1,172 +1,145 @@
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v9 12/22] s390: vfio-ap: sysfs interfaces to configure
- control domains
-Date: Wed, 22 Aug 2018 10:31:17 -0400
-Message-ID: <7ab7fcbb-b6b0-c6b6-1704-70c4fc146618@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v9 21/22] KVM: s390: CPU model support for AP
+ virtualization
+Date: Wed, 22 Aug 2018 16:33:48 +0200
+Message-ID: <e7e1efe7-a7f5-f9a8-bd85-88759fa8ba2b@linux.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1534196899-16987-13-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180820162317.08bd7d23.cohuck@redhat.com>
- <660de00a-c403-28c1-4df4-82a973ab3ad5@linux.ibm.com>
- <20180821172548.57a6c758.cohuck@redhat.com>
- <82a391ee-85b1-cdc7-0f9b-d37fd8ba8e47@linux.ibm.com>
- <a43ef10f-aa91-cb4c-a8aa-cd3ce9cfebf2@linux.ibm.com>
+ <1534196899-16987-22-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <2c2c4859-ed3e-a492-dd59-78529c7768b2@redhat.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a43ef10f-aa91-cb4c-a8aa-cd3ce9cfebf2@linux.ibm.com>
+In-Reply-To: <2c2c4859-ed3e-a492-dd59-78529c7768b2@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
+To: David Hildenbrand <david@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/21/2018 07:18 PM, Halil Pasic wrote:
->
->
-> On 08/21/2018 07:07 PM, Tony Krowiak wrote:
->> On 08/21/2018 11:25 AM, Cornelia Huck wrote:
->>> On Mon, 20 Aug 2018 13:41:32 -0400
->>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>
->>>> On 08/20/2018 10:23 AM, Cornelia Huck wrote:
->>>>> On Mon, 13 Aug 2018 17:48:09 -0400
->>>>> Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
->>>>>> From: Tony Krowiak <akrowiak@linux.ibm.com>
->>>>>>
->>>>>> Provides the sysfs interfaces for:
->>>>>>
->>>>>> 1. Assigning AP control domains to the mediated matrix device
->>>>>>
->>>>>> 2. Unassigning AP control domains from a mediated matrix device
->>>>>>
->>>>>> 3. Displaying the control domains assigned to a mediated matrix
->>>>>>      device
->>>>>>
->>>>>> The IDs of the AP control domains assigned to the mediated matrix
->>>>>> device are stored in an AP domain mask (ADM). The bits in the ADM,
->>>>>> from most significant to least significant bit, correspond to
->>>>>> AP domain numbers 0 to 255. On some systems, the maximum allowable
->>>>>> domain number may be less than 255 - depending upon the host's
->>>>>> AP configuration - and assignment may be rejected if the input
->>>>>> domain ID exceeds the limit.
->>>>> Please remind me of the relationship between control domains and 
->>>>> usage
->>>>> domains... IIRC, usage domains allow both requests and configuration,
->>>>> while control domains allow only configuration, and are by 
->>>>> convention a
->>>>> superset of usage domains.
->>>> A usage domain is a domain to which an AP command-request message 
->>>> can be
->>>> submitted for processing. A control domain is a domain that can
->>>> be changed by an AP command request message submitted to a usage 
->>>> domain.
->>>> AP command request messages to configure a domain will contain the 
->>>> domain
->>>> number of the domain to be modified. The AP firmware will check the
->>>> control domain mask (ADM) and will allow the request to proceed 
->>>> only if
->>>> the corresponding bit in the ADM is set.
->>> Thanks to you and Halil for the explanation.
->>>
->>>>> Is there a hard requirement somewhere in there, or can the admin
->>>>> cheerfully use different masks for usage domains and control domains
->>>>> without the SIE choking on it?
->>>> There is no hard requirement that control domains must be a 
->>>> superset of
->>>> the usage domains, it is merely an architectural convention. AFAIK,
->>>> SIE doesn't enforce this and will not break if the convention is not
->>>> enforced externally. Having said that, you should note that the AQM
->>>> and ADM masks configured for the mediated matrix device will be 
->>>> logically
->>>> OR'd together to create the ADM stored in the CRYCB referenced from 
->>>> the
->>>> guest's SIE state description. In other words, we are enforcing the
->>>> convention in our software.
->>> Hm, that's interesting, as Halil argued that we should not enforce it
->>> in the kernel. Might be somewhat surprising as well. If that is really
->>> the way to do it, this needs to be documented clearly.
+On 22/08/2018 13:19, David Hildenbrand wrote:
+> On 13.08.2018 23:48, Tony Krowiak wrote:
+>> From: Tony Krowiak <akrowiak@linux.ibm.com>
 >>
->> This convention has been enforced by the kernel since v1. This is also
->> enforced by both the LPAR as well as in z/VM. The following is from the
->> PR/SM Planning Guide:
+>> Introduces a new CPU model feature and two CPU model
+>> facilities to support AP virtualization for KVM guests.
 >>
->> Control Domain
->> A logical partition's control domains are those cryptographic domains 
->> for which remote secure
->> administration functions can be established and administered from 
->> this logical partition. This
->> logical partition’s control domains must include its usage domains. 
->> For each index selected in the
->> usage domain index list, you must select the same index in the 
->> control domain index list
+>> CPU model feature:
 >>
->
-> IMHO this quote is quite a half-full half-empty cup one:
-> * it mandates the set of usage domains is a subset of the set
-> of the control domains, but
-> * it speaks of independent controls, namely about the 'usage domain 
-> index'
-> and the 'control domain index list' and makes the enforcement of the rule
-> a job of the administrator (instead of codifying it in the controls).
-
-For what it's worth, I spoke with the z/VM developers about dedicated crypto
-in z/VM. In z/VM dedicated crypto, control domains are not even 
-configured by
-the admin. All configured usage domains are also configured as control 
-domains.
-
->
->
+>> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
+>> AP instructions are available on the guest. This
+>> feature will be enabled by the kernel only if the AP
+>> instructions are installed on the linux host. This feature
+>> must be specifically turned on for the KVM guest from
+>> userspace to use the VFIO AP device driver for guest
+>> access to AP devices.
 >>
->> Consequently, I'm going to opt for ensuring this is clearly 
->> documented. Based on the fact you've
->> requested clarification of many points described in this section of 
->> the doc, I
->> think I'll try putting my meager skills as a wordsmith to work to 
->> hopefully clarify things.
->> I'll run it by you when I complete that task to see if I've succeeded:)
->
-> I don't think just a doc update will do. Let me explain why.
->
-> What describe as "... note that the AQM and ADM masks configured for the
-> mediated matrix device will be logically OR'd together to create the ADM
-> stored in the CRYCB referenced from the guest's SIE state description."
-> is a gotcha at best. The member of struct ap_matrix and the member of the
-> respective apcb in the crycb are both called 'adm', but ap_matrix.adm is
-> not an ADM as we know it from the architecture, but rather ~ AQM & ADM.
->
-> I feel pretty strongly about this one. If we want to keep the enforcement
-> in the kernel, I guess, the assign_domain should set the bit 
-> corresponding
-> bit not only in ap_matrix.aqm but also in ap_matrix.adm. When the
-> ap_matrix is committed into the crycb no further manipulating the masks
-> should take place.
-
-I have no problem with this and considered implementing it that way at one
-time.
-
->
-> I don't feel strongly about whether to enforce this convention about AQM
-> and ADM in the kernel or not. Frankly, I don't know what is behind the
-> rule. Since I can't tell if any problems are to be expected if this
-> convention is violated, I would feel more comfortable if the rule was
-> accommodated higher in the management stack.
-
-I wouldn't describe it as a rule. It is described in the architecture doc
-as an architectural convention; in other words, it is agreed upon that all
-usage domains should also be control domains. Based on my discussions with
-the z/VM developers, I believe the reason for the convention is to ensure a
-system has control over its own usage domains, but that is just my
-interpretation.
-
->
->
-> Regards,
-> Halil
->
+>> CPU model facilities:
 >>
->>>
+>> 1. AP Query Configuration Information (QCI) facility is installed.
 >>
+>>     This is indicated by setting facilities bit 12 for
+>>     the guest. The kernel will not enable this facility
+>>     for the guest if it is not set on the host.
+>>
+>>     If this facility is not set for the KVM guest, then only
+>>     APQNs with an APQI less than 16 will be used by a Linux
+>>     guest regardless of the matrix configuration for the virtual
+>>     machine. This is a limitation of the Linux AP bus.
+>>
+>> 2. AP Facilities Test facility (APFT) is installed.
+>>
+>>     This is indicated by setting facilities bit 15 for
+>>     the guest. The kernel will not enable this facility for
+>>     the guest if it is not set on the host.
+>>
+>>     If this facility is not set for the KVM guest, then no
+>>     AP devices will be available to the guest regardless of
+>>     the guest's matrix configuration for the virtual
+>>     machine. This is a limitation of the Linux AP bus.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>> Tested-by: Michael Mueller <mimu@linux.ibm.com>
+>> Tested-by: Farhan Ali <alifm@linux.ibm.com>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>   arch/s390/kvm/kvm-s390.c         |    5 +++++
+>>   arch/s390/tools/gen_facilities.c |    2 ++
+>>   2 files changed, 7 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 1e8cb67..d5e04d2 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -367,6 +367,11 @@ static void kvm_s390_cpu_feat_init(void)
+>>   
+>>   	if (MACHINE_HAS_ESOP)
+>>   		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
+>> +
+>> +	/* Check if AP instructions installed on host */
+>> +	if (ap_instructions_available())
+>> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
+>> +
+>>   	/*
+>>   	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
+>>   	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
+>> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+>> index 90a8c9e..a52290b 100644
+>> --- a/arch/s390/tools/gen_facilities.c
+>> +++ b/arch/s390/tools/gen_facilities.c
+>> @@ -106,6 +106,8 @@ struct facility_def {
+>>   
+>>   		.name = "FACILITIES_KVM_CPUMODEL",
+>>   		.bits = (int[]){
+>> +			12, /* AP Query Configuration Information */
+>> +			15, /* AP Facilities Test */
+>>   			-1  /* END */
+>>   		}
+>>   	},
+>>
+> 
+> I really wonder if we should also export the APXA facility.
+> 
+> We can probe and allow that CPU feature. However, we cannot disable it
+> (as of now).
+> 
+> We have other CPU features where it is the same case (basically all
+> subfunctions). See kvm_s390_get_processor_subfunc(). We probe them and
+> export them, but support to disable them has never been implemented.
+> 
+> On a high level, we could then e.g. deny to start a QEMU guest if APXA
+> is available but has been disabled. (until we know that disabling it
+> actually works - if ever).
+> 
+> This helps to catch nasty migration bugs (e.g. APXA suddenly
+> disappearing). Although unlikely, definitely possible. >
+> 
+> Are there any other AP related facilities that the guest can from now on
+> probe that should also become part of the CPU model?
+> 
+
+
+
+Before going too far in a discussion on features which we do not really 
+need, we can make clear that we only support beginning with z13 and only 
+in the Z architecture mode as host and as guest.
+
+We then need to abort the VFIO driver if APXA is not installed.
+
+In this case we will have no problem with older guests not having idea 
+about APXA.
+
+Would it be a solution?
+
+
+Regards,
+Pierre
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
