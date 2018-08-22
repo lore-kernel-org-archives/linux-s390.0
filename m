@@ -1,35 +1,55 @@
-From: Harald Freudenberger <freude@linux.ibm.com>
-Subject: Re: [PATCH v9 22/22] s390: doc: detailed specifications for AP
- virtualization
-Date: Wed, 22 Aug 2018 12:13:48 +0200
-Message-ID: <63e80d08-3176-726e-b2ef-826547ac97a9@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v9 00/22] guest dedicated crypto adapters
+Date: Wed, 22 Aug 2018 12:19:55 +0200
+Message-ID: <20180822121955.6767f8d3.cohuck@redhat.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1534196899-16987-23-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180820180359.38cc4af3.cohuck@redhat.com>
- <6b83b4da-00eb-c690-e965-a4398dadd0e5@linux.ibm.com>
- <20180821175309.55b774ca.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180821175309.55b774ca.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-... about control domains
+On Mon, 13 Aug 2018 17:47:57 -0400
+Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
-Talked with the s390 firmware guys. The convention that the control domain
-mask is a superset of the usage domain mask is only true for 1st level guests.
+> From: Tony Krowiak <akrowiak@linux.ibm.com>
+> 
+> Notes:
+> =====
+> 
+> Patches 1-4 (by Harald) posted with this series are forthcoming via
+> Martins tree and are based on changes in the ap driver/bus that we use as a
+> foundation. They have been included here because some of the functions
+> in this patch series are dependent upon them.
+> 
+> Patches 5-6 (by David) are posted with this series because they are not
+> currently in our master branch. Patches 19 and 20 of this series are
+> dependent upon them. I believe David's patches are available in the 
+> mainline now.
 
-It is absolutely valid to run a kvm guest with restricted control domain
-mask bitmap in the CRYCB. It is valid to have an empty control domain mask
-and the guest should be able to run crypto CPRBs on the usage domain(s) without
-any problems. However, nobody has tried this.
+What's the current status of David's patches, BTW?
 
-regards
-Harald Freudenberger
+It's probably easiest to rebase this upon master when the patches have
+hit mainline.
+
+I don't have any comments beyond what I already wrote; we'll hopefully
+be able to figure out that control domain stuff soon.
+
+Would be great to get some LGTM from the vfio-mdev folks :)
+
+I believe Pierre is also doing some fixing in the existing crypto vsie
+code right now?
+
+> 
+> This patch series works with the v6 QEMU patches. There is no new QEMU
+> patchset version yet because there have been no review comments worthy of
+> creating a new series; only a couple of extremely minor nits.
+
+Probably best to repost that once the kernel part is basically through,
+if just to solicit more comments.
