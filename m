@@ -1,223 +1,34 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v8 12/22] s390: vfio-ap: sysfs interfaces to configure control domains
-Date: Wed,  8 Aug 2018 10:44:22 -0400
-Message-ID: <1533739472-7172-13-git-send-email-akrowiak@linux.vnet.ibm.com>
-References: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v2 0/5] KVM: s390: vsie: Consolidate CRYCB validation
+Date: Wed, 22 Aug 2018 18:51:52 +0200
+Message-ID: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1533739472-7172-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: david@redhat.com
+Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Tony Krowiak <akrowiak@linux.ibm.com>
+Before adapting the CRYCB shadowing for a guest supporting
+the AP instructions we want to clean the CRYCB shadowing code.
 
-Provides the sysfs interfaces for:
 
-1. Assigning AP control domains to the mediated matrix device
+Pierre Morel (5):
+  KVM: s390: vsie: BUG correction by shadow_crycb
+  KVM: s390: vsie: Only accept FORMAT1 CRYCB for guest2
+  KVM: s390: vsie: Allow support for a host without AP
+  KVM: s390: vsie: Always test the crycbd for NULL
+  KVM: s390: vsie: Do the CRYCB validation first
 
-2. Unassigning AP control domains from a mediated matrix device
+ arch/s390/kvm/vsie.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-3. Displaying the control domains assigned to a mediated matrix
-   device
-
-The IDs of the AP control domains assigned to the mediated matrix
-device are stored in an AP domain mask (ADM). The bits in the ADM,
-from most significant to least significant bit, correspond to
-AP domain numbers 0 to 255. On some systems, the maximum allowable
-domain number may be less than 255 - depending upon the host's
-AP configuration - and assignment may be rejected if the input
-domain ID exceeds the limit.
-
-When a control domain is assigned, the bit corresponding its domain
-ID will be set in the ADM. Likewise, when a domain is unassigned,
-the bit corresponding to its domain ID will be cleared in the ADM.
-
-The relevant sysfs structures are:
-
-/sys/devices/virtual/misc/vfio_ap/
-...... [mdev_supported_types]
-......... [vfio_ap-passthrough]
-............ [devices]
-...............[$uuid]
-.................. assign_control_domain
-.................. unassign_control_domain
-
-To assign a control domain to the $uuid mediated matrix device's
-ADM, write its domain number to the assign_control_domain file.
-To unassign a domain, write its domain number to the
-unassign_control_domain file. The domain number is specified
-using conventional semantics: If it begins with 0x the number
-will be parsed as a hexadecimal (case insensitive) number;
-if it begins with 0, it is parsed as an octal number;
-otherwise, it will be parsed as a decimal number.
-
-For example, to assign control domain 173 (0xad) to the mediated
-matrix device $uuid:
-
-	echo 173 > assign_control_domain
-
-	or
-
-	echo 0255 > assign_control_domain
-
-	or
-
-	echo 0xad > assign_control_domain
-
-To unassign control domain 173 (0xad):
-
-	echo 173 > unassign_control_domain
-
-	or
-
-	echo 0255 > unassign_control_domain
-
-	or
-
-	echo 0xad > unassign_control_domain
-
-The assignment will be rejected if the APQI exceeds the maximum
-value for an AP domain:
-  * If the AP Extended Addressing (APXA) facility is installed,
-    the max value is 255
-  * Else the max value is 15
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Michael Mueller <mimu@linux.ibm.com>
-Tested-by: Farhan Ali <alifm@linux.ibm.com>
-Tested-by: Pierre Morel <pmorel@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c |  108 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 108 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 36b8f47..a48676a 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -447,11 +447,119 @@ static ssize_t unassign_domain_store(struct device *dev,
- }
- DEVICE_ATTR_WO(unassign_domain);
- 
-+/**
-+ * assign_control_domain_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: the mediated matrix device's assign_control_domain attribute
-+ * @buf: a buffer containing the domain ID to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the domain ID from @buf and assigns it to the mediated matrix device.
-+ *
-+ * Returns the number of bytes processed if the domain ID is valid; otherwise
-+ * returns an error.
-+ */
-+static ssize_t assign_control_domain_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long id;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long maxid = matrix_mdev->matrix.adm_max;
-+
-+	ret = kstrtoul(buf, 0, &id);
-+	if (ret)
-+		return ret;
-+
-+	if (id > maxid)
-+		ret = -EINVAL;
-+
-+	/* Set the bit in the ADM (bitmask) corresponding to the AP control
-+	 * domain number (id). The bits in the mask, from most significant to
-+	 * least significant, correspond to IDs 0 up to the one less than the
-+	 * number of control domains that can be assigned.
-+	 */
-+	mutex_lock(&matrix_dev.lock);
-+	set_bit_inv(id, matrix_mdev->matrix.adm);
-+	mutex_unlock(&matrix_dev.lock);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(assign_control_domain);
-+
-+/**
-+ * unassign_control_domain_store
-+ *
-+ * @dev: the matrix device
-+ * @attr: the mediated matrix device's unassign_control_domain attribute
-+ * @buf: a buffer containing the domain ID to be assigned
-+ * @count: the number of bytes in @buf
-+ *
-+ * Parses the domain ID from @buf and unassigns it from the mediated matrix
-+ * device.
-+ *
-+ * Returns the number of bytes processed if the domain ID is valid; otherwise
-+ * returns an error.
-+ */
-+static ssize_t unassign_control_domain_store(struct device *dev,
-+					     struct device_attribute *attr,
-+					     const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long domid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
-+
-+	ret = kstrtoul(buf, 0, &domid);
-+	if (ret)
-+		return ret;
-+	if (domid > max_domid)
-+		return -EINVAL;
-+
-+	mutex_lock(&matrix_dev.lock);
-+	clear_bit_inv(domid, matrix_mdev->matrix.adm);
-+	mutex_unlock(&matrix_dev.lock);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(unassign_control_domain);
-+
-+static ssize_t control_domains_show(struct device *dev,
-+				    struct device_attribute *dev_attr,
-+				    char *buf)
-+{
-+	unsigned long id;
-+	int nchars = 0;
-+	int n;
-+	char *bufpos = buf;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_domid = matrix_mdev->matrix.adm_max;
-+
-+	mutex_lock(&matrix_dev.lock);
-+	for_each_set_bit_inv(id, matrix_mdev->matrix.adm, max_domid + 1) {
-+		n = sprintf(bufpos, "%04lx\n", id);
-+		bufpos += n;
-+		nchars += n;
-+	}
-+	mutex_unlock(&matrix_dev.lock);
-+
-+	return nchars;
-+}
-+DEVICE_ATTR_RO(control_domains);
-+
- static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_assign_adapter.attr,
- 	&dev_attr_unassign_adapter.attr,
- 	&dev_attr_assign_domain.attr,
- 	&dev_attr_unassign_domain.attr,
-+	&dev_attr_assign_control_domain.attr,
-+	&dev_attr_unassign_control_domain.attr,
-+	&dev_attr_control_domains.attr,
- 	NULL,
- };
- 
 -- 
-1.7.1
+2.7.4
+
+Changelog from v1
+- split into severall small patches
+- insert the first cleaning patch ahead
+- add a new patch to allow a host not having AP
+  instructions
