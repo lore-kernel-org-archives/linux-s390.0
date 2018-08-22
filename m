@@ -1,94 +1,72 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v9 12/22] s390: vfio-ap: sysfs interfaces to configure
- control domains
-Date: Wed, 22 Aug 2018 17:53:37 +0200
-Message-ID: <7a03a9dd-2747-3a35-3048-a0b719edb955@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v9 21/22] KVM: s390: CPU model support for AP
+ virtualization
+Date: Wed, 22 Aug 2018 18:57:31 +0200
+Message-ID: <befdd6b9-6ca8-96c2-68c7-f52f8367443c@redhat.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1534196899-16987-13-git-send-email-akrowiak@linux.vnet.ibm.com>
- <20180820162317.08bd7d23.cohuck@redhat.com>
- <660de00a-c403-28c1-4df4-82a973ab3ad5@linux.ibm.com>
- <20180821172548.57a6c758.cohuck@redhat.com>
- <82a391ee-85b1-cdc7-0f9b-d37fd8ba8e47@linux.ibm.com>
- <a43ef10f-aa91-cb4c-a8aa-cd3ce9cfebf2@linux.ibm.com>
- <20180822114250.59a250aa.cohuck@redhat.com>
- <8bc5f207-f913-825c-f9fc-0a2c7fd280aa@linux.ibm.com>
- <e36abc22-9daf-e0f4-c6b3-7adbb28db4c3@de.ibm.com>
- <f84dbcc0-f627-be02-9933-3baa953adc09@linux.ibm.com>
- <219b352b-d5a2-189c-e205-82e7f9ae3d64@de.ibm.com>
-Reply-To: pmorel@linux.ibm.com
+ <1534196899-16987-22-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <2c2c4859-ed3e-a492-dd59-78529c7768b2@redhat.com>
+ <e7e1efe7-a7f5-f9a8-bd85-88759fa8ba2b@linux.ibm.com>
+ <b04e7d88-b7d3-b55d-cba8-bec0623e4adc@redhat.com>
+ <9f512d55-ef10-e2ae-f34e-e003c929bc3f@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <219b352b-d5a2-189c-e205-82e7f9ae3d64@de.ibm.com>
+In-Reply-To: <9f512d55-ef10-e2ae-f34e-e003c929bc3f@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Tony Krowiak <akrowiak@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
+To: pmorel@linux.ibm.com, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 22/08/2018 17:48, Christian Borntraeger wrote:
-> On 08/22/2018 05:34 PM, Pierre Morel wrote:
->> On 22/08/2018 17:11, Christian Borntraeger wrote:
->>>
->>>
->>> On 08/22/2018 01:03 PM, Pierre Morel wrote:
->>>>> That's interesting.
->>>>>
->>>>>> IMHO this quote is quite a half-full half-empty cup one:
->>>>>> * it mandates the set of usage domains is a subset of the set
->>>>>> of the control domains, but
->>>>>> * it speaks of independent controls, namely about the 'usage domain index'
->>>>>> and the 'control domain index list' and makes the enforcement of the rule
->>>>>> a job of the administrator (instead of codifying it in the controls).
->>>>> I'm wondering if a configuration with a usage domain that is not also a
->>>>> control domain is rejected outright? Anybody tried that? :)
->>>>
->>>> Yes, and no it is not.
->>>> We can use a queue (usage domain) to a AP card for SHA-512 or RSA without
->>>> having to define the queue as a control domain.
->>>
->>> Huh? My HMC allows to add a domain as
->>> - control only domain
->>> - control and usage domain.
->>>
->>> But I am not able to configure a usage-only domain for my LPAR. That seems to match
->>> the current code, no?
->>>
->>
->> Yes, it may not be configurable by the HMC but if we start a guest with no control domain it is not a problem to access the hardware through the usage domain.
->>
->> I tested this a long time ago, but tested again today to be sure on my LPAR.
->>
->> AFAIU adding a control only domain and a control and usage domain
->> allows say:
->> control and usage domain 1
->> control only domain 2
->>
->> Allow to send a message to domain 2 using queue 1
->>
->> Allow also to send a domain modifying message to domain 1 using queue 1
->>
->> control domain are domain which are controlled
-> 
-> So you have changed the code to not automatically make a usage domain a
-> control domain in the bitfield (and you could still use it as a usage
-> domain). Correct?
 
-yes
-and I used Harald's libica tests to verify it in the guest.
+>>>
+>>> In this case we will have no problem with older guests not having idea
+>>> about APXA.
+>>>
+>>> Would it be a solution?
+>>
+>> Any feature the guest sees, should be part of the CPU model. The whole
+>> environment for cpu subfunctions is already in place both in KVM and
+>> QEMU. Only disabling subfunctions in KVM is not implemented yet.
+>>
+>> You can exclude any subfunctions/facilities that are only valid on LPAR
+>> level and cannot be used in some guest either way. (that makes life
+>> sometimes easier)
+>>
+>>
+>> I know that this might sound a little bit complicated, but it really
+>> isn't. Boils down to modifying kvm_s390_cpu_feat_init() and specifying
+>> some features+feature groups in QEMU.
+> 
+> OK, we definitively need another patch/patch-set, to handle this.
+> Do you think it can be done in another series since if we always support 
+> APXA when we have AP instructions, we already have an indication that
+> APXA exist: the AP facility.
+> 
 
-> I think this is probably expected. the "usage implies control" seems to
-> be a convention implemented by HMC (lpar) and z/VM but millicode offers
-> the bits to have usage-only domains. As LPAR and z/VM will always enable
-> any usage-domain to also be a control domain we should do the same.
+Please implement the subfunction stuff right away. This will allow to
+handle all future facilities transparently from a kernel POV.
+
+Implementing that should be easy - and I don't like gluing features
+together in such a way.
+
+You can always assure that consistent data (e.g. AP + APXA availability)
+is reported from KVM to QEMU.
+
+> Regards,
+> Pierre
 > 
 > 
->> It seems that the HMC enforce the LPARs to have access to their usage domain (AFAIU from Harald)
+> 
+> 
 
 
 -- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+
+Thanks,
+
+David / dhildenb
