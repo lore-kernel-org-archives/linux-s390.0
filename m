@@ -1,14 +1,15 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 1/5] KVM: s390: vsie: BUG correction by shadow_crycb
-Date: Wed, 22 Aug 2018 18:53:02 +0200
-Message-ID: <8300634d-8500-1898-e283-175fc893054a@redhat.com>
+Subject: Re: [PATCH v2 2/5] KVM: s390: vsie: Only accept FORMAT1 CRYCB for
+ guest2
+Date: Wed, 22 Aug 2018 18:55:46 +0200
+Message-ID: <c1ebcecb-e2fb-6ff0-8bc7-e285af62129b@redhat.com>
 References: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
- <1534956717-14087-2-git-send-email-pmorel@linux.ibm.com>
+ <1534956717-14087-3-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1534956717-14087-2-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1534956717-14087-3-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,31 +19,43 @@ Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org,
 List-ID: <linux-s390.vger.kernel.org>
 
 On 22.08.2018 18:51, Pierre Morel wrote:
-> Copy the key mask to the right offset inside the shadow CRYCB
+> As the comment above the function suggested the shadowing
+> of the guest2 CRYCB can only accept a format 1 since
+> AP instructions are not supported in the guest.
+> 
+> Let's modify the check which allowed to accept a format 2 too.
+
+As the bit is ignored without AP/APXA, it is perfectly valid to accept a
+format 2, we just have to interpret it as format 1 (which is what we do)
+
+What am I missing?
+
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
 > ---
->  arch/s390/kvm/vsie.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  arch/s390/kvm/vsie.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
 > diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 9175518..12b9707 100644
+> index 12b9707..56a9d47 100644
 > --- a/arch/s390/kvm/vsie.c
 > +++ b/arch/s390/kvm/vsie.c
-> @@ -173,7 +173,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->  		return set_validity_icpt(scb_s, 0x0039U);
+> @@ -156,7 +156,9 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  	u8 ecb3_flags;
 >  
->  	/* copy only the wrapping keys */
-> -	if (read_guest_real(vcpu, crycb_addr + 72, &vsie_page->crycb, 56))
-> +	if (read_guest_real(vcpu, crycb_addr + 72,
-> +			    vsie_page->crycb.dea_wrapping_key_mask, 56))
->  		return set_validity_icpt(scb_s, 0x0035U);
->  
->  	scb_s->ecb3 |= ecb3_flags;
+>  	scb_s->crycbd = 0;
+> -	if (!(crycbd_o & vcpu->arch.sie_block->crycbd & CRYCB_FORMAT1))
+> +	if (!(crycbd_o == CRYCB_FORMAT1))
+> +		return 0;
+
+huh, this looks very broken. The address is still in there.
+
+> +	if (!(vcpu->arch.sie_block->crycbd & CRYCB_FORMAT1))
+>  		return 0;
+>  	/* format-1 is supported with message-security-assist extension 3 */
+>  	if (!test_kvm_facility(vcpu->kvm, 76))
 > 
 
-Please fixup the subject as requested. (were there more RB-s?)
 
 -- 
 
