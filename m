@@ -1,169 +1,104 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] KVM: s390: vsie: Consolidate CRYCB validation
-Date: Wed, 22 Aug 2018 14:51:54 +0200
-Message-ID: <76fc3187-4e99-bd2f-5d3b-5de89ac641d1@redhat.com>
-References: <1534925337-18380-1-git-send-email-pmorel@linux.ibm.com>
- <c410ab24-1f83-21f3-1996-7328aeb3f408@redhat.com>
- <7de5e991-764e-dec8-648b-6acc42c141e6@linux.ibm.com>
- <f5261c1a-58f6-68f2-1736-eb13dce863b6@redhat.com>
- <0032fc9b-4328-1a09-66f5-65f485a8a42f@linux.ibm.com>
- <a6a2aec1-33cf-6299-8219-ed5043ba07be@redhat.com>
- <8afefad7-d4a5-7e02-d5ea-9a355cbed332@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH] KVM: s390: vsie: Consolidate CRYCB validation
+Date: Wed, 22 Aug 2018 10:08:57 +0200
+Message-ID: <1534925337-18380-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8afefad7-d4a5-7e02-d5ea-9a355cbed332@linux.ibm.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: pmorel@linux.ibm.com
+To: david@redhat.com
 Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
->>
->>>  From the host, we control the guest1 and we start it without AP
->>> by not setting ECA.28.
->>> So that the guest1 can not know if APXA is installed or not since to know
->>> this it must use a AP instruction :)
->> No AP implies no APXA. On that logical level "host".
-> 
-> hum.
-> No seen, usable nor used APXA  on that level: yes.
-> 
->>
->>> Now the guest1 is an hypervizor and wants to start a guest2.
->>> It can set ECA.28 to allow the guest2 AP instructions , just because it can,
->>> (even guest2 will not see any as it will be masked by the guest1 ECA.28
->>> that we did not set)
->> ECA.28 has no effect as G1 sees no AP facility. That is the real reason.
-> 
-> Not exactly, the ECA.28 field used for G2 is an effective field
-> calculated from G1.ECA.28 & G2.ECA.28
+Currently when shadowing the CRYCB on SIE entrance, the validation
+tests the following:
+- accept only FORMAT1 or FORMAT2
+- test if MSAext facility (76) is installed
+- accept the CRYCB if no keys are used
+- verifies that the CRYCB format1 is inside a page
+- verifies that the CRYCB origin is not 0
 
-That is one complexity on top, but it does not reflect what our guest
-sees (see below)
+This is not following the architecture.
 
-> 
-> G1 not having AP instructions is the consequence of G1.ECA.28=0
-> 
-> There is no AP Facility in the sense of STFL bits.
+On SIE entrance, the CRYCB must be validated before accepting
+any of its entries.
 
-Yes, it is sensed differently by the guest. But the guest can detect it
-by sensing instructions, right? (similar to CMM)
+Let's do the validation in the right order and also verify
+correctly the FORMAT2 CRYCB.
 
-If AP instructions can be executed by the guest ("sense") -> "AP
-facility available"
+The testing of facility MSAext3 (76) is not useful as it is
+already tested by kvm_crypto_init() to set FORMAT1.
 
-If "AP facility available" -> ECA.28 _may_ be used. It can still result
-in an intercept.
+The testing of a null CRYCB origin must be done what ever
+the format of the guest3 CRYCB is.
 
-If "AP facility not available" -> ECA.28 is ignored
+The CRYCB must be contained inside a page, but the CRYCB size
+depends on the CRYCB format.
+Lets test what the guest2 initialized, we can not trust it to have
+done things right.
 
-So any user of ECA.28 _has to_ implement backup emulation code if he
-wants to provide the AP facility to it's guests.
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ arch/s390/kvm/vsie.c | 35 +++++++++++++++++++++++++----------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
 
-Where is that code in the current series? Imagine running nested under
-z/VM where ECA.28 is not effective. Or later on nested under KVM once we
-emulate devices in QEMU and have to restrict ECA.28 for our guest (which
-might itself might want to make use of ECA.28)
-
-
-IMHO, if ECA.28 is set, it is to be treated just like it _would be_ set
-(e.g. perform checks), but it can effectively be disabled by us before
-going into the SIE. But this is a small detail.
-
-> 
->>
->>> It can also set the FORMAT2 just because it can do it.
->>> The documentation explicitly says that FORMAT2 may be used
->>> without APXA and that in this case it will be handled as a FORMAT1
->>>
->>>
->>> The question is do we want to forbid this?
->>> It is not an error.
->>> Suppose that an hypervizor always set FORMAT2 to be able to not restart
->>> its guest if the host set ECA.28 a posteriori.
->>>
->>> Anyway we have the choice:
->>> - we verify the CRYCB for FORMAT2
->>> or
->>> - we forbid FORMAT2
->>>
->>> Since we will soon (I hope) be able to use AP instructions in AP
->>> but we are not able to do it today, we could forbid FORMAT2
->>> however in the current behavior we authorize FORMAT2...
->>>
->>> What ever the choice is we must change the current implementation.
->>>
->>> I prefer to keep the current interface but make sure that the
->>> host do not crash when scheduling a FORMAT2 SIE crossing
->>> a page boundary.
->>>
->>>
->>> What do you think we should do?
->> Keep it simple. Don't mix in machine configuration. Try to make each
->> layer look consistent.
->>
->> If there is no AP/APXA on a level ("host"), FORMAT2 is ignored in SIE.
->> If there is no AP/APXA on a level ("host"), ECA.28 is ignored in SIE.
->> If there is no MSA3 on a level ("host"), ECB3_AES | ECB3_DEA is ignored
->> in SIE.
->>
->> If there is no AP/APXA/MSA3 on a level ("host"), crycbd is completely
->> ignored in SIE. (that means, no validity intercepts to be injected).
->> Please double check that in the documentation.
->>
->> If there is is AP/MSA3 and either ECA.28 | ECB3_AES | ECB3_DEA, what
->> should happen? (please verify in the documentation)
->>
->> FORMAT2 should really only be allowed if there is APXA. As we cannot
->> fake abscence for guests (as of now), guest availability always matches
->> host availability if AP is enabled for a guest.
-> 
-> I am not sure we can KIS.
-> 
-> For the SIE firmware a guest G1 or G2 or not distinguishable.
-> 
-> Using VSIE we let the G2 run inside a SIE Control Block installed by the 
-> host.
-> So if the host has AP/APXA and even if G1 has not AP/APXA
-> then, if we take your first assumption, FORMAT2 is not ignored in the SIE.
-
-That's why we sit in the middle and control what we give to HW.
-
-We (as a hypervisor implementing nested virtualization), have to make
-sure that what the guest sees and experiences is consistent.
-
-E.g. if we fake away APXA (which can and should be supported, see my
-other reply), the guest (who might be old and have no idea about APXA)
-should see consistent results.
-
-> 
-> Since the test is done on SIE entry
-> no need to run an instruction to get a validity interception,
-> which is for me explained by the documentation stating that:
-> 
-> The check of APCB/CRYCB and APCB/CRYCB origin is performed
-> only if any of the following is true:
-> (a) ECA.28 is one
-> (b) CRYCB format field (F) is one
-> or
-> (c) the AXPA facility is installed and the F field is three
-> 
-> If not having the AP instruction would be enough to avoid
-> a validity interception, then there would be no need to
-> have the point (c).
-> 
-
-Maybe it is really best to split this patch further up, then we can
-discuss all details separately.
-
-Having access to documentation would really be beneficial here :)
-
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index a2b28cd..35c3907 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -158,28 +158,43 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	scb_s->crycbd = 0;
+ 	if (!(crycbd_o & vcpu->arch.sie_block->crycbd & CRYCB_FORMAT1))
+ 		return 0;
+-	/* format-1 is supported with message-security-assist extension 3 */
+-	if (!test_kvm_facility(vcpu->kvm, 76))
+-		return 0;
++	/*
++	 * If APIE is set or it the CRYCB Format is FORMAT1 or FORMAT2 with
++	 * APXA installed, the machine checks the validity of crycb origin.
++	 * KVM kvm_s390_crypto_init() makes sure that FORMAT2 is only used
++	 * if APXA is installed.
++	 * The guest2 hypervizor could have set APIE and Format2 so let's
++	 * test all these points.
++	 * We here have always a CRYCB FORMAT1 or FORMAT2 (FORMAT0 was
++	 * refused in previous test).
++	 */
++	if (!crycb_addr)
++		return set_validity_icpt(scb_s, 0x0039U);
++
++	if ((crycbd_o & 0x03) == CRYCB_FORMAT1)
++		if ((crycb_addr & PAGE_MASK) !=
++		   ((crycb_addr + 128) & PAGE_MASK))
++			return set_validity_icpt(scb_s, 0x003CU);
++
++	if ((crycbd_o & 0x03) == CRYCB_FORMAT2)
++		if ((crycb_addr & PAGE_MASK) !=
++		   ((crycb_addr + 256) & PAGE_MASK))
++			return set_validity_icpt(scb_s, 0x003CU);
++
+ 	/* we may only allow it if enabled for guest 2 */
+ 	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
+ 		     (ECB3_AES | ECB3_DEA);
+ 	if (!ecb3_flags)
+ 		return 0;
+ 
+-	if ((crycb_addr & PAGE_MASK) != ((crycb_addr + 128) & PAGE_MASK))
+-		return set_validity_icpt(scb_s, 0x003CU);
+-	else if (!crycb_addr)
+-		return set_validity_icpt(scb_s, 0x0039U);
+-
+ 	/* copy only the wrapping keys */
+ 	if (read_guest_real(vcpu, crycb_addr + 72,
+ 			    vsie_page->crycb.dea_wrapping_key_mask, 56))
+ 		return set_validity_icpt(scb_s, 0x0035U);
+ 
+ 	scb_s->ecb3 |= ecb3_flags;
+-	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | CRYCB_FORMAT1 |
+-			CRYCB_FORMAT2;
++	/* Set the shadow CRYCB format to format 2 */
++	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | CRYCB_FORMAT2;
+ 
+ 	/* xor both blocks in one run */
+ 	b1 = (unsigned long *) vsie_page->crycb.dea_wrapping_key_mask;
 -- 
-
-Thanks,
-
-David / dhildenb
+2.7.4
