@@ -1,17 +1,19 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v2 2/5] KVM: s390: vsie: Only accept FORMAT1 CRYCB for
- guest2
-Date: Thu, 23 Aug 2018 09:42:19 +0200
-Message-ID: <f8773390-7342-4488-bb46-b65adad8e04d@linux.ibm.com>
+Subject: Re: [PATCH v2 3/5] KVM: s390: vsie: Allow support for a host without
+ AP
+Date: Thu, 23 Aug 2018 09:54:06 +0200
+Message-ID: <bca510c3-ca38-4c2b-9c25-2eca8e03d16a@linux.ibm.com>
 References: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
- <1534956717-14087-3-git-send-email-pmorel@linux.ibm.com>
- <c1ebcecb-e2fb-6ff0-8bc7-e285af62129b@redhat.com>
+ <1534956717-14087-4-git-send-email-pmorel@linux.ibm.com>
+ <beb38451-8ec9-59c7-2e51-f9a065b769bf@redhat.com>
+ <b95f7004-b2b8-73f8-50d7-f091769e0f24@linux.ibm.com>
+ <b58bbff7-c28f-9111-d804-d2107b351876@redhat.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c1ebcecb-e2fb-6ff0-8bc7-e285af62129b@redhat.com>
+In-Reply-To: <b58bbff7-c28f-9111-d804-d2107b351876@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,51 +22,85 @@ To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 22/08/2018 18:55, David Hildenbrand wrote:
-> On 22.08.2018 18:51, Pierre Morel wrote:
->> As the comment above the function suggested the shadowing
->> of the guest2 CRYCB can only accept a format 1 since
->> AP instructions are not supported in the guest.
+On 23/08/2018 09:15, David Hildenbrand wrote:
+> On 23.08.2018 08:44, Pierre Morel wrote:
+>> On 22/08/2018 19:06, David Hildenbrand wrote:
+>>> On 22.08.2018 18:51, Pierre Morel wrote:
+>>>> Currently the CRYCB format used in the host for the
+>>>> shadowed CRYCB is FORMAT2 while no check is done if
+>>>> AP instructions are supported in the host.
+>>>>
+>>>> We better use the format the host calculated for the
+>>>> guest 1 as the host already tested it against its
+>>>> facility set.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> ---
+>>>>    arch/s390/kvm/vsie.c | 5 +++--
+>>>>    1 file changed, 3 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>>>> index 56a9d47..0b12916 100644
+>>>> --- a/arch/s390/kvm/vsie.c
+>>>> +++ b/arch/s390/kvm/vsie.c
+>>>> @@ -154,6 +154,7 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>>>    	const u32 crycb_addr = crycbd_o & 0x7ffffff8U;
+>>>>    	unsigned long *b1, *b2;
+>>>>    	u8 ecb3_flags;
+>>>> +	unsigned long g1_fmt;
+>>>>    
+>>>>    	scb_s->crycbd = 0;
+>>>>    	if (!(crycbd_o == CRYCB_FORMAT1))
+>>>> @@ -180,8 +181,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>>>    		return set_validity_icpt(scb_s, 0x0035U);
+>>>>    
+>>>>    	scb_s->ecb3 |= ecb3_flags;
+>>>> -	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | CRYCB_FORMAT1 |
+>>>> -			CRYCB_FORMAT2;
+>>>> +	g1_fmt = vcpu->arch.sie_block->crycbd & 0x03;
+>>>> +	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | g1_fmt;
+>>>>    
+>>>>    	/* xor both blocks in one run */
+>>>>    	b1 = (unsigned long *) vsie_page->crycb.dea_wrapping_key_mask;
+>>>>
+>>>
+>>> This is wrong. I remember that with APXA, if FORMAT2 is available, we
+>>> should always use FORMAT2. That's why we explicitly convert it here.
+>>>
 >>
->> Let's modify the check which allowed to accept a format 2 too.
-> 
-> As the bit is ignored without AP/APXA, it is perfectly valid to accept a
-> format 2, we just have to interpret it as format 1 (which is what we do)
-> 
-> What am I missing?
-> 
-
-Nothing.
-I was still having AP interpretation in mind.
-
-
+>> You are right if FORMAT2 is available we should use FORMAT2
+>> but the intention here is to use what KVM crypto init function did,
+>> assuming it did the right thing.
 >>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   arch/s390/kvm/vsie.c | 4 +++-
->>   1 file changed, 3 insertions(+), 1 deletion(-)
+>> Eventually we are running on a host without AP and we should use FORMAT1.
 >>
->> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->> index 12b9707..56a9d47 100644
->> --- a/arch/s390/kvm/vsie.c
->> +++ b/arch/s390/kvm/vsie.c
->> @@ -156,7 +156,9 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>   	u8 ecb3_flags;
->>   
->>   	scb_s->crycbd = 0;
->> -	if (!(crycbd_o & vcpu->arch.sie_block->crycbd & CRYCB_FORMAT1))
->> +	if (!(crycbd_o == CRYCB_FORMAT1))
->> +		return 0;
+>> Isn't it correct?
 > 
-> huh, this looks very broken. The address is still in there.
-completely broken you are right
+> 
+> Yes and no :)
+> 
+> No APXA -> FORMAT2 bit is ignored (and that is one of the reasons why I
+> am being so strict about simulating HW behavior correctly in nested code
+> :) )
+> 
+> This only holds as long as we are not using AP. Because from a MSA3
+> perspective, FORMAT1==FORMAT2 (apart from the length/alignment, which is
+> fine for us).
+> 
+> Once we support AP (via ECA.28), we'll properly have to create either a
+> Format0/Format1/Format2. Then, there is actually a semantically
+> difference ("different fields used").
 
-anyway this broken useless patch disappear.
-
-Thanks,
+OK
+I would have expect something more explicit in the documentation
+like for firmware versions older than xxx bit 30 is ignored
+instead of if APXA is not installed.
+Still must learn the IBM language! :)
 
 regards,
 Pierre
+
+
 
 
 -- 
