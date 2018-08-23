@@ -1,17 +1,17 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v3 1/3] KVM: s390: vsie: copy wrapping keys to right place
-Date: Thu, 23 Aug 2018 13:41:40 +0200
-Message-ID: <bffd3862-856f-4f9a-6f27-d91ca8a0b5ec@linux.ibm.com>
+Subject: Re: [PATCH v3 2/3] KVM: s390: vsie: Do the CRYCB validation first
+Date: Thu, 23 Aug 2018 13:42:13 +0200
+Message-ID: <c4a38dfb-6c78-268c-54b9-4581a292ee1a@linux.ibm.com>
 References: <1535019956-23539-1-git-send-email-pmorel@linux.ibm.com>
- <1535019956-23539-2-git-send-email-pmorel@linux.ibm.com>
- <853c73ab-3221-e0ee-af30-8e11fefbebd7@de.ibm.com>
- <d2e4bed0-666d-24b4-cc57-84a4c9f1f93b@redhat.com>
+ <1535019956-23539-3-git-send-email-pmorel@linux.ibm.com>
+ <b7c0b0eb-c750-caeb-41b5-d6593791a6ef@de.ibm.com>
+ <cb8adf11-2bb3-4e00-ceab-f9d55c4d4f44@redhat.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d2e4bed0-666d-24b4-cc57-84a4c9f1f93b@redhat.com>
+In-Reply-To: <cb8adf11-2bb3-4e00-ceab-f9d55c4d4f44@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -21,26 +21,31 @@ Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org,
 List-ID: <linux-s390.vger.kernel.org>
 
 On 23/08/2018 13:19, David Hildenbrand wrote:
-> On 23.08.2018 13:07, Christian Borntraeger wrote:
+> On 23.08.2018 13:17, Christian Borntraeger wrote:
 >>
 >>
 >> On 08/23/2018 12:25 PM, Pierre Morel wrote:
->>> Copy the key mask to the right offset inside the shadow CRYCB
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> Reviewed-by: David Hildenbrand <david@redhat.com>
->>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
->>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+>>> When entering the SIE the CRYCB validation better
+>>> be done independently of the instruction's
+>>> availability.
 >>
->> This should be cc stable I guess?
+>> Maybe something like
 >>
+>> We need to handle the validity checks for the crycb, no matter what the
+>> settings for the keywrappings are. So lets move the keywrapping checks
+>> after we have done the validy checks.
+>>
+>> ?
 > 
-> Yes, g3 guests will be run with same wrapping keys.
+> With that
+> 
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> 
 > 
 
-OK I do send it separated from the other patches.
+Thanks, I use the description proposed by Christian.
 
-regard,
+regards,
 Pierre
 
 -- 
