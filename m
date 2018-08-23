@@ -1,202 +1,67 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v9 21/22] KVM: s390: CPU model support for AP
- virtualization
-Date: Thu, 23 Aug 2018 13:12:54 +0200
-Message-ID: <be13d8fa-1ff7-6800-36b9-7f8320724cbf@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v9 12/22] s390: vfio-ap: sysfs interfaces to configure
+ control domains
+Date: Thu, 23 Aug 2018 13:31:34 +0200
+Message-ID: <20180823133134.32e1d2f8.cohuck@redhat.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1534196899-16987-22-git-send-email-akrowiak@linux.vnet.ibm.com>
- <2c2c4859-ed3e-a492-dd59-78529c7768b2@redhat.com>
- <95e6ee74-69aa-9805-3233-b9ec81fce516@redhat.com>
- <7e7a35f5-d1eb-7719-c5e8-57d6f19db675@linux.ibm.com>
- <f5ec13ae-75b4-918e-aaf1-ed97944ff16e@redhat.com>
- <fec90446-7f94-da28-d958-427a0446854e@linux.ibm.com>
- <ef6082b7-da96-3a0b-77a0-f41d113d058a@redhat.com>
- <8d6ae58f-967b-5e4e-0e54-8fb4962cb843@linux.ibm.com>
+        <1534196899-16987-13-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <20180820162317.08bd7d23.cohuck@redhat.com>
+        <660de00a-c403-28c1-4df4-82a973ab3ad5@linux.ibm.com>
+        <20180821172548.57a6c758.cohuck@redhat.com>
+        <82a391ee-85b1-cdc7-0f9b-d37fd8ba8e47@linux.ibm.com>
+        <a43ef10f-aa91-cb4c-a8aa-cd3ce9cfebf2@linux.ibm.com>
+        <20180822114250.59a250aa.cohuck@redhat.com>
+        <8bc5f207-f913-825c-f9fc-0a2c7fd280aa@linux.ibm.com>
+        <e36abc22-9daf-e0f4-c6b3-7adbb28db4c3@de.ibm.com>
+        <f84dbcc0-f627-be02-9933-3baa953adc09@linux.ibm.com>
+        <219b352b-d5a2-189c-e205-82e7f9ae3d64@de.ibm.com>
+        <dbb74c9c-93ab-ed05-fad4-ea2aa5f2b71e@linux.ibm.com>
+        <9ef5fcb9-02e0-88e3-007c-eedb14e6db80@linux.ibm.com>
+        <20180823122525.02fc4af3.cohuck@redhat.com>
+        <25a44526-a2d6-c632-6a6d-8ca385925731@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8d6ae58f-967b-5e4e-0e54-8fb4962cb843@linux.ibm.com>
-Content-Language: en-US
+In-Reply-To: <25a44526-a2d6-c632-6a6d-8ca385925731@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: pmorel@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Tony Krowiak <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 23.08.2018 13:10, Pierre Morel wrote:
-> On 23/08/2018 12:28, David Hildenbrand wrote:
->> On 23.08.2018 12:00, Halil Pasic wrote:
->>>
->>>
->>> On 08/23/2018 09:44 AM, David Hildenbrand wrote:
->>>> On 22.08.2018 22:16, Tony Krowiak wrote:
->>>>> On 08/22/2018 07:24 AM, David Hildenbrand wrote:
->>>>>> On 22.08.2018 13:19, David Hildenbrand wrote:
->>>>>>> On 13.08.2018 23:48, Tony Krowiak wrote:
->>>>>>>> From: Tony Krowiak <akrowiak@linux.ibm.com>
->>>>>>>>
->>>>>>>> Introduces a new CPU model feature and two CPU model
->>>>>>>> facilities to support AP virtualization for KVM guests.
->>>>>>>>
->>>>>>>> CPU model feature:
->>>>>>>>
->>>>>>>> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
->>>>>>>> AP instructions are available on the guest. This
->>>>>>>> feature will be enabled by the kernel only if the AP
->>>>>>>> instructions are installed on the linux host. This feature
->>>>>>>> must be specifically turned on for the KVM guest from
->>>>>>>> userspace to use the VFIO AP device driver for guest
->>>>>>>> access to AP devices.
->>>>>>>>
->>>>>>>> CPU model facilities:
->>>>>>>>
->>>>>>>> 1. AP Query Configuration Information (QCI) facility is installed.
->>>>>>>>
->>>>>>>>       This is indicated by setting facilities bit 12 for
->>>>>>>>       the guest. The kernel will not enable this facility
->>>>>>>>       for the guest if it is not set on the host.
->>>>>>>>
->>>>>>>>       If this facility is not set for the KVM guest, then only
->>>>>>>>       APQNs with an APQI less than 16 will be used by a Linux
->>>>>>>>       guest regardless of the matrix configuration for the virtual
->>>>>>>>       machine. This is a limitation of the Linux AP bus.
->>>>>>>>
->>>>>>>> 2. AP Facilities Test facility (APFT) is installed.
->>>>>>>>
->>>>>>>>       This is indicated by setting facilities bit 15 for
->>>>>>>>       the guest. The kernel will not enable this facility for
->>>>>>>>       the guest if it is not set on the host.
->>>>>>>>
->>>>>>>>       If this facility is not set for the KVM guest, then no
->>>>>>>>       AP devices will be available to the guest regardless of
->>>>>>>>       the guest's matrix configuration for the virtual
->>>>>>>>       machine. This is a limitation of the Linux AP bus.
->>>>>>>>
->>>>>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->>>>>>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>>>>>>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
->>>>>>>> Tested-by: Michael Mueller <mimu@linux.ibm.com>
->>>>>>>> Tested-by: Farhan Ali <alifm@linux.ibm.com>
->>>>>>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>>>>>>> ---
->>>>>>>>     arch/s390/kvm/kvm-s390.c         |    5 +++++
->>>>>>>>     arch/s390/tools/gen_facilities.c |    2 ++
->>>>>>>>     2 files changed, 7 insertions(+), 0 deletions(-)
->>>>>>>>
->>>>>>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>>>>>>> index 1e8cb67..d5e04d2 100644
->>>>>>>> --- a/arch/s390/kvm/kvm-s390.c
->>>>>>>> +++ b/arch/s390/kvm/kvm-s390.c
->>>>>>>> @@ -367,6 +367,11 @@ static void kvm_s390_cpu_feat_init(void)
->>>>>>>>     
->>>>>>>>     	if (MACHINE_HAS_ESOP)
->>>>>>>>     		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
->>>>>>>> +
->>>>>>>> +	/* Check if AP instructions installed on host */
->>>>>>>> +	if (ap_instructions_available())
->>>>>>>> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
->>>>>>>> +
->>>>>>>>     	/*
->>>>>>>>     	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
->>>>>>>>     	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
->>>>>>>> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
->>>>>>>> index 90a8c9e..a52290b 100644
->>>>>>>> --- a/arch/s390/tools/gen_facilities.c
->>>>>>>> +++ b/arch/s390/tools/gen_facilities.c
->>>>>>>> @@ -106,6 +106,8 @@ struct facility_def {
->>>>>>>>     
->>>>>>>>     		.name = "FACILITIES_KVM_CPUMODEL",
->>>>>>>>     		.bits = (int[]){
->>>>>>>> +			12, /* AP Query Configuration Information */
->>>>>>>> +			15, /* AP Facilities Test */
->>>>>>>>     			-1  /* END */
->>>>>>>>     		}
->>>>>>>>     	},
->>>>>>>>
->>>>>>> I really wonder if we should also export the APXA facility.
->>>>>>>
->>>>>>> We can probe and allow that CPU feature. However, we cannot disable it
->>>>>>> (as of now).
->>>>>>>
->>>>>>> We have other CPU features where it is the same case (basically all
->>>>>>> subfunctions). See kvm_s390_get_processor_subfunc(). We probe them and
->>>>>>> export them, but support to disable them has never been implemented.
->>>>>>>
->>>>>>> On a high level, we could then e.g. deny to start a QEMU guest if APXA
->>>>>>> is available but has been disabled. (until we know that disabling it
->>>>>>> actually works - if ever).
->>>>>>>
->>>>>>> This helps to catch nasty migration bugs (e.g. APXA suddenly
->>>>>>> disappearing). Although unlikely, definitely possible.
->>>>>>>
->>>>>>>
->>>>>>> Are there any other AP related facilities that the guest can from now on
->>>>>>> probe that should also become part of the CPU model?
->>>>>>>
->>>>>> To be more precise, shouldn't PQAP(QCI) be handled just like other
->>>>>> subfunctions? (I remember it should)
->>>>>
->>>>> When you suggest PQAP(QCI) be handled like other subfunctions, are you
->>>>> suggesting that there should be a field in struct kvm_s390_vm_cpu_subfunc
->>>>> with a bit indicating the QCI subfunction is available? The availability
->>>>> of the QCI subfunction of the PQAP instruction is determined by facilities
->>>>> bit 12. Is it not enough to export facilities bit 12?
->>>>
->>>> The feature block (128 bit) from PQAP(QCI) should be passed through a
->>>> subfunction block to QEMU.
->>>>
->>>
->>> I'm confused, which 128 bit?
->>
->>
->> Me too :) , I was assuming this block to be 128bit, but the qci block
->> has 128 bytes....
->>
->> And looking at arch/s390/include/asm/ap.h, there is a lot of information
->> contained that is definitely not of interest for CPU models...
->>
->> I wonder if there is somewhere defined which bits are reserved for
->> future features/facilities, compared to ap masks and such.
->>
->> This is really hard to understand/plan without access to documentation.
->>
->> You (Halil, Tony, Pier, ...) should have a look if what I described
->> related to PQAP(QCI) containing features that should get part of the CPU
->> model makes sense or not. For now I was thinking that there is some part
->> inside of QCI that is strictly reserved for facilities/features that we
->> can use.
->>
+On Thu, 23 Aug 2018 12:43:42 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
+
+> On 23/08/2018 12:25, Cornelia Huck wrote:
+> > On Wed, 22 Aug 2018 15:16:19 -0400
+> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> >   
+> >> One of the things I suggested in a private conversation with Christian
+> >> earlier
+> >> today was to provide an additional rw sysfs attribute - a boolean - that
+> >> indicates
+> >> whether all usage domains should also be control domains. The default
+> >> could be
+> >> true. This would allow one to configure guests with usage-only domains
+> >> as well
+> >> as satisfy the convention.  
+> > 
+> > Would this additional attribute then control "add usage domains to the
+> > list of control domains automatically", or "don't allow to add a usage
+> > domain if it has not already been added as a control domain"?
+> > 
+> > One thing I'm still unsure about is how libvirt comes into the picture
+> > here. Will it consume the setting, or actively manipulate it?
+> > 
+> > [In general, I'm not very clear about how libvirt will interact with the
+> > whole infrastructure...]
+> >   
 > 
-> David,
-> I already answered to you on this subject.
-> 
-> First,
-> Are you sure you do not mistake QCI for TAPQ which has the t bit
-> instruction interception bit as all the instructions you use as
-> subfunctions?
+> When I read you it convince me that it is not wise to change anything
+> that has been already discuss and could impact the Libvirt.
 
-Yes, I am pretty sure it is PQAP(QCI), please check with Christian /
-architecture documentations.
-
-> 
-> Second,
-> The TAPQ interception bit is exposed through the facility bit 15
-> and is documented as being installed when the APXA facility is installed.
-> 
-> If we have the APFT, we have the APXA, problem seems solved to me.
-
-What is apsc, qact, rc8a in the qci blocks? are the facility bits?
-
-> 
-> Regards,
-> Pierre
-> 
-
-
--- 
-
-Thanks,
-
-David / dhildenb
+My main point basically was that we should get feedback from a libvirt
+POV :) The new attribute may make sense, or not; but I'm really feeling
+a bit in the dark with regard to libvirt.
