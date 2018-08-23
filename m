@@ -1,65 +1,83 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v3 1/3] KVM: s390: vsie: copy wrapping keys to right place
-Date: Thu, 23 Aug 2018 15:13:36 +0200
-Message-ID: <32563c2f-a346-f371-4a2e-55541a117a89@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v3 0/3] KVM: s390: vsie: Consolidate CRYCB validation
+Date: Thu, 23 Aug 2018 15:16:07 +0200
+Message-ID: <e0ce50d0-81e1-d790-ef15-08eb99576729@linux.ibm.com>
 References: <1535019956-23539-1-git-send-email-pmorel@linux.ibm.com>
- <1535019956-23539-2-git-send-email-pmorel@linux.ibm.com>
- <52c01a4c-48d4-30c7-a780-a33bcdd8accc@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="4AufDwxOAF4Deib5VEREhQv3Ge5f7DSyp"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <52c01a4c-48d4-30c7-a780-a33bcdd8accc@de.ibm.com>
-Content-Language: en-US
+In-Reply-To: <1535019956-23539-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>, david@redhat.com
+Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 23.08.2018 15:12, Christian Borntraeger wrote:
-> 
-> 
-> On 08/23/2018 12:25 PM, Pierre Morel wrote:
->> Copy the key mask to the right offset inside the shadow CRYCB
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> Reviewed-by: David Hildenbrand <david@redhat.com>
->> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
->> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>  arch/s390/kvm/vsie.c | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->> index 9175518..12b9707 100644
->> --- a/arch/s390/kvm/vsie.c
->> +++ b/arch/s390/kvm/vsie.c
->> @@ -173,7 +173,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>  		return set_validity_icpt(scb_s, 0x0039U);
->>  
->>  	/* copy only the wrapping keys */
->> -	if (read_guest_real(vcpu, crycb_addr + 72, &vsie_page->crycb, 56))
->> +	if (read_guest_real(vcpu, crycb_addr + 72,
->> +			    vsie_page->crycb.dea_wrapping_key_mask, 56))
-> 
-> When we fix that code.., dont  we have to XOR the guest3 wrapping keys with
-> the guest2 ones? 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--4AufDwxOAF4Deib5VEREhQv3Ge5f7DSyp
+Content-Type: multipart/mixed; boundary="hQvCgm1dOeyLQsA2n7H7dWQrbJ34mw798";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.ibm.com>
+To: Pierre Morel <pmorel@linux.ibm.com>, david@redhat.com
+Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com,
+ linux-s390@vger.kernel.org, kvm@vger.kernel.org, akrowiak@linux.ibm.com,
+ borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+Message-ID: <e0ce50d0-81e1-d790-ef15-08eb99576729@linux.ibm.com>
+Subject: Re: [PATCH v3 0/3] KVM: s390: vsie: Consolidate CRYCB validation
+References: <1535019956-23539-1-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1535019956-23539-1-git-send-email-pmorel@linux.ibm.com>
 
-That's done further down in that function.
+--hQvCgm1dOeyLQsA2n7H7dWQrbJ34mw798
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> 
->>  		return set_validity_icpt(scb_s, 0x0035U);
->>  
->>  	scb_s->ecb3 |= ecb3_flags;
->>
-> 
+On 8/23/18 12:25 PM, Pierre Morel wrote:
+> Before adapting the CRYCB shadowing for a guest supporting
+> the AP instructions we want to clean the CRYCB shadowing code.
+>=20
+> First patch seem obvious.
+>=20
+> Second patch introduce a change in the behavior of
+> the virtual machine in that the CRYCB is validated
+> whenever we use or not the key masks to mimic the
+> real machine.
+>=20
+> Patch 3 does not correct the compiled code but make
+> more clear what is done concerning the formating of
+> the CRYCB in the guest original CRYCB and in the
+> shadow CRYCB.
+>=20
+
+Thanks, applied.
 
 
--- 
+--hQvCgm1dOeyLQsA2n7H7dWQrbJ34mw798--
 
-Thanks,
+--4AufDwxOAF4Deib5VEREhQv3Ge5f7DSyp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-David / dhildenb
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJbfrOXAAoJEBcO/8Q8ZEV5WO0P/RKEf6WEQ/l3QNRj5glgaGAc
+RQNcE4+mwGZbSyINuGr8aoPOwMZTTt/EBMnhYt+tg+wWXS9iJErtvVeyOX7Cfi2Q
+4nrfQQsdH8Pb89YqvyjReUSkpcj1+MEOYjH8DTkGc0j9P1+1xAZ2RY49HxgZbzOS
+9q8fEGORe2tX0GXnkv0XxHHePzOt/lxycjL51nNT+qf3IFAMtCnnAs+ETp2VBCdu
+hgIegzQQAlNFHg17lZRZRGBL8Yyv+fLuiHHtC6miOjtyqEWxjSiZRlWeSm2EDpGZ
+fWJXw3ouAo5/ab6gMrLEK7pYmhZb9O/x4dXitpkhP3wNua4IFoHXaXd9/KGW5GON
+Pad1pkCTDjMtGPrOCPgLCxL86YMvMz7OQonI1lEL1R+KERGT1j8I5biSOp7Eh7AZ
+GaT/PYgJV5vydB1iett6+N6ufA9D2wEvznXFVZs/0O4kHSz+mAjdGTs6DejWbOTX
+/cKDUMXlnMPwYj7vBy+Y9NkrJskJ/26+eXlhJoW9lVr85q1Lal78sbajJ6Con/EA
+fvk1TEa+EANNc4NNFfvCHneqzDN7Ip6a9UvNGLHC4Y/YwBYNIk9JdM5VulyD5sWx
+cLY+SbNO0ArgC4Xmm3vf+wMAC4f14UMirUtXwhiawYGTSuCNTL/29K+IvlVLhvnF
+v8E9/HHGOnrFAo17dMXt
+=vbBn
+-----END PGP SIGNATURE-----
+
+--4AufDwxOAF4Deib5VEREhQv3Ge5f7DSyp--
