@@ -1,87 +1,72 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 5/5] KVM: s390: vsie: Do the CRYCB validation first
-Date: Thu, 23 Aug 2018 09:31:32 +0200
-Message-ID: <18c65e67-c5e6-9c2f-e7ab-962376427369@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v2 2/5] KVM: s390: vsie: Only accept FORMAT1 CRYCB for
+ guest2
+Date: Thu, 23 Aug 2018 09:42:19 +0200
+Message-ID: <f8773390-7342-4488-bb46-b65adad8e04d@linux.ibm.com>
 References: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
- <1534956717-14087-6-git-send-email-pmorel@linux.ibm.com>
- <e985a036-1b19-0feb-e50c-d55dec3dc9e7@redhat.com>
- <01047750-cdc6-b462-1e4f-c79c1036ab94@linux.ibm.com>
+ <1534956717-14087-3-git-send-email-pmorel@linux.ibm.com>
+ <c1ebcecb-e2fb-6ff0-8bc7-e285af62129b@redhat.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <01047750-cdc6-b462-1e4f-c79c1036ab94@linux.ibm.com>
+In-Reply-To: <c1ebcecb-e2fb-6ff0-8bc7-e285af62129b@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: pmorel@linux.ibm.com
+To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 23.08.2018 09:17, Pierre Morel wrote:
-> On 22/08/2018 19:15, David Hildenbrand wrote:
->> On 22.08.2018 18:51, Pierre Morel wrote:
->>> When entering the SIE the CRYCB validation better
->>> be done independently of the instruction's
->>> availability.
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> ---
->>>   arch/s390/kvm/vsie.c | 11 ++++++-----
->>>   1 file changed, 6 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->>> index 7ee4329..fca25aa 100644
->>> --- a/arch/s390/kvm/vsie.c
->>> +++ b/arch/s390/kvm/vsie.c
->>> @@ -164,17 +164,18 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>>   	/* format-1 is supported with message-security-assist extension 3 */
->>>   	if (!test_kvm_facility(vcpu->kvm, 76))
->>>   		return 0;
->>> -	/* we may only allow it if enabled for guest 2 */
->>> -	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
->>> -		     (ECB3_AES | ECB3_DEA);
->>> -	if (!ecb3_flags)
->>> -		return 0;
->>>   
->>>   	if ((crycb_addr & PAGE_MASK) != ((crycb_addr + 128) & PAGE_MASK))
->>>   		return set_validity_icpt(scb_s, 0x003CU);
->>>   	if (!crycb_addr)
->>>   		return set_validity_icpt(scb_s, 0x0039U);
->>>   
->>> +	/* we may only allow it if enabled for guest 2 */
->>> +	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
->>> +		     (ECB3_AES | ECB3_DEA);
->>> +	if (!ecb3_flags)
->>> +		return 0;
->>> +
->>>   	/* copy only the wrapping keys */
->>>   	if (read_guest_real(vcpu, crycb_addr + 72,
->>>   			    vsie_page->crycb.dea_wrapping_key_mask, 56))
->>>
+On 22/08/2018 18:55, David Hildenbrand wrote:
+> On 22.08.2018 18:51, Pierre Morel wrote:
+>> As the comment above the function suggested the shadowing
+>> of the guest2 CRYCB can only accept a format 1 since
+>> AP instructions are not supported in the guest.
 >>
->> That makes sense, especially if ECB3_AES is used but effectively turned
->> off by us.
+>> Let's modify the check which allowed to accept a format 2 too.
+> 
+> As the bit is ignored without AP/APXA, it is perfectly valid to accept a
+> format 2, we just have to interpret it as format 1 (which is what we do)
+> 
+> What am I missing?
+> 
+
+Nothing.
+I was still having AP interpretation in mind.
+
+
 >>
->> What is the expected behavior if ECB3_AES | ECB3_DEA are not set by g2
->> for g3?
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/vsie.c | 4 +++-
+>>   1 file changed, 3 insertions(+), 1 deletion(-)
 >>
+>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>> index 12b9707..56a9d47 100644
+>> --- a/arch/s390/kvm/vsie.c
+>> +++ b/arch/s390/kvm/vsie.c
+>> @@ -156,7 +156,9 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>   	u8 ecb3_flags;
+>>   
+>>   	scb_s->crycbd = 0;
+>> -	if (!(crycbd_o & vcpu->arch.sie_block->crycbd & CRYCB_FORMAT1))
+>> +	if (!(crycbd_o == CRYCB_FORMAT1))
+>> +		return 0;
 > 
-> The use of functions PCKMO-Encrypt-DEA/AES induce a specification error.
-> 
-> However other MSA3 function will continue to be usable.
+> huh, this looks very broken. The address is still in there.
+completely broken you are right
 
-No, I meant which checks should be performed here.
-
-> 
-> Regards,
-> Pierre
-> 
-
-
--- 
+anyway this broken useless patch disappear.
 
 Thanks,
 
-David / dhildenb
+regards,
+Pierre
+
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
