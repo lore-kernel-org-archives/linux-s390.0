@@ -1,102 +1,79 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 3/5] KVM: s390: vsie: Allow support for a host without
- AP
-Date: Thu, 23 Aug 2018 09:15:17 +0200
-Message-ID: <b58bbff7-c28f-9111-d804-d2107b351876@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v2 5/5] KVM: s390: vsie: Do the CRYCB validation first
+Date: Thu, 23 Aug 2018 09:17:38 +0200
+Message-ID: <01047750-cdc6-b462-1e4f-c79c1036ab94@linux.ibm.com>
 References: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
- <1534956717-14087-4-git-send-email-pmorel@linux.ibm.com>
- <beb38451-8ec9-59c7-2e51-f9a065b769bf@redhat.com>
- <b95f7004-b2b8-73f8-50d7-f091769e0f24@linux.ibm.com>
+ <1534956717-14087-6-git-send-email-pmorel@linux.ibm.com>
+ <e985a036-1b19-0feb-e50c-d55dec3dc9e7@redhat.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <b95f7004-b2b8-73f8-50d7-f091769e0f24@linux.ibm.com>
+In-Reply-To: <e985a036-1b19-0feb-e50c-d55dec3dc9e7@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: pmorel@linux.ibm.com
+To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 23.08.2018 08:44, Pierre Morel wrote:
-> On 22/08/2018 19:06, David Hildenbrand wrote:
->> On 22.08.2018 18:51, Pierre Morel wrote:
->>> Currently the CRYCB format used in the host for the
->>> shadowed CRYCB is FORMAT2 while no check is done if
->>> AP instructions are supported in the host.
->>>
->>> We better use the format the host calculated for the
->>> guest 1 as the host already tested it against its
->>> facility set.
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> ---
->>>   arch/s390/kvm/vsie.c | 5 +++--
->>>   1 file changed, 3 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->>> index 56a9d47..0b12916 100644
->>> --- a/arch/s390/kvm/vsie.c
->>> +++ b/arch/s390/kvm/vsie.c
->>> @@ -154,6 +154,7 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>>   	const u32 crycb_addr = crycbd_o & 0x7ffffff8U;
->>>   	unsigned long *b1, *b2;
->>>   	u8 ecb3_flags;
->>> +	unsigned long g1_fmt;
->>>   
->>>   	scb_s->crycbd = 0;
->>>   	if (!(crycbd_o == CRYCB_FORMAT1))
->>> @@ -180,8 +181,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>>   		return set_validity_icpt(scb_s, 0x0035U);
->>>   
->>>   	scb_s->ecb3 |= ecb3_flags;
->>> -	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | CRYCB_FORMAT1 |
->>> -			CRYCB_FORMAT2;
->>> +	g1_fmt = vcpu->arch.sie_block->crycbd & 0x03;
->>> +	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | g1_fmt;
->>>   
->>>   	/* xor both blocks in one run */
->>>   	b1 = (unsigned long *) vsie_page->crycb.dea_wrapping_key_mask;
->>>
+On 22/08/2018 19:15, David Hildenbrand wrote:
+> On 22.08.2018 18:51, Pierre Morel wrote:
+>> When entering the SIE the CRYCB validation better
+>> be done independently of the instruction's
+>> availability.
 >>
->> This is wrong. I remember that with APXA, if FORMAT2 is available, we
->> should always use FORMAT2. That's why we explicitly convert it here.
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/vsie.c | 11 ++++++-----
+>>   1 file changed, 6 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>> index 7ee4329..fca25aa 100644
+>> --- a/arch/s390/kvm/vsie.c
+>> +++ b/arch/s390/kvm/vsie.c
+>> @@ -164,17 +164,18 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>   	/* format-1 is supported with message-security-assist extension 3 */
+>>   	if (!test_kvm_facility(vcpu->kvm, 76))
+>>   		return 0;
+>> -	/* we may only allow it if enabled for guest 2 */
+>> -	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
+>> -		     (ECB3_AES | ECB3_DEA);
+>> -	if (!ecb3_flags)
+>> -		return 0;
+>>   
+>>   	if ((crycb_addr & PAGE_MASK) != ((crycb_addr + 128) & PAGE_MASK))
+>>   		return set_validity_icpt(scb_s, 0x003CU);
+>>   	if (!crycb_addr)
+>>   		return set_validity_icpt(scb_s, 0x0039U);
+>>   
+>> +	/* we may only allow it if enabled for guest 2 */
+>> +	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
+>> +		     (ECB3_AES | ECB3_DEA);
+>> +	if (!ecb3_flags)
+>> +		return 0;
+>> +
+>>   	/* copy only the wrapping keys */
+>>   	if (read_guest_real(vcpu, crycb_addr + 72,
+>>   			    vsie_page->crycb.dea_wrapping_key_mask, 56))
 >>
 > 
-> You are right if FORMAT2 is available we should use FORMAT2
-> but the intention here is to use what KVM crypto init function did,
-> assuming it did the right thing.
+> That makes sense, especially if ECB3_AES is used but effectively turned
+> off by us.
 > 
-> Eventually we are running on a host without AP and we should use FORMAT1.
-> 
-> Isn't it correct?
-
-
-Yes and no :)
-
-No APXA -> FORMAT2 bit is ignored (and that is one of the reasons why I
-am being so strict about simulating HW behavior correctly in nested code
-:) )
-
-This only holds as long as we are not using AP. Because from a MSA3
-perspective, FORMAT1==FORMAT2 (apart from the length/alignment, which is
-fine for us).
-
-Once we support AP (via ECA.28), we'll properly have to create either a
-Format0/Format1/Format2. Then, there is actually a semantically
-difference ("different fields used").
-
-> 
-> Regards,
-> Pierre
-> 
+> What is the expected behavior if ECB3_AES | ECB3_DEA are not set by g2
+> for g3?
 > 
 
+The use of functions PCKMO-Encrypt-DEA/AES induce a specification error.
+
+However other MSA3 function will continue to be usable.
+
+Regards,
+Pierre
 
 -- 
-
-Thanks,
-
-David / dhildenb
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
