@@ -1,108 +1,100 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v2 3/5] KVM: s390: vsie: Allow support for a host without
- AP
-Date: Thu, 23 Aug 2018 09:54:06 +0200
-Message-ID: <bca510c3-ca38-4c2b-9c25-2eca8e03d16a@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v2 1/5] KVM: s390: vsie: BUG correction by shadow_crycb
+Date: Thu, 23 Aug 2018 10:02:35 +0200
+Message-ID: <c5e8669d-3d8e-5d66-66da-b61e509b04e0@linux.ibm.com>
 References: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
- <1534956717-14087-4-git-send-email-pmorel@linux.ibm.com>
- <beb38451-8ec9-59c7-2e51-f9a065b769bf@redhat.com>
- <b95f7004-b2b8-73f8-50d7-f091769e0f24@linux.ibm.com>
- <b58bbff7-c28f-9111-d804-d2107b351876@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+ <1534956717-14087-2-git-send-email-pmorel@linux.ibm.com>
+ <8300634d-8500-1898-e283-175fc893054a@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="icx2f5uLm7iAFWNogypKe1vcwN65dXeM9"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <b58bbff7-c28f-9111-d804-d2107b351876@redhat.com>
-Content-Language: en-US
+In-Reply-To: <8300634d-8500-1898-e283-175fc893054a@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: David Hildenbrand <david@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, akrowiak@linux.ibm.com, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 23/08/2018 09:15, David Hildenbrand wrote:
-> On 23.08.2018 08:44, Pierre Morel wrote:
->> On 22/08/2018 19:06, David Hildenbrand wrote:
->>> On 22.08.2018 18:51, Pierre Morel wrote:
->>>> Currently the CRYCB format used in the host for the
->>>> shadowed CRYCB is FORMAT2 while no check is done if
->>>> AP instructions are supported in the host.
->>>>
->>>> We better use the format the host calculated for the
->>>> guest 1 as the host already tested it against its
->>>> facility set.
->>>>
->>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>>> ---
->>>>    arch/s390/kvm/vsie.c | 5 +++--
->>>>    1 file changed, 3 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->>>> index 56a9d47..0b12916 100644
->>>> --- a/arch/s390/kvm/vsie.c
->>>> +++ b/arch/s390/kvm/vsie.c
->>>> @@ -154,6 +154,7 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>>>    	const u32 crycb_addr = crycbd_o & 0x7ffffff8U;
->>>>    	unsigned long *b1, *b2;
->>>>    	u8 ecb3_flags;
->>>> +	unsigned long g1_fmt;
->>>>    
->>>>    	scb_s->crycbd = 0;
->>>>    	if (!(crycbd_o == CRYCB_FORMAT1))
->>>> @@ -180,8 +181,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>>>    		return set_validity_icpt(scb_s, 0x0035U);
->>>>    
->>>>    	scb_s->ecb3 |= ecb3_flags;
->>>> -	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | CRYCB_FORMAT1 |
->>>> -			CRYCB_FORMAT2;
->>>> +	g1_fmt = vcpu->arch.sie_block->crycbd & 0x03;
->>>> +	scb_s->crycbd = ((__u32)(__u64) &vsie_page->crycb) | g1_fmt;
->>>>    
->>>>    	/* xor both blocks in one run */
->>>>    	b1 = (unsigned long *) vsie_page->crycb.dea_wrapping_key_mask;
->>>>
->>>
->>> This is wrong. I remember that with APXA, if FORMAT2 is available, we
->>> should always use FORMAT2. That's why we explicitly convert it here.
->>>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--icx2f5uLm7iAFWNogypKe1vcwN65dXeM9
+Content-Type: multipart/mixed; boundary="tk0BJjvMPUoCU3RaovxtZGhJDilXdoz8S";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com,
+ linux-s390@vger.kernel.org, kvm@vger.kernel.org, akrowiak@linux.ibm.com,
+ borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+Message-ID: <c5e8669d-3d8e-5d66-66da-b61e509b04e0@linux.ibm.com>
+Subject: Re: [PATCH v2 1/5] KVM: s390: vsie: BUG correction by shadow_crycb
+References: <1534956717-14087-1-git-send-email-pmorel@linux.ibm.com>
+ <1534956717-14087-2-git-send-email-pmorel@linux.ibm.com>
+ <8300634d-8500-1898-e283-175fc893054a@redhat.com>
+In-Reply-To: <8300634d-8500-1898-e283-175fc893054a@redhat.com>
+
+--tk0BJjvMPUoCU3RaovxtZGhJDilXdoz8S
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 22.08.2018 18:53, David Hildenbrand wrote:
+> On 22.08.2018 18:51, Pierre Morel wrote:
+>> Copy the key mask to the right offset inside the shadow CRYCB
 >>
->> You are right if FORMAT2 is available we should use FORMAT2
->> but the intention here is to use what KVM crypto init function did,
->> assuming it did the right thing.
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>  arch/s390/kvm/vsie.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
 >>
->> Eventually we are running on a host without AP and we should use FORMAT1.
+>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>> index 9175518..12b9707 100644
+>> --- a/arch/s390/kvm/vsie.c
+>> +++ b/arch/s390/kvm/vsie.c
+>> @@ -173,7 +173,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, str=
+uct vsie_page *vsie_page)
+>>  		return set_validity_icpt(scb_s, 0x0039U);
+>> =20
+>>  	/* copy only the wrapping keys */
+>> -	if (read_guest_real(vcpu, crycb_addr + 72, &vsie_page->crycb, 56))
+>> +	if (read_guest_real(vcpu, crycb_addr + 72,
+>> +			    vsie_page->crycb.dea_wrapping_key_mask, 56))
+>>  		return set_validity_icpt(scb_s, 0x0035U);
+>> =20
+>>  	scb_s->ecb3 |=3D ecb3_flags;
 >>
->> Isn't it correct?
-> 
-> 
-> Yes and no :)
-> 
-> No APXA -> FORMAT2 bit is ignored (and that is one of the reasons why I
-> am being so strict about simulating HW behavior correctly in nested code
-> :) )
-> 
-> This only holds as long as we are not using AP. Because from a MSA3
-> perspective, FORMAT1==FORMAT2 (apart from the length/alignment, which is
-> fine for us).
-> 
-> Once we support AP (via ECA.28), we'll properly have to create either a
-> Format0/Format1/Format2. Then, there is actually a semantically
-> difference ("different fields used").
+>=20
+> Please fixup the subject as requested. (were there more RB-s?)
+>=20
 
-OK
-I would have expect something more explicit in the documentation
-like for firmware versions older than xxx bit 30 is ignored
-instead of if APXA is not installed.
-Still must learn the IBM language! :)
-
-regards,
-Pierre
+Yes, he seems to have ignored mine...
 
 
+--tk0BJjvMPUoCU3RaovxtZGhJDilXdoz8S--
 
+--icx2f5uLm7iAFWNogypKe1vcwN65dXeM9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJbfmojAAoJEBcO/8Q8ZEV5+WYP/Aikloh3ysiYMGvUF2jpjPrl
+H3ilM4wDO1joUeR8XT7aqcmarblvjM8PtA0sfCcdhAEJHrHRJRRE/3/wywZjpC+H
+ahzpQkpbUNdjQSkotN0DdS2p7nAE6aV2yRNwsu+ShUhVsduClgFYOzmzjvtywj62
+WCelhBC8T95MiAAKNEuwYV1cjMkFziTb+U4zdUsBgIfyA8smg7JbD91BgFJMQ8wB
+FNxIskP6wCaH1zDCmWetkVunnRdDSOwWjt41G7G6HWDvI44uAoBNinbYR7jHHAle
+iKe+QQCWENrSCz70ymwRf7fxM5aIDxHv9TIqOgeNz8DXFAwrKXnJUn/XGrU7N8do
+W5W/T3u4qIPCJpizufqvD8G5W4YV4JAIUbeHCQO/q/e3gcB5ESk0phPVJKK2Kdo1
+uYA9n/3B3DRl/D+Ox7FA51gbvu17d+3WqR4HvKJU1fn3H0bleNGs7mhZHGJ7mNSK
+OkirV8seLMKPQ9Og40rCBdOP67h3rZgfhtZ+VhiXUK1cj7uqtG3LfbhKjoOLnwfC
+tvJb5sP+EjF2ozuopfG8S12+mzNqS0ORbkCEheBiY+1jmBV5neSTPYqgNJUQ2a0H
+IVru6yxbI6Yg+bxEZYOcL1ShQejg/655hLbbdWDbrc9RImfJ3ml+YfILYjv6TJmy
+aLZSSZvu1MoqF1QkTsxz
+=bvQJ
+-----END PGP SIGNATURE-----
+
+--icx2f5uLm7iAFWNogypKe1vcwN65dXeM9--
