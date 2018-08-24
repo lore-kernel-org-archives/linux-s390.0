@@ -1,42 +1,87 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH RFC 1/2] drivers/base: export
- lock_device_hotplug/unlock_device_hotplug
-Date: Fri, 17 Aug 2018 19:02:39 +0200
-Message-ID: <20180817170239.GF24945@kroah.com>
-References: <20180817075901.4608-1-david@redhat.com>
- <20180817075901.4608-2-david@redhat.com>
- <20180817084146.GB14725@kroah.com>
- <5a5d73e9-e4aa-ffed-a2e3-8aef64e61923@redhat.com>
- <CAJZ5v0gkYV8o2Eq+EcGT=OP1tQGPGVVe3n9VGD6z7KAVVqhv9w@mail.gmail.com>
- <42df9062-f647-3ad6-5a07-be2b99531119@redhat.com>
- <20180817100604.GA18164@kroah.com>
- <4ac624be-d2d6-5975-821f-b20a475781dc@redhat.com>
- <20180817112850.GB3565@osiris>
- <ecc08303-96ee-76ad-fba4-0425413afa5a@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <ecc08303-96ee-76ad-fba4-0425413afa5a@redhat.com>
+Return-Path: <SRS0=6SfI=LH=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Fri, 24 Aug 2018 09:42:25 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 4.19 merge window #2
+Message-Id: <20180824094225.68b2adc6@mschwideX1>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@suse.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Memory Management List <linux-mm@kvack.org>, Paul Mackerras <paulus@samba.org>, linux-s390@vger.kernel.org, sthemmin@microsoft.com, Pavel Tatashin <pasha.tatashin@oracle.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, David Rientjes <rientjes@google.com>, xen-devel@lists.xenproject.org, Len Brown <lenb@kernel.org>, haiyangz@microsoft.com, Dan Williams <dan.j.williams@intel.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, osalvador@suse.de, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Martin
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Aug 17, 2018 at 01:56:35PM +0200, David Hildenbrand wrote:
-> E.g. When adding the memory block devices, we know that there won't be a
-> driver to attach to (as there are no drivers for the "memory" subsystem)
-> - the bus_probe_device() function that takes the device_lock() could
-> pretty much be avoided for that case. But burying such special cases
-> down in core driver code definitely won't make locking related to memory
-> hotplug easier.
+Hi Linus,
 
-You don't have to have a driver for a device if you don't want to, or
-you can just have a default one for all memory devices if you somehow
-need it.  No reason to not do this if it makes things easier for you.
+please pull from the 'for-linus' branch of
 
-thanks,
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-greg k-h
+to receive the following updates:
+
+- A couple of patches for the zcrypt driver
+  + Add two masks to determine which AP cards and queues are host devices,
+    this will be useful for KVM AP device passthrough
+  + Add-on patch to improve the parsing of the new apmask and aqmask
+  + Some code beautification
+
+- Second try to reenable the GCC plugins, the first patch set had a
+  patch to do this but the merge somehow missed this
+
+- Remove the s390 specific GCC version check and use the generic one
+
+- Three patches for kdump, two bug fixes and one cleanup
+
+- Three patches for the PCI layer, one bug fix and two cleanups
+
+Harald Freudenberger (5):
+      s390/zcrypt: fix ap_instructions_available() returncodes
+      s390/zcrypt: switch return type to bool for ap_instructions_available()
+      s390/zcrypt: code beautify
+      s390/zcrypt: AP bus support for alternate driver(s)
+      s390/zcrypt: hex string mask improvements for apmask and aqmask.
+
+Heiko Carstens (2):
+      s390: reenable gcc plugins for real
+      s390: remove gcc version check (4.3 or newer)
+
+Philipp Rudo (3):
+      s390/kdump: Make elfcorehdr size calculation ABI compliant
+      s390/kdump: Fix memleak in nt_vmcoreinfo
+      s390/kdump: Remove kzalloc_panic
+
+Sebastian Ott (3):
+      s390/pci: fix out of bounds access during irq setup
+      s390/pci: remove stale rc
+      s390/pci: remove fmb address from debug output
+
+ arch/s390/Kconfig                      |   2 +-
+ arch/s390/include/asm/ap.h             |  14 +-
+ arch/s390/include/uapi/asm/zcrypt.h    |  72 +++---
+ arch/s390/kernel/asm-offsets.c         |   8 -
+ arch/s390/kernel/crash_dump.c          |  70 +++---
+ arch/s390/pci/pci.c                    |   3 +-
+ arch/s390/pci/pci_debug.c              |   1 -
+ drivers/s390/crypto/ap_bus.c           | 432 ++++++++++++++++++++++++++++++---
+ drivers/s390/crypto/ap_bus.h           |  36 ++-
+ drivers/s390/crypto/ap_card.c          |  50 ++--
+ drivers/s390/crypto/ap_queue.c         |  38 +--
+ drivers/s390/crypto/pkey_api.c         |  91 +++----
+ drivers/s390/crypto/zcrypt_api.c       |  30 ++-
+ drivers/s390/crypto/zcrypt_api.h       |   2 +-
+ drivers/s390/crypto/zcrypt_card.c      |  29 ++-
+ drivers/s390/crypto/zcrypt_cca_key.h   |  12 +-
+ drivers/s390/crypto/zcrypt_cex2a.c     |   2 +
+ drivers/s390/crypto/zcrypt_cex2a.h     |  18 +-
+ drivers/s390/crypto/zcrypt_cex4.c      |   2 +
+ drivers/s390/crypto/zcrypt_error.h     |   2 +-
+ drivers/s390/crypto/zcrypt_msgtype50.c |  17 +-
+ drivers/s390/crypto/zcrypt_msgtype50.h |   8 +-
+ drivers/s390/crypto/zcrypt_msgtype6.c  |  34 ++-
+ drivers/s390/crypto/zcrypt_msgtype6.h  |   2 +-
+ drivers/s390/crypto/zcrypt_pcixcc.c    |   6 +-
+ drivers/s390/crypto/zcrypt_pcixcc.h    |   2 +-
+ drivers/s390/crypto/zcrypt_queue.c     |  23 +-
+ 27 files changed, 706 insertions(+), 300 deletions(-)
