@@ -1,15 +1,12 @@
-From: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
-Subject: Re: [PATCH 8/9] PCI: hotplug: Embed hotplug_slot
-Date: Mon, 20 Aug 2018 17:43:17 -0700
-Message-ID: <f2ff6486-35bc-2ade-deec-caa7ab15d8e5@linux.vnet.ibm.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 0/9] PCI hotplug diet
+Date: Thu, 30 Aug 2018 11:50:13 +0300
+Message-ID: <CAHp75Veby=mo5s7QvfEhVLjGYBEL9GDDD_CfBmgS3Y+sxRzwSA@mail.gmail.com>
 References: <cover.1534686484.git.lukas@wunner.de>
- <9918fbca94bcfc03d1560b191d138d3e6664cc86.1534686485.git.lukas@wunner.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <9918fbca94bcfc03d1560b191d138d3e6664cc86.1534686485.git.lukas@wunner.de>
-Content-Language: en-US
+In-Reply-To: <cover.1534686484.git.lukas@wunner.de>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -22,51 +19,93 @@ Sender: "Linuxppc-dev"
  <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Lukas Wunner <lukas@wunner.de>, Bjorn Helgaas <helgaas@kernel.org>, linux-pci@vger.kernel.org, Sinan Kaya <okaya@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Scott Murray <scott@spiteful.org>, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, acpi4asus-user@lists.sourceforge.net, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Gavin Shan <gwshan@linux.vnet.ibm.com>, platform-driver-x86@vger.kernel.org, linux-acpi@vger.kernel.org, Paul Mackerras <paulus@samba.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Corentin Chary <corentin.chary@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Darren Hart <dvhart@infradead.org>, linuxppc-dev@lists.ozlabs.org, Andy Shevchenko <andy@infradead.org>, Len Brown <lenb@kernel.org>
+To: Lukas Wunner <lukas@wunner.de>
+Cc: linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, Platform Driver <platform-driver-x86@vger.kernel.org>, Keith Busch <keith.busch@intel.com>, Paul Mackerras <paulus@samba.org>, zubarev@us.ibm.com, prarit@redhat.com, scott@spiteful.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Bjorn Helgaas <helgaas@kernel.org>, Darren Hart <dvhart@infradead.org>, Len Brown <lenb@kernel.org>, dan.zink@hpe.com, acpi4asus-user <acpi4asus-user@lists.sourceforge.net>, gwshan@linux.vnet.ibm.com, jshah@us.ibm.com, okaya@kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, gerald.schaefer@de.ibm.com, Oza Pawandeep <poza@codeaurora.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Corentin Chary <corentin.chary@gmail.com>, "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" <linuxpp>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/19/2018 07:29 AM, Lukas Wunner wrote:
-> When the PCI hotplug core and its first user, cpqphp, were introduced in
-> February 2002 with historic commit a8a2069f432c, cpqphp allocated a slot
-> struct for its internal use plus a hotplug_slot struct to be registered
-> with the hotplug core and linked the two with pointers:
-> https://git.kernel.org/tglx/history/c/a8a2069f432c
-> 
-> Nowadays, the predominant pattern in the tree is to embed ("subclass")
-> such structures in one another and cast to the containing struct with
-> container_of().  But it wasn't until July 2002 that container_of() was
-> introduced with historic commit ec4f214232cf:
-> https://git.kernel.org/tglx/history/c/ec4f214232cf
-> 
-> pnv_php, introduced in 2016, did the right thing and embedded struct
-> hotplug_slot in its internal struct pnv_php_slot, but all other drivers
-> cargo-culted cpqphp's design and linked separate structs with pointers.
-> 
-> Embedding structs is preferrable to linking them with pointers because
-> it requires fewer allocations, thereby reducing overhead and simplifying
-> error paths.  Casting an embedded struct to the containing struct
-> becomes a cheap subtraction rather than a dereference.  And having fewer
-> pointers reduces the risk of them pointing nowhere either accidentally
-> or due to an attack.
-> 
-> Convert all drivers to embed struct hotplug_slot in their internal slot
-> struct.  The "private" pointer in struct hotplug_slot thereby becomes
-> unused, so drop it.
-> 
-> Signed-off-by: Lukas Wunner <lukas@wunner.de>
-> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-> Cc: Len Brown <lenb@kernel.org>
-> Cc: Scott Murray <scott@spiteful.org>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Gavin Shan <gwshan@linux.vnet.ibm.com>
-> Cc: Sebastian Ott <sebott@linux.vnet.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-> Cc: Corentin Chary <corentin.chary@gmail.com>
-> Cc: Darren Hart <dvhart@infradead.org
+On Sun, Aug 19, 2018 at 5:35 PM Lukas Wunner <lukas@wunner.de> wrote:
+>
+> Here's PCI hotplug material I've prepared for v4.20:
+>
+> Patches [1/9] to [8/9] reduce the code by 488 lines.  There should be no
+> loss of functionality and no new features, just less and simpler code.
+>
+> Patch [9/9] collects TODOs for hotplug drivers to spur contributions.
+>
+>
+> I've assumed that my patch "PCI: pciehp: Differentiate between surprise
+> and safe removal" (submitted July 31) gets merged before this series:
+> https://patchwork.ozlabs.org/patch/951386/
+>
+> If that patch is not accepted or other pciehp-related patches are merged
+> before this series, I'll have to rebase patch [4/9] ("PCI: pciehp: Unify
+> controller and slot structs").  No big deal, just a heads-up.
+>
 
-With regards to driver/pci/hotplug/rpa*
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-Acked-by: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+for PDx86 bits
+
+> Thanks,
+>
+> Lukas
+>
+>
+> Lukas Wunner (9):
+>   PCI: Simplify disconnected marking
+>   PCI: pciehp: Drop unnecessary includes
+>   PCI: pciehp: Drop hotplug_slot_ops wrappers
+>   PCI: pciehp: Unify controller and slot structs
+>   PCI: pciehp: Reshuffle controller struct for clarity
+>   PCI: hotplug: Constify hotplug_slot_ops
+>   PCI: hotplug: Drop hotplug_slot_info
+>   PCI: hotplug: Embed hotplug_slot
+>   PCI: hotplug: Document TODOs
+>
+>  arch/powerpc/include/asm/pnv-pci.h      |   2 +-
+>  drivers/pci/hotplug/TODO                |  74 +++++++
+>  drivers/pci/hotplug/acpiphp.h           |  10 +-
+>  drivers/pci/hotplug/acpiphp_core.c      |  36 +---
+>  drivers/pci/hotplug/acpiphp_ibm.c       |   2 +-
+>  drivers/pci/hotplug/cpci_hotplug.h      |  11 +-
+>  drivers/pci/hotplug/cpci_hotplug_core.c | 105 +++-------
+>  drivers/pci/hotplug/cpci_hotplug_pci.c  |   6 +-
+>  drivers/pci/hotplug/cpqphp.h            |   9 +-
+>  drivers/pci/hotplug/cpqphp_core.c       |  59 ++----
+>  drivers/pci/hotplug/cpqphp_ctrl.c       |  31 +--
+>  drivers/pci/hotplug/ibmphp.h            |   9 +-
+>  drivers/pci/hotplug/ibmphp_core.c       | 121 ++++-------
+>  drivers/pci/hotplug/ibmphp_ebda.c       |  70 +------
+>  drivers/pci/hotplug/pci_hotplug_core.c  |  53 ++---
+>  drivers/pci/hotplug/pciehp.h            | 138 ++++++-------
+>  drivers/pci/hotplug/pciehp_core.c       | 127 +++---------
+>  drivers/pci/hotplug/pciehp_ctrl.c       | 255 +++++++++++-------------
+>  drivers/pci/hotplug/pciehp_hpc.c        | 127 ++++--------
+>  drivers/pci/hotplug/pciehp_pci.c        |  24 +--
+>  drivers/pci/hotplug/pnv_php.c           |  35 ++--
+>  drivers/pci/hotplug/rpaphp.h            |  10 +-
+>  drivers/pci/hotplug/rpaphp_core.c       |  20 +-
+>  drivers/pci/hotplug/rpaphp_pci.c        |  11 +-
+>  drivers/pci/hotplug/rpaphp_slot.c       |  22 +-
+>  drivers/pci/hotplug/s390_pci_hpc.c      |  44 ++--
+>  drivers/pci/hotplug/sgi_hotplug.c       |  63 +++---
+>  drivers/pci/hotplug/shpchp.h            |   8 +-
+>  drivers/pci/hotplug/shpchp_core.c       |  48 ++---
+>  drivers/pci/hotplug/shpchp_ctrl.c       |  21 +-
+>  drivers/pci/pci.c                       |   4 +-
+>  drivers/pci/pcie/err.c                  |   8 +-
+>  drivers/pci/slot.c                      |   2 +-
+>  drivers/platform/x86/asus-wmi.c         |  39 +---
+>  drivers/platform/x86/eeepc-laptop.c     |  43 ++--
+>  include/linux/pci_hotplug.h             |  43 +---
+>  36 files changed, 638 insertions(+), 1052 deletions(-)
+>  create mode 100644 drivers/pci/hotplug/TODO
+>
+> --
+> 2.18.0
+>
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
