@@ -1,11 +1,9 @@
-Return-Path: <netdev-owner@vger.kernel.org>
+Return-Path: <linux-mmc-owner@vger.kernel.org>
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 01/25] tty: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:27 +0900
-Message-Id: <1536029091-4426-2-git-send-email-climbbb.kim@gmail.com>
-In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
-References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
-Sender: netdev-owner@vger.kernel.org
+Subject: [PATCH 00/25] Change tty_port(standard)_install's return type
+Date: Tue,  4 Sep 2018 11:44:26 +0900
+Message-Id: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
+Sender: linux-mmc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-bluetooth/>
 List-Post: <mailto:linux-bluetooth@vger.kernel.org>
 To: linux-um@lists.infradead.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org, sparclinux@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -18,85 +16,74 @@ return type of tty_standard_install() and tty_port_install() to void
 type and remove unnecessary exception handling where we use these
 functions.
 
-Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
----
- drivers/tty/tty_io.c   | 10 ++++++----
- drivers/tty/tty_port.c |  4 ++--
- include/linux/tty.h    |  4 ++--
- 3 files changed, 10 insertions(+), 8 deletions(-)
+Change return type for tty functions. Patch No.01
+  tty: Change return type to void
 
-diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index 32bc3e3..b01cec8 100644
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -1196,13 +1196,12 @@ void tty_init_termios(struct tty_struct *tty)
- }
- EXPORT_SYMBOL_GPL(tty_init_termios);
- 
--int tty_standard_install(struct tty_driver *driver, struct tty_struct *tty)
-+void tty_standard_install(struct tty_driver *driver, struct tty_struct *tty)
- {
- 	tty_init_termios(tty);
- 	tty_driver_kref_get(driver);
- 	tty->count++;
- 	driver->ttys[tty->index] = tty;
--	return 0;
- }
- EXPORT_SYMBOL_GPL(tty_standard_install);
- 
-@@ -1221,8 +1220,11 @@ EXPORT_SYMBOL_GPL(tty_standard_install);
- static int tty_driver_install_tty(struct tty_driver *driver,
- 						struct tty_struct *tty)
- {
--	return driver->ops->install ? driver->ops->install(driver, tty) :
--		tty_standard_install(driver, tty);
-+	if (driver->ops->install)
-+		return driver->ops->install(driver, tty);
-+
-+	tty_standard_install(driver, tty);
-+	return 0;
- }
- 
- /**
-diff --git a/drivers/tty/tty_port.c b/drivers/tty/tty_port.c
-index 25d7368..fd8d40d 100644
---- a/drivers/tty/tty_port.c
-+++ b/drivers/tty/tty_port.c
-@@ -656,11 +656,11 @@ EXPORT_SYMBOL(tty_port_close);
-  * to a concrete tty specified by @tty. Use this or tty_port_register_device
-  * (or both). Call tty_port_link_device as a last resort.
-  */
--int tty_port_install(struct tty_port *port, struct tty_driver *driver,
-+void tty_port_install(struct tty_port *port, struct tty_driver *driver,
- 		struct tty_struct *tty)
- {
- 	tty->port = port;
--	return tty_standard_install(driver, tty);
-+	tty_standard_install(driver, tty);
- }
- EXPORT_SYMBOL_GPL(tty_port_install);
- 
-diff --git a/include/linux/tty.h b/include/linux/tty.h
-index c56e397..63cdac1 100644
---- a/include/linux/tty.h
-+++ b/include/linux/tty.h
-@@ -556,7 +556,7 @@ extern struct tty_struct *tty_init_dev(struct tty_driver *driver, int idx);
- extern void tty_release_struct(struct tty_struct *tty, int idx);
- extern int tty_release(struct inode *inode, struct file *filp);
- extern void tty_init_termios(struct tty_struct *tty);
--extern int tty_standard_install(struct tty_driver *driver,
-+extern void tty_standard_install(struct tty_driver *driver,
- 		struct tty_struct *tty);
- 
- extern struct mutex tty_mutex;
-@@ -688,7 +688,7 @@ extern int tty_port_close_start(struct tty_port *port,
- extern void tty_port_close_end(struct tty_port *port, struct tty_struct *tty);
- extern void tty_port_close(struct tty_port *port,
- 				struct tty_struct *tty, struct file *filp);
--extern int tty_port_install(struct tty_port *port, struct tty_driver *driver,
-+extern void tty_port_install(struct tty_port *port, struct tty_driver *driver,
- 				struct tty_struct *tty);
- extern int tty_port_open(struct tty_port *port,
- 				struct tty_struct *tty, struct file *filp);
+Apply tty_port_install() changes. Patch No.02~14
+  isdn: i4l: isdn_tty: Change return type to void
+  ...
+  Bluetooth: Change return type to void
+
+Apply tty_standard_install() changes. Patch No.15~25
+  um: Change return type to void
+  ...
+  usb: usb-serial: Change return type to void
+
+Jaejoong Kim (25):
+  tty: Change return type to void
+  isdn: i4l: isdn_tty: Change return type to void
+  s390: char: con3215: Change return type to void
+  s390: char: tty3270: Change return type to void
+  tty: hvc: hvc_console: Change return type to void
+  tty: hvc: hvcs: Change return type to void
+  tty: mips_ejtag_fdc: Change return type to void
+  tty: n_gsm: Change return type to void
+  tty: serial: kgdb_nmi: Change return type to void
+  tty: synclink: Change return type to void
+  tty: synclinkmp: Change return type to void
+  tty: vt: Change return type to void
+  usb: xhci: dbc: Change return type to void
+  Bluetooth: Change return type to void
+  um: Change return type to void
+  isdn: capi: Change return type to void
+  misc: pti: Change return type to void
+  mmc: core: sdio_uart: Change return type to void
+  staging: fwserial: Change return type to void
+  staging: gdm724x: gdm_tty: Change return type to void
+  staging: greybus: uart: Change return type to void
+  tty: nozomi: Change return type to void
+  tty: vcc: Change return type to void
+  usb: cdc-acm: Change return type to void
+  usb: usb-serial: Change return type to void
+
+ arch/um/drivers/line.c              |  7 +------
+ drivers/isdn/capi/capi.c            | 10 ++++------
+ drivers/isdn/i4l/isdn_tty.c         |  3 ++-
+ drivers/misc/pti.c                  | 28 +++++++++++++---------------
+ drivers/mmc/core/sdio_uart.c        | 11 ++++-------
+ drivers/s390/char/con3215.c         |  3 ++-
+ drivers/s390/char/tty3270.c         |  7 +------
+ drivers/staging/fwserial/fwserial.c | 22 ++++++++--------------
+ drivers/staging/gdm724x/gdm_tty.c   | 11 +++--------
+ drivers/staging/greybus/uart.c      | 10 ++--------
+ drivers/tty/hvc/hvc_console.c       |  7 ++-----
+ drivers/tty/hvc/hvcs.c              | 10 ++--------
+ drivers/tty/mips_ejtag_fdc.c        |  4 +++-
+ drivers/tty/n_gsm.c                 |  9 +--------
+ drivers/tty/nozomi.c                |  8 +++-----
+ drivers/tty/serial/kgdb_nmi.c       | 11 +----------
+ drivers/tty/synclink.c              |  3 ++-
+ drivers/tty/synclinkmp.c            |  3 ++-
+ drivers/tty/tty_io.c                | 10 ++++++----
+ drivers/tty/tty_port.c              |  4 ++--
+ drivers/tty/vcc.c                   |  5 +----
+ drivers/tty/vt/vt.c                 |  5 +----
+ drivers/usb/class/cdc-acm.c         | 10 +---------
+ drivers/usb/host/xhci-dbgtty.c      |  3 ++-
+ drivers/usb/serial/usb-serial.c     |  6 +-----
+ include/linux/tty.h                 |  4 ++--
+ net/bluetooth/rfcomm/tty.c          |  7 +------
+ 27 files changed, 73 insertions(+), 148 deletions(-)
+
 -- 
 2.7.4
