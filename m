@@ -1,11 +1,11 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-mmc-owner@vger.kernel.org>
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 16/25] isdn: capi: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:42 +0900
-Message-Id: <1536029091-4426-17-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH 15/25] um: Change return type to void
+Date: Tue,  4 Sep 2018 11:44:41 +0900
+Message-Id: <1536029091-4426-16-git-send-email-climbbb.kim@gmail.com>
 In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-mmc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-bluetooth/>
 List-Post: <mailto:linux-bluetooth@vger.kernel.org>
 To: linux-um@lists.infradead.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org, sparclinux@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -17,30 +17,26 @@ to void. Now apply this and remove the obsolete error check.
 
 Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 ---
- drivers/isdn/capi/capi.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ arch/um/drivers/line.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/isdn/capi/capi.c b/drivers/isdn/capi/capi.c
-index ef5560b..08daf3a 100644
---- a/drivers/isdn/capi/capi.c
-+++ b/drivers/isdn/capi/capi.c
-@@ -999,13 +999,11 @@ static int
- capinc_tty_install(struct tty_driver *driver, struct tty_struct *tty)
+diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
+index 8d80b27..47058cf 100644
+--- a/arch/um/drivers/line.c
++++ b/arch/um/drivers/line.c
+@@ -338,12 +338,7 @@ int line_open(struct tty_struct *tty, struct file *filp)
+ int line_install(struct tty_driver *driver, struct tty_struct *tty,
+ 		 struct line *line)
  {
- 	struct capiminor *mp = capiminor_get(tty->index);
--	int ret = tty_standard_install(driver, tty);
- 
--	if (ret == 0)
--		tty->driver_data = mp;
--	else
--		capiminor_put(mp);
--	return ret;
+-	int ret;
+-
+-	ret = tty_standard_install(driver, tty);
+-	if (ret)
+-		return ret;
+-
 +	tty_standard_install(driver, tty);
-+	tty->driver_data = mp;
-+
-+	return 0;
- }
+ 	tty->driver_data = line;
  
- static void capinc_tty_cleanup(struct tty_struct *tty)
+ 	return 0;
 -- 
 2.7.4
