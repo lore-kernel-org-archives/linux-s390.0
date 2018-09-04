@@ -1,35 +1,53 @@
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Jens Axboe <axboe@kernel.dk>
 Subject: Re: [PATCH] [RFC v2] Drop all 00-INDEX files from Documentation/
-Date: Tue, 4 Sep 2018 09:59:08 -0400
-Message-ID: <20180904095908.13298b3d@gandalf.local.home>
+Date: Tue, 4 Sep 2018 09:45:47 -0600
+Message-ID: <cab5289c-7c53-28a8-b9b2-0c55c9f8d968@kernel.dk>
 References: <1536012923-16275-1-git-send-email-henrik@austad.us>
- <20180904113030.GB25177@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180904113030.GB25177@amd>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <1536012923-16275-1-git-send-email-henrik@austad.us>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 List-Archive: <https://lore.kernel.org/dri-devel/>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-mips@linux-mips.org, linux-fbdev@vger.kernel.org, x86@kernel.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, James Hogan <jhogan@kernel.org>, Henrik Austad <henrik@austad.us>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel@lists.freedesktop.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Jan Kandziora <jjj@gmx.de>, Paul Mackerras <paulus@samba.org>, Henrik Austad <haustad@cisco.com>, "H. Peter Anvin" <hpa@zytor.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-s390@vger.kernel.org, Ian Kent <raven@themaw.net>, linux-security-module@vger.kernel.org, Paul Moore <paul@paul-moore.com>, Jonathan Corbet <corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, "James E.J. Bottomley" <jejb@parisc-linux.or>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+To: Henrik Austad <henrik@austad.us>, linux-doc@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-mips@linux-mips.org, linux-fbdev@vger.kernel.org, Jan Kandziora <jjj@gmx.de>, kvm@vger.kernel.org, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, James Hogan <jhogan@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, dri-devel@lists.freedesktop.org, Masahiro Yamada <yamada.masahiro@socionext.com>, devicetree@vger.kernel.org, Paul Mackerras <paulus@samba.org>, Henrik Austad <haustad@cisco.com>, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-s390@vger.kernel.org, Ian Kent <raven@themaw.net>, linux-security-module@vger.kernel.org, Paul Moore <paul@paul-moore.com>, Jonathan Corbet <corbet@lwn.net>, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gVHVlLCA0IFNlcCAyMDE4IDEzOjMwOjMwICswMjAwClBhdmVsIE1hY2hlayA8cGF2ZWxAdWN3
-LmN6PiB3cm90ZToKCj4gSSdkIHNheSB0aGlzIGlzIHN0aWxsIHF1aXRlIHZhbHVlYWJsZSwgYW5k
-IGl0IG1pZ2h0IGJlIHdvcnRoIGZpeGluZywKPiByYXRoZXIgdGhlbiByZW1vdmluZyBjb21wbGV0
-ZWx5LgoKSSBhZ3JlZS4gUGVyaGFwcyB3ZSBzaG91bGQgaGF2ZSBhIDAwLURFU0NSSVBUSU9OIGZp
-bGUgaW4gZWFjaApkaXJlY3RvcnksIGFuZCBlYWNoIGZpbGUgY291bGQgc3RhcnQgd2l0aCBhOgoK
-IERFU0NSSVBUSU9OOiA8b25lIGxpbmUgZGVzY3JpcHRpb24gaGVyZT4KCmFuZCB0aGVuIHRoZXNl
-IGZpbGVzIGNvdWxkIGJlIGdlbmVyYXRlZCBieSB0aG9zZSB0aGF0IGhhdmUgdGhlc2UgdGFncy4K
-Ci0tIFN0ZXZlCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-CmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpo
-dHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+On 9/3/18 4:15 PM, Henrik Austad wrote:
+> This is a respin with a wider audience (all that get_maintainer returned)
+> and I know this spams a *lot* of people. Not sure what would be the correct
+> way, so my apologies for ruining your inbox.
+> 
+> The 00-INDEX files are supposed to give a summary of all files present
+> in a directory, but these files are horribly out of date and their
+> usefulness is brought into question. Often a simple "ls" would reveal
+> the same information as the filenames are generally quite descriptive as
+> a short introduction to what the file covers (it should not surprise
+> anyone what Documentation/sched/sched-design-CFS.txt covers)
+> 
+> A few years back it was mentioned that these files were no longer really
+> needed, and they have since then grown further out of date, so perhaps
+> it is time to just throw them out.
+> 
+> A short status yields the following _outdated_ 00-INDEX files, first
+> counter is files listed in 00-INDEX but missing in the directory, last
+> is files present but not listed in 00-INDEX.
+
+For the block related bits:
+
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+
+-- 
+Jens Axboe
