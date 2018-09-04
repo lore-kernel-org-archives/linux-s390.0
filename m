@@ -1,11 +1,11 @@
-Return-Path: <netdev-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 25/25] usb: usb-serial: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:51 +0900
-Message-Id: <1536029091-4426-26-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH 24/25] usb: cdc-acm: Change return type to void
+Date: Tue,  4 Sep 2018 11:44:50 +0900
+Message-Id: <1536029091-4426-25-git-send-email-climbbb.kim@gmail.com>
 In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
-Sender: netdev-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-bluetooth/>
 List-Post: <mailto:linux-bluetooth@vger.kernel.org>
 To: linux-um@lists.infradead.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org, sparclinux@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -17,32 +17,37 @@ to void. Now apply this and remove the obsolete error check.
 
 Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 ---
- drivers/usb/serial/usb-serial.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/usb/class/cdc-acm.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
-index f7aaa7f..5cfc2ca 100644
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -192,9 +192,7 @@ static int serial_install(struct tty_driver *driver, struct tty_struct *tty)
- 	if (retval)
- 		goto error_get_interface;
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 27346d6..de6a27e 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -572,23 +572,15 @@ static void acm_softint(struct work_struct *work)
+ static int acm_tty_install(struct tty_driver *driver, struct tty_struct *tty)
+ {
+ 	struct acm *acm;
+-	int retval;
+ 
+ 	acm = acm_get_by_minor(tty->index);
+ 	if (!acm)
+ 		return -ENODEV;
  
 -	retval = tty_standard_install(driver, tty);
 -	if (retval)
 -		goto error_init_termios;
+-
 +	tty_standard_install(driver, tty);
+ 	tty->driver_data = acm;
  
- 	mutex_unlock(&serial->disc_mutex);
+ 	return 0;
+-
+-error_init_termios:
+-	tty_port_put(&acm->port);
+-	return retval;
+ }
  
-@@ -206,8 +204,6 @@ static int serial_install(struct tty_driver *driver, struct tty_struct *tty)
- 
- 	return retval;
- 
-- error_init_termios:
--	usb_autopm_put_interface(serial->interface);
-  error_get_interface:
- 	module_put(serial->type->driver.owner);
-  error_module_get:
+ static int acm_tty_open(struct tty_struct *tty, struct file *filp)
 -- 
 2.7.4
