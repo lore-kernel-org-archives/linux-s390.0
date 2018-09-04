@@ -1,8 +1,8 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 05/25] tty: hvc: hvc_console: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:31 +0900
-Message-Id: <1536029091-4426-6-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH 04/25] s390: char: tty3270: Change return type to void
+Date: Tue,  4 Sep 2018 11:44:30 +0900
+Message-Id: <1536029091-4426-5-git-send-email-climbbb.kim@gmail.com>
 In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 Sender: netdev-owner@vger.kernel.org
@@ -17,34 +17,26 @@ to void. Now apply this and remove the obsolete error check.
 
 Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 ---
- drivers/tty/hvc/hvc_console.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/s390/char/tty3270.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-index 5414c4a..13fad62 100644
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -329,7 +329,6 @@ static void hvc_unthrottle(struct tty_struct *tty)
- static int hvc_install(struct tty_driver *driver, struct tty_struct *tty)
- {
- 	struct hvc_struct *hp;
--	int rc;
+diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+index 5b8af27..2915f95 100644
+--- a/drivers/s390/char/tty3270.c
++++ b/drivers/s390/char/tty3270.c
+@@ -1017,12 +1017,7 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
+ 	raw3270_activate_view(&tp->view);
  
- 	/* Auto increments kref reference if found. */
- 	hp = hvc_get_by_index(tty->index);
-@@ -337,11 +336,9 @@ static int hvc_install(struct tty_driver *driver, struct tty_struct *tty)
- 		return -ENODEV;
+ port_install:
+-	rc = tty_port_install(&tp->port, driver, tty);
+-	if (rc) {
+-		raw3270_put_view(&tp->view);
+-		return rc;
+-	}
+-
++	tty_port_install(&tp->port, driver, tty);
+ 	tty->driver_data = tp;
  
- 	tty->driver_data = hp;
-+	tty_port_install(&hp->port, driver, tty);
- 
--	rc = tty_port_install(&hp->port, driver, tty);
--	if (rc)
--		tty_port_put(&hp->port);
--	return rc;
-+	return 0;
- }
- 
- /*
+ 	return 0;
 -- 
 2.7.4
