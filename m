@@ -1,11 +1,11 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <netdev-owner@vger.kernel.org>
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 22/25] tty: nozomi: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:48 +0900
-Message-Id: <1536029091-4426-23-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH 21/25] staging: greybus: uart: Change return type to void
+Date: Tue,  4 Sep 2018 11:44:47 +0900
+Message-Id: <1536029091-4426-22-git-send-email-climbbb.kim@gmail.com>
 In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-bluetooth/>
 List-Post: <mailto:linux-bluetooth@vger.kernel.org>
 To: linux-um@lists.infradead.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org, sparclinux@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -17,29 +17,36 @@ to void. Now apply this and remove the obsolete error check.
 
 Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 ---
- drivers/tty/nozomi.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/staging/greybus/uart.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
-index fed820e..479583d 100644
---- a/drivers/tty/nozomi.c
-+++ b/drivers/tty/nozomi.c
-@@ -1555,13 +1555,11 @@ static int ntty_install(struct tty_driver *driver, struct tty_struct *tty)
+diff --git a/drivers/staging/greybus/uart.c b/drivers/staging/greybus/uart.c
+index 8a00632..182155b 100644
+--- a/drivers/staging/greybus/uart.c
++++ b/drivers/staging/greybus/uart.c
+@@ -393,21 +393,15 @@ static void release_minor(struct gb_tty *gb_tty)
+ static int gb_tty_install(struct tty_driver *driver, struct tty_struct *tty)
  {
- 	struct port *port = get_port_by_tty(tty);
- 	struct nozomi *dc = get_dc_by_tty(tty);
--	int ret;
- 	if (!port || !dc || dc->state != NOZOMI_STATE_READY)
+ 	struct gb_tty *gb_tty;
+-	int retval;
+ 
+ 	gb_tty = get_gb_by_minor(tty->index);
+ 	if (!gb_tty)
  		return -ENODEV;
--	ret = tty_standard_install(driver, tty);
--	if (ret == 0)
--		tty->driver_data = port;
--	return ret;
+ 
+-	retval = tty_standard_install(driver, tty);
+-	if (retval)
+-		goto error;
+-
 +	tty_standard_install(driver, tty);
-+	tty->driver_data = port;
-+	return 0;
+ 	tty->driver_data = gb_tty;
++
+ 	return 0;
+-error:
+-	tty_port_put(&gb_tty->port);
+-	return retval;
  }
  
- static void ntty_cleanup(struct tty_struct *tty)
+ static int gb_tty_open(struct tty_struct *tty, struct file *file)
 -- 
 2.7.4
