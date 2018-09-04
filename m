@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 08/25] tty: n_gsm: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:34 +0900
-Message-Id: <1536029091-4426-9-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH 07/25] tty: mips_ejtag_fdc: Change return type to void
+Date: Tue,  4 Sep 2018 11:44:33 +0900
+Message-Id: <1536029091-4426-8-git-send-email-climbbb.kim@gmail.com>
 In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -17,36 +17,23 @@ to void. Now apply this and remove the obsolete error check.
 
 Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 ---
- drivers/tty/n_gsm.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/tty/mips_ejtag_fdc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 86b7e20..c52fa2d 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2917,7 +2917,6 @@ static int gsmtty_install(struct tty_driver *driver, struct tty_struct *tty)
- 	unsigned int line = tty->index;
- 	unsigned int mux = line >> 6;
- 	bool alloc = false;
--	int ret;
+diff --git a/drivers/tty/mips_ejtag_fdc.c b/drivers/tty/mips_ejtag_fdc.c
+index 4c1cd49..33e06b4 100644
+--- a/drivers/tty/mips_ejtag_fdc.c
++++ b/drivers/tty/mips_ejtag_fdc.c
+@@ -763,7 +763,9 @@ static int mips_ejtag_fdc_tty_install(struct tty_driver *driver,
+ 	struct mips_ejtag_fdc_tty *priv = driver->driver_state;
  
- 	line = line & 0x3F;
+ 	tty->driver_data = &priv->ports[tty->index];
+-	return tty_port_install(&priv->ports[tty->index].port, driver, tty);
++	tty_port_install(&priv->ports[tty->index].port, driver, tty);
++
++	return 0;
+ }
  
-@@ -2949,14 +2948,8 @@ static int gsmtty_install(struct tty_driver *driver, struct tty_struct *tty)
- 		mutex_unlock(&gsm->mutex);
- 		return -ENOMEM;
- 	}
--	ret = tty_port_install(&dlci->port, driver, tty);
--	if (ret) {
--		if (alloc)
--			dlci_put(dlci);
--		mutex_unlock(&gsm->mutex);
--		return ret;
--	}
- 
-+	tty_port_install(&dlci->port, driver, tty);
- 	dlci_get(dlci);
- 	dlci_get(gsm->dlci[0]);
- 	mux_get(gsm);
+ static int mips_ejtag_fdc_tty_open(struct tty_struct *tty, struct file *filp)
 -- 
 2.7.4
