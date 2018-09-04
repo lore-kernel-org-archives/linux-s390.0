@@ -1,53 +1,98 @@
-From: Leonardo =?utf-8?B?QnLDoXM=?= <leobras.c@gmail.com>
-Subject: [PATCH 0/7] Remove errors building drivers/DRIVERNAME
-Date: Tue, 25 Sep 2018 22:51:47 -0300
-Message-ID: <20180926015147.GA14862@WindFlash>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-List-Archive: <https://lore.kernel.org/linux-parisc/>
-List-Post: <mailto:linux-parisc@vger.kernel.org>
-To: lkcamp@lists.libreplanetbr.org
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@telegraphics.com.au>, Robert Richter <rric@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, oprofile-list@lists.sf.net, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Tue, 04 Sep 2018 08:57:36 +0000
+Subject: Re: [PATCH v2] KVM: s390: Fix pfmf and conditional skey emulation
+Message-Id: <7d1f6d27-b2fe-ceb1-a1eb-ab03c09552d1@de.ibm.com>
+In-Reply-To: <5fd1ed91-1eaa-3946-4bd5-9219f7132d06@redhat.com>
+References: <5fd1ed91-1eaa-3946-4bd5-9219f7132d06@redhat.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-Content-Transfer-Encoding: 8bit
 
-This Patchset changes some driver's Makefile to allow them building 
-using the command 'make drivers/DRIVERNAME', if compatible.
 
-The changed drivers would return error if the above command was run
-on them, after an x86 allyesconfig.
 
-The main reason of this patchset is to allow building lists of
-drivers looking for warnings and errors to be fixed.
+On 08/30/2018 10:13 AM, Janosch Frank wrote:
+> We should not return with a lock.
+> We also have to increase the address when we do page clearing.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+> 
+> I knew there were more instances...
 
-My main objective is to allow developers with low processing power
-to do changes in the kernel and look bugs using free services like
-GiltabCI. 
+Thanks applied.
 
-If there is any interest helping/using this, I have a prototype in
-https://gitlab.com/LeoBras/linux-next.
 
-Leonardo Brás (7):
-  drivers: dio: Avoids building driver if CONFIG_DIO is disabled
-  drivers: nubus: Avoids building driver if CONFIG_NUBUS is disabled
-  drivers: parisc: Avoids building driver if CONFIG_PARISC is disabled
-  drivers: zorro: Avoids building proc.o if CONFIG_ZORRO is disabled
-  drivers: s390: Avoids building drivers if ARCH is not s390.
-  drivers: oprofile: Avoids building driver from direct make command
-  drivers: hwtracing: Adds Makefile to enable building from directory.
-
- drivers/Makefile           | 4 +---
- drivers/dio/Makefile       | 2 +-
- drivers/hwtracing/Makefile | 3 +++
- drivers/nubus/Makefile     | 6 +++---
- drivers/oprofile/Makefile  | 1 +
- drivers/parisc/Makefile    | 2 +-
- drivers/s390/Makefile      | 8 ++++----
- drivers/zorro/Makefile     | 2 +-
- 8 files changed, 15 insertions(+), 13 deletions(-)
- create mode 100644 drivers/hwtracing/Makefile
- create mode 100644 drivers/oprofile/Makefile
-
--- 
-2.19.0
+> 
+> ---
+>  arch/s390/kvm/priv.c | 30 ++++++++++++++++++------------
+>  1 file changed, 18 insertions(+), 12 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index d68f10441a16..8679bd74d337 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -280,9 +280,11 @@ static int handle_iske(struct kvm_vcpu *vcpu)
+>  			goto retry;
+>  		}
+>  	}
+> -	if (rc)
+> -		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+>  	up_read(&current->mm->mmap_sem);
+> +	if (rc == -EFAULT)
+> +		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+> +	if (rc < 0)
+> +		return rc;
+>  	vcpu->run->s.regs.gprs[reg1] &= ~0xff;
+>  	vcpu->run->s.regs.gprs[reg1] |= key;
+>  	return 0;
+> @@ -324,9 +326,11 @@ static int handle_rrbe(struct kvm_vcpu *vcpu)
+>  			goto retry;
+>  		}
+>  	}
+> -	if (rc < 0)
+> -		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+>  	up_read(&current->mm->mmap_sem);
+> +	if (rc == -EFAULT)
+> +		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+> +	if (rc < 0)
+> +		return rc;
+>  	kvm_s390_set_psw_cc(vcpu, rc);
+>  	return 0;
+>  }
+> @@ -390,12 +394,12 @@ static int handle_sske(struct kvm_vcpu *vcpu)
+>  					      FAULT_FLAG_WRITE, &unlocked);
+>  			rc = !rc ? -EAGAIN : rc;
+>  		}
+> +		up_read(&current->mm->mmap_sem);
+>  		if (rc == -EFAULT)
+>  			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+> -
+> -		up_read(&current->mm->mmap_sem);
+> -		if (rc >= 0)
+> -			start += PAGE_SIZE;
+> +		if (rc < 0)
+> +			return rc;
+> +		start += PAGE_SIZE;
+>  	}
+>  
+>  	if (m3 & (SSKE_MC | SSKE_MR)) {
+> @@ -1002,13 +1006,15 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
+>  						      FAULT_FLAG_WRITE, &unlocked);
+>  				rc = !rc ? -EAGAIN : rc;
+>  			}
+> +			up_read(&current->mm->mmap_sem);
+>  			if (rc == -EFAULT)
+>  				return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+> -
+> -			up_read(&current->mm->mmap_sem);
+> -			if (rc >= 0)
+> -				start += PAGE_SIZE;
+> +			if (rc == -EAGAIN)
+> +				continue;
+> +			if (rc < 0)
+> +				return rc;
+>  		}
+> +		start += PAGE_SIZE;
+>  	}
+>  	if (vcpu->run->s.regs.gprs[reg1] & PFMF_FSC) {
+>  		if (psw_bits(vcpu->arch.sie_block->gpsw).eaba == PSW_BITS_AMODE_64BIT) {
+> 
