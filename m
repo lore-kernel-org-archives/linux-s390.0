@@ -1,11 +1,11 @@
-Return-Path: <linux-serial-owner@vger.kernel.org>
+Return-Path: <linux-mmc-owner@vger.kernel.org>
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 20/25] staging: gdm724x: gdm_tty: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:46 +0900
-Message-Id: <1536029091-4426-21-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH 19/25] staging: fwserial: Change return type to void
+Date: Tue,  4 Sep 2018 11:44:45 +0900
+Message-Id: <1536029091-4426-20-git-send-email-climbbb.kim@gmail.com>
 In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
-Sender: linux-serial-owner@vger.kernel.org
+Sender: linux-mmc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-bluetooth/>
 List-Post: <mailto:linux-bluetooth@vger.kernel.org>
 To: linux-um@lists.infradead.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org, sparclinux@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -17,38 +17,48 @@ to void. Now apply this and remove the obsolete error check.
 
 Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 ---
- drivers/staging/gdm724x/gdm_tty.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/staging/fwserial/fwserial.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/staging/gdm724x/gdm_tty.c b/drivers/staging/gdm724x/gdm_tty.c
-index 6e81369..d6348df 100644
---- a/drivers/staging/gdm724x/gdm_tty.c
-+++ b/drivers/staging/gdm724x/gdm_tty.c
-@@ -62,6 +62,7 @@ static int gdm_tty_install(struct tty_driver *driver, struct tty_struct *tty)
- 		return -ENODEV;
+diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
+index fa0dd42..5134019 100644
+--- a/drivers/staging/fwserial/fwserial.c
++++ b/drivers/staging/fwserial/fwserial.c
+@@ -1064,27 +1064,21 @@ static void fwtty_cleanup(struct tty_struct *tty)
+ static int fwtty_install(struct tty_driver *driver, struct tty_struct *tty)
+ {
+ 	struct fwtty_port *port = fwtty_port_get(tty->index);
+-	int err;
  
- 	mutex_lock(&gdm_table_lock);
-+
- 	gdm = gdm_table[ret][tty->index];
- 	if (!gdm) {
- 		mutex_unlock(&gdm_table_lock);
-@@ -69,15 +70,9 @@ static int gdm_tty_install(struct tty_driver *driver, struct tty_struct *tty)
- 	}
- 
- 	tty_port_get(&gdm->port);
--
--	ret = tty_standard_install(driver, tty);
--	if (ret) {
--		tty_port_put(&gdm->port);
--		mutex_unlock(&gdm_table_lock);
--		return ret;
--	}
--
+-	err = tty_standard_install(driver, tty);
+-	if (!err)
+-		tty->driver_data = port;
+-	else
+-		fwtty_port_put(port);
+-	return err;
 +	tty_standard_install(driver, tty);
- 	tty->driver_data = gdm;
++	tty->driver_data = port;
 +
- 	mutex_unlock(&gdm_table_lock);
++	return 0;
+ }
  
- 	return 0;
+ static int fwloop_install(struct tty_driver *driver, struct tty_struct *tty)
+ {
+ 	struct fwtty_port *port = fwtty_port_get(table_idx(tty->index));
+-	int err;
+ 
+-	err = tty_standard_install(driver, tty);
+-	if (!err)
+-		tty->driver_data = port;
+-	else
+-		fwtty_port_put(port);
+-	return err;
++	tty_standard_install(driver, tty);
++	tty->driver_data = port;
++
++	return 0;
+ }
+ 
+ static int fwtty_write(struct tty_struct *tty, const unsigned char *buf, int c)
 -- 
 2.7.4
