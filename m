@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 09/25] tty: serial: kgdb_nmi: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:35 +0900
-Message-Id: <1536029091-4426-10-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH 08/25] tty: n_gsm: Change return type to void
+Date: Tue,  4 Sep 2018 11:44:34 +0900
+Message-Id: <1536029091-4426-9-git-send-email-climbbb.kim@gmail.com>
 In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -17,39 +17,36 @@ to void. Now apply this and remove the obsolete error check.
 
 Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 ---
- drivers/tty/serial/kgdb_nmi.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/tty/n_gsm.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/tty/serial/kgdb_nmi.c b/drivers/tty/serial/kgdb_nmi.c
-index 4029272..ed8f806 100644
---- a/drivers/tty/serial/kgdb_nmi.c
-+++ b/drivers/tty/serial/kgdb_nmi.c
-@@ -234,7 +234,6 @@ static const struct tty_port_operations kgdb_nmi_tty_port_ops = {
- static int kgdb_nmi_tty_install(struct tty_driver *drv, struct tty_struct *tty)
- {
- 	struct kgdb_nmi_tty_priv *priv;
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 86b7e20..c52fa2d 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2917,7 +2917,6 @@ static int gsmtty_install(struct tty_driver *driver, struct tty_struct *tty)
+ 	unsigned int line = tty->index;
+ 	unsigned int mux = line >> 6;
+ 	bool alloc = false;
 -	int ret;
  
- 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
-@@ -245,17 +244,9 @@ static int kgdb_nmi_tty_install(struct tty_driver *drv, struct tty_struct *tty)
- 	tty_port_init(&priv->port);
- 	priv->port.ops = &kgdb_nmi_tty_port_ops;
- 	tty->driver_data = priv;
-+	tty_port_install(&priv->port, drv, tty);
+ 	line = line & 0x3F;
  
--	ret = tty_port_install(&priv->port, drv, tty);
+@@ -2949,14 +2948,8 @@ static int gsmtty_install(struct tty_driver *driver, struct tty_struct *tty)
+ 		mutex_unlock(&gsm->mutex);
+ 		return -ENOMEM;
+ 	}
+-	ret = tty_port_install(&dlci->port, driver, tty);
 -	if (ret) {
--		pr_err("%s: can't install tty port: %d\n", __func__, ret);
--		goto err;
+-		if (alloc)
+-			dlci_put(dlci);
+-		mutex_unlock(&gsm->mutex);
+-		return ret;
 -	}
- 	return 0;
--err:
--	tty_port_destroy(&priv->port);
--	kfree(priv);
--	return ret;
- }
  
- static void kgdb_nmi_tty_cleanup(struct tty_struct *tty)
++	tty_port_install(&dlci->port, driver, tty);
+ 	dlci_get(dlci);
+ 	dlci_get(gsm->dlci[0]);
+ 	mux_get(gsm);
 -- 
 2.7.4
