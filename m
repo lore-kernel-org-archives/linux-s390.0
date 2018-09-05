@@ -1,59 +1,51 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH] crypto: x86 - remove SHA multibuffer routines and mcryptd
-Date: Tue, 4 Sep 2018 11:17:31 +0800
-Message-ID: <20180904031731.ehi2jzx3retkhyql@gondor.apana.org.au>
-References: <20180822085144.4872-1-ard.biesheuvel@linaro.org>
- <a877e275-4dd7-6580-2351-db8d3a4ba1a2@linux.intel.com>
- <1535411993.3516.4.camel@megha-Z97X-UD7-TH>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1535411993.3516.4.camel@megha-Z97X-UD7-TH>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-crypto/>
-List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: Megha Dey <megha.dey@linux.intel.com>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, ebiggers@google.com, Geert Uytterhoeven <geert@linux-m68k.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 1/3] net/af_iucv: drop inbound packets with invalid flags
+Date: Wed,  5 Sep 2018 16:55:10 +0200
+Message-ID: <20180905145512.30165-2-jwi@linux.ibm.com>
+References: <20180905145512.30165-1-jwi@linux.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180905145512.30165-1-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Aug 27, 2018 at 04:19:53PM -0700, Megha Dey wrote:
-> On Mon, 2018-08-27 at 15:28 -0700, Tim Chen wrote:
-> > On 08/22/2018 01:51 AM, Ard Biesheuvel wrote:
-> > > As it turns out, the AVX2 multibuffer SHA routines are currently
-> > > broken [0], in a way that would have likely been noticed if this
-> > > code were in wide use. Since the code is too complicated to be
-> > > maintained by anyone except the original authors, and since the
-> > > performance benefits for real-world use cases are debatable to
-> > > begin with, it is better to drop it entirely for the moment.
-> > > 
-> > > [0] https://marc.info/?l=linux-crypto-vger&m=153476243825350&w=2
-> > 
-> > Sorry I was out of the loop for a while and haven't been following
-> > the code too closely.
-> > 
-> > Megha is maintaining the code now.  Before we pull the code,
-> > please give us a chance to fix it first.
-> > 
-> > Thanks.
-> > 
-> > Tim
-> > 
-> 
-> Hi,
-> 
-> I am working to find a fix for these corner cases. If possible, we would
-> like to fix the issues instead of removing the code altogether.
+Inbound packets may have any combination of flag bits set in their iucv
+header. If we don't know how to handle a specific combination, drop the
+skb instead of leaking it.
 
-I think it has taken way too long to fix these issues.  The fact
-that these issues have existed for so long also means that hardly
-anyone uses these mb algorithms.
+To clarify what error is returned in this case, replace the hard-coded
+0 with the corresponding macro.
 
-So I think it is best if we remove everything and then add them
-back after a proper review process.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ net/iucv/af_iucv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index a21d8ed0a325..01000c14417f 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -2155,8 +2155,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
+ 	struct sock *sk;
+ 	struct iucv_sock *iucv;
+ 	struct af_iucv_trans_hdr *trans_hdr;
++	int err = NET_RX_SUCCESS;
+ 	char nullstring[8];
+-	int err = 0;
+ 
+ 	if (skb->len < (ETH_HLEN + sizeof(struct af_iucv_trans_hdr))) {
+ 		WARN_ONCE(1, "AF_IUCV too short skb, len=%d, min=%d",
+@@ -2254,7 +2254,7 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
+ 		err = afiucv_hs_callback_rx(sk, skb);
+ 		break;
+ 	default:
+-		;
++		kfree_skb(skb);
+ 	}
+ 
+ 	return err;
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.16.4
