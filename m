@@ -1,61 +1,44 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 04 Sep 2018 09:41:54 +0000
-Subject: Re: [PATCH] KVM: s390: Properly lock mm context allow_gmap_hpage_1m setting
-Message-Id: <7b0b8d89-1f63-5084-b613-7d88a828af2d@de.ibm.com>
-In-Reply-To: <24f9ee75-7094-e631-186a-c58896fbc804@de.ibm.com>
-References: <24f9ee75-7094-e631-186a-c58896fbc804@de.ibm.com>
-To: linux-s390@vger.kernel.org
+Date: Wed, 05 Sep 2018 08:29:46 +0000
+Subject: [GIT PULL 0/3] KVM: s390: Fixes for 4.19
+Message-Id: <20180905082949.100517-1-borntraeger@de.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Paolo, Radim,
 
+2 fixes for the newly introduced hugetlbfs support (new for 4.19) and
+one long standing bug in the nested kvm support for keywrapping.
+Please pull for 4.19 (kvm/master)
 
-On 08/30/2018 04:15 PM, Janosch Frank wrote:
-> We have to do down_write on the mm semaphore to set a bitfield in the
-> mm context.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Fixes: a4499382 ("KVM: s390: Add huge page enablement control")
+The following changes since commit 57361846b52bc686112da6ca5368d11210796804:
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+  Linux 4.19-rc2 (2018-09-02 14:37:30 -0700)
 
-Thanks applied and scheduled for 4.19.
+are available in the Git repository at:
 
-> ---
->  arch/s390/include/asm/mmu.h | 8 +++++++-
->  arch/s390/kvm/kvm-s390.c    | 2 ++
->  2 files changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
-> index f31a15044c24..a8418e1379eb 100644
-> --- a/arch/s390/include/asm/mmu.h
-> +++ b/arch/s390/include/asm/mmu.h
-> @@ -16,7 +16,13 @@ typedef struct {
->  	unsigned long asce;
->  	unsigned long asce_limit;
->  	unsigned long vdso_base;
-> -	/* The mmu context allocates 4K page tables. */
-> +	/*
-> +	 * The following bitfields need a down_write on the mm
-> +	 * semaphore when they are written to. As they are only
-> +	 * written once, they can be read without a lock.
-> +	 *
-> +	 * The mmu context allocates 4K page tables.
-> +	 */
->  	unsigned int alloc_pgste:1;
->  	/* The mmu context uses extended page tables. */
->  	unsigned int has_pgste:1;
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 8c039e12cb24..ac5da6b0b862 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -695,7 +695,9 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
->  			r = -EINVAL;
->  		else {
->  			r = 0;
-> +			down_write(&kvm->mm->mmap_sem);
->  			kvm->mm->context.allow_gmap_hpage_1m = 1;
-> +			up_write(&kvm->mm->mmap_sem);
->  			/*
->  			 * We might have to create fake 4k page
->  			 * tables. To avoid that the hardware works on
-> 
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.19-1
+
+for you to fetch changes up to df88f3181f10565c6e3a89eb6f0f9e6afaaf15f1:
+
+  KVM: s390: Properly lock mm context allow_gmap_hpage_1m setting (2018-09-04 11:40:26 +0200)
+
+----------------------------------------------------------------
+KVM: s390: Fixes for 4.19
+
+- Fallout from the hugetlbfs support: pfmf interpretion and locking
+- VSIE: fix keywrapping for nested guests
+
+----------------------------------------------------------------
+Janosch Frank (2):
+      KVM: s390: Fix pfmf and conditional skey emulation
+      KVM: s390: Properly lock mm context allow_gmap_hpage_1m setting
+
+Pierre Morel (1):
+      KVM: s390: vsie: copy wrapping keys to right place
+
+ arch/s390/include/asm/mmu.h |  8 +++++++-
+ arch/s390/kvm/kvm-s390.c    |  2 ++
+ arch/s390/kvm/priv.c        | 30 ++++++++++++++++++------------
+ arch/s390/kvm/vsie.c        |  3 ++-
+ 4 files changed, 29 insertions(+), 14 deletions(-)
