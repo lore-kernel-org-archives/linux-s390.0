@@ -1,44 +1,51 @@
+Return-Path: <SRS0=wmYC=LT=vger.kernel.org=linux-kernel-owner@kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <20180824094225.68b2adc6@mschwideX1>
+References: <20180824094225.68b2adc6@mschwideX1>
 From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v2 0/8] add support for relative references in jump tables
-Date: Thu, 13 Sep 2018 14:40:12 -0700
-Message-ID: <CAGXu5jJ9hD8-2ioAKdXKc8uV+OjRSJVUftd9rY9RfW7Tkor=kw@mail.gmail.com>
-References: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
- <20180704075923.GF3701@osiris> <CAKv+Gu-O3mMJHH2P7L9anXeKZtEQYcN8Am4-3xkzAQSFWUN+=w@mail.gmail.com>
-Mime-Version: 1.0
+Date: Tue, 4 Sep 2018 17:16:31 -0700
+Message-ID: <CAGXu5jJVvWbKnRR_XyBH5yWLzNAEPzuguppBfxXaU4x+tE0M2g@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 patches for the 4.19 merge window #2
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKv+Gu-O3mMJHH2P7L9anXeKZtEQYcN8Am4-3xkzAQSFWUN+=w@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jul 4, 2018 at 1:50 AM, Ard Biesheuvel
-<ard.biesheuvel@linaro.org> wrote:
-> On 4 July 2018 at 09:59, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
->> On Mon, Jul 02, 2018 at 08:11:37PM +0200, Ard Biesheuvel wrote:
->>> This series implements support for emitting the data structures associated
->>> with jump tables as 32-bit relative references instead of absolute
->>> references, which take up more space on builds that target 64-bit
->>> architectures, or implement self relocation [or both].
->>>
->>> This series enables it for arm64 and x86, although other architectures
->>> might benefit as well.
->>
->> Hello Ard,
->>
->> feel free to add the patch below which adds support for s390 to your series.
->>
->
-> Thanks, I will incorporate it into v3 and beyond.
+On Fri, Aug 24, 2018 at 12:42 AM, Martin Schwidefsky
+<schwidefsky@de.ibm.com> wrote:
+> Harald Freudenberger (5):
+>       s390/zcrypt: hex string mask improvements for apmask and aqmask.
 
-Just a quick status check! :) What're your plans for this series? I'd
-still love to see it.
+This (and an earlier 2017 commit) adds VLAs, which are being
+removed[1] from the kernel:
+
+drivers/s390/crypto/ap_bus.c:980:3: warning: ISO C90 forbids variable
+length array =E2=80=98clrm=E2=80=99 [-Wvla]
+drivers/s390/crypto/ap_bus.c:981:3: warning: ISO C90 forbids variable
+length array =E2=80=98setm=E2=80=99 [-Wvla]
+drivers/s390/crypto/ap_bus.c:995:3: warning: ISO C90 forbids variable
+length array =E2=80=98setm=E2=80=99 [-Wvla]
+
+static int process_mask_arg(const char *str,
+                            unsigned long *bitmap, int bits,
+                            struct mutex *lock)
+...
+                DECLARE_BITMAP(clrm, bits);
+                DECLARE_BITMAP(setm, bits);
+
+Can someone please adjust this to make these fixed size again?
+
+Thanks!
 
 -Kees
 
--- 
+[1] https://lkml.kernel.org/r/CA+55aFzCG-zNmZwX4A2FQpadafLfEzK6CC=3DqPXydAa=
+cU1RqZWA@mail.gmail.com
+
+--=20
 Kees Cook
 Pixel Security
