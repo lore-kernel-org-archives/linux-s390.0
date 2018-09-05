@@ -1,40 +1,56 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 05 Sep 2018 08:29:48 +0000
-Subject: [GIT PULL 2/3] KVM: s390: vsie: copy wrapping keys to right place
-Message-Id: <20180905082949.100517-3-borntraeger@de.ibm.com>
+Date: Wed, 05 Sep 2018 08:29:49 +0000
+Subject: [GIT PULL 3/3] KVM: s390: Properly lock mm context allow_gmap_hpage_1m setting
+Message-Id: <20180905082949.100517-4-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Pierre Morel <pmorel@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Copy the key mask to the right offset inside the shadow CRYCB
+We have to do down_write on the mm semaphore to set a bitfield in the
+mm context.
 
-Fixes: bbeaa58b3 ("KVM: s390: vsie: support aes dea wrapping keys")
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Cc: stable@vger.kernel.org # v4.8+
-Message-Id: <1535019956-23539-2-git-send-email-pmorel@linux.ibm.com>
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Fixes: a4499382 ("KVM: s390: Add huge page enablement control")
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/mmu.h | 8 +++++++-
+ arch/s390/kvm/kvm-s390.c    | 2 ++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 63844b95c22c..a2b28cd1e3fe 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -173,7 +173,8 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		return set_validity_icpt(scb_s, 0x0039U);
- 
- 	/* copy only the wrapping keys */
--	if (read_guest_real(vcpu, crycb_addr + 72, &vsie_page->crycb, 56))
-+	if (read_guest_real(vcpu, crycb_addr + 72,
-+			    vsie_page->crycb.dea_wrapping_key_mask, 56))
- 		return set_validity_icpt(scb_s, 0x0035U);
- 
- 	scb_s->ecb3 |= ecb3_flags;
+diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
+index f31a15044c24..a8418e1379eb 100644
+--- a/arch/s390/include/asm/mmu.h
++++ b/arch/s390/include/asm/mmu.h
+@@ -16,7 +16,13 @@ typedef struct {
+ 	unsigned long asce;
+ 	unsigned long asce_limit;
+ 	unsigned long vdso_base;
+-	/* The mmu context allocates 4K page tables. */
++	/*
++	 * The following bitfields need a down_write on the mm
++	 * semaphore when they are written to. As they are only
++	 * written once, they can be read without a lock.
++	 *
++	 * The mmu context allocates 4K page tables.
++	 */
+ 	unsigned int alloc_pgste:1;
+ 	/* The mmu context uses extended page tables. */
+ 	unsigned int has_pgste:1;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 91ad4a9425c0..f69333fd2fa3 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -695,7 +695,9 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+ 			r = -EINVAL;
+ 		else {
+ 			r = 0;
++			down_write(&kvm->mm->mmap_sem);
+ 			kvm->mm->context.allow_gmap_hpage_1m = 1;
++			up_write(&kvm->mm->mmap_sem);
+ 			/*
+ 			 * We might have to create fake 4k page
+ 			 * tables. To avoid that the hardware works on
 -- 
 2.17.0
