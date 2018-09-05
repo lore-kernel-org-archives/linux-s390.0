@@ -1,25 +1,36 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net 0/3] net/iucv: fixes 2018-09-05
-Date: Wed, 05 Sep 2018 22:32:49 -0700 (PDT)
-Message-ID: <20180905.223249.1191243841359960925.davem@davemloft.net>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 3/3] net/iucv: declare iucv_path_table_empty() as static
+Date: Wed,  5 Sep 2018 16:55:12 +0200
+Message-ID: <20180905145512.30165-4-jwi@linux.ibm.com>
 References: <20180905145512.30165-1-jwi@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180905145512.30165-1-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jwi@linux.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Date: Wed,  5 Sep 2018 16:55:09 +0200
+Fixes a compile warning.
 
-> please apply three straight-forward fixes for iucv. One that prevents
-> leaking the skb on malformed inbound packets, one to fix the error
-> handling on transmit error, and one to get rid of a compile warning.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ net/iucv/iucv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Series applied, thank you.
+diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+index 8f7ef167c45a..eb502c6290c2 100644
+--- a/net/iucv/iucv.c
++++ b/net/iucv/iucv.c
+@@ -1874,7 +1874,7 @@ static void iucv_pm_complete(struct device *dev)
+  * Returns 0 if there are still iucv pathes defined
+  *	   1 if there are no iucv pathes defined
+  */
+-int iucv_path_table_empty(void)
++static int iucv_path_table_empty(void)
+ {
+ 	int i;
+ 
+-- 
+2.16.4
