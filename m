@@ -1,45 +1,43 @@
-Return-Path: <SRS0=Jh2l=L4=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 14 Sep 2018 07:37:56 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [GIT PULL] s390 patches for 4.19 #3
-In-Reply-To: <CA+55aFxYR__1rfT--Vxkoh1RyA+g6pQs87H8tk7ajXW9L8p7tg@mail.gmail.com>
-References: <20180913140149.3c39485c@mschwideX1>
-        <CA+55aFxYR__1rfT--Vxkoh1RyA+g6pQs87H8tk7ajXW9L8p7tg@mail.gmail.com>
-MIME-Version: 1.0
-Message-Id: <20180914073756.2c208e55@mschwideX1>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] [RFC v2] Drop all 00-INDEX files from Documentation/
+Date: Thu, 6 Sep 2018 09:58:04 -0600
+Message-ID: <20180906095804.5ab2716f@lwn.net>
+References: <1536012923-16275-1-git-send-email-henrik@austad.us>
+ <20180904113030.GB25177@amd>
+ <20180904095908.13298b3d@gandalf.local.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180904095908.13298b3d@gandalf.local.home>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+List-Archive: <https://lore.kernel.org/dri-devel/>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-mips@linux-mips.org, linux-fbdev@vger.kernel.org, x86@kernel.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, James Hogan <jhogan@kernel.org>, Henrik Austad <henrik@austad.us>, Will Deacon <will.deacon@arm.com>, dri-devel@lists.freedesktop.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Jan Kandziora <jjj@gmx.de>, Paul Mackerras <paulus@samba.org>, Henrik Austad <haustad@cisco.com>, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-s390@vger.kernel.org, Ian Kent <raven@themaw.net>, linux-security-module@vger.kernel.org, Paul Moore <paul@paul-moore.com>, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Ingo
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 13 Sep 2018 16:26:38 -1000
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
-
-> On Thu, Sep 13, 2018 at 2:02 AM Martin Schwidefsky
-> <schwidefsky@de.ibm.com> wrote:
-> >
-> > this is the first try to do a pull request for s390 with a signed tag.
-> > I keep my fingers crossed that the setup works as intended.
-> >
-> > I have used the 8A8FDAE0 signing sub-key of my 26AE5DD2 master key:  
-> 
-> The signed tag looks ok, but you haven't actually pushed out your new
-> signing sub-key to the keyservers, so I can't actually verify it.
-> 
-> So a "gpg --send-key" would be a good idea.
-
-I did push it to keys.gnupg.net, but the sub-key is brand new and 
-probably takes some time to sync on the key server network.
-
-The key is there on pgp.mit.edu this morning, it that to one you
-are using or do you prefer a different one?
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+T24gVHVlLCA0IFNlcCAyMDE4IDA5OjU5OjA4IC0wNDAwClN0ZXZlbiBSb3N0ZWR0IDxyb3N0ZWR0
+QGdvb2RtaXMub3JnPiB3cm90ZToKCj4gT24gVHVlLCA0IFNlcCAyMDE4IDEzOjMwOjMwICswMjAw
+Cj4gUGF2ZWwgTWFjaGVrIDxwYXZlbEB1Y3cuY3o+IHdyb3RlOgo+IAo+ID4gSSdkIHNheSB0aGlz
+IGlzIHN0aWxsIHF1aXRlIHZhbHVlYWJsZSwgYW5kIGl0IG1pZ2h0IGJlIHdvcnRoIGZpeGluZywK
+PiA+IHJhdGhlciB0aGVuIHJlbW92aW5nIGNvbXBsZXRlbHkuICAKPiAKPiBJIGFncmVlLiBQZXJo
+YXBzIHdlIHNob3VsZCBoYXZlIGEgMDAtREVTQ1JJUFRJT04gZmlsZSBpbiBlYWNoCj4gZGlyZWN0
+b3J5LCBhbmQgZWFjaCBmaWxlIGNvdWxkIHN0YXJ0IHdpdGggYToKPiAKPiAgREVTQ1JJUFRJT046
+IDxvbmUgbGluZSBkZXNjcmlwdGlvbiBoZXJlPgo+IAo+IGFuZCB0aGVuIHRoZXNlIGZpbGVzIGNv
+dWxkIGJlIGdlbmVyYXRlZCBieSB0aG9zZSB0aGF0IGhhdmUgdGhlc2UgdGFncy4KCkkgcmVhbGx5
+IGRvbid0IHdhbnQgdG8gaGFjayB1cCB5ZXQgYW5vdGhlciBkb2N1bWVudGF0aW9uIHN5bnRheCBh
+bmQKcHJvY2Vzc2luZyBzY2hlbWUuICBXZSBhbHJlYWR5IGhhdmUgb25lIHRoYXQgZG9lcyBhbGwg
+b2YgdGhpcyBhbmQgbW9yZS4KVGhhdCBlbmVyZ3kgd291bGQgYmUgZmFyIGJldHRlciBzcGVudCBi
+cmluZ2luZyB0aGUgZG9jcyBpbnRvIHRoZSBSU1QKaGllcmFyY2h5LCBJTU8uCgpUaGFua3MsCgpq
+b24gICh3aG8gaXMgaW5jcmVhc2luZ2x5IGluY2xpbmVkIHRvIGFwcGx5IHRoaXMgcGF0Y2gpCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBt
+YWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3Rz
+LmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
