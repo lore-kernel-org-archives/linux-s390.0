@@ -1,95 +1,44 @@
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 2/3] net/af_iucv: fix skb handling on HiperTransport xmit error
-Date: Wed,  5 Sep 2018 16:55:11 +0200
-Message-ID: <20180905145512.30165-3-jwi@linux.ibm.com>
-References: <20180905145512.30165-1-jwi@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180905145512.30165-1-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Return-Path: <SRS0=+2vW=LV=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: jun qian <hangdianqj@163.com>
+Subject: [PATCH] drivers:s390:char:move spin_lock_bh to spin_lock in tasklet
+Date: Fri,  7 Sep 2018 08:52:13 -0700
+Message-Id: <20180907155213.46439-1-hangdianqj@163.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, jun qian <hangdianqj@163.com>, Barry song <21cnbao@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-When sending an skb, afiucv_hs_send() bails out on various error
-conditions. But currently the caller has no way of telling whether the
-skb was freed or not - resulting in potentially either
-a) leaked skbs from iucv_send_ctrl(), or
-b) double-free's from iucv_sock_sendmsg().
+As you are already in a tasklet, it is unnecessary to call spin_lock_bh.
 
-As dev_queue_xmit() will always consume the skb (even on error), be
-consistent and also free the skb from all other error paths. This way
-callers no longer need to care about managing the skb.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: jun qian <hangdianqj@163.com>
+Cc: Barry song <21cnbao@gmail.com>
 ---
- net/iucv/af_iucv.c | 34 +++++++++++++++++++++++-----------
- 1 file changed, 23 insertions(+), 11 deletions(-)
+ drivers/s390/char/tty3270.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index 01000c14417f..e2f16a0173a9 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -351,20 +351,28 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
- 		memcpy(&phs_hdr->iucv_hdr, imsg, sizeof(struct iucv_message));
+diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+index 5b8af2782282..fb1bc0db7e68 100644
+--- a/drivers/s390/char/tty3270.c
++++ b/drivers/s390/char/tty3270.c
+@@ -563,7 +563,7 @@ tty3270_read_tasklet(struct raw3270_request *rrq)
+ 	char *input;
+ 	int len;
  
- 	skb->dev = iucv->hs_dev;
--	if (!skb->dev)
--		return -ENODEV;
--	if (!(skb->dev->flags & IFF_UP) || !netif_carrier_ok(skb->dev))
--		return -ENETDOWN;
-+	if (!skb->dev) {
-+		err = -ENODEV;
-+		goto err_free;
-+	}
-+	if (!(skb->dev->flags & IFF_UP) || !netif_carrier_ok(skb->dev)) {
-+		err = -ENETDOWN;
-+		goto err_free;
-+	}
- 	if (skb->len > skb->dev->mtu) {
--		if (sock->sk_type == SOCK_SEQPACKET)
--			return -EMSGSIZE;
--		else
--			skb_trim(skb, skb->dev->mtu);
-+		if (sock->sk_type == SOCK_SEQPACKET) {
-+			err = -EMSGSIZE;
-+			goto err_free;
-+		}
-+		skb_trim(skb, skb->dev->mtu);
+-	spin_lock_bh(&tp->view.lock);
++	spin_lock(&tp->view.lock);
+ 	/*
+ 	 * Two AID keys are special: For 0x7d (enter) the input line
+ 	 * has to be emitted to the tty and for 0x6d the screen
+@@ -590,7 +590,7 @@ tty3270_read_tasklet(struct raw3270_request *rrq)
+ 		tp->update_flags = TTY_UPDATE_ALL;
+ 		tty3270_set_timer(tp, 1);
  	}
- 	skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
- 	nskb = skb_clone(skb, GFP_ATOMIC);
--	if (!nskb)
--		return -ENOMEM;
-+	if (!nskb) {
-+		err = -ENOMEM;
-+		goto err_free;
-+	}
-+
- 	skb_queue_tail(&iucv->send_skb_q, nskb);
- 	err = dev_queue_xmit(skb);
- 	if (net_xmit_eval(err)) {
-@@ -375,6 +383,10 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
- 		WARN_ON(atomic_read(&iucv->msg_recv) < 0);
- 	}
- 	return net_xmit_eval(err);
-+
-+err_free:
-+	kfree_skb(skb);
-+	return err;
- }
+-	spin_unlock_bh(&tp->view.lock);
++	spin_unlock(&tp->view.lock);
  
- static struct sock *__iucv_get_sock_by_name(char *nm)
-@@ -1167,7 +1179,7 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 		err = afiucv_hs_send(&txmsg, sk, skb, 0);
- 		if (err) {
- 			atomic_dec(&iucv->msg_sent);
--			goto fail;
-+			goto out;
- 		}
- 	} else { /* Classic VM IUCV transport */
- 		skb_queue_tail(&iucv->send_skb_q, skb);
+ 	/* Start keyboard reset command. */
+ 	raw3270_request_reset(tp->kreset);
 -- 
-2.16.4
+2.17.1
