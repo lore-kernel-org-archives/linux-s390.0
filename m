@@ -1,8 +1,8 @@
 Return-Path: <SRS0=P5JM=LW=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: zhong jiang <zhongjiang@huawei.com>
-Subject: [PATCH 2/2] s390: qeth_core_mpc: Use ARRAY_SIZE instead of reimplementing its function
-Date: Sat, 8 Sep 2018 18:26:28 +0800
-Message-ID: <1536402388-23872-3-git-send-email-zhongjiang@huawei.com>
+Subject: [PATCH 1/2] s390: vmlogrdr: Use ARRAY_SIZE instead of reimplementing its function
+Date: Sat, 8 Sep 2018 18:26:27 +0800
+Message-ID: <1536402388-23872-2-git-send-email-zhongjiang@huawei.com>
 In-Reply-To: <1536402388-23872-1-git-send-email-zhongjiang@huawei.com>
 References: <1536402388-23872-1-git-send-email-zhongjiang@huawei.com>
 MIME-Version: 1.0
@@ -19,33 +19,21 @@ rather than the open code.
 
 Signed-off-by: zhong jiang <zhongjiang@huawei.com>
 ---
- drivers/s390/net/qeth_core_mpc.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/s390/char/vmlogrdr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_mpc.c b/drivers/s390/net/qeth_core_mpc.c
-index 5bcb8da..e8263de 100644
---- a/drivers/s390/net/qeth_core_mpc.c
-+++ b/drivers/s390/net/qeth_core_mpc.c
-@@ -222,8 +222,7 @@ struct ipa_rc_msg {
- char *qeth_get_ipa_msg(enum qeth_ipa_return_codes rc)
- {
- 	int x = 0;
--	qeth_ipa_rc_msg[sizeof(qeth_ipa_rc_msg) /
--			sizeof(struct ipa_rc_msg) - 1].rc = rc;
-+	qeth_ipa_rc_msg[ARRAY_SIZE(qeth_ipa_rc_msg) - 1].rc = rc;
- 	while (qeth_ipa_rc_msg[x].rc != rc)
- 		x++;
- 	return qeth_ipa_rc_msg[x].msg;
-@@ -270,9 +269,7 @@ struct ipa_cmd_names {
- char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd)
- {
- 	int x = 0;
--	qeth_ipa_cmd_names[
--		sizeof(qeth_ipa_cmd_names) /
--			sizeof(struct ipa_cmd_names)-1].cmd = cmd;
-+	qeth_ipa_cmd_names[ARRAY_SIZE(qeth_ipa_cmd_names) - 1].cmd = cmd;
- 	while (qeth_ipa_cmd_names[x].cmd != cmd)
- 		x++;
- 	return qeth_ipa_cmd_names[x].name;
+diff --git a/drivers/s390/char/vmlogrdr.c b/drivers/s390/char/vmlogrdr.c
+index 069b9ef..58333cb 100644
+--- a/drivers/s390/char/vmlogrdr.c
++++ b/drivers/s390/char/vmlogrdr.c
+@@ -153,7 +153,7 @@ static void vmlogrdr_iucv_message_pending(struct iucv_path *,
+ 	}
+ };
+ 
+-#define MAXMINOR  (sizeof(sys_ser)/sizeof(struct vmlogrdr_priv_t))
++#define MAXMINOR  ARRAY_SIZE(sys_ser)
+ 
+ static char FENCE[] = {"EOR"};
+ static int vmlogrdr_major = 0;
 -- 
 1.7.12.4
