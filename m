@@ -1,39 +1,32 @@
 Return-Path: <linux-fsdevel-owner@vger.kernel.org>
-MIME-Version: 1.0
-References: <20180908142837.2819693-1-arnd@arndb.de> <20180908142837.2819693-11-arnd@arndb.de>
- <20180909043746.GF19965@ZenIV.linux.org.uk>
-In-Reply-To: <20180909043746.GF19965@ZenIV.linux.org.uk>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 11 Sep 2018 17:36:46 +0200
-Message-ID: <CAK8P3a0evhaJGL_XdUjQhJDGyAh01UjLFkKx-Cq21htXmFsY2A@mail.gmail.com>
+Date: Sun, 9 Sep 2018 05:37:58 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
 Subject: Re: [PATCH 11/11] compat_ioctl: move tape handling into drivers
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20180909043746.GF19965@ZenIV.linux.org.uk>
+References: <20180908142837.2819693-1-arnd@arndb.de>
+ <20180908142837.2819693-11-arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20180908142837.2819693-11-arnd@arndb.de>
 Sender: linux-fsdevel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-fsdevel/>
 List-Post: <mailto:linux-fsdevel@vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: David Miller <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, osst@riede.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Kai.Makisara@kolumbus.fi, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, IDE-ML <linux-ide@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, osst-users@lists.sourceforge.net, linux-scsi <linux-scsi@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Willem Riede <osst@riede.org>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Kai =?iso-8859-1?Q?M=E4kisara?= <Kai.Makisara@kolumbus.fi>, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, osst-users@lists.sourceforge.net, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Sep 9, 2018 at 6:38 AM Al Viro <viro@zeniv.linux.org.uk> wrote:
->
-> On Sat, Sep 08, 2018 at 04:28:17PM +0200, Arnd Bergmann wrote:
-> > MTIOCPOS and MTIOCGET are incompatible between 32-bit and 64-bit user
-> > space, and traditionally have been translated in fs/compat_ioctl.c.
-> >
-> > To get rid of that translation handler, move a corresponding
-> > implementation into each of the four drivers implementing those commands.
-> >
-> > The interesting part of that is now in a new linux/mtio.h header that
-> > wraps the existing uapi/linux/mtio.h header and provides an abstraction
-> > to let drivers handle both cases easily.
->
-> Ugh...  Frankly, this bool compat passed all way down looks wrong.
-> I can live with that; the question is whether block folks will be
-> OK with that thing...
+On Sat, Sep 08, 2018 at 04:28:17PM +0200, Arnd Bergmann wrote:
+> MTIOCPOS and MTIOCGET are incompatible between 32-bit and 64-bit user
+> space, and traditionally have been translated in fs/compat_ioctl.c.
+> 
+> To get rid of that translation handler, move a corresponding
+> implementation into each of the four drivers implementing those commands.
+> 
+> The interesting part of that is now in a new linux/mtio.h header that
+> wraps the existing uapi/linux/mtio.h header and provides an abstraction
+> to let drivers handle both cases easily.
 
-I have tried to come up with an alternative, but couldn't really find anything
-that is less ugly. Since nobody else complained, I'll resend this version
-along with the other patches.
-
-       Arnd
+Ugh...  Frankly, this bool compat passed all way down looks wrong.
+I can live with that; the question is whether block folks will be
+OK with that thing...
