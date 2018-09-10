@@ -1,64 +1,36 @@
-Return-Path: <SRS0=P5JM=LW=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: zhong jiang <zhongjiang@huawei.com>
-Subject: [PATCH] s390/zcrypt: Use kmemdup to replace kmalloc + memcpy
-Date: Sat, 8 Sep 2018 16:50:21 +0800
-Message-ID: <1536396621-19363-1-git-send-email-zhongjiang@huawei.com>
+Return-Path: <SRS0=FvrY=LY=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Mon, 10 Sep 2018 08:35:09 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390: zfcp_aux: remove unnecessary null pointer check
+ before mempool_destroy
+In-Reply-To: <1536399705-21676-1-git-send-email-zhongjiang@huawei.com>
+References: <1536399705-21676-1-git-send-email-zhongjiang@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Message-Id: <20180910083509.7a5359f5@mschwideX1>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: freude@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: zhong jiang <zhongjiang@huawei.com>
+Cc: maier@linux.ibm.com, bblock@linux.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-kmemdup has implemented the function that kmalloc() + memcpy() will
-do. and we prefer to use the kmemdup rather than the open coded implementation.
+On Sat, 8 Sep 2018 17:41:45 +0800
+zhong jiang <zhongjiang@huawei.com> wrote:
 
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
----
- drivers/s390/crypto/zcrypt_msgtype6.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+> mempool_destroy has taken null pointer check into account. so remove the
+> redundant check.
+> 
+> Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+> ---
+>  drivers/s390/scsi/zfcp_aux.c | 21 +++++++--------------
+>  1 file changed, 7 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-index 2101776..9ac960d 100644
---- a/drivers/s390/crypto/zcrypt_msgtype6.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-@@ -1131,10 +1131,9 @@ unsigned int get_cprb_fc(struct ica_xcRB *xcRB,
- 	ap_msg->receive = zcrypt_msgtype6_receive;
- 	ap_msg->psmid = (((unsigned long long) current->pid) << 32) +
- 				atomic_inc_return(&zcrypt_step);
--	ap_msg->private = kmalloc(sizeof(resp_type), GFP_KERNEL);
-+	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), GFP_KERNEL);
- 	if (!ap_msg->private)
- 		return -ENOMEM;
--	memcpy(ap_msg->private, &resp_type, sizeof(resp_type));
- 	return XCRB_msg_to_type6CPRB_msgX(ap_msg, xcRB, func_code, dom);
- }
- 
-@@ -1187,10 +1186,9 @@ unsigned int get_ep11cprb_fc(struct ep11_urb *xcrb,
- 	ap_msg->receive = zcrypt_msgtype6_receive_ep11;
- 	ap_msg->psmid = (((unsigned long long) current->pid) << 32) +
- 				atomic_inc_return(&zcrypt_step);
--	ap_msg->private = kmalloc(sizeof(resp_type), GFP_KERNEL);
-+	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), GFP_KERNEL);
- 	if (!ap_msg->private)
- 		return -ENOMEM;
--	memcpy(ap_msg->private, &resp_type, sizeof(resp_type));
- 	return xcrb_msg_to_type6_ep11cprb_msgx(ap_msg, xcrb, func_code);
- }
- 
-@@ -1282,10 +1280,9 @@ unsigned int get_rng_fc(struct ap_message *ap_msg, int *func_code,
- 	ap_msg->receive = zcrypt_msgtype6_receive;
- 	ap_msg->psmid = (((unsigned long long) current->pid) << 32) +
- 				atomic_inc_return(&zcrypt_step);
--	ap_msg->private = kmalloc(sizeof(resp_type), GFP_KERNEL);
-+	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), GFP_KERNEL);
- 	if (!ap_msg->private)
- 		return -ENOMEM;
--	memcpy(ap_msg->private, &resp_type, sizeof(resp_type));
- 
- 	rng_type6CPRB_msgX(ap_msg, ZCRYPT_RNG_BUFFER_SIZE, domain);
- 
+Applied to linux-390:features. Thanks.
+
 -- 
-1.7.12.4
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
