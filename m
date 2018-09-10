@@ -1,217 +1,82 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v9 09/22] s390: vfio-ap: register matrix device with VFIO
- mdev framework
-Date: Thu, 6 Sep 2018 10:49:24 +0200
-Message-ID: <af1cd7a8-446c-ddf6-cf17-886dd259da3d@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: Re: [PATCH v9 12/22] s390: vfio-ap: sysfs interfaces to configure
+ control domains
+Date: Mon, 10 Sep 2018 09:27:09 -0400
+Message-ID: <8b4ba1f9-7ac5-a49a-01a7-d1dc975ae03a@linux.ibm.com>
 References: <1534196899-16987-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1534196899-16987-10-git-send-email-akrowiak@linux.vnet.ibm.com>
-Reply-To: pmorel@linux.ibm.com
+ <1534196899-16987-13-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <20180820162317.08bd7d23.cohuck@redhat.com>
+ <660de00a-c403-28c1-4df4-82a973ab3ad5@linux.ibm.com>
+ <20180821172548.57a6c758.cohuck@redhat.com>
+ <82a391ee-85b1-cdc7-0f9b-d37fd8ba8e47@linux.ibm.com>
+ <a43ef10f-aa91-cb4c-a8aa-cd3ce9cfebf2@linux.ibm.com>
+ <20180822114250.59a250aa.cohuck@redhat.com>
+ <8bc5f207-f913-825c-f9fc-0a2c7fd280aa@linux.ibm.com>
+ <e36abc22-9daf-e0f4-c6b3-7adbb28db4c3@de.ibm.com>
+ <f84dbcc0-f627-be02-9933-3baa953adc09@linux.ibm.com>
+ <219b352b-d5a2-189c-e205-82e7f9ae3d64@de.ibm.com>
+ <dbb74c9c-93ab-ed05-fad4-ea2aa5f2b71e@linux.ibm.com>
+ <9ef5fcb9-02e0-88e3-007c-eedb14e6db80@linux.ibm.com>
+ <20180823122525.02fc4af3.cohuck@redhat.com>
+ <decfe307-4449-2c85-0b7e-6f2fcdb1164f@linux.ibm.com>
+ <20180827103316.4e7fbc10.cohuck@redhat.com>
+ <65cb82b5-85ce-1831-5b2a-719d2cf27be8@linux.ibm.com>
+ <20180827155126.440f2170.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1534196899-16987-10-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <20180827155126.440f2170.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, pmorel@linux.ibm.com, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 13/08/2018 23:48, Tony Krowiak wrote:
-> From: Tony Krowiak <akrowiak@linux.ibm.com>
-> 
-> Registers the matrix device created by the VFIO AP device
-> driver with the VFIO mediated device framework.
-> Registering the matrix device will create the sysfs
-> structures needed to create mediated matrix devices
-> each of which will be used to configure the AP matrix
-> for a guest and connect it to the VFIO AP device driver.
-> 
-> Registering the matrix device with the VFIO mediated device
-> framework will create the following sysfs structures:
-> 
-> /sys/devices/vfio_ap/matrix/
-> ...... [mdev_supported_types]
-> ......... [vfio_ap-passthrough]
-> ............ create
-> 
-> To create a mediated device for the AP matrix device, write a UUID
-> to the create file:
-> 
-> 	uuidgen > create
-> 
-> A symbolic link to the mediated device's directory will be created in the
-> devices subdirectory named after the generated $uuid:
-> 
-> /sys/devices/vfio_ap/matrix/
-> ...... [mdev_supported_types]
-> ......... [vfio_ap-passthrough]
-> ............ [devices]
-> ............... [$uuid]
-> 
-> A symbolic link to the mediated device will also be created
-> in the vfio_ap matrix's directory:
-> 
-> /sys/devices/vfio_ap/matrix/[$uuid]
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> Tested-by: Michael Mueller <mimu@linux.ibm.com>
-> Tested-by: Farhan Ali <alifm@linux.ibm.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->   MAINTAINERS                           |    1 +
->   drivers/s390/crypto/Makefile          |    2 +-
->   drivers/s390/crypto/vfio_ap_drv.c     |   23 ++++++
->   drivers/s390/crypto/vfio_ap_ops.c     |  124 +++++++++++++++++++++++++++++++++
->   drivers/s390/crypto/vfio_ap_private.h |   45 ++++++++++++
->   include/uapi/linux/vfio.h             |    1 +
->   6 files changed, 195 insertions(+), 1 deletions(-)
->   create mode 100644 drivers/s390/crypto/vfio_ap_ops.c
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index e84c559..f60dd56 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -12427,6 +12427,7 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
->   S:	Supported
->   F:	drivers/s390/crypto/vfio_ap_drv.c
->   F:	drivers/s390/crypto/vfio_ap_private.h
-> +F:	drivers/s390/crypto/vfio_ap_ops.c
-> 
->   S390 ZFCP DRIVER
->   M:	Steffen Maier <maier@linux.ibm.com>
-> diff --git a/drivers/s390/crypto/Makefile b/drivers/s390/crypto/Makefile
-> index 48e466e..8d36b05 100644
-> --- a/drivers/s390/crypto/Makefile
-> +++ b/drivers/s390/crypto/Makefile
-> @@ -17,5 +17,5 @@ pkey-objs := pkey_api.o
->   obj-$(CONFIG_PKEY) += pkey.o
-> 
->   # adjunct processor matrix
-> -vfio_ap-objs := vfio_ap_drv.o
-> +vfio_ap-objs := vfio_ap_drv.o vfio_ap_ops.o
->   obj-$(CONFIG_VFIO_AP) += vfio_ap.o
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index 5069580..fa04c5a 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -11,6 +11,7 @@
->   #include <linux/mod_devicetable.h>
->   #include <linux/slab.h>
->   #include <linux/string.h>
-> +#include <asm/zcrypt.h>
->   #include "vfio_ap_private.h"
-> 
->   #define VFIO_AP_ROOT_NAME "vfio_ap"
-> @@ -65,6 +66,19 @@ static int vfio_ap_matrix_dev_init(void)
->   		return ret;
->   	}
-> 
-> +	mutex_init(&matrix_dev.lock);
-> +	INIT_LIST_HEAD(&matrix_dev.mdev_list);
-> +
-> +	/* Test if PQAP(QCI) instruction is available */
-> +	if (test_facility(12)) {
-> +		ret = ap_qci(&matrix_dev.info);
-> +		if (ret) {
-> +			root_device_unregister(root_device);
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	atomic_set(&matrix_dev.available_instances, MAX_ZDEV_ENTRIES_EXT);
->   	matrix_dev.device.type = &vfio_ap_dev_type;
->   	dev_set_name(&matrix_dev.device, "%s", VFIO_AP_DEV_NAME);
->   	matrix_dev.device.type = &vfio_ap_dev_type;
-> @@ -105,11 +119,20 @@ int __init vfio_ap_init(void)
->   		return ret;
->   	}
-> 
-> +	ret = vfio_ap_mdev_register();
-> +	if (ret) {
-> +		ap_driver_unregister(&vfio_ap_drv);
-> +		vfio_ap_matrix_dev_destroy();
-> +
-> +		return ret;
-> +	}
-> +
->   	return 0;
->   }
-> 
->   void __exit vfio_ap_exit(void)
->   {
-> +	vfio_ap_mdev_unregister();
->   	ap_driver_unregister(&vfio_ap_drv);
->   	vfio_ap_matrix_dev_destroy();
->   }
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> new file mode 100644
-> index 0000000..8018c2d
-> --- /dev/null
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -0,0 +1,124 @@
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + * Adjunct processor matrix VFIO device driver callbacks.
-> + *
-> + * Copyright IBM Corp. 2018
-> + *
-> + * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-> + *	      Halil Pasic <pasic@linux.ibm.com>
-> + *	      Pierre Morel <pmorel@linux.ibm.com>
-> + */
-> +#include <linux/string.h>
-> +#include <linux/vfio.h>
-> +#include <linux/device.h>
-> +#include <linux/list.h>
-> +#include <linux/ctype.h>
-> +
-> +#include "vfio_ap_private.h"
-> +
-> +#define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
-> +#define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
-> +
-> +static void vfio_ap_matrix_init(struct ap_config_info *info,
-> +				struct ap_matrix *matrix)
-> +{
-> +	matrix->apm_max = info->apxa ? info->Na : 63;
-> +	matrix->aqm_max = info->apxa ? info->Nd : 15;
-> +	matrix->adm_max = info->apxa ? info->Nd : 15;
-> +}
-> +
-> +static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
-> +{
-> +	struct ap_matrix_mdev *matrix_mdev;
-> +
-> +	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
-> +	if (!matrix_mdev)
-> +		return -ENOMEM;
-> +
-> +	matrix_mdev->name = dev_name(mdev_dev(mdev));
-> +	vfio_ap_matrix_init(&matrix_dev.info, &matrix_mdev->matrix);
-> +	mdev_set_drvdata(mdev, matrix_mdev);
-> +
-> +	if (atomic_dec_if_positive(&matrix_dev.available_instances) < 0) {
-> +		kfree(matrix_mdev);
-> +		return -EPERM;
-> +	}
-> +
-> +	mutex_lock(&matrix_dev.lock);
-> +	list_add(&matrix_mdev->list, &matrix_dev.mdev_list);
-> +	mutex_unlock(&matrix_dev.lock);
-> +
-Hi Tony,
+On 08/27/2018 09:51 AM, Cornelia Huck wrote:
+> On Mon, 27 Aug 2018 09:47:58 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> On 08/27/2018 04:33 AM, Cornelia Huck wrote:
+>>> On Thu, 23 Aug 2018 10:16:59 -0400
+>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>   
+>>>> On 08/23/2018 06:25 AM, Cornelia Huck wrote:
+>>>>> On Wed, 22 Aug 2018 15:16:19 -0400
+>>>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>>>      
+>>>>>> One of the things I suggested in a private conversation with Christian
+>>>>>> earlier
+>>>>>> today was to provide an additional rw sysfs attribute - a boolean - that
+>>>>>> indicates
+>>>>>> whether all usage domains should also be control domains. The default
+>>>>>> could be
+>>>>>> true. This would allow one to configure guests with usage-only domains
+>>>>>> as well
+>>>>>> as satisfy the convention.
+>>>>> Would this additional attribute then control "add usage domains to the
+>>>>> list of control domains automatically", or "don't allow to add a usage
+>>>>> domain if it has not already been added as a control domain"?
+>>>> It was just a proposal that wasn't really discussed at all, but this
+>>>> attribute would add usage domains to the list of control domains
+>>>> automatically if set to one. That would be the default behavior which
+>>>> would be turned off by manually setting it to zero.
+>>> If we want to do something like that, having it add the usage domains
+>>> automatically sounds like the more workable alternative. What I like
+>>> about this is that we make it explicit that we change the masks beyond
+>>> what the admin explicitly configured, and provide a knob to turn off
+>>> that behaviour.
+>> So, are you saying I should go ahead and implement this?
+> I'm just saying that it does not sound like a bad idea :)
+>
+> If you agree that it's a good idea and if others also like it... I'd
+> certainly not mind you going ahead :)
 
-You need to initialize the matrix_mdev->list before
-using it.
+This was discussed with out crypto team and hardware architects and it
+was decided that configuring all usage domains as control domains also
+is not the right thing to do, so only domains assigned as control
+domains will be set in the ADM field of the the guest's CRYCB.
 
-Regards,
-Pierre
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+>
