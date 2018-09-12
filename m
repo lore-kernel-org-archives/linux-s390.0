@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v10 15/26] KVM: s390: Clear Crypto Control Block when using vSIE
-Date: Wed, 12 Sep 2018 15:43:05 -0400
-Message-ID: <1536781396-13601-16-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v10 16/26] KVM: s390: vsie: Do the CRYCB validation first
+Date: Wed, 12 Sep 2018 15:43:06 -0400
+Message-ID: <1536781396-13601-17-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -14,32 +14,45 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Pierre Morel <pmorel@linux.ibm.com>
 
-When we clear the Crypto Control Block (CRYCB) used by a guest
-level 2, the vSIE shadow CRYCB for guest level 3 must be updated
-before the guest uses it.
-
-We achieve this by using the KVM_REQ_VSIE_RESTART synchronous
-request for each vCPU belonging to the guest to force the reload
-of the shadow CRYCB before rerunning the guest level 3.
+We need to handle the validity checks for the crycb, no matter what the
+settings for the keywrappings are. So lets move the keywrapping checks
+after we have done the validy checks.
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kvm/kvm-s390.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ arch/s390/kvm/vsie.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ac4c93f..2cdd980 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2043,6 +2043,8 @@ void kvm_arch_crypto_clear_masks(struct kvm *kvm)
- 	memset(&kvm->arch.crypto.crycb->apcb1, 0,
- 	       sizeof(kvm->arch.crypto.crycb->apcb1));
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 12b9707..38ea5da 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -161,17 +161,18 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	/* format-1 is supported with message-security-assist extension 3 */
+ 	if (!test_kvm_facility(vcpu->kvm, 76))
+ 		return 0;
+-	/* we may only allow it if enabled for guest 2 */
+-	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
+-		     (ECB3_AES | ECB3_DEA);
+-	if (!ecb3_flags)
+-		return 0;
  
-+	/* recreate the shadow crycb for each vcpu */
-+	kvm_s390_sync_request_broadcast(kvm, KVM_REQ_VSIE_RESTART);
- 	kvm_s390_vcpu_unblock_all(kvm);
- 	mutex_unlock(&kvm->lock);
- }
+ 	if ((crycb_addr & PAGE_MASK) != ((crycb_addr + 128) & PAGE_MASK))
+ 		return set_validity_icpt(scb_s, 0x003CU);
+ 	else if (!crycb_addr)
+ 		return set_validity_icpt(scb_s, 0x0039U);
+ 
++	/* we may only allow it if enabled for guest 2 */
++	ecb3_flags = scb_o->ecb3 & vcpu->arch.sie_block->ecb3 &
++		     (ECB3_AES | ECB3_DEA);
++	if (!ecb3_flags)
++		return 0;
++
+ 	/* copy only the wrapping keys */
+ 	if (read_guest_real(vcpu, crycb_addr + 72,
+ 			    vsie_page->crycb.dea_wrapping_key_mask, 56))
 -- 
 1.7.1
