@@ -1,47 +1,27 @@
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Date: Wed, 12 Sep 2018 14:47:15 +0000
-Subject: Re: [PATCH 1/2 v2] s390: qeth: Fix potential array overrun in cmd/rc lookup
-Message-Id: <4b8c9e01-6ed1-dcc4-7e64-494726a3b746@linux.ibm.com>
-In-Reply-To: <20180910165233.377f3cae@endymion>
-References: <20180910165233.377f3cae@endymion>
+From: Jean Delvare <jdelvare@suse.de>
+Date: Wed, 12 Sep 2018 14:59:20 +0000
+Subject: Re: [PATCH 2/2] s390: qeth: Avoid unneeded command name lookup
+Message-Id: <1536764360.18788.19.camel@suse.de>
+In-Reply-To: <65861df5-afbe-e8b4-ea6e-37c12d6c2301@linux.ibm.com>
+References: <65861df5-afbe-e8b4-ea6e-37c12d6c2301@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10.09.2018 16:52, Jean Delvare wrote:
-> Functions qeth_get_ipa_msg and qeth_get_ipa_cmd_name are modifying
-> the last member of global arrays without any locking that I can see.
-> If two instances of either function are running at the same time,
-> it could cause a race ultimately leading to an array overrun (the
-> contents of the last entry of the array is the only guarantee that
-> the loop will ever stop).
-> 
-> Performing the lookups without modifying the arrays is admittedly
-> slower (two comparisons per iteration instead of one) but these
-> are operations which are rare (should only be needed in error
-> cases or when debugging, not during successful operation) and it
-> seems still less costly than introducing a mutex to protect the
-> arrays in question.
-> 
-> As a side bonus, it allows us to declare both arrays as const data.
-> 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Julian Wiedmann <jwi@linux.ibm.com>
-> Cc: Ursula Braun <ubraun@linux.ibm.com>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
-> Note: build-tested only.
-> Note: applies on top of zhong jiang's patch which makes use of
-> ARRAY_SIZE.
-> 
-> Changes since v1:
->  * Restored last entry of qeth_ipa_cmd_names[], which had been removed
->    by accident. Reported by Ursula Braun.
-> 
->  drivers/s390/net/qeth_core_main.c |    2 +-
->  drivers/s390/net/qeth_core_mpc.c  |   30 ++++++++++++++++--------------
->  drivers/s390/net/qeth_core_mpc.h  |    4 ++--
->  3 files changed, 19 insertions(+), 17 deletions(-)
-> 
+Hi Julian,
 
-Looks good - applied, thanks Jean!
+On Wed, 2018-09-12 at 16:50 +0200, Julian Wiedmann wrote:
+> Thanks Jean, but I'd rather pass on this one. I don't see an improvement
+> in readability, and performance just isn't a concern for this specific
+> path... there's hardly any traffic on the interface's control plane.
+
+Sure, you will know better. The initial optimization of
+qeth_get_ipa_msg() and qeth_get_ipa_cmd_name() made me wonder if maybe
+performance was considered important on these paths, and this is why I
+wanted to pay attention that my changes would not cause a performance
+regression. If there is no such concern then all is well and this
+second patch is indeed not needed.
+
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
