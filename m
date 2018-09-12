@@ -1,30 +1,47 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Date: Wed, 12 Sep 2018 14:04:27 +0000
-Subject: Re: [RFC PATCH 0/2] virtio/s390: fix some races in virtio-ccw
-Message-Id: <abdfff3e-3b63-17f0-5124-618799b7a1f1@linux.ibm.com>
-In-Reply-To: <20180912140202.12292-1-pasic@linux.ibm.com>
-References: <20180912140202.12292-1-pasic@linux.ibm.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Wed, 12 Sep 2018 14:47:15 +0000
+Subject: Re: [PATCH 1/2 v2] s390: qeth: Fix potential array overrun in cmd/rc lookup
+Message-Id: <4b8c9e01-6ed1-dcc4-7e64-494726a3b746@linux.ibm.com>
+In-Reply-To: <20180910165233.377f3cae@endymion>
+References: <20180910165233.377f3cae@endymion>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 09/12/2018 04:02 PM, Halil Pasic wrote:
-> Came up with these while investigating
-> https://bugzilla.linux.ibm.com/show_bug.cgi?id=170918
-
-Sorry bad reference, this is the correct one
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1788432
-
+On 10.09.2018 16:52, Jean Delvare wrote:
+> Functions qeth_get_ipa_msg and qeth_get_ipa_cmd_name are modifying
+> the last member of global arrays without any locking that I can see.
+> If two instances of either function are running at the same time,
+> it could cause a race ultimately leading to an array overrun (the
+> contents of the last entry of the array is the only guarantee that
+> the loop will ever stop).
 > 
-> It's RFC because I don't really understand the original design, and I'm
-> not sure this is the best way to fix the problems. Thus took I took
-> minimal intrusive approach.
+> Performing the lookups without modifying the arrays is admittedly
+> slower (two comparisons per iteration instead of one) but these
+> are operations which are rare (should only be needed in error
+> cases or when debugging, not during successful operation) and it
+> seems still less costly than introducing a mutex to protect the
+> arrays in question.
 > 
-> Halil Pasic (2):
->    virtio/s390: avoid race on vcdev->config
->    virtio/s390: fix race in ccw_io_helper()
+> As a side bonus, it allows us to declare both arrays as const data.
 > 
->   drivers/s390/virtio/virtio_ccw.c | 17 ++++++++++++++---
->   1 file changed, 14 insertions(+), 3 deletions(-)
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: Julian Wiedmann <jwi@linux.ibm.com>
+> Cc: Ursula Braun <ubraun@linux.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+> Note: build-tested only.
+> Note: applies on top of zhong jiang's patch which makes use of
+> ARRAY_SIZE.
 > 
+> Changes since v1:
+>  * Restored last entry of qeth_ipa_cmd_names[], which had been removed
+>    by accident. Reported by Ursula Braun.
+> 
+>  drivers/s390/net/qeth_core_main.c |    2 +-
+>  drivers/s390/net/qeth_core_mpc.c  |   30 ++++++++++++++++--------------
+>  drivers/s390/net/qeth_core_mpc.h  |    4 ++--
+>  3 files changed, 19 insertions(+), 17 deletions(-)
+> 
+
+Looks good - applied, thanks Jean!
