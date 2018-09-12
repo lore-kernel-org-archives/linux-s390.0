@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v10 21/26] KVM: s390: vsie: allow guest FORMAT-0 CRYCB on host FORMAT-1
-Date: Wed, 12 Sep 2018 15:43:11 -0400
-Message-ID: <1536781396-13601-22-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v10 23/26] KVM: s390: vsie: allow guest FORMAT-0 CRYCB on host FORMAT-2
+Date: Wed, 12 Sep 2018 15:43:13 -0400
+Message-ID: <1536781396-13601-24-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -15,40 +15,29 @@ List-ID: <linux-s390.vger.kernel.org>
 From: Pierre Morel <pmorel@linux.ibm.com>
 
 When the guest schedules a SIE with a FORMAT-0 CRYCB,
-we are able to schedule it in the host with a FORMAT-1
-CRYCB if the host uses FORMAT-1 or FORMAT-0.
+we are able to schedule it in the host with a FORMAT-2
+CRYCB if the host uses FORMAT-2
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c |   14 ++++++++++----
- 1 files changed, 10 insertions(+), 4 deletions(-)
+ arch/s390/kvm/vsie.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 67a5536..90ae310 100644
+index ca64663..9117891 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -220,11 +220,17 @@ static int setup_apcb(struct kvm_vcpu *vcpu, struct kvm_s390_crypto_cb *crycb_s,
- 	case CRYCB_FORMAT0:
- 		if ((crycb_o & PAGE_MASK) != ((crycb_o + 32) & PAGE_MASK))
- 			return -EACCES;
--		if (fmt_h != CRYCB_FORMAT0)
-+
-+		switch (fmt_h) {
-+		case CRYCB_FORMAT2:
- 			return -EINVAL;
--		return setup_apcb00(vcpu, (unsigned long *) &crycb_s->apcb0,
--				    (unsigned long) &crycb->apcb0,
--				    (unsigned long *) &crycb_h->apcb0);
-+		case CRYCB_FORMAT1:
-+		case CRYCB_FORMAT0:
-+			return setup_apcb00(vcpu,
-+					    (unsigned long *) &crycb_s->apcb0,
+@@ -246,7 +246,9 @@ static int setup_apcb(struct kvm_vcpu *vcpu, struct kvm_s390_crypto_cb *crycb_s,
+ 
+ 		switch (fmt_h) {
+ 		case CRYCB_FORMAT2:
+-			return -EINVAL;
++			return setup_apcb10(vcpu, &crycb_s->apcb1,
 +					    (unsigned long) &crycb->apcb0,
-+					    (unsigned long *) &crycb_h->apcb0);
-+		}
- 	}
- 	return -EINVAL;
- }
++					    &crycb_h->apcb1);
+ 		case CRYCB_FORMAT1:
+ 		case CRYCB_FORMAT0:
+ 			return setup_apcb00(vcpu,
 -- 
 1.7.1
