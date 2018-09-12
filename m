@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v10 22/26] KVM: s390: vsie: allow guest FORMAT-1 CRYCB on host FORMAT-2
-Date: Wed, 12 Sep 2018 15:43:12 -0400
-Message-ID: <1536781396-13601-23-git-send-email-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v10 24/26] KVM: s390: device attrs to enable/disable AP interpretation
+Date: Wed, 12 Sep 2018 15:43:14 -0400
+Message-ID: <1536781396-13601-25-git-send-email-akrowiak@linux.vnet.ibm.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
@@ -9,71 +9,142 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, frankja@linux.ibm.com, Pierre Morel <pmorel@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Pierre Morel <pmorel@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-When the guest schedules a SIE with a CRYCB FORMAT-1 CRYCB,
-we are able to schedule it in the host with a FORMAT-2 CRYCB
-if the host uses FORMAT-2.
+Introduces two new VM crypto device attributes (KVM_S390_VM_CRYPTO)
+to enable or disable AP instruction interpretation from userspace
+via the KVM_SET_DEVICE_ATTR ioctl:
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+* The KVM_S390_VM_CRYPTO_ENABLE_APIE attribute enables hardware
+  interpretation of AP instructions executed on the guest.
+
+* The KVM_S390_VM_CRYPTO_DISABLE_APIE attribute disables hardware
+  interpretation of AP instructions executed on the guest. In this
+  case the instructions will be intercepted and pass through to
+  the guest.
+
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c |   33 ++++++++++++++++++++++++++++-----
- 1 files changed, 28 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/kvm_host.h |    1 +
+ arch/s390/include/uapi/asm/kvm.h |    2 ++
+ arch/s390/kvm/kvm-s390.c         |   27 +++++++++++++++++++++++----
+ 3 files changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 90ae310..ca64663 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -135,6 +135,22 @@ static int prepare_cpuflags(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	atomic_set(&scb_s->cpuflags, newflags);
- 	return 0;
- }
-+/* Copy to APCB FORMAT1 from APCB FORMAT0 */
-+static int setup_apcb10(struct kvm_vcpu *vcpu, struct kvm_s390_apcb1 *apcb_s,
-+			unsigned long apcb_o, struct kvm_s390_apcb1 *apcb_h)
-+{
-+	struct kvm_s390_apcb0 tmp;
-+
-+	if (read_guest_real(vcpu, apcb_o, &tmp, sizeof(struct kvm_s390_apcb0)))
-+		return -EFAULT;
-+
-+	apcb_s->apm[0] = apcb_h->apm[0] & tmp.apm[0];
-+	apcb_s->aqm[0] = apcb_h->aqm[0] & tmp.aqm[0] & 0xffff000000000000UL;
-+	apcb_s->adm[0] = apcb_h->adm[0] & tmp.adm[0] & 0xffff000000000000UL;
-+
-+	return 0;
-+
-+}
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index b32bd1b..36d3531 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -719,6 +719,7 @@ struct kvm_s390_crypto {
+ 	__u32 crycbd;
+ 	__u8 aes_kw;
+ 	__u8 dea_kw;
++	__u8 apie;
+ };
  
- /**
-  * setup_apcb00 - Copy to APCB FORMAT0 from APCB FORMAT0
-@@ -212,11 +228,18 @@ static int setup_apcb(struct kvm_vcpu *vcpu, struct kvm_s390_crypto_cb *crycb_s,
- 				    (unsigned long) &crycb->apcb1,
- 				    (unsigned long *)&crycb_h->apcb1);
- 	case CRYCB_FORMAT1:
--		if (fmt_h != CRYCB_FORMAT1)
--			return -EINVAL;
--		return setup_apcb00(vcpu, (unsigned long *) &crycb_s->apcb0,
--				    (unsigned long) &crycb->apcb0,
--				    (unsigned long *) &crycb_h->apcb0);
-+		switch (fmt_h) {
-+		case CRYCB_FORMAT2:
-+			return setup_apcb10(vcpu, &crycb_s->apcb1,
-+					    (unsigned long) &crycb->apcb0,
-+					    &crycb_h->apcb1);
-+		case CRYCB_FORMAT1:
-+			return setup_apcb00(vcpu,
-+					    (unsigned long *) &crycb_s->apcb0,
-+					    (unsigned long) &crycb->apcb0,
-+					    (unsigned long *) &crycb_h->apcb0);
+ #define APCB0_MASK_SIZE 1
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 8c23afc..a8dbd90 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -161,6 +161,8 @@ struct kvm_s390_vm_cpu_subfunc {
+ #define KVM_S390_VM_CRYPTO_ENABLE_DEA_KW	1
+ #define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
+ #define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
++#define KVM_S390_VM_CRYPTO_ENABLE_APIE		4
++#define KVM_S390_VM_CRYPTO_DISABLE_APIE		5
+ 
+ /* kvm attributes for migration mode */
+ #define KVM_S390_VM_MIGRATION_STOP	0
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2cdd980..286c2e0 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -856,12 +856,11 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm)
+ 
+ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+ {
+-	if (!test_kvm_facility(kvm, 76))
+-		return -EINVAL;
+-
+ 	mutex_lock(&kvm->lock);
+ 	switch (attr->attr) {
+ 	case KVM_S390_VM_CRYPTO_ENABLE_AES_KW:
++		if (!test_kvm_facility(kvm, 76))
++			return -EINVAL;
+ 		get_random_bytes(
+ 			kvm->arch.crypto.crycb->aes_wrapping_key_mask,
+ 			sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
+@@ -869,6 +868,8 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		VM_EVENT(kvm, 3, "%s", "ENABLE: AES keywrapping support");
+ 		break;
+ 	case KVM_S390_VM_CRYPTO_ENABLE_DEA_KW:
++		if (!test_kvm_facility(kvm, 76))
++			return -EINVAL;
+ 		get_random_bytes(
+ 			kvm->arch.crypto.crycb->dea_wrapping_key_mask,
+ 			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
+@@ -876,17 +877,31 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		VM_EVENT(kvm, 3, "%s", "ENABLE: DEA keywrapping support");
+ 		break;
+ 	case KVM_S390_VM_CRYPTO_DISABLE_AES_KW:
++		if (!test_kvm_facility(kvm, 76))
++			return -EINVAL;
+ 		kvm->arch.crypto.aes_kw = 0;
+ 		memset(kvm->arch.crypto.crycb->aes_wrapping_key_mask, 0,
+ 			sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
+ 		VM_EVENT(kvm, 3, "%s", "DISABLE: AES keywrapping support");
+ 		break;
+ 	case KVM_S390_VM_CRYPTO_DISABLE_DEA_KW:
++		if (!test_kvm_facility(kvm, 76))
++			return -EINVAL;
+ 		kvm->arch.crypto.dea_kw = 0;
+ 		memset(kvm->arch.crypto.crycb->dea_wrapping_key_mask, 0,
+ 			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
+ 		VM_EVENT(kvm, 3, "%s", "DISABLE: DEA keywrapping support");
+ 		break;
++	case KVM_S390_VM_CRYPTO_ENABLE_APIE:
++		if (!ap_instructions_available()) {
++			mutex_unlock(&kvm->lock);
++			return -EOPNOTSUPP;
 +		}
++		kvm->arch.crypto.apie = 1;
 +		break;
- 	case CRYCB_FORMAT0:
- 		if ((crycb_o & PAGE_MASK) != ((crycb_o + 32) & PAGE_MASK))
- 			return -EACCES;
++	case KVM_S390_VM_CRYPTO_DISABLE_APIE:
++		kvm->arch.crypto.apie = 0;
++		break;
+ 	default:
+ 		mutex_unlock(&kvm->lock);
+ 		return -ENXIO;
+@@ -1493,6 +1508,8 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		case KVM_S390_VM_CRYPTO_ENABLE_DEA_KW:
+ 		case KVM_S390_VM_CRYPTO_DISABLE_AES_KW:
+ 		case KVM_S390_VM_CRYPTO_DISABLE_DEA_KW:
++		case KVM_S390_VM_CRYPTO_ENABLE_APIE:
++		case KVM_S390_VM_CRYPTO_DISABLE_APIE:
+ 			ret = 0;
+ 			break;
+ 		default:
+@@ -2062,6 +2079,7 @@ static u64 kvm_s390_get_initial_cpuid(void)
+ static void kvm_s390_crypto_init(struct kvm *kvm)
+ {
+ 	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
++	kvm->arch.crypto.apie = 0;
+ 	kvm_s390_set_crycb_format(kvm);
+ 
+ 	if (!test_kvm_facility(kvm, 76))
+@@ -2602,8 +2620,9 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+ 
+ 	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
+ 	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
++	vcpu->arch.sie_block->eca &= ~ECA_APIE;
+ 
+-	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
++	if (vcpu->kvm->arch.crypto.apie)
+ 		vcpu->arch.sie_block->eca |= ECA_APIE;
+ 
+ 	/* Set up protected key support */
 -- 
 1.7.1
