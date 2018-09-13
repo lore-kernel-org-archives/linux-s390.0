@@ -1,55 +1,44 @@
-From: =?UTF-8?q?Leonardo=20Br=C3=A1s?= <leobras.c@gmail.com>
-Subject: [PATCH v3 7/7] drivers: hwtracing: Adds Makefile to enable building from directory.
-Date: Thu, 27 Sep 2018 23:08:16 -0300
-Message-ID: <20180928020816.11251-8-leobras.c@gmail.com>
-References: <20180928020816.11251-1-leobras.c@gmail.com>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v2 0/8] add support for relative references in jump tables
+Date: Thu, 13 Sep 2018 14:40:12 -0700
+Message-ID: <CAGXu5jJ9hD8-2ioAKdXKc8uV+OjRSJVUftd9rY9RfW7Tkor=kw@mail.gmail.com>
+References: <20180702181145.4799-1-ard.biesheuvel@linaro.org>
+ <20180704075923.GF3701@osiris> <CAKv+Gu-O3mMJHH2P7L9anXeKZtEQYcN8Am4-3xkzAQSFWUN+=w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180928020816.11251-1-leobras.c@gmail.com>
-List-Archive: <https://lore.kernel.org/linux-parisc/>
-List-Post: <mailto:linux-parisc@vger.kernel.org>
-To: lkcamp@lists.libreplanetbr.org
-Cc: =?UTF-8?q?Leonardo=20Br=C3=A1s?= <leobras.c@gmail.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@telegraphics.com.au>, Robert Richter <rric@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, oprofile-list@lists.sf.net, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <CAKv+Gu-O3mMJHH2P7L9anXeKZtEQYcN8Am4-3xkzAQSFWUN+=w@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
-Content-Transfer-Encoding: 8bit
 
-Adds Makefile to enable building the driver using
-'make drivers/hwtracing/'.
-Changes drivers/Makefile to call the new Makefile directly.
-It enables user building this driver without building the whole drivers/
-subtree.
+On Wed, Jul 4, 2018 at 1:50 AM, Ard Biesheuvel
+<ard.biesheuvel@linaro.org> wrote:
+> On 4 July 2018 at 09:59, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+>> On Mon, Jul 02, 2018 at 08:11:37PM +0200, Ard Biesheuvel wrote:
+>>> This series implements support for emitting the data structures associated
+>>> with jump tables as 32-bit relative references instead of absolute
+>>> references, which take up more space on builds that target 64-bit
+>>> architectures, or implement self relocation [or both].
+>>>
+>>> This series enables it for arm64 and x86, although other architectures
+>>> might benefit as well.
+>>
+>> Hello Ard,
+>>
+>> feel free to add the patch below which adds support for s390 to your series.
+>>
+>
+> Thanks, I will incorporate it into v3 and beyond.
 
-Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
----
- drivers/Makefile           | 4 +---
- drivers/hwtracing/Makefile | 3 +++
- 2 files changed, 4 insertions(+), 3 deletions(-)
- create mode 100644 drivers/hwtracing/Makefile
+Just a quick status check! :) What're your plans for this series? I'd
+still love to see it.
 
-diff --git a/drivers/Makefile b/drivers/Makefile
-index 578f469f72fb..a237be6b602f 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -174,9 +174,7 @@ obj-$(CONFIG_MCB)		+= mcb/
- obj-$(CONFIG_PERF_EVENTS)	+= perf/
- obj-$(CONFIG_RAS)		+= ras/
- obj-$(CONFIG_THUNDERBOLT)	+= thunderbolt/
--obj-$(CONFIG_CORESIGHT)		+= hwtracing/coresight/
--obj-y				+= hwtracing/intel_th/
--obj-$(CONFIG_STM)		+= hwtracing/stm/
-+obj-y				+= hwtracing/
- obj-$(CONFIG_ANDROID)		+= android/
- obj-$(CONFIG_NVMEM)		+= nvmem/
- obj-$(CONFIG_FPGA)		+= fpga/
-diff --git a/drivers/hwtracing/Makefile b/drivers/hwtracing/Makefile
-new file mode 100644
-index 000000000000..fe5773caec49
---- /dev/null
-+++ b/drivers/hwtracing/Makefile
-@@ -0,0 +1,3 @@
-+obj-$(CONFIG_CORESIGHT)		+= coresight/
-+obj-y				+= intel_th/
-+obj-$(CONFIG_STM)		+= stm/
+-Kees
+
 -- 
-2.19.0
+Kees Cook
+Pixel Security
