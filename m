@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 10/15] s390/qeth: remove qeth_hdr_chk_and_bounce()
-Date: Mon, 17 Sep 2018 17:36:04 +0200
-Message-ID: <20180917153609.94628-11-jwi@linux.ibm.com>
+Subject: [PATCH net-next 15/15] s390/qeth: reduce 0-initializing when building IPA cmds
+Date: Mon, 17 Sep 2018 17:36:09 +0200
+Message-ID: <20180917153609.94628-16-jwi@linux.ibm.com>
 References: <20180917153609.94628-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180917153609.94628-1-jwi@linux.ibm.com>
@@ -12,111 +12,69 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Restructure the OSN xmit path to handle misaligned HW headers properly,
-without shifting the packet data around.
+qeth_get_ipacmd_buffer() obtains its buffers for building IPA cmds from
+__qeth_get_buffer(), where they are fully cleared. So get rid of all the
+additional zero-ing in various other places.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |  1 -
- drivers/s390/net/qeth_core_main.c | 21 ---------------------
- drivers/s390/net/qeth_l2_main.c   | 37 ++++++++++++++++++++++++++++---------
- 3 files changed, 28 insertions(+), 31 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 1c9fce609eb9..be213b5c2552 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -1021,7 +1021,6 @@ void qeth_dbf_longtext(debug_info_t *id, int level, char *text, ...);
- int qeth_core_ethtool_get_link_ksettings(struct net_device *netdev,
- 					 struct ethtool_link_ksettings *cmd);
- int qeth_set_access_ctrl_online(struct qeth_card *card, int fallback);
--int qeth_hdr_chk_and_bounce(struct sk_buff *, struct qeth_hdr **, int);
- int qeth_configure_cq(struct qeth_card *, enum qeth_cq);
- int qeth_hw_trap(struct qeth_card *, enum qeth_diags_trap_action);
- void qeth_trace_features(struct qeth_card *);
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 7426167eace2..c7f7061a7205 100644
+index 100b6f4a3fb8..89e09e7b8fff 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -3823,27 +3823,6 @@ unsigned int qeth_count_elements(struct sk_buff *skb, unsigned int data_offset)
+@@ -780,7 +780,6 @@ void qeth_release_buffer(struct qeth_channel *channel,
+ 
+ 	QETH_CARD_TEXT(CARD_FROM_CDEV(channel->ccwdev), 6, "relbuff");
+ 	spin_lock_irqsave(&channel->iob_lock, flags);
+-	memset(iob->data, 0, QETH_BUFSIZE);
+ 	iob->state = BUF_STATE_FREE;
+ 	iob->callback = qeth_send_control_data_cb;
+ 	iob->rc = 0;
+@@ -1334,8 +1333,8 @@ static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
+ 		return 0;
+ 
+ 	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++) {
+-		channel->iob[cnt].data =
+-			kzalloc(QETH_BUFSIZE, GFP_DMA|GFP_KERNEL);
++		channel->iob[cnt].data = kmalloc(QETH_BUFSIZE,
++						 GFP_KERNEL | GFP_DMA);
+ 		if (channel->iob[cnt].data == NULL)
+ 			break;
+ 		channel->iob[cnt].state = BUF_STATE_FREE;
+@@ -2888,10 +2887,10 @@ static __u8 qeth_get_ipa_adp_type(enum qeth_link_types link_type)
  }
- EXPORT_SYMBOL_GPL(qeth_count_elements);
  
--int qeth_hdr_chk_and_bounce(struct sk_buff *skb, struct qeth_hdr **hdr, int len)
--{
--	int hroom, inpage, rest;
--
--	if (((unsigned long)skb->data & PAGE_MASK) !=
--	    (((unsigned long)skb->data + len - 1) & PAGE_MASK)) {
--		hroom = skb_headroom(skb);
--		inpage = PAGE_SIZE - ((unsigned long) skb->data % PAGE_SIZE);
--		rest = len - inpage;
--		if (rest > hroom)
--			return 1;
--		memmove(skb->data - rest, skb->data, skb_headlen(skb));
--		skb->data -= rest;
--		skb->tail -= rest;
--		*hdr = (struct qeth_hdr *)skb->data;
--		QETH_DBF_MESSAGE(2, "skb bounce len: %d rest: %d\n", len, rest);
--	}
--	return 0;
--}
--EXPORT_SYMBOL_GPL(qeth_hdr_chk_and_bounce);
--
- #define QETH_HDR_CACHE_OBJ_SIZE		(sizeof(struct qeth_hdr_tso) + \
- 					 MAX_TCP_HEADER)
- 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 24b531ca2827..33b65471a68a 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -650,19 +650,38 @@ static void qeth_l2_set_rx_mode(struct net_device *dev)
- static int qeth_l2_xmit_osn(struct qeth_card *card, struct sk_buff *skb,
- 			    struct qeth_qdio_out_q *queue)
+ static void qeth_fill_ipacmd_header(struct qeth_card *card,
+-		struct qeth_ipa_cmd *cmd, __u8 command,
+-		enum qeth_prot_versions prot)
++				    struct qeth_ipa_cmd *cmd,
++				    enum qeth_ipa_cmds command,
++				    enum qeth_prot_versions prot)
  {
--	unsigned int elements;
--	struct qeth_hdr *hdr;
-+	struct qeth_hdr *hdr = (struct qeth_hdr *)skb->data;
-+	addr_t end = (addr_t)(skb->data + sizeof(*hdr));
-+	addr_t start = (addr_t)skb->data;
-+	unsigned int elements = 0;
-+	unsigned int hd_len = 0;
-+	int rc;
- 
- 	if (skb->protocol == htons(ETH_P_IPV6))
- 		return -EPROTONOSUPPORT;
- 
--	hdr = (struct qeth_hdr *)skb->data;
--	elements = qeth_count_elements(skb, 0);
--	if (elements > QETH_MAX_BUFFER_ELEMENTS(card))
--		return -E2BIG;
--	if (qeth_hdr_chk_and_bounce(skb, &hdr, sizeof(*hdr)))
--		return -EINVAL;
--	return qeth_do_send_packet(card, queue, skb, hdr, 0, 0, elements);
-+	if (qeth_get_elements_for_range(start, end) > 1) {
-+		/* Misaligned HW header, move it to its own buffer element. */
-+		hdr = kmem_cache_alloc(qeth_core_header_cache, GFP_ATOMIC);
-+		if (!hdr)
-+			return -ENOMEM;
-+		hd_len = sizeof(*hdr);
-+		skb_copy_from_linear_data(skb, (char *)hdr, hd_len);
-+		elements++;
-+	}
-+
-+	elements += qeth_count_elements(skb, hd_len);
-+	if (elements > QETH_MAX_BUFFER_ELEMENTS(card)) {
-+		rc = -E2BIG;
-+		goto out;
-+	}
-+
-+	rc = qeth_do_send_packet(card, queue, skb, hdr, hd_len, hd_len,
-+				 elements);
-+out:
-+	if (rc && hd_len)
-+		kmem_cache_free(qeth_core_header_cache, hdr);
-+	return rc;
+-	memset(cmd, 0, sizeof(struct qeth_ipa_cmd));
+ 	cmd->hdr.command = command;
+ 	cmd->hdr.initiator = IPA_CMD_INITIATOR_HOST;
+ 	/* cmd->hdr.seqno is set by qeth_send_control_data() */
+@@ -2903,8 +2902,6 @@ static void qeth_fill_ipacmd_header(struct qeth_card *card,
+ 		cmd->hdr.prim_version_no = 1;
+ 	cmd->hdr.param_count = 1;
+ 	cmd->hdr.prot_version = prot;
+-	cmd->hdr.ipa_supported = 0;
+-	cmd->hdr.ipa_enabled = 0;
  }
  
- static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
+ struct qeth_cmd_buffer *qeth_get_ipacmd_buffer(struct qeth_card *card,
+@@ -5494,8 +5491,6 @@ struct qeth_cmd_buffer *qeth_get_setassparms_cmd(struct qeth_card *card,
+ 		cmd->data.setassparms.hdr.assist_no = ipa_func;
+ 		cmd->data.setassparms.hdr.length = 8 + len;
+ 		cmd->data.setassparms.hdr.command_code = cmd_code;
+-		cmd->data.setassparms.hdr.return_code = 0;
+-		cmd->data.setassparms.hdr.seq_no = 0;
+ 	}
+ 
+ 	return iob;
 -- 
 2.16.4
