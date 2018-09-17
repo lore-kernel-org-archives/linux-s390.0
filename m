@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 09/15] s390/qeth: speed up TSO transmission
-Date: Mon, 17 Sep 2018 17:36:03 +0200
-Message-ID: <20180917153609.94628-10-jwi@linux.ibm.com>
+Subject: [PATCH net-next 11/15] s390/qeth: uninstall IRQ handler on device removal
+Date: Mon, 17 Sep 2018 17:36:05 +0200
+Message-ID: <20180917153609.94628-12-jwi@linux.ibm.com>
 References: <20180917153609.94628-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180917153609.94628-1-jwi@linux.ibm.com>
@@ -12,245 +12,177 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Switch TSO over to the faster transmit path, and remove all the unused
-old TSO code.
+When setting up, qeth installs its IRQ handler on the ccw devices. But
+the IRQ handler is not cleared on removal - so even after qeth yields
+control of the ccw devices, spurious interrupts would still be presented
+to us.
+
+Make (de-)installation of the IRQ handler part of the ccw channel
+setup/removal helpers, and while at it also add the appropriate locking.
+Shift around qeth_setup_channel() to avoid a forward declaration for
+qeth_irq().
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |   1 -
- drivers/s390/net/qeth_core_main.c |   3 +-
- drivers/s390/net/qeth_l3_main.c   | 151 ++------------------------------------
- 3 files changed, 6 insertions(+), 149 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 102 ++++++++++++++++++++------------------
+ 1 file changed, 54 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index d86eea9db2a7..1c9fce609eb9 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -1004,7 +1004,6 @@ int qeth_send_control_data(struct qeth_card *, int, struct qeth_cmd_buffer *,
- 	int (*reply_cb)(struct qeth_card *, struct qeth_reply*, unsigned long),
- 	void *reply_param);
- unsigned int qeth_count_elements(struct sk_buff *skb, unsigned int data_offset);
--int qeth_get_elements_for_frags(struct sk_buff *);
- int qeth_do_send_packet_fast(struct qeth_qdio_out_q *queue, struct sk_buff *skb,
- 			     struct qeth_hdr *hdr, unsigned int offset,
- 			     unsigned int hd_len);
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 460ffdf1b200..7426167eace2 100644
+index c7f7061a7205..b76e844811e1 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -3788,7 +3788,7 @@ EXPORT_SYMBOL_GPL(qeth_get_priority_queue);
-  * Returns the number of pages, and thus QDIO buffer elements, needed to cover
-  * fragmented part of the SKB. Returns zero for linear SKB.
-  */
--int qeth_get_elements_for_frags(struct sk_buff *skb)
-+static int qeth_get_elements_for_frags(struct sk_buff *skb)
- {
- 	int cnt, elements = 0;
- 
-@@ -3801,7 +3801,6 @@ int qeth_get_elements_for_frags(struct sk_buff *skb)
- 	}
- 	return elements;
- }
--EXPORT_SYMBOL_GPL(qeth_get_elements_for_frags);
- 
- /**
-  * qeth_count_elements() -	Counts the number of QDIO buffer elements needed
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index fe55218802d7..5d7e2921ab36 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -33,7 +33,6 @@
- #include <net/ipv6.h>
- #include <net/ip6_route.h>
- #include <net/ip6_fib.h>
--#include <net/ip6_checksum.h>
- #include <net/iucv/af_iucv.h>
- #include <linux/hashtable.h>
- 
-@@ -2118,70 +2117,6 @@ static void qeth_l3_fill_tso_ext(struct qeth_hdr_tso *hdr,
- 	ext->dg_hdr_len = proto_len;
+@@ -901,44 +901,6 @@ static void qeth_send_control_data_cb(struct qeth_channel *channel,
+ 	qeth_release_buffer(channel, iob);
  }
  
--static void qeth_tso_fill_header(struct qeth_card *card,
--		struct qeth_hdr *qhdr, struct sk_buff *skb)
+-static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
 -{
--	struct qeth_hdr_tso *hdr = (struct qeth_hdr_tso *)qhdr;
--	struct tcphdr *tcph = tcp_hdr(skb);
--	struct iphdr *iph = ip_hdr(skb);
--	struct ipv6hdr *ip6h = ipv6_hdr(skb);
+-	int cnt;
 -
--	/*set values which are fix for the first approach ...*/
--	hdr->ext.hdr_tot_len = (__u16) sizeof(struct qeth_hdr_ext_tso);
--	hdr->ext.imb_hdr_no  = 1;
--	hdr->ext.hdr_type    = 1;
--	hdr->ext.hdr_version = 1;
--	hdr->ext.hdr_len     = 28;
--	/*insert non-fix values */
--	hdr->ext.mss = skb_shinfo(skb)->gso_size;
--	hdr->ext.dg_hdr_len = (__u16)(ip_hdrlen(skb) + tcp_hdrlen(skb));
--	hdr->ext.payload_len = (__u16)(skb->len - hdr->ext.dg_hdr_len -
--				       sizeof(struct qeth_hdr_tso));
--	tcph->check = 0;
--	if (be16_to_cpu(skb->protocol) == ETH_P_IPV6) {
--		ip6h->payload_len = 0;
--		tcph->check = ~csum_ipv6_magic(&ip6h->saddr, &ip6h->daddr,
--					       0, IPPROTO_TCP, 0);
--	} else {
--		/*OSA want us to set these values ...*/
--		tcph->check = ~csum_tcpudp_magic(iph->saddr, iph->daddr,
--					 0, IPPROTO_TCP, 0);
--		iph->tot_len = 0;
--		iph->check = 0;
--	}
--}
+-	QETH_DBF_TEXT(SETUP, 2, "setupch");
 -
--/**
-- * qeth_l3_get_elements_no_tso() - find number of SBALEs for skb data for tso
-- * @card:			   qeth card structure, to check max. elems.
-- * @skb:			   SKB address
-- * @extra_elems:		   extra elems needed, to check against max.
-- *
-- * Returns the number of pages, and thus QDIO buffer elements, needed to cover
-- * skb data, including linear part and fragments, but excluding TCP header.
-- * Checks if the result plus extra_elems fits under the limit for the card.
-- * Returns 0 if it does not.
-- * Note: extra_elems is not included in the returned result.
-- */
--static int qeth_l3_get_elements_no_tso(struct qeth_card *card,
--			struct sk_buff *skb, int extra_elems)
--{
--	addr_t start = (addr_t)tcp_hdr(skb) + tcp_hdrlen(skb);
--	addr_t end = (addr_t)skb->data + skb_headlen(skb);
--	int elements = qeth_get_elements_for_frags(skb);
--
--	if (start != end)
--		elements += qeth_get_elements_for_range(start, end);
--
--	if ((elements + extra_elems) > QETH_MAX_BUFFER_ELEMENTS(card)) {
--		QETH_DBF_MESSAGE(2,
--	"Invalid size of TSO IP packet (Number=%d / Length=%d). Discarded.\n",
--				elements + extra_elems, skb->len);
--		return 0;
--	}
--	return elements;
--}
--
- static void qeth_l3_fixup_headers(struct sk_buff *skb)
- {
- 	struct iphdr *iph = ip_hdr(skb);
-@@ -2196,9 +2131,8 @@ static void qeth_l3_fixup_headers(struct sk_buff *skb)
- 	}
- }
- 
--static int qeth_l3_xmit_offload(struct qeth_card *card, struct sk_buff *skb,
--				struct qeth_qdio_out_q *queue, int ipv,
--				int cast_type)
-+static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
-+			struct qeth_qdio_out_q *queue, int ipv, int cast_type)
- {
- 	unsigned int hw_hdr_len, proto_len, frame_len, elements;
- 	unsigned char eth_hdr[ETH_HLEN];
-@@ -2282,81 +2216,6 @@ static int qeth_l3_xmit_offload(struct qeth_card *card, struct sk_buff *skb,
- 	return rc;
- }
- 
--static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
--			struct qeth_qdio_out_q *queue, int ipv, int cast_type)
--{
--	struct qeth_hdr *hdr = NULL;
--	struct sk_buff *new_skb = NULL;
--	int tx_bytes = skb->len;
--	unsigned int hd_len;
--	int elements, rc;
--	bool is_sg;
--
--	/* create a clone with writeable headroom */
--	new_skb = skb_realloc_headroom(skb, sizeof(struct qeth_hdr_tso));
--	if (!new_skb)
+-	channel->ccw = kmalloc(sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
+-	if (!channel->ccw)
 -		return -ENOMEM;
+-	channel->state = CH_STATE_DOWN;
+-	atomic_set(&channel->irq_pending, 0);
+-	init_waitqueue_head(&channel->wait_q);
 -
--	skb_pull(new_skb, ETH_HLEN);
+-	if (!alloc_buffers)
+-		return 0;
 -
--	/* fix hardware limitation: as long as we do not have sbal
--	 * chaining we can not send long frag lists
--	 */
--	if (!qeth_l3_get_elements_no_tso(card, new_skb, 1)) {
--		rc = skb_linearize(new_skb);
--
--		if (card->options.performance_stats) {
--			if (rc)
--				card->perf_stats.tx_linfail++;
--			else
--				card->perf_stats.tx_lin++;
--		}
--		if (rc)
--			goto out;
+-	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++) {
+-		channel->iob[cnt].data =
+-			kzalloc(QETH_BUFSIZE, GFP_DMA|GFP_KERNEL);
+-		if (channel->iob[cnt].data == NULL)
+-			break;
+-		channel->iob[cnt].state = BUF_STATE_FREE;
+-		channel->iob[cnt].channel = channel;
+-		channel->iob[cnt].callback = qeth_send_control_data_cb;
+-		channel->iob[cnt].rc = 0;
 -	}
--
--	hdr = skb_push(new_skb, sizeof(struct qeth_hdr_tso));
--	memset(hdr, 0, sizeof(struct qeth_hdr_tso));
--	qeth_l3_fill_header(card, hdr, new_skb, ipv, cast_type,
--			    new_skb->len - sizeof(struct qeth_hdr_tso));
--	qeth_tso_fill_header(card, hdr, new_skb);
--
--	elements = qeth_l3_get_elements_no_tso(card, new_skb, 1);
--	if (!elements) {
--		rc = -E2BIG;
--		goto out;
+-	if (cnt < QETH_CMD_BUFFER_NO) {
+-		kfree(channel->ccw);
+-		while (cnt-- > 0)
+-			kfree(channel->iob[cnt].data);
+-		return -ENOMEM;
 -	}
--	elements++;
+-	channel->io_buf_no = 0;
+-	spin_lock_init(&channel->iob_lock);
 -
--	hd_len = sizeof(struct qeth_hdr_tso) + ip_hdrlen(new_skb) +
--		 tcp_hdrlen(new_skb);
--
--	if (qeth_hdr_chk_and_bounce(new_skb, &hdr, hd_len)) {
--		rc = -EINVAL;
--		goto out;
--	}
--
--	is_sg = skb_is_nonlinear(new_skb);
--	rc = qeth_do_send_packet(card, queue, new_skb, hdr, hd_len, hd_len,
--				 elements);
--out:
--	if (!rc) {
--		if (new_skb != skb)
--			dev_kfree_skb_any(skb);
--		if (card->options.performance_stats) {
--			card->perf_stats.buf_elements_sent += elements;
--			if (is_sg)
--				card->perf_stats.sg_skbs_sent++;
--			card->perf_stats.large_send_bytes += tx_bytes;
--			card->perf_stats.large_send_cnt++;
--		}
--	} else {
--		if (new_skb != skb)
--			dev_kfree_skb_any(new_skb);
--	}
--	return rc;
+-	return 0;
 -}
 -
- static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 					   struct net_device *dev)
+ static int qeth_set_thread_start_bit(struct qeth_card *card,
+ 		unsigned long thread)
  {
-@@ -2392,9 +2251,7 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
+@@ -1337,14 +1299,61 @@ static void qeth_free_buffer_pool(struct qeth_card *card)
+ 
+ static void qeth_clean_channel(struct qeth_channel *channel)
+ {
++	struct ccw_device *cdev = channel->ccwdev;
+ 	int cnt;
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "freech");
++
++	spin_lock_irq(get_ccwdev_lock(cdev));
++	cdev->handler = NULL;
++	spin_unlock_irq(get_ccwdev_lock(cdev));
++
+ 	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++)
+ 		kfree(channel->iob[cnt].data);
+ 	kfree(channel->ccw);
+ }
+ 
++static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
++{
++	struct ccw_device *cdev = channel->ccwdev;
++	int cnt;
++
++	QETH_DBF_TEXT(SETUP, 2, "setupch");
++
++	channel->ccw = kmalloc(sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
++	if (!channel->ccw)
++		return -ENOMEM;
++	channel->state = CH_STATE_DOWN;
++	atomic_set(&channel->irq_pending, 0);
++	init_waitqueue_head(&channel->wait_q);
++
++	spin_lock_irq(get_ccwdev_lock(cdev));
++	cdev->handler = qeth_irq;
++	spin_unlock_irq(get_ccwdev_lock(cdev));
++
++	if (!alloc_buffers)
++		return 0;
++
++	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++) {
++		channel->iob[cnt].data =
++			kzalloc(QETH_BUFSIZE, GFP_DMA|GFP_KERNEL);
++		if (channel->iob[cnt].data == NULL)
++			break;
++		channel->iob[cnt].state = BUF_STATE_FREE;
++		channel->iob[cnt].channel = channel;
++		channel->iob[cnt].callback = qeth_send_control_data_cb;
++		channel->iob[cnt].rc = 0;
++	}
++	if (cnt < QETH_CMD_BUFFER_NO) {
++		qeth_clean_channel(channel);
++		return -ENOMEM;
++	}
++	channel->io_buf_no = 0;
++	spin_lock_init(&channel->iob_lock);
++
++	return 0;
++}
++
+ static void qeth_set_single_write_queues(struct qeth_card *card)
+ {
+ 	if ((atomic_read(&card->qdio.state) != QETH_QDIO_UNINITIALIZED) &&
+@@ -1495,7 +1504,7 @@ static void qeth_core_sl_print(struct seq_file *m, struct service_level *slr)
+ 			CARD_BUS_ID(card), card->info.mcl_level);
+ }
+ 
+-static struct qeth_card *qeth_alloc_card(void)
++static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
+ {
+ 	struct qeth_card *card;
+ 
+@@ -1504,6 +1513,11 @@ static struct qeth_card *qeth_alloc_card(void)
+ 	if (!card)
+ 		goto out;
+ 	QETH_DBF_HEX(SETUP, 2, &card, sizeof(void *));
++
++	card->gdev = gdev;
++	CARD_RDEV(card) = gdev->cdev[0];
++	CARD_WDEV(card) = gdev->cdev[1];
++	CARD_DDEV(card) = gdev->cdev[2];
+ 	if (qeth_setup_channel(&card->read, true))
+ 		goto out_ip;
+ 	if (qeth_setup_channel(&card->write, true))
+@@ -5773,7 +5787,7 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 
+ 	QETH_DBF_TEXT_(SETUP, 2, "%s", dev_name(&gdev->dev));
+ 
+-	card = qeth_alloc_card();
++	card = qeth_alloc_card(gdev);
+ 	if (!card) {
+ 		QETH_DBF_TEXT_(SETUP, 2, "1err%d", -ENOMEM);
+ 		rc = -ENOMEM;
+@@ -5789,15 +5803,7 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 			goto err_card;
  	}
- 	netif_stop_queue(dev);
  
--	if (IS_IQD(card) || (!skb_is_gso(skb) && ipv == 4))
--		rc = qeth_l3_xmit_offload(card, skb, queue, ipv, cast_type);
--	else if (skb_is_gso(skb))
-+	if (ipv == 4 || IS_IQD(card))
- 		rc = qeth_l3_xmit(card, skb, queue, ipv, cast_type);
- 	else
- 		rc = qeth_xmit(card, skb, queue, ipv, cast_type,
-@@ -2560,6 +2417,8 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
- 		card->dev->needed_headroom = sizeof(struct qeth_hdr);
- 		/* allow for de-acceleration of NETIF_F_HW_VLAN_CTAG_TX: */
- 		card->dev->needed_headroom += VLAN_HLEN;
-+		if (qeth_is_supported(card, IPA_OUTBOUND_TSO))
-+			card->dev->needed_headroom = sizeof(struct qeth_hdr_tso);
+-	card->read.ccwdev  = gdev->cdev[0];
+-	card->write.ccwdev = gdev->cdev[1];
+-	card->data.ccwdev  = gdev->cdev[2];
+ 	dev_set_drvdata(&gdev->dev, card);
+-	card->gdev = gdev;
+-	gdev->cdev[0]->handler = qeth_irq;
+-	gdev->cdev[1]->handler = qeth_irq;
+-	gdev->cdev[2]->handler = qeth_irq;
+-
+ 	qeth_setup_card(card);
+ 	qeth_update_from_chp_desc(card);
  
- 		/*IPv6 address autoconfiguration stuff*/
- 		qeth_l3_get_unique_id(card);
 -- 
 2.16.4
