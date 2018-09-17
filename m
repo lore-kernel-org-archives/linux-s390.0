@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 03/15] s390/qeth: remove unused L3 xmit code
-Date: Mon, 17 Sep 2018 17:35:57 +0200
-Message-ID: <20180917153609.94628-4-jwi@linux.ibm.com>
+Subject: [PATCH net-next 02/15] s390/qeth: run non-offload L3 traffic over common xmit path
+Date: Mon, 17 Sep 2018 17:35:56 +0200
+Message-ID: <20180917153609.94628-3-jwi@linux.ibm.com>
 References: <20180917153609.94628-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180917153609.94628-1-jwi@linux.ibm.com>
@@ -12,128 +12,152 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-qeth_l3_xmit() is now only used for TSOv4 traffic, shrink it down.
+L3 OSAs can only offload IPv4 traffic, use the common L2 transmit path
+for all other traffic.
+In particular there's no support for TX VLAN offload, so any such packet
+needs to be manually de-accelerated via ndo_features_check().
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 71 ++++++++++-------------------------------
- 1 file changed, 17 insertions(+), 54 deletions(-)
+ drivers/s390/net/qeth_l3_main.c | 70 ++++++++++++++++++++++++++---------------
+ 1 file changed, 44 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 2733eb901b04..00e6e7471f5d 100644
+index ada258c01a08..2733eb901b04 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2230,44 +2230,24 @@ static int qeth_l3_xmit_offload(struct qeth_card *card, struct sk_buff *skb,
- static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
- 			struct qeth_qdio_out_q *queue, int ipv, int cast_type)
- {
--	int elements, len, rc;
--	__be16 *tag;
- 	struct qeth_hdr *hdr = NULL;
--	int hdr_elements = 0;
- 	struct sk_buff *new_skb = NULL;
- 	int tx_bytes = skb->len;
- 	unsigned int hd_len;
--	bool use_tso, is_sg;
+@@ -1983,21 +1983,23 @@ static int qeth_l3_get_cast_type(struct sk_buff *skb)
+ 	rcu_read_unlock();
+ 
+ 	/* no neighbour (eg AF_PACKET), fall back to target's IP address ... */
+-	if (be16_to_cpu(skb->protocol) == ETH_P_IPV6)
+-		return ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr) ?
+-				RTN_MULTICAST : RTN_UNICAST;
+-	else if (be16_to_cpu(skb->protocol) == ETH_P_IP)
++	switch (qeth_get_ip_version(skb)) {
++	case 4:
+ 		return ipv4_is_multicast(ip_hdr(skb)->daddr) ?
+ 				RTN_MULTICAST : RTN_UNICAST;
 -
--	/* Ignore segment size from skb_is_gso(), 1 page is always used. */
--	use_tso = skb_is_gso(skb) &&
--		  (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV4);
-+	int elements, rc;
-+	bool is_sg;
+-	/* ... and MAC address */
+-	if (ether_addr_equal_64bits(eth_hdr(skb)->h_dest, skb->dev->broadcast))
+-		return RTN_BROADCAST;
+-	if (is_multicast_ether_addr(eth_hdr(skb)->h_dest))
+-		return RTN_MULTICAST;
+-
+-	/* default to unicast */
+-	return RTN_UNICAST;
++	case 6:
++		return ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr) ?
++				RTN_MULTICAST : RTN_UNICAST;
++	default:
++		/* ... and MAC address */
++		if (ether_addr_equal_64bits(eth_hdr(skb)->h_dest,
++					    skb->dev->broadcast))
++			return RTN_BROADCAST;
++		if (is_multicast_ether_addr(eth_hdr(skb)->h_dest))
++			return RTN_MULTICAST;
++		/* default to unicast */
++		return RTN_UNICAST;
++	}
+ }
  
- 	/* create a clone with writeable headroom */
--	new_skb = skb_realloc_headroom(skb, sizeof(struct qeth_hdr_tso) +
--					    VLAN_HLEN);
-+	new_skb = skb_realloc_headroom(skb, sizeof(struct qeth_hdr_tso));
- 	if (!new_skb)
- 		return -ENOMEM;
+ static void qeth_l3_fill_af_iucv_hdr(struct qeth_hdr *hdr, struct sk_buff *skb,
+@@ -2034,20 +2036,21 @@ static void qeth_l3_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
+ 				struct sk_buff *skb, int ipv, int cast_type,
+ 				unsigned int data_len)
+ {
++	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
++
+ 	memset(hdr, 0, sizeof(struct qeth_hdr));
+ 	hdr->hdr.l3.id = QETH_HEADER_TYPE_LAYER3;
+ 	hdr->hdr.l3.length = data_len;
  
--	if (ipv == 4) {
--		skb_pull(new_skb, ETH_HLEN);
--	} else if (skb_vlan_tag_present(new_skb)) {
--		skb_push(new_skb, VLAN_HLEN);
--		skb_copy_to_linear_data(new_skb, new_skb->data + 4, 4);
--		skb_copy_to_linear_data_offset(new_skb, 4,
--					       new_skb->data + 8, 4);
--		skb_copy_to_linear_data_offset(new_skb, 8,
--					       new_skb->data + 12, 4);
--		tag = (__be16 *)(new_skb->data + 12);
--		*tag = cpu_to_be16(ETH_P_8021Q);
--		*(tag + 1) = cpu_to_be16(skb_vlan_tag_get(new_skb));
--	}
-+	skb_pull(new_skb, ETH_HLEN);
- 
- 	/* fix hardware limitation: as long as we do not have sbal
- 	 * chaining we can not send long frag lists
- 	 */
--	if ((use_tso && !qeth_l3_get_elements_no_tso(card, new_skb, 1)) ||
--	    (!use_tso && !qeth_get_elements_no(card, new_skb, 0, 0))) {
-+	if (!qeth_l3_get_elements_no_tso(card, new_skb, 1)) {
- 		rc = skb_linearize(new_skb);
- 
- 		if (card->options.performance_stats) {
-@@ -2280,38 +2260,23 @@ static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
- 			goto out;
+-	/*
+-	 * before we're going to overwrite this location with next hop ip.
+-	 * v6 uses passthrough, v4 sets the tag in the QDIO header.
+-	 */
+-	if (skb_vlan_tag_present(skb)) {
+-		if ((ipv == 4) || (card->info.type == QETH_CARD_TYPE_IQD))
+-			hdr->hdr.l3.ext_flags = QETH_HDR_EXT_VLAN_FRAME;
+-		else
+-			hdr->hdr.l3.ext_flags = QETH_HDR_EXT_INCLUDE_VLAN_TAG;
+-		hdr->hdr.l3.vlan_id = skb_vlan_tag_get(skb);
++	if (ipv == 4 || IS_IQD(card)) {
++		/* NETIF_F_HW_VLAN_CTAG_TX */
++		if (skb_vlan_tag_present(skb)) {
++			hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_VLAN_FRAME;
++			hdr->hdr.l3.vlan_id = skb_vlan_tag_get(skb);
++		}
++	} else if (veth->h_vlan_proto == htons(ETH_P_8021Q)) {
++		hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_INCLUDE_VLAN_TAG;
++		hdr->hdr.l3.vlan_id = ntohs(veth->h_vlan_TCI);
  	}
  
--	if (use_tso) {
--		hdr = skb_push(new_skb, sizeof(struct qeth_hdr_tso));
--		memset(hdr, 0, sizeof(struct qeth_hdr_tso));
--		qeth_l3_fill_header(card, hdr, new_skb, ipv, cast_type,
--				    new_skb->len - sizeof(struct qeth_hdr_tso));
--		qeth_tso_fill_header(card, hdr, new_skb);
--		hdr_elements++;
--	} else {
--		hdr = skb_push(new_skb, sizeof(struct qeth_hdr));
--		qeth_l3_fill_header(card, hdr, new_skb, ipv, cast_type,
--				    new_skb->len - sizeof(struct qeth_hdr));
--	}
-+	hdr = skb_push(new_skb, sizeof(struct qeth_hdr_tso));
-+	memset(hdr, 0, sizeof(struct qeth_hdr_tso));
-+	qeth_l3_fill_header(card, hdr, new_skb, ipv, cast_type,
-+			    new_skb->len - sizeof(struct qeth_hdr_tso));
-+	qeth_tso_fill_header(card, hdr, new_skb);
+ 	if (!skb_is_gso(skb) && skb->ip_summed == CHECKSUM_PARTIAL) {
+@@ -2373,8 +2376,11 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
  
--	elements = use_tso ?
--		   qeth_l3_get_elements_no_tso(card, new_skb, hdr_elements) :
--		   qeth_get_elements_no(card, new_skb, hdr_elements, 0);
-+	elements = qeth_l3_get_elements_no_tso(card, new_skb, 1);
- 	if (!elements) {
- 		rc = -E2BIG;
- 		goto out;
- 	}
--	elements += hdr_elements;
-+	elements++;
+ 	if (IS_IQD(card) || (!skb_is_gso(skb) && ipv == 4))
+ 		rc = qeth_l3_xmit_offload(card, skb, queue, ipv, cast_type);
+-	else
++	else if (skb_is_gso(skb))
+ 		rc = qeth_l3_xmit(card, skb, queue, ipv, cast_type);
++	else
++		rc = qeth_xmit(card, skb, queue, ipv, cast_type,
++			       qeth_l3_fill_header);
  
--	if (use_tso) {
--		hd_len = sizeof(struct qeth_hdr_tso) +
--			 ip_hdrlen(new_skb) + tcp_hdrlen(new_skb);
--		len = hd_len;
--	} else {
--		hd_len = 0;
--		len = sizeof(struct qeth_hdr_layer3);
--	}
-+	hd_len = sizeof(struct qeth_hdr_tso) + ip_hdrlen(new_skb) +
-+		 tcp_hdrlen(new_skb);
+ 	if (!rc) {
+ 		card->stats.tx_packets++;
+@@ -2476,6 +2482,15 @@ qeth_l3_neigh_setup(struct net_device *dev, struct neigh_parms *np)
+ 	return 0;
+ }
  
--	if (qeth_hdr_chk_and_bounce(new_skb, &hdr, len)) {
-+	if (qeth_hdr_chk_and_bounce(new_skb, &hdr, hd_len)) {
- 		rc = -EINVAL;
- 		goto out;
- 	}
-@@ -2327,10 +2292,8 @@ static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
- 			card->perf_stats.buf_elements_sent += elements;
- 			if (is_sg)
- 				card->perf_stats.sg_skbs_sent++;
--			if (use_tso) {
--				card->perf_stats.large_send_bytes += tx_bytes;
--				card->perf_stats.large_send_cnt++;
--			}
-+			card->perf_stats.large_send_bytes += tx_bytes;
-+			card->perf_stats.large_send_cnt++;
++static netdev_features_t qeth_l3_osa_features_check(struct sk_buff *skb,
++						    struct net_device *dev,
++						    netdev_features_t features)
++{
++	if (qeth_get_ip_version(skb) != 4)
++		features &= ~NETIF_F_HW_VLAN_CTAG_TX;
++	return qeth_features_check(skb, dev, features);
++}
++
+ static const struct net_device_ops qeth_l3_netdev_ops = {
+ 	.ndo_open		= qeth_l3_open,
+ 	.ndo_stop		= qeth_l3_stop,
+@@ -2496,7 +2511,7 @@ static const struct net_device_ops qeth_l3_osa_netdev_ops = {
+ 	.ndo_stop		= qeth_l3_stop,
+ 	.ndo_get_stats		= qeth_get_stats,
+ 	.ndo_start_xmit		= qeth_l3_hard_start_xmit,
+-	.ndo_features_check	= qeth_features_check,
++	.ndo_features_check	= qeth_l3_osa_features_check,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_rx_mode	= qeth_l3_set_rx_mode,
+ 	.ndo_do_ioctl		= qeth_do_ioctl,
+@@ -2524,6 +2539,9 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
  		}
- 	} else {
- 		if (new_skb != skb)
+ 
+ 		card->dev->netdev_ops = &qeth_l3_osa_netdev_ops;
++		card->dev->needed_headroom = sizeof(struct qeth_hdr);
++		/* allow for de-acceleration of NETIF_F_HW_VLAN_CTAG_TX: */
++		card->dev->needed_headroom += VLAN_HLEN;
+ 
+ 		/*IPv6 address autoconfiguration stuff*/
+ 		qeth_l3_get_unique_id(card);
+@@ -2545,6 +2563,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 	} else if (card->info.type == QETH_CARD_TYPE_IQD) {
+ 		card->dev->flags |= IFF_NOARP;
+ 		card->dev->netdev_ops = &qeth_l3_netdev_ops;
++		card->dev->needed_headroom = sizeof(struct qeth_hdr) - ETH_HLEN;
+ 
+ 		rc = qeth_l3_iqd_read_initial_mac(card);
+ 		if (rc)
+@@ -2556,7 +2575,6 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 		return -ENODEV;
+ 
+ 	card->dev->ethtool_ops = &qeth_l3_ethtool_ops;
+-	card->dev->needed_headroom = sizeof(struct qeth_hdr) - ETH_HLEN;
+ 	card->dev->features |=	NETIF_F_HW_VLAN_CTAG_TX |
+ 				NETIF_F_HW_VLAN_CTAG_RX |
+ 				NETIF_F_HW_VLAN_CTAG_FILTER;
 -- 
 2.16.4
