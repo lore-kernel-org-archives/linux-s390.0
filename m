@@ -1,69 +1,39 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Fri, 14 Sep 2018 12:56:23 +0000
-Subject: [GIT PULL 2/2] KVM: s390: Make huge pages unavailable in ucontrol VMs
-Message-Id: <20180914125623.89084-3-borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Date: Mon, 17 Sep 2018 07:58:03 +0000
+Subject: Re: [PATCH 3/3] s390/kvm: set host program identifier
+Message-Id: <e3a0a9ba-980f-12e3-785c-35d7341ac23b@redhat.com>
+In-Reply-To: <ea5ade54-3281-a35f-b78b-181bbd017b67@de.ibm.com>
+References: <ea5ade54-3281-a35f-b78b-181bbd017b67@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Am 17.09.18 um 09:54 schrieb Christian Borntraeger:
+> 
+> 
+> On 09/17/2018 09:46 AM, David Hildenbrand wrote:
+>> Am 04.09.18 um 13:16 schrieb Christian Borntraeger:
+>>> Changed subject to KVM: s390: .... and modified the commit message.
+>>>
+>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>
+>>> Patch 3 applied and scheduled for >4.19 (kvm/next).
+>>>
+>>
+>> Christian, is it okay to set this field even without HW support?
+>>
+>> (I slightly remember that certain reserved fields should remain
+>> untouched if there is no HW support for them, maybe I am wrong or this
+>> does not apply here)
+> 
+> Yes, there is no scp bit for this, it can be set unconditionally.
+> 
 
-We currently do not notify all gmaps when using gmap_pmdp_xchg(), due
-to locking constraints. This makes ucontrol VMs, which is the only VM
-type that creates multiple gmaps, incompatible with huge pages. Also
-we would need to hold the guest_table_lock of all gmaps that have this
-vmaddr maped to synchronize access to the pmd.
+Thanks, feel free to add
 
-ucontrol VMs are rather exotic and creating a new locking concept is
-no easy task. Hence we return EINVAL when trying to active
-KVM_CAP_S390_HPAGE_1M and report it as being not available when
-checking for it.
-
-Fixes: a4499382 ("KVM: s390: Add huge page enablement control")
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-Id: <20180801112508.138159-1-frankja@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- Documentation/virtual/kvm/api.txt | 3 ++-
- arch/s390/kvm/kvm-s390.c          | 4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index c664064f76fb..8d8a372c8340 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -4510,7 +4510,8 @@ Do not enable KVM_FEATURE_PV_UNHALT if you disable HLT exits.
- Architectures: s390
- Parameters: none
- Returns: 0 on success, -EINVAL if hpage module parameter was not set
--	 or cmma is enabled
-+	 or cmma is enabled, or the VM has the KVM_VM_S390_UCONTROL
-+	 flag set
- 
- With this capability the KVM support for memory backing with 1m pages
- through hugetlbfs can be enabled for a VM. After the capability is
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f69333fd2fa3..ac5da6b0b862 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -481,7 +481,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 		break;
- 	case KVM_CAP_S390_HPAGE_1M:
- 		r = 0;
--		if (hpage)
-+		if (hpage && !kvm_is_ucontrol(kvm))
- 			r = 1;
- 		break;
- 	case KVM_CAP_S390_MEM_OP:
-@@ -691,7 +691,7 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 		mutex_lock(&kvm->lock);
- 		if (kvm->created_vcpus)
- 			r = -EBUSY;
--		else if (!hpage || kvm->arch.use_cmma)
-+		else if (!hpage || kvm->arch.use_cmma || kvm_is_ucontrol(kvm))
- 			r = -EINVAL;
- 		else {
- 			r = 0;
 -- 
-2.17.0
+
+Thanks,
+
+David / dhildenb
