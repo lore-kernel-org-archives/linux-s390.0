@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 02/15] s390/qeth: run non-offload L3 traffic over common xmit path
-Date: Mon, 17 Sep 2018 17:35:56 +0200
-Message-ID: <20180917153609.94628-3-jwi@linux.ibm.com>
+Subject: [PATCH net-next 04/15] s390/qeth: remove qeth_get_elements_no()
+Date: Mon, 17 Sep 2018 17:35:58 +0200
+Message-ID: <20180917153609.94628-5-jwi@linux.ibm.com>
 References: <20180917153609.94628-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180917153609.94628-1-jwi@linux.ibm.com>
@@ -12,152 +12,114 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-L3 OSAs can only offload IPv4 traffic, use the common L2 transmit path
-for all other traffic.
-In particular there's no support for TX VLAN offload, so any such packet
-needs to be manually de-accelerated via ndo_features_check().
+Convert the last remaining user of qeth_get_elements_no() to
+qeth_count_elements(), so this helper can be removed.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 70 ++++++++++++++++++++++++++---------------
- 1 file changed, 44 insertions(+), 26 deletions(-)
+ drivers/s390/net/qeth_core.h      |  3 +--
+ drivers/s390/net/qeth_core_main.c | 39 +++++++++++----------------------------
+ drivers/s390/net/qeth_l2_main.c   |  4 ++--
+ drivers/s390/net/qeth_l3_main.c   |  1 -
+ 4 files changed, 14 insertions(+), 33 deletions(-)
 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 2110fabdcc7a..0857b1286660 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -1007,8 +1007,7 @@ int qeth_query_switch_attributes(struct qeth_card *card,
+ int qeth_send_control_data(struct qeth_card *, int, struct qeth_cmd_buffer *,
+ 	int (*reply_cb)(struct qeth_card *, struct qeth_reply*, unsigned long),
+ 	void *reply_param);
+-int qeth_get_elements_no(struct qeth_card *card, struct sk_buff *skb,
+-			 int extra_elems, int data_offset);
++unsigned int qeth_count_elements(struct sk_buff *skb, unsigned int data_offset);
+ int qeth_get_elements_for_frags(struct sk_buff *);
+ int qeth_do_send_packet_fast(struct qeth_qdio_out_q *queue, struct sk_buff *skb,
+ 			     struct qeth_hdr *hdr, unsigned int offset,
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index d2ca33a9330a..eaf01dc62e91 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3802,7 +3802,16 @@ int qeth_get_elements_for_frags(struct sk_buff *skb)
+ }
+ EXPORT_SYMBOL_GPL(qeth_get_elements_for_frags);
+ 
+-static unsigned int qeth_count_elements(struct sk_buff *skb, int data_offset)
++/**
++ * qeth_count_elements() -	Counts the number of QDIO buffer elements needed
++ *				to transmit an skb.
++ * @skb:			the skb to operate on.
++ * @data_offset:		skip this part of the skb's linear data
++ *
++ * Returns the number of pages, and thus QDIO buffer elements, needed to map the
++ * skb's data (both its linear part and paged fragments).
++ */
++unsigned int qeth_count_elements(struct sk_buff *skb, unsigned int data_offset)
+ {
+ 	unsigned int elements = qeth_get_elements_for_frags(skb);
+ 	addr_t end = (addr_t)skb->data + skb_headlen(skb);
+@@ -3812,33 +3821,7 @@ static unsigned int qeth_count_elements(struct sk_buff *skb, int data_offset)
+ 		elements += qeth_get_elements_for_range(start, end);
+ 	return elements;
+ }
+-
+-/**
+- * qeth_get_elements_no() -	find number of SBALEs for skb data, inc. frags.
+- * @card:			qeth card structure, to check max. elems.
+- * @skb:			SKB address
+- * @extra_elems:		extra elems needed, to check against max.
+- * @data_offset:		range starts at skb->data + data_offset
+- *
+- * Returns the number of pages, and thus QDIO buffer elements, needed to cover
+- * skb data, including linear part and fragments. Checks if the result plus
+- * extra_elems fits under the limit for the card. Returns 0 if it does not.
+- * Note: extra_elems is not included in the returned result.
+- */
+-int qeth_get_elements_no(struct qeth_card *card,
+-		     struct sk_buff *skb, int extra_elems, int data_offset)
+-{
+-	int elements = qeth_count_elements(skb, data_offset);
+-
+-	if ((elements + extra_elems) > QETH_MAX_BUFFER_ELEMENTS(card)) {
+-		QETH_DBF_MESSAGE(2, "Invalid size of IP packet "
+-			"(Number=%d / Length=%d). Discarded.\n",
+-			elements + extra_elems, skb->len);
+-		return 0;
+-	}
+-	return elements;
+-}
+-EXPORT_SYMBOL_GPL(qeth_get_elements_no);
++EXPORT_SYMBOL_GPL(qeth_count_elements);
+ 
+ int qeth_hdr_chk_and_bounce(struct sk_buff *skb, struct qeth_hdr **hdr, int len)
+ {
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 715d58af5fc4..87cb71d5dae8 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -658,8 +658,8 @@ static int qeth_l2_xmit_osn(struct qeth_card *card, struct sk_buff *skb,
+ 		return -EPROTONOSUPPORT;
+ 
+ 	hdr = (struct qeth_hdr *)skb->data;
+-	elements = qeth_get_elements_no(card, skb, 0, 0);
+-	if (!elements)
++	elements = qeth_count_elements(skb, 0);
++	if (elements > QETH_MAX_BUFFER_ELEMENTS(card))
+ 		return -E2BIG;
+ 	if (qeth_hdr_chk_and_bounce(skb, &hdr, sizeof(*hdr)))
+ 		return -EINVAL;
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index ada258c01a08..2733eb901b04 100644
+index 00e6e7471f5d..1d92584e01b3 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1983,21 +1983,23 @@ static int qeth_l3_get_cast_type(struct sk_buff *skb)
- 	rcu_read_unlock();
- 
- 	/* no neighbour (eg AF_PACKET), fall back to target's IP address ... */
--	if (be16_to_cpu(skb->protocol) == ETH_P_IPV6)
--		return ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr) ?
--				RTN_MULTICAST : RTN_UNICAST;
--	else if (be16_to_cpu(skb->protocol) == ETH_P_IP)
-+	switch (qeth_get_ip_version(skb)) {
-+	case 4:
- 		return ipv4_is_multicast(ip_hdr(skb)->daddr) ?
- 				RTN_MULTICAST : RTN_UNICAST;
--
--	/* ... and MAC address */
--	if (ether_addr_equal_64bits(eth_hdr(skb)->h_dest, skb->dev->broadcast))
--		return RTN_BROADCAST;
--	if (is_multicast_ether_addr(eth_hdr(skb)->h_dest))
--		return RTN_MULTICAST;
--
--	/* default to unicast */
--	return RTN_UNICAST;
-+	case 6:
-+		return ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr) ?
-+				RTN_MULTICAST : RTN_UNICAST;
-+	default:
-+		/* ... and MAC address */
-+		if (ether_addr_equal_64bits(eth_hdr(skb)->h_dest,
-+					    skb->dev->broadcast))
-+			return RTN_BROADCAST;
-+		if (is_multicast_ether_addr(eth_hdr(skb)->h_dest))
-+			return RTN_MULTICAST;
-+		/* default to unicast */
-+		return RTN_UNICAST;
-+	}
- }
- 
- static void qeth_l3_fill_af_iucv_hdr(struct qeth_hdr *hdr, struct sk_buff *skb,
-@@ -2034,20 +2036,21 @@ static void qeth_l3_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
- 				struct sk_buff *skb, int ipv, int cast_type,
- 				unsigned int data_len)
- {
-+	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
-+
- 	memset(hdr, 0, sizeof(struct qeth_hdr));
- 	hdr->hdr.l3.id = QETH_HEADER_TYPE_LAYER3;
- 	hdr->hdr.l3.length = data_len;
- 
--	/*
--	 * before we're going to overwrite this location with next hop ip.
--	 * v6 uses passthrough, v4 sets the tag in the QDIO header.
--	 */
--	if (skb_vlan_tag_present(skb)) {
--		if ((ipv == 4) || (card->info.type == QETH_CARD_TYPE_IQD))
--			hdr->hdr.l3.ext_flags = QETH_HDR_EXT_VLAN_FRAME;
--		else
--			hdr->hdr.l3.ext_flags = QETH_HDR_EXT_INCLUDE_VLAN_TAG;
--		hdr->hdr.l3.vlan_id = skb_vlan_tag_get(skb);
-+	if (ipv == 4 || IS_IQD(card)) {
-+		/* NETIF_F_HW_VLAN_CTAG_TX */
-+		if (skb_vlan_tag_present(skb)) {
-+			hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_VLAN_FRAME;
-+			hdr->hdr.l3.vlan_id = skb_vlan_tag_get(skb);
-+		}
-+	} else if (veth->h_vlan_proto == htons(ETH_P_8021Q)) {
-+		hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_INCLUDE_VLAN_TAG;
-+		hdr->hdr.l3.vlan_id = ntohs(veth->h_vlan_TCI);
- 	}
- 
- 	if (!skb_is_gso(skb) && skb->ip_summed == CHECKSUM_PARTIAL) {
-@@ -2373,8 +2376,11 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 
- 	if (IS_IQD(card) || (!skb_is_gso(skb) && ipv == 4))
- 		rc = qeth_l3_xmit_offload(card, skb, queue, ipv, cast_type);
--	else
-+	else if (skb_is_gso(skb))
- 		rc = qeth_l3_xmit(card, skb, queue, ipv, cast_type);
-+	else
-+		rc = qeth_xmit(card, skb, queue, ipv, cast_type,
-+			       qeth_l3_fill_header);
- 
- 	if (!rc) {
- 		card->stats.tx_packets++;
-@@ -2476,6 +2482,15 @@ qeth_l3_neigh_setup(struct net_device *dev, struct neigh_parms *np)
- 	return 0;
- }
- 
-+static netdev_features_t qeth_l3_osa_features_check(struct sk_buff *skb,
-+						    struct net_device *dev,
-+						    netdev_features_t features)
-+{
-+	if (qeth_get_ip_version(skb) != 4)
-+		features &= ~NETIF_F_HW_VLAN_CTAG_TX;
-+	return qeth_features_check(skb, dev, features);
-+}
-+
- static const struct net_device_ops qeth_l3_netdev_ops = {
- 	.ndo_open		= qeth_l3_open,
- 	.ndo_stop		= qeth_l3_stop,
-@@ -2496,7 +2511,7 @@ static const struct net_device_ops qeth_l3_osa_netdev_ops = {
- 	.ndo_stop		= qeth_l3_stop,
- 	.ndo_get_stats		= qeth_get_stats,
- 	.ndo_start_xmit		= qeth_l3_hard_start_xmit,
--	.ndo_features_check	= qeth_features_check,
-+	.ndo_features_check	= qeth_l3_osa_features_check,
- 	.ndo_validate_addr	= eth_validate_addr,
- 	.ndo_set_rx_mode	= qeth_l3_set_rx_mode,
- 	.ndo_do_ioctl		= qeth_do_ioctl,
-@@ -2524,6 +2539,9 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
- 		}
- 
- 		card->dev->netdev_ops = &qeth_l3_osa_netdev_ops;
-+		card->dev->needed_headroom = sizeof(struct qeth_hdr);
-+		/* allow for de-acceleration of NETIF_F_HW_VLAN_CTAG_TX: */
-+		card->dev->needed_headroom += VLAN_HLEN;
- 
- 		/*IPv6 address autoconfiguration stuff*/
- 		qeth_l3_get_unique_id(card);
-@@ -2545,6 +2563,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
- 	} else if (card->info.type == QETH_CARD_TYPE_IQD) {
- 		card->dev->flags |= IFF_NOARP;
- 		card->dev->netdev_ops = &qeth_l3_netdev_ops;
-+		card->dev->needed_headroom = sizeof(struct qeth_hdr) - ETH_HLEN;
- 
- 		rc = qeth_l3_iqd_read_initial_mac(card);
- 		if (rc)
-@@ -2556,7 +2575,6 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
- 		return -ENODEV;
- 
- 	card->dev->ethtool_ops = &qeth_l3_ethtool_ops;
--	card->dev->needed_headroom = sizeof(struct qeth_hdr) - ETH_HLEN;
- 	card->dev->features |=	NETIF_F_HW_VLAN_CTAG_TX |
- 				NETIF_F_HW_VLAN_CTAG_RX |
- 				NETIF_F_HW_VLAN_CTAG_FILTER;
+@@ -2140,7 +2140,6 @@ static void qeth_tso_fill_header(struct qeth_card *card,
+  *
+  * Returns the number of pages, and thus QDIO buffer elements, needed to cover
+  * skb data, including linear part and fragments, but excluding TCP header.
+- * (Exclusion of TCP header distinguishes it from qeth_get_elements_no().)
+  * Checks if the result plus extra_elems fits under the limit for the card.
+  * Returns 0 if it does not.
+  * Note: extra_elems is not included in the returned result.
 -- 
 2.16.4
