@@ -1,14 +1,14 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 1/2] virtio/s390: avoid race on vcdev->config
-Date: Tue, 18 Sep 2018 20:29:23 +0200
-Message-ID: <20180918202923.31829b3e.cohuck@redhat.com>
+Subject: Re: [RFC PATCH 2/2] virtio/s390: fix race in ccw_io_helper()
+Date: Tue, 18 Sep 2018 20:45:47 +0200
+Message-ID: <20180918204547.2500c848.cohuck@redhat.com>
 References: <20180912140202.12292-1-pasic@linux.ibm.com>
-	<20180912140202.12292-2-pasic@linux.ibm.com>
+	<20180912140202.12292-3-pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180912140202.12292-2-pasic@linux.ibm.com>
+In-Reply-To: <20180912140202.12292-3-pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,95 +24,89 @@ To: Halil Pasic <pasic@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, Colin Ian King <colin.king@canonical.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 12 Sep 2018 16:02:01 +0200
+On Wed, 12 Sep 2018 16:02:02 +0200
 Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> Currently we have a race on vcdev->config in virtio_ccw_get_config() and
-> in virtio_ccw_set_config().
+> While ccw_io_helper() seems like intended to be exclusive in a sense that
+> it is supposed to facilitate I/O for at most one thread at any given
+> time, there is actually nothing ensuring that threads won't pile up at
+> vcdev->wait_q. If they all threads get woken up and see the status that
+> belongs to some other request as their own. This can lead to bugs. For an
+> example see :
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1788432
 > 
 > This normally does not cause problems, as these are usually infrequent
-> operations. But occasionally sysfs attributes are directly dependent on
-> pieces of virio config and trigger a get on each read. This gives us at
-> least one trigger.
+> operations that happen in a well defined sequence and normally do not
+> fail. But occasionally sysfs attributes are directly dependent
+> on pieces of virio config and trigger a get on each read.  This gives us
+> at least one method to trigger races.
 
-So, the problem is that you might get unexpected/inconsistent config
-information?
+Yes, the idea behind ccw_io_helper() was to provide a simple way to use
+the inherently asynchronous channel I/O operations in a synchronous
+way, as that's what the virtio callbacks expect. I did not consider
+multiple callbacks for a device running at the same time; but if the
+interface allows that, we obviously need to be able to handle it.
+
+Has this only been observed for the config get/set commands? (The
+read-before-write thing?)
 
 > 
 > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reported-by: Colin Ian King <colin.king@canonical.com>
 > ---
->  drivers/s390/virtio/virtio_ccw.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> This is a big hammer -- mutex on virtio_ccw device level would more than
+> suffice. But I don't think it hurts, and maybe there is a better way e.g.
+> one using some common ccw/cio mechanisms to address this. That's why this
+> is an RFC.
+
+I'm for using more delicate tools, if possible :)
+
+We basically have two options:
+- Have a way to queue I/O operations and then handle them in sequence.
+  Creates complexity, and is likely overkill. (We already have a kind
+  of serialization because we re-submit the channel program until the
+  hypervisor accepts it; the problem comes from the wait queue usage.)
+- Add serialization around the submit/wait procedure (as you did), but
+  with a per-device mutex. That looks like the easiest solution.
+
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 8f5c1d7f751a..a5e8530a3391 100644
+> index a5e8530a3391..36252f344660 100644
 > --- a/drivers/s390/virtio/virtio_ccw.c
 > +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -828,6 +828,7 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
->  	int ret;
->  	struct ccw1 *ccw;
->  	void *config_area;
-> +	unsigned long flags;
+> @@ -289,6 +289,8 @@ static int doing_io(struct virtio_ccw_device *vcdev, __u32 flag)
+>  	return ret;
+>  }
 >  
->  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
->  	if (!ccw)
-> @@ -846,11 +847,13 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
->  	if (ret)
->  		goto out_free;
+> +DEFINE_MUTEX(vcio_mtx);
+> +
+>  static int ccw_io_helper(struct virtio_ccw_device *vcdev,
+>  			 struct ccw1 *ccw, __u32 intparm)
+>  {
+> @@ -296,6 +298,7 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
+>  	unsigned long flags;
+>  	int flag = intparm & VIRTIO_CCW_INTPARM_MASK;
 >  
-> +	spin_lock_irqsave(&vcdev->lock, flags);
+> +	mutex_lock(&vcio_mtx);
+>  	do {
+>  		spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), flags);
+>  		ret = ccw_device_start(vcdev->cdev, ccw, intparm, 0, 0);
+> @@ -308,7 +311,9 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
+>  		cpu_relax();
+>  	} while (ret == -EBUSY);
 
-I'm not sure that vcdev->lock is the right lock to use for this, but
-I'm a bit unsure about what you're guarding against here.
+We probably still want to keep this while loop to be on the safe side
+(unsolicited status from the hypervisor, for example.)
 
->  	memcpy(vcdev->config, config_area, offset + len);
-> -	if (buf)
-> -		memcpy(buf, &vcdev->config[offset], len);
->  	if (vcdev->config_ready < offset + len)
->  		vcdev->config_ready = offset + len;
-> +	spin_unlock_irqrestore(&vcdev->lock, flags);
-> +	if (buf)
-> +		memcpy(buf, config_area + offset, len);
+>  	wait_event(vcdev->wait_q, doing_io(vcdev, flag) == 0);
+> -	return ret ? ret : vcdev->err;
+> +	ret = ret ? ret : vcdev->err;
+> +	mutex_unlock(&vcio_mtx);
+> +	return ret;
+>  }
 >  
->  out_free:
->  	kfree(config_area);
-> @@ -864,6 +867,7 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->  	struct ccw1 *ccw;
->  	void *config_area;
-> +	unsigned long flags;
->  
->  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
->  	if (!ccw)
-> @@ -876,9 +880,11 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
->  	/* Make sure we don't overwrite fields. */
->  	if (vcdev->config_ready < offset)
->  		virtio_ccw_get_config(vdev, 0, NULL, offset);
-> +	spin_lock_irqsave(&vcdev->lock, flags);
->  	memcpy(&vcdev->config[offset], buf, len);
->  	/* Write the config area to the host. */
->  	memcpy(config_area, vcdev->config, sizeof(vcdev->config));
-> +	spin_unlock_irqrestore(&vcdev->lock, flags);
->  	ccw->cmd_code = CCW_CMD_WRITE_CONF;
->  	ccw->flags = 0;
->  	ccw->count = offset + len;
-
-One thing that might be a problem here is how reading/writing the
-config stuff works for virtio-ccw: As channel devices don't have a
-config space like e.g. PCI devices, I had to come up with a way to
-implement something like that via dedicated channel commands. I did not
-want to go via a payload that would provide offset/length, but went
-with reading/writing everything before the value to be read/written as
-well. That means we need to call read before write to make sure we
-don't overwrite things (as the comment states), and how this is done
-might be problematic.
-
-I'm thinking what we may need is a way to make "read and then write" a
-single operation and make sure that it does not run concurrently with
-the simple read operation. Factor out the proper invocation of the read
-command and the status update, have get_config call this with a reader
-lock and have set_config call the read-then-write combo with a write
-lock, maybe?
-
-I might not understand the problem correctly, though (or I might have
-spent too much time reading email today already :)
+>  static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
