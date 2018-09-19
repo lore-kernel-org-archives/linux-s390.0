@@ -1,56 +1,89 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Wed, 19 Sep 2018 08:47:48 +0000
-Subject: [RFC 00/14] KVM: s390: Huge page splitting and shadowing
-Message-Id: <20180919084802.183381-1-frankja@linux.ibm.com>
+Date: Wed, 19 Sep 2018 08:47:51 +0000
+Subject: [RFC 03/14] s390/mm: Take locking out of gmap_protect_pte
+Message-Id: <20180919084802.183381-4-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Let's continue with the hpage updates and introduce splitting as well
-as VSIE support. A lot of problems have been fixed since I introduced
-these patches the last time. Swapping and loaded migration tests have
-been successful.
+Locking outside of the function gives us the freedom of ordering
+locks, which will be important to not get locking issues for
+gmap_protect_rmap.
 
-The locking is now done via the userspace mm pmd lock instead of the
-guest_table_lock, which fixed a lot of potential locking problems
-between pgtable.c and gmap.c functions.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ arch/s390/mm/gmap.c | 30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
 
-VSIE handling has been slightly redesigned to handle all combinations
-instead of only edge cases.
-
-Split pages are being modified by common pgtable.c functions as much
-as possible and got pgste locking before modifications.
-
-There's still a lot of cleanup and documentation to do, but let's put
-it out there.
-
-Branch:
-git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git hlp_vsie
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=hlp_vsie
-
-Janosch Frank (14):
-  s390/mm: Code cleanups
-  s390/mm: Improve locking for huge page backings
-  s390/mm: Take locking out of gmap_protect_pte
-  s390/mm: split huge pages in GMAP when protecting
-  s390/mm: Split huge pages when migrating
-  s390/mm: Provide vmaddr to pmd notification
-  s390/mm: Add gmap_idte_global
-  s390/mm: Make gmap_read_table EDAT1 compatible
-  s390/mm: Make gmap_protect_rmap EDAT1 compatible
-  s390/mm: Add simple ptep shadow function
-  s390/mm: Add gmap shadowing for large pmds
-  s390/mm: Add gmap lock classes
-  s390/mm: Pull pmd invalid check in gmap_pmd_op_walk
-  KVM: s390: Allow the VSIE to be used with huge pages
-
- Documentation/virtual/kvm/api.txt |   7 +-
- arch/s390/include/asm/gmap.h      |  31 +-
- arch/s390/include/asm/pgtable.h   |   5 +
- arch/s390/kvm/gaccess.c           |  52 ++-
- arch/s390/kvm/kvm-s390.c          |  14 +-
- arch/s390/mm/gmap.c               | 905 ++++++++++++++++++++++++++++----------
- arch/s390/mm/pgtable.c            |  61 ++-
- 7 files changed, 806 insertions(+), 269 deletions(-)
-
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 04c24a284113..795f558c8246 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1013,25 +1013,15 @@ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
+  * Expected to be called with sg->mm->mmap_sem in read
+  */
+ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
+-			    pmd_t *pmdp, int prot, unsigned long bits)
++			    pte_t *ptep, int prot, unsigned long bits)
+ {
+ 	int rc;
+-	pte_t *ptep;
+-	spinlock_t *ptl = NULL;
+ 	unsigned long pbits = 0;
+ 
+-	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
+-		return -EAGAIN;
+-
+-	ptep = pte_alloc_map_lock(gmap->mm, pmdp, gaddr, &ptl);
+-	if (!ptep)
+-		return -ENOMEM;
+-
+ 	pbits |= (bits & GMAP_NOTIFY_MPROT) ? PGSTE_IN_BIT : 0;
+ 	pbits |= (bits & GMAP_NOTIFY_SHADOW) ? PGSTE_VSIE_BIT : 0;
+ 	/* Protect and unlock. */
+ 	rc = ptep_force_prot(gmap->mm, gaddr, ptep, prot, pbits);
+-	gmap_pte_op_end(ptl);
+ 	return rc;
+ }
+ 
+@@ -1052,18 +1042,26 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 			      unsigned long len, int prot, unsigned long bits)
+ {
+ 	unsigned long vmaddr, dist;
+-	spinlock_t *ptl = NULL;
++	spinlock_t *ptl_pmd = NULL, *ptl_pte = NULL;
+ 	pmd_t *pmdp;
++	pte_t *ptep;
+ 	int rc;
+ 
+ 	BUG_ON(gmap_is_shadow(gmap));
+ 	while (len) {
+ 		rc = -EAGAIN;
+-		pmdp = gmap_pmd_op_walk(gmap, gaddr, &ptl);
++		pmdp = gmap_pmd_op_walk(gmap, gaddr, &ptl_pmd);
+ 		if (pmdp) {
+ 			if (!pmd_large(*pmdp)) {
+-				rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
+-						      bits);
++				ptl_pte = NULL;
++				ptep = pte_alloc_map_lock(gmap->mm, pmdp, gaddr,
++							  &ptl_pte);
++				if (ptep)
++					rc = gmap_protect_pte(gmap, gaddr,
++							      ptep, prot, bits);
++				else
++					rc = -ENOMEM;
++				gmap_pte_op_end(ptl_pte);
+ 				if (!rc) {
+ 					len -= PAGE_SIZE;
+ 					gaddr += PAGE_SIZE;
+@@ -1077,7 +1075,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 					gaddr = (gaddr & HPAGE_MASK) + HPAGE_SIZE;
+ 				}
+ 			}
+-			gmap_pmd_op_end(ptl);
++			gmap_pmd_op_end(ptl_pmd);
+ 		}
+ 		if (rc) {
+ 			if (rc == -EINVAL)
 -- 
 2.14.3
