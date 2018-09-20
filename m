@@ -1,42 +1,72 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Thu, 20 Sep 2018 09:18:44 +0000
-Subject: Re: [RFC PATCH 0/3] Use DIAG318 to set Control Program Name & Version Codes
-Message-Id: <20180920111844.53cbaa65.cohuck@redhat.com>
-In-Reply-To: <82ae7fbf-8b05-7da2-b294-64b945a47172@de.ibm.com>
-References: <82ae7fbf-8b05-7da2-b294-64b945a47172@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 20 Sep 2018 13:15:32 +0000
+Subject: Re: [RFC 01/14] s390/mm: Code cleanups
+Message-Id: <e21596e1-7737-8a5a-72ca-f1dd85e6c4c5@de.ibm.com>
+In-Reply-To: <31445605-897a-0b07-b1e6-5b239b52d990@linux.ibm.com>
+References: <31445605-897a-0b07-b1e6-5b239b52d990@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 19 Sep 2018 13:09:34 -0400
-Collin Walling <walling@linux.ibm.com> wrote:
 
-> On 09/19/2018 05:30 AM, Cornelia Huck wrote:
-> > On Fri, 31 Aug 2018 12:51:16 -0400
-> > Collin Walling <walling@linux.ibm.com> wrote:
 
-> >> The CPC and HPID are used for problem diagnosis and allows IBM to identify 
-> >> control program information by answering the following questions:
-> >>
-> >>     "What environment is this guest running in?" (CPNC)
-> >>     "What distribution is this guest running?" (CPVC)
-> >>     "What underlying host environment is this guest running on?" (HPID)  
-> > 
-> > Is there also a way for people-who-are-not-IBM to find out what these
-> > values have been set to? :) (IOW, is that write-only from a Linux
-> > perspective?)
-> > 
-> > I see that for the emulated instruction the values are logged into the
-> > debug feature, which seems useful.
-> >   
+On 09/19/2018 10:47 AM, Janosch Frank wrote:
+> Let's clean up leftovers before introducing new code.
 > 
-> Maybe it would help to include a toString-esque macro for these values. Then
-> when the HPID and CPNC get logged we will have something us humans can read? :)
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+> ---
+>  arch/s390/mm/gmap.c    | 8 ++++----
+>  arch/s390/mm/pgtable.c | 2 +-
+>  2 files changed, 5 insertions(+), 5 deletions(-)
 > 
-> The distro_id will have to be deciphered via the registry file. Thoughts?
-
-It's probably fine if this has to be decoded outside of the kernel.
-
-One thing that came to my mind: Would it be useful to be able to
-introspect a live guest from the hypervisor? For example, being able to
-get the CPNC/CPVC from a QEMU monitor command? (The debug feature may
-wrap around so that the info can get lost, I guess?)
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 1e668b95e0c6..9ccd62cc7f37 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -5,7 +5,7 @@
+>   *    Copyright IBM Corp. 2007, 2016, 2018
+>   *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
+>   *		 David Hildenbrand <david@redhat.com>
+> - *		 Janosch Frank <frankja@linux.vnet.ibm.com>
+> + *		 Janosch Frank <frankja@linux.ibm.com>
+>   */
+>  
+>  #include <linux/kernel.h>
+> @@ -2285,10 +2285,10 @@ static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *pmdp, pmd_t new,
+>  	pmdp_notify_gmap(gmap, pmdp, gaddr);
+>  	pmd_val(new) &= ~_SEGMENT_ENTRY_GMAP_IN;
+>  	if (MACHINE_HAS_TLB_GUEST)
+> -		__pmdp_idte(gaddr, (pmd_t *)pmdp, IDTE_GUEST_ASCE, gmap->asce,
+> +		__pmdp_idte(gaddr, pmdp, IDTE_GUEST_ASCE, gmap->asce,
+>  			    IDTE_GLOBAL);
+>  	else if (MACHINE_HAS_IDTE)
+> -		__pmdp_idte(gaddr, (pmd_t *)pmdp, 0, 0, IDTE_GLOBAL);
+> +		__pmdp_idte(gaddr, pmdp, 0, 0, IDTE_GLOBAL);
+>  	else
+>  		__pmdp_csp(pmdp);
+>  	*pmdp = new;
+> @@ -2505,7 +2505,7 @@ static inline void thp_split_mm(struct mm_struct *mm)
+>   * - This must be called after THP was enabled
+>   */
+>  static int __zap_zero_pages(pmd_t *pmd, unsigned long start,
+> -			   unsigned long end, struct mm_walk *walk)
+> +			    unsigned long end, struct mm_walk *walk)
+>  {
+>  	unsigned long addr;
+>  
+> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+> index f2cc7da473e4..16d35b881a11 100644
+> --- a/arch/s390/mm/pgtable.c
+> +++ b/arch/s390/mm/pgtable.c
+> @@ -723,7 +723,7 @@ void ptep_zap_key(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+>   * Test and reset if a guest page is dirty
+>   */
+>  bool ptep_test_and_clear_uc(struct mm_struct *mm, unsigned long addr,
+> -		       pte_t *ptep)
+> +			    pte_t *ptep)
+>  {
+>  	pgste_t pgste;
+>  	pte_t pte;
+> 
