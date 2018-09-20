@@ -1,72 +1,96 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 20 Sep 2018 13:15:32 +0000
-Subject: Re: [RFC 01/14] s390/mm: Code cleanups
-Message-Id: <e21596e1-7737-8a5a-72ca-f1dd85e6c4c5@de.ibm.com>
-In-Reply-To: <31445605-897a-0b07-b1e6-5b239b52d990@linux.ibm.com>
-References: <31445605-897a-0b07-b1e6-5b239b52d990@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Thu, 20 Sep 2018 13:16:39 +0000
+Subject: Re: [RFC 02/14] s390/mm: Improve locking for huge page backings
+Message-Id: <94711c75-e396-19a0-d845-aee9f5df3986@linux.ibm.com>
+In-Reply-To: <95013eae-e9c5-83a4-a15e-ca731887b19b@redhat.com>
+References: <95013eae-e9c5-83a4-a15e-ca731887b19b@redhat.com>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--7rZKFL989Fa6jYEKlXYXACekVkNIQ3ufJ"
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--7rZKFL989Fa6jYEKlXYXACekVkNIQ3ufJ
+Content-Type: multipart/mixed; boundary="8IXOYLIB6Pnz0HJiqvpTecCXUDgzyRuQ5";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com
+Message-ID: <94711c75-e396-19a0-d845-aee9f5df3986@linux.ibm.com>
+Subject: Re: [RFC 02/14] s390/mm: Improve locking for huge page backings
+References: <20180919084802.183381-1-frankja@linux.ibm.com>
+ <20180919084802.183381-3-frankja@linux.ibm.com>
+ <95013eae-e9c5-83a4-a15e-ca731887b19b@redhat.com>
+In-Reply-To: <95013eae-e9c5-83a4-a15e-ca731887b19b@redhat.com>
+
+--8IXOYLIB6Pnz0HJiqvpTecCXUDgzyRuQ5
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 9/20/18 1:14 PM, David Hildenbrand wrote:
+> On 19/09/2018 10:47, Janosch Frank wrote:
+>> The gmap guest_table_lock is used to protect changes to the guest's
+>> DAT tables from region 1 to segments. Therefore it also protects the
+>> host to guest radix tree where each new segment mapping by gmap_link()=
+
+>> is tracked. Changes to ptes are synchronized through the pte lock,
+>> which is easyly retrievable, because the gmap shares the page tables
+>> with userspace.
+>>
+>> With huge pages the story changes. PMD tables are not shared and we're=
+
+>> left with the pmd lock on userspace side and the guest_table_lock on
+>> the gmap side. Having two locks for an object is a guarantee for
+>> locking problems.
+>>
+>> Therefore the guest_table_lock will only be used for population of the=
+
+>> gmap tables and hence protecting the host_to_guest tree. While the pmd=
+
+>> lock will be used for all changes to the pmd from both userspace and
+>> the gmap.
+>>
+>> This means we need to retrieve the vmaddr to retrieve a gmap pmd,
+>> which takes a bit longer than before. But we can now operate on
+>> multiple pmds which are in disjoint segment tables instead of having a=
+
+>> global lock.
+>>
+>=20
+> Has the time come to document how locking works? (especially also for
+> gmap shadows)
+
+I'll add more locking instructions into the function comments for v1.
+
+Also I'll write something longer up after KVM forum and the inclusion of
+this patch set. Maybe I'll also add a simple GMAP documentation, after
+all I have ~30 pages of KVM mm documentation flying around.
 
 
-On 09/19/2018 10:47 AM, Janosch Frank wrote:
-> Let's clean up leftovers before introducing new code.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+--8IXOYLIB6Pnz0HJiqvpTecCXUDgzyRuQ5--
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+--7rZKFL989Fa6jYEKlXYXACekVkNIQ3ufJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-> ---
->  arch/s390/mm/gmap.c    | 8 ++++----
->  arch/s390/mm/pgtable.c | 2 +-
->  2 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 1e668b95e0c6..9ccd62cc7f37 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -5,7 +5,7 @@
->   *    Copyright IBM Corp. 2007, 2016, 2018
->   *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>
->   *		 David Hildenbrand <david@redhat.com>
-> - *		 Janosch Frank <frankja@linux.vnet.ibm.com>
-> + *		 Janosch Frank <frankja@linux.ibm.com>
->   */
->  
->  #include <linux/kernel.h>
-> @@ -2285,10 +2285,10 @@ static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *pmdp, pmd_t new,
->  	pmdp_notify_gmap(gmap, pmdp, gaddr);
->  	pmd_val(new) &= ~_SEGMENT_ENTRY_GMAP_IN;
->  	if (MACHINE_HAS_TLB_GUEST)
-> -		__pmdp_idte(gaddr, (pmd_t *)pmdp, IDTE_GUEST_ASCE, gmap->asce,
-> +		__pmdp_idte(gaddr, pmdp, IDTE_GUEST_ASCE, gmap->asce,
->  			    IDTE_GLOBAL);
->  	else if (MACHINE_HAS_IDTE)
-> -		__pmdp_idte(gaddr, (pmd_t *)pmdp, 0, 0, IDTE_GLOBAL);
-> +		__pmdp_idte(gaddr, pmdp, 0, 0, IDTE_GLOBAL);
->  	else
->  		__pmdp_csp(pmdp);
->  	*pmdp = new;
-> @@ -2505,7 +2505,7 @@ static inline void thp_split_mm(struct mm_struct *mm)
->   * - This must be called after THP was enabled
->   */
->  static int __zap_zero_pages(pmd_t *pmd, unsigned long start,
-> -			   unsigned long end, struct mm_walk *walk)
-> +			    unsigned long end, struct mm_walk *walk)
->  {
->  	unsigned long addr;
->  
-> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-> index f2cc7da473e4..16d35b881a11 100644
-> --- a/arch/s390/mm/pgtable.c
-> +++ b/arch/s390/mm/pgtable.c
-> @@ -723,7 +723,7 @@ void ptep_zap_key(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
->   * Test and reset if a guest page is dirty
->   */
->  bool ptep_test_and_clear_uc(struct mm_struct *mm, unsigned long addr,
-> -		       pte_t *ptep)
-> +			    pte_t *ptep)
->  {
->  	pgste_t pgste;
->  	pte_t pte;
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJbo523AAoJEONU5rjiOLn4qigP/0t6H45U1N04wiuGT5a9E8i6
+ZMFVqcc4Hi9i9aZ7JV7t8vc3eUVGjJq3lJrgH66cX1v7//331Y1MmnWW3wDYxfxn
+/N9D1IMq9QsDW/ZL2CArFfB9H4TgJUmquSNa/8P5FB1I5um8AxOkVPIeyfM3vgLJ
+N3ltY+7KEhfi0Rr2LjyXdxEi6S1rJZqKkhTZm6igAObp65rG91/VhEQDPwf72idh
+4AXjBBCtQcWSclwFZrh6DSczG3xJtF67lKpNWXgcNmj9vnJNNtol3t9jy5ptz9lB
+OP3lZNopAH8QSZpMt47X9NYvvb7yEhWhbRLLxbphyLsULPRXbpjoQuJLtsI5YNCJ
+5FAIgbg10S72jrCZOvB6DF6KnRrnEEutq/zkCi9Z0UO5ol2eRKqGYIUInRNEaNIm
+2ir3nJo9y3u0zdXGfT4/5iB+0Hn8AEfnGyA2Ppu7B9Q6Sonrws1wpqyZO7v/eWEJ
+UX/c28ag/OX6qSU2AL08NpuHOo5QToVailq6drvyaFqmd9pufLnRFWsYEzLDrNmq
+vtq9LtQAJ15TPxVuuvv9mLVs42L+eMJ5NNelSuxm07EoktOzLTCZvlJ6wVJ7VZ0C
+kw2DmanJpiCe8dUnZAQ9PIfHi2DY0+7m0pf1ciEujsAATbqEQrt9BKoG9cw6Z0fN
+Eceip0HE5R/GorhVDhln
+=n81G
+-----END PGP SIGNATURE-----
+
+--7rZKFL989Fa6jYEKlXYXACekVkNIQ3ufJ--
