@@ -1,16 +1,18 @@
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [RFC PATCH 2/2] virtio/s390: fix race in ccw_io_helper()
-Date: Wed, 19 Sep 2018 16:07:59 +0200
-Message-ID: <20180919160759.731cb561.cohuck@redhat.com>
+Date: Thu, 20 Sep 2018 12:15:23 +0200
+Message-ID: <20180920121523.4177db92.cohuck@redhat.com>
 References: <20180912140202.12292-1-pasic@linux.ibm.com>
 	<20180912140202.12292-3-pasic@linux.ibm.com>
 	<20180918204547.2500c848.cohuck@redhat.com>
 	<c0148f86-b7a5-0c66-146d-f2dbcd678436@linux.ibm.com>
+	<20180919160759.731cb561.cohuck@redhat.com>
+	<592b9fd1-0ab0-aa9f-31d7-a717610bd95c@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c0148f86-b7a5-0c66-146d-f2dbcd678436@linux.ibm.com>
+In-Reply-To: <592b9fd1-0ab0-aa9f-31d7-a717610bd95c@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,47 +28,27 @@ To: Halil Pasic <pasic@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, Colin Ian King <colin.king@canonical.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 19 Sep 2018 15:17:28 +0200
+On Wed, 19 Sep 2018 18:56:45 +0200
 Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On 09/18/2018 08:45 PM, Cornelia Huck wrote:
+> On 09/19/2018 04:07 PM, Cornelia Huck wrote:
 
-> > We basically have two options:
-> > - Have a way to queue I/O operations and then handle them in sequence.
-> >   Creates complexity, and is likely overkill. (We already have a kind
-> >   of serialization because we re-submit the channel program until the
-> >   hypervisor accepts it; the problem comes from the wait queue usage.)  
-> 
-> I secretly hoped we already have something like this somewhere. Getting
-> some kind of requests processed and wanting to know if each of these worked
-> or not seemed like fairly common. I agree, implementing this just for
-> virtio-ccw would be an overkill, I agree.
-
-I've encountered that pattern so far mostly for driver-internal I/O
-(setting some stuff up via channel commands etc.) Other usages (like
-e.g. the dasd driver processing block layer requests) are asynchronous,
-and the common I/O layer uses a full-fledged fsm. Much of the trouble
-comes from implementing a synchronous interface via asynchronous
-commands, and I'd really like to keep that as simple as possible
-(especially as this is not the hot path).
-
-> 
-> > - Add serialization around the submit/wait procedure (as you did), but
-> >   with a per-device mutex. That looks like the easiest solution.
+> > Do you spot any other places where we may need to care about concurrent
+> > processing (like for the ->config area in the previous patch)?
 > >   
 > 
-> Yep, I'm for doing something like this first. We can think about doing
-> something more elaborate later. I will send a non-RFC with an extra
-> per-device mutex. Unless you object.
-
-No, that sounds good to me.
-
+> It is hard to tell, because:
+> * Synchronization external to the transport could make things work
+> out just fine.
+> * virtio_config_ops does not document these requirements if any.
+> * So it's up to the devices to use the stuff without shooting
+>   themselves in the foot.
+> * virtio-pci does not seem to do more to avoid such problems that
+>   we do.
 > 
-> Another thought that crossed my head was making the transport ops
-> mutex on each virtio-ccw device -- see our conversation on get/set
-> config. I don't think it would make a big difference, since the
-> ccw stuff is mutex already, so we only have parallelism for the
-> preparation and for post-processing the results of the ccw io.
+> Back then when learning vritio-ccw I did ask myself such questions
+> and based on vrito-pci and I was like looks similar, should be
+> good enough.
 
-Do you spot any other places where we may need to care about concurrent
-processing (like for the ->config area in the previous patch)?
+Yep, I agree. If there's nothing obvious, I think we should just leave
+it as it is now.
