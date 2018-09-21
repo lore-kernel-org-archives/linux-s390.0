@@ -1,25 +1,25 @@
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v10 06/26] s390: vfio-ap: sysfs interfaces to configure
  adapters
-Date: Fri, 21 Sep 2018 11:52:45 +0200
-Message-ID: <94c1b044-29f8-f23f-69df-a1628cc9b3a4@linux.ibm.com>
+Date: Fri, 21 Sep 2018 10:07:06 -0400
+Message-ID: <f4033331-4bdf-53fb-6000-b70b36652102@linux.ibm.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1536781396-13601-7-git-send-email-akrowiak@linux.vnet.ibm.com>
  <20180921114009.24e928d9.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180921114009.24e928d9.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 21.09.2018 11:40, Cornelia Huck wrote:
+On 09/21/2018 05:40 AM, Cornelia Huck wrote:
 > On Wed, 12 Sep 2018 15:42:56 -0400
 > Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 >
@@ -110,8 +110,8 @@ On 21.09.2018 11:40, Cornelia Huck wrote:
 >> Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 >> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 >> ---
->>  drivers/s390/crypto/vfio_ap_ops.c |  295 +++++++++++++++++++++++++++++++++++++
->>  1 files changed, 295 insertions(+), 0 deletions(-)
+>>   drivers/s390/crypto/vfio_ap_ops.c |  295 +++++++++++++++++++++++++++++++++++++
+>>   1 files changed, 295 insertions(+), 0 deletions(-)
 > (...)
 >
 >> +/**
@@ -134,12 +134,13 @@ On 21.09.2018 11:40, Cornelia Huck wrote:
 >> +	unsigned long aqm[BITS_TO_LONGS(matrix_mdev->matrix.aqm_max + 1)];
 > Can you please convert this to use a fixed-size array? I think
 > {apm,aqm}_max has an upper bound of 255?
+
+Sure
+
 >
 > (Also, this can use DECLARE_BITMAP.)
-In ap_bus.h there are upper limit defines for this:
 
-#define AP_DEVICES 256        /* Number of AP devices. */
-#define AP_DOMAINS 256        /* Number of AP domains. */
+Indeed it can.
 
 >
 >> +
