@@ -1,121 +1,96 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v10 24/26] KVM: s390: device attrs to enable/disable AP
- interpretation
-Date: Mon, 24 Sep 2018 20:51:46 +0200
-Message-ID: <1090e453-b845-d8e5-7a94-5fa13f877845@redhat.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: Re: [PATCH v10 11/26] s390: vfio-ap: implement mediated device open
+ callback
+Date: Mon, 24 Sep 2018 15:46:06 -0400
+Message-ID: <df269178-b486-b091-4da4-731fc3f77e85@linux.ibm.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1536781396-13601-25-git-send-email-akrowiak@linux.vnet.ibm.com>
- <9263b698-1827-1b7f-28bf-75b44657dea2@redhat.com>
- <18a21cda-1da9-3bfb-7b34-80415b5457f9@linux.ibm.com>
- <172560fb-2c54-ea43-3401-f108cf2a0595@redhat.com>
- <bb2639ac-469a-a71f-8f0a-2df3c12c6ac5@linux.ibm.com>
- <1c0c5a2e-3ef4-e5f5-52b8-7aeddca1f472@linux.ibm.com>
+ <1536781396-13601-12-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <e1ff9918-a1ab-31b1-0b32-a3980770d2ac@linux.ibm.com>
+ <09a6b9e5-e335-14cf-debd-de0f92dafd5e@redhat.com>
+ <ebe81ebf-9b61-dbf6-743e-6145162cdcfb@linux.ibm.com>
+ <69b5e3d3-5d44-37c0-ca10-720345852134@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1c0c5a2e-3ef4-e5f5-52b8-7aeddca1f472@linux.ibm.com>
+In-Reply-To: <69b5e3d3-5d44-37c0-ca10-720345852134@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 24/09/2018 20:42, Tony Krowiak wrote:
-> On 09/24/2018 12:25 PM, Tony Krowiak wrote:
->> On 09/24/2018 07:23 AM, David Hildenbrand wrote:
-> 
-> (...)
-> 
->>> Will you also fixup this patch to expose KVM_S390_VM_CRYPTO_ENABLE_APIE
->>> only if supported by HW? (ap_instructions_available)
+On 09/24/2018 02:40 PM, David Hildenbrand wrote:
+> On 24/09/2018 18:07, Tony Krowiak wrote:
+>> On 09/24/2018 04:40 AM, David Hildenbrand wrote:
+>>>
+>>>>     /**
+>>>> - * Verify that the AP instructions are available on the guest. This is
+>>>> indicated
+>>>> - * via the  KVM_S390_VM_CPU_FEAT_AP CPU model feature.
+>>>> + * Verify that the AP instructions are being interpreted by firmware
+>>>> for the
+>>>> + * guest. This is indicated by the kvm->arch.crypto.apie flag.
+>>>>      */
+>>>>     static int kvm_ap_validate_crypto_setup(struct kvm *kvm)
+>>>>     {
+>>>> -	if (test_bit_inv(KVM_S390_VM_CPU_FEAT_AP, kvm->arch.cpu_feat))
+>>>> +	if (kvm->arch.crypto.apie)
+>>>>     		return 0;
+>>>
+>>> I wonder if this check makes sense, because apie can be toggled during
+>>> runtime. I guess it would be sufficient to check if the ap control block
+>>> is available and apie is supported by the HW.
 >>
->> Given that this patch DOES expose KVM_S390_VM_CRYPTO_ENABLE_APIE only if 
->> supported by HW, I assume you are talking about
->> KVM_S390_VM_CRYPTO_DISABLE_APIE. I didn't check 
->> ap_instructions_available() for disabling APIE because I didn't
->> think it necessary given that ECA.28 will be set to 0 (intercept) by 
->> default, whether AP instructions are installed or not; so why not allow 
->> disabling apie. I suppose from the perspective of consistency, since the 
->> kvm_s390_vm_has_attr() function checks ap_instructions_available() for 
->> both attributes, then it probably makes sense to add that check to 
->> KVM_S390_VM_CRYPTO_DISABLE_APIE here. Then again, we could make a change 
->> in ap_instructions_available() to allow KVM_S390_VM_CRYPTO_DISABLE_APIE 
->> regardless of whether AP instructions are available. It boils down to 
->> whether APIE needs to be dynamically disabled at some point when it has 
->> been enabled. The only case I can think of where that may be necessary 
->> is if a guest is migrated to a system without AP instructions. I don't 
->> think that can happen and may even be protected against precisely 
->> because the VM attributes won't be available on the target system due to 
->> no AP instructions. What say you?
+>> I am not clear about what you are getting at here, but I'll attempt
+>> to respond. There is no need to check if the AP control block (CRYCB)
+>> is available as the address is set in the CRYCBD three instructions
+>> above, even if AP instructions are not available. Regarding whether apie
+>> is supported by the hardware, the value of vcpu->kvm->arch.crypto.apie
+>> can not be set unless it is supported by the HW. In the patch (24/26)
+>> that provides the VM attributes to toggle this value, it can only be
+>> turned on if the AP instructions are available. I might also note that
+>> the kvm_ap_validate_crypto_setup() function is called whenever one of
+>> the VM crypto attributes is changed, so it makes sense that decisions
+>> made in this function are based on a change to a VM crypto attribute. In
+>> my first pass at changing this function, I checked
+>> ap_instructions_available() here, but after considering all of the
+>> above, it made sense to me to check the apie flag.
 >>
-> David,
 > 
-> I'm sorry, I misinterpreted what you were asking for. Check out the 
-> fixup! patch below and let me know if that is what you are looking for.
-> If so, I will integrate that change and post v11 tomorrow (Tuesday 9/24).
-> 
-> -----------------------------------8<-----------------------------------
-> 
-> From: Tony Krowiak <akrowiak@linux.ibm.com>
-> Date: Mon, 24 Sep 2018 14:18:37 -0400
-> Subject: [FIXUP v10] fixup! KVM: s390: device attrs to enable/disable AP
->   interpretation
-> 
-> ---
->   arch/s390/kvm/kvm-s390.c | 9 ++++++++-
->   1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 6654bb1fc26a..a528558baa78 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -901,6 +901,10 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, 
-> struct kvm_device_attr *attr)
->   		kvm->arch.crypto.apie = 1;
->   		break;
->   	case KVM_S390_VM_CRYPTO_DISABLE_APIE:
-> +		if (!ap_instructions_available()) {
-> +			mutex_unlock(&kvm->lock);
-> +			return -EOPNOTSUPP;
-> +		}
->   		kvm->arch.crypto.apie = 0;
->   		break;
->   	default:
-> @@ -1509,9 +1513,11 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, 
-> struct kvm_device_attr *attr)
->   		case KVM_S390_VM_CRYPTO_ENABLE_DEA_KW:
->   		case KVM_S390_VM_CRYPTO_DISABLE_AES_KW:
->   		case KVM_S390_VM_CRYPTO_DISABLE_DEA_KW:
-> +			ret = 0;
-> +			break;
->   		case KVM_S390_VM_CRYPTO_ENABLE_APIE:
->   		case KVM_S390_VM_CRYPTO_DISABLE_APIE:
-> -			ret = 0;
-> +			ret = ap_instructions_available();
->   			break;
->   		default:
->   			ret = -ENXIO;
-> @@ -2620,6 +2626,7 @@ static void kvm_s390_vcpu_crypto_setup(struct 
-> kvm_vcpu *vcpu)
-> 
->   	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
->   	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
-> +	vcpu->kvm->arch.crypto.apie &= ~ECA_APIE;
+> I prefer ap_instructions_available(). As I said, kvm->arch.crypto.apie
+> is a moving target.
 
-Did you mean to set vcpu->arch.sie_block->eca here?
+Looking at this again, I think I responded before my brain shifted from
+digesting comments about patch 24/26 (enable/disable APIE) to the
+context for your comment here; namely, the device open callback. My
+comment above makes no sense in this context. From the perspective of
+the vfio_ap device driver, there is one requirement that must be met in
+order to provide pass-through functionality: The AP instructions must be
+must be interpreted by the HW (i.e., ECA.28 == 1). Checking whether AP
+instructions are available does not tell us whether they are being
+interpreted by HW. Checking whether the AP control block (i.e., CRYCB)
+is available, even when combined with the instruction availability
+check, does not provide any more insight into the value of ECA.28
+becuase the CRYCB will be provided if the MSAX3 facility is installed
+(STFLE.76) for the guest regardless of whether AP instructions are 
+available or not. There is no doubt that if the AP instructions are
+not available, then the mdev open callback should fail, but it doesn't
+tell the whole story.
+
+I realize that our CPU model protects against configuring a vfio-ap
+device for the guest if ap=off, but this function knows nothing about
+userspace. I can make a similar argument that kvm->arch.crypto.apie
+will be switched on only if ap=on but again, that is userspace
+configuration.
+
+Having said all of the above, maybe it doesn't really matter whether
+AP instructions are being interpreted or not. If ECA.28 == 0, then
+the AP masks may very well be ignored since all AP instructions will
+be intercepted; so, maybe checking AP instruction availability is all
+that is needed. I will verify this and if I'm correct, I'll make the
+change you suggested.
 
 > 
->   	if (vcpu->kvm->arch.crypto.apie)
->   		vcpu->arch.sie_block->eca |= ECA_APIE;
-> 
-
-Apart from that, just what I had in mind :)
-
--- 
-
-Thanks,
-
-David / dhildenb
