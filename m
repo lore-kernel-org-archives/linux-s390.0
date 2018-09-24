@@ -1,156 +1,71 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v10 01/26] KVM: s390: vsie: simulate VCPU SIE entry/exit
-Date: Mon, 24 Sep 2018 12:32:09 +0200
-Message-ID: <0ade216d-b206-abe3-418c-199d9278e37e@de.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v10 03/26] KVM: s390: refactor crypto initialization
+Date: Mon, 24 Sep 2018 12:34:02 +0200
+Message-ID: <20180924123402.51e231a7.cohuck@redhat.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1536781396-13601-2-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <1536781396-13601-4-git-send-email-akrowiak@linux.vnet.ibm.com>
+        <e340e3ec-4f8f-1f7b-b2f5-6fec77c4c5f9@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1536781396-13601-2-git-send-email-akrowiak@linux.vnet.ibm.com>
-Content-Language: en-US
+In-Reply-To: <e340e3ec-4f8f-1f7b-b2f5-6fec77c4c5f9@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, David Hildenbrand <david@redhat.com>, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
+On Fri, 21 Sep 2018 19:18:57 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
+> On 09/12/2018 03:42 PM, Tony Krowiak wrote:
+> > From: Tony Krowiak <akrowiak@linux.ibm.com>
+> > 
+> > This patch refactors the code that initializes and sets up the
+> > crypto configuration for a guest. The following changes are
+> > implemented via this patch:
+> > 
+> > 1. Prior to the introduction of AP device virtualization, it
+> >     was not necessary to provide guest access to the CRYCB
+> >     unless the MSA extension 3 (MSAX3) facility was installed
+> >     on the host system. With the introduction of AP device
+> >     virtualization, the CRYCB must be made accessible to the
+> >     guest if the AP instructions are installed on the host
+> >     and are to be provided to the guest.
+> > 
+> > 2. Introduces a flag indicating AP instructions executed on
+> >     the guest shall be interpreted by the firmware. It is
+> >     initialized to indicate AP instructions are to be
+> >     to be interpreted and is used to set the SIE bit for
+> >     each vcpu during vcpu setup.
+> > 
+> > Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> > Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Acked-by: Janosch Frank <frankja@linux.ibm.com>
+> > Tested-by: Michael Mueller <mimu@linux.ibm.com>
+> > Tested-by: Farhan Ali <alifm@linux.ibm.com>
+> > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > ---
+> >   arch/s390/include/asm/kvm_host.h |    2 +
+> >   arch/s390/include/uapi/asm/kvm.h |    1 +
+> >   arch/s390/kvm/kvm-s390.c         |   71 ++++++++++++++++++--------------------
+> >   3 files changed, 37 insertions(+), 37 deletions(-)
 
-On 09/12/2018 09:42 PM, Tony Krowiak wrote:
-> From: David Hildenbrand <david@redhat.com>
-> 
-> VCPU requests and VCPU blocking right now don't take care of the vSIE
-> (as it was not necessary until now). But we want to have synchronous VCPU
-> requests that will also be handled before running the vSIE again.
-> 
-> So let's simulate a SIE entry of the VCPU when calling the sie during
-> vSIE handling and check for PROG_ flags. The existing infrastructure
-> (e.g. exit_sie()) will then detect that the SIE (in form of the vSIE) is
-> running and properly kick the vSIE CPU, resulting in it leaving the vSIE
-> loop and therefore the vSIE interception handler, allowing it to handle
-> VCPU requests.
-> 
-> E.g. if we want to modify the crycb of the VCPU and make sure that any
-> masks also get applied to the VSIE crycb shadow (which uses masks from the
-> VCPU crycb), we will need a way to hinder the vSIE from running and make
-> sure to process the updated crycb before reentering the vSIE again.
-> 
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+(...)
 
-I guess you should want to swap both signoffs? In the end they should show the
-patch flow. 
+> The fixup! patch below modifies this patch (03/26) to illustrate how
+> 
+> David's recommendation will be implemented for v11 of the series. It
+> 
+> is one of three fixup! patches (the other two are in responses to
+> 11/26
+>   and 25/26) included to generate discussion in v10 rather than
+> 
+> waiting until v11 for comments.
 
-Other than that:
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+(...)
 
-
-> ---
->  arch/s390/kvm/kvm-s390.c |    9 ++++++++-
->  arch/s390/kvm/kvm-s390.h |    1 +
->  arch/s390/kvm/vsie.c     |   21 +++++++++++++++++----
->  3 files changed, 26 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index f69333f..0b5aff0 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2768,18 +2768,25 @@ static void kvm_s390_vcpu_request(struct kvm_vcpu *vcpu)
->  	exit_sie(vcpu);
->  }
-> 
-> +bool kvm_s390_vcpu_sie_inhibited(struct kvm_vcpu *vcpu)
-> +{
-> +	return atomic_read(&vcpu->arch.sie_block->prog20) &
-> +	       (PROG_BLOCK_SIE | PROG_REQUEST);
-> +}
-> +
->  static void kvm_s390_vcpu_request_handled(struct kvm_vcpu *vcpu)
->  {
->  	atomic_andnot(PROG_REQUEST, &vcpu->arch.sie_block->prog20);
->  }
-> 
->  /*
-> - * Kick a guest cpu out of SIE and wait until SIE is not running.
-> + * Kick a guest cpu out of (v)SIE and wait until (v)SIE is not running.
->   * If the CPU is not running (e.g. waiting as idle) the function will
->   * return immediately. */
->  void exit_sie(struct kvm_vcpu *vcpu)
->  {
->  	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOP_INT);
-> +	kvm_s390_vsie_kick(vcpu);
->  	while (vcpu->arch.sie_block->prog0c & PROG_IN_SIE)
->  		cpu_relax();
->  }
-> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-> index 981e3ba..1f6e36c 100644
-> --- a/arch/s390/kvm/kvm-s390.h
-> +++ b/arch/s390/kvm/kvm-s390.h
-> @@ -290,6 +290,7 @@ void kvm_s390_set_tod_clock(struct kvm *kvm,
->  void kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu);
->  void kvm_s390_vcpu_block(struct kvm_vcpu *vcpu);
->  void kvm_s390_vcpu_unblock(struct kvm_vcpu *vcpu);
-> +bool kvm_s390_vcpu_sie_inhibited(struct kvm_vcpu *vcpu);
->  void exit_sie(struct kvm_vcpu *vcpu);
->  void kvm_s390_sync_request(int req, struct kvm_vcpu *vcpu);
->  int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu);
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index a2b28cd..12b9707 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -830,7 +830,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->  	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
->  	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
->  	int guest_bp_isolation;
-> -	int rc;
-> +	int rc = 0;
-> 
->  	handle_last_fault(vcpu, vsie_page);
-> 
-> @@ -858,7 +858,18 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->  	guest_enter_irqoff();
->  	local_irq_enable();
-> 
-> -	rc = sie64a(scb_s, vcpu->run->s.regs.gprs);
-> +	/*
-> +	 * Simulate a SIE entry of the VCPU (see sie64a), so VCPU blocking
-> +	 * and VCPU requests also hinder the vSIE from running and lead
-> +	 * to an immediate exit. kvm_s390_vsie_kick() has to be used to
-> +	 * also kick the vSIE.
-> +	 */
-> +	vcpu->arch.sie_block->prog0c |= PROG_IN_SIE;
-> +	barrier();
-> +	if (!kvm_s390_vcpu_sie_inhibited(vcpu))
-> +		rc = sie64a(scb_s, vcpu->run->s.regs.gprs);
-> +	barrier();
-> +	vcpu->arch.sie_block->prog0c &= ~PROG_IN_SIE;
-> 
->  	local_irq_disable();
->  	guest_exit_irqoff();
-> @@ -1005,7 +1016,8 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->  		if (rc == -EAGAIN)
->  			rc = 0;
->  		if (rc || scb_s->icptcode || signal_pending(current) ||
-> -		    kvm_s390_vcpu_has_irq(vcpu, 0))
-> +		    kvm_s390_vcpu_has_irq(vcpu, 0) ||
-> +		    kvm_s390_vcpu_sie_inhibited(vcpu))
->  			break;
->  	}
-> 
-> @@ -1122,7 +1134,8 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
->  	if (unlikely(scb_addr & 0x1ffUL))
->  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-> 
-> -	if (signal_pending(current) || kvm_s390_vcpu_has_irq(vcpu, 0))
-> +	if (signal_pending(current) || kvm_s390_vcpu_has_irq(vcpu, 0) ||
-> +	    kvm_s390_vcpu_sie_inhibited(vcpu))
->  		return 0;
-> 
->  	vsie_page = get_vsie_page(vcpu->kvm, scb_addr);
-> 
+Looks good to me.
