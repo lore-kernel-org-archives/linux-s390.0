@@ -1,16 +1,15 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v10 25/26] KVM: s390: CPU model support for AP
- virtualization
-Date: Mon, 24 Sep 2018 10:33:36 +0200
-Message-ID: <78df86b6-55f9-f67c-d96a-9c287c0248cd@redhat.com>
+Subject: Re: [PATCH v10 03/26] KVM: s390: refactor crypto initialization
+Date: Mon, 24 Sep 2018 10:35:41 +0200
+Message-ID: <3403a255-8125-18f7-45b8-bb6a8a9f7f84@redhat.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
- <1536781396-13601-26-git-send-email-akrowiak@linux.vnet.ibm.com>
- <7868874f-df81-5602-a4c5-a4b58c38d1d3@linux.ibm.com>
+ <1536781396-13601-4-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <e340e3ec-4f8f-1f7b-b2f5-6fec77c4c5f9@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <7868874f-df81-5602-a4c5-a4b58c38d1d3@linux.ibm.com>
+In-Reply-To: <e340e3ec-4f8f-1f7b-b2f5-6fec77c4c5f9@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,125 +18,179 @@ To: Tony Krowiak <akrowiak@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 22/09/2018 01:31, Tony Krowiak wrote:
-> On 09/12/2018 03:43 PM, Tony Krowiak wrote:
+On 22/09/2018 01:18, Tony Krowiak wrote:
+> On 09/12/2018 03:42 PM, Tony Krowiak wrote:
 >> From: Tony Krowiak <akrowiak@linux.ibm.com>
 >>
->> Introduces a new CPU model feature and two CPU model
->> facilities to support AP virtualization for KVM guests.
+>> This patch refactors the code that initializes and sets up the
+>> crypto configuration for a guest. The following changes are
+>> implemented via this patch:
 >>
->> CPU model feature:
+>> 1. Prior to the introduction of AP device virtualization, it
+>>     was not necessary to provide guest access to the CRYCB
+>>     unless the MSA extension 3 (MSAX3) facility was installed
+>>     on the host system. With the introduction of AP device
+>>     virtualization, the CRYCB must be made accessible to the
+>>     guest if the AP instructions are installed on the host
+>>     and are to be provided to the guest.
 >>
->> The KVM_S390_VM_CPU_FEAT_AP feature indicates that
->> AP instructions are available on the guest. This
->> feature will be enabled by the kernel only if the AP
->> instructions are installed on the linux host. This feature
->> must be specifically turned on for the KVM guest from
->> userspace to use the VFIO AP device driver for guest
->> access to AP devices.
->>
->> CPU model facilities:
->>
->> 1. AP Query Configuration Information (QCI) facility is installed.
->>
->>     This is indicated by setting facilities bit 12 for
->>     the guest. The kernel will not enable this facility
->>     for the guest if it is not set on the host.
->>
->>     If this facility is not set for the KVM guest, then only
->>     APQNs with an APQI less than 16 will be used by a Linux
->>     guest regardless of the matrix configuration for the virtual
->>     machine. This is a limitation of the Linux AP bus.
->>
->> 2. AP Facilities Test facility (APFT) is installed.
->>
->>     This is indicated by setting facilities bit 15 for
->>     the guest. The kernel will not enable this facility for
->>     the guest if it is not set on the host.
->>
->>     If this facility is not set for the KVM guest, then no
->>     AP devices will be available to the guest regardless of
->>     the guest's matrix configuration for the virtual
->>     machine. This is a limitation of the Linux AP bus.
+>> 2. Introduces a flag indicating AP instructions executed on
+>>     the guest shall be interpreted by the firmware. It is
+>>     initialized to indicate AP instructions are to be
+>>     to be interpreted and is used to set the SIE bit for
+>>     each vcpu during vcpu setup.
 >>
 >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 >> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
->> Reviewed-by: David Hildenbrand <david@redhat.com>
+>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Acked-by: Janosch Frank <frankja@linux.ibm.com>
 >> Tested-by: Michael Mueller <mimu@linux.ibm.com>
 >> Tested-by: Farhan Ali <alifm@linux.ibm.com>
 >> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 >> ---
->>   arch/s390/kvm/kvm-s390.c         |    5 +++++
->>   arch/s390/tools/gen_facilities.c |    2 ++
->>   2 files changed, 7 insertions(+), 0 deletions(-)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 286c2e0..f0b8e2a 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -371,6 +371,11 @@ static void kvm_s390_cpu_feat_init(void)
->>   
->>   	if (MACHINE_HAS_ESOP)
->>   		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
->> +
->> +	/* Check if AP instructions installed on host */
->> +	if (ap_instructions_available())
->> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
->> +
->>   	/*
->>   	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
->>   	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
->> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
->> index 0c85aed..fd788e0 100644
->> --- a/arch/s390/tools/gen_facilities.c
->> +++ b/arch/s390/tools/gen_facilities.c
->> @@ -106,6 +106,8 @@ struct facility_def {
->>   
->>   		.name = "FACILITIES_KVM_CPUMODEL",
->>   		.bits = (int[]){
->> +			12, /* AP Query Configuration Information */
->> +			15, /* AP Facilities Test */
->>   			156, /* etoken facility */
->>   			-1  /* END */
->>   		}
+>>   arch/s390/include/asm/kvm_host.h |    2 +
+>>   arch/s390/include/uapi/asm/kvm.h |    1 +
+>>   arch/s390/kvm/kvm-s390.c         |   71 ++++++++++++++++++--------------------
+>>   3 files changed, 37 insertions(+), 37 deletions(-)
 >>
 > 
-> The fixup! patch below modifies this patch (25/26) to illustrate how
+> (...)
+> 
+>> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+>> index 9a50f02..8c23afc 100644
+>> --- a/arch/s390/include/uapi/asm/kvm.h
+>> +++ b/arch/s390/include/uapi/asm/kvm.h
+>> @@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
+>>   #define KVM_S390_VM_CPU_FEAT_PFMFI	11
+>>   #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
+>>   #define KVM_S390_VM_CPU_FEAT_KSS	13
+>> +#define KVM_S390_VM_CPU_FEAT_AP		14
+>>   struct kvm_s390_vm_cpu_feat {
+>>   	__u64 feat[16];
+>>   };
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 876fbb2..d717041 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -40,6 +40,7 @@
+>>   #include <asm/sclp.h>
+>>   #include <asm/cpacf.h>
+>>   #include <asm/timex.h>
+>> +#include <asm/ap.h>
+>>   #include "kvm-s390.h"
+>>   #include "gaccess.h"
+>>   
+> 
+> (...)
+> 
+>> @@ -2586,17 +2575,25 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+>>   
+>>   static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+>>   {
+>> -	if (!test_kvm_facility(vcpu->kvm, 76))
+>> +	/*
+>> +	 * If neither the AP instructions nor the MSAX3 facility are configured
+>> +	 * for the guest, there is nothing to set up.
+>> +	 */
+>> +	if (!test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP) &&
+>> +	    !test_kvm_facility(vcpu->kvm, 76))
+>>   		return;
+>>   
+>> +	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
+>>   	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
+>>   
+>> +	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
+>> +		vcpu->arch.sie_block->eca |= ECA_APIE;
+>> +
+>> +	/* Set up protected key support */
+>>   	if (vcpu->kvm->arch.crypto.aes_kw)
+>>   		vcpu->arch.sie_block->ecb3 |= ECB3_AES;
+>>   	if (vcpu->kvm->arch.crypto.dea_kw)
+>>   		vcpu->arch.sie_block->ecb3 |= ECB3_DEA;
+>> -
+>> -	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
+>>   }
+>>   
+>>   void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
+>>
+> 
+> The fixup! patch below modifies this patch (03/26) to illustrate how
+> 
 > David's recommendation will be implemented for v11 of the series. It
+> 
 > is one of three fixup! patches (the other two are in responses to
-> 03/26 and 11/26) included to generate discussion in v10 rather than
+> 11/26
+>   and 25/26) included to generate discussion in v10 rather than
+> 
 > waiting until v11 for comments.
 > 
 > -----------------------------------8<-----------------------------------
 > 
 > From: Tony Krowiak <akrowiak@linux.ibm.com>
-> Date: Thu, 20 Sep 2018 13:28:07 -0400
-> Subject: [FIXUP v10] fixup!: KVM: s390: CPU model support for AP 
-> virtualization
+> Date: Thu, 20 Sep 2018 12:26:08 -0400
+> Subject: [FIXUP v10] fixup!: KVM: s390: refactor crypto initialization
 > 
 > ---
->   arch/s390/kvm/kvm-s390.c |    4 ----
->   1 files changed, 0 insertions(+), 4 deletions(-)
+>   arch/s390/include/asm/kvm_host.h |    1 +
+>   arch/s390/include/uapi/asm/kvm.h |    1 -
+>   arch/s390/kvm/kvm-s390.c         |    9 ++++-----
+>   3 files changed, 5 insertions(+), 6 deletions(-)
 > 
+> diff --git a/arch/s390/include/asm/kvm_host.h 
+> b/arch/s390/include/asm/kvm_host.h
+> index 423cce7..79fa0a3 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -718,6 +718,7 @@ struct kvm_s390_crypto {
+>   	__u32 crycbd;
+>   	__u8 aes_kw;
+>   	__u8 dea_kw;
+> +	__u8 apie;
+>   };
+> 
+>   #define APCB0_MASK_SIZE 1
+> diff --git a/arch/s390/include/uapi/asm/kvm.h 
+> b/arch/s390/include/uapi/asm/kvm.h
+> index 8c23afc..9a50f02 100644
+> --- a/arch/s390/include/uapi/asm/kvm.h
+> +++ b/arch/s390/include/uapi/asm/kvm.h
+> @@ -130,7 +130,6 @@ struct kvm_s390_vm_cpu_machine {
+>   #define KVM_S390_VM_CPU_FEAT_PFMFI	11
+>   #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
+>   #define KVM_S390_VM_CPU_FEAT_KSS	13
+> -#define KVM_S390_VM_CPU_FEAT_AP		14
+>   struct kvm_s390_vm_cpu_feat {
+>   	__u64 feat[16];
+>   };
 > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index a3a7cd9..ff38251 100644
+> index d717041..ae4769b 100644
 > --- a/arch/s390/kvm/kvm-s390.c
 > +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -372,10 +372,6 @@ static void kvm_s390_cpu_feat_init(void)
->   	if (MACHINE_HAS_ESOP)
->   		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
-> 
-> -	/* Check if AP instructions installed on host */
-> -	if (ap_instructions_available())
-> -		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_AP);
-> -
+> @@ -2576,17 +2576,16 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+>   static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+>   {
 >   	/*
->   	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
->   	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
+> -	 * If neither the AP instructions nor the MSAX3 facility are configured
+> -	 * for the guest, there is nothing to set up.
+> +	 * If the AP instructions are not available and the MSAX3 facility
+> +	 * is not configured for the guest, there is nothing to set up.
+>   	 */
+> -	if (!test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP) &&
+> -	    !test_kvm_facility(vcpu->kvm, 76))
+> +	if (!ap_instructions_available() && !test_kvm_facility(vcpu->kvm, 76))
+>   		return;
+> 
+>   	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
+>   	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
+> 
+> -	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_AP))
+> +	if (vcpu->kvm->arch.crypto.apie)
+>   		vcpu->arch.sie_block->eca |= ECA_APIE;
+> 
+>   	/* Set up protected key support */
 > 
 
-Yes, looks sane.
+Looks sane, too.
 
 -- 
 
