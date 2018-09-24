@@ -1,84 +1,168 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v10 10/26] KVM: s390: interfaces to clear CRYCB masks
-Date: Mon, 24 Sep 2018 13:01:53 +0200
-Message-ID: <20180924130153.766eaec7.cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v10 24/26] KVM: s390: device attrs to enable/disable AP
+ interpretation
+Date: Mon, 24 Sep 2018 13:23:42 +0200
+Message-ID: <172560fb-2c54-ea43-3401-f108cf2a0595@redhat.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
-        <1536781396-13601-11-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <1536781396-13601-25-git-send-email-akrowiak@linux.vnet.ibm.com>
+ <9263b698-1827-1b7f-28bf-75b44657dea2@redhat.com>
+ <18a21cda-1da9-3bfb-7b34-80415b5457f9@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1536781396-13601-11-git-send-email-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <18a21cda-1da9-3bfb-7b34-80415b5457f9@linux.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.ibm.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 12 Sep 2018 15:43:00 -0400
-Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
-
-> From: Tony Krowiak <akrowiak@linux.ibm.com>
+On 22/09/2018 01:40, Tony Krowiak wrote:
+> On 09/17/2018 04:51 AM, David Hildenbrand wrote:
+>> Am 12.09.18 um 21:43 schrieb Tony Krowiak:
+>>> From: Tony Krowiak <akrowiak@linux.ibm.com>
+>>>
+>>> Introduces two new VM crypto device attributes (KVM_S390_VM_CRYPTO)
+>>> to enable or disable AP instruction interpretation from userspace
+>>> via the KVM_SET_DEVICE_ATTR ioctl:
+>>>
+>>> * The KVM_S390_VM_CRYPTO_ENABLE_APIE attribute enables hardware
+>>>    interpretation of AP instructions executed on the guest.
+>>>
+>>> * The KVM_S390_VM_CRYPTO_DISABLE_APIE attribute disables hardware
+>>>    interpretation of AP instructions executed on the guest. In this
+>>>    case the instructions will be intercepted and pass through to
+>>>    the guest.
+>>>
+>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>>> ---
+>>>   arch/s390/include/asm/kvm_host.h |    1 +
+>>>   arch/s390/include/uapi/asm/kvm.h |    2 ++
+>>>   arch/s390/kvm/kvm-s390.c         |   27 +++++++++++++++++++++++----
+>>>   3 files changed, 26 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>>> index b32bd1b..36d3531 100644
+>>> --- a/arch/s390/include/asm/kvm_host.h
+>>> +++ b/arch/s390/include/asm/kvm_host.h
+>>> @@ -719,6 +719,7 @@ struct kvm_s390_crypto {
+>>>   	__u32 crycbd;
+>>>   	__u8 aes_kw;
+>>>   	__u8 dea_kw;
+>>> +	__u8 apie;
+>>>   };
+>>>   
+>>>   #define APCB0_MASK_SIZE 1
+>>> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+>>> index 8c23afc..a8dbd90 100644
+>>> --- a/arch/s390/include/uapi/asm/kvm.h
+>>> +++ b/arch/s390/include/uapi/asm/kvm.h
+>>> @@ -161,6 +161,8 @@ struct kvm_s390_vm_cpu_subfunc {
+>>>   #define KVM_S390_VM_CRYPTO_ENABLE_DEA_KW	1
+>>>   #define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
+>>>   #define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
+>>> +#define KVM_S390_VM_CRYPTO_ENABLE_APIE		4
+>>> +#define KVM_S390_VM_CRYPTO_DISABLE_APIE		5
+>>>   
+>>>   /* kvm attributes for migration mode */
+>>>   #define KVM_S390_VM_MIGRATION_STOP	0
+>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>> index 2cdd980..286c2e0 100644
+>>> --- a/arch/s390/kvm/kvm-s390.c
+>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>> @@ -856,12 +856,11 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm)
+>>>   
+>>>   static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+>>>   {
+>>> -	if (!test_kvm_facility(kvm, 76))
+>>> -		return -EINVAL;
+>>> -
+>>>   	mutex_lock(&kvm->lock);
+>>>   	switch (attr->attr) {
+>>>   	case KVM_S390_VM_CRYPTO_ENABLE_AES_KW:
+>>> +		if (!test_kvm_facility(kvm, 76))
+>>> +			return -EINVAL;
+>>>   		get_random_bytes(
+>>>   			kvm->arch.crypto.crycb->aes_wrapping_key_mask,
+>>>   			sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
+>>> @@ -869,6 +868,8 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+>>>   		VM_EVENT(kvm, 3, "%s", "ENABLE: AES keywrapping support");
+>>>   		break;
+>>>   	case KVM_S390_VM_CRYPTO_ENABLE_DEA_KW:
+>>> +		if (!test_kvm_facility(kvm, 76))
+>>> +			return -EINVAL;
+>>>   		get_random_bytes(
+>>>   			kvm->arch.crypto.crycb->dea_wrapping_key_mask,
+>>>   			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
+>>> @@ -876,17 +877,31 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+>>>   		VM_EVENT(kvm, 3, "%s", "ENABLE: DEA keywrapping support");
+>>>   		break;
+>>>   	case KVM_S390_VM_CRYPTO_DISABLE_AES_KW:
+>>> +		if (!test_kvm_facility(kvm, 76))
+>>> +			return -EINVAL;
+>>>   		kvm->arch.crypto.aes_kw = 0;
+>>>   		memset(kvm->arch.crypto.crycb->aes_wrapping_key_mask, 0,
+>>>   			sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
+>>>   		VM_EVENT(kvm, 3, "%s", "DISABLE: AES keywrapping support");
+>>>   		break;
+>>>   	case KVM_S390_VM_CRYPTO_DISABLE_DEA_KW:
+>>> +		if (!test_kvm_facility(kvm, 76))
+>>> +			return -EINVAL;
+>>>   		kvm->arch.crypto.dea_kw = 0;
+>>>   		memset(kvm->arch.crypto.crycb->dea_wrapping_key_mask, 0,
+>>>   			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
+>>>   		VM_EVENT(kvm, 3, "%s", "DISABLE: DEA keywrapping support");
+>>>   		break;
+>>> +	case KVM_S390_VM_CRYPTO_ENABLE_APIE:
+>>> +		if (!ap_instructions_available()) {
+>>> +			mutex_unlock(&kvm->lock);
+>>> +			return -EOPNOTSUPP;
+>>> +		}
+>>> +		kvm->arch.crypto.apie = 1;
+>>> +		break;
+>>> +	case KVM_S390_VM_CRYPTO_DISABLE_APIE:
+>>> +		kvm->arch.crypto.apie = 0;
+>>> +		break;
+>>>   	default:
+>>>   		mutex_unlock(&kvm->lock);
+>>>   		return -ENXIO;
+>>> @@ -1493,6 +1508,8 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+>>>   		case KVM_S390_VM_CRYPTO_ENABLE_DEA_KW:
+>>>   		case KVM_S390_VM_CRYPTO_DISABLE_AES_KW:
+>>>   		case KVM_S390_VM_CRYPTO_DISABLE_DEA_KW:
+>>> +		case KVM_S390_VM_CRYPTO_ENABLE_APIE:
+>>> +		case KVM_S390_VM_CRYPTO_DISABLE_APIE:
+>>
+>> As also replied to the QEMU series, could we indicate
+>> KVM_S390_VM_CRYPTO_ENABLE_APIE (and maybe
+>> KVM_S390_VM_CRYPTO_DISABLE_APIE) only with ap_instructions_available(),
+>> so we can avoid the additional KVM_S390_VM_CPU_FEAT_AP?
+>>
+>> KVM_S390_VM_CPU_FEAT_AP is right now completely unused in KVM otherwise
+>> (never checked, we only care about apie).
 > 
-> Introduces two new KVM interface to clear the APM, AQM and ADM masks in
-> the guest's CRYCB.  The VCPUs are taken out of SIE to ensure the VCPUs do
-> not get out of sync.
-
-Hm, that patch description does not quite match what the patch actually
-does...
-
+> After much discussion with Halil and a few exchanges with you, we
+> decided to go ahead and accept your suggestion to get rid of 
+> KVM_S390_VM_CPU_FEAT and keep the VM device attributes to enable/disable
+> apie.
 > 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> Tested-by: Michael Mueller <mimu@linux.ibm.com>
-> Tested-by: Farhan Ali <alifm@linux.ibm.com>
-> Tested-by: Pierre Morel <pmorel@linux.ibm.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->  arch/s390/include/asm/kvm_host.h |    2 ++
->  arch/s390/kvm/kvm-s390.c         |   15 +++++++++++++++
->  2 files changed, 17 insertions(+), 0 deletions(-)
+> To that end, I responded to patches 03/26, 11/26 and 25/26 with fixup!
+> patches that show the KVM/kernel changes that will be necessary to get
+> rid of KVM_S390_VM_CPU_FEAT and use apie to control ECA.28. I did that
+> to generate discussion in v10 rather than waiting until v11 for
+> comments. I make no guarantees that those fixup! patches will
+> successfully apply should you have a v10 branch generated from this
+> patch series you want to update.
 > 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 423cce7..1e758fe 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -858,6 +858,8 @@ void kvm_arch_async_page_not_present(struct kvm_vcpu *vcpu,
->  void kvm_arch_async_page_present(struct kvm_vcpu *vcpu,
->  				 struct kvm_async_pf *work);
->  
-> +void kvm_arch_crypto_clear_masks(struct kvm *kvm);
-> +
->  extern int sie64a(struct kvm_s390_sie_block *, u64 *);
->  extern char sie_exit;
->  
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index d717041..ac4c93f 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2033,6 +2033,21 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
->  		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
->  }
->  
-> +void kvm_arch_crypto_clear_masks(struct kvm *kvm)
-> +{
-> +	mutex_lock(&kvm->lock);
-> +	kvm_s390_vcpu_block_all(kvm);
-> +
-> +	memset(&kvm->arch.crypto.crycb->apcb0, 0,
-> +	       sizeof(kvm->arch.crypto.crycb->apcb0));
-> +	memset(&kvm->arch.crypto.crycb->apcb1, 0,
-> +	       sizeof(kvm->arch.crypto.crycb->apcb1));
-> +
-> +	kvm_s390_vcpu_unblock_all(kvm);
-> +	mutex_unlock(&kvm->lock);
-> +}
-> +EXPORT_SYMBOL_GPL(kvm_arch_crypto_clear_masks);
 
-...although this function looks fine.
+Will you also fixup this patch to expose KVM_S390_VM_CRYPTO_ENABLE_APIE
+only if supported by HW? (ap_instructions_available)
 
-> +
->  static u64 kvm_s390_get_initial_cpuid(void)
->  {
->  	struct cpuid cpuid;
+-- 
+
+Thanks,
+
+David / dhildenb
