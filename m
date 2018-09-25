@@ -1,8 +1,8 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v10 24/26] KVM: s390: device attrs to enable/disable AP
  interpretation
-Date: Tue, 25 Sep 2018 09:24:57 -0400
-Message-ID: <7b32d987-9fc4-2ef1-8775-fccf4103c939@linux.ibm.com>
+Date: Tue, 25 Sep 2018 09:26:12 -0400
+Message-ID: <889157be-c209-8938-ccb2-240ae5249cda@linux.ibm.com>
 References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <1536781396-13601-25-git-send-email-akrowiak@linux.vnet.ibm.com>
  <9263b698-1827-1b7f-28bf-75b44657dea2@redhat.com>
@@ -10,12 +10,12 @@ References: <1536781396-13601-1-git-send-email-akrowiak@linux.vnet.ibm.com>
  <172560fb-2c54-ea43-3401-f108cf2a0595@redhat.com>
  <bb2639ac-469a-a71f-8f0a-2df3c12c6ac5@linux.ibm.com>
  <1c0c5a2e-3ef4-e5f5-52b8-7aeddca1f472@linux.ibm.com>
- <1090e453-b845-d8e5-7a94-5fa13f877845@redhat.com>
+ <62f0cacc-8338-9370-a4dc-12f793214c48@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1090e453-b845-d8e5-7a94-5fa13f877845@redhat.com>
+In-Reply-To: <62f0cacc-8338-9370-a4dc-12f793214c48@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -24,7 +24,7 @@ To: David Hildenbrand <david@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.
 Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/24/2018 02:51 PM, David Hildenbrand wrote:
+On 09/25/2018 03:32 AM, David Hildenbrand wrote:
 > On 24/09/2018 20:42, Tony Krowiak wrote:
 >> On 09/24/2018 12:25 PM, Tony Krowiak wrote:
 >>> On 09/24/2018 07:23 AM, David Hildenbrand wrote:
@@ -97,25 +97,10 @@ On 09/24/2018 02:51 PM, David Hildenbrand wrote:
 >>    		case KVM_S390_VM_CRYPTO_DISABLE_APIE:
 >> -			ret = 0;
 >> +			ret = ap_instructions_available();
->>    			break;
->>    		default:
->>    			ret = -ENXIO;
->> @@ -2620,6 +2626,7 @@ static void kvm_s390_vcpu_crypto_setup(struct
->> kvm_vcpu *vcpu)
->>
->>    	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
->>    	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
->> +	vcpu->kvm->arch.crypto.apie &= ~ECA_APIE;
 > 
-> Did you mean to set vcpu->arch.sie_block->eca here?
+> Just a little remark, I guess we want to report 0 if available and
+> -ENXIO if not.
 
-Yes!
+That makes sense ... I'll fix it.
 
-> 
->>
->>    	if (vcpu->kvm->arch.crypto.apie)
->>    		vcpu->arch.sie_block->eca |= ECA_APIE;
->>
-> 
-> Apart from that, just what I had in mind :)
 > 
