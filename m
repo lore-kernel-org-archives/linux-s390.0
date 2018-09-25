@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v11 09/26] s390: vfio-ap: sysfs interface to view matrix mdev matrix
-Date: Tue, 25 Sep 2018 19:16:24 -0400
-Message-ID: <20180925231641.4954-10-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v11 10/26] KVM: s390: interfaces to clear CRYCB masks
+Date: Tue, 25 Sep 2018 19:16:25 -0400
+Message-ID: <20180925231641.4954-11-akrowiak@linux.vnet.ibm.com>
 References: <20180925231641.4954-1-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -16,130 +16,59 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Provides a sysfs interface to view the AP matrix configured for the
-mediated matrix device.
-
-The relevant sysfs structures are:
-
-/sys/devices/vfio_ap/matrix/
-...... [mdev_supported_types]
-......... [vfio_ap-passthrough]
-............ [devices]
-...............[$uuid]
-.................. matrix
-
-To view the matrix configured for the mediated matrix device,
-print the matrix file:
-
-	cat matrix
-
-Below are examples of the output from the above command:
-
-Example 1: Adapters and domains assigned
-	Assignments:
-		Adapters 5 and 6
-		Domains 4 and 71 (0x47)
-
-	Output
-		05.0004
-		05.0047
-		06.0004
-	06.0047
-
-Examples 2: Only adapters assigned
-	Assignments:
-		Adapters 5 and 6
-
-	Output:
-		05.
-		06.
-
-Examples 3: Only domains assigned
-	Assignments:
-		Domains 4 and 71 (0x47)
-
-	Output:
-		.0004
-		.0047
+Introduces a new KVM function to clear the APCB0 and APCB1 in the guest's
+CRYCB. This effectively clears all bits of the APM, AQM and ADM masks
+configured for the guest. The VCPUs are taken out of SIE to ensure the
+VCPUs do not get out of sync.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
 Tested-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 51 +++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
+ arch/s390/include/asm/kvm_host.h |  2 ++
+ arch/s390/kvm/kvm-s390.c         | 15 +++++++++++++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index cd5a2aa7a51a..61a5fa7ad40d 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -624,6 +624,56 @@ static ssize_t control_domains_show(struct device *dev,
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 79fa0a3a777f..0a78036a802b 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -859,6 +859,8 @@ void kvm_arch_async_page_not_present(struct kvm_vcpu *vcpu,
+ void kvm_arch_async_page_present(struct kvm_vcpu *vcpu,
+ 				 struct kvm_async_pf *work);
+ 
++void kvm_arch_crypto_clear_masks(struct kvm *kvm);
++
+ extern int sie64a(struct kvm_s390_sie_block *, u64 *);
+ extern char sie_exit;
+ 
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d62f6d840f8c..75aa5aa4a926 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2033,6 +2033,21 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
+ 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
  }
- DEVICE_ATTR_RO(control_domains);
  
-+static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
-+			   char *buf)
++void kvm_arch_crypto_clear_masks(struct kvm *kvm)
 +{
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	char *bufpos = buf;
-+	unsigned long apid;
-+	unsigned long apqi;
-+	unsigned long apid1;
-+	unsigned long apqi1;
-+	unsigned long napm_bits = matrix_mdev->matrix.apm_max + 1;
-+	unsigned long naqm_bits = matrix_mdev->matrix.aqm_max + 1;
-+	int nchars = 0;
-+	int n;
++	mutex_lock(&kvm->lock);
++	kvm_s390_vcpu_block_all(kvm);
 +
-+	apid1 = find_first_bit_inv(matrix_mdev->matrix.apm, napm_bits);
-+	apqi1 = find_first_bit_inv(matrix_mdev->matrix.aqm, naqm_bits);
++	memset(&kvm->arch.crypto.crycb->apcb0, 0,
++	       sizeof(kvm->arch.crypto.crycb->apcb0));
++	memset(&kvm->arch.crypto.crycb->apcb1, 0,
++	       sizeof(kvm->arch.crypto.crycb->apcb1));
 +
-+	mutex_lock(&matrix_dev->lock);
-+
-+	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
-+		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
-+			for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-+					     naqm_bits) {
-+				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
-+					    apqi);
-+				bufpos += n;
-+				nchars += n;
-+			}
-+		}
-+	} else if (apid1 < napm_bits) {
-+		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
-+			n = sprintf(bufpos, "%02lx.\n", apid);
-+			bufpos += n;
-+			nchars += n;
-+		}
-+	} else if (apqi1 < naqm_bits) {
-+		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, naqm_bits) {
-+			n = sprintf(bufpos, ".%04lx\n", apqi);
-+			bufpos += n;
-+			nchars += n;
-+		}
-+	}
-+
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return nchars;
++	kvm_s390_vcpu_unblock_all(kvm);
++	mutex_unlock(&kvm->lock);
 +}
-+DEVICE_ATTR_RO(matrix);
++EXPORT_SYMBOL_GPL(kvm_arch_crypto_clear_masks);
 +
- static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_assign_adapter.attr,
- 	&dev_attr_unassign_adapter.attr,
-@@ -632,6 +682,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_assign_control_domain.attr,
- 	&dev_attr_unassign_control_domain.attr,
- 	&dev_attr_control_domains.attr,
-+	&dev_attr_matrix.attr,
- 	NULL,
- };
- 
+ static u64 kvm_s390_get_initial_cpuid(void)
+ {
+ 	struct cpuid cpuid;
 -- 
 2.19.0.221.g150f307
