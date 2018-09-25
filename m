@@ -1,61 +1,78 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH rdma-next 1/5] RDMA/core: Provide getter and setter to
- access IB device name
-Date: Thu, 20 Sep 2018 10:46:48 -0600
-Message-ID: <20180920164648.GM30219@mellanox.com>
-References: <20180920112202.9181-1-leon@kernel.org>
- <20180920112202.9181-2-leon@kernel.org>
- <20180920151541.GC30219@mellanox.com>
- <20180920164039.GM3519@mtr-leonro.mtl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180920164039.GM3519@mtr-leonro.mtl.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-rdma/>
-List-Post: <mailto:linux-rdma@vger.kernel.org>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Doug Ledford <dledford@redhat.com>, RDMA mailing list <linux-rdma@vger.kernel.org>, linux-s390@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>, Steve Wise <swise@chelsio.com>, Lijun Ou <oulijun@huawei.com>, Shiraz Saleem <shiraz.saleem@intel.com>, Ariel Elior <Ariel.Elior@cavium.com>, Christian Benvenuti <benve@cisco.com>, Adit Ranadive <aditr@vmware.com>, Dennis Dalessandro <dennis.dalessandro@intel.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: [PATCH v2 1/2] virtio/s390: avoid race on vcdev->config
+Date: Tue, 25 Sep 2018 14:13:08 +0200
+Message-ID: <20180925121309.58524-2-pasic@linux.ibm.com>
+References: <20180925121309.58524-1-pasic@linux.ibm.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180925121309.58524-1-pasic@linux.ibm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Sep 20, 2018 at 07:40:39PM +0300, Leon Romanovsky wrote:
+Currently we have a race on vcdev->config in virtio_ccw_get_config() and
+in virtio_ccw_set_config().
 
-> > > The protection is done with global device_lock because it is used in
-> > > allocation and deallocation phases. At this stage, this lock is not
-> > > busy and easily can be moved to be per-device, once it will be needed.
-> > >
-> > > Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-> > >  drivers/infiniband/core/device.c | 24 +++++++++++++++++++++++-
-> > >  include/rdma/ib_verbs.h          |  8 +++++++-
-> > >  2 files changed, 30 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
-> > > index 5a680a88aa87..3270cde6d806 100644
-> > > +++ b/drivers/infiniband/core/device.c
-> > > @@ -170,6 +170,14 @@ static struct ib_device *__ib_device_get_by_name(const char *name)
-> > >  	return NULL;
-> > >  }
-> > >
-> > > +void ib_device_get_name(struct ib_device *ibdev, char *name)
-> > > +{
-> > > +	down_read(&lists_rwsem);
-> > > +	strlcpy(name, ibdev->name, IB_DEVICE_NAME_MAX);
-> > > +	up_read(&lists_rwsem);
-> > > +}
-> > > +EXPORT_SYMBOL(ib_device_get_name);
-> >
-> > I think we have to follow netdev and just rely on device_rename()
-> > being 'good enough'.
-> >
-> > Switch everything to use dev_name()/etc rather than try and do
-> > something like this so the responsibility is on the device core to
-> > keep this working, not us.
-> >
-> > Turns out I have a series for that for unrelated reasons..
-> 
-> And what should I do now with this knowledge?
+This normally does not cause problems, as these are usually infrequent
+operations. However, for some devices writing to/reading from the config
+space can be triggered through sysfs attributes. For these, userspace can
+force the race by increasing the frequency.
 
-Maybe I can send it today..
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/s390/virtio/virtio_ccw.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-Jason
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 8f5c1d7f751a..a5e8530a3391 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -828,6 +828,7 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
+ 	int ret;
+ 	struct ccw1 *ccw;
+ 	void *config_area;
++	unsigned long flags;
+ 
+ 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+ 	if (!ccw)
+@@ -846,11 +847,13 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
+ 	if (ret)
+ 		goto out_free;
+ 
++	spin_lock_irqsave(&vcdev->lock, flags);
+ 	memcpy(vcdev->config, config_area, offset + len);
+-	if (buf)
+-		memcpy(buf, &vcdev->config[offset], len);
+ 	if (vcdev->config_ready < offset + len)
+ 		vcdev->config_ready = offset + len;
++	spin_unlock_irqrestore(&vcdev->lock, flags);
++	if (buf)
++		memcpy(buf, config_area + offset, len);
+ 
+ out_free:
+ 	kfree(config_area);
+@@ -864,6 +867,7 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+ 	struct ccw1 *ccw;
+ 	void *config_area;
++	unsigned long flags;
+ 
+ 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+ 	if (!ccw)
+@@ -876,9 +880,11 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
+ 	/* Make sure we don't overwrite fields. */
+ 	if (vcdev->config_ready < offset)
+ 		virtio_ccw_get_config(vdev, 0, NULL, offset);
++	spin_lock_irqsave(&vcdev->lock, flags);
+ 	memcpy(&vcdev->config[offset], buf, len);
+ 	/* Write the config area to the host. */
+ 	memcpy(config_area, vcdev->config, sizeof(vcdev->config));
++	spin_unlock_irqrestore(&vcdev->lock, flags);
+ 	ccw->cmd_code = CCW_CMD_WRITE_CONF;
+ 	ccw->flags = 0;
+ 	ccw->count = offset + len;
+-- 
+2.16.4
