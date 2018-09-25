@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v11 24/26] KVM: s390: device attrs to enable/disable AP interpretation
-Date: Tue, 25 Sep 2018 19:16:39 -0400
-Message-ID: <20180925231641.4954-25-akrowiak@linux.vnet.ibm.com>
+Subject: [PATCH v11 25/26] KVM: s390: CPU model support for AP virtualization
+Date: Tue, 25 Sep 2018 19:16:40 -0400
+Message-ID: <20180925231641.4954-26-akrowiak@linux.vnet.ibm.com>
 References: <20180925231641.4954-1-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -16,127 +16,66 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Introduces two new VM crypto device attributes (KVM_S390_VM_CRYPTO)
-to enable or disable AP instruction interpretation from userspace
-via the KVM_SET_DEVICE_ATTR ioctl:
+Introduces two new CPU model facilities to support
+AP virtualization for KVM guests:
 
-* The KVM_S390_VM_CRYPTO_ENABLE_APIE attribute enables hardware
-  interpretation of AP instructions executed on the guest.
+1. AP Query Configuration Information (QCI) facility is installed.
 
-* The KVM_S390_VM_CRYPTO_DISABLE_APIE attribute disables hardware
-  interpretation of AP instructions executed on the guest. In this
-  case the instructions will be intercepted and pass through to
-  the guest.
+   This is indicated by setting facilities bit 12 for
+   the guest. The kernel will not enable this facility
+   for the guest if it is not set on the host.
+
+   If this facility is not set for the KVM guest, then only
+   APQNs with an APQI less than 16 will be used by a Linux
+   guest regardless of the matrix configuration for the virtual
+   machine. This is a limitation of the Linux AP bus.
+
+2. AP Facilities Test facility (APFT) is installed.
+
+   This is indicated by setting facilities bit 15 for
+   the guest. The kernel will not enable this facility for
+   the guest if it is not set on the host.
+
+   If this facility is not set for the KVM guest, then no
+   AP devices will be available to the guest regardless of
+   the guest's matrix configuration for the virtual
+   machine. This is a limitation of the Linux AP bus.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Tested-by: Michael Mueller <mimu@linux.ibm.com>
+Tested-by: Farhan Ali <alifm@linux.ibm.com>
 ---
- arch/s390/include/uapi/asm/kvm.h |  2 ++
- arch/s390/kvm/kvm-s390.c         | 31 ++++++++++++++++++++++++++++---
- 2 files changed, 30 insertions(+), 3 deletions(-)
+ arch/s390/kvm/kvm-s390.c         | 1 +
+ arch/s390/tools/gen_facilities.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 9a50f02b9894..16511d97e8dc 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -160,6 +160,8 @@ struct kvm_s390_vm_cpu_subfunc {
- #define KVM_S390_VM_CRYPTO_ENABLE_DEA_KW	1
- #define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
- #define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
-+#define KVM_S390_VM_CRYPTO_ENABLE_APIE		4
-+#define KVM_S390_VM_CRYPTO_DISABLE_APIE		5
- 
- /* kvm attributes for migration mode */
- #define KVM_S390_VM_MIGRATION_STOP	0
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index c94ef2d0dbe4..81fd82f7626d 100644
+index 81fd82f7626d..444965e78010 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -856,12 +856,11 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm)
+@@ -371,6 +371,7 @@ static void kvm_s390_cpu_feat_init(void)
  
- static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
- {
--	if (!test_kvm_facility(kvm, 76))
--		return -EINVAL;
--
- 	mutex_lock(&kvm->lock);
- 	switch (attr->attr) {
- 	case KVM_S390_VM_CRYPTO_ENABLE_AES_KW:
-+		if (!test_kvm_facility(kvm, 76))
-+			return -EINVAL;
- 		get_random_bytes(
- 			kvm->arch.crypto.crycb->aes_wrapping_key_mask,
- 			sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
-@@ -869,6 +868,8 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
- 		VM_EVENT(kvm, 3, "%s", "ENABLE: AES keywrapping support");
- 		break;
- 	case KVM_S390_VM_CRYPTO_ENABLE_DEA_KW:
-+		if (!test_kvm_facility(kvm, 76))
-+			return -EINVAL;
- 		get_random_bytes(
- 			kvm->arch.crypto.crycb->dea_wrapping_key_mask,
- 			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
-@@ -876,17 +877,35 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
- 		VM_EVENT(kvm, 3, "%s", "ENABLE: DEA keywrapping support");
- 		break;
- 	case KVM_S390_VM_CRYPTO_DISABLE_AES_KW:
-+		if (!test_kvm_facility(kvm, 76))
-+			return -EINVAL;
- 		kvm->arch.crypto.aes_kw = 0;
- 		memset(kvm->arch.crypto.crycb->aes_wrapping_key_mask, 0,
- 			sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
- 		VM_EVENT(kvm, 3, "%s", "DISABLE: AES keywrapping support");
- 		break;
- 	case KVM_S390_VM_CRYPTO_DISABLE_DEA_KW:
-+		if (!test_kvm_facility(kvm, 76))
-+			return -EINVAL;
- 		kvm->arch.crypto.dea_kw = 0;
- 		memset(kvm->arch.crypto.crycb->dea_wrapping_key_mask, 0,
- 			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
- 		VM_EVENT(kvm, 3, "%s", "DISABLE: DEA keywrapping support");
- 		break;
-+	case KVM_S390_VM_CRYPTO_ENABLE_APIE:
-+		if (!ap_instructions_available()) {
-+			mutex_unlock(&kvm->lock);
-+			return -EOPNOTSUPP;
-+		}
-+		kvm->arch.crypto.apie = 1;
-+		break;
-+	case KVM_S390_VM_CRYPTO_DISABLE_APIE:
-+		if (!ap_instructions_available()) {
-+			mutex_unlock(&kvm->lock);
-+			return -EOPNOTSUPP;
-+		}
-+		kvm->arch.crypto.apie = 0;
-+		break;
- 	default:
- 		mutex_unlock(&kvm->lock);
- 		return -ENXIO;
-@@ -1495,6 +1514,10 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 		case KVM_S390_VM_CRYPTO_DISABLE_DEA_KW:
- 			ret = 0;
- 			break;
-+		case KVM_S390_VM_CRYPTO_ENABLE_APIE:
-+		case KVM_S390_VM_CRYPTO_DISABLE_APIE:
-+			ret = ap_instructions_available() ? 0 : -ENXIO;
-+			break;
- 		default:
- 			ret = -ENXIO;
- 			break;
-@@ -2062,6 +2085,7 @@ static u64 kvm_s390_get_initial_cpuid(void)
- static void kvm_s390_crypto_init(struct kvm *kvm)
- {
- 	kvm->arch.crypto.crycb = &kvm->arch.sie_page2->crycb;
-+	kvm->arch.crypto.apie = 0;
- 	kvm_s390_set_crycb_format(kvm);
+ 	if (MACHINE_HAS_ESOP)
+ 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
++
+ 	/*
+ 	 * We need SIE support, ESOP (PROT_READ protection for gmap_shadow),
+ 	 * 64bit SCAO (SCA passthrough) and IDTE (for gmap_shadow unshadowing).
+diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+index 0c85aedcf9b3..fd788e0f2e5b 100644
+--- a/arch/s390/tools/gen_facilities.c
++++ b/arch/s390/tools/gen_facilities.c
+@@ -106,6 +106,8 @@ static struct facility_def facility_defs[] = {
  
- 	if (!test_kvm_facility(kvm, 76))
-@@ -2601,6 +2625,7 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
- 
- 	vcpu->arch.sie_block->crycbd = vcpu->kvm->arch.crypto.crycbd;
- 	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
-+	vcpu->arch.sie_block->eca &= ~ECA_APIE;
- 
- 	if (vcpu->kvm->arch.crypto.apie)
- 		vcpu->arch.sie_block->eca |= ECA_APIE;
+ 		.name = "FACILITIES_KVM_CPUMODEL",
+ 		.bits = (int[]){
++			12, /* AP Query Configuration Information */
++			15, /* AP Facilities Test */
+ 			156, /* etoken facility */
+ 			-1  /* END */
+ 		}
 -- 
 2.19.0.221.g150f307
