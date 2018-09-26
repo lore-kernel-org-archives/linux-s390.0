@@ -1,66 +1,63 @@
-Return-Path: <SRS0=A0hX=MM=vger.kernel.org=linux-kernel-owner@kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20180930164950.3841-1-ard.biesheuvel@linaro.org>
-References: <20180930164950.3841-1-ard.biesheuvel@linaro.org>
-From: Kees Cook <keescook@chromium.org>
-Date: Sun, 30 Sep 2018 09:55:13 -0700
-Message-ID: <CAGXu5jKL9H+VKr=J8iXEBOVagr5ZxRdYw-KUqMtM=qhpkrv+Rg@mail.gmail.com>
-Subject: Re: [PATCH] s390: vmlinux.lds: move JUMP_TABLE_DATA into output section
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 0/7] Remove errors building drivers/DRIVERNAME
+Date: Wed, 26 Sep 2018 09:05:04 +0200
+Message-ID: <CAMuHMdXaAuHdCK8aeRucefn_GwkM-uYdFArOBPHD2gM5bdNRwg@mail.gmail.com>
+References: <20180926015147.GA14862@WindFlash>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180926015147.GA14862@WindFlash>
+List-Archive: <https://lore.kernel.org/linux-parisc/>
+List-Post: <mailto:linux-parisc@vger.kernel.org>
+To: leobras.c@gmail.com
+Cc: lkcamp@lists.libreplanetbr.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@telegraphics.com.au>, Robert Richter <rric@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, oprofile-list@lists.sf.net, Parisc List <linux-parisc@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Sun, Sep 30, 2018 at 9:49 AM, Ard Biesheuvel
-<ard.biesheuvel@linaro.org> wrote:
-> Commit e872267b8bcbb179 ("jump_table: move entries into ro_after_init
-> region") moved the __jump_table input section into the __ro_after_init
-> output section, but inadvertently put the macro in the wrong place in
-> the s390 linker script. Let's fix that.
->
-> Fixes: e872267b8bcbb179 ("jump_table: move entries into ro_after_init region")
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Jessica Yu <jeyu@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Hi Leonardo,
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
+Thanks for your patch series!
 
--Kees
+On Wed, Sep 26, 2018 at 3:51 AM Leonardo Brás <leobras.c@gmail.com> wrote:
+> This Patchset changes some driver's Makefile to allow them building
+> using the command 'make drivers/DRIVERNAME', if compatible.
 
-> ---
->  arch/s390/kernel/vmlinux.lds.S | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-> index 4042bbf3f9ad..457713f48734 100644
-> --- a/arch/s390/kernel/vmlinux.lds.S
-> +++ b/arch/s390/kernel/vmlinux.lds.S
-> @@ -64,9 +64,9 @@ SECTIONS
->         __start_ro_after_init = .;
->         .data..ro_after_init : {
->                  *(.data..ro_after_init)
-> +               JUMP_TABLE_DATA
->         }
->         EXCEPTION_TABLE(16)
-> -       JUMP_TABLE_DATA
->         . = ALIGN(PAGE_SIZE);
->         __end_ro_after_init = .;
->
-> --
-> 2.17.1
->
+Please note that running "make drivers/DRIVERNAME" assumes that you know
+exactly what you're doing. In the normal build process, you should just run
+"make".
 
+> The changed drivers would return error if the above command was run
+> on them, after an x86 allyesconfig.
 
+That is expected, as the DIO, NuBus, and Zorro buses, and PA-RISC and
+S390 specific drivers are not supported on x86.
+That is also the reason why you cannot enable support for them when configuring
+your kernel.
+
+If you want to enable e.g. NuBus support, you have to configure a kernel
+for m68k/Mac, and (cross)compile it.
+
+At https://mirrors.edge.kernel.org/pub/tools/crosstool/, you can find cross
+compiler binaries for download.  Altermatively, your Linux distribution may
+provide cross compiler packages.
+
+> The main reason of this patchset is to allow building lists of
+> drivers looking for warnings and errors to be fixed.
+
+We already have COMPILE_TEST for that.
+If you want to increase compile coverage, please look into adding
+"|| COMPILE_TEST" dependencies to subsystems and drivers that still lack it,
+and (if needed) modifying the code to make the result build.
+
+Thanks!
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-Kees Cook
-Pixel Security
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
