@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 1/2] s390: qeth_core_mpc: Use ARRAY_SIZE instead of reimplementing its function
-Date: Wed, 26 Sep 2018 18:07:09 +0200
-Message-ID: <20180926160710.64739-2-jwi@linux.ibm.com>
+Subject: [PATCH net 2/2] s390: qeth: Fix potential array overrun in cmd/rc lookup
+Date: Wed, 26 Sep 2018 18:07:10 +0200
+Message-ID: <20180926160710.64739-3-jwi@linux.ibm.com>
 References: <20180926160710.64739-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180926160710.64739-1-jwi@linux.ibm.com>
@@ -9,45 +9,132 @@ Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, zhong jiang <zhongjiang@huawei.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jean Delvare <jdelvare@suse.de>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Jean Delvare <jdelvare@suse.de>
 
-Use the common code ARRAY_SIZE macro instead of a private implementation.
+Functions qeth_get_ipa_msg and qeth_get_ipa_cmd_name are modifying
+the last member of global arrays without any locking that I can see.
+If two instances of either function are running at the same time,
+it could cause a race ultimately leading to an array overrun (the
+contents of the last entry of the array is the only guarantee that
+the loop will ever stop).
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Performing the lookups without modifying the arrays is admittedly
+slower (two comparisons per iteration instead of one) but these
+are operations which are rare (should only be needed in error
+cases or when debugging, not during successful operation) and it
+seems still less costly than introducing a mutex to protect the
+arrays in question.
+
+As a side bonus, it allows us to declare both arrays as const data.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: Ursula Braun <ubraun@linux.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_mpc.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/s390/net/qeth_core_main.c |  2 +-
+ drivers/s390/net/qeth_core_mpc.c  | 30 ++++++++++++++++--------------
+ drivers/s390/net/qeth_core_mpc.h  |  4 ++--
+ 3 files changed, 19 insertions(+), 17 deletions(-)
 
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index de8282420f96..ffce6f39828a 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -610,7 +610,7 @@ static void qeth_put_reply(struct qeth_reply *reply)
+ static void qeth_issue_ipa_msg(struct qeth_ipa_cmd *cmd, int rc,
+ 		struct qeth_card *card)
+ {
+-	char *ipa_name;
++	const char *ipa_name;
+ 	int com = cmd->hdr.command;
+ 	ipa_name = qeth_get_ipa_cmd_name(com);
+ 	if (rc)
 diff --git a/drivers/s390/net/qeth_core_mpc.c b/drivers/s390/net/qeth_core_mpc.c
-index 5bcb8dafc3ee..e8263ded0af0 100644
+index e8263ded0af0..e891c0b52f4c 100644
 --- a/drivers/s390/net/qeth_core_mpc.c
 +++ b/drivers/s390/net/qeth_core_mpc.c
-@@ -222,8 +222,7 @@ static struct ipa_rc_msg qeth_ipa_rc_msg[] = {
- char *qeth_get_ipa_msg(enum qeth_ipa_return_codes rc)
+@@ -148,10 +148,10 @@ EXPORT_SYMBOL_GPL(IPA_PDU_HEADER);
+ 
+ struct ipa_rc_msg {
+ 	enum qeth_ipa_return_codes rc;
+-	char *msg;
++	const char *msg;
+ };
+ 
+-static struct ipa_rc_msg qeth_ipa_rc_msg[] = {
++static const struct ipa_rc_msg qeth_ipa_rc_msg[] = {
+ 	{IPA_RC_SUCCESS,		"success"},
+ 	{IPA_RC_NOTSUPP,		"Command not supported"},
+ 	{IPA_RC_IP_TABLE_FULL,		"Add Addr IP Table Full - ipv6"},
+@@ -219,22 +219,23 @@ static struct ipa_rc_msg qeth_ipa_rc_msg[] = {
+ 
+ 
+ 
+-char *qeth_get_ipa_msg(enum qeth_ipa_return_codes rc)
++const char *qeth_get_ipa_msg(enum qeth_ipa_return_codes rc)
  {
- 	int x = 0;
--	qeth_ipa_rc_msg[sizeof(qeth_ipa_rc_msg) /
--			sizeof(struct ipa_rc_msg) - 1].rc = rc;
-+	qeth_ipa_rc_msg[ARRAY_SIZE(qeth_ipa_rc_msg) - 1].rc = rc;
- 	while (qeth_ipa_rc_msg[x].rc != rc)
- 		x++;
+-	int x = 0;
+-	qeth_ipa_rc_msg[ARRAY_SIZE(qeth_ipa_rc_msg) - 1].rc = rc;
+-	while (qeth_ipa_rc_msg[x].rc != rc)
+-		x++;
++	int x;
++
++	for (x = 0; x < ARRAY_SIZE(qeth_ipa_rc_msg) - 1; x++)
++		if (qeth_ipa_rc_msg[x].rc == rc)
++			return qeth_ipa_rc_msg[x].msg;
  	return qeth_ipa_rc_msg[x].msg;
-@@ -270,9 +269,7 @@ static struct ipa_cmd_names qeth_ipa_cmd_names[] = {
- char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd)
+ }
+ 
+ 
+ struct ipa_cmd_names {
+ 	enum qeth_ipa_cmds cmd;
+-	char *name;
++	const char *name;
+ };
+ 
+-static struct ipa_cmd_names qeth_ipa_cmd_names[] = {
++static const struct ipa_cmd_names qeth_ipa_cmd_names[] = {
+ 	{IPA_CMD_STARTLAN,	"startlan"},
+ 	{IPA_CMD_STOPLAN,	"stoplan"},
+ 	{IPA_CMD_SETVMAC,	"setvmac"},
+@@ -266,11 +267,12 @@ static struct ipa_cmd_names qeth_ipa_cmd_names[] = {
+ 	{IPA_CMD_UNKNOWN,	"unknown"},
+ };
+ 
+-char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd)
++const char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd)
  {
- 	int x = 0;
--	qeth_ipa_cmd_names[
--		sizeof(qeth_ipa_cmd_names) /
--			sizeof(struct ipa_cmd_names)-1].cmd = cmd;
-+	qeth_ipa_cmd_names[ARRAY_SIZE(qeth_ipa_cmd_names) - 1].cmd = cmd;
- 	while (qeth_ipa_cmd_names[x].cmd != cmd)
- 		x++;
+-	int x = 0;
+-	qeth_ipa_cmd_names[ARRAY_SIZE(qeth_ipa_cmd_names) - 1].cmd = cmd;
+-	while (qeth_ipa_cmd_names[x].cmd != cmd)
+-		x++;
++	int x;
++
++	for (x = 0; x < ARRAY_SIZE(qeth_ipa_cmd_names) - 1; x++)
++		if (qeth_ipa_cmd_names[x].cmd == cmd)
++			return qeth_ipa_cmd_names[x].name;
  	return qeth_ipa_cmd_names[x].name;
+ }
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index aa8b9196b089..aa5de1fe01e1 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -797,8 +797,8 @@ enum qeth_ipa_arp_return_codes {
+ 	QETH_IPA_ARP_RC_Q_NO_DATA    = 0x0008,
+ };
+ 
+-extern char *qeth_get_ipa_msg(enum qeth_ipa_return_codes rc);
+-extern char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd);
++extern const char *qeth_get_ipa_msg(enum qeth_ipa_return_codes rc);
++extern const char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd);
+ 
+ #define QETH_SETASS_BASE_LEN (sizeof(struct qeth_ipacmd_hdr) + \
+ 			       sizeof(struct qeth_ipacmd_setassparms_hdr))
 -- 
 2.16.4
