@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 15/15] s390/qeth: remove duplicated carrier state tracking
-Date: Wed, 26 Sep 2018 18:29:16 +0200
-Message-ID: <20180926162916.102720-16-jwi@linux.ibm.com>
+Subject: [PATCH net-next 10/15] s390/qeth: remove CARD_FROM_CDEV helper
+Date: Wed, 26 Sep 2018 18:29:11 +0200
+Message-ID: <20180926162916.102720-11-jwi@linux.ibm.com>
 References: <20180926162916.102720-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180926162916.102720-1-jwi@linux.ibm.com>
@@ -12,141 +12,247 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The netdevice is always available, apply any carrier state changes to it
-without caching them.
-On a STARTLAN event (ie. carrier-up), defer updating the state to
-qeth_core_hardsetup_card() in the subsequent recovery action.
+The cdev-to-card translation walks through two layers of drvdata,
+with no locking or refcounting (where eg. the ccwgroup core only
+accesses a cdev's drvdata while holding the ccwlock).
 
-Also remove the carrier-state checks from the xmit routines. Stopping
-transmission on carrier-down is the responsibility of upper-level code
-(eg see dev_direct_xmit()).
+This might be safe for now, but any careless usage of the helper has the
+potential for subtle races and use-after-free's. Luckily there's only
+one occurrence where we _really_ need it (in qeth_irq()), for any other
+user we can just pass through an appropriate card pointer.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |  1 -
- drivers/s390/net/qeth_core_main.c | 12 +++++-------
- drivers/s390/net/qeth_core_sys.c  |  7 +++----
- drivers/s390/net/qeth_l2_main.c   |  6 +-----
- drivers/s390/net/qeth_l3_main.c   |  6 +-----
- 5 files changed, 10 insertions(+), 22 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 73 ++++++++++++++++-----------------------
+ 1 file changed, 29 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 64bcb1237db0..cd44ff2df6fe 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -763,7 +763,6 @@ struct qeth_switch_info {
- struct qeth_card {
- 	struct list_head list;
- 	enum qeth_card_states state;
--	int lan_online;
- 	spinlock_t lock;
- 	struct ccwgroup_device *gdev;
- 	struct qeth_channel read;
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 9cbdc6760aba..0078b5d217cc 100644
+index 86b9cce1f483..caa5d109841c 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -652,16 +652,13 @@ static struct qeth_ipa_cmd *qeth_check_ipa_data(struct qeth_card *card,
- 				 "The link for interface %s on CHPID 0x%X failed\n",
- 				 QETH_CARD_IFNAME(card), card->info.chpid);
- 			qeth_issue_ipa_msg(cmd, cmd->hdr.return_code, card);
-+			netif_carrier_off(card->dev);
- 		}
--		card->lan_online = 0;
--		netif_carrier_off(card->dev);
- 		return NULL;
- 	case IPA_CMD_STARTLAN:
- 		dev_info(&card->gdev->dev,
- 			 "The link for %s on CHPID 0x%X has been restored\n",
- 			 QETH_CARD_IFNAME(card), card->info.chpid);
--		netif_carrier_on(card->dev);
--		card->lan_online = 1;
- 		if (card->info.hwtrap)
- 			card->info.hwtrap = 2;
- 		qeth_schedule_recovery(card);
-@@ -5133,13 +5130,14 @@ int qeth_core_hardsetup_card(struct qeth_card *card)
- 		if (rc == IPA_RC_LAN_OFFLINE) {
- 			dev_warn(&card->gdev->dev,
- 				"The LAN is offline\n");
--			card->lan_online = 0;
-+			netif_carrier_off(card->dev);
- 		} else {
- 			rc = -ENODEV;
+@@ -746,18 +746,10 @@ static int qeth_check_idx_response(struct qeth_card *card,
+ 	return 0;
+ }
+ 
+-static struct qeth_card *CARD_FROM_CDEV(struct ccw_device *cdev)
+-{
+-	struct qeth_card *card = dev_get_drvdata(&((struct ccwgroup_device *)
+-		dev_get_drvdata(&cdev->dev))->dev);
+-	return card;
+-}
+-
+ static struct qeth_cmd_buffer *__qeth_get_buffer(struct qeth_channel *channel)
+ {
+ 	__u8 index;
+ 
+-	QETH_CARD_TEXT(CARD_FROM_CDEV(channel->ccwdev), 6, "getbuff");
+ 	index = channel->io_buf_no;
+ 	do {
+ 		if (channel->iob[index].state == BUF_STATE_FREE) {
+@@ -778,7 +770,6 @@ void qeth_release_buffer(struct qeth_channel *channel,
+ {
+ 	unsigned long flags;
+ 
+-	QETH_CARD_TEXT(CARD_FROM_CDEV(channel->ccwdev), 6, "relbuff");
+ 	spin_lock_irqsave(&channel->iob_lock, flags);
+ 	iob->state = BUF_STATE_FREE;
+ 	iob->callback = qeth_send_control_data_cb;
+@@ -980,16 +971,15 @@ void qeth_schedule_recovery(struct qeth_card *card)
+ }
+ EXPORT_SYMBOL_GPL(qeth_schedule_recovery);
+ 
+-static int qeth_get_problem(struct ccw_device *cdev, struct irb *irb)
++static int qeth_get_problem(struct qeth_card *card, struct ccw_device *cdev,
++			    struct irb *irb)
+ {
+ 	int dstat, cstat;
+ 	char *sense;
+-	struct qeth_card *card;
+ 
+ 	sense = (char *) irb->ecw;
+ 	cstat = irb->scsw.cmd.cstat;
+ 	dstat = irb->scsw.cmd.dstat;
+-	card = CARD_FROM_CDEV(cdev);
+ 
+ 	if (cstat & (SCHN_STAT_CHN_CTRL_CHK | SCHN_STAT_INTF_CTRL_CHK |
+ 		     SCHN_STAT_CHN_DATA_CHK | SCHN_STAT_CHAIN_CHECK |
+@@ -1029,14 +1019,11 @@ static int qeth_get_problem(struct ccw_device *cdev, struct irb *irb)
+ 	return 0;
+ }
+ 
+-static long __qeth_check_irb_error(struct ccw_device *cdev,
+-		unsigned long intparm, struct irb *irb)
++static long qeth_check_irb_error(struct qeth_card *card,
++				 struct ccw_device *cdev, unsigned long intparm,
++				 struct irb *irb)
+ {
+-	struct qeth_card *card;
+-
+-	card = CARD_FROM_CDEV(cdev);
+-
+-	if (!card || !IS_ERR(irb))
++	if (!IS_ERR(irb))
+ 		return 0;
+ 
+ 	switch (PTR_ERR(irb)) {
+@@ -1073,10 +1060,13 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 	int rc;
+ 	int cstat, dstat;
+ 	struct qeth_cmd_buffer *iob = NULL;
++	struct ccwgroup_device *gdev;
+ 	struct qeth_channel *channel;
+ 	struct qeth_card *card;
+ 
+-	card = CARD_FROM_CDEV(cdev);
++	/* while we hold the ccwdev lock, this stays valid: */
++	gdev = dev_get_drvdata(&cdev->dev);
++	card = dev_get_drvdata(&gdev->dev);
+ 	if (!card)
+ 		return;
+ 
+@@ -1096,7 +1086,7 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 	if (qeth_intparm_is_iob(intparm))
+ 		iob = (struct qeth_cmd_buffer *) __va((addr_t)intparm);
+ 
+-	if (__qeth_check_irb_error(cdev, intparm, irb)) {
++	if (qeth_check_irb_error(card, cdev, intparm, irb)) {
+ 		/* IO was terminated, free its resources. */
+ 		if (iob)
+ 			qeth_release_buffer(iob->channel, iob);
+@@ -1151,7 +1141,7 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 			channel->state = CH_STATE_DOWN;
  			goto out;
  		}
--	} else
--		card->lan_online = 1;
-+	} else {
-+		netif_carrier_on(card->dev);
-+	}
+-		rc = qeth_get_problem(cdev, irb);
++		rc = qeth_get_problem(card, cdev, irb);
+ 		if (rc) {
+ 			card->read_or_write_problem = 1;
+ 			qeth_clear_ipacmd_list(card);
+@@ -1514,12 +1504,11 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
+ 	return NULL;
+ }
  
- 	card->options.ipa4.supported_funcs = 0;
- 	card->options.ipa6.supported_funcs = 0;
-diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
-index 970f6c71a66e..30f61608fa22 100644
---- a/drivers/s390/net/qeth_core_sys.c
-+++ b/drivers/s390/net/qeth_core_sys.c
-@@ -31,10 +31,9 @@ static ssize_t qeth_dev_state_show(struct device *dev,
- 	case CARD_STATE_SOFTSETUP:
- 		return sprintf(buf, "SOFTSETUP\n");
- 	case CARD_STATE_UP:
--		if (card->lan_online)
--		return sprintf(buf, "UP (LAN ONLINE)\n");
--		else
--			return sprintf(buf, "UP (LAN OFFLINE)\n");
-+		return sprintf(buf, "UP (LAN %s)\n",
-+			       netif_carrier_ok(card->dev) ? "ONLINE" :
-+							     "OFFLINE");
- 	case CARD_STATE_RECOVER:
- 		return sprintf(buf, "RECOVER\n");
- 	default:
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index ed475b4ddd3e..c810d53fff51 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -694,7 +694,7 @@ static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
- 	int tx_bytes = skb->len;
+-static int qeth_clear_channel(struct qeth_channel *channel)
++static int qeth_clear_channel(struct qeth_card *card,
++			      struct qeth_channel *channel)
+ {
+-	struct qeth_card *card;
  	int rc;
  
--	if ((card->state != CARD_STATE_UP) || !card->lan_online) {
-+	if (card->state != CARD_STATE_UP) {
- 		card->stats.tx_carrier_errors++;
- 		goto tx_drop;
+-	card = CARD_FROM_CDEV(channel->ccwdev);
+ 	QETH_CARD_TEXT(card, 3, "clearch");
+ 	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
+ 	rc = ccw_device_clear(channel->ccwdev, QETH_CLEAR_CHANNEL_PARM);
+@@ -1537,12 +1526,11 @@ static int qeth_clear_channel(struct qeth_channel *channel)
+ 	return 0;
+ }
+ 
+-static int qeth_halt_channel(struct qeth_channel *channel)
++static int qeth_halt_channel(struct qeth_card *card,
++			     struct qeth_channel *channel)
+ {
+-	struct qeth_card *card;
+ 	int rc;
+ 
+-	card = CARD_FROM_CDEV(channel->ccwdev);
+ 	QETH_CARD_TEXT(card, 3, "haltch");
+ 	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
+ 	rc = ccw_device_halt(channel->ccwdev, QETH_HALT_CHANNEL_PARM);
+@@ -1564,9 +1552,9 @@ static int qeth_halt_channels(struct qeth_card *card)
+ 	int rc1 = 0, rc2 = 0, rc3 = 0;
+ 
+ 	QETH_CARD_TEXT(card, 3, "haltchs");
+-	rc1 = qeth_halt_channel(&card->read);
+-	rc2 = qeth_halt_channel(&card->write);
+-	rc3 = qeth_halt_channel(&card->data);
++	rc1 = qeth_halt_channel(card, &card->read);
++	rc2 = qeth_halt_channel(card, &card->write);
++	rc3 = qeth_halt_channel(card, &card->data);
+ 	if (rc1)
+ 		return rc1;
+ 	if (rc2)
+@@ -1579,9 +1567,9 @@ static int qeth_clear_channels(struct qeth_card *card)
+ 	int rc1 = 0, rc2 = 0, rc3 = 0;
+ 
+ 	QETH_CARD_TEXT(card, 3, "clearchs");
+-	rc1 = qeth_clear_channel(&card->read);
+-	rc2 = qeth_clear_channel(&card->write);
+-	rc3 = qeth_clear_channel(&card->data);
++	rc1 = qeth_clear_channel(card, &card->read);
++	rc2 = qeth_clear_channel(card, &card->write);
++	rc3 = qeth_clear_channel(card, &card->data);
+ 	if (rc1)
+ 		return rc1;
+ 	if (rc2)
+@@ -1810,17 +1798,16 @@ static void qeth_init_func_level(struct qeth_card *card)
  	}
-@@ -997,10 +997,6 @@ static int __qeth_l2_set_online(struct ccwgroup_device *gdev, int recovery_mode)
- 		goto out_remove;
+ }
+ 
+-static int qeth_idx_activate_get_answer(struct qeth_channel *channel,
++static int qeth_idx_activate_get_answer(struct qeth_card *card,
++					struct qeth_channel *channel,
+ 					void (*reply_cb)(struct qeth_card *,
+ 							 struct qeth_channel *,
+ 							 struct qeth_cmd_buffer *))
+ {
+ 	struct qeth_cmd_buffer *iob;
+ 	int rc;
+-	struct qeth_card *card;
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "idxanswr");
+-	card = CARD_FROM_CDEV(channel->ccwdev);
+ 	iob = qeth_get_buffer(channel);
+ 	if (!iob)
+ 		return -ENOMEM;
+@@ -1854,20 +1841,18 @@ static int qeth_idx_activate_get_answer(struct qeth_channel *channel,
+ 	return rc;
+ }
+ 
+-static int qeth_idx_activate_channel(struct qeth_channel *channel,
++static int qeth_idx_activate_channel(struct qeth_card *card,
++				     struct qeth_channel *channel,
+ 				     void (*reply_cb)(struct qeth_card *,
+ 						      struct qeth_channel *,
+ 						      struct qeth_cmd_buffer *))
+ {
+-	struct qeth_card *card;
+ 	struct qeth_cmd_buffer *iob;
+ 	__u16 temp;
+ 	__u8 tmp;
+ 	int rc;
+ 	struct ccw_dev_id temp_devid;
+ 
+-	card = CARD_FROM_CDEV(channel->ccwdev);
+-
+ 	QETH_DBF_TEXT(SETUP, 2, "idxactch");
+ 
+ 	iob = qeth_get_buffer(channel);
+@@ -1925,7 +1910,7 @@ static int qeth_idx_activate_channel(struct qeth_channel *channel,
+ 		QETH_DBF_TEXT_(SETUP, 2, "2err%d", -ETIME);
+ 		return -ETIME;
  	}
- 	card->state = CARD_STATE_SOFTSETUP;
--	if (card->lan_online)
--		netif_carrier_on(card->dev);
--	else
--		netif_carrier_off(card->dev);
+-	return qeth_idx_activate_get_answer(channel, reply_cb);
++	return qeth_idx_activate_get_answer(card, channel, reply_cb);
+ }
  
- 	qeth_set_allowed_threads(card, 0xffffffff, 0);
- 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 86c89338b1a2..80893481bb85 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2233,7 +2233,7 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 			goto tx_drop;
+ static int qeth_peer_func_level(int level)
+@@ -5131,7 +5116,7 @@ int qeth_core_hardsetup_card(struct qeth_card *card)
+ 	qeth_determine_capabilities(card);
+ 	qeth_init_tokens(card);
+ 	qeth_init_func_level(card);
+-	rc = qeth_idx_activate_channel(&card->read, qeth_idx_read_cb);
++	rc = qeth_idx_activate_channel(card, &card->read, qeth_idx_read_cb);
+ 	if (rc == -ERESTARTSYS) {
+ 		QETH_DBF_TEXT(SETUP, 2, "break2");
+ 		return rc;
+@@ -5142,7 +5127,7 @@ int qeth_core_hardsetup_card(struct qeth_card *card)
+ 		else
+ 			goto retry;
  	}
- 
--	if (card->state != CARD_STATE_UP || !card->lan_online) {
-+	if (card->state != CARD_STATE_UP) {
- 		card->stats.tx_carrier_errors++;
- 		goto tx_drop;
- 	}
-@@ -2573,10 +2573,6 @@ static int __qeth_l3_set_online(struct ccwgroup_device *gdev, int recovery_mode)
- 
- 	qeth_set_allowed_threads(card, 0xffffffff, 0);
- 	qeth_l3_recover_ip(card);
--	if (card->lan_online)
--		netif_carrier_on(card->dev);
--	else
--		netif_carrier_off(card->dev);
- 
- 	qeth_enable_hw_features(card->dev);
- 	if (recover_flag == CARD_STATE_RECOVER) {
+-	rc = qeth_idx_activate_channel(&card->write, qeth_idx_write_cb);
++	rc = qeth_idx_activate_channel(card, &card->write, qeth_idx_write_cb);
+ 	if (rc == -ERESTARTSYS) {
+ 		QETH_DBF_TEXT(SETUP, 2, "break3");
+ 		return rc;
 -- 
 2.16.4
