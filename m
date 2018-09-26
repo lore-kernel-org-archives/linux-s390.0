@@ -1,14 +1,15 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v11 13/26] s390: vfio-ap: zeroize the AP queues
-Date: Wed, 26 Sep 2018 15:38:31 +0200
-Message-ID: <20180926153831.195af1ce.cohuck@redhat.com>
+Subject: Re: [PATCH v11 25/26] KVM: s390: CPU model support for AP
+ virtualization
+Date: Wed, 26 Sep 2018 15:39:53 +0200
+Message-ID: <20180926153953.2fce5d04.cohuck@redhat.com>
 References: <20180925231641.4954-1-akrowiak@linux.vnet.ibm.com>
-        <20180925231641.4954-14-akrowiak@linux.vnet.ibm.com>
+        <20180925231641.4954-26-akrowiak@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180925231641.4954-14-akrowiak@linux.vnet.ibm.com>
+In-Reply-To: <20180925231641.4954-26-akrowiak@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -16,96 +17,47 @@ To: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 25 Sep 2018 19:16:28 -0400
+On Tue, 25 Sep 2018 19:16:40 -0400
 Tony Krowiak <akrowiak@linux.vnet.ibm.com> wrote:
 
 > From: Tony Krowiak <akrowiak@linux.ibm.com>
 > 
-> Let's call PAPQ(ZAPQ) to zeroize a queue for each queue configured
-> for a mediated matrix device when it is released.
+> Introduces two new CPU model facilities to support
+> AP virtualization for KVM guests:
 > 
-> Zeroizing a queue resets the queue, clears all pending
-> messages for the queue entries and disables adapter interruptions
-> associated with the queue.
+> 1. AP Query Configuration Information (QCI) facility is installed.
+> 
+>    This is indicated by setting facilities bit 12 for
+>    the guest. The kernel will not enable this facility
+>    for the guest if it is not set on the host.
+> 
+>    If this facility is not set for the KVM guest, then only
+>    APQNs with an APQI less than 16 will be used by a Linux
+>    guest regardless of the matrix configuration for the virtual
+>    machine. This is a limitation of the Linux AP bus.
+> 
+> 2. AP Facilities Test facility (APFT) is installed.
+> 
+>    This is indicated by setting facilities bit 15 for
+>    the guest. The kernel will not enable this facility for
+>    the guest if it is not set on the host.
+> 
+>    If this facility is not set for the KVM guest, then no
+>    AP devices will be available to the guest regardless of
+>    the guest's matrix configuration for the virtual
+>    machine. This is a limitation of the Linux AP bus.
 > 
 > Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
 > Tested-by: Michael Mueller <mimu@linux.ibm.com>
 > Tested-by: Farhan Ali <alifm@linux.ibm.com>
 > ---
->  drivers/s390/crypto/vfio_ap_ops.c | 44 +++++++++++++++++++++++++++++++
->  1 file changed, 44 insertions(+)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index b4f67d547493..1943e47d7d78 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -816,6 +816,49 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
->  	return NOTIFY_OK;
->  }
->  
-> +static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
-> +				    unsigned int retry)
-> +{
-> +	struct ap_queue_status status;
-> +
-> +	do {
-> +		status = ap_zapq(AP_MKQID(apid, apqi));
-> +		switch (status.response_code) {
-> +		case AP_RESPONSE_NORMAL:
-> +			return 0;
-> +		case AP_RESPONSE_RESET_IN_PROGRESS:
-> +		case AP_RESPONSE_BUSY:
-> +			msleep(20);
-> +			break;
-> +		default:
-> +			/* things are really broken, give up */
-> +			return -EIO;
-> +		}
-> +	} while (retry--);
-> +
-> +	return -EBUSY;
-> +}
-> +
-> +static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
-> +{
-> +	int ret;
-> +	int rc = 0;
-> +	unsigned long apid, apqi;
-> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> +
-> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
-> +			     matrix_mdev->matrix.apm_max + 1) {
-> +		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-> +				     matrix_mdev->matrix.aqm_max + 1) {
-> +			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
+>  arch/s390/kvm/kvm-s390.c         | 1 +
+>  arch/s390/tools/gen_facilities.c | 2 ++
+>  2 files changed, 3 insertions(+)
 
-I'd still like to see a comment here:
+With the trivial change
 
-/*
- * Regardless whether a queue turns out to be busy, or is not
- * operational, we need to continue resetting the remaining
- * queues.
- */
-
-or so.
-
-> +			if (ret)
-> +				rc = ret;
-> +		}
-> +	}
-> +
-> +	return rc;
-> +}
-> +
->  static int vfio_ap_mdev_open(struct mdev_device *mdev)
->  {
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> @@ -846,6 +889,7 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
->  	if (matrix_mdev->kvm)
->  		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
->  
-> +	vfio_ap_mdev_reset_queues(mdev);
->  	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
->  				 &matrix_mdev->group_notifier);
->  	matrix_mdev->kvm = NULL;
+Acked-by: Cornelia Huck <cohuck@redhat.com>
