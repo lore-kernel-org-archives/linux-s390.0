@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 09/15] s390/qeth: pass card pointer in iob callback
-Date: Wed, 26 Sep 2018 18:29:10 +0200
-Message-ID: <20180926162916.102720-10-jwi@linux.ibm.com>
+Subject: [PATCH net-next 05/15] net/af_iucv: locate IUCV header via skb_network_header()
+Date: Wed, 26 Sep 2018 18:29:06 +0200
+Message-ID: <20180926162916.102720-6-jwi@linux.ibm.com>
 References: <20180926162916.102720-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20180926162916.102720-1-jwi@linux.ibm.com>
@@ -12,191 +12,203 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This allows us to remove the CARD_FROM_CDEV calls in the iob callbacks.
+This patch attempts to untangle the TX and RX code in qeth from
+af_iucv's respective HiperTransport path:
+On the TX side, pointing skb_network_header() at the IUCV header
+means that qeth_l3_fill_af_iucv_hdr() no longer needs a magical offset
+to access the header.
+On the RX side, qeth pulls the (fake) L2 header off the skb like any
+normal ethernet driver would. This makes working with the IUCV header
+in af_iucv easier, since we no longer have to assume a fixed skb layout.
+
+While at it, replace the open-coded length checks in af_iucv's RX path
+with pskb_may_pull().
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |  3 ++-
- drivers/s390/net/qeth_core_main.c | 53 ++++++++++++++++++++++-----------------
- 2 files changed, 32 insertions(+), 24 deletions(-)
+ drivers/s390/net/qeth_l3_main.c | 12 +++++-------
+ include/net/iucv/af_iucv.h      |  5 +++++
+ net/iucv/af_iucv.c              | 42 +++++++++++++----------------------------
+ 3 files changed, 23 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 630a01b3212c..64bcb1237db0 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -582,7 +582,8 @@ struct qeth_cmd_buffer {
- 	struct qeth_channel *channel;
- 	unsigned char *data;
- 	int rc;
--	void (*callback) (struct qeth_channel *, struct qeth_cmd_buffer *);
-+	void (*callback)(struct qeth_card *card, struct qeth_channel *channel,
-+			 struct qeth_cmd_buffer *iob);
- };
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 2756795f7708..7148ef71ac78 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1348,6 +1348,7 @@ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
+ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
+ 				int budget, int *done)
+ {
++	struct net_device *dev = card->dev;
+ 	int work_done = 0;
+ 	struct sk_buff *skb;
+ 	struct qeth_hdr *hdr;
+@@ -1369,11 +1370,10 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
+ 			magic = *(__u16 *)skb->data;
+ 			if ((card->info.type == QETH_CARD_TYPE_IQD) &&
+ 			    (magic == ETH_P_AF_IUCV)) {
+-				skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
+ 				len = skb->len;
+-				card->dev->header_ops->create(skb, card->dev, 0,
+-					card->dev->dev_addr, "FAKELL", len);
+-				skb_reset_mac_header(skb);
++				dev_hard_header(skb, dev, ETH_P_AF_IUCV,
++						dev->dev_addr, "FAKELL", len);
++				skb->protocol = eth_type_trans(skb, dev);
+ 				netif_receive_skb(skb);
+ 			} else {
+ 				qeth_l3_rebuild_skb(card, skb, hdr);
+@@ -2005,17 +2005,15 @@ static void qeth_l3_fill_af_iucv_hdr(struct qeth_hdr *hdr, struct sk_buff *skb,
+ 				     unsigned int data_len)
+ {
+ 	char daddr[16];
+-	struct af_iucv_trans_hdr *iucv_hdr;
  
- static inline struct qeth_ipa_cmd *__ipa_cmd(struct qeth_cmd_buffer *iob)
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 1b853f900720..86b9cce1f483 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -63,8 +63,9 @@ static struct kmem_cache *qeth_qdio_outbuf_cache;
- static struct device *qeth_core_root_dev;
- static struct lock_class_key qdio_out_skb_queue_key;
+ 	hdr->hdr.l3.id = QETH_HEADER_TYPE_LAYER3;
+ 	hdr->hdr.l3.length = data_len;
+ 	hdr->hdr.l3.flags = QETH_HDR_IPV6 | QETH_CAST_UNICAST;
  
--static void qeth_send_control_data_cb(struct qeth_channel *,
--			struct qeth_cmd_buffer *);
-+static void qeth_send_control_data_cb(struct qeth_card *card,
-+				      struct qeth_channel *channel,
-+				      struct qeth_cmd_buffer *iob);
- static struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *);
- static void qeth_free_buffer_pool(struct qeth_card *);
- static int qeth_qdio_establish(struct qeth_card *);
-@@ -787,6 +788,13 @@ void qeth_release_buffer(struct qeth_channel *channel,
+-	iucv_hdr = (struct af_iucv_trans_hdr *)(skb_mac_header(skb) + ETH_HLEN);
+ 	memset(daddr, 0, sizeof(daddr));
+ 	daddr[0] = 0xfe;
+ 	daddr[1] = 0x80;
+-	memcpy(&daddr[8], iucv_hdr->destUserID, 8);
++	memcpy(&daddr[8], iucv_trans_hdr(skb)->destUserID, 8);
+ 	memcpy(hdr->hdr.l3.next_hop.ipv6_addr, daddr, 16);
  }
- EXPORT_SYMBOL_GPL(qeth_release_buffer);
  
-+static void qeth_release_buffer_cb(struct qeth_card *card,
-+				   struct qeth_channel *channel,
-+				   struct qeth_cmd_buffer *iob)
+diff --git a/include/net/iucv/af_iucv.h b/include/net/iucv/af_iucv.h
+index f4c21b5a1242..14a490246be9 100644
+--- a/include/net/iucv/af_iucv.h
++++ b/include/net/iucv/af_iucv.h
+@@ -80,6 +80,11 @@ struct af_iucv_trans_hdr {
+ 	u8 pad;                          /* total 104 bytes */
+ } __packed;
+ 
++static inline struct af_iucv_trans_hdr *iucv_trans_hdr(struct sk_buff *skb)
 +{
-+	qeth_release_buffer(channel, iob);
++	return (struct af_iucv_trans_hdr *)skb_network_header(skb);
 +}
 +
- static struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *channel)
+ enum iucv_tx_notify {
+ 	/* transmission of skb is completed and was successful */
+ 	TX_NOTIFY_OK = 0,
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 5b68ee908107..45115c125569 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -320,13 +320,9 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
+ 	struct sk_buff *nskb;
+ 	int err, confirm_recv = 0;
+ 
+-	memset(skb->head, 0, ETH_HLEN);
+-	phs_hdr = skb_push(skb, sizeof(struct af_iucv_trans_hdr));
+-	skb_reset_mac_header(skb);
++	phs_hdr = skb_push(skb, sizeof(*phs_hdr));
++	memset(phs_hdr, 0, sizeof(*phs_hdr));
+ 	skb_reset_network_header(skb);
+-	skb_push(skb, ETH_HLEN);
+-	skb_reset_mac_header(skb);
+-	memset(phs_hdr, 0, sizeof(struct af_iucv_trans_hdr));
+ 
+ 	phs_hdr->magic = ETH_P_AF_IUCV;
+ 	phs_hdr->version = 1;
+@@ -350,6 +346,9 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
+ 	if (imsg)
+ 		memcpy(&phs_hdr->iucv_hdr, imsg, sizeof(struct iucv_message));
+ 
++	skb_push(skb, ETH_HLEN);
++	memset(skb->data, 0, ETH_HLEN);
++
+ 	skb->dev = iucv->hs_dev;
+ 	if (!skb->dev) {
+ 		err = -ENODEV;
+@@ -1943,8 +1942,7 @@ static void iucv_callback_shutdown(struct iucv_path *path, u8 ipuser[16])
+ /***************** HiperSockets transport callbacks ********************/
+ static void afiucv_swap_src_dest(struct sk_buff *skb)
  {
- 	struct qeth_cmd_buffer *buffer = NULL;
-@@ -817,17 +825,16 @@ void qeth_clear_cmd_buffers(struct qeth_channel *channel)
- }
- EXPORT_SYMBOL_GPL(qeth_clear_cmd_buffers);
+-	struct af_iucv_trans_hdr *trans_hdr =
+-				(struct af_iucv_trans_hdr *)skb->data;
++	struct af_iucv_trans_hdr *trans_hdr = iucv_trans_hdr(skb);
+ 	char tmpID[8];
+ 	char tmpName[8];
  
--static void qeth_send_control_data_cb(struct qeth_channel *channel,
--		  struct qeth_cmd_buffer *iob)
-+static void qeth_send_control_data_cb(struct qeth_card *card,
-+				      struct qeth_channel *channel,
-+				      struct qeth_cmd_buffer *iob)
+@@ -1967,13 +1965,12 @@ static void afiucv_swap_src_dest(struct sk_buff *skb)
+  **/
+ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
  {
--	struct qeth_card *card;
- 	struct qeth_reply *reply, *r;
- 	struct qeth_ipa_cmd *cmd;
- 	unsigned long flags;
- 	int keep_reply;
- 	int rc = 0;
++	struct af_iucv_trans_hdr *trans_hdr = iucv_trans_hdr(skb);
+ 	struct sock *nsk;
+ 	struct iucv_sock *iucv, *niucv;
+-	struct af_iucv_trans_hdr *trans_hdr;
+ 	int err;
  
--	card = CARD_FROM_CDEV(channel->ccwdev);
- 	QETH_CARD_TEXT(card, 4, "sndctlcb");
- 	rc = qeth_check_idx_response(card, iob->data);
- 	switch (rc) {
-@@ -1164,7 +1171,7 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
- 		__qeth_issue_next_read(card);
- 
- 	if (iob && iob->callback)
--		iob->callback(iob->channel, iob);
-+		iob->callback(card, iob->channel, iob);
- 
- out:
- 	wake_up(&card->wait_q);
-@@ -1804,8 +1811,9 @@ static void qeth_init_func_level(struct qeth_card *card)
- }
- 
- static int qeth_idx_activate_get_answer(struct qeth_channel *channel,
--		void (*idx_reply_cb)(struct qeth_channel *,
--			struct qeth_cmd_buffer *))
-+					void (*reply_cb)(struct qeth_card *,
-+							 struct qeth_channel *,
-+							 struct qeth_cmd_buffer *))
+ 	iucv = iucv_sk(sk);
+-	trans_hdr = (struct af_iucv_trans_hdr *)skb->data;
+ 	if (!iucv) {
+ 		/* no sock - connection refused */
+ 		afiucv_swap_src_dest(skb);
+@@ -2034,15 +2031,13 @@ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
+ static int afiucv_hs_callback_synack(struct sock *sk, struct sk_buff *skb)
  {
- 	struct qeth_cmd_buffer *iob;
- 	int rc;
-@@ -1816,7 +1824,7 @@ static int qeth_idx_activate_get_answer(struct qeth_channel *channel,
- 	iob = qeth_get_buffer(channel);
- 	if (!iob)
- 		return -ENOMEM;
--	iob->callback = idx_reply_cb;
-+	iob->callback = reply_cb;
- 	qeth_setup_ccw(channel->ccw, CCW_CMD_READ, QETH_BUFSIZE, iob->data);
+ 	struct iucv_sock *iucv = iucv_sk(sk);
+-	struct af_iucv_trans_hdr *trans_hdr =
+-					(struct af_iucv_trans_hdr *)skb->data;
  
- 	wait_event(card->wait_q,
-@@ -1847,8 +1855,9 @@ static int qeth_idx_activate_get_answer(struct qeth_channel *channel,
- }
- 
- static int qeth_idx_activate_channel(struct qeth_channel *channel,
--		void (*idx_reply_cb)(struct qeth_channel *,
--			struct qeth_cmd_buffer *))
-+				     void (*reply_cb)(struct qeth_card *,
-+						      struct qeth_channel *,
-+						      struct qeth_cmd_buffer *))
- {
- 	struct qeth_card *card;
- 	struct qeth_cmd_buffer *iob;
-@@ -1864,7 +1873,7 @@ static int qeth_idx_activate_channel(struct qeth_channel *channel,
- 	iob = qeth_get_buffer(channel);
- 	if (!iob)
- 		return -ENOMEM;
--	iob->callback = idx_reply_cb;
-+	iob->callback = reply_cb;
- 	qeth_setup_ccw(channel->ccw, CCW_CMD_WRITE, IDX_ACTIVATE_SIZE,
- 		       iob->data);
- 	if (channel == &card->write) {
-@@ -1916,7 +1925,7 @@ static int qeth_idx_activate_channel(struct qeth_channel *channel,
- 		QETH_DBF_TEXT_(SETUP, 2, "2err%d", -ETIME);
- 		return -ETIME;
- 	}
--	return qeth_idx_activate_get_answer(channel, idx_reply_cb);
-+	return qeth_idx_activate_get_answer(channel, reply_cb);
- }
- 
- static int qeth_peer_func_level(int level)
-@@ -1928,10 +1937,10 @@ static int qeth_peer_func_level(int level)
- 	return level;
- }
- 
--static void qeth_idx_write_cb(struct qeth_channel *channel,
--		struct qeth_cmd_buffer *iob)
-+static void qeth_idx_write_cb(struct qeth_card *card,
-+			      struct qeth_channel *channel,
-+			      struct qeth_cmd_buffer *iob)
- {
--	struct qeth_card *card;
- 	__u16 temp;
- 
- 	QETH_DBF_TEXT(SETUP , 2, "idxwrcb");
-@@ -1940,7 +1949,6 @@ static void qeth_idx_write_cb(struct qeth_channel *channel,
- 		channel->state = CH_STATE_ACTIVATING;
+ 	if (!iucv)
  		goto out;
- 	}
--	card = CARD_FROM_CDEV(channel->ccwdev);
- 
- 	if (!(QETH_IS_IDX_ACT_POS_REPLY(iob->data))) {
- 		if (QETH_IDX_ACT_CAUSE_CODE(iob->data) == QETH_IDX_ACT_ERR_EXCL)
-@@ -1966,10 +1974,10 @@ static void qeth_idx_write_cb(struct qeth_channel *channel,
- 	qeth_release_buffer(channel, iob);
- }
- 
--static void qeth_idx_read_cb(struct qeth_channel *channel,
--		struct qeth_cmd_buffer *iob)
-+static void qeth_idx_read_cb(struct qeth_card *card,
-+			     struct qeth_channel *channel,
-+			     struct qeth_cmd_buffer *iob)
- {
--	struct qeth_card *card;
- 	__u16 temp;
- 
- 	QETH_DBF_TEXT(SETUP , 2, "idxrdcb");
-@@ -1978,7 +1986,6 @@ static void qeth_idx_read_cb(struct qeth_channel *channel,
+ 	if (sk->sk_state != IUCV_BOUND)
  		goto out;
- 	}
- 
--	card = CARD_FROM_CDEV(channel->ccwdev);
- 	if (qeth_check_idx_response(card, iob->data))
- 			goto out;
- 
-@@ -2027,7 +2034,7 @@ void qeth_prepare_control_data(struct qeth_card *card, int len,
- 		struct qeth_cmd_buffer *iob)
+ 	bh_lock_sock(sk);
+-	iucv->msglimit_peer = trans_hdr->window;
++	iucv->msglimit_peer = iucv_trans_hdr(skb)->window;
+ 	sk->sk_state = IUCV_CONNECTED;
+ 	sk->sk_state_change(sk);
+ 	bh_unlock_sock(sk);
+@@ -2098,8 +2093,6 @@ static int afiucv_hs_callback_fin(struct sock *sk, struct sk_buff *skb)
+ static int afiucv_hs_callback_win(struct sock *sk, struct sk_buff *skb)
  {
- 	qeth_setup_ccw(iob->channel->ccw, CCW_CMD_WRITE, len, iob->data);
--	iob->callback = qeth_release_buffer;
-+	iob->callback = qeth_release_buffer_cb;
+ 	struct iucv_sock *iucv = iucv_sk(sk);
+-	struct af_iucv_trans_hdr *trans_hdr =
+-					(struct af_iucv_trans_hdr *)skb->data;
  
- 	memcpy(QETH_TRANSPORT_HEADER_SEQ_NO(iob->data),
- 	       &card->seqno.trans_hdr, QETH_SEQ_NO_LENGTH);
+ 	if (!iucv)
+ 		return NET_RX_SUCCESS;
+@@ -2107,7 +2100,7 @@ static int afiucv_hs_callback_win(struct sock *sk, struct sk_buff *skb)
+ 	if (sk->sk_state != IUCV_CONNECTED)
+ 		return NET_RX_SUCCESS;
+ 
+-	atomic_sub(trans_hdr->window, &iucv->msg_sent);
++	atomic_sub(iucv_trans_hdr(skb)->window, &iucv->msg_sent);
+ 	iucv_sock_wake_msglim(sk);
+ 	return NET_RX_SUCCESS;
+ }
+@@ -2170,22 +2163,13 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
+ 	int err = NET_RX_SUCCESS;
+ 	char nullstring[8];
+ 
+-	if (skb->len < (ETH_HLEN + sizeof(struct af_iucv_trans_hdr))) {
+-		WARN_ONCE(1, "AF_IUCV too short skb, len=%d, min=%d",
+-			  (int)skb->len,
+-			  (int)(ETH_HLEN + sizeof(struct af_iucv_trans_hdr)));
++	if (!pskb_may_pull(skb, sizeof(*trans_hdr))) {
++		WARN_ONCE(1, "AF_IUCV failed to receive skb, len=%u", skb->len);
+ 		kfree_skb(skb);
+ 		return NET_RX_SUCCESS;
+ 	}
+-	if (skb_headlen(skb) < (ETH_HLEN + sizeof(struct af_iucv_trans_hdr)))
+-		if (skb_linearize(skb)) {
+-			WARN_ONCE(1, "AF_IUCV skb_linearize failed, len=%d",
+-				  (int)skb->len);
+-			kfree_skb(skb);
+-			return NET_RX_SUCCESS;
+-		}
+-	skb_pull(skb, ETH_HLEN);
+-	trans_hdr = (struct af_iucv_trans_hdr *)skb->data;
++
++	trans_hdr = iucv_trans_hdr(skb);
+ 	EBCASC(trans_hdr->destAppName, sizeof(trans_hdr->destAppName));
+ 	EBCASC(trans_hdr->destUserID, sizeof(trans_hdr->destUserID));
+ 	EBCASC(trans_hdr->srcAppName, sizeof(trans_hdr->srcAppName));
 -- 
 2.16.4
