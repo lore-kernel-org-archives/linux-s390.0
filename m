@@ -1,229 +1,36 @@
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Subject: [PATCH v11 08/26] s390: vfio-ap: sysfs interfaces to configure control domains
-Date: Tue, 25 Sep 2018 19:16:23 -0400
-Message-ID: <20180925231641.4954-9-akrowiak@linux.vnet.ibm.com>
-References: <20180925231641.4954-1-akrowiak@linux.vnet.ibm.com>
+From: Leonardo =?utf-8?B?QnLDoXM=?= <leobras.c@gmail.com>
+Subject: [PATCH 1/7] drivers: dio: Avoids building driver if CONFIG_DIO is
+ disabled
+Date: Tue, 25 Sep 2018 22:52:04 -0300
+Message-ID: <20180926015204.GA14952@WindFlash>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180925231641.4954-1-akrowiak@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, berrange@redhat.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, akrowiak@linux.vnet.ibm.com, frankja@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+List-Archive: <https://lore.kernel.org/linux-parisc/>
+List-Post: <mailto:linux-parisc@vger.kernel.org>
+To: lkcamp@lists.libreplanetbr.org
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@telegraphics.com.au>, Robert Richter <rric@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, oprofile-list@lists.sf.net, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
+Content-Transfer-Encoding: 8bit
 
-From: Tony Krowiak <akrowiak@linux.ibm.com>
+Avoids building driver if 'make drivers/dio/' is called and
+CONFIG_DIO is disabled.
 
-Provides the sysfs interfaces for:
-
-1. Assigning AP control domains to the mediated matrix device
-
-2. Unassigning AP control domains from a mediated matrix device
-
-3. Displaying the control domains assigned to a mediated matrix
-   device
-
-The IDs of the AP control domains assigned to the mediated matrix
-device are stored in an AP domain mask (ADM). The bits in the ADM,
-from most significant to least significant bit, correspond to
-AP domain numbers 0 to 255. On some systems, the maximum allowable
-domain number may be less than 255 - depending upon the host's
-AP configuration - and assignment may be rejected if the input
-domain ID exceeds the limit.
-
-When a control domain is assigned, the bit corresponding its domain
-ID will be set in the ADM. Likewise, when a domain is unassigned,
-the bit corresponding to its domain ID will be cleared in the ADM.
-
-The relevant sysfs structures are:
-
-/sys/devices/vfio_ap/matrix/
-...... [mdev_supported_types]
-......... [vfio_ap-passthrough]
-............ [devices]
-...............[$uuid]
-.................. assign_control_domain
-.................. unassign_control_domain
-
-To assign a control domain to the $uuid mediated matrix device's
-ADM, write its domain number to the assign_control_domain file.
-To unassign a domain, write its domain number to the
-unassign_control_domain file. The domain number is specified
-using conventional semantics: If it begins with 0x the number
-will be parsed as a hexadecimal (case insensitive) number;
-if it begins with 0, it is parsed as an octal number;
-otherwise, it will be parsed as a decimal number.
-
-For example, to assign control domain 173 (0xad) to the mediated
-matrix device $uuid:
-
-	echo 173 > assign_control_domain
-
-	or
-
-	echo 0255 > assign_control_domain
-
-	or
-
-	echo 0xad > assign_control_domain
-
-To unassign control domain 173 (0xad):
-
-	echo 173 > unassign_control_domain
-
-	or
-
-	echo 0255 > unassign_control_domain
-
-	or
-
-	echo 0xad > unassign_control_domain
-
-The assignment will be rejected if the APQI exceeds the maximum
-value for an AP domain:
-  * If the AP Extended Addressing (APXA) facility is installed,
-    the max value is 255
-  * Else the max value is 15
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Tested-by: Michael Mueller <mimu@linux.ibm.com>
-Tested-by: Farhan Ali <alifm@linux.ibm.com>
-Tested-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 112 ++++++++++++++++++++++++++++++
- 1 file changed, 112 insertions(+)
+ drivers/dio/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 6f658836fb05..cd5a2aa7a51a 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -515,11 +515,123 @@ static ssize_t unassign_domain_store(struct device *dev,
- }
- DEVICE_ATTR_WO(unassign_domain);
+diff --git a/drivers/dio/Makefile b/drivers/dio/Makefile
+index ae92d17083f2..f5cffe232448 100644
+--- a/drivers/dio/Makefile
++++ b/drivers/dio/Makefile
+@@ -2,4 +2,4 @@
+ # Makefile for the linux kernel.
+ #
  
-+/**
-+ * assign_control_domain_store
-+ *
-+ * @dev:	the matrix device
-+ * @attr:	the mediated matrix device's assign_control_domain attribute
-+ * @buf:	a buffer containing the domain ID to be assigned
-+ * @count:	the number of bytes in @buf
-+ *
-+ * Parses the domain ID from @buf and sets the corresponding bit in the mediated
-+ * matrix device's ADM.
-+ *
-+ * Returns the number of bytes processed if the domain ID is valid; otherwise,
-+ * returns one of the following errors:
-+ *	-EINVAL if the ID is not a number
-+ *	-ENODEV if the ID exceeds the maximum value configured for the system
-+ */
-+static ssize_t assign_control_domain_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long id;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+
-+	ret = kstrtoul(buf, 0, &id);
-+	if (ret)
-+		return ret;
-+
-+	if (id > matrix_mdev->matrix.adm_max)
-+		return -ENODEV;
-+
-+	/* Set the bit in the ADM (bitmask) corresponding to the AP control
-+	 * domain number (id). The bits in the mask, from most significant to
-+	 * least significant, correspond to IDs 0 up to the one less than the
-+	 * number of control domains that can be assigned.
-+	 */
-+	mutex_lock(&matrix_dev->lock);
-+	set_bit_inv(id, matrix_mdev->matrix.adm);
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(assign_control_domain);
-+
-+/**
-+ * unassign_control_domain_store
-+ *
-+ * @dev:	the matrix device
-+ * @attr:	the mediated matrix device's unassign_control_domain attribute
-+ * @buf:	a buffer containing the domain ID to be unassigned
-+ * @count:	the number of bytes in @buf
-+ *
-+ * Parses the domain ID from @buf and clears the corresponding bit in the
-+ * mediated matrix device's ADM.
-+ *
-+ * Returns the number of bytes processed if the domain ID is valid; otherwise,
-+ * returns one of the following errors:
-+ *	-EINVAL if the ID is not a number
-+ *	-ENODEV if the ID exceeds the maximum value configured for the system
-+ */
-+static ssize_t unassign_control_domain_store(struct device *dev,
-+					     struct device_attribute *attr,
-+					     const char *buf, size_t count)
-+{
-+	int ret;
-+	unsigned long domid;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
-+
-+	ret = kstrtoul(buf, 0, &domid);
-+	if (ret)
-+		return ret;
-+	if (domid > max_domid)
-+		return -ENODEV;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	clear_bit_inv(domid, matrix_mdev->matrix.adm);
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return count;
-+}
-+DEVICE_ATTR_WO(unassign_control_domain);
-+
-+static ssize_t control_domains_show(struct device *dev,
-+				    struct device_attribute *dev_attr,
-+				    char *buf)
-+{
-+	unsigned long id;
-+	int nchars = 0;
-+	int n;
-+	char *bufpos = buf;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	unsigned long max_domid = matrix_mdev->matrix.adm_max;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	for_each_set_bit_inv(id, matrix_mdev->matrix.adm, max_domid + 1) {
-+		n = sprintf(bufpos, "%04lx\n", id);
-+		bufpos += n;
-+		nchars += n;
-+	}
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return nchars;
-+}
-+DEVICE_ATTR_RO(control_domains);
-+
- static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_assign_adapter.attr,
- 	&dev_attr_unassign_adapter.attr,
- 	&dev_attr_assign_domain.attr,
- 	&dev_attr_unassign_domain.attr,
-+	&dev_attr_assign_control_domain.attr,
-+	&dev_attr_unassign_control_domain.attr,
-+	&dev_attr_control_domains.attr,
- 	NULL,
- };
- 
+-obj-y := dio.o dio-driver.o dio-sysfs.o
++obj-$(CONFIG_DIO) := dio.o dio-driver.o dio-sysfs.o
+\ No newline at end of file
 -- 
-2.19.0.221.g150f307
+2.19.0
