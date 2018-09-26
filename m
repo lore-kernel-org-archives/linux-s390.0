@@ -1,35 +1,49 @@
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 0/2] s390/qeth: fixes 2019-09-26
-Date: Wed, 26 Sep 2018 18:07:08 +0200
-Message-ID: <20180926160710.64739-1-jwi@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 0/2] virtio-ccw fixes
+Date: Wed, 26 Sep 2018 18:48:28 +0200
+Message-ID: <20180926164830.8435-1-cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+The following changes since commit 8c0f9f5b309d627182d5da72a69246f58bde1026:
 
-please apply two qeth patches for -net. The first is a trivial cleanup
-required for patch #2 by Jean, which fixes a potential endless loop.
+  Revert "uapi/linux/keyctl.h: don't use C++ reserved keyword as a struct member name" (2018-09-25 13:28:58 +0200)
 
-Thanks,
-Julian
+are available in the Git repository at:
 
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-ccw-20180926
 
-Jean Delvare (1):
-  s390: qeth: Fix potential array overrun in cmd/rc lookup
+for you to fetch changes up to 1fd7ccf82385b3b14e4b3f009a82ada17ddc1e6f:
 
-zhong jiang (1):
-  s390: qeth_core_mpc: Use ARRAY_SIZE instead of reimplementing its
-    function
+  virtio/s390: fix race in ccw_io_helper() (2018-09-25 15:29:10 +0200)
 
- drivers/s390/net/qeth_core_main.c |  2 +-
- drivers/s390/net/qeth_core_mpc.c  | 33 ++++++++++++++++-----------------
- drivers/s390/net/qeth_core_mpc.h  |  4 ++--
- 3 files changed, 19 insertions(+), 20 deletions(-)
+----------------------------------------------------------------
+Two patches fixing races in the virtio-ccw driver.
+
+----------------------------------------------------------------
+
+Halil Pasic (2):
+  virtio/s390: avoid race on vcdev->config
+  virtio/s390: fix race in ccw_io_helper()
+
+ drivers/s390/virtio/virtio_ccw.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
 -- 
-2.16.4
+2.14.4
