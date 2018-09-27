@@ -1,7 +1,8 @@
 From: Leonardo =?utf-8?B?QnLDoXM=?= <leobras.c@gmail.com>
-Subject: [PATCH v2 0/7] Remove errors building drivers/DRIVERNAME
-Date: Wed, 26 Sep 2018 22:39:20 -0300
-Message-ID: <20180927013920.GA8950@WindFlash>
+Subject: [PATCH v2 1/7] drivers: dio: Avoids building driver if CONFIG_DIO is
+ disabled
+Date: Wed, 26 Sep 2018 22:39:56 -0300
+Message-ID: <20180927013956.GA8956@WindFlash>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -12,51 +13,24 @@ Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@
 List-ID: <linux-s390.vger.kernel.org>
 Content-Transfer-Encoding: 8bit
 
-Special thanks for the feedback from:
-- Finn Thain (I fixed the build problem) 
-- Geert Uytterhoeven (The cross compilers were very useful)
-- Rolf Eike Beer (Was unintentional, thanks for noticing)
+Avoids building driver if 'make drivers/dio/' is called and
+CONFIG_DIO is disabled.
 
-This Patchset changes some driver's Makefile to allow them building
-using the command 'make drivers/DRIVERNAME', if compatible.
+Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
+---
+ drivers/dio/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The changed drivers would return error if the above command was run
-on them, after an x86 allyesconfig.
-
-The main reason of this patchset is to allow building lists of
-drivers looking for warnings and errors to be fixed. 
-
-I see this change as a new feature, not a bugfix. I understand 
-the default bahavior may be building with a simple 'make', but I
-believe adding this new possibility will not be harmful.
-
-My main objective is to allow developers with low processing power
-to do changes in the kernel and look bugs using free services like
-GiltabCI, before submitting to community.
-
-If there is any interest helping/using this, I have a prototype in:
-https://gitlab.com/LeoBras/linux-next
-
-Leonardo Brás (7):
-  drivers: dio: Avoids building driver if CONFIG_DIO is disabled
-  drivers: nubus: Avoids building driver if CONFIG_NUBUS is disabled
-  drivers: parisc: Avoids building driver if CONFIG_PARISC is disabled
-  drivers: zorro: Avoids building proc.o if CONFIG_ZORRO is disabled
-  drivers: s390: Avoids building drivers if ARCH is not s390.
-  drivers: oprofile: Avoids building driver from direct make command
-  drivers: hwtracing: Adds Makefile to enable building from directory.
-
- drivers/Makefile           | 4 +---
- drivers/dio/Makefile       | 2 +-
- drivers/hwtracing/Makefile | 3 +++
- drivers/nubus/Makefile     | 5 +++--
- drivers/oprofile/Makefile  | 2 ++
- drivers/parisc/Makefile    | 2 +-
- drivers/s390/Makefile      | 8 ++++----
- drivers/zorro/Makefile     | 7 ++++---
- 8 files changed, 19 insertions(+), 14 deletions(-)
- create mode 100644 drivers/hwtracing/Makefile
- create mode 100644 drivers/oprofile/Makefile
-
+diff --git a/drivers/dio/Makefile b/drivers/dio/Makefile
+index ae92d17083f2..f5cffe232448 100644
+--- a/drivers/dio/Makefile
++++ b/drivers/dio/Makefile
+@@ -2,4 +2,4 @@
+ # Makefile for the linux kernel.
+ #
+ 
+-obj-y := dio.o dio-driver.o dio-sysfs.o
++obj-$(CONFIG_DIO) := dio.o dio-driver.o dio-sysfs.o
+\ No newline at end of file
 -- 
 2.19.0
