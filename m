@@ -1,8 +1,8 @@
 From: Leonardo =?utf-8?B?QnLDoXM=?= <leobras.c@gmail.com>
-Subject: [PATCH v2 3/7] drivers: parisc: Avoids building driver if
- CONFIG_PARISC is disabled
-Date: Wed, 26 Sep 2018 22:40:37 -0300
-Message-ID: <20180927014037.GA8976@WindFlash>
+Subject: [PATCH v2 4/7] drivers: zorro: Avoids building proc.o if
+ CONFIG_ZORRO is disabled
+Date: Wed, 26 Sep 2018 22:40:55 -0300
+Message-ID: <20180927014055.GA8980@WindFlash>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -13,24 +13,31 @@ Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@
 List-ID: <linux-s390.vger.kernel.org>
 Content-Transfer-Encoding: 8bit
 
-Avoids building driver if 'make drivers/parisc/' is called and
-CONFIG_PARISC is disabled.
+Avoids building proc.o if 'make drivers/zorro/' is called and
+CONFIG_ZORRO is disabled, even if CONFIG_PROC_FS is enabled.
 
 Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
 ---
- drivers/parisc/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/zorro/Makefile | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/parisc/Makefile b/drivers/parisc/Makefile
-index 3cd5e6cb8478..80049d763aa0 100644
---- a/drivers/parisc/Makefile
-+++ b/drivers/parisc/Makefile
-@@ -24,5 +24,5 @@ obj-$(CONFIG_EISA)		+= eisa.o eisa_enumerator.o eisa_eeprom.o
- obj-$(CONFIG_SUPERIO)		+= superio.o
- obj-$(CONFIG_CHASSIS_LCD_LED)	+= led.o
- obj-$(CONFIG_PDC_STABLE)	+= pdc_stable.o
--obj-y				+= power.o
-+obj-$(CONFIG_PARISC)		+= power.o
+diff --git a/drivers/zorro/Makefile b/drivers/zorro/Makefile
+index b360ac4ea846..d580f9f08e0a 100644
+--- a/drivers/zorro/Makefile
++++ b/drivers/zorro/Makefile
+@@ -3,9 +3,10 @@
+ # Makefile for the Zorro bus specific drivers.
+ #
+ 
+-obj-$(CONFIG_ZORRO)	+= zorro.o zorro-driver.o zorro-sysfs.o
+-obj-$(CONFIG_PROC_FS)	+= proc.o
+-obj-$(CONFIG_ZORRO_NAMES) +=  names.o
++obj-$(CONFIG_ZORRO) 		:= zorro_all.o
++zorro_all-y			+= zorro.o zorro-driver.o zorro-sysfs.o
++zorro_all-$(CONFIG_ZORRO_NAMES) += names.o
++zorro_all-$(CONFIG_PROC_FS)	+= proc.o
+ 
+ hostprogs-y 		:= gen-devlist
  
 -- 
 2.19.0
