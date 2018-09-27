@@ -1,8 +1,8 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v11 26/26] s390: doc: detailed specifications for AP
  virtualization
-Date: Thu, 27 Sep 2018 10:21:09 -0400
-Message-ID: <a9fca3fc-a874-930f-5305-858aeeed720a@linux.ibm.com>
+Date: Thu, 27 Sep 2018 15:19:38 -0400
+Message-ID: <a9b69a08-e415-4f76-d36c-73fc2a354f9e@linux.ibm.com>
 References: <20180925231641.4954-1-akrowiak@linux.vnet.ibm.com>
  <20180925231641.4954-27-akrowiak@linux.vnet.ibm.com>
  <20180926164222.74731b74@t450s.home>
@@ -65,10 +65,6 @@ On 09/26/2018 06:42 PM, Alex Williamson wrote:
 >> +05.00ff     CEX5A Accelerator (5,4), (5,171), (6,4), (6,171),
 >                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > Seems like an unfinished thought here.
-
-I have no idea how that got in there, there must be a gremlin in my
-laptop. It does not belong.
-
 > 
 >> +
 >> +Guest2
@@ -153,28 +149,9 @@ laptop. It does not belong.
 >> +            default drivers pool:    adapter 0-15, domain 1
 >> +            alternate drivers pool:  adapter 16-255, domains 2-255
 > 
-> What happened to domain 0?  
-
-As Halil stated, it should be:
-alternate drivers pool:  adapter 16-255, domains 0, 2-255
-
-I'm also a little confused by the bit
+> What happened to domain 0?  I'm also a little confused by the bit
 > ordering.  If 0x40 is bit 1 and 0xffff is bits 0-15, then the least
 > significant bit is furthest left?  Did I miss documentation of that?
-
-Up above, the apmask and aqmask are described. Both descriptions state,
-"each bit in the mask, from most significant to least significant bit,
-corresponds to an ... from 0-255". It could probably be clarified by
-stating:
-
-Each bit in the mask, from most significant to least significant bit
-in big endian order, corresponds to an ... from 0-255
-
-or
-
-Each bit in the mask, from left to right, corresponds to an ... from
-0-255
-
 > 
 >> +
 >> +   2. The sysfs mask files can also be edited by echoing a string into the
@@ -188,18 +165,6 @@ Each bit in the mask, from left to right, corresponds to an ... from
 > And this does say zero padding on the right, but then in the next
 > bullet our hex digits use normal least significant bit right notation,
 > ie. 0x41 is 65, not 82, correct?
-
-Again, I refer you back to the descriptions above for aqmask and apmask.
-When configuring a mask, the value specified encompasses the entire
-256-bit mask, so specifying 0x41 (65) is exactly like specifying the
-following:
-
-0x4100000000000000000000000000000000000000000000000000000000000000
-
-The most significant byte is 0x41 (big endian), so if the mask bits
-read from left to right (i.e., most significant to least significant
-bit), the mask above identifies devices 1 and 7.
-
 > 
 >> +
 >> +      * A plus ('+') or minus ('-') followed by a numerical value. Valid
@@ -217,142 +182,262 @@ bit), the mask above identifies devices 1 and 7.
 >> +      echo -4,-0x47,-0xab,-0xff > /sys/bus/ap/aqmask
 > 
 > Other than the bit ordering confusion, I like this +/- scheme.
-> 
->> +
->> +   This will result in AP queues 05.0004, 05.0047, 05.00ab, 05.00ff, 06.0004,
->> +   06.0047, 06.00ab, and 06.00ff getting bound to the vfio_ap device driver. The
->> +   sysfs directory for the vfio_ap device driver will now contain symbolic links
->> +   to the AP queue devices bound to it:
->> +
->> +   /sys/bus/ap
->> +   ... [drivers]
->> +   ...... [vfio_ap]
->> +   ......... [05.0004]
->> +   ......... [05.0047]
->> +   ......... [05.00ab]
->> +   ......... [05.00ff]
->> +   ......... [06.0004]
->> +   ......... [06.0047]
->> +   ......... [06.00ab]
->> +   ......... [06.00ff]
->> +
->> +   Keep in mind that only type 10 and newer adapters (i.e., CEX4 and later)
->> +   can be bound to the vfio_ap device driver. The reason for this is to
->> +   simplify the implementation by not needlessly complicating the design by
->> +   supporting older devices that will go out of service in the relatively near
->> +   future and for which there are few older systems on which to test.
->> +
->> +   The administrator, therefore, must take care to secure only AP queues that
->> +   can be bound to the vfio_ap device driver. The device type for a given AP
->> +   queue device can be read from the parent card's sysfs directory. For example,
->> +   to see the hardware type of the queue 05.0004:
->> +
->> +   cat /sys/bus/ap/devices/card05/hwtype
->> +
->> +   The hwtype must be 10 or higher (CEX4 or newer) in order to be bound to the
->> +   vfio_ap device driver.
->> +
->> +3. Create the mediated devices needed to configure the AP matrixes for the
->> +   three guests and to provide an interface to the vfio_ap driver for
->> +   use by the guests:
->> +
->> +   /sys/devices/vfio_ap/matrix/
->> +   --- [mdev_supported_types]
->> +   ------ [vfio_ap-passthrough] (passthrough mediated matrix device type)
->> +   --------- create
->> +   --------- [devices]
->> +
->> +   To create the mediated devices for the three guests:
->> +
->> +	uuidgen > create
->> +	uuidgen > create
->> +	uuidgen > create
->> +
->> +        or
->> +
->> +        echo $uuid1 > create
->> +        echo $uuid2 > create
->> +        echo $uuid3 > create
->> +
->> +   This will create three mediated devices in the [devices] subdirectory named
->> +   after the UUID written to the create attribute file. We call them $uuid1,
->> +   $uuid2 and $uuid3 and this is the sysfs directory structure after creation:
->> +
->> +   /sys/devices/vfio_ap/matrix/
->> +   --- [mdev_supported_types]
->> +   ------ [vfio_ap-passthrough]
->> +   --------- [devices]
->> +   ------------ [$uuid1]
->> +   --------------- assign_adapter
->> +   --------------- assign_control_domain
->> +   --------------- assign_domain
->> +   --------------- matrix
->> +   --------------- unassign_adapter
->> +   --------------- unassign_control_domain
->> +   --------------- unassign_domain
->> +
->> +   ------------ [$uuid2]
->> +   --------------- assign_adapter
->> +   --------------- assign_control_domain
->> +   --------------- assign_domain
->> +   --------------- matrix
->> +   --------------- unassign_adapter
->> +   ----------------unassign_control_domain
->> +   ----------------unassign_domain
->> +
->> +   ------------ [$uuid3]
->> +   --------------- assign_adapter
->> +   --------------- assign_control_domain
->> +   --------------- assign_domain
->> +   --------------- matrix
->> +   --------------- unassign_adapter
->> +   ----------------unassign_control_domain
->> +   ----------------unassign_domain
->> +
->> +4. The administrator now needs to configure the matrixes for the mediated
->> +   devices $uuid1 (for Guest1), $uuid2 (for Guest2) and $uuid3 (for Guest3).
->> +
->> +   This is how the matrix is configured for Guest1:
->> +
->> +      echo 5 > assign_adapter
->> +      echo 6 > assign_adapter
->> +      echo 4 > assign_domain
->> +      echo 0xab > assign_domain
->> +
->> +      Control domains can similarly be assigned using the assign_control_domain
->> +      sysfs file.
->> +
->> +      If a mistake is made configuring an adapter, domain or control domain,
->> +      you can use the unassign_xxx files to unassign the adapter, domain or
->> +      control domain.
->> +
->> +      To display the matrix configuration for Guest1:
->> +
->> +         cat matrix
->> +
->> +   This is how the matrix is configured for Guest2:
->> +
->> +      echo 5 > assign_adapter
->> +      echo 0x47 > assign_domain
->> +      echo 0xff > assign_domain
->> +
->> +   This is how the matrix is configured for Guest3:
->> +
->> +      echo 6 > assign_adapter
->> +      echo 0x47 > assign_domain
->> +      echo 0xff > assign_domain
->> +
-> 
-> I'm curious why this interface didn't adopt the +/- notation invented
-> above for consistency.  Too difficult to do rollbacks with a string on
-> entries?
 
-These interfaces predate the AP bus interfaces by over six months,
-and the AP bus interfaces are not part of this patch series.
+The following fixup attempts to clarify the bit ordering confusion,
+hopefully this is acceptable.
 
-> 
-> Looks pretty reasonable other than the points of confusion noted.
-> Thanks,
-> 
-> Alex
-> 
+-----------------------------------8<-----------------------------------
+
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Date: Thu, 27 Sep 2018 14:51:12 -0400
+Subject: [FIXUP v10] fixup! s390: doc: detailed specifications for AP
+  virtualization
+
+Better explains mask bit ordering.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+  Documentation/s390/vfio-ap.txt | 127 +++++++++++++++++++++++----------
+  1 file changed, 91 insertions(+), 36 deletions(-)
+
+diff --git a/Documentation/s390/vfio-ap.txt b/Documentation/s390/vfio-ap.txt
+index bec67eb7141c..599eb0f75c07 100644
+--- a/Documentation/s390/vfio-ap.txt
++++ b/Documentation/s390/vfio-ap.txt
+@@ -123,21 +123,24 @@ to identify the adapters, usage domains and 
+control domains assigned to the KVM
+  guest:
+
+  * The AP Mask (APM) field is a bit mask that identifies the AP 
+adapters assigned
+-  to the KVM guest. Each bit in the mask, from most significant to least
+-  significant bit, corresponds to an APID from 0-255. If a bit is set, the
+-  corresponding adapter is valid for use by the KVM guest.
++  to the KVM guest. Each bit in the mask, from left to right (i.e. from 
+most
++  significant to least significant bit in big endian order), corresponds to
++  an APID from 0-255. If a bit is set, the corresponding adapter is 
+valid for
++  use by the KVM guest.
+
+  * The AP Queue Mask (AQM) field is a bit mask identifying the AP usage 
+domains
+-  assigned to the KVM guest. Each bit in the mask, from most significant to
+-  least significant bit, corresponds to an AP queue index (APQI) from 
+0-255. If
+-  a bit is set, the corresponding queue is valid for use by the KVM guest.
++  assigned to the KVM guest. Each bit in the mask, from left to right 
+(i.e. from
++  most significant to least significant bit in big endian order), 
+corresponds to
++  an AP queue index (APQI) from 0-255. If a bit is set, the 
+corresponding queue
++  is valid for use by the KVM guest.
+
+  * The AP Domain Mask field is a bit mask that identifies the AP 
+control domains
+    assigned to the KVM guest. The ADM bit mask controls which domains 
+can be
+    changed by an AP command-request message sent to a usage domain from the
+-  guest. Each bit in the mask, from least significant to most 
+significant bit,
+-  corresponds to a domain from 0-255. If a bit is set, the 
+corresponding domain
+-  can be modified by an AP command-request message sent to a usage domain.
++  guest. Each bit in the mask, from left to right (i.e. from most 
+significant to
++  least significant bit in big endian order), corresponds to a domain from
++  0-255. If a bit is set, the corresponding domain can be modified by an AP
++  command-request message sent to a usage domain.
+
+  If you recall from the description of an AP Queue, AP instructions include
+  an APQN to identify the AP queue to which an AP command-request 
+message is to be
+@@ -503,23 +506,34 @@ These are the steps:
+     access them. To secure them, there are two sysfs files that specify
+     bitmasks marking a subset of the APQN range as 'usable by the 
+default AP
+     queue device drivers' or 'not usable by the default device drivers' 
+and thus
+-   available for use by the vfio_ap device driver'. The sysfs files 
+containing
+-   the sysfs locations of the masks are:
++   available for use by the vfio_ap device driver'. The location of the 
+sysfs
++   files containing the masks are:
+
+     /sys/bus/ap/apmask
+     /sys/bus/ap/aqmask
+
+     The 'apmask' is a 256-bit mask that identifies a set of AP adapter IDs
+-   (APID). Each bit in the mask, from most significant to least 
+significant bit,
+-   corresponds to an APID from 0-255. If a bit is set, the APID is 
+marked as
+-   usable only by the default AP queue device drivers; otherwise, the 
+APID is
+-   usable by the vfio_ap device driver.
++   (APID). Each bit in the mask, from left to right (i.e., from most 
+significant
++   to least significant bit in big endian order), corresponds to an 
+APID from
++   0-255. If a bit is set, the APID is marked as usable only by the 
+default AP
++   queue device drivers; otherwise, the APID is usable by the vfio_ap
++   device driver.
+
+     The 'aqmask' is a 256-bit mask that identifies a set of AP queue 
+indexes
+-   (APQI). Each bit in the mask, from most significant to least 
+significant bit,
+-   corresponds to an APQI from 0-255. If a bit is set, the APQI is 
+marked as
+-   usable only by the default AP queue device drivers; otherwise, the 
+APQI is
+-   usable by the vfio_ap device driver.
++   (APQI). Each bit in the mask, from left to right (i.e., from most 
+significant
++   to least significant bit in big endian order), corresponds to an 
+APQI from
++   0-255. If a bit is set, the APQI is marked as usable only by the 
+default AP
++   queue device drivers; otherwise, the APQI is usable by the vfio_ap 
+device
++   driver.
++
++   Take, for example, the following mask:
++
++      0x7dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
++
++    It indicates:
++
++      1, 2, 3, 4, 5, and 7-255 belong to the default drivers' pool, and 
+0 and 6
++      belong to the vfio_ap device driver's pool.
+
+     The APQN of each AP queue device assigned to the linux host is 
+checked by the
+     AP bus against the set of APQNs derived from the cross product of APIDs
+@@ -530,38 +544,79 @@ These are the steps:
+     By default, the two masks are set to reserve all APQNs for use by 
+the default
+     AP queue device drivers. There are two ways the default masks can 
+be changed:
+
+-   1. The masks can be changed at boot time with the kernel command line
+-      like this:
++   1. The sysfs mask files can be edited by echoing a string into the
++      respective sysfs mask file in one of two formats:
++
++      * An absolute hex string starting with 0x - like "0x12345678" - sets
++        the mask. If the given string is shorter than the mask, it is 
+padded
++        with 0s on the right; for example, specifying a mask value of 
+0x41 is
++        the same as specifying:
++
++ 
+0x4100000000000000000000000000000000000000000000000000000000000000
++
++        Keep in mind that the mask reads from left to right (i.e., most
++        significant to least significant bit in big endian order), so 
+the mask
++        above identifies device numbers 1 and 7 (01000001).
++
++        If the string is longer than the mask, the operation is 
+terminated with
++        an error (EINVAL).
++
++      * Individual bits in the mask can be switched on and off by 
+specifying
++        each bit number to be switched in a comma separated list. Each bit
++        number string must be prepended with a ('+') or minus ('-') to 
+indicate
++        the corresponding bit is to be switched on ('+') or off ('-'). Some
++        valid values are:
++
++           "+0"    switches bit 0 on
++           "-13"   switches bit 13 off
++           "+0x41" switches bit 65 on
++           "-0xff" switches bit 255 off
++
++           The following example:
++              +0,-6,+0x47,-0xf0
++
++              Switches bits 0 and 71 (0x47) on
++              Switches bits 6 and 240 (0xf0) off
++
++        Note that the bits not specified in the list remain as they 
+were before
++        the operation.
++
++   2. The masks can also be changed at boot time via parameters on the 
+kernel
++      command line like this:
+
+           ap.apmask=0xffff ap.aqmask=0x40
+
+-         This would give these two pools:
++         This would create the following masks:
+
+-            default drivers pool:    adapter 0-15, domain 1
+-            alternate drivers pool:  adapter 16-255, domains 2-255
++            apmask:
++ 
+0xffff000000000000000000000000000000000000000000000000000000000000
+
+-   2. The sysfs mask files can also be edited by echoing a string into the
+-      respective file in one of two formats:
++            aqmask:
++ 
+0x4000000000000000000000000000000000000000000000000000000000000000
+
+-      * An absolute hex string starting with 0x - like "0x12345678" - sets
+-        the mask. If the given string is shorter than the mask, it is 
+padded
+-        with 0s on the right. If the string is longer than the mask, the
+-        operation is terminated with an error (EINVAL).
++         Resulting in these two pools:
+
+-      * A plus ('+') or minus ('-') followed by a numerical value. Valid
+-        examples are "+1", "-13", "+0x41", "-0xff" and even "+0" and 
+"-0". Only
+-        the corresponding bit in the mask is switched on ('+') or off 
+('-'). The
+-        values may also be specified in a comma-separated list to 
+switch more
+-        than one bit on or off.
++            default drivers pool:    adapter 0-15, domain 1
++            alternate drivers pool:  adapter 16-255, domains 0, 2-255
+
++   Securing the APQNs for our example:
++   ----------------------------------
+     To secure the AP queues 05.0004, 05.0047, 05.00ab, 05.00ff, 
+06.0004, 06.0047,
+     06.00ab, and 06.00ff for use by the vfio_ap device driver, the 
+corresponding
+-   APQNs must be removed from the masks as follows:
++   APQNs can either be removed from the default masks:
+
+        echo -5,-6 > /sys/bus/ap/apmask
+
+        echo -4,-0x47,-0xab,-0xff > /sys/bus/ap/aqmask
+
++   Or the masks can be set as follows:
++
++      echo 
+0xf9ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff \
++      > apmask
++
++      echo 
+0xf7fffffffffffffffeffffffffffffffffffffffffeffffffffffffffffffffe \
++      > aqmask
++
+     This will result in AP queues 05.0004, 05.0047, 05.00ab, 05.00ff, 
+06.0004,
+     06.0047, 06.00ab, and 06.00ff getting bound to the vfio_ap device 
+driver. The
+     sysfs directory for the vfio_ap device driver will now contain 
+symbolic links
+-- 
+2.19.0.221.g150f307
