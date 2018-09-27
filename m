@@ -1,87 +1,62 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 2/2] virtio/s390: fix race in ccw_io_helper()
-Date: Wed, 26 Sep 2018 18:48:30 +0200
-Message-ID: <20180926164830.8435-3-cohuck@redhat.com>
-References: <20180926164830.8435-1-cohuck@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180926164830.8435-1-cohuck@redhat.com>
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+From: Leonardo =?utf-8?B?QnLDoXM=?= <leobras.c@gmail.com>
+Subject: [PATCH v2 0/7] Remove errors building drivers/DRIVERNAME
+Date: Wed, 26 Sep 2018 22:39:20 -0300
+Message-ID: <20180927013920.GA8950@WindFlash>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/linux-parisc/>
+List-Post: <mailto:linux-parisc@vger.kernel.org>
+To: lkcamp@lists.libreplanetbr.org
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@telegraphics.com.au>, Robert Richter <rric@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, oprofile-list@lists.sf.net, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
+Content-Transfer-Encoding: 8bit
 
-From: Halil Pasic <pasic@linux.ibm.com>
+Special thanks for the feedback from:
+- Finn Thain (I fixed the build problem) 
+- Geert Uytterhoeven (The cross compilers were very useful)
+- Rolf Eike Beer (Was unintentional, thanks for noticing)
 
-While ccw_io_helper() seems like intended to be exclusive in a sense that
-it is supposed to facilitate I/O for at most one thread at any given
-time, there is actually nothing ensuring that threads won't pile up at
-vcdev->wait_q. If they do, all threads get woken up and see the status
-that belongs to some other request than their own. This can lead to bugs.
-For an example see:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1788432
+This Patchset changes some driver's Makefile to allow them building
+using the command 'make drivers/DRIVERNAME', if compatible.
 
-This race normally does not cause any problems. The operations provided
-by struct virtio_config_ops are usually invoked in a well defined
-sequence, normally don't fail, and are normally used quite infrequent
-too.
+The changed drivers would return error if the above command was run
+on them, after an x86 allyesconfig.
 
-Yet, if some of the these operations are directly triggered via sysfs
-attributes, like in the case described by the referenced bug, userspace
-is given an opportunity to force races by increasing the frequency of the
-given operations.
+The main reason of this patchset is to allow building lists of
+drivers looking for warnings and errors to be fixed. 
 
-Let us fix the problem by ensuring, that for each device, we finish
-processing the previous request before starting with a new one.
+I see this change as a new feature, not a bugfix. I understand 
+the default bahavior may be building with a simple 'make', but I
+believe adding this new possibility will not be harmful.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable@vger.kernel.org
-Message-Id: <20180925121309.58524-3-pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/virtio/virtio_ccw.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+My main objective is to allow developers with low processing power
+to do changes in the kernel and look bugs using free services like
+GiltabCI, before submitting to community.
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index a5e8530a3391..b67dc4974f23 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -56,6 +56,7 @@ struct virtio_ccw_device {
- 	unsigned int revision; /* Transport revision */
- 	wait_queue_head_t wait_q;
- 	spinlock_t lock;
-+	struct mutex io_lock; /* Serializes I/O requests */
- 	struct list_head virtqueues;
- 	unsigned long indicators;
- 	unsigned long indicators2;
-@@ -296,6 +297,7 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
- 	unsigned long flags;
- 	int flag = intparm & VIRTIO_CCW_INTPARM_MASK;
- 
-+	mutex_lock(&vcdev->io_lock);
- 	do {
- 		spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), flags);
- 		ret = ccw_device_start(vcdev->cdev, ccw, intparm, 0, 0);
-@@ -308,7 +310,9 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
- 		cpu_relax();
- 	} while (ret == -EBUSY);
- 	wait_event(vcdev->wait_q, doing_io(vcdev, flag) == 0);
--	return ret ? ret : vcdev->err;
-+	ret = ret ? ret : vcdev->err;
-+	mutex_unlock(&vcdev->io_lock);
-+	return ret;
- }
- 
- static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
-@@ -1253,6 +1257,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 	init_waitqueue_head(&vcdev->wait_q);
- 	INIT_LIST_HEAD(&vcdev->virtqueues);
- 	spin_lock_init(&vcdev->lock);
-+	mutex_init(&vcdev->io_lock);
- 
- 	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
- 	dev_set_drvdata(&cdev->dev, vcdev);
+If there is any interest helping/using this, I have a prototype in:
+https://gitlab.com/LeoBras/linux-next
+
+Leonardo Brás (7):
+  drivers: dio: Avoids building driver if CONFIG_DIO is disabled
+  drivers: nubus: Avoids building driver if CONFIG_NUBUS is disabled
+  drivers: parisc: Avoids building driver if CONFIG_PARISC is disabled
+  drivers: zorro: Avoids building proc.o if CONFIG_ZORRO is disabled
+  drivers: s390: Avoids building drivers if ARCH is not s390.
+  drivers: oprofile: Avoids building driver from direct make command
+  drivers: hwtracing: Adds Makefile to enable building from directory.
+
+ drivers/Makefile           | 4 +---
+ drivers/dio/Makefile       | 2 +-
+ drivers/hwtracing/Makefile | 3 +++
+ drivers/nubus/Makefile     | 5 +++--
+ drivers/oprofile/Makefile  | 2 ++
+ drivers/parisc/Makefile    | 2 +-
+ drivers/s390/Makefile      | 8 ++++----
+ drivers/zorro/Makefile     | 7 ++++---
+ 8 files changed, 19 insertions(+), 14 deletions(-)
+ create mode 100644 drivers/hwtracing/Makefile
+ create mode 100644 drivers/oprofile/Makefile
+
 -- 
-2.14.4
+2.19.0
