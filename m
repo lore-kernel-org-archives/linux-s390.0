@@ -1,8 +1,8 @@
 From: Leonardo =?utf-8?B?QnLDoXM=?= <leobras.c@gmail.com>
-Subject: [PATCH v2 5/7] drivers: s390: Avoids building drivers if ARCH is not
- s390.
-Date: Wed, 26 Sep 2018 22:41:13 -0300
-Message-ID: <20180927014113.GA8984@WindFlash>
+Subject: [PATCH v2 6/7] drivers: oprofile: Avoids building driver from direct
+ make command
+Date: Wed, 26 Sep 2018 22:41:38 -0300
+Message-ID: <20180927014138.GA8988@WindFlash>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -13,29 +13,25 @@ Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@
 List-ID: <linux-s390.vger.kernel.org>
 Content-Transfer-Encoding: 8bit
 
-Avoids building s390 drivers if 'make drivers/s390/' is called but
-ARCH is not s390.
+Creates new Makefile to avoid building driver if
+'make drivers/oprofile/' is called directly.
+
+This driver is usually built from arch/$ARCH and seems to have
+no meaning building alone.
 
 Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
 ---
- drivers/s390/Makefile | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/oprofile/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+ create mode 100644 drivers/oprofile/Makefile
 
-diff --git a/drivers/s390/Makefile b/drivers/s390/Makefile
-index a863b0462b43..0575f02dba45 100644
---- a/drivers/s390/Makefile
-+++ b/drivers/s390/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for the S/390 specific device drivers
- #
- 
--obj-y += cio/ block/ char/ crypto/ net/ scsi/ virtio/
--
--drivers-y += drivers/s390/built-in.a
--
-+ifeq ($(ARCH),s390)
-+	obj-y += cio/ block/ char/ crypto/ net/ scsi/ virtio/
-+	drivers-y += drivers/s390/built-in.a
-+endif
+diff --git a/drivers/oprofile/Makefile b/drivers/oprofile/Makefile
+new file mode 100644
+index 000000000000..acaed2ad6eee
+--- /dev/null
++++ b/drivers/oprofile/Makefile
+@@ -0,0 +1,2 @@
++#Does nothing, since the source is called from arch/$ARCH/ tree.
++
 -- 
 2.19.0
