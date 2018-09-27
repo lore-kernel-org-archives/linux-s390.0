@@ -1,8 +1,8 @@
 From: Leonardo =?utf-8?B?QnLDoXM=?= <leobras.c@gmail.com>
-Subject: [PATCH v2 4/7] drivers: zorro: Avoids building proc.o if
- CONFIG_ZORRO is disabled
-Date: Wed, 26 Sep 2018 22:40:55 -0300
-Message-ID: <20180927014055.GA8980@WindFlash>
+Subject: [PATCH v2 5/7] drivers: s390: Avoids building drivers if ARCH is not
+ s390.
+Date: Wed, 26 Sep 2018 22:41:13 -0300
+Message-ID: <20180927014113.GA8984@WindFlash>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -13,31 +13,29 @@ Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@
 List-ID: <linux-s390.vger.kernel.org>
 Content-Transfer-Encoding: 8bit
 
-Avoids building proc.o if 'make drivers/zorro/' is called and
-CONFIG_ZORRO is disabled, even if CONFIG_PROC_FS is enabled.
+Avoids building s390 drivers if 'make drivers/s390/' is called but
+ARCH is not s390.
 
 Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
 ---
- drivers/zorro/Makefile | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/s390/Makefile | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/zorro/Makefile b/drivers/zorro/Makefile
-index b360ac4ea846..d580f9f08e0a 100644
---- a/drivers/zorro/Makefile
-+++ b/drivers/zorro/Makefile
-@@ -3,9 +3,10 @@
- # Makefile for the Zorro bus specific drivers.
+diff --git a/drivers/s390/Makefile b/drivers/s390/Makefile
+index a863b0462b43..0575f02dba45 100644
+--- a/drivers/s390/Makefile
++++ b/drivers/s390/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the S/390 specific device drivers
  #
  
--obj-$(CONFIG_ZORRO)	+= zorro.o zorro-driver.o zorro-sysfs.o
--obj-$(CONFIG_PROC_FS)	+= proc.o
--obj-$(CONFIG_ZORRO_NAMES) +=  names.o
-+obj-$(CONFIG_ZORRO) 		:= zorro_all.o
-+zorro_all-y			+= zorro.o zorro-driver.o zorro-sysfs.o
-+zorro_all-$(CONFIG_ZORRO_NAMES) += names.o
-+zorro_all-$(CONFIG_PROC_FS)	+= proc.o
- 
- hostprogs-y 		:= gen-devlist
- 
+-obj-y += cio/ block/ char/ crypto/ net/ scsi/ virtio/
+-
+-drivers-y += drivers/s390/built-in.a
+-
++ifeq ($(ARCH),s390)
++	obj-y += cio/ block/ char/ crypto/ net/ scsi/ virtio/
++	drivers-y += drivers/s390/built-in.a
++endif
 -- 
 2.19.0
