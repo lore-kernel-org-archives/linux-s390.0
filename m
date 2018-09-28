@@ -1,14 +1,14 @@
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [FIXUP v11] fixup! s390: vfio-ap: implement mediated device open
  callback
-Date: Fri, 28 Sep 2018 15:41:35 +0200
-Message-ID: <9da2f32b-2d58-fcd1-a830-1fba0ed8bc0c@linux.ibm.com>
+Date: Fri, 28 Sep 2018 15:41:43 +0200
+Message-ID: <fafac89d-96b5-383b-a184-dda0ce54f3c7@de.ibm.com>
 References: <20180928121429.7323d78b.cohuck@redhat.com>
  <20180928133321.31884-1-akrowiak@linux.vnet.ibm.com>
  <20180928153506.3521bc33.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180928153506.3521bc33.cohuck@redhat.com>
 Content-Language: en-US
@@ -16,7 +16,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kwankhede@nvidia.com, bjsdjshi@linux.vnet.ibm.com, pbonzini@redhat.com, alex.williamson@redhat.com, pmorel@linux.vnet.ibm.com, alifm@linux.vnet.ibm.com, mjrosato@linux.vnet.ibm.com, jjherne@linux.vnet.ibm.com, thuth@redhat.com, pasic@linux.vnet.ibm.com, fiuczy@linux.vnet.ibm.com, buendgen@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
@@ -50,12 +50,10 @@ On 09/28/2018 03:35 PM, Cornelia Huck wrote:
 >> +		return;
 > 
 > /* cannot happen */
+
+Will add that comment when applying.
 > 
 > ?
-
-Or use something like BUG(). Without conveying that default is illegal we
-don't gain anything over the previous version IMHO.
-
 > 
 >>  	}
 >>  
