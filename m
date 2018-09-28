@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Leonardo=20Br=C3=A1s?= <leobras.c@gmail.com>
-Subject: [PATCH v3 5/7] drivers: s390: Avoids building drivers if ARCH is not s390.
-Date: Thu, 27 Sep 2018 23:08:14 -0300
-Message-ID: <20180928020816.11251-6-leobras.c@gmail.com>
+Subject: [PATCH v3 6/7] drivers: oprofile: Avoids building driver from direct make command
+Date: Thu, 27 Sep 2018 23:08:15 -0300
+Message-ID: <20180928020816.11251-7-leobras.c@gmail.com>
 References: <20180928020816.11251-1-leobras.c@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -14,29 +14,24 @@ Cc: =?UTF-8?q?Leonardo=20Br=C3=A1s?= <leobras.c@gmail.com>, Alexander Shishkin <
 List-ID: <linux-s390.vger.kernel.org>
 Content-Transfer-Encoding: 8bit
 
-Avoids building s390 drivers if 'make drivers/s390/' is called but
-ARCH is not s390.
+Creates new Makefile to avoid building driver if
+'make drivers/oprofile/' is called directly.
+
+This driver is usually built from arch/$ARCH and seems to have
+no meaning building alone.
 
 Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
 ---
- drivers/s390/Makefile | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/oprofile/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 drivers/oprofile/Makefile
 
-diff --git a/drivers/s390/Makefile b/drivers/s390/Makefile
-index a863b0462b43..0575f02dba45 100644
---- a/drivers/s390/Makefile
-+++ b/drivers/s390/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for the S/390 specific device drivers
- #
- 
--obj-y += cio/ block/ char/ crypto/ net/ scsi/ virtio/
--
--drivers-y += drivers/s390/built-in.a
--
-+ifeq ($(ARCH),s390)
-+	obj-y += cio/ block/ char/ crypto/ net/ scsi/ virtio/
-+	drivers-y += drivers/s390/built-in.a
-+endif
+diff --git a/drivers/oprofile/Makefile b/drivers/oprofile/Makefile
+new file mode 100644
+index 000000000000..361867ec2338
+--- /dev/null
++++ b/drivers/oprofile/Makefile
+@@ -0,0 +1 @@
++#Does nothing, since the source is called from arch/$ARCH/ tree.
 -- 
 2.19.0
