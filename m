@@ -1,39 +1,50 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 10/25] tty: synclink: Change return type to void
-Date: Tue,  4 Sep 2018 11:44:36 +0900
-Message-Id: <1536029091-4426-11-git-send-email-climbbb.kim@gmail.com>
-In-Reply-To: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
-References: <1536029091-4426-1-git-send-email-climbbb.kim@gmail.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-bluetooth/>
-List-Post: <mailto:linux-bluetooth@vger.kernel.org>
-To: linux-um@lists.infradead.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org, sparclinux@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: Re: [PATCH v3 3/7] drivers: parisc: Avoids building driver if
+ CONFIG_PARISC is disabled
+Date: Fri, 28 Sep 2018 09:15:15 +0200
+Message-ID: <1538118915.3593.4.camel@HansenPartnership.com>
+References: <20180928020816.11251-1-leobras.c@gmail.com>
+         <20180928020816.11251-4-leobras.c@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180928020816.11251-4-leobras.c@gmail.com>
+List-Archive: <https://lore.kernel.org/linux-parisc/>
+List-Post: <mailto:linux-parisc@vger.kernel.org>
+To: Leonardo =?ISO-8859-1?Q?Br=E1s?= <leobras.c@gmail.com>, lkcamp@lists.libreplanetbr.org
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@telegraphics.com.au>, Robert Richter <rric@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, oprofile-list@lists.sf.net, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
+Content-Transfer-Encoding: 8bit
 
-Since tty_port_install() always returns 0, the return type has changed
-to void. Now apply this and remove the obsolete error check.
+On Thu, 2018-09-27 at 23:08 -0300, Leonardo Brás wrote:
+> Avoids building driver if 'make drivers/parisc/' is called and
+> CONFIG_PARISC is disabled.
 
-Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
----
- drivers/tty/synclink.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Is that really a problem? The drivers/Makefile has this:
 
-diff --git a/drivers/tty/synclink.c b/drivers/tty/synclink.c
-index fbdf4d0..6e7e4d6 100644
---- a/drivers/tty/synclink.c
-+++ b/drivers/tty/synclink.c
-@@ -3355,8 +3355,9 @@ static int mgsl_install(struct tty_driver *driver, struct tty_struct *tty)
- 	if (mgsl_paranoia_check(info, tty->name, "mgsl_open"))
- 		return -ENODEV;
- 	tty->driver_data = info;
-+	tty_port_install(&info->port, driver, tty);
- 
--	return tty_port_install(&info->port, driver, tty);
-+	return 0;
- }
- 
- /* mgsl_open()
--- 
-2.7.4
+obj-$(CONFIG_PARISC)		+= parisc/ 
+And you just overrode that by forcing the build.  It's not even clear
+we should refuse the build in that case; how would we know you don't
+have a legitimate reason for the override? 
+
+Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
+> ---
+>  drivers/parisc/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/parisc/Makefile b/drivers/parisc/Makefile
+> index 3cd5e6cb8478..80049d763aa0 100644
+> --- a/drivers/parisc/Makefile
+> +++ b/drivers/parisc/Makefile
+> @@ -24,5 +24,5 @@ obj-$(CONFIG_EISA)		+= eisa.o
+> eisa_enumerator.o eisa_eeprom.o
+>  obj-$(CONFIG_SUPERIO)		+= superio.o
+>  obj-$(CONFIG_CHASSIS_LCD_LED)	+= led.o
+>  obj-$(CONFIG_PDC_STABLE)	+= pdc_stable.o
+> -obj-y				+= power.o
+> +obj-$(CONFIG_PARISC)		+= power.o
+
+If we conclude the use case is legitimate, that's not enough: the two
+inner symbols are PARISC only but CONFIG_EISA isn't.
+
+James
