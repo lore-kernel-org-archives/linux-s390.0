@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Leonardo=20Br=C3=A1s?= <leobras.c@gmail.com>
-Subject: [PATCH v3 2/7] drivers: nubus: Avoids building driver if CONFIG_NUBUS is disabled
-Date: Thu, 27 Sep 2018 23:08:11 -0300
-Message-ID: <20180928020816.11251-3-leobras.c@gmail.com>
+Subject: [PATCH v3 3/7] drivers: parisc: Avoids building driver if CONFIG_PARISC is disabled
+Date: Thu, 27 Sep 2018 23:08:12 -0300
+Message-ID: <20180928020816.11251-4-leobras.c@gmail.com>
 References: <20180928020816.11251-1-leobras.c@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -14,29 +14,24 @@ Cc: =?UTF-8?q?Leonardo=20Br=C3=A1s?= <leobras.c@gmail.com>, Alexander Shishkin <
 List-ID: <linux-s390.vger.kernel.org>
 Content-Transfer-Encoding: 8bit
 
-Avoids building driver if 'make drivers/nubus/' is called and
-CONFIG_NUBUS is disabled.
-Avoids building proc.o if CONFIG_PROC_FS is enabled but
-CONFIG_NUBUS is disabled.
+Avoids building driver if 'make drivers/parisc/' is called and
+CONFIG_PARISC is disabled.
 
 Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
 ---
- drivers/nubus/Makefile | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/parisc/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nubus/Makefile b/drivers/nubus/Makefile
-index 6d063cde39d1..1daa51217e95 100644
---- a/drivers/nubus/Makefile
-+++ b/drivers/nubus/Makefile
-@@ -2,6 +2,7 @@
- # Makefile for the nubus specific drivers.
- #
+diff --git a/drivers/parisc/Makefile b/drivers/parisc/Makefile
+index 3cd5e6cb8478..80049d763aa0 100644
+--- a/drivers/parisc/Makefile
++++ b/drivers/parisc/Makefile
+@@ -24,5 +24,5 @@ obj-$(CONFIG_EISA)		+= eisa.o eisa_enumerator.o eisa_eeprom.o
+ obj-$(CONFIG_SUPERIO)		+= superio.o
+ obj-$(CONFIG_CHASSIS_LCD_LED)	+= led.o
+ obj-$(CONFIG_PDC_STABLE)	+= pdc_stable.o
+-obj-y				+= power.o
++obj-$(CONFIG_PARISC)		+= power.o
  
--obj-y := nubus.o bus.o
-+obj-$(CONFIG_NUBUS) := nubus_all.o
-+nubus_all-y += bus.o nubus.o
- 
--obj-$(CONFIG_PROC_FS) += proc.o
-+nubus_all-$(CONFIG_PROC_FS) += proc.o
 -- 
 2.19.0
