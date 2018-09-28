@@ -1,50 +1,63 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: Re: [PATCH v3 3/7] drivers: parisc: Avoids building driver if
- CONFIG_PARISC is disabled
-Date: Fri, 28 Sep 2018 09:15:15 +0200
-Message-ID: <1538118915.3593.4.camel@HansenPartnership.com>
-References: <20180928020816.11251-1-leobras.c@gmail.com>
-         <20180928020816.11251-4-leobras.c@gmail.com>
+From: =?UTF-8?q?Leonardo=20Br=C3=A1s?= <leobras.c@gmail.com>
+Subject: [PATCH v3 0/7]  Remove errors building drivers/DRIVERNAME
+Date: Thu, 27 Sep 2018 23:08:09 -0300
+Message-ID: <20180928020816.11251-1-leobras.c@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180928020816.11251-4-leobras.c@gmail.com>
 List-Archive: <https://lore.kernel.org/linux-parisc/>
 List-Post: <mailto:linux-parisc@vger.kernel.org>
-To: Leonardo =?ISO-8859-1?Q?Br=E1s?= <leobras.c@gmail.com>, lkcamp@lists.libreplanetbr.org
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@telegraphics.com.au>, Robert Richter <rric@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, oprofile-list@lists.sf.net, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
+To: lkcamp@lists.libreplanetbr.org
+Cc: =?UTF-8?q?Leonardo=20Br=C3=A1s?= <leobras.c@gmail.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Finn Thain <fthain@telegraphics.com.au>, Robert Richter <rric@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, oprofile-list@lists.sf.net, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 Content-Transfer-Encoding: 8bit
 
-On Thu, 2018-09-27 at 23:08 -0300, Leonardo Brás wrote:
-> Avoids building driver if 'make drivers/parisc/' is called and
-> CONFIG_PARISC is disabled.
+Special thanks for the feedback from:
+- Finn Thain (I fixed the build problem)
+- Geert Uytterhoeven (The cross compilers were very useful)
+- Rolf Eike Beer (Was unintentional, thanks for the help!)
 
-Is that really a problem? The drivers/Makefile has this:
+This Patchset changes some driver's Makefile to allow them building
+using the command 'make drivers/DRIVERNAME', if compatible.
 
-obj-$(CONFIG_PARISC)		+= parisc/ 
-And you just overrode that by forcing the build.  It's not even clear
-we should refuse the build in that case; how would we know you don't
-have a legitimate reason for the override? 
+The changed drivers would return error if the above command was run
+on them, after an x86 allyesconfig.
 
-Signed-off-by: Leonardo Brás <leobras.c@gmail.com>
-> ---
->  drivers/parisc/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/parisc/Makefile b/drivers/parisc/Makefile
-> index 3cd5e6cb8478..80049d763aa0 100644
-> --- a/drivers/parisc/Makefile
-> +++ b/drivers/parisc/Makefile
-> @@ -24,5 +24,5 @@ obj-$(CONFIG_EISA)		+= eisa.o
-> eisa_enumerator.o eisa_eeprom.o
->  obj-$(CONFIG_SUPERIO)		+= superio.o
->  obj-$(CONFIG_CHASSIS_LCD_LED)	+= led.o
->  obj-$(CONFIG_PDC_STABLE)	+= pdc_stable.o
-> -obj-y				+= power.o
-> +obj-$(CONFIG_PARISC)		+= power.o
+The main reason of this patchset is to allow building lists of
+drivers looking for warnings and errors to be fixed.
 
-If we conclude the use case is legitimate, that's not enough: the two
-inner symbols are PARISC only but CONFIG_EISA isn't.
+I see this change as a new feature, not a bugfix. I understand
+the default bahavior may be building with a simple 'make', but I
+believe adding this new possibility will not be harmful.
 
-James
+My main objective is to allow developers with low processing power
+to do changes in the kernel and look bugs using free services like
+GiltabCI, before submitting to community.
+
+If there is any interest helping/using this, I have a prototype in:
+https://gitlab.com/LeoBras/linux-next
+
+
+Leonardo Brás (7):
+  drivers: dio: Avoids building driver if CONFIG_DIO is disabled
+  drivers: nubus: Avoids building driver if CONFIG_NUBUS is disabled
+  drivers: parisc: Avoids building driver if CONFIG_PARISC is disabled
+  drivers: zorro: Avoids building proc.o if CONFIG_ZORRO is disabled
+  drivers: s390: Avoids building drivers if ARCH is not s390.
+  drivers: oprofile: Avoids building driver from direct make command
+  drivers: hwtracing: Adds Makefile to enable building from directory.
+
+ drivers/Makefile           | 4 +---
+ drivers/dio/Makefile       | 2 +-
+ drivers/hwtracing/Makefile | 3 +++
+ drivers/nubus/Makefile     | 5 +++--
+ drivers/oprofile/Makefile  | 1 +
+ drivers/parisc/Makefile    | 2 +-
+ drivers/s390/Makefile      | 8 ++++----
+ drivers/zorro/Makefile     | 7 ++++---
+ 8 files changed, 18 insertions(+), 14 deletions(-)
+ create mode 100644 drivers/hwtracing/Makefile
+ create mode 100644 drivers/oprofile/Makefile
+
+-- 
+2.19.0
