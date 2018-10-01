@@ -1,62 +1,135 @@
-Return-Path: <SRS0=RFFj=MN=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Mon, 1 Oct 2018 22:25:38 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: vmlinux.lds: move JUMP_TABLE_DATA into output
- section
-References: <20180930164950.3841-1-ard.biesheuvel@linaro.org>
-MIME-Version: 1.0
-In-Reply-To: <20180930164950.3841-1-ard.biesheuvel@linaro.org>
-Message-Id: <20181001202538.GB4958@osiris>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux@roeck-us.net, Kees Cook <keescook@chromium.org>, Ingo Molnar <mingo@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jessica Yu <jeyu@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Mon, 01 Oct 2018 11:53:57 +0000
+Subject: [PULL 1/2] s390/cio: Convert ccw_io_region to pointer
+Message-Id: <20181001115358.5513-2-cohuck@redhat.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Sep 30, 2018 at 06:49:50PM +0200, Ard Biesheuvel wrote:
-> Commit e872267b8bcbb179 ("jump_table: move entries into ro_after_init
-> region") moved the __jump_table input section into the __ro_after_init
-> output section, but inadvertently put the macro in the wrong place in
-> the s390 linker script. Let's fix that.
-> 
-> Fixes: e872267b8bcbb179 ("jump_table: move entries into ro_after_init region")
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Jessica Yu <jeyu@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> ---
->  arch/s390/kernel/vmlinux.lds.S | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+From: Eric Farman <farman@linux.ibm.com>
 
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+In the event that we want to change the layout of the ccw_io_region in the
+future[1], it might be easier to work with it as a pointer within the
+vfio_ccw_private struct rather than an embedded struct.
 
-I don't think this is very obvious, but this fixes current build breakage
-in linux-next and I assume Thomas should pick this up.
+[1] https://patchwork.kernel.org/comment/22228541/
 
-> diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-> index 4042bbf3f9ad..457713f48734 100644
-> --- a/arch/s390/kernel/vmlinux.lds.S
-> +++ b/arch/s390/kernel/vmlinux.lds.S
-> @@ -64,9 +64,9 @@ SECTIONS
->  	__start_ro_after_init = .;
->  	.data..ro_after_init : {
->  		 *(.data..ro_after_init)
-> +		JUMP_TABLE_DATA
->  	}
->  	EXCEPTION_TABLE(16)
-> -	JUMP_TABLE_DATA
->  	. = ALIGN(PAGE_SIZE);
->  	__end_ro_after_init = .;
-> 
-> -- 
-> 2.17.1
-> 
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Message-Id: <20180921204013.95804-2-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_drv.c     | 12 +++++++++++-
+ drivers/s390/cio/vfio_ccw_fsm.c     |  6 +++---
+ drivers/s390/cio/vfio_ccw_ops.c     |  4 ++--
+ drivers/s390/cio/vfio_ccw_private.h |  2 +-
+ 4 files changed, 17 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 770fa9cfc310..f48e6f84eefe 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -79,7 +79,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 		cp_update_scsw(&private->cp, &irb->scsw);
+ 		cp_free(&private->cp);
+ 	}
+-	memcpy(private->io_region.irb_area, irb, sizeof(*irb));
++	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+ 
+ 	if (private->io_trigger)
+ 		eventfd_signal(private->io_trigger, 1);
+@@ -114,6 +114,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	private = kzalloc(sizeof(*private), GFP_KERNEL | GFP_DMA);
+ 	if (!private)
+ 		return -ENOMEM;
++
++	private->io_region = kzalloc(sizeof(*private->io_region),
++				     GFP_KERNEL | GFP_DMA);
++	if (!private->io_region) {
++		kfree(private);
++		return -ENOMEM;
++	}
++
+ 	private->sch = sch;
+ 	dev_set_drvdata(&sch->dev, private);
+ 
+@@ -139,6 +147,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	cio_disable_subchannel(sch);
+ out_free:
+ 	dev_set_drvdata(&sch->dev, NULL);
++	kfree(private->io_region);
+ 	kfree(private);
+ 	return ret;
+ }
+@@ -153,6 +162,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
+ 
+ 	dev_set_drvdata(&sch->dev, NULL);
+ 
++	kfree(private->io_region);
+ 	kfree(private);
+ 
+ 	return 0;
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index 797a82731159..f94aa01f9c36 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -93,13 +93,13 @@ static void fsm_io_error(struct vfio_ccw_private *private,
+ 			 enum vfio_ccw_event event)
+ {
+ 	pr_err("vfio-ccw: FSM: I/O request from state:%d\n", private->state);
+-	private->io_region.ret_code = -EIO;
++	private->io_region->ret_code = -EIO;
+ }
+ 
+ static void fsm_io_busy(struct vfio_ccw_private *private,
+ 			enum vfio_ccw_event event)
+ {
+-	private->io_region.ret_code = -EBUSY;
++	private->io_region->ret_code = -EBUSY;
+ }
+ 
+ static void fsm_disabled_irq(struct vfio_ccw_private *private,
+@@ -126,7 +126,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+ {
+ 	union orb *orb;
+ 	union scsw *scsw = &private->scsw;
+-	struct ccw_io_region *io_region = &private->io_region;
++	struct ccw_io_region *io_region = private->io_region;
+ 	struct mdev_device *mdev = private->mdev;
+ 	char *errstr = "request";
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index 41eeb57d68a3..f673e106c041 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -174,7 +174,7 @@ static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
+ 		return -EINVAL;
+ 
+ 	private = dev_get_drvdata(mdev_parent_dev(mdev));
+-	region = &private->io_region;
++	region = private->io_region;
+ 	if (copy_to_user(buf, (void *)region + *ppos, count))
+ 		return -EFAULT;
+ 
+@@ -196,7 +196,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+ 	if (private->state != VFIO_CCW_STATE_IDLE)
+ 		return -EACCES;
+ 
+-	region = &private->io_region;
++	region = private->io_region;
+ 	if (copy_from_user((void *)region + *ppos, buf, count))
+ 		return -EFAULT;
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 78a66d96756b..078e46f9623d 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -41,7 +41,7 @@ struct vfio_ccw_private {
+ 	atomic_t		avail;
+ 	struct mdev_device	*mdev;
+ 	struct notifier_block	nb;
+-	struct ccw_io_region	io_region;
++	struct ccw_io_region	*io_region;
+ 
+ 	struct channel_program	cp;
+ 	struct irb		irb;
+-- 
+2.14.4
