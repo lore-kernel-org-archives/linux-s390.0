@@ -1,135 +1,118 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Date: Mon, 01 Oct 2018 11:53:57 +0000
-Subject: [PULL 1/2] s390/cio: Convert ccw_io_region to pointer
-Message-Id: <20181001115358.5513-2-cohuck@redhat.com>
+Date: Mon, 01 Oct 2018 11:53:58 +0000
+Subject: [PULL 2/2] s390/cio: Refactor alloc of ccw_io_region
+Message-Id: <20181001115358.5513-3-cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Eric Farman <farman@linux.ibm.com>
 
-In the event that we want to change the layout of the ccw_io_region in the
-future[1], it might be easier to work with it as a pointer within the
-vfio_ccw_private struct rather than an embedded struct.
+If I attach a vfio-ccw device to my guest, I get the following warning
+on the host when the host kernel is CONFIG_HARDENED_USERCOPY=y
 
-[1] https://patchwork.kernel.org/comment/22228541/
+[250757.595325] Bad or missing usercopy whitelist? Kernel memory overwrite attempt detected to SLUB object 'dma-kmalloc-512' (offset 64, size 124)!
+[250757.595365] WARNING: CPU: 2 PID: 10958 at mm/usercopy.c:81 usercopy_warn+0xac/0xd8
+[250757.595369] Modules linked in: kvm vhost_net vhost tap xt_CHECKSUM iptable_mangle ipt_MASQUERADE iptable_nat nf_nat_ipv4 nf_nat nf_conntrack_ipv4 nf_defrag_ipv4 xt_conntrack nf_conntrack libcrc32c devlink tun bridge stp llc ebtable_filter ebtables ip6table_filter ip6_tables sunrpc dm_multipath s390_trng crc32_vx_s390 ghash_s390 prng aes_s390 des_s390 des_generic sha512_s390 sha1_s390 eadm_sch tape_3590 tape tape_class qeth_l2 qeth ccwgroup vfio_ccw vfio_mdev zcrypt_cex4 mdev vfio_iommu_type1 zcrypt vfio sha256_s390 sha_common zfcp scsi_transport_fc qdio dasd_eckd_mod dasd_mod
+[250757.595424] CPU: 2 PID: 10958 Comm: CPU 2/KVM Not tainted 4.18.0-derp #2
+[250757.595426] Hardware name: IBM 3906 M05 780 (LPAR)
+...snip regs...
+[250757.595523] Call Trace:
+[250757.595529] ([<0000000000349210>] usercopy_warn+0xa8/0xd8)
+[250757.595535]  [<000000000032daaa>] __check_heap_object+0xfa/0x160
+[250757.595540]  [<0000000000349396>] __check_object_size+0x156/0x1d0
+[250757.595547]  [<000003ff80332d04>] vfio_ccw_mdev_write+0x74/0x148 [vfio_ccw]
+[250757.595552]  [<000000000034ed12>] __vfs_write+0x3a/0x188
+[250757.595556]  [<000000000034f040>] vfs_write+0xa8/0x1b8
+[250757.595559]  [<000000000034f4e6>] ksys_pwrite64+0x86/0xc0
+[250757.595568]  [<00000000008959a0>] system_call+0xdc/0x2b0
+[250757.595570] Last Breaking-Event-Address:
+[250757.595573]  [<0000000000349210>] usercopy_warn+0xa8/0xd8
+
+While vfio_ccw_mdev_{write|read} validates that the input position/count
+does not run over the ccw_io_region struct, the usercopy code that does
+copy_{to|from}_user doesn't necessarily know this. It sees the variable
+length and gets worried that it's affecting a normal kmalloc'd struct,
+and generates the above warning.
+
+Adjust how the ccw_io_region is alloc'd with a whitelist to remove this
+warning. The boundary checking will continue to do its thing.
 
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Message-Id: <20180921204013.95804-2-farman@linux.ibm.com>
+Message-Id: <20180921204013.95804-3-farman@linux.ibm.com>
 Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c     | 12 +++++++++++-
- drivers/s390/cio/vfio_ccw_fsm.c     |  6 +++---
- drivers/s390/cio/vfio_ccw_ops.c     |  4 ++--
- drivers/s390/cio/vfio_ccw_private.h |  2 +-
- 4 files changed, 17 insertions(+), 7 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 770fa9cfc310..f48e6f84eefe 100644
+index f48e6f84eefe..f47d16b5810b 100644
 --- a/drivers/s390/cio/vfio_ccw_drv.c
 +++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -79,7 +79,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		cp_update_scsw(&private->cp, &irb->scsw);
- 		cp_free(&private->cp);
- 	}
--	memcpy(private->io_region.irb_area, irb, sizeof(*irb));
-+	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+@@ -22,6 +22,7 @@
+ #include "vfio_ccw_private.h"
  
- 	if (private->io_trigger)
- 		eventfd_signal(private->io_trigger, 1);
-@@ -114,6 +114,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	private = kzalloc(sizeof(*private), GFP_KERNEL | GFP_DMA);
+ struct workqueue_struct *vfio_ccw_work_q;
++struct kmem_cache *vfio_ccw_io_region;
+ 
+ /*
+  * Helpers
+@@ -115,8 +116,8 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
  	if (!private)
  		return -ENOMEM;
-+
-+	private->io_region = kzalloc(sizeof(*private->io_region),
-+				     GFP_KERNEL | GFP_DMA);
-+	if (!private->io_region) {
-+		kfree(private);
-+		return -ENOMEM;
-+	}
-+
- 	private->sch = sch;
- 	dev_set_drvdata(&sch->dev, private);
  
-@@ -139,6 +147,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+-	private->io_region = kzalloc(sizeof(*private->io_region),
+-				     GFP_KERNEL | GFP_DMA);
++	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
++					       GFP_KERNEL | GFP_DMA);
+ 	if (!private->io_region) {
+ 		kfree(private);
+ 		return -ENOMEM;
+@@ -147,7 +148,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
  	cio_disable_subchannel(sch);
  out_free:
  	dev_set_drvdata(&sch->dev, NULL);
-+	kfree(private->io_region);
+-	kfree(private->io_region);
++	kmem_cache_free(vfio_ccw_io_region, private->io_region);
  	kfree(private);
  	return ret;
  }
-@@ -153,6 +162,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
+@@ -162,7 +163,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
  
  	dev_set_drvdata(&sch->dev, NULL);
  
-+	kfree(private->io_region);
+-	kfree(private->io_region);
++	kmem_cache_free(vfio_ccw_io_region, private->io_region);
  	kfree(private);
  
  	return 0;
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index 797a82731159..f94aa01f9c36 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -93,13 +93,13 @@ static void fsm_io_error(struct vfio_ccw_private *private,
- 			 enum vfio_ccw_event event)
+@@ -242,10 +243,20 @@ static int __init vfio_ccw_sch_init(void)
+ 	if (!vfio_ccw_work_q)
+ 		return -ENOMEM;
+ 
++	vfio_ccw_io_region = kmem_cache_create_usercopy("vfio_ccw_io_region",
++					sizeof(struct ccw_io_region), 0,
++					SLAB_ACCOUNT, 0,
++					sizeof(struct ccw_io_region), NULL);
++	if (!vfio_ccw_io_region) {
++		destroy_workqueue(vfio_ccw_work_q);
++		return -ENOMEM;
++	}
++
+ 	isc_register(VFIO_CCW_ISC);
+ 	ret = css_driver_register(&vfio_ccw_sch_driver);
+ 	if (ret) {
+ 		isc_unregister(VFIO_CCW_ISC);
++		kmem_cache_destroy(vfio_ccw_io_region);
+ 		destroy_workqueue(vfio_ccw_work_q);
+ 	}
+ 
+@@ -256,6 +267,7 @@ static void __exit vfio_ccw_sch_exit(void)
  {
- 	pr_err("vfio-ccw: FSM: I/O request from state:%d\n", private->state);
--	private->io_region.ret_code = -EIO;
-+	private->io_region->ret_code = -EIO;
+ 	css_driver_unregister(&vfio_ccw_sch_driver);
+ 	isc_unregister(VFIO_CCW_ISC);
++	kmem_cache_destroy(vfio_ccw_io_region);
+ 	destroy_workqueue(vfio_ccw_work_q);
  }
- 
- static void fsm_io_busy(struct vfio_ccw_private *private,
- 			enum vfio_ccw_event event)
- {
--	private->io_region.ret_code = -EBUSY;
-+	private->io_region->ret_code = -EBUSY;
- }
- 
- static void fsm_disabled_irq(struct vfio_ccw_private *private,
-@@ -126,7 +126,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- {
- 	union orb *orb;
- 	union scsw *scsw = &private->scsw;
--	struct ccw_io_region *io_region = &private->io_region;
-+	struct ccw_io_region *io_region = private->io_region;
- 	struct mdev_device *mdev = private->mdev;
- 	char *errstr = "request";
- 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 41eeb57d68a3..f673e106c041 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -174,7 +174,7 @@ static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
- 		return -EINVAL;
- 
- 	private = dev_get_drvdata(mdev_parent_dev(mdev));
--	region = &private->io_region;
-+	region = private->io_region;
- 	if (copy_to_user(buf, (void *)region + *ppos, count))
- 		return -EFAULT;
- 
-@@ -196,7 +196,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
- 	if (private->state != VFIO_CCW_STATE_IDLE)
- 		return -EACCES;
- 
--	region = &private->io_region;
-+	region = private->io_region;
- 	if (copy_from_user((void *)region + *ppos, buf, count))
- 		return -EFAULT;
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 78a66d96756b..078e46f9623d 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -41,7 +41,7 @@ struct vfio_ccw_private {
- 	atomic_t		avail;
- 	struct mdev_device	*mdev;
- 	struct notifier_block	nb;
--	struct ccw_io_region	io_region;
-+	struct ccw_io_region	*io_region;
- 
- 	struct channel_program	cp;
- 	struct irb		irb;
+ module_init(vfio_ccw_sch_init);
 -- 
 2.14.4
