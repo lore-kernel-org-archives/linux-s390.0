@@ -1,96 +1,50 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 02 Oct 2018 07:06:40 +0000
-Subject: [GIT PULL 13/28] s390: vfio-ap: zeroize the AP queues
-Message-Id: <20181002070655.224110-14-borntraeger@de.ibm.com>
+Date: Tue, 02 Oct 2018 07:06:41 +0000
+Subject: [GIT PULL 14/28] s390: vfio-ap: implement VFIO_DEVICE_RESET ioctl
+Message-Id: <20181002070655.224110-15-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Let's call PAPQ(ZAPQ) to zeroize a queue for each queue configured
-for a mediated matrix device when it is released.
-
-Zeroizing a queue resets the queue, clears all pending
-messages for the queue entries and disables adapter interruptions
-associated with the queue.
+Implements the VFIO_DEVICE_RESET ioctl. This ioctl zeroizes
+all of the AP queues assigned to the guest.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Tested-by: Michael Mueller <mimu@linux.ibm.com>
 Tested-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20180925231641.4954-14-akrowiak@linux.vnet.ibm.com>
+Tested-by: Pierre Morel <pmorel@linux.ibm.com>
+Message-Id: <20180925231641.4954-15-akrowiak@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 49 +++++++++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ drivers/s390/crypto/vfio_ap_ops.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 974cf06d8a5c..619900c56cd6 100644
+index 619900c56cd6..d3d9eb72b0f1 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -819,6 +819,54 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	return NOTIFY_OK;
- }
+@@ -917,7 +917,7 @@ static int vfio_ap_mdev_get_device_info(unsigned long arg)
+ 	if (info.argsz < minsz)
+ 		return -EINVAL;
  
-+static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
-+				    unsigned int retry)
-+{
-+	struct ap_queue_status status;
-+
-+	do {
-+		status = ap_zapq(AP_MKQID(apid, apqi));
-+		switch (status.response_code) {
-+		case AP_RESPONSE_NORMAL:
-+			return 0;
-+		case AP_RESPONSE_RESET_IN_PROGRESS:
-+		case AP_RESPONSE_BUSY:
-+			msleep(20);
-+			break;
-+		default:
-+			/* things are really broken, give up */
-+			return -EIO;
-+		}
-+	} while (retry--);
-+
-+	return -EBUSY;
-+}
-+
-+static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
-+{
-+	int ret;
-+	int rc = 0;
-+	unsigned long apid, apqi;
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+
-+	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
-+			     matrix_mdev->matrix.apm_max + 1) {
-+		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-+				     matrix_mdev->matrix.aqm_max + 1) {
-+			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
-+			/*
-+			 * Regardless whether a queue turns out to be busy, or
-+			 * is not operational, we need to continue resetting
-+			 * the remaining queues.
-+			 */
-+			if (ret)
-+				rc = ret;
-+		}
-+	}
-+
-+	return rc;
-+}
-+
- static int vfio_ap_mdev_open(struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-@@ -849,6 +897,7 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 	if (matrix_mdev->kvm)
- 		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+-	info.flags = VFIO_DEVICE_FLAGS_AP;
++	info.flags = VFIO_DEVICE_FLAGS_AP | VFIO_DEVICE_FLAGS_RESET;
+ 	info.num_regions = 0;
+ 	info.num_irqs = 0;
  
-+	vfio_ap_mdev_reset_queues(mdev);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
- 	matrix_mdev->kvm = NULL;
+@@ -933,6 +933,9 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
+ 	case VFIO_DEVICE_GET_INFO:
+ 		ret = vfio_ap_mdev_get_device_info(arg);
+ 		break;
++	case VFIO_DEVICE_RESET:
++		ret = vfio_ap_mdev_reset_queues(mdev);
++		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+ 		break;
 -- 
 2.17.0
