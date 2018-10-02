@@ -1,27 +1,24 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 02 Oct 2018 07:06:28 +0000
-Subject: [GIT PULL 01/28] KVM: s390: vsie: simulate VCPU SIE entry/exit
-Message-Id: <20181002070655.224110-2-borntraeger@de.ibm.com>
+Date: Tue, 02 Oct 2018 07:06:29 +0000
+Subject: [GIT PULL 02/28] KVM: s390: introduce and use KVM_REQ_VSIE_RESTART
+Message-Id: <20181002070655.224110-3-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <david@redhat.com>
 
-VCPU requests and VCPU blocking right now don't take care of the vSIE
-(as it was not necessary until now). But we want to have synchronous VCPU
-requests that will also be handled before running the vSIE again.
+When we change the crycb (or execution controls), we also have to make sure
+that the vSIE shadow datastructures properly consider the changed
+values before rerunning the vSIE. We can achieve that by simply using a
+VCPU request now.
 
-So let's simulate a SIE entry of the VCPU when calling the sie during
-vSIE handling and check for PROG_ flags. The existing infrastructure
-(e.g. exit_sie()) will then detect that the SIE (in form of the vSIE) is
-running and properly kick the vSIE CPU, resulting in it leaving the vSIE
-loop and therefore the vSIE interception handler, allowing it to handle
-VCPU requests.
+This has to be a synchronous request (== handled before entering the
+(v)SIE again).
 
-E.g. if we want to modify the crycb of the VCPU and make sure that any
-masks also get applied to the VSIE crycb shadow (which uses masks from the
-VCPU crycb), we will need a way to hinder the vSIE from running and make
-sure to process the updated crycb before reentering the vSIE again.
+The request will make sure that the vSIE handler is left, and that the
+request will be processed (NOP), therefore forcing a reload of all
+vSIE data (including rebuilding the crycb) when re-entering the vSIE
+interception handler the next time.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
@@ -29,109 +26,50 @@ Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-Id: <20180925231641.4954-2-akrowiak@linux.vnet.ibm.com>
+Message-Id: <20180925231641.4954-3-akrowiak@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c |  9 ++++++++-
- arch/s390/kvm/kvm-s390.h |  1 +
- arch/s390/kvm/vsie.c     | 21 +++++++++++++++++----
- 3 files changed, 26 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 1 +
+ arch/s390/kvm/kvm-s390.c         | 7 ++++++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 29c940bf8506..75d39628f21d 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -44,6 +44,7 @@
+ #define KVM_REQ_ICPT_OPEREXC	KVM_ARCH_REQ(2)
+ #define KVM_REQ_START_MIGRATION KVM_ARCH_REQ(3)
+ #define KVM_REQ_STOP_MIGRATION  KVM_ARCH_REQ(4)
++#define KVM_REQ_VSIE_RESTART	KVM_ARCH_REQ(5)
+ 
+ #define SIGP_CTRL_C		0x80
+ #define SIGP_CTRL_SCN_MASK	0x3f
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f69333fd2fa3..0b5aff0e3984 100644
+index 0b5aff0e3984..876fbb2b0c04 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -2768,18 +2768,25 @@ static void kvm_s390_vcpu_request(struct kvm_vcpu *vcpu)
- 	exit_sie(vcpu);
+@@ -844,8 +844,11 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm)
+ 
+ 	kvm_s390_vcpu_block_all(kvm);
+ 
+-	kvm_for_each_vcpu(i, vcpu, kvm)
++	kvm_for_each_vcpu(i, vcpu, kvm) {
+ 		kvm_s390_vcpu_crypto_setup(vcpu);
++		/* recreate the shadow crycb by leaving the VSIE handler */
++		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
++	}
+ 
+ 	kvm_s390_vcpu_unblock_all(kvm);
  }
+@@ -3203,6 +3206,8 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
  
-+bool kvm_s390_vcpu_sie_inhibited(struct kvm_vcpu *vcpu)
-+{
-+	return atomic_read(&vcpu->arch.sie_block->prog20) &
-+	       (PROG_BLOCK_SIE | PROG_REQUEST);
-+}
-+
- static void kvm_s390_vcpu_request_handled(struct kvm_vcpu *vcpu)
- {
- 	atomic_andnot(PROG_REQUEST, &vcpu->arch.sie_block->prog20);
+ 	/* nothing to do, just clear the request */
+ 	kvm_clear_request(KVM_REQ_UNHALT, vcpu);
++	/* we left the vsie handler, nothing to do, just clear the request */
++	kvm_clear_request(KVM_REQ_VSIE_RESTART, vcpu);
+ 
+ 	return 0;
  }
- 
- /*
-- * Kick a guest cpu out of SIE and wait until SIE is not running.
-+ * Kick a guest cpu out of (v)SIE and wait until (v)SIE is not running.
-  * If the CPU is not running (e.g. waiting as idle) the function will
-  * return immediately. */
- void exit_sie(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOP_INT);
-+	kvm_s390_vsie_kick(vcpu);
- 	while (vcpu->arch.sie_block->prog0c & PROG_IN_SIE)
- 		cpu_relax();
- }
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 981e3ba97461..1f6e36cdce0d 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -290,6 +290,7 @@ void kvm_s390_vcpu_start(struct kvm_vcpu *vcpu);
- void kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu);
- void kvm_s390_vcpu_block(struct kvm_vcpu *vcpu);
- void kvm_s390_vcpu_unblock(struct kvm_vcpu *vcpu);
-+bool kvm_s390_vcpu_sie_inhibited(struct kvm_vcpu *vcpu);
- void exit_sie(struct kvm_vcpu *vcpu);
- void kvm_s390_sync_request(int req, struct kvm_vcpu *vcpu);
- int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu);
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index a2b28cd1e3fe..12b970701c26 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -830,7 +830,7 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
- 	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
- 	int guest_bp_isolation;
--	int rc;
-+	int rc = 0;
- 
- 	handle_last_fault(vcpu, vsie_page);
- 
-@@ -858,7 +858,18 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	guest_enter_irqoff();
- 	local_irq_enable();
- 
--	rc = sie64a(scb_s, vcpu->run->s.regs.gprs);
-+	/*
-+	 * Simulate a SIE entry of the VCPU (see sie64a), so VCPU blocking
-+	 * and VCPU requests also hinder the vSIE from running and lead
-+	 * to an immediate exit. kvm_s390_vsie_kick() has to be used to
-+	 * also kick the vSIE.
-+	 */
-+	vcpu->arch.sie_block->prog0c |= PROG_IN_SIE;
-+	barrier();
-+	if (!kvm_s390_vcpu_sie_inhibited(vcpu))
-+		rc = sie64a(scb_s, vcpu->run->s.regs.gprs);
-+	barrier();
-+	vcpu->arch.sie_block->prog0c &= ~PROG_IN_SIE;
- 
- 	local_irq_disable();
- 	guest_exit_irqoff();
-@@ -1005,7 +1016,8 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		if (rc == -EAGAIN)
- 			rc = 0;
- 		if (rc || scb_s->icptcode || signal_pending(current) ||
--		    kvm_s390_vcpu_has_irq(vcpu, 0))
-+		    kvm_s390_vcpu_has_irq(vcpu, 0) ||
-+		    kvm_s390_vcpu_sie_inhibited(vcpu))
- 			break;
- 	}
- 
-@@ -1122,7 +1134,8 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
- 	if (unlikely(scb_addr & 0x1ffUL))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	if (signal_pending(current) || kvm_s390_vcpu_has_irq(vcpu, 0))
-+	if (signal_pending(current) || kvm_s390_vcpu_has_irq(vcpu, 0) ||
-+	    kvm_s390_vcpu_sie_inhibited(vcpu))
- 		return 0;
- 
- 	vsie_page = get_vsie_page(vcpu->kvm, scb_addr);
 -- 
 2.17.0
