@@ -1,68 +1,56 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Fri, 26 Oct 2018 12:07:09 +0100
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: Re: [PATCH v2 0/2] arm64: Cut rebuild time when changing
- CONFIG_BLK_DEV_INITRD
-References: <20181024193256.23734-1-f.fainelli@gmail.com>
- <CAL_Jsq+KCOv6pXXHhHDZ+7-QUrmtMDvSjEVhK15yZ3qbnn61Ag@mail.gmail.com>
- <20181025093833.GA23607@rapoport-lnx>
- <CAL_JsqL62ttsGSbE1BS5v-mX3pKE-p_HyvuZD6nB+GUbQyetzg@mail.gmail.com>
- <20181025172935.GA27364@rapoport-lnx>
- <CAL_JsqJrMq+QHvuOsqEdCFchmXsd4s2XKUD_TboKzeEQprJvjg@mail.gmail.com>
- <1bb3bd63-a88e-b668-ea36-f0f985c0e2b1@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1bb3bd63-a88e-b668-ea36-f0f985c0e2b1@gmail.com>
-Message-ID: <20181026110708.GA3814@rapoport-lnx>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20181026110709.xqtMo23mSil9uPBrWee7M-IYQcDrzTm062pkhCBCLj8@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Marc Zyngier <marc.zyngier@arm.com>, Olof Johansson <olof@lixom.net>, linux-alpha@vger.kernel.org, arcml <linux-snps-arc@lists.infradead.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-c6x-dev@linux-c6x.org, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Linux-MIPS <linux-mips@linux-mips.org>, nios2-dev@lists.rocketboards.org, Openrisc <openrisc@lists.librecores.org>, linux-parisc@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, devicetree@vger.kernel.org, "open list:GENERIC INCLUDE/ASM HEADER FILES" <linux-arch@vger.kernel.org>
+From: Farhan Ali <alifm@linux.ibm.com>
+Subject: Re: [PULL 1/1] s390/cio: Fix how vfio-ccw checks pinned pages
+Date: Wed, 3 Oct 2018 09:14:11 -0400
+Message-ID: <6d126fd1-3c51-34d3-18cf-b24459c9af39@linux.ibm.com>
+References: <20181002153748.13503-1-cohuck@redhat.com>
+ <20181002153748.13503-2-cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20181002153748.13503-2-cohuck@redhat.com>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, stable@vger.kernel.org, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Oct 25, 2018 at 04:07:13PM -0700, Florian Fainelli wrote:
-> On 10/25/18 2:13 PM, Rob Herring wrote:
-> > On Thu, Oct 25, 2018 at 12:30 PM Mike Rapoport <rppt@linux.ibm.com> wrote:
-> >>
-> >> On Thu, Oct 25, 2018 at 08:15:15AM -0500, Rob Herring wrote:
-> >>> +Ard
-> >>>
-> >>> On Thu, Oct 25, 2018 at 4:38 AM Mike Rapoport <rppt@linux.ibm.com> wrote:
-> >>>>
-> >>>> On Wed, Oct 24, 2018 at 02:55:17PM -0500, Rob Herring wrote:
-> >>>>> On Wed, Oct 24, 2018 at 2:33 PM Florian Fainelli <f.fainelli@gmail.com> wrote:
-> >>>>>>
-> >>>>>> Hi all,
-> >>>>>>
-> >>>>>> While investigating why ARM64 required a ton of objects to be rebuilt
-> >>>>>> when toggling CONFIG_DEV_BLK_INITRD, it became clear that this was
-> >>>>>> because we define __early_init_dt_declare_initrd() differently and we do
-> >>>>>> that in arch/arm64/include/asm/memory.h which gets included by a fair
-> >>>>>> amount of other header files, and translation units as well.
-> >>>>>
-> >>>> I think arm64 does not have to redefine __early_init_dt_declare_initrd().
-> >>>> Something like this might be just all we need (completely untested,
-> >>>> probably it won't even compile):
 
-[ ... ]
- 
-> FWIW, I am extracting the ARM implementation that parses the initrd
-> early command line parameter and the "setup" code doing the page
-> boundary alignment and memblock checking into a helper into lib/ that
-> other architectures can re-use. So far, this removes the need for
-> unicore32, arc and arm to duplicate essentially the same logic.
 
-Presuming you are going to need asm-generic/initrd.h for that as well,
-using override for __early_init_dt_declare_initrd in arm64 version of
-initrd.h might be the simplest option.
-
-> -- 
-> Florian
+On 10/02/2018 11:37 AM, Cornelia Huck wrote:
+> From: Eric Farman <farman@linux.ibm.com>
+> 
+> We have two nested loops to check the entries within the pfn_array_table
+> arrays.  But we mistakenly use the outer array as an index in our check,
+> and completely ignore the indexing performed by the inner loop.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> Message-Id: <20181002010235.42483-1-farman@linux.ibm.com>
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>   drivers/s390/cio/vfio_ccw_cp.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index dbe7c7ac9ac8..fd77e46eb3b2 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -163,7 +163,7 @@ static bool pfn_array_table_iova_pinned(struct pfn_array_table *pat,
+> 
+>   	for (i = 0; i < pat->pat_nr; i++, pa++)
+>   		for (j = 0; j < pa->pa_nr; j++)
+> -			if (pa->pa_iova_pfn[i] == iova_pfn)
+> +			if (pa->pa_iova_pfn[j] == iova_pfn)
+>   				return true;
+> 
+>   	return false;
 > 
 
--- 
-Sincerely yours,
-Mike.
+Me and Jason have been looking at this code recently and we think this 
+is the right fix.
+
+Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
