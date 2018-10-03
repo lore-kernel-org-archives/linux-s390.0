@@ -1,35 +1,30 @@
-From: Eric Farman <farman@linux.ibm.com>
-Date: Tue, 02 Oct 2018 12:52:53 +0000
-Subject: Re: [PATCH] s390/cio: Fix how vfio-ccw checks pinned pages
-Message-Id: <8050bdbd-bb6d-e4a4-2bc8-4b765f4035df@linux.ibm.com>
-In-Reply-To: <20181002100349.650cfc86.cohuck@redhat.com>
-References: <20181002100349.650cfc86.cohuck@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Wed, 03 Oct 2018 11:52:02 +0000
+Subject: Re: [GIT PULL 00/28] KVM: s390: Features for 4.20
+Message-Id: <556c80d1-7560-1076-44cb-db18a5bef14a@redhat.com>
+In-Reply-To: <20181002070655.224110-1-borntraeger@de.ibm.com>
+References: <20181002070655.224110-1-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 10/02/2018 04:03 AM, Cornelia Huck wrote:
-> On Tue, 2 Oct 2018 08:37:06 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On 02/10/2018 09:06, Christian Borntraeger wrote:
+> Paolo, Radim,
 > 
->> On 10/02/2018 03:02 AM, Eric Farman wrote:
->>> We have two nested loops to check the entries within the pfn_array_table
->>> arrays.  But we mistakenly use the outer array as an index in our check,
->>> and completely ignore the indexing performed by the inner loop.
->>>
->>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
->>
->> I think this qualifies for stable.
+> the first pull request for 4.20 (or 5?) for KVM on s390.  Mostly the
+> vfio-ap support (KVM virtualization for crypto cards).  This touches
+> also base s390 - and depending on the kind of change I also expect
+> future changes for vfio-ap via Martins tree.
 > 
-> Agreed; queued with cc:stable added.
-> 
-> Thanks for looking into this; anything more in your queue, or should I
-> send another pull request soon?
-> 
+> In case there will be addon changes via Martins tree I have created the
+> topic branch "apv11" and merged that. If necessary, Martin can pull that
+> topic branch as well.  As of today there is no conflict, so right now
+> this goes via the KVM tree.
 
-Sorry I didn't get this one out earlier :)
+Sounds good, thanks.  I'll send the pull request for 4.19 tomorrow and
+then pull.
 
-I do have some more in progress, but they're more involved and would 
-probably generate some discussion.  Not sure when I'll get them finished 
-up, so go ahead and generate the pull when convenient.  Thank you!
+Paolo
+
+> Please pull
+> 
+> The following changes since commit 7876320f88802b22d4e2daf7eb027dd14175a0f8:
