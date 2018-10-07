@@ -1,9 +1,9 @@
 Return-Path: <SRS0=94iy=MT=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Sun, 7 Oct 2018 18:35:02 +0200
+Date: Sun, 7 Oct 2018 18:35:11 +0200
 From: Eugene Syromiatnikov <esyr@redhat.com>
-Subject: [RFC PATCH net 1/3] uapi, net/smc: move protocol constant
- definitions to UAPI
-Message-ID: <adaa2e4d22f78b36c8d84bdd97c9c3c582eb4dc6.1538929504.git.esyr@redhat.com>
+Subject: [RFC PATCH net 3/3] uapi, net/smc: provide socket state constants in
+ UAPI
+Message-ID: <c79442704c63498b0d910f832ea8260faa53bebf.1538929504.git.esyr@redhat.com>
 References: <cover.1538929504.git.esyr@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -16,61 +16,79 @@ To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Hans Wippel <hwippel@linux.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-SMCPROTO_* constants are expected to be used by userspace[1],
-but they were defined in a private header instead.
-
-[1] http://manpages.ubuntu.com/manpages/cosmic/man7/af_smc.7.html
+As socket state itself is already exposed via sock_diag interface.
 
 Fixes: ac7138746e14 ("smc: establish new socket family")
-Fixes: aaa4d33f6da1 ("net/smc: enable ipv6 support for smc")
+Fixes: b38d732477e4 ("smc: socket closing and linkgroup cleanup")
 Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
 ---
- include/uapi/linux/smc.h | 7 ++++++-
- net/smc/smc.h            | 4 +---
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ include/uapi/linux/smc_diag.h | 17 +++++++++++++++++
+ net/smc/smc.h                 | 18 +-----------------
+ 2 files changed, 18 insertions(+), 17 deletions(-)
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 0e11ca4..10561f8 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -2,7 +2,8 @@
- /*
-  *  Shared Memory Communications over RDMA (SMC-R) and RoCE
-  *
-- *  Definitions for generic netlink based configuration of an SMC-R PNET table
-+ *  Definitions for SMC protocol and generic netlink based configuration
-+ *  of an SMC-R PNET table
-  *
-  *  Copyright IBM Corp. 2016
-  *
-@@ -12,6 +13,10 @@
- #ifndef _UAPI_LINUX_SMC_H_
- #define _UAPI_LINUX_SMC_H_
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index 8cb3a6f..6798ec0 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -31,6 +31,23 @@ struct smc_diag_msg {
+ 	__aligned_u64	diag_inode;
+ };
  
-+/* AF_SMC socket protocols */
-+#define SMCPROTO_SMC		0	/* SMC protocol, IPv4 */
-+#define SMCPROTO_SMC6		1	/* SMC protocol, IPv6 */
++enum smc_state {		/* possible states of an SMC socket */
++	SMC_ACTIVE	= 1,
++	SMC_INIT	= 2,
++	SMC_CLOSED	= 7,
++	SMC_LISTEN	= 10,
++	/* normal close */
++	SMC_PEERCLOSEWAIT1	= 20,
++	SMC_PEERCLOSEWAIT2	= 21,
++	SMC_APPFINCLOSEWAIT	= 24,
++	SMC_APPCLOSEWAIT1	= 22,
++	SMC_APPCLOSEWAIT2	= 23,
++	SMC_PEERFINCLOSEWAIT	= 25,
++	/* abnormal close */
++	SMC_PEERABORTWAIT	= 26,
++	SMC_PROCESSABORT	= 27,
++};
 +
- /* Netlink SMC_PNETID attributes */
+ /* Mode of a connection */
  enum {
- 	SMC_PNETID_UNSPEC,
+ 	SMC_DIAG_MODE_SMCR,
 diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 08786ac..f5ff2ee 100644
+index f5ff2ee..16bfd64 100644
 --- a/net/smc/smc.h
 +++ b/net/smc/smc.h
-@@ -15,12 +15,10 @@
- #include <linux/types.h>
+@@ -16,6 +16,7 @@
  #include <linux/compiler.h> /* __aligned */
  #include <net/sock.h>
-+#include <linux/smc.h>
+ #include <linux/smc.h>
++#include <linux/smc_diag.h>
  
  #include "smc_ib.h"
  
--#define SMCPROTO_SMC		0	/* SMC protocol, IPv4 */
--#define SMCPROTO_SMC6		1	/* SMC protocol, IPv6 */
--
- extern struct proto smc_proto;
- extern struct proto smc_proto6;
+@@ -26,23 +27,6 @@ extern struct proto smc_proto6;
+ #define KERNEL_HAS_ATOMIC64
+ #endif
  
+-enum smc_state {		/* possible states of an SMC socket */
+-	SMC_ACTIVE	= 1,
+-	SMC_INIT	= 2,
+-	SMC_CLOSED	= 7,
+-	SMC_LISTEN	= 10,
+-	/* normal close */
+-	SMC_PEERCLOSEWAIT1	= 20,
+-	SMC_PEERCLOSEWAIT2	= 21,
+-	SMC_APPFINCLOSEWAIT	= 24,
+-	SMC_APPCLOSEWAIT1	= 22,
+-	SMC_APPCLOSEWAIT2	= 23,
+-	SMC_PEERFINCLOSEWAIT	= 25,
+-	/* abnormal close */
+-	SMC_PEERABORTWAIT	= 26,
+-	SMC_PROCESSABORT	= 27,
+-};
+-
+ struct smc_link_group;
+ 
+ struct smc_wr_rx_hdr {	/* common prefix part of LLC and CDC to demultiplex */
 -- 
 2.1.4
