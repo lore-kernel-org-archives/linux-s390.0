@@ -1,50 +1,33 @@
-Return-Path: <SRS0=izC1=MS=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Wenwen Wang <wang6495@umn.edu>
-Subject: [PATCH] s390/qeth: fix a missing-check bug
-Date: Sat,  6 Oct 2018 11:08:23 -0500
-Message-Id: <1538842104-26018-1-git-send-email-wang6495@umn.edu>
+Return-Path: <SRS0=PZ5q=MW=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Wed, 10 Oct 2018 08:45:31 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [GIT PULL] s390 patches for 4.19 #4
+Message-ID: <20181010064531.GB13182@kroah.com>
+References: <20181010072001.425618eb@mschwideX1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181010072001.425618eb@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Wenwen Wang <wang6495@umn.edu>
-Cc: Kangjie Lu <kjlu@umn.edu>, Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "open list:S390 NETWORK DRIVERS" <linux-s390@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-In qeth_snmp_command(), the length of the user request is firstly copied
-from the user-space buffer 'udata' to the kernel variable 'req_len' and
-checked to see whether it is too large. If the check fails, an error code
-EINVAL is returned. Otherwise, the execution continues and the whole buffer
-is copied again from 'udata' and saved to the kernel buffer 'ureq'.
-However, after the second copy, no re-check is enforced on the newly-copied
-request length. Given that the buffer 'udata' is in the user space, a
-malicious user can race to change the request length between the two
-copies. In this way, the attacker can supply malicious data to the kernel
-and cause undefined behavior.
+On Wed, Oct 10, 2018 at 07:20:01AM +0200, Martin Schwidefsky wrote:
+> Hi Greg,
+> 
+> please pull s390 fixes for 4.19:
+> 
+> The following changes since commit 4b92e7fd76e94624e3d5ff56b3d6a5788c4a7ac8:
+> 
+>   Merge tag 'mtd/fixes-for-4.19-rc5' of git://git.infradead.org/linux-mtd (2018-09-20 11:25:20 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-4.19-4
 
-This patch adds a re-check on the request length after the second copy from
-the buffer 'udata'. If the newly-copied value is different from the value
-obtained in the first copy, i.e., 'req_len', an error code EINVAL will be
-returned after the buffer 'ureq' is freed.
+Now merged, thanks.
 
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
----
- drivers/s390/net/qeth_core_main.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index de82824..6199743 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4613,6 +4613,10 @@ static int qeth_snmp_command(struct qeth_card *card, char __user *udata)
- 		QETH_CARD_TEXT(card, 2, "snmpnome");
- 		return PTR_ERR(ureq);
- 	}
-+	if (ureq->hdr.req_len != req_len) {
-+		kfree(ureq);
-+		return -EINVAL;
-+	}
- 	qinfo.udata_len = ureq->hdr.data_len;
- 	qinfo.udata = kzalloc(qinfo.udata_len, GFP_KERNEL);
- 	if (!qinfo.udata) {
--- 
-2.7.4
+greg k-h
