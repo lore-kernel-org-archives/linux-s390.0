@@ -1,88 +1,120 @@
-Return-Path: <SRS0=medT=MW=vger.kernel.org=linux-pci-owner@kernel.org>
-Date: Wed, 10 Oct 2018 15:41:52 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-Subject: Re: [PATCH 2/3] PCI: remove pci_set_dma_seg_boundary
-Message-ID: <20181010204152.GH5906@bhelgaas-glaptop.roam.corp.google.com>
-References: <20181009140824.18667-1-hch@lst.de>
- <20181009140824.18667-3-hch@lst.de>
+From: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Subject: [PATCH v2 0/7] Rlimit for module space
+Date: Thu, 11 Oct 2018 16:31:10 -0700
+Message-Id: <20181011233117.7883-1-rick.p.edgecombe@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20181009140824.18667-3-hch@lst.de>
-Sender: linux-pci-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-pci/>
-List-Post: <mailto:linux-pci@vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+List-Archive: <https://lore.kernel.org/kernel-hardening/>
+List-Post: <mailto:kernel-hardening@lists.openwall.com>
+To: kernel-hardening@lists.openwall.com, daniel@iogearbox.net, keescook@chromium.org, catalin.marinas@arm.com, will.deacon@arm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, arnd@arndb.de, jeyu@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: kristen@linux.intel.com, dave.hansen@intel.com, arjan@linux.intel.com, deneen.t.dock@intel.com, Rick Edgecombe <rick.p.edgecombe@intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-[+cc s390 network maintainers]
+Hi,
 
-On Tue, Oct 09, 2018 at 04:08:23PM +0200, Christoph Hellwig wrote:
-> The two callers can just use dma_set_seg_boundary directly.
+This is v2 of a patch series that was first sent to security@kernel.org. The
+recommendation was to pursue the fix on public lists. First I’ll describe the
+issue that this is trying to solve, and then the general solution being
+proposed, and lastly summarize the feedback so far. At a high level, this is
+coming from a local DOS on eBPF, a KASLR module offset leak and desire for
+general hardening of module space usage.
 
-I intend to apply this trivial patch, so just FYI.
+Problem
+-------
+If BPF JIT is on, there is no effective limit to prevent filling the entire
+module space with JITed e/BPF filters. For classic BPF filters attached with
+setsockopt SO_ATTACH_FILTER, there is no memlock rlimit check to limit the
+number of insertions like this is for the bpf syscall. The cBPF gets converted
+to eBPF and then handled by the JIT depending on if JIT is enabled. There is a
+low enough default limit for open file descriptors per process, but this can be
+worked around easily by forking before inserting. If the memlock rlimit is set
+high for some other reason, eBPF programs inserted with the bpf syscall can also
+exhaust the space.
 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/pci/probe.c            | 2 +-
->  drivers/s390/net/ism_drv.c     | 2 +-
->  include/linux/pci-dma-compat.h | 9 ---------
->  3 files changed, 2 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-> index 201f9e5ff55c..fc6340d76814 100644
-> --- a/drivers/pci/probe.c
-> +++ b/drivers/pci/probe.c
-> @@ -2398,7 +2398,7 @@ void pci_device_add(struct pci_dev *dev, struct pci_bus *bus)
->  	dev->dev.coherent_dma_mask = 0xffffffffull;
->  
->  	pci_set_dma_max_seg_size(dev, 65536);
-> -	pci_set_dma_seg_boundary(dev, 0xffffffff);
-> +	dma_set_seg_boundary(&dev->dev, 0xffffffff);
->  
->  	/* Fix up broken headers */
->  	pci_fixup_device(pci_fixup_header, dev);
-> diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-> index c0631895154e..8688c0fff761 100644
-> --- a/drivers/s390/net/ism_drv.c
-> +++ b/drivers/s390/net/ism_drv.c
-> @@ -515,7 +515,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
->  	if (ret)
->  		goto err_unmap;
->  
-> -	pci_set_dma_seg_boundary(pdev, SZ_1M - 1);
-> +	dma_set_seg_boundary(&pdev->dev, SZ_1M - 1);
->  	pci_set_dma_max_seg_size(pdev, SZ_1M);
->  	pci_set_master(pdev);
->  
-> diff --git a/include/linux/pci-dma-compat.h b/include/linux/pci-dma-compat.h
-> index c3f1b44ade29..558a109ab497 100644
-> --- a/include/linux/pci-dma-compat.h
-> +++ b/include/linux/pci-dma-compat.h
-> @@ -125,12 +125,6 @@ static inline int pci_set_dma_max_seg_size(struct pci_dev *dev,
->  {
->  	return dma_set_max_seg_size(&dev->dev, size);
->  }
-> -
-> -static inline int pci_set_dma_seg_boundary(struct pci_dev *dev,
-> -					   unsigned long mask)
-> -{
-> -	return dma_set_seg_boundary(&dev->dev, mask);
-> -}
->  #else
->  static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask)
->  { return -EIO; }
-> @@ -139,9 +133,6 @@ static inline int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
->  static inline int pci_set_dma_max_seg_size(struct pci_dev *dev,
->  					   unsigned int size)
->  { return -EIO; }
-> -static inline int pci_set_dma_seg_boundary(struct pci_dev *dev,
-> -					   unsigned long mask)
-> -{ return -EIO; }
->  #endif
->  
->  #endif
-> -- 
-> 2.19.0
-> 
+This can cause problems not limited to:
+ - Filling the entire module space with filters so that kernel modules cannot
+   be loaded.
+ - If CONFIG_BPF_JIT_ALWAYS_ON is configured, then if the module space is full,
+   other BPF insertions will fail. This could cause filters that apps are
+   relying on for security to fail to insert.
+ - Counting the allocations until failure, since the module space is
+   allocated linearly, the number of allocations can be used to de-randomize
+   modules, with KASLR module base randomization. (This has been POCed with some
+   assumptions)
+
+Thanks to Daniel Borkmann for helping me understand what was happening with the
+classic BPF JIT compilation and CONFIG_BPF_JIT_ALWAYS_ON config.
+
+Proposed solution
+-----------------
+The solution being proposed here is to add a per user rlimit for module space,
+similar to memlock rlimit. For the case of fds with attached filters being sent
+over domain sockets, there is tracking for the uid of each module allocation.
+
+Hopefully this could also be used for helping prevent BPF JIT spray type attacks
+if a lower, more locked down setting is used.
+
+The default memlock rlimit is pretty low, so just adding a check to classic BPF
+similar to what happens in the bpf syscall may cause breakages. In addition,
+some usages may increase the memlock limit for other reasons, which will remove
+the protection for exhausting the module space.
+
+There is unfortunately no cross platform place to perform this accounting
+during allocation in the module space, so instead two helpers are created to be
+inserted into the various arch’s that implement module_alloc. These helpers
+perform the checks and help with tracking. The intention is that they can be
+added to the other arch’s as easily as possible.
+
+For decrementing the module space usage when an area is free, there _is_ a
+cross-platform place to do this, so its done there. The behavior is that if the
+helpers to increment and check are not added into an arch’s module_alloc, then
+the decrement should have no effect. This is due to the allocation being missing
+from the allocation-uid tracking.
+
+Changes since v1 RFC
+--------------------
+Some feedback from Kees Cook was to try to plug this in for every architecture
+and so this is done in this set for every architecture that has a BPF JIT
+implementation. I have only done testing on x86.
+
+There was also a suggestion from Daniel Borkmann to have default value for the
+rlimit scale with the module size. This was complicated because the module space
+size is not named the same accross architectures. It also is not always a
+compile time constant and so the struct initilization would need to be changed.
+So instead for this version a default value is added that can be overridden for
+each architecture. For this set it is just defined for x86, all others get the
+default.
+
+Questions
+---------
+ - Should there be any special behavior for root or users with superuser
+   capabilities?
+
+Rick Edgecombe (7):
+  modules: Create rlimit for module space
+  x86/modules: Add rlimit checking for x86 modules
+  arm/modules: Add rlimit checking for arm modules
+  arm64/modules: Add rlimit checking for arm64 modules
+  mips/modules: Add rlimit checking for mips modules
+  sparc/modules: Add rlimit for sparc modules
+  s390/modules: Add rlimit checking for s390 modules
+
+ arch/arm/kernel/module.c                |  12 +-
+ arch/arm64/kernel/module.c              |   5 +
+ arch/mips/kernel/module.c               |  11 +-
+ arch/s390/kernel/module.c               |  12 +-
+ arch/sparc/kernel/module.c              |   5 +
+ arch/x86/include/asm/pgtable_32_types.h |   3 +
+ arch/x86/include/asm/pgtable_64_types.h |   2 +
+ arch/x86/kernel/module.c                |   7 +-
+ fs/proc/base.c                          |   1 +
+ include/asm-generic/resource.h          |   8 ++
+ include/linux/moduleloader.h            |   3 +
+ include/linux/sched/user.h              |   4 +
+ include/uapi/asm-generic/resource.h     |   3 +-
+ kernel/module.c                         | 141 +++++++++++++++++++++++-
+ 14 files changed, 210 insertions(+), 7 deletions(-)
+
+-- 
+2.17.1
