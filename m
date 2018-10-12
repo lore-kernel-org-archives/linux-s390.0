@@ -1,127 +1,48 @@
-From: Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH v2 2/2] mm: speed up mremap by 500x on large regions
-Date: Fri, 12 Oct 2018 10:06:58 -0700
-Message-ID: <20181012170658.GF223066@joelaf.mtv.corp.google.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: Re: [PATCH v2 1/2] treewide: remove unused address argument from
+ pte_alloc functions
+Date: Fri, 12 Oct 2018 20:51:45 +0200
+Message-ID: <03b524f3-5f3a-baa0-2254-9c588103d2d6@users.sourceforge.net>
 References: <20181012013756.11285-1-joel@joelfernandes.org>
- <20181012013756.11285-2-joel@joelfernandes.org>
- <9ed82f9e-88c4-8e4f-8c45-3ef153469603@kot-begemot.co.uk>
- <20181012143728.t42uvr6etg7gp7fh@kshutemo-mobl1>
- <4dd52e22-5b51-9b30-7178-fde603a08f88@kot-begemot.co.uk>
- <97cb3fe1-7bc1-12ff-d602-56c72a5496c5@kot-begemot.co.uk>
- <20181012165012.GD223066@joelaf.mtv.corp.google.com>
- <4f969958-913e-cb9f-48fb-e3a88e1d288c@kot-begemot.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <4f969958-913e-cb9f-48fb-e3a88e1d288c@kot-begemot.co.uk>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20181012013756.11285-1-joel@joelfernandes.org>
+Content-Language: en-GB
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>,
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/kvmarm/>
 List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
-To: Anton Ivanov <anton.ivanov@kot-begemot.co.uk>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, mhocko@kernel.org, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, Max Filippov <jcmvbkbc@gmail.com>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE 32-BIT AND 64-BIT" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia.edu, Ingo Molnar <mingo@redhat.com>, Geert
+To: Joel Fernandes <joel@joelfernandes.org>, kernel-janitors@vger.kernel.org
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Lokesh Gidra <lokeshgidra@google.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, kvmarm@lists.cs.columbia.edu, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, Daniel Colascione <dancol@google.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Max Filippov <jcmvbkbc@gmail.com>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Hugh Dickins <hughd@google.com>, "James E. J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, Ingo
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Oct 12, 2018 at 05:58:40PM +0100, Anton Ivanov wrote:
-[...]
-> > > > > > If I read the code right, MIPS completely ignores the address
-> > > > > > argument so
-> > > > > > set_pmd_at there may not have the effect which this patch is trying to
-> > > > > > achieve.
-> > > > > Ignoring address is fine. Most architectures do that..
-> > > > > The ideas is to move page table to the new pmd slot. It's nothing to do
-> > > > > with the address passed to set_pmd_at().
-> > > > If that is it's only function, then I am going to appropriate the code
-> > > > out of the MIPS tree for further uml testing. It does exactly that -
-> > > > just move the pmd the new slot.
-> > > > 
-> > > > A.
-> > > 
-> > > A.
-> > > 
-> > >  From ac265d96897a346b05646fce91784ed4922c7f8d Mon Sep 17 00:00:00 2001
-> > > From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> > > Date: Fri, 12 Oct 2018 17:24:10 +0100
-> > > Subject: [PATCH] Incremental fixes to the mmremap patch
-> > > 
-> > > Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> > > ---
-> > >   arch/um/include/asm/pgalloc.h | 4 ++--
-> > >   arch/um/include/asm/pgtable.h | 3 +++
-> > >   arch/um/kernel/tlb.c          | 6 ++++++
-> > >   3 files changed, 11 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/arch/um/include/asm/pgalloc.h b/arch/um/include/asm/pgalloc.h
-> > > index bf90b2aa2002..99eb5682792a 100644
-> > > --- a/arch/um/include/asm/pgalloc.h
-> > > +++ b/arch/um/include/asm/pgalloc.h
-> > > @@ -25,8 +25,8 @@
-> > >   extern pgd_t *pgd_alloc(struct mm_struct *);
-> > >   extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
-> > > -extern pte_t *pte_alloc_one_kernel(struct mm_struct *, unsigned long);
-> > > -extern pgtable_t pte_alloc_one(struct mm_struct *, unsigned long);
-> > > +extern pte_t *pte_alloc_one_kernel(struct mm_struct *);
-> > > +extern pgtable_t pte_alloc_one(struct mm_struct *);
-> > If its Ok, let me handle this bit since otherwise it complicates things for
-> > me.
-> > 
-> > >   static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-> > >   {
-> > > diff --git a/arch/um/include/asm/pgtable.h b/arch/um/include/asm/pgtable.h
-> > > index 7485398d0737..1692da55e63a 100644
-> > > --- a/arch/um/include/asm/pgtable.h
-> > > +++ b/arch/um/include/asm/pgtable.h
-> > > @@ -359,4 +359,7 @@ do {						\
-> > >   	__flush_tlb_one((vaddr));		\
-> > >   } while (0)
-> > > +extern void set_pmd_at(struct mm_struct *mm, unsigned long addr,
-> > > +		pmd_t *pmdp, pmd_t pmd);
-> > > +
-> > >   #endif
-> > > diff --git a/arch/um/kernel/tlb.c b/arch/um/kernel/tlb.c
-> > > index 763d35bdda01..d17b74184ba0 100644
-> > > --- a/arch/um/kernel/tlb.c
-> > > +++ b/arch/um/kernel/tlb.c
-> > > @@ -647,3 +647,9 @@ void force_flush_all(void)
-> > >   		vma = vma->vm_next;
-> > >   	}
-> > >   }
-> > > +void set_pmd_at(struct mm_struct *mm, unsigned long addr,
-> > > +		pmd_t *pmdp, pmd_t pmd)
-> > > +{
-> > > +	*pmdp = pmd;
-> > > +}
-> > > +
-> > I believe this should be included in a separate patch since it is not related
-> > specifically to pte_alloc argument removal. If you want, I could split it
-> > into a separate patch for my series with you as author.
-> 
-> 
-> Whichever is more convenient for you.
-
-Ok.
-
-> One thing to note - tlb flush is extremely expensive on uml.
-> 
-> I have lifted the definition of set_pmd_at from the mips tree and removed
-> the tlb_flush_all from it for this exact reason.
-> 
-> If I read the original patch correctly, it does its own flush control so
-> set_pmd_at does not need to do a force flush every time. It is done further
-> up the chain.
-
-That is correct. It is not done during the optimization, but is done later
-after the pmds have moved.
-
-thanks,
-
- - Joel
+PiBUaGUgY2hhbmdlcyB3ZXJlIG9idGFpbmVkIGJ5IGFwcGx5aW5nIHRoZSBmb2xsb3dpbmcgQ29j
+Y2luZWxsZSBzY3JpcHQuCgpBIGJpdCBvZiBjbGFyaWZpY2F0aW9uIGhhcHBlbmVkIGZvciBpdHMg
+aW1wbGVtZW50YXRpb24gZGV0YWlscy4KaHR0cHM6Ly9zeXN0ZW1lLmxpcDYuZnIvcGlwZXJtYWls
+L2NvY2NpLzIwMTgtT2N0b2Jlci8wMDUzNzQuaHRtbAoKSSBoYXZlIHRha2VuIGFsc28gYW5vdGhl
+ciBsb29rIGF0IHRoZSBmb2xsb3dpbmcgU21QTCBjb2RlLgoKCj4gaWRlbnRpZmllciBmbiA9fgo+
+ICJeKF9fcHRlX2FsbG9jfHB0ZV9hbGxvY19vbmV8cHRlX2FsbG9jfF9fcHRlX2FsbG9jX2tlcm5l
+bHxwdGVfYWxsb2Nfb25lX2tlcm5lbCkkIjsKCkkgc3VnZ2VzdCB0byBhZGp1c3QgdGhlIHJlZ3Vs
+YXIgZXhwcmVzc2lvbiBmb3IgdGhpcyBjb25zdHJhaW50CmFuZCBpbiBzdWJzZXF1ZW50IFNtUEwg
+cnVsZXMuCgoiXig/OnB0ZV9hbGxvYyg/Ol9vbmUoPzpfa2VybmVsKT8pP3xfX3B0ZV9hbGxvYyg/
+Ol9rZXJuZWwpPykkIjsKCgo+ICgKPiAtIFQzIGZuKFQxIEUxLCBUMiBFMik7Cj4gKyBUMyBmbihU
+MSBFMSk7Cj4gfAo+IC0gVDMgZm4oVDEgRTEsIFQyIEUyLCBUNCBFNCk7Cj4gKyBUMyBmbihUMSBF
+MSwgVDIgRTIpOwo+ICkKCkkgcHJvcG9zZSB0byB0YWtlIGFuIG90aGVyIFNtUEwgZGlzanVuY3Rp
+b24gaW50byBhY2NvdW50IGhlcmUuCgogVDMgZm4oVDEgRTEsCigKLSAgICAgIFQyIEUyCnwgICAg
+ICBUMiBFMiwKLSAgICAgIFQ0IEU0CikgICAgICApOwoKCj4gKAo+IC0gI2RlZmluZSBmbihhLCBi
+LCBjKUBwIGUKPiArICNkZWZpbmUgZm4oYSwgYikgZQo+IHwKPiAtICNkZWZpbmUgZm4oYSwgYilA
+cCBlCj4gKyAjZGVmaW5lIGZuKGEpIGUKPiApCgpIb3cgZG8geW91IHRoaW5rIGFib3V0IHRvIG9t
+aXQgdGhlIG1ldGF2YXJpYWJsZSDigJxwb3NpdGlvbiBw4oCdIGhlcmU/CgpSZWdhcmRzLApNYXJr
+dXMKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4
+LXNucHMtYXJjIG1haWxpbmcgbGlzdApsaW51eC1zbnBzLWFyY0BsaXN0cy5pbmZyYWRlYWQub3Jn
+Cmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtc25wcy1h
+cmM=
