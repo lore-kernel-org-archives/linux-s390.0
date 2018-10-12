@@ -1,7 +1,7 @@
-From: Anton Ivanov <anton.ivanov@kot-begemot.co.uk>
+From: Joel Fernandes <joel@joelfernandes.org>
 Subject: Re: [PATCH v2 2/2] mm: speed up mremap by 500x on large regions
-Date: Fri, 12 Oct 2018 17:58:40 +0100
-Message-ID: <4f969958-913e-cb9f-48fb-e3a88e1d288c@kot-begemot.co.uk>
+Date: Fri, 12 Oct 2018 10:06:58 -0700
+Message-ID: <20181012170658.GF223066@joelaf.mtv.corp.google.com>
 References: <20181012013756.11285-1-joel@joelfernandes.org>
  <20181012013756.11285-2-joel@joelfernandes.org>
  <9ed82f9e-88c4-8e4f-8c45-3ef153469603@kot-begemot.co.uk>
@@ -9,12 +9,13 @@ References: <20181012013756.11285-1-joel@joelfernandes.org>
  <4dd52e22-5b51-9b30-7178-fde603a08f88@kot-begemot.co.uk>
  <97cb3fe1-7bc1-12ff-d602-56c72a5496c5@kot-begemot.co.uk>
  <20181012165012.GD223066@joelaf.mtv.corp.google.com>
+ <4f969958-913e-cb9f-48fb-e3a88e1d288c@kot-begemot.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20181012165012.GD223066@joelaf.mtv.corp.google.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <4f969958-913e-cb9f-48fb-e3a88e1d288c@kot-begemot.co.uk>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
@@ -26,152 +27,101 @@ Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/kvmarm/>
 List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
-To: Joel Fernandes <joel@joelfernandes.org>
+To: Anton Ivanov <anton.ivanov@kot-begemot.co.uk>
 Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, mhocko@kernel.org, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, Max Filippov <jcmvbkbc@gmail.com>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE 32-BIT AND 64-BIT" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia.edu, Ingo Molnar <mingo@redhat.com>, Geert
 List-ID: <linux-s390.vger.kernel.org>
 
-Ck9uIDEwLzEyLzE4IDU6NTAgUE0sIEpvZWwgRmVybmFuZGVzIHdyb3RlOgo+IE9uIEZyaSwgT2N0
-IDEyLCAyMDE4IGF0IDA1OjQyOjI0UE0gKzAxMDAsIEFudG9uIEl2YW5vdiB3cm90ZToKPj4gT24g
-MTAvMTIvMTggMzo0OCBQTSwgQW50b24gSXZhbm92IHdyb3RlOgo+Pj4gT24gMTIvMTAvMjAxOCAx
-NTozNywgS2lyaWxsIEEuIFNodXRlbW92IHdyb3RlOgo+Pj4+IE9uIEZyaSwgT2N0IDEyLCAyMDE4
-IGF0IDAzOjA5OjQ5UE0gKzAxMDAsIEFudG9uIEl2YW5vdiB3cm90ZToKPj4+Pj4gT24gMTAvMTIv
-MTggMjozNyBBTSwgSm9lbCBGZXJuYW5kZXMgKEdvb2dsZSkgd3JvdGU6Cj4+Pj4+PiBBbmRyb2lk
-IG5lZWRzIHRvIG1yZW1hcCBsYXJnZSByZWdpb25zIG9mIG1lbW9yeSBkdXJpbmcKPj4+Pj4+IG1l
-bW9yeSBtYW5hZ2VtZW50Cj4+Pj4+PiByZWxhdGVkIG9wZXJhdGlvbnMuIFRoZSBtcmVtYXAgc3lz
-dGVtIGNhbGwgY2FuIGJlIHJlYWxseQo+Pj4+Pj4gc2xvdyBpZiBUSFAgaXMKPj4+Pj4+IG5vdCBl
-bmFibGVkLiBUaGUgYm90dGxlbmVjayBpcyBtb3ZlX3BhZ2VfdGFibGVzLCB3aGljaCBpcyBjb3B5
-aW5nIGVhY2gKPj4+Pj4+IHB0ZSBhdCBhIHRpbWUsIGFuZCBjYW4gYmUgcmVhbGx5IHNsb3cgYWNy
-b3NzIGEgbGFyZ2UgbWFwLgo+Pj4+Pj4gVHVybmluZyBvbiBUSFAKPj4+Pj4+IG1heSBub3QgYmUg
-YSB2aWFibGUgb3B0aW9uLCBhbmQgaXMgbm90IGZvciB1cy4gVGhpcyBwYXRjaAo+Pj4+Pj4gc3Bl
-ZWRzIHVwIHRoZQo+Pj4+Pj4gcGVyZm9ybWFuY2UgZm9yIG5vbi1USFAgc3lzdGVtIGJ5IGNvcHlp
-bmcgYXQgdGhlIFBNRCBsZXZlbAo+Pj4+Pj4gd2hlbiBwb3NzaWJsZS4KPj4+Pj4+Cj4+Pj4+PiBU
-aGUgc3BlZWQgdXAgaXMgdGhyZWUgb3JkZXJzIG9mIG1hZ25pdHVkZS4gT24gYSAxR0IgbXJlbWFw
-LCB0aGUgbXJlbWFwCj4+Pj4+PiBjb21wbGV0aW9uIHRpbWVzIGRyb3BzIGZyb20gMTYwLTI1MCBt
-aWxsZXNjb25kcyB0byAzODAtNDAwCj4+Pj4+PiBtaWNyb3NlY29uZHMuCj4+Pj4+Pgo+Pj4+Pj4g
-QmVmb3JlOgo+Pj4+Pj4gVG90YWwgbXJlbWFwIHRpbWUgZm9yIDFHQiBkYXRhOiAyNDIzMjEwMTQg
-bmFub3NlY29uZHMuCj4+Pj4+PiBUb3RhbCBtcmVtYXAgdGltZSBmb3IgMUdCIGRhdGE6IDE5Njg0
-MjQ2NyBuYW5vc2Vjb25kcy4KPj4+Pj4+IFRvdGFsIG1yZW1hcCB0aW1lIGZvciAxR0IgZGF0YTog
-MTY3MDUxMTYyIG5hbm9zZWNvbmRzLgo+Pj4+Pj4KPj4+Pj4+IEFmdGVyOgo+Pj4+Pj4gVG90YWwg
-bXJlbWFwIHRpbWUgZm9yIDFHQiBkYXRhOiAzODU3ODEgbmFub3NlY29uZHMuCj4+Pj4+PiBUb3Rh
-bCBtcmVtYXAgdGltZSBmb3IgMUdCIGRhdGE6IDM4ODk1OSBuYW5vc2Vjb25kcy4KPj4+Pj4+IFRv
-dGFsIG1yZW1hcCB0aW1lIGZvciAxR0IgZGF0YTogNDAyODEzIG5hbm9zZWNvbmRzLgo+Pj4+Pj4K
-Pj4+Pj4+IEluY2FzZSBUSFAgaXMgZW5hYmxlZCwgdGhlIG9wdGltaXphdGlvbiBpcyBza2lwcGVk
-LiBJIGFsc28gZmx1c2ggdGhlCj4+Pj4+PiB0bGIgZXZlcnkgdGltZSB3ZSBkbyB0aGlzIG9wdGlt
-aXphdGlvbiBzaW5jZSBJIGNvdWxkbid0IGZpbmQgYSB3YXkgdG8KPj4+Pj4+IGRldGVybWluZSBp
-ZiB0aGUgbG93LWxldmVsIFBURXMgYXJlIGRpcnR5LiBJdCBpcyBzZWVuIHRoYXQgdGhlIGNvc3Qg
-b2YKPj4+Pj4+IGRvaW5nIHNvIGlzIG5vdCBtdWNoIGNvbXBhcmVkIHRoZSBpbXByb3ZlbWVudCwg
-b24gYm90aAo+Pj4+Pj4geDg2LTY0IGFuZCBhcm02NC4KPj4+Pj4+Cj4+Pj4+PiBDYzogbWluY2hh
-bkBrZXJuZWwub3JnCj4+Pj4+PiBDYzogcGFudGluQGdvb2dsZS5jb20KPj4+Pj4+IENjOiBodWdo
-ZEBnb29nbGUuY29tCj4+Pj4+PiBDYzogbG9rZXNoZ2lkcmFAZ29vZ2xlLmNvbQo+Pj4+Pj4gQ2M6
-IGRhbmNvbEBnb29nbGUuY29tCj4+Pj4+PiBDYzogbWhvY2tvQGtlcm5lbC5vcmcKPj4+Pj4+IENj
-OiBraXJpbGxAc2h1dGVtb3YubmFtZQo+Pj4+Pj4gQ2M6IGFrcG1AbGludXgtZm91bmRhdGlvbi5v
-cmcKPj4+Pj4+IFNpZ25lZC1vZmYtYnk6IEpvZWwgRmVybmFuZGVzIChHb29nbGUpIDxqb2VsQGpv
-ZWxmZXJuYW5kZXMub3JnPgo+Pj4+Pj4gLS0tCj4+Pj4+PiAgwqDCoCBtbS9tcmVtYXAuYyB8IDYy
-Cj4+Pj4+PiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKwo+Pj4+Pj4gIMKgwqAgMSBmaWxlIGNoYW5nZWQsIDYyIGluc2VydGlvbnMoKykKPj4+Pj4+
-Cj4+Pj4+PiBkaWZmIC0tZ2l0IGEvbW0vbXJlbWFwLmMgYi9tbS9tcmVtYXAuYwo+Pj4+Pj4gaW5k
-ZXggOWU2OGEwMmE1MmIxLi5kODJjNDg1ODIyZWYgMTAwNjQ0Cj4+Pj4+PiAtLS0gYS9tbS9tcmVt
-YXAuYwo+Pj4+Pj4gKysrIGIvbW0vbXJlbWFwLmMKPj4+Pj4+IEBAIC0xOTEsNiArMTkxLDU0IEBA
-IHN0YXRpYyB2b2lkIG1vdmVfcHRlcyhzdHJ1Y3QKPj4+Pj4+IHZtX2FyZWFfc3RydWN0ICp2bWEs
-IHBtZF90ICpvbGRfcG1kLAo+Pj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgIGRyb3Bfcm1hcF9s
-b2Nrcyh2bWEpOwo+Pj4+Pj4gIMKgwqAgfQo+Pj4+Pj4gK3N0YXRpYyBib29sIG1vdmVfbm9ybWFs
-X3BtZChzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QgKnZtYSwKPj4+Pj4+IHVuc2lnbmVkIGxvbmcgb2xk
-X2FkZHIsCj4+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgIHVuc2lnbmVkIGxvbmcgbmV3X2FkZHIs
-IHVuc2lnbmVkIGxvbmcgb2xkX2VuZCwKPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqAgcG1kX3Qg
-Km9sZF9wbWQsIHBtZF90ICpuZXdfcG1kLCBib29sICpuZWVkX2ZsdXNoKQo+Pj4+Pj4gK3sKPj4+
-Pj4+ICvCoMKgwqAgc3BpbmxvY2tfdCAqb2xkX3B0bCwgKm5ld19wdGw7Cj4+Pj4+PiArwqDCoMKg
-IHN0cnVjdCBtbV9zdHJ1Y3QgKm1tID0gdm1hLT52bV9tbTsKPj4+Pj4+ICsKPj4+Pj4+ICvCoMKg
-wqAgaWYgKChvbGRfYWRkciAmIH5QTURfTUFTSykgfHwgKG5ld19hZGRyICYgflBNRF9NQVNLKQo+
-Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgIHx8IG9sZF9lbmQgLSBvbGRfYWRkciA8IFBNRF9TSVpFKQo+
-Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgIHJldHVybiBmYWxzZTsKPj4+Pj4+ICsKPj4+Pj4+ICvCoMKg
-wqAgLyoKPj4+Pj4+ICvCoMKgwqDCoCAqIFRoZSBkZXN0aW5hdGlvbiBwbWQgc2hvdWxkbid0IGJl
-IGVzdGFibGlzaGVkLCBmcmVlX3BndGFibGVzKCkKPj4+Pj4+ICvCoMKgwqDCoCAqIHNob3VsZCBo
-YXZlIHJlbGVhc2UgaXQuCj4+Pj4+PiArwqDCoMKgwqAgKi8KPj4+Pj4+ICvCoMKgwqAgaWYgKFdB
-Uk5fT04oIXBtZF9ub25lKCpuZXdfcG1kKSkpCj4+Pj4+PiArwqDCoMKgwqDCoMKgwqAgcmV0dXJu
-IGZhbHNlOwo+Pj4+Pj4gKwo+Pj4+Pj4gK8KgwqDCoCAvKgo+Pj4+Pj4gK8KgwqDCoMKgICogV2Ug
-ZG9uJ3QgaGF2ZSB0byB3b3JyeSBhYm91dCB0aGUgb3JkZXJpbmcgb2Ygc3JjIGFuZCBkc3QKPj4+
-Pj4+ICvCoMKgwqDCoCAqIHB0bG9ja3MgYmVjYXVzZSBleGNsdXNpdmUgbW1hcF9zZW0gcHJldmVu
-dHMgZGVhZGxvY2suCj4+Pj4+PiArwqDCoMKgwqAgKi8KPj4+Pj4+ICvCoMKgwqAgb2xkX3B0bCA9
-IHBtZF9sb2NrKHZtYS0+dm1fbW0sIG9sZF9wbWQpOwo+Pj4+Pj4gK8KgwqDCoCBpZiAob2xkX3B0
-bCkgewo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgIHBtZF90IHBtZDsKPj4+Pj4+ICsKPj4+Pj4+ICvC
-oMKgwqDCoMKgwqDCoCBuZXdfcHRsID0gcG1kX2xvY2twdHIobW0sIG5ld19wbWQpOwo+Pj4+Pj4g
-K8KgwqDCoMKgwqDCoMKgIGlmIChuZXdfcHRsICE9IG9sZF9wdGwpCj4+Pj4+PiArwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCBzcGluX2xvY2tfbmVzdGVkKG5ld19wdGwsIFNJTkdMRV9ERVBUSF9ORVNU
-SU5HKTsKPj4+Pj4+ICsKPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoCAvKiBDbGVhciB0aGUgcG1kICov
-Cj4+Pj4+PiArwqDCoMKgwqDCoMKgwqAgcG1kID0gKm9sZF9wbWQ7Cj4+Pj4+PiArwqDCoMKgwqDC
-oMKgwqAgcG1kX2NsZWFyKG9sZF9wbWQpOwo+Pj4+Pj4gKwo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKg
-IFZNX0JVR19PTighcG1kX25vbmUoKm5ld19wbWQpKTsKPj4+Pj4+ICsKPj4+Pj4+ICvCoMKgwqDC
-oMKgwqDCoCAvKiBTZXQgdGhlIG5ldyBwbWQgKi8KPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoCBzZXRf
-cG1kX2F0KG1tLCBuZXdfYWRkciwgbmV3X3BtZCwgcG1kKTsKPj4+Pj4gVU1MIGRvZXMgbm90IGhh
-dmUgc2V0X3BtZF9hdCBhdCBhbGwKPj4+PiBFdmVyeSBhcmNoaXRlY3R1cmUgZG9lcy4gOikKPj4+
-IEkgdHJpZWQgdG8gYnVpbGQgaXQgcGF0Y2hpbmcgdnMgNC4xOS1yYyBiZWZvcmUgSSBtYWRlIHRo
-aXMgc3RhdGVtZW50IGFuZAo+Pj4gcmFuIGludG8gdGhhdC4KPj4+Cj4+PiBQcmVzZW50bHkgaXQg
-ZG9lcyBub3QuCj4+Pgo+Pj4gaHR0cHM6Ly9lbGl4aXIuYm9vdGxpbi5jb20vbGludXgvdjQuMTkt
-cmM3L2lkZW50L3NldF9wbWRfYXQgLSBVTUwgaXMgbm90Cj4+PiBvbiB0aGUgbGlzdC4KPj4gT25j
-ZSB0aGlzIHByb2JsZW0gYXMgd2VsbCBhcyB0aGUgb21pc3Npb25zIGluIHRoZSBpbmNsdWRlIGNo
-YW5nZXMgZm9yIFVNTCBpbgo+PiBwYXRjaCBvbmUgaGF2ZSBiZWVuIGZpeGVkIGl0IGFwcGVhcnMg
-dG8gYmUgd29ya2luZy4KPj4KPj4gV2hhdCBpdCBuZWVkcyBpcyBhdHRhY2hlZC4KPj4KPj4KPj4+
-PiBCdXQgaXQgbWF5IGNvbWUgbm90IGZyb20gdGhlIGFyY2ggY29kZS4KPj4+IFRoZXJlIGlzIG5v
-IGdlbmVyaWMgZGVmaW5pdGlvbiBhcyBmYXIgYXMgSSBjYW4gc2VlLiBBbGwgMTIgZGVmaW5lcyBp
-bgo+Pj4gNC4xOSBhcmUgaW4gYXJjaCBzcGVjaWZpYyBjb2RlLiBVbmxlc3MgaSBhbSBtaXNzaW5n
-IHNvbWV0aGluZy4uLgo+Pj4KPj4+Pj4gSWYgSSByZWFkIHRoZSBjb2RlIHJpZ2h0LCBNSVBTIGNv
-bXBsZXRlbHkgaWdub3JlcyB0aGUgYWRkcmVzcwo+Pj4+PiBhcmd1bWVudCBzbwo+Pj4+PiBzZXRf
-cG1kX2F0IHRoZXJlIG1heSBub3QgaGF2ZSB0aGUgZWZmZWN0IHdoaWNoIHRoaXMgcGF0Y2ggaXMg
-dHJ5aW5nIHRvCj4+Pj4+IGFjaGlldmUuCj4+Pj4gSWdub3JpbmcgYWRkcmVzcyBpcyBmaW5lLiBN
-b3N0IGFyY2hpdGVjdHVyZXMgZG8gdGhhdC4uCj4+Pj4gVGhlIGlkZWFzIGlzIHRvIG1vdmUgcGFn
-ZSB0YWJsZSB0byB0aGUgbmV3IHBtZCBzbG90LiBJdCdzIG5vdGhpbmcgdG8gZG8KPj4+PiB3aXRo
-IHRoZSBhZGRyZXNzIHBhc3NlZCB0byBzZXRfcG1kX2F0KCkuCj4+PiBJZiB0aGF0IGlzIGl0J3Mg
-b25seSBmdW5jdGlvbiwgdGhlbiBJIGFtIGdvaW5nIHRvIGFwcHJvcHJpYXRlIHRoZSBjb2RlCj4+
-PiBvdXQgb2YgdGhlIE1JUFMgdHJlZSBmb3IgZnVydGhlciB1bWwgdGVzdGluZy4gSXQgZG9lcyBl
-eGFjdGx5IHRoYXQgLQo+Pj4ganVzdCBtb3ZlIHRoZSBwbWQgdGhlIG5ldyBzbG90Lgo+Pj4KPj4+
-IEEuCj4+Cj4+IEEuCj4+Cj4+ICBGcm9tIGFjMjY1ZDk2ODk3YTM0NmIwNTY0NmZjZTkxNzg0ZWQ0
-OTIyYzdmOGQgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCj4+IEZyb206IEFudG9uIEl2YW5vdiA8
-YW50b24uaXZhbm92QGNhbWJyaWRnZWdyZXlzLmNvbT4KPj4gRGF0ZTogRnJpLCAxMiBPY3QgMjAx
-OCAxNzoyNDoxMCArMDEwMAo+PiBTdWJqZWN0OiBbUEFUQ0hdIEluY3JlbWVudGFsIGZpeGVzIHRv
-IHRoZSBtbXJlbWFwIHBhdGNoCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEFudG9uIEl2YW5vdiA8YW50
-b24uaXZhbm92QGNhbWJyaWRnZWdyZXlzLmNvbT4KPj4gLS0tCj4+ICAgYXJjaC91bS9pbmNsdWRl
-L2FzbS9wZ2FsbG9jLmggfCA0ICsrLS0KPj4gICBhcmNoL3VtL2luY2x1ZGUvYXNtL3BndGFibGUu
-aCB8IDMgKysrCj4+ICAgYXJjaC91bS9rZXJuZWwvdGxiLmMgICAgICAgICAgfCA2ICsrKysrKwo+
-PiAgIDMgZmlsZXMgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPj4K
-Pj4gZGlmZiAtLWdpdCBhL2FyY2gvdW0vaW5jbHVkZS9hc20vcGdhbGxvYy5oIGIvYXJjaC91bS9p
-bmNsdWRlL2FzbS9wZ2FsbG9jLmgKPj4gaW5kZXggYmY5MGIyYWEyMDAyLi45OWViNTY4Mjc5MmEg
-MTAwNjQ0Cj4+IC0tLSBhL2FyY2gvdW0vaW5jbHVkZS9hc20vcGdhbGxvYy5oCj4+ICsrKyBiL2Fy
-Y2gvdW0vaW5jbHVkZS9hc20vcGdhbGxvYy5oCj4+IEBAIC0yNSw4ICsyNSw4IEBACj4+ICAgZXh0
-ZXJuIHBnZF90ICpwZ2RfYWxsb2Moc3RydWN0IG1tX3N0cnVjdCAqKTsKPj4gICBleHRlcm4gdm9p
-ZCBwZ2RfZnJlZShzdHJ1Y3QgbW1fc3RydWN0ICptbSwgcGdkX3QgKnBnZCk7Cj4+ICAgCj4+IC1l
-eHRlcm4gcHRlX3QgKnB0ZV9hbGxvY19vbmVfa2VybmVsKHN0cnVjdCBtbV9zdHJ1Y3QgKiwgdW5z
-aWduZWQgbG9uZyk7Cj4+IC1leHRlcm4gcGd0YWJsZV90IHB0ZV9hbGxvY19vbmUoc3RydWN0IG1t
-X3N0cnVjdCAqLCB1bnNpZ25lZCBsb25nKTsKPj4gK2V4dGVybiBwdGVfdCAqcHRlX2FsbG9jX29u
-ZV9rZXJuZWwoc3RydWN0IG1tX3N0cnVjdCAqKTsKPj4gK2V4dGVybiBwZ3RhYmxlX3QgcHRlX2Fs
-bG9jX29uZShzdHJ1Y3QgbW1fc3RydWN0ICopOwo+IElmIGl0cyBPaywgbGV0IG1lIGhhbmRsZSB0
-aGlzIGJpdCBzaW5jZSBvdGhlcndpc2UgaXQgY29tcGxpY2F0ZXMgdGhpbmdzIGZvcgo+IG1lLgo+
-Cj4+ICAgc3RhdGljIGlubGluZSB2b2lkIHB0ZV9mcmVlX2tlcm5lbChzdHJ1Y3QgbW1fc3RydWN0
-ICptbSwgcHRlX3QgKnB0ZSkKPj4gICB7Cj4+IGRpZmYgLS1naXQgYS9hcmNoL3VtL2luY2x1ZGUv
-YXNtL3BndGFibGUuaCBiL2FyY2gvdW0vaW5jbHVkZS9hc20vcGd0YWJsZS5oCj4+IGluZGV4IDc0
-ODUzOThkMDczNy4uMTY5MmRhNTVlNjNhIDEwMDY0NAo+PiAtLS0gYS9hcmNoL3VtL2luY2x1ZGUv
-YXNtL3BndGFibGUuaAo+PiArKysgYi9hcmNoL3VtL2luY2x1ZGUvYXNtL3BndGFibGUuaAo+PiBA
-QCAtMzU5LDQgKzM1OSw3IEBAIGRvIHsJCQkJCQlcCj4+ICAgCV9fZmx1c2hfdGxiX29uZSgodmFk
-ZHIpKTsJCVwKPj4gICB9IHdoaWxlICgwKQo+PiAgIAo+PiArZXh0ZXJuIHZvaWQgc2V0X3BtZF9h
-dChzdHJ1Y3QgbW1fc3RydWN0ICptbSwgdW5zaWduZWQgbG9uZyBhZGRyLAo+PiArCQlwbWRfdCAq
-cG1kcCwgcG1kX3QgcG1kKTsKPj4gKwo+PiAgICNlbmRpZgo+PiBkaWZmIC0tZ2l0IGEvYXJjaC91
-bS9rZXJuZWwvdGxiLmMgYi9hcmNoL3VtL2tlcm5lbC90bGIuYwo+PiBpbmRleCA3NjNkMzViZGRh
-MDEuLmQxN2I3NDE4NGJhMCAxMDA2NDQKPj4gLS0tIGEvYXJjaC91bS9rZXJuZWwvdGxiLmMKPj4g
-KysrIGIvYXJjaC91bS9rZXJuZWwvdGxiLmMKPj4gQEAgLTY0NywzICs2NDcsOSBAQCB2b2lkIGZv
-cmNlX2ZsdXNoX2FsbCh2b2lkKQo+PiAgIAkJdm1hID0gdm1hLT52bV9uZXh0Owo+PiAgIAl9Cj4+
-ICAgfQo+PiArdm9pZCBzZXRfcG1kX2F0KHN0cnVjdCBtbV9zdHJ1Y3QgKm1tLCB1bnNpZ25lZCBs
-b25nIGFkZHIsCj4+ICsJCXBtZF90ICpwbWRwLCBwbWRfdCBwbWQpCj4+ICt7Cj4+ICsJKnBtZHAg
-PSBwbWQ7Cj4+ICt9Cj4+ICsKPiBJIGJlbGlldmUgdGhpcyBzaG91bGQgYmUgaW5jbHVkZWQgaW4g
-YSBzZXBhcmF0ZSBwYXRjaCBzaW5jZSBpdCBpcyBub3QgcmVsYXRlZAo+IHNwZWNpZmljYWxseSB0
-byBwdGVfYWxsb2MgYXJndW1lbnQgcmVtb3ZhbC4gSWYgeW91IHdhbnQsIEkgY291bGQgc3BsaXQg
-aXQKPiBpbnRvIGEgc2VwYXJhdGUgcGF0Y2ggZm9yIG15IHNlcmllcyB3aXRoIHlvdSBhcyBhdXRo
-b3IuCgoKV2hpY2hldmVyIGlzIG1vcmUgY29udmVuaWVudCBmb3IgeW91LgoKT25lIHRoaW5nIHRv
-IG5vdGUgLSB0bGIgZmx1c2ggaXMgZXh0cmVtZWx5IGV4cGVuc2l2ZSBvbiB1bWwuCgpJIGhhdmUg
-bGlmdGVkIHRoZSBkZWZpbml0aW9uIG9mIHNldF9wbWRfYXQgZnJvbSB0aGUgbWlwcyB0cmVlIGFu
-ZCAKcmVtb3ZlZCB0aGUgdGxiX2ZsdXNoX2FsbCBmcm9tIGl0IGZvciB0aGlzIGV4YWN0IHJlYXNv
-bi4KCklmIEkgcmVhZCB0aGUgb3JpZ2luYWwgcGF0Y2ggY29ycmVjdGx5LCBpdCBkb2VzIGl0cyBv
-d24gZmx1c2ggY29udHJvbCBzbyAKc2V0X3BtZF9hdCBkb2VzIG5vdCBuZWVkIHRvIGRvIGEgZm9y
-Y2UgZmx1c2ggZXZlcnkgdGltZS4gSXQgaXMgZG9uZSAKZnVydGhlciB1cCB0aGUgY2hhaW4uCgpC
-cmdkcywKCkEuCgoKPgo+IHRoYW5rcywKPgo+IC0gSm9lbAo+Cj4KCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LXJpc2N2IG1haWxpbmcgbGlzdAps
-aW51eC1yaXNjdkBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3Jn
-L21haWxtYW4vbGlzdGluZm8vbGludXgtcmlzY3YK
+On Fri, Oct 12, 2018 at 05:58:40PM +0100, Anton Ivanov wrote:
+[...]
+> > > > > > If I read the code right, MIPS completely ignores the address
+> > > > > > argument so
+> > > > > > set_pmd_at there may not have the effect which this patch is trying to
+> > > > > > achieve.
+> > > > > Ignoring address is fine. Most architectures do that..
+> > > > > The ideas is to move page table to the new pmd slot. It's nothing to do
+> > > > > with the address passed to set_pmd_at().
+> > > > If that is it's only function, then I am going to appropriate the code
+> > > > out of the MIPS tree for further uml testing. It does exactly that -
+> > > > just move the pmd the new slot.
+> > > > 
+> > > > A.
+> > > 
+> > > A.
+> > > 
+> > >  From ac265d96897a346b05646fce91784ed4922c7f8d Mon Sep 17 00:00:00 2001
+> > > From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> > > Date: Fri, 12 Oct 2018 17:24:10 +0100
+> > > Subject: [PATCH] Incremental fixes to the mmremap patch
+> > > 
+> > > Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> > > ---
+> > >   arch/um/include/asm/pgalloc.h | 4 ++--
+> > >   arch/um/include/asm/pgtable.h | 3 +++
+> > >   arch/um/kernel/tlb.c          | 6 ++++++
+> > >   3 files changed, 11 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/arch/um/include/asm/pgalloc.h b/arch/um/include/asm/pgalloc.h
+> > > index bf90b2aa2002..99eb5682792a 100644
+> > > --- a/arch/um/include/asm/pgalloc.h
+> > > +++ b/arch/um/include/asm/pgalloc.h
+> > > @@ -25,8 +25,8 @@
+> > >   extern pgd_t *pgd_alloc(struct mm_struct *);
+> > >   extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
+> > > -extern pte_t *pte_alloc_one_kernel(struct mm_struct *, unsigned long);
+> > > -extern pgtable_t pte_alloc_one(struct mm_struct *, unsigned long);
+> > > +extern pte_t *pte_alloc_one_kernel(struct mm_struct *);
+> > > +extern pgtable_t pte_alloc_one(struct mm_struct *);
+> > If its Ok, let me handle this bit since otherwise it complicates things for
+> > me.
+> > 
+> > >   static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+> > >   {
+> > > diff --git a/arch/um/include/asm/pgtable.h b/arch/um/include/asm/pgtable.h
+> > > index 7485398d0737..1692da55e63a 100644
+> > > --- a/arch/um/include/asm/pgtable.h
+> > > +++ b/arch/um/include/asm/pgtable.h
+> > > @@ -359,4 +359,7 @@ do {						\
+> > >   	__flush_tlb_one((vaddr));		\
+> > >   } while (0)
+> > > +extern void set_pmd_at(struct mm_struct *mm, unsigned long addr,
+> > > +		pmd_t *pmdp, pmd_t pmd);
+> > > +
+> > >   #endif
+> > > diff --git a/arch/um/kernel/tlb.c b/arch/um/kernel/tlb.c
+> > > index 763d35bdda01..d17b74184ba0 100644
+> > > --- a/arch/um/kernel/tlb.c
+> > > +++ b/arch/um/kernel/tlb.c
+> > > @@ -647,3 +647,9 @@ void force_flush_all(void)
+> > >   		vma = vma->vm_next;
+> > >   	}
+> > >   }
+> > > +void set_pmd_at(struct mm_struct *mm, unsigned long addr,
+> > > +		pmd_t *pmdp, pmd_t pmd)
+> > > +{
+> > > +	*pmdp = pmd;
+> > > +}
+> > > +
+> > I believe this should be included in a separate patch since it is not related
+> > specifically to pte_alloc argument removal. If you want, I could split it
+> > into a separate patch for my series with you as author.
+> 
+> 
+> Whichever is more convenient for you.
+
+Ok.
+
+> One thing to note - tlb flush is extremely expensive on uml.
+> 
+> I have lifted the definition of set_pmd_at from the mips tree and removed
+> the tlb_flush_all from it for this exact reason.
+> 
+> If I read the original patch correctly, it does its own flush control so
+> set_pmd_at does not need to do a force flush every time. It is done further
+> up the chain.
+
+That is correct. It is not done during the optimization, but is done later
+after the pmds have moved.
+
+thanks,
+
+ - Joel
