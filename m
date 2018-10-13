@@ -1,109 +1,73 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
+From: Eugene Syromiatnikov <esyr@redhat.com>
 Subject: Re: [net-next,v2,2/4] net/smc: ipv6 support for smc_diag.c
-Date: Tue, 9 Oct 2018 16:41:43 +0200
-Message-ID: <3cb67163-53c6-dd63-71b6-d34581918708@linux.ibm.com>
+Date: Sat, 13 Oct 2018 05:45:30 +0200
+Message-ID: <20181013034530.GH21972@asgard.redhat.com>
 References: <20180502145647.36147-3-ubraun@linux.ibm.com>
  <20181007011152.GA11112@asgard.redhat.com>
+ <3cb67163-53c6-dd63-71b6-d34581918708@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20181007011152.GA11112@asgard.redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <3cb67163-53c6-dd63-71b6-d34581918708@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Eugene Syromiatnikov <esyr@redhat.com>
+To: Ursula Braun <ubraun@linux.ibm.com>
 Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 10/07/2018 03:11 AM, Eugene Syromiatnikov wrote:
-> On Wed, May 02, 2018 at 04:56:45PM +0200, Ursula Braun wrote:
->> From: Karsten Graul <kgraul@linux.ibm.com>
->>
->> Update smc_diag.c to support ipv6 addresses on the diagnosis interface.
->>
->> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
->> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
->> ---
->>  net/smc/smc_diag.c | 39 ++++++++++++++++++++++++++++++---------
->>  1 file changed, 30 insertions(+), 9 deletions(-)
->>
->> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
->> index 427b91c1c964..05dd7e6d314d 100644
->> --- a/net/smc/smc_diag.c
->> +++ b/net/smc/smc_diag.c
->> @@ -38,17 +38,27 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
->>  {
->>  	struct smc_sock *smc = smc_sk(sk);
->>  
->> -	r->diag_family = sk->sk_family;
->>  	if (!smc->clcsock)
->>  		return;
->>  	r->id.idiag_sport = htons(smc->clcsock->sk->sk_num);
->>  	r->id.idiag_dport = smc->clcsock->sk->sk_dport;
->>  	r->id.idiag_if = smc->clcsock->sk->sk_bound_dev_if;
->>  	sock_diag_save_cookie(sk, r->id.idiag_cookie);
->> -	memset(&r->id.idiag_src, 0, sizeof(r->id.idiag_src));
->> -	memset(&r->id.idiag_dst, 0, sizeof(r->id.idiag_dst));
->> -	r->id.idiag_src[0] = smc->clcsock->sk->sk_rcv_saddr;
->> -	r->id.idiag_dst[0] = smc->clcsock->sk->sk_daddr;
->> +	if (sk->sk_protocol == SMCPROTO_SMC) {
->> +		r->diag_family = PF_INET;
->> +		memset(&r->id.idiag_src, 0, sizeof(r->id.idiag_src));
->> +		memset(&r->id.idiag_dst, 0, sizeof(r->id.idiag_dst));
->> +		r->id.idiag_src[0] = smc->clcsock->sk->sk_rcv_saddr;
->> +		r->id.idiag_dst[0] = smc->clcsock->sk->sk_daddr;
->> +#if IS_ENABLED(CONFIG_IPV6)
->> +	} else if (sk->sk_protocol == SMCPROTO_SMC6) {
->> +		r->diag_family = PF_INET6;
->> +		memcpy(&r->id.idiag_src, &smc->clcsock->sk->sk_v6_rcv_saddr,
->> +		       sizeof(smc->clcsock->sk->sk_v6_rcv_saddr));
->> +		memcpy(&r->id.idiag_dst, &smc->clcsock->sk->sk_v6_daddr,
->> +		       sizeof(smc->clcsock->sk->sk_v6_daddr));
->> +#endif
->> +	}
+On Tue, Oct 09, 2018 at 04:41:43PM +0200, Ursula Braun wrote:
+> Eugene,
 > 
-> This change makes it impossible to distinguish an inet_sock_diag
-> response message from SMC sock_diag response (previously it reported
-> AF_SMC in diag_family which allows deciding whether that a part of
-> struct smc_diag_msg or struct inet_diag_msg).
+> we are considering the following patch:
 > 
+> ---
+>  net/smc/smc_diag.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+> index dbf64a93d68a..371b4cf31fcd 100644
+> --- a/net/smc/smc_diag.c
+> +++ b/net/smc/smc_diag.c
+> @@ -38,6 +38,7 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
+>  {
+>  	struct smc_sock *smc = smc_sk(sk);
+>  
+> +	r->diag_family = sk->sk_family;
+>  	if (!smc->clcsock)
+>  		return;
+>  	r->id.idiag_sport = htons(smc->clcsock->sk->sk_num);
+> @@ -45,14 +46,12 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
+>  	r->id.idiag_if = smc->clcsock->sk->sk_bound_dev_if;
+>  	sock_diag_save_cookie(sk, r->id.idiag_cookie);
+>  	if (sk->sk_protocol == SMCPROTO_SMC) {
+> -		r->diag_family = PF_INET;
+>  		memset(&r->id.idiag_src, 0, sizeof(r->id.idiag_src));
+>  		memset(&r->id.idiag_dst, 0, sizeof(r->id.idiag_dst));
+>  		r->id.idiag_src[0] = smc->clcsock->sk->sk_rcv_saddr;
+>  		r->id.idiag_dst[0] = smc->clcsock->sk->sk_daddr;
+>  #if IS_ENABLED(CONFIG_IPV6)
+>  	} else if (sk->sk_protocol == SMCPROTO_SMC6) {
+> -		r->diag_family = PF_INET6;
+>  		memcpy(&r->id.idiag_src, &smc->clcsock->sk->sk_v6_rcv_saddr,
+>  		       sizeof(smc->clcsock->sk->sk_v6_rcv_saddr));
+>  		memcpy(&r->id.idiag_dst, &smc->clcsock->sk->sk_v6_daddr,
+> --
+> 
+> Tools would then need to derive the PF_INET/PF_INET6 info from the inet_diag_sockid info
+> in the smc_diag_msg.
 
-Eugene,
+Unfortunately, struct inet_diag_sockid doesn't provide any clue
+in order to derive address family.
 
-we are considering the following patch:
+There's unused (if I haven't missed anything) diag_shutdown field
+in struct smc_diag_msg (it looks like that the shutdown state is
+reported via a separate attribute in the current implementation),
+it probably might be repurposed for providing information about
+the underlying socket address family.
 
----
- net/smc/smc_diag.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+> However, this problem is in the mainline kernel since 4.18. So, we are not sure if we are allowed
+> to change the user interface again.
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index dbf64a93d68a..371b4cf31fcd 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -38,6 +38,7 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
- {
- 	struct smc_sock *smc = smc_sk(sk);
- 
-+	r->diag_family = sk->sk_family;
- 	if (!smc->clcsock)
- 		return;
- 	r->id.idiag_sport = htons(smc->clcsock->sk->sk_num);
-@@ -45,14 +46,12 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
- 	r->id.idiag_if = smc->clcsock->sk->sk_bound_dev_if;
- 	sock_diag_save_cookie(sk, r->id.idiag_cookie);
- 	if (sk->sk_protocol == SMCPROTO_SMC) {
--		r->diag_family = PF_INET;
- 		memset(&r->id.idiag_src, 0, sizeof(r->id.idiag_src));
- 		memset(&r->id.idiag_dst, 0, sizeof(r->id.idiag_dst));
- 		r->id.idiag_src[0] = smc->clcsock->sk->sk_rcv_saddr;
- 		r->id.idiag_dst[0] = smc->clcsock->sk->sk_daddr;
- #if IS_ENABLED(CONFIG_IPV6)
- 	} else if (sk->sk_protocol == SMCPROTO_SMC6) {
--		r->diag_family = PF_INET6;
- 		memcpy(&r->id.idiag_src, &smc->clcsock->sk->sk_v6_rcv_saddr,
- 		       sizeof(smc->clcsock->sk->sk_v6_rcv_saddr));
- 		memcpy(&r->id.idiag_dst, &smc->clcsock->sk->sk_v6_daddr,
+Well, anything is better that the current state.
