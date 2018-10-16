@@ -1,103 +1,87 @@
-From: David Hildenbrand <david@redhat.com>
-Date: Tue, 16 Oct 2018 08:59:00 +0000
-Subject: Re: [RFC 13/14] s390/mm: Pull pmd invalid check in gmap_pmd_op_walk
-Message-Id: <02572b36-8169-0b87-5cc0-518a3dcf8ae6@redhat.com>
-In-Reply-To: <20180919084802.183381-14-frankja@linux.ibm.com>
-References: <20180919084802.183381-14-frankja@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Tue, 16 Oct 2018 09:00:12 +0000
+Subject: Re: [RFC 07/14] s390/mm: Add gmap_idte_global
+Message-Id: <bc03524a-6cd7-f286-663f-ceb5da541944@linux.ibm.com>
+In-Reply-To: <2b3c107c-fdf4-d6c0-145a-597203b4807d@redhat.com>
+References: <2b3c107c-fdf4-d6c0-145a-597203b4807d@redhat.com>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--i2XvjkMSFgmcv5xenCae8Y5U90q5gYRZp"
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 19/09/2018 10:48, Janosch Frank wrote:
-> Not yet sure if I'll keep this.
-> 
-> The walk should only walk and not check I, but then it looks way
-> nicer.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--i2XvjkMSFgmcv5xenCae8Y5U90q5gYRZp
+Content-Type: multipart/mixed; boundary="QWeO3gqUVbKd2t20QmvwBFiEQ6AKGdJpA";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com
+Message-ID: <bc03524a-6cd7-f286-663f-ceb5da541944@linux.ibm.com>
+Subject: Re: [RFC 07/14] s390/mm: Add gmap_idte_global
+References: <20180919084802.183381-1-frankja@linux.ibm.com>
+ <20180919084802.183381-8-frankja@linux.ibm.com>
+ <108a5c7b-60ac-5764-e297-89fa7dcbfa59@redhat.com>
+ <8cef155f-408e-1b79-3932-d94e1b50cfb2@linux.ibm.com>
+ <2b3c107c-fdf4-d6c0-145a-597203b4807d@redhat.com>
+In-Reply-To: <2b3c107c-fdf4-d6c0-145a-597203b4807d@redhat.com>
 
-I agree, while it looks nicer, conceptually it is better to return if
-"there is something" - in contrast to "pte_none" where there definitely
-isn't "something".
+--QWeO3gqUVbKd2t20QmvwBFiEQ6AKGdJpA
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  arch/s390/mm/gmap.c | 17 +++++++----------
->  1 file changed, 7 insertions(+), 10 deletions(-)
-> 
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index 0220a32aa2b9..8d5ce51637eb 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -952,7 +952,8 @@ static inline pmd_t *gmap_pmd_op_walk(struct gmap *gmap, unsigned long gaddr,
->  	}
->  
->  	pmdp = (pmd_t *) gmap_table_walk(gmap, gaddr, 1);
-> -	if (!pmdp || pmd_none(*pmdp)) {
-> +	if (!pmdp || pmd_none(*pmdp) ||
-> +	    pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID) {
->  		if (*ptl)
->  			spin_unlock(*ptl);
->  		pmdp = NULL;
-> @@ -1161,7 +1162,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
->  			return vmaddr;
->  		vmaddr |= gaddr & ~PMD_MASK;
->  		pmdp = gmap_pmd_op_walk(gmap, gaddr, vmaddr, &ptl_pmd);
-> -		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
-> +		if (pmdp) {
->  			if (!pmd_large(*pmdp)) {
->  				ptep = gmap_pte_from_pmd(gmap, pmdp, gaddr,
->  							 &ptl_pte);
-> @@ -1266,7 +1267,7 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val)
->  		if (IS_ERR_VALUE(vmaddr))
->  			return vmaddr;
->  		pmdp = gmap_pmd_op_walk(gmap, gaddr, vmaddr, &ptl_pmd);
-> -		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
-> +		if (pmdp) {
->  			if (!pmd_large(*pmdp)) {
->  				ptep = gmap_pte_from_pmd(gmap, pmdp, vmaddr, &ptl_pte);
->  				if (ptep) {
-> @@ -1380,7 +1381,7 @@ static int gmap_protect_rmap(struct gmap *sg, unsigned long raddr,
->  			return vmaddr;
->  		vmaddr |= paddr & ~PMD_MASK;
->  		pmdp = gmap_pmd_op_walk(parent, paddr, vmaddr, &ptl_pmd);
-> -		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
-> +		if (pmdp) {
->  			if (!pmd_large(*pmdp)) {
->  				ptl_pte = NULL;
->  				ptep = gmap_pte_from_pmd(parent, pmdp, paddr,
-> @@ -2362,8 +2363,7 @@ int gmap_shadow_segment(struct gmap *sg, unsigned long saddr, pmd_t pmd)
->  				break;
->  			}
->  			spmd = *spmdp;
-> -			if (!(pmd_val(spmd) & _SEGMENT_ENTRY_INVALID) &&
-> -			    !((pmd_val(spmd) & _SEGMENT_ENTRY_PROTECT) &&
-> +			if (!((pmd_val(spmd) & _SEGMENT_ENTRY_PROTECT) &&
->  			      !(pmd_val(pmd) & _SEGMENT_ENTRY_PROTECT))) {
->  
->  				pmd_val(*spmdp) |= _SEGMENT_ENTRY_GMAP_VSIE;
-> @@ -2436,7 +2436,7 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte)
->  			break;
->  		rc = -EAGAIN;
->  		spmdp = gmap_pmd_op_walk(parent, paddr, vmaddr, &ptl_pmd);
-> -		if (spmdp && !(pmd_val(*spmdp) & _SEGMENT_ENTRY_INVALID)) {
-> +		if (spmdp) {
->  			/* Get page table pointer */
->  			tptep = (pte_t *) gmap_table_walk(sg, saddr, 0);
->  			if (!tptep) {
-> @@ -2869,9 +2869,6 @@ EXPORT_SYMBOL_GPL(gmap_pmdp_idte_global);
->  bool gmap_test_and_clear_dirty_pmd(struct gmap *gmap, pmd_t *pmdp,
->  				   unsigned long gaddr, unsigned long vmaddr)
->  {
-> -	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
-> -		return false;
-> -
->  	/* Already protected memory, which did not change is clean */
->  	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT &&
->  	    !(pmd_val(*pmdp) & _SEGMENT_ENTRY_GMAP_UC))
-> 
+On 16.10.18 10:37, David Hildenbrand wrote:
+> On 16/10/2018 10:35, Janosch Frank wrote:
+>> On 16.10.18 10:22, David Hildenbrand wrote:
+>>> On 19/09/2018 10:47, Janosch Frank wrote:
+>>>> Introduce a function to do a idte global flush on a gmap pmd and
+>>>> remove some code duplication.
+>>>
+>>> I'd call this patch
+>>> "s390x/mm: factor out idte global flush into gmap_idte_global"
+>>
+>> I can offer:
+>>
+>> s390/mm: Factor out guest related idte global flushes into gmap_idte_g=
+lobal
+>>
+>> or
+>>
+>> s390x/mm: Factor out gmap idte global flushes into gmap_idte_global
+>>
+>=20
+> Works both for me. I guess this patch makes sense even without the othe=
+r
+> parts?
+>=20
+
+Without this series I don't feel an urge to have it included, the third
+caller that is introduced later made it painful enough to add it.
 
 
--- 
+--QWeO3gqUVbKd2t20QmvwBFiEQ6AKGdJpA--
 
-Thanks,
+--i2XvjkMSFgmcv5xenCae8Y5U90q5gYRZp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-David / dhildenb
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJbxaicAAoJEONU5rjiOLn4nTsQAIVacEU8LPlbRwjKeIFdH25g
+npznefRk4bxYe4xfwWpOSyXPGwwRr9i5yp3H2wbJICQLgf4BffPOl5tt52Gcdc2I
+MkiUcJXqZiSlY/b/nTIAxZJlVrmN5lnfxrdADXTc+U9yQLlAobuvvZmXxrtjxUZD
+gqyLBtNIcnZvmjJW8IzoNoqUmX6S+yhyZ+vqnBb5UZ0YoEpqVNejUo+H0ysctenf
+QQGdc0LpfzVGkYkjevlGZQmnmgBeWDnAtntqNMzRIG4fDdcdyNQ2RnJxZQ80ioIu
+TBJMyzc+C4V9CO9Rqa95c8X19QN6qAVJfyrsjW/EURPA4nureM6OEfV98yiVtG6n
+/OpMTrOycjzDmqzWiIWyeKoNUSm+TdBOLrRjKq0rna0pkOyDt6IxeKnZocs4SGeb
+3DOcP7TwWHdF0qKkYFw32AvRZoxarG+Azgl7xEpq25Wqwrue1lxU4XY6nhLKf+f9
+hx4KzbdyX5m7Na5rQ/lDQXeZ9jQ+33ftObZMcAm3DGBrFoVXwLYpZlEyNWen98kU
+QGCjDIjNbanJVOldtZD0u4VjCZnLu744fRRJxYkbBGk4kZ/pfdbmYCNRG3p4gTW6
+dA6Mu+YlqtCSUrF+SQrinCUVScouWjjv77VfcH7J6CMQHZQ699XNKZe+R2k0Jfgb
+6YEln42NWrgOn2Y5T1XB
+=dPD+
+-----END PGP SIGNATURE-----
+
+--i2XvjkMSFgmcv5xenCae8Y5U90q5gYRZp--
