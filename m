@@ -1,86 +1,124 @@
-Return-Path: <SRS0=94iy=MT=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Sun, 7 Oct 2018 18:35:06 +0200
-From: Eugene Syromiatnikov <esyr@redhat.com>
-Subject: [RFC PATCH net 2/3] uapi, net/smc: provide fallback diagnosis codes
- in UAPI
-Message-ID: <797314a1a1d7de04a47f04f47212cc9547192da0.1538929504.git.esyr@redhat.com>
-References: <cover.1538929504.git.esyr@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1538929504.git.esyr@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Hans Wippel <hwippel@linux.ibm.com>, linux-s390@vger.kernel.org
+From: Kirti Wankhede <kwankhede@nvidia.com>
+Subject: Re: [RFC PATCH v1 0/4] Add migration support for VFIO
+ device
+Date: Thu, 18 Oct 2018 02:29:52 +0530
+Message-ID: <437bc057-03e6-a74d-8281-697247ea1667@nvidia.com>
+References: <1539713558-2453-1-git-send-email-kwankhede@nvidia.com>
+	<20181017104909.15ba95ff.cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+In-Reply-To: <20181017104909.15ba95ff.cohuck@redhat.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org
+Sender: "Qemu-devel"
+	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, cjia@nvidia.com, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, alex.williamson@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Since they values to which these codes are corresponding are already
-exposed via sock_diag interface.
 
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
----
- include/uapi/linux/smc.h | 19 +++++++++++++++++++
- net/smc/smc_clc.h        | 16 ----------------
- 2 files changed, 19 insertions(+), 16 deletions(-)
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 10561f8..fc7a859 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -17,6 +17,25 @@
- #define SMCPROTO_SMC		0	/* SMC protocol, IPv4 */
- #define SMCPROTO_SMC6		1	/* SMC protocol, IPv6 */
- 
-+/* Diagnosis codes */
-+#define SMC_CLC_DECL_MEM	0x01010000  /* insufficient memory resources  */
-+#define SMC_CLC_DECL_TIMEOUT_CL	0x02010000  /* timeout w4 QP confirm link     */
-+#define SMC_CLC_DECL_TIMEOUT_AL	0x02020000  /* timeout w4 QP add link	      */
-+#define SMC_CLC_DECL_CNFERR	0x03000000  /* configuration error            */
-+#define SMC_CLC_DECL_PEERNOSMC	0x03010000  /* peer did not indicate SMC      */
-+#define SMC_CLC_DECL_IPSEC	0x03020000  /* IPsec usage		      */
-+#define SMC_CLC_DECL_NOSMCDEV	0x03030000  /* no SMC device found	      */
-+#define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
-+#define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
-+#define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
-+#define SMC_CLC_DECL_SYNCERR	0x04000000  /* synchronization error          */
-+#define SMC_CLC_DECL_PEERDECL	0x05000000  /* peer declined during handshake */
-+#define SMC_CLC_DECL_INTERR	0x99990000  /* internal error                 */
-+#define SMC_CLC_DECL_ERR_RTOK	0x99990001  /*	 rtoken handling failed       */
-+#define SMC_CLC_DECL_ERR_RDYLNK	0x99990002  /*	 ib ready link failed	      */
-+#define SMC_CLC_DECL_ERR_REGRMB	0x99990003  /*	 reg rmb failed		      */
-+
-+
- /* Netlink SMC_PNETID attributes */
- enum {
- 	SMC_PNETID_UNSPEC,
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 18da89b..d84845a 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -27,22 +27,6 @@
- #define SMC_TYPE_D		1		/* SMC-D only		      */
- #define SMC_TYPE_B		3		/* SMC-R and SMC-D	      */
- #define CLC_WAIT_TIME		(6 * HZ)	/* max. wait time on clcsock  */
--#define SMC_CLC_DECL_MEM	0x01010000  /* insufficient memory resources  */
--#define SMC_CLC_DECL_TIMEOUT_CL	0x02010000  /* timeout w4 QP confirm link     */
--#define SMC_CLC_DECL_TIMEOUT_AL	0x02020000  /* timeout w4 QP add link	      */
--#define SMC_CLC_DECL_CNFERR	0x03000000  /* configuration error            */
--#define SMC_CLC_DECL_PEERNOSMC	0x03010000  /* peer did not indicate SMC      */
--#define SMC_CLC_DECL_IPSEC	0x03020000  /* IPsec usage		      */
--#define SMC_CLC_DECL_NOSMCDEV	0x03030000  /* no SMC device found	      */
--#define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
--#define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
--#define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
--#define SMC_CLC_DECL_SYNCERR	0x04000000  /* synchronization error          */
--#define SMC_CLC_DECL_PEERDECL	0x05000000  /* peer declined during handshake */
--#define SMC_CLC_DECL_INTERR	0x99990000  /* internal error                 */
--#define SMC_CLC_DECL_ERR_RTOK	0x99990001  /*	 rtoken handling failed       */
--#define SMC_CLC_DECL_ERR_RDYLNK	0x99990002  /*	 ib ready link failed	      */
--#define SMC_CLC_DECL_ERR_REGRMB	0x99990003  /*	 reg rmb failed		      */
- 
- struct smc_clc_msg_hdr {	/* header1 of clc messages */
- 	u8 eyecatcher[4];	/* eye catcher */
--- 
-2.1.4
+On 10/17/2018 2:19 PM, Cornelia Huck wrote:
+> On Tue, 16 Oct 2018 23:42:34 +0530
+> Kirti Wankhede <kwankhede@nvidia.com> wrote:
+> 
+>> Add migration support for VFIO device
+> 
+> I'd love to take a deeper look at this; but sadly, I'm currently low on
+> spare time, and therefore will only add some general remarks.
+> 
+
+Thanks. Those would be really helpful to have common infrastructure that
+can be used across different types of vfio devices.
+
+>>
+>> This Patch set include patches as below:
+>> - Define KABI for VFIO device for migration support.
+>> - Generic migration functionality for VFIO device.
+>>   * This patch set adds functionality only for PCI devices, but can be
+>>     extended to other VFIO devices.
+> 
+> I've been thinking about how best to add migration to vfio-ccw; it
+> might be quite different from what we do for vfio-pci, but I hope that
+> we can still use some common infrastructure.
+> 
+> Basically, we probably need something like the following:
+> 
+> - Wait until outstanding channel programs are finished, and don't allow
+>   new ones. Don't report back to userspace (or maybe do; we just don't
+>   want to fence of too many new requests.)
+> - Collect subchannel and related state, copy it over. That probably
+>   fits in with the interface you're proposing.
+> - Re-setup on the other side and get going again. The problem here
+>   might be state that the vfio-ccw driver can't be aware of (like
+>   replaying storage server configurations). Maybe we can send CRWs
+>   (notifications) to the guest and leverage the existing suspend/resume
+>   driver code for channel devices.
+> 
+> For vfio-ap, I frankly have no idea how migration will work, given the
+> setup with the matrix device and the interesting information in the SIE
+> control blocks (but maybe it just can replay from the info in the
+> matrix device?) Keys etc. are likely to be the bigger problem here.
+> 
+> Cc:ing some s390 folks for awareness.
+> 
+>>   * Added all the basic functions required for pre-copy, stop-and-copy and
+>>     resume phases of migration.
+>>   * Added state change notifier and from that notifier function, VFIO
+>>     device's state changed is conveyed to VFIO vendor driver.
+> 
+> I assume that this will, in general, be transparent for the guest; but
+> maybe there'll be need for some interaction for special cases?
+
+Ideally, this should be transparent for the guest for live migration.
+Guest shouldn't see any functional change during live migration.
+
+Thanks,
+Kirti
+
+> 
+>>   * During save setup phase and resume/load setup phase, migration region
+>>     is queried from vendor driver and is mmaped by QEMU. This region is
+>>     used to read/write data from and to vendor driver.
+>>   * .save_live_pending, .save_live_iterate and .is_active_iterate are
+>>     implemented to use QEMU's functionality of iteration during pre-copy
+>>     phase.
+>>   * In .save_live_complete_precopy, that is in stop-and-copy phase,
+>>     iteration to read data from vendor driver is implemented till pending
+>>     bytes returned by vendor driver are not zero.
+>>   * .save_cleanup and .load_cleanup are implemented to unmap migration
+>>     region that was setup duing setup phase.
+>>   * Added function to get dirty pages bitmap from vendor driver.
+>> - Add vfio_listerner_log_sync to mark dirty pages.
+>> - Make VFIO PCI device migration capable.
+>>
+>> Thanks,
+>> Kirti
+>>
+>> Kirti Wankhede (4):
+>>   VFIO KABI for migration interface
+>>   Add migration functions for VFIO devices
+>>   Add vfio_listerner_log_sync to mark dirty pages
+>>   Make vfio-pci device migration capable.
+>>
+>>  hw/vfio/Makefile.objs         |   2 +-
+>>  hw/vfio/common.c              |  32 ++
+>>  hw/vfio/migration.c           | 716 ++++++++++++++++++++++++++++++++++++++++++
+>>  hw/vfio/pci.c                 |  13 +-
+>>  include/hw/vfio/vfio-common.h |  23 ++
+>>  linux-headers/linux/vfio.h    |  91 ++++++
+>>  6 files changed, 869 insertions(+), 8 deletions(-)
+>>  create mode 100644 hw/vfio/migration.c
+>>
+> 
