@@ -1,51 +1,79 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 17 Oct 2018 09:18:43 +0000
-Subject: [PATCH 5/5] vfio: ccw: Do not change the mediated device state on sch events
-Message-Id: <1539767923-10539-6-git-send-email-pmorel@linux.ibm.com>
+Date: Wed, 17 Oct 2018 10:58:40 +0000
+Subject: Re: [PATCH 0/5] RFC: VFIO CCW cleanup
+Message-Id: <4b0462b1-17e7-4cda-6cb8-091784ef9553@linux.ibm.com>
+In-Reply-To: <20181017112846.18c8e605.cohuck@redhat.com>
+References: <20181017112846.18c8e605.cohuck@redhat.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When we receive a subchannel event the alternative is:
-- to handle the event in the mediated device driver,
-- to let the guest handle it.
+On 17/10/2018 11:28, Cornelia Huck wrote:
+> On Wed, 17 Oct 2018 11:18:38 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> Hi Connie, and all,
+>>
+>> I come back on the consolidation of the VFIO CCW driver,
+>> this time by making smaller steps.
+>> Here a first proposal, as RFC, therefore I only CC to
+>> the linux-s390 list.
+> 
+> I'll not get around to looking at it in detail until after KVM Forum,
 
-We choose to let the guest handle the changes even we do
-not dynamically signal the event to the guest for now.
+of course. :)
 
-There is no reason to change the state of the mediated device
-here but in error cases.
-Let's suppress the state change.
+> but...
+> 
+>>
+>> The first patch of this serie is essentially cosmetic
+>> to clarify the code.
+>>
+>> The second patch is a bug correction.
+> 
+> ...this looks small enough to queue right now. It makes sense
+> standalone AFAICS.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+Yes, I think it does.
+So I make a v1 with only these two patches.
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index b29a96f..e7416dd 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -199,18 +199,11 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 		rc = 0;
- 		goto out_unlock;
- 	}
--#if 0
- 	/*
--	 * We must find a solution to report the change to the guest
--	 * until there I see no need to change the state of the SCH
--	 * here.
-+	 * We must find a solution to signal the change to the guest,
-+	 * and let it handle the event.
-+	 * There is no need to update the mediated device state.
- 	 */
--	private = dev_get_drvdata(&sch->dev);
--	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
--		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
--				 VFIO_CCW_STATE_STANDBY;
--	}
--#endif
- 	rc = 0;
- 
- out_unlock:
+Thanks for the comments
+
+Pierre
+
+> 
+>>
+>> The last three patches clarify the linux device state changes.
+>>
+>> Currently the VFIO CCW driver may be used while it is
+>> not completely initialized or not dedicated to a guest.
+>> - Let's consolidate this by moving state change and initialization
+>>    inside the mediated device open callback.
+>> - quiesce the device when the mediated device is released.
+>> - refuse to remove a mediated device when it is in use.
+>> - do not change the linux state on subchannel events.
+>>
+>> Regards,
+>>
+>> Pierre
+>>
+>>
+>> Pierre Morel (5):
+>>    vfio: ccw: Merge BUSY and BOXED states
+>>    vfio: ccw: Register mediated device once all structures are
+>>      initialized
+>>    vfio: ccw: Set subchannel state STANDBY on open
+>>    vfio: ccw: Refactoring state changes
+>>    vfio: ccw: Do not change the mediated device state on sch events
+>>
+>>   drivers/s390/cio/vfio_ccw_drv.c     | 38 ++++++++++++++++-------------------
+>>   drivers/s390/cio/vfio_ccw_fsm.c     |  7 +------
+>>   drivers/s390/cio/vfio_ccw_ops.c     | 40 +++++++++++++++++++++++++++----------
+>>   drivers/s390/cio/vfio_ccw_private.h |  1 -
+>>   4 files changed, 47 insertions(+), 39 deletions(-)
+>>
+> 
+
+
 -- 
-2.7.4
+Pierre Morel
+Linux/KVM/QEMU in B�blingen - Germany
