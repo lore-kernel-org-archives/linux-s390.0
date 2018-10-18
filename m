@@ -1,77 +1,40 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: [PATCH v2 1/2] treewide: remove unused address argument from
- pte_alloc functions
-Date: Sat, 13 Oct 2018 11:22:49 +0200
-Message-ID: <e1be1dda-90ab-052d-496b-3de01ffc80d1@users.sourceforge.net>
-References: <20181012013756.11285-1-joel@joelfernandes.org>
- <03b524f3-5f3a-baa0-2254-9c588103d2d6@users.sourceforge.net>
- <20181012194210.GA27630@joelaf.mtv.corp.google.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] net/ipv4: fix tcp_poll for SMC fallback
+Date: Thu, 18 Oct 2018 11:22:04 -0700 (PDT)
+Message-ID: <20181018.112204.1468321456234076481.davem@davemloft.net>
+References: <20181016144554.49660-1-kgraul@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20181012194210.GA27630@joelaf.mtv.corp.google.com>
-Content-Language: en-GB
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>,
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/kvmarm/>
-List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
-To: Joel Fernandes <joel@joelfernandes.org>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, kernel-janitors@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Lokesh Gidra <lokeshgidra@google.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, kvmarm@lists.cs.columbia.edu, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, Daniel Colascione <dancol@google.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Max Filippov <jcmvbkbc@gmail.com>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Hugh Dickins <hughd@google.com>, "James E. J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, Ingo
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20181016144554.49660-1-kgraul@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, ubraun@linux.ibm.com, hch@lst.de, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Pj4+IFRoZSBjaGFuZ2VzIHdlcmUgb2J0YWluZWQgYnkgYXBwbHlpbmcgdGhlIGZvbGxvd2luZyBD
-b2NjaW5lbGxlIHNjcmlwdC4KCkhvdyBkbyB5b3UgdGhpbmsgYWJvdXQgdG8gYWRqdXN0IHRoZSBv
-cmRlciBvZiBwcm92aWRlZCBpbmZvcm1hdGlvbgppbiB0aGUgY29tbWl0IGRlc2NyaXB0aW9uPwox
-LiBVcGRhdGUgZ29hbHMKMi4gVHJhbnNmb3JtYXRpb24gaW1wbGVtZW50YXRpb24gYXQgdGhlIGVu
-ZAoKCj4+ICJeKD86cHRlX2FsbG9jKD86X29uZSg/Ol9rZXJuZWwpPyk/fF9fcHRlX2FsbG9jKD86
-X2tlcm5lbCk/KSQiOwo+IAo+IFN1cmUgaXQgbG9va3MgbW9yZSBjbGV2ZXIsIGJ1dCB3aHk/Cgox
-LiBVc2FnZSBvZiBub24tY2FwdHVyaW5nIHBhcmVudGhlc2VzCjIuIENsZWFyZXIgc3BlY2lmaWNh
-dGlvbiB3aGljaCBwYXJ0cyBjYW4gYmUgdHJlYXRlZCBhcyBvcHRpb25hbAogICBpbiB0aGUgc2Vh
-cmNoIHBhdHRlcm4uCgoKPiBVZ2ggdGhhdCdzIGhhcmRlciB0byByZWFkIGFuZCBjb25mdXNpbmcu
-CgoqIERvIHlvdSBjYXJlIGZvciBjb2Rpbmcgc3R5bGUgYW5kIGV4ZWN1dGlvbiBzcGVlZCBvZiBy
-ZWd1bGFyIGV4cHJlc3Npb25zPwoKKiBJZiB5b3Ugd291bGQgcHJlZmVyIHRvIGxpc3QgZnVuY3Rp
-b24gbmFtZXMgd2l0aG91dCBwbGFjZWhvbGRlcnMsCiAgeW91IGNhbiBldmVudHVhbGx5IHNwZWNp
-ZnkgdGhlbSBhbHNvIHdpdGhpbiBTbVBMIGRpc2p1bmN0aW9ucyBkaXJlY3RseS4KCiogSXQgY2Fu
-IGxvb2sgc2ltcGxlciB0byB1c2UgYW4gaWRlbnRpZmllciBsaXN0IGFzIGEgY29uc3RyYWludCB2
-YXJpYW50LgogIGh0dHA6Ly9jb2NjaW5lbGxlLmxpcDYuZnIvZG9jcy9tYWluX2dyYW1tYXIwMDIu
-aHRtbAoKCj4gQWdhaW4gdGhpcyBpcyBjb25mdXNpbmcuCgpUaGUgdmlldyBwb2ludHMgY2FuIGJl
-IGRpZmZlcmVudCBmb3Igc3VjaCBTbVBMIGNvZGUuCgogVDMgZm4oVDEgRTEKKAotICAgICAgICAg
-ICAsIFQyIEUyCnwgICAgICAgICAgICwgVDIgRTIKLSAgICAgICAgICAgLCBUNCBFNAopICAgICAp
-OwoKCj4gSXQgbWFrZXMgb25lIHRoaW5rIHRoYXQgbWF5YmUgdGhlIHNlY29uZCBhcmd1bWVudCBj
-YW4gYWxzbyBiZSByZW1vdmVkCgpZb3UgZXhwcmVzc2VkIHRoaXMgYXMgdGhlIGZpcnN0IHRyYW5z
-Zm9ybWF0aW9uIHBvc3NpYmlsaXR5LCBkaWRuJ3QgeW91PwoKWW91IHdvdWxkIGxpa2UgdG8gZGVs
-ZXRlIGFuIGFyZ3VtZW50IGZyb20gdGhlIGVuZCBvZiBhIGZ1bmN0aW9uCm9yIG1hY3JvIHBhcmFt
-ZXRlciAob3IgZXhwcmVzc2lvbikgbGlzdC4KSSBzdWdnZXN0IHRoZW4gYWdhaW4gdG8gYXZvaWQg
-dGhlIFNtUEwgc3BlY2lmaWNhdGlvbiBvZiBzb3VyY2UgY29kZSBhZGRpdGlvbnMKKHBsdXMgbGlu
-ZXMgaW4gdGhlIGZpbGUgZGlmZmVyZW5jZSBmb3JtYXQpLgoKCj4gYW5kIHJlcXVpcmVzIGNhcmVm
-dWwgb2JzZXJ2YXRpb24gdGhhdCB0aGUgIik7IiBmb2xsb3dzLgoKWWVzLCBvZiBjb3Vyc2UuCgpX
-b3VsZCB5b3UgY2FyZSBtb3JlIGluIHRoZSBkaXN0aW5jdGlvbiB3aGljaCBjb2RlIHBhcnRzIHNo
-b3VsZCBiZSBrZXB0IHVuY2hhbmdlZD8KCgo+IFJpZ2h0LCBJIGRvbid0IG5lZWQgaXQgaW4gdGhp
-cyBjYXNlLgoKVGhhbmtzIGZvciB5b3VyIHVuZGVyc3RhbmRpbmcgdGhhdCB0aGUgbWV0YXZhcmlh
-YmxlIOKAnHBvc2l0aW9uIHDigJ0KY2FuIGJlIGRlbGV0ZWQgaW4gdGhlIFNtUEwgcnVsZSDigJxw
-dGVfYWxsb2NfbWFjcm/igJ0uCgoKPiBCdXQgdGhlIHNjcmlwdCB3b3JrcyBlaXRoZXIgd2F5LgoK
-SSBpbWFnaW5lIHRoYXQgeW91IGNhbiBiZWNvbWUgaW50ZXJlc3RlZCBpbiBhIGJpdCBuaWNlciBy
-dW4gdGltZSBjaGFyYWN0ZXJpc3RpY3MuCgoKPiBJIGxpa2UgdG8gdGFrZSBtb3JlIG9mIGEgcHJv
-YmxlbSBzb2x2aW5nIGFwcHJvYWNoIHRoYXQgbWFrZXMgc2Vuc2UsCgpUaGlzIGlzIHVzdWFsLgoK
-Cj4gdGhhbiBhaW1pbmcgZm9yIHBlcmZlY3Rpb24sCgpJZiB5b3Ugd2lsbCB3b3JrIG1vcmUgd2l0
-aCBzY3JpcHRzIGZvciB0aGUgc2VtYW50aWMgcGF0Y2ggbGFuZ3VhZ2UsCnlvdSBtaWdodCBiZWNv
-bWUgdXNlZCB0byBhZGRpdGlvbmFsIGNvZGluZyB2YXJpYW50cy4KCgo+IGFmdGVyIGFsbCB0aGlz
-IGlzIGEgdXNlZnVsIHNjcmlwdCB0aGF0IHdlIGRvIG5vdCBuZWVkIHRvIGNoZWNrCj4gaW4gb25j
-ZSB3ZSBmaW5pc2ggd2l0aCBpdC4KCkkgYW0gY3VyaW91cyBpZiB0aGVyZSB3aWxsIGV2b2x2ZSBh
-IG5lZWQgdG8gYWRkIHNpbWlsYXIgdHJhbnNmb3JtYXRpb24gYXBwcm9hY2hlcwp0byBhIGtub3du
-IHNjcmlwdCBjb2xsZWN0aW9uLgpodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgv
-a2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvdHJlZS9zY3JpcHRzL2NvY2NpbmVsbGU/aWQ9
-NzlmYzE3MGIxZjVjMzZmNDg2ZDg4NmJmYmQ1OWViNGU2MjMyMTEyOAoKV291bGQgeW91IGV2ZW50
-dWFsbHkgbGlrZSB0byBydW4gc3VjaCBzY3JpcHRzIG9uY2UgbW9yZT8KClJlZ2FyZHMsCk1hcmt1
-cwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgt
-c25wcy1hcmMgbWFpbGluZyBsaXN0CmxpbnV4LXNucHMtYXJjQGxpc3RzLmluZnJhZGVhZC5vcmcK
-aHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1zbnBzLWFy
-Yw==
+From: Karsten Graul <kgraul@linux.ibm.com>
+Date: Tue, 16 Oct 2018 16:45:54 +0200
+
+> Commit dd979b4df817 ("net: simplify sock_poll_wait") breaks tcp_poll for 
+> SMC fallback: An AF_SMC socket establishes an internal TCP socket for the 
+> CLC handshake with the remote peer. Whenever the SMC connection can not be 
+> established this CLC socket is used as a fallback. All socket operations on the 
+> SMC socket are then forwarded to the CLC socket. In case of poll, the 
+> file->private_data pointer references the SMC socket because the CLC socket has 
+> no file assigned. This causes tcp_poll to wait on the wrong socket.
+> 
+> This patch fixes the issue by (re)introducing a sock_poll_wait variant with 
+> a socket parameter, and let tcp_poll use this variant.
+> 
+> Fixes: dd979b4df817 ("net: simplify sock_poll_wait")
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+
+Generally speaking, if the invariant of filp->private_data == sock
+does not actually hold true universally, I'd rather revert the
+simplifications and add a big comment to sock_poll_wait() explaining
+this.
+
+Thank you.
