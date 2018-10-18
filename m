@@ -1,33 +1,40 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Thu, 18 Oct 2018 07:42:10 +0000
-Subject: Re: [PATCH 1/5] vfio: ccw: Merge BUSY and BOXED states
-Message-Id: <55485c0c-7c2d-1e9b-b6d9-e1035fd6f7c5@linux.ibm.com>
-In-Reply-To: <e6eb7332-1d0c-09bf-c599-aa4af38845fc@linux.ibm.com>
-References: <e6eb7332-1d0c-09bf-c599-aa4af38845fc@linux.ibm.com>
+Date: Thu, 18 Oct 2018 07:48:38 +0000
+Subject: Re: [PATCH 2/5] vfio: ccw: Register mediated device once all structures are initialized
+Message-Id: <691e1552-0001-06d4-48c8-144f492d990e@linux.ibm.com>
+In-Reply-To: <d2e9ad39-730c-47bf-9a34-cb0b7c94557f@linux.ibm.com>
+References: <d2e9ad39-730c-47bf-9a34-cb0b7c94557f@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 17/10/2018 22:01, Eric Farman wrote:
+On 17/10/2018 22:03, Eric Farman wrote:
 > 
 > 
 > On 10/17/2018 05:18 AM, Pierre Morel wrote:
->> VFIO_CCW_STATE_BOXED and VFIO_CCW_STATE_BUSY have
->> identical actions for the same events.
+>> There is a risk that the mediated device is used before all the
+>> data are initialized if it is register too early.
+> 
+> s/register/registered/
+
+yes
+
+> 
 >>
->> Let's merge both into a single state to simplify the code.
->> We choose to keep VFIO_CCW_STATE_BUSY.
+>> Let's register the mediated device when all the data structures
+>> which could be used are initialized.
+> 
+> I need to look at the later patches more, because I think that helps 
+> this situation too.� But fixing up this ordering seems good to me.
+> 
 >>
 >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > 
-> I like this.
-> 
 > Reviewed-by: Eric Farman <farman@linux.ibm.com>
-> 
->> --
 
-Thanks,
+Thanks for the review Eric
 
 Pierre
+
 
 
 -- 
