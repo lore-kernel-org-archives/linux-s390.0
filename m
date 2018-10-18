@@ -1,77 +1,33 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 17 Oct 2018 10:58:40 +0000
-Subject: Re: [PATCH 0/5] RFC: VFIO CCW cleanup
-Message-Id: <4b0462b1-17e7-4cda-6cb8-091784ef9553@linux.ibm.com>
-In-Reply-To: <20181017112846.18c8e605.cohuck@redhat.com>
-References: <20181017112846.18c8e605.cohuck@redhat.com>
+Date: Thu, 18 Oct 2018 07:42:10 +0000
+Subject: Re: [PATCH 1/5] vfio: ccw: Merge BUSY and BOXED states
+Message-Id: <55485c0c-7c2d-1e9b-b6d9-e1035fd6f7c5@linux.ibm.com>
+In-Reply-To: <e6eb7332-1d0c-09bf-c599-aa4af38845fc@linux.ibm.com>
+References: <e6eb7332-1d0c-09bf-c599-aa4af38845fc@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 17/10/2018 11:28, Cornelia Huck wrote:
-> On Wed, 17 Oct 2018 11:18:38 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On 17/10/2018 22:01, Eric Farman wrote:
 > 
->> Hi Connie, and all,
+> 
+> On 10/17/2018 05:18 AM, Pierre Morel wrote:
+>> VFIO_CCW_STATE_BOXED and VFIO_CCW_STATE_BUSY have
+>> identical actions for the same events.
 >>
->> I come back on the consolidation of the VFIO CCW driver,
->> this time by making smaller steps.
->> Here a first proposal, as RFC, therefore I only CC to
->> the linux-s390 list.
-> 
-> I'll not get around to looking at it in detail until after KVM Forum,
-
-of course. :)
-
-> but...
-> 
+>> Let's merge both into a single state to simplify the code.
+>> We choose to keep VFIO_CCW_STATE_BUSY.
 >>
->> The first patch of this serie is essentially cosmetic
->> to clarify the code.
->>
->> The second patch is a bug correction.
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > 
-> ...this looks small enough to queue right now. It makes sense
-> standalone AFAICS.
+> I like this.
+> 
+> Reviewed-by: Eric Farman <farman@linux.ibm.com>
+> 
+>> --
 
-Yes, I think it does.
-So I make a v1 with only these two patches.
-
-Thanks for the comments
+Thanks,
 
 Pierre
-
-> 
->>
->> The last three patches clarify the linux device state changes.
->>
->> Currently the VFIO CCW driver may be used while it is
->> not completely initialized or not dedicated to a guest.
->> - Let's consolidate this by moving state change and initialization
->>    inside the mediated device open callback.
->> - quiesce the device when the mediated device is released.
->> - refuse to remove a mediated device when it is in use.
->> - do not change the linux state on subchannel events.
->>
->> Regards,
->>
->> Pierre
->>
->>
->> Pierre Morel (5):
->>    vfio: ccw: Merge BUSY and BOXED states
->>    vfio: ccw: Register mediated device once all structures are
->>      initialized
->>    vfio: ccw: Set subchannel state STANDBY on open
->>    vfio: ccw: Refactoring state changes
->>    vfio: ccw: Do not change the mediated device state on sch events
->>
->>   drivers/s390/cio/vfio_ccw_drv.c     | 38 ++++++++++++++++-------------------
->>   drivers/s390/cio/vfio_ccw_fsm.c     |  7 +------
->>   drivers/s390/cio/vfio_ccw_ops.c     | 40 +++++++++++++++++++++++++++----------
->>   drivers/s390/cio/vfio_ccw_private.h |  1 -
->>   4 files changed, 47 insertions(+), 39 deletions(-)
->>
-> 
 
 
 -- 
