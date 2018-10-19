@@ -1,43 +1,89 @@
-Date: Thu, 25 Oct 2018 16:18:35 +0200
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH RFC v3 0/3] Rlimit for module space
-Message-ID: <20181025141835.GS18839@dhcp22.suse.cz>
-References: <20181019204723.3903-1-rick.p.edgecombe@intel.com>
- <CAKv+Gu_AgPv2o4=U0-7pnpgtSufEobnta8oKhhGfCdCxM82B5Q@mail.gmail.com>
- <6b1017c450d163539d2b974657baaaf697f0a138.camel@intel.com>
- <CAKv+Gu-Rk-SQVOQ63L3DkF3=EVik3pHXzpNp5r5TrgDajTM_iQ@mail.gmail.com>
- <20181024150706.jewcclhhh756tupn@linux-8ccs>
- <d7cb6a8c-b7d6-5c82-6721-2b5387da673f@iogearbox.net>
- <d1fec827d028168047eafbac56e8e47d37cf7fb5.camel@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d1fec827d028168047eafbac56e8e47d37cf7fb5.camel@intel.com>
+From: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Subject: [PATCH RFC v3 0/3] Rlimit for module space
+Date: Fri, 19 Oct 2018 13:47:20 -0700
+Message-Id: <20181019204723.3903-1-rick.p.edgecombe@intel.com>
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
-Cc: "daniel@iogearbox.net" <daniel@iogearbox.net>, "jeyu@kernel.org" <jeyu@kernel.org>, "ard.biesheuvel@linaro.org" <ard.biesheuvel@linaro.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jannh@google.com" <jannh@google.com>, "keescook@chromium.org" <keescook@chromium.org>, "arjan@linux.intel.com" <arjan@linux.intel.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tglx@linutronix.de" <tglx@linutronix.de>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "kristen@linux.intel.com" <kristen@linux.intel.com>, "Dock, Deneen T" <deneen.t.dock@intel.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "mingo@redhat.com" <mingo@redhat.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, "bp@alien8.de" <bp@alien8.de>, "Hansen, Dave" <dave.hansen@intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "davem@davemloft.net" <davem@davemloft.net>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "alexei.starovoitov@gmail.com" <alexei.starovoitov@gmail.com>
+To: kernel-hardening@lists.openwall.com, daniel@iogearbox.net, keescook@chromium.org, catalin.marinas@arm.com, will.deacon@arm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, arnd@arndb.de, jeyu@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, jannh@google.com
+Cc: kristen@linux.intel.com, dave.hansen@intel.com, arjan@linux.intel.com, deneen.t.dock@intel.com, Rick Edgecombe <rick.p.edgecombe@intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu 25-10-18 01:01:44, Edgecombe, Rick P wrote:
-[...]
-> FWIW, cgroups seems like a better solution than rlimit to me too. Maybe you all
-> already know, but it looks like the cgroups vmalloc charge is done in the main
-> page allocator and counts against the whole kernel memory limit.
+If BPF JIT is on, there is no effective limit to prevent filling the entire
+module space with JITed e/BPF filters. For classic BPF filters attached with
+setsockopt SO_ATTACH_FILTER, there is no memlock rlimit check to limit the
+number of insertions like there is for the bpf syscall.
 
-I am not sure I understand what you are saying but let me clarify that
-vmalloc memory is accounted against memory cgroup associated with the
-user context calling vmalloc. All you need to do is to add __GFP_ACCOUNT
-to the gfp mask. The only challenge here is the charged memory life
-cycle. When does it get deallocated? In the worst case the memory is not
-tight to any user context and as such it doesn't get deallocated by
-killing all processes which could lead to memcg limit exhaustion.
+This patch adds a per user rlimit for module space, as well as a system wide
+limit for BPF JIT. In a previously reviewed patchset, Jann Horn pointed out the
+problem that in some cases a user can get access to 65536 UIDs, so the effective
+limit cannot be set low enough to stop an attacker and be useful for the general
+case. A discussed alternative solution was a system wide limit for BPF JIT
+filters. This much more simply resolves the problem of exhaustion and
+de-randomizing in the case of non-CONFIG_BPF_JIT_ALWAYS_ON. If
+CONFIG_BPF_JIT_ALWAYS_ON is on however, BPF insertions will fail if another user
+exhausts the BPF JIT limit. In this case a per user limit is still needed. If
+the subuid facility is disabled for normal users, this should still be ok
+because the higher limit will not be able to be worked around that way.
 
-> A user may want
-> to have a higher kernel limit than the module space size, so it seems it isn't
-> enough by itself and some new limit would need to be added.
+The new BPF JIT limit can be set like this:
+echo 5000000 > /proc/sys/net/core/bpf_jit_limit
 
-If there is another restriction on this memory then you are right.
+So I *think* this patchset should resolve that issue except for the
+configuration of CONFIG_BPF_JIT_ALWAYS_ON and subuid allowed for normal users.
+Better module space KASLR is another way to resolve the de-randomizing issue,
+and so then you would just be left with the BPF DOS in that configuration.
+
+Jann also pointed out how, with purposely fragmenting the module space, you
+could make the effective module space blockage area much larger. This is also
+somewhat un-resolved. The impact would depend on how big of a space you are
+trying to allocate. The limit has been lowered on x86_64 so that at least
+typical sized BPF filters cannot be blocked.
+
+If anyone with more experience with subuid/user namespaces has any suggestions
+I'd be glad to hear. On an Ubuntu machine it didn't seem like a un-privileged
+user could do this. I am going to keep working on this and see if I can find a
+better solution.
+
+Changes since v2:
+ - System wide BPF JIT limit (discussion with Jann Horn)
+ - Holding reference to user correctly (Jann)
+ - Having arch versions of modulde_alloc (Dave Hansen, Jessica Yu)
+ - Shrinking of default limits, to help prevent the limit being worked around
+   with fragmentation (Jann)
+
+Changes since v1:
+ - Plug in for non-x86
+ - Arch specific default values
+
+
+Rick Edgecombe (3):
+  modules: Create arch versions of module alloc/free
+  modules: Create rlimit for module space
+  bpf: Add system wide BPF JIT limit
+
+ arch/arm/kernel/module.c                |   2 +-
+ arch/arm64/kernel/module.c              |   2 +-
+ arch/mips/kernel/module.c               |   2 +-
+ arch/nds32/kernel/module.c              |   2 +-
+ arch/nios2/kernel/module.c              |   4 +-
+ arch/parisc/kernel/module.c             |   2 +-
+ arch/s390/kernel/module.c               |   2 +-
+ arch/sparc/kernel/module.c              |   2 +-
+ arch/unicore32/kernel/module.c          |   2 +-
+ arch/x86/include/asm/pgtable_32_types.h |   3 +
+ arch/x86/include/asm/pgtable_64_types.h |   2 +
+ arch/x86/kernel/module.c                |   2 +-
+ fs/proc/base.c                          |   1 +
+ include/asm-generic/resource.h          |   8 ++
+ include/linux/bpf.h                     |   7 ++
+ include/linux/filter.h                  |   1 +
+ include/linux/sched/user.h              |   4 +
+ include/uapi/asm-generic/resource.h     |   3 +-
+ kernel/bpf/core.c                       |  22 +++-
+ kernel/bpf/inode.c                      |  16 +++
+ kernel/module.c                         | 152 +++++++++++++++++++++++-
+ net/core/sysctl_net_core.c              |   7 ++
+ 22 files changed, 233 insertions(+), 15 deletions(-)
+
 -- 
-Michal Hocko
-SUSE Labs
+2.17.1
