@@ -1,25 +1,48 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Date: Sat, 20 Oct 2018 17:05:56 +0000
-Subject: Re: [PATCH v1 1/2] vfio: ccw: Merge BUSY and BOXED states
-Message-Id: <20181020190556.474756cd.cohuck@redhat.com>
-In-Reply-To: <2aa1b730-d3f0-4b10-ff7b-436ad838b300@linux.ibm.com>
-References: <2aa1b730-d3f0-4b10-ff7b-436ad838b300@linux.ibm.com>
+Date: Sat, 20 Oct 2018 17:07:35 +0000
+Subject: Re: [PATCH v1 0/2] vfio: ccw: VFIO CCW cleanup part1
+Message-Id: <20181020190735.5c925ac6.cohuck@redhat.com>
+In-Reply-To: <03d48cca-8788-75dc-9699-1ccbc166ae6e@ns360863.ovh.net>
+References: <03d48cca-8788-75dc-9699-1ccbc166ae6e@ns360863.ovh.net>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 18 Oct 2018 15:49:47 -0400
-Eric Farman <farman@linux.ibm.com> wrote:
+On Fri, 19 Oct 2018 11:36:37 +0200
+Pierre Morel <pmorel@ns360863.ovh.net> wrote:
 
-> On 10/18/2018 09:12 AM, Cornelia Huck wrote:
-
-> > OK, so I can pick patch 2 (if you're happy with that) and we can
-> > discuss this one later.  
+> Le 10/18/18 � 21:48, Eric Farman a �crit�:
+> > 
+> > 
+> > On 10/18/2018 03:51 AM, Pierre Morel wrote:  
+> >> The first patch of this serie is essentially cosmetic
+> >> to clarify the code.
+> >>
+> >> The second patch is a bug correction.
+> >>
+> >>
+> >>
+> >> Pierre Morel (2):
+> >> �� vfio: ccw: Merge BUSY and BOXED states
+> >> �� vfio: ccw: Register mediated device once all structures are
+> >> ���� initialized
+> >>
+> >> � drivers/s390/cio/vfio_ccw_drv.c���� | 8 ++++----
+> >> � drivers/s390/cio/vfio_ccw_fsm.c���� | 7 +------
+> >> � drivers/s390/cio/vfio_ccw_private.h | 1 -
+> >> � 3 files changed, 5 insertions(+), 11 deletions(-)
+> >>  
+> > 
+> > You said in the changelog (which gets omitted in reply) that you added 
+> > my r-b, but I don't see it.� For the record, I'm still good with these.  
+> > :-)
+> > 
+> >  �- Eric
+> > 
+> >   
+> Oh, indeed, sorry.
+> I wont forget next time.
 > 
-> Per Pierre's response, I don't share Halil's concern here.  But I think 
-> the state stuff gets better with the other patches in the RFC series. 
-> So if patch 1 waits until we get a chance to look at its cousins, I'm 
-> fine with that too.  (I haven't looked at them myself, I just remember 
-> an earlier series and thinking it looked promising.  I still intend to 
-> look at them as time permits.)
+> Pierre
 
-Yes, looking at this in conjunction with the other patches makes sense.
+In this case, I can add the R-b if I apply patch 2 (which I think I'll
+do).
