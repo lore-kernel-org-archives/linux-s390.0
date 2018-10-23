@@ -1,89 +1,33 @@
-From: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Subject: [PATCH RFC v3 0/3] Rlimit for module space
-Date: Fri, 19 Oct 2018 13:47:20 -0700
-Message-Id: <20181019204723.3903-1-rick.p.edgecombe@intel.com>
-List-Archive: <https://lore.kernel.org/kernel-hardening/>
-List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: kernel-hardening@lists.openwall.com, daniel@iogearbox.net, keescook@chromium.org, catalin.marinas@arm.com, will.deacon@arm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, arnd@arndb.de, jeyu@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, jannh@google.com
-Cc: kristen@linux.intel.com, dave.hansen@intel.com, arjan@linux.intel.com, deneen.t.dock@intel.com, Rick Edgecombe <rick.p.edgecombe@intel.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] Revert "net: simplify sock_poll_wait"
+Date: Tue, 23 Oct 2018 10:57:36 -0700 (PDT)
+Message-ID: <20181023.105736.1045050740571467220.davem@davemloft.net>
+References: <20181023114039.56959-1-kgraul@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20181023114039.56959-1-kgraul@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, eric.dumazet@gmail.com, hch@lst.de, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-If BPF JIT is on, there is no effective limit to prevent filling the entire
-module space with JITed e/BPF filters. For classic BPF filters attached with
-setsockopt SO_ATTACH_FILTER, there is no memlock rlimit check to limit the
-number of insertions like there is for the bpf syscall.
+From: Karsten Graul <kgraul@linux.ibm.com>
+Date: Tue, 23 Oct 2018 13:40:39 +0200
 
-This patch adds a per user rlimit for module space, as well as a system wide
-limit for BPF JIT. In a previously reviewed patchset, Jann Horn pointed out the
-problem that in some cases a user can get access to 65536 UIDs, so the effective
-limit cannot be set low enough to stop an attacker and be useful for the general
-case. A discussed alternative solution was a system wide limit for BPF JIT
-filters. This much more simply resolves the problem of exhaustion and
-de-randomizing in the case of non-CONFIG_BPF_JIT_ALWAYS_ON. If
-CONFIG_BPF_JIT_ALWAYS_ON is on however, BPF insertions will fail if another user
-exhausts the BPF JIT limit. In this case a per user limit is still needed. If
-the subuid facility is disabled for normal users, this should still be ok
-because the higher limit will not be able to be worked around that way.
+> This reverts commit dd979b4df817e9976f18fb6f9d134d6bc4a3c317.
+> 
+> This broke tcp_poll for SMC fallback: An AF_SMC socket establishes an
+> internal TCP socket for the initial handshake with the remote peer.
+> Whenever the SMC connection can not be established this TCP socket is
+> used as a fallback. All socket operations on the SMC socket are then
+> forwarded to the TCP socket. In case of poll, the file->private_data
+> pointer references the SMC socket because the TCP socket has no file
+> assigned. This causes tcp_poll to wait on the wrong socket.
+> 
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 
-The new BPF JIT limit can be set like this:
-echo 5000000 > /proc/sys/net/core/bpf_jit_limit
-
-So I *think* this patchset should resolve that issue except for the
-configuration of CONFIG_BPF_JIT_ALWAYS_ON and subuid allowed for normal users.
-Better module space KASLR is another way to resolve the de-randomizing issue,
-and so then you would just be left with the BPF DOS in that configuration.
-
-Jann also pointed out how, with purposely fragmenting the module space, you
-could make the effective module space blockage area much larger. This is also
-somewhat un-resolved. The impact would depend on how big of a space you are
-trying to allocate. The limit has been lowered on x86_64 so that at least
-typical sized BPF filters cannot be blocked.
-
-If anyone with more experience with subuid/user namespaces has any suggestions
-I'd be glad to hear. On an Ubuntu machine it didn't seem like a un-privileged
-user could do this. I am going to keep working on this and see if I can find a
-better solution.
-
-Changes since v2:
- - System wide BPF JIT limit (discussion with Jann Horn)
- - Holding reference to user correctly (Jann)
- - Having arch versions of modulde_alloc (Dave Hansen, Jessica Yu)
- - Shrinking of default limits, to help prevent the limit being worked around
-   with fragmentation (Jann)
-
-Changes since v1:
- - Plug in for non-x86
- - Arch specific default values
-
-
-Rick Edgecombe (3):
-  modules: Create arch versions of module alloc/free
-  modules: Create rlimit for module space
-  bpf: Add system wide BPF JIT limit
-
- arch/arm/kernel/module.c                |   2 +-
- arch/arm64/kernel/module.c              |   2 +-
- arch/mips/kernel/module.c               |   2 +-
- arch/nds32/kernel/module.c              |   2 +-
- arch/nios2/kernel/module.c              |   4 +-
- arch/parisc/kernel/module.c             |   2 +-
- arch/s390/kernel/module.c               |   2 +-
- arch/sparc/kernel/module.c              |   2 +-
- arch/unicore32/kernel/module.c          |   2 +-
- arch/x86/include/asm/pgtable_32_types.h |   3 +
- arch/x86/include/asm/pgtable_64_types.h |   2 +
- arch/x86/kernel/module.c                |   2 +-
- fs/proc/base.c                          |   1 +
- include/asm-generic/resource.h          |   8 ++
- include/linux/bpf.h                     |   7 ++
- include/linux/filter.h                  |   1 +
- include/linux/sched/user.h              |   4 +
- include/uapi/asm-generic/resource.h     |   3 +-
- kernel/bpf/core.c                       |  22 +++-
- kernel/bpf/inode.c                      |  16 +++
- kernel/module.c                         | 152 +++++++++++++++++++++++-
- net/core/sysctl_net_core.c              |   7 ++
- 22 files changed, 233 insertions(+), 15 deletions(-)
-
--- 
-2.17.1
+Applied and queued up for -stable, thank you.
