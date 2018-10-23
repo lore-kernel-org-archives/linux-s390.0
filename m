@@ -1,48 +1,28 @@
-MIME-Version: 1.0
-References: <20181011233117.7883-1-rick.p.edgecombe@intel.com>
- <20181011233117.7883-2-rick.p.edgecombe@intel.com> <CAG48ez2fWg64nGxDXUQS3695KpVNrakAbarXJnYPd6xv5wOD+A@mail.gmail.com>
- <7b0714e26c7c2216721641d7df16a49687927e37.camel@intel.com>
- <CAG48ez0XfGFAWDYa75COMPCsKqqGfBFOtcNuGD4_dubGf2YeAQ@mail.gmail.com> <657e6d0ada18e8ca0350bc6b3a80c49b3c0b341c.camel@intel.com>
-In-Reply-To: <657e6d0ada18e8ca0350bc6b3a80c49b3c0b341c.camel@intel.com>
-From: Jann Horn <jannh@google.com>
-Date: Sat, 13 Oct 2018 02:09:09 +0200
-Message-ID: <CAG48ez383rjt+v_DvLF902X33od_SwMh8dZ-6=w1DZ-YPZ_U9Q@mail.gmail.com>
+Date: Tue, 23 Oct 2018 13:32:34 +0200
+From: Michal Hocko <mhocko@kernel.org>
 Subject: Re: [PATCH v2 1/7] modules: Create rlimit for module space
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20181023113234.GH32333@dhcp22.suse.cz>
+References: <20181011233117.7883-1-rick.p.edgecombe@intel.com>
+ <20181011233117.7883-2-rick.p.edgecombe@intel.com>
+ <CAG48ez2fWg64nGxDXUQS3695KpVNrakAbarXJnYPd6xv5wOD+A@mail.gmail.com>
+ <7b0714e26c7c2216721641d7df16a49687927e37.camel@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7b0714e26c7c2216721641d7df16a49687927e37.camel@intel.com>
 List-Archive: <https://lore.kernel.org/kernel-hardening/>
 List-Post: <mailto:kernel-hardening@lists.openwall.com>
-To: rick.p.edgecombe@intel.com
-Cc: linux-fsdevel@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Kees Cook <keescook@chromium.org>, jeyu@kernel.org, Arjan van de Ven <arjan@linux.intel.com>, linux-mips@linux-mips.org, Thomas Gleixner <tglx@linutronix.de>, linux-s390 <linux-s390@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, kristen@linux.intel.com, deneen.t.dock@intel.com, Catalin Marinas <catalin.marinas@arm.com>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@intel.com>, linux-arm-kernel@lists.infradead.org, "David S. Miller" <davem@davemloft.net>, linux-arch <linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, sparclinux@vger.kernel.org
+To: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
+Cc: "jannh@google.com" <jannh@google.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "keescook@chromium.org" <keescook@chromium.org>, "jeyu@kernel.org" <jeyu@kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "arjan@linux.intel.com" <arjan@linux.intel.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "kristen@linux.intel.com" <kristen@linux.intel.com>, "Dock, Deneen T" <deneen.t.dock@intel.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "mingo@redhat.com" <mingo@redhat.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, "bp@alien8.de" <bp@alien8.de>, "Hansen, Dave" <dave.hansen@intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "davem@davemloft.net" <davem@davemloft.net>, "arnd@arndb.de" <arnd@arndb.de>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Oct 13, 2018 at 2:04 AM Edgecombe, Rick P
-<rick.p.edgecombe@intel.com> wrote:
-> On Fri, 2018-10-12 at 19:22 +0200, Jann Horn wrote:
-> > On Fri, Oct 12, 2018 at 7:04 PM Edgecombe, Rick P
-> > <rick.p.edgecombe@intel.com> wrote:
-> > > On Fri, 2018-10-12 at 02:35 +0200, Jann Horn wrote:
-> > > > Why all the rbtree stuff instead of stashing a pointer in struct
-> > > > vmap_area, or something like that?
-> > >
-> > > Since the tracking was not for all vmalloc usage, the intention was to not
-> > > bloat
-> > > the structure for other usages likes stacks. I thought usually there
-> > > wouldn't be
-> > > nearly as much module space allocations as there would be kernel stacks, but
-> > > I
-> > > didn't do any actual measurements on the tradeoffs.
-> >
-> > I imagine that one extra pointer in there - pointing to your struct
-> > mod_alloc_user - would probably not be terrible. 8 bytes more per
-> > kernel stack shouldn't be so bad?
->
-> I looked into this and it starts to look a little messy. The nommu.c version of
-> vmalloc doesn't use or expose access to vmap_area or vm_struct. So it starts to
-> look like a bunch of IFDEFs to remove the rlimit in the nommu case or making a
-> stand in that maintains pretend vm struct's in nommu.c. I had actually
-> previously tried to at least pull the allocations size from vmalloc structs, but it broke on nommu.
->
-> Thought I would check back and see. How important do you think this is?
+On Fri 12-10-18 17:04:46, Edgecombe, Rick P wrote:
+[...]
+> Any thoughts on if instead of all this there was just a system wide limit on BPF
+> JIT module space usage?
 
-I don't think it's important - I just thought that it would be nice to
-avoid the extra complexity if it is easily avoidable.
+We do allow to charge vmalloc memory to a memory cgroup. Isn't that a
+way forward?
+-- 
+Michal Hocko
+SUSE Labs
