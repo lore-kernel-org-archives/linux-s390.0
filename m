@@ -1,28 +1,32 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Date: Thu, 25 Oct 2018 12:37:51 +0000
-Subject: [PATCH 10/10] KVM: s390: start using the GIB
-Message-Id: <20181025123751.48809-11-mimu@linux.ibm.com>
+From: Jens Axboe <axboe@kernel.dk>
+Date: Thu, 25 Oct 2018 14:20:11 +0000
+Subject: Re: [PATCH] dasd: remove dead code
+Message-Id: <62e695aa-5e97-67a6-a40c-2b6bf2edcf2a@kernel.dk>
+In-Reply-To: <20181025090757.43024-1-sth@linux.ibm.com>
+References: <20181025090757.43024-1-sth@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-By initializing the GIB, it will we used by the kvm host.
+On 10/25/18 3:07 AM, Stefan Haberland wrote:
+>> Great that you want to fix it. Since this is holding up a patch queue,
+>> I'd appreciate if I can carry it in my tree to avoid having dependencies
+>> on external trees for the legacy IO path removal for 4.21.
+>>
+> 
+> OK, here is the patch. 
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 1 +
- 1 file changed, 1 insertion(+)
+Thanks!
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d1f1550c95b4..1f42f27fc627 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -425,6 +425,7 @@ int kvm_arch_init(void *opaque)
- 		return -ENOMEM;
- 	}
- 
-+	kvm_s390_gib_init(GAL_ISC);
- 	kvm_s390_cpu_feat_init();
- 
- 	/* Register floating interrupt controller interface. */
+>> Note that the entire block has been unreachable since the conversion
+>> went in May 2017, and nobody noticed.
+> 
+> I know. The code in the ifdef was not used for years. So this can be
+> removed.
+> The chanq counter may be useful for debugging purposes so I would
+> like to keep it.
+
+Fair enough, I'll queue up the revised versions. Thanks again.
+
+
 -- 
-2.17.0
+Jens Axboe
