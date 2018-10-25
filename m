@@ -1,59 +1,28 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Thu, 25 Oct 2018 12:37:45 +0000
-Subject: [PATCH 04/10] KVM: s390: add metric vcpus_in_sie to struct kvm_arch
-Message-Id: <20181025123751.48809-5-mimu@linux.ibm.com>
+Date: Thu, 25 Oct 2018 12:37:51 +0000
+Subject: [PATCH 10/10] KVM: s390: start using the GIB
+Message-Id: <20181025123751.48809-11-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This metric will allow to identify how many vcpus are currently
-running for a given kvm in SIE context. Its value is between 0 and
-the number of vcpus defined for the kvm guest, but never lager than
-the number of cpus available to the KVM host in total.
-
-This metric is required to decide if the GISA IAM has to be restored
-from the kvm arch field of the guest. That will be the case when no
-vcpu is in SIE context. (vcpus_in_sie == 0)
+By initializing the GIB, it will we used by the kvm host.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 1 +
- arch/s390/kvm/kvm-s390.c         | 4 ++++
- 2 files changed, 5 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 01be3b666b11..a9ec2da399b5 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -839,6 +839,7 @@ struct kvm_arch{
- 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
- 	struct kvm_s390_gisa *gisa;
- 	int gib_in_use;
-+	atomic_t vcpus_in_sie;
- };
- 
- #define KVM_HVA_ERR_BAD		(-1UL)
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index c75b01856092..213d16e5b16a 100644
+index d1f1550c95b4..1f42f27fc627 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -3358,6 +3358,8 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
- 		kvm_s390_patch_guest_per_regs(vcpu);
+@@ -425,6 +425,7 @@ int kvm_arch_init(void *opaque)
+ 		return -ENOMEM;
  	}
  
-+	atomic_inc(&vcpu->kvm->arch.vcpus_in_sie);
-+
- 	vcpu->arch.sie_block->icptcode = 0;
- 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
- 	VCPU_EVENT(vcpu, 6, "entering sie flags %x", cpuflags);
-@@ -3417,6 +3419,8 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- 	vcpu->run->s.regs.gprs[14] = vcpu->arch.sie_block->gg14;
- 	vcpu->run->s.regs.gprs[15] = vcpu->arch.sie_block->gg15;
++	kvm_s390_gib_init(GAL_ISC);
+ 	kvm_s390_cpu_feat_init();
  
-+	atomic_dec(&vcpu->kvm->arch.vcpus_in_sie);
-+
- 	if (exit_reason == -EINTR) {
- 		VCPU_EVENT(vcpu, 3, "%s", "machine check");
- 		sie_page = container_of(vcpu->arch.sie_block,
+ 	/* Register floating interrupt controller interface. */
 -- 
 2.17.0
