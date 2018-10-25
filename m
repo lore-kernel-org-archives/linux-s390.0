@@ -1,58 +1,41 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Thu, 25 Oct 2018 17:15:19 +0000
-Subject: [PATCH v2 1/2] vfio: ccw: Merge BUSY and BOXED states
-Message-Id: <1540487720-11634-2-git-send-email-pmorel@linux.ibm.com>
+Date: Thu, 25 Oct 2018 17:15:20 +0000
+Subject: [PATCH v2 2/2] vfio: ccw: Register mediated device once all structures are initialized
+Message-Id: <1540487720-11634-3-git-send-email-pmorel@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-VFIO_CCW_STATE_BOXED and VFIO_CCW_STATE_BUSY have
-identical actions for the same events.
-
-Let's merge both into a single state to simplify the code.
-We choose to keep VFIO_CCW_STATE_BUSY.
+Let's register the mediated device when all the data structures
+which could be used are initialized.
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_fsm.c     | 7 +------
- drivers/s390/cio/vfio_ccw_private.h | 1 -
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index f94aa01f9c36..cab17865aafe 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -130,7 +130,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 	struct mdev_device *mdev = private->mdev;
- 	char *errstr = "request";
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index f47d16b5810b..33fd53f49bf2 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -134,14 +134,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	if (ret)
+ 		goto out_free;
  
--	private->state = VFIO_CCW_STATE_BOXED;
-+	private->state = VFIO_CCW_STATE_BUSY;
+-	ret = vfio_ccw_mdev_reg(sch);
+-	if (ret)
+-		goto out_disable;
+-
+ 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
+ 	atomic_set(&private->avail, 1);
+ 	private->state = VFIO_CCW_STATE_STANDBY;
  
- 	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
++	ret = vfio_ccw_mdev_reg(sch);
++	if (ret)
++		goto out_disable;
++
+ 	return 0;
  
-@@ -216,11 +216,6 @@ fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
- 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_request,
- 		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
- 	},
--	[VFIO_CCW_STATE_BOXED] = {
--		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
--		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
--		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
--	},
- 	[VFIO_CCW_STATE_BUSY] = {
- 		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
- 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 078e46f9623d..08e9a7dc9176 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -63,7 +63,6 @@ enum vfio_ccw_state {
- 	VFIO_CCW_STATE_NOT_OPER,
- 	VFIO_CCW_STATE_STANDBY,
- 	VFIO_CCW_STATE_IDLE,
--	VFIO_CCW_STATE_BOXED,
- 	VFIO_CCW_STATE_BUSY,
- 	/* last element! */
- 	NR_VFIO_CCW_STATES
+ out_disable:
 -- 
 2.17.0
