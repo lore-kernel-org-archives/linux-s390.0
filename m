@@ -1,8 +1,8 @@
 Return-Path: <SRS0=k9B+=NF=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 25 Oct 2018 15:48:04 +0900
+Date: Thu, 25 Oct 2018 16:05:43 +0900
 From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
 Subject: Re: [PATCH] s390/fault: use wake_up_klogd() in bust_spinlocks()
-Message-ID: <20181025064804.GA20702@jagdpanzerIV>
+Message-ID: <20181025070543.GB20702@jagdpanzerIV>
 References: <20181024043048.21248-1-sergey.senozhatsky@gmail.com>
  <20181024043425.GA8862@jagdpanzerIV>
  <20181025062800.GB4037@osiris>
@@ -18,23 +18,6 @@ Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Martin Schwidefsky <
 List-ID: <linux-s390.vger.kernel.org>
 
 On (10/25/18 08:28), Heiko Carstens wrote:
-[..]
-> >  		int loglevel_save = console_loglevel;
-> > -		console_unblank();
-> > -		oops_in_progress = 0;
-> > -		/*
-> > -		 * OK, the message is on the console.  Now we call printk()
-> > -		 * without oops_in_progress set so that printk will give klogd
-> > -		 * a poke.  Hold onto your hats...
-> > -		 */
-> > +
-> >  		console_loglevel = 15;
-> > -		printk(" ");
-> > +		console_unblank();
-> >  		console_loglevel = loglevel_save;
-> > +		oops_in_progress = 0;
-> > +		wake_up_klogd();
-> >  	}
 > 
 > With your patch this looks nearly like the common code variant. I did
 > some code archaeology and this function is unchanged since ~17 years.
@@ -42,24 +25,102 @@ On (10/25/18 08:28), Heiko Carstens wrote:
 > All other architectures use the common code variant in the
 > meantime. So if we change this I'd prefer that we switch s390 to the
 > common code variant as well.
-
-Right. I couldn't clearly understand what was so special that s390
-bust_spinlock() was doing, but assumed that this `console_loglevel'
-manipulation probably was somehow important to s390. Though this
-console_loglevel adjustment is not 100% guaranteed to make any difference,
-because of the way console_unblank() works: if it can't lock console_sem
-and it sees oops_in_progress then it does nothing; it doesn't even print
-logbuf messages to the consoles. If, however, console_sem is not locked,
-then it does print pending logbuf messages, with temporarily verbose
-console_loglevel. I concluded that this might be important to you in
-one way or another.
-
+> 
 > Right now I can't see a reason for not doing that, but I might be
 > wrong of course. So, could you please provide a new version which just
 > removes this variant and makes s390 use the generic one too.
 > 
 > We'll see if there is any fallout...
 
-Will do! Sounds good.
+Heiko, if this one works for you then I'll submit a format patch.
+Let me know. Thanks.
 
-	-ss
+====
+
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Subject: [PATCH] arch/s390: use common bust_spinlocks()
+
+s390 is the only architecture that is using own bust_spinlocks()
+variant, while other arch-s seem to be OK with the common
+implementation.
+
+Heiko Carstens [1] said he would prefer s390 to use the common
+bust_spinlocks() as well:
+  I did some code archaeology and this function is unchanged since ~17
+  years. When it was introduced it was close to identical to the x86
+  variant. All other architectures use the common code variant in the
+  meantime. So if we change this I'd prefer that we switch s390 to the
+  common code variant as well. Right now I can't see a reason for not
+  doing that
+
+This patch removes s390 bust_spinlocks() and drops the weak attribute
+from the common bust_spinlocks() version.
+
+[1] lkml.kernel.org/r/20181025062800.GB4037@osiris
+Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+---
+ arch/s390/mm/fault.c | 24 ------------------------
+ lib/bust_spinlocks.c |  6 +++---
+ 2 files changed, 3 insertions(+), 27 deletions(-)
+
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 2b8f32f56e0c..11613362c4e7 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -81,30 +81,6 @@ static inline int notify_page_fault(struct pt_regs *regs)
+ 	return ret;
+ }
+ 
+-
+-/*
+- * Unlock any spinlocks which will prevent us from getting the
+- * message out.
+- */
+-void bust_spinlocks(int yes)
+-{
+-	if (yes) {
+-		oops_in_progress = 1;
+-	} else {
+-		int loglevel_save = console_loglevel;
+-		console_unblank();
+-		oops_in_progress = 0;
+-		/*
+-		 * OK, the message is on the console.  Now we call printk()
+-		 * without oops_in_progress set so that printk will give klogd
+-		 * a poke.  Hold onto your hats...
+-		 */
+-		console_loglevel = 15;
+-		printk(" ");
+-		console_loglevel = loglevel_save;
+-	}
+-}
+-
+ /*
+  * Find out which address space caused the exception.
+  * Access register mode is impossible, ignore space == 3.
+diff --git a/lib/bust_spinlocks.c b/lib/bust_spinlocks.c
+index ab719495e2cb..8be59f84eaea 100644
+--- a/lib/bust_spinlocks.c
++++ b/lib/bust_spinlocks.c
+@@ -2,7 +2,8 @@
+ /*
+  * lib/bust_spinlocks.c
+  *
+- * Provides a minimal bust_spinlocks for architectures which don't have one of their own.
++ * Provides a minimal bust_spinlocks for architectures which don't
++ * have one of their own.
+  *
+  * bust_spinlocks() clears any spinlocks which would prevent oops, die(), BUG()
+  * and panic() information from reaching the user.
+@@ -16,8 +17,7 @@
+ #include <linux/vt_kern.h>
+ #include <linux/console.h>
+ 
+-
+-void __attribute__((weak)) bust_spinlocks(int yes)
++void bust_spinlocks(int yes)
+ {
+ 	if (yes) {
+ 		++oops_in_progress;
+-- 
+2.19.1
