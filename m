@@ -1,32 +1,34 @@
-From: Jens Axboe <axboe@kernel.dk>
-Date: Thu, 25 Oct 2018 14:20:11 +0000
-Subject: Re: [PATCH] dasd: remove dead code
-Message-Id: <62e695aa-5e97-67a6-a40c-2b6bf2edcf2a@kernel.dk>
-In-Reply-To: <20181025090757.43024-1-sth@linux.ibm.com>
-References: <20181025090757.43024-1-sth@linux.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 25 Oct 2018 17:15:18 +0000
+Subject: [PATCH v2 0/2] vfio: ccw: VFIO CCW cleanup part1
+Message-Id: <1540487720-11634-1-git-send-email-pmorel@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/25/18 3:07 AM, Stefan Haberland wrote:
->> Great that you want to fix it. Since this is holding up a patch queue,
->> I'd appreciate if I can carry it in my tree to avoid having dependencies
->> on external trees for the legacy IO path removal for 4.21.
->>
-> 
-> OK, here is the patch. 
+The goal of the patches of this serie is to clarify the code
+and to prepare for a better state/event handling.
 
-Thanks!
+Pierre Morel (2):
+  vfio: ccw: Merge BUSY and BOXED states
+  vfio: ccw: Register mediated device once all structures are
+    initialized
 
->> Note that the entire block has been unreachable since the conversion
->> went in May 2017, and nobody noticed.
-> 
-> I know. The code in the ifdef was not used for years. So this can be
-> removed.
-> The chanq counter may be useful for debugging purposes so I would
-> like to keep it.
-
-Fair enough, I'll queue up the revised versions. Thanks again.
-
+ drivers/s390/cio/vfio_ccw_drv.c     | 8 ++++----
+ drivers/s390/cio/vfio_ccw_fsm.c     | 7 +------
+ drivers/s390/cio/vfio_ccw_private.h | 1 -
+ 3 files changed, 5 insertions(+), 11 deletions(-)
 
 -- 
-Jens Axboe
+2.17.0
+
+
+Changelog:
+
+from v1:
+- change commit message
+- add reviewed-by from Eric (Really this time)
+
+from v0:
+- isolate these two patches from the previous serie
+- Added Reviewed-by Eric
+- Ortographic correction
