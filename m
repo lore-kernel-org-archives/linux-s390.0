@@ -1,65 +1,59 @@
-From: Stefan Haberland <sth@linux.ibm.com>
-Date: Thu, 25 Oct 2018 09:07:57 +0000
-Subject: [PATCH 1/1] dasd: remove dead code
-Message-Id: <20181025090757.43024-2-sth@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Date: Thu, 25 Oct 2018 12:37:45 +0000
+Subject: [PATCH 04/10] KVM: s390: add metric vcpus_in_sie to struct kvm_arch
+Message-Id: <20181025123751.48809-5-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Jens Axboe <axboe@kernel.dk>
+This metric will allow to identify how many vcpus are currently
+running for a given kvm in SIE context. Its value is between 0 and
+the number of vcpus defined for the kvm guest, but never lager than
+the number of cpus available to the KVM host in total.
 
-Since e443343e509a we haven't had a request_fn attached to
-this driver, hence any code inside an if (q->request_fn) is
-unreachable.
+This metric is required to decide if the GISA IAM has to be restored
+from the kvm arch field of the guest. That will be the case when no
+vcpu is in SIE context. (vcpus_in_sie == 0)
 
-Fixes: e443343e509a ("s390/dasd: blk-mq conversion")
-[sth: Keep and fix the dasd_info->chanq_len counter.]
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/block/dasd_ioctl.c | 22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 1 +
+ arch/s390/kvm/kvm-s390.c         | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index 2016e0ed5865..8e26001dc11c 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -412,6 +412,7 @@ static int dasd_ioctl_information(struct dasd_block *block,
- 	struct ccw_dev_id dev_id;
- 	struct dasd_device *base;
- 	struct ccw_device *cdev;
-+	struct list_head *l;
- 	unsigned long flags;
- 	int rc;
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 01be3b666b11..a9ec2da399b5 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -839,6 +839,7 @@ struct kvm_arch{
+ 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
+ 	struct kvm_s390_gisa *gisa;
+ 	int gib_in_use;
++	atomic_t vcpus_in_sie;
+ };
  
-@@ -462,23 +463,10 @@ static int dasd_ioctl_information(struct dasd_block *block,
+ #define KVM_HVA_ERR_BAD		(-1UL)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index c75b01856092..213d16e5b16a 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3358,6 +3358,8 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
+ 		kvm_s390_patch_guest_per_regs(vcpu);
+ 	}
  
- 	memcpy(dasd_info->type, base->discipline->name, 4);
++	atomic_inc(&vcpu->kvm->arch.vcpus_in_sie);
++
+ 	vcpu->arch.sie_block->icptcode = 0;
+ 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
+ 	VCPU_EVENT(vcpu, 6, "entering sie flags %x", cpuflags);
+@@ -3417,6 +3419,8 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+ 	vcpu->run->s.regs.gprs[14] = vcpu->arch.sie_block->gg14;
+ 	vcpu->run->s.regs.gprs[15] = vcpu->arch.sie_block->gg15;
  
--	if (block->request_queue->request_fn) {
--		struct list_head *l;
--#ifdef DASD_EXTENDED_PROFILING
--		{
--			struct list_head *l;
--			spin_lock_irqsave(&block->lock, flags);
--			list_for_each(l, &block->request_queue->queue_head)
--				dasd_info->req_queue_len++;
--			spin_unlock_irqrestore(&block->lock, flags);
--		}
--#endif				/* DASD_EXTENDED_PROFILING */
--		spin_lock_irqsave(get_ccwdev_lock(base->cdev), flags);
--		list_for_each(l, &base->ccw_queue)
--			dasd_info->chanq_len++;
--		spin_unlock_irqrestore(get_ccwdev_lock(base->cdev),
--				       flags);
--	}
-+	spin_lock_irqsave(&block->queue_lock, flags);
-+	list_for_each(l, &base->ccw_queue)
-+		dasd_info->chanq_len++;
-+	spin_unlock_irqrestore(&block->queue_lock, flags);
- 
- 	rc = 0;
- 	if (copy_to_user(argp, dasd_info,
++	atomic_dec(&vcpu->kvm->arch.vcpus_in_sie);
++
+ 	if (exit_reason == -EINTR) {
+ 		VCPU_EVENT(vcpu, 3, "%s", "machine check");
+ 		sie_page = container_of(vcpu->arch.sie_block,
 -- 
-2.16.4
+2.17.0
