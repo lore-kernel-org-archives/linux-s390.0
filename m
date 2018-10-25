@@ -1,336 +1,57 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH v2 1/2] arch: Add asm-generic/initrd.h and make use of it for most architectures
-Date: Wed, 24 Oct 2018 12:32:55 -0700
-Message-ID: <20181024193256.23734-2-f.fainelli@gmail.com>
-In-Reply-To: <20181024193256.23734-1-f.fainelli@gmail.com>
-References: <20181024193256.23734-1-f.fainelli@gmail.com>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20181024193255.aYYLDCurHjBioOOCn9fIVofRjQQKEZVsBq1jykT2v7s@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Marc Zyngier <marc.zyngier@arm.com>, Olof Johansson <olof@lixom.net>, "open list:ALPHA PORT" <linux-alpha@vger.kernel.org>, "open list:SYNOPSYS ARC ARCHITECTURE" <linux-snps-arc@lists.infradead.org>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, "open list:C6X ARCHITECTURE" <linux-c6x-dev@linux-c6x.org>, "moderated list:H8/300
-        ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>, "open list:QUALCOMM HEXAGON ARCHITECTURE" <linux-hexagon@vger.kernel.org>, "open list:IA64 Itanium PLATFORM" <linux-ia64@vger.kernel.org>, "open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>, "open list:MIPS" <linux-mips@linux-mips.org>, "moderated list:NIOS2 ARCHITECTURE" <nios2-dev@lists.rocketboards.org>, "open list:OPENRISC ARCHITECTURE" <openrisc@lists.librecores.org>, "open list:PARISC ARCHITECTURE" <linux-parisc@vger.kernel.org>, "open list:LINUX FOR POWERPC 32-BIT AND
-        64-BIT" <linuxppc-dev@lists.ozlabs.org>, "open list:RISC-V ARCHITECTURE" <linux-riscv@lists.infradead.org>, "open list:S390" <linux-s390@vger.kernel.org>, "open list:SUPERH" <linux-sh@vger.kernel.org>, "open list:SPARC + UltraSPARC
-        sparc/sparc64" <sparclinux@vger.kernel.org>, "open list:USER-MODE LINUX UML" <linux-um@lists.infradead.org>, "open list:TENSILICA XTENSA PORT xtensa" <linux-xtensa@linux-xtensa.org>, "open list:OPEN FIRMWARE AND FLATTENED
-        DEVICE TREE" <devicetree@vger.kernel.org>, "open list:GENERIC INCLUDE/ASM HEADER FILES" <linux-arch@vger.kernel.org>
+Return-Path: <SRS0=k9B+=NF=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Thu, 25 Oct 2018 17:28:27 +0900
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Subject: Re: [PATCH] s390/fault: use wake_up_klogd() in bust_spinlocks()
+Message-ID: <20181025082827.GC20702@jagdpanzerIV>
+References: <20181024043048.21248-1-sergey.senozhatsky@gmail.com>
+ <20181024043425.GA8862@jagdpanzerIV>
+ <20181025062800.GB4037@osiris>
+ <20181025070543.GB20702@jagdpanzerIV>
+ <20181025081108.GB26561@osiris>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181025081108.GB26561@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Peter Oberparleiter <oberpar@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-In preparation for separating the definition of
-__early_init_dt_declare_initrd() on ARM64 in order to cut the amount of
-files that require a rebuild when CONFIG_BLK_DEV_INITRD value is
-changed, introduce an empty asm-generic initrd.h file and update all
-architectures but arm64 to make use of it.
+On (10/25/18 10:11), Heiko Carstens wrote:
+> > s390 is the only architecture that is using own bust_spinlocks()
+> > variant, while other arch-s seem to be OK with the common
+> > implementation.
+> > 
+> > Heiko Carstens [1] said he would prefer s390 to use the common
+> > bust_spinlocks() as well:
+> >   I did some code archaeology and this function is unchanged since ~17
+> >   years. When it was introduced it was close to identical to the x86
+> >   variant. All other architectures use the common code variant in the
+> >   meantime. So if we change this I'd prefer that we switch s390 to the
+> >   common code variant as well. Right now I can't see a reason for not
+> >   doing that
+> > 
+> > This patch removes s390 bust_spinlocks() and drops the weak attribute
+> > from the common bust_spinlocks() version.
+> > 
+> > [1] lkml.kernel.org/r/20181025062800.GB4037@osiris
+> > Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+> > ---
+> >  arch/s390/mm/fault.c | 24 ------------------------
+> >  lib/bust_spinlocks.c |  6 +++---
+> >  2 files changed, 3 insertions(+), 27 deletions(-)
+> 
+> I gave this some testing and forced panic/die in interrupt as well as
+> process context with different consoles as well as single and multi
+> cpu systems. Everything still seems to work.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- arch/alpha/include/asm/Kbuild      | 1 +
- arch/arc/include/asm/Kbuild        | 1 +
- arch/arm/include/asm/Kbuild        | 1 +
- arch/c6x/include/asm/Kbuild        | 1 +
- arch/h8300/include/asm/Kbuild      | 1 +
- arch/hexagon/include/asm/Kbuild    | 1 +
- arch/ia64/include/asm/Kbuild       | 1 +
- arch/m68k/include/asm/Kbuild       | 1 +
- arch/microblaze/include/asm/Kbuild | 1 +
- arch/mips/include/asm/Kbuild       | 1 +
- arch/nds32/include/asm/Kbuild      | 1 +
- arch/nios2/include/asm/Kbuild      | 1 +
- arch/openrisc/include/asm/Kbuild   | 1 +
- arch/parisc/include/asm/Kbuild     | 1 +
- arch/powerpc/include/asm/Kbuild    | 1 +
- arch/riscv/include/asm/Kbuild      | 1 +
- arch/s390/include/asm/Kbuild       | 1 +
- arch/sh/include/asm/Kbuild         | 1 +
- arch/sparc/include/asm/Kbuild      | 1 +
- arch/um/include/asm/Kbuild         | 1 +
- arch/unicore32/include/asm/Kbuild  | 1 +
- arch/x86/include/asm/Kbuild        | 1 +
- arch/xtensa/include/asm/Kbuild     | 1 +
- include/asm-generic/initrd.h       | 1 +
- 24 files changed, 24 insertions(+)
- create mode 100644 include/asm-generic/initrd.h
+That was quick ;) Thanks.
 
-diff --git a/arch/alpha/include/asm/Kbuild b/arch/alpha/include/asm/Kbuild
-index 0580cb8c84b2..cd6f723aed1b 100644
---- a/arch/alpha/include/asm/Kbuild
-+++ b/arch/alpha/include/asm/Kbuild
-@@ -5,6 +5,7 @@ generic-y += compat.h
- generic-y += exec.h
- generic-y += export.h
- generic-y += fb.h
-+generic-y += initrd.h
- generic-y += irq_work.h
- generic-y += mcs_spinlock.h
- generic-y += mm-arch-hooks.h
-diff --git a/arch/arc/include/asm/Kbuild b/arch/arc/include/asm/Kbuild
-index feed50ce89fa..ba18632aa493 100644
---- a/arch/arc/include/asm/Kbuild
-+++ b/arch/arc/include/asm/Kbuild
-@@ -10,6 +10,7 @@ generic-y += fb.h
- generic-y += ftrace.h
- generic-y += hardirq.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kmap_types.h
-diff --git a/arch/arm/include/asm/Kbuild b/arch/arm/include/asm/Kbuild
-index 1d66db9c9db5..b91d5b32e64f 100644
---- a/arch/arm/include/asm/Kbuild
-+++ b/arch/arm/include/asm/Kbuild
-@@ -4,6 +4,7 @@ generic-y += early_ioremap.h
- generic-y += emergency-restart.h
- generic-y += exec.h
- generic-y += extable.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += kdebug.h
- generic-y += local.h
-diff --git a/arch/c6x/include/asm/Kbuild b/arch/c6x/include/asm/Kbuild
-index 33a2c94fed0d..9e14cf6e89b4 100644
---- a/arch/c6x/include/asm/Kbuild
-+++ b/arch/c6x/include/asm/Kbuild
-@@ -13,6 +13,7 @@ generic-y += extable.h
- generic-y += fb.h
- generic-y += futex.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += io.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
-diff --git a/arch/h8300/include/asm/Kbuild b/arch/h8300/include/asm/Kbuild
-index a5d0b2991f47..7d4e06a757c8 100644
---- a/arch/h8300/include/asm/Kbuild
-+++ b/arch/h8300/include/asm/Kbuild
-@@ -19,6 +19,7 @@ generic-y += futex.h
- generic-y += hardirq.h
- generic-y += hash.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kdebug.h
-diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
-index 47c4da3d64a4..0be62abf2123 100644
---- a/arch/hexagon/include/asm/Kbuild
-+++ b/arch/hexagon/include/asm/Kbuild
-@@ -13,6 +13,7 @@ generic-y += fb.h
- generic-y += ftrace.h
- generic-y += hardirq.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += iomap.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
-diff --git a/arch/ia64/include/asm/Kbuild b/arch/ia64/include/asm/Kbuild
-index 557bbc8ba9f5..1a1f1e4ba0d5 100644
---- a/arch/ia64/include/asm/Kbuild
-+++ b/arch/ia64/include/asm/Kbuild
-@@ -1,5 +1,6 @@
- generic-y += compat.h
- generic-y += exec.h
-+generic-y += initrd.h
- generic-y += irq_work.h
- generic-y += mcs_spinlock.h
- generic-y += mm-arch-hooks.h
-diff --git a/arch/m68k/include/asm/Kbuild b/arch/m68k/include/asm/Kbuild
-index a4b8d3331a9e..9903551e0c9c 100644
---- a/arch/m68k/include/asm/Kbuild
-+++ b/arch/m68k/include/asm/Kbuild
-@@ -7,6 +7,7 @@ generic-y += exec.h
- generic-y += extable.h
- generic-y += futex.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kdebug.h
-diff --git a/arch/microblaze/include/asm/Kbuild b/arch/microblaze/include/asm/Kbuild
-index 569ba9e670c1..ec37e6304be5 100644
---- a/arch/microblaze/include/asm/Kbuild
-+++ b/arch/microblaze/include/asm/Kbuild
-@@ -11,6 +11,7 @@ generic-y += exec.h
- generic-y += extable.h
- generic-y += fb.h
- generic-y += hardirq.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kdebug.h
-diff --git a/arch/mips/include/asm/Kbuild b/arch/mips/include/asm/Kbuild
-index 9a81e72119da..005ef04a4c73 100644
---- a/arch/mips/include/asm/Kbuild
-+++ b/arch/mips/include/asm/Kbuild
-@@ -5,6 +5,7 @@ generic-y += device.h
- generic-y += dma-contiguous.h
- generic-y += emergency-restart.h
- generic-y += export.h
-+generic-y += initrd.h
- generic-y += irq_work.h
- generic-y += local64.h
- generic-y += mcs_spinlock.h
-diff --git a/arch/nds32/include/asm/Kbuild b/arch/nds32/include/asm/Kbuild
-index dbc4e5422550..1400aaf0c840 100644
---- a/arch/nds32/include/asm/Kbuild
-+++ b/arch/nds32/include/asm/Kbuild
-@@ -25,6 +25,7 @@ generic-y += ftrace.h
- generic-y += gpio.h
- generic-y += hardirq.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += ioctl.h
- generic-y += ioctls.h
- generic-y += irq.h
-diff --git a/arch/nios2/include/asm/Kbuild b/arch/nios2/include/asm/Kbuild
-index 8fde4fa2c34f..d89de02549ee 100644
---- a/arch/nios2/include/asm/Kbuild
-+++ b/arch/nios2/include/asm/Kbuild
-@@ -18,6 +18,7 @@ generic-y += ftrace.h
- generic-y += futex.h
- generic-y += hardirq.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kdebug.h
-diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index eb87cd8327c8..296fd55e8473 100644
---- a/arch/openrisc/include/asm/Kbuild
-+++ b/arch/openrisc/include/asm/Kbuild
-@@ -15,6 +15,7 @@ generic-y += fb.h
- generic-y += ftrace.h
- generic-y += hardirq.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += irq.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
-diff --git a/arch/parisc/include/asm/Kbuild b/arch/parisc/include/asm/Kbuild
-index 2013d639e735..1382d78a2477 100644
---- a/arch/parisc/include/asm/Kbuild
-+++ b/arch/parisc/include/asm/Kbuild
-@@ -5,6 +5,7 @@ generic-y += div64.h
- generic-y += emergency-restart.h
- generic-y += exec.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kdebug.h
-diff --git a/arch/powerpc/include/asm/Kbuild b/arch/powerpc/include/asm/Kbuild
-index 3196d227e351..e3ea67c30605 100644
---- a/arch/powerpc/include/asm/Kbuild
-+++ b/arch/powerpc/include/asm/Kbuild
-@@ -1,5 +1,6 @@
- generic-y += div64.h
- generic-y += export.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += local64.h
-diff --git a/arch/riscv/include/asm/Kbuild b/arch/riscv/include/asm/Kbuild
-index efdbe311e936..0e67ed69c423 100644
---- a/arch/riscv/include/asm/Kbuild
-+++ b/arch/riscv/include/asm/Kbuild
-@@ -17,6 +17,7 @@ generic-y += futex.h
- generic-y += hardirq.h
- generic-y += hash.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += ioctl.h
- generic-y += ioctls.h
- generic-y += ipcbuf.h
-diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
-index e3239772887a..dc618745d427 100644
---- a/arch/s390/include/asm/Kbuild
-+++ b/arch/s390/include/asm/Kbuild
-@@ -13,6 +13,7 @@ generic-y += div64.h
- generic-y += emergency-restart.h
- generic-y += export.h
- generic-y += fb.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kmap_types.h
-diff --git a/arch/sh/include/asm/Kbuild b/arch/sh/include/asm/Kbuild
-index 6a5609a55965..c006a7cf3a43 100644
---- a/arch/sh/include/asm/Kbuild
-+++ b/arch/sh/include/asm/Kbuild
-@@ -5,6 +5,7 @@ generic-y += div64.h
- generic-y += dma-mapping.h
- generic-y += emergency-restart.h
- generic-y += exec.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += local.h
-diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
-index 410b263ef5c8..a5772c2a96c8 100644
---- a/arch/sparc/include/asm/Kbuild
-+++ b/arch/sparc/include/asm/Kbuild
-@@ -5,6 +5,7 @@ generic-y += div64.h
- generic-y += emergency-restart.h
- generic-y += exec.h
- generic-y += export.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += linkage.h
-diff --git a/arch/um/include/asm/Kbuild b/arch/um/include/asm/Kbuild
-index b10dde6cb793..032cfe1b530b 100644
---- a/arch/um/include/asm/Kbuild
-+++ b/arch/um/include/asm/Kbuild
-@@ -12,6 +12,7 @@ generic-y += ftrace.h
- generic-y += futex.h
- generic-y += hardirq.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += io.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
-diff --git a/arch/unicore32/include/asm/Kbuild b/arch/unicore32/include/asm/Kbuild
-index 1372553dc0a9..32e7dea45fcd 100644
---- a/arch/unicore32/include/asm/Kbuild
-+++ b/arch/unicore32/include/asm/Kbuild
-@@ -13,6 +13,7 @@ generic-y += ftrace.h
- generic-y += futex.h
- generic-y += hardirq.h
- generic-y += hw_irq.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kdebug.h
-diff --git a/arch/x86/include/asm/Kbuild b/arch/x86/include/asm/Kbuild
-index a0ab9ab61c75..290bd1c3ee2d 100644
---- a/arch/x86/include/asm/Kbuild
-+++ b/arch/x86/include/asm/Kbuild
-@@ -9,5 +9,6 @@ generated-y += xen-hypercalls.h
- generic-y += dma-contiguous.h
- generic-y += early_ioremap.h
- generic-y += export.h
-+generic-y += initrd.h
- generic-y += mcs_spinlock.h
- generic-y += mm-arch-hooks.h
-diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
-index 82c756431b49..f2c363f2d22a 100644
---- a/arch/xtensa/include/asm/Kbuild
-+++ b/arch/xtensa/include/asm/Kbuild
-@@ -9,6 +9,7 @@ generic-y += exec.h
- generic-y += extable.h
- generic-y += fb.h
- generic-y += hardirq.h
-+generic-y += initrd.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kdebug.h
-diff --git a/include/asm-generic/initrd.h b/include/asm-generic/initrd.h
-new file mode 100644
-index 000000000000..40a8c178f10d
---- /dev/null
-+++ b/include/asm-generic/initrd.h
-@@ -0,0 +1 @@
-+/* empty */
--- 
-2.17.1
+> So I'm applying this to our internal queue first. It will hit upstream
+> latest in the next merge window if there aren't any issues found.
+
+Sure; sounds like a plan.
+
+	-ss
