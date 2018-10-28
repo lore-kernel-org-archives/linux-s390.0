@@ -1,41 +1,27 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Thu, 25 Oct 2018 17:15:20 +0000
-Subject: [PATCH v2 2/2] vfio: ccw: Register mediated device once all structures are initialized
-Message-Id: <1540487720-11634-3-git-send-email-pmorel@linux.ibm.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+From: Petr Vorel <pvorel@suse.cz>
+Date: Sun, 28 Oct 2018 11:23:15 +0000
+Subject: [PATCH 1/1] s390/config: Enable CONFIG_PRINTK_TIME in defconfig
+Message-Id: <20181028112315.29462-1-pvorel@suse.cz>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Let's register the mediated device when all the data structures
-which could be used are initialized.
+s390 defconfig uses the same value default value for CONFIG_LOG_BUF_SHIFT
+(currently 17), which is the same as other s390 configs, which enable
+CONFIG_PRINTK_TIME. There is no need to have it disabled for defconfig.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Petr Vorel <pvorel@suse.cz>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index f47d16b5810b..33fd53f49bf2 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -134,14 +134,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_free;
- 
--	ret = vfio_ccw_mdev_reg(sch);
--	if (ret)
--		goto out_disable;
--
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
- 	atomic_set(&private->avail, 1);
- 	private->state = VFIO_CCW_STATE_STANDBY;
- 
-+	ret = vfio_ccw_mdev_reg(sch);
-+	if (ret)
-+		goto out_disable;
-+
- 	return 0;
- 
- out_disable:
+diff --git a/arch/s390/defconfig b/arch/s390/defconfig
+index 7cb6a52f727d..646244a6885d 100644
+--- a/arch/s390/defconfig
++++ b/arch/s390/defconfig
+@@ -248,3 +248,4 @@ CONFIG_CRC7=m
+ # CONFIG_XZ_DEC_ARMTHUMB is not set
+ # CONFIG_XZ_DEC_SPARC is not set
+ CONFIG_CMM=m
++CONFIG_PRINTK_TIME=y
 -- 
-2.17.0
+2.12.3
