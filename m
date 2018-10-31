@@ -1,52 +1,63 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 31 Oct 2018 12:40:47 +0000
-Subject: Re: [PATCH 00/10] KVM: s390: make use of the GIB
-Message-Id: <8e4fd7d4-f6d9-909d-538d-180f36236247@linux.ibm.com>
-In-Reply-To: <1137077f-91ed-5699-1726-63627dc741d0@de.ibm.com>
-References: <1137077f-91ed-5699-1726-63627dc741d0@de.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Wed, 31 Oct 2018 12:45:58 +0000
+Subject: Re: [PATCH 09/10] KVM: s390: add and wire function gib_alert_irq_handler()
+Message-Id: <20181031134558.15f1a8f0.cohuck@redhat.com>
+In-Reply-To: <e4d9545a-32f9-6e0b-b781-49e5cc2162f1@linux.ibm.com>
+References: <e4d9545a-32f9-6e0b-b781-49e5cc2162f1@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 31/10/2018 13:36, Christian Borntraeger wrote:
-> 
-> 
-> On 10/31/2018 01:29 PM, Cornelia Huck wrote:
->> On Wed, 31 Oct 2018 13:11:10 +0100
->> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
->>
->>> On 10/31/2018 11:09 AM, David Hildenbrand wrote:
->>>> On 25.10.18 14:37, Michael Mueller wrote:
->>>>> The Guest Information Area (GIB) and its mechanics is part of
->>>>> the AIV facility. It provides hardware support to process
->>>>> Adapter Interruptions (AI) for pagable storage mode guests.
->>>>>
->>>>> Whenever a guest cannot process an AI because none of its
->>>>> vcpus is running in SIE context, a GIB alert interruption is
->>>>> sent to and handled by the host program to dispatch a vcpu of
->>>>> the respective guest.
->>>>>
->>>>> Eventually, the AI is handled by the guest.
->>>>
->>>>
->>>> This does not apply to vSIE, right?
->>>
->>> We do not provide GISA, GIB and friends to the guest (e.g. we do not have
->>> the scp bits set). So right now we do not have anything to do for vsie.
->>>
->>
->> Any plans to do so in the future?
-> 
-> Since GISA is just a performance optimization I am not sure if we really want
-> to go down the path to also provide that for nested guests. Right now it this
-> is just a speedup that the guest1 can use to improve the speed of guest2. If
-> guest3 is a bit slower that should be fine for now.
-> 
-> Pierre can you post your patches that make use of the GIB in vfio-ap so that
-> everybody can see the full picture?
-> 
+On Thu, 25 Oct 2018 14:37:50 +0200
+Michael Mueller <mimu@linux.ibm.com> wrote:
 
-OK, I do.
+> The patch implements a handler for GIB alert interruptions
+> on the host. Its task is to alert storage backed guests that
+> interrupts are pending for them.
+> 
+> A GIB alert interrupt statistic counter is added as well:
+> 
+> $ cat /proc/interrupts
+>           CPU0       CPU1
+>   ...
+>   GAL:       0          0   [I/O] GIB Alert
+>   ...
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/irq.h |  1 +
+>  arch/s390/include/asm/isc.h |  1 +
+>  arch/s390/kernel/irq.c      |  1 +
+>  arch/s390/kvm/interrupt.c   | 45 +++++++++++++++++++++++++++++++++----
+>  arch/s390/kvm/kvm-s390.c    |  5 +++++
+>  5 files changed, 49 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
+> index 2f7f27e5493f..afaf5e3c57fd 100644
+> --- a/arch/s390/include/asm/irq.h
+> +++ b/arch/s390/include/asm/irq.h
+> @@ -62,6 +62,7 @@ enum interruption_class {
+>  	IRQIO_MSI,
+>  	IRQIO_VIR,
+>  	IRQIO_VAI,
+> +	IRQIO_GAL,
+>  	NMI_NMI,
+>  	CPU_RST,
+>  	NR_ARCH_IRQS
+> diff --git a/arch/s390/include/asm/isc.h b/arch/s390/include/asm/isc.h
+> index 6cb9e2ed05b6..b2cc1ec78d06 100644
+> --- a/arch/s390/include/asm/isc.h
+> +++ b/arch/s390/include/asm/isc.h
+> @@ -21,6 +21,7 @@
+>  /* Adapter interrupts. */
+>  #define QDIO_AIRQ_ISC IO_SCH_ISC	/* I/O subchannel in qdio mode */
+>  #define PCI_ISC 2			/* PCI I/O subchannels */
+> +#define GAL_ISC 5			/* GIB alert */
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in B�blingen - Germany
+Dumb question: iscs are ordered by priority. What are the semantics
+here? Are gib alerts only for ap-style adapter interrupts (at least
+currently, it seems to me like that)? Is there a requirement to use a
+distinct isc?
+
+>  #define AP_ISC 6			/* adjunct processor (crypto) devices */
+>  
+>  /* Functions for registration of I/O interruption subclasses */
