@@ -1,58 +1,106 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Mon, 29 Oct 2018 14:04:34 +0000
-Subject: Re: [PATCH 06/10] KVM: s390: add kvm reference to struct sie_page2
-Message-Id: <6b0e9186-aadd-0205-1077-b7c448e06108@linux.ibm.com>
-In-Reply-To: <20181025123751.48809-7-mimu@linux.ibm.com>
-References: <20181025123751.48809-7-mimu@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Wed, 31 Oct 2018 08:25:12 +0000
+Subject: Re: [PATCH 03/10] KVM: s390: factor out nullify_gisa()
+Message-Id: <938101fc-0840-7270-68c7-00cdd150efb3@linux.ibm.com>
+In-Reply-To: <20181025123751.48809-4-mimu@linux.ibm.com>
+References: <20181025123751.48809-4-mimu@linux.ibm.com>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--JF45VwyApr2jbkjJCwlTai9KI2MNjxteo"
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 25/10/2018 14:37, Michael Mueller wrote:
-> Adding the kvm reference to struct sie_page2 will allow to
-> determine the kvm a given gisa belongs to:
-> 
->    container_of(gisa, struct sie_page2, gisa)->kvm
-> 
-> This functionality will be required to process a gisa in
-> gib alert interruption context.
-> 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--JF45VwyApr2jbkjJCwlTai9KI2MNjxteo
+Content-Type: multipart/mixed; boundary="EmG1HoKllkhti7jROSn5AWFoSmiDAVvvN";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.ibm.com>
+To: Michael Mueller <mimu@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+ Heiko Carstens <heiko.carstens@de.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+ Sebastian Ott <sebott@linux.ibm.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>,
+ Tony Krowiak <akrowiak@linux.vnet.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>,
+ Halil Pasic <pasic@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <938101fc-0840-7270-68c7-00cdd150efb3@linux.ibm.com>
+Subject: Re: [PATCH 03/10] KVM: s390: factor out nullify_gisa()
+References: <20181025123751.48809-1-mimu@linux.ibm.com>
+ <20181025123751.48809-4-mimu@linux.ibm.com>
+In-Reply-To: <20181025123751.48809-4-mimu@linux.ibm.com>
+
+--EmG1HoKllkhti7jROSn5AWFoSmiDAVvvN
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 25.10.18 14:37, Michael Mueller wrote:
+> This function will be used by the GIB alert handler and during
+> the GISA clear operation. Thus it gets factored out here.
+>=20
 > Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+
 > ---
->   arch/s390/include/asm/kvm_host.h | 3 ++-
->   arch/s390/kvm/kvm-s390.c         | 1 +
->   2 files changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index a9ec2da399b5..b5f671d7d167 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -793,7 +793,8 @@ struct sie_page2 {
->   	__u64 fac_list[S390_ARCH_FAC_LIST_SIZE_U64];	/* 0x0000 */
->   	struct kvm_s390_crypto_cb crycb;		/* 0x0800 */
->   	struct kvm_s390_gisa gisa;			/* 0x0900 */
-> -	u8 reserved920[0x1000 - 0x920];			/* 0x0920 */
-> +	struct kvm *kvm;				/* 0x0920 */
-> +	u8 reserved928[0x1000 - 0x928];			/* 0x0928 */
->   };
->   
->   struct kvm_s390_vsie {
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 213d16e5b16a..3b358b62bf55 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2128,6 +2128,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->   	if (!kvm->arch.sie_page2)
->   		goto out_err;
->   
-> +	kvm->arch.sie_page2->kvm = kvm;
->   	kvm->arch.model.fac_list = kvm->arch.sie_page2->fac_list;
->   
->   	for (i = 0; i < kvm_s390_fac_size(); i++) {
-> 
-
-Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
+>  arch/s390/kvm/interrupt.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 3789a9ad8dee..ce258d6b7c06 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -2886,11 +2886,16 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcp=
+u, __u8 __user *buf, int len)
+>  	return n;
+>  }
+> =20
+> +static void nullify_gisa(struct kvm_s390_gisa *gisa)
+> +{
+> +	memset(gisa, 0, sizeof(struct kvm_s390_gisa));
+> +	gisa->next_alert =3D (u32)(u64)gisa;
+> +}
+> +
+>  void kvm_s390_gisa_clear(struct kvm *kvm)
+>  {
+>  	if (kvm->arch.gisa) {
+> -		memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
+> -		kvm->arch.gisa->next_alert =3D (u32)(u64)kvm->arch.gisa;
+> +		nullify_gisa(kvm->arch.gisa);
+>  		VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+>  	}
+>  }
+>=20
 
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in B�blingen - Germany
+
+--EmG1HoKllkhti7jROSn5AWFoSmiDAVvvN--
+
+--JF45VwyApr2jbkjJCwlTai9KI2MNjxteo
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJb2WboAAoJEONU5rjiOLn4m8kP/RLHoKSSHnfLDpiy+Ewpq6zm
+7RQb46SWK7TJyKV34ZsUc76edtoLgFiG2qLYmgbomvZReNBrrIfAhXcqOyPeW99+
+7PMLwMfKn/G74YH0jHQNbrckWVfNOMCqzgV4pX7FocF2QH1hNJcyhd7EsynlL2Ul
+tgU+xzNRZeDbTfEFDnA4QlI5gNbSDklAbtu9iO7XaEIs/AX2HDoA06s552MRCRLM
+vU4/Q422kgs+n8RqHJBqjRxWyfGz9KnaC/HM55437G6vw+Ki5c9BdLdPbtxflKvV
+IHnI3oHYJkp/iFWEagruHMqezytFltLRnpUssOt24WbyYecnSSJo7pl+34mNXNW7
+ptWWMhk/jc8aWfSaJsZqyAaGmX7IBgA8da7h/CapImmhuOAmf57tVrHVuC/AIqVU
+5FYujBNzGvmGq4WE4XDSr/OnNyT/qVlq5NPSBmMSk1r0U8v+DEIRK+vQOqvLCI/u
+LjMdvsqxlfsQSDatokEpd7v8zYnSAVoJUo82gwBbX0tHxjO1CoiHKAy5ZepnsLrC
++dtKGNehl/kwvsP0atP3nW4rPJA9cxDkYZc0oMSdfRhWqTHZhYXPtIXNHTXCKY22
+0gDVlgrgcMD3Q8Cd045bsxveFvUiVcPLFZ179W9kG/2d1RUFGQ+MqoM7kLfB6M2n
+Y73o1oOp+/sqt6SxG53T
+=N4mK
+-----END PGP SIGNATURE-----
+
+--JF45VwyApr2jbkjJCwlTai9KI2MNjxteo--
