@@ -1,109 +1,103 @@
-From: Janosch Frank <frankja@linux.ibm.com>
-Date: Wed, 31 Oct 2018 08:58:52 +0000
-Subject: Re: [PATCH 05/10] KVM: s390: add function unlink_gib_alert_list()
-Message-Id: <00721da8-79b1-678c-322e-f0c5ac47028e@linux.ibm.com>
-In-Reply-To: <da9d09f3-c488-250f-8eb5-bdac5d609444@linux.ibm.com>
-References: <da9d09f3-c488-250f-8eb5-bdac5d609444@linux.ibm.com>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--qt3nJ1uZ9TFZHIGRGDohfSrQepiQ4hfzy"
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Wed, 31 Oct 2018 12:14:00 +0000
+Subject: Re: [PATCH 07/10] KVM: s390: add function process_gib_alert_list()
+Message-Id: <8d3e8b7d-3c73-8620-0d83-305d430b1a83@linux.ibm.com>
+In-Reply-To: <20181025123751.48809-8-mimu@linux.ibm.com>
+References: <20181025123751.48809-8-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---qt3nJ1uZ9TFZHIGRGDohfSrQepiQ4hfzy
-Content-Type: multipart/mixed; boundary="NljoN4AVzlgUbcsMWiiL6gKdItu2TAv0z";
- protected-headers="v1"
-From: Janosch Frank <frankja@linux.ibm.com>
-To: Michael Mueller <mimu@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
- Heiko Carstens <heiko.carstens@de.ibm.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>,
- David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- Sebastian Ott <sebott@linux.ibm.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Julian Wiedmann <jwi@linux.vnet.ibm.com>,
- Tony Krowiak <akrowiak@linux.vnet.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>,
- Halil Pasic <pasic@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
- Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <00721da8-79b1-678c-322e-f0c5ac47028e@linux.ibm.com>
-Subject: Re: [PATCH 05/10] KVM: s390: add function unlink_gib_alert_list()
-References: <20181025123751.48809-1-mimu@linux.ibm.com>
- <20181025123751.48809-6-mimu@linux.ibm.com>
-In-Reply-To: <20181025123751.48809-6-mimu@linux.ibm.com>
-
---NljoN4AVzlgUbcsMWiiL6gKdItu2TAv0z
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-On 25.10.18 14:37, Michael Mueller wrote:
-> The function atomically returns the address of the first
-> GISA of this list and stores a zero address in the origin
-> list field of the GIB instead.
->=20
-> The GIB alert list contains all GISAs that have pending
-> adapter interruptions.
->=20
+On 25/10/2018 14:37, Michael Mueller wrote:
+> This function processes a gib alert list. It is required to
+> run when either a gib alert interruption has been received or
+> a gisa that might be in the alert list is cleared or dropped.
+> 
 > Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-
-That's a trivial seven line function, which you start using in patch #9
-and you need to add __maybe_unused so it keeps compiling.
-
-Please squash that.
-
 > ---
->  arch/s390/kvm/interrupt.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->=20
+>   arch/s390/kvm/interrupt.c | 38 ++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 38 insertions(+)
+> 
 > diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index ce258d6b7c06..487cad95e2c9 100644
+> index 487cad95e2c9..920c065ce1d3 100644
 > --- a/arch/s390/kvm/interrupt.c
 > +++ b/arch/s390/kvm/interrupt.c
-> @@ -2886,6 +2886,14 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu=
-, __u8 __user *buf, int len)
->  	return n;
->  }
-> =20
-> +static struct kvm_s390_gisa __maybe_unused *unlink_gib_alert_list(void=
-)
+> @@ -2900,6 +2900,44 @@ static void nullify_gisa(struct kvm_s390_gisa *gisa)
+>   	gisa->next_alert = (u32)(u64)gisa;
+>   }
+>   
+> +/*
+> + * Before processing, the gib alert list needs to be cut-off from
+> + * the gib by means of function unlink_gib_alert_list(). If non NULL,
+> + * the list is processed from its latest to oldest entry.
+> + *
+> + * Processing an gisa entry needs to wake-up a vcpu of the kvm this gisa
+> + * belongs to. Thus, the pending guest interruption will be processed
+> + * in SIE context.
+> + *
+> + * Whenever a gisa is cleared (e.g. on vm reset) or a gisa is dropped
+> + * (e.g. on vm termination) it might be part of the gib alert list.
+> + * Thus, these operations need to process the alert list as well.
+> + */
+> +static void __maybe_unused process_gib_alert_list(
+> +	struct kvm_s390_gisa *gisa,
+> +	struct kvm_s390_gisa *gisa_to_nullify,
+> +	struct kvm_s390_gisa *gisa_to_drop)
 > +{
-> +	if (!gib)
-> +		return NULL;
+> +	struct kvm_s390_gisa *next_alert;
+> +	struct kvm *kvm;
 > +
-> +	return (void *)(u64) atomic_xchg(&gib->alert_list_origin, 0);
+
+Isn't this function a little bit complex?
+I think we can make it clearer.
+
+- The first argument is always AFAIU unlink_gib_alert_list(), then
+why not just call this function inside of process_gib_alert_list() ?
+
+- The action to do is related to the KVM/GISA, may be some state inside 
+KVM or GISA to differentiate the processing?
+
+All the GISA in this list need to be handled anyway if we are coming 
+from an IRQ, a CLEAR_IRQ or a RESET but...
+
+
+> +	for (; gisa; gisa = next_alert) {
+> +		next_alert = (struct kvm_s390_gisa *)(u64)gisa->next_alert;
+> +		/* unlink from alert list */
+> +		gisa->next_alert = (u32)(u64)gisa;
+> +		/* skip if to clear or drop */
+> +		if (gisa == gisa_to_nullify ||
+> +		    gisa == gisa_to_drop)
+> +			continue;
+
+... here:
+I am not sure what happens if two guest are being reset at a time,
+it seems to me that one is reset and one get kicked.
+
+
+> +		/* wake-up a vcpu of the kvm this gisa belongs to */
+> +		kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
+> +		__floating_irq_kick(kvm, KVM_S390_INT_IO(1, 0, 0, 0));
+
+Do we really need to insert a floating interrupt?
+Wouldn't a simple kvm_s390_vcpu_wakeup() after choosing the vcpu be enough?
+
+
+> +	}
+> +
+> +	if (gisa_to_nullify)
+> +		nullify_gisa(gisa_to_nullify);
+
+we already reset the next_alert pointer
+if we want to clear the interrupt we just need to clear IPM
+
 > +}
 > +
->  static void nullify_gisa(struct kvm_s390_gisa *gisa)
->  {
->  	memset(gisa, 0, sizeof(struct kvm_s390_gisa));
->=20
+>   void kvm_s390_gisa_clear(struct kvm *kvm)
+>   {
+>   	if (kvm->arch.gisa) {
+> 
 
 
-
---NljoN4AVzlgUbcsMWiiL6gKdItu2TAv0z--
-
---qt3nJ1uZ9TFZHIGRGDohfSrQepiQ4hfzy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJb2W7MAAoJEONU5rjiOLn4D9wQAKUFV3ao8d4AYutG6gsXrEWy
-1JMpczC1MUzRWynXxrnpHeO2KnSy0u//pp4OGp5d4M3tm7FCkSgnLOlcvIZnpjmB
-eYJQuhbSojxMB844Ds55IqOW4qrye4hMOj7A/Xf/eg1NMk5WkbUt8+fyjT3WXqb2
-IjtkzLfgspJ4lCzmQSWRQtD3rCfCBQdEYi51XB0xY1Mprphzz6fstRFkooeX99yJ
-gBQrenTneh0FB4As5AVe/qyM3cKa8glNcmr0ekTKYasEufpHfCq/FG7R8E5yugbs
-hSogAH+Skoh+hQA6R9FayCT/+Ixa2RBlT0UErMXu+ksJyZ8S0NyornjT49vBJVEz
-gA93C4ROaGAgfXaTWp1c+qF1La4uPOp0HL8kfAz4zyoG++3PHIbuXx/SNiZ9xAzT
-h1YQf9r3PuhnTpnxyj2EC7/AuUD89+OD5aa12bF0+0vGevuNfkpa/bXvS7m9EXLM
-OugLWnnTVEo5ZTnJa9zqc1vjV4outa5iIfEUYs+nUKWofEk3ULoHe04R5Rln6T/y
-dmn1cDIe0zcAFikLW9hM89l/7fQETFc1ETqgChLM/5dx41/8WTyKjX4FU57wwy5p
-BRq/p2GlhhjzDsMZ5CPyuxlnWydnyrDKbwFlInyBC5EahHsvV+FOo8ruxsqnlErG
-a4ZzJu8PlfqXU0QJRxWL
-=ENF3
------END PGP SIGNATURE-----
-
---qt3nJ1uZ9TFZHIGRGDohfSrQepiQ4hfzy--
+-- 
+Pierre Morel
+Linux/KVM/QEMU in B�blingen - Germany
