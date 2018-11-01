@@ -1,22 +1,27 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Thu, 01 Nov 2018 10:00:58 +0000
-Subject: Re: [PATCH] s390/mm: Fix ERROR: "__node_distance" undefined!
-Message-Id: <20181101100058.GA5757@osiris>
-In-Reply-To: <20181031180203.27256-1-jforbes@fedoraproject.org>
-References: <20181031180203.27256-1-jforbes@fedoraproject.org>
+From: Petr Vorel <pvorel@suse.cz>
+Date: Thu, 01 Nov 2018 10:23:05 +0000
+Subject: Re: [PATCH 1/1] s390/config: Enable CONFIG_PRINTK_TIME in defconfig
+Message-Id: <20181101102305.GA22042@dell5510>
+In-Reply-To: <20181101100509.GB5757@osiris>
+References: <20181101100509.GB5757@osiris>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 31, 2018 at 01:02:03PM -0500, Justin M. Forbes wrote:
-> Fixes:
-> ERROR: "__node_distance" [drivers/nvme/host/nvme-core.ko] undefined!
-> make[1]: *** [scripts/Makefile.modpost:92: __modpost] Error 1
-> make: *** [Makefile:1275: modules] Error 2
-> + exit 1
-> 
-> Signed-off-by: Justin M. Forbes <jforbes@fedoraproject.org>
-> ---
->  arch/s390/numa/numa.c | 2 ++
->  1 file changed, 2 insertions(+)
+Hi Heiko,
 
-Applied, thanks.
+> What does this fix for you? Not having timestamps on the console makes
+> life easier for developers, since this wouldn't waste so much line
+> space on e.g. a 3215 console.
+> While the other configs within the configs directory are supposed to
+> be more distro-like.
+
+> So, I'm not willing to apply this one, since it makes my life not
+> easier ;)
+
+Thanks for review. I consider timestamps useful even on console.
+But sorry, I considered only x3270 and thought that reason, why
+it's off is due ring buffer size.
+
+
+Kind regards,
+Petr
