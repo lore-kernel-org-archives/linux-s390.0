@@ -1,7 +1,7 @@
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 6/6] s390/qeth: report 25Gbit link speed
-Date: Fri,  2 Nov 2018 19:04:13 +0100
-Message-ID: <20181102180413.53020-7-jwi@linux.ibm.com>
+Subject: [PATCH net 3/6] s390/qeth: unregister netdevice only when registered
+Date: Fri,  2 Nov 2018 19:04:10 +0100
+Message-ID: <20181102180413.53020-4-jwi@linux.ibm.com>
 References: <20181102180413.53020-1-jwi@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20181102180413.53020-1-jwi@linux.ibm.com>
@@ -12,94 +12,84 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This adds the various identifiers for 25Gbit cards, and wires them up
-into sysfs and ethtool.
+qeth only registers its netdevice when the qeth device is first set
+online. Thus a device that has never been set online will trigger
+a WARN ("network todo 'hsi%d' but state 0") in unregister_netdev() when
+removed.
 
+Fix this by protecting the unregister step, just like we already protect
+against repeated registering of the netdevice.
+
+Fixes: d3d1b205e89f ("s390/qeth: allocate netdevice early")
+Reported-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 20 ++++++++++++++++++--
- drivers/s390/net/qeth_core_mpc.h  |  2 ++
- 2 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_core.h    | 5 +++++
+ drivers/s390/net/qeth_l2_main.c | 5 +++--
+ drivers/s390/net/qeth_l3_main.c | 5 +++--
+ 3 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 82282b2092d8..4bce5ae65a55 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -167,6 +167,8 @@ const char *qeth_get_cardname_short(struct qeth_card *card)
- 				return "OSD_1000";
- 			case QETH_LINK_TYPE_10GBIT_ETH:
- 				return "OSD_10GIG";
-+			case QETH_LINK_TYPE_25GBIT_ETH:
-+				return "OSD_25GIG";
- 			case QETH_LINK_TYPE_LANE_ETH100:
- 				return "OSD_FE_LANE";
- 			case QETH_LINK_TYPE_LANE_TR:
-@@ -4432,7 +4434,8 @@ static int qeth_mdio_read(struct net_device *dev, int phy_id, int regnum)
- 		rc = BMCR_FULLDPLX;
- 		if ((card->info.link_type != QETH_LINK_TYPE_GBIT_ETH) &&
- 		    (card->info.link_type != QETH_LINK_TYPE_OSN) &&
--		    (card->info.link_type != QETH_LINK_TYPE_10GBIT_ETH))
-+		    (card->info.link_type != QETH_LINK_TYPE_10GBIT_ETH) &&
-+		    (card->info.link_type != QETH_LINK_TYPE_25GBIT_ETH))
- 			rc |= BMCR_SPEED100;
- 		break;
- 	case MII_BMSR: /* Basic mode status register */
-@@ -6166,8 +6169,14 @@ static void qeth_set_cmd_adv_sup(struct ethtool_link_ksettings *cmd,
- 		WARN_ON_ONCE(1);
- 	}
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 884ba9dfb341..b3a0b8838d2f 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -843,6 +843,11 @@ struct qeth_trap_id {
+ /*some helper functions*/
+ #define QETH_CARD_IFNAME(card) (((card)->dev)? (card)->dev->name : "")
  
--	/* fallthrough from high to low, to select all legal speeds: */
-+	/* partially does fall through, to also select lower speeds */
- 	switch (maxspeed) {
-+	case SPEED_25000:
-+		ethtool_link_ksettings_add_link_mode(cmd, supported,
-+						     25000baseSR_Full);
-+		ethtool_link_ksettings_add_link_mode(cmd, advertising,
-+						     25000baseSR_Full);
-+		break;
- 	case SPEED_10000:
- 		ethtool_link_ksettings_add_link_mode(cmd, supported,
- 						     10000baseT_Full);
-@@ -6250,6 +6259,10 @@ int qeth_core_ethtool_get_link_ksettings(struct net_device *netdev,
- 		cmd->base.speed = SPEED_10000;
- 		cmd->base.port = PORT_FIBRE;
- 		break;
-+	case QETH_LINK_TYPE_25GBIT_ETH:
-+		cmd->base.speed = SPEED_25000;
-+		cmd->base.port = PORT_FIBRE;
-+		break;
- 	default:
- 		cmd->base.speed = SPEED_10;
- 		cmd->base.port = PORT_TP;
-@@ -6316,6 +6329,9 @@ int qeth_core_ethtool_get_link_ksettings(struct net_device *netdev,
- 	case CARD_INFO_PORTS_10G:
- 		cmd->base.speed = SPEED_10000;
- 		break;
-+	case CARD_INFO_PORTS_25G:
-+		cmd->base.speed = SPEED_25000;
-+		break;
- 	}
++static inline bool qeth_netdev_is_registered(struct net_device *dev)
++{
++	return dev->netdev_ops != NULL;
++}
++
+ static inline void qeth_scrub_qdio_buffer(struct qdio_buffer *buf,
+ 					  unsigned int elements)
+ {
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 5b67fd1f2b77..2b978eba7e30 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -826,7 +826,8 @@ static void qeth_l2_remove_device(struct ccwgroup_device *cgdev)
  
- 	return 0;
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index 80c036acf563..3e54be201b27 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -90,6 +90,7 @@ enum qeth_link_types {
- 	QETH_LINK_TYPE_GBIT_ETH     = 0x03,
- 	QETH_LINK_TYPE_OSN          = 0x04,
- 	QETH_LINK_TYPE_10GBIT_ETH   = 0x10,
-+	QETH_LINK_TYPE_25GBIT_ETH   = 0x12,
- 	QETH_LINK_TYPE_LANE_ETH100  = 0x81,
- 	QETH_LINK_TYPE_LANE_TR      = 0x82,
- 	QETH_LINK_TYPE_LANE_ETH1000 = 0x83,
-@@ -347,6 +348,7 @@ enum qeth_card_info_port_speed {
- 	CARD_INFO_PORTS_100M		= 0x00000006,
- 	CARD_INFO_PORTS_1G		= 0x00000007,
- 	CARD_INFO_PORTS_10G		= 0x00000008,
-+	CARD_INFO_PORTS_25G		= 0x0000000A,
- };
+ 	if (cgdev->state == CCWGROUP_ONLINE)
+ 		qeth_l2_set_offline(cgdev);
+-	unregister_netdev(card->dev);
++	if (qeth_netdev_is_registered(card->dev))
++		unregister_netdev(card->dev);
+ }
  
- /* (SET)DELIP(M) IPA stuff ***************************************************/
+ static const struct ethtool_ops qeth_l2_ethtool_ops = {
+@@ -866,7 +867,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
+ {
+ 	int rc;
+ 
+-	if (card->dev->netdev_ops)
++	if (qeth_netdev_is_registered(card->dev))
+ 		return 0;
+ 
+ 	card->dev->priv_flags |= IFF_UNICAST_FLT;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 968e344a240b..a719c5ec4171 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2356,7 +2356,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 	unsigned int headroom;
+ 	int rc;
+ 
+-	if (card->dev->netdev_ops)
++	if (qeth_netdev_is_registered(card->dev))
+ 		return 0;
+ 
+ 	if (card->info.type == QETH_CARD_TYPE_OSD ||
+@@ -2465,7 +2465,8 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
+ 	if (cgdev->state == CCWGROUP_ONLINE)
+ 		qeth_l3_set_offline(cgdev);
+ 
+-	unregister_netdev(card->dev);
++	if (qeth_netdev_is_registered(card->dev))
++		unregister_netdev(card->dev);
+ 	qeth_l3_clear_ip_htable(card, 0);
+ 	qeth_l3_clear_ipato_list(card);
+ }
 -- 
 2.16.4
