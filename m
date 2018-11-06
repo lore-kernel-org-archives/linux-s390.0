@@ -1,254 +1,142 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 2/2] vfio-ccw: support async command subregion
-Date: Thu, 22 Nov 2018 17:54:57 +0100
-Message-ID: <20181122165457.4517-3-cohuck@redhat.com>
-References: <20181122165457.4517-1-cohuck@redhat.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20181122165457.4517-1-cohuck@redhat.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org
-Sender: "Qemu-devel"
-	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
+Return-Path: <SRS0=aqUf=NR=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Tue, 6 Nov 2018 06:42:12 +0100
+From: Dominique Martinet <asmadeus@codewreck.org>
+Subject: Re: [PATCH v15 23/26] sched: early boot clock
+Message-ID: <20181106054212.GA31768@nautica>
+References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
+ <20180719205545.16512-24-pasha.tatashin@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20180719205545.16512-24-pasha.tatashin@oracle.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-A vfio-ccw device may provide an async command subregion for
-issuing halt/clear subchannel requests. If it is present, use
-it for sending halt/clear request to the device; if not, fall
-back to emulation (as done today).
+(added various kvm/virtualization lists in Cc as well as qemu as I don't
+know who's "wrong" here)
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- hw/s390x/css.c              |  27 +++++++--
- hw/vfio/ccw.c               | 109 +++++++++++++++++++++++++++++++++++-
- include/hw/s390x/s390-ccw.h |   3 +
- 3 files changed, 133 insertions(+), 6 deletions(-)
+Pavel Tatashin wrote on Thu, Jul 19, 2018:
+> Allow sched_clock() to be used before schec_clock_init() is called.
+> This provides with a way to get early boot timestamps on machines with
+> unstable clocks.
 
-diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-index 04ec5cc970..0897c041c5 100644
---- a/hw/s390x/css.c
-+++ b/hw/s390x/css.c
-@@ -22,6 +22,7 @@
- #include "trace.h"
- #include "hw/s390x/s390_flic.h"
- #include "hw/s390x/s390-virtio-ccw.h"
-+#include "hw/s390x/s390-ccw.h"
- 
- typedef struct CrwContainer {
-     CRW crw;
-@@ -1194,6 +1195,26 @@ static void sch_handle_start_func_virtual(SubchDev *sch)
- 
- }
- 
-+static void sch_handle_halt_func_passthrough(SubchDev *sch)
-+{
-+    int ret;
-+
-+    ret = vfio_ccw_handle_halt(sch);
-+    if (ret == -ENOSYS) {
-+        sch_handle_halt_func(sch);
-+    }
-+}
-+
-+static void sch_handle_clear_func_passthrough(SubchDev *sch)
-+{
-+    int ret;
-+
-+    ret = vfio_ccw_handle_clear(sch);
-+    if (ret == -ENOSYS) {
-+        sch_handle_clear_func(sch);
-+    }
-+}
-+
- static IOInstEnding sch_handle_start_func_passthrough(SubchDev *sch)
- {
- 
-@@ -1237,11 +1258,9 @@ IOInstEnding do_subchannel_work_passthrough(SubchDev *sch)
-     SCSW *s = &sch->curr_status.scsw;
- 
-     if (s->ctrl & SCSW_FCTL_CLEAR_FUNC) {
--        /* TODO: Clear handling */
--        sch_handle_clear_func(sch);
-+        sch_handle_clear_func_passthrough(sch);
-     } else if (s->ctrl & SCSW_FCTL_HALT_FUNC) {
--        /* TODO: Halt handling */
--        sch_handle_halt_func(sch);
-+        sch_handle_halt_func_passthrough(sch);
-     } else if (s->ctrl & SCSW_FCTL_START_FUNC) {
-         return sch_handle_start_func_passthrough(sch);
-     }
-diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
-index 9246729a75..dd0fecf168 100644
---- a/hw/vfio/ccw.c
-+++ b/hw/vfio/ccw.c
-@@ -2,9 +2,12 @@
-  * vfio based subchannel assignment support
-  *
-  * Copyright 2017 IBM Corp.
-+ * Copyright 2018 Red Hat, Inc.
-+ *
-  * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
-  *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-  *            Pierre Morel <pmorel@linux.vnet.ibm.com>
-+ *            Cornelia Huck <cohuck@redhat.com>
-  *
-  * This work is licensed under the terms of the GNU GPL, version 2 or (at
-  * your option) any later version. See the COPYING file in the top-level
-@@ -32,6 +35,9 @@ typedef struct VFIOCCWDevice {
-     uint64_t io_region_size;
-     uint64_t io_region_offset;
-     struct ccw_io_region *io_region;
-+    uint64_t async_cmd_region_size;
-+    uint64_t async_cmd_region_offset;
-+    struct ccw_cmd_region *async_cmd_region;
-     EventNotifier io_notifier;
-     bool force_orb_pfch;
-     bool warned_orb_pfch;
-@@ -114,6 +120,87 @@ again:
-     }
- }
- 
-+int vfio_ccw_handle_clear(SubchDev *sch)
-+{
-+    S390CCWDevice *cdev = sch->driver_data;
-+    VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
-+    struct ccw_cmd_region *region = vcdev->async_cmd_region;
-+    int ret;
-+
-+    if (!vcdev->async_cmd_region) {
-+        /* Async command region not available, fall back to emulation */
-+        return -ENOSYS;
-+    }
-+
-+    memset(region, 0, sizeof(*region));
-+    region->command = VFIO_CCW_ASYNC_CMD_CSCH;
-+
-+again:
-+    ret = pwrite(vcdev->vdev.fd, region,
-+                 vcdev->async_cmd_region_size, vcdev->async_cmd_region_offset);
-+    if (ret != vcdev->async_cmd_region_size) {
-+        if (errno == EAGAIN) {
-+            goto again;
-+        }
-+        error_report("vfio-ccw: wirte I/O region failed with errno=%d", errno);
-+        ret = -errno;
-+    } else {
-+        ret = region->ret_code;
-+    }
-+    switch (ret) {
-+    case 0:
-+    case -ENODEV:
-+    case -EACCES:
-+        return 0;
-+    case -EFAULT:
-+    default:
-+        sch_gen_unit_exception(sch);
-+        css_inject_io_interrupt(sch);
-+        return 0;
-+    }
-+}
-+
-+int vfio_ccw_handle_halt(SubchDev *sch)
-+{
-+    S390CCWDevice *cdev = sch->driver_data;
-+    VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
-+    struct ccw_cmd_region *region = vcdev->async_cmd_region;
-+    int ret;
-+
-+    if (!vcdev->async_cmd_region) {
-+        /* Async command region not available, fall back to emulation */
-+        return -ENOSYS;
-+    }
-+
-+    memset(region, 0, sizeof(*region));
-+    region->command = VFIO_CCW_ASYNC_CMD_HSCH;
-+
-+again:
-+    ret = pwrite(vcdev->vdev.fd, region,
-+                 vcdev->async_cmd_region_size, vcdev->async_cmd_region_offset);
-+    if (ret != vcdev->async_cmd_region_size) {
-+        if (errno == EAGAIN) {
-+            goto again;
-+        }
-+        error_report("vfio-ccw: wirte I/O region failed with errno=%d", errno);
-+        ret = -errno;
-+    } else {
-+        ret = region->ret_code;
-+    }
-+    switch (ret) {
-+    case 0:
-+    case -EBUSY:
-+    case -ENODEV:
-+    case -EACCES:
-+        return 0;
-+    case -EFAULT:
-+    default:
-+        sch_gen_unit_exception(sch);
-+        css_inject_io_interrupt(sch);
-+        return 0;
-+    }
-+}
-+
- static void vfio_ccw_reset(DeviceState *dev)
- {
-     CcwDevice *ccw_dev = DO_UPCAST(CcwDevice, parent_obj, dev);
-@@ -285,9 +372,13 @@ static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
-         return;
-     }
- 
-+    /*
-+     * We always expect at least the I/O region to be present. We also
-+     * may have a variable number of regions governed by capabilities.
-+     */
-     if (vdev->num_regions < VFIO_CCW_CONFIG_REGION_INDEX + 1) {
--        error_setg(errp, "vfio: Unexpected number of the I/O region %u",
--                   vdev->num_regions);
-+        error_setg(errp, "vfio: too few regions (%u), expected at least %u",
-+                   vdev->num_regions, VFIO_CCW_CONFIG_REGION_INDEX + 1);
-         return;
-     }
- 
-@@ -307,6 +398,20 @@ static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
-     vcdev->io_region_offset = info->offset;
-     vcdev->io_region = g_malloc0(info->size);
- 
-+    /* check for the optional async command region */
-+    ret = vfio_get_dev_region_info(vdev, VFIO_REGION_TYPE_CCW,
-+                                   VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD, &info);
-+    if (!ret) {
-+        vcdev->async_cmd_region_size = info->size;
-+        if (sizeof(*vcdev->async_cmd_region) != vcdev->async_cmd_region_size) {
-+            error_setg(errp, "vfio: Unexpected size of the async cmd region");
-+            g_free(info);
-+            return;
-+        }
-+        vcdev->async_cmd_region_offset = info->offset;
-+        vcdev->async_cmd_region = g_malloc0(info->size);
-+    }
-+
-     g_free(info);
- }
- 
-diff --git a/include/hw/s390x/s390-ccw.h b/include/hw/s390x/s390-ccw.h
-index 7d15a1a5d4..38d54a7a69 100644
---- a/include/hw/s390x/s390-ccw.h
-+++ b/include/hw/s390x/s390-ccw.h
-@@ -36,4 +36,7 @@ typedef struct S390CCWDeviceClass {
-     IOInstEnding (*handle_request) (SubchDev *sch);
- } S390CCWDeviceClass;
- 
-+int vfio_ccw_handle_clear(SubchDev *sch);
-+int vfio_ccw_handle_halt(SubchDev *sch);
-+
- #endif
+This isn't something I understand, but bisect tells me this patch
+(landed as 857baa87b64 ("sched/clock: Enable sched clock early")) makes
+a VM running with kvmclock take a step in uptime/printk timer early in
+boot sequence as illustrated below. The step seems to be related to the
+amount of time the host was suspended while qemu was running before the
+reboot.
+
+$ dmesg
+...
+[    0.000000] SMBIOS 2.8 present.
+[    0.000000] DMI: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20180724_192412-buildhw-07.phx2.fedoraproject.org-1.fc29 04/01/2014
+[    0.000000] Hypervisor detected: KVM
+[    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
+[283120.529821] kvm-clock: cpu 0, msr 321a8001, primary cpu clock
+[283120.529822] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+[283120.529824] tsc: Detected 2592.000 MHz processor
+...
+
+(The VM is x86_64 on x86_64, I can provide my .config on request but
+don't think it's related)
+
+
+It's rather annoying for me as I often reboot VMs and rely on the
+'uptime' command to check if I did just reboot or not as I have the
+attention span of a goldfish; I'd rather not have to find something else
+to check if I did just reboot or not.
+
+Note that if the qemu process is restarted, there is no offset anymore.
+
+I unfortunately just did that so cannot say with confidence (putting my
+laptop to sleep for 30s only led to a 2s offset and I do not want to
+wait longer right now), but it looks like the clock is still mostly
+correct after reboot after disabling my VM's ntp client. Will infirm
+that tomorrow if I was wrong.
+
+
+Happy to try to help fixing this in any way, as written above the quote
+I'm not even actually sure who is wrong here.
+
+Thanks!
+
+
+
+(As a side, mostly unrelated note, insert swearing here about cf7a63ef4
+not compiling earlier in this serie; some variable declaration got
+removed before their use. Was fixed in the next patch but I didn't
+notice the kernel didn't fully rebuild and wasted time in my bisect
+heading the wrong way...)
+
+> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+> ---
+>  init/main.c          |  2 +-
+>  kernel/sched/clock.c | 20 +++++++++++++++++++-
+>  2 files changed, 20 insertions(+), 2 deletions(-)
+> 
+> diff --git a/init/main.c b/init/main.c
+> index 162d931c9511..ff0a24170b95 100644
+> --- a/init/main.c
+> +++ b/init/main.c
+> @@ -642,7 +642,6 @@ asmlinkage __visible void __init start_kernel(void)
+>  	softirq_init();
+>  	timekeeping_init();
+>  	time_init();
+> -	sched_clock_init();
+>  	printk_safe_init();
+>  	perf_event_init();
+>  	profile_init();
+> @@ -697,6 +696,7 @@ asmlinkage __visible void __init start_kernel(void)
+>  	acpi_early_init();
+>  	if (late_time_init)
+>  		late_time_init();
+> +	sched_clock_init();
+>  	calibrate_delay();
+>  	pid_idr_init();
+>  	anon_vma_init();
+> diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
+> index 0e9dbb2d9aea..422cd63f8f17 100644
+> --- a/kernel/sched/clock.c
+> +++ b/kernel/sched/clock.c
+> @@ -202,7 +202,25 @@ static void __sched_clock_gtod_offset(void)
+>  
+>  void __init sched_clock_init(void)
+>  {
+> +	unsigned long flags;
+> +
+> +	/*
+> +	 * Set __gtod_offset such that once we mark sched_clock_running,
+> +	 * sched_clock_tick() continues where sched_clock() left off.
+> +	 *
+> +	 * Even if TSC is buggered, we're still UP at this point so it
+> +	 * can't really be out of sync.
+> +	 */
+> +	local_irq_save(flags);
+> +	__sched_clock_gtod_offset();
+> +	local_irq_restore(flags);
+> +
+>  	sched_clock_running = 1;
+> +
+> +	/* Now that sched_clock_running is set adjust scd */
+> +	local_irq_save(flags);
+> +	sched_clock_tick();
+> +	local_irq_restore(flags);
+>  }
+>  /*
+>   * We run this as late_initcall() such that it runs after all built-in drivers,
+> @@ -356,7 +374,7 @@ u64 sched_clock_cpu(int cpu)
+>  		return sched_clock() + __sched_clock_offset;
+>  
+>  	if (unlikely(!sched_clock_running))
+> -		return 0ull;
+> +		return sched_clock();
+>  
+>  	preempt_disable_notrace();
+>  	scd = cpu_sdc(cpu);
 -- 
-2.17.2
+Dominique Martinet | Asmadeus
