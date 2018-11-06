@@ -1,62 +1,39 @@
-From: Benjamin Block <bblock@linux.ibm.com>
-Date: Thu, 01 Nov 2018 16:58:33 +0000
-Subject: Re: [PATCH] s390/scsi: remove unnecessary condition check
-Message-Id: <20181101165833.GB10447@w530-pk1mzal>
-In-Reply-To: <20181101141028.3060-1-cgxu519@gmx.com>
-References: <20181101141028.3060-1-cgxu519@gmx.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Date: Tue, 06 Nov 2018 12:29:24 +0000
+Subject: Re: [PATCH 07/10] KVM: s390: add function process_gib_alert_list()
+Message-Id: <70df3c70-4e61-f6e9-c502-9f8f3540aa0a@linux.ibm.com>
+In-Reply-To: <fd3134f2-0031-85ef-f6ad-73287c60dd78@linux.ibm.com>
+References: <fd3134f2-0031-85ef-f6ad-73287c60dd78@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Nov 01, 2018 at 10:10:28PM +0800, Chengguang Xu wrote:
-> mempool_destroy() can handle NULL pointer correctly, so there is
-> no need to check NULL pointer before calling mempool_destroy().
-> 
-> Signed-off-by: Chengguang Xu <cgxu519@gmx.com>
-> ---
->  drivers/s390/scsi/zfcp_aux.c | 21 +++++++--------------
->  1 file changed, 7 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-> index 94f4d8fe85e0..e06c3f21e51d 100644
-> --- a/drivers/s390/scsi/zfcp_aux.c
-> +++ b/drivers/s390/scsi/zfcp_aux.c
-> @@ -248,20 +248,13 @@ static int zfcp_allocate_low_mem_buffers(struct zfcp_adapter *adapter)
->  
->  static void zfcp_free_low_mem_buffers(struct zfcp_adapter *adapter)
->  {
-> -	if (adapter->pool.erp_req)
-> -		mempool_destroy(adapter->pool.erp_req);
-> -	if (adapter->pool.scsi_req)
-> -		mempool_destroy(adapter->pool.scsi_req);
-> -	if (adapter->pool.scsi_abort)
-> -		mempool_destroy(adapter->pool.scsi_abort);
-> -	if (adapter->pool.qtcb_pool)
-> -		mempool_destroy(adapter->pool.qtcb_pool);
-> -	if (adapter->pool.status_read_req)
-> -		mempool_destroy(adapter->pool.status_read_req);
-> -	if (adapter->pool.sr_data)
-> -		mempool_destroy(adapter->pool.sr_data);
-> -	if (adapter->pool.gid_pn)
-> -		mempool_destroy(adapter->pool.gid_pn);
-> +	mempool_destroy(adapter->pool.erp_req);
-> +	mempool_destroy(adapter->pool.scsi_req);
-> +	mempool_destroy(adapter->pool.scsi_abort);
-> +	mempool_destroy(adapter->pool.qtcb_pool);
-> +	mempool_destroy(adapter->pool.status_read_req);
-> +	mempool_destroy(adapter->pool.sr_data);
-> +	mempool_destroy(adapter->pool.gid_pn);
->  }
->  
->  /**
-> -- 
-> 2.17.2
-> 
 
-Sry, but we have the literally same patch already on the queue by
-someone else.
 
--- 
-With Best Regards, Benjamin Block      /      Linux on IBM Z Kernel Development
-IBM Systems & Technology Group   /  IBM Deutschland Research & Development GmbH
-Vorsitz. AufsR.: Martina Koederitz       /      Gesch�ftsf�hrung: Dirk Wittkopp
-Sitz der Gesellschaft: B�blingen / Registergericht: AmtsG Stuttgart, HRB 243294
+On 05.11.18 17:55, Pierre Morel wrote:
+>>>
+>>>> +������� /* wake-up a vcpu of the kvm this gisa belongs to */
+>>>> +������� kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
+>>>> +������� __floating_irq_kick(kvm, KVM_S390_INT_IO(1, 0, 0, 0));
+>>>
+>>> Do we really need to insert a floating interrupt?
+>>> Wouldn't a simple kvm_s390_vcpu_wakeup() after choosing the vcpu be 
+>>> enough?
+>>>
+>>
+>> We need to find a suitable vcpu before calling kvm_s390_vcpu_wakeup().
+>> That is exactly what __floating_irq_kick() does for us, right?
+> 
+> Yes right, it is just an optimization, we have two unnecessary tests, 
+> one for interrupt type and another for GISA availability.
+
+I will factor out a function  __find_vcpu_for_irq()
+
+> 
+>>
+>> It is *not* inserting a floating interruption.
+>>
+>>>
+>>>> +��� }
+>>>> +
+>>>> +��� if (gisa_to_nullify)
+>>>> +������� nullify_gisa(gisa_to_nullify);
