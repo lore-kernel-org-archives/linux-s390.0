@@ -1,39 +1,22 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Date: Tue, 06 Nov 2018 12:29:24 +0000
-Subject: Re: [PATCH 07/10] KVM: s390: add function process_gib_alert_list()
-Message-Id: <70df3c70-4e61-f6e9-c502-9f8f3540aa0a@linux.ibm.com>
-In-Reply-To: <fd3134f2-0031-85ef-f6ad-73287c60dd78@linux.ibm.com>
-References: <fd3134f2-0031-85ef-f6ad-73287c60dd78@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Tue, 06 Nov 2018 14:34:38 +0000
+Subject: Re: [PATCH 03/10] KVM: s390: factor out nullify_gisa()
+Message-Id: <20181106153438.0c41a903.cohuck@redhat.com>
+In-Reply-To: <938101fc-0840-7270-68c7-00cdd150efb3@linux.ibm.com>
+References: <938101fc-0840-7270-68c7-00cdd150efb3@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Thu, 25 Oct 2018 14:37:44 +0200
+Michael Mueller <mimu@linux.ibm.com> wrote:
 
-
-On 05.11.18 17:55, Pierre Morel wrote:
->>>
->>>> +������� /* wake-up a vcpu of the kvm this gisa belongs to */
->>>> +������� kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
->>>> +������� __floating_irq_kick(kvm, KVM_S390_INT_IO(1, 0, 0, 0));
->>>
->>> Do we really need to insert a floating interrupt?
->>> Wouldn't a simple kvm_s390_vcpu_wakeup() after choosing the vcpu be 
->>> enough?
->>>
->>
->> We need to find a suitable vcpu before calling kvm_s390_vcpu_wakeup().
->> That is exactly what __floating_irq_kick() does for us, right?
+> This function will be used by the GIB alert handler and during
+> the GISA clear operation. Thus it gets factored out here.
 > 
-> Yes right, it is just an optimization, we have two unnecessary tests, 
-> one for interrupt type and another for GISA availability.
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  arch/s390/kvm/interrupt.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
 
-I will factor out a function  __find_vcpu_for_irq()
-
-> 
->>
->> It is *not* inserting a floating interruption.
->>
->>>
->>>> +��� }
->>>> +
->>>> +��� if (gisa_to_nullify)
->>>> +������� nullify_gisa(gisa_to_nullify);
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
