@@ -1,88 +1,51 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 07 Nov 2018 17:52:03 +0000
-Subject: Re: [PATCH 09/10] KVM: s390: add and wire function gib_alert_irq_handler()
-Message-Id: <d5fd0955-5baf-992b-9d69-df31d4d6ff94@linux.ibm.com>
-In-Reply-To: <afec0606-d9c3-9938-e74d-0602e5713685@linux.ibm.com>
-References: <afec0606-d9c3-9938-e74d-0602e5713685@linux.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Thu, 08 Nov 2018 09:48:44 +0000
+Subject: Re: [kvm-unit-tests PATCH] s390x: Fixup svc handling
+Message-Id: <20181108104844.138c6109.cohuck@redhat.com>
+In-Reply-To: <1541669224-29953-1-git-send-email-frankja@linux.ibm.com>
+References: <1541669224-29953-1-git-send-email-frankja@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/11/2018 17:25, Michael Mueller wrote:
-> 
-> 
-> On 06.11.18 19:42, Pierre Morel wrote:
->> On 05/11/2018 18:41, Michael Mueller wrote:
->>>
->>>
->>> On 31.10.18 13:10, Pierre Morel wrote:
->>>>> atomic_inc(&vcpu->kvm->arch.vcpus_in_sie);
->>>>> +��� if (vcpu->kvm->arch.gib_in_use)
->>>>> +������� vcpu->kvm->arch.gisa->iam = 0;
->>>>
->>>> I am not sure that this is race free....
->>>
->>> It is, I looked at the generated instructions.
->>
->> Here we clear IAM, so an IPM can be set and should trigger an 
->> interrupt in the guest
-> 
-> Setting or clearing the IAM has no effect whether a ISC can be set or 
-> not in the IPM.
-> It is cleared because we are about to enter the SIE and which will 
-> evaluate the IPM and
-> process the interruption possibly.
-> 
-> Clearing the IAM has the effect, that the fallback path (GIB alert) will 
-> not be used.
-> 
->>
->>>>
->>>>> vcpu->arch.sie_block->icptcode = 0;
->>>>> ����� cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
->>>>> @@ -3421,6 +3423,9 @@ static int vcpu_post_run(struct kvm_vcpu 
->>>>> *vcpu, int exit_reason)
->>>>> ����� vcpu->run->s.regs.gprs[15] = vcpu->arch.sie_block->gg15;
->>>>> � ����� atomic_dec(&vcpu->kvm->arch.vcpus_in_sie);
->>>>> +��� if (vcpu->kvm->arch.gib_in_use &&
->>>>> +������� !atomic_fetch_andnot(0, &vcpu->kvm->arch.vcpus_in_sie))
->>>>> +������� vcpu->kvm->arch.gisa->iam = vcpu->kvm->arch.iam;
->>>>
->>>> ... with this. Is it?
->>>
->>> the same here
->>
->> No, here we set the IAM if the interrupt comes after the vCPU sleeps 
->> and before we set the IAM we have a race window.
->>
->> What I mean is: here we should check the IPM bit to be sure not to 
->> loose an interrupt in case the IPM bit is also set.
-> 
-> The fallback path will be activated by setting the IAM here if no vCPU 
-> of the guest is in SIE.
-> 
-> Yes, the ISC can be set in the IPM in the short window between exiting 
-> the SIE and setting the IAM here.
-> Do we loose the interruption because of that or is it just delayed? It 
-> will be delivered as soon vCPU enters
-> the SIE again. Can we speed up this? Maybe yes, that is further tuning.
+On Thu,  8 Nov 2018 10:27:04 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-OK, if the interruptions are delivered to the guest even if AIM is set 
-then there is not problem.
-
-
+> Let's use the svc psw instead of the mccheck psw for svc interrupts
+> and name it supervisor call.
 > 
->>
->>>>
->>>>
->>>>> � ����� if (exit_reason == -EINTR) {
->>>>> ��������� VCPU_EVENT(vcpu, 3, "%s", "machine check");
->>>>>
->>>
->>
->>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/interrupt.c | 2 +-
+>  s390x/cstart64.S      | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
+> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> index 6d0d4a3..4bcfdd6 100644
+> --- a/lib/s390x/interrupt.c
+> +++ b/lib/s390x/interrupt.c
+> @@ -137,6 +137,6 @@ void handle_io_int(void)
+>  
+>  void handle_svc_int(void)
+>  {
+> -	report_abort("Unexpected service call interrupt: at %#lx",
+> +	report_abort("Unexpected supervisor call interrupt: at %#lx",
+>  		     lc->svc_old_psw.addr);
+>  }
+> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+> index d6d40b7..fdcd0e7 100644
+> --- a/s390x/cstart64.S
+> +++ b/s390x/cstart64.S
+> @@ -36,7 +36,7 @@ init_psw_cont:
+>  	larl	%r1, ext_int_psw
 
+Hm... shouldn't that be io_int_psw here? (The other psws look fine.)
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in B�blingen - Germany
+>  	mvc	GEN_LC_IO_NEW_PSW(16), 0(%r1)
+>  	/* setup svc interrupt handler */
+> -	larl	%r1, mcck_int_psw
+> +	larl	%r1, svc_int_psw
+>  	mvc	GEN_LC_SVC_NEW_PSW(16), 0(%r1)
+>  	/* setup cr0, enabling e.g. AFP-register control */
+>  	larl	%r1, initial_cr0
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
