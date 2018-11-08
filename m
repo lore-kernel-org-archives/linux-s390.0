@@ -1,63 +1,152 @@
-Return-Path: <SRS0=bKrn=NQ=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Mon, 5 Nov 2018 07:08:29 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] s390: numa: Export __node_distance
-In-Reply-To: <1541366886-32127-1-git-send-email-linux@roeck-us.net>
-References: <1541366886-32127-1-git-send-email-linux@roeck-us.net>
-Message-Id: <20181105070829.74d7a4bf@mschwideX1>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 1/8] s390/qeth: utilize virtual MAC for Layer2 OSD devices
+Date: Thu,  8 Nov 2018 15:06:15 +0100
+Message-ID: <20181108140622.35244-2-jwi@linux.ibm.com>
+References: <20181108140622.35244-1-jwi@linux.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20181108140622.35244-1-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun,  4 Nov 2018 13:28:06 -0800
-Guenter Roeck <linux@roeck-us.net> wrote:
+By default, READ MAC on a Layer2 OSD device returns the adapter's
+burnt-in MAC address. Given the default scenario of many virtual devices
+on the same adapter, qeth can't make any use of this address and
+therefore skips the READ MAC call for this device type.
 
-> __node_distance is used by nvme, resulting in:
-> 
-> ERROR: "__node_distance" [drivers/nvme/host/nvme-core.ko] undefined!
-> 
-> when trying to build nvme as module.
-> 
-> Fixes: f333444708f8 ("nvme: take node locality into account when selecting a path")
-> Cc: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> I thought I had seen that patch already, but I don't find it anywhere.
-> Maybe that was for another architecture. My apologies for the noise if it
-> is already queued.
-> 
->  arch/s390/numa/numa.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/s390/numa/numa.c b/arch/s390/numa/numa.c
-> index ae0d9e889534..d31bde0870d8 100644
-> --- a/arch/s390/numa/numa.c
-> +++ b/arch/s390/numa/numa.c
-> @@ -53,6 +53,7 @@ int __node_distance(int a, int b)
->  {
->  	return mode->distance ? mode->distance(a, b) : 0;
->  }
-> +EXPORT_SYMBOL(__node_distance);
-> 
->  int numa_debug_enabled;
-> 
+But in some configurations, the READ MAC command for a Layer2 OSD device
+actually returns a pre-provisioned, virtual MAC address. So enable the
+READ MAC code to detect this situation, and let the L2 subdriver
+call READ MAC for OSD devices.
 
-That one is already queued. I'll do the __no_kasan_or_inline
-change that Linus requested and then send a please pull.
-Should be upstream in a few days.
+This also removes the QETH_LAYER2_MAC_READ flag, which protects L2
+devices against calling READ MAC multiple times. Instead protect the
+whole call to qeth_l2_request_initial_mac().
 
-For reference:
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      |  1 -
+ drivers/s390/net/qeth_core_main.c | 12 +++++++-----
+ drivers/s390/net/qeth_core_mpc.h  | 25 +++++++++++++++----------
+ drivers/s390/net/qeth_l2_main.c   | 10 ++++------
+ 4 files changed, 26 insertions(+), 22 deletions(-)
 
-https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=for-linus&id=a541f0ebcc08ed8bc0cc492eec9a86cb280a9f24
-
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 04e294d1d16d..99af1a0a3314 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -665,7 +665,6 @@ struct qeth_card_blkt {
+ 
+ #define QETH_BROADCAST_WITH_ECHO    0x01
+ #define QETH_BROADCAST_WITHOUT_ECHO 0x02
+-#define QETH_LAYER2_MAC_READ	    0x01
+ #define QETH_LAYER2_MAC_REGISTERED  0x02
+ struct qeth_card_info {
+ 	unsigned short unit_addr2;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 4bce5ae65a55..abeecffb6d2e 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -4235,16 +4235,18 @@ static int qeth_setadpparms_change_macaddr_cb(struct qeth_card *card,
+ 		struct qeth_reply *reply, unsigned long data)
+ {
+ 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
++	struct qeth_ipacmd_setadpparms *adp_cmd;
+ 
+ 	QETH_CARD_TEXT(card, 4, "chgmaccb");
+ 	if (qeth_setadpparms_inspect_rc(cmd))
+ 		return 0;
+ 
+-	if (IS_LAYER3(card) || !(card->info.mac_bits & QETH_LAYER2_MAC_READ)) {
+-		ether_addr_copy(card->dev->dev_addr,
+-				cmd->data.setadapterparms.data.change_addr.addr);
+-		card->info.mac_bits |= QETH_LAYER2_MAC_READ;
+-	}
++	adp_cmd = &cmd->data.setadapterparms;
++	if (IS_LAYER2(card) && IS_OSD(card) && !IS_VM_NIC(card) &&
++	    !(adp_cmd->hdr.flags & QETH_SETADP_FLAGS_VIRTUAL_MAC))
++		return 0;
++
++	ether_addr_copy(card->dev->dev_addr, adp_cmd->data.change_addr.addr);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index 3e54be201b27..10cc487c16d6 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -80,7 +80,9 @@ enum qeth_card_types {
+ };
+ 
+ #define IS_IQD(card)	((card)->info.type == QETH_CARD_TYPE_IQD)
++#define IS_OSD(card)	((card)->info.type == QETH_CARD_TYPE_OSD)
+ #define IS_OSN(card)	((card)->info.type == QETH_CARD_TYPE_OSN)
++#define IS_VM_NIC(card)	((card)->info.guestlan)
+ 
+ #define QETH_MPC_DIFINFO_LEN_INDICATES_LINK_TYPE 0x18
+ /* only the first two bytes are looked at in qeth_get_cardname_short */
+@@ -529,17 +531,20 @@ struct qeth_query_switch_attributes {
+ 	__u8  reserved3[8];
+ };
+ 
++#define QETH_SETADP_FLAGS_VIRTUAL_MAC	0x80	/* for CHANGE_ADDR_READ_MAC */
++
+ struct qeth_ipacmd_setadpparms_hdr {
+-	__u32 supp_hw_cmds;
+-	__u32 reserved1;
+-	__u16 cmdlength;
+-	__u16 reserved2;
+-	__u32 command_code;
+-	__u16 return_code;
+-	__u8  used_total;
+-	__u8  seq_no;
+-	__u32 reserved3;
+-} __attribute__ ((packed));
++	u32 supp_hw_cmds;
++	u32 reserved1;
++	u16 cmdlength;
++	u16 reserved2;
++	u32 command_code;
++	u16 return_code;
++	u8 used_total;
++	u8 seq_no;
++	u8 flags;
++	u8 reserved3[3];
++};
+ 
+ struct qeth_ipacmd_setadpparms {
+ 	struct qeth_ipacmd_setadpparms_hdr hdr;
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 2914a1a69f83..8d3601891c62 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -461,12 +461,9 @@ static int qeth_l2_request_initial_mac(struct qeth_card *card)
+ 		/* fall back to alternative mechanism: */
+ 	}
+ 
+-	if (card->info.type == QETH_CARD_TYPE_IQD ||
+-	    card->info.type == QETH_CARD_TYPE_OSM ||
+-	    card->info.type == QETH_CARD_TYPE_OSX ||
+-	    card->info.guestlan) {
++	if (!IS_OSN(card)) {
+ 		rc = qeth_setadpparms_change_macaddr(card);
+-		if (!rc)
++		if (!rc && is_valid_ether_addr(card->dev->dev_addr))
+ 			goto out;
+ 		QETH_DBF_MESSAGE(2, "READ_MAC Assist failed on device %x: %#x\n",
+ 				 CARD_DEVID(card), rc);
+@@ -917,7 +914,8 @@ static int qeth_l2_setup_netdev(struct qeth_card *card, bool carrier_ok)
+ 				       PAGE_SIZE * (QDIO_MAX_ELEMENTS_PER_BUFFER - 1));
+ 	}
+ 
+-	qeth_l2_request_initial_mac(card);
++	if (!is_valid_ether_addr(card->dev->dev_addr))
++		qeth_l2_request_initial_mac(card);
+ 	netif_napi_add(card->dev, &card->napi, qeth_poll, QETH_NAPI_WEIGHT);
+ 	rc = register_netdev(card->dev);
+ 	if (!rc && carrier_ok)
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.16.4
