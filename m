@@ -1,53 +1,33 @@
-From: Steffen Maier <maier@linux.ibm.com>
-Date: Thu, 08 Nov 2018 14:44:35 +0000
-Subject: [PATCH 00/23] zfcp updates for v4.21
-Message-Id: <20181108144458.29012-1-maier@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
+From: Eric Farman <farman@linux.ibm.com>
+Date: Fri, 09 Nov 2018 02:39:29 +0000
+Subject: [RFC PATCH v1 02/10] s390/cio: Fix cleanup when unsupported IDA format is used
+Message-Id: <20181109023937.96105-3-farman@linux.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-James, Martin,
+Direct returns from within a loop are rude, but it doesn't mean it gets
+to avoid releasing the memory acquired beforehand.
 
-this is the zfcp patch set for the v4.21 merge window.
-The patches apply to Martin's 4.21/scsi-queue
-and to James' misc branch.
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Patch 1 is a small feature to select DIF only without DIX.
-
-Patches 2-23 are cleanups including resolving new build warnings.
-
-Fedor Loshakov (1):
-  zfcp: make DIX experimental, disabled, and independent of DIF
-
-Steffen Maier (21):
-  zfcp: move SG table helper from aux to fc and make them static
-  zfcp: drop unnecessary forward prototype for struct zfcp_reqlist
-  zfcp: move scsi_eh & non-ERP timeout defines owned by and local to
-    zfcp_fsf.c
-  zfcp: update width in comment for ZFCP_COMMON_FLAGS mask
-  zfcp: namespace prefix for internal latency data structures
-  zfcp: group sort internal structure definitions for proximity
-  zfcp: drop unnecessary forward prototype for struct zfcp_fsf_req
-  zfcp: drop duplicate fsf_command from zfcp_fsf_req which is also in
-    QTCB header
-  zfcp: drop duplicate seq_no from zfcp_fsf_req which is also in QTCB
-    header
-  zfcp: update kernel message for invalid FCP_CMND length, it's not the
-    CDB
-  zfcp: ERP thread setup kdoc update
-  zfcp: clarify function argument name for trace tag string
-  zfcp: the action field of zfcp_erp_action is actually the type
-  zfcp: use enum zfcp_erp_steps for struct zfcp_erp_action.step
-  zfcp: use enum zfcp_erp_act_result for argument/return of affected
-    functions
-  zfcp: properly format LUN (and WWPN) for LUN sharing violation kmsg
-  zfcp: silence all W=1 build warnings for existing kdoc
-  zfcp: silence remaining kdoc warnings in header files
-  zfcp: silence -Wimplicit-fallthrough in zfcp_erp_lun_strategy()
-  zfcp: drop default switch case which might paper over missing case
-  zfcp: drop old default switch case which might paper over missing case
-
-zhong jiang (1):
-  zfcp: remove unnecessary null pointer check before mempool_destroy
-
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index ef5ab45d94b3..70a006ba4d05 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -387,8 +387,10 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+ 		 * orb specified one of the unsupported formats, we defer
+ 		 * checking for IDAWs in unsupported formats to here.
+ 		 */
+-		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
++		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw)) {
++			kfree(p);
+ 			return -EOPNOTSUPP;
++		}
+ 
+ 		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
+ 			break;
 -- 
 2.16.4
