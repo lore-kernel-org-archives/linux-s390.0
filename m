@@ -1,12 +1,12 @@
 From: Adam Borowski <kilobyte@angband.pl>
-Date: Fri,  9 Nov 2018 20:02:52 +0100
-Message-Id: <20181109190304.8573-5-kilobyte@angband.pl>
+Date: Fri,  9 Nov 2018 20:02:51 +0100
+Message-Id: <20181109190304.8573-4-kilobyte@angband.pl>
 In-Reply-To: <20181109190304.8573-1-kilobyte@angband.pl>
 References: <20181109185953.xwyelyqnygbskkxk@angband.pl>
  <20181109190304.8573-1-kilobyte@angband.pl>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [PATCH 05/17] mips: Remove support for BZIP2 and LZMA compressed kernel
+Subject: [PATCH 04/17] x86: Remove support for BZIP2 and LZMA compressed kernel
 Return-Path: <kilobyte@angband.pl>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
@@ -23,136 +23,115 @@ To: linux-kernel@vger.kernel.org, Nick Terrell <terrelln@fb.com>, Russell King <
 Cc: Adam Borowski <kilobyte@angband.pl>
 List-ID: <linux-s390.vger.kernel.org>
 
-Made redundant by newer choices.
+While bzip2 used to be good in its heyday, it's been drastically eclipsed
+by newer algorithms.  In no case it's a rational choice anymore -- at any
+point of the size-to-compression curve, there's something much better.
+As we control the build process, any .configs that still select it will
+harmlessly be adjusted, thus there's no risk of breakage.
+
+Bare lzma is redundant with xz, lacks some improvements, and uses its own
+copy of code instead using the common library.
 
 Signed-off-by: Adam Borowski <kilobyte@angband.pl>
 ---
- arch/mips/Kconfig                      |  2 --
- arch/mips/boot/Makefile                | 27 --------------------------
- arch/mips/boot/compressed/Makefile     |  2 --
- arch/mips/boot/compressed/decompress.c |  8 --------
- 4 files changed, 39 deletions(-)
+ Documentation/x86/boot.txt        | 11 +++++------
+ arch/x86/Kconfig                  |  2 --
+ arch/x86/boot/compressed/Makefile | 12 +++---------
+ arch/x86/boot/compressed/misc.c   |  8 --------
+ arch/x86/include/asm/boot.h       |  4 +---
+ 5 files changed, 9 insertions(+), 28 deletions(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 8272ea4c7264..8f774bb9d22f 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -1834,9 +1834,7 @@ endif # CPU_LOONGSON2F
- config SYS_SUPPORTS_ZBOOT
- 	bool
- 	select HAVE_KERNEL_GZIP
+diff --git a/Documentation/x86/boot.txt b/Documentation/x86/boot.txt
+index a47b6bae3356..fbd9720989e5 100644
+--- a/Documentation/x86/boot.txt
++++ b/Documentation/x86/boot.txt
+@@ -682,12 +682,11 @@ Protocol:	2.08+
+   of the protected-mode code to the payload.
+ 
+   The payload may be compressed. The format of both the compressed and
+-  uncompressed data should be determined using the standard magic
+-  numbers.  The currently supported compression formats are gzip
+-  (magic numbers 1F 8B or 1F 9E), bzip2 (magic number 42 5A), LZMA
+-  (magic number 5D 00), XZ (magic number FD 37), LZ4 (magic number
+-  02 21) and ZSTD (magic number 28 B5). The uncompressed payload is
+-  currently always ELF (magic number 7F 45 4C 46).
++  uncompressed data should be determined using the standard magic numbers.
++  The currently supported compression formats are gzip (magic numbers 1F 8B
++  or 1F 9E), XZ (magic number FD 37), LZ4 (magic number 02 21) and ZSTD
++  (magic number 28 B5). The uncompressed payload is currently always ELF
++  (magic number 7F 45 4C 46).
+ 
+ Field name:	payload_length
+ Type:		read
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 203f7467f5c4..a47af31bbc62 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -158,10 +158,8 @@ config X86
+ 	select HAVE_IOREMAP_PROT
+ 	select HAVE_IRQ_EXIT_ON_IRQ_STACK	if X86_64
+ 	select HAVE_IRQ_TIME_ACCOUNTING
 -	select HAVE_KERNEL_BZIP2
+ 	select HAVE_KERNEL_GZIP
  	select HAVE_KERNEL_LZ4
 -	select HAVE_KERNEL_LZMA
  	select HAVE_KERNEL_LZO
  	select HAVE_KERNEL_XZ
- 
-diff --git a/arch/mips/boot/Makefile b/arch/mips/boot/Makefile
-index 35704c28a28b..9c5f380a6c20 100644
---- a/arch/mips/boot/Makefile
-+++ b/arch/mips/boot/Makefile
-@@ -24,9 +24,7 @@ strip-flags   := $(addprefix --remove-section=,$(drop-sections))
- hostprogs-y := elf2ecoff
- 
- suffix-y			:= bin
--suffix-$(CONFIG_KERNEL_BZIP2)	:= bz2
- suffix-$(CONFIG_KERNEL_GZIP)	:= gz
--suffix-$(CONFIG_KERNEL_LZMA)	:= lzma
- suffix-$(CONFIG_KERNEL_LZO)	:= lzo
- 
- targets := vmlinux.ecoff
-@@ -54,20 +52,12 @@ UIMAGE_ENTRYADDR = $(VMLINUX_ENTRY_ADDRESS)
- # Compressed vmlinux images
+ 	select HAVE_KERNEL_ZSTD
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 6d2a8d2d378d..763aeb850658 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -7,13 +7,13 @@
+ # vmlinuz is:
+ #	decompression code (*.o)
+ #	asm globals (piggy.S), including:
+-#		vmlinux.bin.(gz|bz2|lzma|...)
++#		vmlinux.bin.(gz|zst|xz|...)
  #
+ # vmlinux.bin is:
+ #	vmlinux stripped of debugging and comments
+ # vmlinux.bin.all is:
+ #	vmlinux.bin + vmlinux.relocs
+-# vmlinux.bin.(gz|bz2|lzma|...) is:
++# vmlinux.bin.(gz|zst|xz|...) is:
+ #	(see scripts/Makefile.lib size_append)
+ #	compressed vmlinux.bin.all + u32 size of vmlinux.bin.all
  
--extra-y += vmlinux.bin.bz2
- extra-y += vmlinux.bin.gz
--extra-y += vmlinux.bin.lzma
- extra-y += vmlinux.bin.lzo
+@@ -23,7 +23,7 @@ OBJECT_FILES_NON_STANDARD	:= y
+ # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
+ KCOV_INSTRUMENT		:= n
  
--$(obj)/vmlinux.bin.bz2: $(obj)/vmlinux.bin FORCE
--	$(call if_changed,bzip2)
--
- $(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
+-targets := vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2 vmlinux.bin.lzma \
++targets := vmlinux vmlinux.bin vmlinux.bin.gz \
+ 	vmlinux.bin.xz vmlinux.bin.lzo vmlinux.bin.lz4 vmlinux.bin.zst
+ 
+ KBUILD_CFLAGS := -m$(BITS) -O2
+@@ -132,10 +132,6 @@ vmlinux.bin.all-$(CONFIG_X86_NEED_RELOCS) += $(obj)/vmlinux.relocs
+ 
+ $(obj)/vmlinux.bin.gz: $(vmlinux.bin.all-y) FORCE
  	$(call if_changed,gzip)
- 
--$(obj)/vmlinux.bin.lzma: $(obj)/vmlinux.bin FORCE
+-$(obj)/vmlinux.bin.bz2: $(vmlinux.bin.all-y) FORCE
+-	$(call if_changed,bzip2)
+-$(obj)/vmlinux.bin.lzma: $(vmlinux.bin.all-y) FORCE
 -	$(call if_changed,lzma)
--
- $(obj)/vmlinux.bin.lzo: $(obj)/vmlinux.bin FORCE
- 	$(call if_changed,lzo)
+ $(obj)/vmlinux.bin.xz: $(vmlinux.bin.all-y) FORCE
+ 	$(call if_changed,xzkern)
+ $(obj)/vmlinux.bin.lzo: $(vmlinux.bin.all-y) FORCE
+@@ -146,8 +142,6 @@ $(obj)/vmlinux.bin.zst: $(vmlinux.bin.all-y) FORCE
+ 	$(call if_changed,zstd)
  
-@@ -77,23 +67,15 @@ $(obj)/vmlinux.bin.lzo: $(obj)/vmlinux.bin FORCE
- 
- targets += uImage
- targets += uImage.bin
--targets += uImage.bz2
- targets += uImage.gz
--targets += uImage.lzma
- targets += uImage.lzo
- 
- $(obj)/uImage.bin: $(obj)/vmlinux.bin FORCE
- 	$(call if_changed,uimage,none)
- 
--$(obj)/uImage.bz2: $(obj)/vmlinux.bin.bz2 FORCE
--	$(call if_changed,uimage,bzip2)
--
- $(obj)/uImage.gz: $(obj)/vmlinux.bin.gz FORCE
- 	$(call if_changed,uimage,gzip)
- 
--$(obj)/uImage.lzma: $(obj)/vmlinux.bin.lzma FORCE
--	$(call if_changed,uimage,lzma)
--
- $(obj)/uImage.lzo: $(obj)/vmlinux.bin.lzo FORCE
- 	$(call if_changed,uimage,lzo)
- 
-@@ -122,7 +104,6 @@ $(obj)/vmlinux.its.S: $(addprefix $(srctree)/arch/mips/$(PLATFORM)/,$(ITS_INPUTS
- 
- targets += vmlinux.its
- targets += vmlinux.gz.its
--targets += vmlinux.bz2.its
- targets += vmlinux.lzmo.its
- targets += vmlinux.lzo.its
- 
-@@ -142,19 +123,11 @@ $(obj)/vmlinux.its: $(obj)/vmlinux.its.S $(VMLINUX) FORCE
- $(obj)/vmlinux.gz.its: $(obj)/vmlinux.its.S $(VMLINUX) FORCE
- 	$(call if_changed,cpp_its_S,gzip,vmlinux.bin.gz)
- 
--$(obj)/vmlinux.bz2.its: $(obj)/vmlinux.its.S $(VMLINUX)  FORCE
--	$(call if_changed,cpp_its_S,bzip2,vmlinux.bin.bz2)
--
--$(obj)/vmlinux.lzma.its: $(obj)/vmlinux.its.S $(VMLINUX) FORCE
--	$(call if_changed,cpp_its_S,lzma,vmlinux.bin.lzma)
--
- $(obj)/vmlinux.lzo.its: $(obj)/vmlinux.its.S $(VMLINUX) FORCE
- 	$(call if_changed,cpp_its_S,lzo,vmlinux.bin.lzo)
- 
- targets += vmlinux.itb
- targets += vmlinux.gz.itb
--targets += vmlinux.bz2.itb
--targets += vmlinux.lzma.itb
- targets += vmlinux.lzo.itb
- 
- quiet_cmd_itb-image = ITB     $@
-diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
-index 3c453a1f1ff1..a7448d74fe7b 100644
---- a/arch/mips/boot/compressed/Makefile
-+++ b/arch/mips/boot/compressed/Makefile
-@@ -62,9 +62,7 @@ $(obj)/vmlinux.bin: $(KBUILD_IMAGE) FORCE
- 	$(call if_changed,objcopy)
- 
- tool_$(CONFIG_KERNEL_GZIP)    = gzip
--tool_$(CONFIG_KERNEL_BZIP2)   = bzip2
- tool_$(CONFIG_KERNEL_LZ4)     = lz4
--tool_$(CONFIG_KERNEL_LZMA)    = lzma
- tool_$(CONFIG_KERNEL_LZO)     = lzo
- tool_$(CONFIG_KERNEL_XZ)      = xzkern
- 
-diff --git a/arch/mips/boot/compressed/decompress.c b/arch/mips/boot/compressed/decompress.c
-index 81df9047e110..ac6978d210e6 100644
---- a/arch/mips/boot/compressed/decompress.c
-+++ b/arch/mips/boot/compressed/decompress.c
-@@ -56,18 +56,10 @@ void error(char *x)
+ suffix-$(CONFIG_KERNEL_GZIP)	:= gz
+-suffix-$(CONFIG_KERNEL_BZIP2)	:= bz2
+-suffix-$(CONFIG_KERNEL_LZMA)	:= lzma
+ suffix-$(CONFIG_KERNEL_XZ)	:= xz
+ suffix-$(CONFIG_KERNEL_LZO) 	:= lzo
+ suffix-$(CONFIG_KERNEL_LZ4) 	:= lz4
+diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
+index b6c8921100fb..c0d75b74f199 100644
+--- a/arch/x86/boot/compressed/misc.c
++++ b/arch/x86/boot/compressed/misc.c
+@@ -57,14 +57,6 @@ static int lines, cols;
  #include "../../../../lib/decompress_inflate.c"
  #endif
  
@@ -160,16 +139,27 @@ index 81df9047e110..ac6978d210e6 100644
 -#include "../../../../lib/decompress_bunzip2.c"
 -#endif
 -
- #ifdef CONFIG_KERNEL_LZ4
- #include "../../../../lib/decompress_unlz4.c"
- #endif
- 
 -#ifdef CONFIG_KERNEL_LZMA
 -#include "../../../../lib/decompress_unlzma.c"
 -#endif
 -
- #ifdef CONFIG_KERNEL_LZO
- #include "../../../../lib/decompress_unlzo.c"
+ #ifdef CONFIG_KERNEL_XZ
+ #include "../../../../lib/decompress_unxz.c"
  #endif
+diff --git a/arch/x86/include/asm/boot.h b/arch/x86/include/asm/boot.h
+index d6dd43d25d9f..afbf3d60f22e 100644
+--- a/arch/x86/include/asm/boot.h
++++ b/arch/x86/include/asm/boot.h
+@@ -24,9 +24,7 @@
+ # error "Invalid value for CONFIG_PHYSICAL_ALIGN"
+ #endif
+ 
+-#if defined(CONFIG_KERNEL_BZIP2)
+-# define BOOT_HEAP_SIZE		0x400000
+-#elif defined(CONFIG_KERNEL_ZSTD)
++#if defined(CONFIG_KERNEL_ZSTD)
+ # define BOOT_HEAP_SIZE		 0x30000
+ #else
+ # define BOOT_HEAP_SIZE		 0x10000
 -- 
 2.19.1
