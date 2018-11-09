@@ -1,43 +1,26 @@
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 0/8] s390/qeth: updates 2018-11-08
-Date: Thu,  8 Nov 2018 15:06:14 +0100
-Message-ID: <20181108140622.35244-1-jwi@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Return-Path: <SRS0=IvFc=NU=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: [GIT PULL] s390 patches for 4.20 #2
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20181109081402.777716d1@mschwideX1>
+References: <20181109081402.777716d1@mschwideX1>
+Message-Id: <20181109163002.2174.84591.pr-tracker-bot-3541833fd1f264e7579e573a6586a1b665da37db@pdx-korg-gitolite-1.ci.codeaurora.org>
+Date: Fri, 09 Nov 2018 16:30:02 +0000
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+The pull request you sent on Fri, 9 Nov 2018 08:14:02 +0100:
 
-please apply the following qeth patches to net-next.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git s390-4.20-2
 
-The first patch allows one more device type to query the FW for a MAC address,
-the others are all basically just removal of duplicated or unused code.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/3541833fd1f264e7579e573a6586a1b665da37db
 
-Thanks,
-Julian
-
-
-Julian Wiedmann (8):
-  s390/qeth: utilize virtual MAC for Layer2 OSD devices
-  s390/qeth: handle af_iucv skbs in qeth_l3_fill_header()
-  s390/qeth: unify transmit code
-  s390/qeth: remove card list
-  s390/qeth: replace open-coded cmd setup
-  s390/qeth: remove two IPA command helpers
-  s390/qeth: remove unused fallback in Layer3's MAC code
-  s390/qeth: don't process hsuid in qeth_l3_setup_netdev()
-
- drivers/s390/net/qeth_core.h      |  19 +-----
- drivers/s390/net/qeth_core_main.c | 137 ++++++++++++++++---------------------
- drivers/s390/net/qeth_core_mpc.c  |   1 -
- drivers/s390/net/qeth_core_mpc.h  |  32 +++++----
- drivers/s390/net/qeth_l2_main.c   |  45 ++++---------
- drivers/s390/net/qeth_l3_main.c   | 138 +++++++-------------------------------
- 6 files changed, 113 insertions(+), 259 deletions(-)
+Thank you!
 
 -- 
-2.16.4
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
