@@ -1,60 +1,42 @@
-Date: Wed, 14 Nov 2018 00:10:43 +0100
-From: Adam Borowski <kilobyte@angband.pl>
-Subject: Re: [PATCH 05/17] mips: Remove support for BZIP2 and LZMA compressed
- kernel
-Message-ID: <20181113231043.cv3qpjivxsefxpny@angband.pl>
-References: <20181109185953.xwyelyqnygbskkxk@angband.pl>
- <20181109190304.8573-1-kilobyte@angband.pl>
- <20181109190304.8573-5-kilobyte@angband.pl>
- <20181113224545.pamrezqxy2ay62k7@pburton-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20181113224545.pamrezqxy2ay62k7@pburton-laptop>
-Return-Path: <kilobyte@angband.pl>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Paul Burton <paul.burton@mips.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Nick Terrell <terrelln@fb.com>, Russell King <linux@armlinux.org.uk>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "x86@kernel.org" <x86@kernel.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>
+Return-Path: <SRS0=p8q0=NW=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Subject: [PATCH tip/core/rcu 07/41] s390/mm: Convert tlb_table_flush() to use call_rcu()
+Date: Sun, 11 Nov 2018 11:43:36 -0800
+In-Reply-To: <20181111194104.GA4787@linux.ibm.com>
+References: <20181111194104.GA4787@linux.ibm.com>
+Message-Id: <20181111194410.6368-7-paulmck@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@kernel.org, jiangshanlai@gmail.com, dipankar@in.ibm.com, akpm@linux-foundation.org, mathieu.desnoyers@efficios.com, josh@joshtriplett.org, tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org, dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com, oleg@redhat.com, joel@joelfernandes.org, "Paul E. McKenney" <paulmck@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Nov 13, 2018 at 10:45:54PM +0000, Paul Burton wrote:
-> On Fri, Nov 09, 2018 at 08:02:52PM +0100, Adam Borowski wrote:
-> > @@ -122,7 +104,6 @@ $(obj)/vmlinux.its.S: $(addprefix $(srctree)/arch/mips/$(PLATFORM)/,$(ITS_INPUTS
-> >  
-> >  targets += vmlinux.its
-> >  targets += vmlinux.gz.its
-> > -targets += vmlinux.bz2.its
-> >  targets += vmlinux.lzmo.its
-> >  targets += vmlinux.lzo.its
-> 
-> It looks to me like this "vmlinux.lzmo.its" was a typo & ought to have
-> been vmlinux.lzma.its, and thus ought to be removed.
+Now that call_rcu()'s callback is not invoked until after all
+preempt-disable regions of code have completed (in addition to explicitly
+marked RCU read-side critical sections), call_rcu() can be used in place
+of call_rcu_sched().  This commit therefore makes that change.
 
-Good catch!
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: <linux-s390@vger.kernel.org>
+---
+ arch/s390/mm/pgalloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The whole series was bz2 only at first, grepping for lzma missed this.
-
-> Apart from that I'm fine with this in general:
-> 
->     Acked-by: Paul Burton <paul.burton@mips.com>
-
-Thanks.
-
-
-Meow!
+diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+index 76d89ee8b428..da64e4b9324e 100644
+--- a/arch/s390/mm/pgalloc.c
++++ b/arch/s390/mm/pgalloc.c
+@@ -350,7 +350,7 @@ void tlb_table_flush(struct mmu_gather *tlb)
+ 	struct mmu_table_batch **batch = &tlb->batch;
+ 
+ 	if (*batch) {
+-		call_rcu_sched(&(*batch)->rcu, tlb_remove_table_rcu);
++		call_rcu(&(*batch)->rcu, tlb_remove_table_rcu);
+ 		*batch = NULL;
+ 	}
+ }
 -- 
-⢀⣴⠾⠻⢶⣦⠀
-⣾⠁⢰⠒⠀⣿⡁ “This is gonna be as easy as cheating on an ethics exam!”
-⢿⡄⠘⠷⠚⠋⠀     -Cerise Brightmoon
-⠈⠳⣄⠀⠀⠀⠀
+2.17.1
