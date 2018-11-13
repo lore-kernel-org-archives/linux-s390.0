@@ -1,40 +1,52 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Tue, 13 Nov 2018 12:47:55 +0000
-Subject: [PULL 4/4] s390/cio: Fix cleanup when unsupported IDA format is used
-Message-Id: <20181113124755.4798-5-cohuck@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Tue, 13 Nov 2018 15:06:02 +0000
+Subject: Re: [PULL 0/4] vfio-ccw fixes for 4.20
+Message-Id: <20181113160602.7a1d8ee0@mschwideX1>
+In-Reply-To: <20181113124755.4798-1-cohuck@redhat.com>
+References: <20181113124755.4798-1-cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Eric Farman <farman@linux.ibm.com>
+On Tue, 13 Nov 2018 13:47:51 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Direct returns from within a loop are rude, but it doesn't mean it gets
-to avoid releasing the memory acquired beforehand.
+> The following changes since commit ccda4af0f4b92f7b4c308d3acc262f4a7e3affad:
+> 
+>   Linux 4.20-rc2 (2018-11-11 17:12:31 -0600)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20181113
+> 
+> for you to fetch changes up to b89e242eee8d4cd8261d8d821c62c5d1efc454d0:
+> 
+>   s390/cio: Fix cleanup when unsupported IDA format is used (2018-11-13 11:45:17 +0100)
+> 
+> ----------------------------------------------------------------
+> several bugfixes for vfio-ccw
+> 
+> ----------------------------------------------------------------
+> 
+> Eric Farman (2):
+>   s390/cio: Fix cleanup of pfn_array alloc failure
+>   s390/cio: Fix cleanup when unsupported IDA format is used
+> 
+> Pierre Morel (1):
+>   vfio: ccw: Register mediated device once all structures are
+>     initialized
+> 
+> Sebastian Ott (1):
+>   s390/cio: make vfio_ccw_io_region static
+> 
+>  drivers/s390/cio/vfio_ccw_cp.c  |  6 ++++--
+>  drivers/s390/cio/vfio_ccw_drv.c | 10 +++++-----
+>  2 files changed, 9 insertions(+), 7 deletions(-)
+> 
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Message-Id: <20181109023937.96105-3-farman@linux.ibm.com>
-Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Pulled and push to s390/linux:fixes. Thanks.
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index ef5ab45d94b3..70a006ba4d05 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -387,8 +387,10 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
- 		 * orb specified one of the unsupported formats, we defer
- 		 * checking for IDAWs in unsupported formats to here.
- 		 */
--		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
-+		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw)) {
-+			kfree(p);
- 			return -EOPNOTSUPP;
-+		}
- 
- 		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
- 			break;
 -- 
-2.17.2
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
