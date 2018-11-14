@@ -1,80 +1,88 @@
 Return-Path: <SRS0=v0ik=NZ=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 07/13] s390/qeth: fix HiperSockets sniffer
-Date: Wed, 14 Nov 2018 17:25:48 -0500
-Message-Id: <20181114222558.100213-7-sashal@kernel.org>
-In-Reply-To: <20181114222558.100213-1-sashal@kernel.org>
-References: <20181114222558.100213-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 1/8] s390/vdso: add missing FORCE to build targets
+Date: Wed, 14 Nov 2018 17:26:07 -0500
+Message-Id: <20181114222618.100378-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit bd74a7f9cc033cf4d405788f80292268987dc0c5 ]
+[ Upstream commit b44b136a3773d8a9c7853f8df716bd1483613cbb ]
 
-Sniffing mode for L3 HiperSockets requires that no IP addresses are
-registered with the HW. The preferred way to achieve this is for
-userspace to delete all the IPs on the interface. But qeth is expected
-to also tolerate a configuration where that is not the case, by skipping
-the IP registration when in sniffer mode.
-Since commit 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
-reworked the IP registration logic in the L3 subdriver, this no longer
-works. When the qeth device is set online, qeth_l3_recover_ip() now
-unconditionally registers all unicast addresses from our internal
-IP table.
+According to Documentation/kbuild/makefiles.txt all build targets using
+if_changed should use FORCE as well. Add missing FORCE to make sure
+vdso targets are rebuild properly when not just immediate prerequisites
+have changed but also when build command differs.
 
-While we could fix this particular problem by skipping
-qeth_l3_recover_ip() on a sniffer device, the more future-proof change
-is to skip the IP address registration at the lowest level. This way we
-a) catch any future code path that attempts to register an IP address
-   without considering the sniffer scenario, and
-b) continue to build up our internal IP table, so that if sniffer mode
-   is switched off later we can operate just like normal.
-
-Fixes: 5f78e29ceebf ("qeth: optimize IP handling in rx_mode callback")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Philipp Rudo <prudo@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_l3_main.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/s390/kernel/vdso32/Makefile | 6 +++---
+ arch/s390/kernel/vdso64/Makefile | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index efefe075557f..6e6ba1baf9c4 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -363,9 +363,6 @@ static void qeth_l3_clear_ip_htable(struct qeth_card *card, int recover)
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+index ee8a18e50a25..29b72c46284d 100644
+--- a/arch/s390/kernel/vdso32/Makefile
++++ b/arch/s390/kernel/vdso32/Makefile
+@@ -29,7 +29,7 @@ GCOV_PROFILE := n
+ $(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
  
- 	QETH_CARD_TEXT(card, 4, "clearip");
+ # link rule for the .so file, .lds has to be first
+-$(obj)/vdso32.so.dbg: $(src)/vdso32.lds $(obj-vdso32)
++$(obj)/vdso32.so.dbg: $(src)/vdso32.lds $(obj-vdso32) FORCE
+ 	$(call if_changed,vdso32ld)
  
--	if (recover && card->options.sniffer)
--		return;
--
- 	spin_lock_bh(&card->ip_lock);
+ # strip rule for the .so file
+@@ -38,12 +38,12 @@ $(obj)/%.so: $(obj)/%.so.dbg FORCE
+ 	$(call if_changed,objcopy)
  
- 	hash_for_each_safe(card->ip_htable, i, tmp, addr, hnode) {
-@@ -823,6 +820,8 @@ static int qeth_l3_register_addr_entry(struct qeth_card *card,
- 	int rc = 0;
- 	int cnt = 3;
+ # assembly rules for the .S files
+-$(obj-vdso32): %.o: %.S
++$(obj-vdso32): %.o: %.S FORCE
+ 	$(call if_changed_dep,vdso32as)
  
-+	if (card->options.sniffer)
-+		return 0;
+ # actual build commands
+ quiet_cmd_vdso32ld = VDSO32L $@
+-      cmd_vdso32ld = $(CC) $(c_flags) -Wl,-T $^ -o $@
++      cmd_vdso32ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
+ quiet_cmd_vdso32as = VDSO32A $@
+       cmd_vdso32as = $(CC) $(a_flags) -c -o $@ $<
  
- 	if (addr->proto == QETH_PROT_IPV4) {
- 		QETH_CARD_TEXT(card, 2, "setaddr4");
-@@ -858,6 +857,9 @@ static int qeth_l3_deregister_addr_entry(struct qeth_card *card,
- {
- 	int rc = 0;
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index c4b03f9ed228..1b083d80de50 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -29,7 +29,7 @@ GCOV_PROFILE := n
+ $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
  
-+	if (card->options.sniffer)
-+		return 0;
-+
- 	if (addr->proto == QETH_PROT_IPV4) {
- 		QETH_CARD_TEXT(card, 2, "deladdr4");
- 		QETH_CARD_HEX(card, 3, &addr->u.a4.addr, sizeof(int));
+ # link rule for the .so file, .lds has to be first
+-$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64)
++$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
+ 	$(call if_changed,vdso64ld)
+ 
+ # strip rule for the .so file
+@@ -38,12 +38,12 @@ $(obj)/%.so: $(obj)/%.so.dbg FORCE
+ 	$(call if_changed,objcopy)
+ 
+ # assembly rules for the .S files
+-$(obj-vdso64): %.o: %.S
++$(obj-vdso64): %.o: %.S FORCE
+ 	$(call if_changed_dep,vdso64as)
+ 
+ # actual build commands
+ quiet_cmd_vdso64ld = VDSO64L $@
+-      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $^ -o $@
++      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
+ quiet_cmd_vdso64as = VDSO64A $@
+       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
+ 
 -- 
 2.17.1
