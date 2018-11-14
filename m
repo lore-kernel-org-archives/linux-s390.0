@@ -1,88 +1,49 @@
 Return-Path: <SRS0=v0ik=NZ=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 01/27] s390/vdso: add missing FORCE to build targets
-Date: Wed, 14 Nov 2018 17:24:50 -0500
-Message-Id: <20181114222520.99926-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 16/27] s390/perf: Change CPUM_CF return code in event init function
+Date: Wed, 14 Nov 2018 17:25:05 -0500
+Message-Id: <20181114222520.99926-16-sashal@kernel.org>
+In-Reply-To: <20181114222520.99926-1-sashal@kernel.org>
+References: <20181114222520.99926-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit b44b136a3773d8a9c7853f8df716bd1483613cbb ]
+[ Upstream commit 0bb2ae1b26e1fb7543ec7474cdd374ac4b88c4da ]
 
-According to Documentation/kbuild/makefiles.txt all build targets using
-if_changed should use FORCE as well. Add missing FORCE to make sure
-vdso targets are rebuild properly when not just immediate prerequisites
-have changed but also when build command differs.
+The function perf_init_event() creates a new event and
+assignes it to a PMU. This a done in a loop over all existing
+PMUs. For each listed PMU the event init function is called
+and if this function does return any other error than -ENOENT,
+the loop is terminated the creation of the event fails.
 
-Reviewed-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+If the event is invalid, return -ENOENT to try other PMUs.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vdso32/Makefile | 6 +++---
- arch/s390/kernel/vdso64/Makefile | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/s390/kernel/perf_cpum_cf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
-index 308564b9bf68..101cadabfc89 100644
---- a/arch/s390/kernel/vdso32/Makefile
-+++ b/arch/s390/kernel/vdso32/Makefile
-@@ -33,7 +33,7 @@ UBSAN_SANITIZE := n
- $(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+index 746d03423333..61e91fee8467 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -376,7 +376,7 @@ static int __hw_perf_event_init(struct perf_event *event)
+ 		return -ENOENT;
  
- # link rule for the .so file, .lds has to be first
--$(obj)/vdso32.so.dbg: $(src)/vdso32.lds $(obj-vdso32)
-+$(obj)/vdso32.so.dbg: $(src)/vdso32.lds $(obj-vdso32) FORCE
- 	$(call if_changed,vdso32ld)
+ 	if (ev > PERF_CPUM_CF_MAX_CTR)
+-		return -EINVAL;
++		return -ENOENT;
  
- # strip rule for the .so file
-@@ -42,12 +42,12 @@ $(obj)/%.so: $(obj)/%.so.dbg FORCE
- 	$(call if_changed,objcopy)
- 
- # assembly rules for the .S files
--$(obj-vdso32): %.o: %.S
-+$(obj-vdso32): %.o: %.S FORCE
- 	$(call if_changed_dep,vdso32as)
- 
- # actual build commands
- quiet_cmd_vdso32ld = VDSO32L $@
--      cmd_vdso32ld = $(CC) $(c_flags) -Wl,-T $^ -o $@
-+      cmd_vdso32ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
- quiet_cmd_vdso32as = VDSO32A $@
-       cmd_vdso32as = $(CC) $(a_flags) -c -o $@ $<
- 
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index f81ae7998883..36bbafcf4a77 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -33,7 +33,7 @@ UBSAN_SANITIZE := n
- $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
- 
- # link rule for the .so file, .lds has to be first
--$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64)
-+$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
- 	$(call if_changed,vdso64ld)
- 
- # strip rule for the .so file
-@@ -42,12 +42,12 @@ $(obj)/%.so: $(obj)/%.so.dbg FORCE
- 	$(call if_changed,objcopy)
- 
- # assembly rules for the .S files
--$(obj-vdso64): %.o: %.S
-+$(obj-vdso64): %.o: %.S FORCE
- 	$(call if_changed_dep,vdso64as)
- 
- # actual build commands
- quiet_cmd_vdso64ld = VDSO64L $@
--      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $^ -o $@
-+      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
- quiet_cmd_vdso64as = VDSO64A $@
-       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
- 
+ 	/* Obtain the counter set to which the specified counter belongs */
+ 	set = get_counter_set(ev);
 -- 
 2.17.1
