@@ -1,84 +1,56 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 14 Nov 2018 18:12:48 +0000
-Subject: Re: [RFC PATCH v1 03/10] s390/cio: Squash cp_free and cp_unpin_free
-Message-Id: <e394816f-27b4-78ae-3c75-67d178697d13@linux.ibm.com>
-In-Reply-To: <7f33c9d8-cead-e81a-a5cf-0da7fa938ab8@linux.ibm.com>
-References: <7f33c9d8-cead-e81a-a5cf-0da7fa938ab8@linux.ibm.com>
+Date: Wed, 14 Nov 2018 18:30:16 +0000
+Subject: Re: [RFC PATCH v1 00/10] vfio-ccw channel program rework
+Message-Id: <8dd77a46-c04b-f8dc-4d13-acbe0cc793a4@linux.ibm.com>
+In-Reply-To: <20181112165441.2ca1246f.cohuck@redhat.com>
+References: <20181112165441.2ca1246f.cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 09/11/2018 03:39, Eric Farman wrote:
-> The routine cp_free() does nothing but call cp_unpin_free(), and while
-> most places call cp_free() there is one caller of cp_unpin_free().
+> Hi Connie, Pierre,
 > 
-> Let's avoid the confusion, and make cp_free() do all the work.
+> This is a first round of rework to vfio-ccw that I've been cooking to
+> make the channel program handler easier to understand.  My apologies
+> for the number of patches; as there are some intersections within them
+> I couldn't break them up without forcing them to be applied in a
+> particular order.  I imagine that since there will probably need to be
+> some discussion, an RFC tag makes sense and one giant series will be
+> fine for now.  I can break them up for later versions if desired.
 > 
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->   drivers/s390/cio/vfio_ccw_cp.c | 30 ++++++++++++------------------
->   1 file changed, 12 insertions(+), 18 deletions(-)
+> (Sidebar: I'm leaving next Thursday for an early start on the US
+> Thanksgiving holiday.  So if you are busy and can't get to this,
+> no problem!  Now where did I leave Pierre's rework patches...  :)
 > 
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-> index 70a006ba4d05..a5a701451ef8 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -329,22 +329,6 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
->   	kfree((void *)(u64)ccw->cda);
->   }
->   
-> -/* Unpin the pages then free the memory resources. */
-> -static void cp_unpin_free(struct channel_program *cp)
-> -{
-> -	struct ccwchain *chain, *temp;
-> -	int i;
-> -
-> -	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
-> -		for (i = 0; i < chain->ch_len; i++) {
-> -			pfn_array_table_unpin_free(chain->ch_pat + i,
-> -						   cp->mdev);
-> -			ccwchain_cda_free(chain, i);
-> -		}
-> -		ccwchain_free(chain);
-> -	}
-> -}
-> -
->   /**
->    * ccwchain_calc_length - calculate the length of the ccw chain.
->    * @iova: guest physical address of the target ccw chain
-> @@ -695,7 +679,7 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
->   	/* Now loop for its TICs. */
->   	ret = ccwchain_loop_tic(chain, cp);
->   	if (ret)
-> -		cp_unpin_free(cp);
-> +		cp_free(cp);
->   	/* It is safe to force: if not set but idals used
->   	 * ccwchain_calc_length returns an error.
->   	 */
-> @@ -715,7 +699,17 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
->    */
->   void cp_free(struct channel_program *cp)
->   {
-> -	cp_unpin_free(cp);
-> +	struct ccwchain *chain, *temp;
-> +	int i;
-> +
-> +	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
-> +		for (i = 0; i < chain->ch_len; i++) {
-> +			pfn_array_table_unpin_free(chain->ch_pat + i,
-> +						   cp->mdev);
-> +			ccwchain_cda_free(chain, i);
-> +		}
-> +		ccwchain_free(chain);
-> +	}
->   }
->   
->   /**
+> Patch summary:
 > 
+> 1-2:	Fixes for cleanup on error paths
+> 3:	Code simplication
 
-LGTM
-Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
+I am absolutely OK with these three first patches.
 
 
+> 4-6:	Simplify the ccwchain processing
+> 7-10:	Simplify the pfn_array processing
+
+I still need some investigation on the last 7 ones.
+On a first view, it looks generally good but I developed some ideas on 
+the subject you address that you may want to study and may be implement 
+as part of this memory optimization series:
+
+- avoiding the multiples CCW chain alloc/free (already discussed in the 
+dedicated patch)
+
+- optimize the allocations of CCW chain metadata using kmem_caches
+or
+- dedicate a pre-allocated page to handle CCW chains in a single copy 
+per subchain.
+we would certainly never need more than a single page.
+
+
+
+Regards,
+Pierre
 
 -- 
 Pierre Morel
