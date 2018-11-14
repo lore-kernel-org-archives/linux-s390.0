@@ -1,52 +1,85 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Tue, 13 Nov 2018 15:06:02 +0000
-Subject: Re: [PULL 0/4] vfio-ccw fixes for 4.20
-Message-Id: <20181113160602.7a1d8ee0@mschwideX1>
-In-Reply-To: <20181113124755.4798-1-cohuck@redhat.com>
-References: <20181113124755.4798-1-cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Wed, 14 Nov 2018 18:12:48 +0000
+Subject: Re: [RFC PATCH v1 03/10] s390/cio: Squash cp_free and cp_unpin_free
+Message-Id: <e394816f-27b4-78ae-3c75-67d178697d13@linux.ibm.com>
+In-Reply-To: <7f33c9d8-cead-e81a-a5cf-0da7fa938ab8@linux.ibm.com>
+References: <7f33c9d8-cead-e81a-a5cf-0da7fa938ab8@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 13 Nov 2018 13:47:51 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
+On 09/11/2018 03:39, Eric Farman wrote:
+> The routine cp_free() does nothing but call cp_unpin_free(), and while
+> most places call cp_free() there is one caller of cp_unpin_free().
+> 
+> Let's avoid the confusion, and make cp_free() do all the work.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>   drivers/s390/cio/vfio_ccw_cp.c | 30 ++++++++++++------------------
+>   1 file changed, 12 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index 70a006ba4d05..a5a701451ef8 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -329,22 +329,6 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
+>   	kfree((void *)(u64)ccw->cda);
+>   }
+>   
+> -/* Unpin the pages then free the memory resources. */
+> -static void cp_unpin_free(struct channel_program *cp)
+> -{
+> -	struct ccwchain *chain, *temp;
+> -	int i;
+> -
+> -	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+> -		for (i = 0; i < chain->ch_len; i++) {
+> -			pfn_array_table_unpin_free(chain->ch_pat + i,
+> -						   cp->mdev);
+> -			ccwchain_cda_free(chain, i);
+> -		}
+> -		ccwchain_free(chain);
+> -	}
+> -}
+> -
+>   /**
+>    * ccwchain_calc_length - calculate the length of the ccw chain.
+>    * @iova: guest physical address of the target ccw chain
+> @@ -695,7 +679,7 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+>   	/* Now loop for its TICs. */
+>   	ret = ccwchain_loop_tic(chain, cp);
+>   	if (ret)
+> -		cp_unpin_free(cp);
+> +		cp_free(cp);
+>   	/* It is safe to force: if not set but idals used
+>   	 * ccwchain_calc_length returns an error.
+>   	 */
+> @@ -715,7 +699,17 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+>    */
+>   void cp_free(struct channel_program *cp)
+>   {
+> -	cp_unpin_free(cp);
+> +	struct ccwchain *chain, *temp;
+> +	int i;
+> +
+> +	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+> +		for (i = 0; i < chain->ch_len; i++) {
+> +			pfn_array_table_unpin_free(chain->ch_pat + i,
+> +						   cp->mdev);
+> +			ccwchain_cda_free(chain, i);
+> +		}
+> +		ccwchain_free(chain);
+> +	}
+>   }
+>   
+>   /**
+> 
 
-> The following changes since commit ccda4af0f4b92f7b4c308d3acc262f4a7e3affad:
-> 
->   Linux 4.20-rc2 (2018-11-11 17:12:31 -0600)
-> 
-> are available in the Git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20181113
-> 
-> for you to fetch changes up to b89e242eee8d4cd8261d8d821c62c5d1efc454d0:
-> 
->   s390/cio: Fix cleanup when unsupported IDA format is used (2018-11-13 11:45:17 +0100)
-> 
-> ----------------------------------------------------------------
-> several bugfixes for vfio-ccw
-> 
-> ----------------------------------------------------------------
-> 
-> Eric Farman (2):
->   s390/cio: Fix cleanup of pfn_array alloc failure
->   s390/cio: Fix cleanup when unsupported IDA format is used
-> 
-> Pierre Morel (1):
->   vfio: ccw: Register mediated device once all structures are
->     initialized
-> 
-> Sebastian Ott (1):
->   s390/cio: make vfio_ccw_io_region static
-> 
->  drivers/s390/cio/vfio_ccw_cp.c  |  6 ++++--
->  drivers/s390/cio/vfio_ccw_drv.c | 10 +++++-----
->  2 files changed, 9 insertions(+), 7 deletions(-)
-> 
+LGTM
+Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
 
-Pulled and push to s390/linux:fixes. Thanks.
+
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Pierre Morel
+Linux/KVM/QEMU in B�blingen - Germany
