@@ -1,59 +1,50 @@
 From: Hannes Reinecke <hare@suse.de>
-Date: Fri, 16 Nov 2018 11:11:18 +0000
-Subject: Re: [PATCH 10/23] zfcp: drop duplicate fsf_command from zfcp_fsf_req which is also in QTCB header
-Message-Id: <d4005aab-d2b3-7eaa-3a3b-926e8b1bd42c@suse.de>
-In-Reply-To: <20181108144458.29012-11-maier@linux.ibm.com>
-References: <20181108144458.29012-11-maier@linux.ibm.com>
+Date: Fri, 16 Nov 2018 11:12:28 +0000
+Subject: Re: [PATCH 11/23] zfcp: drop duplicate seq_no from zfcp_fsf_req which is also in QTCB header
+Message-Id: <2a820a41-a3bc-2c92-5e9d-c70246daa82a@suse.de>
+In-Reply-To: <20181108144458.29012-12-maier@linux.ibm.com>
+References: <20181108144458.29012-12-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 11/8/18 3:44 PM, Steffen Maier wrote:
-> Status read buffers (SRBs, unsolicited notifications) never use a QTCB
-> [zfcp_fsf_req_create()]. zfcp_fsf_req_send() already uses this to
-> distinguish SRBs from other FSF request types. We can re-use this method
-> in zfcp_fsf_req_complete(). Introduce a helper function to make the check
-> for req->qtcb less magic.
+> There is no point for double bookkeeping especially just for tracing.
+> The trace can take it from the QTCB which always exists for non-SRB
+> responses traced with zfcp_dbf_hba_fsf_res().
 > 
-> SRBs always are FSF_QTCB_UNSOLICITED_STATUS, so we can hard-code this for
-> the two trace functions dealing with SRBs.
-> 
-> All other FSF request types have a QTCB and we can get the fsf_command
-> from there.
-> 
-> zfcp_dbf_hba_fsf_response() and thus zfcp_dbf_hba_fsf_res() are only called
-> for non-SRB requests so it's safe to dereference the QTCB
-> [zfcp_fsf_req_complete() returns early on SRB,  else calls
->   zfcp_fsf_protstatus_eval() which calls zfcp_dbf_hba_fsf_response()].
-> In zfcp_scsi_forget_cmnd() we guard the QTCB dereference with a preceding
-> NULL check and rely on boolean shortcut evaluation.
-> 
-> As a side effect, this causes an alignment hole which we can close in
-> a later patch after having cleaned up all fields of struct zfcp_fsf_req.
+> As a side effect, this removes an alignment hole and reduces the
+> size of struct zfcp_fsf_req, and thus of each pending request, by
+> 8 bytes.
 > Before:
 > $ pahole -C zfcp_fsf_req drivers/s390/scsi/zfcp.ko
 > ...
-> 	u32                        status;               /*   136     4 */
-> 	u32                        fsf_command;          /*   140     4 */
 > 	struct fsf_qtcb *          qtcb;                 /*   144     8 */
+> 	u32                        seq_no;               /*   152     4 */
+> 	/* XXX 4 bytes hole, try to pack */
+> 	void *                     data;                 /*   160     8 */
 > ...
+> 	/* size: 296, cachelines: 2, members: 14 */
+> 	/* sum members: 288, holes: 2, sum holes: 8 */
+> 	/* last cacheline: 40 bytes */
 > After:
 > $ pahole -C zfcp_fsf_req drivers/s390/scsi/zfcp.ko
 > ...
-> 	u32                        status;               /*   136     4 */
-> 	/* XXX 4 bytes hole, try to pack */
 > 	struct fsf_qtcb *          qtcb;                 /*   144     8 */
+> 	void *                     data;                 /*   152     8 */
 > ...
+> 	/* size: 288, cachelines: 2, members: 13 */
+>          /* sum members: 284, holes: 1, sum holes: 4 */
 > 
 > Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 > Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 > ---
->   drivers/s390/scsi/zfcp_dbf.c  |  8 ++++----
->   drivers/s390/scsi/zfcp_dbf.h  |  4 ++--
->   drivers/s390/scsi/zfcp_def.h  |  7 +++++--
->   drivers/s390/scsi/zfcp_fsf.c  | 14 ++++++--------
->   drivers/s390/scsi/zfcp_scsi.c |  4 +++-
->   5 files changed, 20 insertions(+), 17 deletions(-)
+>   drivers/s390/scsi/zfcp_dbf.c | 2 +-
+>   drivers/s390/scsi/zfcp_def.h | 2 --
+>   drivers/s390/scsi/zfcp_fsf.c | 1 -
+>   3 files changed, 1 insertion(+), 4 deletions(-)
 > 
+Makes one wonder what we need the sequence number for ...
+
 Reviewed-by: Hannes Reinecke <hare@suse.com>
 
 Cheers,
