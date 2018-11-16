@@ -1,24 +1,32 @@
 From: Hannes Reinecke <hare@suse.de>
-Date: Fri, 16 Nov 2018 11:09:32 +0000
-Subject: Re: [PATCH 08/23] zfcp: group sort internal structure definitions for proximity
-Message-Id: <736673a5-78fd-78e0-7ea8-cdf36461b85e@suse.de>
-In-Reply-To: <20181108144458.29012-9-maier@linux.ibm.com>
-References: <20181108144458.29012-9-maier@linux.ibm.com>
+Date: Fri, 16 Nov 2018 11:09:47 +0000
+Subject: Re: [PATCH 09/23] zfcp: drop unnecessary forward prototype for struct zfcp_fsf_req
+Message-Id: <bf5e419c-2931-bb01-f902-75207c45c858@suse.de>
+In-Reply-To: <20181108144458.29012-10-maier@linux.ibm.com>
+References: <20181108144458.29012-10-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 11/8/18 3:44 PM, Steffen Maier wrote:
-> Have structures just before the structures that use them
-> (without disrupting sequences of using structures such as
->   zfcp_unit and zfcp_scsi_dev):
-> - zfcp_adapter_mempool embedded in zfcp_adapter,
-> - zfcp_latenc... embedded in zfcp_scsi_dev.
-> 
 > Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 > Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 > ---
->   drivers/s390/scsi/zfcp_def.h | 58 ++++++++++++++++++++++----------------------
->   1 file changed, 29 insertions(+), 29 deletions(-)
+>   drivers/s390/scsi/zfcp_def.h | 2 --
+>   1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+> index 31b3e2bb3b42..572debf2f528 100644
+> --- a/drivers/s390/scsi/zfcp_def.h
+> +++ b/drivers/s390/scsi/zfcp_def.h
+> @@ -89,8 +89,6 @@
+>   
+>   /************************* STRUCTURE DEFINITIONS *****************************/
+>   
+> -struct zfcp_fsf_req;
+> -
+>   struct zfcp_erp_action {
+>   	struct list_head list;
+>   	int action;	              /* requested action code */
 > 
 Reviewed-by: Hannes Reinecke <hare@suse.com>
 
