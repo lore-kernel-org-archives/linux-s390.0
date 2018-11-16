@@ -1,47 +1,55 @@
 From: Hannes Reinecke <hare@suse.de>
-Date: Fri, 16 Nov 2018 11:20:56 +0000
-Subject: Re: [PATCH 21/23] zfcp: silence -Wimplicit-fallthrough in zfcp_erp_lun_strategy()
-Message-Id: <64191921-162b-9bc9-5490-5765495ff992@suse.de>
-In-Reply-To: <20181108144458.29012-22-maier@linux.ibm.com>
-References: <20181108144458.29012-22-maier@linux.ibm.com>
+Date: Fri, 16 Nov 2018 11:22:57 +0000
+Subject: Re: [PATCH 23/23] zfcp: drop old default switch case which might paper over missing case
+Message-Id: <98a07c7e-b557-08e7-9bd9-7e0dbb5ec595@suse.de>
+In-Reply-To: <20181108144458.29012-24-maier@linux.ibm.com>
+References: <20181108144458.29012-24-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 11/8/18 3:44 PM, Steffen Maier wrote:
-> For some reason the already existing substring "fall through" in the
-> comment is not sufficient for GCC to silence -Wimplicit-fallthrough.
+> This was introduced with v2.6.27 commit 287ac01acf22 ("[SCSI] zfcp: Cleanup
+> code in zfcp_erp.c") but would now suppress helpful -Wswitch compiler
+> warnings when building with W=1 such as the following forced example:
 > 
->    CC [M]  drivers/s390/scsi/zfcp_erp.o
-> drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_lun_strategy':
-> drivers/s390/scsi/zfcp_erp.c:1065:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
->    if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_OPEN)
->        ^
-> drivers/s390/scsi/zfcp_erp.c:1068:2: note: here
->    case ZFCP_ERP_STEP_LUN_CLOSING:
->    ^~~~
+> drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_setup_act':
+> drivers/s390/scsi/zfcp_erp.c:220:2: warning: enumeration value 'ZFCP_ERP_ACTION_REOPEN_PORT' not handled in switch [-Wswitch]
+>    switch (need) {
+>    ^~~~~~
+> 
+> But then again, only with W=1 we would notice unhandled enum cases.
+> Without the default cases and a missed unhandled enum case, the code
+> might perform unforeseen things we might not want...
+> 
+> As of today, we never run through the removed default case,
+> so removing it is no functional change.
+> In the future, we never should run through a default case but
+> introduce the necessary specific case(s) to handle new functionality.
 > 
 > Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 > Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 > ---
->   drivers/s390/scsi/zfcp_erp.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
+>   drivers/s390/scsi/zfcp_erp.c | 3 ---
+>   1 file changed, 3 deletions(-)
 > 
 > diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-> index 8e5f01f5be81..b2845c5b8106 100644
+> index 9345fed3bb37..744a64680d5b 100644
 > --- a/drivers/s390/scsi/zfcp_erp.c
 > +++ b/drivers/s390/scsi/zfcp_erp.c
-> @@ -1070,7 +1070,8 @@ static enum zfcp_erp_act_result zfcp_erp_lun_strategy(
->   		zfcp_erp_lun_strategy_clearstati(sdev);
->   		if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_OPEN)
->   			return zfcp_erp_lun_strategy_close(erp_action);
-> -		/* already closed, fall through */
-> +		/* already closed */
-> +		/* fall through */
->   	case ZFCP_ERP_STEP_LUN_CLOSING:
->   		if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_OPEN)
->   			return ZFCP_ERP_FAILED;
+> @@ -257,9 +257,6 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(enum zfcp_erp_act_type need,
+>   		      ZFCP_STATUS_COMMON_RUNNING))
+>   			act_status |= ZFCP_STATUS_ERP_CLOSE_ONLY;
+>   		break;
+> -
+> -	default:
+> -		return NULL;
+>   	}
+>   
+>   	WARN_ON_ONCE(erp_action->adapter != adapter);
 > 
-Reviewed-by: Hannes Reinecke <hare@suse.com>
+Same here.
+If you don't expect the code to run into this case, please do add a 
+WARN_ON() or something so that it can be tracked down.
 
 Cheers,
 
