@@ -1,10 +1,10 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net V2 1/5] net/smc: abort CLC connection in smc_release
-Date: Thu, 15 Nov 2018 13:11:16 +0100
-Message-ID: <20181115121120.98440-2-ubraun@linux.ibm.com>
-References: <20181115121120.98440-1-ubraun@linux.ibm.com>
+Subject: [PATCH net V3 1/5] net/smc: abort CLC connection in smc_release
+Date: Fri, 16 Nov 2018 13:36:13 +0100
+Message-ID: <20181116123617.72948-2-ubraun@linux.ibm.com>
+References: <20181116123617.72948-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20181115121120.98440-1-ubraun@linux.ibm.com>
+In-Reply-To: <20181116123617.72948-1-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
