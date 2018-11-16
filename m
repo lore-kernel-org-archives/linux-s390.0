@@ -1,49 +1,63 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net V3 0/5] net/smc: fixes 2018-11-12
-Date: Fri, 16 Nov 2018 13:36:12 +0100
-Message-ID: <20181116123617.72948-1-ubraun@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+Return-Path: <SRS0=A7nN=N3=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Fri, 16 Nov 2018 13:28:13 +0100
+From: Petr Tesarik <ptesarik@suse.com>
+Subject: Re: [PATCH 1/1] s390: vfio-ap: include <asm/facility> for
+ test_facility()
+Message-ID: <20181116132813.1da70c98@ezekiel.suse.cz>
+In-Reply-To: <20181116132033.454ee131@oc0155643701>
+References: <20181116114748.590dfb45@ezekiel.suse.cz>
+        <20181116132033.454ee131@oc0155643701>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Tony Krowiak <akrowiak@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+On Fri, 16 Nov 2018 13:20:33 +0100
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-here is V3 of some net/smc fixes in different areas for the net tree.
+> On Fri, 16 Nov 2018 11:47:48 +0100
+> Petr Tesarik <ptesarik@suse.com> wrote:
+> 
+> > The driver uses test_facility(), but does not include the
+> > corresponding include file explicitly. The driver currently builds
+> > only thanks to the following include chain:
+> > 
+> >   vfio_ap_drv.c
+> >     <linux/module.h>
+> >       <linux/elf.h>
+> >         <asm/elf.h>
+> > 	  <linux/compat.h>
+> > 	    <asm/uaccess.h>
+> > 	      <asm/facility.h>
+> > 
+> > Files should not rely on such fragile implicit includes.
+> > 
+> > Signed-off-by: Petr Tesarik <ptesarik@suse.com>
+> > ---
+> >  drivers/s390/crypto/vfio_ap_drv.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/s390/crypto/vfio_ap_drv.c
+> > b/drivers/s390/crypto/vfio_ap_drv.c index 7667b38728f0..31c6c847eaca
+> > 100644 --- a/drivers/s390/crypto/vfio_ap_drv.c
+> > +++ b/drivers/s390/crypto/vfio_ap_drv.c
+> > @@ -11,6 +11,7 @@
+> >  #include <linux/mod_devicetable.h>
+> >  #include <linux/slab.h>
+> >  #include <linux/string.h>
+> > +#include <asm/facility.h>
+> >  #include "vfio_ap_private.h"
+> >  
+> >  #define VFIO_AP_ROOT_NAME "vfio_ap"  
+> 
+> Applied. Is going to go via Martins S390 tree.
 
-v1->v2:
-   do not define 8-byte alignment for union smcd_cdc_cursor in
-   patch 4/5 "net/smc: atomic SMCD cursor handling"
-v2->v3:
-   stay with 8-byte alignment for union smcd_cdc_cursor in
-   patch 4/5 "net/smc: atomic SMCD cursor handling", but get rid of
-   __packed for struct smcd_cdc_msg
+Thank you for the quick turnaround.
 
-Thanks, Ursula
-
-Hans Wippel (2):
-  net/smc: abort CLC connection in smc_release
-  net/smc: add SMC-D shutdown signal
-
-Karsten Graul (1):
-  net/smc: use queue pair number when matching link group
-
-Ursula Braun (2):
-  net/smc: atomic SMCD cursor handling
-  net/smc: use after free fix in smc_wr_tx_put_slot()
-
- net/smc/af_smc.c   | 11 +++++++----
- net/smc/smc_cdc.c  | 24 ++++++++++++----------
- net/smc/smc_cdc.h  | 58 +++++++++++++++++++++++++++++++++++++++++-------------
- net/smc/smc_core.c | 20 +++++++++++++------
- net/smc/smc_core.h |  5 +++--
- net/smc/smc_ism.c  | 43 +++++++++++++++++++++++++++++-----------
- net/smc/smc_ism.h  |  1 +
- net/smc/smc_wr.c   |  4 +++-
- 8 files changed, 118 insertions(+), 48 deletions(-)
-
--- 
-2.16.4
+Petr Tesarik
+SUSE HW Enablement Team
