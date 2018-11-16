@@ -1,25 +1,26 @@
 From: Hannes Reinecke <hare@suse.de>
-Date: Fri, 16 Nov 2018 11:03:03 +0000
-Subject: Re: [PATCH 02/22] zfcp: remove unnecessary null pointer check before mempool_destroy
-Message-Id: <cbe58632-63a8-5579-5fb9-36b53e65ca7b@suse.de>
-In-Reply-To: <20181108144458.29012-3-maier@linux.ibm.com>
-References: <20181108144458.29012-3-maier@linux.ibm.com>
+Date: Fri, 16 Nov 2018 11:03:30 +0000
+Subject: Re: [PATCH 03/23] zfcp: move SG table helper from aux to fc and make them static
+Message-Id: <e69097fc-555a-96b0-2ca4-42888d24fee5@suse.de>
+In-Reply-To: <20181108144458.29012-4-maier@linux.ibm.com>
+References: <20181108144458.29012-4-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 11/8/18 3:44 PM, Steffen Maier wrote:
-> From: zhong jiang <zhongjiang@huawei.com>
+> Since commit 663e0890e31c ("[SCSI] zfcp: remove access control tables
+> interface") these helper functions are only used for auto port scan in
+> zfcp_fc.c. Also change them to the corresponding namespace prefix.
 > 
-> mempool_destroy has taken null pointer check into account. so remove the
-> redundant check.
+> This is a small cleanup for the miscellaneous catchall compile unit
+> zfcp_aux.c.
 > 
-> Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-> Acked-by: Benjamin Block <bblock@linux.ibm.com>
-> [maier@linux.ibm.com: depends on v4.3 4e3ca3e033d1 ("mm/mempool: allow NULL `pool' pointer in mempool_destroy()")]
 > Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+> Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 > ---
->   drivers/s390/scsi/zfcp_aux.c | 21 +++++++--------------
->   1 file changed, 7 insertions(+), 14 deletions(-)
+>   drivers/s390/scsi/zfcp_aux.c | 44 +-----------------------------------------
+>   drivers/s390/scsi/zfcp_fc.c  | 46 ++++++++++++++++++++++++++++++++++++++++++--
+>   2 files changed, 45 insertions(+), 45 deletions(-)
 > 
 Reviewed-by: Hannes Reinecke <hare@suse.com>
 
