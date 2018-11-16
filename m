@@ -1,57 +1,34 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 14 Nov 2018 18:30:16 +0000
-Subject: Re: [RFC PATCH v1 00/10] vfio-ccw channel program rework
-Message-Id: <8dd77a46-c04b-f8dc-4d13-acbe0cc793a4@linux.ibm.com>
-In-Reply-To: <20181112165441.2ca1246f.cohuck@redhat.com>
-References: <20181112165441.2ca1246f.cohuck@redhat.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+From: Hannes Reinecke <hare@suse.de>
+Date: Fri, 16 Nov 2018 11:03:03 +0000
+Subject: Re: [PATCH 02/22] zfcp: remove unnecessary null pointer check before mempool_destroy
+Message-Id: <cbe58632-63a8-5579-5fb9-36b53e65ca7b@suse.de>
+In-Reply-To: <20181108144458.29012-3-maier@linux.ibm.com>
+References: <20181108144458.29012-3-maier@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/11/2018 03:39, Eric Farman wrote:
-> Hi Connie, Pierre,
+On 11/8/18 3:44 PM, Steffen Maier wrote:
+> From: zhong jiang <zhongjiang@huawei.com>
 > 
-> This is a first round of rework to vfio-ccw that I've been cooking to
-> make the channel program handler easier to understand.  My apologies
-> for the number of patches; as there are some intersections within them
-> I couldn't break them up without forcing them to be applied in a
-> particular order.  I imagine that since there will probably need to be
-> some discussion, an RFC tag makes sense and one giant series will be
-> fine for now.  I can break them up for later versions if desired.
+> mempool_destroy has taken null pointer check into account. so remove the
+> redundant check.
 > 
-> (Sidebar: I'm leaving next Thursday for an early start on the US
-> Thanksgiving holiday.  So if you are busy and can't get to this,
-> no problem!  Now where did I leave Pierre's rework patches...  :)
+> Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+> Acked-by: Benjamin Block <bblock@linux.ibm.com>
+> [maier@linux.ibm.com: depends on v4.3 4e3ca3e033d1 ("mm/mempool: allow NULL `pool' pointer in mempool_destroy()")]
+> Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+> ---
+>   drivers/s390/scsi/zfcp_aux.c | 21 +++++++--------------
+>   1 file changed, 7 insertions(+), 14 deletions(-)
 > 
-> Patch summary:
-> 
-> 1-2:	Fixes for cleanup on error paths
-> 3:	Code simplication
+Reviewed-by: Hannes Reinecke <hare@suse.com>
 
-I am absolutely OK with these three first patches.
+Cheers,
 
-
-> 4-6:	Simplify the ccwchain processing
-> 7-10:	Simplify the pfn_array processing
-
-I still need some investigation on the last 7 ones.
-On a first view, it looks generally good but I developed some ideas on 
-the subject you address that you may want to study and may be implement 
-as part of this memory optimization series:
-
-- avoiding the multiples CCW chain alloc/free (already discussed in the 
-dedicated patch)
-
-- optimize the allocations of CCW chain metadata using kmem_caches
-or
-- dedicate a pre-allocated page to handle CCW chains in a single copy 
-per subchain.
-we would certainly never need more than a single page.
-
-
-
-Regards,
-Pierre
-
+Hannes
 -- 
-Pierre Morel
-Linux/KVM/QEMU in B�blingen - Germany
+Dr. Hannes Reinecke		   Teamlead Storage & Networking
+hare@suse.de			               +49 911 74053 688
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N�rnberg
+GF: F. Imend�rffer, J. Smithard, J. Guild, D. Upmanyu, G. Norton
+HRB 21284 (AG N�rnberg)
