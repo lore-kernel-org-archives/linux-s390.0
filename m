@@ -1,115 +1,56 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Mon, 19 Nov 2018 17:25:34 +0000
-Subject: [PATCH v2 10/12] KVM: s390: add functions to (un)register GISC with GISA
-Message-Id: <20181119172536.52649-11-mimu@linux.ibm.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Date: Mon, 19 Nov 2018 17:37:47 +0000
+Subject: Re: [PATCH 04/10] KVM: s390: add metric vcpus_in_sie to struct kvm_arch
+Message-Id: <1c4c0b42-1a10-58e6-97b1-564f16b44615@linux.ibm.com>
+In-Reply-To: <3ad892e2-29bc-6f85-9db5-385be4f4049d@linux.ibm.com>
+References: <3ad892e2-29bc-6f85-9db5-385be4f4049d@linux.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Add the IAM (Interruption Alert Mask) to the architectue specific
-kvm struct. This mask in the GISA is used to define for which ISC
-a GIB alert can be issued.
 
-The functions kvm_s390_gisc_register() and kvm_s390_gisc_unregister()
-are used to (un)register a GISC (guest ISC) with a virtual machine and
-its GISA.
 
-Upon successful completion, kvm_s390_gisc_register() returns the
-ISC to be used for GIB alert interruptions. A negative return code
-indicates an error during registration.
+On 08.11.18 02:05, Halil Pasic wrote:
+>
+> On 11/07/2018 10:52 PM, Pierre Morel wrote:
+>>>>>> Mimu,�we�just�spoke�about�--�thus�a�reminder�for�us,�and�a�FYI�for
+>>>>>> the�rest.�vcpus_in_sie�!=�0�does�not�necessarily�mean�that�FW�can
+>>>>>> deliver�GISA�interrupts�to�the�guest�(and�thus�we�don't�have�to
+>>>>>> dispatch�a�suitable�vcpu):�if�all�cpus�in�SIE�mask�IO�interrupts�it
+>>>>>> does�not�really�matter�that�they�are�in�SIE.�I.e.�we�should�still�get
+>>>>>> alerted�and�try�to�dispatch�an�eligible�vcpu.
+>>>> If�I�understood�well,�I�do�not�agree.
+>>> I�don't�think�you�understood�well.
+>>>
+>>>> If�all�the�vCPU�have�ISC�masked�in�CR6�we�do�not�need�to�dispatch�the�vCPU,�running�or�not.
+>>>> If�running,
+>>>> The�first�vCPU�that�will�load�CR6�with�at�least�one�bit�of�the�ISC�being�one�will�be�scheduled�by�the�firmware.
+>>>>
+>>> Let�me�help�you�with�an�example.�Our�guest�has�3�vCPUs.�One�(CPU1)�of�those�is�doing�something
+>>> very�important�real-time-ish�stuff�and�is�currently�in�SIE�with�all�maskable�interrupts
+>>> shut�off�(the�stuff�is�very�important).�The�other�two�vCPUs�(CPU2�and�CPU3)�are�open�for�IO
+>>> interrupts�but�idle,�that�is�not�in�SIE.
+>>>
+>>> AFAIU�we�should�opt�for�getting�alerted�and�kicking�CPU2�or�CPU3�in�this�case,�as�we�can
+>>> not�assume�that�CPU1�will�open�up�for�interrupts�any�time�soon.�I�read�your�text�like,
+>>> you�think�we�can�make�that�assumption.�Did�I�misunderstand�you?�If�not,�why�do�you�think
+>>> we�can�make�that�assumption?
+>> OK, I undertand, you want to make an optimization and kick one idle CPU not�having�the�interrupt�masked.
+>> Seems�right�for�me,�but�I�think�we�could�implement�this�later.
+> I'm not sure if it is just an optimization or not. If we don't have another mechanism that
+> will kick one of the two form the example, the guest will loose initiative. And that is a bug
+> because it could wait for the IRQ forever. If we do have a different mechanism that we are going to
+> keep on relying, then everything we do around GIB is just an optimization in the same sense
+> as the point under discussion. I have not looked enough at the proposed code to tell if guest
+> looses initiative or not.
+>
+> Important thing is we are roughly on the same page I think.
+>
+> Regards,
+> Halil
+I have looked into this scenario described by you and spend some time 
+dealing with it. But before I will
+add any potential unused code I'm asking you to provide a piece of code 
+producing this scenario. Up to
+then we shall go with the option provided in patch series v2.
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  6 ++++++
- arch/s390/kvm/interrupt.c        | 44 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 50 insertions(+)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 3e3225ea303b..3b7902a8573d 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -850,6 +850,9 @@ struct kvm_arch{
- 	struct kvm_s390_gisa *gisa;
- 	int gib_in_use;
- 	atomic_t vcpus_in_sie;
-+	u8 iam;
-+	u32 iam_ref_count[MAX_ISC + 1];
-+	spinlock_t iam_ref_lock;
- };
- 
- #define KVM_HVA_ERR_BAD		(-1UL)
-@@ -883,6 +886,9 @@ void kvm_arch_crypto_set_masks(struct kvm *kvm, unsigned long *apm,
- extern int sie64a(struct kvm_s390_sie_block *, u64 *);
- extern char sie_exit;
- 
-+extern int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc);
-+extern int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc);
-+
- static inline void kvm_arch_hardware_disable(void) {}
- static inline void kvm_arch_check_processor_compat(void *rtn) {}
- static inline void kvm_arch_sync_events(struct kvm *kvm) {}
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 443d1804d611..40878efbd5cd 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2950,6 +2950,8 @@ void kvm_s390_gisa_init(struct kvm *kvm)
- {
- 	if (css_general_characteristics.aiv) {
- 		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
-+		kvm->arch.iam = 0;
-+		spin_lock_init(&kvm->arch.iam_ref_lock);
- 		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
- 		kvm_s390_gisa_clear(kvm);
- 		kvm->arch.gib_in_use = !!gib;
-@@ -2961,8 +2963,50 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
- 	if (!kvm->arch.gisa)
- 		return;
- 	kvm->arch.gisa = NULL;
-+	kvm->arch.iam = 0;
- }
- 
-+int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc)
-+{
-+	if (!kvm->arch.gib_in_use)
-+		return -ENODEV;
-+	if (gisc > MAX_ISC)
-+		return -EINVAL;
-+
-+	spin_lock(&kvm->arch.iam_ref_lock);
-+	if (kvm->arch.iam_ref_count[gisc] == 0)
-+		kvm->arch.iam |= 0x80 >> gisc;
-+	kvm->arch.iam_ref_count[gisc]++;
-+	spin_unlock(&kvm->arch.iam_ref_lock);
-+
-+	return gib->nisc;
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_gisc_register);
-+
-+int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
-+{
-+	int rc = 0;
-+
-+	if (!kvm->arch.gib_in_use)
-+		return -ENODEV;
-+	if (gisc > MAX_ISC)
-+		return -EINVAL;
-+
-+	spin_lock(&kvm->arch.iam_ref_lock);
-+	if (kvm->arch.iam_ref_count[gisc] == 0) {
-+		rc = -EFAULT;
-+		goto out;
-+	}
-+	kvm->arch.iam_ref_count[gisc]--;
-+	if (kvm->arch.iam_ref_count[gisc] == 0)
-+		kvm->arch.iam &= ~(0x80 >> gisc);
-+out:
-+	spin_unlock(&kvm->arch.iam_ref_lock);
-+
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
-+
- void kvm_s390_gib_destroy(void)
- {
- 	if (!gib)
--- 
-2.13.4
+Michael
