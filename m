@@ -1,96 +1,43 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Mon, 19 Nov 2018 17:25:26 +0000
-Subject: [PATCH v2 02/12] s390/cio: add function chsc_sgib()
-Message-Id: <20181119172536.52649-3-mimu@linux.ibm.com>
+Date: Mon, 19 Nov 2018 17:25:28 +0000
+Subject: [PATCH v2 04/12] KVM: s390: factor out nullify_gisa()
+Message-Id: <20181119172536.52649-5-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements the Set Guest Information Block operation
-to request association or disassociation of a Guest Information
-Block (GIB) with the Adapter Interruption Facility. The operation
-is required to receive GIB alert interrupts for guest adapters
-in conjunction with AIV and GISA.
+This function will be used by the GIB alert handler and during
+the GISA clear operation. Thus it gets factored out here.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
 Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/include/asm/cio.h |  1 +
- drivers/s390/cio/chsc.c     | 37 +++++++++++++++++++++++++++++++++++++
- drivers/s390/cio/chsc.h     |  1 +
- 3 files changed, 39 insertions(+)
+ arch/s390/kvm/interrupt.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index 225667652069..1727180e8ca1 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -331,5 +331,6 @@ extern void css_schedule_reprobe(void);
- /* Function from drivers/s390/cio/chsc.c */
- int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
- int chsc_sstpi(void *page, void *result, size_t size);
-+int chsc_sgib(u32 origin);
- 
- #endif
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index a0baee25134c..4159c63a5fd2 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -1382,3 +1382,40 @@ int chsc_pnso_brinfo(struct subchannel_id schid,
- 	return chsc_error_from_response(brinfo_area->response.code);
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 2149059e9e17..56d431508435 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2882,11 +2882,16 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+ 	return n;
  }
- EXPORT_SYMBOL_GPL(chsc_pnso_brinfo);
-+
-+int chsc_sgib(u32 origin)
-+{
-+	struct {
-+		struct chsc_header request;
-+		u16 op;
-+		u8  reserved01[2];
-+		u8  reserved02:4;
-+		u8  fmt:4;
-+		u8  reserved03[7];
-+		/* operation data area begin */
-+		u8  reserved04[4];
-+		u32 gib_origin;
-+		u8  reserved05[10];
-+		u8  aix;
-+		u8  reserved06[4029];
-+		struct chsc_header response;
-+		u8  reserved07[4];
-+	} *sgib_area;
-+	int ret;
-+
-+	spin_lock_irq(&chsc_page_lock);
-+	memset(chsc_page, 0, PAGE_SIZE);
-+	sgib_area = chsc_page;
-+	sgib_area->request.length = 0x0fe0;
-+	sgib_area->request.code = 0x0021;
-+	sgib_area->op = 0x1;
-+	sgib_area->gib_origin = origin;
-+
-+	ret = chsc(sgib_area);
-+	if (ret == 0)
-+		ret = chsc_error_from_response(sgib_area->response.code);
-+	spin_unlock_irq(&chsc_page_lock);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(chsc_sgib);
-diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
-index 78aba8d94eec..e57d68e325a3 100644
---- a/drivers/s390/cio/chsc.h
-+++ b/drivers/s390/cio/chsc.h
-@@ -164,6 +164,7 @@ int chsc_get_channel_measurement_chars(struct channel_path *chp);
- int chsc_ssqd(struct subchannel_id schid, struct chsc_ssqd_area *ssqd);
- int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
- 	      u64 summary_indicator_addr, u64 subchannel_indicator_addr);
-+int chsc_sgib(u32 origin);
- int chsc_error_from_response(int response);
  
- int chsc_siosl(struct subchannel_id schid);
++static void nullify_gisa(struct kvm_s390_gisa *gisa)
++{
++	memset(gisa, 0, sizeof(struct kvm_s390_gisa));
++	gisa->next_alert = (u32)(u64)gisa;
++}
++
+ void kvm_s390_gisa_clear(struct kvm *kvm)
+ {
+ 	if (kvm->arch.gisa) {
+-		memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
+-		kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
++		nullify_gisa(kvm->arch.gisa);
+ 		VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+ 	}
+ }
 -- 
 2.13.4
