@@ -1,67 +1,115 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Mon, 19 Nov 2018 17:25:32 +0000
-Subject: [PATCH v2 08/12] KVM: s390: factor out __find_vcpu_for_floating_irq()
-Message-Id: <20181119172536.52649-9-mimu@linux.ibm.com>
+Date: Mon, 19 Nov 2018 17:25:34 +0000
+Subject: [PATCH v2 10/12] KVM: s390: add functions to (un)register GISC with GISA
+Message-Id: <20181119172536.52649-11-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This function will be used as well to find a suitable vcpu
-to wakeup in GIB alert interruption context.
+Add the IAM (Interruption Alert Mask) to the architectue specific
+kvm struct. This mask in the GISA is used to define for which ISC
+a GIB alert can be issued.
+
+The functions kvm_s390_gisc_register() and kvm_s390_gisc_unregister()
+are used to (un)register a GISC (guest ISC) with a virtual machine and
+its GISA.
+
+Upon successful completion, kvm_s390_gisc_register() returns the
+ISC to be used for GIB alert interruptions. A negative return code
+indicates an error during registration.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ arch/s390/include/asm/kvm_host.h |  6 ++++++
+ arch/s390/kvm/interrupt.c        | 44 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+)
 
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 3e3225ea303b..3b7902a8573d 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -850,6 +850,9 @@ struct kvm_arch{
+ 	struct kvm_s390_gisa *gisa;
+ 	int gib_in_use;
+ 	atomic_t vcpus_in_sie;
++	u8 iam;
++	u32 iam_ref_count[MAX_ISC + 1];
++	spinlock_t iam_ref_lock;
+ };
+ 
+ #define KVM_HVA_ERR_BAD		(-1UL)
+@@ -883,6 +886,9 @@ void kvm_arch_crypto_set_masks(struct kvm *kvm, unsigned long *apm,
+ extern int sie64a(struct kvm_s390_sie_block *, u64 *);
+ extern char sie_exit;
+ 
++extern int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc);
++extern int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc);
++
+ static inline void kvm_arch_hardware_disable(void) {}
+ static inline void kvm_arch_check_processor_compat(void *rtn) {}
+ static inline void kvm_arch_sync_events(struct kvm *kvm) {}
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index fc9eae499319..8676596f6b5c 100644
+index 443d1804d611..40878efbd5cd 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -1719,18 +1719,14 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	return 0;
+@@ -2950,6 +2950,8 @@ void kvm_s390_gisa_init(struct kvm *kvm)
+ {
+ 	if (css_general_characteristics.aiv) {
+ 		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
++		kvm->arch.iam = 0;
++		spin_lock_init(&kvm->arch.iam_ref_lock);
+ 		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+ 		kvm_s390_gisa_clear(kvm);
+ 		kvm->arch.gib_in_use = !!gib;
+@@ -2961,8 +2963,50 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+ 	if (!kvm->arch.gisa)
+ 		return;
+ 	kvm->arch.gisa = NULL;
++	kvm->arch.iam = 0;
  }
  
--/*
-- * Find a destination VCPU for a floating irq and kick it.
-- */
--static void __floating_irq_kick(struct kvm *kvm, u64 type)
-+static struct kvm_vcpu *__find_vcpu_for_floating_irq(struct kvm *kvm)
- {
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
--	struct kvm_vcpu *dst_vcpu;
- 	int sigcpu, online_vcpus, nr_tries = 0;
- 
- 	online_vcpus = atomic_read(&kvm->online_vcpus);
- 	if (!online_vcpus)
--		return;
-+		return NULL;
- 
- 	/* find idle VCPUs first, then round robin */
- 	sigcpu = find_first_bit(fi->idle_mask, online_vcpus);
-@@ -1740,10 +1736,22 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
- 			fi->next_rr_cpu = (fi->next_rr_cpu + 1) % online_vcpus;
- 			/* avoid endless loops if all vcpus are stopped */
- 			if (nr_tries++ >= online_vcpus)
--				return;
-+				return NULL;
- 		} while (is_vcpu_stopped(kvm_get_vcpu(kvm, sigcpu)));
- 	}
--	dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
-+	return kvm_get_vcpu(kvm, sigcpu);
-+}
-+
-+/*
-+ * Find a destination VCPU for a floating irq and kick it.
-+ */
-+static void __floating_irq_kick(struct kvm *kvm, u64 type)
++int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc)
 +{
-+	struct kvm_vcpu *dst_vcpu;
++	if (!kvm->arch.gib_in_use)
++		return -ENODEV;
++	if (gisc > MAX_ISC)
++		return -EINVAL;
 +
-+	dst_vcpu = __find_vcpu_for_floating_irq(kvm);
-+	if (!dst_vcpu)
-+		return;
- 
- 	/* make the VCPU drop out of the SIE, or wake it up if sleeping */
- 	switch (type) {
++	spin_lock(&kvm->arch.iam_ref_lock);
++	if (kvm->arch.iam_ref_count[gisc] == 0)
++		kvm->arch.iam |= 0x80 >> gisc;
++	kvm->arch.iam_ref_count[gisc]++;
++	spin_unlock(&kvm->arch.iam_ref_lock);
++
++	return gib->nisc;
++}
++EXPORT_SYMBOL_GPL(kvm_s390_gisc_register);
++
++int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
++{
++	int rc = 0;
++
++	if (!kvm->arch.gib_in_use)
++		return -ENODEV;
++	if (gisc > MAX_ISC)
++		return -EINVAL;
++
++	spin_lock(&kvm->arch.iam_ref_lock);
++	if (kvm->arch.iam_ref_count[gisc] == 0) {
++		rc = -EFAULT;
++		goto out;
++	}
++	kvm->arch.iam_ref_count[gisc]--;
++	if (kvm->arch.iam_ref_count[gisc] == 0)
++		kvm->arch.iam &= ~(0x80 >> gisc);
++out:
++	spin_unlock(&kvm->arch.iam_ref_lock);
++
++	return rc;
++}
++EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
++
+ void kvm_s390_gib_destroy(void)
+ {
+ 	if (!gib)
 -- 
 2.13.4
