@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net V4 2/5] net/smc: use queue pair number when matching link group
-Date: Tue, 20 Nov 2018 16:46:40 +0100
-Message-ID: <20181120154643.24111-3-ubraun@linux.ibm.com>
+Subject: [PATCH net V4 4/5] net/smc: atomic SMCD cursor handling
+Date: Tue, 20 Nov 2018 16:46:42 +0100
+Message-ID: <20181120154643.24111-5-ubraun@linux.ibm.com>
 References: <20181120154643.24111-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20181120154643.24111-1-ubraun@linux.ibm.com>
@@ -12,116 +12,170 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+Running uperf tests with SMCD on LPARs results in corrupted cursors.
+SMCD cursors should be treated atomically to fix cursor corruption.
 
-When searching for an existing link group the queue pair number is also
-to be taken into consideration. When the SMC server sends a new number
-in a CLC packet (keeping all other values equal) then a new link group
-is to be created on the SMC client side.
-
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/af_smc.c   |  9 +++++----
- net/smc/smc_core.c | 10 ++++++----
- net/smc/smc_core.h |  2 +-
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ net/smc/smc_cdc.c | 26 ++++++++++++++----------
+ net/smc/smc_cdc.h | 60 +++++++++++++++++++++++++++++++++++++++++--------------
+ 2 files changed, 60 insertions(+), 26 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 84f67f601838..5fbaf1901571 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -549,7 +549,8 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 
- 	mutex_lock(&smc_create_lgr_pending);
- 	local_contact = smc_conn_create(smc, false, aclc->hdr.flag, ibdev,
--					ibport, &aclc->lcl, NULL, 0);
-+					ibport, ntoh24(aclc->qpn), &aclc->lcl,
-+					NULL, 0);
- 	if (local_contact < 0) {
- 		if (local_contact == -ENOMEM)
- 			reason_code = SMC_CLC_DECL_MEM;/* insufficient memory*/
-@@ -620,7 +621,7 @@ static int smc_connect_ism(struct smc_sock *smc,
- 	int rc = 0;
- 
- 	mutex_lock(&smc_create_lgr_pending);
--	local_contact = smc_conn_create(smc, true, aclc->hdr.flag, NULL, 0,
-+	local_contact = smc_conn_create(smc, true, aclc->hdr.flag, NULL, 0, 0,
- 					NULL, ismdev, aclc->gid);
- 	if (local_contact < 0)
- 		return smc_connect_abort(smc, SMC_CLC_DECL_MEM, 0);
-@@ -1085,7 +1086,7 @@ static int smc_listen_rdma_init(struct smc_sock *new_smc,
- 				int *local_contact)
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index ed5dcf03fe0b..db83332ac1c8 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -81,7 +81,7 @@ static inline void smc_cdc_add_pending_send(struct smc_connection *conn,
+ 		sizeof(struct smc_cdc_msg) > SMC_WR_BUF_SIZE,
+ 		"must increase SMC_WR_BUF_SIZE to at least sizeof(struct smc_cdc_msg)");
+ 	BUILD_BUG_ON_MSG(
+-		sizeof(struct smc_cdc_msg) != SMC_WR_TX_SIZE,
++		offsetofend(struct smc_cdc_msg, reserved) > SMC_WR_TX_SIZE,
+ 		"must adapt SMC_WR_TX_SIZE to sizeof(struct smc_cdc_msg); if not all smc_wr upper layer protocols use the same message size any more, must start to set link->wr_tx_sges[i].length on each individual smc_wr_tx_send()");
+ 	BUILD_BUG_ON_MSG(
+ 		sizeof(struct smc_cdc_tx_pend) > SMC_WR_TX_PEND_PRIV_SIZE,
+@@ -177,23 +177,24 @@ void smc_cdc_tx_dismiss_slots(struct smc_connection *conn)
+ int smcd_cdc_msg_send(struct smc_connection *conn)
  {
- 	/* allocate connection / link group */
--	*local_contact = smc_conn_create(new_smc, false, 0, ibdev, ibport,
-+	*local_contact = smc_conn_create(new_smc, false, 0, ibdev, ibport, 0,
- 					 &pclc->lcl, NULL, 0);
- 	if (*local_contact < 0) {
- 		if (*local_contact == -ENOMEM)
-@@ -1109,7 +1110,7 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
- 	struct smc_clc_msg_smcd *pclc_smcd;
+ 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
++	union smc_host_cursor curs;
+ 	struct smcd_cdc_msg cdc;
+ 	int rc, diff;
  
- 	pclc_smcd = smc_get_clc_msg_smcd(pclc);
--	*local_contact = smc_conn_create(new_smc, true, 0, NULL, 0, NULL,
-+	*local_contact = smc_conn_create(new_smc, true, 0, NULL, 0, 0, NULL,
- 					 ismdev, pclc_smcd->gid);
- 	if (*local_contact < 0) {
- 		if (*local_contact == -ENOMEM)
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 18daebcef181..3c023de58afd 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -559,7 +559,7 @@ int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id)
- 
- static bool smcr_lgr_match(struct smc_link_group *lgr,
- 			   struct smc_clc_msg_local *lcl,
--			   enum smc_lgr_role role)
-+			   enum smc_lgr_role role, u32 clcqpn)
+ 	memset(&cdc, 0, sizeof(cdc));
+ 	cdc.common.type = SMC_CDC_MSG_TYPE;
+-	cdc.prod_wrap = conn->local_tx_ctrl.prod.wrap;
+-	cdc.prod_count = conn->local_tx_ctrl.prod.count;
+-
+-	cdc.cons_wrap = conn->local_tx_ctrl.cons.wrap;
+-	cdc.cons_count = conn->local_tx_ctrl.cons.count;
+-	cdc.prod_flags = conn->local_tx_ctrl.prod_flags;
+-	cdc.conn_state_flags = conn->local_tx_ctrl.conn_state_flags;
++	curs.acurs.counter = atomic64_read(&conn->local_tx_ctrl.prod.acurs);
++	cdc.prod.wrap = curs.wrap;
++	cdc.prod.count = curs.count;
++	curs.acurs.counter = atomic64_read(&conn->local_tx_ctrl.cons.acurs);
++	cdc.cons.wrap = curs.wrap;
++	cdc.cons.count = curs.count;
++	cdc.cons.prod_flags = conn->local_tx_ctrl.prod_flags;
++	cdc.cons.conn_state_flags = conn->local_tx_ctrl.conn_state_flags;
+ 	rc = smcd_tx_ism_write(conn, &cdc, sizeof(cdc), 0, 1);
+ 	if (rc)
+ 		return rc;
+-	smc_curs_copy(&conn->rx_curs_confirmed, &conn->local_tx_ctrl.cons,
+-		      conn);
++	smc_curs_copy(&conn->rx_curs_confirmed, &curs, conn);
+ 	/* Calculate transmitted data and increment free send buffer space */
+ 	diff = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
+ 			     &conn->tx_curs_sent);
+@@ -331,13 +332,16 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
+ static void smcd_cdc_rx_tsklet(unsigned long data)
  {
- 	return !memcmp(lgr->peer_systemid, lcl->id_for_peer,
- 		       SMC_SYSTEMID_LEN) &&
-@@ -567,7 +567,9 @@ static bool smcr_lgr_match(struct smc_link_group *lgr,
- 			SMC_GID_SIZE) &&
- 		!memcmp(lgr->lnk[SMC_SINGLE_LINK].peer_mac, lcl->mac,
- 			sizeof(lcl->mac)) &&
--		lgr->role == role;
-+		lgr->role == role &&
-+		(lgr->role == SMC_SERV ||
-+		 lgr->lnk[SMC_SINGLE_LINK].peer_qpn == clcqpn);
+ 	struct smc_connection *conn = (struct smc_connection *)data;
++	struct smcd_cdc_msg *data_cdc;
+ 	struct smcd_cdc_msg cdc;
+ 	struct smc_sock *smc;
+ 
+ 	if (!conn)
+ 		return;
+ 
+-	memcpy(&cdc, conn->rmb_desc->cpu_addr, sizeof(cdc));
++	data_cdc = (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
++	smcd_curs_copy(&cdc.prod, &data_cdc->prod, conn);
++	smcd_curs_copy(&cdc.cons, &data_cdc->cons, conn);
+ 	smc = container_of(conn, struct smc_sock, conn);
+ 	smc_cdc_msg_recv(smc, (struct smc_cdc_msg *)&cdc);
+ }
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 934df4473a7c..b5bfe38c7f9b 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -48,21 +48,31 @@ struct smc_cdc_msg {
+ 	struct smc_cdc_producer_flags	prod_flags;
+ 	struct smc_cdc_conn_state_flags	conn_state_flags;
+ 	u8				reserved[18];
+-} __packed;					/* format defined in RFC7609 */
++};
++
++/* SMC-D cursor format */
++union smcd_cdc_cursor {
++	struct {
++		u16	wrap;
++		u32	count;
++		struct smc_cdc_producer_flags	prod_flags;
++		struct smc_cdc_conn_state_flags	conn_state_flags;
++	} __packed;
++#ifdef KERNEL_HAS_ATOMIC64
++	atomic64_t		acurs;		/* for atomic processing */
++#else
++	u64			acurs;		/* for atomic processing */
++#endif
++} __aligned(8);
+ 
+ /* CDC message for SMC-D */
+ struct smcd_cdc_msg {
+ 	struct smc_wr_rx_hdr common;	/* Type = 0xFE */
+ 	u8 res1[7];
+-	u16 prod_wrap;
+-	u32 prod_count;
+-	u8 res2[2];
+-	u16 cons_wrap;
+-	u32 cons_count;
+-	struct smc_cdc_producer_flags	prod_flags;
+-	struct smc_cdc_conn_state_flags conn_state_flags;
++	union smcd_cdc_cursor	prod;
++	union smcd_cdc_cursor	cons;
+ 	u8 res3[8];
+-} __packed;
++} __aligned(8);
+ 
+ static inline bool smc_cdc_rxed_any_close(struct smc_connection *conn)
+ {
+@@ -135,6 +145,21 @@ static inline void smc_curs_copy_net(union smc_cdc_cursor *tgt,
+ #endif
  }
  
- static bool smcd_lgr_match(struct smc_link_group *lgr,
-@@ -578,7 +580,7 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
- 
- /* create a new SMC connection (and a new link group if necessary) */
- int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
--		    struct smc_ib_device *smcibdev, u8 ibport,
-+		    struct smc_ib_device *smcibdev, u8 ibport, u32 clcqpn,
- 		    struct smc_clc_msg_local *lcl, struct smcd_dev *smcd,
- 		    u64 peer_gid)
++static inline void smcd_curs_copy(union smcd_cdc_cursor *tgt,
++				  union smcd_cdc_cursor *src,
++				  struct smc_connection *conn)
++{
++#ifndef KERNEL_HAS_ATOMIC64
++	unsigned long flags;
++
++	spin_lock_irqsave(&conn->acurs_lock, flags);
++	tgt->acurs = src->acurs;
++	spin_unlock_irqrestore(&conn->acurs_lock, flags);
++#else
++	atomic64_set(&tgt->acurs, atomic64_read(&src->acurs));
++#endif
++}
++
+ /* calculate cursor difference between old and new, where old <= new */
+ static inline int smc_curs_diff(unsigned int size,
+ 				union smc_host_cursor *old,
+@@ -222,12 +247,17 @@ static inline void smcr_cdc_msg_to_host(struct smc_host_cdc_msg *local,
+ static inline void smcd_cdc_msg_to_host(struct smc_host_cdc_msg *local,
+ 					struct smcd_cdc_msg *peer)
  {
-@@ -603,7 +605,7 @@ int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
- 	list_for_each_entry(lgr, &smc_lgr_list.list, list) {
- 		write_lock_bh(&lgr->conns_lock);
- 		if ((is_smcd ? smcd_lgr_match(lgr, smcd, peer_gid) :
--		     smcr_lgr_match(lgr, lcl, role)) &&
-+		     smcr_lgr_match(lgr, lcl, role, clcqpn)) &&
- 		    !lgr->sync_err &&
- 		    lgr->vlan_id == vlan_id &&
- 		    (role == SMC_CLNT ||
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index c156674733c9..5bc6cbaf0ed5 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -262,7 +262,7 @@ int smc_vlan_by_tcpsk(struct socket *clcsock, unsigned short *vlan_id);
+-	local->prod.wrap = peer->prod_wrap;
+-	local->prod.count = peer->prod_count;
+-	local->cons.wrap = peer->cons_wrap;
+-	local->cons.count = peer->cons_count;
+-	local->prod_flags = peer->prod_flags;
+-	local->conn_state_flags = peer->conn_state_flags;
++	union smc_host_cursor temp;
++
++	temp.wrap = peer->prod.wrap;
++	temp.count = peer->prod.count;
++	atomic64_set(&local->prod.acurs, atomic64_read(&temp.acurs));
++
++	temp.wrap = peer->cons.wrap;
++	temp.count = peer->cons.count;
++	atomic64_set(&local->cons.acurs, atomic64_read(&temp.acurs));
++	local->prod_flags = peer->cons.prod_flags;
++	local->conn_state_flags = peer->cons.conn_state_flags;
+ }
  
- void smc_conn_free(struct smc_connection *conn);
- int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
--		    struct smc_ib_device *smcibdev, u8 ibport,
-+		    struct smc_ib_device *smcibdev, u8 ibport, u32 clcqpn,
- 		    struct smc_clc_msg_local *lcl, struct smcd_dev *smcd,
- 		    u64 peer_gid);
- void smcd_conn_free(struct smc_connection *conn);
+ static inline void smc_cdc_msg_to_host(struct smc_host_cdc_msg *local,
 -- 
 2.16.4
