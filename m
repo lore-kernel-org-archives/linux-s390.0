@@ -1,7 +1,7 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 08/10] net/smc: avoid a delay by waiting for nothing
-Date: Thu, 22 Nov 2018 10:26:41 +0100
-Message-ID: <20181122092643.26820-9-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 07/10] net/smc: cleanup listen worker mutex unlocking
+Date: Thu, 22 Nov 2018 10:26:40 +0100
+Message-ID: <20181122092643.26820-8-ubraun@linux.ibm.com>
 References: <20181122092643.26820-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20181122092643.26820-1-ubraun@linux.ibm.com>
@@ -12,31 +12,39 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+For easier reading move the unlock of mutex smc_create_lgr_pending into
+smc_listen_work(), i.e. into the function the mutex has been locked.
+No functional change.
 
-When a send failed then don't start to wait for a response in
-smc_llc_do_confirm_rkey.
-
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_llc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/smc/af_smc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 9c916c709ca7..132c6a8e49f8 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -651,7 +651,9 @@ int smc_llc_do_confirm_rkey(struct smc_link *link,
- 	int rc;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 93f7ff8f6e88..7657e249f526 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1182,7 +1182,6 @@ static int smc_listen_rdma_finish(struct smc_sock *new_smc,
+ 	return 0;
  
- 	reinit_completion(&link->llc_confirm_rkey);
--	smc_llc_send_confirm_rkey(link, rmb_desc);
-+	rc = smc_llc_send_confirm_rkey(link, rmb_desc);
-+	if (rc)
-+		return rc;
- 	/* receive CONFIRM RKEY response from server over RoCE fabric */
- 	rc = wait_for_completion_interruptible_timeout(&link->llc_confirm_rkey,
- 						       SMC_LLC_WAIT_TIME);
+ decline:
+-	mutex_unlock(&smc_create_lgr_pending);
+ 	smc_listen_decline(new_smc, reason_code, local_contact);
+ 	return reason_code;
+ }
+@@ -1282,8 +1281,10 @@ static void smc_listen_work(struct work_struct *work)
+ 
+ 	/* finish worker */
+ 	if (!ism_supported) {
+-		if (smc_listen_rdma_finish(new_smc, &cclc, local_contact))
++		if (smc_listen_rdma_finish(new_smc, &cclc, local_contact)) {
++			mutex_unlock(&smc_create_lgr_pending);
+ 			return;
++		}
+ 	}
+ 	smc_conn_save_peer_info(new_smc, &cclc);
+ 	mutex_unlock(&smc_create_lgr_pending);
 -- 
 2.16.4
