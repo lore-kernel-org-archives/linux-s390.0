@@ -1,10 +1,8 @@
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 01/10] net/smc: cleanup tcp_listen_worker initialization
-Date: Thu, 22 Nov 2018 10:26:34 +0100
-Message-ID: <20181122092643.26820-2-ubraun@linux.ibm.com>
-References: <20181122092643.26820-1-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 00/10] net/smc: patches 2018-11-22
+Date: Thu, 22 Nov 2018 10:26:33 +0100
+Message-ID: <20181122092643.26820-1-ubraun@linux.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20181122092643.26820-1-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,26 +10,37 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The tcp_listen_worker is already initialized when socket is
-created (in smc_sock_alloc()). Get rid of the duplicate
-initialization in smc_listen(). No functional change.
+Dave,
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/af_smc.c | 1 -
- 1 file changed, 1 deletion(-)
+here are more patches for SMC:
+* patches 1-3 and 7 are cleanups without functional change
+* patches 4-6 and 8 are optimizations of existing code
+* patches 9 and 10 introduce and exploit LLC message DELETE RKEY
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 80e2119f1c70..d9b1a0e4446c 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1354,7 +1354,6 @@ static int smc_listen(struct socket *sock, int backlog)
- 	sk->sk_max_ack_backlog = backlog;
- 	sk->sk_ack_backlog = 0;
- 	sk->sk_state = SMC_LISTEN;
--	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
- 	sock_hold(sk); /* sock_hold in tcp_listen_worker */
- 	if (!schedule_work(&smc->tcp_listen_work))
- 		sock_put(sk);
+Thanks, Ursula
+
+Karsten Graul (3):
+  net/smc: avoid a delay by waiting for nothing
+  net/smc: add infrastructure to send delete rkey messages
+  net/smc: unregister rkeys of unused buffer
+
+Ursula Braun (7):
+  net/smc: cleanup tcp_listen_worker initialization
+  net/smc: make smc_lgr_free() static
+  net/smc: remove sock_error detour in clc-functions
+  net/smc: allow fallback after clc timeouts
+  net/smc: no link delete for a never active link
+  net/smc: short wait for late smc_clc_wait_msg
+  net/smc: cleanup listen worker mutex unlocking
+
+ net/smc/af_smc.c   | 51 ++++++++++++++++++++++++------------------------
+ net/smc/smc_clc.c  | 33 ++++++++++++++-----------------
+ net/smc/smc_clc.h  |  3 ++-
+ net/smc/smc_core.c | 16 ++++++++++++---
+ net/smc/smc_core.h |  6 ++++--
+ net/smc/smc_llc.c  | 57 ++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ net/smc/smc_llc.h  |  2 ++
+ 7 files changed, 117 insertions(+), 51 deletions(-)
+
 -- 
 2.16.4
