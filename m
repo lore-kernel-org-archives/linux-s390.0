@@ -1,52 +1,58 @@
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net V4 0/5] net/smc: fixes 2018-11-12
-Date: Tue, 20 Nov 2018 16:46:38 +0100
-Message-ID: <20181120154643.24111-1-ubraun@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v2 16/15] syscall_get_arch: add "struct task_struct *"
+ argument
+Date: Tue, 27 Nov 2018 21:34:29 +1100
+Message-ID: <87in0ihkqy.fsf@concordia.ellerman.id.au>
+References: <20181107042751.3b519062@akathisia>
+ <CALCETrV1v-DPRfDRwiH=xn29bxWxiHdZtAH1nw=dsmDtnT0YGQ@mail.gmail.com>
+ <20181120001128.GA11300@altlinux.org> <20181121004422.GA29053@altlinux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20181121004422.GA29053@altlinux.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: "Dmitry V. Levin" <ldv@altlinux.org>, Andy Lutomirski <luto@kernel.org>, Eric Paris <eparis@redhat.com>, Paul Moore <paul@paul-moore.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Eugene Syromyatnikov <esyr@redhat.com>, Elvira Khabirova <lineprinter@altlinux.org>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, linux-xtensa@linux-xtensa.org, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>, linux-audit@redhat.com, linux-alpha@vger.kernel.org, nios2-dev@lists.rocketboards.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+"Dmitry V. Levin" <ldv@altlinux.org> writes:
 
-here is V4 of some net/smc fixes in different areas for the net tree.
+> diff --git a/arch/powerpc/include/asm/syscall.h b/arch/powerpc/include/asm/syscall.h
+> index ab9f3f0a8637..d88b34179118 100644
+> --- a/arch/powerpc/include/asm/syscall.h
+> +++ b/arch/powerpc/include/asm/syscall.h
+> @@ -100,9 +100,15 @@ static inline void syscall_set_arguments(struct task_struct *task,
+>  		regs->orig_gpr3 = args[0];
+>  }
+>  
+> -static inline int syscall_get_arch(void)
+> +static inline int syscall_get_arch(struct task_struct *task)
+>  {
+> -	int arch = is_32bit_task() ? AUDIT_ARCH_PPC : AUDIT_ARCH_PPC64;
+> +	int arch;
+> +
+> +	if (IS_ENABLED(CONFIG_PPC64) && !test_tsk_thread_flag(task, TIF_32BIT))
+> +		arch = AUDIT_ARCH_PPC64;
+> +	else
+> +		arch = AUDIT_ARCH_PPC;
+> +
+>  #ifdef __LITTLE_ENDIAN__
+>  	arch |= __AUDIT_ARCH_LE;
+>  #endif
 
-v1->v2:
-   do not define 8-byte alignment for union smcd_cdc_cursor in
-   patch 4/5 "net/smc: atomic SMCD cursor handling"
-v2->v3:
-   stay with 8-byte alignment for union smcd_cdc_cursor in
-   patch 4/5 "net/smc: atomic SMCD cursor handling", but get rid of
-   __packed for struct smcd_cdc_msg
-v3->v4:
-   get rid of another __packed for struct smc_cdc_msg in
-   patch 4/5 "net/smc: atomic SMCD cursor handling"
+LGTM.
 
-Thanks, Ursula
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-Hans Wippel (2):
-  net/smc: abort CLC connection in smc_release
-  net/smc: add SMC-D shutdown signal
-
-Karsten Graul (1):
-  net/smc: use queue pair number when matching link group
-
-Ursula Braun (2):
-  net/smc: atomic SMCD cursor handling
-  net/smc: use after free fix in smc_wr_tx_put_slot()
-
- net/smc/af_smc.c   | 11 ++++++----
- net/smc/smc_cdc.c  | 26 +++++++++++++----------
- net/smc/smc_cdc.h  | 60 ++++++++++++++++++++++++++++++++++++++++--------------
- net/smc/smc_core.c | 20 ++++++++++++------
- net/smc/smc_core.h |  5 +++--
- net/smc/smc_ism.c  | 43 ++++++++++++++++++++++++++++----------
- net/smc/smc_ism.h  |  1 +
- net/smc/smc_wr.c   |  4 +++-
- 8 files changed, 120 insertions(+), 50 deletions(-)
-
--- 
-2.16.4
+cheers
