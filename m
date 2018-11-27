@@ -1,65 +1,101 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Date: Tue, 27 Nov 2018 17:40:05 +0000
-Subject: Re: [PATCH v2 12/12] KVM: s390: start using the GIB
-Message-Id: <3761cf98-f591-be5c-7eab-9cb49a8d6942@linux.ibm.com>
-In-Reply-To: <20181126172310.4c30b0d2.cohuck@redhat.com>
-References: <20181126172310.4c30b0d2.cohuck@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Tue, 27 Nov 2018 19:06:42 +0000
+Subject: Re: [PATCH v2 03/12] KVM: s390: add the GIB and its related life-cyle functions
+Message-Id: <20181127200642.743fa762.cohuck@redhat.com>
+In-Reply-To: <655b9f37-a9ff-b193-5719-a1278aec4395@linux.ibm.com>
+References: <655b9f37-a9ff-b193-5719-a1278aec4395@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Tue, 27 Nov 2018 19:05:44 +0100
+Michael Mueller <mimu@linux.ibm.com> wrote:
 
-
-On 26.11.18 17:23, Cornelia Huck wrote:
-> On Mon, 19 Nov 2018 18:25:36 +0100
-> Michael Mueller <mimu@linux.ibm.com> wrote:
+> On 27.11.18 18:21, Cornelia Huck wrote:
+> > On Tue, 27 Nov 2018 18:12:07 +0100
+> > Michael Mueller <mimu@linux.ibm.com> wrote:
+> >   
+> >> On 26.11.18 17:32, Cornelia Huck wrote:  
+> >>> On Mon, 19 Nov 2018 18:25:27 +0100
+> >>> Michael Mueller <mimu@linux.ibm.com> wrote:  
+> >   
+> >>>> @@ -2895,6 +2897,7 @@ void kvm_s390_gisa_init(struct kvm *kvm)
+> >>>>    		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
+> >>>>    		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+> >>>>    		kvm_s390_gisa_clear(kvm);
+> >>>> +		kvm->arch.gib_in_use = !!gib;  
+> >>>
+> >>> So, that's basically gib && aiv?
+> >>>      
+> >>>>    	}
+> >>>>    }
+> >>>>    
+> >>>> @@ -2904,3 +2907,37 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+> >>>>    		return;
+> >>>>    	kvm->arch.gisa = NULL;
+> >>>>    }
+> >>>> +
+> >>>> +void kvm_s390_gib_destroy(void)
+> >>>> +{
+> >>>> +	if (!gib)
+> >>>> +		return;
+> >>>> +	chsc_sgib(0);
+> >>>> +	free_page((unsigned long)gib);
+> >>>> +	gib = NULL;
+> >>>> +}
+> >>>> +
+> >>>> +int kvm_s390_gib_init(u8 nisc)
+> >>>> +{
+> >>>> +	if (!css_general_characteristics.aiv) {
+> >>>> +		KVM_EVENT(3, "%s", "gib not initialized, no AIV facility");
+> >>>> +		return 0;
+> >>>> +	}
+> >>>> +
+> >>>> +	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+> >>>> +	if (!gib) {
+> >>>> +		KVM_EVENT(3, "gib 0x%pK memory allocation failed", gib);
+> >>>> +		return -ENOMEM;
+> >>>> +	}
+> >>>> +
+> >>>> +	gib->nisc = nisc;
+> >>>> +	if (chsc_sgib((u32)(u64)gib)) {
+> >>>> +		KVM_EVENT(3, "gib 0x%pK AIV association failed", gib);
+> >>>> +		free_page((unsigned long)gib);
+> >>>> +		gib = NULL;
+> >>>> +		return -EIO;
+> >>>> +	}
+> >>>> +
+> >>>> +	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
+> >>>> +	return 0;
+> >>>> +}  
+> >>>
+> >>> And given that you now fail initializing the vm if aiv is present but
+> >>> you could not setup the gib (which makes sense), isn't it enough to
+> >>> either check for aiv or gib, instead of adding gib_in_use? (There's
+> >>> always a pointer to a valid gisa if aiv.) What am I missing?  
+> >>
+> >> In addition there is the vSIE case where I have no AIV and thus no GISA.  
+> > 
+> > Yes, but that should be covered by a !aiv check, shouldn't it?  
 > 
->> By initializing the GIB, it will we used by the kvm host.
->>
->> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->> ---
->>   arch/s390/kvm/kvm-s390.c | 6 ++++++
->>   1 file changed, 6 insertions(+)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 386f98029a3f..08341be4d0aa 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -417,6 +417,8 @@ static void kvm_s390_cpu_feat_init(void)
->>   
->>   int kvm_arch_init(void *opaque)
->>   {
->> +	int rc;
->> +
->>   	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
->>   	if (!kvm_s390_dbf)
->>   		return -ENOMEM;
->> @@ -426,6 +428,10 @@ int kvm_arch_init(void *opaque)
->>   		return -ENOMEM;
->>   	}
->>   
->> +	rc = kvm_s390_gib_init(GAL_ISC);
->> +	if (rc)
->> +		return rc;
+> Both checks are already there and the information is stored in:
 > 
-> Is a quick exit the right thing here? Doesn't that leave a memory leak
-> because you did not unregister the dbf again?
+> kvm->arch.gisa != NULL
+> 
+> But it works only because a failing gib_init() drags everything down.
+> 
+> The functions where the test is used are semantically related to the
+> GIB, thus using (kvm->arch.gisa) as test might be confusing.
+> 
+> I will prepare and see how the codes reads...
 
-Yes indeed!
+If it becomes too mushy, just leave it as it is now and I'll stop
+complaining ;)
 
 > 
->> +
->>   	kvm_s390_cpu_feat_init();
->>   
->>   	/* Register floating interrupt controller interface. */
+> Thanks a lot for your comments today!
 > 
-> Further below, we'll have the same problem (dbf leak) if registering
-> the flic should fail. This is extremely unlikely... but don't we also
-> need to clean up the gib again in that case? For all later failure
-> cases in kvm init, the exit function is called, but that one may be a
-> problem.
-
-Well all this is rather unlikely but not impossible.
-
-I will prepare a separate patch for the flic issue and put it in front.
-
+> Michael
+> 
+> 
+> >   
 > 
