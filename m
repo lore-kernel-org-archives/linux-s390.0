@@ -1,73 +1,57 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Tue, 27 Nov 2018 17:15:31 +0000
-Subject: Re: [PATCH v2 09/12] KVM: s390: add function process_gib_alert_list()
-Message-Id: <8deb99cd-d27a-37a4-0f24-29a038394d5e@linux.ibm.com>
-In-Reply-To: <20181126165723.2618ff2b.cohuck@redhat.com>
-References: <20181126165723.2618ff2b.cohuck@redhat.com>
+Date: Tue, 27 Nov 2018 17:22:46 +0000
+Subject: Re: [PATCH v2 11/12] KVM: s390: add and wire function gib_alert_irq_handler()
+Message-Id: <8ec147f8-63dc-3e67-7add-0c86991e7acc@linux.ibm.com>
+In-Reply-To: <20181126173558.3a443c1b.cohuck@redhat.com>
+References: <20181126173558.3a443c1b.cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 26.11.18 16:57, Cornelia Huck wrote:
-> On Mon, 19 Nov 2018 18:25:33 +0100
+On 26.11.18 17:35, Cornelia Huck wrote:
+> On Mon, 19 Nov 2018 18:25:35 +0100
 > Michael Mueller <mimu@linux.ibm.com> wrote:
 > 
->> This function processes a gib alert list. It is required to
->> run when either a gib alert interruption has been received or
->> a gisa that might be in the alert list is cleared or dropped.
+>> The patch implements a handler for GIB alert interruptions
+>> on the host. Its task is to alert storage backed guests that
+>> interrupts are pending for them.
+>>
+>> A GIB alert interrupt statistic counter is added as well:
+>>
+>> $ cat /proc/interrupts
+>>            CPU0       CPU1
+>>    ...
+>>    GAL:       0          0   [I/O] GIB Alert
+>>    ...
 >>
 >> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 >> ---
->>   arch/s390/kvm/interrupt.c | 28 ++++++++++++++++++++++++++++
->>   1 file changed, 28 insertions(+)
->>
->> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index 8676596f6b5c..443d1804d611 100644
->> --- a/arch/s390/kvm/interrupt.c
->> +++ b/arch/s390/kvm/interrupt.c
->> @@ -2910,6 +2910,34 @@ static void nullify_gisa(struct kvm_s390_gisa *gisa)
->>   	gisa->next_alert = (u32)(u64)gisa;
->>   }
->>   
->> +/*
->> + * Before processing, the gib alert list needs to be cut-off from
->> + * the gib by means of function unlink_gib_alert_list(). If non NULL,
->> + * the list is processed from its latest to oldest entry.
->> + *
->> + * Processing an gisa entry needs to wake-up a vcpu of the kvm this gisa
->> + * belongs to. Thus, the pending guest interruption will be processed
->> + * in SIE context.
->> + */
->> +static void __maybe_unused process_gib_alert_list(void)
->> +{
->> +	struct kvm_s390_gisa *gisa = unlink_gib_alert_list();
->> +	struct kvm_s390_gisa *next_alert;
->> +	struct kvm_vcpu *vcpu;
->> +	struct kvm *kvm;
->> +
->> +	for (; gisa; gisa = next_alert) {
->> +		next_alert = (struct kvm_s390_gisa *)(u64)gisa->next_alert;
->> +		/* unlink from alert list */
->> +		gisa->next_alert = (u32)(u64)gisa;
-
-The check goes here.
-
->> +		/* wake-up a vcpu of the kvm this gisa belongs to */
->> +		kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
->> +		vcpu = __find_vcpu_for_floating_irq(kvm);
->> +		if (vcpu)
->> +			kvm_s390_vcpu_wakeup(vcpu);
+>>   arch/s390/include/asm/irq.h |  1 +
+>>   arch/s390/include/asm/isc.h |  1 +
+>>   arch/s390/kernel/irq.c      |  1 +
+>>   arch/s390/kvm/interrupt.c   | 57 +++++++++++++++++++++++++++++++++++++--------
+>>   arch/s390/kvm/kvm-s390.c    |  6 +++++
+>>   arch/s390/kvm/kvm-s390.h    |  5 ++++
+>>   6 files changed, 61 insertions(+), 10 deletions(-)
 > 
-> Just to check if I understood correctly: This loop is where you'll add
-> the extra check whether the interrupt has already been delivered, right?
-
-That's correct!
+>> @@ -2919,7 +2920,7 @@ static void nullify_gisa(struct kvm_s390_gisa *gisa)
+>>    * belongs to. Thus, the pending guest interruption will be processed
+>>    * in SIE context.
+>>    */
+>> -static void __maybe_unused process_gib_alert_list(void)
+>> +static void process_gib_alert_list(void)
 > 
->> +	}
->> +}
->> +
->>   void kvm_s390_gisa_clear(struct kvm *kvm)
+> Can't you merge the patch creating that function into this patch, so
+> you don't need to add __maybe_unused in the first place? (I don't think
+> the function is big enough to need separate review.)
+
+The function has been rewritten for v3 and I consider it worth to
+stay separated now. The version is already in the starting blocks
+and was just delayed by all your replies. ;)
+
+> 
 >>   {
->>   	if (kvm->arch.gisa) {
+>>   	struct kvm_s390_gisa *gisa = unlink_gib_alert_list();
+>>   	struct kvm_s390_gisa *next_alert;
 > 
