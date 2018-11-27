@@ -1,43 +1,54 @@
-Return-Path: <SRS0=aB5v=OC=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 23 Nov 2018 08:02:12 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: Remove obsolete bust_spinlock() implementation
-References: <20181122141529.14933-1-pmladek@suse.com>
- <20181123021748.GB1582@jagdpanzerIV>
+Return-Path: <owner-linux-mm@kvack.org>
+Date: Tue, 27 Nov 2018 17:29:16 +0100
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH] mm: warn only once if page table misaccounting is
+ detected
+Message-ID: <20181127162916.GB6923@dhcp22.suse.cz>
+References: <20181127083603.39041-1-heiko.carstens@de.ibm.com>
+ <20181127131916.GX12455@dhcp22.suse.cz>
+ <20181127143638.GE3625@osiris>
 MIME-Version: 1.0
-In-Reply-To: <20181123021748.GB1582@jagdpanzerIV>
-Message-Id: <20181123070212.GA3300@osiris>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Petr Mladek <pmladek@suse.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20181127143638.GE3625@osiris>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, "Kirill A . Shutemov" <kirill@shutemov.name>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Nov 23, 2018 at 11:17:48AM +0900, Sergey Senozhatsky wrote:
-> On (11/22/18 15:15), Petr Mladek wrote:
-> > The commit cefc8be82403cf ("Consolidate bust_spinlocks()") kept
-> > the s390-specific implementation because of the absence of CONFIG_VT.
-> > In fact, the only difference was calling console_unblank() instead of
-> > unblank_screen().
+On Tue 27-11-18 15:36:38, Heiko Carstens wrote:
+> On Tue, Nov 27, 2018 at 02:19:16PM +0100, Michal Hocko wrote:
+> > On Tue 27-11-18 09:36:03, Heiko Carstens wrote:
+> > > Use pr_alert_once() instead of pr_alert() if page table misaccounting
+> > > has been detected.
+> > > 
+> > > If this happens once it is very likely that there will be numerous
+> > > other occurrence as well, which would flood dmesg and the console with
+> > > hardly any added information. Therefore print the warning only once.
 > > 
-> > The common implementation in lib/bust_spinlocks.c started to call
-> > unblank_screen() explicitly since the commit b61312d353da187
-> > ("oops handling: ensure that any oops is flushed to the mtdoops
-> > console").
-> > 
-> > As a result, the custom implementation is not longer necessary.
-> > And we could get all the other improvements of the common
-> > implementation for free.
+> > Have you actually experience a flood of these messages? Is one per mm
+> > message really that much?
 > 
-> I believe I sent a similar patch several weeks ago and it's
-> in s390 patch queue as of now, waiting for the next merge
-> window.
-> 
-> lkml.kernel.org/r/20181025081108.GB26561@osiris
+> Yes, I did. Since in this case all compat processes caused the message
+> to appear, I saw thousands of these messages.
 
-Yes, it will be added soon to the features branch of the
-s390/linux.git repository on kernel.org and then hit linux-next.
+This means something went colossally wrong and seeing an avalanche of
+messages might be actually helpful because you can at least see the
+pattern. I wonder whether the underlying issue would be obvious from a
+single instance.
+
+Maybe we want ratelimit instead?
+ 
+> > If yes why rss counters do not exhibit the same problem?
+> 
+> No rss counter messages appeared. Or do you suggest that the other
+> pr_alert() within check_mm() should also be changed?
+
+Whatever we go with (and I do not have a strong opinion here) we should
+be consistent I believe.
+
+-- 
+Michal Hocko
+SUSE Labs
