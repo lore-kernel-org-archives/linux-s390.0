@@ -1,46 +1,37 @@
-Return-Path: <owner-linux-mm@kvack.org>
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH] mm: warn only once if page table misaccounting is detected
-Date: Tue, 27 Nov 2018 09:36:03 +0100
-Message-Id: <20181127083603.39041-1-heiko.carstens@de.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, Heiko Carstens <heiko.carstens@de.ibm.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net,stable] s390/qeth: fix length check in SNMP
+ processing
+Date: Wed, 28 Nov 2018 11:17:33 -0800 (PST)
+Message-ID: <20181128.111733.289137910908682731.davem@davemloft.net>
+References: <20181128152050.36500-1-jwi@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20181128152050.36500-1-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: jwi@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Use pr_alert_once() instead of pr_alert() if page table misaccounting
-has been detected.
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Wed, 28 Nov 2018 16:20:50 +0100
 
-If this happens once it is very likely that there will be numerous
-other occurrence as well, which would flood dmesg and the console with
-hardly any added information. Therefore print the warning only once.
+> The response for a SNMP request can consist of multiple parts, which
+> the cmd callback stages into a kernel buffer until all parts have been
+> received. If the callback detects that the staging buffer provides
+> insufficient space, it bails out with error.
+> This processing is buggy for the first part of the response - while it
+> initially checks for a length of 'data_len', it later copies an
+> additional amount of 'offsetof(struct qeth_snmp_cmd, data)' bytes.
+> 
+> Fix the calculation of 'data_len' for the first part of the response.
+> This also nicely cleans up the memcpy code.
+> 
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+> Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- kernel/fork.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 07cddff89c7b..c887e9eba89f 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -647,8 +647,8 @@ static void check_mm(struct mm_struct *mm)
- 	}
- 
- 	if (mm_pgtables_bytes(mm))
--		pr_alert("BUG: non-zero pgtables_bytes on freeing mm: %ld\n",
--				mm_pgtables_bytes(mm));
-+		pr_alert_once("BUG: non-zero pgtables_bytes on freeing mm: %ld\n",
-+			      mm_pgtables_bytes(mm));
- 
- #if defined(CONFIG_TRANSPARENT_HUGEPAGE) && !USE_SPLIT_PMD_PTLOCKS
- 	VM_BUG_ON_MM(mm->pmd_huge_pte, mm);
--- 
-2.16.4
+Applied and queued up for -stable.
