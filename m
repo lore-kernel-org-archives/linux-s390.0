@@ -1,10 +1,8 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v3 1/6] vfio: ccw: Register mediated device once all structures are initialized
-Date: Wed, 28 Nov 2018 13:41:02 +0100
-Message-ID: <1543408867-16465-2-git-send-email-pmorel@linux.ibm.com>
-References: <1543408867-16465-1-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v3 0/6] vfio: ccw: VFIO CCW cleanup part1
+Date: Wed, 28 Nov 2018 13:41:01 +0100
+Message-ID: <1543408867-16465-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1543408867-16465-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,40 +10,64 @@ To: pasic@linux.vnet.ibm.com
 Cc: cohuck@redhat.com, farman@linux.ibm.com, alifm@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-There is a risk that the mediated device is used before all the
-data are initialized if it is registered too early.
+The goal of the patches of this serie is to clarify the code
+of state/event handling.
 
-Let's register the mediated device when all the data structures
-which could be used are initialized.
+- First patch (already acked/applied) makes sure that every structures are initialized
+  before the mediated device is registered.
+  (Only here to apply the serie on the main tree).
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+- vfio: ccw: Rework subchannel state on setup
+  makes sure that the device can not be used before a guest is
+  ready to drive it.
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 2f2e5d1..bce7fed 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -141,14 +141,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_free;
- 
--	ret = vfio_ccw_mdev_reg(sch);
--	if (ret)
--		goto out_disable;
--
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
- 	atomic_set(&private->avail, 1);
- 	private->state = VFIO_CCW_STATE_STANDBY;
- 
-+	ret = vfio_ccw_mdev_reg(sch);
-+	if (ret)
-+		goto out_disable;
-+
- 	return 0;
- 
- out_disable:
+- vfio: ccw: Rework subchannel state on removing
+  could be squash with the previous: same kind of rewriting
+  but for the removing/release callbacks.
+
+- vfio: ccw: Rework subchannel state on sch_event
+  sch_event handling seems quite poor to me.
+  Anyway, I do not understand why we hould have state change there.
+
+- vfio: ccw: Documenting state transitions
+
+- vfio: ccw: serialize the write system calls
+  Quite independent of the previous patches, this makes sure
+  that the entry in the driver is serialized.
+
+Pierre Morel (6):
+  vfio: ccw: Register mediated device once all structures are
+    initialized
+  vfio: ccw: Rework subchannel state on setup
+  vfio: ccw: Rework subchannel state on removing
+  vfio: ccw: Rework subchannel state on sch_event
+  vfio: ccw: Documenting state transitions
+  vfio: ccw: serialize the write system calls
+
+ Documentation/s390/vfio-ccw.txt     | 45 +++++++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_async.c   | 11 +++++++
+ drivers/s390/cio/vfio_ccw_drv.c     | 30 ++++-------------
+ drivers/s390/cio/vfio_ccw_ops.c     | 65 ++++++++++++++++++++++++-------------
+ drivers/s390/cio/vfio_ccw_private.h |  1 +
+ 5 files changed, 105 insertions(+), 47 deletions(-)
+
 -- 
 2.7.4
+
+Changelog:
+
+from v2:
+- adaptation after Conny's hlt/clr patches
+- integration of Conny's comments
+- reworking of the state changes to make it clearer
+- added documentation
+- added serialization
+
+from v1:
+- change commit message
+- add reviewed-by from Eric (Really this time)
+
+from v0:
+- isolate these two patches from the previous serie
+- Added Reviewed-by Eric
+- Ortographic correction
