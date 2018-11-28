@@ -1,7 +1,7 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v3 4/6] vfio: ccw: Rework subchannel state on sch_event
-Date: Wed, 28 Nov 2018 13:41:05 +0100
-Message-ID: <1543408867-16465-5-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v3 6/6] vfio: ccw: serialize the write system calls
+Date: Wed, 28 Nov 2018 13:41:07 +0100
+Message-ID: <1543408867-16465-7-git-send-email-pmorel@linux.ibm.com>
 References: <1543408867-16465-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1543408867-16465-1-git-send-email-pmorel@linux.ibm.com>
@@ -12,40 +12,63 @@ To: pasic@linux.vnet.ibm.com
 Cc: cohuck@redhat.com, farman@linux.ibm.com, alifm@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-We do not need to change the state when handling events.
+When the user program is QEMU we rely on the QEMU lock to serialize
+the calls to the driver.
 
-If we can not update the SCHIB it is an unrecoverable error
-independent of the real sub channel.
+In the general case we need to make sure that two data transfer are
+not started at the same time.
+It would in the current implementation resul in a overwriting of the
+IO region.
+
+We also need to make sure a clear or a halt started after a data
+transfer do not win the race agains the data transfer.
+Which would result in the data transfer being started after the
+halt/clear.
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/s390/cio/vfio_ccw_ops.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 1779b46..687ca42 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -198,18 +198,9 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	if (work_pending(&sch->todo_work))
- 		goto out_unlock;
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index eb5b49d..b316966 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -267,22 +267,31 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+ {
+ 	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+ 	struct vfio_ccw_private *private;
++	static atomic_t serialize  = ATOMIC_INIT(0);
++	int ret = -EINVAL;
++
++	if (!atomic_add_unless(&serialize, 1, 1))
++		return -EBUSY;
  
--	if (cio_update_schib(sch)) {
--		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
--		rc = 0;
--		goto out_unlock;
--	}
--
--	private = dev_get_drvdata(&sch->dev);
--	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
--		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
--				 VFIO_CCW_STATE_STANDBY;
--	}
- 	rc = 0;
-+	if (cio_update_schib(sch) && private)
-+		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
+ 	private = dev_get_drvdata(mdev_parent_dev(mdev));
  
- out_unlock:
- 	spin_unlock_irqrestore(sch->lock, flags);
+ 	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+-		return -EINVAL;
++		goto end;
+ 
+ 	switch (index) {
+ 	case VFIO_CCW_CONFIG_REGION_INDEX:
+-		return vfio_ccw_mdev_write_io_region(private, buf, count, ppos);
++		ret = vfio_ccw_mdev_write_io_region(private, buf, count, ppos);
++		break;
+ 	default:
+ 		index -= VFIO_CCW_NUM_REGIONS;
+-		return private->region[index].ops->write(private, buf, count,
++		ret = private->region[index].ops->write(private, buf, count,
+ 							 ppos);
++		break;
+ 	}
+ 
+-	return -EINVAL;
++end:
++	atomic_dec(&serialize);
++	return ret;
+ }
+ 
+ static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info,
 -- 
 2.7.4
