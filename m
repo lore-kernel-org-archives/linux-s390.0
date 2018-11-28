@@ -1,88 +1,96 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Wed, 28 Nov 2018 10:19:31 +0000
-Subject: [PATCH v3 00/12] KVM: s390: make use of the GIB
-Message-Id: <20181128101943.155542-1-mimu@linux.ibm.com>
+Date: Wed, 28 Nov 2018 10:19:33 +0000
+Subject: [PATCH v3 02/12] s390/cio: add function chsc_sgib()
+Message-Id: <20181128101943.155542-3-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The Guest Information Area (GIB) and its mechanics is part of
-the AIV facility. It provides hardware support to process
-Adapter Interruptions (AI) for pagable storage mode guests. 
+This patch implements the Set Guest Information Block operation
+to request association or disassociation of a Guest Information
+Block (GIB) with the Adapter Interruption Facility. The operation
+is required to receive GIB alert interrupts for guest adapters
+in conjunction with AIV and GISA.
 
-Whenever a guest cannot process an AI because none of its
-vcpus is running in SIE context, a GIB alert interruption is
-sent to and handled by the host program to dispatch a vcpu of
-the respective guest.
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+---
+ arch/s390/include/asm/cio.h |  1 +
+ drivers/s390/cio/chsc.c     | 37 +++++++++++++++++++++++++++++++++++++
+ drivers/s390/cio/chsc.h     |  1 +
+ 3 files changed, 39 insertions(+)
 
-Eventually, the AI is handled by the guest.
-
-v2->v3:
-  patch 01/12: Fixes a resource dealocation issue upon
-  	       unsuccessful exit from kvm_arch_init().
-	       It is relevant for patch 11/12 as well. 
-  patch 08/12: The function process_gib_alert_list() has
-               been rewritten to reduce the number of GAL
-	       interruptions on the host for many guest
-	       scenarios.
-  patch 10/12: The IAM is now never cleared before SIE entry.
-               It will be cleared by millicode as soon the
-	       first guest interruption is made pending and
-	       not directly processed in SIE. The IAM gets
-	       restored as soon a vm is idle, i.e. no vcpu
-	       of that guest is in SIE context anymore.
-  patch 11/12: now integrates with new patch 01/12
-  patch 12/12: This patch is just experimental and shall not
-               be part of the final series.
-
-The first patch of series v2: "leave AIs in IPM of GISA
-during vcpu_pre_run()" has been dropped.
-
-All other patches are unchanged.
-
-v1->v2:
-  patch 01/12: New patch. Tt can go also standalone without the
-  	       rest of the GIB series presented here but is a
-	       requirement 
-  patch 03/12: kvm_s390_gib_init() now has a return code
-  patch 06/12: unlink_gib_alert_list() now uses cmpxchg() instead
-    	       of atomic_xchg()
-  patch 08/12: New patch. Foctors out __find_vcpu_for_floating_irq()
-  patch 09/12: process_gib_alert_list() has been simplified
-               the GISA clear/destroy cases have been removed
-  patch 11/12: kvm_s390_gisa_clear/destroy() now clear the IAM
-               and process the alert list directly
-	       The IAM now gets restored in vcpu_post_run() only if
-	       the GISA is not in alert list
-  patch 12/12: during kvm_arch_init() now the return code of
-    	       kvm_s390_gib_init() is honored.
-
-All other patches are unchanged.
-
-Michael Mueller (12):
-  KVM: s390: unregister debug feature on failing arch init
-  s390/cio: add function chsc_sgib()
-  KVM: s390: add the GIB and its related life-cyle functions
-  KVM: s390: factor out nullify_gisa()
-  KVM: s390: add metric vcpus_in_sie to struct kvm_arch
-  KVM: s390: add kvm reference to struct sie_page2
-  KVM: s390: factor out __find_vcpu_for_floating_irq()
-  KVM: s390: add function process_gib_alert_list()
-  KVM: s390: add functions to (un)register GISC with GISA
-  KVM: s390: add and wire function gib_alert_irq_handler()
-  KVM: s390: start using the GIB
-  KVM: s390: allow to change the IAM clear strategy dynamically
-
- arch/s390/include/asm/cio.h      |   1 +
- arch/s390/include/asm/irq.h      |   1 +
- arch/s390/include/asm/isc.h      |   1 +
- arch/s390/include/asm/kvm_host.h |  20 ++-
- arch/s390/kernel/irq.c           |   1 +
- arch/s390/kvm/interrupt.c        | 272 +++++++++++++++++++++++++++++++++++++--
- arch/s390/kvm/kvm-s390.c         |  31 ++++-
- arch/s390/kvm/kvm-s390.h         |   8 ++
- drivers/s390/cio/chsc.c          |  37 ++++++
- drivers/s390/cio/chsc.h          |   1 +
- 10 files changed, 358 insertions(+), 15 deletions(-)
-
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index 225667652069..1727180e8ca1 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -331,5 +331,6 @@ extern void css_schedule_reprobe(void);
+ /* Function from drivers/s390/cio/chsc.c */
+ int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+ int chsc_sstpi(void *page, void *result, size_t size);
++int chsc_sgib(u32 origin);
+ 
+ #endif
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index a0baee25134c..4159c63a5fd2 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -1382,3 +1382,40 @@ int chsc_pnso_brinfo(struct subchannel_id schid,
+ 	return chsc_error_from_response(brinfo_area->response.code);
+ }
+ EXPORT_SYMBOL_GPL(chsc_pnso_brinfo);
++
++int chsc_sgib(u32 origin)
++{
++	struct {
++		struct chsc_header request;
++		u16 op;
++		u8  reserved01[2];
++		u8  reserved02:4;
++		u8  fmt:4;
++		u8  reserved03[7];
++		/* operation data area begin */
++		u8  reserved04[4];
++		u32 gib_origin;
++		u8  reserved05[10];
++		u8  aix;
++		u8  reserved06[4029];
++		struct chsc_header response;
++		u8  reserved07[4];
++	} *sgib_area;
++	int ret;
++
++	spin_lock_irq(&chsc_page_lock);
++	memset(chsc_page, 0, PAGE_SIZE);
++	sgib_area = chsc_page;
++	sgib_area->request.length = 0x0fe0;
++	sgib_area->request.code = 0x0021;
++	sgib_area->op = 0x1;
++	sgib_area->gib_origin = origin;
++
++	ret = chsc(sgib_area);
++	if (ret == 0)
++		ret = chsc_error_from_response(sgib_area->response.code);
++	spin_unlock_irq(&chsc_page_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(chsc_sgib);
+diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
+index 78aba8d94eec..e57d68e325a3 100644
+--- a/drivers/s390/cio/chsc.h
++++ b/drivers/s390/cio/chsc.h
+@@ -164,6 +164,7 @@ int chsc_get_channel_measurement_chars(struct channel_path *chp);
+ int chsc_ssqd(struct subchannel_id schid, struct chsc_ssqd_area *ssqd);
+ int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
+ 	      u64 summary_indicator_addr, u64 subchannel_indicator_addr);
++int chsc_sgib(u32 origin);
+ int chsc_error_from_response(int response);
+ 
+ int chsc_siosl(struct subchannel_id schid);
 -- 
 2.13.4
