@@ -1,101 +1,88 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Tue, 27 Nov 2018 19:06:42 +0000
-Subject: Re: [PATCH v2 03/12] KVM: s390: add the GIB and its related life-cyle functions
-Message-Id: <20181127200642.743fa762.cohuck@redhat.com>
-In-Reply-To: <655b9f37-a9ff-b193-5719-a1278aec4395@linux.ibm.com>
-References: <655b9f37-a9ff-b193-5719-a1278aec4395@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Date: Wed, 28 Nov 2018 10:19:31 +0000
+Subject: [PATCH v3 00/12] KVM: s390: make use of the GIB
+Message-Id: <20181128101943.155542-1-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 27 Nov 2018 19:05:44 +0100
-Michael Mueller <mimu@linux.ibm.com> wrote:
+The Guest Information Area (GIB) and its mechanics is part of
+the AIV facility. It provides hardware support to process
+Adapter Interruptions (AI) for pagable storage mode guests. 
 
-> On 27.11.18 18:21, Cornelia Huck wrote:
-> > On Tue, 27 Nov 2018 18:12:07 +0100
-> > Michael Mueller <mimu@linux.ibm.com> wrote:
-> >   
-> >> On 26.11.18 17:32, Cornelia Huck wrote:  
-> >>> On Mon, 19 Nov 2018 18:25:27 +0100
-> >>> Michael Mueller <mimu@linux.ibm.com> wrote:  
-> >   
-> >>>> @@ -2895,6 +2897,7 @@ void kvm_s390_gisa_init(struct kvm *kvm)
-> >>>>    		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
-> >>>>    		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
-> >>>>    		kvm_s390_gisa_clear(kvm);
-> >>>> +		kvm->arch.gib_in_use = !!gib;  
-> >>>
-> >>> So, that's basically gib && aiv?
-> >>>      
-> >>>>    	}
-> >>>>    }
-> >>>>    
-> >>>> @@ -2904,3 +2907,37 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
-> >>>>    		return;
-> >>>>    	kvm->arch.gisa = NULL;
-> >>>>    }
-> >>>> +
-> >>>> +void kvm_s390_gib_destroy(void)
-> >>>> +{
-> >>>> +	if (!gib)
-> >>>> +		return;
-> >>>> +	chsc_sgib(0);
-> >>>> +	free_page((unsigned long)gib);
-> >>>> +	gib = NULL;
-> >>>> +}
-> >>>> +
-> >>>> +int kvm_s390_gib_init(u8 nisc)
-> >>>> +{
-> >>>> +	if (!css_general_characteristics.aiv) {
-> >>>> +		KVM_EVENT(3, "%s", "gib not initialized, no AIV facility");
-> >>>> +		return 0;
-> >>>> +	}
-> >>>> +
-> >>>> +	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
-> >>>> +	if (!gib) {
-> >>>> +		KVM_EVENT(3, "gib 0x%pK memory allocation failed", gib);
-> >>>> +		return -ENOMEM;
-> >>>> +	}
-> >>>> +
-> >>>> +	gib->nisc = nisc;
-> >>>> +	if (chsc_sgib((u32)(u64)gib)) {
-> >>>> +		KVM_EVENT(3, "gib 0x%pK AIV association failed", gib);
-> >>>> +		free_page((unsigned long)gib);
-> >>>> +		gib = NULL;
-> >>>> +		return -EIO;
-> >>>> +	}
-> >>>> +
-> >>>> +	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
-> >>>> +	return 0;
-> >>>> +}  
-> >>>
-> >>> And given that you now fail initializing the vm if aiv is present but
-> >>> you could not setup the gib (which makes sense), isn't it enough to
-> >>> either check for aiv or gib, instead of adding gib_in_use? (There's
-> >>> always a pointer to a valid gisa if aiv.) What am I missing?  
-> >>
-> >> In addition there is the vSIE case where I have no AIV and thus no GISA.  
-> > 
-> > Yes, but that should be covered by a !aiv check, shouldn't it?  
-> 
-> Both checks are already there and the information is stored in:
-> 
-> kvm->arch.gisa != NULL
-> 
-> But it works only because a failing gib_init() drags everything down.
-> 
-> The functions where the test is used are semantically related to the
-> GIB, thus using (kvm->arch.gisa) as test might be confusing.
-> 
-> I will prepare and see how the codes reads...
+Whenever a guest cannot process an AI because none of its
+vcpus is running in SIE context, a GIB alert interruption is
+sent to and handled by the host program to dispatch a vcpu of
+the respective guest.
 
-If it becomes too mushy, just leave it as it is now and I'll stop
-complaining ;)
+Eventually, the AI is handled by the guest.
 
-> 
-> Thanks a lot for your comments today!
-> 
-> Michael
-> 
-> 
-> >   
-> 
+v2->v3:
+  patch 01/12: Fixes a resource dealocation issue upon
+  	       unsuccessful exit from kvm_arch_init().
+	       It is relevant for patch 11/12 as well. 
+  patch 08/12: The function process_gib_alert_list() has
+               been rewritten to reduce the number of GAL
+	       interruptions on the host for many guest
+	       scenarios.
+  patch 10/12: The IAM is now never cleared before SIE entry.
+               It will be cleared by millicode as soon the
+	       first guest interruption is made pending and
+	       not directly processed in SIE. The IAM gets
+	       restored as soon a vm is idle, i.e. no vcpu
+	       of that guest is in SIE context anymore.
+  patch 11/12: now integrates with new patch 01/12
+  patch 12/12: This patch is just experimental and shall not
+               be part of the final series.
+
+The first patch of series v2: "leave AIs in IPM of GISA
+during vcpu_pre_run()" has been dropped.
+
+All other patches are unchanged.
+
+v1->v2:
+  patch 01/12: New patch. Tt can go also standalone without the
+  	       rest of the GIB series presented here but is a
+	       requirement 
+  patch 03/12: kvm_s390_gib_init() now has a return code
+  patch 06/12: unlink_gib_alert_list() now uses cmpxchg() instead
+    	       of atomic_xchg()
+  patch 08/12: New patch. Foctors out __find_vcpu_for_floating_irq()
+  patch 09/12: process_gib_alert_list() has been simplified
+               the GISA clear/destroy cases have been removed
+  patch 11/12: kvm_s390_gisa_clear/destroy() now clear the IAM
+               and process the alert list directly
+	       The IAM now gets restored in vcpu_post_run() only if
+	       the GISA is not in alert list
+  patch 12/12: during kvm_arch_init() now the return code of
+    	       kvm_s390_gib_init() is honored.
+
+All other patches are unchanged.
+
+Michael Mueller (12):
+  KVM: s390: unregister debug feature on failing arch init
+  s390/cio: add function chsc_sgib()
+  KVM: s390: add the GIB and its related life-cyle functions
+  KVM: s390: factor out nullify_gisa()
+  KVM: s390: add metric vcpus_in_sie to struct kvm_arch
+  KVM: s390: add kvm reference to struct sie_page2
+  KVM: s390: factor out __find_vcpu_for_floating_irq()
+  KVM: s390: add function process_gib_alert_list()
+  KVM: s390: add functions to (un)register GISC with GISA
+  KVM: s390: add and wire function gib_alert_irq_handler()
+  KVM: s390: start using the GIB
+  KVM: s390: allow to change the IAM clear strategy dynamically
+
+ arch/s390/include/asm/cio.h      |   1 +
+ arch/s390/include/asm/irq.h      |   1 +
+ arch/s390/include/asm/isc.h      |   1 +
+ arch/s390/include/asm/kvm_host.h |  20 ++-
+ arch/s390/kernel/irq.c           |   1 +
+ arch/s390/kvm/interrupt.c        | 272 +++++++++++++++++++++++++++++++++++++--
+ arch/s390/kvm/kvm-s390.c         |  31 ++++-
+ arch/s390/kvm/kvm-s390.h         |   8 ++
+ drivers/s390/cio/chsc.c          |  37 ++++++
+ drivers/s390/cio/chsc.h          |   1 +
+ 10 files changed, 358 insertions(+), 15 deletions(-)
+
+-- 
+2.13.4
