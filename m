@@ -1,96 +1,44 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Wed, 28 Nov 2018 10:19:33 +0000
-Subject: [PATCH v3 02/12] s390/cio: add function chsc_sgib()
-Message-Id: <20181128101943.155542-3-mimu@linux.ibm.com>
+Date: Wed, 28 Nov 2018 12:29:17 +0000
+Subject: Re: [PATCH v3 11/12] KVM: s390: start using the GIB
+Message-Id: <5a59325e-9dd1-89e6-c172-02779ec682e4@linux.ibm.com>
+In-Reply-To: <20181128113100.16925683.cohuck@redhat.com>
+References: <20181128113100.16925683.cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements the Set Guest Information Block operation
-to request association or disassociation of a Guest Information
-Block (GIB) with the Adapter Interruption Facility. The operation
-is required to receive GIB alert interrupts for guest adapters
-in conjunction with AIV and GISA.
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
----
- arch/s390/include/asm/cio.h |  1 +
- drivers/s390/cio/chsc.c     | 37 +++++++++++++++++++++++++++++++++++++
- drivers/s390/cio/chsc.h     |  1 +
- 3 files changed, 39 insertions(+)
 
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index 225667652069..1727180e8ca1 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -331,5 +331,6 @@ extern void css_schedule_reprobe(void);
- /* Function from drivers/s390/cio/chsc.c */
- int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
- int chsc_sstpi(void *page, void *result, size_t size);
-+int chsc_sgib(u32 origin);
- 
- #endif
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index a0baee25134c..4159c63a5fd2 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -1382,3 +1382,40 @@ int chsc_pnso_brinfo(struct subchannel_id schid,
- 	return chsc_error_from_response(brinfo_area->response.code);
- }
- EXPORT_SYMBOL_GPL(chsc_pnso_brinfo);
-+
-+int chsc_sgib(u32 origin)
-+{
-+	struct {
-+		struct chsc_header request;
-+		u16 op;
-+		u8  reserved01[2];
-+		u8  reserved02:4;
-+		u8  fmt:4;
-+		u8  reserved03[7];
-+		/* operation data area begin */
-+		u8  reserved04[4];
-+		u32 gib_origin;
-+		u8  reserved05[10];
-+		u8  aix;
-+		u8  reserved06[4029];
-+		struct chsc_header response;
-+		u8  reserved07[4];
-+	} *sgib_area;
-+	int ret;
-+
-+	spin_lock_irq(&chsc_page_lock);
-+	memset(chsc_page, 0, PAGE_SIZE);
-+	sgib_area = chsc_page;
-+	sgib_area->request.length = 0x0fe0;
-+	sgib_area->request.code = 0x0021;
-+	sgib_area->op = 0x1;
-+	sgib_area->gib_origin = origin;
-+
-+	ret = chsc(sgib_area);
-+	if (ret == 0)
-+		ret = chsc_error_from_response(sgib_area->response.code);
-+	spin_unlock_irq(&chsc_page_lock);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(chsc_sgib);
-diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
-index 78aba8d94eec..e57d68e325a3 100644
---- a/drivers/s390/cio/chsc.h
-+++ b/drivers/s390/cio/chsc.h
-@@ -164,6 +164,7 @@ int chsc_get_channel_measurement_chars(struct channel_path *chp);
- int chsc_ssqd(struct subchannel_id schid, struct chsc_ssqd_area *ssqd);
- int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
- 	      u64 summary_indicator_addr, u64 subchannel_indicator_addr);
-+int chsc_sgib(u32 origin);
- int chsc_error_from_response(int response);
- 
- int chsc_siosl(struct subchannel_id schid);
--- 
-2.13.4
+On 28.11.18 11:31, Cornelia Huck wrote:
+> On Wed, 28 Nov 2018 11:19:42 +0100
+> Michael Mueller <mimu@linux.ibm.com> wrote:
+> 
+>> By initializing the GIB, it will be used by the kvm host.
+>>
+>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/kvm-s390.c | 4 ++++
+>>   1 file changed, 4 insertions(+)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 283c51362ca8..9b20017dda29 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -428,6 +428,10 @@ int kvm_arch_init(void *opaque)
+>>   		goto out_unreg;
+>>   	}
+>>   
+>> +	rc = kvm_s390_gib_init(GAL_ISC);
+>> +	if (rc)
+>> +		goto out_unreg;
+>> +
+>>   	kvm_s390_cpu_feat_init();
+>>   
+>>   	/* Register floating interrupt controller interface. */
+> 
+> Aren't you missing a call to kvm_s390_gib_destroy() in the out_unreg
+> case (if registering the flic fails)?
+
+Details... ;)
+
+> 
