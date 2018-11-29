@@ -1,44 +1,43 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Date: Wed, 28 Nov 2018 12:29:17 +0000
-Subject: Re: [PATCH v3 11/12] KVM: s390: start using the GIB
-Message-Id: <5a59325e-9dd1-89e6-c172-02779ec682e4@linux.ibm.com>
-In-Reply-To: <20181128113100.16925683.cohuck@redhat.com>
-References: <20181128113100.16925683.cohuck@redhat.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Date: Thu, 29 Nov 2018 01:40:17 +0000
+Subject: Re: [PATCH 01/23] zfcp: make DIX experimental, disabled, and independent of DIF
+Message-Id: <yq1mups1x1a.fsf@oracle.com>
+In-Reply-To: <1a304f10-3603-882a-207a-7618846af746@linux.ibm.com>
+References: <1a304f10-3603-882a-207a-7618846af746@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
+Steffen,
 
-On 28.11.18 11:31, Cornelia Huck wrote:
-> On Wed, 28 Nov 2018 11:19:42 +0100
-> Michael Mueller <mimu@linux.ibm.com> wrote:
-> 
->> By initializing the GIB, it will be used by the kvm host.
->>
->> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->> ---
->>   arch/s390/kvm/kvm-s390.c | 4 ++++
->>   1 file changed, 4 insertions(+)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 283c51362ca8..9b20017dda29 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -428,6 +428,10 @@ int kvm_arch_init(void *opaque)
->>   		goto out_unreg;
->>   	}
->>   
->> +	rc = kvm_s390_gib_init(GAL_ISC);
->> +	if (rc)
->> +		goto out_unreg;
->> +
->>   	kvm_s390_cpu_feat_init();
->>   
->>   	/* Register floating interrupt controller interface. */
-> 
-> Aren't you missing a call to kvm_s390_gib_destroy() in the out_unreg
-> case (if registering the flic fails)?
+As I said, I don't have a problem with having module parameters.
 
-Details... ;)
+> There's one more important thing that has performance impact: We need to
+> pack payload and protection data into the same queue of limited
+> length. So for the worst case with DIX, we have to use half the size for
+> sg_tablesize to get the other half for sg_prot_tablesize.
 
-> 
+Interesting. With the exception of NVMe over PCIe, it's kind of unusual
+for modern controllers to have real limits in this area.
+
+> This limits the maximum I/O request size and thus throughput. Using
+> read_verify and write_generate does not change the tablesizes, as zfcp
+> would still announce support for DIF and DIX. With the new zfcp.dif=1
+> and zfcp.dix=0, we can use the full sg_tablesize for payload data and
+> sg_prot_tablesize=0. (The DIF "overhead" on the fibre still exists of
+> course.)
+>
+> Are there other ways for accomplishing this which I'm not aware of?
+
+You can set your shost->sg_prot_tablesize. There are pathological corner
+cases like dd to the raw block device where you'll suffer if there is
+not a 1:1 mapping between data and protection segments. But for regular
+I/O where the protection is generated over a whole bio at a time, you
+can get away with something smaller.
+
+Anyway. I don't have any problems with you making DIX experimental for
+zfcp. Just want to make sure it's done for the right reasons (i.e. not
+problems in SCSI or the block layer).
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
