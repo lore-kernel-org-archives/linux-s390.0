@@ -1,168 +1,72 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v3 2/6] vfio: ccw: Rework subchannel state on setup
-Date: Wed, 28 Nov 2018 13:41:03 +0100
-Message-ID: <1543408867-16465-3-git-send-email-pmorel@linux.ibm.com>
-References: <1543408867-16465-1-git-send-email-pmorel@linux.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1543408867-16465-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: pasic@linux.vnet.ibm.com
-Cc: cohuck@redhat.com, farman@linux.ibm.com, alifm@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Return-Path: <SRS0=tmGn=OI=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Date: Thu, 29 Nov 2018 16:09:15 -0700
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: [PATCH v4 4/6] coresight: Use PMU driver configuration for sink
+ selection
+Message-ID: <20181129230915.GA8881@xps15>
+References: <1543442478-31465-1-git-send-email-mathieu.poirier@linaro.org>
+ <1543442478-31465-5-git-send-email-mathieu.poirier@linaro.org>
+ <20181129074936.GE12347@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <20181129074936.GE12347@kroah.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, peterz@infradead.org, will.deacon@arm.com, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, acme@kernel.org, ast@kernel.org, alexander.shishkin@linux.intel.com, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, suzuki.poulosi@arm.com, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The subchannel enablement and the according setting to the
-VFIO_CCW_STATE_STANDBY state should only be done when all
-parts of the VFIO mediated device have been initialized
-i.e. after the mediated device has been successfully opened.
+Hi Greg,
 
-Let's stay in VFIO_CCW_STATE_NOT_OPER until the mediated
-device has been opened and set the VFIO_CCW_STATE_STANDBY
-on a successful open.
+On Thu, Nov 29, 2018 at 08:49:36AM +0100, Greg KH wrote:
+> On Wed, Nov 28, 2018 at 03:01:16PM -0700, Mathieu Poirier wrote:
+> > This patch uses the PMU driver configuration held in event::hw::drv_config
+> > to select a sink for each event that is created (the old sysFS way of
+> > working is kept around for backward compatibility).
+> 
+> It is "sysfs", no InterCaps please, I've never called it that in the
+> past.
+> 
+> And just use sysfs, if that does not work properly, then fix that, don't
+> create yet-another-way-to-configure-this-thing to just confuse people.
 
-On release the state is set back to VFIO_CCW_STATE_NOT_OPER
-by vfio_ccw_sch_quiesce().
+Thanks for the review, you've provided usefull comments.
 
-When the mediated device is closed,  disable the sub channel
-by calling vfio_ccw_sch_quiesce().
+Regarding the "char *" argument for the ioctl, I followed an example that
+currently exist but I can proceed differently.  
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_async.c   | 11 +++++++++++
- drivers/s390/cio/vfio_ccw_drv.c     | 10 +---------
- drivers/s390/cio/vfio_ccw_ops.c     | 27 +++++++++++++++++++++------
- drivers/s390/cio/vfio_ccw_private.h |  1 +
- 4 files changed, 34 insertions(+), 15 deletions(-)
+My goal with this patchset was specifically to fix what is wrong with sysfs and
+completely take it out of the equation.  The only reason to keep the kernel 
+interface alive was to prevent braking older user space perf tools currently
+using it.  
 
-diff --git a/drivers/s390/cio/vfio_ccw_async.c b/drivers/s390/cio/vfio_ccw_async.c
-index 8c7f51d..033574e 100644
---- a/drivers/s390/cio/vfio_ccw_async.c
-+++ b/drivers/s390/cio/vfio_ccw_async.c
-@@ -76,6 +76,17 @@ const struct vfio_ccw_regops vfio_ccw_async_region_ops = {
- 	.release = vfio_ccw_async_region_release,
- };
- 
-+void vfio_ccw_unregister_async_dev_regions(struct vfio_ccw_private *private)
-+{
-+	int i;
-+
-+	for (i = 0; i < private->num_regions; i++)
-+		private->region[i].ops->release(private, &private->region[i]);
-+	private->num_regions = 0;
-+	kfree(private->region);
-+	private->region = NULL;
-+}
-+
- int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private)
- {
- 	return vfio_ccw_register_dev_region(private,
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index bce7fed..d3527b6 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -133,26 +133,18 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	private->sch = sch;
- 	dev_set_drvdata(&sch->dev, private);
- 
--	spin_lock_irq(sch->lock);
- 	private->state = VFIO_CCW_STATE_NOT_OPER;
- 	sch->isc = VFIO_CCW_ISC;
--	ret = cio_enable_subchannel(sch, (u32)(unsigned long)sch);
--	spin_unlock_irq(sch->lock);
--	if (ret)
--		goto out_free;
- 
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
- 	atomic_set(&private->avail, 1);
--	private->state = VFIO_CCW_STATE_STANDBY;
- 
- 	ret = vfio_ccw_mdev_reg(sch);
- 	if (ret)
--		goto out_disable;
-+		goto out_free;
- 
- 	return 0;
- 
--out_disable:
--	cio_disable_subchannel(sch);
- out_free:
- 	dev_set_drvdata(&sch->dev, NULL);
- 	if (private->cmd_region)
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 0e1f7f7b..cc7d46a 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -113,14 +113,11 @@ static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 	struct vfio_ccw_private *private =
- 		dev_get_drvdata(mdev_parent_dev(mdev));
- 
--	if (private->state == VFIO_CCW_STATE_NOT_OPER)
--		return -ENODEV;
--
- 	if (atomic_dec_if_positive(&private->avail) < 0)
- 		return -EPERM;
- 
- 	private->mdev = mdev;
--	private->state = VFIO_CCW_STATE_IDLE;
-+	private->state = VFIO_CCW_STATE_NOT_OPER;
- 
- 	return 0;
- }
-@@ -148,6 +145,7 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
- 	struct vfio_ccw_private *private =
- 		dev_get_drvdata(mdev_parent_dev(mdev));
- 	unsigned long events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
-+	struct subchannel *sch = private->sch;
- 	int ret;
- 
- 	private->nb.notifier_call = vfio_ccw_mdev_notifier;
-@@ -159,8 +157,24 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
- 
- 	ret = vfio_ccw_register_async_dev_regions(private);
- 	if (ret)
--		vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
--					 &private->nb);
-+		goto err_regions;
-+
-+	spin_lock_irq(private->sch->lock);
-+	ret = cio_enable_subchannel(sch, (u32)(unsigned long)sch);
-+	if (ret)
-+		goto err_enable;
-+
-+	private->state = VFIO_CCW_STATE_STANDBY;
-+	spin_unlock_irq(sch->lock);
-+	return 0;
-+
-+err_enable:
-+	spin_unlock_irq(sch->lock);
-+	vfio_ccw_unregister_async_dev_regions(private);
-+
-+err_regions:
-+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+				 &private->nb);
- 	return ret;
- }
- 
-@@ -170,6 +184,7 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
- 		dev_get_drvdata(mdev_parent_dev(mdev));
- 	int i;
- 
-+	vfio_ccw_sch_quiesce(private->sch);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
- 				 &private->nb);
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 1a41a14..5d799b7 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -54,6 +54,7 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
- 				 size_t size, u32 flags, void *data);
- 
- int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
-+void vfio_ccw_unregister_async_dev_regions(struct vfio_ccw_private *private);
- 
- /**
-  * struct vfio_ccw_private
--- 
-2.7.4
+I chose to use an ioctl() because it is flexible and well suited for the dynamic
+nature of perf events.  It is also currently used to set various event specific 
+configuration so doing the same adds to the established pattern and avoids
+creating a new way of doing things, something the perf crew would have been
+quick to point out.
+
+Was my approach wrong?
+
+Regards,
+Mathieu
+
+> 
+> thanks,
+> 
+> greg k-h
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
