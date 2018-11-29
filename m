@@ -1,43 +1,97 @@
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Date: Thu, 29 Nov 2018 01:40:17 +0000
-Subject: Re: [PATCH 01/23] zfcp: make DIX experimental, disabled, and independent of DIF
-Message-Id: <yq1mups1x1a.fsf@oracle.com>
-In-Reply-To: <1a304f10-3603-882a-207a-7618846af746@linux.ibm.com>
-References: <1a304f10-3603-882a-207a-7618846af746@linux.ibm.com>
+From: Steffen Maier <maier@linux.ibm.com>
+Date: Thu, 29 Nov 2018 12:09:56 +0000
+Subject: [PATCH v2 01/23] zfcp: make DIX experimental, disabled, and independent of DIF
+Message-Id: <1543493396-1348-1-git-send-email-maier@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Fedor Loshakov <loshakov@linux.ibm.com>
 
-Steffen,
+Introduce separate zfcp module parameters to individually
+select support for:
+DIF which should work (zfcp.dif, which used to be DIF+DIX, disabled) or
+DIX+DIF which can cause trouble (zfcp.dix, new, disabled).
 
-As I said, I don't have a problem with having module parameters.
+If DIX is enabled, we warn on zfcp driver initialization.
+As before, this also reduces the maximum I/O request size to half,
+to support the worst case of merged single sector requests with one
+protection data scatter gather element per sector. This can impact the
+maximum throughput.
 
-> There's one more important thing that has performance impact: We need to
-> pack payload and protection data into the same queue of limited
-> length. So for the worst case with DIX, we have to use half the size for
-> sg_tablesize to get the other half for sg_prot_tablesize.
+In DIF-only mode (zfcp.dif=1 zfcp.dix=0), we can use the full maximum
+I/O request size as there is no protection data for zfcp.
 
-Interesting. With the exception of NVMe over PCIe, it's kind of unusual
-for modern controllers to have real limits in this area.
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Co-developed-by: Fedor Loshakov <loshakov@linux.ibm.com>
+Signed-off-by: Fedor Loshakov <loshakov@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+---
 
-> This limits the maximum I/O request size and thus throughput. Using
-> read_verify and write_generate does not change the tablesizes, as zfcp
-> would still announce support for DIF and DIX. With the new zfcp.dif=1
-> and zfcp.dix=0, we can use the full sg_tablesize for payload data and
-> sg_prot_tablesize=0. (The DIF "overhead" on the fibre still exists of
-> course.)
->
-> Are there other ways for accomplishing this which I'm not aware of?
+Changes in description since v1:
+Don't erroneously blame non-zfcp code for DIX issues.
+Explain technical reasons why DIF-only mode is interesting for zfcp.
 
-You can set your shost->sg_prot_tablesize. There are pathological corner
-cases like dd to the raw block device where you'll suffer if there is
-not a 1:1 mapping between data and protection segments. But for regular
-I/O where the protection is generated over a whole bio at a time, you
-can get away with something smaller.
+ drivers/s390/scsi/zfcp_aux.c  |  3 +++
+ drivers/s390/scsi/zfcp_ext.h  |  1 +
+ drivers/s390/scsi/zfcp_scsi.c | 10 +++++++---
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
-Anyway. I don't have any problems with you making DIX experimental for
-zfcp. Just want to make sure it's done for the right reasons (i.e. not
-problems in SCSI or the block layer).
-
+diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+index 94f4d8fe85e0..08cdc00e8299 100644
+--- a/drivers/s390/scsi/zfcp_aux.c
++++ b/drivers/s390/scsi/zfcp_aux.c
+@@ -124,6 +124,9 @@ static int __init zfcp_module_init(void)
+ {
+ 	int retval = -ENOMEM;
+ 
++	if (zfcp_experimental_dix)
++		pr_warn("DIX is enabled. It is experimental and might cause problems\n");
++
+ 	zfcp_fsf_qtcb_cache = zfcp_cache_hw_align("zfcp_fsf_qtcb",
+ 						  sizeof(struct fsf_qtcb));
+ 	if (!zfcp_fsf_qtcb_cache)
+diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
+index bd0c5a9f04cb..0940bef35020 100644
+--- a/drivers/s390/scsi/zfcp_ext.h
++++ b/drivers/s390/scsi/zfcp_ext.h
+@@ -144,6 +144,7 @@ extern void zfcp_qdio_close(struct zfcp_qdio *);
+ extern void zfcp_qdio_siosl(struct zfcp_adapter *);
+ 
+ /* zfcp_scsi.c */
++extern bool zfcp_experimental_dix;
+ extern struct scsi_transport_template *zfcp_scsi_transport_template;
+ extern int zfcp_scsi_adapter_register(struct zfcp_adapter *);
+ extern void zfcp_scsi_adapter_unregister(struct zfcp_adapter *);
+diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
+index a8efcb330bc1..2b8c33627460 100644
+--- a/drivers/s390/scsi/zfcp_scsi.c
++++ b/drivers/s390/scsi/zfcp_scsi.c
+@@ -27,7 +27,11 @@ MODULE_PARM_DESC(queue_depth, "Default queue depth for new SCSI devices");
+ 
+ static bool enable_dif;
+ module_param_named(dif, enable_dif, bool, 0400);
+-MODULE_PARM_DESC(dif, "Enable DIF/DIX data integrity support");
++MODULE_PARM_DESC(dif, "Enable DIF data integrity support (default off)");
++
++bool zfcp_experimental_dix;
++module_param_named(dix, zfcp_experimental_dix, bool, 0400);
++MODULE_PARM_DESC(dix, "Enable experimental DIX (data integrity extension) support which implies DIF support (default off)");
+ 
+ static bool allow_lun_scan = true;
+ module_param(allow_lun_scan, bool, 0600);
+@@ -788,11 +792,11 @@ void zfcp_scsi_set_prot(struct zfcp_adapter *adapter)
+ 	data_div = atomic_read(&adapter->status) &
+ 		   ZFCP_STATUS_ADAPTER_DATA_DIV_ENABLED;
+ 
+-	if (enable_dif &&
++	if ((enable_dif || zfcp_experimental_dix) &&
+ 	    adapter->adapter_features & FSF_FEATURE_DIF_PROT_TYPE1)
+ 		mask |= SHOST_DIF_TYPE1_PROTECTION;
+ 
+-	if (enable_dif && data_div &&
++	if (zfcp_experimental_dix && data_div &&
+ 	    adapter->adapter_features & FSF_FEATURE_DIX_PROT_TCPIP) {
+ 		mask |= SHOST_DIX_TYPE1_PROTECTION;
+ 		scsi_host_set_guard(shost, SHOST_DIX_GUARD_IP);
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.16.4
