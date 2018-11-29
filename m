@@ -1,76 +1,171 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Thu, 29 Nov 2018 13:16:46 +0000
-Subject: Re: [PATCH v3 09/12] KVM: s390: add functions to (un)register GISC with GISA
-Message-Id: <7e015607-dd74-40f8-7cd9-cc917a5fe720@linux.ibm.com>
-In-Reply-To: <20181129134622.7e3e7f4d.cohuck@redhat.com>
-References: <20181129134622.7e3e7f4d.cohuck@redhat.com>
+Date: Thu, 29 Nov 2018 14:37:42 +0000
+Subject: Re: [PATCH v3 03/12] KVM: s390: add the GIB and its related life-cyle functions
+Message-Id: <6c21c697-9f21-6b93-2af7-5ad874b5f1b4@linux.ibm.com>
+In-Reply-To: <0cec1b22-651b-691c-3d7e-3e9dfe8788c7@redhat.com>
+References: <0cec1b22-651b-691c-3d7e-3e9dfe8788c7@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 29.11.18 13:46, Cornelia Huck wrote:
-> On Thu, 29 Nov 2018 13:35:07 +0100
-> Michael Mueller <mimu@linux.ibm.com> wrote:
-> 
->> On 29.11.18 12:48, Cornelia Huck wrote:
->>> On Thu, 29 Nov 2018 12:24:36 +0100
->>> Michael Mueller <mimu@linux.ibm.com> wrote:
->>>    
->>>> On 29.11.18 11:55, Cornelia Huck wrote:
->>>>> On Wed, 28 Nov 2018 11:19:40 +0100
->>>>> Michael Mueller <mimu@linux.ibm.com> wrote:
->>>>>       
->>>>>> Add the IAM (Interruption Alert Mask) to the architectue specific
->>>>>> kvm struct. This mask in the GISA is used to define for which ISC
->>>>>> a GIB alert can be issued.
->>>>>>
->>>>>> The functions kvm_s390_gisc_register() and kvm_s390_gisc_unregister()
->>>>>> are used to (un)register a GISC (guest ISC) with a virtual machine and
->>>>>> its GISA.
->>>>>>
->>>>>> Upon successful completion, kvm_s390_gisc_register() returns the
->>>>>> ISC to be used for GIB alert interruptions. A negative return code
->>>>>> indicates an error during registration.
->>>>>>
->>>>>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->>>>>> ---
->>>>>>     arch/s390/include/asm/kvm_host.h |  6 ++++++
->>>>>>     arch/s390/kvm/interrupt.c        | 44 ++++++++++++++++++++++++++++++++++++++++
->>>>>>     2 files changed, 50 insertions(+)
->>>>>
->>>>> I've started at this and the following patches and have not found a
->>>>> place where the functions are called... leftover from a previous
->>>>> version?
->>>>
->>>> No, these functions are required by the related driver code.
->>>>
->>>> Pls. see:
->>>>
->>>> Message ID: 1542906675-7949-4-git-send-email-pmorel@linux.ibm.com
->>>>
->>>> [v2,3/3] vfio: ap: AP Queue Interrupt Control VFIO ioctl calls
->>>>   
->>>>>       
->>>>   
->>>
->>> I guess they should go with that series, then.
+On 29.11.18 14:00, David Hildenbrand wrote:
+> On 28.11.18 11:19, Michael Mueller wrote:
+>> The GIB (Guest Information Block) links the GISA of all guests
+>> that have adapter interrupts pending. These interrupts cannot be
+>> delivered because no vcpu of these guests is currently running in
+>> SIE context. Instead, a GIB alert is issued on the host to schedule
+>> these guests to run.
 >>
->> No, I don't think so. These functions are part of the
->> *GIB infrastructure* and will by consumed e.g. by VFIO AP
->> with irqs but also by PCI.
+>> This mechanism allows to process adapter interrupts for currently
+>> not running guests.
+>>
+>> The GIB is created during host initialization and associated with
+>> the Adapter Interruption Facility in case an Adapter Interruption
+>> Virtualization Facility is available.
 > 
-> I disagree. The rest of this series lays the groundwork, this patch
-> exports two unused functions, and it is much clearer how they are
-> supposed to be used with an actual user. Of course PCI can use them
-> later on as well :)
+> kvm_s390_gib_init() is not called in this patch (however
+> kvm_s390_gib_destroy() is).
+> 
+> So either you are missing that in this patch or your patch description
+> is not completely right.
 
-Then you could even argue the whole series has to go together with the
-AP irq series as it has no effect unless kvm->arch.iam is assigned a
-value... ;)
+Hey, that sounds a little like pettifoggery... ;)
+
+I will add a sentence like:
+
+"The GIB initialization and thus the activation of the related code
+will be done in an upcoming patch of this series."
+
+Is is that you are asking for?
+
 
 > 
-> But in the end, your call.
+>>
+>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_host.h | 10 ++++++++++
+>>   arch/s390/kvm/interrupt.c        | 37 +++++++++++++++++++++++++++++++++++++
+>>   arch/s390/kvm/kvm-s390.c         |  1 +
+>>   arch/s390/kvm/kvm-s390.h         |  2 ++
+>>   4 files changed, 50 insertions(+)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>> index d5d24889c3bc..537e5e59f27e 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -785,6 +785,15 @@ struct kvm_s390_gisa {
+>>   	};
+>>   };
+>>   
+>> +struct kvm_s390_gib {
+>> +	u32 alert_list_origin;
+>> +	u32 reserved01;
+>> +	u8:5;
+>> +	u8  nisc:3;
+>> +	u8  reserved03[3];
+>> +	u32 reserved04[5];
+>> +};
+>> +
+>>   /*
+>>    * sie_page2 has to be allocated as DMA because fac_list, crycb and
+>>    * gisa need 31bit addresses in the sie control block.
+>> @@ -838,6 +847,7 @@ struct kvm_arch{
+>>   	/* subset of available cpu features enabled by user space */
+>>   	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
+>>   	struct kvm_s390_gisa *gisa;
+>> +	int gib_in_use;
+>>   };
+>>   
+>>   #define KVM_HVA_ERR_BAD		(-1UL)
+>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>> index fcb55b02990e..5d20a0ce8a30 100644
+>> --- a/arch/s390/kvm/interrupt.c
+>> +++ b/arch/s390/kvm/interrupt.c
+>> @@ -31,6 +31,8 @@
+>>   #define PFAULT_DONE 0x0680
+>>   #define VIRTIO_PARAM 0x0d00
+>>   
+>> +static struct kvm_s390_gib *gib;
+>> +
+>>   /* handle external calls via sigp interpretation facility */
+>>   static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
+>>   {
+>> @@ -2899,6 +2901,7 @@ void kvm_s390_gisa_init(struct kvm *kvm)
+>>   		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
+>>   		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+>>   		kvm_s390_gisa_clear(kvm);
+>> +		kvm->arch.gib_in_use = !!gib;
+>>   	}
+>>   }
+>>   
+>> @@ -2908,3 +2911,37 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+>>   		return;
+>>   	kvm->arch.gisa = NULL;
+>>   }
+>> +
+>> +void kvm_s390_gib_destroy(void)
+>> +{
+>> +	if (!gib)
+>> +		return;
+>> +	chsc_sgib(0);
+>> +	free_page((unsigned long)gib);
+>> +	gib = NULL;
+>> +}
+>> +
+>> +int kvm_s390_gib_init(u8 nisc)
+>> +{
+>> +	if (!css_general_characteristics.aiv) {
+>> +		KVM_EVENT(3, "%s", "gib not initialized, no AIV facility");
+>> +		return 0;
+>> +	}
+>> +
+>> +	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+>> +	if (!gib) {
+>> +		KVM_EVENT(3, "gib 0x%pK memory allocation failed", gib);
+>> +		return -ENOMEM;
+>> +	}
+>> +
+>> +	gib->nisc = nisc;
+>> +	if (chsc_sgib((u32)(u64)gib)) {
+>> +		KVM_EVENT(3, "gib 0x%pK AIV association failed", gib);
+>> +		free_page((unsigned long)gib);
+>> +		gib = NULL;
+>> +		return -EIO;
+>> +	}
+>> +
+>> +	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
+>> +	return 0;
+>> +}
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index d9635d21563f..96954871b6a2 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -444,6 +444,7 @@ int kvm_arch_init(void *opaque)
+>>   
+>>   void kvm_arch_exit(void)
+>>   {
+>> +	kvm_s390_gib_destroy();
+>>   	debug_unregister(kvm_s390_dbf);
+>>   }
+>>   
+>> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+>> index 1f6e36cdce0d..1a79105b0e9f 100644
+>> --- a/arch/s390/kvm/kvm-s390.h
+>> +++ b/arch/s390/kvm/kvm-s390.h
+>> @@ -381,6 +381,8 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu,
+>>   void kvm_s390_gisa_init(struct kvm *kvm);
+>>   void kvm_s390_gisa_clear(struct kvm *kvm);
+>>   void kvm_s390_gisa_destroy(struct kvm *kvm);
+>> +int kvm_s390_gib_init(u8 nisc);
+>> +void kvm_s390_gib_destroy(void);
+>>   
+>>   /* implemented in guestdbg.c */
+>>   void kvm_s390_backup_guest_per_regs(struct kvm_vcpu *vcpu);
+>>
+> 
 > 
 
 -- 
