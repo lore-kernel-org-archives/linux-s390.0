@@ -1,77 +1,84 @@
-From: David Hildenbrand <david@redhat.com>
-Date: Thu, 29 Nov 2018 13:11:19 +0000
-Subject: Re: [PATCH v3 07/12] KVM: s390: factor out __find_vcpu_for_floating_irq()
-Message-Id: <a18a98c6-05aa-4280-66c5-3b8028c45346@redhat.com>
-In-Reply-To: <9c6611fb-55dc-7a54-d124-838b2bdd8455@linux.ibm.com>
-References: <9c6611fb-55dc-7a54-d124-838b2bdd8455@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Date: Thu, 29 Nov 2018 13:16:46 +0000
+Subject: Re: [PATCH v3 09/12] KVM: s390: add functions to (un)register GISC with GISA
+Message-Id: <7e015607-dd74-40f8-7cd9-cc917a5fe720@linux.ibm.com>
+In-Reply-To: <20181129134622.7e3e7f4d.cohuck@redhat.com>
+References: <20181129134622.7e3e7f4d.cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 28.11.18 11:19, Michael Mueller wrote:
-> This function will be used as well to find a suitable vcpu
-> to wakeup in GIB alert interruption context.
-> 
-> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-> ---
->  arch/s390/kvm/interrupt.c | 24 ++++++++++++++++--------
->  1 file changed, 16 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 97e5da9a0814..251d01f1e9bf 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -1723,18 +1723,14 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
->  	return 0;
->  }
->  
-> -/*
-> - * Find a destination VCPU for a floating irq and kick it.
-> - */
-> -static void __floating_irq_kick(struct kvm *kvm, u64 type)
-> +static struct kvm_vcpu *__find_vcpu_for_floating_irq(struct kvm *kvm)
->  {
->  	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-> -	struct kvm_vcpu *dst_vcpu;
->  	int sigcpu, online_vcpus, nr_tries = 0;
->  
->  	online_vcpus = atomic_read(&kvm->online_vcpus);
->  	if (!online_vcpus)
-> -		return;
-> +		return NULL;
->  
->  	/* find idle VCPUs first, then round robin */
->  	sigcpu = find_first_bit(fi->idle_mask, online_vcpus);
-> @@ -1744,10 +1740,22 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
->  			fi->next_rr_cpu = (fi->next_rr_cpu + 1) % online_vcpus;
->  			/* avoid endless loops if all vcpus are stopped */
->  			if (nr_tries++ >= online_vcpus)
-> -				return;
-> +				return NULL;
->  		} while (is_vcpu_stopped(kvm_get_vcpu(kvm, sigcpu)));
->  	}
-> -	dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
-> +	return kvm_get_vcpu(kvm, sigcpu);
-> +}
-> +
-> +/*
-> + * Find a destination VCPU for a floating irq and kick it.
-> + */
-> +static void __floating_irq_kick(struct kvm *kvm, u64 type)
-> +{
-> +	struct kvm_vcpu *dst_vcpu;
-> +
-> +	dst_vcpu = __find_vcpu_for_floating_irq(kvm);
-> +	if (!dst_vcpu)
-> +		return;
->  
->  	/* make the VCPU drop out of the SIE, or wake it up if sleeping */
->  	switch (type) {
-> 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+
+On 29.11.18 13:46, Cornelia Huck wrote:
+> On Thu, 29 Nov 2018 13:35:07 +0100
+> Michael Mueller <mimu@linux.ibm.com> wrote:
+> 
+>> On 29.11.18 12:48, Cornelia Huck wrote:
+>>> On Thu, 29 Nov 2018 12:24:36 +0100
+>>> Michael Mueller <mimu@linux.ibm.com> wrote:
+>>>    
+>>>> On 29.11.18 11:55, Cornelia Huck wrote:
+>>>>> On Wed, 28 Nov 2018 11:19:40 +0100
+>>>>> Michael Mueller <mimu@linux.ibm.com> wrote:
+>>>>>       
+>>>>>> Add the IAM (Interruption Alert Mask) to the architectue specific
+>>>>>> kvm struct. This mask in the GISA is used to define for which ISC
+>>>>>> a GIB alert can be issued.
+>>>>>>
+>>>>>> The functions kvm_s390_gisc_register() and kvm_s390_gisc_unregister()
+>>>>>> are used to (un)register a GISC (guest ISC) with a virtual machine and
+>>>>>> its GISA.
+>>>>>>
+>>>>>> Upon successful completion, kvm_s390_gisc_register() returns the
+>>>>>> ISC to be used for GIB alert interruptions. A negative return code
+>>>>>> indicates an error during registration.
+>>>>>>
+>>>>>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+>>>>>> ---
+>>>>>>     arch/s390/include/asm/kvm_host.h |  6 ++++++
+>>>>>>     arch/s390/kvm/interrupt.c        | 44 ++++++++++++++++++++++++++++++++++++++++
+>>>>>>     2 files changed, 50 insertions(+)
+>>>>>
+>>>>> I've started at this and the following patches and have not found a
+>>>>> place where the functions are called... leftover from a previous
+>>>>> version?
+>>>>
+>>>> No, these functions are required by the related driver code.
+>>>>
+>>>> Pls. see:
+>>>>
+>>>> Message ID: 1542906675-7949-4-git-send-email-pmorel@linux.ibm.com
+>>>>
+>>>> [v2,3/3] vfio: ap: AP Queue Interrupt Control VFIO ioctl calls
+>>>>   
+>>>>>       
+>>>>   
+>>>
+>>> I guess they should go with that series, then.
+>>
+>> No, I don't think so. These functions are part of the
+>> *GIB infrastructure* and will by consumed e.g. by VFIO AP
+>> with irqs but also by PCI.
+> 
+> I disagree. The rest of this series lays the groundwork, this patch
+> exports two unused functions, and it is much clearer how they are
+> supposed to be used with an actual user. Of course PCI can use them
+> later on as well :)
+
+Then you could even argue the whole series has to go together with the
+AP irq series as it has no effect unless kvm->arch.iam is assigned a
+value... ;)
+
+> 
+> But in the end, your call.
+> 
 
 -- 
+Mit freundlichen Gr��en / Kind regards
+Michael M�ller
 
-Thanks,
-
-David / dhildenb
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Martina K�deritz
+Gesch�ftsf�hrung: Dirk Wittkopp
+Sitz der Gesellschaft: B�blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
