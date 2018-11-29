@@ -1,97 +1,89 @@
-From: Steffen Maier <maier@linux.ibm.com>
-Date: Thu, 29 Nov 2018 12:09:56 +0000
-Subject: [PATCH v2 01/23] zfcp: make DIX experimental, disabled, and independent of DIF
-Message-Id: <1543493396-1348-1-git-send-email-maier@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
+From: David Hildenbrand <david@redhat.com>
+Date: Thu, 29 Nov 2018 12:57:42 +0000
+Subject: Re: [PATCH v3 01/12] KVM: s390: unregister debug feature on failing arch init
+Message-Id: <9edd3f40-3d40-1915-92ea-5455ac2e63ae@redhat.com>
+In-Reply-To: <bf05ac3c-28ab-fa09-49f7-bd9728870b49@de.ibm.com>
+References: <bf05ac3c-28ab-fa09-49f7-bd9728870b49@de.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Fedor Loshakov <loshakov@linux.ibm.com>
+On 28.11.18 11:19, Michael Mueller wrote:
+> Make sure the debug feature and its allocated resources get
+> released upon unsuccessful architecture initialization.
+> 
+> A related idication of the issue will be reported by common
+> kvm code.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 16 +++++++++++++---
+>  1 file changed, 13 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index fe24150ff666..d9635d21563f 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -417,19 +417,29 @@ static void kvm_s390_cpu_feat_init(void)
+>  
+>  int kvm_arch_init(void *opaque)
+>  {
+> +	int rc;
+> +
+>  	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+>  	if (!kvm_s390_dbf)
+>  		return -ENOMEM;
+>  
+>  	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+> -		debug_unregister(kvm_s390_dbf);
+> -		return -ENOMEM;
+> +		rc = -ENOMEM;
+> +		goto out_unreg;
+>  	}
+>  
+>  	kvm_s390_cpu_feat_init();
+>  
+>  	/* Register floating interrupt controller interface. */
+> -	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
+> +	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
+> +	if (rc)
+> +		goto out_unreg;
+> +
+> +	return 0;
+> +
+> +out_unreg:
 
-Introduce separate zfcp module parameters to individually
-select support for:
-DIF which should work (zfcp.dif, which used to be DIF+DIX, disabled) or
-DIX+DIF which can cause trouble (zfcp.dix, new, disabled).
+I would call this out_debug_unreg as we have two different registrations
+here.
 
-If DIX is enabled, we warn on zfcp driver initialization.
-As before, this also reduces the maximum I/O request size to half,
-to support the worst case of merged single sector requests with one
-protection data scatter gather element per sector. This can impact the
-maximum throughput.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-In DIF-only mode (zfcp.dif=1 zfcp.dix=0), we can use the full maximum
-I/O request size as there is no protection data for zfcp.
+> +	debug_unregister(kvm_s390_dbf);
+> +	return rc;
+>  }
+>  
+>  void kvm_arch_exit(void)
+> 
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Co-developed-by: Fedor Loshakov <loshakov@linux.ibm.com>
-Signed-off-by: Fedor Loshakov <loshakov@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
----
+BTW, at first I thought we were missing
 
-Changes in description since v1:
-Don't erroneously blame non-zfcp code for DIX issues.
-Explain technical reasons why DIF-only mode is interesting for zfcp.
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index fe24150ff666..d6b911c4fc5b 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -434,6 +434,7 @@ int kvm_arch_init(void *opaque)
 
- drivers/s390/scsi/zfcp_aux.c  |  3 +++
- drivers/s390/scsi/zfcp_ext.h  |  1 +
- drivers/s390/scsi/zfcp_scsi.c | 10 +++++++---
- 3 files changed, 11 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-index 94f4d8fe85e0..08cdc00e8299 100644
---- a/drivers/s390/scsi/zfcp_aux.c
-+++ b/drivers/s390/scsi/zfcp_aux.c
-@@ -124,6 +124,9 @@ static int __init zfcp_module_init(void)
+ void kvm_arch_exit(void)
  {
- 	int retval = -ENOMEM;
- 
-+	if (zfcp_experimental_dix)
-+		pr_warn("DIX is enabled. It is experimental and might cause problems\n");
-+
- 	zfcp_fsf_qtcb_cache = zfcp_cache_hw_align("zfcp_fsf_qtcb",
- 						  sizeof(struct fsf_qtcb));
- 	if (!zfcp_fsf_qtcb_cache)
-diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
-index bd0c5a9f04cb..0940bef35020 100644
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -144,6 +144,7 @@ extern void zfcp_qdio_close(struct zfcp_qdio *);
- extern void zfcp_qdio_siosl(struct zfcp_adapter *);
- 
- /* zfcp_scsi.c */
-+extern bool zfcp_experimental_dix;
- extern struct scsi_transport_template *zfcp_scsi_transport_template;
- extern int zfcp_scsi_adapter_register(struct zfcp_adapter *);
- extern void zfcp_scsi_adapter_unregister(struct zfcp_adapter *);
-diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
-index a8efcb330bc1..2b8c33627460 100644
---- a/drivers/s390/scsi/zfcp_scsi.c
-+++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -27,7 +27,11 @@ MODULE_PARM_DESC(queue_depth, "Default queue depth for new SCSI devices");
- 
- static bool enable_dif;
- module_param_named(dif, enable_dif, bool, 0400);
--MODULE_PARM_DESC(dif, "Enable DIF/DIX data integrity support");
-+MODULE_PARM_DESC(dif, "Enable DIF data integrity support (default off)");
-+
-+bool zfcp_experimental_dix;
-+module_param_named(dix, zfcp_experimental_dix, bool, 0400);
-+MODULE_PARM_DESC(dix, "Enable experimental DIX (data integrity extension) support which implies DIF support (default off)");
- 
- static bool allow_lun_scan = true;
- module_param(allow_lun_scan, bool, 0600);
-@@ -788,11 +792,11 @@ void zfcp_scsi_set_prot(struct zfcp_adapter *adapter)
- 	data_div = atomic_read(&adapter->status) &
- 		   ZFCP_STATUS_ADAPTER_DATA_DIV_ENABLED;
- 
--	if (enable_dif &&
-+	if ((enable_dif || zfcp_experimental_dix) &&
- 	    adapter->adapter_features & FSF_FEATURE_DIF_PROT_TYPE1)
- 		mask |= SHOST_DIF_TYPE1_PROTECTION;
- 
--	if (enable_dif && data_div &&
-+	if (zfcp_experimental_dix && data_div &&
- 	    adapter->adapter_features & FSF_FEATURE_DIX_PROT_TCPIP) {
- 		mask |= SHOST_DIX_TYPE1_PROTECTION;
- 		scsi_host_set_guard(shost, SHOST_DIX_GUARD_IP);
++       kvm_unregister_device_ops(KVM_DEV_TYPE_FLIC);
+        debug_unregister(kvm_s390_dbf);
+ }
+
+But turns out the global table is part of the module that will be
+recreated when reloading the module after it has been unloaded.
+
+
 -- 
-2.16.4
+
+Thanks,
+
+David / dhildenb
