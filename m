@@ -1,96 +1,76 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v2 2/3] vfio: ap: ioctl definitions for AP Queue Interrupt
- Control
-Date: Tue, 27 Nov 2018 18:46:35 +0100
-Message-ID: <b308d46a-45e1-d891-235b-3097e5dd2b08@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 3/3] vfio: ap: AP Queue Interrupt Control VFIO ioctl
+ calls
+Date: Thu, 29 Nov 2018 12:37:26 +0100
+Message-ID: <20181129123726.62b04690.cohuck@redhat.com>
 References: <1542906675-7949-1-git-send-email-pmorel@linux.ibm.com>
- <1542906675-7949-3-git-send-email-pmorel@linux.ibm.com>
- <20181127102237.42d8e178@x1.home>
-Reply-To: pmorel@linux.ibm.com
+        <1542906675-7949-4-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181127102237.42d8e178@x1.home>
-Content-Language: en-US
+In-Reply-To: <1542906675-7949-4-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: borntraeger@de.ibm.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 27/11/2018 18:22, Alex Williamson wrote:
-> On Thu, 22 Nov 2018 18:11:14 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->> We define two VFIO ioctl command to setup and clear
->> the AP Queues interrupt.
->>
->> Arguments passed by the guest are:
->> - the apqn, AP queue number
->> - the Notification by address
->> - the identifier of the previously associated adapter
-> 
-> 
-> We have an extensible VFIO_DEVICE_SET_IRQS ioctl already, why does AP
-> need its own?
+On Thu, 22 Nov 2018 18:11:15 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-For no good reason.
-Sorry for this.
-I will change for the use of the standard VFIO_DEVICE_SET_IRQS.
-
-Thanks Alex.
-
-Regards,
-Pierre
-
+> This is the implementation of the VFIO ioctl calls to handle
+> the AQIC interception and use GISA to handle interrupts.
 > 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 110 +++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 109 insertions(+), 1 deletion(-)
 > 
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   include/uapi/linux/vfio.h | 25 +++++++++++++++++++++++++
->>   1 file changed, 25 insertions(+)
->>
->> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
->> index 8131028..9a1b350 100644
->> --- a/include/uapi/linux/vfio.h
->> +++ b/include/uapi/linux/vfio.h
->> @@ -866,6 +866,31 @@ struct vfio_iommu_spapr_tce_remove {
->>   };
->>   #define VFIO_IOMMU_SPAPR_TCE_REMOVE	_IO(VFIO_TYPE, VFIO_BASE + 20)
->>   
->> +/**
->> + * VFIO_AP_SET_IRQ - _IOWR(VFIO_TYPE, VFIO_BASE + 21, struct vfio_ap_aqic)
->> + *
->> + * Setup IRQ for an AP Queue
->> + * @cmd contains the AP queue number (apqn)
->> + * @status receives the resulting status of the command
->> + * @nib is the Notification Indicator byte address
->> + * @adapter_id allows to retrieve the associated adapter
->> + */
->> +struct vfio_ap_aqic {
->> +	__u32   argsz;
->> +	__u32   flags;
->> +	/* out */
->> +	__u32 status;
->> +	/* in */
->> +	__u32 adapter_id;
->> +	__u64 nib;
->> +	__u16 apqn;
->> +	__u8 isc;
->> +	__u8 reserved[5];
->> +};
->> +#define VFIO_AP_SET_IRQ			_IO(VFIO_TYPE, VFIO_BASE + 21)
->> +#define VFIO_AP_CLEAR_IRQ		_IO(VFIO_TYPE, VFIO_BASE + 22)
->> +
->>   /* ***************************************************************** */
->>   
->> +
->>   #endif /* _UAPIVFIO_H */
-> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index 272ef42..f6e942f 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -895,12 +895,121 @@ static int vfio_ap_mdev_get_device_info(unsigned long arg)
+>  	return copy_to_user((void __user *)arg, &info, minsz);
+>  }
+>  
+> +static unsigned long vfio_ap_get_nib(struct kvm *kvm, struct vfio_ap_aqic *parm)
+> +{
+> +	struct s390_io_adapter *adapter;
+> +	struct s390_map_info *map;
+> +	unsigned long nib;
+> +	int found = 0;
+> +
+> +	/* find the adapter */
+> +	if (parm->adapter_id > MAX_S390_IO_ADAPTERS)
+> +		return 0;
+> +
+> +	adapter = kvm->arch.adapters[parm->adapter_id];
+> +	if (!adapter)
+> +		return 0;
+> +
+> +	down_write(&adapter->maps_lock);
+> +	list_for_each_entry(map, &adapter->maps, list) {
+> +		if (map->guest_addr == parm->nib) {
+> +			found = 1;
+> +			break;
+> +		}
+> +	}
+> +	up_write(&adapter->maps_lock);
 
+Regardless of which user space interface you ultimately use: I think
+you should leave poking the adapter handling innards to the adapter
+code and instead create and use an interface to look up the mapping
+from the guest address.
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+> +
+> +	if (!found)
+> +		return 0;
+> +
+> +	nib = (unsigned long) page_address(map->page);
+> +	nib += (map->guest_addr & 0x0fff);
+> +
+> +	return nib;
+> +}
