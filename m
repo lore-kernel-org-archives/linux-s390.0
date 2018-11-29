@@ -1,51 +1,26 @@
 Return-Path: <SRS0=8q1S=OI=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 24/68] s390/ism: clear dmbe_mask bit before SMC IRQ handling
-Date: Thu, 29 Nov 2018 00:55:15 -0500
-Message-Id: <20181129055559.159228-24-sashal@kernel.org>
-In-Reply-To: <20181129055559.159228-1-sashal@kernel.org>
-References: <20181129055559.159228-1-sashal@kernel.org>
+Subject: Re: [GIT PULL] s390 patches for 4.20 #3
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20181129131638.4034318f@mschwideX1>
+References: <20181129131638.4034318f@mschwideX1>
+Message-Id: <20181129231002.19778.18057.pr-tracker-bot@pdx-korg-gitolite-1.ci.codeaurora.org>
+Date: Thu, 29 Nov 2018 23:10:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+The pull request you sent on Thu, 29 Nov 2018 13:16:38 +0100:
 
-[ Upstream commit 007b656851ed7f94ba0fa358ac3e5d7705da6846 ]
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-4.20-3
 
-SMC-D stress workload showed connection stalls. Since the firmware
-decides to skip raising an interrupt if the SBA DMBE mask bit is
-still set, this SBA DMBE mask bit should be cleared before the
-IRQ handling in the SMC code runs. Otherwise there are small windows
-possible with missing interrupts for incoming data.
-SMC-D currently does not care about the old value of the SBA DMBE
-mask.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/3578f19143b0a792bcd0ecb19f9295e2da563b54
 
-Acked-by: Sebastian Ott <sebott@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/ism_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thank you!
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index c0631895154e..8684bcec8ff4 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -415,9 +415,9 @@ static irqreturn_t ism_handle_irq(int irq, void *data)
- 			break;
- 
- 		clear_bit_inv(bit, bv);
-+		ism->sba->dmbe_mask[bit + ISM_DMB_BIT_OFFSET] = 0;
- 		barrier();
- 		smcd_handle_irq(ism->smcd, bit + ISM_DMB_BIT_OFFSET);
--		ism->sba->dmbe_mask[bit + ISM_DMB_BIT_OFFSET] = 0;
- 	}
- 
- 	if (ism->sba->e) {
 -- 
-2.17.1
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
