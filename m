@@ -1,52 +1,70 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Fri, 30 Nov 2018 14:32:10 +0000
-Subject: [PATCH v4 05/10] KVM: s390: add kvm reference to struct sie_page2
-Message-Id: <20181130143215.69496-6-mimu@linux.ibm.com>
+Date: Fri, 30 Nov 2018 14:32:11 +0000
+Subject: [PATCH v4 06/10] KVM: s390: factor out __find_vcpu_for_floating_irq()
+Message-Id: <20181130143215.69496-7-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Adding the kvm reference to struct sie_page2 will allow to
-determine the kvm a given gisa belongs to:
-
-  container_of(gisa, struct sie_page2, gisa)->kvm
-
-This functionality will be required to process a gisa in
-gib alert interruption context.
+This function will be used as well to find a suitable vcpu
+to wakeup in GIB alert interruption context.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/include/asm/kvm_host.h | 3 ++-
- arch/s390/kvm/kvm-s390.c         | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/kvm/interrupt.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 537e5e59f27e..0deba3ae8bc7 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -802,7 +802,8 @@ struct sie_page2 {
- 	__u64 fac_list[S390_ARCH_FAC_LIST_SIZE_U64];	/* 0x0000 */
- 	struct kvm_s390_crypto_cb crycb;		/* 0x0800 */
- 	struct kvm_s390_gisa gisa;			/* 0x0900 */
--	u8 reserved920[0x1000 - 0x920];			/* 0x0920 */
-+	struct kvm *kvm;				/* 0x0920 */
-+	u8 reserved928[0x1000 - 0x928];			/* 0x0928 */
- };
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 97e5da9a0814..251d01f1e9bf 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1723,18 +1723,14 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 	return 0;
+ }
  
- struct kvm_s390_vsie {
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 7bc24e16a31d..2d10e175862c 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2220,6 +2220,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	if (!kvm->arch.sie_page2)
- 		goto out_err;
+-/*
+- * Find a destination VCPU for a floating irq and kick it.
+- */
+-static void __floating_irq_kick(struct kvm *kvm, u64 type)
++static struct kvm_vcpu *__find_vcpu_for_floating_irq(struct kvm *kvm)
+ {
+ 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
+-	struct kvm_vcpu *dst_vcpu;
+ 	int sigcpu, online_vcpus, nr_tries = 0;
  
-+	kvm->arch.sie_page2->kvm = kvm;
- 	kvm->arch.model.fac_list = kvm->arch.sie_page2->fac_list;
+ 	online_vcpus = atomic_read(&kvm->online_vcpus);
+ 	if (!online_vcpus)
+-		return;
++		return NULL;
  
- 	for (i = 0; i < kvm_s390_fac_size(); i++) {
+ 	/* find idle VCPUs first, then round robin */
+ 	sigcpu = find_first_bit(fi->idle_mask, online_vcpus);
+@@ -1744,10 +1740,22 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
+ 			fi->next_rr_cpu = (fi->next_rr_cpu + 1) % online_vcpus;
+ 			/* avoid endless loops if all vcpus are stopped */
+ 			if (nr_tries++ >= online_vcpus)
+-				return;
++				return NULL;
+ 		} while (is_vcpu_stopped(kvm_get_vcpu(kvm, sigcpu)));
+ 	}
+-	dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
++	return kvm_get_vcpu(kvm, sigcpu);
++}
++
++/*
++ * Find a destination VCPU for a floating irq and kick it.
++ */
++static void __floating_irq_kick(struct kvm *kvm, u64 type)
++{
++	struct kvm_vcpu *dst_vcpu;
++
++	dst_vcpu = __find_vcpu_for_floating_irq(kvm);
++	if (!dst_vcpu)
++		return;
+ 
+ 	/* make the VCPU drop out of the SIE, or wake it up if sleeping */
+ 	switch (type) {
 -- 
 2.13.4
