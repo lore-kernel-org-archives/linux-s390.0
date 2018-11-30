@@ -1,15 +1,15 @@
 Return-Path: <SRS0=AWyS=OJ=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Date: Fri, 30 Nov 2018 08:42:53 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 4/6] coresight: Use PMU driver configuration for sink
- selection
-Message-ID: <20181130074253.GA3314@kroah.com>
+MIME-Version: 1.0
 References: <1543442478-31465-1-git-send-email-mathieu.poirier@linaro.org>
  <1543442478-31465-5-git-send-email-mathieu.poirier@linaro.org>
  <20181129074936.GE12347@kroah.com> <20181129230915.GA8881@xps15>
-MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20181129230915.GA8881@xps15>
+ <20181130074253.GA3314@kroah.com>
+In-Reply-To: <20181130074253.GA3314@kroah.com>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Date: Fri, 30 Nov 2018 11:05:02 -0700
+Message-ID: <CANLsYkwcbbrPAE1=_R-HZ4XtT7_=wyWVSaADbfis+_YjiuZfww@mail.gmail.com>
+Subject: Re: [PATCH v4 4/6] coresight: Use PMU driver configuration for sink
+ selection
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,59 +22,95 @@ Content-Transfer-Encoding: 7bit
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, peterz@infradead.org, will.deacon@arm.com, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, acme@kernel.org, ast@kernel.org, alexander.shishkin@linux.intel.com, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, suzuki.poulosi@arm.com, jolsa@redhat.com, linux-kernel@vger.kernel.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, heiko.carstens@de.ibm.com, Adrian Hunter <adrian.hunter@intel.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, ast@kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "H. Peter Anvin" <hpa@zytor.com>, schwidefsky@de.ibm.com, Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, suzuki.poulosi@arm.com, Jiri Olsa <jolsa@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Nov 29, 2018 at 04:09:15PM -0700, Mathieu Poirier wrote:
-> Hi Greg,
-> 
-> On Thu, Nov 29, 2018 at 08:49:36AM +0100, Greg KH wrote:
-> > On Wed, Nov 28, 2018 at 03:01:16PM -0700, Mathieu Poirier wrote:
-> > > This patch uses the PMU driver configuration held in event::hw::drv_config
-> > > to select a sink for each event that is created (the old sysFS way of
-> > > working is kept around for backward compatibility).
-> > 
-> > It is "sysfs", no InterCaps please, I've never called it that in the
-> > past.
-> > 
-> > And just use sysfs, if that does not work properly, then fix that, don't
-> > create yet-another-way-to-configure-this-thing to just confuse people.
-> 
-> Thanks for the review, you've provided usefull comments.
-> 
-> Regarding the "char *" argument for the ioctl, I followed an example that
-> currently exist but I can proceed differently.  
+On Fri, 30 Nov 2018 at 00:42, Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Nov 29, 2018 at 04:09:15PM -0700, Mathieu Poirier wrote:
+> > Hi Greg,
+> >
+> > On Thu, Nov 29, 2018 at 08:49:36AM +0100, Greg KH wrote:
+> > > On Wed, Nov 28, 2018 at 03:01:16PM -0700, Mathieu Poirier wrote:
+> > > > This patch uses the PMU driver configuration held in event::hw::drv_config
+> > > > to select a sink for each event that is created (the old sysFS way of
+> > > > working is kept around for backward compatibility).
+> > >
+> > > It is "sysfs", no InterCaps please, I've never called it that in the
+> > > past.
+> > >
+> > > And just use sysfs, if that does not work properly, then fix that, don't
+> > > create yet-another-way-to-configure-this-thing to just confuse people.
+> >
+> > Thanks for the review, you've provided usefull comments.
+> >
+> > Regarding the "char *" argument for the ioctl, I followed an example that
+> > currently exist but I can proceed differently.
+>
+> What driver currently uses a char * on an ioctl to parse arbritrary
+> userspace information to set its configuration?  That should be fixed...
+>
 
-What driver currently uses a char * on an ioctl to parse arbritrary
-userspace information to set its configuration?  That should be fixed...
+Perf filters [1] are communicated to the kernel as a char *.  Given
+the dynamic nature of event creation I really don't know how else it
+could have been done.
 
-> My goal with this patchset was specifically to fix what is wrong with sysfs and
-> completely take it out of the equation.  The only reason to keep the kernel 
-> interface alive was to prevent braking older user space perf tools currently
-> using it.  
+[1]. https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/perf_event.h#L459
 
-That's fine, just don't create a new syscall that takes arbritrary data
-and parses it in the kernel, that's not ok.
+> > My goal with this patchset was specifically to fix what is wrong with sysfs and
+> > completely take it out of the equation.  The only reason to keep the kernel
+> > interface alive was to prevent braking older user space perf tools currently
+> > using it.
+>
+> That's fine, just don't create a new syscall that takes arbritrary data
+> and parses it in the kernel, that's not ok.
 
-> I chose to use an ioctl() because it is flexible and well suited for the dynamic
-> nature of perf events.  It is also currently used to set various event specific 
-> configuration so doing the same adds to the established pattern and avoids
-> creating a new way of doing things, something the perf crew would have been
-> quick to point out.
-> 
-> Was my approach wrong?
+You got it.
 
-I don't know how the perf interface works, so perhaps work with those
-developers to sync up and match what they use today?
+>
+> > I chose to use an ioctl() because it is flexible and well suited for the dynamic
+> > nature of perf events.  It is also currently used to set various event specific
+> > configuration so doing the same adds to the established pattern and avoids
+> > creating a new way of doing things, something the perf crew would have been
+> > quick to point out.
+> >
+> > Was my approach wrong?
+>
+> I don't know how the perf interface works, so perhaps work with those
+> developers to sync up and match what they use today?
 
-But step back, what exactly are you trying to do here?  You have an
-implementation of a solution but I don't see the problem stated anywhere
-here.
+I have already done a fair amount of work with them.
 
-thanks,
+>
+> But step back, what exactly are you trying to do here?  You have an
+> implementation of a solution but I don't see the problem stated anywhere
+> here.
 
-greg k-h
+In the coresight world there can be more than one sink to aggregate
+trace data generated by CPUs, hence the need for users to select which
+one to use from the perf command line.
+
+Up until now sysfs was used to communicate sink information to the
+kernel but that was never the right way to proceed because it breaks
+when more than one perf session are created at the same time.  The
+situation was manageable when working with per-thread scenarios where
+a single HW trace event is created but in CPU-wide mode a HW trace
+event is created for each CPU that is specified on the perf command
+line, taking us back to the concurrency problem we have when dealing
+with multiple per-thread session.
+
+Since my goal is to add coresight support for CPU-wide trace
+scenarios, the issue with sysfs concurrency needs to be addressed
+first, which this set is aiming at.  Sysfs is a problem so I'm
+removing it in favour of an ioctl() where a specific sink can be
+assigned to each event.
+
+The above should probably go in the cover letter.  Let me know if you
+want more information.
+
+Thanks,
+Mathieu
 
 _______________________________________________
 linux-arm-kernel mailing list
