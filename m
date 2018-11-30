@@ -1,93 +1,112 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Fri, 30 Nov 2018 14:26:32 +0000
-Subject: Re: [PATCH v3 08/12] KVM: s390: add function process_gib_alert_list()
-Message-Id: <84a3cf3c-bb7b-1683-f2a6-fa7ee67fda1d@linux.ibm.com>
-In-Reply-To: <c50ea6b8-33d5-50bf-0076-47881e506128@redhat.com>
-References: <c50ea6b8-33d5-50bf-0076-47881e506128@redhat.com>
+Date: Fri, 30 Nov 2018 14:32:05 +0000
+Subject: [PATCH v4 00/10] KVM: s390: make use of the GIB
+Message-Id: <20181130143215.69496-1-mimu@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+The Guest Information Area (GIB) and its mechanics is part of
+the AIV facility. It provides hardware support to process
+Adapter Interruptions (AI) for pagable storage mode guests. 
 
+Whenever a guest cannot process an AI because none of its
+vcpus is running in SIE context, a GIB alert interruption is
+sent to and handled by the host program to dispatch a vcpu of
+the respective guest.
 
-On 29.11.18 14:14, David Hildenbrand wrote:
-> On 28.11.18 11:19, Michael Mueller wrote:
->> This function processes the gib alert list. It is required to
->> run when either a gib alert interruption has been received or
->> a gisa that might be in the alert list is cleared or dropped.
->>
->> The GIB alert list contains all GISAs that have pending
->> adapter interruptions.
->>
->> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->> ---
->>   arch/s390/kvm/interrupt.c | 50 +++++++++++++++++++++++++++++++++++++++++++++++
->>   1 file changed, 50 insertions(+)
->>
->> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index 251d01f1e9bf..37a5df4e8dac 100644
->> --- a/arch/s390/kvm/interrupt.c
->> +++ b/arch/s390/kvm/interrupt.c
->> @@ -2900,6 +2900,56 @@ static void nullify_gisa(struct kvm_s390_gisa *gisa)
->>   	gisa->next_alert = (u32)(u64)gisa;
->>   }
->>   
->> +#define NULL_GISA_ADDR 0x00000000UL
->> +#define NONE_GISA_ADDR 0x00000001UL
->> +#define GISA_ADDR_MASK 0xfffff000UL
->> +
->> +static void __maybe_unused process_gib_alert_list(void)
->> +{
->> +	u32 final, next_alert, origin = 0UL;
->> +	struct kvm_s390_gisa *gisa;
->> +	struct kvm_vcpu *vcpu;
->> +	struct kvm *kvm;
->> +
->> +	do {
->> +		/*
->> +		 * If the NONE_GISA_ADDR is still stored in the alert list
->> +		 * origin, we will leave the outer loop. No further GISA has
->> +		 * been added to the alert list by millicode while processing
->> +		 * the current alert list.
->> +		 */
->> +		final = (origin & NONE_GISA_ADDR);
->> +		/*
->> +		 * Cut off the alert list and store the NONE_GISA_ADDR in the
->> +		 * alert list origin to avoid further GAL interruptions.
->> +		 * A new alert list can be build up by millicode in parallel
->> +		 * for guests not in the yet cut-off alert list. When in the
->> +		 * final loop, store the NULL_GISA_ADDR instead. This will re-
->> +		 * enable GAL interruptions on the host again.
->> +		 */
->> +		for (origin = xchg(&gib->alert_list_origin,
->> +				   (!final) ? NONE_GISA_ADDR : NULL_GISA_ADDR);
->> +		     /* Loop through the just cut-off alert list. */
->> +		     origin & GISA_ADDR_MASK;
->> +		     origin = next_alert) {
->> +			gisa = (struct kvm_s390_gisa *)(u64)origin;
->> +			next_alert = gisa->next_alert;
->> +			/* Unlink the GISA from the alert list. */
->> +			gisa->next_alert = origin;
->> +			if (!kvm_s390_gisa_get_ipm(gisa))
->> +				continue;
->> +			/*
->> +			 * Wake-up an idle vcpu of the kvm this GISA
->> +			 * belongs to if available.
->> +			 */
->> +			kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
->> +			vcpu = __find_vcpu_for_floating_irq(kvm);
->> +			if (vcpu)
->> +				kvm_s390_vcpu_wakeup(vcpu);
->> +		}
->> +	} while (!final);
->> +}
->> +
->>   void kvm_s390_gisa_clear(struct kvm *kvm)
->>   {
->>   	if (kvm->arch.gisa) {
->>
-> 
-> I guess I would squash this into patch 10. More context there how/when
-> this is called.
-> 
+Eventually, the AI is handled by the guest.
 
-I still want to keep it separate.
+v3->v4:
+  The central change of v4 is that the metric "vcpus_in_sie"
+  has been dropped. A least agressive IAM restore strategy
+  is being followed now. The consequence is that potentially
+  more GAL interruptions are to be handled by the host program.
+  The assuption as made that as soon the first vcpu is trying
+  to go into wait state, this could be the last vcpu being
+  open for I/O interruptions. Thus, to not loose the initiative
+  to deliver I/O interruptions as soon as possible, the IAM
+  is restored. Adding better heuristics can be done in future.
+
+  I expect this to be the last version of the series.
+ 
+  patch 01/12: Kernel msg now printed when FLIC fails
+               to register during arch inititialization.
+  patch 03/12: Commit message slightly changed with the
+  	       hint that gib initialization is called
+	       by last patch of this serias.
+  patch 09/12: IAM now restored during kvm_s390_handle_wait()
+  patch 10/12: gib destroy case now handled upon unsuccessful
+  	       arch inititialization.
+
+All other patches are unchanged.
+
+v2->v3:
+  patch 01/12: Fixes a resource dealocation issue upon
+  	       unsuccessful exit from kvm_arch_init().
+	       It is relevant for patch 11/12 as well. 
+  patch 08/12: The function process_gib_alert_list() has
+               been rewritten to reduce the number of GAL
+	       interruptions on the host for many guest
+	       scenarios.
+  patch 10/12: The IAM is now never cleared before SIE entry.
+               It will be cleared by millicode as soon the
+	       first guest interruption is made pending and
+	       not directly processed in SIE. The IAM gets
+	       restored as soon a vm is idle, i.e. no vcpu
+	       of that guest is in SIE context anymore.
+  patch 11/12: now integrates with new patch 01/12
+  patch 12/12: This patch is just experimental and shall not
+               be part of the final series.
+
+The first patch of series v2: "leave AIs in IPM of GISA
+during vcpu_pre_run()" has been dropped.
+
+All other patches are unchanged.
+
+v1->v2:
+  patch 01/12: New patch. Tt can go also standalone without the
+  	       rest of the GIB series presented here but is a
+	       requirement 
+  patch 03/12: kvm_s390_gib_init() now has a return code
+  patch 06/12: unlink_gib_alert_list() now uses cmpxchg() instead
+    	       of atomic_xchg()
+  patch 08/12: New patch. Foctors out __find_vcpu_for_floating_irq()
+  patch 09/12: process_gib_alert_list() has been simplified
+               the GISA clear/destroy cases have been removed
+  patch 11/12: kvm_s390_gisa_clear/destroy() now clear the IAM
+               and process the alert list directly
+	       The IAM now gets restored in vcpu_post_run() only if
+	       the GISA is not in alert list
+  patch 12/12: during kvm_arch_init() now the return code of
+    	       kvm_s390_gib_init() is honored.
+
+All other patches are unchanged.
+
+Michael Mueller (10):
+  KVM: s390: unregister debug feature on failing arch init
+  s390/cio: add function chsc_sgib()
+  KVM: s390: add the GIB and its related life-cyle functions
+  KVM: s390: factor out nullify_gisa()
+  KVM: s390: add kvm reference to struct sie_page2
+  KVM: s390: factor out __find_vcpu_for_floating_irq()
+  KVM: s390: add function process_gib_alert_list()
+  KVM: s390: add functions to (un)register GISC with GISA
+  KVM: s390: add and wire function gib_alert_irq_handler()
+  KVM: s390: start using the GIB
+
+ Documentation/kmsg/s390/kvm      |  24 +++++
+ arch/s390/include/asm/cio.h      |   1 +
+ arch/s390/include/asm/irq.h      |   1 +
+ arch/s390/include/asm/isc.h      |   1 +
+ arch/s390/include/asm/kvm_host.h |  19 +++-
+ arch/s390/kernel/irq.c           |   1 +
+ arch/s390/kvm/interrupt.c        | 214 +++++++++++++++++++++++++++++++++++++--
+ arch/s390/kvm/kvm-s390.c         |  27 ++++-
+ arch/s390/kvm/kvm-s390.h         |   7 ++
+ drivers/s390/cio/chsc.c          |  37 +++++++
+ drivers/s390/cio/chsc.h          |   1 +
+ 11 files changed, 318 insertions(+), 15 deletions(-)
+ create mode 100644 Documentation/kmsg/s390/kvm
+
+-- 
+2.13.4
