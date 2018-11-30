@@ -1,271 +1,208 @@
-Return-Path: <SRS0=8q1S=OI=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 29 Nov 2018 13:16:38 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 4.20 #3
-Message-Id: <20181129131638.4034318f@mschwideX1>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH RFCv2 1/4] mm/memory_hotplug: Introduce memory block types
+Date: Fri, 30 Nov 2018 18:59:19 +0100
+Message-ID: <20181130175922.10425-2-david@redhat.com>
+References: <20181130175922.10425-1-david@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181130175922.10425-1-david@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+List-Archive: <https://lore.kernel.org/linux-acpi/>
+List-Post: <mailto:linux-acpi@vger.kernel.org>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-acpi@vger.kernel.org, devel@linuxdriverproject.org, xen-devel@lists.xenproject.org, x86@kernel.org, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, Pavel Tatashin <pasha.tatashin@oracle.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Banman <andrew.banman@hpe.com>, "mike.travis@hpe.com" <mike.travis@hpe.com>, Oscar Salvador <osalvador@suse.com>, Dave Hansen <dave.hansen@linux.intel.com>, Michal Hocko <mhocko@kernel.org>, =?UTF-8?q?Michal=20Such=C3=A1nek?
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+Memory onlining should always be handled by user space, because only user
+space knows which use cases it wants to satisfy. E.g. memory might be
+onlined to the MOVABLE zone even if it can never be removed from the
+system, e.g. to make usage of huge pages more reliable.
 
-please pull s390 fixes for 4.20-rc5
+However to implement such rules (especially default rules in distributions)
+we need more information about the memory that was added in user space.
 
-The following changes since commit ccda4af0f4b92f7b4c308d3acc262f4a7e3affad:
+E.g. on x86 we want to online memory provided by balloon devices (e.g.
+XEN, Hyper-V) differently (-> will not be unplugged by offlining the whole
+block) than ordinary DIMMs (-> might eventually be unplugged by offlining
+the whole block). This might also become relevat for other architectures.
 
-  Linux 4.20-rc2 (2018-11-11 17:12:31 -0600)
+Also, udev rules right now check if running on s390x and treat all added
+memory blocks as standby memory (-> don't online automatically). As soon as
+we support other memory hotplug mechanism (e.g. virtio-mem) checks would
+have to get more involved (e.g. also check if under KVM) but eventually
+also wrong (e.g. if KVM ever supports standby memory we are doomed).
 
-are available in the git repository at:
+I decided to allow to specify the type of memory that is getting added
+to the system. Let's start with two types, BOOT and UNSPECIFIED to get the
+basic infrastructure running. We'll introduce and use further types in
+follow-up patches. For now we classify any hotplugged memory temporarily
+as as UNSPECIFIED (which will eventually be dropped later on).
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-4.20-3
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrew Banman <andrew.banman@hpe.com>
+Cc: "mike.travis@hpe.com" <mike.travis@hpe.com>
+Cc: Oscar Salvador <osalvador@suse.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Suchánek <msuchanek@suse.de>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ drivers/base/memory.c  | 38 +++++++++++++++++++++++++++++++++++---
+ include/linux/memory.h | 27 +++++++++++++++++++++++++++
+ 2 files changed, 62 insertions(+), 3 deletions(-)
 
-for you to fetch changes up to 814cedbc0b78d75e335c96da9b9391142eab5600:
-
-  s390/mm: correct pgtable_bytes on page table downgrade (2018-11-27 14:07:12 +0100)
-
-----------------------------------------------------------------
-s390 updates for 4.20-rc5
-
- - Add two missing kfree calls on error paths in the vfio-ccw code
-
- - Make sure that all data structures of a mediated vfio-ccw device are
-   initialized before registering it
-
- - Fix a sparse warning in vfio-ccw
-
- - A followup patch for the pgtable_bytes accounting, the page table
-   downgrade for compat processes missed a mm_dec_nr_pmds()
-
- - Reject sampling requests in the PMU init function of the CPU
-   measurement counter facility
-
- - With the vfio AP driver an AP queue needs to be reset on every device
-   probe as the alternative driver could have modified the device state
-
-----------------------------------------------------------------
-Eric Farman (2):
-      s390/cio: Fix cleanup of pfn_array alloc failure
-      s390/cio: Fix cleanup when unsupported IDA format is used
-
-Harald Freudenberger (1):
-      s390/zcrypt: reinit ap queue state machine during device probe
-
-Martin Schwidefsky (2):
-      Merge tag 'vfio-ccw-20181113' of git://git.kernel.org/.../kvms390/vfio-ccw into fixes
-      s390/mm: correct pgtable_bytes on page table downgrade
-
-Pierre Morel (1):
-      vfio: ccw: Register mediated device once all structures are initialized
-
-Sebastian Ott (1):
-      s390/cio: make vfio_ccw_io_region static
-
-Thomas Richter (1):
-      s390/cpum_cf: Reject request for sampling in event initialization
-
- arch/s390/kernel/perf_cpum_cf.c    |  2 ++
- arch/s390/mm/pgalloc.c             |  1 +
- drivers/s390/cio/vfio_ccw_cp.c     |  6 ++++--
- drivers/s390/cio/vfio_ccw_drv.c    | 10 +++++-----
- drivers/s390/crypto/ap_bus.c       |  8 ++++----
- drivers/s390/crypto/ap_bus.h       |  1 +
- drivers/s390/crypto/ap_queue.c     | 15 +++++++++++++++
- drivers/s390/crypto/zcrypt_cex2a.c |  1 -
- drivers/s390/crypto/zcrypt_cex2c.c |  1 -
- drivers/s390/crypto/zcrypt_cex4.c  |  1 -
- 10 files changed, 32 insertions(+), 14 deletions(-)
-
-diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-index 74091fd..d5523ad 100644
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -346,6 +346,8 @@ static int __hw_perf_event_init(struct perf_event *event)
- 		break;
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 0c290f86ab20..17f2985c07c5 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -381,6 +381,29 @@ static ssize_t show_phys_device(struct device *dev,
+ 	return sprintf(buf, "%d\n", mem->phys_device);
+ }
  
- 	case PERF_TYPE_HARDWARE:
-+		if (is_sampling_event(event))	/* No sampling support */
-+			return -ENOENT;
- 		ev = attr->config;
- 		/* Count user space (problem-state) only */
- 		if (!attr->exclude_user && attr->exclude_kernel) {
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 814f265..6791562 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -131,6 +131,7 @@ void crst_table_downgrade(struct mm_struct *mm)
- 	}
- 
- 	pgd = mm->pgd;
-+	mm_dec_nr_pmds(mm);
- 	mm->pgd = (pgd_t *) (pgd_val(*pgd) & _REGION_ENTRY_ORIGIN);
- 	mm->context.asce_limit = _REGION3_SIZE;
- 	mm->context.asce = __pa(mm->pgd) | _ASCE_TABLE_LENGTH |
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index fd77e46..70a006ba 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -387,8 +387,10 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
- 		 * orb specified one of the unsupported formats, we defer
- 		 * checking for IDAWs in unsupported formats to here.
- 		 */
--		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
-+		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw)) {
-+			kfree(p);
- 			return -EOPNOTSUPP;
-+		}
- 
- 		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
- 			break;
-@@ -528,7 +530,7 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 
- 	ret = pfn_array_alloc_pin(pat->pat_pa, cp->mdev, ccw->cda, ccw->count);
- 	if (ret < 0)
--		goto out_init;
-+		goto out_unpin;
- 
- 	/* Translate this direct ccw to a idal ccw. */
- 	idaws = kcalloc(ret, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index f47d16b..a10cec0 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -22,7 +22,7 @@
- #include "vfio_ccw_private.h"
- 
- struct workqueue_struct *vfio_ccw_work_q;
--struct kmem_cache *vfio_ccw_io_region;
-+static struct kmem_cache *vfio_ccw_io_region;
++static ssize_t type_show(struct device *dev, struct device_attribute *attr,
++			 char *buf)
++{
++	struct memory_block *mem = to_memory_block(dev);
++	ssize_t len = 0;
++
++	switch (mem->type) {
++	case MEMORY_BLOCK_UNSPECIFIED:
++		len = sprintf(buf, "unspecified\n");
++		break;
++	case MEMORY_BLOCK_BOOT:
++		len = sprintf(buf, "boot\n");
++		break;
++	default:
++		len = sprintf(buf, "ERROR-UNKNOWN-%ld\n",
++				mem->state);
++		WARN_ON(1);
++		break;
++	}
++
++	return len;
++}
++
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+ static void print_allowed_zone(char *buf, int nid, unsigned long start_pfn,
+ 		unsigned long nr_pages, int online_type,
+@@ -442,6 +465,7 @@ static DEVICE_ATTR(phys_index, 0444, show_mem_start_phys_index, NULL);
+ static DEVICE_ATTR(state, 0644, show_mem_state, store_mem_state);
+ static DEVICE_ATTR(phys_device, 0444, show_phys_device, NULL);
+ static DEVICE_ATTR(removable, 0444, show_mem_removable, NULL);
++static DEVICE_ATTR_RO(type);
  
  /*
-  * Helpers
-@@ -134,14 +134,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_free;
+  * Block size attribute stuff
+@@ -620,6 +644,7 @@ static struct attribute *memory_memblk_attrs[] = {
+ 	&dev_attr_state.attr,
+ 	&dev_attr_phys_device.attr,
+ 	&dev_attr_removable.attr,
++	&dev_attr_type.attr,
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+ 	&dev_attr_valid_zones.attr,
+ #endif
+@@ -657,13 +682,17 @@ int register_memory(struct memory_block *memory)
+ }
  
--	ret = vfio_ccw_mdev_reg(sch);
--	if (ret)
--		goto out_disable;
--
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
- 	atomic_set(&private->avail, 1);
- 	private->state = VFIO_CCW_STATE_STANDBY;
- 
-+	ret = vfio_ccw_mdev_reg(sch);
-+	if (ret)
-+		goto out_disable;
-+
- 	return 0;
- 
- out_disable:
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 048665e..9f5a201 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -775,6 +775,8 @@ static int ap_device_probe(struct device *dev)
- 		drvres = ap_drv->flags & AP_DRIVER_FLAG_DEFAULT;
- 		if (!!devres != !!drvres)
- 			return -ENODEV;
-+		/* (re-)init queue's state machine */
-+		ap_queue_reinit_state(to_ap_queue(dev));
- 	}
- 
- 	/* Add queue/card to list of active queues/cards */
-@@ -807,6 +809,8 @@ static int ap_device_remove(struct device *dev)
- 	struct ap_device *ap_dev = to_ap_dev(dev);
- 	struct ap_driver *ap_drv = ap_dev->drv;
- 
-+	if (is_queue_dev(dev))
-+		ap_queue_remove(to_ap_queue(dev));
- 	if (ap_drv->remove)
- 		ap_drv->remove(ap_dev);
- 
-@@ -1444,10 +1448,6 @@ static void ap_scan_bus(struct work_struct *unused)
- 			aq->ap_dev.device.parent = &ac->ap_dev.device;
- 			dev_set_name(&aq->ap_dev.device,
- 				     "%02x.%04x", id, dom);
--			/* Start with a device reset */
--			spin_lock_bh(&aq->lock);
--			ap_wait(ap_sm_event(aq, AP_EVENT_POLL));
--			spin_unlock_bh(&aq->lock);
- 			/* Register device */
- 			rc = device_register(&aq->ap_dev.device);
- 			if (rc) {
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 3eed1b3..bfc66e4 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -254,6 +254,7 @@ struct ap_queue *ap_queue_create(ap_qid_t qid, int device_type);
- void ap_queue_remove(struct ap_queue *aq);
- void ap_queue_suspend(struct ap_device *ap_dev);
- void ap_queue_resume(struct ap_device *ap_dev);
-+void ap_queue_reinit_state(struct ap_queue *aq);
- 
- struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
- 			       int comp_device_type, unsigned int functions);
-diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
-index 66f7334..0aa4b3c 100644
---- a/drivers/s390/crypto/ap_queue.c
-+++ b/drivers/s390/crypto/ap_queue.c
-@@ -718,5 +718,20 @@ void ap_queue_remove(struct ap_queue *aq)
+ static int init_memory_block(struct memory_block **memory,
+-			     struct mem_section *section, unsigned long state)
++			     struct mem_section *section, unsigned long state,
++			     int type)
  {
- 	ap_flush_queue(aq);
- 	del_timer_sync(&aq->timeout);
+ 	struct memory_block *mem;
+ 	unsigned long start_pfn;
+ 	int scn_nr;
+ 	int ret = 0;
+ 
++	if (type == MEMORY_BLOCK_NONE)
++		return -EINVAL;
 +
-+	/* reset with zero, also clears irq registration */
-+	spin_lock_bh(&aq->lock);
-+	ap_zapq(aq->qid);
-+	aq->state = AP_STATE_BORKED;
-+	spin_unlock_bh(&aq->lock);
- }
- EXPORT_SYMBOL(ap_queue_remove);
+ 	mem = kzalloc(sizeof(*mem), GFP_KERNEL);
+ 	if (!mem)
+ 		return -ENOMEM;
+@@ -675,6 +704,7 @@ static int init_memory_block(struct memory_block **memory,
+ 	mem->state = state;
+ 	start_pfn = section_nr_to_pfn(mem->start_section_nr);
+ 	mem->phys_device = arch_get_memory_phys_device(start_pfn);
++	mem->type = type;
+ 
+ 	ret = register_memory(mem);
+ 
+@@ -699,7 +729,8 @@ static int add_memory_block(int base_section_nr)
+ 
+ 	if (section_count == 0)
+ 		return 0;
+-	ret = init_memory_block(&mem, __nr_to_section(section_nr), MEM_ONLINE);
++	ret = init_memory_block(&mem, __nr_to_section(section_nr), MEM_ONLINE,
++				MEMORY_BLOCK_BOOT);
+ 	if (ret)
+ 		return ret;
+ 	mem->section_count = section_count;
+@@ -722,7 +753,8 @@ int hotplug_memory_register(int nid, struct mem_section *section)
+ 		mem->section_count++;
+ 		put_device(&mem->dev);
+ 	} else {
+-		ret = init_memory_block(&mem, section, MEM_OFFLINE);
++		ret = init_memory_block(&mem, section, MEM_OFFLINE,
++					MEMORY_BLOCK_UNSPECIFIED);
+ 		if (ret)
+ 			goto out;
+ 		mem->section_count++;
+diff --git a/include/linux/memory.h b/include/linux/memory.h
+index d75ec88ca09d..06268e96e0da 100644
+--- a/include/linux/memory.h
++++ b/include/linux/memory.h
+@@ -34,12 +34,39 @@ struct memory_block {
+ 	int (*phys_callback)(struct memory_block *);
+ 	struct device dev;
+ 	int nid;			/* NID for this memory block */
++	int type;			/* type of this memory block */
+ };
+ 
+ int arch_get_memory_phys_device(unsigned long start_pfn);
+ unsigned long memory_block_size_bytes(void);
+ int set_memory_block_size_order(unsigned int order);
+ 
++/*
++ * Memory block types allow user space to formulate rules if and how to
++ * online memory blocks. The types are exposed to user space as text
++ * strings in sysfs.
++ *
++ * MEMORY_BLOCK_NONE:
++ *  No memory block is to be created (e.g. device memory). Not exposed to
++ *  user space.
++ *
++ * MEMORY_BLOCK_UNSPECIFIED:
++ *  The type of memory block was not further specified when adding the
++ *  memory block.
++ *
++ * MEMORY_BLOCK_BOOT:
++ *  This memory block was added during boot by the basic system. No
++ *  specific device driver takes care of this memory block. This memory
++ *  block type is onlined automatically by the kernel during boot and might
++ *  later be managed by a different device driver, in which case the type
++ *  might change.
++ */
++enum {
++	MEMORY_BLOCK_NONE = 0,
++	MEMORY_BLOCK_UNSPECIFIED,
++	MEMORY_BLOCK_BOOT,
++};
 +
-+void ap_queue_reinit_state(struct ap_queue *aq)
-+{
-+	spin_lock_bh(&aq->lock);
-+	aq->state = AP_STATE_RESET_START;
-+	ap_wait(ap_sm_event(aq, AP_EVENT_POLL));
-+	spin_unlock_bh(&aq->lock);
-+}
-+EXPORT_SYMBOL(ap_queue_reinit_state);
-diff --git a/drivers/s390/crypto/zcrypt_cex2a.c b/drivers/s390/crypto/zcrypt_cex2a.c
-index 146f54f..c50f3e8 100644
---- a/drivers/s390/crypto/zcrypt_cex2a.c
-+++ b/drivers/s390/crypto/zcrypt_cex2a.c
-@@ -196,7 +196,6 @@ static void zcrypt_cex2a_queue_remove(struct ap_device *ap_dev)
- 	struct ap_queue *aq = to_ap_queue(&ap_dev->device);
- 	struct zcrypt_queue *zq = aq->private;
- 
--	ap_queue_remove(aq);
- 	if (zq)
- 		zcrypt_queue_unregister(zq);
- }
-diff --git a/drivers/s390/crypto/zcrypt_cex2c.c b/drivers/s390/crypto/zcrypt_cex2c.c
-index 546f676..35c7c66 100644
---- a/drivers/s390/crypto/zcrypt_cex2c.c
-+++ b/drivers/s390/crypto/zcrypt_cex2c.c
-@@ -251,7 +251,6 @@ static void zcrypt_cex2c_queue_remove(struct ap_device *ap_dev)
- 	struct ap_queue *aq = to_ap_queue(&ap_dev->device);
- 	struct zcrypt_queue *zq = aq->private;
- 
--	ap_queue_remove(aq);
- 	if (zq)
- 		zcrypt_queue_unregister(zq);
- }
-diff --git a/drivers/s390/crypto/zcrypt_cex4.c b/drivers/s390/crypto/zcrypt_cex4.c
-index f9d4c6c..582ffa7 100644
---- a/drivers/s390/crypto/zcrypt_cex4.c
-+++ b/drivers/s390/crypto/zcrypt_cex4.c
-@@ -275,7 +275,6 @@ static void zcrypt_cex4_queue_remove(struct ap_device *ap_dev)
- 	struct ap_queue *aq = to_ap_queue(&ap_dev->device);
- 	struct zcrypt_queue *zq = aq->private;
- 
--	ap_queue_remove(aq);
- 	if (zq)
- 		zcrypt_queue_unregister(zq);
- }
+ /* These states are exposed to userspace as text strings in sysfs */
+ #define	MEM_ONLINE		(1<<0) /* exposed to userspace */
+ #define	MEM_GOING_OFFLINE	(1<<1) /* exposed to userspace */
+-- 
+2.17.2
