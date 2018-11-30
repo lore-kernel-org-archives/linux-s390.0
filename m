@@ -1,270 +1,442 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFCv2 2/4] mm/memory_hotplug: Replace "bool want_memblock" by
- "int type"
-Date: Fri, 30 Nov 2018 18:59:20 +0100
-Message-ID: <20181130175922.10425-3-david@redhat.com>
+Subject: [PATCH RFCv2 3/4] mm/memory_hotplug: Introduce and use more memory types
+Date: Fri, 30 Nov 2018 18:59:21 +0100
+Message-ID: <20181130175922.10425-4-david@redhat.com>
 References: <20181130175922.10425-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181130175922.10425-1-david@redhat.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: linux-mm@kvack.org
-Cc: Oscar Salvador <osalvador@suse.com>, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Wei Yang <richard.weiyang@gmail.com>, Michal Hocko <mhocko@suse.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-s390@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Matthew Wilcox <willy@infradead.org>, linux-acpi@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Rob Herring <robh@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, =?UTF
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-acpi@vger.kernel.org, devel@linuxdriverproject.org, xen-devel@lists.xenproject.org, x86@kernel.org, David Hildenbrand <david@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Boris Ostrovsky <boris.o>
 List-ID: <linux-s390.vger.kernel.org>
 
-TGV0J3MgcGFzcyBhIG1lbW9yeSBibG9jayB0eXBlIGluc3RlYWQuIFBhc3MgIk1FTU9SWV9CTE9D
-S19OT05FIiBmb3IgZGV2aWNlCm1lbW9yeSBhbmQgZm9yIG5vdyAiTUVNT1JZX0JMT0NLX1VOU1BF
-Q0lGSUVEIiBmb3IgYW55dGhpbmcgZWxzZS4gTm8KZnVuY3Rpb25hbCBjaGFuZ2UuCgpDYzogVG9u
-eSBMdWNrIDx0b255Lmx1Y2tAaW50ZWwuY29tPgpDYzogRmVuZ2h1YSBZdSA8ZmVuZ2h1YS55dUBp
-bnRlbC5jb20+CkNjOiBCZW5qYW1pbiBIZXJyZW5zY2htaWR0IDxiZW5oQGtlcm5lbC5jcmFzaGlu
-Zy5vcmc+CkNjOiBQYXVsIE1hY2tlcnJhcyA8cGF1bHVzQHNhbWJhLm9yZz4KQ2M6IE1pY2hhZWwg
-RWxsZXJtYW4gPG1wZUBlbGxlcm1hbi5pZC5hdT4KQ2M6IE1hcnRpbiBTY2h3aWRlZnNreSA8c2No
-d2lkZWZza3lAZGUuaWJtLmNvbT4KQ2M6IEhlaWtvIENhcnN0ZW5zIDxoZWlrby5jYXJzdGVuc0Bk
-ZS5pYm0uY29tPgpDYzogWW9zaGlub3JpIFNhdG8gPHlzYXRvQHVzZXJzLnNvdXJjZWZvcmdlLmpw
-PgpDYzogUmljaCBGZWxrZXIgPGRhbGlhc0BsaWJjLm9yZz4KQ2M6IERhdmUgSGFuc2VuIDxkYXZl
-LmhhbnNlbkBsaW51eC5pbnRlbC5jb20+CkNjOiBBbmR5IEx1dG9taXJza2kgPGx1dG9Aa2VybmVs
-Lm9yZz4KQ2M6IFBldGVyIFppamxzdHJhIDxwZXRlcnpAaW5mcmFkZWFkLm9yZz4KQ2M6IFRob21h
-cyBHbGVpeG5lciA8dGdseEBsaW51dHJvbml4LmRlPgpDYzogSW5nbyBNb2xuYXIgPG1pbmdvQHJl
-ZGhhdC5jb20+CkNjOiBCb3Jpc2xhdiBQZXRrb3YgPGJwQGFsaWVuOC5kZT4KQ2M6ICJILiBQZXRl
-ciBBbnZpbiIgPGhwYUB6eXRvci5jb20+CkNjOiB4ODZAa2VybmVsLm9yZwpDYzogR3JlZyBLcm9h
-aC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4KQ2M6ICJSYWZhZWwgSi4gV3lz
-b2NraSIgPHJhZmFlbEBrZXJuZWwub3JnPgpDYzogQW5kcmV3IE1vcnRvbiA8YWtwbUBsaW51eC1m
-b3VuZGF0aW9uLm9yZz4KQ2M6IE1pa2UgUmFwb3BvcnQgPHJwcHRAbGludXgudm5ldC5pYm0uY29t
-PgpDYzogTWljaGFsIEhvY2tvIDxtaG9ja29Ac3VzZS5jb20+CkNjOiBEYW4gV2lsbGlhbXMgPGRh
-bi5qLndpbGxpYW1zQGludGVsLmNvbT4KQ2M6ICJLaXJpbGwgQS4gU2h1dGVtb3YiIDxraXJpbGwu
-c2h1dGVtb3ZAbGludXguaW50ZWwuY29tPgpDYzogT3NjYXIgU2FsdmFkb3IgPG9zYWx2YWRvckBz
-dXNlLmNvbT4KQ2M6IE5pY2hvbGFzIFBpZ2dpbiA8bnBpZ2dpbkBnbWFpbC5jb20+CkNjOiBTdGVw
-aGVuIFJvdGh3ZWxsIDxzZnJAY2FuYi5hdXVnLm9yZy5hdT4KQ2M6IENocmlzdG9waGUgTGVyb3kg
-PGNocmlzdG9waGUubGVyb3lAYy1zLmZyPgpDYzogIkpvbmF0aGFuIE5ldXNjaMOkZmVyIiA8ai5u
-ZXVzY2hhZWZlckBnbXgubmV0PgpDYzogTWF1cmljaW8gRmFyaWEgZGUgT2xpdmVpcmEgPG1hdXJp
-Y2ZvQGxpbnV4LnZuZXQuaWJtLmNvbT4KQ2M6IFZhc2lseSBHb3JiaWsgPGdvckBsaW51eC5pYm0u
-Y29tPgpDYzogQXJ1biBLUyA8YXJ1bmtzQGNvZGVhdXJvcmEub3JnPgpDYzogUm9iIEhlcnJpbmcg
-PHJvYmhAa2VybmVsLm9yZz4KQ2M6IFBhdmVsIFRhdGFzaGluIDxwYXNoYS50YXRhc2hpbkBzb2xl
-ZW4uY29tPgpDYzogIm1pa2UudHJhdmlzQGhwZS5jb20iIDxtaWtlLnRyYXZpc0BocGUuY29tPgpD
-YzogSm9vbnNvbyBLaW0gPGlhbWpvb25zb28ua2ltQGxnZS5jb20+CkNjOiBXZWkgWWFuZyA8cmlj
-aGFyZC53ZWl5YW5nQGdtYWlsLmNvbT4KQ2M6IExvZ2FuIEd1bnRob3JwZSA8bG9nYW5nQGRlbHRh
-dGVlLmNvbT4KQ2M6ICJKw6lyw7RtZSBHbGlzc2UiIDxqZ2xpc3NlQHJlZGhhdC5jb20+CkNjOiAi
-SmFuIEguIFNjaMO2bmhlcnIiIDxqc2Nob2VuaEBhbWF6b24uZGU+CkNjOiBEYXZlIEppYW5nIDxk
-YXZlLmppYW5nQGludGVsLmNvbT4KQ2M6IE1hdHRoZXcgV2lsY294IDx3aWxseUBpbmZyYWRlYWQu
-b3JnPgpDYzogTWF0aGlldSBNYWxhdGVycmUgPG1hbGF0QGRlYmlhbi5vcmc+ClNpZ25lZC1vZmYt
-Ynk6IERhdmlkIEhpbGRlbmJyYW5kIDxkYXZpZEByZWRoYXQuY29tPgotLS0KIGFyY2gvaWE2NC9t
-bS9pbml0LmMgICAgICAgICAgICB8ICA0ICsrLS0KIGFyY2gvcG93ZXJwYy9tbS9tZW0uYyAgICAg
-ICAgICB8ICA0ICsrLS0KIGFyY2gvczM5MC9tbS9pbml0LmMgICAgICAgICAgICB8ICA0ICsrLS0K
-IGFyY2gvc2gvbW0vaW5pdC5jICAgICAgICAgICAgICB8ICA0ICsrLS0KIGFyY2gveDg2L21tL2lu
-aXRfMzIuYyAgICAgICAgICB8ICA0ICsrLS0KIGFyY2gveDg2L21tL2luaXRfNjQuYyAgICAgICAg
-ICB8ICA4ICsrKystLS0tCiBkcml2ZXJzL2Jhc2UvbWVtb3J5LmMgICAgICAgICAgfCAxMSArKysr
-KysrLS0tLQogaW5jbHVkZS9saW51eC9tZW1vcnkuaCAgICAgICAgIHwgIDIgKy0KIGluY2x1ZGUv
-bGludXgvbWVtb3J5X2hvdHBsdWcuaCB8IDEyICsrKysrKy0tLS0tLQoga2VybmVsL21lbXJlbWFw
-LmMgICAgICAgICAgICAgIHwgIDYgKysrKy0tCiBtbS9tZW1vcnlfaG90cGx1Zy5jICAgICAgICAg
-ICAgfCAxNiArKysrKysrKy0tLS0tLS0tCiAxMSBmaWxlcyBjaGFuZ2VkLCA0MCBpbnNlcnRpb25z
-KCspLCAzNSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9hcmNoL2lhNjQvbW0vaW5pdC5jIGIv
-YXJjaC9pYTY0L21tL2luaXQuYwppbmRleCA5MDRmZTU1ZTEwZmMuLjQwODYzNWQyOTAyZiAxMDA2
-NDQKLS0tIGEvYXJjaC9pYTY0L21tL2luaXQuYworKysgYi9hcmNoL2lhNjQvbW0vaW5pdC5jCkBA
-IC02NDYsMTMgKzY0NiwxMyBAQCBtZW1faW5pdCAodm9pZCkKIAogI2lmZGVmIENPTkZJR19NRU1P
-UllfSE9UUExVRwogaW50IGFyY2hfYWRkX21lbW9yeShpbnQgbmlkLCB1NjQgc3RhcnQsIHU2NCBz
-aXplLCBzdHJ1Y3Qgdm1lbV9hbHRtYXAgKmFsdG1hcCwKLQkJYm9vbCB3YW50X21lbWJsb2NrKQor
-CQkgICAgaW50IHR5cGUpCiB7CiAJdW5zaWduZWQgbG9uZyBzdGFydF9wZm4gPSBzdGFydCA+PiBQ
-QUdFX1NISUZUOwogCXVuc2lnbmVkIGxvbmcgbnJfcGFnZXMgPSBzaXplID4+IFBBR0VfU0hJRlQ7
-CiAJaW50IHJldDsKIAotCXJldCA9IF9fYWRkX3BhZ2VzKG5pZCwgc3RhcnRfcGZuLCBucl9wYWdl
-cywgYWx0bWFwLCB3YW50X21lbWJsb2NrKTsKKwlyZXQgPSBfX2FkZF9wYWdlcyhuaWQsIHN0YXJ0
-X3BmbiwgbnJfcGFnZXMsIGFsdG1hcCwgdHlwZSk7CiAJaWYgKHJldCkKIAkJcHJpbnRrKCIlczog
-UHJvYmxlbSBlbmNvdW50ZXJlZCBpbiBfX2FkZF9wYWdlcygpIGFzIHJldD0lZFxuIiwKIAkJICAg
-ICAgIF9fZnVuY19fLCAgcmV0KTsKZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9tbS9tZW0uYyBi
-L2FyY2gvcG93ZXJwYy9tbS9tZW0uYwppbmRleCBiM2M5ZWU1YzRmNzguLmUzOTQ2MzdkYTI3MCAx
-MDA2NDQKLS0tIGEvYXJjaC9wb3dlcnBjL21tL21lbS5jCisrKyBiL2FyY2gvcG93ZXJwYy9tbS9t
-ZW0uYwpAQCAtMTE4LDcgKzExOCw3IEBAIGludCBfX3dlYWsgcmVtb3ZlX3NlY3Rpb25fbWFwcGlu
-Zyh1bnNpZ25lZCBsb25nIHN0YXJ0LCB1bnNpZ25lZCBsb25nIGVuZCkKIH0KIAogaW50IF9fbWVt
-aW5pdCBhcmNoX2FkZF9tZW1vcnkoaW50IG5pZCwgdTY0IHN0YXJ0LCB1NjQgc2l6ZSwgc3RydWN0
-IHZtZW1fYWx0bWFwICphbHRtYXAsCi0JCWJvb2wgd2FudF9tZW1ibG9jaykKKwkJCSAgICAgIGlu
-dCB0eXBlKQogewogCXVuc2lnbmVkIGxvbmcgc3RhcnRfcGZuID0gc3RhcnQgPj4gUEFHRV9TSElG
-VDsKIAl1bnNpZ25lZCBsb25nIG5yX3BhZ2VzID0gc2l6ZSA+PiBQQUdFX1NISUZUOwpAQCAtMTM1
-LDcgKzEzNSw3IEBAIGludCBfX21lbWluaXQgYXJjaF9hZGRfbWVtb3J5KGludCBuaWQsIHU2NCBz
-dGFydCwgdTY0IHNpemUsIHN0cnVjdCB2bWVtX2FsdG1hcCAqCiAJfQogCWZsdXNoX2ludmFsX2Rj
-YWNoZV9yYW5nZShzdGFydCwgc3RhcnQgKyBzaXplKTsKIAotCXJldHVybiBfX2FkZF9wYWdlcyhu
-aWQsIHN0YXJ0X3BmbiwgbnJfcGFnZXMsIGFsdG1hcCwgd2FudF9tZW1ibG9jayk7CisJcmV0dXJu
-IF9fYWRkX3BhZ2VzKG5pZCwgc3RhcnRfcGZuLCBucl9wYWdlcywgYWx0bWFwLCB0eXBlKTsKIH0K
-IAogI2lmZGVmIENPTkZJR19NRU1PUllfSE9UUkVNT1ZFCmRpZmYgLS1naXQgYS9hcmNoL3MzOTAv
-bW0vaW5pdC5jIGIvYXJjaC9zMzkwL21tL2luaXQuYwppbmRleCAzZTgyZjY2ZDVjNjEuLmJhMmM1
-NjMyOGU2ZCAxMDA2NDQKLS0tIGEvYXJjaC9zMzkwL21tL2luaXQuYworKysgYi9hcmNoL3MzOTAv
-bW0vaW5pdC5jCkBAIC0yMjUsNyArMjI1LDcgQEAgZGV2aWNlX2luaXRjYWxsKHMzOTBfY21hX21l
-bV9pbml0KTsKICNlbmRpZiAvKiBDT05GSUdfQ01BICovCiAKIGludCBhcmNoX2FkZF9tZW1vcnko
-aW50IG5pZCwgdTY0IHN0YXJ0LCB1NjQgc2l6ZSwgc3RydWN0IHZtZW1fYWx0bWFwICphbHRtYXAs
-Ci0JCWJvb2wgd2FudF9tZW1ibG9jaykKKwkJICAgIGludCB0eXBlKQogewogCXVuc2lnbmVkIGxv
-bmcgc3RhcnRfcGZuID0gUEZOX0RPV04oc3RhcnQpOwogCXVuc2lnbmVkIGxvbmcgc2l6ZV9wYWdl
-cyA9IFBGTl9ET1dOKHNpemUpOwpAQCAtMjM1LDcgKzIzNSw3IEBAIGludCBhcmNoX2FkZF9tZW1v
-cnkoaW50IG5pZCwgdTY0IHN0YXJ0LCB1NjQgc2l6ZSwgc3RydWN0IHZtZW1fYWx0bWFwICphbHRt
-YXAsCiAJaWYgKHJjKQogCQlyZXR1cm4gcmM7CiAKLQlyYyA9IF9fYWRkX3BhZ2VzKG5pZCwgc3Rh
-cnRfcGZuLCBzaXplX3BhZ2VzLCBhbHRtYXAsIHdhbnRfbWVtYmxvY2spOworCXJjID0gX19hZGRf
-cGFnZXMobmlkLCBzdGFydF9wZm4sIHNpemVfcGFnZXMsIGFsdG1hcCwgdHlwZSk7CiAJaWYgKHJj
-KQogCQl2bWVtX3JlbW92ZV9tYXBwaW5nKHN0YXJ0LCBzaXplKTsKIAlyZXR1cm4gcmM7CmRpZmYg
-LS1naXQgYS9hcmNoL3NoL21tL2luaXQuYyBiL2FyY2gvc2gvbW0vaW5pdC5jCmluZGV4IDFhNDgz
-YTAwODg3Mi4uNWZiYjg3MjRlMGYyIDEwMDY0NAotLS0gYS9hcmNoL3NoL21tL2luaXQuYworKysg
-Yi9hcmNoL3NoL21tL2luaXQuYwpAQCAtNDE5LDE0ICs0MTksMTQgQEAgdm9pZCBmcmVlX2luaXRy
-ZF9tZW0odW5zaWduZWQgbG9uZyBzdGFydCwgdW5zaWduZWQgbG9uZyBlbmQpCiAKICNpZmRlZiBD
-T05GSUdfTUVNT1JZX0hPVFBMVUcKIGludCBhcmNoX2FkZF9tZW1vcnkoaW50IG5pZCwgdTY0IHN0
-YXJ0LCB1NjQgc2l6ZSwgc3RydWN0IHZtZW1fYWx0bWFwICphbHRtYXAsCi0JCWJvb2wgd2FudF9t
-ZW1ibG9jaykKKwkJICAgIGludCB0eXBlKQogewogCXVuc2lnbmVkIGxvbmcgc3RhcnRfcGZuID0g
-UEZOX0RPV04oc3RhcnQpOwogCXVuc2lnbmVkIGxvbmcgbnJfcGFnZXMgPSBzaXplID4+IFBBR0Vf
-U0hJRlQ7CiAJaW50IHJldDsKIAogCS8qIFdlIG9ubHkgaGF2ZSBaT05FX05PUk1BTCwgc28gdGhp
-cyBpcyBlYXN5Li4gKi8KLQlyZXQgPSBfX2FkZF9wYWdlcyhuaWQsIHN0YXJ0X3BmbiwgbnJfcGFn
-ZXMsIGFsdG1hcCwgd2FudF9tZW1ibG9jayk7CisJcmV0ID0gX19hZGRfcGFnZXMobmlkLCBzdGFy
-dF9wZm4sIG5yX3BhZ2VzLCBhbHRtYXAsIHR5cGUpOwogCWlmICh1bmxpa2VseShyZXQpKQogCQlw
-cmludGsoIiVzOiBGYWlsZWQsIF9fYWRkX3BhZ2VzKCkgPT0gJWRcbiIsIF9fZnVuY19fLCByZXQp
-OwogCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9tbS9pbml0XzMyLmMgYi9hcmNoL3g4Ni9tbS9pbml0
-XzMyLmMKaW5kZXggMGI4YzdiMDAzM2QyLi40MWU0MDliMjlkMmIgMTAwNjQ0Ci0tLSBhL2FyY2gv
-eDg2L21tL2luaXRfMzIuYworKysgYi9hcmNoL3g4Ni9tbS9pbml0XzMyLmMKQEAgLTg1MSwxMiAr
-ODUxLDEyIEBAIHZvaWQgX19pbml0IG1lbV9pbml0KHZvaWQpCiAKICNpZmRlZiBDT05GSUdfTUVN
-T1JZX0hPVFBMVUcKIGludCBhcmNoX2FkZF9tZW1vcnkoaW50IG5pZCwgdTY0IHN0YXJ0LCB1NjQg
-c2l6ZSwgc3RydWN0IHZtZW1fYWx0bWFwICphbHRtYXAsCi0JCWJvb2wgd2FudF9tZW1ibG9jaykK
-KwkJICAgIGludCB0eXBlKQogewogCXVuc2lnbmVkIGxvbmcgc3RhcnRfcGZuID0gc3RhcnQgPj4g
-UEFHRV9TSElGVDsKIAl1bnNpZ25lZCBsb25nIG5yX3BhZ2VzID0gc2l6ZSA+PiBQQUdFX1NISUZU
-OwogCi0JcmV0dXJuIF9fYWRkX3BhZ2VzKG5pZCwgc3RhcnRfcGZuLCBucl9wYWdlcywgYWx0bWFw
-LCB3YW50X21lbWJsb2NrKTsKKwlyZXR1cm4gX19hZGRfcGFnZXMobmlkLCBzdGFydF9wZm4sIG5y
-X3BhZ2VzLCBhbHRtYXAsIHR5cGUpOwogfQogCiAjaWZkZWYgQ09ORklHX01FTU9SWV9IT1RSRU1P
-VkUKZGlmZiAtLWdpdCBhL2FyY2gveDg2L21tL2luaXRfNjQuYyBiL2FyY2gveDg2L21tL2luaXRf
-NjQuYwppbmRleCBmODBkOTgzODFhOTcuLjViNGYzZGNkNDRjZiAxMDA2NDQKLS0tIGEvYXJjaC94
-ODYvbW0vaW5pdF82NC5jCisrKyBiL2FyY2gveDg2L21tL2luaXRfNjQuYwpAQCAtNzgzLDExICs3
-ODMsMTEgQEAgc3RhdGljIHZvaWQgdXBkYXRlX2VuZF9vZl9tZW1vcnlfdmFycyh1NjQgc3RhcnQs
-IHU2NCBzaXplKQogfQogCiBpbnQgYWRkX3BhZ2VzKGludCBuaWQsIHVuc2lnbmVkIGxvbmcgc3Rh
-cnRfcGZuLCB1bnNpZ25lZCBsb25nIG5yX3BhZ2VzLAotCQlzdHJ1Y3Qgdm1lbV9hbHRtYXAgKmFs
-dG1hcCwgYm9vbCB3YW50X21lbWJsb2NrKQorCSAgICAgIHN0cnVjdCB2bWVtX2FsdG1hcCAqYWx0
-bWFwLCBpbnQgdHlwZSkKIHsKIAlpbnQgcmV0OwogCi0JcmV0ID0gX19hZGRfcGFnZXMobmlkLCBz
-dGFydF9wZm4sIG5yX3BhZ2VzLCBhbHRtYXAsIHdhbnRfbWVtYmxvY2spOworCXJldCA9IF9fYWRk
-X3BhZ2VzKG5pZCwgc3RhcnRfcGZuLCBucl9wYWdlcywgYWx0bWFwLCB0eXBlKTsKIAlXQVJOX09O
-X09OQ0UocmV0KTsKIAogCS8qIHVwZGF0ZSBtYXhfcGZuLCBtYXhfbG93X3BmbiBhbmQgaGlnaF9t
-ZW1vcnkgKi8KQEAgLTc5OCwxNCArNzk4LDE0IEBAIGludCBhZGRfcGFnZXMoaW50IG5pZCwgdW5z
-aWduZWQgbG9uZyBzdGFydF9wZm4sIHVuc2lnbmVkIGxvbmcgbnJfcGFnZXMsCiB9CiAKIGludCBh
-cmNoX2FkZF9tZW1vcnkoaW50IG5pZCwgdTY0IHN0YXJ0LCB1NjQgc2l6ZSwgc3RydWN0IHZtZW1f
-YWx0bWFwICphbHRtYXAsCi0JCWJvb2wgd2FudF9tZW1ibG9jaykKKwkJICAgIGludCB0eXBlKQog
-ewogCXVuc2lnbmVkIGxvbmcgc3RhcnRfcGZuID0gc3RhcnQgPj4gUEFHRV9TSElGVDsKIAl1bnNp
-Z25lZCBsb25nIG5yX3BhZ2VzID0gc2l6ZSA+PiBQQUdFX1NISUZUOwogCiAJaW5pdF9tZW1vcnlf
-bWFwcGluZyhzdGFydCwgc3RhcnQgKyBzaXplKTsKIAotCXJldHVybiBhZGRfcGFnZXMobmlkLCBz
-dGFydF9wZm4sIG5yX3BhZ2VzLCBhbHRtYXAsIHdhbnRfbWVtYmxvY2spOworCXJldHVybiBhZGRf
-cGFnZXMobmlkLCBzdGFydF9wZm4sIG5yX3BhZ2VzLCBhbHRtYXAsIHR5cGUpOwogfQogCiAjZGVm
-aW5lIFBBR0VfSU5VU0UgMHhGRApkaWZmIC0tZ2l0IGEvZHJpdmVycy9iYXNlL21lbW9yeS5jIGIv
-ZHJpdmVycy9iYXNlL21lbW9yeS5jCmluZGV4IDE3ZjI5ODVjMDdjNS4uYzQyMzAwMDgyYzg4IDEw
-MDY0NAotLS0gYS9kcml2ZXJzL2Jhc2UvbWVtb3J5LmMKKysrIGIvZHJpdmVycy9iYXNlL21lbW9y
-eS5jCkBAIC03NDEsNyArNzQxLDcgQEAgc3RhdGljIGludCBhZGRfbWVtb3J5X2Jsb2NrKGludCBi
-YXNlX3NlY3Rpb25fbnIpCiAgKiBuZWVkIGFuIGludGVyZmFjZSBmb3IgdGhlIFZNIHRvIGFkZCBu
-ZXcgbWVtb3J5IHJlZ2lvbnMsCiAgKiBidXQgd2l0aG91dCBvbmxpbmluZyBpdC4KICAqLwotaW50
-IGhvdHBsdWdfbWVtb3J5X3JlZ2lzdGVyKGludCBuaWQsIHN0cnVjdCBtZW1fc2VjdGlvbiAqc2Vj
-dGlvbikKK2ludCBob3RwbHVnX21lbW9yeV9yZWdpc3RlcihpbnQgbmlkLCBzdHJ1Y3QgbWVtX3Nl
-Y3Rpb24gKnNlY3Rpb24sIGludCB0eXBlKQogewogCWludCByZXQgPSAwOwogCXN0cnVjdCBtZW1v
-cnlfYmxvY2sgKm1lbTsKQEAgLTc1MCwxMSArNzUwLDE0IEBAIGludCBob3RwbHVnX21lbW9yeV9y
-ZWdpc3RlcihpbnQgbmlkLCBzdHJ1Y3QgbWVtX3NlY3Rpb24gKnNlY3Rpb24pCiAKIAltZW0gPSBm
-aW5kX21lbW9yeV9ibG9jayhzZWN0aW9uKTsKIAlpZiAobWVtKSB7Ci0JCW1lbS0+c2VjdGlvbl9j
-b3VudCsrOworCQkvKiBtYWtlIHN1cmUgdGhlIHR5cGUgbWF0Y2hlcyAqLworCQlpZiAobWVtLT50
-eXBlID09IHR5cGUpCisJCQltZW0tPnNlY3Rpb25fY291bnQrKzsKKwkJZWxzZQorCQkJcmV0ID0g
-LUVJTlZBTDsKIAkJcHV0X2RldmljZSgmbWVtLT5kZXYpOwogCX0gZWxzZSB7Ci0JCXJldCA9IGlu
-aXRfbWVtb3J5X2Jsb2NrKCZtZW0sIHNlY3Rpb24sIE1FTV9PRkZMSU5FLAotCQkJCQlNRU1PUllf
-QkxPQ0tfVU5TUEVDSUZJRUQpOworCQlyZXQgPSBpbml0X21lbW9yeV9ibG9jaygmbWVtLCBzZWN0
-aW9uLCBNRU1fT0ZGTElORSwgdHlwZSk7CiAJCWlmIChyZXQpCiAJCQlnb3RvIG91dDsKIAkJbWVt
-LT5zZWN0aW9uX2NvdW50Kys7CmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L21lbW9yeS5oIGIv
-aW5jbHVkZS9saW51eC9tZW1vcnkuaAppbmRleCAwNjI2OGU5NmUwZGEuLjlmMzllZjQxZTZkMiAx
-MDA2NDQKLS0tIGEvaW5jbHVkZS9saW51eC9tZW1vcnkuaAorKysgYi9pbmNsdWRlL2xpbnV4L21l
-bW9yeS5oCkBAIC0xMzgsNyArMTM4LDcgQEAgZXh0ZXJuIGludCByZWdpc3Rlcl9tZW1vcnlfbm90
-aWZpZXIoc3RydWN0IG5vdGlmaWVyX2Jsb2NrICpuYik7CiBleHRlcm4gdm9pZCB1bnJlZ2lzdGVy
-X21lbW9yeV9ub3RpZmllcihzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgKm5iKTsKIGV4dGVybiBpbnQg
-cmVnaXN0ZXJfbWVtb3J5X2lzb2xhdGVfbm90aWZpZXIoc3RydWN0IG5vdGlmaWVyX2Jsb2NrICpu
-Yik7CiBleHRlcm4gdm9pZCB1bnJlZ2lzdGVyX21lbW9yeV9pc29sYXRlX25vdGlmaWVyKHN0cnVj
-dCBub3RpZmllcl9ibG9jayAqbmIpOwotaW50IGhvdHBsdWdfbWVtb3J5X3JlZ2lzdGVyKGludCBu
-aWQsIHN0cnVjdCBtZW1fc2VjdGlvbiAqc2VjdGlvbik7CitpbnQgaG90cGx1Z19tZW1vcnlfcmVn
-aXN0ZXIoaW50IG5pZCwgc3RydWN0IG1lbV9zZWN0aW9uICpzZWN0aW9uLCBpbnQgdHlwZSk7CiAj
-aWZkZWYgQ09ORklHX01FTU9SWV9IT1RSRU1PVkUKIGV4dGVybiBpbnQgdW5yZWdpc3Rlcl9tZW1v
-cnlfc2VjdGlvbihpbnQgbmlkLCBzdHJ1Y3QgbWVtX3NlY3Rpb24gKik7CiAjZW5kaWYKZGlmZiAt
-LWdpdCBhL2luY2x1ZGUvbGludXgvbWVtb3J5X2hvdHBsdWcuaCBiL2luY2x1ZGUvbGludXgvbWVt
-b3J5X2hvdHBsdWcuaAppbmRleCA1NDkzZDNmYTBjN2YuLjY2N2EzN2FhOWEzYyAxMDA2NDQKLS0t
-IGEvaW5jbHVkZS9saW51eC9tZW1vcnlfaG90cGx1Zy5oCisrKyBiL2luY2x1ZGUvbGludXgvbWVt
-b3J5X2hvdHBsdWcuaApAQCAtMTE3LDE4ICsxMTcsMTggQEAgZXh0ZXJuIHZvaWQgc2hyaW5rX3pv
-bmUoc3RydWN0IHpvbmUgKnpvbmUsIHVuc2lnbmVkIGxvbmcgc3RhcnRfcGZuLAogCiAvKiByZWFz
-b25hYmx5IGdlbmVyaWMgaW50ZXJmYWNlIHRvIGV4cGFuZCB0aGUgcGh5c2ljYWwgcGFnZXMgKi8K
-IGV4dGVybiBpbnQgX19hZGRfcGFnZXMoaW50IG5pZCwgdW5zaWduZWQgbG9uZyBzdGFydF9wZm4s
-IHVuc2lnbmVkIGxvbmcgbnJfcGFnZXMsCi0JCXN0cnVjdCB2bWVtX2FsdG1hcCAqYWx0bWFwLCBi
-b29sIHdhbnRfbWVtYmxvY2spOworCQkgICAgICAgc3RydWN0IHZtZW1fYWx0bWFwICphbHRtYXAs
-IGludCB0eXBlKTsKIAogI2lmbmRlZiBDT05GSUdfQVJDSF9IQVNfQUREX1BBR0VTCiBzdGF0aWMg
-aW5saW5lIGludCBhZGRfcGFnZXMoaW50IG5pZCwgdW5zaWduZWQgbG9uZyBzdGFydF9wZm4sCi0J
-CXVuc2lnbmVkIGxvbmcgbnJfcGFnZXMsIHN0cnVjdCB2bWVtX2FsdG1hcCAqYWx0bWFwLAotCQli
-b29sIHdhbnRfbWVtYmxvY2spCisJCQkgICAgdW5zaWduZWQgbG9uZyBucl9wYWdlcywgc3RydWN0
-IHZtZW1fYWx0bWFwICphbHRtYXAsCisJCQkgICAgaW50IHR5cGUpCiB7Ci0JcmV0dXJuIF9fYWRk
-X3BhZ2VzKG5pZCwgc3RhcnRfcGZuLCBucl9wYWdlcywgYWx0bWFwLCB3YW50X21lbWJsb2NrKTsK
-KwlyZXR1cm4gX19hZGRfcGFnZXMobmlkLCBzdGFydF9wZm4sIG5yX3BhZ2VzLCBhbHRtYXAsIHR5
-cGUpOwogfQogI2Vsc2UgLyogQVJDSF9IQVNfQUREX1BBR0VTICovCiBpbnQgYWRkX3BhZ2VzKGlu
-dCBuaWQsIHVuc2lnbmVkIGxvbmcgc3RhcnRfcGZuLCB1bnNpZ25lZCBsb25nIG5yX3BhZ2VzLAot
-CQlzdHJ1Y3Qgdm1lbV9hbHRtYXAgKmFsdG1hcCwgYm9vbCB3YW50X21lbWJsb2NrKTsKKwkgICAg
-ICBzdHJ1Y3Qgdm1lbV9hbHRtYXAgKmFsdG1hcCwgaW50IHR5cGUpOwogI2VuZGlmIC8qIEFSQ0hf
-SEFTX0FERF9QQUdFUyAqLwogCiAjaWZkZWYgQ09ORklHX05VTUEKQEAgLTMzMCw3ICszMzAsNyBA
-QCBleHRlcm4gaW50IF9fYWRkX21lbW9yeShpbnQgbmlkLCB1NjQgc3RhcnQsIHU2NCBzaXplKTsK
-IGV4dGVybiBpbnQgYWRkX21lbW9yeShpbnQgbmlkLCB1NjQgc3RhcnQsIHU2NCBzaXplKTsKIGV4
-dGVybiBpbnQgYWRkX21lbW9yeV9yZXNvdXJjZShpbnQgbmlkLCBzdHJ1Y3QgcmVzb3VyY2UgKnJl
-c291cmNlKTsKIGV4dGVybiBpbnQgYXJjaF9hZGRfbWVtb3J5KGludCBuaWQsIHU2NCBzdGFydCwg
-dTY0IHNpemUsCi0JCXN0cnVjdCB2bWVtX2FsdG1hcCAqYWx0bWFwLCBib29sIHdhbnRfbWVtYmxv
-Y2spOworCQkJICAgc3RydWN0IHZtZW1fYWx0bWFwICphbHRtYXAsIGludCB0eXBlKTsKIGV4dGVy
-biB2b2lkIG1vdmVfcGZuX3JhbmdlX3RvX3pvbmUoc3RydWN0IHpvbmUgKnpvbmUsIHVuc2lnbmVk
-IGxvbmcgc3RhcnRfcGZuLAogCQl1bnNpZ25lZCBsb25nIG5yX3BhZ2VzLCBzdHJ1Y3Qgdm1lbV9h
-bHRtYXAgKmFsdG1hcCk7CiBleHRlcm4gaW50IG9mZmxpbmVfcGFnZXModW5zaWduZWQgbG9uZyBz
-dGFydF9wZm4sIHVuc2lnbmVkIGxvbmcgbnJfcGFnZXMpOwpkaWZmIC0tZ2l0IGEva2VybmVsL21l
-bXJlbWFwLmMgYi9rZXJuZWwvbWVtcmVtYXAuYwppbmRleCA2NmNiZjMzNDIwM2IuLjQyMmU0ZTc3
-OTIwOCAxMDA2NDQKLS0tIGEva2VybmVsL21lbXJlbWFwLmMKKysrIGIva2VybmVsL21lbXJlbWFw
-LmMKQEAgLTQsNiArNCw3IEBACiAjaW5jbHVkZSA8bGludXgvaW8uaD4KICNpbmNsdWRlIDxsaW51
-eC9rYXNhbi5oPgogI2luY2x1ZGUgPGxpbnV4L21lbW9yeV9ob3RwbHVnLmg+CisjaW5jbHVkZSA8
-bGludXgvbWVtb3J5Lmg+CiAjaW5jbHVkZSA8bGludXgvbW0uaD4KICNpbmNsdWRlIDxsaW51eC9w
-Zm5fdC5oPgogI2luY2x1ZGUgPGxpbnV4L3N3YXAuaD4KQEAgLTIxNSw3ICsyMTYsOCBAQCB2b2lk
-ICpkZXZtX21lbXJlbWFwX3BhZ2VzKHN0cnVjdCBkZXZpY2UgKmRldiwgc3RydWN0IGRldl9wYWdl
-bWFwICpwZ21hcCkKIAkgKi8KIAlpZiAocGdtYXAtPnR5cGUgPT0gTUVNT1JZX0RFVklDRV9QUklW
-QVRFKSB7CiAJCWVycm9yID0gYWRkX3BhZ2VzKG5pZCwgYWxpZ25fc3RhcnQgPj4gUEFHRV9TSElG
-VCwKLQkJCQlhbGlnbl9zaXplID4+IFBBR0VfU0hJRlQsIE5VTEwsIGZhbHNlKTsKKwkJCQkgIGFs
-aWduX3NpemUgPj4gUEFHRV9TSElGVCwgTlVMTCwKKwkJCQkgIE1FTU9SWV9CTE9DS19OT05FKTsK
-IAl9IGVsc2UgewogCQllcnJvciA9IGthc2FuX2FkZF96ZXJvX3NoYWRvdyhfX3ZhKGFsaWduX3N0
-YXJ0KSwgYWxpZ25fc2l6ZSk7CiAJCWlmIChlcnJvcikgewpAQCAtMjI0LDcgKzIyNiw3IEBAIHZv
-aWQgKmRldm1fbWVtcmVtYXBfcGFnZXMoc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1Y3QgZGV2X3Bh
-Z2VtYXAgKnBnbWFwKQogCQl9CiAKIAkJZXJyb3IgPSBhcmNoX2FkZF9tZW1vcnkobmlkLCBhbGln
-bl9zdGFydCwgYWxpZ25fc2l6ZSwgYWx0bWFwLAotCQkJCWZhbHNlKTsKKwkJCQkJTUVNT1JZX0JM
-T0NLX05PTkUpOwogCX0KIAogCWlmICghZXJyb3IpIHsKZGlmZiAtLWdpdCBhL21tL21lbW9yeV9o
-b3RwbHVnLmMgYi9tbS9tZW1vcnlfaG90cGx1Zy5jCmluZGV4IDE2YzYwMDc3MTI5OC4uNzI0NmZh
-YTQ0NDg4IDEwMDY0NAotLS0gYS9tbS9tZW1vcnlfaG90cGx1Zy5jCisrKyBiL21tL21lbW9yeV9o
-b3RwbHVnLmMKQEAgLTI0Niw3ICsyNDYsNyBAQCB2b2lkIF9faW5pdCByZWdpc3Rlcl9wYWdlX2Jv
-b3RtZW1faW5mb19ub2RlKHN0cnVjdCBwZ2xpc3RfZGF0YSAqcGdkYXQpCiAjZW5kaWYgLyogQ09O
-RklHX0hBVkVfQk9PVE1FTV9JTkZPX05PREUgKi8KIAogc3RhdGljIGludCBfX21lbWluaXQgX19h
-ZGRfc2VjdGlvbihpbnQgbmlkLCB1bnNpZ25lZCBsb25nIHBoeXNfc3RhcnRfcGZuLAotCQlzdHJ1
-Y3Qgdm1lbV9hbHRtYXAgKmFsdG1hcCwgYm9vbCB3YW50X21lbWJsb2NrKQorCQkJCSAgIHN0cnVj
-dCB2bWVtX2FsdG1hcCAqYWx0bWFwLCBpbnQgdHlwZSkKIHsKIAlpbnQgcmV0OwogCkBAIC0yNTcs
-MTAgKzI1NywxMSBAQCBzdGF0aWMgaW50IF9fbWVtaW5pdCBfX2FkZF9zZWN0aW9uKGludCBuaWQs
-IHVuc2lnbmVkIGxvbmcgcGh5c19zdGFydF9wZm4sCiAJaWYgKHJldCA8IDApCiAJCXJldHVybiBy
-ZXQ7CiAKLQlpZiAoIXdhbnRfbWVtYmxvY2spCisJaWYgKHR5cGUgPT0gTUVNT1JZX0JMT0NLX05P
-TkUpCiAJCXJldHVybiAwOwogCi0JcmV0dXJuIGhvdHBsdWdfbWVtb3J5X3JlZ2lzdGVyKG5pZCwg
-X19wZm5fdG9fc2VjdGlvbihwaHlzX3N0YXJ0X3BmbikpOworCXJldHVybiBob3RwbHVnX21lbW9y
-eV9yZWdpc3RlcihuaWQsIF9fcGZuX3RvX3NlY3Rpb24ocGh5c19zdGFydF9wZm4pLAorCQkJCSAg
-ICAgICB0eXBlKTsKIH0KIAogLyoKQEAgLTI3MCw4ICsyNzEsOCBAQCBzdGF0aWMgaW50IF9fbWVt
-aW5pdCBfX2FkZF9zZWN0aW9uKGludCBuaWQsIHVuc2lnbmVkIGxvbmcgcGh5c19zdGFydF9wZm4s
-CiAgKiBhZGQgdGhlIG5ldyBwYWdlcy4KICAqLwogaW50IF9fcmVmIF9fYWRkX3BhZ2VzKGludCBu
-aWQsIHVuc2lnbmVkIGxvbmcgcGh5c19zdGFydF9wZm4sCi0JCXVuc2lnbmVkIGxvbmcgbnJfcGFn
-ZXMsIHN0cnVjdCB2bWVtX2FsdG1hcCAqYWx0bWFwLAotCQlib29sIHdhbnRfbWVtYmxvY2spCisJ
-CSAgICAgIHVuc2lnbmVkIGxvbmcgbnJfcGFnZXMsIHN0cnVjdCB2bWVtX2FsdG1hcCAqYWx0bWFw
-LAorCQkgICAgICBpbnQgdHlwZSkKIHsKIAl1bnNpZ25lZCBsb25nIGk7CiAJaW50IGVyciA9IDA7
-CkBAIC0yOTUsOCArMjk2LDcgQEAgaW50IF9fcmVmIF9fYWRkX3BhZ2VzKGludCBuaWQsIHVuc2ln
-bmVkIGxvbmcgcGh5c19zdGFydF9wZm4sCiAJfQogCiAJZm9yIChpID0gc3RhcnRfc2VjOyBpIDw9
-IGVuZF9zZWM7IGkrKykgewotCQllcnIgPSBfX2FkZF9zZWN0aW9uKG5pZCwgc2VjdGlvbl9ucl90
-b19wZm4oaSksIGFsdG1hcCwKLQkJCQl3YW50X21lbWJsb2NrKTsKKwkJZXJyID0gX19hZGRfc2Vj
-dGlvbihuaWQsIHNlY3Rpb25fbnJfdG9fcGZuKGkpLCBhbHRtYXAsIHR5cGUpOwogCiAJCS8qCiAJ
-CSAqIEVFWElTVCBpcyBmaW5hbGx5IGRlYWx0IHdpdGggYnkgaW9yZXNvdXJjZSBjb2xsaXNpb24K
-QEAgLTExMDAsNyArMTEwMCw3IEBAIGludCBfX3JlZiBhZGRfbWVtb3J5X3Jlc291cmNlKGludCBu
-aWQsIHN0cnVjdCByZXNvdXJjZSAqcmVzKQogCW5ld19ub2RlID0gcmV0OwogCiAJLyogY2FsbCBh
-cmNoJ3MgbWVtb3J5IGhvdGFkZCAqLwotCXJldCA9IGFyY2hfYWRkX21lbW9yeShuaWQsIHN0YXJ0
-LCBzaXplLCBOVUxMLCB0cnVlKTsKKwlyZXQgPSBhcmNoX2FkZF9tZW1vcnkobmlkLCBzdGFydCwg
-c2l6ZSwgTlVMTCwgTUVNT1JZX1RZUEVfVU5TUEVDSUZJRUQpOwogCWlmIChyZXQgPCAwKQogCQln
-b3RvIGVycm9yOwogCi0tIAoyLjE3LjIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fCmRldmVsIG1haWxpbmcgbGlzdApkZXZlbEBsaW51eGRyaXZlcnByb2pl
-Y3Qub3JnCmh0dHA6Ly9kcml2ZXJkZXYubGludXhkcml2ZXJwcm9qZWN0Lm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL2RyaXZlcmRldi1kZXZlbAo=
+Let's introduce new types for different kinds of memory blocks and use
+them in existing code. As I don't see an easy way to split this up,
+do it in one hunk for now.
+
+acpi:
+ Use DIMM or DIMM_UNREMOVABLE depending on hotremove support in the kernel.
+ Properly change the type when trying to add memory that was already
+ detected and used during boot (so this memory will correctly end up as
+ "acpi" in user space).
+
+pseries:
+ Use DIMM or DIMM_UNREMOVABLE depending on hotremove support in the kernel.
+ As far as I see, handling like in the acpi case for existing blocks is
+ not required.
+
+probed memory from user space:
+ Use DIMM_UNREMOVABLE as there is no interface to get rid of this code
+ again.
+
+hv_balloon,xen/balloon:
+ Use BALLOON. As simple as that :)
+
+s390x/sclp:
+ Use a dedicated type S390X_STANDBY as this type of memory and it's
+ semantics are very s390x specific.
+
+powernv/memtrace:
+ Only allow to use BOOT memory for memtrace. I consider this code in
+ general dangerous, but we have to keep it working ... most probably just
+ a debug feature.
+
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Rashmica Gupta <rashmica.g@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Balbir Singh <bsingharora@gmail.com>
+Cc: Michael Neuling <mikey@neuling.org>
+Cc: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Cc: YueHaibing <yuehaibing@huawei.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: "mike.travis@hpe.com" <mike.travis@hpe.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Arun KS <arunks@codeaurora.org>
+Cc: Andrew Banman <andrew.banman@hpe.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Michal Suchánek <msuchanek@suse.de>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+
+---
+
+At first I tried to abstract the types quite a lot, but I think there
+are subtle differences that are worth differentiating. More details about
+the types can be found in the excessive documentation.
+
+It is wort noting that BALLOON_MOVABLE has no user yet, but I have
+something in mind that might want to make use of that (virtio-mem).
+Just included it to discuss the general approach. I can drop it from
+this patch.
+---
+ arch/powerpc/platforms/powernv/memtrace.c     |  9 ++--
+ .../platforms/pseries/hotplug-memory.c        |  7 ++-
+ drivers/acpi/acpi_memhotplug.c                | 16 ++++++-
+ drivers/base/memory.c                         | 18 ++++++-
+ drivers/hv/hv_balloon.c                       |  3 +-
+ drivers/s390/char/sclp_cmd.c                  |  3 +-
+ drivers/xen/balloon.c                         |  2 +-
+ include/linux/memory.h                        | 47 ++++++++++++++++++-
+ include/linux/memory_hotplug.h                |  6 +--
+ mm/memory_hotplug.c                           | 15 +++---
+ 10 files changed, 104 insertions(+), 22 deletions(-)
+
+diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/platforms/powernv/memtrace.c
+index 248a38ad25c7..5d08db87091e 100644
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -54,9 +54,9 @@ static const struct file_operations memtrace_fops = {
+ 	.open	= simple_open,
+ };
+ 
+-static int check_memblock_online(struct memory_block *mem, void *arg)
++static int check_memblock_boot_and_online(struct memory_block *mem, void *arg)
+ {
+-	if (mem->state != MEM_ONLINE)
++	if (mem->type != MEM_BLOCK_BOOT || mem->state != MEM_ONLINE)
+ 		return -1;
+ 
+ 	return 0;
+@@ -77,7 +77,7 @@ static bool memtrace_offline_pages(u32 nid, u64 start_pfn, u64 nr_pages)
+ 	u64 end_pfn = start_pfn + nr_pages - 1;
+ 
+ 	if (walk_memory_range(start_pfn, end_pfn, NULL,
+-	    check_memblock_online))
++	    check_memblock_boot_and_online))
+ 		return false;
+ 
+ 	walk_memory_range(start_pfn, end_pfn, (void *)MEM_GOING_OFFLINE,
+@@ -233,7 +233,8 @@ static int memtrace_online(void)
+ 			ent->mem = 0;
+ 		}
+ 
+-		if (add_memory(ent->nid, ent->start, ent->size)) {
++		if (add_memory(ent->nid, ent->start, ent->size,
++			       MEMORY_BLOCK_BOOT)) {
+ 			pr_err("Failed to add trace memory to node %d\n",
+ 				ent->nid);
+ 			ret += 1;
+diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
+index 2a983b5a52e1..5f91359c7993 100644
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -651,7 +651,7 @@ static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
+ static int dlpar_add_lmb(struct drmem_lmb *lmb)
+ {
+ 	unsigned long block_sz;
+-	int nid, rc;
++	int nid, rc, type = MEMORY_BLOCK_DIMM;
+ 
+ 	if (lmb->flags & DRCONF_MEM_ASSIGNED)
+ 		return -EINVAL;
+@@ -667,8 +667,11 @@ static int dlpar_add_lmb(struct drmem_lmb *lmb)
+ 	/* Find the node id for this address */
+ 	nid = memory_add_physaddr_to_nid(lmb->base_addr);
+ 
++	if (!IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
++		type = MEMORY_BLOCK_DIMM_UNREMOVABLE;
++
+ 	/* Add the memory */
+-	rc = __add_memory(nid, lmb->base_addr, block_sz);
++	rc = __add_memory(nid, lmb->base_addr, block_sz, type);
+ 	if (rc) {
+ 		invalidate_lmb_associativity_index(lmb);
+ 		return rc;
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+index 8fe0960ea572..f841113b450d 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -177,6 +177,13 @@ static unsigned long acpi_meminfo_end_pfn(struct acpi_memory_info *info)
+ 
+ static int acpi_bind_memblk(struct memory_block *mem, void *arg)
+ {
++	/* switch the type of memory block if this memory was already present */
++	if (mem->type == MEMORY_BLOCK_BOOT) {
++		if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
++			mem->type = MEMORY_BLOCK_DIMM;
++		else
++			mem->type = MEMORY_BLOCK_DIMM_UNREMOVABLE;
++	}
+ 	return acpi_bind_one(&mem->dev, arg);
+ }
+ 
+@@ -191,6 +198,7 @@ static int acpi_bind_memory_blocks(struct acpi_memory_info *info,
+ static int acpi_unbind_memblk(struct memory_block *mem, void *arg)
+ {
+ 	acpi_unbind_one(&mem->dev);
++	mem->type = MEMORY_BLOCK_BOOT;
+ 	return 0;
+ }
+ 
+@@ -203,10 +211,13 @@ static void acpi_unbind_memory_blocks(struct acpi_memory_info *info)
+ static int acpi_memory_enable_device(struct acpi_memory_device *mem_device)
+ {
+ 	acpi_handle handle = mem_device->device->handle;
+-	int result, num_enabled = 0;
++	int result, num_enabled = 0, type = MEMORY_BLOCK_DIMM;
+ 	struct acpi_memory_info *info;
+ 	int node;
+ 
++	if (!IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
++		type = MEMORY_BLOCK_DIMM_UNREMOVABLE;
++
+ 	node = acpi_get_node(handle);
+ 	/*
+ 	 * Tell the VM there is more memory here...
+@@ -228,7 +239,8 @@ static int acpi_memory_enable_device(struct acpi_memory_device *mem_device)
+ 		if (node < 0)
+ 			node = memory_add_physaddr_to_nid(info->start_addr);
+ 
+-		result = __add_memory(node, info->start_addr, info->length);
++		result = __add_memory(node, info->start_addr, info->length,
++				      type);
+ 
+ 		/*
+ 		 * If the memory block has been used by the kernel, add_memory()
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index c42300082c88..c5fdca7a3009 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -394,6 +394,21 @@ static ssize_t type_show(struct device *dev, struct device_attribute *attr,
+ 	case MEMORY_BLOCK_BOOT:
+ 		len = sprintf(buf, "boot\n");
+ 		break;
++	case MEMORY_BLOCK_DIMM:
++		len = sprintf(buf, "dimm\n");
++		break;
++	case MEMORY_BLOCK_DIMM_UNREMOVABLE:
++		len = sprintf(buf, "dimm-unremovable\n");
++		break;
++	case MEMORY_BLOCK_BALLOON:
++		len = sprintf(buf, "balloon\n");
++		break;
++	case MEMORY_BLOCK_BALLOON_MOVABLE:
++		len = sprintf(buf, "balloon-movable\n");
++		break;
++	case MEMORY_BLOCK_S390X_STANDBY:
++		len = sprintf(buf, "s390x-standby\n");
++		break;
+ 	default:
+ 		len = sprintf(buf, "ERROR-UNKNOWN-%ld\n",
+ 				mem->state);
+@@ -538,7 +553,8 @@ memory_probe_store(struct device *dev, struct device_attribute *attr,
+ 
+ 	nid = memory_add_physaddr_to_nid(phys_addr);
+ 	ret = __add_memory(nid, phys_addr,
+-			   MIN_MEMORY_BLOCK_SIZE * sections_per_block);
++			   MIN_MEMORY_BLOCK_SIZE * sections_per_block,
++			   MEMORY_BLOCK_DIMM_UNREMOVABLE);
+ 
+ 	if (ret)
+ 		goto out;
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 47719862e57f..f502ea6cd255 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -741,7 +741,8 @@ static void hv_mem_hot_add(unsigned long start, unsigned long size,
+ 
+ 		nid = memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
+ 		ret = add_memory(nid, PFN_PHYS((start_pfn)),
+-				(HA_CHUNK << PAGE_SHIFT));
++				 (HA_CHUNK << PAGE_SHIFT),
++				 MEMORY_BLOCK_BALLOON);
+ 
+ 		if (ret) {
+ 			pr_err("hot_add memory failed error is %d\n", ret);
+diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+index 37d42de06079..0ca6f77e7e1d 100644
+--- a/drivers/s390/char/sclp_cmd.c
++++ b/drivers/s390/char/sclp_cmd.c
+@@ -406,7 +406,8 @@ static void __init add_memory_merged(u16 rn)
+ 	if (!size)
+ 		goto skip_add;
+ 	for (addr = start; addr < start + size; addr += block_size)
+-		add_memory(numa_pfn_to_nid(PFN_DOWN(addr)), addr, block_size);
++		add_memory(numa_pfn_to_nid(PFN_DOWN(addr)), addr, block_size,
++			   MEMORY_BLOCK_S390X_STANDBY);
+ skip_add:
+ 	first_rn = rn;
+ 	num = 1;
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 5d2d7a917b4e..953ff86d609b 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -352,7 +352,7 @@ static enum bp_state reserve_additional_memory(void)
+ 	mutex_unlock(&balloon_mutex);
+ 	/* add_memory_resource() requires the device_hotplug lock */
+ 	lock_device_hotplug();
+-	rc = add_memory_resource(nid, resource);
++	rc = add_memory_resource(nid, resource, MEMORY_BLOCK_BALLOON);
+ 	unlock_device_hotplug();
+ 	mutex_lock(&balloon_mutex);
+ 
+diff --git a/include/linux/memory.h b/include/linux/memory.h
+index 9f39ef41e6d2..a3a1e9764805 100644
+--- a/include/linux/memory.h
++++ b/include/linux/memory.h
+@@ -59,12 +59,57 @@ int set_memory_block_size_order(unsigned int order);
+  *  specific device driver takes care of this memory block. This memory
+  *  block type is onlined automatically by the kernel during boot and might
+  *  later be managed by a different device driver, in which case the type
+- *  might change.
++ *  might change (e.g. to MEMORY_BLOCK_DIMM).
++ *
++ * MEMORY_BLOCK_DIMM:
++ *  This memory block is managed by a device driver taking care of DIMMs
++ *  (or similar). Once all memory blocks belonging to the DIMM have been
++ *  offlined, the DIMM along with the memory blocks can be removed to
++ *  effectively unplug it. This memory block type is usually onlined to the
++ *  MOVABLE zone, to make offlining and unplug possible. Examples include
++ *  ACPI DIMMs and PPC LMBs if the kernel supports removal of memory.
++ *
++ * MEMORY_BLOCK_DIMM_UNREMOVABLE:
++ *  This memory block is managed by a device driver taking care of DIMMs
++ *  (or similar). There is either no HW interface to remove the DIMM or
++ *  the kernel does not support offlining/removal of memory, so this memory
++ *  block can never be removed. Examples include ACPI DIMMs and PPC LMBs
++ *  when removal of memory is not supported by the kernel, as well as
++ *  memory probed manually from user space.
++ *  This memory block type is usually onlined to the NORMAL zone.
++ *
++ * MEMORY_BLOCK_BALLOON:
++ *  This memory block was added by a balloon device driver (or similar)
++ *  that does not require a specific zone for optimal operation
++ *  (e.g. unplug memory using balloon inflation on this memory block on
++ *  page granularity). Examples include memory added by the XEN and Hyper-V
++ *  balloon driver.
++ *  This memory block type is usually onlined to the NORMAL zone.
++ *
++ * MEMORY_BLOCK_BALLOON_MOVABLE:
++ *  This memory block was added by a balloon device driver (or similar)
++ *  that suggests to online this memory block to the MOVABLE zone for
++ *  optimal operation (a.g. unplug using balloon inflation on this memory
++ *  block in bigger chunks than pages). There are no examples yet.
++ *  This memory block type is usually onlined to the MOVABLE zone.
++ *
++ * MEMORY_BLOCK_S390X_STANDBY:
++ *  The memory block is special standby memory on s390x. As long as
++ *  offline, no memory will be allocated to the system for this memory
++ *  block. Onlining memory will result in memory getting allocated to the
++ *  system and memory can usually not be offlined again. The memory block
++ *  will never be removed. This memory type is usually not onlined
++ *  automatically but explicitly by the administrator.
+  */
+ enum {
+ 	MEMORY_BLOCK_NONE = 0,
+ 	MEMORY_BLOCK_UNSPECIFIED,
+ 	MEMORY_BLOCK_BOOT,
++	MEMORY_BLOCK_DIMM,
++	MEMORY_BLOCK_DIMM_UNREMOVABLE,
++	MEMORY_BLOCK_BALLOON,
++	MEMORY_BLOCK_BALLOON_MOVABLE,
++	MEMORY_BLOCK_S390X_STANDBY,
+ };
+ 
+ /* These states are exposed to userspace as text strings in sysfs */
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index 667a37aa9a3c..7c8895299e8c 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -326,9 +326,9 @@ static inline void __remove_memory(int nid, u64 start, u64 size) {}
+ extern void __ref free_area_init_core_hotplug(int nid);
+ extern int walk_memory_range(unsigned long start_pfn, unsigned long end_pfn,
+ 		void *arg, int (*func)(struct memory_block *, void *));
+-extern int __add_memory(int nid, u64 start, u64 size);
+-extern int add_memory(int nid, u64 start, u64 size);
+-extern int add_memory_resource(int nid, struct resource *resource);
++extern int __add_memory(int nid, u64 start, u64 size, int type);
++extern int add_memory(int nid, u64 start, u64 size, int type);
++extern int add_memory_resource(int nid, struct resource *resource, int type);
+ extern int arch_add_memory(int nid, u64 start, u64 size,
+ 			   struct vmem_altmap *altmap, int type);
+ extern void move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 7246faa44488..f109002d6e6e 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1071,7 +1071,7 @@ static int online_memory_block(struct memory_block *mem, void *arg)
+  *
+  * we are OK calling __meminit stuff here - we have CONFIG_MEMORY_HOTPLUG
+  */
+-int __ref add_memory_resource(int nid, struct resource *res)
++int __ref add_memory_resource(int nid, struct resource *res, int type)
+ {
+ 	u64 start, size;
+ 	bool new_node = false;
+@@ -1080,6 +1080,9 @@ int __ref add_memory_resource(int nid, struct resource *res)
+ 	start = res->start;
+ 	size = resource_size(res);
+ 
++	if (type == MEMORY_BLOCK_NONE)
++		return -EINVAL;
++
+ 	ret = check_hotplug_memory_range(start, size);
+ 	if (ret)
+ 		return ret;
+@@ -1100,7 +1103,7 @@ int __ref add_memory_resource(int nid, struct resource *res)
+ 	new_node = ret;
+ 
+ 	/* call arch's memory hotadd */
+-	ret = arch_add_memory(nid, start, size, NULL, MEMORY_TYPE_UNSPECIFIED);
++	ret = arch_add_memory(nid, start, size, NULL, type);
+ 	if (ret < 0)
+ 		goto error;
+ 
+@@ -1141,7 +1144,7 @@ int __ref add_memory_resource(int nid, struct resource *res)
+ }
+ 
+ /* requires device_hotplug_lock, see add_memory_resource() */
+-int __ref __add_memory(int nid, u64 start, u64 size)
++int __ref __add_memory(int nid, u64 start, u64 size, int type)
+ {
+ 	struct resource *res;
+ 	int ret;
+@@ -1150,18 +1153,18 @@ int __ref __add_memory(int nid, u64 start, u64 size)
+ 	if (IS_ERR(res))
+ 		return PTR_ERR(res);
+ 
+-	ret = add_memory_resource(nid, res);
++	ret = add_memory_resource(nid, res, type);
+ 	if (ret < 0)
+ 		release_memory_resource(res);
+ 	return ret;
+ }
+ 
+-int add_memory(int nid, u64 start, u64 size)
++int add_memory(int nid, u64 start, u64 size, int type)
+ {
+ 	int rc;
+ 
+ 	lock_device_hotplug();
+-	rc = __add_memory(nid, start, size);
++	rc = __add_memory(nid, start, size, type);
+ 	unlock_device_hotplug();
+ 
+ 	return rc;
+-- 
+2.17.2
