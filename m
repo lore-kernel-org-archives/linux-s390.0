@@ -1,65 +1,41 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PULL 0/2] virtio-ccw fixes
-Date: Thu, 6 Dec 2018 08:53:57 -0500
-Message-ID: <20181206085350-mutt-send-email-mst@kernel.org>
-References: <20180926164830.8435-1-cohuck@redhat.com>
-	<20181129155648.440743bb.cohuck@redhat.com>
-	<20181206131828.186fcf96.cohuck@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181206131828.186fcf96.cohuck@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-Path: <linux-kbuild-owner@vger.kernel.org>
+MIME-Version: 1.0
+References: <1543220141-13744-1-git-send-email-yamada.masahiro@socionext.com> <20181126083633.GA10604@light.dominikbrodowski.net>
+In-Reply-To: <20181126083633.GA10604@light.dominikbrodowski.net>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Sat, 1 Dec 2018 23:55:22 +0900
+Message-ID: <CAK7LNASVcFj2-ooroLsyZgpVyv_xW1RJCkVtayg7sNxVjvHN=A@mail.gmail.com>
+Subject: Re: [PATCH] pcmcia: remove per-arch PCMCIA config entry
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kbuild-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-kbuild/>
+List-Post: <mailto:linux-kbuild@vger.kernel.org>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-um@lists.infradead.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Weinberger <richard@nod.at>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jeff Dike <jdike@addtoit.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Dec 06, 2018 at 01:18:28PM +0100, Cornelia Huck wrote:
-> On Thu, 29 Nov 2018 15:56:48 +0100
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Wed, 26 Sep 2018 18:48:28 +0200
-> > Cornelia Huck <cohuck@redhat.com> wrote:
-> > 
-> > > The following changes since commit 8c0f9f5b309d627182d5da72a69246f58bde1026:
-> > > 
-> > >   Revert "uapi/linux/keyctl.h: don't use C++ reserved keyword as a struct member name" (2018-09-25 13:28:58 +0200)
-> > > 
-> > > are available in the Git repository at:
-> > > 
-> > >   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-ccw-20180926
-> > > 
-> > > for you to fetch changes up to 1fd7ccf82385b3b14e4b3f009a82ada17ddc1e6f:
-> > > 
-> > >   virtio/s390: fix race in ccw_io_helper() (2018-09-25 15:29:10 +0200)
-> > > 
-> > > ----------------------------------------------------------------
-> > > Two patches fixing races in the virtio-ccw driver.
-> > > 
-> > > ----------------------------------------------------------------
-> > > 
-> > > Halil Pasic (2):
-> > >   virtio/s390: avoid race on vcdev->config
-> > >   virtio/s390: fix race in ccw_io_helper()
-> > > 
-> > >  drivers/s390/virtio/virtio_ccw.c | 17 ++++++++++++++---
-> > >  1 file changed, 14 insertions(+), 3 deletions(-)
-> > >   
-> > 
-> > Ping. I don't see these patches in master :(
-> 
-> Ping^2. Any chance to get this into the next version?
+On Mon, Nov 26, 2018 at 6:24 PM Dominik Brodowski
+<linux@dominikbrodowski.net> wrote:
+>
+> On Mon, Nov 26, 2018 at 05:15:41PM +0900, Masahiro Yamada wrote:
+> > Now that all architectures include drivers/pcmcia/Kconfig where
+> > the PCMCIA config is defined, the PCMCIA config entries in per-arch
+> > Kconfig files are redundant.
+> >
+> > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> > ---
+> >
+> > I will queue this up to my kbuild tree
+> > along with Christoph's clean-up patch set.
+>
+> Acked-by: Dominik Brodowski <linux@dominikbrodowski.net>
+>
+> Thanks,
+>         Dominik
 
-Pulled, thanks!
+Applied to linux-kbuild.
+
+
+-- 
+Best Regards
+Masahiro Yamada
