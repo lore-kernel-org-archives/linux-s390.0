@@ -1,9 +1,9 @@
 Return-Path: <SRS0=0OAT=OM=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH v5 6/6] perf tools: Use ioctl function to send sink
- information to kernel
-Date: Mon,  3 Dec 2018 15:54:56 -0700
-Message-Id: <1543877696-17174-7-git-send-email-mathieu.poirier@linaro.org>
+Subject: [PATCH v5 2/6] perf/core: Use ioctl to communicate driver
+ configuration to kernel
+Date: Mon,  3 Dec 2018 15:54:52 -0700
+Message-Id: <1543877696-17174-3-git-send-email-mathieu.poirier@linaro.org>
 In-Reply-To: <1543877696-17174-1-git-send-email-mathieu.poirier@linaro.org>
 References: <1543877696-17174-1-git-send-email-mathieu.poirier@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
@@ -23,158 +23,192 @@ To: acme@kernel.org, peterz@infradead.org, gregkh@linuxfoundation.org
 Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, alexander.shishkin@linux.intel.com, will.deacon@arm.com, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, suzuki.poulosi@arm.com, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The communication of sink information for a trace session doesn't work when
-more than one CPU is involved in the scenario due to the static nature of
-sysfs.  As such communicate the sink information to each event by using the
-an ioctl command.  The information sent to the kernel is the component's HW
-address, which is guaranteed to be unique on the CoreSight bus and known to
-the kernel.
+This patch adds the mechanic needed for user space to send PMU specific
+configuration to the kernel driver using an ioctl() command.  That way
+events can keep track of options that don't fit in the perf_event_attr
+structure like the selection of a CoreSight sink to use for the session.
 
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- tools/perf/arch/arm/util/cs-etm.c | 66 +++++++++++++++++++++++++++++++++++++--
- tools/perf/util/evsel.c           |  6 ++++
- tools/perf/util/evsel.h           |  1 +
- 3 files changed, 71 insertions(+), 2 deletions(-)
+ include/linux/perf_event.h | 38 ++++++++++++++++++++++++++
+ kernel/events/core.c       | 67 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 105 insertions(+)
 
-diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
-index d8081c2e6d44..41e394806707 100644
---- a/tools/perf/arch/arm/util/cs-etm.c
-+++ b/tools/perf/arch/arm/util/cs-etm.c
-@@ -22,11 +22,13 @@
- #include "../../util/thread_map.h"
- #include "../../util/cs-etm.h"
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 53c500f0ca79..8e69b7e309e7 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -114,6 +114,14 @@ struct hw_perf_event_extra {
+ 	int		idx;	/* index in shared_regs->regs[] */
+ };
  
-+#include <stdio.h>
- #include <stdlib.h>
- #include <sys/stat.h>
++/*
++ * PMU driver configuration
++ */
++struct pmu_drv_config {
++	void		*config;
++	raw_spinlock_t	lock;
++};
++
+ /**
+  * struct hw_perf_event - performance event hardware details:
+  */
+@@ -178,6 +186,9 @@ struct hw_perf_event {
+ 	/* Last sync'ed generation of filters */
+ 	unsigned long			addr_filters_gen;
  
- #define ENABLE_SINK_MAX	128
- #define CS_BUS_DEVICE_PATH "/bus/coresight/devices/"
-+#define AMBA_BUS_DEVICE_PATH "/bus/amba/devices/"
++	/* PMU driver configuration */
++	struct pmu_drv_config		drv_config;
++
+ /*
+  * hw_perf_event::state flags; used to track the PERF_EF_* state.
+  */
+@@ -447,6 +458,17 @@ struct pmu {
+ 	 * Filter events for PMU-specific reasons.
+ 	 */
+ 	int (*filter_match)		(struct perf_event *event); /* optional */
++
++	/*
++	 * Validate complex PMU configuration that don't fit in the
++	 * perf_event_attr struct.  Returns a PMU specific pointer or an error
++	 * value < 0.
++	 *
++	 * As with addr_filters_validate(), runs in the context of the ioctl()
++	 * process and is not serialized with the rest of the PMU callbacks.
++	 */
++	void *(*drv_config_validate)	(struct perf_event *event,
++					 u64 value);
+ };
  
- struct cs_etm_recording {
- 	struct auxtrace_record	itr;
-@@ -619,6 +621,41 @@ static FILE *cs_device__open_file(const char *name)
- 
+ enum perf_addr_filter_action_t {
+@@ -1235,6 +1257,11 @@ static inline bool has_addr_filter(struct perf_event *event)
+ 	return event->pmu->nr_addr_filters;
  }
  
-+static int cs_etm_check_drv_config_term(const char *name, u64 *addr)
++static inline bool has_drv_config(struct perf_event *event)
 +{
-+	char path[PATH_MAX];
-+	const char *sysfs;
-+	int err;
-+	FILE *file;
-+	u64 start;
-+
-+	/* CS devices are all found under sysFS */
-+	sysfs = sysfs__mountpoint();
-+	if (!sysfs)
-+		return -EINVAL;
-+
-+	/* The resource file contains the HW start address of this component */
-+	snprintf(path, PATH_MAX,
-+		 "%s" AMBA_BUS_DEVICE_PATH "%s" "/resource", sysfs, name);
-+
-+	file = fopen(path, "r");
-+	if (!file) {
-+		pr_debug("Unable to open file: %s\n", path);
-+		return -EINVAL;
-+	}
-+
-+	/* We just need the first value */
-+	err = fscanf(file, "%016lx", &start);
-+	if (err != 1) {
-+		pr_debug("Unable to get resource start value for: %s\n", path);
-+		return -EINVAL;
-+	}
-+
-+	*addr = start;
-+
-+	return 0;
++	return event->pmu->drv_config_validate;
 +}
 +
- static int __printf(2, 3) cs_device__print_file(const char *name, const char *fmt, ...)
- {
- 	va_list args;
-@@ -635,7 +672,7 @@ static int __printf(2, 3) cs_device__print_file(const char *name, const char *fm
+ /*
+  * An inherited event uses parent's filters
+  */
+@@ -1249,6 +1276,17 @@ perf_event_addr_filters(struct perf_event *event)
+ 	return ifh;
+ }
+ 
++static inline struct pmu_drv_config *
++perf_event_get_drv_config(struct perf_event *event)
++{
++	struct pmu_drv_config *cfg = &event->hw.drv_config;
++
++	if (event->parent)
++		cfg = &event->parent->hw.drv_config;
++
++	return cfg;
++}
++
+ extern void perf_event_addr_filters_sync(struct perf_event *event);
+ 
+ extern int perf_output_begin(struct perf_output_handle *handle,
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 84530ab358c3..af7a53c97744 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5003,6 +5003,8 @@ static inline int perf_fget_light(int fd, struct fd *p)
+ static int perf_event_set_output(struct perf_event *event,
+ 				 struct perf_event *output_event);
+ static int perf_event_set_filter(struct perf_event *event, void __user *arg);
++static int perf_event_set_drv_config(struct perf_event *event,
++				     void __user *arg);
+ static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd);
+ static int perf_copy_attr(struct perf_event_attr __user *uattr,
+ 			  struct perf_event_attr *attr);
+@@ -5089,6 +5091,10 @@ static long _perf_ioctl(struct perf_event *event, unsigned int cmd, unsigned lon
+ 
+ 		return perf_event_modify_attr(event,  &new_attr);
+ 	}
++
++	case PERF_EVENT_IOC_SET_DRV_CONFIG:
++		return perf_event_set_drv_config(event, (void __user *)arg);
++
+ 	default:
+ 		return -ENOTTY;
+ 	}
+@@ -9128,6 +9134,66 @@ static int perf_event_set_filter(struct perf_event *event, void __user *arg)
  	return ret;
  }
  
--static int cs_etm_set_drv_config_term(struct perf_evsel_config_term *term)
-+static int cs_etm_set_drv_config_term_sysfs(struct perf_evsel_config_term *term)
- {
- 	int ret;
- 	char enable_sink[ENABLE_SINK_MAX];
-@@ -650,6 +687,21 @@ static int cs_etm_set_drv_config_term(struct perf_evsel_config_term *term)
- 	return 0;
- }
- 
-+static int cs_etm_set_drv_config_term_ioctl(struct perf_evsel *evsel,
-+					    struct perf_evsel_config_term *term)
++static void perf_drv_config_replace(struct perf_event *event, void *drv_data)
 +{
-+	u64 addr;
++	unsigned long flags;
++	struct pmu_drv_config *drv_config = &event->hw.drv_config;
++
++	if (!has_drv_config(event))
++		return;
++
++	/* Children take their configuration from their parent */
++	if (event->parent)
++		return;
++
++	/* Make sure the PMU doesn't get a handle on the data */
++	raw_spin_lock_irqsave(&drv_config->lock, flags);
++	drv_config->config = drv_data;
++	raw_spin_unlock_irqrestore(&drv_config->lock, flags);
++}
++
++static int
++perf_event_process_drv_config(struct perf_event *event, u64 value)
++{
++	int ret = -EINVAL;
++	void *drv_data;
++
++	/* Make sure ctx.mutex is held */
++	lockdep_assert_held(&event->ctx->mutex);
++
++	/* Children take their configuration from their parent */
++	if (WARN_ON_ONCE(event->parent))
++		goto out;
++
++	drv_data = event->pmu->drv_config_validate(event, value);
++	if (IS_ERR(drv_data)) {
++		ret = PTR_ERR(drv_data);
++		goto out;
++	}
++
++	perf_drv_config_replace(event, drv_data);
++
++	ret = 0;
++out:
++	return ret;
++}
++
++static int perf_event_set_drv_config(struct perf_event *event, void __user *arg)
++{
 +	int ret;
++	u64 value;
 +
-+	/* First check the input */
-+	ret = cs_etm_check_drv_config_term(term->val.drv_cfg, &addr);
-+	if (ret)
-+		return ret;
++	if (!has_drv_config(event))
++		return -EINVAL;
 +
-+	/* All good, apply configuration */
-+	return perf_evsel__apply_drv_config(evsel, addr);
++	if (copy_from_user(&value, arg, sizeof(value)))
++		return -EFAULT;
++
++	ret = perf_event_process_drv_config(event, value);
++
++	return ret;
 +}
 +
- int cs_etm_set_drv_config(struct perf_evsel *evsel,
- 			  struct perf_evsel_config_term **err_term)
- {
-@@ -660,7 +712,17 @@ int cs_etm_set_drv_config(struct perf_evsel *evsel,
- 		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
- 			continue;
+ /*
+  * hrtimer based swevent callback
+  */
+@@ -10052,6 +10118,7 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
+ 	if (attr->freq && attr->sample_freq)
+ 		hwc->sample_period = 1;
+ 	hwc->last_period = hwc->sample_period;
++	raw_spin_lock_init(&hwc->drv_config.lock);
  
--		err = cs_etm_set_drv_config_term(term);
-+		/* First try the new interface, i.e ioctl() */
-+		err = cs_etm_set_drv_config_term_ioctl(evsel, term);
-+		if (!err)
-+			continue;
-+
-+		/*
-+		 * Something went wrong, we are probably working with an older
-+		 * kernel.  As such use the sysFS interface, which will only
-+		 * work for per-thread scenarios.
-+		 */
-+		err = cs_etm_set_drv_config_term_sysfs(term);
- 		if (err) {
- 			*err_term = term;
- 			break;
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index 6d187059a373..8aa2b79c3314 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1195,6 +1195,12 @@ static int perf_evsel__append_filter(struct perf_evsel *evsel,
- 	return -1;
- }
- 
-+int perf_evsel__apply_drv_config(struct perf_evsel *evsel, u64 addr)
-+{
-+	return perf_evsel__run_ioctl(evsel,
-+				     PERF_EVENT_IOC_SET_DRV_CONFIG, &addr);
-+}
-+
- int perf_evsel__append_tp_filter(struct perf_evsel *evsel, const char *filter)
- {
- 	return perf_evsel__append_filter(evsel, "(%s) && (%s)", filter);
-diff --git a/tools/perf/util/evsel.h b/tools/perf/util/evsel.h
-index 3147ca76c6fc..6be7560bc986 100644
---- a/tools/perf/util/evsel.h
-+++ b/tools/perf/util/evsel.h
-@@ -276,6 +276,7 @@ int perf_evsel__append_tp_filter(struct perf_evsel *evsel, const char *filter);
- int perf_evsel__append_addr_filter(struct perf_evsel *evsel,
- 				   const char *filter);
- int perf_evsel__apply_filter(struct perf_evsel *evsel, const char *filter);
-+int perf_evsel__apply_drv_config(struct perf_evsel *evsel, u64 addr);
- int perf_evsel__enable(struct perf_evsel *evsel);
- int perf_evsel__disable(struct perf_evsel *evsel);
+ 	local64_set(&hwc->period_left, hwc->sample_period);
  
 -- 
 2.7.4
