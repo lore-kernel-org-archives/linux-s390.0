@@ -1,63 +1,78 @@
-Return-Path: <SRS0=YyAj=PE=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: 4.19.5 and later has tons of false messages "BUG: non-zero
- pgtables_bytes on freeing mm: -16384"
-References: <4e58571e-1991-4a70-7012-ff9dd76afee3@de.ibm.com>
- <1d6288dd-a65b-463a-8aeb-33904dafa9cc@de.ibm.com>
- <20181227210136.GV86645@sasha-vm>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 27 Dec 2018 22:06:09 +0100
+Return-Path: <SRS0=Grn6=OM=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: [PATCH] [SCSI] zfcp: NULL check before some freeing functions is
+ not needed.
+References: <1543760930050-1499171309-0-diffsplit-thomas@m3y3r.de>
+ <1543760930051-347492467-5-diffsplit-thomas@m3y3r.de>
+From: Steffen Maier <maier@linux.ibm.com>
+Date: Mon, 3 Dec 2018 11:59:15 +0100
 MIME-Version: 1.0
-In-Reply-To: <20181227210136.GV86645@sasha-vm>
+In-Reply-To: <1543760930051-347492467-5-diffsplit-thomas@m3y3r.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Message-Id: <babf4052-c82c-3bca-0214-4ae3f23fee4e@de.ibm.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Message-Id: <28bf96ec-4dff-29bd-f628-1a30e189aea8@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Sasha Levin <sashal@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, stable@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Thomas Meyer <thomas@m3y3r.de>, bblock@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Thanks, this was already submitted for v4.12 with
+https://www.spinics.net/lists/linux-scsi/msg125190.html
+based on
+https://www.spinics.net/lists/linux-s390/msg21307.html
 
+Also, previously seen in
+https://www.spinics.net/lists/linux-s390/msg22035.html
 
-On 12/27/2018 10:01 PM, Sasha Levin wrote:
-> On Thu, Dec 27, 2018 at 10:28:56AM +0100, Christian Borntraeger wrote:
->>
->>
->> On 27.12.2018 10:13, Christian Borntraeger wrote:
->>> Martin,
->>>
->>> Right now you get a message
->>> "BUG: non-zero pgtables_bytes on freeing mm: -16384"
->>> for EVERY process that exits in 4.19.5 and later.
->>>
->>> bisect points to
->>> commit 4136161d676a93fc8df6bdb80d720c15522d6c24
->>> Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
->>> Date:   Mon Oct 15 11:09:16 2018 +0200
->>>
->>>     s390/mm: fix mis-accounting of pgtable_bytes
->>>
->>>     [ Upstream commit e12e4044aede97974f2222eb7f0ed726a5179a32 ]
->>>
->>> Turns out that this patch requires several dependencies so the autoselection of this
->>> patch was missing that.
->>>
->>> Can we either revert this patch or add the dependencies?
->>>
->>> Christian
->>>
->>
->> It seems that adding
->>
->> commit 6d212db11947ae5464e4717536ed9faf61c01e86 ("mm: add mm_pxd_folded checks to pgtable_bytes accounting functions")
->> fixes the issue.
+On 12/02/2018 09:52 PM, Thomas Meyer wrote:
+> NULL check before some freeing functions is not needed.
 > 
-> I've queued 6d212db11947 for 4.19 for now, thank you.
+> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+> ---
+> 
+> diff -u -p a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+> --- a/drivers/s390/scsi/zfcp_aux.c
+> +++ b/drivers/s390/scsi/zfcp_aux.c
+> @@ -248,20 +248,13 @@ static int zfcp_allocate_low_mem_buffers
+>   
+>   static void zfcp_free_low_mem_buffers(struct zfcp_adapter *adapter)
+>   {
+> -	if (adapter->pool.erp_req)
+> -		mempool_destroy(adapter->pool.erp_req);
+> -	if (adapter->pool.scsi_req)
+> -		mempool_destroy(adapter->pool.scsi_req);
+> -	if (adapter->pool.scsi_abort)
+> -		mempool_destroy(adapter->pool.scsi_abort);
+> -	if (adapter->pool.qtcb_pool)
+> -		mempool_destroy(adapter->pool.qtcb_pool);
+> -	if (adapter->pool.status_read_req)
+> -		mempool_destroy(adapter->pool.status_read_req);
+> -	if (adapter->pool.sr_data)
+> -		mempool_destroy(adapter->pool.sr_data);
+> -	if (adapter->pool.gid_pn)
+> -		mempool_destroy(adapter->pool.gid_pn);
+> +	mempool_destroy(adapter->pool.erp_req);
+> +	mempool_destroy(adapter->pool.scsi_req);
+> +	mempool_destroy(adapter->pool.scsi_abort);
+> +	mempool_destroy(adapter->pool.qtcb_pool);
+> +	mempool_destroy(adapter->pool.status_read_req);
+> +	mempool_destroy(adapter->pool.sr_data);
+> +	mempool_destroy(adapter->pool.gid_pn);
+>   }
+>   
+>   /**
+> 
 
-Not sure, but you might need 
-1071fc5779d98 mm: introduce mm_[p4d|pud|pmd]_folded
-a8874e7e8a889 mm: make the __PAGETABLE_PxD_FOLDED defines non-empty
 
-to avoid compile errors on !s390.
+-- 
+Mit freundlichen Gruessen / Kind regards
+Steffen Maier
+
+Linux on IBM Z Development
+
+IBM Deutschland Research & Development GmbH
+Vorsitzende des Aufsichtsrats: Martina Koederitz
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
