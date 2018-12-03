@@ -1,9 +1,9 @@
 Return-Path: <SRS0=0OAT=OM=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH v5 4/6] coresight: Use PMU driver configuration for sink
- selection
-Date: Mon,  3 Dec 2018 15:54:54 -0700
-Message-Id: <1543877696-17174-5-git-send-email-mathieu.poirier@linaro.org>
+Subject: [PATCH v5 5/6] perf tools: Make perf_evsel accessible to PMU driver
+ configuration code
+Date: Mon,  3 Dec 2018 15:54:55 -0700
+Message-Id: <1543877696-17174-6-git-send-email-mathieu.poirier@linaro.org>
 In-Reply-To: <1543877696-17174-1-git-send-email-mathieu.poirier@linaro.org>
 References: <1543877696-17174-1-git-send-email-mathieu.poirier@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
@@ -23,138 +23,131 @@ To: acme@kernel.org, peterz@infradead.org, gregkh@linuxfoundation.org
 Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, alexander.shishkin@linux.intel.com, will.deacon@arm.com, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, suzuki.poulosi@arm.com, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch uses the PMU driver configuration held in event::hw::drv_config
-to select a sink for each event that is created (the old sysFS way of
-working is kept around for backward compatibility).
-
-By proceeding in this way a sink can be used by multiple sessions
-without having to play games with entries in sysFS.
+Make the perf_evsel available to the PMU driver configuration code.  That
+way function perf_evsel__run_ioctl() can be used from there and
+information pertaining to the perf_evsel_config_term is still available.
 
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/hwtracing/coresight/coresight-etm-perf.c | 74 ++++++++++++++++++++----
- 1 file changed, 62 insertions(+), 12 deletions(-)
+ tools/perf/arch/arm/util/cs-etm.c | 22 +++++++++++++++++++++-
+ tools/perf/arch/arm/util/cs-etm.h |  3 ++-
+ tools/perf/util/drv_configs.c     | 30 +++++++-----------------------
+ tools/perf/util/pmu.h             |  3 ++-
+ 4 files changed, 32 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
-index f21eb28b6782..a7e1fdef07f2 100644
---- a/drivers/hwtracing/coresight/coresight-etm-perf.c
-+++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-@@ -4,6 +4,7 @@
-  * Author: Mathieu Poirier <mathieu.poirier@linaro.org>
-  */
- 
-+#include <linux/amba/bus.h>
- #include <linux/coresight.h>
- #include <linux/coresight-pmu.h>
- #include <linux/cpumask.h>
-@@ -11,6 +12,7 @@
- #include <linux/list.h>
- #include <linux/mm.h>
- #include <linux/init.h>
-+#include <linux/ioport.h>
- #include <linux/perf_event.h>
- #include <linux/percpu-defs.h>
- #include <linux/slab.h>
-@@ -177,6 +179,26 @@ static void etm_free_aux(void *data)
- 	schedule_work(&event_data->work);
+diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
+index 2f595cd73da6..d8081c2e6d44 100644
+--- a/tools/perf/arch/arm/util/cs-etm.c
++++ b/tools/perf/arch/arm/util/cs-etm.c
+@@ -635,7 +635,7 @@ static int __printf(2, 3) cs_device__print_file(const char *name, const char *fm
+ 	return ret;
  }
  
-+static struct coresight_device *etm_drv_config_sync(struct perf_event *event)
-+{
-+	struct coresight_device *sink = NULL;
-+	struct pmu_drv_config *drv_config = perf_event_get_drv_config(event);
-+
-+	/*
-+	 * Make sure we don't race with perf_drv_config_replace() in
-+	 * kernel/events/core.c.
-+	 */
-+	raw_spin_lock(&drv_config->lock);
-+
-+	/* Copy what we got from user space if applicable. */
-+	if (drv_config->config)
-+		sink = drv_config->config;
-+
-+	raw_spin_unlock(&drv_config->lock);
-+
-+	return sink;
-+}
-+
- static void *etm_setup_aux(struct perf_event *event, void **pages,
- 			   int nr_pages, bool overwrite)
+-int cs_etm_set_drv_config(struct perf_evsel_config_term *term)
++static int cs_etm_set_drv_config_term(struct perf_evsel_config_term *term)
  {
-@@ -190,18 +212,11 @@ static void *etm_setup_aux(struct perf_event *event, void **pages,
- 		return NULL;
- 	INIT_WORK(&event_data->work, free_event_data);
+ 	int ret;
+ 	char enable_sink[ENABLE_SINK_MAX];
+@@ -649,3 +649,23 @@ int cs_etm_set_drv_config(struct perf_evsel_config_term *term)
  
--	/*
--	 * In theory nothing prevent tracers in a trace session from being
--	 * associated with different sinks, nor having a sink per tracer.  But
--	 * until we have HW with this kind of topology we need to assume tracers
--	 * in a trace session are using the same sink.  Therefore go through
--	 * the coresight bus and pick the first enabled sink.
--	 *
--	 * When operated from sysFS users are responsible to enable the sink
--	 * while from perf, the perf tools will do it based on the choice made
--	 * on the cmd line.  As such the "enable_sink" flag in sysFS is reset.
--	 */
--	sink = coresight_get_enabled_sink(true);
-+	/* First get the sink config from user space. */
-+	sink = etm_drv_config_sync(event);
-+	if (!sink)
-+		sink = coresight_get_enabled_sink(true);
+ 	return 0;
+ }
 +
- 	if (!sink || !sink_ops(sink)->alloc_buffer)
- 		goto err;
++int cs_etm_set_drv_config(struct perf_evsel *evsel,
++			  struct perf_evsel_config_term **err_term)
++{
++	int err = 0;
++	struct perf_evsel_config_term *term;
++
++	list_for_each_entry(term, &evsel->config_terms, list) {
++		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
++			continue;
++
++		err = cs_etm_set_drv_config_term(term);
++		if (err) {
++			*err_term = term;
++			break;
++		}
++	}
++
++	return err;
++}
+diff --git a/tools/perf/arch/arm/util/cs-etm.h b/tools/perf/arch/arm/util/cs-etm.h
+index 1a12e64f5127..a3f8dde6ccef 100644
+--- a/tools/perf/arch/arm/util/cs-etm.h
++++ b/tools/perf/arch/arm/util/cs-etm.h
+@@ -10,6 +10,7 @@
+ #include "../../util/evsel.h"
  
-@@ -454,6 +469,40 @@ static void etm_addr_filters_sync(struct perf_event *event)
- 	filters->nr_filters = i;
+ struct auxtrace_record *cs_etm_record_init(int *err);
+-int cs_etm_set_drv_config(struct perf_evsel_config_term *term);
++int cs_etm_set_drv_config(struct perf_evsel *evsel,
++			  struct perf_evsel_config_term **err_term);
+ 
+ #endif
+diff --git a/tools/perf/util/drv_configs.c b/tools/perf/util/drv_configs.c
+index eec754243f4d..f7c1bcf08549 100644
+--- a/tools/perf/util/drv_configs.c
++++ b/tools/perf/util/drv_configs.c
+@@ -25,7 +25,6 @@ perf_evsel__apply_drv_configs(struct perf_evsel *evsel,
+ {
+ 	bool found = false;
+ 	int err = 0;
+-	struct perf_evsel_config_term *term;
+ 	struct perf_pmu *pmu = NULL;
+ 
+ 	while ((pmu = perf_pmu__scan(pmu)) != NULL)
+@@ -34,29 +33,14 @@ perf_evsel__apply_drv_configs(struct perf_evsel *evsel,
+ 			break;
+ 		}
+ 
+-	list_for_each_entry(term, &evsel->config_terms, list) {
+-		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
+-			continue;
++	/*
++	 * No need to continue if we didn't get a match or if there is no
++	 * driver configuration function for this PMU.
++	 */
++	if (!found || !pmu->set_drv_config)
++		return err;
+ 
+-		/*
+-		 * We have a configuration term, report an error if we
+-		 * can't find the PMU or if the PMU driver doesn't support
+-		 * cmd line driver configuration.
+-		 */
+-		if (!found || !pmu->set_drv_config) {
+-			err = -EINVAL;
+-			*err_term = term;
+-			break;
+-		}
+-
+-		err = pmu->set_drv_config(term);
+-		if (err) {
+-			*err_term = term;
+-			break;
+-		}
+-	}
+-
+-	return err;
++	return pmu->set_drv_config(evsel, err_term);
  }
  
-+static int etm_drv_config_find_sink(struct device *dev, void *data)
-+{
-+	struct amba_device *adev = to_amba_device(dev->parent);
-+	struct resource *res = &adev->res;
-+	u64 value = *((u64 *)data);
-+
-+	/*
-+	 * The HW mapping of a component is unique.  If the value we've been
-+	 * given matches the component's start address, then we must have found
-+	 * the device we are looking for.
-+	 */
-+	if (res->start == value)
-+		return 1;
-+
-+	return 0;
-+}
-+
-+static void *etm_drv_config_validate(struct perf_event *event, u64 value)
-+{
-+	struct device *dev;
-+	struct coresight_device *sink;
-+
-+	/* Look for the device with a res->start equal to @value. */
-+	dev = bus_find_device(&coresight_bustype, NULL,
-+			      &value, etm_drv_config_find_sink);
-+	if (!dev)
-+		return ERR_PTR(-EINVAL);
-+
-+	sink = to_coresight_device(dev);
-+	put_device(dev);
-+
-+	return sink;
-+}
-+
- int etm_perf_symlink(struct coresight_device *csdev, bool link)
- {
- 	char entry[sizeof("cpu9999999")];
-@@ -498,6 +547,7 @@ static int __init etm_perf_init(void)
- 	etm_pmu.addr_filters_sync	= etm_addr_filters_sync;
- 	etm_pmu.addr_filters_validate	= etm_addr_filters_validate;
- 	etm_pmu.nr_addr_filters		= ETM_ADDR_CMP_MAX;
-+	etm_pmu.drv_config_validate	= etm_drv_config_validate;
+ int perf_evlist__apply_drv_configs(struct perf_evlist *evlist,
+diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
+index 76fecec7b3f9..47f44394042b 100644
+--- a/tools/perf/util/pmu.h
++++ b/tools/perf/util/pmu.h
+@@ -29,7 +29,8 @@ struct perf_pmu {
+ 	struct list_head format;  /* HEAD struct perf_pmu_format -> list */
+ 	struct list_head aliases; /* HEAD struct perf_pmu_alias -> list */
+ 	struct list_head list;    /* ELEM */
+-	int (*set_drv_config)	(struct perf_evsel_config_term *term);
++	int (*set_drv_config)	(struct perf_evsel *evsel,
++				 struct perf_evsel_config_term **err_term);
+ };
  
- 	ret = perf_pmu_register(&etm_pmu, CORESIGHT_ETM_PMU_NAME, -1);
- 	if (ret == 0)
+ struct perf_pmu_info {
 -- 
 2.7.4
 
