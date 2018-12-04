@@ -1,42 +1,56 @@
-From: "tip-bot for Paul E. McKenney" <tipbot@zytor.com>
-Date: Tue, 04 Dec 2018 22:05:38 +0000
-Subject: [tip:core/rcu] s390/mm: Convert tlb_table_flush() to use call_rcu()
-Message-Id: <tip-0d4e68e2f3979c67a3596c61c118e0c73a2bdfe0@git.kernel.org>
-To: linux-s390@vger.kernel.org
+From: Collin Walling <walling@linux.ibm.com>
+Date: Tue, 04 Dec 2018 22:06:28 +0000
+Subject: [PATCH v1 0/2] Use DIAG318 to set Control Program Name & Version Codes
+Message-Id: <1543961190-31521-1-git-send-email-walling@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit-ID:  0d4e68e2f3979c67a3596c61c118e0c73a2bdfe0
-Gitweb:     https://git.kernel.org/tip/0d4e68e2f3979c67a3596c61c118e0c73a2bdfe0
-Author:     Paul E. McKenney <paulmck@linux.ibm.com>
-AuthorDate: Tue, 30 Oct 2018 16:30:07 -0700
-Committer:  Paul E. McKenney <paulmck@linux.ibm.com>
-CommitDate: Thu, 8 Nov 2018 21:43:20 -0800
+Changelog
 
-s390/mm: Convert tlb_table_flush() to use call_rcu()
+    RFC -> v1
+        - set distro_id to 0 for now and will be introduced properly as a follow-on
+            patch with further details wrt its usage
+        - created diag318 union structure to contain CPC data in kvm
+        - removed VCPU_EVENT from diag318 handler (we still see a VM_EVENT)
 
-Now that call_rcu()'s callback is not invoked until after all
-preempt-disable regions of code have completed (in addition to explicitly
-marked RCU read-side critical sections), call_rcu() can be used in place
-of call_rcu_sched().  This commit therefore makes that change.
+A new diagnose instruction, 318, allows the kernel to set an 8-byte "Control 
+Program Code" (CPC) that is composed of:
 
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: <linux-s390@vger.kernel.org>
----
- arch/s390/mm/pgalloc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+    1-byte Control Program Name Code (CPNC)
+    7-byte Control Program Version Code (CPVC) composed of:
+        3-bytes for Linux Kernel version (determined at build-time)
+        3-bytes for *Distribution Identifier (currently set to 0)
+        1-byte trailing NULL
 
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 76d89ee8b428..da64e4b9324e 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -350,7 +350,7 @@ void tlb_table_flush(struct mmu_gather *tlb)
- 	struct mmu_table_batch **batch = &tlb->batch;
- 
- 	if (*batch) {
--		call_rcu_sched(&(*batch)->rcu, tlb_remove_table_rcu);
-+		call_rcu(&(*batch)->rcu, tlb_remove_table_rcu);
- 		*batch = NULL;
- 	}
- }
+*The distribution identifier will be introduced as a follow-on patch.
+
+This instruction call is executed once-and-only-once during Kernel setup.
+The availability of this instruction depends on Read SCP Info byte 134, bit 0.
+Diagnose318's functionality is also emulated by KVM, which means we can 
+enable this feature for a guest even if the host kernel cannot support it.
+
+The CPNC and CPVC are used for problem diagnosis and allows IBM to identify 
+control program information by answering the following questions:
+
+    "What environment is this guest running in?" (CPNC)
+    "What linux version is this guest running?" (CPVC)
+
+Collin Walling (2):
+  s390/setup: set control program code via diag 318
+  s390/kvm: handle diagnose 318 instruction call
+
+ arch/s390/include/asm/diag.h     | 12 ++++++
+ arch/s390/include/asm/kvm_host.h | 13 +++++-
+ arch/s390/include/asm/sclp.h     |  1 +
+ arch/s390/include/uapi/asm/kvm.h |  5 +++
+ arch/s390/kernel/diag.c          |  1 +
+ arch/s390/kernel/setup.c         | 21 ++++++++++
+ arch/s390/kvm/diag.c             | 12 ++++++
+ arch/s390/kvm/kvm-s390.c         | 88 ++++++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.h         |  1 +
+ drivers/s390/char/sclp.h         |  4 +-
+ drivers/s390/char/sclp_early.c   |  2 +
+ 11 files changed, 158 insertions(+), 2 deletions(-)
+
+-- 
+2.7.4
