@@ -1,121 +1,42 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 04 Dec 2018 13:13:58 +0000
-Subject: Re: [PATCH v4 00/10] KVM: s390: make use of the GIB
-Message-Id: <e29f5fa3-79c5-b250-ea35-45a2de6bad7f@de.ibm.com>
-In-Reply-To: <20181130143215.69496-1-mimu@linux.ibm.com>
-References: <20181130143215.69496-1-mimu@linux.ibm.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+From: "tip-bot for Paul E. McKenney" <tipbot@zytor.com>
+Date: Tue, 04 Dec 2018 22:05:38 +0000
+Subject: [tip:core/rcu] s390/mm: Convert tlb_table_flush() to use call_rcu()
+Message-Id: <tip-0d4e68e2f3979c67a3596c61c118e0c73a2bdfe0@git.kernel.org>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-FWIW, Assuming that Michael addresses the small comments of Cornelia I will
-apply the next version to kvms390/next. As we touch common s390/cio/ code 
-this will be a topic branch that I will merge. In case of conflicts Martin 
-can then also merge this. If there are no conflicts then this will only
-go via the kvms390 tree.
+Commit-ID:  0d4e68e2f3979c67a3596c61c118e0c73a2bdfe0
+Gitweb:     https://git.kernel.org/tip/0d4e68e2f3979c67a3596c61c118e0c73a2bdfe0
+Author:     Paul E. McKenney <paulmck@linux.ibm.com>
+AuthorDate: Tue, 30 Oct 2018 16:30:07 -0700
+Committer:  Paul E. McKenney <paulmck@linux.ibm.com>
+CommitDate: Thu, 8 Nov 2018 21:43:20 -0800
 
+s390/mm: Convert tlb_table_flush() to use call_rcu()
 
+Now that call_rcu()'s callback is not invoked until after all
+preempt-disable regions of code have completed (in addition to explicitly
+marked RCU read-side critical sections), call_rcu() can be used in place
+of call_rcu_sched().  This commit therefore makes that change.
 
-On 30.11.2018 15:32, Michael Mueller wrote:
-> The Guest Information Area (GIB) and its mechanics is part of
-> the AIV facility. It provides hardware support to process
-> Adapter Interruptions (AI) for pagable storage mode guests. 
-> 
-> Whenever a guest cannot process an AI because none of its
-> vcpus is running in SIE context, a GIB alert interruption is
-> sent to and handled by the host program to dispatch a vcpu of
-> the respective guest.
-> 
-> Eventually, the AI is handled by the guest.
-> 
-> v3->v4:
->   The central change of v4 is that the metric "vcpus_in_sie"
->   has been dropped. A least agressive IAM restore strategy
->   is being followed now. The consequence is that potentially
->   more GAL interruptions are to be handled by the host program.
->   The assuption as made that as soon the first vcpu is trying
->   to go into wait state, this could be the last vcpu being
->   open for I/O interruptions. Thus, to not loose the initiative
->   to deliver I/O interruptions as soon as possible, the IAM
->   is restored. Adding better heuristics can be done in future.
-> 
->   I expect this to be the last version of the series.
->  
->   patch 01/12: Kernel msg now printed when FLIC fails
->                to register during arch inititialization.
->   patch 03/12: Commit message slightly changed with the
->   	       hint that gib initialization is called
-> 	       by last patch of this serias.
->   patch 09/12: IAM now restored during kvm_s390_handle_wait()
->   patch 10/12: gib destroy case now handled upon unsuccessful
->   	       arch inititialization.
-> 
-> All other patches are unchanged.
-> 
-> v2->v3:
->   patch 01/12: Fixes a resource dealocation issue upon
->   	       unsuccessful exit from kvm_arch_init().
-> 	       It is relevant for patch 11/12 as well. 
->   patch 08/12: The function process_gib_alert_list() has
->                been rewritten to reduce the number of GAL
-> 	       interruptions on the host for many guest
-> 	       scenarios.
->   patch 10/12: The IAM is now never cleared before SIE entry.
->                It will be cleared by millicode as soon the
-> 	       first guest interruption is made pending and
-> 	       not directly processed in SIE. The IAM gets
-> 	       restored as soon a vm is idle, i.e. no vcpu
-> 	       of that guest is in SIE context anymore.
->   patch 11/12: now integrates with new patch 01/12
->   patch 12/12: This patch is just experimental and shall not
->                be part of the final series.
-> 
-> The first patch of series v2: "leave AIs in IPM of GISA
-> during vcpu_pre_run()" has been dropped.
-> 
-> All other patches are unchanged.
-> 
-> v1->v2:
->   patch 01/12: New patch. Tt can go also standalone without the
->   	       rest of the GIB series presented here but is a
-> 	       requirement 
->   patch 03/12: kvm_s390_gib_init() now has a return code
->   patch 06/12: unlink_gib_alert_list() now uses cmpxchg() instead
->     	       of atomic_xchg()
->   patch 08/12: New patch. Foctors out __find_vcpu_for_floating_irq()
->   patch 09/12: process_gib_alert_list() has been simplified
->                the GISA clear/destroy cases have been removed
->   patch 11/12: kvm_s390_gisa_clear/destroy() now clear the IAM
->                and process the alert list directly
-> 	       The IAM now gets restored in vcpu_post_run() only if
-> 	       the GISA is not in alert list
->   patch 12/12: during kvm_arch_init() now the return code of
->     	       kvm_s390_gib_init() is honored.
-> 
-> All other patches are unchanged.
-> 
-> Michael Mueller (10):
->   KVM: s390: unregister debug feature on failing arch init
->   s390/cio: add function chsc_sgib()
->   KVM: s390: add the GIB and its related life-cyle functions
->   KVM: s390: factor out nullify_gisa()
->   KVM: s390: add kvm reference to struct sie_page2
->   KVM: s390: factor out __find_vcpu_for_floating_irq()
->   KVM: s390: add function process_gib_alert_list()
->   KVM: s390: add functions to (un)register GISC with GISA
->   KVM: s390: add and wire function gib_alert_irq_handler()
->   KVM: s390: start using the GIB
-> 
->  Documentation/kmsg/s390/kvm      |  24 +++++
->  arch/s390/include/asm/cio.h      |   1 +
->  arch/s390/include/asm/irq.h      |   1 +
->  arch/s390/include/asm/isc.h      |   1 +
->  arch/s390/include/asm/kvm_host.h |  19 +++-
->  arch/s390/kernel/irq.c           |   1 +
->  arch/s390/kvm/interrupt.c        | 214 +++++++++++++++++++++++++++++++++++++--
->  arch/s390/kvm/kvm-s390.c         |  27 ++++-
->  arch/s390/kvm/kvm-s390.h         |   7 ++
->  drivers/s390/cio/chsc.c          |  37 +++++++
->  drivers/s390/cio/chsc.h          |   1 +
->  11 files changed, 318 insertions(+), 15 deletions(-)
->  create mode 100644 Documentation/kmsg/s390/kvm
-> 
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: <linux-s390@vger.kernel.org>
+---
+ arch/s390/mm/pgalloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+index 76d89ee8b428..da64e4b9324e 100644
+--- a/arch/s390/mm/pgalloc.c
++++ b/arch/s390/mm/pgalloc.c
+@@ -350,7 +350,7 @@ void tlb_table_flush(struct mmu_gather *tlb)
+ 	struct mmu_table_batch **batch = &tlb->batch;
+ 
+ 	if (*batch) {
+-		call_rcu_sched(&(*batch)->rcu, tlb_remove_table_rcu);
++		call_rcu(&(*batch)->rcu, tlb_remove_table_rcu);
+ 		*batch = NULL;
+ 	}
+ }
