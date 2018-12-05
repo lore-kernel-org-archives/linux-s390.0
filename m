@@ -1,15 +1,15 @@
 Return-Path: <linux-doc-owner@vger.kernel.org>
-Date: Tue, 4 Dec 2018 16:05:28 -0800
+Date: Tue, 4 Dec 2018 16:08:32 -0800
 From: Eric Biggers <ebiggers@kernel.org>
-Subject: Re: [PATCH V2 3/7] fscrypt: remove filesystem specific build config
+Subject: Re: [PATCH V2 7/7] fsverity: Remove filesystem specific build config
  option
-Message-ID: <20181205000528.GH70682@gmail.com>
+Message-ID: <20181205000831.GI70682@gmail.com>
 References: <20181204095650.12562-1-chandan@linux.vnet.ibm.com>
- <20181204095650.12562-4-chandan@linux.vnet.ibm.com>
+ <20181204095650.12562-8-chandan@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20181204095650.12562-4-chandan@linux.vnet.ibm.com>
+In-Reply-To: <20181204095650.12562-8-chandan@linux.vnet.ibm.com>
 Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-doc/>
 List-Post: <mailto:linux-doc@vger.kernel.org>
@@ -17,27 +17,55 @@ To: Chandan Rajendra <chandan@linux.vnet.ibm.com>
 Cc: linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-doc@vger.kernel.org, linux-mips@linux-mips.org, linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org, tytso@mit.edu, adilger.kernel@dilger.ca, jaegeuk@kernel.org, yuchao0@huawei.com, corbet@lwn.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, green.hu@gmail.com, deanbo422@gmail.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, richard@nod.at, dedekind1@gmail.com, adrian.hunter@intel.com, viro@zeniv.linux.org.uk
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Dec 04, 2018 at 03:26:46PM +0530, Chandan Rajendra wrote:
-> diff --git a/include/linux/fscrypt.h b/include/linux/fscrypt.h
-> index 952ab97af325..6ba193c23f37 100644
-> --- a/include/linux/fscrypt.h
-> +++ b/include/linux/fscrypt.h
-> @@ -2,9 +2,8 @@
->  /*
->   * fscrypt.h: declarations for per-file encryption
->   *
-> - * Filesystems that implement per-file encryption include this header
-> - * file with the __FS_HAS_ENCRYPTION set according to whether that filesystem
-> - * is being built with encryption support or not.
-> + * Filesystems that implement per-file encryption must include this header
-> + * file.
->   *
->   * Copyright (C) 2015, Google, Inc.
->   *
+Hi Chandan,
 
-There's still a definition of __FS_HAS_ENCRYPTION in
-fs/crypto/fscrypt_private.h.  This patch removes everything that checks
-__FS_HAS_ENCRYPTION, so that should be removed too.
+On Tue, Dec 04, 2018 at 03:26:50PM +0530, Chandan Rajendra wrote:
+> In order to have a common code base for fsverity "post read" processing
+> for all filesystems which support fsverity, this commit removes
+> filesystem specific build config option (e.g. CONFIG_EXT4_FS_VERITY)
+> and replaces it with a build option (i.e. CONFIG_FS_VERITY) whose
+> value affects all the filesystems making use of fsverity.
+> 
+> Signed-off-by: Chandan Rajendra <chandan@linux.vnet.ibm.com>
+> ---
+>  Documentation/filesystems/fsverity.rst |  4 ++--
+>  fs/ext4/Kconfig                        | 20 --------------------
+>  fs/ext4/ext4.h                         |  2 --
+>  fs/ext4/readpage.c                     |  4 ++--
+>  fs/ext4/super.c                        |  6 +++---
+>  fs/ext4/sysfs.c                        |  4 ++--
+>  fs/f2fs/Kconfig                        | 20 --------------------
+>  fs/f2fs/data.c                         |  2 +-
+>  fs/f2fs/f2fs.h                         |  2 --
+>  fs/f2fs/super.c                        |  6 +++---
+>  fs/f2fs/sysfs.c                        |  4 ++--
+>  fs/verity/Kconfig                      |  3 ++-
+>  include/linux/fs.h                     |  4 ++--
+>  include/linux/fsverity.h               |  3 +--
+>  14 files changed, 20 insertions(+), 64 deletions(-)
+> 
+[...]
+> diff --git a/include/linux/fsverity.h b/include/linux/fsverity.h
+> index c30c4f6ed411..f37132c640ee 100644
+> --- a/include/linux/fsverity.h
+> +++ b/include/linux/fsverity.h
+> @@ -19,8 +19,7 @@ struct fsverity_operations {
+>  	int (*get_metadata_end)(struct inode *inode, loff_t *metadata_end_ret);
+>  };
+>  
+> -#if __FS_HAS_VERITY
+> -
+> +#ifdef CONFIG_FS_VERITY
+>  /* ioctl.c */
+>  extern int fsverity_ioctl_enable(struct file *filp, const void __user *arg);
+>  extern int fsverity_ioctl_measure(struct file *filp, void __user *arg);
+> -- 
+> 2.19.1
+> 
+
+Can you grep for __FS_HAS_VERITY?  It's still mentioned twice in comments for
+this #ifdef (these should be changed to CONFIG_FS_VERITY), and it's still
+defined in fs/verity/fsverity_private.h (that one should be removed).
 
 Thanks,
 
