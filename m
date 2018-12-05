@@ -1,9 +1,8 @@
 Return-Path: <SRS0=T5WJ=OO=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC 1/7] agp: efficeon: no need to set PG_reserved on GATT
- tables
-Date: Wed,  5 Dec 2018 13:28:45 +0100
-Message-Id: <20181205122851.5891-2-david@redhat.com>
+Subject: [PATCH RFC 3/7] powerpc/vdso: don't clear PG_reserved
+Date: Wed,  5 Dec 2018 13:28:47 +0100
+Message-Id: <20181205122851.5891-4-david@redhat.com>
 In-Reply-To: <20181205122851.5891-1-david@redhat.com>
 References: <20181205122851.5891-1-david@redhat.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
@@ -20,49 +19,49 @@ Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
 To: linux-mm@kvack.org
-Cc: linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, David Hildenbrand <david@redhat.com>, David Airlie <airlied@linux.ie>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-m68k@lists.linux-m68k.org, linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>, linux-s390@vger.kernel.org, Kees Cook <keescook@chromium.org>, David Hildenbrand <david@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-m68k@lists.linux-m68k.org, linux-mediatek@lists.infradead.org, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The l1 GATT page table is kept in a special on-chip page with 64 entries.
-We allocate the l2 page table pages via get_zeroed_page() and enter them
-into the table. These l2 pages are modified accordingly when
-inserting/removing memory via efficeon_insert_memory and
-efficeon_remove_memory.
+The VDSO is part of the kernel image and therefore the struct pages are
+marked as reserved during boot.
 
-Apart from that, these pages are not exposed or ioremap'ed. We can stop
-setting them reserved (propably copied from generic code).
+As we install a special mapping, the actual struct pages will never be
+exposed to MM via the page tables. We can therefore leave the pages
+marked as reserved.
 
-Cc: David Airlie <airlied@linux.ie>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Kees Cook <keescook@chromium.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Michal Hocko <mhocko@kernel.org>
 Cc: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/char/agp/efficeon-agp.c | 2 --
+ arch/powerpc/kernel/vdso.c | 2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/drivers/char/agp/efficeon-agp.c b/drivers/char/agp/efficeon-agp.c
-index 7f88490b5479..c53f0f9ef5b0 100644
---- a/drivers/char/agp/efficeon-agp.c
-+++ b/drivers/char/agp/efficeon-agp.c
-@@ -163,7 +163,6 @@ static int efficeon_free_gatt_table(struct agp_bridge_data *bridge)
- 		unsigned long page = efficeon_private.l1_table[index];
- 		if (page) {
- 			efficeon_private.l1_table[index] = 0;
--			ClearPageReserved(virt_to_page((char *)page));
- 			free_page(page);
- 			freed++;
- 		}
-@@ -219,7 +218,6 @@ static int efficeon_create_gatt_table(struct agp_bridge_data *bridge)
- 			efficeon_free_gatt_table(agp_bridge);
- 			return -ENOMEM;
- 		}
--		SetPageReserved(virt_to_page((char *)page));
- 
- 		for (offset = 0; offset < PAGE_SIZE; offset += clflush_chunk)
- 			clflush((char *)page+offset);
+diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
+index 65b3bdb99f0b..d59dc2e9a695 100644
+--- a/arch/powerpc/kernel/vdso.c
++++ b/arch/powerpc/kernel/vdso.c
+@@ -795,7 +795,6 @@ static int __init vdso_init(void)
+ 	BUG_ON(vdso32_pagelist == NULL);
+ 	for (i = 0; i < vdso32_pages; i++) {
+ 		struct page *pg = virt_to_page(vdso32_kbase + i*PAGE_SIZE);
+-		ClearPageReserved(pg);
+ 		get_page(pg);
+ 		vdso32_pagelist[i] = pg;
+ 	}
+@@ -809,7 +808,6 @@ static int __init vdso_init(void)
+ 	BUG_ON(vdso64_pagelist == NULL);
+ 	for (i = 0; i < vdso64_pages; i++) {
+ 		struct page *pg = virt_to_page(vdso64_kbase + i*PAGE_SIZE);
+-		ClearPageReserved(pg);
+ 		get_page(pg);
+ 		vdso64_pagelist[i] = pg;
+ 	}
 -- 
 2.17.2
 
