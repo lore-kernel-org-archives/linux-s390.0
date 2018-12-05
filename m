@@ -1,44 +1,53 @@
-From: Collin Walling <walling@linux.ibm.com>
-Date: Wed, 05 Dec 2018 15:00:21 +0000
-Subject: Re: [PATCH v1 1/2] s390/setup: set control program code via diag 318
-Message-Id: <582b136a-383c-9f87-698d-adc5f0b316d8@linux.ibm.com>
-In-Reply-To: <8f356c45-0707-b784-a036-f08db33b0616@linux.ibm.com>
-References: <8f356c45-0707-b784-a036-f08db33b0616@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Wed, 05 Dec 2018 15:39:12 +0000
+Subject: [kvm-unit-tests PATCH v2 0/6] 390x: Add cross hypervisor and disk boot
+Message-Id: <20181205153918.29480-1-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 12/5/18 5:59 AM, Cornelia Huck wrote:
-> On Tue,  4 Dec 2018 17:06:29 -0500
-> Collin Walling <walling@linux.ibm.com> wrote:
-> 
->> The new s390x instruction, diagnose 318, sets the control program name 
->> code (CPNC) and control program version code (CPVC) to provide useful 
->> information regarding the OS during debugging. The CPNC is explicitly 
->> set to 4 to indicate a Linux/KVM environment.
->>
->> The CPVC is a 7-byte value containing:
->>
->>  - 3-byte Linux version code
->>  - 3-byte unique value, currently set to 0
->>  - 1-byte trailing null
->>
->> Signed-off-by: Collin Walling <walling@linux.ibm.com>
->> Acked-by: Janosch Frank <frankja@linux.ibm.com>
->> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
->> ---
->>  arch/s390/include/asm/diag.h   | 12 ++++++++++++
->>  arch/s390/include/asm/sclp.h   |  1 +
->>  arch/s390/kernel/diag.c        |  1 +
->>  arch/s390/kernel/setup.c       | 21 +++++++++++++++++++++
->>  drivers/s390/char/sclp.h       |  4 +++-
->>  drivers/s390/char/sclp_early.c |  2 ++
->>  6 files changed, 40 insertions(+), 1 deletion(-)
-> 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> 
+With these patches kvm unit tests are now bootable under LPAR and
+z/VM, as well as from KVM disks. Don't forget to convert the ELF files
+to binary via:
 
-Thanks!
+objcopy -O binary s390x/test.elf test.bin
+
+For this to work we added:
+    * Initial PSW in lowcore
+    * Switch to 64 bit and z/Arch
+    * SCLP linemode console
+
+This is an early version, linemode currently splits lines a bit too
+often and I still need to polish comments and cleanup code.
+
+
+v2:
+	* Moved cleanup to the front and broadened patch
+	* Split up SCLP patch into interrupt and linemode
+	* Removed unneeded instructions
+	* Improved comments and commit messages
+
+Janosch Frank (6):
+  s390x: Cleanup sclp-ascii.c and add sigp order definitions
+  s390x: Make tests bootable from disk
+  s390x: Switch to z/Arch if needed
+  s390x: Add BSS clearing for non ELF boot
+  s390x: Use interrupts in SCLP
+  s390x: Add linemode console
+
+ lib/s390x/asm/arch_def.h  |  19 ++++
+ lib/s390x/asm/interrupt.h |   2 +
+ lib/s390x/interrupt.c     |  12 ++-
+ lib/s390x/io.c            |   5 +-
+ lib/s390x/sclp-ascii.c    |  68 ---------------
+ lib/s390x/sclp-console.c  | 214 ++++++++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/sclp.c          |  42 +++++++++
+ lib/s390x/sclp.h          |  73 +++++++++++++++-
+ s390x/Makefile            |   2 +-
+ s390x/cstart64.S          |  40 ++++++++-
+ s390x/flat.lds            |  10 ++-
+ 11 files changed, 409 insertions(+), 78 deletions(-)
+ delete mode 100644 lib/s390x/sclp-ascii.c
+ create mode 100644 lib/s390x/sclp-console.c
 
 -- 
-Respectfully,
-- Collin Walling
+2.14.3
