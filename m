@@ -1,101 +1,123 @@
 Return-Path: <SRS0=bZ9D=OO=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 34/45] s390/qeth: fix length check in SNMP processing
-Date: Wed,  5 Dec 2018 04:46:55 -0500
-Message-Id: <20181205094706.7225-34-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 07/45] s390/cpum_cf: Reject request for sampling in event initialization
+Date: Wed,  5 Dec 2018 04:46:28 -0500
+Message-Id: <20181205094706.7225-7-sashal@kernel.org>
 In-Reply-To: <20181205094706.7225-1-sashal@kernel.org>
 References: <20181205094706.7225-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 9a764c1e59684c0358e16ccaafd870629f2cfe67 ]
+[ Upstream commit 613a41b0d16e617f46776a93b975a1eeea96417c ]
 
-The response for a SNMP request can consist of multiple parts, which
-the cmd callback stages into a kernel buffer until all parts have been
-received. If the callback detects that the staging buffer provides
-insufficient space, it bails out with error.
-This processing is buggy for the first part of the response - while it
-initially checks for a length of 'data_len', it later copies an
-additional amount of 'offsetof(struct qeth_snmp_cmd, data)' bytes.
+On s390 command perf top fails
+[root@s35lp76 perf] # ./perf top -F100000  --stdio
+   Error:
+   cycles: PMU Hardware doesn't support sampling/overflow-interrupts.
+   	Try 'perf stat'
+[root@s35lp76 perf] #
 
-Fix the calculation of 'data_len' for the first part of the response.
-This also nicely cleans up the memcpy code.
+Using event -e rb0000 works as designed.  Event rb0000 is the event
+number of the sampling facility for basic sampling.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+During system start up the following PMUs are installed in the kernel's
+PMU list (from head to tail):
+   cpum_cf --> s390 PMU counter facility device driver
+   cpum_sf --> s390 PMU sampling facility device driver
+   uprobe
+   kprobe
+   tracepoint
+   task_clock
+   cpu_clock
+
+Perf top executes following functions and calls perf_event_open(2) system
+call with different parameters many times:
+
+cmd_top
+--> __cmd_top
+    --> perf_evlist__add_default
+        --> __perf_evlist__add_default
+            --> perf_evlist__new_cycles (creates event type:0 (HW)
+			    		config 0 (CPU_CYCLES)
+	        --> perf_event_attr__set_max_precise_ip
+		    Uses perf_event_open(2) to detect correct
+		    precise_ip level. Fails 3 times on s390 which is ok.
+
+Then functions cmd_top
+--> __cmd_top
+    --> perf_top__start_counters
+        -->perf_evlist__config
+	   --> perf_can_comm_exec
+               --> perf_probe_api
+	           This functions test support for the following events:
+		   "cycles:u", "instructions:u", "cpu-clock:u" using
+		   --> perf_do_probe_api
+		       --> perf_event_open_cloexec
+		           Test the close on exec flag support with
+			   perf_event_open(2).
+	               perf_do_probe_api returns true if the event is
+		       supported.
+		       The function returns true because event cpu-clock is
+		       supported by the PMU cpu_clock.
+	               This is achieved by many calls to perf_event_open(2).
+
+Function perf_top__start_counters now calls perf_evsel__open() for every
+event, which is the default event cpu_cycles (config:0) and type HARDWARE
+(type:0) which a predfined frequence of 4000.
+
+Given the above order of the PMU list, the PMU cpum_cf gets called first
+and returns 0, which indicates support for this sampling. The event is
+fully allocated in the function perf_event_open (file kernel/event/core.c
+near line 10521 and the following check fails:
+
+        event = perf_event_alloc(&attr, cpu, task, group_leader, NULL,
+		                 NULL, NULL, cgroup_fd);
+	if (IS_ERR(event)) {
+		err = PTR_ERR(event);
+		goto err_cred;
+	}
+
+        if (is_sampling_event(event)) {
+		if (event->pmu->capabilities & PERF_PMU_CAP_NO_INTERRUPT) {
+			err = -EOPNOTSUPP;
+			goto err_alloc;
+		}
+	}
+
+The check for the interrupt capabilities fails and the system call
+perf_event_open() returns -EOPNOTSUPP (-95).
+
+Add a check to return -ENODEV when sampling is requested in PMU cpum_cf.
+This allows common kernel code in the perf_event_open() system call to
+test the next PMU in above list.
+
+Fixes: 97b1198fece0 (" "s390, perf: Use common PMU interrupt disabled code")
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ arch/s390/kernel/perf_cpum_cf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index a5e603062ee0..8f77fc0630ce 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4540,8 +4540,8 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
- {
- 	struct qeth_ipa_cmd *cmd;
- 	struct qeth_arp_query_info *qinfo;
--	struct qeth_snmp_cmd *snmp;
- 	unsigned char *data;
-+	void *snmp_data;
- 	__u16 data_len;
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+index 037c2a253ae4..1238e7ef1170 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -344,6 +344,8 @@ static int __hw_perf_event_init(struct perf_event *event)
+ 		break;
  
- 	QETH_CARD_TEXT(card, 3, "snpcmdcb");
-@@ -4549,7 +4549,6 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
- 	cmd = (struct qeth_ipa_cmd *) sdata;
- 	data = (unsigned char *)((char *)cmd - reply->offset);
- 	qinfo = (struct qeth_arp_query_info *) reply->param;
--	snmp = &cmd->data.setadapterparms.data.snmp;
- 
- 	if (cmd->hdr.return_code) {
- 		QETH_CARD_TEXT_(card, 4, "scer1%x", cmd->hdr.return_code);
-@@ -4562,10 +4561,15 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
- 		return 0;
- 	}
- 	data_len = *((__u16 *)QETH_IPA_PDU_LEN_PDU1(data));
--	if (cmd->data.setadapterparms.hdr.seq_no == 1)
--		data_len -= (__u16)((char *)&snmp->data - (char *)cmd);
--	else
--		data_len -= (__u16)((char *)&snmp->request - (char *)cmd);
-+	if (cmd->data.setadapterparms.hdr.seq_no == 1) {
-+		snmp_data = &cmd->data.setadapterparms.data.snmp;
-+		data_len -= offsetof(struct qeth_ipa_cmd,
-+				     data.setadapterparms.data.snmp);
-+	} else {
-+		snmp_data = &cmd->data.setadapterparms.data.snmp.request;
-+		data_len -= offsetof(struct qeth_ipa_cmd,
-+				     data.setadapterparms.data.snmp.request);
-+	}
- 
- 	/* check if there is enough room in userspace */
- 	if ((qinfo->udata_len - qinfo->udata_offset) < data_len) {
-@@ -4578,16 +4582,9 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
- 	QETH_CARD_TEXT_(card, 4, "sseqn%i",
- 		cmd->data.setadapterparms.hdr.seq_no);
- 	/*copy entries to user buffer*/
--	if (cmd->data.setadapterparms.hdr.seq_no == 1) {
--		memcpy(qinfo->udata + qinfo->udata_offset,
--		       (char *)snmp,
--		       data_len + offsetof(struct qeth_snmp_cmd, data));
--		qinfo->udata_offset += offsetof(struct qeth_snmp_cmd, data);
--	} else {
--		memcpy(qinfo->udata + qinfo->udata_offset,
--		       (char *)&snmp->request, data_len);
--	}
-+	memcpy(qinfo->udata + qinfo->udata_offset, snmp_data, data_len);
- 	qinfo->udata_offset += data_len;
-+
- 	/* check if all replies received ... */
- 		QETH_CARD_TEXT_(card, 4, "srtot%i",
- 			       cmd->data.setadapterparms.hdr.used_total);
+ 	case PERF_TYPE_HARDWARE:
++		if (is_sampling_event(event))	/* No sampling support */
++			return -ENOENT;
+ 		ev = attr->config;
+ 		/* Count user space (problem-state) only */
+ 		if (!attr->exclude_user && attr->exclude_kernel) {
 -- 
 2.17.1
