@@ -1,10 +1,10 @@
 Return-Path: <SRS0=bZ9D=OO=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 52/69] s390/qeth: fix length check in SNMP processing
-Date: Wed,  5 Dec 2018 04:42:30 -0500
-Message-Id: <20181205094247.6556-52-sashal@kernel.org>
-In-Reply-To: <20181205094247.6556-1-sashal@kernel.org>
-References: <20181205094247.6556-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 34/45] s390/qeth: fix length check in SNMP processing
+Date: Wed,  5 Dec 2018 04:46:55 -0500
+Message-Id: <20181205094706.7225-34-sashal@kernel.org>
+In-Reply-To: <20181205094706.7225-1-sashal@kernel.org>
+References: <20181205094706.7225-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -37,10 +37,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 169dd7127f9e..69ef5f4060ed 100644
+index a5e603062ee0..8f77fc0630ce 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -4545,8 +4545,8 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
+@@ -4540,8 +4540,8 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
  {
  	struct qeth_ipa_cmd *cmd;
  	struct qeth_arp_query_info *qinfo;
@@ -50,7 +50,7 @@ index 169dd7127f9e..69ef5f4060ed 100644
  	__u16 data_len;
  
  	QETH_CARD_TEXT(card, 3, "snpcmdcb");
-@@ -4554,7 +4554,6 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
+@@ -4549,7 +4549,6 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
  	cmd = (struct qeth_ipa_cmd *) sdata;
  	data = (unsigned char *)((char *)cmd - reply->offset);
  	qinfo = (struct qeth_arp_query_info *) reply->param;
@@ -58,7 +58,7 @@ index 169dd7127f9e..69ef5f4060ed 100644
  
  	if (cmd->hdr.return_code) {
  		QETH_CARD_TEXT_(card, 4, "scer1%x", cmd->hdr.return_code);
-@@ -4567,10 +4566,15 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
+@@ -4562,10 +4561,15 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
  		return 0;
  	}
  	data_len = *((__u16 *)QETH_IPA_PDU_LEN_PDU1(data));
@@ -78,7 +78,7 @@ index 169dd7127f9e..69ef5f4060ed 100644
  
  	/* check if there is enough room in userspace */
  	if ((qinfo->udata_len - qinfo->udata_offset) < data_len) {
-@@ -4583,16 +4587,9 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
+@@ -4578,16 +4582,9 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
  	QETH_CARD_TEXT_(card, 4, "sseqn%i",
  		cmd->data.setadapterparms.hdr.seq_no);
  	/*copy entries to user buffer*/
