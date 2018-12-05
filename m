@@ -1,123 +1,25 @@
-Return-Path: <SRS0=bZ9D=OO=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 3.18 04/26] s390/cpum_cf: Reject request for sampling in event initialization
-Date: Wed,  5 Dec 2018 04:54:08 -0500
-Message-Id: <20181205095430.8019-4-sashal@kernel.org>
-In-Reply-To: <20181205095430.8019-1-sashal@kernel.org>
-References: <20181205095430.8019-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Return-Path: <SRS0=1GGh=OO=vger.kernel.org=linux-bluetooth-owner@kernel.org>
+Date: Wed, 05 Dec 2018 11:38:43 -0800 (PST)
+Message-Id: <20181205.113843.1342804787283427751.davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/8] Pass extack to NETDEV_PRE_UP
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <cover.1544006963.git.petrm@mellanox.com>
+References: <cover.1544006963.git.petrm@mellanox.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: linux-bluetooth-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-bluetooth/>
+List-Post: <mailto:linux-bluetooth@vger.kernel.org>
+To: petrm@mellanox.com
+Cc: linux-rdma@vger.kernel.org, netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, devel@linuxdriverproject.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, sparmaintainer@unisys.com, linux-bluetooth@vger.kernel.org, dev@openvswitch.org, linux-kselftest@vger.kernel.org, dledford@redhat.com, jgg@ziepe.ca, j.vosburgh@gmail.com, vfalico@gmail.com, andy@greyhouse.net, benve@cisco.com, _govind@gmx.com, pkaustub@cisco.com, yisen.zhuang@huawei.com, salil.mehta@huawei.com, linux-net-drivers@solarflare.com, ecree@solarflare.com, bkenward@solarflare.com, peppe.cavallaro@st.com, alexandre.torgue@st.com, joabreu@synopsys.com, mcoquelin.stm32@gmail.com, kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com, jiri@resnulli.us, dsa@cumulusnetworks.com, shrijeet@gmail.com, j@w1.fi, kvalo@codeaurora.org, jwi@linux.ibm.com, ubraun@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ruxandra.radulescu@nxp.com, ioana.ciornei@nxp.com, gregkh@linuxfoundation.org, david.kershner@unisys.com, marcel@holtmann.org, johan.hedberg@gmail.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 613a41b0d16e617f46776a93b975a1eeea96417c ]
+Your CC list is so huge that vger.kernel.org dropped all of your postings.
 
-On s390 command perf top fails
-[root@s35lp76 perf] # ./perf top -F100000  --stdio
-   Error:
-   cycles: PMU Hardware doesn't support sampling/overflow-interrupts.
-   	Try 'perf stat'
-[root@s35lp76 perf] #
+That CC list is not reasonable at all, trim it down to the most minimum
+set.  Probably 2 or 3 mailing lists, primarily netdev, and maybe a small
+handful of specific developers.
 
-Using event -e rb0000 works as designed.  Event rb0000 is the event
-number of the sampling facility for basic sampling.
-
-During system start up the following PMUs are installed in the kernel's
-PMU list (from head to tail):
-   cpum_cf --> s390 PMU counter facility device driver
-   cpum_sf --> s390 PMU sampling facility device driver
-   uprobe
-   kprobe
-   tracepoint
-   task_clock
-   cpu_clock
-
-Perf top executes following functions and calls perf_event_open(2) system
-call with different parameters many times:
-
-cmd_top
---> __cmd_top
-    --> perf_evlist__add_default
-        --> __perf_evlist__add_default
-            --> perf_evlist__new_cycles (creates event type:0 (HW)
-			    		config 0 (CPU_CYCLES)
-	        --> perf_event_attr__set_max_precise_ip
-		    Uses perf_event_open(2) to detect correct
-		    precise_ip level. Fails 3 times on s390 which is ok.
-
-Then functions cmd_top
---> __cmd_top
-    --> perf_top__start_counters
-        -->perf_evlist__config
-	   --> perf_can_comm_exec
-               --> perf_probe_api
-	           This functions test support for the following events:
-		   "cycles:u", "instructions:u", "cpu-clock:u" using
-		   --> perf_do_probe_api
-		       --> perf_event_open_cloexec
-		           Test the close on exec flag support with
-			   perf_event_open(2).
-	               perf_do_probe_api returns true if the event is
-		       supported.
-		       The function returns true because event cpu-clock is
-		       supported by the PMU cpu_clock.
-	               This is achieved by many calls to perf_event_open(2).
-
-Function perf_top__start_counters now calls perf_evsel__open() for every
-event, which is the default event cpu_cycles (config:0) and type HARDWARE
-(type:0) which a predfined frequence of 4000.
-
-Given the above order of the PMU list, the PMU cpum_cf gets called first
-and returns 0, which indicates support for this sampling. The event is
-fully allocated in the function perf_event_open (file kernel/event/core.c
-near line 10521 and the following check fails:
-
-        event = perf_event_alloc(&attr, cpu, task, group_leader, NULL,
-		                 NULL, NULL, cgroup_fd);
-	if (IS_ERR(event)) {
-		err = PTR_ERR(event);
-		goto err_cred;
-	}
-
-        if (is_sampling_event(event)) {
-		if (event->pmu->capabilities & PERF_PMU_CAP_NO_INTERRUPT) {
-			err = -EOPNOTSUPP;
-			goto err_alloc;
-		}
-	}
-
-The check for the interrupt capabilities fails and the system call
-perf_event_open() returns -EOPNOTSUPP (-95).
-
-Add a check to return -ENODEV when sampling is requested in PMU cpum_cf.
-This allows common kernel code in the perf_event_open() system call to
-test the next PMU in above list.
-
-Fixes: 97b1198fece0 (" "s390, perf: Use common PMU interrupt disabled code")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_cf.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-index 56fdad479115..2cf1483246b6 100644
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -338,6 +338,8 @@ static int __hw_perf_event_init(struct perf_event *event)
- 		break;
- 
- 	case PERF_TYPE_HARDWARE:
-+		if (is_sampling_event(event))	/* No sampling support */
-+			return -ENOENT;
- 		ev = attr->config;
- 		/* Count user space (problem-state) only */
- 		if (!attr->exclude_user && attr->exclude_kernel) {
--- 
-2.17.1
+Nothing more.
