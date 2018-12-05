@@ -1,76 +1,45 @@
-Return-Path: <SRS0=p5KC=ON=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 108/139] s390/function_graph: Simplify with function_graph_enter()
-Date: Tue,  4 Dec 2018 11:49:49 +0100
-Message-Id: <20181204103655.015541285@linuxfoundation.org>
-In-Reply-To: <20181204103649.950154335@linuxfoundation.org>
-References: <20181204103649.950154335@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 025/123] s390/cio: Fix cleanup of pfn_array alloc failure
+Date: Wed,  5 Dec 2018 04:34:17 -0500
+Message-ID: <20181205093555.5386-25-sashal@kernel.org>
+References: <20181205093555.5386-1-sashal@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181205093555.5386-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-s390@vger.kernel.org, stable@kernel.org, Masami Hiramatsu <mhiramat@kernel.org>, "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-4.19-stable review patch.  If anyone has any objections, please let me know.
+From: Eric Farman <farman@linux.ibm.com>
 
-------------------
+[ Upstream commit 806212f91c874b24cf9eb4a9f180323671b6c5ed ]
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+If pfn_array_alloc fails somehow, we need to release the pfn_array_table
+that was malloc'd earlier.
 
-commit 18588e1487b19e45bd90bd55ec8d3a1d44f3257f upstream.
-
-The function_graph_enter() function does the work of calling the function
-graph hook function and the management of the shadow stack, simplifying the
-work done in the architecture dependent prepare_ftrace_return().
-
-Have s390 use the new code, and remove the shadow stack management as well as
-having to set up the trace structure.
-
-This is needed to prepare for a fix of a design bug on how the curr_ret_stack
-is used.
-
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Julian Wiedmann <jwi@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: stable@kernel.org
-Fixes: 03274a3ffb449 ("tracing/fgraph: Adjust fgraph depth before calling trace return callback")
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Message-Id: <20181109023937.96105-2-farman@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/ftrace.c |   13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -203,22 +203,13 @@ device_initcall(ftrace_plt_init);
-  */
- unsigned long prepare_ftrace_return(unsigned long parent, unsigned long ip)
- {
--	struct ftrace_graph_ent trace;
--
- 	if (unlikely(ftrace_graph_is_dead()))
- 		goto out;
- 	if (unlikely(atomic_read(&current->tracing_graph_pause)))
- 		goto out;
- 	ip -= MCOUNT_INSN_SIZE;
--	trace.func = ip;
--	trace.depth = current->curr_ret_stack + 1;
--	/* Only trace if the calling function expects to. */
--	if (!ftrace_graph_entry(&trace))
--		goto out;
--	if (ftrace_push_return_trace(parent, ip, &trace.depth, 0,
--				     NULL) == -EBUSY)
--		goto out;
--	parent = (unsigned long) return_to_handler;
-+	if (!function_graph_enter(parent, ip, 0, NULL))
-+		parent = (unsigned long) return_to_handler;
- out:
- 	return parent;
- }
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index fd77e46eb3b2..ef5ab45d94b3 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -528,7 +528,7 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 
+ 	ret = pfn_array_alloc_pin(pat->pat_pa, cp->mdev, ccw->cda, ccw->count);
+ 	if (ret < 0)
+-		goto out_init;
++		goto out_unpin;
+ 
+ 	/* Translate this direct ccw to a idal ccw. */
+ 	idaws = kcalloc(ret, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
+-- 
+2.17.1
