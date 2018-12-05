@@ -1,8 +1,8 @@
 Return-Path: <SRS0=T5WJ=OO=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC 3/7] powerpc/vdso: don't clear PG_reserved
-Date: Wed,  5 Dec 2018 13:28:47 +0100
-Message-Id: <20181205122851.5891-4-david@redhat.com>
+Subject: [PATCH RFC 6/7] arm64: kexec: no need to ClearPageReserved()
+Date: Wed,  5 Dec 2018 13:28:50 +0100
+Message-Id: <20181205122851.5891-7-david@redhat.com>
 In-Reply-To: <20181205122851.5891-1-david@redhat.com>
 References: <20181205122851.5891-1-david@redhat.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
@@ -19,49 +19,38 @@ Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
 To: linux-mm@kvack.org
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>, linux-s390@vger.kernel.org, Kees Cook <keescook@chromium.org>, David Hildenbrand <david@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-m68k@lists.linux-m68k.org, linux-mediatek@lists.infradead.org, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Bhupesh Sharma <bhsharma@redhat.com>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-m68k@lists.linux-m68k.org, Dave Kleikamp <dave.kleikamp@oracle.com>, linux-mediatek@lists.infradead.org, James Morse <james.morse@arm.com>, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The VDSO is part of the kernel image and therefore the struct pages are
-marked as reserved during boot.
+This will already be done by free_reserved_page().
 
-As we install a special mapping, the actual struct pages will never be
-exposed to MM via the page tables. We can therefore leave the pages
-marked as reserved.
-
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Kees Cook <keescook@chromium.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Bhupesh Sharma <bhsharma@redhat.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Cc: Dave Kleikamp <dave.kleikamp@oracle.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Michal Hocko <mhocko@kernel.org>
 Cc: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/powerpc/kernel/vdso.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm64/kernel/machine_kexec.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
-index 65b3bdb99f0b..d59dc2e9a695 100644
---- a/arch/powerpc/kernel/vdso.c
-+++ b/arch/powerpc/kernel/vdso.c
-@@ -795,7 +795,6 @@ static int __init vdso_init(void)
- 	BUG_ON(vdso32_pagelist == NULL);
- 	for (i = 0; i < vdso32_pages; i++) {
- 		struct page *pg = virt_to_page(vdso32_kbase + i*PAGE_SIZE);
--		ClearPageReserved(pg);
- 		get_page(pg);
- 		vdso32_pagelist[i] = pg;
+diff --git a/arch/arm64/kernel/machine_kexec.c b/arch/arm64/kernel/machine_kexec.c
+index 922add8adb74..0ef4ea73aa54 100644
+--- a/arch/arm64/kernel/machine_kexec.c
++++ b/arch/arm64/kernel/machine_kexec.c
+@@ -353,7 +353,6 @@ void crash_free_reserved_phys_range(unsigned long begin, unsigned long end)
+ 
+ 	for (addr = begin; addr < end; addr += PAGE_SIZE) {
+ 		page = phys_to_page(addr);
+-		ClearPageReserved(page);
+ 		free_reserved_page(page);
  	}
-@@ -809,7 +808,6 @@ static int __init vdso_init(void)
- 	BUG_ON(vdso64_pagelist == NULL);
- 	for (i = 0; i < vdso64_pages; i++) {
- 		struct page *pg = virt_to_page(vdso64_kbase + i*PAGE_SIZE);
--		ClearPageReserved(pg);
- 		get_page(pg);
- 		vdso64_pagelist[i] = pg;
- 	}
+ }
 -- 
 2.17.2
 
