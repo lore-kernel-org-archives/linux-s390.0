@@ -1,8 +1,8 @@
 Return-Path: <SRS0=T5WJ=OO=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC 6/7] arm64: kexec: no need to ClearPageReserved()
-Date: Wed,  5 Dec 2018 13:28:50 +0100
-Message-Id: <20181205122851.5891-7-david@redhat.com>
+Subject: [PATCH RFC 4/7] riscv/vdso: don't clear PG_reserved
+Date: Wed,  5 Dec 2018 13:28:48 +0100
+Message-Id: <20181205122851.5891-5-david@redhat.com>
 In-Reply-To: <20181205122851.5891-1-david@redhat.com>
 References: <20181205122851.5891-1-david@redhat.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
@@ -19,38 +19,39 @@ Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
 To: linux-mm@kvack.org
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Bhupesh Sharma <bhsharma@redhat.com>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-m68k@lists.linux-m68k.org, Dave Kleikamp <dave.kleikamp@oracle.com>, linux-mediatek@lists.infradead.org, James Morse <james.morse@arm.com>, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+Cc: linux-s390@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Palmer Dabbelt <palmer@sifive.com>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-m68k@lists.linux-m68k.org, linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Tobias Klauser <tklauser@distanz.ch>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This will already be done by free_reserved_page().
+The VDSO is part of the kernel image and therefore the struct pages are
+marked as reserved during boot.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Bhupesh Sharma <bhsharma@redhat.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: Marc Zyngier <marc.zyngier@arm.com>
-Cc: Dave Kleikamp <dave.kleikamp@oracle.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
+As we install a special mapping, the actual struct pages will never be
+exposed to MM via the page tables. We can therefore leave the pages
+marked as reserved.
+
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Tobias Klauser <tklauser@distanz.ch>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Michal Hocko <mhocko@kernel.org>
 Cc: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/arm64/kernel/machine_kexec.c | 1 -
+ arch/riscv/kernel/vdso.c | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/machine_kexec.c b/arch/arm64/kernel/machine_kexec.c
-index 922add8adb74..0ef4ea73aa54 100644
---- a/arch/arm64/kernel/machine_kexec.c
-+++ b/arch/arm64/kernel/machine_kexec.c
-@@ -353,7 +353,6 @@ void crash_free_reserved_phys_range(unsigned long begin, unsigned long end)
+diff --git a/arch/riscv/kernel/vdso.c b/arch/riscv/kernel/vdso.c
+index 582cb153eb24..0cd044122234 100644
+--- a/arch/riscv/kernel/vdso.c
++++ b/arch/riscv/kernel/vdso.c
+@@ -54,7 +54,6 @@ static int __init vdso_init(void)
+ 		struct page *pg;
  
- 	for (addr = begin; addr < end; addr += PAGE_SIZE) {
- 		page = phys_to_page(addr);
--		ClearPageReserved(page);
- 		free_reserved_page(page);
+ 		pg = virt_to_page(vdso_start + (i << PAGE_SHIFT));
+-		ClearPageReserved(pg);
+ 		vdso_pagelist[i] = pg;
  	}
- }
+ 	vdso_pagelist[i] = virt_to_page(vdso_data);
 -- 
 2.17.2
 
