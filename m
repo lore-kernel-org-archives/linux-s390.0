@@ -1,56 +1,40 @@
-From: Collin Walling <walling@linux.ibm.com>
-Date: Tue, 04 Dec 2018 22:06:28 +0000
-Subject: [PATCH v1 0/2] Use DIAG318 to set Control Program Name & Version Codes
-Message-Id: <1543961190-31521-1-git-send-email-walling@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Date: Wed, 05 Dec 2018 10:32:11 +0000
+Subject: Re: [PATCH v4 07/10] KVM: s390: add function process_gib_alert_list()
+Message-Id: <296aa18c-af44-86b3-5f8a-3a9bf727ab0d@linux.ibm.com>
+In-Reply-To: <118e6e58-2643-614b-c361-6192b3e6138f@linux.ibm.com>
+References: <118e6e58-2643-614b-c361-6192b3e6138f@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Changelog
 
-    RFC -> v1
-        - set distro_id to 0 for now and will be introduced properly as a follow-on
-            patch with further details wrt its usage
-        - created diag318 union structure to contain CPC data in kvm
-        - removed VCPU_EVENT from diag318 handler (we still see a VM_EVENT)
 
-A new diagnose instruction, 318, allows the kernel to set an 8-byte "Control 
-Program Code" (CPC) that is composed of:
+On 05.12.18 11:19, Halil Pasic wrote:
+> On Wed, 5 Dec 2018 10:57:33 +0100
+> Michael Mueller<mimu@linux.ibm.com>  wrote:
+> 
+>>
+>> On 05.12.18 10:09, Halil Pasic wrote:
+>>> On Fri, 30 Nov 2018 15:32:12 +0100
+>>> Michael Mueller<mimu@linux.ibm.com>  wrote:
+>>>
+>>>> This function processes the gib alert list. It is required to
+>>>> run when either a gib alert interruption has been received or
+>>>> a gisa that might be in the alert list is cleared or dropped.
+>>>>
+>>>> The GIB alert list contains all GISAs that have pending
+>>>> adapter interruptions.
+>>> I'm not sure this last paragraph is 100% correct. If e.g. all vcpus
+>>> of a guest are in SIE we don't ask for alerting, and we would not get
+>>> alerted when an IPM bit is set in the GISA.
+>>>
+>> I will discard the "all" to make it 99.999% correct.
+>>
+> :). It ain't important. But discarding "all" helps only marginally. I
+> think we can have GISAs with IPM all zeros in the list. If I were to try
+> being constructive, I would propose something like: " The GIB alert list
+> contains GISAs of guests that may need a some vCPUS kicked
+> so their GISA interrupts can be delivered". But it really ain't
+> important. Feel free to keep it as is.
 
-    1-byte Control Program Name Code (CPNC)
-    7-byte Control Program Version Code (CPVC) composed of:
-        3-bytes for Linux Kernel version (determined at build-time)
-        3-bytes for *Distribution Identifier (currently set to 0)
-        1-byte trailing NULL
-
-*The distribution identifier will be introduced as a follow-on patch.
-
-This instruction call is executed once-and-only-once during Kernel setup.
-The availability of this instruction depends on Read SCP Info byte 134, bit 0.
-Diagnose318's functionality is also emulated by KVM, which means we can 
-enable this feature for a guest even if the host kernel cannot support it.
-
-The CPNC and CPVC are used for problem diagnosis and allows IBM to identify 
-control program information by answering the following questions:
-
-    "What environment is this guest running in?" (CPNC)
-    "What linux version is this guest running?" (CPVC)
-
-Collin Walling (2):
-  s390/setup: set control program code via diag 318
-  s390/kvm: handle diagnose 318 instruction call
-
- arch/s390/include/asm/diag.h     | 12 ++++++
- arch/s390/include/asm/kvm_host.h | 13 +++++-
- arch/s390/include/asm/sclp.h     |  1 +
- arch/s390/include/uapi/asm/kvm.h |  5 +++
- arch/s390/kernel/diag.c          |  1 +
- arch/s390/kernel/setup.c         | 21 ++++++++++
- arch/s390/kvm/diag.c             | 12 ++++++
- arch/s390/kvm/kvm-s390.c         | 88 ++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h         |  1 +
- drivers/s390/char/sclp.h         |  4 +-
- drivers/s390/char/sclp_early.c   |  2 +
- 11 files changed, 158 insertions(+), 2 deletions(-)
-
--- 
-2.7.4
+Sorry, I'm going to ignore this.
