@@ -1,47 +1,63 @@
-From: Steffen Maier <maier@linux.ibm.com>
-Date: Thu, 06 Dec 2018 16:31:21 +0000
-Subject: [PATCH 2/2] zfcp: improve kdoc for return of zfcp_status_read_refill()
-Message-Id: <20181206163121.32160-3-maier@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
+From: Collin Walling <walling@linux.ibm.com>
+Date: Thu, 06 Dec 2018 22:30:03 +0000
+Subject: [PATCH v2 0/2] Use DIAG318 to set Control Program Name & Version Codes
+Message-Id: <1544135405-22385-1-git-send-email-walling@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Complements
+Changelog
 
-v2.6.35 commit 64deb6efdc55
-("[SCSI] zfcp: Use status_read_buf_num provided by FCP channel")
-which replaced the hardcoded 16 with a variable value
+    RFC -> v1
+        - set distro_id to 0 for now and will be introduced properly as a follow-on
+            patch with further details wrt its usage
+        - created diag318 union structure to contain CPC data in kvm
+        - removed VCPU_EVENT from diag318 handler (we still see a VM_EVENT)
 
-Also complements already existing fixups for above commit
+     v1 -> v2
+        - set_cpc now uses kvm_block_all
+        - s/VM_MISC/VM_MACHINE
+        - SCB shadowing / unshadowing of cpnc
+        - added r-b's to patch 1
 
-v2.6.35 commit 8d88cf3f3b9a
-("[SCSI] zfcp: Update status read mempool")
-v3.10   commit 9edf7d75ee5f
-("[SCSI] zfcp: status read buffers on first adapter open with link down")
+A new diagnose instruction, 318, allows the kernel to set an 8-byte "Control 
+Program Code" (CPC) that is composed of:
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
----
- drivers/s390/scsi/zfcp_aux.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+    1-byte Control Program Name Code (CPNC)
+    7-byte Control Program Version Code (CPVC) composed of:
+        3-bytes for Linux Kernel version (determined at build-time)
+        3-bytes for *Distribution Identifier (currently set to 0)
+        1-byte trailing NULL
 
-diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-index 882789fff574..9cf30d124b9e 100644
---- a/drivers/s390/scsi/zfcp_aux.c
-+++ b/drivers/s390/scsi/zfcp_aux.c
-@@ -264,10 +264,10 @@ static void zfcp_free_low_mem_buffers(struct zfcp_adapter *adapter)
-  * zfcp_status_read_refill - refill the long running status_read_requests
-  * @adapter: ptr to struct zfcp_adapter for which the buffers should be refilled
-  *
-- * Returns: 0 on success, 1 otherwise
-- *
-- * if there are 16 or more status_read requests missing an adapter_reopen
-- * is triggered
-+ * Return:
-+ * * 0 on success meaning at least one status read is pending
-+ * * 1 if posting failed and not a single status read buffer is pending,
-+ *     also triggers adapter reopen recovery
-  */
- int zfcp_status_read_refill(struct zfcp_adapter *adapter)
- {
+*The distribution identifier will be introduced as a follow-on patch.
+
+This instruction call is executed once-and-only-once during Kernel setup.
+The availability of this instruction depends on Read SCP Info byte 134, bit 0.
+Diagnose318's functionality is also emulated by KVM, which means we can 
+enable this feature for a guest even if the host kernel cannot support it.
+
+The CPNC and CPVC are used for problem diagnosis and allows IBM to identify 
+control program information by answering the following questions:
+
+    "What environment is this guest running in?" (CPNC)
+    "What linux version is this guest running?" (CPVC)
+
+Collin Walling (2):
+  s390/setup: set control program code via diag 318
+  s390/kvm: handle diagnose 318 instruction call
+
+ arch/s390/include/asm/diag.h     | 12 ++++++
+ arch/s390/include/asm/kvm_host.h | 13 +++++-
+ arch/s390/include/asm/sclp.h     |  1 +
+ arch/s390/include/uapi/asm/kvm.h |  5 +++
+ arch/s390/kernel/diag.c          |  1 +
+ arch/s390/kernel/setup.c         | 21 +++++++++
+ arch/s390/kvm/diag.c             | 12 ++++++
+ arch/s390/kvm/kvm-s390.c         | 92 ++++++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.h         |  1 +
+ arch/s390/kvm/vsie.c             |  7 +++
+ drivers/s390/char/sclp.h         |  4 +-
+ drivers/s390/char/sclp_early.c   |  2 +
+ 12 files changed, 169 insertions(+), 2 deletions(-)
+
 -- 
-2.16.4
+2.7.4
