@@ -1,75 +1,99 @@
-Return-Path: <SRS0=T5WJ=OO=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC 2/7] s390/vdso: don't clear PG_reserved
-Date: Wed,  5 Dec 2018 13:28:46 +0100
-Message-Id: <20181205122851.5891-3-david@redhat.com>
-In-Reply-To: <20181205122851.5891-1-david@redhat.com>
-References: <20181205122851.5891-1-david@redhat.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: linux-mm@kvack.org
-Cc: linux-s390@vger.kernel.org, Michal Hocko <mhocko@suse.com>, Kees Cook <keescook@chromium.org>, Vasily Gorbik <gor@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-m68k@lists.linux-m68k.org, Mike Rapoport <rppt@linux.vnet.ibm.com>, linux-mediatek@lists.infradead.org, Souptick Joarder <jrdr.linux@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+From: Steffen Maier <maier@linux.ibm.com>
+Subject: [PATCH 1/2] zfcp: fix posting too many status read buffers leading to adapter shutdown
+Date: Thu,  6 Dec 2018 17:31:20 +0100
+Message-ID: <20181206163121.32160-2-maier@linux.ibm.com>
+References: <20181206163121.32160-1-maier@linux.ibm.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20181206163121.32160-1-maier@linux.ibm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The VDSO is part of the kernel image and therefore the struct pages are
-marked as reserved during boot.
+Suppose adapter (open) recovery is between opened QDIO queues and before
+(the end of) initial posting of status read buffers (SRBs). This time
+window can be seconds long due to FSF_PROT_HOST_CONNECTION_INITIALIZING
+causing by design looping with exponential increase sleeps in the function
+performing exchange config data during recovery
+[zfcp_erp_adapter_strat_fsf_xconf()]. Recovery triggered by local link up.
 
-As we install a special mapping, the actual struct pages will never be
-exposed to MM via the page tables. We can therefore leave the pages
-marked as reserved.
+Suppose an event occurs for which the FCP channel would send an
+unsolicited notification to zfcp by means of a previously posted SRB.
+We saw it with local cable pull (link down) in multi-initiator zoning
+with multiple NPIV-enabled subchannels of the same shared FCP channel.
 
-Suggested-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+As soon as zfcp_erp_adapter_strategy_open_fsf() starts posting the
+initial status read buffers from within the adapter's ERP thread,
+the channel does send an unsolicited notification.
+
+Since v2.6.27 commit d26ab06ede83 ("[SCSI] zfcp: receiving an unsolicted
+status can lead to I/O stall"), zfcp_fsf_status_read_handler() schedules
+adapter->stat_work to re-fill the just consumed SRB from a work item.
+
+Now the ERP thread and the work item post SRBs in parallel.
+Both contexts call the helper function zfcp_status_read_refill().
+The tracking of missing (to be posted / re-filled) SRBs is not thread-safe
+due to separate atomic_read() and atomic_dec(), in order to depend on
+posting success. Hence, both contexts can see
+atomic_read(&adapter->stat_miss) == 1. One of the two contexts posts
+one too many SRB. Zfcp gets QDIO_ERROR_SLSB_STATE on the output queue
+(trace tag "qdireq1") leading to zfcp_erp_adapter_shutdown() in
+zfcp_qdio_handler_error().
+
+An obvious and seemingly clean fix would be to schedule stat_work
+from the ERP thread and wait for it to finish. This would serialize
+all SRB re-fills. However, we already have another work item wait on the
+ERP thread: adapter->scan_work runs zfcp_fc_scan_ports() which calls
+zfcp_fc_eval_gpn_ft(). The latter calls zfcp_erp_wait() to wait for all
+the open port recoveries during zfcp auto port scan, but in fact it waits
+for any pending recovery including an adapter recovery. This approach
+leads to a deadlock.
+[see also v3.19 commit 18f87a67e6d6 ("zfcp: auto port scan resiliency");
+v2.6.37 commit d3e1088d6873
+("[SCSI] zfcp: No ERP escalation on gpn_ft eval");
+v2.6.28 commit fca55b6fb587
+("[SCSI] zfcp: fix deadlock between wq triggered port scan and ERP")
+fixing v2.6.27 commit c57a39a45a76
+("[SCSI] zfcp: wait until adapter is finished with ERP during auto-port");
+v2.6.27 commit cc8c282963bd
+("[SCSI] zfcp: Automatically attach remote ports")]
+
+Instead make the accounting of missing SRBs atomic for parallel
+execution in both the ERP thread and adapter->stat_work.
+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: d26ab06ede83 ("[SCSI] zfcp: receiving an unsolicted status can lead to I/O stall")
+Cc: <stable@vger.kernel.org> #2.6.27+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
 ---
- arch/s390/kernel/vdso.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/s390/scsi/zfcp_aux.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
-index ebe748a9f472..9e24d23c26c0 100644
---- a/arch/s390/kernel/vdso.c
-+++ b/arch/s390/kernel/vdso.c
-@@ -292,7 +292,6 @@ static int __init vdso_init(void)
- 	BUG_ON(vdso32_pagelist == NULL);
- 	for (i = 0; i < vdso32_pages - 1; i++) {
- 		struct page *pg = virt_to_page(vdso32_kbase + i*PAGE_SIZE);
--		ClearPageReserved(pg);
- 		get_page(pg);
- 		vdso32_pagelist[i] = pg;
- 	}
-@@ -310,7 +309,6 @@ static int __init vdso_init(void)
- 	BUG_ON(vdso64_pagelist == NULL);
- 	for (i = 0; i < vdso64_pages - 1; i++) {
- 		struct page *pg = virt_to_page(vdso64_kbase + i*PAGE_SIZE);
--		ClearPageReserved(pg);
- 		get_page(pg);
- 		vdso64_pagelist[i] = pg;
- 	}
+diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+index df10f4e07a4a..882789fff574 100644
+--- a/drivers/s390/scsi/zfcp_aux.c
++++ b/drivers/s390/scsi/zfcp_aux.c
+@@ -271,16 +271,16 @@ static void zfcp_free_low_mem_buffers(struct zfcp_adapter *adapter)
+  */
+ int zfcp_status_read_refill(struct zfcp_adapter *adapter)
+ {
+-	while (atomic_read(&adapter->stat_miss) > 0)
++	while (atomic_add_unless(&adapter->stat_miss, -1, 0))
+ 		if (zfcp_fsf_status_read(adapter->qdio)) {
++			atomic_inc(&adapter->stat_miss); /* undo add -1 */
+ 			if (atomic_read(&adapter->stat_miss) >=
+ 			    adapter->stat_read_buf_num) {
+ 				zfcp_erp_adapter_reopen(adapter, 0, "axsref1");
+ 				return 1;
+ 			}
+ 			break;
+-		} else
+-			atomic_dec(&adapter->stat_miss);
++		}
+ 	return 0;
+ }
+ 
 -- 
-2.17.2
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+2.16.4
