@@ -1,99 +1,80 @@
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 1/2] zfcp: fix posting too many status read buffers leading to adapter shutdown
-Date: Thu,  6 Dec 2018 17:31:20 +0100
-Message-ID: <20181206163121.32160-2-maier@linux.ibm.com>
-References: <20181206163121.32160-1-maier@linux.ibm.com>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20181206163121.32160-1-maier@linux.ibm.com>
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
+Return-Path: <linux-doc-owner@vger.kernel.org>
+From: Chandan Rajendra <chandan@linux.vnet.ibm.com>
+Subject: [PATCH V3 9/9] fsverity: Move verity status check to fsverity_prepare_setattr
+Date: Sat,  8 Dec 2018 12:21:44 +0530
+In-Reply-To: <20181208065144.19486-1-chandan@linux.vnet.ibm.com>
+References: <20181208065144.19486-1-chandan@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20181208065144.19486-10-chandan@linux.vnet.ibm.com>
+Sender: linux-doc-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-doc/>
+List-Post: <mailto:linux-doc@vger.kernel.org>
+To: linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-doc@vger.kernel.org, linux-mips@linux-mips.org, linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org
+Cc: Chandan Rajendra <chandan@linux.vnet.ibm.com>, tytso@mit.edu, adilger.kernel@dilger.ca, ebiggers@kernel.org, jaegeuk@kernel.org, yuchao0@huawei.com, corbet@lwn.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, green.hu@gmail.com, deanbo422@gmail.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, richard@nod.at, dedekind1@gmail.com, adrian.hunter@intel.com, viro@zeniv.linux.org.uk
 List-ID: <linux-s390.vger.kernel.org>
 
-Suppose adapter (open) recovery is between opened QDIO queues and before
-(the end of) initial posting of status read buffers (SRBs). This time
-window can be seconds long due to FSF_PROT_HOST_CONNECTION_INITIALIZING
-causing by design looping with exponential increase sleeps in the function
-performing exchange config data during recovery
-[zfcp_erp_adapter_strat_fsf_xconf()]. Recovery triggered by local link up.
+Instead of conditionally checking for verity status of an inode before
+invoking fsverity_prepare_setattr(), this commit moves the check inside the
+definition of fsverity_prepare_setattr().
 
-Suppose an event occurs for which the FCP channel would send an
-unsolicited notification to zfcp by means of a previously posted SRB.
-We saw it with local cable pull (link down) in multi-initiator zoning
-with multiple NPIV-enabled subchannels of the same shared FCP channel.
-
-As soon as zfcp_erp_adapter_strategy_open_fsf() starts posting the
-initial status read buffers from within the adapter's ERP thread,
-the channel does send an unsolicited notification.
-
-Since v2.6.27 commit d26ab06ede83 ("[SCSI] zfcp: receiving an unsolicted
-status can lead to I/O stall"), zfcp_fsf_status_read_handler() schedules
-adapter->stat_work to re-fill the just consumed SRB from a work item.
-
-Now the ERP thread and the work item post SRBs in parallel.
-Both contexts call the helper function zfcp_status_read_refill().
-The tracking of missing (to be posted / re-filled) SRBs is not thread-safe
-due to separate atomic_read() and atomic_dec(), in order to depend on
-posting success. Hence, both contexts can see
-atomic_read(&adapter->stat_miss) == 1. One of the two contexts posts
-one too many SRB. Zfcp gets QDIO_ERROR_SLSB_STATE on the output queue
-(trace tag "qdireq1") leading to zfcp_erp_adapter_shutdown() in
-zfcp_qdio_handler_error().
-
-An obvious and seemingly clean fix would be to schedule stat_work
-from the ERP thread and wait for it to finish. This would serialize
-all SRB re-fills. However, we already have another work item wait on the
-ERP thread: adapter->scan_work runs zfcp_fc_scan_ports() which calls
-zfcp_fc_eval_gpn_ft(). The latter calls zfcp_erp_wait() to wait for all
-the open port recoveries during zfcp auto port scan, but in fact it waits
-for any pending recovery including an adapter recovery. This approach
-leads to a deadlock.
-[see also v3.19 commit 18f87a67e6d6 ("zfcp: auto port scan resiliency");
-v2.6.37 commit d3e1088d6873
-("[SCSI] zfcp: No ERP escalation on gpn_ft eval");
-v2.6.28 commit fca55b6fb587
-("[SCSI] zfcp: fix deadlock between wq triggered port scan and ERP")
-fixing v2.6.27 commit c57a39a45a76
-("[SCSI] zfcp: wait until adapter is finished with ERP during auto-port");
-v2.6.27 commit cc8c282963bd
-("[SCSI] zfcp: Automatically attach remote ports")]
-
-Instead make the accounting of missing SRBs atomic for parallel
-execution in both the ERP thread and adapter->stat_work.
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: d26ab06ede83 ("[SCSI] zfcp: receiving an unsolicted status can lead to I/O stall")
-Cc: <stable@vger.kernel.org> #2.6.27+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Signed-off-by: Chandan Rajendra <chandan@linux.vnet.ibm.com>
 ---
- drivers/s390/scsi/zfcp_aux.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c   | 8 +++-----
+ fs/f2fs/file.c    | 8 +++-----
+ fs/verity/setup.c | 2 +-
+ 3 files changed, 7 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-index df10f4e07a4a..882789fff574 100644
---- a/drivers/s390/scsi/zfcp_aux.c
-+++ b/drivers/s390/scsi/zfcp_aux.c
-@@ -271,16 +271,16 @@ static void zfcp_free_low_mem_buffers(struct zfcp_adapter *adapter)
-  */
- int zfcp_status_read_refill(struct zfcp_adapter *adapter)
- {
--	while (atomic_read(&adapter->stat_miss) > 0)
-+	while (atomic_add_unless(&adapter->stat_miss, -1, 0))
- 		if (zfcp_fsf_status_read(adapter->qdio)) {
-+			atomic_inc(&adapter->stat_miss); /* undo add -1 */
- 			if (atomic_read(&adapter->stat_miss) >=
- 			    adapter->stat_read_buf_num) {
- 				zfcp_erp_adapter_reopen(adapter, 0, "axsref1");
- 				return 1;
- 			}
- 			break;
--		} else
--			atomic_dec(&adapter->stat_miss);
-+		}
- 	return 0;
- }
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 703f55635824..44561e68886b 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5510,11 +5510,9 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
+ 	if (error)
+ 		return error;
  
+-	if (IS_VERITY(inode)) {
+-		error = fsverity_prepare_setattr(dentry, attr);
+-		if (error)
+-			return error;
+-	}
++	error = fsverity_prepare_setattr(dentry, attr);
++	if (error)
++		return error;
+ 
+ 	if (is_quota_modification(inode, attr)) {
+ 		error = dquot_initialize(inode);
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 925c0d9608da..422907ca37c6 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -798,11 +798,9 @@ int f2fs_setattr(struct dentry *dentry, struct iattr *attr)
+ 	if (err)
+ 		return err;
+ 
+-	if (IS_VERITY(inode)) {
+-		err = fsverity_prepare_setattr(dentry, attr);
+-		if (err)
+-			return err;
+-	}
++	err = fsverity_prepare_setattr(dentry, attr);
++	if (err)
++		return err;
+ 
+ 	if (is_quota_modification(inode, attr)) {
+ 		err = dquot_initialize(inode);
+diff --git a/fs/verity/setup.c b/fs/verity/setup.c
+index bc463dc601b1..154556d72691 100644
+--- a/fs/verity/setup.c
++++ b/fs/verity/setup.c
+@@ -796,7 +796,7 @@ EXPORT_SYMBOL_GPL(fsverity_file_open);
+  */
+ int fsverity_prepare_setattr(struct dentry *dentry, struct iattr *attr)
+ {
+-	if (attr->ia_valid & ATTR_SIZE) {
++	if (IS_VERITY(d_inode(dentry)) && (attr->ia_valid & ATTR_SIZE)) {
+ 		pr_debug("Denying truncate of verity file (ino %lu)\n",
+ 			 d_inode(dentry)->i_ino);
+ 		return -EPERM;
 -- 
-2.16.4
+2.19.1
