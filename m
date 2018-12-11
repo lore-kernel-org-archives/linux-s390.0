@@ -1,225 +1,481 @@
-From: "Dmitry V. Levin" <ldv@altlinux.org>
-Subject: [PATCH v5 00/25] ptrace: add PTRACE_GET_SYSCALL_INFO request
-Date: Mon, 10 Dec 2018 07:23:52 +0300
-Message-ID: <20181210042352.GA6092@altlinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Oleg Nesterov <oleg@redhat.com>, Andy Lutomirski <luto@kernel.org>
-Cc: linux-s390@vger.kernel.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Brodkin <alexey.brodkin@synopsys.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-api@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, linux-kselftest@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Breno Leitao <leitao@debian.org>, Russell King <linux@armlinux.org.uk>, linux-riscv@lists.infradead.org, Vincent Chen <deanbo422@gmail.com>, Shuah Khan <shuah@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Paul Mackerras <paulus@samba.org>, Jonas Bonn <jonas@southpole.se>, Elvira Khabirova <lineprinter@altlinux.org>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.orgPaul
+Return-Path: <SRS0=TRGe=OU=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: [PATCH v2 1/8] arch: Use asm-generic/socket.h when possible
+Date: Tue, 11 Dec 2018 12:25:13 -0800
+Message-Id: <20181211202520.16799-2-deepa.kernel@gmail.com>
+In-Reply-To: <20181211202520.16799-1-deepa.kernel@gmail.com>
+References: <20181211202520.16799-1-deepa.kernel@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: davem@davemloft.net, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, arnd@arndb.de, y2038@lists.linaro.org, chris@zankel.net, fenghua.yu@intel.com, tglx@linutronix.de, schwidefsky@de.ibm.com, linux-ia64@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-PTRACE_GET_SYSCALL_INFO is a generic ptrace API that lets ptracer obtain
-details of the syscall the tracee is blocked in.
+Many architectures maintain an arch specific copy of the
+file even though there are no differences with the asm-generic
+one. Allow these architectures to use the generic one instead.
 
-There are two reasons for a special syscall-related ptrace request.
+Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: chris@zankel.net
+Cc: fenghua.yu@intel.com
+Cc: tglx@linutronix.de
+Cc: schwidefsky@de.ibm.com
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-s390@vger.kernel.org
+---
+ arch/ia64/include/uapi/asm/Kbuild     |   1 +
+ arch/ia64/include/uapi/asm/socket.h   | 120 -------------------------
+ arch/s390/include/uapi/asm/Kbuild     |   1 +
+ arch/s390/include/uapi/asm/socket.h   | 117 ------------------------
+ arch/x86/include/uapi/asm/Kbuild      |   1 +
+ arch/x86/include/uapi/asm/socket.h    |   1 -
+ arch/xtensa/include/asm/Kbuild        |   1 +
+ arch/xtensa/include/uapi/asm/Kbuild   |   1 +
+ arch/xtensa/include/uapi/asm/socket.h | 122 --------------------------
+ 9 files changed, 5 insertions(+), 360 deletions(-)
+ delete mode 100644 arch/ia64/include/uapi/asm/socket.h
+ delete mode 100644 arch/s390/include/uapi/asm/socket.h
+ delete mode 100644 arch/x86/include/uapi/asm/socket.h
+ delete mode 100644 arch/xtensa/include/uapi/asm/socket.h
 
-Firstly, with the current ptrace API there are cases when ptracer cannot
-retrieve necessary information about syscalls.  Some examples include:
-* The notorious int-0x80-from-64-bit-task issue.  See [1] for details.
-In short, if a 64-bit task performs a syscall through int 0x80, its tracer
-has no reliable means to find out that the syscall was, in fact,
-a compat syscall, and misidentifies it.
-* Syscall-enter-stop and syscall-exit-stop look the same for the tracer.
-Common practice is to keep track of the sequence of ptrace-stops in order
-not to mix the two syscall-stops up.  But it is not as simple as it looks;
-for example, strace had a (just recently fixed) long-standing bug where
-attaching strace to a tracee that is performing the execve system call
-led to the tracer identifying the following syscall-exit-stop as
-syscall-enter-stop, which messed up all the state tracking.
-* Since the introduction of commit 84d77d3f06e7e8dea057d10e8ec77ad71f721be3
-("ptrace: Don't allow accessing an undumpable mm"), both PTRACE_PEEKDATA
-and process_vm_readv become unavailable when the process dumpable flag
-is cleared.  On such architectures as ia64 this results in all syscall
-arguments being unavailable for the tracer.
-
-Secondly, ptracers also have to support a lot of arch-specific code for
-obtaining information about the tracee.  For some architectures, this
-requires a ptrace(PTRACE_PEEKUSER, ...) invocation for every syscall
-argument and return value.
-
-PTRACE_GET_SYSCALL_INFO returns the following structure:
-
-struct ptrace_syscall_info {
-	__u8 op;	/* PTRACE_SYSCALL_INFO_* */
-	__u8 __pad0[3];
-	__u32 arch;
-	__u64 instruction_pointer;
-	__u64 stack_pointer;
-	__u64 frame_pointer;
-	union {
-		struct {
-			__u64 nr;
-			__u64 args[6];
-		} entry;
-		struct {
-			__s64 rval;
-			__u8 is_error;
-			__u8 __pad1[7];
-		} exit;
-		struct {
-			__u64 nr;
-			__u64 args[6];
-			__u32 ret_data;
-			__u8 __pad2[4];
-		} seccomp;
-	};
-};
-
-The structure was chosen according to [2], except for the following
-changes:
-* seccomp substructure was added as a superset of entry substructure;
-* the type of nr field was changed from int to __u64 because syscall
-numbers are, as a practical matter, 64 bits;
-* stack_pointer and frame_pointer fields were added along with
-instruction_pointer field since they are readily available and can save
-the tracer from extra PTRACE_GETREGS/PTRACE_GETREGSET calls;
-* arch is always initialized to aid with tracing system calls such as
-execve();
-* instruction_pointer, stack_pointer, and frame_pointer are always
-initialized so they could be easily obtained for non-syscall stops;
-* a boolean is_error field was added along with rval field, this way
-the tracer can more reliably distinguish a return value
-from an error value.
-
-strace has been ported to PTRACE_GET_SYSCALL_INFO, you can find it
-at [3] and [4].
-
-[1] https://lore.kernel.org/lkml/CA+55aFzcSVmdDj9Lh_gdbz1OzHyEm6ZrGPBDAJnywm2LF_eVyg@mail.gmail.com/
-[2] https://lore.kernel.org/lkml/CAObL_7GM0n80N7J_DFw_eQyfLyzq+sf4y2AvsCCV88Tb3AwEHA@mail.gmail.com/
-[3] https://github.com/strace/strace/commits/ldv/PTRACE_GET_SYSCALL_INFO
-[4] https://gitlab.com/strace/strace/commits/ldv/PTRACE_GET_SYSCALL_INFO
-
-Notes:
-    v5:
-    * Merge separate series and patches into the single series.
-    * Change PTRACE_EVENTMSG_SYSCALL_{ENTRY,EXIT} values as requested by Oleg.
-    * Change struct ptrace_syscall_info: generalize instruction_pointer,
-      stack_pointer, and frame_pointer fields by moving them from
-      ptrace_syscall_info.{entry,seccomp} substructures to ptrace_syscall_info
-      and initializing them for all stops.
-    * Add PTRACE_SYSCALL_INFO_NONE, assign it to ptrace_syscall_info.op
-      when not in a syscall stop, so e.g. "strace -i" could use the same
-      PTRACE_SYSCALL_INFO_SECCOMP interface to obtain instruction_pointer
-      when the tracee is in a signal stop.
-    * Patch all remaining architectures to provide all necessary
-      syscall_get_* functions.
-    * Make available for all architectures: do not conditionalize on
-      CONFIG_HAVE_ARCH_TRACEHOOK since all syscall_get_* functions
-      are implemented on all architectures.
-    * Add a test for PTRACE_GET_SYSCALL_INFO to selftests/ptrace.
-    
-    v4:
-    * Do not introduce task_struct.ptrace_event,
-      use child->last_siginfo->si_code instead.
-    * Implement PTRACE_SYSCALL_INFO_SECCOMP and ptrace_syscall_info.seccomp
-      support along with PTRACE_SYSCALL_INFO_{ENTRY,EXIT} and
-      ptrace_syscall_info.{entry,exit}.
-    
-    v3:
-    * Change struct ptrace_syscall_info.
-    * Support PTRACE_EVENT_SECCOMP by adding ptrace_event to task_struct.
-    * Add proper defines for ptrace_syscall_info.op values.
-    * Rename PT_SYSCALL_IS_ENTERING and PT_SYSCALL_IS_EXITING to
-      PTRACE_EVENTMSG_SYSCALL_ENTRY and PTRACE_EVENTMSG_SYSCALL_EXIT
-    * and move them to uapi.
-    
-    v2:
-    * Do not use task->ptrace.
-    * Replace entry_info.is_compat with entry_info.arch, use syscall_get_arch().
-    * Use addr argument of sys_ptrace to get expected size of the struct;
-      return full size of the struct.
-
-Dmitry V. Levin (23):
-  alpha: define remaining syscall_get_* functions
-  Move EM_ARCOMPACT and EM_ARCV2 to uapi/linux/elf-em.h
-  arc: define syscall_get_arch()
-  c6x: define syscall_get_arch()
-  elf-em.h: add EM_CSKY
-  csky: define syscall_get_arch()
-  h8300: define remaining syscall_get_* functions
-  Move EM_HEXAGON to uapi/linux/elf-em.h
-  hexagon: define remaining syscall_get_* functions
-  Move EM_NDS32 to uapi/linux/elf-em.h
-  nds32: define syscall_get_arch()
-  nios2: define syscall_get_arch()
-  m68k: add asm/syscall.h
-  mips: define syscall_get_error()
-  parisc: define syscall_get_error()
-  powerpc: define syscall_get_error()
-  riscv: define syscall_get_arch()
-  Move EM_XTENSA to uapi/linux/elf-em.h
-  xtensa: define syscall_get_* functions
-  Move EM_UNICORE to uapi/linux/elf-em.h
-  unicore32: add asm/syscall.h
-  syscall_get_arch: add "struct task_struct *" argument
-  selftests/ptrace: add a test case for PTRACE_GET_SYSCALL_INFO
-
-Elvira Khabirova (2):
-  powerpc/ptrace: replace ptrace_report_syscall() with a tracehook call
-  ptrace: add PTRACE_GET_SYSCALL_INFO request
-
- arch/alpha/include/asm/syscall.h              |  29 +-
- arch/arc/include/asm/elf.h                    |   6 +-
- arch/arc/include/asm/syscall.h                |  11 +
- arch/arm/include/asm/syscall.h                |   2 +-
- arch/arm64/include/asm/syscall.h              |   4 +-
- arch/c6x/include/asm/syscall.h                |   7 +
- arch/csky/include/asm/syscall.h               |   7 +
- arch/h8300/include/asm/syscall.h              |  18 ++
- arch/hexagon/include/asm/elf.h                |   6 +-
- arch/hexagon/include/asm/syscall.h            |  20 ++
- arch/ia64/include/asm/syscall.h               |   2 +-
- arch/m68k/include/asm/syscall.h               |  39 +++
- arch/microblaze/include/asm/syscall.h         |   2 +-
- arch/mips/include/asm/syscall.h               |  12 +-
- arch/mips/kernel/ptrace.c                     |   2 +-
- arch/nds32/include/asm/elf.h                  |   3 +-
- arch/nds32/include/asm/syscall.h              |   8 +
- arch/nios2/include/asm/syscall.h              |   6 +
- arch/openrisc/include/asm/syscall.h           |   2 +-
- arch/parisc/include/asm/syscall.h             |  11 +-
- arch/powerpc/include/asm/syscall.h            |  20 +-
- arch/powerpc/kernel/ptrace.c                  |   7 +-
- arch/riscv/include/asm/syscall.h              |  10 +
- arch/s390/include/asm/syscall.h               |   4 +-
- arch/sh/include/asm/syscall_32.h              |   2 +-
- arch/sh/include/asm/syscall_64.h              |   2 +-
- arch/sparc/include/asm/syscall.h              |   5 +-
- arch/unicore32/include/asm/elf.h              |   3 +-
- arch/unicore32/include/asm/syscall.h          |  45 +++
- arch/x86/include/asm/syscall.h                |   8 +-
- arch/x86/um/asm/syscall.h                     |   2 +-
- arch/xtensa/include/asm/elf.h                 |   2 +-
- arch/xtensa/include/asm/syscall.h             |  69 +++++
- include/asm-generic/syscall.h                 |   5 +-
- include/linux/tracehook.h                     |   9 +-
- include/uapi/linux/audit.h                    |  16 ++
- include/uapi/linux/elf-em.h                   |   8 +
- include/uapi/linux/ptrace.h                   |  39 +++
- kernel/auditsc.c                              |   4 +-
- kernel/ptrace.c                               |  99 ++++++-
- kernel/seccomp.c                              |   4 +-
- tools/testing/selftests/ptrace/.gitignore     |   1 +
- tools/testing/selftests/ptrace/Makefile       |   2 +-
- .../selftests/ptrace/get_syscall_info.c       | 272 ++++++++++++++++++
- 44 files changed, 783 insertions(+), 52 deletions(-)
- create mode 100644 arch/m68k/include/asm/syscall.h
- create mode 100644 arch/unicore32/include/asm/syscall.h
- create mode 100644 tools/testing/selftests/ptrace/get_syscall_info.c
-
+diff --git a/arch/ia64/include/uapi/asm/Kbuild b/arch/ia64/include/uapi/asm/Kbuild
+index ccce0ea65e05..37ea5ec1b94d 100644
+--- a/arch/ia64/include/uapi/asm/Kbuild
++++ b/arch/ia64/include/uapi/asm/Kbuild
+@@ -9,3 +9,4 @@ generic-y += msgbuf.h
+ generic-y += poll.h
+ generic-y += sembuf.h
+ generic-y += shmbuf.h
++generic-y += socket.h
+diff --git a/arch/ia64/include/uapi/asm/socket.h b/arch/ia64/include/uapi/asm/socket.h
+deleted file mode 100644
+index c872c4e6bafb..000000000000
+--- a/arch/ia64/include/uapi/asm/socket.h
++++ /dev/null
+@@ -1,120 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+-#ifndef _ASM_IA64_SOCKET_H
+-#define _ASM_IA64_SOCKET_H
+-
+-/*
+- * Socket related defines.
+- *
+- * Based on <asm-i386/socket.h>.
+- *
+- * Modified 1998-2000
+- *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
+- */
+-
+-#include <asm/sockios.h>
+-
+-/* For setsockopt(2) */
+-#define SOL_SOCKET	1
+-
+-#define SO_DEBUG	1
+-#define SO_REUSEADDR	2
+-#define SO_TYPE		3
+-#define SO_ERROR	4
+-#define SO_DONTROUTE	5
+-#define SO_BROADCAST	6
+-#define SO_SNDBUF	7
+-#define SO_RCVBUF	8
+-#define SO_SNDBUFFORCE	32
+-#define SO_RCVBUFFORCE	33
+-#define SO_KEEPALIVE	9
+-#define SO_OOBINLINE	10
+-#define SO_NO_CHECK	11
+-#define SO_PRIORITY	12
+-#define SO_LINGER	13
+-#define SO_BSDCOMPAT	14
+-#define SO_REUSEPORT	15
+-#define SO_PASSCRED	16
+-#define SO_PEERCRED	17
+-#define SO_RCVLOWAT	18
+-#define SO_SNDLOWAT	19
+-#define SO_RCVTIMEO	20
+-#define SO_SNDTIMEO	21
+-
+-/* Security levels - as per NRL IPv6 - don't actually do anything */
+-#define SO_SECURITY_AUTHENTICATION		22
+-#define SO_SECURITY_ENCRYPTION_TRANSPORT	23
+-#define SO_SECURITY_ENCRYPTION_NETWORK		24
+-
+-#define SO_BINDTODEVICE		25
+-
+-/* Socket filtering */
+-#define SO_ATTACH_FILTER	26
+-#define SO_DETACH_FILTER	27
+-#define SO_GET_FILTER		SO_ATTACH_FILTER
+-
+-#define SO_PEERNAME		28
+-#define SO_TIMESTAMP		29
+-#define SCM_TIMESTAMP		SO_TIMESTAMP
+-
+-#define SO_ACCEPTCONN		30
+-
+-#define SO_PEERSEC             31
+-#define SO_PASSSEC		34
+-#define SO_TIMESTAMPNS		35
+-#define SCM_TIMESTAMPNS		SO_TIMESTAMPNS
+-
+-#define SO_MARK			36
+-
+-#define SO_TIMESTAMPING		37
+-#define SCM_TIMESTAMPING	SO_TIMESTAMPING
+-
+-#define SO_PROTOCOL		38
+-#define SO_DOMAIN		39
+-
+-#define SO_RXQ_OVFL             40
+-
+-#define SO_WIFI_STATUS		41
+-#define SCM_WIFI_STATUS		SO_WIFI_STATUS
+-#define SO_PEEK_OFF		42
+-
+-/* Instruct lower device to use last 4-bytes of skb data as FCS */
+-#define SO_NOFCS		43
+-
+-#define SO_LOCK_FILTER		44
+-
+-#define SO_SELECT_ERR_QUEUE	45
+-
+-#define SO_BUSY_POLL		46
+-
+-#define SO_MAX_PACING_RATE	47
+-
+-#define SO_BPF_EXTENSIONS	48
+-
+-#define SO_INCOMING_CPU		49
+-
+-#define SO_ATTACH_BPF		50
+-#define SO_DETACH_BPF		SO_DETACH_FILTER
+-
+-#define SO_ATTACH_REUSEPORT_CBPF	51
+-#define SO_ATTACH_REUSEPORT_EBPF	52
+-
+-#define SO_CNX_ADVICE		53
+-
+-#define SCM_TIMESTAMPING_OPT_STATS	54
+-
+-#define SO_MEMINFO		55
+-
+-#define SO_INCOMING_NAPI_ID	56
+-
+-#define SO_COOKIE		57
+-
+-#define SCM_TIMESTAMPING_PKTINFO	58
+-
+-#define SO_PEERGROUPS		59
+-
+-#define SO_ZEROCOPY		60
+-
+-#define SO_TXTIME		61
+-#define SCM_TXTIME		SO_TXTIME
+-
+-#endif /* _ASM_IA64_SOCKET_H */
+diff --git a/arch/s390/include/uapi/asm/Kbuild b/arch/s390/include/uapi/asm/Kbuild
+index dc38a90cf091..15bb61228b74 100644
+--- a/arch/s390/include/uapi/asm/Kbuild
++++ b/arch/s390/include/uapi/asm/Kbuild
+@@ -15,6 +15,7 @@ generic-y += poll.h
+ generic-y += resource.h
+ generic-y += sembuf.h
+ generic-y += shmbuf.h
++generic-y += socket.h
+ generic-y += sockios.h
+ generic-y += swab.h
+ generic-y += termbits.h
+diff --git a/arch/s390/include/uapi/asm/socket.h b/arch/s390/include/uapi/asm/socket.h
+deleted file mode 100644
+index 39d901476ee5..000000000000
+--- a/arch/s390/include/uapi/asm/socket.h
++++ /dev/null
+@@ -1,117 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+-/*
+- *  S390 version
+- *
+- *  Derived from "include/asm-i386/socket.h"
+- */
+-
+-#ifndef _ASM_SOCKET_H
+-#define _ASM_SOCKET_H
+-
+-#include <asm/sockios.h>
+-
+-/* For setsockopt(2) */
+-#define SOL_SOCKET	1
+-
+-#define SO_DEBUG	1
+-#define SO_REUSEADDR	2
+-#define SO_TYPE		3
+-#define SO_ERROR	4
+-#define SO_DONTROUTE	5
+-#define SO_BROADCAST	6
+-#define SO_SNDBUF	7
+-#define SO_RCVBUF	8
+-#define SO_SNDBUFFORCE	32
+-#define SO_RCVBUFFORCE	33
+-#define SO_KEEPALIVE	9
+-#define SO_OOBINLINE	10
+-#define SO_NO_CHECK	11
+-#define SO_PRIORITY	12
+-#define SO_LINGER	13
+-#define SO_BSDCOMPAT	14
+-#define SO_REUSEPORT	15
+-#define SO_PASSCRED	16
+-#define SO_PEERCRED	17
+-#define SO_RCVLOWAT	18
+-#define SO_SNDLOWAT	19
+-#define SO_RCVTIMEO	20
+-#define SO_SNDTIMEO	21
+-
+-/* Security levels - as per NRL IPv6 - don't actually do anything */
+-#define SO_SECURITY_AUTHENTICATION		22
+-#define SO_SECURITY_ENCRYPTION_TRANSPORT	23
+-#define SO_SECURITY_ENCRYPTION_NETWORK		24
+-
+-#define SO_BINDTODEVICE	25
+-
+-/* Socket filtering */
+-#define SO_ATTACH_FILTER        26
+-#define SO_DETACH_FILTER        27
+-#define SO_GET_FILTER		SO_ATTACH_FILTER
+-
+-#define SO_PEERNAME		28
+-#define SO_TIMESTAMP		29
+-#define SCM_TIMESTAMP		SO_TIMESTAMP
+-
+-#define SO_ACCEPTCONN		30
+-
+-#define SO_PEERSEC		31
+-#define SO_PASSSEC		34
+-#define SO_TIMESTAMPNS		35
+-#define SCM_TIMESTAMPNS		SO_TIMESTAMPNS
+-
+-#define SO_MARK			36
+-
+-#define SO_TIMESTAMPING		37
+-#define SCM_TIMESTAMPING	SO_TIMESTAMPING
+-
+-#define SO_PROTOCOL		38
+-#define SO_DOMAIN		39
+-
+-#define SO_RXQ_OVFL             40
+-
+-#define SO_WIFI_STATUS		41
+-#define SCM_WIFI_STATUS		SO_WIFI_STATUS
+-#define SO_PEEK_OFF		42
+-
+-/* Instruct lower device to use last 4-bytes of skb data as FCS */
+-#define SO_NOFCS		43
+-
+-#define SO_LOCK_FILTER		44
+-
+-#define SO_SELECT_ERR_QUEUE	45
+-
+-#define SO_BUSY_POLL		46
+-
+-#define SO_MAX_PACING_RATE	47
+-
+-#define SO_BPF_EXTENSIONS	48
+-
+-#define SO_INCOMING_CPU		49
+-
+-#define SO_ATTACH_BPF		50
+-#define SO_DETACH_BPF		SO_DETACH_FILTER
+-
+-#define SO_ATTACH_REUSEPORT_CBPF	51
+-#define SO_ATTACH_REUSEPORT_EBPF	52
+-
+-#define SO_CNX_ADVICE		53
+-
+-#define SCM_TIMESTAMPING_OPT_STATS	54
+-
+-#define	SO_MEMINFO		55
+-
+-#define SO_INCOMING_NAPI_ID	56
+-
+-#define SO_COOKIE		57
+-
+-#define SCM_TIMESTAMPING_PKTINFO	58
+-
+-#define SO_PEERGROUPS		59
+-
+-#define SO_ZEROCOPY		60
+-
+-#define SO_TXTIME		61
+-#define SCM_TXTIME		SO_TXTIME
+-
+-#endif /* _ASM_SOCKET_H */
+diff --git a/arch/x86/include/uapi/asm/Kbuild b/arch/x86/include/uapi/asm/Kbuild
+index 322681622d1e..a400e71a13ce 100644
+--- a/arch/x86/include/uapi/asm/Kbuild
++++ b/arch/x86/include/uapi/asm/Kbuild
+@@ -6,3 +6,4 @@ generated-y += unistd_32.h
+ generated-y += unistd_64.h
+ generated-y += unistd_x32.h
+ generic-y += poll.h
++generic-y += socket.h
+diff --git a/arch/x86/include/uapi/asm/socket.h b/arch/x86/include/uapi/asm/socket.h
+deleted file mode 100644
+index 6b71384b9d8b..000000000000
+--- a/arch/x86/include/uapi/asm/socket.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <asm-generic/socket.h>
+diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
+index e255683cd520..809f39ce08c0 100644
+--- a/arch/xtensa/include/asm/Kbuild
++++ b/arch/xtensa/include/asm/Kbuild
+@@ -25,6 +25,7 @@ generic-y += percpu.h
+ generic-y += preempt.h
+ generic-y += rwsem.h
+ generic-y += sections.h
++generic-y += socket.h
+ generic-y += topology.h
+ generic-y += trace_clock.h
+ generic-y += vga.h
+diff --git a/arch/xtensa/include/uapi/asm/Kbuild b/arch/xtensa/include/uapi/asm/Kbuild
+index f95cad300369..fc2680dace55 100644
+--- a/arch/xtensa/include/uapi/asm/Kbuild
++++ b/arch/xtensa/include/uapi/asm/Kbuild
+@@ -10,5 +10,6 @@ generic-y += ioctl.h
+ generic-y += kvm_para.h
+ generic-y += resource.h
+ generic-y += siginfo.h
++generic-y += socket.h
+ generic-y += statfs.h
+ generic-y += termios.h
+diff --git a/arch/xtensa/include/uapi/asm/socket.h b/arch/xtensa/include/uapi/asm/socket.h
+deleted file mode 100644
+index 1de07a7f7680..000000000000
+--- a/arch/xtensa/include/uapi/asm/socket.h
++++ /dev/null
+@@ -1,122 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+-/*
+- * include/asm-xtensa/socket.h
+- *
+- * Copied from i386.
+- *
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- */
+-
+-#ifndef _XTENSA_SOCKET_H
+-#define _XTENSA_SOCKET_H
+-
+-#include <asm/sockios.h>
+-
+-/* For setsockoptions(2) */
+-#define SOL_SOCKET	1
+-
+-#define SO_DEBUG	1
+-#define SO_REUSEADDR	2
+-#define SO_TYPE		3
+-#define SO_ERROR	4
+-#define SO_DONTROUTE	5
+-#define SO_BROADCAST	6
+-#define SO_SNDBUF	7
+-#define SO_RCVBUF	8
+-#define SO_SNDBUFFORCE	32
+-#define SO_RCVBUFFORCE	33
+-#define SO_KEEPALIVE	9
+-#define SO_OOBINLINE	10
+-#define SO_NO_CHECK	11
+-#define SO_PRIORITY	12
+-#define SO_LINGER	13
+-#define SO_BSDCOMPAT	14
+-#define SO_REUSEPORT	15
+-#define SO_PASSCRED	16
+-#define SO_PEERCRED	17
+-#define SO_RCVLOWAT	18
+-#define SO_SNDLOWAT	19
+-#define SO_RCVTIMEO	20
+-#define SO_SNDTIMEO	21
+-
+-/* Security levels - as per NRL IPv6 - don't actually do anything */
+-
+-#define SO_SECURITY_AUTHENTICATION		22
+-#define SO_SECURITY_ENCRYPTION_TRANSPORT	23
+-#define SO_SECURITY_ENCRYPTION_NETWORK		24
+-
+-#define SO_BINDTODEVICE	25
+-
+-/* Socket filtering */
+-
+-#define SO_ATTACH_FILTER        26
+-#define SO_DETACH_FILTER        27
+-#define SO_GET_FILTER		SO_ATTACH_FILTER
+-
+-#define SO_PEERNAME		28
+-#define SO_TIMESTAMP		29
+-#define SCM_TIMESTAMP		SO_TIMESTAMP
+-
+-#define SO_ACCEPTCONN		30
+-#define SO_PEERSEC		31
+-#define SO_PASSSEC		34
+-#define SO_TIMESTAMPNS		35
+-#define SCM_TIMESTAMPNS		SO_TIMESTAMPNS
+-
+-#define SO_MARK			36
+-
+-#define SO_TIMESTAMPING		37
+-#define SCM_TIMESTAMPING	SO_TIMESTAMPING
+-
+-#define SO_PROTOCOL		38
+-#define SO_DOMAIN		39
+-
+-#define SO_RXQ_OVFL             40
+-
+-#define SO_WIFI_STATUS		41
+-#define SCM_WIFI_STATUS		SO_WIFI_STATUS
+-#define SO_PEEK_OFF		42
+-
+-/* Instruct lower device to use last 4-bytes of skb data as FCS */
+-#define SO_NOFCS		43
+-
+-#define SO_LOCK_FILTER		44
+-
+-#define SO_SELECT_ERR_QUEUE	45
+-
+-#define SO_BUSY_POLL		46
+-
+-#define SO_MAX_PACING_RATE	47
+-
+-#define SO_BPF_EXTENSIONS	48
+-
+-#define SO_INCOMING_CPU		49
+-
+-#define SO_ATTACH_BPF		50
+-#define SO_DETACH_BPF		SO_DETACH_FILTER
+-
+-#define SO_ATTACH_REUSEPORT_CBPF	51
+-#define SO_ATTACH_REUSEPORT_EBPF	52
+-
+-#define SO_CNX_ADVICE		53
+-
+-#define SCM_TIMESTAMPING_OPT_STATS	54
+-
+-#define SO_MEMINFO		55
+-
+-#define SO_INCOMING_NAPI_ID	56
+-
+-#define SO_COOKIE		57
+-
+-#define SCM_TIMESTAMPING_PKTINFO	58
+-
+-#define SO_PEERGROUPS		59
+-
+-#define SO_ZEROCOPY		60
+-
+-#define SO_TXTIME		61
+-#define SCM_TXTIME		SO_TXTIME
+-
+-#endif	/* _XTENSA_SOCKET_H */
 -- 
-ldv
+2.17.1
