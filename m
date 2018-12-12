@@ -1,8 +1,8 @@
-From: Farhan Ali <alifm@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
 Subject: Re: [PATCH] MAINTAINERS/vfio-ccw: add Farhan and Eric, make Halil
  Reviewer
-Date: Wed, 12 Dec 2018 10:10:21 -0500
-Message-ID: <10a8b8f5-6a72-ef2f-2964-a92221f5c9c4@linux.ibm.com>
+Date: Wed, 12 Dec 2018 10:42:20 -0500
+Message-ID: <17465894-0576-a178-42a4-539abfec1089@linux.ibm.com>
 References: <20181212145929.136522-1-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -14,7 +14,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
@@ -48,5 +48,4 @@ On 12/12/2018 09:59 AM, Christian Borntraeger wrote:
 >   S:	Supported
 > 
 
-
-Acked-by: Farhan Ali <alifm@linux.ibm.com>
+Acked-by: Eric Farman <farman@linux.ibm.com>
