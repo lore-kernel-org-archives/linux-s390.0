@@ -1,12 +1,10 @@
 Return-Path: <linux-doc-owner@vger.kernel.org>
 From: Chandan Rajendra <chandan@linux.vnet.ibm.com>
-Subject: [PATCH V4 9/9] fsverity: Move verity status check to fsverity_prepare_setattr
-Date: Wed, 12 Dec 2018 09:37:36 +0530
-In-Reply-To: <20181212040736.2849-1-chandan@linux.vnet.ibm.com>
-References: <20181212040736.2849-1-chandan@linux.vnet.ibm.com>
+Subject: [PATCH V4 0/9] Remove fs specific fscrypt and fsverity build config options
+Date: Wed, 12 Dec 2018 09:37:27 +0530
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20181212040736.2849-10-chandan@linux.vnet.ibm.com>
+Message-Id: <20181212040736.2849-1-chandan@linux.vnet.ibm.com>
 Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-doc/>
 List-Post: <mailto:linux-doc@vger.kernel.org>
@@ -14,84 +12,120 @@ To: linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net, linux-do
 Cc: Chandan Rajendra <chandan@linux.vnet.ibm.com>, tytso@mit.edu, adilger.kernel@dilger.ca, ebiggers@kernel.org, jaegeuk@kernel.org, yuchao0@huawei.com, corbet@lwn.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, green.hu@gmail.com, deanbo422@gmail.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, richard@nod.at, dedekind1@gmail.com, adrian.hunter@intel.com, viro@zeniv.linux.org.uk
 List-ID: <linux-s390.vger.kernel.org>
 
-Instead of conditionally checking for verity status of an inode before
-invoking fsverity_prepare_setattr(), this commit moves the check inside the
-definition of fsverity_prepare_setattr().
+In order to have a common code base for fscrypt & fsverity "post read"
+processing across filesystems which implement fscrypt/fsverity, this
+commit removes filesystem specific build config option
+(CONFIG_EXT4_FS_ENCRYPTION, CONFIG_EXT4_FS_VERITY,
+CONFIG_F2FS_FS_ENCRYPTION, CONFIG_F2FS_FS_VERITY and
+CONFIG_UBIFS_FS_ENCRYPTION) and replaces it with build options
+(CONFIG_FS_ENCRYPTION and CONFIG_FS_VERITY) whose values affect all
+the filesystems making use of fscrypt and fsverity.
 
-Signed-off-by: Chandan Rajendra <chandan@linux.vnet.ibm.com>
----
- fs/ext4/inode.c          | 8 +++-----
- fs/f2fs/file.c           | 8 +++-----
- fs/verity/setup.c        | 2 +-
- include/linux/fsverity.h | 5 ++++-
- 4 files changed, 11 insertions(+), 12 deletions(-)
+The Kconfig recursive dependency issue reported by kbuild test bot for
+IA64 architecture still needs to be fixed. I should be able to fix the
+problem and post the next verison of patches by today.
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 703f55635824..44561e68886b 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5510,11 +5510,9 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
- 	if (error)
- 		return error;
- 
--	if (IS_VERITY(inode)) {
--		error = fsverity_prepare_setattr(dentry, attr);
--		if (error)
--			return error;
--	}
-+	error = fsverity_prepare_setattr(dentry, attr);
-+	if (error)
-+		return error;
- 
- 	if (is_quota_modification(inode, attr)) {
- 		error = dquot_initialize(inode);
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 925c0d9608da..422907ca37c6 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -798,11 +798,9 @@ int f2fs_setattr(struct dentry *dentry, struct iattr *attr)
- 	if (err)
- 		return err;
- 
--	if (IS_VERITY(inode)) {
--		err = fsverity_prepare_setattr(dentry, attr);
--		if (err)
--			return err;
--	}
-+	err = fsverity_prepare_setattr(dentry, attr);
-+	if (err)
-+		return err;
- 
- 	if (is_quota_modification(inode, attr)) {
- 		err = dquot_initialize(inode);
-diff --git a/fs/verity/setup.c b/fs/verity/setup.c
-index bc463dc601b1..154556d72691 100644
---- a/fs/verity/setup.c
-+++ b/fs/verity/setup.c
-@@ -796,7 +796,7 @@ EXPORT_SYMBOL_GPL(fsverity_file_open);
-  */
- int fsverity_prepare_setattr(struct dentry *dentry, struct iattr *attr)
- {
--	if (attr->ia_valid & ATTR_SIZE) {
-+	if (IS_VERITY(d_inode(dentry)) && (attr->ia_valid & ATTR_SIZE)) {
- 		pr_debug("Denying truncate of verity file (ino %lu)\n",
- 			 d_inode(dentry)->i_ino);
- 		return -EPERM;
-diff --git a/include/linux/fsverity.h b/include/linux/fsverity.h
-index c770025606e1..9ccc8ad9652a 100644
---- a/include/linux/fsverity.h
-+++ b/include/linux/fsverity.h
-@@ -69,7 +69,10 @@ static inline int fsverity_file_open(struct inode *inode, struct file *filp)
- static inline int fsverity_prepare_setattr(struct dentry *dentry,
- 					   struct iattr *attr)
- {
--	return -EOPNOTSUPP;
-+	if (IS_VERITY(d_inode(dentry)))
-+		return -EOPNOTSUPP;
-+
-+	return 0;
- }
- 
- static inline int fsverity_prepare_getattr(struct inode *inode)
+PS: Since I have access to only to x86 and ppc64le machines, I haven't tested the
+defconfig files for other architectures.
+
+Changelog:
+V3 -> V4:
+1. For non-fsverity supported kernels, return success when fsverity_file_open()
+   is invoked for non-fsverity files.
+
+V2 -> V3:
+1. Remove unnecessary line breaks.
+2. Remove the definition of f2fs_encrypted_inode().
+3. Fix Kconfig dependencies for fscrypt w.r.t F2FS and UBIFS. If F2FS is enabled
+   in the kernel build configuration, F2FS_FS_XATTR is selected if FS_ENCRYPTION
+   is enabled. Similarly, if UBIFS is enabled in the kernel build configuration,
+   UBIFS_FS_XATTR and BLOCK is selected if FS_ENCRYPTION is enabled.
+4. Two new patches have been added to move verity status check to
+   fsverity_file_open() and fsverity_prepare_setattr().
+5. For patch "f2fs: use IS_VERITY() to check inode's fsverity status", the
+   acked-by tag given by Chao Yu has been removed since I added an invocation to
+   f2fs_set_inode_flags() inside f2fs_set_verity(). This is needed to have
+   S_VERITY flag set on the corresponding VFS inode.
+
+V1 -> V2:
+1. Address the following review comments provided by Eric Biggers,
+   - In ext4_should_use_dax(), Use ext4_test_inode_flag() to check for
+     fscrypt/fsverity status of an inode.
+   - Update documentation associated with fscrypt & fsverity to refer to
+     CONFIG_FS_ENCRYPTION and CONFIG_FS_VERITY build flags.
+   - Remove filesystem specific fscrypt build configuration from defconfig
+     files.
+   - Provide a list of supported filesystems for CONFIG_FS_ENCRYPTION and
+     CONFIG_FS_VERITY build flags.
+   - Update comment describing S_VERITY flag.
+2. Remove UBIFS specific encryption build option and make use of the generic
+   CONFIG_FS_ENCRYPTION flag.
+
+RFC -> V1:
+1. Add a new patch to implement S_VERITY/IS_VERITY().
+2. Split code that replaces filesystem specific routines with generic
+   IS_ENCRYPTED() and IS_VERITY() calls into separate patches.
+
+Chandan Rajendra (9):
+  ext4: use IS_ENCRYPTED() to check encryption status
+  f2fs: use IS_ENCRYPTED() to check encryption status
+  fscrypt: remove filesystem specific build config option
+  Add S_VERITY and IS_VERITY()
+  ext4: use IS_VERITY() to check inode's fsverity status
+  f2fs: use IS_VERITY() to check inode's fsverity status
+  fsverity: Remove filesystem specific build config option
+  fsverity: Move verity status check to fsverity_file_open
+  fsverity: Move verity status check to fsverity_prepare_setattr
+
+ Documentation/filesystems/fscrypt.rst   |   4 +-
+ Documentation/filesystems/fsverity.rst  |   4 +-
+ arch/mips/configs/generic_defconfig     |   2 +-
+ arch/nds32/configs/defconfig            |   2 +-
+ arch/s390/configs/debug_defconfig       |   2 +-
+ arch/s390/configs/performance_defconfig |   2 +-
+ fs/crypto/Kconfig                       |   5 +-
+ fs/crypto/fscrypt_private.h             |   1 -
+ fs/ext4/Kconfig                         |  35 --
+ fs/ext4/dir.c                           |  10 +-
+ fs/ext4/ext4.h                          |  23 +-
+ fs/ext4/ext4_jbd2.h                     |   2 +-
+ fs/ext4/extents.c                       |   4 +-
+ fs/ext4/file.c                          |   8 +-
+ fs/ext4/ialloc.c                        |   2 +-
+ fs/ext4/inode.c                         |  40 ++-
+ fs/ext4/ioctl.c                         |   4 +-
+ fs/ext4/move_extent.c                   |   3 +-
+ fs/ext4/namei.c                         |  18 +-
+ fs/ext4/page-io.c                       |   9 +-
+ fs/ext4/readpage.c                      |  10 +-
+ fs/ext4/super.c                         |  13 +-
+ fs/ext4/sysfs.c                         |   8 +-
+ fs/f2fs/Kconfig                         |  32 +-
+ fs/f2fs/data.c                          |   6 +-
+ fs/f2fs/dir.c                           |  10 +-
+ fs/f2fs/f2fs.h                          |  23 +-
+ fs/f2fs/file.c                          |  28 +-
+ fs/f2fs/inode.c                         |   8 +-
+ fs/f2fs/namei.c                         |   6 +-
+ fs/f2fs/super.c                         |  15 +-
+ fs/f2fs/sysfs.c                         |   8 +-
+ fs/ubifs/Kconfig                        |  13 +-
+ fs/ubifs/Makefile                       |   2 +-
+ fs/ubifs/ioctl.c                        |   4 +-
+ fs/ubifs/sb.c                           |   2 +-
+ fs/ubifs/super.c                        |   2 +-
+ fs/ubifs/ubifs.h                        |   5 +-
+ fs/verity/Kconfig                       |   3 +-
+ fs/verity/fsverity_private.h            |   1 -
+ fs/verity/setup.c                       |   5 +-
+ include/linux/fs.h                      |  10 +-
+ include/linux/fscrypt.h                 | 416 +++++++++++++++++++++++-
+ include/linux/fscrypt_notsupp.h         | 231 -------------
+ include/linux/fscrypt_supp.h            | 204 ------------
+ include/linux/fsverity.h                |  17 +-
+ 46 files changed, 562 insertions(+), 700 deletions(-)
+ delete mode 100644 include/linux/fscrypt_notsupp.h
+ delete mode 100644 include/linux/fscrypt_supp.h
+
 -- 
 2.19.1
