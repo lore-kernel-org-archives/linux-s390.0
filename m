@@ -1,42 +1,50 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Thu, 13 Dec 2018 08:55:27 +0000
-Subject: [PULL 2/2] MAINTAINERS/vfio-ccw: add Farhan and Eric, make Halil Reviewer
-Message-Id: <20181213085527.26540-3-cohuck@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Thu, 13 Dec 2018 09:59:13 +0000
+Subject: Re: [PULL 0/2] vfio-ccw changes for 4.21
+Message-Id: <20181213105913.0aacaf99@mschwideX1>
+In-Reply-To: <20181213085527.26540-1-cohuck@redhat.com>
+References: <20181213085527.26540-1-cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+On Thu, 13 Dec 2018 09:55:25 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Eric and Farhan will help with maintaining vfio-ccw.
+> The following changes since commit 5b39fc049ce1232a56628408058ae04f353ac705:
+> 
+>   s390: use common bust_spinlocks() (2018-11-30 07:22:05 +0100)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20181213
+> 
+> for you to fetch changes up to 4868d2b662f55ff2e27e92c44b14016531a022a0:
+> 
+>   MAINTAINERS/vfio-ccw: add Farhan and Eric, make Halil Reviewer (2018-12-12 16:47:51 +0100)
+> 
+> ----------------------------------------------------------------
+> vfio-ccw update:
+> - remove unneeded BOXED state
+> - maintainership changes
+> 
+> ----------------------------------------------------------------
+> 
+> Christian Borntraeger (1):
+>   MAINTAINERS/vfio-ccw: add Farhan and Eric, make Halil Reviewer
+> 
+> Pierre Morel (1):
+>   vfio: ccw: Merge BUSY and BOXED states
+> 
+>  MAINTAINERS                         | 4 +++-
+>  drivers/s390/cio/vfio_ccw_fsm.c     | 7 +------
+>  drivers/s390/cio/vfio_ccw_private.h | 1 -
+>  3 files changed, 4 insertions(+), 8 deletions(-)
+> 
 
-Cc: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-Id: <20181212145929.136522-1-borntraeger@de.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Acked-by: Farhan Ali <alifm@linux.ibm.com>
-Acked-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- MAINTAINERS | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Pulled and push to s390/linux:features for the 4.21 merge window.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 5d17f568a3b9..2e9d876d65d8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -13021,7 +13021,9 @@ F:	drivers/pci/hotplug/s390_pci_hpc.c
- 
- S390 VFIO-CCW DRIVER
- M:	Cornelia Huck <cohuck@redhat.com>
--M:	Halil Pasic <pasic@linux.ibm.com>
-+M:	Farhan Ali <alifm@linux.ibm.com>
-+M:	Eric Farman <farman@linux.ibm.com>
-+R:	Halil Pasic <pasic@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
- L:	kvm@vger.kernel.org
- S:	Supported
 -- 
-2.17.2
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
