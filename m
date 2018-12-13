@@ -1,63 +1,42 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Date: Thu, 13 Dec 2018 08:55:26 +0000
-Subject: [PULL 1/2] vfio: ccw: Merge BUSY and BOXED states
-Message-Id: <20181213085527.26540-2-cohuck@redhat.com>
+Date: Thu, 13 Dec 2018 08:55:27 +0000
+Subject: [PULL 2/2] MAINTAINERS/vfio-ccw: add Farhan and Eric, make Halil Reviewer
+Message-Id: <20181213085527.26540-3-cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Pierre Morel <pmorel@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-VFIO_CCW_STATE_BOXED and VFIO_CCW_STATE_BUSY have
-identical actions for the same events.
+Eric and Farhan will help with maintaining vfio-ccw.
 
-Let's merge both into a single state to simplify the code.
-We choose to keep VFIO_CCW_STATE_BUSY.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Message-Id: <1539767923-10539-2-git-send-email-pmorel@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-Id: <20181212145929.136522-1-borntraeger@de.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Acked-by: Farhan Ali <alifm@linux.ibm.com>
+Acked-by: Eric Farman <farman@linux.ibm.com>
 Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_fsm.c     | 7 +------
- drivers/s390/cio/vfio_ccw_private.h | 1 -
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ MAINTAINERS | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index f94aa01f9c36..cab17865aafe 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -130,7 +130,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 	struct mdev_device *mdev = private->mdev;
- 	char *errstr = "request";
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 5d17f568a3b9..2e9d876d65d8 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -13021,7 +13021,9 @@ F:	drivers/pci/hotplug/s390_pci_hpc.c
  
--	private->state = VFIO_CCW_STATE_BOXED;
-+	private->state = VFIO_CCW_STATE_BUSY;
- 
- 	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
- 
-@@ -216,11 +216,6 @@ fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
- 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_request,
- 		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
- 	},
--	[VFIO_CCW_STATE_BOXED] = {
--		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
--		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
--		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
--	},
- 	[VFIO_CCW_STATE_BUSY] = {
- 		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
- 		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 078e46f9623d..08e9a7dc9176 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -63,7 +63,6 @@ enum vfio_ccw_state {
- 	VFIO_CCW_STATE_NOT_OPER,
- 	VFIO_CCW_STATE_STANDBY,
- 	VFIO_CCW_STATE_IDLE,
--	VFIO_CCW_STATE_BOXED,
- 	VFIO_CCW_STATE_BUSY,
- 	/* last element! */
- 	NR_VFIO_CCW_STATES
+ S390 VFIO-CCW DRIVER
+ M:	Cornelia Huck <cohuck@redhat.com>
+-M:	Halil Pasic <pasic@linux.ibm.com>
++M:	Farhan Ali <alifm@linux.ibm.com>
++M:	Eric Farman <farman@linux.ibm.com>
++R:	Halil Pasic <pasic@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ L:	kvm@vger.kernel.org
+ S:	Supported
 -- 
 2.17.2
