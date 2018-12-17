@@ -1,82 +1,72 @@
-Return-Path: <SRS0=9INQ=OL=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH] s390: convert to DEFINE_SHOW_ATTRIBUTE
-Date: Sat,  1 Dec 2018 22:28:11 -0500
-Message-Id: <20181202032811.9875-1-tiny.windzz@gmail.com>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH] seccomp, s390: fix build for syscall type change
+Date: Mon, 17 Dec 2018 09:54:47 -0800
+Message-ID: <CAGXu5jJqMtpzO2xCKJE3s0qthRFmGD6Q4_puXk27WaGxrdhDMQ@mail.gmail.com>
+References: <20181213201030.4072-1-tycho@tycho.ws> <CAGXu5jLY16CjNZZ0QvkyaKep-qD8kEVZEnTQ7JqfozqAm=so_Q@mail.gmail.com>
+ <20181217124154.GA3560@osiris>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181217124154.GA3560@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: sth@linux.ibm.com, hoeppner@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, James Morris <jmorris@namei.org>
+Cc: Tycho Andersen <tycho@tycho.ws>, Martin Schwidefsky <schwidefsky@de.ibm.com>, prudo@linux.vnet.ibm.com, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux-Next <linux-next@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Use DEFINE_SHOW_ATTRIBUTE macro to simplify the code.
+On Mon, Dec 17, 2018 at 4:42 AM Heiko Carstens
+<heiko.carstens@de.ibm.com> wrote:
+>
+> On Thu, Dec 13, 2018 at 04:50:06PM -0800, Kees Cook wrote:
+> > On Thu, Dec 13, 2018 at 12:10 PM Tycho Andersen <tycho@tycho.ws> wrote:
+> > >
+> > > A recent patch landed in the security tree [1] that changed the type of the
+> > > seccomp syscall. Unfortunately, I didn't quite get every instance of the
+> > > forward declarations, and thus there is a build failure. Here's the last
+> > > one that I could find, for s390. It should go through the security tree,
+> > > although hopefully some s390 people can check and make sure it looks
+> > > reasonable?
+> > >
+> > > The only oddity is the trailing semicolon; some lines around this patch
+> > > have it, and some lines don't. I've left this one as-is.
+> > >
+> > > [1]: https://lore.kernel.org/lkml/20181212231630.GA31584@beast/T/#u
+> > >
+> > > Signed-off-by: Tycho Andersen <tycho@tycho.ws>
+> >
+> > Thanks! Added to my -next tree.
+> >
+> > -Kees
+>
+> Hi Kees,
+>
+> did you forget to push your tree? At least today's linux-next kernel
+> fails to compile on s390 because of this missing patch.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
----
- drivers/s390/block/dasd.c     | 15 +--------------
- drivers/s390/cio/qdio_debug.c | 16 ++--------------
- 2 files changed, 3 insertions(+), 28 deletions(-)
+I sent a pull request to James for this. James, can you pick this up please?
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 5e9ebdb0594c..397af07e4d88 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -1192,20 +1192,7 @@ static int dasd_hosts_show(struct seq_file *m, void *v)
- 	return rc;
- }
- 
--static int dasd_hosts_open(struct inode *inode, struct file *file)
--{
--	struct dasd_device *device = inode->i_private;
--
--	return single_open(file, dasd_hosts_show, device);
--}
--
--static const struct file_operations dasd_hosts_fops = {
--	.owner		= THIS_MODULE,
--	.open		= dasd_hosts_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= single_release,
--};
-+DEFINE_SHOW_ATTRIBUTE(dasd_hosts);
- 
- static void dasd_hosts_exit(struct dasd_device *device)
- {
-diff --git a/drivers/s390/cio/qdio_debug.c b/drivers/s390/cio/qdio_debug.c
-index 68a82f3e2e92..040061f2bfff 100644
---- a/drivers/s390/cio/qdio_debug.c
-+++ b/drivers/s390/cio/qdio_debug.c
-@@ -190,19 +190,7 @@ static int qstat_show(struct seq_file *m, void *v)
- 	return 0;
- }
- 
--static int qstat_seq_open(struct inode *inode, struct file *filp)
--{
--	return single_open(filp, qstat_show,
--			   file_inode(filp)->i_private);
--}
--
--static const struct file_operations debugfs_fops = {
--	.owner	 = THIS_MODULE,
--	.open	 = qstat_seq_open,
--	.read	 = seq_read,
--	.llseek  = seq_lseek,
--	.release = single_release,
--};
-+DEFINE_SHOW_ATTRIBUTE(qstat);
- 
- static char *qperf_names[] = {
- 	"Assumed adapter interrupts",
-@@ -306,7 +294,7 @@ static void setup_debugfs_entry(struct qdio_q *q)
- 		 q->is_input_q ? "input" : "output",
- 		 q->nr);
- 	q->debugfs_q = debugfs_create_file(name, S_IFREG | S_IRUGO | S_IWUSR,
--				q->irq_ptr->debugfs_dev, q, &debugfs_fops);
-+				q->irq_ptr->debugfs_dev, q, &qstat_fops);
- 	if (IS_ERR(q->debugfs_q))
- 		q->debugfs_q = NULL;
- }
+-Kees
+
+>
+> > >  arch/s390/kernel/compat_wrapper.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >
+> > > diff --git a/arch/s390/kernel/compat_wrapper.c b/arch/s390/kernel/compat_wrapper.c
+> > > index 2ce28bf0c5ec..48c4ce668244 100644
+> > > --- a/arch/s390/kernel/compat_wrapper.c
+> > > +++ b/arch/s390/kernel/compat_wrapper.c
+> > > @@ -164,7 +164,7 @@ COMPAT_SYSCALL_WRAP3(finit_module, int, fd, const char __user *, uargs, int, fla
+> > >  COMPAT_SYSCALL_WRAP3(sched_setattr, pid_t, pid, struct sched_attr __user *, attr, unsigned int, flags);
+> > >  COMPAT_SYSCALL_WRAP4(sched_getattr, pid_t, pid, struct sched_attr __user *, attr, unsigned int, size, unsigned int, flags);
+> > >  COMPAT_SYSCALL_WRAP5(renameat2, int, olddfd, const char __user *, oldname, int, newdfd, const char __user *, newname, unsigned int, flags);
+> > > -COMPAT_SYSCALL_WRAP3(seccomp, unsigned int, op, unsigned int, flags, const char __user *, uargs)
+> > > +COMPAT_SYSCALL_WRAP3(seccomp, unsigned int, op, unsigned int, flags, void __user *, uargs)
+> > >  COMPAT_SYSCALL_WRAP3(getrandom, char __user *, buf, size_t, count, unsigned int, flags)
+> > >  COMPAT_SYSCALL_WRAP2(memfd_create, const char __user *, uname, unsigned int, flags)
+> > >  COMPAT_SYSCALL_WRAP3(bpf, int, cmd, union bpf_attr *, attr, unsigned int, size);
+>
+
+
 -- 
-2.17.0
+Kees Cook
