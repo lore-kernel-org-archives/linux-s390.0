@@ -1,9 +1,9 @@
 Return-Path: <SRS0=FFYW=O2=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [RESEND PATCH v5 5/6] perf tools: Make perf_evsel accessible to PMU
- driver configuration code
-Date: Mon, 17 Dec 2018 10:21:45 -0700
-Message-Id: <1545067306-31687-6-git-send-email-mathieu.poirier@linaro.org>
+Subject: [RESEND PATCH v5 6/6] perf tools: Use ioctl function to send sink
+ information to kernel
+Date: Mon, 17 Dec 2018 10:21:46 -0700
+Message-Id: <1545067306-31687-7-git-send-email-mathieu.poirier@linaro.org>
 In-Reply-To: <1545067306-31687-1-git-send-email-mathieu.poirier@linaro.org>
 References: <1545067306-31687-1-git-send-email-mathieu.poirier@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
@@ -23,131 +23,159 @@ To: acme@kernel.org, peterz@infradead.org, gregkh@linuxfoundation.org
 Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, alexander.shishkin@linux.intel.com, will.deacon@arm.com, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, suzuki.poulosi@arm.com, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Make the perf_evsel available to the PMU driver configuration code.  That
-way function perf_evsel__run_ioctl() can be used from there and
-information pertaining to the perf_evsel_config_term is still available.
+The communication of sink information for a trace session doesn't work when
+more than one CPU is involved in the scenario due to the static nature of
+sysfs.  As such communicate the sink information to each event by using the
+an ioctl command.  The information sent to the kernel is the component's HW
+address, which is guaranteed to be unique on the CoreSight bus and known to
+the kernel.
 
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- tools/perf/arch/arm/util/cs-etm.c | 22 +++++++++++++++++++++-
- tools/perf/arch/arm/util/cs-etm.h |  3 ++-
- tools/perf/util/drv_configs.c     | 30 +++++++-----------------------
- tools/perf/util/pmu.h             |  3 ++-
- 4 files changed, 32 insertions(+), 26 deletions(-)
+ tools/perf/arch/arm/util/cs-etm.c | 66 +++++++++++++++++++++++++++++++++++++--
+ tools/perf/util/evsel.c           |  6 ++++
+ tools/perf/util/evsel.h           |  1 +
+ 3 files changed, 71 insertions(+), 2 deletions(-)
 
 diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
-index 2f595cd73da6..d8081c2e6d44 100644
+index d8081c2e6d44..41e394806707 100644
 --- a/tools/perf/arch/arm/util/cs-etm.c
 +++ b/tools/perf/arch/arm/util/cs-etm.c
-@@ -635,7 +635,7 @@ static int __printf(2, 3) cs_device__print_file(const char *name, const char *fm
+@@ -22,11 +22,13 @@
+ #include "../../util/thread_map.h"
+ #include "../../util/cs-etm.h"
+ 
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <sys/stat.h>
+ 
+ #define ENABLE_SINK_MAX	128
+ #define CS_BUS_DEVICE_PATH "/bus/coresight/devices/"
++#define AMBA_BUS_DEVICE_PATH "/bus/amba/devices/"
+ 
+ struct cs_etm_recording {
+ 	struct auxtrace_record	itr;
+@@ -619,6 +621,41 @@ static FILE *cs_device__open_file(const char *name)
+ 
+ }
+ 
++static int cs_etm_check_drv_config_term(const char *name, u64 *addr)
++{
++	char path[PATH_MAX];
++	const char *sysfs;
++	int err;
++	FILE *file;
++	u64 start;
++
++	/* CS devices are all found under sysFS */
++	sysfs = sysfs__mountpoint();
++	if (!sysfs)
++		return -EINVAL;
++
++	/* The resource file contains the HW start address of this component */
++	snprintf(path, PATH_MAX,
++		 "%s" AMBA_BUS_DEVICE_PATH "%s" "/resource", sysfs, name);
++
++	file = fopen(path, "r");
++	if (!file) {
++		pr_debug("Unable to open file: %s\n", path);
++		return -EINVAL;
++	}
++
++	/* We just need the first value */
++	err = fscanf(file, "%016lx", &start);
++	if (err != 1) {
++		pr_debug("Unable to get resource start value for: %s\n", path);
++		return -EINVAL;
++	}
++
++	*addr = start;
++
++	return 0;
++}
++
+ static int __printf(2, 3) cs_device__print_file(const char *name, const char *fmt, ...)
+ {
+ 	va_list args;
+@@ -635,7 +672,7 @@ static int __printf(2, 3) cs_device__print_file(const char *name, const char *fm
  	return ret;
  }
  
--int cs_etm_set_drv_config(struct perf_evsel_config_term *term)
-+static int cs_etm_set_drv_config_term(struct perf_evsel_config_term *term)
+-static int cs_etm_set_drv_config_term(struct perf_evsel_config_term *term)
++static int cs_etm_set_drv_config_term_sysfs(struct perf_evsel_config_term *term)
  {
  	int ret;
  	char enable_sink[ENABLE_SINK_MAX];
-@@ -649,3 +649,23 @@ int cs_etm_set_drv_config(struct perf_evsel_config_term *term)
- 
+@@ -650,6 +687,21 @@ static int cs_etm_set_drv_config_term(struct perf_evsel_config_term *term)
  	return 0;
  }
-+
-+int cs_etm_set_drv_config(struct perf_evsel *evsel,
-+			  struct perf_evsel_config_term **err_term)
+ 
++static int cs_etm_set_drv_config_term_ioctl(struct perf_evsel *evsel,
++					    struct perf_evsel_config_term *term)
 +{
-+	int err = 0;
-+	struct perf_evsel_config_term *term;
++	u64 addr;
++	int ret;
 +
-+	list_for_each_entry(term, &evsel->config_terms, list) {
-+		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
++	/* First check the input */
++	ret = cs_etm_check_drv_config_term(term->val.drv_cfg, &addr);
++	if (ret)
++		return ret;
++
++	/* All good, apply configuration */
++	return perf_evsel__apply_drv_config(evsel, addr);
++}
++
+ int cs_etm_set_drv_config(struct perf_evsel *evsel,
+ 			  struct perf_evsel_config_term **err_term)
+ {
+@@ -660,7 +712,17 @@ int cs_etm_set_drv_config(struct perf_evsel *evsel,
+ 		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
+ 			continue;
+ 
+-		err = cs_etm_set_drv_config_term(term);
++		/* First try the new interface, i.e ioctl() */
++		err = cs_etm_set_drv_config_term_ioctl(evsel, term);
++		if (!err)
 +			continue;
 +
-+		err = cs_etm_set_drv_config_term(term);
-+		if (err) {
-+			*err_term = term;
-+			break;
-+		}
-+	}
-+
-+	return err;
-+}
-diff --git a/tools/perf/arch/arm/util/cs-etm.h b/tools/perf/arch/arm/util/cs-etm.h
-index 1a12e64f5127..a3f8dde6ccef 100644
---- a/tools/perf/arch/arm/util/cs-etm.h
-+++ b/tools/perf/arch/arm/util/cs-etm.h
-@@ -10,6 +10,7 @@
- #include "../../util/evsel.h"
- 
- struct auxtrace_record *cs_etm_record_init(int *err);
--int cs_etm_set_drv_config(struct perf_evsel_config_term *term);
-+int cs_etm_set_drv_config(struct perf_evsel *evsel,
-+			  struct perf_evsel_config_term **err_term);
- 
- #endif
-diff --git a/tools/perf/util/drv_configs.c b/tools/perf/util/drv_configs.c
-index eec754243f4d..f7c1bcf08549 100644
---- a/tools/perf/util/drv_configs.c
-+++ b/tools/perf/util/drv_configs.c
-@@ -25,7 +25,6 @@ perf_evsel__apply_drv_configs(struct perf_evsel *evsel,
- {
- 	bool found = false;
- 	int err = 0;
--	struct perf_evsel_config_term *term;
- 	struct perf_pmu *pmu = NULL;
- 
- 	while ((pmu = perf_pmu__scan(pmu)) != NULL)
-@@ -34,29 +33,14 @@ perf_evsel__apply_drv_configs(struct perf_evsel *evsel,
++		/*
++		 * Something went wrong, we are probably working with an older
++		 * kernel.  As such use the sysFS interface, which will only
++		 * work for per-thread scenarios.
++		 */
++		err = cs_etm_set_drv_config_term_sysfs(term);
+ 		if (err) {
+ 			*err_term = term;
  			break;
- 		}
- 
--	list_for_each_entry(term, &evsel->config_terms, list) {
--		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
--			continue;
-+	/*
-+	 * No need to continue if we didn't get a match or if there is no
-+	 * driver configuration function for this PMU.
-+	 */
-+	if (!found || !pmu->set_drv_config)
-+		return err;
- 
--		/*
--		 * We have a configuration term, report an error if we
--		 * can't find the PMU or if the PMU driver doesn't support
--		 * cmd line driver configuration.
--		 */
--		if (!found || !pmu->set_drv_config) {
--			err = -EINVAL;
--			*err_term = term;
--			break;
--		}
--
--		err = pmu->set_drv_config(term);
--		if (err) {
--			*err_term = term;
--			break;
--		}
--	}
--
--	return err;
-+	return pmu->set_drv_config(evsel, err_term);
+diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+index 6d187059a373..8aa2b79c3314 100644
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -1195,6 +1195,12 @@ static int perf_evsel__append_filter(struct perf_evsel *evsel,
+ 	return -1;
  }
  
- int perf_evlist__apply_drv_configs(struct perf_evlist *evlist,
-diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
-index 76fecec7b3f9..47f44394042b 100644
---- a/tools/perf/util/pmu.h
-+++ b/tools/perf/util/pmu.h
-@@ -29,7 +29,8 @@ struct perf_pmu {
- 	struct list_head format;  /* HEAD struct perf_pmu_format -> list */
- 	struct list_head aliases; /* HEAD struct perf_pmu_alias -> list */
- 	struct list_head list;    /* ELEM */
--	int (*set_drv_config)	(struct perf_evsel_config_term *term);
-+	int (*set_drv_config)	(struct perf_evsel *evsel,
-+				 struct perf_evsel_config_term **err_term);
- };
++int perf_evsel__apply_drv_config(struct perf_evsel *evsel, u64 addr)
++{
++	return perf_evsel__run_ioctl(evsel,
++				     PERF_EVENT_IOC_SET_DRV_CONFIG, &addr);
++}
++
+ int perf_evsel__append_tp_filter(struct perf_evsel *evsel, const char *filter)
+ {
+ 	return perf_evsel__append_filter(evsel, "(%s) && (%s)", filter);
+diff --git a/tools/perf/util/evsel.h b/tools/perf/util/evsel.h
+index 3147ca76c6fc..6be7560bc986 100644
+--- a/tools/perf/util/evsel.h
++++ b/tools/perf/util/evsel.h
+@@ -276,6 +276,7 @@ int perf_evsel__append_tp_filter(struct perf_evsel *evsel, const char *filter);
+ int perf_evsel__append_addr_filter(struct perf_evsel *evsel,
+ 				   const char *filter);
+ int perf_evsel__apply_filter(struct perf_evsel *evsel, const char *filter);
++int perf_evsel__apply_drv_config(struct perf_evsel *evsel, u64 addr);
+ int perf_evsel__enable(struct perf_evsel *evsel);
+ int perf_evsel__disable(struct perf_evsel *evsel);
  
- struct perf_pmu_info {
 -- 
 2.7.4
 
