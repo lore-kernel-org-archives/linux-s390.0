@@ -1,14 +1,12 @@
 Return-Path: <SRS0=FFYW=O2=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Subject: Re: [PATCH v1 9/9] mm: better document PG_reserved
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v1 3/9] powerpc/vdso: don't clear PG_reserved
+In-Reply-To: <20181214111014.15672-4-david@redhat.com>
 References: <20181214111014.15672-1-david@redhat.com>
- <20181214111014.15672-10-david@redhat.com>
- <03f65c6f-1287-4c63-6705-16e58d659d94@infradead.org>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <affd050a-ae5d-f027-1cb8-0d30822f8f12@redhat.com>
-Date: Mon, 17 Dec 2018 10:34:59 +0100
+ <20181214111014.15672-4-david@redhat.com>
+Date: Mon, 17 Dec 2018 22:38:39 +1100
+Message-ID: <87pnu0tmbk.fsf@concordia.ellerman.id.au>
 MIME-Version: 1.0
-In-Reply-To: <03f65c6f-1287-4c63-6705-16e58d659d94@infradead.org>
-Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -21,110 +19,60 @@ Content-Transfer-Encoding: 7bit
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Randy Dunlap <rdunlap@infradead.org>, linux-mm@kvack.org
-Cc: linux-s390@vger.kernel.org, Michal Hocko <mhocko@suse.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Pavel Tatashin <pasha.tatashin@oracle.com>, yi.z.zhang@linux.intel.com, linux-m68k@lists.linux-m68k.org, linux-mediatek@lists.infradead.org, Miles Chen <miles.chen@mediatek.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+To: David Hildenbrand <david@redhat.com>, linux-mm@kvack.org
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>, linux-s390@vger.kernel.org, Kees Cook <keescook@chromium.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-m68k@lists.linux-m68k.org, linux-mediatek@lists.infradead.org, Paul Mackerras <paulus@samba.org>, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 15.12.18 01:12, Randy Dunlap wrote:
-> On 12/14/18 3:10 AM, David Hildenbrand wrote:
->> The usage of PG_reserved and how PG_reserved pages are to be treated is
->> buried deep down in different parts of the kernel. Let's shine some light
->> onto these details by documenting current users and expected
->> behavior.
->>
->> Especially, clarify on the "Some of them might not even exist" case.
->> These are physical memory gaps that will never be dumped as they
->> are not marked as IORESOURCE_SYSRAM. PG_reserved does in general not
->> hinder anybody from dumping or swapping. In some cases, these pages
->> will not be stored in the hibernation image.
-> 
-> Hi,
-> Thanks for the doc update.
-> Comments below.
-> 
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> Cc: Stephen Rothwell <sfr@canb.auug.org.au>
->> Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
->> Cc: Michal Hocko <mhocko@suse.com>
->> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->> Cc: Matthew Wilcox <willy@infradead.org>
->> Cc: Anthony Yznaga <anthony.yznaga@oracle.com>
->> Cc: Miles Chen <miles.chen@mediatek.com>
->> Cc: yi.z.zhang@linux.intel.com
->> Cc: Dan Williams <dan.j.williams@intel.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>  include/linux/page-flags.h | 33 +++++++++++++++++++++++++++++++--
->>  1 file changed, 31 insertions(+), 2 deletions(-)
->>
->> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
->> index 808b4183e30d..9de2e941cbd5 100644
->> --- a/include/linux/page-flags.h
->> +++ b/include/linux/page-flags.h
->> @@ -17,8 +17,37 @@
->>  /*
->>   * Various page->flags bits:
->>   *
->> - * PG_reserved is set for special pages, which can never be swapped out. Some
->> - * of them might not even exist...
->> + * PG_reserved is set for special pages. The "struct page" of such a page
->> + * should in general not be touched (e.g. set dirty) except by their owner.
-> 
->                                                                by its owner.
+David Hildenbrand <david@redhat.com> writes:
 
-Indeed.
+> The VDSO is part of the kernel image and therefore the struct pages are
+> marked as reserved during boot.
+>
+> As we install a special mapping, the actual struct pages will never be
+> exposed to MM via the page tables. We can therefore leave the pages
+> marked as reserved.
+>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/powerpc/kernel/vdso.c | 2 --
+>  1 file changed, 2 deletions(-)
 
-> 
->> + * Pages marked as PG_reserved include:
->> + * - Pages part of the kernel image (including vDSO) and similar (e.g. BIOS,
->> + *   initrd, HW tables)
->> + * - Pages reserved or allocated early during boot (before the page allocator
->> + *   was initialized). This includes (depending on the architecture) the
->> + *   initial vmmap, initial page tables, crashkernel, elfcorehdr, and much
-> 
->                 VM map,
+Thanks.
 
-This should actually be vmemmap (aka struct pages).
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-> 
->> + *   much more. Once (if ever) freed, PG_reserved is cleared and they will
->> + *   be given to the page allocator.
->> + * - Pages falling into physical memory gaps - not IORESOURCE_SYSRAM. Trying
->> + *   to read/write these pages might end badly. Don't touch!
->> + * - The zero page(s)
->> + * - Pages not added to the page allocator when onlining a section because
->> + *   they were excluded via the online_page_callback() or because they are
->> + *   PG_hwpoison.
->> + * - Pages allocated in the context of kexec/kdump (loaded kernel image,
->> + *   control pages, vmcoreinfo)
->> + * - MMIO/DMA pages. Some architectures don't allow to ioremap pages that are
->> + *   not marked PG_reserved (as they might be in use by somebody else who does
->> + *   not respect the caching strategy).
->> + * - Pages part of an offline section (struct pages of offline sections should
->> + *   not be trusted as they will be initialized when first onlined).
->> + * - MCA pages on ia64
->> + * - Pages holding CPU notes for POWER Firmware Assisted Dump
->> + * - Device memory (e.g. PMEM, DAX, HMM)
->> + * Some PG_reserved pages will be excluded from the hibernation image.
->> + * PG_reserved does in general not hinder anybody from dumping or swapping
->> + * and is no longer required for remap_pfn_range(). ioremap might require it.
->> + * Consequently, PG_reserved for a page mapped into user space can indicate
->> + * the zero page, the vDSO, MMIO pages or device memory.
->>   *
->>   * The PG_private bitflag is set on pagecache pages if they contain filesystem
->>   * specific data (which is normally at page->private). It can be used by
->>
-> 
-> cheers.
-> 
+cheers
 
-Thanks!
-
--- 
-
-Thanks,
-
-David / dhildenb
+> diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
+> index 65b3bdb99f0b..d59dc2e9a695 100644
+> --- a/arch/powerpc/kernel/vdso.c
+> +++ b/arch/powerpc/kernel/vdso.c
+> @@ -795,7 +795,6 @@ static int __init vdso_init(void)
+>  	BUG_ON(vdso32_pagelist == NULL);
+>  	for (i = 0; i < vdso32_pages; i++) {
+>  		struct page *pg = virt_to_page(vdso32_kbase + i*PAGE_SIZE);
+> -		ClearPageReserved(pg);
+>  		get_page(pg);
+>  		vdso32_pagelist[i] = pg;
+>  	}
+> @@ -809,7 +808,6 @@ static int __init vdso_init(void)
+>  	BUG_ON(vdso64_pagelist == NULL);
+>  	for (i = 0; i < vdso64_pages; i++) {
+>  		struct page *pg = virt_to_page(vdso64_kbase + i*PAGE_SIZE);
+> -		ClearPageReserved(pg);
+>  		get_page(pg);
+>  		vdso64_pagelist[i] = pg;
+>  	}
+> -- 
+> 2.17.2
 
 _______________________________________________
 linux-arm-kernel mailing list
