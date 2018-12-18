@@ -1,70 +1,123 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Tue, 18 Dec 2018 09:26:45 +0000
-Subject: [kvm-unit-tests PATCH v3 01/13] s390x: Add Sigp order codes
-Message-Id: <20181218092657.46466-2-frankja@linux.ibm.com>
+Date: Tue, 18 Dec 2018 09:26:46 +0000
+Subject: [kvm-unit-tests PATCH v3 02/13] s390x: Rename and cleanup sclp-ascii.c
+Message-Id: <20181218092657.46466-3-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Let's get rid of the magic numbers and add some definitions that will
-be used in the future.
+Let's rename to the more fitting name sclp-console.c and fix some
+indentation problems.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- lib/s390x/asm/arch_def.h | 18 ++++++++++++++++++
- lib/s390x/io.c           |  3 ++-
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ lib/s390x/io.c                             |  2 +-
+ lib/s390x/{sclp-ascii.c => sclp-console.c} | 38 +++++++++++++++---------------
+ lib/s390x/sclp.h                           |  2 +-
+ s390x/Makefile                             |  2 +-
+ 4 files changed, 22 insertions(+), 22 deletions(-)
+ rename lib/s390x/{sclp-ascii.c => sclp-console.c} (54%)
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index d2cd727..d2d6e02 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -10,6 +10,24 @@
- #ifndef _ASM_S390X_ARCH_DEF_H_
- #define _ASM_S390X_ARCH_DEF_H_
- 
-+/* SIGP order codes */
-+#define SIGP_SENSE			1
-+#define SIGP_EXTERNAL_CALL		2
-+#define SIGP_EMERGENCY_SIGNAL		3
-+#define SIGP_START			4
-+#define SIGP_STOP			5
-+#define SIGP_RESTART			6
-+#define SIGP_STOP_AND_STORE_STATUS	9
-+#define SIGP_INITIAL_CPU_RESET		11
-+#define SIGP_CPU_RESET			12
-+#define SIGP_SET_PREFIX			13
-+#define SIGP_STORE_STATUS_AT_ADDRESS	14
-+#define SIGP_SET_ARCHITECTURE		18
-+#define SIGP_COND_EMERGENCY_SIGNAL	19
-+#define SIGP_SENSE_RUNNING		21
-+#define SIGP_SET_MULTI_THREADING	22
-+#define SIGP_STORE_ADDITIONAL_STATUS	23
-+
- struct psw {
- 	uint64_t	mask;
- 	uint64_t	addr;
 diff --git a/lib/s390x/io.c b/lib/s390x/io.c
-index 7bca637..54ad233 100644
+index 54ad233..05a0765 100644
 --- a/lib/s390x/io.c
 +++ b/lib/s390x/io.c
-@@ -14,6 +14,7 @@
- #include <argv.h>
- #include <asm/spinlock.h>
- #include <asm/facility.h>
-+#include <asm/arch_def.h>
- #include "sclp.h"
- 
- extern char ipl_args[];
-@@ -37,7 +38,7 @@ static void sigp_stop(void)
- 
- 	asm volatile(
- 		"	sigp %0,%1,0(%2)\n"
--		: "+d" (status)  : "d" (cpu), "d" (5) : "cc");
-+		: "+d" (status)  : "d" (cpu), "d" (SIGP_STOP) : "cc");
+@@ -45,7 +45,7 @@ void setup(void)
+ {
+ 	setup_args_progname(ipl_args);
+ 	setup_facilities();
+-	sclp_ascii_setup();
++	sclp_console_setup();
+ 	sclp_memory_setup();
  }
  
- void setup(void)
+diff --git a/lib/s390x/sclp-ascii.c b/lib/s390x/sclp-console.c
+similarity index 54%
+rename from lib/s390x/sclp-ascii.c
+rename to lib/s390x/sclp-console.c
+index 893ca17..deacbde 100644
+--- a/lib/s390x/sclp-ascii.c
++++ b/lib/s390x/sclp-console.c
+@@ -35,34 +35,34 @@ int sclp_service_call(unsigned int command, void *sccb)
+ 
+ static void sclp_set_write_mask(void)
+ {
+-    WriteEventMask *sccb = (void *)_sccb;
++	WriteEventMask *sccb = (void *)_sccb;
+ 
+-    sccb->h.length = sizeof(WriteEventMask);
+-    sccb->mask_length = sizeof(unsigned int);
+-    sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->cp_receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->send_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->h.length = sizeof(WriteEventMask);
++	sccb->mask_length = sizeof(unsigned int);
++	sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->cp_receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->send_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII;
+ 
+-    sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
++	sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
+ }
+ 
+-void sclp_ascii_setup(void)
++void sclp_console_setup(void)
+ {
+-    sclp_set_write_mask();
++	sclp_set_write_mask();
+ }
+ 
+ void sclp_print(const char *str)
+ {
+-    int len = strlen(str);
+-    WriteEventData *sccb = (void *)_sccb;
++	int len = strlen(str);
++	WriteEventData *sccb = (void *)_sccb;
+ 
+-    sccb->h.length = sizeof(WriteEventData) + len;
+-    sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
+-    sccb->ebh.length = sizeof(EventBufferHeader) + len;
+-    sccb->ebh.type = SCLP_EVENT_ASCII_CONSOLE_DATA;
+-    sccb->ebh.flags = 0;
+-    memcpy(sccb->data, str, len);
++	sccb->h.length = sizeof(WriteEventData) + len;
++	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
++	sccb->ebh.length = sizeof(EventBufferHeader) + len;
++	sccb->ebh.type = SCLP_EVENT_ASCII_CONSOLE_DATA;
++	sccb->ebh.flags = 0;
++	memcpy(sccb->data, str, len);
+ 
+-    sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
++	sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
+ }
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index 629e9e2..4c60061 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -212,7 +212,7 @@ typedef struct ReadEventData {
+     uint32_t mask;
+ } __attribute__((packed)) ReadEventData;
+ 
+-void sclp_ascii_setup(void);
++void sclp_console_setup(void);
+ void sclp_print(const char *str);
+ extern char _sccb[];
+ int sclp_service_call(unsigned int command, void *sccb);
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 8ba2b92..ede2961 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -38,7 +38,7 @@ cflatobjs += lib/alloc_phys.o
+ cflatobjs += lib/s390x/io.o
+ cflatobjs += lib/s390x/stack.o
+ cflatobjs += lib/s390x/sclp.o
+-cflatobjs += lib/s390x/sclp-ascii.o
++cflatobjs += lib/s390x/sclp-console.o
+ cflatobjs += lib/s390x/interrupt.o
+ cflatobjs += lib/s390x/mmu.o
+ 
 -- 
 2.14.3
