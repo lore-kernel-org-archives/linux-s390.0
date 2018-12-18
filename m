@@ -1,11 +1,14 @@
-Return-Path: <SRS0=FFYW=O2=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [RESEND PATCH v5 6/6] perf tools: Use ioctl function to send sink
- information to kernel
-Date: Mon, 17 Dec 2018 10:21:46 -0700
-Message-Id: <1545067306-31687-7-git-send-email-mathieu.poirier@linaro.org>
-In-Reply-To: <1545067306-31687-1-git-send-email-mathieu.poirier@linaro.org>
+Return-Path: <SRS0=e5Gl=O3=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Subject: Re: [RESEND PATCH v5 4/6] coresight: Use PMU driver configuration for
+ sink selection
 References: <1545067306-31687-1-git-send-email-mathieu.poirier@linaro.org>
+ <1545067306-31687-5-git-send-email-mathieu.poirier@linaro.org>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Message-ID: <48afc315-d4ed-8779-a808-757fa4203bb7@arm.com>
+Date: Tue, 18 Dec 2018 14:14:10 +0000
+MIME-Version: 1.0
+In-Reply-To: <1545067306-31687-5-git-send-email-mathieu.poirier@linaro.org>
+Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -13,172 +16,138 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: acme@kernel.org, peterz@infradead.org, gregkh@linuxfoundation.org
+To: Mathieu Poirier <mathieu.poirier@linaro.org>, acme@kernel.org, peterz@infradead.org, gregkh@linuxfoundation.org
 Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, alexander.shishkin@linux.intel.com, will.deacon@arm.com, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, suzuki.poulosi@arm.com, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The communication of sink information for a trace session doesn't work when
-more than one CPU is involved in the scenario due to the static nature of
-sysfs.  As such communicate the sink information to each event by using the
-an ioctl command.  The information sent to the kernel is the component's HW
-address, which is guaranteed to be unique on the CoreSight bus and known to
-the kernel.
+Hi Mathieu,
 
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
----
- tools/perf/arch/arm/util/cs-etm.c | 66 +++++++++++++++++++++++++++++++++++++--
- tools/perf/util/evsel.c           |  6 ++++
- tools/perf/util/evsel.h           |  1 +
- 3 files changed, 71 insertions(+), 2 deletions(-)
+On 17/12/2018 17:21, Mathieu Poirier wrote:
+> This patch uses the PMU driver configuration held in event::hw::drv_config
+> to select a sink for each event that is created (the old sysFS way of
+> working is kept around for backward compatibility).
+> 
+> By proceeding in this way a sink can be used by multiple sessions
+> without having to play games with entries in sysFS.
+> 
+> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+> ---
+>   drivers/hwtracing/coresight/coresight-etm-perf.c | 74 ++++++++++++++++++++----
+>   1 file changed, 62 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
+> index f21eb28b6782..a7e1fdef07f2 100644
+> --- a/drivers/hwtracing/coresight/coresight-etm-perf.c
+> +++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
+> @@ -4,6 +4,7 @@
+>    * Author: Mathieu Poirier <mathieu.poirier@linaro.org>
+>    */
+>   
+> +#include <linux/amba/bus.h>
+>   #include <linux/coresight.h>
+>   #include <linux/coresight-pmu.h>
+>   #include <linux/cpumask.h>
+> @@ -11,6 +12,7 @@
+>   #include <linux/list.h>
+>   #include <linux/mm.h>
+>   #include <linux/init.h>
+> +#include <linux/ioport.h>
+>   #include <linux/perf_event.h>
+>   #include <linux/percpu-defs.h>
+>   #include <linux/slab.h>
+> @@ -177,6 +179,26 @@ static void etm_free_aux(void *data)
+>   	schedule_work(&event_data->work);
+>   }
+>   
+> +static struct coresight_device *etm_drv_config_sync(struct perf_event *event)
 
-diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
-index d8081c2e6d44..41e394806707 100644
---- a/tools/perf/arch/arm/util/cs-etm.c
-+++ b/tools/perf/arch/arm/util/cs-etm.c
-@@ -22,11 +22,13 @@
- #include "../../util/thread_map.h"
- #include "../../util/cs-etm.h"
- 
-+#include <stdio.h>
- #include <stdlib.h>
- #include <sys/stat.h>
- 
- #define ENABLE_SINK_MAX	128
- #define CS_BUS_DEVICE_PATH "/bus/coresight/devices/"
-+#define AMBA_BUS_DEVICE_PATH "/bus/amba/devices/"
- 
- struct cs_etm_recording {
- 	struct auxtrace_record	itr;
-@@ -619,6 +621,41 @@ static FILE *cs_device__open_file(const char *name)
- 
- }
- 
-+static int cs_etm_check_drv_config_term(const char *name, u64 *addr)
-+{
-+	char path[PATH_MAX];
-+	const char *sysfs;
-+	int err;
-+	FILE *file;
-+	u64 start;
-+
-+	/* CS devices are all found under sysFS */
-+	sysfs = sysfs__mountpoint();
-+	if (!sysfs)
-+		return -EINVAL;
-+
-+	/* The resource file contains the HW start address of this component */
-+	snprintf(path, PATH_MAX,
-+		 "%s" AMBA_BUS_DEVICE_PATH "%s" "/resource", sysfs, name);
-+
-+	file = fopen(path, "r");
-+	if (!file) {
-+		pr_debug("Unable to open file: %s\n", path);
-+		return -EINVAL;
-+	}
-+
-+	/* We just need the first value */
-+	err = fscanf(file, "%016lx", &start);
-+	if (err != 1) {
-+		pr_debug("Unable to get resource start value for: %s\n", path);
-+		return -EINVAL;
-+	}
-+
-+	*addr = start;
-+
-+	return 0;
-+}
-+
- static int __printf(2, 3) cs_device__print_file(const char *name, const char *fmt, ...)
- {
- 	va_list args;
-@@ -635,7 +672,7 @@ static int __printf(2, 3) cs_device__print_file(const char *name, const char *fm
- 	return ret;
- }
- 
--static int cs_etm_set_drv_config_term(struct perf_evsel_config_term *term)
-+static int cs_etm_set_drv_config_term_sysfs(struct perf_evsel_config_term *term)
- {
- 	int ret;
- 	char enable_sink[ENABLE_SINK_MAX];
-@@ -650,6 +687,21 @@ static int cs_etm_set_drv_config_term(struct perf_evsel_config_term *term)
- 	return 0;
- }
- 
-+static int cs_etm_set_drv_config_term_ioctl(struct perf_evsel *evsel,
-+					    struct perf_evsel_config_term *term)
-+{
-+	u64 addr;
-+	int ret;
-+
-+	/* First check the input */
-+	ret = cs_etm_check_drv_config_term(term->val.drv_cfg, &addr);
-+	if (ret)
-+		return ret;
-+
-+	/* All good, apply configuration */
-+	return perf_evsel__apply_drv_config(evsel, addr);
-+}
-+
- int cs_etm_set_drv_config(struct perf_evsel *evsel,
- 			  struct perf_evsel_config_term **err_term)
- {
-@@ -660,7 +712,17 @@ int cs_etm_set_drv_config(struct perf_evsel *evsel,
- 		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
- 			continue;
- 
--		err = cs_etm_set_drv_config_term(term);
-+		/* First try the new interface, i.e ioctl() */
-+		err = cs_etm_set_drv_config_term_ioctl(evsel, term);
-+		if (!err)
-+			continue;
-+
-+		/*
-+		 * Something went wrong, we are probably working with an older
-+		 * kernel.  As such use the sysFS interface, which will only
-+		 * work for per-thread scenarios.
-+		 */
-+		err = cs_etm_set_drv_config_term_sysfs(term);
- 		if (err) {
- 			*err_term = term;
- 			break;
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index 6d187059a373..8aa2b79c3314 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1195,6 +1195,12 @@ static int perf_evsel__append_filter(struct perf_evsel *evsel,
- 	return -1;
- }
- 
-+int perf_evsel__apply_drv_config(struct perf_evsel *evsel, u64 addr)
-+{
-+	return perf_evsel__run_ioctl(evsel,
-+				     PERF_EVENT_IOC_SET_DRV_CONFIG, &addr);
-+}
-+
- int perf_evsel__append_tp_filter(struct perf_evsel *evsel, const char *filter)
- {
- 	return perf_evsel__append_filter(evsel, "(%s) && (%s)", filter);
-diff --git a/tools/perf/util/evsel.h b/tools/perf/util/evsel.h
-index 3147ca76c6fc..6be7560bc986 100644
---- a/tools/perf/util/evsel.h
-+++ b/tools/perf/util/evsel.h
-@@ -276,6 +276,7 @@ int perf_evsel__append_tp_filter(struct perf_evsel *evsel, const char *filter);
- int perf_evsel__append_addr_filter(struct perf_evsel *evsel,
- 				   const char *filter);
- int perf_evsel__apply_filter(struct perf_evsel *evsel, const char *filter);
-+int perf_evsel__apply_drv_config(struct perf_evsel *evsel, u64 addr);
- int perf_evsel__enable(struct perf_evsel *evsel);
- int perf_evsel__disable(struct perf_evsel *evsel);
- 
--- 
-2.7.4
+minor nit: The name doesn't quite imply what we do here. Did you mean
+s/sync/sink ?
 
+> +{
+> +	struct coresight_device *sink = NULL;
+> +	struct pmu_drv_config *drv_config = perf_event_get_drv_config(event);
+> +
+> +	/*
+> +	 * Make sure we don't race with perf_drv_config_replace() in
+> +	 * kernel/events/core.c.
+> +	 */
+> +	raw_spin_lock(&drv_config->lock);
+> +
+> +	/* Copy what we got from user space if applicable. */
+> +	if (drv_config->config)
+> +		sink = drv_config->config;
+> +
+> +	raw_spin_unlock(&drv_config->lock);
+> +
+> +	return sink;
+> +}
+> +
+>   static void *etm_setup_aux(struct perf_event *event, void **pages,
+>   			   int nr_pages, bool overwrite)
+>   {
+> @@ -190,18 +212,11 @@ static void *etm_setup_aux(struct perf_event *event, void **pages,
+>   		return NULL;
+>   	INIT_WORK(&event_data->work, free_event_data);
+>   
+> -	/*
+> -	 * In theory nothing prevent tracers in a trace session from being
+> -	 * associated with different sinks, nor having a sink per tracer.  But
+> -	 * until we have HW with this kind of topology we need to assume tracers
+> -	 * in a trace session are using the same sink.  Therefore go through
+> -	 * the coresight bus and pick the first enabled sink.
+> -	 *
+> -	 * When operated from sysFS users are responsible to enable the sink
+> -	 * while from perf, the perf tools will do it based on the choice made
+> -	 * on the cmd line.  As such the "enable_sink" flag in sysFS is reset.
+> -	 */
+> -	sink = coresight_get_enabled_sink(true);
+> +	/* First get the sink config from user space. */
+> +	sink = etm_drv_config_sync(event);
+> +	if (!sink)
+> +		sink = coresight_get_enabled_sink(true);
+> +
+>   	if (!sink || !sink_ops(sink)->alloc_buffer)
+>   		goto err;
+>   
+> @@ -454,6 +469,40 @@ static void etm_addr_filters_sync(struct perf_event *event)
+>   	filters->nr_filters = i;
+>   }
+>   
+> +static int etm_drv_config_find_sink(struct device *dev, void *data)
+> +{
+> +	struct amba_device *adev = to_amba_device(dev->parent);
+> +	struct resource *res = &adev->res;
+> +	u64 value = *((u64 *)data);
+> +
+> +	/*
+> +	 * The HW mapping of a component is unique.  If the value we've been
+> +	 * given matches the component's start address, then we must have found
+> +	 * the device we are looking for.
+> +	 */
+
+To be frank, I don't quite like the idea of passing the base address of the
+component as the key to locate a device, (even though that is unique and readily
+available). I would rather prefer a programmable way to map the keys to the
+"sink" devices, which works platform agnostic (e.g, ACPI support, where the base
+address is not obvious from the name). Also if we decide to use a platform
+agnostic naming scheme, it becomes even more complex.
+
+We could assign a static "id/key" exported either via the device sysfs dir or
+the "pmu" dir. I prefer the latter.
+
+Thoughts ?
+
+And whatever we decide to choose, needs to be clearly documented under the 
+Documentation/perf/cs_etm.txt.
+
+Cheers
+Suzuki
 
 _______________________________________________
 linux-arm-kernel mailing list
