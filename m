@@ -1,83 +1,47 @@
-From: David Hildenbrand <david@redhat.com>
-Date: Tue, 18 Dec 2018 09:55:09 +0000
-Subject: Re: [kvm-unit-tests PATCH v3 03/13] s390x: Make tests bootable from disk
-Message-Id: <eb92ac72-b0ea-4579-5556-996dc9a51d8f@redhat.com>
-In-Reply-To: <c061a74f-1c9c-fa69-f334-3124d1447ddf@redhat.com>
-References: <c061a74f-1c9c-fa69-f334-3124d1447ddf@redhat.com>
+From: Thomas Huth <thuth@redhat.com>
+Date: Tue, 18 Dec 2018 10:17:48 +0000
+Subject: Re: [kvm-unit-tests PATCH v3 05/13] s390x: Add BSS clearing for non ELF boot
+Message-Id: <6fec14e5-e557-20c4-207d-d9f0bbe97343@redhat.com>
+In-Reply-To: <e8bc39e5-a170-af47-3c4a-1186b7039bec@redhat.com>
+References: <e8bc39e5-a170-af47-3c4a-1186b7039bec@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 18.12.18 10:26, Janosch Frank wrote:
-> Currently tests are run with the --kernel option of Qemu, which will
-> load the ELF file and jump to the start address. When booting from
-> disk, we need to specify a start address. This is done by setting the
-> initial short PSW at 0x0.
+On 2018-12-18 10:26, Janosch Frank wrote:
+> When doing an IPL normal the memory will not be zeroed and hence the
+> BSS section can have any value. We need to clear it by ourselves.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->  s390x/cstart64.S |  9 ++++++++-
->  s390x/flat.lds   | 13 ++++++++++++-
->  2 files changed, 20 insertions(+), 2 deletions(-)
+>  s390x/cstart64.S | 21 ++++++++++++++++++++-
+>  s390x/flat.lds   |  2 ++
+>  2 files changed, 22 insertions(+), 1 deletion(-)
 > 
 > diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-> index dc7ddd6..d382497 100644
+> index 7886f35..aba11f4 100644
 > --- a/s390x/cstart64.S
 > +++ b/s390x/cstart64.S
-> @@ -14,9 +14,16 @@
->  
->  .section .init
->  
-> -/* entry point - for KVM + TCG we directly start in 64 bit mode */
-> +/*
-> + * Short init between 0x10000 and 0x10480 and then jump to 0x11000.
-> + * 0x10480 - 0x11000 are written to by bootloader.
-> + *
-> + * For KVM and TCG kernel boot we are in 64 bit z/Arch mode.
-> + * When booting from disk the initial short psw is in 31 bit mode.
-> + */
->  	.globl start
->  start:
-> +	sam64				# Set addressing mode to 64 bit
->  	/* setup stack */
->  	larl	%r15, stackptr
+> @@ -37,6 +37,22 @@ start:
 >  	/* setup initial PSW mask + control registers*/
-> diff --git a/s390x/flat.lds b/s390x/flat.lds
-> index b6e2172..977af7c 100644
-> --- a/s390x/flat.lds
-> +++ b/s390x/flat.lds
-> @@ -1,10 +1,21 @@
->  SECTIONS
->  {
-> +	/*
-> +	 * Initial short psw for disk boot, with 31 bit addressing for
-> +	 * non z/Arch environment compatibility and the instruction
-> +	 * address 0x10000 (cstart64.S .init).
-> +	 */
-> +	.lowcore : {
-> +		. = 0;
-> +		 LONG(0x00080000)
-> +		 LONG(0x80010000)
-> +	}
-> +	. = 0x10000;
->  	.text : {
->  		*(.init)
->  		. = 0x480;
->  		ipl_args = .;
-> -		. = 0x600;
-> +		.  = 0x1000;
+>  	larl	%r1, initial_psw
+>  	lpswe	0(%r1)
+> +init_clear_bss:
+> +	larl 	%r2, __bss_start
+> +	larl 	%r3, __bss_end
+> +	slgr 	%r3, %r2		# Get sizeof bss
+> +	aghi 	%r3,-1
+> +	srlg 	%r4,%r3,8		# Calc number of 256 byte chunks
+> +	ltgr 	%r4,%r4
+> +	lgr 	%r1,%r2
+> +	jz	remainder		# If none, clear remaining bytes
+> +loop:
+> +	xc	0(256,%r1), 0(%r1)	# Clear 256 byte chunks via xor
+> +	la	%r1, 256(%r1)
+> +	brctg 	%r4, loop
+> +remainder:
+> +	larl	%r2, memsetxc
+> +	ex 	%r3, 0(%r2)
 
-Can you add a comment to the description why this change is performed?
+Looks similar to the kernel's memset function, so I think this is fine.
 
-Apart from that, looks good.
-
->  		*(.text)
->  		*(.text.*)
->  	}
-> 
-
-
--- 
-
-Thanks,
-
-David / dhildenb
+Reviewed-by: Thomas Huth <thuth@redhat.com>
