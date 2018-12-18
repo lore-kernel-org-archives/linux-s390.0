@@ -1,83 +1,211 @@
-Return-Path: <SRS0=hDTa=OZ=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Sun, 16 Dec 2018 15:07:00 -0800
-From: Myungho Jung <mhjungk@gmail.com>
-Subject: [PATCH] net/smc: fix TCP fallback socket release
-Message-ID: <20181216230657.GA16104@myunghoj-Precision-5530>
+Return-Path: <owner-linux-mm@kvack.org>
+Date: Tue, 18 Dec 2018 10:09:07 +0100
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [-next] lots of messages due to "mm, memory_hotplug: be more
+ verbose for memory offline failures"
+Message-ID: <20181218090907.GD30879@dhcp22.suse.cz>
+References: <20181217155922.GC3560@osiris>
+ <20181217160350.GV30879@dhcp22.suse.cz>
+ <20181217163949.GX30879@dhcp22.suse.cz>
+ <20181218075538.GA3590@osiris>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ursula Braun <ubraun@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20181218075538.GA3590@osiris>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Anshuman Khandual <anshuman.khandual@arm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-next@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-clcsock can be released while kernel_accept() references it in TCP
-listen worker. Also, clcsock needs to wake up before released if TCP
-fallback is used and the clcsock is blocked by accept. Add a lock to
-safely release clcsock and call kernel_sock_shutdown() to wake up
-clcsock from accept in smc_release().
+On Tue 18-12-18 08:55:38, Heiko Carstens wrote:
+> On Mon, Dec 17, 2018 at 05:39:49PM +0100, Michal Hocko wrote:
+> > On Mon 17-12-18 17:03:50, Michal Hocko wrote:
+> > > On Mon 17-12-18 16:59:22, Heiko Carstens wrote:
+> > > > Hi Michal,
+> > > > 
+> > > > with linux-next as of today on s390 I see tons of messages like
+> > > > 
+> > > > [   20.536664] page dumped because: has_unmovable_pages
+> > > > [   20.536792] page:000003d081ff4080 count:1 mapcount:0 mapping:000000008ff88600 index:0x0 compound_mapcount: 0
+> > > > [   20.536794] flags: 0x3fffe0000010200(slab|head)
+> > > > [   20.536795] raw: 03fffe0000010200 0000000000000100 0000000000000200 000000008ff88600
+> > > > [   20.536796] raw: 0000000000000000 0020004100000000 ffffffff00000001 0000000000000000
+> > > > [   20.536797] page dumped because: has_unmovable_pages
+> > > > [   20.536814] page:000003d0823b0000 count:1 mapcount:0 mapping:0000000000000000 index:0x0
+> > > > [   20.536815] flags: 0x7fffe0000000000()
+> > > > [   20.536817] raw: 07fffe0000000000 0000000000000100 0000000000000200 0000000000000000
+> > > > [   20.536818] raw: 0000000000000000 0000000000000000 ffffffff00000001 0000000000000000
+> > > > 
+> > > > bisect points to b323c049a999 ("mm, memory_hotplug: be more verbose for memory offline failures")
+> > > > which is the first commit with which the messages appear.
+> > > 
+> > > I would bet this is CMA allocator. How much is tons? Maybe we want a
+> > > rate limit or the other user is not really interested in them at all?
+> 
+> Yes, the system in question has a 4NB CMA area. "tons" translates to several hundred.
 
-Reported-by: syzbot+0bf2e01269f1274b4b03@syzkaller.appspotmail.com
-Reported-by: syzbot+e3132895630f957306bc@syzkaller.appspotmail.com
-Signed-off-by: Myungho Jung <mhjungk@gmail.com>
----
- net/smc/af_smc.c | 12 +++++++++++-
- net/smc/smc.h    |  2 ++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+OK, I guess these messages on their own without a wider context are not
+that helpful. It is still surprising to see slab pages or non-movable
+pages in the CMA area. The later might be an CMA allocation I guess but
+slab pages shouldn't be there at all AFAIU.
+ 
+> > In other words, this should silence those messages.
+> 
+> Yes, with the patch below applied the messages don't appear anymore.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 5fbaf1901571..a127a13689c3 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -147,8 +147,14 @@ static int smc_release(struct socket *sock)
- 		sk->sk_shutdown |= SHUTDOWN_MASK;
- 	}
- 	if (smc->clcsock) {
-+		if (smc->use_fallback && sk->sk_state == SMC_LISTEN) {
-+			/* wake up clcsock accept */
-+			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
-+		}
-+		mutex_lock(&smc->clcsock_release_lock);
- 		sock_release(smc->clcsock);
- 		smc->clcsock = NULL;
-+		mutex_unlock(&smc->clcsock_release_lock);
- 	}
- 	if (smc->use_fallback) {
- 		if (sk->sk_state != SMC_LISTEN && sk->sk_state != SMC_INIT)
-@@ -205,6 +211,7 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
- 	spin_lock_init(&smc->conn.send_lock);
- 	sk->sk_prot->hash(sk);
- 	sk_refcnt_debug_inc(sk);
-+	mutex_init(&smc->clcsock_release_lock);
- 
- 	return sk;
- }
-@@ -834,7 +841,10 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
- 	}
- 	*new_smc = smc_sk(new_sk);
- 
--	rc = kernel_accept(lsmc->clcsock, &new_clcsock, 0);
-+	mutex_lock(&lsmc->clcsock_release_lock);
-+	if (lsmc->clcsock)
-+		rc = kernel_accept(lsmc->clcsock, &new_clcsock, 0);
-+	mutex_unlock(&lsmc->clcsock_release_lock);
- 	lock_sock(lsk);
- 	if  (rc < 0)
- 		lsk->sk_err = -rc;
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 08786ace6010..9a2795cf5d30 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -219,6 +219,8 @@ struct smc_sock {				/* smc sock container */
- 						 * started, waiting for unsent
- 						 * data to be sent
- 						 */
-+	struct mutex            clcsock_release_lock;
-+						/* protects clcsock */
- };
- 
- static inline struct smc_sock *smc_sk(const struct sock *sk)
+OK, I will post an official patch. Even if CMA allocator decides to
+report failures it can simply add the flag.
+
+Thanks!
+
+> > diff --git a/include/linux/page-isolation.h b/include/linux/page-isolation.h
+> > index 4ae347cbc36d..4eb26d278046 100644
+> > --- a/include/linux/page-isolation.h
+> > +++ b/include/linux/page-isolation.h
+> > @@ -30,8 +30,11 @@ static inline bool is_migrate_isolate(int migratetype)
+> >  }
+> >  #endif
+> > 
+> > +#define SKIP_HWPOISON	0x1
+> > +#define REPORT_FAILURE	0x2
+> > +
+> >  bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+> > -			 int migratetype, bool skip_hwpoisoned_pages);
+> > +			 int migratetype, int flags);
+> >  void set_pageblock_migratetype(struct page *page, int migratetype);
+> >  int move_freepages_block(struct zone *zone, struct page *page,
+> >  				int migratetype, int *num_movable);
+> > @@ -44,10 +47,14 @@ int move_freepages_block(struct zone *zone, struct page *page,
+> >   * For isolating all pages in the range finally, the caller have to
+> >   * free all pages in the range. test_page_isolated() can be used for
+> >   * test it.
+> > + *
+> > + * The following flags are allowed (they can be combined in a bit mask)
+> > + * SKIP_HWPOISON - ignore hwpoison pages
+> > + * REPORT_FAILURE - report details about the failure to isolate the range
+> >   */
+> >  int
+> >  start_isolate_page_range(unsigned long start_pfn, unsigned long end_pfn,
+> > -			 unsigned migratetype, bool skip_hwpoisoned_pages);
+> > +			 unsigned migratetype, int flags);
+> > 
+> >  /*
+> >   * Changes MIGRATE_ISOLATE to MIGRATE_MOVABLE.
+> > diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> > index c82193db4be6..8537429d33a6 100644
+> > --- a/mm/memory_hotplug.c
+> > +++ b/mm/memory_hotplug.c
+> > @@ -1226,7 +1226,7 @@ static bool is_pageblock_removable_nolock(struct page *page)
+> >  	if (!zone_spans_pfn(zone, pfn))
+> >  		return false;
+> > 
+> > -	return !has_unmovable_pages(zone, page, 0, MIGRATE_MOVABLE, true);
+> > +	return !has_unmovable_pages(zone, page, 0, MIGRATE_MOVABLE, SKIP_HWPOISON);
+> >  }
+> > 
+> >  /* Checks if this range of memory is likely to be hot-removable. */
+> > @@ -1577,7 +1577,8 @@ static int __ref __offline_pages(unsigned long start_pfn,
+> > 
+> >  	/* set above range as isolated */
+> >  	ret = start_isolate_page_range(start_pfn, end_pfn,
+> > -				       MIGRATE_MOVABLE, true);
+> > +				       MIGRATE_MOVABLE,
+> > +				       SKIP_HWPOISON | REPORT_FAILURE);
+> >  	if (ret) {
+> >  		mem_hotplug_done();
+> >  		reason = "failure to isolate range";
+> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > index ec2c7916dc2d..ee4043419791 100644
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -7754,8 +7754,7 @@ void *__init alloc_large_system_hash(const char *tablename,
+> >   * race condition. So you can't expect this function should be exact.
+> >   */
+> >  bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+> > -			 int migratetype,
+> > -			 bool skip_hwpoisoned_pages)
+> > +			 int migratetype, int flags)
+> >  {
+> >  	unsigned long pfn, iter, found;
+> > 
+> > @@ -7818,7 +7817,7 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+> >  		 * The HWPoisoned page may be not in buddy system, and
+> >  		 * page_count() is not 0.
+> >  		 */
+> > -		if (skip_hwpoisoned_pages && PageHWPoison(page))
+> > +		if ((flags & SKIP_HWPOISON) && PageHWPoison(page))
+> >  			continue;
+> > 
+> >  		if (__PageMovable(page))
+> > @@ -7845,7 +7844,8 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+> >  	return false;
+> >  unmovable:
+> >  	WARN_ON_ONCE(zone_idx(zone) == ZONE_MOVABLE);
+> > -	dump_page(pfn_to_page(pfn+iter), "unmovable page");
+> > +	if (flags & REPORT_FAILURE)
+> > +		dump_page(pfn_to_page(pfn+iter), "unmovable page");
+> >  	return true;
+> >  }
+> > 
+> > @@ -7972,8 +7972,7 @@ int alloc_contig_range(unsigned long start, unsigned long end,
+> >  	 */
+> > 
+> >  	ret = start_isolate_page_range(pfn_max_align_down(start),
+> > -				       pfn_max_align_up(end), migratetype,
+> > -				       false);
+> > +				       pfn_max_align_up(end), migratetype, 0);
+> >  	if (ret)
+> >  		return ret;
+> > 
+> > diff --git a/mm/page_isolation.c b/mm/page_isolation.c
+> > index 43e085608846..ce323e56b34d 100644
+> > --- a/mm/page_isolation.c
+> > +++ b/mm/page_isolation.c
+> > @@ -15,8 +15,7 @@
+> >  #define CREATE_TRACE_POINTS
+> >  #include <trace/events/page_isolation.h>
+> > 
+> > -static int set_migratetype_isolate(struct page *page, int migratetype,
+> > -				bool skip_hwpoisoned_pages)
+> > +static int set_migratetype_isolate(struct page *page, int migratetype, int isol_flags)
+> >  {
+> >  	struct zone *zone;
+> >  	unsigned long flags, pfn;
+> > @@ -60,8 +59,7 @@ static int set_migratetype_isolate(struct page *page, int migratetype,
+> >  	 * FIXME: Now, memory hotplug doesn't call shrink_slab() by itself.
+> >  	 * We just check MOVABLE pages.
+> >  	 */
+> > -	if (!has_unmovable_pages(zone, page, arg.pages_found, migratetype,
+> > -				 skip_hwpoisoned_pages))
+> > +	if (!has_unmovable_pages(zone, page, arg.pages_found, migratetype, flags))
+> >  		ret = 0;
+> > 
+> >  	/*
+> > @@ -185,7 +183,7 @@ __first_valid_page(unsigned long pfn, unsigned long nr_pages)
+> >   * prevents two threads from simultaneously working on overlapping ranges.
+> >   */
+> >  int start_isolate_page_range(unsigned long start_pfn, unsigned long end_pfn,
+> > -			     unsigned migratetype, bool skip_hwpoisoned_pages)
+> > +			     unsigned migratetype, int flags)
+> >  {
+> >  	unsigned long pfn;
+> >  	unsigned long undo_pfn;
+> > @@ -199,7 +197,7 @@ int start_isolate_page_range(unsigned long start_pfn, unsigned long end_pfn,
+> >  	     pfn += pageblock_nr_pages) {
+> >  		page = __first_valid_page(pfn, pageblock_nr_pages);
+> >  		if (page &&
+> > -		    set_migratetype_isolate(page, migratetype, skip_hwpoisoned_pages)) {
+> > +		    set_migratetype_isolate(page, migratetype, flags)) {
+> >  			undo_pfn = pfn;
+> >  			goto undo;
+> >  		}
+> > -- 
+> > Michal Hocko
+> > SUSE Labs
+> > 
+
 -- 
-2.17.1
+Michal Hocko
+SUSE Labs
