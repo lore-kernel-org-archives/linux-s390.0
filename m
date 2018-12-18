@@ -1,72 +1,70 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Tue, 18 Dec 2018 09:26:44 +0000
-Subject: [kvm-unit-tests PATCH v3 00/13] 390x: Add cross hypervisor and disk boot
-Message-Id: <20181218092657.46466-1-frankja@linux.ibm.com>
+Date: Tue, 18 Dec 2018 09:26:45 +0000
+Subject: [kvm-unit-tests PATCH v3 01/13] s390x: Add Sigp order codes
+Message-Id: <20181218092657.46466-2-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-With these patches kvm unit tests are now bootable under LPAR and
-z/VM, as well as from KVM disks.
+Let's get rid of the magic numbers and add some definitions that will
+be used in the future.
 
-For this to work we added:
-    * Initial PSW in lowcore
-    * Switch to 64 bit and z/Arch
-    * SCLP linemode console
-    * Binary generation in Makefile
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+---
+ lib/s390x/asm/arch_def.h | 18 ++++++++++++++++++
+ lib/s390x/io.c           |  3 ++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
-Patches 8 - 13 are more or less RFCs.
-
-
-v3:
-	* Rebased on David's SCLP fixes
-	* Added binary generation make command
-	* Split up cleanup and sclp common movement
-	* Fixed whitespace problems
-	* Added more comments
-	* Added linemode buffer to get rid of line splits
-
-v2:
-	* Moved cleanup to the front and broadened patch
-	* Split up SCLP patch into interrupt and linemode
-	* Removed unneeded instructions
-	* Improved comments and commit messages
-
-
-Janosch Frank (13):
-  s390x: Add Sigp order codes
-  s390x: Rename and cleanup sclp-ascii.c
-  s390x: Make tests bootable from disk
-  s390x: Switch to z/Arch if needed
-  s390x: Add BSS clearing for non ELF boot
-  s390x: Move common sclp data and functions to sclp.c
-  s390x: Use interrupts in SCLP
-  s390x: Add linemode console
-  s390x: Add binary generation to makefile
-  s390x: Add linemode buffer to fix newline on every print
-  s390x: Add sclp busy indication locking
-  s390x: Add time functions to lib
-  lib/report: Add stamps to reports
-
- lib/libcflat.h            |   1 +
- lib/report.c              |  10 +++
- lib/s390x/asm/arch_def.h  |  19 ++++
- lib/s390x/asm/interrupt.h |   2 +
- lib/s390x/interrupt.c     |  12 ++-
- lib/s390x/io.c            |   5 +-
- lib/s390x/sclp-ascii.c    |  68 --------------
- lib/s390x/sclp-console.c  | 225 ++++++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/sclp.c          |  75 +++++++++++++++-
- lib/s390x/sclp.h          |  75 +++++++++++++++-
- lib/s390x/time.c          |  18 ++++
- lib/s390x/time.h          | 104 +++++++++++++++++++++
- s390x/Makefile            |  10 ++-
- s390x/cstart64.S          |  38 +++++++-
- s390x/flat.lds            |  15 +++-
- 15 files changed, 596 insertions(+), 81 deletions(-)
- delete mode 100644 lib/s390x/sclp-ascii.c
- create mode 100644 lib/s390x/sclp-console.c
- create mode 100644 lib/s390x/time.c
- create mode 100644 lib/s390x/time.h
-
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index d2cd727..d2d6e02 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -10,6 +10,24 @@
+ #ifndef _ASM_S390X_ARCH_DEF_H_
+ #define _ASM_S390X_ARCH_DEF_H_
+ 
++/* SIGP order codes */
++#define SIGP_SENSE			1
++#define SIGP_EXTERNAL_CALL		2
++#define SIGP_EMERGENCY_SIGNAL		3
++#define SIGP_START			4
++#define SIGP_STOP			5
++#define SIGP_RESTART			6
++#define SIGP_STOP_AND_STORE_STATUS	9
++#define SIGP_INITIAL_CPU_RESET		11
++#define SIGP_CPU_RESET			12
++#define SIGP_SET_PREFIX			13
++#define SIGP_STORE_STATUS_AT_ADDRESS	14
++#define SIGP_SET_ARCHITECTURE		18
++#define SIGP_COND_EMERGENCY_SIGNAL	19
++#define SIGP_SENSE_RUNNING		21
++#define SIGP_SET_MULTI_THREADING	22
++#define SIGP_STORE_ADDITIONAL_STATUS	23
++
+ struct psw {
+ 	uint64_t	mask;
+ 	uint64_t	addr;
+diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+index 7bca637..54ad233 100644
+--- a/lib/s390x/io.c
++++ b/lib/s390x/io.c
+@@ -14,6 +14,7 @@
+ #include <argv.h>
+ #include <asm/spinlock.h>
+ #include <asm/facility.h>
++#include <asm/arch_def.h>
+ #include "sclp.h"
+ 
+ extern char ipl_args[];
+@@ -37,7 +38,7 @@ static void sigp_stop(void)
+ 
+ 	asm volatile(
+ 		"	sigp %0,%1,0(%2)\n"
+-		: "+d" (status)  : "d" (cpu), "d" (5) : "cc");
++		: "+d" (status)  : "d" (cpu), "d" (SIGP_STOP) : "cc");
+ }
+ 
+ void setup(void)
 -- 
 2.14.3
