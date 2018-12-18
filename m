@@ -1,107 +1,80 @@
-From: Thomas Huth <thuth@redhat.com>
-Date: Tue, 18 Dec 2018 10:26:04 +0000
-Subject: Re: [kvm-unit-tests PATCH v3 06/13] s390x: Move common sclp data and functions to sclp.c
-Message-Id: <9ab24ecd-f24a-9157-2c6e-31a2f46267a1@redhat.com>
-In-Reply-To: <79ff402b-6532-d6e0-12c2-ae9f191d3ac0@redhat.com>
-References: <79ff402b-6532-d6e0-12c2-ae9f191d3ac0@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Tue, 18 Dec 2018 11:57:23 +0000
+Subject: Re: [kvm-unit-tests PATCH v3 07/13] s390x: Use interrupts in SCLP
+Message-Id: <5f25a18c-f6a4-36b5-7748-05c7cf643f95@linux.ibm.com>
+In-Reply-To: <9304af52-90ef-3f76-4806-774285ed2d7e@redhat.com>
+References: <9304af52-90ef-3f76-4806-774285ed2d7e@redhat.com>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--JkbzoWkoSDzPESV8l9X09kug8ou1Zcusm"
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2018-12-18 10:26, Janosch Frank wrote:
-> sclp.c will provide the common functionality in the future and the
-> base memory detection as it is quite small.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  lib/s390x/sclp-console.c | 20 --------------------
->  lib/s390x/sclp.c         | 20 ++++++++++++++++++++
->  lib/s390x/sclp.h         |  2 +-
->  3 files changed, 21 insertions(+), 21 deletions(-)
-> 
-> diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
-> index deacbde..bc01f41 100644
-> --- a/lib/s390x/sclp-console.c
-> +++ b/lib/s390x/sclp-console.c
-> @@ -13,26 +13,6 @@
->  #include <asm/page.h>
->  #include "sclp.h"
->  
-> -char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
-> -
-> -/* Perform service call. Return 0 on success, non-zero otherwise. */
-> -int sclp_service_call(unsigned int command, void *sccb)
-> -{
-> -        int cc;
-> -
-> -        asm volatile(
-> -                "       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
-> -                "       ipm     %0\n"
-> -                "       srl     %0,28"
-> -                : "=&d" (cc) : "d" (command), "a" (__pa(sccb))
-> -                : "cc", "memory");
-> -        if (cc == 3)
-> -                return -1;
-> -        if (cc == 2)
-> -                return -1;
-> -        return 0;
-> -}
-> -
->  static void sclp_set_write_mask(void)
->  {
->  	WriteEventMask *sccb = (void *)_sccb;
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index cccfdc2..7f556e5 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -23,6 +23,8 @@ static uint64_t storage_increment_size;
->  static uint64_t max_ram_size;
->  static uint64_t ram_size;
->  
-> +char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
-> +
->  static void mem_init(phys_addr_t mem_end)
->  {
->  	phys_addr_t freemem_start = (phys_addr_t)&stacktop;
-> @@ -50,6 +52,24 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
->  	report_abort("READ_SCP_INFO failed");
->  }
->  
-> +/* Perform service call. Return 0 on success, non-zero otherwise. */
-> +int sclp_service_call(unsigned int command, void *sccb)
-> +{
-> +	int cc;
-> +
-> +	asm volatile(
-> +		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
-> +		"       ipm     %0\n"
-> +		"       srl     %0,28"
-> +		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
-> +		: "cc", "memory");
-> +	if (cc == 3)
-> +		return -1;
-> +	if (cc == 2)
-> +		return -1;
-> +	return 0;
-> +}
-> +
->  void sclp_memory_setup(void)
->  {
->  	ReadInfo *ri = (void *)_sccb;
-> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-> index 4c60061..583c4e5 100644
-> --- a/lib/s390x/sclp.h
-> +++ b/lib/s390x/sclp.h
-> @@ -212,9 +212,9 @@ typedef struct ReadEventData {
->      uint32_t mask;
->  } __attribute__((packed)) ReadEventData;
->  
-> +extern char _sccb[];
->  void sclp_console_setup(void);
->  void sclp_print(const char *str);
-> -extern char _sccb[];
->  int sclp_service_call(unsigned int command, void *sccb);
->  void sclp_memory_setup(void);
->  
-> 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--JkbzoWkoSDzPESV8l9X09kug8ou1Zcusm
+Content-Type: multipart/mixed; boundary="mHTdRQ4JhlVrv6nJuAS4nOoKBogVymHf5";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
+Message-ID: <5f25a18c-f6a4-36b5-7748-05c7cf643f95@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 07/13] s390x: Use interrupts in SCLP
+References: <20181218092657.46466-1-frankja@linux.ibm.com>
+ <20181218092657.46466-8-frankja@linux.ibm.com>
+ <fae3b195-9c94-f7e5-2cbf-f37425d53f16@redhat.com>
+In-Reply-To: <fae3b195-9c94-f7e5-2cbf-f37425d53f16@redhat.com>
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+--mHTdRQ4JhlVrv6nJuAS4nOoKBogVymHf5
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 18.12.18 11:49, Thomas Huth wrote:
+> On 2018-12-18 10:26, Janosch Frank wrote:
+>> We need to properly implement interrupt handling for SCLP, because on
+>> z/VM and LPAR SCLP calls are not synchronous!
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+
+[...]
+
+>=20
+> I'd maybe rather write this as:
+>=20
+> 	while (sclp_busy)
+> 		mb();
+>=20
+> ... but it should not really matter.
+>=20
+>  Thomas
+>=20
+
+All suggestions sound reasonable :)
+
+
+--mHTdRQ4JhlVrv6nJuAS4nOoKBogVymHf5--
+
+--JkbzoWkoSDzPESV8l9X09kug8ou1Zcusm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJcGOCjAAoJEONU5rjiOLn4TmwQAJvPUqgPQd9kSQnU1RgOVlYX
+xfuJ/pj5WIjdOgrQxuO5aZXmrxs7F2+0fuQC4Cx0B0Ix5II5qfIRsC3bS7cz9WdP
+AAAqKfJQAA2HEZgpmrc8L9WnPtDbDam3PCcgdxdjh6ocmx/UXlvUWfZq6iZJPmIA
+lFk+W4tU3LroM/D1BCQJc3Ougq5wpvB5T/ahjdtPwwY7GSvrXes+t2CqFtqDKRq/
+K5VWdzyFHY1HJtyqXtCOxE3cvLxWvCVwI9AVIcsize2o9QHkeIsMJGOTlCxojeAe
+ioj3QliXKuKhxxCgJ94ZnwGa+dD6Ve5mTY9l6Zyme4B+pqxrNDCsMUcf5sFP9cn8
+kHJjvEcTX1tcbWncXjlg1iJomluscLam/SuLWnriZPyItcXm2il9kc6QXTlgzfr+
+cxmJdiGAZfhA+fr/DMEVw6qxDnxrXkf5pvNFLP22YnQ5NJrlgdPRJnqeYZHFDr8I
+ty/iZHvT6kdAb4WDzQBnhgT8a4/vdf+ZbWyhgi47WXMBwYV6HCGdcxiAXYaw4QjY
+gaNTNO6Mlr44ETXEfTVafCkCY/LWPL1LmbUbqYwwCXvyftO/lI6JLWbI1/cwAZe+
+Laapq55UptxoDeZ5gRKGHp7qAihvi/TE+7JIWR0xFp2JuFQquLr08lMtMeMlg+Ws
+I8C0vnNqPrED6DDLyCAG
+=84ob
+-----END PGP SIGNATURE-----
+
+--JkbzoWkoSDzPESV8l9X09kug8ou1Zcusm--
