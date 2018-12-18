@@ -1,47 +1,107 @@
 From: Thomas Huth <thuth@redhat.com>
-Date: Tue, 18 Dec 2018 10:17:48 +0000
-Subject: Re: [kvm-unit-tests PATCH v3 05/13] s390x: Add BSS clearing for non ELF boot
-Message-Id: <6fec14e5-e557-20c4-207d-d9f0bbe97343@redhat.com>
-In-Reply-To: <e8bc39e5-a170-af47-3c4a-1186b7039bec@redhat.com>
-References: <e8bc39e5-a170-af47-3c4a-1186b7039bec@redhat.com>
+Date: Tue, 18 Dec 2018 10:26:04 +0000
+Subject: Re: [kvm-unit-tests PATCH v3 06/13] s390x: Move common sclp data and functions to sclp.c
+Message-Id: <9ab24ecd-f24a-9157-2c6e-31a2f46267a1@redhat.com>
+In-Reply-To: <79ff402b-6532-d6e0-12c2-ae9f191d3ac0@redhat.com>
+References: <79ff402b-6532-d6e0-12c2-ae9f191d3ac0@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 2018-12-18 10:26, Janosch Frank wrote:
-> When doing an IPL normal the memory will not be zeroed and hence the
-> BSS section can have any value. We need to clear it by ourselves.
+> sclp.c will provide the common functionality in the future and the
+> base memory detection as it is quite small.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->  s390x/cstart64.S | 21 ++++++++++++++++++++-
->  s390x/flat.lds   |  2 ++
->  2 files changed, 22 insertions(+), 1 deletion(-)
+>  lib/s390x/sclp-console.c | 20 --------------------
+>  lib/s390x/sclp.c         | 20 ++++++++++++++++++++
+>  lib/s390x/sclp.h         |  2 +-
+>  3 files changed, 21 insertions(+), 21 deletions(-)
 > 
-> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-> index 7886f35..aba11f4 100644
-> --- a/s390x/cstart64.S
-> +++ b/s390x/cstart64.S
-> @@ -37,6 +37,22 @@ start:
->  	/* setup initial PSW mask + control registers*/
->  	larl	%r1, initial_psw
->  	lpswe	0(%r1)
-> +init_clear_bss:
-> +	larl 	%r2, __bss_start
-> +	larl 	%r3, __bss_end
-> +	slgr 	%r3, %r2		# Get sizeof bss
-> +	aghi 	%r3,-1
-> +	srlg 	%r4,%r3,8		# Calc number of 256 byte chunks
-> +	ltgr 	%r4,%r4
-> +	lgr 	%r1,%r2
-> +	jz	remainder		# If none, clear remaining bytes
-> +loop:
-> +	xc	0(256,%r1), 0(%r1)	# Clear 256 byte chunks via xor
-> +	la	%r1, 256(%r1)
-> +	brctg 	%r4, loop
-> +remainder:
-> +	larl	%r2, memsetxc
-> +	ex 	%r3, 0(%r2)
-
-Looks similar to the kernel's memset function, so I think this is fine.
+> diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
+> index deacbde..bc01f41 100644
+> --- a/lib/s390x/sclp-console.c
+> +++ b/lib/s390x/sclp-console.c
+> @@ -13,26 +13,6 @@
+>  #include <asm/page.h>
+>  #include "sclp.h"
+>  
+> -char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+> -
+> -/* Perform service call. Return 0 on success, non-zero otherwise. */
+> -int sclp_service_call(unsigned int command, void *sccb)
+> -{
+> -        int cc;
+> -
+> -        asm volatile(
+> -                "       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
+> -                "       ipm     %0\n"
+> -                "       srl     %0,28"
+> -                : "=&d" (cc) : "d" (command), "a" (__pa(sccb))
+> -                : "cc", "memory");
+> -        if (cc == 3)
+> -                return -1;
+> -        if (cc == 2)
+> -                return -1;
+> -        return 0;
+> -}
+> -
+>  static void sclp_set_write_mask(void)
+>  {
+>  	WriteEventMask *sccb = (void *)_sccb;
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index cccfdc2..7f556e5 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -23,6 +23,8 @@ static uint64_t storage_increment_size;
+>  static uint64_t max_ram_size;
+>  static uint64_t ram_size;
+>  
+> +char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+> +
+>  static void mem_init(phys_addr_t mem_end)
+>  {
+>  	phys_addr_t freemem_start = (phys_addr_t)&stacktop;
+> @@ -50,6 +52,24 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
+>  	report_abort("READ_SCP_INFO failed");
+>  }
+>  
+> +/* Perform service call. Return 0 on success, non-zero otherwise. */
+> +int sclp_service_call(unsigned int command, void *sccb)
+> +{
+> +	int cc;
+> +
+> +	asm volatile(
+> +		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
+> +		"       ipm     %0\n"
+> +		"       srl     %0,28"
+> +		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
+> +		: "cc", "memory");
+> +	if (cc == 3)
+> +		return -1;
+> +	if (cc == 2)
+> +		return -1;
+> +	return 0;
+> +}
+> +
+>  void sclp_memory_setup(void)
+>  {
+>  	ReadInfo *ri = (void *)_sccb;
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index 4c60061..583c4e5 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -212,9 +212,9 @@ typedef struct ReadEventData {
+>      uint32_t mask;
+>  } __attribute__((packed)) ReadEventData;
+>  
+> +extern char _sccb[];
+>  void sclp_console_setup(void);
+>  void sclp_print(const char *str);
+> -extern char _sccb[];
+>  int sclp_service_call(unsigned int command, void *sccb);
+>  void sclp_memory_setup(void);
+>  
+> 
 
 Reviewed-by: Thomas Huth <thuth@redhat.com>
