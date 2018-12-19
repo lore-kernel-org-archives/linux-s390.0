@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v5 03/15] KVM: s390: factor out nullify_gisa()
-Date: Wed, 19 Dec 2018 20:17:44 +0100
-Message-ID: <20181219191756.57973-4-mimu@linux.ibm.com>
+Subject: [PATCH v5 01/15] KVM: s390: unregister debug feature on failing arch init
+Date: Wed, 19 Dec 2018 20:17:42 +0100
+Message-ID: <20181219191756.57973-2-mimu@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181219191756.57973-1-mimu@linux.ibm.com>
@@ -12,51 +12,79 @@ To: KVM Mailing List <kvm@vger.kernel.org>
 Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This function will be used by the GISA init and the GISA
-clear operation. Thus it gets factored out here.
+Make sure the debug feature and its allocated resources get
+released upon unsuccessful architecture initialization.
+
+A related indication of the issue will be reported as kernel
+message.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ Documentation/kmsg/s390/kvm | 12 ++++++++++++
+ arch/s390/kvm/kvm-s390.c    | 17 ++++++++++++++---
+ 2 files changed, 26 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/kmsg/s390/kvm
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 9a3aed608914..c3a8b2fbbcf2 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2884,12 +2884,17 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
- 	return n;
- }
+diff --git a/Documentation/kmsg/s390/kvm b/Documentation/kmsg/s390/kvm
+new file mode 100644
+index 000000000000..76ffe2012254
+--- /dev/null
++++ b/Documentation/kmsg/s390/kvm
+@@ -0,0 +1,12 @@
++/*?
++ * Text: "Failed to register FLIC rc=%d\n"
++ * Severity: Error
++ * Parameter:
++ *   @1: return code of the FLIC registration call
++ * Description:
++ * The registration of the FLIC (Floating Interrupt Controller Interface)
++ * was not successful.
++ * User action:
++ * If this problem persists after a reload of the kvm kernel module, gather
++ * Linux debug data and contact your support organization.
++ */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index fe24150ff666..d8d8e0788157 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -417,19 +417,30 @@ static void kvm_s390_cpu_feat_init(void)
  
-+static void nullify_gisa(struct kvm_s390_gisa *gisa)
-+{
-+	memset(gisa, 0, sizeof(struct kvm_s390_gisa));
-+	gisa->next_alert = (u32)(u64)gisa;
-+}
-+
- void kvm_s390_gisa_clear(struct kvm *kvm)
+ int kvm_arch_init(void *opaque)
  {
- 	if (!kvm->arch.gisa)
- 		return;
--	memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
--	kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
-+	nullify_gisa(kvm->arch.gisa);
- 	VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
++	int rc;
++
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
+ 
+ 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+-		debug_unregister(kvm_s390_dbf);
+-		return -ENOMEM;
++		rc = -ENOMEM;
++		goto out_debug_unreg;
+ 	}
+ 
+ 	kvm_s390_cpu_feat_init();
+ 
+ 	/* Register floating interrupt controller interface. */
+-	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	if (rc) {
++		pr_err("Failed to register FLIC rc=%d\n", rc);
++		goto out_debug_unreg;
++	}
++	return 0;
++
++out_debug_unreg:
++	debug_unregister(kvm_s390_dbf);
++	return rc;
  }
  
-@@ -2898,8 +2903,8 @@ void kvm_s390_gisa_init(struct kvm *kvm)
- 	if (!css_general_characteristics.aiv)
- 		return;
- 	kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
-+	nullify_gisa(kvm->arch.gisa);
- 	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
--	kvm_s390_gisa_clear(kvm);
- }
- 
- void kvm_s390_gisa_destroy(struct kvm *kvm)
+ void kvm_arch_exit(void)
 -- 
 2.13.4
