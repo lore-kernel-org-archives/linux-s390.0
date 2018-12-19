@@ -1,37 +1,65 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 19 Dec 2018 09:24:49 +0000
-Subject: [GIT PULL 0/2] KVM: s390: Fixes for 4.21
-Message-Id: <20181219092451.37052-1-borntraeger@de.ibm.com>
+Date: Wed, 19 Dec 2018 09:24:50 +0000
+Subject: [GIT PULL 1/2] KVM: s390: unregister debug feature on failing arch init
+Message-Id: <20181219092451.37052-2-borntraeger@de.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo, Radim,
+From: Michael Mueller <mimu@linux.ibm.com>
 
-just two small fixes for the next merge window. nested+hugepages in 
-combination as well as interrupt support for crypto cards will slip
-to the next round.
+Make sure the debug feature and its allocated resources get
+released upon unsuccessful architecture initialization.
 
-The following changes since commit ccda4af0f4b92f7b4c308d3acc262f4a7e3affad:
+A related indication of the issue will be reported as kernel
+message.
 
-  Linux 4.20-rc2 (2018-11-11 17:12:31 -0600)
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.21-1
-
-for you to fetch changes up to 7aedd9d48f2a8332c2c51a40d2dca8c097f0dcdb:
-
-  KVM: s390: fix kmsg component kvm-s390 (2018-12-18 10:18:27 +0100)
-
-----------------------------------------------------------------
-KVM: s390: Fixes for 4.21
-
-Just two small fixes.
-
-----------------------------------------------------------------
-Michael Mueller (2):
-      KVM: s390: unregister debug feature on failing arch init
-      KVM: s390: fix kmsg component kvm-s390
-
- arch/s390/kvm/kvm-s390.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index fe24150ff6665..d8d8e07881577 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -417,19 +417,30 @@ static void kvm_s390_cpu_feat_init(void)
+ 
+ int kvm_arch_init(void *opaque)
+ {
++	int rc;
++
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
+ 
+ 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+-		debug_unregister(kvm_s390_dbf);
+-		return -ENOMEM;
++		rc = -ENOMEM;
++		goto out_debug_unreg;
+ 	}
+ 
+ 	kvm_s390_cpu_feat_init();
+ 
+ 	/* Register floating interrupt controller interface. */
+-	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	if (rc) {
++		pr_err("Failed to register FLIC rc=%d\n", rc);
++		goto out_debug_unreg;
++	}
++	return 0;
++
++out_debug_unreg:
++	debug_unregister(kvm_s390_dbf);
++	return rc;
+ }
+ 
+ void kvm_arch_exit(void)
+-- 
+2.19.1
