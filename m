@@ -1,64 +1,67 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Wed, 19 Dec 2018 10:07:28 +0000
-Subject: Re: [kvm-unit-tests PATCH v3 08/13] s390x: Add linemode console
-Message-Id: <a4b5669a-0162-82a9-464c-801fc7e084fc@linux.ibm.com>
-In-Reply-To: <79f381be-5bff-b57c-2941-9144045d13a9@redhat.com>
-References: <79f381be-5bff-b57c-2941-9144045d13a9@redhat.com>
+Date: Wed, 19 Dec 2018 10:11:56 +0000
+Subject: Re: [kvm-unit-tests RFC v3 10/13] s390x: Add linemode buffer to fix newline on every print
+Message-Id: <25f6e03f-b9ec-4be7-8ed3-e2ec49742e3c@linux.ibm.com>
+In-Reply-To: <9200e73b-8a1c-ec44-09b1-c6ae1e261631@redhat.com>
+References: <9200e73b-8a1c-ec44-09b1-c6ae1e261631@redhat.com>
 MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--d8sDhMmsKWEow1YbaIbkSqKWMOL7HOlZQ"
+Content-Type: multipart/mixed; boundary="--88WtkU1LLTCnVtqymV4L5N3etJWZl95ul"
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---d8sDhMmsKWEow1YbaIbkSqKWMOL7HOlZQ
-Content-Type: multipart/mixed; boundary="lld28NiD4rB4NxAAJDiPX6chnOR6E2N5H";
+--88WtkU1LLTCnVtqymV4L5N3etJWZl95ul
+Content-Type: multipart/mixed; boundary="k8HJoNba5cibWp7YZ4RtrNm5HQk7CtDWa";
  protected-headers="v1"
 From: Janosch Frank <frankja@linux.ibm.com>
 To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, david@redhat.com
-Message-ID: <a4b5669a-0162-82a9-464c-801fc7e084fc@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 08/13] s390x: Add linemode console
+Message-ID: <25f6e03f-b9ec-4be7-8ed3-e2ec49742e3c@linux.ibm.com>
+Subject: Re: [kvm-unit-tests RFC v3 10/13] s390x: Add linemode buffer to fix
+ newline on every print
 References: <20181218092657.46466-1-frankja@linux.ibm.com>
- <20181218092657.46466-9-frankja@linux.ibm.com>
- <e658521b-b46f-3e81-067e-4b886a67ad27@redhat.com>
- <b7973fa5-b628-d760-54f7-dfccc8d50f2b@linux.ibm.com>
- <79f381be-5bff-b57c-2941-9144045d13a9@redhat.com>
-In-Reply-To: <79f381be-5bff-b57c-2941-9144045d13a9@redhat.com>
+ <20181218092657.46466-11-frankja@linux.ibm.com>
+ <9200e73b-8a1c-ec44-09b1-c6ae1e261631@redhat.com>
+In-Reply-To: <9200e73b-8a1c-ec44-09b1-c6ae1e261631@redhat.com>
 
---lld28NiD4rB4NxAAJDiPX6chnOR6E2N5H
+--k8HJoNba5cibWp7YZ4RtrNm5HQk7CtDWa
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On 18.12.18 13:28, Thomas Huth wrote:
-> On 2018-12-18 13:01, Janosch Frank wrote:
->> On 18.12.18 12:50, Thomas Huth wrote:
-> [...]
->>> Maybe rather assert(sccb->h.response_code =3D=3D SCLP_RC_NORMAL_COMPL=
-ETION) ?
->>> It does not make much sense to continue otherwise, does it?
+On 18.12.18 13:41, Thomas Huth wrote:
+> On 2018-12-18 10:26, Janosch Frank wrote:
+>> Linemode seems to add a newline for each sent message which makes
+>> reading rather hard. Hence we add a small buffer that and only print
+>> if it's full or a newline is encountered.
 >>
->> Will the assert abort without any further prints?
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+[...]
+>>  /*
+>>
 >=20
-> No ... so that does not work. So maybe do a disabled wait with irqs
-> disabled instead to signal a crash to the host?
+> That likely does not work as expected when someone is printing with the=
+
+> '\n' not being at the end (printf("Hello\nWor"); printf("ld\n");) ...
+> but it's certainly better than before, so fine for me if you resend thi=
+s
+> the next time without RFC.
 >=20
 >  Thomas
 >=20
 
-Honestly, I'm thinking about dropping the check.
-It often works without any init because the stage 3 bootloader does an
-init and we do not check the print functions for errors.
+It seems to print \n on a new line, at least it does on the SE operation
+message consoles I work with. If not I would have gone mad by now, as I
+print a lot of data with newlines for some new tests with "%lx\n %lx\n...=
+".
 
-It's best effort at this point :)
-I'm more concerned with interrupts that print things while a printf
-holds the sclp_busy lock. But that mostly happens if you mess up a sclp
-call.
+I'll add a comment to the new function, to make clear why that's here.
 
 
---lld28NiD4rB4NxAAJDiPX6chnOR6E2N5H--
+--k8HJoNba5cibWp7YZ4RtrNm5HQk7CtDWa--
 
---d8sDhMmsKWEow1YbaIbkSqKWMOL7HOlZQ
+--88WtkU1LLTCnVtqymV4L5N3etJWZl95ul
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -66,19 +69,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBCAAGBQJcGhhgAAoJEONU5rjiOLn4L1wQAJzUQtpi4nnFU/NcT+MLIO+i
-rUYPe4SF3kntlV/4O88ak+6fq9A1fRA2qJbEeyGWVggQpmZcYmqfP6cGEKONy4Nx
-GTcXT2aV208LheeoDQY1b8R5ia7Gp4ynO9qo6ZUiSnAY7PkkcZiPExk2drDz2C+d
-l+tY2ZfuUGiOPSz8psM1JTjTyHmz/UqTO7dS0LlPF1IS0xpsmdAioAZvnhuacra9
-ZKpAhuLmFSGP4VrMJ1/o0JamjpbmI6lasKOIzhhrGskTbJZeXh/Y5I9GpXNcfCB6
-qgZTFC0C9P78HDPOWhlFhXQbA3P3OxsFvATGTrOoxJC1BCqMwUgtahIsqCF3+Ssy
-yrMbo9d0sI+evX9ToLSgo3Q23Xbc22wGsKYX4zFVQRAOgJNYPWtIsdzSPjTanwZN
-Nu54jmoxjPOVwcGvCQKFL+9zzly0z2tSIq/GbXnZY4ik6X4KxADZuKbaVhgMAKwy
-sC0NI11GWznjir8JOY2HocWUwn0vTsSaOiSP+oaR6+mPNVcYINtslF9DEwr702+u
-UA+JT7Zu53w6xtEP8LHVIbv9CXa+V0fhusAI3fo5G/SBSD7ZkSw/vbO4+29nWM/x
-srQYjyHRdDikHGCRRVZfEOYgmVxR7VEJSbYL4phPZJNDaFpLVN/3/nQn88iklcXS
-AKZ3kliogZr5Z7Qy+CVa
-=trkz
+iQIcBAEBCAAGBQJcGhlsAAoJEONU5rjiOLn4g9cP/i1SKp1feW5R5yMMvNOPXLqC
+a0LDAsh5HtHixDkBsaUJGPkATbzuTLkN9a0Oqx3xZHmY8uRNp2F0M/DwQAK73+rE
+USU9pH4U0hHfvkI7u2hwMukyy3n7cX0kFkMeA7B14pXe3tC3uiQrgDjcRe9VNnRT
+rVsrgbCxDWXmoCTUluMJEOtR0WBGStwxG4XonRG6HJLAgXLgqj4C+AJgRCSuEXKs
+xfQ5emeY1ulsvrEU17HnPX1XjOlxUYBxQWQ+ZwAM4CxJvPMpzlUPRft2/x1V9rZp
+DVId4s21kkb19OBlqWdmVIml723D6iNFazJZyTqIn4G40e6yYY6NGxYml9dUpgJw
+9fm7ecAdORvzrNqq7LC3OXpBTSJbDq7LJbNfN5iSJZvQeE0TOgaR2QlniZe9km+Q
+IO7UFOhdRozPaL0XbNgmUBv65sm194P9hWZviF8uaW6TWYuFKpQ0swt5l/oEdKCG
+qtvuIOgTxaPNnFxJoD+ZdLah8NqzugXSzJK+qZULLXA05b2wrBaq759zDaGjaKNQ
+sGT06IlTVHFUwMK+HQDRMqqGLK4ZHYlsnfBWfStiV4vakQwsBZ7m3FXtkv2eMdz1
+CCYvdJWjektwEWncwGU/MlEdIGr35LXvxeXSpVdOWz5yZY8PJLACRTDt4iW461ZV
+060y0RHe3K2Nk0hrJBm1
+=1tOk
 -----END PGP SIGNATURE-----
 
---d8sDhMmsKWEow1YbaIbkSqKWMOL7HOlZQ--
+--88WtkU1LLTCnVtqymV4L5N3etJWZl95ul--
