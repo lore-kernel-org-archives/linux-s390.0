@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v5 13/15] KVM: s390: add function process_gib_alert_list()
-Date: Wed, 19 Dec 2018 20:17:54 +0100
-Message-ID: <20181219191756.57973-14-mimu@linux.ibm.com>
+Subject: [PATCH v5 12/15] KVM: s390: do not restore IAM immediately before SIE entry
+Date: Wed, 19 Dec 2018 20:17:53 +0100
+Message-ID: <20181219191756.57973-13-mimu@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181219191756.57973-1-mimu@linux.ibm.com>
@@ -12,169 +12,51 @@ To: KVM Mailing List <kvm@vger.kernel.org>
 Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This function processes the Gib Alert List (GAL). It is required
-to run when either a gib alert interruption has been received or
-a gisa that is in the alert list is cleared or dropped.
-
-The GAL is build up by millicode, when the respective ISC bit is
-set in the Interruption Alert Mask (IAM) and an interruption of
-that class is observed.
+The IAM shall no be restored when deliverable interruptions are
+delivered to vcpus by means of the PSW swap mechanism. That would
+trigger the GIB alert millicode although we know that SIE will be
+able to handle the pending interruption on entry.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 140 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 140 insertions(+)
+ arch/s390/kvm/interrupt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 48a93f5e5333..03e7ba4f215a 100644
+index 8307717e3caf..48a93f5e5333 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -2941,6 +2941,146 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
- 	return n;
+@@ -328,11 +328,11 @@ static unsigned long disable_iscs(struct kvm_vcpu *vcpu,
+ 	return active_mask;
  }
  
-+static int __try_airqs_kick(struct kvm *kvm, u8 ipm)
-+{
-+	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-+	struct kvm_vcpu *vcpu = NULL, *kick_vcpu[MAX_ISC + 1];
-+	int online_vcpus = atomic_read(&kvm->online_vcpus);
-+	u8 ioint_mask, isc_mask, kick_mask = 0x00;
-+	int vcpu_id, kicked = 0;
-+
-+	/* Loop over vcpus in WAIT state. */
-+	for (vcpu_id = find_first_bit(fi->idle_mask, online_vcpus);
-+	     /* Until all pending ISCs have a vcpu open for airqs. */
-+	     (~kick_mask & ipm) && vcpu_id < online_vcpus;
-+	     vcpu_id = find_next_bit(fi->idle_mask, online_vcpus, vcpu_id)) {
-+		vcpu = kvm_get_vcpu(kvm, vcpu_id);
-+		if (psw_ioint_disabled(vcpu))
-+			continue;
-+		ioint_mask = (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
-+		for (isc_mask = 0x80; isc_mask; isc_mask >>= 1) {
-+			/* ISC pending in IPM ? */
-+			if (!(ipm & isc_mask))
-+				continue;
-+			/* vcpu for this ISC already found ? */
-+			if (kick_mask & isc_mask)
-+				continue;
-+			/* vcpu open for airq of this ISC ? */
-+			if (!(ioint_mask & isc_mask))
-+				continue;
-+			/* use this vcpu (for all ISCs in ioint_mask) */
-+			kick_mask |= ioint_mask;
-+			kick_vcpu[kicked++] = vcpu;
-+		}
-+	}
-+
-+	if (vcpu && ~kick_mask & ipm)
-+		VM_EVENT(kvm, 4, "gib alert undeliverable isc mask 0x%02x",
-+			 ~kick_mask & ipm);
-+
-+	for (vcpu_id = 0; vcpu_id < kicked; vcpu_id++)
-+		kvm_s390_vcpu_wakeup(kick_vcpu[vcpu_id]);
-+
-+	return (online_vcpus != 0) ? kicked : -ENODEV;
-+}
-+
-+static void __floating_airqs_kick(struct kvm *kvm)
-+{
-+	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
-+	int online_vcpus, kicked;
-+	u8 ipm_t0, ipm;
-+
-+	/* Get IPM and return if clean, IAM has been restored. */
-+	ipm = get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM);
-+	if (!ipm)
-+		return;
-+retry:
-+	ipm_t0 = ipm;
-+
-+	/* Try to kick some vcpus in WAIT state. */
-+	kicked = __try_airqs_kick(kvm, ipm);
-+	if (kicked < 0)
-+		return;
-+
-+	/* Get IPM and return if clean, IAM has been restored. */
-+	ipm = get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM);
-+	if (!ipm)
-+		return;
-+
-+	/* Start over, if new ISC bits are pending in IPM. */
-+	if ((ipm_t0 ^ ipm) & ~ipm_t0)
-+		goto retry;
-+
-+	/*
-+	 * Return as we just kicked at least one vcpu in WAIT state
-+	 * open for airqs. The IAM will be restored latest when one
-+	 * of them goes into WAIT or STOP state.
-+	 */
-+	if (kicked > 0)
-+		return;
-+
-+	/*
-+	 * No vcpu was kicked either because no vcpu was in WAIT state
-+	 * or none of the vcpus in WAIT state are open for airqs.
-+	 * Return immediately if no vcpus are in WAIT state.
-+	 * There are vcpus in RUN state. They will process the airqs
-+	 * if not closed for airqs as well. In that case the system will
-+	 * delay airqs until a vcpu decides to take airqs again.
-+	 */
-+	online_vcpus = atomic_read(&kvm->online_vcpus);
-+	if (!bitmap_weight(fi->idle_mask, online_vcpus))
-+		return;
-+
-+	/*
-+	 * None of the vcpus in WAIT state take airqs and we might
-+	 * have no running vcpus as at least one vcpu is in WAIT state
-+	 * and IPM is dirty.
-+	 */
-+	set_iam(kvm->arch.gisa, kvm->arch.iam);
-+}
-+
-+#define NULL_GISA_ADDR 0x00000000UL
-+#define NONE_GISA_ADDR 0x00000001UL
-+#define GISA_ADDR_MASK 0xfffff000UL
-+
-+static void __maybe_unused process_gib_alert_list(void)
-+{
-+	u32 final, next_alert, origin = 0UL;
-+	struct kvm_s390_gisa *gisa;
-+	struct kvm *kvm;
-+
-+	do {
-+		/*
-+		 * If the NONE_GISA_ADDR is still stored in the alert list
-+		 * origin, we will leave the outer loop. No further GISA has
-+		 * been added to the alert list by millicode while processing
-+		 * the current alert list.
-+		 */
-+		final = (origin & NONE_GISA_ADDR);
-+		/*
-+		 * Cut off the alert list and store the NONE_GISA_ADDR in the
-+		 * alert list origin to avoid further GAL interruptions.
-+		 * A new alert list can be build up by millicode in parallel
-+		 * for guests not in the yet cut-off alert list. When in the
-+		 * final loop, store the NULL_GISA_ADDR instead. This will re-
-+		 * enable GAL interruptions on the host again.
-+		 */
-+		origin = xchg(&gib->alert_list_origin,
-+			      (!final) ? NONE_GISA_ADDR : NULL_GISA_ADDR);
-+		/* Loop through the just cut-off alert list. */
-+		while (origin & GISA_ADDR_MASK) {
-+			gisa = (struct kvm_s390_gisa *)(u64)origin;
-+			next_alert = gisa->next_alert;
-+			/* Unlink the GISA from the alert list. */
-+			gisa->next_alert = origin;
-+			kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
-+			/* Kick suitable vcpus */
-+			__floating_airqs_kick(kvm);
-+			origin = next_alert;
-+		}
-+	} while (!final);
-+}
-+
- static void nullify_gisa(struct kvm_s390_gisa *gisa)
+-static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
++static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu, u16 irq_flags)
  {
- 	memset(gisa, 0, sizeof(struct kvm_s390_gisa));
+ 	unsigned long active_mask;
+ 
+-	active_mask = pending_irqs(vcpu, IRQ_MASK_ALL);
++	active_mask = pending_irqs(vcpu, irq_flags);
+ 	if (!active_mask)
+ 		return 0;
+ 
+@@ -1090,7 +1090,7 @@ int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu)
+ 
+ int kvm_s390_vcpu_has_irq(struct kvm_vcpu *vcpu, int exclude_stop)
+ {
+-	if (deliverable_irqs(vcpu))
++	if (deliverable_irqs(vcpu, IRQ_MASK_ALL | IRQ_FLAG_IAM))
+ 		return 1;
+ 
+ 	if (kvm_cpu_has_pending_timer(vcpu))
+@@ -1262,7 +1262,7 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+ 	if (cpu_timer_irq_pending(vcpu))
+ 		set_bit(IRQ_PEND_EXT_CPU_TIMER, &li->pending_irqs);
+ 
+-	while ((irqs = deliverable_irqs(vcpu)) && !rc) {
++	while ((irqs = deliverable_irqs(vcpu, IRQ_MASK_ALL)) && !rc) {
+ 		/* bits are in the reverse order of interrupt priority */
+ 		irq_type = find_last_bit(&irqs, IRQ_PEND_COUNT);
+ 		switch (irq_type) {
 -- 
 2.13.4
