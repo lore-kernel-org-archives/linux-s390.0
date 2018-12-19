@@ -1,14 +1,16 @@
 Return-Path: <SRS0=AchV=O4=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Date: Wed, 19 Dec 2018 09:31:43 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [RESEND PATCH v5 2/6] perf/core: Use ioctl to communicate driver
- configuration to kernel
-Message-ID: <20181219083143.GB31670@kroah.com>
+Subject: Re: [RESEND PATCH v5 4/6] coresight: Use PMU driver configuration for
+ sink selection
 References: <1545067306-31687-1-git-send-email-mathieu.poirier@linaro.org>
- <1545067306-31687-3-git-send-email-mathieu.poirier@linaro.org>
+ <1545067306-31687-5-git-send-email-mathieu.poirier@linaro.org>
+ <48afc315-d4ed-8779-a808-757fa4203bb7@arm.com>
+ <CANLsYkyvq-K1M7jZ=rOEcGBySTktV_c7D4S2jBV_nS3cj8a8wg@mail.gmail.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Message-ID: <bb313a2d-b5fc-9329-5db6-4bf661d278bb@arm.com>
+Date: Wed, 19 Dec 2018 09:40:43 +0000
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <1545067306-31687-3-git-send-email-mathieu.poirier@linaro.org>
+In-Reply-To: <CANLsYkyvq-K1M7jZ=rOEcGBySTktV_c7D4S2jBV_nS3cj8a8wg@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -16,193 +18,190 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
 To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, peterz@infradead.org, will.deacon@arm.com, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, acme@kernel.org, ast@kernel.org, alexander.shishkin@linux.intel.com, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, suzuki.poulosi@arm.com, jolsa@redhat.com, linux-kernel@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Greg KH <gregkh@linuxfoundation.org>, heiko.carstens@de.ibm.com, Adrian Hunter <adrian.hunter@intel.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, ast@kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, "H. Peter Anvin" <hpa@zytor.com>, schwidefsky@de.ibm.com, Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, suzuki.poulosi@arm.com, Jiri Olsa <jolsa@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Dec 17, 2018 at 10:21:42AM -0700, Mathieu Poirier wrote:
-> This patch adds the mechanic needed for user space to send PMU specific
-> configuration to the kernel driver using an ioctl() command.  That way
-> events can keep track of options that don't fit in the perf_event_attr
-> structure like the selection of a CoreSight sink to use for the session.
+
+
+On 18/12/2018 17:34, Mathieu Poirier wrote:
+> Good day Suzuki,
 > 
-> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-> ---
->  include/linux/perf_event.h | 38 ++++++++++++++++++++++++++
->  kernel/events/core.c       | 67 ++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 105 insertions(+)
+> On Tue, 18 Dec 2018 at 07:14, Suzuki K Poulose <suzuki.poulose@arm.com> wrote:
+>>
+>> Hi Mathieu,
+>>
+>> On 17/12/2018 17:21, Mathieu Poirier wrote:
+>>> This patch uses the PMU driver configuration held in event::hw::drv_config
+>>> to select a sink for each event that is created (the old sysFS way of
+>>> working is kept around for backward compatibility).
+>>>
+>>> By proceeding in this way a sink can be used by multiple sessions
+>>> without having to play games with entries in sysFS.
+>>>
+>>> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+>>> ---
+>>>    drivers/hwtracing/coresight/coresight-etm-perf.c | 74 ++++++++++++++++++++----
+>>>    1 file changed, 62 insertions(+), 12 deletions(-)
+>>>
+>>> diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
+>>> index f21eb28b6782..a7e1fdef07f2 100644
+>>> --- a/drivers/hwtracing/coresight/coresight-etm-perf.c
+>>> +++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
+>>> @@ -4,6 +4,7 @@
+>>>     * Author: Mathieu Poirier <mathieu.poirier@linaro.org>
+>>>     */
+>>>
+>>> +#include <linux/amba/bus.h>
+>>>    #include <linux/coresight.h>
+>>>    #include <linux/coresight-pmu.h>
+>>>    #include <linux/cpumask.h>
+>>> @@ -11,6 +12,7 @@
+>>>    #include <linux/list.h>
+>>>    #include <linux/mm.h>
+>>>    #include <linux/init.h>
+>>> +#include <linux/ioport.h>
+>>>    #include <linux/perf_event.h>
+>>>    #include <linux/percpu-defs.h>
+>>>    #include <linux/slab.h>
+>>> @@ -177,6 +179,26 @@ static void etm_free_aux(void *data)
+>>>        schedule_work(&event_data->work);
+>>>    }
+>>>
+>>> +static struct coresight_device *etm_drv_config_sync(struct perf_event *event)
+>>
+>> minor nit: The name doesn't quite imply what we do here. Did you mean
+>> s/sync/sink ?
+>>
 > 
-> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-> index 53c500f0ca79..8e69b7e309e7 100644
-> --- a/include/linux/perf_event.h
-> +++ b/include/linux/perf_event.h
-> @@ -114,6 +114,14 @@ struct hw_perf_event_extra {
->  	int		idx;	/* index in shared_regs->regs[] */
->  };
->  
-> +/*
-> + * PMU driver configuration
-> + */
-> +struct pmu_drv_config {
-> +	void		*config;
-> +	raw_spinlock_t	lock;
-> +};
-> +
->  /**
->   * struct hw_perf_event - performance event hardware details:
->   */
-> @@ -178,6 +186,9 @@ struct hw_perf_event {
->  	/* Last sync'ed generation of filters */
->  	unsigned long			addr_filters_gen;
->  
-> +	/* PMU driver configuration */
-> +	struct pmu_drv_config		drv_config;
-> +
->  /*
->   * hw_perf_event::state flags; used to track the PERF_EF_* state.
->   */
-> @@ -447,6 +458,17 @@ struct pmu {
->  	 * Filter events for PMU-specific reasons.
->  	 */
->  	int (*filter_match)		(struct perf_event *event); /* optional */
-> +
-> +	/*
-> +	 * Validate complex PMU configuration that don't fit in the
-> +	 * perf_event_attr struct.  Returns a PMU specific pointer or an error
-> +	 * value < 0.
-> +	 *
-> +	 * As with addr_filters_validate(), runs in the context of the ioctl()
-> +	 * process and is not serialized with the rest of the PMU callbacks.
-> +	 */
-> +	void *(*drv_config_validate)	(struct perf_event *event,
-> +					 u64 value);
->  };
->  
->  enum perf_addr_filter_action_t {
-> @@ -1235,6 +1257,11 @@ static inline bool has_addr_filter(struct perf_event *event)
->  	return event->pmu->nr_addr_filters;
->  }
->  
-> +static inline bool has_drv_config(struct perf_event *event)
-> +{
-> +	return event->pmu->drv_config_validate;
-> +}
-> +
->  /*
->   * An inherited event uses parent's filters
->   */
-> @@ -1249,6 +1276,17 @@ perf_event_addr_filters(struct perf_event *event)
->  	return ifh;
->  }
->  
-> +static inline struct pmu_drv_config *
-> +perf_event_get_drv_config(struct perf_event *event)
-> +{
-> +	struct pmu_drv_config *cfg = &event->hw.drv_config;
-> +
-> +	if (event->parent)
-> +		cfg = &event->parent->hw.drv_config;
-> +
-> +	return cfg;
-> +}
-> +
->  extern void perf_event_addr_filters_sync(struct perf_event *event);
->  
->  extern int perf_output_begin(struct perf_output_handle *handle,
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index 84530ab358c3..af7a53c97744 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -5003,6 +5003,8 @@ static inline int perf_fget_light(int fd, struct fd *p)
->  static int perf_event_set_output(struct perf_event *event,
->  				 struct perf_event *output_event);
->  static int perf_event_set_filter(struct perf_event *event, void __user *arg);
-> +static int perf_event_set_drv_config(struct perf_event *event,
-> +				     void __user *arg);
->  static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd);
->  static int perf_copy_attr(struct perf_event_attr __user *uattr,
->  			  struct perf_event_attr *attr);
-> @@ -5089,6 +5091,10 @@ static long _perf_ioctl(struct perf_event *event, unsigned int cmd, unsigned lon
->  
->  		return perf_event_modify_attr(event,  &new_attr);
->  	}
-> +
-> +	case PERF_EVENT_IOC_SET_DRV_CONFIG:
-> +		return perf_event_set_drv_config(event, (void __user *)arg);
-> +
->  	default:
->  		return -ENOTTY;
->  	}
-> @@ -9128,6 +9134,66 @@ static int perf_event_set_filter(struct perf_event *event, void __user *arg)
->  	return ret;
->  }
->  
-> +static void perf_drv_config_replace(struct perf_event *event, void *drv_data)
-> +{
-> +	unsigned long flags;
-> +	struct pmu_drv_config *drv_config = &event->hw.drv_config;
-> +
-> +	if (!has_drv_config(event))
-> +		return;
-> +
-> +	/* Children take their configuration from their parent */
-> +	if (event->parent)
-> +		return;
-> +
-> +	/* Make sure the PMU doesn't get a handle on the data */
-> +	raw_spin_lock_irqsave(&drv_config->lock, flags);
-> +	drv_config->config = drv_data;
-> +	raw_spin_unlock_irqrestore(&drv_config->lock, flags);
-> +}
-> +
-> +static int
-> +perf_event_process_drv_config(struct perf_event *event, u64 value)
-> +{
-> +	int ret = -EINVAL;
-> +	void *drv_data;
-> +
-> +	/* Make sure ctx.mutex is held */
-> +	lockdep_assert_held(&event->ctx->mutex);
-> +
-> +	/* Children take their configuration from their parent */
-> +	if (WARN_ON_ONCE(event->parent))
-> +		goto out;
-> +
-> +	drv_data = event->pmu->drv_config_validate(event, value);
-> +	if (IS_ERR(drv_data)) {
-> +		ret = PTR_ERR(drv_data);
-> +		goto out;
-> +	}
-> +
-> +	perf_drv_config_replace(event, drv_data);
-> +
-> +	ret = 0;
-> +out:
-> +	return ret;
-> +}
-> +
-> +static int perf_event_set_drv_config(struct perf_event *event, void __user *arg)
-> +{
-> +	int ret;
-> +	u64 value;
-> +
-> +	if (!has_drv_config(event))
-> +		return -EINVAL;
-> +
-> +	if (copy_from_user(&value, arg, sizeof(value)))
-> +		return -EFAULT;
+> I chose "sync" with "synchronisation" in mind.  I tried to keep things
+> generic since we could potentially use the same interface to convey
+> complex PMU configuration.  Arguably we could go with "sink" for now
+> and change it to "sync" in the future - I'm not strongly opinionated
+> on that part.
 
-You are just sending in a pointer to a u64?  Why not just pass a u64
-directly instead?  Why is a pointer needed here?
+Ok. I thought we were trying to grab the sink information from the event
+drv_config, hence something that implies that would be slightly more
+reader friendly. Again, I am not too keen on it.
 
-thanks,
+> 
+>>> +{
+>>> +     struct coresight_device *sink = NULL;
+>>> +     struct pmu_drv_config *drv_config = perf_event_get_drv_config(event);
+>>> +
+>>> +     /*
+>>> +      * Make sure we don't race with perf_drv_config_replace() in
+>>> +      * kernel/events/core.c.
+>>> +      */
+>>> +     raw_spin_lock(&drv_config->lock);
+>>> +
+>>> +     /* Copy what we got from user space if applicable. */
+>>> +     if (drv_config->config)
+>>> +             sink = drv_config->config;
+>>> +
+>>> +     raw_spin_unlock(&drv_config->lock);
+>>> +
+>>> +     return sink;
+>>> +}
+>>> +
+>>>    static void *etm_setup_aux(struct perf_event *event, void **pages,
+>>>                           int nr_pages, bool overwrite)
+>>>    {
+>>> @@ -190,18 +212,11 @@ static void *etm_setup_aux(struct perf_event *event, void **pages,
+>>>                return NULL;
+>>>        INIT_WORK(&event_data->work, free_event_data);
+>>>
+>>> -     /*
+>>> -      * In theory nothing prevent tracers in a trace session from being
+>>> -      * associated with different sinks, nor having a sink per tracer.  But
+>>> -      * until we have HW with this kind of topology we need to assume tracers
+>>> -      * in a trace session are using the same sink.  Therefore go through
+>>> -      * the coresight bus and pick the first enabled sink.
+>>> -      *
+>>> -      * When operated from sysFS users are responsible to enable the sink
+>>> -      * while from perf, the perf tools will do it based on the choice made
+>>> -      * on the cmd line.  As such the "enable_sink" flag in sysFS is reset.
+>>> -      */
+>>> -     sink = coresight_get_enabled_sink(true);
+>>> +     /* First get the sink config from user space. */
+>>> +     sink = etm_drv_config_sync(event);
+>>> +     if (!sink)
+>>> +             sink = coresight_get_enabled_sink(true);
+>>> +
+>>>        if (!sink || !sink_ops(sink)->alloc_buffer)
+>>>                goto err;
+>>>
+>>> @@ -454,6 +469,40 @@ static void etm_addr_filters_sync(struct perf_event *event)
+>>>        filters->nr_filters = i;
+>>>    }
+>>>
+>>> +static int etm_drv_config_find_sink(struct device *dev, void *data)
+>>> +{
+>>> +     struct amba_device *adev = to_amba_device(dev->parent);
+>>> +     struct resource *res = &adev->res;
+>>> +     u64 value = *((u64 *)data);
+>>> +
+>>> +     /*
+>>> +      * The HW mapping of a component is unique.  If the value we've been
+>>> +      * given matches the component's start address, then we must have found
+>>> +      * the device we are looking for.
+>>> +      */
+>>
+>> To be frank, I don't quite like the idea of passing the base address of the
+>> component as the key to locate a device, (even though that is unique and readily
+>> available). I would rather prefer a programmable way to map the keys to the
+>> "sink" devices, which works platform agnostic (e.g, ACPI support, where the base
+>> address is not obvious from the name). Also if we decide to use a platform
+>> agnostic naming scheme, it becomes even more complex.
+> 
+> This mechanism doesn't rely on the naming scheme - it exploits the
+> "resource" interface exported for each amba device [1].  As such
+> whether the component is discovered using ACPI or DT, we end up on the
+> same amba bus and using the same interface.
+> 
+> [1]. https://elixir.bootlin.com/linux/latest/source/drivers/amba/bus.c#L128
 
-greg k-h
+Ok. The only problem with this approach would be if the devices doesn't appear
+on the AMBA bus (btw, which is not true for the existing IPs).
+
+> 
+>>
+>> We could assign a static "id/key" exported either via the device sysfs dir or
+>> the "pmu" dir. I prefer the latter.
+> 
+> Not sure what you mean by "pmu" directory - would you mind expanding
+> on that?  Using sysfs would be quite easy but I am reluctant to create
+> a new id/key mechanism and introduce another entry when we have the
+> component address that is unique and already available in the amba
+> directory structure.
+
+We could add another directory under :
+
+/sys/bus/event_source/devices/<PMU>/
+				\_ events/
+				\_ format/
+say :
+		\_ drv_config/
+		Or
+		\_ sinks/
+
+and list the sinks, eg:
+# cd $sysfs_pmu_dir/sinks
+# cat <name_of_the_sink>
+ID_of_the_sink
+
+Btw, I am always inclined to using some bits off one of the "config" fields
+("config1" or "config2") for the sink configuration. But I understand that
+you have explored that avenue and chose this approach as we have further
+configurations required for complex ETM settings.
+
+Cheers
+Suzuki
 
 _______________________________________________
 linux-arm-kernel mailing list
