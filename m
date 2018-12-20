@@ -1,113 +1,77 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 3/3] vfio: ap: AP Queue Interrupt Control VFIO ioctl
- calls
-Date: Mon, 3 Dec 2018 11:04:22 +0100
-Message-ID: <20181203110422.4d069a8c.cohuck@redhat.com>
-References: <1542906675-7949-1-git-send-email-pmorel@linux.ibm.com>
-        <1542906675-7949-4-git-send-email-pmorel@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v5 01/15] KVM: s390: unregister debug feature on failing
+ arch init
+Date: Thu, 20 Dec 2018 08:55:49 +0100
+Message-ID: <0a285681-19f1-6432-866a-636c6ea2e9c4@de.ibm.com>
+References: <20181219191756.57973-1-mimu@linux.ibm.com>
+ <20181219191756.57973-2-mimu@linux.ibm.com>
+ <20181219210934.2f370eb7.cohuck@redhat.com>
+ <4ce0210a-e054-16e6-3089-278ecb3ef5ea@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1542906675-7949-4-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <4ce0210a-e054-16e6-3089-278ecb3ef5ea@linux.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: mimu@linux.ibm.com, Cornelia Huck <cohuck@redhat.com>
+Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 22 Nov 2018 18:11:15 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-> This is the implementation of the VFIO ioctl calls to handle
-> the AQIC interception and use GISA to handle interrupts.
+
+On 20.12.2018 08:49, Michael Mueller wrote:
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 110 +++++++++++++++++++++++++++++++++++++-
->  1 file changed, 109 insertions(+), 1 deletion(-)
+> 
+> On 19.12.18 21:10, Cornelia Huck wrote:
+>> On Wed, 19 Dec 2018 20:17:42 +0100
+>> Michael Mueller <mimu@linux.ibm.com> wrote:
+>>
+>>> Make sure the debug feature and its allocated resources get
+>>> released upon unsuccessful architecture initialization.
+>>>
+>>> A related indication of the issue will be reported as kernel
+>>> message.
+>>>
+>>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>>> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+>>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>>> Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>> ---
+>>>   Documentation/kmsg/s390/kvm | 12 ++++++++++++
+>>>   arch/s390/kvm/kvm-s390.c    | 17 ++++++++++++++---
+>>>   2 files changed, 26 insertions(+), 3 deletions(-)
+>>>   create mode 100644 Documentation/kmsg/s390/kvm
+>>>
+>>> diff --git a/Documentation/kmsg/s390/kvm b/Documentation/kmsg/s390/kvm
+>>> new file mode 100644
+>>> index 000000000000..76ffe2012254
+>>> --- /dev/null
+>>> +++ b/Documentation/kmsg/s390/kvm
+>>> @@ -0,0 +1,12 @@
+>>> +/*?
+>>> + * Text: "Failed to register FLIC rc=%d\n"
+>>> + * Severity: Error
+>>> + * Parameter:
+>>> + *   @1: return code of the FLIC registration call
+>>> + * Description:
+>>> + * The registration of the FLIC (Floating Interrupt Controller Interface)
+>>> + * was not successful.
+>>> + * User action:
+>>> + * If this problem persists after a reload of the kvm kernel module, gather
+>>> + * Linux debug data and contact your support organization.
+>>> + */
+>>
+>> Hm, it seems that the kmsg stuff crept in there again...
+>>
+> 
+> picked from wrong branch, sorry...
 > 
 
-> +static int vfio_ap_ioctl_setirq(struct mdev_device *mdev, unsigned long arg)
-> +{
-> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> +	struct vfio_ap_aqic parm;
-> +	struct ap_qirq_ctrl aqic_gisa = {};
-> +	struct kvm *kvm = matrix_mdev->kvm;
-> +	struct kvm_s390_gisa *gisa = kvm->arch.gisa;
-> +	struct ap_queue_status ap_status;
-> +	unsigned long nib;
-> +
-> +	if (copy_from_user(&parm, (void __user *)arg, sizeof(parm)))
-> +		return -EFAULT;
-> +
-> +	if (parm.isc > MAX_ISC)
-> +		return -EINVAL;
-> +
-> +	if (kvm->vcpus[0]->arch.sie_block->gd & 0x01)
-> +		aqic_gisa.gf = 1;
-> +
-> +	nib = vfio_ap_get_nib(kvm, &parm);
-> +	if (!nib)
-> +		return -ENODEV;
-> +
-> +	aqic_gisa.gisc = parm.isc;
-> +	aqic_gisa.isc = kvm_s390_gisc_register(kvm, parm.isc);
+FWIW, this patch without kmsg one is now part of kvm/next.
 
-Oh, and as I just looked at the callers of these functions: You'll want
-to check the return code here, even though the function should not fail
-with the checking you did beforehand.
-
-[I assume you'll have similar code even when using a different
-interface.]
-
-> +	aqic_gisa.ir = 1;
-> +	aqic_gisa.gisa = gisa->next_alert >> 4;
-> +
-> +	ap_status = ap_aqic(parm.apqn, aqic_gisa, (void *)nib);
-> +	parm.status = *(uint32_t *)(&ap_status);
-> +
-> +	if (copy_to_user((void __user *)arg, &parm, sizeof(parm))) {
-> +		kvm_s390_gisc_unregister(kvm, parm.isc);
-> +		return -EFAULT;
-> +	}
-> +
-> +	if (ap_status.response_code) {
-> +		kvm_s390_gisc_unregister(kvm, parm.isc);
-> +		return -EIO;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int vfio_ap_ioctl_clrirq(struct mdev_device *mdev, unsigned long arg)
-> +{
-> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> +	struct vfio_ap_aqic parm;
-> +	struct ap_qirq_ctrl aqic_gisa = {};
-> +	struct ap_queue_status ap_status;
-> +	struct kvm *kvm = matrix_mdev->kvm;
-> +
-> +	if (copy_from_user(&parm, (void __user *)arg, sizeof(parm)))
-> +		return -EFAULT;
-> +
-> +	if (kvm->vcpus[0]->arch.sie_block->gd & 0x01)
-> +		aqic_gisa.gf = 1;
-> +	aqic_gisa.ir = 0;
-> +
-> +	ap_status = ap_aqic(parm.apqn, aqic_gisa, NULL);
-> +	parm.status = *(uint32_t *)(&ap_status);
-> +
-> +	kvm_s390_gisc_unregister(kvm, parm.isc);
-
-Here, you don't seem to verify the sanity of parm.isc beforehand...
-luckily the function can deal with that :)
-
-> +
-> +	if (copy_to_user((void __user *)arg, &parm, sizeof(parm)))
-> +		return -EFAULT;
-> +
-> +	return (ap_status.response_code) ? -EIO : 0;
-> +}
-> +
+https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?h=next&id=308c3e6673b012beecb96ef04cc65f4a0e7cdd99
