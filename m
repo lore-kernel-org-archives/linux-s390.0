@@ -1,75 +1,72 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v5 06/15] KVM: s390: remove prefix kvm_s390_gisa_ from
- static inline functions
-Date: Thu, 20 Dec 2018 15:37:01 +0100
-Message-ID: <49e2b16f-23a3-73a8-75b1-b03d5c9ad8a2@linux.ibm.com>
+From: pierre morel <pmorel@mnis.fr>
+Subject: Re: [PATCH v5 05/15] KVM: s390: unify pending_irqs() and
+ pending_irqs_no_gisa()
+Date: Thu, 20 Dec 2018 16:43:26 +0100
+Message-ID: <3944cf13-130a-d4ea-8d14-f8b055506339@mnis.fr>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
- <20181219191756.57973-7-mimu@linux.ibm.com>
- <20181220132430.7cea69d3.cohuck@redhat.com>
-Reply-To: mimu@linux.ibm.com
+ <20181219191756.57973-6-mimu@linux.ibm.com>
+ <20181220120614.65acacac.cohuck@redhat.com>
+ <62bf4bcf-585f-ddfc-e7a5-18fc946819d9@linux.ibm.com>
+ <20181220132130.33a417fa.cohuck@redhat.com>
+ <83553348-0b10-8bcc-34b0-c87a0e2f95ac@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181220132430.7cea69d3.cohuck@redhat.com>
+In-Reply-To: <83553348-0b10-8bcc-34b0-c87a0e2f95ac@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: mimu@linux.ibm.com, Cornelia Huck <cohuck@redhat.com>
 Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 20.12.18 13:24, Cornelia Huck wrote:
-> On Wed, 19 Dec 2018 20:17:47 +0100
-> Michael Mueller <mimu@linux.ibm.com> wrote:
+Le 12/20/18 à 13:33, Michael Mueller a écrit :
 > 
->> This will shorten the length of code lines.
->> All GISA related static inline functions are local to interrupt.c
->>
->> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->> ---
->>   arch/s390/kvm/interrupt.c | 26 +++++++++++++-------------
->>   1 file changed, 13 insertions(+), 13 deletions(-)
->>
->> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index 4ab20d2eb180..9b1fa39b6f90 100644
->> --- a/arch/s390/kvm/interrupt.c
->> +++ b/arch/s390/kvm/interrupt.c
->> @@ -224,22 +224,22 @@ static inline u8 int_word_to_isc(u32 int_word)
->>    */
->>   #define IPM_BIT_OFFSET (offsetof(struct kvm_s390_gisa, ipm) * BITS_PER_BYTE)
->>   
->> -static inline void kvm_s390_gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->> +static inline void set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->>   {
->>   	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->>   }
->>   
->> -static inline u8 kvm_s390_gisa_get_ipm(struct kvm_s390_gisa *gisa)
->> +static inline u8 get_ipm(struct kvm_s390_gisa *gisa)
->>   {
->>   	return READ_ONCE(gisa->ipm);
->>   }
->>   
->> -static inline void kvm_s390_gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->> +static inline void clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->>   {
->>   	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->>   }
->>   
->> -static inline int kvm_s390_gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->> +static inline int tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->>   {
->>   	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->>   }
 > 
-> I don't disagree with making them shorter, but I think the code would
-> be more readable if you only dropped the kvm_s390_ prefix and kept
-> annotating the functions as gisa_.
+> On 20.12.18 13:21, Cornelia Huck wrote:
+>> On Thu, 20 Dec 2018 12:49:56 +0100
+>> Michael Mueller <mimu@linux.ibm.com> wrote:
+>>
+>>> On 20.12.18 12:06, Cornelia Huck wrote:
+>>>> On Wed, 19 Dec 2018 20:17:46 +0100
+>>>> Michael Mueller <mimu@linux.ibm.com> wrote:
+>>>>> Use a single function with parameter irq_flags to differentiate
+>>>>> between cases.
+>>>>>
+...snip
+>>>>>    }
+>>>>> -static inline unsigned long pending_irqs_no_gisa(struct kvm_vcpu 
+>>>>> *vcpu)
+>>>>> +static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu, 
+>>>>> u16 irq_flags)
+>>>>
+>>>> Any deeper reason why this is a u16? 16 bits should be enough for
+>>>> everyone? :)
+>>>
+>>> I want to use the 8 bits for the IRQ type and the other 8 for additional
+>>> controls, see: "KVM: s390: restore IAM in get_ipm() when IPM is clean"
+>>
+>> Still need to look at that patch, but my question mainly was "why only
+>> 16 bits"? I would think making this local variable larger is cheap.
+>>
 
-applied
++1
 
+> 
+> I will enlarge the flag mask to u32 with 16 bits for the IRQ types then.
+
+AFAIK CPU generally work better with int (or long)
+Is there any hardware reason to restrict the size?
+
+> 
+>>>
+>>>>>    {
+>>>>> -    return vcpu->kvm->arch.float_int.pending_irqs |
+>>>>> -        vcpu->arch.local_int.pending_irqs;
+>>>>> -}
+>>
 > 
