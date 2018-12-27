@@ -1,28 +1,73 @@
-Return-Path: <owner-linux-mm@kvack.org>
-Date: Wed, 19 Dec 2018 18:38:52 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: remove the ptep_modify_prot_{start,commit} exports
-References: <20181219150750.4798-1-hch@lst.de>
+Return-Path: <SRS0=YyAj=PE=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Thu, 27 Dec 2018 17:52:08 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: 4.19.5 and later has tons of false messages "BUG: non-zero
+ pgtables_bytes on freeing mm: -16384"
+Message-ID: <20181227225208.GW86645@sasha-vm>
+References: <4e58571e-1991-4a70-7012-ff9dd76afee3@de.ibm.com>
+ <1d6288dd-a65b-463a-8aeb-33904dafa9cc@de.ibm.com>
+ <20181227210136.GV86645@sasha-vm>
+ <babf4052-c82c-3bca-0214-4ae3f23fee4e@de.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20181219150750.4798-1-hch@lst.de>
-Message-Id: <20181219173852.GA3789@osiris>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
 Content-Disposition: inline
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, linux-mm@kvack.org
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <babf4052-c82c-3bca-0214-4ae3f23fee4e@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, stable@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Dec 19, 2018 at 04:07:50PM +0100, Christoph Hellwig wrote:
-> These two functions are only used by core MM code, so no need to export
-> them.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/s390/mm/pgtable.c | 2 --
->  1 file changed, 2 deletions(-)
+On Thu, Dec 27, 2018 at 10:06:09PM +0100, Christian Borntraeger wrote:
+>
+>
+>On 12/27/2018 10:01 PM, Sasha Levin wrote:
+>> On Thu, Dec 27, 2018 at 10:28:56AM +0100, Christian Borntraeger wrote:
+>>>
+>>>
+>>> On 27.12.2018 10:13, Christian Borntraeger wrote:
+>>>> Martin,
+>>>>
+>>>> Right now you get a message
+>>>> "BUG: non-zero pgtables_bytes on freeing mm: -16384"
+>>>> for EVERY process that exits in 4.19.5 and later.
+>>>>
+>>>> bisect points to
+>>>> commit 4136161d676a93fc8df6bdb80d720c15522d6c24
+>>>> Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
+>>>> Date:=A0=A0 Mon Oct 15 11:09:16 2018 +0200
+>>>>
+>>>> =A0=A0=A0 s390/mm: fix mis-accounting of pgtable_bytes
+>>>>
+>>>> =A0=A0=A0 [ Upstream commit e12e4044aede97974f2222eb7f0ed726a5179a32 ]
+>>>>
+>>>> Turns out that this patch requires several dependencies so the autosel=
+ection of this
+>>>> patch was missing that.
+>>>>
+>>>> Can we either revert this patch or add the dependencies?
+>>>>
+>>>> Christian
+>>>>
+>>>
+>>> It seems that adding
+>>>
+>>> commit 6d212db11947ae5464e4717536ed9faf61c01e86 ("mm: add mm_pxd_folded=
+ checks to pgtable_bytes accounting functions")
+>>> fixes the issue.
+>>
+>> I've queued 6d212db11947 for 4.19 for now, thank you.
+>
+>Not sure, but you might need
+>1071fc5779d98 mm: introduce mm_[p4d|pud|pmd]_folded
+>a8874e7e8a889 mm: make the __PAGETABLE_PxD_FOLDED defines non-empty
+>
+>to avoid compile errors on !s390.
 
-Applied, thanks.
+Queued those for 4.19 as well, build looks clean.
+
+--
+Thanks,
+Sasha
