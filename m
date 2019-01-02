@@ -1,105 +1,76 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v7 03/15] KVM: s390: move bitmap idle_mask into arch struct top level
-Date: Thu, 31 Jan 2019 09:52:34 +0100
-Message-ID: <20190131085247.13826-4-mimu@linux.ibm.com>
-References: <20190131085247.13826-1-mimu@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v5 02/15] KVM: s390: coding style issue
+ kvm_s390_gisa_init/clear()
+Date: Wed, 2 Jan 2019 17:50:56 +0100
+Message-ID: <0c41bb2c-aa6c-ccbc-752b-c73f74fdd12b@linux.ibm.com>
+References: <20181219191756.57973-1-mimu@linux.ibm.com>
+ <20181219191756.57973-3-mimu@linux.ibm.com>
+Reply-To: pmorel@linux.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190131085247.13826-1-mimu@linux.ibm.com>
+In-Reply-To: <20181219191756.57973-3-mimu@linux.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: KVM Mailing List <kvm@vger.kernel.org>
-Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
+To: Michael Mueller <mimu@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>
+Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The vcpu idle_mask state is used by but not specific
-to the emulated floating interruptions. The state is
-relevant to gisa related interruptions as well.
+On 19/12/2018 20:17, Michael Mueller wrote:
+> The change hepls to reduce line length and
+> icreases code readability.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> ---
+>   arch/s390/kvm/interrupt.c | 20 ++++++++++----------
+>   1 file changed, 10 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index fcb55b02990e..9a3aed608914 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -2886,20 +2886,20 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+>   
+>   void kvm_s390_gisa_clear(struct kvm *kvm)
+>   {
+> -	if (kvm->arch.gisa) {
+> -		memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
+> -		kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
+> -		VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+> -	}
+> +	if (!kvm->arch.gisa)
+> +		return;
+> +	memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
+> +	kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
+> +	VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+>   }
+>   
+>   void kvm_s390_gisa_init(struct kvm *kvm)
+>   {
+> -	if (css_general_characteristics.aiv) {
+> -		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
+> -		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+> -		kvm_s390_gisa_clear(kvm);
+> -	}
+> +	if (!css_general_characteristics.aiv)
+> +		return;
+> +	kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
+> +	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- arch/s390/include/asm/kvm_host.h |  2 +-
- arch/s390/kvm/interrupt.c        | 11 +++++------
- arch/s390/kvm/kvm-s390.h         |  2 +-
- 3 files changed, 7 insertions(+), 8 deletions(-)
+to be annoying, shouldn't the trace be done after the clear?
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 3cba08f73dc6..c259a67c4298 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -591,7 +591,6 @@ struct kvm_s390_float_interrupt {
- 	struct kvm_s390_mchk_info mchk;
- 	struct kvm_s390_ext_info srv_signal;
- 	int next_rr_cpu;
--	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- 	struct mutex ais_lock;
- 	u8 simm;
- 	u8 nimm;
-@@ -838,6 +837,7 @@ struct kvm_arch{
- 	/* subset of available cpu features enabled by user space */
- 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
- 	struct kvm_s390_gisa *gisa;
-+	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- };
- 
- #define KVM_HVA_ERR_BAD		(-1UL)
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 167a3068ef84..2a3eb9f076c3 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -318,13 +318,13 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
- static void __set_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
--	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
-+	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
- }
- 
- static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
-+	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
- }
- 
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
-@@ -1726,7 +1726,6 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
-  */
- static void __floating_irq_kick(struct kvm *kvm, u64 type)
- {
--	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	struct kvm_vcpu *dst_vcpu;
- 	int sigcpu, online_vcpus, nr_tries = 0;
- 
-@@ -1735,11 +1734,11 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
- 		return;
- 
- 	/* find idle VCPUs first, then round robin */
--	sigcpu = find_first_bit(fi->idle_mask, online_vcpus);
-+	sigcpu = find_first_bit(kvm->arch.idle_mask, online_vcpus);
- 	if (sigcpu == online_vcpus) {
- 		do {
--			sigcpu = fi->next_rr_cpu;
--			fi->next_rr_cpu = (fi->next_rr_cpu + 1) % online_vcpus;
-+			sigcpu = kvm->arch.float_int.next_rr_cpu++;
-+			kvm->arch.float_int.next_rr_cpu %= online_vcpus;
- 			/* avoid endless loops if all vcpus are stopped */
- 			if (nr_tries++ >= online_vcpus)
- 				return;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 1f6e36cdce0d..72ef87799593 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -67,7 +67,7 @@ static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
- 
- static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
- {
--	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
-+	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
- }
- 
- static inline int kvm_is_ucontrol(struct kvm *kvm)
+> +	kvm_s390_gisa_clear(kvm);
+>   }
+>   
+>   void kvm_s390_gisa_destroy(struct kvm *kvm)
+> 
+
+Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
+
+
 -- 
-2.13.4
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
