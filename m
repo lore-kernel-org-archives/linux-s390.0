@@ -1,43 +1,70 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-MIME-Version: 1.0
-Reply-To: sedat.dilek@gmail.com
-From: Sedat Dilek <sedat.dilek@gmail.com>
-Date: Wed, 2 Jan 2019 13:14:18 +0100
-Message-ID: <CA+icZUU=1S0Xg3+zWNU-60eknfWyL2kjEPm2BNNTK8Eu-tkTEg@mail.gmail.com>
-Subject: Re: jump_label: move 'asm goto' support test to Kconfig
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190102121418.u-fO8LaFy3CQ4a1wZa1yZn73a789YqL4KigENrAv8j8@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: masahiroy@kernel.org
-Cc: linux-kbuild@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, linux-kernel@vger.kernel.org, Will Deacon <will.deacon@arm.com>, "David S . Miller" <davem@davemloft.net>, Max Filippov <jcmvbkbc@gmail.com>, linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Thu, 03 Jan 2019 10:07:53 +0000
+Subject: [kvm-unit-tests PATCH v4 00/13] 390x: Add cross hypervisor and disk boot
+Message-Id: <20190103100806.9039-1-frankja@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+With these patches kvm unit tests are now bootable under LPAR and
+z/VM, as well as from KVM disks.
 
-I was not aware that CONFIG_JUMP_LABEL Kconfig setting depends on the
-support of asm-goto.
+For this to work we added:
+    * Initial PSW in lowcore
+    * Switch to 64 bit and z/Arch
+    * SCLP linemode console
+    * Binary generation in Makefile
 
-Currently, I am doing experiments with clang-7 and a snapshot of
-clang-8 on Linux/x86.
-These compilers have no asm-goto support.
 
-What is your recommendation for Linux >= v4.20?
-I am asking as it is possible to set CONFIG_JUMP_LABEL=y when
-compiling with clang - which has no effect.
-This is confusing.
+v4:
+	* Added sigp header file
+	* Moved clearing to xgr instead of lm
+	* Minor renames, comment additions
 
-Thanks, this patch makes things clearer and protects users from
-setting "wrong" in the sense of non-functional settings.
+v3:
+	* Rebased on David's SCLP fixes
+	* Added binary generation make command
+	* Split up cleanup and sclp common movement
+	* Fixed whitespace problems
+	* Added more comments
+	* Added linemode buffer to get rid of line splits
 
-I have tested this against recent Linus tree where kbuild/kconfig Git
-pulls were latest commits.
+Janosch Frank (13):
+  s390x: Add Sigp header file
+  s390x: Rename and cleanup sclp-ascii.c
+  s390x: Make tests bootable from disk
+  s390x: Switch to z/Arch
+  s390x: Add BSS clearing for non ELF boot
+  s390x: Move common sclp data and functions to sclp.c
+  s390x: Use interrupts in SCLP
+  s390x: Add linemode console
+  s390x: Add binary generation to makefile
+  s390x: Add linemode buffer to fix newline on every print
+  s390x: Add sclp busy indication locking
+  s390x: Add time functions to lib
+  lib/report: Add stamps to reports
 
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com> [ x86 with LLVM/Clang
-v7 and v8 (snapshot) ]
+ lib/libcflat.h            |   1 +
+ lib/report.c              |  10 +++
+ lib/s390x/asm/arch_def.h  |   1 +
+ lib/s390x/asm/interrupt.h |   2 +
+ lib/s390x/asm/sigp.h      |  60 +++++++++++++
+ lib/s390x/interrupt.c     |  12 ++-
+ lib/s390x/io.c            |  13 +--
+ lib/s390x/sclp-ascii.c    |  68 --------------
+ lib/s390x/sclp-console.c  | 222 ++++++++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/sclp.c          |  75 +++++++++++++++-
+ lib/s390x/sclp.h          |  74 +++++++++++++++-
+ lib/s390x/time.c          |  18 ++++
+ lib/s390x/time.h          | 108 ++++++++++++++++++++++
+ s390x/Makefile            |  12 ++-
+ s390x/cstart64.S          |  41 ++++++++-
+ s390x/flat.lds            |  15 +++-
+ 16 files changed, 640 insertions(+), 92 deletions(-)
+ create mode 100644 lib/s390x/asm/sigp.h
+ delete mode 100644 lib/s390x/sclp-ascii.c
+ create mode 100644 lib/s390x/sclp-console.c
+ create mode 100644 lib/s390x/time.c
+ create mode 100644 lib/s390x/time.h
 
-Thanks.
-
-Regards,
-- Sedat -
+-- 
+2.14.3
