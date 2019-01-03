@@ -1,16 +1,16 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v5 11/15] KVM: s390: restore IAM in get_ipm() when IPM is
- clean
-Date: Thu, 3 Jan 2019 16:06:37 +0100
-Message-ID: <08327d88-388e-2ffe-9bd0-b0de2e0a0ff3@linux.ibm.com>
+Subject: Re: [PATCH v5 14/15] KVM: s390: add and wire function
+ gib_alert_irq_handler()
+Date: Thu, 3 Jan 2019 16:16:19 +0100
+Message-ID: <7dfe72db-97d2-9f33-68f7-acf8ec5ddc5e@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
- <20181219191756.57973-12-mimu@linux.ibm.com>
+ <20181219191756.57973-15-mimu@linux.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181219191756.57973-12-mimu@linux.ibm.com>
+In-Reply-To: <20181219191756.57973-15-mimu@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,109 +20,170 @@ Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kern
 List-ID: <linux-s390.vger.kernel.org>
 
 On 19/12/2018 20:17, Michael Mueller wrote:
-> The patch adds the parameter irq_flags and allows to
-> restore the Interruption Alert Mask (IAM) in the GISA
-> atomically while guaranteeing the IPM is clean.
+> The patch implements a handler for GIB alert interruptions
+> on the host. Its task is to alert guests that interrupts are
+> pending for them.
 > 
-> The function returns the IPM of the GISA. If the returned
-> value is 0x00 and the IRQ_FLAG_IAM was set, the IAM has
-> been restored.
+> A GIB alert interrupt statistic counter is added as well:
 > 
-> New irq flag:
->    IRQ_FLAG_IAM: When set, the IAM is restored if no ISC bit
->    		is set in the IPM, i.e. no new airqs are
-> 		pending. The test and restore operations
-> 		are done atomically.
+> $ cat /proc/interrupts
+>            CPU0       CPU1
+>    ...
+>    GAL:      23         37   [I/O] GIB Alert
+>    ...
 > 
 > Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 > ---
->   arch/s390/kvm/interrupt.c | 34 +++++++++++++++++++++++++++++-----
->   1 file changed, 29 insertions(+), 5 deletions(-)
+>   arch/s390/include/asm/irq.h |  1 +
+>   arch/s390/include/asm/isc.h |  1 +
+>   arch/s390/kernel/irq.c      |  1 +
+>   arch/s390/kvm/interrupt.c   | 36 ++++++++++++++++++++++++++++++++++--
+>   4 files changed, 37 insertions(+), 2 deletions(-)
 > 
+> diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
+> index 2f7f27e5493f..afaf5e3c57fd 100644
+> --- a/arch/s390/include/asm/irq.h
+> +++ b/arch/s390/include/asm/irq.h
+> @@ -62,6 +62,7 @@ enum interruption_class {
+>   	IRQIO_MSI,
+>   	IRQIO_VIR,
+>   	IRQIO_VAI,
+> +	IRQIO_GAL,
+>   	NMI_NMI,
+>   	CPU_RST,
+>   	NR_ARCH_IRQS
+> diff --git a/arch/s390/include/asm/isc.h b/arch/s390/include/asm/isc.h
+> index 6cb9e2ed05b6..b2cc1ec78d06 100644
+> --- a/arch/s390/include/asm/isc.h
+> +++ b/arch/s390/include/asm/isc.h
+> @@ -21,6 +21,7 @@
+>   /* Adapter interrupts. */
+>   #define QDIO_AIRQ_ISC IO_SCH_ISC	/* I/O subchannel in qdio mode */
+>   #define PCI_ISC 2			/* PCI I/O subchannels */
+> +#define GAL_ISC 5			/* GIB alert */
+>   #define AP_ISC 6			/* adjunct processor (crypto) devices */
+>   
+>   /* Functions for registration of I/O interruption subclasses */
+> diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+> index 0e8d68bac82c..0cd5a5f96729 100644
+> --- a/arch/s390/kernel/irq.c
+> +++ b/arch/s390/kernel/irq.c
+> @@ -88,6 +88,7 @@ static const struct irq_class irqclass_sub_desc[] = {
+>   	{.irq = IRQIO_MSI,  .name = "MSI", .desc = "[I/O] MSI Interrupt" },
+>   	{.irq = IRQIO_VIR,  .name = "VIR", .desc = "[I/O] Virtual I/O Devices"},
+>   	{.irq = IRQIO_VAI,  .name = "VAI", .desc = "[I/O] Virtual I/O Devices AI"},
+> +	{.irq = IRQIO_GAL,  .name = "GAL", .desc = "[I/O] GIB Alert"},
+>   	{.irq = NMI_NMI,    .name = "NMI", .desc = "[NMI] Machine Check"},
+>   	{.irq = CPU_RST,    .name = "RST", .desc = "[CPU] CPU Restart"},
+>   };
 > diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 1cc3ad2e6c7e..8307717e3caf 100644
+> index 03e7ba4f215a..79b9c262479b 100644
 > --- a/arch/s390/kvm/interrupt.c
 > +++ b/arch/s390/kvm/interrupt.c
-> @@ -37,6 +37,7 @@
->   #define IRQ_FLAG_LOCAL    0x8000 /* include local interruption pending mask */
->   #define IRQ_FLAG_FLOATING 0x4000 /* include float interruption pending mask */
->   #define IRQ_FLAG_GISA     0x2000 /* include GISA interruption pending mask */
-> +#define IRQ_FLAG_IAM      0x0080 /* when set try to restore IAM */
+> @@ -26,6 +26,7 @@
+>   #include <asm/gmap.h>
+>   #include <asm/switch_to.h>
+>   #include <asm/nmi.h>
+> +#include <asm/airq.h>
+>   #include "kvm-s390.h"
+>   #include "gaccess.h"
+>   #include "trace-s390.h"
+> @@ -3043,7 +3044,7 @@ static void __floating_airqs_kick(struct kvm *kvm)
+>   #define NONE_GISA_ADDR 0x00000001UL
+>   #define GISA_ADDR_MASK 0xfffff000UL
 >   
->   #define IRQ_MASK_ALL      (IRQ_FLAG_LOCAL | IRQ_FLAG_FLOATING | IRQ_FLAG_GISA)
->   #define IRQ_MASK_NO_GISA  (IRQ_MASK_ALL & ~IRQ_FLAG_GISA)
-> @@ -253,9 +254,32 @@ static inline void set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->   	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->   }
->   
-> -static inline u8 get_ipm(struct kvm_s390_gisa *gisa)
-> +static inline u8 get_ipm(struct kvm_s390_gisa *gisa, u16 irq_flags)
+> -static void __maybe_unused process_gib_alert_list(void)
+> +static void process_gib_alert_list(void)
 >   {
-> -	return READ_ONCE(gisa->ipm);
-> +	u64 word, _word;
-> +	u8 ipm;
-> +
-> +	if (!(irq_flags & IRQ_FLAG_IAM))
-> +		return READ_ONCE(gisa->ipm);
-> +
-> +	do {
-> +		word = READ_ONCE(gisa->u64.word[0]);
-> +		ipm = word >> 24;
-> +		/* If the GISA is in the alert list, return the IPM. */
-> +		if ((u64)gisa != word >> 32)
-> +			return ipm;
-> +		/* If the IPM is dirty, return the IPM. */
-> +		if (ipm)
-> +			return ipm;
-> +		/*
-> +		 * Try to restore the IAM or loop, if the IPM is dirty
-> +		 * again or the GISA has been inserted into the alert list.
-> +		 */
-> +		_word = (word & ~0xffUL) |
-> +			container_of(gisa, struct sie_page2, gisa)->kvm->arch.iam;
-> +	} while (cmpxchg(&gisa->u64.word[0], word, _word) != _word);
-> +
-> +	return 0;
->   }
-
-Personal opinion, but this function do more than just getting the IPM, 
-shouldn't it be reflected in the function name?
-
->   
->   static inline void clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
-> @@ -277,7 +301,7 @@ static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu, u16 irq_flags)
->   	if (irq_flags & IRQ_FLAG_FLOATING)
->   		pending_irqs |= vcpu->kvm->arch.float_int.pending_irqs;
->   	if (irq_flags & IRQ_FLAG_GISA)
-> -		pending_irqs |= get_ipm(vcpu->kvm->arch.gisa) <<
-> +		pending_irqs |= get_ipm(vcpu->kvm->arch.gisa, irq_flags) <<
->   			IRQ_PEND_IO_ISC_7;
->   	return pending_irqs;
->   }
-> @@ -1574,7 +1598,7 @@ static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
+>   	u32 final, next_alert, origin = 0UL;
+>   	struct kvm_s390_gisa *gisa;
+> @@ -3091,7 +3092,10 @@ void kvm_s390_gisa_clear(struct kvm *kvm)
+>   {
 >   	if (!kvm->arch.gisa)
+>   		return;
+> +	if (set_iam(kvm->arch.gisa, 0) == -EBUSY)
+> +		process_gib_alert_list();
+
+We call process_gib_alert_list() from different contexts shouldn't we 
+protect the calls?
+
+
+>   	nullify_gisa(kvm->arch.gisa);
+> +	set_iam(kvm->arch.gisa, kvm->arch.iam);
+>   	VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+>   }
+>   
+> @@ -3111,6 +3115,8 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+>   {
+>   	if (!kvm->arch.gisa)
+>   		return;
+> +	if (set_iam(kvm->arch.gisa, 0) == -EBUSY)
+> +		process_gib_alert_list();
+
+idem.
+
+>   	kvm->arch.gisa = NULL;
+>   }
+>   
+> @@ -3159,11 +3165,23 @@ int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
+>   }
+>   EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
+>   
+> +static void gib_alert_irq_handler(struct airq_struct *airq)
+> +{
+> +	inc_irq_stat(IRQIO_GAL);
+> +	process_gib_alert_list();
+
+idem.
+
+> +}
+> +
+> +static struct airq_struct gib_alert_irq = {
+> +	.handler = gib_alert_irq_handler,
+> +	.lsi_ptr = &gib_alert_irq.lsi_mask,
+> +};
+> +
+>   void kvm_s390_gib_destroy(void)
+>   {
+>   	if (!gib)
+>   		return;
+>   	chsc_sgib(0);
+> +	unregister_adapter_interrupt(&gib_alert_irq);
+>   	free_page((unsigned long)gib);
+>   	gib = NULL;
+>   }
+> @@ -3183,16 +3201,30 @@ int kvm_s390_gib_init(u8 nisc)
 >   		goto out;
+>   	}
 >   
-> -	active_mask = (isc_mask & get_ipm(kvm->arch.gisa) << 24) << 32;
-> +	active_mask = (isc_mask & get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM) << 24) << 32;
-
-why do we need to set the IAM here?
-
->   	while (active_mask) {
->   		isc = __fls(active_mask) ^ (BITS_PER_LONG - 1);
->   		if (tac_ipm_gisc(kvm->arch.gisa, isc))
-> @@ -2060,7 +2084,7 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
->   	max_irqs = len / sizeof(struct kvm_s390_irq);
+> +	gib_alert_irq.isc = nisc;
+> +	if (register_adapter_interrupt(&gib_alert_irq)) {
+> +		pr_err("Registering the GIB alert interruption handler failed\n");
+> +		rc = -EIO;
+> +		goto out_free;
+> +	}
+> +
+>   	gib->nisc = nisc;
+>   	if (chsc_sgib((u32)(u64)gib)) {
+>   		pr_err("Associating the GIB with the AIV facility failed\n");
+>   		free_page((unsigned long)gib);
+>   		gib = NULL;
+>   		rc = -EIO;
+> -		goto out;
+> +		goto out_unreg;
+>   	}
 >   
->   	if (kvm->arch.gisa &&
-> -	    get_ipm(kvm->arch.gisa)) {
-> +	    get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM)) {
-
-and here?
-
->   		for (i = 0; i <= MAX_ISC; i++) {
->   			if (n == max_irqs) {
->   				/* signal userspace to try again */
+>   	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
+> +	goto out;
+> +
+> +out_unreg:
+> +	unregister_adapter_interrupt(&gib_alert_irq);
+> +out_free:
+> +	free_page((unsigned long)gib);
+> +	gib = NULL;
+>   out:
+>   	return rc;
+>   }
 > 
 
 
