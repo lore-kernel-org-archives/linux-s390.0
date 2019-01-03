@@ -1,73 +1,61 @@
-Return-Path: <SRS0=A5md=P6=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH] s390: pci: no need to check return value of debugfs_create functions
-Date: Tue, 22 Jan 2019 16:21:01 +0100
-Message-Id: <20190122152151.16139-2-gregkh@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: Re: jump_label: move 'asm goto' support test to Kconfig
+Date: Thu, 3 Jan 2019 09:35:49 +0900
+Message-ID: <CAK7LNASWScb7Qt0kmV8RyBdix2GPA24gv=eRNYVWu5dGGePbfQ@mail.gmail.com>
+References: <CA+icZUU=1S0Xg3+zWNU-60eknfWyL2kjEPm2BNNTK8Eu-tkTEg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CA+icZUU=1S0Xg3+zWNU-60eknfWyL2kjEPm2BNNTK8Eu-tkTEg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Sedat Dilek <sedat.dilek@gmail.com>
+Cc: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Will Deacon <will.deacon@arm.com>, "David S . Miller" <davem@davemloft.net>, Max Filippov <jcmvbkbc@gmail.com>, linux-arch <linux-arch@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, X86 ML <x86@kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-When calling debugfs functions, there is no need to ever check the
-return value.  The function can work or not, but the code logic should
-never do something different based on this.
+On Wed, Jan 2, 2019 at 9:14 PM Sedat Dilek <sedat.dilek@gmail.com> wrote:
+>
+> Hi,
+>
+> I was not aware that CONFIG_JUMP_LABEL Kconfig setting depends on the
+> support of asm-goto.
+>
+> Currently, I am doing experiments with clang-7 and a snapshot of
+> clang-8 on Linux/x86.
+> These compilers have no asm-goto support.
+>
+> What is your recommendation for Linux >= v4.20?
+> I am asking as it is possible to set CONFIG_JUMP_LABEL=y when
+> compiling with clang - which has no effect.
+> This is confusing.
+>
+> Thanks, this patch makes things clearer and protects users from
+> setting "wrong" in the sense of non-functional settings.
+>
+> I have tested this against recent Linus tree where kbuild/kconfig Git
+> pulls were latest commits.
+>
+> Tested-by: Sedat Dilek <sedat.dilek@gmail.com> [ x86 with LLVM/Clang
+> v7 and v8 (snapshot) ]
 
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Sebastian Ott <sebott@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/s390/include/asm/pci.h |  1 -
- arch/s390/pci/pci_debug.c   | 15 ++++-----------
- 2 files changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 10fe982f2b4b..4e0efebc56a9 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -148,7 +148,6 @@ struct zpci_dev {
- 	enum pci_bus_speed max_bus_speed;
- 
- 	struct dentry	*debugfs_dev;
--	struct dentry	*debugfs_perf;
- 
- 	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
- };
-diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-index 04388a254ffb..6b48ca7760a7 100644
---- a/arch/s390/pci/pci_debug.c
-+++ b/arch/s390/pci/pci_debug.c
-@@ -172,21 +172,14 @@ static const struct file_operations debugfs_pci_perf_fops = {
- void zpci_debug_init_device(struct zpci_dev *zdev, const char *name)
- {
- 	zdev->debugfs_dev = debugfs_create_dir(name, debugfs_root);
--	if (IS_ERR(zdev->debugfs_dev))
--		zdev->debugfs_dev = NULL;
--
--	zdev->debugfs_perf = debugfs_create_file("statistics",
--				S_IFREG | S_IRUGO | S_IWUSR,
--				zdev->debugfs_dev, zdev,
--				&debugfs_pci_perf_fops);
--	if (IS_ERR(zdev->debugfs_perf))
--		zdev->debugfs_perf = NULL;
-+
-+	debugfs_create_file("statistics", S_IFREG | S_IRUGO | S_IWUSR,
-+			    zdev->debugfs_dev, zdev, &debugfs_pci_perf_fops);
- }
- 
- void zpci_debug_exit_device(struct zpci_dev *zdev)
- {
--	debugfs_remove(zdev->debugfs_perf);
--	debugfs_remove(zdev->debugfs_dev);
-+	debugfs_remove_recursive(zdev->debugfs_dev);
- }
- 
- int __init zpci_debug_init(void)
+Which part was tested?
+
+x86 kernel cannot be compiled with Clang
+since it lacks the asm-goto support.
+
+
+$ make CC=clang
+Compiler lacks asm-goto support.
+arch/x86/Makefile:293: recipe for target 'checkbin' failed
+make: *** [checkbin] Error 1
+
+
+
+
+
+
 -- 
-2.20.1
+Best Regards
+Masahiro Yamada
