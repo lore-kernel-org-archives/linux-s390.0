@@ -1,71 +1,26 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PULL 0/1] virtio-ccw: one more patch for 4.21
-Date: Fri, 4 Jan 2019 10:56:15 +0100
-Message-ID: <20190104105615.53a22d10.cohuck@redhat.com>
-References: <20181219101414.13901-1-cohuck@redhat.com>
-	<20190103095507.7ef65472.cohuck@redhat.com>
-	<20190103114955-mutt-send-email-mst@kernel.org>
-	<20190103115056-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190103115056-mutt-send-email-mst@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-Path: <SRS0=wzyR=PL=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: [GIT PULL] s390 patches for the 4.21 merge window
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20190102084354.335d2272@mschwideX1>
+References: <20190102084354.335d2272@mschwideX1>
+Message-Id: <20190103030503.10885.59291.pr-tracker-bot@pdx-korg-gitolite-1.ci.codeaurora.org>
+Date: Thu, 03 Jan 2019 03:05:03 +0000
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 3 Jan 2019 11:51:45 -0500
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+The pull request you sent on Wed, 2 Jan 2019 08:43:54 +0100:
 
-> On Thu, Jan 03, 2019 at 11:50:22AM -0500, Michael S. Tsirkin wrote:
-> > On Thu, Jan 03, 2019 at 09:55:07AM +0100, Cornelia Huck wrote:  
-> > > On Wed, 19 Dec 2018 11:14:13 +0100
-> > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > >   
-> > > > The following changes since commit 37d1246af2d530710cf5822d2845774f01c03b22:
-> > > > 
-> > > >   virtio_net: bulk free tx skbs (2018-12-06 14:28:39 -0500)
-> > > > 
-> > > > are available in the Git repository at:
-> > > > 
-> > > >   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-ccw-20181219
-> > > > 
-> > > > for you to fetch changes up to 6fb95ef30707f1b2fcaea8d6dc873055e0460b1a:
-> > > > 
-> > > >   virtio-ccw: diag 500 may return a negative cookie (2018-12-19 11:01:57 +0100)
-> > > > 
-> > > > ----------------------------------------------------------------
-> > > > One small documentation fix for 4.21.
-> > > > 
-> > > > ----------------------------------------------------------------
-> > > > 
-> > > > Cornelia Huck (1):
-> > > >   virtio-ccw: diag 500 may return a negative cookie
-> > > > 
-> > > >  Documentation/virtual/kvm/s390-diag.txt | 3 ++-
-> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > >   
-> > > 
-> > > ping?  
-> > 
-> > Sorry holidays :)
-> > 
-> > I'll pick this up for the next pull.  
-> 
-> On a related note I'm not yet set up to handle pull requests,
-> I'd prefer just patches for now.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-4.21-1
 
-Thanks for letting me know; I presume you can simply pick up the patch
-as I sent it along in the pull request as well.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/04a17edeca524b71dbb5be41a7002d247fbf34c0
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
