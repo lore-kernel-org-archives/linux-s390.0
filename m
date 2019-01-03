@@ -1,79 +1,85 @@
-Return-Path: <SRS0=kQMq=PK=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Wed, 2 Jan 2019 21:20:32 +0100
-From: Salvatore Bonaccorso <carnil@debian.org>
-Subject: Re: [PATCH v15 23/26] sched: early boot clock
-Message-ID: <20190102202032.GA1034@eldamar.local>
-References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
- <20180719205545.16512-24-pasha.tatashin@oracle.com>
- <20181106054212.GA31768@nautica>
- <95c3920e-bf80-0c7e-7854-01a1c3189c23@oracle.com>
+Return-Path: <SRS0=wzyR=PL=vger.kernel.org=linux-kernel-owner@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <95c3920e-bf80-0c7e-7854-01a1c3189c23@oracle.com>
+References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
+ <20180719205545.16512-24-pasha.tatashin@oracle.com> <20181106054212.GA31768@nautica>
+ <95c3920e-bf80-0c7e-7854-01a1c3189c23@oracle.com> <20190102202032.GA1034@eldamar.local>
+In-Reply-To: <20190102202032.GA1034@eldamar.local>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
+Date: Thu, 3 Jan 2019 16:28:56 -0500
+Message-ID: <CA+CK2bC70pnL0Wimb0xt99J4nNfi8W3zuUHgAk-jsPuOP9jpHA@mail.gmail.com>
+Subject: Re: [PATCH v15 23/26] sched: early boot clock
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Steven Sistare <steven.sistare@oracle.com>
-Cc: Dominique Martinet <asmadeus@codewreck.org>, Pavel Tatashin <pavel.tatashin@microsoft.com>, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
+To: Salvatore Bonaccorso <carnil@debian.org>
+Cc: Steven Sistare <steven.sistare@oracle.com>, Dominique Martinet <asmadeus@codewreck.org>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, Thomas Gleixner <tglx@linutronix.de>, hpa@zytor.com, douly.fnst@cn.fujitsu.com, Peter Zijlstra <peterz@infradead.org>, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Could you please send the config file and qemu arguments that were
+used to reproduce this problem.
 
-On Tue, Nov 06, 2018 at 06:35:36AM -0500, Steven Sistare wrote:
-> Pavel has a new email address, cc'd - steve
-> 
-> On 11/6/2018 12:42 AM, Dominique Martinet wrote:
-> > (added various kvm/virtualization lists in Cc as well as qemu as I don't
-> > know who's "wrong" here)
-> > 
-> > Pavel Tatashin wrote on Thu, Jul 19, 2018:
-> >> Allow sched_clock() to be used before schec_clock_init() is called.
-> >> This provides with a way to get early boot timestamps on machines with
-> >> unstable clocks.
-> > 
-> > This isn't something I understand, but bisect tells me this patch
-> > (landed as 857baa87b64 ("sched/clock: Enable sched clock early")) makes
-> > a VM running with kvmclock take a step in uptime/printk timer early in
-> > boot sequence as illustrated below. The step seems to be related to the
-> > amount of time the host was suspended while qemu was running before the
-> > reboot.
-> > 
-> > $ dmesg
-> > ...
-> > [    0.000000] SMBIOS 2.8 present.
-> > [    0.000000] DMI: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20180724_192412-buildhw-07.phx2.fedoraproject.org-1.fc29 04/01/2014
-> > [    0.000000] Hypervisor detected: KVM
-> > [    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
-> > [283120.529821] kvm-clock: cpu 0, msr 321a8001, primary cpu clock
-> > [283120.529822] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
-> > [283120.529824] tsc: Detected 2592.000 MHz processor
-> > ...
-> > 
-> > (The VM is x86_64 on x86_64, I can provide my .config on request but
-> > don't think it's related)
-> > 
-> > 
-> > It's rather annoying for me as I often reboot VMs and rely on the
-> > 'uptime' command to check if I did just reboot or not as I have the
-> > attention span of a goldfish; I'd rather not have to find something else
-> > to check if I did just reboot or not.
-> > 
-> > Note that if the qemu process is restarted, there is no offset anymore.
-> > 
-> > I unfortunately just did that so cannot say with confidence (putting my
-> > laptop to sleep for 30s only led to a 2s offset and I do not want to
-> > wait longer right now), but it looks like the clock is still mostly
-> > correct after reboot after disabling my VM's ntp client. Will infirm
-> > that tomorrow if I was wrong.
-> > 
-> > 
-> > Happy to try to help fixing this in any way, as written above the quote
-> > I'm not even actually sure who is wrong here.
+Thank you,
+Pasha
 
-A user in Debian reported the same/similar issue (with 4.19.13):
-
-https://bugs.debian.org/918036
-
-Regards,
-Salvatore
+On Wed, Jan 2, 2019 at 3:20 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
+>
+> Hi,
+>
+> On Tue, Nov 06, 2018 at 06:35:36AM -0500, Steven Sistare wrote:
+> > Pavel has a new email address, cc'd - steve
+> >
+> > On 11/6/2018 12:42 AM, Dominique Martinet wrote:
+> > > (added various kvm/virtualization lists in Cc as well as qemu as I don't
+> > > know who's "wrong" here)
+> > >
+> > > Pavel Tatashin wrote on Thu, Jul 19, 2018:
+> > >> Allow sched_clock() to be used before schec_clock_init() is called.
+> > >> This provides with a way to get early boot timestamps on machines with
+> > >> unstable clocks.
+> > >
+> > > This isn't something I understand, but bisect tells me this patch
+> > > (landed as 857baa87b64 ("sched/clock: Enable sched clock early")) makes
+> > > a VM running with kvmclock take a step in uptime/printk timer early in
+> > > boot sequence as illustrated below. The step seems to be related to the
+> > > amount of time the host was suspended while qemu was running before the
+> > > reboot.
+> > >
+> > > $ dmesg
+> > > ...
+> > > [    0.000000] SMBIOS 2.8 present.
+> > > [    0.000000] DMI: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20180724_192412-buildhw-07.phx2.fedoraproject.org-1.fc29 04/01/2014
+> > > [    0.000000] Hypervisor detected: KVM
+> > > [    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
+> > > [283120.529821] kvm-clock: cpu 0, msr 321a8001, primary cpu clock
+> > > [283120.529822] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+> > > [283120.529824] tsc: Detected 2592.000 MHz processor
+> > > ...
+> > >
+> > > (The VM is x86_64 on x86_64, I can provide my .config on request but
+> > > don't think it's related)
+> > >
+> > >
+> > > It's rather annoying for me as I often reboot VMs and rely on the
+> > > 'uptime' command to check if I did just reboot or not as I have the
+> > > attention span of a goldfish; I'd rather not have to find something else
+> > > to check if I did just reboot or not.
+> > >
+> > > Note that if the qemu process is restarted, there is no offset anymore.
+> > >
+> > > I unfortunately just did that so cannot say with confidence (putting my
+> > > laptop to sleep for 30s only led to a 2s offset and I do not want to
+> > > wait longer right now), but it looks like the clock is still mostly
+> > > correct after reboot after disabling my VM's ntp client. Will infirm
+> > > that tomorrow if I was wrong.
+> > >
+> > >
+> > > Happy to try to help fixing this in any way, as written above the quote
+> > > I'm not even actually sure who is wrong here.
+>
+> A user in Debian reported the same/similar issue (with 4.19.13):
+>
+> https://bugs.debian.org/918036
+>
+> Regards,
+> Salvatore
