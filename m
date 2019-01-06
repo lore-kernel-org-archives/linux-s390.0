@@ -1,110 +1,93 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v5 10/15] KVM: s390: add functions to (un)register GISC
- with GISA
-Date: Fri, 4 Jan 2019 14:19:06 +0100
-Message-ID: <20190104141836.0ca98a77.cohuck@redhat.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v5 11/15] KVM: s390: restore IAM in get_ipm() when IPM
+ is clean
+Date: Mon, 7 Jan 2019 00:32:44 +0100
+Message-ID: <20190107003244.219e873e@oc2783563651>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
-        <20181219191756.57973-11-mimu@linux.ibm.com>
-        <bd1a6082-cb73-5ef7-f2b6-8cbd7d8c7136@linux.ibm.com>
+        <20181219191756.57973-12-mimu@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <bd1a6082-cb73-5ef7-f2b6-8cbd7d8c7136@linux.ibm.com>
+In-Reply-To: <20181219191756.57973-12-mimu@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Michael Mueller <mimu@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+To: Michael Mueller <mimu@linux.ibm.com>
+Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2 Jan 2019 18:29:00 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Wed, 19 Dec 2018 20:17:52 +0100
+Michael Mueller <mimu@linux.ibm.com> wrote:
 
-> On 19/12/2018 20:17, Michael Mueller wrote:
-> > Add the IAM (Interruption Alert Mask) to the architecture specific
-> > kvm struct. This mask in the GISA is used to define for which ISC
-> > a GIB alert can be issued.
-> > 
-> > The functions kvm_s390_gisc_register() and kvm_s390_gisc_unregister()
-> > are used to (un)register a GISC (guest ISC) with a virtual machine and
-> > its GISA.
-> > 
-> > Upon successful completion, kvm_s390_gisc_register() returns the
-> > ISC to be used for GIB alert interruptions. A negative return code
-> > indicates an error during registration.
-> > 
-> > Theses functions will be used by other adapter types like AP and PCI to
-> > request pass-through interruption support.
-> > 
-> > Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-> > ---
-> >   arch/s390/include/asm/kvm_host.h |  9 ++++++
-> >   arch/s390/kvm/interrupt.c        | 66 ++++++++++++++++++++++++++++++++++++++++
-> >   2 files changed, 75 insertions(+)
-> > 
-
-> > +int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc)
-> > +{
-> > +	if (!kvm->arch.gib_in_use)
-> > +		return -ENODEV;
-> > +	if (gisc > MAX_ISC)
-> > +		return -ERANGE;
-> > +
-> > +	spin_lock(&kvm->arch.iam_ref_lock);
-> > +	if (kvm->arch.iam_ref_count[gisc] == 0)
-> > +		kvm->arch.iam |= 0x80 >> gisc;
-> > +	kvm->arch.iam_ref_count[gisc]++;
-> > +	if (kvm->arch.iam_ref_count[gisc] == 1)
-> > +		set_iam(kvm->arch.gisa, kvm->arch.iam);  
+> The patch adds the parameter irq_flags and allows to
+> restore the Interruption Alert Mask (IAM) in the GISA
+> atomically while guaranteeing the IPM is clean.
 > 
-> testing the set_iam return value?
-> Even it should be fine if the caller works correctly, this is done 
-> before GISA is ever used.
-
-My feeling is that checking the return code is a good idea, even if it
-Should Never Fail(tm).
-
+> The function returns the IPM of the GISA. If the returned
+> value is 0x00 and the IRQ_FLAG_IAM was set, the IAM has
+> been restored.
 > 
-> > +	spin_unlock(&kvm->arch.iam_ref_lock);
-> > +
-> > +	return gib->nisc;
-> > +}
-> > +EXPORT_SYMBOL_GPL(kvm_s390_gisc_register);
-> > +
-> > +int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
-> > +{
-> > +	int rc = 0;
-> > +
-> > +	if (!kvm->arch.gib_in_use)
-> > +		return -ENODEV;
-> > +	if (gisc > MAX_ISC)
-> > +		return -ERANGE;
-> > +
-> > +	spin_lock(&kvm->arch.iam_ref_lock);
-> > +	if (kvm->arch.iam_ref_count[gisc] == 0) {
-> > +		rc = -EINVAL;
-> > +		goto out;
-> > +	}
-> > +	kvm->arch.iam_ref_count[gisc]--;
-> > +	if (kvm->arch.iam_ref_count[gisc] == 0) {
-> > +		kvm->arch.iam &= ~(0x80 >> gisc);
-> > +		set_iam(kvm->arch.gisa, kvm->arch.iam);
-
-Any chance of this function failing here? If yes, would there be any
-implications?
-
-> > +	}
-> > +out:
-> > +	spin_unlock(&kvm->arch.iam_ref_lock);
-> > +
-> > +	return rc;
-> > +}
-> > +EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
-> > +
-> >   void kvm_s390_gib_destroy(void)
-> >   {
-> >   	if (!gib)
-> >   
+> New irq flag:
+>   IRQ_FLAG_IAM: When set, the IAM is restored if no ISC bit
+>   		is set in the IPM, i.e. no new airqs are
+> 		pending. The test and restore operations
+> 		are done atomically.
 > 
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> ---
+>  arch/s390/kvm/interrupt.c | 34 +++++++++++++++++++++++++++++-----
+>  1 file changed, 29 insertions(+), 5 deletions(-)
 > 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 1cc3ad2e6c7e..8307717e3caf 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -37,6 +37,7 @@
+>  #define IRQ_FLAG_LOCAL    0x8000 /* include local interruption pending mask */
+>  #define IRQ_FLAG_FLOATING 0x4000 /* include float interruption pending mask */
+>  #define IRQ_FLAG_GISA     0x2000 /* include GISA interruption pending mask */
+> +#define IRQ_FLAG_IAM      0x0080 /* when set try to restore IAM */
+>  
+>  #define IRQ_MASK_ALL      (IRQ_FLAG_LOCAL | IRQ_FLAG_FLOATING | IRQ_FLAG_GISA)
+>  #define IRQ_MASK_NO_GISA  (IRQ_MASK_ALL & ~IRQ_FLAG_GISA)
+> @@ -253,9 +254,32 @@ static inline void set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+>  	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+>  }
+>  
+> -static inline u8 get_ipm(struct kvm_s390_gisa *gisa)
+> +static inline u8 get_ipm(struct kvm_s390_gisa *gisa, u16 irq_flags)
+>  {
+> -	return READ_ONCE(gisa->ipm);
+> +	u64 word, _word;
+> +	u8 ipm;
+> +
+> +	if (!(irq_flags & IRQ_FLAG_IAM))
+> +		return READ_ONCE(gisa->ipm);
+> +
+> +	do {
+> +		word = READ_ONCE(gisa->u64.word[0]);
+> +		ipm = word >> 24;
+> +		/* If the GISA is in the alert list, return the IPM. */
+> +		if ((u64)gisa != word >> 32)
+> +			return ipm;
+> +		/* If the IPM is dirty, return the IPM. */
+> +		if (ipm)
+> +			return ipm;
+> +		/*
+> +		 * Try to restore the IAM or loop, if the IPM is dirty
+> +		 * again or the GISA has been inserted into the alert list.
+> +		 */
+> +		_word = (word & ~0xffUL) |
+> +			container_of(gisa, struct sie_page2, gisa)->kvm->arch.iam;
+> +	} while (cmpxchg(&gisa->u64.word[0], word, _word) != _word);
+                                                             ^^
+
+Shouldn't this rather be:
+	} while (cmpxchg(&gisa->u64.word[0], word, _word) != word);
+
+Regards,
+Halil
+> +
+> +	return 0;
+>  }
