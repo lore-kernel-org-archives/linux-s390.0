@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
 Subject: Re: [PATCH v5 13/15] KVM: s390: add function process_gib_alert_list()
-Date: Mon, 7 Jan 2019 20:18:03 +0100
-Message-ID: <1889d0a2-d22a-1170-10bd-0bfc91549388@linux.ibm.com>
+Date: Mon, 7 Jan 2019 20:19:26 +0100
+Message-ID: <ae479e60-d235-acf3-55cc-afd875644a19@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
  <20181219191756.57973-14-mimu@linux.ibm.com>
  <645d74cf-7448-f143-c899-bdcf290dac59@linux.ibm.com>
@@ -18,7 +18,6 @@ List-Post: <mailto:kvm@vger.kernel.org>
 To: pmorel@linux.ibm.com, KVM Mailing List <kvm@vger.kernel.org>
 Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-
 
 
 On 03.01.19 15:43, Pierre Morel wrote:
@@ -45,10 +44,15 @@ On 03.01.19 15:43, Pierre Morel wrote:
 >> *vcpu, __u8 __user *buf, int len)
 >>       return n;
 >>   }
->> +static int __try_airqs_kick(struct kvm *kvm, u8 ipm)
-> 
+>>   +static int __try_airqs_kick(struct kvm *kvm, u8 ipm)
+>
 > static inline ?
-> 
+
+
+will add
+
+
+>
 >> +{
 >> +    struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
 >> +    struct kvm_vcpu *vcpu = NULL, *kick_vcpu[MAX_ISC + 1];
@@ -77,8 +81,7 @@ On 03.01.19 15:43, Pierre Morel wrote:
 >> +            if (!(ioint_mask & isc_mask))
 >> +                continue;
 >> +            /* use this vcpu (for all ISCs in ioint_mask) */
->> +            kick_mask |= ioint_mask; > +            
->> kick_vcpu[kicked++] = vcpu;
+>> +            kick_mask |= ioint_mask; > + kick_vcpu[kicked++] = vcpu;
 >> +        }
 >> +    }
 >> +
@@ -94,7 +97,12 @@ On 03.01.19 15:43, Pierre Morel wrote:
 >> +
 >> +static void __floating_airqs_kick(struct kvm *kvm)
 > static inline ?
-> 
+
+
+and here as well
+
+
+>
 >> +{
 >> +    struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
 >> +    int online_vcpus, kicked;
@@ -102,21 +110,13 @@ On 03.01.19 15:43, Pierre Morel wrote:
 >> +
 >> +    /* Get IPM and return if clean, IAM has been restored. */
 >> +    ipm = get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM);
-> 
+>
 > If we do not get an IPM here, it must have been stolen by the firmware 
 > for delivery to the guest.
-
-Yes, a running SIE instance took it before we were able to. But is
-it still running now? It could have gone to WAIT before we see
-that the IPM is clean. Then it was restored already. Otherwise,
-it is still running and will go WAIT and then restore the IAM.
-
-I will do some tests on this.
-
 > Then why restoring the IAM?
-> 
+>
 > Or do I miss something?
-> 
+>
 >> +    if (!ipm)
 >> +        return;
 >> +retry:
@@ -162,12 +162,12 @@ I will do some tests on this.
 >> +     * and IPM is dirty.
 >> +     */
 >> +    set_iam(kvm->arch.gisa, kvm->arch.iam);
-> 
+>
 > I do not understand why we need to set IAM here.
 > The interrupt will be delivered by the firmware as soon as the PSW or 
 > CR6 is changed by any vCPU.
 > ...and if this does not happen we can not deliver the interrupt anyway.
-> 
+>
 >> +}
 >> +
 >> +#define NULL_GISA_ADDR 0x00000000UL
@@ -204,37 +204,27 @@ I will do some tests on this.
 >> +            next_alert = gisa->next_alert;
 >> +            /* Unlink the GISA from the alert list. */
 >> +            gisa->next_alert = origin;
-> 
+>
 > AFAIU this enable GISA interrupt for the guest...
-
-Only together with the IAM being set what could happen if
-__floating_airqs_kick() calls get_ipm and the IPM is clean already. :(
-
-> 
+>
 >> +            kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
 >> +            /* Kick suitable vcpus */
 >> +            __floating_airqs_kick(kvm);
-> 
+>
 > ...and here we kick a VCPU for the guest.
-> 
+>
 > Logically I would do it in the otherway, first kicking the vCPU then 
 > enabling the GISA interruption again.
-> 
+>
 > If the IPM bit is cleared by the firmware during delivering the 
 > interrupt to the guest before we enter get_ipm() called by 
 > __floating_airqs_kick() we will set the IAM despite we have a running 
 > CPU handling the IRQ.
-
-I will move the unlink below the kick that will assure get_ipm will 
-never take the IAM restore path.
-
-> In the worst case we can also set the IAM with the GISA in the alert list.
+> In the worst case we can also set the IAM with the GISA in the alert 
+> list.
 > Or we must accept that the firmware can deliver the IPM as soon as we 
 > reset the GISA next field.
-
-See statement above.
-
-> 
+>
 >> +            origin = next_alert;
 >> +        }
 >> +    } while (!final);
@@ -244,12 +234,21 @@ See statement above.
 >>   {
 >>       memset(gisa, 0, sizeof(struct kvm_s390_gisa));
 >>
-> 
+>
 > I think that avoiding to restore the IAM during the call to get_ipm 
 > inside __floating_airqs_kick() would good.
-> 
+>
 > If you agree, with that:
-> 
+>
 > Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
-> 
-> 
+>
+>
+-- 
+Mit freundlichen Grüßen / Kind regards
+Michael Müller
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Matthias Hartmann
+Geschäftsführung: Dirk Wittkopp
+Sitz der Gesellschaft: Böblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
