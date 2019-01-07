@@ -1,62 +1,137 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v5 08/15] KVM: s390: add the GIB and its related life-cyle
- functions
-Date: Mon, 7 Jan 2019 17:25:05 +0100
-Message-ID: <1ef84b5f-179a-21e2-6ac2-b49f4c3ae5c3@linux.ibm.com>
+Subject: Re: [PATCH v5 10/15] KVM: s390: add functions to (un)register GISC
+ with GISA
+Date: Mon, 7 Jan 2019 18:38:02 +0100
+Message-ID: <b001fc9b-c174-644f-a9fa-e60ff5b4aa58@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
- <20181219191756.57973-9-mimu@linux.ibm.com>
- <c244a27a-2d54-0b22-7df4-71f584aed6c0@linux.ibm.com>
+ <20181219191756.57973-11-mimu@linux.ibm.com>
+ <bd1a6082-cb73-5ef7-f2b6-8cbd7d8c7136@linux.ibm.com>
+ <20190104141836.0ca98a77.cohuck@redhat.com>
 Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c244a27a-2d54-0b22-7df4-71f584aed6c0@linux.ibm.com>
+In-Reply-To: <20190104141836.0ca98a77.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: pmorel@linux.ibm.com, KVM Mailing List <kvm@vger.kernel.org>
-Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 03.01.19 10:49, Pierre Morel wrote:
-> On 19/12/2018 20:17, Michael Mueller wrote:
->> The Guest Information Block (GIB) links the GISA of all guests
->> that have adapter interrupts pending. These interrupts cannot be
->> delivered because no vcpu of these guests is currently running in
->> SIE context. Instead, a GIB alert is issued on the host to schedule
->> these guests to run.
+On 04.01.19 14:19, Cornelia Huck wrote:
+> On Wed, 2 Jan 2019 18:29:00 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
-> IMHO "Instead" is not exact.
-> The GIB alert is always issued on adapter interrupt if IAM is set even 
-> if the guest is running in SIE context.
+>> On 19/12/2018 20:17, Michael Mueller wrote:
+>>> Add the IAM (Interruption Alert Mask) to the architecture specific
+>>> kvm struct. This mask in the GISA is used to define for which ISC
+>>> a GIB alert can be issued.
+>>>
+>>> The functions kvm_s390_gisc_register() and kvm_s390_gisc_unregister()
+>>> are used to (un)register a GISC (guest ISC) with a virtual machine and
+>>> its GISA.
+>>>
+>>> Upon successful completion, kvm_s390_gisc_register() returns the
+>>> ISC to be used for GIB alert interruptions. A negative return code
+>>> indicates an error during registration.
+>>>
+>>> Theses functions will be used by other adapter types like AP and PCI to
+>>> request pass-through interruption support.
+>>>
+>>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+>>> ---
+>>>    arch/s390/include/asm/kvm_host.h |  9 ++++++
+>>>    arch/s390/kvm/interrupt.c        | 66 ++++++++++++++++++++++++++++++++++++++++
+>>>    2 files changed, 75 insertions(+)
+>>>
 > 
-> I would prefer to rephrase to something like:
-> "If enabled, a GIB alert is issued on the host..." ?
+>>> +int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc)
+>>> +{
+>>> +	if (!kvm->arch.gib_in_use)
+>>> +		return -ENODEV;
+>>> +	if (gisc > MAX_ISC)
+>>> +		return -ERANGE;
+>>> +
+>>> +	spin_lock(&kvm->arch.iam_ref_lock);
+>>> +	if (kvm->arch.iam_ref_count[gisc] == 0)
+>>> +		kvm->arch.iam |= 0x80 >> gisc;
+>>> +	kvm->arch.iam_ref_count[gisc]++;
+>>> +	if (kvm->arch.iam_ref_count[gisc] == 1)
+>>> +		set_iam(kvm->arch.gisa, kvm->arch.iam);
+>>
+>> testing the set_iam return value?
+>> Even it should be fine if the caller works correctly, this is done
+>> before GISA is ever used.
 
-I agree.
+There is a rc but a check here is not required.
+
+There are three cases:
+
+a) This is the first ISC that gets registered, then the GISA is
+    not in use and IAM is set in the GISA.
+
+b) A second ISC gets registered and the GISA is *not* in the
+    alert list. Then the IAM is set here as well.
+
+c) A second ISC gets registered and the GISA is in the
+    alert list. Then the IAM is intentionally not set here
+    by set_iam(). It will be restored by get_ipm() with
+    the new IAM value by the gib alert processing code.
+
 
 > 
+> My feeling is that checking the return code is a good idea, even if it
+> Should Never Fail(tm).
 > 
-> Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
+>>
+>>> +	spin_unlock(&kvm->arch.iam_ref_lock);
+>>> +
+>>> +	return gib->nisc;
+>>> +}
+>>> +EXPORT_SYMBOL_GPL(kvm_s390_gisc_register);
+>>> +
+>>> +int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
+>>> +{
+>>> +	int rc = 0;
+>>> +
+>>> +	if (!kvm->arch.gib_in_use)
+>>> +		return -ENODEV;
+>>> +	if (gisc > MAX_ISC)
+>>> +		return -ERANGE;
+>>> +
+>>> +	spin_lock(&kvm->arch.iam_ref_lock);
+>>> +	if (kvm->arch.iam_ref_count[gisc] == 0) {
+>>> +		rc = -EINVAL;
+>>> +		goto out;
+>>> +	}
+>>> +	kvm->arch.iam_ref_count[gisc]--;
+>>> +	if (kvm->arch.iam_ref_count[gisc] == 0) {
+>>> +		kvm->arch.iam &= ~(0x80 >> gisc);
+>>> +		set_iam(kvm->arch.gisa, kvm->arch.iam);
 > 
+> Any chance of this function failing here? If yes, would there be any
+> implications?
+
+It is the same here.
+
 > 
+>>> +	}
+>>> +out:
+>>> +	spin_unlock(&kvm->arch.iam_ref_lock);
+>>> +
+>>> +	return rc;
+>>> +}
+>>> +EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
+>>> +
+>>>    void kvm_s390_gib_destroy(void)
+>>>    {
+>>>    	if (!gib)
+>>>    
 >>
->> This mechanism allows to process adapter interrupts for currently
->> not running guests.
 >>
->> The GIB is created during host initialization and associated with
->> the Adapter Interruption Facility in case an Adapter Interruption
->> Virtualization Facility is available.
->>
->> The GIB initialization and thus the activation of the related code
->> will be done in an upcoming patch of this series.
->>
->> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
->> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->>   arch/s390/include/asm/kvm_host.h | 10 +++++++++
+> 
