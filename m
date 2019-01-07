@@ -1,63 +1,60 @@
 Return-Path: <SRS0=PvM2=PP=vger.kernel.org=linux-kernel-owner@kernel.org>
-MIME-Version: 1.0
-References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
- <20180719205545.16512-24-pasha.tatashin@oracle.com> <20181106054212.GA31768@nautica>
- <95c3920e-bf80-0c7e-7854-01a1c3189c23@oracle.com> <20190102202032.GA1034@eldamar.local>
- <CA+CK2bC70pnL0Wimb0xt99J4nNfi8W3zuUHgAk-jsPuOP9jpHA@mail.gmail.com> <20190103234339.GA17457@nautica>
-In-Reply-To: <20190103234339.GA17457@nautica>
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
-Date: Mon, 7 Jan 2019 13:17:16 -0500
-Message-ID: <CA+CK2bDj1f=VpT+k-e8kSSaoLJ3W9-JPPq9udFdDwd6ijXi28g@mail.gmail.com>
+Date: Tue, 8 Jan 2019 00:48:39 +0100
+From: Dominique Martinet <asmadeus@codewreck.org>
 Subject: Re: [PATCH v15 23/26] sched: early boot clock
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20190107234839.GA15269@nautica>
+References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
+ <20180719205545.16512-24-pasha.tatashin@oracle.com>
+ <20181106054212.GA31768@nautica>
+ <95c3920e-bf80-0c7e-7854-01a1c3189c23@oracle.com>
+ <20190102202032.GA1034@eldamar.local>
+ <CA+CK2bC70pnL0Wimb0xt99J4nNfi8W3zuUHgAk-jsPuOP9jpHA@mail.gmail.com>
+ <20190103234339.GA17457@nautica>
+ <CA+CK2bDj1f=VpT+k-e8kSSaoLJ3W9-JPPq9udFdDwd6ijXi28g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CA+CK2bDj1f=VpT+k-e8kSSaoLJ3W9-JPPq9udFdDwd6ijXi28g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Dominique Martinet <asmadeus@codewreck.org>
+To: Pavel Tatashin <pasha.tatashin@soleen.com>
 Cc: Salvatore Bonaccorso <carnil@debian.org>, Steven Sistare <steven.sistare@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, Thomas Gleixner <tglx@linutronix.de>, hpa@zytor.com, douly.fnst@cn.fujitsu.com, Peter Zijlstra <peterz@infradead.org>, prarit@redhat.com, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jan 3, 2019 at 6:43 PM Dominique Martinet
-<asmadeus@codewreck.org> wrote:
->
-> Pavel Tatashin wrote on Thu, Jan 03, 2019:
-> > Could you please send the config file and qemu arguments that were
-> > used to reproduce this problem.
->
-> Running qemu by hand, nothing fancy e.g. this works:
->
-> # qemu-system-x86_64 -m 1G -smp 4 -drive file=/root/kvm-wrapper/disks/f2.img,if=virtio -serial mon:stdio --enable-kvm -cpu Haswell -device virtio-rng-pci -nographic
->
-> (used a specific cpu just in case but normally runnning with cpu host on
-> a skylake machine; can probably go older)
->
->
-> qemu is fedora 29 blend as is:
-> $ qemu-system-x86_64 --version
-> QEMU emulator version 3.0.0 (qemu-3.0.0-3.fc29)
-> Copyright (c) 2003-2017 Fabrice Bellard and the QEMU Project developers
->
->
-> compressed .config attached to the mail, this can likely be trimmed down
-> some as well but that takes more time for me..
-> I didn't rebuild the kernel so not 100% sure (comes from
-> /proc/config.gz) but it should work on a 4.20-rc2 kernel as written in
-> the first few lines; 857baa87b64 I referred to in another mail was
-> merged in 4.19-rc1 so anything past that is probably OK to reproduce...
->
->
-> Re-checked today with these exact options (fresh VM start; then suspend
-> laptop for a bit, then reboot VM):
-> [    0.000000] Hypervisor detected: KVM
-> [    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
-> [ 2477.907447] kvm-clock: cpu 0, msr 153a4001, primary cpu clock
-> [ 2477.907448] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
-> [ 2477.907450] tsc: Detected 2592.000 MHz processor
+Pavel Tatashin wrote on Mon, Jan 07, 2019:
+> I could not reproduce the problem. Did you suspend to memory between
+> wake ups? Does this time jump happen every time, even if your laptop
+> sleeps for a minute?
 
-I could not reproduce the problem. Did you suspend to memory between
-wake ups? Does this time jump happen every time, even if your laptop
-sleeps for a minute?
+I'm not sure I understand "suspend to memory between the wake ups".
+The full sequence is:
+ - start a VM (just in case, I let it boot till the end)
+ - suspend to memory (aka systemctl suspend) the host
+ - after resuming the host, soft reboot the VM (login through
+serial/ssh/whatever and reboot or in the qemu console 'system_reset')
 
-I have tried with qemu 2.6 and 3.1 on Ubuntu, testing 4.20rc2.
+I've just slept exactly one minute and reproduced again with the fedora
+stock kernel now (4.19.13-300.fc29.x86_64) in the VM.
 
-Pasha
+Interestingly I'm not getting the same offset between multiple reboots
+now despite not suspending again; but if I don't suspend I cannot seem
+to get it to give an offset at all (only tried for a few minutes; this
+might not be true) ; OTOH I pushed my luck further and even with a five
+seconds sleep I'm getting a noticeable offset on first VM reboot after
+resume:
+
+[    0.000000] Hypervisor detected: KVM
+[    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
+[  179.362163] kvm-clock: cpu 0, msr 13c01001, primary cpu clock
+[  179.362163] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+
+Honestly not sure what more information I could give, I'll try on some
+other hardware than my laptop (if I can get a server to resume after
+suspend through ipmi or wake on lan); but I don't have anything I could
+install ubuntu on to try their qemu's version... although I really don't
+want to believe that's the difference...
+
+Thanks,
+-- 
+Dominique
